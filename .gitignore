@@ -1,0 +1,28 @@
+# Compiled source #
+###################
+*.xfasl
+*.64xfasl
+*.ofasl
+*.nfasl
+*.ufasl
+
+*.lisp~
+*.lisp#
+*.or~
+*~
+
+*.omp~
+
+"OM 7.0.app/"
+*.zip
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
