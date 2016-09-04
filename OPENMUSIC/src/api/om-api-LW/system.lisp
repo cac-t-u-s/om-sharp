@@ -1,0 +1,158 @@
+;=========================================================================
+; OM API 
+; Multiplatform API for OpenMusic
+; LispWorks Implementation
+;
+;  Copyright (C) 2007-2013 IRCAM-Centre Georges Pompidou, Paris, France.
+; 
+;    This file is part of the OpenMusic environment sources
+;
+;    OpenMusic is free software: you can redistribute it and/or modify
+;    it under the terms of the GNU General Public License as published by
+;    the Free Software Foundation, either version 3 of the License, or
+;    (at your option) any later version.
+;
+;    OpenMusic is distributed in the hope that it will be useful,
+;    but WITHOUT ANY WARRANTY; without even the implied warranty of
+;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;    GNU General Public License for more details.
+;
+;    You should have received a copy of the GNU General Public License
+;    along with OpenMusic.  If not, see <http://www.gnu.org/licenses/>.
+;
+; Authors: Carlos Agon, Jean Bresson
+;=========================================================================
+
+;;===========================================================================
+;DocFile
+; GENERAL SYSTEM UTILITIES
+;DocFile
+;;===========================================================================
+
+(in-package :om-api)
+
+;;;===================
+;;; export :
+;;;===================
+(export '(
+          om-quit
+          om-standalone-p
+          om-gc
+          om-get-user-name
+          om-get-date
+          om-error-handle-funcall om-with-error-handle om-trap-errors om-with-redefinitions om-ignore&print-error
+          om-set-clipboard om-get-clipboard       
+          om-external-app om-default-application-path
+          ) :om-api)
+
+
+(defparameter *lw-version* 
+  (read-from-string (subseq (lisp-implementation-version) 0 1)))
+
+(defun om-standalone-p ()
+  (if (member :om-deliver *features*) t nil))
+
+(defun om-quit ()
+  (when t ; (member :om-deliver *features*)
+    (quit :confirm nil :ignore-errors-p t)))
+
+(defun om-get-user-name ()
+  (system::get-user-name))
+
+(defun om-get-date ()
+  (sys::date-string))
+
+;;;====================
+;;; MEMORY
+;;;====================
+
+(setf system::*stack-overflow-behaviour* :warn)
+;(hcl::current-stack-length)
+;(hcl:extend-current-stack 50)
+
+(defun om-gc () 
+  (system::gc-all))
+
+;;;====================
+;;; ERROR MANAGEMENT
+;;;====================
+
+(defun om-error-handle-funcall (func)
+  (handler-bind 
+      ((error #'(lambda (err)
+                  (capi::display-message "An error of type ~a occurred: ~%\"~a\"" (type-of err) (format nil "~A" err))
+                  (abort err))))
+    (funcall func)))
+
+(defmacro om-with-error-handle (&body body)
+  `(if (om-standalone-p)
+      (handler-bind 
+           ((error #'(lambda (err)
+                       (capi::display-message "An error of type ~a occurred: ~%\"~a\"" (type-of err) (format nil "~A" err))
+                       (abort err))))
+         ,@body)
+    (progn ,@body)))
+
+(defmacro om-with-redefinitions (&body body)
+  `(let ((lispworks::*HANDLE-WARN-ON-REDEFINITION* nil)) ,@body))
+
+(defmacro om-ignore&print-error (&rest body)
+  `(multiple-value-bind (a b) 
+       (ignore-errors
+         ,@body)
+     (if b (print (format nil "Error: ~A" b)))
+     a))
+
+(defun om-error-handler (&rest l)
+  (let ((err (car l))
+        (backtrace (with-output-to-string (stream)
+                    (dbg:output-backtrace t stream))))
+   ;(print (car l)) (terpri) (print backtrace)
+   (capi::display-message "ERROR: ~A~%" err)
+   (setf om-lisp::*error-backtrace* (print (format nil "ERROR: ~A~%~%~A" err backtrace)))
+   (abort)))
+
+(defun om-trap-error-handler (condition)
+   (format *error-output* "~&~A~&" condition)
+   (throw 'trap-errors nil))
+
+(defmacro om-trap-errors (&rest forms)
+   `(catch 'trap-errors
+      (handler-bind ((error #'om-trap-error-handler))
+        ,@forms)))
+
+(defun set-om-debugger ()
+  ; (when (member :om-deliver *features*)
+  (setq *debugger-hook* 'om-error-handler)
+  )
+
+(define-action "When starting image" "Init debug/backtrace tool" 'set-om-debugger)
+
+
+;;;====================
+;;; CLIPBOARD
+;;;====================
+(defun om-set-clipboard (value)
+  (capi::set-clipboard (om-front-window) value))
+
+(defun om-get-clipboard ()
+  (capi::clipboard (om-front-window)))
+
+
+;;;====================================
+;;;  ACCES TO EXTERNAL PROGRAMS:
+;;;====================================
+(defun om-external-app (folders appname)
+  (make-pathname :directory (append (list :ABSOLUTE "Applications") folders)
+                 :name appname))
+
+(defun om-default-application-path (folders appname)
+  #-linux  (make-pathname :directory (append (list :ABSOLUTE "Applications") folders 
+					     (when appname (list (concatenate 'string appname ".app")))))
+  #+linux (user-homedir-pathname)
+  )
+
+
+
+
+

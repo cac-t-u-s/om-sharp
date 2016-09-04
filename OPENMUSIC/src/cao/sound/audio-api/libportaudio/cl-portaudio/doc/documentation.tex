@@ -1,0 +1,2844 @@
+
+    \documentclass[a4paper]{report}
+    \pagestyle{plain}
+    %\usepackage{amsmath}
+    %\usepackage{amssymb}
+    %\usepackage{amsthm}
+    %\usepackage{fancyvrb}
+    \usepackage[usenames]{color}
+    \usepackage[linkcolor=black,citecolor=black]{hyperref}
+    \usepackage{makeidx}
+    \makeindex
+
+    \setlength{\parindent}{0cm}
+    \addtolength{\parskip}{0.5em}
+    %\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+    \begin{document}
+    \input{defun.tex}
+
+    \title{CL-PortAudio}
+    %\date{}
+    \maketitle
+
+    \tableofcontents
+    \newpage
+
+    
+    \chapter{The portaudio package}
+    This package contains bindings to \href{http://portaudio.com/}{PortAudio}. PortAudio is a free, cross-platform, open-source, audio I/O library.
+
+
+Binary PortAudio packages can be founded here: \href{}{http://planet.plt-scheme.org/display.ss?package=portaudio.plt$\&$owner=clements} -> source browse -> directories lib
+
+
+
+\section{Installation and Usage} \label{d0d0e0e0e0e0}\begin{verbatim}
+git clone --depth 1 https://github.com/filonenko-mikhail/cl-portaudio.git
+emacs
+M+x slime
+  (ql:quickload :cl-portaudio)
+  (ql:quickload :cl-portaudio-tests)
+  (portaudio-tests:test-read-write-echo)\end{verbatim}\section{Example} \label{d0d0e0e0e0e1}
+      In this section:
+      \begin{itemize}
+      
+	\item
+	\hyperref[portaudio__fun__with-audio]{with-audio}
+	    
+	\item
+	\hyperref[portaudio__fun__with-default-audio-stream]{with-default-audio-stream}
+	    
+	\item
+	\hyperref[portaudio__fun__read-stream]{read-stream}
+	    
+	\item
+	\hyperref[portaudio__fun__separate-array-to-channels]{separate-array-to-channels}
+	    
+	\item
+	\hyperref[portaudio__fun__merge-channels-into-array]{merge-channels-into-array}
+	    
+	\item
+	\hyperref[portaudio__fun__write-stream]{write-stream}
+	    
+      \end{itemize}
+    \begin{verbatim}
+ (use-package :portaudio)
+ (defconstant +frames-per-buffer+ 1024)
+ (defconstant +sample-rate+ 44100d0)
+ (defconstant +seconds+ 15)
+ (defconstant +sample-format+ :float)
+ (defconstant +num-channels+ 2)
+ (defun test-read-write-converted-echo ()
+  "Record input into an array; Separate array to channels; Merge channels into array; Play last array." 
+  (with-audio
+    (format t "~%=== Wire on. Will run ~D seconds . ===~%" +seconds+) 
+    (with-default-audio-stream (astream +num-channels+ +num-channels+ :sample-format +sample-format+ :sample-rate +sample-rate+ :frames-per-buffer +frames-per-buffer+) 
+      (dotimes (i (round (/ (* +seconds+ +sample-rate+) +frames-per-buffer+)))
+         (write-stream astream
+                                    (merge-channels-into-array astream
+                                                               (separate-array-to-channels astream
+                                                                                           (read-stream astream))))))))\end{verbatim}
+
+
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__with-audio}
+    \begin{defun}[Macro]
+    with-audio $\&$body body
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Execute body in PortAudio initialize/terminate environment.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__with-default-audio-stream}
+    \begin{defun}[Macro]
+    with-default-audio-stream (var num-input num-output $\&$key (sample-format float) (sample-rate 44100.0d0)
+ (frames-per-buffer 1024)) $\&$body body
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Execute body with opened and started stream VAR and shut down   the stream after it is done. It is required use these macro in with-audio or initialize/terminate environment.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__read-stream}
+    \begin{defun}[Function]
+    read-stream pa-stream
+
+
+    
+    \bigskip
+    \textsc{Arguments}
+
+pa-stream
+	--- A object of stream previously created with \hyperref[portaudio__fun__open-stream]{\texttt{open-stream}}
+  .
+
+
+
+
+    
+    \bigskip
+    \textsc{Return Values}
+
+
+On success array of data will be returned, or :input-overflowed if input data was discarded by PortAudio after the previous call and before this call. 
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Read samples from an input stream. The function doesn't return until the entire buffer has been filled - this may involve waiting for the operating system to supply the data. Size of returned array equal to \texttt{(* frames-per-buffer channel-count)}.
+
+
+
+
+
+
+      
+    \bigskip
+    \textsc{See also}
+
+
+	
+    \begin{itemize}
+    
+	  
+    \item
+    \hyperref[portaudio__fun__open-stream]{open-stream}
+    
+	
+    \end{itemize}
+  
+      
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__separate-array-to-channels}
+    \begin{defun}[Function]
+    separate-array-to-channels pa-stream array
+
+
+    
+    \bigskip
+    \textsc{Arguments}
+
+pa-stream
+	--- A object of stream previously created with \hyperref[portaudio__fun__open-stream]{\texttt{open-stream}}
+  .
+
+array
+	--- Flat array, that is received from \hyperref[portaudio__fun__read-stream]{\texttt{read-stream}}
+  .
+
+
+
+
+    
+    \bigskip
+    \textsc{Return Values}
+
+
+ (channelcount)-dimensional array of single-floats
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Separate flat array
+
+
+
+
+
+
+      
+    \bigskip
+    \textsc{See also}
+
+
+	
+    \begin{itemize}
+    
+	  
+    \item
+    \hyperref[portaudio__fun__open-stream]{open-stream}
+    
+    \item
+    \hyperref[portaudio__fun__read-stream]{read-stream}
+    
+	
+    \end{itemize}
+  
+      
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__merge-channels-into-array}
+    \begin{defun}[Function]
+    merge-channels-into-array pa-stream channels
+
+
+    
+    \bigskip
+    \textsc{Arguments}
+
+pa-stream
+	--- A object of stream previously created with \hyperref[portaudio__fun__open-stream]{\texttt{open-stream}}
+  .
+
+channels
+	--- Vector of vectors of floats, that contains data for all sound channels.
+
+
+
+
+    
+    \bigskip
+    \textsc{Return Values}
+
+Vector of data, that can be used with \hyperref[portaudio__fun__write-stream]{\texttt{write-stream}}
+  .
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Merge subarrays of (channelcount)-dimensional array to flat array.
+
+
+
+
+
+
+      
+    \bigskip
+    \textsc{See also}
+
+
+	
+    \begin{itemize}
+    
+	  
+    \item
+    \hyperref[portaudio__fun__open-stream]{open-stream}
+    
+    \item
+    \hyperref[portaudio__fun__write-stream]{write-stream}
+    
+	
+    \end{itemize}
+  
+      
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__write-stream}
+    \begin{defun}[Function]
+    write-stream pa-stream buffer
+
+
+    
+    \bigskip
+    \textsc{Arguments}
+
+pa-stream
+	--- A object of stream previously created with \hyperref[portaudio__fun__open-stream]{\texttt{open-stream}}
+  .
+
+buffer
+	--- A array of sample frames. The buffer contains samples in the format specified by the \texttt{(stream-parameters-sample-format output-parameters)} field used to open the stream, and the number of channels specified by \texttt{(stream-parameters-num-channels output-parameters)}.
+
+
+
+
+    
+    \bigskip
+    \textsc{Return Values}
+
+
+On success NIL will be returned, or :output-underflowed if additional output data was inserted after the previous call and before this call. 
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Write samples to an output stream. This function doesn't return until the entire buffer has been consumed - this may involve waiting for the operating system to consume the data. Size of buffer should be equal to \texttt{(* frames-per-buffer channel-count)}.
+
+
+
+
+
+
+      
+    \bigskip
+    \textsc{See also}
+
+
+	
+    \begin{itemize}
+    
+	  
+    \item
+    \hyperref[portaudio__fun__open-stream]{open-stream}
+    
+	
+    \end{itemize}
+  
+      
+
+
+    
+    \end{defun}
+  
+  
+
+\textbf{Note}
+ignore-errors is used for ignoring output-underflowed error.
+
+\section{Introduction} \label{d0d0e0e0e0e2}
+PortAudio provides a uniform application programming interface (API) across all supported platforms. You can think of the PortAudio library as a wrapper that converts calls to the PortAudio API into calls to platform-specific native audio APIs. Operating systems often offer more than one native audio API and some APIs (such as JACK) may be available on multiple target operating systems. PortAudio supports all the major native audio APIs on each supported platform. The diagram below illustrates the relationship between your application, PortAudio, and the supported native audio APIs:
+
+\href{./img/portaudio-external-architecture-diagram.png}{Image}
+
+
+PortAudio provides a uniform interface to native audio APIs. However, it doesn't always provide totally uniform functionality. There are cases where PortAudio is limited by the capabilities of the underlying native audio API. For example, PortAudio doesn't provide sample rate conversion if you request a sample rate that is not supported by the native audio API. Another example is that the ASIO SDK only allows one device to be open at a time, so PortAudio/ASIO doesn't currently support opening multiple ASIO devices simultaneously.\section{Key abstractions: Host APIs, Devices and Streams} \label{d0d0e0e0e0e3}
+The PortAudio processing model includes three main abstractions: Host APIs, audio Devices and audio Streams.
+
+
+Host APIs represent platform-specific native audio APIs. Some examples of Host APIs are Core Audio on Mac OS, WMME and DirectSound on Windows and OSS and ALSA on Linux. The diagram in the previous section shows many of the supported native APIs. Sometimes it's useful to know which Host APIs you're dealing with, but it is easy to use PortAudio without ever interacting directly with the Host API abstraction.
+
+
+Devices represent individual hardware audio interfaces or audio ports on the host platform. Devices have names and certain capabilities such as supported sample rates and the number of supported input and output channels. PortAudio provides functions to enumerate available Devices and to query for Device capabilities.
+
+
+Streams manage active audio input and output from and to Devices. Streams may be half duplex (input or output) or full duplex (simultaneous input and output). Streams operate at a specific sample rate with particular sample formats, buffer sizes and internal buffering latencies. You specify these parameters when you open the Stream. Audio data is communicated between a Stream and your application via a user provided asynchronous callback function or by invoking synchronous read and write functions.
+
+
+PortAudio supports audio input and output in a variety of sample formats: 8, 16, 24 and 32 bit integer formats and 32 bit floating point, irrespective of the formats supported by the native audio API. PortAudio also supports multichannel buffers in both interleaved and non-interleaved (separate buffer per channel) formats and automatically performs conversion when necessary. If requested, PortAudio can clamp out-of range samples and/or dither to a native format.
+
+
+The PortAudio API offers the following functionality:
+    \begin{itemize}
+      
+    \item Initialize and terminate the library
+    \item Enumerate available Host APIs
+    \item Enumerate available Devices either globally, or within each Host API
+    \item Discover default or recommended Devices and Device settings
+    \item Discover Device capabilities such as supported audio data formats and sample rates
+    \item Create and control audio Streams to acquire audio from and output audio to Devices
+    \item Provide Stream timing information to support synchronising audio with other parts of your application
+    \item Retrieve version and error information.
+    \end{itemize}
+  
+These functions are described in more detail below.
+
+\section{Initialisation, termination and utility functions} \label{d0d0e0e0e0e4}The PortAudio library must be initialized before it can be used and terminated to clean up afterwards. You initialize PortAudio by calling \hyperref[portaudio__fun__initialize]{\texttt{initialize}}
+   and clean up by calling \hyperref[portaudio__fun__terminate]{\texttt{terminate}}
+  . There is \hyperref[portaudio__fun__with-audio]{\texttt{with-audio}}
+   macro that does environment.
+
+You can query PortAudio for version information using \hyperref[portaudio__fun__get-version]{\texttt{get-version}}
+   to get a numeric version number and \hyperref[portaudio__fun__get-version-text]{\texttt{get-version-text}}
+   to get a string.
+
+The size in bytes of the various sample formats represented by the sample-format enumeration can be obtained using \hyperref[portaudio__fun__get-sample-size]{\texttt{get-sample-size}}
+  .
+
+\hyperref[portaudio__fun__pa-sleep]{\texttt{pa-sleep}}
+   sleeps for a specified number of milliseconds. This isn't intended for use in production systems; it's provided only as a simple portable way to implement tests and examples where the main thread sleeps while audio is acquired or played by an asynchronous callback function.\section{Host APIs} \label{d0d0e0e0e0e5}
+A Host API acts as a top-level grouping for all of the Devices offered by a single native platform audio API. Each Host API has a unique type identifier, a name, zero or more Devices, and nominated default input and output Devices.
+
+Host APIs are usually referenced by index: an integer of type host-api-index that ranges between zero and \texttt{(- (\hyperref[portaudio__fun__get-host-api-count]{\texttt{get-host-api-count}}
+  ) 1)}. You can enumerate all available Host APIs by counting across this range.
+
+You can retrieve the index of the default Host API by calling \hyperref[portaudio__fun__get-default-host-api]{\texttt{get-default-host-api}}
+  .
+
+Information about a Host API, such as it's name and default devices, is stored in a \hyperref[portaudio__class__host-api-info]{\texttt{host-api-info}}
+   structure. You can retrieve a pointer to a particular Host API's \hyperref[portaudio__class__host-api-info]{\texttt{host-api-info}}
+   structure by calling \hyperref[portaudio__fun__get-host-api-info]{\texttt{get-host-api-info}}
+   with the Host API's index as a parameter.
+
+Most PortAudio functions reference Host APIs by \hyperref[portaudio__fun__host-api-index]{\texttt{host-api-index}}
+   indices. Each Host API also has a unique type identifier defined in the host-api-type-id enumeration. You can call \hyperref[portaudio__fun__host-api-type-id-to-host-api-index]{\texttt{host-api-type-id-to-host-api-index}}
+   to retrieve the current host-api-index for a particular host-api-type-id.\section{Devices} \label{d0d0e0e0e0e6}
+A Device represents an audio endpoint provided by a particular native audio API. This usually corresponds to a specific input or output port on a hardware audio interface, or to the interface as a whole. Each Host API operates independently, so a single physical audio port may be addressable via different Devices exposed by different Host APIs.
+
+A Device has a name, is associated with a Host API, and has a maximum number of supported input and output channels. PortAudio provides recommended default latency values and a default sample rate for each Device. To obtain more detailed information about device capabilities you can call \hyperref[portaudio__fun__is-format-supported]{\texttt{is-format-supported}}
+   to query whether it is possible to open a Stream using particular Devices, parameters and sample rate.
+
+Although each Device conceptually belongs to a specific Host API, most PortAudio functions and data structures refer to Devices using a global, Host API-independent index of type device-index – an integer of that ranges between zero and \texttt{(- (\hyperref[portaudio__fun__get-device-count]{\texttt{get-device-count}}
+  ) 1)}. The reasons for this are partly historical but it also makes it easy for applications to ignore the Host API abstraction and just work with Devices and Streams.
+
+If you want to enumerate Devices belonging to a particular Host API you can count between 0 and \texttt{(- (\hyperref[portaudio__fun__host-api-info-device-count]{\texttt{host-api-info-device-count}}
+  ) 1)}. You can convert this Host API-specific index value to a global device-index value by calling \hyperref[portaudio__fun__host-api-device-index-to-device-index]{\texttt{host-api-device-index-to-device-index}}
+  .
+
+Information about a Device is stored in a PaDeviceInfo structure. You can retrieve \hyperref[portaudio__class__device-info]{\texttt{device-info}}
+   structure by calling \hyperref[portaudio__fun__get-device-info]{\texttt{get-device-info}}
+   with the Device's index as a parameter.
+
+You can retrieve the indices of the global default input and output devices using \hyperref[portaudio__fun__get-default-input-device]{\texttt{get-default-input-device}}
+   and \hyperref[portaudio__fun__get-default-output-device]{\texttt{get-default-output-device}}
+  . Default Devices for each Host API are stored in the Host API's \hyperref[portaudio__class__host-api-info]{\texttt{host-api-info}}
+   structures.
+
+For an example of enumerating devices and printing information about their capabilities see the \hyperref[portaudio__fun__print-devices]{\texttt{print-devices}}
+   function.\section{Streams} \label{d0d0e0e0e0e7}
+A Stream represents an active flow of audio data between your application and one or more audio Devices. A Stream operates at a specific sample rate with specific sample formats and buffer sizes.\section{Opening and Closing Streams} \label{d0d0e0e0e0e8}You call \hyperref[portaudio__fun__open-stream]{\texttt{open-stream}}
+   to open a Stream, specifying the Device(s) to use, the number of input and output channels, sample formats, suggested latency values and flags that control dithering, clipping and overflow handling. You specify many of these parameters in two \hyperref[portaudio__class__stream-parameters]{\texttt{stream-parameters}}
+   structures, one for input and one for output.
+
+Devices may be full duplex (supporting simultaneous input and output) or half duplex (supporting input or output) – usually this reflects the structure of the underlying native audio API. When opening a Stream you can specify one full duplex Device for both input and output, or two different Devices for input and output. Some Host APIs only support full-duplex operation with a full-duplex device (e.g. ASIO) but most are able to aggregate two half duplex devices into a full duplex Stream. PortAudio requires that all devices specified in a call to \hyperref[portaudio__fun__open-stream]{\texttt{open-stream}}
+   belong to the same Host API.
+
+A successful call to \hyperref[portaudio__fun__open-stream]{\texttt{open-stream}}
+   creates a pointer to a \hyperref[portaudio__class__pa-stream]{\texttt{pa-stream}}
+   – an opaque handle representing the open Stream. All PortAudio API functions that operate on open Streams take a pointer to a \hyperref[portaudio__class__pa-stream]{\texttt{pa-stream}}
+   as their first parameter.
+
+PortAudio also provides \hyperref[portaudio__fun__open-default-stream]{\texttt{open-default-stream}}
+   – a simpler alternative to \hyperref[portaudio__fun__open-stream]{\texttt{open-stream}}
+   which you can use when you want to open the default audio Device(s) with default latency parameters.
+
+You call \hyperref[portaudio__fun__close-stream]{\texttt{close-stream}}
+   close a Stream when you've finished using it.
+
+There are two macros to simplify work with stream: \hyperref[portaudio__fun__with-audio-stream]{\texttt{with-audio-stream}}
+   and \hyperref[portaudio__fun__with-default-audio-stream]{\texttt{with-default-audio-stream}}
+  . These macros open and start stream at the beginning and stop and close stream at the end. Body is protected by unwind-protect.\section{Starting and Stopping Streams} \label{d0d0e0e0e0e9}Newly opened Streams are initially stopped. You call \hyperref[portaudio__fun__start-stream]{\texttt{start-stream}}
+   to start a Stream. You can stop a running Stream using \hyperref[portaudio__fun__stop-stream]{\texttt{stop-stream}}
+   or \hyperref[portaudio__fun__abort-stream]{\texttt{abort-stream}}
+   (the Stop function plays out all internally queued audio data, while Abort tries to stop as quickly as possible). An open Stream can be started and stopped multiple times. You can call \hyperref[portaudio__fun__is-stream-stopped]{\texttt{is-stream-stopped}}
+   to query whether a Stream is running or stopped.\section{The Read/Write I/O Method} \label{d0d0e0e0e0e10}
+PortAudio provides a synchronous read/write interface for acquiring and playing audio.
+
+To write audio data to a Stream call \hyperref[portaudio__fun__write-stream]{\texttt{write-stream}}
+   and to read data call \hyperref[portaudio__fun__read-stream]{\texttt{read-stream}}
+  . These functions will block if the internal buffers are full, making them safe to call in a tight loop. If you want to avoid blocking you can query the amount of available read or write space using \hyperref[portaudio__fun__get-stream-read-available]{\texttt{get-stream-read-available}}
+   or \hyperref[portaudio__fun__get-stream-write-available]{\texttt{get-stream-write-available}}
+  .
+
+For examples of the read/write I/O method see the following examples in the /t directory of the PortAudio distribution: tests.lisp (\hyperref[portaudio-tests__fun__test-read-write-converted-echo]{\texttt{portaudio-tests:test-read-write-converted-echo}}
+  ).\section{Retreiving Stream Information} \label{d0d0e0e0e0e11}You can retrieve information about an open Stream by calling \hyperref[portaudio__fun__get-stream-info]{\texttt{get-stream-info}}
+  . This returns a \hyperref[portaudio__class__stream-info]{\texttt{stream-info}}
+   structure containing the actual input and output latency and sample rate of the stream. It's possible for these values to be different from the suggested values passed to \hyperref[portaudio__fun__open-stream]{\texttt{open-stream}}
+  .\section{Error Handling} \label{d0d0e0e0e0e12}
+Most PortAudio functions invokes signal. Possible conditions are described in pa-error enum. Some functions return values greater than or equal to zero for normal results.
+
+PortAudio usually tries to translate error conditions into portable pa-error error codes. However if an unexpected error is encountered the unanticipated-host-error code may be returned. In this case a further mechanism is provided to query for Host API-specific error information. If PortAudio throws unanticipated-host-error you can call \hyperref[portaudio__fun__get-last-host-error-info]{\texttt{get-last-host-error-info}}
+   to retrieve a \hyperref[portaudio__class__host-error-info]{\texttt{host-error-info}}
+   structure that provides more information, including the Host API that encountered the error, a native API error code and error text.\section{Conditions} \label{d0d0e0e0e0e13}
+There are conditions, that are translated from PaError.
+    \begin{itemize}
+        
+    \item not-anticipated  
+    \item unanticipated-host-error  
+    \item invalid-channel-count  
+    \item invalid-sample-rate  
+    \item invalid-device  
+    \item invalid-flag  
+    \item sample-format-not-supported  
+    \item bad-i-o-device-combination  
+    \item insufficient-memory  
+    \item buffer-too-big  
+    \item buffer-too-small  
+    \item null-callback  
+    \item bad-stream-ptr  
+    \item timed-out  
+    \item internal-error  
+    \item device-unavailable  
+    \item incompatible-host-api-specific-stream-info  
+    \item stream-is-stopped  
+    \item stream-is-not-stopped  
+    \item input-overflowed  
+    \item output-underflowed  
+    \item host-api-not-found  
+    \item invalid-host-api  
+    \item can-not-read-from-a-callback-stream  
+    \item can-not-write-to-a-callback-stream  
+    \item can-not-read-from-an-output-only-stream  
+    \item can-not-write-to-an-input-only-stream  
+    \item incompatible-stream-host-api  
+    \item bad-buffer-ptr  
+    \end{itemize}
+  \section{Bitfields} \label{d0d0e0e0e0e14}  \textbf{sample-format}  
+    \begin{itemize}
+        
+    \item :float  
+    \end{itemize}
+    \textbf{stream-flags}  
+    \begin{itemize}
+        
+    \item :no-flag  
+    \item :clip-off  
+    \item :dither-off  
+    \end{itemize}
+  \section{Enums} \label{d0d0e0e0e0e15}  \textbf{host-api-type-id}  
+    \begin{itemize}
+        
+    \item :in-development  
+    \item :direct-sound  
+    \item :mme  
+    \item :asio  
+    \item :sound-manager  
+    \item :core-audio  
+    \item :oss  
+    \item :alsa  
+    \item :al  
+    \item :be-os  
+    \item :wdmks  
+    \item :jack  
+    \item :wasapi  
+    \item :audio-science-hpi  
+    \end{itemize}
+  
+      \section{Other functions}
+      
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__abort-stream}
+    \begin{defun}[Function]
+    abort-stream pa-stream
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Terminates audio processing immediately without waiting for pending buffers to complete.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__close-stream}
+    \begin{defun}[Function]
+    close-stream pa-stream
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Closes an audio stream. If the audio stream is active it discards any pending buffers as if \hyperref[portaudio__fun__abort-stream]{\texttt{abort-stream}}
+   had been called.
+
+
+      
+    \bigskip
+    \textsc{See also}
+
+
+	
+    \begin{itemize}
+    
+	  
+    \item
+    \hyperref[portaudio__fun__abort-stream]{abort-stream}
+    
+	
+    \end{itemize}
+  
+      
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__device-info-default-high-input-latency}
+    \begin{defun}[Function]
+    device-info-default-high-input-latency instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Default latency values for robust non-interactive applications (eg. playing sound files).
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__device-info-default-high-output-latency}
+    \begin{defun}[Function]
+    device-info-default-high-output-latency instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__device-info-default-low-input-latency}
+    \begin{defun}[Function]
+    device-info-default-low-input-latency instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Default latency values for interactive performance.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__device-info-default-low-output-latency}
+    \begin{defun}[Function]
+    device-info-default-low-output-latency instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__device-info-default-sample-rate}
+    \begin{defun}[Function]
+    device-info-default-sample-rate instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Sample rate
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__device-info-host-api}
+    \begin{defun}[Function]
+    device-info-host-api instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+note this is a host API index, not a type id.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__device-info-max-input-channels}
+    \begin{defun}[Function]
+    device-info-max-input-channels instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+maximum number of input channels
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__device-info-max-output-channels}
+    \begin{defun}[Function]
+    device-info-max-output-channels instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+maximum number of output channels
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__device-info-name}
+    \begin{defun}[Function]
+    device-info-name instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+device name
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__get-default-host-api}
+    \begin{defun}[Function]
+    get-default-host-api
+
+
+    
+    \bigskip
+    \textsc{Return Values}
+
+A non-negative value ranging from 0 to \texttt{(- (\hyperref[portaudio__fun__get-host-api-count]{\texttt{get-host-api-count}}
+  ) 1)} indicating the default host API index or, raises an error if PortAudio is not initialized or an error is encountered. 
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Retrieve the index of the default host API. The default host API will be the lowest common denominator host API on
+ the current platform and is unlikely to provide the best performance.
+
+
+
+
+      
+    \bigskip
+    \textsc{See also}
+
+
+	
+    \begin{itemize}
+    
+	  
+    \item
+    \hyperref[portaudio__fun__get-host-api-count]{get-host-api-count}
+    
+	
+    \end{itemize}
+  
+      
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__get-default-input-device}
+    \begin{defun}[Function]
+    get-default-input-device
+
+
+    
+    \bigskip
+    \textsc{Return Values}
+
+
+The default input device index for the default host API, or raise no-device if no default input device is available or an error was encountered. 
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Retrieve the index of the default input device. The result can be used in the inputDevice parameter to \hyperref[portaudio__fun__open-stream]{\texttt{open-stream}}
+  .
+
+
+      
+    \bigskip
+    \textsc{See also}
+
+
+	
+    \begin{itemize}
+    
+	  
+    \item
+    \hyperref[portaudio__fun__open-stream]{open-stream}
+    
+	
+    \end{itemize}
+  
+      
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__get-default-output-device}
+    \begin{defun}[Function]
+    get-default-output-device
+
+
+    
+    \bigskip
+    \textsc{Return Values}
+
+
+The default output device index for the default host API, or raise no-device if no default output device is available or an error was encountered.
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Retrieve the index of the default output device. The result can be used in the outputDevice parameter to \hyperref[portaudio__fun__open-stream]{\texttt{open-stream}}
+  .
+
+\textbf{Note}
+
+
+On the PC, the user can specify a default device by setting an environment variable. For example, to use device \#1.
+
+\begin{verbatim}set PA_RECOMMENDED_OUTPUT_DEVICE=1\end{verbatim}
+
+The user should first determine the available device ids by using \texttt{(\hyperref[portaudio__fun__print-devices]{\texttt{print-devices}}
+  )}. 
+
+
+
+
+      
+    \bigskip
+    \textsc{See also}
+
+
+	
+    \begin{itemize}
+    
+	  
+    \item
+    \hyperref[portaudio__fun__open-stream]{open-stream}
+    
+    \item
+    \hyperref[portaudio__fun__print-devices]{print-devices}
+    
+	
+    \end{itemize}
+  
+      
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__get-device-count}
+    \begin{defun}[Function]
+    get-device-count
+
+
+    
+    \bigskip
+    \textsc{Return Values}
+
+
+A non-negative value indicating the number of available devices or, raises an error if PortAudio is not initialized or an error is encountered. 
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Retrieve the number of available devices.The number of available devices may be zero.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__get-device-info}
+    \begin{defun}[Function]
+    get-device-info device
+
+
+    
+    \bigskip
+    \textsc{Arguments}
+
+device
+	--- A valid device index in the range 0 to \texttt{(- (\hyperref[portaudio__fun__get-device-count]{\texttt{get-device-count}}
+  ) 1)}
+
+
+
+
+    
+    \bigskip
+    \textsc{Return Values}
+
+A object of \hyperref[portaudio__class__device-info]{\texttt{device-info}}
+  . If the device parameter is out of range the function returns NIL.
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Retrieve \hyperref[portaudio__class__device-info]{\texttt{device-info}}
+   structure containing information about the specified device.
+
+
+
+
+
+
+      
+    \bigskip
+    \textsc{See also}
+
+
+	
+    \begin{itemize}
+    
+	  
+    \item
+    \hyperref[portaudio__class__device-info]{device-info}
+    
+    \item
+    \hyperref[portaudio__fun__get-device-count]{get-device-count}
+    
+	
+    \end{itemize}
+  
+      
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__get-host-api-count}
+    \begin{defun}[Function]
+    get-host-api-count
+
+
+    
+    \bigskip
+    \textsc{Return Values}
+
+
+A non-negative value indicating the number of available host APIs or, raises an error if PortAudio is not initialized or an error is encountered.
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Retrieve the number of available host APIs. Even if a host API is available it may have no devices available.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__get-host-api-info}
+    \begin{defun}[Function]
+    get-host-api-info host-api
+
+
+    
+    \bigskip
+    \textsc{Arguments}
+
+host-api
+	--- A valid host API index ranging from 0 to \texttt{(- (\hyperref[portaudio__fun__get-host-api-count]{\texttt{get-host-api-count}}
+  ) 1)}
+
+
+
+
+    
+    \bigskip
+    \textsc{Return Values}
+
+An object of \hyperref[portaudio__class__host-api-info]{\texttt{host-api-info}}
+   describing a specific host API. If the hostApi parameter is out of range or an error is encountered, the function returns NIL.
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Retrieve a pointer to a structure containing information about a specific host Api.
+
+
+
+
+
+
+      
+    \bigskip
+    \textsc{See also}
+
+
+	
+    \begin{itemize}
+    
+	  
+    \item
+    \hyperref[portaudio__fun__get-host-api-count]{get-host-api-count}
+    
+    \item
+    \hyperref[portaudio__class__host-api-info]{host-api-info}
+    
+	
+    \end{itemize}
+  
+      
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__get-sample-size}
+    \begin{defun}[Function]
+    get-sample-size format
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Retrieve the size of a given sample format in bytes.The size in bytes of a single sample in the specified format, or paSampleFormatNotSupported if the format is not supported.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__get-stream-info}
+    \begin{defun}[Function]
+    get-stream-info pa-stream
+
+
+    
+    \bigskip
+    \textsc{Arguments}
+
+pa-stream
+	--- A object of stream previously created with \hyperref[portaudio__fun__open-stream]{\texttt{open-stream}}
+  .
+
+
+
+
+    
+    \bigskip
+    \textsc{Return Values}
+
+A object of \hyperref[portaudio__class__stream-info]{\texttt{stream-info}}
+   structure. If the stream parameter invalid, or an error is encountered, the function returns NIL.
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Retrieve a object of class \hyperref[portaudio__class__stream-info]{\texttt{stream-info}}
+   containing information about the specified stream.
+
+
+
+
+
+
+      
+    \bigskip
+    \textsc{See also}
+
+
+	
+    \begin{itemize}
+    
+	  
+    \item
+    \hyperref[portaudio__class__stream-info]{stream-info}
+    
+    \item
+    \hyperref[portaudio__fun__open-stream]{open-stream}
+    
+	
+    \end{itemize}
+  
+      
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__get-stream-read-available}
+    \begin{defun}[Function]
+    get-stream-read-available pa-stream
+
+
+    
+    \bigskip
+    \textsc{Return Values}
+
+
+Returns a non-negative value representing the maximum number of frames that can be read from the stream without blocking or busy waiting or, raises an error if PortAudio is not initialized or an error is encountered.
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Retrieve the number of frames that can be read from the stream without waiting.
+
+
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__get-stream-time}
+    \begin{defun}[Function]
+    get-stream-time pa-stream
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Returns valid time values for the entire life of the stream, from when the stream is opened until it is closed. Starting and stopping the stream does not affect the passage of time returned by get-stream-time.
+
+
+This time may be used for synchronizing other events to the audio stream, for example synchronizing audio to MIDI.
+
+The stream's current time in seconds, or 0 if an error occurred.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__get-stream-write-available}
+    \begin{defun}[Function]
+    get-stream-write-available pa-stream
+
+
+    
+    \bigskip
+    \textsc{Return Values}
+
+
+A non-negative value representing the maximum number of frames that can be written to the stream without blocking or busy waiting or, raises an error if PortAudio is not initialized or an error is encountered. 
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Retrieve the number of frames that can be written to the stream without waiting.
+
+
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__get-version}
+    \begin{defun}[Function]
+    get-version
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Retrieve the release number of the currently running PortAudio build, eg 1900.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__get-version-text}
+    \begin{defun}[Function]
+    get-version-text
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Retrieve a textual description of the current PortAudio build,eg "PortAudio V19-devel 13 October 2002".
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__host-api-device-index-to-device-index}
+    \begin{defun}[Function]
+    host-api-device-index-to-device-index host-api host-api-device-index
+
+
+    
+    \bigskip
+    \textsc{Arguments}
+
+host-api
+	--- A valid host API index ranging from 0 to \texttt{(- (\hyperref[portaudio__fun__get-host-api-count]{\texttt{get-host-api-count}}
+  ) 1)}
+
+host-api-device-index
+	--- A valid per-host device index in the range 0 to \texttt{(- (\hyperref[portaudio__fun__host-api-info-device-count]{\texttt{host-api-info-device-count}}
+   (\hyperref[portaudio__fun__get-host-api-info]{\texttt{get-host-api-info}}
+   host-api)) 1)}
+
+
+
+
+    
+    \bigskip
+    \textsc{Return Values}
+
+A non-negative index ranging from 0 to \texttt{(- (\hyperref[portaudio__fun__get-device-count]{\texttt{get-device-count}}
+  ) 1)} or, raises an error if PortAudio is not initialized or an error is encountered.
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Convert a host-API-specific device index to standard PortAudio device index. This function may be used in conjunction with the deviceCount field of PaHostApiInfo to enumerate all devices for the specified host API.
+
+
+
+
+
+
+A invalid-host-api error indicates that the host API index specified by the hostApi parameter is out of range.
+
+
+A invalid-device error indicates that the host-api-device-index parameter is out of range.
+
+
+      
+    \bigskip
+    \textsc{See also}
+
+
+	
+    \begin{itemize}
+    
+	  
+    \item
+    \hyperref[portaudio__fun__get-host-api-count]{get-host-api-count}
+    
+    \item
+    \hyperref[portaudio__fun__host-api-info-device-count]{host-api-info-device-count}
+    
+    \item
+    \hyperref[portaudio__fun__get-host-api-info]{get-host-api-info}
+    
+    \item
+    \hyperref[portaudio__fun__get-device-count]{get-device-count}
+    
+	
+    \end{itemize}
+  
+      
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__host-api-info-default-input-device}
+    \begin{defun}[Function]
+    host-api-info-default-input-device instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+The default input device for this host API. The value will be a device index ranging from 0 to (- (get-device-count) 1), or no-device if no default input device is available.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__host-api-info-default-output-device}
+    \begin{defun}[Function]
+    host-api-info-default-output-device instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+The default output device for this host API. The value will be a device index ranging from 0 to (- (get-device-count) 1), or paNoDevice if no default output device is available.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__host-api-info-device-count}
+    \begin{defun}[Function]
+    host-api-info-device-count instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+The number of devices belonging to this host API. This field may be used in conjunction with host-api-device-index-to-device-index to enumerate all devices for this host API.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__host-api-info-name}
+    \begin{defun}[Function]
+    host-api-info-name instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+A textual description of the host API for display on user interfaces.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__host-api-info-type}
+    \begin{defun}[Function]
+    host-api-info-type instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+The well known unique identifier of this host API.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__host-api-type-id-to-host-api-index}
+    \begin{defun}[Function]
+    host-api-type-id-to-host-api-index type
+
+
+    
+    \bigskip
+    \textsc{Arguments}
+
+type
+	--- A unique host API identifier belonging to the PaHostApiTypeId enumeration.
+
+
+
+
+    
+    \bigskip
+    \textsc{Return Values}
+
+A valid host-api-idnex ranging from 0 to \texttt{(- (\hyperref[portaudio__fun__get-host-api-count]{\texttt{get-host-api-count}}
+  ) 1)} or, raises an error if PortAudio is not initialized or
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Convert a static host API unique identifier, into a runtime host API index.
+
+
+
+
+The host-api-not-found error indicates that the host API specified by the type parameter is not available.
+
+
+
+
+      
+    \bigskip
+    \textsc{See also}
+
+
+	
+    \begin{itemize}
+    
+	  
+    \item
+    \hyperref[portaudio__fun__get-host-api-count]{get-host-api-count}
+    
+	
+    \end{itemize}
+  
+      
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__host-error-info-error-code}
+    \begin{defun}[Function]
+    host-error-info-error-code instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+the error code returned
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__host-error-info-error-text}
+    \begin{defun}[Function]
+    host-error-info-error-text instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+a textual description of the error if available, otherwise a zero-length string
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__host-error-info-host-api-type}
+    \begin{defun}[Function]
+    host-error-info-host-api-type instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+the host API which returned the error code
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__initialize}
+    \begin{defun}[Function]
+    initialize
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Library initialization function - call this before using PortAudio. This function initializes internal data structures and prepares underlying host APIs for use. With the exception of \hyperref[portaudio__fun__get-version]{\texttt{get-version}}
+  , \hyperref[portaudio__fun__get-version-text]{\texttt{get-version-text}}
+  , and \hyperref[portaudio__fun__get-error-text]{\texttt{get-error-text}}
+  , this function MUST be called before using any other PortAudio API functions.
+
+If initialize is called multiple times, each successful call must be matched with a corresponding call to \hyperref[portaudio__fun__terminate]{\texttt{terminate}}
+  . Pairs of calls to initialize/\hyperref[portaudio__fun__terminate]{\texttt{terminate}}
+   may overlap, and are not required to be fully nested.
+
+Note that if initialize raises an error, \hyperref[portaudio__fun__terminate]{\texttt{terminate}}
+   should NOT be called.
+
+NIL if successful, otherwise raises an error indicating the cause of failure.
+
+
+      
+    \bigskip
+    \textsc{See also}
+
+
+	
+    \begin{itemize}
+    
+	  
+    \item
+    \hyperref[portaudio__fun__get-version]{get-version}
+    
+    \item
+    \hyperref[portaudio__fun__get-version-text]{get-version-text}
+    
+    \item
+    \hyperref[portaudio__fun__get-error-text]{get-error-text}
+    
+    \item
+    \hyperref[portaudio__fun__terminate]{terminate}
+    
+	
+    \end{itemize}
+  
+      
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__is-stream-active}
+    \begin{defun}[Function]
+    is-stream-active pa-stream
+
+
+    
+    \bigskip
+    \textsc{Return Values}
+
+
+Returns one (1) when the stream is active (ie playing or recording audio), zero (0) when not playing or, raises an error if PortAudio is not initialized or an error is encountered.
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Determine whether the stream is active. A stream is active after a successful call to \hyperref[portaudio__fun__start-stream]{\texttt{start-stream}}
+  , until it becomes inactive either as a result of a call to \hyperref[portaudio__fun__stop-stream]{\texttt{stop-stream}}
+   or \hyperref[portaudio__fun__abort-stream]{\texttt{abort-stream}}
+  . In the latter case, the stream is considered inactive after the last buffer has finished playing.
+
+
+
+
+      
+    \bigskip
+    \textsc{See also}
+
+
+	
+    \begin{itemize}
+    
+	  
+    \item
+    \hyperref[portaudio__fun__start-stream]{start-stream}
+    
+    \item
+    \hyperref[portaudio__fun__stop-stream]{stop-stream}
+    
+    \item
+    \hyperref[portaudio__fun__abort-stream]{abort-stream}
+    
+	
+    \end{itemize}
+  
+      
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__is-stream-stopped}
+    \begin{defun}[Function]
+    is-stream-stopped pa-stream
+
+
+    
+    \bigskip
+    \textsc{Return Values}
+
+
+Returns one (1) when the stream is stopped, zero (0) when the stream is running or, raises an error if PortAudio is not initialized or an error is encountered.
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Determine whether the stream is stopped. A stream is considered to be stopped prior to a successful call to \hyperref[portaudio__fun__start-stream]{\texttt{start-stream}}
+   and after a successful call to \hyperref[portaudio__fun__stop-stream]{\texttt{stop-stream}}
+   or \hyperref[portaudio__fun__abort-stream]{\texttt{abort-stream}}
+  .
+
+
+
+
+      
+    \bigskip
+    \textsc{See also}
+
+
+	
+    \begin{itemize}
+    
+	  
+    \item
+    \hyperref[portaudio__fun__start-stream]{start-stream}
+    
+    \item
+    \hyperref[portaudio__fun__stop-stream]{stop-stream}
+    
+    \item
+    \hyperref[portaudio__fun__abort-stream]{abort-stream}
+    
+	
+    \end{itemize}
+  
+      
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__make-stream-parameters}
+    \begin{defun}[Function]
+    make-stream-parameters
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Make stream-parameters object
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__open-default-stream}
+    \begin{defun}[Function]
+    open-default-stream num-input num-output sample-format sample-rate frames-per-buffer
+
+
+    
+    \bigskip
+    \textsc{Arguments}
+
+num-input-channels
+	--- The number of channels of sound that will be returned by \hyperref[portaudio__fun__read-stream]{\texttt{read-stream}}
+  . It can range from 1 to the value of max-input-channels in the \hyperref[portaudio__class__device-info]{\texttt{device-info}}
+   class for the default input device. If 0 the stream is opened as an output-only stream.
+
+num-output-channels
+	--- The number of channels of sound to be passed to \hyperref[portaudio__fun__write-stream]{\texttt{write-stream}}
+  . It can range from 1 to the value of max-output-channels in the \hyperref[portaudio__class__device-info]{\texttt{device-info}}
+   class for the default output device. If 0 the stream is opened as an output-only stream.
+
+sample-format
+	--- The sample format of both the input and output buffers passed to and from \hyperref[portaudio__fun__read-stream]{\texttt{read-stream}}
+   and \hyperref[portaudio__fun__write-stream]{\texttt{write-stream}}
+  . sample-format may be any of the formats described by the sample-format enumeration.
+
+sample-rate
+	--- Same as \hyperref[portaudio__fun__open-stream]{\texttt{open-stream}}
+   parameter of the same name.
+
+frames-per-buffer
+	--- Same as \hyperref[portaudio__fun__open-stream]{\texttt{open-stream}}
+   parameter of the same name.
+
+
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+A simplified version of \hyperref[portaudio__fun__open-stream]{\texttt{open-stream}}
+   that opens the default input and/or output devices.
+
+
+
+As for \hyperref[portaudio__fun__open-stream]{\texttt{open-stream}}
+  
+
+
+      
+    \bigskip
+    \textsc{See also}
+
+
+	
+    \begin{itemize}
+    
+	  
+    \item
+    \hyperref[portaudio__fun__open-stream]{open-stream}
+    
+    \item
+    \hyperref[portaudio__fun__read-stream]{read-stream}
+    
+    \item
+    \hyperref[portaudio__class__device-info]{device-info}
+    
+    \item
+    \hyperref[portaudio__fun__write-stream]{write-stream}
+    
+	
+    \end{itemize}
+  
+      
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__open-stream}
+    \begin{defun}[Function]
+    open-stream input-parameters output-parameters sample-rate frames-per-buffer stream-flags
+
+
+    
+    \bigskip
+    \textsc{Arguments}
+
+input-parameters
+	--- A structure that describes the input parameters used by the opened stream. See \hyperref[portaudio__class__stream-parameters]{\texttt{stream-parameters}}
+   for a description of these parameters. input-parameters must be NIL for output-only streams.
+
+output-parameters
+	--- A structure that describes the output parameters used by the opened stream. See \hyperref[portaudio__class__stream-parameters]{\texttt{stream-parameters}}
+   for a description of these parameters. output-parameters must be NIL for input-only streams.
+
+sample-rate
+	--- The desired sample-rate. For full-duplex streams it is the sample rate for both input and output
+
+frames-per-buffer
+	--- Preferred block granularity for a blocking read/write stream.
+
+stream-flags
+	--- List of flags which modify the behavior of the streaming process. Some flags may only be relevant to certain buffer formats.
+
+
+
+
+    
+    \bigskip
+    \textsc{Return Values}
+
+Upon success pen-stream returns object of \hyperref[portaudio__class__pa-stream]{\texttt{pa-stream}}
+   class. The stream is inactive (stopped). If a call to open-stream fails, an error code is raised and the value of stream is NIL.
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+
+Opens a stream for either input, output or both.
+
+
+
+
+
+
+      
+    \bigskip
+    \textsc{See also}
+
+
+	
+    \begin{itemize}
+    
+	  
+    \item
+    \hyperref[portaudio__class__stream-parameters]{stream-parameters}
+    
+    \item
+    \hyperref[portaudio__class__pa-stream]{pa-stream}
+    
+	
+    \end{itemize}
+  
+      
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__pa-sleep}
+    \begin{defun}[Function]
+    pa-sleep msec
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+
+Put the caller to sleep for at least 'msec' milliseconds. This function is provided only as a convenience for authors of portable code (such as the tests and examples in the PortAudio distribution.)
+
+
+The function may sleep longer than requested so don't rely on this for accurate musical timing.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__pa-stream-frames-per-buffer}
+    \begin{defun}[Function]
+    pa-stream-frames-per-buffer instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Frames per buffer for current stream
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__pa-stream-input-channels}
+    \begin{defun}[Function]
+    pa-stream-input-channels instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Number of input channels
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__pa-stream-input-sample-format}
+    \begin{defun}[Function]
+    pa-stream-input-sample-format instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+value of sample-format for input channel
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__pa-stream-output-channels}
+    \begin{defun}[Function]
+    pa-stream-output-channels instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Number of output channels
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__pa-stream-output-sample-format}
+    \begin{defun}[Function]
+    pa-stream-output-sample-format instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+value of sample-format for output channel
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__print-devices}
+    \begin{defun}[Function]
+    print-devices
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+List available sound devices, including device information.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__read-stream-into-array}
+    \begin{defun}[Function]
+    read-stream-into-array pa-stream array
+
+
+    
+    \bigskip
+    \textsc{Arguments}
+
+pa-stream
+	--- A object of stream previously created with \hyperref[portaudio__fun__open-stream]{\texttt{open-stream}}
+  .
+
+array
+	--- Simple array with has element-type equal to sample-format from \hyperref[portaudio__fun__open-stream]{\texttt{open-stream}}
+  . Size of array equal to \texttt{(* frames-per-buffer channel-count)}.
+
+
+
+
+    
+    \bigskip
+    \textsc{Return Values}
+
+
+On success NIL will be returned, or :input-overflowed if input data was discarded by PortAudio after the previous call and before this call. 
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Read samples from an input stream. The function doesn't return until the entire buffer has been filled - this may involve waiting for the operating system to supply the data. 
+
+
+
+
+
+
+      
+    \bigskip
+    \textsc{See also}
+
+
+	
+    \begin{itemize}
+    
+	  
+    \item
+    \hyperref[portaudio__fun__open-stream]{open-stream}
+    
+	
+    \end{itemize}
+  
+      
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__start-stream}
+    \begin{defun}[Function]
+    start-stream pa-stream
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Commences audio processing.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__stream-info-input-latency}
+    \begin{defun}[Function]
+    stream-info-input-latency instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+The input latency of the stream in seconds. This value provides the most accurate estimate of input latency available to the implementation. It may differ significantly from the suggestedLatency value passed to open-stream. The value of this field will be zero (0.) for output-only streams.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__stream-info-output-latency}
+    \begin{defun}[Function]
+    stream-info-output-latency instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+The output latency of the stream in seconds. This value provides the most accurate estimate of output latency available to the implementation. It may differ significantly from the suggestedLatency value passed to open-stream. The value of this field will be zero (0.) for input-only streams.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__stream-info-sample-rate}
+    \begin{defun}[Function]
+    stream-info-sample-rate instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+The sample rate of the stream in Hertz (samples per second). In cases where the hardware sample rate is inaccurate and PortAudio is aware of it, the value of this field may be different from the sample-rate parameter passed to open-stream. If information about the actual hardware sample rate is not available, this field will have the same value as the sample-rate parameter passed to open-stream.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__stream-parameters-channel-count}
+    \begin{defun}[Function]
+    stream-parameters-channel-count instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+The number of channels of sound to be delivered to the stream callback.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__stream-parameters-device}
+    \begin{defun}[Function]
+    stream-parameters-device instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+A valid device index in the range 0 to \texttt{(- (\hyperref[portaudio__fun__get-device-count]{\texttt{get-device-count}}
+  ) 1)} specifying the device to be used. This field must not be set to paNoDevice.
+
+
+      
+    \bigskip
+    \textsc{See also}
+
+
+	
+    \begin{itemize}
+    
+	  
+    \item
+    \hyperref[portaudio__fun__get-device-count]{get-device-count}
+    
+	
+    \end{itemize}
+  
+      
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__stream-parameters-sample-format}
+    \begin{defun}[Function]
+    stream-parameters-sample-format instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+The sample format of the buffer provided to read-stream or write-stream.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__stream-parameters-suggested-latency}
+    \begin{defun}[Function]
+    stream-parameters-suggested-latency instance
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+The desired latency in seconds. Where practical, implementations should configure their latency based on these parameters, otherwise they may choose the closest viable latency instead. Unless the suggested latency is greater than the absolute upper limit for the device implementations should round the suggestedLatency up to the next practical value - ie to provide an equal or higher latency than suggestedLatency wherever possible.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__terminate}
+    \begin{defun}[Function]
+    terminate
+
+
+    
+    \bigskip
+    \textsc{Return Values}
+
+
+NIL if successful, otherwise raises an error indicating the cause of failure.
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Library termination function - call this when finished using PortAudio. This function deallocates all resources allocated by PortAudio since it was initialized by a call to \hyperref[portaudio__fun__initialize]{\texttt{initialize}}
+  . In cases where \hyperref[portaudio__fun__initialize]{\texttt{initialize}}
+   has been called multiple times, each call must be matched with a corresponding call to terminate. The final matching call to terminate will automatically close any PortAudio streams that are still open.
+
+
+terminate MUST be called before exiting a program which uses PortAudio. Failure to do so may result in serious resource leaks, such as audio devices not being available until the next reboot.
+
+
+
+
+      
+    \bigskip
+    \textsc{See also}
+
+
+	
+    \begin{itemize}
+    
+	  
+    \item
+    \hyperref[portaudio__fun__initialize]{initialize}
+    
+	
+    \end{itemize}
+  
+      
+
+
+    
+    \end{defun}
+  
+  
+      \section{Other macros}
+      
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__with-audio}
+    \begin{defun}[Macro]
+    with-audio $\&$body body
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Execute body in PortAudio initialize/terminate environment.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__with-audio-stream}
+    \begin{defun}[Macro]
+    with-audio-stream (var input-parameters output-parameters $\&$key (sample-rate 44100.0d0)
+ (frames-per-buffer 1024) (stream-flags (list no-flag))) $\&$body body
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Execute body with opened and started stream VAR and shut down   the stream after it is done. It is required use these macro in with-audio or initialize/terminate environment.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__fun__with-default-audio-stream}
+    \begin{defun}[Macro]
+    with-default-audio-stream (var num-input num-output $\&$key (sample-format float) (sample-rate 44100.0d0)
+ (frames-per-buffer 1024)) $\&$body body
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Execute body with opened and started stream VAR and shut down   the stream after it is done. It is required use these macro in with-audio or initialize/terminate environment.
+
+
+    
+    \end{defun}
+  
+  
+      \section{Other classes}
+      
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__class__device-info}
+    \begin{defun}[Class]
+    device-info
+
+
+      
+    \bigskip
+    \textsc{Superclasses}
+
+\color[rgb]{0.5,0.5,0.5}common-lisp:standard-object\color[rgb]{0,0,0}, \color[rgb]{0.5,0.5,0.5}sb-pcl::slot-object\color[rgb]{0,0,0}, \color[rgb]{0.5,0.5,0.5}common-lisp:t\color[rgb]{0,0,0}
+
+
+      
+    \bigskip
+    \textsc{Documented Subclasses}
+
+
+	    None
+	  
+
+
+	
+    \bigskip
+    \textsc{Direct Slots}
+
+default-high-input-latency --- Default latency values for robust non-interactive applications (eg. playing sound files).
+
+default-high-output-latency --- 
+
+default-low-input-latency --- Default latency values for interactive performance.
+
+default-low-output-latency --- 
+
+default-sample-rate --- Sample rate
+
+host-api --- note this is a host API index, not a type id.
+
+max-input-channels --- 
+
+max-output-channels --- 
+
+name --- Device name.
+
+p --- 
+
+struct-version --- Structure version.
+
+
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+A structure providing information and capabilities of PortAudio devices. Devices may support input, output or both input and output.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__class__host-api-info}
+    \begin{defun}[Class]
+    host-api-info
+
+
+      
+    \bigskip
+    \textsc{Superclasses}
+
+\color[rgb]{0.5,0.5,0.5}common-lisp:standard-object\color[rgb]{0,0,0}, \color[rgb]{0.5,0.5,0.5}sb-pcl::slot-object\color[rgb]{0,0,0}, \color[rgb]{0.5,0.5,0.5}common-lisp:t\color[rgb]{0,0,0}
+
+
+      
+    \bigskip
+    \textsc{Documented Subclasses}
+
+
+	    None
+	  
+
+
+	
+    \bigskip
+    \textsc{Direct Slots}
+
+type --- The well known unique identifier of this host API.
+
+default-input-device --- The default input device for this host API. The value will be a device index ranging from 0 to (- (get-device-count) 1), or no-device if no default input device is available.
+
+default-output-device --- The default output device for this host API. The value will be a device index ranging from 0 to (- (get-device-count) 1), or paNoDevice if no default output device is available.
+
+device-count --- The number of devices belonging to this host API. This field may be used in conjunction with host-api-device-index-to-device-index to enumerate all devices for this host API.
+
+name --- A textual description of the host API for display on user interfaces.
+
+struct-version --- Struct version.
+
+
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+A structure containing information about a particular host API.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__class__host-error-info}
+    \begin{defun}[Class]
+    host-error-info
+
+
+      
+    \bigskip
+    \textsc{Superclasses}
+
+\color[rgb]{0.5,0.5,0.5}common-lisp:standard-object\color[rgb]{0,0,0}, \color[rgb]{0.5,0.5,0.5}sb-pcl::slot-object\color[rgb]{0,0,0}, \color[rgb]{0.5,0.5,0.5}common-lisp:t\color[rgb]{0,0,0}
+
+
+      
+    \bigskip
+    \textsc{Documented Subclasses}
+
+
+	    None
+	  
+
+
+	
+    \bigskip
+    \textsc{Direct Slots}
+
+error-code --- the error code returned
+
+error-text --- a textual description of the error if available, otherwise a zero-length string
+
+host-api-type --- the host API which returned the error code
+
+
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Structure used to return information about a host error condition.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__class__pa-stream}
+    \begin{defun}[Class]
+    pa-stream
+
+
+      
+    \bigskip
+    \textsc{Superclasses}
+
+\color[rgb]{0.5,0.5,0.5}common-lisp:standard-object\color[rgb]{0,0,0}, \color[rgb]{0.5,0.5,0.5}sb-pcl::slot-object\color[rgb]{0,0,0}, \color[rgb]{0.5,0.5,0.5}common-lisp:t\color[rgb]{0,0,0}
+
+
+      
+    \bigskip
+    \textsc{Documented Subclasses}
+
+
+	    None
+	  
+
+
+	
+    \bigskip
+    \textsc{Direct Slots}
+
+frames-per-buffer --- Frames per buffer
+
+handle --- Foreign pointer to pa-stream
+
+input-channels --- Number of input channels
+
+input-sample-format --- Format of input samples
+
+output-channels --- Number of output channels
+
+output-sample-format --- Format of output samples
+
+
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+A single PaStream can provide multiple channels of real-time streaming audio input and output to a client application. A stream provides access to audio hardware represented by one or more devices. Depending on the underlying Host API, it may be possible to open multiple streams using the same device, however this behavior is implementation defined. Portable applications should assume that a device may be simultaneously used by at most one stream.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__class__stream-info}
+    \begin{defun}[Class]
+    stream-info
+
+
+      
+    \bigskip
+    \textsc{Superclasses}
+
+\color[rgb]{0.5,0.5,0.5}common-lisp:standard-object\color[rgb]{0,0,0}, \color[rgb]{0.5,0.5,0.5}sb-pcl::slot-object\color[rgb]{0,0,0}, \color[rgb]{0.5,0.5,0.5}common-lisp:t\color[rgb]{0,0,0}
+
+
+      
+    \bigskip
+    \textsc{Documented Subclasses}
+
+
+	    None
+	  
+
+
+	
+    \bigskip
+    \textsc{Direct Slots}
+
+input-latency --- The input latency of the stream in seconds. This value provides the most accurate estimate of input latency available to the implementation. It may differ significantly from the suggestedLatency value passed to open-stream. The value of this field will be zero (0.) for output-only streams.
+
+output-latency --- The output latency of the stream in seconds. This value provides the most accurate estimate of output latency available to the implementation. It may differ significantly from the suggestedLatency value passed to open-stream. The value of this field will be zero (0.) for input-only streams.
+
+sample-rate --- The sample rate of the stream in Hertz (samples per second). In cases where the hardware sample rate is inaccurate and PortAudio is aware of it, the value of this field may be different from the sample-rate parameter passed to open-stream. If information about the actual hardware sample rate is not available, this field will have the same value as the sample-rate parameter passed to open-stream.
+
+struct-version --- Struct version
+
+
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+A structure containing unchanging information about an open stream.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio__class__stream-parameters}
+    \begin{defun}[Class]
+    stream-parameters
+
+
+      
+    \bigskip
+    \textsc{Superclasses}
+
+\color[rgb]{0.5,0.5,0.5}common-lisp:standard-object\color[rgb]{0,0,0}, \color[rgb]{0.5,0.5,0.5}sb-pcl::slot-object\color[rgb]{0,0,0}, \color[rgb]{0.5,0.5,0.5}common-lisp:t\color[rgb]{0,0,0}
+
+
+      
+    \bigskip
+    \textsc{Documented Subclasses}
+
+
+	    None
+	  
+
+
+	
+    \bigskip
+    \textsc{Direct Slots}
+
+channel-count --- The number of channels of sound to be delivered to the stream callback.
+
+device --- A valid device index in the range 0 to (- get-device-count 1) specifying the device to be used. This field must not be set to paNoDevice.
+
+sample-format --- The sample format of the buffer provided to read-stream or write-stream.
+
+suggested-latency --- The desired latency in seconds. Where practical, implementations should configure their latency based on these parameters, otherwise they may choose the closest viable latency instead. Unless the suggested latency is greater than the absolute upper limit for the device implementations should round the suggestedLatency up to the next practical value - ie to provide an equal or higher latency than suggestedLatency wherever possible.
+
+
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Parameters for one direction (input or output) of a stream.
+
+
+    
+    \end{defun}
+  
+  
+    \chapter{The portaudio-tests package}
+    This package contains tests/examples for PortAudio bindings.
+      \section{Other functions}
+      
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio-tests__fun__test-read-write-converted-echo}
+    \begin{defun}[Function]
+    test-read-write-converted-echo
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Record input into an array; Separate array to channels; Merge channels into array; Play last array.
+
+
+    
+    \end{defun}
+  
+  
+
+    \rule{\linewidth}{0.1mm}
+    
+    \label{portaudio-tests__fun__test-read-write-echo}
+    \begin{defun}[Function]
+    test-read-write-echo
+
+
+	
+    \bigskip
+    \textsc{Details}
+
+Record input into an array; Playback recorded data.
+
+
+    
+    \end{defun}
+  
+  
+
+    \printindex
+    \end{document}
+  

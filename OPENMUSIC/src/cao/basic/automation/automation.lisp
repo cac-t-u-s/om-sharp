@@ -1,0 +1,252 @@
+;;===========================================================================
+;Copyright (C) 2015 IRCAM-Centre Georges Pompidou, Paris, France.
+; 
+;This program is free software; you can redistribute it and/or
+;modify it under the terms of the GNU General Public License
+;as published by the Free Software Foundation; either version 2
+;of the License, or (at your option) any later version.
+;
+;See file LICENSE for further informations on licensing terms.
+;
+;This program is distributed in the hope that it will be useful,
+;but WITHOUT ANY WARRANTY; without even the implied warranty of
+;MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;GNU General Public License for more details.
+;
+;You should have received a copy of the GNU General Public License
+;along with this program; if not, write to the Free Software
+;Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+;
+;Author: Dimitri Bouche
+;;===========================================================================
+
+;;===========================================================================
+;DocFile
+;  Automations
+;;===========================================================================
+(in-package :om)
+
+;;===========================================================================
+;;;Automation Point = A point to define a curve between two dates
+;;===========================================================================
+;;;Structure
+(defstruct (automation-point (:include bpfpoint)
+            ;(:print-object
+            ; (lambda (a stream)
+            ;   (print-unreadable-object (a stream :type t :identity t)
+            ;     (princ `(:value ,(ap-y a) :at ,(ap-x a) :ms) stream))))
+            (:conc-name ap-))
+  (coeff 0.5)
+  (fun nil)
+  (lock nil)) 
+
+(defmethod item-get-time ((self automation-point)) (om-point-x self))
+(defmethod item-set-time ((self automation-point) time) (setf (ap-x self) time))
+(defmethod item-get-internal-time ((self automation-point)) (om-point-x self))
+(defmethod item-set-internal-time ((self automation-point) time) nil)
+(defmethod item-get-type ((self automation-point)) (ap-type self))
+(defmethod item-set-type ((self automation-point) type) (setf (ap-type self) type))
+(defmethod items-merged-p ((i1 automation-point) (i2 automation-point)) (= (ap-x i1) (ap-x i2)))
+(defmethod items-distance ((i1 automation-point) (i2 automation-point)) (- (ap-x i2) (ap-x i1)))
+
+(defun om-make-automationpoint (x y &optional type)
+  (declare (ignore type))
+  (make-automation-point :x x :y y))
+
+(defmethod get-coeff ((self automation-point))
+  (ap-coeff self))
+
+(defmethod om-copy ((self automation-point))
+  (make-automation-point :x (ap-x self) :y (ap-y self) :lock (ap-lock self) :coeff (ap-coeff self)))
+
+
+(defmethod om-point-set ((point bpfpoint) &key x y type)
+  (if x (setf (bpfpoint-x point) x))
+  (if y (setf (bpfpoint-y point) y))
+  (if type (setf (bpfpoint-type point) type))
+  point)
+
+;;===========================================================================
+;;;Automation = An object containing automation points
+;;===========================================================================
+;;;Structure
+(defclass automation (BPF)
+  ((x-points :initform '(0.0 2000.0) :initarg :x-points)
+   (y-points :initform '(0.0 100.0) :initarg :y-points)
+   (c-points :initform '(0.5 0.5) :accessor c-points :initarg :c-points))
+  (:default-initargs :interpol t :interpol-time 10))
+
+;(defmethod x-points ((self automation))
+;  (mapcar 'start-date (point-list self)))
+;(defmethod y-points ((self automation))
+;  (mapcar 'start-value (point-list self)))
+
+(defmethod c-points ((self automation))
+  (mapcar 'ap-coeff (point-list self)))
+
+;;;Property list (like bpf but hidden interpolation)
+(defmethod get-properties-list ((self automation))
+  '((""
+     (:decimals "Precision (decimals)" :number decimals (0 10))
+     (:color "Color" :color color)
+     (:name "Name" :text name)
+     (:action "Action" :action action))))
+
+;;;Object duration
+(defmethod get-obj-dur ((self automation))
+  (start-date (last-elem (point-list self))))
+
+;;;Getters and Setters;;;
+;;;Point start date (x)
+(defmethod start-date ((self automation-point))
+  (ap-x self))
+
+(defmethod (setf start-date) (date (self automation-point))
+  (setf (ap-x self) date))
+
+;;;Point end date (next point x)
+(defmethod end-date ((self automation-point) (obj automation))
+  (let ((np (next-point obj self)))
+    (start-date (or np self))))
+
+;;;Point start value (y)
+(defmethod start-value ((self automation-point))
+  (ap-y self))
+
+(defmethod (setf start-value) (val (self automation-point))
+  (setf (ap-y self) val))
+
+;;;Point end value (next-point y)
+(defmethod end-value ((self automation-point) (obj automation))
+  (let ((np (next-point obj self)))
+    (start-value (or np self))))
+
+;;;Point function
+(defmethod fun ((self automation-point) (obj automation))
+  (or (ap-fun self)
+      (setf (ap-fun self) (get-function self obj))))
+(defmethod (setf fun) (f (self automation-point))
+  (setf (ap-fun self) f))
+
+;;;Get point function:
+;x = start-date -> end-date
+;y = start-value -> end-value
+;curve shape <-> coeff
+(defmethod get-function ((self automation-point) (obj automation))
+  (if (= (start-value self) (end-value self obj))
+      (constantly (start-value self))
+    #'(lambda (d)
+        (+ (* (expt (/ (- d (start-date self))
+                       (- (end-date self obj) (start-date self)))
+                    (log 0.5 (ap-coeff self))) (- (end-value self obj) (start-value self)))
+           (start-value self)))))
+
+;;;Initialization
+;(defmethod initialize-instance :after ((self automation) &rest args) 
+;  (setf (point-list self) (loop for x in (or (getf args :x-points) '(0 2000))
+;                                for y in (or (getf args :y-points) '(0 100))
+;                                for coeff in (or (getf args :c-points) '(0.5 0.5))
+;                                collect
+;                                (make-automation-point :x x :y y :coeff coeff)))
+;  (loop for pt in (point-list self)
+;        do (setf (ap-fun pt) (get-function pt self)))
+;  self)
+
+(defmethod set-bpf-points ((self automation) &key x y z time time-types)
+  (setf (point-list self)  (make-points-from-lists (or x (x-values-from-points self)) ;  (slot-value self 'x-points))
+                                                   (or y (y-values-from-points self)) ;  (slot-value self 'y-points))
+                                                   (decimals self)
+                                                   'om-make-automationpoint))
+    ;(when times
+    ;  (loop for p in (point-list self)
+    ;        for time in times do (setf (tpoint-time p) time)))
+  (setf (slot-value self 'x-points) NIL)
+  (setf (slot-value self 'y-points) NIL))
+
+(defmethod om-point-mv ((point automation-point) &key x y)
+  (if (and x (not (ap-lock point))) 
+      (setf (ap-x point) (+ (ap-x point) x)))
+  (if y (setf (ap-y point) (+ (ap-y point) y)))
+  point)
+
+;;;Refresh points functions (useful?)
+(defmethod refresh-automation-points ((self automation))
+  (loop for pt in (point-list self)
+          do
+          (setf (ap-fun pt) (get-function pt self))))
+
+;;;Get next point
+(defmethod next-point ((self automation) (pt automation-point))
+  (nth (1+ (position pt (point-list self))) (point-list self)))
+
+;;;Get previous point
+(defmethod prev-point ((self automation) (pt automation-point))
+  (if (not (eq pt (car (point-list self))))
+      (nth (1- (position pt (point-list self))) (point-list self))))
+
+;;;Draw
+(defmethod draw-mini-view ((self automation) (box t) x y w h &optional time)
+  (let* ((points (point-list self))
+         (color (color box))
+         (y (+ y 10))
+         (h (- h 20))
+         (npts 100)
+         ranges
+         step)
+    (when points
+      (setq ranges (list (start-date (car points))
+                         (start-date (last-elem points))
+                         (reduce #'min points :key 'start-value)
+                         (reduce #'max points :key 'start-value)))
+      (when (= (car ranges) (cadr ranges) (setf (cadr ranges) (+ (cadr ranges) 1000))))
+      (setq step (/ (- (cadr ranges) (car ranges)) npts))
+      (multiple-value-bind (fx ox) 
+          (conversion-factor-and-offset (car ranges) (cadr ranges) w x)
+        (multiple-value-bind (fy oy) 
+            ;;; Y ranges are reversed !! 
+            (conversion-factor-and-offset (cadddr ranges) (caddr ranges) h y)
+          (om-with-fg-color (om-def-color :gray)
+            (loop for pt in points
+                  do 
+                  (progn
+                    (om-draw-circle (+ ox (* fx (start-date pt)))
+                                    (+ oy (* fy (start-value pt)))
+                                    3 :fill t)                    
+                    (let (val lastti) 
+                      (loop for ti from (+ step (start-date pt)) to (end-date pt self)
+                            by step
+                            with prevvi = (start-value pt)
+                            do
+                            (om-draw-line (+ ox (* fx (- ti step))) 
+                                          (+ oy (* fy prevvi))  
+                                          (+ ox (* fx ti))
+                                          (+ oy (* fy (setq val (funcall (fun pt self) ti)))))
+                            (setq prevvi val
+                                  lastti ti))
+                      (if (and lastti val)
+                          (om-draw-line (+ ox (* fx lastti)) 
+                                        (+ oy (* fy val))  
+                                        (+ ox (* fx (end-date pt self)))
+                                        (+ oy (* fy (end-value pt self))))))
+                    ))))))))
+
+;;;GET THE VALUE OF THE AUTOMATION FUNCTION AT A SPECIFIC DATE
+(defmethod get-value-at-time-unit ((self automation) date)
+  (funcall (fun
+            (nth (1- (or (position date (point-list self) :test '< :key 'start-date) (length (point-list self)))) 
+                 (point-list self))
+            self)
+           date))
+
+;;;Scheduler Redefinitions
+(defmethod get-action-list-for-play ((self automation) time-interval &optional parent)
+  (when (action-fun self)
+    (loop for ti from (car time-interval) to (1- (cadr time-interval))
+          by (interpol-time self)
+          collect
+          (let ((tmp ti))
+          (list
+           tmp
+           #'(lambda () (funcall (action-fun self) (get-value-at-time-unit self tmp))))))))
+
+

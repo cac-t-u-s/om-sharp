@@ -1,0 +1,16 @@
+----- find and replace
+:useestrada nil :usehindemith nil :refharmgrid nil :harmgridlength
+
+:refharmscen nil :harmscenlength
+
+----- find and replace
+:lengthfactorsfromgrid
+
+:lengthfactorsfromscen
+
+
+----- find and replace
+:from-file t
+
+
+

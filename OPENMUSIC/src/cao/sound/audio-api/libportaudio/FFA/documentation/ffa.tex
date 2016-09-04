@@ -1,0 +1,256 @@
+\documentclass[12pt,a4paper,dvipdfm]{article}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+%\usepackage[letterpaper,vmargin=1.7in]{geometry}
+%\usepackage[letterpaper,left=2cm,right=8cm,bottom=3cm,top=3cm,marginparwidth=4cm]{geometry}
+%\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{natbib}
+\usepackage{color}
+\usepackage{paralist}           % compactitem
+\usepackage{hyperref}
+\DeclareMathOperator{\E}{E}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\argmin}{argmin}
+\DeclareMathOperator{\argmax}{argmax}
+\DeclareMathSymbol{\ueps}{\mathord}{letters}{"0F} % ugly epsilon
+\renewcommand{\epsilon}{\varepsilon}
+\newcommand{\aseq}{\overset{as}=} % almost surely equals
+\definecolor{red}{rgb}{1,0,0}
+\newcommand{\FIXME}[1]{{\color{red}\{FIXME: #1\}}}
+
+\renewcommand\floatpagefraction{.9}
+\renewcommand\topfraction{.9}
+\renewcommand\bottomfraction{.9}
+\renewcommand\textfraction{.1}
+
+\usepackage{listings}
+\lstset{
+  language=Lisp,
+  extendedchars=true,
+  basicstyle=\normalsize\ttfamily,
+  stringstyle=\ttfamily,
+  commentstyle=\slshape,
+%  numbers=left,
+%  stepnumber=5,
+%  numbersep=6pt,
+%  numberstyle=\footnotesize,
+  breaklines=true,
+%  frame=single,
+  columns=fullflexible,
+}
+
+\begin{document}
+
+\title{The FFA library}
+\author{Tam\'as K Papp (\url{tpapp@princeton.edu})}
+\maketitle
+
+\section{IMPORTANT}
+\label{sec:important}
+
+As of June 28, 2008, all functions that do not involve FFI have been
+reorganized into the \verb!array-operations! package.  If you are
+loading \verb!ffa!, it will automatically load
+\verb!array-operations!.  If you were using the symbols for \verb!ffa!
+function names in the namespace of your package or \verb!cl-user!, you
+will need to do the same with \verb!array-operations!.  No other
+changes are necessary.
+
+The reason for the reorganization is that I realized that most array
+operations in this package have uses independent of FFI, and wanted to
+make them available in a package with fewer dependencies.
+
+I will keep the documentation unified for the two packages.
+
+\section{Introduction}
+\label{sec:motivation}
+
+Even though Common Lisp has extensive libraries, sometimes the need
+arises to call functions written in other languages, especially C.
+While CFFI provides a comfortable and unified interface for most
+purposes, using functions that expect to find or output arrays at
+locations specified by a pointer still doesn't have a common
+interface.  Constructing an array at a memory location is always
+possible by allocating a chunk of memory and copying the array
+elements in and out manually, but some implementations provide direct
+access to an unboxed array at a memory location (eg SBCL).
+
+The FFA (Foreign Friendly Array) library provides an interface that
+allows the user to map Lisp arrays into a specified memory location
+for the body of a macro call.  This macro has well-defined semantics,
+explained in Section~\ref{sec:with-pointer-array}, which is
+implemented differently for various implementations to take advantage
+of implementation-specific optimizations offered.
+
+Note that the approach of this package is to keep arrays in Lisp, and
+provide access to arrays mapped to a given pointer on demand,
+incurring the possible overhead at the time.  A different approach is
+taken by
+\href{http://middleangle.com/rif/derifatives/Home/21/cl-blapack-alpha-release}{CL-BLAPACK},
+which keeps vectors in foreign memory, where they are untouched by the
+GC.  Each design choice has advantages and disadvantages.  Keeping the
+arrays in Lisp was chosen because
+\begin{itemize}
+\item access to array elements is fast, several implementations
+  optimize \lstinline!aref! quite well
+\item existing code doesn't have to be made aware of some special
+  array type and can continue to use plain Lisp arrays
+\item foreign memory is usually more scarce than memory available in
+  Lisp\footnote{This is relevant even in implementations that require
+    copying.  Imagine that you have 100 matrices, and you are calling
+    a foreign function that needs a few of them at a time.}
+\end{itemize}
+
+There are some disadvantages: (1) some implementations require
+copying, introducing an overhead, (2) sometimes you need to have an
+array that stays in one place for a long time (eg for callback
+functions), and (3) Common Lisp arrays are row-major, while some
+languages and libraries expect column-major arrays by default.
+
+Regarding (1), FFA doesn't claim to be superfast in all
+implementations --- it simply \emph{works}.  If you find that copying
+is an unbearable overhead, you can either switch implementations, or
+ask the authors of your implementation for arrays that can be pinned.
+There is simply no way to make array access fast in every situation
+without the right facilities.  For (2), the answer is that FFA is not
+the right library for you: simply allocate a chunk of memory and free
+it manually when you are done.
+
+Regarding the row-major vs.~column-major issue: some foreign libraries
+(eg BLAS, Atlas) accept both kinds of arrays, so there is no need to
+transpose.  In the worst case, you can easily write a transpose
+function in either C or Lisp, the latter is provided in this package.
+
+\section{Flat arrays}
+\label{sec:flat-arrays}
+
+For the purposes of this package, flat arrays are arrays that have a
+rank of one, ie are one-dimensional.  Flat arrays are particularly
+important because most implementations that allow direct access to
+unboxed arrays require that these arrays are simple-arrays of rank
+one.  Fortunately, Common Lisp has displaced arrays, so you can always
+create a flat array and make it the target of a displaced array of the
+desired dimension.
+
+This is what \lstinline!make-ffa! does.  It uses the following syntax:
+\begin{lstlisting}
+make-ffa dimensions element-type &key
+         (initial-element 0 initial-element-p)
+         (initial-contents nil initial-contents-p)
+\end{lstlisting}
+where all the arguments are the same ones that would be provided for
+\lstinline!make-array!, except that \lstinline!initial-element! and
+\lstinline!initial-contents! will be coerced to the desired type, and
+\lstinline!element-type! (which is mandatory, not optional) is also
+allowed to be one of
+\begin{lstlisting}
+(:int8 :uint8 :int16 :uint16 :int32 :uint32 :float :double)
+\end{lstlisting}
+in which case the corresponding Lisp type is chosen.  If
+\lstinline!dimension! is a list with more than one element, a flat
+array is created, and a displaced array is returned.
+\lstinline!make-ffa! does not guarantee that the resulting array is
+unboxed, because this is always implementation-dependent, but it
+guarantees to try its best.
+
+Even if you don't use foreign functions, arrays displaced to flat
+arrays are quite handy.  For example, if we want to sum elements in an
+array, we just find the original array (see
+\lstinline!find-original-array!) and call reduce.  If the original
+array is not flat, \lstinline!find-or-displace-to-flat-array! will
+provide a displaced flat one, but benchmarks indicate that calling
+reduce on this is not as efficient as calling reduce on a flat,
+non-displaced array of the same dimension.
+
+Some handy operations are written in CL and provided in
+\verb!operations.lisp!, including \lstinline!array-reduce! (which has
+an option for ``ignoring'' \lstinline!nil! values), and the derived
+functions \lstinline!array-max!, \lstinline!array-min!,
+\lstinline!array-sum!, \lstinline!array-product!,
+\lstinline!array-count! and \lstinline!array-range! --- see the
+functions for details.  You can get a generalized outer product using
+\lstinline!outer-product!.  See the source code for more useful
+operations.
+
+You can make a copy of an array using \lstinline!array-copy!, which,
+however, does not descend into the elements (eg if you are using this
+array to store lists, the elements of the new array will reference the
+same lists as the elements in the old one).  You can also map arrays
+(elementwise) into arrays of the same dimensions (but not necessarily
+the same element-type) with \lstinline!array-map!, which you can also
+use for a deep copy with the appropriate function.  The function
+\lstinline!array-convert! is a specialized version of
+\lstinline!array-map!, converting array elements using
+\lstinline!coerce!.
+
+
+\section{with-pointer-to-array}
+\label{sec:with-pointer-array}
+
+The key macro is 
+\begin{lstlisting}
+(with-pointer-to-array (array pointer cffi-type length direction)
+  &body body)
+\end{lstlisting}
+
+Its semantics are defined as follows.  Within the body of the macro,
+the \lstinline!pointer! will be a CFFI pointer pointing to a
+contiguous region in memory, which contains \lstinline!length!
+elements of type \lstinline!cffi-type!.  If direction is either
+\lstinline!:copy-in! or \lstinline!:copy-in-out!, the area is
+guaranteed to contain the elements of the array at the beginning of
+the body of the macro.  If direction is one of \lstinline!:copy-out!
+or \lstinline!:copy-in-out!, the array is guaranteed to contain the
+elements of the memory location after the body of the macro ends.
+
+Note that \lstinline!cffi-type! doesn't have to match the element-type
+of array.  It is advised that it does, because otherwise the macro
+will try to coerce the elements to the desired foreign type before
+copying, which can result in possible errors or an efficiency loss.
+
+Also note that \lstinline!array! does not have to be a simple, flat or
+unboxed array.  If the implementation can't provide direct access to
+that array type, the elements will be copied.  The note above about
+efficiency also applies here.
+
+To make this more clear, in the example below an array is created
+using \lstinline!make-array! with element-type \lstinline!integer!.
+Then at runtime, elements are coerced to \lstinline!:int32! (if they
+are small enough, which holds here).  This is not efficient, so in
+SBCL, a warning is issued.
+
+\begin{lstlisting}
+(defun cffi-fill-int32 (pointer size)
+  "Fill array at pointer with size integers."
+  (dotimes (i size)
+    (setf (cffi:mem-aref pointer :int32 i) i)))
+
+(let* ((a (make-array '(2 9) :element-type 'integer))
+	      (a-d (displace-array a 9 3)))
+  (with-pointer-to-array (a-d pp :int32 7 :copy-in-out)
+    (cffi-fill-int32 pp 7))
+  a) ; =>  #2A((0 0 0 0 1 2 3 4 5) (6 0 0 0 0 0 0 0 0)))
+\end{lstlisting}
+
+If frequently happens that you have to pass more than one array to a
+foreign function.  For those cases, you can use the convenience macro
+
+\begin{lstlisting}
+(with-pointers-to-arrays ((a a-pointer a-type a-length a-dir)
+                             (b b-pointer b-type b-length b-dir)
+                             ...)
+   ...body...)
+\end{lstlisting}
+which expands into nested calls of \lstinline!with-pointer-to-array!
+using the given parameters.
+
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 
