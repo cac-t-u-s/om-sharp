@@ -1,0 +1,4 @@
+rm -r ./OPENMUSIC/*.app
+
+/Applications/LispWorks\ 7.0\ \(64-bit\)/LispWorks\ \(64-bit\).app/Contents/MacOS/lispworks-7-0-0-amd64-darwin -build ./OPENMUSIC/build/deliver.lisp
+
