@@ -99,11 +99,7 @@
 (defmethod om-set-window-title ((self om-text-editor) (title string))
   (setf (capi::interface-title self) title))
 
-(defmethod text-edit-window-activate-callback (win activate-p)
-  (when activate-p
-    (setf (capi::interface-menu-bar-items win) 
-          (append (internal-window-class-menubar win)
-                  (om-window-class-menubar win)))))
+
 
 ;; used for finding windows by name
 (defmethod capi::interface-match-p ((self om-text-editor) &rest initargs  &key name)
@@ -118,12 +114,20 @@
 (defmethod om-text-editor-modified ((self om-text-editor))
   (set-editor-window-title self t))
 
+
 (defmethod om-text-editor-activate-callback ((self om-text-editor) activate) nil)
 
+(defmethod text-edit-window-activate-callback (win activate-p)
+  (when activate-p
+    (setf (capi::interface-menu-bar-items win) 
+          (append (internal-window-class-menubar win)
+                  (om-window-class-menubar win))))
+  (om-text-editor-activate-callback win activate-p))
+
 (defmethod set-editor-window-title ((self om-text-editor) &optional (modified nil modified-supplied-p))
-  (let ((base (if (file self) (namestring (file self)) "Text Buffer"))
+  (let ((base (if (file self) (namestring (file self)) "text buffer"))
         (modified (if modified-supplied-p modified (buffer-modified-p self))))
-    (om-set-window-title self (concatenate 'string (if modified "* " "") base))))
+    (om-set-window-title self (concatenate 'string base (if modified " [*]" ""))))) ;; 
 
 (defmethod lisp-operations-enabled ((self t)) t)
 (defmethod lisp-operations-enabled ((self om-text-editor)) (lisp? self))
@@ -184,14 +188,14 @@
                                     :internal-min-height 200 :internal-min-width 300
                                     :display-state :normal
                                     :file path :lisp? lisp
-                                    :activate-callback 'om-text-editor-activate-callback
+                                    :activate-callback 'text-edit-window-activate-callback
                                     ))
         (let* ((buffer (if path (editor:find-file-buffer path) :temp)) ; (om-make-buffer)))
                (text (cond ((consp contents)
                             (format nil "~{~a~^~%~}" contents))
                            ((stringp contents) contents) 
                            (contents (format nil "~a" contents))
-                           (t " ")))
+                           (t "")))
                (ep (make-instance 'capi::editor-pane :echo-area t 
                                   :buffer buffer 
                                   :text text
@@ -202,6 +206,7 @@
           (setf (capi::layout-description (capi::pane-layout window))
                 (list (setf (ep window) ep))))
         (push window *editor-files-open*)
+        (set-editor-window-title window t)
         (capi::display window)
         window))))
 
