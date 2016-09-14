@@ -217,7 +217,8 @@
         (#\l (mapc 'set-lambda-mode selected-boxes))
 
         (#\m (mapc 'change-display selected-boxes))
-      
+        (#\a (mapc 'internalize-abstraction selected-boxes))
+
         (#\c (if selected-boxes
                  (auto-connect-box selected-boxes editor panel)
                (make-new-comment panel)))
@@ -416,15 +417,18 @@
   
 
 (defmethod save-command ((self patch-editor))
-  #'(lambda () 
-      (let ((patch-to-save (if (is-persistant (object self)) 
-                               (object self)
-                             (find-persistant-container (object self)))))
-        (if patch-to-save
-            (save-document patch-to-save)
-          (om-beep-msg "No container patch to save !!!"))
-        )))
+  (when (is-persistant (object self))
+    #'(lambda () 
+        (let ((patch-to-save (if (is-persistant (object self)) 
+                                 (object self)
+                               (find-persistant-container (object self)))))
+          (if patch-to-save
+              (save-document patch-to-save)
+            (om-beep-msg "No container patch to save !!!"))
+          ))))
 
+
+;;; Externalize an internal abstraction
 (defmethod save-as-command ((self patch-editor))
   (unless (is-persistant (object self))
     #'(lambda ()

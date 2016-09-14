@@ -142,6 +142,24 @@
                 (set-name (reference self) text)
                 ))))
 
+(defmethod internalize-abstraction ((self OMBox)) nil)
+(defmethod internalized-type ((self t)) (type-of self))
+(defmethod copy-contents ((from t) (to t)) nil)
+
+(defmethod internalize-abstraction ((self OMBoxAbstraction))
+  (if (is-persistant (reference self))
+      (let* ((old-ref (reference self))
+             (new-ref (make-instance (internalized-type old-ref) :name (name old-ref))))
+        (close-editor old-ref)
+        (copy-contents old-ref new-ref)
+        (release-reference old-ref self)
+        (setf (reference self) new-ref)
+        (push self (references-to new-ref))
+        (redraw-frame self))
+    (om-beep-msg "The ~A '~A' is already internal." (type-of (reference self)) (name (reference self)))
+    ))
+      
+
 ;;;===================
 ;;; DISPLAY
 ;;;===================

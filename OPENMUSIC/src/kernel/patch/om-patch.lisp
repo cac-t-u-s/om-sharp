@@ -69,15 +69,18 @@
 (defun sort-boxes (boxes)
   (sort boxes '< :key #'(lambda (b) (index (reference b)))))
 
-(defmethod om-copy ((self OMPatch))  
-  (let* ((sorted-boxes (sort-boxes (boxes self)))
+(defmethod copy-contents ((from OMPatch) (to OMPatch))  
+  (let* ((sorted-boxes (sort-boxes (boxes from)))
          (connections (save-connections-from-boxes sorted-boxes))
-         (boxes (mapcar 'om-copy sorted-boxes))
-         (new-patch (make-instance (type-of self) :name (name self))))
-    (mapc #'(lambda (b) (omng-add-element new-patch b)) boxes)
-    (mapc #'(lambda (c) (omng-add-element new-patch c))
-          (restore-connections-to-boxes connections (boxes new-patch)))
-    ;(list new-patch (connections new-patch))
+         (boxes (mapcar 'om-copy sorted-boxes)))
+    (mapc #'(lambda (b) (omng-add-element to b)) boxes)
+    (mapc #'(lambda (c) (omng-add-element to c))
+          (restore-connections-to-boxes connections (boxes to)))
+    to))
+
+(defmethod om-copy ((self OMPatch))  
+  (let* ((new-patch (make-instance (type-of self) :name (name self))))
+    (copy-contents self new-patch)
     new-patch))
 
 (defmethod get-boxes-of-type ((self OMPatch) type)
@@ -103,9 +106,10 @@
 (defmethod make-new-om-doc ((type (eql :patch)) name)
   (make-instance 'OMPatchFile :name name))
 
-
 ;;; DOES NOT COPY !!
 (defmethod om-copy ((self OMPatchFile)) self)  
+
+(defmethod internalized-type ((self OMPatchFile)) 'OMPatchInternal)
 
 ;;;==========================================
 ;;; DIFFERENCES BETWEEN INTERNAL AND NOT INTERNAL :

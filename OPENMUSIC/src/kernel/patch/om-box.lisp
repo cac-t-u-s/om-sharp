@@ -144,6 +144,11 @@
       (when ed (update-inspector-for-editor ed))
       )))
 
+(defmethod redraw-frame ((self OMBox))
+  (when (frame self)
+    (om-invalidate-view (frame self))))
+    
+
 (defmethod editor-box-selection ((editor OMEditor) (box OMBox))
   (unless (or (om-shift-key-p) (selected box))
     (select-unselect-all editor nil))
