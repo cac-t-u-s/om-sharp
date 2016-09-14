@@ -109,12 +109,12 @@
 ; (clean-svn (make-pathname :directory (append (butlast (pathname-directory *load-pathname*)) '("libraries"))))
 
 (defun clean-sources (&optional dir)
-  (let ((src-root (or dir (make-pathname :directory (butlast (pathname-directory *load-pathname*) 2)))))
+  (let ((src-root (or dir (make-pathname :directory (butlast (pathname-directory *load-pathname*))))))
     (mapc #'(lambda (file) 
               (if (and (system::directory-pathname-p file) (not (string-equal (car (last (pathname-directory file))) ".git")))
                   (clean-sources file)
                 (when (and (pathname-type file)
-                           (or (find (pathname-type file) '("xfasl" "fasl" "DS_STORE" "nfasl" "ofasl" "ufasl" "lisp~") :test 'string-equal)
+                           (or (find (pathname-type file) '("64xfasl" "xfasl" "fasl" "DS_STORE" "nfasl" "ofasl" "ufasl" "lisp~") :test 'string-equal)
 			       (string= (pathname-type file) *compile-type*))) ; remove compiled files
                   (print (concatenate 'string "Deleting " (namestring file) " ..."))
                   (delete-file file)
