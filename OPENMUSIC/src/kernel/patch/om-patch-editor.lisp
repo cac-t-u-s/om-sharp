@@ -57,12 +57,6 @@
 (defmethod window-name-from-patch ((self OMPatchInternal))
   (format nil "~A  [~A]" (name self) "internal patch"))
 
-(defmethod window-name-from-patch ((self OMPatchFile))
-  (format nil "~A~A  [~A]" 
-          (if (saved? self) "" "*")
-          (name self)
-          (if (mypathname self) (namestring (om-make-pathname :directory (mypathname self))) "...")))
-
 (defmethod update-window-name ((self patch-editor))
   (when (window self)
     (om-set-window-title (window self) (window-name-from-patch (object self)))))

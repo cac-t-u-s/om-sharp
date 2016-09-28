@@ -170,6 +170,12 @@
         do (set-name box (name self))
         do (om-invalidate-view (frame box))))
 
+(defmethod window-name-from-patch ((self ompersistantobject))
+  (format nil "~A~A  [~A]" 
+          (if (saved? self) "" "*")
+          (name self)
+          (if (mypathname self) (namestring (om-make-pathname :directory (mypathname self))) "...")))
+
 ;;;=======================================
 ;;; FOLDERS (not used for the moment...)
 ;;;=======================================
