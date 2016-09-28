@@ -13,7 +13,7 @@
 
 *.omp~
 
-"OM 7.0.app/"
+"*.app/*"
 *.zip
 
 # OS generated files #
