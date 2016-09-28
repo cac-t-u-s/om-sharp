@@ -151,6 +151,7 @@
 
 (defmethod init-window ((win OMEditorWindow) (editor spat-editor))
   (call-next-method)
+  (attach-spat-scene-view-to-spat (get-g-component editor :spat-view))
   (make-timeline-view (timeline-editor editor))
   (enable-play-controls editor t)
   (update-sources editor)
@@ -448,7 +449,7 @@
   (let* ((spatview (get-g-component editor :spat-view))
          (spatviewhandler (and spatview (spat-view-handler spatview))))
     (when spatviewhandler
-      (print param-type)
+      ;(print param-type)
       (cond
        ((= param-type spat::ksourceselectionchanged)
         (update-spat-source-selection-from-SpatView editor spatviewhandler))
@@ -472,12 +473,16 @@
     (spat-view-changed (editor view) param-type n)))
 
 (defmethod om-create-callback :after ((self spat-scene-view))  
-  (setf (id self) (read-from-string (subseq (string (gensym)) 1)))
-  (let ((spat-ptr (spat::OmSpatCreateSpatViewerWithNSView (spat::spat-get-view-pointer self) 100 100 (id self))))
+  ;(attach-spat-scene-view-to-spat self)
+  nil)
+
+(defun attach-spat-scene-view-to-spat (ssview)
+  (setf (id ssview) (read-from-string (subseq (string (gensym)) 1)))
+  (let ((spat-ptr (spat::OmSpatCreateSpatViewerWithNSView (spat::spat-get-view-pointer ssview) 100 100 (id ssview))))
     (when spat-ptr
-      (setf (spat-view-handler self) spat-ptr)
+      (setf (spat-view-handler ssview) spat-ptr)
       (spat::spat-view-register-callback spat-ptr)))
-  self)
+  ssview)
 
 
 ;;============== 
