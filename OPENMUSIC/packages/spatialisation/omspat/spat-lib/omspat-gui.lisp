@@ -55,7 +55,7 @@
  
 ;;;===============================================
 ;view functions
-(cffi:defcfun ("OmSpatCreateSpatViewerWithNSView" OmSpatCreateSpatViewerWithNSView) :pointer (view :pointer) (w :int) (h :int) (id :int))
+(cffi:defcfun ("OmSpatCreateSpatViewerWithNSView" OmSpatCreateSpatViewerWithNSView) :pointer (view :pointer) (id :int))
 (cffi:defcfun ("OmSpatFreeSpatViewer" OmSpatFreeSpatViewer) :boolean (viewer :pointer))
 
 ;data functions
@@ -74,8 +74,7 @@
 ;;; main command
 (cffi:defcfun ("OmSpatViewerProcessOSCCommands" OmSpatViewerProcessOSCCommands) :boolean 
   (viewer :pointer)
-  (content :pointer)
-  (size :unsigned-long))
+  (bundle :pointer))
 
 ;;;===============================================
 
@@ -127,18 +126,24 @@
 ;;; paramType : the type of parameter that changed
 ;;; index : index of the element (source or speaker) that changed. (or -1 if this is not relevant)
 
-(cffi::defcallback notify-change :void ((id :int) (param-type :int) (n :int)) 
+;;;(cffi::defcallback notify-change :void ((id :int) (param-type :int) (n :int)) 
+;;;  (handler-bind ((error #'(lambda (e) (print e))))
+;;;    (spat-view-changed-callback id param-type n)
+;;;    ))
+
+(cffi::defcallback notify-change :void ((id :int) (bundle :pointer)) 
   (handler-bind ((error #'(lambda (e) (print e))))
-    (spat-view-changed-callback id param-type n)
+    (print (om::decode-bundle-s-pointer-data bundle))
+    ;(spat-view-changed-callback id param-type n)
     ))
 
 ;;; to be redefined
 (defun spat-view-changed-callback (id param-type n) t)
 
-(cffi:defcfun ("OmSpatViewerRegisterCallback" OmSpatViewerRegisterCallback) :boolean (ptr :pointer) (callback :pointer))
+(cffi:defcfun ("OmSpatViewerRegisterOscCallback" OmSpatViewerRegisterOscCallback) :boolean (ptr :pointer) (callback :pointer))
 
 (defun spat-view-register-callback (viewer)
-  (spat::OmSpatViewerRegisterCallback viewer (cffi::get-callback 'notify-change)))
+  (spat::OmSpatViewerRegisterOscCallback viewer (cffi::get-callback 'notify-change)))
 
 ;;;===============================================
 
@@ -161,16 +166,16 @@
     (oa::om-add-subviews win view)
     (oa::om-show-window win)
     (sleep 1)
-    (setf *vhdl* (OmSpatCreateSpatViewerWithNSView (spat-get-view-pointer view) 200 200 1))
+    (setf *vhdl* (OmSpatCreateSpatViewerWithNSView (spat-get-view-pointer view) 1))
     win
     ))
 
 ; (test-win)
-; (viewer-osc-command *vhdl* '(("/window/size" 300 300)))
-; (viewer-osc-command *vhdl* '(("/numsources" 4)))
+; (viewer-osc-command *vhdl* '(("/om/window/size" 300 300)))
+; (viewer-osc-command *vhdl* '(("/source/number" 4)))
 ; (OmSpatViewerGetNumSources *vhdl*) 
-; (viewer-osc-command *vhdl* '(("/speakers" 2)))
-; (viewer-osc-command *vhdl* '(("/window/layout" "simple")))
+; (viewer-osc-command *vhdl* '(("/speaker/number" 2)))
+; (viewer-osc-command *vhdl* '(("/layout" "simple")))
 
 (defun test-osc-command (messages)
   (let ((ob (om::make-o.bundle (make-instance 'om::osc-bundle :messages (print messages)))))

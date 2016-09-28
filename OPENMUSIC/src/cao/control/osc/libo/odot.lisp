@@ -105,14 +105,14 @@
     ;;; (#\. (decode-bundle-s-data (odot::osc_atom_s_getBndl_s a)))
     (otherwise :unknown-osc-type)))
 
-(defun decode-bundle-s-data (bundle_s)
+(defun decode-bundle-s-pointer-data (ptr)
   (let ((b_it_s (odot::osc_bundle_iterator_s_getIterator 
-                 (odot::osc_bundle_s_getLen (oa::om-pointer-ptr bundle_s)) 
-                 (odot::osc_bundle_s_getPtr (oa::om-pointer-ptr bundle_s)))))
+                 (odot::osc_bundle_s_getLen ptr) 
+                 (odot::osc_bundle_s_getPtr ptr))))
     (unwind-protect 
         (loop while (= 1 (odot::osc_bundle_iterator_s_hasNext b_it_s)) collect
               (let ((m (odot::osc_bundle_iterator_s_next b_it_s)))
-              ;(print (list "MESSAGE n args = " (odot::osc_message_s_getArgCount m)))
+                ; (print (list "MESSAGE n args = " (odot::osc_message_s_getArgCount m)))
                 (cons (odot::osc_message_s_getAddress m)
                       (let ((m_it_s (odot::osc_message_iterator_s_getIterator m)))
                         (unwind-protect 
@@ -121,6 +121,9 @@
                           (odot::osc_message_iterator_u_destroyIterator m_it_s))))
                 ))
       (odot::osc_bundle_iterator_s_destroyIterator b_it_s))))
+
+(defun decode-bundle-s-data (bundle_s)
+  (decode-bundle-s-pointer-data (oa::om-pointer-ptr bundle_s)))
 
 (defmethod get-messages ((self o.bundle))
   (when (bundle_s self)

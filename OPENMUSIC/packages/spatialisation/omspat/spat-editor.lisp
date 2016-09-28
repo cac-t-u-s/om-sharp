@@ -13,7 +13,11 @@
 (defun viewer-osc-command (viewerhdl messages)
   (when *spat-debug* (print messages))
   (let ((ob (make-o.bundle (make-instance 'osc-bundle :messages messages))))
-    (spat::OmSpatViewerProcessOSCCommands viewerhdl (o.bundle-ptr ob) (o.bundle-size ob))))
+    ;(spat::OmSpatViewerProcessOSCCommands viewerhdl (o.bundle-ptr ob) (o.bundle-size ob))
+    (spat::OmSpatViewerProcessOSCCommands viewerhdl (o.pointer-ptr (bundle_s ob)))
+    ))
+
+
 
 ;;;===============================
 ;;; Spat editor
@@ -357,14 +361,14 @@
   (when (spat-view-handler self) 
     (viewer-osc-command 
      (spat-view-handler self) 
-     `(("/window/size" ,(w self) ,(h self))))
+     `(("/om/window/size" ,(w self) ,(h self))))
     ))
 
 (defmethod init-spat-viewer ((editor spat-editor))
   (when (get-g-component editor :spat-view)
     (viewer-osc-command (spat-view-handler (get-g-component editor :spat-view))
-                        `(("/window/size" ,(w (get-g-component editor :spat-view)) ,(h (get-g-component editor :spat-view)))
-                          ("/window/layout" "single")))))
+                        `(("/om/window/size" ,(w (get-g-component editor :spat-view)) ,(h (get-g-component editor :spat-view)))
+                          ("/layout" "single")))))
 
 ;;; UPDATE EVERYTHING
 ;;; (not optimal !!)
@@ -376,8 +380,8 @@
       (when spatviewhandler
         (viewer-osc-command spatviewhandler
                             (append 
-                             (list (list "/numsources" (length (sources ss)))
-                                   (list "/numspeakers" (length (speakers ss))))
+                             (list (list "/source/number" (length (sources ss)))
+                                   (list "/speaker/number" (length (speakers ss))))
                              (loop for spk in (speakers ss) for n = 1 then (1+ n) collect
                                    (cons (format nil "/set/speaker/~D/xyz" n) spk))))
         (loop for source in (sources ss) 
@@ -481,7 +485,7 @@
 
 (defun attach-spat-scene-view-to-spat (ssview)
   (setf (id ssview) (read-from-string (subseq (string (gensym)) 1)))
-  (let ((spat-ptr (spat::OmSpatCreateSpatViewerWithNSView (spat::spat-get-view-pointer ssview) 100 100 (id ssview))))
+  (let ((spat-ptr (spat::OmSpatCreateSpatViewerWithNSView (spat::spat-get-view-pointer ssview) (id ssview))))
     (when spat-ptr
       (setf (spat-view-handler ssview) spat-ptr)
       (spat::spat-view-register-callback spat-ptr)

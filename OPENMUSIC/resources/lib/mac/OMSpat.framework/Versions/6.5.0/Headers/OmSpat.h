@@ -16,23 +16,6 @@
 
 /************************************************************************************/
 /*!
- *  @brief          Prints the content of an OSC packet (message or bundle) to OSX console
- *
- *  @param[in]      contents :
- *  @param[in]      size :
- *
- *  @return         true on success; check OmSpatGetLastError() otherwise
- *
- *  @details        For debug purpose
- */
-/************************************************************************************/
-OM_SPAT_API
-const bool OmSpatDebugOSCPacket(const char *contents,
-                                const unsigned long size);
-
-
-/************************************************************************************/
-/*!
  *  @brief          Performs signal matrixing with static gains
  *
  *  @param[in]      input : input audio buffer.
