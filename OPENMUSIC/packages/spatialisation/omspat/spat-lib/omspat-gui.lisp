@@ -129,7 +129,8 @@
 
 (cffi::defcallback notify-change :void ((id :int) (param-type :int) (n :int)) 
   (handler-bind ((error #'(lambda (e) (print e))))
-    (spat-view-changed-callback id param-type n)))
+    (spat-view-changed-callback id param-type n)
+    ))
 
 ;;; to be redefined
 (defun spat-view-changed-callback (id param-type n) t)
