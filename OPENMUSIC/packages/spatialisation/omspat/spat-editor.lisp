@@ -168,6 +168,7 @@
     (om-add-subviews 
      (get-g-component editor :spat-view-container)
      (get-g-component editor :spat-view))
+    (attach-spat-scene-view-to-spat (get-g-component editor :spat-view))
     (init-spat-viewer editor)
     (update-spat-display editor)))
 
@@ -431,10 +432,11 @@
 (defmethod update-spat-source-position-from-SpatView ((self spat-editor) spatview sourcenb)
   (let* ((ss (object-value self))
          (traj (nth sourcenb (trajectories ss)))
-         (src-pos (spat::spat-get-source-position spatview sourcenb)))
+         (src-pos (spat::spat-get-source-position spatview sourcenb))
+         )
     (update-position-at-time traj (make-3Dpoint :x (nth 0 src-pos) :y (nth 1 src-pos) :z (nth 2 src-pos))
                              (or (get-cursor-time (timeline-editor self)) 0))
-    (editor-invalidate-views (timeline-editor self))
+    ;(editor-invalidate-views (timeline-editor self))
     ))
 
 (defmethod  update-spat-speaker-position-from-SpatView ((self spat-editor) spatview n)
@@ -470,7 +472,8 @@
   (when *spat-debug*
     (print (list "spat_view_changed callback" "id" id "param" param-type "n" n)))
   (let ((view (find-window-with-spat-view id)))
-    (spat-view-changed (editor view) param-type n)))
+    (spat-view-changed (editor view) param-type n)
+    ))
 
 (defmethod om-create-callback :after ((self spat-scene-view))  
   ;(attach-spat-scene-view-to-spat self)
@@ -481,7 +484,8 @@
   (let ((spat-ptr (spat::OmSpatCreateSpatViewerWithNSView (spat::spat-get-view-pointer ssview) 100 100 (id ssview))))
     (when spat-ptr
       (setf (spat-view-handler ssview) spat-ptr)
-      (spat::spat-view-register-callback spat-ptr)))
+      (spat::spat-view-register-callback spat-ptr)
+      ))
   ssview)
 
 
