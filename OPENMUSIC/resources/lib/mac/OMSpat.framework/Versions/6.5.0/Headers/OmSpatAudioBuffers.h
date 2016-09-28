@@ -1,12 +1,9 @@
 /************************************************************************************/
-/*  FILE DESCRIPTION																*/
-/*----------------------------------------------------------------------------------*/
 /*!
- *   @file       OmSpatAudioBuffers.h
- *   @brief      C-interface to libspat, for OM-Spat
- *   @author     Thibaut Carpentier
- *   @version    $(PRODUCT_VERSION)
- *   @date       05/11/2013
+ *  @file       OmSpatAudioBuffers.h
+ *  @brief      C-interface to libspat, for OM-Spat
+ *  @author     Thibaut Carpentier
+ *  @date       05/11/2013
  *
  */
 /************************************************************************************/

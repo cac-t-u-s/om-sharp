@@ -1,12 +1,9 @@
 /************************************************************************************/
-/*  FILE DESCRIPTION																*/
-/*----------------------------------------------------------------------------------*/
 /*!
- *   @file       OmSpatMatrixCtrl.h
- *   @brief      C-interface to libspat, for OM-Spat
- *   @author     Thibaut Carpentier
- *   @version    $(PRODUCT_VERSION)
- *   @date       05/11/2013
+ *  @file       OmSpatMatrixCtrl.h
+ *  @brief      C-interface to libspat, for OM-Spat
+ *  @author     Thibaut Carpentier
+ *  @date       05/11/2013
  *
  */
 /************************************************************************************/
@@ -26,7 +23,7 @@ typedef void * OmSpatMatrixCtrl;
  *  @param[in]      componentId : 
  *
  *  @return         a pointer on the spat.matrixctrl GUI object
- *                  or NULL if something went wrong
+ *                  or nullptr if something went wrong
  *
  */
 /************************************************************************************/

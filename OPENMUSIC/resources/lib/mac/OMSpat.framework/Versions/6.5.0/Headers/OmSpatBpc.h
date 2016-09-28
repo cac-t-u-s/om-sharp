@@ -1,12 +1,9 @@
 /************************************************************************************/
-/*  FILE DESCRIPTION																*/
-/*----------------------------------------------------------------------------------*/
 /*!
- *   @file       OmSpatBpc.h
- *   @brief      C-interface to libspat, for OM-Spat
- *   @author     Thibaut Carpentier
- *   @version    $(PRODUCT_VERSION)
- *   @date       08/05/2015
+ *  @file       OmSpatBpc.h
+ *  @brief      C-interface to libspat, for OM-Spat
+ *  @author     Thibaut Carpentier
+ *  @date       08/05/2015
  *
  */
 /************************************************************************************/
@@ -26,7 +23,7 @@ typedef void * OmSpatBpc;
  *  @param[in]      componentId :
  *
  *  @return         a pointer on the spat.bpc GUI object
- *                  or NULL if something went wrong
+ *                  or nullptr if something went wrong
  *
  */
 /************************************************************************************/

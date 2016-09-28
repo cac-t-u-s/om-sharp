@@ -1,12 +1,9 @@
 /************************************************************************************/
-/*  FILE DESCRIPTION																*/
-/*----------------------------------------------------------------------------------*/
 /*!
- *   @file       OmSpatConvolution.h
- *   @brief      C-interface to libspat, for OM-Spat
- *   @author     Thibaut Carpentier
- *   @version    $(PRODUCT_VERSION)
- *   @date       16/04/2015
+ *  @file       OmSpatConvolution.h
+ *  @brief      C-interface to libspat, for OM-Spat
+ *  @author     Thibaut Carpentier
+ *  @date       16/04/2015
  *
  */
 /************************************************************************************/
@@ -24,7 +21,7 @@ typedef void * OmSpatConvolver;
  *  @param[in]      numChannels
  *
  *  @return         a pointer on the spat.conv~ object
- *                  or NULL if something went wrong
+ *                  or nullptr if something went wrong
  *
  */
 /************************************************************************************/

@@ -1,12 +1,9 @@
 /************************************************************************************/
-/*  FILE DESCRIPTION																*/
-/*----------------------------------------------------------------------------------*/
 /*!
- *   @file       OmSpatViewer.h
- *   @brief      C-interface to libspat, for OM-Spat
- *   @author     Thibaut Carpentier
- *   @version    $(PRODUCT_VERSION)
- *   @date       05/11/2013
+ *  @file       OmSpatViewer.h
+ *  @brief      C-interface to libspat, for OM-Spat
+ *  @author     Thibaut Carpentier
+ *  @date       05/11/2013
  *
  */
 /************************************************************************************/
@@ -42,7 +39,7 @@ typedef void * OmSpatViewer;
  *  @param[in]      componentId :
  *
  *  @return         a pointer on the spat.viewer GUI object
- *                  or NULL if something went wrong
+ *                  or nullptr if something went wrong
  *
  */
 /************************************************************************************/
@@ -388,6 +385,17 @@ enum OM_SPAT_VISIBILITY_DEFAULT OmSpatViewerParameterType
 typedef void (*OmSpatCallbackWithUnsignedInt)( const int componentId,
                                                const OmSpatViewerParameterType paramType,
                                                const unsigned int index );
+
+/************************************************************************************/
+/*!
+ *  @brief          C-style callback called whenever
+ *  @ingroup        omspat
+ *
+ */
+/************************************************************************************/
+typedef void (*OmSpatCallbackWithOsc)( const int componentId,
+                                       const char *content,
+                                       const unsigned long size );
 
 /************************************************************************************/
 /*!

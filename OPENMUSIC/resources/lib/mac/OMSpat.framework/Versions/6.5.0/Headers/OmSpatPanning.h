@@ -1,12 +1,9 @@
 /************************************************************************************/
-/*  FILE DESCRIPTION																*/
-/*----------------------------------------------------------------------------------*/
 /*!
- *   @file       OmSpatPanning.h
- *   @brief      C-interface to libspat, for OM-Spat
- *   @author     Thibaut Carpentier
- *   @version    $(PRODUCT_VERSION)
- *   @date       05/11/2013
+ *  @file       OmSpatPanning.h
+ *  @brief      C-interface to libspat, for OM-Spat
+ *  @author     Thibaut Carpentier
+ *  @date       05/11/2013
  *
  */
 /************************************************************************************/
@@ -29,7 +26,7 @@ typedef void * OmSpatPanning;
  *                  "knn", "bformat"
  *
  *  @return         a pointer on the spat.pan~ object
- *                  or NULL if something went wrong
+ *                  or nullptr if something went wrong
  *
  */
 /************************************************************************************/
