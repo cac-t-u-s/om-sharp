@@ -13,7 +13,7 @@
 
 *.omp~
 
-"*.app/*"
+OPENMUSIC/*.app/**/*
 *.zip
 
 # OS generated files #
