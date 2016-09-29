@@ -21,12 +21,14 @@
  *
  */
 /************************************************************************************/
+/*
+ /// deprecated
 struct OM_SPAT_VISIBILITY_DEFAULT OmSpatViewerData
 {
     OmSpatPoints * sources;       ///< (pointer to) the coordinates of the sources
     OmSpatPoints * speakers;      ///< (pointer to) the coordinates of the speakers
 };
-
+*/
 
 typedef void * OmSpatViewer;
 
@@ -58,11 +60,14 @@ const OmSpatViewer OmSpatCreateSpatViewerWithNSView(OmSpatNsViewHandler view,
  *
  */
 /************************************************************************************/
+/*
+ /// deprecated
 OM_SPAT_API
 const int OmSpatViewerGetNumSources(OmSpatViewer obj);
 
 OM_SPAT_API
 const int OmSpatViewerGetNumSpeakers(OmSpatViewer obj);
+ */
 
 /************************************************************************************/
 /*!
@@ -73,9 +78,12 @@ const int OmSpatViewerGetNumSpeakers(OmSpatViewer obj);
  *
  */
 /************************************************************************************/
+/*
+ /// deprecated
 OM_SPAT_API
 const bool OmSpatViewerGetData(OmSpatViewer obj,
                                OmSpatViewerData * data);
+ */
 
 /************************************************************************************/
 /*!
@@ -88,10 +96,13 @@ const bool OmSpatViewerGetData(OmSpatViewer obj,
  *
  */
 /************************************************************************************/
+/*
+ /// deprecated
 OM_SPAT_API
 const bool OmSpatViewerGetSourcePosition(OmSpatViewer obj,
                                          const unsigned int sourceIndex,
                                          OmSpatPoints * dest);
+ */
 
 /************************************************************************************/
 /*!
@@ -104,10 +115,13 @@ const bool OmSpatViewerGetSourcePosition(OmSpatViewer obj,
  *
  */
 /************************************************************************************/
+/*
+ /// deprecated
 OM_SPAT_API
 const bool OmSpatViewerIsSourceSelected(OmSpatViewer obj,
                                         const unsigned int sourceIndex,
                                         int * isSelected);
+ */
 
 
 /************************************************************************************/
@@ -122,10 +136,13 @@ const bool OmSpatViewerIsSourceSelected(OmSpatViewer obj,
  *
  */
 /************************************************************************************/
+/*
+ /// deprecated
 OM_SPAT_API
 const bool OmSpatViewerGetSelectedSources(OmSpatViewer obj,
                                           int * areSelected,
                                           const unsigned int numSources);
+ */
 
 /************************************************************************************/
 /*!
@@ -138,10 +155,13 @@ const bool OmSpatViewerGetSelectedSources(OmSpatViewer obj,
  *
  */
 /************************************************************************************/
+/*
+ /// deprecated
 OM_SPAT_API
 const bool OmSpatViewerGetSpeakerPosition(OmSpatViewer obj,
                                           const unsigned int speakerIndex,
                                           OmSpatPoints * dest);
+ */
 
 /************************************************************************************/
 /*!

@@ -13,6 +13,7 @@
 #include "../src/OmSpatApi.h"
 #include "../src/OmSpatAudioBuffers.h"
 #include "../src/OmSpatCoordinates.h"
+#include "../src/OmSpatOsc.h"
 
 typedef void * OmSpatPanning;
 
@@ -130,8 +131,7 @@ const bool OmSpatPanProcess(OmSpatPanning obj,
 /************************************************************************************/
 OM_SPAT_API
 const bool OmSpatPanProcessOSCCommands(OmSpatPanning obj,
-                                       const char *content,
-                                       const unsigned long size);
+                                       const OmSpatOscBundle * bundle);
 
 #endif /* _OM_SPAT_PANNING_H__ */
 

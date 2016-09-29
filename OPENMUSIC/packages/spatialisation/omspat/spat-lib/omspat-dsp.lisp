@@ -105,8 +105,7 @@
 
 (cffi:defcfun ("OmSpatPanProcessOSCCommands" OmSpatPanProcessOSCCommands) :boolean 
   (obj OmSpatPanning)
-  (content :pointer)
-  (size :unsigned-long))
+  (bundle :pointer))
 
 (cffi:defcfun ("OmSpatPanProcess" OmSpatPanProcess) :boolean 
   (obj OmSpatPanning)
@@ -136,6 +135,7 @@
                                     (abort e))))
             (unless (or (null osc-bundle)
                         (OmSpatPanProcessOSCCommands spat osc-bundle bundle-size))
+                        ;;; todo : fix the previous line
               (error "ERROR IN SPAT CONTROL PROCESSING"))
             (unless (OmSpatPanProcess spat spat-out spat-in n-samples-in)
               (error "ERROR IN SPAT AMPLITUDE PANNING:"))

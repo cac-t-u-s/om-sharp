@@ -53,9 +53,11 @@ const bool OmSpatFreeAudioBuffer(OmSpatAudioBuffer * buffer);
  *  @details        There is no guarantee that the content will be preserve when resizing
  */
 /************************************************************************************/
+/*
 OM_SPAT_API
 const bool OmSpatResizePoints(OmSpatPoints * points,
                               const unsigned int numPoints);
+ */
 
 /************************************************************************************/
 /*!
@@ -64,7 +66,9 @@ const bool OmSpatResizePoints(OmSpatPoints * points,
  *
  */
 /************************************************************************************/
+/*
 OM_SPAT_API
 const bool OmSpatFreePoints(OmSpatPoints * points);
+ */
 
 #endif /* _OM_SPAT_ALLOC_H__ */

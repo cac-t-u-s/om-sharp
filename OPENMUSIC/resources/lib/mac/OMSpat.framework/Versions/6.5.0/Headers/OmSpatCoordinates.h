@@ -20,6 +20,8 @@
  *
  */
 /************************************************************************************/
+/*
+ /// deprecated
 enum OM_SPAT_VISIBILITY_DEFAULT OmSpatCoordinatesFormat
 {
     xyz = 0,                        ///< cartesian coordinates, in meters
@@ -27,6 +29,7 @@ enum OM_SPAT_VISIBILITY_DEFAULT OmSpatCoordinatesFormat
 };
 
 typedef enum OmSpatCoordinatesFormat OmSpatCoordinatesFormat;   ///< C-style declaration
+ */
 
 /************************************************************************************/
 /*!
@@ -35,8 +38,11 @@ typedef enum OmSpatCoordinatesFormat OmSpatCoordinatesFormat;   ///< C-style dec
  *
  */
 /************************************************************************************/
+/*
+ /// deprecated
 OM_SPAT_API
 const char * OmSpatCoordinatesFormatName(const OmSpatCoordinatesFormat format);
+ */
 
 /************************************************************************************/
 /*!
@@ -46,6 +52,8 @@ const char * OmSpatCoordinatesFormatName(const OmSpatCoordinatesFormat format);
  *
  */
 /************************************************************************************/
+/*
+ /// deprecated
 struct OM_SPAT_VISIBILITY_DEFAULT OmSpatPoints
 {
     OmSpatCoordinatesFormat format;     ///< the coordinate format
@@ -54,7 +62,8 @@ struct OM_SPAT_VISIBILITY_DEFAULT OmSpatPoints
 };
 
 typedef struct OmSpatPoints OmSpatPoints;   ///< C-style declaration
-
+*/
+ 
 /************************************************************************************/
 /*!
  *  @brief          Converts an OmSpatPoints into a new coordinate system
@@ -65,10 +74,13 @@ typedef struct OmSpatPoints OmSpatPoints;   ///< C-style declaration
  *
  */
 /************************************************************************************/
+/*
+ /// deprecated
 OM_SPAT_API
 const bool OmSpatConvertPoints(OmSpatPoints * dest,
                                const OmSpatCoordinatesFormat newFormat,
                                const OmSpatPoints * const src);
+ */
 
 /************************************************************************************/
 /*!
@@ -82,12 +94,15 @@ const bool OmSpatConvertPoints(OmSpatPoints * dest,
  *
  */
 /************************************************************************************/
+/*
+ /// deprecated
 OM_SPAT_API
 const bool OmSpatTranslatePoints(OmSpatPoints * dest,
                                  const float offsetx,
                                  const float offsety,
                                  const float offsetz,
                                  const OmSpatPoints * const src);
+ */
 
 /************************************************************************************/
 /*!
@@ -101,12 +116,15 @@ const bool OmSpatTranslatePoints(OmSpatPoints * dest,
  *
  */
 /************************************************************************************/
+/*
+ /// deprecated
 OM_SPAT_API
 const bool OmSpatRotatePoints(OmSpatPoints * dest,
                               const float yawInDegrees,
                               const float pitchInDegrees,
                               const float rollInDegrees,
                               const OmSpatPoints * const src );
+ */
 
 /************************************************************************************/
 /*!
@@ -121,6 +139,8 @@ const bool OmSpatRotatePoints(OmSpatPoints * dest,
  *
  */
 /************************************************************************************/
+/*
+ /// deprecated
 OM_SPAT_API
 const bool OmSpatScalePoints(OmSpatPoints * dest,
                              const float scalex,
@@ -128,6 +148,7 @@ const bool OmSpatScalePoints(OmSpatPoints * dest,
                              const float scalez,
                              const float distancescaling,
                              const OmSpatPoints * const src );
+ */
 
 /************************************************************************************/
 /*!
@@ -138,9 +159,12 @@ const bool OmSpatScalePoints(OmSpatPoints * dest,
  *
  */
 /************************************************************************************/
+/*
+ /// deprecated
 OM_SPAT_API
 const bool OmSpatPrintPoints(const OmSpatPoints * const src,
                              const bool printData);
+ */
 
 
 #endif /* _OM_SPAT_COORDINATES_H__ */
