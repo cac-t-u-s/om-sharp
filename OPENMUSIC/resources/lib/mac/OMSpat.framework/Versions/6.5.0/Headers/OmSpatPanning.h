@@ -12,7 +12,6 @@
 
 #include "../src/OmSpatApi.h"
 #include "../src/OmSpatAudioBuffers.h"
-#include "../src/OmSpatCoordinates.h"
 #include "../src/OmSpatOsc.h"
 
 typedef void * OmSpatPanning;

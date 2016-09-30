@@ -12,6 +12,7 @@
 
 #include "../src/OmSpatApi.h"
 #include "../src/OmSpatAudioBuffers.h"
+#include "../src/OmSpatOsc.h"
 
 typedef void * OmSpatConvolver;
 
@@ -82,8 +83,7 @@ const bool OmSpatConvolverProcess(OmSpatConvolver obj,
 /************************************************************************************/
 OM_SPAT_API
 const bool OmSpatConvolverProcessOSCCommands(OmSpatConvolver obj,
-                                             const char *content,
-                                             const unsigned long size);
+                                             const OmSpatOscBundle * bundle);
 
 #endif /* _OM_SPAT_CONVOLUTION_H__ */
 

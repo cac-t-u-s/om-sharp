@@ -12,8 +12,6 @@
 
 #include "../src/OmSpatApi.h"
 #include "../src/OmSpatViewer.h"
-#include "../src/OmSpatBpc.h"
-#include "../src/OmSpatMatrixCtrl.h"
 
 #endif /* _OM_SPAT_GUI_H__ */
 

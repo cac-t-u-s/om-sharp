@@ -12,21 +12,7 @@
 
 #include "../src/OmSpatApi.h"
 
-/************************************************************************************/
-/*!
- *  @struct         OmSpatOscBundle
- *  @brief          Utility class representing an OSC bundle. Compatible with libo interfaces
- *  @ingroup        omspat
- *
- */
-/************************************************************************************/
-struct OM_SPAT_VISIBILITY_DEFAULT OmSpatOscBundle
-{
-    long len;
-    char *ptr;
-};
 
-typedef struct OmSpatOscBundle OmSpatOscBundle;     ///< C-style declaration
 
 /************************************************************************************/
 /*!
