@@ -97,6 +97,7 @@
         "patch/om-reactive"
         "patch/om-comments"
         "patch/om-encapsulation"
+        "patch/om-lost-reference"
 
         "lisp-function/om-lisp-function"
 

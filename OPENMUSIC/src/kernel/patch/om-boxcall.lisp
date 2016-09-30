@@ -463,21 +463,7 @@ All boxes which their reference is a OM generic function are instances of this c
          (pos (position name (function-arg-list fun) :key 'string :test 'string-equal)))
     (when pos (nth pos (inputs-menus fun)))))
 
-
 ;(inputs-menus (fdefinition 'sort-list))
 
-;(defmethod dead-reference ((self OMBoxcall))
-;   "This method is called when the reference of 'self' is deleted."
-;   (let ((newobj (omNG-make-new-boxcall (fdefinition 'dead-method) (frame-position self) (name self))))
-;     (if (frame self)
-;       (let ((container (om-view-container (frame self))))
-;         (when container
-;           (real-make-delete-before container (frame self))
-;           (omg-remove-element container (frame self))
-;           (omG-add-element container (make-frame-from-callobj newobj))))
-;       (progn
-;         (setf (reference self) 'dead-method)
-;         (setf (inputs self) nil)
-;         (setf (icon self) 190)
-;         (change-class self 'box-dead)))))
+
 

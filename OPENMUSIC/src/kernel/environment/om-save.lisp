@@ -497,7 +497,10 @@
                 (:value val (omng-make-new-boxcall 'value pos val))
                 (:function (if (fboundp reference) 
                                (omng-make-new-boxcall (fdefinition reference) pos)
-                             (om-beep-msg "unknown function: ~A" reference)))
+                             (progn
+                               (om-beep-msg "unknown function: ~A" reference)
+                               (omng-make-lost-fun-box reference pos)
+                               )))
                 (:patch (let ((box (omng-make-new-boxcall (omng-load reference) pos)))
                           ;; sometimes (e.g. in maquettes) the patches save their value
                           (when box (setf (value box) (list val)))
