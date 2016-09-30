@@ -102,6 +102,7 @@
     (#\d (odot::osc_atom_s_getDouble a))
     (#\i (odot::osc_atom_s_getInt a))
     (#\s (odot::osc_atom_s_get_str a))
+    (#\T t) (#\F nil) 
     ;;; (#\. (decode-bundle-s-data (odot::osc_atom_s_getBndl_s a)))
     (otherwise :unknown-osc-type)))
 
@@ -112,7 +113,7 @@
     (unwind-protect 
         (loop while (= 1 (odot::osc_bundle_iterator_s_hasNext b_it_s)) collect
               (let ((m (odot::osc_bundle_iterator_s_next b_it_s)))
-                ; (print (list "MESSAGE n args = " (odot::osc_message_s_getArgCount m)))
+                ;(print (list "MESSAGE n args = " (odot::osc_message_s_getArgCount m)))
                 (cons (odot::osc_message_s_getAddress m)
                       (let ((m_it_s (odot::osc_message_iterator_s_getIterator m)))
                         (unwind-protect 
