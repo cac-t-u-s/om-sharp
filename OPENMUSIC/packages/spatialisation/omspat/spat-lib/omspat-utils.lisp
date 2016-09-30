@@ -33,6 +33,12 @@
 ;(OmSpatGetVersion)
 ;(OmSpatGetLastError)
 
+(defun test-osc-command (messages)
+  (let ((ob (om::make-o.bundle (make-instance 'om::osc-bundle :messages (print messages)))))
+    (spat::OmSpatDebugOSCPacket (om::o.bundle-ptr ob) (om::o.bundle-size ob))))
+; (test-osc-command '(("/numsources" 4)))
+
+
 ;;;=========
 ;;; UTILS
 ;;;=========

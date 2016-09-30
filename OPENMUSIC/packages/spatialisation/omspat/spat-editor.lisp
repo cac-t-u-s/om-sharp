@@ -13,8 +13,7 @@
 (defun viewer-osc-command (viewerhdl messages)
   (when *spat-debug* (print messages))
   (let ((ob (make-o.bundle (make-instance 'osc-bundle :messages messages))))
-    ;(spat::OmSpatViewerProcessOSCCommands viewerhdl (o.bundle-ptr ob) (o.bundle-size ob))
-    (spat::OmSpatViewerProcessOSCCommands viewerhdl (o.pointer-ptr (bundle_s ob)))
+    (spat::OmSpatProcessOscCommands viewerhdl (o.pointer-ptr (bundle_s ob)))
     ))
 
 
@@ -124,13 +123,14 @@
                                                 (declare (ignore b))
                                                 (remove-source editor)))
                      nil
-                     (om-make-di 'om-popup-list :items '("Spat view" "3DC view") 
+                     (om-make-di 'om-popup-list :items '("Spat view" "3DC view" "Eq") 
                                  :size (omp 100 24)
                                  :di-action #'(lambda (b) 
                                                 (declare (ignore b))
-                                                (if (= 0 (om-get-selected-item-index b))
-                                                    (set-spat-view-mode editor)
-                                                    (set-3D-view-mode editor)
+                                                (case (om-get-selected-item-index b)
+                                                  (0 (set-spat-view-mode editor))
+                                                  (1 (set-3D-view-mode editor))
+                                                  (2 (set-spat-view-mode editor :eq))
                                                   ))))
     
     (set-g-component (timeline-editor editor) :main-panel timeline)
@@ -163,7 +163,7 @@
   (update-spat-display editor))
 
 
-(defun set-spat-view-mode (editor)
+(defun set-spat-view-mode (editor &optional mode)
   (unless (equal (view-mode editor) :spat)
     (setf (view-mode editor) :spat)
     (set-g-component editor :spat-view (om-make-view 'spat-scene-view :size (omp 200 200)))
@@ -172,7 +172,9 @@
     (om-add-subviews 
      (get-g-component editor :spat-view-container)
      (get-g-component editor :spat-view))
-    (attach-spat-scene-view-to-spat (get-g-component editor :spat-view))
+    (attach-spat-scene-view-to-spat 
+     (get-g-component editor :spat-view)
+     (if (equal mode :eq) "spat.equalizer" "spat.viewer"))
     (init-spat-viewer editor)
     (update-spat-display editor)))
 
@@ -350,7 +352,7 @@
 (defun free-spat-viewer (editor)
   (let ((spat-view (get-g-component editor :spat-view)))
     (when (and spat-view (spat-view-handler spat-view))
-      (spat::OmSpatFreeSpatViewer (spat-view-handler spat-view)))))
+      (spat::OmSpatFreeComponent (spat-view-handler spat-view)))))
 
 (defmethod editor-close ((self spat-editor))
   (free-spat-viewer self)
@@ -471,6 +473,7 @@
         (when *spat-debug* (print (list "Unknow event" param-type  "N" n )))))
       )))
 
+;;; not called anymore
 ;;; redefinition of the spat-callback
 (defun spat::spat-view-changed-callback (id param-type n)  
   (when *spat-debug*
@@ -479,16 +482,24 @@
     (spat-view-changed (editor view) param-type n)
     ))
 
-(defmethod om-create-callback :after ((self spat-scene-view))  
-  ;(attach-spat-scene-view-to-spat self)
-  nil)
+; (OmSpatGetCurrentStateAsOscBundle component-ptr)
+(defun spat::spat-component-handle-callback (component-ptr bundle-ptr)
+  (let ((messages (om::decode-bundle-s-pointer-data bundle-ptr)))
+    (print messages)
+    (odot::osc_bundle_s_deepFree bundle-ptr)))
 
-(defun attach-spat-scene-view-to-spat (ssview)
+
+
+
+(defun attach-spat-scene-view-to-spat (ssview &optional (type "spat.viewer"))
   (setf (id ssview) (read-from-string (subseq (string (gensym)) 1)))
-  (let ((spat-ptr (spat::OmSpatCreateSpatViewerWithNSView (spat::spat-get-view-pointer ssview) (id ssview))))
+  (let ((spat-ptr (spat::OmSpatCreateComponentWithType type)))
+    (print (spat::omspatgetcomponenttype spat-ptr))
     (when spat-ptr
+      (spat::spat-component-register-callback spat-ptr)
+      (spat::OmSpatInstallComponentInNSView spat-ptr (spat::spat-get-view-pointer ssview))
       (setf (spat-view-handler ssview) spat-ptr)
-      (spat::spat-view-register-callback spat-ptr)
+      (spat::spat-component-register-callback spat-ptr)
       ))
   ssview)
 
