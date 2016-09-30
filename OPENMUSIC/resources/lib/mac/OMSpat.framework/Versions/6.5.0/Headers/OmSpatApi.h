@@ -52,7 +52,6 @@ const bool OmSpatIsInitialized();
  *  @details        This resets the default sampling rate, the last error message,
  *                  and other global parameters.
  *                  This function should be call at least once, when first loading the dylib
- *
  *  @return         true on success; false otherwise, then check "OmSpatGetLastError"
  *
  */
@@ -111,7 +110,6 @@ typedef void OmSpatComponent;
 /*!
  *  @struct         OmSpatOscBundle
  *  @brief          Utility class representing an OSC bundle. Compatible with libo interfaces
- *  @ingroup        omspat
  *
  */
 /************************************************************************************/
@@ -126,6 +124,7 @@ typedef struct OmSpatOscBundle OmSpatOscBundle;     ///< C-style declaration
 /************************************************************************************/
 /*!
  *  @brief          Prints the OSC packet on OSX Console
+ *  @return         true on success; check OmSpatGetLastError() otherwise
  *
  */
 /************************************************************************************/
@@ -136,6 +135,7 @@ const bool OmSpatDebugOSCPacket(const char *contents,
 /************************************************************************************/
 /*!
  *  @brief          Prints the OSC packet on OSX Console
+ *  @return         true on success; check OmSpatGetLastError() otherwise
  *
  */
 /************************************************************************************/
@@ -146,7 +146,6 @@ const bool OmSpatDebugOSCBundle(const OmSpatOscBundle * bundle);
 /*!
  *  @struct         OmSpatAudioBuffer
  *  @brief          Utility class for handling multichannel audio buffers
- *  @ingroup        omspat
  *
  */
 /************************************************************************************/
@@ -176,7 +175,6 @@ const bool OmSpatResizeAudioBuffer(OmSpatAudioBuffer * buffer,
                                    const unsigned int numChannels,
                                    const unsigned long numSamples);
 
-
 /************************************************************************************/
 /*!
  *  @brief          Free an OmSpatAudioBuffer
@@ -204,8 +202,8 @@ OmSpatComponent * OmSpatCreateComponentWithType(const char * componentType);
  *  @brief          Creates a new DSP component
  *  @param[in]      componentType : type of component to create
  *                  e.g. : "spat.pan~"
- *  @param[in]      numInputs
- *  @param[in]      numOutputs
+ *  @param[in]      numInputs : number of input audio channels
+ *  @param[in]      numOutputs : number of output audio channels
  *  @return         a pointer to the newly created component or nullptr if error
  *
  */
@@ -260,7 +258,6 @@ typedef void (*OmSpatOscCallback)( OmSpatComponent * obj,
  *  @brief          Register a C-callback function
  *  @param[in]      obj : a component
  *  @param[in]      theCallbackFunction : the C-callback function
- *
  *  @return         true on success; check OmSpatGetLastError() otherwise
  *
  */
@@ -277,6 +274,7 @@ OmSpatOscBundle * OmSpatGetCurrentStateAsOscBundle(OmSpatComponent * obj);
  *  @brief          Installs aGUI component into a NSView
  *  @param[in]      obj : a GUI component
  *  @param[in]      nsview : a NSView
+ *  @return         true on success; check OmSpatGetLastError() otherwise
  *
  */
 /************************************************************************************/
