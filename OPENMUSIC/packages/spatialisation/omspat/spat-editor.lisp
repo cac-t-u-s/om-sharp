@@ -183,8 +183,8 @@
   (unless (equal (view-mode editor) :3dc)
     (setf (view-mode editor) :3dc)
     (om-remove-all-subviews (get-g-component editor :spat-view-container))
-    (set-g-component editor :spat-view nil)
     (free-spat-viewer editor)
+    (set-g-component editor :spat-view nil)
     (set-g-component editor :3D-view 
                      (om-make-view 'om-opengl-view
                                    :title "3D view" :editor editor
