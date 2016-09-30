@@ -33,8 +33,11 @@
      (call-next-method) 
      `(("Appearance"
         ((:display "View (m)" ,(display-modes-for-object (reference self)) display)))
-       ("Patch"
-        ((:filename ,(if (is-persistant (reference self)) "File name" "Name") :path box-patch-name)))
+       ("Abstraction"
+        ((:filename 
+          ,(if (is-persistant (reference self)) "File name" "Name") 
+          ,(if (is-persistant (reference self)) :path :text) 
+          box-patch-name)))
        ("Scheduling"
         ((:pre-delay "Pre-delay (ms)" :number pre-delay)))))))
 
@@ -112,6 +115,11 @@
   (setf (pre-delay object) val)
   (call-next-method))
 
+(defmethod lost-reference ((box OMBoxAbstraction))
+  (and (is-persistant (reference box))
+       (not (probe-file (mypathname (reference box))))))
+
+
 ;;;=======================
 ;;; THESE BEHAVIOURS DIFFER BETWEEN 
 ;;; INTERNAL OR FILE ABSTRACTION
@@ -168,7 +176,7 @@
   (let* ((abs (reference self))
          (iconsize (if (is-persistant abs) 24 16)))
     (om-draw-picture (icon abs) :x 0 :y 4 :w iconsize :h iconsize)
-    (when (and (is-persistant abs) (not (probe-file (mypathname abs))))
+    (when (lost-reference self)
       (let ((x1 5) (x2 (- iconsize 7))
             (y1 10) (y2 (- iconsize 2)))
       (om-with-fg-color (om-def-color :dark-red)
@@ -177,6 +185,10 @@
           (om-draw-line x1 y2 x2 y1)
           ))))))
 
+(defmethod text-color ((self OMBoxAbstraction))
+  (if (lost-reference self)
+      (om-def-color :dark-red)
+    (call-next-method)))
 
 (defmethod minimum-size ((self OMBoxAbstraction))
   (let ((text-size (round (om-string-size (name self) (text-font self)))))
