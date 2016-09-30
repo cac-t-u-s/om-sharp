@@ -10,10 +10,9 @@
 #ifndef _OM_SPAT_VIEWER_H__
 #define _OM_SPAT_VIEWER_H__
 
-#include "../src/OmSpatOsc.h"
+#include "../src/OmSpatOscImplementation.h"
 
 typedef void * OmSpatViewer;
-
 
 /************************************************************************************/
 /*!

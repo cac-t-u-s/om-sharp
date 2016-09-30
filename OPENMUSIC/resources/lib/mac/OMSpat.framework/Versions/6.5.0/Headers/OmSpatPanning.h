@@ -11,8 +11,6 @@
 #define _OM_SPAT_PANNING_H__
 
 #include "../src/OmSpatApi.h"
-#include "../src/OmSpatAudioBuffers.h"
-#include "../src/OmSpatOsc.h"
 
 typedef void * OmSpatPanning;
 

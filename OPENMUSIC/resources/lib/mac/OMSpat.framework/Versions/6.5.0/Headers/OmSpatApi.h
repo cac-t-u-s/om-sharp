@@ -125,6 +125,25 @@ typedef struct OmSpatOscBundle OmSpatOscBundle;     ///< C-style declaration
 
 /************************************************************************************/
 /*!
+ *  @brief          Prints the OSC packet on OSX Console
+ *
+ */
+/************************************************************************************/
+OM_SPAT_API
+const bool OmSpatDebugOSCPacket(const char *contents,
+                                const unsigned long size);
+
+/************************************************************************************/
+/*!
+ *  @brief          Prints the OSC packet on OSX Console
+ *
+ */
+/************************************************************************************/
+OM_SPAT_API
+const bool OmSpatDebugOSCBundle(const OmSpatOscBundle * bundle);
+
+/************************************************************************************/
+/*!
  *  @struct         OmSpatAudioBuffer
  *  @brief          Utility class for handling multichannel audio buffers
  *  @ingroup        omspat
@@ -142,16 +161,60 @@ typedef struct OmSpatAudioBuffer OmSpatAudioBuffer;     ///< C-style declaration
 
 /************************************************************************************/
 /*!
- *  @brief          Creates a new component
+ *  @brief          Resize an OmSpatAudioBuffer
+ *  @param[in]      numChannels
+ *  @param[in]      numSamples
+ *  @return         true on success; check OmSpatGetLastError() otherwise
+ *
+ *  @details        The OmSpatAudioBuffer must have been previously allocated;
+ *                  The buffer->data field is resized if needed
+ *  @details        There is no guarantee that the content will be preserve when resizing
+ */
+/************************************************************************************/
+OM_SPAT_API
+const bool OmSpatResizeAudioBuffer(OmSpatAudioBuffer * buffer,
+                                   const unsigned int numChannels,
+                                   const unsigned long numSamples);
+
+
+/************************************************************************************/
+/*!
+ *  @brief          Free an OmSpatAudioBuffer
+ *  @return         true on success; check OmSpatGetLastError() otherwise
+ *
+ */
+/************************************************************************************/
+OM_SPAT_API
+const bool OmSpatFreeAudioBuffer(OmSpatAudioBuffer * buffer);
+
+/************************************************************************************/
+/*!
+ *  @brief          Creates a new (non-DSP) component
  *  @param[in]      componentType : type of component to create
  *                  e.g. : "spat.viewer", "spat.equalizer"
- *  @param[in]      componentId : a unique ID for this component
  *  @return         a pointer to the newly created component or nullptr if error
  *
  */
 /************************************************************************************/
 OM_SPAT_API
 OmSpatComponent * OmSpatCreateComponentWithType(const char * componentType);
+
+/************************************************************************************/
+/*!
+ *  @brief          Creates a new DSP component
+ *  @param[in]      componentType : type of component to create
+ *                  e.g. : "spat.pan~"
+ *  @param[in]      numInputs
+ *  @param[in]      numOutputs
+ *  @return         a pointer to the newly created component or nullptr if error
+ *
+ */
+/************************************************************************************/
+OM_SPAT_API
+OmSpatComponent * OmSpatCreateDspComponentWithType(const char * componentType,
+                                                   const unsigned int numInputs,
+                                                   const unsigned int numOutputs);
+
 
 OM_SPAT_API
 const bool OmSpatIsValidComponentType(const char * componentType);
