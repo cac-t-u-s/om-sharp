@@ -98,13 +98,11 @@ const float OmSpatGetGlobalSamplingRate();
 /// private method
 extern void SetLastErrorMessage(const char * msg);
 
-//==============================================================================
-// Types definitions
-//==============================================================================
-/// a NSView
-typedef void OmSpatNsViewHandler;
 
-typedef void OmSpatComponent;
+
+//==============================================================================
+// OmSpatOscBundle
+//==============================================================================
 
 /************************************************************************************/
 /*!
@@ -141,6 +139,12 @@ const bool OmSpatDebugOSCPacket(const char *contents,
 /************************************************************************************/
 OM_SPAT_API
 const bool OmSpatDebugOSCBundle(const OmSpatOscBundle * bundle);
+
+
+
+//==============================================================================
+// OmSpatAudioBuffer
+//==============================================================================
 
 /************************************************************************************/
 /*!
@@ -185,11 +189,18 @@ const bool OmSpatResizeAudioBuffer(OmSpatAudioBuffer * buffer,
 OM_SPAT_API
 const bool OmSpatFreeAudioBuffer(OmSpatAudioBuffer * buffer);
 
+
+
+//==============================================================================
+// OmSpatComponent
+//==============================================================================
+typedef void OmSpatComponent;
+
 /************************************************************************************/
 /*!
  *  @brief          Creates a new (non-DSP) component
  *  @param[in]      componentType : type of component to create
- *                  e.g. : "spat.viewer", "spat.equalizer"
+ *                  e.g. : "spat.viewer", "spat.equalizer", "spat.compressor", etc.
  *  @return         a pointer to the newly created component or nullptr if error
  *
  */
@@ -213,6 +224,24 @@ OmSpatComponent * OmSpatCreateDspComponentWithType(const char * componentType,
                                                    const unsigned int numInputs,
                                                    const unsigned int numOutputs);
 
+/************************************************************************************/
+/*!
+ *  @brief          Process the audio component with the current parameters
+ *  @param[in]      obj : a DSP component
+ *  @param[in]      input : input audio buffer. The number of channels should be >= the number of sources
+ *  @param[in]      numSamplesToProcess : total number of samples you want to process; if it is greater than
+ *                  the number of samples in 'input' buffer, the rest is 'zero-padded'
+ *  @param[out]     output : output buffer; the number of channels should match the number of speakers, and
+ *                  the number of samples should be >= numSamplesToProcess. If needed, the buffer is resized internally
+ *  @return         true on success; check OmSpatGetLastError() otherwise
+ *
+ */
+/************************************************************************************/
+OM_SPAT_API
+const bool OmSpatProcessAudio(OmSpatComponent * obj,
+                              OmSpatAudioBuffer * output,
+                              const OmSpatAudioBuffer * input,
+                              const unsigned long numSamplesToProcess);
 
 OM_SPAT_API
 const bool OmSpatIsValidComponentType(const char * componentType);
@@ -226,6 +255,13 @@ const bool OmSpatIsDspComponent(const OmSpatComponent * obj);
 OM_SPAT_API
 const char * OmSpatGetComponentType(const OmSpatComponent * obj);
 
+/************************************************************************************/
+/*!
+ *  @brief          Free an OmSpatComponent
+ *  @param[in]      obj : a component
+ *
+ */
+/************************************************************************************/
 OM_SPAT_API
 const bool OmSpatFreeComponent(OmSpatComponent * obj);
 
@@ -244,9 +280,19 @@ const bool OmSpatProcessOscCommands(OmSpatComponent * obj,
 
 /************************************************************************************/
 /*!
+ *  @brief          Returns an OSC bundle representing this object
+ *  @param[in]      obj : a component
+ *
+ */
+/************************************************************************************/
+OM_SPAT_API
+OmSpatOscBundle * OmSpatGetCurrentStateAsOscBundle(OmSpatComponent * obj);
+
+/************************************************************************************/
+/*!
  *  @brief          C-style callback called whenever something changes in the component
  *  @param[in]      obj : the component that is changing
- *  @param[in]      bundle : the OSC message or bundle
+ *  @param[in]      bundle : the OSC bundle
  *
  */
 /************************************************************************************/
@@ -266,14 +312,17 @@ OM_SPAT_API
 const bool OmSpatRegisterOscCallback(OmSpatComponent * obj,
                                      OmSpatOscCallback theCallbackFunction);
 
-OM_SPAT_API
-OmSpatOscBundle * OmSpatGetCurrentStateAsOscBundle(OmSpatComponent * obj);
+//==============================================================================
+// NSView
+//==============================================================================
+/// a NSView
+typedef void OmSpatNsViewHandler;
 
 /************************************************************************************/
 /*!
- *  @brief          Installs aGUI component into a NSView
+ *  @brief          Installs a GUI component into a NSView
  *  @param[in]      obj : a GUI component
- *  @param[in]      nsview : a NSView
+ *  @param[in]      nsview : a NSView (nb : must be already installed in a NSWindow)
  *  @return         true on success; check OmSpatGetLastError() otherwise
  *
  */
