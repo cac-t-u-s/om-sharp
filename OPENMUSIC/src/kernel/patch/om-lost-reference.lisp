@@ -124,3 +124,14 @@
     box))
 
 
+;;;===================
+;;; LOST CLASS
+;;;===================
+(defmethod omng-make-lost-class-box (reference pos &optional init-args)
+  (let* ((box (make-instance 'LostReferenceBox
+                             :lost-reference reference
+                             :reference-type :object))
+         (size (minimum-size box)))
+    (setf (box-x box) (om-point-x pos)
+          (box-y box) (om-point-y pos))
+    box))
