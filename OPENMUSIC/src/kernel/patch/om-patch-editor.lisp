@@ -417,7 +417,9 @@
                                  (object self)
                                (find-persistant-container (object self)))))
           (if patch-to-save
-              (save-document patch-to-save)
+              (progn 
+                (save-document patch-to-save)
+                (update-window-name self))
             (om-beep-msg "No container patch to save !!!"))
           ))))
 
