@@ -167,7 +167,7 @@
   '(("Appearance" ;;; category
                ;(:icon "Icon position" (:left :top :noicon) icon-pos)
                (:color "Color" :color color)
-               ;(:border "Border" :bool border)
+               (:border "Border" :bool border)
                (:text-font "Text font" :font text-font) ;;; id text type slot-name
                (:align "Text align" (:left :center :right) text-align)
                )
@@ -227,6 +227,8 @@
 ; INPUTS/OUTPUTS
 ;;;=============================
 
+;; reference can be an actual in/out box (e.g. in an abstraction box) 
+;; or just a symbol (never used) corresponding to the name of the input
 (defclass OMBoxIO (OMVPObject) 
   ((reference :initform nil :initarg :reference :accessor reference)
    (doc-string :initform "" :initarg :doc-string :accessor doc-string)
