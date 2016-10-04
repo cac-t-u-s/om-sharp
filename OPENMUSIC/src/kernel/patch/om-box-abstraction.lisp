@@ -115,10 +115,6 @@
   (setf (pre-delay object) val)
   (call-next-method))
 
-(defmethod lost-reference ((box OMBoxAbstraction))
-  (and (is-persistant (reference box))
-       (not (probe-file (mypathname (reference box))))))
-
 
 ;;;=======================
 ;;; THESE BEHAVIOURS DIFFER BETWEEN 
@@ -171,12 +167,16 @@
 ;;;===================
 ;;; DISPLAY
 ;;;===================
+(defmethod lost-reference? ((box OMBoxAbstraction))
+  (and (is-persistant (reference box))
+       (not (probe-file (mypathname (reference box))))))
+
 
 (defmethod draw-patch-icon ((self OMBoxAbstraction))
   (let* ((abs (reference self))
          (iconsize (if (is-persistant abs) 24 16)))
     (om-draw-picture (icon abs) :x 0 :y 4 :w iconsize :h iconsize)
-    (when (lost-reference self)
+    (when (lost-reference? self)
       (let ((x1 5) (x2 (- iconsize 7))
             (y1 10) (y2 (- iconsize 2)))
       (om-with-fg-color (om-def-color :dark-red)
@@ -186,7 +186,7 @@
           ))))))
 
 (defmethod text-color ((self OMBoxAbstraction))
-  (if (lost-reference self)
+  (if (lost-reference? self)
       (om-def-color :dark-red)
     (call-next-method)))
 

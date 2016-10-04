@@ -387,7 +387,7 @@
       ;;; interior
       (when (color box)
         (om-draw-rect 0 io-hspace (w self) (- (h self) (* 2 io-hspace)) 
-                      :color  (color box)
+                      :color (color box)
                       :angles :round
                       :fill t))
     

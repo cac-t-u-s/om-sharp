@@ -252,11 +252,20 @@ All boxes which their reference is a OM generic function are instances of this c
 
 (defmethod update-output-from-new-in (box name in) nil)
 
+(defmethod smart-copy-additional-inputs ((self OMBoxCall) newbox)
+  (mapcar 
+     #'(lambda (in) 
+         (more-optional-input newbox :name (name in) :value (value in) :reactive (reactive in)))
+     (get-optional-inputs self))
+    (mapcar 
+     #'(lambda (in) 
+         (more-keyword-input newbox :key (intern-k (name in)) :value (value in) :reactive (reactive in)))
+     (get-keyword-inputs self)))
+
 (defmethod om-copy ((self OMBoxCall)) 
   (let ((newbox (call-next-method)))
     ;;; add the optional/keywords
-    (mapcar #'(lambda (in) (more-optional-input newbox :name (name in) :value (value in) :reactive (reactive in))) (get-optional-inputs self))
-    (mapcar #'(lambda (in) (more-keyword-input newbox :key (intern-k (name in)) :value (value in) :reactive (reactive in))) (get-keyword-inputs self))
+    (smart-copy-additional-inputs self newbox) 
     newbox))
 
 

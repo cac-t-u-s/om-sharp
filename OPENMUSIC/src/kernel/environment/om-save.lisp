@@ -385,7 +385,10 @@
 
 ;;; save the outputs only if some are reactive,
 ;;; otherwise it is not useful in the general case
-(defmethod save-outputs? ((self OMBox)) (find t (outputs self) :key 'reactive))
+;;; update : now it is useful if the reference is lost
+(defmethod save-outputs? ((self OMBox)) 
+  ;(find t (outputs self) :key 'reactive)
+  t)
 
 (defmethod omng-save ((self OMBox))  
   (cons :box
