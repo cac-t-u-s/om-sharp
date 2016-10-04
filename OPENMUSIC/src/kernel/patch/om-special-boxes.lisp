@@ -75,7 +75,7 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
 (defmethod allow-remove-inputs ((self OMBoxSplit)) (> (length (outputs self)) 1))
 
 ;; on this special box adding an input actually adds an ouput...
-(defmethod more-optional-input ((self OMFunBoxcall) &key name (value nil val-supplied-p) doc reactive)
+(defmethod more-optional-input ((self OMBoxSplit) &key name (value nil val-supplied-p) doc reactive)
   ;;; no checks
   (add-optional-input self)) 
 
