@@ -73,7 +73,9 @@
     
     ;; pre-process to group the outputs when possible
     (loop for connection in bridges do
-          (let ((existpos (print (position (print (find-value-in-kv-list (cdr connection) :from)) (print grouped-bridges) :key 'cadar :test 'equal))))
+          (let ((existpos (position (find-value-in-kv-list (cdr connection) :from) 
+                                    grouped-bridges
+                                    :key 'cadar :test 'equal)))
             (if existpos 
                 (setf (nth existpos grouped-bridges)
                       (append (nth existpos grouped-bridges)
@@ -116,8 +118,8 @@
          (newpatch (make-instance 'OMPatchInternal :name "my-patch"))
          (patchbox (omNG-make-new-boxcall 
                     newpatch 
-                    (om-make-point (average (mapcar 'box-x boxes) nil)
-                                   (average (mapcar 'box-y boxes) nil))
+                    (om-make-point (round (average (mapcar 'box-x boxes) nil))
+                                   (round (average (mapcar 'box-y boxes) nil)))
                     nil)))       
     ;insert new patch in current window
     (add-box-in-patch-editor patchbox view)
@@ -190,10 +192,11 @@
 (defmethod unencapsulate-box ((box t) (editor patch-editor) view) (om-beep))
 
 (defmethod center-positions-around (boxes position)
-  (let ((move-x (- (om-point-x position) (average (mapcar 'box-x boxes) nil)))
-        (move-y (- (om-point-y position) (average (mapcar 'box-y boxes) nil))))
-    (loop for box in boxes
-          do (move-box box move-x move-y))))
+  (when boxes 
+    (let ((move-x (- (om-point-x position) (average (mapcar 'box-x boxes) nil)))
+          (move-y (- (om-point-y position) (average (mapcar 'box-y boxes) nil))))
+      (loop for box in boxes
+            do (move-box box move-x move-y)))))
 
 (defmethod decapsulable ((self OMPatch)) t)
 
