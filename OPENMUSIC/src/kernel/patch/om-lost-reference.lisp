@@ -26,6 +26,11 @@
 (defmethod text-color ((self LostReferenceBox)) (om-make-color .8 0. 0.))
 (defmethod border ((self LostReferenceBox)) nil)
 
+;; for object boxes
+(defmethod (setf window-pos) (pos (self LostReferenceBox)) nil)
+(defmethod (setf window-size) (pos (self LostReferenceBox)) nil)
+
+
 ;(defmethod draw-border ((self LostReferenceBox) x y w h style)
 ;  (om-draw-rect x y w h :line (if (numberp style) style 3) :color (om-make-color 0.9 0.4 0.4) :angles :round))
 
@@ -135,3 +140,25 @@
     (setf (box-x box) (om-point-x pos)
           (box-y box) (om-point-y pos))
     box))
+
+(defmethod omng-make-lost-slots-box (reference pos &optional init-args)
+  (let* ((box (make-instance 'LostReferenceBox
+                             :lost-reference reference
+                             :reference-type :slots))
+         (size (minimum-size box)))
+    (setf (box-x box) (om-point-x pos)
+          (box-y box) (om-point-y pos))
+    box))
+
+
+#|
+
+(defclass testclass () 
+  ((a :accessor a :initarg :a :initform nil)
+   (b :accessor b :initarg :b :initform nil)))
+
+(make-instance 'testclass)
+(find-class 'testclass nil)
+(clos::remove-class-internal (find-class 'testclass nil))
+
+|#

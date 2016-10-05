@@ -500,8 +500,7 @@
                 (:value val (omng-make-new-boxcall 'value pos val))
                 (:function (if (fboundp reference) 
                                (omng-make-new-boxcall (fdefinition reference) pos)
-                             (progn
-                               (om-beep-msg "unknown function: ~A" reference)
+                             (progn (om-beep-msg "unknown function: ~A" reference)
                                (omng-make-lost-fun-box reference pos)
                                )))
                 (:patch (let ((box (omng-make-new-boxcall (omng-load reference) pos)))
@@ -511,10 +510,12 @@
                 (:io (omng-make-new-boxcall (omng-load reference) pos))
                 (:object (if (find-class reference nil) 
                              (omng-make-new-boxcall (find-class reference nil) pos val)
-                           (om-beep-msg "unknown class: ~A" reference)))
+                           (progn (om-beep-msg "unknown class: ~A" reference)
+                             (omng-make-lost-class-box reference pos))))
                 (:slots (if (find-class reference nil) 
                             (omng-make-new-boxcall 'slots pos (find-class reference nil))
-                          (om-beep-msg "unknown class: ~A" reference)))
+                          (progn (om-beep-msg "unknown class: ~A" reference)
+                            (omng-make-lost-slots-box reference pos))))
                 (:otherwise (om-beep-msg "unknown box type: ~A" type))))) ;;; DO SOMETHING FOR UNKNOWN BOX ID (kind of 'dead boxes')
     (when box
       ;;; only for boxeditcall
