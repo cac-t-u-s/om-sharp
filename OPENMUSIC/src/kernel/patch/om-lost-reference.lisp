@@ -219,3 +219,18 @@
         (setf (loaded? (reference self)) nil) ;; is it not ?
         )
     (call-next-method)))
+
+
+(defmethod boxcall-function :before ((self OMBoxAbstraction))
+  (when (lost-reference? self)
+    (om-beep-msg "MISSING REFERENCE FOR BOX '~A'.~%[=> File '~s' not found]" 
+                 (name self)
+                 (mypathname (reference self)))
+    (om-abort)))
+
+(defmethod gen-code :before ((self OMBoxAbstraction) &optional numout)
+   (when (lost-reference? self)
+    (om-beep-msg "MISSING REFERENCE FOR BOX '~A'.~%[=> File '~s' not found]" 
+                 (name self)
+                 (mypathname (reference self)))
+    (om-abort)))

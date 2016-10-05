@@ -172,7 +172,7 @@
 
 (defmethod window-name-from-patch ((self ompersistantobject))
   (if (mypathname self) 
-      (if (print (probe-file (mypathname self)))
+      (if (probe-file (mypathname self))
           ;;; normal case
           (format nil "~A~A  [~A]" 
                   (if (saved? self) "" "*") (name self)
