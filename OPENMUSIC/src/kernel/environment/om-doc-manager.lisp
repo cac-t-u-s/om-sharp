@@ -76,10 +76,19 @@
 
 (defmethod doctype-info ((type (eql :patch))) '("OM Patch" "*.opat"))
 (defmethod doctype-info ((type (eql :maquette))) '("OM Maquette" "*.omaq"))
+(defmethod doctype-info ((type (eql :textfun))) '("OM Text (Lisp) Function" "*.olsp"))
+
+(defmethod doctype-info ((type (eql :om)))
+  (list "OM Documents" (string+ (cadr (doctype-info :patch)) ";" 
+                                (cadr (doctype-info :maquette)) ";"
+                                (cadr (doctype-info :textfun))
+                                )))
 
 (defun extension-to-doctype (str)
   (cond ((string-equal str "opat") :patch)
         ((string-equal str "omaq") :maquette)
+        ((string-equal str "olsp") :textfun)
+        
         ((or (string-equal str "lisp")
              (string-equal str "lsp")) :lisp)
         ((string-equal str "txt") :text)
@@ -109,8 +118,8 @@
   (let ((file (om-choose-file-dialog :prompt (string+ (om-str :open) "...")
                                      :directory (or *last-open-dir* (om-user-home))
                                      :types (append (append 
-                                                     (list "OM Documents" (string+ (cadr (doctype-info :patch)) ";" (cadr (doctype-info :maquette))))
-                                                     (doctype-info :patch) (doctype-info :maquette))
+                                                     (doctype-info :om)
+                                                     (doctype-info :patch) (doctype-info :maquette) (doctype-info :textfun))
                                                     '("Text File" "*.txt" "Lisp File" "*.lisp;*.lsp" "All documents" "*.*")))))
     (when file
       (let ((type (extension-to-doctype (pathname-type file))))
