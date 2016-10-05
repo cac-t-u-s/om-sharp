@@ -162,6 +162,7 @@
        (when object 
          (setf (mypathname object) path
                (name object) (pathname-name path)
+               (loaded? object) t
                (saved? object) t)
          (register-document object path))
        object))))

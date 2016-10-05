@@ -258,11 +258,11 @@
         (when pos (setf (window-pos patch) (omp (car pos) (cadr pos))))
         (when size (setf (window-size patch) (omp (car size) (cadr size))))))
            
-    ;;; handle 'dead boxes'
     (mapcar #'(lambda (box) (omng-add-element patch box)) boxes)
-    
     (mapcar #'(lambda (c) (omng-add-element patch c))
             (restore-connections-to-boxes connections boxes))
+
+    (setf (loaded? patch) t)
     patch))
 
 
@@ -279,7 +279,7 @@
         (om-beep-msg "PATCH NOT FOUND: ~S !" file)
         (let ((patch (make-instance 
                       'OMPatchFile 
-                      :name (string+ (pathname-name file) "[not found]"))))
+                      :name (pathname-name file))))
           (setf (mypathname patch) file)
           patch)  
         ))))

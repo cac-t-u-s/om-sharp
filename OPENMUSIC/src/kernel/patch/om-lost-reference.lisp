@@ -22,8 +22,8 @@
           (lost-reference self)))
 
 ;; hacks the accessors
-(defmethod color ((self LostReferenceBox)) (om-make-color 1 0.6 0.5))
-(defmethod text-color ((self LostReferenceBox)) (om-make-color .8 0. 0.))
+(defmethod box-draw-color ((self LostReferenceBox)) (om-make-color 1 0.6 0.5))
+(defmethod box-draw-text-color ((self LostReferenceBox)) (om-make-color .8 0. 0.))
 (defmethod border ((self LostReferenceBox)) nil)
 
 ;; for object boxes
@@ -80,40 +80,47 @@
            (outputs self)))
     newbox))
 
-(defmethod restore-inputs ((self LostReferenceBox) inputs)
-  (ignore-errors 
-    (loop for input-desc in inputs do
-          (let ((type (find-value-in-kv-list (cdr input-desc) :type))
-                (name (find-value-in-kv-list (cdr input-desc) :name))
-                (val (find-value-in-kv-list (cdr input-desc) :value))
-                (reac (find-value-in-kv-list (cdr input-desc) :reactive)))
-            (case type
-              (:standard 
-               (setf (inputs self) 
-                     (append (inputs self) 
-                             (list (make-instance 'box-input :box self
-                                                  :name name :reference (intern name)
-                                                  :value (omng-load val) :reactive reac)))))
-               (:optional 
-                (add-optional-input self :name name
-                                    :value (omng-load val)
-                                    :reactive reac))
-               (:key 
-                (add-keyword-input self :key name
-                                   :value (omng-load val)
-                                   :reactive reac))
-              )))))
 
-(defmethod restore-outputs ((self LostReferenceBox) outputs)
-  (setf (outputs self)
-        (loop for output-desc in outputs
+(defun restore-inputs-from-saved-desc (box desc)
+  (loop for input-desc in desc do
+        (let ((type (find-value-in-kv-list (cdr input-desc) :type))
+              (name (find-value-in-kv-list (cdr input-desc) :name))
+              (val (find-value-in-kv-list (cdr input-desc) :value))
+              (reac (find-value-in-kv-list (cdr input-desc) :reactive)))
+          (case type
+            (:standard 
+             (setf (inputs box) 
+                   (append (inputs box) 
+                           (list (make-instance 'box-input :box box
+                                                :name name :reference (intern name)
+                                                :value (omng-load val) :reactive reac)))))
+            (:optional 
+             (add-optional-input box :name name
+                                 :value (omng-load val)
+                                 :reactive reac))
+            (:key 
+             (add-keyword-input box :key name
+                                :value (omng-load val)
+                                :reactive reac))
+            ))))
+
+(defmethod restore-inputs ((self LostReferenceBox) inputs)
+  (restore-inputs-from-saved-desc self inputs))
+
+(defun restore-outputs-from-saved-desc (box desc)
+  (setf (outputs box)
+        (loop for output-desc in desc
               for i from 0 collect
               (let* ((name (find-value-in-kv-list (cdr output-desc) :name))
                      (reac (find-value-in-kv-list (cdr output-desc) :reactive)))
-                (make-instance 'box-output :box self
+                (make-instance 'box-output :box box
                                :name name :reference i
                                :reactive reac))
               )))
+
+(defmethod restore-outputs ((self LostReferenceBox) outputs)
+  (restore-outputs-from-saved-desc self outputs))
+
 
 
 ;;;===================
@@ -153,12 +160,62 @@
 
 #|
 
+;;; test with function
+(defun testfun (a b &key c) (+ a b))
+(fmakunbound 'testfun)
+
+;;; test with class
 (defclass testclass () 
   ((a :accessor a :initarg :a :initform nil)
    (b :accessor b :initarg :b :initform nil)))
-
-(make-instance 'testclass)
-(find-class 'testclass nil)
+;(make-instance 'testclass)
+;(find-class 'testclass nil)
 (clos::remove-class-internal (find-class 'testclass nil))
 
 |#
+
+;;;===============================
+;;; MISSING ABSTRACTIONS 
+;;;===============================
+;;; For persistant abstraction boxes we play it differently:
+;;; The box remaions but it highlighted until the refence is missing (i.e., file not found)
+;;; The user can also go and look for the file by himself
+(defmethod lost-reference? ((box OMBoxAbstraction))
+  (and (is-persistant (reference box))
+       (not (probe-file (mypathname (reference box))))))
+
+(defmethod restore-inputs ((self OMBoxAbstraction) inputs)
+  (if (lost-reference? self)
+      (restore-inputs-from-saved-desc self inputs)
+    (call-next-method)))
+
+(defmethod restore-outputs ((self OMBoxAbstraction) outputs)
+  (if (lost-reference? self)
+      (restore-outputs-from-saved-desc self outputs)
+    (call-next-method)))
+
+(defmethod box-draw-text-color ((self OMBoxAbstraction))
+  (if (lost-reference? self) (om-make-color .8 0. 0.) (call-next-method)))
+
+(defmethod box-draw-color ((self OMBoxAbstraction)) 
+  (if (lost-reference? self) (om-make-color 1 0.6 0.5) (call-next-method)))
+
+(defmethod draw-patch-icon :after ((self OMBoxAbstraction))
+  (when (lost-reference? self)
+    (let ((x1 5) (x2 (- 24 7))
+          (y1 10) (y2 (- 24 2)))
+      (om-with-fg-color (om-def-color :dark-red)
+        (om-with-line-size 3
+          (om-draw-line x1 y1 x2 y2)
+          (om-draw-line x1 y2 x2 y1)
+          )))))
+
+(defmethod open-editor ((self OMBoxAbstraction)) 
+  (if (lost-reference? self) 
+      (progn 
+        (om-beep-msg "MISSING REFERENCE FOR BOX '~A'.~%[=> File '~s' not found]" 
+                     (name self)
+                     (mypathname (reference self)))
+        (setf (loaded? (reference self)) nil) ;; is it not ?
+        )
+    (call-next-method)))

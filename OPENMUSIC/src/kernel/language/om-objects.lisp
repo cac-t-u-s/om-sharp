@@ -171,10 +171,19 @@
         do (om-invalidate-view (frame box))))
 
 (defmethod window-name-from-patch ((self ompersistantobject))
-  (format nil "~A~A  [~A]" 
-          (if (saved? self) "" "*")
-          (name self)
-          (if (mypathname self) (namestring (om-make-pathname :directory (mypathname self))) "...")))
+  (if (mypathname self) 
+      (if (print (probe-file (mypathname self)))
+          ;;; normal case
+          (format nil "~A~A  [~A]" 
+                  (if (saved? self) "" "*") (name self)
+                  (namestring (om-make-pathname :directory (mypathname self))))
+        ;;; problem : the patch is open but the file is missing
+        (format nil "MISSING FILE ! [Will be saved as ~A]" (namestring (mypathname self)))
+        )
+    ;;; no pathname yet : newly created window
+    (format nil "*~A  [...]" (name self))))
+
+
 
 ;;;=======================================
 ;;; FOLDERS (not used for the moment...)

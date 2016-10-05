@@ -380,14 +380,17 @@
 (defmethod draw-border ((self OMBox) x y w h style)
   (om-draw-rect x y w h :line (if (numberp style) style 1.5) :color (om-def-color :gray) :angles :round))
 
+(defmethod box-draw-color ((self OMBox)) (color self))
+(defmethod box-draw-text-color ((self OMBox)) (text-color self))
+
 (defmethod boxframe-draw-contents ((self OMBoxFrame) (box OMBox))
   (let ((icon-size (get-icon-size box))
         (io-hspace 4))
     (om-with-fg-color (om-def-color :dark-gray)
       ;;; interior
-      (when (color box)
+      (when (box-draw-color box)
         (om-draw-rect 0 io-hspace (w self) (- (h self) (* 2 io-hspace)) 
-                      :color (color box)
+                      :color (box-draw-color box)
                       :angles :round
                       :fill t))
     
@@ -403,7 +406,9 @@
             (case (icon-pos box)
               (:left (om-draw-picture (icon-id self) :x 0 :y (- (h self) icon-size io-hspace) :w icon-size :h icon-size))
               (:top (let ((smaller (min (w self) (- (h self) icon-size io-hspace io-hspace))))
-                      (om-draw-picture (icon-id self) :x (round (- (w self) smaller) 2) :y (* io-hspace 1.5) :w smaller :h smaller)))
+                      (om-draw-picture (icon-id self) 
+                                       :x (round (- (w self) smaller) 2) 
+                                       :y (* io-hspace 1.5) :w smaller :h smaller)))
               (otherwise nil))))
 
       ;;; name
@@ -411,7 +416,7 @@
         (multiple-value-bind (text x y w h)
             (display-text-and-area self)
           (when text
-            (om-with-fg-color (text-color box)
+            (om-with-fg-color (box-draw-text-color box)
             (om-with-font
              (or (text-font box) (om-def-font :font1))
              ;(om-draw-rect x y w h)
@@ -498,7 +503,8 @@
 (defmethod click-in-area ((self frame-area) boxframe) self)
 
 (defmethod om-view-doubleclick-handler ((self OMBoxFrame) position)
-  (or (and (selected (object self)) (not (om-command-key-p)) (edit-area self position)) ;; edit area is a simple click on a selected box
+  (or ;; edit area is a simple click on a selected box
+      (and (selected (object self)) (not (om-command-key-p)) (edit-area self position)) 
       (open-editor (object self))))
 
 (defun edit-text-in-patch (edittext frame container-view action pos size)

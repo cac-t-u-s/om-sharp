@@ -25,6 +25,11 @@
 (defmethod editor-window-init-size ((self patch-editor)) (omp 500 500))
 
 
+(defmethod init-editor ((ed patch-editor))
+  (unless (loaded? (object ed))
+    (load-contents (object ed)))
+  (call-next-method))
+ 
 ;;; the default location of the editor view
 ;;; can change, e.g. for a maquette-editor
 (defmethod get-editor-view ((self patch-editor))

@@ -34,7 +34,6 @@
   (:default-initargs :icon 'patch-file) 
   (:metaclass omstandardclass))
 
-
 (defmethod object-doctype ((self OMPatch)) :patch)
 (defmethod obj-file-extension ((self OMPatch)) "opat")
 (defmethod get-object-type-name ((self OMPatch)) "Patch")
@@ -86,6 +85,13 @@
 (defmethod get-boxes-of-type ((self OMPatch) type)
   (loop for b in (boxes self) when (subtypep (type-of b) type) collect b))
 
+(defmethod load-contents ((self OMPatchFile)) 
+  (if (mypathname self)
+      (let ((tmppatch (load-doc-from-file :patch (mypathname self))))
+        (copy-contents tmppatch self))
+    (om-beep-msg "CAN NOT LOAD PATCH '~A'" (name self))))
+
+
 ;;;=============================
 ;;; CONNECTIONS
 
@@ -110,6 +116,7 @@
 (defmethod om-copy ((self OMPatchFile)) self)  
 
 (defmethod internalized-type ((self OMPatchFile)) 'OMPatchInternal)
+
 
 ;;;==========================================
 ;;; DIFFERENCES BETWEEN INTERNAL AND NOT INTERNAL :
