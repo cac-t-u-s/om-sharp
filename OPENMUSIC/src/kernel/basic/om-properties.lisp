@@ -103,19 +103,45 @@
                              )))
 
 (defmethod make-prop-item ((type (eql :path)) prop-id object &key default update)
-  (om-make-view 'click-and-edit-text 
+  (let ((textview (om-make-view 'click-and-edit-text 
                 ;:enabled (valid-property-p object prop-id)
-                :text (format nil "~A" (get-property object prop-id))
-                :resizable :w
-                :bg-color (om-def-color :window)
-                :fg-color (if (probe-file (get-property object prop-id)) (om-def-color :black) (om-def-color :red))
-                :border nil ;(om-def-color :gray)
-                :size (om-make-point (list :string (format nil "~A" (get-property object prop-id))) 20)
-                :font (om-def-font :font1)
-                :after-fun #'(lambda (item)
-                             (set-property object prop-id (text item))
-                             (when update (update-view update object))
-                             )))
+                                :text (format nil "~A" (get-property object prop-id))
+                                :resizable :w
+                                :bg-color (om-def-color :window)
+                                :fg-color (if (probe-file (get-property object prop-id)) (om-def-color :black) (om-def-color :red))
+                                :border nil ;(om-def-color :gray)
+                                :size (om-make-point (list :string (format nil "~A" (get-property object prop-id))) 20)
+                                :font (om-def-font :font1)
+                                :after-fun #'(lambda (item)
+                                                (set-property object prop-id (text item))
+                                                (when update (update-view update object))
+                                                (om-set-fg-color 
+                                                 item 
+                                                 (if (probe-file (get-property object prop-id)) 
+                                                     (om-def-color :black) (om-def-color :red))))
+                                )))
+    (om-make-layout 'om-row-layout :subviews 
+                    (list 
+                     textview
+                     (om-make-graphic-object 'om-icon-button :size (omp 20 18) 
+                                             :icon 'folder :icon-pushed 'folder-pushed
+                                             :action #'(lambda (button) (declare (ignore button))
+                                                         (let ((file (om-choose-file-dialog :prompt "Select a new reference file"
+                                                                                            :types (doctype-info :om)
+                                                                                            :directory *last-open-dir*)))
+                                                           (when file
+                                                             (set-property object prop-id (namestring file))
+                                                             (when update (update-view update object))
+                                                             (setf (text textview) (get-property object prop-id))
+                                                             (om-set-fg-color 
+                                                              textview 
+                                                              (if (probe-file (get-property object prop-id)) 
+                                                                  (om-def-color :black) (om-def-color :red)))
+                                                             (om-invalidate-view textview)
+                                                             )
+                                                           )))
+                     ))
+    ))
 
 (defmethod make-prop-item ((type (eql :number)) prop-id object &key default update)
   (om-make-graphic-object 'numbox 
