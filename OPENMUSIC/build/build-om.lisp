@@ -102,11 +102,11 @@
               )
           package-list)))
 
-(load-om-packages (merge-pathnames "src/cao/" cl-user::*om-root-directory*))
 
 (load-om-packages 
- (merge-pathnames "packages/" cl-user::*om-root-directory*)
- '("metronome" 
+ (merge-pathnames "src/packages/" cl-user::*om-root-directory*)
+ '("basic" "control" "midi" "score" "sound"
+   "metronome" 
    "spatialisation" 
    "interface" 
    "tempo"
