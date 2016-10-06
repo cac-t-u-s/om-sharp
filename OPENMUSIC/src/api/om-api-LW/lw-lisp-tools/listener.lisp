@@ -40,7 +40,6 @@
           om-make-listener
           om-listener-echo
           om-listener-abort
-          om-listener-window-menubar
           om-print *om-verbose*
           *om-stream*
           om-show-error-backtrace
@@ -173,10 +172,10 @@
         (capi::execute-with-interface 
          om-lisp::*om-listener*
          #'(lambda (lw) 
-             (let ((def-menu (internal-window-class-menubar lw)))
+             (let ((def-menu (listener-default-window-menus lw)))
                (setf (capi::interface-menu-bar-items lw)
-                     (if (om-listener-window-menubar lw)
-                         (append (om-listener-window-menubar lw)
+                     (if (om-listener-window-menus lw)
+                         (append (om-listener-window-menus lw)
                                  (list (find "Lisp" def-menu :key 'capi::menu-title :test 'string-equal)))
                        def-menu))))
          om-lisp::*om-listener*)
@@ -186,10 +185,10 @@
 
 
 ;; to be redefined !
-(defmethod om-listener-window-menubar ((self om-listener)) nil) 
+(defmethod om-listener-window-menus ((self om-listener)) nil) 
 
 
-(defmethod internal-window-class-menubar ((self om-listener)) 
+(defmethod listener-default-window-menus ((self om-listener)) 
   (append (list (make-instance 'capi::menu :title "File"
                                :items 
                                (append (list (make-instance 'capi::menu-item :title "Close Listener"
@@ -197,7 +196,7 @@
                                                             :callback 'listener-close
                                                             :accelerator #\w))
                                      
-                                       (if (handler-case (find-class 'om-lisp::om-text-editor) (error () nil))
+                                       (if (handler-case (find-class 'om-lisp::om-text-editor-window) (error () nil))
                                            (list (make-instance 'capi::menu-component 
                                                                 :items (list 
                                                                         (make-instance 'capi::menu-item :title "New..."

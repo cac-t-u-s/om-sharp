@@ -14,7 +14,7 @@
                               (om-make-menu-item "New Patch" #'(lambda () (open-new-document :patch)) :key "n")
                               (om-make-menu-item "New Maquette" #'(lambda () (open-new-document :maquette)) :key "m")
                               (om-make-menu-item "New Lisp function" #'(lambda () (open-new-document :lispfun)))))
-                            (om-make-menu-item "New Text/Lisp Buffer" #'(lambda () (om-open-text-editor)) :key "N")
+                            (om-make-menu-item "New Text/Lisp Buffer" #'(lambda () (om-lisp::om-open-text-editor)) :key "N")
                             ))
         (om-make-menu-item "Open..." #'(lambda () (funcall (open-command self))) :key "o" :enabled (and (open-command self) t))
         (om-make-menu-comp 
@@ -66,7 +66,9 @@
                      (om-make-menu-item (om-window-title w)
                                         #'(lambda () (om-select-window w))
                                         :enabled #'(lambda () (not (equal w (om-front-window))))))
-                 (remove 'workspace-window (om-get-all-windows 'om-window) :key 'type-of))
+                 (remove 'workspace-window (append (om-get-all-windows 'om-window)
+                                                   (om-get-all-windows 'om-lisp::om-text-editor-window))
+                         :key 'type-of))
          ))))
   )
 
@@ -135,6 +137,22 @@
 (defmethod open-command (self) 
   #'(lambda () (open-om-document)))
 
+
+;;;===============================
+;;; TEXT WINDOWS
+;;; Exist for 
+;;; - Lisp functions
+;;; - TEXTBUFFER objects
+;;; - Free Text / Lisp editing 
+;;; uses om-text-editor-window from the OM-LISP package
+;;;===============================
+
+;;; will also respond to the 'standard' OM-API window title method calls
+(defmethod om-set-window-title ((self om-lisp::om-text-editor-window) (title string))
+  (om-lisp::om-text-editor-window-set-title self title))
+(defmethod om-window-title ((self om-lisp::om-text-editor-window))
+  (om-lisp::om-text-editor-window-set-title self title))
+
 ;;;===============================
 ;;; LISTENER
 ;;;===============================
@@ -142,7 +160,7 @@
 ; (show-listener-win)
 
 ;;; redefine the menu-bar of the listener
-(defmethod om-listener-window-menubar ((self om-listener))
+(defmethod om-lisp::om-listener-window-menus ((self om-listener))
   (om::om-menu-items nil))
 
 (defun show-listener-win ()

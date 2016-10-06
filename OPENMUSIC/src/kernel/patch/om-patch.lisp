@@ -122,13 +122,13 @@
 ;;; DIFFERENCES BETWEEN INTERNAL AND NOT INTERNAL :
 ;;;==========================================
 
+;(defmethod update-from-editor ((self OMPatchInternal))
+;  (mapcar 'update-from-editor (references-to self)))
 
-(defmethod update-from-editor ((self OMPatchInternal))
-  (mapcar 'update-from-editor (references-to self)))
+;(defmethod update-from-editor ((self OMPatchFile)) 
+;  (mapcar 'update-from-editor (references-to self))
+;  (touch self))
 
-(defmethod update-from-editor ((self OMPatchFile)) 
-  (mapcar 'update-from-editor (references-to self))
-  (touch self))
 
 
 

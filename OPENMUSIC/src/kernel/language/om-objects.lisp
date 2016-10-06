@@ -139,6 +139,17 @@
    (dependencies :initform nil :accessor dependencies :documentation "a list of subpatches"))
   (:documentation "Superclass for programming object and workspace elements (patches, maquette, etc.)"))
 
+(defmethod set-name ((self OMProgrammingObject) name)
+  (call-next-method)
+  (when (editor self) (update-window-name (editor self)))
+  (loop for box in (references-to self) ;; in principel there is only one at this stage
+        do (set-name box (name self))
+        do (om-invalidate-view (frame box))))
+
+(defmethod compile-if-needed ((self OMProgrammingObject))
+  (unless (compiled? self) (compile-patch self)))
+
+
 (defclass OMPersistantObject () 
   ((mypathname :initform nil :initarg :mypathname :accessor mypathname :documentation "associated file pathname")
    (saved? :initform nil :accessor saved? :documentation "as the object been modified without saving?"))
@@ -146,6 +157,14 @@
 
 (defmethod touch ((self OMPersistantObject))
   (setf (saved? self) nil))
+
+(defmethod update-from-editor ((self OMProgrammingObject))
+  (mapcar 'update-from-editor (references-to self))
+  (call-next-method))
+
+(defmethod update-from-editor ((self OMPersistantObject))
+  (touch self)
+  (call-next-method))
 
 (defmethod is-persistant ((self OMPersistantObject)) self)
 (defmethod is-persistant ((self t)) nil)
@@ -163,14 +182,7 @@
   (unless (or (references-to self) (editor-window self))
     (unregister-document self)))
 
-(defmethod set-name ((self OMProgrammingObject) name)
-  (call-next-method)
-  (when (editor self) (update-window-name (editor self)))
-  (loop for box in (references-to self) ;; in principel there is only one at this stage
-        do (set-name box (name self))
-        do (om-invalidate-view (frame box))))
-
-(defmethod window-name-from-patch ((self ompersistantobject))
+(defmethod window-name-from-object ((self OMPersistantObject))
   (if (mypathname self) 
       (if (probe-file (mypathname self))
           ;;; normal case
@@ -182,8 +194,6 @@
         )
     ;;; no pathname yet : newly created window
     (format nil "*~A  [...]" (name self))))
-
-
 
 ;;;=======================================
 ;;; FOLDERS (not used for the moment...)

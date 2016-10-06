@@ -30,7 +30,7 @@
 ;;;-------------------------------------------------------
 ;;; DISPLAY
      
-(defmethod box-draw ((self OMBoxPatch) (frame OMBoxFrame))
+(defmethod box-draw ((self OMBoxAbstraction) (frame OMBoxFrame))
   (case (display self)
     (:mini-view 
      (when (> (h frame) 36)

@@ -4,7 +4,7 @@
 ;;; EDITOR
 ;;;=============================
 
-(defclass patch-editor (OMEditor) 
+(defclass patch-editor (OMDocumentEditor) 
   ((grid :accessor grid :initarg :grid :initform nil)
    (bg-lock :accessor bg-lock :initarg :grid :initform nil)
    (show-lisp-code :accessor show-lisp-code :initarg :show-lisp-code :initform nil)))
@@ -59,12 +59,8 @@
       (draw-patch-grid self 50))
     (mapcar 'om-draw-contents (get-grap-connections self))))
 
-(defmethod window-name-from-patch ((self OMPatchInternal))
+(defmethod window-name-from-object ((self OMPatchInternal))
   (format nil "~A  [~A]" (name self) "internal patch"))
-
-(defmethod update-window-name ((self patch-editor))
-  (when (window self)
-    (om-set-window-title (window self) (window-name-from-patch (object self)))))
 
 (defmethod update-inspector-for-editor ((self patch-editor))
   (when (window self) ;; window is open and initialized
@@ -421,6 +417,7 @@
         (let ((patch-to-save (if (is-persistant (object self)) 
                                  (object self)
                                (find-persistant-container (object self)))))
+          ;;; with the if-persistant test, patch-to-save will always be self
           (if patch-to-save
               (progn 
                 (save-document patch-to-save)

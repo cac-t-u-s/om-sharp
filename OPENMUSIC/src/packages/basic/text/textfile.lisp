@@ -172,7 +172,7 @@ Evaluation allows to define functions or data in Lisp and run commands or progra
 (defclass textbuffer-editor (omeditor) ())
 (defmethod editor-window-class ((self textbuffer-editor)) 'textbuffer-editor-window)
 
-(defclass textbuffer-editor-window (om-lisp::om-text-editor) 
+(defclass textbuffer-editor-window (om-lisp::om-text-editor-window) 
   ((editor :initarg :editor :initform nil :accessor editor)))
 
 (defmethod om-lisp::save-operation-enabled ((self textbuffer-editor-window)) nil) 
@@ -183,7 +183,7 @@ Evaluation allows to define functions or data in Lisp and run commands or progra
   (if (and (window self) (om-window-open-p (window self)))
       (om-select-window (window self))
     (let* ((textbuffer (object-value self))
-           (edwin (om-open-text-editor 
+           (edwin (om-lisp::om-open-text-editor 
                    :contents (contents textbuffer)
                    :class 'textbuffer-editor-window
                    :lisp nil
@@ -192,11 +192,11 @@ Evaluation allows to define functions or data in Lisp and run commands or progra
       (setf (window self) edwin)
       edwin)))
 
-(defmethod om-text-editor-activate-callback ((self textbuffer-editor-window) activatep)
+(defmethod om-lisp::om-text-editor-activate-callback ((self textbuffer-editor-window) activatep)
   (when (editor self)
     (editor-activate (editor self) activatep)))
 
-(defmethod om-text-editor-destroy-callback ((self textbuffer-editor-window))
+(defmethod om-lisp::om-text-editor-destroy-callback ((self textbuffer-editor-window))
   (when (editor self)
     (editor-close (editor self))
     (setf (window (editor self)) nil)
@@ -216,16 +216,16 @@ Evaluation allows to define functions or data in Lisp and run commands or progra
 ;    (setf (window-pos (object (editor self))) pos)))
 
 ;;; SPECIFIC CALLBACKS
-(defmethod om-text-editor-modified ((self textbuffer-editor-window))
+(defmethod om-lisp::om-text-editor-modified ((self textbuffer-editor-window))
   (let ((textbuffer (object-value (editor self))))
     (when textbuffer 
-      (setf (contents textbuffer) (om-get-text-editor-text self))))
+      (setf (contents textbuffer) (om-lisp::om-get-text-editor-text self))))
   (when (equal self (om-front-window)) (report-modifications (editor self))))
 
 ;;; pb : this will generate the callback above and lock the box if the window is open...
 (defmethod update-to-editor ((self textbuffer-editor) (from OMBoxEditCall))
   (when (window self)
-    (om-set-text-editor-text (window self) (contents (object-value self)))))
+    (om-lisp::om-set-text-editor-text (window self) (contents (object-value self)))))
 
 
 

@@ -284,8 +284,9 @@
           patch)  
         ))))
 
-
+;;;=================================
 ;;; MAQUETTE
+;;;=================================
 (defmethod save-patch-contents ((self OMMaquette) &optional (box-values nil)) 
   (append
    (call-next-method self t)
@@ -320,6 +321,60 @@
 ;  )
 ;(omng-load '(:box (:reference pprint) (:position (:point 260 242)) (:size (:point 63 28)) (:icon :left) (:color nil) (:border t) (:font nil) (:align :left) (:lock nil) (:lambda nil) (:reactive nil) (:inputs (:standard "OBJECT" nil))))
 
+;;;=================================
+;;; LISP FUNCTION
+;;;=================================
+
+(defmethod om-load-from-id ((id (eql :textfun)) data)
+  (let ((fun (make-instance 'OMLispFunctionInternal :name (find-value-in-kv-list data :name)))
+        (info (find-values-in-prop-list data :info))
+        (win (find-values-in-prop-list data :window)))
+    
+    (setf 
+     (text fun) (omng-load (find-value-in-kv-list data :text))
+     (create-info fun) (list (find-value-in-kv-list info :created)
+                             (find-value-in-kv-list info :modified))
+     (doc fun) (find-value-in-kv-list data :doc)
+     (omversion fun) (find-value-in-kv-list data :om-version))
+    
+    (when win
+      (let ((pos (find-value-in-kv-list win :position))
+            (size (find-value-in-kv-list win :size)))
+        (when pos (setf (window-pos fun) (omp (car pos) (cadr pos))))
+        (when size (setf (window-size fun) (omp (car size) (cadr size))))))
+    
+    (setf (loaded? fun) t)
+    fun))
+
+(defmethod omng-save ((self OMLispFunction)) 
+  `(:textfun
+    (:om-version ,(omversion self))
+    (:name ,(name self))
+    (:doc ,(doc self))
+    (:info 
+     (:created ,(car (create-info self)))
+     (:modified ,(cadr (create-info self))))
+    (:window 
+     (:size ,(when (window-size self)
+               (list (om-point-x (window-size self)) (om-point-y (window-size self)))))  
+     (:position ,(when (window-pos self)
+                   (list (om-point-x (window-pos self)) (om-point-y (window-pos self))))))
+   
+    (:text ,(omng-save (text self)))))
+
+(defmethod omng-save ((self OMLispFunctionFile))  
+  `(:textfun-from-file ,(namestring (mypathname self))))
+
+(defmethod om-load-from-id ((id (eql :textfun-from-file)) data)
+  (let ((file (car data)))
+    (if (probe-file file)
+        (load-doc-from-file file :textfun)
+      (om-beep-msg "FILE NOT FOUND: ~S !" file))))
+
+
+;;;=================================
+;;; INs and OUTs ...
+;;;=================================
 
 (defmethod omng-save ((self OMIn))
   `(:in
@@ -380,6 +435,8 @@
 (defmethod box-type ((self OMSlotsBox)) :slots)
 (defmethod box-type ((self OMInOutBox)) :io)
 (defmethod box-type ((self OMBoxPatch)) :patch)
+(defmethod box-type ((self OMBoxLisp)) :textfun)
+
 
 (defmethod save-box-reference ((self OMBox)) (omng-save (reference self))) 
 
@@ -507,6 +564,7 @@
                           ;; sometimes (e.g. in maquettes) the patches save their value
                           (when box (setf (value box) (list val)))
                           box))
+                (:textfun (omng-make-new-boxcall (omng-load reference) pos))
                 (:io (omng-make-new-boxcall (omng-load reference) pos))
                 (:object (if (find-class reference nil) 
                              (omng-make-new-boxcall (find-class reference nil) pos val)

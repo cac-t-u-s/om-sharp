@@ -241,27 +241,26 @@
 ;;; si ils existent
 (defmethod compile-patch ((self OMPatch)) 
   "Compilation of a lisp function from the patch."
-  (unless nil ; (compiled? self)
-    (let* ((boxes (boxes self))
-           (out-boxes (sort (get-boxes-of-type self 'OMOutBox) '< :key 'index))
-           (oldletlist *let-list*)
-           (input-names 
-            (mapcar #'(lambda (in) (setf (in-symbol in) (gen-input-name in))) 
-                    (sort (inputs self) '< :key 'index))) 
-           body function-def)
-      (setf *let-list* nil)
-      (setf body (if (> (length out-boxes) 1)
-                     `(values ,.(mapcar #'(lambda (out) (gen-code out)) out-boxes))
-                   (gen-code (car out-boxes))))
-      (setf function-def
-            `(defun ,(intern (string (compiled-fun-name self)) :om) (,.input-names) 
-               (let* ,(reverse *let-list*) ,body)))
+  (let* ((boxes (boxes self))
+         (out-boxes (sort (get-boxes-of-type self 'OMOutBox) '< :key 'index))
+         (oldletlist *let-list*)
+         (input-names 
+          (mapcar #'(lambda (in) (setf (in-symbol in) (gen-input-name in))) 
+                  (sort (inputs self) '< :key 'index))) 
+         body function-def)
+    (setf *let-list* nil)
+    (setf body (if (> (length out-boxes) 1)
+                   `(values ,.(mapcar #'(lambda (out) (gen-code out)) out-boxes))
+                 (gen-code (car out-boxes))))
+    (setf function-def
+          `(defun ,(intern (string (compiled-fun-name self)) :om) (,.input-names) 
+             (let* ,(reverse *let-list*) ,body)))
       ;(format *om-stream* "~%------------------------------------------------------~%PATCH COMPILATION:~%")
       ;(write function-def :stream *om-stream* :escape nil :pretty t)
       ;(format *om-stream* "~%------------------------------------------------------~%~%")
-      (compile (eval function-def))
-      (setf *let-list* oldletlist)
-      (setf (compiled? self) t))
+    (compile (eval function-def))
+    (setf *let-list* oldletlist)
+    (setf (compiled? self) t)
     ))
 
 

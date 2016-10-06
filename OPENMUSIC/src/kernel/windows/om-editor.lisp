@@ -18,6 +18,9 @@
 (defclass OMAbstractContainer (ObjectWithEditor)
   ((contents :initarg :contents :initform nil :accessor contents)))
 
+;;; Superclass for OM root editors (patch, maquette, Lispfile, etc.)
+(defclass OMDocumentEditor (OMEditor) ())
+
 (defmethod window ((self OMEditor))
   (or (slot-value self 'window)
       (and (container-editor self) (window (container-editor self)))))
@@ -76,6 +79,9 @@
 (defmethod update-from-editor ((self ObjectWithEditor)) nil)
 (defmethod update-from-editor ((self t)) nil)
 
+
+(defmethod window-name-from-object ((self ObjectWithEditor)) (name self))
+
 ;;;====================
 ;;; EDITOR
 ;;;====================
@@ -89,16 +95,21 @@
 (defmethod get-object-type-name ((object t)) (string-upcase (type-of object)))
 (defmethod get-window-title ((object t)) (get-object-type-name object))
 
-(defun editor-window-title (editor)
+(defmethod update-window-name ((self OMEditor))
+  (when (window self)
+    (om-set-window-title (window self) (editor-window-title self))))
+
+(defmethod editor-window-title ((editor OMEditor))
   (if (container-editor editor)
       (editor-window-title (container-editor editor))
-    (string+ (get-name (object editor)) 
+    (string+ (get-name (object editor))
              (if (get-window-title (object editor))
                  (string+ " [" (get-window-title (object editor)) "]")
                "")
              )))
 
-
+(defmethod editor-window-title ((editor OMDocumentEditor))
+  (window-name-from-object (object editor)))
 
 ;;; Opens the window for an editor
 (defmethod open-editor-window ((self OMEditor))
@@ -150,17 +161,12 @@
     (loop for ed in (related-editors self) do
           (update-to-editor ed self)))
   ;;; window title
-  (when (window self)
-    (om-set-window-title 
-     (window self) 
-     (editor-window-title self)))
-  )
+  (update-window-name self))
 
 ;;; called by the object to notify a change to the editor
 (defmethod update-to-editor ((self OMEditor) (from t)) 
   ;(print (list "update" self "from" from))
-  (when (window self)
-    (om-set-window-title (window self) (editor-window-title self))))
+  (update-window-name self))
 
 (defmethod update-default-view ((self OMEditor)) 
   (when (get-g-component self :default-view)

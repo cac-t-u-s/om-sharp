@@ -171,7 +171,8 @@
 (defmethod draw-patch-icon ((self OMBoxAbstraction))
   (let* ((abs (reference self))
          (iconsize (if (is-persistant abs) 24 16)))
-    (om-draw-picture (icon abs) :x 0 :y 4 :w iconsize :h iconsize)))
+    (om-draw-picture (icon abs) :x 0 :y 4 :w iconsize :h iconsize)
+    ))
 
 (defmethod minimum-size ((self OMBoxAbstraction))
   (let ((text-size (round (om-string-size (name self) (text-font self)))))

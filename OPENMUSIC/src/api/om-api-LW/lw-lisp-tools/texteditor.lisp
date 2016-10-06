@@ -31,21 +31,6 @@
 
 (in-package :om-lisp)
 
-(export 
- '(om-text-editor
-   om-open-text-editor
-   om-get-text-editor-text
-   om-set-text-editor-text
-   om-set-text-editor-file
-   om-open-text-editor-at
-   om-text-editor-modified
-   om-window-class-menubar
-   om-set-window-title
-   om-get-window-title
-   om-text-editor-destroy-callback
-   om-text-editor-activate-callback)
- :om-lisp)
-
 ;;;============
 ;;; UTIL
 ;;;============
@@ -79,7 +64,7 @@
 (setq *om-text-editor-initial-xy* #(100 100))
 (setq *om-text-editor-count* 0)
 
-(defclass om-text-editor (capi::interface)
+(defclass om-text-editor-window (capi::interface)
   ((ep :initform nil :accessor ep :initarg :ep)
    (file :initform nil :accessor file :initarg :file)
    (lisp? :initform nil :accessor lisp? :initarg :lisp?))
@@ -96,48 +81,49 @@
    :confirm-destroy-function 'check-close-buffer
    :title "Text Editor"))
 
-(defmethod om-set-window-title ((self om-text-editor) (title string))
+(defmethod om-text-editor-window-set-title ((self om-text-editor-window) (title string))
   (setf (capi::interface-title self) title))
 
+(defmethod om-text-editor-window-title ((self om-text-editor-window) (title string))
+  (capi::interface-title self))
 
 
 ;; used for finding windows by name
-(defmethod capi::interface-match-p ((self om-text-editor) &rest initargs  &key name)
+(defmethod capi::interface-match-p ((self om-text-editor-window) &rest initargs  &key name)
   (string-equal (capi::capi-object-name self) name))
 
 ;;; buffer has been modified and not saved
-(defmethod buffer-modified-p ((self om-text-editor))
+(defmethod buffer-modified-p ((self om-text-editor-window))
   (and (ep self)
        (editor:buffer-modified (capi::editor-pane-buffer (ep self)))))
 
 ;;; callback of the editor pane
-(defmethod om-text-editor-modified ((self om-text-editor))
-  (set-editor-window-title self t))
+(defmethod om-text-editor-modified ((self om-text-editor-window))
+  (update-window-title self t))
 
 
-(defmethod om-text-editor-activate-callback ((self om-text-editor) activate) nil)
+(defmethod om-text-editor-activate-callback ((self om-text-editor-window) activate) nil)
 
 (defmethod text-edit-window-activate-callback (win activate-p)
   (when activate-p
     (setf (capi::interface-menu-bar-items win) 
-          (append (internal-window-class-menubar win)
-                  (om-window-class-menubar win))))
+          (text-editor-window-menus win)))
   (om-text-editor-activate-callback win activate-p))
 
-(defmethod set-editor-window-title ((self om-text-editor) &optional (modified nil modified-supplied-p))
+(defmethod update-window-title ((self om-text-editor-window) &optional (modified nil modified-supplied-p))
   (let ((base (if (file self) (namestring (file self)) "text buffer"))
         (modified (if modified-supplied-p modified (buffer-modified-p self))))
-    (om-set-window-title self (concatenate 'string base (if modified " [*]" ""))))) ;; 
+    (om-text-editor-window-set-title self (concatenate 'string base (if modified " [*]" "")))))
 
 (defmethod lisp-operations-enabled ((self t)) t)
-(defmethod lisp-operations-enabled ((self om-text-editor)) (lisp? self))
+(defmethod lisp-operations-enabled ((self om-text-editor-window)) (lisp? self))
 
 (defmethod file-operations-enabled ((self t)) t)
-(defmethod file-operations-enabled ((self om-text-editor)) t)
+(defmethod file-operations-enabled ((self om-text-editor-window)) t)
 
-(defmethod save-operation-enabled ((self om-text-editor)) (buffer-modified-p self))
+(defmethod save-operation-enabled ((self om-text-editor-window)) (buffer-modified-p self))
 
-(defmethod capi:interface-display :after ((win om-text-editor))
+(defmethod capi:interface-display :after ((win om-text-editor-window))
   (capi::execute-with-interface 
    win
    #'(lambda ()
@@ -147,7 +133,7 @@
          (echo-string win "")))))
 
 
-(defmethod (setf file) :after (path (self om-text-editor))
+(defmethod (setf file) :after (path (self om-text-editor-window))
   (if path
       (setf (capi::interface-title self) (namestring path))
     (setf (capi::interface-title self) "Text Buffer")))
@@ -179,7 +165,7 @@
         ;;; the file is already open ! (get the window)
         (capi::find-interface (type-of window) :name (capi::capi-object-name window))      
       (progn
-        (setf window (make-instance (or class 'om-text-editor) 
+        (setf window (make-instance (or class 'om-text-editor-window) 
                                     :name (concatenate 'string "TextEditor_" (string (gensym)))
                                     :x 200 :y 200 :width 800 :height 800
                                     :title (or title (if path (namestring path) "New Text Buffer"))
@@ -206,19 +192,18 @@
           (setf (capi::layout-description (capi::pane-layout window))
                 (list (setf (ep window) ep))))
         (push window *editor-files-open*)
-        (set-editor-window-title window t)
         (capi::display window)
         window))))
 
-(defmethod om-get-text-editor-text ((self om-text-editor))
+(defmethod om-get-text-editor-text ((self om-text-editor-window))
   (and (ep self) (capi::editor-pane-buffer (ep self))
        (om-buffer-lines (capi::editor-pane-buffer (ep self)))))
 
-(defmethod om-set-text-editor-text ((self om-text-editor) (text string))
+(defmethod om-set-text-editor-text ((self om-text-editor-window) (text string))
   (and (ep self) (capi::editor-pane-buffer (ep self))
        (om-buffer-set (capi::editor-pane-buffer (ep self)) text)))
 
-(defmethod om-set-text-editor-text ((self om-text-editor) (text list))
+(defmethod om-set-text-editor-text ((self om-text-editor-window) (text list))
   (and (ep self) (capi::editor-pane-buffer (ep self)) text
        (om-buffer-set (capi::editor-pane-buffer (ep self)) 
                       (reduce #'(lambda (s1 s2) (concatenate 'string s1 (string #\Newline) s2)) text))
@@ -241,7 +226,7 @@
     (setf *last-open-directory* (make-pathname :directory (pathname-directory path)))
     (om-open-text-editor :contents path)))
 
-(defmethod import-text-from-file ((self om-text-editor) &optional path)
+(defmethod import-text-from-file ((self om-text-editor-window) &optional path)
   (with-slots (ep) self
     (when-let* ((path (or path (prompt-for-file "Select File:" 
                                                 :if-does-not-exist :error 
@@ -291,21 +276,21 @@
 ;;;================================
 
 ;;; Called by the 'close' menu
-(defmethod close-text-editor-window ((self om-text-editor))
+(defmethod close-text-editor-window ((self om-text-editor-window))
   (capi::execute-with-interface self 'quit-interface self))
 
 
 ;;; destroy callback
-(defmethod destroy-text-editor ((self om-text-editor))
+(defmethod destroy-text-editor ((self om-text-editor-window))
   (om-text-editor-destroy-callback self)
   (when (and (ep self) (capi::editor-pane-buffer (ep self)))
     (om-kill-buffer (capi::editor-pane-buffer (ep self))))
   (setf *editor-files-open* (remove self *editor-files-open*)))
 
-(defmethod om-text-editor-destroy-callback  ((self om-text-editor)) nil)
+(defmethod om-text-editor-destroy-callback  ((self om-text-editor-window)) nil)
 
 ;;; OLD STYLE : "EXIT ANYWAY"
-;(defmethod check-close-buffer ((self om-text-editor))
+;(defmethod check-close-buffer ((self om-text-editor-window))
 ;   (if (save-operation-enabled self)
 ;       (multiple-value-bind (answer successp)
 ;           (capi:prompt-for-confirmation
@@ -319,7 +304,7 @@
 ;;; NEW STYLE : "SAVE BEFORE CLOSE?"
 ;;; check if : Buffer modified 
 ;;; called by the destroy callback
-(defmethod check-close-buffer ((self om-text-editor))
+(defmethod check-close-buffer ((self om-text-editor-window))
   (if (and (om-lisp::buffer-modified-p self) 
            (om-lisp::save-operation-enabled self))
       (multiple-value-bind (answer successp)
@@ -340,7 +325,7 @@
 ;;; checks all not-saved text windows
 ;;; ask for save each time and retruns t or nil if cancel
 (defun check-buffers-before-close ()
-  (let ((editors (capi::collect-interfaces 'om-text-editor))
+  (let ((editors (capi::collect-interfaces 'om-text-editor-window))
         (ok t))
     (loop for ed in editors 
           while ok do
@@ -391,14 +376,14 @@
       (write-string text ss))
     (set-hfs-codes path *om-text-editor-type-code* *om-text-editor-creator-code*))
 
-(defmethod om-set-text-editor-file ((self om-text-editor) path)
+(defmethod om-set-text-editor-file ((self om-text-editor-window) path)
   (setf (file self) path)
-  (set-editor-window-title self nil))
+  (update-window-title self nil))
 
 
 ;;; SAVE the current buffer to the attached pathname
 ;;; or save as + change if no pathname
-(defmethod save-text-file ((self om-text-editor))
+(defmethod save-text-file ((self om-text-editor-window))
   (with-slots (ep) self
     (let ((current (capi::editor-pane-buffer ep)))
       (if (file self)
@@ -413,13 +398,16 @@
         ))))
 
 ;;; SAVE AS : the current buffer to a new file
-(defmethod save-as-text-file ((self om-text-editor))
+(defmethod type-filter-for-text-editor ((self om-text-editor-window)) 
+  '("Lisp Files" "*.lisp" "Text files" "*.txt" "All Files" "*.*"))
+
+(defmethod save-as-text-file ((self om-text-editor-window))
   (with-slots (ep) self
     (let ((buffer (capi::editor-pane-buffer ep)))
       (when-let (path (prompt-for-file "Save file as:"
                                    :pathname (file self)
                                    :if-does-not-exist :ok
-                                   :filter "*.*"
+                                   :filters (type-filter-for-text-editor self)
                                    :if-exists :prompt
                                    :operation :save))
         (setf *last-open-directory* (make-pathname :directory (pathname-directory path)))
@@ -432,7 +420,7 @@
        
 
 ;;; REVERT : put the file contents back in the editor
-(defmethod revert-text-file ((self om-text-editor))
+(defmethod revert-text-file ((self om-text-editor-window))
   (if (file self)
     (with-slots (ep) self
       (let* ((current (capi::editor-pane-buffer ep))
@@ -441,30 +429,30 @@
           (call-editor ep (list 'editor:revert-buffer-command nil current nil)))
         ))
     (error "No file is attached to this editor"))
-  (set-editor-window-title self))
+  (update-window-title self))
 
 ;;;=====================
 ;;; TEXT EDIT TOOLS 
 ;;;=====================
 
-(defmethod text-edit-copy ((self om-text-editor))
+(defmethod text-edit-copy ((self om-text-editor-window))
   (with-slots (ep) self
     (let ((buffer (capi::editor-pane-buffer ep)))
       (call-editor ep (list 'editor::copy-to-cut-buffer-command buffer)))))
 
-(defmethod text-edit-cut ((self om-text-editor))
+(defmethod text-edit-cut ((self om-text-editor-window))
   (with-slots (ep) self
     (let ((buffer (capi::editor-pane-buffer ep)))
       (call-editor ep (list 'editor::copy-to-cut-buffer-command buffer))
       (call-editor ep (list 'editor::kill-region-command buffer)))))
 
-(defmethod text-edit-paste ((self om-text-editor))
+(defmethod text-edit-paste ((self om-text-editor-window))
   (print "paste")
   (with-slots (ep) self
     (let ((buffer (capi::editor-pane-buffer ep)))
       (call-editor ep (list 'editor::insert-cut-buffer-command buffer)))))
 
-(defmethod text-edit-undo ((self om-text-editor))
+(defmethod text-edit-undo ((self om-text-editor-window))
   (with-slots (ep) self
     (let ((buffer (capi::editor-pane-buffer ep)))
       (call-editor ep (list 'editor::undo-command buffer)))))
@@ -472,7 +460,7 @@
 
 (defvar *def-text-edit-font* nil)
 
-(defmethod change-text-edit-font ((self om-text-editor))
+(defmethod change-text-edit-font ((self om-text-editor-window))
   (with-slots (ep) self
     (setf (capi::simple-pane-font ep) 
           (setf *def-text-edit-font*
@@ -481,7 +469,7 @@
 
 ;;; SELECT ALL BUFFER
 ;;; to do ge back to initial position...
-(defmethod text-select-all ((self om-text-editor))
+(defmethod text-select-all ((self om-text-editor-window))
     (with-slots (ep) self
       (let ((buffer (capi::editor-pane-buffer ep)))
         (editor::use-buffer buffer
@@ -514,7 +502,7 @@
 (defvar *lisp-eval-current-editor-file*)
 
 ;;; EVAL the buffer...
-(defmethod eval-lisp-buffer ((self om-text-editor))
+(defmethod eval-lisp-buffer ((self om-text-editor-window))
   (with-slots (ep) self
     (setf *lisp-eval-current-editor-file* (file self))
     (if (equal *lisp-eval-mode* :buffer)
@@ -537,7 +525,7 @@
            (t (condition) (progn (capi::display-message "error ~A" condition) (abort)))))))
 
 
-(defmethod eval-lisp-region ((self om-text-editor))
+(defmethod eval-lisp-region ((self om-text-editor-window))
  (with-slots (ep) self
    (let* ((buffer (capi::editor-pane-buffer ep))
           (command
@@ -546,10 +534,10 @@
              'editor::evaluate-defun-command)))
      (capi:call-editor ep (list command buffer)))))
 
-(defmethod text-edit-abort ((self om-text-editor))
+(defmethod text-edit-abort ((self om-text-editor-window))
   (capi::execute-with-interface self 'abort))
 
-(defmethod find-definition ((self om-text-editor))
+(defmethod find-definition ((self om-text-editor-window))
  (with-slots (ep) self
     (let ((buffer (capi::editor-pane-buffer ep))
           (symbol nil))
@@ -560,7 +548,7 @@
       ))))
 
 ;;; LOAD THE LISP FILE ATTACHED...
-(defmethod load-lisp-file ((self om-text-editor))
+(defmethod load-lisp-file ((self om-text-editor-window))
   (with-slots (ep) self
     (let ((path (editor:buffer-pathname (editor-pane-buffer ep))))
       (if path
@@ -574,7 +562,7 @@
 (defvar *fasl-extension* (pathname-type (cl-user::compile-file-pathname "")))
 
 ;;; LOAD ANOTHER FILE
-(defmethod load-a-lisp-file ((self om-text-editor))
+(defmethod load-a-lisp-file ((self om-text-editor-window))
   (let ((filename (capi::prompt-for-file "Choose a File to Load..." 
                                          :filters (list "All files" "*.*" "Lisp File" "*.lisp" "Compiled Lisp File" 
                                                         (concatenate 'string "*." *fasl-extension*))
@@ -599,11 +587,12 @@
 
 (defun disabled (window) (declare (ignore window)) nil)
 
-;;; text edit menubar
-(defmethod internal-window-class-menubar ((self om-text-editor)) 
+;;; text edit menubar 
+(defmethod text-editor-window-menus ((self om-text-editor-window)) 
   (remove 
    nil
-   (list 
+   (append 
+    (list 
     (make-instance 
      'capi::menu :title "File"
      :items 
@@ -744,15 +733,17 @@
 |#
                                 ))
        )
-     )))
+     )
+    (class-specific-additional-menus self)
+    )))
 
 
 
 ;;; additional specific app text edit menu bar items
-;;; possibly redefined/extended by om-text-editor subclasses
-(defmethod om-window-class-menubar ((self t)) nil)
+;;; possibly redefined/extended by om-text-editor-window subclasses
+(defmethod class-specific-additional-menus ((self t)) nil)
 
-(defmethod om-window-class-menubar ((self om-text-editor))  
+(defmethod class-specific-additional-menus ((self om-text-editor-window))  
   (list 
    (make-instance 
     'capi::menu 
@@ -783,7 +774,7 @@
                           :callback #'(lambda () (capi::find-interface 
                                                   (type-of w) 
                                                   :name (capi::capi-object-name w)))))
-                     (capi::collect-interfaces 'om-text-editor))
+                     (capi::collect-interfaces 'om-text-editor-window))
              :callback-type :item
              :interaction :no-selection)
             )

@@ -186,7 +186,7 @@
       ;(let ((tempfile "~/om-log.txt"))
       (sys:run-shell-command str :show-window t :wait t :output redirect-output :error-output redirect-output 
                              :if-output-exists :append :if-error-output-exists :append)
-       ;(om-open-text-editor :contents (pathname tempfile)))
+       ;(om-lisp::om-open-text-editor :contents (pathname tempfile)))
     (progn
       (if redirect-output
           (sys:call-system-showing-output str :wait t :output-stream *om-stream*)

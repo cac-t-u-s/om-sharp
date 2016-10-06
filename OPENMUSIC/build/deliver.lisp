@@ -188,7 +188,8 @@
          (write-macos-application-bundle (make-pathname :directory (butlast (pathname-directory (current-pathname)))
                                                         :name *app-name+version*)
                                          :document-types (list `("Patch" ("opat") ,(om::om-relative-path '("mac") "pat-icon.icns"))
-                                                               `("Maquette" ("omaq") ,(om::om-relative-path '("mac") "maq-icon.icns")))
+                                                               `("Maquette" ("omaq") ,(om::om-relative-path '("mac") "maq-icon.icns"))
+                                                               `("TextFun" ("olsp") ,(om::om-relative-path '("mac") "lsp-icon.icns")))
                                                            :application-icns (om::om-relative-path '("mac") "om.icns")
                                          :identifier "ircam.om7"
                                          :version (version-to-string *om-version* t nil)

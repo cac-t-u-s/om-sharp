@@ -88,13 +88,12 @@
   (cond ((string-equal str "opat") :patch)
         ((string-equal str "omaq") :maquette)
         ((string-equal str "olsp") :textfun)
-        
         ((or (string-equal str "lisp")
              (string-equal str "lsp")) :lisp)
         ((string-equal str "txt") :text)
         (otherwise nil)))
         
-;;; called by the interface menus and commands
+;;; called by the interface menus and commands ("New")
 (defun open-new-document (&optional (type :patch)) 
   (let ((newobj (make-new-om-doc type (om-str :untitled))))
     (setf (omversion newobj) *om-version*)
@@ -114,6 +113,7 @@
 ;      (when file
 ;        (open-document-from-file file)))))
         
+;;; called from the menu ("Open")
 (defun open-om-document ()
   (let ((file (om-choose-file-dialog :prompt (string+ (om-str :open) "...")
                                      :directory (or *last-open-dir* (om-user-home))
@@ -126,7 +126,8 @@
         (case type
           (:patch (open-doc-from-file type file))
           (:maquette (open-doc-from-file type file))
-          ((or :text :lisp) (om-open-text-editor :contents file))
+          (:textfun (open-doc-from-file type file))
+          ((or :text :lisp) (om-lisp::om-open-text-editor :contents file))
           (otherwise (progn (om-message-dialog (format nil "Unknown document type: ~s" (pathname-type file)))
                         nil)))
         ))))
@@ -149,6 +150,13 @@
       (setf (icon maq) 'maq-file))
     maq))
 
+(defmethod type-check ((type (eql :textfun)) obj)
+  (let ((fun (ensure-type obj 'OMLispFunction)))
+    (when fun
+      (change-class fun 'OMLispFunctionFile)
+      (setf (icon fun) 'lisp-f-file))
+    fun))
+
 (defmethod load-doc-from-file (path type)
   (om-print (list "Opening document:" path))
   (let ((doc-entry (find-doc-entry path)))
@@ -159,7 +167,7 @@
      (let ((*package* (find-package :om))
            (*relative-path-reference* path)
            (object (type-check type (load-object-from-file path))))
-       (when object 
+       (when object
          (setf (mypathname object) path
                (name object) (pathname-name path)
                (loaded? object) t
@@ -238,7 +246,7 @@
                         (close out))))
 
           (let ((*package* (find-package :om))
-                (patch-contents (save-patch-contents self)))
+                (patch-contents (omng-save self)))
             (pprint patch-contents out))))
       
       (when (probe-file tempfile)
@@ -266,7 +274,7 @@
                               (setf ok nil))
                             (car rep)))
                   (or (prog1 (save-patch doc)
-                        (om-set-window-title win (window-name-from-patch doc)))
+                        (om-set-window-title win (window-name-from-object doc)))
                       (setf ok nil)))))
             )
             ))
