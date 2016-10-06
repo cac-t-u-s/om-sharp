@@ -151,7 +151,7 @@
 (defmethod om-set-window-title ((self om-lisp::om-text-editor-window) (title string))
   (om-lisp::om-text-editor-window-set-title self title))
 (defmethod om-window-title ((self om-lisp::om-text-editor-window))
-  (om-lisp::om-text-editor-window-set-title self title))
+  (om-lisp::om-text-editor-window-title self))
 
 ;;;===============================
 ;;; LISTENER

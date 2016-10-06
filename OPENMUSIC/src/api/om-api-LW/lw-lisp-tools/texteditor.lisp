@@ -84,7 +84,7 @@
 (defmethod om-text-editor-window-set-title ((self om-text-editor-window) (title string))
   (setf (capi::interface-title self) title))
 
-(defmethod om-text-editor-window-title ((self om-text-editor-window) (title string))
+(defmethod om-text-editor-window-title ((self om-text-editor-window))
   (capi::interface-title self))
 
 
