@@ -608,19 +608,19 @@
       (om-drag-receive patchview dragged-view position effect))))
 
 
-;;; drag&drop from teh computer...
+;;; drag&drop from the computer...
 (defmethod om-import-files-in-app ((self patch-editor-view) file-list position) 
-  (let ((file (pathname (car file-list))))
-    (cond ((string-equal (pathname-type file) "opat")
-           ;;; TRY TO LOAD THE PATCH
-           (let ((patch (load-doc-from-file file :patch)))
-             (when patch
-              ;;; make a box
-               (let ((box (omNG-make-new-boxcall patch position)))
-                 ;;; add the box
-                 (add-box-in-patch-editor box self)
-                 ))))
-          (t (om-beep)))))
+  (let* ((file (pathname (car file-list)))
+         (objtype (extension-to-doctype (pathname-type file)))
+         (newbox 
+          (cond ((member objtype '(:patch :maquette :textfun))
+                 ;;; TRY TO LOAD THE PATCH
+                 (let ((obj (load-doc-from-file file objtype)))
+                   (when (print obj) (omNG-make-new-boxcall obj position))))
+                (t (om-beep)))))
+    (when newbox
+      (add-box-in-patch-editor newbox self)
+      )))
 
 ;;;=============================
 ;;; TEXT COMPLETION

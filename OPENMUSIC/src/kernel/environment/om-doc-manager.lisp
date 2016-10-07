@@ -167,12 +167,14 @@
      (let ((*package* (find-package :om))
            (*relative-path-reference* path)
            (object (type-check type (load-object-from-file path))))
-       (when object
-         (setf (mypathname object) path
-               (name object) (pathname-name path)
-               (loaded? object) t
-               (saved? object) t)
-         (register-document object path))
+       (if object
+         (progn 
+           (setf (mypathname object) path
+                 (name object) (pathname-name path)
+                 (loaded? object) t
+                 (saved? object) t)
+           (register-document object path))
+         (om-beep-msg "Document ~s of type ~S could not be loaded." path type))
        object))))
       
 (defun open-doc-from-file (type &optional path)
