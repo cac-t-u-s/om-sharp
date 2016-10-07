@@ -1,6 +1,6 @@
 # OM7 
 
-OM is an experimental version of the OpenMusic visual programming and computer-aided composition environment.
+This is an experimental version of the OpenMusic visual programming and computer-aided composition environment.
 
 This project was developed for research purpose and includes a number of improvements in terms of graphical interface, computational possibilities, and compositional affordance in general.
 
