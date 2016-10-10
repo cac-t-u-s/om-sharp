@@ -30,6 +30,8 @@
 ;(defconstant *metronome-down-path* (namestring (current-pathname "./Metronome-down.wav")))
 ;(om-midi::portmidi-connect-ports (om-midi::portmidi-setup nil nil))
 
+(require-om-package "midi")
+
 ;;===========================================================================
 ;;;Metronome
 ;;===========================================================================

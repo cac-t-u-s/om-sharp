@@ -35,7 +35,8 @@
 
 (defmethod initialize-instance :after ((self play-editor-mixin) &rest initargs)
   (setf (player self) (editor-make-player self))
-  (setf (metronome self) (make-instance 'metronome :editor self)))
+  (when (find-om-package "metronome")
+    (setf (metronome self) (make-instance 'metronome :editor self))))
 
 (defmethod editor-close ((self play-editor-mixin))
   (editor-stop self)
@@ -148,10 +149,10 @@
     (if (equal (player-get-object-state (player self) (get-obj-to-play self)) :pause)
         (progn
           (player-continue-object (player self) (get-obj-to-play self) )
-          (if (metronome-on self) (player-continue-object (player self) (metronome self))))
+          (if (and (metronome self) (metronome-on self)) (player-continue-object (player self) (metronome self))))
       (let ((interval (get-interval-to-play self)))
         (mapcar #'(lambda (view) (start-cursor view)) (cursor-panes self))
-        (if (metronome-on self) (player-play-object (player self) (metronome self) nil :interval interval))
+        (if (and (metronome self) (metronome-on self)) (player-play-object (player self) (metronome self) nil :interval interval))
         (player-play-object (player self) (get-obj-to-play self) self :interval interval)
         (player-start (player self) :start-t (or (car interval) 0) :end-t (cadr interval))))))
 
@@ -159,7 +160,7 @@
   (let ((ti (om-get-internal-time)))
     (when (play-button self) (unselect (play-button self)))
     (when (pause-button self) (select (pause-button self)))
-    (if (metronome-on self)
+    (if (and (metronome self) (metronome-on self))
         (player-pause-object (player self) (metronome self)))
     (player-pause-object (player self) (get-obj-to-play self))))
 
@@ -169,7 +170,7 @@
   ;(if (equal (state (player self)) :record) (editor-stop-record self))
   (mapcar #'(lambda (view) (stop-cursor view)) (cursor-panes self))
   (player-stop-object (player self) (get-obj-to-play self))
-  (player-stop-object (player self) (metronome self))
+  (if (and (metronome self) (metronome-on self)) (player-stop-object (player self) (metronome self)))
   (set-time-display self 0)
   (mapcar 'reset-cursor (cursor-panes self)))
 
@@ -433,27 +434,31 @@
                           :action #'(lambda (b)
                                       (editor-repeat editor (pushed b))))))
 
-
 (defmethod metronome-on ((self play-editor-mixin))
   (slot-value self 'metronome-on))
+
 (defmethod (setf metronome-on) (t-or-nil (self play-editor-mixin))
   (setf (slot-value self 'metronome-on) t-or-nil)
-  (if t-or-nil
-      (if (eq (state (get-obj-to-play self)) :play)
-          (player-play-object (player self) (metronome self) nil 
-                                  :interval (list (get-obj-time (get-obj-to-play self)) nil)))
-    (player-stop-object (player self) (metronome self))))
+  (when (metronome self)
+    (if t-or-nil
+        (if (eq (state (get-obj-to-play self)) :play)
+            (player-play-object (player self) (metronome self) nil 
+                                :interval (list (get-obj-time (get-obj-to-play self)) nil)))
+      (player-stop-object (player self) (metronome self)))))
 
 (defmethod (setf tempo) (new-tempo (self play-editor-mixin))
-  (om-set-dialog-item-text (cadr (om-subviews (tempo-box self))) (format nil "~$" new-tempo)))
+  (when (tempo-box self)
+    (om-set-dialog-item-text (cadr (om-subviews (tempo-box self))) 
+                             (format nil "~$" new-tempo))))
 
 (defmethod time-signature ((self play-editor-mixin))
   (slot-value self 'time-signature))
 
 (defmethod (setf time-signature) (new-signature (self play-editor-mixin))
   (setf (slot-value self 'time-signature) new-signature)
-  (with-schedulable-object (metronome self)
-                           (setf (time-signature (metronome self)) new-signature)))
+  (when (metronome self)
+    (with-schedulable-object (metronome self)
+                             (setf (time-signature (metronome self)) new-signature)))à)
 
 (defmethod make-tempo-box ((editor play-editor-mixin) &key fg-color bg-color font)
   (declare (ignore bg-color font))

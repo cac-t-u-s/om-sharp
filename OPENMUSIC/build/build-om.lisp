@@ -88,6 +88,7 @@
     (:import-from "CL-USER")
     (:nicknames "OM"))
 
+(in-package :om)
 
 (load (merge-pathnames "src/kernel/kernel-files.lisp" cl-user::*om-root-directory*))
 
@@ -95,13 +96,20 @@
 (defparameter *packages-folder* (merge-pathnames "src/packages/" cl-user::*om-root-directory*))
 
 (defun load-om-package (name)
-  (load 
-   (make-pathname :directory (append (pathname-directory *packages-folder*) (list name)) 
-                  :name name :type "lisp")))
+  (let ((packager-loader (make-pathname :directory (append (pathname-directory *packages-folder*) (list name)) 
+                                        :name name :type "lisp")))
+    (when (probe-file packager-loader)
+      (load packager-loader)
+      (push name *om-packages*)
+      name)
+    ))
+
+(defun find-om-package (name)
+  (find name *om-packages* :test 'string-equal))
 
 ;; can be called from a package...
 (defun require-om-package (name)
-  (or (find name *om-packages* :test-string-equal)
+  (or (find-om-package name)
       (load-om-package name)
       (progn
         (capi:beep-pane)
@@ -110,13 +118,13 @@
 
 (load-om-package "basic")
 (load-om-package "control")
+(load-om-package "metronome")
 (load-om-package "midi")
 (load-om-package "score")
 (load-om-package "sound")
-(load-om-package "metronome")
 (load-om-package "spatialisation")
 (load-om-package "interface")
-(load-om-package "tempo")
+;(load-om-package "tempo")
 ;;(load-om-package "timing")
 
 ;(cl-user::clean-sources)
