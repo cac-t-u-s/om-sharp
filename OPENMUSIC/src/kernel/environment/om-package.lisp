@@ -6,7 +6,7 @@
 (in-package :om)
 
 ;;; OMPackage <elements> (inherited from OMFolder) are the subpackages
-(defclass OMPackage (OMFolder) 
+(defclass OMAbstractPackage () 
    ((doc :initform "" :accessor doc :documentation "documentation")
     (classes  :initform nil :accessor classes :documentation "a list of OMClasses")
     (functions  :initform nil :accessor functions :documentation "a list of OMGenericFunctions or standard Lisp functions")
@@ -16,6 +16,11 @@
 For easier browsing it is recommended that a package do not contain at the same time subpackage and classes or functions.
 
 <elements> is a lst of subpackages"))
+
+(defclass OMPackage (OMAbstractPackage OMFolder) ())
+
+;;; used when the package corresponds to a 'real' folder, e.g. for external libraries
+(defclass OMPersistantPackage (OMAbstractPackage OMPersistantFolder) ())
 
 (defvar *om-package-tree* (make-instance 'OMPackage :name "OM Root Package") "The package of all OM predefined functions and classes")
 
@@ -161,4 +166,6 @@ For easier browsing it is recommended that a package do not contain at the same 
                                             (or (not (empty-class-p item)) (equal item *package-user*)))
                                    (package-classes2menu item (name item) action)))
                            )))))
+
+
 

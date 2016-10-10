@@ -91,32 +91,38 @@
 
 (load (merge-pathnames "src/kernel/kernel-files.lisp" cl-user::*om-root-directory*))
 
-(defun load-om-packages (folder &optional names)
-  (let ((package-list (or names 
-                          (mapcar 
-                           #'(lambda (path) (car (last (pathname-directory path))))
-                           (oa::om-directory folder :files nil :directories t)))))
-    (mapc #'(lambda (packname)
-              (load (make-pathname :directory (append (pathname-directory folder) (list packname)) 
-                                   :name packname :type "lisp")) ; :if-does-not-exist nil
-              )
-          package-list)))
+(defparameter *om-packages* nil)
+(defparameter *packages-folder* (merge-pathnames "src/packages/" cl-user::*om-root-directory*))
 
+(defun load-om-package (name)
+  (load 
+   (make-pathname :directory (append (pathname-directory *packages-folder*) (list name)) 
+                  :name name :type "lisp")))
 
-(load-om-packages 
- (merge-pathnames "src/packages/" cl-user::*om-root-directory*)
- '("basic" "control" "midi" "score" "sound"
-   "metronome" 
-   "spatialisation" 
-   "interface" 
-   "tempo"
-   ;"timing"
-   ))
+;; can be called from a package...
+(defun require-om-package (name)
+  (or (find name *om-packages* :test-string-equal)
+      (load-om-package name)
+      (progn
+        (capi:beep-pane)
+        (print (format nil "Required package ~S not found !" name))
+        NIL)))
 
-; (cl-user::clean-sources)
+(load-om-package "basic")
+(load-om-package "control")
+(load-om-package "midi")
+(load-om-package "score")
+(load-om-package "sound")
+(load-om-package "metronome")
+(load-om-package "spatialisation")
+(load-om-package "interface")
+(load-om-package "tempo")
+;;(load-om-package "timing")
+
+;(cl-user::clean-sources)
+
 
 (defun cl-user::start-openmusic () (om::start-openmusic))
-
 
 ;; (gen-lib-reference (find-library "OM-Chant"))
 ;;; avant de faire un package :

@@ -68,6 +68,7 @@
         "environment/om-session"
         "environment/om-preferences"  
         "environment/om-package"
+        "environment/om-library"
         "environment/om-workspace" 
         "environment/om-general-prefs"   
 
