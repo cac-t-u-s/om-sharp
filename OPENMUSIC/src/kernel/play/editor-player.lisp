@@ -77,7 +77,7 @@
      view pos nil
      :motion #'(lambda (view p2)
                  (let ((t2 (round (pix-to-x view (om-point-x p2)))))
-                   (set-player-interval self (list (min t1 t2) (max t1 t2)))))
+                   (editor-set-interval self (list (min t1 t2) (max t1 t2)))))
      :release #'(lambda (view pos) 
                   (om-invalidate-view (window self)))
      :min-move 10)))
@@ -87,7 +87,7 @@
    view pos nil
    :motion #'(lambda (view p)
                (let ((t1 (round (pix-to-x view (om-point-x p)))))
-                 (set-player-interval self (list t1 (cadr (play-interval self))))))
+                 (editor-set-interval self (list t1 (cadr (play-interval self))))))
    :release #'(lambda (view pos) 
                 (om-invalidate-view (window self)))
    :min-move 4))
@@ -97,7 +97,7 @@
    view pos nil
    :motion #'(lambda (view p)
                (let ((t2 (round (pix-to-x view (om-point-x p)))))
-                 (set-player-interval self (list (car (play-interval self)) t2))))
+                 (editor-set-interval self (list (car (play-interval self)) t2))))
    :release #'(lambda (view pos) 
                 (om-invalidate-view (window self)))
    :min-move 4))
@@ -114,8 +114,8 @@
           (cursor-panes self)))
 
 
-(defmethod reset-player-interval ((self play-editor-mixin))
-  (set-player-interval self '(0 0))
+(defmethod editor-reset-interval ((self play-editor-mixin))
+  (editor-set-interval self '(0 0))
   (mapcar 'reset-cursor (cursor-panes self)))
 
 (defmethod set-cursor-time ((self play-editor-mixin) time)
@@ -241,7 +241,7 @@
                          (set-cursor-time editor new-t)
                          (if (or (null (play-interval editor))
                                  (= (car (play-interval editor)) (cadr (play-interval editor))))
-                             (set-player-interval editor (list new-t new-t)))
+                             (editor-set-interval editor (list new-t new-t)))
                          ))))))))
 |#
 
@@ -579,7 +579,7 @@
     (:om-key-esc 
      (if (equal '(0 0) (play-interval self))
          (call-next-method) ;; if the interval is already reset: check if there is another 'escape' to do
-       (reset-player-interval self))
+       (editor-reset-interval self))
      (editor-stop self) t)
     (otherwise (call-next-method))
     ))
