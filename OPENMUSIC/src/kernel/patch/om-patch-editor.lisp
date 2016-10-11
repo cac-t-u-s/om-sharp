@@ -14,7 +14,7 @@
 
 
 (defclass patch-editor-window (OMEditorWindow) ())
-(defclass patch-editor-view (OMEditorView om-drop-view om-tt-view) 
+(defclass patch-editor-view (OMEditorView om-drop-view om-tt-view multi-view-editor-view) 
   ((dragged-views :initform nil :accessor dragged-views)))
 
 (defmethod editor-window-class ((self patch-editor)) 'patch-editor-window)
@@ -32,8 +32,7 @@
  
 ;;; the default location of the editor view
 ;;; can change, e.g. for a maquette-editor
-(defmethod get-editor-view ((self patch-editor))
-  (main-view (window self)))
+(defmethod get-editor-view-for-action ((self patch-editor)) (main-view self))
 
 (defmethod put-patch-boxes-in-editor-view ((self OMPatch) view) 
   (apply #'om-add-subviews (cons view (mapcar #'make-frame-from-callobj (boxes self))))
@@ -42,7 +41,7 @@
 ;;; redefined in maquette-editor
 (defmethod init-window ((win patch-editor-window) editor)
   (call-next-method)
-  (put-patch-boxes-in-editor-view (object editor) (main-view win))
+  (put-patch-boxes-in-editor-view (object editor) (main-view editor))
   (update-window-name editor))
 
 (defmethod draw-patch-grid ((self patch-editor-view) d)
@@ -174,10 +173,10 @@
     ))
   
 (defmethod editor-key-action ((editor patch-editor) key)
-  (let* ((panel (get-editor-view editor))
+  (let* ((panel (get-editor-view-for-action editor))
          (selected-boxes (get-selected-boxes editor))
          (selected-connections (get-selected-connections editor)))
-    (when panel
+    (when (print panel)
       (case key
         (:om-key-delete (remove-selection editor))
         (#\g (setf (grid editor) (not (grid editor)))
@@ -250,7 +249,7 @@
   (mapcar #'(lambda (x) (select-box x val))
           (append (boxes (object self))
                   (connections (object self))))
-  (om-invalidate-view (get-editor-view self)))
+  (om-invalidate-view (main-view self)))
 
 
 (defmethod remove-boxes ((self patch-editor) boxes)
@@ -264,7 +263,7 @@
 (defmethod remove-selection ((self patch-editor))
   (let ((selectedboxes (get-selected-boxes self))
         (selectedconnections (get-selected-connections self))
-        (view (get-editor-view self)))
+        (view (main-view self)))
     (when (or selectedboxes selectedconnections)
       
       (remove-boxes self selectedboxes)
@@ -350,7 +349,7 @@
 
 (defmethod copy-command ((self patch-editor))
   #'(lambda () 
-      (let ((focus (om-get-subview-with-focus (main-view (window self)))))
+      (let ((focus (om-get-subview-with-focus (main-view self))))
         (if focus 
             ;;; typically: the text-input field
             (copy-command focus)
@@ -361,11 +360,11 @@
 
 (defmethod cut-command ((self patch-editor))
   #'(lambda () 
-      (let ((focus (om-get-subview-with-focus (main-view (window self)))))
+      (let ((focus (om-get-subview-with-focus (main-view self))))
         (if focus 
             ;;; typically: the text-input field
             (cut-command focus)
-          (let* ((editor-view (main-view (window self)))
+          (let* ((editor-view (main-view self))
                  (boxes (get-selected-boxes self))
                  (connections (save-connections-from-boxes boxes)))
             (set-om-clipboard (list (mapcar 'om-copy boxes) connections))
@@ -374,13 +373,13 @@
 
 (defmethod paste-command ((self patch-editor))
   #'(lambda () 
-      (let ((focus (om-get-subview-with-focus (main-view (window self)))))
+      (let ((focus (om-get-subview-with-focus (main-view self))))
         (if focus 
             ;;; typically: the text-input field
             (paste-command focus)
           (let* ((boxes (car (get-om-clipboard)))
                  (connections (cadr (get-om-clipboard)))
-                 (editor-view (main-view (window self)))
+                 (editor-view (main-view self))
                  (paste-pos (get-paste-position editor-view))
                  (ref-pos))
             (select-unselect-all self nil)

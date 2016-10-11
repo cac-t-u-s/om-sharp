@@ -9,20 +9,26 @@
 (defparameter +track-color-2+ (om-gray-color 0.6))
 (defparameter +font-color+ (om-gray-color 1))
 
-(defclass maquette-editor (patch-editor multi-view-editor play-editor-mixin) 
+(defclass maquette-editor (multi-view-editor patch-editor play-editor-mixin) 
   ((view-mode :accessor view-mode :initarg :view-mode :initform :tracks)
    (snap-to-grid :accessor snap-to-grid :initarg :snap-to-grid :initform t)
    (beat-info :accessor beat-info :initarg :beat-info :initform (list :beat-count 0
                                                                       :prevtime 0
-                                                                      :nexttime 1))))
+                                                                      :nexttime 1))
+   ))
+
+;(defmethod initialize-instance :after ((self maquette-editor) &rest args) nil)
+
+;;; maquette-editor is its own container
+(defmethod container-editor ((self maquette-editor)) self)
 
 (defmethod get-editor-class ((self OMMaquette)) 'maquette-editor)
 (defmethod get-obj-to-play ((self maquette-editor)) (object self))
 
-(defmethod get-editor-view ((self maquette-editor))
+(defmethod get-editor-view-for-action ((self maquette-editor))
   (if (equal (view-mode self) :maquette)
       (get-g-component self :maq-view)
-    (selected-view self))) ;; selected = the last clicked
+    (selected-view self))) ;; selected = the last clicked track
 
 (defmethod get-view-from-mode ((self maquette-editor))
   (if (equal (view-mode self) :maquette)
@@ -69,7 +75,7 @@
       (om-invalidate-view (window self))))
 
 (defmethod get-internal-view-components ((self patch-editor))
-  (let ((editorview (main-view (window self))))
+  (let ((editorview (main-view self)))
     (append (get-boxframes self)
             (get-grap-connections self))))
 
@@ -104,7 +110,7 @@
 ;;; MAQUETTE-VIEW
 ;;;========================
 
-(defclass maquette-view (patch-editor-view multi-view-editor-view x-cursor-graduated-view om-drop-view) ())
+(defclass maquette-view (patch-editor-view x-cursor-graduated-view om-drop-view) ())
 ;(defmethod editor-view-class ((self maquette-editor)) 'maquette-view)
 
 (defmethod omng-position ((container maquette-view) position)
@@ -227,83 +233,9 @@
     ))
 
 
-#|
-;;;;;;;;========================================
-;;;;;;;; TO EXTRACT CODE
-;;;;;;;;========================================
-
-(defmethod draw-maquette-mini-view ((object t) (box OMBox) x y w h &optional time)
-  (ensure-cache-display-draw box object)
-  (draw-mini-view object box x y w h time))
-
-(defmethod draw-mini-view ((self bpf) (box t) x y w h &optional time)
-  (let ((display-cache (get-display-draw box)))
-    (draw-bpf-points-in-rect (cadr display-cache)
-                             (color self) 
-                             (car display-cache)
-                             ;(+ x 7) (+ y 10) (- w 14) (- h 20)
-                             x (+ y 10) w (- h 20)
-                             )
-    t))
-
-(defun conversion-factor-and-offset (min max w delta)
-  (let* ((range (- max min))
-         (factor (if (zerop range) 1 (/ w range))))
-    (values factor (- delta (* min factor)))))
-
-(defun draw-bpf-points-in-rect (points color ranges x y w h)
-  (multiple-value-bind (fx ox) 
-      (conversion-factor-and-offset (car ranges) (cadr ranges) w x)
-    (multiple-value-bind (fy oy) 
-        ;;; Y ranges are reversed !! 
-        (conversion-factor-and-offset (cadddr ranges) (caddr ranges) h y)
-      (when points 
-        (om-with-fg-color (om-def-color :gray)
-        ;draw first point
-        (om-draw-circle (+ ox (* fx (car (car points))))
-                        (+ oy (* fy (cadr (car points))))
-                        3 :fill t)
-        (let ((lines (loop for pts on points
-                           while (cadr pts)
-                           append
-                           (let ((p1 (car pts))
-                                 (p2 (cadr pts)))
-                             (om-draw-circle (+ ox (* fx (car p2)))
-                                             (+ oy (* fy (cadr p2)))
-                                             3 :fill t)
-                             ;;; collect for lines 
-                             (om+ 0.5
-                                  (list (+ ox (* fx (car p1)))
-                                        (+ oy (* fy (cadr p1)))
-                                        (+ ox (* fx (car p2)))
-                                        (+ oy (* fy (cadr p2)))))
-                             ))))
-          (om-with-fg-color (or color (om-def-color :dark-gray))
-            (om-draw-lines lines))))))))
-
-(defmethod draw-temporal-box ((self omboxeditcall) view x y w h &optional (time 0))
-  (call-next-method)
-  (case (display self)  
-    (:mini-view (draw-maquette-mini-view (get-box-value self) self x y w h nil))
-    (:text (draw-mini-text (get-box-value self) self x y w h nil))
-    (:hidden  (om-with-font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))
-                          (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
-                            (om-draw-string (+ x 10) (max 22 (+ 6 (/ h 2))) 
-                                            (string-upcase (type-of (get-box-value self)))))))))
 
 
-(defmethod draw-temporal-box ((self OMBox) view x y w h &optional (time 0))
-  (when (color self)
-    (om-with-fg-color (om-make-color-alpha (color self) 0.9)
-      (om-draw-rect x y w h :fill t)))
-  (om-with-fg-color (om-def-color :white)
-    (om-draw-rect x y w h :fill nil))
-  (om-with-fg-color (om-def-color :white)
-    (om-draw-string (+ x 2) (+ y h -2) (number-to-string (get-box-onset self)))))
-;;;;;;;;========================================
-;;;;;;;;========================================
-;;;;;;;;========================================
-|#
+
 
 (defmethod resizable-box? ((self OMBox)) t)
 (defmethod resizable-box? ((self OMBoxEditCall)) nil)
@@ -441,7 +373,7 @@
     (if selected-box 
         (open-editor selected-box)
       (progn
-        (set-player-interval editor (list time time))
+        (editor-set-interval editor (list time time))
         (set-object-time (get-obj-to-play editor) time)))))
 
 
@@ -536,6 +468,8 @@
        (move-editor-selection editor :dx (get-units (get-g-component editor :metric-ruler) (if (om-shift-key-p) 100 10)))
        (om-invalidate-view (window editor))
        (report-modifications editor))
+      (:om-key-up (when (equal (view-mode editor) :maquette) (call-next-method)))
+      (:om-key-down (when (equal (view-mode editor) :maquette) (call-next-method)))
       (#\v (with-schedulable-object maquette
                                     (loop for tb in (get-selected-boxes editor) do 
                                           (eval-box tb)
@@ -545,9 +479,10 @@
            (report-modifications editor))
       (#\r (loop for tb in (get-selected-boxes editor) do (set-reactive tb (not (all-reactive-p tb))))
            (om-invalidate-view (window editor)))
-      (otherwise 
+      (otherwise
        (call-next-method)
-       (om-invalidate-view (window editor)))
+       (om-invalidate-view (window editor))
+       nil)
       )))
 
 
@@ -624,7 +559,8 @@
 (defmethod stop-editor-callback ((self maquette-editor))
   (setf (getf (beat-info self) :beat-count) 0
         (getf (beat-info self) :next-date) nil)
-  (om-set-dialog-item-text (cadr (om-subviews (tempo-box self))) (format nil "~$" (tempo-at-beat (get-tempo-automation self) 0)))
+  (when (tempo-box self)
+    (om-set-dialog-item-text (cadr (om-subviews (tempo-box self))) (format nil "~$" (tempo-at-beat (get-tempo-automation self) 0))))
   (call-next-method))
 
 
@@ -635,23 +571,49 @@
               (reduce 'max sb :key 'get-box-end-date))
       (call-next-method))))
 
+
 ;;;========================
 ;;; GENERAL CONSTRUCTOR
 ;;;========================
 
+(defun show-control-patch-editor (maq-editor)
+  (let ((ctrlpatch (ctrlpatch (object maq-editor))))
+    (unless (editor ctrlpatch)
+    (setf (editor ctrlpatch)
+          (make-instance 'patch-editor 
+                         :object ctrlpatch
+                         :container-editor maq-editor))
+    (let ((pl (get-g-component maq-editor :left-view))
+          (pv (make-editor-window-contents (editor ctrlpatch))))
+      (om-remove-all-subviews pl)
+      (om-add-subviews pl pv)
+      (setf (main-view (editor ctrlpatch)) pv)
+      (put-patch-boxes-in-editor-view ctrlpatch pv)))
+    (om-set-layout-ratios (main-view maq-editor) '(4 nil 6))))
+
+
+(defun hide-control-patch-editor (maq-editor)
+  ;(om-remove-all-subviews (get-g-component maq-editor :left-view))
+  (om-set-view-size (get-g-component maq-editor :left-view) (omp 0 0))
+  (om-set-layout-ratios (main-view maq-editor) '(1 nil 1000)))
+
+
 (defmethod make-editor-window-contents ((editor maquette-editor))
   (let* ((maquette (get-obj-to-play editor))
+         
          (tracks-or-maq-view (if (equal (view-mode editor) :maquette)
                                  (make-maquette-view editor)
                                (make-tracks-view editor)))
-         (nav-view (om-make-view 'om-view :bg-color (om-make-color (/ 215 256) (/ 215 256) (/ 215 256)) :scrollbars nil))
-         (patch-view (om-make-layout 
-                      'om-row-layout
-                      :subviews 
-                      (list 
-                       (om-make-view 'om-view :bg-color (om-make-color (/ 215 256) (/ 215 256) (/ 215 256))) 
-                       :divider 
-                       (om-make-view 'om-view :bg-color (om-make-color (/ 215 256) (/ 215 256) (/ 215 256))))))
+         
+         (left-view (om-make-layout 'om-simple-layout))
+
+         (bottom-view (om-make-layout 
+                       'om-row-layout
+                       :subviews 
+                       (list 
+                        (om-make-view 'om-view :bg-color (om-make-color (/ 215 256) (/ 215 256) (/ 215 256))) 
+                        :divider 
+                        (om-make-view 'om-view :bg-color (om-make-color (/ 215 256) (/ 215 256) (/ 215 256))))))
          (ctrl-view (om-make-view 
                      'om-view 
                      :direct-draw nil
@@ -673,7 +635,8 @@
                                              :align :bottom
                                              :size (om-make-point 90 15)
                                              :subviews (list ;(make-signature-box editor :bg-color +track-color-2+ :rulers (list ruler-tracks))
-                                                        (make-tempo-box editor :bg-color +track-color-2+)))
+                                                        (when (metronome editor) (make-tempo-box editor :bg-color +track-color-2+))
+                                                        ))
                                             (om-make-layout
                                              'om-row-layout 
                                              :delta 5 
@@ -719,9 +682,12 @@
                                                          (setq b1 (om-make-graphic-object 
                                                                    'om-icon-button :size (omp 16 16) 
                                                                    :icon 'ctrlpatch-black :icon-pushed 'ctrlpatch-gray
-                                                                   :lock-push nil :enabled t
+                                                                   :lock-push t :enabled t
                                                                    :action #'(lambda (b)
-                                                                               (open-editor (ctrlpatch (object editor))))))
+                                                                                ;(open-editor (ctrlpatch (object editor)))
+                                                                               (if (pushed b)
+                                                                                   (show-control-patch-editor editor)
+                                                                                 (hide-control-patch-editor editor)))))
                                                          (setq b2 (om-make-graphic-object 
                                                                    'om-icon-button :size (omp 16 16) 
                                                                    :icon 'maqeval-black :icon-pushed 'maqeval-gray
@@ -735,7 +701,7 @@
                                                                                          (eval-box box) 
                                                                                          (reset-cache-display box)
                                                                                          (contextual-update box maq)
-                                                                                         (om-invalidate-view patch-view)))
+                                                                                         (om-invalidate-view bottom-view)))
                                                                                  (mapcar #'(lambda (i) (setf (defval i) maq)) (inputs (ctrlpatch maq)))
                                                                                  ;(setf (defval (car (inputs (ctrlpatch maq)))) maq)
                                                                                  ;(compile-patch (ctrlpatch maq))
@@ -763,23 +729,24 @@
                                                                                                               (not (no-exec maquette)))))))
                                                          (list b1 b2 b3 b4)))))))))
          
-    (set-g-component editor :patch-view patch-view)
-    (set-g-component editor :nav-view nav-view)
+    (set-g-component editor :bottom-view bottom-view)
+    (set-g-component editor :left-view left-view)
     (set-g-component editor :ctrl-view ctrl-view)
-  
+    
     (om-make-layout 
      'om-row-layout :delta 2 :ratios '(1 nil 100)
      :subviews (list 
                 ;;; LEFT PART
-                nav-view :divider
+                (get-g-component editor :left-view) 
+                :divider
                 ;;; REST (RIGHT)
                 (om-make-layout 
                  'om-column-layout :delta nil :ratios '(1 98 nil 1)
                  :subviews (list 
-                            ctrl-view 
+                            (get-g-component editor :ctrl-view)
                             tracks-or-maq-view
                             :divider 
-                            patch-view))))))
+                            (get-g-component editor :bottom-view)))))))
 
 
 (defun make-maquette-view (maq-editor)
@@ -832,73 +799,6 @@
 
 (defun make-track-control (n editor)
   (let ((f-color +font-color+))
-
-#|
-    (om-make-view 
-     'sequencer-track-control :num n
-     :size (om-make-point *track-control-w* *track-h*)
-     :bg-color (nth (mod n 2) (list +track-color-1+ +track-color-2+))
-     :subviews (let ((ypos 2) (delta 2) (slider-h 14) 
-                     panval volval
-                     (font1 (om-def-font :font1)) (font2 (om-def-font :font1b))
-                     (mainbgcolor +maq-bg-color+))
-                 (list
-                  (om-make-di 'om-simple-text
-                              :text (format nil "Track ~A" n) :fg-color f-color :font font2
-                              :position (om-make-point (- (round *track-control-w* 2) 22) (* 2 delta))
-                              :size (om-make-point 50 16))
-                  (om-make-di 'om-slider
-                              :position (om-make-point 10 (incf ypos (+ 18 delta)))
-                              :size (om-make-point (- *track-control-w* 10) nil)
-                              :range '(-50 50) :value 0 :increment 1
-                              :direction :horizontal :tick-side :none
-                              :di-action #'(lambda (item)
-                                             (let ((val (om-slider-value item)))
-                                               (set-track-pan (get-obj-to-play editor) n val)
-                                               (om-set-dialog-item-text 
-                                                panval  
-                                                (cond ((< val 0) (format nil "~DL" (abs val)))
-                                                      ((> val 0) (format nil "~DR" val))
-                                                      ((= val 0) (format nil "C")))))))
-                  (om-make-di 'om-simple-text
-                              :fg-color f-color :font font1 :text "Pan"
-                              :position (om-make-point 5 (incf ypos (+ slider-h delta)))
-                              :size (om-make-point 90 nil))
-                  (setq panval (om-make-di 'om-simple-text
-                                           :fg-color f-color :font font1 :text "C"
-                                           :position (om-make-point (- *track-control-w* 45) ypos)
-                                           :size (om-make-point 90 (progn (incf ypos 16) 16))))
-                  ;(om-make-di 'om-slider
-                  ;            :position (om-make-point 10 (1+ ypos))
-                  ;            :size (om-make-point (- *track-control-w* 10) (progn (incf ypos (+ slider-h delta)) slider-h))
-                  ;            :range '(0 100) :value 100 :increment 1
-                  ;            :direction :horizontal :tick-side :none
-                  ;            :di-action #'(lambda (item) 
-                  ;                           (om-set-dialog-item-text
-                  ;                            volval 
-                  ;                            (format nil "~1$" 
-                  ;                                    (let ((dbval (* 20 (log (/ (max 0.001 (om-slider-value item)) 100)))))
-                  ;                                      (if (>= dbval -92.1) dbval "-inf"))))))
-                  (om-make-di 'om-slider
-                              :position (om-make-point 10 (1+ ypos))
-                              :size (om-make-point (- *track-control-w* 10) (progn (incf ypos (+ slider-h delta)) slider-h))
-                              :range '(0 200) :value 100 :increment 1
-                              :direction :horizontal :tick-side :none
-                              :di-action #'(lambda (item)
-                                             (let ((gain (/ (om-slider-value item) 100.0)))
-                                               (set-track-gain (get-obj-to-play editor) n gain)
-                                               (om-set-dialog-item-text 
-                                                volval 
-                                                (format nil "~1$" gain)))))
-                  (om-make-di 'om-simple-text 
-                              :fg-color f-color :font font1 :text "Gain"
-                              :position (om-make-point 5 ypos)
-                              :size (om-make-point 90 16))
-                  (setq volval (om-make-di 'om-multi-text
-                                           :fg-color f-color :font font1 :text "0.0"
-                                           :position (om-make-point (- *track-control-w* 45) (+ 2 ypos))
-                                           :size (om-make-point 90 (progn (incf ypos 16) 16)))))))
-|#    
     (om-make-view 
      'sequencer-track-control :num n
      :size (om-make-point *track-control-w* *track-h*)
@@ -972,7 +872,6 @@
                                              :bg-color +track-color-2+)
                                  ruler-tracks))))))
 
-
 ;;;=====================
 ;;; PLAYER INTERFACE
 ;;;=====================
@@ -1003,6 +902,11 @@
 (defmethod editor-close ((self maquette-editor))
   (player-stop-object (player self) (metronome self))
   (call-next-method))
+
+
+
+
+
 
 #|
 
@@ -1035,5 +939,151 @@
       (call-next-method))))
 |#
 
+
+#|
+    (om-make-view 
+     'sequencer-track-control :num n
+     :size (om-make-point *track-control-w* *track-h*)
+     :bg-color (nth (mod n 2) (list +track-color-1+ +track-color-2+))
+     :subviews (let ((ypos 2) (delta 2) (slider-h 14) 
+                     panval volval
+                     (font1 (om-def-font :font1)) (font2 (om-def-font :font1b))
+                     (mainbgcolor +maq-bg-color+))
+                 (list
+                  (om-make-di 'om-simple-text
+                              :text (format nil "Track ~A" n) :fg-color f-color :font font2
+                              :position (om-make-point (- (round *track-control-w* 2) 22) (* 2 delta))
+                              :size (om-make-point 50 16))
+                  (om-make-di 'om-slider
+                              :position (om-make-point 10 (incf ypos (+ 18 delta)))
+                              :size (om-make-point (- *track-control-w* 10) nil)
+                              :range '(-50 50) :value 0 :increment 1
+                              :direction :horizontal :tick-side :none
+                              :di-action #'(lambda (item)
+                                             (let ((val (om-slider-value item)))
+                                               (set-track-pan (get-obj-to-play editor) n val)
+                                               (om-set-dialog-item-text 
+                                                panval  
+                                                (cond ((< val 0) (format nil "~DL" (abs val)))
+                                                      ((> val 0) (format nil "~DR" val))
+                                                      ((= val 0) (format nil "C")))))))
+                  (om-make-di 'om-simple-text
+                              :fg-color f-color :font font1 :text "Pan"
+                              :position (om-make-point 5 (incf ypos (+ slider-h delta)))
+                              :size (om-make-point 90 nil))
+                  (setq panval (om-make-di 'om-simple-text
+                                           :fg-color f-color :font font1 :text "C"
+                                           :position (om-make-point (- *track-control-w* 45) ypos)
+                                           :size (om-make-point 90 (progn (incf ypos 16) 16))))
+                  ;(om-make-di 'om-slider
+                  ;            :position (om-make-point 10 (1+ ypos))
+                  ;            :size (om-make-point (- *track-control-w* 10) (progn (incf ypos (+ slider-h delta)) slider-h))
+                  ;            :range '(0 100) :value 100 :increment 1
+                  ;            :direction :horizontal :tick-side :none
+                  ;            :di-action #'(lambda (item) 
+                  ;                           (om-set-dialog-item-text
+                  ;                            volval 
+                  ;                            (format nil "~1$" 
+                  ;                                    (let ((dbval (* 20 (log (/ (max 0.001 (om-slider-value item)) 100)))))
+                  ;                                      (if (>= dbval -92.1) dbval "-inf"))))))
+                  (om-make-di 'om-slider
+                              :position (om-make-point 10 (1+ ypos))
+                              :size (om-make-point (- *track-control-w* 10) (progn (incf ypos (+ slider-h delta)) slider-h))
+                              :range '(0 200) :value 100 :increment 1
+                              :direction :horizontal :tick-side :none
+                              :di-action #'(lambda (item)
+                                             (let ((gain (/ (om-slider-value item) 100.0)))
+                                               (set-track-gain (get-obj-to-play editor) n gain)
+                                               (om-set-dialog-item-text 
+                                                volval 
+                                                (format nil "~1$" gain)))))
+                  (om-make-di 'om-simple-text 
+                              :fg-color f-color :font font1 :text "Gain"
+                              :position (om-make-point 5 ypos)
+                              :size (om-make-point 90 16))
+                  (setq volval (om-make-di 'om-multi-text
+                                           :fg-color f-color :font font1 :text "0.0"
+                                           :position (om-make-point (- *track-control-w* 45) (+ 2 ypos))
+                                           :size (om-make-point 90 (progn (incf ypos 16) 16)))))))
+|#    
+
+
+#|
+;;;;;;;;========================================
+;;;;;;;; TO EXTRACT CODE
+;;;;;;;;========================================
+
+(defmethod draw-maquette-mini-view ((object t) (box OMBox) x y w h &optional time)
+  (ensure-cache-display-draw box object)
+  (draw-mini-view object box x y w h time))
+
+(defmethod draw-mini-view ((self bpf) (box t) x y w h &optional time)
+  (let ((display-cache (get-display-draw box)))
+    (draw-bpf-points-in-rect (cadr display-cache)
+                             (color self) 
+                             (car display-cache)
+                             ;(+ x 7) (+ y 10) (- w 14) (- h 20)
+                             x (+ y 10) w (- h 20)
+                             )
+    t))
+
+(defun conversion-factor-and-offset (min max w delta)
+  (let* ((range (- max min))
+         (factor (if (zerop range) 1 (/ w range))))
+    (values factor (- delta (* min factor)))))
+
+(defun draw-bpf-points-in-rect (points color ranges x y w h)
+  (multiple-value-bind (fx ox) 
+      (conversion-factor-and-offset (car ranges) (cadr ranges) w x)
+    (multiple-value-bind (fy oy) 
+        ;;; Y ranges are reversed !! 
+        (conversion-factor-and-offset (cadddr ranges) (caddr ranges) h y)
+      (when points 
+        (om-with-fg-color (om-def-color :gray)
+        ;draw first point
+        (om-draw-circle (+ ox (* fx (car (car points))))
+                        (+ oy (* fy (cadr (car points))))
+                        3 :fill t)
+        (let ((lines (loop for pts on points
+                           while (cadr pts)
+                           append
+                           (let ((p1 (car pts))
+                                 (p2 (cadr pts)))
+                             (om-draw-circle (+ ox (* fx (car p2)))
+                                             (+ oy (* fy (cadr p2)))
+                                             3 :fill t)
+                             ;;; collect for lines 
+                             (om+ 0.5
+                                  (list (+ ox (* fx (car p1)))
+                                        (+ oy (* fy (cadr p1)))
+                                        (+ ox (* fx (car p2)))
+                                        (+ oy (* fy (cadr p2)))))
+                             ))))
+          (om-with-fg-color (or color (om-def-color :dark-gray))
+            (om-draw-lines lines))))))))
+
+(defmethod draw-temporal-box ((self omboxeditcall) view x y w h &optional (time 0))
+  (call-next-method)
+  (case (display self)  
+    (:mini-view (draw-maquette-mini-view (get-box-value self) self x y w h nil))
+    (:text (draw-mini-text (get-box-value self) self x y w h nil))
+    (:hidden  (om-with-font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))
+                          (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
+                            (om-draw-string (+ x 10) (max 22 (+ 6 (/ h 2))) 
+                                            (string-upcase (type-of (get-box-value self)))))))))
+
+
+(defmethod draw-temporal-box ((self OMBox) view x y w h &optional (time 0))
+  (when (color self)
+    (om-with-fg-color (om-make-color-alpha (color self) 0.9)
+      (om-draw-rect x y w h :fill t)))
+  (om-with-fg-color (om-def-color :white)
+    (om-draw-rect x y w h :fill nil))
+  (om-with-fg-color (om-def-color :white)
+    (om-draw-string (+ x 2) (+ y h -2) (number-to-string (get-box-onset self)))))
+;;;;;;;;========================================
+;;;;;;;;========================================
+;;;;;;;;========================================
+|#
 
 

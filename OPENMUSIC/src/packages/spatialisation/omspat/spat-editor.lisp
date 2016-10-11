@@ -290,7 +290,7 @@
             (trajectories ss) (butlast (trajectories ss)))
       (make-timeline-view (timeline-editor self))
       (enable-play-controls self t)
-      (om-set-layout-ratios (main-view (window self)) '(0.9 0.1))
+      (om-set-layout-ratios (main-view self) '(0.9 0.1))
       (update-spat-display self)
       (update-sources self)
       (set-spat-processor (object-value self))

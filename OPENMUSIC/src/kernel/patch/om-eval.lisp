@@ -35,7 +35,7 @@
   (let* ((frame (frame out-area))
          (box (object frame))
          (n (position (object out-area) (outputs box)))
-         (editor-view (om-view-container frame)))
+         (main-view (om-view-container frame)))
   (om-eval-enqueue 
    `(progn
       (setf *current-eval-panel* ,editor-view)

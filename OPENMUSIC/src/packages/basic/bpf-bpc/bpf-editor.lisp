@@ -204,7 +204,7 @@
                                                                     (om-invalidate-view timeline)
                                                                     (when (om-checked-p item) 
                                                                       (make-timeline-view timeline-editor))
-                                                                    (om-update-layout (main-view (window editor))))
+                                                                    (om-update-layout (main-view editor)))
                                                      ))
                                        nil
                                        )))

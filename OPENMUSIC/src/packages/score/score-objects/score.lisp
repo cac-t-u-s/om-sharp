@@ -206,11 +206,11 @@
                                  (show-tempo-editor editor)
                                (hide-tempo-editor editor))
                              (om-set-layout-ratios 
-                              (main-view (window editor)) 
+                              (main-view editor)
                               (if (om-checked-p item)
                                   '(0.77 0.2 0.02) '(0.97 0.01 0.02)
                                 ))
-                             ;(om-update-layout (main-view (window editor)))
+                             ;(om-update-layout (main-view editor))
                              )))
 
 (defmethod find-clicked-point-or-curve ((editor tempo-editor) (object automation) position)

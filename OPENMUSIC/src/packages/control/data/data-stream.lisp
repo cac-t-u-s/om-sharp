@@ -193,7 +193,7 @@
                                (clear-timeline timeline-ed)
                                (om-invalidate-view (get-g-component timeline-ed :main-panel))
                                (when (om-checked-p item) (make-timeline-view timeline-ed))
-                               (om-update-layout (main-view (window editor)))))
+                               (om-update-layout (main-view editor))))
               ))
 
 (defun make-timeline-editor (editor)

@@ -199,7 +199,7 @@
                                                                     ;(om-remove-all-subviews (car (capi:layout-description (car (capi:layout-description foldable-container)))))
                                                                     (om-remove-all-subviews foldable-container)
                                                                     (setf (related-views time-ruler) (timeline-views self))))
-                                                                (om-update-layout (main-view (window (container-editor self))))
+                                                                (om-update-layout (main-view (container-editor self)))
                                                                 (om-invalidate-view main-panel))))
                  (fold-group (om-make-layout 'om-column-layout 
                                              :ratios '(1.0 0.001)

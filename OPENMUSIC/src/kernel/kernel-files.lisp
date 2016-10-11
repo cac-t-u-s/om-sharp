@@ -76,8 +76,6 @@
         "windows/om-windows"
         "windows/om-main-window"
         "windows/om-editor"
-        "windows/om-multi-editor"
-        "windows/om-inspector"
         
         "patch/om-box"
         "patch/om-boxcall"
@@ -100,6 +98,9 @@
         "patch/om-encapsulation"
         "patch/om-lost-reference"
 
+        "windows/om-multi-editor"
+        "windows/om-inspector"
+        
         "lisp-function/om-lisp-function"
 
         "basic/om-data-structures"
