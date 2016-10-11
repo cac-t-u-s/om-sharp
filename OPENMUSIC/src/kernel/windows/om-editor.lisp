@@ -10,6 +10,7 @@
    (container-editor :initarg :container-editor :initform nil :accessor container-editor)
    (related-editors :initarg :related-editors :initform nil :accessor related-editors)
    (window :initarg :window :initform nil :accessor window)
+   (main-view :initarg :main-view :initform nil :accessor main-view)
    (g-components :initarg :g-components :initform nil :accessor g-components)
    (selection :accessor selection :initform nil)))
 
@@ -23,7 +24,10 @@
 
 (defmethod window ((self OMEditor))
   (or (slot-value self 'window)
-      (and (container-editor self) (window (container-editor self)))))
+      (and (container-editor self) 
+           (not (equal self (container-editor self))) 
+           ;;; in teh maquette editor, the editor is its own container..
+           (window (container-editor self)))))
 
 (defmethod get-value-for-editor ((self t)) self)
 (defmethod get-value-for-editor ((self OMAbstractContainer)) (contents self))
@@ -35,7 +39,6 @@
 
 (defclass OMEditorWindow (om-window) 
   ((editor :initarg :editor :initform nil :accessor editor)
-   (main-view :initarg :main-view :initform nil :accessor main-view)
    (side-panel :initarg :side-panel :initform nil :accessor side-panel)))
 
 ;(defclass OMEditorView (om-view) 
@@ -52,7 +55,7 @@
 
 ;;; ACCESSORS
 (defmethod editor-window ((self ObjectWithEditor)) (and (editor self) (window (editor self))))
-(defmethod editor-view ((self ObjectWithEditor)) (main-view (editor-window self)))
+(defmethod editor-view ((self ObjectWithEditor)) (main-view self))
 (defmethod editor ((self om-graphic-object)) (editor (om-view-window self)))
 
 ;;;====================
@@ -205,7 +208,13 @@
 (defmethod close-command ((self OMEditor))
   #'(lambda () (om-close-window (window self))))
 
+
 (defmethod editor-key-action ((self OMEditor) key) nil)
+
+(defmethod dispatch-key-action ((self OMEditor) key)
+  (editor-key-action self key))
+
+
 
 (defun om-add-key-down ()
   #+macosx(om-command-key-p)
@@ -213,7 +222,7 @@
 
 ;;;====================
 ;;; EDITOR VIEW 
-;;; the main-view of the editor window should be an editor view (?)
+;;; the main-view of the editor should be an editor view (?)
 ;;;====================
 
 (defclass OMEditorView (om-view)
@@ -227,7 +236,7 @@
   (om-remove-all-subviews win)
   (multiple-value-bind (contents main)
       (make-editor-window-contents editor)
-    (setf (main-view win) (or main contents))
+    (setf (main-view editor) (or main contents))
     (om-add-subviews win contents)))
 
 (defmethod make-editor-window-contents ((editor OMEditor))
@@ -242,8 +251,8 @@
 
 ;;; not very clean...
 ;(defmethod init-window :after ((win OMEditorWindow) editor) 
-;  (when (main-view win)
-;    (om-view-resized (main-view win) (om-view-size (main-view win)))))
+;  (when (main-view editor)
+;    (om-view-resized (main-view editor) (om-view-size (main-view editor)))))
 
 (defmethod om-window-activate ((self OMEditorWindow) &optional (activatep t))
   (editor-activate (editor self) activatep))
@@ -259,7 +268,7 @@
        (call-next-method)))
 
 (defmethod om-view-key-handler ((self OMEditorWindow) key)
-  (editor-key-action (editor self) key))
+  (dispatch-key-action (editor self) key))
 
 
 (defmethod om-window-resized ((self OMEditorWindow) size)
