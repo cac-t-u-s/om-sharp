@@ -64,7 +64,7 @@
   (set-object-autostop self nil)
   ;(set-object-time-window self 50)
   (unless (ctrlpatch self)
-    (let* ((maqin (make-instance 'ommaqin :defval self :name "maquette"))
+    (let* ((maqin (make-instance 'ommaqin :defval self :name "MAQUETTE"))
            (inbox (omng-make-new-boxcall maqin (omp 50 50))))
       (setf (index maqin) 0)
       (setf (ctrlpatch self) (make-instance 'OMMaqControlPatch :name "Control Patch"))
