@@ -176,7 +176,7 @@
   (let* ((panel (get-editor-view-for-action editor))
          (selected-boxes (get-selected-boxes editor))
          (selected-connections (get-selected-connections editor)))
-    (when (print panel)
+    (when panel
       (case key
         (:om-key-delete (remove-selection editor))
         (#\g (setf (grid editor) (not (grid editor)))

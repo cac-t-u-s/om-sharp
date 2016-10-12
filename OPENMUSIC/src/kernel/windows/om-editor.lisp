@@ -55,7 +55,7 @@
 
 ;;; ACCESSORS
 (defmethod editor-window ((self ObjectWithEditor)) (and (editor self) (window (editor self))))
-(defmethod editor-view ((self ObjectWithEditor)) (main-view self))
+(defmethod editor-view ((self ObjectWithEditor)) (main-view (editor self)))
 (defmethod editor ((self om-graphic-object)) (editor (om-view-window self)))
 
 ;;;====================
@@ -264,6 +264,7 @@
   (setf (g-components (editor self)) nil))
 
 (defmethod om-window-check-before-close ((self OMEditorWindow)) 
+  ;(print (list "close" self)) 
   (and (ask-save-before-close (object (editor self)))
        (call-next-method)))
 

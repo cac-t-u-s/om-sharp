@@ -175,8 +175,6 @@
   nil)
 
 
-
-
 ;;;=================ALEX
 
 (defun freq-cycle (freqlist address port counter)
