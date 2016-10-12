@@ -106,11 +106,14 @@
 ;;; the box has changed, it must be updated (depending on its context)
 ;;; for convenience we do not allow the box being smaller than 100ms
 (defmethod contextual-update ((self OMBox) (container ommaquette))
-  (set-box-duration self (max 100 (or (get-obj-dur (get-box-value self)) *temporalbox-def-w*)))
+  (let ((duration (get-obj-dur (get-box-value self))))
+    (when duration 
+      ;;; (max 100 (or (get-obj-dur (get-box-value self)) *temporalbox-def-w*))
+      (set-box-duration self duration)))
   (let ((view (get-view-from-mode (editor container))))
     (if (listp view)
         (om-invalidate-view (nth (1- (group-id self)) view))
-      (om-invalidate-view view))))
+        (om-invalidate-view view))))
 
 ;;;=========================================
 ;;; EVALUATION
@@ -252,7 +255,8 @@
 (defmethod allowed-element ((self OMMaquette) (elem timed-object)) t)
 
 (defmethod omNG-add-element ((self OMMaquette) (elem OMBox))
-  (set-box-duration elem (or (get-obj-dur (get-box-value elem)) 1000))
+  (set-box-duration elem (or (get-obj-dur (get-box-value elem)) 
+                             (box-w elem)))
   (unless (group-id elem) (setf (group-id elem) 1))   
   (with-schedulable-object self (call-next-method)))
 

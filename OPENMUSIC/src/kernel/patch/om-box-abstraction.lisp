@@ -100,6 +100,7 @@
 
 (defmethod om-copy ((self OMBoxAbstraction)) 
   (let ((newbox (call-next-method)))
+    (setf (box-w newbox) (box-w self) (box-h newbox) (box-h self))
     (push newbox (references-to (reference newbox)))
     newbox))
 

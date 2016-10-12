@@ -309,7 +309,7 @@
                :min-move 4)))
         ))
      ((om-add-key-down)
-      (let ((box (new-box-in-maq-editor editor (omp time 100) (num self))))
+      (let ((box (new-box-in-maq-editor editor (omp time 0) (num self))))
         (setf (frame box) self)
         (om-set-view-cursor self (om-get-cursor :h-size))
         (om-init-temp-graphics-motion 
@@ -408,13 +408,14 @@
   (case (display self)  
     (:mini-view (draw-maquette-mini-view (reference self) self x y w h time))
     (:value 
-     (om-with-clip-rect view x y w h
-     (draw-maquette-mini-view (get-box-value self) self x y 
-                              (if (get-box-value self)
-                                  (dx-to-dpix view (get-obj-dur (get-box-value self)))
-                                w)
-                              h time)
-     (om-draw-picture (icon (reference self)) :x (+ x 4) :y (+ y 4) :w 16 :h 16)))
+     (let ((dur (or (get-obj-dur (get-box-value self)) (box-w self))))
+       (om-with-clip-rect view x y w h
+         (draw-maquette-mini-view (get-box-value self) self x y 
+                                  (if (get-box-value self)
+                                      (dx-to-dpix view dur)
+                                    w)
+                                  h time)
+         (om-draw-picture (icon (reference self)) :x (+ x 4) :y (+ y 4) :w 16 :h 16))))
     (:hidden  (om-with-font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))
                             (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
                               (om-draw-string (+ x (/ w 2) -6) (max 22 (+ 6 (/ h 2))) "P")))))
