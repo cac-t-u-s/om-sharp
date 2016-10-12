@@ -8,26 +8,31 @@
 ;;;==========================
 (defclass OMMaqControlPatch (OMPatchInternal) ())
 
-(defmethod update-from-editor ((self OMMaqControlPatch))
-  (mapc #'(lambda (ref) (report-modifications (editor ref)))
-        (references-to self)))  ;;; in principel there is only 1 reference (the maquette)
+;;; in principle there is only 1 reference (the maquette)
+;(defmethod update-from-editor ((self OMMaqControlPatch))
+;  (mapc #'(lambda (ref) (report-modifications (editor ref)))
+;        (references-to self)))
 
 
 (defmethod find-persistant-container ((self OMMaqControlPatch))
   (find-persistant-container (car (references-to self))))
+
+(defmethod set-control-patch ((self OMMaquette) (patch OMPatch))
+  (setf (ctrlpatch self) patch)
+  (setf (references-to (ctrlpatch self)) (list self)))
 
 (defmethod initialize-instance :after ((self OMMaquette) &rest args)
   ;;;--put this somewhere else ??
   (set-object-autostop self nil)
   ;;;------
   (unless (ctrlpatch self)
-    (setf (ctrlpatch self) (make-instance 'OMMaqControlPatch :name "Control Patch"))
-    (let* ((inbox (omng-make-new-boxcall 'mymaquette (omp 50 50))))
+    (let* ((patch (make-instance 'OMMaqControlPatch :name "Control Patch"))
+           (inbox (omng-make-new-boxcall 'mymaquette (omp 50 50))))
       (setf (index (reference inbox)) 0
             (defval (reference inbox)) self)
-      (omng-add-element (ctrlpatch self) inbox)
+      (omng-add-element patch inbox)
+      (set-control-patch self patch)
       ))
-  (setf (references-to (ctrlpatch self)) (list self))
   self)
 
 (defmethod omng-delete ((self OMMaquette)) 
@@ -72,8 +77,19 @@
 ;;; by convention the first of the references-to is the one that is being evaluated
 (defmethod maquette-container ((self OMPatch)) (maquette-container (car (references-to self))))
 
-(defmethod omNG-box-value ((self OMMaqInBox) &optional (numout 0))
-  (maquette-container self))
+
+;;; BOX VALUE
+(defmethod omNG-box-value ((self OMMaqInBox) &optional (numout 0)) 
+  (set-value self (list (maquette-container self)))
+  (return-value self numout))
+
+(defmethod gen-code ((self OMMaqInBox) &optional numout)
+  (set-value self (list (maquette-container self)))
+  (nth numout (value self)))
+
+(defmethod current-box-value ((self OMMaqInBox) &optional (numout nil))
+  (if numout (return-value self numout) (value self)))
+
 
 
 #|

@@ -298,7 +298,7 @@
   (let ((maquette (call-next-method))
         (patch (find-value-in-kv-list data :control-patch))
         (range (find-value-in-kv-list data :range)))
-    (when patch (setf (ctrlpatch maquette) (omng-load patch)))
+    (when patch (set-control-patch maquette (omng-load patch)))
     (when range (setf (range maquette) range))
     maquette))
       

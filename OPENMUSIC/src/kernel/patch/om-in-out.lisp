@@ -233,7 +233,16 @@
 (defmethod box-container ((self OMPatch)) (car (references-to self)))
 
 ;;; BOX VALUE
-(defmethod omNG-box-value ((self OMSelfInBox) &optional (numout 0)) (box-container self))
+(defmethod omNG-box-value ((self OMSelfInBox) &optional (numout 0)) 
+  (set-value self (list (box-container self)))
+  (return-value self numout))
+
+(defmethod gen-code ((self OMSelfInBox) &optional numout)
+  (set-value self (list (box-container self)))
+  (nth numout (value self)))
+
+(defmethod current-box-value ((self OMSelfInBox) &optional (numout nil))
+  (if numout (return-value self numout) (value self)))
 
 
 #|

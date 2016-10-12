@@ -8,9 +8,9 @@
 ;;; Produces a (unique) name for a box
 (defmethod gen-box-name ((self OMBox))
   (read-from-string 
-   (string+ (substitute #\- #\Space (name self)) (format () "~3,'0d~3,'0d" (box-x self) (box-y self)))
+   (string+ (substitute #\- #\Space (name self)) 
+            (format () "~3,'0d~3,'0d" (box-x self) (box-y self)))
    ))
-
 
 ;;;=================
 ;;; CONSTANT GEN-CODES
@@ -78,10 +78,6 @@
 (defmethod gen-code ((self OMInBox) &optional numout)
   (declare (ignore numout))
   (in-symbol (reference self)))
-
-(defmethod gen-code ((self OMSelfInBox) &optional numout)
-  (declare (ignore numout))
-  (value self))
 
 ;;;=================
 ;;; GENERAL

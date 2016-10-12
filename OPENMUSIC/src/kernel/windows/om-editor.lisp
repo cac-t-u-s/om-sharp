@@ -100,7 +100,8 @@
 
 (defmethod update-window-name ((self OMEditor))
   (when (window self)
-    (om-set-window-title (window self) (editor-window-title self))))
+    ;;; the main window editor is not necessary the one calling
+    (om-set-window-title (window self) (editor-window-title (editor (window self))))))
 
 (defmethod editor-window-title ((editor OMEditor))
   (if (container-editor editor)
@@ -158,7 +159,7 @@
   ;;; update the object
   (update-from-editor (object self))
   ;;; update the context (in case of embedded editors) 
-  (when (container-editor self) 
+  (when (container-editor self)
     (update-to-editor (container-editor self) self))
   (when (related-editors self) 
     (loop for ed in (related-editors self) do
