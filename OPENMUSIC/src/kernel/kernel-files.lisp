@@ -123,6 +123,7 @@
         "maquette/om-maquette-editor"
         "maquette/om-metric-ruler"
         "maquette/om-maquette-api"
+        "maquette/om-maquette-meta"
         
         "environment/om-copy"
         "environment/om-save"

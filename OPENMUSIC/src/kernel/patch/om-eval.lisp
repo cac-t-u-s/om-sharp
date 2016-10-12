@@ -35,7 +35,7 @@
   (let* ((frame (frame out-area))
          (box (object frame))
          (n (position (object out-area) (outputs box)))
-         (main-view (om-view-container frame)))
+         (editor-view (om-view-container frame)))
   (om-eval-enqueue 
    `(progn
       (setf *current-eval-panel* ,editor-view)
@@ -209,10 +209,6 @@
 ;;;--------------------------
 ;;; PATCH BOX
 ;;;--------------------------
-
-(defmethod omng-box-value :before ((self OMBoxPatch) &optional numout)
-  (loop for self-box in (get-boxes-of-type (reference self) 'OMSelfInBox)
-        do (setf (value self-box) self)))
         
 (defmethod boxcall-function ((self OMBoxAbstraction))
   (compile-patch (reference self)) ;; temp !!

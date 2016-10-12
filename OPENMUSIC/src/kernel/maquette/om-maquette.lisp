@@ -45,43 +45,7 @@
 
 ; (class-precedence-list (find-class 'ommaquettefile))
 
-
-;;;==========================
-;;; THE CONTROL PATCH
-;;;==========================
-(defclass OMMaqControlPatch (OMPatchInternal) ())
-
-(defmethod update-from-editor ((self OMMaqControlPatch))
-  (mapc #'(lambda (ref) (report-modifications (editor ref)))
-        (references-to self)))  ;;; in principel there is only 1 reference (the maquette)
-
-
-(defmethod find-persistant-container ((self OMMaqControlPatch))
-  (find-persistant-container (car (references-to self))))
-
-(defmethod initialize-instance :after ((self OMMaquette) &rest args)
-  ;(setf (tracks self) (make-list 4))
-  (set-object-autostop self nil)
-  ;(set-object-time-window self 50)
-  (unless (ctrlpatch self)
-    (let* ((maqin (make-instance 'ommaqin :defval self :name "MAQUETTE"))
-           (inbox (omng-make-new-boxcall maqin (omp 50 50))))
-      (setf (index maqin) 0)
-      (setf (ctrlpatch self) (make-instance 'OMMaqControlPatch :name "Control Patch"))
-      (setf (references-to (ctrlpatch self)) (list self))
-      (omng-add-element (ctrlpatch self) inbox)
-      )))
-
-(defmethod omng-delete ((self OMMaquette)) 
-  (release-reference (ctrlpatch self) self)
-  (omng-delete (ctrlpatch self))
-  (call-next-method))
-
-(defmethod close-internal-elements ((self OMMaquette))
-  (close-internal-elements (ctrlpatch self))
-  (close-editor (ctrlpatch self))
-  (call-next-method))
-
+;;;===========================
 
 (defmethod obj-file-extension ((self OMMaquette)) "omaq")
 (defmethod get-object-type-name ((self OMMaquette)) "Maquette")
@@ -89,7 +53,6 @@
 
 (defmethod make-new-om-doc ((type (eql :maquette)) name)
   (make-instance 'OMMaquetteFile :name name))
-
 
 (defmethod unregister-document ((self OMMaquette))
   (player-stop-object *general-player* self)
@@ -104,6 +67,7 @@
                 if (box-being-rendered? self box)
                 collect
                 box)))
+
   
 ;;;===============================
 ;;; MAQUETTE CONTENTS (BOXES)
@@ -147,6 +111,27 @@
     (if (listp view)
         (om-invalidate-view (nth (1- (group-id self)) view))
       (om-invalidate-view view))))
+
+;;;=========================================
+;;; EVALUATION
+;;;=========================================
+
+;;; NOT GOOD !!! NEED TO EVAL JUST TERMINAL BOXES  
+(defmethod eval-maquette ((maq OMMaquette))
+  (loop for box in (get-all-boxes maq)
+        ;when (not (all-reactive-p box))
+        do
+        (progn
+          (eval-box box)
+          (reset-cache-display box)
+          (contextual-update box maq)
+          ))
+  ; (set-meta-inputs (ctrlpatch maq) (car (references-to maq)) maq)
+  (mapcar 'eval-box (get-boxes-of-type (ctrlpatch maq) 'omoutbox))
+  
+  ;(compile-patch (ctrlpatch maq))
+  ;(apply (intern (string (compiled-fun-name (ctrlpatch maq))) :om) `(,maq))
+  )
 
 
 ;;===========================================================================

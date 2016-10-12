@@ -43,7 +43,9 @@
     box))
 
 (defmethod get-properties-list ((self OMInOutBox))
-  (add-properties (hide-property (call-next-method) '(:icon))
+  (add-properties (hide-properties 
+                   (call-next-method) 
+                   '(:icon :lock :lambda))
                   "Appearance" 
                   '((:icon "Icon position" (:left :top) icon-pos))))
 
@@ -201,12 +203,12 @@
   (setf *erased-io* nil))
 
 
-
-
 ;;;====================================
 ;;; META
 ;;; ATTENTION THESE BOXES MUST BE UPDATED BEFORE EVALUATION DEPENDING ON CONTEXT
 ;;; THE META INPUTS DO NOT APPEAR OUSIDE THE PATCH
+;;;====================================
+
 (defclass OMSelfIn (OMIn) ())
 (defclass OMSelfInBox (OMInBox) ())
 (defmethod box-color ((self OMSelfInBox)) (om-make-color 0.6 0.2 0.2))
@@ -219,16 +221,57 @@
    (make-instance 'OMSelfIn :name "BOX")
    pos init-args))
 
-;;;====================================
-;;; Maquette accessor for control patch
-(defclass OMMaqIn (OMIn) ())
-(defclass OMMaqInBox (OMInBox) ())
-(defmethod box-color ((self OMMaqInBox)) (om-make-color 0.6 0.2 0.2))
+(defmethod register-patch-io ((self OMPatch) (elem OMSelfIn))
+  (setf (index elem) 0)
+  (setf (defval elem) nil))
 
-(defmethod special-box-p ((name (eql 'mymaq))) t)
-(defmethod get-box-class ((self OMMaqIn)) 'OMMaqInBox)
+(defmethod box-container ((self OMBox)) (box-container (container self)))
 
-(defmethod omNG-make-new-boxcall ((reference (eql 'mymaq)) pos &optional init-args)
-  (omNG-make-new-boxcall 
-   (make-instance 'OMMaqIn :name "MAQUETTE")
-   pos init-args))
+;;; if there are severa references (OMPatchFile) 
+;;; we assume that the first in the list is the current caller
+;;; this is handled by the omng-box-value :before
+(defmethod box-container ((self OMPatch)) (car (references-to self)))
+
+;;; BOX VALUE
+(defmethod omNG-box-value ((self OMSelfInBox) &optional (numout 0)) (box-container self))
+
+
+#|
+;;; note : maybe this is all not useful and I should set the meta just at eval
+
+;;; TRY TO SET THE DEFVAL AS THE CONTAINER BOX
+(defmethod register-patch-io ((self OMMaqControlPatch) (elem OMSelfIn))
+  (call-next-method)
+  ;;; For OMMaqControlPatch the only references-to is the maquette
+  (let ((maquette (car (references-to self))))
+    (if (= 1 (length (references-to maquette))) ;;; can be many boxes if this is a maquettefile...
+        (setf (defval elem) (car (references-to maquette))))))
+
+(defmethod register-patch-io ((self OMPatchInternal) (elem OMSelfIn))
+  (call-next-method)
+  ;;; For OMPatchInternal the only references-to is the box
+  (setf (defval elem) (car (references-to self))))
+
+(defmethod register-patch-io ((self OMPatchFile) (elem OMSelfIn))
+  (call-next-method)
+  ;;; For OMPatchFile the only references-to can be multiples
+  ;;; In this case, it will be set only before eval
+  (if (= 1 (length (references-to self)))
+      (setf (defval elem) (car (references-to self)))))
+|#
+
+
+#|
+(defmethod set-meta-inputs ((self t) box maq) nil)
+
+(defmethod set-meta-inputs ((self OMPatch) box maq)
+  (mapc
+   #'(lambda (i) (setf (defval (reference i)) maq)) 
+   (get-boxes-of-type self 'OMMaqInBox))
+  (mapc 
+   #'(lambda (i) (setf (defval (reference i)) box)) 
+   (get-boxes-of-type self 'OMSelfInBox)))
+|#
+
+
+

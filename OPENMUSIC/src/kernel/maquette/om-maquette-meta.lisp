@@ -1,0 +1,103 @@
+
+
+(in-package :om)
+
+
+;;;==========================
+;;; THE CONTROL PATCH
+;;;==========================
+(defclass OMMaqControlPatch (OMPatchInternal) ())
+
+(defmethod update-from-editor ((self OMMaqControlPatch))
+  (mapc #'(lambda (ref) (report-modifications (editor ref)))
+        (references-to self)))  ;;; in principel there is only 1 reference (the maquette)
+
+
+(defmethod find-persistant-container ((self OMMaqControlPatch))
+  (find-persistant-container (car (references-to self))))
+
+(defmethod initialize-instance :after ((self OMMaquette) &rest args)
+  ;;;--put this somewhere else ??
+  (set-object-autostop self nil)
+  ;;;------
+  (unless (ctrlpatch self)
+    (setf (ctrlpatch self) (make-instance 'OMMaqControlPatch :name "Control Patch"))
+    (let* ((inbox (omng-make-new-boxcall 'mymaquette (omp 50 50))))
+      (setf (index (reference inbox)) 0
+            (defval (reference inbox)) self)
+      (omng-add-element (ctrlpatch self) inbox)
+      ))
+  (setf (references-to (ctrlpatch self)) (list self))
+  self)
+
+(defmethod omng-delete ((self OMMaquette)) 
+  (release-reference (ctrlpatch self) self)
+  (omng-delete (ctrlpatch self))
+  (call-next-method))
+
+(defmethod close-internal-elements ((self OMMaquette))
+  (close-internal-elements (ctrlpatch self))
+  (call-next-method))
+
+;;; FOR THE META INPUTS
+;;; the references-to a control patch is just the maquette
+(defmethod maquette-container ((self OMMaqControlPatch)) (car (references-to self)))
+;;; if there are severa references (maquetteFile) we assume that the first in the list is the current caller
+(defmethod box-container ((self OMMaqControlPatch)) (car (references (car (references-to self)))))
+
+
+;;;====================================
+;;; Maquette accessor for control patch or temporal boxes
+;;;====================================
+
+(defclass OMMaqIn (OMIn) ())
+(defclass OMMaqInBox (OMInBox) ())
+(defmethod box-color ((self OMMaqInBox)) (om-make-color 0.6 0.2 0.2))
+
+(defmethod special-box-p ((name (eql 'mymaquette))) t)
+(defmethod get-box-class ((self OMMaqIn)) 'OMMaqInBox)
+
+(defmethod omNG-make-new-boxcall ((reference (eql 'mymaquette)) pos &optional init-args)
+  (omNG-make-new-boxcall 
+   (make-instance 'OMMaqIn :name "MAQUETTE")
+   pos init-args))
+
+(defmethod register-patch-io ((self OMPatch) (elem OMMaqIn))
+  (setf (index elem) 0
+        (defval elem) nil))
+
+;;; check the container: can be a patch, a controlpatch or a maquette
+(defmethod maquette-container ((self OMBox)) (maquette-container (container self)))
+(defmethod maquette-container ((self OMMaquette)) self)
+;;; by convention the first of the references-to is the one that is being evaluated
+(defmethod maquette-container ((self OMPatch)) (maquette-container (car (references-to self))))
+
+(defmethod omNG-box-value ((self OMMaqInBox) &optional (numout 0))
+  (maquette-container self))
+
+
+#|
+;;; note : maybe this is all not useful and I should set the meta just at eval
+
+;;; TRY TO SET THE DEFVAL AS THE CONTAINER MAQUETTE
+(defmethod register-patch-io ((self OMMaqControlPatch) (elem OMMaqIn))
+  (call-next-method)
+  ;;; For OMMaqControlPatch the only references-to is the maquette
+  (setf (defval elem) (car (references-to self))))
+
+(defmethod register-patch-io ((self OMPatchInternal) (elem OMMaqIn))
+  (call-next-method)
+  ;;; For OMPatchInternal the only references-to is the box
+  ;;; => just check if it is in a maquette...
+  (when (subtypep (type-of (container (car (references-to self)))) 'OMMaquette)
+    (setf (defval elem) (container (car (references-to self))))))
+
+(defmethod register-patch-io ((self OMPatchFile) (elem OMMaqIn))
+  (call-next-method)
+  ;;; For OMPatchFile the only references-to can be multiples !
+  ;;; In this case, it will be set only before eval
+  (if (and (= 1 (length (references-to self)))
+           (subtypep (type-of (container (car (references-to self)))) 'OMMaquette))
+      (setf (defval elem) (container (car (references-to self))))))
+|#
+

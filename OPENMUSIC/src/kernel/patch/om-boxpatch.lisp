@@ -27,6 +27,11 @@
   (call-next-method))
 
 
+;;; set the caller as the first reference so that the meta-inputs work
+(defmethod omng-box-value :before ((self OMBoxPatch) &optional numout)  
+  (setf (references-to (reference self))
+        (cons self (remove self (references-to (reference self))))))
+
 ;;;-------------------------------------------------------
 ;;; DISPLAY
      
