@@ -31,6 +31,14 @@
                                 :test #'(lambda (prop elt) (find elt (list! prop) :test 'equal))
                                 ))))
 
+(defun hide-properties (plist prop-id-list)
+  (if prop-id-list
+      (hide-properties 
+       (hide-property plist (car prop-id-list))
+       (cdr prop-id-list))
+    plist))
+
+
 (defun add-properties (plist category props)
   (if (find category plist :test 'string-equal :key 'car)
       (loop for cat in plist collect
