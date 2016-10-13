@@ -54,24 +54,9 @@
                                       (when (test-match message route-item) message))
                                   test)))))
 
-
-(defclass ReactiveRouteBox (OMGFBoxCall) 
+(defclass ReactiveRouteBox (RouteBox) 
   ((routed-o :initform nil :accessor routed-o)))
-
 (defmethod boxclass-from-function-name ((self (eql 'route))) 'ReactiveRouteBox)
-
-(defmethod add-optional-input ((self ReactiveRouteBox) &key name (value nil val-supplied-p) doc reactive)
-  (declare (ignore value doc reactive))
-  (call-next-method)
-  (setf (outputs self) 
-        (append (outputs self)
-                (list (make-instance 'box-optional-output 
-                                     :name name :box self
-                                     :doc-string "routed message")))))
-
-(defmethod remove-one-optional-input ((self ReactiveRouteBox))
-  (when (call-next-method)
-    (setf (outputs self) (butlast (outputs self)))))
 
 ;;; (does nothing if there is no memory)
 (defmethod boxcall-value ((self ReactiveRouteBox))
@@ -79,14 +64,7 @@
     (setf (routed-o self) (loop for v in new-values 
                                 for i = 0 then (+ i 1)
                                 when v collect i))
-    (values-list 
-     ;(cons (car new-values)
-     ;      (loop for v in (cdr new-values)
-     ;            for i = 1 then (+ i 1) collect
-     ;            (or v (nth i (value self)))))
-     new-values
-     )
-    ))
+    (values-list new-values)))
   
 
 ;;; NOTIFY ONLY THE ROUTED OUTPUT

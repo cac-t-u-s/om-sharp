@@ -76,3 +76,42 @@ Use rather the get/set slots mechanism provided by the SLOTS boxes (shift+drag a
    (loop for item in object do (set-slot item slot value)))
 
 
+;;;========================================
+;;; UTILITY TO TEST TYPE AND DISPATCH VALUES
+;;;========================================
+
+(defmethod* test-type ((self t) &rest types)
+  :indoc '("object" "type(s)") 
+   :doc
+   "Tests the type of an object. 
+
+Add as many types as needed using the optional inputs. 
+Types are symbol tested sequentially (left to right) with the Lisp SUBTYPEP function. 
+
+The object is returned only on the output corresponding to the first type or (subtype) match.
+It is returned on the first output in case of negative match.
+"
+  (let ((rep (position (type-of self) types :test 'subtypep))
+        (outs (make-list (length types))))
+    (values-list (if rep 
+                (progn (setf (nth rep outs) self)
+                  (cons nil outs))
+              (cons self outs))))) 
+
+;;; special box : add inputs and outputs symmetrically
+(defclass RouteBox (OMGFBoxCall) ())
+(defmethod boxclass-from-function-name ((self (eql 'test-type))) 'RouteBox)
+
+(defmethod add-optional-input ((self RouteBox) &key name (value nil val-supplied-p) doc reactive)
+  (declare (ignore value doc reactive))
+  (call-next-method)
+  (setf (outputs self) 
+        (append (outputs self)
+                (list (make-instance 'box-optional-output 
+                                     :name name :box self
+                                     :doc-string "positive-test")))))
+
+(defmethod remove-one-optional-input ((self RouteBox))
+  (when (call-next-method)
+    (setf (outputs self) (butlast (outputs self)))))
+
