@@ -91,6 +91,13 @@
         (copy-contents tmppatch self))
     (om-beep-msg "CAN NOT LOAD PATCH '~A'" (name self))))
 
+;;;========================================
+;;; CAN BE CALLED FROM OMPATCHES / MAQUETTE
+;;;========================================
+
+(defmethod* get-box-by-name ((self OMPatch) (name string))
+   (find name (boxes self) :key 'name test 'string-equal))
+
 
 ;;;=============================
 ;;; CONNECTIONS
