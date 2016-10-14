@@ -12,8 +12,6 @@
 (defmethod get-help ((self OMBoxFrame)) (get-box-help (object self)))
 (defmethod get-box-help ((self OMBox)) nil)
 
-
-   
 ;;;================================
 ;;; I/O areas
 ;;;================================
@@ -668,6 +666,15 @@
       )
     )))
 
+
+;;;=============================
+;;; SPECIAL MOVE
+;;;=============================
+
+;;; this is for move actions to apply only on boxframes
+(defmethod move-frame-to-position ((self OMBoxFrame) (container-view om-view) position)
+  (om-set-view-position self position)
+  (redraw-connections self))
 
 ;;;=============================
 ;;; MAGIC: AUTO CONNECT

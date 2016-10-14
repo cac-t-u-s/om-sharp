@@ -2,7 +2,7 @@
 
 (in-package :om)
 
-(defparameter *track-control-w* 100)
+(defparameter *track-control-w* 30)
 (defparameter *track-h* 40)
 (defparameter +maq-bg-color+ (om-gray-color 0.65))
 (defparameter +track-color-1+ (om-gray-color 0.5))
@@ -63,6 +63,7 @@
 (defmethod new-box-in-maq-editor ((self maquette-editor) at &optional (track 0))
   (let ((maq (object self))
         (new-box (omng-make-new-boxcall 'patch at)))
+    (set-box-duration new-box *temporalbox-def-w*)  
     (add-box-in-track maq new-box track)  
     new-box))
 
@@ -106,7 +107,7 @@
 ;;; MAQUETTE-VIEW
 ;;;========================
 
-(defclass maquette-view (patch-editor-view x-cursor-graduated-view om-drop-view) ())
+(defclass maquette-view (patch-editor-view x-cursor-graduated-view y-graduated-view om-drop-view) ())
 ;(defmethod editor-view-class ((self maquette-editor)) 'maquette-view)
 
 (defmethod omng-position ((container maquette-view) position)
@@ -123,6 +124,21 @@
                       (om-max-point
                        (om-make-point 10 20)
                        (resize-frame-size self frame pp)))))
+
+
+;;; position is the symbolic pos
+(defmethod move-frame-to-position ((self OMBoxFrame) (container-view maquette-view) position)
+  (call-next-method 
+   self container-view
+   (omp (x-to-pix container-view (om-point-x position))
+        (y-to-pix container-view (om-point-y position)))))
+
+;;; pos is the click pos       
+(defmethod new-box-in-patch-editor ((self maquette-view) str pos)     
+  (call-next-method self str 
+                   (omp (pix-to-x self (om-point-x pos))
+                        (pix-to-y self (om-point-y pos)))))
+ 
 
 (defmethod update-temporalboxes ((self maquette-view))
   (loop for sv in (get-boxframes self) do
@@ -143,6 +159,8 @@
 (defmethod om-view-resized :after ((view maquette-view) new-size)
   (declare (ignore new-size))
   (update-temporalboxes view))
+
+
 
 
 ;;;========================
@@ -227,9 +245,6 @@
     
    
     ))
-
-
-
 
 
 
@@ -459,11 +474,11 @@
     (case key
       (:om-key-left
        (move-editor-selection editor :dx (- (get-units (get-g-component editor :metric-ruler) (if (om-shift-key-p) 100 10))))
-       (om-invalidate-view (window editor))
+       (om-invalidate-view (main-view editor))
        (report-modifications editor))
       (:om-key-right
        (move-editor-selection editor :dx (get-units (get-g-component editor :metric-ruler) (if (om-shift-key-p) 100 10)))
-       (om-invalidate-view (window editor))
+       (om-invalidate-view (main-view editor))
        (report-modifications editor))
       (:om-key-up (when (equal (view-mode editor) :maquette) (call-next-method)))
       (:om-key-down (when (equal (view-mode editor) :maquette) (call-next-method)))
@@ -598,6 +613,9 @@
 (defmethod make-editor-window-contents ((editor maquette-editor))
   (let* ((maquette (get-obj-to-play editor))
          
+         (control-patch? t)
+         (box-viewer? t)
+         
          (tracks-or-maq-view 
           (if (equal (view-mode editor) :maquette)
               (make-maquette-view editor)
@@ -610,119 +628,125 @@
            :scrollbars :nil
            :size (om-make-point nil 20)
            :bg-color +track-color-2+
-           :subviews (list
-                      (om-make-layout 
-                       'om-simple-layout :position (om-make-point 2 4)
-                       :subviews (list (make-time-monitor editor :color (om-def-color :white) :format t)))
-                      (om-make-layout
-                       'om-row-layout :delta 30 :position (om-make-point (+ *track-control-w* 2) 2) :align :bottom
-                       :ratios '(1 1 100 1 1)
-                       :subviews (list
-                                  (om-make-layout
-                                   'om-row-layout 
-                                   :delta 5 
-                                   :position (om-make-point (+ *track-control-w* 2) 2)
-                                   :align :bottom
-                                   :size (om-make-point 90 15)
-                                   :subviews (list ;(make-signature-box editor :bg-color +track-color-2+ :rulers (list ruler-tracks))
-                                              (when (metronome editor) (make-tempo-box editor :bg-color +track-color-2+))
-                                              ))
-                                  (om-make-layout
-                                   'om-row-layout 
-                                   :delta 5 
-                                   :position (om-make-point (+ *track-control-w* 2) 2)
-                                   :size (om-make-point 90 15)
-                                   :subviews (list (make-play-button editor :enable t) 
-                                                   (make-pause-button editor :enable t) 
-                                                   (make-stop-button editor :enable t)
-                                                   (make-previous-button editor :enable t) 
-                                                   (make-next-button editor :enable t) 
-                                                   (make-repeat-button editor :enable t)))
-                                  nil
-                                  (om-make-layout
-                                   'om-row-layout 
-                                   :delta 5 
-                                   :subviews (let (b1 b2)
-                                               (setq b1 (om-make-graphic-object 
-                                                         'om-icon-button :size (omp 16 16) 
-                                                         :icon 'icon-maqview-black :icon-disabled 'icon-maqview-gray
-                                                         :lock-push nil :enabled (equal (view-mode editor) :tracks)
-                                                         :action #'(lambda (b) 
-                                                                     (unless (equal (view-mode editor) :maquette)
-                                                                       (disable b) (enable b2)
-                                                                       (setf (view-mode editor) :maquette)
-                                                                       (om-remove-all-subviews (get-g-component editor :main-maq-view))
-                                                                       (om-add-subviews 
-                                                                        (get-g-component editor :main-maq-view)
-                                                                        (if (equal (view-mode editor) :maquette)
-                                                                            (make-maquette-view editor)
-                                                                          (make-tracks-view editor)))
-                                                                       ))))
-                                               (setq b2 (om-make-graphic-object 
-                                                         'om-icon-button :size (omp 16 16) 
-                                                         :icon 'icon-trackview-black :icon-disabled 'icon-trackview-gray
-                                                         :lock-push nil :enabled (equal (view-mode editor) :maquette)
-                                                         :action #'(lambda (b) 
-                                                                     (unless (equal (view-mode editor) :tracks)
-                                                                       (disable b) (enable b1)
-                                                                       (setf (view-mode editor) :tracks)
-                                                                       (om-remove-all-subviews (get-g-component editor :main-maq-view))
-                                                                       (om-add-subviews 
-                                                                        (get-g-component editor :main-maq-view)
-                                                                        (if (equal (view-mode editor) :maquette)
-                                                                            (make-maquette-view editor)
-                                                                          (make-tracks-view editor)))
-                                                                       ))))
-                                               (list b1 b2)))
+           :subviews 
+           (list
+            (om-make-layout 
+             'om-simple-layout :position (om-make-point 2 4)
+             :subviews (list (make-time-monitor editor :color (om-def-color :white) :format t)))
+            (om-make-layout
+             'om-row-layout :delta 30 :position (om-make-point (+ *track-control-w* 2) 2) :align :bottom
+             :ratios '(1 1 100 1 1)
+             :subviews 
+             (list
+              (om-make-layout
+               'om-row-layout 
+               :delta 5 
+               :position (om-make-point (+ *track-control-w* 2) 2)
+               :align :bottom
+               :size (om-make-point 90 15)
+               :subviews (list ;(make-signature-box editor :bg-color +track-color-2+ :rulers (list ruler-tracks))
+                          (when (metronome editor) (make-tempo-box editor :bg-color +track-color-2+))
+                          ))
+              (om-make-layout
+               'om-row-layout 
+               :delta 5 
+               :position (om-make-point (+ *track-control-w* 2) 2)
+               :size (om-make-point 90 15)
+               :subviews (list (make-play-button editor :enable t) 
+                               (make-pause-button editor :enable t) 
+                               (make-stop-button editor :enable t)
+                               (make-previous-button editor :enable t) 
+                               (make-next-button editor :enable t) 
+                               (make-repeat-button editor :enable t)))
+              nil
+              (om-make-layout
+               'om-row-layout 
+               :delta 5 
+               :subviews 
+               (let (b1 b2)
+                 (setq b1 (om-make-graphic-object 
+                           'om-icon-button :size (omp 16 16) 
+                           :icon 'icon-maqview-black :icon-disabled 'icon-maqview-gray
+                           :lock-push nil :enabled (equal (view-mode editor) :tracks)
+                           :action #'(lambda (b) 
+                                       (unless (equal (view-mode editor) :maquette)
+                                         (disable b) (enable b2)
+                                         (setf (view-mode editor) :maquette)
+                                         (om-remove-all-subviews (get-g-component editor :main-maq-view))
+                                         (om-add-subviews 
+                                          (get-g-component editor :main-maq-view)
+                                          (if (equal (view-mode editor) :maquette)
+                                              (make-maquette-view editor)
+                                            (make-tracks-view editor)))
+                                         ))))
+                 (setq b2 (om-make-graphic-object 
+                           'om-icon-button :size (omp 16 16) 
+                           :icon 'icon-trackview-black :icon-disabled 'icon-trackview-gray
+                           :lock-push nil :enabled (equal (view-mode editor) :maquette)
+                           :action #'(lambda (b) 
+                                       (unless (equal (view-mode editor) :tracks)
+                                         (disable b) (enable b1)
+                                         (setf (view-mode editor) :tracks)
+                                         (om-remove-all-subviews (get-g-component editor :main-maq-view))
+                                         (om-add-subviews 
+                                          (get-g-component editor :main-maq-view)
+                                          (if (equal (view-mode editor) :maquette)
+                                              (make-maquette-view editor)
+                                            (make-tracks-view editor)))
+                                         ))))
+                 (list b1 b2)))
                                                         
-                                  (om-make-layout
-                                   'om-row-layout 
-                                   :delta 5 
-                                   :subviews (let (b1 b2 b3 b4)
-                                               (setq b1 (om-make-graphic-object 
-                                                         'om-icon-button :size (omp 16 16) 
-                                                         :icon 'ctrlpatch-black :icon-pushed 'ctrlpatch-gray
-                                                         :lock-push t :enabled t
-                                                         :action #'(lambda (b)
-                                                                     (if (pushed b)
-                                                                         (show-control-patch-editor editor)
-                                                                       (hide-control-patch-editor editor)))))
-                                               (setq b2 (om-make-graphic-object 
-                                                         'om-icon-button :size (omp 16 16) 
-                                                         :icon 'maqeval-black :icon-pushed 'maqeval-gray
-                                                         :lock-push nil :enabled t
-                                                         :action #'(lambda (b)
-                                                                     (let ((maq (get-obj-to-play editor)))
-                                                                       (eval-maquette maq)
-                                                                       (om-invalidate-view tracks-or-maq-view)
-                                                                       ))))
-                                               (setq b3 (om-make-graphic-object 
-                                                         'om-icon-button :size (omp 16 16) 
-                                                         :icon 'icon-trash-black :icon-pushed 'icon-trash-gray
-                                                         :lock-push nil :enabled t
-                                                         :action #'(lambda (b) 
-                                                                     (when (om-y-or-n-dialog "Do you really want to remove all boxes in the maquette?")
-                                                                       (m-flush (get-obj-to-play editor))
-                                                                       (om-invalidate-view tracks-or-maq-view)
-                                                                       ))))
-                                               (setq b4 (om-make-graphic-object 
-                                                         'om-icon-button :size (omp 16 16) 
-                                                         :icon 'icon-no-exec-black :icon-pushed 'icon-no-exec-gray
-                                                         :lock-push t :enabled t
-                                                         :action #'(lambda (b)
-                                                                     (with-schedulable-object maquette
-                                                                                              (setf (no-exec maquette) 
-                                                                                                    (not (no-exec maquette)))))))
-                                               (list b1 b2 b3 b4))))))))
+              (om-make-layout
+               'om-row-layout 
+               :delta 5 
+               :subviews 
+               (let (b1 b2 b3 b4)
+                 (setq b1 (om-make-graphic-object 
+                           'om-icon-button :size (omp 16 16) 
+                           :icon 'ctrlpatch-black :icon-pushed 'ctrlpatch-gray
+                           :lock-push t :enabled t
+                           :action #'(lambda (b)
+                                       (if (pushed b)
+                                           (show-control-patch-editor editor)
+                                         (hide-control-patch-editor editor)))))
+                 (setq b2 (om-make-graphic-object 
+                           'om-icon-button :size (omp 16 16) 
+                           :icon 'maqeval-black :icon-pushed 'maqeval-gray
+                           :lock-push nil :enabled t
+                           :action #'(lambda (b)
+                                       (let ((maq (get-obj-to-play editor)))
+                                         (eval-maquette maq)
+                                         (om-invalidate-view tracks-or-maq-view)
+                                         ))))
+                 (setq b3 (om-make-graphic-object 
+                           'om-icon-button :size (omp 16 16) 
+                           :icon 'icon-trash-black :icon-pushed 'icon-trash-gray
+                           :lock-push nil :enabled t
+                           :action #'(lambda (b) 
+                                       (when (om-y-or-n-dialog "Do you really want to remove all boxes in the maquette?")
+                                         (m-flush (get-obj-to-play editor))
+                                         (om-invalidate-view tracks-or-maq-view)
+                                         ))))
+                 (setq b4 (om-make-graphic-object 
+                           'om-icon-button :size (omp 16 16) 
+                           :icon 'icon-no-exec-black :icon-pushed 'icon-no-exec-gray
+                           :lock-push t :enabled t
+                           :action #'(lambda (b)
+                                       (with-schedulable-object maquette
+                                                                (setf (no-exec maquette) 
+                                                                      (not (no-exec maquette)))))))
+                 (list b1 b2 b3 b4))))))))
 
          (bottom-view
           (om-make-layout 
-           'om-row-layout
-           :subviews 
-           (list 
-            (om-make-view 'om-view :bg-color (om-make-color (/ 215 256) (/ 215 256) (/ 215 256))) 
-            :divider 
-            (om-make-view 'om-view :bg-color (om-make-color (/ 215 256) (/ 215 256) (/ 215 256)))))))
+           'om-simple-layout
+           :subviews (list 
+                      (om-make-di 'om-multi-text 
+                                  :size (omp 200 nil)
+                                  :text "select a box to display contents..."
+                                  :fg-color (om-def-color :gray)  ; (om-make-color (/ 215 256) (/ 215 256) (/ 215 256))
+                                  )
+                      ))))
          
     (set-g-component editor :bottom-view bottom-view)
     (set-g-component editor :ctrl-view ctrl-view)
@@ -739,7 +763,7 @@
                 :divider
                 ;;; REST (RIGHT)
                 (om-make-layout 
-                 'om-column-layout :delta nil :ratios '(1 98 nil 1)
+                 'om-column-layout :delta nil :ratios '(nil 100 nil 1)
                  :subviews (list 
                             (get-g-component editor :ctrl-view)
                             (get-g-component editor :main-maq-view) 
@@ -756,16 +780,22 @@
          (metric-ruler (om-make-view 'metric-ruler 
                                      :size (om-make-point 30 20)
                                      :scrollbars nil :bg-color +track-color-1+))
+         (y-ruler (om-make-view 'y-ruler-view 
+                                     :size (om-make-point 30 20)
+                                     :scrollbars nil :bg-color +track-color-1+))
          (maq-view (om-make-view 'maquette-view :editor maq-editor :scrollbars t :bg-color +track-color-1+))
          layout)
     (set-g-component maq-editor :track-views nil)
     (set-g-component maq-editor :maq-view maq-view)
     (set-g-component maq-editor :metric-ruler metric-ruler)
+    (set-g-component maq-editor :y-ruler y-ruler)
     (set-g-component maq-editor :abs-ruler ruler-maquette)
     
     (attach-view-to-ruler ruler-maquette metric-ruler)
     (attach-view-to-ruler metric-ruler ruler-maquette)
+    (attach-view-to-ruler ruler-maquette maq-view)
     (attach-view-to-ruler metric-ruler maq-view)
+    (attach-view-to-ruler y-ruler maq-view)
     
     (update-span metric-ruler)
     
@@ -781,7 +811,7 @@
                                :fg-color (om-def-color :black)
                                :bg-color +track-color-2+)
                    metric-ruler
-                   (om-make-view 'om-view :bg-color +track-color-1+)
+                   y-ruler ; (om-make-view 'om-view :bg-color +track-color-1+)
                    maq-view
                    (om-make-di 'om-simple-text 
                                :size (om-make-point *track-control-w* 20) 
@@ -905,7 +935,6 @@
 
 
 #|
-
 ;;; Future Box (Box maker selection rectangle)
 (defclass future-box (selection-rectangle) ())
 

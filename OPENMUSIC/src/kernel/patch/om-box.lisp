@@ -82,13 +82,21 @@
   (when (container self)
     (report-modifications (editor (container self)))))
 
+
+;;; will be true for OMBoxFrame
+(defmethod move-frame-to-position ((self t) (container-view t) position) nil)
+
+;;; sometimes there is no boxframe at all (e.g. in sequencer tracks)
+(defmethod update-frame-to-position ((self t) position) nil)
+
+(defmethod update-frame-to-position ((self OMBox) position)
+  (move-frame-to-position (frame self) (om-view-container (frame self)) position))
+
 (defmethod move-box ((self OMBox) dx dy)
   (let ((pos (om-make-point (max 0 (+ (box-x self) dx)) (max 0 (+ (box-y self) dy)))))
     (omng-move self pos)
-    (mapcar #'update-points (get-box-connections self))
-    (when (frame self)
-      (om-set-view-position (frame self) pos)
-      (redraw-connections (frame self)))
+    ;;; (mapcar #'update-points (get-box-connections self)) ;;; done in omng-move
+    (when (frame self) (update-frame-to-position self pos))
     ))
 
 (defmethod omng-resize ((self OMBox) size)

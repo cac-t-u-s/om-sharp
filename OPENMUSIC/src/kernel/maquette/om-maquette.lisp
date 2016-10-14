@@ -86,12 +86,12 @@
 (defmethod get-box-onset ((self OMBox)) (box-x self))
 (defmethod set-box-onset ((self OMBox) o) 
   (setf (box-x self) o)
-  (when (get-box-value self) (setf (onset (get-box-value self)) o)))
-
-(defmethod get-box-onset ((self omboxpatch)) (box-x self))
-(defmethod set-box-onset ((self omboxpatch) o) 
-  (setf (box-x self) o)
   (when (get-box-value self) (set-object-onset (get-box-value self) o)))
+
+;(defmethod get-box-onset ((self omboxpatch)) (box-x self))
+;(defmethod set-box-onset ((self omboxpatch) o) 
+;  (setf (box-x self) o)
+;  (when (get-box-value self) (set-object-onset (get-box-value self) o)))
 
 (defparameter *temporalbox-def-w* 1000)
 (defmethod get-box-duration ((self OMBox)) (box-w self))
@@ -279,12 +279,23 @@
 (defmethod move-box-in-maquette ((maq OMMaquette) (tb OMBox) &key (dx 0) (dy 0))
   (with-schedulable-object
    maq 
+   ;;; this is +/- like move-box (with set-box-onset)
    (set-box-onset tb (max (+ (get-box-onset tb) dx) 0))
+   (setf (box-y tb) (+ (box-y tb) dy))
+   (mapcar 'update-points (get-box-connections tb))
+   (when (frame tb)
+     (update-frame-to-position tb (omp (box-x tb) (box-y tb))))
+   (when (container tb)
+     (report-modifications (editor (container tb))))
+   
+   ;;; maquette-specific
    (if (and (get-box-value tb) (eq (get-object-state (get-box-value tb)) :play))
        (let ((ti (get-obj-time maq)))
          (if (in-interval ti (list (get-box-onset tb) (get-box-end-date tb)))
              (set-object-time (get-box-value tb) (- ti (get-box-onset tb)))
-           (player-stop-object *general-player* (get-box-value tb)))))))
+           (player-stop-object *general-player* (get-box-value tb)))))
+   
+   ))
 
 
 ;;;======================================
