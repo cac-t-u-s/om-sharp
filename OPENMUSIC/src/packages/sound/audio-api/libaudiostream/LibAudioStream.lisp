@@ -10,6 +10,13 @@
 ;; This file contains definitions for entry points of the LibAudioStream library
 ;; It must be used with the LibAudioStream.Framework located in /System/Library/Frameworks
 
+#|
+(fli:register-module 
+ "LibAudioStream" 
+ :real-name "/Users/bresson/SRC/om7/OPENMUSIC/resources/lib/mac/LibAudioStreamMC.framework/LibAudioStreamMC"
+ :connection-style :immediate)
+|#
+
 (in-package :cl-user)
 
 (defpackage "LibAudioStream"
