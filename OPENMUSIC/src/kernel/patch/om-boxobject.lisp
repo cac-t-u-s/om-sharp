@@ -342,7 +342,7 @@
   ((box-play-time :initform nil :accessor box-play-time)))
 
 (defmethod get-box-frame-class ((self OMBoxEditCall)) 'OMObjectBoxFrame)
-(defmethod best-size ((self OMBoxEditCall)) (om-make-point 80 36))
+(defmethod default-size ((self OMBoxEditCall)) (om-make-point 80 36))
 (defmethod get-box-help ((self OMBoxEditCall)) (format nil "Object of type ~A" (string-upcase (reference self))))
 
 (defmethod box-ed-params-properties ((self t)) nil)
@@ -394,7 +394,7 @@
                             :icon-pos :noicon :show-name nil
                             :text-font (om-def-font :font1 :style '(:italic))
                             :text-align :right))
-         (size (best-size box)))
+         (size (default-size box)))
     (setf (box-x box) (om-point-x pos)
           (box-y box) (om-point-y pos)
           (box-w box) (om-point-x size)
@@ -536,7 +536,7 @@
   (:metaclass omstandardclass)
   (:default-initargs :border nil))
 
-(defmethod best-size ((self OMSlotsBox))
+(defmethod default-size ((self OMSlotsBox))
   (om-make-point 80 28))
 
 (defmethod get-box-help ((self OMSlotsBox)) (format nil "Get/set values for the slots of a ~A" (string-upcase (reference self))))
@@ -552,7 +552,7 @@
                             :icon-pos :left
                             :text-font (om-def-font :font1 :style '(:italic))
                             :text-align :right))
-         (size (best-size box)))
+         (size (default-size box)))
     (setf (box-x box) (om-point-x pos)
           (box-y box) (om-point-y pos)
           (box-w box) (om-point-x size)

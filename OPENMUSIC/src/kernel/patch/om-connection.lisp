@@ -47,7 +47,7 @@
   (setf (connections (to c)) (remove c (connections (to c)))))
   
 
-(defmethod init-size ((c OMConnection))
+(defmethod initialize-size ((c OMConnection))
   (setf (modif c) (list 0 0))
   (update-points c)
   (update-graphic-connection c))

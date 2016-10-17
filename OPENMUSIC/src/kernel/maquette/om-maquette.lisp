@@ -32,7 +32,7 @@
 ;; Structure
 (defclass OMMaquette (OMPatch schedulable-object timed-object) 
   ((ctrlpatch :accessor ctrlpatch :initform nil :initarg :ctrlpatch)
-   (range :accessor range :initform '(0 20000 0 100) :initarg :range)
+   (range :accessor range :initform '(:x1 0 :x2 20000 :y1 0 :y2 100) :initarg :range)
    ;;;Scheduler slot (t to only compute)
    (no-exec :accessor no-exec :initform nil :initarg :no-exec))
   (:metaclass omstandardclass))

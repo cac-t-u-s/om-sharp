@@ -35,8 +35,13 @@
 (defmethod get-editor-view-for-action ((self patch-editor)) (main-view self))
 
 (defmethod put-patch-boxes-in-editor-view ((self OMPatch) view) 
-  (apply #'om-add-subviews (cons view (mapcar #'make-frame-from-callobj (boxes self))))
-  (mapcar #'(lambda (c) (add-connection-in-view view c)) (connections self)))
+  (mapcar 
+   #'(lambda (box) 
+       (omg-add-element view (make-frame-from-callobj box)))
+   (boxes self))
+  (mapcar 
+   #'(lambda (c) (add-connection-in-view view c)) 
+   (connections self)))
 
 ;;; redefined in maquette-editor
 (defmethod init-window ((win patch-editor-window) editor)
@@ -184,7 +189,7 @@
         (#\n (if selected-boxes
                  (mapc 'set-show-name selected-boxes)
                (make-new-box panel)))
-        (#\i (mapc 'init-size (or selected-boxes selected-connections)))
+        (#\i (mapc 'initialize-size (or selected-boxes selected-connections)))
                                
         (:om-key-left (if (om-option-key-p) 
                           (mapc 'optional-input-- selected-boxes)
@@ -542,51 +547,49 @@
                 (let* ((box (object dview))
                        ;;; in case of maquette container
                        (box-beg-position (omng-position self pos)))
-                  (flet ((box-graphic-size (b)
-                           (om-subtract-points 
-                            (omg-position self (omp (+ (box-x b) (box-w b)) (+ (box-y b) (box-h b)))) 
-                            pos)))
-                    (if (equal effect :copy)
-                        (let ((newbox (om-copy box)))
-                          (pushr newbox newboxes)     
-                          (when (and newbox (omNG-add-element (editor self) newbox))
-                            (omng-move newbox box-beg-position)
-                            (let ((frame (make-frame-from-callobj newbox)))
-                              ;;; set the frame at the graphic pos
-                              (om-set-view-position frame pos)
-                              ;;; set the frame at the graphic size
-                              (om-set-view-size frame (box-graphic-size newbox)) 
-                              (om-add-subviews self frame)
-                              (select-box newbox t)
-                              (select-box box nil)
-                              (om-invalidate-view frame)
-                              (om-invalidate-view dview)
-                              t
-                              )))
-                      (cond ((equal init-patch target-patch)
-                             (omng-move box box-beg-position)
-                             (om-set-view-position dview pos)
-                             (om-set-view-size dview (box-graphic-size box))
-                             (mapcar #'update-points (get-box-connections box))
-                             (redraw-connections dview)
-                             t)
-                            (t ;;; in another patch window
-                               (omng-remove-element init-patch box)
-                               (report-modifications (editor init-patch))
-                               (mapcar #'(lambda (c) (omng-remove-element init-patch c)) (get-box-connections box))
-                               (om-remove-subviews (editor-view init-patch) dview)
+                  (if (equal effect :copy)
+                      ;;; COPY
+                      (let ((newbox (om-copy box)))
+                        (pushr newbox newboxes)     
+                        (when (and newbox (omNG-add-element (editor self) newbox))
+                          (omng-move newbox box-beg-position)
+                          (let ((frame (make-frame-from-callobj newbox)))
+                            ;;; set the frame at the graphic pos
+                            (om-set-view-position frame pos)
+                            ;;; set the frame at the graphic size
+                            (om-set-view-size frame (om-view-size dview)) 
+                            (om-add-subviews self frame)
+                            (select-box newbox t)
+                            (select-box box nil)
+                            (om-invalidate-view frame)
+                            (om-invalidate-view dview)
+                            t
+                            )))
+                    ;;; NOT COPY = MOVE
+                    (cond ((equal init-patch target-patch) ;;; IN THE SAME PATCH
+                           (omng-move box box-beg-position)
+                           (om-set-view-position dview pos)
+                           (mapcar #'update-points (get-box-connections box))
+                           (redraw-connections dview)
+                           t)
+
+                          (t ;;; IN ANOTHER PATCH
+                             (omng-remove-element init-patch box)
+                             (report-modifications (editor init-patch))
+                             (mapcar #'(lambda (c) (omng-remove-element init-patch c)) (get-box-connections box))
+                             (om-remove-subviews (print patchview) dview)
                      
-                               (pushr box newboxes)
-                               (when (omNG-add-element (editor self) box)
-                                 (omng-move box box-beg-position)
-                                 ;;; set the frame at the graphic pos & size
-                                 (om-set-view-position dview pos)
-                                 (om-set-view-size dview (box-graphic-size box))
-                                 (om-add-subviews self dview)
-                                 (om-invalidate-view dview)
-                                 )
-                               t)
-                            )))))
+                             (pushr box newboxes)
+                             (when (omNG-add-element (editor self) box)
+                               (omng-move box box-beg-position)
+                               ;;; set the frame at the graphic pos & size
+                               (om-set-view-position dview pos)
+                               (om-set-view-size dview (om-view-size dview))
+                               (om-add-subviews self dview)
+                               (om-invalidate-view dview)
+                               )
+                             t)
+                          ))))
           (setf (dragged-views self) nil)
           (when newboxes ;;; the boxes have been copied: restore the connections !
             (mapcar #'(lambda (c)
@@ -728,11 +731,12 @@
 
 (defmethod special-box-p (name) nil)
 
-(defmethod new-box-in-patch-editor ((self patch-editor-view) str pos)     
+(defmethod new-box-in-patch-editor ((self patch-editor-view) str position)     
   (om-with-error-handle 
     (when (and (stringp str) (> (length str) 0))
       (let* ((*package* (find-package :om))
              (name (read-from-string str))
+             (pos (omng-position self position))
              (args (decode-input-arguments str))
              (text (cadr (multiple-value-list (string-until-char str " "))))
              (newbox
@@ -777,12 +781,19 @@
           )
         ))))
 
+
+(defmethod get-default-size-in-editor ((self OMBox) (editor patch-editor))
+  (default-size self))
+
 (defmethod add-box-in-patch-editor ((box OMBox) (view patch-editor-view))
   (when (omNG-add-element (editor view) box)
-    (let ((frame (make-frame-from-callobj box)))
-      (om-add-subviews view frame)
-      (select-box box t)
-      frame)))
+    (let ((adapted-size (omng-size view (get-default-size-in-editor box (editor view)))))
+      (setf (box-w box) (om-point-x adapted-size)
+            (box-h box) (om-point-y adapted-size))
+      (let ((frame (make-frame-from-callobj box)))
+        (omg-add-element view frame)
+        (select-box box t)
+        frame))))
 
 ;;;======================================
 ;;; LISP CODE

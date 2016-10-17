@@ -60,6 +60,13 @@
                     (and (> tt (get-box-onset tb)) (< tt (+ (get-box-onset tb) (get-box-duration tb))))))))
 
 
+(defmethod scale-in-x-? ((self OMBox)) t)
+(defmethod scale-in-x-? ((self OMFunBoxCall)) nil)
+(defmethod scale-in-y-? ((self OMBox)) t)
+(defmethod scale-in-y-? ((self OMFunBoxCall)) nil)
+
+
+;;; called from the tracks
 (defmethod new-box-in-maq-editor ((self maquette-editor) at &optional (track 0))
   (let ((maq (object self))
         (new-box (omng-make-new-boxcall 'patch at)))
@@ -110,13 +117,30 @@
 (defclass maquette-view (patch-editor-view x-cursor-graduated-view y-graduated-view om-drop-view) ())
 ;(defmethod editor-view-class ((self maquette-editor)) 'maquette-view)
 
-(defmethod omng-position ((container maquette-view) position)
-  (omp (pix-to-x container (om-point-x position))
-       (om-point-y position)))
+;;; In teh maquette-view everything is comploicate because the y ruler goes bottom-up .. :(
+(defmethod get-default-size-in-editor ((self OMBox) (editor maquette-editor))
+  (let ((defsize (call-next-method)))
+    (omp (om-point-x defsize)
+         (- (om-point-y defsize)))))
+         
+(defmethod omng-position ((container maquette-view) pix-position)
+  (omp (pix-to-x container (om-point-x pix-position))
+       (pix-to-y container (om-point-y pix-position))))
 
-(defmethod omg-position ((container maquette-view) position) 
-  (omp (x-to-pix container (om-point-x position))
-       (om-point-y position)))
+(defmethod omng-size ((container maquette-view) pix-size)
+  (omp (dpix-to-dx container (om-point-x pix-size))
+       (- (dpix-to-dy container (om-point-y pix-size)))))
+
+
+(defmethod omg-position ((container maquette-view) s-position) 
+  (omp (x-to-pix container (om-point-x s-position))
+       (y-to-pix container (om-point-y s-position))))
+
+(defmethod omg-size ((container maquette-view) s-size) 
+  (omp (dx-to-dpix container (om-point-x s-size))
+       (- (dy-to-dpix container (om-point-y s-size)))))
+
+
 
 (defmethod resize-handle ((self resize-area) (container maquette-view) frame pos) 
   (let ((pp (om-add-points (p0 self) pos)))
@@ -125,35 +149,32 @@
                        (om-make-point 10 20)
                        (resize-frame-size self frame pp)))))
 
-
-;;; position is the symbolic pos
-(defmethod move-frame-to-position ((self OMBoxFrame) (container-view maquette-view) position)
-  (call-next-method 
-   self container-view
-   (omp (x-to-pix container-view (om-point-x position))
-        (y-to-pix container-view (om-point-y position)))))
-
-;;; pos is the click pos       
-(defmethod new-box-in-patch-editor ((self maquette-view) str pos)     
-  (call-next-method self str 
-                   (omp (pix-to-x self (om-point-x pos))
-                        (pix-to-y self (om-point-y pos)))))
- 
-
 (defmethod update-temporalboxes ((self maquette-view))
   (loop for sv in (get-boxframes self) do
         (let* ((box (object sv))
-               (x1 (x-to-pix self (box-x box)))
-               (x2 (x-to-pix self (+ (box-x box) (box-w box)))))
-          (om-set-view-position sv (om-point-set (om-view-position sv) :x x1))
-          (om-set-view-size sv (om-point-set (om-view-size sv) :x (- x2 x1)))
+               (x (x-to-pix self (box-x box)))
+               (w (dx-to-dpix self (box-w box)))
+               (y (y-to-pix self (box-y box)))
+               (h (dy-to-dpix self (box-h box))))
+          
+          (om-set-view-position sv (om-point-set (om-view-position sv) :x x :y y))
+          (om-set-view-size sv (omp (max 20 (if (scale-in-x-? box) w (om-point-x (om-view-size sv))))
+                                    (max 24 (if (scale-in-y-? box) h (om-point-y (om-view-size sv))))))
           (redraw-connections sv)
           )))
 
 (defmethod update-view-from-ruler ((self x-ruler-view) (view maquette-view))
   (call-next-method)
-  (setf (car (range (object (editor view)))) (x1 self)
-        (cadr (range (object (editor view)))) (x2 self))
+  (setf (getf (range (object (editor view))) :x1) (x1 self)
+        (getf (range (object (editor view))) :x2) (x2 self)))
+
+(defmethod update-view-from-ruler ((self y-ruler-view) (view maquette-view))
+  (call-next-method)
+  (setf (getf (range (object (editor view))) :y1) (y1 self)
+        (getf (range (object (editor view))) :y2) (y2 self)))
+
+(defmethod update-view-from-ruler ((self ruler-view) (view maquette-view))
+  (call-next-method)
   (update-temporalboxes view))
 
 (defmethod om-view-resized :after ((view maquette-view) new-size)
@@ -204,7 +225,6 @@
          (t2 (pixel-to-time self xmax))
          (ruler (get-g-component editor :metric-ruler)))
     
-  
     ;;;MARKERS
     (when (and ruler (markers-p ruler))
       (loop for marker in (remove-if #'(lambda (mrk) (or (< mrk t1) (> mrk t2))) (get-all-time-markers ruler)) ;;;PAS OPTIMAL
@@ -241,9 +261,7 @@
               (om-with-fg-color (om-make-color-alpha (om-def-color :black) 0.5)
                 (om-draw-rect x1 0 (- x2 x1) (h self) :fill t)))
           (if (and (<= x1 xmax) (> x2 x))
-              (draw-temporal-box tb self x1 0 (- x2 x1) (h self) (- (pix-to-x self x) (get-box-onset tb))))))
-    
-   
+              (draw-temporal-box tb self x1 0 (- x2 x1) (h self) (- (pix-to-x self x) (get-box-onset tb))))))   
     ))
 
 
@@ -253,8 +271,8 @@
 
 (defmethod update-view-from-ruler ((self x-ruler-view) (view sequencer-track-view))
   (call-next-method)
-  (setf (car (range (object (editor view)))) (x1 self)
-        (cadr (range (object (editor view)))) (x2 self)))
+  (setf (getf (range (object (editor view))) :x1) (x1 self)
+        (getf (range (object (editor view))) :x2) (x2 self)))
 
 (defmethod om-view-click-handler ((self sequencer-track-view) position)
   (let* ((editor (editor (om-view-window self)))
@@ -480,8 +498,14 @@
        (move-editor-selection editor :dx (get-units (get-g-component editor :metric-ruler) (if (om-shift-key-p) 100 10)))
        (om-invalidate-view (main-view editor))
        (report-modifications editor))
-      (:om-key-up (when (equal (view-mode editor) :maquette) (call-next-method)))
-      (:om-key-down (when (equal (view-mode editor) :maquette) (call-next-method)))
+      (:om-key-up 
+       (move-editor-selection editor :dy (if (om-shift-key-p) 10 1))
+       (om-invalidate-view (main-view editor))
+       (report-modifications editor))
+      (:om-key-down 
+       (move-editor-selection editor :dy (if (om-shift-key-p) -10 -1))
+       (om-invalidate-view (main-view editor))
+       (report-modifications editor))
       (#\v (with-schedulable-object maquette
                                     (loop for tb in (get-selected-boxes editor) do 
                                           (eval-box tb)
@@ -774,15 +798,17 @@
 (defun make-maquette-view (maq-editor)
   (let* ((ruler-maquette (om-make-view 'time-ruler 
                                        :size (om-make-point 30 20)
-                                       :x1 (car (get-range maq-editor)) 
-                                       :x2 (cadr (get-range maq-editor))
+                                       :x1 (getf (get-range maq-editor) :x1) 
+                                       :x2 (getf (get-range maq-editor) :x2)
                                        :scrollbars nil :bg-color +track-color-1+))
          (metric-ruler (om-make-view 'metric-ruler 
                                      :size (om-make-point 30 20)
                                      :scrollbars nil :bg-color +track-color-1+))
          (y-ruler (om-make-view 'y-ruler-view 
-                                     :size (om-make-point 30 20)
-                                     :scrollbars nil :bg-color +track-color-1+))
+                                 :y1 (getf (get-range maq-editor) :y1) 
+                                 :y2 (getf (get-range maq-editor) :y2)
+                                 :size (om-make-point 30 20)
+                                 :scrollbars nil :bg-color +track-color-1+))
          (maq-view (om-make-view 'maquette-view :editor maq-editor :scrollbars t :bg-color +track-color-1+))
          layout)
     (set-g-component maq-editor :track-views nil)
@@ -835,8 +861,8 @@
 
 (defun make-tracks-view (maq-editor)
   (let* ((ruler-tracks (om-make-view 'time-ruler :size (om-make-point 30 20) 
-                                     :x1 (car (get-range maq-editor)) 
-                                     :x2 (cadr (get-range maq-editor))
+                                     :x1 (getf (get-range maq-editor) :x1) 
+                                     :x2 (getf (get-range maq-editor) :x2)
                                      :scrollbars nil :bg-color +track-color-1+
                                      :bottom-p nil :markers-p t))
          (track-views (loop for n from 1 to (n-tracks maq-editor) collect

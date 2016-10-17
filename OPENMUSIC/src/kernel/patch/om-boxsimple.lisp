@@ -43,7 +43,7 @@
           (box-x box) (om-point-x pos)
           (box-y box) (om-point-y pos)
           (inputs box) nil)
-    (let ((size (om-max-point (minimum-size box) (best-size box))))
+    (let ((size (om-max-point (minimum-size box) (default-size box))))
       (setf (box-w box) (om-point-x size)
             (box-h box) (om-point-y size))
       )
@@ -52,7 +52,7 @@
 (defmethod print-value ((self OMValueBox)) 
   (format nil "~s" (car (value self))))
 
-(defmethod best-size ((self OMValueBox))
+(defmethod default-size ((self OMValueBox))
   (om-make-point (+ 8 (om-string-size (print-value self) (text-font self))) 28))
 
 (defmethod allow-text-input ((self OMValueBox)) 

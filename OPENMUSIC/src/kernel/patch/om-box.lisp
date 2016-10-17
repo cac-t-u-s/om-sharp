@@ -70,11 +70,6 @@
 
 (defmethod get-box-frame-class ((self OMBox)) 'OMBoxFrame)
 
-;;; calculates "non graphic" coordinates in view from pixel pos
-(defmethod omng-position ((container t) position) position)
-;;; calculates "graphic" coordinates in view from abstract values
-(defmethod omg-position ((container t) position) position)
-
 (defmethod omng-move ((self OMBox) position)
   (setf (box-x self) (om-point-x position)
         (box-y self) (om-point-y position))
@@ -106,8 +101,8 @@
   (when (container self)
     (report-modifications (editor (container self)))))
 
-(defmethod init-size ((self OMBox))
-  (let ((size (best-size self)))
+(defmethod initialize-size ((self OMBox))
+  (let ((size (default-size self)))
     (omng-resize self size)
     (when (frame self)
       (om-set-view-size (frame self) size)
@@ -130,7 +125,7 @@
     (om-make-point 500 200)))
       
 (defmethod get-icon-size ((self OMBox)) 20)
-(defmethod best-size ((self OMBox)) (minimum-size self))
+(defmethod default-size ((self OMBox)) (minimum-size self))
 (defmethod get-icon-id-from-reference ((self t)) nil)
 
 (defmethod om-cleanup ((self OMBox))

@@ -88,15 +88,23 @@
 (defmethod pix-diff-to-value ((self x-ruler-view) diff) diff)
 (defmethod pix-diff-to-value ((self y-ruler-view) diff) (- diff))
 
+(defmethod update-view-from-ruler ((self ruler-view) (view om-view))
+  (om-invalidate-view view))
+
+
 (defmethod update-view-from-ruler ((self x-ruler-view) (view x-graduated-view))
   (setf (x1 view) (v1 self) (x2 view) (v2 self))
   (set-shift-and-factor view)
-  (om-invalidate-view view))
+  (call-next-method)
+  ;(om-invalidate-view view)
+  )
 
 (defmethod update-view-from-ruler ((self y-ruler-view) (view y-graduated-view)) 
   (setf (y1 view) (v1 self) (y2 view) (v2 self))
   (set-shift-and-factor view)
-  (om-invalidate-view view))
+  (call-next-method)
+  ;(om-invalidate-view view)
+  )
 
 (defmethod update-views-from-ruler ((self ruler-view))
   (loop for v in (related-views self) do (update-view-from-ruler self v)))

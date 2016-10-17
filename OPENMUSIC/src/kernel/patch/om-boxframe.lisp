@@ -12,6 +12,20 @@
 (defmethod get-help ((self OMBoxFrame)) (get-box-help (object self)))
 (defmethod get-box-help ((self OMBox)) nil)
 
+;;; calculates "non graphic" coordinates in view from pixel pos
+(defmethod omng-position ((container t) pix-position) pix-position)
+(defmethod omng-size ((container t) pix-size) pix-size)
+
+;;; calculates "graphic" coordinates in view from abstract values
+(defmethod omg-position ((container t) s-position) s-position)
+(defmethod omg-size ((container t) s-size) s-size)
+
+(defmethod omg-add-element ((container t) (frame OMFrame))
+  (om-set-view-position frame (omg-position container (omp (box-x (object frame)) (box-y (object frame)))))
+  (om-set-view-size frame (omg-size container (omp (box-w (object frame)) (box-h (object frame)))))
+  (om-add-subviews container frame))
+
+
 ;;;================================
 ;;; I/O areas
 ;;;================================
@@ -291,14 +305,14 @@
   (let ((view (om-make-graphic-object (get-box-frame-class self) 
                 :position (omp (box-x self) (box-y self))
                 :help "function box"
-                :size (omp (box-w self) (box-h self))
+                ;:size (omp (box-w self) (box-h self))
                 ;:bg-color (om-def-color :white)
                 :font (text-font self)
                 :object self
                 :icon-id (and (get-icon-id-from-reference self)
                               (or (find (get-icon-id-from-reference self) *om-loaded-picts*)
                                          'not-found)))))
-    ;(om-set-view-size view (minimum-size view))
+    (om-set-view-size view (default-size self))
     (setf (frame self) view)
     ;(set-icon-size view)
     (set-frame-areas view)
@@ -519,7 +533,7 @@
                                                   (funcall action box newtext))
                                                 (om-set-focus container-view)
                                                 (let ((newsize (om-min-point (om-max-point (om-view-size frame)
-                                                                                           (best-size box))
+                                                                                           (default-size box))
                                                                              (maximum-size box))))
                                                        
                                                               (om-set-view-size frame newsize) 
@@ -672,8 +686,9 @@
 ;;;=============================
 
 ;;; this is for move actions to apply only on boxframes
+;;; position is a symbolic position
 (defmethod move-frame-to-position ((self OMBoxFrame) (container-view om-view) position)
-  (om-set-view-position self position)
+  (om-set-view-position self (omg-position container-view position))
   (redraw-connections self))
 
 ;;;=============================

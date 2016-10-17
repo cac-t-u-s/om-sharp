@@ -52,8 +52,9 @@
                             :reference reference)))
     (setf (box-x box) (om-point-x pos)
           (box-y box) (om-point-y pos)
-          (box-w box) (om-point-x (minimum-size box))
-          (box-h box) 50)
+          ;(box-w box) (om-point-x (minimum-size box))
+          ;(box-h box) 50
+          )
     (push box (references-to reference))
     box))
 
