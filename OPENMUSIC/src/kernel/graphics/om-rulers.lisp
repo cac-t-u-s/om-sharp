@@ -231,4 +231,16 @@
                    (setf curr-pos position)))
      :release #'(lambda (view position) (update-views-from-ruler self)))))
 
+;;; !! reinit ranges apply on the editor attached to the first related-view
+;;; to define a more specific behaviour, better sub-class the ruler
+(defmethod reinit-x-ranges-from-ruler ((editor t)) nil)
+(defmethod reinit-y-ranges-from-ruler ((editor t)) nil)
+
+(defmethod om-view-doubleclick-handler ((self x-ruler-view) pos)
+  (let ((ed (and (related-views self) (editor (car (related-views self))))))
+    (when ed (reinit-x-ranges-from-ruler ed))))
+
+(defmethod om-view-doubleclick-handler ((self y-ruler-view) pos)
+  (let ((ed (and (related-views self) (editor (car (related-views self))))))
+    (when ed (reinit-y-ranges-from-ruler ed))))
 

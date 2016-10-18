@@ -153,11 +153,21 @@
   (call-next-method)
   (update-temporalboxes view))
 
+(defmethod reinit-y-ranges ((self maquette-editor))
+  (let ((boxes (boxes (object self))))
+    (if boxes
+        (set-ruler-range (get-g-component self :y-ruler) 
+                         (- (apply #'min (mapcar #'(lambda (b) (+ (box-y b) (box-h b))) boxes)) 10)  
+                         (+ (apply #'max (mapcar #'box-y boxes)) 10))
+      (set-ruler-range (get-g-component self :y-ruler) -10 110)
+      )))
+
+(defmethod reinit-y-ranges-from-ruler ((self maquette-editor)) 
+  (reinit-y-ranges self))
+
 (defmethod om-view-resized :after ((view maquette-view) new-size)
   (declare (ignore new-size))
   (update-temporalboxes view))
-
-
 
 
 ;;;========================

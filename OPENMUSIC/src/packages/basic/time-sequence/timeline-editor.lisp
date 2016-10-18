@@ -100,6 +100,9 @@
 
 (defmethod play-editor-get-ruler-views ((self timeline-editor)) (time-ruler self))
 
+(defmethod reinit-ranges ((self timeline-editor))
+  (reinit-x-ranges self))
+
 ;;;;;;;; TIMELINE VIEW ;;;;;;;;;;;;
 
 (defclass om-timeline-view (x-cursor-graduated-view OMEditorView)
@@ -155,7 +158,7 @@
                             'om-icon-button 
                             :size (omp 17 17) :icon 'icon-init-ruler-black :icon-pushed 'icon-init-ruler-white :lock-push nil
                             :action #'(lambda (b) (declare (ignore b))
-                                        (reinit-ranges  (time-ruler self))
+                                        (reinit-ranges self)
                                         (editor-invalidate-views self))))
         (snap-to-grid-chk (om-make-di 'om-check-box :text "Snap to Grid" :size (omp 100 24) :font (om-def-font :font1)
                                        :checked-p (snap-to-grid self)
@@ -237,7 +240,7 @@
                                                            :ratios '(0.001 1)))))))
       (setf (time-ruler self) time-ruler)
       (setf (timeline-views self) timeline-views)
-      (reinit-ranges (time-ruler self))
+      (reinit-ranges self)
     ;update when recreated
       (update-selected-views self)
       (om-invalidate-view main-panel)

@@ -127,13 +127,16 @@
 ;;; return the views to update
 (defmethod play-editor-get-ruler-views ((self play-editor-mixin)) nil)
   
-(defmethod reinit-ranges ((self play-editor-mixin))
+(defmethod reinit-x-ranges ((self play-editor-mixin))
   (let ((play-obj (get-obj-to-play self)))
     (mapcar #'(lambda (ruler-view)
                 (if play-obj
                     (set-ruler-range ruler-view 0 (+ (get-obj-dur play-obj) 1000))
                   (set-ruler-range ruler-view (vmin self) (or (vmax self) 1000))))
             (list! (play-editor-get-ruler-views self)))))
+
+(defmethod reinit-x-ranges-from-ruler ((self play-editor-mixin)) 
+  (reinit-x-ranges self))
 
 ;;;=================================
 ;;; PLAYER CALLS
@@ -323,8 +326,6 @@
   (unless (= (cursor-pos self) time)
     (setf (cursor-pos self) time))
   (om-update-transient-drawing self :x (time-to-pixel self (cursor-pos self))))
-
-
 
 (defmethod update-view-from-ruler ((self x-ruler-view) (view x-cursor-graduated-view))
   ;(update-cursor-pos view)
@@ -859,12 +860,6 @@
           (call-next-method)))
     (call-next-method)))
   
-;;; !! reinit ranges apply on the editor attached to the first related-view
-;;; to define a more specific behaviour, better sub-class the ruler
-(defmethod om-view-doubleclick-handler ((self time-ruler) pos)
-  (let ((ed (and (related-views self) (editor (car (related-views self))))))
-    (when ed (reinit-ranges ed))))
-
 (defmethod om-view-mouse-motion-handler ((self time-ruler) pos)
   (when (markers-p self)
     (if (find-marker-at-time self (pix-to-x self (om-point-x pos)))
