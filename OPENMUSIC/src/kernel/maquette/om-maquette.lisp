@@ -303,7 +303,7 @@
 ;;;======================================
 
 (defmethod get-track-boxes ((self OMMaquette) tracknum &key (sorted nil))
-  (remove-if-not #'(lambda (id) (and id (= id tracknum))) 
+  (remove-if-not #'(lambda (id) (and (numberp id) (= id tracknum))) 
                  (get-all-boxes self :sorted sorted)
                  :key 'group-id))
 
@@ -312,10 +312,14 @@
 
 (defmethod add-box-in-track ((maquette OMMaquette) (tb OMBox) tracknum)
   (setf (group-id tb) tracknum)
-  (setf (box-y tb) (* (1- tracknum) 100) 
-        (box-h tb) 100)
+  (let* ((yrange (- (getf (range maquette) :y2) (getf (range maquette) :y1)))
+         (trackw (round yrange (n-tracks maquette)))
+         (y (+ (getf (range maquette) :y1) 
+               (if tracknum (* (- (n-tracks maquette) (1- tracknum)) trackw) (round yrange 2)))))
+    (setf (box-y tb) y 
+          (box-h tb) (- (round yrange 10)))
   (omNG-add-element maquette tb)
-  (om-invalidate-view (nth (1- tracknum) (get-g-component (editor maquette) :track-views))))
+  (om-invalidate-view (nth (1- tracknum) (get-g-component (editor maquette) :track-views)))))
 
 #| 
 (with-schedulable-object 

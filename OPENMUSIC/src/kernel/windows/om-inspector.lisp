@@ -80,6 +80,7 @@
                              'om-grid-layout
                              :delta '(10 0)
                              :subviews (loop for category in (get-properties-list object)
+                                             when (cdr category)
                                              append (append 
                                                      (list  ;     (car category)  ; (list (car category) (om-def-font :font1b)) 
                                                       (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)

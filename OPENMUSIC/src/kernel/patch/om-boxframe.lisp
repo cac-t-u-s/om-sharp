@@ -13,17 +13,42 @@
 (defmethod get-box-help ((self OMBox)) nil)
 
 ;;; calculates "non graphic" coordinates in view from pixel pos
-(defmethod omng-position ((container t) pix-position) pix-position)
-(defmethod omng-size ((container t) pix-size) pix-size)
+(defmethod omng-x ((container t) pix-x) pix-x)
+(defmethod omng-y ((container t) pix-y) pix-y)
+(defmethod omng-w ((container t) pix-w) pix-w)
+(defmethod omng-h ((container t) pix-h) pix-h)
 
-;;; calculates "graphic" coordinates in view from abstract values
-(defmethod omg-position ((container t) s-position) s-position)
-(defmethod omg-size ((container t) s-size) s-size)
+(defmethod omng-position ((container t) pix-position)
+  (omp (omng-x container (om-point-x pix-position))
+       (omng-y container (om-point-y pix-position))))
+
+(defmethod omng-size ((container t) pix-size)
+  (omp (omng-w container (om-point-x pix-size))
+       (omng-h container (om-point-y pix-size))))
+
+;;; calculates "graphic" coordinates in view from symbolic values
+(defmethod omg-x ((container t) s-x) s-x)
+(defmethod omg-y ((container t) s-y) s-y)
+(defmethod omg-w ((container t) s-w) s-w)
+(defmethod omg-h ((container t) s-h) s-h)
+
+(defmethod omg-position ((container t) s-position) 
+  (omp (omg-x container (om-point-x s-position))
+       (omg-y container (om-point-y s-position))))
+
+(defmethod omg-size ((container t) s-size) 
+  (omp (omg-w container (om-point-x s-size))
+       (omg-h container (om-point-y s-size))))
+
+
 
 (defmethod omg-add-element ((container t) (frame OMFrame))
-  (om-set-view-position frame (omg-position container (omp (box-x (object frame)) (box-y (object frame)))))
-  (om-set-view-size frame (omg-size container (omp (box-w (object frame)) (box-h (object frame)))))
-  (om-add-subviews container frame))
+  (let ((scaledsize (omg-size container (omp (box-w (object frame)) (box-h (object frame)))))
+        (scaledpos (omg-position container (omp (box-x (object frame)) (box-y (object frame))))))
+    (om-set-view-position frame scaledpos)
+    (om-set-view-size frame (omp (if (scale-in-x-? (object frame)) (om-point-x scaledsize) (box-w (object frame)))
+                                 (if (scale-in-y-? (object frame)) (om-point-y scaledsize) (box-h (object frame)))))
+    (om-add-subviews container frame)))
 
 
 ;;;================================
@@ -186,10 +211,11 @@
 (defmethod resize-handle ((self resize-area) container frame pos) 
   (let ((pp (om-add-points (p0 self) pos)))
       (om-set-view-size frame 
-       (om-borne-point (resize-frame-size self frame pp) 
-                       (minimum-size (object frame)) 
-                       (maximum-size (object frame))
-       ))))
+       (om-borne-point 
+        (resize-frame-size self frame pp) 
+        (minimum-size (object frame)) 
+        (maximum-size (object frame))
+        ))))
 
 (defmethod resize-frame-size ((self resize-area) frame pos) pos)
 (defmethod resize-frame-size ((self h-resize-area) frame pos) (omp (om-point-x pos) (h frame)))
@@ -205,9 +231,12 @@
   (when *resize-handler*
     (setf *resize-handler* nil)
     (let* ((box (object self))
-           (pix2 (om-add-points (om-view-position self) (om-view-size self)))
-           (p2 (omng-position (om-view-container self) pix2)))
-      (omng-resize box (om-subtract-points p2 (omp (box-x box) (box-y box)))))
+           (view (om-view-container self))
+           (size (om-view-size self)))
+      (omng-resize box 
+                   (omp (if (scale-in-x-? box) (omng-w view (om-point-x size)) (om-point-x size))
+                        (if (scale-in-y-? box) (omng-h view (om-point-y size)) (om-point-y size))))
+      )
     (redraw-connections self)))
 
 (defmethod om-click-motion-handler ((self OMBoxFrame) pos)
@@ -305,8 +334,6 @@
   (let ((view (om-make-graphic-object (get-box-frame-class self) 
                 :position (omp (box-x self) (box-y self))
                 :help "function box"
-                ;:size (omp (box-w self) (box-h self))
-                ;:bg-color (om-def-color :white)
                 :font (text-font self)
                 :object self
                 :icon-id (and (get-icon-id-from-reference self)
@@ -314,7 +341,6 @@
                                          'not-found)))))
     (om-set-view-size view (default-size self))
     (setf (frame self) view)
-    ;(set-icon-size view)
     (set-frame-areas view)
     view))
 
@@ -343,18 +369,25 @@
 
 (defmethod update-view ((self OMBoxFrame) (object OMBoxCall))
   (when (text-font object) (om-set-font self (text-font object)))
-  (let ((best-size (om-borne-point (omp (box-w object) (box-h object)) 
-                                   (minimum-size object) (maximum-size object))))
-    (setf (box-w object) (om-point-x best-size)
-          (box-h object) (om-point-y best-size))
+  (let ((adjusted-size (om-borne-point 
+                        (omp (box-w object) (box-h object))
+                        (minimum-size object) (maximum-size object))))
     
-    (when (and (or (lambda-state object) (lock-state object)) (< (box-h object) 36))
-      (setf (box-h object) (+ (box-h object) 8)))
+    ;; adjust the size only if the box doesn't scale according to rulers
+    (unless (scale-in-x-? object) (setf (box-w object) (om-point-x adjusted-size)))
+    
+    (unless (scale-in-y-? object) 
+      (setf (box-h object) (om-point-y adjusted-size))  
+      (when (and (or (lambda-state object) (lock-state object)) (< (box-h object) 36))
+        (setf (box-h object) (+ (box-h object) 8))))
 
-    (om-set-view-size self (omp (box-w object) (box-h object))))
-  (om-invalidate-view self)
-  (update-frame-connections-display self)
-  )
+    (om-set-view-size self (omp 
+                            (if (scale-in-x-? object) (omg-w (om-view-container self) (box-w object)) (box-w object))
+                            (if (scale-in-y-? object) (omg-h (om-view-container self) (box-h object)) (box-h object))))
+    
+    (om-invalidate-view self)
+    (update-frame-connections-display self)
+    ))
 
 (defmethod update-to-editor ((self OMEditor) (from OMBox)) 
   ;(print (list "update" self "from BOX" from))

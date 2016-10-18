@@ -34,7 +34,7 @@
 (defmethod n-tracks ((self maquette-editor)) 
   (max 4
        (if (boxes (object self))
-           (list-max (mapcar 'group-id (get-all-boxes (object self))))
+           (list-max (remove-if-not #'numberp (mapcar 'group-id (get-all-boxes (object self)))))
          0 )))
 
 (defmethod get-range ((self maquette-editor)) (range (object self)))
@@ -58,12 +58,6 @@
     (find time (if track (get-track-boxes maquette track) (get-all-boxes maquette))
           :test #'(lambda (tt tb)
                     (and (> tt (get-box-onset tb)) (< tt (+ (get-box-onset tb) (get-box-duration tb))))))))
-
-
-(defmethod scale-in-x-? ((self OMBox)) t)
-(defmethod scale-in-x-? ((self OMFunBoxCall)) nil)
-(defmethod scale-in-y-? ((self OMBox)) t)
-(defmethod scale-in-y-? ((self OMFunBoxCall)) nil)
 
 
 ;;; called from the tracks
@@ -115,32 +109,16 @@
 ;;;========================
 
 (defclass maquette-view (patch-editor-view x-cursor-graduated-view y-graduated-view om-drop-view) ())
-;(defmethod editor-view-class ((self maquette-editor)) 'maquette-view)
 
-;;; In teh maquette-view everything is comploicate because the y ruler goes bottom-up .. :(
-(defmethod get-default-size-in-editor ((self OMBox) (editor maquette-editor))
-  (let ((defsize (call-next-method)))
-    (omp (om-point-x defsize)
-         (- (om-point-y defsize)))))
-         
-(defmethod omng-position ((container maquette-view) pix-position)
-  (omp (pix-to-x container (om-point-x pix-position))
-       (pix-to-y container (om-point-y pix-position))))
+(defmethod omng-x ((container maquette-view) pix-x) (pix-to-x container pix-x))
+(defmethod omng-y ((container maquette-view) pix-y) (pix-to-y container pix-y))
+(defmethod omng-w ((container maquette-view) pix-w) (dpix-to-dx container pix-w))
+(defmethod omng-h ((container maquette-view) pix-h) (- (dpix-to-dy container pix-h)))
 
-(defmethod omng-size ((container maquette-view) pix-size)
-  (omp (dpix-to-dx container (om-point-x pix-size))
-       (- (dpix-to-dy container (om-point-y pix-size)))))
-
-
-(defmethod omg-position ((container maquette-view) s-position) 
-  (omp (x-to-pix container (om-point-x s-position))
-       (y-to-pix container (om-point-y s-position))))
-
-(defmethod omg-size ((container maquette-view) s-size) 
-  (omp (dx-to-dpix container (om-point-x s-size))
-       (- (dy-to-dpix container (om-point-y s-size)))))
-
-
+(defmethod omg-x ((container maquette-view) s-x) (x-to-pix container s-x))
+(defmethod omg-y ((container maquette-view) s-y) (y-to-pix container s-y))
+(defmethod omg-w ((container maquette-view) s-w) (dx-to-dpix container s-w))
+(defmethod omg-h ((container maquette-view) s-h) (dy-to-dpix container s-h))
 
 (defmethod resize-handle ((self resize-area) (container maquette-view) frame pos) 
   (let ((pp (om-add-points (p0 self) pos)))
@@ -153,13 +131,11 @@
   (loop for sv in (get-boxframes self) do
         (let* ((box (object sv))
                (x (x-to-pix self (box-x box)))
-               (w (dx-to-dpix self (box-w box)))
                (y (y-to-pix self (box-y box)))
-               (h (dy-to-dpix self (box-h box))))
-          
+               (w (if (scale-in-x-? box) (max 20 (omg-w self (box-w box))) (box-w box)))
+               (h (if (scale-in-y-? box) (max 24 (omg-h self (box-h box))) (box-h box))))
           (om-set-view-position sv (om-point-set (om-view-position sv) :x x :y y))
-          (om-set-view-size sv (omp (max 20 (if (scale-in-x-? box) w (om-point-x (om-view-size sv))))
-                                    (max 24 (if (scale-in-y-? box) h (om-point-y (om-view-size sv))))))
+          (om-set-view-size sv (om-point-set (om-view-size sv) :x w :y h))
           (redraw-connections sv)
           )))
 
@@ -850,6 +826,9 @@
     layout
     ))
 
+(defmethod play-editor-get-ruler-views ((self maquette-editor)) 
+  (list (get-g-component self :abs-ruler)
+        (get-g-component self :metric-ruler)))
 
 (defun make-track-control (n editor)
   (let ((f-color +font-color+))

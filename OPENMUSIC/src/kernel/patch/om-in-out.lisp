@@ -45,7 +45,7 @@
 (defmethod get-properties-list ((self OMInOutBox))
   (add-properties (hide-properties 
                    (call-next-method) 
-                   '(:icon :lock :lambda))
+                   '(:icon :lock :lambda :group-id))
                   "Appearance" 
                   '((:icon "Icon position" (:left :top) icon-pos))))
 

@@ -146,6 +146,7 @@
             #'(lambda (box text)
                 ;;; the box name shall be updated as well
                 (set-name (reference self) text)
+                (update-inspector-for-box self)
                 ))))
 
 (defmethod internalize-abstraction ((self OMBox)) nil)

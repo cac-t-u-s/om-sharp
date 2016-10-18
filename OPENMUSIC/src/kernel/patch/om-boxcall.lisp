@@ -415,6 +415,16 @@ All boxes which their reference is a OM generic function are instances of this c
                   :pick #'(lambda (f) (list 0 0 12 (- (h f) 16))))
    ))
 
+;;; IN MAQUETTE VIEW
+(defmethod scale-in-x-? ((self OMFunBoxCall)) nil)
+(defmethod scale-in-y-? ((self OMFunBoxCall)) nil)
+
+(defmethod get-properties-list ((self OMFunBoxCall))
+  (hide-properties 
+   (call-next-method) 
+   '(:group-id)))
+
+
 ;-------------------------------------------
 ; BOX FOR STANDARD LISP FUNCTIONS
 ;-------------------------------------------
@@ -427,6 +437,8 @@ All boxes which their reference is a OM generic function are instances of this c
 (defmethod get-object-type-name ((self OMLispFBoxcall)) "Standard Lisp Function")
 
 (defmethod get-icon-id-from-reference ((self OMLispFBoxcall)) 'lisp)
+
+
 
 ;-------------------------------------------
 ; BOX FOR OMGENERICFUNCTION

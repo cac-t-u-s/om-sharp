@@ -12,7 +12,7 @@
     (inputs :initform nil :accessor inputs)
     (outputs :initform nil :accessor outputs)
     (reference :initform nil :initarg :reference :accessor reference)
-    (group-id :initform 0 :accessor group-id :initarg :group-id) ;; id used for grouping boxes (e.g. tracks in a sequencer)
+    (group-id :initform nil :accessor group-id :initarg :group-id) ;; id used for grouping boxes (e.g. tracks in a sequencer)
     (value :initform nil :accessor value)   ;; value = a list of one or more value(s)
     ;;; graphical attributes
     (frame :initform nil :accessor frame :documentation "the OMFrame representing to the box")
@@ -93,6 +93,9 @@
     ;;; (mapcar #'update-points (get-box-connections self)) ;;; done in omng-move
     (when (frame self) (update-frame-to-position self pos))
     ))
+
+(defmethod scale-in-x-? ((self OMBox)) t)
+(defmethod scale-in-y-? ((self OMBox)) t)
 
 (defmethod omng-resize ((self OMBox) size)
   (setf (box-w self) (om-point-x size)
@@ -175,7 +178,7 @@
                (:align "Text align" (:left :center :right) text-align)
                )
     ("Structure" ;;; category
-               (:group-id "Group/Track" (1 2 3 4 5 6 7 8) group-id)
+               (:group-id "Group/Track" (:none 1 2 3 4 5 6 7 8) group-id)
                )))
 
 (defmethod close-internal-element :after ((self OMBox)) 

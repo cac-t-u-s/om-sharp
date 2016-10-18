@@ -577,7 +577,7 @@
                              (omng-remove-element init-patch box)
                              (report-modifications (editor init-patch))
                              (mapcar #'(lambda (c) (omng-remove-element init-patch c)) (get-box-connections box))
-                             (om-remove-subviews (print patchview) dview)
+                             (om-remove-subviews patchview dview)
                      
                              (pushr box newboxes)
                              (when (omNG-add-element (editor self) box)
@@ -618,7 +618,7 @@
           (cond ((member objtype '(:patch :maquette :textfun))
                  ;;; TRY TO LOAD THE PATCH
                  (let ((obj (load-doc-from-file file objtype)))
-                   (when (print obj) (omNG-make-new-boxcall obj position))))
+                   (when obj (omNG-make-new-boxcall obj position))))
                 (t (om-beep)))))
     (when newbox
       (add-box-in-patch-editor newbox self)
@@ -787,9 +787,9 @@
 
 (defmethod add-box-in-patch-editor ((box OMBox) (view patch-editor-view))
   (when (omNG-add-element (editor view) box)
-    (let ((adapted-size (omng-size view (get-default-size-in-editor box (editor view)))))
-      (setf (box-w box) (om-point-x adapted-size)
-            (box-h box) (om-point-y adapted-size))
+    (let ((def-size (get-default-size-in-editor box (editor view))))
+      (setf (box-w box) (if (scale-in-x-? box) (omng-w view (om-point-x def-size)) (om-point-x def-size)))
+      (setf (box-h box) (if (scale-in-y-? box) (omng-h view (om-point-y def-size)) (om-point-y def-size)))
       (let ((frame (make-frame-from-callobj box)))
         (omg-add-element view frame)
         (select-box box t)
