@@ -124,6 +124,16 @@
 
 (defmethod additional-player-params ((self t)) nil)
 
+;;; return the views to update
+(defmethod play-editor-get-ruler-views ((self play-editor-mixin)) nil)
+  
+(defmethod reinit-ranges ((self play-editor-mixin))
+  (let ((play-obj (get-obj-to-play self)))
+    (mapcar #'(lambda (ruler-view)
+                (if play-obj
+                    (set-ruler-range ruler-view 0 (+ (get-obj-dur play-obj) 1000))
+                  (set-ruler-range ruler-view (vmin self) (or (vmax self) 1000))))
+            (list! (play-editor-get-ruler-views self)))))
 
 ;;;=================================
 ;;; PLAYER CALLS
@@ -849,16 +859,11 @@
           (call-next-method)))
     (call-next-method)))
   
+;;; !! reinit ranges apply on the editor attached to the first related-view
+;;; to define a more specific behaviour, better sub-class the ruler
 (defmethod om-view-doubleclick-handler ((self time-ruler) pos)
-  (reinit-ranges self))
-
-(defmethod reinit-ranges ((self time-ruler))
-  (let* ((ed (and (related-views self) (editor (car (related-views self)))))
-         (play-obj (and ed (get-obj-to-play ed))))
-    (if play-obj 
-        (set-ruler-range self 0 (max (get-obj-dur play-obj) 1000))
-      (set-ruler-range self (vmin self) (or (vmax self) 1000)))))
-
+  (let ((ed (and (related-views self) (editor (car (related-views self))))))
+    (when ed (reinit-ranges ed))))
 
 (defmethod om-view-mouse-motion-handler ((self time-ruler) pos)
   (when (markers-p self)

@@ -97,6 +97,9 @@
     (item-set-time point (snap-time-to-grid (time-ruler self) (item-get-time point) delta))
   ))
 
+
+(defmethod play-editor-get-ruler-views ((self timeline-editor)) (time-ruler self))
+
 ;;;;;;;; TIMELINE VIEW ;;;;;;;;;;;;
 
 (defclass om-timeline-view (x-cursor-graduated-view OMEditorView)
