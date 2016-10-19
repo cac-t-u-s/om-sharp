@@ -120,7 +120,7 @@
   ;                       :fill t))))
   )
 
-(defmethod draw-grid ((self om-view) (ruler metric-ruler)) 
+(defmethod draw-grid-from-ruler ((self om-view) (ruler metric-ruler)) 
   (when (markers-p ruler)
     (loop for marker in (get-all-time-markers ruler)
           do (let ((pos (time-to-pixel ruler marker)))
@@ -129,6 +129,6 @@
   (om-with-line '(2 2)
     (loop for beat in (point-list ruler)
           do
-          (draw-grid-line self ruler (ruler-value-to-pix ruler (car beat))))))
+          (draw-grid-line-from-ruler self ruler (ruler-value-to-pix ruler (car beat))))))
 
 

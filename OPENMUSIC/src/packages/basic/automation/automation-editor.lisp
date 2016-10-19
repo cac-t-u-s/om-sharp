@@ -70,14 +70,14 @@
                                             (format nil "~1$" y)))))))))
 
 
-(defmethod draw-grid ((self automation-panel) (ruler y-ruler-view))
+(defmethod draw-grid-from-ruler ((self automation-panel) (ruler y-ruler-view))
   (let ((unit-dur (get-units ruler)))
     (loop for line from (* (ceiling (v1 ruler) unit-dur) unit-dur)
           to (* (floor (v2 ruler) unit-dur) unit-dur)
           by unit-dur do
-          (let ((x (ruler-value-to-pix ruler line)))
-            (om-draw-string 0 x (number-to-string line))
-            (draw-grid-line self ruler x)))))
+          (let ((y (ruler-value-to-pix ruler line)))
+            (om-draw-string 0 y (number-to-string line))
+            (draw-grid-line-from-ruler self ruler y)))))
 
 
 ;;;Draw a vertical ruler when holding shift while moving the mouse
@@ -256,8 +256,8 @@
             (om-draw-line (car center) 0 (car center) (h self))))
         (when (grid editor)
           (om-with-line '(2 2)
-            (draw-grid self (x-ruler self))
-            (draw-grid self (y-ruler self)))))
+            (draw-grid-from-ruler self (x-ruler self))
+            (draw-grid-from-ruler self (y-ruler self)))))
       
 
       ;;;POINTS AND CURVES

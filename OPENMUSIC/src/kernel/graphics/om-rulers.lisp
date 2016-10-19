@@ -95,16 +95,12 @@
 (defmethod update-view-from-ruler ((self x-ruler-view) (view x-graduated-view))
   (setf (x1 view) (v1 self) (x2 view) (v2 self))
   (set-shift-and-factor view)
-  (call-next-method)
-  ;(om-invalidate-view view)
-  )
+  (call-next-method))
 
 (defmethod update-view-from-ruler ((self y-ruler-view) (view y-graduated-view)) 
   (setf (y1 view) (v1 self) (y2 view) (v2 self))
   (set-shift-and-factor view)
-  (call-next-method)
-  ;(om-invalidate-view view)
-  )
+  (call-next-method))
 
 (defmethod update-views-from-ruler ((self ruler-view))
   (loop for v in (related-views self) do (update-view-from-ruler self v)))
@@ -190,16 +186,19 @@
                                   (om-with-font (om-def-font :font1 :size 8)
                                                 (draw-string-at self pixii (unit-value-str self vii unit-dur))))))))))))))))
 
-(defmethod draw-grid-line ((self om-view) (ruler x-ruler-view) x) (om-draw-line x 0 x (h self)))
-(defmethod draw-grid-line ((self om-view) (ruler y-ruler-view) y) (om-draw-line 0 y (w self) y))
+(defmethod draw-grid-line-from-ruler ((self om-view) (ruler x-ruler-view) x) (draw-v-grid-line self x))
+(defmethod draw-grid-line-from-ruler ((self om-view) (ruler y-ruler-view) y) (draw-h-grid-line self y))
 
-(defmethod draw-grid ((self om-view) (ruler ruler-view))
+;;; no draw without ruler
+(defmethod draw-grid-from-ruler ((self om-view) (ruler null)) nil)
+
+(defmethod draw-grid-from-ruler ((self om-view) (ruler ruler-view))
   (let ((unit-dur (get-units ruler)))
     (loop for line from (* (ceiling (v1 ruler) unit-dur) unit-dur)
           to (* (floor (v2 ruler) unit-dur) unit-dur)
           by unit-dur do
-          (let ((x (ruler-value-to-pix ruler line)))
-            (draw-grid-line self ruler x)))))
+          (let ((v (ruler-value-to-pix ruler line)))
+            (draw-grid-line-from-ruler self ruler v)))))
 
 
 (defmethod om-view-click-handler ((self ruler-view) pos)

@@ -404,7 +404,7 @@
     
     (om-with-fg-color (om-def-color :light-gray)
       (om-with-line '(2 2)
-        (draw-grid self (get-g-component editor :x-ruler))))
+        (draw-grid-from-ruler self (get-g-component editor :x-ruler))))
     
     (when stream 
       (om-with-fg-color (om-def-color :dark-gray)

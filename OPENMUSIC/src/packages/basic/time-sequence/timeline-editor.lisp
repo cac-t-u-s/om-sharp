@@ -271,7 +271,7 @@
     (draw-timeline-background (container-editor editor) self (id self))
     (om-with-fg-color (om-make-color 0.4 0.4 0.7 0.6)
       (when (time-ruler editor)
-        (draw-grid self (time-ruler editor))))
+        (draw-grid-from-ruler self (time-ruler editor))))
     (when obj
       (let* ((color (get-color obj))
              (x1 0)

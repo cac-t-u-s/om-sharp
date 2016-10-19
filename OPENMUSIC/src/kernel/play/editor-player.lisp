@@ -671,7 +671,7 @@
   (call-next-method)
   )
 
-(defmethod draw-grid ((self om-view) (ruler time-ruler))
+(defmethod draw-grid-from-ruler ((self om-view) (ruler time-ruler))
   (when (markers-p ruler)
     (loop for marker in (get-all-time-markers ruler)
           do

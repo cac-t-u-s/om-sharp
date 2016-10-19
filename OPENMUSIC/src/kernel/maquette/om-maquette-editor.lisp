@@ -72,10 +72,12 @@
   #'(lambda () (select-unselect-all self t)
       (om-invalidate-view (window self))))
 
+
+;;;; !!!!!
 (defmethod get-internal-view-components ((self patch-editor))
   (let ((editorview (main-view self)))
-    (append (get-boxframes self)
-            (get-grap-connections self))))
+    (append (get-boxframes editorview)
+            (get-grap-connections editorview))))
 
 
 ;;;========================
@@ -169,6 +171,11 @@
   (declare (ignore new-size))
   (update-temporalboxes view))
 
+(defmethod draw-patch-grid ((view maquette-view))
+  (om-with-fg-color (om-gray-color 0 0.1)
+    (draw-grid-from-ruler view (get-g-component (editor view) :metric-ruler))
+    (draw-grid-from-ruler view (get-g-component (editor view) :y-ruler))
+    ))
 
 ;;;========================
 ;;; TRACK-VIEW
@@ -191,7 +198,7 @@
          (maquette (object editor)))
     (when (get-g-component editor :metric-ruler) ;; just in case
      (om-with-fg-color (om-gray-color 0 0.1)
-       (draw-grid self (get-g-component editor :metric-ruler))))
+       (draw-grid-from-ruler self (get-g-component editor :metric-ruler))))
     (loop for tb in (get-track-boxes maquette (num self)) 
           when (and (> (+ (get-box-onset tb) (get-box-duration tb)) (x1 self))
                     (< (get-box-onset tb) (x2 self)))
@@ -226,7 +233,7 @@
        (om-with-line '(2 2)
          (loop for beat in (remove-if #'(lambda (pt) (or (< (car pt) t1) (> (car pt) t2))) (point-list ruler))
                do 
-               (draw-grid-line self ruler (ruler-value-to-pix ruler (car beat)))))))
+               (draw-grid-line-from-ruler self ruler (ruler-value-to-pix ruler (car beat)))))))
 
     ;;;START CURSOR POS
     (let ((i1 (time-to-pixel self (car (cursor-interval ruler))))
@@ -315,9 +322,9 @@
                                (loop for tb in (get-selected-boxes editor) 
                                      for init-track in init-tracks do 
                                      (let ((new-box-id (+ init-track diff-track-id)))
-                                       (when (and (> new-box-id 0) (<= new-box-id (n-tracks editor)))
-                                       (update-inspector-for-box tb) ;; here ?
-                                       (setf (group-id tb) new-box-id)))))
+                                       (when (and (> new-box-id 0) (<= new-box-id (n-track-views editor)))
+                                         (update-inspector-for-box tb) ;; here ?
+                                         (setf (group-id tb) new-box-id)))))
                      
                              (move-editor-selection editor :dx dx)
                              (setf p0 pos)
@@ -681,13 +688,7 @@
                            :action #'(lambda (b) 
                                        (unless (equal (view-mode editor) :maquette)
                                          (disable b) (enable b2)
-                                         (setf (view-mode editor) :maquette)
-                                         (om-remove-all-subviews (get-g-component editor :main-maq-view))
-                                         (om-add-subviews 
-                                          (get-g-component editor :main-maq-view)
-                                          (if (equal (view-mode editor) :maquette)
-                                              (make-maquette-view editor)
-                                            (make-tracks-view editor)))
+                                         (set-main-maquette-view editor :maquette)
                                          ))))
                  (setq b2 (om-make-graphic-object 
                            'om-icon-button :size (omp 16 16) 
@@ -696,13 +697,7 @@
                            :action #'(lambda (b) 
                                        (unless (equal (view-mode editor) :tracks)
                                          (disable b) (enable b1)
-                                         (setf (view-mode editor) :tracks)
-                                         (om-remove-all-subviews (get-g-component editor :main-maq-view))
-                                         (om-add-subviews 
-                                          (get-g-component editor :main-maq-view)
-                                          (if (equal (view-mode editor) :maquette)
-                                              (make-maquette-view editor)
-                                            (make-tracks-view editor)))
+                                         (set-main-maquette-view editor :tracks)
                                          ))))
                  (list b1 b2)))
                                                         
@@ -781,6 +776,16 @@
                             (get-g-component editor :bottom-view)))))))
 
 
+
+(defun set-main-maquette-view (editor mode)
+  (setf (view-mode editor) mode)
+  (om-remove-all-subviews (get-g-component editor :main-maq-view))
+  (om-add-subviews 
+   (get-g-component editor :main-maq-view)
+   (if (equal mode :maquette)
+       (make-maquette-view editor)
+     (make-tracks-view editor))))
+
 (defun make-maquette-view (maq-editor)
   (let* ((ruler-maquette (om-make-view 'time-ruler 
                                        :size (om-make-point 30 20)
@@ -847,6 +852,8 @@
      :size (om-make-point *track-control-w* *track-h*)
      :bg-color (nth (mod n 2) (list +track-color-1+ +track-color-2+)))))
 
+(defun n-track-views (maquette-editor)
+  (length (get-g-component maquette-editor :track-views)))
 
 (defun make-tracks-view (maq-editor)
   (let* ((ruler-tracks (om-make-view 'time-ruler :size (om-make-point 30 20) 
@@ -914,6 +921,16 @@
                                              :fg-color (om-def-color :black)
                                              :bg-color +track-color-2+)
                                  ruler-tracks))))))
+
+
+;;; when a box changes track
+(defmethod update-container-groups ((maquette OMMaquette)) 
+  (when (and (editor maquette) 
+             (equal (view-mode (editor maquette)) :tracks)
+             (not (= (n-tracks (editor maquette)) (n-track-views (editor maquette)))))
+    ;;; will update the number of tracks
+    (set-main-maquette-view (editor maquette) :tracks)))
+
 
 ;;;=====================
 ;;; PLAYER INTERFACE

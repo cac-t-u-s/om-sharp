@@ -367,10 +367,6 @@
     (om-draw-circle (car p) (cadr p) 1 :fill nil)
     ))
 
-(defmethod draw-grid ((self bpf-bpc-panel) (ruler null))
-  ;;; no draw without ruler
-  nil)
-
 (defun point-visible-p (pt x1 x2 y1 y2)
   (and (> (car pt) x1) (< (car pt) x2)
        (> (cadr pt) y1) (< (cadr pt) y2)))
@@ -444,8 +440,8 @@
                         (om-draw-line (car center) 0 (car center) (h self))))
                     (when (grid editor)
                       (om-with-line '(2 2)
-                        (draw-grid self (x-ruler self))
-                        (draw-grid self (y-ruler self)))
+                        (draw-grid-from-ruler self (x-ruler self))
+                        (draw-grid-from-ruler self (y-ruler self)))
                       ))
                   
                   ;;; draw multi ?

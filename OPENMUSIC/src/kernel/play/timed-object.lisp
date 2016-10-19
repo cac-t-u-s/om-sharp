@@ -46,7 +46,9 @@
 
 (defmethod set-object-onset ((self timed-object) onset)
   (setf (onset self) onset))
-(defmethod set-object-onset ((self t) onset)
+
+(defmethod set-object-onset ((self t) onset) 
+  ;(om-beep-msg "~A has no onset attribute !" (type-of self))
   onset)
 
 
