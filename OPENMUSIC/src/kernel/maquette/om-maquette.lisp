@@ -257,7 +257,7 @@
 (defmethod omNG-add-element ((self OMMaquette) (elem OMBox))
   (set-box-duration elem (or (get-obj-dur (get-box-value elem)) 
                              (box-w elem)))
-  (unless (group-id elem) (setf (group-id elem) 1))   
+  ;; (unless (group-id elem) (setf (group-id elem) 1))   
   (with-schedulable-object self (call-next-method)))
 
 ;; evaluate the patch before ?
@@ -282,11 +282,13 @@
    ;;; this is +/- like move-box (with set-box-onset)
    (set-box-onset tb (max (+ (get-box-onset tb) dx) 0))
    (setf (box-y tb) (+ (box-y tb) dy))
-   (mapcar 'update-points (get-box-connections tb))
+   
    (when (frame tb)
      (update-frame-to-position tb (omp (box-x tb) (box-y tb))))
    (when (container tb)
      (report-modifications (editor (container tb))))
+   
+   (update-connections tb)
    
    ;;; maquette-specific
    (if (and (get-box-value tb) (eq (get-object-state (get-box-value tb)) :play))

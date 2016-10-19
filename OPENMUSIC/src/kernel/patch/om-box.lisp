@@ -70,10 +70,19 @@
 
 (defmethod get-box-frame-class ((self OMBox)) 'OMBoxFrame)
 
+
+;;; applies to the NG Box but must be done when the frames are in place..
+;;; (because it uses the positions of the frame areas)
+(defmethod update-connections ((self OMBox))
+  (mapcar #'(lambda (c)
+               (update-points c) 
+               (update-graphic-connection c))
+          (get-box-connections self)))
+
 (defmethod omng-move ((self OMBox) position)
   (setf (box-x self) (om-point-x position)
         (box-y self) (om-point-y position))
-  (mapcar 'update-points (get-box-connections self))
+  ;(update-connections self)
   (when (container self)
     (report-modifications (editor (container self)))))
 
@@ -90,8 +99,8 @@
 (defmethod move-box ((self OMBox) dx dy)
   (let ((pos (om-make-point (max 0 (+ (box-x self) dx)) (max 0 (+ (box-y self) dy)))))
     (omng-move self pos)
-    ;;; (mapcar #'update-points (get-box-connections self)) ;;; done in omng-move
     (when (frame self) (update-frame-to-position self pos))
+    (update-connections self)
     ))
 
 (defmethod scale-in-x-? ((self OMBox)) t)

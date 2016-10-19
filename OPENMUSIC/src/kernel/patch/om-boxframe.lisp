@@ -318,7 +318,7 @@
                                                              (+ statesign-w 
                                                                 (* (- (w f) extra-w)
                                                                    (/ (1+ (* 2 (or (position out (outputs box)) 0))) (* 2 nout))))
-                                                             (- (h f) +active-r+)
+                                                             (- (round (h f)) +active-r+) ;;; (would be better if H was already an integer...)
                                                              ))
                                                    :pick '(-6 -6 6 6))))
                           (outputs (object self)))
@@ -709,8 +709,7 @@
                           (- (apply 'min (mapcar 'om-point-y all-points)) 4)
                           (+ (apply 'max (mapcar 'om-point-x all-points)) 4)
                           (+ (apply 'max (mapcar 'om-point-y all-points)) 4)
-                          )
-      )
+                          ))
     )))
 
 
@@ -721,7 +720,7 @@
 ;;; this is for move actions to apply only on boxframes
 ;;; position is a symbolic position
 (defmethod move-frame-to-position ((self OMBoxFrame) (container-view om-view) position)
-  (om-set-view-position self (omg-position container-view position))
+  (om-set-view-position self (om-round-point (omg-position container-view position)))
   (redraw-connections self))
 
 ;;;=============================

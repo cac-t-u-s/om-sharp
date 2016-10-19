@@ -57,7 +57,8 @@
   (let* ((maquette (object editor)))
     (find time (if track (get-track-boxes maquette track) (get-all-boxes maquette))
           :test #'(lambda (tt tb)
-                    (and (> tt (get-box-onset tb)) (< tt (+ (get-box-onset tb) (get-box-duration tb))))))))
+                    (and (> tt (get-box-onset tb)) 
+                         (< tt (get-box-end-date tb)))))))
 
 
 ;;; called from the tracks
@@ -205,7 +206,9 @@
                     (< (get-box-onset tb) (x2 self)))
           do
           (let ((x1 (x-to-pix self (get-box-onset tb)))
-                (x2 (x-to-pix self (+ (get-box-onset tb) (get-box-duration tb)))))
+                (x2 (print (if (scale-in-x-? tb) 
+                               (x-to-pix self (get-box-end-date tb))
+                             (box-w tb)))))
             (draw-temporal-box tb self x1 0 (- x2 x1) (h self) (- (get-obj-time maquette) (get-box-onset tb)))
             (when (selected tb)
               (om-with-fg-color (om-make-color-alpha (om-def-color :gray) 0.5)
@@ -250,7 +253,9 @@
     (loop for tb in (get-track-boxes maquette (num self))
           do
           (let ((x1 (x-to-pix self (get-box-onset tb)))
-                (x2 (x-to-pix self (get-box-end-date tb))))
+                (x2 (if (scale-in-x-? tb) 
+                        (x-to-pix self (get-box-end-date tb))
+                      (+ (x-to-pix self (box-x tb)) (box-w tb)))))
             (when (selected tb)
               (om-with-fg-color (om-make-color-alpha (om-def-color :black) 0.5)
                 (om-draw-rect x1 0 (- x2 x1) (h self) :fill t)))
@@ -281,17 +286,20 @@
    
     (cond 
      (selected-box
-      (let ((selected-end-time-x (time-to-pixel self (get-box-end-date selected-box))))
-        (if (and (resizable-box? selected-box)
+      (let ((selected-end-time-x (and (scale-in-x-? selected-box) ;;; otherwise we just don't rescale in tracks view
+                                      (time-to-pixel self (get-box-end-date selected-box)))))
+        (if (and (resizable-box? selected-box) (scale-in-x-? selected-box)
                  (<= (om-point-x position) selected-end-time-x) (>= (om-point-x position) (- selected-end-time-x 5)))
             ;;; resize the box
             (om-init-temp-graphics-motion 
              self position nil
              :motion #'(lambda (view pos)
                          (when (> (- (om-point-x pos) (x-to-pix self (get-box-onset selected-box))) 10)
-                           (set-box-duration selected-box 
-                                             (- (round (pix-to-x self (om-point-x pos)))
-                                                (get-box-onset selected-box)))
+                           (if (scale-in-x-? selected-box)
+                               (set-box-duration selected-box 
+                                                 (- (round (pix-to-x self (om-point-x pos)))
+                                                    (get-box-onset selected-box)))
+                             (setf (box-w selected-box) (- (om-point-x pos) (x-to-pix self (box-x selected-box)))))
                            (om-invalidate-view self)))
              :release #'(lambda (view pos) 
                           (report-modifications editor) 
@@ -414,7 +422,7 @@
 
 ;;;===============================
 ;;; DISPLAY BOXES IN MAQUETTE TRACKS
-;;;===============================
+;;;==============================-
 
 ;;; to be redefined by objects if they have a specific miniview for the maquette
 (defmethod draw-maquette-mini-view ((object t) (box OMBox) x y w h &optional time)
@@ -446,8 +454,9 @@
     (:hidden  (om-with-font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))
                             (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
                               (om-draw-string (+ x (/ w 2) -6) (max 22 (+ 6 (/ h 2))) "P")))))
+  
   (when (find-if 'reactive (outputs self))
-    (om-draw-rect x y w h :line 2 :color (om-def-color :dark-red)))
+    (om-draw-rect x y w h :line 2 :color (om-make-color .9 .5 .6))) ; :dark-red)))
   
   (if (plusp (pre-delay self))
       (om-with-fg-color (om-def-color :red)
@@ -525,6 +534,14 @@
         (let ((obj (car selection)))
           (show-inspector obj (get-my-view-for-update (frame obj))))
       (om-beep-msg "Wrong selection for inspector..."))))
+
+
+(defmethod select-unselect-all ((self maquette-editor) val)
+  (if (equal (view-mode self) :tracks)
+      (progn (mapc #'(lambda (x) (select-box x val))
+                   (remove-if-not 'group-id (boxes (object self))))
+        (om-invalidate-view (main-view self)))
+    (call-next-method)))
 
 ;;;========================
 ;;; TIME MARKERS
@@ -787,7 +804,9 @@
    (get-g-component editor :main-maq-view)
    (if (equal mode :maquette)
        (make-maquette-view editor)
-     (make-tracks-view editor))))
+     (make-tracks-view editor)))
+  ;;; needs to be done once the views are in place...
+  (mapc 'update-connections (boxes (object editor))))
 
 (defun make-maquette-view (maq-editor)
   (let* ((ruler-maquette (om-make-view 'time-ruler 

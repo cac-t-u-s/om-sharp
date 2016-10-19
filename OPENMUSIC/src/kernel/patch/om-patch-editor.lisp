@@ -35,11 +35,11 @@
 (defmethod get-editor-view-for-action ((self patch-editor)) (main-view self))
 
 (defmethod put-patch-boxes-in-editor-view ((self OMPatch) view) 
-  (mapcar 
+  (mapc 
    #'(lambda (box) 
        (omg-add-element view (make-frame-from-callobj box)))
    (boxes self))
-  (mapcar 
+  (mapc
    #'(lambda (c) (add-connection-in-view view c)) 
    (connections self)))
 
@@ -254,7 +254,7 @@
 ;;; BASIC ACTIONS
 ;;;=============================
 
-(defmethod select-unselect-all ((self patch-editor) (val t))
+(defmethod select-unselect-all ((self patch-editor) val)
   (mapcar #'(lambda (x) (select-box x val))
           (append (boxes (object self))
                   (connections (object self))))
@@ -395,7 +395,7 @@
     (loop for c in (restore-connections-to-boxes connections boxes) do
           (omng-add-element editor c)
           (add-connection-in-view self c)
-                  ;(update-points c)
+          ;(update-points c)
           )
     (om-invalidate-view self)
     (set-om-clipboard (list (mapcar 'om-copy boxes) connections))
@@ -584,6 +584,8 @@
                             ;;; set the frame at the graphic size
                             (om-set-view-size frame (om-view-size dview)) 
                             (om-add-subviews self frame)
+                            ;;; update connections
+                            (update-connections newbox)
                             (select-box newbox t)
                             (select-box box nil)
                             (om-invalidate-view frame)
@@ -594,7 +596,7 @@
                     (cond ((equal init-patch target-patch) ;;; IN THE SAME PATCH
                            (omng-move box box-beg-position)
                            (om-set-view-position dview pos)
-                           (mapcar #'update-points (get-box-connections box))
+                           (update-connections box)
                            (redraw-connections dview)
                            t)
 
@@ -611,6 +613,7 @@
                                (om-set-view-position dview pos)
                                (om-set-view-size dview (om-view-size dview))
                                (om-add-subviews self dview)
+                               (update-connections box)
                                (om-invalidate-view dview)
                                )
                              t)

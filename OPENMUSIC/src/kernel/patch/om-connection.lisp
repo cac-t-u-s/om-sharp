@@ -82,7 +82,8 @@
 |#
 
 (defmethod update-points ((c OMConnection))
-  (when (and (area (from c)) (area (to c))) ;; the two extremities have been created already
+  ;; the two extremities have been created and ppositioned already
+  (when (and (area (from c)) (area (to c))) 
     (let* ((p1 (io-position-in-patch (area (from c))))
            (p2 (io-position-in-patch (area (to c))))
            (+x (or (car (modif c)) 0))
@@ -93,8 +94,8 @@
               (list (omp 0 0) 
                     (omp 0 8)
                     (omp (+ +x 0.5) 8)
-                    (omp (+ +x 0.5) (- (om-point-y p2) (om-point-y p1) 8))
-                    (omp 1.0 (- (om-point-y p2) (om-point-y p1) 8))
+                    (omp (+ +x 0.5) (round (- (om-point-y p2) (om-point-y p1) 8)))
+                    (omp 1.0 (round (- (om-point-y p2) (om-point-y p1) 8)))
                     (omp 1.0 1.0))
               )
             ))))
@@ -235,8 +236,6 @@
 (defmethod update-graphic-connection ((c omconnection))
   (when (graphic-connection c)
     (setf (draw-points (graphic-connection c)) (make-graphic-points c (view (graphic-connection c))))
-  ;(when (view (graphic-connection c))
-  ;  (om-invalidate-view (view (graphic-connection c))))
     (update-connection-display c (view (graphic-connection c)))
     ))
 
@@ -299,7 +298,7 @@
   (and (view self) (om-view-window (view self))))
 
 (defmethod update-connection-display ((c OMConnection) view)
-  (when view (apply 'om-invalidate-area (cons view (graphic-area c)))))
+  (when view (apply 'om-invalidate-area (cons view (graphic-area (graphic-connection c))))))
 
 ;;;=============================
 ;;; SELECTION/EDITION

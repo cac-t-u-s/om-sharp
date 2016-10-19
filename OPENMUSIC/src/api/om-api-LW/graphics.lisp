@@ -49,6 +49,7 @@
                 om-max-point
                 om-min-point
                 om-borne-point
+                om-round-point
 
                 om-make-color
                 om-gray-color
@@ -187,9 +188,11 @@
 (defmethod om-min-point ((p1 ompoint) (p2 null)) p1)
 (defmethod om-min-point ((p1 null) (p2 ompoint)) p2)
 
-
 (defun om-borne-point (p pmin pmax)
   (om-min-point (om-max-point p pmin) pmax))
+
+(defun om-round-point (p)
+  (make-ompoint :x (round (ompoint-x p)) :y (round (ompoint-y p))))
 
 ;;;=========================
 ;;;COLORS
