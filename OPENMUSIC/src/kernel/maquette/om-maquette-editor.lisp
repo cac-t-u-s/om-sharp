@@ -813,7 +813,7 @@
                                  :y2 (getf (get-range maq-editor) :y2)
                                  :size (om-make-point 30 20)
                                  :scrollbars nil :bg-color +track-color-1+))
-         (maq-view (om-make-view 'maquette-view :editor maq-editor :scrollbars t :bg-color +track-color-1+))
+         (maq-view (om-make-view 'maquette-view :editor maq-editor :scrollbars nil :bg-color +track-color-1+))
          layout)
     (set-g-component maq-editor :track-views nil)
     (set-g-component maq-editor :maq-view maq-view)
@@ -876,7 +876,7 @@
                                      :bottom-p nil :markers-p t))
          (track-views (loop for n from 1 to (n-tracks maq-editor) collect
                             (om-make-view 'sequencer-track-view :num n :size (omp nil *track-h*)
-                                          :scrollbars :h :editor maq-editor
+                                          :scrollbars nil :editor maq-editor
                                           :bg-color (nth (mod n 2) (list +track-color-1+ +track-color-2+)))))
          (metric-ruler (om-make-view 'metric-ruler 
                                       :size (om-make-point 30 20)
