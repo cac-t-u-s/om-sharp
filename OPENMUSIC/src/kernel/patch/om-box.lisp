@@ -181,6 +181,12 @@
                (:group-id "Group/Track" (:none 1 2 3 4 5 6 7 8) group-id)
                )))
 
+(defmethod update-container-groups ((self t)) (print self))
+
+(defmethod set-property ((object OMBox) (prop-id (eql :group-id)) val)
+  (call-next-method)
+  (when (container object) (update-container-groups (container object))))
+
 (defmethod close-internal-element :after ((self OMBox)) 
   (close-inspector-for-box self))
 
