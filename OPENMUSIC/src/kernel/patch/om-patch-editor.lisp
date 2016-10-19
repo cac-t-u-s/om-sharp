@@ -367,7 +367,7 @@
 
 (defmethod cut-command-for-view ((self patch-editor-view))
   (copy-command-for-view self)
-  (remove-selection self))
+  (remove-selection (editor self)))
 
 (defmethod paste-command-for-view ((self patch-editor-view))
   (let* ((boxes (car (get-om-clipboard)))

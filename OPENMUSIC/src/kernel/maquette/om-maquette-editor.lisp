@@ -180,6 +180,7 @@
 ;;;========================
 ;;; TRACK-VIEW
 ;;;========================
+;;; Note : the sequence-track-view is the 'frame' attribute for temporal boxes in the :tracks view-mode
 (defclass sequencer-track-view (multi-view-editor-view x-cursor-graduated-view omframe om-drop-view om-view)
   ((num :initarg :num :initform 0 :accessor num)))
 
@@ -476,6 +477,8 @@
       (setf (frame object) (find (group-id object) (get-g-component editor :track-views) :key 'num :test '=)))
     (mapcar 'om-invalidate-view (get-g-component editor :track-views))))
 
+(defmethod update-frame-connections-display ((self sequencer-track-view)) nil)
+
 ;;;========================
 ;;; KEYBOARD ACTIONS
 ;;;========================
@@ -506,7 +509,7 @@
                                           (contextual-update tb maquette)))
            (om-invalidate-view (window editor))
            (report-modifications editor))
-      (#\r (loop for tb in (get-selected-boxes editor) do (set-reactive tb (not (all-reactive-p tb))))
+      (#\r (loop for tb in (get-selected-boxes editor) do (set-reactive-mode tb))
            (om-invalidate-view (window editor)))
       (otherwise
        (call-next-method)

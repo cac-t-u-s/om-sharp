@@ -257,6 +257,7 @@
                                :reference (reference self)
                                :name (name self)
                                :box (box self)
+                               :reactive (reactive self)
                                :doc-string (doc-string self))))
     (setf (connections new-io)
           (mapcar 

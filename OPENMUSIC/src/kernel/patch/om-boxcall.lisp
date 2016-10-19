@@ -78,12 +78,14 @@ All boxes which their reference is a OM generic function are instances of this c
 
 
 (defmethod set-reactive-mode ((box OMBox)) 
-  (set-reactive box (not (all-reactive-p box)))
-  (update-inspector-for-box box)
-  (om-invalidate-view (frame box))
-  (update-frame-connections-display (frame box))
-  (when (container box)
-    (report-modifications (editor (container box)))))
+  (if (or (inputs box) (outputs box))
+      (progn (set-reactive box (not (all-reactive-p box)))
+        (update-inspector-for-box box)
+        (om-invalidate-view (frame box))
+        (update-frame-connections-display (frame box))
+        (when (container box)
+          (report-modifications (editor (container box)))))
+    (om-print "Boxes must have inputs or outputs to be set reactive"))) 
 
 
 ;;; from inspector

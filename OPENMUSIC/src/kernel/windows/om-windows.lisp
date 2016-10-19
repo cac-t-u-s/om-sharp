@@ -7,6 +7,7 @@
 ;;; GENERAL MENU AND COMMANDS
 ;;;===============================
 
+;;; SELF = editor (in general...)
 (defun default-file-menu-items (self)
   (list (om-make-menu "New..." 
                       (list (om-make-menu-comp 
@@ -123,13 +124,6 @@
 (defmethod cut-command (self) nil)
 (defmethod paste-command (self) nil)
 (defmethod clear-command (self) nil)
-
-(defmethod copy-command ((self om-editable-text))
-  (om-copy-command self))
-(defmethod cut-command ((self om-editable-text))
-  (om-cut-command self))
-(defmethod paste-command ((self om-editable-text))
-  (om-paste-command self))
 
 (defmethod close-command (self) 
   #'(lambda () (om-close-window (om-front-window))))
