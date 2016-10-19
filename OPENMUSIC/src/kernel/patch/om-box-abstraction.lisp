@@ -112,11 +112,6 @@
       (omng-delete patch)))
   (call-next-method))
 
-;;; pre-delay for sequencer
-(defmethod set-property ((object OMBoxAbstraction) (prop-id (eql :pre-delay)) val)
-  (setf (pre-delay object) val)
-  (call-next-method))
-
 
 ;;;=======================
 ;;; THESE BEHAVIOURS DIFFER BETWEEN 
