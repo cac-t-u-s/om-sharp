@@ -527,15 +527,6 @@
       )))
 
 
-(defmethod show-inspector-window ((self maquette-editor))
-  (let ((selection (append (get-selected-boxes self)
-                           (get-selected-connections self))))
-    (if (= 1 (length selection))
-        (let ((obj (car selection)))
-          (show-inspector obj (get-my-view-for-update (frame obj))))
-      (om-beep-msg "Wrong selection for inspector..."))))
-
-
 (defmethod select-unselect-all ((self maquette-editor) val)
   (if (equal (view-mode self) :tracks)
       (progn (mapc #'(lambda (x) (select-box x val))
