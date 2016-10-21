@@ -77,7 +77,7 @@
   (loop for tb in (get-all-boxes self) maximize (get-box-end-date tb)))
 
 (defmethod get-all-boxes ((self OMMaquette) &key (sorted nil))
-  (let ((boxes (boxes self)))
+  (let ((boxes (remove-if #'(lambda (obj) (eq (type-of obj) 'omlispfboxcall)) (boxes self))))
     (if sorted (sort boxes '< :key 'get-box-onset) boxes)))
 
 (defmethod get-all-objects ((self OMMaquette) &key (sorted nil))

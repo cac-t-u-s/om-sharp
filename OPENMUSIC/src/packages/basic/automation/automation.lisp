@@ -76,6 +76,15 @@
    (c-points :initform '(0.5 0.5) :accessor c-points :initarg :c-points))
   (:default-initargs :interpol t :interpol-time 10))
 
+
+(defmethod automation-stretch ((self automation) k)
+  (let ((res (make-instance 'automation)))
+    (setf (point-list res) (mapcar #'(lambda (pt)
+                                       (let ((ptn (om-copy pt)))
+                                         (setf (ap-x ptn) (* (ap-x ptn) k))
+                                         ptn)) (point-list self)))
+    res))
+
 ;(defmethod x-points ((self automation))
 ;  (mapcar 'start-date (point-list self)))
 ;(defmethod y-points ((self automation))
@@ -142,15 +151,13 @@
            (start-value self)))))
 
 ;;;Initialization
-;(defmethod initialize-instance :after ((self automation) &rest args) 
-;  (setf (point-list self) (loop for x in (or (getf args :x-points) '(0 2000))
-;                                for y in (or (getf args :y-points) '(0 100))
-;                                for coeff in (or (getf args :c-points) '(0.5 0.5))
-;                                collect
-;                                (make-automation-point :x x :y y :coeff coeff)))
-;  (loop for pt in (point-list self)
-;        do (setf (ap-fun pt) (get-function pt self)))
-;  self)
+(defmethod initialize-instance :after ((self automation) &rest args)
+  (loop for coeff in (getf args :c-points)
+        for pt in (point-list self)
+        do
+        (setf (ap-coeff pt) coeff))
+  self)
+
 
 (defmethod set-bpf-points ((self automation) &key x y z time time-types)
   (setf (point-list self)  (make-points-from-lists (or x (x-values-from-points self)) ;  (slot-value self 'x-points))

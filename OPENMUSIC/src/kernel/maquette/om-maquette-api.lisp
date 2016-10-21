@@ -88,6 +88,9 @@
   (if tracknum
       (get-track-objects self tracknum)))
 
+(defmethod m-objects ((self OMMaquette) &optional (sorted t))
+  (get-all-objects self :sorted sorted))
+
 (defmethod m-flush ((self ommaquette))
   (loop for box in (get-all-boxes self)
         do
