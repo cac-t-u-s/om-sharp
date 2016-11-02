@@ -51,7 +51,7 @@
 
 (defmethod gen-code-keywords ((self OMBoxcall))
   (loop for key-in in (get-keyword-inputs self) 
-        append (list (name key-in) (gen-code key-in))))
+        append (list (intern-k (name key-in)) (gen-code key-in))))
 
 (defmethod gen-code ((self box-input) &optional numout)
    (declare (ignore numout))
