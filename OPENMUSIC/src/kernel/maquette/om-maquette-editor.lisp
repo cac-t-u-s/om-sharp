@@ -658,12 +658,9 @@
            :bg-color +track-color-2+
            :subviews 
            (list
-            (om-make-layout 
-             'om-simple-layout :position (om-make-point 2 4)
-             :subviews (list (make-time-monitor editor :color (om-def-color :white) :format t)))
             (om-make-layout
              'om-row-layout :delta 30 :position (om-make-point (+ *track-control-w* 2) 2) :align :bottom
-             :ratios '(1 1 100 1 1)
+             :ratios '(1 1 100 1 1 1)
              :subviews 
              (list
               (om-make-layout
@@ -751,7 +748,12 @@
                                        (with-schedulable-object maquette
                                                                 (setf (no-exec maquette) 
                                                                       (not (no-exec maquette)))))))
-                 (list b1 b2 b3 b4))))))))
+                 (list b1 b2 b3 b4)))
+              (om-make-layout 
+               'om-simple-layout :position (om-make-point 2 4)
+               :subviews (list (make-time-monitor editor :color (om-def-color :white) :format t)))
+              
+              )))))
 
          (bottom-view
           (om-make-layout 
