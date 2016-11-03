@@ -12,6 +12,7 @@
    (vel :accessor vel :initarg :vel :initform 1 :documentation "MIDI channel (1-16)")
    (dur :accessor dur :initarg :dur :initform 0 :documentation "value(s)")
    (channel :accessor channel :initarg :channel :initform 0 :documentation "Target MIDI port")))
+           
 
 (defun midinote-onset (midinote) (date midinote))
 (defun midinote-pitch (midinote) (pitch midinote))
@@ -55,6 +56,9 @@
 (defclass* piano-roll (data-stream)
   ((midi-notes :accessor midi-notes :initarg :midi-notes :initform '() :documentation "a list of midi-note"))
   (:default-initargs :default-frame-type 'midi-note))
+
+(defmethod (setf midi-notes) (notes (self piano-roll)) (print notes)
+  (setf (slot-value self 'midi-notes) (sort notes '< :key 'midinote-onset)))
 
 (defmethod data-stream-frames-slot ((self piano-roll)) 'midi-notes)
 
@@ -121,7 +125,7 @@
            
            (remove-if #'(lambda (note) (or (< (midinote-end note) (car interval))
                                            (> (midinote-onset note) (cadr interval))))
-                      (sort (midi-notes object) '< :key 'midinote-onset)))
+                      (midi-notes object)))
    '< :key 'car))
 
 
