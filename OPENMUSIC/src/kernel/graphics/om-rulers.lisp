@@ -19,11 +19,10 @@
 
 (defmethod set-shift-and-factor ((self t)) nil)
 
-(defmethod x1 ((self x-graduated-view))
-  (or (slot-value self 'x1) 0))
-
-(defmethod x2 ((self x-graduated-view))
-  (or (slot-value self 'x2) 0))
+;(defmethod x1 ((self x-graduated-view))
+;  (or (slot-value self 'x1) 0))
+;(defmethod x2 ((self x-graduated-view))
+;  (or (slot-value self 'x2) 0))
 
 (defmethod set-shift-and-factor ((self x-graduated-view))
   (let ((range (- (x2 self) (x1 self))))
