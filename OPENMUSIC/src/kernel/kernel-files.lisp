@@ -71,12 +71,13 @@
         "environment/om-library"
         "environment/om-workspace" 
         "environment/om-general-prefs"   
-
-       
+   
         "windows/om-windows"
         "windows/om-main-window"
         "windows/om-editor"
-        
+        "windows/om-multi-editor"
+        "windows/om-inspector"
+
         "patch/om-box"
         "patch/om-boxcall"
         "patch/om-boxsimple"
@@ -97,11 +98,7 @@
         "patch/om-comments"
         "patch/om-encapsulation"
         "patch/om-lost-reference"
-
-        "windows/om-multi-editor"
-        "windows/om-inspector"
-        
-        "lisp-function/om-lisp-function"
+ 
 
         "basic/om-data-structures"
         "basic/om-file-utils"
@@ -118,15 +115,18 @@
         "play/box-player"
         "play/editor-player"
         "play/players"
-
+        
         "maquette/om-maquette"  
         "maquette/om-maquette-editor"
         "maquette/om-metric-ruler"
         "maquette/om-maquette-api"
         "maquette/om-maquette-meta"
-        
-        "environment/om-copy"
-        "environment/om-save"
+
+        "lisp-function/om-lisp-function"
+                
+        "utils/om-copy"
+        "utils/om-save"
+
         "kernel-pack"
              
         ))

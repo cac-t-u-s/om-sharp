@@ -22,12 +22,7 @@
     (handle-multi-editor-click self (container-editor (editor self))))
   (call-next-method))
 
-(defmethod om-view-click-handler :around ((self OMBoxFrame) position)
-  (declare (ignore position))
-  (when (and (editor (om-view-container self))
-             (container-editor (editor (om-view-container self))))
-    (handle-multi-editor-click (om-view-container self) (container-editor (editor (om-view-container self)))))
-  (call-next-method))
+;;; this method is also defined for OMBoxFrame
 
 (defmethod dispatch-key-action ((self multi-view-editor) key) 
   (if (and (selected-view self) 

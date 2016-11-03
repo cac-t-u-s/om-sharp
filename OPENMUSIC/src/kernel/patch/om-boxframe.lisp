@@ -540,6 +540,14 @@
     (apply-in-area self 'click-in-area position)
     ;(and (selected (object self)) (not (om-command-key-p)) (edit-area self position))
     self))
+
+;;; handle boxframe click in multi-editor-view
+(defmethod om-view-click-handler :around ((self OMBoxFrame) position)
+  (declare (ignore position))
+  (when (and (editor (om-view-container self))
+             (container-editor (editor (om-view-container self))))
+    (handle-multi-editor-click (om-view-container self) (container-editor (editor (om-view-container self)))))
+  (call-next-method))
   
 (defmethod om-view-cursor ((self OMBoxFrame))
   (let ((aa (active-area-at-pos self (om-mouse-position self))))
