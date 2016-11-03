@@ -77,8 +77,7 @@
   (loop for tb in (get-all-boxes self) maximize (get-box-end-date tb)))
 
 (defmethod get-all-boxes ((self OMMaquette) &key (sorted nil))
-  (let ((boxes (boxes self)))
-    (if sorted (sort boxes '< :key 'get-box-onset) boxes)))
+  (if sorted (sort (copy-list (boxes self)) '< :key 'get-box-onset) (copy-list (boxes self))))
 
 (defmethod get-all-objects ((self OMMaquette) &key (sorted nil))
   (mapcar 'get-box-value (remove-if #'(lambda (obj) (eq (type-of obj) 'omlispfboxcall))
@@ -177,15 +176,15 @@
   (sort 
    (if (not (no-exec self))
        (loop for box in (get-all-boxes self :sorted t)
-        when (box-cross-interval box time-interval)
-        when (not (and (all-reactive-p box) (not (ready box))))
-        append
-        (let ((interval-in-object (list
-                                   (max (- (car time-interval) (get-box-onset box)) 0)
-                                   (min (- (cadr time-interval) (get-box-onset box)) (get-box-duration box)))))
-          (mapcar 
-           #'(lambda (b) (incf (car b) (get-box-onset box)) b)
-           (get-action-list-for-play (get-box-value box) interval-in-object self)))))
+             when (box-cross-interval box time-interval)
+             when (not (and (all-reactive-p box) (not (ready box))))
+             append
+             (let ((interval-in-object (list
+                                        (max (- (car time-interval) (get-box-onset box)) 0)
+                                        (min (- (cadr time-interval) (get-box-onset box)) (get-box-duration box)))))
+               (mapcar 
+                #'(lambda (b) (incf (car b) (get-box-onset box)) b)
+                (get-action-list-for-play (get-box-value box) interval-in-object self)))))
    '< :key 'car))
 
 (defmethod set-object-time ((self ommaquette) time)
