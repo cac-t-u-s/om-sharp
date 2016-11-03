@@ -10,7 +10,8 @@
 (defclass om-main-window (om-window)  
   ((ws-elements-view :accessor elements-view :initform nil)
    (package-view :accessor package-view :initform nil)
-   (libs-view :accessor libs-view :initform nil)))
+   (libs-view :accessor libs-view :initform nil)
+   (main-layout :accessor main-layout :initform nil)))
 
 ; (show-main-om-window)
 
@@ -23,23 +24,35 @@
                                                               '(""))))
                                :size (om-make-point 300 300)
                                :menu-items (om-menu-items nil))))
-      (om-add-subviews win
-                       (om-make-layout 
-                        'om-tab-layout 
-                        :subviews (list 
-                                   (setf (elements-view win)
-                                         (make-ws-elements-tab))
-                                   (setf (package-view win)
-                                         (make-om-package-tab))
-                                   (setf (libs-view win)
-                                         (make-libs-tab))
-                                   )))
+      (setf (elements-view win) (make-ws-elements-tab)
+            (package-view win) (make-om-package-tab)
+            (libs-view win) (make-libs-tab))
+      (om-add-subviews win (setf (main-layout win) 
+                                 (om-make-layout 'om-tab-layout
+                                                 :subviews (list (elements-view win) 
+                                                                 (package-view win) 
+                                                                 (libs-view win)))))
       (setf *om-main-window* win)
       (om-show-window win))))
 
 (defmethod om-window-close-event ((self om-main-window))
   (setf *om-main-window* nil))
 
+(defmethod update-main-window-contents ((win om-main-window))
+  (om-remove-all-subviews (print (main-layout win)))
+  ;(setf (elements-view win) (make-ws-elements-tab)
+  ;      (package-view win) (make-om-package-tab)
+  ;      (libs-view win) (make-libs-tab))
+  ;(om-add-subviews (main-layout win)
+  ;                 (elements-view win) 
+  ;                 (package-view win) 
+  ;                 (libs-view win))
+  )
+  
+
+(defmethod om-clicked-item-from-tree-view ((self OMLib) (window om-main-window)) 
+  (load-om-library self)
+  (update-main-window-contents window))
 
 ;;;===========================================
 ;;; WS TAB
@@ -242,15 +255,16 @@
 ;;; PACKAGES
 ;;;===========================================
 
-(defmethod get-sub-items ((self OMPackage))
+(defmethod get-sub-items ((self OMAbstractPackage))
   (append (subpackages self) (classes self) (functions self)))
 
 (defmethod get-sub-items ((self t)) nil)
 
-(defmethod get-icon ((self OMPackage)) 'icon-pack)
+(defmethod get-icon ((self OMAbstractPackage)) 'icon-pack)
 (defmethod get-icon ((self Function)) 'icon-fun)
 (defmethod get-icon ((self OMGenericFunction)) 'icon-genfun)
 (defmethod get-icon ((self OMClass)) 'icon-class)
+(defmethod get-icon ((self OMLib)) (if (loaded? self) 'icon-lib-loaded 'icon-lib))
 
 (defun make-om-package-tab ()
   (let* ((pack *om-package-tree*))
@@ -268,14 +282,14 @@
        ))))
 
 (defun make-libs-tab ()
-  (let* ((pack *om-libs-tree*))
-    (let ((libs-tree-view (om-make-tree-view (subpackages *om-libs-tree*) 
+  (let* ((pack *om-libs-root-package*))
+    (let ((libs-tree-view (om-make-tree-view (subpackages *om-libs-root-package*) 
                                              :expand-item 'get-sub-items
                                              :print-item 'get-name
                                              :font (om-def-font :font1)
                                              :bg-color (om-def-color :light-gray)
                                              :item-icon #'(lambda (item) (get-icon item))
-                                             :icons (list 'icon-pack 'icon-fun 'icon-genfun 'icon-class)
+                                             :icons (list 'icon-pack 'icon-fun 'icon-genfun 'icon-class 'icon-lib-loaded 'icon-lib)
                                              )))
       (om-make-layout 
        'om-simple-layout :name "Libraries"

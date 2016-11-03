@@ -2,7 +2,8 @@
 
 
 (export '(om-item-tree
-          om-make-tree-view) :om-api)
+          om-make-tree-view
+          om-clicked-item-from-tree-view) :om-api)
 
 ;;; the capi::extended-selection-tree-view may be better (?)
 ;;; but the simple one looks better...
@@ -32,16 +33,16 @@
                     ((or (functionp item-icon) 
                          (and (symbolp item-icon) (fboundp item-icon)))
                      (if icons 
-                         #'(lambda (item) (position (funcall item-icon item) icons)) 
+                         #'(lambda (item) (position (funcall item-icon item) icons))
                        item-icon))
                      ((null item-icon) item-icon)
                      (t #'(lambda (icon) item-icon)))
-                 ;:callback-type :interface-data
+                   :callback-type :interface-data
                    :print-function (or print-item #'(lambda(x) (format nil "~a"  x )))
                  ;:selection-callback #'(lambda (self item) (add-a-message self  "~&Selected item ~S" item))
                  ;:extend-callback #'(lambda (self item)(add-a-message self  "~&Extended item ~S" item))
                  ;:retract-callback  #'(lambda (self item) (add-a-message self "~&Retracted item ~S" item))
-                 ;:action-callback 'test-extend-tree-view-action-function 
+                   :action-callback 'test-extend-tree-view-action-function 
                  ;:delete-item-callback 'test-extend-tree-view-delete-callback
                    )))
 
@@ -53,10 +54,16 @@
          (stream (capi:collector-pane-stream message-pane)))
     (apply 'format stream format-string args)))
     
-(defun test-extend-tree-view-action-function (self item)
-  (with-slots (tree) self
-    (capi:tree-view-update-item tree item t))
-  (add-a-message self "~&Action item ~S" item))
+
+(defmethod om-clicked-item-from-tree-view (item window) nil)
+
+(defun test-extend-tree-view-action-function (window item)
+  (om-clicked-item-from-tree-view item window))
+  ;(print (list self item))
+  ;(with-slots (tree) self
+  ;  (capi:tree-view-update-item tree item t))
+  ;(add-a-message self "~&Action item ~S" item)
+
 
 ;;; The undocumented interface in 6.0 for :delete-item-callback
 ;;; changed in 6.1, and this code show a way of coding
