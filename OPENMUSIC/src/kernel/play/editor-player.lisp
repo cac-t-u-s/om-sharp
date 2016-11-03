@@ -102,16 +102,21 @@
                 (om-invalidate-view (window self)))
    :min-move 4))
 
+(defmethod editor-fix-interval ((self play-editor-mixin) interval &key (high-bound nil))
+  (list (max 0 (car interval)) (if high-bound
+                                   (min (get-obj-dur (get-obj-to-play self)) (cadr interval))
+                                 (cadr interval))))
 
 (defmethod editor-set-interval ((self t) interval) nil)
 
 (defmethod editor-set-interval ((self play-editor-mixin) interval)
-  (setf (play-interval self) interval)
-  (set-object-interval (get-obj-to-play self) interval)
-  (mapcar #'(lambda (p) 
-              (setf (cursor-interval p) interval)
-              (om-invalidate-view p))
-          (cursor-panes self)))
+  (let ((inter (editor-fix-interval self interval)))
+    (setf (play-interval self) inter)
+    (set-object-interval (get-obj-to-play self) inter)
+    (mapcar #'(lambda (p) 
+                (setf (cursor-interval p) inter)
+                (om-invalidate-view p))
+            (cursor-panes self))))
 
 
 (defmethod editor-reset-interval ((self play-editor-mixin))
