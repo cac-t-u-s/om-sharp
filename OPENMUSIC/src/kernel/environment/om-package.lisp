@@ -17,6 +17,8 @@ For easier browsing it is recommended that a package do not contain at the same 
 
 <elements> is a lst of subpackages"))
 
+
+
 (defclass OMPackage (OMAbstractPackage OMFolder) ())
 
 ;;; used when the package corresponds to a 'real' folder, e.g. for external libraries
@@ -24,20 +26,27 @@ For easier browsing it is recommended that a package do not contain at the same 
 
 (defvar *om-package-tree* (make-instance 'OMPackage :name "OM Root Package") "The package of all OM predefined functions and classes")
 
-(defmethod subpackages ((self OMPackage)) (elements self))
 
-(defmethod omNG-add-element ((self OMPackage) (element OMPackage))
+(defmethod subpackages ((self OMAbstractPackage)) (elements self))
+
+(defmethod omNG-add-element ((self OMAbstractPackage) (element OMPackage))
   (setf (elements self) (append (elements self) (list element))))
 
-(defmethod omNG-add-element ((self OMPackage) (element OMClass))
+(defmethod omNG-add-element ((self OMAbstractPackage) (element OMClass))
   (setf (classes self) (append (classes self) (list element))))
 
-(defmethod omNG-add-element ((self OMPackage) (element function))
+(defmethod omNG-add-element ((self OMAbstractPackage) (element function))
   (setf (functions self) (append (functions self) (list element))))
 
+;;; Empty package
+(defmethod CleanupPackage ((self OMAbstractPackage))
+  (setf (elements self) nil
+        (functions self) nil
+        (classes self) nil
+        (aliasclasses self) nil))
 
 ;;; Determines in <container> is a ancestor (container) of <self>
-(defmethod ancestor-p ((self OMPackage) (container OMPackage))
+(defmethod ancestor-p ((self OMAbstractPackage) (container OMAbstractPackage))
   (or (eq self container) 
       (let ((ancestor nil))
         (loop for pack in (subpackages self)
@@ -78,14 +87,16 @@ For easier browsing it is recommended that a package do not contain at the same 
 (defmethod get-name ((self function)) (string-downcase (function-name self)))
 
 ; (get-all-symbol-names *om-package-tree*)
-(defmethod get-all-symbol-names ((self OMPackage))
+(defmethod get-all-symbol-names ((self OMAbstractPackage))
   (append (mapcar 'get-name (functions self))
           (mapcar 'get-name (classes self))
           (loop for item in (elements self) append (get-all-symbol-names item))))
 
 
+
+
 ;;; Fill package tools : Subpackages
-(defmethod AddPackage2Pack ((new-Package OMPackage) inPackage)
+(defmethod AddPackage2Pack ((new-Package OMAbstractPackage) inPackage)
     (unless (member (name new-Package) (subpackages inPackage) :test 'string-equal :key 'name)
       (omNG-add-element inPackage new-package)
       new-package))
@@ -119,8 +130,6 @@ For easier browsing it is recommended that a package do not contain at the same 
 
 (defmethod AddFun2Pack ((funname list) inPackage)
    (mapcar #'(lambda (fun) (AddGenFun2Pack fun inPackage)) funname))
-
-
 
 ; Creates a package tree form a list of strings (names) and symbols, with pack as root
 (defun omNG-make-package  (package-name &key doc container-pack subpackages functions classes)

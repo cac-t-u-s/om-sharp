@@ -33,7 +33,7 @@
 ;===========================
 ;; OMPersistantObject
 (defclass OMClass (standard-class OMBasicObject) 
-   ((lib-class-p :initform nil :accessor lib-class-p)
+   ((library :initform nil :accessor library)
     (internal-met :initform nil :accessor internal-met)
     ;(slot-docs :initform nil :accessor slot-docs)
     )
@@ -71,7 +71,7 @@ This class is a OMClass a diferencia of OMClass.#enddoc#
    ((numouts :initform nil :accessor numouts)
     (protected-p :initform nil :accessor protected-p :initarg :protected-p)
     (inputs-default :initform nil :accessor inputs-default)
-    (lib-fun-p :initform nil :accessor lib-fun-p)
+    (library :initform nil :accessor library)
     (inputs-doc :initform nil :accessor inputs-doc)
     (outputs-doc :initform nil :accessor outputs-doc)
     (inputs-menus :initform nil :accessor inputs-menus))
@@ -80,7 +80,7 @@ This class is a OMClass a diferencia of OMClass.#enddoc#
 #seealso# (ommethod) #seealso#
 #numouts# Multiple values are allowed in OM, but it must be specified in the definition of the function. #numouts#
 #inputs-default# This slot containt a list of default values for each arg in the function's lambda list. #inputs-default#
-#lib-fun-p# Non nil, if the function was defined in a Library. #lib-fun-p#
+#library# Non nil if the function was defined in a Library. #library#
 #inputs-doc# This slot containt a list of string doc for each arg in the function's lambda list. #inputs-doc#
 #inputs-menus# Some arg choose values from a pop-up-menu, this slot contains this information #inputs-menus#")
   (:metaclass  funcallable-standard-class)

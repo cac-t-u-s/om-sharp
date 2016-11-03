@@ -194,7 +194,8 @@
   
   ;;; start workspace (maybe)
   ;(start-workspace)
-  
+  (register-all-libraries)
+
   (save-om-preferences)
   
   ;;;(in-package :om-user)
