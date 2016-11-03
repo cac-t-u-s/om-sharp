@@ -40,7 +40,7 @@
           om-make-listener
           om-listener-echo
           om-listener-abort
-          om-print *om-verbose*
+          om-print om-print-format *om-verbose*
           *om-stream*
           om-show-error-backtrace
           om-shell
@@ -94,6 +94,9 @@
 
 (defun om-print (str &optional prompt)  
   (when *om-verbose* (format *om-stream* "~A :: ~A~%" (or prompt "") str) str))
+
+(defun om-print-format (format-string args &optional prompt)  
+  (om-print (format nil format-string args) prompt))
 
 
 ;;;=============================
