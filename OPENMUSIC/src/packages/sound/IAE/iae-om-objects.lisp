@@ -5,6 +5,7 @@
 (defclass* iae (om-cleanup-mixin data-stream)
  ((iaeengine-ptr :accessor iaeengine-ptr :initform nil)
   (sounds :initarg :sounds :accessor sounds :initform nil)
+  (channels :initarg :channels :accessor channels :initform 1)
   (max-dur :initarg :max-dur :accessor max-dur :initform 10000)
   (grains :initarg :grains :accessor grains :initform nil)
   (descriptors :accessor descriptors :initform nil)
@@ -29,14 +30,17 @@
 ;been modified to 100 to 0 for test...
 (defmethod initialize-instance :after ((self iae) &rest initargs)
   (om-print (format nil "new engine for ~A" self) "OM")
-  (setf (iaeengine-ptr self) (iae::iae_new *iae-sr* 512 1 1))
+  (setf (iaeengine-ptr self) (iae::iae_new *iae-sr* 512 (channels self) 1))
   (set-object-time-window self 0)
   (let* ((size (round (* (max-dur self) *iae-sr*) 1000))
          (audio-buffer (fli::allocate-foreign-object 
-                        :type :pointer :nelems 1
-                        :initial-contents (list (fli::allocate-foreign-object :type :float :nelems size :initial-element 0.0)))))
+                        :type :pointer :nelems (channels self)
+                        :initial-contents (loop for c from 1 to (channels self)
+                                                collect
+                                                (fli::allocate-foreign-object :type :float :nelems size :initial-element 0.0)))))
+    
     (setf (buffer-player self) 
-          (make-player-from-buffer audio-buffer size 1 *iae-sr*))))
+          (make-player-from-buffer audio-buffer size (channels self) *iae-sr*))))
 
 
 (defmethod om-init-instance ((self iae) &optional args)
@@ -134,9 +138,9 @@
   (when (iaeengine-ptr self)
     (let* ((*iae (iaeengine-ptr self))
            (nsamples (ceiling (* dur *iae-sr* 0.001)))
-           (omsnd (make-instance 'om::om-internal-sound :n-channels 1 :smpl-type :float
+           (omsnd (make-instance 'om::om-internal-sound :n-channels (channels self) :smpl-type :float
                                  :n-samples nsamples :sample-rate 44100))
-           (**samples (make-audio-buffer 1 nsamples)))
+           (**samples (make-audio-buffer (channels self) nsamples)))
 
 ;   Granular = 0,    asynchronous granular synthesis
 ;   Segmented = 1,   concatenative synthesis (needs at least 1 marker)
@@ -154,17 +158,17 @@
       (iae::iae_set_period *iae -0.0d0 0.0d0)
       (iae::iae_set_duration *iae (coerce dur 'double-float) 0.0d0)
       (iae::iae_trigger *iae)
-      (iae::iae_synth *iae nsamples **samples 1)
-      (setf (om::buffer omsnd) (om::make-om-sound-buffer :ptr **samples :count 1 :nch 1))
+      (iae::iae_synth *iae nsamples **samples (channels self))
+      (setf (om::buffer omsnd) (om::make-om-sound-buffer :ptr **samples :count 1 :nch (channels self)))
       omsnd)))
 
 (defmethod iae-synth-desc ((self iae) descriptor value dur)
   (when (iaeengine-ptr self)
     (let* ((*iae (iaeengine-ptr self))
            (nsamples (ceiling (* (max dur 500) *iae-sr* 0.001)))
-           (omsnd (make-instance 'om::om-internal-sound :n-channels 1 :smpl-type :float
+           (omsnd (make-instance 'om::om-internal-sound :n-channels (channels self) :smpl-type :float
                                  :n-samples nsamples :sample-rate 44100))
-           (**samples (make-audio-buffer 1 nsamples))
+           (**samples (make-audio-buffer (channels self) nsamples))
            (framedescbuffer (fli::allocate-foreign-object :type :float :nelems (length (descriptors self)))))
       
 ;   Granular = 0,    asynchronous granular synthesis
@@ -199,9 +203,9 @@
       ;  (print (format nil "VALUE: ~D found in buffer ~D - index ~D - time=~D" value selbuf selind seltime))
       ;  )
       ;(iae::iae_trigger *iae)
-      (iae::iae_synth *iae nsamples **samples 1)
+      (iae::iae_synth *iae nsamples **samples (channels self))
 
-      (setf (om::buffer omsnd) (om::make-om-sound-buffer :ptr **samples :count 1 :nch 1))
+      (setf (om::buffer omsnd) (om::make-om-sound-buffer :ptr **samples :count 1 :nch (channels self)))
       omsnd)))
 
 
@@ -210,19 +214,19 @@
   (when (buffer-player iae)
     (let ((pos (round (* at *iae-sr*) 1000))
           (size (round (* dur *iae-sr*) 1000)))
-      (dotimes (i size)
-        (unless (>= i (bp-size (buffer-player iae)))
-          (setf (fli:dereference (fli:dereference (bp-buffer (buffer-player iae)) :index 0 :type :pointer) :index (+ pos i) :type :float)
-                (+ (fli:dereference (fli:dereference (bp-buffer (buffer-player iae)) :index 0 :type :pointer) :index (+ pos i) :type :float)
-                   (fli:dereference (fli:dereference (om-sound-buffer-ptr (om::buffer audiobuffer)) :index 0 :type :pointer) :index i :type :float)))
-          )))))
+      (dotimes (c (channels iae))
+        (dotimes (i size)
+          (unless (>= i (bp-size (buffer-player iae)))
+            (setf (fli:dereference (fli:dereference (bp-buffer (buffer-player iae)) :index c :type :pointer) :index (+ pos i) :type :float)
+                  (+ (fli:dereference (fli:dereference (bp-buffer (buffer-player iae)) :index c :type :pointer) :index (+ pos i) :type :float)
+                     (fli:dereference (fli:dereference (om-sound-buffer-ptr (om::buffer audiobuffer)) :index c :type :pointer) :index i :type :float)))
+            ))))))
 
 (defun iae-reset (iae)
   (when (buffer-player iae)
-    (let ((pos (round (* at *iae-sr*) 1000))
-          (size (round (* dur *iae-sr*) 1000)))
+    (dotimes (c (channels iae))
       (dotimes (i (bp-size (buffer-player iae)))
-        (setf (fli:dereference (fli:dereference (bp-buffer (buffer-player iae)) :index 0 :type :pointer) :index i :type :float) 0.0)))))
+        (setf (fli:dereference (fli:dereference (bp-buffer (buffer-player iae)) :index c :type :pointer) :index i :type :float) 0.0)))))
 
 
 ; (gc-all)
@@ -282,6 +286,24 @@
 ;;;Methods redefinitions using the slot "data" of schedulable object to bypass actions rendering and store the las pointer
 ;;;============================================
 
+(defmethod add-random-descriptor-grain ((self IAE) descriptor)
+  (let ((durtot (max-dur self))
+        (mindur 50)
+        (maxdur 300)
+        (source (random (length (sounds self)))))
+    (push (make-instance 'IAE-grain 
+                               :date (om-random 0 durtot)
+                               :source (om-random 0 (1- (length (sounds self))))
+                               :pos (om-random 0 (sound-dur-ms (nth source (sounds self))))
+                               :duration (om-random mindur maxdur)) (grains self))
+
+   ; (push (make-instance 'IAE-request :date (om-random 0 durtot)
+   ;                      :descriptor 0
+   ;                      :value (om-random 100 1000)
+   ;                      :duration (om-random mindur maxdur)) (grains self))
+    
+    (sort (grains self) '< :key 'date)))
+
 (defmethod make-grain-from-frame ((self IAE) (frame IAE-grain))
   (iae-synth self (source frame) (pos frame) (duration frame)))
 
@@ -291,7 +313,7 @@
 (defmethod get-computation-list ((object iae) &optional interval)
   (mapcar 
    #'(lambda (frame) 
-       (list (- (date frame) 0)
+       (list (- (date frame) (time-window object))
              (date frame)
              #'(lambda ()
                  (iae-add-grain object
