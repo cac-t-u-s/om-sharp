@@ -18,22 +18,20 @@
 (compile&load (namestring (om-relative-path '("sources") "pm2-additive")))
 (compile&load (namestring (om-relative-path '("sources") "pm2-preferences")))
 
-  (om::fill-library 
- '(("Analysis" nil nil (partial-tracking chord-seq-analysis pm2-f0) nil)
-   ("Synthesis" nil nil (pm2-add-synth) nil)
+(set-library-packages 
+ '(("Analysis" (partial-tracking chord-seq-analysis pm2-f0) nil nil)
+   ("Synthesis" (pm2-add-synth) nil nil)
    ))
 
-
-(unless (fboundp 'om::set-lib-release) (defmethod om::set-lib-release (version &optional lib) nil))
-
-
-(om::set-lib-release 1.4)
-
-(print "
-;;;===========================================================================
-;;; OM-pm2 1.3
+(om::doc-library 
+ 1.4
+ (print "
+;;;============================================
+;;; OM-pm2:
 ;;; pm2 additive analysis/synthesis in OpenMusic
 ;;;
 ;;; (c) IRCAM 2006-2010
-;;;===========================================================================
-")
+;;;============================================
+"))
+
+

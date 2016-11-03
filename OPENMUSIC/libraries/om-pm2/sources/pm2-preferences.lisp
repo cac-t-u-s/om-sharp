@@ -37,7 +37,7 @@
 ;;; PM2 PREFS
 
 ;(pushr 'pm2 *external-prefs*)
-(add-external-pref-module 'pm2)
+;;; (add-external-pref-module 'pm2)
 
 (defmethod get-external-name ((module (eql 'pm2))) "PM2")
 (defmethod get-external-icon ((module (eql 'pm2))) (and (exist-lib-p "OM-pm2") (list 953 (exist-lib-p "OM-pm2"))))
@@ -77,7 +77,7 @@
       (setf *PM2-PATH* (find-true-external (get-pref moduleprefs :pm2-path))))
     ))
 
-(put-external-pref-values 'pm2)
+;;; (put-external-pref-values 'pm2)
 
 ;(defmethod show-external-prefs-dialog ((module (eql 'pm2)) prefvals)
 ;  (om-beep-msg "NO OPTIONS FOR PM2")

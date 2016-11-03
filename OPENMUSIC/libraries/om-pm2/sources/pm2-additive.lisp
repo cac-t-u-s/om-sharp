@@ -403,32 +403,32 @@ CHORD-SEQ can also be connected and are iternally converted to an SDIF file as w
  (pm2-synthesis (filepathname partiels) :attack attack :release release :sr sr :res res :outfile outfile
                 :nchannels (length (sdifstreams partiels))))
 
-(defmethod! pm2-add-synth ((seq sdif-buffer) &key
-                           (attack 0.01) (release 0.01)
-                           sr res (outfile "pm2-out.aiff"))
-  (let* ((sdiftmp (tmpfile "chords.sdif"))
-         (sdiffile (save-sdif-file seq :out sdiftmp)))
-    (push sdiftmp *tmpparfiles*)
-    (pm2-synthesis sdiffile :attack attack :release release :sr sr :res res :outfile outfile
-                   :nchannels (length (remove-duplicates (mapcar 'streamid (lframes seq)))))
-    ))
+;(defmethod! pm2-add-synth ((seq sdif-buffer) &key
+;                           (attack 0.01) (release 0.01)
+;                           sr res (outfile "pm2-out.aiff"))
+;  (let* ((sdiftmp (tmpfile "chords.sdif"))
+;         (sdiffile (save-sdif-file seq :out sdiftmp)))
+;    (push sdiftmp *tmpparfiles*)
+;    (pm2-synthesis sdiffile :attack attack :release release :sr sr :res res :outfile outfile
+;                   :nchannels (length (remove-duplicates (mapcar 'streamid (lframes seq)))))
+;    ))
 
 
-(defmethod! pm2-add-synth ((seq chord-seq) &key
-                           (attack 0.01) (release 0.01)
-                           sr res (outfile "pm2-out.aiff"))
-  (let* ((sdiftmp (tmpfile "chords.sdif"))
-         (sdiffile (chordseq->sdif seq sdiftmp)))
-    (when sdiffile
-      (push sdiftmp *tmpparfiles*)
-      (pm2-add-synth sdiffile :attack attack :release release :sr sr :res res :outfile outfile)
-      )))
+;(defmethod! pm2-add-synth ((seq chord-seq) &key
+;                           (attack 0.01) (release 0.01)
+;                           sr res (outfile "pm2-out.aiff"))
+;  (let* ((sdiftmp (tmpfile "chords.sdif"))
+;         (sdiffile (chordseq->sdif seq sdiftmp)))
+;    (when sdiffile
+;      (push sdiftmp *tmpparfiles*)
+;      (pm2-add-synth sdiffile :attack attack :release release :sr sr :res res :outfile outfile)
+;      )))
 
-(defmethod! pm2-add-synth ((seq score-element) &key
-                           (attack 0.01) (release 0.01)
-                           sr res (outfile "pm2-out.aiff"))
-  (pm2-add-synth (objfromobjs seq (make-instance 'chord-seq))
-                 :attack attack :release release :sr sr :res res :outfile outfile))
+;(defmethod! pm2-add-synth ((seq score-element) &key
+;                           (attack 0.01) (release 0.01)
+;                           sr res (outfile "pm2-out.aiff"))
+;  (pm2-add-synth (objfromobjs seq (make-instance 'chord-seq))
+;                 :attack attack :release release :sr sr :res res :outfile outfile))
 
 
 
