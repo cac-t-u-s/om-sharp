@@ -12,6 +12,7 @@
 #+sdif(compile&load (decode-local-path "sdif/sdif-struct"))
 #+sdif(compile&load (decode-local-path "sdif/sdif-tools"))
 #+sdif(compile&load (decode-local-path "sdif/sdif-write"))
+#+sdif(compile&load (decode-local-path "sdif/sdif-file"))
 
 (load (decode-local-path "osc/libo/load-libo.lisp"))
 
@@ -27,7 +28,7 @@
   #+sdif(omNG-make-package 
          "SDIF"
          :doc "Tools for manipulating data in the Standard Description Interchange Format."
-         :classes '(sdifframe sdifmatrix sdiftype sdifnvt)
+         :classes '(sdiffile sdifframe sdifmatrix sdiftype sdifnvt)
          :functions '(sdif->text)
          )
   (omNG-make-package 

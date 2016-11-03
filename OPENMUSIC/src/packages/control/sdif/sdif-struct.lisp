@@ -40,7 +40,6 @@ Frame type description is a list with the types and names of the different matri
     (TableName :initform nil :initarg :TableName :accessor TableName :documentation "name (string)")
     (ID :initform 0 :initarg :ID :accessor ID :documentation "table ID (integer)")
     (tnum :initform 0 :accessor tnum))
-   (:icon 648)
    (:documentation "An SDIF Name/Value table to be written in an SDIF file or buffer.
 
 SDIF NVTs gibe additional info on the data in an SDIF file in the form of name/value pairs
@@ -96,7 +95,6 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF
     (frametype :initform nil :initarg :frametype :accessor frametype :documentation "4-char signature of the SDIF frame type")
     (streamID :initform 0 :initarg :streamID :accessor streamID :documentation "SDIF stream ID (integer)")
     (lMatrices :initform nil :initarg :LMatrices :accessor LMatrices :documentation "list of SDIFMatrix objects"))
-   (:icon 643)
    (:documentation "An SDIF data chunk.
 
 SDIF frames are data chunk containing one or more SDIF matrices (<lMatrices>) and precisely localized in time (<fTime>).
