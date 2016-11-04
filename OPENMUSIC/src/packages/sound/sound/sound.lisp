@@ -398,10 +398,8 @@ Press 'space' to play/stop the sound file.
 ;;; BOX
 ;;;===========================
 
-(defclass OMBoxSound (omboxeditcall) ())
-
-(defmethod special-box-type ((self (eql 'sound))) 'OMBoxSound)
-
+;(defclass OMBoxSound (omboxeditcall) ())
+;(defmethod special-box-type ((self (eql 'sound))) 'OMBoxSound)
 
 (defmethod display-modes-for-object ((self sound))
   '(:hidden :text :mini-view))
