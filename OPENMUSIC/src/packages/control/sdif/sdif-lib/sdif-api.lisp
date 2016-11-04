@@ -66,6 +66,13 @@
 (defun sdif-check-file (filename)
   (not (zerop (sdif::SdifCheckFileFormat (namestring filename)))))
 
+(defmethod sdif-open-file ((self string) &optional (mode sdif::eReadWriteFile))
+  (let ((fileptr (sdif::SDIFFOpen self mode)))
+    (and (not (fli:null-pointer-p fileptr)) fileptr)))
+
+(defmethod sdif-open-file ((self pathname)  &optional (mode sdif::eReadWriteFile))
+  (sdif-open-file (namestring self) mode))
+
 (defun sdif-get-pos (ptr)
   (let ((thelong (cffi::%foreign-alloc 8))
         rep)
@@ -81,13 +88,17 @@
     (cffi::foreign-free longptr)
     t))
 
-(defun sdif-get-signature (sdiff)
-   (let ((nbcharread (cffi::%foreign-alloc 4))
-         rep)
-     (cffi::mem-set 0 sdiff :long)
-     (setf rep (sdif::SdifFGetSignature sdiff nbcharread))
-     (cffi::foreign-free nbcharread)
-     rep))
+(defun sdif-read-next-signature (sdiff)
+   (let ((temp-ptr (cffi::%foreign-alloc 4)))
+     ; (cffi::mem-set 0 sdiff :long)
+     (unwind-protect 
+         (sdif::SdifFGetSignature sdiff temp-ptr))
+     (cffi::foreign-free temp-ptr)))
+
+(defun sdif-check-signature (str)
+  (and (not (string-equal "" str))
+       (string>= str "0000")
+       (string<= str "zzzz")))
 
 (defun sdif-calculate-padding (bytes)
   (let ((align 8))

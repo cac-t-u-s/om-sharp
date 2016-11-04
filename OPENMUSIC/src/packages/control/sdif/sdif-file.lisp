@@ -1,11 +1,14 @@
 (in-package :om)
 
 
-
-
-;-------------------Class definition-----------------------------
+;;;================================================================================
+;;; SDIFFILE is a pointer to a file on the disk
+;;; It loads a filemap for quick inspect 
+;;; It can be edited to the extend of this map (streams, frames etc.)
+;;; Frames can be extracted to a data-stream for further manipulations
+;;;================================================================================
 (defclass* SDIFFile (sdif-object)   
-   ((pathname  :initform nil :accessor pathname)
+   ((file-pathname  :initform nil :accessor file-pathname)
     (file-map :initform nil :accessor file-map))
    (:documentation "
 SDIFFILE represents an SDIF file stored somewhere in your hard drive.
@@ -22,85 +25,104 @@ Lock the box ('b') to keep the current file.
 "))
 
 
+;;; INIT METHODS
+(defmethod box-def-self-in ((self (eql 'SDIFFile))) :choose-file)
+
+(defmethod objFromObjs ((model (eql :choose-file)) (target SDIFFile))
+  (objFromObjs (om-choose-file-dialog :prompt "Choose an SDIF file..."
+                                      :types '("SDIF files" "*.sdif"))
+               target))
+
+(defmethod objfromobjs ((model pathname) (target SDIFFile))
+  (when (and (probe-file model)
+             (sdif::sdif-check-file model))
+    (setf (file-pathname target) model) 
+    (om-init-instance target)
+    target))
+
 (defmethod objfromobjs ((model string) (target SDIFFile))
-   (load-sdif-file target (pathname model)))
+  (objfromobjs (pathname model) target))
 
-(defmethod objfromobjs ((model pathname) (model SDIFFile))
-   (load-sdif-file target model))
 
+(defmethod om-init-instance ((self SDIFFile) &optional args)
+  (call-next-method)
+  (load-sdif-file self)
+  self)
+
+
+;;; CONNECT SDIFFILE TO TEXTBUFFER
 (defmethod objfromobjs ((self SDIFFile) (target TextBuffer))
    (objfromobjs (sdif->text self) target))
 
-       
-; Box
 
+;;; DISPLAY BOX
 (defmethod get-cache-display-for-text ((self sdiffile))
-  (list (cons "FILE CONTENTS:" 
-              (loop for stream in (file-map self) collect 
-                    (format nil "~D:~A ~A" (fstreamdesc-id stream) (fstreamdesc-fsig stream)
-                            (mapcar 'mstreamdesc-msig (fstreamdesc-matrices stream)))))
+  (list (cons "file contents:" 
+              ;(loop for stream in (file-map self) collect 
+              ;      (format nil "~D:~A ~A" (fstreamdesc-id stream) (fstreamdesc-fsig stream)
+              ;              (mapcar 'mstreamdesc-msig (fstreamdesc-matrices stream)))
+              ;      )
+              nil)
         ))
 
-;------------------Load sdif file method---------------------------            
- 
-(defmethod* get-sdif () 
-   :initvals nil
-   :indoc nil
-   :doc "load a sdif file"
-   :icon 148
-   (let ((name (om-choose-file-dialog :directory (def-load-directory)
-                                      :prompt "Choose SDIF File" 
-                                      :types '("SDIF Files" "*.sdif" "All Files" "*.*"))))
-     (when name
-       (setf *last-loaded-dir* (pathname-dir name))
-       (load-sdif-file name)
-       )))
 
-(defun load-sdif-file (name)
-  (when name
-     (let ((rep (make-instance 'sdifFile))
-           (unix-name (om-path2cmdpath name)))
-       (if (probe-file name)
-         (if (sdif-check-file unix-name)
-           (let ((fileptr (sdif-open-file unix-name :eReadFile)))
-             (om-print (string+ "Loading SDIF file : " (om-namestring name)))
-             (if (and fileptr (not (sdif-null-ptr-p fileptr)))
-                 (progn 
-                   (init-description rep name fileptr)
-                   rep)
-               (om-beep-msg (format nil "Error at opening the file ~D" name))
-               ))
-           (om-beep-msg (format nil "File ~s is not an SDIF file !" name)))
-         (om-beep-msg (format nil "File ~s does not exist !" name)))
-       )))
-
-(defmethod get-obj-from-file ((type (eql 'sdif)) filename)
-  (load-sdif-file filename))
-
-;----------------FILL SLOTS
-; modiJB
-;19/12/03
+;;;========================
+;;; FILL FILE-MAP from file
+; jb 19/12/03
 ; FRAMEDESC = (signature time ID pos (matrixDesc-list))
 ; MATRIXDESC = (signature nbRow nbCol datatype pos)
 
 (defstruct fstreamdesc id fsig tmin tmax nf matrices)
 (defstruct mstreamdesc msig fields rmax tmin tmax nf)
 
-(defmethod init-description ((self sdifFile) name ptrfile)
-   (setf (pathname self) name)
-   (let ((Framelist nil)
-         (nextFrame nil)
-         (streamlist nil))
-     (sdif::SdifFReadGeneralHeader ptrfile)
-     (sdif::SdifFReadAllASCIIChunks ptrfile)
-     (setf nextFrame (firstframep self ptrfile)) 
-     (loop while nextframe do
-           (let ((fdesc (description-frame ptrfile)))
-             (record-in-streams self fdesc)
-             (push fdesc framelist) 
-             (setf nextFrame (nextframep self ptrfile))))
-     (setf (framesdesc self) (reverse framelist))
-     (sdif-close self ptrfile) t))
+(defun check-current-singnature (ptr)
+  (sdif::sdif-check-signature (sdif::SdifSignatureToString (sdif::SdifFCurrSignature ptr))))
+
+(defmethod get-frame-from-sdif (ptr)
+  (sdif::SdifFReadFrameHeader ptr)
+  (let ((sig (sdif::SdifSignatureToString (sdif::SdifFCurrFrameSignature ptr)))
+        (time (sdif::SdifFCurrTime ptr))
+        (sid (sdif::SdifFCurrId ptr)))
+    (make-instance 'SDIFFrame :date (* 1000 time) :frametype sig :streamid sid
+                   :lmatrices (let ((nummatrix (sdif::SdifFCurrNbMatrix ptr)))
+                                (loop for i from 1 to nummatrix 
+                                      collect (get-matrix-from-sdif ptr))))))
+
+(defmethod get-matrix-from-sdif (ptr)
+  (sdif::SdifFReadMatrixHeader ptr)
+  (let ((sig (sdif::SdifSignatureToString (sdif::SdifFCurrMatrixSignature ptr)))
+        (ne (sdif::SdifFCurrNbRow ptr))
+        (nf (sdif::SdifFCurrNbCol ptr)))
+    (sdif::SdifFSkipMatrixData ptr)
+    (make-instance 'SDIFMatrix :matrixtype sig :num-elts ne :num-fields nf)))
+
+
+(defmethod load-sdif-file ((self SDIFFile))
+  (cond ((not (file-pathname self))
+         (om-beep-msg "Error loading SDIF file: -- no file"))
+        ((not (probe-file (file-pathname self)))
+         (om-beep-msg "Error loading SDIF file -- file does not exist: ~D" (file-pathname self)))
+        ((not (sdif::sdif-check-file (file-pathname self)))
+         (om-beep-msg "Error loading SDIF file -- wrong format: ~D" (file-pathname self)))
+        (t 
+         (let ((sdiffileptr (sdif::sdif-open-file (file-pathname self) sdif::eReadWriteFile)))
+           (om-print-format "Loading SDIF file : ~A" (file-pathname self))
+           (if sdiffileptr
+               (unwind-protect 
+                   (progn (sdif::SdifFReadGeneralHeader sdiffileptr)
+                     (sdif::SdifFReadAllASCIIChunks sdiffileptr)
+                     (setf (file-map self) 
+                           (loop while (check-current-singnature sdiffileptr) collect
+                                 (let ((f (get-frame-from-sdif sdiffileptr)))
+                                     ;(record-in-streams self t)
+                                   (sdif::sdif-read-next-signature sdiffileptr)
+                                   f))))
+                 (sdif::SDIFFClose sdiffileptr))
+             (om-beep-msg "Error loading SDIF file -- bad pointer: ~D" (file-pathname self)))
+           ))
+        )
+  self)
+
 
 
 (defun record-in-streams (self fdesc)
@@ -150,49 +172,14 @@ Lock the box ('b') to keep the current file.
 
 
 
-(defmethod description-frame (ptr)
-   (let ((nummatrix 0) pos rep)
-         ;(*read-default-float-format* 'double-float))
-     (setf pos (- (sdif-get-pos ptr) 4))
-     (sdif::SdifFReadFrameHeader ptr)
-     (setf rep (list (sdif::SdifSignatureToString (sdif::SdifFCurrFrameSignature ptr))
-                     (sdif::SdifFCurrTime ptr)
-                     (sdif::SdifFCurrId ptr)
-                     ; (coerce (sdif::SdifFCurrId ptr) 'single-float)
-                     pos))
-     (setf nummatrix (sdif::SdifFCurrNbMatrix ptr))
-     (append rep (list (loop for i from 1 to nummatrix 
-                             collect (description-matrix ptr))))))
 
-(defmethod description-matrix (ptr)
-   (let (rep pos)
-     (setf pos (sdif-get-pos ptr))
-     (sdif::SdifFReadMatrixHeader ptr)
-     (setf rep (list  (sdif::SdifSignatureToString (sdif::SdifFCurrMatrixSignature ptr)) 
-                      (sdif::SdifFCurrNbRow ptr) 
-                      (sdif::SdifFCurrNbCol ptr) 
-                      8 ;(SdifFCurrDataType thefile)
-                      pos
-                      ))   
-     (sdif::SdifFSkipMatrixData ptr)
-     rep))
 
-(defmethod how-many-mat ((self sdifFile) i)
-   (length (fifth (nth i (framesdesc self)))))
 
-(defun good-signature-p (sign)
-  (and (not (string-equal "" sign))
-       (string>= sign "0000")
-       (string<= sign "zzzz")))
-       
-(defmethod firstframep ((self sdifFile) ptr)
-   (let ((signature (sdif::SdifFCurrSignature ptr)))
-     (good-signature-p (sdif::SdifSignatureToString signature))
-     ))
 
-(defmethod nextframep ((self sdifFile) ptr)
-   (let ((signature (sdif-get-signature ptr)))
-     (good-signature-p (sdif::SdifSignatureToString (sdif::SdifFCurrSignature ptr)))))
+
+
+
+
 
 
 ;--------------------------------------
@@ -211,6 +198,10 @@ Lock the box ('b') to keep the current file.
                  (sdif-get-signature ptrfile))
            ptrfile)))
      (om-beep-msg (format nil "the sdif file ~D has only ~D frames" (filepathname self) (numframes self)))))
+
+
+(defmethod how-many-mat ((self sdifFile) i)
+   (length (fifth (nth i (framesdesc self)))))
 
 (defmethod goto-sdif-frame-mat ((self sdifFile) i j)
    (let ((ptrfile (goto-sdif-frame self i)) matnum)
@@ -509,9 +500,7 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
                     ))
             (setf error t))))
     (sdif-close self ptrfile)))
-    (if (not data) (om-print (format nil "No data found with t1=~D t2=~D r1=~D r2=~D " tmin tmax rmin rmax)) 
-        ;(om-print "... done")
-        )
+    (if (not data) (om-print (format nil "No data found with t1=~D t2=~D r1=~D r2=~D " tmin tmax rmin rmax)))
     (values (reverse data) (reverse times))
     ))
 
@@ -772,43 +761,4 @@ Name/Value tables are formatted as SDIFNVT objects.
             :doc "Finds value corresponding to name <entry> in the name/value table <nvt>."
     (cadr (find entry (nv-pairs nvt) :test 'string-equal :key 'car)))
 
-
-
-;;;=========================
-;;; SDIF Buffer
-;;;=========================
-;;; Ensemble de frames et/ou streams
-;;; + infos permettant de reconstruire un fichier SDIF complet
-#|
-(defclass! SDIF-buffer ()
-   ((Types :initform nil :initarg :Types :accessor Types :documentation "list of SDIFType")
-    (NVTs :initform nil :initarg :NVTs :accessor NVTs  :documentation "list of SDIFNVT")
-    (LFrames :initform nil :initarg :LFrames :accessor LFrames  :documentation "list of SDIFStream or SDIFFrame"))
-   (:icon 645)
-   (:documentation "Representation of a complete SDIF file description, including Frames, type declarations and NVTs.
-
-Use SAVE-SDIF-FILE to store the contents of the SDIF-Buffer in an SDIF file.
-
-See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
-
-"
-))
-
-(defmethod initialize-instance :after ((self SDIF-buffer) &rest initargs)
-   (setf (LFrames self) (list! (LFrames self)))
-   (setf (LFrames self) (sort 
-                         (remove nil (flat (loop for item in (flat (LFrames self)) collect (cond ((sdifframep item) item)
-                                                                                                 ((sdifstreamp item) (LFrames item))
-                                                                                                 (t nil)))))
-                         '< :key 'FTime))
-   (setf (Types self) (remove nil (list! (Types self))))
-   (setf (NVTs self) (remove nil (list! (NVTs self)))))
-
-(defmethod omNG-save ((self SDIF-buffer) &optional (values? nil))
-  `(make-instance 'SDIF-buffer))
-
-(defmethod objfromobjs ((self sdif-buffer) (type sdiffile))
-   (objfromobjs (save-sdif-file self) type))
-
-|#
 

@@ -69,7 +69,7 @@
   (fli:dereference ptr :type type :index pos))
 
 (defun om-null-pointer-p (ptr) 
-  (check-type ptr fli::pointer)
+  ;(check-type ptr fli::pointer)
   (fli:null-pointer-p ptr))
 
 ;;;========================

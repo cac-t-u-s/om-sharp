@@ -1,15 +1,5 @@
 (in-package :om)
 
-;;;===============
-;;; GENERAL UTILS
-;;;===============
-
-(defmethod sdif-open-file ((self string) &optional (mode sdif::eReadWriteFile))
-  (let ((fileptr (sdif::SDIFFOpen self mode)))
-    (and (not (om-null-pointer-p fileptr)) fileptr)))
-
-(defmethod sdif-open-file ((self pathname)  &optional (mode sdif::eReadWriteFile))
-  (sdif-open-file (namestring self) mode))
 
 ;;;===============
 ;;; TEXT CONVERSION
