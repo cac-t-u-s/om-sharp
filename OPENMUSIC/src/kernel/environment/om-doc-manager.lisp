@@ -36,9 +36,6 @@
         (setf (doc-entry-file doc-entry) (namestring (mypathname self)))
       (om-beep-msg "Problem: patch ~A was not registered!" self))))
 
-
-
-
 #|
 ;------------------------------------------------------------------------------
 ; HANDLING PATCH DEPENDENCIES
@@ -248,7 +245,7 @@
                         (close out))))
 
           (let ((*package* (find-package :om))
-                (patch-contents (omng-save self)))
+                (patch-contents (save-patch-contents self)))
             (pprint patch-contents out))))
       
       (when (probe-file tempfile)
