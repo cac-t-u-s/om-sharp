@@ -693,7 +693,7 @@
 
 ;--------multi-column-list
 
-(defclass om-multicol-item-list (om-item-list capi::multi-column-list-panel) ()
+(defclass om-multicol-item-list (om-multi-item-list capi::multi-column-list-panel) ()
   (:default-initargs 
    :callback-type '(:collection)
    :selection-callback 'om-dialog-item-action
@@ -703,7 +703,6 @@
    :extend-callback 'om-dialog-item-action
    :retract-callback 'om-dialog-item-action
    :test-function 'string-equal))
-
 
 
 ;--------om-slider 

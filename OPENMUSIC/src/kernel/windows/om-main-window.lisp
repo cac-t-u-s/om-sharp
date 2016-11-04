@@ -38,22 +38,6 @@
 (defmethod om-window-close-event ((self om-main-window))
   (setf *om-main-window* nil))
 
-(defmethod update-main-window-contents ((win om-main-window))
-  (om-remove-all-subviews (print (main-layout win)))
-  ;(setf (elements-view win) (make-ws-elements-tab)
-  ;      (package-view win) (make-om-package-tab)
-  ;      (libs-view win) (make-libs-tab))
-  ;(om-add-subviews (main-layout win)
-  ;                 (elements-view win) 
-  ;                 (package-view win) 
-  ;                 (libs-view win))
-  )
-  
-
-(defmethod om-clicked-item-from-tree-view ((self OMLib) (window om-main-window)) 
-  (load-om-library self)
-  (update-main-window-contents window))
-
 ;;;===========================================
 ;;; WS TAB
 ;;;===========================================
@@ -79,7 +63,7 @@
   (mapcar #'(lambda (item) 
               (cond ((equal item :name) (print-element-in-list element editor))
                     ((equal item :type) (string-downcase (get-object-type-name element)))
-                    ((equal item :date-created) (car (create-info element)))))
+                    ((equal item :date) (car (create-info element)))))
           display-params))
 
 
@@ -103,6 +87,7 @@
 
 (defun make-ws-elements-tab ()
   (if *current-workspace*
+      ;;; WORKSPACE VIEW
       (let* ((ed (editor *current-workspace*))
              (ws *current-workspace*)
              (font (om-def-font :font1)))
@@ -192,7 +177,9 @@
                     )
          ;:ratios '(nil nil)
          )))
-        (om-make-layout 
+    
+    ;;; FILE VIEW
+    (om-make-layout 
          'om-column-layout :name "Workspace Elements" :align :center ; :ratios '(1 nil nil)
          :subviews (list 
                     (om-make-di 
@@ -205,6 +192,7 @@
                                        (om-def-color :black) (om-make-color 0.8 0.2 0.2)))
                      :font (om-make-font "Courier" 12)
                      :alternating-background t
+                     :action-callback #'dbclicked-item-in-list
                      :size (omp nil nil)
                      ;:sort-styles 
                      ;(list (list :name
@@ -227,9 +215,27 @@
                                 :fg-color (om-def-color :gray)
                                 :text "No Workspace has been created for this session")
                     (om-make-di 'om-button :enable nil :size (om-make-point nil 24)
-                                :font (om-def-font :font2) :enable nil
+                                :font (om-def-font :font2)
                                 :text "Create One?")))
         ))
+
+
+(defmethod update-elements-tab ((window om-main-window))
+  (om-substitute-subviews (main-layout window) (elements-view window) (setf (elements-view window) (make-ws-elements-tab)))
+  (om-set-current-view (main-layout window) (elements-view window)))
+
+(defun dbclicked-item-in-list (list)
+  (mapc 'open-editor (om-get-selected-item list)))
+
+(defmethod register-document :after ((self OMPersistantObject) &optional path)
+  (when *om-main-window* (update-elements-tab *om-main-window*)))
+
+(defmethod unregister-document :after ((self OMPersistantObject))
+  (when *om-main-window* (update-elements-tab *om-main-window*)))
+
+(defmethod update-document-path :after ((self OMPersistantObject))
+  (when *om-main-window* (update-elements-tab *om-main-window*)))
+
 
 
 ;;;; A FAIRE : drag file from/to finder
@@ -269,6 +275,7 @@
 (defun make-om-package-tab ()
   (let* ((pack *om-package-tree*))
     (let ((pack-tree-view (om-make-tree-view (subpackages *om-package-tree*) 
+                                             :size (omp 300 20)
                                              :expand-item 'get-sub-items
                                              :print-item 'get-name
                                              :font (om-def-font :font1)
@@ -281,9 +288,18 @@
        :subviews (list pack-tree-view)
        ))))
 
+(defmethod update-packages-tab ((window om-main-window))
+  (om-substitute-subviews (main-layout window) (package-view window) (setf (package-view window) (make-om-package-tab)))
+  (om-set-current-view (main-layout window) (package-view window)))
+
+;;;===========================================
+;;; LIBRARIES
+;;;===========================================
+
 (defun make-libs-tab ()
   (let* ((pack *om-libs-root-package*))
     (let ((libs-tree-view (om-make-tree-view (subpackages *om-libs-root-package*) 
+                                             :size (omp 300 20)
                                              :expand-item 'get-sub-items
                                              :print-item 'get-name
                                              :font (om-def-font :font1)
@@ -292,8 +308,25 @@
                                              :icons (list 'icon-pack 'icon-fun 'icon-genfun 'icon-class 'icon-lib-loaded 'icon-lib)
                                              )))
       (om-make-layout 
-       'om-simple-layout :name "Libraries"
-       :subviews (list libs-tree-view)
+       'om-column-layout :name "Libraries" :align :right
+       :subviews (list libs-tree-view
+                       (om-make-di 'om-button :size (om-make-point nil 24)
+                                :font (om-def-font :font2) 
+                                :text "Refresh list"
+                                :di-action #'(lambda (b) 
+                                               (register-all-libraries nil)
+                                               (update-libraries-tab *om-main-window*))))
        ))))
 
+
+(defmethod update-libraries-tab ((window om-main-window))
+  (om-substitute-subviews (main-layout window) (libs-view window) (setf (libs-view window) (make-libs-tab)))
+  (om-set-current-view (main-layout window) (libs-view window)))
+
+(defmethod om-clicked-item-from-tree-view ((self OMLib) (window om-main-window)) 
+  (when (or (not (loaded? self))
+            (om-y-or-n-dialog (format nil "The library '~A' is already loaded. Reload ?" (name self))))
+    (load-om-library self)
+    (update-libraries-tab window)
+    ))
 

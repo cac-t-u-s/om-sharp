@@ -173,11 +173,11 @@
                                                  (om-make-di 'om-button :size (om-make-point 100 24) :text "Restore..." 
                                                              :di-action #'(lambda (item)
                                                                             (let* ((win (om-view-window item))
-                                                                                   (module (find-pref-module (pref-id (om-current-view (tabs win)))
+                                                                                   (module (find-pref-module (pref-id (om-get-current-view (tabs win)))
                                                                                                              (local-prefs win))))
                                                                             (when module
-                                                                                (setf (cadr module) (default-prefs-for-module (pref-id (om-current-view (tabs win)))))
-                                                                                (update-pref-window win (pref-id (om-current-view (tabs win)))))
+                                                                                (setf (cadr module) (default-prefs-for-module (pref-id (om-get-current-view (tabs win)))))
+                                                                                (update-pref-window win (pref-id (om-get-current-view (tabs win)))))
                                                                               )))
                                                  
                                                  (om-make-di 'om-button :size (om-make-point 80 24) :text "Apply" 
@@ -185,7 +185,7 @@
                                                                             (let ((win (om-view-window item)))
                                                                               (setf *user-preferences* (local-prefs win))
                                                                               (apply-all-preferences)
-                                                                              (update-pref-window win (pref-id (om-current-view (tabs win))))
+                                                                              (update-pref-window win (pref-id (om-get-current-view (tabs win))))
                                                                               )))
                                                  nil
                                                  (om-make-di 'om-button :size (om-make-point 80 24) :text "Cancel" 

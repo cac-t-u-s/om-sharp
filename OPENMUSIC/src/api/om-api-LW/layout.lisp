@@ -7,7 +7,8 @@
           om-grid-layout 
           om-draw-layout
           om-make-layout 
-          om-current-view
+          om-get-current-view
+          om-set-current-view
           om-tab-layout
           om-set-layout-ratios
           om-update-layout
@@ -108,9 +109,8 @@
         (capi::layout-y-ratios self) (capi::layout-y-ratios self)))
 
 (defmethod om-subviews ((self om-abstract-layout)) (capi:layout-description self))
+
 (defmethod om-view-parent ((self om-abstract-layout)) (element-parent self))
-(defmethod om-current-view ((self om-tab-layout)) 
-  (capi::tab-layout-visible-child self))
 
 (defmethod om-add-subviews ((self om-abstract-layout) &rest subviews)
   (capi::apply-in-pane-process 
@@ -123,8 +123,6 @@
    self subviews
    ))
 
-
-  
 (defmethod om-remove-subviews ((self om-abstract-layout) &rest subviews)
   (capi::apply-in-pane-process 
    self #'(lambda ()
@@ -149,6 +147,56 @@
             (setf (capi::layout-description self)
                   (substitute new old (capi::layout-description self) :test 'equal)))
    ))
+
+
+;;;================================
+;;; SPECIAL FOR TAB-LAYOUT
+;;;================================
+
+(defmethod om-get-current-view ((self om-tab-layout)) 
+  (capi::tab-layout-visible-child self))
+
+(defmethod om-set-current-view ((self om-tab-layout) view) 
+  (let ((num (capi::search-for-item self view)))
+    (when num
+      (setf (capi::choice-selection self) num))))
+
+(defmethod om-subviews ((self om-tab-layout)) 
+  (loop for i from 0 to (1- (length (capi::collection-items self))) collect
+        (capi::get-collection-item self i)))
+
+(defmethod om-remove-subviews ((self om-tab-layout) &rest subviews)
+  (capi::apply-in-pane-process 
+   self #'(lambda ()
+            (setf (capi::collection-items self)
+                  (loop for i from 0 to (1- (length (capi::collection-items self))) 
+                        unless (find (capi::get-collection-item self i) subviews)
+                        collect (capi::get-collection-item self i)))
+            )))
+
+(defmethod om-remove-all-subviews ((self om-tab-layout))
+  (capi::apply-in-pane-process 
+   self #'(lambda ()
+            (mapcar 'om-remove-all-subviews (capi::layout-description self))
+            (dotimes (i (length (capi::collection-items self))) 
+              (om-remove-all-subviews (capi::get-collection-item self i)))
+            (setf (capi::layout-description self) nil)
+            (setf (capi::collection-items self) nil)
+            )))
+
+(defmethod om-substitute-subviews ((self om-tab-layout) old new)
+  (capi::apply-in-pane-process 
+   self #'(lambda ()
+            (setf (capi::collection-items self)
+                  (loop for i from 0 to (1- (length (capi::collection-items self))) 
+                        collect (if (equal (capi::get-collection-item self i) old) new
+                                  (capi::get-collection-item self i)))
+                  ))))
+
+(defmethod om-add-subviews ((self om-tab-layout) &rest subviews)
+  (capi::apply-in-pane-process 
+   self
+   #'(lambda () (capi::append-items self subviews))))
 
 ;;;================================
 ;;; LAYOUT HANDLES SUBVIEWS
