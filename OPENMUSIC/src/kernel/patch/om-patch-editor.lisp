@@ -145,7 +145,7 @@
 (defmethod editor-close ((self patch-editor))
   (call-next-method)
   (close-internal-elements (object self))
-  (unless (references-to (object self)) 
+  (unless (references-to (object self))
     (unregister-document (object self))))
 
 (defmethod close-internal-element ((self t)) t)
@@ -157,6 +157,7 @@
 
 (defmethod close-internal-element ((self OMBox)) 
   (call-next-method)
+  (omng-delete self)
   (setf (frame self) nil)
   t)
 

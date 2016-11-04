@@ -96,9 +96,6 @@
   (call-next-method))
 
 
-;;; called when the patch it is in is closed
-(defmethod close-internal-element ((self OMBoxAbstraction)) t)
-
 (defmethod om-copy ((self OMBoxAbstraction)) 
   (let ((newbox (call-next-method)))
     (setf (box-w newbox) (box-w self) (box-h newbox) (box-h self))
@@ -131,8 +128,8 @@
 (defmethod close-internal-element ((self OMBoxAbstraction)) 
   (unless (is-persistant (reference self))
     (close-internal-elements (reference self))
-    (close-editor (reference self))
-    (omng-delete self))
+    (close-editor (reference self)))
+  (omng-delete self)
   t)
 
 (defmethod allow-text-input ((self OMBoxAbstraction)) 
