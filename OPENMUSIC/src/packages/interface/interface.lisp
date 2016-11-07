@@ -1,11 +1,11 @@
 (in-package :om)
 
 (defclass interface (named-object)
- ((types :initform nil :initarg :types :accessor types :documentation "A list of control types, e.g (button slider ...)")
-  (names :initform nil :initarg :types :accessor names :documentation "A list of names")
+ ((shape :initform nil :initarg :shape :accessor shape :documentation "A control shape (checkbox, button, h-slider, v-slider, )")
+  (name :initform nil :initarg :name :accessor name :documentation "A name")
   ;(dimensions :initform nil :initarg :dimensions :accessor dimensions :documentation "A list of dimensions, e.g ((5 7) (10 10) ...)")
-  (bounds :initform nil :initarg :bounds :accessor bounds :documentation "A list of min and max values, e.g ((0 1) (-100 100) ...)")
-  (functions :initform nil :initarg :functions :accessor functions :documentation "A list of functions for each control")
+  (bounds :initform nil :initarg :bounds :accessor bounds :documentation "A list of min and max values, e.g (-100 100)")
+  (lambda-fun :initform nil :initarg :lambda-fun :accessor lambda-fun :documentation "A lambda function")
   (title :initform "Interface" :initarg title :accessor title)))
 
 (defmethod get-editor-class ((self interface)) 'interface-editor)
