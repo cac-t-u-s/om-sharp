@@ -145,10 +145,12 @@
   (if (= (start-value self) (end-value self obj))
       (constantly (start-value self))
     #'(lambda (d)
-        (+ (* (expt (/ (- d (start-date self))
+        (+ (* (expt (/ (max 0 (- d (start-date self)))
                        (- (end-date self obj) (start-date self)))
                     (log 0.5 (ap-coeff self))) (- (end-value self obj) (start-value self)))
            (start-value self)))))
+
+
 
 ;;;Initialization
 (defmethod initialize-instance :after ((self automation) &rest args)
@@ -240,10 +242,12 @@
 ;;;GET THE VALUE OF THE AUTOMATION FUNCTION AT A SPECIFIC DATE
 (defmethod get-value-at-time-unit ((self automation) date)
   (funcall (fun
-            (nth (1- (or (position date (point-list self) :test '< :key 'start-date) (length (point-list self)))) 
+            (nth (max 0 (1- (or (position date (point-list self) :test '< :key 'start-date) (length (point-list self)))))
                  (point-list self))
             self)
            date))
+
+
 
 ;;;Scheduler Redefinitions
 (defmethod get-action-list-for-play ((self automation) time-interval &optional parent)
@@ -252,8 +256,8 @@
           by (interpol-time self)
           collect
           (let ((tmp ti))
-          (list
-           tmp
-           #'(lambda () (funcall (action-fun self) (get-value-at-time-unit self tmp))))))))
+            (list
+             tmp
+             #'(lambda () (funcall (action-fun self) (list tmp (get-value-at-time-unit self tmp)))))))))
 
 
