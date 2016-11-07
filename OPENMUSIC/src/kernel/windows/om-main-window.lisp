@@ -90,11 +90,14 @@
       ;;; WORKSPACE VIEW
       (let* ((ed (editor *current-workspace*))
              (ws *current-workspace*)
+             (display (list :name 
+                            (and (get-pref-value :workspace :show-types) :type)
+                            (and (get-pref-value :workspace :show-dates) :date)))
              (font (om-def-font :font1)))
         (let ((elements-list (om-make-di 'om-multicol-item-list
-                                         :columns (gen-columns-list (elements-display ed))
+                                         :columns (gen-columns-list display)
                                          :items (filter-ws-elements (elements ws) (elements-view-filter ed))
-                                         :column-function #'(lambda (item) (gen-column-elements item (elements-display editor)))
+                                         :column-function #'(lambda (item) (gen-column-elements item display))
                                          :fg-color #'(lambda (item) 
                                                        (if (and (mypathname item) (probe-file (mypathname item)))
                                                            (om-def-color :black) (om-make-color 0.8 0.2 0.2)))

@@ -54,10 +54,8 @@
                 (remove-if #'(lambda (item) (find item '(:preferences :info)))
                            *om-preferences* :key 'car))
         (unless *current-workspace*
-          (print `(:preferences
-                   ,.(mapcar #'(lambda (item) 
-                                 (save-pref-module (car item)))
-                             *user-preferences*))
+          (print `(:user-preferences
+                   ,.(mapcar #'save-pref-module *user-preferences*))
                  out))
         ))
     path))
@@ -87,8 +85,6 @@
 ;;; short-hand when there is only one value
 (defun get-om-pref (key)
   (cadr (find key *om-preferences* :test 'equal :key 'car)))
-
-
 
 (defun set-om-pref (key val)
   (let ((pos (position key *om-preferences* :test 'equal :key 'car)))
@@ -182,7 +178,7 @@
   ;;(om::set-language *release-language*)
   (om-init-funcall)
     
-  #+(and om-deliver mswindows)
+  #+(or om-deliver mswindows)
   (define-action "Confirm when quitting image" "Prompt for confirmation" 'om::quit-om-callback)
   
   ;;; read the general OM prefs in user

@@ -7,7 +7,6 @@
 
 (defvar *current-workspace* nil "The WorkSpace used in the current session.")
 
-
 (defclass OMWorkSpace (OMPersistantFolder) 
   ((om-package :initform nil :accessor om-packages :documentation "OM in-built package containing functions and classes")
    (user-package :initform nil :accessor user-packages :documentation "User package containing user-defined functions and classes")
@@ -62,13 +61,16 @@ A workspace contains all the elements of an OM session (documents, pointer to li
 ;============================
 
 (defclass workspace-editor (OMEditor)  
-  ((elements-display :accessor elements-display :initform '(:name :type :date))
-   (auto-import :accessor auto-import :initform t)
-   (ask-for-import :accessor ask-for-import :initform t)
-   (elements-view-filter :accessor elements-view-filter :initform :all)
+  ((elements-view-filter :accessor elements-view-filter :initform :all)
    (elements-view-sort :accessor elements-view-sort :initform :name)
    (elements-view-mode :accessor elements-view-mode :initform :name) 
    ))
+
+(add-preference-module :workspace "Workspace")
+(add-preference :workspace :show-types "Show Types" t)
+(add-preference :workspace :show-dates "Show modification date" t)
+(add-preference :workspace :auto-import nil t)
+(add-preference :workspace :ask-import nil t)
 
 ;============================
 ; WS INIT / LOADING
@@ -218,7 +220,7 @@ A workspace contains all the elements of an OM session (documents, pointer to li
 (defmethod load-ws-from-file ((ws OMWorkspace) pathname)
   (when (probe-file pathname)
     (let* ((loaded-list (list-from-file pathname))
-           (saved-prefs (find-values-in-prop-list loaded-list :preferences))
+           (saved-prefs (find-values-in-prop-list loaded-list :user-preferences))
            (ws-contents (find-values-in-prop-list loaded-list :contents)))
       ;;; default prefs may have changed given the new context (with workspace)
       (restore-default-preferences)
@@ -242,7 +244,7 @@ A workspace contains all the elements of an OM session (documents, pointer to li
                              :if-does-not-exist :create :if-exists :supersede)
           (let ((*print-pretty* t))
             (print `(:info (:om-version ,*om-version*) (:saved ,(om-get-date))) out)
-            (print `(:preferences 
+            (print `(:user-preferences 
                      .,(mapcar #'(lambda (item) 
                                    (save-pref-module (car item)))
                                *user-preferences*)) out)
@@ -253,76 +255,6 @@ A workspace contains all the elements of an OM session (documents, pointer to li
     path))
 
 ; (save-workspace-file *current-workspace*)
-
-
-
-;;;=============================
-;;; PREFS
-;;;=============================
-
-(defmethod default-prefs-for-module ((module-name (eql :workspace-editor)))
-  (list '(:show-types t)
-        '(:show-dates t)
-        '(:auto-import t)
-        '(:ask-import t)
-        ))
-
-(push-pref-module :workspace-editor)
-
-(defmethod apply-preferences ((module-name (eql :workspace-editor)))
-  (when (and *current-workspace* (editor *current-workspace*))
-    (let ((wsed (editor *current-workspace*)))
-      (setf (elements-display wsed) (remove nil (list :name (and (get-pref-value module-name :show-types) :type)
-                                                      (and (get-pref-value module-name :show-dates) :date)))
-                                                      
-            (auto-import wsed) (get-pref-value module-name :auto-import)
-            (ask-for-import wsed) (get-pref-value module-name :ask-import)
-            )
-      )))
-  
-    
-(defmethod save-pref-module ((module-name (eql :workspace-editor)))
-  `(:workspace-editor 
-    .,(if (and *current-workspace* (editor *current-workspace*))
-          (let ((wsed (editor *current-workspace*)))
-            (list `(:show-types ,(find :type (elements-display wsed)))
-                  `(:show-names ,(find :name (elements-display wsed)))
-                  `(:auto-import ,(auto-import wsed))
-                  `(:ask-import ,(ask-for-import wsed))
-                  )))
-    ))
-
-
-(defmethod make-pref-panel ((id (eql :workspace-editor)) modulepref)
-  (let ((pane (om-make-view 'preference-pane
-                            :pref-id id
-                            :name "Workspace")))
-    (om-add-subviews 
-     pane
-     (om-make-layout 
-      'om-column-layout ; :ratios '(1 1)
-      :subviews (list 
-                 (om-make-di 'om-simple-text
-                             :size (om-make-point 330 40) 
-                             :text "Items Display"
-                             :font (om-def-font :font2))
-                 (om-make-layout 
-                  'om-row-layout 
-                  :subviews (list (om-make-di 'om-check-box 
-                                         :size (om-make-point 180 15) :text " Show Types" 
-                                         :di-action (om-dialog-item-act item 
-                                                      (set-pref-in-module modulepref :show-types (om-checked-p item)))
-                                         :font (om-def-font :font2)
-                                         :checked-p (get-pref-in-module modulepref :show-types))
-                                  (om-make-di 'om-check-box
-                                              :size (om-make-point 180 15) :text " Show Modif. Date" 
-                                              :di-action (om-dialog-item-act item 
-                                                           (set-pref-in-module modulepref :show-dates (om-checked-p item)))
-                                              :font (om-def-font :font2)
-                                              :checked-p (get-pref-in-module modulepref :show-dates)))))
-      ))
-    pane))
-                 
 
 
 

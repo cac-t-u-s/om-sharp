@@ -66,12 +66,11 @@
         
         "environment/om-doc-manager"
         "environment/om-session"
-        "environment/om-preferences"  
+        "environment/om-preferences" 
         "environment/om-package"
         "environment/om-library"
         "environment/om-workspace" 
-        "environment/om-general-prefs"   
-   
+
         "windows/om-windows"
         "windows/om-main-window"
         "windows/om-editor"
@@ -126,7 +125,7 @@
                 
         "utils/om-copy"
         "utils/om-save"
-
+        
         "kernel-pack"
              
         ))
