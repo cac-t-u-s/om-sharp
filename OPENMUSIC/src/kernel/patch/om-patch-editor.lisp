@@ -340,6 +340,7 @@
 ;;; MENU COMMANDS
 ;;;=============================
 
+;Redefine for maquette etc ?
 (defmethod get-info-command ((self patch-editor)) 
   #'(lambda () (show-inspector-window self)))
 

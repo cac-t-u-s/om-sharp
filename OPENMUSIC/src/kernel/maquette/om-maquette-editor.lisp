@@ -15,6 +15,9 @@
    (beat-info :accessor beat-info :initarg :beat-info :initform (list :beat-count 0 :prevtime 0 :nexttime 1))
    ))
 
+(defmethod get-info-command ((self maquette-editor)) 
+  #'(lambda () (show-inspector-window (editor (selected-view self)))))
+
 ;;; maquette-editor is its own container
 (defmethod container-editor ((self maquette-editor)) self)
 
