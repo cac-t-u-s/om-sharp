@@ -222,11 +222,11 @@
                      (fli:dereference (fli:dereference (om-sound-buffer-ptr (om::buffer audiobuffer)) :index c :type :pointer) :index i :type :float)))
             ))))))
 
-(defun iae-reset (iae)
-  (when (buffer-player iae)
-    (dotimes (c (channels iae))
-      (dotimes (i (bp-size (buffer-player iae)))
-        (setf (fli:dereference (fli:dereference (bp-buffer (buffer-player iae)) :index c :type :pointer) :index i :type :float) 0.0)))))
+(defmethod iae-reset ((self iae))
+  (when (buffer-player self)
+    (dotimes (c (channels self))
+      (dotimes (i (bp-size (buffer-player self)))
+        (setf (fli:dereference (fli:dereference (bp-buffer (buffer-player self)) :index c :type :pointer) :index i :type :float) 0.0)))))
 
 
 ; (gc-all)
@@ -319,7 +319,7 @@
                  (iae-add-grain object
                                 (make-grain-from-frame object frame)
                                 (duration frame) (date frame)))))
-   (remove-if #'(lambda (date) (or (< date (car interval)) (>= date (cadr interval)))) 
+   (remove-if #'(lambda (date) (or (< date (car interval)) (>= date (cadr interval))))
               (data-stream-get-frames object) 
               :key 'date)))
 
