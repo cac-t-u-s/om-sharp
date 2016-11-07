@@ -663,7 +663,10 @@
 
 (defun set-om-pack-symbols ()
   (setf *all-om-pack-symbols*
-        (sort (mapcar 'string-downcase (get-all-symbol-names *om-package-tree*)) 'string<)))
+        (sort (mapcar 'string-downcase 
+                      (append (get-all-symbol-names *om-package-tree*)
+                              (get-all-symbol-names *om-libs-root-package*)))
+              'string<)))
 
 (defun box-name-completion (string)
   (if (and *om-box-name-completion* (>= (length string) 1))

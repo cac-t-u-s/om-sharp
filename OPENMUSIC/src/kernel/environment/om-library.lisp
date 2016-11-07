@@ -38,6 +38,13 @@
 
 
 (defvar *om-libs-root-package* (make-instance 'OMPackage :name "External Libraries Package") "The package containing External libraries")
+
+; (all-om-libraries t)
+(defun all-om-libraries (&optional loaded-only)
+  (mapcar 'name
+          (if loaded-only (remove-if-not 'loaded? (elements *om-libs-root-package*))
+            (elements *om-libs-root-package*))))
+
 (defun find-om-library (name)
   (find name (elements *om-libs-root-package*) :test 'string-equal :key 'name))
 
@@ -131,8 +138,6 @@
       (om-beep-msg "Required library: ~S not found !" name))
     ))
 
-
-
 ;;;===========
 ;;; DOC ETC.
 ;;;===========
@@ -172,7 +177,9 @@
                                :container-pack thelib
                                :functions (nth 1 item) 
                                :classes (nth 2 item) 
-                               :subpackages (nth 3 item))))))
+                               :subpackages (nth 3 item)))
+      (set-om-pack-symbols)
+      t)))
 
 ;;;=================================
 ;;; METHOD / CLASS DEFINITION

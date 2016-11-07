@@ -12,13 +12,16 @@
 ;;;
 ;;;===================================================
 
-
 (in-package :om)
 
-(compile&load (namestring (om-relative-path '("sources") "pm2-additive")))
-(compile&load (namestring (om-relative-path '("sources") "pm2-preferences")))
+(defpackage "OM-PM2-LIB"
+  (:use "COMMON-LISP" "CL-USER")
+  (:nicknames "pm2"))
 
-(set-library-packages 
+(om::compile&load (namestring (om::om-relative-path '("sources") "pm2-additive")))
+(om::compile&load (namestring (om::om-relative-path '("sources") "pm2-preferences")))
+
+(om::set-library-packages 
  '(("Analysis" (partial-tracking chord-seq-analysis pm2-f0) nil nil)
    ("Synthesis" (pm2-add-synth) nil nil)
    ))
