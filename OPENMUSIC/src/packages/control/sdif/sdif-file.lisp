@@ -345,6 +345,8 @@ Matrix info is formatted as multiple values : type signature, number of rows (el
            (list (fstreamdesc-id fstream) (fstreamdesc-fsig fstream)
                  (loop for mstream in (fstreamdesc-matrices fstream) collect (mstreamdesc-msig mstream)))))
 
+;;; used in pm2-add-synth
+(defmethod* get-num-streams ((self SDIFFile)) (length SDIFStreams))
 
 (defmethod* SDIFInfo ((self sdifFile) &optional (print t))
    :icon 639
