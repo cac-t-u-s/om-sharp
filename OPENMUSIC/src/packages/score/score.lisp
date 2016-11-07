@@ -26,6 +26,7 @@
           (compile&load (decode-local-path filename))) 
       '("score-objects/score-object"
         "score-objects/chord"
+        "score-objects/chord-seq"
         "score-objects/score"
         "import-export/musicxml"))
 
