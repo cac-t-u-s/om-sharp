@@ -41,19 +41,8 @@
   )
 
 
-
-;
-;(AddGenFun2Pack '(            
-;                              
-;                              om-spline
-;                               
-;                              
-;                              ) *function-package*)
-
-;(AddClass2Pack '(  bpc bpc-lib) *function-package*     
-;               :position (list (om-make-point 75 115) (om-make-point 75 225) (om-make-point 150 115) (om-make-point 150 225) (om-make-point 150 25)))
-;(AddPackage2Pack *function-package* *basic-package*)
-
+;;; SPLINE
+;(AddGenFun2Pack '(om-spline) *function-package*)
 
 ;;; DATA STRUCTURES
 ;(defvar *basic-data-package* (omNG-protect-object (omNG-make-new-package "Array")))
@@ -61,20 +50,10 @@
 ;(AddClass2Pack '(class-array) *basic-data-package* :position (list (om-make-point 175 50)))
 ;(AddPackage2Pack *basic-data-package* *basic-package*)
 
-;;; FILE BOX / TEXTFILE
-;(defvar *file-package* (omNG-protect-object (omNG-make-new-package "Text")))
-;(addpackage2pack *file-package* *basic-package*)
-;(AddClass2Pack '(TextFile) *file-package*)
-;(addgenfun2pack '(eval-textfile save-data) *file-package*)
-
-
 ;;; PICT
 ;(defvar *graphics-package*  (omNG-protect-object (omNG-make-new-package "Picture")))
-
 ;(AddClass2Pack '(picture) *graphics-package*)
 ;(AddGenFun2Pack '(get-RGB picture-size save-picture) *graphics-package*)
-
-;(addPackage2Pack *graphics-package* *basic-package*)
 
 
 
