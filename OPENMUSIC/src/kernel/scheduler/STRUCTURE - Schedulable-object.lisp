@@ -146,6 +146,9 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
   (if (eq (state self) :play)
       (reschedule self *scheduler* time nil)))
 
+(defmethod set-object-time ((self t) time)
+  nil)
+
 ;;;CALLBACK USED WHEN THE SYSTEM SWITCHES THE OBJECT TIME AUTOMATICALLY
 ;;;;;;Happens when the object loops.
 (defmethod set-time-callback ((self schedulable-object) time)
@@ -162,7 +165,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 
 ;;;UNLOOPS AN OBJECT
 ;;;;;The object will not loop
-(defmethod unloop-object ((self schedulable-object))
+(defmethod unloop-object ((self schedulable-object)) 
   (setf (looper self) nil))
 
 ;;;SET AN OBJECT'S INTERVAL
