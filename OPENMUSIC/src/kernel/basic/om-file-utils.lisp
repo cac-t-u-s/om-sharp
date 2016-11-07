@@ -10,6 +10,7 @@
 (defvar *om-outfiles-folder* nil)
 (defvar *om-tmpfiles-folder* nil)
 (defvar *om-infiles-folder* nil)
+(defvar *auto-delete-tmp-files* t)
 
 (defun init-user-folders (&optional reference-path)
   (let ((ref-path (or reference-path
