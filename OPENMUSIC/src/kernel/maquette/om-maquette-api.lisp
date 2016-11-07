@@ -35,11 +35,7 @@
    :doc "Loop maquette"
    :icon 'm-loop
    (declare (ignore trigger))
-   (if (or t1 t2)
-       (progn
-         (set-object-interval self `(,t1 t2))
-         (loop-object self))
-     (unloop-object self)))
+   (editor-set-interval (editor self) `(,t1 ,t2)) )
 
 (defmethod* m-set-time ((self OMMaquette) time &optional trigger)
    :initvals '(nil nil nil)
