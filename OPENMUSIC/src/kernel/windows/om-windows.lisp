@@ -89,7 +89,7 @@
                          (list (om-make-menu-comp 
                                 (list (om-make-menu-item "About OM..." 'show-about-win)
                                       (om-make-menu-item "Preferences" 'show-preferences-win)))
-                               (om-make-menu-item "Quit" 'om-confirmed-quit)))))
+                               (om-make-menu-item "Quit" 'om-quit)))))
 
 ;;; self = the OMEditor or anything (e.g. om-listener, etc.)
 (defmethod om-menu-items ((self t))
