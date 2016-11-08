@@ -58,4 +58,14 @@
   (om-beep-msg "Can not clone objects of type ~A !" (type-of self)))
  
 
+;;============================================================================
+;; VERY BASIC CLIPBOARD (INTERNAL FOR OM OBJECTS)
+;;============================================================================
+(defparameter *om-clipboard* nil)
+(defparameter *om-clip-pos* nil)
+(defun set-om-clipboard (value) (setf *om-clipboard* value))
+(defun get-om-clipboard () *om-clipboard*)
+(defun set-paste-position (position &optional panel) (setf *om-clip-pos* (if position (list panel position) nil)))
+(defun get-paste-position (panel) (when (equal panel (car *om-clip-pos*)) (cadr *om-clip-pos*)))
+
 

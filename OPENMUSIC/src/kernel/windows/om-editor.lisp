@@ -353,11 +353,6 @@
 
 
 
-;;   (when box (setf (name box) (name value)))
-;;   (enable-play-controls editor (action value))
-
-;;;=============================
-
 #|
 (defclass test-class () 
   ((a :initform nil :initarg :a :accessor a)

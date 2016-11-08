@@ -108,3 +108,17 @@
 (defmethod restore-path ((self t)) nil)
 
 
+;;; a utility function to get the executable path from a .app on Mac
+(defun real-exec-pathname (path)
+  (let ((name (car (last (pathname-directory path)))))
+    (if (and (directoryp path)
+             (string-equal "app" (subseq name (- (length name) 3))))
+        ;;; path is an application bundle
+        (make-pathname :directory (append (pathname-directory path) (list "Contents" "MacOS"))
+                       :name (subseq name 0 (- (length name) 4)))
+      ;;; otherwise...
+      path)))
+
+
+
+
