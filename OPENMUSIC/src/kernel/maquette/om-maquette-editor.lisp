@@ -9,14 +9,20 @@
 (defparameter +track-color-2+ (om-gray-color 0.6))
 (defparameter +font-color+ (om-gray-color 1))
 
-(defclass maquette-editor (multi-view-editor patch-editor play-editor-mixin) 
+
+(defclass maquette-editor (multi-view-editor patch-editor play-editor-mixin)
   ((view-mode :accessor view-mode :initarg :view-mode :initform :tracks)
    (snap-to-grid :accessor snap-to-grid :initarg :snap-to-grid :initform t)
-   (beat-info :accessor beat-info :initarg :beat-info :initform (list :beat-count 0 :prevtime 0 :nexttime 1))
-   ))
+   (beat-info :accessor beat-info :initarg :beat-info :initform (list :beat-count 0 :prevtime 0 :nexttime 1))))
 
-(defmethod get-info-command ((self maquette-editor)) 
-  #'(lambda () (show-inspector-window (editor (selected-view self)))))
+(defmethod om-menu-items ((self maquette-editor))
+  (remove nil (list 
+   (main-app-menu-item)
+   (om-make-menu "File" (default-file-menu-items self))
+   (om-make-menu "Edit" (default-edit-menu-items self))
+   (om-make-menu "Windows" (default-windows-menu-items self))
+   (om-make-menu "Help" (default-help-menu-items self))
+   )))
 
 ;;; maquette-editor is its own container
 (defmethod container-editor ((self maquette-editor)) self)
@@ -83,6 +89,17 @@
     (append (get-boxframes editorview)
             (get-grap-connections editorview))))
 
+
+(defmethod show-inspector-window ((self maquette-editor))
+  (if (equal self (editor (selected-view self)))
+      (call-next-method)
+    (show-inspector-window (editor (selected-view self)))))
+
+(defmethod update-inspector-for-editor ((self maquette-editor))
+  (if (equal self (editor (selected-view self)))
+      (call-next-method)
+    (update-inspector-for-editor (editor (selected-view self)))))
+    
 
 ;;;========================
 ;;; EDITOR WINDOW
