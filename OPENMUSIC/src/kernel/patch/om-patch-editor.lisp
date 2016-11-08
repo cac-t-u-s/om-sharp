@@ -168,7 +168,9 @@
   (unless (om-shift-key-p)
     (select-unselect-all (editor self) nil))
   (or (click-connection-handle self position)
-      (mouse-selection self position)))
+      (progn
+        (when (om-get-clipboard) (set-paste-position position self))
+        (mouse-selection self position))))
 
 ;;;handles the selction/drag, etc. of connections
 (defmethod click-connection-handle ((self patch-editor-view) pos)
@@ -362,53 +364,64 @@
 ;;; COPY / CUT / PASTE
 ;;;===========================================
 
-(defmethod copy-command-for-view ((self patch-editor-view))
-  (let* ((boxes (get-selected-boxes (editor self)))
+(defmethod copy-command-for-view ((editor patch-editor) (view t))
+  (let* ((boxes (get-selected-boxes editor))
          (connections (save-connections-from-boxes boxes)))
+    (set-paste-position nil)
     (set-om-clipboard (list (mapcar 'om-copy boxes) connections))))
 
-(defmethod cut-command-for-view ((self patch-editor-view))
-  (copy-command-for-view self)
-  (remove-selection (editor self)))
+(defmethod cut-command-for-view ((editor patch-editor) (view t))
+  (copy-command-for-view editor view)
+  (remove-selection editor))
 
-(defmethod paste-command-for-view ((self patch-editor-view))
+(defmethod paste-command-for-view ((editor patch-editor) (view t)) nil)
+
+(defmethod paste-command-for-view ((editor patch-editor) (view patch-editor-view))
   (let* ((boxes (car (get-om-clipboard)))
          (connections (cadr (get-om-clipboard)))
-         (editor (editor self))
-         (paste-pos (get-paste-position self))
+         (paste-pos (get-paste-position view))
          (ref-pos))
     (select-unselect-all editor nil)
-    (when paste-pos 
+    (when paste-pos
       (setq ref-pos (loop for bb in boxes 
-                          minimize (box-x bb) into xmin
-                          minimize (box-y bb) into ymin
+                          minimize (omg-x view (box-x bb)) into xmin
+                          minimize (omg-y view (box-y bb)) into ymin
                           finally (return (om-make-point xmin ymin))))
       (set-paste-position nil))
     (loop for b in boxes do
-          (omng-move b (if ref-pos 
-                           (om-add-points paste-pos (om-subtract-points (omp (box-x b) (box-y b)) ref-pos))
-                         (om-add-points (omp (box-x b) (box-y b)) (om-make-point 40 10))))
-          (when (omNG-add-element editor b)
-            (let ((frame (make-frame-from-callobj b)))
-              (om-add-subviews self frame)
-              (select-box b t)
-              )))
+          (let ((graphic-pos (if ref-pos 
+                                (om-add-points paste-pos 
+                                               (om-subtract-points (omg-position view (omp (box-x b) (box-y b))) 
+                                                                   ref-pos))
+                              (om-add-points (omg-position view (omp (box-x b) (box-y b))) 
+                                             (om-make-point 40 10)))))
+            (omng-move b (omng-position view graphic-pos))
+            (when (omNG-add-element editor b)
+              (let ((frame (make-frame-from-callobj b)))
+                (om-set-view-position frame graphic-pos)
+                (om-add-subviews view frame)
+                (select-box b t)
+                ))))
     ;;; connections
     (loop for c in (restore-connections-to-boxes connections boxes) do
           (omng-add-element editor c)
-          (add-connection-in-view self c)
+          (add-connection-in-view view c)
           ;(update-points c)
           )
-    (om-invalidate-view self)
+    (om-invalidate-view view)
     (set-om-clipboard (list (mapcar 'om-copy boxes) connections))
     ))
 
-(defmethod copy-command-for-view ((self om-editable-text))
-  (om-copy-command self))
-(defmethod cut-command-for-view ((self om-editable-text))
-  (om-cut-command self))
-(defmethod paste-command-for-view ((self om-editable-text))
-  (om-paste-command self))
+
+(defmethod copy-command-for-view ((editor patch-editor) (view om-editable-text))
+  (om-copy-command view))
+
+(defmethod cut-command-for-view ((editor patch-editor) (view om-editable-text))
+  (om-cut-command view))
+
+(defmethod paste-command-for-view ((editor patch-editor) (view om-editable-text))
+  (om-paste-command view))
+
 
 ;;; called from menu
 (defmethod copy-command ((self patch-editor))
@@ -416,7 +429,7 @@
       (let ((focus (or (om-get-subview-with-focus (main-view self))
                        (main-view self))))
         (when focus ;;; can be the main view or a text-input field for instance
-          (copy-command-for-view focus)
+          (copy-command-for-view self focus)
           ))))
 
 ;;; called from menu
@@ -425,7 +438,7 @@
       (let ((focus (or (om-get-subview-with-focus (main-view self))
                        (main-view self))))
         (when focus ;;; can be the main view or a text-input field for instance
-            (cut-command-for-view focus)
+            (cut-command-for-view self focus)
           ))))
 
 (defmethod paste-command ((self patch-editor))
@@ -433,7 +446,7 @@
       (let ((focus (or (om-get-subview-with-focus (main-view self))
                        (main-view self))))
         (when focus ;;; can be the main view or a text-input field for instance
-            (paste-command-for-view focus)))))
+            (paste-command-for-view self focus)))))
 
 
 

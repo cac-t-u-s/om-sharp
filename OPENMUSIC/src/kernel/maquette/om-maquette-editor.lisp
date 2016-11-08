@@ -42,9 +42,9 @@
 
 (defmethod n-tracks ((self maquette-editor)) 
   (max 4
-       (if (boxes (object self))
-           (list-max (remove-if-not #'numberp (mapcar 'group-id (get-all-boxes (object self)))))
-         0 )))
+       (or (and (boxes (object self))
+                (list-max (remove-if-not #'numberp (mapcar 'group-id (get-all-boxes (object self))))))
+           0 )))
 
 (defmethod get-range ((self maquette-editor)) (range (object self)))
 
@@ -78,11 +78,6 @@
     (add-box-in-track maq new-box track)  
     new-box))
 
-(defmethod select-all-command ((self maquette-editor))
-  #'(lambda () (select-unselect-all self t)
-      (om-invalidate-view (window self))))
-
-
 ;;;; !!!!!
 (defmethod get-internal-view-components ((self patch-editor))
   (let ((editorview (main-view self)))
@@ -91,14 +86,14 @@
 
 
 (defmethod show-inspector-window ((self maquette-editor))
-  (if (equal self (editor (selected-view self)))
-      (call-next-method)
-    (show-inspector-window (editor (selected-view self)))))
+  (if (and (selected-view self) (not (equal self (editor (selected-view self)))))
+      (show-inspector-window (editor (selected-view self)))
+    (call-next-method)))
 
 (defmethod update-inspector-for-editor ((self maquette-editor))
-  (if (equal self (editor (selected-view self)))
-      (call-next-method)
-    (update-inspector-for-editor (editor (selected-view self)))))
+  (if (and (selected-view self) (not (equal self (editor (selected-view self)))))
+      (update-inspector-for-editor (editor (selected-view self)))
+    (call-next-method)))
     
 
 ;;;========================
@@ -180,8 +175,8 @@
   (let ((boxes (boxes (object self))))
     (if boxes
         (set-ruler-range (get-g-component self :y-ruler) 
-                         (- (apply #'min (mapcar #'(lambda (b) (+ (box-y b) (box-h b))) boxes)) 10)  
-                         (+ (apply #'max (mapcar #'box-y boxes)) 10))
+                         (- (apply #'min (mapcar #'(lambda (b) (+ (box-y b) (if (scale-in-y-? b) (box-h b) -40))) boxes)) 10)
+                         (+ (apply #'max (mapcar #'(lambda (b) (- (box-y b) 0)) boxes)) 10))
       (set-ruler-range (get-g-component self :y-ruler) -10 110)
       )))
 
@@ -298,7 +293,9 @@
          (time (round (pix-to-x self (om-point-x position))))
          (selected-box (box-at-pos editor time (num self)))
          (p0 position))
-   
+    
+    (when (om-get-clipboard) (set-paste-position (omp time (num self)) self))
+
     (editor-box-selection editor selected-box)
      
     (om-invalidate-view (om-view-window self))
@@ -420,10 +417,11 @@
 (defmethod om-view-doubleclick-handler ((self sequencer-track-view) position)
   (let* ((editor (editor (om-view-window self)))
          (time (pix-to-x self (om-point-x position)))
-         (selected-box (box-at-pos editor time (num self))))
+         (selected-box (box-at-pos editor time (num self))))    
     (if selected-box 
         (open-editor selected-box)
       (progn
+        (when (om-get-clipboard) (set-paste-position (omp time (num self)) self))
         (editor-set-interval editor (list time time))
         (set-object-time (get-obj-to-play editor) time)))))
 
@@ -439,6 +437,30 @@
          (setf (frame new-box) self)
          (update-to-editor editor self)
          t))))
+
+
+(defmethod paste-command-for-view ((editor maquette-editor) (view sequencer-track-view))
+  (let* ((boxes (car (get-om-clipboard)))
+         (connections (cadr (get-om-clipboard)))
+         (paste-info (get-paste-position view))
+         (paste-x-pos (if paste-info (om-point-x paste-info)
+                        (list-max (mapcar #'get-box-end-date boxes))))
+         (ref-x-pos (list-min (mapcar #'box-x boxes))))
+    
+    (select-unselect-all editor nil)
+    (set-paste-position nil)
+    
+    (loop for new-box in boxes do
+          (let ((x-pos (+ paste-x-pos (- (box-x new-box) ref-x-pos))))
+            (setf (box-x new-box) x-pos
+                  (box-y new-box) 0 (box-h new-box) 10)
+            (add-box-in-track (object editor) new-box 
+                              (if paste-info (om-point-y paste-info)
+                                (group-id new-box)))
+            (setf (frame new-box) view)
+            (update-to-editor editor view)
+            (set-om-clipboard (list (mapcar 'om-copy boxes) connections))
+            ))))
 
 ;;;===============================
 ;;; DISPLAY BOXES IN MAQUETTE TRACKS
@@ -548,10 +570,37 @@
 
 
 (defmethod select-unselect-all ((self maquette-editor) val)
-  (if (equal (view-mode self) :tracks)
-      (progn (mapc #'(lambda (x) (select-box x val))
-                   (remove-if-not 'group-id (boxes (object self))))
-        (om-invalidate-view (main-view self)))
+  (if (and (selected-view self)
+           (not (equal self (editor (selected-view self)))))
+      (select-unselect-all (editor (selected-view self)) val)
+    (if (equal (view-mode self) :tracks)
+        (progn (mapc #'(lambda (x) (select-box x val))
+                     (remove-if-not 'group-id (boxes (object self))))
+          (om-invalidate-view (main-view self)))
+      (call-next-method))))
+
+(defmethod remove-selection ((self maquette-editor))
+  (if (and (selected-view self)
+           (not (equal self (editor (selected-view self)))))
+      (remove-selection (editor (selected-view self)))
+    (call-next-method)))
+
+(defmethod copy-command-for-view ((editor maquette-editor) (view t))
+  (if (and (selected-view editor)
+           (not (equal editor (editor (selected-view editor)))))
+      (copy-command-for-view (editor (selected-view editor)) view)
+    (call-next-method)))
+
+(defmethod cut-command-for-view ((editor maquette-editor) (view t))
+  (if (and (selected-view editor)
+           (not (equal editor (editor (selected-view editor)))))
+      (cut-command-for-view (editor (selected-view editor)) view)
+    (call-next-method)))
+
+(defmethod paste-command-for-view ((editor maquette-editor) (view patch-editor-view))
+  (if (and (selected-view editor)
+           (not (equal editor (editor (selected-view editor)))))
+      (paste-command-for-view (editor (selected-view editor)) view)
     (call-next-method)))
 
 ;;;========================

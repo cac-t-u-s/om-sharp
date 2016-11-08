@@ -371,14 +371,6 @@
      (:c "Action" :action c))))
 |#
 
-#|
-(defmethod om-view-click-handler :before ((self OMEditorView) position) 
-  (set-paste-position position self))
-
-(defmethod om-view-doubleclick-handler :before ((self OMEditorView) position) 
-  (set-paste-position nil self))
-|#
-
 
 
 
