@@ -73,6 +73,7 @@
 
         "windows/om-windows"
         "windows/om-main-window"
+        "windows/om-preferences-window"
         "windows/om-editor"
         "windows/om-multi-editor"
         "windows/om-inspector"

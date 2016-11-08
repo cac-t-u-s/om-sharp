@@ -67,10 +67,10 @@ A workspace contains all the elements of an OM session (documents, pointer to li
    ))
 
 (add-preference-module :workspace "Workspace")
-(add-preference :workspace :show-types "Show Types" t)
-(add-preference :workspace :show-dates "Show modification date" t)
-(add-preference :workspace :auto-import nil t)
-(add-preference :workspace :ask-import nil t)
+(add-preference :workspace :show-types "Show Types" :bool t)
+(add-preference :workspace :show-dates "Show modification date" :bool t)
+;(add-preference :workspace :auto-import nil :bool t)
+;(add-preference :workspace :ask-import nil :bool t)
 
 ;============================
 ; WS INIT / LOADING

@@ -128,14 +128,14 @@
 ;;;=================
 
 ;;; set from the preferences
-(defparameter *catch-errors* nil)
+(add-preference :general :catch-errors "Handle Error Messages" :bool nil "(Catch Lisp erros and display a simple message window)")
 
 ;;; SETS VALUE AS A LIST FOR EVERY OUPUT 
 ;;; RETURNS THE REQUESTED (OR FIRST) INPUT
 (defmethod omNG-box-value ((self OMBoxCall) &optional (numout 0)) 
   "Eval the output <numout> in <self>."
   (handler-bind ((error #'(lambda (c)
-                            (when *catch-errors*
+                            (when (get-pref-value :general :catch-errors)
                               (om-message-dialog (string+ "Error while evaluating the box " (string (name self)) " : " 
                                                           (om-report-condition c))
                                                  :size (om-make-point 300 200))
@@ -227,7 +227,7 @@
 (defmethod omNG-box-value ((self OMValueBox) &optional (numout 0))
   (declare (ignore num-out))
   (handler-bind ((error #'(lambda (c) 
-                            (when *catch-errors*
+                            (when (get-pref-value :general :catch-errors)
                               (om-message-dialog (string+ "Error while evaluating the box " (string (reference self)) " : " 
                                                           (om-report-condition c ))
                                                  :size (om-make-point 300 200))

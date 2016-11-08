@@ -110,20 +110,10 @@
 (defclass om-listener-in-pane (capi::listener-pane) ())
 (defclass om-listener-out-pane (capi::collector-pane) ())
 
-(defparameter *listener-on-top* nil)
-
-(defun listener-styles () 
-  (append (if *listener-on-top* (list :always-on-top))
-          (list 
-           ;:toolbox 
-           :no-character-palette
-           ;:shadowless
-           ;:textured-background  
-           )))
 
 ;(om-make-listener :input t)
 ;(setf om-lisp::*om-listener* nil)
-(defun om-make-listener (&key title x y width height initial-lambda (initial-prompt "") (input nil))
+(defun om-make-listener (&key title x y width height initial-lambda (initial-prompt "") (input nil) (on-top nil))
   (or (and om-lisp::*om-listener* (capi::find-interface 'om-listener))
       (progn
         (init-listener)
@@ -153,7 +143,8 @@
                                                   :description (if in (list in :divider out commands) (list out commands))
                                                   :ratios (if in '(1 nil 5 nil) '(1 nil))
                                                   :adjust :right)
-                           :window-styles (listener-styles)
+                           :window-styles (append (if on-top (list :always-on-top))
+                                                  (list :no-character-palette))  ;:toolbox :shadowless :textured-background
                            :ip in :op out
                            :title (or title "OM Listener")
                            :best-x (or x 100)

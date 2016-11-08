@@ -7,6 +7,8 @@
 ; USER FILES 
 ;;;=========
 
+;(om-relative-path '("out-files") nil (if *current-workspace* :workspace (om-user-home)))
+
 (defvar *om-outfiles-folder* nil)
 (defvar *om-tmpfiles-folder* nil)
 (defvar *om-infiles-folder* nil)

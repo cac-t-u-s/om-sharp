@@ -157,13 +157,17 @@
 (defmethod om-lisp::om-listener-window-menus ((self om-listener))
   (om::om-menu-items nil))
 
+(add-preference :general :listener-on-top "Keep Listener in Front" :bool nil "(Does not apply to the current Listener window)")
+
 (defun show-listener-win ()
   (let ((listenerwin (car (om-get-all-windows 'om-listener))))
     (if listenerwin (om-select-window listenerwin)
       (om-make-listener :title "OM Listener" 
                        ;:initial-lambda #'(lambda () (in-package :om-user))
                         :initial-prompt *om-startup-string*
-                        :height 200))))
+                        :height 200
+                        :on-top (get-pref-value :general :listener-on-top)
+                        ))))
 
 (defmethod font-command ((window om-listener))
   #'(lambda () (om-lisp::change-listener-font window)))
