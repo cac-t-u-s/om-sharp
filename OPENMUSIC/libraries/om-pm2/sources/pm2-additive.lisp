@@ -150,8 +150,8 @@ fad:  Fade Harmonics
                                       ))
                             unix-outname)))
           (print (string+ "PM2 PROCESS : " cmd))
-          (om::om-cmd-line cmd t)
-          (when om::*auto-delete-tmp-files* (om::clean-tmp-files))
+          (oa::om-cmd-line cmd (om::get-pref-value :general :print-system-output))
+          (om::maybe-clean-tmp-files)
           outname))
       (om::om-beep-msg "PM2 not found! Set path to pm2 in the OM preferences.")))
 
@@ -268,8 +268,8 @@ fad:  Fade Harmonics
                               (namestring chordsfile)
                               unix-outname)))
             (print (string+ "PM2 PROCESS : " cmd))
-            (om::om-cmd-line cmd t)
-            (when om::*auto-delete-tmp-files* (om::clean-tmp-files))
+            (oa::om-cmd-line cmd (om::get-pref-value :general :print-system-output))
+            (om::maybe-clean-tmp-files)
             outname)))
     (om::om-beep-msg "PM2 not found! Set path to pm2 in the OM preferences.")))
 
@@ -348,8 +348,8 @@ fad:  Fade Harmonics
                               (om-path2cmdpath outname)))
                  )
             (print (string+ "PM2 PROCESS (f0): " cmd))
-            (om::om-cmd-line cmd t)
-            (when om::*auto-delete-tmp-files* (om::clean-tmp-files))
+            (oa::om-cmd-line cmd (om::get-pref-value :general :print-system-output))
+            (om::maybe-clean-tmp-files)
             (if (probe-file outname)
                 outname
               (om::om-message-dialog "Error in pm2 F0 analysis")))))
@@ -406,11 +406,11 @@ fad:  Fade Harmonics
                               unix-outname)))
             
             (print (string+ "PM2 PROCESS : " cmd))
-            (om-cmd-line cmd *sys-console*)
-            (when *delete-inter-file* (clean-tmp-files))
+            (oa::om-cmd-line cmd (om::get-pref-value :general :print-system-output))
+            (om::maybe-clean-tmp-files)
             outname)))
     (progn
-      (when *delete-inter-file* (clean-tmp-files))
+      (om::maybe-clean-tmp-files)
       (om-beep-msg "PM2 not found! Set path to pm2 in the OM preferences."))))
 
 

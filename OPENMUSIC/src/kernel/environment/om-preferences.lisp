@@ -8,6 +8,12 @@
 (defstruct pref-module (id) (name) (items))
 (defstruct pref-item (id) (name)(type) (defval) (doc) (value))
 
+(defun maybe-eval-pref-item-value (pref-item)
+  (cond ((and (equal :folder (pref-item-type pref-item))
+              (symbolp (pref-item-value pref-item)))
+         (funcall (pref-item-value pref-item)))
+        (t (pref-item-value pref-item))))
+
 ;;; a list of pref-module
 (defvar *user-preferences* nil)
 
@@ -59,14 +65,17 @@
   (let* ((module (find-pref-module module-id))
          (pref-item (find pref-id (pref-module-items module) :key 'pref-item-id)))
     (when pref-item
-      (om-beep-msg "Warning: A preference with the same ID '~A' already exists!" pref-id))
+      (om-print "Warning: A preference with the same ID '~A' already exists!" pref-id))
     (setf (pref-module-items module)
           (append (remove pref-item (pref-module-items module))
                   (list (make-pref-item :id pref-id :name name :type type :defval defval :doc doc :value defval))))))
     
 ;;; hack
 (defun add-preference-section (module-id name)
-  (add-preference module-id :title name :title nil))
+  (let* ((module (find-pref-module module-id)))
+    (setf (pref-module-items module)
+          (append (pref-module-items module)
+                  (list (make-pref-item :id :title :name name :type :title))))))
 
 ;;;======================================================
 ;;; GET THE PREFERENCE VALUES
@@ -81,7 +90,7 @@
 (defun get-pref-value (module-name pref-key &optional preferences-list)
   (let ((pref-item (get-pref module-name pref-key preferences-list)))
     (if pref-item
-        (pref-item-value pref-item)
+        (maybe-eval-pref-item-value pref-item)
       (om-beep-msg "Preference '~A' not found in module '~A'" pref-key module-name))))
 
 (defun restore-default-preferences (&optional pref-module-id)
@@ -96,7 +105,7 @@
   (let ((pref-item (get-pref-in-module module key)))
     (if pref-item 
         (setf (pref-item-value pref-item) val)
-      (add-preference (pref-module-id module) key (string key) val))))
+      (add-preference (pref-module-id module) key (string key) NIL val))))
 
 (defun set-pref (module-name key val &optional preferences-list)
   (set-pref-in-module (find-pref-module module-name preferences-list) key val))

@@ -121,8 +121,6 @@
 
 (defmethod omNG-box-value ((self OMInBox) &optional (numout 0)) (current-box-value self numout))
 
-
-
 ;;;=================
 ;;; BOX EVALUATION
 ;;;=================

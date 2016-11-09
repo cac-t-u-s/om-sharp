@@ -16,5 +16,5 @@ If <open-shell-window> the command will be executed in a special OM shell window
       (progn 
         (om-open-shell)
         (om-send-command-to-shell command-line))
-    (om-cmd-line command-line t)))
+    (om-cmd-line command-line (om::get-pref-value :general :print-system-output))))
 

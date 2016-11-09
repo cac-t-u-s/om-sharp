@@ -49,7 +49,7 @@
 (defun default-windows-menu-items (self)
   (append 
    (unless (om-standalone-p) 
-     (list (om-make-menu-item "Preferences" 'show-preferences-win)
+     (list (om-make-menu-item "Preferences" 'show-preferences-win :key ",")
            (om-make-menu-item "MIDI Setup" 'show-midi-setup)))
    (list 
     (om-make-menu-comp 
