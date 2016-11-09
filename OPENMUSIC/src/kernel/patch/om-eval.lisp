@@ -214,7 +214,7 @@
 ;;;--------------------------
         
 (defmethod boxcall-function ((self OMBoxAbstraction))
-  (compile-patch (reference self)) ;; temp !!
+  (compile-if-needed (reference self))
   (intern (string (compiled-fun-name (reference self))) :om))
 
 (defmethod box-reference-value ((self OMBoxPatch))

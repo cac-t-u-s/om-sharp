@@ -147,8 +147,14 @@
         do (om-invalidate-view (frame box))))
 
 (defmethod compile-if-needed ((self OMProgrammingObject))
+  ;(print (list "COMPILE" (name self)))
   (unless (compiled? self) (compile-patch self)))
 
+(defmethod touch ((self t)) nil)
+
+(defmethod touch ((self OMProgrammingObject))
+  (setf (compiled? self) nil)
+  (call-next-method))
 
 (defclass OMPersistantObject () 
   ((mypathname :initform nil :initarg :mypathname :accessor mypathname :documentation "associated file pathname")
@@ -156,15 +162,17 @@
   (:documentation "Mixin class for perstistant objects. Persistants object are the subset of the metaobjects which are stored as files or folders."))
 
 (defmethod touch ((self OMPersistantObject))
-  (setf (saved? self) nil))
+  (setf (saved? self) nil)
+  (call-next-method))
 
 (defmethod update-from-editor ((self OMProgrammingObject))
   (mapcar 'update-from-editor (references-to self))
-  (call-next-method))
-
-(defmethod update-from-editor ((self OMPersistantObject))
   (touch self)
   (call-next-method))
+
+;(defmethod update-from-editor ((self OMPersistantObject))
+;  (touch self)
+;  (call-next-method))
 
 (defmethod is-persistant ((self OMPersistantObject)) self)
 (defmethod is-persistant ((self t)) nil)

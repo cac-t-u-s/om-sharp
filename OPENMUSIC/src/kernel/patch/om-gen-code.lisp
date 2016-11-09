@@ -172,8 +172,7 @@
 (defmethod gen-code-for-call ((self OMBoxPatch)  &optional args)
   (let ((patchfun `,(intern (string (compiled-fun-name (reference self))) :om))
         (arguments (or args (gen-code-inputs self))))
-    (unless (compiled? (reference self))
-      (compile-patch (reference self)))
+    (compile-if-needed (reference self))
     `(funcall ',patchfun ,.arguments)))
 
 (defmethod gen-code-for-call ((self OMValueBox) &optional args)
