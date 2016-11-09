@@ -156,7 +156,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 
 ;;;SET THE OBJECT SCHEDULER TIME WINDOW
 (defmethod set-object-time-window ((self schedulable-object) window)
-  (setf (user-time-window self) (max window *Lmin*)))
+  (setf (user-time-window self) window)) ;(max window *Lmin*)
 
 ;;;LOOPS AN OBJECT
 ;;;;;The object will loop at the end of its interval of at its end (if it exists)

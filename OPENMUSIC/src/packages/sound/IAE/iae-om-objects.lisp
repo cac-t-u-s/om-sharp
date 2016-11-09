@@ -347,7 +347,8 @@
   (continue-buffer-player (buffer-player object))
   (call-next-method))
 
-(defmethod set-object-time ((self iae) time)
+(defmethod set-object-time ((self iae) time) 
+  (iae-reset self)
   (jump-to-time (buffer-player self) time)
   (call-next-method))
 
