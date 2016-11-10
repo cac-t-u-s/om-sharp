@@ -157,7 +157,7 @@ For easier browsing it is recommended that a package do not contain at the same 
                            (functions package))
                    (remove nil 
                            (loop for item in subpack collect
-                                 (when (and (not (and (omlib-p item) (not (loaded? item))))
+                                 (when (and (not (and (subtypep (type-of item) 'OMLib) (not (loaded? item))))
                                             (or (not (empty-fun-p item)) (equal item *package-user*)))
                                    (package-fun2menu item (name item) action)))
                            )))))
@@ -171,7 +171,7 @@ For easier browsing it is recommended that a package do not contain at the same 
                            (classes package))
                    (remove nil 
                            (loop for item in subpack collect
-                                 (when (and (not (and (omlib-p item) (not (loaded? item))))
+                                 (when (and (not (and (subtypep (type-of item) 'OMLib) (not (loaded? item))))
                                             (or (not (empty-class-p item)) (equal item *package-user*)))
                                    (package-classes2menu item (name item) action)))
                            )))))

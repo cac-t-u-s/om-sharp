@@ -28,7 +28,7 @@
     (setf *open-documents* (remove self *open-documents* :key 'doc-entry-doc))
     (when (and (null *open-documents*) (not *quit-lock*)
                (member :om-deliver *features*))
-      (om-confirmed-quit))))
+      (om-quit))))
 
 (defmethod update-document-path ((self OMPersistantObject))
   (let ((doc-entry (find self *open-documents* :key 'doc-entry-doc)))
