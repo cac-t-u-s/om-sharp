@@ -6,6 +6,10 @@
 
 (defclass OMComment (OMBox) ())
 
+(add-preference-section :appearance "Comments")
+(add-preference :appearance :comment-color "Color" :color (om-def-color :black))
+(add-preference :appearance :comment-style "Font" :font (om-def-font :font1 :style '(:italic)))
+
 (defmethod get-properties-list ((self OMComment))
   '(("Appearance" ;;; category
                (:bgcolor "Background color" :color color)

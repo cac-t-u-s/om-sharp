@@ -31,6 +31,8 @@
    (om-make-pathname :directory (mypathname self) :name (name self) :type "lisp"))
 
 
+(add-preference-module :libraries "Libraries") 
+
 ;;;=================================
 ;;; registered libraries package
 ;;;=================================

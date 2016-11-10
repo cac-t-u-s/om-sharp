@@ -9,7 +9,7 @@
 (defstruct pref-item (id) (name)(type) (defval) (doc) (value))
 
 (defun maybe-eval-pref-item-value (pref-item)
-  (cond ((and (equal :folder (pref-item-type pref-item))
+  (cond ((and (member (pref-item-type pref-item) '(:folder :file))
               (symbolp (pref-item-value pref-item)))
          (funcall (pref-item-value pref-item)))
         (t (pref-item-value pref-item))))
@@ -64,18 +64,29 @@
     (add-preference-module module-id (string module-id)))
   (let* ((module (find-pref-module module-id))
          (pref-item (find pref-id (pref-module-items module) :key 'pref-item-id)))
-    (when pref-item
-      (om-print "Warning: A preference with the same ID '~A' already exists!" pref-id))
-    (setf (pref-module-items module)
-          (append (remove pref-item (pref-module-items module))
-                  (list (make-pref-item :id pref-id :name name :type type :defval defval :doc doc :value defval))))))
+    (if pref-item 
+        ;; the pref already exist (e.g. it was already loaded when this function s called):
+        ;; we update its name, defval etc. but keep the value
+        ;(om-print "Warning: A preference with the same ID '~A' already exists!" pref-id)
+        (setf (pref-item-name pref-item) name 
+              (pref-item-type pref-item) type
+              (pref-item-defval pref-item) defval 
+              (pref-item-doc pref-item) doc)
+      (setf (pref-module-items module)
+            (append (pref-module-items module)
+                    (list (make-pref-item :id pref-id :name name :type type :defval defval :doc doc :value defval)))))))
     
 ;;; hack
+;;; todo: check that this section does not already exist
 (defun add-preference-section (module-id name)
-  (let* ((module (find-pref-module module-id)))
-    (setf (pref-module-items module)
-          (append (pref-module-items module)
-                  (list (make-pref-item :id :title :name name :type :title))))))
+  (let* ((module (find-pref-module module-id))) 
+    (unless (find name (remove-if-not 
+                        #'(lambda (item) (equal (pref-item-id item) :title)) 
+                        (pref-module-items module))
+                  :test 'string-equal :key 'pref-item-name)
+      (setf (pref-module-items module)
+            (append (pref-module-items module)
+                    (list (make-pref-item :id :title :name name :type :title)))))))
 
 ;;;======================================================
 ;;; GET THE PREFERENCE VALUES
@@ -120,7 +131,9 @@
 ; (save-preferences)
 (defun save-pref-module (module)
   (cons (pref-module-id module)
-        (loop for pref in (pref-module-items module) collect
+        (loop for pref in (pref-module-items module) 
+              unless (equal :title (pref-item-id pref))
+              collect
               (list (pref-item-id pref) (omng-save (pref-item-value pref))))))
 
 (defun save-preferences ()
@@ -137,6 +150,8 @@
             (loop for pref in (cdr saved-module)
                   do (set-pref module-id (car pref) (omng-load (cadr pref)))))
           )))
+
+(add-om-exit-action 'save-preferences)
 
 ;;;====================================
 ;;; DEFAULT MODULE

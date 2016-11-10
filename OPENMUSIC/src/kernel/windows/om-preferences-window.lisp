@@ -71,6 +71,51 @@
                                                       ))))
     ))
      
+
+(defmethod make-preference-item ((type (eql :file)) pref-item) 
+  (let* ((curr-value (maybe-eval-pref-item-value pref-item))
+         (textview (om-make-view 'click-and-edit-text 
+                                :text (format nil "~A" curr-value)
+                                :resizable :w
+                                :bg-color (om-def-color :window)
+                                :fg-color (if (probe-file curr-value) (om-def-color :black) (om-def-color :red))
+                                :border nil
+                                :size (omp 200 20)
+                                :font (om-def-font :font1)
+                                :after-fun #'(lambda (item)
+                                                (setf (pref-item-value pref-item) (text item))
+                                                (om-set-fg-color 
+                                                 item 
+                                                 (if (probe-file (pref-item-value pref-item)) 
+                                                     (om-def-color :black) (om-def-color :red))))
+                                )))
+    (om-make-layout 'om-row-layout
+                  :resizable :w
+                  :subviews (list 
+                             textview
+                             (om-make-view 'om-view 
+                                           :size (omp 20 18) :resizable nil
+                                           :subviews (list 
+                                                      (om-make-graphic-object 'om-icon-button :size (omp 20 18) 
+                                                                              :position (omp 0 0)
+                                                                              :icon 'folder :icon-pushed 'folder-pushed
+                                                                              :action #'(lambda (button) (declare (ignore button))
+                                                                   (let ((dir (om-choose-directory-dialog :directory *last-open-dir*)))
+                                                                     (when dir
+                                                                       (setf *last-open-dir* dir)
+                                                                       (setf (pref-item-value pref-item) (namestring dir))
+                                                                       (setf (text textview) (pref-item-value pref-item))
+                                                                       (om-set-fg-color 
+                                                                        textview 
+                                                                        (if (probe-file (pref-item-value pref-item)) 
+                                                                            (om-def-color :black) (om-def-color :red)))
+                                                                       (om-invalidate-view textview)
+                                                                       ))))
+                                                      ))))
+    ))
+
+
+
 (defmethod make-preference-item ((type list) pref-item)
   (om-make-di 'om-popup-list 
               ;:enable (valid-property-p object prop-id)
@@ -140,7 +185,7 @@
          (om-make-layout 'om-row-layout
                          :subviews (list
                                     (om-make-di 'om-simple-text :text (pref-item-name pref-item) 
-                                                :font (if (equal (pref-item-type pref-item) :title) (om-def-font :font2b) (om-def-font :font2))
+                                                :font (if (equal (pref-item-type pref-item) :title) (om-def-font :font3b) (om-def-font :font2))
                                                 :size (om-make-point 160 ;(list :string (format nil "  ~A  " (pref-item-name pref-item))) 
                                                                      20))
                                     (make-preference-item (pref-item-type pref-item) pref-item)))))                                                         

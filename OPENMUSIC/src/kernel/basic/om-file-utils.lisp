@@ -121,7 +121,7 @@ Ex. (tmpfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/
     (setf *tmpparfiles* nil)))
 
 (defun maybe-clean-tmp-files ()
-  (when (get-pref-value :general :delete-tmp)
+  (when (get-pref-value :general :delete-tmp-files)
     (clean-tmp-files)))
 
 

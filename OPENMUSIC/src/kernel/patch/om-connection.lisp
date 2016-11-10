@@ -14,6 +14,11 @@
    (seleted :accessor selected :initarg :selected :initform nil)
    (graphic-connection :initform nil :accessor graphic-connection)))
 
+
+(add-preference-section :appearance "Connections")
+(add-preference :appearance :connection-color "Color" :color (om-def-color :black))
+(add-preference :appearance :connection-style "Syle" '(:normal :line :curved) :normal)
+
 (defmethod get-properties-list ((self OMConnection))
   '(("Connection properties" ;;; category
                (:color "Color" :color color) ;;; id text type 

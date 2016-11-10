@@ -66,9 +66,9 @@ A workspace contains all the elements of an OM session (documents, pointer to li
    (elements-view-mode :accessor elements-view-mode :initform :name) 
    ))
 
-(add-preference-module :workspace "Workspace")
-(add-preference :workspace :show-types "Show Types" :bool t)
-(add-preference :workspace :show-dates "Show modification date" :bool t)
+;(add-preference-module :workspace "Workspace")
+;(add-preference :workspace :show-types "Show Types" :bool t)
+;(add-preference :workspace :show-dates "Show modification date" :bool t)
 ;(add-preference :workspace :auto-import nil :bool t)
 ;(add-preference :workspace :ask-import nil :bool t)
 
@@ -174,7 +174,7 @@ A workspace contains all the elements of an OM session (documents, pointer to li
 ; (start-workspace)
 
 (defun start-from-ws-file (pathname)
-  (set-om-pref :prev-ws pathname)
+  (remember-previous-ws pathname)
   (setf *current-workspace* (make-instance 'OMWorkspace
                                            :name (pathname-name pathname)
                                            :mypathname pathname))

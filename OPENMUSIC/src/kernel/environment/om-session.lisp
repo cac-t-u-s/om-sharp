@@ -26,21 +26,30 @@
 ;;; OM GENERAL PREFERENCES
 ;;;======================================
 
-(defvar *om-preferences* nil)
+;(defvar *om-preferences* nil)
 
 (defun om-preference-file ()
   (let* ((userpref (om-user-pref-folder)))
     (make-pathname
      :device (pathname-device userpref)
-     :directory (append (pathname-directory userpref) (list "OpenMusic" 
-                                                            (format nil "~A~D" *app-name* (round *om-version*))))
-     :name "preferences" :type "lisp")))
+     :directory (append (pathname-directory userpref) 
+                        (list "OpenMusic" 
+                              (format nil "~A~D" *app-name* (round *om-version*))))
+     :name "preferences" :type "om")))
 
 ;(WITH-OPEN-FILE (out "/Users/bresson/Desktop/test.txt" :direction :output 
 ;                         :if-does-not-exist :create :if-exists :supersede) 
 ;      (format out "~A~%" (list :om-version (+ 2 3))))
 ;     (prin1 `(:om-version ,(+ 3 3)) out))
 
+
+(defvar *last-open-ws* nil)
+(defun remember-previous-ws (&optional (path nil path-supplied-p))
+  (when path-supplied-p 
+    (setf *last-open-ws* path))
+  *last-open-ws*)
+
+  
 (defmethod save-om-preferences ()
   (let ((path (om-preference-file)))
     (om-create-directory (make-pathname :directory (pathname-directory path)) :if-exists nil)
@@ -48,22 +57,21 @@
                          :if-does-not-exist :create 
                          :if-exists :supersede) 
       (let ((*print-pretty* t))
-        (print `(:info (:om-version ,*om-version*) (:saved ,(om-get-date))) out)
-        (mapcar #'(lambda (item) 
-                    (print (list (car item) (omng-save (cadr item))) out))
-                (remove-if #'(lambda (item) (find item '(:preferences :info)))
-                           *om-preferences* :key 'car))
+        (pprint `(:info (:om-version ,*om-version*) (:saved ,(om-get-date))) out)
+        (pprint `(:previous-ws  ,(omng-save *last-open-ws*)) out)
+        ;;; if there is a workspace the preferences will be stored in that workspace
         (unless *current-workspace*
-          (print `(:user-preferences
-                   ,.(mapcar #'save-pref-module *user-preferences*))
-                 out))
+          (pprint `(:user-preferences
+                    ,.(mapcar #'save-pref-module *user-preferences*))
+                  out))
         ))
     path))
+
 
 ; (save-om-preferences)
 ;(set-om-pref :prev-ws #P"/Users/bress/")
 ;(list-from-file (om-preference-file))
-;(cdr (find :om-preferences (list-from-file (om-preference-file)) :test 'equal :key 'car))
+;
 
 ;(read-om-preferences)
 
@@ -71,26 +79,9 @@
   (let* ((path (om-preference-file))
          (pr-list (and (file-exist-p path)
                        (list-from-file path))))
-    (setf *om-preferences* (mapcar #'(lambda (item) 
-                                       (list (car item) (omng-load (cadr item))))
-                                   pr-list))
-    ))
+    (load-saved-prefs
+     (cdr (find :user-preferences pr-list :test 'equal :key 'car)))))
 
-; (get-om-pref :prev-ws)
-
-;;; preflist attached to <key>
-(defun get-om-pref-list (key)
-  (cdr (find key *om-preferences* :test 'equal :key 'car)))
-
-;;; short-hand when there is only one value
-(defun get-om-pref (key)
-  (cadr (find key *om-preferences* :test 'equal :key 'car)))
-
-(defun set-om-pref (key val)
-  (let ((pos (position key *om-preferences* :test 'equal :key 'car)))
-    (if pos 
-      (setf (nth pos *om-preferences*) (list key val))
-      (setf *om-preferences* (append *om-preferences* (list (list key val)))))))
 
 
 ;;;======================================
@@ -145,7 +136,7 @@
 ;;;======================================
 
 (defun start-without-ws-file () 
-  (set-om-pref :prev-ws nil)
+  (remember-previous-ws nil)
   t)
 
 ;;;======================================
@@ -181,12 +172,8 @@
   #+(or om-deliver mswindows)
   (define-action "Confirm when quitting image" "Prompt for confirmation" 'om::quit-om-callback)
   
-  ;;; read the general OM prefs in user
+  ;;; read the general OM prefs
   (read-om-preferences)
-  ;;; stores default values for all pref modules
-  (restore-default-preferences)
-  ;;; applies preferences in OM prefs (if any)
-  (load-saved-prefs (get-om-pref-list :preferences))
   
   ;;; start workspace (maybe)
   ;(start-workspace)
@@ -335,10 +322,20 @@
 ;;; QUIT
 ;;;======================================
 
+(defvar *om-exit-actions* nil)
+
+(defun add-om-exit-action (action)
+  (pushnew action *om-exit-actions*))
+
+(defun perform-om-exit-actions ()
+  (loop for action in *om-exit-actions* 
+        do (funcall action)))
+
 (defun quit-om-callback () 
   (let ((rep (and (om-y-or-n-dialog "Quit OpenMusic ?")
                   (om-lisp::check-buffers-before-close)
                   (check-om-docs-before-close))))
     (when rep 
+      (perform-om-exit-actions)
       (oa::om-api-exit))
     rep))

@@ -34,6 +34,15 @@
    (:metaclass omstandardclass))
 
 
+(add-preference-module :appearance "Appearance")
+(add-preference-section :appearance "Boxes")
+(add-preference :appearance :box-size "Size (%)" '(25 50 75 100 125 150 175 200) 100)
+(add-preference :appearance :box-color "Color" :color (om-def-color :gray))
+(add-preference :appearance :box-border "Border" :bool t)
+(add-preference :appearance :box-font "Text font" :font (om-def-font :font1))
+(add-preference :appearance :box-align "Text align" '(:left :center :right) :left)
+
+
 (defgeneric gen-code (box &optional numout)  
    (:documentation "Used to generate Lisp code from a box call."))
 
