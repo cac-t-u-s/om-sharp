@@ -31,7 +31,7 @@
 (defmethod initialize-instance :after ((self iae) &rest initargs)
   (om-print (format nil "new engine for ~A" self) "OM")
   (setf (iaeengine-ptr self) (iae::iae_new *iae-sr* 512 (channels self) 1))
-  (set-object-time-window self 0)
+  (set-object-time-window self 100)
   (let* ((size (round (* (max-dur self) *iae-sr*) 1000))
          (audio-buffer (fli::allocate-foreign-object 
                         :type :pointer :nelems (channels self)

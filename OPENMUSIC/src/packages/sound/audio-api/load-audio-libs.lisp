@@ -20,7 +20,8 @@
 (compile&load (make-pathname :directory  (pathname-directory *load-pathname*) :name "audio-api"))
 
 #+(or macosx windows)
-(compile&load (make-pathname :directory (append (pathname-directory *load-pathname*) (list "libaudiostream")) :name "LibAudioStream"))
+;(compile&load (make-pathname :directory (append (pathname-directory *load-pathname*) (list "libaudiostream")) :name "LibAudioStream"))
+#+macosx(compile&load (make-pathname :directory (append (pathname-directory *load-pathname*) (list "omjuceaudiolib")) :name "OMJuceAudioLib"))
 
 
 (in-package :om-audio)
@@ -29,17 +30,24 @@
 
 (defun load-audio-libs ()
 
-  #+libaudiostream
-  (om-fi::om-load-foreign-library  
-   "LIBAUDIOSTREAM"
-   `((:macosx (:or 
-               ,(om-fi::om-foreign-library-pathname "LibAudioStreamMC.framework/LibAudioStreamMC")
-               ;(:framework "LibAudioStreamMC")
-               ))
-     (:windows (:or 
-                ,(om-fi::om-foreign-library-pathname "LibAudioStream2.dll")
-                (:default "LibAudioStream")))
-     ((:default "LibAudioStream"))))
+ ; #+libaudiostream
+ ; (om-fi::om-load-foreign-library  
+ ;  "LIBAUDIOSTREAM"
+ ;  `((:macosx (:or 
+ ;              ,(om-fi::om-foreign-library-pathname "LibAudioStreamMC.framework/LibAudioStreamMC")
+ ;              ;(:framework "LibAudioStreamMC")
+ ;              ))
+ ;    (:windows (:or 
+ ;               ,(om-fi::om-foreign-library-pathname "LibAudioStream2.dll")
+ ;               (:default "LibAudioStream")))
+ ;    ((:default "LibAudioStream"))))
+
+
+  ;#+omjuceaudiolib
+  ;(om-fi::om-load-foreign-library  
+  ; "OMJuceAudioLib"
+  ; `((:macosx (:or ,(om-fi::om-foreign-library-pathname "OMJuceAudioLib.dylib")))))
+
   
   #-macosx 
   (om-fi::om-load-foreign-library 

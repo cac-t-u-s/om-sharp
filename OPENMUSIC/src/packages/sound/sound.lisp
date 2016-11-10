@@ -11,7 +11,8 @@
       '(
         "sound/sound"
         "sound/audio-tools"
-        "sound/las-player"
+        ;"sound/las-player"
+        "sound/juce-player"
         "sound-pack"
         "sound/buffer-player"
         "sound/sound-processing"
