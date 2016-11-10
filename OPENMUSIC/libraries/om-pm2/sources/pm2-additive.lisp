@@ -79,14 +79,6 @@ fad:  Fade Harmonics
 |#
 
 
-
-;;;=======================================
-;;; to be initialized from the preferences
-;;;=======================================
-(defvar *PM2-PATH* nil)
-;;;=======================================
-
-
 ;;;================================================================================================================
 ;;; PM2 PARTIAL TRACKING
 ;;;================================================================================================================
@@ -105,55 +97,55 @@ fad:  Fade Harmonics
                                  (analysis-type "inharmonic") (analysis-params '(20 0.0 50 1 3 0.017 50 0.009))
                                  (windowsize 4096) (fftsize 4096) (step 256) (windowtype "hanning") (smoothing-enveloppe  '(0.0 0.0))
                                  (out "partials.sdif"))
+  (let ((PM2-path (om::real-exec-pathname (om::get-pref-value :libraries :pm2-path))))
+    (if (and PM2-path (probe-file PM2-path))
 
-  (if (and *PM2-PATH* (probe-file *PM2-PATH*))
-
-      (let ((outname (if out 
-                         (if (pathnamep out) out (om::outfile out))
-                       (om::om-choose-new-file-dialog :prompt "Choose a SDIF output file for Partial Tracking Analysis"
-                                                      :directory (om::def-save-directory)))))
-        (when outname
-          (setf om::*last-saved-dir* (om::om-make-pathname :directory outname)))
-        (let* ((unix-outname (namestring outname))
-               (timestr (concatenate 'string "" (if begin-t (format nil "-B~D " begin-t) "")
-                                     (if end-t (format nil "-E~D " end-t) "")))
-               (fftstr (format nil "-N~D -M~D -W~D -I~D " fftsize windowsize windowtype step))
-               (cmd (format nil "~s -v -S~s -Apar ~A ~A ~A -p1 --mode=0 -q~D -m~D -a~D -r~D ~A ~s" 
-                            (namestring *PM2-PATH*)
-                            sound
-                            timestr
-                            fftstr 
-                            (if (string-equal analysis-type "harmonic") 
-                                (let ((f0file (cond ((pathnamep analysis-params) analysis-params)
-                                                    ((stringp analysis-params) (if (probe-file analysis-params) (pathname analysis-params) (tmpfile analysis-params)))
-                                                    ((typep analysis-params 'om::sdiffile) (om::file-pathname analysis-params))
-                                                    (t (let ((tmpfile (tmpfile "ptrack-f0.sdif")))
-                                                         (pm2-f0 sound :fund-minfreq 50.0 :fund-maxfreq 2000.0 :spectrum-maxfreq 4000.0 :out tmpfile)
-                                                         (om::add-tmp-file tmpfile)
-                                                         tmpfile)))))
-                                  (format nil " -P~s " (namestring f0file)))
-                              "")
-                            max-partials
-                            (float (- amp-treshold))
-                            (car smoothing-enveloppe)
-                            (cadr smoothing-enveloppe)
-                            (let ((data (if (consp analysis-params) analysis-params '(20 0.0 50 1 3 0.017 50 0.009))))
-                              (format nil "-Ct~D -Cf~D --devFR=~D --devFC=~D --devA=~D --devM=~D --devK=~D -L~D"
-                                      (nth 5 data)
-                                      (trunc (- (expt 2 (/ (nth 6 data) 1200.0)) 1) 3)
-                                      (trunc (- (expt 2 (/ (nth 0 data) 1200.0)) 1) 3)
-                                      (float (nth 1 data))
-                                      (/ (nth 2 data) 100.0)
-                                      (nth 3 data)
-                                      (if (< (nth 4 data) (nth 3 data)) (nth3 data) (nth 4 data))
-                                      (nth 7 data)
-                                      ))
-                            unix-outname)))
-          (print (string+ "PM2 PROCESS : " cmd))
-          (oa::om-cmd-line cmd (om::get-pref-value :general :print-system-output))
-          (om::maybe-clean-tmp-files)
-          outname))
-      (om::om-beep-msg "PM2 not found! Set path to pm2 in the OM preferences.")))
+        (let ((outname (if out 
+                           (if (pathnamep out) out (om::outfile out))
+                         (om::om-choose-new-file-dialog :prompt "Choose a SDIF output file for Partial Tracking Analysis"
+                                                        :directory (om::def-save-directory)))))
+          (when outname
+            (setf om::*last-saved-dir* (om::om-make-pathname :directory outname)))
+          (let* ((unix-outname (namestring outname))
+                 (timestr (concatenate 'string "" (if begin-t (format nil "-B~D " begin-t) "")
+                                       (if end-t (format nil "-E~D " end-t) "")))
+                 (fftstr (format nil "-N~D -M~D -W~D -I~D " fftsize windowsize windowtype step))
+                 (cmd (format nil "~s -v -S~s -Apar ~A ~A ~A -p1 --mode=0 -q~D -m~D -a~D -r~D ~A ~s" 
+                              (namestring PM2-path)
+                              sound
+                              timestr
+                              fftstr 
+                              (if (string-equal analysis-type "harmonic") 
+                                  (let ((f0file (cond ((pathnamep analysis-params) analysis-params)
+                                                      ((stringp analysis-params) (if (probe-file analysis-params) (pathname analysis-params) (tmpfile analysis-params)))
+                                                      ((typep analysis-params 'om::sdiffile) (om::file-pathname analysis-params))
+                                                      (t (let ((tmpfile (tmpfile "ptrack-f0.sdif")))
+                                                           (pm2-f0 sound :fund-minfreq 50.0 :fund-maxfreq 2000.0 :spectrum-maxfreq 4000.0 :out tmpfile)
+                                                           (om::add-tmp-file tmpfile)
+                                                           tmpfile)))))
+                                    (format nil " -P~s " (namestring f0file)))
+                                "")
+                              max-partials
+                              (float (- amp-treshold))
+                              (car smoothing-enveloppe)
+                              (cadr smoothing-enveloppe)
+                              (let ((data (if (consp analysis-params) analysis-params '(20 0.0 50 1 3 0.017 50 0.009))))
+                                (format nil "-Ct~D -Cf~D --devFR=~D --devFC=~D --devA=~D --devM=~D --devK=~D -L~D"
+                                        (nth 5 data)
+                                        (trunc (- (expt 2 (/ (nth 6 data) 1200.0)) 1) 3)
+                                        (trunc (- (expt 2 (/ (nth 0 data) 1200.0)) 1) 3)
+                                        (float (nth 1 data))
+                                        (/ (nth 2 data) 100.0)
+                                        (nth 3 data)
+                                        (if (< (nth 4 data) (nth 3 data)) (nth3 data) (nth 4 data))
+                                        (nth 7 data)
+                                        ))
+                              unix-outname)))
+            (om::om-print cmd "PM2")
+            (om::om-cmd-line cmd)
+            (om::maybe-clean-tmp-files)
+            outname))
+      (om::om-beep-msg "PM2 not found! Set path to pm2 in the OM preferences."))))
 
 
 (defmethod pm2-partial-tracking ((sound pathname) &key
@@ -226,52 +218,53 @@ fad:  Fade Harmonics
                                    (windowsize 4096) (fftsize 4096) (step 256) (windowtype "hanning")
                                    (out "chordseqs.sdif"))
               
-  (if (and *PM2-PATH* (probe-file *PM2-PATH*))
-      (let ((outname (if out 
-                         (if (pathnamep out) out (outfile out))
-                       (om::om-choose-new-file-dialog :prompt "Choose a SDIF output file for Chord Sequence Analysis"
-                                                      :directory (om::def-save-directory)))))
-        (when outname
-          (setf om::*last-saved-dir* (om::om-make-pathname :directory outname))
-          (let* ((unix-outname (namestring outname))
-                 (typestr (if (and (stringp analysis-type) (string-equal analysis-type "averaged-spectrum")) "-Aseqs" "-Aseqp"))
-                 (timestr (string+ "" (if begin-t (format nil "-B~D " begin-t) "")
-                                   (if end-t (format nil "-E~D " end-t) "")))
-                 (chordsfile (cond ((pathnamep markers) markers)
-                                   ((stringp markers) (if (probe-file markers) markers (tmpfile markers)))
-                                   (t (om::add-tmp-file (make-pm2-chord-file markers (om::tmpfile "tmpchords")))
-                                      (om::tmpfile "tmpchords"))))
-                 (fftstr (format nil "-N~D -M~D -W~D -I~D " fftsize windowsize windowtype step))
-                 (cmd (format nil "~s -v -S~s ~A ~A ~A -OS -p0 -q~D -m~D -a0 -r0 ~A --chords=~s ~s" 
-                              (namestring *PM2-PATH*)
-                              (namestring self)
-                              typestr
-                              timestr
-                              fftstr 
-                              max-partials
-                              (float (- amp-treshold))
+  (let ((PM2-path (om::real-exec-pathname (om::get-pref-value :libraries :pm2-path))))
+    (if (and PM2-path (probe-file PM2-path))
+        (let ((outname (if out 
+                           (if (pathnamep out) out (outfile out))
+                         (om::om-choose-new-file-dialog :prompt "Choose a SDIF output file for Chord Sequence Analysis"
+                                                        :directory (om::def-save-directory)))))
+          (when outname
+            (setf om::*last-saved-dir* (om::om-make-pathname :directory outname))
+            (let* ((unix-outname (namestring outname))
+                   (typestr (if (and (stringp analysis-type) (string-equal analysis-type "averaged-spectrum")) "-Aseqs" "-Aseqp"))
+                   (timestr (string+ "" (if begin-t (format nil "-B~D " begin-t) "")
+                                     (if end-t (format nil "-E~D " end-t) "")))
+                   (chordsfile (cond ((pathnamep markers) markers)
+                                     ((stringp markers) (if (probe-file markers) markers (tmpfile markers)))
+                                     (t (om::add-tmp-file (make-pm2-chord-file markers (om::tmpfile "tmpchords")))
+                                        (om::tmpfile "tmpchords"))))
+                   (fftstr (format nil "-N~D -M~D -W~D -I~D " fftsize windowsize windowtype step))
+                   (cmd (format nil "~s -v -S~s ~A ~A ~A -OS -p0 -q~D -m~D -a0 -r0 ~A --chords=~s ~s" 
+                                (namestring PM2-Path)
+                                (namestring self)
+                                typestr
+                                timestr
+                                fftstr 
+                                max-partials
+                                (float (- amp-treshold))
                     ;(car smoothing-enveloppe)
                     ;(cadr smoothing-enveloppe)
-                              (if (and (stringp analysis-type) (string-equal analysis-type "averaged-spectrum")) ""
-                                (let ((data (if (consp analysis-type) analysis-type '(20 0.0 50 1 3 0.017 50 0.009 0.5))))
-                                  (format nil "-Ct~D -Cf~D --devFR=~D --devFC=~D --devA=~D --devM=~D --devK=~D -L~D -l~D"
-                                          (nth 5 data)
-                                          (trunc (- (expt 2 (/ (nth 6 data) 1200.0)) 1) 3)
-                                          (trunc (- (expt 2 (/ (nth 0 data) 1200.0)) 1) 3)
-                                          (float (nth 1 data))
-                                          (/ (nth 2 data) 100.0)
-                                          (nth 3 data)
-                                          (if (< (nth 4 data) (nth 3 data)) (nth3 data) (nth 4 data))
-                                          (nth 7 data)
-                                          (nth 8 data)
-                                          )))
-                              (namestring chordsfile)
-                              unix-outname)))
-            (print (string+ "PM2 PROCESS : " cmd))
-            (oa::om-cmd-line cmd (om::get-pref-value :general :print-system-output))
-            (om::maybe-clean-tmp-files)
-            outname)))
-    (om::om-beep-msg "PM2 not found! Set path to pm2 in the OM preferences.")))
+                                (if (and (stringp analysis-type) (string-equal analysis-type "averaged-spectrum")) ""
+                                  (let ((data (if (consp analysis-type) analysis-type '(20 0.0 50 1 3 0.017 50 0.009 0.5))))
+                                    (format nil "-Ct~D -Cf~D --devFR=~D --devFC=~D --devA=~D --devM=~D --devK=~D -L~D -l~D"
+                                            (nth 5 data)
+                                            (trunc (- (expt 2 (/ (nth 6 data) 1200.0)) 1) 3)
+                                            (trunc (- (expt 2 (/ (nth 0 data) 1200.0)) 1) 3)
+                                            (float (nth 1 data))
+                                            (/ (nth 2 data) 100.0)
+                                            (nth 3 data)
+                                            (if (< (nth 4 data) (nth 3 data)) (nth3 data) (nth 4 data))
+                                            (nth 7 data)
+                                            (nth 8 data)
+                                            )))
+                                (namestring chordsfile)
+                                unix-outname)))
+              (om::om-print cmd "PM2")
+              (om::om-cmd-line cmd)
+              (om::maybe-clean-tmp-files)
+              outname)))
+      (om::om-beep-msg "PM2 not found! Set path to pm2 in the OM preferences."))))
 
 
 (defmethod pm2-chord-seq-analysis ((self pathname) &key
@@ -320,40 +313,40 @@ fad:  Fade Harmonics
                    (fund-minfreq 100) (fund-maxfreq 300) (spectrum-maxfreq 3000)
                    (windowsize 4096) (fftsize 4096) (step 256) (windowtype "hanning")
                    (out "f0.sdif"))
-  (if (and *PM2-PATH* (probe-file *PM2-PATH*))
-      
-      (let ((outname (if out 
-                         (if (pathnamep out) out (om::outfile out))
-                       (om::om-choose-new-file-dialog :prompt "Choose a SDIF output file for F0 analysis"
-                                                      :directory (om::def-save-directory)))))
-        (when outname
-          (if (probe-file outname) (om::om-delete-file outname))
-          (setf om::*last-saved-dir* (om::om-make-pathname :directory outname))
-          (let* ((unix-outname (namestring outname))
-                 (beginstr (if begin-t (format nil "-B~D " begin-t) ""))
-                 (endstr (if end-t (format nil "-E~D " end-t) ""))
-                 (fftstr (format nil "-M~D -I~D -N~D -m40 -W~D" 
-                                 (if windowsize windowsize 4096) 
-                                 (if step step 250)
-                                 (if fftsize fftsize 4096)
-                                 (if windowtype windowtype "hanning")))
-                 (f0params (format nil "--f0min=~D --f0max=~D --f0ana=~D --f0use" 
-                                   fund-minfreq fund-maxfreq spectrum-maxfreq))
-                 (cmd (format nil "~s -Af0 ~A -S~s ~A ~A ~A ~s" 
-                              (om-path2cmdpath *PM2-PATH*)
-                              f0params
-                              (om-path2cmdpath self)
-                              beginstr endstr
-                              fftstr  
-                              (om-path2cmdpath outname)))
-                 )
-            (print (string+ "PM2 PROCESS (f0): " cmd))
-            (oa::om-cmd-line cmd (om::get-pref-value :general :print-system-output))
-            (om::maybe-clean-tmp-files)
-            (if (probe-file outname)
-                outname
-              (om::om-message-dialog "Error in pm2 F0 analysis")))))
-    (om::om-beep-msg "PM2 not found! Set path to pm2 in the OM preferences.")))
+  (let ((PM2-path (om::real-exec-pathname (om::get-pref-value :libraries :pm2-path))))
+    (if (and PM2-path (probe-file PM2-path))    
+        (let ((outname (if out 
+                           (if (pathnamep out) out (om::outfile out))
+                         (om::om-choose-new-file-dialog :prompt "Choose a SDIF output file for F0 analysis"
+                                                        :directory (om::def-save-directory)))))
+          (when outname
+            (if (probe-file outname) (om::om-delete-file outname))
+            (setf om::*last-saved-dir* (om::om-make-pathname :directory outname))
+            (let* ((unix-outname (namestring outname))
+                   (beginstr (if begin-t (format nil "-B~D " begin-t) ""))
+                   (endstr (if end-t (format nil "-E~D " end-t) ""))
+                   (fftstr (format nil "-M~D -I~D -N~D -m40 -W~D" 
+                                   (if windowsize windowsize 4096) 
+                                   (if step step 250)
+                                   (if fftsize fftsize 4096)
+                                   (if windowtype windowtype "hanning")))
+                   (f0params (format nil "--f0min=~D --f0max=~D --f0ana=~D --f0use" 
+                                     fund-minfreq fund-maxfreq spectrum-maxfreq))
+                   (cmd (format nil "~s -Af0 ~A -S~s ~A ~A ~A ~s" 
+                                (namestring PM2-Path)
+                                f0params
+                                (om-path2cmdpath self)
+                                beginstr endstr
+                                fftstr  
+                                (om-path2cmdpath outname)))
+                   )
+              (om::om-print cmd "PM2")
+              (om::om-cmd-line cmd)
+              (om::maybe-clean-tmp-files)
+              (if (probe-file outname)
+                  outname
+                (om::om-message-dialog "Error in pm2 F0 analysis")))))
+      (om::om-beep-msg "PM2 not found! Set path to pm2 in the OM preferences."))))
 
 (defmethod pm2-f0 ((self pathname) &key
                    begin-t end-t
@@ -385,8 +378,9 @@ fad:  Fade Harmonics
 
 (defmethod pm2-synthesis ((partiels string) &key (attack 0.01) (release 0.01) sr res (out "pm2-out.aiff") nchannels)
   ;;;./pm2 -Asyn -R44100 -Stest.sdif out.aiff
-  (if (and *PM2-PATH* (probe-file *PM2-PATH*))
-      (let ((outname (if out
+ (let ((PM2-path (om::real-exec-pathname (om::get-pref-value :libraries :pm2-path))))
+    (if (and PM2-path (probe-file PM2-path))    
+        (let ((outname (if out
                          (if (pathname-directory (pathname out)) out (outfile out))
                        (om-choose-new-file-dialog :prompt "Choose an output file"
                                                   :directory (def-save-directory))))
@@ -396,8 +390,8 @@ fad:  Fade Harmonics
           (setf *last-saved-dir* (make-pathname :directory (pathname-directory outname)))
           (let* ((unix-outname (om-path2cmdpath outname))
                  (cmd (format nil "~s -Asyn -S~s ~A -a~D -r~D -R~D -Osa~D ~s" 
-                              (om-path2cmdpath *PM2-PATH*)
-                              (om-path2cmdpath partiels)
+                              (namestring PM2-path)
+                              (namestring partiels)
                               (if nchannels (format nil "--numchannels=~D" nchannels) "")
                               attack
                               release
@@ -405,13 +399,13 @@ fad:  Fade Harmonics
                               res
                               unix-outname)))
             
-            (print (string+ "PM2 PROCESS : " cmd))
-            (oa::om-cmd-line cmd (om::get-pref-value :general :print-system-output))
+            (om::om-print cmd "PM2")
+            (om::om-cmd-line cmd)
             (om::maybe-clean-tmp-files)
             outname)))
     (progn
       (om::maybe-clean-tmp-files)
-      (om-beep-msg "PM2 not found! Set path to pm2 in the OM preferences."))))
+      (om-beep-msg "PM2 not found! Set path to pm2 in the OM preferences.")))))
 
 
 (defmethod pm2-synthesis ((partiels pathname) &key (attack 0.01) (release 0.01) sr res (out "pm2-out.aiff") nchannels)
