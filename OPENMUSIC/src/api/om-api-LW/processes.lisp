@@ -49,7 +49,7 @@
           om-use-eval-process
           om-eval-enqueue
 
-          om-cmd-line
+          om-command-line
           om-run-application
           om-run-program
           om-select-program
@@ -181,8 +181,8 @@
 ;;; RUN/MANAGE EXTERNAL PROGRAMS
 ;;;=============================== 
 
-(defun om-cmd-line (str &optional (redirect-output nil))
-  (if (and (equal :mac *om-os*) (pathnamep redirect-output))
+(defun om-command-line (str &optional (redirect-output nil))
+  (if #+macosx (pathnamep redirect-output) #-macosx NIL
       ;(let ((tempfile "~/om-log.txt"))
       (sys:run-shell-command str :show-window t :wait t :output redirect-output :error-output redirect-output 
                              :if-output-exists :append :if-error-output-exists :append)

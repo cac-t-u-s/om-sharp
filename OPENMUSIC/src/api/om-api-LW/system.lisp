@@ -42,7 +42,6 @@
           om-get-date
           om-error-handle-funcall om-with-error-handle om-trap-errors om-with-redefinitions om-ignore&print-error
           om-set-clipboard om-get-clipboard       
-          om-external-app om-default-application-path
           ) :om-api)
 
 
@@ -139,18 +138,6 @@
   (capi::clipboard (om-front-window)))
 
 
-;;;====================================
-;;;  ACCES TO EXTERNAL PROGRAMS:
-;;;====================================
-(defun om-external-app (folders appname)
-  (make-pathname :directory (append (list :ABSOLUTE "Applications") folders)
-                 :name appname))
-
-(defun om-default-application-path (folders appname)
-  #-linux  (make-pathname :directory (append (list :ABSOLUTE "Applications") folders 
-					     (when appname (list (concatenate 'string appname ".app")))))
-  #+linux (user-homedir-pathname)
-  )
 
 
 
