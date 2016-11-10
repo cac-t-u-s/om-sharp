@@ -29,7 +29,7 @@
          "SDIF"
          :doc "Tools for manipulating data in the Standard Description Interchange Format."
          :classes '(sdiffile sdifframe sdifmatrix sdiftype sdifnvt)
-         :functions '(sdif->text)
+         :functions '(sdif->text SDIFTypeDescription GetNVTList)
          )
   (omNG-make-package 
    "OSC"

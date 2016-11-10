@@ -78,7 +78,7 @@ Lock the box ('b') to keep the current file.
 (defun check-current-singnature (ptr)
   (sdif::sdif-check-signature (sdif::SdifSignatureToString (sdif::SdifFCurrSignature ptr))))
 
-(defmethod get-frame-from-sdif (ptr)
+(defmethod get-frame-from-sdif (ptr &optional (with-data t))
   (sdif::SdifFReadFrameHeader ptr)
   (let ((sig (sdif::SdifSignatureToString (sdif::SdifFCurrFrameSignature ptr)))
         (time (sdif::SdifFCurrTime ptr))
@@ -86,9 +86,9 @@ Lock the box ('b') to keep the current file.
     (make-instance 'SDIFFrame :date (* 1000 time) :frametype sig :streamid sid
                    :lmatrices (let ((nummatrix (sdif::SdifFCurrNbMatrix ptr)))
                                 (loop for i from 1 to nummatrix 
-                                      collect (get-matrix-from-sdif ptr))))))
+                                      collect (get-matrix-from-sdif ptr with-data))))))
 
-(defmethod get-matrix-from-sdif (ptr)
+(defmethod get-matrix-from-sdif (ptr &optional (with-data t))
   (sdif::SdifFReadMatrixHeader ptr)
   (let ((sig (sdif::SdifSignatureToString (sdif::SdifFCurrMatrixSignature ptr)))
         (ne (sdif::SdifFCurrNbRow ptr))
@@ -113,7 +113,7 @@ Lock the box ('b') to keep the current file.
                      (sdif::SdifFReadAllASCIIChunks sdiffileptr)
                      (setf (file-map self) 
                            (loop while (check-current-singnature sdiffileptr) collect
-                                 (let ((f (get-frame-from-sdif sdiffileptr)))
+                                 (let ((f (get-frame-from-sdif sdiffileptr NIL)))
                                      ;(record-in-streams self t)
                                    (sdif::sdif-read-next-signature sdiffileptr)
                                    f))))
@@ -122,8 +122,6 @@ Lock the box ('b') to keep the current file.
            ))
         )
   self)
-
-
 
 (defun record-in-streams (self fdesc)
   (let ((streamdesc (find fdesc (streamsdesc self) 
@@ -171,14 +169,158 @@ Lock the box ('b') to keep the current file.
       )))
 
 
+;;;===================================
+;;; INFO / META DATA FROM SDIF HEADERS
+;;;===================================
+
+(defun matrixinfo-from-signature (file msig)
+  (let* ((sig (sdif::SdifStringToSignature msig))
+         (mtype (sdif::SdifTestMatrixType file sig)))
+    (if (om-null-pointer-p mtype)
+        (progn 
+          (print (string+ "Matrix Type " msig " not found."))
+          NIL)
+      (let ((mnumcol (sdif::SdifMatrixTypeGetNbColumns mtype)))
+        (loop for i = 1 then (+ i 1) while (<= i mnumcol)
+              collect (sdif::SdifMatrixTypeGetColumnName mtype i))
+        )
+      )))
+
+(defun frameinfo-from-signature (file fsig)
+   (let* ((sig (sdif::SdifStringToSignature fsig))
+          (ftype (sdif::SdifTestFrameType file sig)))
+    (if (om-null-pointer-p ftype)
+      (progn 
+        (print (string+ "Frame Type " fsig " not found."))
+        NIL)
+      (let ((fnumcomp (sdif::SdifFrameTypeGetNbComponents ftype)))
+         (loop for i = 1 then (+ i 1) while (<= i fnumcomp) collect 
+               (let ((fcomp (sdif::SdifFrameTypeGetNthComponent ftype i)))
+                 (if (om-null-pointer-p fcomp) NIL
+                   (let ((msig (sdif::SdifFrameTypeGetComponentSignature fcomp)))
+                     (list (sdif::SdifSignaturetoString msig)
+                           (matrixinfo-from-signature file (sdif::SdifSignatureToString msig))
+                           ))
+                   ))))
+      )))
+      
+(defmethod* SDIFTypeDescription ((self SDIFFile) (signature string) &optional (type 'm))
+            :icon 639
+            :indoc '("SDIF file" "SDIF type Signature" "Frame / Matrix")
+            :initvals '(nil "1TYP" m)
+            :menuins '((2 (("Matrix" m) ("Frame" f))))
+            :doc "Returns a description of type <signature>.
+
+This function must be connected to an SDIF file (<self>) containing this data type.
+<type> (m/f) allows to specify if the type correspond to matrices (default) or to frames.
+
+Matrix type description is a list of the different field (columns) names.
+Frame type description is a list of lists containing the internal matrix signatures and their respective type descriptions.
+"
+
+            (let ((sdifptr (sdif::sdif-open-file (file-pathname self) sdif::eReadWriteFile)))
+              (if sdifptr 
+                  (unwind-protect 
+                      (progn
+                        (sdif::SdifFReadGeneralHeader sdifptr)
+                        (sdif::SdifFReadAllASCIIChunks sdifptr)
+                        (case type 
+                          ('m (matrixinfo-from-signature sdifptr signature))
+                          ('f (frameinfo-from-signature sdifptr signature))))
+                    (sdif::SDIFFClose sdifptr)))))
 
 
+;;;=====================
+;;; NVT Utils
+;;;=====================
+
+(defmethod get-nvt-list ((self string))
+  (let ((fileptr (sdif::sdif-open-file self sdif::eReadWriteFile)))
+    (if fileptr 
+        (unwind-protect
+            (progn
+              (sdif::SdifFReadGeneralHeader fileptr)
+              (sdif::SdifFReadAllASCIIChunks fileptr)
+              (let* ((nvtlist (sdif::SdifFNameValueList fileptr))
+                     (nvtl (sdif::SdifNameValueTableList nvtlist))
+                     (numnvt (sdif::SdifListGetNbData nvtl))
+                     (nvtiter (sdif::SdifCreateHashTableIterator nil)))
+                (unwind-protect
+                    (progn (sdif::SdifListInitLoop nvtl)
+                      (loop for i = 0 then (+ i 1)
+                            while (< i 2000)  ;; just in case :)
+                            while (let ((next (sdif::SdifListIsNext nvtl)))
+                                    (and next (> next 0)))
+                            collect (let* ((curnvt (sdif::SdifListGetNext nvtl))
+                                           (nvht (sdif::SdifNameValueTableGetHashTable curnvt))
+                                           (nvnum (sdif::SdifNameValueTableGetNumTable curnvt))
+                                           (nvstream (sdif::SdifNameValueTableGetStreamID curnvt))
+                                           (nvtdata (make-instance 'SDIFNVT :id nvstream)))
+                                      (setf (tnum nvtdata) nvnum)
+                                      (sdif::SdifHashTableIteratorInitLoop nvtiter nvht)
+                                      (setf (nv-pairs nvtdata)
+                                            (loop for i = 0 then (+ i 1)
+                                                  while (< i 2000)
+                                                  while (let ((nextit (sdif::SdifHashTableIteratorIsNext nvtiter)))
+                                                          (and nextit (> nextit 0)))
+                                                  collect 
+                                                  (let* ((nv (sdif::SdifHashTableIteratorGetNext nvtiter))
+                                                         (name (sdif::SdifNameValueGetName nv))
+                                                         (value (sdif::SdifNameValueGetValue nv)))
+                                                    (when (string-equal name "TableName")
+                                                      (setf (tablename nvtdata) value))
+                                                    (list name value))))
+                                      nvtdata)
+                            ))
+                  (sdif::SdifKillHashTableIterator nvtiter))
+                ))
+          (sdif::SDIFFClose fileptr)))))
+
+(defmethod get-nvt-list ((self SDIFFile))
+   (get-nvt-list (file-pathname self)))
+
+(defmethod get-nvt-list ((self pathname))
+   (get-nvt-list (namestring self)))
 
 
+(defmethod* GetNVTList ((self t))
+            :icon 639
+            :indoc '("SDIF file")
+            :initvals '(nil)
+            :doc "Returns the list of Name/Value tables in <self> (SDIFFile object or path to an SDIF file).
 
+Name/Value tables are formatted as SDIFNVT objects.
+"
+            (get-nvt-list self))
 
+(defmethod* GetNVTList ((self sdiffile)) (call-next-method))
 
+;;;=============================
 
+(defmethod* find-in-nvtlist ((nvtlist list) (entry string) &optional table-num)
+            :icon 639
+            :indoc '("list of SDIFNVT" "A name entry in the NameValue table" "Table Number")
+            :initvals '(nil "" nil)
+            :doc "Finds value corresponding to name <entry> in the name/value tables <nvtlist>.
+
+<table-num> allows to look specifically in table number <table-num> as internally assigned to SDIF NVTs.
+"
+    (if (and table-num (numberp table-num))
+        (let ((nvt (find table-num nvtlist :key 'tnum)))
+          (if nvt 
+              (find-in-nvt nvt entry)
+            (om-beep-msg (string+ "There is no table number " (integer-to-string table-num)))))
+      (let ((rep nil))
+        (loop for nvt in nvtlist while (not rep) do
+              (setf rep (find-in-nvt nvt entry)))
+        rep)))
+         
+(defmethod* find-in-nvt ((nvt SDIFNVT) (entry string))
+            :icon 639
+            :indoc '("a SDIFNVT object" "A name entry in the Name/Value table")
+            :initvals '(nil "")
+            :doc "Finds value corresponding to name <entry> in the name/value table <nvt>."
+    (cadr (find entry (nv-pairs nvt) :test 'string-equal :key 'car)))
 
 
 
@@ -551,6 +693,8 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
     ))))
 
 
+
+
 (defmethod* GetSDIFStream ((self sdifFile) sID tmin tmax &optional frameType matType)
    :icon 639
    :indoc '("SDIF file" "stream number" "min time (s)" "max time (s)" "frame type (string)" "matrix type (string)" )
@@ -620,147 +764,6 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
      rep))
 
 
-;;; TYPE INSPECT TOOLS
 
-(defun matrixinfo-from-signature (file msig)
-  (let* ((sig (sdif::SdifStringToSignature msig))
-         (mtype (sdif::SdifTestMatrixType file sig)))
-  (if (sdif-null-ptr-p mtype)
-      (progn 
-        (print (string+ "Matrix Type " msig " not found."))
-        NIL)
-    (let ((mnumcol (sdif::SdifMatrixTypeGetNbColumns mtype)))
-      (loop for i = 1 then (+ i 1) while (<= i mnumcol)
-            collect (sdif::SdifMatrixTypeGetColumnName mtype i))
-      )
-    )))
-
-(defun frameinfo-from-signature (file fsig)
-   (let* ((sig (sdif::SdifStringToSignature fsig))
-          (ftype (sdif::SdifTestFrameType file sig)))
-    (if (sdif-null-ptr-p ftype)
-      (progn 
-        (print (string+ "Frame Type " fsig " not found."))
-        NIL)
-      (let ((fnumcomp (sdif::SdifFrameTypeGetNbComponents ftype)))
-         (loop for i = 1 then (+ i 1) while (<= i fnumcomp) collect 
-               (let ((fcomp (sdif::SdifFrameTypeGetNthComponent ftype i)))
-                 (if (sdif-null-ptr-p fcomp) NIL
-                   (let ((msig (sdif::SdifFrameTypeGetComponentSignature fcomp)))
-                     (list (sdif::SdifSignaturetoString msig)
-                           (matrixinfo-from-signature file (sdif::SdifSignatureToString msig))
-                           ))
-                   ))))
-      )))
-      
-(defmethod* SDIFTypeDescription ((self sdifFile) (signature string) &optional (type 'm))
-            :icon 639
-            :indoc '("SDIF file" "SDIF type Signature" "Frame / Matrix")
-            :initvals '(nil "1TYP" 'm)
-            :menuins '((2 (("Matrix" 'm) ("Frame" 'f))))
-            :doc "Returns a description of type <signature>.
-
-This function must be connected to an SDIF file (<self>) containing this data type.
-<type> (m/f) allows to specify if the type correspond to matrices (default) or to frames.
-
-Matrix type description is a list of the different field (columns) names.
-Frame type description is a list of lists containing the internal matrix signatures and their respective type descriptions.
-"
-
-  (let ((error nil) (data nil)
-        (ptrfile (sdif-open self)))
-    (if (null ptrfile) (setf error t)
-        (progn
-          (sdif::SdifFReadGeneralHeader ptrfile)
-          (sdif::SdifFReadAllASCIIChunks ptrfile)
-          (setf data 
-                (if (equal type 'm)
-                    (matrixinfo-from-signature ptrfile signature)
-                  (frameinfo-from-signature ptrfile signature)))
-          (sdif-close self ptrfile)))
-    data))
-
-
-(defmethod* GetNVTList ((self string))
-            :icon 639
-            :indoc '("SDIF file")
-            :initvals '(nil)
-            :doc "Returns the list of Name/Value tables in <self>.
-
-Name/Value tables are formatted as SDIFNVT objects.
-"
-  (let ((error nil) (data nil)
-        (ptrfile (sdif-open self)))
-    (if (null ptrfile) (setf error t)
-        (progn
-          (sdif::SdifFReadGeneralHeader ptrfile)
-          (sdif::SdifFReadAllASCIIChunks ptrfile)
-          (let* ((nvtlist (sdif::SdifFNameValueList ptrfile))
-                 (nvtl (sdif::SdifNameValueTableList nvtlist))
-                 (numnvt (sdif::SdifListGetNbData nvtl))
-                 (nvtiter (sdif::SdifCreateHashTableIterator nil)))
-            
-            (sdif::SdifListInitLoop nvtl)
-            (loop for i = 0 then (+ i 1)
-                  while (< i 2000)
-                  while (let ((next (sdif::SdifListIsNext nvtl)))
-                          (and next (> next 0)))
-                  do (let* ((curnvt (sdif::SdifListGetNext nvtl))
-                            (nvht (sdif::SdifNameValueTableGetHashTable curnvt))
-                            (nvnum (sdif::SdifNameValueTableGetNumTable curnvt))
-                            (nvstream (sdif::SdifNameValueTableGetStreamID curnvt))
-                            (nvtdata (make-instance 'SDIFNVT :id nvstream)))
-                       (setf (tnum nvtdata) nvnum)
-                       (sdif::SdifHashTableIteratorInitLoop nvtiter nvht)
-                       (setf (nv-pairs nvtdata)
-                             (loop for i = 0 then (+ i 1)
-                                   while (< i 2000)
-                                   while (let ((nextit (sdif::SdifHashTableIteratorIsNext nvtiter)))
-                                           (and nextit (> nextit 0)))
-                                   collect 
-                                   (let* ((nv (sdif::SdifHashTableIteratorGetNext nvtiter))
-                                          (name (sdif::SdifNameValueGetName nv))
-                                          (value (sdif::SdifNameValueGetValue nv)))
-                                     (when (string-equal name "TableName")
-                                       (setf (tablename nvtdata) value))
-                                     (list name value))))
-                       (pushr nvtdata data)
-                       ))
-            (sdif::SdifKillHashTableIterator nvtiter)
-            )))
-    (sdif-close self ptrfile)
-    data))
-
-(defmethod* GetNVTList ((self sdiffile))
-   (GetNVTList (filepathname self)))
-
-(defmethod* GetNVTList ((self pathname))
-   (GetNVTList (namestring self)))
-
-(defmethod* find-in-nvtlist ((nvtlist list) (entry string) &optional table-num)
-            :icon 639
-            :indoc '("list of SDIFNVT" "A name entry in the NameValue table" "Table Number")
-            :initvals '(nil "" nil)
-            :doc "Finds value corresponding to name <entry> in the name/value tables <nvtlist>.
-
-<table-num> allows to look specifically in table number <table-num> as internally assigned to SDIF NVTs.
-"
-    (if (and table-num (numberp table-num))
-        (let ((nvt (find table-num nvtlist :key 'tnum)))
-          (if nvt 
-              (find-in-nvt nvt entry)
-            (om-beep-msg (string+ "There is no table number " (integer-to-string table-num)))))
-      (let ((rep nil))
-        (loop for nvt in nvtlist while (not rep) do
-              (setf rep (find-in-nvt nvt entry)))
-        rep)))
-        
-  
-(defmethod* find-in-nvt ((nvt SDIFNVT) (entry string))
-            :icon 639
-            :indoc '("a SDIFNVT object" "A name entry in the Name/Value table")
-            :initvals '(nil "")
-            :doc "Finds value corresponding to name <entry> in the name/value table <nvt>."
-    (cadr (find entry (nv-pairs nvt) :test 'string-equal :key 'car)))
 
 
