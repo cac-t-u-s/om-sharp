@@ -318,7 +318,7 @@
         (sizes 
                ;#+mswindows'(8 10 11 13 20) 
                ;#-mswindows
-               '(10 11 14 16 24)))
+               '(10 11 12 16 24)))
     (let ((fa 
            (case f
              (:font1 (om-make-font def-face (nth 0 sizes)))
