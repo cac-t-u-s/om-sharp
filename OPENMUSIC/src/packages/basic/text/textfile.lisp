@@ -59,6 +59,7 @@ As output it returns the contents of the text buffer as a list formatted accordi
       (:value (read-from-string (apply 'string+ (mapcar #'(lambda (line) (string+ line " ")) lines))))
       (:list (flat (mapcar 'om-read-list-from-string lines) 1))
       (:text-list lines)
+      ;(:text (if lines (reduce #'(lambda (s1 s2) (concatenate 'string s1 (string #\Newline) s2)) lines) ""))
       (:text (if lines (reduce #'(lambda (s1 s2) (concatenate 'string s1 (string #\Newline) s2)) lines) ""))
       ))
 
@@ -66,6 +67,7 @@ As output it returns the contents of the text buffer as a list formatted accordi
   (case mode 
       (:lines-cols (loop for line in (list! data) collect (format nil "~{~a~^ ~}" (list! line))))
       (:lines (loop for line in (list! data) collect (format nil "~A" line)))
+      (:text-list data)
       (otherwise (list (format nil "~A" data)))
       ))
 
@@ -97,7 +99,8 @@ As output it returns the contents of the text buffer as a list formatted accordi
 
 (defmethod objfromobjs ((model pathname) (target textbuffer))
   (when (probe-file model)
-    (om-init-instance target '((:contents (lines-from-file model))))))
+    (om-init-instance target `((:contents ,(lines-from-file model))
+                               (:input-mode :text-list)))))
 
 (defmethod objfromobjs ((model string) (target textbuffer))
   (objfromobjs (pathname model) target))

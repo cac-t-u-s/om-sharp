@@ -83,10 +83,9 @@
 (defun lines-from-file (pathname)
   (with-open-file (in pathname :direction :input :if-does-not-exist nil)
     (let ((line (read-line in nil :eof)))
-      (reverse 
-       (loop while (and line (not (equal line :eof))) 
-             collect line
-             do (setf line (read-line in nil :eof)))))))
+      (loop while (and line (not (equal line :eof))) 
+            collect line
+            do (setf line (read-line in nil :eof))))))
 
 ;=======================
 ; STRING TO SYMBOLS
