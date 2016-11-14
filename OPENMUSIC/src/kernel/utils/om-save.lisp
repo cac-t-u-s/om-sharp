@@ -66,6 +66,9 @@
 |#
 
 
+(defmethod additional-slots-to-save ((self t)) 
+  (additional-class-attributes self))
+
 ;;; objects copy/save only the slot with initargs and additional class attributes
 (defmethod omng-save ((self standard-object))  ; OMObject
   (append 
@@ -79,8 +82,8 @@
                                       (funcall (slot-definition-name slot) self)
                                     (slot-value self (slot-definition-name slot)))
                                   )))))
-   (when (additional-class-attributes self)
-     `((:add-slots ,(loop for add-slot in (additional-class-attributes self)
+   (when (additional-slots-to-save self)
+     `((:add-slots ,(loop for add-slot in (additional-slots-to-save self)
                           collect (list add-slot 
                                         (omng-save 
                                          ;(slot-value self add-slot)
