@@ -10,9 +10,10 @@
 (load (decode-local-path "sdif/sdif-lib/load-sdif.lisp"))
 
 #+sdif(compile&load (decode-local-path "sdif/sdif-struct"))
+#+sdif(compile&load (decode-local-path "sdif/sdif-file"))
 #+sdif(compile&load (decode-local-path "sdif/sdif-tools"))
 #+sdif(compile&load (decode-local-path "sdif/sdif-write"))
-#+sdif(compile&load (decode-local-path "sdif/sdif-file"))
+
 
 (load (decode-local-path "osc/libo/load-libo.lisp"))
 
@@ -29,7 +30,11 @@
          "SDIF"
          :doc "Tools for manipulating data in the Standard Description Interchange Format."
          :classes '(sdiffile sdifframe sdifmatrix sdiftype sdifnvt)
-         :functions '(sdif->text SDIFTypeDescription GetNVTList)
+         :functions '( 
+                      GetSDIFData GetSDIFTimes GetSDIFFrames 
+                      GetSDIFPartials GetSDIFChrods
+                      SDIFTypeDescription GetNVTList SDIFInfo
+                      SDIF->text SDIF->chord-seq)
          )
   (omNG-make-package 
    "OSC"

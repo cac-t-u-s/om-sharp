@@ -103,12 +103,12 @@
 (defun sdif-calculate-padding (bytes)
   (let ((align 8))
     (cond ((zerop bytes) 0)
-          ; ((< bytes align) (- align bytes))
-          ;(t (mod (cadr (multiple-value-list (floor bytes align))) align))
-          (t (- align (mod bytes align)))
+          ((< bytes align) (- align bytes))
+          (t (mod (- (cadr (multiple-value-list (ceiling bytes align)))) align))
+          ;(t (- align (mod bytes align)))
           )))
 
-; (sdif-calculate-padding 9)
+; (sdif-calculate-padding 4)
 
 
 

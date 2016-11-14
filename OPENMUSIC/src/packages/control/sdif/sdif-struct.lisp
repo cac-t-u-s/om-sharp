@@ -62,11 +62,8 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF TYPES.
 ;;; SDIF MATRIX
 ;;;=========================
 
-(defclass* SDIFMatrix () 
-   ((matrixtype :initform nil :initarg :matrixtype :accessor matrixtype :documentation "SDIF matrix type signature")
-    (num-elts :initform 1 :initarg :num-elts  :accessor num-elts :documentation "number of elements")
-    (num-fields :initform 1 :initarg :num-fields  :accessor num-fields :documentation "number of fields")
-    (data :initform nil :initarg :data :accessor data :documentation "data matrix (2D / list of lists)"))
+(defclass* SDIFMatrix (OMArray)
+   ((matrixtype :initform nil :initarg :matrixtype :accessor matrixtype :documentation "SDIF matrix type signature"))
    (:documentation "SDIF data stored as a 2D array.
 
 SDIF Matrix define multidimensional sound description data at a given moment (no temporal dimension).
@@ -109,8 +106,6 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
 (defmethod initialize-instance :after ((self sdifframe) &rest initargs)
    (setf (LMatrices self) (list! (LMatrices self))))
 
-
-
 ;;; merge frames for same kind of (single) matrices (adds data in the matrix)
 (defun merge-frame-data (frames)
   (let ((newframes nil))
@@ -142,3 +137,6 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
                       (append (lmatrices (car newframes)) (lmatrices fr)))
               (push fr newframes))))
     (reverse newframes)))
+
+
+
