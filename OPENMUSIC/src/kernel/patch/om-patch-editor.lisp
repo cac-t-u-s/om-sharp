@@ -613,6 +613,7 @@
                            (om-set-view-position dview pos)
                            (update-connections box)
                            (redraw-connections dview)
+                           (om-invalidate-view self)
                            t)
 
                           (t ;;; IN ANOTHER PATCH
