@@ -43,10 +43,10 @@
  ;    ((:default "LibAudioStream"))))
 
 
-  ;#+omjuceaudiolib
-  ;(om-fi::om-load-foreign-library  
-  ; "OMJuceAudioLib"
-  ; `((:macosx (:or ,(om-fi::om-foreign-library-pathname "OMJuceAudioLib.dylib")))))
+  #+omjuceaudiolib
+  (om-fi::om-load-foreign-library  
+   "OMJuceAudioLib"
+   `((:macosx (:or ,(om-fi::om-foreign-library-pathname "OMJuceAudioLib.dylib")))))
 
   
   #-macosx 

@@ -2,10 +2,10 @@
 
 (defpackage :juce)
 
-(fli:register-module 
- "OMJuceAudioLib" 
- :real-name "/Users/bouche/Documents/GIT/om7/OPENMUSIC/resources/lib/mac/OMJuceAudioLib.dylib"
- :connection-style :immediate)
+;(fli:register-module 
+; "OMJuceAudioLib" 
+; :real-name "/Users/bouche/Documents/GIT/om7/OPENMUSIC/resources/lib/mac/OMJuceAudioLib.dylib"
+; :connection-style :immediate)
 
 (push :omjuceaudiolib *features*)
 
