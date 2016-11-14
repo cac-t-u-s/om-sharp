@@ -49,7 +49,8 @@
         "automation/automation-editor"
         "automation/tempo-automation"
         
-           
+        "array/2D-array"
+        
 ;    "classes;splines"  
 ;    "classes;array" 
 ;    "classes;picture"    
