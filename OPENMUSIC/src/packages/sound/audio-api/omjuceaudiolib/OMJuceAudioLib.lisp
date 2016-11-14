@@ -45,7 +45,7 @@
 ;;  FILE
 ;;;==============================================
 
-(cffi:defcfun ("MakeFilePointer" MakeFilePointer) :pointer (file :pointer) (channels :int) (size :int) (sr :int))
+(cffi:defcfun ("MakeFilePointer" MakeFilePointer) :pointer (file :string))
 
 (cffi:defcfun ("FreeFilePointer" FreeFilePointer) :void (file :pointer))
 

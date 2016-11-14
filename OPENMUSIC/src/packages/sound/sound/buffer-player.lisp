@@ -59,7 +59,7 @@
 (defmethod pause-buffer-player ((self buffer-player))
   (when (eq (bp-state self) :play)
     (setf (bp-state self) :pause)
-    (juce::stopbuffer *juce-player* (bp-pointer self))))
+    (juce::pausebuffer *juce-player* (bp-pointer self))))
 
 (defmethod continue-buffer-player ((self buffer-player))
   (when (eq (bp-state self) :pause)
