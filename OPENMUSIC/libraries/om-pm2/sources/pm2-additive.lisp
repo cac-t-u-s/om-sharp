@@ -414,7 +414,7 @@ fad:  Fade Harmonics
 
 (defmethod pm2-synthesis ((partiels om::sdiffile) &key (attack 0.01) (release 0.01) sr res (out "pm2-out.aiff") nchannels)
   (pm2-synthesis (om::file-pathname partiels) :attack attack :release release :sr sr :res res :out out
-                 :nchannels (length (om::get-num-streams partiels))))
+                 :nchannels (length (om::file-map partiels))))
 
 
 (defmethod pm2-synthesis ((partiels om::chord-seq) &key (attack 0.01) (release 0.01) sr res (out "pm2-out.aiff") nchannels)
