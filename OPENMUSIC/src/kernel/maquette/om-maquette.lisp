@@ -240,12 +240,12 @@
 (defmethod player-stop-object ((self scheduler) (object ommaquette))
   ;;;Stop all boxes under the maquette cursor (that is being rendered).
   ;;;Note : useful only for objects triggered by the maquette (hierarchical).
-  ;(loop for box in (get-all-boxes object)
-  ;      do 
-  ;      (player-stop-object self (get-box-value box)))
+  (loop for box in (get-all-boxes object)
+        do 
+        (player-stop-object self (get-box-value box)))
 
   ;;;Ajouter ici la task end : (mp:mailbox-send (taskqueue *engine*) *taskend*)
-
+  
   (call-next-method))
 
 
