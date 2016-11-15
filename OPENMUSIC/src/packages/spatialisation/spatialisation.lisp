@@ -1,6 +1,8 @@
 
 (in-package :om)
 
+(require-om-package "sound")
+
 ;maybe we should move these into the om-api folder and package...
 #+opengl(compile&load (om-relative-path '("3D") "gl-view"))
 #+opengl(compile&load (om-relative-path '("3D") "3d-object"))

@@ -45,8 +45,6 @@
 ;;;==============================
 ;;; CHARGEMENT
 
-
-
 ;;; !!! *sdif-pathname* is modified in OM
 
 (defun load-sdif-lib ()

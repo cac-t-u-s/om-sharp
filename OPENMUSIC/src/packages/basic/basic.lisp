@@ -49,7 +49,8 @@
         "automation/automation-editor"
         "automation/tempo-automation"
         
-        "array/2D-array"
+        "containers/2D-array"
+        "containers/data-stream"
         
 ;    "classes;splines"  
 ;    "classes;array" 

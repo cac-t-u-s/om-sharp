@@ -36,6 +36,10 @@
                                             :doc ""
                                             :functions '(textbuffer-eval textbuffer-read)
                                             :classes '(textbuffer))
+                         (omNG-make-package "Containers" 
+                                            :doc ""
+                                            :functions nil
+                                            :classes '(OMArray data-stream))
                          ))))
   ;(add-ref-section (gen-ref-entries kernelpack))
   )
@@ -44,11 +48,8 @@
 ;;; SPLINE
 ;(AddGenFun2Pack '(om-spline) *function-package*)
 
-;;; DATA STRUCTURES
-;(defvar *basic-data-package* (omNG-protect-object (omNG-make-new-package "Array")))
+;;; ARRAY
 ;(AddGenFun2Pack '(new-comp get-comp comp-list comp-field add-comp remove-comp) *basic-data-package*)
-;(AddClass2Pack '(class-array) *basic-data-package* :position (list (om-make-point 175 50)))
-;(AddPackage2Pack *basic-data-package* *basic-package*)
 
 ;;; PICT
 ;(defvar *graphics-package*  (omNG-protect-object (omNG-make-new-package "Picture")))

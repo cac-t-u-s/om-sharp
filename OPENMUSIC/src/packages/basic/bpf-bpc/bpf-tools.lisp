@@ -272,3 +272,5 @@ Outputs
    (make-instance (class-of self) :x-points xlist :y-points ylist 
                             :decimals (decimals self)
                             :action (action self) :color (color self))))
+
+
