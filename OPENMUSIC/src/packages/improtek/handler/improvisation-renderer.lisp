@@ -494,7 +494,7 @@
 ;*************************
 ;Initialization BPF (hack)
 (defmethod initialize-instance :after ((self bpf) &rest args)
-  (setf (decimals self) 0)
+  ;(setf (decimals self) 0)
   (set-bpf-points self
                   :x (or (find-value-in-arg-list args :x-points) '(0 200))
                   :y (or (find-value-in-arg-list args :y-points) '(0 200)))
