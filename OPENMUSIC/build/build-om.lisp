@@ -13,7 +13,7 @@
 
 (in-package "CL-USER")
 
-(setf *print-circle* t)
+;(setf *print-circle* NIL)
 
 (load (current-pathname "./load-tools.lisp"))
 
