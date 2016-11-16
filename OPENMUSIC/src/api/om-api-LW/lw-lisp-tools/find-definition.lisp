@@ -81,7 +81,7 @@
 
 
 ;; to be redefined depending on actual source file location
-  ;; (path records the original location at compiling the symbol
+;; (path records the original location at compiling the symbol
 (defun restore-ompath (path) path)
 
 

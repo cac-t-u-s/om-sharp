@@ -251,7 +251,7 @@
 
 ;; redefine to do something :)
 (defun om-debug () (om-beep))
-(defun om-debug () (format *standard-output* "~%===================================") (pprint *open-documents*))
+;(defun om-debug () (format *standard-output* "~%===================================") (pprint *open-documents*))
 
 ;;;=============================
 ;;; BASIC ACTIONS

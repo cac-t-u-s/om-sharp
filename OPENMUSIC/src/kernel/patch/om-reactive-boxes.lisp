@@ -201,7 +201,7 @@
    (t0 :initform nil :accessor t0)
    (timelist :initform nil :accessor timelist)))
 
-(defmethod boxclass-from-function-name ((self (eql 'group-in))) 'ReactiveTimeCollBox)
+(defmethod boxclass-from-function-name ((self (eql 'timed-coll))) 'ReactiveTimeCollBox)
 
 (defmethod process-input ((self ReactiveTimeCollBox) inputs)
   (let ((push (omng-box-value (nth 1 inputs)))

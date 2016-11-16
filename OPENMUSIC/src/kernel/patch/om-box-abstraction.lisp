@@ -84,12 +84,6 @@
           (sort (outputs (reference self)) '< :key 'index)
           ))
 
-(defmethod update-from-editor ((self OMBoxAbstraction))
-  ;(contextual-update self (container self))
-  (when (frame self)
-    ;(update-inspector-for-box (frame self))
-    (reset-cache-display self)
-    (om-invalidate-view (frame self))))
 
 (defmethod update-from-reference ((self OMBoxAbstraction))
   (setf (name self) (name (reference self)))
@@ -120,6 +114,9 @@
 
 ;;; only internal does report to the container's editor
 (defmethod update-from-editor ((self OMBoxAbstraction))
+  (when (frame self)
+    (reset-cache-display self)
+    (om-invalidate-view (frame self)))
   (unless (is-persistant (reference self))
     (report-modifications (editor (container self))))
   (call-next-method))
