@@ -52,13 +52,13 @@
 ;          (format-message sub (1+ indent)))
 ;    ))
 
-(defun format-message (message &optional (indent 0))
-  (let ((tab (make-sequence 'string (* indent 4) :initial-element #\Space)))
-  (append 
-   (list (concatenate 'string tab (car message) " [ "))
-   (loop for arg in (cdr message) append (format-argument arg (1+ indent)))
-   (list (concatenate 'string tab " ] "))
-   )))
+;(defun format-message (message &optional (indent 0))
+;  (let ((tab (make-sequence 'string (* indent 4) :initial-element #\Space)))
+;  (append 
+;   (list (concatenate 'string tab (car message) " [ "))
+;   (loop for arg in (cdr message) append (format-argument arg (1+ indent)))
+;   (list (concatenate 'string tab " ] "))
+;  )))
 
 ;;; simpler: just on 1 line
 (defun format-message (message &optional (indent 0))

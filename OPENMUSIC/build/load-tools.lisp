@@ -51,7 +51,8 @@
        :name (car (last decoded-path))))))
 
 (defun compile&load (file &optional (verbose t))
-   (let* ((lisp-file (truename (if (pathname-type file) file (concatenate 'string (namestring file) ".lisp"))))
+  (print file) 
+  (let* ((lisp-file (truename (if (pathname-type file) file (concatenate 'string (namestring file) ".lisp"))))
           (fasl-file (probe-file (make-pathname :directory (pathname-directory lisp-file)
                                                 :device (pathname-device lisp-file)
                                                 :name (pathname-name lisp-file) :type *compile-type*)))

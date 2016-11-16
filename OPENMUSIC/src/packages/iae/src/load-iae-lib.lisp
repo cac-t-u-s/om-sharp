@@ -1,13 +1,7 @@
-(in-package :cl-user)
+(in-package :iae)
 
 ; (make-ffi (merge-pathnames "iae.txt" *load-pathname*) (merge-pathnames "iae.lisp" *load-pathname*) :iae)
         
-(defpackage :IAE 
-  (:use :common-lisp :cl-user))
-
-(compile&load (merge-pathnames "iae" *load-pathname*))
-(compile&load (merge-pathnames "iae-om-objects" *load-pathname*))
-
 (defvar iae::*iae-lib* nil)
 
 (defun load-iae-lib ()

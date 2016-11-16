@@ -126,7 +126,6 @@
                      (om-make-di 'om-popup-list :items '("Spat view" "3DC view" "Eq") 
                                  :size (omp 100 24)
                                  :di-action #'(lambda (b) 
-                                                (declare (ignore b))
                                                 (case (om-get-selected-item-index b)
                                                   (0 (set-spat-view-mode editor))
                                                   (1 (set-3D-view-mode editor))
@@ -485,7 +484,7 @@
 ; (OmSpatGetCurrentStateAsOscBundle component-ptr)
 (defun spat::spat-component-handle-callback (component-ptr bundle-ptr)
   (let ((messages (om::decode-bundle-s-pointer-data bundle-ptr)))
-    (print messages)
+    ;(print messages)
     (odot::osc_bundle_s_deepFree bundle-ptr)))
 
 

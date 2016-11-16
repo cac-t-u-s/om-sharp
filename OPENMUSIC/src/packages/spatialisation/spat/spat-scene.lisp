@@ -215,6 +215,7 @@
     (draw-spat-scene self x y w h max time)))
 
 
+#|
 ;;; showing all the traj as lists of x y and z
 (defmethod draw-maquette-mini-view ((self spat-scene) (box t) x y w h &optional time) 
   (let ((num-traj (length (trajectories self)))
@@ -259,7 +260,7 @@
                                        x (+ y-new 5) w (- h-new 5)
                                        ) 
               t)))))
-
+|#
 
 (defparameter *min-key-frames-size* 100)
 

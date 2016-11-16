@@ -20,7 +20,7 @@
  :classes '(sdiffile sdifframe sdifmatrix sdiftype sdifnvt)
  :functions '( 
               GetSDIFData GetSDIFTimes GetSDIFFrames 
-                          GetSDIFPartials GetSDIFChrods
+                          GetSDIFPartials GetSDIFChords
                           SDIFTypeDescription GetNVTList SDIFInfo
                           SDIF->text SDIF->chord-seq)
  )

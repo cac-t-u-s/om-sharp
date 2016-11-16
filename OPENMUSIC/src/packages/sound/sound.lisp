@@ -18,5 +18,3 @@
         "sound/sound-processing"
         )
       )
-
-#+macosx(load (decode-local-path "IAE/load-iae.lisp"))
