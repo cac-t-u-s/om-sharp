@@ -167,17 +167,18 @@ This object can automate improvization generation based on the rtimprovizer clas
                                             :dur (nth 3 note)
                                             :channel (nth 4 note))))
     
-    (setq midisets (append (list (make-midinote :onset 0
-                                                :pitch 10000
-                                                :vel 100
-                                                :dur 1
-                                                :channel 1))
+    (setq midisets (append ;(list (make-midinote :onset 0
+                           ;                     :pitch 10000
+                           ;                     :vel 100
+                           ;                     :dur 1
+                           ;                     :channel 1))
                            midisets
-                           (list (make-midinote :onset (1- dur)
-                                                :pitch 10000
-                                                :vel 100
-                                                :dur 1
-                                                :channel 1))))
+                           ;(list (make-midinote :onset (1- dur)
+                           ;                     :pitch 10000
+                           ;                     :vel 100
+                           ;                     :dur 1
+                           ;                     :channel 1))
+                           ))
 
     
     (make-instance 'piano-roll
