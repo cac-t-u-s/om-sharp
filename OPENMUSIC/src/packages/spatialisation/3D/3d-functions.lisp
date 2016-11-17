@@ -28,7 +28,7 @@
 
 (defmethod* 3D-interpol ((first 3DC) (second 3DC) (steps number) &optional (curve 0.0) (decimals nil) (mode 'points))
    :icon 213   
-            :initvals '(nil nil 1 0.0 nil 'points) 
+            :initvals '(nil nil 1 0.0 nil points) 
             :indoc '("a 3DC or trajectory" "a 3DC or trajectory" "number of steps" "interpolation curve" "precision" "interpolation mode")
             :outdoc '("list of 3DC" "list of x-points" "list of y-points" "list of z-points" "list of times")
             :numouts 5
