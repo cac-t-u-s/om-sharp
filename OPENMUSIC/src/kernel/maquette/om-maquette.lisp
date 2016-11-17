@@ -192,18 +192,19 @@
   (call-next-method))
 
 (defmethod set-time-callback ((self ommaquette) time)
-  (loop for box in (get-all-boxes self :sorted t)
-        when (get-box-value box)
-        do
-        (if (box-cross-interval box (interval self))
-            (progn
-              (set-object-interval (get-box-value box) (list (- time (get-box-onset box)) (cadr (interval self))))
-              (if (in-interval time (list (get-box-onset box) (get-box-end-date box)))
-                  (progn 
-                    (set-object-time (get-box-value box) (- (car (interval self)) (get-box-onset box)))
-                    (set-time-callback (get-box-value box) (- time (get-box-onset box))))
-                (player-stop-object *general-player* (get-box-value box))))
-          (player-stop-object *general-player* (get-box-value box)))))
+  (let ((interval (or (interval self) (list time *positive-infinity*))))
+    (loop for box in (get-all-boxes self :sorted t)
+          when (get-box-value box)
+          do
+          (if (box-cross-interval box interval)
+              (progn
+                (set-object-interval (get-box-value box) (list (- time (get-box-onset box)) (cadr interval)))
+                (if (in-interval time (list (get-box-onset box) (get-box-end-date box)))
+                    (progn 
+                      (set-object-time (get-box-value box) (- (car interval) (get-box-onset box)))
+                      (set-time-callback (get-box-value box) (- time (get-box-onset box))))
+                  (player-stop-object *general-player* (get-box-value box))))
+            (player-stop-object *general-player* (get-box-value box))))))
 
 #|
 (with-schedulable-object 

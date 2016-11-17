@@ -44,7 +44,7 @@
    :icon 'm-set-time
    (declare (ignore trigger))
    (if (integerp time)
-       (set-object-time self (max 0 time))))
+       (set-object-time self (max 0 (round time)))))
 
 (defmethod* m-without-exec ((self OMMaquette) &optional trigger)
    :initvals '(nil nil)
@@ -65,9 +65,9 @@
 
 
 
-(defmethod m-add ((self ommaquette) (object t) &key (time 0) (track 1) trigger)
+(defmethod m-add ((self ommaquette) (object t) &key (time 0) (track 1) (pre-delay 0) trigger)
   (declare (ignore trigger))
-  (insert-object self object :time time :track track))
+  (insert-object self object :time time :track track :pre-delay pre-delay))
 
 (defmethod m-remove ((self ommaquette) object &key multiple-instances trigger)
   (declare (ignore trigger))
@@ -92,28 +92,36 @@
         do
         (omng-remove-element self box)))
 
+(defmethod m-flush-track ((self ommaquette) track)
+  (loop for box in (get-track-boxes self track)
+        do
+        (omng-remove-element self box)))
+
 (defmethod set-patch-inputs ((self ompatchinternal) (defvals list))
   (loop for inp in (inputs self)
         for val in defvals
         do
         (setf (defval inp) val))
+  (print (list (car defvals) (compile-patch self)))
   self)
 
 ;;;=========================================
 ;;; HIDDEN API
 ;;;=========================================
 
-(defmethod insert-object ((self OMMaquette) (object t) &key (time 0) (track 1) trigger)
+(defmethod insert-object ((self OMMaquette) (object t) &key (time 0) (track 1) (pre-delay 0) trigger)
   (declare (ignore trigger))
+  (declare (ignore pre-delay))
   (let ((b (omng-make-new-boxcall (class-of object) (omp (or time 0) 0))))
     (setf (value b) `(,object))
     (set-display b :mini-view)
     (if (add-box-in-track self b track) t)))
 
-(defmethod insert-object ((self OMMaquette) (object ompatchinternal) &key (time 0) (track 1) trigger)
+(defmethod insert-object ((self OMMaquette) (object ompatchinternal) &key (time 0) (track 1) (pre-delay 0) trigger)
   (declare (ignore trigger))
   (let ((b (omng-make-new-boxcall object (omp (or time 0) 0))))
     (set-reactive b t)
+    (setf (pre-delay b) pre-delay)
     (set-display b :mini-view)
     (if (add-box-in-track self b track) t)))
 
