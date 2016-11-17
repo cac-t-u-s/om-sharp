@@ -40,61 +40,37 @@
   win)
 
 (defun map-type (type)
-  (if (string= type "button")
-      'om-button
-    'om-slider))
+  (cond ((string= type "button")
+         'om-button)
+        ((string= type "checkbox")
+         'om-check-box)
+        ((string= type "slider")
+         'om-slider)
+        (t
+         'om-slider)))
 
 (defmethod make-editor-window-contents ((editor interface-editor))
   (let ((interface (object-value editor))
         (di-size (omp 100 40))
-        (txt-size (omp 100 20))
-        (x 2)
-        (y-off 2)
-        di)
+        (txt-size (omp 100 20)))
     (om-make-view 'om-view
                   :bg-color (om-def-color :black)
-                  :subviews (loop for type in (mapcar 'map-type (types interface))
-                                  for name in (names interface)
-                                  for bound in (bounds interface)
-                                  for fun in (functions interface)
-                                  collect
-                                  (let ((n name)
-                                        (f fun))
-                                    (if (eq type 'om-button)
-                                        (progn
-                                          (setq di (om-make-view 'om-view
-                                                                 :bg-color (om-def-color :white)
-                                                                 :position (omp x y-off);(omp x (+ y-off (om-point-y txt-size)))
-                                                                 :subviews (list
-                                                                            (om-make-di 'om-simple-text
-                                                                                        :text n
-                                                                                        :position (omp 5 2)
-                                                                                        :size txt-size)
-                                                                            (om-make-di 'om-button
-                                                                                        :position (omp 4 (om-point-y txt-size))
-                                                                                        :size di-size
-                                                                                        :range bound
-                                                                                        :di-action #'(lambda (b)
-                                                                                                       (funcall f))))))
-                                          (incf x (+ 2 (om-point-x di-size)))
-                                          di)
-                                      (progn
-                                        (setq di (om-make-view 'om-view
-                                                               :bg-color (om-def-color :white)
-                                                               :position (omp x y-off)
-                                                               :subviews (list 
-                                                                          (om-make-di 'om-simple-text
-                                                                                      :text n
-                                                                                      :position (omp 5 2)
-                                                                                      :size txt-size)
-                                                                          (om-make-di 'om-slider
-                                                                                      :position (omp 4 (om-point-y txt-size))
-                                                                                      :size di-size
-                                                                                      :range bound
-                                                                                      :di-action #'(lambda (b)
-                                                                                                     (funcall f (om-slider-value b)))))))
-                                        (incf x (+ 2 (om-point-x di-size)))
-                                        di)))))))
+                  :subviews (list
+                             (om-make-view 'om-view
+                                           :bg-color (om-def-color :white)
+                                           :position (omp 2 2);(omp x (+ y-off (om-point-y txt-size)))
+                                           :subviews (list
+                                                      (om-make-di 'om-simple-text
+                                                                  :text (name interface)
+                                                                  :position (omp 5 2)
+                                                                  :size txt-size)
+                                                      (om-make-di (map-type (shape interface))
+                                                                  :position (omp 4 (om-point-y txt-size))
+                                                                  :size di-size
+                                                                  :range (bounds interface)
+                                                                  :di-action #'(lambda (b)
+                                                                                 (funcall (lambda-fun interface))
+                                                                                 ))))))))
             
 
                                 
