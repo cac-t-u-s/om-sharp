@@ -105,13 +105,14 @@ It is returned on the first output in case of negative match.
 (defmethod add-optional-input ((self RouteBox) &key name (value nil val-supplied-p) doc reactive)
   (declare (ignore value doc reactive))
   (call-next-method)
-  (setf (outputs self) 
-        (append (outputs self)
+  (set-box-outputs self 
+                   (append (outputs self)
                 (list (make-instance 'box-optional-output 
-                                     :name name :box self
+                                     :name (format nil "~A~D" name (length (outputs self))) 
+                                     :box self
                                      :doc-string "positive-test")))))
 
 (defmethod remove-one-optional-input ((self RouteBox))
   (when (call-next-method)
-    (setf (outputs self) (butlast (outputs self)))))
+    (set-box-outputs self  (butlast (outputs self)))))
 

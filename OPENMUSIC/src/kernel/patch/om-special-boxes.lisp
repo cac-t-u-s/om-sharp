@@ -35,15 +35,18 @@ Mind using this box in 'eval-once' mode when connected to several other boxes."
 (defmethod add-optional-input ((self OMBoxSeqCall) &key name (value nil val-supplied-p) doc reactive)
   (declare (ignore value doc reactive))
   (call-next-method)
-  (setf (outputs self) 
-        (append (outputs self)
-                (list (make-instance 'box-optional-output 
-                                     :name name :box self
-                                     :doc-string (get-input-doc self name))))))
+  (set-box-outputs self  
+                   (append (outputs self)
+                           (list (make-instance 'box-optional-output 
+                                                :name (format nil "~A~D" name (length (outputs self)))
+                                                :box self
+                                                :doc-string (get-input-doc self name)))))
+  (setf (lock-state self) :eval-once)
+  (update-inspector-for-box self))
 
 (defmethod remove-one-optional-input ((self OMBoxSeqCall))
   (when (call-next-method)
-    (setf (outputs self) (butlast (outputs self)))))
+    (set-box-outputs self (butlast (outputs self)))))
 
 
 ;;;------------------------
@@ -81,17 +84,20 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
 
 (defmethod add-optional-input ((self OMBoxSplit) &key name (value nil val-supplied-p) doc reactive)
   (declare (ignore name value doc reactive))
-  (setf (outputs self) 
-        (append (outputs self)
-                (list (make-instance 'box-optional-output 
-                                     :name (format nil "out~D" (length (outputs self))) 
-                                     :box self))
-                ))
+  (set-box-outputs 
+   self 
+   (append (outputs self)
+           (list (make-instance 'box-optional-output 
+                                :name (format nil "out~D" (length (outputs self))) 
+                                :box self))
+           ))
+  (setf (lock-state self) :eval-once)
+  (update-inspector-for-box self)
   t)
 
 (defmethod remove-one-optional-input ((self OMBoxSplit))
   (when (get-optional-inputs self)
-    (setf (outputs self) (butlast (outputs self)))))
+    (set-box-outputs self (butlast (outputs self)))))
 
 ;; hack: all inputs (actually, ouputs) can be removed as "optional"
 (defmethod get-optional-inputs ((self OMBoxSplit)) (outputs self))
@@ -99,8 +105,9 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
 (defmethod save-outputs? ((self OMBoxSplit)) t)
 
 (defmethod restore-outputs ((self OMBoxSplit) outputs)
-  (dotimes (n (length outputs))
-    (add-optional-input self))
+  (setf (outputs self) (list (car (outputs self))))
+  (loop for o in (cdr outputs) for n from 1 do
+        (add-optional-input self))
   (call-next-method))
  
 (defmethod add-args-to-box ((box OMBoxSplit) args)

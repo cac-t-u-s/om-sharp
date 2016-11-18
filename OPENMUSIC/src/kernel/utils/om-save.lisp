@@ -498,7 +498,6 @@
 
 (defmethod restore-outputs ((self OMBox) outputs)
   (loop for output-desc in outputs do
-        ;;; the tests are just temporary in order to convert old-format
         (let* ((name (find-value-in-kv-list (cdr output-desc) :name))
                (reac (find-value-in-kv-list (cdr output-desc) :reactive))
                (out (find name (outputs self) :test 'string-equal :key 'name)))

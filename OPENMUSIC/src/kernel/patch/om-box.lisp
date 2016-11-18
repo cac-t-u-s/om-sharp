@@ -59,6 +59,16 @@
 (defmethod set-value ((self OMBox) value)
   (setf (value self) value))
 
+(defmethod set-box-outputs ((self OMBox) outputs)
+  (setf (outputs self) outputs)
+  (when (container self)
+    (report-modifications (editor (container self)))))
+
+(defmethod set-box-inputs ((self OMBox) inputs)
+  (setf (inputs self) inputs)
+  (when (container self)
+    (report-modifications (editor (container self)))))
+
 (defmethod set-show-name ((box OMBox)) 
   (when (visible-property (get-properties-list box) :showname)
     (setf (show-name box) (not (show-name box)))

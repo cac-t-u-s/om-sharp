@@ -156,13 +156,13 @@ All boxes which their reference is a OM generic function are instances of this c
 (defmethod more-optional-input ((self t) &key name (value nil val-supplied-p) doc reactive) nil)
 
 (defmethod add-optional-input ((self OMBoxcall) &key name (value nil val-supplied-p) doc reactive)
-    (setf (inputs self) (append (inputs self)
-                                (list (make-instance 'box-optional-input
-                                                     :name (string-downcase name)
-                                                     :value value
-                                                     :box self
-                                                     :doc-string (or doc "optional input")
-                                                     :reactive reactive)))))
+  (set-box-inputs self (append (inputs self)
+                               (list (make-instance 'box-optional-input
+                                                    :name (string-downcase name)
+                                                    :value value
+                                                    :box self
+                                                    :doc-string (or doc "optional input")
+                                                    :reactive reactive)))))
 
 
 (defmethod remove-one-optional-input ((self OMBoxCall))
@@ -170,7 +170,7 @@ All boxes which their reference is a OM generic function are instances of this c
      (when optionals 
        (let ((last-in (car (last optionals))))
          (mapcar #'(lambda (c) (omng-remove-element (container self) c)) (connections last-in))
-         (setf (inputs self) (remove last-in (inputs self) :test 'equal))
+         (set-box-inputs self (remove last-in (inputs self) :test 'equal))
          (do-delete-one-input-extra self)
          t))))
 
@@ -224,7 +224,7 @@ All boxes which their reference is a OM generic function are instances of this c
       )))
 
 (defmethod add-keyword-input ((self OMBoxcall) &key key (value nil val-supplied-p) doc reactive)
-    (setf (inputs self) (append (inputs self)
+    (set-box-inputs self (append (inputs self)
                                 (list (make-instance 'box-keyword-input
                                                      :name (string key) ;; string-downcase
                                                      :value value
@@ -240,7 +240,7 @@ All boxes which their reference is a OM generic function are instances of this c
         (mapcar #'(lambda (c) 
                     (omng-remove-element (container self) c)) 
                 (connections last-in))
-        (setf (inputs self) (remove last-in (inputs self) :test 'equal))
+        (set-box-inputs self (remove last-in (inputs self) :test 'equal))
        t))))
 
 (defmethod change-keyword ((input box-keyword-input) key)
@@ -330,8 +330,8 @@ All boxes which their reference is a OM generic function are instances of this c
                                      (if exist (copy-io exist) o)))
                              (get-keyword-outputs self))))
     
-    (setf (inputs self) new-inputs
-          (outputs self) new-outputs)
+    (set-box-inputs self new-inputs)
+    (set-box-outputs self new-outputs)
 
     (set-frame-areas (frame self))
     (om-invalidate-view (frame self))

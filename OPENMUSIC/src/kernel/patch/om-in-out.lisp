@@ -166,22 +166,22 @@
 ;  (verify-name elem self))
  
 (defmethod register-patch-io ((self OMPatch) (elem OMIn))
-  (setf (inputs self) (append (inputs self) (list elem)))
+  (set-box-inputs self (append (inputs self) (list elem)))
   (unless (index elem) ;; for instance when the input is loaded, the index is already set
     (setf (index elem) (length (inputs self)))))
  
 (defmethod register-patch-io ((self OMPatch) (elem OMOut))
-  (setf (outputs self) (append (outputs self) (list elem)))
+  (set-box-outputs self (append (outputs self) (list elem)))
   (unless (index elem) (setf (index elem) (length (outputs self)))))
   
 (defmethod unregister-patch-io ((self OMPatch) (elem OMIn))
-  (setf (inputs self) (remove elem (inputs self)))
+  (set-box-inputs self (remove elem (inputs self)))
   (loop for inp in (inputs self) do
           (when (> (index inp) (index elem))
             (setf (index inp) (1- (index inp))))))
 
 (defmethod unregister-patch-io ((self OMPatch) (elem OMOut))
-  (setf (outputs self) (remove elem (outputs self)))
+  (set-box-outputs self (remove elem (outputs self)))
   (loop for out in (outputs self) do
           (when (> (index out) (index elem))
             (setf (index out) (1- (index out))))))

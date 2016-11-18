@@ -96,7 +96,7 @@
 (defmethod add-keyword-input ((self OMBoxRelatedWClass) &key key (value nil val-supplied-p) doc reactive)
   (call-next-method)
   (let ((name (string-downcase key)))
-    (setf (outputs self) (append (outputs self)
+    (set-box-outputs self (append (outputs self)
                                  (list (make-instance 'box-keyword-output 
                                                       :name name
                                                       :box self
@@ -114,7 +114,7 @@
 
 (defmethod remove-one-keyword-input ((self OMBoxRelatedWClass))
   (when (call-next-method)
-    (setf (outputs self) (butlast (outputs self)))
+    (set-box-outputs self (butlast (outputs self)))
     ))
 
 
