@@ -22,6 +22,8 @@
 
 (cffi:defcfun ("CloseAudioPlayer" CloseAudioPlayer) :void (player :pointer))
 
+(cffi:defcfun ("ChangeSampleRate" ChangeSampleRate) :void (player :pointer) (SR :int))
+
 ;;;==============================================
 ;;  BUFFER
 ;;;==============================================
