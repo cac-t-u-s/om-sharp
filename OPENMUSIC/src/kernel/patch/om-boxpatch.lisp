@@ -11,14 +11,14 @@
 
 (defmethod get-box-class ((self OMPatch)) 'OMBoxPatch)
 
-(defmethod omNG-make-new-boxcall ((reference (eql 'patch)) pos &optional init-args)
+(defmethod omNG-make-special-box ((reference (eql 'patch)) pos &optional init-args)
   (omNG-make-new-boxcall 
    (make-instance 'OMPatchInternal
                   :name (if init-args (format nil "~A" (car (list! init-args))) "new-patch"))
    pos init-args))
 
-(defmethod omNG-make-new-boxcall ((reference (eql 'p)) pos &optional init-args)
-  (omNG-make-new-boxcall 'patch pos init-args))
+(defmethod omNG-make-special-box ((reference (eql 'p)) pos &optional init-args)
+  (omNG-make-special-box 'patch pos init-args))
 
 (defmethod update-from-reference ((self OMBoxPatch))
   (when *erased-io*

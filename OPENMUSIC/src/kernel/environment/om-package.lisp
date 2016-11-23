@@ -7,11 +7,12 @@
 
 ;;; OMPackage <elements> (inherited from OMFolder) are the subpackages
 (defclass OMAbstractPackage () 
-   ((doc :initform "" :accessor doc :documentation "documentation")
-    (classes  :initform nil :accessor classes :documentation "a list of OMClasses")
-    (functions  :initform nil :accessor functions :documentation "a list of OMGenericFunctions or standard Lisp functions")
-    (aliasclasses  :initform nil :accessor aliasclasses :documentation "a list of OMClasses aliases referring classes in other package (used for inheritance)"))
-   (:documentation "This is the class of the OMPackage metaobject. A package is a collection of classes and generic functions. Packages can also contain subpackage and initiate hierearchical package trees.
+  ((doc :initform "" :accessor doc :documentation "documentation")
+   (classes  :initform nil :accessor classes :documentation "a list of OMClasses")
+   (functions  :initform nil :accessor functions :documentation "a list of OMGenericFunctions or standard Lisp functions")
+   (special-items  :initform nil :accessor special-items :documentation "a list ofspecial items :)")
+   (aliasclasses  :initform nil :accessor aliasclasses :documentation "a list of OMClasses aliases referring classes in other package (used for inheritance)"))
+  (:documentation "This is the class of the OMPackage metaobject. A package is a collection of classes and generic functions. Packages can also contain subpackage and initiate hierearchical package trees.
 
 For easier browsing it is recommended that a package do not contain at the same time subpackage and classes or functions.
 
@@ -37,6 +38,10 @@ For easier browsing it is recommended that a package do not contain at the same 
 
 (defmethod omNG-add-element ((self OMAbstractPackage) (element function))
   (setf (functions self) (append (functions self) (list element))))
+
+(defmethod omNG-add-element ((self OMAbstractPackage) (element symbol))
+  (setf (special-items self) (append (special-items self) (list element))))
+
 
 ;;; Empty package
 (defmethod CleanupPackage ((self OMAbstractPackage))
@@ -90,6 +95,7 @@ For easier browsing it is recommended that a package do not contain at the same 
 (defmethod get-all-symbol-names ((self OMAbstractPackage))
   (append (mapcar 'get-name (functions self))
           (mapcar 'get-name (classes self))
+          (special-items self)
           (loop for item in (elements self) append (get-all-symbol-names item))))
 
 
@@ -127,6 +133,11 @@ For easier browsing it is recommended that a package do not contain at the same 
             (omNG-add-element inPackage (fdefinition funname))))
       (om-beep-msg (format nil "Undefined function: ~A" funname))
       ))
+
+(defmethod AddSpecialItem2Pack ((item symbol) inPackage)
+  (unless (find item (special-items inPackage) :test 'equal)
+    (omNG-add-element inPackage item)))
+ 
 
 (defmethod AddFun2Pack ((funname list) inPackage)
    (mapcar #'(lambda (fun) (AddGenFun2Pack fun inPackage)) funname))

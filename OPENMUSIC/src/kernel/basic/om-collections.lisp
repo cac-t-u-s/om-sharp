@@ -37,7 +37,7 @@
 
 (defmethod special-box-p ((name (eql 'collection))) t)
 
-(defmethod omNG-make-new-boxcall ((reference (eql 'collection)) pos &optional init-args)
+(defmethod omNG-make-special-box ((reference (eql 'collection)) pos &optional init-args)
   (let ((type (and init-args (find-class (car init-args) nil)))
         (val (make-instance 'collection)))
     (when type (setf (obj-type val) (class-name type)))

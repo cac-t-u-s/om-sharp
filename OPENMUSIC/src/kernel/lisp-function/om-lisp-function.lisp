@@ -29,7 +29,7 @@
 (defclass OMBoxLisp (OMBoxAbstraction) ())
 (defmethod get-box-class ((self OMLispFunction)) 'OMBoxLisp)
 
-(defmethod omNG-make-new-boxcall ((reference (eql 'lisp)) pos &optional init-args)
+(defmethod omNG-make-special-box ((reference (eql 'lisp)) pos &optional init-args)
   (omNG-make-new-boxcall 
    (make-instance 'OMLispFunctionInternal
                   :name (if init-args (format nil "~A" (car (list! init-args))) "my-function")

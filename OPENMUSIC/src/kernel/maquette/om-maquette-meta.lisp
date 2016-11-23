@@ -64,7 +64,7 @@
 (defmethod special-box-p ((name (eql 'mymaquette))) t)
 (defmethod get-box-class ((self OMMaqIn)) 'OMMaqInBox)
 
-(defmethod omNG-make-new-boxcall ((reference (eql 'mymaquette)) pos &optional init-args)
+(defmethod omNG-make-special-box ((reference (eql 'mymaquette)) pos &optional init-args)
   (omNG-make-new-boxcall 
    (make-instance 'OMMaqIn :name "MAQUETTE")
    pos init-args))

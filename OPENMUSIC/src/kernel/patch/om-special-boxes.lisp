@@ -29,7 +29,7 @@ Mind using this box in 'eval-once' mode when connected to several other boxes."
 
 
 (defmethod special-box-p ((name (eql 'sequence))) t)
-(defmethod omNG-make-new-boxcall ((reference (eql 'sequence)) pos &optional init-args)
+(defmethod omNG-make-special-box ((reference (eql 'sequence)) pos &optional init-args)
   (omNG-make-new-boxcall (fdefinition 'seq) pos init-args))
 
 (defmethod add-optional-input ((self OMBoxSeqCall) &key name (value nil val-supplied-p) doc reactive)

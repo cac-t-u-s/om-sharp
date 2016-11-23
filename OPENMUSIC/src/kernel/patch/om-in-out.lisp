@@ -115,7 +115,7 @@
 (defmethod get-box-class ((self OMIn)) 'OMInBox)
 (defmethod related-patchbox-slot ((self OMInBox)) 'inputs)
 
-(defmethod omNG-make-new-boxcall ((reference (eql 'in)) pos &optional init-args)
+(defmethod omNG-make-special-box ((reference (eql 'in)) pos &optional init-args)
   (let ((name (car (list! init-args)))
         (val (cadr (list! init-args))))
     (omNG-make-new-boxcall 
@@ -143,7 +143,7 @@
 (defmethod get-box-class ((self OMOut)) 'OMOutBox)
 (defmethod related-patchbox-slot ((self OMOutBox)) 'outputs)
 
-(defmethod omNG-make-new-boxcall ((reference (eql 'out)) pos &optional init-args)
+(defmethod omNG-make-special-box ((reference (eql 'out)) pos &optional init-args)
   (let ((name (car (list! init-args))))
     (omNG-make-new-boxcall 
      (make-instance 'OMOut :name (if name (string name) "out"))
@@ -216,7 +216,7 @@
 (defmethod special-box-p ((name (eql 'mybox))) t)
 (defmethod get-box-class ((self OMSelfIn)) 'OMSelfInBox)
 
-(defmethod omNG-make-new-boxcall ((reference (eql 'mybox)) pos &optional init-args)
+(defmethod omNG-make-special-box ((reference (eql 'mybox)) pos &optional init-args)
   (omNG-make-new-boxcall 
    (make-instance 'OMSelfIn :name "BOX")
    pos init-args))

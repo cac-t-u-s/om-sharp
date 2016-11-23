@@ -795,7 +795,7 @@
                 (omNG-make-new-boxcall 'value pos name))
                
                ((special-box-p name)
-                (omNG-make-new-boxcall name pos args))
+                (omNG-make-special-box name pos args))
                
                ((special-form-p name)
                 (om-beep-msg  (string+ "Special Lisp form '" str "' can not be created as an OM box!")))
