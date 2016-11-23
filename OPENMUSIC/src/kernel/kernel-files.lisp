@@ -79,6 +79,7 @@
         "windows/om-inspector"
 
         "patch/om-box"
+        "patch/om-box-io"
         "patch/om-boxcall"
         "patch/om-boxsimple"
         "patch/om-boxobject"
@@ -97,6 +98,7 @@
         "patch/om-reactive"
         "patch/om-comments"
         "patch/om-encapsulation"
+        "patch/om-interfacebox"
         "patch/om-lost-reference"
  
 
