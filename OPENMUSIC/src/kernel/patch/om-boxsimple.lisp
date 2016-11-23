@@ -22,9 +22,8 @@
                       (:reactive "Reactive (r)" :bool reactive))
         ))
 
-(defmethod box-n-outs ((self OMValueBox)) 1)
 
-(defmethod create-box-outputs ((self OMValueBox)) 
+(defmethod create-box-outputs ((self OMValueBox))
   (list (make-instance 'box-output :box self :name "value")))
 
 (defmethod next-optional-input ((self OMValueBox)) t)

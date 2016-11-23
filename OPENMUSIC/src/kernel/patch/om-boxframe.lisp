@@ -333,7 +333,6 @@
 (defmethod make-frame-from-callobj ((self OMBox))
   (let ((view (om-make-graphic-object (get-box-frame-class self) 
                 :position (omp (box-x self) (box-y self))
-                :help "function box"
                 :font (text-font self)
                 :object self
                 :icon-id (and (get-icon-id-from-reference self)
@@ -795,12 +794,12 @@
 ;  :initvals '(1 2 3 8 5)
 ;   d)
   
-(defmethod get-all-keywords ((self t)) nil)
+(defmethod additional-box-attributes-names ((self OMBox)) nil)
 
 (defun key-to-menu (key box input)
   (if (listp key)
       (om-make-menu-comp 
-       (when key (append (if (find (car key) (additional-box-attributes-names (get-box-value box))) 
+       (when key (append (if (find (car key) (additional-box-attributes-names box)) 
                              (list (om-make-menu-item "-- box attributes --" nil :enabled nil :selected nil)))
                          (loop for k in key collect (key-to-menu k box input))
                          )))

@@ -81,8 +81,10 @@
   (setf (outputs self) (create-box-outputs self)))
 
 (defmethod create-box-inputs ((self OMBox)) nil)
-(defmethod create-box-outputs ((self OMBox)) nil)
+
 (defmethod box-n-outs ((self OMBox)) (length (outputs self)))
+
+(defmethod create-box-outputs ((self OMBox)) nil)
 
 ;;; some boxes can not be renames (ex. functions)
 (defmethod allow-rename ((self OMBox)) t)
@@ -263,47 +265,7 @@
       (cache-display-draw (cache-display box)))))
 
 
-;;;=============================
-; INPUTS/OUTPUTS
-;;;=============================
 
-;; reference can be an actual in/out box (e.g. in an abstraction box) 
-;; or just a symbol (never used) corresponding to the name of the input
-(defclass OMBoxIO (OMVPObject) 
-  ((reference :initform nil :initarg :reference :accessor reference)
-   (doc-string :initform "" :initarg :doc-string :accessor doc-string)
-   (value :initform nil :initarg :value :accessor value)
-   (connections :initform nil :accessor connections :initarg :connections)
-   (box :initform nil :initarg :box :accessor box)
-   (area :initform nil :initarg :area :accessor area)
-   (reactive :initform nil :initarg :reactive :accessor reactive)
-   ))
 
-(defmethod copy-io ((self OMBoxIO))
-  (let ((new-io (make-instance (type-of self)
-                               :value (value self)
-                               :reference (reference self)
-                               :name (name self)
-                               :box (box self)
-                               :reactive (reactive self)
-                               :doc-string (doc-string self))))
-    (setf (connections new-io)
-          (mapcar 
-           #'(lambda (c) (adopt-connection new-io c))
-           (connections self)))
-    new-io))
-  
-  
-(defclass box-input (OMBoxIO) ())
-(defclass box-output (OMBoxIO) ())
 
-;;; just for display in tooltips etc.
-(defmethod io-prefix ((self OMBoxIO)) "")
-
-(defmethod set-value ((self OMBoxIO) value) 
-  (setf (value self) value))
-
-(defmethod get-input-doc-string ((self OMBoxIO))
-  (let ((doc (get-input-doc (box self) (name self))))
-    (and (stringp doc) (not (string-equal doc "")) doc)))
 

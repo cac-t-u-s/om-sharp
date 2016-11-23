@@ -70,9 +70,9 @@
 ;;; (name doc menu) 
 (defmethod additional-box-attributes ((self t)) nil)
 
-(defun additional-box-attributes-names (val)
+(defmethod additional-box-attributes-names ((self OMBoxRelatedWClass))
   (mapcar #'(lambda (attr) (if (listp attr) (car attr) attr))
-          (additional-box-attributes val)))
+          (additional-box-attributes (get-box-value self))))
           
 
 (defmethod allow-more-optionals ((self OMBoxRelatedWClass)) t)
