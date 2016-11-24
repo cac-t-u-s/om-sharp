@@ -40,8 +40,6 @@
   (omp (omg-w container (om-point-x s-size))
        (omg-h container (om-point-y s-size))))
 
-
-
 (defmethod omg-add-element ((container t) (frame OMFrame))
   (let ((scaledsize (omg-size container (omp (box-w (object frame)) (box-h (object frame)))))
         (scaledpos (omg-position container (omp (box-x (object frame)) (box-y (object frame))))))

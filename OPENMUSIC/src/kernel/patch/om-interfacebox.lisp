@@ -4,7 +4,7 @@
 
 (defclass InterfaceBox (OMBox) ())
 
-(defvar *intnterfaceboxes* 
+(defvar *interfaceboxes* 
   (omNG-make-package "Interface Boxes"
                      :container-pack *om-package-tree*
                      :doc "This package contains special interface boxes and widgets to use in OM patches (sliders, buttons, etc.)"))
@@ -20,7 +20,7 @@
    (orientation :accessor orientation :initarg :orientation :initform :vertical)
    (action :accessor action :initarg :action :initform nil)))
 
-(AddSpecialItem2Pack 'slider *intnterfaceboxes*)
+(AddSpecialItem2Pack 'slider *interfaceboxes*)
 
 (defmethod special-box-p ((self (eql 'slider))) t)
 
