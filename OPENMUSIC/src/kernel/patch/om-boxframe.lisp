@@ -204,9 +204,13 @@
 
 (defparameter *resize-handler* nil)
 
-(defmethod om-view-cursor ((self resize-area)) (om-get-cursor :resize))
-(defmethod om-view-cursor ((self h-resize-area)) (om-get-cursor :h-size))
-(defmethod om-view-cursor ((self v-resize-area)) (om-get-cursor :v-size))
+(defun get-cursor-if-allowed (area cursor)
+  (unless (container-frames-locked (om-view-container (frame area)))
+    (om-get-cursor cursor)))
+
+(defmethod om-view-cursor ((self resize-area)) (get-cursor-if-allowed self :resize))
+(defmethod om-view-cursor ((self h-resize-area)) (get-cursor-if-allowed self :h-size))
+(defmethod om-view-cursor ((self v-resize-area)) (get-cursor-if-allowed self :v-size))
 
 (defmethod resize-handle ((self resize-area) container frame pos) 
   (let ((pp (om-add-points (p0 self) pos)))
@@ -223,9 +227,10 @@
 
 
 (defmethod click-in-area ((self resize-area) boxframe) 
-  (setf (p0 self) (om-subtract-points (om-view-size boxframe) (om-mouse-position boxframe)))
-  (select-box (object boxframe) t)
-  (setf *resize-handler* self))
+  (unless (container-frames-locked (om-view-container boxframe))
+    (setf (p0 self) (om-subtract-points (om-view-size boxframe) (om-mouse-position boxframe)))
+    (select-box (object boxframe) t)
+    (setf *resize-handler* self)))
 
 (defmethod om-click-release-handler ((self OMBoxFrame) pos)
   (when *resize-handler*

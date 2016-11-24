@@ -6,7 +6,8 @@
 
 (defclass patch-editor (OMDocumentEditor) 
   ((grid :accessor grid :initarg :grid :initform nil)
-   (bg-lock :accessor bg-lock :initarg :grid :initform nil)
+   (bg-lock :accessor bg-lock :initarg :bg-lock :initform nil)
+   (edit-lock :accessor edit-lock :initarg :edit-lock :initform nil)
    (show-lisp-code :accessor show-lisp-code :initarg :show-lisp-code :initform nil)))
 
 (defmethod object-has-editor ((self OMPatch)) t)
@@ -62,9 +63,14 @@
         (loop for i from d to (h self) by d do
               (draw-h-grid-line self i))))))
 
+
+(defmethod draw-lock-buttons ((self patch-editor))
+  (om-draw-picture (if (edit-lock self) 'lock 'unlock) :x 0 :y 2 :w 20 :h 20))
+
 (defmethod om-draw-contents ((self patch-editor-view))
   (let ((editor (editor (om-view-window self))))
     (when (grid editor) (draw-patch-grid self))
+    (draw-lock-buttons editor) 
     (mapcar 'om-draw-contents (get-grap-connections self))))
 
 (defmethod window-name-from-object ((self OMPatchInternal))
@@ -99,6 +105,12 @@
                                           "Background lock" 
                                           #'(lambda () (setf (bg-lock self) (not (bg-lock self))))
                                           :key "b" :selected #'(lambda () (bg-lock self))
+                                          )
+                                         (om-make-menu-item  
+                                          "Edit lock" 
+                                          #'(lambda () (setf (edit-lock self) (not (edit-lock self)))
+                                              (om-invalidate-view (main-view self)))
+                                          :key "e" :selected #'(lambda () (edit-lock self))
                                           ))
                                    :selection t
                                    )
@@ -529,9 +541,14 @@
 ;;; DRAG BOXES
 ;;;=============================
 
+(defmethod container-frames-locked ((self t)) t)
+(defmethod container-frames-locked ((self patch-editor-view)) 
+  (edit-lock (editor self)))
+
 (defmethod om-drag-start ((self OMBoxFrame) pos)
   (unless (or *resize-handler* *connection-handler* 
-              (active-area-at-pos self pos))
+              (active-area-at-pos self pos)
+              (container-frames-locked (om-view-container self)))
     (let ((pv (om-view-container self)))
       (om-set-focus pv) ;; will close the temporary text-edit field if any
       (setf (dragged-views pv)
