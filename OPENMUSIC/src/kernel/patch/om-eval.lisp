@@ -50,6 +50,8 @@
   (om-listener-echo "Aborted")
   (abort))
 
+;;; only OMBoxCall evaluates
+(defmethod eval-box ((self ombox)) nil)
 
 (defmethod eval-box ((self omboxcall))
   (omng-box-value self)
