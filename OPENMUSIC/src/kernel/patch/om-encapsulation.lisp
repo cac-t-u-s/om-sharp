@@ -116,7 +116,7 @@
   (let* ((thispatch (object editor))
          (inactive-boxes (remove-if 'selected (boxes thispatch)))
          (newpatch (make-instance 'OMPatchInternal :name "my-patch"))
-         (patchbox (omNG-make-new-boxcall 
+         (patchbox (omng-make-new-boxcall 
                     newpatch 
                     (om-make-point (round (average (mapcar 'box-x boxes) nil))
                                    (round (average (mapcar 'box-y boxes) nil)))

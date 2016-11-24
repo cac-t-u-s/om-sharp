@@ -73,7 +73,7 @@
 ;;; called from the tracks
 (defmethod new-box-in-maq-editor ((self maquette-editor) at &optional (track 0))
   (let ((maq (object self))
-        (new-box (omng-make-new-boxcall 'patch at)))
+        (new-box (omng-make-special-box 'patch at)))
     (set-box-duration new-box *temporalbox-def-w*)  
     (add-box-in-track maq new-box track)  
     new-box))
