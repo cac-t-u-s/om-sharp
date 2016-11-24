@@ -103,9 +103,9 @@
                                           )
                                          (om-make-menu-item  
                                           "Background lock" 
-                                          #'(lambda () (setf (bg-lock self) (not (bg-lock self))))
-                                          :key "b" :selected #'(lambda () (bg-lock self))
-                                          )
+                                          #'(lambda () (setf (bg-lock self) (not (bg-lock self)))
+                                              (om-invalidate-view (main-view self)))
+                                          :key "b" :selected #'(lambda () (bg-lock self)))
                                          (om-make-menu-item  
                                           "Edit lock" 
                                           #'(lambda () (setf (edit-lock self) (not (edit-lock self)))
@@ -212,16 +212,20 @@
                                
         (:om-key-left (if (om-option-key-p) 
                           (mapc 'optional-input-- selected-boxes)
-                        (mapc #'(lambda (f) (move-box f (if (om-shift-key-p) -10 -1) 0)) 
-                              (or selected-boxes selected-connections))))
+                        (unless (edit-lock editor)
+                          (mapc #'(lambda (f) (move-box f (if (om-shift-key-p) -10 -1) 0)) 
+                                (or selected-boxes selected-connections)))))
         (:om-key-right (if (om-option-key-p) 
                            (mapc 'optional-input++ selected-boxes)
-                         (mapc #'(lambda (f) (move-box f (if (om-shift-key-p) 10 1) 0)) 
-                               (or selected-boxes selected-connections))))
-        (:om-key-up (mapc #'(lambda (f) (move-box f 0 (if (om-shift-key-p) -10 -1))) 
-                          (or selected-boxes selected-connections)))
-        (:om-key-down (mapc #'(lambda (f) (move-box f 0 (if (om-shift-key-p) 10 1))) 
-                            (or selected-boxes selected-connections)))
+                         (unless (edit-lock editor)
+                           (mapc #'(lambda (f) (move-box f (if (om-shift-key-p) 10 1) 0)) 
+                                 (or selected-boxes selected-connections)))))
+        (:om-key-up (unless (edit-lock editor)
+                      (mapc #'(lambda (f) (move-box f 0 (if (om-shift-key-p) -10 -1))) 
+                            (or selected-boxes selected-connections))))
+        (:om-key-down (unless (edit-lock editor)
+                        (mapc #'(lambda (f) (move-box f 0 (if (om-shift-key-p) 10 1))) 
+                              (or selected-boxes selected-connections))))
       
         (#\k (mapc 'keyword-input++ selected-boxes))
         (#\+ (mapc 'keyword-input++ selected-boxes))
