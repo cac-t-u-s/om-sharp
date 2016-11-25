@@ -81,7 +81,7 @@
   (let ((val (or (and (null (lambda-state self)) (car (value self)))
                  (make-instance (reference self)))))
     (list (additional-class-attributes val)
-          (additional-box-attributes-names val)
+          (additional-box-attributes-names self)
     )))
 
 (defmethod next-keyword-input ((self OMBoxRelatedWClass))
@@ -264,7 +264,7 @@
   (window-title-for-object (car (value self))))
 
 (defmethod def-reactive ((self OMBoxEditCall) key) 
-  (find key (additional-box-attributes-names (get-box-value self))))
+  (find key (additional-box-attributes-names self)))
 
 ;;; called when properties are changed in the inspector
 (defmethod om-init-instance ((self omboxeditcall) &optional args)
