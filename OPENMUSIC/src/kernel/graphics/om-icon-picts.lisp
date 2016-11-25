@@ -20,7 +20,7 @@
   *om-loaded-picts*)
 
 (defun register-om-icons ()
-  (register-images (om-relative-path '("resources" "icon") nil :om))
+  (register-images (om-relative-path '("resources" "icons") nil :om))
   (register-images (om-relative-path '("resources" "di") nil :om)))
 
 ; (register-om-icons)
