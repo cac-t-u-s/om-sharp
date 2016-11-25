@@ -38,9 +38,12 @@ Frames can be simple frames (icons, boxes, etc.) or container frames (patch edit
       (funcall (pick self) (frame self))
     (pick self)))
 
+(defmethod disabled-area ((area frame-area)) nil)
+
 (defmethod apply-in-area ((self OMFrame) function position)
   (let ((aa (active-area-at-pos self position)))
-    (when aa (funcall function aa self)
+    
+    (when aa (unless (disabled-area aa) (funcall function aa self))
       ;;; the funcall must return T or the click will be reported to the frame
       )))
 
@@ -69,13 +72,15 @@ Frames can be simple frames (icons, boxes, etc.) or container frames (patch edit
    (om-convert-coordinates (get-position self) (frame self) (om-view-container (frame self)))
    (om-make-point -20 (* -12 (1+ (length (list! (area-tt-text self))))))))
 
+
 (defmethod om-enter-area ((area frame-area)) 
-  (setf (active area) t) 
-  (when (area-tt-text area)
-    (om-show-tooltip (om-view-container (frame area)) 
-                     (area-tt-text area)
-                     (area-tt-pos area)))
-  (om-invalidate-view (frame area)))
+  (unless (disabled-area area)
+    (setf (active area) t) 
+    (when (area-tt-text area)
+      (om-show-tooltip (om-view-container (frame area)) 
+                       (area-tt-text area)
+                       (area-tt-pos area)))
+    (om-invalidate-view (frame area))))
 
 (defmethod om-leave-area ((area frame-area)) 
   (setf (active area) nil)

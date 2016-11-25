@@ -109,6 +109,9 @@
 (defclass ++input-area (input-edit-area) ())
 (defclass --input-area (input-edit-area) ())
 
+(defmethod disabled-area ((area input-edit-area))
+  (container-frames-locked (om-view-container (frame area))))
+
 (defmethod area-tt-text ((self ++input-area)) 
   "add optional/keyword input")
 
@@ -136,30 +139,31 @@
                             :pos #'(lambda (f) (om-make-point (- (w f) S) (* 2 S)))
                             :pick #'(lambda (f) (list (- S) (- S) S S))))))))
 
-
 (defmethod om-draw-area ((area input-edit-area))
   (let ((p (get-position area)))
     (om-with-fg-color (om-def-color :light-gray)
       (om-draw-circle (om-point-x p) (om-point-y p) 5 :fill t))))
 
 (defmethod om-draw-area ((area ++input-area))
-  (let ((p (get-position area)))
-    (call-next-method)
-    (om-with-fg-color (if (active area) (om-def-color :dark-red) (om-def-color :gray))
-      (om-with-line-size (if (active area) 2 1)
-        (om-draw-line (om-point-x p) (- (om-point-y p) 2.5)
-                      (om-point-x p) (+ (om-point-y p) 2.5))
-        (om-draw-line (- (om-point-x p) 2.5) (om-point-y p)
-                      (+ (om-point-x p) 2.5) (om-point-y p))))))
+  (unless (disabled-area area)
+    (let ((p (get-position area)))
+      (call-next-method)
+      (om-with-fg-color (if (active area) (om-def-color :dark-red) (om-def-color :gray))
+        (om-with-line-size (if (active area) 2 1)
+          (om-draw-line (om-point-x p) (- (om-point-y p) 2.5)
+                        (om-point-x p) (+ (om-point-y p) 2.5))
+          (om-draw-line (- (om-point-x p) 2.5) (om-point-y p)
+                        (+ (om-point-x p) 2.5) (om-point-y p)))))))
 
 (defmethod om-draw-area ((area --input-area))
-  (let ((p (get-position area)))
-    (call-next-method) 
-    (om-with-fg-color (if (active area) (om-def-color :dark-red) (om-def-color :gray))
-      (om-with-line-size (if (active area) 2 1)
-        (om-draw-line (- (om-point-x p) 2.5) (om-point-y p)
-                      (+ (om-point-x p) 2.5) (om-point-y p))))))
-
+  (unless (disabled-area area)
+    (let ((p (get-position area)))
+      (call-next-method) 
+      (om-with-fg-color (if (active area) (om-def-color :dark-red) (om-def-color :gray))
+        (om-with-line-size (if (active area) 2 1)
+          (om-draw-line (- (om-point-x p) 2.5) (om-point-y p)
+                        (+ (om-point-x p) 2.5) (om-point-y p)))))))
+  
 (defmethod add-next-input ((boxframe OMBoxFrame))
   (let ((box (object boxframe)))
     (cond ((next-optional-input box)
@@ -214,7 +218,7 @@
   (let ((pp (om-add-points (p0 self) pos)))
       (om-set-view-size frame 
        (om-borne-point 
-        (resize-frame-size self frame pp) 
+        (resize-frame-size self frame pp)
         (minimum-size (object frame)) 
         (maximum-size (object frame))
         ))))
@@ -341,7 +345,8 @@
                 :icon-id (and (get-icon-id-from-reference self)
                               (or (find (get-icon-id-from-reference self) *om-loaded-picts*)
                                          'not-found)))))
-    (om-set-view-size view (default-size self))
+    (om-set-view-size view (om-def-point (omp (box-w self) (box-h self))
+                                                (default-size self)))
     (setf (frame self) view)
     (set-frame-areas view)
     view))
