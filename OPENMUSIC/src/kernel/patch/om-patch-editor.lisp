@@ -6,7 +6,6 @@
 
 (defclass patch-editor (OMDocumentEditor) 
   ((grid :accessor grid :initarg :grid :initform nil)
-   (bg-lock :accessor bg-lock :initarg :bg-lock :initform nil)
    (edit-lock :accessor edit-lock :initarg :edit-lock :initform nil)
    (show-lisp-code :accessor show-lisp-code :initarg :show-lisp-code :initform nil)))
 
@@ -552,6 +551,7 @@
 (defmethod om-drag-start ((self OMBoxFrame) pos)
   (unless (or *resize-handler* *connection-handler* 
               (active-area-at-pos self pos)
+              (om-command-key-p)
               (container-frames-locked (om-view-container self)))
     (let ((pv (om-view-container self)))
       (om-set-focus pv) ;; will close the temporary text-edit field if any

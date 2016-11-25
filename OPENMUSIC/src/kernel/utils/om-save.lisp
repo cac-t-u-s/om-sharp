@@ -439,7 +439,7 @@
 (defmethod box-type ((self OMInOutBox)) :io)
 (defmethod box-type ((self OMBoxPatch)) :patch)
 (defmethod box-type ((self OMBoxLisp)) :textfun)
-
+(defmethod box-type ((self OMInterfaceBox)) :interface)
 
 (defmethod save-box-reference ((self OMBox)) (omng-save (reference self))) 
 
@@ -568,6 +568,7 @@
                           box))
                 (:textfun (omng-make-new-boxcall (omng-load reference) pos))
                 (:io (omng-make-new-boxcall (omng-load reference) pos))
+                (:interface (omNG-make-special-box reference pos))
                 (:object (if (find-class reference nil) 
                              (omng-make-new-boxcall (find-class reference nil) pos val)
                            (progn (om-beep-msg "unknown class: ~A" reference)
@@ -576,7 +577,7 @@
                             (omng-make-new-boxcall 'slots pos (find-class reference nil))
                           (progn (om-beep-msg "unknown class: ~A" reference)
                             (omng-make-lost-slots-box reference pos))))
-                (:otherwise (om-beep-msg "unknown box type: ~A" type))))) ;;; DO SOMETHING FOR UNKNOWN BOX ID (kind of 'dead boxes')
+                (otherwise (om-beep-msg "unknown box type: ~A" type))))) ;;; DO SOMETHING FOR UNKNOWN BOX ID (kind of 'dead boxes')
     (when box
       ;;; only for boxeditcall
       (when edwin-info
