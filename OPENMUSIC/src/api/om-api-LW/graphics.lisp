@@ -50,6 +50,7 @@
                 om-min-point
                 om-borne-point
                 om-round-point
+                om-def-point
 
                 om-make-color
                 om-gray-color
@@ -193,6 +194,10 @@
 
 (defun om-round-point (p)
   (make-ompoint :x (round (ompoint-x p)) :y (round (ompoint-y p))))
+
+(defun om-def-point (p defp)
+  (make-ompoint :x (or (ompoint-x p) (ompoint-x defp)) :y (or (ompoint-y p) (ompoint-y defp))))
+
 
 ;;;=========================
 ;;;COLORS
