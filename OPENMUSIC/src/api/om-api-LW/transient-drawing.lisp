@@ -8,7 +8,7 @@
    om-start-transient-drawing-process
    om-stop-transient-drawing
    om-update-transient-drawing
-   om-init-motion-click     ;; only 1 of the 2 !
+   ;om-init-motion-click     ;; only 1 of the 2 !
    om-init-temp-graphics-motion      ;; only 1 of the 2 !
    ) 
  :oa)
