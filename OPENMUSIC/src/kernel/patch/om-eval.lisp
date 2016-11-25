@@ -50,10 +50,7 @@
   (om-listener-echo "Aborted")
   (abort))
 
-;;; only OMBoxCall evaluates
-(defmethod eval-box ((self ombox)) nil)
-
-(defmethod eval-box ((self omboxcall))
+(defmethod eval-box ((self ombox))
   (omng-box-value self)
   (let ((val (current-box-value self nil)))
     (if (<= (length val) 1)
@@ -65,7 +62,7 @@
   (om-ignore&print-error (player-stop-object *general-player* (car (value self))))
   (call-next-method))
 
-(defmethod eval-box-output ((self omboxcall) n) 
+(defmethod eval-box-output ((self ombox) n) 
   (let ((val (omng-box-value self n)))
     (if (om-shift-key-p)
         (output-value-as-new-box val *current-eval-panel* 
@@ -78,14 +75,14 @@
 ;;; INPUT EVALUATION
 ;;;=================
 
-(defmethod eval-box-inputs ((self OMBoxcall))
+(defmethod eval-box-inputs ((self OMBox))
   (append (loop for input in (remove-if
                               #'(lambda (item) (subtypep item 'box-keyword-input)) 
                               (inputs self) :key 'type-of)
                 collect (omNG-box-value input))
           (eval-keywords self)))
 
-(defmethod eval-keywords ((self OMBoxcall))
+(defmethod eval-keywords ((self OMBox))
   (loop for key-in in (get-keyword-inputs self)
         append (list (intern-k (name key-in)) (omNG-box-value key-in))))
 
@@ -259,7 +256,8 @@
 (defmethod omNG-box-value ((self OMBoxEditCall) &optional (numout 0)) 
   ;(print "set the EDIT-PARAMS")
   (let ((box-attributes (loop for input in (cdr (inputs self))
-                              when (find (intern-k (name input)) (additional-box-attributes-names (get-box-value self)))
+                              when (find (intern-k (name input)) 
+                                         (additional-box-attributes-names self))
                               collect (list (intern-k (name input)) (omng-box-value input)))))
     (loop for attr in box-attributes do (set-edit-param self (car attr) (cadr attr))))
   (call-next-method))

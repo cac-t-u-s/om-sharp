@@ -29,7 +29,12 @@
     (text-color :initform nil :accessor text-color :initarg :text-color)
     (text-align :initform :left :accessor text-align :initarg :text-align)
     (icon-pos :initform :left :accessor icon-pos :initarg :icon-pos)
-    (show-name :initform t :accessor show-name :initarg :show-name))
+    (show-name :initform t :accessor show-name :initarg :show-name)
+    ;;; REACTIVE FLAGS
+   (state-lock :accessor state-lock :initform nil) ;; this box is the event source and his evaluation is locked
+   (gen-flag :accessor gen-flag :initform nil) ;; this box has already been valuated during this generation 
+   (push-tag :accessor push-tag :initform nil) ;; this box is tagged as being is in the notification path for the current event
+    )
    (:documentation "OMBox is is the more general class for connectable objects (boxes).")
    (:metaclass omstandardclass))
 

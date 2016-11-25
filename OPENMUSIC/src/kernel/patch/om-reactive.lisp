@@ -6,7 +6,7 @@
 ;;;==================
 
 ;;; returns the active inputs connected to the active outputs of self
-(defmethod get-listeners ((self OMBoxCall))
+(defmethod get-listeners ((self OMBox))
   (remove-duplicates 
    (loop for o in (outputs self) when (reactive o)
          append (loop for c in (connections o) 
@@ -17,7 +17,7 @@
 ;;; NOTIFICATION
 ;;;==================
 
-(defmethod OMR-Notify ((self OMBoxCall))
+(defmethod OMR-Notify ((self OMBox))
   ;(print (list "NOTIFIED BOX" (name self)))
   (unless (push-tag self)
     (setf (push-tag self) t)
@@ -27,7 +27,7 @@
         (omNG-box-value self)))))
 
 ;;; SELF-NOTIFICATION (NOTIFIES AND REEVALUATES ON A NEW THREAD)
-(defmethod self-notify ((box OMBoxCall) &optional (separate-thread t) (eval-box nil))
+(defmethod self-notify ((box OMBox) &optional (separate-thread t) (eval-box nil))
   (let ((panel (and (frame box) (om-view-container (frame box)))))
       (funcall 
        (if separate-thread 'om-eval-enqueue 'eval)
@@ -47,7 +47,7 @@
          
          )))
 
-(defmethod clear-ev-once :around ((self OMBoxcall))
+(defmethod clear-ev-once :around ((self OMBox))
   ;(print "clear")
   (call-next-method)
   (setf (state-lock self) nil)
@@ -74,7 +74,7 @@
 (push :debug-mode *features*)
 
 #+debug-mode
-(defmethod OMR-Notify :around ((self OMBoxcall))
+(defmethod OMR-Notify :around ((self OMBox))
   (let ((bcolor (color self)) rep)
     (unwind-protect 
         (progn (temp-box-color self *notify-color* *box-color-time*)
@@ -85,7 +85,8 @@
 ;;; BOX-VALUE
 ;;;==================
 
-(defmethod omNG-box-value :around ((self OMBoxcall) &optional (numout 0))
+;;; extend to OM Box ? (e.g. Interface boxes)
+(defmethod omNG-box-value :around ((self OMBox) &optional (numout 0))
   #+debug-mode
   (let ((bcolor (color self)) rep)
     (unwind-protect 
@@ -119,7 +120,7 @@
 ;;;=========================
 
 ;;; when a box is evaluated (on request)
-(defmethod eval-box :around ((self OMBoxCall))
+(defmethod eval-box :around ((self OMBox))
   (call-next-method)
   (setf (state-lock self) t)
   (self-notify self)

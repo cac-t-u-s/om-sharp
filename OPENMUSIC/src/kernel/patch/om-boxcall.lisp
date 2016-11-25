@@ -9,10 +9,7 @@
   ((lock-state :initform nil :accessor lock-state :initarg :lock-state)    ;;; can be (nil :locked :eval-once)
    (lambda-state :initform nil :accessor lambda-state :initarg :lambda-state)  ;;; can be (nil :lambda :reference :box)
    (ev-once-flag :accessor ev-once-flag :initform nil)
-   ;;; REACTIVE FLAGS
-   (state-lock :accessor state-lock :initform nil) ;; this box is the event source and his evaluation is locked
-   (gen-flag :accessor gen-flag :initform nil) ;; this box has already been valuated during this generation 
-   (push-tag :accessor push-tag :initform nil) ;; this box is tagged as being is in the notification path for the current event
+   
    ;;;MAQUETTE TAG
    (show-markers :accessor show-markers :initform nil)
    )
@@ -88,19 +85,19 @@ All boxes which their reference is a OM generic function are instances of this c
 ;;; from inspector
 
 ;;; reactive is not a "real" property
-(defmethod valid-property-p ((object OMBoxCall) (prop-id (eql :reactive))) nil)
+(defmethod valid-property-p ((object OMBox) (prop-id (eql :reactive))) nil)
 
-(defmethod set-property ((object OMBoxCall) (prop-id (eql :reactive)) val)
+(defmethod set-property ((object OMBox) (prop-id (eql :reactive)) val)
   (set-reactive object val))
       
-(defmethod get-property ((object OMBoxCall) (prop-id (eql :reactive)) &key (warn t))
+(defmethod get-property ((object OMBox) (prop-id (eql :reactive)) &key (warn t))
   (all-reactive-p object))
 
-(defmethod all-reactive-p ((self OMBoxCall))
+(defmethod all-reactive-p ((self OMBox))
   (and (or (inputs self) (outputs self))
        (not (find-if-not 'reactive (append (inputs self) (outputs self))))))
   
-(defmethod set-reactive ((self OMBoxCall) val) 
+(defmethod set-reactive ((self OMBox) val) 
   (mapc #'(lambda (io) 
             (setf (reactive io) val))
         (append (inputs self) (outputs self))))
