@@ -66,7 +66,7 @@
 (defmethod clickable-box ((self CommentFrame)) 
   (let ((container-view (om-view-container self)))
     (and (editor container-view)
-         (not (bg-lock (editor container-view))))))
+         (not (edit-lock (editor container-view))))))
 
 (defmethod set-frame-areas ((self CommentFrame))
   (setf (areas self) (resize-areas self)))

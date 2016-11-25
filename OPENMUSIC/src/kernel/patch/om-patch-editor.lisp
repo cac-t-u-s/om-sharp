@@ -101,11 +101,6 @@
                                           :key "l" :selected #'(lambda () (show-lisp-code self))
                                           )
                                          (om-make-menu-item  
-                                          "Background lock" 
-                                          #'(lambda () (setf (bg-lock self) (not (bg-lock self)))
-                                              (om-invalidate-view (main-view self)))
-                                          :key "b" :selected #'(lambda () (bg-lock self)))
-                                         (om-make-menu-item  
                                           "Edit lock" 
                                           #'(lambda () (setf (edit-lock self) (not (edit-lock self)))
                                               (om-invalidate-view (main-view self)))
