@@ -5,6 +5,8 @@
    (error-flag :initform nil :accessor error-flag)
    ))
 
+(defmethod default-compiled-gensym  ((self OMLispFunction)) (gensym "lispfun-"))
+
 (defclass OMLispFunctionInternal (OMLispFunction) ()
   (:default-initargs :icon 'lisp-f)
   (:metaclass omstandardclass))
@@ -106,6 +108,7 @@
 
 ;;; OMLispFunction doesn't have OMIn boxes to buils the box-inputs from
 (defmethod create-box-inputs ((self OMBoxLisp)) 
+  (compile-if-needed (reference self))
   (let ((fname (intern (string (compiled-fun-name (reference self))) :om)))
     (when (fboundp fname) 
       (let ((args (function-arg-list fname)))

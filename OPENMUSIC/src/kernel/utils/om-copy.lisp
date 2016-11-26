@@ -47,7 +47,6 @@
                              (om-copy (funcall (slot-definition-name slot) object))
                              )))
     (setf new-obj (apply 'make-instance (cons (if clone (type-of clone) (type-of object)) initargs)))
-
     (mapcar #'(lambda (att) 
                 (when (and (slot-exists-p object att) (slot-exists-p new-obj att))
                   (setf (slot-value new-obj att) (slot-value object att))))
