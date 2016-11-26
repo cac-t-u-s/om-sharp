@@ -13,6 +13,8 @@
     (lock :initform (mp:make-lock :name "content lock") :accessor lock)
     (connections :initform nil :accessor connections)))
 
+(defmethod default-compiled-gensym  ((self OMPatch)) (gensym "patch-"))
+
 (defmethod boxes ((self OMPatch))
   (mp:with-lock ((lock self))
     (slot-value self 'boxes)))

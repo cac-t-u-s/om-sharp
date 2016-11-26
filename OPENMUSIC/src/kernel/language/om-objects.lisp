@@ -130,7 +130,7 @@
 ;------------------------------------------------------------------------------
 
 (defclass OMProgrammingObject (OMBasicObject)
-  ((compiled-fun-name :initform (gensym "PATCH-") :accessor compiled-fun-name)
+  ((compiled-fun-name :initform nil :accessor compiled-fun-name)
    (compiled? :initform nil  :accessor compiled?)
    (doc :initform "" :accessor doc :documentation "documentation")
    (omversion :initform *om-version* :accessor omversion :documentation "version of OM (last saved)")
@@ -138,6 +138,11 @@
    (loaded? :initform t :accessor loaded? :documentation "is this document loaded?")
    (dependencies :initform nil :accessor dependencies :documentation "a list of subpatches"))
   (:documentation "Superclass for programming object and workspace elements (patches, maquette, etc.)"))
+
+(defmethod initialize-instance :after ((self OMProgrammingObject) &rest initargs)
+  (setf (compiled-fun-name self) (default-compiled-gensym self)))
+
+(defmethod default-compiled-gensym  ((self OMProgrammingObject)) (gensym "om-"))
 
 (defmethod set-name ((self OMProgrammingObject) name)
   (call-next-method)

@@ -169,11 +169,12 @@
   (let ((arguments (or args (gen-code-inputs self))))
     `(,(reference self) ,.arguments)))
 
-(defmethod gen-code-for-call ((self OMBoxPatch)  &optional args)
-  (let ((patchfun `,(intern (string (compiled-fun-name (reference self))) :om))
+(defmethod gen-code-for-call ((self OMBoxAbstraction)  &optional args)
+  (let ((fun `,(intern (string (compiled-fun-name (reference self))) :om))
         (arguments (or args (gen-code-inputs self))))
     (compile-if-needed (reference self))
-    `(funcall ',patchfun ,.arguments)))
+    `(funcall ',fun ,.arguments)))
+
 
 (defmethod gen-code-for-call ((self OMValueBox) &optional args)
   (declare (ignore args))
@@ -241,7 +242,7 @@
          (oldletlist *let-list*)
          (input-names 
           (mapcar #'(lambda (in) (setf (in-symbol in) (gen-input-name in))) 
-                  (sort (inputs self) '< :key 'index))) 
+                  (sort (get-inputs self) '< :key 'index))) 
          body function-def)
     (setf *let-list* nil)
     (setf body (if (> (length out-boxes) 1)
