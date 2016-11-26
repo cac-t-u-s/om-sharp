@@ -62,10 +62,22 @@
 
 (defmethod display-modes-for-object ((self collection)) '(:hidden :text :mini-view))
 
+(defmethod get-cache-display-for-draw ((object collection)) 
+  (when (subtypep (obj-type object) 'BPF)
+    (list (nice-bpf-range (obj-list object)))))
+
 (defmethod draw-mini-view ((self collection) (box t) x y w h &optional time)
-  (loop for o in (obj-list self) do 
-        (set-cache-display box o)
-        (draw-mini-view o box x y w h time))) 
+  (let ((display-cache (get-display-draw box)))
+    (if (subtypep (obj-type self) 'BPF)
+        (loop for o in (obj-list self) do 
+              (draw-bpf-points-in-rect (point-pairs o)
+                             (color o) 
+                             (car display-cache)
+                             x (+ y 10) w (- h 20)
+                             :lines))
+        (loop for o in (obj-list self) do 
+              (set-cache-display box o)
+              (draw-mini-view o box x y w h time)))))
 
 ;;;===========================
 ;;; EDITOR
