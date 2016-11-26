@@ -147,16 +147,17 @@ All boxes which their reference is a OM generic function are instances of this c
   (when (object-has-editor (reference self))
     (open-editor (reference self))))
 
+(defmethod copy-if-exists ((io OMBoxIO) iolist)
+  (let ((exists (find (reference io) iolist :test 'equal :key 'reference)))
+    (if exists (copy-io exists) io)))
 
 (defmethod update-from-reference ((self OMBoxCall))
 
   (let ((new-inputs (append (loop for i in (create-box-inputs self) collect 
-                                  (let ((exist (find (reference i) (inputs self) :test 'equal :key 'reference)))
-                                    (if exist (copy-io exist) i)))
+                                  (copy-if-exists i (inputs self)))
                             (get-keyword-inputs self)))
         (new-outputs (append (loop for o in (create-box-outputs self) collect 
-                                   (let ((exist (find (reference o) (outputs self) :test 'equal :key 'reference)))
-                                     (if exist (copy-io exist) o)))
+                                   (copy-if-exists o (outputs self)))
                              (get-keyword-outputs self))))
     
     (set-box-inputs self new-inputs)

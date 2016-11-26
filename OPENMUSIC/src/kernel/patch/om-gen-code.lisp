@@ -265,7 +265,7 @@
          (out-boxes (sort (get-boxes-of-type self 'OMOutBox) '< :key 'index))
          (input-names 
           (mapcar #'(lambda (in) (setf (in-symbol in) (gen-input-name in))) 
-                  (sort (inputs self) '< :key 'index))) 
+                  (sort (get-inputs self) '< :key 'index))) 
          (*let-list* nil)
          (body (if (> (length out-boxes) 1)
                    `(values ,.(mapcar #'(lambda (out) (gen-code out)) out-boxes))

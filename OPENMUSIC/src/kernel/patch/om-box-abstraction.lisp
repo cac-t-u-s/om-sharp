@@ -48,7 +48,7 @@
 
 (defmethod omNG-make-new-boxcall ((reference OMProgrammingObject) pos &optional init-args)
   (let* ((box (make-instance (get-box-class reference)
-                            :name (if init-args (format nil "~A" init-args) (name reference))
+                            :name (if init-args (format nil "~A" (car init-args)) (name reference))
                             :reference reference)))
     (setf (box-x box) (om-point-x pos)
           (box-y box) (om-point-y pos)
@@ -58,12 +58,10 @@
     (push box (references-to reference))
     box))
 
-;(defmethod set-name ((self OMBoxAbstraction) text)  
-;  (call-next-method)
-;  (setf (name (reference self)) text))
 
 (defmethod get-icon-id-from-reference ((self OMBoxAbstraction)) 
   (icon (reference self)))
+
 
 (defmethod create-box-inputs ((self OMBoxAbstraction)) 
   (mapcar #'(lambda (in) 
@@ -72,7 +70,7 @@
                              :box self
                              :value (eval (defval in))
                              :doc-string (doc in)))
-          (sort (inputs (reference self)) '< :key 'index)
+          (sort (get-inputs (reference self)) '< :key 'index)
           ))
 
 (defmethod create-box-outputs ((self OMBoxAbstraction)) 
@@ -81,7 +79,7 @@
                              :name (name out)
                              :box self
                              :doc-string (doc out)))
-          (sort (outputs (reference self)) '< :key 'index)
+          (sort (get-outputs (reference self)) '< :key 'index)
           ))
 
 

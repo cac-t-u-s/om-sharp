@@ -18,6 +18,24 @@
 
 (defclass OMOut (OMPatchIO) ())
 
+(defmethod get-inputs ((self OMPatch))
+  (sort (remove 
+         nil 
+         (loop for box in (boxes self) 
+               when (equal (type-of (reference box)) 'OMIn) 
+               ;; here we do not include teh special inputs (mybox, mymaquete etc.)
+               collect (reference box)))
+         '< :key #'(lambda (i) (or (index i) 0))))
+
+(defmethod get-outputs ((self OMPatch))
+  (sort (remove 
+         nil
+         (loop for box in (boxes self) 
+               when (subtypep (type-of (reference box)) 'OMOut)
+               collect (reference box)))
+         '< :key #'(lambda (o) (or (index o) 0))))
+
+
 ;;;==========================
 ;;; BOX
 ;;;==========================
@@ -152,37 +170,26 @@
 ;;;====================================
 ;; PATCH INTEGRATION
 ;;;====================================
-
-;(defmethod nth-elem-in-patch ((self OMPatch) elem)
-;  (count (type-of elem) (boxes self) :test 'subtypep :key 'type-of))
-;
-;(defmethod verify-name ((elem OMInOutBox) (container OMPatch))
-;  (when (find (name elem) (remove elem (get-boxes-of-type container (type-of elem))) :test 'string-equal :key 'name)
-;    (setf (name elem) (format nil (concatenate 'string (name elem) "~D") (index elem)))
-;    (verify-name elem container)))
-;
-;(defmethod register-patch-io ((Self OMPatch) (elem OMPatchIO))
-;  (setf (index elem) (nth-elem-in-patch self elem))
-;  (verify-name elem self))
  
 (defmethod register-patch-io ((self OMPatch) (elem OMIn))
-  (set-box-inputs self (append (inputs self) (list elem)))
   (unless (index elem) ;; for instance when the input is loaded, the index is already set
-    (setf (index elem) (length (inputs self)))))
+   (let ((inputs (remove elem (get-inputs self))))
+     (setf (index elem) 
+           (if inputs ;; index is +1 of the max existing indices
+               (1+ (list-max (mapcar 'index inputs)))
+             1)))))
  
 (defmethod register-patch-io ((self OMPatch) (elem OMOut))
-  (set-box-outputs self (append (outputs self) (list elem)))
-  (unless (index elem) (setf (index elem) (length (outputs self)))))
+  (unless (index elem) 
+    (setf (index elem) (length (get-outputs self)))))
   
 (defmethod unregister-patch-io ((self OMPatch) (elem OMIn))
-  (set-box-inputs self (remove elem (inputs self)))
-  (loop for inp in (inputs self) do
+  (loop for inp in (get-inputs self) do
           (when (> (index inp) (index elem))
             (setf (index inp) (1- (index inp))))))
 
 (defmethod unregister-patch-io ((self OMPatch) (elem OMOut))
-  (set-box-outputs self (remove elem (outputs self)))
-  (loop for out in (outputs self) do
+  (loop for out in (get-outputs self) do
           (when (> (index out) (index elem))
             (setf (index out) (1- (index out))))))
 

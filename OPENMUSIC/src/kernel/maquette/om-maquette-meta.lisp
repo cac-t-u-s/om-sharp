@@ -70,8 +70,8 @@
    pos init-args))
 
 (defmethod register-patch-io ((self OMPatch) (elem OMMaqIn))
-  (setf (index elem) 0
-        (defval elem) nil))
+  (setf (index elem) 0)
+  (setf (defval elem) nil))
 
 ;;; check the container: can be a patch, a controlpatch or a maquette
 (defmethod maquette-container ((self OMBox)) (maquette-container (container self)))

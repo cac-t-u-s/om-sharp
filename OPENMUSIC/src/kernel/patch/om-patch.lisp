@@ -9,9 +9,7 @@
 ;;;==========================================
 
 (defclass OMPatch (OMProgrammingObject)         
-   ((inputs :initform nil :accessor inputs)
-    (outputs :initform nil :accessor outputs)
-    (boxes :initform nil :initarg :boxes :accessor boxes)
+   ((boxes :initform nil :initarg :boxes :accessor boxes)
     (lock :initform (mp:make-lock :name "content lock") :accessor lock)
     (connections :initform nil :accessor connections)))
 

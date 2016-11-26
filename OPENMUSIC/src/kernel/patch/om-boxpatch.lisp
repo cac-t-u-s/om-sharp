@@ -15,7 +15,9 @@
   (omNG-make-new-boxcall 
    (make-instance 'OMPatchInternal
                   :name (if init-args (format nil "~A" (car (list! init-args))) "new-patch"))
-   pos init-args))
+   pos 
+   init-args ;; don't need to pass them in principle..
+   ))
 
 (defmethod omNG-make-special-box ((reference (eql 'p)) pos &optional init-args)
   (omNG-make-special-box 'patch pos init-args))

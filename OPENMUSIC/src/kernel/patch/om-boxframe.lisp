@@ -316,7 +316,7 @@
                                                                    (/ (1+ (* 2 (or (position in (inputs box)) 0))) (* 2 nin))))
                                                              +active-r+))
                                                    :pick '(-6 -15 6 4))))
-                          (inputs (object self)))
+                          (inputs box))
                   (mapcar #'(lambda (out)
                               (setf (area out) 
                                     (make-instance 'output-area :object out :frame self
@@ -328,12 +328,12 @@
                                                              (- (round (h f)) +active-r+) ;;; (would be better if H was already an integer...)
                                                              ))
                                                    :pick '(-6 -6 6 6))))
-                          (outputs (object self)))
+                          (outputs box))
                   (resize-areas self)
                   (info-area self)
                   eia
                   ))
-    (mapcar 'update-points (get-box-connections (object self)))
+    (mapcar 'update-points (get-box-connections box))
     (redraw-connections self)
     ))
 
