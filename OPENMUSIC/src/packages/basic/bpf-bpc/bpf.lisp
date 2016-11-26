@@ -456,6 +456,8 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 ;            (om-draw-line j (+ piy0 (om-point-y min)) j (+ piy0 (om-point-y max)))))))
 
 
+
+
 ;;; to be redefined by objects if they have a specific miniview
 (defmethod draw-mini-view ((self bpf) (box t) x y w h &optional time)
   (let ((display-cache (get-display-draw box)))
@@ -472,7 +474,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
          (factor (if (zerop range) 1 (/ w range))))
     (values factor (- delta (* min factor)))))
 
-(defun draw-bpf-points-in-rect (points color ranges x y w h)
+(defun draw-bpf-points-in-rect (points color ranges x y w h &optional style)
   (multiple-value-bind (fx ox) 
       (conversion-factor-and-offset (car ranges) (cadr ranges) w x)
     (multiple-value-bind (fy oy) 
@@ -481,17 +483,19 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
       (when points 
         (om-with-fg-color (om-def-color :gray)
         ;draw first point
-        (om-draw-circle (+ ox (* fx (car (car points))))
-                        (+ oy (* fy (cadr (car points))))
-                        3 :fill t)
+        (unless (equal style :lines)
+          (om-draw-circle (+ ox (* fx (car (car points))))
+                          (+ oy (* fy (cadr (car points))))
+                          3 :fill t))
         (let ((lines (loop for pts on points
                            while (cadr pts)
                            append
                            (let ((p1 (car pts))
                                  (p2 (cadr pts)))
-                             (om-draw-circle (+ ox (* fx (car p2)))
-                                             (+ oy (* fy (cadr p2)))
-                                             3 :fill t)
+                             (unless (equal style :lines)
+                               (om-draw-circle (+ ox (* fx (car p2)))
+                                               (+ oy (* fy (cadr p2)))
+                                               3 :fill t))
                              ;;; collect for lines 
                              (om+ 0.5
                                   (list (+ ox (* fx (car p1)))
