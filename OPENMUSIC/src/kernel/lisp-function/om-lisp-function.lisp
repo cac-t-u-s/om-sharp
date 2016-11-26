@@ -1,7 +1,9 @@
 (in-package :om)
 
 (defclass OMLispFunction (OMProgrammingObject) 
-  ((text :initarg :text :initform "" :accessor text)))
+  ((text :initarg :text :initform "" :accessor text)
+   (error-flag :initform nil :accessor error-flag)
+   ))
 
 (defclass OMLispFunctionInternal (OMLispFunction) ()
   (:default-initargs :icon 'lisp-f)
@@ -24,11 +26,6 @@
                  :name name
                  :text *default-lisp-function-text*))
 
-(defmethod special-box-p ((name (eql 'lisp))) t)
-
-(defclass OMBoxLisp (OMBoxAbstraction) ())
-(defmethod get-box-class ((self OMLispFunction)) 'OMBoxLisp)
-
 (defmethod omNG-make-special-box ((reference (eql 'lisp)) pos &optional init-args)
   (omNG-make-new-boxcall 
    (make-instance 'OMLispFunctionInternal
@@ -36,17 +33,10 @@
                   :text *default-lisp-function-text*)
    pos init-args))
 
-
-(defmethod draw-patch-icon :after ((self OMBoxLisp))
-  (unless (compiled? (reference self))
-    (om-with-fg-color (om-def-color :dark-red)
-      (om-with-font (om-make-font "Times" 16 :style '(:bold))
-        (om-draw-string 2 (- (box-h self) 8) "Error !!")))))
-
-
 (defmethod decapsulable ((self OMLispFunction)) nil)
 
-(defmethod inputs ((self OMLispFunction)) 
+#|
+(defmethod get-inputs ((self OMLispFunction)) 
   (compile-if-needed self)
   (let ((fname (intern (string (compiled-fun-name self)) :om)))
     (when (fboundp fname) 
@@ -58,15 +48,12 @@
             in)))
       )))
 
-(defmethod outputs ((self OMLispFunction)) 
-  (compile-if-needed self)
-  (let ((namelist '("out")))
-    (loop for n in namelist 
-          for i from 0 collect 
-          (let ((o (make-instance 'OMOut :name n)))
-            (setf (index o) i)
-            o))
-    ))
+(defmethod get-outputs ((self OMLispFunction)) 
+  ;(compile-if-needed self)
+  (let ((o (make-instance 'OMOut :name "out")))
+    (setf (index o) 0)
+    o))
+|#
 
 (defmethod update-lisp-fun ((self OMLispFunction) text) 
   (setf (text self) text)
@@ -81,9 +68,10 @@
       ((error #'(lambda (err)
                   (om-beep-msg "An error of type ~a occurred: ~a" (type-of err) (format nil "~A" err))
                   (setf (compiled? self) nil)
+                  (setf (error-flag self) t)
                   (abort err)
                   )))
-    
+    (setf (error-flag self) nil)
     (let* ((lambda-expression (read-from-string 
                                (reduce #'(lambda (s1 s2) (concatenate 'string s1 (string #\Newline) s2))
                                        (text self))
@@ -94,11 +82,69 @@
                   `(defun ,(intern (string (compiled-fun-name self)) :om) 
                           ,.(cdr lambda-expression)))
               (progn (om-beep-msg "ERROR IN LAMBDA EXPRESSION!!")
+                (setf (error-flag self) t)
                 `(defun ,(intern (string (compiled-fun-name self)) :om) () nil)))))
       (compile (eval function-def))
       ;(setf (compiled? self) t)
       )
     ))
+
+;;;===================
+;;; BOX
+;;;===================
+
+(defmethod special-box-p ((name (eql 'lisp))) t)
+
+(defclass OMBoxLisp (OMBoxAbstraction) ())
+(defmethod get-box-class ((self OMLispFunction)) 'OMBoxLisp)
+
+(defmethod draw-patch-icon :after ((self OMBoxLisp))
+  (when (error-flag (reference self))
+    (om-with-fg-color (om-def-color :dark-red)
+      (om-with-font (om-make-font "Arial" 16 :style '(:bold))
+        (om-draw-string 2 (- (box-h self) 8) "Error !!")))))
+
+;;; OMLispFunction doesn't have OMIn boxes to buils the box-inputs from
+(defmethod create-box-inputs ((self OMBoxLisp)) 
+  (let ((fname (intern (string (compiled-fun-name (reference self))) :om)))
+    (when (fboundp fname) 
+      (let ((args (function-arg-list fname)))
+        (loop for a in args collect
+              (make-instance 'box-input :name (string a)
+                             :box self :reference nil)))
+      )))
+
+;;; OMLispFunction doesn't have OMOut boxes to buils the box-inputs from
+(defmethod create-box-outputs ((self OMBoxLisp)) 
+  (list 
+   (make-instance 'box-output :reference nil 
+                  :name "out"
+                  :box self)))
+
+
+(defmethod update-from-reference ((self OMBoxLisp))
+
+  (let ((new-inputs (loop for i in (create-box-inputs self) 
+                          for ni from 0 collect 
+                          (if (nth ni (inputs self)) 
+                              (let ((ci (copy-io (nth ni (inputs self))))) ;;keep connections, reactivity etc.
+                                (setf (name ci) (name i)) ;; just get the new name
+                                ci)
+                            i)))
+        (new-outputs (loop for o in (create-box-outputs self) 
+                           for no from 0 collect 
+                           (if (nth no (outputs self))
+                               (copy-io (nth no (outputs self)))
+                             o))))
+
+    (set-box-inputs self new-inputs)
+    (set-box-outputs self new-outputs)
+    (set-frame-areas (frame self))
+    (om-invalidate-view (frame self))
+    t))
+
+
+
 
 ;;;===================
 ;;; EDITOR
