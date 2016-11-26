@@ -97,12 +97,11 @@
         do
         (omng-remove-element self box)))
 
-(defmethod set-patch-inputs ((self ompatchinternal) (defvals list))
-  (loop for inp in (inputs self)
+(defmethod set-patch-inputs ((self OMPatchInternal) (defvals list))
+  (loop for inp in (get-inputs self)
         for val in defvals
-        do
-        (setf (defval inp) val))
-  (print (list (car defvals) (compile-patch self)))
+        do (setf (defval inp) val))
+  (compile-patch self)
   self)
 
 ;;;=========================================
