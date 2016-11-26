@@ -10,7 +10,7 @@
 
 (compile&load (decode-local-path "sdif-om/sdif-struct"))
 (compile&load (decode-local-path "sdif-om/sdif-file"))
-(compile&load (decode-local-path "sdif-om/sdif-tools"))
+(compile&load (decode-local-path "sdif-om/sdif-partials"))
 (compile&load (decode-local-path "sdif-om/sdif-write"))
 
 (omNG-make-package 

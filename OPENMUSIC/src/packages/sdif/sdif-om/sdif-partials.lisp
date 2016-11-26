@@ -7,6 +7,16 @@
 
 (defstruct partial (t-list) (f-list) (a-list) (ph-list))
 
+(defun partial-times (p)
+  (partial-t-list p))
+(defun partial-freqs (p)
+  (partial-f-list p))
+(defun partial-amps (p)
+  (partial-a-list p))
+(defun mk-partial (&key t-list f-list a-list ph-list)
+  (make-partial :t-list t-list :f-list f-list :a-list a-list :ph-list ph-list))
+
+
 (defmethod chord-seq-raw-data ((self sdiffile) &optional (stream nil))
    (let ((frames (GetSDIFFrames self :sid stream))
          (mrk-partials (make-hash-table))
