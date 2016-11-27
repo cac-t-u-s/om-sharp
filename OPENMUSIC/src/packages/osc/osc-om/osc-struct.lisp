@@ -71,7 +71,7 @@
 (defmethod format-argument ((arg list) indent) 
   (loop for msg in arg collect (format-message msg indent)))
 
-(defmethod get-text-description ((self osc-bundle))
+(defmethod data-frame-text-description ((self osc-bundle))
   (cons "OSC BUNDLE" 
         (flat (mapcar 'format-message (messages self))))
   )

@@ -155,7 +155,7 @@
     (when timetag (update-bundle-pointer-timetag self timetag))
     self))
 
-(defmethod get-text-description ((self o.bundle))
+(defmethod data-frame-text-description ((self o.bundle))
   (cons "O. BUNDLE" (flat (mapcar 'format-message (get-messages self)))))
 
 (defmethod data-size ((self o.bundle))

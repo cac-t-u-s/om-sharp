@@ -14,7 +14,7 @@
 (defmethod item-set-time ((self data-frame) time) (setf (date self) time))
 
 (defmethod data-size ((self data-frame)) 1)
-(defmethod get-text-description ((self data-frame)) '("DATA FRAME"))
+(defmethod data-frame-text-description ((self data-frame)) '("DATA FRAME"))
 
 (defmethod get-frame-action ((self data-frame)) 
   #'(lambda () (print "EMPTY ACTION")))
@@ -440,7 +440,7 @@
       (om-hide-tooltip self)
       (when (and fp (om-command-key-p))
         (let ((frame (nth fp (data-stream-get-frames (object-value editor)))))
-          (om-show-tooltip self (get-text-description frame) (omp (- (om-point-x position) 60) 20))
+          (om-show-tooltip self (data-frame-text-description frame) (omp (- (om-point-x position) 60) 20))
           )
         ))))
 

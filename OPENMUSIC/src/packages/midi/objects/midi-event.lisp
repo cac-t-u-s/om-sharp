@@ -20,7 +20,7 @@
                                        :port (midi-port self)))
       ))
 
-(defmethod get-text-description ((self midi-event))
+(defmethod data-frame-text-description ((self midi-event))
   (list "MIDI EVENT" (format nil "~A (~A): ~A" (ev-type self) (ev-channel self) (ev-value self))))
 
 

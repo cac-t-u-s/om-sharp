@@ -142,7 +142,7 @@ Press 'space' to play/stop the sound file.
 (defmethod print-object ((self marker-frame) out)
   (format out "#<marker-at ~D>" (date self)))
 
-(defmethod get-text-description ((self marker-frame))
+(defmethod data-frame-text-description ((self marker-frame))
   (list (format nil "t=~A" (date self))))
 
 (defmethod get-frame-action ((self marker-frame)) nil)

@@ -28,7 +28,7 @@
 (defun make-midinote (&key (onset 0) (pitch 60) (vel 100) (dur 1000) (channel 1))
   (make-instance 'midi-note :date onset :pitch pitch :vel vel :dur dur :channel channel))
 
-(defmethod get-text-description ((self midi-note))
+(defmethod data-frame-text-description ((self midi-note))
   (list (format nil "MIDI NOTE (channel ~A)" (channel self))
         (format nil "~A - ~A" (pitch self) (vel self))))
 
