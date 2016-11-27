@@ -376,19 +376,17 @@ fad:  Fade Harmonics
 ;;; PM2 SYNTHESIS
 ;;;================================================================================================================
 
-(defmethod pm2-synthesis ((partiels string) &key (attack 0.01) (release 0.01) sr res (out "pm2-out.aiff") nchannels)
+(defmethod pm2-synthesis ((partiels string) &key (attack 0.01) (release 0.01) (sr 44100) (res 16) (out "pm2-out.aiff") nchannels)
   ;;;./pm2 -Asyn -R44100 -Stest.sdif out.aiff
  (let ((PM2-path (om::real-exec-pathname (om::get-pref-value :libraries :pm2-path))))
     (if (and PM2-path (probe-file PM2-path))    
         (let ((outname (if out
-                         (if (pathname-directory (pathname out)) out (outfile out))
-                       (om-choose-new-file-dialog :prompt "Choose an output file"
-                                                  :directory (def-save-directory))))
-            (sr (or sr *audio-sr*))
-            (res (or res *audio-res*)))
+                         (if (pathname-directory (pathname out)) out (om::outfile out))
+                       (om::om-choose-new-file-dialog :prompt "Choose an output file"
+                                                  :directory (om::def-save-directory)))))
         (when outname
           (setf *last-saved-dir* (make-pathname :directory (pathname-directory outname)))
-          (let* ((unix-outname (om-path2cmdpath outname))
+          (let* ((unix-outname (namestring outname))
                  (cmd (format nil "~s -Asyn -S~s ~A -a~D -r~D -R~D -Osa~D ~s" 
                               (namestring PM2-path)
                               (namestring partiels)
@@ -408,16 +406,16 @@ fad:  Fade Harmonics
       (om-beep-msg "PM2 not found! Set path to pm2 in the OM preferences.")))))
 
 
-(defmethod pm2-synthesis ((partiels pathname) &key (attack 0.01) (release 0.01) sr res (out "pm2-out.aiff") nchannels)
+(defmethod pm2-synthesis ((partiels pathname) &key (attack 0.01) (release 0.01) (sr 44100) (res 16) (out "pm2-out.aiff") nchannels)
   (pm2-synthesis (namestring partiels) :attack attack :release release :sr sr :res res :out out :nchannels nchannels))
 
 
-(defmethod pm2-synthesis ((partiels om::sdiffile) &key (attack 0.01) (release 0.01) sr res (out "pm2-out.aiff") nchannels)
+(defmethod pm2-synthesis ((partiels om::sdiffile) &key (attack 0.01) (release 0.01) (sr 44100) (res 16) (out "pm2-out.aiff") nchannels)
   (pm2-synthesis (om::file-pathname partiels) :attack attack :release release :sr sr :res res :out out
                  :nchannels (length (om::file-map partiels))))
 
 
-(defmethod pm2-synthesis ((partiels om::chord-seq) &key (attack 0.01) (release 0.01) sr res (out "pm2-out.aiff") nchannels)
+(defmethod pm2-synthesis ((partiels om::chord-seq) &key (attack 0.01) (release 0.01) (sr 44100) (res 16) (out "pm2-out.aiff") nchannels)
   (let* ((sdiftmp (om::tmpfile "chords.sdif"))
          (sdiffile (om::chordseq->sdif partiels sdiftmp)))
     (when sdiffile
@@ -600,8 +598,8 @@ fad:  Fade Harmonics
 
 (defmethod! pm2-add-synth ((partiels t) &key
                            (attack 0.01) (release 0.01)
-                           sr res (out "pm2-out.aiff"))
-  :initvals '(nil 0.01 0.01 nil nil "pm2-out.aiff")
+                           (sr 44100) (res 16) (out "pm2-out.aiff"))
+  :initvals '(nil 0.01 0.01 44100 16 "pm2-out.aiff")
   :indoc '("partials" "partials attack time (s)" "partials release time (s)" "sample rate" "resolution" "output pathname")
   :icon 'pm2-synth
   :doc "Realizes additive synthesis using pm2.
