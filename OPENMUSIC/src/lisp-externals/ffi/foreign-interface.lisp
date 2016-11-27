@@ -17,8 +17,8 @@
 (load (merge-pathnames "load-cffi" *load-pathname*))
 
 ;;; REDEFINITION OF MEM ACCESSORS
-(cl-user::compile-file-if-needed (merge-pathnames "dereference.lisp" *load-pathname*))
-(load (merge-pathnames "dereference" *load-pathname*))
+;(cl-user::compile-file-if-needed (merge-pathnames "dereference.lisp" *load-pathname*))
+;(load (merge-pathnames "dereference" *load-pathname*))
 
 ;;;========================
 ;;; FOREIGN LIBRARIES

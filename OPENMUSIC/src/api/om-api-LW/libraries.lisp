@@ -62,8 +62,13 @@
   (fli::free-foreign-object ptr))
 
 ;;; !!! does not work very well: crashes a lot on Mac, e.g. with SDIF files
+;(defun om-write-ptr (ptr pos type value)
+;  (setf (fli:dereference ptr :type type :index pos) value))
+
+; => inspired from CFFI
 (defun om-write-ptr (ptr pos type value)
-  (setf (fli:dereference  ptr :type type :index pos) value))
+  (locally (declare (optimize (speed 3) (safety 0)))
+    (setf (fli:foreign-typed-aref type ptr (the fixnum pos)) value)))
 
 (defun om-read-ptr (ptr pos type)
   (fli:dereference ptr :type type :index pos))
@@ -71,6 +76,24 @@
 (defun om-null-pointer-p (ptr) 
   ;(check-type ptr fli::pointer)
   (fli:null-pointer-p ptr))
+
+#|
+
+;; redefinitions using CFFI
+;; previously cffi::%mem-set
+(defun om-write-ptr (ptr pos type value) 
+  (cffi::mem-set value ptr type pos))
+
+;; previously cffi::%mem-ref
+;; previously cffi::mem-ref
+(defun om-read-ptr (ptr pos type) 
+  (cffi::mem-aref ptr type pos))
+ 
+;(setf aaa (om-make-pointer 5))
+;(om-write-ptr aaa 1 :float 8.0)
+;(om-read-ptr aaa 0 :float)
+
+|#
 
 ;;;========================
 ;;; A POINTER STRUCT WITH COUNTER

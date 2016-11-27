@@ -29,7 +29,7 @@
          (data-ptr (om-alloc-memory (* data-type-size (num-fields matrix) (num-elts matrix)))))
     (loop for val in data 
           for i from 0 do
-          (om-write-ptr data-ptr (* i data-type-size) :float (coerce val 'single-float)))
+          (om-write-ptr data-ptr (* i data-type-size) 'single-float (coerce val 'single-float)))
     (sdif::SdifFWriteMatrix file-ptr 
                             (sdif::SdifStringToSignature (matrixtype matrix))
                             data-type-size (num-elts matrix) (num-fields matrix) data-ptr)
