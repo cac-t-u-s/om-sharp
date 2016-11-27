@@ -558,7 +558,7 @@ Ex. (om-mean '(1 2 3 4) '(3 2 1 1))  => 2.0
 ;===========================
 
 (defmethod* om-scale ((self number) (minout number) (maxout number) &optional (minin 0) (maxin 0))
-  :initvals '(1 0 0 0 0) :indoc '("number or list"  "a number" "a number" ) :icon 209
+  :initvals '(1 0 1 0 1) :indoc '("number or list"  "a number" "a number" ) :icon 209
   :doc 
 "Scales <self> (a number or list of numbers) considered to be in the interval [<minin> <maxin>] towards the interval [<minout> <maxout>].
 
