@@ -29,6 +29,27 @@
         (format out "~D ~D~%" x y)))
 
 
+;;;===========================
+;;; COLOR
+;;;===========================
+(defmethod* set-color ((self bpf) color &optional (new? t)) 
+  :initvals '(nil nil t)
+  :indoc '("a BPF or BPC" " color" "create a new object")
+  :icon 241 
+  :doc "Sets the color of <self> with <color>.
+
+If <new?> the function will retrun a new colored object; otherwise it will change the color of <self>.
+
+If <color> is :random, will choose a random color. It can also be a color symbol designator (:red, :blue, etc..) or a color created from om-make-color.
+"
+
+(let ((bpf (if new? (clone self) self)))
+  (setf (color bpf) (cond
+                     ((equal color :random) (om-random-color))
+                     ((symbolp color) (om-def-color color))
+                     (t color))) 
+  bpf))
+
 ;;;=========================================== 
 ;;; BASIC FUNCTIONS ADAPTED TO BPFS
 ;;;=========================================== 

@@ -30,8 +30,8 @@
                                             :functions '(x-transfer y-transfer om-sample linear-fun reduce-points reduce-n-points))
                          (omNG-make-package "Curves & Functions" 
                                             :doc ""
-                                            :functions '(point-pairs bpf-interpol)
-                                            :classes '(bpf bpc))
+                                            :functions '(point-pairs bpf-interpol set-color)
+                                            :classes '(bpf bpc)) 
                          (omNG-make-package "Text" 
                                             :doc ""
                                             :functions '(textbuffer-eval textbuffer-read)
