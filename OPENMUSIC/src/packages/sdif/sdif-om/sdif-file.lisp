@@ -37,11 +37,9 @@ Lock the box ('b') to keep the current file.
       (om-abort))))
 
 (defmethod objfromobjs ((model pathname) (target SDIFFile))
-  
   (when (and (probe-file model)
              (sdif::sdif-check-file model))
     (setf (file-pathname target) model) 
-    (om-init-instance target)
     target))
 
 (defmethod objfromobjs ((model string) (target SDIFFile))
@@ -110,12 +108,12 @@ Lock the box ('b') to keep the current file.
   (let ((sig (sdif::SdifSignatureToString (sdif::SdifFCurrFrameSignature ptr)))
         (time (sdif::SdifFCurrTime ptr))
         (sid (sdif::SdifFCurrId ptr)))
-    (make-instance 'SDIFFrame :date (* 1000 time) :frametype sig :streamid sid
+    (make-instance 'SDIFFrame :frametime time :frametype sig :streamid sid
                    :lmatrices (let ((nummatrix (sdif::SdifFCurrNbMatrix ptr)))
                                 (loop for i from 1 to nummatrix 
                                       collect (get-matrix-from-sdif ptr with-data))))))
 
-;;; !!! WITH-DATA NOT IMPLEMENTED !
+
 (defmethod get-matrix-from-sdif (ptr &optional (with-data t))
   (sdif::SdifFReadMatrixHeader ptr)
   (let ((sig (sdif::SdifSignatureToString (sdif::SdifFCurrMatrixSignature ptr)))
@@ -129,16 +127,16 @@ Lock the box ('b') to keep the current file.
     (if with-data
         (let ((bytesread 0))
           (setf data 
-                (loop for r from 1 to ne 
+                (mat-trans (loop for r from 1 to ne 
                       do (setf bytesread (+ bytesread (sdif::SdifFReadOneRow ptr)))
-                      collect (loop for n from 1 to nf collect (sdif::SdifFCurrOneRowCol ptr n))))
+                      collect (loop for n from 1 to nf collect (sdif::SdifFCurrOneRowCol ptr n)))))
           (sdif::SdifFReadPadding ptr (sdif::sdif-calculate-padding bytesread)))
       (sdif::SdifFSkipMatrixData ptr))
     ;;(print (sdif:sdif-get-pos ptr))
     (make-instance 'SDIFMatrix :matrixtype sig 
                    :num-elts ne :num-fields nf 
                    :field-names fields
-                   :data (mat-trans data))))
+                   :data data)))
 
 
 (defmethod load-sdif-file ((self SDIFFile))
@@ -171,12 +169,12 @@ Lock the box ('b') to keep the current file.
                                     (and (string-equal (frametype frame) (fstream-desc-fsig stream))
                                          (= (streamid frame) (fstream-desc-id stream)))))))
     (if streamdesc
-        (let ((frame-date (date frame))) ;;; EXISTING FRAME STREAM
+        (let ((frame-time (frametime frame))) ;;; EXISTING FRAME STREAM
           (setf (fstream-desc-nf streamdesc) (1+ (fstream-desc-nf streamdesc)))
-          (when (< frame-date (fstream-desc-tmin streamdesc))
-            (setf (fstream-desc-tmin streamdesc) frame-date))
-          (when (> frame-date (fstream-desc-tmax streamdesc))
-            (setf (fstream-desc-tmax streamdesc) frame-date))
+          (when (< frame-time (fstream-desc-tmin streamdesc))
+            (setf (fstream-desc-tmin streamdesc) frame-time))
+          (when (> frame-time (fstream-desc-tmax streamdesc))
+            (setf (fstream-desc-tmax streamdesc) frame-time))
           (loop for mat in (lmatrices frame) do
                 (let ((mstreamdesc (find mat (fstream-desc-matrices streamdesc)
                                          :test #'(lambda (mat mstreamdesc) 
@@ -184,10 +182,10 @@ Lock the box ('b') to keep the current file.
                   (if mstreamdesc 
                       (let ()  ;;; EXISTING MATRIX STREAM
                         (setf (mstream-desc-nf mstreamdesc) (1+ (mstream-desc-nf mstreamdesc)))
-                        (when (< frame-date (mstream-desc-tmin mstreamdesc))
-                          (setf (mstream-desc-tmin mstreamdesc) frame-date))
-                        (when (> frame-date (mstream-desc-tmax mstreamdesc))
-                          (setf (mstream-desc-tmax mstreamdesc) frame-date))
+                        (when (< frame-time (mstream-desc-tmin mstreamdesc))
+                          (setf (mstream-desc-tmin mstreamdesc) frame-time))
+                        (when (> frame-time (mstream-desc-tmax mstreamdesc))
+                          (setf (mstream-desc-tmax mstreamdesc) frame-time))
                         (when (> (num-elts mat) (mstream-desc-rmax mstreamdesc))
                           (setf (mstream-desc-rmax mstreamdesc) (num-elts mat)))
                         ;(when (> (num-fields mat) (mstream-desc-fields mstreamdesc))
@@ -196,7 +194,7 @@ Lock the box ('b') to keep the current file.
                     ;;; NEW MATRIX STREAM
                     (pushr (make-mstream-desc :msig (matrixtype mat) 
                                               :fields (first-n (SDIFTypeDescription self (matrixtype mat) 'm) (num-fields mat))
-                                              :rmax (num-elts mat) :tmin frame-date :tmax frame-date
+                                              :rmax (num-elts mat) :tmin frame-time :tmax frame-time
                                               :nf 1) 
                            (fstream-desc-matrices streamdesc)))
                   ))
@@ -204,12 +202,12 @@ Lock the box ('b') to keep the current file.
       ;;; NEW FRAME STREAM
       (pushr (make-fstream-desc 
               :fsig (frametype frame) :id (streamid frame)
-              :tmin (date frame) :tmax (date frame) :nf 1
+              :tmin (frametime frame) :tmax (frametime frame) :nf 1
               :matrices  (loop for mat in (lmatrices frame) collect 
                                (make-mstream-desc 
                                 :msig (matrixtype mat) 
                                 :fields (first-n (SDIFTypeDescription self (matrixtype mat) 'm) (num-fields mat))
-                                :rmax (num-elts mat) :tmin (date frame) :tmax (date frame)
+                                :rmax (num-elts mat) :tmin (frametime frame) :tmax (frametime frame)
                                 :nf 1)))
              (file-map self))
       )))
@@ -552,33 +550,34 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
    (get-sdif-frames self sID frameType tmin tmax))
 
 (defmethod get-sdif-frames ((self sdifFile) streamNum frameT tmin tmax)
-   (let ((sdiffileptr (sdif::sdif-open-file (file-pathname self) sdif::eReadWriteFile))
-         (frame-list nil))
-     (if sdiffileptr
-         (unwind-protect 
-             (progn (sdif::SdifFReadGeneralHeader sdiffileptr)
-               (sdif::SdifFReadAllASCIIChunks sdiffileptr)
-               (loop while (check-current-singnature sdiffileptr) 
-                     do (sdif::SdifFReadFrameHeader sdiffileptr)
-                     (let ((sig (sdif::SdifSignatureToString (sdif::SdifFCurrFrameSignature sdiffileptr)))
-                           (time (sdif::SdifFCurrTime sdiffileptr))
-                           (sid (sdif::SdifFCurrId sdiffileptr)))
-                       (when (and (or (not streamNum) (and (numberp stremnum) (= streamNum sid))
-                                      (and (listp streamnum) (find sid streamNum :test '=)))
-                                  (or (not frameT) (string-equal frameT sig))
-                                  (or (not tmin) (>= time tmin))
-                                  (or (not tmax) (<= time tmax)))
-                         (push (make-instance 'SDIFFrame :date (* 1000 time) :frametype sig :streamid sid
-                                              :lmatrices (let ((nummatrix (sdif::SdifFCurrNbMatrix sdiffileptr)))
-                                                           (loop for i from 1 to nummatrix 
-                                                                 collect (get-matrix-from-sdif sdiffileptr t))))
-                               frame-list))
+  (when (file-pathname self)
+    (let ((sdiffileptr (sdif::sdif-open-file (file-pathname self) sdif::eReadWriteFile))
+          (frame-list nil))
+      (if sdiffileptr
+          (unwind-protect 
+              (progn (sdif::SdifFReadGeneralHeader sdiffileptr)
+                (sdif::SdifFReadAllASCIIChunks sdiffileptr)
+                (loop while (check-current-singnature sdiffileptr) 
+                      do (sdif::SdifFReadFrameHeader sdiffileptr)
+                      (let ((sig (sdif::SdifSignatureToString (sdif::SdifFCurrFrameSignature sdiffileptr)))
+                            (time (sdif::SdifFCurrTime sdiffileptr))
+                            (sid (sdif::SdifFCurrId sdiffileptr)))
+                        (when (and (or (not streamNum) (and (numberp stremnum) (= streamNum sid))
+                                       (and (listp streamnum) (find sid streamNum :test '=)))
+                                   (or (not frameT) (string-equal frameT sig))
+                                   (or (not tmin) (>= time tmin))
+                                   (or (not tmax) (<= time tmax)))
+                          (push (make-instance 'SDIFFrame :frametime time :frametype sig :streamid sid
+                                               :lmatrices (let ((nummatrix (sdif::SdifFCurrNbMatrix sdiffileptr)))
+                                                            (loop for i from 1 to nummatrix 
+                                                                  collect (get-matrix-from-sdif sdiffileptr t))))
+                                frame-list))
                                   
-                       (sdif::sdif-read-next-signature sdiffileptr))))
-           (sdif::SDIFFClose sdiffileptr))
-       (om-beep-msg "Error loading SDIF file -- bad pointer: ~D" (file-pathname self)))
-     (reverse frame-list)
-     ))
+                        (sdif::sdif-read-next-signature sdiffileptr))))
+            (sdif::SDIFFClose sdiffileptr))
+        (om-beep-msg "Error loading SDIF file -- bad pointer: ~D" (file-pathname self)))
+      (reverse frame-list)
+      )))
 
 ;;;==========================
 ;;; TEXT CONVERSION
@@ -589,7 +588,7 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
    :indoc '("SDIF file" "text file pathname")
    :doc "Converts <self> to text-SDIF in <out-filename>."
    (let ((outfile (or (and out-filename (handle-new-file-exists out-filename))
-                      (om-choose-new-file-dialog :types (list (format nil (om-str :file-format) "SDIF") "*.sdif" )))))
+                      (om-choose-new-file-dialog :types (list (format nil (om-str :file-format) "Text") "*.txt" )))))
      (when outfile 
        (let ((SDIFF (sdif::sdif-open-file self)))
          (when SDIFF 

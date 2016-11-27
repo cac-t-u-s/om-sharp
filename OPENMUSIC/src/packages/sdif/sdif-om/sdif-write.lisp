@@ -24,27 +24,33 @@
        (mapcar 'sdif-size (LMatrices self)))))
 
 (defmethod sdif-write ((matrix sdifmatrix) file-ptr)
-  (let* ((datatype 4)
+  (let* ((data-type-size 4)
          (data (if (listp (car (data matrix))) (flat (mat-trans (data matrix))) (data matrix)))
-         (data-ptr (om-alloc-memory (* datatype (num-fields matrix) (num-elts matrix)))))
+         (data-ptr (om-alloc-memory (* data-type-size (num-fields matrix) (num-elts matrix)))))
     (loop for val in data 
-          for i = 0 then (+ i 1) do
-          (om-write-ptr data-ptr (* i datatype) :float (coerce val 'single-float)))
+          for i from 0 do
+          (om-write-ptr data-ptr (* i data-type-size) :float (coerce val 'single-float)))
     (sdif::SdifFWriteMatrix file-ptr 
                             (sdif::SdifStringToSignature (matrixtype matrix))
-                            datatype (num-elts matrix) (num-fields matrix) data-ptr)
+                            data-type-size (num-elts matrix) (num-fields matrix) data-ptr)
     (om-free-memory data-ptr)
     ))
+
+ 
 
 (defmethod sdif-write ((self sdifframe) file-ptr)
    (let ((framesize (sdif-size self)))
      (sdif::SdifFSetCurrFrameHeader file-ptr 
                                     (sdif::SdifStringToSignature (frametype self))
                                     framesize (length (Lmatrices self)) 
-                                    (streamID self) (coerce (date self) 'double-float))
+                                    (streamID self) (coerce (frametime self) 'double-float))
      (sdif::SdifFWriteFrameHeader file-ptr)
      (loop for item in (LMatrices self) do (sdif-write item file-ptr))
      ))
+
+
+
+
 
 ;;;======================================
 ;;; TYPES / NVT / IDS
@@ -106,35 +112,3 @@
    (let ((idstable (sdif::SdifFStreamIDTable file)))
      (sdif::SdifStreamIDTablePutSID idstable id str tree)))
 
-
-#|
-;;; SDIF-Buffer
-(defmethod! save-sdif-file ((self sdif-buffer) &key out options)
-   :icon 639
-   :indoc '("an SDIF-buffer" "format options" "output pathname")
-   :initvals '(nil nil t)
-   :doc "Saves the contents of <self> as an SDIF file in <outpath>.
-
-<self> is an SDIF-Buffer object or some other object having the SAVE-SDIF-FILE method implemented.
-<options> are specific options depending on <self>.
-
-If <outpath> is not specified, a pop-up dialog will open and allow to choose a destination pathname.
-"
-   (declare (ignore options))
-   (let* ((outfile (or (and out 
-                            (handle-new-file-exists out))
-                       (om-choose-new-file-dialog)))
-          (dir (om-make-pathname :directory outfile)))
-       (when outfile 
-         (unless (probe-file dir)
-           (om-create-directory dir))
-         (let ((thefile (sdif-open-file (namestring outfile) :eWriteFile)))
-           (sdif::SdifFWriteGeneralHeader thefile)
-           (write-types-table thefile (list! (types self)))
-           (write-nvt-tables thefile (cons (default-om-NVT) (list! (NVTs self))))
-           (sdif::SdifFWriteAllASCIIChunks thefile)
-           (loop for item in (LFrames self) do
-                 (save-sdif item thefile))
-           (sdif-close-file thefile))
-         outfile)))
-|#
