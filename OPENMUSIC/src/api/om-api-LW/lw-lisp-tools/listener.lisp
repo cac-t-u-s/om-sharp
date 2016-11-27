@@ -97,7 +97,7 @@
 
 (defun om-format (format-string &optional args prompt)  
   (format *om-stream* 
-          "~A :: ~A"
+          "~A :: ~A~%"
           (or prompt "")
           (apply 'format (append (list nil format-string) args))
           ))
