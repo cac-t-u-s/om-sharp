@@ -14,7 +14,7 @@
 (in-package :om-fi)
 
 ;;; CFFI
-(load (merge-pathnames "load-cffi" *load-pathname*))
+(load (merge-pathnames "ffi/load-cffi" *load-pathname*))
 
 ;;; REDEFINITION OF MEM ACCESSORS
 ;(cl-user::compile-file-if-needed (merge-pathnames "dereference.lisp" *load-pathname*))
