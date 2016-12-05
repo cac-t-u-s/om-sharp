@@ -1,4 +1,4 @@
-(in-package :om)
+(in-package :cl-user)
 
 (defpackage :juce)
 
@@ -11,11 +11,9 @@
 
 (in-package :juce)
 
-
 ;;;==============================================
 ;;  PLAYER
 ;;;==============================================
-
 (cffi:defcfun ("OpenAudioPlayer" OpenAudioPlayer) :pointer (inchannels :int) (outchannels :int) (samplerate :int))
 
 ;(openaudioplayer 2 2 44100)

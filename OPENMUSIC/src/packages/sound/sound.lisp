@@ -5,7 +5,7 @@
 
 (in-package :om)
 
-(load (decode-local-path "audio-api/load-audio-libs.lisp"))
+(load (decode-local-path "audio-api/load-audio-api.lisp"))
         
 (mapc #'(lambda (filename) (compile&load (decode-local-path filename))) 
       '(

@@ -1,6 +1,0 @@
-Note: as of July 2008, I have split the part of the FFA package that does
-not use CFFI into a separate package, ARRAY-OPERATIONS.
-
-Loading FFA will no longer load ARRAY-OPERATIONS.
-
-Tamas Papp <tkpapp@gmail.com>

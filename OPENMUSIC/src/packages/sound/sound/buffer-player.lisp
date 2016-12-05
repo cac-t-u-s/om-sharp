@@ -35,7 +35,7 @@
     bp))
 
 (defun free-buffer-player (bp)
-  (om-audio::om-free-sound-buffer (bp-buffer bp) (bp-channels bp))
+  (audio-io::om-free-sound-buffer (bp-buffer bp) (bp-channels bp))
   (juce::freereader (bp-pointer bp)))
 
 
@@ -47,7 +47,7 @@
       (make-buffer-player :pointer (juce::makefilereader path))
     (progn
       (multiple-value-bind (buffer format channels sr ss size skip)
-          (om-audio::om-get-sound-buffer path *default-audio-type* nil)
+          (audio-io::om-get-sound-buffer path *default-audio-type* nil)
         (make-player-from-buffer buffer size channels sr)))))
 
 (defmethod start-buffer-player ((self buffer-player) &key (start-frame 0))

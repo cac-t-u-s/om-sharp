@@ -45,7 +45,7 @@
                 (interleave-buffer (oa::om-pointer-ptr (buffer self)) interleaved (n-samples self) (n-channels self))
               (when file
                 (setf *last-saved-dir* (make-pathname :directory (pathname-directory file)))
-                (om-audio::om-save-buffer-in-file interleaved 
+                (audio-io::om-save-buffer-in-file interleaved 
                                                  (namestring file) 
                                                  (n-samples self) 
                                                  (n-channels self) 
@@ -93,7 +93,7 @@
            ;;; USE LIBSAMPLERATE
            ;;; (resample-method values correspond to libsamplerate options)
            (multiple-value-bind (success newsize-or-error)
-               (om-audio::resample-audio-buffer interleaved-in size nch interleaved-out out-size ratio resample-method)
+               (lsr::resample-audio-buffer interleaved-in size nch interleaved-out out-size ratio resample-method)
              
              (if success
                  (progn
