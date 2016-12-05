@@ -40,6 +40,8 @@
 
 (load (merge-pathnames "src/api/om-api-LW/om-api.lisp" *om-root-directory*))
 
+(load (merge-pathnames "src/api/foreign-interface/foreign-interface" *om-root-directory*))
+
 ;;;=======================================
 ;;;; LOAD EXTERNAL LISP TOOLS
 ;;;=======================================
@@ -65,7 +67,7 @@
 (load (merge-pathnames "XML/load-xml" *externals-directory*))
 (load (merge-pathnames "OpenGL/load-opengl" *externals-directory*))
 
-(load (merge-pathnames "ffi/foreign-interface" *externals-directory*))
+
 
 (load (merge-pathnames "mach-lib/mach-lib" *externals-directory*))
 #+macosx(om-fi::add-foreign-loader 'mach::load-mach-lib)
