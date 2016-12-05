@@ -45,18 +45,12 @@
 ;;;==============================
 ;;; CHARGEMENT
 
-;;; !!! *sdif-pathname* is modified in OM
-
 (defun load-sdif-lib ()
   (setf sdif::*sdif-library*
         (om-fi::om-load-foreign-library  
          "SDIF"
-         `((:macosx (:or 
-                     ,(om-fi::om-foreign-library-pathname "SDIF.framework/SDIF")
-                     (:framework "SDIF")
-                     ))
-           (:windows (:or ,(om-fi::om-foreign-library-pathname "sdif.dll")
-                      (:default "sdif")))
+         `((:macosx ,(om-fi::om-foreign-library-pathname "libSDIF.dylib"))
+           (:windows (:or ,(om-fi::om-foreign-library-pathname "sdif.dll") (:default "sdif")))
            (:unix (:or "/usr/local/lib/libsdif.so" "libsdif.so" ,(om-fi::om-foreign-library-pathname "libsdif")))
            (t (:default "libsdif"))))))
 
