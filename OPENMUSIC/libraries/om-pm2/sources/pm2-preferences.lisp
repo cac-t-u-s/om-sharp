@@ -22,13 +22,13 @@
 
 ;;; works for pm2...
 (defun forum-authorize (exe-path)
+  (when exe-path
   (let ((auth-file (om-choose-file-dialog :prompt "Pleas select the .txt file provided by the ForumNet code generator")))
     (when (and auth-file (probe-file auth-file))
       (om-cmd-line (format nil "~s -init_key_file ~s" 
                            (namestring (real-exec-pathname exe-path))
-                           (namestring auth-file))
-                   t)
-      (print "Authorization... done"))))
+                           (namestring auth-file)))
+      (print "Authorization... done")))))
 
 (defmethod! authorize-pm2 ()
-  (forum-authorize (om::get-pref :libraries :pm2-path)))
+   (forum-authorize (get-pref-value :libraries :pm2-path)))
