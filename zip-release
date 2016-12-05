@@ -1,4 +1,0 @@
-rm ./OPENMUSIC.zip
-
-zip -r ./OPENMUSIC.zip ./OPENMUSIC/  
-
