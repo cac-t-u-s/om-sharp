@@ -12,11 +12,9 @@
 (compile&load (om-relative-path '("3D") "3d-tools"))
 (compile&load (om-relative-path '("3D") "3d-functions"))
 
-(load (om-relative-path '("spat" "spat-lib") "load-omspat"))
-(compile&load (om-relative-path '("spat") "spat-scene"))
-(compile&load (om-relative-path '("spat") "spat-editor"))
-(compile&load (om-relative-path '("spat") "spatialize"))
-#+sdif(compile&load (om-relative-path '("spat") "spat-sdif"))
-
-(compile&load (om-relative-path nil "spat-pack"))
-
+(omNG-make-package 
+ "Spat"
+ :container-pack *om-package-tree*
+ :doc "Spatialization tools and connection to the Spat framework."
+ :classes '(3DC)
+ :functions '())
