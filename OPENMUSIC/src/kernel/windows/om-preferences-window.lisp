@@ -215,9 +215,15 @@
 ;;; PREFERENCES WINDOW
 ; (om-select-window (make-preferences-window))
 
+(defclass preferences-window (om-window) ())
+
+(defmethod om-window-close-event ((self preferences-window))
+  (save-preferences)
+  (call-next-method))
+
 (defun make-preferences-window ()
-  (let ((win (om-make-window 
-              'om-window :title "OpenMusic Preferences" 
+  (let ((win (om-make-window  
+              'preferences-window :title "OpenMusic Preferences" 
               ;:size (om-make-point 800 400) 
               ;:resizable :w
               ))

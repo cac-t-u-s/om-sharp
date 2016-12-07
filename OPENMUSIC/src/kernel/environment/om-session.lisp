@@ -29,13 +29,7 @@
 ;(defvar *om-preferences* nil)
 
 (defun om-preference-file ()
-  (let* ((userpref (om-user-pref-folder)))
-    (make-pathname
-     :device (pathname-device userpref)
-     :directory (append (pathname-directory userpref) 
-                        (list "OpenMusic" 
-                              (format nil "~A~D" *app-name* (round *om-version*))))
-     :name "preferences" :type "om")))
+  (merge-pathnames "OM7/preferences.om" (om-user-pref-folder)))
 
 ;(WITH-OPEN-FILE (out "/Users/bresson/Desktop/test.txt" :direction :output 
 ;                         :if-does-not-exist :create :if-exists :supersede) 

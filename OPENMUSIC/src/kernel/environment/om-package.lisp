@@ -119,7 +119,7 @@ For easier browsing it is recommended that a package do not contain at the same 
       (om-beep-msg (format nil "Undefined class: ~A" classname))))
 
 (defmethod AddClass2Pack ((classname list) inPackage)
-  (mapc #'(lambda (class) (AddClass2Pack class inPackage) classname)))
+  (mapc #'(lambda (class) (AddClass2Pack class inPackage)) classname))
 
 ;;; Fill package tools : Functions
 (defmethod AddFun2Pack ((funname symbol) inPackage)

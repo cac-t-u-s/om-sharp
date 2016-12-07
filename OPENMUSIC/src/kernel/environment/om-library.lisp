@@ -31,7 +31,10 @@
    (om-make-pathname :directory (mypathname self) :name (name self) :type "lisp"))
 
 
-(add-preference-module :libraries "Libraries") 
+
+
+(add-preference-module :libraries "Libraries")
+(add-preference :libraries :libs-folder1 "Libraries folder" :folder nil)
 
 ;;;=================================
 ;;; registered libraries package
@@ -77,7 +80,9 @@
 
 (defun register-all-libraries (&optional (warn-if-exists t))
   (unless *default-libs-folder* (init-default-libs-folder))
-  (loop for folder in (cons *default-libs-folder* *libs-folders*)
+  (loop for folder in (remove nil 
+                              (list *default-libs-folder* 
+                                    (get-pref-value :libraries :libs-folder1)))
         do (mapc #'(lambda (path) (register-om-library path warn-if-exists))
                  (om-directory folder :directories t :files nil))))
 
@@ -128,7 +133,7 @@
           (setf (loaded? lib) t)
           (om-format "Loading library: Done." nil "OM")
           packager-loader))
-      (om-beep-msg "Library doesn't have a loader file: ~A.lisp not found.." lib-name))
+      (om-beep-msg "Library doesn't have a loader file: ~A NOT FOUND.." packager-loader))
     ))
 
 ;;; can be called from another library, etc.

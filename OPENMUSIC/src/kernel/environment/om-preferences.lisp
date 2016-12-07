@@ -10,7 +10,7 @@
 
 (defun maybe-eval-pref-item-value (pref-item)
   (cond ((and (member (pref-item-type pref-item) '(:folder :file))
-              (symbolp (pref-item-value pref-item)))
+              (pref-item-value pref-item) (symbolp (pref-item-value pref-item))) ;;; non-NIL symbol
          (funcall (pref-item-value pref-item)))
         (t (pref-item-value pref-item))))
 
