@@ -248,7 +248,7 @@
   (deliver 'init-om-standalone
            application-pathname
            0 
-           :split t
+           :split :resources
            :interface :capi
            :keep-editor t
            :keep-debug-mode t
