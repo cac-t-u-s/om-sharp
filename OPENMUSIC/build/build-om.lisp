@@ -25,7 +25,7 @@
 (defparameter *beta-release* t)
 (defparameter *version-string* "")
 (defparameter *release-language* :en)
-(defparameter *release-date* (subseq (sys::date-string nil nil) 0 10))
+(defparameter *release-date* (sys::date-string nil nil)) ;; (subseq (sys::date-string nil nil) 0 10)
 (defparameter *release-author* "jean bresson")
 
 (setf *version-string* (version-to-string *om-version* nil *beta-release*))

@@ -140,7 +140,7 @@
 ;;; will be printed in the Listener
 (defparameter *om-startup-string* 
   (format nil 
-          "==================================~%OpenMusic v. ~D~%r. ~A~%(c) IRCAM - Representations Musicales~%http://repmus.ircam.fr/openmusic/~%================================="
+          "==================================~%OpenMusic v. ~D~%r. ~A~%================================="
           *version-string* *release-date*))
 
 ; (start-openmusic)
