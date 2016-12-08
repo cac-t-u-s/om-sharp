@@ -41,6 +41,7 @@
           om-lisp-image
           om-user-home
           om-user-pref-folder
+          om-resources-folder
 
           om-create-file
           om-create-directory
@@ -114,6 +115,25 @@
 
 (defun om-user-home ()
  (USER-HOMEDIR-PATHNAME))
+
+(defun om-resources-folder ()
+  #+macosx 
+  (if (oa::om-standalone-p) 
+      (make-pathname
+       :host (pathname-host (oa::om-lisp-image))
+       :device (pathname-device (oa::om-lisp-image)) 
+       :directory (append (butlast (pathname-directory (oa::om-lisp-image))) '("Resources")))
+    (make-pathname
+     :host (pathname-host (oa::om-root-folder))
+     :device (pathname-device (oa::om-root-folder)) 
+     :directory (append (pathname-directory (oa::om-root-folder)) '("resources"))))
+  #-macosx 
+  (make-pathname
+   :host (pathname-host (oa::om-root-folder))
+   :device (pathname-device (oa::om-root-folder)) 
+   :directory (append (pathname-directory (oa::om-root-folder)) '("resources")))
+  )
+   
 
 (defun om-user-pref-folder ()
   (let* ((userhome (om-user-home)))

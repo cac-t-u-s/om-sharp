@@ -20,9 +20,7 @@
   *om-loaded-picts*)
 
 (defun register-om-icons ()
-  (register-images (om-relative-path '("resources" "icons") nil :om))
-  (register-images (om-relative-path '("resources" "di") nil :om)))
-
-; (register-om-icons)
-(om-add-init-fun 'register-om-icons)
+  (let ((resources-folder (om-resources-folder)))
+    (register-images (om-relative-path '("icons") nil resources-folder))
+    (register-images (om-relative-path '("di") nil resources-folder))))
 

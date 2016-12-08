@@ -131,7 +131,7 @@
           (om-format "Loading library: ~A..." (list packager-loader) "OM")
           (load packager-loader)
           (setf (loaded? lib) t)
-          (om-format "Loading library: Done." nil "OM")
+          ;(om-format "Loading library: Done." nil "OM")
           packager-loader))
       (om-beep-msg "Library doesn't have a loader file: ~A NOT FOUND.." packager-loader))
     ))

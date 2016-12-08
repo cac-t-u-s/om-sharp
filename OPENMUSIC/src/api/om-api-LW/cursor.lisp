@@ -6,7 +6,6 @@
           om-add-cursor
           om-get-cursor
           om-set-cursor-location
-
           om-view-cursor
           om-set-view-cursor
           ) :om-api)
@@ -55,32 +54,8 @@
     cursor)
   )
 
-;;; init built-in cursors
-;;; the names specified as string are supposed to be installed in the cursor-folder when they will be needed
-(defun om-init-cursors ()
-  (om-add-cursor :wait 
-                 #+cocoa "wait-cursor" #-cocoa :busy
-                 (om-make-point 8 8))
-  (om-add-cursor :arrow nil) 
-  (om-add-cursor :h-size #+cocoa "h-resize-cursor" #-cocoa  :h-double-arrow
-                 (om-make-point 8 8))  
-  (om-add-cursor :v-size #+cocoa "v-resize-cursor" #-cocoa  :v-double-arrow
-                 (om-make-point 8 8))
-  (om-add-cursor :resize 
-                 #+cocoa "resize-cursor" #-cocoa :bottom-right-corner
-                 (om-make-point 8 8))
-  (om-add-cursor :i-beam :i-beam)
-  (om-add-cursor :cross 
-                 #+cocoa "croix" #-cocoa :fleur
-                 (om-make-point 8 8))
-  (om-add-cursor :hand 
-                 #+cocoa :open-hand #-cocoa "hand-cursor"
-                 ))
 
 #+win32(setf win32::*change-cursor-on-gc* nil)
-
-(om-init-cursors)
-
 
 ;;;================
 ;;; VIEW CURSORS

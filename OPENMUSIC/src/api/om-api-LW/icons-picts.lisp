@@ -38,10 +38,6 @@
 
 ;;;================
 
-;;; the folder where to look for finding pictures and other resources
-(defvar *om-resources-folder* nil)
-
-
 (defvar *om-pict-types* nil)
 
 (defun init-pict-types ()
