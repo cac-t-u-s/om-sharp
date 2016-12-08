@@ -6,13 +6,20 @@
 
 #+win32(require "ole")
 
+(print "==============================")
+(print "LOADING SOURCES")
+(print "==============================")
+
 (load (current-pathname "build-om"))
 
+(print "==============================")
+(print "APPLICATION SETUP")
+(print "==============================")
 
 (defvar *app-name+version* "OM")
 (setf *app-name+version* (concatenate 'string "OM " (version-to-string *om-version* nil *beta-release*)))
 
-
+(defparameter *om-directory-folders* (butlast (pathname-directory (current-pathname))))
 
 ;;;==========================
 ;;; DEFAULT INTERFACE (MACOS)(defmethod osc-start-receive ((box ReceiveBox))
@@ -143,10 +150,11 @@
   (push :om-deliver *features*)
   #+cocoa(default-interface)
   (om::om-root-init) 
-  (setf dspec::*active-finders* (append dspec::*active-finders* 
-                                        (list (om::om-make-pathname 
-                                               :directory (om::om-relative-path '("resources") nil :om)
-                                               :name "dspec-database" :type oa::*om-compiled-type*))))  
+  (setf dspec::*active-finders* (append dspec::*active-finders*
+                                        (list (merge-pathnames 
+                                               #+macosx(concatenate 'string *app-name+version* ".app/Contents/Resources/dspec-database." oa::*om-compiled-type*)
+                                               #-macosx(concatenate 'string "resources/dspec-database." oa::*om-compiled-type*)
+                                               om-api::*om-root*))))  
   #+cocoa(setf system::*stack-overflow-behaviour* nil)
   (om::start-openmusic)
   )
@@ -157,7 +165,12 @@
 
 ; (*active-finders*)
 
-(dspec::save-tags-database (make-pathname :directory (append (butlast (pathname-directory (current-pathname))) (list "resources"))
+(print "==============================")
+(print "SAVE SOURCE TRACKING")
+(print "==============================")
+
+
+(dspec::save-tags-database (make-pathname :directory (append *om-directory-folders* '("resources"))
                                           :name "dspec-database" :type oa::*om-compiled-type*))
 
 (dspec:discard-source-info)
@@ -166,6 +179,7 @@
 ;;;==========================
 ;;; BUILD IMAGE
 ;;;==========================
+
 
 
 ;(setf *debugger-hook* 'oa::om-debugger-hook)
@@ -178,6 +192,37 @@
           (round (* (cadr (multiple-value-list (round (* 10000 n)))) 100))
           ))
 
+
+(print "==============================")
+(print "CREATING APP")
+(print "==============================")
+
+(defun move-mac-resources ()
+  (let ((libs-folder (make-pathname :directory (append *om-directory-folders* '("resources" "lib" "mac"))))
+        (app-libs-folder (make-pathname 
+                          :directory (append 
+                                      *om-directory-folders* 
+                                      (list (concatenate 'string *app-name+version* ".app") "Contents" "Frameworks"))))
+        (app-resources-folder (make-pathname 
+                               :directory (append 
+                                           *om-directory-folders* 
+                                           (list (concatenate 'string *app-name+version* ".app") "Contents" "Resources")))))
+  
+    (print (format nil "COPYING LIBRARIES TO: ~A" app-libs-folder))
+    (unless (string-equal (namestring libs-folder) (namestring app-libs-folder))
+      (om::om-copy-directory libs-folder app-libs-folder))
+  
+    (print (format nil "COPYING RESOURCES TO: ~A" app-resources-folder))
+    (loop for item in (oa::om-directory (make-pathname :directory (append *om-directory-folders* '("resources"))) :files t :directories t) 
+          unless (string-equal "lib" (car (last (pathname-directory item)))) do
+          (if (system::directory-pathname-p item)
+              (om::om-copy-directory item (make-pathname :device (pathname-device app-resources-folder) 
+                                                   :directory (append (pathname-directory app-resources-folder) (last (pathname-directory item)))))
+            (om::om-copy-file item (make-pathname :device (pathname-device app-resources-folder) 
+                                                  :directory (pathname-directory app-resources-folder)
+                                                  :name (pathname-name item) :type (pathname-type item)))))
+    ))
+
 ; (version-to-hex 6.020005)
 ; #x0006000200000005
 
@@ -185,22 +230,25 @@
        #+cocoa
        (when (save-argument-real-p)
          (compile-file-if-needed (sys:example-file  "configuration/macos-application-bundle") :load t)
-         (write-macos-application-bundle (make-pathname :directory (butlast (pathname-directory (current-pathname)))
+         (create-macos-application-bundle (make-pathname :directory (butlast (pathname-directory (current-pathname)))
                                                         :name *app-name+version*)
                                          :document-types (list `("Patch" ("opat") ,(om::om-relative-path '("mac") "pat-icon.icns"))
                                                                `("Maquette" ("omaq") ,(om::om-relative-path '("mac") "maq-icon.icns"))
                                                                `("TextFun" ("olsp") ,(om::om-relative-path '("mac") "lsp-icon.icns")))
                                                            :application-icns (om::om-relative-path '("mac") "om.icns")
-                                         :identifier "ircam.om7"
+                                         :identifier "fr.ircam.repmus.oM7"
                                          :version (version-to-string *om-version* t nil)
                                          ))
        #+win32
        (make-pathname :directory (butlast (pathname-directory (current-pathname)) 2)
                       :name *app-name+version* :type "exe")))
+  
+  #+macosx(move-mac-resources)
 
   (deliver 'init-om-standalone
            application-pathname
-           0
+           0 
+           :split t
            :interface :capi
            :keep-editor t
            :keep-debug-mode t
