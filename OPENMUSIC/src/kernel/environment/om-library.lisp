@@ -34,7 +34,8 @@
 
 
 (add-preference-module :libraries "Libraries")
-(add-preference :libraries :libs-folder1 "Libraries folder" :folder nil)
+(add-preference :libraries :libs-folder1 "Libraries folder" :folder :no-default)
+(add-preference :libraries :auto-load "Auto load" :bool nil "... will silently load any required libraries.")
 
 ;;;=================================
 ;;; registered libraries package
@@ -86,6 +87,11 @@
         do (mapc #'(lambda (path) (register-om-library path warn-if-exists))
                  (om-directory folder :directories t :files nil))))
 
+;;; called when the folder(s) change
+(defun update-registered-libraries ()
+  (setf (elements *om-libs-root-package*)
+        (remove-if-not 'loaded? (elements *om-libs-root-package*)))
+  (register-all-libraries nil))
 
 ; (register-all-libraries)
 
@@ -115,9 +121,9 @@
 
 ;;; loads a registered library
 (defmethod load-om-library ((lib string))
-  (let ((required-lib (find-om-library lib)))
-    (if required-lib (load-om-library required-lib)
-      (om-beep-msg "Library: ~S not found !" lib))))
+  (let ((the-lib (find-om-library lib)))
+    (if the-lib (load-om-library the-lib)
+      (om-beep-msg "Library: ~S not registered !" lib))))
 
 (defmethod load-om-library ((lib OMLib))    
   (let ((packager-loader (lib-loader-file lib)))                                      
@@ -131,7 +137,7 @@
           (om-format "Loading library: ~A..." (list packager-loader) "OM")
           (load packager-loader)
           (setf (loaded? lib) t)
-          ;(om-format "Loading library: Done." nil "OM")
+          (update-preferences-window) ;;; update the window if opened       
           packager-loader))
       (om-beep-msg "Library doesn't have a loader file: ~A NOT FOUND.." packager-loader))
     ))
@@ -187,6 +193,27 @@
                                :subpackages (nth 3 item)))
       (set-om-pack-symbols)
       t)))
+
+;;;=================================
+;;; LOAD LIBRARY-DEPENDENT BOXES
+;;;=================================
+
+(defparameter *libs-not-found* nil)
+
+(defmethod om-load-from-id :before ((id (eql :box)) data)
+  (let ((library-name (find-value-in-kv-list data :library)))
+    (when library-name
+      (let ((the-library (find-om-library library-name)))
+        (if the-library
+            (unless (loaded? the-library)
+              (when (or (get-pref-value :libraries :auto-load)
+                        (om-y-n-cancel-dialog (format nil "Some element(s) require the library '~A'.~%~%Do you want to load it ?" library-name)))
+                (load-om-library the-library)))
+          (unless (find library-name *libs-not-found* :test 'string-equal)
+            (om-message-dialog (format nil "Some element(s) require the unknow library: '~A'.~%~%These boxes will be temporarily disabled." library-name))
+            (push library-name *libs-not-found*))
+          )))
+    ))
 
 ;;;=================================
 ;;; METHOD / CLASS DEFINITION

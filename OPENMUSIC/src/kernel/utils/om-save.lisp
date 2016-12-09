@@ -441,7 +441,21 @@
 (defmethod box-type ((self OMBoxLisp)) :textfun)
 (defmethod box-type ((self OMInterfaceBox)) :interface)
 
-(defmethod save-box-reference ((self OMBox)) (omng-save (reference self))) 
+(defmethod save-box-reference ((self OMBox)) (omng-save (reference self)))
+
+;;; THE CASE WHERE THE REFERENCE OBJECT IS FROM A LIBRARY
+(defmethod save-box-library ((self t)) nil)
+
+(defmethod save-box-library ((self OMGFBoxcall))
+  (get-ref-library (fdefinition (reference self))))
+
+(defmethod save-box-library ((self OMBoxEditCall))
+  (get-ref-library (find-class (reference self))))
+
+(defmethod get-ref-library ((self t)) nil)
+(defmethod get-ref-library ((self OMGenericFunction)) (library self))
+(defmethod get-ref-library ((self OMClass)) (library self))
+
 
 ;;; save the outputs only if some are reactive,
 ;;; otherwise it is not useful in the general case
@@ -450,9 +464,11 @@
   ;(find t (outputs self) :key 'reactive)
   t)
 
+
 (defmethod omng-save ((self OMBox))  
   (cons :box
         (append 
+         (and (save-box-library self) `((:library ,(save-box-library self))))
          `((:reference ,(save-box-reference self))
            (:type ,(box-type self))
            (:group-id ,(group-id self))
@@ -539,6 +555,7 @@
 ;(defmethod omng-save ((self OMInBox)) (call-next-method))  
 ;  (append (call-next-method)
 ;          `((:defval ,(omng-save (defval self))))))
+
 
 (defmethod om-load-from-id ((id (eql :box)) data)
   (let* ((type (find-value-in-kv-list data :type))

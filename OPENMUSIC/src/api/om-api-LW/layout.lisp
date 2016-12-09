@@ -225,8 +225,8 @@
   ; (setf (element-parent subview) nil)
 ;  )
 
-;(defmethod om-subviews ((self om-abstract-window)) 
-;    (vsubviews (pane-layout self)))
+(defmethod om-subviews ((self om-abstract-window)) 
+    (om-subviews (capi::pane-layout self)))
 
 (defmethod om-add-subviews ((self om-abstract-window) &rest subviews)
   (apply 'om-add-subviews (cons (capi::pane-layout self) subviews))
