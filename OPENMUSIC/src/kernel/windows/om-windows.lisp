@@ -155,7 +155,7 @@
 
 ;;; redefine the menu-bar of the listener
 (defmethod om-lisp::om-listener-window-menus ((self om-listener))
-  (om::om-menu-items nil))
+  (om::om-menu-items self))
 
 (add-preference :general :listener-on-top "Keep Listener in Front" :bool nil "(Does not apply to the current Listener window)")
 

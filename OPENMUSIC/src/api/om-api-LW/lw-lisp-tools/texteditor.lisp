@@ -447,7 +447,6 @@
       (call-editor ep (list 'editor::kill-region-command buffer)))))
 
 (defmethod text-edit-paste ((self om-text-editor-window))
-  (print "paste")
   (with-slots (ep) self
     (let ((buffer (capi::editor-pane-buffer ep)))
       (call-editor ep (list 'editor::insert-cut-buffer-command buffer)))))
