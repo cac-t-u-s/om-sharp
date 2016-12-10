@@ -25,7 +25,7 @@
    (om-make-pathname :directory (append (pathname-directory (mypathname self)) '("resources"))))
 
 (defmethod lib-icons-folder ((self OMLib))
-   (om-make-pathname :directory (append (pathname-directory (lib-resources-folder self)) '("icon"))))
+   (om-make-pathname :directory (append (pathname-directory (lib-resources-folder self)) '("icons"))))
 
 (defmethod lib-loader-file ((self OMLib))
    (om-make-pathname :directory (mypathname self) :name (name self) :type "lisp"))
@@ -136,6 +136,7 @@
         (let ((*current-lib* lib))
           (om-format "Loading library: ~A..." (list packager-loader) "OM")
           (load packager-loader)
+          (register-images (lib-icons-folder lib))
           (setf (loaded? lib) t)
           (update-preferences-window) ;;; update the window if opened       
           packager-loader))
@@ -198,22 +199,24 @@
 ;;; LOAD LIBRARY-DEPENDENT BOXES
 ;;;=================================
 
-(defparameter *libs-not-found* nil)
+
+(defvar *required-libs-in-current-patch* nil)
 
 (defmethod om-load-from-id :before ((id (eql :box)) data)
   (let ((library-name (find-value-in-kv-list data :library)))
-    (when library-name
+    (when (and library-name ;;; the box coles from a library
+               (not (find library-name *required-libs-in-current-patch* :test 'string-equal))) ;;; situation already handled (for this patch): do not repeat
+      (push library-name *required-libs-in-current-patch*)
       (let ((the-library (find-om-library library-name)))
         (if the-library
             (unless (loaded? the-library)
               (when (or (get-pref-value :libraries :auto-load)
                         (om-y-n-cancel-dialog (format nil "Some element(s) require the library '~A'.~%~%Do you want to load it ?" library-name)))
                 (load-om-library the-library)))
-          (unless (find library-name *libs-not-found* :test 'string-equal)
-            (om-message-dialog (format nil "Some element(s) require the unknow library: '~A'.~%~%These boxes will be temporarily disabled." library-name))
-            (push library-name *libs-not-found*))
+          (om-message-dialog (format nil "Some element(s) require the unknow library: '~A'.~%~%These boxes will be temporarily disabled." library-name))
           )))
     ))
+
 
 ;;;=================================
 ;;; METHOD / CLASS DEFINITION

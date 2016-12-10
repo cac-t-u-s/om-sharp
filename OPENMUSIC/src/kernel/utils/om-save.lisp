@@ -269,6 +269,14 @@
     patch))
 
 
+;;; Handles libary-dependent boxes. See om-library.lisp.
+(defmethod load-patch-contents :before ((patch OMPatch) data)
+  (setf *required-libs-in-current-patch* nil))
+
+(defmethod load-patch-contents :after ((patch OMPatch) data)
+  (setf *required-libs-in-current-patch* nil))
+
+
 (defmethod om-load-from-id ((id (eql :patch)) data)
   (let ((patch (make-instance 'OMPatchInternal :name (find-value-in-kv-list data :name))))
     (load-patch-contents patch data)
