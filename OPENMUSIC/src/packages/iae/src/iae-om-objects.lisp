@@ -302,7 +302,8 @@
    ;                      :value (om-random 100 1000)
    ;                      :duration (om-random mindur maxdur)) (grains self))
     
-    (sort (grains self) '< :key 'date)))
+    ;(sort (grains self) '< :key 'date)
+    ))
 
 (defmethod make-grain-from-frame ((self IAE) (frame IAE-grain))
   (iae-synth self (source frame) (pos frame) (duration frame)))
