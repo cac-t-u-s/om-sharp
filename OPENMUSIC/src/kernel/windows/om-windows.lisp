@@ -155,7 +155,7 @@
 
 ;;; redefine the menu-bar of the listener
 (defmethod om-lisp::om-listener-window-menus ((self om-listener))
-  (om::om-menu-items nil))
+  (om::om-menu-items self))
 
 (add-preference :general :listener-on-top "Keep Listener in Front" :bool nil "(Does not apply to the current Listener window)")
 
@@ -193,10 +193,9 @@
 
 ;;;===============================
 ;;; WORKSPACE
-;;;===============================
-                               
-;;; redef in main-window.lisp 
-(defun show-main-om-window () nil)
+;;;===============================                            
+;;; defined in om-main-window.lisp 
+;;; (defun show-main-om-window () nil)
 
 ;;;===============================
 ;;; ABOUT
@@ -207,15 +206,8 @@
 ;;;===============================
 ;;; PREFERENCES
 ;;;===============================
-                                
-(defvar *pref-window* nil)
-
-(defun show-preferences-win ()
-   (if (and *pref-window* (om-window-open-p *pref-window*))
-     (om-select-window *pref-window*)
-     (prog1 
-         (setf *pref-window* (make-preferences-window))
-       (om-open-window *pref-window*))))
+;;; defined in om-preferences-window.lisp 
+;;; (defun show-preferences-win () nil)                          
 
 
 

@@ -57,10 +57,11 @@
                              (om-make-view 'om-view 
                                            :size (omp 20 18) :resizable nil
                                            :subviews (list 
-                                                      (om-make-graphic-object 'om-icon-button :size (omp 20 18) 
-                                                                              :position (omp 0 0)
-                                                                              :icon 'folder :icon-pushed 'folder-pushed
-                                                                              :action #'(lambda (button) (declare (ignore button))
+                                                      (om-make-graphic-object 
+                                                       'om-icon-button :size (omp 20 18) 
+                                                       :position (omp 0 0)
+                                                       :icon 'folder :icon-pushed 'folder-pushed
+                                                       :action #'(lambda (button) (declare (ignore button))
                                                                    (let ((dir (om-choose-directory-dialog :directory *last-open-dir*)))
                                                                      (when dir
                                                                        (setf *last-open-dir* dir)
@@ -116,7 +117,7 @@
 
 
 
-(defmethod make-preference-item ((type list) pref-item)
+(defmethod make-preference-item ((type cons) pref-item)
   (om-make-di 'om-popup-list 
               ;:enable (valid-property-p object prop-id)
               :items type 
@@ -174,6 +175,18 @@
 
 
 
+(defmethod make-preference-item ((type (eql :action)) pref-item)
+  (let ((buttonstr "-")) 
+    (om-make-di 'om-button 
+                :resizable :w
+                :focus nil :default nil
+                :text buttonstr
+                :size (om-make-point (list :string buttonstr) 26)
+                :font (om-def-font :font1)
+                :di-action #'(lambda (item) (funcall (pref-item-defval pref-item))))))
+
+
+
 ;;;===========================================================================
 ;;; THE VIEW OF ONE PREFERENCE
 
@@ -189,10 +202,10 @@
                                                 :size (om-make-point 160 ;(list :string (format nil "  ~A  " (pref-item-name pref-item))) 
                                                                      20))
                                     (make-preference-item (pref-item-type pref-item) pref-item)))))                                                         
-    (if nil ;(pref-item-doc pref-item)
+    (if (pref-item-doc pref-item)
         (om-make-layout 'om-column-layout
                         :subviews (list main-row 
-                                        (om-make-di 'om-simple-text :text (pref-item-doc pref-item) :font (om-def-font :font1)
+                                        (om-make-di 'om-simple-text :text (string+ "- " (pref-item-doc pref-item)) :font (om-def-font :font1)
                                                     :size (om-make-point (list :string (format nil "  ~A  " (pref-item-doc pref-item))) 20))))
       main-row)))
 
@@ -203,11 +216,13 @@
   ((module-id :accessor module-id :initarg :module-id :initform nil)))
 
 (defun make-preference-panel (pref-module)
+  (order-preference-module pref-module)
   (om-make-layout 'preference-pane 
                   :name (pref-module-name pref-module)
                   :module-id (pref-module-id pref-module)
                   ;:ratios '((1)(1))
                   :subviews (loop for pref in (pref-module-items pref-module)
+                                  when (pref-item-visible pref)
                                   collect (make-preference-view pref-module pref))))
 
 
@@ -215,27 +230,31 @@
 ;;; PREFERENCES WINDOW
 ; (om-select-window (make-preferences-window))
 
-(defclass preferences-window (om-window) ())
+(defclass preferences-window (om-window) 
+  ((tabs :accessor tabs :initform nil)))
 
 (defmethod om-window-close-event ((self preferences-window))
   (save-preferences)
   (call-next-method))
 
+
 (defun make-preferences-window ()
   (let ((win (om-make-window  
               'preferences-window :title "OpenMusic Preferences" 
+              :menu-items (om-menu-items nil)
               ;:size (om-make-point 800 400) 
               ;:resizable :w
-              ))
-        (preference-tabs (om-make-layout 
-                          'om-tab-layout
-                          :subviews (mapcar #'make-preference-panel (sort-pref-items *user-preferences*)))))
+              )))
+    (setf (tabs win)
+          (om-make-layout 
+           'om-tab-layout
+           :subviews (mapcar #'make-preference-panel (sort-pref-items *user-preferences*))))
     (om-add-subviews
      win 
      (om-make-layout 
       'om-column-layout :ratios '(100 1)
       :subviews (list
-                 preference-tabs
+                 (tabs win)
                  (om-make-layout 'om-row-layout
                                  :subviews (list 
                                             nil
@@ -244,7 +263,7 @@
                                              :text "Restore defaults" 
                                              :size (om-make-point 120 24)
                                              :di-action #'(lambda (item)
-                                                            (let* ((current-panel (om-get-current-view preference-tabs))
+                                                            (let* ((current-panel (om-get-current-view (tabs win)))
                                                                    (module-id (module-id current-panel))
                                                                    (pref-module (find-pref-module module-id)))
                                                               (restore-default-preferences module-id)
@@ -257,3 +276,36 @@
                                              ))))
                 ))
     win))
+
+
+
+;;; CONNECTION WITH OM
+(defun find-preferences-window ()
+  (car (om-get-all-windows 'preferences-window)))
+
+
+;;;; CALLED FROM THE OM MENU
+(defun show-preferences-win ()
+   (let ((win (find-preferences-window)))
+     (if win 
+         (om-select-window win)
+       (om-open-window (make-preferences-window)))))
+
+;;;; CALLED FROM ADD_PREFERENCES
+(defmethod update-preferences-window ()
+  (let ((win (find-preferences-window)))
+    (when win 
+      (let ((layout (car (om-subviews win)))
+            (current-panel-id (module-id (om-get-current-view (tabs win)))))
+        (om-substitute-subviews 
+         layout (tabs win)
+         (setf (tabs win)
+               (om-make-layout 
+                'om-tab-layout
+                :subviews (mapcar #'make-preference-panel (sort-pref-items *user-preferences*)))
+               ))
+        (om-set-current-view (tabs win) (find current-panel-id (om-subviews (tabs win)) :key 'module-id))
+        ))))
+
+; (add-preference :libraries :auto-load "Auto load" :bool nil "Silently loads required libraries")
+

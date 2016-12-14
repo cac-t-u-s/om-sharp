@@ -40,9 +40,8 @@
                                  :name (pathname-name lib)
                                  :type (pathname-type lib)))
       #+cocoa
-      (let ((frameworkpos (position "framework" (cdr (pathname-directory lib))
-                                    :test 'string-equal :key #'(lambda (item) (cadr (multiple-value-list (string-until-char item ".")))))))
-
+      (let ((frameworkpos (position-if #'(lambda (name) (search ".framework" name))
+                                       (cdr (pathname-directory lib)))))
         (make-pathname :directory (append (pathname-directory libraries-directory) 
                                           (if frameworkpos (subseq (pathname-directory lib) (1+ frameworkpos))))
                        :host (pathname-host libraries-directory) 

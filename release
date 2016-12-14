@@ -85,13 +85,12 @@ change_permission()
 # MAIN SCRIPT
 #=============================
 
-if 	[ "$1" = "deliver" ]; 	then 	deliver_app
-elif	[ "$1" = "pack" ];	then	pack_app; set_fonts
-elif	[ "$1" = "dp" ];	then	deliver_app; pack_app; set_fonts
+if	[ "$1" = "pack" ];	then	pack_app; set_fonts
+elif	[ "$1" = "+pack" ];	then	deliver_app; pack_app; set_fonts
 elif	[ "$1" = "dmg" ];	then	create_simple_dmg
 elif	[ "$1" = "zip" ];	then	zip_release
 elif	[ "$1" = "all" ];	then	deliver_app; pack_app; set_fonts; create_simple_dmg
-else 	echo "Dont'know what to do! :("	
+else 	deliver_app	
 fi
 
 exit 0

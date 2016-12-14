@@ -317,7 +317,7 @@
                                 :font (om-def-font :font2) 
                                 :text "Refresh list"
                                 :di-action #'(lambda (b) 
-                                               (register-all-libraries nil)
+                                               (update-registered-libraries)
                                                (update-libraries-tab *om-main-window*))))
        ))))
 

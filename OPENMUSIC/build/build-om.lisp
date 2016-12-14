@@ -25,7 +25,7 @@
 (defparameter *beta-release* t)
 (defparameter *version-string* "")
 (defparameter *release-language* :en)
-(defparameter *release-date* (subseq (sys::date-string nil nil) 0 10))
+(defparameter *release-date* (sys::date-string nil nil)) ;; (subseq (sys::date-string nil nil) 0 10)
 (defparameter *release-author* "jean bresson")
 
 (setf *version-string* (version-to-string *om-version* nil *beta-release*))
@@ -126,8 +126,7 @@
 (load-om-package "sdif")
 (load-om-package "osc")
 (load-om-package "sound")
-(load-om-package "iae")
-(load-om-package "spatialisation")
+(load-om-package "space")
 (load-om-package "interface")
 ;(load-om-package "tempo")
 ;;(load-om-package "timing")

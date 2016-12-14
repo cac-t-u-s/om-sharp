@@ -6,7 +6,7 @@
 (in-package :om)
 
 (defstruct pref-module (id) (name) (items))
-(defstruct pref-item (id) (name)(type) (defval) (doc) (value))
+(defstruct pref-item (id) (name)(type) (defval) (doc) (value) (visible))
 
 (defun maybe-eval-pref-item-value (pref-item)
   (cond ((and (member (pref-item-type pref-item) '(:folder :file))
@@ -59,6 +59,7 @@
 
 ;;;======================================================
 ;;; ADD A NEW PREF IN MODULE
+;;; we don't want the preference to be visible until this is called (e.g. the lib is loaded.)
 (defun add-preference (module-id pref-id name type defval &optional doc)
   (unless (find-pref-module module-id)
     (add-preference-module module-id (string module-id)))
@@ -71,22 +72,48 @@
         (setf (pref-item-name pref-item) name 
               (pref-item-type pref-item) type
               (pref-item-defval pref-item) defval 
-              (pref-item-doc pref-item) doc)
+              (pref-item-doc pref-item) doc
+              (pref-item-visible pref-item) t)
       (setf (pref-module-items module)
             (append (pref-module-items module)
-                    (list (make-pref-item :id pref-id :name name :type type :defval defval :doc doc :value defval)))))))
-    
+                    (list (make-pref-item :id pref-id :name name :type type 
+                                          :defval defval :doc doc :value defval
+                                          :visible t)))))))
+   
 ;;; hack
 ;;; todo: check that this section does not already exist
-(defun add-preference-section (module-id name)
-  (let* ((module (find-pref-module module-id))) 
-    (unless (find name (remove-if-not 
-                        #'(lambda (item) (equal (pref-item-id item) :title)) 
-                        (pref-module-items module))
-                  :test 'string-equal :key 'pref-item-name)
+(defun add-preference-section (module-id name &optional sub-items)
+  (let* ((module (find-pref-module module-id))
+         (existing-item (find name (remove-if-not 
+                                    #'(lambda (item) (equal (pref-item-id item) :title)) 
+                                    (pref-module-items module))
+                              :test 'string-equal :key 'pref-item-name)))
+    (if existing-item
+        (setf (pref-item-value existing-item) sub-items)
       (setf (pref-module-items module)
             (append (pref-module-items module)
-                    (list (make-pref-item :id :title :name name :type :title)))))))
+                    (list (make-pref-item :id :title :name name :type :title :visible t :value sub-items)))))))
+
+;;; will use the preference section's sub-items to sort
+(defun order-preference-module (module)
+  (let ((sections (loop for item in (pref-module-items module) 
+                        when (equal (pref-item-type item) :title)
+                        collect item)))
+    ;;; reorder the list
+    (loop for section in sections do
+          (let ((pos (position section (pref-module-items module))))
+            (loop for sub-item in (pref-item-value section)
+                  for i from 1 do
+                  (let ((sub (find sub-item (pref-module-items module) :key 'pref-item-id)))
+                    (when sub 
+                      (setf (pref-module-items module) (remove sub (pref-module-items module)))
+                      (setf pos (position section (pref-module-items module)))
+                      (setf (pref-module-items module)
+                            (append (subseq (pref-module-items module) 0 (+ pos i))
+                                    (list sub)
+                                    (subseq (pref-module-items module) (+ pos i))))))))
+          )
+    ))
 
 ;;;======================================================
 ;;; GET THE PREFERENCE VALUES
@@ -108,16 +135,25 @@
   (loop for module in *user-preferences*
         when (or (not pref-module-id) (equal pref-module-id (pref-module-id module)))
         do (loop for pref in (pref-module-items module) do
-              (setf (pref-item-value pref) (pref-item-defval pref)))))
+              (unless (or (equal (pref-item-type pref) :title)
+                          (equal (pref-item-type pref) :action)
+                          (equal (pref-item-defval pref) :no-default))
+                (setf (pref-item-value pref) (pref-item-defval pref))))))
 
 ;;;======================================================  
 ;;; SET THE PREFERENCE VALUES
 (defmethod set-pref-in-module (module key val)
   (let ((pref-item (get-pref-in-module module key)))
-    (if pref-item 
-        (setf (pref-item-value pref-item) val)
-      (add-preference (pref-module-id module) key (string key) NIL val))))
-
+    (if pref-item (setf (pref-item-value pref-item) val)
+      ;;; the pref doesn't exist : we just add it silently as 'invisible'
+      (setf (pref-module-items module)
+            (append (pref-module-items module)
+                    (list (make-pref-item :id key :name (string key) :type NIL 
+                                          :defval val :value val
+                                          :visible nil)))))
+    )
+  (save-preferences))
+      
 (defun set-pref (module-name key val &optional preferences-list)
   (set-pref-in-module (find-pref-module module-name preferences-list) key val))
 
@@ -132,7 +168,7 @@
 (defun save-pref-module (module)
   (cons (pref-module-id module)
         (loop for pref in (pref-module-items module) 
-              unless (equal :title (pref-item-id pref))
+              unless (or (equal :title (pref-item-type pref)) (equal :action (pref-item-type pref)))
               collect
               (list (pref-item-id pref) (omng-save (pref-item-value pref))))))
 

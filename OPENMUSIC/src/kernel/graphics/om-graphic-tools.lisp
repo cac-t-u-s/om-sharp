@@ -184,9 +184,6 @@
          (hsv (rgb2hsv (list r g b))))
     (om-make-color-hsv (mod (+ (nth 0 hsv) *golden_ratio_conjugate*) 1.0) (nth 1 hsv) (nth 2 hsv))))
 
-
-
-
 (defun om-get-dark-offset-color (col factor)
   (let ((r (max 0.0 (- (om-color-r col) factor)))
         (g (max 0.0 (- (om-color-g col) factor)))
@@ -228,26 +225,25 @@
 ;;; OM cursors 
 ;;;===================
 
-(defvar *om-contex-cursor* nil)
-(defvar *om-loupe-cursor* nil)
-(defvar *om-point-cursor* nil)
-(defvar *om-pen-cursor* nil)
+(defun init-om-cursors ()
+  (let ((cursor-folder (om-relative-path '("curs") nil (om-resources-folder))))
+    (flet ((cursor-file (name) (merge-pathnames name cursor-folder)))
+      (om-add-cursor :wait #+cocoa (cursor-file "wait-cursor") #-cocoa :busy (om-make-point 8 8))
+      (om-add-cursor :arrow nil)
+      (om-add-cursor :h-size #+cocoa (cursor-file "h-resize-cursor") #-cocoa  :h-double-arrow (om-make-point 8 8))  
+      (om-add-cursor :v-size #+cocoa (cursor-file "v-resize-cursor") #-cocoa  :v-double-arrow (om-make-point 8 8))
+      (om-add-cursor :resize #+cocoa (cursor-file "resize-cursor") #-cocoa :bottom-right-corner (om-make-point 8 8))
+      (om-add-cursor :i-beam :i-beam)
+      (om-add-cursor :cross #+cocoa (cursor-file "croix") #-cocoa :fleur (om-make-point 8 8))
+      (om-add-cursor :hand #+cocoa :open-hand #-cocoa (cursor-file "hand-cursor"))
+      (om-add-cursor :context-menu (cursor-file  "contex-cursor"))
+      (om-add-cursor :add (cursor-file  "+-cursor"))
+      (om-add-cursor :loupe (cursor-file  "loupe-cursor") (om-make-point 6 6))
+      (om-add-cursor :pen (cursor-file  "pen-cursor") (om-make-point 2 10))
+      (om-add-cursor :point (cursor-file "point-cursor") (om-make-point 4 4))
+      )))
 
-
-(defun init-curs ()
-  
-  (om-set-cursor-location (om-relative-path '("resources" "curs") nil :om))
-  
-  (oa::om-init-cursors)
-  
-  (om-add-cursor :context-menu "contex-cursor")
-  (om-add-cursor :add "+-cursor")
-  (om-add-cursor :loupe "loupe-cursor" (om-make-point 6 6))
-  (om-add-cursor :pen "pen-cursor" (om-make-point 2 10))
-  (om-add-cursor :point "point-cursor" (om-make-point 4 4))
-  )
-
-(om-add-init-fun 'init-curs)
+(om-add-init-fun 'init-om-cursors)
 
 
 ;;;============================================

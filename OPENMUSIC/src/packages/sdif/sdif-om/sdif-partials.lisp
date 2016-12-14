@@ -105,9 +105,7 @@
 Chords are formatted as (pitch [Hz]  onset [s]  duration [s]  velocity [lin]).
 
 <stream> selects a specific SDIF stream (usually corresponding to a channel in audio analysis files.
-"
-   :icon 639
-   
+" 
    (mapcar #'(lambda (p)
                (let ((t1 (list-min (partial-t-list p))) 
                      (t2 (list-max (partial-t-list p))))
@@ -125,7 +123,6 @@ Internally calls and formats data from GetSDIFChords.
 
 <stream> selects a specific SDIF stream (usually corresponding to a channel in audio analysis files.
 "
-   :icon 639
    (let* ((chord-data (sort (GetSDIFChords self stream) '< :key 'cadr))
           (chords nil) (cseqdata nil))
      (loop for note in chord-data do
@@ -175,7 +172,6 @@ Internally calls and formats data from GetSDIFChords.
     '< :key 'frametime)))
 
 (defmethod* partials->sdif ((partials list) &optional (outpath "partials.sdif"))
-  :icon 264
   :indoc '("a list of partials" "output pathname")
   :doc "Saves the contents of <partials> as an SDIF file in <outpath>.
 

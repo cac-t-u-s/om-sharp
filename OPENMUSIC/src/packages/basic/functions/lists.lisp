@@ -30,13 +30,13 @@
 
 Ex. (last-elem '(1 2 3 4 5))  => 5
 "
-  :icon 235
+  :icon 'list
   (first (last (list! list))))
 
 (defmethod* last-n ((list list) (n integer))
   :initvals '(nil 0) 
   :indoc '("a list" "number of elements")
-  :icon 235
+  :icon 'list
   :doc  
 "Returns the <n> last elements of <list>
 
@@ -48,7 +48,7 @@ Ex. (last-n '(1 2 3 4 5) 3)  => (3 4 5)
 (defmethod* first-n ((list list) (n integer))
   :initvals '(nil 0) 
   :indoc '("a list" "number of elements")
-  :icon 235
+  :icon 'list
   :doc  
 "Returns the <n> first elements of <list>
 
@@ -62,7 +62,7 @@ Ex. (first-n '(1 2 3 4 5) 3)  => (1 2 3)
 (defmethod* x-append ((l1? list) (l2? list) &rest lst?)
   :initvals '(nil nil nil) 
   :indoc '("first element" "second element" "additional elements")
-  :icon 235
+  :icon 'list
   :doc "Appends lists or atoms together to form a new list.
 
 Ex. (x-append '(1 2 3) '(4 5)) => (1 2 3 4 5)
@@ -124,7 +124,7 @@ Ex. (x-append '(1 2 3) 4 '(5 6 7)) => (1 2 3 4 5 6 7)
 (defmethod* flat ((lst list) &optional (level nil)) 
   :initvals '(nil nil) 
   :indoc '("a list" "level of parenthesis")
-  :icon 235
+  :icon 'list
   :doc "Transforms a tree-list (i.e. a list of lists) into a flat list.
 If <level> is 1 (resp n) remove 1 (resp. n) level(s) of list imbrication.
 If <level> is NIL (default) remove all levels of imbrication, down to a purely flat list.
@@ -144,7 +144,7 @@ Ex. (flat '((a b) c ((d e) f)) 1)  =>  (a b c (d e) f)    [1 level of parenthesi
 (defmethod* create-list ((count integer) (elem t))
   :initvals '(10 nil) 
   :indoc '("number of elements" "initial element")
-  :icon 235
+  :icon 'list
   :doc "Returns a list of length <count> filled with repetitions of element <elem>
 
 Ex. (create-list 4 'a)  =>  (a a a a)"
@@ -160,7 +160,7 @@ The matrix is represented by a list of rows. Each row is a list of items.
 Rows and columns are interchanged.
 
 Ex. (mat-tran '((1 2 3) (a b c) (4 5 6))  =>  ((1 a 4) (2 b 5) (3 c 6))"
-  :icon 235
+  :icon 'mat-trans
   (let ((maxl (1- (loop for elt in matrix maximize (length elt))))
         result)
     (loop for i from 0 to maxl do
@@ -178,7 +178,7 @@ Ex. (mat-tran '((1 2 3) (a b c) (4 5 6))  =>  ((1 a 4) (2 b 5) (3 c 6))"
 
 
 (defmethod* expand-lst ((list list))
-  :icon 235 
+  :icon 'list 
   :initvals '('(3*(2 4) 0_8))
   :indoc '("a list to expand")
   :doc  "Expands a list following repetition patterns.
@@ -245,7 +245,7 @@ Ex. (2* (a z 2* (4 12) (1_5 )) 0_16s2)  =>  (a z 4 12 4 12 (1 2 3 4 5) a z 4 12 
 
 
 (defmethod* group-list ((list list) (segmentation list) mode)
-   :icon 235 
+   :icon 'list 
    :initvals '((1 2 3 4) (1 3) linear)
    :indoc '("list to group" "list of group lengths" "normal or circular")
    :doc  "Segments a <list> in successives sublists which lengths are successive values of the list <segmentation>.
@@ -280,7 +280,7 @@ Ex. (group-list '(1 2 3 4) '(1 2 3) 'circular)  => ((1) (2 3) (4 1 2))
 
 ;;;;-----------------Remove-dup
 (defmethod* remove-dup ((list list) (test symbol) (depth integer))
-  :icon 235 
+  :icon 'list 
   :initvals (list '(1 2 3 4) 'eq 1)
   :indoc '("list" "equality test (function or function name)" "an integer")
   :doc  "Removes duplicates elements from <list>.
@@ -305,7 +305,7 @@ Ex. (remove-dup '((1 2) (3 2 2) 4) '= 2) => ((1 2) (3 2) 4)
 (defmethod* list-modulo ((list list) (ncol integer))
   :initvals '(nil 2) 
   :indoc '("a list" "modulo")
-  :icon 235
+  :icon 'list
   :doc 
   "Groups the elements of a list distant of a regular interval <ncol> and returns these groups as a list of lists. 
 
@@ -327,7 +327,7 @@ Ex. (list-modulo '(1 2 3 4 5 6 7 8 9) 3)  => ((1 4 7) (2 5 8) (3 6 9))
 (defmethod* interlock ((lis1 list) (lis2 list) (plc1 list))
    :initvals '((0 1 2 3) (a b) (1 3))
    :indoc '("a list" "a list" "a list of indexes")
-   :icon 235
+   :icon 'list
    :doc "Inserts the successive elements of <lis2> in <lis1> before the elements of <lis1> of respective positions from <plc1>.
 
 Ex. (interlock '(0 1 2 3 ) '(a b) '(1 3))  =>  (0 a 1 2 b 3)"
@@ -344,7 +344,7 @@ Ex. (interlock '(0 1 2 3 ) '(a b) '(1 3))  =>  (0 a 1 2 b 3)"
 (defmethod* subs-posn ((lis1 list) posn val)
    :initvals '((0 1 2 3)  (1 3) (a b))
    :indoc '("a list" "a list of indices" "a list or value")
-   :icon 235
+   :icon 'list
    :doc "Substitutes the elements of <lis1> at position(s) <posn> (if they exist) with the corresponding elements in <val>.
 
 Ex. (subs-posn '(0 1 2 3) 2 'a)  => (0 1 a 3)
@@ -370,7 +370,7 @@ Ex. (subs-posn '(0 1 2 3) '(1 3) '(a b))  => (0 a 2 b)
 ;------------------------------------------------------------------------
 (defmethod* reduce-tree ((self t) (function symbol) &optional (accum nil))
   :initvals (list '(10 10) '+ nil)
-  :icon 209
+  :icon 'list
   :indoc '("a tree (list)" "a function or a patch" "a neutral value for <function>")
   :doc "Applies the commutative binary <function> recursively throughout the list <self>.
 (Applies to the first elements, then the result to the next one, and so forth until the list is exhausted.)
@@ -408,7 +408,7 @@ If <accum> is nil, figures out what the neutral can be (works for +,*,min,max)."
 (defmethod* rang-p ((liste list) (elem number) &optional (test 'eq) (key nil)) 
   :initvals '((6000) 2)
   :indoc '("a list"  "element to look for" "test function" "key function")
-  :icon 128 
+  :icon 'list 
   :doc "Returns the position(s) of <elem> in <liste>.
 
 <test> is a function or function name used to test if the elements of the list are equal to <elem>.
@@ -440,7 +440,7 @@ Ex. (rang-p '(0 1 2 3 4 3 2) 3 '<)  =>  (0 1 2 6)    [elements at positions 0, 1
 (defmethod* list-explode ((list list) (nlists integer))
   :initvals '((1 2 3 4 5 6) 2)
   :indoc '("List" "segment size")
-  :icon 235
+  :icon 'list
   :doc
   "Segments <list> into <nlist> sublists of (if possible) equal length.
 
@@ -486,7 +486,7 @@ Ex. (list-explode '(1 2 3 4 5 6 7 8 9) 12)  => ((1) (2) (3) (4) (5) (6) (7) (8) 
   :initvals '(numberp (1 2 3) pass)
   :indoc '("function or function name" "a list" "pass or reject")
   :menuins '((2 (("Reject" reject) ("Pass" pass))))
-  :icon 235 
+  :icon 'list 
   :doc  "Filters out  <list> using the predicate <test>.
 
 <test> may be a function name (a symbol) or it may be a visual function or patch in 'lambda' mode. 
@@ -513,7 +513,7 @@ Ex. (list-filter 'numberp '(5 6 aaa bbb 8) 'reject)  => (aaa bbb)
   :initvals '(numberp ((1 2) (1 2)) 1 pass)
   :indoc '("function or function name" "list of lists" "rank" "pass or reject")
   :menuins '((3 (("Reject" 'reject) ("Pass" 'pass))))
-  :icon 235 
+  :icon 'list 
   :doc  "Filters out <list> (a list of lists) using the predicate <test>.
 
 <test> may be a function name (a symbol) or it may be a visual function or patch in 'lambda' mode. 
@@ -541,7 +541,7 @@ Ex. (table-filter 'oddp '((1 2 3) (4 5 6) (7 8 9)) 1 'reject)  --> ((1 2 3) (7 8
   :initvals '((1 2 3 4 5) ((0 2) (5 10)) pass)
   :indoc '("a list" "a list of (low high) pairs" "pass or reject" )
   :menuins '((2 (("Reject" 'reject) ("Pass" 'pass))))
-  :icon 235 
+  :icon 'list 
   :doc  "Filters out <list> using <bounds>.
 <bounds> is a pair or list of pairs (min-value max-value). 
 
@@ -563,7 +563,7 @@ If <bounds> is a list of pairs, each pair is applied to each successive element 
   :initvals '((1 2 3 4 5) ((0 1) (3 4)) reject)
   :indoc '("a list" "position bounds" "pass or reject")
   :menuins '((2 (("Reject" 'reject) ("Pass" 'pass))))
-  :icon 235 
+  :icon 'list 
   :doc  "Select elements in <list> whose positions (couting from 0) in the list are defined by <posn>
 <posn> is a list of pairs (min-pos max-pos) in increasing order with no everlap.
 
@@ -586,7 +586,7 @@ Ex. (range-filter '(10 11 12 13 14 15 16) '((0 1) (3 4)) 'reject) => (12 13)
 (defmethod* posn-match ((list list) (positions list))
   :initvals '('(10 20 30 40 50 60 70 80 90) '((0 1) 4 (6)) )
   :indoc '("a list" "a list positions")
-  :icon 235 
+  :icon 'list 
   :doc  "Constructs a new list by peeking elements in <list> at positions defined by <positions> (a list or tree of positions). 
 
 <positions> supports the syntax of 'expand-lst'.

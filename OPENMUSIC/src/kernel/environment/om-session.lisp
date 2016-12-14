@@ -140,7 +140,7 @@
 ;;; will be printed in the Listener
 (defparameter *om-startup-string* 
   (format nil 
-          "==================================~%OpenMusic v. ~D~%r. ~A~%(c) IRCAM - Representations Musicales~%http://repmus.ircam.fr/openmusic/~%================================="
+          "==================================~%OpenMusic v. ~D~%r. ~A~%================================="
           *version-string* *release-date*))
 
 ; (start-openmusic)
@@ -150,7 +150,9 @@
   (oa::om-api-init)
   (om-fi::om-load-foreign-libs 
    #+windows (oa::om-lisp-image) 
-   #+macosx (om-relative-path '("resources" "lib" "mac") nil (oa::om-root-folder))
+   #+macosx (if (oa::om-standalone-p) 
+                (om-make-pathname :directory (append (butlast (pathname-directory (oa::om-lisp-image))) '("Frameworks")))
+              (om-relative-path '("resources" "lib" "mac") nil (oa::om-root-folder)))
    #+linux (om-relative-path '("resources" "lib" "linux") nil (oa::om-root-folder))
    )
   
@@ -161,6 +163,8 @@
   (setf *catch-errors* nil)
   (in-package :om)
   ;;(om::set-language *release-language*)
+  (register-om-icons)
+
   (om-init-funcall)
     
   #+(or om-deliver mswindows)
