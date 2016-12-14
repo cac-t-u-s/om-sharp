@@ -204,14 +204,15 @@
 
 (defmethod om-load-from-id :before ((id (eql :box)) data)
   (let ((library-name (find-value-in-kv-list data :library)))
-    (when (and library-name ;;; the box coles from a library
-               (not (find library-name *required-libs-in-current-patch* :test 'string-equal))) ;;; situation already handled (for this patch): do not repeat
+    (when (and library-name ;;; the box comes from a library
+               (not (find library-name *required-libs-in-current-patch* :test 'string-equal))) ;;; situation already handled (for this patch): do not repeat 
       (push library-name *required-libs-in-current-patch*)
       (let ((the-library (find-om-library library-name)))
         (if the-library
             (unless (loaded? the-library)
               (when (or (get-pref-value :libraries :auto-load)
-                        (om-y-n-cancel-dialog (format nil "Some element(s) require the library '~A'.~%~%Do you want to load it ?" library-name)))
+                        (let ((reply (om-y-n-cancel-dialog (format nil "Some element(s) require the library '~A'.~%~%Do you want to load it ?" library-name))))
+                          (if (equal reply :cancel) (abort) reply)))
                 (load-om-library the-library)))
           (om-message-dialog (format nil "Some element(s) require the unknow library: '~A'.~%~%These boxes will be temporarily disabled." library-name))
           )))

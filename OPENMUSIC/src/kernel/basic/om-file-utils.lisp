@@ -110,7 +110,8 @@ Ex. (tmpfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/
 
 (defvar *tmpparfiles* nil)
 (defun add-tmp-file (file)
-  (push file *tmpparfiles*))
+  (push file *tmpparfiles*)
+  file)
 
 (defun clean-tmp-files ()
   (when *tmpparfiles*

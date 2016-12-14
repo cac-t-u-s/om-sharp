@@ -1,7 +1,7 @@
 (in-package :om)
 
 (defparameter *last-open-dir*  nil)
-(defvar *quit-lock* nil "If T, prevents quitting when the last open document is closed")
+(defvar *quit-at-last-doc* nil "If T, prevents quitting when the last open document is closed")
 
 (defstruct doc-entry (doc) (file))
 (defparameter *open-documents*  nil)
@@ -26,7 +26,7 @@
   (om-print (list "Unregistering document" self (mypathname self)))
   (let ((doc-entry (find self *open-documents* :key 'doc-entry-doc)))
     (setf *open-documents* (remove self *open-documents* :key 'doc-entry-doc))
-    (when (and (null *open-documents*) (not *quit-lock*)
+    (when (and (null *open-documents*) *quit-at-last-doc*
                (member :om-deliver *features*))
       (om-quit))))
 
