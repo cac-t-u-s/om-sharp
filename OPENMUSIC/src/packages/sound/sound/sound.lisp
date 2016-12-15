@@ -118,7 +118,7 @@ Press 'space' to play/stop the sound file.
 
 (defmethod get-sound ((self sound)) self)
 (defmethod get-sound ((self om-internal-sound)) (om-init-instance (clone-object self (make-instance 'sound)) nil))
-(defmethod get-sound ((self pathname)) (when (probe-file self) (om-init-instance (make-instance 'sound) (list :file self))))
+(defmethod get-sound ((self pathname)) (when (probe-file self) (om-init-instance (make-instance 'sound) `((:file ,self)))))
 (defmethod get-sound ((self string)) (get-sound (pathname self)))
 (defmethod get-sound ((self t)) nil)
 
@@ -308,7 +308,6 @@ Press 'space' to play/stop the sound file.
                                         (n-samples self) (n-channels self) (sample-rate self)))
           (om-beep-msg "Incomplete info in SOUND object. Could not instanciate the player !!")
           )))
-    
     self))
 
 ;(defmethod initialize-instance :after ((self sound) &rest initargs)
@@ -383,12 +382,14 @@ Press 'space' to play/stop the sound file.
 ;;; executes its body with buffer-name bound to a valid audio buffer
 ;;; this bufer can be found in sound or produced from the filename
 ;;; in the second case, it is freed at the end 
+
 (defmacro with-audio-buffer ((buffer-name sound) &body body)
-  `(let* ((tmp-buffer (unless (buffer ,sound) 
-                        (when (and (valid-pathname-p (file ,sound)) (n-channels ,sound) (n-samples ,sound))
-                          (make-om-sound-buffer-GC :count 1 :nch (n-channels ,sound)
-                                                   :ptr (audio-io::om-get-sound-buffer (namestring (file ,sound)) *default-internal-sample-size*)))))
-          (,buffer-name (or tmp-buffer (buffer ,sound))))
+  `(let* ((snd (get-sound ,sound))
+          (tmp-buffer (unless (buffer snd) 
+                        (when (and (valid-pathname-p (file snd)) (n-channels snd) (n-samples snd))
+                          (make-om-sound-buffer-GC :count 1 :nch (n-channels snd)
+                                                   :ptr (audio-io::om-get-sound-buffer (namestring (file snd)) *default-internal-sample-size*)))))
+          (,buffer-name (or tmp-buffer (buffer snd))))
      (unwind-protect
          (progn ,@body)
        (when tmp-buffer (oa::om-release tmp-buffer))
@@ -699,17 +700,17 @@ Press 'space' to play/stop the sound file.
   :doc "Returns the duration of <sound> in seconds."
    (if (and (n-samples sound) (sample-rate sound)
             (> (sample-rate sound) 0))
-                (float (/ (n-samples sound) (sample-rate sound)))
+       (float (/ (n-samples sound) (sample-rate sound)))
      0))
 
 (defmethod* sound-dur ((sound pathname))
-  (sound-dur (namestring thesound)))
+  (sound-dur (namestring sound)))
 
 (defmethod* sound-dur ((sound string))
   (if (probe-file sound)
       (multiple-value-bind (format channels sr ss size skip)
-          (audio-io::om-get-sound-info (namestring path))
-        (if (and size sr (> sr 0)) (float (/ ns sr)) 0))
+          (audio-io::om-get-sound-info sound)
+        (if (and size sr (> sr 0)) (float (/ size sr)) 0))
     (progn (om-beep-msg "File not found: ~s" sound) 0)))
 
 (defmethod* sound-dur-ms ((sound t))
