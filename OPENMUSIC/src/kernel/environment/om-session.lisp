@@ -89,7 +89,7 @@
         (when (probe-file patches-folder)
           (mapc #'(lambda (file)
                     (load file :verbose t)) 
-                (sort (om-directory patches-folder :type (list "lisp" *om-compiled-type*) :files t :directories nil)
+                (sort (om-directory patches-folder :type (list "lisp" (om-compiled-type)) :files t :directories nil)
                       'string< :key 'pathname-name)))
         ))))
 

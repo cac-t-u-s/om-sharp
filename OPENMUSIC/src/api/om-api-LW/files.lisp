@@ -32,7 +32,7 @@
 (in-package :om-api)
 
 (export '(
-          *om-compiled-type*
+          om-compiled-type
           om-make-pathname
           om-pathname-location
           om-directory-pathname-p
@@ -60,9 +60,11 @@
 ;;; PATHNAME MANAGEMENT (create, copy, delete...)
 ;;;==================
 
-(defvar *om-compiled-type* 
-  #+win32 "ofasl"
-  #+cocoa (if (member :X86 *features*) "xfasl" "nfasl"))
+(defparameter *compiled-type* (pathname-type *load-pathname*))
+(defun om-compiled-type () 
+  (if (om-standalone-p) 
+      *compiled-type*
+    (pathname-type (cl-user::compile-file-pathname ""))))
 
 ;; handles device, host, etc.
 ;; dircetory is a pathname

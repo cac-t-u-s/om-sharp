@@ -37,6 +37,7 @@
        (:component
         (("Preferences..."
           :callback 'om::show-preferences-win
+          :accelerator "accelerator-,"
           :callback-type :none)))
 
        ;(:component
@@ -152,9 +153,9 @@
   (om::om-root-init) 
   (setf dspec::*active-finders* (append dspec::*active-finders*
                                         (list (merge-pathnames 
-                                               #+macosx(concatenate 'string *app-name+version* ".app/Contents/Resources/dspec-database." oa::*om-compiled-type*)
-                                               #-macosx(concatenate 'string "resources/dspec-database." oa::*om-compiled-type*)
-                                               om-api::*om-root*))))  
+                                               #+macosx(concatenate 'string *app-name+version* ".app/Contents/Resources/dspec-database." (oa::om-compiled-type))
+                                               #-macosx(concatenate 'string "resources/dspec-database." (oa::om-compiled-type))
+                                               om-api::*om-root*))))
   #+cocoa(setf system::*stack-overflow-behaviour* nil)
   (om::start-openmusic)
   )
@@ -171,7 +172,7 @@
 
 
 (dspec::save-tags-database (make-pathname :directory (append *om-directory-folders* '("resources"))
-                                          :name "dspec-database" :type oa::*om-compiled-type*))
+                                          :name "dspec-database" :type (oa::om-compiled-type)))
 
 (dspec:discard-source-info)
 
