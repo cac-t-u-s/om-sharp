@@ -69,13 +69,22 @@
 (defmethod draw-mini-view ((self collection) (box t) x y w h &optional time)
   (let ((display-cache (get-display-draw box)))
     (if (subtypep (obj-type self) 'BPF)
-        (loop for o in (obj-list self) do 
-              (draw-bpf-points-in-rect (point-pairs o)
-                             (color o) 
-                             (car display-cache)
-                             x (+ y 10) w (- h 20)
-                             :lines))
-        (loop for o in (obj-list self) do 
+        (let ((ranges (car display-cache)))
+          (loop for o in (obj-list self) do 
+                (draw-bpf-points-in-rect (point-pairs o)
+                                         (color o) 
+                                         ranges
+                                         x (+ y 10) w (- h 20)
+                                         :lines))
+          (om-with-font  (om-def-font :font1 :size 8)
+            (om-draw-string (+ x 10) (+ y (- h 4)) (number-to-string (nth 0 ranges)))
+            (om-draw-string (+ x (- w (om-string-size (number-to-string (nth 1 ranges)) (om-def-font :font1 :size 8)) 4))
+                            (+ y (- h 4)) 
+                            (number-to-string (nth 1 ranges)))
+            (om-draw-string x (+ y (- h 14)) (number-to-string (nth 2 ranges)))
+            (om-draw-string x (+ y 10) (number-to-string (nth 3 ranges)))
+            ))
+      (loop for o in (obj-list self) do 
               (set-cache-display box o)
               (draw-mini-view o box x y w h time)))))
 
