@@ -225,7 +225,7 @@
              (slot (intern-pack (name (nth num (outputs box))) (symbol-package (type-of obj)))))
         (cond ((find slot (class-instance-slots (find-class (type-of obj))) :key 'slot-name)
                (get-slot-val (car (value box)) slot))
-              ((find (intern-k slot) (additional-box-attributes-names obj))
+              ((find (intern-k slot) (additional-box-attributes-names box))
                (get-edit-param box (intern-k slot)))
               (t nil))))
      ;;; LAMBDA
@@ -297,11 +297,17 @@
              (pos (position (intern-k name) (additional-box-attributes val) :key 'car)))
         (when pos (nth 1 (nth pos (additional-box-attributes val))))))))
 
+
+(defmethod class-attributes-menus ((self t)) nil)
+
 (defmethod get-input-menu ((self OMBoxEditCall) name)
   (let* ((val (or (and (null (lambda-state self)) (car (value self)))
                   (make-instance (reference self))))
-         (pos (position (intern-k name) (additional-box-attributes val) :key 'car)))
-    (when pos (nth 2 (nth pos (additional-box-attributes val))))))
+         (found-in-class-attr (find name (class-attributes-menus val) :key #'(lambda (entry) (string (car entry))) :test 'string-equal))
+         (found-in-box-attr (find (intern-k name) (additional-box-attributes val) :key 'car)))
+    (or (nth 1 found-in-class-attr)
+        (nth 2 found-in-box-attr))))
+
 
 (defmethod object-has-editor ((self t)) nil)
 (defmethod object-has-editor ((self omobject)) t)

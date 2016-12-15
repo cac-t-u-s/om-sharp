@@ -25,7 +25,6 @@ As output it returns the contents of the text buffer as a list formatted accordi
 ;The input can be connected to a pathname to attach and fill the TextFile buffer with a file on the disk. 
 ;(Note: use the contextual menu in order to change the TextFile attachement settings.)
 
-
 ;- <read-mode> determines how <contents> access is formatted. The options are 
 ;    - NIL (default) : each line is read as a string (returns a list of strings)
 ;    - ':lines' : each line is collected in a list of values (returns a list of lists)
@@ -36,6 +35,11 @@ As output it returns the contents of the text buffer as a list formatted accordi
 
 
 (defmethod additional-class-attributes ((self textbuffer)) '(input-mode))
+
+(defmethod class-attributes-menus ((self textbuffer))
+  '((input-mode (("2D matrix" :lines-cols) 
+                 ("list of lines" :lines) 
+                 ("plain" :value)))))
   
 (defmethod additional-box-attributes ((self textbuffer)) 
   '((:read-mode "determines how <contents> text is formatted for output" 
@@ -54,7 +58,7 @@ As output it returns the contents of the text buffer as a list formatted accordi
 ;;; FORMATTING
 (defun format-from-text-lines (lines mode)
   (case mode 
-      (:lines-cols (loop for line in lines collect (or (om-read-list-from-string line) (list line))))
+      (:lines-cols (remove nil (loop for line in lines collect (om-read-list-from-string line)))) ;; (or ... (list line))
       (:lines (mapcar 'read-from-string lines))
       (:value (read-from-string (apply 'string+ (mapcar #'(lambda (line) (string+ line " ")) lines))))
       (:list (flat (mapcar 'om-read-list-from-string lines) 1))
