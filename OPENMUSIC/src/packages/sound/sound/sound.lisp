@@ -31,13 +31,13 @@
 (defmethod oa::om-release ((ptr om-sound-buffer))
   ;(om-print (format nil "Release audio buffer ~A in ~A" (oa::om-pointer-ptr ptr) ptr) "SOUND_DEBUG")
   (when (<= (decf (oa::om-pointer-count ptr)) 0)
-    (om-print (format nil "CAN FREE Audio buffer ~A in ~A !" (oa::om-pointer-ptr ptr) ptr) "SOUND_DEBUG")
+    ;(om-print (format nil "CAN FREE Audio buffer ~A in ~A !" (oa::om-pointer-ptr ptr) ptr) "SOUND_DEBUG")
     ;(unless (om-null-pointer-p (oa::om-pointer-ptr ptr)) 
     ;  (audio-io::om-free-sound-buffer (oa::om-pointer-ptr ptr) (om-sound-buffer-nch ptr)))
     ))
 
 (defmethod om-cleanup ((self om-sound-buffer))
-  (print (list "AUDIO BUFFER CLEANUP" self))
+  ;(om-print (list "AUDIO BUFFER CLEANUP" self) "SOUND_DEBUG")
   (when (and (oa::om-pointer-ptr self) (not (om-null-pointer-p (oa::om-pointer-ptr self))))
     (audio-io::om-free-sound-buffer (oa::om-pointer-ptr self) (om-sound-buffer-nch self))))
   
