@@ -8,7 +8,8 @@
 ;;; Produces a (unique) name for a box
 (defmethod gen-box-name ((self OMBox))
   (read-from-string 
-   (string+ (substitute #\- #\Space (name self)) 
+   (string+ "box-" 
+            (substitute #\- #\Space (name self)) 
             (format () "~3,'0d~3,'0d" (box-x self) (box-y self)))
    ))
 
