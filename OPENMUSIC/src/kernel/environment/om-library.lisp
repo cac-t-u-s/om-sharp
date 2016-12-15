@@ -31,8 +31,6 @@
    (om-make-pathname :directory (mypathname self) :name (name self) :type "lisp"))
 
 
-
-
 (add-preference-module :libraries "Libraries")
 (add-preference :libraries :libs-folder1 "Libraries folder" :folder :no-default)
 (add-preference :libraries :auto-load "Auto load" :bool nil "... will silently load any required libraries.")

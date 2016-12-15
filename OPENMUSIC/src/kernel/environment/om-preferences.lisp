@@ -60,6 +60,13 @@
 ;;;======================================================
 ;;; ADD A NEW PREF IN MODULE
 ;;; we don't want the preference to be visible until this is called (e.g. the lib is loaded.)
+
+(defun put-default-value (pref)
+  (unless (or (equal (pref-item-type pref) :title)
+              (equal (pref-item-type pref) :action)
+              (equal (pref-item-defval pref) :no-default))
+    (setf (pref-item-value pref) (pref-item-defval pref))))
+
 (defun add-preference (module-id pref-id name type defval &optional doc)
   (unless (find-pref-module module-id)
     (add-preference-module module-id (string module-id)))
@@ -74,11 +81,12 @@
               (pref-item-defval pref-item) defval 
               (pref-item-doc pref-item) doc
               (pref-item-visible pref-item) t)
-      (setf (pref-module-items module)
-            (append (pref-module-items module)
-                    (list (make-pref-item :id pref-id :name name :type type 
-                                          :defval defval :doc doc :value defval
-                                          :visible t)))))))
+      (let ((new-pref (make-pref-item :id pref-id :name name :type type 
+                                      :defval defval :doc doc
+                                      :visible t)))
+        (put-default-value new-pref)
+        (setf (pref-module-items module) (append (pref-module-items module) (list new-pref))))
+      )))
    
 ;;; hack
 ;;; todo: check that this section does not already exist
@@ -135,10 +143,9 @@
   (loop for module in *user-preferences*
         when (or (not pref-module-id) (equal pref-module-id (pref-module-id module)))
         do (loop for pref in (pref-module-items module) do
-              (unless (or (equal (pref-item-type pref) :title)
-                          (equal (pref-item-type pref) :action)
-                          (equal (pref-item-defval pref) :no-default))
-                (setf (pref-item-value pref) (pref-item-defval pref))))))
+                 (put-default-value pref))))
+
+
 
 ;;;======================================================  
 ;;; SET THE PREFERENCE VALUES
