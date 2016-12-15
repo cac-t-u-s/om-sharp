@@ -27,14 +27,14 @@
   :indoc '("data (list, BPF, or TextFile)" "a file location")
   :doc "Saves the data from <self> as a text file in <path>." 
   (let ((file (cond 
-              (null path) (om-choose-new-file-dialog :directory (def-save-directory) :types '("Text files" "*.txt" "All files" "*.*"))
-              ((pathnamep path) path)
-              ((stringp path) (if (pathname-directory path) (pathname (string+ path type)) (outfile path :type type))))))
+               ((null path) (om-choose-new-file-dialog :directory (def-save-directory) :types '("Text files" "*.txt" "All files" "*.*")))
+               ((pathnamep path) path)
+               ((stringp path) (if (pathname-directory path) (pathname (string+ path type)) (outfile path :type type))))))
     (if file
         (progn 
           (with-open-file (out file :direction :output :if-does-not-exist :create :if-exists :supersede)
             (write-data self out))
-          out)
+          file)
       (om-abort))))
 
 
