@@ -47,7 +47,6 @@
                              :title (concatenate 'string "Definitions of " (string-upcase (string symb)))
                              :name (gensym)
                              :width w :height h
-                             :resizable nil
                              :window-styles nil)))
     (set-hint-table win (list :external-min-width w :external-max-width w 
                               :external-min-height h :external-max-height h))
@@ -61,7 +60,6 @@
                                                              :width 370 :height 260
                                                              :interaction :single-selection
                                                              :retract-callback nil
-                                                             :focus nil
                                                              :callback-type '(:collection)
                                                              :test-function 'string-equal
                                                              :items (loop for item in deflist collect (format nil "~A" (car item)))
