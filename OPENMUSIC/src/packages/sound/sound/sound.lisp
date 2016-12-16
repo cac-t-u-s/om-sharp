@@ -11,10 +11,10 @@
 
 ;;; use as :ptr for OM-SOUND-BUFFER
 (defun make-audio-buffer (nch size)
-  (fli::allocate-foreign-object 
-   :type :pointer :nelems nch
-   :initial-contents (loop for c from 0 to (1- nch) 
-                           collect (fli::allocate-foreign-object :type :float :nelems size
+  (fli::allocate-foreign-object :nelems nch
+                                :type :pointer 
+                                :initial-contents (loop for c from 0 to (1- nch) 
+                                                        collect (fli::allocate-foreign-object :type :float :nelems size
                                                                  :initial-element 0.0))))
 
 (defparameter *default-internal-sample-size* :float)
@@ -118,7 +118,7 @@ Press 'space' to play/stop the sound file.
 
 (defmethod get-sound ((self sound)) self)
 (defmethod get-sound ((self om-internal-sound)) (om-init-instance (clone-object self (make-instance 'sound)) nil))
-(defmethod get-sound ((self pathname)) (when (probe-file self) (om-init-instance (make-instance 'sound) `((:file ,self)))))
+(defmethod get-sound ((self pathname)) (when (probe-file self) (om-init-instance (make-instance 'sound) `((:file ,self) (:access-from-file t)))))
 (defmethod get-sound ((self string)) (get-sound (pathname self)))
 (defmethod get-sound ((self t)) nil)
 
@@ -278,7 +278,8 @@ Press 'space' to play/stop the sound file.
           (FILE-IN 
            ;;; there was nothing before...
            (if access-from-file
-               (set-sound-info self FILE-IN)
+               (progn (setf (file self) FILE-IN)
+                 (set-sound-info self FILE-IN))
              (set-sound-data self FILE-IN)))
       
           ((file self)
@@ -326,7 +327,7 @@ Press 'space' to play/stop the sound file.
                 (n-channels sound) channels
                 (sample-rate sound) sr
                 (sample-size sound) ss)
-          (om-print (format nil "Allocated buffer ~A for ~A" (buffer sound) sound) "SOUND_DEBUG")
+          ;(om-print (format nil "Allocated buffer ~A for ~A" (buffer sound) sound) "SOUND_DEBUG")
           sound)))
     (om-beep-msg "Wrong pathname for sound: ~s" path)))
 
