@@ -99,7 +99,7 @@
 ;;; A POINTER STRUCT WITH COUNTER
 ;;;========================
 
-(defstruct om-pointer (ptr nil :type :pointer) (count 0 :type integer))
+(defstruct om-pointer (ptr) (count 0 :type integer))
 
 (defun om-pointer-get-ptr (om-pointer) (om-pointer-ptr om-pointer))
 
