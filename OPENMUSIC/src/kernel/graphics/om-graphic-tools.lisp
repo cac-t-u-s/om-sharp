@@ -191,9 +191,9 @@
     (om-make-color r g b)))
 
 (defun om-get-light-offset-color (col factor)
-  (let ((r (min 1.0 (+ (om-color-r col) factor)))
-        (g (min 1.0 (+ (om-color-g col) factor)))
-        (b (min 1.0 (+ (om-color-b col) factor))))
+  (let ((r (min 0.9 (+ (om-color-r col) factor)))
+        (g (min 0.9 (+ (om-color-g col) factor)))
+        (b (min 0.9 (+ (om-color-b col) factor))))
     (om-make-color r g b)))
 
 (defun om-get-saturated-color (col)

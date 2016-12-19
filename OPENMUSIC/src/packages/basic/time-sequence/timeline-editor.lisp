@@ -136,7 +136,10 @@
 
 (defmethod (setf selected-p) (t-or-nil (self om-timeline-view))
   (setf (slot-value self 'selected-p) t-or-nil)
-  (om-set-bg-color self (if t-or-nil (om-get-light-offset-color (get-color (editor-get-time-sequence (editor self) (id self))) 0.8) (om-def-color :white)))
+  (om-set-bg-color self 
+                   (if t-or-nil 
+                       (om-get-light-offset-color (get-color (editor-get-time-sequence (editor self) (id self))) 0.8) 
+                     (om-def-color :white)))
   t-or-nil)
 
 (defmethod clear-timeline ((self timeline-editor))
