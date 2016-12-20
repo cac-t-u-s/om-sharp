@@ -395,7 +395,7 @@
 ;;; by default the key actions are transferred to the window
 ;;; but any active view can redefine the method
 (defmethod om-view-key-handler ((self om-graphic-object) key)
-  (declare (ignore key)) 
+  ;(print (list "gc" self key)) 
   (om-view-key-handler (om-view-window self) key))
 
 

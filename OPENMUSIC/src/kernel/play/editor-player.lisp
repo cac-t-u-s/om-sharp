@@ -61,6 +61,26 @@
 ; (equal (cursor-mode selection-pane) :interval)
 (defmethod play-selection-first ((self t)) t)
 
+(defmethod additional-player-params ((self t)) nil)
+
+;;; return the views to update
+(defmethod play-editor-get-ruler-views ((self play-editor-mixin)) nil)
+  
+(defmethod reinit-x-ranges ((self play-editor-mixin))
+  (let ((play-obj (get-obj-to-play self)))
+    (mapcar #'(lambda (ruler-view)
+                (if play-obj
+                    (set-ruler-range ruler-view 0 (+ (get-obj-dur play-obj) 1000))
+                  (set-ruler-range ruler-view (vmin self) (or (vmax self) 1000))))
+            (list! (play-editor-get-ruler-views self)))))
+
+(defmethod reinit-x-ranges-from-ruler ((self play-editor-mixin)) 
+  (reinit-x-ranges self))
+
+;;;=====================================
+;;; INTERVAL
+;;;=====================================
+
 (defmethod get-interval-to-play ((self play-editor-mixin))
   (when (and (play-selection-first self) 
              (play-interval self)
@@ -118,7 +138,6 @@
                 (om-invalidate-view p))
             (cursor-panes self))))
 
-
 (defmethod editor-reset-interval ((self play-editor-mixin))
   (editor-set-interval self '(0 0))
   (mapcar 'reset-cursor (cursor-panes self)))
@@ -127,21 +146,6 @@
   (mapcar #'(lambda (pane) (update-cursor pane time)) (cursor-panes self))
   (editor-invalidate-views self))
 
-(defmethod additional-player-params ((self t)) nil)
-
-;;; return the views to update
-(defmethod play-editor-get-ruler-views ((self play-editor-mixin)) nil)
-  
-(defmethod reinit-x-ranges ((self play-editor-mixin))
-  (let ((play-obj (get-obj-to-play self)))
-    (mapcar #'(lambda (ruler-view)
-                (if play-obj
-                    (set-ruler-range ruler-view 0 (+ (get-obj-dur play-obj) 1000))
-                  (set-ruler-range ruler-view (vmin self) (or (vmax self) 1000))))
-            (list! (play-editor-get-ruler-views self)))))
-
-(defmethod reinit-x-ranges-from-ruler ((self play-editor-mixin)) 
-  (reinit-x-ranges self))
 
 ;;;=================================
 ;;; PLAYER CALLS
@@ -160,7 +164,7 @@
                                 (abort e))))
         (play-editor-callback editor time))))
 
-(defmethod editor-play ((self play-editor-mixin))
+(defmethod editor-play ((self play-editor-mixin)) 
   (when (play-obj? (get-obj-to-play self))
     (when (pause-button self) (unselect (pause-button self)))
     (when (play-button self) (select (play-button self)))
@@ -189,8 +193,9 @@
   (mapcar #'(lambda (view) (stop-cursor view)) (cursor-panes self))
   (player-stop-object (player self) (get-obj-to-play self))
   (if (and (metronome self) (metronome-on self)) (player-stop-object (player self) (metronome self)))
-  (set-time-display self 0)
-  (mapcar 'reset-cursor (cursor-panes self)))
+  (let ((start-time (or (car (play-interval self)) 0)))
+    (set-time-display self start-time)
+    (mapcar #'(lambda (view) (update-cursor view start-time)) (cursor-panes self))))
 
 (defmethod editor-play/stop ((self play-editor-mixin))
   (if (not (eq (player-get-object-state (player self) (get-obj-to-play self)) :stop))
@@ -216,6 +221,22 @@
 (defmethod editor-next-step ((self play-editor-mixin)) nil)
 (defmethod editor-previous-step ((self play-editor-mixin)) nil)
 (defmethod editor-repeat ((self play-editor-mixin) t-or-nil) nil)
+
+
+(defmethod editor-key-action :around ((self play-editor-mixin) key) 
+  (case key  
+    (#\Space (editor-play/pause self) t)
+    (#\p (editor-play/pause self) t)
+    (#\s (editor-stop self) t)    
+    (:om-key-esc 
+     (when (eq (player-get-object-state (player self) (get-obj-to-play self)) :stop)
+       (when (equal '(0 0) (play-interval self))
+         (call-next-method)) ;; if the interval is already reset: check if there is another 'escape' to do
+       (editor-reset-interval self))
+     (editor-stop self)
+     t)
+    (otherwise (call-next-method))
+    ))
 
 
 ;;;===================================
@@ -315,8 +336,7 @@
   (om-stop-transient-drawing self)) 
               
 (defmethod reset-cursor ((self x-cursor-graduated-view))
-  (setf (cursor-pos self) (or (car (cursor-interval self)) 0))
-  (om-invalidate-view self))
+  (update-cursor self 0))
 
 
 ;(defmethod om-view-resized :after ((self x-cursor-graduated-view) size)
@@ -356,20 +376,25 @@
       )))
 
 (defmethod om-view-click-handler ((self x-cursor-graduated-view) position)
-  (let ((editor (editor (om-view-window self)))
+  (let ((tpl-editor (editor (om-view-window self)))
         (bx (time-to-pixel self (car (cursor-interval self))))
         (ex (time-to-pixel self (cadr (cursor-interval self)))))          
     (cond ((om-point-in-line-p position (omp bx 0) (omp bx (h self)) 4)
-           (change-interval-begin editor self position))
+           (change-interval-begin tpl-editor self position))
           ((om-point-in-line-p position (omp ex 0) (omp ex (h self)) 4)
-           (change-interval-end editor self position))
-          (t (start-interval-selection editor self position)))))
+           (change-interval-end tpl-editor self position))
+          (t 
+           (set-cursor-time tpl-editor (pixel-to-time self (om-point-x position)))
+           (start-interval-selection tpl-editor self position)))))
 
 (defmethod om-view-doubleclick-handler ((self x-cursor-graduated-view) position)
-  (let ((time (pixel-to-time self (om-point-x position))))
-    (update-cursor self time)
-    (editor-set-interval (editor (om-view-window self)) (list time time))
+  (let ((time (pixel-to-time self (om-point-x position)))
+        (tpl-editor (editor (om-view-window self))))
+    (editor-set-interval tpl-editor (list time time))
+    (set-cursor-time tpl-editor time)
+    (editor-stop tpl-editor)
     (call-next-method)))
+
 
 (defmethod om-view-mouse-motion-handler :around ((self x-cursor-graduated-view) position)
   (let ((bx (time-to-pixel self (car (cursor-interval self))))
@@ -379,6 +404,9 @@
            (om-set-view-cursor self (om-get-cursor :h-size)))
           (t ;(om-set-view-cursor self nil)
              (call-next-method)))))
+
+
+
 
 ;;;=================================
 ;;; STANDARDIZED PLAY CONTROLS
@@ -519,6 +547,7 @@
                     ;                                       (setf (tempo editor) (+ (floor (tempo editor)) (/ (value item) 100.0)))))
                     ))))
 
+
 (defmethod make-signature-box ((editor play-editor-mixin) &key fg-color bg-color font rulers)
   (setf (signature-box editor)
         (om-make-layout
@@ -586,20 +615,6 @@
   (when (time-monitor self) 
     (om-set-dialog-item-text (time-monitor self) (if time (time-display time) ""))))
    
-
-(defmethod editor-key-action :around ((self play-editor-mixin) key) 
-  (case key  
-    (#\Space (editor-play/stop self) t)
-    (#\p (editor-play/pause self) t)
-    (#\s (editor-stop self) t)    
-    (:om-key-esc 
-     (if (equal '(0 0) (play-interval self))
-         (call-next-method) ;; if the interval is already reset: check if there is another 'escape' to do
-       (editor-reset-interval self))
-     (editor-stop self) t)
-    (otherwise (call-next-method))
-    ))
-
 
 (defmethod enable-play-controls ((self play-editor-mixin) t-or-nil)
   (mapc 

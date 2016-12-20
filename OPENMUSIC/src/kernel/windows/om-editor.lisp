@@ -57,6 +57,7 @@
 (defmethod editor-window ((self ObjectWithEditor)) (and (editor self) (window (editor self))))
 (defmethod editor-view ((self ObjectWithEditor)) (main-view (editor self)))
 (defmethod editor ((self om-graphic-object)) (editor (om-view-window self)))
+(defmethod editor ((self t)) nil)
 
 ;;;====================
 ;;; OBJECT WITH EDITOR
@@ -270,6 +271,7 @@
        (call-next-method)))
 
 (defmethod om-view-key-handler ((self OMEditorWindow) key)
+  ;(print (list "omeditorwindow" self key))
   (dispatch-key-action (editor self) key))
 
 

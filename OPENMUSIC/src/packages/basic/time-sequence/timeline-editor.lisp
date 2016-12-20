@@ -195,7 +195,7 @@
           for i = 0 then (+ i 1) do
           (let* ((timeline-view (om-make-view 'om-timeline-view :id i :editor self :bg-color (om-def-color :white)))
                  (foldable-container (om-make-layout 'om-column-layout))
-                 (timeline-item (om-make-view 'om-view :subviews (list (timeline-item container-editor (id timeline-view))) :size (omp 15 15)))
+                 (timeline-item (timeline-item container-editor (id timeline-view)))
                  (fold-icon (om-make-graphic-object 'om-icon-button :size (omp 10 10)
                                                     :icon 'arrow-drop-right :icon-pushed 'arrow-drop-up
                                                     :lock-push t
@@ -215,10 +215,11 @@
                                              :subviews
                                              (list
                                               (om-make-layout 'om-row-layout
-                                                              :ratios '(0.001 0.001 1)
+                                                              :ratios '(0.001 1)
                                                               :subviews
-                                                              (list timeline-item (om-make-view 'om-view :size (omp 10 10)) timeline-view))
-                                                              ;(list timeline-item fold-icon timeline-view))
+                                                              (list timeline-item timeline-view))
+                                              
+                                                              ;(list timeline-item fold-icon timeline-view)) ;; (om-make-view 'om-view :size (omp 10 10))
                                               foldable-container))))
             (pushr timeline-view timeline-views)
             (pushr fold-group foldable-containers)))
@@ -238,7 +239,7 @@
                                                            'om-row-layout
                                                            :subviews
                                                            (list
-                                                            (om-make-view 'om-view :size (omp 28 nil) )
+                                                            (om-make-view 'om-view :size (omp 33 nil))  ;; the size here must correspond to the 'timeline-item'
                                                             time-ruler)
                                                            :ratios '(0.001 1)))))))
       (setf (time-ruler self) time-ruler)
@@ -527,10 +528,11 @@
           (update-to-editor (container-editor editor) editor)
           (om-invalidate-view (time-ruler editor))
           t)
-    ;(otherwise (editor-key-action (print (container-editor editor)) key))
+    (otherwise nil)
     ))
 
 (defmethod om-view-key-handler ((self om-timeline-view) key)
+  ;(print (list "timeline" key))
   (or (editor-key-action (editor self) key)
       (call-next-method)) ;;; => to window and play-editor-mixin
   )  
@@ -538,8 +540,12 @@
 (defmethod editor-play ((self timeline-editor))
   (editor-play (container-editor self)))
 
+(defmethod editor-pause ((self timeline-editor))
+  (editor-pause (container-editor self)))
+
 (defmethod editor-stop ((self timeline-editor))
   (editor-stop (container-editor self)))
 
-
+(defmethod editor-set-interval ((self timeline-editor) interval)
+  (editor-set-interval (container-editor self) interval))
 

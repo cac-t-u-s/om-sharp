@@ -45,7 +45,6 @@
     (list arg val)))
 
 
-
 (defun om-make-layout (class &rest other-args
                              &key
                              subviews ratios delta dimensions align name position size bg-color scrollbars
