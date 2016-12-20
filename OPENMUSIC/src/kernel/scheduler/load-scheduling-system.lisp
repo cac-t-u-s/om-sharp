@@ -24,16 +24,16 @@
 (mapc #'(lambda (filename) 
           (compile&load (decode-local-path filename)))      
       '(
-        "STRUCTURE - Action"
+        "action"
         
-        "COMPONENT - Scheduler"
-        "COMPONENT - Engine"
-        "COMPONENT - Thread pool"
-        "COMPONENT - Dispatcher"
-        "COMPONENT - Graphics-callback"
+        "scheduler"
+        "engine"
+        "thread-pool"
+        "dispatcher"
+        "graphics-callback"
 
-        "STRUCTURE - Schedulable-object"
+        "schedulable-object"
         
-        "API - scheduling-system"
+        "scheduling-system"
         
-        "TOOL - mode-switcher"))
+        "mode-switcher"))

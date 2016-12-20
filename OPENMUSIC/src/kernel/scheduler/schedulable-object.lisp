@@ -54,6 +54,8 @@ The output has to be:
 .((Date1 Deadline1 Function1 Data1) ... (DateN DeadlineN FunctionN DataN)) where DateN is the date in ms when FunctionN is allowed to be performed and Deadline1 is the date in ms when the result has to be produced,
 .NIL if nothing has to be computed.
 
+3) The method 
+
 3) Every modification on the data used by the previous methods has to be wrapped in the macro (with-schedulable-object object &rest body).
 If the use of a macro is not convenient, you can simple call (notify-scheduler object) each time you think rescheduling might be useful."))
 
@@ -116,6 +118,11 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 ;;;It should return a list of lists containing a date when a computation can start, its deadline, a function and its arguments
 (defmethod get-computation-list ((self schedulable-object) &optional time-interval)
   nil)
+
+;;;TO REDEFINE FOR YOUR SUBCLASS
+;;;It should return an absolute duration
+(defmethod get-obj-dur ((self schedulable-object)) *positive-infinity*)
+
 
 ;;;TO USE TO EDIT DATA SLOTS OF YOUR OBJECT USED BY GET-ACTION-LIST-FOR-PLAY
 ;;;;;;(if not used, concurrent play and edit of the object is not ensured to be safe)
@@ -429,14 +436,14 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
           (list t1 (1+ t2) :stop))
       (progn
         (incf (current-local-time self) (time-window self))
-        ;(if (not (user-time-window self)) (setf (time-window self) (min *Lmax* (* 2 (time-window self)))))
+        (if (not (user-time-window self)) (setf (time-window self) (min *Lmax* (* 2 (time-window self)))))
         (list t1 t2)))))
 
 (defmethod reset-I ((self schedulable-object) &optional date)
   (setf (current-local-time self) (or date (car (interval self)) 0)
         (time-window self) (or (user-time-window self) *Lmin*)))
 
-;;;REPLANNING OF AN OBJECT
+;;;RESCHEDULING OF AN OBJECT
 ;;;;;From 'time if provided, instantaneous otherwise
 (defmethod reschedule ((self schedulable-object) (sched scheduler) &optional time (preserve t))
   (let ((switch-date (if time (+ time *Lmin*) 

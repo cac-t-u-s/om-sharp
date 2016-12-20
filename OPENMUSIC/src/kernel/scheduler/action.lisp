@@ -28,6 +28,9 @@
 
 (in-package :om)
 
+;;;This list is used to accumulate already trigerred actions
+;;;It is intended to avoid automatic garbage collection while rendering objects
+;;;Its efficiency should be investigated  
 (defvar *action-garbage* '())
   
 ;;===========================================================================
@@ -84,6 +87,7 @@
       nil)))
 
 
+;;;Function to trigger actions (inlined)
 (declaim (inline %play-action))
 (defun %play-action (self)
   (if (act-data self)
@@ -91,6 +95,7 @@
     (funcall (act-fun self)))
   (push self *action-garbage*))
 
+;;;Function to clean the garbage list (inlined)
 (declaim (inline %clean-action-garbage))
 (defun %clean-action-garbage ()
   (loop while *action-garbage* do

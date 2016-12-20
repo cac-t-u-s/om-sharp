@@ -109,7 +109,7 @@
         "basic/om-collections"
         "basic/om-networking"
 
-        "scheduler/LOAD - Scheduling system"
+        "scheduler/load-scheduling-system"
         "scheduler/clock"
   
         "play/timed-object"
