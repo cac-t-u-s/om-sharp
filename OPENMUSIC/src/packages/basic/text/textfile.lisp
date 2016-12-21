@@ -60,7 +60,7 @@ As output it returns the contents of the text buffer as a list formatted accordi
   (case mode 
       (:lines-cols (remove nil (loop for line in lines collect (om-read-list-from-string line)))) ;; (or ... (list line))
       (:lines (remove nil (mapcar #'(lambda (l) (read-from-string l nil)) lines)))
-      (:value (read-from-string (apply 'string+ (mapcar #'(lambda (line) (string+ line " ")) lines))))
+      (:value (read-from-string (apply 'string+ (mapcar #'(lambda (line) (string+ line " ")) lines)) nil))
       (:list (flat (mapcar 'om-read-list-from-string lines) 1))
       (:text-list lines)
       ;(:text (if lines (reduce #'(lambda (s1 s2) (concatenate 'string s1 (string #\Newline) s2)) lines) ""))

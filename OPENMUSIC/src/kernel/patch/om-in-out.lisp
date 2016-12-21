@@ -8,7 +8,7 @@
 ;;; CLASSES
 ;;;==========================
 
-(defclass OMPatchIO (OMObject) 
+(defclass OMPatchIO (OMBasicObject) 
   ((doc :initform "" :accessor doc :initarg :doc)
    (index :initform nil :accessor index)))
 

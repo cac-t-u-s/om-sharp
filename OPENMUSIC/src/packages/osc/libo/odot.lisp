@@ -10,10 +10,10 @@
 
 (defstruct (o.pointer (:include oa::om-pointer)))
 
+
 (defmethod free-foreign-pointer ((self o.bundle))
   (when (bundle_s self)
     (oa::om-release (bundle_s self))))
-
 
 (defmethod assign-foreign-pointer ((self o.bundle) ptr)
   (setf (bundle_s self) (make-o.pointer :ptr ptr))

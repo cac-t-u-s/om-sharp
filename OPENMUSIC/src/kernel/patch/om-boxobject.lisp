@@ -66,23 +66,24 @@
 ;;; ADDITIONAL CLASS AND BOX/EDITOR ATTRIBUTES CAN BE ADDED AS OPTIONAL/KEYWORDS
 (defmethod additional-class-attributes ((self t)) nil)
 
+(defmethod allow-more-optionals ((self OMBoxRelatedWClass)) t)
+
 ;;; box attributes can be just a name, or 
 ;;; (name doc menu) 
 (defmethod additional-box-attributes ((self t)) nil)
+(defmethod box-attributes-names ((attributes list))
+  (mapcar #'(lambda (attr) (if (listp attr) (car attr) attr)) attributes))
 
 (defmethod additional-box-attributes-names ((self OMBoxRelatedWClass))
-  (mapcar #'(lambda (attr) (if (listp attr) (car attr) attr))
-          (additional-box-attributes (get-box-value self))))
-          
-
-(defmethod allow-more-optionals ((self OMBoxRelatedWClass)) t)
+  (box-attributes-names (additional-box-attributes (get-box-value self))))
 
 (defmethod get-all-keywords ((self OMBoxRelatedWClass))
-  (let ((val (or (and (null (lambda-state self)) (car (value self)))
+  ;; this function can be called when the value is not yet initialised in the box
+  (let ((val (or (and (null (lambda-state self)) (get-box-value self))
                  (make-instance (reference self)))))
     (list (additional-class-attributes val)
-          (additional-box-attributes-names self)
-    )))
+          (box-attributes-names (additional-box-attributes val)))
+    ))
 
 (defmethod next-keyword-input ((self OMBoxRelatedWClass))
   (let ((keywordlist (apply 'append (get-all-keywords self)))

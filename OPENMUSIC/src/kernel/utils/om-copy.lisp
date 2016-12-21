@@ -23,19 +23,34 @@
                  (om-color-g self) 
                  (om-color-b self)))
 
+(defmethod om-copy ((self oa::om-pointer))
+  (oa::om-retain self)
+  self)
+
 (defmethod om-copy ((self t)) self)
 
 (defmethod om-copy ((self standard-object)) 
   (clone-object self))
 
-(defmethod clone-object ((object standard-object) &optional clone)
-  (let ((new-obj (or clone (make-instance (type-of object)))))
-    (loop for slot-name in (mapcar 'slot-definition-name (class-instance-slots (class-of object)))
-          when (slot-exists-p new-obj slot-name)
-          do (setf (slot-value new-obj slot-name) (om-copy (slot-value object slot-name))))
-    new-obj))
+;;; the slot must exit in the target object
+(defmethod condition-for-copy-slot ((from t) (to t) slot)
+  (slot-exists-p to (slot-definition-name slot)))
 
-;;; OM object copy/save only the slot with initargs and additional class attributes    
+;;; OMObject copy/save only the slot with initargs
+(defmethod condition-for-copy-slot ((from OMObject) (to t) slot)
+  (and (call-next-method)
+       (slot-definition-initargs slot)))
+
+(defmethod clone-object ((object standard-object) &optional clone)
+  (let ((new-object (or clone (make-instance (type-of object)))))
+    (loop for slot in (class-instance-slots (class-of object))
+          when (condition-for-copy-slot object new-object slot)
+          do (setf (slot-value new-object (slot-definition-name slot)) 
+                   (om-copy (slot-value object (slot-definition-name slot)))))
+    (initialize-instance new-object)))
+
+
+#|
 (defmethod clone-object ((object omobject) &optional clone)
   (let (initargs new-obj)
     (setf initargs 
@@ -43,8 +58,7 @@
                 when (and (slot-definition-initargs slot)
                           (or (not clone) (slot-exists-p clone (slot-definition-name slot))))
                 append (list (car (slot-definition-initargs slot))
-                             ;(om-copy (slot-value self (slot-definition-name slot)))
-                             (om-copy (funcall (slot-definition-name slot) object))
+                             (om-copy (slot-value object (slot-definition-name slot)))
                              )))
     (setf new-obj (apply 'make-instance (cons (if clone (type-of clone) (type-of object)) initargs)))
     (mapcar #'(lambda (att) 
@@ -55,7 +69,8 @@
 
 (defmethod clone-object ((self t) &optional clone)
   (om-beep-msg "Can not clone objects of type ~A !" (type-of self)))
- 
+|#
+
 
 ;;============================================================================
 ;; VERY BASIC CLIPBOARD (INTERNAL FOR OM OBJECTS)

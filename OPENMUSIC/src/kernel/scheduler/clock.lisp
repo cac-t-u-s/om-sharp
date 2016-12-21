@@ -47,12 +47,12 @@
 (defmethod set-period ((self clock) new-period)
   (setf (period self) new-period))
 
-(defmethod clone-object ((object clock) &optional clone)
-  (let ((new-obj (or clone (make-instance (type-of object)))))
-    (setf (action new-obj) (slot-value object 'action)
-          (period new-obj) (slot-value object 'period)
-          (duration new-obj) (slot-value object 'duration))
-    new-obj))
+;(defmethod clone-object ((object clock) &optional clone)
+;  (let ((new-obj (or clone (make-instance (type-of object)))))
+;    (setf (action new-obj) (slot-value object 'action)
+;          (period new-obj) (slot-value object 'period)
+;          (duration new-obj) (slot-value object 'duration))
+;    new-obj))
 
 
 (defmethod initialize-instance :after ((self clock) &rest initargs)
