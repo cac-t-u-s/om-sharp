@@ -22,7 +22,7 @@
 (defmethod initialize-instance :after ((self osc-bundle) &rest args)
   (unless (and (listp (messages self))
                (listp (car (messages self))))
-    (setf (messages self) (list messages self))))
+    (setf (messages self) (list (messages self)))))
 
 (defmethod data-size ((self osc-bundle))
   (length (flat (messages self))))
