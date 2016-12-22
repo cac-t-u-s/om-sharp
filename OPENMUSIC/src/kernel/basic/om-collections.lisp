@@ -224,7 +224,7 @@
                                                :text text :font (om-def-font :font1b)))
          (prev-button (om-make-graphic-object 'om-icon-button 
                                               :size (omp 16 16)
-                                              :icon '<- :icon-pushed '<-pushed :icon-disabled '<-disabled
+                                              :icon 'l-arrow :icon-pushed 'l-arrow-pushed :icon-disabled 'l-arrow-disabled
                                               :lock-push nil :enabled (> (length (obj-list collection)) 1)
                                               :action #'(lambda (b)
                                                           (declare (ignore b))
@@ -232,7 +232,7 @@
                                                           (update-collection-editor editor))))
          (next-button (om-make-graphic-object 'om-icon-button 
                                               :size (omp 16 16)
-                                              :icon '-> :icon-pushed '->pushed :icon-disabled '->disabled
+                                              :icon 'r-arrow :icon-pushed 'r-arrow-pushed :icon-disabled 'r-arrow-disabled
                                               :lock-push nil :enabled (> (length (obj-list collection)) 1)
                                               :action #'(lambda (b)
                                                           (declare (ignore b))
