@@ -42,7 +42,7 @@
        (slot-definition-initargs slot)))
 
 (defmethod clone-object ((object standard-object) &optional clone)
-  (let ((new-object (or clone (make-instance (type-of object)))))
+  (let ((new-object (or clone (clos::allocate-instance (class-of object)))))
     (loop for slot in (class-instance-slots (class-of object))
           when (condition-for-copy-slot object new-object slot)
           do (setf (slot-value new-object (slot-definition-name slot)) 
