@@ -88,6 +88,7 @@
       (let ((*load-verbose* t))
         (when (probe-file patches-folder)
           (mapc #'(lambda (file)
+                    ;(om-message-dialog (namestring file))
                     (load file :verbose t)) 
                 (sort (om-directory patches-folder :type (list "lisp" (om-compiled-type)) :files t :directories nil)
                       'string< :key 'pathname-name)))
@@ -158,6 +159,8 @@
   
    (load-modif-patches)
   #+cocoa(objc:make-autorelease-pool)
+  (editor:setup-indent "defmethod*" 2 2 2)
+  (editor:setup-indent "defmethod!" 2 2 2)
   ;(clos::set-clos-initarg-checking nil)
   (setf *print-case* :downcase)
   (setf *catch-errors* nil)

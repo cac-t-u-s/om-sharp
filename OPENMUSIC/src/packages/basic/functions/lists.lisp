@@ -38,7 +38,7 @@ Ex. (last-elem '(1 2 3 4 5))  => 5
   :indoc '("a list" "number of elements")
   :icon 'list
   :doc  
-"Returns the <n> last elements of <list>
+  "Returns the <n> last elements of <list>
 
 Ex. (last-n '(1 2 3 4 5) 3)  => (3 4 5)
 "
