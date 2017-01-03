@@ -47,7 +47,8 @@
           when (condition-for-copy-slot object new-object slot)
           do (setf (slot-value new-object (slot-definition-name slot)) 
                    (om-copy (slot-value object (slot-definition-name slot)))))
-    (initialize-instance new-object)))
+    (initialize-instance new-object)
+    new-object))
 
 
 #|
