@@ -161,6 +161,8 @@
   #+cocoa(objc:make-autorelease-pool)
   (editor:setup-indent "defmethod*" 2 2 2)
   (editor:setup-indent "defmethod!" 2 2 2)
+  (editor:setup-indent "defclass*" 2 2 2)
+  (editor:setup-indent "defclass!" 2 2 2)
   ;(clos::set-clos-initarg-checking nil)
   (setf *print-case* :downcase)
   (setf *catch-errors* nil)
