@@ -5,10 +5,8 @@
   ((data :initarg :data :accessor data :initform nil :documentation "a list of 3D-object (3D-lines, etc..)")
    (center :initarg :center :accessor center :initform nil :documentation "a 3D point used as reference for data transformation and output")))
 
-
 (defmethod object-has-editor ((self 3D-viewer)) t)
 (defmethod get-editor-class ((self 3D-viewer)) '3D-viewer-editor)
-
 (defclass 3d-viewer-editor (OMEditor) ())
 
 (defmethod make-editor-window-contents ((editor 3d-viewer-editor))

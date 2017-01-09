@@ -61,6 +61,8 @@
 ;;;==================
 
 (defparameter *compiled-type* (pathname-type *load-pathname*))
+
+;;; NOT WORK IN STANDALONE !
 (defun om-compiled-type () 
   (if (om-standalone-p) 
       *compiled-type*
