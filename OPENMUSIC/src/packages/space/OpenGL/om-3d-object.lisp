@@ -212,7 +212,7 @@
 ;;; 3D-curve
 ;;;======================
 
-(defclass 3d-curve (om-3d-object) 
+(defclass 3d-lines (om-3d-object) 
   ((selected-points :accessor selected-points :initform nil)
    (draw-style :accessor draw-style :initarg :draw-style :initform :draw-all)
    (line-width :accessor line-width :initarg :line-width :initform *OM-GL-DEFAULT-LINEWIDTH*)
@@ -221,7 +221,7 @@
    (:default-initargs
     :use-display-list T))
 
-(defmethod om-draw-contents ((self 3d-curve))
+(defmethod om-draw-contents ((self 3d-lines))
   (let* ((vertices (om-get-gl-points self))
          (size (- (length vertices) 1))
          (selection (selected-points self)))
@@ -257,6 +257,8 @@
     ;restore gl params
     (restore-om-gl-colors-and-attributes)
     )
+
+
 
 ;;;======================
 ;;; MISC

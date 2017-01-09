@@ -388,7 +388,7 @@
   (let ((obj-list (cons (object-value self) (remove (object-value self) (multi-obj-list self)))))
     (mapcar #'(lambda (obj) 
                (make-instance 
-                '3D-curve 
+                '3D-lines
                 :points (format-3d-points obj) :color (color obj) 
                 :draw-style :draw-all :line-width 2.0))
            obj-list)))

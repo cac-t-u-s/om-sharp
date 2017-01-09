@@ -54,6 +54,9 @@
 
 (load (merge-pathnames "ieee-floats/ieee-floats" *externals-directory*))
 
+(load (merge-pathnames "mach-lib/mach-lib" *externals-directory*))
+#+macosx(om-fi::add-foreign-loader 'mach::load-mach-lib)
+
 (progn (load (merge-pathnames "lispworks-udp/lispworks-udp.asd" *externals-directory*))
   (asdf:operate 'asdf:load-op 'lispworks-udp)
   (push :udp *features*))
@@ -65,12 +68,6 @@
   (push :osc *features*))
 
 (load (merge-pathnames "XML/load-xml" *externals-directory*))
-(load (merge-pathnames "OpenGL/load-opengl" *externals-directory*))
-
-
-
-(load (merge-pathnames "mach-lib/mach-lib" *externals-directory*))
-#+macosx(om-fi::add-foreign-loader 'mach::load-mach-lib)
 
 (progn 
   (load (merge-pathnames "Yason/package" *externals-directory*))

@@ -7,18 +7,18 @@
 (defvar *OM-GL-DEFAULT-LINEWIDTH* 2.0)
 (defvar *OM-GL-DEFAULT-COLOR* (list 0.0 0.0 0.0 1.0))
 
+(defclass om-opengl-view (gl-user::opengl-view om-view) ())
+
+;;; called from 3D-lines draw-contenst (?)
 (defmethod restore-om-gl-colors-and-attributes ()
   (opengl:gl-color4-f (nth 0 *OM-GL-DEFAULT-COLOR*) (nth 1 *OM-GL-DEFAULT-COLOR*) (nth 2 *OM-GL-DEFAULT-COLOR*) (nth 3 *OM-GL-DEFAULT-COLOR*))
   (opengl:gl-line-width *OM-GL-DEFAULT-LINEWIDTH*)
   (opengl:gl-enable opengl:*gl-point-size*)
-  (opengl:gl-enable opengl:*gl-point-smooth*)
-  )
-
-(defclass om-opengl-view (gl-user::opengl-view om-view) ())
+  (opengl:gl-enable opengl:*gl-point-smooth*))
 
 (defmethod initialize-instance :after ((self om-opengl-view) &key &allow-other-keys)
   (mapcar #'(lambda (o) (setf (gl-user::viewer o) self)) (gl-user::g-objects self))
-  (when (om-get-bg-color self)
+  (when (print (om-get-bg-color self))
     (setf (gl-user::bgcolor (gl-user::camera self)) 
           (om-color-to-single-float-list (om-get-bg-color self)))))
 
