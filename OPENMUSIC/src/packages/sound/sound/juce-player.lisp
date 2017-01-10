@@ -24,6 +24,7 @@
 (add-preference-module :audio "Audio")
 (add-preference :audio :input "Input device" *juce-input-devices* (car *juce-input-devices*))
 (add-preference :audio :output "Output device" *juce-output-devices* (car *juce-output-devices*))
+(add-preference :audio :samplerate "Sample Rate" '(44100) 44100)
 (add-preference :audio :apply "Apply" :action 'apply-audio-prefs)
 
 (defun open-juce-player ()
@@ -35,12 +36,16 @@
         
       (add-preference :audio :input "Input device" in-devices (car in-devices))
       (add-preference :audio :output "Output device" out-devices (car out-devices))
+
       
       (juce::setdevices 
        *juce-player* 
        (car in-devices) *juce-player-in-channels* 
        (car out-devices) *juce-player-out-channels*
        *juce-sample-rate*)  
+      
+      (setq rates (juce::getsamplerates *juce-player*))
+      (add-preference :audio :samplerate "Sample Rate" rates  (car rates))
       )))
 
 (defun apply-audio-prefs ()
@@ -48,7 +53,8 @@
        *juce-player* 
        (get-pref-value :audio :input) *juce-player-in-channels* 
        (get-pref-value :audio :output) *juce-player-out-channels*
-       *juce-sample-rate*))
+       (get-pref-value :audio :samplerate)
+       ))
 
 #|
 (defun set-juce-devices (input-device-index output-device-index sample-rate)
@@ -57,12 +63,22 @@
    *juce-player-in-channels* 
    (nth output-device-index *juce-output-devices*)   
    sample-rate))
+
+
+
 |#
 
 ;(set-juce-devices 0 0 44100) A APPELER
 ;(listen *terminal-io*) 
-;(defun testget (a) (setq *testbp* (bp-pointer (buffer-player a))))
-;(juce::setgainreader *testbp* 1.0)
+;(defun testgetmono (a) (setq *testbp1* (bp-pointer (buffer-player a))))
+;(defun testgetstereo (a) (setq *testbp2* (bp-pointer (buffer-player a))))
+;(juce::setgainreader *testbp1* 0.2)
+;(juce::setgainreader *testbp2* 0.2)
+
+;(defun testgainmono (a n)
+;  (juce::setgainreader *testbp1* n))
+;(defun testgainstereo (a n)
+;  (juce::setgainreader *testbp2* n))
 
 (defun close-juce-player ()
   (juce::closeaudioplayer *juce-player*)

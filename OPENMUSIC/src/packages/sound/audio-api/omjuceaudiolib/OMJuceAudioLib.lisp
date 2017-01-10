@@ -23,6 +23,11 @@
 (cffi:defcfun ("setAudioDevice" setAudioDevice) :void 
   (player :pointer) (inputdevicename :pointer) (outputdevicename :pointer) (inchan :int) (outchan :int) (sr :int))
 ;;; todo : use cffi :string type
+(cffi:defcfun ("GetAvailableSampleRates" GetAvailableSampleRates) :pointer (player :pointer))
+(cffi:defcfun ("GetAvailableSampleRatesCount" GetAvailableSampleRatesCount) :int (player :pointer))
+
+
+
 
 ;(cffi:foreign-string-to-lisp (fli:dereference (scandevices) :index 1 :type :pointer))
 
@@ -36,6 +41,11 @@
         collect
         (cffi:foreign-string-to-lisp (fli:dereference (juce::getavailableoutputdevices player)
                                                       :index i :type :pointer))))
+
+(defun getsamplerates  (player)
+  (loop for i from 0 to (1- (juce::getavailablesampleratescount player))
+      collect 
+      (fli:dereference (juce::getavailablesamplerates player) :index i :type :int)))
 
 (defun setdevices (player input-device-name inch output-device-name outch sample-rate)
   (cffi::with-foreign-pointer-as-string (str 255)
@@ -73,6 +83,6 @@
 
 (cffi:defcfun ("GetGainReader" GetGainReader) :float (reader :pointer))
 
-(cffi:defcfun ("SetGainReader" SetGainReader) :float (reader :pointer) (gain :float))
+(cffi:defcfun ("SetGainReader" SetGainReader) :void (reader :pointer) (gain :float))
 
 
