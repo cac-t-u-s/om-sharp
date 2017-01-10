@@ -26,8 +26,6 @@
 (add-preference :audio :output "Output device" *juce-output-devices* (car *juce-output-devices*))
 (add-preference :audio :apply "Apply" :action 'apply-audio-prefs)
 
-(get-pref-value :audio :input)
-
 (defun open-juce-player ()
   (setq *juce-player* (juce::OpenAudioPlayer))
   ;;; update the preferences
@@ -62,8 +60,8 @@
 |#
 
 ;(set-juce-devices 0 0 44100) A APPELER
-;(listen *terminal-io*) (defun testget (a) (setq *testbp* (bp-pointer (buffer-player a))))
-
+;(listen *terminal-io*) 
+;(defun testget (a) (setq *testbp* (bp-pointer (buffer-player a))))
 ;(juce::setgainreader *testbp* 1.0)
 
 (defun close-juce-player ()
