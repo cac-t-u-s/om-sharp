@@ -21,15 +21,23 @@
 (cffi:defcfun ("getInputDevicesCount" getInputDevicesCount) :int (player :pointer))
 (cffi:defcfun ("getOutputDevicesCount" getOutputDevicesCount) :int (player :pointer))
 (cffi:defcfun ("setAudioDevice" setAudioDevice) :void 
-  (player :pointer) (inputdevicename :pointer) (outputdevicename :pointer) (inchan :int) (outchan :int) (sr :int))
+  (player :pointer) (inputdevicename :pointer) (outputdevicename :pointer) (inchan :int) (outchan :int) (sr :int) (buffsize :int))
 ;;; todo : use cffi :string type
 (cffi:defcfun ("GetAvailableSampleRates" GetAvailableSampleRates) :pointer (player :pointer))
 (cffi:defcfun ("GetAvailableSampleRatesCount" GetAvailableSampleRatesCount) :int (player :pointer))
-
-
-
+(cffi:defcfun ("GetAvailableBufferSizes" GetAvailableBufferSizes) :pointer (player :pointer))
+(cffi:defcfun ("GetAvailableBufferSizesCount" GetAvailableBufferSizesCount) :int (player :pointer))
+(cffi:defcfun ("GetDefaultBufferSize" GetDefaultBufferSize) :int (player :pointer))
+(cffi:defcfun ("getInputChannelsCount" GetInputChannelsCount) :int (player :pointer))
+(cffi:defcfun ("getOutputChannelsCount" GetOutputChannelsCount) :int (player :pointer))
 
 ;(cffi:foreign-string-to-lisp (fli:dereference (scandevices) :index 1 :type :pointer))
+
+(defun getinputchannelslist (player)
+  (or (loop for i from 1 to (juce::GetInputChannelsCount player) collect i) '(0)))
+
+(defun getoutputchannelslist (player)
+  (or (loop for i from 1 to (juce::GetOutputChannelsCount player) collect i) '(0)))
 
 (defun getinputdevicenames (player)
   (loop for i from 0 to (1- (juce::getinputdevicescount player))
@@ -47,14 +55,20 @@
       collect 
       (fli:dereference (juce::getavailablesamplerates player) :index i :type :int)))
 
-(defun setdevices (player input-device-name inch output-device-name outch sample-rate)
+(defun getbuffersizes  (player)
+  (loop for i from 0 to (1- (juce::getavailablebuffersizescount player))
+      collect 
+      (fli:dereference (juce::getavailablebuffersizes player) :index i :type :int)))
+
+(defun setdevices (player input-device-name inch output-device-name outch sample-rate buffer-size)
   (cffi::with-foreign-pointer-as-string (str 255)
     (juce::setaudiodevice player 
                           (cffi::lisp-string-to-foreign input-device-name str (1+ (length input-device-name)))
                           (cffi::lisp-string-to-foreign output-device-name str (1+ (length output-device-name)))
                           inch 
                           outch
-                          sample-rate)))
+                          sample-rate
+                          buffer-size)))
 
 
 (cffi:defcfun ("CloseAudioPlayer" CloseAudioPlayer) :void (player :pointer))
