@@ -29,6 +29,9 @@
 (defmethod editor-get-all-time-sequences ((self OMEditor)) 
   (list (object-value self)))
 
+
+(defmethod delete-editor-selection ((self t)) nil)
+
 (defmethod editor-delete-contents ((self OMEditor) timeline-id objects-id)
   (delete-editor-selection self))
 
@@ -188,7 +191,9 @@
 (defmethod make-timeline-view ((self timeline-editor))
   (let* ((container-editor (container-editor self))
          (main-panel (get-g-component self :main-panel))
-         (time-ruler (om-make-view 'time-ruler  :size (omp nil 20) :unit :ms :bg-color (om-def-color :white) :bottom-p nil :snap-to-grid (snap-to-grid self) :onset-p nil))
+         (time-ruler (om-make-view 'time-ruler  :size (omp nil 20) 
+                                   :unit :ms :bg-color (om-def-color :white) :bottom-p nil 
+                                   :snap-to-grid (snap-to-grid self) :onset-p nil))
          (timeline-views nil)
          (foldable-containers nil))
     (loop for obj in (editor-get-all-time-sequences container-editor) 
@@ -196,30 +201,30 @@
           (let* ((timeline-view (om-make-view 'om-timeline-view :id i :editor self :bg-color (om-def-color :white)))
                  (foldable-container (om-make-layout 'om-column-layout))
                  (timeline-item (timeline-item container-editor (id timeline-view)))
-                 (fold-icon (om-make-graphic-object 'om-icon-button :size (omp 10 10)
-                                                    :icon 'arrow-drop-right :icon-pushed 'arrow-drop-up
-                                                    :lock-push t
-                                                    :action #'(lambda (b)
-                                                                (if (pushed b)
-                                                                    (let ((extra-views (get-timeline-foldable-views container-editor :obj obj :time-ruler time-ruler)))
-                                                                      (apply 'om-add-subviews (cons foldable-container extra-views))
-                                                                      (reinit-ranges self))
-                                                                  (progn
-                                                                    ;(om-remove-all-subviews (car (capi:layout-description (car (capi:layout-description foldable-container)))))
-                                                                    (om-remove-all-subviews foldable-container)
-                                                                    (setf (related-views time-ruler) (timeline-views self))))
-                                                                (om-update-layout (main-view (container-editor self)))
-                                                                (om-invalidate-view main-panel))))
+                 (fold-icon (om-make-graphic-object 
+                             'om-icon-button :size (omp 10 10)
+                             :icon 'arrow-drop-right :icon-pushed 'arrow-drop-up
+                             :lock-push t
+                             :action #'(lambda (b)
+                                         (if (pushed b)
+                                             (let ((extra-views (get-timeline-foldable-views container-editor :obj obj :time-ruler time-ruler)))
+                                               (apply 'om-add-subviews (cons foldable-container extra-views))
+                                               (reinit-ranges self))
+                                           (progn
+                                             (om-remove-all-subviews foldable-container)
+                                             (setf (related-views time-ruler) (timeline-views self))))
+                                         (om-update-layout (main-view (container-editor self)))
+                                         (om-invalidate-view main-panel))))
                  (fold-group (om-make-layout 'om-column-layout 
                                              :ratios '(1.0 0.001)
                                              :subviews
                                              (list
-                                              (om-make-layout 'om-row-layout
-                                                              :ratios '(0.001 1)
-                                                              :subviews
-                                                              (list timeline-item timeline-view))
-                                              
-                                                              ;(list timeline-item fold-icon timeline-view)) ;; (om-make-view 'om-view :size (omp 10 10))
+                                              (om-make-layout 
+                                               'om-row-layout
+                                               :ratios '(0.001 1)
+                                               :subviews
+                                               (list timeline-item timeline-view))
+                                               ;(list timeline-item fold-icon timeline-view)) ;; (om-make-view 'om-view :size (omp 10 10))
                                               foldable-container))))
             (pushr timeline-view timeline-views)
             (pushr fold-group foldable-containers)))
@@ -227,21 +232,22 @@
     (setf (related-views time-ruler) (append timeline-views (related-views time-ruler)))
     (om-remove-all-subviews main-panel)
     (when main-panel
-      (om-add-subviews main-panel (om-make-layout 'om-column-layout 
-                                                  :size (omp 500 50)
-                                                  :delta 0
-                                                  :subviews
-                                                  (append
-                                                   (list (build-transport-and-options-layout self))
-                                                   (append  
-                                                    foldable-containers
-                                                    (list (om-make-layout 
-                                                           'om-row-layout
-                                                           :subviews
-                                                           (list
-                                                            (om-make-view 'om-view :size (omp 33 nil))  ;; the size here must correspond to the 'timeline-item'
-                                                            time-ruler)
-                                                           :ratios '(0.001 1)))))))
+      (om-add-subviews main-panel (om-make-layout 
+                                   'om-column-layout 
+                                   :size (omp 500 50)
+                                   :delta 0
+                                   :subviews
+                                   (append
+                                    (list (build-transport-and-options-layout self))
+                                    (append  
+                                     foldable-containers
+                                     (list (om-make-layout 
+                                            'om-row-layout
+                                            :subviews
+                                            (list
+                                             (om-make-view 'om-view :size (omp (om-width (timeline-item container-editor 0)) nil))
+                                             time-ruler)
+                                            :ratios '(0.001 1)))))))
       (setf (time-ruler self) time-ruler)
       (setf (timeline-views self) timeline-views)
       (reinit-ranges self)

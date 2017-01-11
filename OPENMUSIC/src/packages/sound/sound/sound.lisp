@@ -551,7 +551,7 @@ Press 'space' to play/stop the sound file.
   (get-external-control-action-list self time-interval parent))
 
 (defmethod player-play-object ((self scheduler) (object sound) caller &key parent interval)
-  ;(juce::setgainreader (bp-pointer (buffer-player object)) 1.0)
+  ;(juce::setgainreader (bp-pointer (buffer-player object)) 0.1)
   (start-buffer-player (buffer-player object) :start-frame (if (car interval)
                                                                (round (* (car interval) (/ (sample-rate object) 1000.0)))
                                                              (or (car interval) 0)))

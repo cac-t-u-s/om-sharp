@@ -241,7 +241,12 @@
     (setf (main-view editor) (or main contents))
     (om-add-subviews win contents)))
 
+;;; called by init-window
 (defmethod make-editor-window-contents ((editor OMEditor))
+  (make-default-editor-view editor))
+
+;;; can be called in redefinitions of make-editor-window-contents
+(defmethod make-default-editor-view ((editor OMEditor))
   (apply 'om-make-view 
          (append (list 
                   (editor-view-class editor)

@@ -91,7 +91,7 @@
   (let ((list (time-sequence-get-timed-item-list self))
         (p (or position (length list))))
     (time-sequence-set-timed-item-list self 
-                         (append (and list (first-n list p))
+                          (append (and list (first-n list p))
                                  (list item)
                                  (nthcdr p list)))
     ))

@@ -141,7 +141,7 @@
          ;                                     :action #'(lambda (b) (show-inspector (object-value editor) editor))))
          (mousepos-txt (om-make-graphic-object 'om-item-text :size (omp 200 16)))
          ;(name-txt (om-make-graphic-object 'om-item-text :size (omp 60 16) :text (name object)))
-         (timeline-editor (make-instance 'timeline-editor :object (object editor) :container-editor editor ))
+         (timeline-editor (make-instance 'timeline-editor :object (object editor) :container-editor editor))
          (timeline (om-make-layout 'om-row-layout))
          (top-area (om-make-layout 'om-row-layout ;:align :center
                                    :ratios '(nil nil 0.5 0.05 0.05)
@@ -180,21 +180,21 @@
                                                    :checked-p (grid editor)
                                                    :di-action #'(lambda (item) 
                                                                   (set-draw-attribute editor 'grid (om-checked-p item))))
-                                        (om-make-di 'om-simple-text :text "Offset:" 
+                                       (om-make-di 'om-simple-text :text "Offset:" 
                                                    :size (omp 38 20) 
                                                    :font (om-def-font :font1))
-                                        (om-make-graphic-object 'numbox 
-                                                                :value (if (eq (type-of editor) 'bpc-editor)
-                                                                           (gesture-interval-time editor)
-                                                                         500)
-                                                                :bg-color (om-def-color :white)
-                                                                :border t
-                                                                :size (om-make-point 40 18) 
-                                                                :font (om-def-font :font1)
-                                                                :min-val 0
-                                                                :after-fun #'(lambda (item)
-                                                                               (setf (gesture-interval-time editor) (value item))
-                                                                               ))
+                                       (om-make-graphic-object 'numbox 
+                                                               :value (if (eq (type-of editor) 'bpc-editor)
+                                                                          (gesture-interval-time editor)
+                                                                        500)
+                                                               :bg-color (om-def-color :white)
+                                                               :border t
+                                                               :size (om-make-point 40 18) 
+                                                               :font (om-def-font :font1)
+                                                               :min-val 0
+                                                               :after-fun #'(lambda (item)
+                                                                              (setf (gesture-interval-time editor) (value item))
+                                                                              ))
                                        (when timeline
                                          (om-make-di 'om-check-box :text "timeline" :size (omp 65 24) :font (om-def-font :font1)
                                                      :checked-p (show-times editor)

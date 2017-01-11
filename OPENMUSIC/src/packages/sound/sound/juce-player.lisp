@@ -83,10 +83,8 @@
    *juce-player-in-channels* 
    (nth output-device-index *juce-output-devices*)   
    sample-rate))
-
-
-
 |#
+
 
 ;(set-juce-devices 0 0 44100) A APPELER
 ;(listen *terminal-io*) 
