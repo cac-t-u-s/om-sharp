@@ -209,9 +209,10 @@
 ;==============
 
 (defclass numbox (om-item-text)
-  ((value   :initform 0     :initarg :value   :accessor value)
-   (min-val :initform 0     :initarg :min-val :accessor min-val)
+  ((value   :initform 0 :initarg :value :accessor value)
+   (min-val :initform 0 :initarg :min-val :accessor min-val)
    (max-val :initform 30000 :initarg :max-val :accessor max-val)
+   (decimals :initform 0 :initarg :decimals :accessor decimals)
    (enabled :initform t :initarg :enabled :accessor enabled)
    (change-fun :initform nil :initarg :change-fun :accessor change-fun)
    (after-fun :initform nil :initarg :after-fun :accessor after-fun))
@@ -220,13 +221,19 @@
 (defmethod om-view-cursor ((self numbox)) (om-get-cursor :v-size))
 
 (defmethod initialize-instance :after ((self numbox) &rest args) 
-  ;(om-set-dialog-item-text self (format nil " ~D" (value self)))
-  (om-set-text self (format nil " ~D" (value self))))
+  (when-let (v (getf args :value))
+    (set-value self v)))
 
+;; the value internally is always an integer
 (defmethod set-value ((self numbox) value)
-   (setf (value self) value)
-   (om-set-text self (format () " ~S" value))
-   (om-invalidate-view self))
+  (let ((v (round (* value (expt 10 (decimals self))))))
+    (setf (value self) v)
+    (om-set-text self (format () " ~D" value))
+    (om-invalidate-view self)))
+
+(defmethod get-value ((self numbox))
+  (float (/ (value self) (expt 10 (decimals self)))))
+
 
 (defmethod enable-numbox ((self numbox) t-or-nil)
  (setf (enabled self) t-or-nil)
@@ -235,7 +242,7 @@
 (defmethod map-mouse-increment ((self numbox))
   (cond ((om-shift-key-p) 10) 
         ((om-command-key-p) 100)
-        (t 0.5)))
+        (t 1)))
 
 (defmethod om-view-click-handler  ((self numbox) where)
   (when (enabled self)
@@ -247,7 +254,9 @@
                                                        (new-val (+ start-v (* (map-mouse-increment self) inc))))
                                                   (when (and (>= new-val (min-val self))
                                                              (<= new-val (max-val self)))
-                                                    (set-value self (round new-val))
+                                                    (setf (value self) new-val)
+                                                    (om-set-text self (format () " ~D" (get-value self)))
+                                                    (om-invalidate-view self)
                                                     (when (and (change-fun self) (not (= (round new-val) start-v)))
                                                       (funcall (change-fun self) self)))))
                                     :release #'(lambda (view position) (when (after-fun self) (funcall (after-fun self) self)))))))

@@ -156,11 +156,12 @@
                           :value (get-property object prop-id)
                           :bg-color (om-def-color :white)
                           :border t
+                          :decimals (or (caddr default) 0)
                           :size (om-make-point 40 18) 
                           :font (om-def-font :font2)
-                          :min-val (if default (car default) 0) :max-val (if default (cadr default) 10000)
+                          :min-val (or (car default) 0) :max-val (or (cadr default) 10000)
                           :after-fun #'(lambda (item)
-                             (set-property object prop-id (value item))
+                             (set-property object prop-id (get-value item))
                              (when update (update-view update object))
                              )))
 
