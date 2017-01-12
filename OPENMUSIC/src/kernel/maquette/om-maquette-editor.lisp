@@ -180,7 +180,7 @@
       (set-ruler-range (get-g-component self :y-ruler) -10 110)
       )))
 
-(defmethod reinit-y-ranges-from-ruler ((self maquette-editor)) 
+(defmethod reinit-y-ranges-from-ruler ((self maquette-editor) ruler) 
   (reinit-y-ranges self))
 
 (defmethod om-view-resized :after ((view maquette-view) new-size)

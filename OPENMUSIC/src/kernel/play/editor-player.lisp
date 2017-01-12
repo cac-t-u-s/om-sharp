@@ -74,7 +74,7 @@
                   (set-ruler-range ruler-view (vmin self) (or (vmax self) 1000))))
             (list! (play-editor-get-ruler-views self)))))
 
-(defmethod reinit-x-ranges-from-ruler ((self play-editor-mixin)) 
+(defmethod reinit-x-ranges-from-ruler ((self play-editor-mixin) ruler) 
   (reinit-x-ranges self))
 
 ;;;=====================================
