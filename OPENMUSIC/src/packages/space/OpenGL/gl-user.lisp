@@ -275,7 +275,9 @@
     (far :initform *far* :initarg :far :accessor far)))
 
 (defmethod draw ((projection projection))
-  (opengl:glu-perspective (fovy projection) (aspect projection) (near projection) (far projection)))
+  (opengl:glu-perspective (fovy projection) (aspect projection) (near projection) (far projection))
+  ;(opengl:gl-ortho -1000.0D0 1000.0D0 -1000.0D0 1000.0D0 -1000.0D0 1000.0D0)
+  )
 
 (defun make-projection (&key fovy aspect near far)
   (make-instance 'projection
@@ -392,6 +394,7 @@
     (opengl:gl-mult-matrixd transform)
     (opengl:gl-get-doublev opengl:*gl-modelview-matrix* transform)))
 
+
 (defun polar-rotate-light (viewer dx dy)
   (polar-rotate (light-transform viewer) dx dy))
 
@@ -404,14 +407,13 @@
 
 ;;; camera in canvas à la place de interface
 (defun opengl-resize-canvas (canvas x y width height)
-  x y
   (when #+Win32 (win32:is-window-visible (win32:pane-hwnd (capi-internals:representation canvas)))
-	#-Win32 T
-        (opengl:rendering-on (canvas)
-          (opengl:gl-viewport 0 0 width height))
-        (setf (aspect (projection (camera canvas)))
-              (coerce (/ width height) 'double-float))
-        (opengl-redisplay-canvas canvas)))
+    #-Win32 T
+    (opengl:rendering-on (canvas)
+      (opengl:gl-viewport 0 0 width height))
+    (setf (aspect (projection (camera canvas)))
+          (coerce (/ width height) 'double-float))
+    (opengl-redisplay-canvas canvas)))
 
 
 (defparameter *light-model-ambient* nil)
@@ -437,18 +439,6 @@
 (defun ensure-gl-vector (var)
   (unless var (set-lights-and-materials)))
 
-(defparameter *om-3d-anaglyph* nil)
-(defparameter *om-3d-anaglyph-eye-dist* 0.2d0)
-
-(defun opengl-enable-or-disable-anaglyph (t-or-nil)
-  (setf *om-3d-anaglyph* t-or-nil))
-
-(defun opengl-anaglyph-p ()
-  *om-3d-anaglyph*)
-
-(defun opengl-set-anaglyph-eye-dist (dist)
-  (setf *om-3d-anaglyph-eye-dist* (coerce dist 'double-float)))
-
 (defun opengl-redisplay-canvas (canvas &rest ignore)
   ignore
   (unless (icotransform canvas)
@@ -466,13 +456,70 @@
   (opengl:gl-clear opengl:*gl-color-buffer-bit*)
   (opengl:gl-clear opengl:*gl-depth-buffer-bit*)
   (opengl:gl-color-mask 1 1 1 1)
-   ;draw the camera (background and view position)
+  ;draw the camera (background and view position)
   (draw (camera canvas))
-    ;draw light stuff
+  ;draw light stuff
   (opengl-redisplay-light canvas)
-    ;apply transform and render canvas and objects
+  ;apply transform and render canvas and objects
   (opengl-redisplay-canvas-and-objects canvas)
   )
+
+
+(defun opengl-redisplay-canvas-and-objects (canvas)
+  (ensure-gl-vector (and *material-specular* *material-emission*))
+  (opengl:with-matrix-pushed
+    
+      (opengl:gl-mult-matrixd (icotransform canvas))   
+
+      ;material stuff
+      (opengl:gl-cull-face opengl:*gl-back*)
+      (opengl:gl-enable opengl:*gl-cull-face*)
+      
+      (opengl:gl-enable opengl:*gl-color-material*)
+      (opengl:gl-color-material opengl:*gl-front* opengl:*gl-ambient-and-diffuse*)
+      
+      (opengl:gl-materialfv opengl:*gl-front* opengl:*gl-specular* *material-specular*)
+      (opengl:gl-materialf opengl:*gl-front* opengl:*gl-shininess* *material-shininess*)
+      (opengl:gl-materialfv opengl:*gl-front* opengl:*gl-emission* *material-emission*)
+      
+      ;Draw the content of the pane ant the objects
+      (draw-contents canvas)
+      (if (g-objects canvas) (mapc #'draw (g-objects canvas)))
+      ))
+
+(defun opengl-redisplay-light (canvas)
+  (ensure-gl-vector (and *light-model-ambient* *light-position* *light-ambient* *light-diffuse* *light-specular*))
+  (opengl:with-matrix-pushed
+      (opengl:gl-mult-matrixd (light-transform canvas))
+      
+      (opengl:gl-light-modelfv opengl:*gl-light-model-ambient* *light-model-ambient*)
+      (opengl:gl-light-modelf opengl:*gl-light-model-local-viewer* 0.0)
+      (opengl:gl-light-modelf opengl:*gl-light-model-two-side* 0.0)
+      
+      (opengl:gl-enable opengl:*gl-light0*)
+      (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-position* *light-position*)
+      (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-ambient* *light-ambient*)
+      (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-diffuse* *light-diffuse*)
+      (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-specular* *light-specular*)
+      ))
+
+;tobe redefined
+(defmethod draw-contents (canvas) (print (list "draw canvas" canvas)))
+
+
+;;;===========================
+;;; ANAGLYPH MODE 
+;;;===========================
+
+(defparameter *om-3d-anaglyph* nil)
+(defparameter *om-3d-anaglyph-eye-dist* 0.2d0)
+
+(defun opengl-anaglyph-p () *om-3d-anaglyph*)
+(defun opengl-enable-or-disable-anaglyph (t-or-nil)
+  (setf *om-3d-anaglyph* t-or-nil))
+
+(defun opengl-set-anaglyph-eye-dist (dist)
+  (setf *om-3d-anaglyph-eye-dist* (coerce dist 'double-float)))
 
 (defun opengl-redisplay-canvas-anaglyph (canvas)
   (let* ((camera (camera canvas))
@@ -517,47 +564,8 @@
   )
 )
 
-(defun opengl-redisplay-canvas-and-objects (canvas)
-  (ensure-gl-vector (and *material-specular* *material-emission*))
-  (opengl:with-matrix-pushed
-      (opengl:gl-mult-matrixd (icotransform canvas))   
-
-      ;material stuff
-      (opengl:gl-cull-face opengl:*gl-back*)
-      (opengl:gl-enable opengl:*gl-cull-face*)
-      
-      (opengl:gl-enable opengl:*gl-color-material*)
-      (opengl:gl-color-material opengl:*gl-front* opengl:*gl-ambient-and-diffuse*)
-      
-      (opengl:gl-materialfv opengl:*gl-front* opengl:*gl-specular* *material-specular*)
-      (opengl:gl-materialf opengl:*gl-front* opengl:*gl-shininess* *material-shininess*)
-      (opengl:gl-materialfv opengl:*gl-front* opengl:*gl-emission* *material-emission*)
-      
-      ;Draw the content of the pane ant the objects
-      (draw-contents canvas)
-      (if (g-objects canvas)
-        (mapc #'draw (g-objects canvas)))
-      ))
-
-(defun opengl-redisplay-light (canvas)
-  (ensure-gl-vector (and *light-model-ambient* *light-position* *light-ambient* *light-diffuse* *light-specular*))
-  (opengl:with-matrix-pushed
-      (opengl:gl-mult-matrixd (light-transform canvas))
-      
-      (opengl:gl-light-modelfv opengl:*gl-light-model-ambient* *light-model-ambient*)
-      (opengl:gl-light-modelf opengl:*gl-light-model-local-viewer* 0.0)
-      (opengl:gl-light-modelf opengl:*gl-light-model-two-side* 0.0)
-      
-      (opengl:gl-enable opengl:*gl-light0*)
-      (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-position* *light-position*)
-      (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-ambient* *light-ambient*)
-      (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-diffuse* *light-diffuse*)
-      (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-specular* *light-specular*)
-      ))
 
 
-;tobe redefined
-(defmethod draw-contents (canvas) (print (list "draw canvas" canvas)))
 
 ;;======================
 ;; INTERFACE  (exported functions and classes)

@@ -47,6 +47,16 @@
   :result-type :void
   :language :ansi-c)
 
+(fli:define-foreign-function (gl-ortho "glOrtho" :source)
+    ((left gldouble)
+     (right gldouble)
+     (bottom gldouble)
+     (top gldouble)
+     (near gldouble)
+     (far gldouble))
+  :result-type :void
+  :language :ansi-c)
+
 (fli:define-foreign-function (glu-perspective "gluPerspective" :source)
     ((fovy gldouble)
      (aspect gldouble)

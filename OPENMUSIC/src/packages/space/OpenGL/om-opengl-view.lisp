@@ -18,9 +18,10 @@
 
 (defmethod initialize-instance :after ((self om-opengl-view) &key &allow-other-keys)
   (mapcar #'(lambda (o) (setf (gl-user::viewer o) self)) (gl-user::g-objects self))
-  (when (print (om-get-bg-color self))
+  (when (om-get-bg-color self)
     (setf (gl-user::bgcolor (gl-user::camera self)) 
-          (om-color-to-single-float-list (om-get-bg-color self)))))
+          (om-color-to-single-float-list (om-get-bg-color self))))
+  )
 
 (defmethod om-set-bg-color ((self om-opengl-view) color)
   (call-next-method)
@@ -36,7 +37,7 @@
 (defmethod oa::om-invalidate-view ((self om-opengl-view))
   (gl-user::opengl-redisplay-canvas self))
 
-(defmethod clear-gl-display-list ((viewer om-opengl-view))
+(defmethod gl-user::clear-gl-display-list ((viewer om-opengl-view))
   (opengl:rendering-on (viewer)
     (mapcar #'gl-user::delete-display-list (gl-user::g-objects viewer))))
 
@@ -57,8 +58,8 @@
   (om-adapt-camera-to-object self)
   (opengl:rendering-on (self)
     (gl-user::polar-rotate (gl-user::icotransform self) -30 20))
-  (gl-user::opengl-redisplay-canvas self)
-  )
+  (gl-user::clear-gl-display-list self)
+  (gl-user::opengl-redisplay-canvas self))
 
 (defmethod zoom-view ((self om-opengl-view) factor)
   (let ((eye (gl-user::eye (gl-user::camera self)))
@@ -78,11 +79,12 @@
 
   
 (defmethod om-adapt-camera-to-object ((self om-opengl-view))
-  (let* ((dist-z (* 2.5d0 (max 3.0d0 (compute-max-extent (om-get-gl-objects self)))))
-         (far-z (max 20.0d0 (* 5.0d0 dist-z))))
-    (setf (gl-user::xyz-z (gl-user::eye (gl-user::camera self))) 0.0D0)
-    (setf (gl-user::xyz-y (gl-user::eye (gl-user::camera self))) (- dist-z))
-    (setf (gl-user::xyz-x (gl-user::eye (gl-user::camera self))) 0.0d0)
-    (setf (gl-user::far (gl-user::projection (gl-user::camera self))) far-z)))
+  (when t ; (om-get-gl-objects self)
+    (let* ((dist-z (* 2.5d0 (max 3.0d0 (compute-max-extent (om-get-gl-objects self)))))
+           (far-z (max 20.0d0 (* 5.0d0 dist-z))))
+      (setf (gl-user::xyz-z (gl-user::eye (gl-user::camera self))) 0.0D0)
+      (setf (gl-user::xyz-y (gl-user::eye (gl-user::camera self))) (- dist-z))
+      (setf (gl-user::xyz-x (gl-user::eye (gl-user::camera self))) 0.0d0)
+      (setf (gl-user::far (gl-user::projection (gl-user::camera self))) far-z))))
 
 
