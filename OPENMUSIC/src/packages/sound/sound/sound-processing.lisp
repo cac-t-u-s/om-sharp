@@ -522,6 +522,43 @@
          s1)))
 
 
+;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-MONO-TO-STEREO///
+(defmethod* sound-merge ((sound-list list))
+  :icon 111
+  :initvals '(nil)
+  :indoc '("a list of sounds")
+  "Merges several sounds into a single multi-channel sound."
+            
+  (let* ((sounds (mapcar 'get-sound sound-list))
+         (type (smpl-type (car sounds)))
+         (sr (sample-rate (car sounds)))
+         ;;; actually we should check if all sounds have same type and sample-rate
+         (n-samples-out (apply 'max (mapcar 'n-samples sounds)))
+         (n-channels-out (apply '+ (mapcar 'n-channels sounds)))
+         (final-buffer (allocate-split-buffer n-samples-out n-channels-out type))
+         (c 0))
+    
+    (loop for snd in sounds do
+          (with-audio-buffer (b snd)
+            (dotimes (srcchan (n-channels snd))
+              (let ((bptr (oa::om-pointer-ptr b)))
+                (dotimes (i (n-samples snd))
+                  ;(print (list b c srcchan i))
+                  (setf (fli:dereference (fli:dereference final-buffer :index c :type :pointer) :type type :index i) 
+                        (fli:dereference (fli:dereference bptr :index srcchan :type :pointer) :type type :index i)))
+                (setf c (1+ c))))
+            ))
+    
+    (make-instance 'om-internal-sound 
+                   :buffer (make-om-sound-buffer :ptr final-buffer :nch n-channels-out)
+                   :n-samples n-samples-out
+                   :n-channels n-channels-out
+                   :sample-rate sr
+                   :smpl-type type)
+    ))
+
+
+
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-SEQ///////////////
 (defmethod* sound-seq ((s1 om-internal-sound) (s2 om-internal-sound) &optional (crossfade 0))
   :icon 100

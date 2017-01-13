@@ -18,7 +18,7 @@
                                   sound-mix sound-seq
                                   sound-normalize sound-vol 
                                   sound-mono-to-stereo sound-stereo-to-mono sound-stereo-pan
-                                  sound-resample 
+                                  sound-merge sound-resample 
                                   ))
                     (omNG-make-package 
                      "Conversions"
