@@ -33,6 +33,10 @@
 
 ; (add-preference :audio :apply "Apply" :action 'apply-audio-prefs)
 
+;(juce::getinputdevicescount *juce-player*)
+;(juce::getoutputdevicescount *juce-player*)
+;(cffi:foreign-string-to-lisp (fli:dereference (juce::getavailableoutputdevices *juce-player*) :index 2 :type :pointer))
+
 (defun default-audio-input-device ()
   (and *juce-player* (car (juce::getinputdevicenames *juce-player*))))
 
