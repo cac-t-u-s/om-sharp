@@ -13,68 +13,101 @@
 #+omjuceaudiolib(enable-player :omjuceaudiolib)
 
 (defvar *juce-player* nil)
-(defvar *juce-player-in-channels* 0)
-(defvar *juce-player-out-channels* 2)
-(defvar *juce-sample-rate* 44100)
-(defvar *juce-input-devices* nil)
-(defvar *juce-output-devices* nil)
+;(defvar *juce-player-in-channels* 0)
+;(defvar *juce-player-out-channels* 2)
+;(defvar *juce-sample-rate* 44100)
+;(defvar *juce-input-devices* nil)
+;(defvar *juce-output-devices* nil)
 
 (setf *juce-input-devices* nil)
 
 (add-preference-module :audio "Audio")
 (add-preference-section :audio "Devices")
-(add-preference :audio :input "Input device" *juce-input-devices* (car *juce-input-devices*))
-(add-preference :audio :output "Output device" *juce-output-devices* (car *juce-output-devices*))
+;(add-preference :audio :input "Input device" *juce-input-devices* (car *juce-input-devices*))
+(add-preference :audio :output "Output device" nil nil nil 'apply-audio-device-selected) ;; will be set at player startup
 (add-preference-section :audio "Configuration")
-(add-preference :audio :inchan "Input Channels" '(0) 0)
-(add-preference :audio :outchan "Output Channels" '(1 2) *juce-player-out-channels*)
-(add-preference :audio :samplerate "Sample Rate" '(44100) 44100)
-(add-preference :audio :buffersize "Buffer Size" '(256 512 1024) 512)
+;(add-preference :audio :in-channels "Input Channels" '(0) 0)
+(add-preference :audio :out-channels "Output Channels" '(2) 2 nil 'apply-audio-device-config)
+(add-preference :audio :samplerate "Sample Rate" '(44100) 44100 nil 'apply-audio-device-config)
+(add-preference :audio :buffersize "Buffer Size" '(256 512 1024) 512 nil 'apply-audio-device-config)
 
-(add-preference :audio :apply "Apply" :action 'apply-audio-prefs)
+; (add-preference :audio :apply "Apply" :action 'apply-audio-prefs)
 
+(defun default-audio-input-device ()
+  (and *juce-player* (car (juce::getinputdevicenames *juce-player*))))
+
+(defun default-audio-output-device ()
+  (and *juce-player* (car (juce::getoutputdevicenames *juce-player*))))
+
+(defun apply-audio-device-selected ()
+  
+  ;; scan for available devices (just in case)
+  (let ((out-devices (juce::getoutputdevicenames *juce-player*)))
+    (add-preference :audio :output "Output device" out-devices (car out-devices) nil 'apply-audio-device-selected)
+    (unless (and (get-pref-value :audio :output)
+                 (find (get-pref-value :audio :output) out-devices :test 'string-equal))
+      (when (get-pref-value :audio :output) 
+        (om-beep-msg "Audio output device: ~S not found. restoring default."  (get-pref-value :audio :output)))
+      (put-default-value (get-pref :audio :output))))
+
+  (juce::setdevices *juce-player* 
+                    (default-audio-input-device) 0
+                    (get-pref-value :audio :output) ;; this has changed
+                    (get-pref-value :audio :out-channels) ;; this might be invalidated
+                    (get-pref-value :audio :samplerate) ;; this might be invalidated
+                    (get-pref-value :audio :buffersize)) ;; this might be invalidated
+ 
+  (let ((device-supported-out-channels (juce::getoutputchannelslist *juce-player*))
+        (device-supported-sample-rates (juce::getsamplerates *juce-player*))
+        (device-supported-buffer-sizes (juce::getbuffersizes *juce-player*)))
+    
+    ;;; update the config preferences for new device
+    (add-preference :audio :out-channels "Output Channels" device-supported-out-channels (last-elem device-supported-out-channels)
+                    nil 'apply-audio-device-config)     
+    (unless (find (get-pref-value :audio :out-channels) device-supported-out-channels :test '=)
+        (put-default-value (get-pref :audio :out-channels)))
+    
+    (add-preference :audio :samplerate "Sample Rate" device-supported-sample-rates (car device-supported-sample-rates)
+                    nil 'apply-audio-device-config)
+    (unless (find (get-pref-value :audio :samplerate) device-supported-sample-rates :test '=)
+        (put-default-value (get-pref :audio :samplerate)))
+    
+    (add-preference :audio :buffersize "Buffer Size" device-supported-buffer-sizes (juce::getdefaultbuffersize *juce-player*)
+                    nil 'apply-audio-device-config)
+    (unless (find (get-pref-value :audio :buffersize) device-supported-buffer-sizes :test '=)
+      (put-default-value (get-pref :audio :buffersize)))
+
+    (update-preferences-window)
+    (apply-audio-device-config)))
+    
+    
+(defun apply-audio-device-config ()
+  (om-print (format nil "Setting audio out on ~s with ~D channels at ~D Hz." 
+                    (get-pref-value :audio :output)
+                    (get-pref-value :audio :out-channels)
+                    (get-pref-value :audio :samplerate))
+            "AUDIO SETUP")
+  (juce::setdevices  *juce-player* 
+                     (default-audio-input-device) 0
+                     (get-pref-value :audio :output) 
+                     (get-pref-value :audio :out-channels)
+                     (get-pref-value :audio :samplerate)
+                     (get-pref-value :audio :buffersize)
+                     ))
+
+
+;;; when this function si called the preferences are set to their default or saved values
 (defun open-juce-player ()
   (setq *juce-player* (juce::OpenAudioPlayer))
-  ;;; update the preferences
-  (when *juce-player*
-    (let ((in-devices (juce::getinputdevicenames *juce-player*))
-          (out-devices (juce::getoutputdevicenames *juce-player*))
-          in-channels
-          out-channels
-          rates
-          buffer-sizes)
-        
-      (add-preference :audio :input "Input device" in-devices (car in-devices))
-      (add-preference :audio :output "Output device" out-devices (car out-devices))
-     
-      
-      (juce::setdevices 
-       *juce-player* 
-       (car in-devices) *juce-player-in-channels* 
-       (car out-devices) *juce-player-out-channels*
-       *juce-sample-rate*
-       512)  
-      
-      (setq rates (juce::getsamplerates *juce-player*)
-            in-channels (juce::getinputchannelslist *juce-player*)
-            out-channels (juce::getoutputchannelslist *juce-player*)
-            buffer-sizes (juce::getbuffersizes *juce-player*))
-      
-      (add-preference :audio :outchan "Output Channels" out-channels (last-elem out-channels))
-      (add-preference :audio :inchan "Input Channels" in-channels (car in-channels))
-      
-      (add-preference :audio :samplerate "Sample Rate" rates  (car rates))
-      (add-preference :audio :buffersize "Buffer Size" buffer-sizes (juce::getdefaultbuffersize *juce-player*))
-      )))
+  (apply-audio-device-selected))
 
-(defun apply-audio-prefs ()
-  (juce::setdevices 
-       *juce-player* 
-       (get-pref-value :audio :input) (get-pref-value :audio :inchan) 
-       (get-pref-value :audio :output) (get-pref-value :audio :outchan)
-       (get-pref-value :audio :samplerate)
-       (get-pref-value :audio :buffersize)
-       ))
+(om-add-init-fun 'open-juce-player)
+
+(defun close-juce-player ()
+  (juce::closeaudioplayer *juce-player*)
+  (setf *juce-player* nil))
+
+
 
 #|
 (defun set-juce-devices (input-device-index output-device-index sample-rate)
@@ -96,8 +129,5 @@
 ;(defun testgainmono (a n)  (juce::setgainreader *testbp1* n))
 ;(defun testgainstereo (a n)  (juce::setgainreader *testbp2* n))
 
-(defun close-juce-player ()
-  (juce::closeaudioplayer *juce-player*)
-  (setf *juce-player* nil))
 
-(om-add-init-fun 'open-juce-player)
+

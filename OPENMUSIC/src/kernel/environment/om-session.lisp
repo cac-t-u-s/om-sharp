@@ -169,8 +169,6 @@
   (in-package :om)
   ;;(om::set-language *release-language*)
   (register-om-icons)
-
-  (om-init-funcall)
     
   #+(or om-deliver mswindows)
   (define-action "Confirm when quitting image" "Prompt for confirmation" 'om::quit-om-callback)
@@ -178,6 +176,8 @@
   ;;; read the general OM prefs
   (read-om-preferences)
   
+  (om-init-funcall)
+
   ;;; start workspace (maybe)
   ;(start-workspace)
   (register-all-libraries)
