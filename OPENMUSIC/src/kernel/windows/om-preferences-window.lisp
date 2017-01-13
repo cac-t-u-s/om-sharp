@@ -281,6 +281,7 @@
                                                               (apply 'om-add-subviews 
                                                                      (cons current-panel 
                                                                            (loop for pref in (pref-module-items pref-module)
+                                                                                 when (pref-item-visible pref)
                                                                                  collect (make-preference-view pref-module pref))))
                                                               ))
                                              ))))
