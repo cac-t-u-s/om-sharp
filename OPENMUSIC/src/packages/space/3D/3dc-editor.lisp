@@ -400,7 +400,7 @@
 ;                                  obj-list)))
 
 (defmethod update-3D-view ((self 3DC-editor))
-  (clear-gl-display-list (3Dp self))
+  (gl-user::clear-gl-display-list (3Dp self))
   (om-invalidate-view (3Dp self)))
 
 ;;;==========================
