@@ -6,13 +6,17 @@
 (in-package :om)
 
 (defstruct pref-module (id) (name) (items))
-(defstruct pref-item (id) (name)(type) (defval) (doc) (value) (visible))
+(defstruct pref-item (id) (name)(type) (defval) (doc) (value) (visible) (after-fun))
 
 (defun maybe-eval-pref-item-value (pref-item)
   (cond ((and (member (pref-item-type pref-item) '(:folder :file))
               (pref-item-value pref-item) (symbolp (pref-item-value pref-item))) ;;; non-NIL symbol
          (funcall (pref-item-value pref-item)))
         (t (pref-item-value pref-item))))
+
+(defun maybe-apply-pref-item-after-fun (pref-item)
+  (when (pref-item-after-fun pref-item)
+    (funcall (pref-item-after-fun pref-item))))
 
 ;;; a list of pref-module
 (defvar *user-preferences* nil)
@@ -67,7 +71,7 @@
               (equal (pref-item-defval pref) :no-default))
     (setf (pref-item-value pref) (pref-item-defval pref))))
 
-(defun add-preference (module-id pref-id name type defval &optional doc)
+(defun add-preference (module-id pref-id name type defval &optional doc after-fun)
   (unless (find-pref-module module-id)
     (add-preference-module module-id (string module-id)))
   (let* ((module (find-pref-module module-id))
@@ -80,9 +84,10 @@
               (pref-item-type pref-item) type
               (pref-item-defval pref-item) defval 
               (pref-item-doc pref-item) doc
+              (pref-item-after-fun pref-item) after-fun
               (pref-item-visible pref-item) t)
       (let ((new-pref (make-pref-item :id pref-id :name name :type type 
-                                      :defval defval :doc doc
+                                      :defval defval :doc doc :after-fun after-fun
                                       :visible t)))
         (put-default-value new-pref)
         (setf (pref-module-items module) (append (pref-module-items module) (list new-pref))))

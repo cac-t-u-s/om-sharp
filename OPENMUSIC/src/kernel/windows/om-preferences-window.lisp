@@ -22,6 +22,7 @@
                   :font (om-def-font :font2)
                   :after-fun #'(lambda (item)
                                  (setf (pref-item-value pref-item) (text item))
+                                 (maybe-apply-pref-item-after-fun pref-item)
                                  ))))
 
 
@@ -34,6 +35,7 @@
               :font (om-def-font :font1)
               :di-action #'(lambda (item)
                               (setf (pref-item-value pref-item) (om-checked-p item))
+                              (maybe-apply-pref-item-after-fun pref-item)
                               )))
 
 (defmethod make-preference-item ((type (eql :folder)) pref-item) 
@@ -48,7 +50,8 @@
                                            20)
                                 :font (om-def-font :font1)
                                 :after-fun #'(lambda (item)
-                                                (setf (pref-item-value pref-item) (text item)))
+                                                (setf (pref-item-value pref-item) (text item))
+                                                (maybe-apply-pref-item-after-fun pref-item))
                                 )))
     (om-make-layout 'om-row-layout
                   :resizable :w
@@ -67,6 +70,7 @@
                                                                        (setf *last-open-dir* dir)
                                                                        (setf (pref-item-value pref-item) (namestring dir))
                                                                        (setf (text textview) (pref-item-value pref-item))
+                                                                       (maybe-apply-pref-item-after-fun pref-item)
                                                                        (om-invalidate-view textview)
                                                                        ))))
                                                       ))))
@@ -85,6 +89,7 @@
                                 :font (om-def-font :font1)
                                 :after-fun #'(lambda (item)
                                                 (setf (pref-item-value pref-item) (text item))
+                                                (maybe-apply-pref-item-after-fun pref-item)
                                                 (om-set-fg-color 
                                                  item 
                                                  (if (probe-file (pref-item-value pref-item)) 
@@ -106,6 +111,7 @@
                                                                        (setf *last-open-dir* dir)
                                                                        (setf (pref-item-value pref-item) (namestring dir))
                                                                        (setf (text textview) (pref-item-value pref-item))
+                                                                       (maybe-apply-pref-item-after-fun pref-item)
                                                                        (om-set-fg-color 
                                                                         textview 
                                                                         (if (probe-file (pref-item-value pref-item)) 
@@ -127,6 +133,7 @@
               :font (om-def-font :font1)
               :di-action #'(lambda (item)
                              (setf (pref-item-value pref-item) (om-get-selected-item item))
+                             (maybe-apply-pref-item-after-fun pref-item)
                              ))) 
 
 (defstruct number-in-range (min) (max))
@@ -141,6 +148,7 @@
                           :min-val (or (number-in-range-min type) 0) :max-val (or (number-in-range-max type) 10000)
                           :after-fun #'(lambda (item)
                              (setf (pref-item-value pref-item) (value item))
+                             (maybe-apply-pref-item-after-fun pref-item)
                              )))
 
 (defmethod make-preference-item ((type (eql :number)) pref-item)
@@ -163,6 +171,7 @@
                                (let ((choice (om-choose-font-dialog :font (pref-item-value pref-item))))
                                  (om-set-dialog-item-text item (font-to-str choice))
                                  (setf (pref-item-value pref-item) choice)
+                                 (maybe-apply-pref-item-after-fun pref-item)
                                  )))))
 
 (defmethod make-preference-item ((type (eql :color)) pref-item)
@@ -171,7 +180,8 @@
                 :resizable :w
                 :color (pref-item-value pref-item)
                 :after-fun #'(lambda (item)
-                               (setf (pref-item-value pref-item) (color item)))))
+                               (setf (pref-item-value pref-item) (color item))
+                               (maybe-apply-pref-item-after-fun pref-item))))
 
 
 
