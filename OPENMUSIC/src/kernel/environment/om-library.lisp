@@ -32,14 +32,12 @@
 
 
 (add-preference-module :libraries "Libraries")
-(add-preference :libraries :libs-folder1 "Libraries folder" :folder :no-default)
+(add-preference :libraries :libs-folder1 "Libraries folder" :folder :no-default nil 'update-libraries-folder)
 (add-preference :libraries :auto-load "Auto load" :bool nil "... will silently load any required libraries.")
 
 ;;;=================================
 ;;; registered libraries package
 ;;;=================================
-
-
 
 (defvar *om-libs-root-package* (make-instance 'OMPackage :name "External Libraries Package") "The package containing External libraries")
 
@@ -90,6 +88,12 @@
   (setf (elements *om-libs-root-package*)
         (remove-if-not 'loaded? (elements *om-libs-root-package*)))
   (register-all-libraries nil))
+
+;; called from the preferences
+(defun update-libraries-folder ()
+  (update-registered-libraries)
+  (when *om-main-window*
+    (update-libraries-tab *om-main-window*)))
 
 ; (register-all-libraries)
 
