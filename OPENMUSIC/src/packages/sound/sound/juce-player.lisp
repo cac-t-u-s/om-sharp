@@ -65,6 +65,7 @@
 (defun default-audio-output-device ()
   (or (car (audio-output-devices)) ""))
 
+; (juce::setoutputchannels *juce-player* '(2 4 6 8))
 
 (defun apply-audio-device-selected ()
   

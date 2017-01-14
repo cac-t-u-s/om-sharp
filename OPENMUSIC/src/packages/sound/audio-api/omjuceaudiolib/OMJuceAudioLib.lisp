@@ -39,6 +39,18 @@
 (cffi:defcfun ("GetDefaultBufferSize" GetDefaultBufferSize) :int (player :pointer))
 (cffi:defcfun ("getInputChannelsCount" GetInputChannelsCount) :int (player :pointer))
 (cffi:defcfun ("getOutputChannelsCount" GetOutputChannelsCount) :int (player :pointer))
+(cffi:defcfun ("setActiveOutputChannels" setActiveOutputChannels) :int (player :pointer) (n :int) (mask :pointer))
+
+(defun setoutputchannels (player activechannelslist)
+  (let* ((l (length activechannelslist))
+         (mask (cffi:foreign-alloc :int :count l :initial-element 0)))
+    (unwind-protect 
+        (progn
+          (loop for ch in activechannelslist do
+                (setf (fli:dereference mask :index (1- ch) :type :int) 1))
+          (setActiveOutputChannels player l mask))
+      (cffi-sys:foreign-free mask))))
+      
 
 ;(cffi:foreign-string-to-lisp (fli:dereference (scandevices) :index 1 :type :pointer))
 
@@ -69,6 +81,7 @@
       collect 
       (fli:dereference (juce::getavailablebuffersizes player) :index i :type :int)))
 
+;;; probleme abvec les caractères accentués !!
 (defun setdevices (player input-device-name inch output-device-name outch sample-rate buffer-size)
   (cffi::with-foreign-pointer-as-string (str 255)
     (juce::setaudiodevice player 
