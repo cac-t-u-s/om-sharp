@@ -37,6 +37,8 @@
 ;(juce::getoutputdevicescount *juce-player*)
 ;(cffi:foreign-string-to-lisp (fli:dereference (juce::getavailableoutputdevices *juce-player*) :index 2 :type :pointer))
 
+;; todo : only one type of device can be selected at a time.
+
 (defun audio-output-devices ()
   (when *juce-player*
     (let ((n-types (juce::getDevicesTypeCount *juce-player*)))
@@ -75,8 +77,7 @@
         (om-beep-msg "Audio output device: ~S not found. restoring default."  (get-pref-value :audio :output)))
       (put-default-value (get-pref :audio :output))))
 
-  (juce::setdevices *juce-player* 
-                    (default-audio-input-device) 0
+  (juce::setdevices *juce-player* "" 0 ;; default/0 channels for input
                     (get-pref-value :audio :output) ;; this has changed
                     (get-pref-value :audio :out-channels) ;; this might be invalidated
                     (get-pref-value :audio :samplerate) ;; this might be invalidated
@@ -113,7 +114,7 @@
                     (get-pref-value :audio :samplerate))
             "AUDIO SETUP")
   (juce::setdevices  *juce-player* 
-                     (default-audio-input-device) 0
+                     "" 0
                      (get-pref-value :audio :output) 
                      (get-pref-value :audio :out-channels)
                      (get-pref-value :audio :samplerate)
