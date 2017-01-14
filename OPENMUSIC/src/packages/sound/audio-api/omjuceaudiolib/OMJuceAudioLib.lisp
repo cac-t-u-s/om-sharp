@@ -16,10 +16,19 @@
 ;;;==============================================
 (cffi:defcfun ("OpenAudioPlayer" OpenAudioPlayer) :pointer)
 
-(cffi:defcfun ("GetAvailableInputDevices" GetAvailableInputDevices) :pointer (player :pointer))
-(cffi:defcfun ("GetAvailableOutputDevices" GetAvailableOutputDevices) :pointer (player :pointer))
+
+(cffi:defcfun ("getDevicesTypeCount" getDevicesTypeCount) :int (player :pointer))
+(cffi:defcfun ("getDeviceTypeName" getDeviceTypeName) :string (player :pointer) (type :int))
+(cffi:defcfun ("getInputDevicesCountForType" getInputDevicesCountForType) :int (player :pointer) (type :int))
+(cffi:defcfun ("getOutputDevicesCountForType" getOutputDevicesCountForType) :int (player :pointer) (type :int))
+(cffi:defcfun ("getNthInputDeviceName" getNthInputDeviceName) :string (player :pointer) (type :int) (n :int))
+(cffi:defcfun ("getNthOutputDeviceName" getNthOutputDeviceName) :string (player :pointer) (type :int) (n :int))
 (cffi:defcfun ("getInputDevicesCount" getInputDevicesCount) :int (player :pointer))
 (cffi:defcfun ("getOutputDevicesCount" getOutputDevicesCount) :int (player :pointer))
+
+(cffi:defcfun ("GetAvailableInputDevices" GetAvailableInputDevices) :pointer (player :pointer))
+(cffi:defcfun ("GetAvailableOutputDevices" GetAvailableOutputDevices) :pointer (player :pointer))
+
 (cffi:defcfun ("setAudioDevice" setAudioDevice) :void 
   (player :pointer) (inputdevicename :pointer) (outputdevicename :pointer) (inchan :int) (outchan :int) (sr :int) (buffsize :int))
 ;;; todo : use cffi :string type

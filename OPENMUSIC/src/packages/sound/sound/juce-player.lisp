@@ -37,16 +37,37 @@
 ;(juce::getoutputdevicescount *juce-player*)
 ;(cffi:foreign-string-to-lisp (fli:dereference (juce::getavailableoutputdevices *juce-player*) :index 2 :type :pointer))
 
+(defun audio-output-devices ()
+  (when *juce-player*
+    (let ((n-types (juce::getDevicesTypeCount *juce-player*)))
+      (loop for type from 0 to (1- n-types) append
+            (let ((type-name (juce::getDeviceTypeName *juce-player* type)))
+              (loop for n from 0 to (1- (juce::getOutputDevicesCountForType *juce-player* type)) 
+                    collect 
+                    ;(list type-name (getNthOutputDeviceName *juce-player* type n))
+                    (juce::getNthOutputDeviceName *juce-player* type n)
+                    ))))))
+
+(defun audio-input-devices ()
+  (when *juce-player*
+    (let ((n-types (juce::getDevicesTypeCount *juce-player*)))
+      (loop for type from 0 to (1- n-types) append
+            (let ((type-name (juce::getDeviceTypeName *juce-player* type)))
+              (loop for n from 0 to (1- (juce::getInputDevicesCountForType *juce-player* type)) 
+                    collect (juce::getNthInputDeviceName *juce-player* type n))
+              )))))
+
 (defun default-audio-input-device ()
-  (and *juce-player* (car (juce::getinputdevicenames *juce-player*))))
+  (or (car (audio-input-devices)) ""))
 
 (defun default-audio-output-device ()
-  (and *juce-player* (car (juce::getoutputdevicenames *juce-player*))))
+  (or (car (audio-output-devices)) ""))
+
 
 (defun apply-audio-device-selected ()
   
   ;; scan for available devices (just in case)
-  (let ((out-devices (juce::getoutputdevicenames *juce-player*)))
+  (let ((out-devices (audio-output-devices)))
     (add-preference :audio :output "Output device" out-devices (car out-devices) nil 'apply-audio-device-selected)
     (unless (and (get-pref-value :audio :output)
                  (find (get-pref-value :audio :output) out-devices :test 'string-equal))
