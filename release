@@ -30,9 +30,9 @@ echo "***************************************************"
 echo "Packing $APP_FOLDER"
 echo "***************************************************"
 
-	cd ./OPENMUSIC/build/build-om/
-	/Applications/LispWorks\ 7.0\ \($LWARCH\)/LispWorks\ \($LWARCH\).app/Contents/MacOS/$LWEXEC -build pack-intel.lisp
-	cd ../../..
+ 	cp -R OPENMUSIC "$APP_FOLDER"
+	rm -R "$APP_FOLDER"/build/
+	rm -R "$APP_FOLDER"/resources
 }
 
 # pack_app MUST have been called before..
@@ -66,8 +66,8 @@ echo "***************************************************"
 
 zip_release()
 {
-	rm ./OPENMUSIC.zip
-	zip -r ./OPENMUSIC.zip ./OPENMUSIC/  
+	rm ./"$APP_FOLDER".zip
+	zip -r ./"$APP_FOLDER".zip ./"$APP_FOLDER"/  
 }
 
 change_permission()
