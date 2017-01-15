@@ -43,11 +43,11 @@
 
 (defun setoutputchannels (player activechannelslist)
   (let* ((l (length activechannelslist))
-         (mask (cffi:foreign-alloc :int :count l :initial-element 0)))
+         (mask (cffi:foreign-alloc :int :count l :initial-contents (mapcar '1- activechannelslist))))
     (unwind-protect 
         (progn
-          (loop for ch in activechannelslist do
-                (setf (fli:dereference mask :index (1- ch) :type :int) 1))
+          ;(loop for from 0 to (1- l) do
+          ;      (setf (fli:dereference mask :index (1- ch) :type :int) 1))
           (setActiveOutputChannels player l mask))
       (cffi-sys:foreign-free mask))))
       

@@ -552,10 +552,11 @@ Press 'space' to play/stop the sound file.
 
 (defmethod player-play-object ((self scheduler) (object sound) caller &key parent interval)
   ;(juce::setgainreader (bp-pointer (buffer-player object)) 0.1)
-  (start-buffer-player (buffer-player object) :start-frame (if (car interval)
-                                                               (round (* (car interval) (/ (sample-rate object) 1000.0)))
-                                                             (or (car interval) 0)))
-  (call-next-method))
+  (when (buffer-player object)
+    (start-buffer-player (buffer-player object) :start-frame (if (car interval)
+                                                                 (round (* (car interval) (/ (sample-rate object) 1000.0)))
+                                                               (or (car interval) 0)))
+  (call-next-method)))
 
 (defmethod player-stop-object ((self scheduler) (object sound))
   (if (buffer-player object) (stop-buffer-player (buffer-player object)))

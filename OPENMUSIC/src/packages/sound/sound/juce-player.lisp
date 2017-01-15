@@ -65,7 +65,13 @@
 (defun default-audio-output-device ()
   (or (car (audio-output-devices)) ""))
 
-; (juce::setoutputchannels *juce-player* '(2 4 6 8))
+; (juce::setoutputchannels *juce-player* '(5 6 7 8 1 2 3 4 9 10 11 12 13 14 15 16))
+; (juce::setoutputchannels *juce-player* '(5 6 7 8 5 6)) ; 
+; (juce::setoutputchannels *juce-player* '(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16))
+; (juce::setoutputchannels *juce-player* '(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0))
+; (juce::setoutputchannels *juce-player* '(1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1))
+
+; (juce::setoutputchannels *juce-player* '(15 16 17 18 19 20 21 22 23 24  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1))
 
 (defun apply-audio-device-selected ()
   
@@ -89,7 +95,7 @@
         (device-supported-buffer-sizes (juce::getbuffersizes *juce-player*)))
     
     ;;; update the config preferences for new device
-    (add-preference :audio :out-channels "Output Channels" device-supported-out-channels (last-elem device-supported-out-channels)
+    (add-preference :audio :out-channels "Output Channels" device-supported-out-channels 2
                     nil 'apply-audio-device-config)     
     (unless (find (get-pref-value :audio :out-channels) device-supported-out-channels :test '=)
         (put-default-value (get-pref :audio :out-channels)))
@@ -134,6 +140,8 @@
   (juce::closeaudioplayer *juce-player*)
   (setf *juce-player* nil))
 
+(defun configure-audio-channels (list)
+  (juce::setoutputchannels *juce-player* list))
 
 
 #|
