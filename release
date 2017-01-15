@@ -30,7 +30,8 @@ echo "***************************************************"
 echo "Packing $APP_FOLDER"
 echo "***************************************************"
 
- 	cp -R OPENMUSIC "$APP_FOLDER"
+	rm -R "$APP_FOLDER"
+	cp -R OPENMUSIC "$APP_FOLDER"
 	rm -R "$APP_FOLDER"/build/
 	rm -R "$APP_FOLDER"/resources
 }
