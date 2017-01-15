@@ -406,7 +406,7 @@ Name/Value tables are formatted as SDIFNVT objects.
       (om-beep-msg "GET-SDIF-DATA: Wrong parameters (tmin > tmax) or (rmin > rmax)..." )
     (let ((sdiffileptr (sdif::sdif-open-file (file-pathname self) sdif::eReadWriteFile))
           (error nil) (sdifdata nil) (sdiftimes nil))
-       ;(om-print "extracting data..." "SDIF")
+      (om-print "extracting data..." "SDIF")
       (if sdiffileptr
           (unwind-protect 
               (let ((curr-time nil))
@@ -423,58 +423,62 @@ Name/Value tables are formatted as SDIFNVT objects.
                             (sid (sdif::SdifFCurrId sdiffileptr)))
                         (setq curr-time (sdif::SdifFCurrTime sdiffileptr))
                         ;(print (list fsig curr-time))
-                        (when (and (or (not streamNum) (= streamNum sid))
-                                   (string-equal frameT fsig) 
-                                   (or (not tmin) (>= time tmin)))
-                          ;;; we're in a candidate frame
-                          (dotimes (m (sdif::SdifFCurrNbMatrix sdiffileptr))
-                            (sdif::SdifFReadMatrixHeader sdiffileptr)
-                            (let ((msig (sdif::SdifSignatureToString (sdif::SdifFCurrMatrixSignature sdiffileptr)))
-                                  (ne (sdif::SdifFCurrNbRow sdiffileptr))
-                                  (nf (sdif::SdifFCurrNbCol sdiffileptr))
-                                  (size (sdif::SdifSizeofDataType (sdif::SdifFCurrDataType sdiffileptr))))
-                              (if (string-equal msig matT)
-                                  ;;; we're in a candidate matrix
-                                  (if with-data
-                                      (if (and (numberp colNum) (<= nf colNum))
-                                          (progn 
-                                            (om-beep-msg (format nil "Error the matrix ~A has only ~D fields" msig nf))
-                                            (setf error t))
-                                        (let ((r1 0) (r2 (1- ne)) 
-                                              (bytesread 0))
-                                          (when (and rmin (> ne rmin)) (setf r1 rmin))
-                                          (when (and rmax (> ne rmax)) (setf r1 rmax))
+                        (if (and (or (not streamNum) (= streamNum sid))
+                                 (string-equal frameT fsig) 
+                                 (or (not tmin) (>= time tmin)))
+                            ;;; we're in a candidate frame
+                            (dotimes (m (sdif::SdifFCurrNbMatrix sdiffileptr))
+                              (sdif::SdifFReadMatrixHeader sdiffileptr)
+                              (let ((msig (sdif::SdifSignatureToString (sdif::SdifFCurrMatrixSignature sdiffileptr)))
+                                    (ne (sdif::SdifFCurrNbRow sdiffileptr))
+                                    (nf (sdif::SdifFCurrNbCol sdiffileptr))
+                                    (size (sdif::SdifSizeofDataType (sdif::SdifFCurrDataType sdiffileptr))))
+                                (if (string-equal msig matT)
+                                    ;;; we're in a candidate matrix
+                                    (if with-data
+                                        (if (and (numberp colNum) (<= nf colNum))
+                                            (progn 
+                                              (om-beep-msg (format nil "Error the matrix ~A has only ~D fields" msig nf))
+                                              (setf error t))
+                                          (let ((r1 0) (r2 (1- ne)) 
+                                                (bytesread 0))
+                                            (when (and rmin (> ne rmin)) (setf r1 rmin))
+                                            (when (and rmax (> ne rmax)) (setf r1 rmax))
                                       ;(print (list msig ne nf size))
-                                          ;;; go to r1
-                                          (loop for k from 0 to (1- r1) 
-                                                do (setf bytesread (+ bytesread (sdif::SdifFSkipOneRow sdiffileptr))))
-                                          ;;; read
-                                          (let ((data
-                                                 (loop for k from r1 to r2 
-                                                       do (setf bytesread (+ bytesread (sdif::SdifFReadOneRow sdiffileptr)))
-                                                       collect 
-                                                       (cond
-                                                        ((numberp colNum) 
-                                                         (sdif::SdifFCurrOneRowCol sdiffileptr (1+ colNum)))
-                                                        ((consp colNum) 
-                                                         (loop for n in colNum collect (sdif::SdifFCurrOneRowCol sdiffileptr (1+ n))))
-                                                        ((null colNum) (loop for n from 1 to nf collect (sdif::SdifFCurrOneRowCol sdiffileptr n)))))
-                                                 ))
-                                            (loop for k from (1+ r2) to (1- ne) 
+                                            ;;; go to r1
+                                            (loop for k from 0 to (1- r1) 
                                                   do (setf bytesread (+ bytesread (sdif::SdifFSkipOneRow sdiffileptr))))
+                                            ;;; read
+                                            (let ((data
+                                                   (loop for k from r1 to r2 
+                                                         do (setf bytesread (+ bytesread (sdif::SdifFReadOneRow sdiffileptr)))
+                                                         collect 
+                                                         (cond
+                                                          ((numberp colNum) 
+                                                           (sdif::SdifFCurrOneRowCol sdiffileptr (1+ colNum)))
+                                                          ((consp colNum) 
+                                                           (loop for n in colNum collect (sdif::SdifFCurrOneRowCol sdiffileptr (1+ n))))
+                                                          ((null colNum) (loop for n from 1 to nf collect (sdif::SdifFCurrOneRowCol sdiffileptr n)))))
+                                                   ))
+                                              (loop for k from (1+ r2) to (1- ne) 
+                                                    do (setf bytesread (+ bytesread (sdif::SdifFSkipOneRow sdiffileptr))))
                                         ;(print (list "read" bytesread "pad" (sdif::sdif-calculate-padding bytesread)))
-                                            (sdif::SdifFReadPadding sdiffileptr (sdif::sdif-calculate-padding bytesread))
-                                            (when data 
-                                              (push data sdifdata)
-                                              (push curr-time sdiftimes)))
-                                          ))
-                                    ;;; no data (just times)
-                                    (progn (push curr-time sdiftimes)
-                                      (sdif::SdifFSkipMatrixData sdiffileptr))
-                                    )
-                                (sdif::SdifFSkipMatrixData sdiffileptr)
-                                ))
-                            ))
+                                              (sdif::SdifFReadPadding sdiffileptr (sdif::sdif-calculate-padding bytesread))
+                                              (when data 
+                                                (push data sdifdata)
+                                                (push curr-time sdiftimes)))
+                                            ))
+                                      ;;; no data (just times)
+                                      (progn (push curr-time sdiftimes)
+                                        (sdif::SdifFSkipMatrixData sdiffileptr))
+                                      )
+                                  (sdif::SdifFSkipMatrixData sdiffileptr)
+                                  ))
+                              )
+                          ;;; skip the frame
+                          (sdif::sdiffskipframedata sdiffileptr)
+                          
+                          )
                       
                         (sdif::sdif-read-next-signature sdiffileptr)
                         

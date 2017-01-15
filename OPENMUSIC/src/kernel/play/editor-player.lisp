@@ -389,7 +389,9 @@
 
 (defmethod om-view-doubleclick-handler ((self x-cursor-graduated-view) position)
   (let ((time (pixel-to-time self (om-point-x position)))
-        (tpl-editor (editor (om-view-window self))))
+        ;(tpl-editor (editor (om-view-window self)))
+        (tpl-editor (editor self)) ;; we assume it is an OMEditorView...
+        )
     (editor-set-interval tpl-editor (list time time))
     (set-cursor-time tpl-editor time)
     (editor-stop tpl-editor)
