@@ -29,18 +29,23 @@
 (cffi:defcfun ("getInputDevicesCount" getInputDevicesCount) :int (player :pointer))
 (cffi:defcfun ("getOutputDevicesCount" getOutputDevicesCount) :int (player :pointer))
 
-;(cffi:defcfun ("setAudioDevice" setAudioDevice) :void 
-;  (player :pointer) (outputdevicename :string) (inputdevicename :string)  (inchan :int) (outchan :int) (sr :int) (buffsize :int))
+(cffi:defcfun ("getInputChannelsCount" GetInputChannelsCount) :int (player :pointer))
+(cffi:defcfun ("getOutputChannelsCount" GetOutputChannelsCount) :int (player :pointer))
+
+(cffi:defcfun ("getAvailableSampleRatesCount" getAvailableSampleRatesCount) :int (player :pointer))
+(cffi:defcfun ("getNthAvailableSampleRate" getNthAvailableSampleRate) :int (player :pointer) (n :int))
+(cffi:defcfun ("getCurrentSampleRate" getCurrentSampleRate) :int (player :pointer))
+(cffi:defcfun ("setSampleRate" setSampleRate) :int (player :pointer) (sr :int))
+
+(cffi:defcfun ("getAvailableBufferSizesCount" getAvailableBufferSizesCount) :int (player :pointer))
+(cffi:defcfun ("getNthAvailableBufferSize" getNthAvailableBufferSize) :int (player :pointer) (n :int))
+(cffi:defcfun ("getCurrentBufferSize" getCurrentBufferSize) :int (player :pointer))
+(cffi:defcfun ("getDefaultBufferSize" getDefaultBufferSize) :int (player :pointer))
+(cffi:defcfun ("setBufferSize" setBufferSize) :int (player :pointer) (size :int))
+
 (cffi:defcfun ("setAudioDevice" setAudioDevice) :void 
   (player :pointer) (output :int) (input :int)  (in-channels :int) (out-channels :int) (sr :int) (buffsize :int))
 
-(cffi:defcfun ("GetAvailableSampleRates" GetAvailableSampleRates) :pointer (player :pointer))
-(cffi:defcfun ("GetAvailableSampleRatesCount" GetAvailableSampleRatesCount) :int (player :pointer))
-(cffi:defcfun ("GetAvailableBufferSizes" GetAvailableBufferSizes) :pointer (player :pointer))
-(cffi:defcfun ("GetAvailableBufferSizesCount" GetAvailableBufferSizesCount) :int (player :pointer))
-(cffi:defcfun ("GetDefaultBufferSize" GetDefaultBufferSize) :int (player :pointer))
-(cffi:defcfun ("getInputChannelsCount" GetInputChannelsCount) :int (player :pointer))
-(cffi:defcfun ("getOutputChannelsCount" GetOutputChannelsCount) :int (player :pointer))
 (cffi:defcfun ("setOutputChannelsMapping" setOutputChannelsMapping) :int (player :pointer) (n :int) (map :pointer))
 
 ;;; SCAN UTILITIES (INDEPENDENT ON THE CURRENT SETUP)
@@ -94,13 +99,11 @@
 
 (defun getsamplerates  (player)
   (loop for i from 0 to (1- (juce::getavailablesampleratescount player))
-      collect 
-      (fli:dereference (juce::getavailablesamplerates player) :index i :type :int)))
+        collect (juce::getnthavailablesamplerate player i)))
 
 (defun getbuffersizes  (player)
   (loop for i from 0 to (1- (juce::getavailablebuffersizescount player))
-      collect 
-      (fli:dereference (juce::getavailablebuffersizes player) :index i :type :int)))
+        collect (juce::getnthavailablebuffersize player i)))
 
 ;;; probleme abvec les caractères accentués !!
 (defun setdevices (player input-device-name inch output-device-name outch sample-rate buffer-size)
