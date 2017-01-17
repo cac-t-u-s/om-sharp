@@ -51,7 +51,7 @@
           om-get-font
           om-set-font
           om-set-focus
-          om-get-view-name
+          om-get-name
           om-view-window
           om-view-container
           om-subviews
@@ -228,9 +228,6 @@
 
 (defmethod om-interior-size ((self om-graphic-object)) (om-view-size self))
 
-(defmethod om-get-view-name ((self om-graphic-object))
-  (capi::capi-object-name self))
-
 (defmethod om-set-bg-color ((self om-graphic-object) color)
   (let ((col (when color (omcolor-c color))))
     #-cocoa 
@@ -277,3 +274,5 @@
 
 ;;; TESTER AVEC capi:activate-pane
 
+
+(defmethod om-get-name ((self om-graphic-object)) (capi::capi-object-name self))

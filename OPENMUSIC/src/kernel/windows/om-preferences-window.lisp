@@ -203,9 +203,9 @@
 (defmethod make-preference-item ((type (eql :title)) pref-item) 
   (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t))
 
-(defun make-preference-view (pref-module pref-item)
+(defun make-preference-view (pref-item)
   (let ((main-row 
-         (om-make-layout 'om-row-layout
+         (om-make-layout 'om-row-layout :name (pref-item-id pref-item)
                          :subviews (list
                                     (om-make-di 'om-simple-text :text (pref-item-name pref-item) 
                                                 :font (if (equal (pref-item-type pref-item) :title) (om-def-font :font3b) (om-def-font :font2))
@@ -213,7 +213,7 @@
                                                                      20))
                                     (make-preference-item (pref-item-type pref-item) pref-item)))))                                                         
     (if (pref-item-doc pref-item)
-        (om-make-layout 'om-column-layout
+        (om-make-layout 'om-column-layout :name (pref-item-id pref-item)
                         :subviews (list main-row 
                                         (om-make-di 'om-simple-text :text (string+ "- " (pref-item-doc pref-item)) :font (om-def-font :font1)
                                                     :size (om-make-point (list :string (format nil "  ~A  " (pref-item-doc pref-item))) 20))))
@@ -233,7 +233,7 @@
                   ;:ratios '((1)(1))
                   :subviews (loop for pref in (pref-module-items pref-module)
                                   when (pref-item-visible pref)
-                                  collect (make-preference-view pref-module pref))))
+                                  collect (make-preference-view pref))))
 
 
 ;;;===========================================================================
@@ -282,7 +282,7 @@
                                                                      (cons current-panel 
                                                                            (loop for pref in (pref-module-items pref-module)
                                                                                  when (pref-item-visible pref)
-                                                                                 collect (make-preference-view pref-module pref))))
+                                                                                 collect (make-preference-view pref))))
                                                               ))
                                              ))))
                 ))
@@ -317,6 +317,31 @@
                ))
         (om-set-current-view (tabs win) (find current-panel-id (om-subviews (tabs win)) :key 'module-id))
         ))))
+
+(defmethod update-preference-window-module (module)
+  (let ((win (find-preferences-window)))
+    (when win 
+      (let ((panel (find module (om-subviews (tabs win)) :key 'module-id)))
+        (when panel 
+          (let ((current-panel-id (module-id (om-get-current-view (tabs win))))
+                (newpanel (make-preference-panel (find-pref-module module))))
+            (om-substitute-subviews (tabs win) panel newpanel)
+            (om-set-current-view (tabs win) (find current-panel-id (om-subviews (tabs win)) :key 'module-id))
+         ))))))
+
+(defmethod update-preference-window-item (module item)
+  (let ((win (find-preferences-window)))
+    (when win 
+      (let ((panel (find module (om-subviews (tabs win)) :key 'module-id)))
+        (when panel 
+          (let ((layout (find item (om-subviews panel) :key 'om-get-name)))
+            (when layout
+              (om-substitute-subviews 
+               panel layout 
+               (make-preference-view (get-pref module item)))
+              )))))))
+
+
 
 ; (add-preference :libraries :auto-load "Auto load" :bool nil "Silently loads required libraries")
 

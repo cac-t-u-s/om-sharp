@@ -140,7 +140,7 @@
           (load packager-loader)
           (register-images (lib-icons-folder lib))
           (setf (loaded? lib) t)
-          (update-preferences-window) ;;; update the window if opened       
+          (update-preference-window-module :libraries) ;;; update the window is opened       
           packager-loader))
       (om-beep-msg "Library doesn't have a loader file: ~A NOT FOUND.." packager-loader))
     ))
