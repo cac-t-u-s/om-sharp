@@ -241,7 +241,7 @@ Press 'space' to play/stop the sound file.
   ;;; the sound may OR NOT already contain FILE and BUFFER
   (let ((FILE-IN (find-value-in-kv-list args :file))
         (access-from-file (find-value-in-kv-list args :access-from-file)))
-    (unless (or (null FILE-IN) (valid-pathname-p FILE-IN))
+    (when (and FILE-IN (not (valid-pathname-p FILE-IN)))
       (om-beep-msg "Wrong path as sound input: ~D" FILE-IN) 
       (setf FILE-IN nil))
     
@@ -300,7 +300,7 @@ Press 'space' to play/stop the sound file.
           )
          
     ;;; SET A PLAYER IN ANYCASE !
-    (if access-from-file
+    (if (and (file self) access-from-file)
         (setf (buffer-player self) (make-player-from-file (namestring (file self))))
       (when (buffer self) ;;; in principle at that point there should be a buffer..
         (if (and (n-samples self) (n-channels self) (sample-rate self))
@@ -316,19 +316,19 @@ Press 'space' to play/stop the sound file.
 
 (defun set-sound-data (sound path)
   (if (probe-file path)
-  (multiple-value-bind (buffer format channels sr ss size skip)
-      (audio-io::om-get-sound-buffer (namestring path) *default-internal-sample-size* nil)
-    (unwind-protect 
-        (progn
-          (when (buffer sound) (oa::om-release (buffer sound)))
-          (setf (buffer sound) (make-om-sound-buffer-GC :ptr buffer :count 1 :nch channels)
-                (smpl-type sound) *default-internal-sample-size*
-                (n-samples sound) size
-                (n-channels sound) channels
-                (sample-rate sound) sr
-                (sample-size sound) ss)
+      (multiple-value-bind (buffer format channels sr ss size skip)
+          (audio-io::om-get-sound-buffer (namestring path) *default-internal-sample-size* nil)
+        (unwind-protect 
+            (progn
+              (when (buffer sound) (oa::om-release (buffer sound)))
+              (setf (buffer sound) (make-om-sound-buffer-GC :ptr buffer :count 1 :nch channels)
+                    (smpl-type sound) *default-internal-sample-size*
+                    (n-samples sound) size
+                    (n-channels sound) channels
+                    (sample-rate sound) sr
+                    (sample-size sound) ss)
           ;(om-print (format nil "Allocated buffer ~A for ~A" (buffer sound) sound) "SOUND_DEBUG")
-          sound)))
+              sound)))
     (om-beep-msg "Wrong pathname for sound: ~s" path)))
 
 (defun set-sound-info (sound path)
