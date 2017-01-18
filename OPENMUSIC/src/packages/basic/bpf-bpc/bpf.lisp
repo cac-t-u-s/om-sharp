@@ -10,7 +10,6 @@
     (color :initform nil :accessor color :initarg :color)
     (decimals :initform 2 :accessor decimals :initarg :decimals :documentation "precision (integer) [0-10]")))
 
-
 ;;; POINTS IN BPF
 ;;; VIRTUALLY IMPLEMENTS TIMED-ITEM INTERFACE
 ;;; - adds the 'type' slot

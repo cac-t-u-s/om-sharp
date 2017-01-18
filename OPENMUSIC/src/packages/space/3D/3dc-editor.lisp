@@ -53,6 +53,7 @@
    (show-room :accessor show-room :initform t)
    (room-size :accessor room-size :initform *OM-DEFAULT-ROOM-SIZE*)
    (show-axes :accessor show-axes :initarg :show-axes :initform t)
+
    ;interpolation parameters
    (interpolation-mode :accessor interpolation-mode :initform :none)
       ;OSC parameters
@@ -68,6 +69,9 @@
 
 (defmethod object-has-editor ((self 3dc)) t)
 (defmethod get-editor-class ((self 3DC)) '3DC-editor)
+
+(defmethod make-3D-background-element ((self background-element)) nil)
+
 
 ;===== MultiDisplay API
 
@@ -339,6 +343,9 @@
     (update-editor-3d-object self)
     (update-3d-view self)))
 
+
+
+
 (defmethod set-3D-objects ((self 3dc-editor)) 
   (om-set-gl-objects (3Dp self) (create-GL-objects self))
   (update-3D-view self))
@@ -351,6 +358,8 @@
     (om-set-3Dobj-points 3d-obj (format-3d-points obj))
     (update-3d-curve-vertices-colors self)))
     
+
+
 (defmethod update-sub-editors ((self 3DC-editor))
   (when (window self)
     (setf (selection (top-bpc-editor self)) (selection self)
@@ -368,30 +377,30 @@
   (mat-trans (list (x-points self) (y-points self) (z-points self) (times self))))
 
 (defmethod init-editor-parameters ((self 3DC-editor))
-;;compatibilité versions précédentes.. 
+  ;compatibilité versions précédentes.. 
   ;à enlever si get-parameter retourne valeur par defaut au lieu de nil
-    (unless (param-room-size self)
-      (param-room-size self *OM-DEFAULT-ROOM-SIZE*))
-
-    (unless (param-show-room self)
-      (param-show-room self *OM-DEFAULT-SHOW-ROOM*))
-
-    (unless (param-show-axes self)
-      (param-show-axes self *OM-DEFAULT-SHOW-AXES*))
-
-    (unless (param-line-width self)
-      (param-line-width self *OM-GL-DEFAULT-LINEWIDTH*))
-    )
+  (unless (param-room-size self)
+    (param-room-size self *OM-DEFAULT-ROOM-SIZE*))
+  (unless (param-show-room self)
+    (param-show-room self *OM-DEFAULT-SHOW-ROOM*))
+  (unless (param-show-axes self)
+    (param-show-axes self *OM-DEFAULT-SHOW-AXES*))
+  (unless (param-line-width self)
+    (param-line-width self *OM-GL-DEFAULT-LINEWIDTH*))
+  )
 
 
 (defmethod create-GL-objects ((self 3DC-editor))
   (let ((obj-list (cons (object-value self) (remove (object-value self) (multi-obj-list self)))))
-    (mapcar #'(lambda (obj) 
-               (make-instance 
-                '3D-lines
-                :points (format-3d-points obj) :color (color obj) 
-                :draw-style :draw-all :line-width 2.0))
-           obj-list)))
+    (append 
+     (mapcar #'(lambda (obj) 
+                 (make-instance 
+                  '3D-lines
+                  :points (format-3d-points obj) :color (color obj) 
+                  :draw-style :draw-all :line-width 2.0))
+             obj-list)
+     (mapcar 'make-3D-background-element (get-edit-param (object self) :background))
+    )))
 
 ;(defmethod gen-3D-obj ((obj-list list) draw-style line-width color-style)
 ;  (make-instance 'om-3D-object-list 
@@ -713,62 +722,69 @@
     (let ((scale-min (om-make-di 'om-simple-text :size (omp 80 20)))
           (scale-view (om-make-view 'color-scale-view :size (om-make-point 120 30)))
           (scale-max (om-make-di 'om-simple-text :text "" :size (omp 80 20))))
-      (setf (room-editor editor) (om-make-window 'om-window :title "room editor" 
-                                                 :subviews
-                                                 (list (om-make-layout 'om-column-layout
-                                                                       :size (om-make-point 400 400) 
-                                                                       :subviews
-                                                                       (list 
-                                                                        (om-make-layout 'om-row-layout
-                                                                                        :subviews
-                                                                                        (list
-                                                                                         (om-make-di 'om-simple-text :text "Show Room:" 
-                                                                                                     :size (omp 80 30))
-                                                                                         (om-make-di 'om-check-box :size (omp 16 20) :font (om-def-font :font1)
-                                                                                                     :checked-p (show-room editor)
-                                                                                                     :di-action #'(lambda (item) 
-                                                                                                                    (setf (show-room editor) (om-checked-p item))
-                                                                                                                    (update-3D-view editor)))))
-                                                                        (om-make-layout 'om-row-layout
-                                                                                        :subviews
-                                                                                        (list
-                                                                                         (om-make-di 'om-simple-text :text "Room size:" 
-                                                                                                     :size (omp 80 30))
-                                                                                         (om-make-graphic-object 'numbox 
-                                                                                                                 :value (room-size editor) :min-val 0.01 :size (omp 40 18)
-                                                                                                                 :bg-color (om-def-color :white)
-                                                                                                                 :after-fun #'(lambda (numbox) 
-                                                                                                                                (setf (room-size editor) (value numbox) )
-                                                                                                                                (om-invalidate-view (3dp editor))))))
-                                                                        (om-make-layout 'om-row-layout
-                                                                                        :subviews
-                                                                                        (list
-                                                                                         (om-make-di 'om-simple-text :text "Color style:" :size (omp 80 30))
-                                                                                         (om-make-di 'om-popup-list 
-                                                                                                     :items '(:single :indices :length :speed) 
-                                                                                                     :size (omp 80 22) 
-                                                                                                     :value (color-style editor)
-                                                                                                     :di-action #'(lambda (list) 
-                                                                                                                    (setf (color-style editor) (om-get-selected-item list))
-                                                                                                                    (update-3d-curve-vertices-colors editor)
-                                                                                                                    (update-3D-view editor)))))
+      (setf (room-editor editor) 
+            (om-make-window 
+             'om-window 
+             :title "room editor" 
+             :subviews
+             (list (om-make-layout 
+                    'om-column-layout
+                    :size (om-make-point 400 400) 
+                    :subviews
+                    (list 
+                     (om-make-layout 
+                      'om-row-layout
+                      :subviews
+                      (list
+                       (om-make-di 'om-simple-text :text "Show Room:" 
+                                   :size (omp 80 30))
+                       (om-make-di 'om-check-box :size (omp 16 20) :font (om-def-font :font1)
+                                   :checked-p (show-room editor)
+                                   :di-action #'(lambda (item) 
+                                                  (setf (show-room editor) (om-checked-p item))
+                                                  (update-3D-view editor)))))
+                     (om-make-layout 
+                      'om-row-layout
+                      :subviews
+                      (list
+                       (om-make-di 'om-simple-text :text "Room size:" 
+                                   :size (omp 80 30))
+                       (om-make-graphic-object 'numbox 
+                                               :value (room-size editor) :min-val 0.01 :size (omp 40 18)
+                                               :bg-color (om-def-color :white)
+                                               :after-fun #'(lambda (numbox) 
+                                                              (setf (room-size editor) (value numbox) )
+                                                              (om-invalidate-view (3dp editor))))))
+                     (om-make-layout 
+                      'om-row-layout
+                      :subviews
+                      (list
+                       (om-make-di 'om-simple-text :text "Color style:" :size (omp 80 30))
+                       (om-make-di 'om-popup-list 
+                                   :items '(:single :indices :length :speed) 
+                                   :size (omp 80 22) 
+                                   :value (color-style editor)
+                                   :di-action #'(lambda (list) 
+                                                  (setf (color-style editor) (om-get-selected-item list))
+                                                  (update-3d-curve-vertices-colors editor)
+                                                  (update-3D-view editor)))))
 
-                                                                        (om-make-layout 'om-row-layout
-                                                                                        :subviews
-                                                                                        (list scale-min scale-view scale-max))                 
-                                                                      (om-make-di 'om-check-box :text "Anaglyph" :size (omp 75 24) :font (om-def-font :font1)
-                                                                                  :checked-p gl-user::*om-3d-anaglyph*
-                                                                                  :di-action #'(lambda (item) 
-                                                                                                 (gl-user::opengl-enable-or-disable-anaglyph (om-checked-p item))
-                                                                                                 (update-3D-view editor))))))))
-    (set-g-component editor :curve-color-scale scale-view)
-    (set-g-component editor :curve-color-scale-min scale-min)
-    (set-g-component editor :curve-color-scale-max scale-max)
-    ))
+                     (om-make-layout 'om-row-layout
+                                     :subviews
+                                     (list scale-min scale-view scale-max))                 
+                     (om-make-di 'om-check-box :text "Anaglyph" :size (omp 75 24) :font (om-def-font :font1)
+                                 :checked-p gl-user::*om-3d-anaglyph*
+                                 :di-action #'(lambda (item) 
+                                                (gl-user::opengl-enable-or-disable-anaglyph (om-checked-p item))
+                                                (update-3D-view editor))))))))
+      (set-g-component editor :curve-color-scale scale-view)
+      (set-g-component editor :curve-color-scale-min scale-min)
+      (set-g-component editor :curve-color-scale-max scale-max)
+      ))
   (if (om-window-open-p (room-editor editor))
       (om-select-window (room-editor editor))
     (om-open-window (room-editor editor)))
-  (update-3d-curve-vertices-colors editor ))
+  (update-3d-curve-vertices-colors editor))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;OSC specific methods
@@ -776,42 +792,48 @@
 
 (defmethod open-osc-editor ((editor 3dc-editor))
   (unless (osc-editor editor)
-    (setf (osc-editor editor) (om-make-window 'om-window :title "OSC editor" 
-                                              :size (om-make-point 300 nil)
-                                              :subviews 
-                                              (list (om-make-layout 'om-column-layout
-                                                                    :subviews
-                                                                    (list 
-                                                                     (om-make-di 'om-multi-text :size (omp 300 100) :text '("You can send OSC Messages to the 3DC object." "/3dc/clear resets the current 3dc." "/3dc/move x y z displays a green dot representing the current position." "/3dc/add x y z time appends the point to the curve (if the distance with the previous point is less than the distance treshold)."))
-                                                                     (om-make-layout 'om-row-layout
-                                                                                     :subviews
-                                                                                     (list 
-                                                                                      (om-make-di 'om-simple-text :text "OSC-Port:" 
-                                                                                                  :size (omp 100 30))
-                                                                                      (om-make-graphic-object 'numbox 
-                                                                                                              :value (osc-port editor) :min-val 0 :size (omp 40 18)
-                                                                                                              :bg-color (om-def-color :white)
-                                                                                                              :after-fun #'(lambda (numbox) 
-                                                                                                                             (setf (osc-port editor) (value numbox) )
-                                                                                                                             (3DC-osc-refresh-port editor)))
-                                                                                       (om-make-di 'om-check-box :text "Start/Stop OSC" 
-                                                                                                   :checked-p (osc-status editor)
-                                                                                                   :size (omp 100 40)
-                                                                                                   :di-action #'(lambda (item)
-                                                                                                                  (3DC-osc-start-stop-receive editor)))))
-                                                                     (om-make-layout 'om-row-layout
-                                                                                     :subviews
-                                                                                     (list 
-                                                                                      (om-make-di 'om-simple-text :text "Distance Treshold:" 
-                                                                                                  :size (omp 100 30))
-                                                                                      (om-make-graphic-object 'numbox 
-                                                                                                              :value *3DC_OSC_DIST_TRESHOLD* :min-val 0. :size (omp 40 18)
-                                                                                                              :bg-color (om-def-color :white)
-                                                                                                              :after-fun #'(lambda (numbox) 
-                                                                                                                             (setf *3DC_OSC_DIST_TRESHOLD* (value numbox))))))))))))
+    (setf (osc-editor editor) 
+          (om-make-window 
+           'om-window :title "OSC editor" 
+           :size (om-make-point 300 nil)
+           :subviews 
+           (list (om-make-layout 
+                  'om-column-layout
+                  :subviews
+                  (list 
+                   (om-make-di 'om-multi-text :size (omp 300 100) :text '("You can send OSC Messages to the 3DC object." "/3dc/clear resets the current 3dc." "/3dc/move x y z displays a green dot representing the current position." "/3dc/add x y z time appends the point to the curve (if the distance with the previous point is less than the distance treshold)."))
+                   (om-make-layout 
+                    'om-row-layout
+                    :subviews
+                    (list 
+                     (om-make-di 'om-simple-text :text "OSC-Port:" 
+                                 :size (omp 100 30))
+                     (om-make-graphic-object 'numbox 
+                                             :value (osc-port editor) :min-val 0 :size (omp 40 18)
+                                             :bg-color (om-def-color :white)
+                                             :after-fun #'(lambda (numbox) 
+                                                            (setf (osc-port editor) (value numbox) )
+                                                            (3DC-osc-refresh-port editor)))
+                     (om-make-di 'om-check-box :text "Start/Stop OSC" 
+                                 :checked-p (osc-status editor)
+                                 :size (omp 100 40)
+                                 :di-action #'(lambda (item)
+                                                (3DC-osc-start-stop-receive editor)))))
+                   (om-make-layout 
+                    'om-row-layout
+                    :subviews
+                    (list 
+                     (om-make-di 'om-simple-text :text "Distance Treshold:" 
+                                 :size (omp 100 30))
+                     (om-make-graphic-object 'numbox 
+                                             :value *3DC_OSC_DIST_TRESHOLD* :min-val 0. :size (omp 40 18)
+                                             :bg-color (om-def-color :white)
+                                             :after-fun #'(lambda (numbox) 
+                                                            (setf *3DC_OSC_DIST_TRESHOLD* (value numbox))))))))))))
   (if (om-window-open-p (osc-editor editor))
       (om-select-window (osc-editor editor))
-    (om-open-window (osc-editor editor))))
+    (om-open-window (osc-editor editor)))
+  )
 
 (defmethod 3DC-osc-refresh-port ((self 3dc-editor))
   (when (osc-status self)

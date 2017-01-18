@@ -209,14 +209,19 @@
 ;;;======================
 ;;; DRAW SHAPES
 ;;;======================
+
+(defun format-line-style (style)
+  (cond ((consp style) `(:dashed t :dash  (,(car style) ,(cadr style))))
+        ((equal style :dash) '(:dashed t :dash (2 2)))
+        (t '(:dashed nil))))
+
 (defun format-graphic-args (&key fcolor bcolor line style)
   (reduce 'append
           (remove nil
                   (list (when fcolor (list :foreground (get-real-color fcolor)))
                         (when bcolor (list :background (get-real-color bcolor)))
                         (when line (list :thickness line))
-                        (when style (cond ((consp style) (list :dashed t :dash  (list (car style) (cadr style))))
-                                          ((equal style :dash) (list :dashed t :dash '(2 2)))))
+                        (when style (format-line-style style))
                         ))
           ))
 
@@ -256,15 +261,16 @@
    (abs w)
    (abs h)))
 
-(defun om-draw-rect (x y w h &key erasable angles line color fill)
+(defun om-draw-rect (x y w h &key erasable angles line color fill style)
   (multiple-value-bind (xx yy ww hh) (convert-rect x y w h)
-  (gp:draw-rectangle *curstream* (+ xx 0.5) (+ yy 0.5) (- ww 1) (- hh 1)
-                     ;(+ x *pox*) (+ y *poy*) w h 
-                     :filled fill
-                     ;#-cocoa :operation #-cocoa (if erasable boole-eqv boole-1)
-                     :line-joint-style angles     ; :bevel :miter :round
-                     :thickness line :foreground (get-real-color color)
-                     )))
+  (apply 'gp:draw-rectangle 
+         (append (list *curstream* (+ xx 0.5) (+ yy 0.5) (- ww 1) (- hh 1)
+               ;(+ x *pox*) (+ y *poy*) w h 
+                       :filled fill
+                       :line-joint-style angles     ; :bevel :miter :round
+                       :thickness line :foreground (get-real-color color))
+                 (format-line-style style)
+                 ))))
 
 (defun om-draw-ellipse (x y rx ry &key fill)  
   (gp:draw-ellipse *curstream* x y rx ry :filled fill))

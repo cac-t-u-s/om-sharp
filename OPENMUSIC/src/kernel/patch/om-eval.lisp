@@ -253,14 +253,22 @@
 ;;; OBJECT BOX
 ;;;----------------------
 
+;;; SETS the edit-params, no matter if the box is locked or not
 (defmethod omNG-box-value ((self OMBoxEditCall) &optional (numout 0)) 
   ;(print "set the EDIT-PARAMS")
   (let ((box-attributes (loop for input in (cdr (inputs self))
                               when (find (intern-k (name input)) 
                                          (additional-box-attributes-names self))
                               collect (list (intern-k (name input)) (omng-box-value input)))))
-    (loop for attr in box-attributes do (set-edit-param self (car attr) (cadr attr))))
+    (loop for attr in box-attributes do (set-edit-param self (car attr) (cadr attr)))
+    )
+  (when (and (equal (lock-state self) :locked) ;; otherwise the editor will be updated later on anyway
+             (editor self))
+    (update-to-editor (editor self) self)
+    )
   (call-next-method))
+
+
 
 (defmethod current-box-value ((self OMBoxRelatedWClass) &optional (numout nil))
   (if numout (and (value self) (rep-editor self numout)) (value self)))

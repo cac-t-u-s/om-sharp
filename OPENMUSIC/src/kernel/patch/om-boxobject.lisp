@@ -184,15 +184,17 @@
   (let* ((class-slots (class-instance-slots (find-class classname)))
          (class-initargs (remove nil (mapcar 'slot-initargs class-slots)))
          (class-slots-names (mapcar 'slot-name class-slots))
+         ;;; the regular class initargs
          (supplied-initargs (remove-if #'(lambda (item) (not (find item class-initargs :test 'find))) args :key 'car))
+         ;;; not initargs but valid slots
          (supplied-other-args (remove nil (loop for arg in args 
-                                           when (not (member (car arg) supplied-initargs :key 'car))
-                                           collect (list (find (car arg) class-slots-names :key 'intern-k)
-                                                         (cadr arg)))
+                                                when (not (member (car arg) supplied-initargs :key 'car))
+                                                collect (list (find (car arg) class-slots-names :key 'intern-k)
+                                                              (cadr arg)))
                                       :key 'car)))
+    ;(print args)
     ;(print supplied-initargs)
     ;(print supplied-other-args)    
-    ;(print args)
     (om-init-instance 
      (let ((obj (apply 'make-instance (cons classname (reduce 'append supplied-initargs)))))
        (set-value-slots obj supplied-other-args)
@@ -202,10 +204,12 @@
 ;;; SPECIAL BOXEDITCALL IF THE FIRST INPUT IS CONNECTED
 (defun make-value-from-model (type model args)
   (let* ((target (make-instance type))
-         (rep (objFromObjs model target)))
+         (rep (objFromObjs model target))
+         (class-slots-names (mapcar 'slot-name (class-instance-slots (find-class type))))
+         (slot-args (remove-if-not #'(lambda (arg) (find (car arg) class-slots-names :key 'intern-k)) args)))
     (if rep
         (progn 
-          (set-value-slots rep args)
+          (set-value-slots rep slot-args)
           (om-init-instance rep args)  ;; ok ?
           )
       (progn (om-beep-msg "Can not create a ~A from ~A" type model)

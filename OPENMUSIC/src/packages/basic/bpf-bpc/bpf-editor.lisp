@@ -6,8 +6,6 @@
 (defclass bpf-editor (multi-display-editor-mixin OMEditor play-editor-mixin) 
   ((edit-mode :accessor edit-mode :initform :mouse)
    (decimals :accessor decimals :initform 0 :initarg :decimals)
-   ;;; picture
-   (bg-picture :accessor bg-picture :initform nil :initarg :bg-picture)
    ;;; display
    (grid :accessor grid :initform t)
    (show-indices :accessor show-indices :initform nil)
@@ -24,6 +22,12 @@
    (timeline-editor :accessor timeline-editor :initform nil)
    ))
 
+;;; background elements are just visible in the BPF/BPC/3DC editors 
+;;; can be pictures, speakers, etc.
+(defclass background-element () ())
+(defmethod draw-background-element ((self background-element) view editor &optional x1 y1 x2 y2))
+
+
 (defun x-axis-accessor (editor) (case (x-axis-key editor) (:x 'om-point-x) (:y 'om-point-y) (:z 'om-point-z) (:time 'tpoint-time)))
 (defun y-axis-accessor (editor) (case (y-axis-key editor) (:x 'om-point-x) (:y 'om-point-y) (:z 'om-point-z)))
 (defun editor-make-point (editor x y) (funcall (make-point-function editor) x y))
@@ -33,7 +37,7 @@
 (defun editor-point-set-y (editor point y) (funcall 'om-point-set point (y-axis-key editor) y))
 
 (defmethod additional-box-attributes ((self bpf)) 
-  '((:bg-picture "set a picture as background in the BPF editor" nil)))
+  '((:background "sets one or more background-element(s) (picture, etc.) in the editor" nil)))
 
 (defmethod editor-window-init-size ((self bpf-editor)) (om-make-point 550 400))
 
@@ -426,7 +430,7 @@
 
 (defmethod om-draw-contents-area ((self bpf-bpc-panel) x y w h)
   (let* ((editor (editor self))
-         (obj (object-value (editor self)))
+         (obj (object-value editor))
          (bpf obj)
          (xmax (+ x w)) (ymax (+ y h)))
    
@@ -443,7 +447,10 @@
                         (draw-grid-from-ruler self (x-ruler self))
                         (draw-grid-from-ruler self (y-ruler self)))
                       ))
-                  
+
+                  (mapc #'(lambda (elt) (draw-background-element elt self editor x y xmax ymax)) 
+                        (list! (get-edit-param (object editor) :background)))
+                                                                 
                   ;;; draw multi ?
                   (when (multi-display-p editor)
                     (loop for bg-bpf in (remove obj (multi-obj-list editor))
