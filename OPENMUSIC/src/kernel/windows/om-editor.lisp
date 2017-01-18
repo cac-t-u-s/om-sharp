@@ -344,7 +344,7 @@
                                           (om-make-di 'om-simple-text :size (om-make-point 20 4) :text "" :focus t)))))))))
 
 (defmethod update-contents ((self OMDefaultEditorView))
-  (om-remove-subviews self (car (om-subviews self)))
+  (apply 'om-remove-subviews (cons self (om-subviews self)))
   (set-contents self))
 
 (defmethod initialize-instance :after ((self OMDefaultEditorView) &rest args)

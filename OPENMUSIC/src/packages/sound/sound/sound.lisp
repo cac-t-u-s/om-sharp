@@ -392,7 +392,9 @@ Press 'space' to play/stop the sound file.
                                                    :ptr (audio-io::om-get-sound-buffer (namestring (file snd)) *default-internal-sample-size*)))))
           (,buffer-name (or tmp-buffer (buffer snd))))
      (unwind-protect
-         (progn ,@body)
+         (progn 
+           (unless ,buffer-name (om-print "Warning: no sound buffer allocated" "OM"))
+           ,@body)
        (when tmp-buffer (oa::om-release tmp-buffer))
        )))
 

@@ -71,7 +71,7 @@
       (om-invalidate-view (frame box)))
     (when (plusp wait) (sleep wait))))
 
-(push :debug-mode *features*)
+;(push :debug-mode *features*)
 
 #+debug-mode
 (defmethod OMR-Notify :around ((self OMBox))
@@ -126,10 +126,6 @@
   (self-notify self)
   (setf (state-lock self) nil))
 
-
-
- 
-      
 
 ;;; when an input is edited
 (defmethod set-value ((self box-input) value)
