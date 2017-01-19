@@ -23,7 +23,6 @@
   (call-next-method))
 
 ;;; this method is also defined for OMBoxFrame
-
 (defmethod dispatch-key-action ((self multi-view-editor) key) 
   (if (and (selected-view self) 
            (not (equal (editor (selected-view self)) self)))

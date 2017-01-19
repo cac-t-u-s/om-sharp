@@ -153,7 +153,6 @@
                 :style (find-values-in-prop-list data :style)
                 ))
 
-
 (defmethod omng-save ((self oa::ompoint))  
   `(:point ,(om-point-x self) ,(om-point-y self))) 
 
@@ -549,9 +548,14 @@
               (:size ,(when (window-size self)
                         (list (om-point-x (window-size self)) (om-point-y (window-size self)))))  
               (:position ,(when (window-pos self)
-                            (list (om-point-x (window-pos self)) (om-point-y (window-pos self)))))))
+                            (list (om-point-x (window-pos self)) (om-point-y (window-pos self)))))
+              )
+             (:edition-params ,.(mapcar 
+                                 #'(lambda (p) `(,(car p) ,(omng-save (cadr p))))
+                                 (edition-params self))))
            (unless (lambda-state self) (list (save-value self))))))
   
+
 ;;; OMValueBox always save the value
 (defmethod omng-save ((self OMValueBox))  
   (append (call-next-method)
@@ -576,7 +580,6 @@
          (name (find-value-in-kv-list data :name))
          (pos (omp x y))
          (size (and (or w h) (omp w h)))
-         (edwin-info (find-values-in-prop-list data :window))
          (group-id (find-value-in-kv-list data :group-id))
          (val (omng-load (find-value-in-kv-list data :value)))
          (inputs (find-values-in-prop-list data :inputs))
@@ -604,13 +607,11 @@
                           (progn (om-beep-msg "unknown class: ~A" reference)
                             (omng-make-lost-slots-box reference pos))))
                 (otherwise (om-beep-msg "unknown box type: ~A" type))))) ;;; DO SOMETHING FOR UNKNOWN BOX ID (kind of 'dead boxes')
+    
+
     (when box
-      ;;; only for boxeditcall
-      (when edwin-info
-        (let ((wsize (find-value-in-kv-list edwin-info :size))
-              (wpos (find-value-in-kv-list edwin-info :position)))
-          (setf (window-pos box) (omp (car wpos) (cadr wpos))
-                (window-size box) (omp (car wsize) (cadr wsize)))))
+      
+      (load-box-attributes box data)
               
       (when size (setf (box-w box) (om-point-x size) (box-h box) (om-point-y size)))
       (when inputs (restore-inputs box inputs))
@@ -623,6 +624,25 @@
       )
     box
     ))
+
+(defmethod load-box-attributes ((box t) data) nil)
+
+(defmethod load-box-attributes ((box OMBoxEditCall) data)
+  (let ((edwin-info (find-values-in-prop-list data :window))
+        (ed-params (find-values-in-prop-list data :edition-params)))
+         
+    (when edwin-info
+      (let ((wsize (find-value-in-kv-list edwin-info :size))
+            (wpos (find-value-in-kv-list edwin-info :position)))
+        (setf (window-pos box) (omp (car wpos) (cadr wpos))
+              (window-size box) (omp (car wsize) (cadr wsize)))))
+    (when ed-params 
+      (setf (edition-params box) 
+            (mapcar #'(lambda (p)
+                        (list (car p) (omng-load (cadr p))))
+                    ed-params)))
+    box))
+
 
 ;;;=============
 ; COMMENTS

@@ -32,7 +32,7 @@
 
 ;;; 3DC editor 
 
-(defclass 3DC-editor (multi-display-editor-mixin OMEditor play-editor-mixin)
+(defclass 3DC-editor (multi-display-editor-mixin OMEditor multi-view-editor play-editor-mixin)
   ((top-bpc-editor :accessor top-bpc-editor :initform nil)
    (front-bpc-editor :accessor front-bpc-editor :initform nil)
    (3Dp :accessor 3Dp :initform nil)
@@ -416,6 +416,22 @@
 ;;; MENUS
 ;;;==========================
 
+(defmethod om-menu-items ((self 3dc-editor))
+  (remove nil
+          (list 
+           (main-app-menu-item)
+           (om-make-menu "File" (default-file-menu-items self))
+           (om-make-menu "Edit" (bpf-edit-menu-items self))
+           (om-make-menu "Windows" (default-windows-menu-items self))
+           (om-make-menu "Help" (default-help-menu-items self))
+           )))
+
+(defmethod reverse-points ((self 3dc-editor))
+  (time-sequence-reverse (object-value self))
+  (editor-invalidate-views self)
+  (update-to-editor (timeline-editor self) self))
+
+
 (defmethod select-all-command ((self 3dc-editor))
   #'(lambda () 
       (setf (selection self) (list T))
@@ -438,6 +454,7 @@
          (top-panel (get-g-component top-editor :main-panel))
          (front-editor (front-bpc-editor editor))
          (front-panel (get-g-component front-editor :main-panel))
+         (selected-editor (and (selected-view editor) (editor (selected-view editor))))
          (3dpanel (3dp editor)))
     (case key
       (#\- (zoom-rulers top-editor :dx -0.1 :dy -0.1)
@@ -466,13 +483,17 @@
        (time-sequence-update-internal-times (object-value editor))
        (report-modifications top-editor))
       (:om-key-up
-       (move-editor-selection top-editor :dy (/ (get-units (y-ruler top-panel) (if (om-shift-key-p) 400 40)) (scale-fact top-panel)))
-       (time-sequence-update-internal-times (object-value editor))
-       (report-modifications top-editor))
+       (let* ((ed (or selected-editor top-editor))
+              (panel (get-g-component top-editor :main-panel)))
+         (move-editor-selection ed :dy (/ (get-units (y-ruler panel) (if (om-shift-key-p) 400 40)) (scale-fact panel)))
+         (time-sequence-update-internal-times (object-value editor))
+         (report-modifications ed)))
       (:om-key-down
-       (move-editor-selection top-editor :dy (/ (- (get-units (y-ruler top-panel) (if (om-shift-key-p) 400 40))) (scale-fact top-panel)))
-       (time-sequence-update-internal-times (object-value editor))
-       (report-modifications top-editor))
+       (let* ((ed (or selected-editor top-editor))
+             (panel (get-g-component top-editor :main-panel)))
+         (move-editor-selection ed :dy (/ (- (get-units (y-ruler panel) (if (om-shift-key-p) 400 40))) (scale-fact panel)))
+         (time-sequence-update-internal-times (object-value editor))
+         (report-modifications ed)))
       (:om-key-pageup
        (move-editor-selection front-editor :dy (/ (get-units (y-ruler front-panel) (if (om-shift-key-p) 400 40)) (scale-fact front-panel)))
        (time-sequence-update-internal-times (object-value editor))

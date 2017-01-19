@@ -52,7 +52,7 @@
 
 (defparameter +bpf-editor-modes+ '(:mouse :pen :hand)) ; :zoomin :zoomout))
 
-(defclass bpf-bpc-panel (OMEditorView) 
+(defclass bpf-bpc-panel (OMEditorView multi-view-editor-view) 
   ((scale-fact :accessor scale-fact :initarg :scale-fact :initform 1)
    (x-ruler :accessor x-ruler :initform nil)
    (y-ruler :accessor y-ruler :initform nil)
@@ -479,12 +479,33 @@
       
 
 
-
-
-
 ;;;==========================
 ;;; MENUS
 ;;;==========================
+
+(defun bpf-edit-menu-items (self)
+  (list (om-make-menu-comp 
+         (list (om-make-menu-item "Undo" #'(lambda () (funcall (undo-command self))) :key "z" :enabled (and (undo-command self) t))
+               (om-make-menu-item "Redo" #'(lambda () (funcall (redo-command self))) :key "Z" :enabled (and (redo-command self) t))))
+        (om-make-menu-comp 
+         (list 
+          (om-make-menu-item "Delete selection" #'(lambda () (funcall (clear-command self))) :enabled (and (clear-command self) t)))) 
+        (om-make-menu-comp 
+         (list (om-make-menu-item "Select All" #'(lambda () (funcall (select-all-command self))) :key "a" :enabled (and (select-all-command self) t))))
+        (om-make-menu-comp 
+         (list 
+          (om-make-menu-item "Reverse points" #'(lambda () (reverse-points self)) :key "r" )))
+        ))
+
+(defmethod om-menu-items ((self bpf-editor))
+  (remove nil
+          (list 
+           (main-app-menu-item)
+           (om-make-menu "File" (default-file-menu-items self))
+           (om-make-menu "Edit" (bpf-edit-menu-items self))
+           (om-make-menu "Windows" (default-windows-menu-items self))
+           (om-make-menu "Help" (default-help-menu-items self))
+           )))
 
 (defmethod select-all-command ((self bpf-editor))
   #'(lambda () 
@@ -841,6 +862,12 @@
          (p (nth i (point-list object))))
     (close-point-editor self)
     (open-point-editor self p :time (nth i (times object)))))
+
+
+(defmethod reverse-points ((self bpf-editor))
+  (time-sequence-reverse (object-value self))
+  (editor-invalidate-views self)
+  (update-to-editor (timeline-editor self) self))
 
 ;;;==========================
 ;;; USER

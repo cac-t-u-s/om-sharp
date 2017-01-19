@@ -36,6 +36,13 @@
 (defmethod om-copy ((self 3dpoint))
   (make-3Dpoint :x (3Dpoint-x self) :y (3Dpoint-y self) :z (3Dpoint-z self) :time (3Dpoint-time self) :internal-time (3Dpoint-internal-time self) :type (3Dpoint-type self)))
 
+(defmethod omng-save ((self 3dpoint))  
+  `(:3Dpoint ,(om-point-x self) ,(om-point-y self) ,(om-point-z self)))
+
+(defmethod om-load-from-id ((id (eql :3Dpoint)) data)
+  (apply 'om-make-3dpoint data))
+
+
 (defmethod om-point-set ((point 3dpoint) &key x y z time type)
   (if x (setf (3dpoint-x point) x))
   (if y (setf (3dpoint-y point) y))

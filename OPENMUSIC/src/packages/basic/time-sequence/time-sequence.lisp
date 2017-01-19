@@ -126,6 +126,25 @@
   (time-sequence-update-internal-times self))
 
 
+; REVERSE THE TIME SEQUENCE
+(defmethod time-sequence-reverse ((self time-sequence))
+  (let* ((t0 (get-first-time self))
+         (times (time-sequence-get-times self))
+         (durations (reverse (x->dx (remove nil times))))
+         reversed-times)
+    (time-sequence-set-timed-item-list self
+     (reverse (time-sequence-get-timed-item-list self)))
+    (setf reversed-times 
+          (loop for item in times collect
+                (if item 
+                    (let ((val t0))
+                      (setf t0 (+ t0 (or (pop durations) 0)))
+                      val)
+                  item)))
+    (time-sequence-set-times self reversed-times)
+    self))
+  
+
 ;;;======================================
 ;;; UTILS (internal)
 ;;;======================================
