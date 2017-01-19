@@ -249,8 +249,8 @@
 ;; THE MAIN OBJECT BOX (FACTORY)
 ;;===========================================
 
-(defclass OMBoxEditCall (OMBoxRelatedWClass ObjectWithEditor) 
-  ((edition-params :initform nil :accessor edition-params :initarg :edition-params)
+(defclass OMBoxEditCall (OMBoxRelatedWClass ObjectWithEditor object-with-edit-params) 
+  (
    (play-state :initform nil :accessor play-state))
   (:metaclass omstandardclass))
 
@@ -337,14 +337,6 @@
 (defmethod get-default-edit-param ((self OMBoxEditCall) param)
   (let ((val (or (car (value self)) (make-instance (reference self)))))
     (find-value-in-kv-list (object-default-edition-params val) param)))
-
-(defmethod get-edit-param ((self OMBoxEditCall) param)
-  (or (find-value-in-kv-list (edition-params self) param)
-      (get-default-edit-param self param)))
-  
-(defmethod set-edit-param ((self OMBoxEditCall) param value)
-  (setf (edition-params self)
-        (set-value-in-kv-list (edition-params self) param value)))
 
 ;;;=============================
 ;;; FRAME

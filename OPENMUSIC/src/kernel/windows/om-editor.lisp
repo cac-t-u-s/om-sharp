@@ -14,10 +14,31 @@
    (g-components :initarg :g-components :initform nil :accessor g-components)
    (selection :accessor selection :initform nil)))
 
+
+;;;=============================
+;;; EDIT-PARAMS
+;;;=============================
+
+(defclass object-with-edit-params () 
+  ((edition-params :initform nil :accessor edition-params :initarg :edition-params)))
+
+(defmethod get-edit-param ((self object-with-edit-params) param)
+  (or (find-value-in-kv-list (edition-params self) param)
+      (get-default-edit-param self param)))
+
+(defmethod get-default-edit-param ((self object-with-edit-params) param) nil)
+
+(defmethod set-edit-param ((self object-with-edit-params) param value)
+  (setf (edition-params self)
+        (set-value-in-kv-list (edition-params self) param value)))
+
 ;;; this is useful to open the editor of something that is not necessarily in a box 
 ;;; serves as the 'object' of the editor
-(defclass OMAbstractContainer (ObjectWithEditor)
+(defclass OMAbstractContainer (ObjectWithEditor object-with-edit-params)
   ((contents :initarg :contents :initform nil :accessor contents)))
+
+;;;=============================
+
 
 ;;; Superclass for OM root editors (patch, maquette, Lispfile, etc.)
 (defclass OMDocumentEditor (OMEditor) ())
