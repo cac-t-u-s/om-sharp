@@ -64,8 +64,7 @@
 (defmethod zoom-view ((self om-opengl-view) factor)
   (let ((eye (gl-user::eye (gl-user::camera self)))
         (fact (if (= factor 0) 1 (/ 1 factor))))
-    (setf (gl-user::xyz-y eye) (min (* (gl-user::xyz-y eye) fact) -0.1d0))
-    )
+    (setf (gl-user::xyz-y eye) (min (* (gl-user::xyz-y eye) fact) -0.1d0)))
   (gl-user::opengl-redisplay-canvas self))
 
 (defmethod om-get-gl-objects ((self om-opengl-view))

@@ -31,8 +31,7 @@
   ((color :accessor color :initarg :color :initform nil)
    (points :initarg :points :accessor points :initform nil)
    (glvertexes :accessor glvertexes :initarg :glvertexes :initform nil))
-  (:default-initargs
-   :use-display-list T))
+  (:default-initargs :use-display-list nil))
 
 
 (defun points2vertex (points)
@@ -134,78 +133,78 @@
 
 (defclass 3D-cube (om-3D-object) 
   ((center :accessor center :initarg :center :initform nil)
-   (faces :accessor faces :initarg :faces :initform t)
-   (size :accessor size :initarg :size :initform nil)))
+   (size :accessor size :initarg :size :initform nil)
+   (faces :accessor faces :initarg :faces :initform nil)
+   (normals :accessor normals :initarg :normals :initform nil)
+   (filled :accessor filled :initarg :filled :initform t )
+   )
+  (:default-initargs 
+   :faces '((1 2 3 4)
+            (1 4 8 5)
+            (5 8 7 6)
+            (6 7 3 2)
+            (4 3 7 8)
+            (2 1 5 6))
+   :normals '((0 1 0)
+              (1 0 0)
+              (0 -1 0)
+              (-1 0 0)
+              (0 0 -1)
+              (0 0 1))
+   )
+  )
 
 (defmethod initialize-instance :after ((self 3D-cube) &rest initargs)
   (when (and (center self) (size self))
-    (let ((hs (/ (size self) 2))
-          (x (car (center self)))
-          (y (cadr (center self)))
-          (z (caddr (center self))))
-      (om-set-3Dobj-points self 
-            (list (list (- x hs) (- y hs) (- z hs))
-                  (list (+ x hs) (- y hs) (- z hs))
-                  (list (+ x hs) (- y hs) (+ z hs))
-                  (list (- x hs) (- y hs) (+ z hs))
-                  (list (- x hs) (+ y hs) (- z hs))
-                  (list (+ x hs) (+ y hs) (- z hs))
-                  (list (+ x hs) (+ y hs) (+ z hs))
-                  (list (- x hs) (+ y hs) (+ z hs)))))))
+    (let* ((hs (/ (size self) 2))
+           (x (car (center self)))
+           (y (cadr (center self)))
+           (z (caddr (center self)))
+           (p1 (list (- x hs) (- y hs) (- z hs)))
+           (p2 (list (+ x hs) (- y hs) (- z hs)))
+           (p3 (list (+ x hs) (- y hs) (+ z hs)))
+           (p4 (list (- x hs) (- y hs) (+ z hs)))
+           (p5 (list (- x hs) (+ y hs) (- z hs)))
+           (p6 (list (+ x hs) (+ y hs) (- z hs)))
+           (p7 (list (+ x hs) (+ y hs) (+ z hs)))
+           (p8 (list (- x hs) (+ y hs) (+ z hs))))
+      (om-set-3Dobj-points self (list p1 p2 p3 p4 p5 p6 p7 p8))
+      )))
                   
+
+(defmethod make-cube-face ((self 3D-cube) i &optional (fill t))
+  )
 
 (defmethod om-draw-contents ((self 3D-cube))
   (let* ((vertices (om-get-gl-points self)))
     (if (om-3Dobj-color self)
         (let ((col (om-color-to-single-float-list (om-3Dobj-color self))))
-          (opengl:gl-color4-f (car col) (cadr col) (caddr col) (cadddr col))))
-
-    (if (faces self)
-        (opengl:gl-begin opengl:*GL-QUADS*)
-      (opengl:gl-begin opengl:*GL-LINE-LOOP*))
-    (opengl:gl-normal3-i 0 1 0) 
-    (opengl:gl-vertex4-dv (aref vertices 0))
-    (opengl:gl-vertex4-dv (aref vertices 1))
-    (opengl:gl-vertex4-dv (aref vertices 2))
-    (opengl:gl-vertex4-dv (aref vertices 3))
-    (opengl:gl-end)
+          (opengl:gl-color4-f (car col) (cadr col) (caddr col) (cadddr col)))) 
     
-    (if (faces self)
-        (opengl:gl-begin opengl:*GL-QUADS*)
-      (opengl:gl-begin opengl:*GL-LINE-LOOP*))
-    
-    (opengl:gl-vertex4-dv (aref vertices 7))
-    (opengl:gl-vertex4-dv (aref vertices 6))
-    (opengl:gl-vertex4-dv (aref vertices 5))
-    (opengl:gl-vertex4-dv (aref vertices 4))
+    (opengl:gl-shade-model opengl:*gl-flat*)
 
-  (opengl:gl-end)
-    
-    (if (faces self)
-        (opengl:gl-begin opengl:*GL-QUADS*)
-      (opengl:gl-begin opengl:*GL-LINES*))
-    (opengl:gl-vertex4-dv (aref vertices 3))
-    (opengl:gl-vertex4-dv (aref vertices 7))
-    (opengl:gl-vertex4-dv (aref vertices 4))
-    (opengl:gl-vertex4-dv (aref vertices 0))
+    (when (filled self)       
+      (loop for f in (faces self)
+            for n in (normals self) do
+            ;for i from 1 do
+            (progn  ;(find i '(1) :test '=) 
+              (opengl:gl-begin opengl:*GL-QUADS*)
+              (loop for p in f do
+                ;(apply 'opengl:gl-normal3-i n)
+                    (opengl:gl-vertex4-dv (aref (om-get-gl-points self) (1- p)))
+                    ;(apply 'opengl:gl-normal3-i n)
+                    )
+              (opengl:gl-end)))
+      )
 
-    (opengl:gl-vertex4-dv (aref vertices 5))
-    (opengl:gl-vertex4-dv (aref vertices 1))
-    (opengl:gl-vertex4-dv (aref vertices 0))
-    (opengl:gl-vertex4-dv (aref vertices 4))
-    
-    (opengl:gl-vertex4-dv (aref vertices 6))
-    (opengl:gl-vertex4-dv (aref vertices 2))
-    (opengl:gl-vertex4-dv (aref vertices 1))
-    (opengl:gl-vertex4-dv (aref vertices 5))
-
-    (opengl:gl-vertex4-dv (aref vertices 2))
-    (opengl:gl-vertex4-dv (aref vertices 6))
-    (opengl:gl-vertex4-dv (aref vertices 7))
-    (opengl:gl-vertex4-dv (aref vertices 3))
-
-    (opengl:gl-end)
+    (opengl:gl-color3-f 0.3 0.3 0.3)
+    (loop for f in (faces self) do
+          (opengl:gl-begin opengl:*GL-LINE-LOOP*)
+          (loop for p in f do
+                (opengl:gl-vertex4-dv (aref (om-get-gl-points self) (1- p))))
+          (opengl:gl-end))
     ))
+    
 
 
 ;;;======================
@@ -218,19 +217,21 @@
    (line-width :accessor line-width :initarg :line-width :initform *OM-GL-DEFAULT-LINEWIDTH*)
    (vertices-colors :accessor vertices-colors :initform nil)
    (vertices-colors-interpol :accessor vertices-colors-interpol :initform nil))
-   (:default-initargs
-    :use-display-list T))
+   (:default-initargs :use-display-list T))
 
 (defmethod om-draw-contents ((self 3d-lines))
   (let* ((vertices (om-get-gl-points self))
          (size (- (length vertices) 1))
          (selection (selected-points self)))
+    
     (opengl:gl-enable opengl:*gl-light0*)
     (opengl:gl-line-width (float (line-width self)))
 
     ;draw the lines first
     (when (and (not (equal (draw-style self) :points-only)) (> size 0))
-      (if (vertices-colors-interpol self) (opengl:gl-shade-model opengl:*gl-smooth*) (opengl:gl-shade-model opengl:*gl-flat*))
+      (if (vertices-colors-interpol self) 
+          (opengl:gl-shade-model opengl:*gl-smooth*) 
+        (opengl:gl-shade-model opengl:*gl-flat*))
       (opengl:gl-begin opengl:*GL-LINE-STRIP*)
       (loop for i from 0 to size do
             (let ((rgb (om-color-to-single-float-list (or (nth i (vertices-colors self)) (om-3Dobj-color self) (om-def-color :light-gray)))))
@@ -297,18 +298,16 @@
     (if faces
         (opengl:gl-begin opengl:*GL-QUADS*)
       (opengl:gl-begin opengl:*GL-LINE-LOOP*))
-    
+    (opengl:gl-normal3-i 0 1 0)
     (opengl:gl-vertex3-f (car (nth 7 cube-points)) (cadr (nth 7 cube-points)) (caddr (nth 7 cube-points)))
     (opengl:gl-vertex3-f (car (nth 6 cube-points)) (cadr (nth 6 cube-points)) (caddr (nth 6 cube-points)))
     (opengl:gl-vertex3-f (car (nth 5 cube-points)) (cadr (nth 5 cube-points)) (caddr (nth 5 cube-points)))
     (opengl:gl-vertex3-f (car (nth 4 cube-points)) (cadr (nth 4 cube-points)) (caddr (nth 4 cube-points)))
-
-  (opengl:gl-end)
+    (opengl:gl-end)
     
     (if faces
         (opengl:gl-begin opengl:*GL-QUADS*)
       (opengl:gl-begin opengl:*GL-LINES*))
-    
     (opengl:gl-vertex3-f (car (nth 3 cube-points)) (cadr (nth 3 cube-points)) (caddr (nth 3 cube-points)))
     (opengl:gl-vertex3-f (car (nth 7 cube-points)) (cadr (nth 7 cube-points)) (caddr (nth 7 cube-points)))
     (opengl:gl-vertex3-f (car (nth 4 cube-points)) (cadr (nth 4 cube-points)) (caddr (nth 4 cube-points)))

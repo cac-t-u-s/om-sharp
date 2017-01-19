@@ -369,6 +369,7 @@
     (setf (light-transform canvas) (make-gl-double-vector 16))
     (initialize-transform (icotransform canvas))
     (initialize-transform (light-transform canvas))
+    (set-lights-and-materials)
     ))
 
 (defun initialize-transform (transform)
@@ -427,17 +428,18 @@
 
 ;; must be called at runtime because of gl-vector pointers
 (defun set-lights-and-materials ()
-  (setf *light-model-ambient* (gl-single-vector 0.6 0.6 0.6 1.0))
+  (setf *light-model-ambient* (gl-single-vector 0.4 0.4 0.4 1.0))  ;; (gl-single-vector 0.0 0.0 0.0 1.0)
   (setf *light-position* (gl-single-vector 1.0 2.0 3.0 1.0))
   (setf *light-ambient* (gl-single-vector 0.1 0.1 0.1 1.0))
   (setf *light-diffuse* (gl-single-vector 0.8 0.8 0.8 1.0))
   (setf *light-specular* (gl-single-vector 0.8 0.8 0.8 1.0))
-  (setf *material-specular* (gl-single-vector 0.1 0.1 0.1 1.0))
-  (setf *material-shininess* 25.0)
-  (setf *material-emission* (gl-single-vector 0.1 0.1 0.1 1.0)))
+  (setf *material-specular* (gl-single-vector 0.1 0.1 0.1 1.0))  ;; (gl-single-vector 0.1 0.0 0.0 1.0)
+  (setf *material-shininess* 25.0)  ;; 64.0
+  (setf *material-emission* (gl-single-vector 0.0 0.0 0.0 1.0))  ;; (gl-single-vector 0.0 0.0 0.0 1.0)
+)
 
-(defun ensure-gl-vector (var)
-  (unless var (set-lights-and-materials)))
+(defun ensure-gl-vector (check)
+  (unless check (set-lights-and-materials)))
 
 (defun opengl-redisplay-canvas (canvas &rest ignore)
   ignore
@@ -458,37 +460,20 @@
   (opengl:gl-color-mask 1 1 1 1)
   ;draw the camera (background and view position)
   (draw (camera canvas))
-  ;draw light stuff
-  (opengl-redisplay-light canvas)
-  ;apply transform and render canvas and objects
-  (opengl-redisplay-canvas-and-objects canvas)
-  )
+  ;apply transform and render canvas light and objects
+  (opengl-redisplay-all canvas))
 
 
-(defun opengl-redisplay-canvas-and-objects (canvas)
-  (ensure-gl-vector (and *material-specular* *material-emission*))
-  (opengl:with-matrix-pushed
-    
-      (opengl:gl-mult-matrixd (icotransform canvas))   
-
-      ;material stuff
-      (opengl:gl-cull-face opengl:*gl-back*)
-      (opengl:gl-enable opengl:*gl-cull-face*)
-      
-      (opengl:gl-enable opengl:*gl-color-material*)
-      (opengl:gl-color-material opengl:*gl-front* opengl:*gl-ambient-and-diffuse*)
-      
-      (opengl:gl-materialfv opengl:*gl-front* opengl:*gl-specular* *material-specular*)
-      (opengl:gl-materialf opengl:*gl-front* opengl:*gl-shininess* *material-shininess*)
-      (opengl:gl-materialfv opengl:*gl-front* opengl:*gl-emission* *material-emission*)
-      
-      ;Draw the content of the pane ant the objects
-      (draw-contents canvas)
-      (if (g-objects canvas) (mapc #'draw (g-objects canvas)))
-      ))
-
-(defun opengl-redisplay-light (canvas)
-  (ensure-gl-vector (and *light-model-ambient* *light-position* *light-ambient* *light-diffuse* *light-specular*))
+(defun opengl-redisplay-all (canvas)
+  
+  (ensure-gl-vector (and *material-specular* 
+                         *material-emission* 
+                         *light-model-ambient* 
+                         *light-position* 
+                         *light-ambient* 
+                         *light-diffuse* 
+                         *light-specular*))
+  
   (opengl:with-matrix-pushed
       (opengl:gl-mult-matrixd (light-transform canvas))
       
@@ -501,7 +486,28 @@
       (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-ambient* *light-ambient*)
       (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-diffuse* *light-diffuse*)
       (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-specular* *light-specular*)
-      ))
+      )
+
+  (opengl:with-matrix-pushed
+    ;(opengl:gl-shade-model opengl:*gl-smooth*)
+    (opengl:gl-mult-matrixd (icotransform canvas))   
+
+    ;material stuff
+    (opengl:gl-cull-face opengl:*gl-back*)
+    (opengl:gl-enable opengl:*gl-cull-face*)
+      
+    (opengl:gl-enable opengl:*gl-color-material*)
+    (opengl:gl-color-material opengl:*gl-front* opengl:*gl-ambient-and-diffuse*)
+      
+    (opengl:gl-materialfv opengl:*gl-front* opengl:*gl-specular* *material-specular*)
+    (opengl:gl-materialf opengl:*gl-front* opengl:*gl-shininess* *material-shininess*)
+    (opengl:gl-materialfv opengl:*gl-front* opengl:*gl-emission* *material-emission*)
+      
+      ;Draw the content of the pane ant the objects
+    (draw-contents canvas)
+    (mapc #'draw (g-objects canvas))
+    )
+  )
 
 ;tobe redefined
 (defmethod draw-contents (canvas) (print (list "draw canvas" canvas)))
@@ -546,10 +552,8 @@
     (opengl:gl-load-identity)
     (opengl:gl-color-mask 1 0 0 1)
     (draw camera-left)
-    ;draw light stuff
-    (opengl-redisplay-light canvas)
-    ;apply transform and render canvas and objects
-    (opengl-redisplay-canvas-and-objects canvas)
+    ;apply transform and render canvas lights and objects
+    (opengl-redisplay-all canvas)
     ;;;;CYAN;;;;;;;;;;;;
     ;set the rendering buffer for cyan
     (opengl:gl-draw-buffer opengl:*gl-back-right*)
@@ -557,10 +561,8 @@
     (opengl:gl-load-identity)
     (opengl:gl-color-mask 0 1 1 1)
     (draw camera-right)
-    ;draw light stuff
-    (opengl-redisplay-light canvas)
-    ;apply transform and render canvas and objects
-    (opengl-redisplay-canvas-and-objects canvas)
+    ;apply transform and render canvas lights and objects
+    (opengl-redisplay-all canvas)
   )
 )
 

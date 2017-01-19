@@ -10,7 +10,7 @@
 (defun make-bg-speakers (speakers)
   (mapcar #'(lambda (spk)
               (make-instance 'cube :pos (make-3dpoint :x (car spk) :y (cadr spk) :z (caddr spk))
-                             :size .1))
+                             :size .08))
           speakers))
 
 (defmethod draw-background-element ((self cube) (view bpf-bpc-panel) editor &optional x1 y1 x2 y2)
@@ -29,5 +29,5 @@
   (make-instance 
    '3d-cube :size (size self) 
    :center (list (om-point-x (pos self)) (om-point-y (pos self)) (om-point-z (pos self)))
-   :color (om-def-color :light-gray)))
+   :color (om-def-color :gray)))
   
