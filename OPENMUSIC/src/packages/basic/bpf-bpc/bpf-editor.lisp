@@ -6,12 +6,6 @@
 (defclass bpf-editor (multi-display-editor-mixin OMEditor play-editor-mixin) 
   ((edit-mode :accessor edit-mode :initform :mouse)
    (decimals :accessor decimals :initform 0 :initarg :decimals)
-   ;;; display
-   (grid :accessor grid :initform t)
-   (show-indices :accessor show-indices :initform nil)
-   (show-times :accessor show-times :initform nil)
-   (show-time-labels :accessor show-time-labels :initform nil)
-   (draw-style :accessor draw-style :initform :draw-all)
    ;;; multi-view
    (x-axis-key :accessor x-axis-key :initarg :x-axis-key :initform :x)
    (y-axis-key :accessor y-axis-key :initarg :y-axis-key :initform :y)
@@ -27,6 +21,8 @@
 (defclass background-element () ())
 (defmethod draw-background-element ((self background-element) view editor &optional x1 y1 x2 y2))
 
+(defmethod object-default-edition-params ((self BPF))
+  '((:draw-style :draw-all)))
 
 (defun x-axis-accessor (editor) (case (x-axis-key editor) (:x 'om-point-x) (:y 'om-point-y) (:z 'om-point-z) (:time 'tpoint-time)))
 (defun y-axis-accessor (editor) (case (y-axis-key editor) (:x 'om-point-x) (:y 'om-point-y) (:z 'om-point-z)))
@@ -80,9 +76,6 @@
 (defmethod y-to-pix ((self bpf-bpc-panel) y) (call-next-method self (* y (scale-fact self))))
 (defmethod dy-to-dpix ((self bpf-bpc-panel) dy) (call-next-method self (* dy (scale-fact self))))
 
-(defmethod set-draw-attribute ((self bpf-editor) slot value)
-  (setf (slot-value self slot) value)
-  (om-invalidate-view (get-g-component self :main-panel)))
 
 ;;;==========================
 ;;; Special BPC
@@ -173,17 +166,22 @@
                                                    :font (om-def-font :font1))
                                        (om-make-di 'om-popup-list :items '(:draw-all :points-only :lines-only) 
                                                    :size (omp 80 24) :font (om-def-font :font1)
-                                                   :value (draw-style editor)
+                                                   :value (editor-get-edit-param editor :draw-style)
                                                    :di-action #'(lambda (list) 
-                                                                  (set-draw-attribute editor 'draw-style (om-get-selected-item list))))
+                                                                  (editor-set-edit-param editor :draw-style (om-get-selected-item list))))
+                                       nil
                                        (om-make-di 'om-check-box :text "indices" :size (omp 60 24) :font (om-def-font :font1)
-                                                   :checked-p (show-indices editor)
+                                                   :checked-p (editor-get-edit-param editor :show-indices)
                                                    :di-action #'(lambda (item) 
-                                                                  (set-draw-attribute editor 'show-indices (om-checked-p item))))
+                                                                  (editor-set-edit-param editor :show-indices (om-checked-p item))))
+                                       (om-make-di 'om-check-box :text "times" :size (omp 60 24) :font (om-def-font :font1)
+                                                   :checked-p (editor-get-edit-param editor :show-times)
+                                                   :di-action #'(lambda (item) 
+                                                                  (editor-set-edit-param editor :show-times (om-checked-p item))))
                                        (om-make-di 'om-check-box :text "grid" :size (omp 45 24) :font (om-def-font :font1)
-                                                   :checked-p (grid editor)
+                                                   :checked-p (editor-get-edit-param editor :grid)
                                                    :di-action #'(lambda (item) 
-                                                                  (set-draw-attribute editor 'grid (om-checked-p item))))
+                                                                  (editor-set-edit-param editor :grid (om-checked-p item))))
                                        (om-make-di 'om-simple-text :text "Offset:" 
                                                    :size (omp 38 20) 
                                                    :font (om-def-font :font1))
@@ -201,9 +199,9 @@
                                                                               ))
                                        (when timeline
                                          (om-make-di 'om-check-box :text "timeline" :size (omp 65 24) :font (om-def-font :font1)
-                                                     :checked-p (show-times editor)
+                                                     :checked-p (editor-get-edit-param editor :show-timeline)
                                                      :di-action #'(lambda (item) 
-                                                                    (set-draw-attribute editor 'show-times (om-checked-p item))
+                                                                    (editor-set-edit-param editor :show-timeline (om-checked-p item))
                                                                     (clear-timeline timeline-editor)
                                                                     (om-invalidate-view timeline)
                                                                     (when (om-checked-p item) 
@@ -224,7 +222,7 @@
     (when timeline
       (setf (timeline-editor editor) timeline-editor)
       (set-g-component timeline-editor :main-panel timeline)
-      (when (show-times editor)
+      (when (editor-get-edit-param editor :show-timeline)
         (make-timeline-view timeline-editor)))
     (om-make-layout 'om-row-layout :ratios '(9.9 0.1) 
                     :subviews 
@@ -354,12 +352,12 @@
          (om-with-fg-color (om-def-color :dark-red)
            (om-draw-circle (car p) (cadr p) 4 :fill t)))
         ;;; draw normal except if lines only
-        ((not (equal (draw-style editor) :lines-only))
+        ((not (equal (editor-get-edit-param editor :draw-style) :lines-only))
          (om-draw-circle (car p) (cadr p) 3 :fill t))
         (t nil))
   (when index
     (om-draw-string (car p) (+ (cadr p) 15) (number-to-string index)))
-  (when (and time (show-time-labels editor))
+  (when (and time (editor-get-edit-param editor :show-times))
     (om-with-fg-color (if (minusp time) (om-def-color :gray) (om-def-color :dark-blue) ) 
       (om-draw-string (car p) (- (cadr p) 15) (number-to-string (abs time) 0)))))
 
@@ -381,22 +379,24 @@
     (when pts
       (let ((first-pt (list (x-to-pix view (editor-point-x editor (car pts)))
                             (y-to-pix view (editor-point-y editor (car pts)))))
-            (selection (and foreground? (selection editor))))
+            (selection (and foreground? (selection editor)))
+            (show-indice (editor-get-edit-param editor :show-indices)))
         (draw-bpf-point first-pt editor
                         :selected (and (consp selection) (find 0 selection))
-                        :index (and foreground? (show-indices editor) 0)
+                        :index (and foreground? show-indice 0)
                         :time (and foreground? (time-to-draw bpf editor (car pts) 0))) ;TODO Change drawing args here !
 
-        (if (equal (draw-style editor) :points-only) 
+        (if (equal (editor-get-edit-param editor :draw-style) :points-only) 
             ;;; a) draw only points
-            (loop for pt in (cdr pts) for i = 1 then (1+ i) do
+            (loop for pt in (cdr pts) 
+                  for i = 1 then (1+ i) do
                   (let ((p (list (x-to-pix view (editor-point-x editor pt))
                                  (y-to-pix view (editor-point-y editor pt)))))
                     (when (point-visible-p p x1 x2 y1 y2)
                   ;(print (list "POINT" i))
                       (draw-bpf-point p editor
                                       :selected (and (consp selection) (find i selection))
-                                      :index (and foreground? (show-indices editor) i) 
+                                      :index (and foreground? show-indice i) 
                                       :time (and foreground? (time-to-draw bpf editor pt i)))
                       )))
           ;;; b) draw points and lines
@@ -418,7 +418,7 @@
                                                   
                                    (draw-bpf-point pp2 editor
                                                    :selected (and (consp selection) (find i selection))
-                                                   :index (and foreground? (show-indices editor) i)
+                                                   :index (and foreground? show-indice i)
                                                    :time (and foreground? (time-to-draw bpf editor p2 i)))
                                    (append pp1 pp2)
                                    )
@@ -442,7 +442,7 @@
                         (om-draw-line 0 (cadr center) (w self) (cadr center)))
                       (when (and (> (car center) 0) (< (car center) (h self)))
                         (om-draw-line (car center) 0 (car center) (h self))))
-                    (when (grid editor)
+                    (when (editor-get-edit-param editor :grid)
                       (om-with-line '(2 2)
                         (draw-grid-from-ruler self (x-ruler self))
                         (draw-grid-from-ruler self (y-ruler self)))
@@ -615,7 +615,7 @@
                                      (- (y-to-pix panel (editor-point-y editor p2)) delta)
                                      (* delta 2) (* delta 2))
                  (1+ pos))
-            (and p1 p2 (not (equal (draw-style editor) :points-only))
+            (and p1 p2 (not (equal (editor-get-edit-param editor :draw-style) :points-only))
                  (om-point-in-line-p position 
                                      (om-make-point (x-to-pix panel (editor-point-x editor p1))
                                                     (y-to-pix panel (editor-point-y editor p1)))
@@ -646,7 +646,7 @@
                                              (- (y-to-pix panel (editor-point-y editor p)) delta)
                                              (* delta 2) (* delta 2))
                          (setf rep i)
-                       (if (not (equal (draw-style editor) :points-only))
+                       (if (not (equal (editor-get-edit-param editor :draw-style) :points-only))
                            (setf rep (om-point-in-line-p position 
                                                          (om-make-point (x-to-pix panel (editor-point-x editor p))
                                                                         (y-to-pix panel (editor-point-y editor p)))
@@ -1051,7 +1051,6 @@
        (let* ((p (position (edit-mode editor) +bpf-editor-modes+)))
          (when p
            (editor-set-edit-mode editor (nth (mod (1+ p) (length +bpf-editor-modes+)) +bpf-editor-modes+)))))
-      (#\t (set-draw-attribute editor 'show-time-labels (not (show-time-labels editor))))
       (otherwise
        (when (timeline-editor editor)
          (editor-key-action (timeline-editor editor) key)
@@ -1080,14 +1079,14 @@
          (y-mousepos-txt (om-make-graphic-object 'om-item-text :size (omp 120 15) :font (om-def-font :font1))))
     
     (set-g-component x-editor :main-panel x-panel)
-    (set-draw-attribute x-editor 'grid t)
+    ;(setf (grid x-editor) t)
     (set-g-component x-editor :mousepos-txt x-mousepos-txt)
     (setf (y-ruler x-panel) x-y-ruler)
     (setf (related-views time-ruler) (append (list x-panel) (related-views time-ruler)))
    ; (reinit-ranges x-editor)
 
     (set-g-component y-editor :main-panel y-panel)
-    (set-draw-attribute y-editor 'grid t)
+    ;(setf (grid y-editor) t)
     (set-g-component y-editor :mousepos-txt y-mousepos-txt)
     (setf (y-ruler y-panel) y-y-ruler)
     (setf (related-views time-ruler) (append (list y-panel) (related-views time-ruler)))

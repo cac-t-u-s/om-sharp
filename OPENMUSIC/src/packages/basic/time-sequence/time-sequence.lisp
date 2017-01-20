@@ -556,11 +556,11 @@
 (defmethod give-normalized-cumulative-length-profile ((self time-sequence))
 ;give length profile cumulated and normalized between 0 and 1. Returns nil if no or 1 points.
   (let ((pl (time-sequence-get-timed-item-list self)))
-    (if (and (not pl) (> (length pl) 1))
-        nil
-      (let* ((length-profile (give-length-profile self))
-             (length (apply '+ length-profile))
-             (val (dx->x 0 length-profile)))
-        (om/ val length)))))
+    (when (>= (length pl) 1)
+      (let ((length-profile (give-length-profile self)))
+        (when length-profile 
+          (let ((length (apply '+ length-profile))
+                (val (dx->x 0 length-profile)))
+            (om/ val length)))))))
 
 

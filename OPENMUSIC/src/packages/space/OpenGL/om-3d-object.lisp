@@ -126,6 +126,106 @@
 
 |#
 
+
+;;; COMMENT: /* QuadricDrawStyle */
+;;; DEFINE: #define GLU_POINT                          100010
+(defconstant GLU_POINT 100010)
+;;; DEFINE: #define GLU_LINE                           100011
+(defconstant GLU_LINE 100011)
+;;; DEFINE: #define GLU_FILL                           100012
+(defconstant GLU_FILL 100012)
+;;; DEFINE: #define GLU_SILHOUETTE                     100013
+(defconstant GLU_SILHOUETTE 100013)
+
+(defun draw-sphere (position size)
+  (let* ((hs (coerce (/ size 2) 'double-float))
+         (x (float (car position)))
+         (y (float (cadr position)))
+         (z (float (caddr position)))
+         (glu-quad (opengl:glu-new-quadric)))
+    (opengl:gl-push-matrix) 
+    (opengl:gl-translatef x y z)
+    (opengl:glu-quadric-draw-style glu-quad GLU_FILL)
+    (opengl:glu-sphere glu-quad hs 20 20)
+    (opengl:gl-pop-matrix)
+    ))
+
+(defun draw-cone (position size angle rotation_point)
+  (let* ((hs (coerce (/ size 2) 'double-float))
+         (x (car position))
+         (y (cadr position))
+         (z (caddr position))
+         (rx (car rotation_point))
+         (ry (cadr rotation_point))
+         (rz (caddr rotation_point))
+         (glu-quad (opengl:glu-new-quadric)))
+    (opengl:gl-push-matrix) 
+    (opengl:gl-translatef x y z)
+    (opengl:gl-rotatef angle rx ry rz)
+    (opengl:glu-quadric-draw-style glu-quad GLU_FILL)
+    (opengl:glu-cylinder glu-quad hs 0.0d0 hs 20 20)
+    (opengl:gl-pop-matrix)
+    ))
+
+(defun draw-cube (position size faces)
+  (let* ((hs (/ size 2))
+         (x (car position))
+         (y (cadr position))
+         (z (caddr position))
+         (cube-points 
+          (list (list (- x hs) (- y hs) (- z hs))
+                (list (+ x hs) (- y hs) (- z hs))
+                (list (+ x hs) (- y hs) (+ z hs))
+                (list (- x hs) (- y hs) (+ z hs))
+                (list (- x hs) (+ y hs) (- z hs))
+                (list (+ x hs) (+ y hs) (- z hs))
+                (list (+ x hs) (+ y hs) (+ z hs))
+                (list (- x hs) (+ y hs) (+ z hs)))))
+    (if faces
+        (opengl:gl-begin opengl:*GL-QUADS*)
+      (opengl:gl-begin opengl:*GL-LINE-LOOP*))
+    (opengl:gl-normal3-i 0 1 0) 
+    (opengl:gl-vertex3-f (car (nth 0 cube-points)) (cadr (nth 0 cube-points)) (caddr (nth 0 cube-points))) 
+    (opengl:gl-vertex3-f (car (nth 1 cube-points)) (cadr (nth 1 cube-points)) (caddr (nth 1 cube-points)))
+    (opengl:gl-vertex3-f (car (nth 2 cube-points)) (cadr (nth 2 cube-points)) (caddr (nth 2 cube-points)))
+    (opengl:gl-vertex3-f (car (nth 3 cube-points)) (cadr (nth 3 cube-points)) (caddr (nth 3 cube-points)))
+    (opengl:gl-end)
+    
+    (if faces
+        (opengl:gl-begin opengl:*GL-QUADS*)
+      (opengl:gl-begin opengl:*GL-LINE-LOOP*))
+    (opengl:gl-normal3-i 0 1 0)
+    (opengl:gl-vertex3-f (car (nth 7 cube-points)) (cadr (nth 7 cube-points)) (caddr (nth 7 cube-points)))
+    (opengl:gl-vertex3-f (car (nth 6 cube-points)) (cadr (nth 6 cube-points)) (caddr (nth 6 cube-points)))
+    (opengl:gl-vertex3-f (car (nth 5 cube-points)) (cadr (nth 5 cube-points)) (caddr (nth 5 cube-points)))
+    (opengl:gl-vertex3-f (car (nth 4 cube-points)) (cadr (nth 4 cube-points)) (caddr (nth 4 cube-points)))
+    (opengl:gl-end)
+    
+    (if faces
+        (opengl:gl-begin opengl:*GL-QUADS*)
+      (opengl:gl-begin opengl:*GL-LINES*))
+    (opengl:gl-vertex3-f (car (nth 3 cube-points)) (cadr (nth 3 cube-points)) (caddr (nth 3 cube-points)))
+    (opengl:gl-vertex3-f (car (nth 7 cube-points)) (cadr (nth 7 cube-points)) (caddr (nth 7 cube-points)))
+    (opengl:gl-vertex3-f (car (nth 4 cube-points)) (cadr (nth 4 cube-points)) (caddr (nth 4 cube-points)))
+    (opengl:gl-vertex3-f (car (nth 0 cube-points)) (cadr (nth 0 cube-points)) (caddr (nth 0 cube-points)))
+
+    (opengl:gl-vertex3-f (car (nth 5 cube-points)) (cadr (nth 5 cube-points)) (caddr (nth 5 cube-points)))
+    (opengl:gl-vertex3-f (car (nth 1 cube-points)) (cadr (nth 1 cube-points)) (caddr (nth 1 cube-points)))
+    (opengl:gl-vertex3-f (car (nth 0 cube-points)) (cadr (nth 0 cube-points)) (caddr (nth 0 cube-points)))
+    (opengl:gl-vertex3-f (car (nth 4 cube-points)) (cadr (nth 4 cube-points)) (caddr (nth 4 cube-points)))
+
+    (opengl:gl-vertex3-f (car (nth 6 cube-points)) (cadr (nth 6 cube-points)) (caddr (nth 6 cube-points)))
+    (opengl:gl-vertex3-f (car (nth 2 cube-points)) (cadr (nth 2 cube-points)) (caddr (nth 2 cube-points)))
+    (opengl:gl-vertex3-f (car (nth 1 cube-points)) (cadr (nth 1 cube-points)) (caddr (nth 1 cube-points)))
+    (opengl:gl-vertex3-f (car (nth 5 cube-points)) (cadr (nth 5 cube-points)) (caddr (nth 5 cube-points)))
+
+    (opengl:gl-vertex3-f (car (nth 2 cube-points)) (cadr (nth 2 cube-points)) (caddr (nth 2 cube-points)))
+    (opengl:gl-vertex3-f (car (nth 6 cube-points)) (cadr (nth 6 cube-points)) (caddr (nth 6 cube-points)))
+    (opengl:gl-vertex3-f (car (nth 7 cube-points)) (cadr (nth 7 cube-points)) (caddr (nth 7 cube-points)))
+    (opengl:gl-vertex3-f (car (nth 3 cube-points)) (cadr (nth 3 cube-points)) (caddr (nth 3 cube-points)))
+
+    (opengl:gl-end)))
+
 ;;;======================
 ;;; 3D-cube
 ;;;======================
@@ -206,6 +306,12 @@
     ))
     
 
+;;;======================
+;;; SPHERE
+;;;======================
+(defclass 3D-sphere (om-3D-object) 
+  ((center :accessor center :initarg :center :initform nil)
+   (size :accessor size :initarg :size :initform nil)))
 
 ;;;======================
 ;;; 3D-curve
@@ -218,6 +324,13 @@
    (vertices-colors :accessor vertices-colors :initform nil)
    (vertices-colors-interpol :accessor vertices-colors-interpol :initform nil))
    (:default-initargs :use-display-list T))
+
+(defun draw-gl-point (x y z rgb alpha size)
+  (opengl:gl-color4-f (nth 0 rgb) (nth 1 rgb) (nth 2 rgb) alpha)
+  (opengl:gl-point-size size)
+  (opengl:gl-begin opengl:*gl-points*)
+  (opengl:gl-vertex3-f x y z)
+  (opengl:gl-end))
 
 (defmethod om-draw-contents ((self 3d-lines))
   (let* ((vertices (om-get-gl-points self))
@@ -258,119 +371,6 @@
     ;restore gl params
     (restore-om-gl-colors-and-attributes)
     )
-
-
-;;;======================
-;;; MISC
-;;;======================
-
-(defun draw-gl-point (x y z rgb alpha size)
-  (opengl:gl-color4-f (nth 0 rgb) (nth 1 rgb) (nth 2 rgb) alpha)
-  (opengl:gl-point-size size)
-  (opengl:gl-begin opengl:*gl-points*)
-  (opengl:gl-vertex3-f x y z)
-  (opengl:gl-end))
-
-(defun draw-point-cube (point size faces)
-  (let* ((hs (/ size 2))
-         (x (car point))
-         (y (cadr point))
-         (z (caddr point))
-         (cube-points 
-          (list (list (- x hs) (- y hs) (- z hs))
-                (list (+ x hs) (- y hs) (- z hs))
-                (list (+ x hs) (- y hs) (+ z hs))
-                (list (- x hs) (- y hs) (+ z hs))
-                (list (- x hs) (+ y hs) (- z hs))
-                (list (+ x hs) (+ y hs) (- z hs))
-                (list (+ x hs) (+ y hs) (+ z hs))
-                (list (- x hs) (+ y hs) (+ z hs)))))
-    (if faces
-        (opengl:gl-begin opengl:*GL-QUADS*)
-      (opengl:gl-begin opengl:*GL-LINE-LOOP*))
-    (opengl:gl-normal3-i 0 1 0) 
-    (opengl:gl-vertex3-f (car (nth 0 cube-points)) (cadr (nth 0 cube-points)) (caddr (nth 0 cube-points))) 
-    (opengl:gl-vertex3-f (car (nth 1 cube-points)) (cadr (nth 1 cube-points)) (caddr (nth 1 cube-points)))
-    (opengl:gl-vertex3-f (car (nth 2 cube-points)) (cadr (nth 2 cube-points)) (caddr (nth 2 cube-points)))
-    (opengl:gl-vertex3-f (car (nth 3 cube-points)) (cadr (nth 3 cube-points)) (caddr (nth 3 cube-points)))
-    (opengl:gl-end)
-    
-    (if faces
-        (opengl:gl-begin opengl:*GL-QUADS*)
-      (opengl:gl-begin opengl:*GL-LINE-LOOP*))
-    (opengl:gl-normal3-i 0 1 0)
-    (opengl:gl-vertex3-f (car (nth 7 cube-points)) (cadr (nth 7 cube-points)) (caddr (nth 7 cube-points)))
-    (opengl:gl-vertex3-f (car (nth 6 cube-points)) (cadr (nth 6 cube-points)) (caddr (nth 6 cube-points)))
-    (opengl:gl-vertex3-f (car (nth 5 cube-points)) (cadr (nth 5 cube-points)) (caddr (nth 5 cube-points)))
-    (opengl:gl-vertex3-f (car (nth 4 cube-points)) (cadr (nth 4 cube-points)) (caddr (nth 4 cube-points)))
-    (opengl:gl-end)
-    
-    (if faces
-        (opengl:gl-begin opengl:*GL-QUADS*)
-      (opengl:gl-begin opengl:*GL-LINES*))
-    (opengl:gl-vertex3-f (car (nth 3 cube-points)) (cadr (nth 3 cube-points)) (caddr (nth 3 cube-points)))
-    (opengl:gl-vertex3-f (car (nth 7 cube-points)) (cadr (nth 7 cube-points)) (caddr (nth 7 cube-points)))
-    (opengl:gl-vertex3-f (car (nth 4 cube-points)) (cadr (nth 4 cube-points)) (caddr (nth 4 cube-points)))
-    (opengl:gl-vertex3-f (car (nth 0 cube-points)) (cadr (nth 0 cube-points)) (caddr (nth 0 cube-points)))
-
-    (opengl:gl-vertex3-f (car (nth 5 cube-points)) (cadr (nth 5 cube-points)) (caddr (nth 5 cube-points)))
-    (opengl:gl-vertex3-f (car (nth 1 cube-points)) (cadr (nth 1 cube-points)) (caddr (nth 1 cube-points)))
-    (opengl:gl-vertex3-f (car (nth 0 cube-points)) (cadr (nth 0 cube-points)) (caddr (nth 0 cube-points)))
-    (opengl:gl-vertex3-f (car (nth 4 cube-points)) (cadr (nth 4 cube-points)) (caddr (nth 4 cube-points)))
-
-    (opengl:gl-vertex3-f (car (nth 6 cube-points)) (cadr (nth 6 cube-points)) (caddr (nth 6 cube-points)))
-    (opengl:gl-vertex3-f (car (nth 2 cube-points)) (cadr (nth 2 cube-points)) (caddr (nth 2 cube-points)))
-    (opengl:gl-vertex3-f (car (nth 1 cube-points)) (cadr (nth 1 cube-points)) (caddr (nth 1 cube-points)))
-    (opengl:gl-vertex3-f (car (nth 5 cube-points)) (cadr (nth 5 cube-points)) (caddr (nth 5 cube-points)))
-
-    (opengl:gl-vertex3-f (car (nth 2 cube-points)) (cadr (nth 2 cube-points)) (caddr (nth 2 cube-points)))
-    (opengl:gl-vertex3-f (car (nth 6 cube-points)) (cadr (nth 6 cube-points)) (caddr (nth 6 cube-points)))
-    (opengl:gl-vertex3-f (car (nth 7 cube-points)) (cadr (nth 7 cube-points)) (caddr (nth 7 cube-points)))
-    (opengl:gl-vertex3-f (car (nth 3 cube-points)) (cadr (nth 3 cube-points)) (caddr (nth 3 cube-points)))
-
-    (opengl:gl-end)))
-
-
-;;; COMMENT: /* QuadricDrawStyle */
-;;; DEFINE: #define GLU_POINT                          100010
-(defconstant GLU_POINT 100010)
-;;; DEFINE: #define GLU_LINE                           100011
-(defconstant GLU_LINE 100011)
-;;; DEFINE: #define GLU_FILL                           100012
-(defconstant GLU_FILL 100012)
-;;; DEFINE: #define GLU_SILHOUETTE                     100013
-(defconstant GLU_SILHOUETTE 100013)
-
-(defun draw-point-sphere (point size)
-  (let* ((hs (coerce (/ size 2) 'double-float))
-         (x (float (car point)))
-         (y (float (cadr point)))
-         (z (float (caddr point)))
-         (glu-quad (opengl:glu-new-quadric)))
-    (opengl:gl-push-matrix) 
-    (opengl:gl-translatef x y z)
-    (opengl:glu-quadric-draw-style glu-quad GLU_FILL)
-    (opengl:glu-sphere glu-quad hs 20 20)
-    (opengl:gl-pop-matrix)
-    ))
-
-(defun draw-point-cone (point size angle rotation_point)
-  (let* ((hs (coerce (/ size 2) 'double-float))
-         (x (car point))
-         (y (cadr point))
-         (z (caddr point))
-         (rx (car rotation_point))
-         (ry (cadr rotation_point))
-         (rz (caddr rotation_point))
-         (glu-quad (opengl:glu-new-quadric)))
-    (opengl:gl-push-matrix) 
-    (opengl:gl-translatef x y z)
-    (opengl:gl-rotatef angle rx ry rz)
-    (opengl:glu-quadric-draw-style glu-quad GLU_FILL)
-    (opengl:glu-cylinder glu-quad hs 0.0d0 hs 20 20)
-    (opengl:gl-pop-matrix)
-    ))
-
 
 
 ;;;======================

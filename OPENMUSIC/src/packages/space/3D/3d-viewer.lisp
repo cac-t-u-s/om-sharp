@@ -71,23 +71,26 @@
   (call-next-method)
   (let ((3D-view (get-g-component editor :3D-view)))
     ;;; works better if the objects are set after everything is on-screen
-    (om-set-gl-objects 3D-view (data (object-value editor)))
+    (om-set-gl-objects 3D-view 
+                       (cons 
+                        (make-instance '3d-lines sphere
+                        (data (object-value editor))))
     (om-init-3d-view 3D-view)
     (om-invalidate-view 3D-view)
-    ))
+    )))
 
 
 (defmethod update-to-editor ((editor 3d-viewer-editor) (from OMBox))
   (when (window editor)
     (let ((3D-view (get-g-component editor :3D-view)))
       (om-set-gl-objects 3D-view (data (object-value editor)))
-      (clear-gl-display-list 3D-view)
+      (gl-user::clear-gl-display-list 3D-view)
       (om-invalidate-view 3D-view)
       )))
 
 (defmethod update-to-editor ((editor 3d-viewer-editor) (from t))
   (when (window editor)
     (let ((3D-view (get-g-component editor :3D-view)))
-      (clear-gl-display-list 3D-view)
+      (gl-user::clear-gl-display-list 3D-view)
       (om-invalidate-view 3D-view)
       )))

@@ -24,10 +24,7 @@
 (in-package :om)
 
 ;editors default parameters
-(defparameter *OM-DEFAULT-ROOM-SIZE* 2)
-(defparameter *OM-DEFAULT-SHOW-ROOM* 1)
 (defparameter *OM-DEFAULT-ROOM-COLOR* (list 0.9 0.9 0.9 1.0))
-(defparameter *OM-DEFAULT-SHOW-AXES* 1)
 
 
 ;;; 3DC editor 
@@ -37,22 +34,17 @@
    (front-bpc-editor :accessor front-bpc-editor :initform nil)
    (3Dp :accessor 3Dp :initform nil)
    (ctrlp :accessor ctrlp :initform nil)
-   ;curve parameters
-   (show-times :accessor show-times :initform nil)
-   (show-time-labels :accessor show-time-labels :initform nil)
-   (draw-style :accessor draw-style :initform :draw-all)
-   (line-width :accessor line-width :initform *OM-GL-DEFAULT-LINEWIDTH*)
+
    (color-style :accessor color-style :initform :single)
-   (show-indices :accessor show-indices :initform nil)
+   
    (timeline-editor :accessor timeline-editor :initform nil)
    ;(time-x-editor :accessor time-x-editor :initform nil)
    ;(time-y-editor :accessor time-y-editor :initform nil)
    ;(time-z-editor :accessor time-z-editor :initform nil)
    ;room parameters
    (room-editor :accessor room-editor :initform nil)
-   (show-room :accessor show-room :initform t)
-   (room-size :accessor room-size :initform *OM-DEFAULT-ROOM-SIZE*)
-   (show-axes :accessor show-axes :initarg :show-axes :initform t)
+   (room-size :accessor room-size :initform 2)
+   
 
    ;interpolation parameters
    (interpolation-mode :accessor interpolation-mode :initform :none)
@@ -66,6 +58,11 @@
    (last-osc-point :accessor last-osc-point :initform nil)
    (osc-first-time :accessor osc-first-time :initform nil)
    ))
+
+
+(defmethod object-default-edition-params ((self 3DC))
+  (append (call-next-method)
+          '((:line-width 1))))
 
 (defmethod object-has-editor ((self 3dc)) t)
 (defmethod get-editor-class ((self 3DC)) '3DC-editor)
@@ -89,13 +86,6 @@
   (set-3D-objects self))
 
 ;=====
-
-
-(defmethod set-draw-attribute ((self 3dc-editor) slot value)
-  (setf (slot-value self slot) value)
-  (setf (slot-value (top-bpc-editor self) slot) value)
-  (setf (slot-value (front-bpc-editor self) slot) value)
-  (editor-invalidate-views self))
 
 ;;; from play-editor-mixin
 (defmethod get-obj-to-play ((self 3dc-editor)) 
@@ -123,7 +113,8 @@
   (let* ((object (object-value editor))
          (decimals (decimals object))
          (3dPanel (om-make-view '3dpanel
-                                :title "3D view" :editor editor
+                                ;:title "3D view" 
+                                :editor editor
                                 :bg-color (om-def-color :dark-gray)
                                 :g-objects (create-GL-objects editor)
                                 ))
@@ -142,7 +133,7 @@
          (top-mousepos-txt (om-make-graphic-object 'om-item-text :size (omp 60 16)))
          (front-mousepos-txt (om-make-graphic-object 'om-item-text :size (omp 60 16)))
          (timeline-editor (make-instance 'timeline-editor :object (object editor) :container-editor editor ))
-         (timeline (om-make-layout 'om-row-layout ))
+         (timeline (om-make-layout 'om-row-layout))
          (top-area (om-make-layout 'om-row-layout ;:align :center
                                    :ratios '(0.8 0.5 0.05)
                                    :subviews (list
@@ -150,98 +141,165 @@
                                               (make-time-monitor editor :time (if (action object) 0 nil))
                                               (om-make-layout 
                                                'om-row-layout ;:size (omp 60 20)
-                                               :subviews (list (make-play-button editor :enable (action object)) 
-                                                               (make-pause-button editor :enable (action object)) 
-                                                               (make-stop-button editor :enable (action object)))))
+                                               :subviews (list (make-play-button editor :enable t) ;(action object) 
+                                                               (make-pause-button editor :enable t) 
+                                                               (make-stop-button editor :enable t))))
                                    ))
          (bottom-area nil)   
          (top-layout 
-          (om-make-layout 'om-grid-layout :dimensions '(2 3) :ratios '((0.01 0.99) (0.01 0.98 0.01))
-                          :subviews (list nil 
-                                          (om-make-layout 'om-row-layout 
-                                                          :subviews (list (om-make-graphic-object 'om-item-text :text "Top view" :size (omp 60 18))
-                                                                          top-mousepos-txt))
-                                          (setf (y-ruler top-panel) 
-                                                (om-make-view 'y-ruler-view :related-views (list top-panel) 
-                                                              :size (omp 30 nil) :bg-color (om-def-color :white) :decimals decimals))
-                                          top-panel nil
-                                          (setf (x-ruler top-panel)
-                                                (om-make-view 'x-ruler-view :related-views (list top-panel) 
-                                                              :size (omp nil 30) :bg-color (om-def-color :white) :decimals decimals)))))
+          (om-make-layout 
+           'om-grid-layout :dimensions '(2 3) :ratios '((0.01 0.99) (0.01 0.98 0.01))
+           :subviews 
+           (list nil 
+                 (om-make-layout 
+                  'om-row-layout 
+                  :subviews (list (om-make-graphic-object 'om-item-text :text "Top view" :size (omp 60 18))
+                                  top-mousepos-txt))
+                 (setf (y-ruler top-panel) 
+                       (om-make-view 'y-ruler-view :related-views (list top-panel) 
+                                     :size (omp 30 nil) :bg-color (om-def-color :white) :decimals decimals))
+                 top-panel 
+                 nil
+                 (setf (x-ruler top-panel)
+                       (om-make-view 'x-ruler-view :related-views (list top-panel) 
+                                     :size (omp nil 30) :bg-color (om-def-color :white) :decimals decimals)))))
          (front-layout 
-          (om-make-layout 'om-grid-layout :dimensions '(2 3)
-                          :ratios '((0.01 0.99) (0.01 0.98 0.01))
-                          :subviews (list 
-                                     nil 
-                                     (om-make-layout 'om-row-layout 
-                                                     :subviews (list (om-make-graphic-object 'om-item-text :text "Front view" :size (omp 60 18))
-                                                                     front-mousepos-txt))
-                                     (setf (y-ruler front-panel) 
-                                           (om-make-view 'y-ruler-view :related-views (list front-panel) 
-                                                         :size (omp 30 nil) :bg-color (om-def-color :white) :decimals decimals))
-                                     front-panel nil
-                                     (setf (x-ruler front-panel)
-                                           (om-make-view 'x-ruler-view :related-views (list front-panel) 
-                                                         :size (omp nil 30) :bg-color (om-def-color :white) :decimals decimals)))))
+          (om-make-layout 
+           'om-grid-layout :dimensions '(2 3)
+           :ratios '((0.01 0.99) (0.01 0.98 0.01))
+           :subviews 
+           (list 
+            nil 
+            (om-make-layout 
+             'om-row-layout 
+             :subviews (list (om-make-graphic-object 'om-item-text :text "Front view" :size (omp 60 18))
+                             front-mousepos-txt))
+            (setf (y-ruler front-panel) 
+                  (om-make-view 'y-ruler-view :related-views (list front-panel) 
+                                :size (omp 30 nil) :bg-color (om-def-color :white) :decimals decimals))
+            front-panel nil
+            (setf (x-ruler front-panel)
+                  (om-make-view 'x-ruler-view :related-views (list front-panel) 
+                                :size (omp nil 30) :bg-color (om-def-color :white) :decimals decimals)))))
         
          )
 
     ;bottom area definition
-    (setf bottom-area (om-make-layout 'om-row-layout :size (omp nil 40)
-                                      :subviews 
-                                      (list (om-make-layout 'om-row-layout :align :bottom
-                                                            :subviews
-                                                            (list 
-                                                             (om-make-di 'om-simple-text :text "Draw mode:" 
-                                                                         :size (omp 68 22) 
-                                                                         :font (om-def-font :font1))
-                                                             (om-make-di 'om-popup-list :items '(:draw-all :points-only :lines-only) 
-                                                                         :size (omp 80 24) :font (om-def-font :font1)
-                                                                         :value (draw-style editor)
-                                                                         :di-action #'(lambda (list) 
-                                                                                        (set-draw-attribute editor 'draw-style (om-get-selected-item list))
-                                                                                        ))
-                                                             (om-make-di 'om-check-box :text "Indices" :size (omp 60 24) :font (om-def-font :font1)
-                                                                         :checked-p (show-indices editor)
-                                                                         :di-action #'(lambda (item) 
-                                                                                        (set-draw-attribute editor 'show-indices (om-checked-p item))))
-                                                             (om-make-di 'om-check-box :text "Axes" :size (omp 46 24) :font (om-def-font :font1)
-                                                                         :checked-p (show-axes editor)
-                                                                         :di-action #'(lambda (item) 
-                                                                                        (setf (show-axes editor) (om-checked-p item))
-                                                                                        (update-3D-view editor)))
-                                                             (om-make-view '3D-axis-view :size (omp 30 24))
-                                                             (om-make-di 'om-simple-text :text "Offset:" 
-                                                                         :size (omp 38 20) 
-                                                                         :font (om-def-font :font1))
-                                                             (om-make-graphic-object 'numbox 
-                                                                                     :value (gesture-interval-time top-editor)
-                                                                                     :bg-color (om-def-color :white)
-                                                                                     :border t
-                                                                                     :size (om-make-point 40 24) 
-                                                                                     :font (om-def-font :font2)
-                                                                                     :min-val 0
-                                                                                     :after-fun #'(lambda (item)
-                                                                                                    (setf (gesture-interval-time top-editor) (value item)
-                                                                                                          (gesture-interval-time front-editor) (value item))))
-                                                             (om-make-di 'om-button :text "Room..." :size (omp 70 24) :font (om-def-font :font1)
-                                                                         :enabled (show-room editor)
-                                                                         :di-action #'(lambda (item) 
-                                                                                        (open-room-editor editor)))
-                                                             (om-make-di 'om-button :text "Osc..." :size (omp 70 24) :font (om-def-font :font1)
-                                                                         :di-action #'(lambda (item) 
-                                                                                        (open-osc-editor editor)))
-                                                             (om-make-di 'om-check-box :text "timeline" :size (omp 65 24) :font (om-def-font :font1)
-                                                                           :checked-p (show-times editor)
-                                                                           :di-action #'(lambda (item) 
-                                                                                          (set-draw-attribute editor 'show-times (om-checked-p item))
-                                                                                          (clear-timeline timeline-editor)
-                                                                                          (om-invalidate-view timeline)
-                                                                                          (when (om-checked-p item) 
-                                                                                                (make-timeline-view timeline-editor))
-                                                                                          (om-update-layout (main-view editor))))
-                                                             nil
-                                                             )))))
+    (setf bottom-area (om-make-layout 
+                       'om-row-layout :size (omp nil 40)
+                       :ratios '(1 1 1 10)
+                       :subviews
+                       (list  ;;; GENERAL
+                              (om-make-layout 
+                               'om-column-layout
+                               :subviews
+                               (list 
+                                (om-make-di 'om-simple-text :text "Options (general)" 
+                                            :size (omp 200 22) 
+                                            :font (om-def-font :font1b))
+                                (om-make-layout 
+                                 'om-row-layout
+                                 :subviews
+                                 (list 
+                                  (om-make-di 'om-simple-text :text "draw mode:" 
+                                              :size (omp 68 22) 
+                                              :font (om-def-font :font1))
+                                  (om-make-di 'om-popup-list :items '(:draw-all :points-only :lines-only) 
+                                              :size (omp 80 24) :font (om-def-font :font1)
+                                              :value (editor-get-edit-param editor :draw-style)
+                                              :di-action #'(lambda (list) 
+                                                             (editor-set-edit-param editor :draw-style (om-get-selected-item list))
+                                                             ))))
+                                (om-make-layout 
+                                 'om-row-layout
+                                 :subviews
+                                 (list 
+                                  (om-make-di 'om-simple-text :text "Line size:" 
+                                              :size (omp 38 20) 
+                                           :font (om-def-font :font1))
+                                  (om-make-graphic-object 'numbox 
+                                                          :value (editor-get-edit-param editor :line-width) 
+                                                          :bg-color (om-def-color :white)
+                                                      :border t
+                                                       :size (om-make-point 40 24) 
+                                                       :font (om-def-font :font1)
+                                                       :min-val 1 :max-val 10
+                                                       :after-fun #'(lambda (item)
+                                                                      (editor-set-edit-param editor :line-width (value list))))
+                                  ))
+
+                                (om-make-di 'om-check-box :text "show timeline" :size (omp 100 24) :font (om-def-font :font1)
+                                          :checked-p (editor-get-edit-param editor :show-timeline)
+                                          :di-action #'(lambda (item) 
+                                                         (editor-set-edit-param editor :show-timeline (om-checked-p item))
+                                                         (clear-timeline timeline-editor)
+                                                         (om-invalidate-view timeline)
+                                                         (when (om-checked-p item) 
+                                                           (make-timeline-view timeline-editor))
+                                                         (om-update-layout (main-view editor))))
+                                ))
+                              (om-make-layout 
+                               'om-column-layout
+                               :subviews
+                               (list 
+                                (om-make-di 'om-simple-text :text "3D view" 
+                                            :size (omp 100 22) 
+                                            :font (om-def-font :font1b))
+                                (om-make-layout 
+                                 'om-row-layout
+                                 :subviews
+                                 (list (om-make-di 'om-check-box :text "Axes" :size (omp 46 24) :font (om-def-font :font1)
+                                                   :checked-p (editor-get-edit-param editor :show-axes)
+                                                   :di-action #'(lambda (item) 
+                                                                  (editor-set-edit-param editor :show-axes (om-checked-p item))
+                                                                  (update-3D-view editor)))
+                                       (om-make-view '3D-axis-view :size (omp 30 24))
+                                       )
+                                 )
+                                (om-make-di 'om-check-box :text "Room" :size (omp 46 24) :font (om-def-font :font1)
+                                                   :checked-p (editor-get-edit-param editor :show-room)
+                                                   :di-action #'(lambda (item) 
+                                                                  (editor-set-edit-param editor :show-room (om-checked-p item))
+                                                                  (update-3D-view editor)))))
+
+                              (om-make-layout 
+                               'om-column-layout
+                               :subviews
+                               (list 
+                                (om-make-di 'om-simple-text :text "2D views" 
+                                            :size (omp 100 22) 
+                                            :font (om-def-font :font1b))
+                                (om-make-di 'om-check-box :text "Indices" :size (omp 60 24) :font (om-def-font :font1)
+                                            :checked-p (editor-get-edit-param editor :show-indices)
+                                            :di-action #'(lambda (item) 
+                                                           (editor-set-edit-param editor :show-indices (om-checked-p item))))))
+
+                                 
+                               
+                               
+                               ;(om-make-di 'om-simple-text :text "Offset:" 
+                               ;            :size (omp 38 20) 
+                               ;            :font (om-def-font :font1))
+                               ;(om-make-graphic-object 'numbox 
+                               ;                        :value (gesture-interval-time top-editor)
+                               ;                        :bg-color (om-def-color :white)
+                               ;                        :border t
+                               ;                        :size (om-make-point 40 24) 
+                               ;                        :font (om-def-font :font2)
+                               ;                        :min-val 0
+                               ;                        :after-fun #'(lambda (item)
+                               ;                                       (setf (gesture-interval-time top-editor) (value item)
+                               ;                                             (gesture-interval-time front-editor) (value item))))
+                               ;(om-make-di 'om-button :text "Room..." :size (omp 70 24) :font (om-def-font :font1)
+                               ;            :enabled (editor-get-edit-param editor :show-room)
+                               ;            :di-action #'(lambda (item) 
+                               ;                           (open-room-editor editor)))
+                               ;(om-make-di 'om-button :text "Osc..." :size (omp 70 24) :font (om-def-font :font1)
+                               ;            :di-action #'(lambda (item) 
+                               ;                           (open-osc-editor editor)))
+                              
+                              nil
+                              )))
 
     
     (set-g-component editor :main-panel 3dpanel)
@@ -257,35 +315,35 @@
      ;timeline
     (setf (timeline-editor editor) timeline-editor)
     (set-g-component timeline-editor :main-panel timeline)
-    (when (show-times editor)
+    (when (editor-get-edit-param editor :show-timeline)
       (make-timeline-view timeline-editor))
       
-    (om-make-layout 'om-row-layout
-                    :ratios '(9.9 0.1) 
-                    :subviews (list 
-                               (om-make-layout 
-                                'om-column-layout 
-                                :subviews 
-                                (list 
-                                 top-area
-                                 (om-make-layout 'om-row-layout 
-                                                 :subviews
-                                                 (list 
-                                                  3dpanel 
-                                                  :divider  
-                                                  (om-make-layout 'om-column-layout 
-                                                                  :subviews 
-                                                                  (list
-                                                                   top-layout
-                                                                   :divider
-                                                                  front-layout)))
-                                                :ratios '(0.6 nil 0.4)
-                                                )
-                                timeline
-                                bottom-area) 
-                                :delta 2
-                                :ratios '(0.01 1 0.01 0.01))
-                               (call-next-method))) ;side panel 
+    (om-make-layout 
+     'om-row-layout
+     :ratios '(9.9 0.1) 
+     :subviews (list 
+                (om-make-layout 
+                 'om-column-layout 
+                 :subviews (list 
+                            top-area
+                            (om-make-layout 
+                             'om-row-layout 
+                             :subviews (list 
+                                        3dpanel 
+                                        :divider  
+                                        (om-make-layout 
+                                         'om-column-layout 
+                                         :subviews  (list
+                                                     top-layout
+                                                     :divider
+                                                     front-layout)))
+                             :ratios '(0.6 nil 0.4)
+                             )
+                            timeline
+                            bottom-area) 
+                 :delta 2
+                 :ratios '(0.01 1 0.01 0.01))
+                (call-next-method))) ;side panel 
     ))
 
 (defmethod editor-close ((self 3dc-editor)) 
@@ -305,12 +363,10 @@
 
 (defmethod init-window ((win OMEditorWindow) (editor 3DC-editor))
   (call-next-method)
-  ;(update-inspector editor win)
   (reinit-ranges (top-bpc-editor editor))
   (reinit-ranges (front-bpc-editor editor))
   (update-editor-3d-object editor)
-  (om-init-3D-view (3Dp editor))
-  )
+  (om-init-3D-view (3Dp editor)))
 
 ;when the object is modified
 (defmethod update-to-editor ((self 3DC-editor) (from t))
@@ -345,16 +401,37 @@
 
 
 
+(defmethod format-3D-points  ((self 3DC))
+  (mat-trans (list (x-points self) (y-points self) (z-points self) (times self))))
+
+(defmethod create-GL-objects ((self 3DC-editor))
+  (let ((obj-list (cons (object-value self) (remove (object-value self) (multi-obj-list self)))))
+    (remove 
+     nil
+     (append 
+      (mapcar #'(lambda (obj) 
+                  (make-instance 
+                   '3D-lines
+                   :points (format-3d-points obj) :color (color obj) 
+                   :draw-style :draw-all :line-width (editor-get-edit-param self :line-width)))
+              obj-list)
+      (mapcar 'make-3D-background-element 
+             (get-edit-param (object self) :background))
+      (when (editor-get-edit-param self :show-room) 
+        (list (make-3D-background-element
+               (make-instance 'project-room :size (room-size self)))))
+      ))))
 
 (defmethod set-3D-objects ((self 3dc-editor)) 
   (om-set-gl-objects (3Dp self) (create-GL-objects self))
   (update-3D-view self))
 
+
 (defmethod update-editor-3d-object ((self 3dc-editor))
   (let ((3d-obj (car (om-get-gl-objects (3DP self))))
         (obj (object-value self)))
     (setf (selected-points 3d-obj) (selection self)
-          (draw-style 3d-obj) (draw-style self))
+          (draw-style 3d-obj) (editor-get-edit-param self :draw-style))
     (om-set-3Dobj-points 3d-obj (format-3d-points obj))
     (update-3d-curve-vertices-colors self)))
     
@@ -368,49 +445,10 @@
     (editor-invalidate-views (front-bpc-editor self))
     (update-timeline-editor self)))
 
-
-;;;==========================
-;;; EDITOR METHODS
-;;;==========================
-
-(defmethod format-3D-points  ((self 3DC))
-  (mat-trans (list (x-points self) (y-points self) (z-points self) (times self))))
-
-(defmethod init-editor-parameters ((self 3DC-editor))
-  ;compatibilité versions précédentes.. 
-  ;à enlever si get-parameter retourne valeur par defaut au lieu de nil
-  (unless (param-room-size self)
-    (param-room-size self *OM-DEFAULT-ROOM-SIZE*))
-  (unless (param-show-room self)
-    (param-show-room self *OM-DEFAULT-SHOW-ROOM*))
-  (unless (param-show-axes self)
-    (param-show-axes self *OM-DEFAULT-SHOW-AXES*))
-  (unless (param-line-width self)
-    (param-line-width self *OM-GL-DEFAULT-LINEWIDTH*))
-  )
-
-
-(defmethod create-GL-objects ((self 3DC-editor))
-  (let ((obj-list (cons (object-value self) (remove (object-value self) (multi-obj-list self)))))
-    (append 
-     (mapcar #'(lambda (obj) 
-                 (make-instance 
-                  '3D-lines
-                  :points (format-3d-points obj) :color (color obj) 
-                  :draw-style :draw-all :line-width 2.0))
-             obj-list)
-     (mapcar 'make-3D-background-element (get-edit-param (object self) :background))
-    )))
-
-;(defmethod gen-3D-obj ((obj-list list) draw-style line-width color-style)
-;  (make-instance 'om-3D-object-list 
-;                 :objects (mapcar #'(lambda (o) 
-;                                      (3Dobj-from-points (format-3d-points o) draw-style (color o) line-width color-style))
-;                                  obj-list)))
-
 (defmethod update-3D-view ((self 3DC-editor))
   (gl-user::clear-gl-display-list (3Dp self))
   (om-invalidate-view (3Dp self)))
+
 
 ;;;==========================
 ;;; MENUS
@@ -541,13 +579,8 @@
 
 (defmethod om-draw-contents ((self 3DPanel))
   (let ((editor (editor self)))
-    
-    (when (show-room editor)
-      (opengl:gl-push-matrix) 
-      (draw-3D-room editor)
-      (opengl:gl-pop-matrix))
-    
-    (when (show-axes editor)
+      
+    (when (editor-get-edit-param editor :show-axes)
       (opengl:gl-push-matrix) 
       (draw-3D-axes editor)
       (opengl:gl-pop-matrix))
@@ -574,7 +607,7 @@
     (opengl:gl-vertex3-f (- l) 0.0 0.0) 
     (opengl:gl-vertex3-f l 0.0 0.0)
     (opengl:gl-end)
-    (draw-point-cone (list l 0.0 0.0) arrow-size 90.0 (list 0.0 1.0 0.0))
+    (draw-cone (list l 0.0 0.0) arrow-size 90.0 (list 0.0 1.0 0.0))
 
     ;Y axis
     (opengl:gl-color3-f 0.3 0.6 0.3)
@@ -583,7 +616,7 @@
     (opengl:gl-vertex3-f 0.0 (- l) 0.0) 
     (opengl:gl-vertex3-f 0.0 l 0.0) 
     (opengl:gl-end)
-    (draw-point-cone (list 0.0 l 0.0) arrow-size -90.0 (list 1.0 0.0 0.0))
+    (draw-cone (list 0.0 l 0.0) arrow-size -90.0 (list 1.0 0.0 0.0))
 
     ;Z axis
     (opengl:gl-color3-f 0.3 0.3 0.6)
@@ -592,15 +625,8 @@
     (opengl:gl-vertex3-f 0.0 0.0 (- l)) 
     (opengl:gl-vertex3-f 0.0 0.0 l)
     (opengl:gl-end)
-    (draw-point-cone (list 0.0 0.0 l) arrow-size 0.0 (list 0.0 1.0 0.0))
+    (draw-cone (list 0.0 0.0 l) arrow-size 0.0 (list 0.0 1.0 0.0))
     )
-  (restore-om-gl-colors-and-attributes))
-
-(defmethod draw-3D-room ((self 3DC-Editor))
-  "Draw the room" 
-  (opengl:gl-color4-f 0.5 0.5 0.5 1.0)
-  (opengl:gl-line-width *om-gl-default-linewidth*)
-  (draw-point-cube (list 0.0 0.0 0.0) (room-size self) nil)
   (restore-om-gl-colors-and-attributes))
 
 (defmethod  draw-3D-cursor-position ((self 3DC-Editor))
@@ -608,7 +634,7 @@
   (if (cursor-status self)
       (opengl:gl-color4-f 1.0 0.1 0.1 1.0)
     (opengl:gl-color4-f 0.1 1.0 0.1 1.0))
-  (draw-point-sphere (cursor-position self) (/(line-width self) 20))
+  (draw-sphere (cursor-position self) (/ (editor-get-edit-param self :line-width) 20))
   (restore-om-gl-colors-and-attributes))
 
 (defmethod  draw-3D-player-cursor-position ((self 3DC-Editor) time)
@@ -616,7 +642,7 @@
   (let ((point (get-active-point-at-time (object-value self) time)))
     (when point
       (opengl:gl-color4-f 0.9 0.3 0.1 1.0)
-      (draw-point-sphere (point-to-list point) (/ (line-width self) 20))
+      (draw-sphere (point-to-list point) (/ (editor-get-edit-param self :line-width) 20))
       ))    
   (restore-om-gl-colors-and-attributes))
  
@@ -760,9 +786,10 @@
                        (om-make-di 'om-simple-text :text "Show Room:" 
                                    :size (omp 80 30))
                        (om-make-di 'om-check-box :size (omp 16 20) :font (om-def-font :font1)
-                                   :checked-p (show-room editor)
+                                   :checked-p (editor-get-edit-param editor :show-room)
                                    :di-action #'(lambda (item) 
-                                                  (setf (show-room editor) (om-checked-p item))
+                                                  (editor-set-edit-param editor :show-room (om-checked-p item))
+                                                  (set-3D-objects editor)
                                                   (update-3D-view editor)))))
                      (om-make-layout 
                       'om-row-layout
@@ -961,21 +988,21 @@
          (z-mousepos-txt (om-make-graphic-object 'om-item-text :size (omp 120 15) :font (om-def-font :font1))))
     
     (set-g-component x-editor :main-panel x-panel)
-    (set-draw-attribute x-editor 'grid t)
+    ;(setf (grid x-editor) t)
     (set-g-component x-editor :mousepos-txt x-mousepos-txt)
     (setf (y-ruler x-panel) x-y-ruler)
     (setf (related-views time-ruler) (append (list x-panel) (related-views time-ruler)))
     (reinit-ranges x-editor)
 
     (set-g-component y-editor :main-panel y-panel)
-    (set-draw-attribute y-editor 'grid t)
+    ;(setf (grid y-editor) t)
     (set-g-component y-editor :mousepos-txt y-mousepos-txt)
     (setf (y-ruler y-panel) y-y-ruler)
     (setf (related-views time-ruler) (append (list y-panel) (related-views time-ruler)))
     (reinit-ranges y-editor)
 
     (set-g-component z-editor :main-panel z-panel)
-    (set-draw-attribute z-editor 'grid t)
+    ;(setf (grid z-editor) t)
     (set-g-component z-editor :mousepos-txt z-mousepos-txt)
     (setf (y-ruler z-panel) z-y-ruler)
     (setf (related-views time-ruler) (append (list z-panel) (related-views time-ruler)))

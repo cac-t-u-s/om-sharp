@@ -254,7 +254,7 @@
             (om-draw-line 0 (cadr center) (w self) (cadr center)))
           (when (and (> (car center) 0) (< (car center) (h self)))
             (om-draw-line (car center) 0 (car center) (h self))))
-        (when (grid editor)
+        (when (editor-get-edit-param editor :grid)
           (om-with-line '(2 2)
             (draw-grid-from-ruler self (x-ruler self))
             (draw-grid-from-ruler self (y-ruler self)))))

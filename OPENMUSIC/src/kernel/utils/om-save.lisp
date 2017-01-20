@@ -230,7 +230,7 @@
      (:position ,(when (window-pos self)
                    (list (om-point-x (window-pos self)) (om-point-y (window-pos self))))))
    
-     (:boxes ,.(loop for box in (boxes self) 
+    (:boxes ,.(loop for box in (boxes self) 
                     for i = 0 then (+ i 1) 
                     collect (append (if box-values (omng-save-with-value box) (omng-save box))
                                     (list (list :id i)))))

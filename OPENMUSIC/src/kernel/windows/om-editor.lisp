@@ -107,6 +107,13 @@
 
 (defmethod window-name-from-object ((self ObjectWithEditor)) (name self))
 
+(defmethod editor-set-edit-param ((self OMEditor) param value)
+  (set-edit-param (object self) param value)
+  (editor-invalidate-views self))
+
+(defmethod editor-get-edit-param ((self OMEditor) param)
+  (get-edit-param (object self) param))
+
 ;;;====================
 ;;; EDITOR
 ;;;====================
@@ -141,18 +148,23 @@
 (defmethod open-editor-window ((self OMEditor))
   (if (and (window self) (om-window-open-p (window self)))
       (om-select-window (window self))
-   (let ((win (om-make-window (editor-window-class self)
-                              :editor self 
-                              :size (or (window-size (object self)) (editor-window-init-size self))
-                              :position (window-pos (object self))
-                              :title (editor-window-title self)
-                              :win-layout 'om-simple-layout 
-                              :border 0
-                              :menu-items (om-menu-items self))))
-     (setf (window self) win)
-     (init-window win self)
-     (om-show-window win)
-   )))
+    (let* ((size (or (window-size (object self))
+                     (editor-window-init-size self)))
+           (win (om-make-window (editor-window-class self)
+                                :editor self 
+                                :size size
+                                :position (window-pos (object self))
+                                :title (editor-window-title self)
+                                :win-layout 'om-simple-layout 
+                                :border 0
+                                :menu-items (om-menu-items self))))
+      ;;; something strange going on during window creation, resize happening
+      ;;; so we need to reset window-size here
+      (setf (window-size (object self)) (om-view-size win))
+      (setf (window self) win)
+      (init-window win self)
+      (om-show-window win)
+      )))
 
 ;;; the g-component p-list allows to store and access 
 ;;; views and dialog items related to the editor

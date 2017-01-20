@@ -186,7 +186,7 @@
 
 (defun make-timeline-check-box (editor)
   (om-make-di 'om-check-box :text "timeline" :size (omp 65 24) :font (om-def-font :font1)
-              :checked-p nil ;(show-times editor)
+              :checked-p (editor-get-edit-param editor :show-timeline)
               :enable (timeline-editor editor)
               :di-action #'(lambda (item) 
                              (let ((timeline-ed (timeline-editor editor)))
