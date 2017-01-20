@@ -479,16 +479,31 @@
           ))))
 
 
+(defmethod save-as-menu-name ((self patch-editor)) 
+  (if (is-persistant (object self)) "Save as..." "Externalize..."))
+
 ;;; Externalize an internal abstraction
 (defmethod save-as-command ((self patch-editor))
-  (unless (is-persistant (object self))
-    #'(lambda ()
-        (change-class (object self) 'OMPatchFile :icon 'patch-file)
-        (register-document (object self))
-        (save-document (object self))   ;; set name is done here in save-document
+ (let ((patch (object self)))
+   (if (is-persistant patch)
+      ;;; rename/resave the patch
+      #'(lambda ()
+          (let ((sg-pathname (mypathname patch)))
+            (setf (mypathname patch) nil)
+            (if (save-document patch)   ;; set name is done here in save-document
+                (update-window-name self)
+              (setf (mypathname patch) sg-pathname)))
+          )
+      
+      ;;; create a persistant patch
+      #'(lambda ()
+        (change-class patch 'OMPatchFile :icon 'patch-file)
+        (setf (create-info patch) (list (om-get-date) (om-get-date)))
+        (register-document patch)
+        (save-document patch)   ;; set name is done here in save-document
         (funcall (revert-command self)) ;; to update menus etc.
         )
-    ))
+    )))
 
 (defmethod revert-command ((self patch-editor))
   (and (is-persistant (object self)) (mypathname (object self))

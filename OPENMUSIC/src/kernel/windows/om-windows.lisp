@@ -7,6 +7,8 @@
 ;;; GENERAL MENU AND COMMANDS
 ;;;===============================
 
+(defmethod save-as-menu-name ((self t)) "Save as...")
+
 ;;; SELF = editor (in general...)
 (defun default-file-menu-items (self)
   (list (om-make-menu "New..." 
@@ -20,7 +22,9 @@
         (om-make-menu-item "Open..." #'(lambda () (funcall (open-command self))) :key "o" :enabled (and (open-command self) t))
         (om-make-menu-comp 
          (list (om-make-menu-item "Save" #'(lambda () (funcall (save-command self))) :key "s" :enabled (and (save-command self) t))
-               (om-make-menu-item "Externalize..." #'(lambda () (funcall (save-as-command self))) :key "S" :enabled (and (save-as-command self) t))
+               (om-make-menu-item (save-as-menu-name self) 
+                                  #'(lambda () (funcall (save-as-command self))) :key "S" 
+                                  :enabled (and (save-as-command self) t))
                (om-make-menu-item "Revert (Last Saved)" #'(lambda () (funcall (revert-command self))) :enabled #'(lambda () (and (revert-command self) t)))
                (om-make-menu-item "Close" #'(lambda () (funcall (close-command self))) :key "w" :enabled (and (close-command self) t))))
         (om-make-menu-comp 

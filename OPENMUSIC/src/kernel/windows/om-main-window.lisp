@@ -53,17 +53,21 @@
                                                  (string-equal (pathname-type (mypathname elt)) "omm"))
                                        collect elt))))
 
+
 (defun gen-columns-list (names)
-  (cons (list :title (string-downcase (car names)) :adjust :left :default-width 250)
-        (mapcar #'(lambda (item)
-                    (list :title (string-downcase item) :adjust :left :default-width 50))
-                (cdr names))))
+  (mapcar 
+   #'(lambda (name)
+       (case name
+         (:name '(:title "filename" :adjust :left :default-width 250))
+         (:date '(:title "modified" :adjust :left :default-width 150))
+         (otherwise `(:title ,(string-downcase name) :adjust :left :default-width 50))))
+   names))
 
 (defun gen-column-elements (element display-params &optional editor)  
   (mapcar #'(lambda (item) 
               (cond ((equal item :name) (print-element-in-list element editor))
                     ((equal item :type) (string-downcase (get-object-type-name element)))
-                    ((equal item :date) (car (create-info element)))))
+                    ((equal item :date) (cadr (create-info element)))))
           display-params))
 
 
@@ -237,6 +241,9 @@
   (when *om-main-window* (update-elements-tab *om-main-window*)))
 
 (defmethod update-document-path :after ((self OMPersistantObject))
+  (when *om-main-window* (update-elements-tab *om-main-window*)))
+
+(defmethod update-create-info :after ((self OMPersistantObject))
   (when *om-main-window* (update-elements-tab *om-main-window*)))
 
 

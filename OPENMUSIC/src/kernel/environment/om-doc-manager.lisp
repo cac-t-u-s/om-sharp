@@ -36,6 +36,9 @@
         (setf (doc-entry-file doc-entry) (namestring (mypathname self)))
       (om-beep-msg "Problem: patch ~A was not registered!" self))))
 
+(defmethod update-create-info ((self OMPersistantObject))
+  (setf (cadr (create-info self)) (om-get-date)))
+
 #|
 ;------------------------------------------------------------------------------
 ; HANDLING PATCH DEPENDENCIES
@@ -195,10 +198,19 @@
                                          :types (doctype-info (object-doctype self)))))
     (when path 
       (setf *last-open-dir* (pathname-dir path))
-      (setf (mypathname self) path)
-      (set-name self (pathname-name path))
-      (update-document-path self))))
+      (if (find-doc-entry path)
+          (progn (om-message-dialog 
+           (format nil "An open document named ~S already exist in this folder.~%Please choose another name or location." 
+                   (pathname-name path)))
+            (prepare-save-as self))
+        (progn 
+          (setf (mypathname self) path)
+          (set-name self (pathname-name path))
+          
+          (update-document-path self))))
+    ))
   
+
 
 ;;; T = OK (close)
 (defmethod ask-save-before-close ((self t)) t)
@@ -235,7 +247,7 @@
                                       :name (pathname-name (mypathname self))
                                       :type (string+ (pathname-type (mypathname self)) ".tmp"))))
       
-      
+      (update-create-info  self) ;;; modif date is now
       (with-open-file (out tempfile :direction :output  
                            :if-does-not-exist :create :if-exists :supersede)
         (handler-bind 
