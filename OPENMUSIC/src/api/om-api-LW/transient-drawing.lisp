@@ -8,7 +8,9 @@
    om-start-transient-drawing-process
    om-stop-transient-drawing
    om-update-transient-drawing
-   ;om-init-motion-click     ;; only 1 of the 2 !
+   om-transient-drawing-item-clicked
+
+  ;om-init-motion-click     ;; only 1 of the 2 !
    om-init-temp-graphics-motion      ;; only 1 of the 2 !
    ) 
  :oa)
@@ -24,6 +26,23 @@
 
 (defparameter *click-motion-view* nil)
 (defparameter *click-motion-action* nil)
+
+(defmethod om-transient-drawing-item-clicked ((self om-transient-drawing-view) clicked-pos-in-view) nil)
+(defmethod om-transient-drawing-item-double-clicked ((self om-transient-drawing-view) clicked-pos-in-view) nil)
+
+(defmethod om-clic-callback :around ((self om-transient-drawing-view) x y modifiers)
+  (if (and (drawn-item self)
+           (capi::over-pinboard-object-p (drawn-item self) x y))
+      (om-transient-drawing-item-clicked self (om-make-point x y))
+  ;(om-view-click-handler self (om-make-point x y))
+  (call-next-method)
+  ))
+    
+(defmethod om-multiple-clic-callback :around ((self om-transient-drawing-view) x y modifiers n)
+  (if (and (drawn-item self)
+           (capi::over-pinboard-object-p (drawn-item self) x y))
+      (om-view-doubleclick-handler self (om-make-point x y))
+    (call-next-method)))
 
 
 ;;;=====================================

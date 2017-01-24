@@ -198,7 +198,11 @@
 ;;;========================
 ;;; Note : the sequence-track-view is the 'frame' attribute for temporal boxes in the :tracks view-mode
 (defclass sequencer-track-view (multi-view-editor-view x-cursor-graduated-view omframe om-drop-view om-view)
-  ((num :initarg :num :initform 0 :accessor num)))
+  ((num :initarg :num :initform 0 :accessor num))
+  (:default-initargs 
+   ;:cursor-interval-lines-color (om-make-color 0.8 0.7 0.7)
+   :cursor-interval-fill-color (om-make-color-alpha (om-def-color :white) 0.2)
+   )) 
 
 (defclass sequencer-track-control (om-view)
   ((num :initarg :num :initform 0 :accessor num)))
@@ -210,6 +214,7 @@
      (om-draw-string (- (round (w self) 2) 20) (+ (round (h self) 2) 24) 
                      (number-to-string (num self))))))
 
+#|
 (defmethod om-draw-contents ((self sequencer-track-view))
   (let* ((editor (editor (om-view-window self)))
          (maquette (object editor)))
@@ -228,6 +233,7 @@
             (when (selected tb)
               (om-with-fg-color (om-make-color-alpha (om-def-color :gray) 0.5)
                 (om-draw-rect x1 0 (- x2 x1) (h self) :fill t)))))))
+|#
 
 (defmethod om-draw-contents-area ((self sequencer-track-view) x y w h)
   (let* ((editor (editor (om-view-window self)))
@@ -254,15 +260,8 @@
                do 
                (draw-grid-line-from-ruler self ruler (ruler-value-to-pix ruler (car beat)))))))
 
-    ;;;START CURSOR POS
-    (let ((i1 (time-to-pixel self (car (cursor-interval ruler))))
-          (i2 (time-to-pixel self (cadr (cursor-interval ruler)))))
-      (om-with-fg-color (om-make-color 0.8 0.7 0.7)
-        (om-with-line '(3 3) 
-          (om-with-line-size 1
-            (om-draw-line i1 0 i1 (h self))
-            (om-draw-line i2 0 i2 (h self)))))
-      (om-draw-rect i1 0 (- i2 i1) (h self) :fill t :color (om-make-color-alpha (om-def-color :white) 0.2)))
+    ;;; will call 'om-draw-contents'
+    (call-next-method)
     
     ;;;CONTENT
     (loop for tb in (get-track-boxes maquette (num self))

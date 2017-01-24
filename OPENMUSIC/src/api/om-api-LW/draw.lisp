@@ -129,6 +129,7 @@
 ;;; CALLBACKS / INVALIDATE
 ;;;=====================
 
+;;; do not define both of them !
 (defmethod om-draw-contents ((self om-graphic-object)) t)
 (defmethod om-draw-contents-area ((self om-graphic-object) x y w h)
   (om-draw-contents self))

@@ -50,7 +50,9 @@
     (mapc #'(lambda (f) (setf (attributes f) nil)) frames))
   self)
 
+;; redefine for other slots
 (defmethod data-stream-frames-slot ((self data-stream)) 'frames)
+
 (defmethod frames ((self data-stream)) (slot-value self (data-stream-frames-slot self)))
 (defmethod (setf frames) (frames (self data-stream)) (setf (slot-value self (data-stream-frames-slot self)) frames))
 

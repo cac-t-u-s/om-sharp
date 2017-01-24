@@ -139,11 +139,16 @@
   (when (container self)
     (report-modifications (editor (container self)))))
 
+
+;;; e.g. in sequencer-track-view
+(defmethod reset-frame-size ((frame t)) nil)
+(defmethod redraw-connections ((self t)) nil)
+
 (defmethod initialize-size ((self OMBox))
   (let ((size (default-size self)))
     (omng-resize self size)
     (when (frame self)
-      (om-set-view-size (frame self) size)
+      (reset-frame-size (frame self))
       (om-invalidate-view (frame self))
       (redraw-connections (frame self)))))
 

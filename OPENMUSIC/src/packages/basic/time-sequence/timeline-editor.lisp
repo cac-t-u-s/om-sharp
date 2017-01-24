@@ -127,9 +127,8 @@
   (start-cursor self)  ;add a cursor directly
   )
 
-(defmethod stop-cursor ((self om-timeline-view))
-  nil) ;do not remove the cursor from a timeline view
-
+;do not remove the cursor from a timeline view
+(defmethod stop-cursor ((self om-timeline-view)) nil)
 
 (defmethod get-obj-to-play ((self timeline-editor)) 
   (get-obj-to-play (container-editor self)))
@@ -139,10 +138,11 @@
 
 (defmethod (setf selected-p) (t-or-nil (self om-timeline-view))
   (setf (slot-value self 'selected-p) t-or-nil)
-  (om-set-bg-color self 
-                   (if t-or-nil 
-                       (om-get-light-offset-color (get-color (editor-get-time-sequence (editor self) (id self))) 0.8) 
-                     (om-def-color :white)))
+  (when (> (length (timeline-views (editor self))) 1)
+    (om-set-bg-color self 
+                     (if t-or-nil 
+                         (om-get-light-offset-color (get-color (editor-get-time-sequence (editor self) (id self))) 0.8) 
+                       (om-def-color :white))))
   t-or-nil)
 
 (defmethod clear-timeline ((self timeline-editor))
@@ -278,10 +278,15 @@
 (defmethod om-draw-contents ((self om-timeline-view))
   (let* ((editor (editor self))
          (obj (editor-get-time-sequence (container-editor editor) (id self))))
+    
     (draw-timeline-background (container-editor editor) self (id self))
     (om-with-fg-color (om-make-color 0.4 0.4 0.7 0.6)
       (when (time-ruler editor)
         (draw-grid-from-ruler self (time-ruler editor))))
+    
+    ;; x-cursor-graduate-view : draw interval etc.
+    (call-next-method)
+    
     (when obj
       (let* ((color (get-color obj))
              (x1 0)
@@ -497,16 +502,18 @@
     
     (update-selected-views timeline-editor)
     (set-selection timeline-editor point)
-    ;point selection
+    
+     ;point selection
     (if point
-      (progn (move-time-point-action self timeline-editor point position)
-        (update-to-editor (container-editor timeline-editor) timeline-editor))
-      ;(set-cursor-time timeline-editor (if (and point (item-get-time point)) (item-get-time point) time))
-      ;; => dbclick to set cursor time
-      )
+        (progn (move-time-point-action self timeline-editor point position)
+          (set-cursor-time timeline-editor (or (and point (item-get-time point)) time))
+          (update-to-editor (container-editor timeline-editor) timeline-editor))
+      (or (call-next-method)
+          (progn 
+            (set-cursor-time timeline-editor (or (and point (item-get-time point)) time))
+            (drag-move-cursor self position))))
     (set-time-display timeline-editor (if point (item-get-time point) time))
-    point
-    ))
+    point))
 
 (defmethod om-view-mouse-motion-handler ((self om-timeline-view) position)
   (let ((time (pix-to-x self (om-point-x position))))
