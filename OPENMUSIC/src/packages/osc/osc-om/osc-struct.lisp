@@ -110,6 +110,34 @@
   (or (car (find-osc-values self "/size")) (call-next-method)))
 
 
+;;;=========================================================
+;;; USED WHEN A BUNDLE IS INSPECTED IN THE INSPECTOR WINDOW
+;;;=========================================================
+
+(defmethod get-properties-list ((self osc-bundle))
+  (list 
+   (print (cons "OSC BUNDLE" 
+                (loop for i = 0 then (+ i 1)
+                      for message in (messages self)
+                      collect
+                      (list (intern-k (format nil "osc-message-~D" i))
+                            (car message) :text 
+                            (print (intern (format nil "osc-bundle-message-accessor-~D" i))))))
+         )))
+  )
+
+;;; very-dirty-trick
+(loop for i from 0 to 20 do
+  (eval `(defun ,(intern (format nil "osc-bundle-message-accessor-~D" i)) (bundle &optional (val nil val-supplied-p))
+           (if val-supplied-p 
+               (setf (nth ,i (messages bundle)) 
+                     (cons (car (nth ,i (messages bundle)))
+                           (list! val)))
+             (cdr (nth ,i (messages bundle)))))
+        ))
+
+
+
 ;;;======================================
 ;;; TEMP: GENERATE RANDOM BUNDLES
 ;;;======================================
