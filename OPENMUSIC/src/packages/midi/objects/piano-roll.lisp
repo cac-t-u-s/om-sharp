@@ -57,7 +57,7 @@
   ((midi-notes :accessor midi-notes :initarg :midi-notes :initform '() :documentation "a list of midi-note"))
   (:default-initargs :default-frame-type 'midi-note))
 
-(defmethod (setf midi-notes) (notes (self piano-roll)) (print notes)
+(defmethod (setf midi-notes) (notes (self piano-roll))
   (setf (slot-value self 'midi-notes) (sort notes '< :key 'midinote-onset)))
 
 (defmethod data-stream-frames-slot ((self piano-roll)) 'midi-notes)
@@ -163,7 +163,6 @@
 
 
 ;;;======================================
-;;; MOVE THESE GUYS SOMEWHERE ELSE ??
 ;;;======================================
 
 (defmethod add-note ((object piano-roll) note)
@@ -203,6 +202,16 @@
                                      (nconc (midi-notes object) notes)))
                                (setf (midi-notes object) notes)))
     (om-invalidate-view object)))
+
+
+
+(defun gen-midi-notes (n &optional (tmax 10000))
+  (loop for i from 0 to n collect
+        (make-midinote :onset (print (om-random 0 tmax))
+                       :pitch (om-random 50 80) 
+                       :vel 100
+                       :dur (om-random 200 500) 
+                       :channel 1)))
 
 (defun gentest ()
   (let* ((channel (om-random 1 2))

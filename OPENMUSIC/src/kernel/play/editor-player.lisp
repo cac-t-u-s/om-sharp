@@ -151,6 +151,9 @@
 ;;; PLAYER CALLS
 ;;;=================================
 
+(defmethod editor-play-state ((self play-editor-mixin))
+  (player-get-object-state (player self) (get-obj-to-play self)))
+
 (defmethod play-editor-callback ((self play-editor-mixin) time)
   (set-time-display self time)
   (mapcar #'(lambda (view) (when view (update-cursor view time))) (cursor-panes self)))
@@ -168,12 +171,12 @@
   (when (play-obj? (get-obj-to-play self))
     (when (pause-button self) (unselect (pause-button self)))
     (when (play-button self) (select (play-button self)))
+    (mapcar #'start-cursor (cursor-panes self))
     (if (equal (player-get-object-state (player self) (get-obj-to-play self)) :pause)
         (progn
           (player-continue-object (player self) (get-obj-to-play self) )
           (if (and (metronome self) (metronome-on self)) (player-continue-object (player self) (metronome self))))
       (let ((interval (get-interval-to-play self)))
-        (mapcar #'(lambda (view) (start-cursor view)) (cursor-panes self))
         (if (and (metronome self) (metronome-on self)) (player-play-object (player self) (metronome self) nil :interval interval))
         (player-play-object (player self) (get-obj-to-play self) self :interval interval)
         (player-start (player self) :start-t (or (car interval) 0) :end-t (cadr interval))))))
@@ -190,7 +193,7 @@
   (when (play-button self) (unselect (play-button self)))
   (when (pause-button self) (unselect (pause-button self)))
   ;(if (equal (state (player self)) :record) (editor-stop-record self))
-  (mapcar #'(lambda (view) (stop-cursor view)) (cursor-panes self))
+  (mapcar #'stop-cursor (cursor-panes self))
   (player-stop-object (player self) (get-obj-to-play self))
   (if (and (metronome self) (metronome-on self)) (player-stop-object (player self) (metronome self)))
   (let ((start-time (or (car (play-interval self)) 0)))
@@ -230,11 +233,6 @@
 (defmethod editor-reset-cursor ((self play-editor-mixin))
   (mapcar 'stop-cursor (cursor-panes self)))
 
-(defmethod editor-handle-escape ((self play-editor-mixin))
-  (if (equal '(0 0) (play-interval self))
-      (call-next-method) ;; if the interval is already reset: check if there is another 'escape' to do
-    (editor-reset-interval self)))
-    
 (defmethod editor-key-action :around ((self play-editor-mixin) key) 
   (case key  
     (#\Space (editor-play/pause self) t)
@@ -242,7 +240,9 @@
     (#\s (editor-stop self) t)    
     (:om-key-esc 
      (if (eq (player-get-object-state (player self) (get-obj-to-play self)) :stop)
-         (editor-handle-escape self)
+         (if (equal '(0 0) (play-interval self))
+             (call-next-method) ;; if the interval is already reset: check if there is another 'escape' to do
+           (editor-reset-interval self))
        (editor-stop self))
      t)
     (otherwise (call-next-method))
@@ -267,10 +267,6 @@
   (:default-initargs :fit-size-to-children nil))
 
 
-;(defclass cursor-line (om-item-line) ())
-;(defmethod om-view-click-handler ((self cursor-line) pos)
-;  (om-view-click-handler (om-view-container self) (om-convert-coordinates pos self (om-view-container self))))
-
 ;++++++++++++++++++++++++++++++++
 ; RULES FOR THE CURSOR:
 ; - Set cursot at a position = click on the view 
@@ -288,6 +284,7 @@
                     (om-point-x position)
                     (+ (om-point-y position) (om-point-y size))))))
 
+
 (defmethod drag-move-cursor ((self x-cursor-graduated-view) position)
   (om-init-temp-graphics-motion 
    self position nil
@@ -298,63 +295,6 @@
                 (om-invalidate-view (window (editor self))))
    :min-move 4))
 
-#|
-(defmethod om-view-click-handler ((self cursor-line) position) 
-  (let* ((container (om-view-container self))
-         (editor (editor (om-view-window container))))
-    (when container
-      (unless (om-view-click-handler container (om-view-position self))
-        (let ((time (pix-to-x container (om-point-x (om-view-position self)))))
-          (om-init-temp-graphics-motion 
-           container position nil 
-           :min-move 4
-           :motion #'(lambda (view pos)
-                       (let* ((new-t (round (dpix-to-dx container (- (om-point-x pos) (om-point-x position))))))
-                         (set-cursor-time editor new-t)))
-           :release #'(lambda (view pos)
-                        (let* ((new-t (round (dpix-to-dx container (- (om-point-x pos) (om-point-x position))))))
-                         (set-cursor-time editor new-t)
-                         (if (or (null (play-interval editor))
-                                 (= (car (play-interval editor)) (cadr (play-interval editor))))
-                             (editor-set-interval editor (list new-t new-t)))
-                         ))))))))
-|#
-
-(defmethod move-time-point-action ((view x-cursor-graduated-view) editor orig-point position)
-  (let* ((time (pix-to-x view (om-point-x position))))
-    (om-init-temp-graphics-motion 
-     view position nil :min-move 4
-     :motion #'(lambda (view pos)
-                 (let* ((tmp_time (pixel-to-time view (om-point-x pos)))
-                        (dt (round (- tmp_time time)))
-                        (selected-point-time (item-get-internal-time orig-point)))
-                   (set-time-display editor tmp_time)
-                   (when (selection editor) 
-
-                     (let* ((new-dt  (if (snap-to-grid editor) (adapt-dt-for-grid-and-markers (time-ruler editor) selected-point-time dt) dt)))
-                       (when (not (equal new-dt 0))
-                         (setf time (+ time new-dt))
-                         (translate-selection editor new-dt)
-                         ))
-                     (update-to-editor (container-editor editor) editor)))))))
-
-
-;(defmethod make-view-cursor ((self x-cursor-graduated-view)) 
-;  (om-make-graphic-object 'cursor-line 
-;                          :position (omp (time-to-pixel self (car (cursor-interval self))) 0) 
-;                          :size (omp 2 (h self))
-;                          :fg-color (om-make-color 0.9 0.45 0.45) 
-;                          :accepts-focus-p nil))
-
-;(defmethod update-cursor-pos ((self x-cursor-graduated-view))
-;  (when (cursor self)
-;    (om-set-view-position (cursor self) (omp (time-to-pixel self (cursor-pos self)) 0))))
-
-
-;(defmethod start-cursor ((self x-cursor-graduated-view)) 
-;  (unless (cursor self)
-;    (setf (cursor self) (make-view-cursor self))
-;    (om-add-subviews self (cursor self))))
 (defmethod start-cursor ((self x-cursor-graduated-view)) 
   (om-stop-transient-drawing self)
   (om-start-transient-drawing
@@ -362,22 +302,13 @@
    (omp (time-to-pixel self (car (cursor-interval self))) 0)
    (omp 2 (h self))))
 
-
-;(defmethod stop-cursor ((self x-cursor-graduated-view))
-;  (when (cursor self)
-;    (om-remove-subviews self (cursor self))
-;    (setf (cursor self) nil)))
 (defmethod stop-cursor ((self x-cursor-graduated-view))
-  (om-stop-transient-drawing self)) 
+  (om-stop-transient-drawing self)
+  (om-invalidate-view self)) 
               
 (defmethod reset-cursor ((self x-cursor-graduated-view))
   (update-cursor self 0))
 
-
-;(defmethod om-view-resized :after ((self x-cursor-graduated-view) size)
-;  (when (cursor self)
-;    (om-set-view-size (cursor self) (omp 1 (om-point-y size)))
-;    (om-set-view-position (cursor self) (omp (time-to-pixel self (cursor-pos self)) 0))))
 (defmethod om-view-resized :after ((self x-cursor-graduated-view) size) 
   (om-update-transient-drawing 
    self 
@@ -399,7 +330,6 @@
 (defmethod pixel-to-time ((self x-cursor-graduated-view) x) 
    (round (pix-to-x self x)))
 
-
 (defmethod om-draw-contents :after ((self x-cursor-graduated-view))
   (when (play-obj? (get-obj-to-play (editor (om-view-window self))))
     (let ((i1 (time-to-pixel self (car (cursor-interval self))))
@@ -410,6 +340,10 @@
             (om-draw-line i1 0 i1 (h self))
             (om-draw-line i2 0 i2 (h self)))))
       (om-draw-rect i1 0 (- i2 i1) (h self) :fill t :color (cursor-interval-fill-color self))
+      (unless (equal (editor-play-state (editor self)) :play)
+        (draw-cursor-line self 
+                          (omp (time-to-pixel self (cursor-pos self)) 0)
+                          (omp 4 (h self))))
       )))
     
 ;;; return T if detected/did somethin g
@@ -435,7 +369,6 @@
 
 (defmethod om-view-doubleclick-handler ((self x-cursor-graduated-view) position)
   (let ((time (pixel-to-time self (om-point-x position)))
-        ;(tpl-editor (editor (om-view-window self)))
         (tpl-editor (editor self)) ;; we assume it is an OMEditorView...
         )
     (editor-set-interval tpl-editor (list time time))
@@ -452,8 +385,6 @@
            (om-set-view-cursor self (om-get-cursor :h-size)))
           (t (om-set-view-cursor self nil)
              (call-next-method)))))
-
-
 
 
 ;;;=================================

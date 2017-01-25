@@ -49,9 +49,9 @@
   (time-sequence-update-internal-times self)
   (update-obj-dur self))
 
-(defmethod initialize-instance ((self time-sequence) &rest initargs)
-  (call-next-method)
-  (update-obj-dur self))
+;(defmethod initialize-instance ((self time-sequence) &rest initargs)
+;  (call-next-method)
+;  (update-obj-dur self))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;to be redefined by subclasses of TIME-SEQUENCE
@@ -159,16 +159,18 @@
 
 (defmethod get-obj-dur ((self time-sequence))
   (duration self))
+
   ;(if (time-sequence-get-timed-item-list self)
   ;    (let ((last-frame (last-elem (time-sequence-get-timed-item-list self))))
   ;      (+ (item-real-time last-frame) (item-duration last-frame)))
    ; (time-sequence-default-duration self)))
 
 (defmethod update-obj-dur ((self time-sequence))
-  (setf (duration self) (if (remove nil (time-sequence-get-timed-item-list self))
-                            (let ((last-frame (last-elem (time-sequence-get-timed-item-list self))))
-                              (+ (item-real-time last-frame) (item-duration last-frame)))
-                          (time-sequence-default-duration self))))
+  (setf (duration self)
+        (if (remove nil (time-sequence-get-timed-item-list self))
+            (let ((last-frame (last-elem (time-sequence-get-timed-item-list self))))
+              (+ (item-real-time last-frame) (item-duration last-frame)))
+          (time-sequence-default-duration self))))
 
 (defmethod set-internal-times ((self time-sequence) internal-times)
   (loop for point in (time-sequence-get-timed-item-list self)

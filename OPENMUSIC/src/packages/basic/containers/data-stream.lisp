@@ -36,7 +36,7 @@
 ;;;======================================
 ;;; MAIN CLASS
 ;;;======================================
-(defclass* data-stream (named-object schedulable-object time-sequence)
+(defclass* data-stream (named-object time-sequence schedulable-object)
   ((default-frame-type :accessor default-frame-type :initarg :default-frame-type :initform 'act-bundle)
    (frames :accessor frames :initarg :frames :initform nil :documentation "a list of timed data chunks")
    (slice-duration :accessor slice-duration :initform nil)  ;;; what is it for ?
@@ -205,15 +205,6 @@
     (setf (timeline-editor editor) timeline-editor)
     timeline-editor))
 
-(defun make-x-ruler (editor)
-  (let ((object (object-value editor)))
-    (om-make-view 'time-ruler 
-                  :related-views (list (get-g-component editor :main-panel))
-                  :size (omp nil 20) 
-                  :bg-color (om-def-color :white)
-                  :vmin 0 :vmax 60000 ; (if (zerop (get-obj-dur object)) 1000 (get-obj-dur object))
-                  )
-    ))
 
 (defun make-main-panel (editor)
   (om-make-view (editor-view-class editor) 
@@ -261,35 +252,48 @@
 
 (defmethod init-window ((win OMEditorWindow) (editor stream-editor))
   
-  (make-timeline-editor editor)
-  
-  (set-g-component editor :main-panel (make-main-panel editor))
-  (set-g-component editor :x-ruler (make-x-ruler editor))
+  (let* ((data-stream (object-value editor))
+         (dur (if (zerop (get-obj-dur data-stream)) 
+                  10000 
+                (+ (get-obj-dur data-stream) 1000))))
+    
+    (make-timeline-editor editor)   
+    (set-g-component editor :main-panel (make-main-panel editor))
+    (set-g-component editor :x-ruler (om-make-view 'time-ruler 
+                                                   :related-views (list (get-g-component editor :main-panel))
+                                                   :size (omp nil 20) 
+                                                   :bg-color (om-def-color :white)
+                                                   :vmin 0 :vmax dur
+                                                   :x1 0 :x2 dur))
   
   (call-next-method) ;; => will call make-editor-window-contents
   
   (set-graphic-attributes editor)
-  (set-ruler-range 
-   (get-g-component editor :x-ruler) 0 
-   (get-obj-dur (object-value editor)))
-  (setf (y2 (get-g-component editor :main-panel)) (car (y-range-for-object (object-value editor)))
-        (y1 (get-g-component editor :main-panel)) (cadr (y-range-for-object (object-value editor))))
+
+  (update-views-from-ruler (get-g-component editor :x-ruler))
+
+  (setf (y2 (get-g-component editor :main-panel)) (car (y-range-for-object data-stream))
+        (y1 (get-g-component editor :main-panel)) (cadr (y-range-for-object data-stream)))
   (set-shift-and-factor (get-g-component editor :main-panel))
-  )
+  ))
+
 
 (defmethod update-to-editor ((editor stream-editor) (from ombox))
-  (set-graphic-attributes editor)
-  (when (get-g-component editor :x-ruler)
-    (setf (v2 (get-g-component editor :x-ruler)) 
-          (if (and (object-value editor) (plusp (get-obj-dur (object-value editor)))) 
-              (get-obj-dur (object-value editor))
-            1000))
-    ;(set-ruler-range (get-g-component editor :x-ruler) 
-    ;                 (vmin (get-g-component editor :x-ruler)) 
-    ;                 (vmax (get-g-component editor :x-ruler)))
-    )
+  
+  (let ((new-max-dur (if (zerop (get-obj-dur (object-value editor))) 
+                         10000 
+                       (+ (get-obj-dur (object-value editor)) 1000))))
+  
+    (set-graphic-attributes editor)
+    (when (get-g-component editor :x-ruler)
+      (setf (vmax (get-g-component editor :x-ruler)) new-max-dur)
+      (set-ruler-range 
+       (get-g-component editor :x-ruler) 
+       (v1 (get-g-component editor :x-ruler))
+       new-max-dur))
   (om-invalidate-view (get-g-component editor :main-panel))
-  (update-to-editor (timeline-editor editor) editor))
+  (update-to-editor (timeline-editor editor) editor)
+  ))
 
 (defmethod update-to-editor ((editor stream-editor) (from t))
   (call-next-method)
@@ -438,13 +442,14 @@
 (defmethod om-view-mouse-motion-handler ((self stream-panel) position)
   (let ((editor (editor self)))
     (position-display editor position)
+    (unless (equal (editor-play-state editor) :play)  
     (let ((fp (frame-at-pos editor position)))
       (om-hide-tooltip self)
       (when (and fp (om-command-key-p))
         (let ((frame (nth fp (data-stream-get-frames (object-value editor)))))
           (om-show-tooltip self (data-frame-text-description frame) (omp (- (om-point-x position) 60) 20))
           )
-        ))))
+        )))))
 
 (defmethod om-view-click-handler ((self stream-panel) position)
   (let ((editor (editor self))

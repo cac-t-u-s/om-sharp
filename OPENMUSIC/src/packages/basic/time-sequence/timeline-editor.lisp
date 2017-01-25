@@ -41,7 +41,9 @@
 
 (defmethod set-cursor-time ((self timeline-editor) time)
   (mapcar #'(lambda (pane) (update-cursor pane time)) (cursor-panes self))
-  (editor-invalidate-views (container-editor self)))
+  (editor-invalidate-views (container-editor self))
+  (om-invalidate-view (time-ruler self))
+  )
 
 (defmethod get-cursor-time ((self timeline-editor))
   (if (time-ruler self) (cursor-pos (time-ruler self)) 0))
@@ -380,7 +382,7 @@
 ;;;;;; EVENTS RELATED METHODS ;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defmethod find-clicked-item-index ((self timeline-editor) (panel om-timeline-view) time)
+(defmethod timed-item-index-at-time ((self timeline-editor) (panel om-timeline-view) time)
   (let* ((obj (editor-get-time-sequence self (id panel)))
          (times (time-sequence-get-internal-times obj)))
     (if (> (length times) 0)
@@ -398,9 +400,9 @@
               nil)))
       nil)))
 
-(defmethod find-clicked-item ((self timeline-editor) (panel om-timeline-view) time)
+(defmethod timed-item-at-time ((self timeline-editor) (panel om-timeline-view) time)
   (let* ((obj (editor-get-time-sequence self (id panel)))
-         (pos (find-clicked-item-index self panel time)))
+         (pos (timed-item-index-at-time self panel time)))
     (if pos
         (nth pos (time-sequence-get-timed-item-list obj))
       nil)))
@@ -475,6 +477,8 @@
                        (om-invalidate-view (time-ruler editor)))
                      (update-to-editor (container-editor editor) editor)))))))
 
+
+
 ;;;;;;;;;;;;;;;;;;;;;
 ;;;;;; EVENTS  ;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;
@@ -484,7 +488,7 @@
 (defmethod om-view-click-handler ((self om-timeline-view) position)
   (let* ((timeline-editor (editor self))
          (time (pix-to-x self (om-point-x position)))
-         (point (find-clicked-item timeline-editor self time)))
+         (point (timed-item-at-time timeline-editor self time)))
     ;add a point if add key down and point not existing
     (when (and (om-add-key-down) (alllow-insert-point-from-timeline (container-editor timeline-editor)) (not point))
       (let ((pos (add-point-at-time timeline-editor time (id self)))
@@ -505,7 +509,9 @@
     
      ;point selection
     (if point
-        (progn (move-time-point-action self timeline-editor point position)
+        (progn 
+          (update-inspector point self)
+          (move-time-point-action self timeline-editor point position)
           (set-cursor-time timeline-editor (or (and point (item-get-time point)) time))
           (update-to-editor (container-editor timeline-editor) timeline-editor))
       (or (call-next-method)
@@ -516,8 +522,9 @@
     point))
 
 (defmethod om-view-mouse-motion-handler ((self om-timeline-view) position)
-  (let ((time (pix-to-x self (om-point-x position))))
-    (set-time-display (editor self) time)))
+  (let ((editor (editor self))
+        (time (pix-to-x self (om-point-x position))))
+    (set-time-display editor time)))
 
 (defmethod editor-key-action ((editor timeline-editor) key)
   (case key
@@ -548,7 +555,7 @@
   ;(print (list "timeline" key))
   (or (editor-key-action (editor self) key)
       (call-next-method)) ;;; => to window and play-editor-mixin
-  )  
+  )
 
 (defmethod editor-play ((self timeline-editor))
   (editor-play (container-editor self)))
@@ -561,4 +568,7 @@
 
 (defmethod editor-set-interval ((self timeline-editor) interval)
   (editor-set-interval (container-editor self) interval))
+
+
+
 

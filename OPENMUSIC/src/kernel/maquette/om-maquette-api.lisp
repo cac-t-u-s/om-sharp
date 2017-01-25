@@ -162,8 +162,7 @@
   (prune-object object t1-ms t2-ms)
   (loop for box in (boxes maquette)
         when (eq (get-box-value box) object)
-        do
-        (prune-box box t1-ms t2-ms)))
+        do (prune-box box t1-ms t2-ms)))
 
 
 
