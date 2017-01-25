@@ -241,10 +241,14 @@
    (position time (time-sequence-get-timed-item-list self) :key 'item-get-internal-time :test '<=) 
    (length (time-sequence-get-timed-item-list self))))
 
+
+(defmethod time-sequence-make-interpolated-timed-item-at-time ((self time-sequence) time)
+  (time-sequence-make-timed-item-at-time self time))
+
 (defmethod get-active-point-at-time ((self time-sequence) time)
   (if (interpol self)
       (let ((interpol-time (get-active-interpol-time self time)))
-        (time-sequence-make-timed-item-at-time self interpol-time))
+        (time-sequence-make-interpolated-timed-item-at-time self interpol-time))
     (let ((pos (find-active-position-at-time self time)))
       (nth pos (time-sequence-get-timed-item-list self)))))
  

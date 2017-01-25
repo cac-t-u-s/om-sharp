@@ -299,6 +299,13 @@
   (call-next-method)
   (om-invalidate-view (get-g-component editor :main-panel)))
 
+;;; todo : factorize a bit this procedure in different editors..
+(defmethod editor-delete-contents-from-timeline ((self stream-editor) timeline-id sel)
+  (let ((data-stream (object-value self)))
+    (mapcar #'(lambda (point) (remove-timed-point-from-time-sequence data-stream point)) sel)
+    (time-sequence-update-internal-times data-stream))
+  (editor-invalidate-views self)
+  (report-modifications self))
 
 ;;;===========================================
 ;;; FRAMES DRAW, SELECTION USING ATTRIBUTES

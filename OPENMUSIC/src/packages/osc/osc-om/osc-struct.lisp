@@ -116,15 +116,16 @@
 
 (defmethod get-properties-list ((self osc-bundle))
   (list 
-   (print (cons "OSC BUNDLE" 
+   (cons "OSC BUNDLE" 
                 (loop for i = 0 then (+ i 1)
                       for message in (messages self)
                       collect
                       (list (intern-k (format nil "osc-message-~D" i))
                             (car message) :text 
-                            (print (intern (format nil "osc-bundle-message-accessor-~D" i))))))
-         )))
+                            (intern (format nil "osc-bundle-message-accessor-~D" i))))
+                ))
   )
+
 
 ;;; very-dirty-trick
 (loop for i from 0 to 20 do
@@ -133,9 +134,8 @@
                (setf (nth ,i (messages bundle)) 
                      (cons (car (nth ,i (messages bundle)))
                            (list! val)))
-             (cdr (nth ,i (messages bundle)))))
+             (format nil "~{~a~^ ~}" (cdr (nth ,i (messages bundle))))))
         ))
-
 
 
 ;;;======================================

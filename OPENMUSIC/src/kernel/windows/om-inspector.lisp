@@ -57,9 +57,10 @@
     (setf (object *inspector-window*) nil)
     (hide-inspector)))
 
-(defun update-inspector (object view)
+(defun update-inspector (object view &optional force)
   (when (and *inspector-window* (om-window-open-p *inspector-window*)
-                    (not (equal object (object *inspector-window*))))
+                    (or force 
+                        (not (equal object (object *inspector-window*)))))
     (set-inspector-contents *inspector-window* object view)))
 
 (defmethod object-name-in-inspector ((self OMObject)) (name self))

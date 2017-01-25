@@ -32,7 +32,8 @@
 
 (defmethod delete-editor-selection ((self t)) nil)
 
-(defmethod editor-delete-contents ((self OMEditor) timeline-id objects-id)
+(defmethod editor-delete-contents-from-timeline ((self OMEditor) timeline-id objects-id)
+  ;;; we suppose that the editor's selection is in sync with the timeline
   (delete-editor-selection self))
 
 (defmethod cursor-panes ((self timeline-editor))
@@ -41,9 +42,8 @@
 
 (defmethod set-cursor-time ((self timeline-editor) time)
   (mapcar #'(lambda (pane) (update-cursor pane time)) (cursor-panes self))
-  (editor-invalidate-views (container-editor self))
-  (om-invalidate-view (time-ruler self))
-  )
+  (set-cursor-time (container-editor self) time)
+  (om-invalidate-view (time-ruler self)))
 
 (defmethod get-cursor-time ((self timeline-editor))
   (if (time-ruler self) (cursor-pos (time-ruler self)) 0))
@@ -530,7 +530,9 @@
   (case key
     (:om-key-delete 
      (mapcar  
-      #'(lambda (timeline-id) (editor-delete-contents (container-editor editor) timeline-id (selection editor)))
+      #'(lambda (timeline-id) 
+          (editor-delete-contents-from-timeline (container-editor editor) timeline-id (selection editor))
+          (om-invalidate-view (nth timeline-id (timeline-views editor))))
       (selected-timelines editor))
      (setf (selection editor) nil)
      (update-to-editor (container-editor editor) editor)
@@ -552,7 +554,6 @@
     ))
 
 (defmethod om-view-key-handler ((self om-timeline-view) key)
-  ;(print (list "timeline" key))
   (or (editor-key-action (editor self) key)
       (call-next-method)) ;;; => to window and play-editor-mixin
   )
