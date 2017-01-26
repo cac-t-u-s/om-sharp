@@ -43,6 +43,7 @@
 (defmethod set-cursor-time ((self timeline-editor) time)
   (mapcar #'(lambda (pane) (update-cursor pane time)) (cursor-panes self))
   (set-cursor-time (container-editor self) time)
+  (set-time-display self time)
   (om-invalidate-view (time-ruler self)))
 
 (defmethod get-cursor-time ((self timeline-editor))
@@ -521,10 +522,10 @@
     (set-time-display timeline-editor (if point (item-get-time point) time))
     point))
 
-(defmethod om-view-mouse-motion-handler ((self om-timeline-view) position)
-  (let ((editor (editor self))
-        (time (pix-to-x self (om-point-x position))))
-    (set-time-display editor time)))
+;(defmethod om-view-mouse-motion-handler ((self om-timeline-view) position)
+;  (let ((editor (editor self))
+;        (time (pix-to-x self (om-point-x position))))
+;    (set-time-display editor time)))
 
 (defmethod editor-key-action ((editor timeline-editor) key)
   (case key

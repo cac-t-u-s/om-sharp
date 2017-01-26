@@ -24,10 +24,10 @@
 (add-preference :audio :buffersize "Buffer Size" '(256 512 1024) 512 nil 'apply-audio-device-config)
 
 (defun default-audio-input-device ()
-  (or (and *juce-player* (car (audio-driver-input-devices *juce-player* *audio-driver*))) ""))
+  (or (and *juce-player* (car (juce::audio-driver-input-devices *juce-player* *audio-driver*))) ""))
 
 (defun default-audio-output-device ()
-  (or (and *juce-player* (car (audio-driver-output-devices *juce-player* *audio-driver*))) ""))
+  (or (and *juce-player* (car (juce::audio-driver-output-devices *juce-player* *audio-driver*))) ""))
 
 
 ; (juce::get-audio-drivers *juce-player*)

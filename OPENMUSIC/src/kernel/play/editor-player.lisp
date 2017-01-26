@@ -242,8 +242,8 @@
      (if (eq (player-get-object-state (player self) (get-obj-to-play self)) :stop)
          (if (equal '(0 0) (play-interval self))
              (call-next-method) ;; if the interval is already reset: check if there is another 'escape' to do
-           (editor-reset-interval self))
-       (editor-stop self))
+           (editor-reset-interval self)))
+     (editor-stop self)
      t)
     (otherwise (call-next-method))
     ))
@@ -283,7 +283,6 @@
       (om-draw-line (om-point-x position) (om-point-y position)
                     (om-point-x position)
                     (+ (om-point-y position) (om-point-y size))))))
-
 
 (defmethod drag-move-cursor ((self x-cursor-graduated-view) position)
   (om-init-temp-graphics-motion 
@@ -858,6 +857,9 @@
               (translate-from-marker-action self marker position))
           (call-next-method)))
     (call-next-method)))
+
+(defmethod om-view-mouse-leave-handler ((self time-ruler))
+  (om-set-view-cursor self nil))
   
 (defmethod om-view-mouse-motion-handler ((self time-ruler) pos)
   (when (markers-p self)

@@ -377,5 +377,5 @@
 (defmethod player-stop-object ((self scheduler) (object score))
   (call-next-method)
   (om-midi::midi-stop))
-
+|#
 
