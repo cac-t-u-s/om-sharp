@@ -171,11 +171,15 @@
     (objfromobjs self b)
     b))
 
+(defmethod make-o.bundle ((messages list))
+  (let ((ob (make-instance 'o.bundle)))
+    (assign-foreign-pointer ob (make-foreign-bundle-s-pointer messages))
+    ob))
+
 (defmethod o.bundle-size ((self o.bundle)) (odot::osc_bundle_s_getLen (oa::om-pointer-ptr (bundle_s self))))
 (defmethod o.bundle-ptr ((self o.bundle)) (odot::osc_bundle_s_getPtr (oa::om-pointer-ptr (bundle_s self))))
 
 (defmethod objfromobjs ((model osc-bundle) (target o.bundle))
-  (free-foreign-pointer target)
   (update-bundle-pointer target (messages model) (date model))
   target)
 
