@@ -110,6 +110,26 @@
   (or (car (find-osc-values self "/size")) (call-next-method)))
 
 
+(defmethod* osc-set ((self osc-bundle) address value)
+  (let* ((copy (om-copy self))
+         (mess (find address (messages copy) :key 'car :test 'string-equal)))
+    (if mess 
+        (setf (cdr mess) (list! value))
+      (setf (messages copy) (append (messages copy) (list (cons address (list! value))))))
+    copy))
+    
+(defmethod* osc-delete ((self osc-bundle) address)
+  (let* ((copy (om-copy self)))
+    (setf (messages copy) (remove address (messages copy) :key 'car :test 'string-equal))
+    copy))
+
+(defmethod* osc-get ((self osc-bundle) address)
+  (let* ((mess (find address (messages self) :key 'car :test 'string-equal)))
+    (when mess (cdr mess))))
+
+
+
+
 ;;;=========================================================
 ;;; USED WHEN A BUNDLE IS INSPECTED IN THE INSPECTOR WINDOW
 ;;;=========================================================
