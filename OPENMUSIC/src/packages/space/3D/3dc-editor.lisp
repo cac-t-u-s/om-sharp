@@ -64,6 +64,7 @@
   (append (call-next-method)
           '((:line-width 1))))
 
+
 (defmethod object-has-editor ((self 3dc)) t)
 (defmethod get-editor-class ((self 3DC)) '3DC-editor)
 
@@ -225,7 +226,7 @@
                                                        :font (om-def-font :font1)
                                                        :min-val 1 :max-val 10
                                                        :after-fun #'(lambda (item)
-                                                                      (editor-set-edit-param editor :line-width (value list))))
+                                                                      (editor-set-edit-param editor :line-width (value item))))
                                   ))
 
                                 (om-make-di 'om-check-box :text "show timeline" :size (omp 100 24) :font (om-def-font :font1)
@@ -413,10 +414,11 @@
                   (make-instance 
                    '3D-lines
                    :points (format-3d-points obj) :color (color obj) 
-                   :draw-style :draw-all :line-width (editor-get-edit-param self :line-width)))
+                   :draw-style :draw-all 
+                   :line-width (editor-get-edit-param self :line-width)))
               obj-list)
       (mapcar 'make-3D-background-element 
-             (get-edit-param (object self) :background))
+             (editor-get-edit-param self :background))
       (when (editor-get-edit-param self :show-room) 
         (list (make-3D-background-element
                (make-instance 'project-room :size (room-size self)))))
