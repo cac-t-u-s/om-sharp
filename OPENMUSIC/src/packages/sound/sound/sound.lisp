@@ -550,7 +550,7 @@ Press 'space' to play/stop the sound file.
 ;;;====================
 ;;;Methods redefinitions using the slot "data" of schedulable object to bypass actions rendering and store the las pointer
 (defmethod get-action-list-for-play ((self sound) time-interval &optional parent)
-  (get-external-control-action-list self time-interval parent))
+  (external-player-actions self time-interval parent))
 
 (defmethod player-play-object ((self scheduler) (object sound) caller &key parent interval)
   ;(juce::setgainreader (bp-pointer (buffer-player object)) 0.1)

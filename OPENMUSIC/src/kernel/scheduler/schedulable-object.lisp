@@ -90,7 +90,9 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
              (player-stop-object *scheduler* self))
          nil)))))
 
-(defmethod get-external-control-action-list ((self schedulable-object) time-interval &optional parent)
+;;; some objects can call this instead of returning a list of action (e.g. sound, etc.)
+;;; this will call the specific play/stop actions for these objects
+(defmethod external-player-actions ((self schedulable-object) time-interval &optional parent)
   (append
    (if (not (or (eq (state self) :play) (play-planned? self)))
        (progn
@@ -116,7 +118,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 
 ;;;TO REDEFINE FOR YOUR SUBCLASS
 ;;;It should return a list of lists containing a date when a computation can start, its deadline, a function and its arguments
-(defmethod get-computation-list ((self schedulable-object) &optional time-interval)
+(defmethod get-computation-list-for-play ((self schedulable-object) &optional time-interval)
   nil)
 
 ;;;TO REDEFINE FOR YOUR SUBCLASS
@@ -470,8 +472,10 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
     (setf (plan self)
           (sort
            (append (plan self) 
-                   (cast-computation-list (get-computation-list self (list (or (car interval) 0)
-                                                                           (or (cadr interval) (get-obj-dur self))))))
+                   (cast-computation-list 
+                    (get-computation-list-for-play 
+                     self 
+                     (list (or (car interval) 0) (or (cadr interval) (get-obj-dur self))))))
            '< :key 'act-timestamp))))
 
 (defun cast-computation-list (plan)
@@ -486,7 +490,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
                        :marker t))))
 
 (defmethod get-pre-computation-plan ((self schedulable-object) interval)
-  (loop for task in (sort (get-computation-list 
+  (loop for task in (sort (get-computation-list-for-play 
                            self 
                            (list (or (car interval) 0)
                                  (or (cadr interval) (get-obj-dur self)))) '< :key 'cadr)

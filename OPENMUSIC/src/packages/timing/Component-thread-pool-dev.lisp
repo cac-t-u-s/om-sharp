@@ -104,7 +104,7 @@
 
 ;---------------------get-computation-list-test
 
-(defmethod get-computation-list ((self OMMaquette) &optional interval)
+(defmethod get-computation-list-for-play ((self OMMaquette) &optional interval)
   (loop for box in (get-all-boxes self :sorted t)
         append
         (let ((b box))
