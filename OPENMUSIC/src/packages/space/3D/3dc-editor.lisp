@@ -639,7 +639,7 @@
 
 (defmethod  draw-3D-player-cursor-position ((self 3DC-Editor) time)
   "Draw the current position point at given time" 
-  (let ((point (get-active-point-at-time (object-value self) time)))
+  (let ((point (time-sequence-get-active-timed-item-at (object-value self) time)))
     (when point
       (opengl:gl-color4-f 0.9 0.3 0.1 1.0)
       (draw-sphere (point-to-list point) (/ (editor-get-edit-param self :line-width) 20))

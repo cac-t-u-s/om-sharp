@@ -188,7 +188,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 (defmethod get-obj-dur ((self BPC)) 
   (if (point-list self) (tpoint-internal-time (car (last (point-list self)))) 0))
 
-(defmethod time-sequence-make-timed-item-at-time ((self bpc) at)
+(defmethod time-sequence-make-timed-item-at ((self bpc) at)
   (make-default-tpoint-at-time self at))
 
 

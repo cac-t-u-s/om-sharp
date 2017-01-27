@@ -415,7 +415,7 @@
 
 (defmethod add-point-at-time ((self timeline-editor) time id)
   (let* ((obj (editor-get-time-sequence self id))
-         (point (time-sequence-make-timed-item-at-time obj (round time))))
+         (point (time-sequence-make-timed-item-at obj (round time))))
     (insert-timed-point-in-time-sequence obj point)))
 
 (defmethod translate-selection ((self timeline-editor) dt)

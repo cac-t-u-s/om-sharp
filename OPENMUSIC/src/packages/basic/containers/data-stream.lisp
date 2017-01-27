@@ -63,7 +63,7 @@
 (defmethod time-sequence-get-timed-item-list ((self data-stream)) (data-stream-get-frames self))
 (defmethod time-sequence-set-timed-item-list ((self data-stream) list) (data-stream-set-frames self list))
 
-(defmethod time-sequence-make-timed-item-at-time ((self data-stream) at)
+(defmethod time-sequence-make-timed-item-at ((self data-stream) at)
   (make-instance (default-frame-type self) :date at))
 
 (defmethod display-modes-for-object ((self data-stream))

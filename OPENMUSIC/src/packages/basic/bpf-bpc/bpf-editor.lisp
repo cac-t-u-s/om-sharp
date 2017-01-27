@@ -468,7 +468,7 @@
                       (when (interpol bpf)
                         (let ((interpol-times (arithm-ser (get-first-time bpf) (get-obj-dur bpf) (interpol-time bpf))))
                           (loop for time in interpol-times
-                                do (let ((new-p (time-sequence-make-timed-item-at-time bpf time)))
+                                do (let ((new-p (time-sequence-make-timed-item-at bpf time)))
                                      (draw-interpol-point (list (x-to-pix self (editor-point-x editor new-p)) 
                                                                 (y-to-pix self (editor-point-y editor new-p)))
                                                           editor
