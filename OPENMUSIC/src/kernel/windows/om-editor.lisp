@@ -37,6 +37,9 @@
 (defclass OMAbstractContainer (ObjectWithEditor object-with-edit-params)
   ((contents :initarg :contents :initform nil :accessor contents)))
 
+(defmethod get-default-edit-param ((self OMAbstractContainer) param)
+  (find-value-in-kv-list (object-default-edition-params (contents self)) param))
+
 ;;;=============================
 
 

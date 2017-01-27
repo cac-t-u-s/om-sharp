@@ -105,6 +105,12 @@
 
 (defmethod get-obj-to-play ((self collection-editor)) (object-value self))
 
+
+;(defmethod object-default-edition-params ((self collection))
+;  (append (call-next-method)
+;          (object-default-edition-params 
+;           (or (car (obj-list self)) (make-instance (obj-type self))))))
+
 ;multidisplay API
 (defclass multi-display-editor-mixin ()
   ((multi-display-p :accessor multi-display-p :initarg :multi-display-p :initform nil)
@@ -131,11 +137,13 @@
   )
 
 (defmethod init-editor ((editor collection-editor)) 
-  (let ((collection (get-value-for-editor (object editor))))
+  (let* ((collection (get-value-for-editor (object editor)))
+        (current-object (and (obj-type collection) (nth (current editor) (obj-list collection)))))
     (setf (internal-editor editor) 
-          (make-instance (get-editor-class (and (obj-type collection) (nth (current editor) (obj-list collection))))
-                         :container-editor editor :object nil))
-    ))
+          (make-instance (get-editor-class current-object)
+                         :container-editor editor 
+                         :object (make-instance 'OMAbstractContainer :contents current-object))
+          )))
 
 (defmethod format-current-text ((editor collection-editor))
   (let ((collection (get-value-for-editor (object editor))))
