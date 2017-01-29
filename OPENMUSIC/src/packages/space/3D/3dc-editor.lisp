@@ -505,7 +505,7 @@
            (zoom-view 3dpanel 1.2))
       (:om-key-delete 
        (delete-editor-selection editor)
-       (report-modifications top-editor)
+       (report-modifications top-editor) ;; why ?
        (update-editor-3d-object editor)
        (update-sub-editors editor))
       (:om-key-esc 
@@ -562,7 +562,9 @@
      (sort (selection self) '>)
      ))
   (setf (selection self) nil)
-  (update-to-editor (timeline-editor self) self))
+  (update-sub-editors self)
+  ;(update-to-editor (timeline-editor self) self)
+  )
 
 
 ;;;==========================
@@ -762,6 +764,7 @@
     (om-with-font (om-def-font :font1)
                   (om-draw-line 10 19 40 19)
                   (om-draw-string 1 21 "z"))))
+
 ;;;;;;;;;;;;;;;;;;
 ;;ROOM INSPECTOR...
 ;;;;;;;;;;;;;;;;;;
