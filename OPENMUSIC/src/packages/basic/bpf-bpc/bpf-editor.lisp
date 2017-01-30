@@ -338,7 +338,7 @@
 ;times are negatives values if they are not user defined (for display differenciation)
 (defmethod time-to-draw ((self bpc) editor pt i)
   (or (tpoint-time pt)
-      (let ((ti (nth i (get-all-times self))))
+      (let ((ti (nth i (time-sequence-get-internal-times self))))
         (and ti (- ti)))))
 
 (defun draw-bpf-point (p editor &key index time selected)
@@ -494,7 +494,11 @@
          (list (om-make-menu-item "Select All" #'(lambda () (funcall (select-all-command self))) :key "a" :enabled (and (select-all-command self) t))))
         (om-make-menu-comp 
          (list 
-          (om-make-menu-item "Reverse points" #'(lambda () (reverse-points self)) :key "r" )))
+          (om-make-menu-item "Reverse Points" #'(lambda () (reverse-points self)) :key "r" )))
+        (om-make-menu-comp 
+         (list 
+          (om-make-menu-item "OSC Input Manager" #'(lambda () (funcall (open-osc-manager-command self))) 
+                             :enabled (and (open-osc-manager-command self) t))))
         ))
 
 (defmethod om-menu-items ((self bpf-editor))
@@ -517,6 +521,8 @@
 (defmethod get-info-command ((self bpf-editor)) 
   #'(lambda () 
       (show-inspector (object self) self)))
+
+(defmethod open-osc-manager-command ((self bpf-editor)) nil)
 
 ;;;==========================
 ;;; ACTIONS

@@ -513,7 +513,8 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 (defmethod play-obj? ((self bpf)) t) ;(action self)
 (defmethod get-obj-dur ((self bpf)) (or (car (last (x-points self))) 0))
 (defmethod point-time ((self bpf) p) (om-point-x p))
-(defmethod get-all-times ((self bpf)) (x-points self))
+
+;(defmethod get-all-times ((self bpf)) (x-points self))
 
 ;;; RETURNS A LIST OF (ACTION TIME) TO PERFORM IN TIME-INTERVAL
 (defmethod get-action-list-for-play ((object BPF) time-interval &optional parent)

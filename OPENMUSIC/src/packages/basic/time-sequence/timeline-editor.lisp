@@ -16,8 +16,8 @@
    (snap-to-grid :accessor snap-to-grid :initform t :initarg :snap-to-grid)))
 
 ;;; TIMELINE-EDITOR IS GENERALLY ATTACHED TO ANOTHER EDITOR
-(defmethod editor-get-all-times ((self OMEditor)) 
-  (time-sequence-get-internal-times (object-value self)))
+;(defmethod editor-get-all-times ((self OMEditor)) 
+;  (time-sequence-get-internal-times (object-value self)))
 
 (defmethod editor-get-time-sequence ((self OMEditor) id) 
   (declare (ignore id))
@@ -163,19 +163,13 @@
   (om-make-layout 'om-row-layout :subviews (list (make-time-monitor (timeline-editor self) :time 0))))
 
 (defmethod build-options-view ((self timeline-editor))
-  (let ((init-ruler-button (om-make-graphic-object 
-                            'om-icon-button 
-                            :size (omp 17 17) :icon 'icon-init-ruler-black :icon-pushed 'icon-init-ruler-white :lock-push nil
-                            :action #'(lambda (b) (declare (ignore b))
-                                        (reinit-ranges self)
-                                        (editor-invalidate-views self))))
-        (snap-to-grid-chk (om-make-di 'om-check-box :text "Snap to Grid" :size (omp 100 24) :font (om-def-font :font1)
+  (let ((snap-to-grid-chk (om-make-di 'om-check-box :text "Snap to Grid" :size (omp 100 24) :font (om-def-font :font1)
                                        :checked-p (snap-to-grid self)
                                        :di-action #'(lambda (item) 
                                                       (setf (snap-to-grid self) (om-checked-p item)
                                                             (snap-to-grid (time-ruler self)) (om-checked-p item))
                                                       (editor-invalidate-views self)))))
-    (om-make-layout 'om-row-layout :subviews (list snap-to-grid-chk init-ruler-button))))
+    (om-make-layout 'om-row-layout :subviews (list snap-to-grid-chk))))
 
 (defmethod build-transport-and-options-layout ((self timeline-editor))
   (let* ((transport-layout (build-transport-view (container-editor self)))

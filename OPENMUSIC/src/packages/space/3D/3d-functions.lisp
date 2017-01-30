@@ -11,7 +11,9 @@
          (let ((interp-x (interpolation (x-points first) (x-points second) steps curve))
                (interp-y (interpolation (y-points first) (y-points second) steps curve))
                (interp-z (interpolation (z-points first) (z-points second) steps curve))
-               (interp-times (interpolation (get-all-times first) (get-all-times second) steps curve)))
+               (interp-times (interpolation (time-sequence-get-internal-times first) 
+                                            (time-sequence-get-internal-times second) 
+                                            steps curve)))
            (values 
             (loop for x1 in interp-x for y1 in interp-y for z1 in interp-z for t1 in interp-times
                   collect (make-instance (class-of first) :x-points x1 :y-points y1 :z-points z1 :times t1 :decimals (decimals first) ))
@@ -72,7 +74,7 @@ Outputs
             (let ((x (third (multiple-value-list (om-sample (x-points self) samples))))
                   (y (third (multiple-value-list (om-sample (y-points self) samples))))
                   (z (third (multiple-value-list (om-sample (z-points self) samples))))
-                  (times (third (multiple-value-list (om-sample (get-all-times self) samples)))))
+                  (times (third (multiple-value-list (om-sample (time-sequence-get-internal-times self) samples)))))
               (values (3dc-from-list x y z (type-of self) times (or decimals (decimals self)))
                       x y z times)))
 
@@ -114,7 +116,8 @@ Outputs
               (unless (numberp time) (setf thet 0))
               (setf res (3dc-from-list (om+ (x-points self) thex) (om+ (y-points self) they) 
                                        (om+ (z-points self) thez) (type-of self)  
-                                       (om+ (get-all-times self) thet) (decimals self)))
+                                       (om+ (time-sequence-get-internal-times self) thet)
+                                       (decimals self)))
               (setf (color res) (color self))
               res))
 
@@ -123,7 +126,8 @@ Outputs
                                       (if y (om* -1 (y-points self)) (y-points self)) 
                                       (if z (om* -1 (z-points self)) (z-points self))
                                       (type-of self)
-                                      (if times (om* -1 (get-all-times self)) (get-all-times self))
+                                      (if times (om* -1 (time-sequence-get-internal-times self))
+                                        (time-sequence-get-internal-times self))
                                       (decimals self))))
               (setf (color res) (color self))
               res))

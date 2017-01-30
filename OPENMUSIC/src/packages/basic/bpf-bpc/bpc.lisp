@@ -184,7 +184,8 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 ;;;=========================================
 
 
-(defmethod get-all-times ((self BPC)) (time-sequence-get-internal-times self))
+;(defmethod get-all-times ((self BPC)) (time-sequence-get-internal-times self))
+
 (defmethod get-obj-dur ((self BPC)) 
   (if (point-list self) (tpoint-internal-time (car (last (point-list self)))) 0))
 
@@ -233,7 +234,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
   (multiple-value-bind (x1 x2 y1 y2 t1 t2)
       (loop for x in (x-values-from-points self) 
             for y in (y-values-from-points self)
-            for time in (get-all-times self)
+            for time in (time-sequence-get-internal-times self)
             minimize x into x1 maximize x into x2
             minimize y into y1 maximize y into y2
             minimize time into t1 maximize time into t2
@@ -248,9 +249,10 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
   (let* ((x-col (om-def-color :red))
          (y-col (om-def-color :green))
          (ranges (nice-bpf-range self))
-         (x-t-list (mat-trans (list (get-all-times self) (x-points self))))
+         (times (time-sequence-get-internal-times self))
+         (x-t-list (mat-trans (list times (x-points self))))
          (x-t-ranges (list 0 (nth 5 ranges) (car ranges) (cadr ranges)))
-         (y-t-list (mat-trans (list (get-all-times self) (y-points self))))
+         (y-t-list (mat-trans (list times (y-points self))))
          (y-t-ranges (list 0 (nth 5 ranges) (caddr ranges) (cadddr ranges))))
         ;draw x = f(t)
     (draw-bpf-points-in-rect x-t-list

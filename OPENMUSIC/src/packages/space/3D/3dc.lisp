@@ -316,7 +316,7 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
   (if (times self)
       (let ((pos (or (position time (point-list self) :key 'tpoint-internal-time :test '<= ) 
                      (length (point-list self))))
-            (len (length (get-all-times self))))
+            (len (length (time-sequence-get-internal-times self))))
         ;if length is 1 or if the point is before the others or after use the same position than the before or after point
         (if (or (= len 1) (or (= pos 0) (= pos len)))
             (let ((point (nth (min pos (1- len)) (point-list self))))
@@ -344,7 +344,7 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
       (loop for x in (x-values-from-points self) 
             for y in (y-values-from-points self)
             for z in (z-values-from-points self)
-            for time in (get-all-times self)
+            for time in (time-sequence-get-internal-times self)
             minimize x into x1 maximize x into x2
             minimize y into y1 maximize y into y2
             minimize z into z1 maximize z into z2
@@ -361,11 +361,12 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
          (y-col (om-def-color :green))
          (z-col (om-def-color :blue))
          (ranges (nice-bpf-range self))
-         (x-t-list (mat-trans (list (get-all-times self) (x-points self))))
+         (times (time-sequence-get-internal-times self))
+         (x-t-list (mat-trans (list times (x-points self))))
          (x-t-ranges (list 0 (nth 7 ranges) (car ranges) (cadr ranges)))
-         (y-t-list (mat-trans (list (get-all-times self) (y-points self))))
+         (y-t-list (mat-trans (list times (y-points self))))
          (y-t-ranges (list 0 (nth 7 ranges) (caddr ranges) (cadddr ranges)))
-         (z-t-list (mat-trans (list (get-all-times self) (z-points self))))
+         (z-t-list (mat-trans (list times (z-points self))))
          (z-t-ranges (list 0 (nth 7 ranges) (nth 5 ranges) (nth 6 ranges))))
         ;draw x = f(t)
     (draw-bpf-points-in-rect x-t-list
@@ -401,12 +402,12 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
   :indoc '("a 3dc")
   :icon 241 
   :doc "Retruns the list of points in <self> as a list ((x1 y1 z1 t1) (x2 y2 z2 t2) ...)"
-  (mat-trans (list (x-points self) (y-points self) (z-points self) (get-all-times self))))
+  (mat-trans (list (x-points self) (y-points self) (z-points self) (time-sequence-get-internal-times self))))
 
 (defmethod timed-point-pairs ((self 3DC))
   (let ((times (times self)))
     (when (position nil times)
-      (setf times (get-all-times self)))
+      (setf times (time-sequence-get-internal-times self)))
     (mat-trans (list (x-points self) (y-points self) (z-points self) times))))
 
 ;;; called (for instance) in save-as-text
