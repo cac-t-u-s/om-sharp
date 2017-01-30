@@ -216,17 +216,17 @@
                                  :subviews
                                  (list 
                                   (om-make-di 'om-simple-text :text "Line size:" 
-                                              :size (omp 38 20) 
+                                              :size (omp 68 20) 
                                            :font (om-def-font :font1))
                                   (om-make-graphic-object 'numbox 
                                                           :value (editor-get-edit-param editor :line-width) 
                                                           :bg-color (om-def-color :white)
-                                                      :border t
-                                                       :size (om-make-point 40 24) 
-                                                       :font (om-def-font :font1)
-                                                       :min-val 1 :max-val 10
-                                                       :after-fun #'(lambda (item)
-                                                                      (editor-set-edit-param editor :line-width (value item))))
+                                                          :border t
+                                                          :size (om-make-point 28 18) 
+                                                          :font (om-def-font :font1)
+                                                          :min-val 1 :max-val 10
+                                                          :after-fun #'(lambda (item)
+                                                                         (editor-set-edit-param editor :line-width (value item))))
                                   ))
 
                                 (om-make-di 'om-check-box :text "show timeline" :size (omp 100 24) :font (om-def-font :font1)
@@ -257,7 +257,7 @@
                                        (om-make-view '3D-axis-view :size (omp 30 24))
                                        )
                                  )
-                                (om-make-di 'om-check-box :text "Room" :size (omp 46 24) :font (om-def-font :font1)
+                                (om-make-di 'om-check-box :text "Room" :size (omp 56 24) :font (om-def-font :font1)
                                                    :checked-p (editor-get-edit-param editor :show-room)
                                                    :di-action #'(lambda (item) 
                                                                   (editor-set-edit-param editor :show-room (om-checked-p item))
@@ -419,7 +419,7 @@
               obj-list)
       (mapcar 'make-3D-background-element 
              (editor-get-edit-param self :background))
-      (when (editor-get-edit-param self :show-room) 
+      (when (editor-get-edit-param self :show-room)
         (list (make-3D-background-element
                (make-instance 'project-room :size (room-size self)))))
       ))))
@@ -437,7 +437,6 @@
     (om-set-3Dobj-points 3d-obj (format-3d-points obj))
     (update-3d-curve-vertices-colors self)))
     
-
 
 (defmethod update-sub-editors ((self 3DC-editor))
   (when (window self)
