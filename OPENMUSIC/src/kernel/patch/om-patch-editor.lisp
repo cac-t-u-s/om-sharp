@@ -822,6 +822,7 @@
              (newbox
               (cond          
                ((or (listp name) (numberp name) (stringp name) (quoted-form-p name)
+                    (equal name t)
                     (and (symbolp name) 
                          (string-equal (package-name (symbol-package name)) "KEYWORD")))
                 (when (quoted-form-p name) (setf name (eval name)))
