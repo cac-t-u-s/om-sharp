@@ -401,104 +401,115 @@ Name/Value tables are formatted as SDIFNVT objects.
 ;;; READ DATA
 ;;;=============================
 
-(defmethod get-sdif-data ((self sdifFile) streamNum frameT matT colNum rmin rmax tmin tmax &key (with-data t))
-  (if (or (and rmin rmax (> rmin rmax)) (and tmin tmax (> tmin tmax))) 
-      (om-beep-msg "GET-SDIF-DATA: Wrong parameters (tmin > tmax) or (rmin > rmax)..." )
-    (let ((sdiffileptr (sdif::sdif-open-file (file-pathname self) sdif::eReadWriteFile))
-          (error nil) (sdifdata nil) (sdiftimes nil))
-      (om-print "extracting data..." "SDIF")
-      (if sdiffileptr
-          (unwind-protect 
-              (let ((curr-time nil))
-                (sdif::SdifFReadGeneralHeader sdiffileptr)
-                (sdif::SdifFReadAllASCIIChunks sdiffileptr)
-                ;;; HERE
-                (loop while (and 
-                             (check-current-singnature sdiffileptr) ;;; more frames in the file
-                             (not error) ;;; so far so good
-                             (or (not curr-time) (not tmax) (not (>= curr-time tmax)))) ;;; did not ran over the tmax already 
-                      do
-                      (sdif::SdifFReadFrameHeader sdiffileptr)
-                      (let ((fsig (sdif::SdifSignatureToString (sdif::SdifFCurrFrameSignature sdiffileptr)))
-                            (sid (sdif::SdifFCurrId sdiffileptr)))
-                        (setq curr-time (sdif::SdifFCurrTime sdiffileptr))
+(defmethod get-sdif-data ((self pathname) streamNum frameT matT colNum rmin rmax tmin tmax &key (with-data t))
+  (get-sdif-data (namestring self) streamNum frameT matT colNum rmin rmax tmin tmax :with-data with-data))
+
+(defmethod get-sdif-data ((self SDIFFIle) streamNum frameT matT colNum rmin rmax tmin tmax &key (with-data t))
+  (get-sdif-data (file-pathname self) streamNum frameT matT colNum rmin rmax tmin tmax :with-data with-data))
+
+(defmethod get-sdif-data ((self string) streamNum frameT matT colNum rmin rmax tmin tmax &key (with-data t))
+  (cond ((or (and rmin rmax (> rmin rmax)) (and tmin tmax (> tmin tmax))) 
+         (om-beep-msg "GET-SDIF-DATA: Wrong parameters (tmin > tmax) or (rmin > rmax)..." ))
+        ((not (probe-file self))
+         (om-beep-msg (format nil "FILE: ~A NOT FOUND..." self)))
+        (t 
+         (let ((sdiffileptr (sdif::sdif-open-file self sdif::eReadWriteFile))
+               (error nil) (sdifdata nil) (sdiftimes nil))
+           (om-print "extracting data..." "SDIF")
+           (if sdiffileptr
+               (unwind-protect 
+                   (let ((curr-time nil))
+                     (sdif::SdifFReadGeneralHeader sdiffileptr)
+                     (sdif::SdifFReadAllASCIIChunks sdiffileptr)
+                     ;;; HERE
+                     (loop while (and 
+                                  (check-current-singnature sdiffileptr) ;;; more frames in the file
+                                  (not error) ;;; so far so good
+                                  (or (not curr-time) (not tmax) (not (>= curr-time tmax)))) ;;; did not ran over the tmax already 
+                           do
+                           (sdif::SdifFReadFrameHeader sdiffileptr)
+                           (let ((fsig (sdif::SdifSignatureToString (sdif::SdifFCurrFrameSignature sdiffileptr)))
+                                 (sid (sdif::SdifFCurrId sdiffileptr)))
+                             (setq curr-time (sdif::SdifFCurrTime sdiffileptr))
                         ;(print (list fsig curr-time))
-                        (if (and (or (not streamNum) (= streamNum sid))
-                                 (string-equal frameT fsig) 
-                                 (or (not tmin) (>= time tmin)))
-                            ;;; we're in a candidate frame
-                            (dotimes (m (sdif::SdifFCurrNbMatrix sdiffileptr))
-                              (sdif::SdifFReadMatrixHeader sdiffileptr)
-                              (let ((msig (sdif::SdifSignatureToString (sdif::SdifFCurrMatrixSignature sdiffileptr)))
-                                    (ne (sdif::SdifFCurrNbRow sdiffileptr))
-                                    (nf (sdif::SdifFCurrNbCol sdiffileptr))
-                                    (size (sdif::SdifSizeofDataType (sdif::SdifFCurrDataType sdiffileptr))))
-                                (if (string-equal msig matT)
-                                    ;;; we're in a candidate matrix
-                                    (if with-data
-                                        (if (and (numberp colNum) (<= nf colNum))
-                                            (progn 
-                                              (om-beep-msg (format nil "Error the matrix ~A has only ~D fields" msig nf))
-                                              (setf error t))
-                                          (let ((r1 0) (r2 (1- ne)) 
-                                                (bytesread 0))
-                                            (when (and rmin (> ne rmin)) (setf r1 rmin))
-                                            (when (and rmax (> ne rmax)) (setf r1 rmax))
+                             (if (and (or (not streamNum) (= streamNum sid))
+                                      (string-equal frameT fsig) 
+                                      (or (not tmin) (>= time tmin)))
+                                 ;;; we're in a candidate frame
+                                 (dotimes (m (sdif::SdifFCurrNbMatrix sdiffileptr))
+                                   (sdif::SdifFReadMatrixHeader sdiffileptr)
+                                   (let ((msig (sdif::SdifSignatureToString (sdif::SdifFCurrMatrixSignature sdiffileptr)))
+                                         (ne (sdif::SdifFCurrNbRow sdiffileptr))
+                                         (nf (sdif::SdifFCurrNbCol sdiffileptr))
+                                         (size (sdif::SdifSizeofDataType (sdif::SdifFCurrDataType sdiffileptr))))
+                                     (if (string-equal msig matT)
+                                         ;;; we're in a candidate matrix
+                                         (if with-data
+                                             (if (and (numberp colNum) (<= nf colNum))
+                                                 (progn 
+                                                   (om-beep-msg (format nil "Error the matrix ~A has only ~D fields" msig nf))
+                                                   (setf error t))
+                                               (let ((r1 0) (r2 (1- ne)) 
+                                                     (bytesread 0))
+                                                 (when (and rmin (> ne rmin)) (setf r1 rmin))
+                                                 (when (and rmax (> ne rmax)) (setf r1 rmax))
                                       ;(print (list msig ne nf size))
-                                            ;;; go to r1
-                                            (loop for k from 0 to (1- r1) 
-                                                  do (setf bytesread (+ bytesread (sdif::SdifFSkipOneRow sdiffileptr))))
-                                            ;;; read
-                                            (let ((data
-                                                   (loop for k from r1 to r2 
-                                                         do (setf bytesread (+ bytesread (sdif::SdifFReadOneRow sdiffileptr)))
-                                                         collect 
-                                                         (cond
-                                                          ((numberp colNum) 
-                                                           (sdif::SdifFCurrOneRowCol sdiffileptr (1+ colNum)))
-                                                          ((consp colNum) 
-                                                           (loop for n in colNum collect (sdif::SdifFCurrOneRowCol sdiffileptr (1+ n))))
-                                                          ((null colNum) (loop for n from 1 to nf collect (sdif::SdifFCurrOneRowCol sdiffileptr n)))))
-                                                   ))
-                                              (loop for k from (1+ r2) to (1- ne) 
-                                                    do (setf bytesread (+ bytesread (sdif::SdifFSkipOneRow sdiffileptr))))
+                                                 ;;; go to r1
+                                                 (loop for k from 0 to (1- r1) 
+                                                       do (setf bytesread (+ bytesread (sdif::SdifFSkipOneRow sdiffileptr))))
+                                                 ;;; read
+                                                 (let ((data
+                                                        (loop for k from r1 to r2 
+                                                              do (setf bytesread (+ bytesread (sdif::SdifFReadOneRow sdiffileptr)))
+                                                              collect 
+                                                              (cond
+                                                               ((numberp colNum) 
+                                                                (sdif::SdifFCurrOneRowCol sdiffileptr (1+ colNum)))
+                                                               ((consp colNum) 
+                                                                (loop for n in colNum collect (sdif::SdifFCurrOneRowCol sdiffileptr (1+ n))))
+                                                               ((null colNum) (loop for n from 1 to nf collect (sdif::SdifFCurrOneRowCol sdiffileptr n)))))
+                                                        ))
+                                                   (loop for k from (1+ r2) to (1- ne) 
+                                                         do (setf bytesread (+ bytesread (sdif::SdifFSkipOneRow sdiffileptr))))
                                         ;(print (list "read" bytesread "pad" (sdif::sdif-calculate-padding bytesread)))
-                                              (sdif::SdifFReadPadding sdiffileptr (sdif::sdif-calculate-padding bytesread))
-                                              (when data 
-                                                (push data sdifdata)
-                                                (push curr-time sdiftimes)))
-                                            ))
-                                      ;;; no data (just times)
-                                      (progn (push curr-time sdiftimes)
-                                        (sdif::SdifFSkipMatrixData sdiffileptr))
-                                      )
-                                  (sdif::SdifFSkipMatrixData sdiffileptr)
-                                  ))
-                              )
-                          ;;; skip the frame
-                          (sdif::sdiffskipframedata sdiffileptr)
+                                                   (sdif::SdifFReadPadding sdiffileptr (sdif::sdif-calculate-padding bytesread))
+                                                   (when data 
+                                                     (push data sdifdata)
+                                                     (push curr-time sdiftimes)))
+                                                 ))
+                                           ;;; no data (just times)
+                                           (progn (push curr-time sdiftimes)
+                                             (sdif::SdifFSkipMatrixData sdiffileptr))
+                                           )
+                                       (sdif::SdifFSkipMatrixData sdiffileptr)
+                                       ))
+                                   )
+                               ;;; skip the frame
+                               (sdif::sdiffskipframedata sdiffileptr)
                           
-                          )
+                               )
                       
-                        (sdif::sdif-read-next-signature sdiffileptr)
+                             (sdif::sdif-read-next-signature sdiffileptr)
                         
-                        ))
-                (if (or sdifdata sdiftimes) 
-                    (values (reverse sdifdata) (reverse sdiftimes))
-                  (progn (om-format "No data found with t1=~D t2=~D r1=~D r2=~D " (list tmin tmax rmin rmax) "SDIF")
-                    nil))
-                )
-            (sdif::SDIFFClose sdiffileptr))
-        (om-beep-msg "Error loading SDIF file -- bad pointer: ~D" (file-pathname self)))
-      )))
+                             ))
+                     (if (or sdifdata sdiftimes) 
+                         (values (reverse sdifdata) (reverse sdiftimes))
+                       (progn (om-format "No data found with t1=~D t2=~D r1=~D r2=~D " (list tmin tmax rmin rmax) "SDIF")
+                         nil))
+                     )
+                 (sdif::SDIFFClose sdiffileptr))
+             (om-beep-msg "Error loading SDIF file -- bad pointer: ~D" self))
+           ))))
 
 
-(defmethod* GetSDIFData ((self sdifFile) sID (frameType string) (matType string) Cnum rmin rmax tmin tmax)
+(defmethod* GetSDIFData ((self t) sID (frameType string) (matType string) Cnum rmin rmax tmin tmax)
    :icon 639
    :indoc '("SDIF file" "stream number (int)" "frame type (string)" "matrix type (string)" "field number (int or list)" "min row" "max row" "min time (s)" "max time (s)")
    :outdoc '("matrix values" "times")
    :initvals '(nil 0 "" "" 0 nil nil nil nil)
    :doc "Extracts and returns a data array (<rmin>-<rmax>, <tmin>-<tmax>) from the <cnum> field of the <matType> matrix from the Stream <sid> of <frameType> frames from <self>.
+
+<self> can be an SDIFFile object or a pathname to a valid SDIF file.
 
 <cnum> can be a single value or a list of values (for multiple dimentional descriptions)
 Unspecified arguments mean all SDIF data (i.e. for instance any time, all rows, fields, etc.) will be considered and returned.
@@ -536,13 +547,13 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
    (cadr (multiple-value-list (get-sdif-data self sID frameType matType nil nil nil tmin tmax :with-data nil))))
 
 
-
-
-(defmethod* GetSDIFFrames ((self sdifFile) &key sID frameType tmin tmax)
+(defmethod* GetSDIFFrames ((self t) &key sID frameType tmin tmax)
    :icon 639
    :indoc '("SDIF file" "frame type (string)" "matrix type (string)" "stream number"  "min time (s)" "max time (s)")
    :initvals '(nil nil nil 0 nil nil)
    :doc "Creates and returns an SDIFStream instance from SDIF data in stream <sid> of <self>.
+
+<self> can be an SDIFFile object or a pathname to a valid SDIF file.
 
 <sid> can be a list of IDs (intergers)
  
@@ -554,11 +565,19 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
    (get-sdif-frames self sID frameType tmin tmax))
 
 (defmethod get-sdif-frames ((self sdifFile) streamNum frameT tmin tmax)
-  (when (file-pathname self)
-    (let ((sdiffileptr (sdif::sdif-open-file (file-pathname self) sdif::eReadWriteFile))
-          (frame-list nil))
-      (if sdiffileptr
-          (unwind-protect 
+  (get-sdif-frames (file-pathname self) streamNum frameT tmin tmax))
+
+(defmethod get-sdif-frames ((self pathname) streamNum frameT tmin tmax)
+  (get-sdif-frames (namestring self) streamNum frameT tmin tmax))
+
+(defmethod get-sdif-frames ((self string) streamNum frameT tmin tmax)
+  (cond ((not (probe-file self))
+         (om-beep-msg (format nil "FILE: ~A NOT FOUND..." self)))
+        (t
+         (let ((sdiffileptr (sdif::sdif-open-file self sdif::eReadWriteFile))
+               (frame-list nil))
+           (if sdiffileptr
+               (unwind-protect 
               (progn (sdif::SdifFReadGeneralHeader sdiffileptr)
                 (sdif::SdifFReadAllASCIIChunks sdiffileptr)
                 (loop while (check-current-singnature sdiffileptr) 
@@ -579,9 +598,9 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
                                   
                         (sdif::sdif-read-next-signature sdiffileptr))))
             (sdif::SDIFFClose sdiffileptr))
-        (om-beep-msg "Error loading SDIF file -- bad pointer: ~D" (file-pathname self)))
+        (om-beep-msg "Error loading SDIF file -- bad pointer: ~D" self))
       (reverse frame-list)
-      )))
+      ))))
 
 ;;;==========================
 ;;; TEXT CONVERSION
@@ -591,8 +610,10 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
    :icon 639
    :indoc '("SDIF file" "text file pathname")
    :doc "Converts <self> to text-SDIF in <out-filename>."
-   (let ((outfile (or (and out-filename (handle-new-file-exists out-filename))
-                      (om-choose-new-file-dialog :types (list (format nil (om-str :file-format) "Text") "*.txt" )))))
+   (let ((outfile (if out-filename 
+                      (or (handle-new-file-exists out-filename)
+                          (om-choose-new-file-dialog :types (list (format nil (om-str :file-format) "Text") "*.txt" )))
+                    (outfile "tmp_sdif_to_text_convert.txt"))))
      (when outfile 
        (let ((SDIFF (sdif::sdif-open-file self)))
          (when SDIFF 

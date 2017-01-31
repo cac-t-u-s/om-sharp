@@ -21,7 +21,8 @@
 ;;; READ...
 ;;;============================================
 
-(defmethod chord-seq-raw-data ((self sdiffile) &optional (stream nil))
+;;; GetSDIFFrames will handle the dispatch wrt. type of self
+(defmethod chord-seq-raw-data ((self t) &optional (stream nil))
    (let ((frames (GetSDIFFrames self :sid stream))
          (mrk-partials (make-hash-table))
          (trc-partials (make-hash-table))
@@ -29,38 +30,40 @@
     
      (loop for fr in frames do
            (cond ((string-equal "1MRK" (frametype fr))
+                  
                   (loop for mat in (lmatrices fr) do
                         (cond ((string-equal "1BEG" (matrixtype mat)) (setf bmat mat))
                               ((string-equal "1END" (matrixtype mat)) (setf emat mat))
                               ((string-equal "1TRC" (matrixtype mat)) (setf pmat mat))
-                              (t nil)))
-                  (when bmat 
-                    ;;; a begin matrix : set time info
-                    (loop for i in (get-col bmat "Index") do
-                          (sethash mrk-partials i (make-partial :t-list (list (frametime fr) (frametime fr))
-                                                                :f-list nil
-                                                                :a-list nil))))
-                  (when pmat 
-                    ;;; a parameter matrix : add data in partials
-                    (loop for i in (get-col bmat "Index") 
-                          for f in (get-col bmat "Frequency") 
-                          for a in (get-col bmat "Amplitude") 
-                          do (let ((p (gethash i mrk-partials)))
-                               (when p
-                                 (setf (partial-f-list p) (list f f))
-                                 (setf (partial-a-list p) (list a a))
-                                 ))))
-                  (when emat 
-                    ;;; a end matrix: find the partial, set duration and put in the final list 
-                    (loop for i in (get-col bmat "Index") do
-                          (let ((p (gethash i mrk-partials)))
-                            (when p
-                              (setf (partial-t-list p) 
-                                    (list (car (partial-t-list p)) (frametime fr)))))))
+                              (t nil))
+                  
+                        (when bmat 
+                          ;;; a begin matrix : set time info
+                          (loop for i in (get-col bmat "Id") do
+                                (sethash mrk-partials i (make-partial :t-list (list (frametime fr) (frametime fr))
+                                                                      :f-list nil
+                                                                      :a-list nil))))
+                        (when pmat 
+                          ;;; a parameter matrix : add data in partials
+                          (loop for i in (get-col pmat "Index") 
+                                for f in (get-col pmat "Frequency") 
+                                for a in (get-col pmat "Amplitude") 
+                                do (let ((p (gethash i mrk-partials)))
+                                     (when p
+                                       (setf (partial-f-list p) (list f f))
+                                       (setf (partial-a-list p) (list a a))
+                                       ))))
+                        (when emat 
+                          ;;; a end matrix: find the partial, set duration and put in the final list 
+                          (loop for i in (get-col emat "Id") do
+                                (let ((p (gethash i mrk-partials)))
+                                  (when p
+                                    (setf (partial-t-list p) 
+                                          (list (car (partial-t-list p)) (frametime fr)))))))
              
-                  (setf bmat nil)
-                  (setf emat nil)
-                  (setf pmat nil))
+                        (setf bmat nil)
+                        (setf emat nil)
+                        (setf pmat nil)))
                  
                  ((or (string-equal "1TRC" (frametype fr)) (string-equal "1HRM" (frametype fr)))
                   (loop for mat in (lmatrices fr) do
@@ -89,7 +92,7 @@
      ))
 
 
-(defmethod* GetSDIFPartials ((self sdiffile) &optional (stream nil))
+(defmethod* GetSDIFPartials ((self t) &optional (stream nil))
    :indoc '("an SDIF file")
    :doc "Return a list of partial structures from an sdif file (using 1TRC or 1MRK frames)
 
@@ -98,7 +101,7 @@
    (chord-seq-raw-data self stream))
 
 
-(defmethod* GetSDIFChords ((self sdiffile) &optional (stream nil))
+(defmethod* GetSDIFChords ((self t) &optional (stream nil))
    :indoc '("an SDIF file")
    :doc "Returns a list of chords data from an sdif file (using 1MRK / 1TRC frames).
 
@@ -115,7 +118,7 @@ Chords are formatted as (pitch [Hz]  onset [s]  duration [s]  velocity [lin]).
            (chord-seq-raw-data self stream)))
                    
    
-(defmethod* SDIF->chord-seq ((self sdiffile) &optional (stream nil))
+(defmethod* SDIF->chord-seq ((self t) &optional (stream nil))
    :indoc '("an SDIF file")
    :doc "Generates a CHORD-SEQ instance from the 1TRC or 1MRK frame data in <self>.
 
@@ -145,7 +148,6 @@ Internally calls and formats data from GetSDIFChords.
                     :lmidic (om-round (f->mc (second cseqdata)))
                     :ldur (om-round (om* (third cseqdata) 1000))
                     :lvel (om-round (om-scale (fourth cseqdata) 50 127)))))
-
 
 
 ;;;============================================
