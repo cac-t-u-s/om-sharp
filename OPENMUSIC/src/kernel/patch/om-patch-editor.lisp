@@ -34,7 +34,9 @@
 ;;; can change, e.g. for a maquette-editor
 (defmethod get-editor-view-for-action ((self patch-editor)) (main-view self))
 
-(defmethod put-patch-boxes-in-editor-view ((self OMPatch) view) 
+(defmethod put-patch-boxes-in-editor-view ((self OMPatch) (view t)) nil)
+ 
+(defmethod put-patch-boxes-in-editor-view ((self OMPatch) (view patch-editor-view)) 
   (mapc 
    #'(lambda (box) 
        (omg-add-element view (make-frame-from-callobj box)))
@@ -44,9 +46,9 @@
    (connections self)))
 
 ;;; redefined in maquette-editor
-(defmethod init-window ((win patch-editor-window) editor)
+(defmethod init-editor-window ((editor patch-editor))
   (call-next-method)
-  (put-patch-boxes-in-editor-view (object editor) (main-view editor))
+  (put-patch-boxes-in-editor-view (object editor) (main-view editor)) 
   (update-window-name editor))
 
 
@@ -914,7 +916,7 @@
 
 (defmethod patch-editor-show-lisp-code ((self patch-editor) t-or-nil)
   (setf (show-lisp-code self) t-or-nil)
-  (init-window (window self) self))
+  (build-editor-window self))
 
 
 (defmethod patch-editor-set-lisp-code ((self patch-editor))

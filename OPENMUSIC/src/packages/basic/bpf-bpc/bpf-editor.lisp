@@ -262,8 +262,8 @@
     (apply 'om-add-subviews (cons self mode-buttons))
     ))
 
-
-(defmethod init-window ((win OMEditorWindow) (editor bpf-editor))
+;;; happens when the window is already built
+(defmethod init-editor-window ((editor bpf-editor))
   (call-next-method)
   (reinit-ranges editor)
   ;(update-inspector editor win)
@@ -898,6 +898,12 @@
                  (call-next-method))
                )))
     ))
+
+(defmethod om-view-doubleclick-handler ((self bpc-panel) position)
+  (let ((editor (editor self)))
+    (if (find-clicked-point-or-curve editor (object-value editor) position)
+        (call-next-method)
+      (reinit-ranges editor))))
 
 (defmethod om-view-click-handler ((self bpf-bpc-panel) position)
   (let* ((editor (editor self))

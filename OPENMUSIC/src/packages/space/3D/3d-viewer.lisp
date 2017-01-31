@@ -67,7 +67,7 @@
       
       )))
 
-(defmethod init-window ((win OMEditorWindow) (editor 3d-viewer-editor))
+(defmethod init-editor-window ((editor 3d-viewer-editor))
   (call-next-method)
   (let ((3D-view (get-g-component editor :3D-view)))
     ;;; works better if the objects are set after everything is on-screen

@@ -235,9 +235,9 @@
 ;;; MAIN
 ;;;============
 
-(defmethod init-window ((win OMEditorWindow) (editor score-editor))
-  (make-tempo-editor editor)
-  (call-next-method))
+(defmethod init-editor ((editor score-editor))
+  (call-next-method)
+  (make-tempo-editor editor))
        
 (defmethod make-editor-window-contents ((editor score-editor))
   (om-make-layout 

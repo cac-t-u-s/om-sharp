@@ -32,7 +32,7 @@
 (defmethod editor-window-init-size ((self interface-editor)) (om-make-point 16 64))
 
 ;;; redefined from patch editor
-(defmethod init-window ((win interface-editor) editor)
+(defmethod init-editor-window ((editor interface-editor))
   (call-next-method)
   ;(when (equal (view-mode editor) :maquette) 
   ;  (put-patch-boxes-in-editor-view (object editor) (get-g-component editor :maq-view)))

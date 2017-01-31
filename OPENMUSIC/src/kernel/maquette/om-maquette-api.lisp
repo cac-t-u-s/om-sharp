@@ -189,7 +189,7 @@
   (loop for box in (get-track-boxes self tracknum)
         do
         (omng-remove-element self box))
-  (init-window (window (editor self)) (editor self)))
+  (build-editor-window (editor self)))
 
 (defmethod flush-maquette ((self ommaquette))
   (loop for box in (get-all-boxes self)

@@ -166,7 +166,8 @@
       ;;; so we need to reset window-size here
       (setf (window-size (object self)) (om-view-size win))
       (setf (window self) win)
-      (init-window win self)
+      (build-editor-window self)
+      (init-editor-window self)
       (om-show-window win)
       )))
 
@@ -273,14 +274,18 @@
 ;;; EDITOR WINDOW 
 ;;;====================
 
-(defmethod init-window ((win OMEditorWindow) editor)
-  (om-remove-all-subviews win)
-  (multiple-value-bind (contents main)
-      (make-editor-window-contents editor)
-    (setf (main-view editor) (or main contents))
-    (om-add-subviews win contents)))
+(defmethod build-editor-window ((editor OMEditor))
+  (let ((win (window editor)))
+    (when win 
+      (om-remove-all-subviews win)
+      (multiple-value-bind (contents main)
+          (make-editor-window-contents editor)
+        (setf (main-view editor) (or main contents))
+        (om-add-subviews win contents)))))
 
-;;; called by init-window
+(defmethod init-editor-window ((ed OMEditor)) nil)
+
+;;; called by build-editor-window
 (defmethod make-editor-window-contents ((editor OMEditor))
   (make-default-editor-view editor))
 
@@ -296,7 +301,7 @@
          ))
 
 ;;; not very clean...
-;(defmethod init-window :after ((win OMEditorWindow) editor) 
+;(defmethod build-editor-window :after (editor) 
 ;  (when (main-view editor)
 ;    (om-view-resized (main-view editor) (om-view-size (main-view editor)))))
 

@@ -518,7 +518,7 @@
        (set-name val (name self))))
     (om-invalidate-view (frame self)))
   (contextual-update self (container self))
-  (when (editor self) ;;; MAKE THIS BETTER: CAN THE EDITOR STILL EXIST WITHOUT WINDOW ? 
+  (when (editor self) 
     (update-to-editor (editor self) self)))
 
 

@@ -13,6 +13,10 @@
   '(("COLLECTION attibutes"
      (:name "Name" :text name))))
 
+;;; the collection box has same additional attributes as the object it contains (if any)
+(defmethod additional-box-attributes ((self collection))
+  (additional-box-attributes (car (obj-list self))))
+
 (defmethod homogenize-collection (model list) nil)
                                         
 (defmethod om-init-instance ((self collection) &optional args)
@@ -59,7 +63,6 @@
   (and (obj-type object)
        (string+ "COLLECTION OF " (string-upcase (obj-type object)))))
   
-
 (defmethod display-modes-for-object ((self collection)) '(:hidden :text :mini-view))
 
 (defmethod get-cache-display-for-draw ((object collection)) 
@@ -108,11 +111,8 @@
 (defmethod editor-play-state ((self collection-editor))
   (editor-play-state (internal-editor self)))
 
-;(defmethod object-default-edition-params ((self collection))
-;  (append (call-next-method)
-;          (object-default-edition-params 
-;           (or (car (obj-list self)) (make-instance (obj-type self))))))
 
+;;;==================================
 ;multidisplay API
 (defclass multi-display-editor-mixin ()
   ((multi-display-p :accessor multi-display-p :initarg :multi-display-p :initform nil)
@@ -135,103 +135,31 @@
   (if t-or-nil
       (enable-multi-display (internal-editor editor) (obj-list (get-value-for-editor (object editor))))
     (disable-multi-display (internal-editor editor)))
-  (editor-invalidate-views (internal-editor editor))
-  )
+  (editor-invalidate-views (internal-editor editor)))
+
+;;;==================================
 
 (defmethod init-editor ((editor collection-editor)) 
   (let* ((collection (get-value-for-editor (object editor)))
-        (current-object (and (obj-type collection) (nth (current editor) (obj-list collection)))))
+         (current-object (and (obj-type collection) (nth (current editor) (obj-list collection)))))
     (setf (internal-editor editor) 
           (make-instance (get-editor-class current-object)
                          :container-editor editor 
                          :object (make-instance 'OMAbstractContainer :contents current-object))
-          )))
-
-(defmethod format-current-text ((editor collection-editor))
-  (let ((collection (get-value-for-editor (object editor))))
-    (if (obj-list collection)
-        (format nil "Current ~A = ~D/~D [~A]" 
-                (string-upcase (obj-type collection))
-                (1+ (current editor)) (length (obj-list collection))
-                (name (nth (current editor) (obj-list collection))))
-      "[empty collection]")))
-
-(defmethod editor-invalidate-views ((editor collection-editor))
-  (when (internal-editor editor)
-    (om-invalidate-view (internal-editor editor))))
-
-(defmethod set-current-text ((editor collection-editor))
-  (when (get-g-component editor :current-text)
-    (let ((text (format-current-text editor)))
-      (om-set-view-size (get-g-component editor :current-text) 
-                        (omp (+ 20 (om-string-size text (om-def-font :font1b))) 16))
-      (om-set-text (get-g-component editor :current-text) text))))
-      
-(defmethod update-collection-editor ((editor collection-editor))
-  (set-current-text editor)
-  (setf (selection (internal-editor editor)) nil)
-  (update-default-view (internal-editor editor)) 
-  (update-to-editor (internal-editor editor) editor)
-  (editor-invalidate-views (internal-editor editor)))
-      
-(defmethod set-current-next ((editor collection-editor))
-  (let ((collection (get-value-for-editor (object editor))))
-    (when (obj-list collection)
-      (setf (current editor) (mod (1+ (current editor)) (length (obj-list collection))))  
-      )))
-
-(defmethod set-current-previous ((editor collection-editor))
-  (let ((collection (get-value-for-editor (object editor))))
-    (when (obj-list collection)
-      (setf (current editor) (mod (1- (current editor)) (length (obj-list collection))))
-      )))
-
-(defmethod add-new-and-set-current ((editor collection-editor))
-  (let ((collection (get-value-for-editor (object editor))))
-    (setf (obj-list collection)
-          (append (obj-list collection)
-                  (list (initialize-box-initval (make-instance (obj-type collection))))))
-    (setf (current editor) (1- (length (obj-list collection))))
-    ))
-
-(defmethod remove-and-set-current ((editor collection-editor))
-  (let ((collection (get-value-for-editor (object editor))))
-    (when (obj-list collection)
-      (setf (obj-list collection)
-            (remove (nth (current editor) (obj-list collection)) (obj-list collection)))
-      (setf (current editor) 
-            (max 0 (min (current editor) 
-                        (1- (length (obj-list collection))))))
-      )))
-
-
-(defmethod set-window-contents ((editor collection-editor))
-  (init-editor editor)
-  (when (window editor) 
-    (om-remove-subviews (window editor) (main-view editor))
-    (om-add-subviews (window editor) 
-                     (setf (main-view editor)
-                           (make-editor-window-contents editor)))
+          )
     (init-editor (internal-editor editor))
     ))
 
-(defmethod update-to-editor ((editor collection-editor) (from t))
-  (let ((collection (get-value-for-editor (object editor))))
-    (unless (or (null (obj-type collection))
-                (equal (type-of (internal-editor editor))
-                       (get-editor-class (nth (current editor) (obj-list collection)))))
-      (setf (current editor) 0)
-      (set-window-contents editor))
-    (set-current-text editor)
-    (update-to-editor (internal-editor editor) from)
-    )
-  (call-next-method))
+(defmethod init-editor-window ((editor collection-editor))
+  (call-next-method)
+  (init-editor-window (internal-editor editor)))
+
 
 (defmethod make-editor-window-contents ((editor collection-editor))
   (let* ((collection (get-value-for-editor (object editor)))
          (text (format-current-text editor))
-         (current-text (om-make-graphic-object 'om-item-text :size (omp (om-string-size text (om-def-font :font1b)) 16) 
-                                               :text text :font (om-def-font :font1b)))
+         (current-text (om-make-graphic-object 'om-item-text :size (omp (om-string-size text (om-def-font :font3b)) 16) 
+                                               :text text :font (om-def-font :font3b)))
          (prev-button (om-make-graphic-object 'om-icon-button 
                                               :size (omp 16 16)
                                               :icon 'l-arrow :icon-pushed 'l-arrow-pushed :icon-disabled 'l-arrow-disabled
@@ -294,7 +222,7 @@
        'om-row-layout 
        :subviews 
        (list (om-make-layout 
-              'om-row-layout :delta 0 
+              'om-row-layout :delta 0 :align :bottom
               :subviews (list prev-button next-button 
                               (om-make-graphic-object 'om-item-view :size (omp 20 20))
                               (when (handle-multi-display (internal-editor editor))
@@ -304,19 +232,112 @@
                                                                 (update-multi-display editor (om-checked-p item))
                                                                 )
                                                  ))
+                              nil
                                current-text))
              nil
              (om-make-layout 'om-row-layout :delta 0 
                              :subviews 
                              (list +button -button))
              ))
-      (make-editor-window-contents (internal-editor editor))))
+      (setf (main-view (internal-editor editor)) 
+            (make-editor-window-contents (internal-editor editor)))
+      ))
     ))
+
+
+(defmethod set-window-contents ((editor collection-editor))
+  (init-editor editor)
+  (when (window editor) 
+    (om-remove-subviews (window editor) (main-view editor))
+    (om-add-subviews (window editor) 
+                     (setf (main-view editor)
+                           (make-editor-window-contents editor)))
+    (init-editor (internal-editor editor))
+    ))
+
+(defmethod update-to-editor ((editor collection-editor) (from t))
+  (let ((collection (get-value-for-editor (object editor))))
+    (unless (or (null (obj-type collection))
+                (equal (type-of (internal-editor editor))
+                       (get-editor-class (nth (current editor) (obj-list collection)))))
+      (setf (current editor) 0)
+      (set-window-contents editor))
+    (set-current-text editor)
+    (update-to-editor (internal-editor editor) from)
+    )
+  (call-next-method))
+
+(defmethod format-current-text ((editor collection-editor))
+  (let ((collection (get-value-for-editor (object editor))))
+    (if (obj-list collection)
+        (format nil "Current ~A = ~D/~D" ;; [~A] 
+                (string-upcase (obj-type collection))
+                (1+ (current editor)) (length (obj-list collection))
+                ;(name (nth (current editor) (obj-list collection)))
+                )
+      "[empty collection]")))
+
+(defmethod editor-invalidate-views ((editor collection-editor))
+  (when (internal-editor editor)
+    (om-invalidate-view (internal-editor editor))))
+
+(defmethod set-current-text ((editor collection-editor))
+  (let ((text-component (get-g-component editor :current-text)))
+    (when text-component
+      (let ((text (format-current-text editor)))
+        (om-set-view-size text-component 
+                          (omp (+ 20 (om-string-size text (om-get-font text-component))) 16))
+        (om-set-text text-component text)))))
+      
+(defmethod update-collection-editor ((editor collection-editor))
+  (set-current-text editor)
+  (let ((internal-editor (internal-editor editor)))
+    (setf (selection internal-editor) nil)
+    (let ((abs-container (object internal-editor))) ;; in principle this is an OMAbstractContainer
+      (setf (contents abs-container) 
+            (nth (current editor) (obj-list (get-value-for-editor (object editor))))))
+    (update-default-view internal-editor)
+    (update-to-editor internal-editor editor)
+    (editor-invalidate-views internal-editor)))
+   
+
+(defmethod set-current-next ((editor collection-editor))
+  (let ((collection (get-value-for-editor (object editor))))
+    (when (obj-list collection)
+      (setf (current editor) (mod (1+ (current editor)) (length (obj-list collection))))
+      )))
+
+(defmethod set-current-previous ((editor collection-editor))
+  (let ((collection (get-value-for-editor (object editor))))
+    (when (obj-list collection)
+      (setf (current editor) (mod (1- (current editor)) (length (obj-list collection))))
+      )))
+
+(defmethod add-new-and-set-current ((editor collection-editor))
+  (let ((collection (get-value-for-editor (object editor))))
+    (setf (obj-list collection)
+          (append (obj-list collection)
+                  (list (initialize-box-initval (make-instance (obj-type collection))))))
+    (setf (current editor) (1- (length (obj-list collection))))
+    ))
+
+(defmethod remove-and-set-current ((editor collection-editor))
+  (let ((collection (get-value-for-editor (object editor))))
+    (when (obj-list collection)
+      (setf (obj-list collection)
+            (remove (nth (current editor) (obj-list collection)) (obj-list collection)))
+      (setf (current editor) 
+            (max 0 (min (current editor) 
+                        (1- (length (obj-list collection))))))
+      )))
+
+
 
 ;;;=========================
 ;;; DISPATCH ACTIONS...
 ;;;=========================
 (defmethod editor-key-action ((editor collection-editor) key)
+  ;(print key)
   (cond ((and (om-command-key-p) (equal key :om-key-left))
          (set-current-previous editor)
          (update-collection-editor editor))

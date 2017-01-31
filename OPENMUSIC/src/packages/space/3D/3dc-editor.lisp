@@ -373,7 +373,7 @@
 
 (defmethod editor-window-init-size ((self 3DC-editor)) (om-make-point 800 600))       
 
-(defmethod init-window ((win OMEditorWindow) (editor 3DC-editor))
+(defmethod init-editor-window ((editor 3DC-editor))
   (call-next-method)
   (reinit-ranges (top-bpc-editor editor))
   (reinit-ranges (front-bpc-editor editor))
@@ -386,7 +386,7 @@
   (when (window self)
     (set-3d-objects self) 
     (time-sequence-update-internal-times (object-value self))
-    (enable-play-controls self (action (object-value self)))
+    ; (enable-play-controls self (action (object-value self))) ;;; leave T
     (update-sub-editors self)
     ))
 

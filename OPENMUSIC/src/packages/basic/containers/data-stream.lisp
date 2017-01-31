@@ -250,7 +250,7 @@
   )
 
 
-(defmethod init-window ((win OMEditorWindow) (editor stream-editor))
+(defmethod build-editor-window ((editor stream-editor))
   
   (let* ((data-stream (object-value editor))
          (dur (if (zerop (get-obj-dur data-stream)) 

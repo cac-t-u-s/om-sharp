@@ -114,12 +114,10 @@
 (defmethod editor-window-init-size ((self maquette-editor)) (om-make-point 800 500))
 
 ;;; redefined from patch editor
-(defmethod init-window ((win maquette-editor-window) editor)
-  (call-next-method)
-  ;(when (equal (view-mode editor) :maquette) 
-  ;  (put-patch-boxes-in-editor-view (object editor) (get-g-component editor :maq-view)))
-  (update-window-name editor)
-  win)
+;(defmethod init-window ((win maquette-editor-window) editor)
+;  (call-next-method)
+;  (update-window-name editor)
+;  win)
 
 
 ;;;========================
