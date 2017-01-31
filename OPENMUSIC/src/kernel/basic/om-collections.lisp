@@ -105,6 +105,8 @@
 
 (defmethod get-obj-to-play ((self collection-editor)) (object-value self))
 
+(defmethod editor-play-state ((self collection-editor))
+  (editor-play-state (internal-editor self)))
 
 ;(defmethod object-default-edition-params ((self collection))
 ;  (append (call-next-method)

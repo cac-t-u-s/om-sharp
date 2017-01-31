@@ -97,7 +97,8 @@
 
 ;;; Close the editor for the object
 (defmethod close-editor ((self ObjectWithEditor))
-  (when (editor-window self) (om-close-window (editor-window self))) t)
+  (when (editor-window self) (om-close-window (editor-window self)))
+  t)
 
 (defmethod close-editor ((self t)) t)
 
@@ -177,8 +178,10 @@
   (getf (g-components self) name))
 
 
-;;; callback called when something closes the window
-(defmethod editor-close ((self OMEditor)) t)
+;;; callback called when anything closes the window
+;;; called by the close-window event
+(defmethod editor-close ((self OMEditor)) 
+  (setf (editor (object self)) nil))
 
 ;;; callback called when the window is brought to front or back
 (defmethod editor-activate ((self OMEditor) t-or-nil) 
