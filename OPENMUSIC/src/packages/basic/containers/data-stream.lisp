@@ -164,8 +164,6 @@
 
 (defmethod editor-window-init-size ((self stream-editor)) (om-make-point 800 180))
 
-(defmethod init-editor ((self stream-editor)) t)
-
 (defmethod y-range-for-object ((self data-stream)) '(-100 100))
 
 (defmethod frame-display-modes-for-object ((self stream-editor) (object t))
@@ -191,6 +189,7 @@
               :checked-p (editor-get-edit-param editor :show-timeline)
               :enable (timeline-editor editor)
               :di-action #'(lambda (item) 
+                             ;(print (list (timeline-editor editor) editor))
                              (let ((timeline-ed (timeline-editor editor)))
                                (clear-timeline timeline-ed)
                                (om-invalidate-view (get-g-component timeline-ed :main-panel))
@@ -198,20 +197,6 @@
                                (om-update-layout (main-view editor))))
               ))
 
-(defun make-timeline-editor (editor)
-  (let ((timeline-editor (make-instance 'timeline-editor :object (object editor) :container-editor editor))
-        (timeline-area (om-make-layout 'om-row-layout)))
-    (set-g-component timeline-editor :main-panel timeline-area)
-    (setf (timeline-editor editor) timeline-editor)
-    timeline-editor))
-
-
-(defun make-main-panel (editor)
-  (om-make-view (editor-view-class editor) 
-                :editor editor :size (omp 50 60) 
-                :direct-draw t :bg-color (om-def-color :white) 
-                :scrollbars nil))
-  
 (defun make-control-bar (editor) 
   (set-g-component editor :mousepos-txt (om-make-graphic-object 'om-item-text :size (omp 60 16)))
   (om-make-layout 
@@ -224,58 +209,70 @@
                    (make-pause-button editor :enable t) 
                    (make-stop-button editor :enable t))))
   
-(defmethod make-editor-window-contents ((editor stream-editor))
-  (om-make-layout 
-   'om-column-layout 
-   :ratios '(0.96 0.02)
-   :subviews (list 
-              ;;; first group with the 'main' editor:
-              (om-make-layout 
-               'om-row-layout :ratios '(nil 100) :subviews 
-               (list (om-make-view 'om-view :size (omp 28 nil))
-                     (om-make-layout 'om-column-layout :align :right
-                                     :subviews (list 
-                                                (make-control-bar editor)
-                                         (get-g-component editor :main-panel) 
-                                         (get-g-component editor :x-ruler))
-                                     :delta 2
-                                     :ratios '(0.01 0.98 0.01))))
-              ;;; the timeline editor:
-              (get-g-component (timeline-editor editor) :main-panel)
-              ;;; the bottom control bar:
-              (om-make-layout 'om-row-layout 
-                              :size (omp nil 40) 
-                              :subviews (list (make-display-modes-menu editor) nil (make-timeline-check-box editor)))
-              ))
+
+(defmethod init-editor ((editor stream-editor))
+  (call-next-method)
+  (setf (timeline-editor editor) 
+        (make-instance 'timeline-editor 
+                       :object (object editor) 
+                       :container-editor editor))
   )
-
-
-(defmethod build-editor-window ((editor stream-editor))
+  
+(defmethod make-editor-window-contents ((editor stream-editor))
   
   (let* ((data-stream (object-value editor))
          (dur (if (zerop (get-obj-dur data-stream)) 
                   10000 
                 (+ (get-obj-dur data-stream) 1000))))
+
+    (set-g-component editor :main-panel (om-make-view (editor-view-class editor) 
+                                                      :editor editor :size (omp 50 60) 
+                                                      :direct-draw t :bg-color (om-def-color :white) 
+                                                      :scrollbars nil))
     
-    (make-timeline-editor editor)   
-    (set-g-component editor :main-panel (make-main-panel editor))
     (set-g-component editor :x-ruler (om-make-view 'time-ruler 
                                                    :related-views (list (get-g-component editor :main-panel))
                                                    :size (omp nil 20) 
                                                    :bg-color (om-def-color :white)
                                                    :vmin 0 :vmax dur
                                                    :x1 0 :x2 dur))
-  
-  (call-next-method) ;; => will call make-editor-window-contents
-  
+    
+    (print (list "i'm here" (timeline-editor editor) editor))
+    (set-g-component (timeline-editor editor) :main-panel (om-make-layout 'om-row-layout))
+
+    (om-make-layout 
+     'om-column-layout 
+     :ratios '(0.96 0.02)
+     :subviews (list 
+                ;;; first group with the 'main' editor:
+                (om-make-layout 
+                 'om-row-layout :ratios '(nil 100) :subviews 
+                 (list (om-make-view 'om-view :size (omp 28 nil))
+                       (om-make-layout 'om-column-layout :align :right
+                                       :subviews (list 
+                                                  (make-control-bar editor)
+                                                  (get-g-component editor :main-panel) 
+                                                  (get-g-component editor :x-ruler))
+                                       :delta 2
+                                       :ratios '(0.01 0.98 0.01))))
+                ;;; the timeline editor:
+                (get-g-component (timeline-editor editor) :main-panel)
+                ;;; the bottom control bar:
+                (om-make-layout 'om-row-layout 
+                                :size (omp nil 40) 
+                                :subviews (list (make-display-modes-menu editor) nil (make-timeline-check-box editor)))
+                ))
+    ))
+
+
+(defmethod init-editor-window ((editor stream-editor))
+  (call-next-method)
   (set-graphic-attributes editor)
-
   (update-views-from-ruler (get-g-component editor :x-ruler))
-
-  (setf (y2 (get-g-component editor :main-panel)) (car (y-range-for-object data-stream))
-        (y1 (get-g-component editor :main-panel)) (cadr (y-range-for-object data-stream)))
+  (setf (y2 (get-g-component editor :main-panel)) (car (y-range-for-object (object-value editor)))
+        (y1 (get-g-component editor :main-panel)) (cadr (y-range-for-object (object-value editor))))
   (set-shift-and-factor (get-g-component editor :main-panel))
-  ))
+  )
 
 
 (defmethod update-to-editor ((editor stream-editor) (from ombox))

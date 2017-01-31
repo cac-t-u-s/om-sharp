@@ -186,7 +186,8 @@
                                                         (when (null (obj-list collection))
                                                           (disable b)
                                                           (setf (current editor) 0)
-                                                          (set-window-contents editor))
+                                                          (set-window-contents editor)
+                                                          (editor-close (internal-editor editor)))
                                                         (when (<= (length (obj-list collection)) 1)
                                                           (disable prev-button) (disable next-button))
                                                         (update-collection-editor editor)
@@ -203,6 +204,7 @@
                                                              (new? (null (obj-list collection))))
                                                         (add-new-and-set-current editor)
                                                         (when new?
+                                                          (init-editor editor)
                                                           (enable -button)
                                                           (set-window-contents editor))
                                                         (when (> (length (obj-list collection)) 1)
@@ -246,13 +248,11 @@
 
 
 (defmethod set-window-contents ((editor collection-editor))
-  (init-editor editor)
   (when (window editor) 
     (om-remove-subviews (window editor) (main-view editor))
     (om-add-subviews (window editor) 
                      (setf (main-view editor)
                            (make-editor-window-contents editor)))
-    (init-editor (internal-editor editor))
     ))
 
 (defmethod update-to-editor ((editor collection-editor) (from t))
@@ -260,6 +260,8 @@
     (unless (or (null (obj-type collection))
                 (equal (type-of (internal-editor editor))
                        (get-editor-class (nth (current editor) (obj-list collection)))))
+      (editor-close (internal-editor editor))
+      (init-editor editor)
       (setf (current editor) 0)
       (set-window-contents editor))
     (set-current-text editor)
@@ -292,6 +294,7 @@
 (defmethod update-collection-editor ((editor collection-editor))
   (set-current-text editor)
   (let ((internal-editor (internal-editor editor)))
+    (editor-stop internal-editor)
     (setf (selection internal-editor) nil)
     (let ((abs-container (object internal-editor))) ;; in principle this is an OMAbstractContainer
       (setf (contents abs-container) 

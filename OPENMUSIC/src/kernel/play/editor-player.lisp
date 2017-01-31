@@ -189,6 +189,9 @@
         (player-pause-object (player self) (metronome self)))
     (player-pause-object (player self) (get-obj-to-play self))))
 
+;;; this is called sometimes to reset by security..
+(defmethod editor-stop ((self t)) nil)
+
 (defmethod editor-stop ((self play-editor-mixin))
   (when (play-button self) (unselect (play-button self)))
   (when (pause-button self) (unselect (pause-button self)))
