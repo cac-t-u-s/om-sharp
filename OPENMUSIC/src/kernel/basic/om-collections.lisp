@@ -53,7 +53,7 @@
 (defmethod objfromobjs ((model symbol) (target collection))
   (if (find-class model nil)
       (setf (obj-type target) model)
-    (om-beep-msg "WARNING: CLASS NOT FOUND FOR COLLECTION:" model))
+    (om-beep-msg "WARNING: class not found for collection: ~S" model))
   target)
 
 (defmethod draw-type-of-object ((object collection))
@@ -123,7 +123,7 @@
 
 (defmethod enable-multi-display ((self OMEditor) obj-list) nil)
 (defmethod enable-multi-display ((self multi-display-editor-mixin) obj-list) 
-  (setf (multi-display-p self) t (multi-obj-list self)  obj-list))
+  (setf (multi-display-p self) t (multi-obj-list self) obj-list))
 
 (defmethod disable-multi-display ((self OMEditor)) nil)
 (defmethod disable-multi-display ((self multi-display-editor-mixin))
@@ -167,7 +167,7 @@
                                               :action #'(lambda (b)
                                                           (declare (ignore b))
                                                           (set-current-previous editor)
-                                                          (update-collection-editor editor))))
+                                                          )))
          (next-button (om-make-graphic-object 'om-icon-button 
                                               :size (omp 16 16)
                                               :icon 'r-arrow :icon-pushed 'r-arrow-pushed :icon-disabled 'r-arrow-disabled
@@ -175,44 +175,32 @@
                                               :action #'(lambda (b)
                                                           (declare (ignore b))
                                                           (set-current-next editor)
-                                                          (update-collection-editor editor))))
+                                                          )))
          (-button (om-make-graphic-object 'om-icon-button 
                                           :size (omp 16 16)
                                           :icon '- :icon-pushed '--pushed :icon-disabled '--disabled
                                           :lock-push nil :enabled (obj-list collection)
                                           :action #'(lambda (b)
-                                                      (let ((collection (get-value-for-editor (object editor))))
-                                                        (remove-and-set-current editor)
-                                                        (when (null (obj-list collection))
-                                                          (disable b)
-                                                          (setf (current editor) 0)
-                                                          (set-window-contents editor)
-                                                          (editor-close (internal-editor editor)))
-                                                        (when (<= (length (obj-list collection)) 1)
+                                                      (remove-current-object editor)
+                                                      (let ((coll (get-value-for-editor (object editor))))
+                                                        (when (null (obj-list coll))
+                                                          (disable b))
+                                                        (when (<= (length (obj-list coll)) 1)
                                                           (disable prev-button) (disable next-button))
-                                                        (update-collection-editor editor)
-                                                        (report-modifications editor)
-                                                        (update-multi-display editor (show-all editor))
-                                                        ))))
+                                                        ))
+                                          ))
          (+button (om-make-graphic-object 'om-icon-button 
                                           :size (omp 16 16)
                                           :icon '+ :icon-pushed '+-pushed :icon-disabled '+-disabled
                                           :lock-push nil :enabled (obj-type (get-value-for-editor (object editor)))
                                           :action #'(lambda (b)
                                                       (declare (ignore b))
-                                                      (let* ((collection (get-value-for-editor (object editor)))
-                                                             (new? (null (obj-list collection))))
-                                                        (add-new-and-set-current editor)
-                                                        (when new?
-                                                          (init-editor editor)
-                                                          (enable -button)
-                                                          (set-window-contents editor))
-                                                        (when (> (length (obj-list collection)) 1)
-                                                          (enable prev-button) (enable next-button))
-                                                        (update-collection-editor editor)
-                                                        (report-modifications editor)
-                                                        (update-multi-display editor (show-all editor))
-                                                        ))))                                  
+                                                      (add-new-object editor)
+                                                      (let ((coll (get-value-for-editor (object editor))))
+                                                        (enable -button)  ;; in case it was disabled..
+                                                        (when (> (length (obj-list coll)) 1)
+                                                          (enable prev-button) (enable next-button)))
+                                                      )))
          )
     (set-g-component editor :current-text current-text)
     (om-make-layout 
@@ -228,21 +216,22 @@
               :subviews (list prev-button next-button 
                               (om-make-graphic-object 'om-item-view :size (omp 20 20))
                               (when (handle-multi-display (internal-editor editor))
-                                     (om-make-di 'om-check-box :text "Show All" :size (omp 80 16) :font (om-def-font :font1)
-                                                 :checked-p (show-all editor) :focus nil :default nil
-                                                 :di-action #'(lambda (item) 
-                                                                (update-multi-display editor (om-checked-p item))
-                                                                )
-                                                 ))
+                                (om-make-di 'om-check-box :text "Show All" :size (omp 80 16) :font (om-def-font :font1)
+                                            :checked-p (show-all editor) :focus nil :default nil
+                                            :di-action #'(lambda (item) 
+                                                           (update-multi-display editor (om-checked-p item))
+                                                           )
+                                            ))
                               nil
-                               current-text))
+                              current-text))
              nil
              (om-make-layout 'om-row-layout :delta 0 
                              :subviews 
                              (list +button -button))
              ))
-      (setf (main-view (internal-editor editor)) 
-            (make-editor-window-contents (internal-editor editor)))
+      (if (object-value (internal-editor editor))
+          (setf (main-view (internal-editor editor)) 
+                (make-editor-window-contents (internal-editor editor))))
       ))
     ))
 
@@ -252,7 +241,7 @@
     (om-remove-subviews (window editor) (main-view editor))
     (om-add-subviews (window editor) 
                      (setf (main-view editor)
-                           (make-editor-window-contents editor)))
+                           (print (make-editor-window-contents editor))))
     ))
 
 (defmethod update-to-editor ((editor collection-editor) (from t))
@@ -307,33 +296,49 @@
 (defmethod set-current-next ((editor collection-editor))
   (let ((collection (get-value-for-editor (object editor))))
     (when (obj-list collection)
-      (setf (current editor) (mod (1+ (current editor)) (length (obj-list collection))))
-      )))
+      (setf (current editor) (mod (1+ (current editor)) (length (obj-list collection)))))
+    (update-collection-editor editor)))
 
 (defmethod set-current-previous ((editor collection-editor))
   (let ((collection (get-value-for-editor (object editor))))
     (when (obj-list collection)
-      (setf (current editor) (mod (1- (current editor)) (length (obj-list collection))))
-      )))
+      (setf (current editor) (mod (1- (current editor)) (length (obj-list collection)))))
+    (update-collection-editor editor)))
 
-(defmethod add-new-and-set-current ((editor collection-editor))
+(defmethod remove-current-object ((editor collection-editor))
   (let ((collection (get-value-for-editor (object editor))))
+    ;;; update the obj-list
+    (when (obj-list collection)
+      (setf (obj-list collection) (remove (nth (current editor) (obj-list collection)) (obj-list collection)))
+      (setf (current editor) (max 0 (min (current editor) (1- (length (obj-list collection)))))))  
+    ;;; if no more objects...
+    (if (null (obj-list collection))
+      (progn 
+        ;;; close the internal editor
+        (editor-close (internal-editor editor))
+        (setf (contents (object (internal-editor editor))) nil)
+        ;;; rest the (empty) window
+        (set-window-contents editor))
+      ;;; othewise just update the editor
+      (update-collection-editor editor))
+    (report-modifications editor)
+    ))
+
+(defmethod add-new-object ((editor collection-editor))
+  (let* ((collection (get-value-for-editor (object editor)))
+         (new? (null (obj-list collection))))
     (setf (obj-list collection)
           (append (obj-list collection)
                   (list (initialize-box-initval (make-instance (obj-type collection))))))
     (setf (current editor) (1- (length (obj-list collection))))
+    (when new? ;;; need to (re)initialize an editor
+      (init-editor editor)
+      (set-window-contents editor)
+      (init-editor-window (internal-editor editor)))
+    (update-collection-editor editor)
+    (update-multi-display editor (show-all editor)) ;; will add the new object to te multi-display list
+    (report-modifications editor)
     ))
-
-(defmethod remove-and-set-current ((editor collection-editor))
-  (let ((collection (get-value-for-editor (object editor))))
-    (when (obj-list collection)
-      (setf (obj-list collection)
-            (remove (nth (current editor) (obj-list collection)) (obj-list collection)))
-      (setf (current editor) 
-            (max 0 (min (current editor) 
-                        (1- (length (obj-list collection))))))
-      )))
-
 
 
 ;;;=========================
