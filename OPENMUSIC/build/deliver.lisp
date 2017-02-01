@@ -157,6 +157,7 @@
                                                #-macosx(concatenate 'string "resources/dspec-database." (oa::om-compiled-type))
                                                om-api::*om-root*))))
   #+cocoa(setf system::*stack-overflow-behaviour* nil)
+  (setq om::*om-debug* nil) ;; will disable debug print messages
   (om::start-openmusic)
   )
 
