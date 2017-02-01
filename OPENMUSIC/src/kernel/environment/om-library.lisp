@@ -136,7 +136,7 @@
                                                    :size (om-make-point 300 200))
                                 (om-abort))))
         (let ((*current-lib* lib))
-          (om-format "Loading library: ~A..." (list packager-loader) "OM")
+          (om-print-format "Loading library: ~A..." (list packager-loader) "OM")
           (load packager-loader)
           (register-images (lib-icons-folder lib))
           (setf (loaded? lib) t)

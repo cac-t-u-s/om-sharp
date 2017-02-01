@@ -148,7 +148,7 @@ Lock the box ('b') to keep the current file.
          (om-beep-msg "Error loading SDIF file -- wrong format: ~D" (file-pathname self)))
         (t 
          (let ((sdiffileptr (sdif::sdif-open-file (file-pathname self) sdif::eReadWriteFile)))
-           (om-format "Loading SDIF file : ~A" (list (file-pathname self)) "SDIF")
+           (om-print-format "Loading SDIF file : ~A" (list (file-pathname self)) "SDIF")
            (if sdiffileptr
                (unwind-protect 
                    (progn (sdif::SdifFReadGeneralHeader sdiffileptr)
@@ -221,25 +221,25 @@ Returns an advanced stream description with every FrameType-MatrixType pair in t
    :indoc '("SDIF file")
    (let ((rep-list nil))
      (when print 
-       (om-format "----------------------------------------------------------~%")
-       (om-format  "SDIF file description for ~D~%" (list (namestring (file-pathname self))))
-       (om-format "----------------------------------------------------------~%")
-       (om-format  "NUMBER OF SDIF STREAMS: ~D~%"  (list (length (file-map self)))))
+       (om-print-format "----------------------------------------------------------~%")
+       (om-print-format  "SDIF file description for ~D~%" (list (namestring (file-pathname self))))
+       (om-print-format "----------------------------------------------------------~%")
+       (om-print-format  "NUMBER OF SDIF STREAMS: ~D~%"  (list (length (file-map self)))))
      (loop for st in (file-map self) do
            (when print 
-             (om-format "   STREAM ID ~D - ~D Frames type = ~A ~%"  (list (fstream-desc-id st) (fstream-desc-nf st) (fstream-desc-fsig st)))
-             (om-format "      Tmin= ~D   -   Tmax= ~D~%" (list (fstream-desc-tmin st) (fstream-desc-tmax st)))
-             (om-format "      Matrices :  "))
+             (om-print-format "   STREAM ID ~D - ~D Frames type = ~A ~%"  (list (fstream-desc-id st) (fstream-desc-nf st) (fstream-desc-fsig st)))
+             (om-print-format "      Tmin= ~D   -   Tmax= ~D~%" (list (fstream-desc-tmin st) (fstream-desc-tmax st)))
+             (om-print-format "      Matrices :  "))
            (loop for ma in (fstream-desc-matrices st) do 
                  (pushr (list (fstream-desc-id st) (fstream-desc-fsig st) (mstream-desc-msig ma)) rep-list)
-                 (when print (om-format " ~D" (list (mstream-desc-msig ma))))
+                 (when print (om-print-format " ~D" (list (mstream-desc-msig ma))))
                  )
-           (when print (om-format "~%"))
+           (when print (om-print-format "~%"))
            )
    (when print 
-     (om-format "----------------------------------------------------------~%")
-     (om-format "End file description~%")
-     (om-format "----------------------------------------------------------~%"))
+     (om-print-format "----------------------------------------------------------~%")
+     (om-print-format "End file description~%")
+     (om-print-format "----------------------------------------------------------~%"))
    rep-list
    ))
 
@@ -494,7 +494,7 @@ Name/Value tables are formatted as SDIFNVT objects.
                              ))
                      (if (or sdifdata sdiftimes) 
                          (values (reverse sdifdata) (reverse sdiftimes))
-                       (progn (om-format "No data found with t1=~D t2=~D r1=~D r2=~D " (list tmin tmax rmin rmax) "SDIF")
+                       (progn (om-print-format "No data found with t1=~D t2=~D r1=~D r2=~D " (list tmin tmax rmin rmax) "SDIF")
                          nil))
                      )
                  (sdif::SDIFFClose sdiffileptr))
