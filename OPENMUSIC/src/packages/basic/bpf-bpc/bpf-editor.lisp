@@ -100,7 +100,7 @@
 (defmethod cursor-panes ((self bpf-editor)) 
   (cons (get-g-component self :main-panel)
         (if (timeline-editor self)
-            (cursor-panes (timeline-editor self))à)))
+            (cursor-panes (timeline-editor self)))))
 
 (defmethod cursor-panes ((self bpc-editor))
   (when (timeline-editor self)
@@ -182,23 +182,27 @@
                                                    :checked-p (editor-get-edit-param editor :grid)
                                                    :di-action #'(lambda (item) 
                                                                   (editor-set-edit-param editor :grid (om-checked-p item))))
-                                       (om-make-di 'om-simple-text :text "Offset:" 
-                                                   :size (omp 38 20) 
-                                                   :font (om-def-font :font1))
-                                       (om-make-graphic-object 'numbox 
-                                                               :value (if (eq (type-of editor) 'bpc-editor)
-                                                                          (gesture-interval-time editor)
-                                                                        500)
-                                                               :bg-color (om-def-color :white)
-                                                               :border t
-                                                               :size (om-make-point 40 18) 
-                                                               :font (om-def-font :font1)
-                                                               :min-val 0
-                                                               :after-fun #'(lambda (item)
-                                                                              (setf (gesture-interval-time editor) (value item))
-                                                                              ))
+                                       
+                                       ;;; this should be only for BPC
+                                       ;;; (already set in 3DC as well)
+                                       ;(om-make-di 'om-simple-text :text "Offset:" 
+                                       ;            :size (omp 38 20) 
+                                       ;            :font (om-def-font :font1))
+                                       ;(om-make-graphic-object 'numbox 
+                                       ;                        :value (if (eq (type-of editor) 'bpc-editor)
+                                       ;                                   (gesture-interval-time editor)
+                                       ;                                 500)
+                                       ;                        :bg-color (om-def-color :white)
+                                       ;                        :border t
+                                       ;                        :size (om-make-point 40 18) 
+                                       ;                        :font (om-def-font :font1)
+                                       ;                        :min-val 0
+                                       ;                        :after-fun #'(lambda (item)
+                                       ;                                       (setf (gesture-interval-time editor) (value item))
+                                       ;                                       ))
+                                       
                                        (when timeline
-                                         (om-make-di 'om-check-box :text "timeline" :size (omp 65 24) :font (om-def-font :font1)
+                                         (om-make-di 'om-check-box :text "timeline" :size (omp 120 24) :font (om-def-font :font1)
                                                      :checked-p (editor-get-edit-param editor :show-timeline)
                                                      :di-action #'(lambda (item) 
                                                                     (editor-set-edit-param editor :show-timeline (om-checked-p item))
