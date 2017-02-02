@@ -217,13 +217,16 @@
                        :object (object editor) 
                        :container-editor editor))
   )
-  
+
+;;; sets the editor slightly longer that the actual object length  
+(defmethod editor-view-after-init-space ((self t)) 1000)
+
 (defmethod make-editor-window-contents ((editor stream-editor))
   
   (let* ((data-stream (object-value editor))
          (dur (if (zerop (get-obj-dur data-stream)) 
                   10000 
-                (+ (get-obj-dur data-stream) 1000))))
+                (+ (get-obj-dur data-stream) (editor-view-after-init-space data-stream)))))
 
     (set-g-component editor :main-panel (om-make-view (editor-view-class editor) 
                                                       :editor editor :size (omp 50 60) 
@@ -271,8 +274,7 @@
   (update-views-from-ruler (get-g-component editor :x-ruler))
   (setf (y2 (get-g-component editor :main-panel)) (car (y-range-for-object (object-value editor)))
         (y1 (get-g-component editor :main-panel)) (cadr (y-range-for-object (object-value editor))))
-  (set-shift-and-factor (get-g-component editor :main-panel))
-  )
+  (set-shift-and-factor (get-g-component editor :main-panel)))
 
 
 (defmethod update-to-editor ((editor stream-editor) (from ombox))

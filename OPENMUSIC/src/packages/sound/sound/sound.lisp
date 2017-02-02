@@ -408,70 +408,103 @@ Press 'space' to play/stop the sound file.
 (defmethod display-modes-for-object ((self sound))
   '(:hidden :text :mini-view))
 
-(defun resample-2D-array (array start-pos end-pos nbpix)
-  (let* ((array-size (cadr (array-dimensions array)))
-         (n-channels (car (array-dimensions array)))
-         (slice-size (- end-pos start-pos))
-         (maxi 0.0)
-         result)
-    (cond ((= nbpix slice-size)
-           (setq result (make-array (list n-channels slice-size) :element-type 'single-float))
-           (dotimes (i nbpix)
-             (dotimes (n n-channels)
-               (setf (aref result n i) (aref array n (+ start-pos i))))))
-          ((< nbpix slice-size)
-           (let ((step (/ slice-size nbpix 1.0)))
-             (setq result (make-array (list n-channels nbpix) :element-type 'single-float))
-             (dotimes (c n-channels)
-               (dotimes (i nbpix)
-                 (dotimes (j (floor step))
-                   (setq maxi (max maxi (aref array c (round (+ start-pos j (* i step)))))))
-                 (setf (aref result c i) maxi)
-                 (setq maxi 0.0)))))
-          (t (om-print "ERROR: ARRAY IS SMALLER THAN NBPIX") nil))
-    (values result (if result (< (cadr (array-dimensions result)) nbpix) t))))
-
-
-
-;;; CREATES An INTERNAL PICTURE FROM MAX DETECTION OVER DOWNSAMPLED BUFFER
-
-(defvar *def-sound-color* (om-make-color 0.41 0.54 0.67))
-
-(defun create-waveform-pict (array &optional color)
-  (when array
-    (let* ((pict-h 256)
-           (nch (car (array-dimensions array)))
-           (array-size (cadr (array-dimensions array)))
-           (channels-h (round pict-h nch))
-           (offset-y (round channels-h 2))
-           (prevstream oa::*curstream*)
-           pixpoint pixpointprev)
-      
-      (om-record-pict array-size 256
-        
-        (dotimes (i nch)  
-          (om-draw-line 0 (+ (* i channels-h) offset-y) array-size (+ (* i channels-h) offset-y)))
-        (om-with-fg-color (or color *def-sound-color*)
-          (dotimes (c nch)
-            (setq pixpointprev (* offset-y (* 0.99 (aref array c 0))))
-            (loop for i from 1 to (1- array-size) do
-                  (setf pixpoint (* offset-y (* 0.99 (aref array c (min i (1- array-size))))))
-                  (om-draw-polygon `(,(om-make-point (1- i) (+ offset-y (* c channels-h) pixpointprev))
-                                     ,(om-make-point i (+ offset-y (* c channels-h) pixpoint)) 
-                                     ,(om-make-point i (+ offset-y (* c channels-h) (- pixpoint))) 
-                                     ,(om-make-point (1- i) (+ offset-y (* c channels-h) (- pixpointprev))))
-                                   :fill t)
-                  (setq pixpointprev pixpoint))))
-        )
-      )))
-   
-
-;;;==========================
-;;; METHODS FROM BOX API:
-
 (defmethod get-cache-display-for-text ((object sound)) ;(call-next-method))
   (append (call-next-method) 
           (list (list :sound-buffer (buffer object)))))
+
+(defmethod draw-mini-view ((self sound) (box t) x y w h &optional time) 
+  (let ((pict (get-display-draw box)))
+    (when pict
+      (om-draw-picture pict :x x :y (+ y 4) :w w :h (- h 8)))
+    (when (markers self)
+      (let ((fact (/ w (get-obj-dur self))))
+        (loop for mrk in (markers self) do
+              (om-with-fg-color (om-def-color :dark-gray)
+                (om-draw-dashed-line (+ x (* mrk fact)) 4 (+ x (* mrk fact)) (- h 4))))))))
+
+
+
+;;;===========================
+;;; OM METHODS 
+;;;===========================
+
+
+(defmethod* sound-points ((self sound) (num integer) &optional channel)
+  :initvals '(nil 1000 1)
+  :indoc '("a sound object" "number of points" "channel number")
+  :doc "Reurns <num> sampled points from the audio waveform of channel <channel> in <self>."
+  :icon 221
+  (with-audio-buffer (b self)
+    (let ((numdat (n-samples self))
+          (numchan (n-channels self))
+          (ch (or channel 1)))
+      (if (or (> ch numchan) (> num numdat)) 
+          (om-beep-msg "SOUND-POINTS: out-of-range input values !!")
+        (let ((channel-ptr (om-read-ptr (om-sound-buffer-ptr b) (1- ch) :pointer)))
+          (loop for i from 0 to numdat by (round numdat num) collect
+                (om-read-ptr channel-ptr i :float)))
+        ))))
+
+
+(defmethod* sound-dur ((sound sound))
+  :icon 221
+  :initvals '(nil)
+  :indoc '("a sound object or file pathname")
+  :doc "Returns the duration of <sound> in seconds."
+   (if (and (n-samples sound) (sample-rate sound)
+            (> (sample-rate sound) 0))
+       (float (/ (n-samples sound) (sample-rate sound)))
+     0))
+
+(defmethod* sound-dur ((sound pathname))
+  (sound-dur (namestring sound)))
+
+(defmethod* sound-dur ((sound string))
+  (if (probe-file sound)
+      (multiple-value-bind (format channels sr ss size skip)
+          (audio-io::om-get-sound-info sound)
+        (if (and size sr (> sr 0)) (float (/ size sr)) 0))
+    (progn (om-beep-msg "File not found: ~s" sound) 0)))
+
+(defmethod* sound-dur-ms ((sound t))
+  :initvals '(nil)
+  :indoc '("a sound object or file pathname")
+  :doc "Returns the duration of <sound> in milliseconds."
+  :icon 221
+  (round (* 1000 (sound-dur sound))))
+
+
+;;;====================
+;;; PLAYER
+;;;====================
+;;;Methods redefinitions using the slot "data" of schedulable object to bypass actions rendering and store the las pointer
+(defmethod get-action-list-for-play ((self sound) time-interval &optional parent)
+  (external-player-actions self time-interval parent))
+
+(defmethod player-play-object ((self scheduler) (object sound) caller &key parent interval)
+  ;(juce::setgainreader (bp-pointer (buffer-player object)) 0.1)
+  (when (buffer-player object)
+    (start-buffer-player (buffer-player object) :start-frame (if (car interval)
+                                                                 (round (* (car interval) (/ (sample-rate object) 1000.0)))
+                                                               (or (car interval) 0)))
+  (call-next-method)))
+
+(defmethod player-stop-object ((self scheduler) (object sound))
+  (if (buffer-player object) (stop-buffer-player (buffer-player object)))
+  (call-next-method))
+
+(defmethod player-pause-object ((self scheduler) (object sound))
+  (pause-buffer-player (buffer-player object))
+  (call-next-method))
+
+(defmethod player-continue-object ((self scheduler) (object sound))
+  (continue-buffer-player (buffer-player object))
+  (call-next-method))
+
+(defmethod set-object-time ((self sound) time)
+  (jump-to-time (buffer-player self) time)
+  (call-next-method))
+
 
 
 
@@ -508,6 +541,59 @@ Press 'space' to play/stop the sound file.
             ;(print (list "POS IN ARRAY" (+ array-frame (* chan array-size)) maxi))
           (setq maxi 0.0))))))
 
+(defun resample-2D-array (array start-pos end-pos nbpix)
+  (let* ((array-size (cadr (array-dimensions array)))
+         (n-channels (car (array-dimensions array)))
+         (slice-size (- end-pos start-pos))
+         (maxi 0.0)
+         result)
+    (cond ((= nbpix slice-size)
+           (setq result (make-array (list n-channels slice-size) :element-type 'single-float))
+           (dotimes (i nbpix)
+             (dotimes (n n-channels)
+               (setf (aref result n i) (aref array n (+ start-pos i))))))
+          ((< nbpix slice-size)
+           (let ((step (/ slice-size nbpix 1.0)))
+             (setq result (make-array (list n-channels nbpix) :element-type 'single-float))
+             (dotimes (c n-channels)
+               (dotimes (i nbpix)
+                 (dotimes (j (floor step))
+                   (setq maxi (max maxi (aref array c (round (+ start-pos j (* i step)))))))
+                 (setf (aref result c i) maxi)
+                 (setq maxi 0.0)))))
+          (t (om-print "ERROR: ARRAY IS SMALLER THAN NBPIX") nil))
+    (values result (if result (< (cadr (array-dimensions result)) nbpix) t))))
+
+
+;;; CREATES An INTERNAL PICTURE FROM MAX DETECTION OVER DOWNSAMPLED BUFFER
+(defun create-waveform-pict (array &optional color)
+  (when array
+    (let* ((pict-h 256)
+           (nch (car (array-dimensions array)))
+           (array-size (cadr (array-dimensions array)))
+           (channels-h (round pict-h nch))
+           (offset-y (round channels-h 2))
+           (prevstream oa::*curstream*)
+          
+           pixpoint pixpointprev)
+      
+      (om-record-pict array-size 256
+        
+        (dotimes (i nch)
+          (om-draw-line 0 (+ (* i channels-h) offset-y) array-size (+ (* i channels-h) offset-y)))
+        (om-with-fg-color color
+          (dotimes (c nch)
+            (setq pixpointprev (* offset-y (* 0.99 (aref array c 0))))
+            (loop for i from 1 to (1- array-size) do
+                  (setf pixpoint (* offset-y (* 0.99 (aref array c (min i (1- array-size))))))
+                  (om-draw-polygon `(,(om-make-point (1- i) (+ offset-y (* c channels-h) pixpointprev))
+                                     ,(om-make-point i (+ offset-y (* c channels-h) pixpoint)) 
+                                     ,(om-make-point i (+ offset-y (* c channels-h) (- pixpoint))) 
+                                     ,(om-make-point (1- i) (+ offset-y (* c channels-h) (- pixpointprev))))
+                                   :fill t)
+                  (setq pixpointprev pixpoint))))
+        )
+      )))
 
 (defmethod get-cache-display-for-draw ((self sound))
   (when (and (n-samples self) (> (n-samples self) 0) (n-channels self)
@@ -516,72 +602,29 @@ Press 'space' to play/stop the sound file.
            (pictsize 512)
            (array-size (floor (n-samples self) window))
            (array (make-array (list (n-channels self) array-size) :element-type 'single-float :initial-element 0.0 :allocation :static))
-           (soundbuffer nil))
+           )
 
-      (unless (buffer self)
-        (let ((ab (audio-io::om-get-sound-buffer (file self) *default-internal-sample-size*)))
-          (when ab (setf soundbuffer (make-om-sound-buffer-GC :count 1 :nch (n-channels self) :ptr ab)))))
+      (with-audio-buffer (b self)
+        (fli:with-dynamic-lisp-array-pointer 
+            (ptr array :type :float)
+          (fill-sound-display-array (om-sound-buffer-ptr b)
+                                    (n-samples self) ptr array-size (n-channels self)))
+        )
       
-      (when (or soundbuffer (buffer self))
-        (unwind-protect 
-            (fli:with-dynamic-lisp-array-pointer 
-                (ptr array :type :float)
-              (fill-sound-display-array (om-sound-buffer-ptr (or soundbuffer (buffer self)))
-                                        (n-samples self) ptr array-size (n-channels self)))
-          (when soundbuffer (oa::om-release soundbuffer)))
-        
-        (list array (create-waveform-pict (resample-2D-array array 0 array-size (min array-size pictsize))))
-        ))))
+      (create-waveform-pict 
+                   (resample-2D-array array 0 array-size (min array-size pictsize))
+                   (om-make-color 0.41 0.54 0.67))
+      )))
             
-
-
-(defmethod draw-mini-view ((self sound) (box t) x y w h &optional time) 
-  (let ((pict (cadr (get-display-draw box))))
-    (when pict
-      (om-draw-picture pict :x x :y (+ y 4) :w w :h (- h 8)))
-    (when (markers self)
-      (let ((fact (/ w (get-obj-dur self))))
-        (loop for mrk in (markers self) do
-              (om-with-fg-color (om-def-color :dark-gray)
-                (om-draw-dashed-line (+ x (* mrk fact)) 4 (+ x (* mrk fact)) (- h 4))))))))
-
-;;;====================
-;;; PLAYER
-;;;====================
-;;;Methods redefinitions using the slot "data" of schedulable object to bypass actions rendering and store the las pointer
-(defmethod get-action-list-for-play ((self sound) time-interval &optional parent)
-  (external-player-actions self time-interval parent))
-
-(defmethod player-play-object ((self scheduler) (object sound) caller &key parent interval)
-  ;(juce::setgainreader (bp-pointer (buffer-player object)) 0.1)
-  (when (buffer-player object)
-    (start-buffer-player (buffer-player object) :start-frame (if (car interval)
-                                                                 (round (* (car interval) (/ (sample-rate object) 1000.0)))
-                                                               (or (car interval) 0)))
-  (call-next-method)))
-
-(defmethod player-stop-object ((self scheduler) (object sound))
-  (if (buffer-player object) (stop-buffer-player (buffer-player object)))
-  (call-next-method))
-
-(defmethod player-pause-object ((self scheduler) (object sound))
-  (pause-buffer-player (buffer-player object))
-  (call-next-method))
-
-(defmethod player-continue-object ((self scheduler) (object sound))
-  (continue-buffer-player (buffer-player object))
-  (call-next-method))
-
-(defmethod set-object-time ((self sound) time)
-  (jump-to-time (buffer-player self) time)
-  (call-next-method))
 
 
 ;;;====================
 ;;; EDITOR
 ;;;====================
 
-(defclass sound-editor (stream-editor) ())
+(defclass sound-editor (stream-editor) 
+  ((cache-display-list :accessor cache-display-list :initform nil)))
+
 (defclass sound-panel (stream-panel) ())
 (defmethod get-editor-class ((self sound)) 'sound-editor)
 (defmethod editor-view-class ((self sound-editor)) 'sound-panel)
@@ -589,28 +632,41 @@ Press 'space' to play/stop the sound file.
 (defmethod frame-display-modes-for-object ((self sound-editor) (object sound))
   '((:lines "lines")))
 
+(defmethod editor-view-after-init-space ((self sound)) 0)
+
 (defmethod om-draw-contents ((self sound-panel))
   (call-next-method)  
   (let* ((editor (editor self))
          (sound (object-value editor)))
-    (if (or (buffer sound)
-            (and (access-from-file sound) (valid-pathname-p (file sound))))
-        (let ((pict (cadr (ensure-cache-display-draw (object editor) (object-value editor))))
-              (view-at (/ (x1 self) (get-obj-dur sound)))
-              (view-dur (/ (- (x2 self) (x1 self)) (get-obj-dur sound))))
-          (when pict (om-draw-picture pict :w (w self) :h (h self) 
-                                      :src-x (* (om-pict-width pict) view-at) :src-w (* (om-pict-width pict) view-dur))))
+    (if (or (buffer sound) (and (access-from-file sound) (valid-pathname-p (file sound))))
+        ;;; draw the sound..
+        (draw-sound-waveform sound editor self (x1 self) (x2 self))
+      ;;; no sound
       (om-with-fg-color (om-def-color :light-gray)
         (om-with-font (om-make-font "Arial" (round (h self) 4) :style '(:bold))
                       (om-draw-string 10 (+ (round (h self) 2) (round (h self) 8)) "No sound loaded..")
                       ))
-      )
+      )))
+
+
+(defun draw-sound-waveform (sound editor view from to)
+  (unless (cache-display-list editor)
+    (setf (cache-display-list editor) (get-cache-display-for-draw (object-value editor))))
+  (let ((dur (get-obj-dur sound))
+        (pict (cache-display-list editor)))
+    (when pict 
+      (om-draw-picture pict 
+                       :w (w view) :h (h view) 
+                       :src-x (* (om-pict-width pict) (/ from dur)) 
+                       :src-w (* (om-pict-width pict) (/ (- to from) dur))))
     ))
 
 
+(defmethod update-to-editor ((self sound-editor) (from t))
+  (setf (cache-display-list self) nil)
+  (call-next-method))
 
-      
-         
+
 
 #|
 
@@ -673,55 +729,178 @@ Press 'space' to play/stop the sound file.
          (nbpix (- pixmax pixmin)))
     (sound-get-display-array-slice snd nbpix xmin xmax)))
 
+
+;;;===================
+;;; DISPLAY-ARRAY
+;;;===================
+
+;;; Function used to FILL the display array of a sound (and choosed max window)
+;;; (use LIBSNDFILE and FLI)
+(defmethod om-fill-sound-display-array ((format t) path ptr channels size &optional (window 128))
+  #+libsndfile
+  (cffi:with-foreign-object (sfinfo '(:struct |libsndfile|::sf_info))
+    ;;;Initialisation du descripteur
+    (setf (cffi:foreign-slot-value sfinfo '(:struct |libsndfile|::sf_info) 'sf::format) 0)
+    (let* (;;;Remplissage du descripteur et affectation aux variables temporaires
+           (sndfile-handle (sf::sf_open path sf::SFM_READ sfinfo))
+           (size (fli::dereference (cffi:foreign-slot-pointer sfinfo '(:struct |libsndfile|::sf_info) 'sf::frames) :type :int :index #+powerpc 1 #-powerpc 0))
+           (channels (fli::dereference (cffi:foreign-slot-pointer sfinfo '(:struct |libsndfile|::sf_info) 'sf::channels) :type :int :index #+powerpc 1 #-powerpc 0))
+           ;;;Variables liées au calcul de waveform
+           (buffer-size (* window channels))
+           (buffer (fli::allocate-foreign-object :type :float :nelems buffer-size))   ;Fenêtrage du son
+           ;(MaxArray (make-array (list channels (ceiling size window)) :element-type 'single-float :initial-element 0.0))   ;Tableau pour stocker les max
+           (indxmax (1- (ceiling size window)))
+           (frames-read 0)
+           maxi)
+      (loop for indx from 0 do ;(print (list indx "/" (ceiling size window)))
+            (setq frames-read (sf::sf-readf-float sndfile-handle buffer window))
+            (dotimes (n channels)
+              (dotimes (i window)
+                (setq maxi (max (abs (fli:dereference buffer :type :float :index (+ n (* channels i)))) (or maxi 0.0))))
+              ;(setf (aref MaxArray n (min indx indxmax)) maxi)
+              (setf (fli:dereference ptr :index (+ (min indx indxmax) (* n (ceiling size window)))) maxi)
+              (setq maxi 0.0))
+            while (= frames-read window))
+      (fli:free-foreign-object buffer)
+      (sf::sf_close sndfile-handle))))
+
+
+;;; not used for the moment
+(defmethod build-display-array-dynamic ((self sound))
+  (let* ((ratio 128)
+         (size (om-sound-n-samples self))
+         (channels (om-sound-n-channels self))
+         ;(array-width (ceiling size ratio))
+         )
+;(ratio (round (om-sound-n-samples self) 2000)))) pour un ratio variable. 2000 car nbpix d'un écran environ
+;Bien pour les petits fichiers mais mauvais dès que trop grand car bascule trop vite sur la lecture fichier
+    (setf (display-ratio self) ratio
+          (display-builder self) (om-run-process 
+                                  "DisplayArrayBuilder" 
+                                  #'(lambda (snd)
+                                      (setf (display-array snd) 
+                                            (make-array (list channels (ceiling size ratio))
+                                                        :element-type 'single-float :initial-element 0.0 :allocation :static))
+                                      (fli:with-dynamic-lisp-array-pointer 
+                                          (ptr (display-array snd) :type :float)
+                                        (om-fill-sound-display-array (namestring (filename snd)) ptr ratio))
+                                      (sound-get-best-pict snd)
+                                      (setf (display-builder self) nil)
+                                      (print (format nil "~A Loaded..." (filename self)))) self))))
+
+
+(defmethod build-display-array ((self sound))
+  (let ((winsize 128)
+        (format (om-sound-format self))
+        (channels (om-sound-n-channels self)))
+    (when (and format channels)
+      (let ((array-width (ceiling (om-sound-n-samples self) winsize)))
+;(ratio (round (om-sound-n-samples self) 2000)))) pour un ratio variable. 2000 car nbpix d'un écran environ
+;Bien pour les petits fichiers mais mauvais dès que trop grand car bascule trop vite sur la lecture fichier
+        (setf (display-ratio self) winsize)
+      ;"DisplayArrayBuilder" 
+        (funcall 
+         #'(lambda (snd)
+             (setf (display-array snd) 
+                   (make-array (list channels array-width)
+                               :element-type 'single-float :initial-element 0.0 :allocation :static))
+             (fli:with-dynamic-lisp-array-pointer 
+                 (ptr (display-array snd) :type :float)
+               (om-fill-sound-display-array format (namestring (filename snd)) ptr channels array-width winsize))
+             (sound-get-best-pict snd)
+        ;(setf (display-builder self) nil)
+             (print (format nil "~A Loaded..." (filename self))))
+         self)))))
+
+
+
+(defun om-get-sound-display-array-slice (path nsmp-out start-time end-time)
+  #+libsndfile
+  (cffi:with-foreign-object (sfinfo '(:struct |libsndfile|::sf_info))
+    ;;;Initialisation du descripteur
+    (setf (cffi:foreign-slot-value sfinfo '(:struct |libsndfile|::sf_info) 'sf::format) 0)
+    (let* (;;;Remplissage du descripteur et affectation aux variables temporaires
+           (sndfile-handle (sf::sf_open path sf::SFM_READ sfinfo))
+           (sr (fli::dereference (cffi:foreign-slot-pointer sfinfo '(:struct |libsndfile|::sf_info) 'sf::samplerate) :type :int :index #+powerpc 1 #-powerpc 0))
+           (sr-ratio (* sr 0.001))
+           (start-smp (floor (* start-time sr-ratio)))
+           (end-smp (ceiling (* end-time sr-ratio)))
+           (size (- end-smp start-smp))
+           (channels (fli::dereference (cffi:foreign-slot-pointer sfinfo '(:struct |libsndfile|::sf_info) 'sf::channels) :type :int :index #+powerpc 1 #-powerpc 0))
+           (window (/ size nsmp-out 1.0))
+           (window-adaptive (round window))
+           ;;;Variables calcul de waveform
+           (buffer-size (* (ceiling window) channels))
+           (buffer (fli::allocate-foreign-object :type :float :nelems buffer-size))   
+           (MaxArray (make-array (list channels (min nsmp-out size)) :element-type 'single-float :initial-element 0.0))   ;Tableau pour stocker les max
+           (indxmax (1- (min nsmp-out size)))
+           (frames-read 0)
+           (frames-count 0)
+           (winsum 0)
+           maxi throw-buffer)
+      (when (> start-smp 0)
+        (setq throw-buffer (fli::allocate-foreign-object :type :float :nelems (* start-smp channels)))
+        (sf::sf-readf-float sndfile-handle throw-buffer start-smp)
+        (fli:free-foreign-object throw-buffer))
+      (if (> size nsmp-out)
+          (loop for indx from 0 do
+                (setq winsum (+ winsum window-adaptive))
+                (if (> indx 0) (setq window-adaptive (- (round (* (+ 2 indx) window)) (round winsum))))
+                (setq frames-read (sf::sf-readf-float sndfile-handle buffer window-adaptive)
+                      frames-count (+ frames-count frames-read))
+                (dotimes (n channels)
+                  (dotimes (i window-adaptive)
+                    (setq maxi (max (abs (fli:dereference buffer :type :float :index (+ n (* channels i)))) (or maxi 0.0))))
+                  (setf (aref MaxArray n (min indx indxmax)) maxi)
+                  (setq maxi 0.0))
+                while (and (< frames-count size) (= frames-read window-adaptive)))
+        (loop for indx from 0 do
+              (setq window-adaptive (max window-adaptive 1)
+                    frames-read (sf::sf-readf-float sndfile-handle buffer window-adaptive)
+                    frames-count (+ frames-count frames-read))
+              (dotimes (n channels)
+                (setf (aref MaxArray n (min indx indxmax)) (fli:dereference buffer :type :float :index n)))
+              while (and (< frames-count size) (= frames-read window-adaptive))))
+      (fli:free-foreign-object buffer)
+      (sf::sf_close sndfile-handle)
+      MaxArray)))
+
+
+(defmethod sound-get-display-array-slice ((self sound) nbpix start-time end-time)
+  (when (display-array self)
+    (let* ((sr (* (om-sound-sample-rate self) 0.001))
+           (maxtime (round (om-sound-n-samples self) sr))
+           (targettime (- end-time start-time))
+           (timeratio (float (/ targettime maxtime 1.0)))
+           (win (display-ratio self))
+           (maxnbpix (round (* timeratio (cadr (array-dimensions (display-array self))))))
+           ;(start-smp (floor (* start-time sr)))
+           ;(end-smp (ceiling (* end-time sr)))
+           (start (floor (* start-time sr) win))
+           (end (ceiling (* end-time sr) win))
+           (stoppoint (1- (cadr (array-dimensions (display-array self)))));(+ start (1- maxnbpix)))
+           (maxi 0.0)
+           result)
+      (cond ((= nbpix maxnbpix)
+             (setq result (display-array self)))
+            ((< nbpix maxnbpix)
+             (let* ((step (/ (- end start) nbpix 1.0)))
+               (setq result (make-array (list (om-sound-n-channels self) nbpix) :element-type 'single-float :initial-element 0.0))
+               (dotimes (c (om-sound-n-channels self))
+                 (dotimes (i nbpix)
+                   (dotimes (j (round step))
+                     (setq maxi (max maxi (aref (display-array self) c (min stoppoint (round (+ start j (* i step))))))))
+                   (setf (aref result c i) maxi)
+                   (setq maxi 0.0)))
+               result))
+            ((> nbpix maxnbpix)
+             (setq result (om-get-sound-display-array-slice (namestring (filename self)) nbpix start-time end-time))))
+      (values result (< (cadr (array-dimensions result)) nbpix)))))
+
+
+
+
 |#
 
 
-;;;===========================
-;;; OM METHODS 
-;;;===========================
-
-
-(defmethod* sound-points ((self sound) (num integer) &optional channel)
-  :initvals '(nil 1000 1)
-  :indoc '("a sound object" "number of points" "channel number")
-  :doc "Reurns <num> sampled points from the audio waveform of channel <channel> in <self>."
-  :icon 221
-  (with-audio-buffer (b self)
-    (let ((numdat (n-samples self))
-          (numchan (n-channels self))
-          (ch (or channel 1)))
-      (if (or (> ch numchan) (> num numdat)) 
-          (om-beep-msg "SOUND-POINTS: out-of-range input values !!")
-        (let ((channel-ptr (om-read-ptr (om-sound-buffer-ptr b) (1- ch) :pointer)))
-          (loop for i from 0 to numdat by (round numdat num) collect
-                (om-read-ptr channel-ptr i :float)))
-        ))))
-
-
-(defmethod* sound-dur ((sound sound))
-  :icon 221
-  :initvals '(nil)
-  :indoc '("a sound object or file pathname")
-  :doc "Returns the duration of <sound> in seconds."
-   (if (and (n-samples sound) (sample-rate sound)
-            (> (sample-rate sound) 0))
-       (float (/ (n-samples sound) (sample-rate sound)))
-     0))
-
-(defmethod* sound-dur ((sound pathname))
-  (sound-dur (namestring sound)))
-
-(defmethod* sound-dur ((sound string))
-  (if (probe-file sound)
-      (multiple-value-bind (format channels sr ss size skip)
-          (audio-io::om-get-sound-info sound)
-        (if (and size sr (> sr 0)) (float (/ size sr)) 0))
-    (progn (om-beep-msg "File not found: ~s" sound) 0)))
-
-(defmethod* sound-dur-ms ((sound t))
-  :initvals '(nil)
-  :indoc '("a sound object or file pathname")
-  :doc "Returns the duration of <sound> in milliseconds."
-  :icon 221
-  (round (* 1000 (sound-dur sound))))
 
