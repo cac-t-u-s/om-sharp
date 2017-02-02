@@ -33,9 +33,9 @@
  
 (defvar *init-func-list* nil)
 
-(defun om-add-init-fun (func-name)
+(defun add-om-init-fun (func-name)
    (unless (member func-name *init-func-list* :test 'equal)
-      (push func-name *init-func-list*)))
+      (pushnew func-name *init-func-list*)))
 
 (defun om-init-funcall ()
   (print "== START OM INIT CALLS ==")

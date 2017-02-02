@@ -243,7 +243,7 @@
       (om-add-cursor :point (cursor-file "point-cursor") (om-make-point 4 4))
       )))
 
-(om-add-init-fun 'init-om-cursors)
+(add-om-init-fun 'init-om-cursors)
 
 
 ;;;============================================

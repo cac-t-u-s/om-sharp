@@ -170,7 +170,7 @@
   ;;(om::set-language *release-language*)
   (register-om-icons)
     
-  #+(or om-deliver mswindows)
+  ;; #+(or om-deliver mswindows)
   (define-action "Confirm when quitting image" "Prompt for confirmation" 'om::quit-om-callback)
   
   ;;; read the general OM prefs
@@ -335,7 +335,7 @@
         do (funcall action)))
 
 (defun quit-om-callback () 
-  (let ((rep (and (om-y-or-n-dialog "Quit OpenMusic ?")
+  (let ((rep (and (om-y-or-n-dialog "Quit OpenMusic ?" :default-button :yes)
                   (om-lisp::check-buffers-before-close)
                   (check-om-docs-before-close))))
     (when rep 

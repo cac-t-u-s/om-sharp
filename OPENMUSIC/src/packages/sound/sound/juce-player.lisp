@@ -102,8 +102,6 @@
   (juce::setDeviceType *juce-player* *audio-driver*)
   (setup-audio-device))
 
-(om-add-init-fun 'open-juce-player)
-
 (defun close-juce-player ()
   (juce::closeAudioManager *juce-player*)
   (setf *juce-player* nil))
@@ -111,6 +109,8 @@
 (defun configure-audio-channels (list)
   (juce::setoutputchannels *juce-player* list))
 
+(add-om-init-fun 'open-juce-player)
+(add-om-exit-action 'close-juce-player)
 
 #|
 (defun set-juce-devices (input-device-index output-device-index sample-rate)

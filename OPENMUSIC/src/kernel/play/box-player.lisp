@@ -20,7 +20,7 @@
 
 ;(abort-om-player)
 ;(init-om-player)
-(om-add-init-fun 'init-om-player)
+(add-om-init-fun 'init-om-player)
 
 
 (defmethod get-obj-to-play ((self ombox)) (play-obj-from-value (car (value self)) self))
