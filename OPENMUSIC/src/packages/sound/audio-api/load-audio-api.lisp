@@ -17,10 +17,10 @@
 (defun load-audio-libs ()
 
   (om-fi::om-load-foreign-library  
-   "OMJuceAudioLib"
-   `((:macosx ,(om-fi::om-foreign-library-pathname "OMJuceAudioLib.dylib"))
-     (:windows ,(om-fi::om-foreign-library-pathname "OMJuceAudioLib.dll"))
-     (:linux ,(om-fi::om-foreign-library-pathname "OMJuceAudioLib.so"))))
+   "OMAudioLib"
+   `((:macosx ,(om-fi::om-foreign-library-pathname "OMAudioLib.dylib"))
+     (:windows ,(om-fi::om-foreign-library-pathname "OMAudioLib.dll"))
+     (:linux ,(om-fi::om-foreign-library-pathname "OMAudioLib.so"))))
   
   (om-fi::om-load-foreign-library 
    "LIBSNDFILE"
