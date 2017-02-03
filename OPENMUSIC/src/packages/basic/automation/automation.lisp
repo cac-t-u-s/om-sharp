@@ -154,21 +154,24 @@
 
 ;;;Initialization
 (defmethod initialize-instance :after ((self automation) &rest args)
-  (loop for coeff in (getf args :c-points)
-        for pt in (point-list self)
-        do
-        (setf (ap-coeff pt) coeff))
+  ;(loop for coeff in (getf args :c-points)
+  ;      for pt in (point-list self)
+  ;      do (setf (ap-coeff pt) coeff))
   self)
 
 
 (defmethod set-bpf-points ((self automation) &key x y z time time-types)
+  
   (setf (point-list self)  (make-points-from-lists (or x (x-values-from-points self)) ;  (slot-value self 'x-points))
                                                    (or y (y-values-from-points self)) ;  (slot-value self 'y-points))
                                                    (decimals self)
                                                    'om-make-automationpoint))
-    ;(when times
-    ;  (loop for p in (point-list self)
-    ;        for time in times do (setf (tpoint-time p) time)))
+  
+  ;;; verify this c-cpoints slot management...
+  (loop for coeff in (slot-value self 'c-points)
+        for pt in (point-list self)
+        do (setf (ap-coeff pt) coeff))
+  
   (setf (slot-value self 'x-points) NIL)
   (setf (slot-value self 'y-points) NIL))
 
