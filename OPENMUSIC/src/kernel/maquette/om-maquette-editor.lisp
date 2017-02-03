@@ -870,15 +870,15 @@
 (defun make-maquette-view (maq-editor)
   (let* ((ruler-maquette (om-make-view 'time-ruler 
                                        :size (om-make-point 30 20)
-                                       :x1 (getf (get-range maq-editor) :x1) 
-                                       :x2 (getf (get-range maq-editor) :x2)
+                                       :x1 (or (getf (get-range maq-editor) :x1) 10000)
+                                       :x2 (or (getf (get-range maq-editor) :x2) 10000)
                                        :scrollbars nil :bg-color +track-color-1+))
          (metric-ruler (om-make-view 'metric-ruler 
                                      :size (om-make-point 30 20)
                                      :scrollbars nil :bg-color +track-color-1+))
          (y-ruler (om-make-view 'y-ruler-view 
-                                 :y1 (getf (get-range maq-editor) :y1) 
-                                 :y2 (getf (get-range maq-editor) :y2)
+                                 :y1 (or (getf (get-range maq-editor) :y1) 100)
+                                 :y2 (or (getf (get-range maq-editor) :y2) 0)
                                  :size (om-make-point 30 20)
                                  :scrollbars nil :bg-color +track-color-1+))
          (maq-view (om-make-view 'maquette-view :editor maq-editor :scrollbars nil :bg-color +track-color-1+))
@@ -938,8 +938,8 @@
 
 (defun make-tracks-view (maq-editor)
   (let* ((ruler-tracks (om-make-view 'time-ruler :size (om-make-point 30 20) 
-                                     :x1 (getf (get-range maq-editor) :x1) 
-                                     :x2 (getf (get-range maq-editor) :x2)
+                                     :x1 (or (getf (get-range maq-editor) :x1) 0) 
+                                     :x2 (or (getf (get-range maq-editor) :x2) 10000)
                                      :scrollbars nil :bg-color +track-color-1+
                                      :bottom-p nil :markers-p t))
          (track-views (loop for n from 1 to (n-tracks maq-editor) collect
