@@ -75,10 +75,10 @@
       (multiple-value-bind (fx ox)
           (conversion-factor-and-offset 0 (get-obj-dur self) w x)
         (multiple-value-bind (fy oy) 
-            (conversion-factor-and-offset 100 -100 (- h 20) (+ y 10))
+            (conversion-factor-and-offset -1000 1000 (- h 20) (+ y 10))
           (loop for frame in (data-stream-get-frames self) do
                 (om-draw-circle (+ ox (* fx (or (date frame) 0))) (+ oy (* fy (getf (attributes frame) :posy 0))) 
-                                3 :fill nil)))))))
+                                2 :fill t)))))))
 
 
 ;;;======================================
@@ -240,7 +240,6 @@
                                                    :vmin 0 :vmax dur
                                                    :x1 0 :x2 dur))
     
-    (print (list "i'm here" (timeline-editor editor) editor))
     (set-g-component (timeline-editor editor) :main-panel (om-make-layout 'om-row-layout))
 
     (om-make-layout 
