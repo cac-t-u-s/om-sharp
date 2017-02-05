@@ -133,6 +133,7 @@
          (size (minimum-size box)))
     (setf (box-x box) (om-point-x pos)
           (box-y box) (om-point-y pos))
+    (setf (name box) (string (lost-reference box)))
     box))
 
 
@@ -146,6 +147,7 @@
          (size (minimum-size box)))
     (setf (box-x box) (om-point-x pos)
           (box-y box) (om-point-y pos))
+    (setf (name box) (string (lost-reference box)))
     box))
 
 (defmethod omng-make-lost-slots-box (reference pos &optional init-args)
@@ -155,6 +157,7 @@
          (size (minimum-size box)))
     (setf (box-x box) (om-point-x pos)
           (box-y box) (om-point-y pos))
+    (setf (name box) (string (lost-reference box)))
     box))
 
 
