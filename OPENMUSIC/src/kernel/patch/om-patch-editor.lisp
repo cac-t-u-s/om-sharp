@@ -917,7 +917,8 @@
 
 (defmethod patch-editor-show-lisp-code ((self patch-editor) t-or-nil)
   (setf (show-lisp-code self) t-or-nil)
-  (build-editor-window self))
+  (build-editor-window self)
+  (init-editor-window self))
 
 
 (defmethod patch-editor-set-lisp-code ((self patch-editor))
