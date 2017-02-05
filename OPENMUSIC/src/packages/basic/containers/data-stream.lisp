@@ -75,7 +75,7 @@
       (multiple-value-bind (fx ox)
           (conversion-factor-and-offset 0 (get-obj-dur self) w x)
         (multiple-value-bind (fy oy) 
-            (conversion-factor-and-offset -1000 1000 (- h 20) (+ y 10))
+            (conversion-factor-and-offset 100 -100 (- h 20) (+ y 10))
           (loop for frame in (data-stream-get-frames self) do
                 (om-draw-circle (+ ox (* fx (or (date frame) 0))) (+ oy (* fy (getf (attributes frame) :posy 0))) 
                                 2 :fill t)))))))
@@ -164,6 +164,7 @@
 
 (defmethod editor-window-init-size ((self stream-editor)) (om-make-point 800 180))
 
+;; lesser value and greater values in the ruler (bottom to top)
 (defmethod y-range-for-object ((self data-stream)) '(-100 100))
 
 (defmethod frame-display-modes-for-object ((self stream-editor) (object t))
@@ -272,15 +273,16 @@
   (set-graphic-attributes editor)
   (update-views-from-ruler (get-g-component editor :x-ruler))
   (setf (y2 (get-g-component editor :main-panel)) (car (y-range-for-object (object-value editor)))
-        (y1 (get-g-component editor :main-panel)) (cadr (y-range-for-object (object-value editor))))
+        (y1 (get-g-component editor :main-panel)) (print (cadr (y-range-for-object (object-value editor)))))
   (set-shift-and-factor (get-g-component editor :main-panel)))
 
 
 (defmethod update-to-editor ((editor stream-editor) (from ombox))
   
-  (let ((new-max-dur (if (zerop (get-obj-dur (object-value editor))) 
-                         10000 
-                       (+ (get-obj-dur (object-value editor)) 1000))))
+  (let* ((data-stream (object-value editor))
+         (new-max-dur (if (zerop (get-obj-dur data-stream)) 
+                          10000 
+                        (+ (get-obj-dur data-stream) (editor-view-after-init-space data-stream)))))
   
     (set-graphic-attributes editor)
     (when (get-g-component editor :x-ruler)
@@ -289,9 +291,9 @@
        (get-g-component editor :x-ruler) 
        (v1 (get-g-component editor :x-ruler))
        new-max-dur))
-  (om-invalidate-view (get-g-component editor :main-panel))
-  (update-to-editor (timeline-editor editor) editor)
-  ))
+    (om-invalidate-view (get-g-component editor :main-panel))
+    (update-to-editor (timeline-editor editor) editor)
+    ))
 
 (defmethod update-to-editor ((editor stream-editor) (from t))
   (call-next-method)
@@ -326,7 +328,7 @@
     (otherwise 60)))
 
 (defmethod compute-frame-sizey ((self data-frame) editor) 
-  (max 4 (* 2 (data-size self))))  ;;; 4 = arbitrary
+  (max 10 (* 2 (data-size self))))  ;;; 4 = arbitrary
 
 (defmethod set-frame-attributes ((f data-frame) editor) 
   (setf (getf (attributes f) :color) (compute-frame-color f editor)
@@ -345,14 +347,17 @@
   (case (display-mode editor)
     (:bubbles (values 
                (- (x-to-pix panel (or (date frame) 0))  (dy-to-dpix panel (/ (get-frame-attribute frame :sizey editor) 2)))
-               (y-to-pix panel (- (get-frame-attribute frame :posy editor) (/ (get-frame-attribute frame :sizey editor) 2)))
-               (dy-to-dpix panel (get-frame-attribute frame :sizey editor))
-               (dy-to-dpix panel (get-frame-attribute frame :sizey editor))
+               (- (h panel)
+                  (y-to-pix panel (- (get-frame-attribute frame :posy editor) 
+                                     (/ (get-frame-attribute frame :sizey editor) 2))))
+                (dy-to-dpix panel (get-frame-attribute frame :sizey editor))
+                (dy-to-dpix panel (get-frame-attribute frame :sizey editor))
                ))
     (:blocks (values (x-to-pix panel (date frame))
-                     (y-to-pix panel (get-frame-attribute frame :posy editor))
+                      (- (h panel)
+                         (y-to-pix panel (get-frame-attribute frame :posy editor)))
                      (max 3 (dx-to-dpix panel (frame-graphic-duration frame)))
-                     (min -3 (- (dy-to-dpix panel (get-frame-attribute frame :sizey editor))))  ;; downwards
+                     (max 3 (dy-to-dpix panel (get-frame-attribute frame :sizey editor)))  ;; !! downwards
                      )))))
 
 
@@ -368,6 +373,7 @@
            ;(om-draw-rect (+ x 20) (+ y 20) (- w 40) (- h 40) :fill nil)
            )
           (otherwise 
+           ;(print (list 'rect w h)) 
            (om-draw-rect x y w h :fill t)))
         (om-with-font 
          (om-def-font :font1 :size 8)

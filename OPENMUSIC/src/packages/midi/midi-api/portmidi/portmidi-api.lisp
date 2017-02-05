@@ -103,6 +103,7 @@
       (print "No MIDI devices detected"))
     ))
 
+; (portmidi-restart)
 
 ;;;========================================
 ;;; MESSAGES

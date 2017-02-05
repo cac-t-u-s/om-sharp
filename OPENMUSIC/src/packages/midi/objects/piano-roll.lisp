@@ -8,10 +8,10 @@
 
 (defclass* midi-note (data-frame) 
   ((date :accessor date :initarg :date :initform 0 :documentation "date of the note")
-   (pitch :accessor pitch :initarg :pitch :initform nil :documentation "type of event")
-   (vel :accessor vel :initarg :vel :initform 1 :documentation "MIDI channel (1-16)")
-   (dur :accessor dur :initarg :dur :initform 0 :documentation "value(s)")
-   (channel :accessor channel :initarg :channel :initform 0 :documentation "Target MIDI port")))
+   (pitch :accessor pitch :initarg :pitch :initform 60 :documentation "pitch (MIDI)")
+   (vel :accessor vel :initarg :vel :initform 100 :documentation "velocity (0-127)")
+   (dur :accessor dur :initarg :dur :initform 500 :documentation "duration(ms)")
+   (channel :accessor channel :initarg :channel :initform 1 :documentation "MIDI channel (1-16)")))
            
 
 (defun midinote-onset (midinote) (date midinote))
@@ -86,7 +86,7 @@
 (defmethod frame-display-modes-for-object ((self stream-editor) (object piano-roll))
   '((:blocks "blocks")))
 
-(defmethod y-range-for-object ((self piano-roll)) '(30 90))
+(defmethod y-range-for-object ((self piano-roll)) '(50 90))
 
 (defparameter +midi-colors+ (loop for i from 1 to 16 collect (om-random-color)))
 
@@ -105,7 +105,8 @@
                (remove nil (list 
                             (if (in-interval (midinote-onset n) interval :exclude-high-bound t) 
                                 (list (midinote-onset n)
-                                      #'(lambda (note) (om-midi::midi-send-evt 
+                                      #'(lambda (note) 
+                                          (om-midi::midi-send-evt 
                                                         (om-midi:make-midi-evt 
                                                          :type :keyOn
                                                          :chan (or (midinote-channel note) 1) :port 0
@@ -152,12 +153,15 @@
     (multiple-value-bind (fx ox) 
         (conversion-factor-and-offset 0 (get-obj-dur self) w x)
       (multiple-value-bind (fy oy) 
-          (conversion-factor-and-offset 100 30 (- h 20) (+ y 10))
-        (om-with-line-size 8
+          (conversion-factor-and-offset 50 90 (- h 20) (+ y 10))
+        (om-with-line-size 5
           (loop for n in (midi-notes self) do
+                ;for frame in (data-stream-get-frames self) do
                 (om-with-fg-color (nth (midinote-channel n) +midi-colors+)
-                  (om-draw-line (+ ox (* fx (midinote-onset n))) (+ oy (* fy (midinote-pitch n)))
-                                (+ ox (* fx (midinote-end n))) (+ oy (* fy (midinote-pitch n))))
+                  (om-draw-line  (round (+ ox (* fx (midinote-onset n))))
+                                 (round (+ (- oy) (- h (* fy (midinote-pitch n)))))
+                                 (round (+ ox (* fx (midinote-end n))))
+                                 (round(+ (- oy) (-  h (* fy (midinote-pitch n))))))
                   )))))
     t))
 

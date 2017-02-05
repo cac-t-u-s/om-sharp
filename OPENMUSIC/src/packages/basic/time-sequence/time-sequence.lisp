@@ -27,7 +27,6 @@
       (abs (- (item-time i2) (item-time i1)))
     1))
 
-
 ;;; time-sequence does not deal with durations but this can be useful, e.g to determine the end
 (defmethod item-duration (timed-item) 0)
 
