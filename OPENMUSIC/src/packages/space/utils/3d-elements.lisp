@@ -10,7 +10,7 @@
 
 (defun make-bg-speakers (speakers)
   (mapcar #'(lambda (spk)
-              (make-instance 'speaker :pos (make-3dpoint :x (car spk) :y (cadr spk) :z (caddr spk))
+              (make-instance 'speaker :pos (make-3dpoint :x (car spk) :y (cadr spk) :z (or (caddr spk) 0))
                              :size .08))
           speakers))
 
