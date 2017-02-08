@@ -729,7 +729,7 @@
 
 
 (defmethod reset-frame-size ((frame omboxframe))
-  (om-set-view-size frame (omp (box-w (object self)) (box-h (object self)))))
+  (om-set-view-size frame (omp (box-w (object frame)) (box-h (object frame)))))
 
 
 ;;;=============================

@@ -91,6 +91,17 @@
               (set-cache-display box o)
               (draw-mini-view o box x y w h time)))))
 
+(defmethod draw-value-in-frame ((object collection) (frame OMObjectBoxFrame)) 
+  (let ((box (object frame)))
+    (case (display box)
+      (:hidden 
+       (draw-mini-label 
+        (string+ (string-upcase (type-of object)) " of " (string-upcase (type-of (car (obj-list object)))))
+        box 0 0 (w frame) (h frame) (box-play-time frame)))
+      (otherwise (call-next-method)) 
+      )))
+
+
 ;;;===========================
 ;;; EDITOR
 ;;;===========================

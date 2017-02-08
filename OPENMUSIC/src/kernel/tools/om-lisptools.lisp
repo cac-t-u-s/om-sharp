@@ -184,7 +184,7 @@
 (defmethod om-report-condition ((c condition))
   (format nil "~A" c))
 
-(defvar *om-debug* t)
+(defparameter *om-debug* nil)
 
 (defun om-print-dbg (str &optional args prompt)  
   (when *om-debug* (om-print-format str args (or prompt "DEBUG"))))

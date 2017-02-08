@@ -273,7 +273,7 @@
   (set-graphic-attributes editor)
   (update-views-from-ruler (get-g-component editor :x-ruler))
   (setf (y2 (get-g-component editor :main-panel)) (car (y-range-for-object (object-value editor)))
-        (y1 (get-g-component editor :main-panel)) (print (cadr (y-range-for-object (object-value editor)))))
+        (y1 (get-g-component editor :main-panel)) (cadr (y-range-for-object (object-value editor))))
   (set-shift-and-factor (get-g-component editor :main-panel)))
 
 

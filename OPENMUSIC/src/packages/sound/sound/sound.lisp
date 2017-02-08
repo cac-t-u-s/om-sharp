@@ -568,32 +568,34 @@ Press 'space' to play/stop the sound file.
 ;;; CREATES An INTERNAL PICTURE FROM MAX DETECTION OVER DOWNSAMPLED BUFFER
 (defun create-waveform-pict (array &optional color)
   (when array
-    (let* ((pict-h 256)
-           (nch (car (array-dimensions array)))
-           (array-size (cadr (array-dimensions array)))
-           (channels-h (round pict-h nch))
-           (offset-y (round channels-h 2))
-           (prevstream oa::*curstream*)
+    (let ((pict-h 256)
+          (nch (car (array-dimensions array)))
+          (array-size (cadr (array-dimensions array))))
+      (when (and (> nch 0) (> array-size 0))
+        (let* ((channels-h (round pict-h nch))
+             (offset-y (round channels-h 2))
+             (prevstream oa::*curstream*)
           
-           pixpoint pixpointprev)
+             pixpoint pixpointprev)
       
-      (om-record-pict array-size 256
+        (om-record-pict array-size 256
         
-        (dotimes (i nch)
-          (om-draw-line 0 (+ (* i channels-h) offset-y) array-size (+ (* i channels-h) offset-y)))
-        (om-with-fg-color color
-          (dotimes (c nch)
-            (setq pixpointprev (* offset-y (* 0.99 (aref array c 0))))
-            (loop for i from 1 to (1- array-size) do
-                  (setf pixpoint (* offset-y (* 0.99 (aref array c (min i (1- array-size))))))
-                  (om-draw-polygon `(,(om-make-point (1- i) (+ offset-y (* c channels-h) pixpointprev))
-                                     ,(om-make-point i (+ offset-y (* c channels-h) pixpoint)) 
-                                     ,(om-make-point i (+ offset-y (* c channels-h) (- pixpoint))) 
-                                     ,(om-make-point (1- i) (+ offset-y (* c channels-h) (- pixpointprev))))
-                                   :fill t)
-                  (setq pixpointprev pixpoint))))
-        )
-      )))
+          (dotimes (i nch)
+            (om-draw-line 0 (+ (* i channels-h) offset-y) array-size (+ (* i channels-h) offset-y)))
+          (om-with-fg-color color
+            (dotimes (c nch)
+              (setq pixpointprev (* offset-y (* 0.99 (aref array c 0))))
+              (loop for i from 1 to (1- array-size) do
+                    (setf pixpoint (* offset-y (* 0.99 (aref array c (min i (1- array-size))))))
+                    (om-draw-polygon `(,(om-make-point (1- i) (+ offset-y (* c channels-h) pixpointprev))
+                                       ,(om-make-point i (+ offset-y (* c channels-h) pixpoint)) 
+                                       ,(om-make-point i (+ offset-y (* c channels-h) (- pixpoint))) 
+                                       ,(om-make-point (1- i) (+ offset-y (* c channels-h) (- pixpointprev))))
+                                     :fill t)
+                    (setq pixpointprev pixpoint))))
+          )
+        )))
+    ))
 
 (defmethod get-cache-display-for-draw ((self sound))
   (when (and (n-samples self) (> (n-samples self) 0) (n-channels self)
