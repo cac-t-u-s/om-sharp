@@ -7,17 +7,14 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;; TIMELINE EDITOR ;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; TIMELINE EDITOR
+;;; IS GENERALLY ATTACHED TO ANOTHER EDITOR
+
 (defclass timeline-editor (OMEditor play-editor-mixin) 
   ((time-ruler :accessor time-ruler :initform nil :initarg :time-ruler)
-   (selected-timelines :accessor selected-timelines :initform nil)
    (timeline-views :accessor timeline-views :initform nil :initarg :timeline-views)
    (snap-to-grid :accessor snap-to-grid :initform t :initarg :snap-to-grid)))
 
-;;; TIMELINE-EDITOR IS GENERALLY ATTACHED TO ANOTHER EDITOR
-;(defmethod editor-get-all-times ((self OMEditor)) 
-;  (time-sequence-get-internal-times (object-value self)))
 
 (defmethod editor-get-time-sequence ((self OMEditor) id) 
   (declare (ignore id))
@@ -109,13 +106,44 @@
 (defmethod reinit-ranges ((self timeline-editor))
   (reinit-x-ranges self))
 
-;;;;;;;; TIMELINE VIEW ;;;;;;;;;;;;
+
+;;;==========================
+;;; TIMELINE VIEW
+;;;==========================
 
 (defclass om-timeline-view (x-cursor-graduated-view OMEditorView)
   ((selected-p :accessor selected-p :initform nil)
    (label :accessor label :initform nil :initarg :label)
    (id :accessor id :initarg :id :initform -1))
   (:default-initargs :visible-min-height *timeline-view-height*)) 
+
+;;;==========================
+;;; selection
+(defmethod select-timeline ((self om-timeline-view) t-or-nil)
+  (setf (selected-p self) t-or-nil)
+  (when (> (length (timeline-views (editor self))) 1)
+    (om-set-bg-color self 
+                     (if t-or-nil 
+                         (om-get-light-offset-color (get-color (editor-get-time-sequence (editor self) (id self))) 0.8) 
+                       (om-def-color :white)))
+    (om-invalidate-view self))
+  t-or-nil)
+
+(defmethod get-selected-timelines ((self timeline-editor))
+  (loop for tlv in (timeline-views self) 
+        for i = 0 then (+ i 1)
+        when (selected-p tlv)
+        collect i))
+
+(defmethod set-selected-timelines ((self timeline-editor) list-of-i)
+  (loop for tlv in (timeline-views self) 
+        for i = 0 then (+ i 1) do
+        (select-timeline 
+         tlv
+         (if (find i list-of-i :test '=) t nil))))
+;;;==========================
+
+
 
 (defmethod update-view-from-ruler ((rv x-ruler-view) (view om-timeline-view))
   (setf (x1 view) (/ (v1 rv) (expt 10 (decimals rv))) 
@@ -136,17 +164,8 @@
 (defmethod get-obj-to-play ((self timeline-editor)) 
   (get-obj-to-play (container-editor self)))
 
-(defmethod get-color (self)
-  (om-def-color :dark-gray))
+(defmethod get-color (self) (om-def-color :dark-gray))
 
-(defmethod (setf selected-p) (t-or-nil (self om-timeline-view))
-  (setf (slot-value self 'selected-p) t-or-nil)
-  (when (> (length (timeline-views (editor self))) 1)
-    (om-set-bg-color self 
-                     (if t-or-nil 
-                         (om-get-light-offset-color (get-color (editor-get-time-sequence (editor self) (id self))) 0.8) 
-                       (om-def-color :white))))
-  t-or-nil)
 
 (defmethod clear-timeline ((self timeline-editor))
   (let ((container-layout (get-g-component self :main-panel)))
@@ -248,18 +267,9 @@
       (setf (time-ruler self) time-ruler)
       (setf (timeline-views self) timeline-views)
       (reinit-ranges self)
-    ;update when recreated
-      (update-selected-views self)
       (om-invalidate-view main-panel)
       )))
 
-(defmethod timeline-set-selected ((self timeline-editor) i sel)
-  (setf (selected-p (nth i (timeline-views self))) sel)
-  (om-invalidate-view (nth i (timeline-views self))))
-
-(defmethod update-selected-views ((self timeline-editor))
-  (loop for tlv in (timeline-views self) do
-        (timeline-set-selected self (id tlv) (find (id tlv) (selected-timelines self)))))
 
 (defclass om-timeline-subview (om-view x-graduated-view) ())
 
@@ -310,7 +320,7 @@
                     ) 
                   (om-draw-timeline-point cx y (/ *timeline-item-height* 3) color 
                                           :active-p (= i active_pos)
-                                          :selected-p (and (find (id self) (selected-timelines editor))
+                                          :selected-p (and (selected-p self)
                                                            (find p (selection editor)))
                                           :type (item-get-type p)
                                           :time (item-get-time p)))
@@ -360,8 +370,7 @@
          (obj (editor-get-time-sequence editor (id self))))
     (let ((p (point-exists-at-time obj marker-time)))
       (when p
-        (setf (selected-timelines editor) (append (list (id self)) (selected-timelines editor)))
-        (update-selected-views editor)
+        (select-timeline self t)
         (if (not (find p (selection editor)))
             (setf (selection editor) (append (list p) (selection editor)))
           )))
@@ -370,8 +379,7 @@
 ;TIME MARKERS
 (defmethod clear-editor-selection ((self timeline-editor))
   (set-selection self nil)
-  (setf (selected-timelines self) nil)
-  (update-selected-views self))
+  (set-selected-timelines self nil))
   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;; EVENTS RELATED METHODS ;;;;;;
@@ -493,13 +501,12 @@
     (cond 
      ((om-shift-key-p)
       (let ((sel-for-view (get-selected-indices-for-view self)))
-        (if (and (find (id self) (selected-timelines timeline-editor)) (and (not sel-for-view) (not point)))
-            (setf (selected-timelines timeline-editor) (remove (id self) (selected-timelines timeline-editor)))
-          (setf (selected-timelines timeline-editor) (append (list (id self)) (selected-timelines timeline-editor))))))
+        (if (and (selected-p self) (not sel-for-view) (not point))
+            (select-timeline self nil)
+          (select-timeline self t))))
      (t
-      (setf (selected-timelines timeline-editor) (list (id self)))))
+      (set-selected-timelines timeline-editor (list (id self)))))
     
-    (update-selected-views timeline-editor)
     (set-selection timeline-editor point)
     
      ;point selection
@@ -528,20 +535,20 @@
       #'(lambda (timeline-id) 
           (editor-delete-contents-from-timeline (container-editor editor) timeline-id (selection editor))
           (om-invalidate-view (nth timeline-id (timeline-views editor))))
-      (selected-timelines editor))
+      (get-selected-timelines editor))
      (setf (selection editor) nil)
      (update-to-editor (container-editor editor) editor)
      t)
     (#\u (mapcar #'(lambda (timeline-id)
                      (snap-all-points-to-grid editor timeline-id))
-                 (selected-timelines editor))
+                 (get-selected-timelines editor))
          (update-to-editor (container-editor editor) editor)
          t)
     (#\m  (mapcar #'(lambda (timeline-id)
                       (set-selection-as-master editor timeline-id)
                       (om-invalidate-view (nth timeline-id (timeline-views editor)))
                       )
-                  (selected-timelines editor))
+                  (get-selected-timelines editor))
           (update-to-editor (container-editor editor) editor)
           (om-invalidate-view (time-ruler editor))
           t)
