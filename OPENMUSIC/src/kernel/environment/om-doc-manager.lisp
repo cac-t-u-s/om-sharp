@@ -284,7 +284,7 @@
                                   (setf *save-apply-all* (if (car rep) 1 0)))
                               (setf ok nil))
                             (car rep)))
-                  (or (prog1 (save-patch doc)
+                  (or (prog1 (save-document doc)
                         (om-set-window-title win (window-name-from-object doc)))
                       (setf ok nil)))))
             )
