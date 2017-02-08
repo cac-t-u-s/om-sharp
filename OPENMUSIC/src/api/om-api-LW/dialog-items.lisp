@@ -141,8 +141,8 @@
 (defmethod om-dialog-item-action-function ((self om-standard-dialog-item))
    (di-action self))
 
-(defmethod om-enable-dialog-item ((self om-standard-dialog-item) t-or-nil) nil)
-(defmethod om-dialog-item-enabled ((self om-standard-dialog-item)) t)
+(defmethod om-enable-dialog-item ((self t) t-or-nil) nil)
+(defmethod om-dialog-item-enabled ((self t)) t)
 
 ;;;=====================================
 ;;; SPATIAL ATTRIBUTES (SIZE, POSITION)
@@ -529,21 +529,21 @@
 ; BUTTON
 ;===============
 
-(defclass om-button (om-standard-dialog-item capi::push-button) ()
-  (:default-initargs :callback 'om-dialog-item-action))
-
-(defmethod om-enable-dialog-item ((self om-button) t-or-nil)
+;;; these will apply to all the following subclasses of capi::button
+(defmethod om-enable-dialog-item ((self capi::button) t-or-nil)
   (setf (capi::button-enabled self) t-or-nil))
-
-(defmethod om-dialog-item-enabled ((self om-button)) 
+(defmethod om-dialog-item-enabled ((self capi::button)) 
   (capi::button-enabled self))
 
+
+(defclass om-button (om-standard-dialog-item capi::push-button) ()
+  (:default-initargs :callback 'om-dialog-item-action))
 
 ;===============
 ; CHECK-BOX
 ;===============
 
-(defclass om-check-box (om-standard-dialog-item check-button) ()
+(defclass om-check-box (om-standard-dialog-item capi::check-button) ()
   (:default-initargs 
    #+win32 :accepts-focus-p #+win32 nil
    :selection-callback 'om-dialog-item-action
@@ -559,7 +559,7 @@
 
 ;--------om-radio-button
 
-(defclass om-radio-button (om-standard-dialog-item radio-button) 
+(defclass om-radio-button (om-standard-dialog-item capi::radio-button) 
   ((radio-button-cluster :initarg :radio-button-cluster :initform nil :accessor radio-button-cluster))
   (:default-initargs :callback 'om-dialog-item-action))
 
