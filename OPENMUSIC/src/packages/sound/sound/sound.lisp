@@ -53,6 +53,7 @@
    (sample-rate :accessor sample-rate :initform nil :initarg :sample-rate :type integer)
    (smpl-type :accessor smpl-type :initform :float :initarg :smpl-type)
    (sample-size :accessor sample-size :initform 16 :initarg :sample-size :type integer)
+   (mute :accessor mute :initform nil)
    (buffer-player :accessor buffer-player :initform nil :documentation "pointer to a buffer player")))
 
 ;; not needed ?
@@ -568,32 +569,31 @@ Press 'space' to play/stop the sound file.
 ;;; CREATES An INTERNAL PICTURE FROM MAX DETECTION OVER DOWNSAMPLED BUFFER
 (defun create-waveform-pict (array &optional color)
   (when array
-    (let ((pict-h 256)
+    (let ((pict-h 1000)
           (nch (car (array-dimensions array)))
           (array-size (cadr (array-dimensions array))))
       (when (and (> nch 0) (> array-size 0))
         (let* ((channels-h (round pict-h nch))
-             (offset-y (round channels-h 2))
-             (prevstream oa::*curstream*)
-          
-             pixpoint pixpointprev)
+               (offset-y (round channels-h 2))
+               pixpoint pixpointprev)
       
-        (om-record-pict array-size 256
-        
-          (dotimes (i nch)
-            (om-draw-line 0 (+ (* i channels-h) offset-y) array-size (+ (* i channels-h) offset-y)))
+        (om-record-pict array-size 1000
+
           (om-with-fg-color color
             (dotimes (c nch)
-              (setq pixpointprev (* offset-y (* 0.99 (aref array c 0))))
-              (loop for i from 1 to (1- array-size) do
-                    (setf pixpoint (* offset-y (* 0.99 (aref array c (min i (1- array-size))))))
-                    (om-draw-polygon `(,(om-make-point (1- i) (+ offset-y (* c channels-h) pixpointprev))
-                                       ,(om-make-point i (+ offset-y (* c channels-h) pixpoint)) 
-                                       ,(om-make-point i (+ offset-y (* c channels-h) (- pixpoint))) 
-                                       ,(om-make-point (1- i) (+ offset-y (* c channels-h) (- pixpointprev))))
-                                     :fill t)
-                    (setq pixpointprev pixpoint))))
-          )
+              (let ((ch-y (+ (* c channels-h) offset-y)))
+                (om-draw-line 0 ch-y array-size ch-y)
+                (setq pixpointprev (* offset-y (* 0.99 (aref array c 0))))
+                (loop for i from 1 to (1- array-size) do
+                      (setf pixpoint (* offset-y (* 0.99 (aref array c (min i (1- array-size))))))
+                      (unless (= pixpointprev pixpoint 0)
+                        (om-draw-polygon `(,(om-make-point (1- i) (+ ch-y pixpointprev))
+                                           ,(om-make-point i (+ ch-y pixpoint)) 
+                                           ,(om-make-point i (+ ch-y (- pixpoint))) 
+                                           ,(om-make-point (1- i) (+ ch-y (- pixpointprev))))
+                                         :fill t))
+                      (setq pixpointprev pixpoint))))
+            ))
         )))
     ))
 
