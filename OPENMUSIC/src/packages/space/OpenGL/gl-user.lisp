@@ -104,8 +104,6 @@
     res))
 
 
-
-
 ;;;=============================
 ;;; TEXT
 
@@ -255,6 +253,54 @@
         do (opengl:gl-delete-lists start length))
   (setf (extra-display-lists object) nil))
 
+
+;;======================
+;; INTERFACE  (exported functions and classes)
+;;======================
+
+;;; Main OpenGL view superclass
+(defclass opengl-view (opengl:opengl-pane)
+  ((g-objects :initarg :g-objects :accessor g-objects :initform nil)
+   (icotransform :initform nil :initarg :icotransform :accessor icotransform)
+   (light-transform :initform nil :initarg :light-transform :accessor light-transform)
+   (object-transform :initform nil :initarg :object-transform :accessor object-transform)
+   (double-buffered-p :initform t :initarg :double-buffered-p :accessor double-buffered-p)
+   (lastxy :initform nil :initarg :lastxy :accessor lastxy)
+   (camera :initform (make-camera :color '(0.9 0.9 0.9 1.0)) :initarg :camera :accessor camera))
+  (:default-initargs 
+   :configuration
+   #-linux (list :rgba t :depth t :double-buffered t :depth-buffer 64) ;depth buffer allows to have depth in 3D drawing
+   #+linux (list :rgba t :depth nil :double-buffered t)
+   :use-display-list t
+   :display-callback 'opengl-redisplay-canvas
+   :resize-callback 'opengl-resize-canvas
+   :input-model '(((:button-1 :press) opengl-viewer-click)
+                  ((:button-1 :shift :press) opengl-viewer-shift-click)
+                  ((:button-1 :meta :press) opengl-viewer-alt-click)
+                  ((:motion :button-1) opengl-viewer-motion-click)
+                  ((:motion :button-1 :shift) opengl-viewer-motion-shift-click)
+                  ((:motion :button-1 :meta) opengl-viewer-motion-alt-click)
+                  ((:button-1 :second-press) opengl-viewer-double-click)
+                  (:gesture-spec opengl-viewer-key-pressed))
+   ))
+
+(defmethod (setf g-objects) :before (new-object-list (viewer opengl-view))
+  (opengl:rendering-on (viewer)
+    (mapc #'delete-display-list (g-objects viewer))))
+
+(defmethod (setf g-objects) :after (new-object-list (viewer opengl-view))
+  (when new-object-list
+    (mapc #'(lambda (g-object) (setf (viewer g-object) viewer)) (g-objects viewer)))
+  (opengl-redisplay-canvas viewer))
+
+(defmethod set-gl-object-list ((self opengl-view) globject-list)
+  (setf (g-objects self) globject-list))
+
+(defmethod get-gl-object-list ((self opengl-view))
+  (g-objects self))
+
+
+
 ;;; ------------------------------------------------------------
 ;;; Class projection
 ;;; 
@@ -294,9 +340,9 @@
 ;;; The draw method calls GLU-LOOK-AT to install the camera values.
 ;;; The up vector is set to y
 
-(defparameter *eye* (make-xyz :y 5.0d0))
-(defparameter *center* (make-xyz))
-(defparameter *up* (make-xyz :z  1.0d0))
+(defparameter *eye* (make-xyz :y 1.0d0))
+(defparameter *center* (make-xyz :y 1.0d0))
+(defparameter *up* (make-xyz :z 1.0d0))
 
 (defclass camera (gl-object)
   ((eye :initform (copy-structure *eye*)
@@ -316,7 +362,11 @@
                :accessor projection)
    (bgcolor :initform nil
             :initarg :bgcolor
-            :accessor bgcolor)))
+            :accessor bgcolor)
+   (position-transform :initform nil 
+                       :initarg :position-transform 
+                       :accessor position-transform)
+   ))
 
 (defmethod draw ((camera camera))
   (let ((eye (eye camera))
@@ -333,7 +383,13 @@
     (opengl:glu-look-at (xyz-x eye) (xyz-y eye) (xyz-z eye)
                         (xyz-x center) (xyz-y center) (xyz-z center)
                         (xyz-x up) (xyz-y up) (xyz-z up))
-
+    
+    
+    ;;; move the viewpoint
+    (opengl:gl-translated (xyz-x center) (xyz-y center) (xyz-z center))
+    (opengl:gl-mult-matrixd (position-transform camera))
+    (opengl:gl-translated (- (xyz-x center)) (- (xyz-y center)) (- (xyz-z center)))
+    
     (opengl:gl-enable opengl:*gl-lighting*)
 
     (when (bgcolor camera)
@@ -356,7 +412,10 @@
   (setf (eye camera) (copy-structure *eye*))
   (setf (center camera) (copy-structure *center*))
   (setf (up camera) (copy-structure *up*))
-  (setf (projection camera) (make-projection)))
+  (setf (projection camera) (make-projection))
+  (setf (position-transform camera) (make-gl-double-vector 16))
+  (initialize-transform (position-transform camera))
+  camera)
   
   
 ;;; ------------------------------------------------------------
@@ -365,12 +424,16 @@
 (defun initialize-viewer (canvas)
   ;; Initialize the icotransform to unity.
   (opengl:rendering-on (canvas)
+    (init-camera (camera canvas)) ;; new projeaction, needs to be adjusted to the view ratio
     (setf (icotransform canvas) (make-gl-double-vector 16))
     (setf (light-transform canvas) (make-gl-double-vector 16))
+    (setf (object-transform canvas) (make-gl-double-vector 16))
     (initialize-transform (icotransform canvas))
     (initialize-transform (light-transform canvas))
+    (initialize-transform (object-transform canvas))
     (set-lights-and-materials)
-    ))
+    (multiple-value-bind (w h) (capi::pinboard-pane-size canvas)
+      (opengl-resize-canvas canvas 0 0 w h))))
 
 (defun initialize-transform (transform)
   (opengl:gl-matrix-mode opengl:*gl-modelview*)
@@ -380,31 +443,32 @@
 
 (defparameter *pointer-rotation-gain* 0.2d0)
 
-(defun polar-rotate (transform dx dy)
+(defun polar-rotate (transform &key dx dy dz)
   (opengl:with-matrix-pushed
     (opengl:gl-load-identity)
-    (opengl:gl-rotated  (float (* dx *pointer-rotation-gain*) 1.0d0) 0.0d0 0.0d0 1.0d0)
-    (opengl:gl-rotated  (float (* dy *pointer-rotation-gain*) 1.0d0) 1.0d0 0.0d0 0.0d0) 
+    (when dx (opengl:gl-rotated (float (* dx *pointer-rotation-gain*) 1.0d0) 1.0d0 0.0d0 0.0d0))
+    (when dy (opengl:gl-rotated (float (* dy *pointer-rotation-gain*) 1.0d0) 0.0d0 1.0d0 0.0d0))
+    (when dz (opengl:gl-rotated (float (* dz *pointer-rotation-gain*) 1.0d0) 0.0d0 0.0d0 1.0d0))
     (opengl:gl-mult-matrixd transform)
     (opengl:gl-get-doublev opengl:*gl-modelview-matrix* transform)))
 
-(defun translate (transform dx dy)
+(defun translate (transform &key (dx 0.0d0) (dy 0.0d0) (dz 0.0d0))
   (opengl:with-matrix-pushed
     (opengl:gl-load-identity)
-    (opengl:gl-translated (float dx 1.0d0) 0.0d0 (float dy 1.0d0))
+    (opengl:gl-translated (float dx 1.0d0) (float dy 1.0d0) (float dz 1.0d0))
     (opengl:gl-mult-matrixd transform)
     (opengl:gl-get-doublev opengl:*gl-modelview-matrix* transform)))
 
 
-(defun polar-rotate-light (viewer dx dy)
-  (polar-rotate (light-transform viewer) dx dy))
+(defun polar-rotate-light (viewer &key dx dy dz)
+  (polar-rotate (light-transform viewer) :dx dx :dy dy :dz dz))
 
-(defun polar-rotate-icosahedron (viewer dx dy)
-  (polar-rotate (icotransform viewer) dx dy))
+(defun polar-rotate-icosahedron (viewer &key dx dy dz)
+  (polar-rotate (icotransform viewer)  :dx dx :dy dy :dz dz))
 
 (defun translate-icosahedron (viewer dx dy)
   (let ((factor (/ (xyz-y (eye (camera viewer))) 1500)))
-    (translate (icotransform viewer) (* dx factor) (* dy factor))))
+    (translate (icotransform viewer) :dx (* dx factor) :dz (* dy factor))))
 
 ;;; camera in canvas à la place de interface
 (defun opengl-resize-canvas (canvas x y width height)
@@ -429,7 +493,7 @@
 ;; must be called at runtime because of gl-vector pointers
 (defun set-lights-and-materials ()
   (setf *light-model-ambient* (gl-single-vector 0.4 0.4 0.4 1.0))  ;; (gl-single-vector 0.0 0.0 0.0 1.0)
-  (setf *light-position* (gl-single-vector 1.0 2.0 3.0 1.0))
+  (setf *light-position* (gl-single-vector 10.0 10.0 10.0 1.0))
   (setf *light-ambient* (gl-single-vector 0.1 0.1 0.1 1.0))
   (setf *light-diffuse* (gl-single-vector 0.8 0.8 0.8 1.0))
   (setf *light-specular* (gl-single-vector 0.8 0.8 0.8 1.0))
@@ -459,6 +523,8 @@
   (opengl:gl-clear opengl:*gl-depth-buffer-bit*)
   (opengl:gl-color-mask 1 1 1 1)
   ;draw the camera (background and view position)
+  (unless (position-transform (camera canvas))
+    (init-camera (camera canvas)))
   (draw (camera canvas))
   ;apply transform and render canvas light and objects
   (opengl-redisplay-all canvas))
@@ -490,7 +556,7 @@
 
   (opengl:with-matrix-pushed
     ;(opengl:gl-shade-model opengl:*gl-smooth*)
-    (opengl:gl-mult-matrixd (icotransform canvas))   
+       
 
     ;material stuff
     (opengl:gl-cull-face opengl:*gl-back*)
@@ -502,10 +568,14 @@
     (opengl:gl-materialfv opengl:*gl-front* opengl:*gl-specular* *material-specular*)
     (opengl:gl-materialf opengl:*gl-front* opengl:*gl-shininess* *material-shininess*)
     (opengl:gl-materialfv opengl:*gl-front* opengl:*gl-emission* *material-emission*)
-      
-      ;Draw the content of the pane ant the objects
+    
+    (opengl:gl-mult-matrixd (icotransform canvas))
+    ;Draw the content of the pane ant the objects
     (draw-contents canvas)
-    (mapc #'draw (g-objects canvas))
+    
+    (opengl:with-matrix-pushed 
+      (opengl:gl-mult-matrixd (object-transform canvas))
+      (mapc #'draw (g-objects canvas)))
     )
   )
 
@@ -569,68 +639,25 @@
 
 
 
-;;======================
-;; INTERFACE  (exported functions and classes)
-;;======================
-
-;;; Main OpenGL view superclass
-(defclass opengl-view (opengl:opengl-pane)
-  ((g-objects :initarg :g-objects :accessor g-objects :initform nil)
-   (icotransform :initform nil :initarg :icotransform :accessor icotransform)
-   (light-transform :initform nil :initarg :light-transform :accessor light-transform)
-   (double-buffered-p :initform t :initarg :double-buffered-p :accessor double-buffered-p)
-   (lastxy :initform nil :initarg :lastxy :accessor lastxy)
-   (camera :initform (make-camera :color '(0.9 0.9 0.9 1.0)) :initarg :camera :accessor camera))
-  (:default-initargs 
-   :configuration
-   #-linux (list :rgba t :depth t :double-buffered t :depth-buffer 64) ;depth buffer allows to have depth in 3D drawing
-   #+linux (list :rgba t :depth nil :double-buffered t)
-   :use-display-list t
-   :display-callback 'opengl-redisplay-canvas
-   :resize-callback 'opengl-resize-canvas
-   :input-model '(((:button-1 :press) opengl-viewer-button-1)
-                  ((:button-1 :shift :press) opengl-viewer-button-1-shift)
-                  ((:button-1 :meta :press) opengl-viewer-button-1-alt)
-                  ((:motion :button-1) opengl-viewer-motion-button-1)
-                  ((:motion :button-1 :shift) opengl-viewer-motion-button-1-shift)
-                  ((:motion :button-1 :meta) opengl-viewer-motion-button-1-alt)
-                  ((:button-1 :second-press) opengl-viewer-button-1-second-press)
-                  (:gesture-spec opengl-viewer-key-pressed))
-   ))
-
-(defmethod (setf g-objects) :before (new-object-list (viewer opengl-view))
-  (opengl:rendering-on (viewer)
-    (mapc #'delete-display-list (g-objects viewer))))
-
-(defmethod (setf g-objects) :after (new-object-list (viewer opengl-view))
-  (when new-object-list
-    (mapc #'(lambda (g-object) (setf (viewer g-object) viewer)) (g-objects viewer)))
-  (opengl-redisplay-canvas viewer))
-
-(defmethod set-gl-object-list ((self opengl-view) globject-list)
-  (setf (g-objects self) globject-list))
-
-(defmethod get-gl-object-list ((self opengl-view))
-  (g-objects self))
 
 
 ;;; USER INTERACTION
+(defmethod opengl-viewer-click (canvas x y)
+  (setf (lastxy canvas) (cons x y)))
+(defmethod opengl-viewer-shift-click (canvas x y)
+  (opengl-viewer-click canvas x y))
+(defmethod opengl-viewer-alt-click (canvas x y)
+  (opengl-viewer-click canvas x y))
 
-(defun opengl-viewer-button-1 (canvas x y)
-    (setf (lastxy canvas) (cons x y)))
-
-(defun opengl-viewer-motion-button-1 (canvas x y)
+(defmethod opengl-viewer-motion-click (canvas x y)
     (let ((last (lastxy canvas)))
       (when last
         (opengl:rendering-on (canvas)
-	  (polar-rotate-icosahedron canvas (- x (car last)) (- y (cdr last))))
+	  (polar-rotate-icosahedron canvas :dz (- x (car last)) :dx (- y (cdr last))))
         (opengl-redisplay-canvas canvas))
       (setf (lastxy canvas) (cons x y))))
 
-(defun opengl-viewer-button-1-shift (canvas x y)
-    (setf (lastxy canvas) (cons x y)))
-
-(defun opengl-viewer-motion-button-1-shift (canvas x y)
+(defmethod opengl-viewer-motion-shift-click (canvas x y)
     (let ((last (lastxy canvas)))
       (when last
         (let ((eye (eye (camera canvas))))
@@ -640,10 +667,7 @@
         (opengl-redisplay-canvas canvas))
       (setf (lastxy canvas) (cons x y))))
 
-(defun opengl-viewer-button-1-alt (canvas x y)
-  (setf (lastxy canvas) (cons x y)))
-
-(defun opengl-viewer-motion-button-1-alt (canvas x y)
+(defmethod opengl-viewer-motion-alt-click (canvas x y)
   (let ((last (lastxy canvas)))
     (when last
       (opengl:rendering-on (canvas)
@@ -651,8 +675,7 @@
       (opengl-redisplay-canvas canvas))
     (setf (lastxy canvas) (cons x y))))
 
-;to be redefined
-(defmethod opengl-viewer-button-1-second-press (canvas x y) nil)
+(defmethod opengl-viewer-double-click (canvas x y) nil)
 
 ;; handles key press using CAPI 'gesture-spec'
 ;; to be redefined in opengl-view

@@ -79,33 +79,39 @@
 (defmethod om-3Dobj-color ((self om-3D-object))
   (color self))
 
-(defmethod compute-max-extent ((self om-3D-object))
-  (let* ((points (om-3Dobj-points self))
-         (xpts nil) (ypts nil) (zpts nil)
-          (xmi 0) (xma 0) (ymi 0) (yma 0) (zmi 0) (zma 0)
-          (maxextent 0))
-    (loop for point in points do
-          (push (nth 0 point) xpts)
-          (push (nth 1 point) ypts)
-          (push (nth 2 point) zpts))
-    (setq xpts (reverse xpts))
-    (setq ypts (reverse ypts))
-    (setq zpts (reverse zpts))  
-    (when xpts 
-      (setf xmi (reduce 'min xpts))
-      (setf xma (reduce 'max xpts)))
-    (when ypts 
-      (setf ymi (reduce 'min ypts))
-      (setf yma (reduce 'max ypts)))
-    (when zpts 
-      (setf zmi (reduce 'min zpts))
-      (setf zma (reduce 'max zpts)))
-    (setf maxextent (reduce 'max (list (abs xmi) (abs xma) (abs ymi) (abs yma) (abs zmi) (abs zma))))
-    (max 0.0d0 maxextent)))
+(defmethod get-extents ((self om-3D-object))
+  (let* ((x-y-z (mat-trans (om-3Dobj-points self)))
+         (xpts (nth 0 x-y-z)) 
+         (ypts (nth 1 x-y-z))
+         (zpts (nth 2 x-y-z)))
+    (values 
+     (reduce 'min xpts)
+     (reduce 'max xpts)
+     (reduce 'min ypts)
+     (reduce 'max ypts)
+     (reduce 'min zpts)
+     (reduce 'max zpts))))
 
-(defmethod compute-max-extent ((self list))
-  (reduce 'max (mapcar #'compute-max-extent self)))
-
+(defmethod get-extents ((self list))
+  (let (xmins xmaxs ymins ymaxs zmins zmaxs)
+    (loop for elt in self do
+          (multiple-value-bind (xmin xmax ymin ymax zmin zmax)
+              (get-extents elt)
+            (push xmin xmins)
+            (push xmax xmaxs)
+            (push ymin ymins)
+            (push ymax ymaxs)
+            (push zmin zmins)
+            (push zmax zmaxs)))
+    (values 
+     (reduce 'min xmins)
+     (reduce 'max xmaxs)
+     (reduce 'min ymins)
+     (reduce 'max ymaxs)
+     (reduce 'min zmins)
+     (reduce 'max zmaxs))))
+            
+            
 ;;;;;;;;;;;;;LIST OF 3D OBJ;;;;;;;;;;;;;
 
 #|
@@ -136,6 +142,14 @@
 (defconstant GLU_FILL 100012)
 ;;; DEFINE: #define GLU_SILHOUETTE                     100013
 (defconstant GLU_SILHOUETTE 100013)
+
+(defun draw-gl-point (x y z rgb alpha size)
+  (opengl:gl-color4-f (nth 0 rgb) (nth 1 rgb) (nth 2 rgb) alpha)
+  (opengl:gl-point-size size)
+  (opengl:gl-begin opengl:*gl-points*)
+  (opengl:gl-vertex3-f x y z)
+  (opengl:gl-end))
+
 
 (defun draw-sphere (position size)
   (let* ((hs (coerce (/ size 2) 'double-float))
@@ -315,6 +329,13 @@
   ((center :accessor center :initarg :center :initform nil)
    (size :accessor size :initarg :size :initform nil)))
 
+(defmethod om-draw-contents ((self 3D-sphere))
+  (if (om-3Dobj-color self)
+      (let ((col (om-color-to-single-float-list (om-3Dobj-color self))))
+        (opengl:gl-color4-f (car col) (cadr col) (caddr col) (cadddr col))))
+  (opengl:gl-shade-model opengl:*gl-smooth*)
+  (draw-sphere (center self) (size self)))
+
 ;;;======================
 ;;; 3D-curve
 ;;;======================
@@ -327,12 +348,7 @@
    (vertices-colors-interpol :accessor vertices-colors-interpol :initform nil))
    (:default-initargs :use-display-list T))
 
-(defun draw-gl-point (x y z rgb alpha size)
-  (opengl:gl-color4-f (nth 0 rgb) (nth 1 rgb) (nth 2 rgb) alpha)
-  (opengl:gl-point-size size)
-  (opengl:gl-begin opengl:*gl-points*)
-  (opengl:gl-vertex3-f x y z)
-  (opengl:gl-end))
+
 
 (defmethod om-draw-contents ((self 3d-lines))
   (let* ((vertices (om-get-gl-points self))
@@ -349,7 +365,10 @@
         (opengl:gl-shade-model opengl:*gl-flat*))
       (opengl:gl-begin opengl:*GL-LINE-STRIP*)
       (loop for i from 0 to size do
-            (let ((rgb (om-color-to-single-float-list (or (nth i (vertices-colors self)) (om-3Dobj-color self) (om-def-color :light-gray)))))
+            (let ((rgb (om-color-to-single-float-list 
+                        (or (nth i (vertices-colors self)) 
+                            (om-3Dobj-color self) 
+                            (om-def-color :light-gray)))))
               (opengl:gl-color4-f (nth 0 rgb) (nth 1 rgb) (nth 2 rgb) 0.8)
               (opengl:gl-vertex4-dv (aref vertices i))))
       (opengl:gl-end)    

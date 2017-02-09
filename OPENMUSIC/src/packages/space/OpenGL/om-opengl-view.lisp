@@ -47,17 +47,25 @@
 ; to be redefined by subclasses
 (defmethod oa::om-draw-contents ((self om-opengl-view)) nil)
 
+
+(defmethod gl-user::opengl-viewer-click ((self om-opengl-view) x y)
+  (call-next-method)
+  (om-view-click-handler self (omp x y)))
+
 (defmethod gl-user::opengl-viewer-key-pressed ((self om-opengl-view) x y spec) 
   (oa::om-char-spec-callback self x y spec))
 
-(defmethod gl-user::opengl-viewer-button-1-second-press ((self om-opengl-view) x y)
+(defmethod gl-user::opengl-viewer-double-click ((self om-opengl-view) x y)
   (om-init-3d-view self))
+
+
+
 
 (defmethod om-init-3D-view ((self om-opengl-view))
   (gl-user::initialize-viewer self)
   (om-adapt-camera-to-object self)
-  (opengl:rendering-on (self)
-    (gl-user::polar-rotate (gl-user::icotransform self) -30 20))
+  ;(opengl:rendering-on (self)
+  ;  (gl-user::polar-rotate (gl-user::icotransform self) :dz -30 :dx 20))
   (gl-user::clear-gl-display-list self)
   (gl-user::opengl-redisplay-canvas self))
 
@@ -76,14 +84,11 @@
 (defmethod om-set-gl-objects ((self om-opengl-view) (objlist list))
   (gl-user::set-gl-object-list self objlist))
 
-  
+
 (defmethod om-adapt-camera-to-object ((self om-opengl-view))
-  (when t ; (om-get-gl-objects self)
-    (let* ((dist-z (* 2.5d0 (max 3.0d0 (compute-max-extent (om-get-gl-objects self)))))
+  (multiple-value-bind (xmi xma ymi yma zmi zma)
+      (get-extents (om-get-gl-objects self))
+    (let* ((dist-z (* 2.5d0 (max 3.0d0 (abs xmi) (abs xma) (abs ymi) (abs yma) (abs zmi) (abs zma))))
            (far-z (max 20.0d0 (* 5.0d0 dist-z))))
-      (setf (gl-user::xyz-z (gl-user::eye (gl-user::camera self))) 0.0D0)
-      (setf (gl-user::xyz-y (gl-user::eye (gl-user::camera self))) (- dist-z))
-      (setf (gl-user::xyz-x (gl-user::eye (gl-user::camera self))) 0.0d0)
+      (setf (gl-user::eye (gl-user::camera self)) (gl-user::make-xyz :x 0.0D0 :y (- dist-z) :z 0.0d0))
       (setf (gl-user::far (gl-user::projection (gl-user::camera self))) far-z))))
-
-
