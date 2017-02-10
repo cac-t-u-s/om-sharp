@@ -204,18 +204,12 @@
 ;;; This superclass just manages display lists for the subclasses.
 
 (defclass gl-object ()
-  ((name :initform nil
-                     :initarg :name
-                     :accessor name)
-   (use-display-list :initform nil
-                     :initarg :use-display-list
-                     :accessor use-display-list)
-   (display-list :initform nil
-                 :initarg :display-list
-                 :accessor display-list)
-   (extra-display-lists :initform nil
-                        :accessor extra-display-lists)
+  ((name :initarg :name :accessor name :initform nil)
+   (use-display-list :initform nil :initarg :use-display-list :accessor use-display-list)
+   (display-list :initform nil :accessor display-list)
+   (extra-display-lists :initform nil :accessor extra-display-lists)
    (viewer :accessor viewer)))
+
 
 (defmethod draw :around ((object gl-object))
   (if (use-display-list object)
@@ -441,7 +435,7 @@
     (opengl:gl-load-identity)
     (opengl:gl-get-doublev opengl:*gl-modelview-matrix* transform)))
 
-(defparameter *pointer-rotation-gain* 0.2d0)
+(defparameter *pointer-rotation-gain* 0.1d0)
 
 (defun polar-rotate (transform &key dx dy dz)
   (opengl:with-matrix-pushed

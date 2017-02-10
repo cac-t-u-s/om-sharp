@@ -2,14 +2,17 @@
 (in-package :om)
 
 (defclass* 3D-viewer ()
-  ((data :initarg :data :accessor data :initform nil :documentation "a list of 3D-object (3D-lines, etc..)")
-   (center :accessor center :initform (make-3dpoint)  :documentation "a 3D point used as reference for data transformation and output")
-   (rotation :accessor rotation :initform '(0.0 0.0 0.0) :documentation "a verctor of rotation angles")
+  ((data :initarg :data :accessor data :initform nil 
+         :documentation "a list of 3D-object (3D-lines, etc..)")
+   (center :accessor center :initform (make-3dpoint) :initarg :center 
+           :documentation "a 3D point used as reference for data transformation and output")
+   (rotation :accessor rotation :initform (list 0.0 0.0 0.0) :initarg :rotation
+             :documentation "a verctor of rotation angles")
    (scaler-x :accessor scaler-x :initform 1 :documentation "a scaler for the viewer's 'x' axis")
    (scaler-y :accessor scaler-y :initform 1 :documentation "a scaler for the viewer's 'y' axis")
    (scaler-z :accessor scaler-z :initform 1 :documentation "a scaler for the viewer's 'z' axis")
-   (x-range :accessor x-range :initform '(0 5.0))
-   (y-range :accessor y-range :initform '(0 220150))
+   (x-range :accessor x-range :initform (list 0 5.0))
+   (y-range :accessor y-range :initform (list 0 220150))
    ))
 
 ;(defmethod get-properties-list ((self 3D-viewer)) 
@@ -18,6 +21,50 @@
 ;     (:scaler-y "y scale factor" :number scaler-y (nil nil 1))
 ;     (:scaler-z "z scale factor" :number scaler-z (nil nil 1))
 ;     )))
+
+
+(defmethod get-transformed-data ((self 3D-viewer))  
+  (loop for obj in (data self) collect       
+        (let ((new-obj (make-instance (type-of obj) :color (color obj)))
+              (points-xyz (mat-trans (om-3Dobj-points obj))))
+          
+          (let ((xlist (om- (car points-xyz) (om-point-x (center self))))
+                (ylist (om- (cadr points-xyz) (om-point-y (center self))))
+                (zlist (om- (caddr points-xyz) (om-point-z (center self))))
+                (yaw (* (nth 2 (rotation self)) .1))
+                (pitch (* (nth 0 (rotation self)) .1))
+                (roll (* (nth 1 (rotation self)) .1)))
+            
+            ;;; from om-rotate 
+            ;;; YAW = Z axis
+            (unless (zerop yaw)
+              (multiple-value-bind (a e d) (xyz->aed xlist ylist zlist)
+                (multiple-value-bind (x y z) (aed->xyz (om- a yaw) e d)
+                  (setf xlist x ylist y zlist z))))
+            
+            ;;; PITCH = X axis
+            (unless (zerop pitch)
+              (multiple-value-bind (a e d) (xyz->aed zlist ylist xlist)
+               (multiple-value-bind (x y z) (aed->xyz (om+ a pitch) e d)
+                 (setf zlist x ylist y xlist z))))
+             
+            ;;; ROLL = Y axis
+            (unless (zerop roll)
+              (multiple-value-bind (a e d) (xyz->aed xlist zlist ylist)
+               (multiple-value-bind (x y z) (aed->xyz (om+ a roll) e d)
+                  (setf xlist x ylist z zlist y))))
+                  
+            (let ((new-points 
+                   (mat-trans 
+                    (list (om+ xlist (om-point-x (center self)))
+                          (om+ ylist (om-point-y (center self)))
+                          (om+ zlist (om-point-z (center self)))))))
+              
+              (om-set-3Dobj-points new-obj new-points)
+              
+              new-obj))
+          )))
+
 
 (defmethod object-has-editor ((self 3D-viewer)) t)
 (defmethod get-editor-class ((self 3D-viewer)) '3D-viewer-editor)
@@ -74,7 +121,7 @@
   (call-next-method)
   (let ((3D-view (get-g-component editor :3D-view)))
     ;;; works better if the objects are set after everything is on-screen
-    (om-set-gl-objects 3D-view (print (data (object-value editor))))
+    (om-set-gl-objects 3D-view (data (object-value editor)))
     (om-init-3d-view 3D-view)
     (om-invalidate-view 3D-view)
     ))
@@ -84,7 +131,7 @@
   (when (window editor)
     (let ((3D-view (get-g-component editor :3D-view)))
       (om-set-gl-objects 3D-view (data (object-value editor)))
-      (om-adapt-camera-to-object 3D-view)
+      ;(om-adapt-camera-to-object 3D-view)
       (gl-user::clear-gl-display-list 3D-view)
       (om-invalidate-view 3D-view)
       )))
@@ -95,6 +142,54 @@
       (gl-user::clear-gl-display-list 3D-view)
       (om-invalidate-view 3D-view)
       )))
+
+
+;;;========================
+;;; BOX
+;;;========================
+
+(defmethod display-modes-for-object ((self 3D-viewer))
+  '(:hidden :text :mini-view))
+
+
+(defmethod get-cache-display-for-draw ((self 3D-viewer)) 
+  (list (multiple-value-list (get-extents (data self)))))
+
+(defmethod draw-mini-view ((self 3D-viewer) (box t) x y w h &optional time)
+  (let ((ranges (car (get-display-draw box))))
+    (multiple-value-bind (fx ox) 
+        (conversion-factor-and-offset (car ranges) (cadr ranges) w x)
+    (multiple-value-bind (fy oy) 
+        ;;; Y ranges are reversed !! 
+        (conversion-factor-and-offset (cadddr ranges) (caddr ranges) h y)
+
+      (om-with-font  (om-def-font :font1 :size 8)
+            (om-draw-string (+ x 10) (+ y (- h 4)) (number-to-string (nth 0 ranges)))
+            (om-draw-string (+ x (- w (om-string-size (number-to-string (nth 1 ranges)) (om-def-font :font1 :size 8)) 4))
+                            (+ y (- h 4)) 
+                            (number-to-string (nth 1 ranges)))
+            (om-draw-string x (+ y (- h 14)) (number-to-string (nth 2 ranges)))
+            (om-draw-string x (+ y 10) (number-to-string (nth 3 ranges))))
+
+      (loop for line in (data self) do
+            (when (points line) 
+              (let ((lines (loop for pts on (points line)
+                                 while (cadr pts)
+                                 append
+                                 (let ((p1 (car pts))
+                                       (p2 (cadr pts)))
+                                   (om+ 0.5
+                                        (list (+ ox (* fx (car p1)))
+                                              (+ oy (* fy (cadr p1)))
+                                              (+ ox (* fx (car p2)))
+                                              (+ oy (* fy (cadr p2)))))
+                                   ))))
+                (om-with-fg-color (or (color line) (om-def-color :dark-gray))
+                  (om-draw-lines lines)))
+              ))
+      ))))
+
+
 
 
 ;;;============================
@@ -193,6 +288,7 @@
                               :dz (car (viewpoint self)) 
                               :dx (cadr (viewpoint self)))
        (om-invalidate-view self))
+      (#\Space (report-modifications (editor self)))
     
       (otherwise (call-next-method)))))
 
@@ -201,8 +297,8 @@
 (defmethod gl-user::opengl-viewer-motion-click ((self 3d-viewer-view) x y) 
   (let ((last (gl-user::lastxy self)))
     (when last
-      (setf (car (viewpoint self)) (+ (car (viewpoint self)) (- x (car last))))
-      (setf (cadr (viewpoint self)) (+ (cadr (viewpoint self)) (- y (cdr last))))
+      (setf (car (viewpoint self)) (mod (+ (car (viewpoint self)) (- x (car last))) 3600))
+      (setf (cadr (viewpoint self)) (mod (+ (cadr (viewpoint self)) (- y (cdr last))) 3600))
       
       (opengl:rendering-on (self)
         (gl-user::opengl-redisplay-canvas self))
@@ -215,8 +311,10 @@
         (3DV (object-value (editor self))))
    
     (when last
-      (setf (car (rotation 3DV)) (+ (car (rotation 3DV)) (- y (cdr last))))
-      (setf (caddr (rotation 3DV)) (+ (caddr (rotation 3DV)) (- x (car last)))))
+      (setf (car (rotation 3DV)) (mod (+ (car (rotation 3DV)) (- y (cdr last))) 3600))
+      (setf (caddr (rotation 3DV)) (mod (+ (caddr (rotation 3DV)) (- x (car last))) 3600))
+      ;(report-modifications (editor self))
+      )
       
     (opengl:rendering-on (self)
       (gl-user::opengl-redisplay-canvas self))
@@ -224,5 +322,16 @@
     (setf (gl-user::lastxy self) (cons x y))))
 
 
-(defmethod gl-user::opengl-viewer-motion-alt-click ((self 3d-viewer-view) x y) nil)
-
+(defmethod gl-user::opengl-viewer-motion-alt-click ((self 3d-viewer-view) x y) 
+  (let ((last (gl-user::lastxy self))
+        (3DV (object-value (editor self))))
+   
+    (when last
+      (setf (cadr (rotation 3DV)) (mod (+ (cadr (rotation 3DV)) (- y (cdr last))) 3600))
+      (setf (caddr (rotation 3DV)) (mod (+ (caddr (rotation 3DV)) (- x (car last))) 3600))
+      )
+      
+    (opengl:rendering-on (self)
+      (gl-user::opengl-redisplay-canvas self))
+    
+    (setf (gl-user::lastxy self) (cons x y))))

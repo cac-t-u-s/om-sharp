@@ -105,6 +105,28 @@ Outputs
      (setf (color res) (color self))
      res))
 
+;;; same with a list of (x y z)
+(defmethod* om-rotate ((self list) &key (yaw 0) (pitch 0) (roll 0))  
+  (let* ((xyzlist (mat-trans self)))
+    
+    (when (and yaw (not (zerop yaw)))
+       (setf xyzlist 
+             (multiple-value-bind (a e d) (xyz->aed (nth 0 xyzlist) (nth 1 xyzlist) (nth 2 xyzlist))
+               (multiple-value-bind (x y z) (aed->xyz (om+ a yaw) e d)
+                 (list x y z)))))
+     (when (and pitch (not (zerop pitch)))
+       (setf xyzlist 
+             (multiple-value-bind (a e d) (xyz->aed (nth 2 xyzlist) (nth 1 xyzlist) (nth 0 xyzlist))
+               (multiple-value-bind (x y z) (aed->xyz (om+ a pitch) e d)
+                 (list z y x )))))
+     (when (and roll (not (zerop roll)))
+       (setf xyzlist 
+             (multiple-value-bind (a e d) (xyz->aed (nth 0 xyzlist) (nth 2 xyzlist) (nth 1 xyzlist))
+               (multiple-value-bind (x y z) (aed->xyz (om+ a roll) e d)
+                 (list x z y)))))
+     (mat-trans xyzlist)))
+
+
 ;;; TRANSLATION 
 ;;; From OMPrisma traj-translate
 (defmethod* om-translate ((self 3dc) &key x y z time)  

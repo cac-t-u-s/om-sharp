@@ -33,6 +33,8 @@
    (glvertexes :accessor glvertexes :initarg :glvertexes :initform nil))
   (:default-initargs :use-display-list nil))
 
+(defmethod condition-for-copy-slot ((from om-3D-object) (to t) slot)
+  (and (call-next-method) (slot-definition-initargs slot)))
 
 (defun points2vertex (points)
   (gl-user::make-object-vertexes 
@@ -45,7 +47,8 @@
            points)))
 
 (defmethod initialize-instance :after ((self om-3D-object) &key points &allow-other-keys)
-  (setf (glvertexes self) (points2vertex points)))
+  (let ((pts (or points (points self))))
+    (setf (glvertexes self) (points2vertex pts))))
 
 (defmethod gl-user::draw ((self om-3D-object))
   (activate-anti-aliasing-parameters)
@@ -69,7 +72,8 @@
 
 (defmethod om-set-3Dobj-points ((self om-3D-object) points)
   (setf (points self) points)
-  (setf (glvertexes self) (points2vertex points)))
+  (setf (glvertexes self) (points2vertex points))
+  self)
 
 ;naive implementation
 (defmethod om-append-3Dobj-point ((self om-3D-object) point)
@@ -248,10 +252,10 @@
 (defclass 3D-cube (om-3D-object) 
   ((center :accessor center :initarg :center :initform nil)
    (size :accessor size :initarg :size :initform nil)
-   (faces :accessor faces :initarg :faces :initform nil)
-   (normals :accessor normals :initarg :normals :initform nil)
    (filled :accessor filled :initarg :filled :initform t )
-   )
+   (faces :accessor faces :initform nil)
+   (normals :accessor normals :initform nil))
+  
   (:default-initargs 
    :faces '((1 2 3 4)
             (1 4 8 5)
@@ -265,8 +269,8 @@
               (-1 0 0)
               (0 0 -1)
               (0 0 1))
-   )
-  )
+   ))
+
 
 (defmethod initialize-instance :after ((self 3D-cube) &rest initargs)
   (when (and (center self) (size self))

@@ -255,7 +255,11 @@
 
 ;;; SETS the edit-params, no matter if the box is locked or not
 (defmethod omNG-box-value ((self OMBoxEditCall) &optional (numout 0)) 
-  ;(print "set the EDIT-PARAMS")
+  
+  (unless (equal (lock-state self) :locked)
+    (setf (value self) nil) ;; test if no problem...
+    (om-invalidate-view (frame self)))
+  
   (let ((box-attributes (loop for input in (cdr (inputs self))
                               when (find (intern-k (name input)) 
                                          (additional-box-attributes-names self))
