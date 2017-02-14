@@ -35,7 +35,7 @@
            (capi::over-pinboard-object-p (drawn-item self) x y))
       (om-transient-drawing-item-clicked self (om-make-point x y))
   ;(om-view-click-handler self (om-make-point x y))
-  (call-next-method)
+    (call-next-method)
   ))
     
 (defmethod om-multiple-clic-callback :around ((self om-transient-drawing-view) x y modifiers n)

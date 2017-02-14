@@ -319,7 +319,7 @@
 (defclass om-window (om-abstract-window) ())
 
 (defmethod correct-win-h ((win om-window))
-  #+win32(om-set-view-size win (om-add-points (om-view-size win) (om-make-point 0 20)))
+  ;#+win32(om-set-view-size win (om-add-points (om-view-size win) (om-make-point 0 20)))
  t)
 
 

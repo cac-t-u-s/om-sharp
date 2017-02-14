@@ -13,7 +13,7 @@
 #+omjuceaudiolib(enable-player :omjuceaudiolib)
 
 (defvar *juce-player* nil)
-(defvar *audio-driver* "CoreAudio")
+(defvar *audio-driver* nil)
 
 (add-preference-module :audio "Audio")
 (add-preference-section :audio "Devices")
@@ -99,8 +99,15 @@
 ;;; when this function si called the preferences are set to their default or saved values
 (defun open-juce-player ()
   (setq *juce-player* (juce::openAudioManager))
-  (juce::setDeviceType *juce-player* *audio-driver*)
-  (setup-audio-device))
+  (unless *audio-driver* 
+    (setf *audio-driver* (car (juce::get-audio-drivers *juce-player*))))
+  (if *audio-driver*
+      (progn 
+        (om-print (format nil "Selecting default audio driver: \"~A\"." *audio-driver*) "AUDIO SETUP")
+        (juce::setDeviceType *juce-player* *audio-driver*)
+        (setup-audio-device))
+    (om-beep-msg "ERROR OPENING AUDIO: Could not find any audio driver."))
+  )
 
 (defun close-juce-player ()
   (juce::closeAudioManager *juce-player*)

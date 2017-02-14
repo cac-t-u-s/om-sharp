@@ -19,7 +19,7 @@
 
 (defclass om-abstract-layout (om-graphic-object) ())
  
-; om-interactive-object
+; 
 (defclass om-simple-layout (om-abstract-layout om-interactive-object capi::simple-pinboard-layout) ()
   (:default-initargs :background :transparent))
 (defclass om-tab-layout (om-abstract-layout capi::tab-layout) ())
