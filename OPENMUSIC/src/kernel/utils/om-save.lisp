@@ -516,8 +516,8 @@
                                (setf (value in) (omng-load val) (reactive in) reac)
                              (om-print (format nil "input ~s not found on box ~A" name (name self))))
                            ))
-              (:optional (more-optional-input self :name name :value val :reactive reac))
-              (:key (more-keyword-input self :key name :value val :reactive reac))
+              (:optional (more-optional-input self :name name :value (omng-load val) :reactive reac))
+              (:key (more-keyword-input self :key name :value (omng-load val) :reactive reac))
               )))))
 
 (defmethod restore-outputs ((self OMBox) outputs)
