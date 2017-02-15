@@ -4,15 +4,16 @@
 (defclass* 3D-viewer ()
   ((data :initarg :data :accessor data :initform nil 
          :documentation "a list of 3D-object (3D-lines, etc..)")
-   (center :accessor center :initform (list 0.0 0.0 0.0) :initarg :center 
+   (center :accessor center :initform (list 0.0 0.0 0.0) 
            :documentation "a 3D point used as reference for data transformation and output")
-   (rotation :accessor rotation :initform (list 0.0 0.0 0.0) :initarg :rotation
-             :documentation "a verctor of rotation angles")
+   (rotation-x :accessor rotation-x :initform 0.0 :documentation "rotation angles on x axis")
+   (rotation-y :accessor rotation-y :initform 0.0 :documentation "rotation angles on y axis")
+   (rotation-z :accessor rotation-z :initform 0.0 :documentation "rotation angles on z axis")
    (scaler-x :accessor scaler-x :initform 1 :documentation "a scaler for the viewer's 'x' axis")
    (scaler-y :accessor scaler-y :initform 1 :documentation "a scaler for the viewer's 'y' axis")
    (scaler-z :accessor scaler-z :initform 1 :documentation "a scaler for the viewer's 'z' axis")
-   (x-range :accessor x-range :initform (list 0 5.0))
-   (y-range :accessor y-range :initform (list 0 220150))
+   (x-grid :accessor x-grid :initform (list 0 5.0))
+   (y-grid :accessor y-grid :initform (list 0 220150))
    ))
 
 (defmethod get-properties-list ((self 3D-viewer)) 
@@ -22,11 +23,15 @@
      (:scaler-z "z scale factor" :number scaler-z (nil nil 1))
      )))
 
+(defmethod additional-class-attributes ((self 3D-viewer)) 
+  '(center 
+    rotation-x rotation-y rotation-z 
+    scaler-x scaler-y scaler-z
+    x-grid y-grid))
+
 (defmethod om-init-instance ((self 3D-viewer) &optional args)
-  (let ((c (find-value-in-kv-list args :center))
-        (r (find-value-in-kv-list args :rotation)))
+  (let ((c (find-value-in-kv-list args :center)))
     (when c (setf (center self) (copy-list c)))
-    (when r (setf (rotation self) (copy-list r)))
     self))
     
     
@@ -40,9 +45,9 @@
           (let ((xlist (om- (car points-xyz) (nth 0 (center self))))
                 (ylist (om- (cadr points-xyz) (nth 1 (center self))))
                 (zlist (om- (caddr points-xyz) (nth 2 (center self))))
-                (yaw (* (nth 2 (rotation self)) .1))
-                (pitch (* (nth 0 (rotation self)) .1))
-                (roll (* (nth 1 (rotation self)) .1)))
+                (yaw (* (rotation-z self) .1))
+                (pitch (* (rotation-x self) .1))
+                (roll (* (rotation-y self) .1)))
             
             ;;; from om-rotate 
             ;;; YAW = Z axis
@@ -100,15 +105,15 @@
   (let ((obj (object-value editor)))
     (let* ((3D-view (om-make-view '3D-viewer-view
                                   :editor editor
-                                  :bg-color (om-make-color .1 .2 .2)))
-           (rx (om-make-view 'x-ruler-view :related-views (list 3D-view)
-                             :size (omp nil 20) 
-                             :bg-color (om-def-color :white) 
-                             :decimals 3 :x2 (* (cadr (x-range obj)) (expt 10 3))))
-           (ry (om-make-view 'y-ruler-view :related-views (list 3D-view) 
-                             :size (omp 30 nil) 
-                             :bg-color (om-def-color :white) 
-                             :decimals 3 :y2 (* (cadr (y-range obj)) (expt 10 3)))))
+                                  :bg-color (om-make-color .1 .2 .2))))
+           ;(rx (om-make-view 'x-ruler-view :related-views (list 3D-view)
+           ;                  :size (omp nil 20) 
+           ;                  :bg-color (om-def-color :white) 
+           ;                  :decimals 3 :x2 (* (cadr (x-range obj)) (expt 10 3))))
+           ;(ry (om-make-view 'y-ruler-view :related-views (list 3D-view) 
+           ;                  :size (omp 30 nil) 
+           ;                  :bg-color (om-def-color :white) 
+           ;                  :decimals 3 :y2 (* (cadr (y-range obj)) (expt 10 3)))))
       
       (set-g-component editor :3D-view 3D-view)
      
@@ -226,17 +231,20 @@
 
 (defmethod om-draw-contents ((self 3d-viewer-view))
 
-  (gl-user::initialize-transform (gl-user::position-transform (gl-user::camera self)))
-  (gl-user::polar-rotate (gl-user::position-transform (gl-user::camera self))
-                         :dz (car (viewpoint self)) 
-                         :dx (cadr (viewpoint self)))
-  
-  (when (om-get-gl-objects self)
-    (multiple-value-bind (xmi xma ymi yma zmi zma)
-        (get-extents (om-get-gl-objects self))
-      (draw-grid xmi xma ymi yma)))
-  
   (let ((3DV (object-value (editor self))))
+
+    (gl-user::initialize-transform (gl-user::position-transform (gl-user::camera self)))
+    (gl-user::polar-rotate (gl-user::position-transform (gl-user::camera self))
+                           :dz (car (viewpoint self)) 
+                           :dx (cadr (viewpoint self)))
+  
+  ;(when (om-get-gl-objects self)
+  ;  (multiple-value-bind (xmi xma ymi yma zmi zma)
+  ;      (get-extents (om-get-gl-objects self))
+  ;    (draw-grid xmi xma ymi yma)))
+  
+    (draw-grid (car (x-grid 3DV)) (cadr (x-grid 3DV)) (car (y-grid 3DV)) (cadr (y-grid 3DV)))
+
     (opengl:gl-color4-f 1.0 1.0 1.0 0.5)
     (draw-gl-point 
      (float (nth 0 (center 3DV))) (float (nth 1 (center 3DV))) (float (nth 2 (center 3DV)))
@@ -247,9 +255,9 @@
                         :dx (- (float (nth 0 (center 3DV))))
                         :dy (- (float (nth 1 (center 3DV)))))
     (gl-user::polar-rotate (gl-user::object-transform self)
-                           :dx (car (rotation 3DV))
-                           :dy (cadr (rotation 3DV)) 
-                           :dz (caddr (rotation 3DV)))
+                           :dx (rotation-x 3DV)
+                           :dy (rotation-y 3DV) 
+                           :dz (rotation-z 3DV))
     (gl-user::translate (gl-user::object-transform self) 
                         :dx (float (nth 0 (center 3DV)))
                         :dy (float (nth 1 (center 3DV))))
@@ -282,16 +290,16 @@
            (om-invalidate-view self))
 
       (:om-key-right 
-       (setf (center 3DV) (list (+ (nth 0 (center 3DV) 1)) (nth 1 (center 3DV) 1) (nth 2 (center 3DV) 1)))
+       (setf (center 3DV) (list (+ (nth 0 (center 3DV)) 1) (nth 1 (center 3DV)) (nth 2 (center 3DV))))
        (om-invalidate-view self))
       (:om-key-left 
-       (setf (center 3DV) (list (- (nth 0 (center 3DV) 1)) (nth 1 (center 3DV) 1) (nth 2 (center 3DV) 1)))
+       (setf (center 3DV) (list (- (nth 0 (center 3DV)) 1) (nth 1 (center 3DV)) (nth 2 (center 3DV))))
        (om-invalidate-view self))
       (:om-key-up 
-       (setf (center 3DV) (list (nth 0 (center 3DV) 1) (+ (nth 1 (center 3DV) 1) 1) (nth 2 (center 3DV) 1)))
+       (setf (center 3DV) (list (nth 0 (center 3DV)) (+ (nth 1 (center 3DV)) 1) (nth 2 (center 3DV))))
        (om-invalidate-view self))
       (:om-key-down 
-       (setf (center 3DV) (list (nth 0 (center 3DV) 1) (- (nth 1 (center 3DV) 1) 1) (nth 2 (center 3DV) 1)))
+       (setf (center 3DV) (list (nth 0 (center 3DV)) (- (nth 1 (center 3DV)) 1) (nth 2 (center 3DV))))
        (om-invalidate-view self))
       (:om-key-esc  
        (setf (viewpoint self) (list 0.0d0 0.0d0 0.0d0))
@@ -324,8 +332,8 @@
         (3DV (object-value (editor self))))
    
     (when last
-      (setf (car (rotation 3DV)) (mod (+ (car (rotation 3DV)) (- y (cdr last))) 3600))
-      (setf (caddr (rotation 3DV)) (mod (+ (caddr (rotation 3DV)) (- x (car last))) 3600))
+      (setf (rotation-x 3DV) (mod (+ (rotation-x 3DV) (- y (cdr last))) 3600))
+      (setf (rotation-z 3DV) (mod (+ (rotation-z 3DV) (- x (car last))) 3600))
       ;(report-modifications (editor self))
       )
       
@@ -340,8 +348,8 @@
         (3DV (object-value (editor self))))
    
     (when last
-      (setf (cadr (rotation 3DV)) (mod (+ (cadr (rotation 3DV)) (- y (cdr last))) 3600))
-      (setf (caddr (rotation 3DV)) (mod (+ (caddr (rotation 3DV)) (- x (car last))) 3600))
+      (setf (rotation-y 3DV) (mod (+ (rotation-y 3DV) (- y (cdr last))) 3600))
+      (setf (rotation-z 3DV) (mod (+ (rotation-z 3DV) (- x (car last))) 3600))
       )
       
     (opengl:rendering-on (self)
