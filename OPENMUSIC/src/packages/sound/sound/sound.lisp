@@ -81,13 +81,13 @@
  
 (defclass* sound (om-internal-sound data-stream named-object)
   ((markers :accessor markers ::initform nil :documentation "a list of markers (s)")
-   (file :accessor file :initform nil :documentation "a pathname")
+   (file-pathname :accessor file-pathname :initform nil :documentation "a pathname")
    (gain :accessor gain :initform 1.0 :documentation "gain controller [0.0-1.0]")
    (access-from-file :accessor access-from-file :initform nil :documentation "read from file or allocate buffer"))
   (:icon 'sound)
   (:documentation "Sound object.
 
-A sound can be initialized/attached to a pathname (<file>) corresponding to an audio file on the disk.
+A sound can be initialized/attached to a pathname (<file-pathname>) corresponding to an audio file on the disk.
 If it is unlocked and unconnected, evaluating the box will open a file chooser dialog and allow the selection of a sound file to load.
 
 The other inputs/outputs :
@@ -100,7 +100,7 @@ Press 'space' to play/stop the sound file.
 ;(references-to (find-class 'sound))
 ;(setf (references-to (find-class 'sound)) nil)
 
-(defmethod additional-class-attributes ((self sound)) '(markers file sample-rate n-channels n-samples gain access-from-file))
+(defmethod additional-class-attributes ((self sound)) '(markers file-pathname sample-rate n-channels n-samples gain access-from-file))
 
 (defmethod play-obj? ((self sound)) t)
 
@@ -119,18 +119,18 @@ Press 'space' to play/stop the sound file.
 
 (defmethod get-sound ((self sound)) self)
 (defmethod get-sound ((self om-internal-sound)) (om-init-instance (clone-object self (make-instance 'sound)) nil))
-(defmethod get-sound ((self pathname)) (when (probe-file self) (om-init-instance (make-instance 'sound) `((:file ,self) (:access-from-file t)))))
+(defmethod get-sound ((self pathname)) (when (probe-file self) (om-init-instance (make-instance 'sound) `((:file-pathname ,self) (:access-from-file t)))))
 (defmethod get-sound ((self string)) (get-sound (pathname self)))
 (defmethod get-sound ((self t)) nil)
 
 (defmethod get-sound-name ((self pathname)) (pathname-name self))
 (defmethod get-sound-name ((self string)) self)
-(defmethod get-sound-name ((self sound)) (if (file self) (pathname-name (file self)) "sound"))
+(defmethod get-sound-name ((self sound)) (if (file-pathname self) (pathname-name (file-pathname self)) "sound"))
 (defmethod get-sound-name ((self t)) "invalid sound")
 
 (defmethod get-sound-file ((self pathname)) self)
 (defmethod get-sound-file ((self string)) (pathname self))
-(defmethod get-sound-file ((self sound)) (get-sound-file (file self)))
+(defmethod get-sound-file ((self sound)) (get-sound-file (file-pathname self)))
 (defmethod get-sound-file ((self t)) nil)
 
 
@@ -210,7 +210,7 @@ Press 'space' to play/stop the sound file.
     (objFromObjs (get-sound-file model) target)))
 
 (defmethod objFromObjs ((model pathname) (target sound))
-  (setf (file target) model)
+  (setf (file-pathname target) model)
   target)
 
 (defmethod objFromObjs ((model (eql :choose-file)) (target sound))
@@ -222,16 +222,16 @@ Press 'space' to play/stop the sound file.
 ;;; SOUND INIT RULES:
 ;;;=================================
 
-;;; IF <SELF> + NO <FILE>
-;;; - access-from-file = T => SET FILE and NO BUFFER
-;;; - access-from-file = NIL => SET BUFFER and FILE = NIL
-;;; IF <SELF> + <FILE> (same)
+;;; IF <SELF> + NO <FILE-PATHNAME>
+;;; - access-from-file = T => SET FILE-PATHNAME and NO BUFFER
+;;; - access-from-file = NIL => SET BUFFER and FILE-PATHNAME = NIL
+;;; IF <SELF> + <FILE-PATHNAME> (same)
 ;;; - access-from-file = T => NO BUFFER, JUST SET SOUND INFO
 ;;; - access-from-file = NIL => SET BUFFER
-;;; IF <SELF> + <FILE> (different)
-;;; - access-from-file = T => SAVE INCOMING DATA TO FILE, NO BUFFER
-;;; - access-from-file = NIL => SAVE INCOMING DATA TO FILE, KEEP BUFFER
-;;; IF NO <SELF> AND <FILE> ONLY
+;;; IF <SELF> + <FILE-PATHNAME> (different)
+;;; - access-from-file = T => SAVE INCOMING DATA TO FILE-PATHNAME, NO BUFFER
+;;; - access-from-file = NIL => SAVE INCOMING DATA TO FILE-PATHNAME, KEEP BUFFER
+;;; IF NO <SELF> AND <FILE-PATHNAME> ONLY
 ;;; - access-from-file = T => NO BUFFER - JUST SET SOUND INFO
 ;;; - access-from-file = NIL => SET BUFFER
 
@@ -239,14 +239,16 @@ Press 'space' to play/stop the sound file.
 (defmethod om-init-instance ((self sound) &optional args)
   (call-next-method)
   ;;; these are given to om-init-instance
-  ;;; the sound may OR NOT already contain FILE and BUFFER
-  (let ((FILE-IN (find-value-in-kv-list args :file))
+  ;;; the sound may OR NOT already contain FILE-PATHNAME and BUFFER
+  (let ((FILE-IN (find-value-in-kv-list args :file-pathname))
         (access-from-file (find-value-in-kv-list args :access-from-file)))
     (when (and FILE-IN (not (valid-pathname-p FILE-IN)))
       (om-beep-msg "Wrong path as sound input: ~D" FILE-IN) 
       (setf FILE-IN nil))
-    
-    (cond ((and FILE-IN (file self) (string-equal (namestring (file self)) (namestring FILE-IN)))
+    ;(print (list file-in (file-pathname self)))
+    (cond ((and FILE-IN 
+                (file-pathname self) 
+                (string-equal (namestring (file-pathname self)) (namestring FILE-IN)))
            ;;; FILE-IN maches the current file
            (if access-from-file 
                ;; We want to keep working with this file (and no buffer)
@@ -257,10 +259,10 @@ Press 'space' to play/stop the sound file.
              (unless (buffer self)
                (set-sound-data self FILE-IN))))
          
-          ((and FILE-IN (file self))
+          ((and FILE-IN (file-pathname self))
            ;;; there was already a file but different 
-           (om-copy-file (file self) FILE-IN)
-           (setf (file self) FILE-IN)
+           (om-copy-file (file-pathname self) FILE-IN)
+           (setf (file-pathname self) FILE-IN)
            (if access-from-file
                ;; We want to keep working with this file (and no buffer)
                (if (buffer self)
@@ -271,38 +273,39 @@ Press 'space' to play/stop the sound file.
          
           ((and FILE-IN (buffer self))
            ;;; There was no file in the sound but already a buffer
+           (print "OOOOK")
            (save-sound-data self FILE-IN)
-           (setf (file self) FILE-IN)
+           (setf (file-pathname self) FILE-IN)
            (if access-from-file
                (release-sound-buffer self)))
          
           (FILE-IN 
            ;;; there was nothing before...
            (if access-from-file
-               (progn (setf (file self) FILE-IN)
+               (progn (setf (file-pathname self) FILE-IN)
                  (set-sound-info self FILE-IN))
              (set-sound-data self FILE-IN)))
       
-          ((file self)
+          ((file-pathname self)
            ;;; No FILE-IN given but a file was in
            (if access-from-file
                (if (buffer self)
                    (release-sound-buffer self)
-                 (set-sound-info self (file self)))
+                 (set-sound-info self (file-pathname self)))
              (unless (buffer self) ;;; create the buffer if needed
-               (set-sound-data self (file self)))))
+               (set-sound-data self (file-pathname self)))))
 
           (t 
            ;;; there was no file and no in-file is given
            (if access-from-file
                (om-beep-msg "Cannot use ACCESS-FROM-FILE without a file !!"))
-            ;;; => if there was a buffer we just keep it
-            )
+           ;;; => if there was a buffer we just keep it
+           )
           )
          
     ;;; SET A PLAYER IN ANYCASE !
-    (if (and (file self) access-from-file)
-        (setf (buffer-player self) (make-player-from-file (namestring (file self))))
+    (if (and (file-pathname self) access-from-file)
+        (setf (buffer-player self) (make-player-from-file (namestring (file-pathname self))))
       (when (buffer self) ;;; in principle at that point there should be a buffer..
         (if (and (n-samples self) (n-channels self) (sample-rate self))
             (setf (buffer-player self) (make-player-from-buffer 
@@ -388,9 +391,9 @@ Press 'space' to play/stop the sound file.
 (defmacro with-audio-buffer ((buffer-name sound) &body body)
   `(let* ((snd (get-sound ,sound))
           (tmp-buffer (unless (buffer snd) 
-                        (when (and (valid-pathname-p (file snd)) (n-channels snd) (n-samples snd))
+                        (when (and (valid-pathname-p (file-pathname snd)) (n-channels snd) (n-samples snd))
                           (make-om-sound-buffer-GC :count 1 :nch (n-channels snd)
-                                                   :ptr (audio-io::om-get-sound-buffer (namestring (file snd)) *default-internal-sample-size*)))))
+                                                   :ptr (audio-io::om-get-sound-buffer (namestring (file-pathname snd)) *default-internal-sample-size*)))))
           (,buffer-name (or tmp-buffer (buffer snd))))
      (unwind-protect
          (progn 
@@ -599,7 +602,7 @@ Press 'space' to play/stop the sound file.
 
 (defmethod get-cache-display-for-draw ((self sound))
   (when (and (n-samples self) (> (n-samples self) 0) (n-channels self)
-             (or (buffer self) (file self)))
+             (or (buffer self) (file-pathname self)))
     (let* ((window 128)
            (pictsize 512)
            (array-size (floor (n-samples self) window))
@@ -640,7 +643,7 @@ Press 'space' to play/stop the sound file.
   (call-next-method)  
   (let* ((editor (editor self))
          (sound (object-value editor)))
-    (if (or (buffer sound) (and (access-from-file sound) (valid-pathname-p (file sound))))
+    (if (or (buffer sound) (and (access-from-file sound) (valid-pathname-p (file-pathname sound))))
         ;;; draw the sound..
         (draw-sound-waveform sound editor self (x1 self) (x2 self))
       ;;; no sound
