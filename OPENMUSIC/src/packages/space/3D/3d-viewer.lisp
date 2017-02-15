@@ -4,7 +4,7 @@
 (defclass* 3D-viewer ()
   ((data :initarg :data :accessor data :initform nil 
          :documentation "a list of 3D-object (3D-lines, etc..)")
-   (center :accessor center :initform (make-3dpoint) :initarg :center 
+   (center :accessor center :initform (list 0.0 0.0 0.0) :initarg :center 
            :documentation "a 3D point used as reference for data transformation and output")
    (rotation :accessor rotation :initform (list 0.0 0.0 0.0) :initarg :rotation
              :documentation "a verctor of rotation angles")
@@ -15,12 +15,21 @@
    (y-range :accessor y-range :initform (list 0 220150))
    ))
 
-;(defmethod get-properties-list ((self 3D-viewer)) 
-;  '((""
-;     (:scaler-x "x scale factor" :number scaler-x (nil nil 1))
-;     (:scaler-y "y scale factor" :number scaler-y (nil nil 1))
-;     (:scaler-z "z scale factor" :number scaler-z (nil nil 1))
-;     )))
+(defmethod get-properties-list ((self 3D-viewer)) 
+  '((""
+     (:scaler-x "x scale factor" :number scaler-x (nil nil 1))
+     (:scaler-y "y scale factor" :number scaler-y (nil nil 1))
+     (:scaler-z "z scale factor" :number scaler-z (nil nil 1))
+     )))
+
+(defmethod om-init-instance ((self 3D-viewer) &optional args)
+  (let ((c (find-value-in-kv-list args :center))
+        (r (find-value-in-kv-list args :rotation)))
+    (when c (setf (center self) (copy-list c)))
+    (when r (setf (rotation self) (copy-list r)))
+    self))
+    
+    
 
 
 (defmethod get-transformed-data ((self 3D-viewer))  
@@ -28,9 +37,9 @@
         (let ((new-obj (make-instance (type-of obj) :color (color obj)))
               (points-xyz (mat-trans (om-3Dobj-points obj))))
           
-          (let ((xlist (om- (car points-xyz) (om-point-x (center self))))
-                (ylist (om- (cadr points-xyz) (om-point-y (center self))))
-                (zlist (om- (caddr points-xyz) (om-point-z (center self))))
+          (let ((xlist (om- (car points-xyz) (nth 0 (center self))))
+                (ylist (om- (cadr points-xyz) (nth 1 (center self))))
+                (zlist (om- (caddr points-xyz) (nth 2 (center self))))
                 (yaw (* (nth 2 (rotation self)) .1))
                 (pitch (* (nth 0 (rotation self)) .1))
                 (roll (* (nth 1 (rotation self)) .1)))
@@ -56,9 +65,9 @@
                   
             (let ((new-points 
                    (mat-trans 
-                    (list (om+ xlist (om-point-x (center self)))
-                          (om+ ylist (om-point-y (center self)))
-                          (om+ zlist (om-point-z (center self)))))))
+                    (list (om+ xlist (nth 0 (center self)))
+                          (om+ ylist (nth 1 (center self)))
+                          (om+ zlist (nth 2 (center self)))))))
               
               (om-set-3Dobj-points new-obj new-points)
               
@@ -230,20 +239,20 @@
   (let ((3DV (object-value (editor self))))
     (opengl:gl-color4-f 1.0 1.0 1.0 0.5)
     (draw-gl-point 
-     (float (om-point-x (center 3DV))) (float (om-point-y (center 3DV))) (float (om-point-z (center 3DV)))
+     (float (nth 0 (center 3DV))) (float (nth 1 (center 3DV))) (float (nth 2 (center 3DV)))
      '(1.0 1.0 1.0) 1.0 20.0)
     
     (gl-user::initialize-transform (gl-user::object-transform self))
     (gl-user::translate (gl-user::object-transform self) 
-                        :dx (- (float (om-point-x (center 3DV))))
-                        :dy (- (float (om-point-y (center 3DV)))))
+                        :dx (- (float (nth 0 (center 3DV))))
+                        :dy (- (float (nth 1 (center 3DV)))))
     (gl-user::polar-rotate (gl-user::object-transform self)
                            :dx (car (rotation 3DV))
                            :dy (cadr (rotation 3DV)) 
                            :dz (caddr (rotation 3DV)))
     (gl-user::translate (gl-user::object-transform self) 
-                        :dx (float (om-point-x (center 3DV)))
-                        :dy (float (om-point-y (center 3DV))))
+                        :dx (float (nth 0 (center 3DV)))
+                        :dy (float (nth 1 (center 3DV))))
 
     ))
 
@@ -272,13 +281,17 @@
                  (* (gl-user::xyz-z (gl-user::eye (gl-user::camera self))) 1.2))
            (om-invalidate-view self))
 
-      (:om-key-right (setf (center 3DV) (om-point-mv (center 3DV) :x 1))
+      (:om-key-right 
+       (setf (center 3DV) (list (+ (nth 0 (center 3DV) 1)) (nth 1 (center 3DV) 1) (nth 2 (center 3DV) 1)))
        (om-invalidate-view self))
-      (:om-key-left (setf (center 3DV) (om-point-mv (center 3DV) :x -1))
+      (:om-key-left 
+       (setf (center 3DV) (list (- (nth 0 (center 3DV) 1)) (nth 1 (center 3DV) 1) (nth 2 (center 3DV) 1)))
        (om-invalidate-view self))
-      (:om-key-up (setf (center 3DV) (om-point-mv (center 3DV) :y 1))
+      (:om-key-up 
+       (setf (center 3DV) (list (nth 0 (center 3DV) 1) (+ (nth 1 (center 3DV) 1) 1) (nth 2 (center 3DV) 1)))
        (om-invalidate-view self))
-      (:om-key-down (setf (center 3DV) (om-point-mv (center 3DV) :y -1))
+      (:om-key-down 
+       (setf (center 3DV) (list (nth 0 (center 3DV) 1) (- (nth 1 (center 3DV) 1) 1) (nth 2 (center 3DV) 1)))
        (om-invalidate-view self))
       (:om-key-esc  
        (setf (viewpoint self) (list 0.0d0 0.0d0 0.0d0))
