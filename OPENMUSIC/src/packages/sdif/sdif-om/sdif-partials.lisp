@@ -173,6 +173,61 @@ Internally calls and formats data from GetSDIFChords.
                 ))
     '< :key 'frametime)))
 
+(defun get-partial-f-a-ph-at-time (partial time)
+  (let ((pos (position time (partial-t-list partial) :test '=)))
+    (if pos 
+        (list (nth pos (partial-f-list partial))
+              (if (partial-a-list partial) (nth pos (partial-a-list partial)) 1.0)
+              (if (partial-ph-list partial) (nth pos (partial-ph-list partial)) 0))
+      (let ((pos-before (position time (partial-t-list partial) :test '>= :from-end t)))
+        (list (linear-interpol (nth pos-before (partial-t-list partial))
+                               (nth (1+ pos-before) (partial-t-list partial))
+                               (nth pos-before (partial-f-list partial))
+                               (nth (1+ pos-before) (partial-f-list partial))
+                               time)
+              (if (partial-a-list partial) 
+                  (linear-interpol (nth pos-before (partial-t-list partial))
+                               (nth (1+ pos-before) (partial-t-list partial))
+                               (nth pos-before (partial-a-list partial))
+                               (nth (1+ pos-before) (partial-a-list partial))
+                               time)
+                1.0)
+              (if (partial-ph-list partial) 
+                  (linear-interpol (nth pos-before (partial-t-list partial))
+                               (nth (1+ pos-before) (partial-t-list partial))
+                               (nth pos-before (partial-ph-list partial))
+                               (nth (1+ pos-before) (partial-ph-list partial))
+                               time)
+                0)))
+      )))
+
+(defun make-1TRC-frames-synchronous (partials)
+  (flet ((active-at-time (p time)
+           (and (>= time (car (partial-t-list p))) (<= time (car (last (partial-t-list p)))))))
+    (let ((timeslist (sort (remove-duplicates 
+                            (loop for partial in partials 
+                                  append (partial-t-list partial))
+                            :test '=) 
+                           '<)))
+      (loop for frametime in timeslist collect
+            (let ((frame (make-instance 'SDIFFrame :frametime frametime :streamid 0 
+                                        :frametype "1TRC"))
+                  (data (sort 
+                         (loop for partial in partials 
+                               for i = 1 then (+ i 1)
+                               when (active-at-time partial frametime)
+                               collect (cons i (get-partial-f-a-ph-at-time partial frametime)))
+                         '< :key 'car)))
+              
+              (setf (lmatrices frame)
+                    (list (make-instance 'SDIFMatrix :matrixtype "1TRC"
+                                         :num-fields 4
+                                         :num-elts (length data)
+                                         :data (mat-trans data))))
+              frame))
+      )))
+
+
 (defmethod* partials->sdif ((partials list) &optional (outpath "partials.sdif"))
   :indoc '("a list of partials" "output pathname")
   :doc "Saves the contents of <partials> as an SDIF file in <outpath>.
@@ -189,7 +244,7 @@ Data is stored as a sequence of 1TRC frames containing 1TRC matrices.
               (progn (sdif::SdifFWriteGeneralHeader sdiffileptr)
                 (sdif-write (default-om-NVT) sdiffileptr)
                 (sdif::SdifFWriteAllASCIIChunks sdiffileptr)
-                (let ((frames (make-1TRC-frames partials)))
+                (let ((frames (make-1TRC-frames-synchronous partials)))
                   (loop for frame in frames do
                         (sdif-write frame sdiffileptr))))
             (sdif::SDIFFClose sdiffileptr))
