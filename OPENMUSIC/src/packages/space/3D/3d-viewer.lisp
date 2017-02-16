@@ -4,16 +4,16 @@
 (defclass* 3D-viewer ()
   ((data :initarg :data :accessor data :initform nil 
          :documentation "a list of 3D-object (3D-lines, etc..)")
-   (center :accessor center :initform (list 0.0 0.0 0.0) 
-           :documentation "a 3D point used as reference for data transformation and output")
-   (rotation-x :accessor rotation-x :initform 0.0 :documentation "rotation angles on x axis")
-   (rotation-y :accessor rotation-y :initform 0.0 :documentation "rotation angles on y axis")
-   (rotation-z :accessor rotation-z :initform 0.0 :documentation "rotation angles on z axis")
    (scaler-x :accessor scaler-x :initform 1 :documentation "a scaler for the viewer's 'x' axis")
    (scaler-y :accessor scaler-y :initform 1 :documentation "a scaler for the viewer's 'y' axis")
    (scaler-z :accessor scaler-z :initform 1 :documentation "a scaler for the viewer's 'z' axis")
    (x-grid :accessor x-grid :initform (list 0 5.0))
    (y-grid :accessor y-grid :initform (list 0 220150))
+   (center :accessor center :initform (list 0.0 0.0 0.0) 
+           :documentation "a 3D point used as reference for data transformation and output")
+   (rotation-x :accessor rotation-x :initform 0.0 :documentation "rotation angles on x axis")
+   (rotation-y :accessor rotation-y :initform 0.0 :documentation "rotation angles on y axis")
+   (rotation-z :accessor rotation-z :initform 0.0 :documentation "rotation angles on z axis")
    ))
 
 (defmethod get-properties-list ((self 3D-viewer)) 
@@ -24,17 +24,42 @@
      )))
 
 (defmethod additional-class-attributes ((self 3D-viewer)) 
-  '(center 
+  '(scaler-x scaler-y scaler-z
+    x-grid y-grid
+    center 
     rotation-x rotation-y rotation-z 
-    scaler-x scaler-y scaler-z
-    x-grid y-grid))
+    ))
 
 (defmethod om-init-instance ((self 3D-viewer) &optional args)
   (let ((c (find-value-in-kv-list args :center)))
     (when c (setf (center self) (copy-list c)))
-    self))
+     (multiple-value-bind (xmi xma ymi yma zmi zma)
+         (get-extents (data self))
+       (let ((scaled-ref 100))
+         (unless (find-value-in-kv-list args :scaler-x)
+           (setf (scaler-x self) (float (/ scaled-ref xma))))
+         (unless (find-value-in-kv-list args :scaler-y)
+           (setf (scaler-y self) (float (/ scaled-ref yma))))
+         (unless (find-value-in-kv-list args :scaler-z)
+           (setf (scaler-z self) (float (/ scaled-ref zma))))
+         (unless (find-value-in-kv-list args :x-grid)
+           (setf (x-grid self) (list xmi xma)))
+         (unless (find-value-in-kv-list args :y-grid)
+           (setf (y-grid self) (list ymi yma)))
+         (mapcar 
+          #'(lambda (obj) (apply-scaler obj :x (scaler-x self) :y (scaler-y self) :z (scaler-z self))) 
+          (data self))
+         self))))
     
     
+(defmethod apply-scaler ((self om-3d-object) &key x y z)
+  (om-set-3Dobj-points 
+   self
+   (loop for p in (om-3Dobj-points self) collect
+         (list (if x (* x (car p)) (car p))
+               (if y (* y (cadr p)) (cadr p))
+               (if z (* z (caddr p)) (caddr p))
+               ))))
 
 
 (defmethod get-transformed-data ((self 3D-viewer))  
@@ -70,9 +95,10 @@
                   
             (let ((new-points 
                    (mat-trans 
-                    (list (om+ xlist (nth 0 (center self)))
-                          (om+ ylist (nth 1 (center self)))
-                          (om+ zlist (nth 2 (center self)))))))
+                    (list (om/ (om+ xlist (nth 0 (center self))) (scaler-x self))
+                          (om/ (om+ ylist (nth 1 (center self))) (scaler-y self))
+                          (om/ (om+ zlist (nth 2 (center self))) (scaler-z self))
+                          ))))
               
               (om-set-3Dobj-points new-obj new-points)
               
@@ -167,7 +193,9 @@
 
 
 (defmethod get-cache-display-for-draw ((self 3D-viewer)) 
-  (list (multiple-value-list (get-extents (data self)))))
+  (multiple-value-bind (xmi xma ymi yma zmi zma) 
+      (get-extents (data self))
+    (list (list xmi xma ymi yma zmi zma))))
 
 (defmethod draw-mini-view ((self 3D-viewer) (box t) x y w h &optional time)
   (let ((ranges (car (get-display-draw box))))
@@ -178,12 +206,13 @@
         (conversion-factor-and-offset (cadddr ranges) (caddr ranges) h y)
 
       (om-with-font  (om-def-font :font1 :size 8)
-            (om-draw-string (+ x 10) (+ y (- h 4)) (number-to-string (nth 0 ranges)))
-            (om-draw-string (+ x (- w (om-string-size (number-to-string (nth 1 ranges)) (om-def-font :font1 :size 8)) 4))
+            (om-draw-string (+ x 10) (+ y (- h 4)) (number-to-string (/ (nth 0 ranges) (scaler-x self))))
+            (om-draw-string (+ x (- w (om-string-size (number-to-string (/ (nth 1 ranges) (scaler-x self)))
+                                                      (om-def-font :font1 :size 8)) 4))
                             (+ y (- h 4)) 
-                            (number-to-string (nth 1 ranges)))
-            (om-draw-string x (+ y (- h 14)) (number-to-string (nth 2 ranges)))
-            (om-draw-string x (+ y 10) (number-to-string (nth 3 ranges))))
+                            (number-to-string (/ (nth 1 ranges) (scaler-x self))))
+            (om-draw-string x (+ y (- h 14)) (number-to-string (/ (nth 2 ranges) (scaler-y self))))
+            (om-draw-string x (+ y 10) (number-to-string (/ (nth 3 ranges) (scaler-y self)))))
 
       (loop for line in (data self) do
             (when (points line) 
@@ -243,7 +272,11 @@
   ;      (get-extents (om-get-gl-objects self))
   ;    (draw-grid xmi xma ymi yma)))
   
-    (draw-grid (car (x-grid 3DV)) (cadr (x-grid 3DV)) (car (y-grid 3DV)) (cadr (y-grid 3DV)))
+    (draw-grid 
+     (* (scaler-x 3DV) (car (x-grid 3DV))) 
+     (* (scaler-x 3DV) (cadr (x-grid 3DV))) 
+     (* (scaler-y 3DV) (car (y-grid 3DV)))
+     (* (scaler-y 3DV) (cadr (y-grid 3DV))))
 
     (opengl:gl-color4-f 1.0 1.0 1.0 0.5)
     (draw-gl-point 
@@ -356,3 +389,5 @@
       (gl-user::opengl-redisplay-canvas self))
     
     (setf (gl-user::lastxy self) (cons x y))))
+
+
