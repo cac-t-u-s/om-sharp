@@ -154,24 +154,30 @@ Internally calls and formats data from GetSDIFChords.
 ;;; WRITE...
 ;;;============================================
 
-(defun make-1TRC-frames (partials)
-  (merge-frame-data 
-   (sort 
-    (loop for partial in partials 
-          for i = 1 then (+ i 1) append
-          (loop for time in (partial-t-list partial)
-                for n from 0 collect
-                (make-instance 'SDIFFrame :frametime time :streamid 0 
-                               :frametype "1TRC"
-                               :lmatrices (list (make-instance 'SDIFMatrix :matrixtype "1TRC"
-                                                             :num-elts 1 :num-fields 4
-                                                             :data (list (list i)
-                                                                         (list (nth n (partial-f-list partial)))
-                                                                         (list (or (nth n (partial-a-list partial)) 1.0))
-                                                                         (list (or (nth n (partial-ph-list partial)) 0)))
-                                                             )))
-                ))
-    '< :key 'frametime)))
+(defun make-1TRC-frames (partials &optioanl separate-streams)
+  (let ((frames 
+         (sort 
+          (loop for partial in (sort partials '< :key #'(lambda (p) (car (partial-t-list p)))) 
+                for i = 0 then (+ i 1) append
+                (let ((1-partial-frames 
+                       (loop for time in (partial-t-list partial)
+                             for n from 0 collect
+                             (make-instance 'SDIFFrame :frametime time :frametype "1TRC"
+                                            :streamid (if separate-streams i 0) 
+                                            :lmatrices (list (make-instance 'SDIFMatrix :matrixtype "1TRC"
+                                                                            :num-elts 1 :num-fields 4
+                                                                            :data (list (list (1+ i))
+                                                                                        (list (nth n (partial-f-list partial)))
+                                                                                        (list (or (nth n (partial-a-list partial)) 1.0))
+                                                                                        (list (or (nth n (partial-ph-list partial)) 0)))
+                                                                            ))))))
+                  (setf (nth 2 (data (car (lmatrices (car (last 1-partial-frames)))))) (list 0.0))
+                  1-partial-frames))
+          '< :key 'frametime)))
+    (if separate-streams 
+        frames
+      (merge-frame-data frames))
+    ))
 
 (defun get-partial-f-a-ph-at-time (partial time)
   (let ((pos (position time (partial-t-list partial) :test '=)))
@@ -179,25 +185,25 @@ Internally calls and formats data from GetSDIFChords.
         (list (nth pos (partial-f-list partial))
               (if (partial-a-list partial) (nth pos (partial-a-list partial)) 1.0)
               (if (partial-ph-list partial) (nth pos (partial-ph-list partial)) 0))
-      (let ((pos-before (position time (partial-t-list partial) :test '>= :from-end t)))
-        (list (linear-interpol (nth pos-before (partial-t-list partial))
-                               (nth (1+ pos-before) (partial-t-list partial))
+      (let* ((pos-before (position time (partial-t-list partial) :test '>= :from-end t))
+             (t1 (nth pos-before (partial-t-list partial)))
+             (t2 (nth (1+ pos-before) (partial-t-list partial))))
+             
+        (list (linear-interpol t1 t2
                                (nth pos-before (partial-f-list partial))
                                (nth (1+ pos-before) (partial-f-list partial))
                                time)
               (if (partial-a-list partial) 
-                  (linear-interpol (nth pos-before (partial-t-list partial))
-                               (nth (1+ pos-before) (partial-t-list partial))
-                               (nth pos-before (partial-a-list partial))
-                               (nth (1+ pos-before) (partial-a-list partial))
-                               time)
+                  (linear-interpol t1 t2
+                                   (nth pos-before (partial-a-list partial))
+                                   (nth (1+ pos-before) (partial-a-list partial))
+                                   time)
                 1.0)
               (if (partial-ph-list partial) 
-                  (linear-interpol (nth pos-before (partial-t-list partial))
-                               (nth (1+ pos-before) (partial-t-list partial))
-                               (nth pos-before (partial-ph-list partial))
-                               (nth (1+ pos-before) (partial-ph-list partial))
-                               time)
+                  (linear-interpol t1 t2 
+                                   (nth pos-before (partial-ph-list partial))
+                                   (nth (1+ pos-before) (partial-ph-list partial))
+                                   time)
                 0)))
       )))
 
@@ -244,9 +250,8 @@ Data is stored as a sequence of 1TRC frames containing 1TRC matrices.
               (progn (sdif::SdifFWriteGeneralHeader sdiffileptr)
                 (sdif-write (default-om-NVT) sdiffileptr)
                 (sdif::SdifFWriteAllASCIIChunks sdiffileptr)
-                (let ((frames (make-1TRC-frames-synchronous partials)))
-                  (loop for frame in frames do
-                        (sdif-write frame sdiffileptr))))
+                (loop for frame in (make-1trc-frames-synchronous partials) 
+                        do (sdif-write frame sdiffileptr)))
             (sdif::SDIFFClose sdiffileptr))
           (om-beep-msg "Could not open file for writing: ~A" out-path))
         (probe-file out-path)
