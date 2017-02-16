@@ -266,12 +266,7 @@
     (gl-user::polar-rotate (gl-user::position-transform (gl-user::camera self))
                            :dz (car (viewpoint self)) 
                            :dx (cadr (viewpoint self)))
-  
-  ;(when (om-get-gl-objects self)
-  ;  (multiple-value-bind (xmi xma ymi yma zmi zma)
-  ;      (get-extents (om-get-gl-objects self))
-  ;    (draw-grid xmi xma ymi yma)))
-  
+ 
     (draw-grid 
      (* (scaler-x 3DV) (car (x-grid 3DV))) 
      (* (scaler-x 3DV) (cadr (x-grid 3DV))) 
@@ -365,7 +360,7 @@
         (3DV (object-value (editor self))))
    
     (when last
-      (setf (rotation-x 3DV) (mod (+ (rotation-x 3DV) (- y (cdr last))) 3600))
+      ;(setf (rotation-x 3DV) (mod (+ (rotation-x 3DV) (- y (cdr last))) 3600))
       (setf (rotation-z 3DV) (mod (+ (rotation-z 3DV) (- x (car last))) 3600))
       ;(report-modifications (editor self))
       )
@@ -382,7 +377,8 @@
    
     (when last
       (setf (rotation-y 3DV) (mod (+ (rotation-y 3DV) (- y (cdr last))) 3600))
-      (setf (rotation-z 3DV) (mod (+ (rotation-z 3DV) (- x (car last))) 3600))
+      (setf (rotation-x 3DV) (mod (+ (rotation-x 3DV) (- x (car last))) 3600))
+      
       )
       
     (opengl:rendering-on (self)
