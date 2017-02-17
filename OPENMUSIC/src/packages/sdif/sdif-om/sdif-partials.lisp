@@ -245,11 +245,14 @@ Internally calls and formats data from GetSDIFChords.
       )))
 
 
-(defmethod* partials->sdif ((partials list) &optional (outpath "partials.sdif"))
+(defmethod* partials->sdif ((partials list) &key (outpath "partials.sdif") (frame-rate 0.01))
   :indoc '("a list of partials" "output pathname")
+  :initvals '(nil "partials.sdif" 0.01)
   :doc "Saves the contents of <partials> as an SDIF file in <outpath>.
 
 Data is stored as a sequence of 1TRC frames containing 1TRC matrices.
+
+SDIF partials are resampled in synchronous frames at <frame-rate>
 "
   (let ((out-path (cond ((pathnamep outpath) outpath)
                          ((stringp outpath) (outfile outpath))
@@ -261,8 +264,9 @@ Data is stored as a sequence of 1TRC frames containing 1TRC matrices.
               (progn (sdif::SdifFWriteGeneralHeader sdiffileptr)
                 (sdif-write (default-om-NVT) sdiffileptr)
                 (sdif::SdifFWriteAllASCIIChunks sdiffileptr)
-                (loop for frame in (make-1trc-frames-synchronous partials 0.01) 
-                        do (sdif-write frame sdiffileptr)))
+                (when partials
+                  (loop for frame in (make-1trc-frames-synchronous partials frame-rate)
+                        do (sdif-write frame sdiffileptr))))
             (sdif::SDIFFClose sdiffileptr))
           (om-beep-msg "Could not open file for writing: ~A" out-path))
         (probe-file out-path)
