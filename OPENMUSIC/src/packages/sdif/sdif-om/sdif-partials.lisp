@@ -207,30 +207,41 @@ Internally calls and formats data from GetSDIFChords.
                 0)))
       )))
 
-(defun make-1TRC-frames-synchronous (partials)
-  (flet ((active-at-time (p time)
-           (and (>= time (car (partial-t-list p))) (<= time (car (last (partial-t-list p)))))))
-    (let ((timeslist (sort (remove-duplicates 
-                            (loop for partial in partials 
-                                  append (partial-t-list partial))
-                            :test '=) 
-                           '<)))
-      (loop for frametime in timeslist collect
-            (let ((frame (make-instance 'SDIFFrame :frametime frametime :streamid 0 
-                                        :frametype "1TRC"))
-                  (data (sort 
-                         (loop for partial in partials 
-                               for i = 1 then (+ i 1)
-                               when (active-at-time partial frametime)
-                               collect (cons i (get-partial-f-a-ph-at-time partial frametime)))
-                         '< :key 'car)))
+(defun make-1TRC-frames-synchronous (partials &optional sr)
+  (flet 
+      ((make-frame-at-time (p-list time)
+         (let ((frame (make-instance 'SDIFFrame :frametime time :streamid 0 
+                                     :frametype "1TRC"))
+               (data (sort 
+                      (loop for partial in p-list 
+                            for i = 1 then (+ i 1)
+                            when (and (>= time (car (partial-t-list partial))) 
+                                      (<= time (car (last (partial-t-list partial)))))
+                            collect (cons i (get-partial-f-a-ph-at-time partial time)))
+                      '< :key 'car)))
               
               (setf (lmatrices frame)
                     (list (make-instance 'SDIFMatrix :matrixtype "1TRC"
                                          :num-fields 4
                                          :num-elts (length data)
                                          :data (mat-trans data))))
-              frame))
+              frame)))
+    (if sr 
+        
+        (let* ((t-lists (mapcar 'partial-t-list partials))
+               (tmin (apply 'min (mapcar 'list-min t-lists)))
+               (tmax (apply 'max (mapcar 'list-max t-lists))))
+          (loop for frametime from tmin to (+ tmax .2) by sr collect
+                (make-frame-at-time partials frametime)))
+      
+      (let ((timeslist (sort (remove-duplicates 
+                              (loop for partial in partials 
+                                    append (partial-t-list partial))
+                              :test '=)
+                             '<)))
+        (loop for frametime in timeslist collect
+              (make-frame-at-time partials frametime)))
+
       )))
 
 
@@ -250,13 +261,12 @@ Data is stored as a sequence of 1TRC frames containing 1TRC matrices.
               (progn (sdif::SdifFWriteGeneralHeader sdiffileptr)
                 (sdif-write (default-om-NVT) sdiffileptr)
                 (sdif::SdifFWriteAllASCIIChunks sdiffileptr)
-                (loop for frame in (make-1trc-frames-synchronous partials) 
+                (loop for frame in (make-1trc-frames-synchronous partials 0.01) 
                         do (sdif-write frame sdiffileptr)))
             (sdif::SDIFFClose sdiffileptr))
           (om-beep-msg "Could not open file for writing: ~A" out-path))
         (probe-file out-path)
         ))))
-
 
 
 #|
