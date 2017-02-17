@@ -151,6 +151,7 @@
                      ))
     ))
 
+;;; for number default is a list (min-val max-val decimals)
 (defmethod make-prop-item ((type (eql :number)) prop-id object &key default update)
   (om-make-graphic-object 'numbox 
                           :value (get-property object prop-id)

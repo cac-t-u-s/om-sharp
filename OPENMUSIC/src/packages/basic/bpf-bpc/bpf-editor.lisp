@@ -22,7 +22,8 @@
 (defmethod draw-background-element ((self background-element) view editor &optional x1 y1 x2 y2))
 
 (defmethod object-default-edition-params ((self BPF))
-  '((:draw-style :draw-all)))
+  '((:draw-style :draw-all)
+    (:background nil)))
 
 (defun x-axis-accessor (editor) (case (x-axis-key editor) (:x 'om-point-x) (:y 'om-point-y) (:z 'om-point-z) (:time 'tpoint-time)))
 (defun y-axis-accessor (editor) (case (y-axis-key editor) (:x 'om-point-x) (:y 'om-point-y) (:z 'om-point-z)))
