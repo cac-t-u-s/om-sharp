@@ -257,7 +257,7 @@
 (defmethod omNG-box-value ((self OMBoxEditCall) &optional (numout 0)) 
   
   (unless (equal (lock-state self) :locked)
-    (setf (value self) nil) ;; test if no problem...
+    (setf (value self) (list (make-instance (reference self)))) ;; test if no problem...
     (om-invalidate-view (frame self)))
   
   (let ((box-attributes (loop for input in (cdr (inputs self))
