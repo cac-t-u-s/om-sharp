@@ -229,8 +229,8 @@ Internally calls and formats data from GetSDIFChords.
     (if sr 
         
         (let* ((t-lists (mapcar 'partial-t-list partials))
-               (tmin (apply 'min (mapcar 'list-min t-lists)))
-               (tmax (apply 'max (mapcar 'list-max t-lists))))
+               (tmin (reduce 'min (mapcar 'list-min t-lists)))
+               (tmax (reduce 'max (mapcar 'list-max t-lists))))
           (loop for frametime from tmin to (+ tmax .2) by sr collect
                 (make-frame-at-time partials frametime)))
       
