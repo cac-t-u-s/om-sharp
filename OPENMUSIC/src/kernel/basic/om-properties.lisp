@@ -99,16 +99,18 @@
 (defmethod make-prop-item (type prop-id object &key default update)
   (om-make-view 'click-and-edit-text 
                 ;:enabled (valid-property-p object prop-id)
-                :text (format nil "~A" (get-property object prop-id))
+                :text (if (get-property object prop-id) (format nil "~A" (get-property object prop-id)) "")
                 :resizable :w
                 :bg-color (om-def-color :window)
                 :border nil ;(om-def-color :gray)
                 :size (om-make-point (list :string (format nil "~A" (get-property object prop-id))) 20)
                 :font (om-def-font :font1)
                 :after-fun #'(lambda (item)
-                             (set-property object prop-id (text item))
-                             (when update (update-view update object))
-                             )))
+                               (set-property object prop-id 
+                                             (if (string-equal (text item) "") nil
+                                               (text item)))
+                               (when update (update-view update object))
+                               )))
 
 (defmethod make-prop-item ((type (eql :path)) prop-id object &key default update)
   (let ((textview (om-make-view 'click-and-edit-text 

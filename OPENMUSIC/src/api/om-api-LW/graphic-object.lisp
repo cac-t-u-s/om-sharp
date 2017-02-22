@@ -160,7 +160,6 @@
       (print (format nil "Warning: Can not convert position with NULL views: ~A, ~A." view1 view2))
       point)))
   
-
 (defun om-view-origin (view)
    (let ((container (om-view-container view)))
      (if container

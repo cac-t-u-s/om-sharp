@@ -304,7 +304,7 @@
 ;;; Called by CAPI when activating the window
 (defmethod om-activate-callback ((self om-abstract-window) activatep)
   ;(print (multiple-value-list (get-constraints self)))
-  (when activatep
+  (when t ; activatep
     (om-window-activate self activatep)
     ))
 

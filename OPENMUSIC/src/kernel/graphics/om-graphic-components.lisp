@@ -207,13 +207,14 @@
 ;==============
 ; NUMBOX
 ;==============
-
+;;; !! except set/get-value eveything is hanled as intergers (expt 10 decimals)
 (defclass numbox (om-item-text)
   ((value   :initform 0 :initarg :value :accessor value)
    (min-val :initform 0 :initarg :min-val :accessor min-val)
-   (max-val :initform 30000 :initarg :max-val :accessor max-val)
+   (max-val :initform nil :initarg :max-val :accessor max-val)
    (decimals :initform 0 :initarg :decimals :accessor decimals)
    (enabled :initform t :initarg :enabled :accessor enabled)
+   (db-click :initform nil :initarg :db-click :accessor db-click)
    (change-fun :initform nil :initarg :change-fun :accessor change-fun)
    (after-fun :initform nil :initarg :after-fun :accessor after-fun))
   (:default-initargs :border t))
@@ -228,8 +229,15 @@
 (defmethod set-value ((self numbox) value)
   (let ((v (round (* value (expt 10 (decimals self))))))
     (setf (value self) v)
-    (om-set-text self (format () " ~D" value))
+    (om-set-text self (format () " ~v$" (decimals self) value))
     (om-invalidate-view self)))
+
+(defmethod set-min-max ((self numbox) &key (min nil min-supplied-p) (max nil max-supplied-p))
+  (when min-supplied-p 
+    (setf (min-val self) (round (* min (expt 10 (decimals self))))))
+  (when max-supplied-p 
+    (setf (max-val self) (round (* max (expt 10 (decimals self))))))
+  )
 
 (defmethod get-value ((self numbox))
   (float (/ (value self) (expt 10 (decimals self)))))
@@ -252,13 +260,83 @@
                                     :motion #'(lambda (view position)
                                                 (let* ((inc (- start-y (om-point-y position)))
                                                        (new-val (+ start-v (* (map-mouse-increment self) inc))))
-                                                  (when (and (>= new-val (min-val self))
-                                                             (<= new-val (max-val self)))
+                                                  ;(print (list (min-val self) (max-val self)))
+                                                  (when (and (min-val self) (< new-val (min-val self)))
+                                                    (setf new-val (min-val self)))
+                                                  (when (and (max-val self) (> new-val (max-val self)))
+                                                    (setf new-val (max-val self)))
+                                                  
+                                                  ;;; in principle that's ok now...
+                                                  (when (and (or (null (min-val self)) (>= new-val (min-val self)))
+                                                             (or (null (max-val self)) (<= new-val (max-val self))))
                                                     (setf (value self) new-val)
                                                     (om-set-text self (format () " ~D" (get-value self)))
                                                     (om-invalidate-view self)
+                                                    
                                                     (when (and (change-fun self) (not (= (round new-val) start-v)))
                                                       (funcall (change-fun self) self)))))
-                                    :release #'(lambda (view position) (when (after-fun self) (funcall (after-fun self) self)))))))
+                                    
+                                    :release #'(lambda (view position) 
+                                                 (when (after-fun self) (funcall (after-fun self) self)))
+                                    )
+      )))
+
+
+(defun screen-coordinates (point view)
+  ;; does not work :(
+  ;(let ((win (om-view-window view)))
+  ;  (om-add-points (om-view-position win) point))
+  (om-subtract-points 
+   (om-mouse-position nil)
+   (omp 20 20))
+  )
+
+(defmethod om-view-doubleclick-handler  ((self numbox) where)
+  (when (db-click self)
+    (let ((pos (screen-coordinates where self)))
+      (open-mini-edit pos (get-value self) 
+                      #'(lambda (tf)
+                          (let ((val (read-from-string (om-dialog-item-text tf) nil)))
+                            (if (numberp val)
+                                (progn (set-value self val)
+                                  (when (after-fun self) (funcall (after-fun self) self)))
+                              (om-beep)))))
+    )))
+
+;;;===============================================
+  
+(defclass mini-edit-window (om-no-border-win) 
+  ((textfield :accessor textfield :initform nil)
+   (action :accessor action :initform nil)))
+
+(defmethod om-window-activate ((self mini-edit-window) &optional activatep)
+  (unless activatep ;; = loose focus
+    (when (action self) (funcall (action self) (textfield self)))
+    (om-close-window self)
+    ))
+
+(defun open-mini-edit (position value action)
+  (let ((text (format nil "~A" value))
+        (font (om-def-font :font1)))
+    (multiple-value-bind (w h) 
+        (om-string-size text font)
+      (let* ((tf (om-make-di 'om-editable-text :text text :font font
+                             :bg-color (om-def-color :white) 
+                             :size (omp (+ w 20) (+ h 20))
+                             :di-action #'(lambda (item)
+                                           (let ((window (om-view-window item)))
+                                             (om-window-activate window nil)
+                                             ))
+                             ))
+             (win (om-make-window 
+                   'mini-edit-window :position position
+                   :win-layout (om-make-layout 'om-simple-layout 
+                                               :subviews (list tf)))))
+        (setf (textfield win) tf)
+        (setf (action win) action)
+        win))))
+
+
+
 
 

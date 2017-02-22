@@ -252,7 +252,7 @@
     (om-remove-subviews (window editor) (main-view editor))
     (om-add-subviews (window editor) 
                      (setf (main-view editor)
-                           (print (make-editor-window-contents editor))))
+                           (make-editor-window-contents editor)))
     ))
 
 (defmethod update-to-editor ((editor collection-editor) (from t))

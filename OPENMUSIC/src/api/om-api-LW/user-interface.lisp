@@ -65,7 +65,8 @@
 (defun om-get-user-string (prompt &key (initial-string "") (window-title "Get string") owner 
                                   (size (om-make-point 365 100))
                                   (position (om-make-point 200 140)))
-  (prompt-for-string  prompt :initial-value initial-string))
+  (capi::prompt-for-string prompt :initial-value initial-string
+                           :accept-null-string t))
      
      
 ;;; CHOOSE A FILE

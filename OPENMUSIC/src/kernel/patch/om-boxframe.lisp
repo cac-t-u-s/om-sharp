@@ -408,9 +408,11 @@
 (defmethod box-draw ((self t) (frame OMBoxFrame)) nil)
 
 (defmethod object-for-miniview ((self OMBox)) (get-box-value self))
+(defmethod default-name ((self t)) nil)
 
 (defmethod display-text-and-area ((self OMBoxFrame))
-  (let ((text (and (show-name (object self)) (name (object self))))
+  (let ((text (and (show-name (object self)) 
+                   (or (name (object self)) (default-name (get-box-value (object self))))))
         (icon-size (get-icon-size (object self))))
     (when text
       (let ((font (or (text-font (object self)) (om-get-font self)))

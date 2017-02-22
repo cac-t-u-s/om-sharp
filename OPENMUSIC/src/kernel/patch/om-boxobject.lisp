@@ -392,7 +392,8 @@
 (defmethod omNG-make-new-boxcall ((reference standard-class) pos &optional init-args)
   (let* ((box (make-instance (get-box-class reference)
                             :name (if init-args (format nil "~A" init-args)
-                                    (string-upcase (class-name reference)))
+                                    nil  ;; (string-upcase (class-name reference))
+                                    )
                             :reference (class-name reference)
                             :icon-pos :noicon :show-name nil
                             :text-font (om-def-font :font1 :style '(:italic))
@@ -531,6 +532,17 @@
     (reset-cache-display self)
     (om-invalidate-view (frame self))))
 
+(defmethod soft-update-from-editor ((self OMBoxEditCall))
+  (setf (lock-state self) :locked)
+  (report-modifications (editor (container self)))
+  (contextual-update self (container self))
+  (when (frame self)
+    (update-inspector-for-box (frame self))
+    (reset-cache-display self)
+    (om-invalidate-view (frame self))))
+
+;; e.g. OMABstractContainer
+(defmethod soft-update-from-editor ((self t)) nil)
 
 ;;===========================================
 ;; THE SLOTS BOX
