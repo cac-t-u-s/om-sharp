@@ -62,6 +62,13 @@
          )))
          self))
       
+;;; called from the editor only
+(defmethod init-state ((3DV 3D-viewer))
+  (setf (rotation-x 3DV) 0
+        (rotation-y 3DV) 0
+        (rotation-z 3DV) 0
+        (center 3DV) (list 0 0 0)))
+
 ;;; destructive
 (defmethod apply-scaler ((self om-3d-object) &key x y z)
   (om-set-3Dobj-points 
@@ -86,13 +93,12 @@
 
 
 
+
 (defmethod get-transformed-data ((self 3D-viewer))  
   (loop for obj in (data self) collect       
         (let* (;(new-obj (make-instance (type-of obj) :color (color obj)))
               (new-obj (scale-object obj :x (scaler-x self) :y (scaler-y self) :z (scaler-z self)))
-              
               (points-xyz (mat-trans (om-3Dobj-points new-obj))))
-          
           
           (let ((xlist (om- (car points-xyz) (nth 0 (center self))))
                 (ylist (om- (cadr points-xyz) (nth 1 (center self))))
@@ -102,23 +108,25 @@
                 (roll (rotation-y self)))
             
             ;;; from om-rotate 
+            ;;; !!! the order of the 3 rotations matters !!!
             ;;; YAW = Z axis
             (unless (zerop yaw)
               (multiple-value-bind (a e d) (xyz->aed xlist ylist zlist)
                 (multiple-value-bind (x y z) (aed->xyz (om- a yaw) e d)
                   (setf xlist x ylist y zlist z))))
             
-            ;;; PITCH = X axis
-            (unless (zerop pitch)
-              (multiple-value-bind (a e d) (xyz->aed zlist ylist xlist)
-               (multiple-value-bind (x y z) (aed->xyz (om+ a pitch) e d)
-                 (setf zlist x ylist y xlist z))))
-             
             ;;; ROLL = Y axis
             (unless (zerop roll)
               (multiple-value-bind (a e d) (xyz->aed xlist zlist ylist)
                (multiple-value-bind (x y z) (aed->xyz (om+ a roll) e d)
                   (setf xlist x ylist z zlist y))))
+            
+            ;;; PITCH = X axis
+            (unless (zerop pitch)
+              (multiple-value-bind (a e d) (xyz->aed zlist ylist xlist)
+               (multiple-value-bind (x y z) (aed->xyz (om+ a pitch) e d)
+                 (setf zlist x ylist y xlist z))))
+
                   
             (let ((new-points 
                    (mat-trans 
@@ -138,9 +146,11 @@
 
 (defclass 3d-viewer-editor (OMEditor) 
   ((x-grid :accessor x-grid :initform nil) ;; x-grid and y-grid can be the same as the editor's edit param, or they can be computed automatically
-   (y-grid :accessor y-grid :initform nil)))
+   (y-grid :accessor y-grid :initform nil)
+   (show-grid :accessor show-grid :initform t)
+   (filter-off-grid :accessor filter-off-grid :initform nil)))
 
-(defclass 3D-viewer-view (om-opengl-view) 
+(defclass 3D-viewer-view (OMEditorView om-opengl-view) 
   ((viewpoint :accessor viewpoint :initform '(0.0d0 0.0d0 0.0d0) :documentation "x-y-z axis rotation angles")))
 
 (defmethod init-grid ((editor 3d-viewer-editor))
@@ -149,87 +159,359 @@
         ;; the data is scaled here. the grid must not
         (get-extents (data (object-value editor)))
     
-      (setf (x-grid editor) (if (equal (editor-get-edit-param editor :x-grid) :auto)
+      (set-x-grid editor (if (equal (editor-get-edit-param editor :x-grid) :auto)
                                 (list xmi xma)
                               (editor-get-edit-param editor :x-grid)))
     
-      (setf (y-grid editor) (if (equal (editor-get-edit-param editor :y-grid) :auto)
+      (set-y-grid editor (if (equal (editor-get-edit-param editor :y-grid) :auto)
                                 (list ymi yma)
                               (editor-get-edit-param editor :y-grid))))
     ))
 
+(defmethod set-x-grid ((editor 3d-viewer-editor) values)
+  (setf (x-grid editor) values)
+  
+  (when (get-g-component editor :x-grid-min-numbox)
+    (set-value (get-g-component editor :x-grid-min-numbox) (car values)))
+  (when (get-g-component editor :x-grid-max-numbox)
+    (set-value (get-g-component editor :x-grid-max-numbox) (cadr values)))
+    
+  (when (get-g-component editor :center-x-numbox)
+    (set-min-max (get-g-component editor :center-x-numbox)
+                 :min (car values)
+                 :max (cadr values)))
+  values)
 
-                             
+(defmethod set-y-grid ((editor 3d-viewer-editor) values)
+  (setf (y-grid editor) values)
+  
+  (when (get-g-component editor :y-grid-min-numbox)
+    (set-value (get-g-component editor :y-grid-min-numbox) (car values)))
+  (when (get-g-component editor :y-grid-max-numbox)
+    (set-value (get-g-component editor :y-grid-max-numbox) (cadr values)))
+  
+  (when (get-g-component editor :center-y-numbox)
+    (set-min-max (get-g-component editor :center-y-numbox)
+                 :min (car values)
+                 :max (cadr values)))
+  values)
+
+
+(defmethod update-g-components ((ed 3D-viewer-editor))
+  (let ((3DV (object-value ed)))
+    (set-value (get-g-component ed :center-x-numbox) (car (center 3DV)))
+    (set-value (get-g-component ed :center-y-numbox) (cadr (center 3DV)))
+    (set-value (get-g-component ed :rotation-x-numbox) (rotation-x 3DV))
+    (set-value (get-g-component ed :rotation-y-numbox)  (rotation-y 3DV))
+    (set-value (get-g-component ed :rotation-z-numbox)  (rotation-z 3DV))
+    (om-set-slider-value (get-g-component ed :rotation-x-slider)  (rotation-x 3DV))
+    (om-set-slider-value (get-g-component ed :rotation-y-slider)  (rotation-y 3DV))
+    (om-set-slider-value (get-g-component ed :rotation-z-slider)  (rotation-z 3DV))
+    ))
+
+
+(defmethod set-from-editor ((editor 3d-viewer-editor) object-slot value)
+  (setf (slot-value (object-value editor) object-slot) value)
+  (soft-update-from-editor (object editor))) 
+
+    
 (defmethod make-editor-window-contents ((editor 3d-viewer-editor))
   (let ((obj (object-value editor)))
-    (let* ((3D-view (om-make-view '3D-viewer-view
-                                  :editor editor
-                                  :bg-color (om-make-color .1 .2 .2)))
-           
-           
-           (control-view 
-            (om-make-layout 
-             'om-row-layout
-             :subviews 
-             (list (om-make-layout 
-                    'om-column-layout
-                    :subviews
-                    (list 
-                     (om-make-di 'om-simple-text :text "Rotation control" 
-                                 :size (omp 200 22) 
-                                 :font (om-def-font :font1b))
-                     (om-make-layout 
-                      'om-row-layout
-                      :subviews
-                      (list 
-                       (om-make-di 'om-simple-text :text "shift:" 
-                                   :size (omp 40 22) 
-                                   :font (om-def-font :font1))
-                       (om-make-di 'om-popup-list :items '(:x :y :z :_)
-                                   :size (omp 60 24) :font (om-def-font :font1)
-                                   :value (editor-get-edit-param editor :shift-x-edit-mode)
-                                   :di-action #'(lambda (list) 
-                                                  (editor-set-edit-param editor :shift-x-edit-mode (om-get-selected-item list))
-                                                  ))
-                       (om-make-di 'om-popup-list :items '(:x :y :z :_)
-                                   :size (omp 60 24) :font (om-def-font :font1)
-                                   :value (editor-get-edit-param editor :shift-y-edit-mode)
-                                   :di-action #'(lambda (list) 
-                                                  (editor-set-edit-param editor :shift-y-edit-mode (om-get-selected-item list))
-                                                  ))
-                       ))
-                     (om-make-layout 
-                      'om-row-layout
-                      :subviews
-                      (list 
-                       (om-make-di 'om-simple-text :text "alt:" 
-                                   :size (omp 40 20) 
-                                   :font (om-def-font :font1))
-                       (om-make-di 'om-popup-list :items '(:x :y :z :_)
-                                   :size (omp 60 24) :font (om-def-font :font1)
-                                   :value (editor-get-edit-param editor :alt-x-edit-mode)
-                                   :di-action #'(lambda (list) 
-                                                  (editor-set-edit-param editor :alt-x-edit-mode (om-get-selected-item list))
-                                                  ))
-                       (om-make-di 'om-popup-list :items '(:x :y :z :_)
-                                   :size (omp 60 24) :font (om-def-font :font1)
-                                   :value (editor-get-edit-param editor :alt-y-edit-mode)
-                                   :di-action #'(lambda (list) 
-                                                  (editor-set-edit-param editor :alt-y-edit-mode (om-get-selected-item list))
-                                                  ))
-                       ))
-                     )))
-             )))
+    
+    (set-g-component editor :center-x-numbox
+                     (om-make-graphic-object 'numbox :size (om-make-point 55 18) :font (om-def-font :font1)
+                                             :bg-color (om-def-color :white) :border t
+                                             :decimals 1
+                                             :value (car (center obj))
+                                             :min-val (car (x-grid editor)) :max-val (cadr (x-grid editor))
+                                             :db-click t
+                                             :after-fun #'(lambda (item)
+                                                            (setf (car (center obj)) (get-value item))
+                                                            (set-from-editor editor 'center (center obj))
+                                                            (om-invalidate-view (get-g-component editor :3d-view))
+                                                            )))
+
+    (set-g-component editor :center-y-numbox
+                     (om-make-graphic-object 'numbox :size (om-make-point 55 18) :font (om-def-font :font1)
+                                             :bg-color (om-def-color :white) :border t
+                                             :decimals 1
+                                             :value (cadr (center obj))
+                                             :min-val (car (y-grid editor)) :max-val (cadr (x-grid editor))
+                                             :db-click t
+                                             :after-fun #'(lambda (item)
+                                                            (setf (cadr (center obj)) (get-value item))
+                                                            (set-from-editor editor 'center (center obj))
+                                                            (om-invalidate-view (get-g-component editor :3d-view))
+                                                            )))
+
+    (set-g-component editor :rotation-x-numbox
+                     (om-make-graphic-object 'numbox :size (om-make-point 40 18) :font (om-def-font :font1)
+                                             :fg-color (om-def-color :gray)
+                                             :border nil :enabled nil
+                                             :value (rotation-x obj)
+                                             :decimals 0))
+    (set-g-component editor :rotation-y-numbox
+                     (om-make-graphic-object 'numbox :size (om-make-point 40 18) :font (om-def-font :font1)
+                                             :fg-color (om-def-color :gray)
+                                             :border nil :enabled nil
+                                             :value (rotation-y obj)
+                                             :decimals 0))
+    (set-g-component editor :rotation-z-numbox
+                     (om-make-graphic-object 'numbox :size (om-make-point 40 18) :font (om-def-font :font1)
+                                             :fg-color (om-def-color :gray)
+                                             :border nil :enabled nil
+                                             :value (rotation-z obj)
+                                             :decimals 0))
+    
+     (set-g-component editor :rotation-x-slider
+                     (om-make-di 'om-slider :range '(0 360)
+                              :size (omp 100 24)
+                              :value (rotation-x obj)
+                              :di-action #'(lambda (item) 
+                                             (set-from-editor editor 'rotation-x (om-slider-value item))
+                                             (om-invalidate-view (get-g-component editor :3d-view))
+                                             (set-value (get-g-component editor :rotation-x-numbox)
+                                                        (om-slider-value item)
+                                                        ))))
+    (set-g-component editor :rotation-y-slider
+                     (om-make-di 'om-slider :range '(0 360)
+                              :size (omp 100 24)
+                              :value (rotation-y obj)
+                              :di-action #'(lambda (item) 
+                                             (set-from-editor editor 'rotation-y (om-slider-value item))
+                                             (om-invalidate-view (get-g-component editor :3d-view))
+                                             (set-value (get-g-component editor :rotation-y-numbox)
+                                                        (om-slider-value item)
+                                                        ))))
+    (set-g-component editor :rotation-z-slider
+                     (om-make-di 'om-slider :range '(0 360)
+                              :size (omp 100 24)
+                              :value (rotation-z obj)
+                              :di-action #'(lambda (item)
+                                             (set-from-editor editor 'rotation-z (om-slider-value item))
+                                             (om-invalidate-view (get-g-component editor :3d-view))
+                                             (set-value (get-g-component editor :rotation-z-numbox)
+                                                        (om-slider-value item)
+                                                        ))))
+
+    (set-g-component editor :x-grid-min-numbox
+                     (om-make-graphic-object 'numbox :size (omp 55 18) :font (om-def-font :font1)
+                                             :bg-color (om-def-color :white) :border t
+                                             :decimals 1
+                                             :value (car (x-grid editor))
+                                             :db-click t
+                                             :after-fun #'(lambda (item) 
+                                                            (set-x-grid editor (list (get-value item) (cadr (x-grid editor))))
+                                                            (editor-set-edit-param editor :x-grid (x-grid editor))
+                                                            (om-invalidate-view (get-g-component editor :3d-view)))))
+                     
+    (set-g-component editor :x-grid-max-numbox
+                     (om-make-graphic-object'numbox :size (omp 55 18) :font (om-def-font :font1)
+                                             :bg-color (om-def-color :white) :border t
+                                             :decimals 1
+                                             :value (cadr (x-grid editor))
+                                             :db-click t
+                                             :after-fun #'(lambda (item) 
+                                                            (set-x-grid editor (list (car (x-grid editor)) (get-value item)))
+                                                            (editor-set-edit-param editor :x-grid (x-grid editor))
+                                                            (om-invalidate-view (get-g-component editor :3d-view)))))
+
+    (set-g-component editor :y-grid-min-numbox
+                     (om-make-graphic-object 'numbox :size (omp 55 18) :font (om-def-font :font1)
+                                             :bg-color (om-def-color :white) :border t
+                                             :decimals 1
+                                             :value (car (y-grid editor))
+                                             :db-click t
+                                             :after-fun #'(lambda (item) 
+                                                            (set-y-grid editor (list (get-value item) (cadr (y-grid editor))))
+                                                            (editor-set-edit-param editor :y-grid (y-grid editor))
+                                                            (om-invalidate-view (get-g-component editor :3d-view)))))
+
+    (set-g-component editor :y-grid-max-numbox
+                     (om-make-graphic-object 'numbox :size (omp 55 18) :font (om-def-font :font1)
+                                             :bg-color (om-def-color :white) :border t
+                                             :decimals 1
+                                             :value (cadr (y-grid editor))
+                                             :db-click t
+                                             :after-fun #'(lambda (item) 
+                                                            (set-y-grid editor (list (car (y-grid editor)) (get-value item)))
+                                                            (editor-set-edit-param editor :y-grid (y-grid editor))
+                                                            (om-invalidate-view (get-g-component editor :3d-view)))))
+
+    (let ((control-view 
+           (om-make-layout 
+            'om-row-layout
+            :subviews 
+            (list 
+             ;;; CONTROLERS
+             (om-make-layout 
+              'om-column-layout
+              :subviews
+              (list 
+               (om-make-di 'om-simple-text :text "Rotation control axes" :size (omp 180 22) :font (om-def-font :font1b))
+               (om-make-layout 
+                'om-row-layout
+                :subviews
+                (list 
+                 (om-make-di 'om-simple-text :text "shift:" :size (omp 40 22) :font (om-def-font :font1))
+                 (om-make-di 'om-popup-list :size (omp 60 24) :font (om-def-font :font1)
+                             :items '(:x :y :z :_)
+                             :value (editor-get-edit-param editor :shift-x-edit-mode)
+                             :di-action #'(lambda (list) 
+                                            (editor-set-edit-param editor :shift-x-edit-mode (om-get-selected-item list))))
+                 (om-make-di 'om-popup-list :size (omp 60 24) :font (om-def-font :font1)
+                             :items '(:x :y :z :_)
+                             :value (editor-get-edit-param editor :shift-y-edit-mode)
+                             :di-action #'(lambda (list) 
+                                            (editor-set-edit-param editor :shift-y-edit-mode (om-get-selected-item list))))      
+                 ))
+               (om-make-layout 
+                'om-row-layout
+                :subviews
+                (list 
+                 (om-make-di 'om-simple-text :text "alt:" :size (omp 40 20) :font (om-def-font :font1))
+                 (om-make-di 'om-popup-list :size (omp 60 24) :font (om-def-font :font1)
+                             :items '(:x :y :z :_)
+                             :value (editor-get-edit-param editor :alt-x-edit-mode)
+                             :di-action #'(lambda (list) 
+                                            (editor-set-edit-param editor :alt-x-edit-mode (om-get-selected-item list))))
+                 (om-make-di 'om-popup-list :size (omp 60 24) :font (om-def-font :font1)
+                             :items '(:x :y :z :_)
+                             :value (editor-get-edit-param editor :alt-y-edit-mode)
+                             :di-action #'(lambda (list) 
+                                            (editor-set-edit-param editor :alt-y-edit-mode (om-get-selected-item list))))
+                 ))
+                
+               (om-make-layout 
+                'om-row-layout
+                :subviews
+                (list
+                 (om-make-di 'om-simple-text :text "" :size (omp 40 20))
+                 (om-make-di 'om-button :text "init" :size (omp 80 nil) :font (om-def-font :font1)
+                             :di-action #'(lambda (item) 
+                                            (declare (ignore item))
+                                            (init-state obj)
+                                            (update-g-components editor)
+                                            (om-invalidate-view (om-invalidate-view (get-g-component editor :3d-view)))))))
+               ))
+                   
+             ;;; ROTATION
+             (om-make-layout 
+              'om-column-layout
+              :subviews
+              (list 
+               (om-make-di 'om-simple-text :text "Rotation values" :size (omp 240 21) :font (om-def-font :font1b))
+                
+               (om-make-layout 
+                'om-row-layout
+                :subviews
+                (list 
+                 (om-make-di 'om-simple-text :text "center-x:" :size (omp 55 22) :font (om-def-font :font1))
+                 (get-g-component editor :center-x-numbox)
+                 (om-make-di 'om-simple-text :text "center-y:" :size (omp 55 22) :font (om-def-font :font1))
+                 (get-g-component editor :center-y-numbox)
+                 ))
+                
+               (om-make-layout 
+                'om-row-layout
+                :subviews
+                (list 
+                 (om-make-di 'om-simple-text :text "rotation-x:" :size (omp 60 20) :font (om-def-font :font1))
+                 (get-g-component editor :rotation-x-slider)
+                 (get-g-component editor :rotation-x-numbox)))
+                
+               (om-make-layout 
+                'om-row-layout
+                :subviews
+                (list 
+                 (om-make-di 'om-simple-text :text "rotation-y:" :size (omp 60 20) :font (om-def-font :font1))
+                 (get-g-component editor :rotation-y-slider)
+                 (get-g-component editor :rotation-y-numbox)))
+
+               (om-make-layout 
+                'om-row-layout
+                :subviews
+                (list 
+                 (om-make-di 'om-simple-text :text "rotation-z:" :size (omp 60 20) :font (om-def-font :font1))
+                 (get-g-component editor :rotation-z-slider)
+                 (get-g-component editor :rotation-z-numbox)))
+               ))
+
+             ;;; GRID
+             (om-make-layout 
+              'om-column-layout
+              :subviews
+              (list 
+               (om-make-di 'om-simple-text :text "Grid" :size (omp 200 22) :font (om-def-font :font1b))
+                
+               (om-make-layout 
+                'om-row-layout
+                :subviews
+                (list 
+                 (om-make-di 'om-simple-text :text "x-min:" :size (omp 40 22) :font (om-def-font :font1))
+                 (get-g-component editor :x-grid-min-numbox)
+                 (om-make-di 'om-simple-text :text "x-max:"  :size (omp 40 22) :font (om-def-font :font1))
+                 (get-g-component editor :x-grid-max-numbox)
+                 ))
+                
+               (om-make-layout 
+                'om-row-layout
+                :subviews
+                (list 
+                 (om-make-di 'om-simple-text :text "y-min:" :size (omp 40 22) :font (om-def-font :font1))
+                 (get-g-component editor :y-grid-min-numbox)   
+                 (om-make-di 'om-simple-text :text "y-max:" :size (omp 40 22) :font (om-def-font :font1))
+                 (get-g-component editor :y-grid-max-numbox)
+                 ))
+                
+               (om-make-layout 
+                'om-row-layout
+                :subviews
+                (list 
+                 (om-make-di 'om-check-box :text "show" :size (omp 100 20) :font (om-def-font :font1)
+                           :checked-p (show-grid editor)
+                           :di-action #'(lambda (item) 
+                                          (setf (show-grid editor) (om-checked-p item))
+                                          (om-invalidate-view (get-g-component editor :3d-view))))
+                 
+                 (om-make-di 'om-button :text "fit" :size (omp 60 nil) :font (om-def-font :font1)
+                             :di-action #'(lambda (item) 
+                                            (declare (ignore item))
+                                            (editor-set-edit-param editor :x-grid :auto)
+                                            (editor-set-edit-param editor :y-grid :auto)
+                                            (init-grid editor)
+                                            (update-g-components editor)
+                                            (om-invalidate-view (om-invalidate-view (get-g-component editor :3d-view)))))
+                 ))
+                
+               (om-make-di 'om-check-box :text "filter off-grid" :size (omp 100 20) :font (om-def-font :font1)
+                           :checked-p (filter-off-grid editor)
+                           :di-action #'(lambda (item) 
+                                          (setf (filter-off-grid editor) (om-checked-p item))
+                                          (om-invalidate-view (get-g-component editor :3d-view))))
+
+               ))
+             ))
+           ))
       
-      (set-g-component editor :3D-view 3D-view)
+  (set-g-component editor :3D-view 
+                   (om-make-view '3D-viewer-view
+                                 :editor editor
+                                 :bg-color (om-make-color .1 .2 .2)))
      
-      (om-make-layout 'om-row-layout :ratios '(9.9 0.1) 
-                      :subviews 
-                      (list 
-                       (om-make-layout 'om-column-layout :subviews (list 3D-view control-view))
-                       (make-default-editor-view editor)))
-      
-      )))
+  (om-make-layout 
+   'om-row-layout :ratios '(9.9 0.1) 
+   :subviews 
+   (list 
+    (om-make-layout 
+     'om-column-layout :ratios '(99 1) 
+     :subviews 
+     (list 
+      (get-g-component editor :3d-view) 
+      control-view))
+    (make-default-editor-view editor)))
+  
+  )))
 
 
 
@@ -357,7 +639,8 @@
                            :dz (car (viewpoint self)) 
                            :dx (cadr (viewpoint self)))
     
-    (when (and (x-grid ed) (y-grid ed))
+    (when (and (show-grid ed)
+               (x-grid ed) (y-grid ed))
       (draw-grid 
        (* (scaler-x 3DV) (car (x-grid ed))) 
        (* (scaler-x 3DV) (cadr (x-grid ed))) 
@@ -402,7 +685,8 @@
 
 
 (defmethod om-view-key-handler ((self 3d-viewer-view) key) 
-  (let ((3DV (object-value (editor self))))
+  (let* ((ed (editor self))
+         (3DV (object-value ed)))
     (case key
       (#\+ (setf (gl-user::xyz-z (gl-user::eye (gl-user::camera self)))
                  (* (gl-user::xyz-z (gl-user::eye (gl-user::camera self))) 0.6))
@@ -412,26 +696,30 @@
            (om-invalidate-view self))
 
       (:om-key-right 
-       (setf (center 3DV) (list (+ (nth 0 (center 3DV)) (/ 1 (scaler-x 3DV))) 
-                                (nth 1 (center 3DV))
-                                (nth 2 (center 3DV))))
-       (om-invalidate-view self))
+       (let ((new-x (* (round (* (+ (nth 0 (center 3DV)) (max 0.1 (/ 1 (scaler-x 3DV)))) 10)) 0.1)))
+         (setf (nth 0 (center 3DV)) new-x)
+         (set-from-editor ed 'center (center 3DV))
+         (set-value (get-g-component ed :center-x-numbox) new-x)
+         (om-invalidate-view self)))
       (:om-key-left 
-       (setf (center 3DV) (list (- (nth 0 (center 3DV)) (/ 1 (scaler-x 3DV)))
-                                (nth 1 (center 3DV)) 
-                                (nth 2 (center 3DV))))
-       (om-invalidate-view self))
+       (let ((new-x (* (round (* (- (nth 0 (center 3DV)) (max 0.1 (/ 1 (scaler-x 3DV)))) 10)) 0.1)))
+         (setf (nth 0 (center 3DV)) new-x)
+         (set-from-editor ed 'center (center 3DV))
+         (set-value (get-g-component ed :center-x-numbox) new-x)
+         (om-invalidate-view self)))
       (:om-key-up 
-       (setf (center 3DV) (list (nth 0 (center 3DV))
-                                (+ (nth 1 (center 3DV)) (/ 1 (scaler-y 3DV)))
-                                (nth 2 (center 3DV))))
-       (om-invalidate-view self))
+       (let ((new-y (* (round (* (+ (nth 1 (center 3DV)) (max 0.1 (/ 1 (scaler-y 3DV)))) 10)) 0.1)))
+         (setf (nth 1 (center 3DV)) new-y)
+         (set-from-editor ed 'center (center 3DV))
+         (set-value (get-g-component ed :center-y-numbox) new-y)
+         (om-invalidate-view self)))
       (:om-key-down 
-       (setf (center 3DV) (list (nth 0 (center 3DV))
-                                (- (nth 1 (center 3DV)) (/ 1 (scaler-y 3DV)))
-                                (nth 2 (center 3DV))))
-       (om-invalidate-view self))
-
+       (let ((new-y (* (round (* (- (nth 1 (center 3DV)) (max 0.1 (/ 1 (scaler-y 3DV)))) 10)) 0.1)))
+         (setf (nth 1 (center 3DV)) new-y)
+         (set-from-editor ed 'center (center 3DV))
+         (set-value (get-g-component ed :center-y-numbox) new-y)
+         (om-invalidate-view self)))
+       
       (:om-key-esc  
        (setf (viewpoint self) (list 0.0d0 0.0d0 0.0d0))
        (setf (gl-user::lastxy self) nil)
@@ -443,15 +731,14 @@
        (om-invalidate-view self) ;;; don't know why this is needed twice...
        )
 
-      (#\o (setf (rotation-x 3DV) 0
-                 (rotation-y 3DV) 0
-                 (rotation-z 3DV) 0)
-                 
-       (om-invalidate-view self)
-       (om-invalidate-view self) ;;; don't know why this is needed twice...
+      (#\o (init-state 3DV)
+           (soft-update-from-editor (object ed))
+           (update-g-components ed)
+           (om-invalidate-view self)
+           (om-invalidate-view self) ;;; don't know why this is needed twice...
        )
 
-      (#\Space (report-modifications (editor self)))
+      (#\Space (report-modifications ed))
     
       (otherwise (call-next-method)))))
 
@@ -484,12 +771,16 @@
       (case (editor-get-edit-param ed :shift-y-edit-mode)
         (:x (setf (rotation-x 3DV) (mod (+ (rotation-x 3DV) dy) 360)))
         (:y (setf (rotation-y 3DV) (mod (+ (rotation-y 3DV) dy) 360)))
-        (:z (setf (rotation-z 3DV) (mod (+ (rotation-z 3DV) dy) 360))))) 
+        (:z (setf (rotation-z 3DV) (mod (+ (rotation-z 3DV) dy) 360)))))
 
-    (opengl:rendering-on (self)
-      (gl-user::opengl-redisplay-canvas self))
-    
-    (setf (gl-user::lastxy self) (cons x y))))
+   
+   (update-g-components ed)
+   (soft-update-from-editor (object ed))
+
+   (opengl:rendering-on (self)
+     (gl-user::opengl-redisplay-canvas self))
+   
+   (setf (gl-user::lastxy self) (cons x y))))
 
 
 (defmethod gl-user::opengl-viewer-motion-alt-click ((self 3d-viewer-view) x y) 
@@ -509,7 +800,8 @@
         (:y (setf (rotation-y 3DV) (mod (+ (rotation-y 3DV) dy) 360)))
         (:z (setf (rotation-z 3DV) (mod (+ (rotation-z 3DV) dy) 360)))))
    
-   
+    (update-g-components ed)
+    (soft-update-from-editor (object ed))
       
     (opengl:rendering-on (self)
       (gl-user::opengl-redisplay-canvas self))
