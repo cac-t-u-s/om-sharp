@@ -16,16 +16,17 @@
                                 :initial-contents (loop for c from 0 to (1- nch) 
                                                         collect (fli::allocate-foreign-object :type :float :nelems size
                                                                  :initial-element 0.0))))
-
 (defparameter *default-internal-sample-size* :float)
 
 (defstruct (om-sound-buffer (:include oa::om-pointer))
   (nch 1 :type integer))
 
+(defmethod omng-save ((self om-sound-buffer)) nil)
+
+
 (defun make-om-sound-buffer-GC (&key ptr (count 1) (nch 1))
   (om-create-with-gc (make-om-sound-buffer :ptr ptr :count count :nch nch)))
     
-(defmethod omng-save ((self om-sound-buffer)) nil)
 
 ;;; not useful if cleanup buffer works
 (defmethod oa::om-release ((ptr om-sound-buffer))
@@ -37,7 +38,7 @@
     ))
 
 (defmethod om-cleanup ((self om-sound-buffer))
-  ;(om-print (list "AUDIO BUFFER CLEANUP" self) "SOUND_DEBUG")
+  (om-print-dbg (list "AUDIO BUFFER CLEANUP" self) "SOUND_DEBUG")
   (when (and (oa::om-pointer-ptr self) (not (om-null-pointer-p (oa::om-pointer-ptr self))))
     (audio-io::om-free-sound-buffer (oa::om-pointer-ptr self) (om-sound-buffer-nch self))))
   
@@ -58,7 +59,7 @@
 
 ;; not needed ?
 (defmethod om-cleanup ((self om-internal-sound))
-  ;(print (list "SOUND CLEANUP" self (buffer self)))
+  (om-print-dbg (list "SOUND CLEANUP" self (buffer self)) "SOUND_DEBUG")
   (when (buffer self) (oa::om-release (buffer self))))
 
 
@@ -79,6 +80,7 @@
 (defmethod release-previous-value ((self om-internal-sound)) 
   (release-sound-buffer self))
  
+
 (defclass* sound (om-internal-sound data-stream named-object)
   ((markers :accessor markers ::initform nil :documentation "a list of markers (s)")
    (file-pathname :accessor file-pathname :initform nil :documentation "a pathname")
@@ -100,16 +102,27 @@ Press 'space' to play/stop the sound file.
 ;(references-to (find-class 'sound))
 ;(setf (references-to (find-class 'sound)) nil)
 
-(defmethod additional-class-attributes ((self sound)) '(markers file-pathname sample-rate n-channels n-samples gain access-from-file))
+(defmethod additional-class-attributes ((self sound)) 
+  '(markers 
+    file-pathname 
+    sample-rate 
+    n-channels 
+    n-samples 
+    gain 
+    access-from-file))
 
 (defmethod play-obj? ((self sound)) t)
 
 (defmethod get-obj-dur ((self sound))
   (if (and (sample-rate self) (n-samples self)) (* 1000.0 (/ (n-samples self) (sample-rate self))) 0))
 
-(defmethod object-default-edition-params ((self sound)) '((:player :libaudiostream)))
+; (defmethod object-default-edition-params ((self sound)) '((:player :libaudiostream)))
 
 (defmethod box-def-self-in ((self (eql 'sound))) :choose-file)
+
+(defmethod default-name ((self sound)) 
+  (when (file-pathname self)
+    (string+ (pathname-name (file-pathname self)) "." (pathname-type (file-pathname self))))) 
 
 ;;;===========================
 ;;; UTILS
@@ -214,9 +227,10 @@ Press 'space' to play/stop the sound file.
   target)
 
 (defmethod objFromObjs ((model (eql :choose-file)) (target sound))
-  (objFromObjs (om-choose-file-dialog :prompt "Choose an audio file AIFF/WAV..."
-                                      :types '("AIFF files" "*.aiff;*.aif" "WAV files" "*.wav;*.wave"))
-               target))
+  (let ((file (om-choose-file-dialog :prompt "Choose an audio file AIFF/WAV..."
+                                     :types '("AIFF files" "*.aiff;*.aif" "WAV files" "*.wav;*.wave"))))
+    (if file (objFromObjs file target)
+      (om-abort))))
 
 ;;;=================================
 ;;; SOUND INIT RULES:
@@ -303,7 +317,7 @@ Press 'space' to play/stop the sound file.
            )
           )
          
-    ;;; SET A PLAYER IN ANYCASE !
+    ;;; SET A PLAYER IN ANY CASE !
     (if (and (file-pathname self) access-from-file)
         (setf (buffer-player self) (make-player-from-file (namestring (file-pathname self))))
       (when (buffer self) ;;; in principle at that point there should be a buffer..

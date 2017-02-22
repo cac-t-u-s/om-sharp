@@ -68,6 +68,10 @@ Lock the box ('b') to keep the current file.
             )
      )))
 
+(defmethod default-name ((self SDIFFILE)) 
+  (when (file-pathname self)
+    (string+ (pathname-name (file-pathname self)) "." (pathname-type (file-pathname self)))))
+
 (defmethod draw-mini-view ((self SDIFFIle) (box t) x y w h &optional time)
   (let* ((n-streams (length (file-map self)))
          (stream-h (round (- h 8) (max n-streams 1)))
@@ -87,7 +91,10 @@ Lock the box ('b') to keep the current file.
                          (* w (/ (fstream-desc-tmax stream) max-t)) 
                          (- stream-h 4) 
                          :color (om-make-color-alpha (om-def-color :dark-blue) 0.6) :fill t)
-           (om-with-fg-color (om-def-color :white) (om-draw-string 2 (+ ypos 12) (fstream-desc-fsig stream))))
+           (om-with-fg-color (om-def-color :white) 
+             (om-draw-string 2 (+ ypos 12) 
+                             (format nil "~D:~A ~A" (fstream-desc-id stream) (fstream-desc-fsig stream)
+                                     (mapcar 'mstream-desc-msig (fstream-desc-matrices stream))))))
      )))
 
 
