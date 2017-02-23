@@ -51,16 +51,16 @@
          (get-extents (data self))
        (let ((scaled-ref 100))
          (unless (find-value-in-kv-list args :scaler-x)
-           (setf (scaler-x self) (float (/ scaled-ref xma))))
+           (setf (scaler-x self) (float (/ scaled-ref (- xma xmi)))))
          (unless (find-value-in-kv-list args :scaler-y)
-           (setf (scaler-y self) (float (/ scaled-ref yma))))
+           (setf (scaler-y self) (float (/ scaled-ref (- yma ymi)))))
          (unless (find-value-in-kv-list args :scaler-z)
-           (setf (scaler-z self) (float (/ scaled-ref zma))))
+           (setf (scaler-z self) (float (/ scaled-ref (- zma zmi)))))
          
          ;(unless (find-value-in-kv-list args :center)
          ;  (setf (center self) (list (- xma xmi) (- yma ymi) 0)))
          )))
-         self))
+    self))
       
 ;;; called from the editor only
 (defmethod init-state ((3DV 3D-viewer))
