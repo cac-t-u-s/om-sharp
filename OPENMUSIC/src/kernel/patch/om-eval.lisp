@@ -261,14 +261,16 @@
     (om-invalidate-view (frame self)))
   
   (let ((box-attributes (loop for input in (cdr (inputs self))
-                              when (find (intern-k (name input)) 
-                                         (additional-box-attributes-names self))
+                              when (and (find (intern-k (name input)) 
+                                              (additional-box-attributes-names self))
+                                        (connections input))
                               collect (list (intern-k (name input)) (omng-box-value input)))))
     (loop for attr in box-attributes do (set-edit-param self (car attr) (cadr attr)))
-    )
-  (when (and (equal (lock-state self) :locked) ;; otherwise the editor will be updated later on anyway
-             (editor self))
-    (update-to-editor (editor self) self)
+    
+    (when (and (equal (lock-state self) :locked) ;; otherwise the editor will be updated later on anyway
+               (editor self)
+               box-attributes)
+      (update-to-editor (editor self) self))
     )
   (call-next-method))
 
