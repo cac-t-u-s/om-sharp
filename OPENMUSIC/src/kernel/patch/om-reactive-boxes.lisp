@@ -144,22 +144,32 @@
 
 ;;; NOTIFY ONLY IF PUSH
 (defmethod OMR-Notify ((self ReactiveCollBox))
-  (setf (push-tag self) t)
-  (let ((listeners (get-listeners self)))
-    (let ((push? (process-input self (inputs self))))
-      (when (and listeners push?)
-        (setf (state-lock self) t)
-        (mapcar 'omr-notify listeners)
-        (setf (state-lock self) nil)
-        )
-      )))
+  ;(print (list "notif" self))
+  (unless (push-tag self)
+    (setf (push-tag self) t)
+    (let ((listeners (get-listeners self)))
+      (let ((push? (process-input self (inputs self))))
+        (when (and listeners push?)
+          (setf (state-lock self) t)
+          (mapcar 'omr-notify listeners)
+          (setf (state-lock self) nil)
+          )
+        ))))
 
 (defmethod process-input ((self ReactiveCollBox) inputs)
  (let ((init (omNG-box-value (nth 2 inputs)))      
        (push (omNG-box-value (nth 1 inputs))))
-  (if init (setf (memory self) nil)
+  (if init 
+      (setf (memory self) nil)
     (let ((in (omNG-box-value (nth 0 inputs))))
-      (when in (push in (memory self)))))
+      (print (list in push))
+      (when (and in 
+                 (or (null push)
+                     (equal in push))) 
+        ;; the test is not very clean but 
+        ;; if in and push come from two different values, 
+        ;; we don't want to collect when push is T
+        (push in (memory self)))))
   ;;; return value determines if the notification propagates
   push))
 
