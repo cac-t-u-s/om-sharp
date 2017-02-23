@@ -38,7 +38,7 @@
     ))
 
 (defmethod om-cleanup ((self om-sound-buffer))
-  (om-print-dbg (list "AUDIO BUFFER CLEANUP" self) "SOUND_DEBUG")
+  (om-print-dbg "AUDIO BUFFER CLEANUP: ~A" (list self) "SOUND_DEBUG")
   (when (and (oa::om-pointer-ptr self) (not (om-null-pointer-p (oa::om-pointer-ptr self))))
     (audio-io::om-free-sound-buffer (oa::om-pointer-ptr self) (om-sound-buffer-nch self))))
   
@@ -59,7 +59,7 @@
 
 ;; not needed ?
 (defmethod om-cleanup ((self om-internal-sound))
-  (om-print-dbg (list "SOUND CLEANUP" self (buffer self)) "SOUND_DEBUG")
+  (om-print-dbg "SOUND CLEANUP: ~A (~A)" (list self (buffer self)) "SOUND_DEBUG")
   (when (buffer self) (oa::om-release (buffer self))))
 
 
