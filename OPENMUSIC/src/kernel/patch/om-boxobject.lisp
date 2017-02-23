@@ -391,10 +391,10 @@
 
 (defmethod omNG-make-new-boxcall ((reference standard-class) pos &optional init-args)
   (let* ((box (make-instance (get-box-class reference)
-                            :name (if init-args (format nil "~A" init-args)
-                                    nil  ;; (string-upcase (class-name reference))
-                                    )
-                            :reference (class-name reference)
+                             :name (if (stringp init-args) ;;; when typed from the pach editor 
+                                       (format nil "~A" init-args)
+                                     nil)  ;; (string-upcase (class-name reference))
+                             :reference (class-name reference)
                             :icon-pos :noicon :show-name nil
                             :text-font (om-def-font :font1 :style '(:italic))
                             :text-align :right))
@@ -404,7 +404,8 @@
           (box-w box) (om-point-x size)
           (box-h box) (om-point-y size)        
           (value box) (list (or 
-                             init-args
+                             (if (not (stringp init-args)) init-args) 
+                             ;;; should actually test that this is an instance of reference
                              (initialize-box-initval (make-instance (class-name reference))))))
     box))
 
