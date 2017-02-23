@@ -152,12 +152,81 @@
                                 (round (* ratio (- (max-value self) (min-value self))) 
                                        (increment self)))))
                    (set-value self (list val))
-                   (when (reactive (car (outputs self))) 
-                     (self-notify self))
-                   ;(print val)
+                   (when (reactive (car (outputs self))) (self-notify self))
                    (om-invalidate-view frame)
                    )))
     ))
 
       
+
+;;;===============================================================
+;;; BUTTON
+;;;===============================================================
+
+(defclass ButtonBox (OMInterfaceBox)
+  ((send-value :accessor send-value :initarg :send-value :initform t)
+   (text :accessor text :initarg :text :initform "")
+   (action :accessor action :initarg :action :initform nil)))
+
+(AddSpecialItem2Pack 'button *interfaceboxes*)
+(defmethod special-box-p ((self (eql 'button))) t)
+
+(defmethod get-all-keywords ((self ButtonBox))
+  '((:send-value :text :action)))
+
+(defmethod get-properties-list ((self ButtonBox))
+  (add-properties (call-next-method)
+                  "Button" 
+                  `((:send-value "Value sent at pushing" t send-value)
+                    (:text "Text" :string text)
+                    )))
+
+(defmethod default-size ((self ButtonBox)) 
+  (omp 28 28))
+
+(defmethod omNG-make-special-box ((reference (eql 'button)) pos &optional init-args)
+  (let* ((box (make-instance 'ButtonBox
+                             :name "button"
+                             :reference 'button)))
+    (setf (box-x box) (om-point-x pos)
+          (box-y box) (om-point-y pos))
+    box))
+
+(defmethod draw-interface-component ((self ButtonBox) x y w h) 
+  (let ((textcolor (if (car (value self)) 
+                       (om-def-color :light-gray) 
+                     (om-def-color :dark-gray))))
+    (if (car (value self))
+      (om-draw-rect x y w h :fill t :color (om-def-color :gray))
+    (om-draw-rect x y w h :fill nil :line 3 :color (om-def-color :gray)))
+    (when (text self)
+      (let ((font (om-def-font :font1b)))
+        (multiple-value-bind (sw sh) (om-string-size (text self) font)
+          (om-with-fg-color textcolor
+            (om-with-font 
+             font
+             (om-draw-string (+ x (/ w 2) (- (/ sw 2)))
+                             (+ y (/ h 2) (- (/ sh 2)) 8)
+                             (text self)))))))
+    ))
+ 
+
+
+(defmethod interfacebox-action ((self ButtonBox) frame pos)
+  (when (or (om-command-key-p)
+            (container-frames-locked (om-view-container frame)))
+    (set-value self (list (send-value self)))
+    (om-invalidate-view frame)
+    (when (reactive (car (outputs self))) (self-notify self))
+    (om-init-temp-graphics-motion 
+     frame pos nil :min-move nil
+     :release #'(lambda (view pos)
+                  (set-value self nil)
+                  (om-invalidate-view frame)
+                  ))))
+
+#|
+    
+|#  
+
 

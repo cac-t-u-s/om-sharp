@@ -208,7 +208,12 @@
         (temp-graphics *global-motion-handler*) graphics
         (motion-fun *global-motion-handler*) motion
         (release-fun *global-motion-handler*) release
-        (active *global-motion-handler*) nil))
+        (active *global-motion-handler*) (null (min-move *global-motion-handler*)) 
+        ;; if min-move is null the motion is considered active straight away
+        )
+  (when (temp-graphics *global-motion-handler*)
+    (om-add-subviews (container-view *global-motion-handler*) (temp-graphics *global-motion-handler*)))
+  t)
 
 (defmethod default-motion-action ((self t) position) nil)
 
@@ -217,11 +222,16 @@
     (let ((position (om-convert-coordinates pos sender (container-view *global-motion-handler*))))
       (unless (om-points-equal-p (init-pos *global-motion-handler*) position)
         (unless (active *global-motion-handler*)
-          (when (or (>= (abs (- (om-point-x position) (om-point-x (init-pos *global-motion-handler*)))) (min-move *global-motion-handler*))
-                    (>= (abs (- (om-point-y position) (om-point-y (init-pos *global-motion-handler*)))) (min-move *global-motion-handler*)))
+          (when (or (null (min-move *global-motion-handler*))
+                    (>= (abs (- (om-point-x position) (om-point-x (init-pos *global-motion-handler*)))) 
+                        (min-move *global-motion-handler*))
+                    (>= (abs (- (om-point-y position) (om-point-y (init-pos *global-motion-handler*)))) 
+                        (min-move *global-motion-handler*)))
             (setf (active *global-motion-handler*) t)
-            (when (temp-graphics *global-motion-handler*)
-              (om-add-subviews (container-view *global-motion-handler*) (temp-graphics *global-motion-handler*)))))      
+            ; => move to init function above
+            ;(when (temp-graphics *global-motion-handler*)
+            ;  (om-add-subviews (container-view *global-motion-handler*) (temp-graphics *global-motion-handler*)))
+            ))      
         (when (active *global-motion-handler*)
           (default-motion-action (temp-graphics *global-motion-handler*) position)
           (when (motion-fun *global-motion-handler*)
@@ -231,20 +241,21 @@
 (defun handle-temp-graphics-release (sender pos)
   (when (and *global-motion-handler* (container-view *global-motion-handler*))
     (let ((position (om-convert-coordinates pos sender (container-view *global-motion-handler*))))
-    (when (and (not (om-points-equal-p (init-pos *global-motion-handler*) position))
-               (active *global-motion-handler*)
-               (release-fun *global-motion-handler*))
-      (funcall (release-fun *global-motion-handler*) (container-view *global-motion-handler*) position))
-    (when (temp-graphics *global-motion-handler*)
-      (om-remove-subviews (container-view *global-motion-handler*) (temp-graphics *global-motion-handler*)))
-    (setf (temp-graphics *global-motion-handler*) nil
-          (motion-fun *global-motion-handler*) nil
-          (release-fun *global-motion-handler*) nil
-          (active *global-motion-handler*) nil
-          (init-pos *global-motion-handler*) pos
-          (min-move *global-motion-handler*) 0
-          (container-view *global-motion-handler*) nil)
-    )))
+      (when (and (or (null (min-move *global-motion-handler*))
+                     (not (om-points-equal-p (init-pos *global-motion-handler*) position)))
+                 (active *global-motion-handler*)
+                 (release-fun *global-motion-handler*))
+        (funcall (release-fun *global-motion-handler*) (container-view *global-motion-handler*) position))
+      (when (temp-graphics *global-motion-handler*)
+        (om-remove-subviews (container-view *global-motion-handler*) (temp-graphics *global-motion-handler*)))
+      (setf (temp-graphics *global-motion-handler*) nil
+            (motion-fun *global-motion-handler*) nil
+            (release-fun *global-motion-handler*) nil
+            (active *global-motion-handler*) nil
+            (init-pos *global-motion-handler*) pos
+            (min-move *global-motion-handler*) 0
+            (container-view *global-motion-handler*) nil)
+      )))
 
 ;;; for click&drag actions
 (defmethod om-click-motion-handler :after ((self om-graphic-object) pos) 
