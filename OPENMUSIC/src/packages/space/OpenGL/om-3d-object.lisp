@@ -75,6 +75,10 @@
   (setf (glvertexes self) (points2vertex points))
   self)
 
+(defmethod om-update-3Dobj ((self om-3D-object))
+  (setf (glvertexes self) (points2vertex (points self))))
+
+
 ;naive implementation
 (defmethod om-append-3Dobj-point ((self om-3D-object) point)
   (setf (points self) (append (points self) point))
@@ -372,7 +376,7 @@
       (opengl:gl-begin opengl:*GL-LINE-STRIP*)
       (loop for i from 0 to size do
             (let ((rgb (om-color-to-single-float-list 
-                        (or (nth i (vertices-colors self)) 
+                        (or (nth i (vertices-colors self))
                             (om-3Dobj-color self) 
                             (om-def-color :light-gray)))))
               (opengl:gl-color4-f (nth 0 rgb) (nth 1 rgb) (nth 2 rgb) 0.8)
@@ -396,8 +400,8 @@
               (draw-gl-point x y z rgb alpha (* 3.0 (line-width self)))
               ))))
     ;restore gl params
-    (restore-om-gl-colors-and-attributes)
-    )
+  (restore-om-gl-colors-and-attributes)
+  )
 
 
 ;;;======================

@@ -66,80 +66,117 @@
 (defmethod init-state ((3DV 3D-viewer))
   (setf (rotation-x 3DV) 0
         (rotation-y 3DV) 0
-        (rotation-z 3DV) 0
-        (center 3DV) (list 0 0 0)))
+        (rotation-z 3DV) 0))
 
 ;;; destructive
-(defmethod apply-scaler ((self om-3d-object) &key x y z)
-  (om-set-3Dobj-points 
-   self
-   (loop for p in (om-3Dobj-points self) collect
-         (list (if x (* x (car p)) (car p))
-               (if y (* y (cadr p)) (cadr p))
-               (if z (* z (caddr p)) (caddr p))
-               ))))
-
-;;; returns new object
+;;; does not modify interal glpoints
 (defmethod scale-object ((self om-3d-object) &key x y z)
-  (let ((copy (om-copy self))) 
-    (om-set-3dobj-points 
-     copy
-     (loop for p in (om-3Dobj-points self) collect
-         (list (if x (* x (car p)) (car p))
-               (if y (* y (cadr p)) (cadr p))
-               (if z (* z (caddr p)) (caddr p))
-               )))
-    copy))
-
-
+  (loop for p in (om-3Dobj-points self) do
+        (if x (setf (car p) (* x (car p))))
+        (if y (setf (cadr p) (* y (cadr p))))
+        (if z (setf (caddr p) (* z (caddr p)))))
+  self)
+  
+(defmethod translate-object ((self om-3d-object) &key x y z)
+  (loop for p in (om-3Dobj-points self) do
+        (if x (setf (car p) (+ x (car p))))
+        (if y (setf (cadr p) (+ y (cadr p))))
+        (if z (setf (caddr p) (+ z (caddr p)))))
+  self)
 
 
 (defmethod get-transformed-data ((self 3D-viewer))  
-  (loop for obj in (data self) collect       
-        (let* (;(new-obj (make-instance (type-of obj) :color (color obj)))
-              (new-obj (scale-object obj :x (scaler-x self) :y (scaler-y self) :z (scaler-z self)))
-              (points-xyz (mat-trans (om-3Dobj-points new-obj))))
-          
-          (let ((xlist (om- (car points-xyz) (nth 0 (center self))))
-                (ylist (om- (cadr points-xyz) (nth 1 (center self))))
-                (zlist (om- (caddr points-xyz) (nth 2 (center self))))
-                (yaw (rotation-z self))
-                (pitch (rotation-x self))
-                (roll (rotation-y self)))
-            
-            ;;; from om-rotate 
-            ;;; !!! the order of the 3 rotations matters !!!
-            ;;; YAW = Z axis
-            (unless (zerop yaw)
-              (multiple-value-bind (a e d) (xyz->aed xlist ylist zlist)
-                (multiple-value-bind (x y z) (aed->xyz (om- a yaw) e d)
-                  (setf xlist x ylist y zlist z))))
-            
-            ;;; ROLL = Y axis
-            (unless (zerop roll)
-              (multiple-value-bind (a e d) (xyz->aed xlist zlist ylist)
-               (multiple-value-bind (x y z) (aed->xyz (om+ a roll) e d)
-                  (setf xlist x ylist z zlist y))))
-            
-            ;;; PITCH = X axis
-            (unless (zerop pitch)
-              (multiple-value-bind (a e d) (xyz->aed zlist ylist xlist)
-               (multiple-value-bind (x y z) (aed->xyz (om+ a pitch) e d)
-                 (setf zlist x ylist y xlist z))))
 
-                  
-            (let ((new-points 
-                   (mat-trans 
-                    (list (om+ xlist (nth 0 (center self)))
-                          (om+ ylist (nth 1 (center self)))
-                          (om+ zlist (nth 2 (center self)))
-                          ))))
-              
-              (om-set-3Dobj-points new-obj new-points)
-              (apply-scaler new-obj :x (/ 1 (scaler-x self)) :y (/ 1 (scaler-y self)) :z (/ 1 (scaler-z self)))
-              new-obj))
+  (loop for obj in (data self) collect    
+        
+        (let* ((new-obj (scale-object 
+                         (translate-object
+                          (om-copy obj) 
+                          :x (- (nth 0 (center self)))
+                          :y (- (nth 1 (center self)))
+                          :z (- (nth 2 (center self))))
+                         :x (scaler-x self)
+                         :y (scaler-y self)
+                         :z (scaler-z self))
+                         )
+               (points-xyz (mat-trans (om-3Dobj-points new-obj)))
+               (xlist (car points-xyz))
+               (ylist (cadr points-xyz))
+               (zlist (caddr points-xyz))
+               (yaw (rotation-z self))
+               (pitch (rotation-x self))
+               (roll (rotation-y self)))
+            
+          ;;; !!! the order of the 3 rotations matters !!!
+          
+          ;;; YAW = Z axis
+          (unless nil ;(zerop yaw)
+            (multiple-value-bind (a e d) (xyz->aed xlist ylist zlist)
+              (multiple-value-bind (x y z) (aed->xyz (om- a yaw) e d)
+                (setf xlist x ylist y zlist z))))
+
+          ;;; ROLL = Y axis
+          (unless nil ;(zerop roll)
+            (multiple-value-bind (a e d) (xyz->aed xlist zlist ylist)
+              (multiple-value-bind (x y z) (aed->xyz (om+ a roll) e d)
+                (setf xlist x ylist z zlist y))))
+          
+          ;;; PITCH = X axis
+          (unless nil ;(zerop pitch)
+            (multiple-value-bind (a e d) (xyz->aed zlist ylist xlist)
+              (multiple-value-bind (x y z) (aed->xyz (om+ a pitch) e d)
+                (setf zlist x ylist y xlist z))))
+
+          (om-set-3Dobj-points new-obj (mat-trans (list xlist ylist zlist)))
+            
+          (translate-object 
+           (scale-object 
+            new-obj
+            :x (/ 1 (scaler-x self)) 
+            :y (/ 1 (scaler-y self)) 
+            :z (/ 1 (scaler-z self)))
+           :x (nth 0 (center self))
+           :y (nth 1 (center self))
+           :z (nth 2 (center self))
+           )    
           )))
 
+
+;;; does not copy the data
+(defmethod filter-3D-data ((data-list list) &key xmin xmax ymin ymax zmin zmax)
+  (remove-if 
+   #'(lambda (line)
+       (find-if #'(lambda (p)
+                    (or (and xmin (< (car p) xmin))
+                        (and xmax (> (car p) xmax))
+                        (and ymin (< (cadr p) ymin))
+                        (and ymax (> (cadr p) ymax))
+                        (and zmin (< (caddr p) zmin))
+                        (and zmax (> (caddr p) zmax))))
+                (om-3Dobj-points line)))
+   data-list))
+
+(defmethod filter-3D-points ((data-list list) &key xmin xmax ymin ymax zmin zmax)
+  (remove-if 
+   #'(lambda (line) (null (om-3Dobj-points line)))
+   (loop for line in data-list collect
+         (let ((newline (om-copy line)))
+           (setf (points newline)
+                 (remove-if 
+                  #'(lambda (p)
+                      (or (and xmin (< (car p) xmin))
+                          (and xmax (> (car p) xmax))
+                          (and ymin (< (cadr p) ymin))
+                          (and ymax (> (cadr p) ymax))
+                          (and zmin (< (caddr p) zmin))
+                          (and zmax (> (caddr p) zmax))))
+                  (om-3Dobj-points newline)))
+           newline))
+   ))
+
+;;;=======================================
+;;; EDITOR
+;;;=======================================
 
 (defmethod object-has-editor ((self 3D-viewer)) t)
 (defmethod get-editor-class ((self 3D-viewer)) '3D-viewer-editor)
@@ -180,6 +217,9 @@
     (set-min-max (get-g-component editor :center-x-numbox)
                  :min (car values)
                  :max (cadr values)))
+
+  (update-lines editor)
+  
   values)
 
 (defmethod set-y-grid ((editor 3d-viewer-editor) values)
@@ -194,7 +234,26 @@
     (set-min-max (get-g-component editor :center-y-numbox)
                  :min (car values)
                  :max (cadr values)))
+
+  (update-lines editor)
+  
   values)
+
+(defmethod update-lines ((ed 3D-viewer-editor)) 
+  (let ((3D-view (get-g-component ed :3d-view)))
+    (loop for line in (get-transformed-data (object-value ed)) do
+          for view-line in (om-get-gl-objects 3d-view) collect
+          (setf (vertices-colors view-line)
+                (loop for p in (om-3Dobj-points line)
+                      collect  (if (and (filter-off-grid ed)
+                                        (or (< (car p) (car (x-grid ed)))
+                                            (> (car p) (cadr (x-grid ed)))
+                                            (< (cadr p) (car (y-grid ed)))
+                                            (> (cadr p) (cadr (y-grid ed)))))
+                                   (om-make-color-alpha (om-def-color :gray) 0.1)
+                                 NIL))))
+    (gl-user::clear-gl-display-list 3D-view)
+    ))
 
 
 (defmethod update-g-components ((ed 3D-viewer-editor))
@@ -212,7 +271,9 @@
 
 (defmethod set-from-editor ((editor 3d-viewer-editor) object-slot value)
   (setf (slot-value (object-value editor) object-slot) value)
-  (soft-update-from-editor (object editor))) 
+  (soft-update-from-editor (object editor))
+  (when (filter-off-grid editor)
+    (update-lines editor)))
 
     
 (defmethod make-editor-window-contents ((editor 3d-viewer-editor))
@@ -488,6 +549,7 @@
                            :checked-p (filter-off-grid editor)
                            :di-action #'(lambda (item) 
                                           (setf (filter-off-grid editor) (om-checked-p item))
+                                          (update-lines editor)
                                           (om-invalidate-view (get-g-component editor :3d-view))))
 
                ))
@@ -522,8 +584,11 @@
     (om-set-gl-objects 
      3D-view
      (loop for ob in (data obj) collect 
-           (scale-object ob :x (scaler-x obj) :y (scaler-y obj) :z (scaler-z obj))))
-     
+           (let ((view-ob (om-copy ob)))
+             (scale-object view-ob :x (scaler-x obj) :y (scaler-y obj) :z (scaler-z obj))
+             (om-update-3Dobj view-ob)
+             view-ob)
+           ))
     ;; apparently this needs to be done earlier (currently in draw-grid)
      (init-grid editor) 
     ))
@@ -615,7 +680,7 @@
         (xmax (* 2.0 (ceiling x2 2)))
         (ymin (* 2.0 (floor y1 2)))
         (ymax (* 2.0 (ceiling y2 2))))
-        
+        o
     (opengl:gl-line-width .5) 
     (opengl:gl-color4-f 0.9 0.9 0.9 0.9)
     (opengl:gl-begin opengl:*GL-LINES*)       
@@ -734,10 +799,15 @@
       (#\o (init-state 3DV)
            (soft-update-from-editor (object ed))
            (update-g-components ed)
-           (om-invalidate-view self)
-           (om-invalidate-view self) ;;; don't know why this is needed twice...
-       )
-
+           (when (filter-off-grid ed) (update-lines ed))
+           (om-invalidate-view self))
+      (#\O (init-state 3DV)
+           (setf (center 3DV) (list 0 0 0))
+           (soft-update-from-editor (object ed))
+           (update-g-components ed)
+           (when (filter-off-grid ed) (update-lines ed))
+           (om-invalidate-view self))
+      
       (#\Space (report-modifications ed))
     
       (otherwise (call-next-method)))))
@@ -775,6 +845,7 @@
 
    
    (update-g-components ed)
+   (when (filter-off-grid ed) (update-lines ed))
    (soft-update-from-editor (object ed))
 
    (opengl:rendering-on (self)
@@ -801,11 +872,13 @@
         (:z (setf (rotation-z 3DV) (mod (+ (rotation-z 3DV) dy) 360)))))
    
     (update-g-components ed)
+    (when (filter-off-grid ed) (update-lines ed))
     (soft-update-from-editor (object ed))
       
     (opengl:rendering-on (self)
       (gl-user::opengl-redisplay-canvas self))
     
     (setf (gl-user::lastxy self) (cons x y))))
+
 
 
