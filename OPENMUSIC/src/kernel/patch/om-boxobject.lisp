@@ -250,8 +250,7 @@
 ;;===========================================
 
 (defclass OMBoxEditCall (OMBoxRelatedWClass ObjectWithEditor object-with-edit-params) 
-  (
-   (play-state :initform nil :accessor play-state))
+  ((play-state :initform nil :accessor play-state))
   (:metaclass omstandardclass))
 
 (defmethod special-box-type ((self t)) nil)
@@ -444,10 +443,11 @@
   (draw-mini-label "NIL" box x y w h time))
 
 (defmethod draw-mini-label ((text string) (box OMBox) x y w h &optional time)
-  (om-with-font 
-   (om-def-font :font1 :face "arial" :size 18 :style '(:bold))
-   (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
-     (om-draw-string (+ x 10) (+ y (max 22 (+ 6 (/ h 2)))) text))))
+  (let ((str (if (eval-flag box) ".oO__.." text)))
+    (om-with-font 
+     (om-def-font :font1 :face "arial" :size 18 :style '(:bold))
+     (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
+       (om-draw-string (+ x 10) (+ y (max 22 (+ 6 (/ h 2)))) str)))))
   
 (defmethod draw-mini-text ((object t) (box OMBox) x y w h &optional time)
   ;(om-with-font 

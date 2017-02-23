@@ -61,7 +61,8 @@
 
 (defmethod get-object-type-name ((object collection)) 
   (and (obj-type object)
-       (string+ "COLLECTION OF " (string-upcase (obj-type object)))))
+       (string+ "COLLECTION OF " (string-upcase (obj-type object)) 
+                "s (" (number-to-string (length (obj-list object))) ")")))
   
 (defmethod display-modes-for-object ((self collection)) '(:hidden :text :mini-view))
 
@@ -96,9 +97,11 @@
     (case (display box)
       (:hidden 
        (draw-mini-label 
-        (string+ (string-upcase (type-of object)) " of " (string-upcase (type-of (car (obj-list object)))))
+        (string+ (string-upcase (type-of object)) " of "
+                 (number-to-string (length (obj-list object))) " " 
+                 (string-upcase (type-of (car (obj-list object)))) "s")
         box 0 0 (w frame) (h frame) (box-play-time frame)))
-      (otherwise (call-next-method)) 
+      (otherwise (call-next-method))
       )))
 
 

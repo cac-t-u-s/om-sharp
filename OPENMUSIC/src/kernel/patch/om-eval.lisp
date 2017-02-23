@@ -137,6 +137,7 @@
                                                           (om-report-condition c))
                                                  :size (om-make-point 300 200))
                               (clear-after-error self)
+                              (setf (eval-flag self) nil)
                               (om-abort)))))
     (cond
      
@@ -148,7 +149,10 @@
      ((and (equal (lock-state self) :eval-once) (ev-once-flag self)) 
       (return-value self numout))
      
-     (t (let ((new-val 
+     (t 
+      (setf (eval-flag self) t)
+      (om-invalidate-view (frame self))
+      (let ((new-val 
                (cond ((equal (lambda-state self) :lambda) 
                       (multiple-value-list (box-lambda-value self)))
                      (t (multiple-value-list (boxcall-value self)))
@@ -157,6 +161,7 @@
             ;;; first evaluation in this generation: set the value and flag
             (setf (ev-once-flag self) t))
           (set-value self new-val)
+          (setf (eval-flag self) nil)
           (return-value self numout)))
      )))
 
@@ -256,9 +261,9 @@
 ;;; SETS the edit-params, no matter if the box is locked or not
 (defmethod omNG-box-value ((self OMBoxEditCall) &optional (numout 0)) 
   
-  (unless (equal (lock-state self) :locked)
-    (setf (value self) (list (make-instance (reference self)))) ;; test if no problem...
-    (om-invalidate-view (frame self)))
+  ;(unless (equal (lock-state self) :locked)
+  ;  (setf (value self) (list (make-instance (reference self)))) ;; test if no problem...
+  ;  (om-invalidate-view (frame self)))
   
   (let ((box-attributes (loop for input in (cdr (inputs self))
                               when (and (find (intern-k (name input)) 
