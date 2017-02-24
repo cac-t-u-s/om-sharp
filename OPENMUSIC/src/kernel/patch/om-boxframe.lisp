@@ -346,7 +346,7 @@
                               (or (find (get-icon-id-from-reference self) *om-loaded-picts*)
                                          'not-found)))))
     (om-set-view-size view (om-def-point (omp (box-w self) (box-h self))
-                                                (default-size self)))
+                                         (default-size self)))
     (setf (frame self) view)
     (set-frame-areas view)
     view))
@@ -622,35 +622,37 @@
 (defvar *connection-handler* nil)
 
 (defmethod start-connection ((self omboxframe) oa &optional after-fun)
-  (let* ((patchpanel (om-view-container self))
-         (init-pos-in-patch (om-convert-coordinates (get-position oa) self patchpanel))
-         (connection (om-make-graphic-object 'drag-line :position init-pos-in-patch 
-                                             :size (om-make-point 4 4))))
-    (om-init-temp-graphics-motion patchpanel 
-                           init-pos-in-patch
-                           connection
-                           :motion #'(lambda (panel pos)
-                                       (setf *connection-handler* t)
-                                       (om-set-view-size connection (om-subtract-points pos init-pos-in-patch))
-                                       (let ((target (om-find-view-containing-point panel pos)))
-                                         (if (and target (not (equal target self))) 
-                                             (handle-connect-move target 
-                                                                  (om-convert-coordinates pos panel target) 
-                                                                  self oa)
-                                           )))
-                           :release #'(lambda (panel pos)
-                                        (setf *connection-handler* nil)
-                                        (let ((target (om-find-view-containing-point panel pos)))
-                                          (when (and target (not (equal target self)))
-                                              (let ((connected? (handle-connect-release target 
-                                                                                        (om-convert-coordinates pos panel target) 
-                                                                                        self oa patchpanel)))
-                                                   (when after-fun (funcall after-fun connected?)) 
-                                                   ;;; will not be called in handle-connect-release returns nil
-                                                   )
-                                            )))
-                           )
-   ))
+  (unless (edit-lock (editor (om-view-container self)))
+    (let* ((patchpanel (om-view-container self))
+           (init-pos-in-patch (om-convert-coordinates (get-position oa) self patchpanel))
+           (connection (om-make-graphic-object 'drag-line :position init-pos-in-patch 
+                                               :size (om-make-point 4 4))))
+      (setf *connection-handler* t)
+      (om-init-temp-graphics-motion patchpanel 
+                                    init-pos-in-patch
+                                    connection
+                                    :min-move nil ;; so that the release action is called always => important !
+                                    :motion #'(lambda (panel pos)
+                                                (om-set-view-size connection (om-subtract-points pos init-pos-in-patch))
+                                                (let ((target (om-find-view-containing-point panel pos)))
+                                                  (if (and target (not (equal target self))) 
+                                                      (handle-connect-move target 
+                                                                           (om-convert-coordinates pos panel target) 
+                                                                           self oa)
+                                                    )))
+                                    :release #'(lambda (panel pos)
+                                                 (setf *connection-handler* nil)
+                                                 (let ((target (om-find-view-containing-point panel pos)))
+                                                   (when (and target (not (equal target self)))
+                                                     (let ((connected? (handle-connect-release target 
+                                                                                               (om-convert-coordinates pos panel target) 
+                                                                                               self oa patchpanel)))
+                                                       (when after-fun (funcall after-fun connected?)) 
+                                                       ;;; will not be called in handle-connect-release returns nil
+                                                       )
+                                                     )))
+                                    )
+      )))
 
 
 (defparameter *last-active-frame* nil)
@@ -755,8 +757,9 @@
            (x-sorted (sort (cdr y-sorted) '< :key 'box-x))
            (lower-box (car y-sorted))
            ;(sorted-outputs (apply 'append (mapcar #'(lambda (frame) (outputs (object frame))) x-sorted)))
-           (sorted-outputs (if (= 1 (length x-sorted)) (outputs (car x-sorted))
-                             (mapcar #'(lambda (b) (car (outputs b))) x-sorted)))
+           (sorted-outputs (remove nil ;; some boxes have no output at all (e.g. comments !)
+                                   (if (= 1 (length x-sorted)) (outputs (car x-sorted))
+                                     (mapcar #'(lambda (b) (car (outputs b))) x-sorted))))
            (patch (object editor)))
       (when x-sorted ;; more than 1 box in the game
       (loop for i in (inputs lower-box)

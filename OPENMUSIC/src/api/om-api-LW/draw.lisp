@@ -240,9 +240,9 @@
                       ,.(if selected '(:block t :foreground :color_highlighttext :background :color_highlight) '(:block nil)))))
 
 ;; #-cocoa :operation #-cocoa (if erasable boole-eqv boole-1)
-(defun om-draw-line (x1 y1 x2 y2 &key style color line)
+(defun om-draw-line (x1 y1 x2 y2 &key (style :round) color line)
   ;(gp:draw-line *curstream* (+ x1 0.5) (+ y1 0.5) (+ x2 0.5) (+ y2 0.5))
-  (gp:draw-line *curstream* x1 y1 x2 y2 :line-end-style style    ;, :round or :projecting)
+  (gp:draw-line *curstream* x1 y1 x2 y2 :line-end-style style ; :round or :projecting
                 :foreground (get-real-color color)
                 :thickness line)
   )

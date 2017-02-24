@@ -310,11 +310,9 @@
              (values (round (- right left)) (- bottom top)))
     (values 0 0)))
 
-; (om-string-size "Hello" (om-make-font "arial" 20))
 
+; (om-string-size "Hello" (om-make-font "arial" 10))
 ; Myriad Web Pro
-
-
 
 (defun om-def-font (f &key face size style)
   (let ((def-face #+mswindows "Calibri"  #+linux "Liberation Sans" #+cocoa "Verdana")

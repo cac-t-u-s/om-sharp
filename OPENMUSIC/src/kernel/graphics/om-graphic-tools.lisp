@@ -269,14 +269,28 @@
 
 ;;; selection rectangle can have negative sizes
 (defmethod om-draw-contents ((self drag-line))
-  (let ((x (if (plusp (w self)) 0 -2))
-        (y (if (plusp (h self)) 0 -2))
-        (w (- (w self) (if (plusp (w self)) 1 -4)))
-        (h (- (h self) (if (plusp (h self)) 1 -4))))
-    (om-with-fg-color (om-def-color :gray)
-      (om-with-line-size 2 (om-draw-line x y w h))
-      )
-    ))
+  (let ((x1 (if (plusp (w self)) 0 -2))
+        (y1 (if (plusp (h self)) 0 -2))
+        (x2 (- (w self) (if (plusp (w self)) 1 -4)))
+        (y2 (- (h self) (if (plusp (h self)) 1 -4)))
+        (linesize 2))
+    (om-with-line-size linesize
+      (om-with-fg-color (om-def-color :gray)
+        (om-with-line '(1 3)
+        (if (> y2 y1)
+          (let ((y-mid (+ y1 (round (- y2 y1) 2))))
+            (om-draw-line x1 y1 x1 y-mid)
+            (om-draw-line x1 y-mid x2 y-mid)
+            (om-draw-line x2 y-mid x2 y2)
+            )
+        (let ((x-mid (+ x1 (round (- x2 x1) 2))))
+          (om-draw-line x1 y1 x1 (+ y1 10))
+          (om-draw-line x1 (+ y1 10) x-mid (+ y1 10))
+          (om-draw-line x-mid (+ y1 10) x-mid (- y2 10))
+          (om-draw-line x-mid (- y2 10) x2 (- y2 10))
+          (om-draw-line x2 (- y2 10) x2 y2)
+          )
+        ))))))
 
 
 

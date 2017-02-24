@@ -170,18 +170,28 @@
   t)
 
 (defmethod om-view-doubleclick-handler ((self patch-editor-view) pos) 
-  (enter-new-box self (om-add-points pos (om-make-point -8 -14))))
+  (unless (or (om-point-in-rect-p pos 0 0 20 20)
+              (edit-lock (editor self)))
+    (enter-new-box self (om-add-points pos (om-make-point -8 -14)))))
 
 (defmethod om-view-click-handler ((self patch-editor-view) position)
-  (unless (om-shift-key-p)
-    (select-unselect-all (editor self) nil))
-  (or (click-connection-handle self position)
+  ;;; special : click on teh lock-button
+  (if (om-point-in-rect-p position 0 0 20 20)
       (progn
-        (when (om-get-clipboard) (set-paste-position position self))
-        (mouse-selection self position))))
+        (setf (edit-lock (editor self)) (not (edit-lock (editor self))))
+        (om-invalidate-area self 0 0 20 20))
+    (progn
+      (unless (om-shift-key-p)
+        (select-unselect-all (editor self) nil))
+      (or (click-connection-handle self position)
+          (progn
+            (when (om-get-clipboard) (set-paste-position position self))
+            (mouse-selection self position))))
+    ))
 
 ;;;handles the selction/drag, etc. of connections
 (defmethod click-connection-handle ((self patch-editor-view) pos)
+  
   (let ((selected-connection (find-if #'(lambda (c) 
                                           (point-in-connection pos c))
                                       (get-grap-connections self))))
@@ -462,63 +472,9 @@
 
 
 
-;;;===========================================
-;;; SAVE / SAVE-AS / REVERT 
-;;;===========================================
-
-(defmethod save-command ((self patch-editor))
-  (when (is-persistant (object self))
-    #'(lambda () 
-        (let ((patch-to-save (if (is-persistant (object self)) 
-                                 (object self)
-                               (find-persistant-container (object self)))))
-          ;;; with the if-persistant test, patch-to-save will always be self
-          (if patch-to-save
-              (progn 
-                (save-document patch-to-save)
-                (update-window-name self))
-            (om-beep-msg "No container patch to save !!!"))
-          ))))
-
-
-(defmethod save-as-menu-name ((self patch-editor)) 
-  (if (is-persistant (object self)) "Save as..." "Externalize..."))
-
-;;; Externalize an internal abstraction
-(defmethod save-as-command ((self patch-editor))
- (let ((patch (object self)))
-   (if (is-persistant patch)
-      ;;; rename/resave the patch
-      #'(lambda ()
-          (let ((sg-pathname (mypathname patch)))
-            (setf (mypathname patch) nil)
-            (if (save-document patch)   ;; set name is done here in save-document
-                (update-window-name self)
-              (setf (mypathname patch) sg-pathname)))
-          )
-      
-      ;;; create a persistant patch
-      #'(lambda ()
-        (change-class patch 'OMPatchFile :icon 'patch-file)
-        (setf (create-info patch) (list (om-get-date) (om-get-date)))
-        (register-document patch)
-        (save-document patch)   ;; set name is done here in save-document
-        (funcall (revert-command self)) ;; to update menus etc.
-        )
-    )))
-
-(defmethod revert-command ((self patch-editor))
-  (and (is-persistant (object self)) (mypathname (object self))
-       #'(lambda () 
-           (with-no-check (om-close-window (window self)))
-           (open-doc-from-file (object-doctype (object self)) (mypathname (object self)))
-           )))
-
-
 (defmethod report-modifications ((self patch-editor))
   (call-next-method)
-  (patch-editor-set-lisp-code self)
-  (update-window-name self))
+  (patch-editor-set-lisp-code self))
 
 
 #|
@@ -902,12 +858,12 @@
                                          'om-row-layout
                                          :subviews (list
                                                     (om-make-di 'om-button :text "Copy Lisp code" 
-                                                                :size (omp 140 32)
+                                                                :size (omp 140 32) :font (om-def-font :font1)
                                                                 :di-action #'(lambda (b) (om-copy-command text-pane)
                                                                                (om-print "Lisp code copied to clipboard")))
                                                     nil
-                                                    (om-make-di 'om-button :text "X" 
-                                                                :size (omp 40 32)
+                                                    (om-make-di 'om-button :text "close" 
+                                                                :size (omp 60 32) :font (om-def-font :font1)
                                                                 :di-action #'(lambda (b) (patch-editor-show-lisp-code editor nil)))
                                                     ))))))
            patch-view))
