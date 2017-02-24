@@ -40,11 +40,6 @@
 (defmethod get-default-edit-param ((self OMAbstractContainer) param)
   (find-value-in-kv-list (object-default-edition-params (contents self)) param))
 
-;;;=============================
-
-
-;;; Superclass for OM root editors (patch, maquette, Lispfile, etc.)
-(defclass OMDocumentEditor (OMEditor) ())
 
 (defmethod window ((self OMEditor))
   (or (slot-value self 'window)
@@ -60,6 +55,59 @@
   (cond ((object self) (get-value-for-editor (object self)))
         ((container-editor self) (object-value (container-editor self)))
         (t nil)))
+
+;;;=============================
+;;; Superclass for OM root editors (patch, maquette, Lispfile, etc.)
+(defclass OMDocumentEditor (OMEditor) ())
+
+(defmethod save-command ((self OMDocumentEditor))
+  #'(lambda () 
+      (let ((doc-to-save (if (is-persistant (object self)) 
+                               (object self)
+                             (find-persistant-container (object self)))))
+        (if doc-to-save
+            (progn 
+                (save-document doc-to-save)
+                (update-window-name (editor doc-to-save)))
+            (om-beep-msg "No container document to save !!!"))
+          )))
+
+(defmethod save-as-menu-name ((self OMDocumentEditor)) 
+  (if (is-persistant (object self)) "Save as..." "Externalize..."))
+
+(defmethod save-as-command ((self OMDocumentEditor))
+ (let ((doc (object self)))
+   (if (is-persistant doc)
+      ;;; rename/resave the doc
+      #'(lambda ()
+          (let ((sg-pathname (mypathname doc)))
+            (setf (mypathname doc) nil)
+            (if (save-document doc)   ;; set name is done here in save-document
+                (update-window-name self)
+              (setf (mypathname doc) sg-pathname)))
+          )
+      
+      ;;; create a persistant patch
+      #'(lambda ()
+          (change-class doc (externalized-type doc) 
+                        :icon (externalized-icon doc))
+          (setf (create-info doc) (list (om-get-date) (om-get-date)))
+          (register-document doc)
+          (save-document doc)   ;; set name is done here in save-document
+          (funcall (revert-command self)) ;; to update menus etc.
+        )
+    )))
+
+(defmethod revert-command ((self OMDocumentEditor))
+  (and (is-persistant (object self)) (mypathname (object self))
+       #'(lambda () 
+           (with-no-check (om-close-window (window self)))
+           (open-doc-from-file (object-doctype (object self)) (mypathname (object self)))
+           )))
+
+;;; Externalize an internal abstraction
+
+;;;=============================
 
 (defclass OMEditorWindow (om-window) 
   ((editor :initarg :editor :initform nil :accessor editor)
@@ -316,7 +364,7 @@
 
 (defmethod om-window-check-before-close ((self OMEditorWindow)) 
   ;(print (list "close" self)) 
-  (and (ask-save-before-close (object (editor self)))
+  (and (ask-save-before-close (print (object (editor self))))
        (call-next-method)))
 
 (defmethod om-view-key-handler ((self OMEditorWindow) key)

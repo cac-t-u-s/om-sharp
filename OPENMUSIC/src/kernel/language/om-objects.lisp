@@ -146,7 +146,7 @@
 
 (defmethod set-name ((self OMProgrammingObject) name)
   (call-next-method)
-  (when (editor self) (update-window-name (editor self)))
+  (when (editor self) (update-window-name (editor self))).
   (loop for box in (references-to self) ;; in principel there is only one at this stage
         do (set-name box (name self))
         do (om-invalidate-view (frame box))))
@@ -207,6 +207,9 @@
         )
     ;;; no pathname yet : newly created window
     (format nil "*~A  [...]" (name self))))
+
+;;; DOES NOT COPY !! (e.G. if I copy a box refereing to a persistant object, the copy will refer to the same object)
+(defmethod om-copy ((self OMPersistantObject)) self)
 
 ;;;=======================================
 ;;; FOLDERS (not used for the moment...)

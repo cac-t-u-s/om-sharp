@@ -42,12 +42,14 @@
         (om-make-menu-comp 
          (list (om-make-menu-item "Select All" #'(lambda () (funcall (select-all-command self))) :key "a" :enabled (and (select-all-command self) t))))
         (om-make-menu-comp 
-         (list (om-make-menu "Font" (list
-                                     (om-make-menu-comp 
-                                      (list (om-make-menu-item "Bold" #'(lambda () (funcall (font-bold-command self))) :key "B" :enabled (and (font-bold-command self) t))
-                                            (om-make-menu-item "Italics" #'(lambda () (funcall (font-italics-command self))) :key "I" :enabled (and (font-italics-command self) t))))
-                                     (om-make-menu-item "Open Fonts..." #'(lambda () (funcall (font-command self))) :key "T" :enabled (and (font-command self) t)))
-                             :enabled (and (or (font-bold-command self) (font-italics-command self) (font-command self)) t))))
+         (list (om-make-menu 
+                "Font" 
+                (list
+                 (om-make-menu-comp 
+                  (list (om-make-menu-item "Bold" #'(lambda () (funcall (font-bold-command self))) :key "B" :enabled (and (font-bold-command self) t))
+                        (om-make-menu-item "Italics" #'(lambda () (funcall (font-italics-command self))) :key "I" :enabled (and (font-italics-command self) t))))
+                 (om-make-menu-item "Open Fonts..." #'(lambda () (funcall (font-command self))) :key "T" :enabled (and (font-command self) t)))
+                :enabled (and (or (font-bold-command self) (font-italics-command self) (font-command self)) t))))
         ))
 
 (defun default-windows-menu-items (self)

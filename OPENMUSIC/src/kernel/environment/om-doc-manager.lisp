@@ -234,20 +234,21 @@
                        ((and (consp rep) (equal (car rep) t))   ;; Yes : save and close if save is OK
                         (save-document self)
                         (and (mypathname self) (saved? self)))
-                       (t nil)))))) 
+                       (t nil))))))
     close?))
+
 
 (defmethod save-document ((self OMPersistantObject))
   
   (unless (mypathname self)
     (prepare-save-as self))
-
-   (when (mypathname self)
+  
+  (when (mypathname self)
     (let ((tempfile (om-make-pathname :directory (mypathname self) 
                                       :name (pathname-name (mypathname self))
                                       :type (string+ (pathname-type (mypathname self)) ".tmp"))))
       
-      (update-create-info  self) ;;; modif date is now
+      (update-create-info self) ;;; modif date is 'now'
       (with-open-file (out tempfile :direction :output  
                            :if-does-not-exist :create :if-exists :supersede)
         (handler-bind 

@@ -213,10 +213,7 @@
 ;;; SPECIAL OM OBJECTS
 ;;;===================================
 
-;;;=============
-; PATCH / MAQUETTE
-;;;=============
-(defmethod save-patch-contents ((self OMPatch) &optional (box-values nil))
+(defmethod save-patch-contents ((self OMProgrammingObject) &optional (box-values nil))
   `(,(object-doctype self)
     (:om-version ,(omversion self))
     (:name ,(name self))
@@ -229,12 +226,20 @@
                (list (om-point-x (window-size self)) (om-point-y (window-size self)))))  
      (:position ,(when (window-pos self)
                    (list (om-point-x (window-pos self)) (om-point-y (window-pos self))))))
-   
-    (:boxes ,.(loop for box in (boxes self) 
-                    for i = 0 then (+ i 1) 
-                    collect (append (if box-values (omng-save-with-value box) (omng-save box))
-                                    (list (list :id i)))))
-    (:connections ,.(save-connections-from-boxes (boxes self)))))
+    ))
+
+;;;=============
+; PATCH / MAQUETTE
+;;;=============
+
+(defmethod save-patch-contents ((self OMPatch) &optional (box-values nil))
+ (append
+   (call-next-method self t)
+   `((:boxes ,.(loop for box in (boxes self) 
+                     for i = 0 then (+ i 1) 
+                     collect (append (if box-values (omng-save-with-value box) (omng-save box))
+                                     (list (list :id i)))))
+     (:connections ,.(save-connections-from-boxes (boxes self))))))
 
 
 (defmethod omng-save ((self OMPatch)) 
@@ -357,21 +362,13 @@
     (setf (loaded? fun) t)
     fun))
 
+(defmethod save-patch-contents ((self OMLispFunction) &optional (box-values nil))
+  (append
+   (call-next-method self t)
+   `((:text ,(omng-save (text self))))))
+
 (defmethod omng-save ((self OMLispFunction)) 
-  `(:textfun
-    (:om-version ,(omversion self))
-    (:name ,(name self))
-    (:doc ,(doc self))
-    (:info 
-     (:created ,(car (create-info self)))
-     (:modified ,(cadr (create-info self))))
-    (:window 
-     (:size ,(when (window-size self)
-               (list (om-point-x (window-size self)) (om-point-y (window-size self)))))  
-     (:position ,(when (window-pos self)
-                   (list (om-point-x (window-pos self)) (om-point-y (window-pos self))))))
-   
-    (:text ,(omng-save (text self)))))
+  (save-patch-contents self))
 
 (defmethod omng-save ((self OMLispFunctionFile))  
   `(:textfun-from-file ,(namestring (mypathname self))))

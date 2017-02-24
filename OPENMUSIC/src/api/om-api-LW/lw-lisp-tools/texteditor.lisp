@@ -110,6 +110,13 @@
           (text-editor-window-menus win)))
   (om-text-editor-activate-callback win activate-p))
 
+(defmethod om-text-editor-resized (win w h) nil)
+(defmethod om-text-editor-moved (win x y) nil)
+
+(defmethod text-edit-window-change-callback (win x y w h)
+  (om-text-editor-resized win w h)
+  (om-text-editor-moved win x y))
+
 (defmethod update-window-title ((self om-text-editor-window) &optional (modified nil modified-supplied-p))
   (let ((base (if (file self) (namestring (file self)) "text buffer"))
         (modified (if modified-supplied-p modified (buffer-modified-p self))))
@@ -158,7 +165,7 @@
 
 ; (setf *editor-files-open* nil)
 
-(defun om-open-text-editor (&key contents class (lisp t) title)
+(defun om-open-text-editor (&key contents class (lisp t) title x y w h)
   (let* ((path (and (pathnamep contents) contents))
          (window (when path (find-open-file path))))
     (if window 
@@ -167,14 +174,16 @@
       (progn
         (setf window (make-instance (or class 'om-text-editor-window) 
                                     :name (concatenate 'string "TextEditor_" (string (gensym)))
-                                    :x 200 :y 200 :width 800 :height 800
+                                    ;:x (or x 200) :y (or y 200) 
+                                    ;:width (or w 800) :height (or h 800)
                                     :title (or title (if path (namestring path) "New Text Buffer"))
                                     :parent (capi:convert-to-screen)
                                     :internal-border 5 :external-border 0
-                                    :internal-min-height 200 :internal-min-width 300
+                                    ;:internal-min-height (or h 800) :internal-min-width (or w 800)
                                     :display-state :normal
                                     :file path :lisp? lisp
                                     :activate-callback 'text-edit-window-activate-callback
+                                    :geometry-change-callback 'text-edit-window-change-callback
                                     ))
         (let* ((buffer (if path (editor:find-file-buffer path) :temp)) ; (om-make-buffer)))
                (text (cond ((consp contents)
@@ -304,23 +313,27 @@
 ;;; NEW STYLE : "SAVE BEFORE CLOSE?"
 ;;; check if : Buffer modified 
 ;;; called by the destroy callback
+
+(defmethod om-text-editor-check-before-close  ((self om-text-editor-window)) t)
+
 (defmethod check-close-buffer ((self om-text-editor-window))
-  (if (and (om-lisp::buffer-modified-p self) 
-           (om-lisp::save-operation-enabled self))
-      (multiple-value-bind (answer successp)
-          (capi:prompt-for-confirmation
-           (format nil "Changes on ~A were not saved.~% Save before closing?"
-                   (if (file self) (pathname-name (file self)) "this text buffer"))
-           :cancel-button t :default-button :ok)
-        (when answer
-          (with-slots (ep) self
-              (let ((buffer (capi::editor-pane-buffer ep)))
-                (if (file self)
-                    (call-editor ep (list 'editor:save-file-command buffer))
-                  (or (save-as-text-file self)
-                      (setf successp nil))))))
-        successp)
-    t))
+  (and (om-text-editor-check-before-close self)
+       (if (and (om-lisp::buffer-modified-p self) 
+                (om-lisp::save-operation-enabled self))
+           (multiple-value-bind (answer successp)
+               (capi:prompt-for-confirmation
+                (format nil "Changes on ~A were not saved.~% Save before closing?"
+                        (if (file self) (pathname-name (file self)) "this text buffer"))
+                :cancel-button t :default-button :ok)
+             (when answer
+               (with-slots (ep) self
+                 (let ((buffer (capi::editor-pane-buffer ep)))
+                   (if (file self)
+                       (call-editor ep (list 'editor:save-file-command buffer))
+                     (or (save-as-text-file self)
+                         (setf successp nil))))))
+             successp)
+         t)))
 
 ;;; checks all not-saved text windows
 ;;; ask for save each time and retruns t or nil if cancel
@@ -455,6 +468,11 @@
   (with-slots (ep) self
     (let ((buffer (capi::editor-pane-buffer ep)))
       (call-editor ep (list 'editor::undo-command buffer)))))
+
+(defmethod text-edit-redo ((self om-text-editor-window))
+  (with-slots (ep) self
+    (let ((buffer (capi::editor-pane-buffer ep)))
+      (call-editor ep (list 'editor::redo-command buffer)))))
 
 
 (defvar *def-text-edit-font* nil)

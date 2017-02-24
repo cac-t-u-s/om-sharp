@@ -119,11 +119,11 @@
 (defmethod make-new-om-doc ((type (eql :patch)) name)
   (make-instance 'OMPatchFile :name name))
 
-;;; DOES NOT COPY !!
-(defmethod om-copy ((self OMPatchFile)) self)  
 
+;; For conversions
 (defmethod internalized-type ((self OMPatchFile)) 'OMPatchInternal)
-
+(defmethod externalized-type ((self OMPatch)) 'OMPatchFile)
+(defmethod externalized-icon ((self OMPatch)) 'patch-file)
 
 ;;;==========================================
 ;;; DIFFERENCES BETWEEN INTERNAL AND NOT INTERNAL :

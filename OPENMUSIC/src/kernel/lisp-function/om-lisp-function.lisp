@@ -5,7 +5,10 @@
    (error-flag :initform nil :accessor error-flag)
    ))
 
+(defmethod object-doctype ((self OMLispFunction)) :textfun)
 (defmethod default-compiled-gensym  ((self OMLispFunction)) (gensym "lispfun-"))
+
+
 
 (defclass OMLispFunctionInternal (OMLispFunction) ()
   (:default-initargs :icon 'lisp-f)
@@ -17,6 +20,12 @@
 (defclass OMLispFunctionFile (OMPersistantObject OMLispFunction) ()
   (:default-initargs :icon 'lisp-f-file) 
   (:metaclass omstandardclass))
+
+
+;; For conversions
+(defmethod internalized-type ((self OMLispFunctionFile)) 'OMLispFunctionInternal)
+(defmethod externalized-type ((self OMLispFunction)) 'OMLispFunctionFile)
+(defmethod externalized-icon ((self OMLispFunction)) 'lisp-f-file)
 
 (defparameter *default-lisp-function-text* 
   '(";;; Edit a valid LAMBDA EXPRESSION"
@@ -57,12 +66,20 @@
     o))
 |#
 
-(defmethod update-lisp-fun ((self OMLispFunction) text) 
-  (setf (text self) text)
+(defmethod update-lisp-fun ((self OMLispFunction))
   (compile-patch self)
   (loop for item in (references-to self) do
         (update-from-reference item)))
 
+(defmethod save-document ((self OMLispFunctionFile))
+  (call-next-method)
+  (update-lisp-fun self))
+
+(defmethod copy-contents ((from OMLispFunction) (to OMLispFunction))  
+  (setf (text to) (text from))
+  to)
+
+;; other causes of update-lisp-fun are below in the editor
 
 (defmethod compile-patch ((self OMLispFunction)) 
   "Compilation of a lisp function"
@@ -146,9 +163,6 @@
     (om-invalidate-view (frame self))
     t))
 
-
-
-
 ;;;===================
 ;;; EDITOR
 ;;;===================
@@ -159,24 +173,14 @@
 ;;; nothing, e.g. to close when the editor is closed
 (defmethod close-internal-elements ((self OMLispFunction)) nil)
 
-(defmethod save-command ((self lisp-function-editor))
-  #'(lambda () 
-      (let ((doc-to-save (if (is-persistant (object self)) 
-                               (object self)
-                             (find-persistant-container (object self)))))
-        (if doc-to-save
-            (progn 
-                (save-document doc-to-save)
-                (update-window-name self))
-            (om-beep-msg "No document to save !!!"))
-          )))
-
+;;; maybe interesting to make this inherit from OMEditorWindow..
 
 (defclass lisp-function-editor-window (om-lisp::om-text-editor-window) 
   ((editor :initarg :editor :initform nil :accessor editor)))
 
-(defmethod om-lisp::save-operation-enabled ((self lisp-function-editor-window)) 
-  (is-persistant (object (editor self)))) 
+;;; this will disable the default save/persistent behaviours of the text editor
+;;; these will be handled by OM following the model of OMPatch
+(defmethod om-lisp::save-operation-enabled ((self lisp-function-editor-window)) nil)
 
 (defmethod open-editor-window ((self lisp-function-editor))
   (if (and (window self) (om-window-open-p (window self)))
@@ -186,36 +190,80 @@
                    :contents (text lispf)
                    :lisp t
                    :class 'lisp-function-editor-window
-                   :title (window-name-from-object lispf))
-                  ))
+                   :title (window-name-from-object lispf)
+                   :x (and (window-pos lispf) (om-point-x (window-pos lispf)))
+                   :y (and (window-pos lispf) (om-point-y (window-pos lispf)))
+                   :w (and (window-size lispf) (om-point-x (window-size lispf)))
+                   :h (and (window-size lispf) (om-point-y (window-size lispf)))
+                   )))
       (setf (editor edwin) self)
       (setf (window self) edwin)
+      (om-lisp::text-edit-window-activate-callback edwin t) ;; will (re)set the menus with the editor in place
       edwin)))
 
+(defmethod om-lisp::text-editor-window-menus ((self lisp-function-editor-window)) 
+  (om-menu-items (editor self)))
 
 (defmethod om-lisp::om-text-editor-modified ((self lisp-function-editor-window))
+  (touch (object (editor self)))
+  (setf (text (object (editor self)))
+        (om-lisp::om-get-text-editor-text self))
   (report-modifications (editor self))
   (call-next-method))
 
 (defmethod om-lisp::update-window-title ((self lisp-function-editor-window) &optional (modified nil modified-supplied-p))
   (om-lisp::om-text-editor-window-set-title self (window-name-from-object (object (editor self)))))
 
-(defmethod om-lisp::om-text-editor-destroy-callback ((win lisp-function-editor-window))
-  (editor-close (editor win))
-  (update-lisp-fun (object (editor win))
-                   (om-lisp::om-get-text-editor-text win))
-  (setf (window (editor win)) nil)
-  (setf (g-components (editor win)) nil)
-  (call-next-method))
+(defmethod om-lisp::om-text-editor-check-before-close ((self lisp-function-editor-window))
+  (ask-save-before-close (object (editor self))))
 
+(defmethod om-lisp::om-text-editor-resized ((win lisp-function-editor-window) w h) 
+  (when (editor win)
+    (setf (window-size (object (editor win))) (omp w h))))
+
+(defmethod om-lisp::om-text-editor-moved ((win lisp-function-editor-window) x y)
+  (when (editor win)
+    (setf (window-pos (object (editor win))) (omp x y))))
+
+;;; update-lisp-fun at closing the window
+(defmethod om-lisp::om-text-editor-destroy-callback ((win lisp-function-editor-window))
+  (let ((ed (editor win)))
+    (editor-close ed)
+    (update-lisp-fun (object ed))
+    (setf (window ed) nil)
+    (setf (g-components ed) nil)
+    (unless (references-to (object ed))
+      (unregister-document (object ed)))
+    (call-next-method)))
+
+;;; update-lisp-fun at loosing focus
 (defmethod om-lisp::om-text-editor-activate-callback ((win lisp-function-editor-window) activate)
   (when (editor win) 
     (when (equal activate nil)
-      (update-lisp-fun (object (editor win))
-                       (om-lisp::om-get-text-editor-text win)))))
+      (update-lisp-fun (object (editor win))))
+    ))
 
 (defmethod om-lisp::type-filter-for-text-editor ((self lisp-function-editor-window)) 
   '("OM Lisp function" "*.olsp"))
 
-(defmethod om-lisp::text-editor-window-menus ((self lisp-function-editor-window)) (om-menu-items (editor self)))
+;;; called from menu
+(defmethod copy-command ((self lisp-function-editor))
+  #'(lambda () (om-lisp::text-edit-copy (window self))))
 
+(defmethod cut-command ((self lisp-function-editor))
+  #'(lambda () (om-lisp::text-edit-cut (window self))))
+
+(defmethod paste-command ((self lisp-function-editor))
+  #'(lambda () (om-lisp::text-edit-paste (window self))))
+
+(defmethod select-all-command ((self lisp-function-editor))
+  #'(lambda () (om-lisp::text-select-all (window self))))
+
+(defmethod undo-command ((self lisp-function-editor))
+  #'(lambda () (om-lisp::text-edit-undo (window self))))
+
+;(defmethod redo-command ((self lisp-function-editor))
+;  #'(lambda () (om-lisp::text-edit-redo (window self))))
+
+(defmethod font-command ((self lisp-function-editor))
+  #'(lambda () (om-lisp::change-text-edit-font (window self))))
