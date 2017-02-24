@@ -20,23 +20,38 @@
                )))
 
 (defmethod omNG-make-new-comment (text pos)
-  (let* ((size (omp 100 100))
-         (newcomment (make-instance 'OMComment 
-                                    :text-font (om-def-font :font1 :style '(:italic))
-                                    :border nil :color nil :icon-pos nil
-                                    :box-x (om-point-x pos) :box-y (om-point-y pos)
-                                    :box-w (om-point-x size) :box-h (om-point-y size)   
-                                    )))
-    (setf (value newcomment) text)
-    newcomment))
+  (let* ((comment-lines (om-text-to-lines text))
+         (longest-line (reduce #'(lambda (s1 s2) (if (> (length s1) (length s2)) s1 s2)) comment-lines)))
+    (multiple-value-bind (w h)
+        (om-string-size longest-line (get-pref-value :appearance :comment-style))
+    
+      (let ((newcomment (make-instance 'OMComment 
+                                     :text-font (get-pref-value :appearance :comment-style)
+                                     :icon-pos nil :border nil 
+                                     :color nil :text-color (get-pref-value :appearance :comment-color)
+                                     :box-x (om-point-x pos) :box-y (om-point-y pos)
+                                     :box-w (+ 4 w) :box-h (+ 12 (* h (length comment-lines)))
+                                     )))
+      (setf (value newcomment) text)
+      newcomment))))
+
+(defmethod default-size ((self OMComment))
+  (let* ((comment-lines (om-text-to-lines (value self)))
+         (longest-line (reduce #'(lambda (s1 s2) (if (> (length s1) (length s2)) s1 s2)) comment-lines)))
+    (multiple-value-bind (w h)
+        (om-string-size longest-line (text-font self))
+      (omp (+ 4 w) (+ 16 (* h (length comment-lines)))))))
+
+
+
+
 
 (defmethod om-copy ((self OMComment)) 
   (let ((newbox (call-next-method)))
     (setf (value newbox) (value self))
     newbox))
 
-(defmethod get-box-value ((self OMComment))
-  nil)
+(defmethod get-box-value ((self OMComment)) nil)
 
 
 ;(defun str-without-nl (str)
