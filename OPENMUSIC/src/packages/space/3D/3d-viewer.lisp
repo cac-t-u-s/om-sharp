@@ -453,6 +453,7 @@
                                             (declare (ignore item))
                                             (init-state obj)
                                             (update-g-components editor)
+                                            (when (filter-off-grid editor) (update-lines editor))
                                             (om-invalidate-view (om-invalidate-view (get-g-component editor :3d-view)))))))
                ))
                    
