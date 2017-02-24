@@ -35,7 +35,7 @@
 
 (defmethod omNG-make-new-boxcall ((reference (eql 'value)) pos &optional init-args)
   (let* ((box (make-instance 'OMValueBox
-                            :name "vb"
+                            :name "value box"
                             :reference (type-of init-args))))
     ;(print (list "new box" reference))
     (setf (value box) (list init-args)
@@ -44,15 +44,21 @@
           (inputs box) nil)
     (let ((size (om-max-point (minimum-size box) (default-size box))))
       (setf (box-w box) (om-point-x size)
-            (box-h box) (om-point-y size))
-      )
+            (box-h box) (om-point-y size)))
     box))
 
 (defmethod print-value ((self OMValueBox)) 
   (format nil "~s" (car (value self))))
 
 (defmethod default-size ((self OMValueBox))
-  (om-make-point (+ 8 (om-string-size (print-value self) (text-font self))) 28))
+  (minimum-size self))
+
+(defmethod minimum-size ((self OMValueBox))
+  (let ((text-size (om-string-size (print-value self) (text-font self))))
+    (om-make-point (max text-size
+                        (+ 20 (* (length (inputs self)) 10))
+                        32)
+                   28)))
 
 (defmethod allow-text-input ((self OMValueBox)) 
   (values (format nil "~s" (car (value self)))
