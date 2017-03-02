@@ -22,6 +22,8 @@
 (add-preference :audio :out-channels "Output Channels" '(2) 2 nil 'apply-audio-device-config)
 (add-preference :audio :samplerate "Sample Rate" '(44100) 44100 nil 'apply-audio-device-config)
 (add-preference :audio :buffersize "Buffer Size" '(256 512 1024) 512 nil 'apply-audio-device-config)
+(add-preference :audio :channels-config "Output channels routing list" :list nil nil 'apply-audio-device-config)
+
 
 (defun default-audio-input-device ()
   (or (and *juce-player* (car (juce::audio-driver-input-devices *juce-player* *audio-driver*))) ""))
@@ -92,7 +94,10 @@
                     (get-pref-value :audio :out-channels)
                     (get-pref-value :audio :samplerate)
                     (get-pref-value :audio :buffersize)
-                    ))
+                    )
+  (when (listp (get-pref-value :audio :channels-config))
+    (configure-audio-channels (get-pref-value :audio :channels-config)))
+  )
 
 ; (juce::getCurrentDeviceType *juce-player*)
 ; (juce::audio-driver-output-devices *juce-player* "CoreAudio")
@@ -114,7 +119,11 @@
   (setf *juce-player* nil))
 
 (defun configure-audio-channels (list)
-  (juce::setoutputchannels *juce-player* list))
+  (when list 
+    (om-print (format nil "Output channels:") "AUDIO SETPUT")
+    (loop for item in list for o = 1 then (+ o 1) do
+          (om-print (format nil "~D => ~D" o item) "AUDIO SETPUT"))
+    (juce::setoutputchannels *juce-player* list)))
 
 (add-om-init-fun 'open-juce-player)
 (add-om-exit-action 'close-juce-player)
