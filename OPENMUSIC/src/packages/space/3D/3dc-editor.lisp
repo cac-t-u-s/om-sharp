@@ -34,7 +34,8 @@
 
 (defmethod object-default-edition-params ((self 3DC))
   (append (call-next-method)
-          '((:line-width 1))))
+          `((:line-width 1)
+            (:3D-bg-color ,(om-def-color :dark-gray)))))
 
 (defmethod object-has-editor ((self 3dc)) t)
 (defmethod get-editor-class ((self 3DC)) '3DC-editor)
@@ -245,11 +246,30 @@
                           (om-make-view '3D-axis-view :size (omp 30 24))
                           )
                     )
-                   (om-make-di 'om-check-box :text "background" :size (omp 100 24) :font (om-def-font :font1)
+
+                   (om-make-layout 
+                    'om-row-layout
+                    :subviews
+                    (list 
+                     (om-make-di 'om-simple-text :text "background color" 
+                                 :size (omp 100 20) 
+                                 :font (om-def-font :font1))
+                     (om-make-view 'color-view 
+                                   :size (om-make-point 35 16) :resizable nil
+                                   :color (editor-get-edit-param editor :3D-bg-color)
+                                   :after-fun #'(lambda (item)
+                                                  (editor-set-edit-param editor :3D-bg-color (color item))
+                                                  (om-set-bg-color (get-g-component editor :main-panel) (color item))
+                                                  (update-3D-view editor)
+                                                  ))
+                     ))
+                   
+                   (om-make-di 'om-check-box :text "background elements" :size (omp 160 24) :font (om-def-font :font1)
                                :checked-p (editor-get-edit-param editor :show-background)
                                :di-action #'(lambda (item) 
                                               (editor-set-edit-param editor :show-background (om-checked-p item))
                                               (set-3D-objects editor)))
+
                     
                    (om-make-di 'om-check-box :text "anaglyph" :size (omp 75 24) :font (om-def-font :font1)
                                :checked-p gl-user::*om-3d-anaglyph*
@@ -581,9 +601,9 @@
 
 (defclass 3DPanel (OMEditorView om-opengl-view) ())
 
-(defmethod update-bg-color ((self 3DPanel) color)
-  (om-set-bg-color self color)
-  (om-invalidate-view self))
+(defmethod om-get-bg-color ((self 3DPanel))
+  (editor-get-edit-param (editor self) :3d-bg-color))
+
 
 (defmethod om-draw-contents ((self 3DPanel))
   (let ((editor (editor self)))
