@@ -69,11 +69,11 @@
    (file :initform nil :accessor file :initarg :file)
    (lisp? :initform nil :accessor lisp? :initarg :lisp?))
   (:default-initargs
-   :best-x (+ (aref *om-text-editor-initial-xy* 0) (* 15 (mod (incf *om-text-editor-count*) 10))
-              (mod (* 200 (floor (/ *om-text-editor-count* 10))) 800))
-   :best-y (+ (aref *om-text-editor-initial-xy* 1) (* 15 (mod *om-text-editor-count* 10)))
-   :best-height 400 :best-width 500
-   :external-min-width 150 :external-min-height 150
+   ;:best-x (+ (aref *om-text-editor-initial-xy* 0) (* 15 (mod (incf *om-text-editor-count*) 10))
+   ;           (mod (* 200 (floor (/ *om-text-editor-count* 10))) 800))
+   ;:best-y (+ (aref *om-text-editor-initial-xy* 1) (* 15 (mod *om-text-editor-count* 10)))
+   ;:best-height 400 :best-width 500
+   ;:external-min-width 150 :external-min-height 150
    :layout (make-instance 'capi:simple-layout)
    ;:message-area t  
    ;:create-callback 'init-text-editor
@@ -174,8 +174,8 @@
       (progn
         (setf window (make-instance (or class 'om-text-editor-window) 
                                     :name (concatenate 'string "TextEditor_" (string (gensym)))
-                                    ;:x (or x 200) :y (or y 200) 
-                                    ;:width (or w 800) :height (or h 800)
+                                    :best-x x :best-y y 
+                                    :best-width (or w 500) :best-height (or h 500)
                                     :title (or title (if path (namestring path) "New Text Buffer"))
                                     :parent (capi:convert-to-screen)
                                     :internal-border 5 :external-border 0

@@ -194,7 +194,12 @@ Evaluation allows to define functions or data in Lisp and run commands or progra
                    :contents (contents textbuffer)
                    :class 'textbuffer-editor-window
                    :lisp nil
-                   :title (editor-window-title self))))
+                   :title (editor-window-title self)
+                   :x (and (window-pos (object self)) (om-point-x (window-pos (object self))))
+                   :y (and (window-pos (object self)) (om-point-y (window-pos (object self))))
+                   :w (and (window-size (object self)) (om-point-x (window-size (object self))))
+                   :h (and (window-size (object self)) (om-point-y (window-size (object self))))
+                   )))
       (setf (editor edwin) self)
       (setf (window self) edwin)
       edwin)))
@@ -233,6 +238,14 @@ Evaluation allows to define functions or data in Lisp and run commands or progra
 (defmethod update-to-editor ((self textbuffer-editor) (from OMBoxEditCall))
   (when (window self)
     (om-lisp::om-set-text-editor-text (window self) (contents (object-value self)))))
+
+(defmethod om-lisp::om-text-editor-resized ((win textbuffer-editor-window) w h) 
+  (when (editor win)
+    (setf (window-size (object (editor win))) (omp w h))))
+
+(defmethod om-lisp::om-text-editor-moved ((win textbuffer-editor-window) x y)
+  (when (editor win)
+    (setf (window-pos (object (editor win))) (omp x y))))
 
 
 
