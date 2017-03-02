@@ -287,7 +287,6 @@ Press 'space' to play/stop the sound file.
          
           ((and FILE-IN (buffer self))
            ;;; There was no file in the sound but already a buffer
-           (print "OOOOK")
            (save-sound-data self FILE-IN)
            (setf (file-pathname self) FILE-IN)
            (if access-from-file

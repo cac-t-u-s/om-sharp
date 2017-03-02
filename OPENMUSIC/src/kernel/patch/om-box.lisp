@@ -221,7 +221,7 @@
                (:group-id "Group/Track" (:none 1 2 3 4 5 6 7 8) group-id)
                )))
 
-(defmethod update-container-groups ((self t)) (print self))
+(defmethod update-container-groups ((self t)) self)
 
 (defmethod set-property ((object OMBox) (prop-id (eql :group-id)) val)
   (call-next-method)

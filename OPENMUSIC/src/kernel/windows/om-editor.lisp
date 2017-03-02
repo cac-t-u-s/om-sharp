@@ -364,7 +364,7 @@
 
 (defmethod om-window-check-before-close ((self OMEditorWindow)) 
   ;(print (list "close" self)) 
-  (and (ask-save-before-close (print (object (editor self))))
+  (and (ask-save-before-close (object (editor self)))
        (call-next-method)))
 
 (defmethod om-view-key-handler ((self OMEditorWindow) key)
