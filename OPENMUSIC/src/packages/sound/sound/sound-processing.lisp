@@ -522,7 +522,7 @@
          s1)))
 
 
-;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-MONO-TO-STEREO///
+;//////////////////////////////////////////////////////////////////////////////////////////////////
 (defmethod* sound-merge ((sound-list list))
   :icon 111
   :initvals '(nil)
@@ -556,6 +556,31 @@
                    :sample-rate sr
                    :smpl-type type)
     ))
+
+
+;;; splits the channels of a sound
+(defmethod* sound-split ((s om-internal-sound))
+  :icon 111
+  :initvals '(nil)
+  :indoc '("a (multichannel) sounds")
+  "outputs a list of mono sounds from input channels"
+       
+  (let ((type (smpl-type s)))
+    (with-audio-buffer (b s)
+      (let ((bptr (oa::om-pointer-ptr b)))
+        (loop for c from 0 to (1- (n-channels s)) collect
+              (let ((new-buffer (allocate-split-buffer (n-samples s) 1 type)))            
+                (dotimes (i (n-samples snd))
+                  (setf (fli:dereference (fli:dereference new-buffer :index 0 :type :pointer) :type type :index i) 
+                        (fli:dereference (fli:dereference bptr :index c :type :pointer) :type type :index i)))
+                (make-instance 'sound 
+                               :buffer (make-om-sound-buffer :ptr new-buffer :nch 1)
+                               :n-samples (n-samples s)
+                               :n-channels 1
+                               :sample-rate (sample-rate s)
+                               :smpl-type type)
+                )))
+      )))
 
 
 
