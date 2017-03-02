@@ -143,7 +143,8 @@
 
 
 (defmethod update-from-reference ((self OMBoxLisp))
-
+  
+  
   (let ((new-inputs (loop for i in (create-box-inputs self) 
                           for ni from 0 collect 
                           (if (nth ni (inputs self)) 
@@ -156,12 +157,20 @@
                            (if (nth no (outputs self))
                                (copy-io (nth no (outputs self)))
                              o))))
-
+    
+    ;;; remove orphan connections 
+    (loop for in in (nthcdr (length new-inputs) (inputs self)) do
+          (mapc #'(lambda (c) (omng-remove-element (container self) c)) (connections in)))
+ 
     (set-box-inputs self new-inputs)
     (set-box-outputs self new-outputs)
     (set-frame-areas (frame self))
     (om-invalidate-view (frame self))
     t))
+
+
+
+
 
 ;;;===================
 ;;; EDITOR

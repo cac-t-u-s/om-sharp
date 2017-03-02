@@ -25,7 +25,7 @@
 (defmethod update-from-reference ((self OMBoxPatch))
   (when *erased-io*
     (let ((io (find *erased-io* (append (inputs self) (outputs self)) :key 'reference)))
-      (when io (mapcar #'(lambda (c) (omng-remove-element (container self) c)) (connections io)))))
+      (when io (mapc #'(lambda (c) (omng-remove-element (container self) c)) (connections io)))))
   (call-next-method))
 
 
