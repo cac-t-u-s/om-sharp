@@ -259,23 +259,19 @@
   ((center :accessor center :initarg :center :initform nil)
    (size :accessor size :initarg :size :initform nil)
    (filled :accessor filled :initarg :filled :initform t )
-   (faces :accessor faces :initform nil)
-   (normals :accessor normals :initform nil))
-  
-  (:default-initargs 
-   :faces '((1 2 3 4)
-            (1 4 8 5)
-            (5 8 7 6)
-            (6 7 3 2)
-            (4 3 7 8)
-            (2 1 5 6))
-   :normals '((0 1 0)
-              (1 0 0)
-              (0 -1 0)
-              (-1 0 0)
-              (0 0 -1)
-              (0 0 1))
-   ))
+   (faces :accessor faces :initform '((1 2 3 4)
+                                      (1 4 8 5)
+                                      (5 8 7 6)
+                                      (6 7 3 2)
+                                      (4 3 7 8)
+                                      (2 1 5 6)))
+   (normals :accessor normals :initform '((0 1 0)
+                                          (1 0 0)
+                                          (0 -1 0)
+                                          (-1 0 0)
+                                          (0 0 -1)
+                                          (0 0 1))))
+  )
 
 
 (defmethod initialize-instance :after ((self 3D-cube) &rest initargs)
@@ -309,7 +305,7 @@
     
     (opengl:gl-shade-model opengl:*gl-flat*)
 
-    (when (filled self)       
+    (when (filled self)     
       (loop for f in (faces self)
             for n in (normals self) do
             ;for i from 1 do
