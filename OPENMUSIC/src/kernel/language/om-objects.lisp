@@ -146,7 +146,7 @@
 
 (defmethod set-name ((self OMProgrammingObject) name)
   (call-next-method)
-  (when (editor self) (update-window-name (editor self))).
+  (when (editor self) (update-window-name (editor self)))
   (loop for box in (references-to self) ;; in principel there is only one at this stage
         do (set-name box (name self))
         do (om-invalidate-view (frame box))))
