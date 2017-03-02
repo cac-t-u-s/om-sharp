@@ -599,6 +599,14 @@
          (projection (projection camera))
          (camera-left (make-camera :eye eye :center center :up up :color '(0.95 0.95 0.95 1.0) :projection projection))
          (camera-right (make-camera :eye eye :center center :up up :color '(0.95 0.95 0.95 1.0) :projection projection)))
+    
+    (unless (position-transform camera-left)
+      (setf (position-transform camera-left) (make-gl-double-vector 16))
+      (initialize-transform (position-transform camera-left)))
+    (unless (position-transform camera-right)
+      (setf (position-transform camera-right) (make-gl-double-vector 16))
+      (initialize-transform (position-transform camera-right)))
+    
     ;colors
     ;left = red
     ;right = blue
