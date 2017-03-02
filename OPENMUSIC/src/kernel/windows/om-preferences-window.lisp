@@ -14,7 +14,7 @@
 (defmethod make-preference-item (type pref-item)
   (let* ((curr-value (pref-item-value pref-item)))
     (om-make-view 'click-and-edit-text 
-                  :text (format nil "~A" curr-value)
+                  :text (format nil " ~A" curr-value)
                   :resizable :w
                   :bg-color (om-def-color :white) ; (om-def-color :window)
                   :border nil
@@ -23,6 +23,28 @@
                   :after-fun #'(lambda (item)
                                  (setf (pref-item-value pref-item) (text item))
                                  (maybe-apply-pref-item-after-fun pref-item)
+                                 ))))
+
+
+(defmethod make-preference-item ((type (eql :list)) pref-item)
+  (let* ((curr-value (pref-item-value pref-item)))
+    (om-make-view 'click-and-edit-text 
+                  :text (format nil " ~A" curr-value)
+                  :resizable :w
+                  :bg-color (om-def-color :white) ; (om-def-color :window)
+                  :border nil
+                  :size (om-make-point (list :string (format nil "  ~A  " curr-value)) 20)
+                  :font (om-def-font :font2)
+                  :after-fun #'(lambda (item)
+                                 (let ((val (read-from-string (text item) nil :err)))
+                                   (if (listp val)
+                                       (progn 
+                                         (setf (pref-item-value pref-item) val)
+                                         (maybe-apply-pref-item-after-fun pref-item))
+                                     (progn
+                                       (om-beep-msg "Preference value for '~A' must be a list !" (pref-item-name pref-item))
+                                       (setf (text item) (format nil " ~A" curr-value))
+                                       )))
                                  ))))
 
 
