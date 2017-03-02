@@ -270,6 +270,7 @@
                                               (additional-box-attributes-names self))
                                         (connections input))
                               collect (list (intern-k (name input)) (omng-box-value input)))))
+    
     (loop for attr in box-attributes do (set-edit-param self (car attr) (cadr attr)))
     
     (when (and (equal (lock-state self) :locked) ;; otherwise the editor will be updated later on anyway

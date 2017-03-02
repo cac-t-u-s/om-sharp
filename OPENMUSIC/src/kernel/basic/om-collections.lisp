@@ -155,12 +155,14 @@
 
 (defmethod init-editor ((editor collection-editor)) 
   (let* ((collection (get-value-for-editor (object editor)))
-         (current-object (and (obj-type collection) (nth (current editor) (obj-list collection)))))
+         (current-object (and (obj-type collection) (nth (current editor) (obj-list collection))))
+         (abs-container (make-instance 'OMAbstractContainer :contents current-object)))
     (setf (internal-editor editor) 
           (make-instance (get-editor-class current-object)
                          :container-editor editor 
-                         :object (make-instance 'OMAbstractContainer :contents current-object))
+                         :object abs-container)
           )
+    (setf (edition-params abs-container) (edition-params (object editor))) ;;; will share the same list in principle
     (init-editor (internal-editor editor))
     ))
 
