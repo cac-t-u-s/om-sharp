@@ -63,6 +63,13 @@
 (defmethod make-osc-atom-from-data ((data list)) 
   (odot::osc_atom_u_allocWithBndl (make-foreign-bundle-u-pointer data)))
 
+(defmethod make-osc-atom-from-data ((data null)) 
+  (odot::osc_atom_u_allocWithInt32 0))
+
+(defmethod make-osc-atom-from-data ((data symbol))
+  (if (equal data t) (odot::osc_atom_u_allocWithInt32 1)
+    (call-next-method)))
+
 ;;; we suppose Lisp BIGNUM = OSC Timetag...
 (defmethod make-osc-atom-from-data ((data bignum)) 
   (odot::osc_atom_u_allocWithTimetag (odot::make_osc_timetag data)))
