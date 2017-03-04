@@ -123,14 +123,15 @@
 ;;;=====================================
 
 (defmethod om-draw-contents-callback ((self om-transient-drawing-view) x y w h) 
-  (if (drawn-item self)
+  (let ((item (drawn-item self)))
+    (if item 
       ;;; NO EFFECT
-     (capi:with-geometry (drawn-item self)
+     (capi:with-geometry item
        (gp::with-graphics-state (self :mask (list (or x capi:%x%) (or y capi:%y%) 
                                                  (or w capi:%width%) (or h capi:%height%)))
       (call-next-method)
-      (capi::draw-pinboard-object self (drawn-item self))))
-    (call-next-method)))
+      (capi::draw-pinboard-object self item)))
+    (call-next-method))))
   
 (defmethod om-start-transient-drawing ((self om-transient-drawing-view) draw-fun position size &key display-mode)
   (om-stop-transient-drawing self)
@@ -152,8 +153,9 @@
   ;;;
   (when (drawn-item self)
     (capi:manipulate-pinboard self (drawn-item self) :delete)
+    (om-invalidate-view self)
     (setf (drawn-item self) nil)
-    (om-invalidate-view self)))
+    ))
 
 (defmethod om-update-transient-drawing ((self om-transient-drawing-view) &key x y w h)
   ;;;
