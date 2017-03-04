@@ -28,6 +28,19 @@
         "score-objects/chord"
         "score-objects/chord-seq"
         "score-objects/score"
+        "tools/conversions"
         "import-export/musicxml"))
 
 
+(omNG-make-package 
+ "Score"
+ :container-pack *om-package-tree*
+ :doc "Score tools and objects."
+ :classes nil
+ :functions nil
+ :subpackages  (list (omNG-make-package 
+                      "Utils"
+                      :doc "Unit conversion utilities etc."
+                      :classes nil
+                      :functions '(approx-m mc->f f->mc mc->n n->mc beats->ms)
+                      :subpackages nil)))
