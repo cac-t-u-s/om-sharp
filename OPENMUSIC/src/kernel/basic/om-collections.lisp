@@ -64,6 +64,12 @@
        (string+ "COLLECTION OF " (string-upcase (obj-type object)) 
                 "s (" (number-to-string (length (obj-list object))) ")")))
   
+(defmethod object-box-label ((object collection))
+  (string+ (string-upcase (type-of object)) " of "
+           (number-to-string (length (obj-list object))) " " 
+           (string-upcase (type-of (car (obj-list object)))) "s"))
+
+
 (defmethod display-modes-for-object ((self collection)) '(:hidden :text :mini-view))
 
 (defmethod get-cache-display-for-draw ((object collection)) 
@@ -92,17 +98,6 @@
               (set-cache-display box o)
               (draw-mini-view o box x y w h time)))))
 
-(defmethod draw-value-in-frame ((object collection) (frame OMObjectBoxFrame)) 
-  (let ((box (object frame)))
-    (case (display box)
-      (:hidden 
-       (draw-mini-label 
-        (string+ (string-upcase (type-of object)) " of "
-                 (number-to-string (length (obj-list object))) " " 
-                 (string-upcase (type-of (car (obj-list object)))) "s")
-        box 0 0 (w frame) (h frame) (box-play-time frame)))
-      (otherwise (call-next-method))
-      )))
 
 
 ;;;===========================

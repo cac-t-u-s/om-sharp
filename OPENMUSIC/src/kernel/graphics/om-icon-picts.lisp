@@ -19,6 +19,7 @@
                         :recursive t))
   *om-loaded-picts*)
 
+;;; called at startup
 (defun register-om-icons ()
   (let ((resources-folder (om-resources-folder)))
     (register-images (om-relative-path '("icons") nil resources-folder))

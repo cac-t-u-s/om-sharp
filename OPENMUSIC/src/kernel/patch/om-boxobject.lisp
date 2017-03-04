@@ -439,16 +439,23 @@
 ;;; to be redefined by objects if they have a specific miniview
 (defmethod draw-mini-view ((object t) (box OMBox) x y w h &optional time) nil)
 
-(defmethod draw-mini-view ((object null) (box OMBox) x y w h &optional time) 
-  (draw-mini-label "NIL" box x y w h time))
+;; the bold text that is written on the object box
+(defmethod object-box-label ((object t)) (string-upcase (type-of object)))
+(defmethod object-box-label ((object null)) "NIL")
 
-(defmethod draw-mini-label ((text string) (box OMBox) x y w h &optional time)
-  (let ((str (if (eval-flag box) ".oO__.." text)))
+(defmethod draw-label ((box OMBox) object &key color)
+  (let ((frame (frame box))
+        (str (if (eval-flag box) 
+                 ".oO__.." 
+               (object-box-label object))))
     (om-with-font 
      (om-def-font :font1 :face "arial" :size 18 :style '(:bold))
-     (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
-       (om-draw-string (+ x 10) (+ y (max 22 (+ 6 (/ h 2)))) str)))))
-  
+     (om-with-fg-color (or color (om-make-color 0.6 0.6 0.6 0.5))
+       (om-draw-string 10 (max 22 (+ 6 (/ (h frame) 2))) 
+                       str))
+     )))
+
+
 (defmethod draw-mini-text ((object t) (box OMBox) x y w h &optional time)
   ;(om-with-font 
   ; (om-def-font :font1b :size 10)
@@ -471,12 +478,15 @@
   (let ((box (object frame)))
     (case (display box)
       (:text 
+       (draw-label box object :color (om-make-color 0.6 0.6 0.6 0.2))
        (draw-mini-text object box 0 0 (w frame) (h frame) (box-play-time frame)))
       (:mini-view 
+       (draw-label box object :color (om-make-color 0.6 0.6 0.6 0.2))
        (ensure-cache-display-draw box object)
-       (draw-mini-view object box 0 4 (w frame) (- (h frame) 8) (box-play-time frame)))
+       (om-with-clip-rect frame  0 4 (w frame) (- (h frame) 8)
+         (draw-mini-view object box 0 4 (w frame) (- (h frame) 8) (box-play-time frame))))
       (:hidden 
-       (draw-mini-label (string-upcase (type-of object)) box 0 0 (w frame) (h frame) (box-play-time frame)))
+       (draw-label box object))
       (otherwise nil) 
       )
 
