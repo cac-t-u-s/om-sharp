@@ -51,6 +51,7 @@
         
         "containers/2D-array"
         "containers/data-stream"
+        "containers/data-stream-editor"
         
 ;    "classes;splines"  
 ;    "classes;array" 

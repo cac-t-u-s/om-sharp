@@ -83,11 +83,13 @@
 ;;; EDITOR
 ;;;======================================
 
-(defmethod frame-display-modes-for-object ((self stream-editor) (object piano-roll))
+(defmethod frame-display-modes-for-object ((self data-stream-editor) (object piano-roll))
   '((:blocks "blocks")))
 
-(defmethod y-range-for-object ((self piano-roll)) '(50 90))
+(defmethod y-range-for-object ((self piano-roll)) '(36 96))
 
+;;; will change at teach built !
+;;; make some preferences ?
 (defparameter +midi-colors+ (loop for i from 1 to 16 collect (om-random-color)))
 
 (defmethod set-frame-attributes ((f midi-note) editor) 
@@ -95,6 +97,30 @@
         (getf (attributes f) :posy) (pitch f)
         (getf (attributes f) :sizey) 1
         ))
+
+(defclass keyboard-view (om-view)
+  ((pitch-min :accessor pitch-min :initarg :pitch-min :initform 36)
+   (pitch-max :accessor pitch-max :initarg :pitch-max :initform 96)))
+   
+(defmethod left-panel-for-object ((editor data-stream-editor) (object piano-roll))
+  (om-make-view 'keyboard-view :size (omp 40 nil)))
+
+(defun draw-keyboard-octave (x y w h)
+  (let ((whitespaces '(1.5 1.5 1.5 1.5 1.5 1.5 1.5)))
+      (loop for yy = 0 then (+ yy (/ h 7))
+            for keyh in whitespaces do 
+            (om-draw-rect x (+ y yy) w (/ h 7) :fill nil)
+            ;(setf yy (+ yy (/ h 7))) 
+            )))
+       
+  
+(defmethod om-draw-contents ((self keyboard-view))
+  (let* ((n-oct (round (- (pitch-max self) (pitch-min self)) 12))
+         (oct-h (/ (om-height self) n-oct)))
+    (loop for i from 0 to (1- n-oct) do
+          (draw-keyboard-octave 0 (* i oct-h) (om-width self) oct-h))
+    ))
+  
 
 ;;;======================================
 ;;; PLAY
@@ -153,8 +179,8 @@
     (multiple-value-bind (fx ox) 
         (conversion-factor-and-offset 0 (get-obj-dur self) w x)
       (multiple-value-bind (fy oy) 
-          (conversion-factor-and-offset 50 90 (- h 20) (+ y 10))
-        (om-with-line-size 5
+          (conversion-factor-and-offset 36 96 (- h 20) (+ y 10))
+        (om-with-line-size 2
           (loop for n in (midi-notes self) do
                 ;for frame in (data-stream-get-frames self) do
                 (om-with-fg-color (nth (midinote-channel n) +midi-colors+)
@@ -186,8 +212,7 @@
                                  (min (get-obj-dur self) (or t2-ms *positive-infinity*))
                                  :key 'midinote-onset)))
     (loop for note in new-notes
-          do
-          (decf (car note) t1))
+          do (decf (car note) t1))
     (setf (midi-notes self) new-notes
           (slice-duration self) (- t2 t1))
     (om-invalidate-view self)))
@@ -209,13 +234,13 @@
 
 
 
-(defun gen-midi-notes (n &optional (tmax 10000))
+(defun gen-midi-notes (n &optional (tmax 10000) (channel 1))
   (loop for i from 0 to n collect
-        (make-midinote :onset (print (om-random 0 tmax))
-                       :pitch (om-random 50 80) 
+        (make-midinote :onset (om-random 0 tmax)
+                       :pitch (om-random 50 90) 
                        :vel 100
                        :dur (om-random 200 500) 
-                       :channel 1)))
+                       :channel (or channel (om-random 1 16)))))
 
 (defun gentest ()
   (let* ((channel (om-random 1 2))

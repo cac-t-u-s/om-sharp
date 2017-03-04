@@ -640,7 +640,7 @@ Press 'space' to play/stop the sound file.
 ;;; EDITOR
 ;;;====================
 
-(defclass sound-editor (stream-editor) 
+(defclass sound-editor (data-stream-editor) 
   ((cache-display-list :accessor cache-display-list :initform nil)))
 
 (defclass sound-panel (stream-panel) ())

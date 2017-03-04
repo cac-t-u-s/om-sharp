@@ -59,7 +59,7 @@
 ;;; EDITOR
 ;;;======================================
 
-(defclass score-editor (multi-view-editor stream-editor) 
+(defclass score-editor (multi-view-editor data-stream-editor) 
   ((tempo-editor :accessor tempo-editor :initform nil)
    (beats :accessor beats :initform nil)))
 
