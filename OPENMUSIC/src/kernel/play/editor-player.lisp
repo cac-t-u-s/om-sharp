@@ -217,7 +217,7 @@
   ;(mapcar #'(lambda (view) (stop-cursor view)) (cursor-panes self))
   (when (play-button self) (unselect (play-button self)))
   (when (pause-button self) (unselect (pause-button self)))
-  (mapcar 'stop-cursor (cursor-panes self))) 
+  (mapcar 'stop-cursor (remove nil (cursor-panes self))))
 
 (defmethod editor-record ((self play-editor-mixin))
   ;;;(setf (engines (player self)) (list (get-player-engine self)))
