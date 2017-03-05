@@ -88,6 +88,7 @@
   ((min-value :accessor min-value :initarg :min-value :initform 0)
    (max-value :accessor max-value :initarg :max-value :initform 100)
    (increment :accessor increment :initarg :increment :initform 1)
+   (decimals :accessor decimals :initarg :decimals :initform 0)
    (orientation :accessor orientation :initarg :orientation :initform :vertical)
    (action :accessor action :initarg :action :initform nil)))
 
@@ -95,7 +96,7 @@
 (defmethod special-box-p ((self (eql 'slider))) t)
 
 (defmethod get-all-keywords ((self SliderBox))
-  '((:min-value :max-value :increment :orientation :action :value)))
+  '((:min-value :max-value :increment :decimals :orientation :action :value)))
 
 (defmethod default-value ((self SliderBox)) 50)
 
@@ -106,12 +107,36 @@
 (defmethod get-properties-list ((self SliderBox))
   (add-properties (call-next-method)
                   "Slider" 
-                  `((:min-value "Min value" :number min-value)
-                    (:max-value "Max value" :number max-value)
-                    (:increment "Increment" :number increment)
+                  `((:min-value "Min value" :number min-value
+                     (nil nil ,#'decimals))
+                    (:max-value "Max value" :number max-value
+                     (nil nil ,#'decimals))
+                    (:increment "Increment" :number increment 
+                     (,#'min-incr ,#'max-value ,#'decimals))
+                    (:decimals "Decimals" :number slider-decimals (0 10 0))
                     (:orientation "Orientation" (:vertical :horizontal) orientation)
                     )))
 
+
+(defun min-incr (slider)
+  (float (expt 10 (- (decimals slider)))))
+
+(defun round-decimals (val dec)
+  (if (zerop dec)
+      (round val)
+    (float (* (round (* val (expt 10 dec))) (expt 10 (- dec))))))
+
+(defun slider-decimals (slider &optional (val nil val-supplied-p))
+  (if val-supplied-p 
+      (progn
+        (setf (decimals slider) val
+              (min-value slider) (round-decimals (min-value slider) val)
+              (max-value slider) (round-decimals (max-value slider) val)
+              (increment slider) (round-decimals (increment slider) val))
+        (setf (car (value slider)) (round-decimals (car (value slider)) val))
+        (update-inspector-for-box slider))
+    (decimals slider)))
+  
 (defmethod default-size ((self SliderBox)) 
   (omp 28 100))
 
@@ -137,6 +162,7 @@
                          :color (om-def-color :dark-gray) :line 3))
           )))
 
+
 (defmethod interfacebox-action ((self SliderBox) frame pos)
   (when (or (om-command-key-p)
             (container-frames-locked (om-view-container frame)))
@@ -149,15 +175,15 @@
                                              (- 1 (/ (om-point-y pos) (h frame)))
                                            (/ (om-point-x pos) (w frame))))))
                         (val (+ (min-value self) 
-                                (round (* ratio (- (max-value self) (min-value self))) 
-                                       (increment self)))))
-                   (set-value self (list val))
+                                (* (increment self)
+                                   (round (* ratio (- (max-value self) (min-value self)))
+                                          (increment self))))))
+                   (set-value self (list (round-decimals val (decimals self))))
                    (when (reactive (car (outputs self))) (self-notify self))
                    (om-invalidate-view frame)
                    )))
     ))
 
-      
 
 ;;;===============================================================
 ;;; BUTTON
