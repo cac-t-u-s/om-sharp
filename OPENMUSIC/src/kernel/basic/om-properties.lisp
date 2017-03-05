@@ -155,18 +155,22 @@
 
 ;;; for number default is a list (min-val max-val decimals)
 (defmethod make-prop-item ((type (eql :number)) prop-id object &key default update)
+  (let ((def (loop for element in default collect
+                   (if (functionp element) (funcall element object)
+                     element))))
   (om-make-graphic-object 'numbox 
                           :value (get-property object prop-id)
                           :bg-color (om-def-color :white)
                           :border t
-                          :decimals (or (caddr default) 0)
-                          :size (om-make-point 40 18) 
+                          :db-click t
+                          :decimals (or (caddr def) 0)
+                          :size (om-make-point 60 18) 
                           :font (om-def-font :font2)
-                          :min-val (or (car default) 0) :max-val (or (cadr default) 10000)
+                          :min-val (or (car def) 0) :max-val (or (cadr def) 10000)
                           :after-fun #'(lambda (item)
                              (set-property object prop-id (get-value item))
                              (when update (update-view update object))
-                             )))
+                             ))))
 
 (defmethod make-prop-item ((type (eql :bool)) prop-id object &key default update)
   (om-make-di 'om-check-box 

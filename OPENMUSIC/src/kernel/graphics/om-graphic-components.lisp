@@ -223,14 +223,19 @@
 
 (defmethod initialize-instance :after ((self numbox) &rest args) 
   (when-let (v (getf args :value))
-    (set-value self v)))
+    (set-value self v))
+  (set-min-max self :min (getf args :min-val) :max (getf args :max-val)))
 
 ;; the value internally is always an integer
 (defmethod set-value ((self numbox) value)
-  (let ((v (round (* value (expt 10 (decimals self))))))
-    (setf (value self) v)
-    (om-set-text self (format () " ~v$" (decimals self) value))
-    (om-invalidate-view self)))
+  (setf (value self) (if (zerop (decimals self)) value
+                       (round (* value (expt 10 (decimals self))))))
+  (om-set-text self 
+               (if (zerop (decimals self))
+                   (format () " ~D" value)
+                 (format () " ~v$" (decimals self) value)
+                 ))
+  (om-invalidate-view self))
 
 (defmethod set-min-max ((self numbox) &key (min nil min-supplied-p) (max nil max-supplied-p))
   (when min-supplied-p 
@@ -240,7 +245,9 @@
   )
 
 (defmethod get-value ((self numbox))
-  (float (/ (value self) (expt 10 (decimals self)))))
+  (if (zerop (decimals self))
+      (value self)
+    (float (/ (value self) (expt 10 (decimals self))))))
 
 
 (defmethod enable-numbox ((self numbox) t-or-nil)
@@ -297,7 +304,9 @@
       (open-mini-edit pos (get-value self) 
                       #'(lambda (tf)
                           (let ((val (read-from-string (om-dialog-item-text tf) nil)))
-                            (if (numberp val)
+                            (if (and (numberp val)
+                                     (<= val (/ (max-val self) (expt 10 (decimals self))))
+                                     (>= val (/ (min-val self) (expt 10 (decimals self)))))
                                 (progn (set-value self val)
                                   (when (after-fun self) (funcall (after-fun self) self)))
                               (om-beep)))))
