@@ -98,30 +98,52 @@
         (getf (attributes f) :sizey) 1
         ))
 
+(defmethod get-frame-area ((frame midi-note) editor)
+  (let ((panel (get-g-component editor :main-panel)))
+    (values (x-to-pix panel (date frame))
+            (- (h panel)
+               (y-to-pix panel (+ (get-frame-attribute frame :posy editor))))
+            (max 3 (dx-to-dpix panel (frame-graphic-duration frame)))
+            (min -3 (dy-to-dpix panel (- (get-frame-attribute frame :sizey editor))))  ;; !! upwards
+            )))
+
+;;;==================
+;; Keyborad on the left
+;;;==================
+
 (defclass keyboard-view (om-view)
   ((pitch-min :accessor pitch-min :initarg :pitch-min :initform 36)
    (pitch-max :accessor pitch-max :initarg :pitch-max :initform 96)))
    
 (defmethod left-panel-for-object ((editor data-stream-editor) (object piano-roll))
-  (om-make-view 'keyboard-view :size (omp 40 nil)))
+  (om-make-view 'keyboard-view :size (omp 20 nil)))
 
-(defun draw-keyboard-octave (x y w h)
-  (let ((whitespaces '(1.5 1.5 1.5 1.5 1.5 1.5 1.5)))
-      (loop for yy = 0 then (+ yy (/ h 7))
-            for keyh in whitespaces do 
-            (om-draw-rect x (+ y yy) w (/ h 7) :fill nil)
-            ;(setf yy (+ yy (/ h 7))) 
-            )))
+(defun draw-keyboard-octave (i x y w h)
+  (let ((unit (/ h 12))
+        (white-h (/ h 7))
+        (blackpos '(1 3 6 8 10))
+        (whitepos '(0 1.5 3.5 5 6.5 8.5 10.5 12)))
+    (loop for wk on whitepos when (cadr wk) do
+          (let* ((y1 (- y (* (car wk) unit)))
+                 (y2 (- y (* (cadr wk) unit))))
+          (om-draw-rect x y1 w (- y2 y1) :fill t :color (om-def-color :white))
+          ))
+    (om-with-fg-color (om-make-color 0.2 0.2 0.2)
+    (loop for bp in blackpos do 
+          (om-draw-rect x (- y (* unit bp)) (/ w 1.8) (- unit) :fill t))
+    (om-with-font 
+     (om-def-font :font1 :size 7)
+     (om-draw-string (+ x (/ w 2))  (- y 2) (format nil "C~D" i)))
+    )))
        
-  
 (defmethod om-draw-contents ((self keyboard-view))
   (let* ((n-oct (round (- (pitch-max self) (pitch-min self)) 12))
          (oct-h (/ (om-height self) n-oct)))
     (loop for i from 0 to (1- n-oct) do
-          (draw-keyboard-octave 0 (* i oct-h) (om-width self) oct-h))
+          (draw-keyboard-octave (1+ i) 0 (- (om-height self) (* i oct-h)) (om-width self) oct-h)
+          )
     ))
   
-
 ;;;======================================
 ;;; PLAY
 ;;;======================================
