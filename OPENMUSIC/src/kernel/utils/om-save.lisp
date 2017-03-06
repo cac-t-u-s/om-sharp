@@ -419,7 +419,7 @@
          (name (find-value-in-kv-list data :name))
          (defval (find-value-in-kv-list data :defval))
          (doc (find-value-in-kv-list data :doc))
-         (in (make-instance type :name name :defval defval :doc doc)))
+         (in (make-instance type :name name :defval (omng-load defval) :doc doc)))
     (setf (index in) index)
     in))
  
