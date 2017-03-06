@@ -263,30 +263,31 @@
   (when (enabled self)
     (let ((start-y (om-point-y where))
           (start-v (value self)))
-      (om-init-temp-graphics-motion self where NIL
-                                    :motion #'(lambda (view position)
-                                                (let* ((inc (- start-y (om-point-y position)))
-                                                       (new-val (+ start-v (* (map-mouse-increment self) inc))))
+      (when start-v
+        (om-init-temp-graphics-motion self where NIL
+                                      :motion #'(lambda (view position)
+                                                  (let* ((inc (- start-y (om-point-y position)))
+                                                         (new-val (+ start-v (* (map-mouse-increment self) inc))))
                                                   ;(print (list (min-val self) (max-val self)))
-                                                  (when (and (min-val self) (< new-val (min-val self)))
-                                                    (setf new-val (min-val self)))
-                                                  (when (and (max-val self) (> new-val (max-val self)))
-                                                    (setf new-val (max-val self)))
-                                                  
-                                                  ;;; in principle that's ok now...
-                                                  (when (and (or (null (min-val self)) (>= new-val (min-val self)))
-                                                             (or (null (max-val self)) (<= new-val (max-val self))))
-                                                    (setf (value self) new-val)
-                                                    (om-set-text self (format () " ~D" (get-value self)))
-                                                    (om-invalidate-view self)
+                                                    (when (and (min-val self) (< new-val (min-val self)))
+                                                      (setf new-val (min-val self)))
+                                                    (when (and (max-val self) (> new-val (max-val self)))
+                                                      (setf new-val (max-val self)))
                                                     
-                                                    (when (and (change-fun self) (not (= (round new-val) start-v)))
-                                                      (funcall (change-fun self) self)))))
-                                    
-                                    :release #'(lambda (view position) 
-                                                 (when (after-fun self) (funcall (after-fun self) self)))
-                                    )
-      )))
+                                                    ;;; in principle that's ok now...
+                                                    (when (and (or (null (min-val self)) (>= new-val (min-val self)))
+                                                               (or (null (max-val self)) (<= new-val (max-val self))))
+                                                      (setf (value self) new-val)
+                                                      (om-set-text self (format () " ~D" (get-value self)))
+                                                      (om-invalidate-view self)
+                                                    
+                                                      (when (and (change-fun self) (not (= (round new-val) start-v)))
+                                                        (funcall (change-fun self) self)))))
+                                      
+                                      :release #'(lambda (view position) 
+                                                   (when (after-fun self) (funcall (after-fun self) self)))
+                                      )
+        ))))
 
 
 (defun screen-coordinates (point view)
