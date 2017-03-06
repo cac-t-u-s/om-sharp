@@ -238,9 +238,9 @@
   (om-invalidate-view self))
 
 (defmethod set-min-max ((self numbox) &key (min nil min-supplied-p) (max nil max-supplied-p))
-  (when min-supplied-p 
+  (when min 
     (setf (min-val self) (round (* min (expt 10 (decimals self))))))
-  (when max-supplied-p 
+  (when max 
     (setf (max-val self) (round (* max (expt 10 (decimals self))))))
   )
 
