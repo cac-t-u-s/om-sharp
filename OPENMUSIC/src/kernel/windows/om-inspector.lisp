@@ -91,7 +91,7 @@
                                                       ;; prevents focus on other items :)  :right-extend
                                                       )
                                                      (loop for prop in (cdr category) append
-                                                           (list (om-make-di 'om-simple-text :text (nth 1 prop) :font (om-def-font :font1)
+                                                           (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font (om-def-font :font1)
                                                                              :size (om-make-point 110 20) :position (om-make-point 10 16))
                                                                                        ; (nth 1 prop) ; (list (nth 1 prop) (om-def-font :font1))  
                                                                  (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop) :update view)))
