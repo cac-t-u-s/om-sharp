@@ -171,7 +171,7 @@ Optional <dec> is the number of decimals in the result."
 (defmethod* om-sample ((self t) (nbs-sr number) &optional xmin xmax dec)
       :initvals '(nil 1 nil nil nil)
       :indoc '("object to resample" "number of samples (int) or sample rate (float)" "" "" "decimals")
-      :icon 910
+      :icon 'bpf-sample
       :numouts 3
       :outdoc '("sampled object" "x-points" "y-points")
       :doc "Resamples a function, a list, a BPF or a BPC object.
