@@ -878,7 +878,8 @@
 (defmethod reverse-points ((self bpf-editor))
   (time-sequence-reverse (object-value self))
   (editor-invalidate-views self)
-  (update-to-editor (timeline-editor self) self))
+  (update-to-editor (timeline-editor self) self)
+  (report-modifications self))
 
 ;;;==========================
 ;;; USER

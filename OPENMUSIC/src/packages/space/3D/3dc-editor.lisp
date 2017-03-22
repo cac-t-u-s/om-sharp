@@ -495,7 +495,8 @@
 (defmethod reverse-points ((self 3dc-editor))
   (time-sequence-reverse (object-value self))
   (editor-invalidate-views self)
-  (update-to-editor (timeline-editor self) self))
+  (update-to-editor (timeline-editor self) self)
+  (report-modifications self))
 
 (defmethod select-all-command ((self 3dc-editor))
   #'(lambda () 
