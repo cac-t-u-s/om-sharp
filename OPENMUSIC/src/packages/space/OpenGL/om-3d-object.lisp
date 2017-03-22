@@ -374,7 +374,7 @@
             (let ((rgb (om-color-to-single-float-list 
                         (or (nth i (vertices-colors self))
                             (om-3Dobj-color self) 
-                            (om-def-color :light-gray)))))
+                            (om-def-color :white)))))
               (opengl:gl-color4-f (nth 0 rgb) (nth 1 rgb) (nth 2 rgb) 0.8)
               (opengl:gl-vertex4-dv (aref vertices i))))
       (opengl:gl-end)    
@@ -383,7 +383,8 @@
     ;draw the sphere and the selection (as bigger opaque sphere)
     (when (not (equal (draw-style self) :lines-only))
       (loop for i from 0 to size do
-            (let* ((rgb (or (nth i (vertices-colors self)) (om-3Dobj-color self) (om-def-color :light-gray)))
+            (let* ((rgb (or (nth i (vertices-colors self)) (om-3Dobj-color self) 
+                            (om-def-color :white)))
                    (selected (or (equal '(t) selection) (find i selection)))
                    (alpha (if selected 1.0 0.7))
                    (point (nth i (om-3dobj-points self)))
