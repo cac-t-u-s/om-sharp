@@ -29,7 +29,7 @@
 ;(defvar *om-preferences* nil)
 
 (defun om-preference-file ()
-  (merge-pathnames "OM7/preferences.om" (om-user-pref-folder)))
+  (merge-pathnames "o7/preferences.om" (om-user-pref-folder)))
 
 ;(WITH-OPEN-FILE (out "/Users/bresson/Desktop/test.txt" :direction :output 
 ;                         :if-does-not-exist :create :if-exists :supersede) 
@@ -141,7 +141,7 @@
 ;;; will be printed in the Listener
 (defparameter *om-startup-string* 
   (format nil 
-          "==================================~%OpenMusic v. ~D~%r. ~A~%================================="
+          "==================================~%o7 v. ~D~%r. ~A~%================================="
           *version-string* *release-date*))
 
 ; (start-openmusic)
@@ -335,7 +335,7 @@
         do (funcall action)))
 
 (defun quit-om-callback () 
-  (let ((rep (and (om-y-or-n-dialog "Quit OpenMusic ?" :default-button :yes)
+  (let ((rep (and ; (om-y-or-n-dialog "Quit OpenMusic ?" :default-button :yes)
                   (om-lisp::check-buffers-before-close)
                   (check-om-docs-before-close))))
     (when rep 

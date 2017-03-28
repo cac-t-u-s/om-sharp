@@ -423,7 +423,7 @@
       (let ((sp (make-instance 'capi:shell-pane)))
         (capi::display
          (setf om-lisp::*om-shell*
-               (make-instance 'om-shell :title "OM SHELL"
+               (make-instance 'om-shell :title "SHELL"
                             :best-x x :best-y y
                             :best-width (or w 360) :best-height (or h 200)
                             :window-styles '(:no-character-palette)

@@ -16,8 +16,8 @@
 (print "APPLICATION SETUP")
 (print "==============================")
 
-(defvar *app-name+version* "OM")
-(setf *app-name+version* (concatenate 'string "OM " (version-to-string *om-version* nil *beta-release*)))
+(defparameter *app-name+version* "o7")
+;(setf *app-name+version* (concatenate 'string "OM " (version-to-string *om-version* nil *beta-release*)))
 
 (defparameter *om-directory-folders* (butlast (pathname-directory (current-pathname))))
 
@@ -238,7 +238,7 @@
                                                                `("Maquette" ("omaq") ,(om::om-relative-path '("mac") "maq-icon.icns"))
                                                                `("TextFun" ("olsp") ,(om::om-relative-path '("mac") "lsp-icon.icns")))
                                                            :application-icns (om::om-relative-path '("mac") "om.icns")
-                                         :identifier "fr.ircam.repmus.oM7"
+                                         :identifier "fr.ircam.repmus.o7"
                                          :version (version-to-string *om-version* t nil)
                                          ))
        #+win32

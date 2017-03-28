@@ -13,8 +13,8 @@
 
 *.omp~
 
-OPENMUSIC/*.app/**/*
-OM 7.0/**/*
+openmusic/*.app/**/*
+o7/**/*
 *.zip
 
 # OS generated files #

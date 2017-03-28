@@ -8,8 +8,9 @@ LWARCH=64-bit
 LWEXEC=lispworks-7-0-0-amd64-darwin
 
 OM_VERSION="7.0"
-APP_FOLDER="OM "$OM_VERSION
-DMG_NAME="OM-"$OM_VERSION"-macOS"
+# APP_FOLDER="OM "$OM_VERSION
+APP_FOLDER="o7"
+DMG_NAME="o7-macOS"
 
 
 deliver_app()
@@ -18,7 +19,7 @@ echo "***************************************************"
 echo "COMPILING STANDALONE EXE"
 echo "***************************************************"
 
-	rm -rf ./OPENMUSIC/*.app/
+	rm -rf ./openmusic/*.app/
 	/Applications/LispWorks\ 7.0\ \($LWARCH\)/LispWorks\ \($LWARCH\).app/Contents/MacOS/$LWEXEC -build ./OPENMUSIC/build/deliver.lisp
 }
 
@@ -31,7 +32,7 @@ echo "Packing $APP_FOLDER"
 echo "***************************************************"
 
 	rm -R "$APP_FOLDER"
-	cp -R OPENMUSIC "$APP_FOLDER"
+	cp -R openmusic "$APP_FOLDER"
 	rm -R "$APP_FOLDER"/build/
 	rm -R "$APP_FOLDER"/resources
 }
