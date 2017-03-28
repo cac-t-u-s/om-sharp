@@ -20,8 +20,8 @@
 ;;;=======================================
 ;;; APP/VERSION DATA
 ;;;=======================================
-(defparameter *app-name* "OM")
-(defparameter *om-version* 7.000000)
+(defparameter *app-name* "o7")
+(defparameter *om-version* 0.000100)
 (defparameter *beta-release* t)
 (defparameter *version-string* "")
 (defparameter *release-language* :en)
