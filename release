@@ -20,7 +20,7 @@ echo "COMPILING STANDALONE EXE"
 echo "***************************************************"
 
 	rm -rf ./openmusic/*.app/
-	/Applications/LispWorks\ 7.0\ \($LWARCH\)/LispWorks\ \($LWARCH\).app/Contents/MacOS/$LWEXEC -build ./OPENMUSIC/build/deliver.lisp
+	/Applications/LispWorks\ 7.0\ \($LWARCH\)/LispWorks\ \($LWARCH\).app/Contents/MacOS/$LWEXEC -build ./om/build/deliver.lisp
 }
 
 
@@ -32,7 +32,7 @@ echo "Packing $APP_FOLDER"
 echo "***************************************************"
 
 	rm -R "$APP_FOLDER"
-	cp -R openmusic "$APP_FOLDER"
+	cp -R om "$APP_FOLDER"
 	rm -R "$APP_FOLDER"/build/
 	rm -R "$APP_FOLDER"/resources
 }
