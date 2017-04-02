@@ -364,7 +364,8 @@
                                              :after-fun #'(lambda (item) 
                                                             (set-x-grid editor (list (get-value item) (cadr (x-grid editor))))
                                                             (editor-set-edit-param editor :x-grid (x-grid editor))
-                                                            (om-invalidate-view (get-g-component editor :3d-view)))))
+                                                            (om-invalidate-view (get-g-component editor :3d-view))
+                                                            )))
                      
     (set-g-component editor :x-grid-max-numbox
                      (om-make-graphic-object'numbox :size (omp 55 18) :font (om-def-font :font1)
