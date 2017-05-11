@@ -332,6 +332,7 @@ Press 'space' to play/stop the sound file.
 ;  (shared-initialize self t initargs))
 
 (defun set-sound-data (sound path)
+  (when (buffer sound) (oa::om-release (buffer sound)))
   (if (probe-file path)
       (multiple-value-bind (buffer format channels sr ss size skip)
           (audio-io::om-get-sound-buffer (namestring path) *default-internal-sample-size* nil)
@@ -346,7 +347,10 @@ Press 'space' to play/stop the sound file.
                     (sample-size sound) ss)
           ;(om-print (format nil "Allocated buffer ~A for ~A" (buffer sound) sound) "SOUND_DEBUG")
               sound)))
-    (om-beep-msg "Wrong pathname for sound: ~s" path)))
+    (progn 
+      (om-beep-msg "Wrong pathname for sound: ~s" path)
+      (setf (buffer sound) nil)
+      )))
 
 (defun set-sound-info (sound path)
   (multiple-value-bind (format channels sr ss size skip)
@@ -404,13 +408,15 @@ Press 'space' to play/stop the sound file.
 (defmacro with-audio-buffer ((buffer-name sound) &body body)
   `(let* ((snd (get-sound ,sound))
           (tmp-buffer (unless (buffer snd) 
-                        (when (and (valid-pathname-p (file-pathname snd)) (n-channels snd) (n-samples snd))
+                        (when (and (valid-pathname-p (file-pathname snd)) 
+                                   (probe-file (file-pathname snd))
+                                   (n-channels snd) (n-samples snd))
                           (make-om-sound-buffer-GC :count 1 :nch (n-channels snd)
                                                    :ptr (audio-io::om-get-sound-buffer (namestring (file-pathname snd)) *default-internal-sample-size*)))))
           (,buffer-name (or tmp-buffer (buffer snd))))
      (unwind-protect
          (progn 
-           (unless ,buffer-name (om-print "Warning: no sound buffer allocated" "OM"))
+           (unless ,buffer-name (om-print-format "Warning: no sound buffer allocated for ~A" (list (file-pathname snd)) "OM"))
            ,@body)
        (when tmp-buffer (oa::om-release tmp-buffer))
        )))
@@ -432,12 +438,17 @@ Press 'space' to play/stop the sound file.
 (defmethod draw-mini-view ((self sound) (box t) x y w h &optional time) 
   (let ((pict (get-display-draw box)))
     (when pict
-      (om-draw-picture pict :x x :y (+ y 4) :w w :h (- h 8)))
+      (if (equal pict :error)
+          (om-with-fg-color (om-def-color :orange)
+            (om-with-font (om-def-font :font2b)
+                          (om-draw-string (+ x 10) (+ y 14) "ERROR LOADING FILE" nil (box-w box))))
+        (om-draw-picture pict :x x :y (+ y 4) :w w :h (- h 8))))
     (when (markers self)
       (let ((fact (/ w (get-obj-dur self))))
         (loop for mrk in (markers self) do
               (om-with-fg-color (om-def-color :dark-gray)
-                (om-draw-dashed-line (+ x (* mrk fact)) 4 (+ x (* mrk fact)) (- h 4))))))))
+                (om-draw-dashed-line (+ x (* mrk fact)) 4 (+ x (* mrk fact)) (- h 4))))))
+    ))
 
 
 
@@ -621,18 +632,19 @@ Press 'space' to play/stop the sound file.
            (array-size (floor (n-samples self) window))
            (array (make-array (list (n-channels self) array-size) :element-type 'single-float :initial-element 0.0 :allocation :static))
            )
-
       (with-audio-buffer (b self)
-        (fli:with-dynamic-lisp-array-pointer 
-            (ptr array :type :float)
-          (fill-sound-display-array (om-sound-buffer-ptr b)
-                                    (n-samples self) ptr array-size (n-channels self)))
-        )
-      
-      (create-waveform-pict 
-                   (resample-2D-array array 0 array-size (min array-size pictsize))
-                   (om-make-color 0.41 0.54 0.67))
-      )))
+        (if b
+          (let ()
+            (fli:with-dynamic-lisp-array-pointer 
+                (ptr array :type :float)
+              (fill-sound-display-array (om-sound-buffer-ptr b)
+                                        (n-samples self) ptr array-size (n-channels self)))
+            
+            (create-waveform-pict 
+             (resample-2D-array array 0 array-size (min array-size pictsize))
+             (om-make-color 0.41 0.54 0.67)))
+          :error
+          )))))
             
 
 
@@ -672,7 +684,7 @@ Press 'space' to play/stop the sound file.
     (setf (cache-display-list editor) (get-cache-display-for-draw (object-value editor))))
   (let ((dur (get-obj-dur sound))
         (pict (cache-display-list editor)))
-    (when pict 
+    (when (and pict (not (equal :error pict)))  
       (om-draw-picture pict 
                        :w (w view) :h (h view) 
                        :src-x (* (om-pict-width pict) (/ from dur)) 
