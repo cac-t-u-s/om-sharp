@@ -326,7 +326,6 @@
       (init-editor (editor self)))
     (open-editor-window (editor self))))
 
-
 ;;;=============================
 ;;; EDIT-PARAMS
 ;;;=============================
