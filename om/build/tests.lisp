@@ -36,3 +36,7 @@
 (defun test-om-spat ()
   (print "test-om-spat")
   (open-doc-from-file :patch "/Users/bresson/SRC/OM7/IRCAM-FORGE/om7-patches/om-spat/om-spat-spat-scene.opat"))
+
+(defun test-symbolist ()
+  (print "test-symbolist")
+  (open-doc-from-file :patch "/Users/bresson/SRC/symbolist/OM/symbolist/patches/symbolist-test.opat"))
