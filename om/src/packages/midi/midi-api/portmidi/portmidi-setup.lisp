@@ -65,14 +65,14 @@
       (values (nth 2 device) (nth 1 device)))))
 
 
-(defmethod portmidi-setup (settings &optional action)
-  (show-portmidi-dialog settings action))
+(defmethod portmidi-setup (settings)
+  (show-portmidi-dialog settings))
 
 (defclass portmidi-ports-dialog (oa::om-dialog) 
   ((portviews :accessor portviews :initform nil :initarg :portviews)
    (settings :accessor settings :initform nil :initarg :settings)))
 
-(defclass portmidi-ports-view (oa::om-view) 
+(defclass portmidi-ports-view (oa::om-grid-layout) 
   ((portlines :accessor portlines :initform nil :initarg :portlines)
    (direction :accessor direction :initform nil :initarg :direction)))
 
@@ -129,24 +129,29 @@
                                  )))
                )))))
 
-(defun show-portmidi-dialog (settings &optional action)
+(defun show-portmidi-dialog (settings)
   (let ((dd (oa::om-make-window 'portmidi-ports-dialog 
                                 :window-title "PortMIDI Setup"
                                 :bg-color (oa:om-def-color :light-gray)
                                 :size (oa::om-make-point 800 310)
                                 :resizable nil
                                 :settings settings))
-        (inv (oa::om-make-view 'portmidi-ports-view :position (oa::om-make-point 10 10)
+        (inv (oa::om-make-layout 'portmidi-ports-view :position (oa::om-make-point 10 10)
                                :size (oa::om-make-point 380 210)
+                               :bg-color (oa::om-def-color :white)
                                :direction :in))       
-        (outv (oa::om-make-view 'portmidi-ports-view :position (oa::om-make-point 400 10)
+        (outv (oa::om-make-layout 'portmidi-ports-view :position (oa::om-make-point 400 10)
                                 :size (oa::om-make-point 380 210)
+                                :bg-color (oa::om-def-color :white)
                                 :direction :out)))
     
     (oa::om-add-subviews inv 
                          
-                         (oa::om-make-di 'oa::om-simple-text :position (oa::om-make-point 60 10) :size (oa::om-make-point 80 20) :text "In"
-                                                  :font (oa::om-def-font :font2b))
+                         (oa::om-make-di 'oa::om-simple-text 
+                                         ;:position (oa::om-make-point 60 10) 
+                                         ;:size (oa::om-make-point 80 20) 
+                                         :text "In"
+                                         :font (oa::om-def-font :font2b))
                          
                          (oa::om-make-di 'oa::om-button :position (oa::om-make-point 20 5) :size (oa::om-make-point 40 20) :text "+"
                                                   :di-action #'(lambda (item) 
@@ -162,6 +167,7 @@
                          (oa::om-make-di 'oa::om-simple-text :position (oa::om-make-point 120 10) :size (oa::om-make-point 120 20) :text "Input Devices"
                                                   :font (oa::om-def-font :font2b))
                          )
+    
     (oa::om-add-subviews outv 
                          (oa::om-make-di 'oa::om-simple-text :position (oa::om-make-point 60 10) :size (oa::om-make-point 80 20) :text "Out"
                                                   :font (oa::om-def-font :font2b))
@@ -193,17 +199,18 @@
                 (oa::om-make-layout 'oa:om-row-layout 
                                     :subviews 
                                     (list 
-                                     (oa::om-make-di 'oa::om-button :position (oa::om-make-point 20 265) :size (oa::om-make-point 130 20) :text "Refresh Devices"
-                                                     :di-action #'(lambda (item) 
-                                                                    (when action (funcall action))
-                                                                    (portmidi-connect-ports (settings dd))
-                                                                    (set-portmidi-connection-view inv dd)
-                                                                    (set-portmidi-connection-view outv dd)
-                                                                    ))
+                                     ;(oa::om-make-di 'oa::om-button :position (oa::om-make-point 20 265) :size (oa::om-make-point 130 20) :text "Refresh Devices"
+                                     ;                :di-action #'(lambda (item) 
+                                     ;                               (portmidi-connect-ports (settings dd))
+                                     ;                               (set-portmidi-connection-view inv dd)
+                                     ;                               (set-portmidi-connection-view outv dd)
+                                     ;                               ))
                                      NIL
-                                     (oa::om-make-di 'oa::om-button :position (oa::om-make-point 700 240) :size (oa::om-make-point 80 20) :text "Cancel"
+                                     (oa::om-make-di 'oa::om-button ; :position (oa::om-make-point 700 240) 
+                                                     :size (oa::om-make-point 80 nil) :text "Cancel"
                                                      :di-action #'(lambda (item) (oa::om-return-from-modal-dialog dd nil)))
-                                     (oa::om-make-di 'oa::om-button :position (oa::om-make-point 700 265) :size (oa::om-make-point 80 20) :text "OK"
+                                     (oa::om-make-di 'oa::om-button ; :position (oa::om-make-point 700 265) 
+                                                     :size (oa::om-make-point 80 nil) :text "OK"
                                                      :di-action #'(lambda (item) (oa::om-return-from-modal-dialog dd (settings dd))))
                                      ))
                 ))) 

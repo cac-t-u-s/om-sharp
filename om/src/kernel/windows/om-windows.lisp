@@ -56,7 +56,8 @@
   (append 
    (unless (om-standalone-p) 
      (list (om-make-menu-item "Preferences" 'show-preferences-win :key ",")
-           (om-make-menu-item "MIDI Setup" 'show-midi-setup)))
+           ;(om-make-menu-item "MIDI Setup" 'show-midi-setup)
+           ))
    (list 
     (om-make-menu-comp 
      (list (om-make-menu-item "Inspector" #'(lambda () (funcall (get-info-command self))) :key "i" 
