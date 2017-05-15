@@ -91,7 +91,8 @@
 ;;;=============================
 
 (defun om-print (str &optional prompt)  
-  (format *om-stream* "~A :: ~A~%" (or prompt "") str))
+  (format *om-stream* "~A :: ~A~%" (or prompt "") str)
+  str)
 
 (defun om-print-format (format-string &optional args prompt)  
   (if prompt 
