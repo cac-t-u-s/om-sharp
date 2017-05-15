@@ -120,10 +120,22 @@
 
 (defun configure-audio-channels (list)
   (when list 
-    (om-print (format nil "Output channels:") "AUDIO SETPUT")
-    (loop for item in list for o = 1 then (+ o 1) do
-          (om-print (format nil "~D => ~D" o item) "AUDIO SETPUT"))
-    (juce::setoutputchannels *juce-player* list)))
+    (om-print (format nil "Output channels:") "AUDIO SETUP")
+    (let* ((available-channels (juce::getoutputchannelslist *juce-player*))
+           (checked-list
+            (loop for to in list for from = 1 then (+ from 1) collect
+                 (cond ((not (find from available-channels :test '=))
+                        ;;; from channel not available
+                        (om-print (format nil "~D => ERROR there is no chanel ~D" from from) "AUDIO SETUP")
+                        nil)
+                       ((not (find to available-channels :test '=))                        
+                        ;;; to channel not available => don't route
+                        (om-print (format nil "~D => ERROR: channel ~D not available => ~D" from to from) "AUDIO SETUP")
+                        from)
+                       (t 
+                        (om-print (format nil "~D => ~D" from to) "AUDIO SETUP")
+                        to)))))
+      (juce::setoutputchannels *juce-player* (remove nil checked-list)))))
 
 (add-om-init-fun 'open-juce-player)
 (add-om-exit-action 'close-juce-player)
