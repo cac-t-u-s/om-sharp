@@ -250,7 +250,8 @@
 ;;===========================================
 
 (defclass OMBoxEditCall (OMBoxRelatedWClass ObjectWithEditor object-with-edit-params) 
-  ((play-state :initform nil :accessor play-state))
+  ((play-state :initform nil :accessor play-state)
+   (show-markers :accessor show-markers :initform t))
   (:metaclass omstandardclass))
 
 (defmethod special-box-type ((self t)) nil)

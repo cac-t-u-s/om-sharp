@@ -9,10 +9,7 @@
   ((lock-state :initform nil :accessor lock-state :initarg :lock-state)    ;;; can be (nil :locked :eval-once)
    (lambda-state :initform nil :accessor lambda-state :initarg :lambda-state)  ;;; can be (nil :lambda :reference :box)
    (ev-once-flag :accessor ev-once-flag :initform nil)
-   (eval-flag :accessor eval-flag :initform nil)
-   ;;;MAQUETTE TAG
-   (show-markers :accessor show-markers :initform nil)
-   )
+   (eval-flag :accessor eval-flag :initform nil))
   (:documentation "This is the class for boxes in a Patch or in a maquette.
 All boxes which their reference is a OM generic function are instances of this class.")
   (:metaclass omstandardclass))
