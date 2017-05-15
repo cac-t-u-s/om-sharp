@@ -44,6 +44,7 @@
           om-write-ptr
           om-make-null-pointer
           om-null-pointer-p
+          om-pointer-equal
           om-cleanup-mixin
           om-cleanup
           om-create-with-gc
@@ -76,6 +77,10 @@
 (defun om-null-pointer-p (ptr) 
   ;(check-type ptr fli::pointer)
   (fli:null-pointer-p ptr))
+
+(defun om-pointer-equal (ptr1 ptr2) 
+  ;(check-type ptr fli::pointer)
+  (fli:pointer-eq ptr1 ptr2))
 
 #|
 
