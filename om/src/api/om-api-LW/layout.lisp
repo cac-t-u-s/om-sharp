@@ -117,7 +117,8 @@
    #'(lambda (layout views)
        (setf (capi::layout-description layout)
              (append (capi::layout-description layout) views))
-       (capi::set-pane-focus (car (last subviews)))
+       (when (car (last subviews))
+         (capi::set-pane-focus (car (last subviews))))
        )
    self subviews
    ))
