@@ -156,9 +156,10 @@
               (om-relative-path '("resources" "lib" "mac") nil (oa::om-root-folder)))
    #+linux (om-relative-path '("resources" "lib" "linux") nil (oa::om-root-folder))
    )
+
+  (load-modif-patches)
   
-   (load-modif-patches)
-  #+cocoa(objc:make-autorelease-pool)
+#+cocoa(objc:make-autorelease-pool)
   (editor:setup-indent "defmethod*" 2 2 2)
   (editor:setup-indent "defmethod!" 2 2 2)
   (editor:setup-indent "defclass*" 2 2 2)
