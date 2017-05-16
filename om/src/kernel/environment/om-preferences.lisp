@@ -181,7 +181,7 @@
 (defun save-pref-module (module)
   (cons (pref-module-id module)
         (loop for pref in (pref-module-items module) 
-              unless (or (equal :title (pref-item-type pref)) (equal :action (pref-item-type pref)))
+              unless (equal :title (pref-item-type pref))  ; (or (equal :action (pref-item-type pref)))
               collect
               (list (pref-item-id pref) (omng-save (pref-item-value pref))))))
 
