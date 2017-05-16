@@ -118,24 +118,32 @@
   (juce::closeAudioManager *juce-player*)
   (setf *juce-player* nil))
 
+;;; CONVENTION: 
+;;; (nth n list) = target for channel n in the sounds :
+;;; c >= 1 : play on channel c
+;;; c = 0 : play on its original channel
+;;; c = -1 : mute
 (defun configure-audio-channels (list)
   (when list 
     (om-print (format nil "Output channels:") "AUDIO SETUP")
     (let* ((available-channels (juce::getoutputchannelslist *juce-player*))
            (checked-list
             (loop for to in list for from = 1 then (+ from 1) collect
-                 (cond ((not (find from available-channels :test '=))
-                        ;;; from channel not available
-                        (om-print (format nil "~D => ERROR there is no chanel ~D" from from) "AUDIO SETUP")
-                        nil)
-                       ((not (find to available-channels :test '=))                        
-                        ;;; to channel not available => don't route
-                        (om-print (format nil "~D => ERROR: channel ~D not available => ~D" from to from) "AUDIO SETUP")
-                        from)
-                       (t 
-                        (om-print (format nil "~D => ~D" from to) "AUDIO SETUP")
-                        to)))))
-      (juce::setoutputchannels *juce-player* (remove nil checked-list)))))
+                  (cond 
+                   ((null to) 
+                    (om-print (format nil "~D => X" from) "AUDIO SETUP")
+                    -1) ;; don't play this channel
+                   ((and (find to available-channels :test '=)
+                         (<= to (get-pref-value :audio :out-channels)))
+                    (om-print (format nil "~D => ~D" from to) "AUDIO SETUP")
+                    to)
+                   (t ;;; to channel not available => don't route / re-route
+                      (let ((to2 (if (and (find from available-channels :test '=)
+                                          (<= from (get-pref-value :audio :out-channels)))
+                                     from -1)))
+                        (om-print (format nil "~D => ERROR: channel ~D not available or not enabled => ~D" from to to2) "AUDIO SETUP")
+                        to2))))))
+      (juce::setoutputchannels *juce-player* checked-list))))
 
 (add-om-init-fun 'open-juce-player)
 (add-om-exit-action 'close-juce-player)
