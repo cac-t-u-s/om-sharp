@@ -280,7 +280,13 @@
 
 (defmethod omng-delete ((box OMBoxEditCall))
   (call-next-method)
-  (when (editor box) (om-close-window (editor-window box))))
+  (when (editor box) 
+    (om-close-window (editor-window box))
+  (when (editor box) 
+    ;;; in principle the window-close callback will have closed the editor and set it to NIL
+    ;;; but for instance not if the window is not an OM window (e.g. external app or library...)
+    (editor-close (editor box)))
+  ))
 
 (defmethod get-box-value ((self OMBoxEditCall)) 
   (car (value self)))
