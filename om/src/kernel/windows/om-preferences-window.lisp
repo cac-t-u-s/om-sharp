@@ -63,7 +63,7 @@
 (defmethod make-preference-item ((type (eql :folder)) pref-item) 
   (let* ((curr-value (maybe-eval-pref-item-value pref-item))
          (textview (om-make-view 'click-and-edit-text 
-                                :text (format nil "~A" curr-value)
+                                :text (if curr-value (format nil "~A" curr-value) "")
                                 :resizable :w
                                 :bg-color (om-def-color :window)
                                 ;:fg-color (if (probe-file curr-value) (om-def-color :black) (om-def-color :red))
@@ -72,8 +72,9 @@
                                            20)
                                 :font (om-def-font :font1)
                                 :after-fun #'(lambda (item)
-                                                (setf (pref-item-value pref-item) (text item))
-                                                (maybe-apply-pref-item-after-fun pref-item))
+                                               (let ((val (if (equal (text item) "") nil (text item))))
+                                                (setf (pref-item-value pref-item) val)
+                                                (maybe-apply-pref-item-after-fun pref-item)))
                                 )))
     (om-make-layout 'om-row-layout
                   :resizable :w
@@ -225,21 +226,57 @@
 (defmethod make-preference-item ((type (eql :title)) pref-item) 
   (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t))
 
+#|
 (defun make-preference-view (pref-item)
-  (let ((main-row 
-         (om-make-layout 'om-row-layout :name (pref-item-id pref-item)
-                         :subviews (list
-                                    (om-make-di 'om-simple-text :text (pref-item-name pref-item) 
-                                                :font (if (equal (pref-item-type pref-item) :title) (om-def-font :font3b) (om-def-font :font2))
-                                                :size (om-make-point 160 ;(list :string (format nil "  ~A  " (pref-item-name pref-item))) 
-                                                                     20))
-                                    (make-preference-item (pref-item-type pref-item) pref-item)))))                                                         
-    (if (pref-item-doc pref-item)
-        (om-make-layout 'om-column-layout :name (pref-item-id pref-item)
-                        :subviews (list main-row 
-                                        (om-make-di 'om-simple-text :text (string+ "- " (pref-item-doc pref-item)) :font (om-def-font :font1)
-                                                    :size (om-make-point (list :string (format nil "  ~A  " (pref-item-doc pref-item))) 20))))
+  (let* ((main-text (om-make-di 'om-simple-text 
+                                :text (pref-item-name pref-item) 
+                                :font (if (equal (pref-item-type pref-item) :title) (om-def-font :font3b) (om-def-font :font2))
+                                :size (om-make-point 160 ;(list :string (format nil "  ~A  " (pref-item-name pref-item))) 
+                                                     20)))
+         (main-row 
+          (om-make-layout 'om-row-layout :name (pref-item-id pref-item)
+                          :subviews (list
+                                     (if (pref-item-doc pref-item)
+                                         (om-make-layout 
+                                          'om-column-layout :name (pref-item-id pref-item)
+                                          :subviews 
+                                          (list 
+                                           main-text 
+                                           (om-make-di 
+                                            'om-simple-text 
+                                            :text (string+ "" (pref-item-doc pref-item)) 
+                                            :font (om-def-font :font1)
+                                            :size (om-make-point (list :string (format nil "  ~A  " (pref-item-doc pref-item))) 20))))
+                                       main-text)
+                                     
+                                    (make-preference-item (pref-item-type pref-item) pref-item))))) 
+      main-row))
+|#
+
+
+(defun make-preference-view (pref-item)
+  (let* ((main-text (om-make-di 'om-simple-text 
+                                :text (pref-item-name pref-item) 
+                                :font (if (equal (pref-item-type pref-item) :title) (om-def-font :font3b) (om-def-font :font2))
+                                :size (om-make-point 160 ;(list :string (format nil "  ~A  " (pref-item-name pref-item))) 
+                                                     20)))
+         (main-row 
+          (om-make-layout 'om-row-layout :name (pref-item-id pref-item)
+                          :subviews (list
+                                     main-text 
+                                     (make-preference-item (pref-item-type pref-item) pref-item)))))                                             
+  (if (pref-item-doc pref-item)
+        (om-make-layout 
+         'om-column-layout :name (pref-item-id pref-item)
+            :subviews 
+            (list main-row 
+                  (om-make-di 
+                   'om-simple-text 
+                   :text (string+ "" (pref-item-doc pref-item)) 
+                   :font (om-def-font :font1)
+                   :size (om-make-point (list :string (format nil "  ~A  " (pref-item-doc pref-item))) 20))))
       main-row)))
+
 
 
 ;;;===========================================================================

@@ -32,8 +32,11 @@
 
 
 (add-preference-module :libraries "Libraries")
-(add-preference :libraries :libs-folder1 "Libraries folder" :folder :no-default nil 'update-libraries-folder)
-(add-preference :libraries :auto-load "Auto load" :bool nil "... will silently load any required libraries.")
+(add-preference :libraries :libs-folder1 "Libraries folder 1" :folder :no-default nil 'update-libraries-folder)
+(add-preference :libraries :libs-folder2 "Libraries folder 2" :folder :no-default nil 'update-libraries-folder)
+(add-preference :libraries :libs-folder3 "Libraries folder 3" :folder :no-default nil 'update-libraries-folder)
+(add-preference :libraries :libs-folder4 "Libraries folder 4" :folder :no-default nil 'update-libraries-folder)
+(add-preference :libraries :auto-load "Auto load" :bool nil "(Will silently load any required libraries)")
 
 ;;;=================================
 ;;; registered libraries package
@@ -79,7 +82,10 @@
   (unless *default-libs-folder* (init-default-libs-folder))
   (loop for folder in (remove nil 
                               (list *default-libs-folder* 
-                                    (get-pref-value :libraries :libs-folder1)))
+                                    (get-pref-value :libraries :libs-folder1)
+                                    (get-pref-value :libraries :libs-folder2)
+                                    (get-pref-value :libraries :libs-folder3)
+                                    (get-pref-value :libraries :libs-folder4)))
         do (mapc #'(lambda (path) (register-om-library path warn-if-exists))
                  (om-directory folder :directories t :files nil))))
 

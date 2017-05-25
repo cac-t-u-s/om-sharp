@@ -22,7 +22,9 @@
 (add-preference :audio :out-channels "Output Channels" '(2) 2 nil 'apply-audio-device-config)
 (add-preference :audio :samplerate "Sample Rate" '(44100) 44100 nil 'apply-audio-device-config)
 (add-preference :audio :buffersize "Buffer Size" '(256 512 1024) 512 nil 'apply-audio-device-config)
-(add-preference :audio :channels-config "Output channels routing list" :list nil nil 'apply-audio-device-config)
+(add-preference :audio :channels-config "Output channels routing" :list nil 
+                "List format : (out-for-channel1 out-for-channel-2 ...). NIL = mute channel." 
+                'apply-audio-device-config)
 
 
 (defun default-audio-input-device ()

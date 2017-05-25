@@ -227,6 +227,10 @@
                 (oa::om-make-layout 'oa:om-row-layout 
                                     :subviews 
                                     (list 
+                                     (oa::om-make-di 'oa::om-multi-text 
+                                                     :size (oa::om-make-point 360 24) 
+                                                     :text "o7 detects MIDI device at startup. If some active MIDI devices do not appear in the lists, you might need to restart the program."
+                                                     :font (oa::om-def-font :font1))
                                      ;(oa::om-make-di 'oa::om-button :position (oa::om-make-point 20 265) :size (oa::om-make-point 130 20) :text "Refresh Devices"
                                      ;                :di-action #'(lambda (item) 
                                      ;                               (portmidi-connect-ports (settings dd))
