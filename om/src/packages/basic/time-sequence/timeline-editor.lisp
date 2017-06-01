@@ -474,6 +474,7 @@
                        (when (not (equal new-dt 0))
                          (setf time (+ time new-dt))
                          (translate-selection editor new-dt)
+                         (set-cursor-time editor  (item-get-internal-time orig-point)) 
                          ))
                      (om-invalidate-view view)
                      (when (equal :master (item-get-type orig-point))

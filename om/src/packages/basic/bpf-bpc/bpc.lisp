@@ -178,7 +178,6 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
           (tpoint-time point) time)
     point))
 
-
 ;;;=========================================
 ;;; TIME-SEQUENCE METHODS
 ;;;=========================================
@@ -306,4 +305,4 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
   (osc-send (list address (om-point-x point) (om-point-y point)) host port))
 
 (defmethod get-def-action-list ((object BPC))
-  '(print send-xy-as-osc))
+  '(print send-xy-as-osc bpc-midi-controller))
