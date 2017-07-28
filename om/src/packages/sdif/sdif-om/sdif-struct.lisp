@@ -71,7 +71,7 @@ The lines of the matrix define the different fields of the description data (e.g
 The number of fields usually depends on the SDIF type specification corresponding to <signature>.
 The number of elements is variable.
 
-SDIFMatrix is a virtual 2D array of <num-fields> x <num-elts>.
+SDIFMatrix is a virtual 2D array of <num-cols> x <num-rows>.
 All data is contained in <data> 
 - as a list of lists ((freqs) (amps) (phases) ...)
 or
@@ -129,7 +129,7 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
                       (let ((fmat (find (matrixtype matrix) (lmatrices (car newframes)) :test 'string-equal :key 'matrixtype)))
                         (if fmat 
                             (setf (data fmat) (merge-matrix-data (data fmat) (data matrix))
-                                  (num-elts fmat) (1+ (num-elts fmat)))
+                                  (num-rows fmat) (1+ (num-rows fmat)))
                           (setf (lmatrices fr) (append (lmatrices fr) (list matrix))))))
               (push (make-instance 'SDIFFrame :frametime (frametime fr) :frametype (frametype fr)
                                    :streamID 0 :lmatrices (lmatrices fr))

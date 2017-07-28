@@ -15,7 +15,7 @@
 
 (defmethod sdif-size ((self sdifmatrix))
   (+ (sdif-header-size self)
-     (align-bytes (* 4 (num-elts self) (num-fields self)) 8)))
+     (align-bytes (* 4 (num-rows self) (num-cols self)) 8)))
 
 (defmethod sdif-size ((self sdifframe))
   (reduce 
@@ -26,13 +26,13 @@
 (defmethod sdif-write ((matrix sdifmatrix) file-ptr)
   (let* ((data-type-size 4)
          (data (if (listp (car (data matrix))) (flat (mat-trans (data matrix))) (data matrix)))
-         (data-ptr (om-alloc-memory (* data-type-size (num-fields matrix) (num-elts matrix)))))
+         (data-ptr (om-alloc-memory (* data-type-size (num-cols matrix) (num-rows matrix)))))
     (loop for val in data 
           for i from 0 do
           (om-write-ptr data-ptr (* i data-type-size) 'single-float (coerce val 'single-float)))
     (sdif::SdifFWriteMatrix file-ptr 
                             (sdif::SdifStringToSignature (matrixtype matrix))
-                            data-type-size (num-elts matrix) (num-fields matrix) data-ptr)
+                            data-type-size (num-rows matrix) (num-cols matrix) data-ptr)
     (om-free-memory data-ptr)
     ))
 
