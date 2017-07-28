@@ -378,7 +378,6 @@
   (and (> (car pt) x1) (< (car pt) x2)
        (> (cadr pt) y1) (< (cadr pt) y2)))
 
-
 (defun draw-one-bpf (bpf view editor foreground? &optional x1 x2 y1 y2) 
   (let ((pts (point-list bpf)))
     (when pts
