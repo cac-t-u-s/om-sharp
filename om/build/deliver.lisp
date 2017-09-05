@@ -236,7 +236,8 @@
                                                         :name *app-name+version*)
                                          :document-types (list `("Patch" ("opat") ,(om::om-relative-path '("mac") "pat-icon.icns"))
                                                                `("Maquette" ("omaq") ,(om::om-relative-path '("mac") "maq-icon.icns"))
-                                                               `("TextFun" ("olsp") ,(om::om-relative-path '("mac") "lsp-icon.icns")))
+                                                               `("TextFun" ("olsp") ,(om::om-relative-path '("mac") "lsp-icon.icns"))
+                                                               `("om Library" ("omlib") ,(om::om-relative-path '("mac") "omlib.icns")))
                                                            :application-icns (om::om-relative-path '("mac") "om.icns")
                                          :identifier "fr.ircam.repmus.o7"
                                          :version (version-to-string *om-version* t nil)
