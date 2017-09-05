@@ -30,6 +30,7 @@
     (text-align :initform :left :accessor text-align :initarg :text-align)
     (icon-pos :initform :left :accessor icon-pos :initarg :icon-pos)
     (show-name :initform t :accessor show-name :initarg :show-name)
+    (show-markers :accessor show-markers :initform t)
     ;;; REACTIVE FLAGS
    (state-lock :accessor state-lock :initform nil) ;; this box is the event source and his evaluation is locked
    (gen-flag :accessor gen-flag :initform nil) ;; this box has already been valuated during this generation 
