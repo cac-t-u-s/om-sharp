@@ -4,6 +4,8 @@
 
 (defvar *current-eval-panel* nil)
 
+(defmethod clear-ev-once ((self t)) nil)
+
 (defmethod clear-ev-once ((self patch-editor-view))
    "After one evaluation this methods set the ev-once flag of all boxes in ev-once mode to nil."
    (mapc #'(lambda (box)
