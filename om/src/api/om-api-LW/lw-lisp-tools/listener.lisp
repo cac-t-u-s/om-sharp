@@ -98,7 +98,7 @@
   (if prompt 
       (format *om-stream* "~A :: ~A~%" prompt
               (apply 'format (append (list nil format-string) args)))
-    (format *om-stream* format-string args)))
+    (apply 'format (append (list *om-stream* format-string) args))))
     
 
 ;;;=============================
