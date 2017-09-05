@@ -257,7 +257,7 @@
 
 
 (defun gen-midi-notes (n &optional (tmax 10000) (channel 1))
-  (loop for i from 0 to n collect
+  (loop for i from 0 to (1- n) collect
         (make-midinote :onset (om-random 0 tmax)
                        :pitch (om-random 50 90) 
                        :vel 100
