@@ -151,14 +151,21 @@
         (set-box-inputs self (remove last-in (inputs self) :test 'equal))
        t))))
 
+;;; :-] is a special keyword allowing to set a personalized keyword name
+;;; used for instance in class-array
 (defmethod change-keyword ((input box-keyword-input) key)
-  (let ((old-name (name input)))
-    (setf (name input) (string-downcase key)
-          (value input) (get-input-def-value (box input) key)
-          (doc-string input) (get-input-doc (box input) (string-downcase key))
-          (reactive input) (def-reactive (box input) key))
-    (update-output-from-new-in (box input) old-name input)
-    ))
+  (let ((old-name (name input))
+        (new-key (if (equal key :-]) 
+                    (let ((new-name (om-get-user-string "type a new name" :initial-string (name input))))
+                      (and new-name (intern-k new-name)))
+                   key)))
+    (when new-key
+      (setf (name input) (string-downcase new-key)
+            (value input) (get-input-def-value (box input) new-key)
+            (doc-string input) (get-input-doc (box input) (string-downcase new-key))
+            (reactive input) (def-reactive (box input) new-key))
+      (update-output-from-new-in (box input) old-name input)
+    )))
 
 (defmethod update-output-from-new-in (box name in) nil)
 
