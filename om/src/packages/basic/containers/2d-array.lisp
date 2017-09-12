@@ -54,25 +54,6 @@
           (om-draw-rect 2 yy (- w 4) line-h :color (om-def-color :white) :fill t))
     ))
 
-    (om-with-font 
-     font 
-     (loop for line in (list! (contents self)) 
-           for y = 18 then (+ y 12) 
-           do (if (< y (- h 8)) 
-                  (let ((line (format nil "~A" line)))
-                    (if (> (om-string-size line font) (- w 10))
-                        (om-draw-string 
-                         5 y 
-                         (concatenate 
-                          'string 
-                          (subseq line 0 (min (length line) (- (round w (om-string-size "a" font)) 3)))
-                          " ..."))
-                      (om-draw-string 5 y line)))
-                (progn 
-                  (om-draw-string (- (round w 2) 10) (- h 10) "...") 
-                  (return)))))))
-
-
 
 ;;;============================================================
 ;;; CLASS-ARRAY / OM6-LIKE
