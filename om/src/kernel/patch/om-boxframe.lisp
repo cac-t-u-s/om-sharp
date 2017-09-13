@@ -474,7 +474,8 @@
             (om-with-font
              (or (text-font box) (om-def-font :font1))
              ;(om-draw-rect x y w h)
-             (om-draw-string (max 2 x) (+ y (om-font-size (or (text-font box) (om-get-font self)))) text nil (max 10 (- (w self) 2)))
+             (om-draw-string (max 2 x) (+ y (om-font-size (or (text-font box) (om-get-font self)))) 
+                             text :selected nil :wrap (max 10 (- (w self) 2)))
              )))))
 
       ;;; border

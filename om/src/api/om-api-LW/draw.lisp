@@ -226,7 +226,7 @@
                         ))
           ))
 
-(defmacro om-draw-string (x y str &optional selected wrap)
+(defmacro om-draw-string (x y str &key selected wrap)
    `(if ,wrap
         (multiple-value-bind (left top right bottom)
             (gp::get-string-extent *curstream* ,str)
@@ -237,7 +237,9 @@
                                   ,.(if selected '(:block t :foreground :color_highlighttext :background :color_highlight) '(:block nil))))
             ))
       (gp:draw-string *curstream* (substitute #\Space #\Tab ,str) ,x ,y :text-mode :default
-                      ,.(if selected '(:block t :foreground :color_highlighttext :background :color_highlight) '(:block nil)))))
+                      ,.(if selected '(:block t :foreground :color_highlighttext :background :color_highlight) '(:block nil))
+                      )
+      ))
 
 ;; #-cocoa :operation #-cocoa (if erasable boole-eqv boole-1)
 (defun om-draw-line (x1 y1 x2 y2 &key (style :round) color line)

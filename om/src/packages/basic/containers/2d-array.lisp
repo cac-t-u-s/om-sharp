@@ -33,11 +33,10 @@
 (defmethod initialize-instance :after ((self 2D-array) &rest args)
   (update-contents self))
 
-(defmethod (setf data) :after (data (self 2D-array))
-  (update-contents self))
-
 (defmethod get-col ((self 2D-array) (col integer))
   (nth col (data self)))
+
+(defmethod get-column-name ((self 2D-array) (col integer)) (format nil "c_~D" col))
 
 (defmethod display-modes-for-object ((self 2D-array)) '(:hidden :text :mini-view))
 
@@ -47,12 +46,17 @@
          (n-lines (length (data self)))
          (inter-line 3)
          (margin 8)
-         (line-h (/ (- h margin (* inter-line (1- n-lines))) n-lines)))
-    (om-draw-rect (+ x 2) (+ y 2) w h :color (om-def-color :red))
-    (loop for n from 0 to (1- n-lines)
-          for yy = margin then (+ yy line-h inter-line) do
-          (om-draw-rect 2 yy (- w 4) line-h :color (om-def-color :white) :fill t))
-    ))
+         (line-h (if (data self) 
+                     (/ (- h margin (* inter-line (1- n-lines))) n-lines)
+                   (- h margin))))
+    ;(om-draw-rect (+ x 2) (+ y 2) (- w 4) (- h 4) :color (om-def-color :red))
+    (when (data self) 
+      (loop for n from 0 to (1- n-lines)
+            for yy = margin then (+ yy line-h inter-line) do
+            (om-draw-rect 2 yy (- w 4) line-h :color (om-def-color :white) :fill t)
+            (om-with-fg-color (om-def-color :black)
+              (om-draw-string 4 (+ yy 8) (get-column-name self n)))
+      ))))
 
 
 ;;;============================================================
@@ -79,12 +83,34 @@
            (number-to-string (num-elts self)) "]"))
 
 (defmethod get-col ((self class-array) (col string))
-  (let ((pos (position col (fields self) 
+  (let ((pos (position col (inits self) 
                        :test 'string-equal 
                        :key #'(lambda (elt) (if (stringp elt) elt (car elt))))))
     (if pos (get-col self pos)
       (om-beep-msg "Field '~A' not found in '~A'" col self))))
 
+(defmethod get-column-name ((self class-array) (col integer)) 
+  (or (nth col (inits self))
+      (format nil "c_~D" col)))
+
+;;; methods for init
+
+(defmethod init-array-data ((init string) n)
+  (make-list n :initial-element nil))
+
+;;; methods for filling data
+
+(defmethod fill-array-data-from-input ((input number) n)
+  (make-list n :initial-element input))
+
+(defmethod fill-array-data-from-input ((input cons) n)
+  (cond ((= (length input) n) 
+         (copy-list input))
+        ((< (length input) n) 
+         (make-array-data-from-input (append input input) n))
+        ((> (length input) n)
+         (first-n input n))))
+        
 
 (defclass class-array-box (OMBoxEditCall) ())
 (defmethod special-box-type ((self (eql 'class-array))) 'class-array-box)
@@ -93,10 +119,8 @@
 (defmethod update-contents ((self class-array))
   (let ((matrix-data 
          (loop for elem in (inits self) collect
-               (let ((field (make-matrix-field :name elem)))
-                 (if find elem)
-              
-                 ))))))
+               (init-array-data elem (num-elts self)))))
+    (setf (data self) matrix-data)))
 
 ;;; class-array-box can as many keyword as we want
 (defmethod allow-add-inputs ((self class-array-box)) t)
@@ -105,25 +129,26 @@
 ;;; or a default name ('p')
 (defmethod next-keyword-input ((self class-array-box)) 
   (let ((usedkeywords (mapcar #'(lambda (in) (name in)) (get-keyword-inputs self)))) 
-    (or (and (field-names (get-box-value self)) 
+    (or (and (inits (get-box-value self)) 
              (find-if-not #'(lambda (elt) (member elt usedkeywords :test 'string-equal)) 
-                          (field-names (get-box-value self))))
-        "p")))
+                          (inits (get-box-value self))))
+        (format nil "user_~D" (1+ (length (additional-data (get-box-value self)))))
+        )))
 
 ;;; list of proposed keywords are the declared names
 ;;; or a free name to choose by the user
 (defmethod get-all-keywords ((self class-array-box))
-  (list (mapcar 'intern-k (field-names (get-box-value self)))
-        '(:-]) ;;; a special symbol to allow user to add a custom name -- see 'change-keyword'
+  (list (mapcar 'intern-k (inits (get-box-value self)))
+        '(:++) ;;; a special symbol to allow user to add a custom name -- see 'change-keyword'
         ))
 
 (defmethod add-keyword-input ((self class-array-box) &key key (value nil val-supplied-p) doc reactive)
+  ;;; DO SOMETHING HERE !!
   (call-next-method)
   (setf (num-fields (get-box-value self))
-        (length (get-keyword-inputs self))))
+        (+ (length (data (get-box-value self))) (length (additional-data (get-box-value self))))))
 
-(defmethod remove-one-keyword-input ((self OMBoxRelatedWClass))
-  (call-next-method)
-  (setf (data self) nil))
-
+(defmethod remove-one-keyword-input ((self class-array-box))
+  ;;; DO SOMETHING HERE !!
+  (call-next-method))
 
