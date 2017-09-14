@@ -8,6 +8,11 @@
 ; see the file "LICENSE.txt" in this distribution.
 ;============================================================
 
+;============================================================
+; ARRAY OBJECTS
+;============================================================
+
+
 (in-package :om)
 
 ;;; SIMPLE 2D-ARRAY
@@ -63,34 +68,33 @@
 ;;; CLASS-ARRAY / OM6-LIKE
 ;;; A 2D-ARRAY with more explicit semantics assigned to each field.
 ;;; data are matrix-fields (not just data)
-;;; inits declares a number of main matrix-fields + defaults 
+;;; fields declares a number of main matrix-fields + defaults 
 ;;;============================================================
 
 
-(defstruct matrix-field (name) (doc) (type) (default) (data))
+;(defstruct matrix-field (name) (doc) (type) (default) (data))
 
 (defclass* class-array (2D-array) 
-  ((inits :initform nil :initarg :inits :accessor inits :documentation "field names and defaults")
+  ((fields :initform nil :initarg :fields :accessor fields :documentation "field names and defaults")
    (num-elts :initform 1 :initarg :num-elts  :accessor num-elts :documentation "number of elements (a.k.a lines)")
-   (data :initform nil :accessor data :documentation "main data (as defined by inits)")
-   (additional-data :initform nil :accessor additional-data :documentation "more dynamically, user defined data")
+   (data :initform nil :accessor data :documentation "main data (as defined by fields)")
    ))
 
 (defmethod object-box-label ((self class-array))
   (string+ (string-upcase (type-of self)) " ["
-           (number-to-string (+ (length (data self)) (length (additional-data self))))
+           (number-to-string (length (data self)))
            "x" 
            (number-to-string (num-elts self)) "]"))
 
 (defmethod get-col ((self class-array) (col string))
-  (let ((pos (position col (inits self) 
+  (let ((pos (position col (fields self) 
                        :test 'string-equal 
                        :key #'(lambda (elt) (if (stringp elt) elt (car elt))))))
     (if pos (get-col self pos)
       (om-beep-msg "Field '~A' not found in '~A'" col self))))
 
 (defmethod get-column-name ((self class-array) (col integer)) 
-  (or (nth col (inits self))
+  (or (nth col (fields self))
       (format nil "c_~D" col)))
 
 ;;; methods for init
@@ -112,43 +116,39 @@
          (first-n input n))))
         
 
-(defclass class-array-box (OMBoxEditCall) ())
+(defclass class-array-box (OMBoxEditCall) 
+  ((keywords :initform nil :accessor keywords :initarg :keywords)))
+
 (defmethod special-box-type ((self (eql 'class-array))) 'class-array-box)
 
 ;;; in class array the meta-data determine the contenst of the actual data
 (defmethod update-contents ((self class-array))
   (let ((matrix-data 
-         (loop for elem in (inits self) collect
+         (loop for elem in (fields self) collect
                (init-array-data elem (num-elts self)))))
     (setf (data self) matrix-data)))
 
-;;; class-array-box can as many keyword as we want
-(defmethod allow-add-inputs ((self class-array-box)) t)
-
-;;; the default value will be the first unused declared field-name of the object, 
-;;; or a default name ('p')
-(defmethod next-keyword-input ((self class-array-box)) 
-  (let ((usedkeywords (mapcar #'(lambda (in) (name in)) (get-keyword-inputs self)))) 
-    (or (and (inits (get-box-value self)) 
-             (find-if-not #'(lambda (elt) (member elt usedkeywords :test 'string-equal)) 
-                          (inits (get-box-value self))))
-        (format nil "user_~D" (1+ (length (additional-data (get-box-value self)))))
-        )))
+(defmethod omng-box-value :after ((self class-array-box) &optional numout)  
+  (setf (keywords self) (mapcar 'intern-k (fields (get-box-value self))))
+  (when (frame self)
+    (set-frame-areas (frame self))
+    (om-invalidate-view (frame self))))
 
 ;;; list of proposed keywords are the declared names
-;;; or a free name to choose by the user
-(defmethod get-all-keywords ((self class-array-box))
-  (list (mapcar 'intern-k (inits (get-box-value self)))
-        '(:++) ;;; a special symbol to allow user to add a custom name -- see 'change-keyword'
-        ))
+(defmethod get-all-keywords ((self class-array-box)) (list (keywords self)))
 
-(defmethod add-keyword-input ((self class-array-box) &key key (value nil val-supplied-p) doc reactive)
-  ;;; DO SOMETHING HERE !!
-  (call-next-method)
-  (setf (num-fields (get-box-value self))
-        (+ (length (data (get-box-value self))) (length (additional-data (get-box-value self))))))
 
-(defmethod remove-one-keyword-input ((self class-array-box))
-  ;;; DO SOMETHING HERE !!
-  (call-next-method))
+
+;;; class-array-box can as many keyword as we want
+;;; (defmethod allow-add-inputs ((self class-array-box)) t)
+
+;(defmethod add-keyword-input ((self class-array-box) &key key (value nil val-supplied-p) doc reactive)
+;  ;;; DO SOMETHING HERE !!
+;  (call-next-method)
+;  (setf (num-fields (get-box-value self))
+;        (+ (length (data (get-box-value self))) (length (additional-data (get-box-value self))))))
+
+;(defmethod remove-one-keyword-input ((self class-array-box))
+;  ;;; DO SOMETHING HERE !!
+;  (call-next-method))
 
