@@ -125,6 +125,7 @@
 (load-om-package "sound")
 (load-om-package "space")
 (load-om-package "interface")
+(load-om-package "csound")
 ;(load-om-package "tempo")
 ;;(load-om-package "timing")
 
