@@ -39,7 +39,7 @@
                          (omNG-make-package "Containers" 
                                             :doc ""
                                             :functions nil
-                                            :classes '(OMArray data-stream))
+                                            :classes '(class-array data-stream))
                          ))))
   ;(add-ref-section (gen-ref-entries kernelpack))
   )
