@@ -23,7 +23,7 @@
 
 ;;;======================================================
 ;;; MODULES ARE USED TO SORT PREFERENCE ITEMS
-(defparameter *pref-order* '(:general :appearance :userlibs :score :conversion :midi :audio :externals))
+(defparameter *pref-order* '(:general :appearance :score :conversion :midi :audio :libraries :externals))
 
 (defun sort-pref-items (list)
   (sort list #'(lambda (elt1 elt2) 
