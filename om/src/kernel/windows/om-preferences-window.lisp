@@ -159,20 +159,29 @@
                              (maybe-apply-pref-item-after-fun pref-item)
                              ))) 
 
+
+
 (defstruct number-in-range (min) (max))
 
 (defmethod make-preference-item ((type number-in-range) pref-item)
-  (om-make-graphic-object 'numbox 
-                          :value (pref-item-value pref-item)
-                          :bg-color (om-def-color :white)
-                          :border t
-                          :size (om-make-point 40 18) 
-                          :font (om-def-font :font2)
-                          :min-val (or (number-in-range-min type) 0) :max-val (or (number-in-range-max type) 10000)
-                          :after-fun #'(lambda (item)
-                             (setf (pref-item-value pref-item) (value item))
-                             (maybe-apply-pref-item-after-fun pref-item)
-                             )))
+  (om-make-view 
+   'om-view 
+   :size (omp 60 18) :resizable nil
+   :subviews (list 
+              (om-make-graphic-object
+               'numbox 
+               :position (omp 0 0)
+               :value (pref-item-value pref-item)
+               :bg-color (om-def-color :white)
+               :border t
+               :size (om-make-point 40 18) 
+               :font (om-def-font :font2)
+               :min-val (or (number-in-range-min type) 0) :max-val (or (number-in-range-max type) 10000)
+               :after-fun #'(lambda (item)
+                              (setf (pref-item-value pref-item) (value item))
+                              (maybe-apply-pref-item-after-fun pref-item)
+                              ))
+              )))
 
 (defmethod make-preference-item ((type (eql :number)) pref-item)
   (make-preference-item (make-number-in-range :min -1000 :max 1000) pref-item))
