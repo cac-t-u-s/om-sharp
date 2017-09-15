@@ -122,7 +122,9 @@ Press 'space' to play/stop the sound file.
 
 (defmethod default-name ((self sound)) 
   (when (file-pathname self)
-    (string+ (pathname-name (file-pathname self)) "." (pathname-type (file-pathname self))))) 
+    (if (stringp (pathname-type (file-pathname self)))
+        (string+ (pathname-name (file-pathname self)) "." (pathname-type (file-pathname self)))
+      (pathname-name (file-pathname self))))) 
 
 ;;;===========================
 ;;; UTILS
