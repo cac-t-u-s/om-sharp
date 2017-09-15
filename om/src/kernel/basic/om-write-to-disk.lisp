@@ -14,7 +14,7 @@
         (format out "~%")))
 
 (defmethod write-data ((self t) out)
-  (format out "~A%" self))
+  (format out "~A~%" self))
 
 ;;; COMPAT 
 ;;; DEPRECATED
@@ -33,6 +33,7 @@
     (if file
         (progn 
           (with-open-file (out file :direction :output :if-does-not-exist :create :if-exists :supersede)
+            ;(print self)
             (write-data self out))
           file)
       (om-abort))))
