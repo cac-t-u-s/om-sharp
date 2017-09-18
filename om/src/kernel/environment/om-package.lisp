@@ -159,6 +159,8 @@ For easier browsing it is recommended that a package do not contain at the same 
     (mapcar #'(lambda (pk) (addpackage2pack pk new-pack)) subpackages)
     new-pack))
 
+
+#|
 ;;; Creates a menu with package functions
 (defun package-fun2menu (package &optional name action)
   (let ((subpack (copy-list (subpackages package))))
@@ -186,6 +188,6 @@ For easier browsing it is recommended that a package do not contain at the same 
                                             (or (not (empty-class-p item)) (equal item *package-user*)))
                                    (package-classes2menu item (name item) action)))
                            )))))
-
+|#
 
 

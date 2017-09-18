@@ -61,7 +61,6 @@
 (defmethod omng-box-value ((self OMBox) &optional numout)
   (current-box-value self))
 
-;;; when the value is set "from the outside" (i.e. not from evaluation)
 (defmethod set-value ((self OMBox) value)
   (setf (value self) value))
 
