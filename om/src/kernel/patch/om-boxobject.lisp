@@ -220,8 +220,9 @@
   
 (defmethod prepare-obj-for-request ((object t) (box OMBoxRelatedWClass)) object)
 
-;;; A REVOIR
-(defmethod rep-editor ((box t) num)
+;;; NEEDS TO BE REWORKED/SIMPLIFIED
+;;; IN PRINCIPLE THE CASE LAMBDA NEVER HAPPENS
+(defmethod rep-editor ((box OMBoxRelatedWClass) num)
   (if (= num 0) (car (value box))
     (cond 
      ;;; GENERAL CASE
@@ -233,7 +234,7 @@
               ((find (intern-k slot) (additional-box-attributes-names box))
                (get-edit-param box (intern-k slot)))
               (t nil))))
-     ;;; LAMBDA
+     ;;; LAMBDA 
      ((equal (lambda-state box) :lambda)
       (let ((new-arg-list (function-lambda-list (car (value box)))))  
         ; (loop for n from 1 to (length (function-lambda-list (car (value box)))) collect (gensym))))

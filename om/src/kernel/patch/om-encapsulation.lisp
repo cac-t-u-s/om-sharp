@@ -213,7 +213,7 @@
     
     ; reposition the new boxes
       (center-positions-around internal-copies (omp (box-x box) (box-y box)))
-
+     
     ; add boxes in the main patch (except the io boxes)
       (loop for box in internal-copies
             do (add-box-in-patch-editor box view))
@@ -268,14 +268,15 @@
                   
                     )))
      
-    ; restore the rest of internal connections
+      ; restore the rest of internal connections
       (loop for c in (restore-connections-to-boxes internal-connections internal-copies)
             do (omng-add-element patch c)
             do (add-connection-in-view view c))
 
-    ; remove the original patch box
+      ; remove the original patch box
       (remove-boxes editor (list box))
-    ; set the new boxes selected
+      
+      ; set the new boxes selected
       (loop for b in copies do (select-box b t)) 
       (om-invalidate-view view)
       (report-modifications editor)

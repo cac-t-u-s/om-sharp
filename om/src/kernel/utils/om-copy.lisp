@@ -45,9 +45,9 @@
   (let ((new-object (or clone (clos::allocate-instance (class-of object)))))
     (loop for slot in (class-instance-slots (class-of object))
           when (condition-for-copy-slot object new-object slot)
-          do ; (print (list "SLOT" (slot-definition-name slot)))
+          do ; (print (list "SLOT" (slot-definition-name slot) (om-copy (slot-value object (slot-definition-name slot)))))
           (setf (slot-value new-object (slot-definition-name slot)) 
-                   (om-copy (slot-value object (slot-definition-name slot)))))
+                (om-copy (slot-value object (slot-definition-name slot)))))
     (initialize-instance new-object)
     new-object))
 
