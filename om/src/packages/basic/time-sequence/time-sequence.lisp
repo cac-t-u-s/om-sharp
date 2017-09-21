@@ -28,7 +28,10 @@
     1))
 
 ;;; time-sequence does not deal with durations but this can be useful, e.g to determine the end
-(defmethod item-duration (timed-item) 0)
+(defmethod item-get-duration ((self timed-item)) 0)
+(defmethod item-set-duration ((self timed-item) dur) nil)
+(defmethod item-end-time ((self timed-item)) (+ (item-get-time self) (item-get-duration self)))
+
 
 ;;; e.g. for get-obj-dur
 (defun item-real-time (timed-item) (or (item-get-time timed-item) (item-get-internal-time timed-item)))
@@ -168,7 +171,7 @@
   (setf (duration self)
         (if (remove nil (time-sequence-get-timed-item-list self))
             (let ((last-frame (last-elem (time-sequence-get-timed-item-list self))))
-              (+ (item-real-time last-frame) (item-duration last-frame)))
+              (+ (item-real-time last-frame) (item-get-duration last-frame)))
           (time-sequence-default-duration self))))
 
 (defmethod set-internal-times ((self time-sequence) internal-times)

@@ -180,7 +180,7 @@
 ;;; they should calculated depending on the frame data and according to a given mode of display
 
 (defmethod frame-graphic-duration ((self data-frame))
-  (if (zerop (item-duration self)) 200 (item-duration self)))
+  (if (zerop (item-get-duration self)) 200 (item-get-duration self)))
   
 (defmethod compute-frame-color ((self data-frame) editor) 
   (declare (ignore editor))
@@ -196,16 +196,23 @@
 (defmethod compute-frame-sizey ((self data-frame) editor) 
   (max 10 (* 2 (data-size self))))  ;;; 4 = arbitrary
 
-(defmethod set-frame-attributes ((f data-frame) editor) 
-  (setf (getf (attributes f) :color) (compute-frame-color f editor)
-        (getf (attributes f) :posy) (compute-frame-posy f editor)
-        (getf (attributes f) :sizey) (compute-frame-sizey f editor)))
-
-
-(defmethod get-frame-attribute ((self data-frame) attribute editor)
-  (unless (attributes self) (set-frame-attributes self editor))
+(defmethod get-frame-attribute ((self data-frame) attribute &optional editor)
+  (unless (attributes self) 
+    (if editor 
+        (set-frame-attributes-from-editor self editor)
+      (om-beep-msg "no attributes found for data-frame!")))
   (getf (attributes self) attribute))
-  
+
+(defmethod set-frame-attribute ((self data-frame) attribute value)  
+  (setf (getf (attributes self) attribute) value))
+
+(defmethod set-frame-attributes-from-editor ((f data-frame) editor) 
+  (set-frame-attribute f :color (compute-frame-color f editor))
+  (set-frame-attribute f :posy (compute-frame-posy f editor))
+  (set-frame-attribute f :sizey (compute-frame-sizey f editor)))
+
+
+(defmethod finalize-data-frame ((f data-frame)) nil)
 
 ;; returns (x y w h)
 (defmethod get-frame-area ((frame data-frame) editor)
@@ -279,7 +286,7 @@
   (when (object-value self)
     (loop for f in (data-stream-get-frames (object-value self)) do
           (unless (attributes f)
-            (set-frame-attributes f self)))))
+            (set-frame-attributes-from-editor f self)))))
   
 (defmethod om-draw-contents ((self stream-panel))
   (let* ((editor (editor self))
@@ -308,6 +315,17 @@
           (item-set-time frame (max 0 (round (+ (item-get-time frame) dx))))
           )))
 
+(defmethod resize-editor-selection ((self data-stream-editor) &key (dx 0) (dy 0))
+  (loop for fp in (selection self) do
+        (let ((frame (nth fp (data-stream-get-frames (object-value self)))))
+          (item-set-duration frame (max 0 (round (+ (item-get-duration frame) dx))))
+          )))
+
+(defmethod editor-finalize-selection ((self data-stream-editor))
+  (loop for fp in (selection self) do 
+        (finalize-data-frame (nth fp (data-stream-get-frames (object-value self))))))
+  
+
 (defmethod editor-sort-frames ((self data-stream-editor))
   (let* ((stream (object-value self))
          (tempselection (loop for pos in (selection self) collect (nth pos (data-stream-get-frames stream)))))
@@ -316,17 +334,35 @@
           (loop for selected in tempselection 
                 collect (position selected (data-stream-get-frames stream))))))
 
+
+(defmethod resizable-frame ((self data-frame)) nil)
+
 (defmethod om-view-mouse-motion-handler ((self stream-panel) position)
   (let ((editor (editor self)))
+    ;;; show the mouse position on screen
     (position-display editor position)
+    (om-hide-tooltip self)
+
     (unless (equal (editor-play-state editor) :play)  
-    (let ((fp (frame-at-pos editor position)))
-      (om-hide-tooltip self)
-      (when (and fp (om-command-key-p))
-        (let ((frame (nth fp (data-stream-get-frames (object-value editor)))))
-          (om-show-tooltip self (data-frame-text-description frame) (omp (- (om-point-x position) 60) 20))
-          )
-        )))))
+    
+      (let ((frames (data-stream-get-frames (object-value editor)))
+            (fp (frame-at-pos editor position)))
+        (when fp
+          (if (om-command-key-p)
+
+            ;;; show tooltip for the frame under the mouse cursor
+            (om-show-tooltip self (data-frame-text-description (nth fp frames)) 
+                             (omp (- (om-point-x position) 60) 20))
+
+          ;;; show reisize cursor if by the end of a resizable-frame
+          (let ((mouse-x (om-point-x position))
+                (frame-end-time-x (time-to-pixel self (item-end-time (nth fp frames)))))
+            (if (and (<= mouse-x frame-end-time-x) (>= mouse-x (- frame-end-time-x 5)))
+                (om-set-view-cursor self (om-get-cursor :h-size))
+              (om-set-view-cursor self nil)))
+          ))
+        ))))
+
 
 (defmethod om-view-click-handler ((self stream-panel) position)
   (let ((editor (editor self))
@@ -334,25 +370,52 @@
     (let ((selection (frame-at-pos editor position)))
       (set-selection editor selection)
       (om-invalidate-view self)
-      ;;; move the selection or select rectangle
+      
       (if selection
+          
+          (let* ((selected-frame (nth selection (data-stream-get-frames (object-value editor))))
+                 (selected-frame-end-t (time-to-pixel self (item-end-time selected-frame))))
+            
+            ;;; resize the selected frame ?
+            (if (and (resizable-frame selected-frame)
+                     (<= (om-point-x position) selected-frame-end-t) (>= (om-point-x position) (- selected-frame-end-t 5)))
+            (om-init-temp-graphics-motion 
+             self position nil
+             :motion #'(lambda (view pos)
+                         (let ((dx (dpix-to-dx self (- (om-point-x pos) (om-point-x p0)))))
+                           (when (> (- (om-point-x pos) (x-to-pix self (item-get-time selected-frame))) 10)
+                             (resize-editor-selection editor :dx (round dx))
+                             (setf p0 pos)
+                             (om-invalidate-view self))))
+             :release #'(lambda (view pos) 
+                          (editor-finalize-selection editor)
+                          (report-modifications editor) 
+                          (om-invalidate-view self))
+             :min-move 4)
+            
+          ;;; move the selection
           (om-init-temp-graphics-motion 
            self position nil
            :motion #'(lambda (view pos)
-                       (let ((dx (dpix-to-dx self (- (om-point-x pos) (om-point-x p0)))))
-                         (move-editor-selection editor :dx dx)
+                       (let ((dx (dpix-to-dx self (- (om-point-x pos) (om-point-x p0))))
+                             (dy (dpix-to-dy self (- (om-point-y pos) (om-point-y p0)))))
+                         (move-editor-selection editor :dx dx :dy dy)
                          (setf p0 pos)
                          (position-display editor pos)
                          (update-timeline-editor editor)
                          (om-invalidate-view self)
                          ))
            :release #'(lambda (view pos) 
+                        (editor-finalize-selection editor) 
                         (editor-sort-frames editor)
                         (time-sequence-update-internal-times (object-value editor))
                         (update-timeline-editor editor)
                         (report-modifications editor) 
                         (om-invalidate-view self))
            :min-move 4)
+          ))
+        
+        ;; no selection: start selection lasso
         (om-init-temp-graphics-motion 
          self position 
          (om-make-graphic-object 'selection-rectangle :position position :size (om-make-point 4 4))
