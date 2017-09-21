@@ -71,8 +71,10 @@
     (mapcar #'(lambda (ruler-view)
                 (if play-obj
                     (set-ruler-range ruler-view 0 (+ (get-obj-dur play-obj) 1000))
-                  (set-ruler-range ruler-view (vmin self) (or (vmax self) 1000))))
-            (list! (play-editor-get-ruler-views self)))))
+                  (set-ruler-range ruler-view (vmin self) (or (vmax self) 1000)))
+                )
+            (list! (play-editor-get-ruler-views self)))
+    ))
 
 (defmethod reinit-x-ranges-from-ruler ((self play-editor-mixin) ruler) 
   (reinit-x-ranges self))

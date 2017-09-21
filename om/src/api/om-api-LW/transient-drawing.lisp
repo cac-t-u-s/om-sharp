@@ -7,6 +7,7 @@
    om-start-transient-drawing
    om-start-transient-drawing-process
    om-stop-transient-drawing
+   om-transient-drawing-active-p
    om-update-transient-drawing
    om-transient-drawing-item-clicked
 
@@ -23,6 +24,9 @@
 (defmethod transient-drawing-view-destroy-calback ((self om-transient-drawing-view))
   (om-stop-transient-drawing self)
   (om-destroy-callback self))
+
+(defmethod om-transient-drawing-active-p ((self om-transient-drawing-view))
+  (if (or (drawn-item self) (drawing-process self)) T NIL))
 
 (defparameter *click-motion-view* nil)
 (defparameter *click-motion-action* nil)
@@ -132,6 +136,7 @@
       (call-next-method)
       (capi::draw-pinboard-object self item)))
     (call-next-method))))
+
   
 (defmethod om-start-transient-drawing ((self om-transient-drawing-view) draw-fun position size &key display-mode)
   (om-stop-transient-drawing self)

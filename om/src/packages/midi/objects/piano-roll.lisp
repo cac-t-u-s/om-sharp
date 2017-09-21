@@ -94,7 +94,7 @@
 
 (defmethod resizable-frame ((self midi-note)) t)
 
-;;; will change at teach built !
+;;; will change at each built !
 ;;; make some preferences ?
 (defparameter +midi-colors+ (loop for i from 1 to 16 collect (om-random-color)))
 
@@ -120,9 +120,12 @@
           ))
   (call-next-method))
 
-(defmethod finalize-data-frame ((frame midi-note)) 
-  (set-frame-attribute frame :posy (round (get-frame-attribute frame :posy)))
-  (setf (pitch frame) (get-frame-attribute frame :posy)))
+(defmethod finalize-data-frame ((frame midi-note) &rest args) 
+  (let ((posy (or (getf args :posy) 
+                  (get-frame-attribute frame :posy))))
+    (setf (pitch frame) (round posy))
+    (set-frame-attribute frame :posy (round posy))
+    ))
 
 
 
@@ -137,7 +140,7 @@
 (defmethod left-panel-for-object ((editor data-stream-editor) (object piano-roll))
   (om-make-view 'keyboard-view :size (omp 20 nil)))
 
-(defun draw-keyboard-octave (i x y w h)
+(defun draw-keyboard-octave (i x y w h &optional (alpha 1) (borders nil) (octaves nil))
   (let ((unit (/ h 12))
         (white-h (/ h 7))
         (blackpos '(1 3 6 8 10))
@@ -145,23 +148,94 @@
     (loop for wk on whitepos when (cadr wk) do
           (let* ((y1 (- y (* (car wk) unit)))
                  (y2 (- y (* (cadr wk) unit))))
-          (om-draw-rect x y1 w (- y2 y1) :fill t :color (om-def-color :white))
+            (om-draw-rect x y1 w (- y2 y1) :fill t :color (om-make-color 1 1 1 alpha))
+            (when borders (om-draw-rect x y1 w (- y2 y1) :fill nil :color (om-make-color 0 0 0 alpha)))
           ))
     (om-with-fg-color (om-make-color 0.2 0.2 0.2)
     (loop for bp in blackpos do 
-          (om-draw-rect x (- y (* unit bp)) (/ w 1.8) (- unit) :fill t))
-    (om-with-font 
-     (om-def-font :font1 :size 7)
-     (om-draw-string (+ x (/ w 2))  (- y 2) (format nil "C~D" i)))
+          (om-draw-rect x (- y (* unit bp)) (/ w 1.8) (- unit) :fill t :color (om-make-color 0 0 0 alpha)))
+    (when octaves
+      (om-with-font 
+       (om-def-font :font1 :size 7)
+       (om-draw-string (+ x (/ w 2))  (- y 2) (format nil "C~D" i))))
     )))
-       
-(defmethod om-draw-contents ((self keyboard-view))
-  (let* ((n-oct (round (- (pitch-max self) (pitch-min self)) 12))
-         (oct-h (/ (om-height self) n-oct)))
-    (loop for i from 0 to (1- n-oct) do
-          (draw-keyboard-octave (1+ i) 0 (- (om-height self) (* i oct-h)) (om-width self) oct-h)
+
+(defun draw-keyboard (x y w h pitch-min pitch-max &optional (alpha 1) borders octaves)
+  (let* ((n-oct (round (- pitch-max pitch-min) 12))
+         (oct-h (/ h n-oct)))
+    (loop for i from y to (1- n-oct) do
+          (draw-keyboard-octave (1+ i) x (- h (* i oct-h)) w oct-h alpha borders octaves)
           )
     ))
+       
+(defmethod om-draw-contents ((self keyboard-view))
+  (draw-keyboard 0 0 (om-width self) (om-height self) 
+                 (pitch-min self) (pitch-max self)
+                 1 nil t))
+
+(defmethod position-display ((self piano-roll-editor) position)
+  (if (om-add-key-down)
+      (let ((view (get-g-component self :main-panel))) 
+        (om-with-focused-view view
+          (draw-keyboard (- (om-point-x position) 40)
+                         0
+                         40 (h view)
+                         36 96
+                         0.01 t))
+        ))
+  (call-next-method))
+
+; (select-channel-dialog)
+
+(defun select-channel-dialog (&key (default 1)) 
+  (let ((win (om-make-window 'om-dialog :title "MIDI channel"))
+        (list (om-make-di 'om-popup-list :size (omp 80 30) 
+                        :items '(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16)
+                        :value default)))
+    (om-add-subviews 
+     win
+     (om-make-layout 
+      'om-column-layout :align :right 
+      :subviews 
+      (list (om-make-di 'om-simple-text :text "Select a MIDI channel (1-16) for the note selection" :size (omp 300 20))
+            list
+            (om-make-layout 
+             'om-row-layout 
+             :subviews (list 
+                        (om-make-di 'om-button :text "Cancel" :size (omp 80 30)
+                                    :di-action #'(lambda (b) (declare (ignore b))
+                                                   (om-return-from-modal-dialog win nil)))
+                        (om-make-di 'om-button :text "OK" :size (omp 80 30)
+                                    :di-action #'(lambda (b) (declare (ignore b))
+                                                   (om-return-from-modal-dialog 
+                                                    win 
+                                                    (om-get-selected-item list)))))
+             ))))
+    (om-modal-dialog win)
+    ))
+
+(defmethod editor-key-action ((editor piano-roll-editor) key)
+  (let* ((panel (get-g-component editor :main-panel))
+         (pr (object-value editor)))
+    (case key
+      (#\c 
+       (when (selection editor)
+         (let ((c (select-channel-dialog :default (channel (nth (car (selection editor)) (data-stream-get-frames pr))))))
+           (when c 
+             (loop for notep in (selection editor) do
+                   (let ((note (nth notep (data-stream-get-frames pr))))
+                     (setf (channel (nth notep (data-stream-get-frames pr))) c)
+                     (set-frame-attributes-from-editor note editor)
+                     )))
+           ))
+       (om-invalidate-view panel)
+       (report-modifications editor))
+      (otherwise 
+       (call-next-method))
+      )))
+
+
+
   
 ;;;======================================
 ;;; PLAY

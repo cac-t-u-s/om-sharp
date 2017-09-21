@@ -99,9 +99,10 @@
             )))
 
 (defmethod set-frame-attributes-from-editor ((f chord) editor) 
-  (setf (getf (attributes f) :color) (om-def-color :black)
-        (getf (attributes f) :posy) (car (lmidic f))
-        (getf (attributes f) :sizey) 500))
+ (declare (ignore editor))
+ (setf (getf (attributes f) :color) (om-def-color :black)
+       (getf (attributes f) :posy) (car (lmidic f))
+       (getf (attributes f) :sizey) 500))
 
 (defmethod draw-data-frame ((frame chord) editor i)
   (let* ((panel (get-g-component editor :main-panel)))
