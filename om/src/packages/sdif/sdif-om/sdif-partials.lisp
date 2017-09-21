@@ -162,15 +162,16 @@ Internally calls and formats data from GetSDIFChords.
                 (let ((1-partial-frames 
                        (loop for time in (partial-t-list partial)
                              for n from 0 collect
-                             (make-instance 'SDIFFrame :frametime time :frametype "1TRC"
-                                            :streamid (if separate-streams i 0) 
-                                            :lmatrices (list (make-instance 'SDIFMatrix :matrixtype "1TRC"
-                                                                            ;:num-rows 1 :num-cols 4
-                                                                            :data (list (list (1+ i))
-                                                                                        (list (nth n (partial-f-list partial)))
-                                                                                        (list (or (nth n (partial-a-list partial)) 1.0))
-                                                                                        (list (or (nth n (partial-ph-list partial)) 0)))
-                                                                            ))))))
+                             (let ((matrix (make-instance 'SDIFMatrix :matrixtype "1TRC" :num-elts 1)))
+                               (setf (num-fields matrix) 4
+                                     (data matrix) (list (list (1+ i))
+                                                         (list (nth n (partial-f-list partial)))
+                                                         (list (or (nth n (partial-a-list partial)) 1.0))
+                                                         (list (or (nth n (partial-ph-list partial)) 0))))
+                                                                           
+                               (make-instance 'SDIFFrame :frametime time :frametype "1TRC"
+                                              :streamid (if separate-streams i 0) 
+                                              :lmatrices (list matrix))))))
                   (setf (nth 2 (data (car (lmatrices (car (last 1-partial-frames)))))) (list 0.0))
                   1-partial-frames))
           '< :key 'frametime)))
@@ -210,22 +211,25 @@ Internally calls and formats data from GetSDIFChords.
 (defun make-1TRC-frames-synchronous (partials &optional sr)
   (flet 
       ((make-frame-at-time (p-list time)
-         (let ((frame (make-instance 'SDIFFrame :frametime time :streamid 0 
-                                     :frametype "1TRC"))
-               (data (sort 
-                      (loop for partial in p-list 
-                            for i = 1 then (+ i 1)
-                            when (and (>= time (car (partial-t-list partial))) 
-                                      (<= time (car (last (partial-t-list partial)))))
-                            collect (cons i (get-partial-f-a-ph-at-time partial time)))
-                      '< :key 'car)))
-              
-              (setf (lmatrices frame)
-                    (list (make-instance 'SDIFMatrix :matrixtype "1TRC"
-                                         ;:num-cols 4
-                                         ;:num-rows (length data)
-                                         :data (mat-trans data))))
-              frame)))
+         (let* ((data 
+                 (sort 
+                  (loop for partial in p-list 
+                        for i = 1 then (+ i 1)
+                        when (and (>= time (car (partial-t-list partial))) 
+                                  (<= time (car (last (partial-t-list partial)))))
+                        collect (cons i (get-partial-f-a-ph-at-time partial time)))
+                  '< :key 'car))
+                (matrix (make-instance 'SDIFMatrix 
+                                       :matrixtype "1TRC"
+                                       :num-elts (length data))))
+           
+           
+           (setf (num-fields matrix) 4
+                 (data matrix) (mat-trans data))
+           
+           (make-instance 'SDIFFrame :frametime time :streamid 0 
+                          :frametype "1TRC"
+                          :lmatrices (list matrix)))))
     (if sr 
         
         (let* ((t-lists (mapcar 'partial-t-list partials))
