@@ -165,7 +165,7 @@ Internally calls and formats data from GetSDIFChords.
                              (make-instance 'SDIFFrame :frametime time :frametype "1TRC"
                                             :streamid (if separate-streams i 0) 
                                             :lmatrices (list (make-instance 'SDIFMatrix :matrixtype "1TRC"
-                                                                            :num-rows 1 :num-cols 4
+                                                                            ;:num-rows 1 :num-cols 4
                                                                             :data (list (list (1+ i))
                                                                                         (list (nth n (partial-f-list partial)))
                                                                                         (list (or (nth n (partial-a-list partial)) 1.0))
@@ -222,8 +222,8 @@ Internally calls and formats data from GetSDIFChords.
               
               (setf (lmatrices frame)
                     (list (make-instance 'SDIFMatrix :matrixtype "1TRC"
-                                         :num-cols 4
-                                         :num-rows (length data)
+                                         ;:num-cols 4
+                                         ;:num-rows (length data)
                                          :data (mat-trans data))))
               frame)))
     (if sr 
