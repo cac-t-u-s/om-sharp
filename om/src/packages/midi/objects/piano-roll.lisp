@@ -124,7 +124,6 @@
   (let ((posy (or (getf args :posy) 
                   (get-frame-attribute frame :posy))))
     (setf (pitch frame) (round posy))
-    (set-frame-attribute frame :posy (round posy))
     ))
 
 
@@ -173,19 +172,22 @@
                  (pitch-min self) (pitch-max self)
                  1 nil t))
 
-(defmethod position-display ((self piano-roll-editor) position)
-  (if (om-add-key-down)
-      (let ((view (get-g-component self :main-panel))) 
-        (om-with-focused-view view
-          (draw-keyboard (- (om-point-x position) 40)
-                         0
-                         40 (h view)
-                         36 96
-                         0.01 t))
-        ))
+
+(defmethod draw-background ((editor piano-roll-editor) (view stream-panel))
+  (when (om-add-key-down)
+    (draw-keyboard (- (om-point-x (om-mouse-position view)) 40)
+                   0
+                   40 (h view)
+                   36 96
+                   0.1 t nil)
+    ))
+
+
+(defmethod position-display ((self piano-roll-editor) position) ; (call-next-method))
+  (when (om-add-key-down)
+    (om-invalidate-view (get-g-component self :main-panel)))
   (call-next-method))
 
-; (select-channel-dialog)
 
 (defun select-channel-dialog (&key (default 1)) 
   (let ((win (om-make-window 'om-dialog :title "MIDI channel"))
