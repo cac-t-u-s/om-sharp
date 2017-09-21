@@ -288,10 +288,14 @@
           (unless (attributes f)
             (set-frame-attributes-from-editor f self)))))
   
+(defmethod draw-background ((editor data-stream-editor) (view stream-panel)) nil)
+
 (defmethod om-draw-contents ((self stream-panel))
   (let* ((editor (editor self))
          (stream (object-value editor)))
     
+    (draw-background editor self)
+
     (om-with-fg-color (om-def-color :light-gray)
       (om-with-line '(2 2)
         (draw-grid-from-ruler self (get-g-component editor :x-ruler))))
@@ -322,8 +326,11 @@
           )))
 
 (defmethod editor-finalize-selection ((self data-stream-editor))
-  (loop for fp in (selection self) do 
-        (finalize-data-frame (nth fp (data-stream-get-frames (object-value self))))))
+  (loop for fp in (selection self) do
+        (let ((frame (nth fp (data-stream-get-frames (object-value self)))))
+          (finalize-data-frame frame)
+          (set-frame-attributes-from-editor frame self)
+          )))
   
 
 (defmethod editor-sort-frames ((self data-stream-editor))
@@ -379,6 +386,7 @@
      ((and (null selection) (om-add-key-down))
       (let ((frame (time-sequence-make-timed-item-at (object-value editor) (pixel-to-time self (om-point-x p0)))))
         (finalize-data-frame frame :posy (pix-to-y self (- (h self) (om-point-y p0))))
+        (set-frame-attributes-from-editor frame editor)
         (insert-timed-point-in-time-sequence (object-value editor) frame)
         (report-modifications editor)
         (om-invalidate-view self)))
