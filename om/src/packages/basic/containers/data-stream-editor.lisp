@@ -101,7 +101,7 @@
                                                    :related-views (list (get-g-component editor :main-panel))
                                                    :size (omp nil 20) 
                                                    :bg-color (om-def-color :white)
-                                                   :vmin 0 :vmax dur
+                                                   :vmin 0 ; :vmax dur
                                                    :x1 0 :x2 dur))
     
     (set-g-component (timeline-editor editor) :main-panel (om-make-layout 'om-row-layout))
@@ -212,7 +212,7 @@
   (set-frame-attribute f :sizey (compute-frame-sizey f editor)))
 
 
-(defmethod finalize-data-frame ((f data-frame)) nil)
+(defmethod finalize-data-frame ((f data-frame) &rest args) nil)
 
 ;; returns (x y w h)
 (defmethod get-frame-area ((frame data-frame) editor)
@@ -333,7 +333,7 @@
     (setf (selection self)
           (loop for selected in tempselection 
                 collect (position selected (data-stream-get-frames stream))))))
-
+     
 
 (defmethod resizable-frame ((self data-frame)) nil)
 
@@ -341,18 +341,20 @@
   (let ((editor (editor self)))
     ;;; show the mouse position on screen
     (position-display editor position)
-    (om-hide-tooltip self)
-
+    
     (unless (equal (editor-play-state editor) :play)  
     
+      (om-hide-tooltip self)
+
       (let ((frames (data-stream-get-frames (object-value editor)))
             (fp (frame-at-pos editor position)))
         (when fp
           (if (om-command-key-p)
 
-            ;;; show tooltip for the frame under the mouse cursor
+            ;;; show tooltip for the frame under the  mouse cursor
             (om-show-tooltip self (data-frame-text-description (nth fp frames)) 
-                             (omp (- (om-point-x position) 60) 20))
+                             (omp (- (om-point-x position) 60) 20)
+                             0)
 
           ;;; show reisize cursor if by the end of a resizable-frame
           (let ((mouse-x (om-point-x position))
@@ -365,20 +367,29 @@
 
 
 (defmethod om-view-click-handler ((self stream-panel) position)
-  (let ((editor (editor self))
-        (p0 position))
-    (let ((selection (frame-at-pos editor position)))
-      (set-selection editor selection)
-      (om-invalidate-view self)
-      
-      (if selection
-          
-          (let* ((selected-frame (nth selection (data-stream-get-frames (object-value editor))))
-                 (selected-frame-end-t (time-to-pixel self (item-end-time selected-frame))))
+  (let* ((editor (editor self))
+         (p0 position)
+         (selection (frame-at-pos editor position)))
+
+    (set-selection editor selection)
+    (om-invalidate-view self)
+    
+    (cond 
+     
+     ((and (null selection) (om-add-key-down))
+      (let ((frame (time-sequence-make-timed-item-at (object-value editor) (pixel-to-time self (om-point-x p0)))))
+        (finalize-data-frame frame :posy (pix-to-y self (- (h self) (om-point-y p0))))
+        (insert-timed-point-in-time-sequence (object-value editor) frame)
+        (report-modifications editor)
+        (om-invalidate-view self)))
+     
+     (selection
+      (let* ((selected-frame (nth selection (data-stream-get-frames (object-value editor))))
+             (selected-frame-end-t (time-to-pixel self (item-end-time selected-frame))))
             
-            ;;; resize the selected frame ?
-            (if (and (resizable-frame selected-frame)
-                     (<= (om-point-x position) selected-frame-end-t) (>= (om-point-x position) (- selected-frame-end-t 5)))
+        ;;; resize the selected frame ?
+        (if (and (resizable-frame selected-frame)
+                 (<= (om-point-x position) selected-frame-end-t) (>= (om-point-x position) (- selected-frame-end-t 5)))
             (om-init-temp-graphics-motion 
              self position nil
              :motion #'(lambda (view pos)
@@ -414,19 +425,20 @@
                         (om-invalidate-view self))
            :min-move 4)
           ))
-        
-        ;; no selection: start selection lasso
-        (om-init-temp-graphics-motion 
-         self position 
-         (om-make-graphic-object 'selection-rectangle :position position :size (om-make-point 4 4))
-         :min-move 10
-         :release #'(lambda (view position)
-                      (setf (selection editor) (frames-in-area editor p0 position))
-                      (update-timeline-editor editor)
-                      (om-invalidate-view self))
-         )
-        )
-      )))
+      )
+     (t 
+      ;; no selection: start selection lasso
+      (om-init-temp-graphics-motion 
+       self position 
+       (om-make-graphic-object 'selection-rectangle :position position :size (om-make-point 4 4))
+       :min-move 10
+       :release #'(lambda (view position)
+                    (setf (selection editor) (frames-in-area editor p0 position))
+                    (update-timeline-editor editor)
+                    (om-invalidate-view self))
+       )
+      ))
+     ))
 
 (defmethod editor-key-action ((editor data-stream-editor) key)
   (let* ((panel (get-g-component editor :main-panel))
