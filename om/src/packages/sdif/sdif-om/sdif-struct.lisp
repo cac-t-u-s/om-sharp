@@ -62,9 +62,10 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF TYPES.
 ;;; SDIF MATRIX
 ;;;=========================
 
-(defclass* SDIFMatrix (2D-Array)
+(defclass* SDIFMatrix (class-array)
    ((matrixtype :initform nil :initarg :matrixtype :accessor matrixtype :documentation "SDIF matrix type signature")
-    (field-names :initform nil :initarg :field-names :accessor field-names :documentation "Name of SDIF fields"))
+    ;(fields :initform nil :initarg :fields :accessor fields :documentation "Name of SDIF fields")
+    (num-elts :initform 1 :initarg :num-elts  :accessor num-elts :documentation "number of elements (a.k.a lines)"))
    (:documentation "SDIF data stored as a 2D array.
 
 SDIF Matrix define multidimensional sound description data at a given moment (no temporal dimension).

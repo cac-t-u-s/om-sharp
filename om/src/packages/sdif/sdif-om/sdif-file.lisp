@@ -123,27 +123,31 @@ Lock the box ('b') to keep the current file.
 
 (defmethod get-matrix-from-sdif (ptr &optional (with-data t))
   (sdif::SdifFReadMatrixHeader ptr)
-  (let ((sig (sdif::SdifSignatureToString (sdif::SdifFCurrMatrixSignature ptr)))
-        (ne (sdif::SdifFCurrNbRow ptr))
-        (nf (sdif::SdifFCurrNbCol ptr))
-        (fields nil) (data nil))
-    (let ((mtype (sdif::SdifTestMatrixType ptr (sdif::SdifStringToSignature sig))))
-      (unless (om-null-pointer-p mtype)
-        (setf fields (loop for i from 1 to nf collect (sdif::SdifMatrixTypeGetColumnName mtype i)))))
-    ;;(print (list sig ne nf (sdif:sdif-get-pos ptr)))
+  (let* ((sig (sdif::SdifSignatureToString (sdif::SdifFCurrMatrixSignature ptr)))
+         (ne (sdif::SdifFCurrNbRow ptr))
+         (nf (sdif::SdifFCurrNbCol ptr))
+         (matrix (make-instance 
+                  'SDIFMatrix 
+                  :matrixtype sig
+                  :num-elts ne)))
+    
+    (setf (num-fields matrix) nf)
+    (setf (fields matrix)
+          (let ((mtype (sdif::SdifTestMatrixType ptr (sdif::SdifStringToSignature sig))))
+            (if (om-null-pointer-p mtype)
+                (loop for i from 1 to nf collect (format nil "c~D" i))
+              (loop for i from 1 to nf collect (sdif::SdifMatrixTypeGetColumnName mtype i)))))
+    
     (if with-data
         (let ((bytesread 0))
-          (setf data 
+          (setf (data matrix) 
                 (mat-trans (loop for r from 1 to ne 
-                      do (setf bytesread (+ bytesread (sdif::SdifFReadOneRow ptr)))
-                      collect (loop for n from 1 to nf collect (sdif::SdifFCurrOneRowCol ptr n)))))
+                                 do (setf bytesread (+ bytesread (sdif::SdifFReadOneRow ptr)))
+                                 collect (loop for n from 1 to nf collect (sdif::SdifFCurrOneRowCol ptr n)))))
           (sdif::SdifFReadPadding ptr (sdif::sdif-calculate-padding bytesread)))
       (sdif::SdifFSkipMatrixData ptr))
-    ;;(print (sdif:sdif-get-pos ptr))
-    (make-instance 'SDIFMatrix :matrixtype sig 
-                   ;; :num-elts ne :num-fields nf 
-                   :field-names fields
-                   :data data)))
+
+    matrix))
 
 
 (defmethod load-sdif-file ((self SDIFFile))
