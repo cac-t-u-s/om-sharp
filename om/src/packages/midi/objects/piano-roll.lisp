@@ -197,7 +197,7 @@
      (om-make-layout 
       'om-column-layout :align :right 
       :subviews 
-      (list (om-make-di 'om-simple-text :text "Select a MIDI channel (1-16) for the note selection" :size (omp 300 20))
+      (list (om-make-di 'om-simple-text :text "Select a MIDI channel for the note selection" :size (omp 260 20))
             list
             (om-make-layout 
              'om-row-layout 
