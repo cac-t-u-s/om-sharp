@@ -443,7 +443,7 @@ Press 'space' to play/stop the sound file.
       (if (equal pict :error)
           (om-with-fg-color (om-def-color :orange)
             (om-with-font (om-def-font :font2b)
-                          (om-draw-string (+ x 10) (+ y 14) "ERROR LOADING FILE" nil (box-w box))))
+                          (om-draw-string (+ x 10) (+ y 14) "ERROR LOADING FILE" :wrap (box-w box))))
         (om-draw-picture pict :x x :y (+ y 4) :w w :h (- h 8))))
     (when (markers self)
       (let ((fact (/ w (get-obj-dur self))))
