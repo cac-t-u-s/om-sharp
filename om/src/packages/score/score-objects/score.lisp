@@ -98,7 +98,7 @@
             4  ;; downwards
             )))
 
-(defmethod set-frame-attributes ((f chord) editor) 
+(defmethod set-frame-attributes-from-editor ((f chord) editor) 
   (setf (getf (attributes f) :color) (om-def-color :black)
         (getf (attributes f) :posy) (car (lmidic f))
         (getf (attributes f) :sizey) 500))

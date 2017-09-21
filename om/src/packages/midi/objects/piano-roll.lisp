@@ -23,7 +23,8 @@
 (defun midinote-end (midinote) (+ (midinote-onset midinote) (midinote-dur midinote)))
 
 ;;; redefined from timed-item
-(defmethod item-duration ((self midi-note)) (midinote-dur self))
+(defmethod item-get-duration ((self midi-note)) (midinote-dur self))
+(defmethod item-set-duration ((self midi-note) dur) (setf (dur self) dur))
 
 (defun make-midinote (&key (onset 0) (pitch 60) (vel 100) (dur 1000) (channel 1))
   (make-instance 'midi-note :date onset :pitch pitch :vel vel :dur dur :channel channel))
@@ -82,17 +83,22 @@
 ;;;======================================
 ;;; EDITOR
 ;;;======================================
+(defclass piano-roll-editor (data-stream-editor) ())
+
+(defmethod get-editor-class ((self piano-roll)) 'piano-roll-editor)
 
 (defmethod frame-display-modes-for-object ((self data-stream-editor) (object piano-roll))
   '((:blocks "blocks")))
 
 (defmethod y-range-for-object ((self piano-roll)) '(36 96))
 
+(defmethod resizable-frame ((self midi-note)) t)
+
 ;;; will change at teach built !
 ;;; make some preferences ?
 (defparameter +midi-colors+ (loop for i from 1 to 16 collect (om-random-color)))
 
-(defmethod set-frame-attributes ((f midi-note) editor) 
+(defmethod set-frame-attributes-from-editor ((f midi-note) editor) 
   (setf (getf (attributes f) :color) (nth (channel f) +midi-colors+)
         (getf (attributes f) :posy) (pitch f)
         (getf (attributes f) :sizey) 1
@@ -106,6 +112,19 @@
             (max 3 (dx-to-dpix panel (frame-graphic-duration frame)))
             (min -3 (dy-to-dpix panel (- (get-frame-attribute frame :sizey editor))))  ;; !! upwards
             )))
+
+(defmethod move-editor-selection ((self piano-roll-editor) &key (dx 0) (dy 0))
+  (loop for fp in (selection self) do
+        (let ((frame (nth fp (data-stream-get-frames (object-value self)))))
+          (set-frame-attribute frame :posy (+ (get-frame-attribute frame :posy self) dy))
+          ))
+  (call-next-method))
+
+(defmethod finalize-data-frame ((frame midi-note)) 
+  (set-frame-attribute frame :posy (round (get-frame-attribute frame :posy)))
+  (setf (pitch frame) (get-frame-attribute frame :posy)))
+
+
 
 ;;;==================
 ;; Keyborad on the left
