@@ -42,10 +42,10 @@
    (slice-duration :accessor slice-duration :initform nil)  ;;; what is it for ?
    ))
 
-(defmethod om-init-instance ((self data-stream) &optional args)
+(defmethod om-init-instance ((self data-stream) &optional initargs)
   (call-next-method)
   (setf (frames self) (sort (remove nil (frames self)) '< :key 'date)) 
-  (let ((frames (find-value-in-kv-list args :frames)))
+  (let ((frames (find-value-in-kv-list initargs :frames)))
     (when frames (setf (default-frame-type self) (type-of (car frames))))
     (mapc #'(lambda (f) (setf (attributes f) nil)) frames))
   self)

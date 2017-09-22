@@ -47,7 +47,7 @@
    (interpol :initform nil :accessor interpol :initarg :interpol)
    (interpol-time :initform 50 :accessor interpol-time :initarg :interpol-time)))
 
-(defmethod om-init-instance :after ((self time-sequence) &optional args)
+(defmethod om-init-instance :after ((self time-sequence) &optional initargs)
   (time-sequence-update-internal-times self)
   (update-obj-dur self))
 

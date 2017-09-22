@@ -252,12 +252,12 @@ Press 'space' to play/stop the sound file.
 ;;; - access-from-file = NIL => SET BUFFER
 
 
-(defmethod om-init-instance ((self sound) &optional args)
+(defmethod om-init-instance ((self sound) &optional initargs)
   (call-next-method)
   ;;; these are given to om-init-instance
   ;;; the sound may OR NOT already contain FILE-PATHNAME and BUFFER
-  (let ((FILE-IN (find-value-in-kv-list args :file-pathname))
-        (access-from-file (find-value-in-kv-list args :access-from-file)))
+  (let ((FILE-IN (find-value-in-kv-list initargs :file-pathname))
+        (access-from-file (find-value-in-kv-list initargs :access-from-file)))
     (when (and FILE-IN (not (valid-pathname-p FILE-IN)))
       (om-beep-msg "Wrong path as sound input: ~D" FILE-IN) 
       (setf FILE-IN nil))

@@ -27,9 +27,9 @@
          (unless (functionp (action-fun self)) (om-beep-msg "Problem with internal lambda: Need to reload the action NEED TO RELOAD THE ACTION !!")))
         (action (om-beep-msg "Unrecognized action: ~A" action))))
   
-(defmethod om-init-instance :around ((self object-with-action) &optional args)
+(defmethod om-init-instance :around ((self object-with-action) &optional initargs)
   (let* ((object (call-next-method))
-         (action (or (find-value-in-kv-list args :action)
+         (action (or (find-value-in-kv-list initargs :action)
                      (slot-value object 'action))))
     (set-action object action)
     object))

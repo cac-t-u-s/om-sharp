@@ -155,12 +155,12 @@
 ;;; method of visual OM classes
 (defmethod v-oop-init ((self t) &rest args) args)
 
-;;; called when all slots are set (including in OM)
+;;; called after slots are set (including in OM)
 ;;; or when a new slot is set (e.g. slot box, property, etc.) 
-;;; ARGS is NIL for save/load
-;;; ARGS = all args in MAKE-VALUE/MAKE-VALUE-FROM-MODEL
-;;; ARGS = only the specific arg e.g. in set-property
-(defmethod om-init-instance ((self t) &optional args) self)
+;;; <initargs> = NIL for save/load
+;;; <initargs> = all initargs in MAKE-VALUE / list incl. connected initargs MAKE-VALUE-FROM-MODEL
+;;; <initargs> = only the specific initarg e.g. in set-property
+(defmethod om-init-instance ((self t) &optional initargs) self)
 
 
 (defmethod update-after-eval ((self OMBoxRelatedWClass)) nil)
@@ -179,15 +179,16 @@
                     (funcall accessor input)))
           (cdr (inputs self))))
 
-
-(defun make-value (classname args)
+;;; Called by the main box evaluation procedure
+;;; <initargs> are all the input values (connected or not)
+(defun make-value (classname initargs)
   (let* ((class-slots (class-instance-slots (find-class classname)))
          (class-initargs (remove nil (mapcar 'slot-initargs class-slots)))
          (class-slots-names (mapcar 'slot-name class-slots))
          ;;; the regular class initargs
-         (supplied-initargs (remove-if #'(lambda (item) (not (find item class-initargs :test 'find))) args :key 'car))
+         (supplied-initargs (remove-if #'(lambda (item) (not (find item class-initargs :test 'find))) initargs :key 'car))
          ;;; not initargs but valid slots
-         (supplied-other-args (remove nil (loop for arg in args 
+         (supplied-other-args (remove nil (loop for arg in initargs 
                                                 when (not (member (car arg) supplied-initargs :key 'car))
                                                 collect (list (find (car arg) class-slots-names :key 'intern-k)
                                                               (cadr arg)))
@@ -199,18 +200,20 @@
      (let ((obj (apply 'make-instance (cons classname (reduce 'append supplied-initargs)))))
        (set-value-slots obj supplied-other-args)
        obj)
-     args)))
+     initargs)))
 
-;;; SPECIAL BOXEDITCALL IF THE FIRST INPUT IS CONNECTED
-(defun make-value-from-model (type model args)
+;;; SPECIAL FOR BOXEDITCALL: 
+;;; If the first input is connected the value is built by copying a prototype instance (<model>) 
+;;; <args> are only the connected input values
+(defun make-value-from-model (type model initargs)
   (let* ((target (make-instance type))
          (rep (objFromObjs model target))
          (class-slots-names (mapcar 'slot-name (class-instance-slots (find-class type))))
-         (slot-args (remove-if-not #'(lambda (arg) (find (car arg) class-slots-names :key 'intern-k)) args)))
+         (slot-args (remove-if-not #'(lambda (arg) (find (car arg) class-slots-names :key 'intern-k)) initargs)))
     (if rep
         (progn 
           (set-value-slots rep slot-args)
-          (om-init-instance rep args)  ;; ok ?
+          (om-init-instance rep initargs)  ;; ok ?
           )
       (progn (om-beep-msg "Can not create a ~A from ~A" type model)
         (om-abort)))
@@ -272,8 +275,8 @@
   (find key (additional-box-attributes-names self)))
 
 ;;; called when properties are changed in the inspector
-(defmethod om-init-instance ((self omboxeditcall) &optional args)
-  (let ((name (find-value-in-kv-list args :name)))
+(defmethod om-init-instance ((self omboxeditcall) &optional initargs)
+  (let ((name (find-value-in-kv-list initargs :name)))
     (when (and name (editor self))
       (report-modifications (editor self)))
     self))
