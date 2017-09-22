@@ -28,8 +28,8 @@
     1))
 
 ;;; time-sequence does not deal with durations but this can be useful, e.g to determine the end
-(defmethod item-get-duration ((self timed-item)) 0)
-(defmethod item-set-duration ((self timed-item) dur) nil)
+(defmethod item-get-duration ((self t)) 0)
+(defmethod item-set-duration ((self t) dur) nil)
 (defmethod item-end-time ((self timed-item)) (+ (item-get-time self) (item-get-duration self)))
 
 
