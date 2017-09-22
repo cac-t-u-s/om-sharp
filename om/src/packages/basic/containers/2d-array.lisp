@@ -173,6 +173,7 @@
         for i = 0 then (1+ i) 
         collect (list (format nil "[~D]" i) field)))
 
+
 ;;;============================================================
 ;;; CLASS-ARRAY / OM6-LIKE
 ;;; A 2D-ARRAY with more explicit semantics assigned to each field.

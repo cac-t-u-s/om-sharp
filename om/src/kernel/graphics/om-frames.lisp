@@ -79,7 +79,7 @@ Frames can be simple frames (icons, boxes, etc.) or container frames (patch edit
     (when (area-tt-text area)
       (om-show-tooltip (om-view-container (frame area)) 
                        (area-tt-text area)
-                       (area-tt-pos area)))
+                       (area-tt-pos area) 0.04))
     (om-invalidate-view (frame area))))
 
 (defmethod om-leave-area ((area frame-area)) 
