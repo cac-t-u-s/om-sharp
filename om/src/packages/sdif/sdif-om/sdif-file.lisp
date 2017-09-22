@@ -46,7 +46,7 @@ Lock the box ('b') to keep the current file.
   (objfromobjs (pathname model) target))
 
 
-(defmethod om-init-instance ((self SDIFFile) &optional args)
+(defmethod om-init-instance ((self SDIFFile) &optional initargs)
   (call-next-method)
   (load-sdif-file self)
   self)

@@ -97,7 +97,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 (defmethod times ((self BPC)) (time-sequence-get-times self))
 (defmethod (setf times) ((times t) (self BPC)) (time-sequence-set-times self times) times)
 
-(defmethod om-init-instance ((self bpc) &optional args)
+(defmethod om-init-instance ((self bpc) &optional initargs)
   ;;; save/load will work with slot-value only
   (when (slot-value self 'times) 
     (time-sequence-set-times self (slot-value self 'times)))

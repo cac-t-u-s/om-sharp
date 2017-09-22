@@ -77,9 +77,9 @@ As output it returns the contents of the text buffer as a list formatted accordi
 
 
 ;;;===================================
-(defmethod om-init-instance ((self textbuffer) &optional args)
-  (let ((supplied-contents (find-value-in-kv-list args :contents))
-        (in-mode (find-value-in-kv-list args :input-mode)))
+(defmethod om-init-instance ((self textbuffer) &optional initargs)
+  (let ((supplied-contents (find-value-in-kv-list initargs :contents))
+        (in-mode (find-value-in-kv-list initargs :input-mode)))
     (when supplied-contents 
       ;; we're evaluating the box
       (setf (contents self) (format-to-text-lines supplied-contents in-mode)))
