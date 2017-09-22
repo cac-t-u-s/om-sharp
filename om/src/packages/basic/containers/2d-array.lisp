@@ -12,40 +12,30 @@
 ; ARRAY OBJECTS
 ;============================================================
 
-
 (in-package :om)
 
-;;; SIMPLE 2D-ARRAY
+;============================================================
+;;; SUPERCLASS DEFINING COMMON ARRAY FEATURES
+;============================================================
 
-(defclass* 2D-array () 
-   ((num-elts :initform 0 :accessor num-elts :documentation "number of elements (a.k.a lines)")
-    (num-fields :initform 0  :accessor num-fields :documentation "number of fields (a.k.a columns)")
-    (data :initform nil :initarg :data :accessor data :documentation "data matrix / list of lists : (col1 col2 ...)")))
+(defclass OMArray ()
+  ((num-elts :initform 0 :accessor num-elts :documentation "number of elements (a.k.a lines)")
+   (num-fields :initform 0  :accessor num-fields :documentation "number of fields (a.k.a columns)")
+   (data :initform nil :accessor data :documentation "data matrix")))
 
-(defmethod object-box-label ((self 2D-array))
+(defmethod initialize-instance :after ((self OMArray) &rest args)
+  (update-contents self))
+
+(defmethod object-box-label ((self OMArray))
   (string+ (string-upcase (type-of self)) " ["
            (number-to-string (num-fields self)) "x" 
            (number-to-string (num-elts self)) "]"))
 
-(defmethod update-contents ((self 2D-array))
-  "Updates array dimensions according to <data>"
-  (if (data self)
-      (setf (num-fields self) (length (data self))
-            (num-elts self) (apply 'max (mapcar 'length (data self))))
-      (setf (num-fields self) 0)
-      ))
+(defmethod get-column-name ((self OMArray) (col integer)) (format nil "c_~D" col))
 
-(defmethod initialize-instance :after ((self 2D-array) &rest args)
-  (update-contents self))
+(defmethod display-modes-for-object ((self OMArray)) '(:hidden :text :mini-view))
 
-(defmethod get-col ((self 2D-array) (col integer))
-  (nth col (data self)))
-
-(defmethod get-column-name ((self 2D-array) (col integer)) (format nil "c_~D" col))
-
-(defmethod display-modes-for-object ((self 2D-array)) '(:hidden :text :mini-view))
-
-(defmethod draw-mini-view ((self 2D-array) (box t) x y w h &optional time)
+(defmethod draw-mini-view ((self OMArray) (box t) x y w h &optional time)
   (let* ((display-cache (get-display-draw box))
          (font (om-def-font :font1 :size 10))
          (n-lines (length (data self)))
@@ -56,7 +46,6 @@
                    (- h v-margin)))
          (h-margin 2)
          (line-w (- w 4)))
-    ;(om-draw-rect (+ x 2) (+ y 2) (- w 4) (- h 4) :color (om-def-color :red))
     (when (data self) 
       (loop for n from 0 to (1- n-lines)
             for yy = v-margin then (+ yy line-h inter-line) do
@@ -66,12 +55,16 @@
             (draw-field-on-box self (nth n (data self)) h-margin yy line-w line-h)
       ))))
 
+;;; general case
+;;; redefined for class-array
+(defmethod get-array-field-data ((field list)) field)
 
-(defmethod draw-field-on-box ((self 2D-array) (field list) x y w h)
+(defmethod draw-field-on-box ((self OMArray) field x y w h)
   (when (> (num-elts self) 0)
     (let ((x-space (/ w (num-elts self)))
           (mid-y (+ y (/ h 2)))
-          (margin-y (min 8 (/ h 2))))
+          (margin-y (min 8 (/ h 2)))
+          (field-data (get-array-field-data field)))
   
       (flet ((nth-x-pos (n) (* x-space (+ n 0.5)))
              (draw-cross(x y) 
@@ -81,18 +74,18 @@
         (om-with-font 
          (om-def-font :font1 :size 8)
      
-         (if (numberp (car field))
+         (if (numberp (car field-data))
         
              ;; Numbers: draw bpf-kind
-             (let* ((min-y-val (list-min field))
-                    (max-y-val (list-max field))
+             (let* ((min-y-val (list-min field-data))
+                    (max-y-val (list-max field-data))
                     (y-values-range (- max-y-val min-y-val))
                     (y-factor (if (zerop y-values-range) 1 (float (/ (- h (* 2 margin-y)) y-values-range)))))
           
                (let* ((x0 (nth-x-pos 0))
-                      (val (car field))
+                      (val (car field-data))
                       (y0 (+ y (- h margin-y (* (- val min-y-val) y-factor))))
-                      (step (ceiling (/ (length field) w)))) 
+                      (step (ceiling (/ (length field-data) w)))) 
                         
                  ;;; draw the first element 
                  (draw-cross x0 mid-y)
@@ -100,15 +93,15 @@
                  (om-draw-string (- x0 6) (- y0 6) (format nil "~A" val)) 
                  (if (= y-values-range 0) (setf max-y-val nil)) ;; just to prevent drawing teh value again
 
-                 (loop for n from 1 to (1- (length field)) 
+                 (loop for n from 1 to (1- (length field-data)) 
                        by step do
-                     ;(if (> step 1) (setf n (min (1- (length field)) (+ n (om-random 0 step)))))
-                       (let* ((elt (nth n field))
+                     ;(if (> step 1) (setf n (min (1- (length field-data)) (+ n (om-random 0 step)))))
+                       (let* ((elt (nth n field-data))
                               (xx (nth-x-pos n))
-                              (val (nth n field))
+                              (val (nth n field-data))
                               (yy (+ y (- h margin-y (* (- val min-y-val) y-factor)))))
-                         (if (< (length field) 200) (draw-cross xx mid-y))
-                         (when (< (length field) 100) (om-draw-circle xx yy 2 :fill t))
+                         (if (< (length field-data) 200) (draw-cross xx mid-y))
+                         (when (< (length field-data) 100) (om-draw-circle xx yy 2 :fill t))
                          (when (and max-y-val (= val max-y-val)) 
                            (om-draw-string xx yy (format nil "~A" val))
                            (setf max-y-val nil))
@@ -121,11 +114,11 @@
                  ))
 
            ;;; NaN
-           (if (< (length field) 200)
-               (loop for elt in field
+           (if (< (length field-data) 200)
+               (loop for elt in field-data
                      for n = 0 then (+ n 1) do
                      (let* ((xx (nth-x-pos n))
-                            (val (nth n field))
+                            (val (nth n field-data))
                             (yy (+ y (* h .5))))
                        (draw-cross xx mid-y)  
                        (draw-element-in-array-field val xx yy x-space h)
@@ -153,6 +146,32 @@
                              (* w .9) (* h .9)
                              :lines)))
 
+;============================================================
+; SIMPLE 2D-ARRAY
+; Initialized mainly with the data (a nested list)
+;============================================================
+
+;; <data> is redefined with :initarg so as to appear as a box input
+(defclass* 2D-array (OMArray) 
+  ((data :initform nil :initarg :data :accessor data :documentation "data matrix / list of lists : (col1 col2 ...)")))
+
+;; array dimensions are set according to <data>
+(defmethod update-contents ((self 2D-array))
+  (if (data self)
+      (setf (num-fields self) (length (data self))
+            (num-elts self) (apply 'max (mapcar 'length (data self))))
+      (setf (num-fields self) 0)
+      ))
+
+(defmethod get-col ((self 2D-array) (col integer) &key (warn-if-not-found t))
+  (if (< col (length (data self)))
+      (nth col (data self))
+    (if warn-if-not-found (om-beep-msg "Field #~D not found in '~A'" col self))))
+
+(defmethod get-cache-display-for-text ((self 2D-array))
+  (loop for field in (data self) 
+        for i = 0 then (1+ i) 
+        collect (list (format nil "[~D]" i) field)))
 
 ;;;============================================================
 ;;; CLASS-ARRAY / OM6-LIKE
@@ -161,13 +180,65 @@
 ;;; fields declares a number of main matrix-fields + defaults 
 ;;;============================================================
 
-(defclass* class-array (2D-array) 
+(defstruct array-field (name) (doc) (type) (default) (data))
+
+(defmethod om-copy ((self array-field))
+  (make-array-field 
+   :name (array-field-name self)
+   :doc (array-field-doc self)
+   :type (array-field-type self)
+   :default (array-field-default self)
+   :data (array-field-data self)))
+
+(defmethod omng-save ((self array-field))  
+  (list :array-field 
+        :name (array-field-name self)
+        :doc (array-field-doc self)
+        :type (array-field-type self)
+        :default (array-field-default self)
+        :data (array-field-data self)))
+
+(defmethod om-load-from-id ((id (eql :array-field)) data)
+  (apply 'make-array-field data))
+   
+(defmethod get-array-field-data ((field array-field)) 
+  (array-field-data field))
+
+;;; the <data> slot is not visible and set according to the meta-info + optional additionl box inputs 
+;;; (requires a dedicated box type)
+(defclass* class-array (OMArray) 
   ((fields :initform nil :initarg :fields :accessor fields :documentation "field names and defaults")
-   (num-elts :initform 1 :initarg :num-elts  :accessor num-elts :documentation "number of elements (a.k.a lines)")
-   (data :initform nil :accessor data :documentation "main data (as defined by fields)")
-   ))
+   (num-elts :initform 1 :initarg :num-elts  :accessor num-elts :documentation "number of elements (a.k.a lines)")))
 
 (defmethod additional-slots-to-save ((self class-array)) '(data))
+
+(defmethod om-init-instance ((self class-array) &optional initargs)
+  
+  (call-next-method) 
+  
+  (when initargs ;; INITARGS = NIL means we are loading a saved object (data is already in)
+    (setf (data self)
+          (loop for field in (fields self) collect
+                (let ((input-field (find-value-in-kv-list initargs (intern-k field)))
+                      (existing-field (find field (data self) :test 'string-equal :key 'array-field-name)))
+
+                  (cond (input-field 
+                         ;; there's a new field to set
+                         (make-array-field :name field :default input-field
+                                           :data (get-array-data-from-input input-field (num-elts self)))
+                         )
+                        (existing-field
+                         ;; the field was already in the (potentially copied) data
+                         (make-array-field :name field :default (array-field-default existing-field)
+                                           :data (get-array-data-from-input (array-field-default existing-field) (num-elts self)))
+                         )
+                        (t 
+                         ;; new and unspecified field
+                         (make-array-field :name field
+                                           :data (make-list (num-elts self) :initial-element nil)))
+                        )
+                  ))))
+  self)
 
 (defmethod object-box-label ((self class-array))
   (string+ (string-upcase (type-of self)) " ["
@@ -175,22 +246,29 @@
            "x" 
            (number-to-string (num-elts self)) "]"))
 
-(defmethod get-col ((self class-array) (col string))
+(defmethod get-col ((self class-array) (col integer) &key (warn-if-not-found t))
+  (if (< col (length (data self)))
+      (array-field-data (nth col (data self)))
+    (if (om-beep-msg "Field #~D not found in '~A'" col self))))
+
+(defmethod get-col ((self class-array) (col string) &key (warn-if-not-found t))
   (let ((pos (position col (fields self) 
                        :test 'string-equal 
                        :key #'(lambda (elt) (if (stringp elt) elt (car elt))))))
     (if pos (get-col self pos)
-      (om-beep-msg "Field '~A' not found in '~A'" col self))))
+      (if warn-if-not-found (om-beep-msg "Field '~A' not found in '~A'" col self)))))
 
 (defmethod get-column-name ((self class-array) (col integer)) 
   (or (nth col (fields self))
       (format nil "c_~D" col)))
 
 (defmethod get-slot-val ((self class-array) slot-name)
-  (let ((pos (position slot-name (fields self) :test 'string-equal)))
-    (if pos (nth pos (data self))
-      (call-next-method))))
+  (or (get-col self (string slot-name) :warn-if-not-found nil)
+      (call-next-method)))
 
+(defmethod get-data ((self class-array))
+  (mapcar #'array-field-data (data self)))
+ 
 (defmethod get-cache-display-for-text ((self class-array))
   (append (call-next-method)
           (loop for field in (fields self) collect 
@@ -198,56 +276,38 @@
                       (get-slot-val self field)))
           ))
 
-;;; method for init
-
-(defmethod init-array-data ((init string) n)
-  (make-list n :initial-element nil))
-
 ;;; methods for filling data
-
-(defmethod fill-array-data-from-input ((input t) n)
+(defmethod get-array-data-from-input ((input t) n)
   (make-list n :initial-element (om-copy input)))
 
-(defmethod fill-array-data-from-input ((input cons) n)
+(defmethod get-array-data-from-input ((input cons) n)
   (cond ((= (length input) n) 
          (om-copy input))
         ((< (length input) n) 
-         (fill-array-data-from-input (append (om-copy input) (om-copy input)) n))
+         (get-array-data-from-input (append (om-copy input) (om-copy input)) n))
         ((> (length input) n)
          (first-n (om-copy input) n))))
 
-(defmethod fill-array-data-from-input ((input function) n)
+(defmethod get-array-data-from-input ((input function) n)
   (mapcar input (loop for i from 0 to (1- n) collect i)))
 
-(defmethod fill-array-data-from-input ((input symbol) n)
+(defmethod get-array-data-from-input ((input symbol) n)
   (if (fboundp input) 
-      (fill-array-data-from-input (fdefinition input) n) 
+      (get-array-data-from-input (fdefinition input) n) 
     (call-next-method)))
 
-(defmethod fill-array-data-from-input ((input bpf) n)
+(defmethod get-array-data-from-input ((input bpf) n)
   (multiple-value-bind (bpf xx yy) (om-sample input n) yy))
-
 
 ;;; in class array the meta-data determine the contents of the actual data
 (defmethod update-contents ((self class-array)) 
   (setf (num-fields self) (length (fields self)))
   (unless (num-elts self) (setf (num-elts self) 0)))
 
-(defmethod om-init-instance ((self class-array) &optional args)
-  (call-next-method) 
-  (setf 
-   (data self)
-   (loop for field in (fields self) collect
-      (let ((input-field (find (intern-k field) args :key 'car)))
-        (if input-field 
-            (fill-array-data-from-input (cadr input-field) (num-elts self))
-          (init-array-data field (num-elts self)))
-        )))
-  self)
 
-;;;=============
-;;; Special box
-;;;=============  
+;;;============================
+;;; Special box for class-array
+;;;============================
 
 (defclass ClassArrayBox (OMBoxEditCall) 
   ((keywords :initform nil :accessor keywords :initarg :keywords)))
@@ -273,7 +333,6 @@
 
 (defmethod (setf value) :after (val (self ClassArrayBox))  
   (update-key-inputs self))
-
 
 (defmethod rep-editor ((box ClassArrayBox) num)
   (if (or (null num) (<= num 2)) (call-next-method)
