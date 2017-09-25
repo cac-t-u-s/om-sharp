@@ -141,9 +141,16 @@ Lock the box ('b') to keep the current file.
     (if with-data
         (let ((bytesread 0))
           (setf (data matrix) 
-                (mat-trans (loop for r from 1 to ne 
-                                 do (setf bytesread (+ bytesread (sdif::SdifFReadOneRow ptr)))
-                                 collect (loop for n from 1 to nf collect (sdif::SdifFCurrOneRowCol ptr n)))))
+                (loop for f in (fields matrix) collect  
+                      (make-array-field :name f
+                                        :data (make-list ne))))
+          (loop for r from 0 to (1- ne) 
+                do 
+                (progn (setf bytesread (+ bytesread (sdif::SdifFReadOneRow ptr)))
+                  (loop for n from 1 to nf do
+                        (setf (nth r (array-field-data (nth (1- n) (data matrix))))
+                              (sdif::SdifFCurrOneRowCol ptr n)))
+                  ))
           (sdif::SdifFReadPadding ptr (sdif::sdif-calculate-padding bytesread)))
       (sdif::SdifFSkipMatrixData ptr))
 
