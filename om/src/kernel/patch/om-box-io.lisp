@@ -170,18 +170,25 @@
 (defmethod update-output-from-new-in (box name in) nil)
 
 (defmethod smart-copy-additional-inputs ((self OMBox) newbox)
+  
+  ;;; if boxes have common inputs (in principle, they do!) => copy the values
+  (loop for in in (inputs self) do
+        (let ((newin (find (name in) (inputs newbox) :key 'name :test 'string-equal)))
+          (when newin (setf (value newin) (om-copy (value in))))))
+  
+  ;;; add relevant optional and keyword inputs
   (mapcar 
      #'(lambda (in) 
          (more-optional-input newbox :name (name in) :value (value in) :reactive (reactive in)))
      (get-optional-inputs self))
-    (mapcar 
-     #'(lambda (in) 
-         (more-keyword-input newbox :key (intern-k (name in)) :value (value in) :reactive (reactive in)))
-     (get-keyword-inputs self)))
+  (mapcar 
+   #'(lambda (in) 
+       (more-keyword-input newbox :key (intern-k (name in)) :value (value in) :reactive (reactive in)))
+   (get-keyword-inputs self)))
 
 (defmethod om-copy ((self OMBox)) 
   (let ((newbox (call-next-method)))
-    ;;; add the optional/keywords
+    ;;; add the optional/keywords + copy input values
     (smart-copy-additional-inputs self newbox) 
     newbox))
 
