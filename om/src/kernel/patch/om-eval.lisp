@@ -270,7 +270,8 @@
   (let ((box-attributes (loop for input in (cdr (inputs self))
                               when (and (find (intern-k (name input)) 
                                               (additional-box-attributes-names self))
-                                        (connections input))
+                                        ;; (connections input)  ;; no need for it to be connected.. (or why ?)
+                                        )
                               collect (list (intern-k (name input)) (omng-box-value input)))))
     
     (loop for attr in box-attributes do (set-edit-param self (car attr) (cadr attr)))
