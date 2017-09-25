@@ -250,7 +250,7 @@
 (defmethod get-col ((self class-array) (col integer) &key (warn-if-not-found t))
   (if (< col (length (data self)))
       (array-field-data (nth col (data self)))
-    (if (om-beep-msg "Field #~D not found in '~A'" col self))))
+    (if warn-if-not-found (om-beep-msg "Field #~D not found in '~A'" col self))))
 
 (defmethod get-col ((self class-array) (col string) &key (warn-if-not-found t))
   (let ((pos (position col (fields self) 
