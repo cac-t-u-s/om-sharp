@@ -35,7 +35,7 @@
 (defmethod destroy-player ((self scheduler))
  ; (if (process *engine*)
     ;  (mp:process-kill (process *engine*)))
-   (if (workers *engine*)
+  (if (workers *engine*)
       (abort-thread-pool *engine*))
   (if (process *scheduler*)
       (mp:process-kill (process *scheduler*)))
@@ -48,18 +48,20 @@
         *engine* nil
         *dispatcher* nil))
 
+
 (defun restart-scheduling-system ()
   (let ((runC (run-callback *scheduler*))
         (stopC (stop-callback *scheduler*))
         (precision (precision *graphics*)))
-    (if (process *engine*)
-        (mp:process-kill (process *engine*)))
-    (if (process *scheduler*)
-        (mp:process-kill (process *scheduler*)))
-    (if (process *dispatcher*)
-        (mp:process-kill (process *dispatcher*)))
-    (if (process *graphics*)
-        (mp:process-kill (process *graphics*)))
+  ;  (if (process *engine*)
+  ;      (mp:process-kill (process *engine*)))
+  ;  (if (process *scheduler*)
+  ;      (mp:process-kill (process *scheduler*)))
+  ;  (if (process *dispatcher*)
+  ;      (mp:process-kill (process *dispatcher*)))
+  ;  (if (process *graphics*)
+  ;      (mp:process-kill (process *graphics*)))
+    (destroy-player *scheduler*) t
     (setq *graphics* nil
           *scheduler* nil
           *engine* nil
