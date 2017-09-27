@@ -48,6 +48,10 @@
             (mp:process-kill worker)))
   (setq *threadpool* nil))
 
+(defmethod restart-thread-pool ((self thread-pool))
+  (abort-thread-pool self)
+  (build-thread-pool 8))
+
 (defmethod task-number-left ((pool thread-pool))
   (mp:mailbox-count (taskqueue pool)))
 
