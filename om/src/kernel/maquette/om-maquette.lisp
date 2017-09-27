@@ -158,15 +158,15 @@
           (if (and (all-reactive-p box)
                    (or (not interval)
                        (and interval
-                            (in-interval (- (get-box-onset box) (pre-delay box)) interval :exclude-high-bound t))))
+                            (in-interval (- (get-box-onset box) (pre-delay box)) interval :exclude-high-bound t)))
+                   (not (ready b)))
               (progn
-                (setf (ready b) nil)
+                (setf (ready b) t)
                 (list (list (- (get-box-onset box) (pre-delay box))
                             (get-box-onset box)
                             #'(lambda ()
                                 (with-schedulable-object self
-                                                         (eval-box b)
-                                                         (setf (ready b) t))
+                                                         (eval-box b))
                                 (clear-ev-once b)
                                 (reset-cache-display b)
                                 (set-display b :value)
