@@ -699,6 +699,13 @@ Press 'space' to play/stop the sound file.
   (call-next-method))
 
 
+;===== MultiDisplay API
+(defmethod enable-multi-display ((self sound-editor) obj-list) 
+  (call-next-method))
+
+(defmethod disable-multi-display ((self sound-editor))
+  (call-next-method))
+
 
 #|
 
