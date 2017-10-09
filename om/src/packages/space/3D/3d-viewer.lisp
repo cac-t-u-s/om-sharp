@@ -276,6 +276,23 @@
     (update-lines editor)))
 
     
+(defmethod set-3D-viewer-controls-from-object ((editor 3d-viewer-editor))
+  
+  (let ((obj (object-value editor)))
+    
+    (set-value (get-g-component editor :center-x-numbox) (car (center obj)))
+    (set-value (get-g-component editor :center-y-numbox) (cadr (center obj)))
+    (set-value (get-g-component editor :rotation-x-numbox) (rotation-x obj))
+    (set-value (get-g-component editor :rotation-y-numbox) (rotation-y obj))
+    (set-value (get-g-component editor :rotation-z-numbox) (rotation-z obj))
+
+    (om-set-slider-value (get-g-component editor :rotation-x-slider) (rotation-x obj))
+    (om-set-slider-value (get-g-component editor :rotation-y-slider) (rotation-y obj))
+    (om-set-slider-value (get-g-component editor :rotation-z-slider) (rotation-z obj))
+
+    ))
+
+
 (defmethod make-editor-window-contents ((editor 3d-viewer-editor))
   (let ((obj (object-value editor)))
     
@@ -449,7 +466,7 @@
                 :subviews
                 (list
                  (om-make-di 'om-simple-text :text "" :size (omp 40 20))
-                 (om-make-di 'om-button :text "init" :size (omp 80 nil) :font (om-def-font :font1)
+                 (om-make-di 'om-button :text "reinit rotations" :size (omp 120 nil) :font (om-def-font :font1)
                              :di-action #'(lambda (item) 
                                             (declare (ignore item))
                                             (init-state obj)
@@ -602,9 +619,10 @@
     (om-init-3d-view 3D-view)
     (om-invalidate-view 3D-view)))
 
-
+   
 (defmethod update-to-editor ((editor 3d-viewer-editor) (from OMBox))
   (when (window editor)
+    (set-3D-viewer-controls-from-object editor)
     (let ((3D-view (get-g-component editor :3D-view)))
       (update-3D-contents editor)
       (gl-user::clear-gl-display-list 3D-view)
@@ -613,6 +631,7 @@
 
 (defmethod update-to-editor ((editor 3d-viewer-editor) (from t))
   (when (window editor)
+    (set-3D-viewer-controls-from-object editor)
     (let ((3D-view (get-g-component editor :3D-view)))
       (update-3D-contents editor)
       (gl-user::clear-gl-display-list 3D-view)
@@ -763,17 +782,19 @@
            (om-invalidate-view self))
 
       (:om-key-right 
-       (let ((new-x (* (round (* (+ (nth 0 (center 3DV)) (max 0.1 (/ 1 (scaler-x 3DV)))) 10)) 0.1)))
-         (setf (nth 0 (center 3DV)) new-x)
-         (set-from-editor ed 'center (center 3DV))
-         (set-value (get-g-component ed :center-x-numbox) new-x)
-         (om-invalidate-view self)))
+       (if (om-command-key-p) (call-next-method) ;; will go next in a collection editor
+         (let ((new-x (* (round (* (+ (nth 0 (center 3DV)) (max 0.1 (/ 1 (scaler-x 3DV)))) 10)) 0.1)))
+           (setf (nth 0 (center 3DV)) new-x)
+           (set-from-editor ed 'center (center 3DV))
+           (set-value (get-g-component ed :center-x-numbox) new-x)
+           (om-invalidate-view self))))
       (:om-key-left 
-       (let ((new-x (* (round (* (- (nth 0 (center 3DV)) (max 0.1 (/ 1 (scaler-x 3DV)))) 10)) 0.1)))
-         (setf (nth 0 (center 3DV)) new-x)
-         (set-from-editor ed 'center (center 3DV))
-         (set-value (get-g-component ed :center-x-numbox) new-x)
-         (om-invalidate-view self)))
+       (if (om-command-key-p) (call-next-method) ;; will go previous in a collection editor
+         (let ((new-x (* (round (* (- (nth 0 (center 3DV)) (max 0.1 (/ 1 (scaler-x 3DV)))) 10)) 0.1)))
+           (setf (nth 0 (center 3DV)) new-x)
+           (set-from-editor ed 'center (center 3DV))
+           (set-value (get-g-component ed :center-x-numbox) new-x)
+           (om-invalidate-view self))))
       (:om-key-up 
        (let ((new-y (* (round (* (+ (nth 1 (center 3DV)) (max 0.1 (/ 1 (scaler-y 3DV)))) 10)) 0.1)))
          (setf (nth 1 (center 3DV)) new-y)
@@ -803,8 +824,7 @@
            (update-g-components ed)
            (when (filter-off-grid ed) (update-lines ed))
            (om-invalidate-view self))
-      (#\O (init-state 3DV)
-           (setf (center 3DV) (list 0 0 0))
+      (#\O (setf (center 3DV) (list 0 0 0))
            (soft-update-from-editor (object ed))
            (update-g-components ed)
            (when (filter-off-grid ed) (update-lines ed))
