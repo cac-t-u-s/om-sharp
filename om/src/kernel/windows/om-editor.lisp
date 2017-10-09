@@ -263,7 +263,7 @@
 
 (defmethod update-default-view ((self OMEditor)) 
   (when (get-g-component self :default-view)
-    (update-contents (get-g-component self :default-view))))
+    (update-view-contents (get-g-component self :default-view))))
 
 ;;; called by a sub-editor when modified
 ;(defmethod update-container ((self OMEditor)) nil)
@@ -435,7 +435,7 @@
                                           (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop) :update self)
                                           (om-make-di 'om-simple-text :size (om-make-point 20 4) :text "" :focus t)))))))))
 
-(defmethod update-contents ((self OMDefaultEditorView))
+(defmethod update-view-contents ((self OMDefaultEditorView))
   (apply 'om-remove-subviews (cons self (om-subviews self)))
   (set-contents self))
 
