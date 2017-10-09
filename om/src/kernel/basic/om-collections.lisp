@@ -127,7 +127,7 @@
   ((multi-display-p :accessor multi-display-p :initarg :multi-display-p :initform nil)
    (multi-obj-list :accessor multi-obj-list :initform nil)))
 
-(defmethod handle-multi-display ((self OMEditor)) nil)
+(defmethod handle-multi-display ((self t)) nil)
 (defmethod handle-multi-display ((self multi-display-editor-mixin)) t)
 
 (defmethod enable-multi-display ((self OMEditor) obj-list) nil)

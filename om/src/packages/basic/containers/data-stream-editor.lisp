@@ -4,7 +4,7 @@
 ;;; EDITOR
 ;;;======================================
 
-(defclass data-stream-editor (OMEditor play-editor-mixin) 
+(defclass data-stream-editor (OMEditor play-editor-mixin multi-display-editor-mixin) 
   ((timeline-editor :accessor timeline-editor :initform nil)
    (display-mode :accessor display-mode :initform :blocks)))
 
@@ -478,11 +478,12 @@
        (update-timeline-editor editor)
        (report-modifications editor))
       (:om-key-tab
-       (setf (selection editor) 
-             (if (selection editor) 
-                 (list (mod (1+ (car (selection editor))) (length (data-stream-get-frames stream))))
-               '(0)))
-       (om-invalidate-view panel))
+       (when (data-stream-get-frames stream)
+         (setf (selection editor) 
+               (if (selection editor) 
+                   (list (mod (1+ (car (selection editor))) (length (data-stream-get-frames stream))))
+                 '(0)))
+         (om-invalidate-view panel)))
       (otherwise (call-next-method))
       )))
 
