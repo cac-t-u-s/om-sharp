@@ -87,6 +87,7 @@
    (gain :accessor gain :initform 1.0 :documentation "gain controller [0.0-1.0]")
    (access-from-file :accessor access-from-file :initform nil :documentation "read from file or allocate buffer"))
   (:icon 'sound)
+  (:default-initargs :default-frame-type 'marker-frame)
   (:documentation "Sound object.
 
 A sound can be initialized/attached to a pathname (<file-pathname>) corresponding to an audio file on the disk.
@@ -448,8 +449,10 @@ Press 'space' to play/stop the sound file.
     (when (markers self)
       (let ((fact (/ w (get-obj-dur self))))
         (loop for mrk in (markers self) do
-              (om-with-fg-color (om-def-color :dark-gray)
-                (om-draw-dashed-line (+ x (* mrk fact)) 4 (+ x (* mrk fact)) (- h 4))))))
+              (om-with-fg-color (om-def-color :gray)
+                (om-draw-line (+ x (* mrk fact)) 8 (+ x (* mrk fact)) h
+                              :style '(2 2)
+                              )))))
     ))
 
 
@@ -669,10 +672,12 @@ Press 'space' to play/stop the sound file.
 (defmethod om-draw-contents ((self sound-panel))
   (call-next-method)  
   (let* ((editor (editor self))
-         (sound (object-value editor)))
+         (sound (if (multi-display-p editor)
+                    (nth (stream-id self) (multi-obj-list editor))
+                  (object-value editor))))
     (if (or (buffer sound) (and (access-from-file sound) (valid-pathname-p (file-pathname sound))))
         ;;; draw the sound..
-        (draw-sound-waveform sound editor self (x1 self) (x2 self))
+        (draw-sound-waveform sound editor self (x1 self) (x2 self) (stream-id self))
       ;;; no sound
       (om-with-fg-color (om-def-color :light-gray)
         (om-with-font (om-make-font "Arial" (round (h self) 4) :style '(:bold))
@@ -681,11 +686,14 @@ Press 'space' to play/stop the sound file.
       )))
 
 
-(defun draw-sound-waveform (sound editor view from to)
-  (unless (cache-display-list editor)
-    (setf (cache-display-list editor) (get-cache-display-for-draw (object-value editor))))
+(defun draw-sound-waveform (sound editor view from to &optional (sound-id 0))
+  (unless (nth sound-id (cache-display-list editor))
+    (setf (cache-display-list editor) 
+          (if (multi-display-p editor)
+              (mapcar 'get-cache-display-for-draw (multi-obj-list editor))
+            (list (get-cache-display-for-draw (object-value editor))))))
   (let ((dur (get-obj-dur sound))
-        (pict (cache-display-list editor)))
+        (pict (nth sound-id (cache-display-list editor))))
     (when (and pict (not (equal :error pict)))  
       (om-draw-picture pict 
                        :w (w view) :h (h view) 
@@ -694,17 +702,13 @@ Press 'space' to play/stop the sound file.
     ))
 
 
-(defmethod update-to-editor ((self sound-editor) (from t))
-  (setf (cache-display-list self) nil)
+(defmethod update-to-editor ((editor sound-editor) (from t))
+  (unless (or (equal from editor)
+              (and (multi-display-p editor) 
+                   (equal from (container-editor editor)))) 
+    (setf (cache-display-list editor) nil))
   (call-next-method))
 
-
-;===== MultiDisplay API
-(defmethod enable-multi-display ((self sound-editor) obj-list) 
-  (call-next-method))
-
-(defmethod disable-multi-display ((self sound-editor))
-  (call-next-method))
 
 
 #|

@@ -105,7 +105,7 @@
         ))
 
 (defmethod get-frame-area ((frame midi-note) editor)
-  (let ((panel (get-g-component editor :main-panel)))
+  (let ((panel (active-panel editor)))
     (values (x-to-pix panel (date frame))
             (- (h panel)
                (y-to-pix panel (+ (get-frame-attribute frame :posy editor))))
@@ -135,9 +135,15 @@
 (defclass keyboard-view (om-view)
   ((pitch-min :accessor pitch-min :initarg :pitch-min :initform 36)
    (pitch-max :accessor pitch-max :initarg :pitch-max :initform 96)))
-   
-(defmethod left-panel-for-object ((editor data-stream-editor) (object piano-roll))
+
+
+
+(defmethod make-left-panel-for-object ((editor data-stream-editor) (object piano-roll))
   (om-make-view 'keyboard-view :size (omp 20 nil)))
+
+;;; the small view at the left of teh timeline should be sized according to the editor's layout
+(defmethod make-timeline-left-item ((self piano-roll-editor) id) 
+  (om-make-view 'om-view :size (omp 20 15)))
 
 (defun draw-keyboard-octave (i x y w h &optional (alpha 1) (borders nil) (octaves nil))
   (let ((unit (/ h 12))
@@ -185,7 +191,7 @@
 
 (defmethod position-display ((self piano-roll-editor) position) ; (call-next-method))
   (when (om-add-key-down)
-    (om-invalidate-view (get-g-component self :main-panel)))
+    (om-invalidate-view (active-panel self)))
   (call-next-method))
 
 
@@ -217,7 +223,7 @@
     ))
 
 (defmethod editor-key-action ((editor piano-roll-editor) key)
-  (let* ((panel (get-g-component editor :main-panel))
+  (let* ((panel (active-panel editor))
          (pr (object-value editor)))
     (case key
       (#\c 

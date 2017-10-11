@@ -395,7 +395,8 @@
          (unless (find new-selection (selection editor)) 
            (setf (selection editor) (and new-selection (list new-selection))))))
   (when (container-editor editor) 
-    (update-to-editor (container-editor editor) editor)))
+    (update-to-editor (container-editor editor) editor)
+    ))
 
 (defmethod set-selection ((editor OMEditor) (new-selection list))
   (cond ((and (om-shift-key-p) new-selection)
@@ -403,7 +404,8 @@
         (t (setf (selection editor) new-selection)))
   ;(print (list editor (selection editor) "=>" (container-editor editor)))
   (when (container-editor editor)
-    (update-to-editor (container-editor editor) editor)))
+    (update-to-editor (container-editor editor) editor)
+    ))
 
 
 ;;;====================

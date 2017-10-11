@@ -130,21 +130,24 @@
 (defmethod handle-multi-display ((self t)) nil)
 (defmethod handle-multi-display ((self multi-display-editor-mixin)) t)
 
-(defmethod enable-multi-display ((self OMEditor) obj-list) nil)
+(defmethod enable-multi-display ((self t) obj-list) nil)
 (defmethod enable-multi-display ((self multi-display-editor-mixin) obj-list) 
   (setf (multi-display-p self) t (multi-obj-list self) obj-list))
 
-(defmethod disable-multi-display ((self OMEditor)) nil)
+(defmethod disable-multi-display ((self t)) nil)
 (defmethod disable-multi-display ((self multi-display-editor-mixin))
-  (setf (multi-display-p self) nil
-        (multi-obj-list self)  nil))
+  (setf (multi-display-p self) nil)
+  (setf (multi-obj-list self)  nil))
 
 (defmethod update-multi-display ((editor collection-editor) t-or-nil)
   (setf (show-all editor) t-or-nil)
   (if t-or-nil
       (enable-multi-display (internal-editor editor) (obj-list (get-value-for-editor (object editor))))
     (disable-multi-display (internal-editor editor)))
-  (editor-invalidate-views (internal-editor editor)))
+  
+  (update-to-editor (internal-editor editor) editor)
+  (editor-invalidate-views (internal-editor editor))
+  )
 
 ;;;==================================
 
@@ -170,7 +173,7 @@
   (let* ((collection (get-value-for-editor (object editor)))
          (text (format-current-text editor))
          (current-text (om-make-graphic-object 'om-item-text :size (omp (om-string-size text (om-def-font :font3b)) 16) 
-                                               :text text :font (om-def-font :font3b)))
+                                               :text text :font (om-def-font :font3 :style '(:italic))))
          (prev-button (om-make-graphic-object 'om-icon-button 
                                               :size (omp 16 16)
                                               :icon 'l-arrow :icon-pushed 'l-arrow-pushed :icon-disabled 'l-arrow-disabled
@@ -227,7 +230,7 @@
               :subviews (list prev-button next-button 
                               (om-make-graphic-object 'om-item-view :size (omp 20 20))
                               (when (handle-multi-display (internal-editor editor))
-                                (om-make-di 'om-check-box :text "Show All" :size (omp 80 16) :font (om-def-font :font1)
+                                (om-make-di 'om-check-box :text " Show All" :size (omp 80 16) :font (om-def-font :font2)
                                             :checked-p (show-all editor) :focus nil :default nil
                                             :di-action #'(lambda (item) 
                                                            (update-multi-display editor (om-checked-p item))
@@ -272,7 +275,7 @@
 (defmethod format-current-text ((editor collection-editor))
   (let ((collection (get-value-for-editor (object editor))))
     (if (obj-list collection)
-        (format nil "Current ~A = ~D/~D" ;; [~A] 
+        (format nil "Current ~A: ~D/~D" ;; [~A] 
                 (string-upcase (obj-type collection))
                 (1+ (current editor)) (length (obj-list collection))
                 ;(name (nth (current editor) (obj-list collection)))
@@ -304,17 +307,23 @@
     (editor-invalidate-views internal-editor)))
    
 
+(defmethod set-current-nth ((editor collection-editor) n)
+  (let ((collection (get-value-for-editor (object editor))))
+    (when (obj-list collection)
+      (setf (current editor) n))
+    (update-collection-editor editor)))
+
 (defmethod set-current-next ((editor collection-editor))
   (let ((collection (get-value-for-editor (object editor))))
     (when (obj-list collection)
-      (setf (current editor) (mod (1+ (current editor)) (length (obj-list collection)))))
-    (update-collection-editor editor)))
+      (set-current-nth editor (mod (1+ (current editor)) (length (obj-list collection))))
+      )))
 
 (defmethod set-current-previous ((editor collection-editor))
   (let ((collection (get-value-for-editor (object editor))))
     (when (obj-list collection)
-      (setf (current editor) (mod (1- (current editor)) (length (obj-list collection)))))
-    (update-collection-editor editor)))
+      (set-current-nth editor (mod (1- (current editor)) (length (obj-list collection))))
+      )))
 
 (defmethod remove-current-object ((editor collection-editor))
   (let ((collection (get-value-for-editor (object editor))))

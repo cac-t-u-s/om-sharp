@@ -73,7 +73,9 @@
 
 (defmethod om-draw-contents ((self score-panel))
   (let* ((editor (editor self))
-         (score (object-value editor)))
+         (score (if (multi-display-p editor)
+                     (nth (stream-id self) (multi-obj-list editor))
+                   (object-value editor))))
      
     (om-with-fg-color (om-def-color :dark-blue)
       (om-with-line-size 2
@@ -104,11 +106,12 @@
        (getf (attributes f) :posy) (car (lmidic f))
        (getf (attributes f) :sizey) 500))
 
-(defmethod draw-data-frame ((frame chord) editor i)
+(defmethod draw-data-frame ((frame chord) editor i &optional (active nil))
   (let* ((panel (get-g-component editor :main-panel)))
     (multiple-value-bind (x y w h)
         (get-frame-area frame editor)
-      (om-with-fg-color (if (find i (selection editor)) (om-make-color-alpha (om-def-color :dark-red) 0.5)
+      (om-with-fg-color (if (and active (find i (selection editor))) 
+                            (om-make-color-alpha (om-def-color :dark-red) 0.5)
                           (getf (attributes frame) :color (om-def-color :light-gray)))
         (om-draw-ellipse (+ x (round w 2)) y w h :fill t))
       (om-with-font 
