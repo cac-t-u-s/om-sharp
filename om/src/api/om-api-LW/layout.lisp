@@ -144,6 +144,7 @@
 (defmethod om-substitute-subviews ((self om-abstract-layout) old new)
   (capi::apply-in-pane-process 
    self #'(lambda ()
+            (om-remove-all-subviews old)
             (setf (capi::layout-description self)
                   (substitute new old (capi::layout-description self) :test 'equal)))
    ))
@@ -187,11 +188,13 @@
 (defmethod om-substitute-subviews ((self om-tab-layout) old new)
   (capi::apply-in-pane-process 
    self #'(lambda ()
+            (om-remove-all-subviews old)
             (setf (capi::collection-items self)
                   (loop for i from 0 to (1- (length (capi::collection-items self))) 
                         collect (if (equal (capi::get-collection-item self i) old) new
                                   (capi::get-collection-item self i)))
-                  ))))
+                  )
+            )))
 
 (defmethod om-add-subviews ((self om-tab-layout) &rest subviews)
   (capi::apply-in-pane-process 
