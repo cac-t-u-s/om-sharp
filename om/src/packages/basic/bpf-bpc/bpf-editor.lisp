@@ -127,6 +127,9 @@
   (call-next-method)
   (time-sequence-update-internal-times (object-value self) self))
 
+(defmethod make-timeline-left-item ((self bpf-editor) id) 
+  (om-make-view 'om-view :size (omp 30 15)))
+
 (defmethod make-editor-window-contents ((editor bpf-editor))
   (let* ((object (object-value editor))
          (panel (om-make-view (get-curve-panel-class editor) :size (omp 50 100) :direct-draw t :bg-color (om-def-color :white) :scrollbars nil
@@ -244,8 +247,7 @@
                                                                       ry panel 
                                                                       nil rx)
                                                       )
-                                      (when timeline
-                                        timeline)
+                                      (when timeline timeline)
                                       bottom-area))
                      (call-next-method)))
     ))
@@ -331,7 +333,7 @@
   (call-next-method)
   (om-invalidate-view (get-g-component self :main-panel))
   (when (timeline-editor self)
-    (om-invalidate-view (get-g-component (timeline-editor self) :main-panel))))
+    (editor-invalidate-views (timeline-editor self))))
 
 ;;;==========================
 ;;; DRAW

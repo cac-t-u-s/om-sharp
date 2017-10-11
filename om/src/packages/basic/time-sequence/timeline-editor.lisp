@@ -175,8 +175,9 @@
     (om-remove-all-subviews container-layout)
     (setf (time-ruler self) nil)))
 
-;width should be 15 to be aligned with the other elements.
-(defmethod timeline-item ((self t) id) (om-make-view 'om-view :size (omp 15 15)))
+; a view at the left of the timeline.
+; should be defined and sized depending on the container editor's layout
+(defmethod make-timeline-left-item ((self t) id) (om-make-view 'om-view :size (omp 15 15)))
 
 (defmethod build-transport-view ((self OMEditor))
   (om-make-layout 'om-row-layout :subviews (list (make-time-monitor (timeline-editor self) :time 0))))
@@ -216,7 +217,7 @@
           for i = 0 then (+ i 1) do
           (let* ((timeline-view (om-make-view 'om-timeline-view :id i :editor self :bg-color (om-def-color :white)))
                  (foldable-container (om-make-layout 'om-column-layout))
-                 (timeline-item (timeline-item container-editor (id timeline-view)))
+                 (timeline-item (make-timeline-left-item container-editor (id timeline-view)))
                  (fold-icon (om-make-graphic-object 
                              'om-icon-button :size (omp 10 10)
                              :icon 'arrow-drop-right :icon-pushed 'arrow-drop-up
@@ -261,7 +262,8 @@
                                             'om-row-layout
                                             :subviews
                                             (list
-                                             (om-make-view 'om-view :size (omp (om-width (timeline-item container-editor 0)) nil))
+                                             ;;; a dummy view to take the same size as the timeline-item
+                                             (make-timeline-left-item container-editor 0)
                                              time-ruler)
                                             :ratios '(0.001 1)))))))
       (setf (time-ruler self) time-ruler)

@@ -92,6 +92,8 @@
     (om-draw-line 10 19 40 19)
     (om-draw-string 1 21 "z")))
 
+(defmethod make-timeline-left-item ((self 3DC-editor) id) 
+  (om-make-view 'om-view :size (omp 0 15)))
 
 (defmethod make-editor-window-contents ((editor 3DC-editor))
   (let* ((object (object-value editor))
