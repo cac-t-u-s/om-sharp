@@ -311,9 +311,9 @@
                                     (make-instance 'input-area :object in :frame self
                                                    :pos #'(lambda (f) 
                                                             (om-make-point 
-                                                             (+ statesign-w 
+                                                             (round (+ statesign-w 
                                                                 (* (- (w f) extra-w) 
-                                                                   (/ (1+ (* 2 (or (position in (inputs box)) 0))) (* 2 nin))))
+                                                                   (/ (1+ (* 2 (or (position in (inputs box)) 0))) (* 2 nin)))))
                                                              +active-r+))
                                                    :pick '(-6 -15 6 4))))
                           (inputs box))
@@ -322,9 +322,9 @@
                                     (make-instance 'output-area :object out :frame self
                                                    :pos #'(lambda (f) 
                                                             (om-make-point 
-                                                             (+ statesign-w 
+                                                             (round (+ statesign-w 
                                                                 (* (- (w f) extra-w)
-                                                                   (/ (1+ (* 2 (or (position out (outputs box)) 0))) (* 2 nout))))
+                                                                   (/ (1+ (* 2 (or (position out (outputs box)) 0))) (* 2 nout)))))
                                                              (- (round (h f)) +active-r+) ;;; (would be better if H was already an integer...)
                                                              ))
                                                    :pick '(-6 -6 6 6))))
@@ -432,7 +432,7 @@
     (boxframe-draw-contents self (object self))))
 
 (defmethod draw-border ((self OMBox) x y w h style)
-  (om-draw-rect x y w h :line (if (numberp style) style 1.5) :color (om-def-color :gray) :angles :round))
+  (om-draw-rounded-rect x y w h :line (if (numberp style) style 1.5) :color (om-def-color :gray) :round 6))
 
 (defmethod box-draw-color ((self OMBox)) (color self))
 (defmethod box-draw-text-color ((self OMBox)) (text-color self))
@@ -453,18 +453,18 @@
                       :color (om-make-color-alpha (om-def-color :gray) 0.3)
                       :angles :round
                       :fill t))
-    
+
       ;;; icon
       (or (box-draw box self)
           (when (icon-id self)
             (case (icon-pos box)
-              (:left (om-draw-picture (icon-id self) :x 0 :y (- (h self) icon-size io-hspace) :w icon-size :h icon-size))
+              (:left (om-draw-picture (icon-id self) :x 2 :y (- (h self) icon-size io-hspace) :w icon-size :h icon-size))
               (:top (let ((smaller (min (w self) (- (h self) icon-size io-hspace io-hspace))))
                       (om-draw-picture (icon-id self) 
                                        :x (round (- (w self) smaller) 2) 
                                        :y (* io-hspace 1.5) :w smaller :h smaller)))
               (otherwise nil))))
-
+      
       ;;; name
       (om-with-clip-rect self 0 0 (w self) (- (h self) 8) 
         (multiple-value-bind (text x y w h)
@@ -477,11 +477,13 @@
              (om-draw-string (max 2 x) (+ y (om-font-size (or (text-font box) (om-get-font self)))) 
                              text :selected nil :wrap (max 10 (- (w self) 2)))
              )))))
-
-      ;;; border
+      
+     ;;; border
       (when (border box) 
-        (draw-border box 0 io-hspace (w self) (- (h self) (* 2 io-hspace)) (border box)))
-      ))
+        (draw-border box 0 io-hspace (w self) (- (h self) (* 2 io-hspace)) 2))
+      
+
+ ))
   
   ;;; in/outs etc.
   (mapcar #'(lambda (a) (om-draw-area a)) (areas self))
