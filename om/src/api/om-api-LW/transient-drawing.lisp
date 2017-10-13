@@ -154,13 +154,14 @@
 
 (defmethod om-stop-transient-drawing ((self om-transient-drawing-view))
   ;;;
-  (om-stop-transient-drawing-process self)
-  ;;;
-  (when (drawn-item self)
-    (capi:manipulate-pinboard self (drawn-item self) :delete)
-    (om-invalidate-view self)
-    (setf (drawn-item self) nil)
-    ))
+  (ignore-errors
+    (om-stop-transient-drawing-process self)
+    ;;;
+    (when (drawn-item self)
+      (capi:manipulate-pinboard self (drawn-item self) :delete)
+      (om-invalidate-view self)
+      (setf (drawn-item self) nil)
+      )))
 
 (defmethod om-update-transient-drawing ((self om-transient-drawing-view) &key x y w h)
   ;;;
