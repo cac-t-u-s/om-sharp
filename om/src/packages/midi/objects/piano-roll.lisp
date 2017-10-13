@@ -94,12 +94,9 @@
 
 (defmethod resizable-frame ((self midi-note)) t)
 
-;;; will change at each built !
-;;; make some preferences ?
-(defparameter +midi-colors+ (loop for i from 1 to 16 collect (om-random-color)))
 
 (defmethod set-frame-attributes-from-editor ((f midi-note) editor) 
-  (setf (getf (attributes f) :color) (nth (channel f) +midi-colors+)
+  (setf (getf (attributes f) :color) (get-midi-channel-color (channel f))
         (getf (attributes f) :posy) (pitch f)
         (getf (attributes f) :sizey) 1
         ))
@@ -290,29 +287,21 @@
 (defmethod display-modes-for-object ((self piano-roll))
   '(:hidden :text :mini-view))
 
-(defmethod get-cache-display-for-draw ((self piano-roll)) 
-  ;(list (loop for c from 1 to 16 collect (om-random-color 0.8))
-  ;`((,(om-def-color :green) ,(om-def-color :gray) ,(om-def-color :red))))
-`((,(om-make-color (/ 248 256.0) (/ 87 256.0) (/ 95 256.0))
-   ,(om-make-color (/ 118 256.0) (/ 169 256.0) (/ 234 256.0))
-   ,(om-make-color (/ 135 256.0) (/ 113 256.0) (/ 99 256.0)))))
-
 (defmethod draw-mini-view ((self piano-roll) (box t) x y w h &optional time)
-  (let ((display-cache (get-display-draw box)))
-    (multiple-value-bind (fx ox) 
+  (multiple-value-bind (fx ox) 
         (conversion-factor-and-offset 0 (get-obj-dur self) w x)
       (multiple-value-bind (fy oy) 
           (conversion-factor-and-offset 36 96 (- h 20) (+ y 10))
         (om-with-line-size 2
           (loop for n in (midi-notes self) do
                 ;for frame in (data-stream-get-frames self) do
-                (om-with-fg-color (nth (midinote-channel n) +midi-colors+)
+                (om-with-fg-color (get-midi-channel-color (midinote-channel n))
                   (om-draw-line  (round (+ ox (* fx (midinote-onset n))))
                                  (round (+ (- oy) (- h (* fy (midinote-pitch n)))))
                                  (round (+ ox (* fx (midinote-end n))))
                                  (round(+ (- oy) (-  h (* fy (midinote-pitch n))))))
-                  )))))
-    t))
+                  ))))
+      t))
 
 
 ;;;======================================
