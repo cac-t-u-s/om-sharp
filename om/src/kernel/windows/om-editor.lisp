@@ -23,8 +23,9 @@
   ((edition-params :initform nil :accessor edition-params :initarg :edition-params)))
 
 (defmethod get-edit-param ((self object-with-edit-params) param)
-  (or (find-value-in-kv-list (edition-params self) param)
-      (get-default-edit-param self param)))
+  (if (find param (edition-params self) :key 'car)
+      (find-value-in-kv-list (edition-params self) param)
+    (get-default-edit-param self param)))
 
 (defmethod get-default-edit-param ((self object-with-edit-params) param) nil)
 
