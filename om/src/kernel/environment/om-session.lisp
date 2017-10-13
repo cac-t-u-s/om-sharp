@@ -176,7 +176,9 @@
   
   ;;; read the general OM prefs
   (read-om-preferences)
-  
+
+  (when (find-om-package :midi) (midi-apply-ports-settings))
+
   (om-init-funcall)
 
   ;;; start workspace (maybe)
