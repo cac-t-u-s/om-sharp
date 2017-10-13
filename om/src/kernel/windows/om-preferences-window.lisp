@@ -29,21 +29,22 @@
 (defmethod make-preference-item ((type (eql :list)) pref-item)
   (let* ((curr-value (pref-item-value pref-item)))
     (om-make-view 'click-and-edit-text 
-                  :text (format nil " ~A" curr-value)
+                  :text (format nil " ~{~A ~}" curr-value)
                   :resizable :w
                   :bg-color (om-def-color :white) ; (om-def-color :window)
                   :border nil
                   :size (om-make-point (list :string (format nil "  ~A  " curr-value)) 20)
                   :font (om-def-font :font2)
                   :after-fun #'(lambda (item)
-                                 (let ((val (read-from-string (text item) nil :err)))
+                                 (let ((val (om-read-list-from-string (text item))))
                                    (if (listp val)
                                        (progn 
                                          (setf (pref-item-value pref-item) val)
+                                         (setf (text item) (format nil "  ~{~A ~}" val))
                                          (maybe-apply-pref-item-after-fun pref-item))
                                      (progn
                                        (om-beep-msg "Preference value for '~A' must be a list !" (pref-item-name pref-item))
-                                       (setf (text item) (format nil " ~A" curr-value))
+                                       (setf (text item) (format nil " ~{~A~}" curr-value))
                                        )))
                                  ))))
 
@@ -225,7 +226,9 @@
                 :text buttonstr
                 :size (om-make-point (list :string buttonstr) 26)
                 :font (om-def-font :font1)
-                :di-action #'(lambda (item) (funcall (pref-item-defval pref-item))))))
+                :di-action #'(lambda (item) 
+                               (declare (ignore item)) 
+                               (funcall (pref-item-defval pref-item))))))
 
 
 
@@ -264,27 +267,27 @@
 
 
 (defun make-preference-view (pref-item)
+
   (let* ((main-text (om-make-di 'om-simple-text 
                                 :text (pref-item-name pref-item) 
                                 :font (if (equal (pref-item-type pref-item) :title) (om-def-font :font3b) (om-def-font :font2))
                                 :size (om-make-point 160 ;(list :string (format nil "  ~A  " (pref-item-name pref-item))) 
                                                      20)))
-         (main-row 
-          (om-make-layout 'om-row-layout :name (pref-item-id pref-item)
-                          :subviews (list
-                                     main-text 
-                                     (make-preference-item (pref-item-type pref-item) pref-item)))))                                             
-  (if (pref-item-doc pref-item)
+         (g-item (make-preference-item (pref-item-type pref-item) pref-item))
+         
+         (doc-text (when (pref-item-doc pref-item)
+                     (om-make-di 
+                      'om-simple-text 
+                      :text (string+ "" (pref-item-doc pref-item)) 
+                      :font (om-def-font :font1)
+                      :size (om-make-point (list :string (format nil "  ~A  " (pref-item-doc pref-item))) nil))
+                     )))
+   
         (om-make-layout 
-         'om-column-layout :name (pref-item-id pref-item)
-            :subviews 
-            (list main-row 
-                  (om-make-di 
-                   'om-simple-text 
-                   :text (string+ "" (pref-item-doc pref-item)) 
-                   :font (om-def-font :font1)
-                   :size (om-make-point (list :string (format nil "  ~A  " (pref-item-doc pref-item))) 20))))
-      main-row)))
+         'om-row-layout :name (pref-item-id pref-item)   ; :dimensions '(2 2) :ratios '((nil 1) (nil 1))
+         :subviews (list main-text g-item doc-text))
+        
+        ))
 
 
 
@@ -341,6 +344,7 @@
                                              :text "Restore defaults" 
                                              :size (om-make-point 120 24)
                                              :di-action #'(lambda (item)
+                                                            (declare (ignore item))
                                                             (let* ((current-panel (om-get-current-view (tabs win)))
                                                                    (module-id (module-id current-panel))
                                                                    (pref-module (find-pref-module module-id)))

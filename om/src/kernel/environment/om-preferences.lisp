@@ -21,6 +21,7 @@
 ;;; a list of pref-module
 (defvar *user-preferences* nil)
 
+
 ;;;======================================================
 ;;; MODULES ARE USED TO SORT PREFERENCE ITEMS
 (defparameter *pref-order* '(:general :appearance :score :conversion :midi :audio :libraries :externals))
@@ -70,7 +71,10 @@
   (unless (or (equal (pref-item-type pref) :title)
               (equal (pref-item-type pref) :action)
               (equal (pref-item-defval pref) :no-default))
-    (setf (pref-item-value pref) (pref-item-defval pref))))
+    (unless (equal (pref-item-defval pref) (pref-item-value pref))
+      (setf (pref-item-value pref) (pref-item-defval pref))
+      (maybe-apply-pref-item-after-fun pref))
+    ))
 
 (defun add-preference (module-id pref-id name type defval &optional doc after-fun)
   (unless (find-pref-module module-id)
