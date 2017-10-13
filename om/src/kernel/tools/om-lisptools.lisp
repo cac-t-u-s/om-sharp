@@ -178,7 +178,7 @@
  
 (defun om-beep-msg (format-string &rest args)
    (om-beep)
-   (print (apply 'format (append (list nil format-string) args)))
+   (om-print (apply 'format (append (list nil format-string) args)) "!")
    NIL)
 
 (defmethod om-report-condition ((c condition))
