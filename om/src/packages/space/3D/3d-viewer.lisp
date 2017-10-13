@@ -28,13 +28,6 @@
      )))
 |#
 
-(defmethod object-default-edition-params ((self 3D-viewer))
-  '((:x-grid :auto)
-    (:y-grid :auto)
-    (:shift-x-edit-mode :z)
-    (:shift-y-edit-mode :_)
-    (:alt-x-edit-mode :y)
-    (:alt-y-edit-mode :x)))
   
 (defmethod additional-box-attributes ((self 3D-viewer)) 
   '((:x-grid "the x-range of the grid displayed in the viewer" nil)
@@ -181,11 +174,19 @@
 (defmethod object-has-editor ((self 3D-viewer)) t)
 (defmethod get-editor-class ((self 3D-viewer)) '3D-viewer-editor)
 
+(defmethod object-default-edition-params ((self 3D-viewer))
+  '((:x-grid :auto)
+    (:y-grid :auto)
+    (:shift-x-edit-mode :z)
+    (:shift-y-edit-mode :_)
+    (:alt-x-edit-mode :y)
+    (:alt-y-edit-mode :x)
+    (:show-grid t)
+    (:filter-off-grid nil)))
+
 (defclass 3d-viewer-editor (OMEditor) 
   ((x-grid :accessor x-grid :initform nil) ;; x-grid and y-grid can be the same as the editor's edit param, or they can be computed automatically
-   (y-grid :accessor y-grid :initform nil)
-   (show-grid :accessor show-grid :initform t)
-   (filter-off-grid :accessor filter-off-grid :initform nil)))
+   (y-grid :accessor y-grid :initform nil)))
 
 (defclass 3D-viewer-view (OMEditorView om-opengl-view) 
   ((viewpoint :accessor viewpoint :initform '(0.0d0 0.0d0 0.0d0) :documentation "x-y-z axis rotation angles")))
@@ -206,6 +207,7 @@
     ))
 
 (defmethod set-x-grid ((editor 3d-viewer-editor) values)
+
   (setf (x-grid editor) values)
   
   (when (get-g-component editor :x-grid-min-numbox)
@@ -224,7 +226,7 @@
 
 (defmethod set-y-grid ((editor 3d-viewer-editor) values)
   (setf (y-grid editor) values)
-  
+  (editor-set-edit-param editor :y-grid values)
   (when (get-g-component editor :y-grid-min-numbox)
     (set-value (get-g-component editor :y-grid-min-numbox) (car values)))
   (when (get-g-component editor :y-grid-max-numbox)
@@ -245,7 +247,7 @@
           for view-line in (om-get-gl-objects 3d-view) collect
           (setf (vertices-colors view-line)
                 (loop for p in (om-3Dobj-points line)
-                      collect  (if (and (filter-off-grid ed)
+                      collect  (if (and (editor-get-edit-param ed :filter-off-grid) (x-grid ed) (y-grid ed)
                                         (or (< (car p) (car (x-grid ed)))
                                             (> (car p) (cadr (x-grid ed)))
                                             (< (cadr p) (car (y-grid ed)))
@@ -272,7 +274,7 @@
 (defmethod set-from-editor ((editor 3d-viewer-editor) object-slot value)
   (setf (slot-value (object-value editor) object-slot) value)
   (soft-update-from-editor (object editor))
-  (when (filter-off-grid editor)
+  (when (editor-get-edit-param editor :filter-off-grid)
     (update-lines editor)))
 
     
@@ -471,7 +473,7 @@
                                             (declare (ignore item))
                                             (init-state obj)
                                             (update-g-components editor)
-                                            (when (filter-off-grid editor) (update-lines editor))
+                                            (when (editor-get-edit-param editor :filter-off-grid) (update-lines editor))
                                             (om-invalidate-view (om-invalidate-view (get-g-component editor :3d-view)))))))
                ))
                    
@@ -549,10 +551,10 @@
                 :subviews
                 (list 
                  (om-make-di 'om-check-box :text "show" :size (omp 100 20) :font (om-def-font :font1)
-                           :checked-p (show-grid editor)
-                           :di-action #'(lambda (item) 
-                                          (setf (show-grid editor) (om-checked-p item))
-                                          (om-invalidate-view (get-g-component editor :3d-view))))
+                             :checked-p (editor-get-edit-param editor :show-grid)
+                             :di-action #'(lambda (item) 
+                                            (editor-set-edit-param editor :show-grid (print (om-checked-p item)))
+                                            (om-invalidate-view (get-g-component editor :3d-view))))
                  
                  (om-make-di 'om-button :text "fit" :size (omp 60 nil) :font (om-def-font :font1)
                              :di-action #'(lambda (item) 
@@ -565,9 +567,9 @@
                  ))
                 
                (om-make-di 'om-check-box :text "filter off-grid" :size (omp 100 20) :font (om-def-font :font1)
-                           :checked-p (filter-off-grid editor)
+                           :checked-p (editor-get-edit-param editor :filter-off-grid)
                            :di-action #'(lambda (item) 
-                                          (setf (filter-off-grid editor) (om-checked-p item))
+                                          (editor-set-edit-param editor :filter-off-grid (om-checked-p item))
                                           (update-lines editor)
                                           (om-invalidate-view (get-g-component editor :3d-view))))
 
@@ -725,7 +727,7 @@
                            :dz (car (viewpoint self)) 
                            :dx (cadr (viewpoint self)))
     
-    (when (and (show-grid ed)
+    (when (and (editor-get-edit-param ed :show-grid)
                (x-grid ed) (y-grid ed))
       (draw-grid 
        (* (scaler-x 3DV) (car (x-grid ed))) 
@@ -822,12 +824,12 @@
       (#\o (init-state 3DV)
            (soft-update-from-editor (object ed))
            (update-g-components ed)
-           (when (filter-off-grid ed) (update-lines ed))
+           (when (editor-get-edit-param ed :filter-off-grid) (update-lines ed))
            (om-invalidate-view self))
       (#\O (setf (center 3DV) (list 0 0 0))
            (soft-update-from-editor (object ed))
            (update-g-components ed)
-           (when (filter-off-grid ed) (update-lines ed))
+           (when (editor-get-edit-param ed :filter-off-grid) (update-lines ed))
            (om-invalidate-view self))
       
       (#\Space (report-modifications ed))
@@ -867,7 +869,7 @@
 
    
    (update-g-components ed)
-   (when (filter-off-grid ed) (update-lines ed))
+   (when (editor-get-edit-param ed :filter-off-grid) (update-lines ed))
    (soft-update-from-editor (object ed))
 
    (opengl:rendering-on (self)
@@ -894,7 +896,7 @@
         (:z (setf (rotation-z 3DV) (mod (+ (rotation-z 3DV) dy) 360)))))
    
     (update-g-components ed)
-    (when (filter-off-grid ed) (update-lines ed))
+    (when (editor-get-edit-param ed :filter-off-grid) (update-lines ed))
     (soft-update-from-editor (object ed))
       
     (opengl:rendering-on (self)

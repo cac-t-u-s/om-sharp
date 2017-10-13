@@ -5,8 +5,10 @@
 ;;;======================================
 
 (defclass data-stream-editor (OMEditor play-editor-mixin multi-display-editor-mixin) 
-  ((timeline-editor :accessor timeline-editor :initform nil)
-   (display-mode :accessor display-mode :initform :blocks)))
+  ((timeline-editor :accessor timeline-editor :initform nil)))
+
+(defmethod object-default-edition-params ((self data-stream))
+  '((:display-mode :blocks)))
 
 (defclass stream-panel (x-cursor-graduated-view y-graduated-view OMEditorView om-tt-view) 
   ((stream-id :accessor stream-id :initform 0 :initarg :stream-id)))
@@ -46,10 +48,10 @@
       (om-make-di 'om-popup-list :size (omp 80 24) :font (om-def-font :font1)
                   :items (mapcar 'cadr (frame-display-modes-for-object editor object))
                   :di-action #'(lambda (item) 
-                                 (setf (display-mode editor) 
-                                       (car (find (om-get-selected-item item) 
-                                                (frame-display-modes-for-object editor object) 
-                                                :key 'cadr :test 'string-equal)))
+                                 (editor-set-edit-param editor :display-mode 
+                                                        (car (find (om-get-selected-item item) 
+                                                                   (frame-display-modes-for-object editor object) 
+                                                                   :key 'cadr :test 'string-equal)))
                                  (clear-frame-attributes object)
                                  (set-graphic-attributes editor)
                                  (mapc 'om-invalidate-view (get-g-component editor :data-panel-list)))
@@ -60,10 +62,9 @@
               :checked-p (editor-get-edit-param editor :show-timeline)
               :enable (timeline-editor editor)
               :di-action #'(lambda (item) 
-                             ;(print (list (timeline-editor editor) editor))
                              (let ((timeline-ed (timeline-editor editor)))
+                               (editor-set-edit-param editor :show-timeline (om-checked-p item))
                                (clear-timeline timeline-ed)
-                               ;(om-invalidate-view (get-g-component timeline-ed :main-panel))
                                (when (om-checked-p item) (make-timeline-view timeline-ed))
                                (om-update-layout (main-view editor))))
               ))
@@ -132,7 +133,10 @@
                                                    :x1 0 :x2 ed-dur))
     
     (set-g-component (timeline-editor editor) :main-panel (om-make-layout 'om-row-layout))
-
+    
+    (when (editor-get-edit-param editor :show-timeline)
+      (make-timeline-view (timeline-editor editor)))
+    
     (om-make-layout 
      'om-column-layout 
      :ratios '(0.96 0.02)
@@ -255,7 +259,7 @@
 ;;; posy and sizey must consider the y-range of the editor !
 
 (defmethod compute-frame-posy ((self data-frame) editor) 
-  (case (display-mode editor) 
+  (case (editor-get-edit-param editor :display-mode) 
     (:bubbles (om-random -50 50))
     (otherwise 60)))
 
@@ -286,7 +290,7 @@
 ;; returns (x y w h)
 (defmethod get-frame-area ((frame data-frame) editor)
   (let ((panel (active-panel editor)))
-    (case (display-mode editor)
+    (case (editor-get-edit-param editor :display-mode)
       (:bubbles (values 
                  (- (x-to-pix panel (or (date frame) 0))  (dy-to-dpix panel (/ (get-frame-attribute frame :sizey editor) 2)))
                  (- (h panel)
@@ -310,7 +314,7 @@
       (om-with-fg-color (if (and active (find i (selection editor))) 
                             (om-make-color-alpha (om-def-color :dark-red) 0.5)
                           (getf (attributes frame) :color (om-def-color :light-gray)))
-        (case (display-mode editor) 
+        (case (editor-get-edit-param editor :display-mode) 
           (:bubbles
            (om-draw-circle (+ x (round w 2)) (+ y (round h 2)) (round h 2) :fill t)
            ;(om-draw-rect (+ x 20) (+ y 20) (- w 40) (- h 40) :fill nil)
