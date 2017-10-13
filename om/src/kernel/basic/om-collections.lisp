@@ -67,7 +67,9 @@
 (defmethod object-box-label ((object collection))
   (string+ (string-upcase (type-of object)) " of "
            (number-to-string (length (obj-list object))) " " 
-           (string-upcase (type-of (car (obj-list object)))) "s"))
+           (string-upcase (obj-type object)) 
+           (if (> (length (obj-list object)) 1) "s" "")
+           ))
 
 
 (defmethod display-modes-for-object ((self collection)) '(:hidden :text :mini-view))
@@ -106,9 +108,11 @@
 
 (defclass collection-editor (OMEditor)
   ((internal-editor :accessor internal-editor :initform nil)
-   (current :accessor current :initform 0)
-   (show-all :accessor show-all :initform nil)))
+   (current :accessor current :initform 0)))
  
+(defmethod object-default-edition-params ((self collection))
+  '((:show-all t)))
+
 (defmethod object-has-editor ((self collection)) t)
 (defmethod get-editor-class ((self collection)) 'collection-editor)
 
@@ -140,7 +144,7 @@
   (setf (multi-obj-list self)  nil))
 
 (defmethod update-multi-display ((editor collection-editor) t-or-nil)
-  (setf (show-all editor) t-or-nil)
+    
   (if t-or-nil
       (enable-multi-display (internal-editor editor) (obj-list (get-value-for-editor (object editor))))
     (disable-multi-display (internal-editor editor)))
@@ -166,7 +170,9 @@
 
 (defmethod init-editor-window ((editor collection-editor))
   (call-next-method)
-  (init-editor-window (internal-editor editor)))
+  (init-editor-window (internal-editor editor))
+  (when (editor-get-edit-param editor :show-all)
+    (update-multi-display editor t)))
 
 
 (defmethod make-editor-window-contents ((editor collection-editor))
@@ -201,6 +207,7 @@
                                                           (disable b))
                                                         (when (<= (length (obj-list coll)) 1)
                                                           (disable prev-button) (disable next-button))
+                                                        (update-multi-display editor (editor-get-edit-param editor :show-all)) 
                                                         ))
                                           ))
          (+button (om-make-graphic-object 'om-icon-button 
@@ -214,6 +221,7 @@
                                                         (enable -button)  ;; in case it was disabled..
                                                         (when (> (length (obj-list coll)) 1)
                                                           (enable prev-button) (enable next-button)))
+                                                      (update-multi-display editor (editor-get-edit-param editor :show-all))
                                                       )))
          )
     (set-g-component editor :current-text current-text)
@@ -231,10 +239,10 @@
                               (om-make-graphic-object 'om-item-view :size (omp 20 20))
                               (when (handle-multi-display (internal-editor editor))
                                 (om-make-di 'om-check-box :text " Show All" :size (omp 80 16) :font (om-def-font :font2)
-                                            :checked-p (show-all editor) :focus nil :default nil
+                                            :checked-p (editor-get-edit-param editor :show-all) :focus nil :default nil
                                             :di-action #'(lambda (item) 
-                                                           (update-multi-display editor (om-checked-p item))
-                                                           )
+                                                           (editor-set-edit-param editor :show-all (om-checked-p item))
+                                                           (update-multi-display editor (om-checked-p item)))
                                             ))
                               nil
                               current-text))
@@ -356,7 +364,7 @@
       (set-window-contents editor)
       (init-editor-window (internal-editor editor)))
     (update-collection-editor editor)
-    (update-multi-display editor (show-all editor)) ;; will add the new object to te multi-display list
+    (update-multi-display editor (editor-get-edit-param editor :show-all)) ;; will add the new object to te multi-display list
     (report-modifications editor)
     ))
 
