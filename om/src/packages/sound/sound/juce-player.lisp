@@ -29,7 +29,6 @@ Channels beyond the list will be routed to their direct output
 This will NOT apply on sounds that are accessed from file" 
                 'apply-audio-device-config)
 
-(add-preference-restore-action 'apply-audio-device-config)
 
 (defun default-audio-input-device ()
   (or (and *juce-player* (car (juce::audio-driver-input-devices *juce-player* *audio-driver*))) ""))
