@@ -168,7 +168,7 @@ Press 'space' to play/stop the sound file.
   
 (defmethod compute-frame-color ((self marker-frame) editor) 
   (declare (ignore editor))
-  (om-def-color :dark-blue))
+  (om-def-color :gray))
 
 (defmethod compute-frame-posy ((self marker-frame) editor) 100)
 (defmethod compute-frame-sizey ((self marker-frame) editor) 200)
