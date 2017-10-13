@@ -478,6 +478,7 @@
           (set-frame-attributes-from-editor frame editor)
           (insert-timed-point-in-time-sequence (object-value editor) frame)
           (report-modifications editor)
+          (update-timeline-editor editor) 
           (om-invalidate-view self)))
      
        (selection
