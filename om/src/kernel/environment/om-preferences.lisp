@@ -67,13 +67,13 @@
 ;;; ADD A NEW PREF IN MODULE
 ;;; we don't want the preference to be visible until this is called (e.g. the lib is loaded.)
 
-(defun put-default-value (pref)
+(defun put-default-value (pref &optional with-after-action)
   (unless (or (equal (pref-item-type pref) :title)
               (equal (pref-item-type pref) :action)
               (equal (pref-item-defval pref) :no-default))
     (unless (equal (pref-item-defval pref) (pref-item-value pref))
       (setf (pref-item-value pref) (pref-item-defval pref))
-      (maybe-apply-pref-item-after-fun pref))
+      (when with-after-action (maybe-apply-pref-item-after-fun pref)))
     ))
 
 (defun add-preference (module-id pref-id name type defval &optional doc after-fun)
@@ -153,7 +153,7 @@
   (loop for module in *user-preferences*
         when (or (not pref-module-id) (equal pref-module-id (pref-module-id module)))
         do (loop for pref in (pref-module-items module) do
-                 (put-default-value pref))))
+                 (put-default-value pref t))))
 
 
 
