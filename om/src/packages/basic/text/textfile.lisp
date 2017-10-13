@@ -80,9 +80,10 @@ As output it returns the contents of the text buffer as a list formatted accordi
 (defmethod om-init-instance ((self textbuffer) &optional initargs)
   (let ((supplied-contents (find-value-in-kv-list initargs :contents))
         (in-mode (find-value-in-kv-list initargs :input-mode)))
+    ;; in-mode exists only if the input is explicitely out... (not unsed anyway...)
     (when supplied-contents 
       ;; we're evaluating the box
-      (setf (contents self) (format-to-text-lines supplied-contents in-mode)))
+      (setf (contents self) (format-to-text-lines supplied-contents (input-mode self))))
     self))
 
 
