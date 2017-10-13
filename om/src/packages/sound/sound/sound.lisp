@@ -239,6 +239,59 @@ Press 'space' to play/stop the sound file.
 ;;; SOUND INIT RULES:
 ;;;=================================
 
+(defmethod (setf file-pathname) (new-path (self sound))
+  (let ((old-path (slot-value self 'file-pathname)))
+    (if (buffer self) (save-sound-data self new-path)
+      (if old-path (om-copy-file old-path new-path)))
+    (setf (slot-value self 'file-pathname) new-path)))
+
+
+(defmethod om-init-instance ((self sound) &optional initargs)
+  (call-next-method)
+  ;;; these are given to om-init-instance
+  ;;; the slots are already set
+  (let ((FILE-IN (find-value-in-kv-list initargs :file-pathname))
+        (access-from-file (find-value-in-kv-list initargs :access-from-file)))
+    
+    (if (access-from-file self) 
+        
+        (if (and (valid-pathname-p (file-pathname self)) 
+                 (file-exist-p (file-pathname self)))
+            
+            ;; We want to keep working with this file (and no buffer)
+            (if (buffer self)
+                
+                (release-sound-buffer self)
+              
+              (set-sound-info self (file-pathname self)))
+   
+          (om-beep-msg "Cannot use ACCESS-FROM-FILE without a valid file !!"))
+      
+      ;;; else we set the buffer (if needed)
+      (when (and (file-pathname self) 
+                 (not (buffer self)))
+        (set-sound-data self (file-pathname self)))
+      
+      )
+         
+    ;;; SET A PLAYER IN ANY CASE !
+    (if (and (file-pathname self) access-from-file)
+       
+        (setf (buffer-player self) (make-player-from-file (namestring (file-pathname self))))
+      
+      (when (buffer self) ;;; in principle at that point there should be a buffer..
+        (if (and (n-samples self) (n-channels self) (sample-rate self))
+            (setf (buffer-player self) (make-player-from-buffer 
+                                        (oa::om-pointer-ptr (buffer self)) 
+                                        (n-samples self) (n-channels self) (sample-rate self)))
+          (om-beep-msg "Incomplete info in SOUND object. Could not instanciate the player !!")
+          ))
+      )
+    
+    self))
+
+#|
+
 ;;; IF <SELF> + NO <FILE-PATHNAME>
 ;;; - access-from-file = T => SET FILE-PATHNAME and NO BUFFER
 ;;; - access-from-file = NIL => SET BUFFER and FILE-PATHNAME = NIL
@@ -253,17 +306,7 @@ Press 'space' to play/stop the sound file.
 ;;; - access-from-file = NIL => SET BUFFER
 
 
-(defmethod om-init-instance ((self sound) &optional initargs)
-  (call-next-method)
-  ;;; these are given to om-init-instance
-  ;;; the sound may OR NOT already contain FILE-PATHNAME and BUFFER
-  (let ((FILE-IN (find-value-in-kv-list initargs :file-pathname))
-        (access-from-file (find-value-in-kv-list initargs :access-from-file)))
-    (when (and FILE-IN (not (valid-pathname-p FILE-IN)))
-      (om-beep-msg "Wrong path as sound input: ~D" FILE-IN) 
-      (setf FILE-IN nil))
-    ;(print (list file-in (file-pathname self)))
-    (cond ((and FILE-IN 
+(cond ((and FILE-IN 
                 (file-pathname self) 
                 (string-equal (namestring (file-pathname self)) (namestring FILE-IN)))
            ;;; FILE-IN maches the current file
@@ -318,18 +361,7 @@ Press 'space' to play/stop the sound file.
            ;;; => if there was a buffer we just keep it
            )
           )
-         
-    ;;; SET A PLAYER IN ANY CASE !
-    (if (and (file-pathname self) access-from-file)
-        (setf (buffer-player self) (make-player-from-file (namestring (file-pathname self))))
-      (when (buffer self) ;;; in principle at that point there should be a buffer..
-        (if (and (n-samples self) (n-channels self) (sample-rate self))
-            (setf (buffer-player self) (make-player-from-buffer 
-                                        (oa::om-pointer-ptr (buffer self)) 
-                                        (n-samples self) (n-channels self) (sample-rate self)))
-          (om-beep-msg "Incomplete info in SOUND object. Could not instanciate the player !!")
-          )))
-    self))
+|#
 
 ;(defmethod initialize-instance :after ((self sound) &rest initargs)
 ;  (shared-initialize self t initargs))
