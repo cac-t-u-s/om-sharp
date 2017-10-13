@@ -70,6 +70,7 @@
 ;(defvar *midi-out-stream* nil)
 ; (portmidi-start)
 
+#|
 (defun portmidi-start (&optional (buffersize 1024))
   (unless (pm-time-started) (pm-time-start))
   ;(unless *midi-out-stream*
@@ -77,31 +78,37 @@
   ;                            (print "PortMidi: Could not open MIDI device!!!")
   ;                            (abort))))
   ;    (setf *midi-out-stream* (pm::pm-open-output 0 buffersize 0))))
-  )
+  
 
 (defun portmidi-stop ()
   ;(pm::pm-close *midi-out-stream*)
   ;(setf *midi-out-stream* nil)
   (when (pm-time-started) (pm-time-stop))
   t)
+|#
 
 ;;; used, e.g. to refresh the list of devices
-(defun portmidi-restart ()
+(defun portmidi-restart (&optional (print t))
   (portmidi-close-all-midi-ports)
   (om-stop-portmidi)
   (pm::pm-initialize)
-  (print "PortMIDI reinitialized.")
-  (let ((devices (list-devices)))
-    (if devices 
-        (print (format nil "PortMIDI - devices detected:~%~{~A~^~%~}" 
-                       (mapcar #'(lambda (device) (format nil "~s [~A]" (nth 4 device) 
-                                                         (cond ((and (nth 6 device) (nth 8 device)) "IN-OUT")
-                                                               ((nth 6 device) "INPUT")
-                                                               ((nth 8 device) "OUTPUT")
-                                                               (t "-"))))
-                               devices)))
-      (print "No MIDI devices detected"))
-    ))
+  (when print 
+    (om-lisp::om-print "initialized" "MIDI")
+    (let ((devices (list-devices)))
+      (if devices 
+          (om-lisp::om-print-format "Devices detected:~%~{     ~A~^~%~}" 
+                                    (list 
+                                     (mapcar #'(lambda (device) (format nil "[~A] ~A" 
+                                                                        (cond ((and (nth 6 device) (nth 8 device)) "IN-OUT")
+                                                                              ((nth 6 device) "INPUT")
+                                                                              ((nth 8 device) "OUTPUT")
+                                                                              (t "-"))
+                                                                        (nth 4 device) 
+                                                                        ))
+                                             devices))
+                                    "MIDI")
+        (om-print "No MIDI devices detected"))
+      )))
 
 ; (portmidi-restart)
 
