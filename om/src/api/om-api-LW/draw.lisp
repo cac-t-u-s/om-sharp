@@ -53,6 +53,7 @@
           om-draw-lines
           om-draw-dashed-line
           om-draw-rect
+          om-draw-rounded-rect
           om-draw-ellipse
           om-draw-arc
           om-draw-circle
@@ -266,7 +267,7 @@
    (abs w)
    (abs h)))
 
-(defun om-draw-rect (x y w h &key erasable angles line color fill style)
+(defun om-draw-rect (x y w h &key angles line color fill style)
   (multiple-value-bind (xx yy ww hh) (convert-rect x y w h)
   (apply 'gp:draw-rectangle 
          (append (list *curstream* (+ xx 0.5) (+ yy 0.5) (- ww 1) (- hh 1)
@@ -276,6 +277,48 @@
                        :thickness line :foreground (get-real-color color))
                  (format-line-style style)
                  ))))
+
+(defun om-draw-rounded-rect (x y w h &key (round 10) line color fill style)
+  (multiple-value-bind (xx yy ww hh) (convert-rect x y w h)
+    (apply 'gp:draw-path   
+           (append (list 
+                    *curstream*
+                    `((:move ,round 0) (:line ,(- ww round) 0)
+                      (:arc 
+                       ,(- ww (* 2 round) 1) 0
+                       ,(* round 2) ,(* round 2) 
+                       0 ,(/ pi 2)
+                       t)
+                      (:move ,(- ww 1) ,round) (:line ,(- ww 1) ,(- hh round))
+                      (:arc 
+                       ,(- ww (* 2 round) 1) ,(- hh (* 2 round) 1)
+                       ,(* round 2) ,(* round 2) 
+                       0 ,(/ pi -2)
+                       t)
+                      (:move ,(- ww round) ,(- hh 1)) (:line ,round ,(- hh 1))
+                      (:arc 
+                       0 ,(- hh (* 2 round) 1)
+                       ,(* round 2) ,(* round 2) 
+                       ,(/ pi -2) ,(/ pi -2)
+                       t)
+                      (:move 0 ,(- hh round)) (:line 0 ,round)
+                      (:arc 
+                       0 0
+                       ,(* round 2) ,(* round 2) 
+                       ,pi ,(/ pi -2)
+                       t)
+                      ;(:arc ,(- ww round 1) 0 ,(- round) ,round ,(/ pi -2) 0)
+                      ;(:line ,(- ww round 1) ,(- hh (* 2 round) 1))
+                      ;(:arc ,(- ww  (* round 2)) ,(- hh round 1) ,round ,round 0 ,(/ pi -2))
+                      )
+                    
+                    
+                    (+ xx 0.5) (+ yy 0.5)
+                    :filled fill :thickness line :foreground (get-real-color color))
+                   (format-line-style style)
+                   )
+                   )))
+  
 
 (defun om-draw-ellipse (x y rx ry &key fill)  
   (gp:draw-ellipse *curstream* x y rx ry :filled fill))
