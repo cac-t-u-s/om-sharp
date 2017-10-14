@@ -252,9 +252,9 @@
     (setf function-def
           `(defun ,(intern (string (compiled-fun-name self)) :om) (,.input-names) 
              (let* ,(reverse *let-list*) ,body)))
-      ;(format *om-stream* "~%------------------------------------------------------~%PATCH COMPILATION:~%")
+      ;(om-print-format "~%------------------------------------------------------~%PATCH COMPILATION:~%")
       ;(write function-def :stream *om-stream* :escape nil :pretty t)
-      ;(format *om-stream* "~%------------------------------------------------------~%~%")
+      ;(om-print-format "~%------------------------------------------------------~%~%")
     (compile (eval function-def))
     (setf *let-list* oldletlist)
     (setf (compiled? self) t)

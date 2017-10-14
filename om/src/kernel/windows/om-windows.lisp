@@ -166,8 +166,10 @@
 
 (add-preference :general :listener-on-top "Keep Listener in Front" :bool nil "(Does not apply to the current Listener window)")
 
+(defun get-listener () (car (om-get-all-windows 'om-listener)))
+
 (defun show-listener-win ()
-  (let ((listenerwin (car (om-get-all-windows 'om-listener))))
+  (let ((listenerwin (get-listener)))
     (if listenerwin (om-select-window listenerwin)
       (om-make-listener :title "OM Listener" 
                        ;:initial-lambda #'(lambda () (in-package :om-user))
@@ -176,6 +178,16 @@
                         :on-top (get-pref-value :general :listener-on-top)
                         ))))
 
+
+;(add-preference-section :appearance "Lisp")
+(add-preference :general :listener-font "Listener font" :font om-lisp::*listener-font* nil 'set-listener-font)
+
+(defun set-listener-font ()
+  (om-set-listener-font (get-pref-value :general :listener-font)))
+
+
+
+#|
 (defmethod font-command ((window om-listener))
   #'(lambda () (om-lisp::change-listener-font window)))
 
@@ -193,7 +205,7 @@
 
 (defmethod close-command ((window om-listener))
   #'(lambda () (om-lisp::listener-close window)))
-  
+|#
 
 (defun show-shell () (om-open-shell)) 
 
