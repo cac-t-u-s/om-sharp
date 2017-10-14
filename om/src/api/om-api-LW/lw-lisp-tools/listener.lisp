@@ -40,6 +40,7 @@
           om-make-listener
           om-listener-echo
           om-listener-abort
+          om-set-listener-font
           om-print om-print-format
           *om-stream*
           om-show-error-backtrace
@@ -57,17 +58,18 @@
 (defvar *om-stream* nil)
 (defparameter *om-prompt* "")
 
-(defparameter *listener-font* nil)
-;; do not work on mac...
+(defparameter *listener-font* (gp::make-font-description :family #+linux "Liberation Mono" #-linux  "Verdana" :size 10))
+
 
 ;; (defclass om-listener-pane (capi:listener-pane capi:collector-pane) ())
 
 
 (defun init-listener ()
-  (setq *listener-font* (or *listener-font* (gp::make-font-description :family #+linux "Liberation Mono" #-linux  "Verdana" :size 9)))
-  (setq *om-stream* (capi:collector-pane-stream (make-instance 'capi:collector-pane)))
+  ;(setq *om-stream* (capi:collector-pane-stream  (make-instance 'capi:collector-pane)))
+  (setq *om-stream* hcl::*background-output*)
   ;(setf *trace-output* *om-stream*)
-  (redef-print))
+  ;(redef-print)
+  )
 
 
 (defun redef-print ()
@@ -131,7 +133,9 @@
                                                            (lambda (window)
                                                              (declare (ignore window))
                                                              (capi:execute-with-interface *om-listener* (lambda () (in-package :om))))))))
+                     
                      (out (make-instance 'om-listener-out-pane :stream *om-stream* :echo-area t :font *listener-font*))
+                     
                      (commands (make-instance 'capi:row-layout 
                                               :description (list (make-instance 'capi::button :text "Clear Output"
                                                                                 :callback-type :none
@@ -160,7 +164,9 @@
                            )))
 
                 
-                (princ initial-prompt *om-stream*) (terpri *om-stream*)
+                (princ initial-prompt *om-stream*) 
+                (terpri *om-stream*)
+                
                 (when (ip win) 
                   (setf (capi::simple-pane-font (capi::editor-pane-echo-area (ip win))) *listener-font*))
                 win))
@@ -231,10 +237,11 @@
                                                                                
                                                                    ))
                                             
-                                            (make-instance 'capi::menu-item :title "Text Font" 
-                                                           :callback 'change-listener-font 
-                                                           :accelerator nil
-                                                           :callback-type :interface)))
+                                            ;(make-instance 'capi::menu-item :title "Text Font" 
+                                            ;               :callback 'choose-listener-font 
+                                            ;               :accelerator nil
+                                            ;               :callback-type :interface)
+                                            ))
                 (make-instance 'capi::menu :title "Lisp"
                                :items (list 
                                        (make-instance 'capi::menu-component 
@@ -375,14 +382,27 @@
   (om-abort-eval-process)
   (om-listener-echo "Aborted"))
 
-(defmethod change-listener-font ((self om-listener))
+
+(defmethod choose-listener-font ((self om-listener))
   (with-slots (ip op) self
     (let ((newfont (capi::prompt-for-font "" :font (capi::simple-pane-font op))))
-      (setf *listener-font* newfont)
+      
       (when ip (setf (capi::simple-pane-font ip) *listener-font*))
       (setf (capi::simple-pane-font op) *listener-font*)
       (setf (capi::simple-pane-font (capi::editor-pane-echo-area op)) *listener-font*)
       )))
+
+(defmethod update-listener-font ((self om-listener))
+  (with-slots (ip op) self
+    (when ip (setf (capi::simple-pane-font ip) *listener-font*))
+    (setf (capi::simple-pane-font op) *listener-font*)
+    (setf (capi::simple-pane-font (capi::editor-pane-echo-area op)) *listener-font*)
+    ))
+
+(defun om-set-listener-font (newfont)
+  (setf *listener-font* newfont)
+  (mapc 'update-listener-font (capi::collect-interfaces 'om-listener)))
+
 
 
 ;;;===========================

@@ -679,13 +679,13 @@
                                            :callback 'text-select-all 
                                            :accelerator #\a
                                            :callback-type :interface)
-                            (make-instance 
-                             'capi::menu-component 
-                             :items (list (make-instance 'capi::menu-item :title "Text Font"
-                                                         :callback-type :interface
-                                                         :callback 'change-text-edit-font
-                                                         :accelerator nil)
-                                          ))
+                            ;(make-instance 
+                            ; 'capi::menu-component 
+                            ; :items (list (make-instance 'capi::menu-item :title "Text Font"
+                            ;                             :callback-type :interface
+                            ;                             :callback 'change-text-edit-font
+                            ;                             :accelerator nil)
+                            ;              ))
                             (make-instance 
                              'capi::menu-component 
                              :items (list 

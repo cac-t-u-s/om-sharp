@@ -69,7 +69,7 @@
 (mapc #'(lambda (filename) (compile-if-needed-and-load 
                             (make-pathname :directory *lw-lisp-tools-directory* 
                                            :name filename))) 
-      '("textbuffer" "listener" "texteditor" "editor-find-dialogs" "find-definition" "eval-process" "output")) 
+      '("textbuffer" "listener" "texteditor" "editor-find-dialogs" "find-definition" "eval-process" "output"))
 
 
 
