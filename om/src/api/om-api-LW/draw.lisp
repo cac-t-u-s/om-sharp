@@ -227,19 +227,32 @@
                         ))
           ))
 
-(defmacro om-draw-string (x y str &key selected wrap)
-   `(if ,wrap
+(defun om-draw-string (x y str &key selected wrap font)
+  (if wrap
+      (let ((real-font (if font 
+                           (gp::find-best-font *curstream* font)
+                         (gp::get-port-font *curstream*))))
         (multiple-value-bind (left top right bottom)
-            (gp::get-string-extent *curstream* ,str)
-          (let ((text-list (wrap-text-for-pane *curstream* (substitute #\Space #\Tab ,str) :visible-width ,wrap))
+            (gp::get-string-extent *curstream* str real-font)
+          (let ((text-list (wrap-text-for-pane *curstream* str ;; (substitute #\Space #\Tab str) 
+                                               :visible-width wrap
+                                               :font real-font
+                                               ))
                 (text-h (- bottom top)))
-            (loop for line in text-list for yy = ,y then (+ yy text-h) do
-                  (gp:draw-string *curstream* line ,x yy :text-mode :default
-                                  ,.(if selected '(:block t :foreground :color_highlighttext :background :color_highlight) '(:block nil))))
-            ))
-      (gp:draw-string *curstream* (substitute #\Space #\Tab ,str) ,x ,y :text-mode :default
-                      ,.(if selected '(:block t :foreground :color_highlighttext :background :color_highlight) '(:block nil))
-                      )
+          (loop for line in text-list for yy = y then (+ yy text-h) do
+                (apply 'gp:draw-string  
+                       (append 
+                        (list *curstream* line x yy :text-mode :default)
+                        (if selected '(:block t :foreground :color_highlighttext :background :color_highlight) '(:block nil))
+                        (when font `(:font ,real-font))))
+                ))))
+      (apply 'gp:draw-string 
+             (append 
+              (list *curstream* str ;; (substitute #\Space #\Tab str) 
+                    x y :text-mode :default)
+              (if selected '(:block t :foreground :color_highlighttext :background :color_highlight) '(:block nil))
+              (when font `(:font ,(gp::find-best-font *curstream* font)))
+              ))
       ))
 
 ;; #-cocoa :operation #-cocoa (if erasable boole-eqv boole-1)
@@ -283,38 +296,34 @@
     (apply 'gp:draw-path   
            (append (list 
                     *curstream*
-                    `((:move ,round 0) (:line ,(- ww round) 0)
+                    `((:move ,round 0) 
+                      (:line ,(- ww round) 0)
                       (:arc 
-                       ,(- ww (* 2 round) 1) 0
+                       ,(- ww (* 2 round) 2) 0
                        ,(* round 2) ,(* round 2) 
-                       0 ,(/ pi 2)
-                       t)
-                      (:move ,(- ww 1) ,round) (:line ,(- ww 1) ,(- hh round))
+                       ,(/ pi 2) ,(/ pi -2)
+                       nil)
+                      (:line ,(- ww 2) ,(- hh round))
                       (:arc 
-                       ,(- ww (* 2 round) 1) ,(- hh (* 2 round) 1)
+                       ,(- ww (* 2 round) 2) ,(- hh (* 2 round) 1)
                        ,(* round 2) ,(* round 2) 
                        0 ,(/ pi -2)
-                       t)
-                      (:move ,(- ww round) ,(- hh 1)) (:line ,round ,(- hh 1))
+                       nil)
+                      (:line ,round ,(- hh 1))
                       (:arc 
-                       0 ,(- hh (* 2 round) 1)
+                       1 ,(- hh (* 2 round) 1)
                        ,(* round 2) ,(* round 2) 
                        ,(/ pi -2) ,(/ pi -2)
-                       t)
-                      (:move 0 ,(- hh round)) (:line 0 ,round)
+                       nil)
+                      (:line 1 ,round)
                       (:arc 
-                       0 0
+                       1 0
                        ,(* round 2) ,(* round 2) 
                        ,pi ,(/ pi -2)
-                       t)
-                      ;(:arc ,(- ww round 1) 0 ,(- round) ,round ,(/ pi -2) 0)
-                      ;(:line ,(- ww round 1) ,(- hh (* 2 round) 1))
-                      ;(:arc ,(- ww  (* round 2)) ,(- hh round 1) ,round ,round 0 ,(/ pi -2))
+                       nil)
                       )
-                    
-                    
                     (+ xx 0.5) (+ yy 0.5)
-                    :filled fill :thickness line :foreground (get-real-color color))
+                    :filled fill :closed fill :thickness line :foreground (get-real-color color))
                    (format-line-style style)
                    )
                    )))

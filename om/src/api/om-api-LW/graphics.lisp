@@ -60,6 +60,7 @@
                 om-color-g
                 om-color-b
                 om-color-a
+                om-color-null-p
                 om-def-color
 
                 om-make-font
@@ -68,10 +69,12 @@
                 om-font-family
                 om-font-size
                 om-font-style
-                om-string-size
                 om-def-font
                 om-font-lambda
-
+                
+                om-string-size
+                om-string-wrap
+                
                 om-correct-point
                 om-correct-font
                 om-correct-color
@@ -237,6 +240,8 @@
 (defun om-color-a (color)
    (color::color-alpha (omcolor-c color)))
 
+(defun om-color-null-p (color)
+  (= (color::color-alpha (omcolor-c color)) 0))
 
 (defun om-def-color (c)
   (case c
@@ -256,7 +261,7 @@
                                                                   (/ (om-color-g selectcolor) 2)
                                                                   (/ (om-color-b selectcolor) 2)
                                                                   0.7))))
-    ;;; supported symbols = :black :wite :red ...
+    ;;; supported symbols = :black :wite :red ... :transparent
     (otherwise (make-omcolor :c (color::get-color-spec c)))
     ))
 
@@ -303,16 +308,28 @@
         (t '(:plain))))
 
 
-(defun om-string-size (name &optional font)
-  (setf (capi::simple-pane-font *dummy-view*) (or font (om-def-font :font2)))
-  (if name (multiple-value-bind (left top right bottom)
-               (gp::get-string-extent *dummy-view* name)
-             (values (round (- right left)) (- bottom top)))
+(defun om-string-size (str &optional font)
+  ;(setf (capi::simple-pane-font *dummy-view*) (or font (om-def-font :font2)))
+  (if str 
+      (multiple-value-bind (left top right bottom)
+          (gp::get-string-extent   
+           *dummy-view* str
+           (gp::find-best-font *dummy-view* (or font (om-def-font :font2))))
+        (values (round (- right left)) (- bottom top)))
     (values 0 0)))
 
+; (om-string-size "W" (om-def-font :font2))
+; (om-string-wrap "dfghjklmùlkjhgf gfhjlkhg" 10 (om-def-font :font2))
 
-; (om-string-size "Hello" (om-make-font "arial" 10))
-; Myriad Web Pro
+(defun om-string-wrap (str width font)
+  (let* ((view (or *curstream* *dummy-view*))
+         (w (max width  (om-string-size "W" font))))
+  (capi::wrap-text-for-pane 
+   view str 
+   :visible-width w
+   :font (gp::find-best-font view font)
+   )))
+
 
 (defun om-def-font (f &key face size style)
   (let ((def-face #+mswindows "Calibri"  #+linux "Liberation Sans" #+cocoa "Verdana")
