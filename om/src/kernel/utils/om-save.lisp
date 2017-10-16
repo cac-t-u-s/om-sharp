@@ -159,12 +159,22 @@
 (defmethod om-load-from-id ((id (eql :point)) data)
   (apply 'om-make-point data))
 
-
 (defmethod omng-save ((self oa::omcolor))  
   `(:color ,(om-color-r self) ,(om-color-g self) ,(om-color-b self) ,(om-color-a self)))
 
 (defmethod om-load-from-id ((id (eql :color)) data)
     (apply 'om-make-color data))
+
+(defmethod omng-save ((self color-or-nil))  
+  `(:color-or-nil 
+    (:color ,(omng-save (color-or-nil-color self)))
+    (:t-or-nil ,(color-or-nil-t-or-nil self))))
+
+(defmethod om-load-from-id ((id (eql :color-or-nil)) data)
+  (make-color-or-nil 
+   :color (omng-load (find-value-in-kv-list data :color))
+   :t-or-nil (omng-load (find-value-in-kv-list data :t-or-nil))))
+
 
 (defmethod sethash ((self hash-table) (entry t) (value t))
   (setf (gethash entry self) value))

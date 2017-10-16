@@ -469,7 +469,7 @@
   (draw-mini-view object box x y w h time))
 
 (defmethod draw-temporal-box ((self OMBox) view x y w h &optional (time 0))
-  (when (color self)
+  (when (color-? (color self))
     (om-with-fg-color (om-make-color-alpha (color self) 0.9)
       (om-draw-rect x y w h :fill t)))
   (om-with-fg-color (om-def-color :white)

@@ -161,9 +161,6 @@
                              ))) 
 
 
-
-(defstruct number-in-range (min) (max))
-
 (defmethod make-preference-item ((type number-in-range) pref-item)
   (om-make-view 
    'om-view 
@@ -210,12 +207,22 @@
 (defmethod make-preference-item ((type (eql :color)) pref-item)
   (om-make-view 'color-view 
                 :size (om-make-point 50 16)
+                :with-alpha nil
                 :resizable :w
                 :color (pref-item-value pref-item)
                 :after-fun #'(lambda (item)
                                (setf (pref-item-value pref-item) (color item))
                                (maybe-apply-pref-item-after-fun pref-item))))
 
+(defmethod make-preference-item ((type (eql :color-a)) pref-item)
+  (om-make-view 'color-view 
+                :size (om-make-point 50 16)
+                :with-alpha t
+                :resizable :w
+                :color (pref-item-value pref-item)
+                :after-fun #'(lambda (item)
+                               (setf (pref-item-value pref-item) (color item))
+                               (maybe-apply-pref-item-after-fun pref-item))))
 
 
 (defmethod make-preference-item ((type (eql :action)) pref-item)
@@ -278,17 +285,21 @@
          (doc-text (when (pref-item-doc pref-item)
                      (om-make-di 
                       'om-simple-text 
-                      :text (string+ "" (pref-item-doc pref-item)) 
+                      :text (pref-item-doc pref-item) 
                       :font (om-def-font :font1)
-                      :size (om-make-point (list :string (format nil "  ~A  " (pref-item-doc pref-item))) nil))
+                      :size (om-make-point (list :string (format nil "~A" (pref-item-doc pref-item))) 
+                                           (if (equal (pref-item-type pref-item) :title) 20 nil)))
                      )))
-   
+    
+    (if (and (equal (pref-item-type pref-item) :title) doc-text)
         (om-make-layout 
-         'om-row-layout :name (pref-item-id pref-item)   ; :dimensions '(2 2) :ratios '((nil 1) (nil 1))
-         :subviews (list main-text g-item doc-text))
-        
-        ))
-
+         'om-column-layout :name (pref-item-id pref-item)
+         :subviews (list main-text doc-text))
+      (om-make-layout 
+       'om-row-layout :name (pref-item-id pref-item)
+       :subviews (list main-text g-item doc-text))
+      )
+    ))
 
 
 ;;;===========================================================================

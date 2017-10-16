@@ -6,18 +6,25 @@
 
 (defclass OMComment (OMBox) ())
 
-(add-preference-section :appearance "Comments")
-(add-preference :appearance :comment-color "Color" :color (om-def-color :black))
-(add-preference :appearance :comment-style "Font" :font (om-def-font :font1 :style '(:italic)))
+(add-preference-section :appearance "Comments" "- Default values for comments with unspecified or disabled attributes")
+(add-preference :appearance :comment-fgcolor "Text color" :color (om-def-color :black))
+(add-preference :appearance :comment-bgcolor "Background color" :color-a (om-def-color :transparent))
+(add-preference :appearance :comment-font "Font" :font (om-def-font :font1 :style '(:italic)))
 
 (defmethod get-properties-list ((self OMComment))
   '(("Appearance" ;;; category
-               (:bgcolor "Background color" :color color)
+               (:fgcolor "Text color" color-or-nil text-color)
+               (:bgcolor "Background color" color-or-nil color)
                (:border "Border" :bool border)
-               (:font "Text font" :font text-font) ;;; id text type slot-name
-               (:fgcolor "Text color" :color text-color)
-               ;(:align "Text align" (:left :center :right) text-align)
+               (:roundness "Corner" :number roundness (0 20 0))
+               (:text-font "Text font" :font text-font) ;;; id text type slot-name
+               (:align "Text align" (:left :center :right) text-align)
                )))
+
+(defmethod box-draw-color ((box OMComment)) 
+  (if (and (color box) (color-? (color box)))
+      (color-color (color box))
+    (get-pref-value :appearance :comment-bgcolor)))
 
 (defmethod omNG-make-new-comment (text pos)
   (let* ((comment-lines (om-text-to-lines text))
@@ -94,7 +101,7 @@
       (values (value (object self)) 3 8 w (* h (length lines))))))
 
 (defmethod draw-border ((self OMComment) x y w h style)  
-  (om-with-line '(1 2)
+  (om-with-line-size '(2 2)
     (om-draw-rect x y w h :line (if (numberp style) style 1) :color (om-def-color :gray) :angles :round)))
 
 (defmethod enter-new-comment ((self om-view) position)

@@ -57,7 +57,7 @@
   (let ((io-hspace 4))
     (om-with-fg-color (om-def-color :dark-gray)
       ;;; interior
-      (when (box-draw-color box)
+      (when (color-? (color box))
         (om-draw-rect 0 io-hspace (w self) (- (h self) (* 2 io-hspace)) 
                       :color (box-draw-color box)
                       :angles :round
