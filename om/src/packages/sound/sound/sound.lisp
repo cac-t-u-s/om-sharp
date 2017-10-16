@@ -240,10 +240,11 @@ Press 'space' to play/stop the sound file.
 ;;;=================================
 
 (defmethod (setf file-pathname) (new-path (self sound))
-  (let ((old-path (slot-value self 'file-pathname)))
-    (if (buffer self) (save-sound-data self new-path)
-      (if old-path (om-copy-file old-path new-path)))
-    (setf (slot-value self 'file-pathname) new-path)))
+  (when new-path
+    (let ((old-path (slot-value self 'file-pathname)))
+      (if (buffer self) (save-sound-data self new-path)
+        (if old-path (om-copy-file old-path new-path)))))
+  (setf (slot-value self 'file-pathname) new-path))
 
 
 (defmethod om-init-instance ((self sound) &optional initargs)
