@@ -215,10 +215,10 @@
   (when (get-g-component editor :x-grid-max-numbox)
     (set-value (get-g-component editor :x-grid-max-numbox) (cadr values)))
     
-  (when (get-g-component editor :center-x-numbox)
-    (set-min-max (get-g-component editor :center-x-numbox)
-                 :min (car values)
-                 :max (cadr values)))
+  ;(when (get-g-component editor :center-x-numbox)
+  ;  (set-min-max (get-g-component editor :center-x-numbox)
+  ;               :min (car values)
+  ;               :max (cadr values)))
 
   (update-lines editor)
   
@@ -226,16 +226,16 @@
 
 (defmethod set-y-grid ((editor 3d-viewer-editor) values)
   (setf (y-grid editor) values)
-  (editor-set-edit-param editor :y-grid values)
+  
   (when (get-g-component editor :y-grid-min-numbox)
     (set-value (get-g-component editor :y-grid-min-numbox) (car values)))
   (when (get-g-component editor :y-grid-max-numbox)
     (set-value (get-g-component editor :y-grid-max-numbox) (cadr values)))
   
-  (when (get-g-component editor :center-y-numbox)
-    (set-min-max (get-g-component editor :center-y-numbox)
-                 :min (car values)
-                 :max (cadr values)))
+  ;(when (get-g-component editor :center-y-numbox)
+  ;  (set-min-max (get-g-component editor :center-y-numbox)
+  ;               :min (car values)
+  ;               :max (cadr values)))
 
   (update-lines editor)
   
@@ -303,7 +303,7 @@
                                              :bg-color (om-def-color :white) :border t
                                              :decimals 1
                                              :value (car (center obj))
-                                             :min-val (car (x-grid editor)) :max-val (cadr (x-grid editor))
+                                             ;:min-val (car (x-grid editor)) :max-val (cadr (x-grid editor))
                                              :db-click t
                                              :after-fun #'(lambda (item)
                                                             (setf (car (center obj)) (get-value item))
@@ -316,7 +316,7 @@
                                              :bg-color (om-def-color :white) :border t
                                              :decimals 1
                                              :value (cadr (center obj))
-                                             :min-val (car (y-grid editor)) :max-val (cadr (x-grid editor))
+                                             ;:min-val (car (y-grid editor)) :max-val (cadr (x-grid editor))
                                              :db-click t
                                              :after-fun #'(lambda (item)
                                                             (setf (cadr (center obj)) (get-value item))
@@ -740,7 +740,7 @@
      (float (* (scaler-x 3DV) (nth 0 (center 3DV))))
      (float (* (scaler-y 3DV) (nth 1 (center 3DV))))
      (float (* (scaler-z 3DV) (nth 2 (center 3DV))))
-     '(1.0 1.0 1.0) 1.0 20.0)
+     '(1.0 1.0 1.0) 1.0 10.0)
     
     (gl-user::initialize-transform (gl-user::object-transform self))
     (gl-user::translate (gl-user::object-transform self) 
