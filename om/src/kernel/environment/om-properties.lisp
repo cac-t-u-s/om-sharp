@@ -95,6 +95,17 @@
 ;;; USED IN EDITORS OR INSPECTOR WINDOWS
 ;;;===========================================
 
+;;; special types
+(defstruct number-in-range (min) (max))
+(defstruct number-or-nil (t-or-nil) (number) (min) (max))
+
+(defstruct color-or-nil (t-or-nil) (color))
+;;; for compatibility with simple colors...
+(defmethod color-? ((self color-or-nil)) (color-or-nil-t-or-nil self))
+(defmethod color-color ((self color-or-nil)) (color-or-nil-color self))
+(defmethod color-? ((self oa::omcolor)) t)
+(defmethod color-color ((self oa::omcolor)) self)
+
 ;;; general case = text box
 (defmethod make-prop-item (type prop-id object &key default update)
   (om-make-view 'click-and-edit-text 
@@ -220,24 +231,49 @@
                                  )))))
 
 
+(defmethod object-accept-transparency ((self t)) t)
+
 (defmethod make-prop-item ((type (eql :color)) prop-id object &key default update)
+  (om-make-view 'color-view 
+                :size (om-make-point 50 16)
+                :resizable :w
+                :with-alpha (object-accept-transparency object)
+                :enabled (and (valid-property-p object prop-id) (get-property object prop-id))
+                :color (and (valid-property-p object prop-id)
+                            (or (get-property object prop-id)
+                                (om-def-color :light-gray)))
+                :after-fun #'(lambda (item)
+                               (set-property object prop-id (color item))
+                               (when update (update-view update object))
+                               )))
+
+(defmethod make-prop-item ((type (eql 'color-or-nil)) prop-id object &key default update)
   (let* (colorview colorbox)
     (setf colorview 
           (om-make-view 'color-view 
                         :size (om-make-point 50 16)
                         :resizable :w
-                        :enabled (and (valid-property-p object prop-id) (get-property object prop-id))
+                        :with-alpha (object-accept-transparency object)
+                        :enabled (and (valid-property-p object prop-id)
+                                      (get-property object prop-id)
+                                      (color-? (get-property object prop-id)))
                         :color (and (valid-property-p object prop-id)
-                                    (or (get-property object prop-id)
+                                    (if (get-property object prop-id) 
+                                        (color-color (get-property object prop-id))
                                         (om-def-color :light-gray)))
                         :after-fun #'(lambda (item)
-                                       (set-property object prop-id (color item))
+                                       (set-property 
+                                        object prop-id 
+                                        (make-color-or-nil :color (color item)
+                                                           :t-or-nil t))
                                        (om-set-check-box colorbox t)
                                        (when update (update-view update object))
                                        )))
     (setf colorbox 
           (om-make-di 'om-check-box 
-                      :checked-p (and (valid-property-p object prop-id) (get-property object prop-id))
+                      :checked-p (and (valid-property-p object prop-id)
+                                      (get-property object prop-id)
+                                      (color-? (get-property object prop-id)))
                       :text ""
                       :resizable :w
                       :size (om-make-point 20 14)
@@ -247,7 +283,8 @@
                                      (om-invalidate-view colorview)
                                      (set-property  
                                       object prop-id 
-                                      (if (om-checked-p item) (color colorview) nil))
+                                      (make-color-or-nil :color (color colorview)
+                                                         :t-or-nil (om-checked-p item)))
                                      (when update (update-view update object))
                                      )))
     (om-make-layout 'om-row-layout

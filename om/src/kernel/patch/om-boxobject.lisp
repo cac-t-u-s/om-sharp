@@ -456,13 +456,19 @@
   (let ((frame (frame box))
         (str (if (eval-flag box) 
                  ".oO__.." 
-               (object-box-label object))))
-    (om-with-font 
-     (om-def-font :font1 :face "arial" :size 18 :style '(:bold))
-     (om-with-fg-color (or color (om-make-color 0.6 0.6 0.6 0.5))
-       (om-draw-string 10 (max 22 (+ 6 (/ (h frame) 2))) 
-                       str))
-     )))
+               (object-box-label object)))
+        (font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))))
+    (multiple-value-bind (sw sh) (om-string-size str font)
+      (let* ((lines (om-string-wrap str (- (w frame) 18) font))
+             (y0 (max 24 (- (+ 6 (/ (h frame) 2))
+                            (round (* (1- (length lines)) sh) 2)))))
+        (om-with-font font 
+                      (om-with-fg-color (or color (om-make-color 0.6 0.6 0.6 0.5))
+                        (loop for line in lines for y = y0 then (+ y sh) do
+                              (om-draw-string 10 y line)
+                              ))
+                      )
+        ))))
 
 
 (defmethod draw-mini-text ((object t) (box OMBox) x y w h &optional time)
@@ -490,12 +496,14 @@
        (draw-label box object :color (om-make-color 0.6 0.6 0.6 0.2))
        (draw-mini-text object box 0 0 (w frame) (h frame) (box-play-time frame)))
       (:mini-view 
-       (draw-label box object) ; :color (om-make-color 0.6 0.6 0.6 0.2)
-       (ensure-cache-display-draw box object)
        (om-with-clip-rect frame  0 4 (w frame) (- (h frame) 8)
-         (draw-mini-view object box 0 4 (w frame) (- (h frame) 8) (box-play-time frame))))
+         (draw-label box object) ; :color (om-make-color 0.6 0.6 0.6 0.2)
+         (ensure-cache-display-draw box object)
+         (om-with-clip-rect frame  0 4 (w frame) (- (h frame) 8)
+         (draw-mini-view object box 0 4 (w frame) (- (h frame) 8) (box-play-time frame)))))
       (:hidden 
-       (draw-label box object))
+       (om-with-clip-rect frame  0 4 (w frame) (- (h frame) 8)
+         (draw-label box object)))
       (otherwise nil) 
       )
 

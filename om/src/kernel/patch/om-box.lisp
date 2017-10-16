@@ -24,7 +24,9 @@
     (selected :initform nil :accessor selected :initarg :selected)
     (cache-display :initform nil :accessor cache-display)
     (border :initform 1.5 :accessor border :initarg :border)
-    (color :initform (om-def-color :light-gray) :accessor color :initarg :color)
+    (roundness :initform nil :accessor roundness :initarg :border)
+    (color :accessor color :initarg :color
+           :initform (make-color-or-nil :color (get-pref-value :appearance :box-color) :t-or-nil t))
     (text-font :initform nil :accessor text-font :initarg :text-font)
     (text-color :initform nil :accessor text-color :initarg :text-color)
     (text-align :initform :left :accessor text-align :initarg :text-align)
@@ -32,7 +34,7 @@
     (show-name :initform t :accessor show-name :initarg :show-name)
     (show-markers :accessor show-markers :initform t)
     ;;; REACTIVE FLAGS
-   (state-lock :accessor state-lock :initform nil) ;; this box is the event source and his evaluation is locked
+   (gen-lock :accessor gen-lock :initform nil) ;; this box is the event source and his evaluation is locked
    (gen-flag :accessor gen-flag :initform nil) ;; this box has already been valuated during this generation 
    (push-tag :accessor push-tag :initform nil) ;; this box is tagged as being is in the notification path for the current event
     )
@@ -41,13 +43,43 @@
 
 
 (add-preference-module :appearance "Appearance")
-(add-preference-section :appearance "Boxes")
+(add-preference-section :appearance "Boxes" "- Default values for boxes with unspecified or disabled attributes")
 (add-preference :appearance :box-size "Size (%)" '(25 50 75 100 125 150 175 200) 100)
-(add-preference :appearance :box-color "Color" :color (om-def-color :gray))
+(add-preference :appearance :box-color "Color" :color-a (om-def-color :light-gray))
 (add-preference :appearance :box-border "Border" :bool t)
+(add-preference :appearance :roundness "Corner roundness" (make-number-in-range :min 0 :max 20) 6)
 (add-preference :appearance :box-font "Text font" :font (om-def-font :font1))
 (add-preference :appearance :box-align "Text align" '(:left :center :right) :left)
 
+;;;=============================
+; PROPERTIES
+;;;=============================
+
+(defmethod object-name-in-inspector ((self OMBox)) (format nil "~A box" (reference self)))
+
+(defmethod get-properties-list ((self OMBox))
+  '(("Appearance" ;;; category
+               ;(:icon "Icon position" (:left :top :noicon) icon-pos)
+               (:color "Color" color-or-nil color)
+               (:border "Border" :bool border)
+               (:roundness "Corner" :number roundness (0 20 0))
+               (:text-font "Text font" :font text-font) ;;; id text type slot-name
+               (:align "Text align" (:left :center :right) text-align)
+               )
+    ("Structure" ;;; category
+               (:group-id "Group/Track" (:none 1 2 3 4 5 6 7 8) group-id)
+               )))
+
+(defmethod update-container-groups ((self t)) self)
+
+(defmethod set-property ((object OMBox) (prop-id (eql :group-id)) val)
+  (call-next-method)
+  (when (container object) (update-container-groups (container object))))
+
+(defmethod close-internal-element :after ((self OMBox)) 
+  (close-inspector-for-box self))
+
+;;;=============================
 
 (defgeneric gen-code (box &optional numout)  
    (:documentation "Used to generate Lisp code from a box call."))
@@ -153,19 +185,22 @@
       (redraw-connections (frame self)))))
 
 (defmethod minimum-size ((self OMBox))
-  (let ((text-size (om-string-size (name self) (text-font self))))
-  (om-make-point (+ 10 
-                    (max (+ 8 text-size (if (equal (icon-pos self) :left) 20 0))
+  (multiple-value-bind (w h) 
+      (om-string-size (name self) (text-font self))
+    (om-make-point (+ 10 
+                      (max (+ 8 w (if (equal (icon-pos self) :left) 20 0))
                          22
                          (* (length (inputs self)) 10)
                          (* (box-n-outs self) 10)))
-                 (+ 28 (if (equal (icon-pos self) :top) 20 0))
+                 (+ h 16 (if (equal (icon-pos self) :top) 20 0))
                  )))
 
 (defmethod maximum-size ((self OMBox))
-  (if (equal (icon-pos self) :left)
-      (om-make-point 500 (+ (get-icon-size self) 8))
-    (om-make-point 500 200)))
+   (multiple-value-bind (w h) 
+      (om-string-size (name self) (text-font self))   
+     (if (equal (icon-pos self) :left)
+         (om-make-point 500 (max (+ (get-icon-size self) 8) (+ h 16)))
+       (om-make-point 500 200))))
       
 (defmethod get-icon-size ((self OMBox)) 20)
 (defmethod default-size ((self OMBox)) (minimum-size self))
@@ -203,32 +238,7 @@
 (defmethod editor-box-selection ((editor OMEditor) (box null))
   (unless (om-shift-key-p) (select-unselect-all editor nil)))
 
-;;;=============================
-; PROPERTIES
-;;;=============================
 
-(defmethod object-name-in-inspector ((self OMBox)) (format nil "~A box" (reference self)))
-
-(defmethod get-properties-list ((self OMBox))
-  '(("Appearance" ;;; category
-               ;(:icon "Icon position" (:left :top :noicon) icon-pos)
-               (:color "Color" :color color)
-               (:border "Border" :bool border)
-               (:text-font "Text font" :font text-font) ;;; id text type slot-name
-               (:align "Text align" (:left :center :right) text-align)
-               )
-    ("Structure" ;;; category
-               (:group-id "Group/Track" (:none 1 2 3 4 5 6 7 8) group-id)
-               )))
-
-(defmethod update-container-groups ((self t)) self)
-
-(defmethod set-property ((object OMBox) (prop-id (eql :group-id)) val)
-  (call-next-method)
-  (when (container object) (update-container-groups (container object))))
-
-(defmethod close-internal-element :after ((self OMBox)) 
-  (close-inspector-for-box self))
 
 ;;;===========================
 ;;; CHACHE DISPLAY SYSTEM

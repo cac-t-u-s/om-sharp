@@ -15,15 +15,21 @@
    (graphic-connection :initform nil :accessor graphic-connection)))
 
 
-(add-preference-section :appearance "Connections")
-(add-preference :appearance :connection-color "Color" :color (om-def-color :black))
+(add-preference-section :appearance "Connections" "- Default values for connections with unspecified or disabled attributes")
+(add-preference :appearance :connection-color "Color" :color (om-def-color :dark-gray))
 (add-preference :appearance :connection-style "Syle" '(:normal :line :curved) :normal)
 
 (defmethod get-properties-list ((self OMConnection))
   '(("Connection properties" ;;; category
-               (:color "Color" :color color) ;;; id text type 
-               (:style "Style" (:normal :line :curved) style)
+               (:color "Color" color-or-nil color) ;;; id text type 
+               (:style "Style" (:normal :line :curved nil) style)
                (:reactive "Reactive (r)" :bool reactive))))
+
+;;; called in the properties management / inspector
+(defmethod object-accept-transparency ((self OMConnection)) nil)
+
+
+
 
 (defmethod omng-make-new-connection ((from box-output) (to box-input) &optional args)
   (if (recursive-connection-p (box from) (box to))
@@ -247,7 +253,10 @@
 (defmethod om-draw-contents ((self graphic-connection))
   (let ((line-w (if (selected (object self)) 2.5 1.5))
         (reactive (and (reactive (from (object self)))
-                       (reactive (to (object self))))))
+                       (reactive (to (object self)))))
+        (color (if (and (color (object self)) (color-? (color (object self))))
+                   (color-color (color (object self)))
+                 (get-pref-value :appearance :connection-color))))
     (when reactive
       (om-draw (draw-points self) 
                :color (om-make-color-alpha (om-def-color :dark-red) ; (or (color (object self)) (om-def-color :dark-gray))
@@ -255,8 +264,7 @@
                :line (1+ line-w)))
 
     (om-draw (draw-points self) 
-             :color (om-make-color-alpha (or (color (object self)) (om-def-color :dark-gray))
-                                         (if (equal (state self) :disabled) 0.3 1))
+             :color (om-make-color-alpha color (if (equal (state self) :disabled) 0.3 1))
              :line line-w)
   ;(om-draw (draw-points self) 
   ;         :color (om-make-color-alpha (om-def-color :light-gray) ; (or (color (object self)) (om-def-color :red))

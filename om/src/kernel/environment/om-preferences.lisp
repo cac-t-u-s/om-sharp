@@ -100,7 +100,7 @@
    
 ;;; hack
 ;;; todo: check that this section does not already exist
-(defun add-preference-section (module-id name &optional sub-items)
+(defun add-preference-section (module-id name &optional doc sub-items)
   (let* ((module (find-pref-module module-id))
          (existing-item (find name (remove-if-not 
                                     #'(lambda (item) (equal (pref-item-id item) :title)) 
@@ -110,7 +110,7 @@
         (setf (pref-item-value existing-item) sub-items)
       (setf (pref-module-items module)
             (append (pref-module-items module)
-                    (list (make-pref-item :id :title :name name :type :title :visible t :value sub-items)))))))
+                    (list (make-pref-item :id :title :name name :type :title :visible t :value sub-items :doc doc)))))))
 
 ;;; will use the preference section's sub-items to sort
 (defun order-preference-module (module)

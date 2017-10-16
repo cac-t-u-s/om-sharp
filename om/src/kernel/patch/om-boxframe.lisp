@@ -432,21 +432,38 @@
     (boxframe-draw-contents self (object self))))
 
 (defmethod draw-border ((self OMBox) x y w h style)
-  (om-draw-rounded-rect x y w h :line (if (numberp style) style 1.5) :color (om-def-color :gray) :round 6))
+  (let ((round (or (roundness self) (get-pref-value :appearance :roundness))))
+    (if (plusp round)
+        (om-draw-rounded-rect x y w h :line (if (numberp style) style 1.5) :color (om-def-color :gray) 
+                              :round (min (round h 2) round))
+      (om-draw-rect x y w h :line (if (numberp style) style 1.5) :color (om-def-color :gray)))))
 
-(defmethod box-draw-color ((self OMBox)) (color self))
+(defmethod box-draw-color ((box OMBox)) 
+  (if (and (color box) (color-? (color box)))
+      (color-color (color box))
+    (get-pref-value :appearance :box-color)))
+
 (defmethod box-draw-text-color ((self OMBox)) (text-color self))
 
 (defmethod boxframe-draw-contents ((self OMBoxFrame) (box OMBox))
   (let ((icon-size (get-icon-size box))
-        (io-hspace 4))
+        (io-hspace 4)
+        (color (box-draw-color box)))
     (om-with-fg-color (om-def-color :dark-gray)
+   
       ;;; interior
-      (when (box-draw-color box)
-        (om-draw-rect 0 io-hspace (w self) (- (h self) (* 2 io-hspace)) 
-                      :color (box-draw-color box)
-                      :angles :round
-                      :fill t))
+      (unless (om-color-null-p color)
+        (let ((round (or (roundness box) (get-pref-value :appearance :roundness))))
+          (if (plusp round)
+              (om-draw-rounded-rect 0 io-hspace (w self) (- (h self) (* 2 io-hspace)) 
+                                    :color color 
+                                    :fill t
+                                    :round (min (round (h self) 2) round))
+            (om-draw-rect 0 io-hspace (w self) (- (h self) (* 2 io-hspace)) 
+                          :color color
+                          :angles :round
+                          :fill t))
+          ))
     
       (when (selected box)
         (om-draw-rect 0  io-hspace (w self) (- (h self) (* 2 io-hspace)) 

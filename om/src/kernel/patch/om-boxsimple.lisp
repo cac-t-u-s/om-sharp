@@ -12,7 +12,7 @@
 
 (defmethod get-properties-list ((self OMValueBox))
   (list '("Appearance" ;;; category
-                       (:color "Color" :color color)
+                       (:color "Color" 'color-or-nil color)
                        (:border "Border" :bool border)
                        (:font "Text font" :font text-font) ;;; id text type slot-name
                        (:align "Text align" (:left :center :right) text-align)
