@@ -44,7 +44,9 @@
 
 (defmethod om-init-instance ((self data-stream) &optional initargs)
   (call-next-method)
-  (setf (frames self) (sort (remove nil (frames self)) '< :key 'item-get-time)) 
+  (if initargs 
+      (setf (frames self) (sort (remove nil (om-copy (frames self))) '< :key 'item-get-time)) 
+    (setf (frames self) (sort (remove nil (frames self)) '< :key 'item-get-time))) 
   (let ((frames (find-value-in-kv-list initargs :frames)))
     (when frames (setf (default-frame-type self) (type-of (car frames))))
     (mapc #'(lambda (f) (setf (attributes f) nil)) frames))
