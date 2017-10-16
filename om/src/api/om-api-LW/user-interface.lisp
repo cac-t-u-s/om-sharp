@@ -154,29 +154,53 @@
    (after-fun :accessor after-fun :initform nil :initarg :after-fun)))
 
 (defmethod om-draw-contents ((self om-pick-color-view))
-  (om-draw-rect 0 0 (om-width self) (om-height self) :fill nil :color (om-def-color :gray)))
+  (om-draw-rect 0 0 (om-width self) (om-height self) :fill nil :color (om-def-color :gray))
+  (when (= 0 (om-color-a (color self)))
+    (om-draw-line 0 0 (om-width self) (om-height self) :color (om-def-color :gray))
+    (om-draw-line 0 (om-height self) (om-width self) 0 :color (om-def-color :gray))
+    ))
 
+(defmethod set-color ((self om-pick-color-view) (color omcolor))
+  (om-set-bg-color self color)
+  (setf (color self) color)
+  (when (after-fun self) (funcall (after-fun self) self)))
+      
 (defmethod om-view-click-handler ((self om-pick-color-view) pos)
   (declare (ignore pos))
   (let ((color (make-omcolor :c (prompt-for-color "Color Chooser" :color (omcolor-c (color self))))))
-    (om-set-bg-color self color)
-    (setf (color self) color)
-    (when (after-fun self) (funcall (after-fun self) self))))
+    (set-color self color)))
 
 
 #+cocoa
-(defun om-choose-color-dialog (&key color owner)
-  (let ((win (om-make-window 'om-dialog ;:size (om-make-point 240 110)
-                             :resize nil :window-title "Choose a New Color..."
-                             :win-layout 'om-row-layout))
-        (col (or color (om-def-color :black)))
-        coloritem)
+(defun om-choose-color-dialog (&key color alpha owner)
+  (let* ((win (om-make-window 'om-dialog ;:size (om-make-point 240 110)
+                              :resize nil :window-title "Choose a New Color..."
+                              :win-layout 'om-row-layout))
+         (col (or color (om-def-color :black)))
+         (coloritem (om-make-view 'om-pick-color-view
+                                 :position (om-make-point 40 20)
+                                 :size (om-make-point 60 60)
+                                 :color col
+                                 :bg-color col)))
     (om-add-subviews win 
-                     (setf coloritem (om-make-view 'om-pick-color-view
-                                       :position (om-make-point 40 20)
-                                       :size (om-make-point 60 60)
-                                       :color col
-                                       :bg-color col))
+                     
+                     (if alpha
+                         (om-make-layout 'om-column-layout
+                                         :subviews (list 
+                                                    coloritem
+                                                    (om-make-di 'om-slider ;; :direction :vertical ;; does not work... ?
+                                                                :range '(0 255)
+                                                                :value (round (* (om-color-a (color coloritem)) 255))
+                                                                :size (omp nil 20)
+                                                                :di-action #'(lambda (item) 
+                                                                               (let ((newcolor (make-omcolor :c (color::color-with-alpha 
+                                                                                                                 (omcolor-c (color coloritem)) 
+                                                                                                                 (/ (om-slider-value item) 255.0)))))
+                                                                                 (set-color coloritem newcolor)
+                                                                                 ))
+                                                                )))
+                       coloritem)
+                     
                      (om-make-layout 'om-column-layout
                                      :subviews (list 
                                              (om-make-di 'om-button :position (om-make-point 130 26) :size (om-make-point 80 24)

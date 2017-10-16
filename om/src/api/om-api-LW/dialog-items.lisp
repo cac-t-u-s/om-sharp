@@ -707,7 +707,7 @@
 
 ;--------om-slider 
 
-(defclass om-slider (om-standard-dialog-item slider) 
+(defclass om-slider (om-standard-dialog-item capi::slider) 
   ((increment :initarg :increment :initform 1 :accessor increment))
   (:default-initargs 
    :callback 'om-slider-item-action
