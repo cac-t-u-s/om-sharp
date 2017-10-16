@@ -73,7 +73,7 @@
   (unless (push-tag self)
     (setf (push-tag self) t)
     (omNG-box-value self)
-    (setf (state-lock self) t)
+    (setf (gen-lock self) t)
     (let ((listeners (loop for o in (outputs self) 
                            for n = 0 then (1+ n) 
                            when (and (reactive o) (find n (routed-o self) :test '=))
@@ -81,7 +81,7 @@
                                         when (reactive (to c)) 
                                         collect (box (to c))))))
       (mapcar 'omr-notify listeners))
-    (setf (state-lock self) nil)
+    (setf (gen-lock self) nil)
     ))
 
 
@@ -150,9 +150,9 @@
     (let ((listeners (get-listeners self)))
       (let ((push? (process-input self (inputs self))))
         (when (and listeners push?)
-          (setf (state-lock self) t)
+          (setf (gen-lock self) t)
           (mapcar 'omr-notify listeners)
-          (setf (state-lock self) nil)
+          (setf (gen-lock self) nil)
           )
         ))))
 

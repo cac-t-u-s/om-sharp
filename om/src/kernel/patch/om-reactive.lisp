@@ -10,9 +10,14 @@
   (remove-duplicates 
    (loop for o in (outputs self) when (reactive o)
          append (loop for c in (connections o) 
-                      when (reactive (to c)) 
+                      when (input-will-react (to c))
                       collect (box (to c))))))
   
+
+(defmethod input-will-react ((self box-input))
+  (and (reactive self)
+       (not (equal (lock-state (box self)) :locked))))
+       
 ;;;==================
 ;;; NOTIFICATION
 ;;;==================
@@ -37,9 +42,9 @@
           (setf *current-eval-panel* ,panel)
           (when ,eval-box (omng-box-value ,box)) ; => only when an input is modified
           (when (get-listeners ,box)
-            (setf (state-lock ,box) t)
+            (setf (gen-lock ,box) t)
             (OMR-Notify ,box)
-            (setf (state-lock ,box) nil))
+            (setf (gen-lock ,box) nil))
           (if ,panel (clear-ev-once ,panel)))
          
          ;;;`(OMR-Notify ,box) )
@@ -50,7 +55,7 @@
 (defmethod clear-ev-once :around ((self OMBox))
   ;(print "clear")
   (call-next-method)
-  (setf (state-lock self) nil)
+  (setf (gen-lock self) nil)
   (setf (gen-flag self) nil)
   (setf (push-tag self) nil)
   (when (frame self) (om-invalidate-view (frame self))))
@@ -92,23 +97,23 @@
     (unwind-protect 
         (progn 
           (temp-box-color self *eval-color* *box-color-time*)
-          (if (state-lock self)
+          (if (gen-lock self)
               (current-box-value self numout)
             (let ((val (call-next-method)))
               ;(when (or 
               ;       (not (gen-flag self))
               ;       (and (equal (lock-state self) :eval-once) (not (ev-once-flag self)))
               ;       (equal (lock-state self) nil))
-              ;  (setf (state-lock self) t)
+              ;  (setf (gen-lock self) t)
               ;  (self-notify self)
               ;  ;(print (list "REF" (reference self)))
-              ;  (setf (state-lock self) nil)
+              ;  (setf (gen-lock self) nil)
               ;  )
               (setf (gen-flag self) t)
               val)))
       (temp-box-color self bcolor *box-color-time*)))
   #-debug-mode
-  (if (state-lock self)
+  (if (gen-lock self)
       (current-box-value self numout)
     (let ((val (call-next-method)))
       (setf (gen-flag self) t)
@@ -122,9 +127,9 @@
 ;;; when a box is evaluated (on request)
 (defmethod eval-box :around ((self OMBox))
   (call-next-method)
-  (setf (state-lock self) t)
+  (setf (gen-lock self) t)
   (self-notify self)
-  (setf (state-lock self) nil))
+  (setf (gen-lock self) nil))
 
 
 ;;; when an input is edited
