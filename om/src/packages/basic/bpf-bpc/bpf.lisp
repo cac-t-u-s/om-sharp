@@ -7,7 +7,7 @@
 
 (defclass InternalBPF (named-object schedulable-object object-with-action)
    ((point-list :initform nil :accessor point-list)
-    (color :initform nil :accessor color :initarg :color)
+    (color :initform (om-def-color :dark-gray) :accessor color :initarg :color)
     (decimals :initform 2 :accessor decimals :initarg :decimals :documentation "precision (integer) [0-10]")))
 
 ;;; POINTS IN BPF
@@ -57,7 +57,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 (defmethod bpf-p ((self bpf)) t)
 (defmethod bpf-p ((self t)) nil)  
   
-(defmethod additional-class-attributes ((self BPF)) '(decimals color name action))
+(defmethod additional-class-attributes ((self BPF)) '(decimals color name action interpol interpol-time))
 
 (defmethod initialize-instance ((self bpf) &rest args) 
   (call-next-method)
@@ -104,9 +104,9 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
           ((minusp (decimals self))
            (om-beep-msg "BPF decimals must be a positive integer! (set to 0)")
            (setf (slot-value self 'decimals) 0))
-           ;((> (decimals self) 10)
-           ; (om-beep-msg "BPF only support up to 10 decimals!")
-           ; (setf (slot-value self 'decimals) 10))
+          ((> (decimals self) 10)
+           (om-beep-msg "BPF only support up to 10 decimals!")
+           (setf (slot-value self 'decimals) 10))
           )))
   
 (defmethod (setf decimals) ((decimals t) (self bpf))
