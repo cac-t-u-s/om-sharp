@@ -99,9 +99,9 @@
           (om-lisp::om-print-format "Devices detected:~%~{     ~A~^~%~}" 
                                     (list 
                                      (mapcar #'(lambda (device) (format nil "[~A] ~A" 
-                                                                        (cond ((and (nth 6 device) (nth 8 device)) "IN-OUT")
-                                                                              ((nth 6 device) "INPUT")
-                                                                              ((nth 8 device) "OUTPUT")
+                                                                        (cond ((and (nth 6 device) (nth 8 device)) "in-out")
+                                                                              ((nth 6 device) "in")
+                                                                              ((nth 8 device) "out")
                                                                               (t "-"))
                                                                         (nth 4 device) 
                                                                         ))
