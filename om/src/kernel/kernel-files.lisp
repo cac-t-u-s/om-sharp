@@ -38,9 +38,12 @@
       (pushnew func-name *init-func-list*)))
 
 (defun om-init-funcall ()
-  (print "== START OM INIT CALLS ==")
-  (mapc #'(lambda (x) (print x) (funcall x)) (reverse *init-func-list*))
-  (print "== END OM INIT CALLS =="))
+  (om-print-dbg "START OM INIT CALLS")
+  (mapc #'(lambda (x) 
+            (om-print-dbg (string x)) 
+            (funcall x))
+        (reverse *init-func-list*))
+  (om-print-dbg "END OM INIT CALLS"))
 
 
 
@@ -66,6 +69,7 @@
         
         "environment/om-doc-manager"
         "environment/om-session"
+        "environment/om-properties"        
         "environment/om-preferences" 
         "environment/om-package"
         "environment/om-library"
@@ -105,7 +109,6 @@
         "basic/om-data-structures"
         "basic/om-file-utils"
         "basic/om-write-to-disk"
-        "basic/om-properties"        
         "basic/om-collections"
         "basic/om-networking"
 
