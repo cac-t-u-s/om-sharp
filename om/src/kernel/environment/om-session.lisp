@@ -141,7 +141,7 @@
 ;;; will be printed in the Listener
 (defparameter *om-startup-string* 
   (format nil 
-          "==================================~%o7 v. ~D~%r. ~A~%================================="
+          "===========================~%o7 v. ~D~%r. ~A~%==========================="
           *version-string* *release-date*))
 
 ; (start-openmusic)
@@ -168,6 +168,8 @@
   (setf *print-case* :downcase)
   (setf *catch-errors* nil)
   (in-package :om)
+  (show-listener-win)
+
   ;;(om::set-language *release-language*)
   (register-om-icons)
     
@@ -189,7 +191,7 @@
   
   ;;;(in-package :om-user)
   (om-set-listener-font (get-pref-value :general :listener-font))
-  (show-listener-win)
+  
 
   (capi::execute-with-interface om-lisp::*om-listener* #'(lambda () (in-package :om)))
   )
