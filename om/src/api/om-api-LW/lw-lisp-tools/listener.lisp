@@ -65,12 +65,13 @@
 
 
 (defun init-listener ()
-  ;(setq *om-stream* (capi:collector-pane-stream  (make-instance 'capi:collector-pane)))
-  (setq *om-stream* hcl::*background-output*)
+  (setq *om-stream* (capi:collector-pane-stream  (make-instance 'capi:collector-pane)))
+  ;(setq *om-stream* hcl::*background-output*)
   ;(setf *trace-output* *om-stream*)
-  ;(redef-print)
+  (redef-print)
   )
 
+;(print "test" hcl::*background-output*)
 
 (defun redef-print ()
   (let ((lispworks::*HANDLE-WARN-ON-REDEFINITION* nil))
@@ -134,7 +135,9 @@
                                                              (declare (ignore window))
                                                              (capi:execute-with-interface *om-listener* (lambda () (in-package :om))))))))
                      
-                     (out (make-instance 'om-listener-out-pane :stream *om-stream* :echo-area t :font *listener-font*))
+                     (out (make-instance 'om-listener-out-pane 
+                                         :stream *om-stream* 
+                                         :echo-area t :font *listener-font*))
                      
                      (commands (make-instance 'capi:row-layout 
                                               :description (list (make-instance 'capi::button :text "Clear Output"
@@ -155,7 +158,7 @@
                            :title (or title "OM Listener")
                            :best-x (or x 100)
                            :best-y (or y (round (- (capi::screen-height (capi:convert-to-screen)) 250)))
-                           :best-width (or width 360) :best-height (or height 200)
+                           :best-width (or width 420) :best-height (or height 200)
                            :destroy-callback (lambda (window) (setf om-lisp::*om-listener* nil))
                            :auto-menus nil
                            ;:activate-callback (lambda (window activatep) 

@@ -174,7 +174,7 @@
       (om-make-listener :title "OM Listener" 
                        ;:initial-lambda #'(lambda () (in-package :om-user))
                         :initial-prompt *om-startup-string*
-                        :height 200
+                        :height 200 
                         :on-top (get-pref-value :general :listener-on-top)
                         ))))
 
