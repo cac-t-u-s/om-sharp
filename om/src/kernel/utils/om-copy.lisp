@@ -21,7 +21,9 @@
 (defmethod om-copy ((self oa::omcolor))
   (om-make-color (om-color-r self) 
                  (om-color-g self) 
-                 (om-color-b self)))
+                 (om-color-b self)
+                 (om-color-a self)
+                 ))
 
 (defmethod om-copy ((self oa::om-pointer))
   (oa::om-retain self)
