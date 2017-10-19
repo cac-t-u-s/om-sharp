@@ -212,6 +212,7 @@
                                    :unit :ms :bg-color (om-def-color :white) :bottom-p nil 
                                    :snap-to-grid (snap-to-grid self) :onset-p nil))
          (timeline-views nil)
+         (left-item-w 0)
          (foldable-containers nil))
     (loop for obj in (editor-get-all-time-sequences container-editor) 
           for i = 0 then (+ i 1) do
@@ -243,6 +244,7 @@
                                                (list timeline-item timeline-view))
                                                ;(list timeline-item fold-icon timeline-view)) ;; (om-make-view 'om-view :size (omp 10 10))
                                               foldable-container))))
+            (setq left-item-w (om-width timeline-item)) 
             (pushr timeline-view timeline-views)
             (pushr fold-group foldable-containers)))
     
@@ -263,7 +265,7 @@
                                             :subviews
                                             (list
                                              ;;; a dummy view to take the same size as the timeline-item
-                                             (make-timeline-left-item container-editor 0)
+                                             (om-make-view 'om-view :size (omp left-item-w nil)) 
                                              time-ruler)
                                             :ratios '(0.001 1)))))))
       (setf (time-ruler self) time-ruler)
