@@ -60,6 +60,7 @@
 
 (defmethod get-box-value ((self OMComment)) nil)
 
+(defmethod eval-box ((self OMComment)) nil)
 
 ;(defun str-without-nl (str)
 ;  (map 'string  #'(lambda (x) (if (equal x #\Newline) #\$ x)) str))
