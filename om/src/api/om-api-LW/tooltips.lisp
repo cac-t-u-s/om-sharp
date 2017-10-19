@@ -187,7 +187,7 @@
                    (ttw view) (+ 20 (if (listp text)
                                         (loop for line in text maximize (om-string-size line *tt-font*))
                                       (om-string-size text *tt-font*)))
-                   (tth view) (+ 10 (* 10 (if (listp text) (length text) 1)))
+                   (tth view) (+ 6 (* 12 (if (listp text) (length text) 1)))
                    )
              (om-start-transient-drawing view 
                                          #'(lambda (view pos size) (tooltip-draw view))
