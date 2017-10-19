@@ -169,7 +169,7 @@
                              :date (om-random 0.0 60000.0)
                              :messages (loop for i from 0 to (random 6) append
                                              (list (list "/foo/b/c" (random 20) (random 20.0) (random 20.0))
-                                                   (list "/without/nested/bundle" 
+                                                   (list "/a/param" 
                                                     (random 60.0)
                                                     ;(loop for i from 0 to (random 3) collect 
                                                     ;      (list "/control/a" (random 20)))
