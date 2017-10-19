@@ -71,13 +71,18 @@
 (defmethod display-modes-for-object ((self data-stream))
   '(:hidden :text :mini-view))
 
+
+(defmethod get-cache-display-for-draw ((self data-stream))
+  (let ((pos-list (mapcar #'(lambda (f) (getf (attributes f) :posy)) (frames self))))
+    (list (or (list-max pos-list) 0) (or (list-min pos-list) 100))))
+
 (defmethod draw-mini-view ((self data-stream) (box t) x y w h &optional time)
   (let ((display-cache (get-display-draw box)))
     (om-with-fg-color (om-def-color :dark-blue)
       (multiple-value-bind (fx ox)
           (conversion-factor-and-offset 0 (get-obj-dur self) w x)
         (multiple-value-bind (fy oy) 
-            (conversion-factor-and-offset 100 -100 (- h 20) (+ y 10))
+            (conversion-factor-and-offset (car display-cache) (cadr display-cache) (- h 20) (+ y 10))
           (loop for frame in (data-stream-get-frames self) do
                 (om-draw-circle (+ ox (* fx (or (date frame) 0))) (+ oy (* fy (getf (attributes frame) :posy 0))) 
                                 2 :fill t)))))))

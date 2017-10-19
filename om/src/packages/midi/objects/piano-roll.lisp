@@ -118,8 +118,7 @@
   (call-next-method))
 
 (defmethod finalize-data-frame ((frame midi-note) &rest args) 
-  (let ((posy (or (getf args :posy) 
-                  (get-frame-attribute frame :posy))))
+  (let ((posy (or (getf args :posy) (get-frame-attribute frame :posy))))
     (setf (pitch frame) (round posy))
     ))
 
@@ -286,6 +285,8 @@
 ;;;======================================
 (defmethod display-modes-for-object ((self piano-roll))
   '(:hidden :text :mini-view))
+
+;; (defmethod get-cache-display-for-draw ((self piano-roll)) (list 30 100)) 
 
 (defmethod draw-mini-view ((self piano-roll) (box t) x y w h &optional time)
   (multiple-value-bind (fx ox) 

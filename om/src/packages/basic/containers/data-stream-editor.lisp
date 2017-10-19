@@ -260,11 +260,11 @@
 
 (defmethod compute-frame-posy ((self data-frame) editor) 
   (case (editor-get-edit-param editor :display-mode) 
-    (:bubbles (om-random -50 50))
+    (:bubbles (or (get-frame-attribute self :posy) (om-random 0 90)))
     (otherwise 60)))
 
 (defmethod compute-frame-sizey ((self data-frame) editor) 
-  (max 10 (* 2 (data-size self))))  ;;; 4 = arbitrary
+  (max 10 (* 1.5 (data-size self))))  ;;; arbitrary 
 
 (defmethod get-frame-attribute ((self data-frame) attribute &optional editor)
   (unless (attributes self) 
