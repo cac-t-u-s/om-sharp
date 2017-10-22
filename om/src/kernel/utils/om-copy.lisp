@@ -34,24 +34,34 @@
 (defmethod om-copy ((self standard-object)) 
   (clone-object self))
 
+(defmethod excluded-slots-for-copy ((from t)) nil)
+
+(defmethod additional-slots-for-copy ((from t)) 
+  (additional-class-attributes from))
+
 ;;; the slot must exit in the target object
+;;; .. and not be excluded!
 (defmethod condition-for-copy-slot ((from t) (to t) slot)
-  (slot-exists-p to (slot-definition-name slot)))
+  (and (slot-exists-p to (slot-definition-name slot))
+       (or (slot-definition-initargs slot)
+           (member (slot-definition-name slot) (additional-slots-for-copy from)))
+       (not (member (slot-definition-name slot) (excluded-slots-for-copy from)))
+       ))
 
 ;;; OMObject copy/save only the slot with initargs
 (defmethod condition-for-copy-slot ((from OMObject) (to t) slot)
   (and (call-next-method) (slot-definition-initargs slot)))
 
 (defmethod clone-object ((object standard-object) &optional clone)
-  ;(print (list "OBJECT" object))
+  ;(om-print-dbg "=================== OBJECT ~A" (list object))
   (let ((new-object (or clone (clos::allocate-instance (class-of object)))))
     (loop for slot in (class-instance-slots (class-of object))
           when (condition-for-copy-slot object new-object slot)
-          do  ;(print (list "SLOT" (slot-definition-name slot) (om-copy (slot-value object (slot-definition-name slot)))))
+          do  ; (om-print-dbg "SLOT ~A" (list (slot-definition-name slot)))
           (setf (slot-value new-object (slot-definition-name slot)) 
                 (om-copy (slot-value object (slot-definition-name slot)))))
     (initialize-instance new-object)
-    new-object))
+    (om-init-instance new-object)))
 
 
 #|

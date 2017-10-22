@@ -5,11 +5,13 @@
 
 (in-package :om)
 
-(defclass InternalBPF (named-object schedulable-object object-with-action)
+(defclass internalBPF (named-object schedulable-object object-with-action)
    ((point-list :initform nil :accessor point-list)
     (color :initform (om-def-color :dark-gray) :accessor color :initarg :color)
     (decimals :initform 2 :accessor decimals :initarg :decimals :documentation "precision (integer) [0-10]")))
 
+(defmethod additional-slots-for-copy ((self internalBPF)) '(point-list))
+  
 ;;; POINTS IN BPF
 ;;; VIRTUALLY IMPLEMENTS TIMED-ITEM INTERFACE
 ;;; - adds the 'type' slot
@@ -59,6 +61,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
   
 (defmethod additional-class-attributes ((self BPF)) '(decimals color name action interpol interpol-time))
 
+;;; decimals will be set because it is initarg
 (defmethod initialize-instance ((self bpf) &rest args) 
   (call-next-method)
   (check-decimals self)
