@@ -52,8 +52,11 @@
   (update-window-name editor))
 
 
-(defun draw-h-grid-line (view y) (om-draw-line 0 y (w view) y))
-(defun draw-v-grid-line (view x) (om-draw-line x 0 x (h view)))
+(defun draw-h-grid-line (view y) 
+  (om-draw-line 0 y (w view) y))
+
+(defun draw-v-grid-line (view x) 
+  (om-draw-line x 0 x (h view)))
 
 (defmethod draw-patch-grid ((self patch-editor-view))
   (let ((d 50))

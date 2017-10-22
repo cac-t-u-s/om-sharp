@@ -442,16 +442,18 @@
    
     (om-with-font (om-def-font :font1) 
                   ;;; AXES & Grid
-                  (om-with-fg-color (om-def-color :light-gray)
+                  (om-with-fg-color (om-def-color :dark-gray)
                     (let ((center (list (x-to-pix self 0) (y-to-pix self 0))))
                       (when (and (> (cadr center) 0) (< (cadr center) (h self)))
                         (om-draw-line 0 (cadr center) (w self) (cadr center)))
                       (when (and (> (car center) 0) (< (car center) (h self)))
                         (om-draw-line (car center) 0 (car center) (h self))))
                     (when (editor-get-edit-param editor :grid)
-                      (om-with-line '(2 2)
+                      ;(om-with-line '(2 2)  ;; seems tpo cost a lot in drawing...
+                      (om-with-fg-color (om-make-color 0.95 0.95 0.95)
                         (draw-grid-from-ruler self (x-ruler self))
-                        (draw-grid-from-ruler self (y-ruler self)))
+                        (draw-grid-from-ruler self (y-ruler self))
+                        )
                       ))
 
                   (mapc #'(lambda (elt) (draw-background-element elt self editor x y xmax ymax)) 
