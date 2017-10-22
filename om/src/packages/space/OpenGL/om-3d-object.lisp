@@ -33,6 +33,7 @@
    (glvertexes :accessor glvertexes :initarg :glvertexes :initform nil))
   (:default-initargs :use-display-list nil))
 
+;;; for 3D objects we decide to copy only the initargs (as for omobjects)
 (defmethod condition-for-copy-slot ((from om-3D-object) (to t) slot)
   (and (call-next-method) (slot-definition-initargs slot)))
 

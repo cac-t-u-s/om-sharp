@@ -85,8 +85,8 @@
          (rep (access-value object slot-name val)))
     (when (equal rep :invalid) 
       (format nil "No method to set property ~A in object ~A" prop-id object))
-    (when (slot-exists-p object slot-name)
-      (om-init-instance object (list (list (intern-k slot-name) val))))
+    ;(when (slot-exists-p object slot-name)
+    ;  (om-init-instance object (list (list (intern-k slot-name) val))))
     ))
 
 

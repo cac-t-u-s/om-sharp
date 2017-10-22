@@ -12,7 +12,8 @@
 (defclass timed-item ()
   ((item-time :initform nil :accessor item-time :initarg :item-time)
    (item-internal-time :initform nil :accessor item-internal-time :initarg :item-internal-time)
-   (item-type :initform nil :accessor item-type :initarg :item-type)))
+   (item-type :initform nil :accessor item-type :initarg :item-type)
+   ))
 
 
 (defmethod item-get-time ((self timed-item)) (item-time self))
@@ -42,7 +43,7 @@
 ; - Si interpol sorties de l'objet sont les interpolations (x y z t types internal times)
 
 (defclass time-sequence (timed-object)
-  ((time-types :initform nil :accessor time-types :initarg :time-types) ;; this slot shall probably disappear..
+  ((time-types :initform nil :accessor time-types) ; :initarg :time-types) ;; this slot shall probably disappear..
    (duration :initform 0 :accessor duration :initarg :duration)
    (interpol :initform nil :accessor interpol :initarg :interpol)
    (interpol-time :initform 50 :accessor interpol-time :initarg :interpol-time)))
@@ -257,6 +258,7 @@
 
 ; Successive points sets of which the first and last times are known.
 ; (If possible avoid copy of the points...)
+#|
 (defun get-time-segments (points)
   (let ((rep (list (list (om-copy (car points))))))
     (loop for pt in (cdr points) do
@@ -268,6 +270,20 @@
         (setf rep (cdr rep))
       (setf (car rep) (reverse (car rep))))
     (reverse rep)))
+|#
+
+(defun get-time-segments (points)
+  (let ((rep (list (list (car points)))))
+    (loop for pt in (cdr points) do
+          (push pt (car rep))
+          (when (item-get-time pt)
+            (setf (car rep) (reverse (car rep)))
+            (push (list pt) rep)))
+    (if (= 1 (length (car rep))) ;; last point had a time
+        (setf rep (cdr rep))
+      (setf (car rep) (reverse (car rep))))
+    (reverse rep)))
+
 
 (defun calc-constant-time-intermediate-values (begin end n)
   (if (= begin end)
@@ -287,29 +303,41 @@
 
 ;todo clean and avoid calls to om-copy
 (defmethod time-sequence-update-internal-times ((self time-sequence) &optional (interpol-mode :constant-speed) (duration 10000) (modif-time nil))
-  ;this function create a list of times for all timed points even if they are nil.
+  ;this function creates a list of times for all timed points even if they are nil.
   ;It can do with constant time or constant speed interpolations (interpol-mode :constant-speed :constant-time "default")
   ;If the time of the first point is not specified, it will use zero
   ;If the time of the last point is not specified, it will use the default duration optional arg or the length of the previous timed segment
   ;(order-points-by-time self)
+  
   (with-schedulable-object 
    self
+   
+   ;; reset the internal times
    (set-internal-times self (copy-list (time-sequence-get-times self)))
+   
    (let ((points (time-sequence-get-timed-item-list self)))
+     
      (when points
+     
        (let ((tmp-points
               (if (= 1 (length points))
-                  ;;the list contains only one point then return a time of zero or the existing time
-                  (let ((pt (om-copy (car points))))
-                    (item-set-time pt (or (item-get-time (car points)) 0))
-                    (list pt))
+                
+                  ;;the list contains only one point then return0 or the existing time
+                  ;(let ((pt (om-copy (car points))))
+                  ;  (item-set-time pt (or (item-get-time (car points)) 0))
+                  ;  (list pt))
+                  (list (or (item-get-time (car points)) 0))
+                
                 ;;the list contains more than one point
                 (let ((seg-list (get-time-segments points)))
-                  ;; set first and last times if NIL
+                  
+                  ;; first and time is NIL
                   (unless (item-get-time (car (car seg-list)))
                     (item-set-time (car (car seg-list)) 0.0))
+                  
+                  ;; last time is NIL
                   (unless (item-get-time (last-elem (last-elem seg-list)))
-                    ;;; only 1 segment : arbirary end time
+                    ;;; only 1 segment : arbirary end time at 'duration'
                     (if (= 1 (length seg-list))
                         (item-set-time (last-elem (last-elem seg-list)) (+ (item-get-time (car (last-elem seg-list))) duration))
                       ;; set the same duration as the previous segment
@@ -318,27 +346,48 @@
                                         (+ (item-get-time (car (last-elem seg-list)))
                                            (- (item-get-time (last-elem prev-segment)) 
                                               (item-get-time (car prev-segment))))))))
+
                   ;; fill between segments
-                  (let ((replist (list (om-copy (car (car seg-list))))))  
-                    (loop for seg in seg-list do
-                          (let ((timestamps (if (equal interpol-mode :constant-time)
-                                                ;;; constant duration between points
-                                                (calc-constant-time-intermediate-values (item-get-time (car seg))
-                                                                                        (item-get-time (last-elem seg))
-                                                                                        (length seg))
-                                              ;;; constant speed between points
-                                              (calc-constant-speed-intermediate-values seg)
-                                              )))
-                            (loop for pt in (butlast (cdr seg)) 
-                                  for time in (butlast (cdr timestamps))
-                                  do (let ((newpt (om-copy pt)))
-                                       (item-set-time newpt time)
-                                       (push newpt replist)
-                                       ))
-                            (push (om-copy (last-elem seg)) replist)
-                            ))    
-                    (reverse replist))))))
-         (set-internal-times self (mapcar #'item-get-time tmp-points)))))
+                  ;(let ((replist (list (om-copy (car (car seg-list))))))  
+                  ;  (loop for seg in seg-list do
+                  ;        (let ((timestamps (if (equal interpol-mode :constant-time)
+                  ;                              ;;; constant duration between points
+                  ;                              (calc-constant-time-intermediate-values (item-get-time (car seg))
+                  ;                                                                      (item-get-time (last-elem seg))
+                  ;                                                                      (length seg))
+                  ;                            ;;; constant speed between points
+                  ;                            (calc-constant-speed-intermediate-values seg)
+                  ;                            )))
+                  ;          (loop for pt in (butlast (cdr seg)) 
+                  ;                for time in (butlast (cdr timestamps))
+                  ;                do (let ((newpt (om-copy pt)))
+                  ;                     (item-set-time newpt time)
+                  ;                     (push newpt replist)
+                  ;                     ))
+                  ;          (push (om-copy (last-elem seg)) replist)
+                  ;          ))    
+                  ;  (reverse replist))
+
+                  (cons (item-get-time (car (car seg-list))) ;; we ensured it has a time...
+                               (loop for seg in seg-list append
+                                     (let ((timestamps (if (equal interpol-mode :constant-time)
+                                                           ;;; constant duration between points
+                                                           (calc-constant-time-intermediate-values (item-get-time (car seg))
+                                                                                                   (item-get-time (last-elem seg))
+                                                                                                   (length seg))
+                                                         ;;; constant speed between points
+                                                         (calc-constant-speed-intermediate-values seg)
+                                                         )))
+                                       (cdr timestamps))))
+               
+                ))))
+         
+         ;;; set the new list of times as internal times
+         ;(set-internal-times self (mapcar #'item-get-time tmp-points))
+         (set-internal-times self tmp-points)
+         
+         )))
+
    (update-obj-dur self)
    (update-time-types self)
    ))

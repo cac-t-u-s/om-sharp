@@ -239,7 +239,6 @@
   (unless (om-shift-key-p) (select-unselect-all editor nil)))
 
 
-
 ;;;===========================
 ;;; CHACHE DISPLAY SYSTEM
 ;;;===========================

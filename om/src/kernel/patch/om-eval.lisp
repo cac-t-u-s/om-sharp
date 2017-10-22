@@ -155,10 +155,12 @@
       (setf (eval-flag self) t)
       (om-invalidate-view (frame self))
       (let ((new-val 
-               (cond ((equal (lambda-state self) :lambda) 
-                      (multiple-value-list (box-lambda-value self)))
-                     (t (multiple-value-list (boxcall-value self)))
-                     )))
+             (cond ((equal (lambda-state self) :lambda) 
+                    (multiple-value-list (box-lambda-value self)))
+                   
+                   ;;; general case here:
+                   (t (multiple-value-list (boxcall-value self)))
+                   )))
           (when (equal (lock-state self) :eval-once)
             ;;; first evaluation in this generation: set the value and flag
             (setf (ev-once-flag self) t))

@@ -157,9 +157,9 @@
 
 ;;; called after slots are set (including in OM)
 ;;; or when a new slot is set (e.g. slot box, property, etc.) 
-;;; <initargs> = NIL for save/load
+;;; <initargs> = NIL for save/load/copy
 ;;; <initargs> = all initargs in MAKE-VALUE / list incl. connected initargs MAKE-VALUE-FROM-MODEL
-;;; <initargs> = only the specific initarg e.g. in set-property
+;;; ////// <initargs> = only the specific initarg e.g. in set-property ///// NOT ANYMORE !!
 (defmethod om-init-instance ((self t) &optional initargs) self)
 
 
@@ -195,7 +195,7 @@
                                       :key 'car)))
     ;(print args)
     ;(print supplied-initargs)
-    ;(print supplied-other-args)    
+    ;(print (list classname supplied-other-args))    
     (om-init-instance 
      (let ((obj (apply 'make-instance (cons classname (reduce 'append supplied-initargs)))))
        (set-value-slots obj supplied-other-args)
@@ -427,6 +427,10 @@
   (let ((newbox (call-next-method)))
     (setf (value newbox) (om-copy (value self)))
     newbox))
+
+;(defmethod after-copy-action ((self OMBoxEditCall) &optional connections) 
+;  (unless (find 'connections (inputs self))
+;    (setf (lock-state self) t)))
 
 (defmethod om-view-doubleclick-handler ((self OMObjectBoxFrame) pos) 
   (or (apply-in-area self 'click-in-area pos)

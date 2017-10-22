@@ -289,9 +289,9 @@ Outputs
         (yp (y-points self))
         (xlist (if (or x1 x2) (om-scale xp (or x1 (car xp)) (or x2 (last-elem xp))) xp))
         (ylist (if (or y1 y2) (om-scale yp (or y1 (car yp)) (or y2 (last-elem yp))) yp)))
-   ;(om-init-instance bpf `((:action ,(action self)) (:color ,(color self))))
-   (make-instance (class-of self) :x-points xlist :y-points ylist 
-                            :decimals (decimals self)
-                            :action (action self) :color (color self))))
+   (om-init-instance
+    (make-instance (class-of self) :x-points xlist :y-points ylist 
+                   :decimals (decimals self)
+                   :action (action self) :color (color self)))))
 
 
