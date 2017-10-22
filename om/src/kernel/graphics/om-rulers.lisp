@@ -72,7 +72,7 @@
 (defmethod (setf v2) (val (self x-ruler-view)) (setf (x2 self) val))
 (defmethod (setf v2) (val (self y-ruler-view)) (setf (y2 self) val))
 
-(defmethod ruler-value-to-pix ((self x-ruler-view) v) (x-to-pix self v))
+(defmethod ruler-value-to-pix ((self x-ruler-view) v) (x-to-pix self v) )
 (defmethod ruler-value-to-pix ((self y-ruler-view) v) (y-to-pix self v))
 (defmethod ruler-value-at-pos ((self x-ruler-view) pix-pos) (pix-to-x self (om-point-x pix-pos)))
 (defmethod ruler-value-at-pos ((self y-ruler-view) pix-pos) (pix-to-y self (om-point-y pix-pos)))
@@ -203,7 +203,9 @@
           to (* (floor (v2 ruler) unit-dur) unit-dur)
           by unit-dur do
           (let ((v (ruler-value-to-pix ruler line)))
-            (draw-grid-line-from-ruler self ruler v)))))
+            (draw-grid-line-from-ruler self ruler v)
+            ))
+    ))
 
 
 (defmethod om-view-click-handler ((self ruler-view) pos)
