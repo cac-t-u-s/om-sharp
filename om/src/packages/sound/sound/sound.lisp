@@ -11,36 +11,40 @@
 
 ;;; use as :ptr for OM-SOUND-BUFFER
 (defun make-audio-buffer (nch size)
-  (fli::allocate-foreign-object :nelems nch
-                                :type :pointer 
-                                :initial-contents (loop for c from 0 to (1- nch) 
-                                                        collect (fli::allocate-foreign-object :type :float :nelems size
-                                                                 :initial-element 0.0))))
+  (fli::allocate-foreign-object 
+   :nelems nch
+   :type :pointer 
+   :initial-contents (loop for c from 0 to (1- nch) 
+                           collect (fli::allocate-foreign-object 
+                                    :type :float :nelems size
+                                    :initial-element 0.0))))
+
 (defparameter *default-internal-sample-size* :float)
 
 (defstruct (om-sound-buffer (:include oa::om-pointer))
   (nch 1 :type integer))
 
-(defmethod omng-save ((self om-sound-buffer)) nil)
-
-
+;;; if the om-sound-buffer is created like this, it will be garbaged automatically 
 (defun make-om-sound-buffer-GC (&key ptr (count 1) (nch 1))
   (om-create-with-gc (make-om-sound-buffer :ptr ptr :count count :nch nch)))
-    
 
-;;; not useful if cleanup buffer works
-(defmethod oa::om-release ((ptr om-sound-buffer))
-  ;(om-print (format nil "Release audio buffer ~A in ~A" (oa::om-pointer-ptr ptr) ptr) "SOUND_DEBUG")
-  (when (<= (decf (oa::om-pointer-count ptr)) 0)
-    ;(om-print (format nil "CAN FREE Audio buffer ~A in ~A !" (oa::om-pointer-ptr ptr) ptr) "SOUND_DEBUG")
-    ;(unless (om-null-pointer-p (oa::om-pointer-ptr ptr)) 
-    ;  (audio-io::om-free-sound-buffer (oa::om-pointer-ptr ptr) (om-sound-buffer-nch ptr)))
-    ))
-
+;;; this is the garbage action
 (defmethod om-cleanup ((self om-sound-buffer))
   (om-print-dbg "AUDIO BUFFER CLEANUP: ~A" (list self) "SOUND_DEBUG")
   (when (and (oa::om-pointer-ptr self) (not (om-null-pointer-p (oa::om-pointer-ptr self))))
     (audio-io::om-free-sound-buffer (oa::om-pointer-ptr self) (om-sound-buffer-nch self))))
+
+;;; not useful if cleanup buffer works
+;(defmethod oa::om-release ((ptr om-sound-buffer))
+  ;(om-print (format nil "Release audio buffer ~A in ~A" (oa::om-pointer-ptr ptr) ptr) "SOUND_DEBUG")
+;  (when (<= (decf (oa::om-pointer-count ptr)) 0)
+    ;(om-print (format nil "CAN FREE Audio buffer ~A in ~A !" (oa::om-pointer-ptr ptr) ptr) "SOUND_DEBUG")
+    ;(unless (om-null-pointer-p (oa::om-pointer-ptr ptr)) 
+    ;  (audio-io::om-free-sound-buffer (oa::om-pointer-ptr ptr) (om-sound-buffer-nch ptr)))
+;    ))
+
+;;; we never save it on disk
+(defmethod omng-save ((self om-sound-buffer)) nil)
   
 ;;==============================
 ;; SOUND
@@ -57,19 +61,34 @@
    (mute :accessor mute :initform nil)
    (buffer-player :accessor buffer-player :initform nil :documentation "pointer to a buffer player")))
 
-;; not needed ?
+;; om-internal-sound never explicitly frees its buffer but just releases it.
+;; => buffer must be created 'with-GC' 
 (defmethod om-cleanup ((self om-internal-sound))
   (om-print-dbg "SOUND CLEANUP: ~A (~A)" (list self (buffer self)) "SOUND_DEBUG")
   (when (buffer self) (oa::om-release (buffer self))))
 
+(defmethod additional-slots-for-copy ((from om-internal-sound)) 
+  (append (call-next-method) '(mute)))
 
-;;; CLONE A SOUND = KEEP THE SAME POINTER AND INCREMENT THE COUNT
+(defmethod excluded-slots-for-copy ((from om-internal-sound))  '(buffer))
+
+
+
+;;; CLONE A SOUND
 (defmethod clone-object ((self om-internal-sound) &optional clone)
   (let ((snd (call-next-method)))
-    (setf (buffer snd) (buffer self))
-    (when (buffer snd) (oa::om-retain (buffer snd)))
+    
+    (when (buffer self)
+      (let ((new-ptr (make-audio-buffer (n-channels self) (n-samples self)))
+            (self-ptr (oa::om-pointer-ptr (buffer self))))
+        (dotimes (ch (n-channels self))
+          (dotimes (smp (n-samples self))
+            (setf (cffi::mem-aref (cffi::mem-aref new-ptr :pointer ch) :float smp)
+                  (cffi::mem-aref (cffi::mem-aref self-ptr :pointer ch) :float smp))))
+        (setf (buffer snd) (make-om-sound-buffer-gc :ptr new-ptr :nch (n-channels self)))
+        ))
+    
     snd))
-
 
 (defmethod release-sound-buffer ((self om-internal-sound)) 
   (when (buffer self) 
@@ -117,7 +136,6 @@ Press 'space' to play/stop the sound file.
 (defmethod get-obj-dur ((self sound))
   (if (and (sample-rate self) (n-samples self)) (* 1000.0 (/ (n-samples self) (sample-rate self))) 0))
 
-; (defmethod object-default-edition-params ((self sound)) '((:player :libaudiostream)))
 
 (defmethod box-def-self-in ((self (eql 'sound))) :choose-file)
 
@@ -132,12 +150,28 @@ Press 'space' to play/stop the sound file.
 ;;;===========================
 
 ;;; GET A SOUND OBJECT FROM ...
+; used in :
+; spat-object (sources)
+; merge-sounds
+; with-sound-buffer
 
+
+;;; called when, for some reason, we want a full-featured sound (with info etc.)
 (defmethod get-sound ((self sound)) self)
-(defmethod get-sound ((self om-internal-sound)) (om-init-instance (clone-object self (make-instance 'sound)) nil))
-(defmethod get-sound ((self pathname)) (when (probe-file self) (om-init-instance (make-instance 'sound) `((:file-pathname ,self) (:access-from-file t)))))
-(defmethod get-sound ((self string)) (get-sound (pathname self)))
 (defmethod get-sound ((self t)) nil)
+
+(defmethod get-sound ((self om-internal-sound)) 
+  (om-init-instance (clone-object self (make-instance 'sound)) nil))
+
+(defmethod get-sound ((self pathname)) 
+  (when (probe-file self) 
+    (om-init-instance 
+     (make-instance 'sound ::file-pathname self) 
+     ;; `((:file-pathname ,self) (:access-from-file t))
+     )))
+
+(defmethod get-sound ((self string)) (get-sound (pathname self)))
+
 
 (defmethod get-sound-name ((self pathname)) (pathname-name self))
 (defmethod get-sound-name ((self string)) self)
@@ -202,19 +236,6 @@ Press 'space' to play/stop the sound file.
            nil))))
 |#
 
-;; DOES THIS RETAIN THE BUFFER FROM BEING GARBAGE-COOLECTED ???
-;(defun make-player-from-buffer (buffer size channels sample-rate) nil)
-
-(defmethod clone-object ((self sound) &optional clone)
-  (let ((snd (call-next-method)))
-    (when (buffer snd)
-      ;; instanciate a player for this sound
-      (setf (buffer-player snd) (make-player-from-buffer 
-                                 (oa::om-pointer-ptr (buffer snd)) 
-                                 (n-samples snd) (n-channels snd) (sample-rate snd))))
-    snd))
-
-
 (defmethod objFromObjs ((model om-internal-sound) (target sound))
   (clone-object model target))
 
@@ -249,48 +270,45 @@ Press 'space' to play/stop the sound file.
 
 
 (defmethod om-init-instance ((self sound) &optional initargs)
+  
   (call-next-method)
-  ;;; these are given to om-init-instance
-  ;;; the slots are already set
-  (let ((FILE-IN (find-value-in-kv-list initargs :file-pathname))
-        (access-from-file (find-value-in-kv-list initargs :access-from-file)))
-    
-    (if (access-from-file self) 
+  
+  (if (access-from-file self) 
         
-        (if (and (valid-pathname-p (file-pathname self)) 
-                 (file-exist-p (file-pathname self)))
+      (if (and (valid-pathname-p (file-pathname self)) 
+               (file-exist-p (file-pathname self)))
             
-            ;; We want to keep working with this file (and no buffer)
-            (if (buffer self)
+          ;; We want to keep working with this file (and no buffer)
+          (if (buffer self)
                 
-                (release-sound-buffer self)
+              (release-sound-buffer self)
               
-              (set-sound-info self (file-pathname self)))
+            (set-sound-info self (file-pathname self)))
    
-          (om-beep-msg "Cannot use ACCESS-FROM-FILE without a valid file !!"))
+        (om-beep-msg "Cannot use ACCESS-FROM-FILE without a valid file !!"))
       
-      ;;; else we set the buffer (if needed)
-      (when (and (file-pathname self) 
-                 (not (buffer self)))
-        (set-sound-data self (file-pathname self)))
+    ;;; else we set the buffer (if needed)
+    (when (and (file-pathname self) 
+               (not (buffer self)))
+      (set-sound-data self (file-pathname self)))
       
-      )
+    )
          
-    ;;; SET A PLAYER IN ANY CASE !
-    (if (and (file-pathname self) access-from-file)
+  ;;; SET A PLAYER IN ANY CASE !
+  (if (and (file-pathname self) (access-from-file self))
        
-        (setf (buffer-player self) (make-player-from-file (namestring (file-pathname self))))
+      (setf (buffer-player self) (make-player-from-file (namestring (file-pathname self))))
       
-      (when (buffer self) ;;; in principle at that point there should be a buffer..
-        (if (and (n-samples self) (n-channels self) (sample-rate self))
-            (setf (buffer-player self) (make-player-from-buffer 
-                                        (oa::om-pointer-ptr (buffer self)) 
-                                        (n-samples self) (n-channels self) (sample-rate self)))
-          (om-beep-msg "Incomplete info in SOUND object. Could not instanciate the player !!")
-          ))
-      )
+    (when (buffer self) ;;; in principle at that point there should be a buffer..
+      (if (and (n-samples self) (n-channels self) (sample-rate self))
+          (setf (buffer-player self) (make-player-from-buffer 
+                                      (oa::om-pointer-ptr (buffer self)) 
+                                      (n-samples self) (n-channels self) (sample-rate self)))
+        (om-beep-msg "Incomplete info in SOUND object. Could not instanciate the player !!")
+        ))
+    )
     
-    self))
+  self)
 
 #|
 
@@ -365,17 +383,45 @@ Press 'space' to play/stop the sound file.
           )
 |#
 
-;(defmethod initialize-instance :after ((self sound) &rest initargs)
-;  (shared-initialize self t initargs))
+;;; executes its body with buffer-name bound to a valid audio buffer
+;;; this bufer can be found in sound or produced from the filename
+;;; in the second case, it is freed at the end 
+;;; => do it without '-GC' ?
+(defmacro with-audio-buffer ((buffer-name sound) &body body)
+  `(let ((snd (get-sound ,sound)))
+     (if snd
+         (let* ((tmp-buffer (unless (buffer snd) 
+                              (when (and (valid-pathname-p (file-pathname snd)) 
+                                         (probe-file (file-pathname snd))
+                                         (n-channels snd) (n-samples snd))
+                                (make-om-sound-buffer-GC 
+                                 :count 1 :nch (n-channels snd)
+                                 :ptr (audio-io::om-get-sound-buffer (namestring (file-pathname snd)) *default-internal-sample-size*)))))
+                (,buffer-name (or tmp-buffer (buffer snd))))
+           (unwind-protect
+               (progn 
+                 (unless ,buffer-name (om-print-format "Warning: no sound buffer allocated for ~A" (list (file-pathname snd)) "OM"))
+                 ,@body)
+             (when tmp-buffer (oa::om-release tmp-buffer))
+             ))
+       (om-beep-msg "Wrong input type for sound: ~A" ,sound))
+     ))
+
+
+
 
 (defun set-sound-data (sound path)
+
   (when (buffer sound) (oa::om-release (buffer sound)))
+  
   (if (probe-file path)
       (multiple-value-bind (buffer format channels sr ss size skip)
+          
           (audio-io::om-get-sound-buffer (namestring path) *default-internal-sample-size* nil)
+        
         (unwind-protect 
             (progn
-              (when (buffer sound) (oa::om-release (buffer sound)))
+              ;(when (buffer sound) (oa::om-release (buffer sound)))
               (setf (buffer sound) (make-om-sound-buffer-GC :ptr buffer :count 1 :nch channels)
                     (smpl-type sound) *default-internal-sample-size*
                     (n-samples sound) size
@@ -388,6 +434,7 @@ Press 'space' to play/stop the sound file.
       (om-beep-msg "Wrong pathname for sound: ~s" path)
       (setf (buffer sound) nil)
       )))
+
 
 (defun set-sound-info (sound path)
   (multiple-value-bind (format channels sr ss size skip)
@@ -438,25 +485,7 @@ Press 'space' to play/stop the sound file.
         (om-free-memory itl-buffer)
         ))))
 
-;;; executes its body with buffer-name bound to a valid audio buffer
-;;; this bufer can be found in sound or produced from the filename
-;;; in the second case, it is freed at the end 
 
-(defmacro with-audio-buffer ((buffer-name sound) &body body)
-  `(let* ((snd (get-sound ,sound))
-          (tmp-buffer (unless (buffer snd) 
-                        (when (and (valid-pathname-p (file-pathname snd)) 
-                                   (probe-file (file-pathname snd))
-                                   (n-channels snd) (n-samples snd))
-                          (make-om-sound-buffer-GC :count 1 :nch (n-channels snd)
-                                                   :ptr (audio-io::om-get-sound-buffer (namestring (file-pathname snd)) *default-internal-sample-size*)))))
-          (,buffer-name (or tmp-buffer (buffer snd))))
-     (unwind-protect
-         (progn 
-           (unless ,buffer-name (om-print-format "Warning: no sound buffer allocated for ~A" (list (file-pathname snd)) "OM"))
-           ,@body)
-       (when tmp-buffer (oa::om-release tmp-buffer))
-       )))
 
 ;;;===========================
 ;;; BOX
@@ -470,7 +499,7 @@ Press 'space' to play/stop the sound file.
 
 (defmethod get-cache-display-for-text ((object sound)) ;(call-next-method))
   (append (call-next-method) 
-          (list (list :sound-buffer (buffer object)))))
+          (list (list :buffer (buffer object)))))
 
 (defmethod draw-mini-view ((self sound) (box t) x y w h &optional time) 
   (let ((pict (get-display-draw box)))

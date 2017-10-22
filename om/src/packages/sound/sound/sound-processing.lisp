@@ -98,8 +98,8 @@
              (if success
                  (progn
                    (split-buffer interleaved-out final-buffer out-size nch)
-                   (setq s2 (make-instance 'om-internal-sound
-                                           :buffer (make-om-sound-buffer :ptr final-buffer :nch nch)
+                   (setq s2 (make-instance 'sound
+                                           :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch nch)
                                            :n-samples newsize-or-error
                                            :n-channels nch
                                            :sample-rate sample-rate
@@ -125,64 +125,71 @@
   "Normalizes a sound <s>.
 
 <method> is a normalization method. Choose between Peak detection or Peak RMS detection."
-  (if (null (oa::om-pointer-ptr (buffer s)))
-      (om-beep-msg "Error: null sound buffer")
 
-    (let* ((ptr (oa::om-pointer-ptr (buffer s)))
-           (type (smpl-type s))
-           (nch (n-channels s))
-           (size (n-samples s))
-           (peak 0.0)
-           (peak-rms 0.0)
-           (gain 0.0)
-           (x 0.0)
-           (tampon (list))
-           (indx 0)
-           (rms 0.0)
-           (tampon-size 100)
-           (final-buffer (allocate-split-buffer size nch type)))
+  (with-audio-buffer (input-buffer s)
+    
+    (if (null (oa::om-pointer-ptr input-buffer))
+        (om-beep-msg "Error: null sound buffer")
 
-      (cond ((= method 0)
-             (progn 
-               (dotimes (i size)
-                 (dotimes (n nch)
-                   (setq x (abs (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type)))
-                   (if (> x peak) (setf peak x))))
-               (if (> peak 0)
-                   (progn
-                     (setq gain (/ 1.0 peak))
-                     (dotimes (i size)
-                       (dotimes (n nch)
-                         (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type)
-                               (* gain (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type)))))))))
-            ((= method 1)
-             (progn
-               (setf indx 0)
-               (loop while (< indx size) do
-                     (dotimes (i tampon-size)
-                       (dotimes (n nch)
+      (let* ((ptr (oa::om-pointer-ptr input-buffer))
+             (type (smpl-type s))
+             (nch (n-channels s))
+             (size (n-samples s))
+             (peak 0.0)
+             (peak-rms 0.0)
+             (gain 0.0)
+             (x 0.0)
+             (tampon (list))
+             (indx 0)
+             (rms 0.0)
+             (tampon-size 100)
+             (final-buffer (allocate-split-buffer size nch type)))
+
+        (cond ((= method 0)
+               (progn 
+                 (dotimes (i size)
+                   (dotimes (n nch)
+                     (setq x (abs (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type)))
+                     (if (> x peak) (setf peak x))))
+                 (if (> peak 0)
+                     (progn
+                       (setq gain (/ 1.0 peak))
+                       (dotimes (i size)
+                         (dotimes (n nch)
+                           (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type)
+                                 (* gain (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type)))))))))
+              ((= method 1)
+               (progn
+                 (setf indx 0)
+                 (loop while (< indx size) do
+                       (dotimes (i tampon-size)
+                         (dotimes (n nch)
                          ;(when (< indx size)
-                         (push (fli:dereference (fli:dereference ptr :index n :type :pointer) :index indx :type type) tampon));)
-                       (incf indx))
-                     (when tampon
-                       (setq tampon (mapcar #'(lambda (x) (* x x)) tampon))
-                       (setq rms (sqrt (/ (reduce #'+ tampon) tampon-size)))
-                       (if (> rms peak-rms) (setf peak-rms rms))
-                       (setf tampon nil)))
-               (dotimes (i size)
-                 (dotimes (n nch)
-                   (setq x (/ (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type) peak-rms))
-                   (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type)
-                         (cond ((< x -1) -1.0)
-                               ((> x 1) 1.0)
-                               (t x))))))))
+                           (push (fli:dereference (fli:dereference ptr :index n :type :pointer) :index indx :type type) tampon));)
+                         (incf indx))
+                       (when tampon
+                         (setq tampon (mapcar #'(lambda (x) (* x x)) tampon))
+                         (setq rms (sqrt (/ (reduce #'+ tampon) tampon-size)))
+                         (if (> rms peak-rms) (setf peak-rms rms))
+                         (setf tampon nil)))
+                 (dotimes (i size)
+                   (dotimes (n nch)
+                     (setq x (/ (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type) peak-rms))
+                     (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type)
+                           (cond ((< x -1) -1.0)
+                                 ((> x 1) 1.0)
+                                 (t x))))))))
       
-      (make-instance 'om-internal-sound 
-                     :buffer (make-om-sound-buffer :ptr final-buffer :nch nch)
-                     :n-samples size
-                     :n-channels nch
-                     :sample-rate (sample-rate s)
-                     :smpl-type type))))
+        (make-instance 'sound 
+                       :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch nch)
+                       :n-samples size
+                       :n-channels nch
+                       :sample-rate (sample-rate s)
+                       :smpl-type type)
+        )
+      )
+    )
+  )
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-SILENCE///////////
 (defmethod* sound-silence ((dur float) &optional (channels 1) (sample-rate *default-audio-rate*))
@@ -194,7 +201,7 @@
   (let ((nsmpl (round (* dur sample-rate)))
         (ch (if (< channels 1) 1 channels)))
     (make-instance 'om-internal-sound 
-                   :buffer (make-om-sound-buffer :ptr (allocate-split-buffer nsmpl ch :float) :nch ch)
+                   :buffer (make-om-sound-buffer-GC :ptr (allocate-split-buffer nsmpl ch :float) :nch ch)
                    :n-samples nsmpl
                    :n-channels ch
                    :sample-rate sample-rate
@@ -204,7 +211,7 @@
   (let ((nsmpl (round (* dur (/ sample-rate 1000.0))))
         (ch (if (< channels 1) 1 channels)))
     (make-instance 'om-internal-sound 
-                   :buffer (make-om-sound-buffer :ptr (allocate-split-buffer nsmpl ch :float) :nch ch)
+                   :buffer (make-om-sound-buffer-GC :ptr (allocate-split-buffer nsmpl ch :float) :nch ch)
                    :n-samples nsmpl
                    :n-channels ch
                    :sample-rate sample-rate
@@ -243,8 +250,8 @@
                      (* (1+ (* fade-out-factor (- i (- size2 fade-out-frames)))) (fli:dereference b1 :index i)))
                     (t (fli:dereference b1 :index i)))))         
               
-      (setq s2 (make-instance 'om-internal-sound 
-                              :buffer (make-om-sound-buffer :ptr (split-buffer b2 out-buffer size nch) :nch nch)
+      (setq s2 (make-instance 'sound 
+                              :buffer (make-om-sound-buffer-GC :ptr (split-buffer b2 out-buffer size nch) :nch nch)
                               :n-samples size
                               :n-channels nch
                               :sample-rate sr
@@ -271,8 +278,8 @@
           (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type (smpl-type s))
                 (fli:dereference (fli:dereference (oa::om-pointer-ptr (buffer s)) :index n :type :pointer) :index (mod i size) :type :float))))
               
-      (make-instance 'om-internal-sound 
-                     :buffer (make-om-sound-buffer :ptr final-buffer :nch nch)
+      (make-instance 'sound 
+                     :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch nch)
                      :n-samples (* n size)
                      :n-channels nch
                      :sample-rate (sample-rate s)
@@ -302,8 +309,8 @@
           (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type)
                 (fli:dereference (fli:dereference init-buffer :index n :type :pointer) :index (+ start i) :type type))))
                             
-      (make-instance 'om-internal-sound 
-                     :buffer (make-om-sound-buffer :ptr final-buffer :nch nch)
+      (make-instance 'sound 
+                     :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch nch)
                      :n-samples size
                      :n-channels nch
                      :sample-rate sr
@@ -345,8 +352,8 @@
                          (t gain)) 
                    (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type)))))
 
-      (make-instance 'om-internal-sound 
-                     :buffer (make-om-sound-buffer :ptr final-buffer :nch nch)
+      (make-instance 'sound 
+                     :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch nch)
                      :n-samples size
                      :n-channels nch
                      :sample-rate sr
@@ -381,8 +388,8 @@
              (setf (fli:dereference (fli:dereference final-buffer :index 0 :type :pointer) :type type :index i) (* Lgain x)
                    (fli:dereference (fli:dereference final-buffer :index 1 :type :pointer) :type type :index i) (* Rgain x)))
               
-           (make-instance 'om-internal-sound 
-                          :buffer (make-om-sound-buffer :ptr final-buffer :nch nch)
+           (make-instance 'sound 
+                          :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch nch)
                           :n-samples size
                           :n-channels 2
                           :sample-rate (sample-rate s)
@@ -411,8 +418,8 @@
                         2.0))
              (setf (fli:dereference (fli:dereference final-buffer :index 0 :type :pointer) :index i :type type) x))
 
-           (make-instance 'om-internal-sound 
-                          :buffer (make-om-sound-buffer :ptr final-buffer :nch (n-channels s))
+           (make-instance 'sound 
+                          :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch (n-channels s))
                           :n-samples (n-samples s)
                           :n-channels 1
                           :sample-rate (sample-rate s)
@@ -454,8 +461,8 @@
              (setf (fli:dereference (fli:dereference final-buffer :index 0 :type :pointer) :index i :type type) (+ (* leftLgain xl) (* rightLgain xr))
                    (fli:dereference (fli:dereference final-buffer :index 1 :type :pointer) :index i :type type) (+ (* leftRgain xl) (* rightRgain xr))))
            
-           (make-instance 'om-internal-sound 
-                          :buffer (make-om-sound-buffer :ptr final-buffer :nch nch)
+           (make-instance 'sound 
+                          :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch nch)
                           :n-samples size
                           :n-channels nch
                           :sample-rate (sample-rate s)
@@ -511,8 +518,8 @@
                                   ((> res 1) 1.0)
                                   (t res)))))))
 
-                 (make-instance 'om-internal-sound 
-                                :buffer (make-om-sound-buffer :ptr final-buffer :nch nch)
+                 (make-instance 'sound 
+                                :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch nch)
                                 :n-samples final-size
                                 :n-channels nch
                                 :sample-rate (sample-rate s1)
@@ -549,8 +556,8 @@
                 (setf c (1+ c))))
             ))
     
-    (make-instance 'om-internal-sound 
-                   :buffer (make-om-sound-buffer :ptr final-buffer :nch n-channels-out)
+    (make-instance 'sound 
+                   :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch n-channels-out)
                    :n-samples n-samples-out
                    :n-channels n-channels-out
                    :sample-rate sr
@@ -574,7 +581,7 @@
                   (setf (fli:dereference (fli:dereference new-buffer :index 0 :type :pointer) :type type :index i) 
                         (fli:dereference (fli:dereference bptr :index c :type :pointer) :type type :index i)))
                 (make-instance 'sound 
-                               :buffer (make-om-sound-buffer :ptr new-buffer :nch 1)
+                               :buffer (make-om-sound-buffer-GC :ptr new-buffer :nch 1)
                                :n-samples (n-samples s)
                                :n-channels 1
                                :sample-rate (sample-rate s)
@@ -623,8 +630,8 @@
                            ((> i size1) 
                             (fli:dereference (fli:dereference ptr2 :index n :type :pointer) :index (+ smp-cross (- i size1)) :type type2))))))
 
-           (make-instance 'om-internal-sound 
-                          :buffer (make-om-sound-buffer :ptr final-buffer :nch nch)
+           (make-instance 'sound 
+                          :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch nch)
                           :n-samples final-size
                           :n-channels nch
                           :sample-rate (sample-rate s1)
@@ -653,8 +660,8 @@
              (dotimes (n nch)
                (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type) 
                      (fli:dereference (fli:dereference ptr :index n :type :pointer) :index (- size i) :type type))))
-           (make-instance 'om-internal-sound 
-                          :buffer (make-om-sound-buffer :ptr final-buffer :nch nch)
+           (make-instance 'sound 
+                          :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch nch)
                           :n-samples size
                           :n-channels nch
                           :sample-rate (sample-rate s)
