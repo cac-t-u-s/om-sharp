@@ -1,9 +1,25 @@
+;============================================================================
+; o7: visual programming language for computer-aided music composition
+; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
+; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
+;============================================================================
+;
+;   This program is free software. For information on usage 
+;   and redistribution, see the "LICENSE" file in this distribution.
+;
+;   This program is distributed; in the hope that it will be useful,
+;   but WITHOUT ANY WARRANTY; without even the implied warranty of
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;
+;============================================================================
+; File authors: J. Bresson, G. Holbrook
+;============================================================================
+
 ;=================================================================
 ; ENCAPSULATION
-;=================================================================
 ; Patch encapsulation / de-encapsulation by Geof Holbrook in OM 6
-; Adaptation OM7 JB 09/08/2016
-
+; Adaptation OM7 J. Bresson - 2016
+;=================================================================
 
 (in-package :om)
 
