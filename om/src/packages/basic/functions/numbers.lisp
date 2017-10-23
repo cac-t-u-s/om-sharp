@@ -1,24 +1,19 @@
-;OpenMusic
+;============================================================================
+; o7: visual programming language for computer-aided music composition
+; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
+; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
+;============================================================================
 ;
-;Copyright (C) 1997, 1998, 1999, 2000 by IRCAM-Centre Georges Pompidou, Paris, France.
-; 
-;This program is free software; you can redistribute it and/or
-;modify it under the terms of the GNU General Public License
-;as published by the Free Software Foundation; either version 2
-;of the License, or (at your option) any later version.
+;   This program is free software. For information on usage 
+;   and redistribution, see the "LICENSE" file in this distribution.
 ;
-;See file LICENSE for further informations on licensing terms.
-; 
-;This program is distributed in the hope that it will be useful,
-;but WITHOUT ANY WARRANTY; without even the implied warranty of
-;MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;GNU General Public License for more details.
+;   This program is distributed; in the hope that it will be useful,
+;   but WITHOUT ANY WARRANTY; without even the implied warranty of
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 ;
-;You should have received a copy of the GNU General Public License
-;along with this program; if not, write to the Free Software
-;Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-;
-;Authors: Gerard Assayag and Augusto Agon
+;=========================================================================
+; Authors: G. Assayag, C. Agon, J. Bresson (code from OM6)
+;=========================================================================
 
 (in-package :om)
 
