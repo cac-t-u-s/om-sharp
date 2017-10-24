@@ -359,13 +359,15 @@
 (defmethod make-frame-from-callobj ((self OMBox))
   (let ((view (om-make-graphic-object (get-box-frame-class self) 
                 :position (omp (box-x self) (box-y self))
-                :font (text-font self)
+                ;:font (font-font (text-font self))
                 :object self
                 :icon-id (and (get-icon-id-from-reference self)
                               (or (find (get-icon-id-from-reference self) *om-loaded-picts*)
                                          'not-found)))))
-    (om-set-view-size view (om-def-point (omp (box-w self) (box-h self))
-                                         (default-size self)))
+    
+    (update-view view self)
+    ;(om-set-view-size view (om-def-point (omp (box-w self) (box-h self))
+    ;                                     (default-size self)))
     (setf (frame self) view)
     (set-frame-areas view)
     view))
@@ -382,7 +384,7 @@
 
 
 (defmethod update-view ((self OMBoxFrame) (object OMBox))
-  (when (text-font object) (om-set-font self (text-font object)))
+  (when (font-? (text-font object)) (om-set-font self (font-font (text-font object))))
   (let ((best-size (om-borne-point (omp (box-w object) (box-h object)) 
                                    (minimum-size object) (maximum-size object))))
     (setf (box-w object) (om-point-x best-size)
@@ -394,10 +396,17 @@
   )
 
 (defmethod update-view ((self OMBoxFrame) (object OMBoxCall))
-  (when (text-font object) (om-set-font self (text-font object)))
+ 
+  (when (font-? (text-font object)) (om-set-font self (font-font (text-font object))))
+ 
   (let ((adjusted-size (om-borne-point 
                         (omp (box-w object) (box-h object))
                         (minimum-size object) (maximum-size object))))
+    
+    ;(print (list "update" 
+    ;             (omp (box-w object) (box-h object))
+    ;             (minimum-size object) (maximum-size object)
+    ;             adjusted-size))
     
     ;; adjust the size only if the box doesn't scale according to rulers
     (unless (scale-in-x-? object) (setf (box-w object) (om-point-x adjusted-size)))
@@ -406,7 +415,7 @@
       (setf (box-h object) (om-point-y adjusted-size))  
       (when (and (or (lambda-state object) (lock-state object)) (< (box-h object) 36))
         (setf (box-h object) (+ (box-h object) 8))))
-
+    
     (om-set-view-size self (omp 
                             (if (scale-in-x-? object) (omg-w (om-view-container self) (box-w object)) (box-w object))
                             (if (scale-in-y-? object) (omg-h (om-view-container self) (box-h object)) (box-h object))))
@@ -434,7 +443,7 @@
                    (or (name (object self)) (default-name (get-box-value (object self))))))
         (icon-size (get-icon-size (object self))))
     (when text
-      (let ((font (or (text-font (object self)) (om-get-font self)))
+      (let ((font (or (font-font (text-font (object self))) (om-get-font self)))
             (shift (if (equal :left (icon-pos (object self))) icon-size 0)))
         (multiple-value-bind (w h) (om-string-size text font)
           (values text
@@ -450,29 +459,33 @@
   (om-with-clip-rect self 0 0 (w self) (h self) 
     (boxframe-draw-contents self (object self))))
 
-(defmethod draw-border ((self OMBox) x y w h style)
-  (let ((round (or (roundness self) (get-pref-value :appearance :roundness))))
-    (if (plusp round)
-        (om-draw-rounded-rect x y w h :line (if (numberp style) style 1.5) :color (om-def-color :gray) 
+(defmethod draw-border ((self OMBox) x y w h stroke-size)
+  
+  (let ((round (box-draw-roundness self)))
+    
+    (if (and round (plusp round))
+      
+        (om-draw-rounded-rect x y w h 
+                              :line (if (numberp stroke-size) stroke-size 1.5) :color (om-def-color :gray) 
                               :round (min (round h 2) round))
-      (om-draw-rect x y w h :line (if (numberp style) style 1.5) :color (om-def-color :gray)))))
+      
+      (om-draw-rect x y w h 
+                    :line (if (numberp stroke-size) stroke-size 1.5) 
+                    :color (om-def-color :gray))
+      )))
 
-(defmethod box-draw-color ((box OMBox)) 
-  (if (and (color box) (color-? (color box)))
-      (color-color (color box))
-    (get-pref-value :appearance :box-color)))
 
-(defmethod box-draw-text-color ((self OMBox)) (text-color self))
 
 (defmethod boxframe-draw-contents ((self OMBoxFrame) (box OMBox))
   (let ((icon-size (get-icon-size box))
         (io-hspace 4)
-        (color (box-draw-color box)))
+        (color (box-draw-color box))
+        (font (box-draw-font box)))
     (om-with-fg-color (om-def-color :dark-gray)
    
       ;;; interior
       (unless (om-color-null-p color)
-        (let ((round (or (roundness box) (get-pref-value :appearance :roundness))))
+        (let ((round (box-draw-roundness box)))
           (if (plusp round)
               (om-draw-rounded-rect 0 io-hspace (w self) (- (h self) (* 2 io-hspace)) 
                                     :color color 
@@ -485,7 +498,7 @@
           ))
     
       (when (selected box)
-        (om-draw-rect 0  io-hspace (w self) (- (h self) (* 2 io-hspace)) 
+        (om-draw-rect 0 io-hspace (w self) (- (h self) (* 2 io-hspace)) 
                       :color (om-make-color-alpha (om-def-color :gray) 0.3)
                       :angles :round
                       :fill t))
@@ -508,9 +521,9 @@
           (when text
             (om-with-fg-color (box-draw-text-color box)
             (om-with-font
-             (or (text-font box) (om-def-font :font1))
+             font
              ;(om-draw-rect x y w h)
-             (om-draw-string (max 2 x) (+ y (om-font-size (or (text-font box) (om-get-font self)))) 
+             (om-draw-string (max 2 x) (+ y (om-font-size (or font (om-get-font self)))) 
                              text :selected nil :wrap (max 10 (- (w self) 2)))
              )))))
       

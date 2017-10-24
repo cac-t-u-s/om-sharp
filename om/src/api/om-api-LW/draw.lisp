@@ -211,7 +211,8 @@
 (defun format-line-style (style)
   (cond ((consp style) `(:dashed t :dash  (,(car style) ,(cadr style))))
         ((equal style :dash) '(:dashed t :dash (2 2)))
-        (t '(:dashed nil))))
+        (style '(:dashed nil)) ;; unknow or nil
+        (t nil)))
 
 (defun format-graphic-args (&key fcolor bcolor line style)
   (reduce 'append
@@ -230,10 +231,12 @@
                          (gp::get-port-font *curstream*))))
         (multiple-value-bind (left top right bottom)
             (gp::get-string-extent *curstream* str real-font)
-          (let ((text-list (wrap-text-for-pane *curstream* str ;; (substitute #\Space #\Tab str) 
-                                               :visible-width wrap
-                                               :font real-font
-                                               ))
+          (let ((text-list (or (ignore-errors 
+                                 (wrap-text-for-pane *curstream* str ;; (substitute #\Space #\Tab str) 
+                                                     :visible-width wrap
+                                                     :font real-font
+                                                     ))
+                               (list str)))
                 (text-h (- bottom top)))
           (loop for line in text-list for yy = y then (+ yy text-h) do
                 (apply 'gp:draw-string  
@@ -276,11 +279,12 @@
    (abs w)
    (abs h)))
 
+;(+ x *pox*) (+ y *poy*) w h 
+               
 (defun om-draw-rect (x y w h &key angles line color fill style)
   (multiple-value-bind (xx yy ww hh) (convert-rect x y w h)
   (apply 'gp:draw-rectangle 
          (append (list *curstream* (+ xx 0.5) (+ yy 0.5) (- ww 1) (- hh 1)
-               ;(+ x *pox*) (+ y *poy*) w h 
                        :filled fill
                        :line-joint-style angles     ; :bevel :miter :round
                        :thickness line :foreground (get-real-color color))

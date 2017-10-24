@@ -107,21 +107,21 @@
     ))
 
 
+;;; default-value can be given as a list (:pref-module :pref-key)
+(defun get-default-value (def)
+  (if (consp def)
+      (get-pref-value (car def) (cadr def))
+    def))
+
 ;;;===========================================
 ;;; DIFFERENT KINDS OF ITEM IN THE INSPECTOR FOR THE PROPERITIES
 ;;; USED IN EDITORS OR INSPECTOR WINDOWS
 ;;;===========================================
 
-;;; special types
-(defstruct number-in-range (min) (max))
-(defstruct number-or-nil (t-or-nil) (number) (min) (max))
 
-(defstruct color-or-nil (t-or-nil) (color))
-;;; for compatibility with simple colors...
-(defmethod color-? ((self color-or-nil)) (color-or-nil-t-or-nil self))
-(defmethod color-color ((self color-or-nil)) (color-or-nil-color self))
-(defmethod color-? ((self oa::omcolor)) t)
-(defmethod color-color ((self oa::omcolor)) self)
+;;;====================================
+;;; DEFAULT (UNSPECIFIED)
+;;;====================================
 
 ;;; general case = text box
 (defmethod make-prop-item (type prop-id object &key default update)
@@ -139,6 +139,325 @@
                                                (text item)))
                                (when update (update-view update object))
                                )))
+
+;;;====================================
+;;; NUMBERS
+;;;====================================
+
+;;; for number default is a list (min-val max-val decimals)
+(defmethod make-prop-item ((type (eql :number)) prop-id object &key default update)
+  (let ((def (loop for element in (list! default) collect
+                   (if (functionp element) (funcall element object)
+                     element))))
+  (om-make-graphic-object 'numbox 
+                          :value (get-property object prop-id)
+                          :bg-color (om-def-color :white)
+                          :border t
+                          :db-click t
+                          :decimals (or (caddr def) 0)
+                          :size (om-make-point 60 18) 
+                          :font (om-def-font :font2)
+                          :min-val (or (car def) 0) :max-val (or (cadr def) 10000)
+                          :after-fun #'(lambda (item)
+                             (set-property object prop-id (get-value item))
+                             (when update (update-view update object))
+                             ))))
+
+
+;;; number-or-nil work slightly differently:
+;;; the type needs to be intanciated in order to embed a min and max value
+;;; t-or-nil allow to specify an unspecified number, typically to get it from the preferences
+(defstruct number-or-nil 
+  (t-or-nil) (number) 
+  (min) (max) (decimals)  ;;; 'meta-attributes' used to instanciate the type
+  )
+
+;;; for compatibility with simple numbers...
+(defmethod number-? ((self number-or-nil)) (number-or-nil-t-or-nil self))
+(defmethod number-number ((self number-or-nil)) (number-or-nil-number self))
+(defmethod number-? ((self number)) t)
+(defmethod number-number ((self number)) self)
+(defmethod number-? ((self t)) nil)
+
+(defmethod make-prop-item ((type number-or-nil) prop-id object &key default update)
+
+  (let* ((def (or default 0))
+         numbox checkbox)
+
+    (setf numbox 
+          (om-make-graphic-object 'numbox 
+                          :value (and (valid-property-p object prop-id)
+                                    (if (number-? (get-property object prop-id)) 
+                                        (number-number (get-property object prop-id))
+                                      (get-default-value def)))
+                          :enabled (and (valid-property-p object prop-id)
+                                      (get-property object prop-id)
+                                      (number-? (get-property object prop-id)))
+                          :bg-color (om-def-color :white)
+                          :border t
+                          :db-click t
+                          :decimals (or (number-or-nil-decimals type) 0)
+                          :size (om-make-point 60 18) 
+                          :font (om-def-font :font2)
+                          :min-val (or (number-or-nil-min type) 0) 
+                          :max-val (or (number-or-nil-max type) 10000)
+                          :after-fun #'(lambda (item)
+                                         (set-property 
+                                          object prop-id 
+                                          (make-number-or-nil :number (get-value item)
+                                                              :t-or-nil t))
+                                         (om-set-check-box checkbox t)
+                                         (when update (update-view update object))
+                                         )))
+
+    (setf checkbox 
+          (om-make-di 'om-check-box 
+                      :checked-p (and (valid-property-p object prop-id)
+                                      (get-property object prop-id)
+                                      (color-? (get-property object prop-id)))
+                      :text ""
+                      :resizable :w
+                      :size (om-make-point 20 14)
+                      :font (om-def-font :font1)
+                      :di-action #'(lambda (item)
+                                     (setf (enabled numbox) (om-checked-p item))
+                                     (unless (om-checked-p item)
+                                       (set-value numbox (get-default-value default)))
+                                     (set-property  
+                                      object prop-id 
+                                      (make-color-or-nil :color (if (om-checked-p item) 
+                                                                    (get-default-value default)
+                                                                  nil)
+                                                         :t-or-nil (om-checked-p item)))
+                                     (when update (update-view update object))
+                                     )))
+    (om-make-layout 'om-row-layout
+                    :subviews (list checkbox numbox nil)
+                    :delta nil)
+    ))
+
+;;;====================================
+;;; BOOL
+;;;====================================
+
+(defmethod make-prop-item ((type (eql :bool)) prop-id object &key default update)
+  (om-make-di 'om-check-box 
+              ;:enable (valid-property-p object prop-id)
+              :checked-p (get-property object prop-id) ; (and (valid-property-p object prop-id) (get-property object prop-id))
+              :text ""
+              :resizable :w
+              :size (om-make-point nil 14)
+              :font (om-def-font :font1)
+              :di-action #'(lambda (item)
+                             (set-property object prop-id (om-checked-p item))
+                             (when update (update-view update object))
+                             )))
+
+;;;====================================
+;;; LIST OF CHOICES
+;;;====================================
+
+(defmethod make-prop-item ((type list) prop-id object &key default update)
+  (om-make-di 'om-popup-list 
+              ;:enable (valid-property-p object prop-id)
+              :items type 
+              :resizable :w
+              :value (get-property object prop-id)
+              :size (om-make-point (list :string (format nil "~A" (get-property object prop-id))) 22)
+              :font (om-def-font :font1)
+              :di-action #'(lambda (item)
+                             (set-property object prop-id (om-get-selected-item item))
+                             (when update (update-view update object))
+                             )))
+
+;;;====================================
+;;; COLORS
+;;;====================================
+
+(defstruct color-or-nil (t-or-nil) (color))
+;;; for compatibility with simple colors...
+(defmethod color-? ((self color-or-nil)) (color-or-nil-t-or-nil self))
+(defmethod color-color ((self color-or-nil)) (color-or-nil-color self))
+(defmethod color-? ((self oa::omcolor)) t)
+(defmethod color-color ((self oa::omcolor)) self)
+(defmethod color-? ((self t)) nil)
+
+
+(defmethod object-accept-transparency ((self t)) t)
+
+(defmethod make-prop-item ((type (eql :color)) prop-id object &key default update)
+  (om-make-view 'color-view 
+                :size (om-make-point 50 16)
+                :resizable :w
+                :with-alpha (object-accept-transparency object)
+                :enabled (and (valid-property-p object prop-id) (get-property object prop-id))
+                :color (and (valid-property-p object prop-id)
+                            (or (get-property object prop-id)
+                                default
+                                (om-def-color :light-gray)))
+                :after-fun #'(lambda (item)
+                               (set-property object prop-id (color item))
+                               (when update (update-view update object))
+                               )))
+
+(defmethod make-prop-item ((type (eql :color-or-nil)) prop-id object &key default update)
+
+  (let* ((def (or default (om-def-color :gray)))
+         colorview colorbox)
+
+    (setf colorview 
+          (om-make-view 'color-view 
+                        :size (om-make-point 50 16)
+                        :resizable :w
+                        :with-alpha (object-accept-transparency object)
+                        :enabled (and (valid-property-p object prop-id)
+                                      (get-property object prop-id)
+                                      (color-? (get-property object prop-id)))
+                        :color (and (valid-property-p object prop-id)
+                                    (if (color-? (get-property object prop-id)) 
+                                        (color-color (get-property object prop-id))
+                                      (get-default-value def)))
+                        :after-fun #'(lambda (item)
+                                       (set-property 
+                                        object prop-id 
+                                        (make-color-or-nil :color (color item)
+                                                           :t-or-nil t))
+                                       (om-set-check-box colorbox t)
+                                       (when update (update-view update object))
+                                       )))
+    (setf colorbox 
+          (om-make-di 'om-check-box 
+                      :checked-p (and (valid-property-p object prop-id)
+                                      (get-property object prop-id)
+                                      (color-? (get-property object prop-id)))
+                      :text ""
+                      :resizable :w
+                      :size (om-make-point 20 14)
+                      :font (om-def-font :font1)
+                      :di-action #'(lambda (item)
+                                     (setf (enabled colorview) (om-checked-p item))
+                                     (unless (om-checked-p item)
+                                       (setf (color colorview) (get-default-value default)))
+                                     (om-invalidate-view colorview)
+                                     (set-property  
+                                      object prop-id 
+                                      (make-color-or-nil :color (if (om-checked-p item) 
+                                                                    (get-default-value default)
+                                                                  nil) ;(get-default-value def)
+                                                         :t-or-nil (om-checked-p item)))
+                                     (when update (update-view update object))
+                                     )))
+    (om-make-layout 'om-row-layout
+                    :subviews (list colorbox colorview nil)
+                    :delta nil)
+    ))
+
+
+;;;====================================
+;;; FONTS
+;;;====================================
+
+(defstruct font-or-nil (t-or-nil) (font))
+;;; for compatibility with simple fonts...
+(defmethod font-? ((self font-or-nil)) (font-or-nil-t-or-nil self))
+(defmethod font-font ((self font-or-nil)) (font-or-nil-font self))
+(defmethod font-? ((self t)) (gp::font-description-p self))
+(defmethod font-font ((self t)) (and (gp::font-description-p self) self))
+
+
+(defmethod make-prop-item ((type (eql :font)) prop-id object &key default update)
+  (flet ((font-to-str (font) 
+           (if (om-font-p font)
+               (format nil " ~A ~Dpt ~A" (om-font-face font) (round (om-font-size font)) 
+                       (if (om-font-style font) (format nil "[~{~S~^ ~}]" (om-font-style font)) ""))
+             "-")))
+    (om-make-di 'om-button 
+                :resizable :w
+                ;:enable (valid-property-p object prop-id)
+                :focus nil :default nil
+                :text (font-to-str (get-property object prop-id))
+                :size (om-make-point (list :string (font-to-str (get-property object prop-id))) 26)
+                :font (om-def-font :font1)
+                :di-action #'(lambda (item)
+                               (let ((choice (om-choose-font-dialog :font (or (get-property object prop-id)
+                                                                              (and update (om-get-font update))))))
+                                 (om-set-dialog-item-text item (font-to-str choice))
+                                 (set-property object prop-id choice)
+                                 (when update (update-view update object))
+                                 )))))
+
+
+(defmethod make-prop-item ((type (eql :font-or-nil)) prop-id object &key default update)
+  
+  (flet (
+         (font-to-str (font) 
+           (if (om-font-p font)
+               (format nil " ~A ~Dpt ~A" (om-font-face font) (round (om-font-size font)) 
+                       (if (om-font-style font) (format nil "[~{~S~^ ~}]" (om-font-style font)) ""))
+             "-"))
+         )
+         
+    (let* ((def (or default (om-def-font :font1)))
+           (current (and (valid-property-p object prop-id)
+                         (if (font-? (get-property object prop-id)) 
+                             (font-font (get-property object prop-id))
+                           (get-default-value def))))
+           fontbutton checkbox)
+
+      (setf fontbutton
+
+            (om-make-di 'om-button 
+                        :resizable :w
+                        :enable (and (valid-property-p object prop-id)
+                                     (get-property object prop-id)
+                                     (font-? (get-property object prop-id)))
+                        :focus nil :default nil
+                        :text (font-to-str (font-font current))
+                        :size (om-make-point (list :string (font-to-str (font-font current))) 26)
+                        :font (om-def-font :font1)
+                        :di-action #'(lambda (item)
+                                       (let ((choice (om-choose-font-dialog 
+                                                      :font (or (font-font (get-property object prop-id))
+                                                                (and update (om-get-font update))))))
+                                         (om-set-dialog-item-text item (font-to-str choice))
+                                         (set-property object prop-id 
+                                                       (make-font-or-nil :font choice
+                                                                         :t-or-nil t))
+                                         (when update (update-view update object))
+                                         )))
+
+            )
+      (setf checkbox 
+            (om-make-di 'om-check-box 
+                        :checked-p (and (valid-property-p object prop-id)
+                                        (get-property object prop-id)
+                                        (font-? (get-property object prop-id)))
+                        :text ""
+                        :resizable :w
+                        :size (om-make-point 20 14)
+                        :font (om-def-font :font1)
+                        :di-action #'(lambda (item)
+                                       (om-enable-dialog-item fontbutton (om-checked-p item))
+                                       (unless (om-checked-p item)
+                                         (om-set-dialog-item-text fontbutton (font-to-str (get-default-value def))))
+                                       (set-property  
+                                        object prop-id 
+                                        (make-font-or-nil :font (if (om-checked-p item) 
+                                                                    (get-default-value default)
+                                                                  nil)
+                                                          :t-or-nil (om-checked-p item)))
+                                       (when update (update-view update object))
+                                       )))
+      (om-make-layout 'om-row-layout
+                      :subviews (list checkbox fontbutton nil)
+                      :align :center
+                      :delta nil)
+      )))
+
+
+;;;====================================
+;;; PATHNAME
+;;;====================================
 
 (defmethod make-prop-item ((type (eql :path)) prop-id object &key default update)
   (let ((textview (om-make-view 'click-and-edit-text 
@@ -181,134 +500,11 @@
                      ))
     ))
 
-;;; for number default is a list (min-val max-val decimals)
-(defmethod make-prop-item ((type (eql :number)) prop-id object &key default update)
-  (let ((def (loop for element in default collect
-                   (if (functionp element) (funcall element object)
-                     element))))
-  (om-make-graphic-object 'numbox 
-                          :value (get-property object prop-id)
-                          :bg-color (om-def-color :white)
-                          :border t
-                          :db-click t
-                          :decimals (or (caddr def) 0)
-                          :size (om-make-point 60 18) 
-                          :font (om-def-font :font2)
-                          :min-val (or (car def) 0) :max-val (or (cadr def) 10000)
-                          :after-fun #'(lambda (item)
-                             (set-property object prop-id (get-value item))
-                             (when update (update-view update object))
-                             ))))
-
-(defmethod make-prop-item ((type (eql :bool)) prop-id object &key default update)
-  (om-make-di 'om-check-box 
-              ;:enable (valid-property-p object prop-id)
-              :checked-p (get-property object prop-id) ; (and (valid-property-p object prop-id) (get-property object prop-id))
-              :text ""
-              :resizable :w
-              :size (om-make-point nil 14)
-              :font (om-def-font :font1)
-              :di-action #'(lambda (item)
-                             (set-property object prop-id (om-checked-p item))
-                             (when update (update-view update object))
-                             )))
-
-(defmethod make-prop-item ((type list) prop-id object &key default update)
-  (om-make-di 'om-popup-list 
-              ;:enable (valid-property-p object prop-id)
-              :items type 
-              :resizable :w
-              :value (get-property object prop-id)
-              :size (om-make-point (list :string (format nil "~A" (get-property object prop-id))) 22)
-              :font (om-def-font :font1)
-              :di-action #'(lambda (item)
-                             (set-property object prop-id (om-get-selected-item item))
-                             (when update (update-view update object))
-                             )))
-
-(defmethod make-prop-item ((type (eql :font)) prop-id object &key default update)
-  (flet ((font-to-str (font) 
-           (if (om-font-p font)
-               (format nil " ~A ~Dpt ~A" (om-font-face font) (round (om-font-size font)) 
-                       (if (om-font-style font) (format nil "[~{~S~^ ~}]" (om-font-style font)) ""))
-             "-")))
-    (om-make-di 'om-button 
-                :resizable :w
-                ;:enable (valid-property-p object prop-id)
-                :focus nil :default nil
-                :text (font-to-str (get-property object prop-id))
-                :size (om-make-point (list :string (font-to-str (get-property object prop-id))) 26)
-                :font (om-def-font :font1)
-                :di-action #'(lambda (item)
-                               (let ((choice (om-choose-font-dialog :font (or (get-property object prop-id)
-                                                                              (and update (om-get-font update))))))
-                                 (om-set-dialog-item-text item (font-to-str choice))
-                                 (set-property object prop-id choice)
-                                 (when update (update-view update object))
-                                 )))))
 
 
-(defmethod object-accept-transparency ((self t)) t)
-
-(defmethod make-prop-item ((type (eql :color)) prop-id object &key default update)
-  (om-make-view 'color-view 
-                :size (om-make-point 50 16)
-                :resizable :w
-                :with-alpha (object-accept-transparency object)
-                :enabled (and (valid-property-p object prop-id) (get-property object prop-id))
-                :color (and (valid-property-p object prop-id)
-                            (or (get-property object prop-id)
-                                (om-def-color :light-gray)))
-                :after-fun #'(lambda (item)
-                               (set-property object prop-id (color item))
-                               (when update (update-view update object))
-                               )))
-
-(defmethod make-prop-item ((type (eql 'color-or-nil)) prop-id object &key default update)
-  (let* (colorview colorbox)
-    (setf colorview 
-          (om-make-view 'color-view 
-                        :size (om-make-point 50 16)
-                        :resizable :w
-                        :with-alpha (object-accept-transparency object)
-                        :enabled (and (valid-property-p object prop-id)
-                                      (get-property object prop-id)
-                                      (color-? (get-property object prop-id)))
-                        :color (and (valid-property-p object prop-id)
-                                    (if (get-property object prop-id) 
-                                        (color-color (get-property object prop-id))
-                                        (om-def-color :light-gray)))
-                        :after-fun #'(lambda (item)
-                                       (set-property 
-                                        object prop-id 
-                                        (make-color-or-nil :color (color item)
-                                                           :t-or-nil t))
-                                       (om-set-check-box colorbox t)
-                                       (when update (update-view update object))
-                                       )))
-    (setf colorbox 
-          (om-make-di 'om-check-box 
-                      :checked-p (and (valid-property-p object prop-id)
-                                      (get-property object prop-id)
-                                      (color-? (get-property object prop-id)))
-                      :text ""
-                      :resizable :w
-                      :size (om-make-point 20 14)
-                      :font (om-def-font :font1)
-                      :di-action #'(lambda (item)
-                                     (setf (enabled colorview) (om-checked-p item))
-                                     (om-invalidate-view colorview)
-                                     (set-property  
-                                      object prop-id 
-                                      (make-color-or-nil :color (color colorview)
-                                                         :t-or-nil (om-checked-p item)))
-                                     (when update (update-view update object))
-                                     )))
-    (om-make-layout 'om-row-layout
-                    :subviews (list colorbox colorview nil)
-                    :delta nil)
-    ))
-
+;;;====================================
+;;; ACTION / BUTTON
+;;;====================================
 
 (defmethod get-def-action-list ((object t)) nil)
 (defmethod arguments-for-action ((fun t)) nil)
@@ -353,6 +549,7 @@
                                                          
                                          
     (om-modal-dialog win)))
+
 
 
 (defmethod make-prop-item ((type (eql :action)) prop-id object &key default update)

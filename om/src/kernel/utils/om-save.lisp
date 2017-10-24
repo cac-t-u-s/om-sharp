@@ -170,6 +170,17 @@
                 :style (find-values-in-prop-list data :style)
                 ))
 
+(defmethod omng-save ((self font-or-nil))  
+  `(:font-or-nil 
+    (:font ,(omng-save (font-or-nil-font self)))
+    (:t-or-nil ,(font-or-nil-t-or-nil self))))
+
+(defmethod om-load-from-id ((id (eql :font-or-nil)) data)
+  (make-font-or-nil 
+   :font (omng-load (find-value-in-kv-list data :font))
+   :t-or-nil (find-value-in-kv-list data :t-or-nil)))
+
+
 (defmethod omng-save ((self oa::ompoint))  
   `(:point ,(om-point-x self) ,(om-point-y self))) 
 
@@ -190,7 +201,7 @@
 (defmethod om-load-from-id ((id (eql :color-or-nil)) data)
   (make-color-or-nil 
    :color (omng-load (find-value-in-kv-list data :color))
-   :t-or-nil (omng-load (find-value-in-kv-list data :t-or-nil))))
+   :t-or-nil (find-value-in-kv-list data :t-or-nil)))
 
 
 (defmethod sethash ((self hash-table) (entry t) (value t))
@@ -234,6 +245,18 @@
 
 (defmethod omng-save ((self string)) self)
 (defmethod omng-save ((self function)) nil)
+
+
+(defmethod omng-save ((self number-or-nil))  
+  `(:number-or-nil 
+    (:number ,(number-or-nil-number self))
+    (:t-or-nil ,(number-or-nil-t-or-nil self))))
+
+(defmethod om-load-from-id ((id (eql :number-or-nil)) data)
+  (make-number-or-nil 
+   :number (find-value-in-kv-list data :number)
+   :t-or-nil (find-value-in-kv-list data :t-or-nil)))
+
 
 ;;;===================================
 ;;; SAVE/LOAD METHODS FOR

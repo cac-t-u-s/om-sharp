@@ -23,18 +23,19 @@
 
 (defclass OMComment (OMBox) ())
 
-(add-preference-section :appearance "Comments" "- Default values for comments with unspecified or disabled attributes")
+(add-preference-section :appearance "Comments" "Default values for comments with unspecified or disabled attributes")
 (add-preference :appearance :comment-fgcolor "Text color" :color (om-def-color :black))
 (add-preference :appearance :comment-bgcolor "Background color" :color-a (om-def-color :transparent))
 (add-preference :appearance :comment-font "Font" :font (om-def-font :font1 :style '(:italic)))
 
+ ;;; id text type slot-name defaly
 (defmethod get-properties-list ((self OMComment))
   '(("Appearance" ;;; category
-               (:fgcolor "Text color" color-or-nil text-color)
-               (:bgcolor "Background color" color-or-nil color)
+               (:fgcolor "Text color" :color-or-nil text-color (:appearance :comment-fgcolor))
+               (:bgcolor "Background color" :color-or-nil color (:appearance :comment-bgcolor))
                (:border "Border" :bool border)
                (:roundness "Corner" :number roundness (0 20 0))
-               (:text-font "Text font" :font text-font) ;;; id text type slot-name
+               (:text-font "Text font" :font-or-nil text-font (:appearance :comment-font))
                (:align "Text align" (:left :center :right) text-align)
                )))
 
@@ -43,6 +44,17 @@
       (color-color (color box))
     (get-pref-value :appearance :comment-bgcolor)))
 
+(defmethod box-draw-text-color ((box OMComment)) 
+  (if (and (text-color box) (color-? (text-color box)))
+      (color-color (text-color box))
+    (get-pref-value :appearance :comment-fgcolor)))
+
+(defmethod box-draw-font ((box OMComment)) 
+  (if (font-? (text-font box))
+      (font-font (text-font box))
+    (get-pref-value :appearance :comment-font)))
+
+
 (defmethod omNG-make-new-comment (text pos)
   (let* ((comment-lines (om-text-to-lines text))
          (longest-line (reduce #'(lambda (s1 s2) (if (> (length s1) (length s2)) s1 s2)) comment-lines)))
@@ -50,11 +62,12 @@
         (om-string-size longest-line (get-pref-value :appearance :comment-style))
     
       (let ((newcomment (make-instance 'OMComment 
-                                     :text-font (get-pref-value :appearance :comment-style)
-                                     :icon-pos nil :border nil 
-                                     :color nil :text-color (get-pref-value :appearance :comment-color)
-                                     :box-x (om-point-x pos) :box-y (om-point-y pos)
-                                     :box-w (+ 4 w) :box-h (+ 12 (* h (length comment-lines)))
+                                       ;:text-font (get-pref-value :appearance :comment-font)
+                                       :icon-pos nil :border nil 
+                                       ;:color (get-pref-value :appearance :comment-bgcolor) 
+                                       ;:text-color (get-pref-value :appearance :comment-fgcolor)
+                                       :box-x (om-point-x pos) :box-y (om-point-y pos)
+                                       :box-w (+ 4 w) :box-h (+ 12 (* h (length comment-lines)))
                                      )))
       (setf (value newcomment) text)
       newcomment))))
@@ -63,11 +76,8 @@
   (let* ((comment-lines (om-text-to-lines (value self)))
          (longest-line (reduce #'(lambda (s1 s2) (if (> (length s1) (length s2)) s1 s2)) comment-lines)))
     (multiple-value-bind (w h)
-        (om-string-size longest-line (text-font self))
+        (om-string-size longest-line (box-draw-font self))
       (omp (+ 4 w) (+ 16 (* h (length comment-lines)))))))
-
-
-
 
 
 (defmethod om-copy ((self OMComment)) 
@@ -96,7 +106,7 @@
                 :size (omp (box-w self) (box-h self))
                 :help "comment"
                 ;:bg-color (om-def-color :white)
-                :font (text-font self)
+                :font (font-font (text-font self))
                 :object self)))
     (setf (frame self) view)
     (set-frame-areas view)
@@ -112,16 +122,17 @@
   (setf (areas self) (resize-areas self)))
 
 (defmethod display-text-and-area ((self CommentFrame))
-  (let ((font (or (text-font (object self)) (om-get-font self)))
+  (let ((font (or (font-font (text-font (object self))) (om-get-font self)))
         (lines (om-text-to-lines (value (object self)))))
     (multiple-value-bind (w h) (om-string-size (car lines) font)
       (loop for l in (cdr lines) do (setf w (max w (om-string-size l font))))
       (values (value (object self)) 3 8 w (* h (length lines))))))
 
-(defmethod draw-border ((self OMComment) x y w h style)  
-  (om-with-line-size '(2 2)
-    (om-draw-rect x y w h :line (if (numberp style) style 1) :color (om-def-color :gray) :angles :round)))
-
+(defmethod draw-border ((self OMComment) x y w h stroke-size)  
+  (om-with-line '(4 4)
+    (call-next-method)
+    ))
+ 
 (defmethod enter-new-comment ((self om-view) position)
   (let ((textinput 
          (om-make-di 'om-text-edit-view
@@ -164,7 +175,7 @@
                                                 (set-value box newtext)
                                                 (om-set-focus container-view)
                                                 ))
-                               :font (text-font box)
+                               :font (font-font (text-font box))
                                :size (om-add-points (omp (box-w box) (box-h box)) (omp 4 4))
                                :position (omp (box-x box) (box-y box))
                                )))

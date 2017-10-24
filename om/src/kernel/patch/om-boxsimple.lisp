@@ -28,16 +28,16 @@
 (defmethod get-object-type-name ((self OMValueBox)) "Simple value")
 
 (defmethod get-properties-list ((self OMValueBox))
-  (list '("Appearance" ;;; category
-                       (:color "Color" 'color-or-nil color)
-                       (:border "Border" :bool border)
-                       (:font "Text font" :font text-font) ;;; id text type slot-name
-                       (:align "Text align" (:left :center :right) text-align)
-                       )
-        '("Execution" ;;; category
-                      (:lock "Lock state" (nil :locked :eval-once) lock-state) ;;; id text type 
-                      (:reactive "Reactive (r)" :bool reactive))
-        ))
+  '(("Appearance" ;;; category
+     (:color "Color" :color-or-nil color)
+     (:border "Border" :bool border)
+     (:font "Text font" :font text-font) ;;; id text type slot-name
+     (:align "Text align" (:left :center :right) text-align)
+     )
+    ("Execution" ;;; category
+     (:lock "Lock state" (nil :locked :eval-once) lock-state) ;;; id text type 
+     (:reactive "Reactive (r)" :bool reactive))
+    ))
 
 
 (defmethod create-box-outputs ((self OMValueBox))
@@ -71,7 +71,7 @@
   (minimum-size self))
 
 (defmethod minimum-size ((self OMValueBox))
-  (let ((text-size (om-string-size (print-value self) (text-font self))))
+  (let ((text-size (om-string-size (print-value self) (font-font (text-font self)))))
     (om-make-point (max text-size
                         (+ 20 (* (length (inputs self)) 10))
                         32)
@@ -101,7 +101,7 @@
 (defmethod get-box-frame-class ((self OMValueBox)) 'OMValueBoxFrame)
 
 (defmethod display-text-and-area ((self OMValueBoxFrame))
-  (let ((font (or (text-font (object self)) (om-get-font self))))
+  (let ((font (or (font-font (text-font (object self))) (om-get-font self))))
     (multiple-value-bind (w h) (om-string-size (print-value (object self)) font)
       (values (print-value (object self)) 3 8 w h))))
 

@@ -420,9 +420,9 @@
                                        (format nil "~A" init-args)
                                      nil)  ;; (string-upcase (class-name reference))
                              :reference (class-name reference)
-                            :icon-pos :noicon :show-name nil
-                            :text-font (om-def-font :font1 :style '(:italic))
-                            :text-align :right))
+                             :icon-pos :noicon :show-name nil
+                             :text-font (om-def-font :font1 :style '(:italic))
+                             :text-align :right))
          (size (default-size box)))
     (setf (box-x box) (om-point-x pos)
           (box-y box) (om-point-y pos)

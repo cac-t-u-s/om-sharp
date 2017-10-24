@@ -218,6 +218,13 @@
 
 (add-om-exit-action 'save-preferences)
 
+
+;;;====================================
+;;; SPECIAL TYPES FOR PREFERENCES
+;;;====================================
+
+(defstruct number-in-range (min) (max))
+
 ;;;====================================
 ;;; DEFAULT MODULE
 ;;;====================================
