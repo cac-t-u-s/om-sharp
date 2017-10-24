@@ -27,20 +27,20 @@
    (points :accessor points :initarg :points :initform nil)
    (modif :accessor modif :initarg :modif :initform nil)
    (style :accessor style :initarg :style :initform nil) ; :curved)
-   (color :accessor color :initarg :color :initform (om-def-color :dark-gray))
+   (color :accessor color :initarg :color :initform nil)
    (seleted :accessor selected :initarg :selected :initform nil)
    (graphic-connection :initform nil :accessor graphic-connection)))
 
 
-(add-preference-section :appearance "Connections" "- Default values for connections with unspecified or disabled attributes")
+(add-preference-section :appearance "Connections" "Default values for connections with unspecified or disabled attributes")
 (add-preference :appearance :connection-color "Color" :color (om-def-color :dark-gray))
 (add-preference :appearance :connection-style "Syle" '(:normal :line :curved) :normal)
 
 (defmethod get-properties-list ((self OMConnection))
   '(("Connection properties" ;;; category
-               (:color "Color" color-or-nil color) ;;; id text type 
-               (:style "Style" (:normal :line :curved nil) style)
-               (:reactive "Reactive (r)" :bool reactive))))
+     (:color "Color" :color-or-nil color (:appearance :connection-color)) ;;; id text type dafault
+     (:style "Style" (:normal :line :curved nil) style)
+     (:reactive "Reactive (r)" :bool reactive))))
 
 ;;; called in the properties management / inspector
 (defmethod object-accept-transparency ((self OMConnection)) nil)

@@ -59,11 +59,10 @@
 
 
 (add-preference-module :appearance "Appearance")
-(add-preference-section :appearance "Boxes" "- Default values for boxes with unspecified or disabled attributes")
-(add-preference :appearance :box-size "Size (%)" '(25 50 75 100 125 150 175 200) 100)
+(add-preference-section :appearance "Boxes" "Default values for boxes with unspecified or disabled attributes")
 (add-preference :appearance :box-color "Color" :color-a (om-def-color :light-gray))
 (add-preference :appearance :box-border "Border" :bool t)
-(add-preference :appearance :roundness "Corner roundness" (make-number-in-range :min 0 :max 20) 6)
+(add-preference :appearance :box-roundness "Corner roundness" (make-number-in-range :min 0 :max 20) 6)
 (add-preference :appearance :box-font "Text font" :font (om-def-font :font1))
 (add-preference :appearance :box-align "Text align" '(:left :center :right) :left)
 
@@ -73,18 +72,40 @@
 
 (defmethod object-name-in-inspector ((self OMBox)) (format nil "~A box" (reference self)))
 
+;;; id text type slot-name
 (defmethod get-properties-list ((self OMBox))
-  '(("Appearance" ;;; category
+  `(("Appearance" ;;; category
                ;(:icon "Icon position" (:left :top :noicon) icon-pos)
-               (:color "Color" color-or-nil color)
+               (:color "Color" :color-or-nil color (:appearance :box-color))
                (:border "Border" :bool border)
-               (:roundness "Corner" :number roundness (0 20 0))
-               (:text-font "Text font" :font text-font) ;;; id text type slot-name
+               (:roundness "Corner" ,(make-number-or-nil :min 0 :max 20) roundness (:appearance :box-roundness))
+               (:text-font "Text font" :font-or-nil text-font (:appearance :box-font)) 
                (:align "Text align" (:left :center :right) text-align)
                )
     ("Structure" ;;; category
                (:group-id "Group/Track" (:none 1 2 3 4 5 6 7 8) group-id)
                )))
+
+(defmethod box-draw-color ((box OMBox)) 
+  (if (color-? (color box))
+      (color-color (color box))
+    (get-pref-value :appearance :box-color)))
+
+(defmethod box-draw-font ((box OMBox)) 
+  (if (font-? (text-font box))
+      (font-font (text-font box))
+    (get-pref-value :appearance :box-font)))
+
+(defmethod box-draw-text-color ((box OMBox)) 
+  (if (color-? (text-color box))
+      (color-color (text-color box))
+    (om-def-color :black)))
+
+(defmethod box-draw-roundness ((box OMBox)) 
+  (if (number-? (roundness box))
+      (number-number (roundness box))
+    0))
+
 
 (defmethod update-container-groups ((self t)) self)
 
@@ -202,7 +223,7 @@
 
 (defmethod minimum-size ((self OMBox))
   (multiple-value-bind (w h) 
-      (om-string-size (name self) (text-font self))
+      (om-string-size (name self) (box-draw-font self))
     (om-make-point (+ 10 
                       (max (+ 8 w (if (equal (icon-pos self) :left) 20 0))
                          22
@@ -213,7 +234,7 @@
 
 (defmethod maximum-size ((self OMBox))
    (multiple-value-bind (w h) 
-      (om-string-size (name self) (text-font self))   
+      (om-string-size (name self) (box-draw-font self))   
      (if (equal (icon-pos self) :left)
          (om-make-point 500 (max (+ (get-icon-size self) 8) (+ h 16)))
        (om-make-point 500 200))))

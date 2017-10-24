@@ -88,7 +88,8 @@
 (defmethod valid-property-p ((self OMInOutBox) (prop-id (eql :lambda))) nil)
 
 (defmethod minimum-size ((self OMInOutBox))
-  (om-make-point (+ 8 (om-string-size (name self) (text-font self)) (if (equal (icon-pos self) :left) 22 0))
+  (om-make-point (+ 8 (om-string-size (name self) (font-font (text-font self)))
+                    (if (equal (icon-pos self) :left) 22 0))
                  (+ (if (equal (icon-pos self) :top) 14 0) 28)))
 
 (defmethod maximum-size ((self OMInOutBox))
