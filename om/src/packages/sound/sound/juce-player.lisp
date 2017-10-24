@@ -118,8 +118,7 @@ This will NOT apply on sounds that are accessed from file"
                     (get-pref-value :audio :samplerate)
                     (get-pref-value :audio :buffersize)
                     )
-  (when (listp (get-pref-value :audio :channels-config))
-    (configure-audio-channels (get-pref-value :audio :channels-config)))
+  (configure-audio-channels (get-pref-value :audio :channels-config))
   )
 
 ; (juce::getCurrentDeviceType *juce-player*)
@@ -148,6 +147,7 @@ This will NOT apply on sounds that are accessed from file"
 ;;; c = -1 : mute
 (defun configure-audio-channels (list)
   (om-print (format nil "Routing channels:") "AUDIO")
+  (unless list (om-print "[reset]" "AUDIO"))
   (let* ((available-channels (juce::getoutputchannelslist *juce-player*))
          (checked-list
             (loop for to in list 
