@@ -37,11 +37,11 @@
 (defmethod unregister-document ((self OMObject)) nil)
 
 (defmethod register-document ((self OMPersistantObject) &optional path)
-  (om-print (list "Registering document" self (mypathname self)))
+  (om-print-dbg "Registering document: ~A - ~A" (list self (mypathname self)))
   (push (make-doc-entry :doc self :file (and path (namestring path))) *open-documents*))
 
 (defmethod unregister-document ((self OMPersistantObject))
-  (om-print (list "Unregistering document" self (mypathname self)))
+  (om-print "Unregistering document: ~A - ~A" (list self (mypathname self)))
   (let ((doc-entry (find self *open-documents* :key 'doc-entry-doc)))
     (setf *open-documents* (remove self *open-documents* :key 'doc-entry-doc))
     (when (and (null *open-documents*) *quit-at-last-doc*
