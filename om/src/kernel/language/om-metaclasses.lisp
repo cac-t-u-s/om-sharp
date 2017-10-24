@@ -37,8 +37,8 @@
 )
 
 (defclass OMStandardClass (OMClass)  ()
-   (:documentation "This is the current OM meta-class, you can sub-class it and used the new class as current meta-class.
-This class is a OMClass a diferencia of OMClass.)
+   (:documentation "This is the current OM metaclass, you can sub-class it and use the new class as current metaclass.
+This class is an OMClass (unlike OMClass itself!).")
    (:metaclass OMClass))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
