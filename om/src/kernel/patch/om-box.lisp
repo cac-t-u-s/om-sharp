@@ -7,7 +7,7 @@
 ;   This program is free software. For information on usage 
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
-;   This program is distributed; in the hope that it will be useful,
+;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 ;
@@ -39,13 +39,12 @@
     (display :initform :hidden :accessor display :initarg :display)
     (selected :initform nil :accessor selected :initarg :selected)
     (cache-display :initform nil :accessor cache-display)
-    (border :initform 1.5 :accessor border :initarg :border)
+    (border :initform nil :accessor border :initarg :border)
     (roundness :initform nil :accessor roundness :initarg :border)
-    (color :accessor color :initarg :color
-           :initform (make-color-or-nil :color (get-pref-value :appearance :box-color) :t-or-nil t))
+    (color :initform nil :accessor color :initarg :color)
     (text-font :initform nil :accessor text-font :initarg :text-font)
     (text-color :initform nil :accessor text-color :initarg :text-color)
-    (text-align :initform :left :accessor text-align :initarg :text-align)
+    (text-align :initform nil :accessor text-align :initarg :text-align)
     (icon-pos :initform :left :accessor icon-pos :initarg :icon-pos)
     (show-name :initform t :accessor show-name :initarg :show-name)
     (show-markers :accessor show-markers :initform t)
@@ -61,7 +60,7 @@
 (add-preference-module :appearance "Appearance")
 (add-preference-section :appearance "Boxes" "Default values for boxes with unspecified or disabled attributes")
 (add-preference :appearance :box-color "Color" :color-a (om-def-color :light-gray))
-(add-preference :appearance :box-border "Border" :bool t)
+(add-preference :appearance :box-border "Border" (make-number-in-range :min 0 :max 4) 2)
 (add-preference :appearance :box-roundness "Corner roundness" (make-number-in-range :min 0 :max 20) 6)
 (add-preference :appearance :box-font "Text font" :font (om-def-font :font1))
 (add-preference :appearance :box-align "Text align" '(:left :center :right) :left)
@@ -77,14 +76,15 @@
   `(("Appearance" ;;; category
                ;(:icon "Icon position" (:left :top :noicon) icon-pos)
                (:color "Color" :color-or-nil color (:appearance :box-color))
-               (:border "Border" :bool border)
+               (:border "Border" ,(make-number-or-nil :min 0 :max 4) border (:appearance :box-border))
                (:roundness "Corner" ,(make-number-or-nil :min 0 :max 20) roundness (:appearance :box-roundness))
                (:text-font "Text font" :font-or-nil text-font (:appearance :box-font)) 
-               (:align "Text align" (:left :center :right) text-align)
+               (:align "Text align" (:left :center :right :default) text-align (:appearance :box-align))
                )
     ("Structure" ;;; category
                (:group-id "Group/Track" (:none 1 2 3 4 5 6 7 8) group-id)
                )))
+
 
 (defmethod box-draw-color ((box OMBox)) 
   (if (color-? (color box))
@@ -101,10 +101,19 @@
       (color-color (text-color box))
     (om-def-color :black)))
 
+(defmethod box-draw-text-align ((box OMBox)) 
+  (or (text-align box)
+      (get-pref-value :appearance :box-align)))
+
+(defmethod box-draw-border ((box OMBox)) 
+  (if (number-? (border box))
+      (number-number (border box))
+    (get-pref-value :appearance :box-border)))
+
 (defmethod box-draw-roundness ((box OMBox)) 
   (if (number-? (roundness box))
       (number-number (roundness box))
-    0))
+    (get-pref-value :appearance :box-roundness)))
 
 
 (defmethod update-container-groups ((self t)) self)
@@ -229,7 +238,7 @@
                          22
                          (* (length (inputs self)) 10)
                          (* (box-n-outs self) 10)))
-                 (+ h 16 (if (equal (icon-pos self) :top) 20 0))
+                 (+ h 14 (if (equal (icon-pos self) :top) 20 0))
                  )))
 
 (defmethod maximum-size ((self OMBox))

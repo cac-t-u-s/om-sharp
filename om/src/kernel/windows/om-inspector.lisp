@@ -7,7 +7,7 @@
 ;   This program is free software. For information on usage 
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
-;   This program is distributed; in the hope that it will be useful,
+;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 ;
@@ -93,29 +93,31 @@
        (string (type-of object)))
    )
   (when (get-properties-list object)
-    (let ((inspector-layout (om-make-layout 
-                             'om-grid-layout
-                             :delta '(10 0)
-                             :subviews (loop for category in (get-properties-list object)
-                                             when (cdr category)
-                                             append (append 
-                                                     (list  ;     (car category)  ; (list (car category) (om-def-font :font1b)) 
-                                                      (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)
-                                                      (om-make-di  'om-simple-text :text (car category) :font (om-def-font :font2b)
-                                                                   :size (om-make-point 200 20)  ;:position (om-make-point 0 0)
-                                                                   )
-                                                      ;; prevents focus on other items :)  :right-extend
-                                                      )
-                                                     (loop for prop in (cdr category) append
-                                                           (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font (om-def-font :font1)
-                                                                             :size (om-make-point 110 20) :position (om-make-point 10 16))
+    (let ((inspector-layout 
+           (om-make-layout 
+            'om-grid-layout
+            :delta '(10 0) :align :left
+            :subviews (loop for category in (get-properties-list object)
+                            when (cdr category)
+                            append 
+                            (append 
+                             (list  ;     (car category)  ; (list (car category) (om-def-font :font1b)) 
+                              (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)
+                              (om-make-di 'om-simple-text :text (car category) :font (om-def-font :font2b)
+                                          :size (om-make-point (om-string-size (car category) (om-def-font :font2b)) 20)
+                                          )
+                              ;; prevents focus on other items :)  :right-extend
+                              )
+                             (loop for prop in (cdr category) append
+                                   (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font (om-def-font :font1)
+                                                     :size (om-make-point 110 20) :position (om-make-point 10 16))
                                                                                        ; (nth 1 prop) ; (list (nth 1 prop) (om-def-font :font1))  
-                                                                 (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop) :update view)))
-                                                     (list (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t) 
-                                                           (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t))
-                                                     )
-                                             )
-                             )))
+                                         (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop) :update view)))
+                             (list (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t) 
+                                   (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t))
+                             )
+                            )
+            )))
       
       (om-add-subviews win inspector-layout)
       (om-set-view-size win (om-make-point 300 (om-height inspector-layout)))

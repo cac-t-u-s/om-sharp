@@ -7,7 +7,7 @@
 ;   This program is free software. For information on usage 
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
-;   This program is distributed; in the hope that it will be useful,
+;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 ;
@@ -26,18 +26,22 @@
 (add-preference-section :appearance "Comments" "Default values for comments with unspecified or disabled attributes")
 (add-preference :appearance :comment-fgcolor "Text color" :color (om-def-color :black))
 (add-preference :appearance :comment-bgcolor "Background color" :color-a (om-def-color :transparent))
+(add-preference :appearance :comment-border "Border" (make-number-in-range :min 0 :max 4) 1)
+(add-preference :appearance :comment-roundness "Corner roundness" (make-number-in-range :min 0 :max 20) 0)
 (add-preference :appearance :comment-font "Font" :font (om-def-font :font1 :style '(:italic)))
+(add-preference :appearance :comment-align "Text align" '(:left :center :right) :left)
+
 
  ;;; id text type slot-name defaly
 (defmethod get-properties-list ((self OMComment))
-  '(("Appearance" ;;; category
-               (:fgcolor "Text color" :color-or-nil text-color (:appearance :comment-fgcolor))
-               (:bgcolor "Background color" :color-or-nil color (:appearance :comment-bgcolor))
-               (:border "Border" :bool border)
-               (:roundness "Corner" :number roundness (0 20 0))
-               (:text-font "Text font" :font-or-nil text-font (:appearance :comment-font))
-               (:align "Text align" (:left :center :right) text-align)
-               )))
+  `(("Appearance" ;;; category
+     (:fgcolor "Text color" :color-or-nil text-color (:appearance :comment-fgcolor))
+     (:bgcolor "Background color" :color-or-nil color (:appearance :comment-bgcolor))
+     (:border "Border" ,(make-number-or-nil :min 0 :max 4) border (:appearance :comment-border))
+     (:roundness "Corner" ,(make-number-or-nil :min 0 :max 20) roundness (:appearance :comment-roundness))
+     (:text-font "Text font" :font-or-nil text-font (:appearance :comment-font))
+     (:align "Text align" (:left :center :right :default) text-align (:appearance :comment-align))
+     )))
 
 (defmethod box-draw-color ((box OMComment)) 
   (if (and (color box) (color-? (color box)))
@@ -49,10 +53,26 @@
       (color-color (text-color box))
     (get-pref-value :appearance :comment-fgcolor)))
 
+(defmethod box-draw-text-align ((box OMComment)) 
+  (if (equal :default (text-align box))
+      (get-pref-value :appearance :comment-align)
+    (text-align box)))
+
 (defmethod box-draw-font ((box OMComment)) 
   (if (font-? (text-font box))
       (font-font (text-font box))
     (get-pref-value :appearance :comment-font)))
+
+(defmethod box-draw-border ((box OMComment)) 
+  (if (number-? (border box))
+      (number-number (border box))
+    (get-pref-value :appearance :comment-border)))
+
+(defmethod box-draw-roundness ((box OMComment)) 
+  (if (number-? (roundness box))
+      (number-number (roundness box))
+    (get-pref-value :appearance :comment-roundness)))
+
 
 
 (defmethod omNG-make-new-comment (text pos)
@@ -128,8 +148,8 @@
       (loop for l in (cdr lines) do (setf w (max w (om-string-size l font))))
       (values (value (object self)) 3 8 w (* h (length lines))))))
 
-(defmethod draw-border ((self OMComment) x y w h stroke-size)  
-  (om-with-line '(4 4)
+(defmethod draw-border ((self OMComment) x y w h)  
+  (om-with-line '(2 2)
     (call-next-method)
     ))
  

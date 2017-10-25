@@ -7,7 +7,7 @@
 ;   This program is free software. For information on usage 
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
-;   This program is distributed; in the hope that it will be useful,
+;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 ;
@@ -198,6 +198,7 @@
                           :db-click t
                           :decimals (or (number-or-nil-decimals type) 0)
                           :size (om-make-point 60 18) 
+                          :resizable nil
                           :font (om-def-font :font2)
                           :min-val (or (number-or-nil-min type) 0) 
                           :max-val (or (number-or-nil-max type) 10000)
@@ -214,26 +215,26 @@
           (om-make-di 'om-check-box 
                       :checked-p (and (valid-property-p object prop-id)
                                       (get-property object prop-id)
-                                      (color-? (get-property object prop-id)))
+                                      (number-? (get-property object prop-id)))
                       :text ""
-                      :resizable :w
+                      :resizable nil
                       :size (om-make-point 20 14)
                       :font (om-def-font :font1)
                       :di-action #'(lambda (item)
-                                     (setf (enabled numbox) (om-checked-p item))
-                                     (unless (om-checked-p item)
+                                     (enable-numbox numbox (om-checked-p item))
+                                     (when (null (om-checked-p item))
                                        (set-value numbox (get-default-value default)))
                                      (set-property  
                                       object prop-id 
-                                      (make-color-or-nil :color (if (om-checked-p item) 
+                                      (make-number-or-nil :number (if (om-checked-p item) 
                                                                     (get-default-value default)
                                                                   nil)
                                                          :t-or-nil (om-checked-p item)))
                                      (when update (update-view update object))
                                      )))
     (om-make-layout 'om-row-layout
-                    :subviews (list checkbox numbox nil)
-                    :delta nil)
+                    :subviews (list checkbox numbox)
+                    :delta nil :align :center)
     ))
 
 ;;;====================================
@@ -245,7 +246,7 @@
               ;:enable (valid-property-p object prop-id)
               :checked-p (get-property object prop-id) ; (and (valid-property-p object prop-id) (get-property object prop-id))
               :text ""
-              :resizable :w
+              :resizable nil
               :size (om-make-point nil 14)
               :font (om-def-font :font1)
               :di-action #'(lambda (item)
@@ -258,17 +259,50 @@
 ;;;====================================
 
 (defmethod make-prop-item ((type list) prop-id object &key default update)
-  (om-make-di 'om-popup-list 
-              ;:enable (valid-property-p object prop-id)
-              :items type 
-              :resizable :w
-              :value (get-property object prop-id)
-              :size (om-make-point (list :string (format nil "~A" (get-property object prop-id))) 22)
-              :font (om-def-font :font1)
-              :di-action #'(lambda (item)
-                             (set-property object prop-id (om-get-selected-item item))
-                             (when update (update-view update object))
-                             )))
+  (let ((popup (om-make-di 'om-popup-list 
+                           :items (remove :default type) 
+                           :resizable nil
+                           :enable (and (valid-property-p object prop-id) (get-property object prop-id))
+                           :value (or (get-property object prop-id)
+                                      (get-default-value default))
+                           :size (om-make-point ;(list :string (format nil "~A" (get-property object prop-id))) 
+                                  (+ 40 (list-max (mapcar #'(lambda (x) (om-string-size (string x) (om-def-font :font1))) type)))
+                                  22)
+                           :font (om-def-font :font1)
+                           :di-action #'(lambda (item)
+                                          (set-property object prop-id (om-get-selected-item item))
+                                          (when update (update-view update object))
+                                          ))))
+    (if (find :default type)
+        
+        ;;; list-or-nil
+        (let ((checkbox (om-make-di 
+                        'om-check-box 
+                        :checked-p (and (valid-property-p object prop-id)
+                                        (get-property object prop-id))
+                        :text ""
+                        :resizable nil
+                        :size (om-make-point 20 14)
+                        :font (om-def-font :font1)
+                        :di-action #'(lambda (item)
+                                       (om-enable-dialog-item popup (om-checked-p item))
+                                       (when (null (om-checked-p item))
+                                         (om-set-selected-item popup (get-default-value default)))
+                                       (set-property object prop-id 
+                                                     (if (om-checked-p item) 
+                                                         (om-get-selected-item popup)
+                                                       nil))
+                                       (when update (update-view update object))
+                                       ))))
+          (om-make-layout 'om-row-layout
+                    :subviews (list checkbox popup)
+                    :delta nil :align :center)
+          )
+        
+        ;;; simple list
+        popup)
+    ))
+    
 
 ;;;====================================
 ;;; COLORS
@@ -287,8 +321,8 @@
 
 (defmethod make-prop-item ((type (eql :color)) prop-id object &key default update)
   (om-make-view 'color-view 
-                :size (om-make-point 50 16)
-                :resizable :w
+                :size (om-make-point 60 16)
+                :resizable nil
                 :with-alpha (object-accept-transparency object)
                 :enabled (and (valid-property-p object prop-id) (get-property object prop-id))
                 :color (and (valid-property-p object prop-id)
@@ -307,8 +341,8 @@
 
     (setf colorview 
           (om-make-view 'color-view 
-                        :size (om-make-point 50 16)
-                        :resizable :w
+                        :size (om-make-point 60 16)
+                        :resizable nil
                         :with-alpha (object-accept-transparency object)
                         :enabled (and (valid-property-p object prop-id)
                                       (get-property object prop-id)
@@ -331,7 +365,7 @@
                                       (get-property object prop-id)
                                       (color-? (get-property object prop-id)))
                       :text ""
-                      :resizable :w
+                      :resizable nil
                       :size (om-make-point 20 14)
                       :font (om-def-font :font1)
                       :di-action #'(lambda (item)
@@ -348,8 +382,8 @@
                                      (when update (update-view update object))
                                      )))
     (om-make-layout 'om-row-layout
-                    :subviews (list colorbox colorview nil)
-                    :delta nil)
+                    :subviews (list colorbox colorview)
+                    :delta nil :align :center)
     ))
 
 
@@ -372,7 +406,7 @@
                        (if (om-font-style font) (format nil "[~{~S~^ ~}]" (om-font-style font)) ""))
              "-")))
     (om-make-di 'om-button 
-                :resizable :w
+                :resizable nil
                 ;:enable (valid-property-p object prop-id)
                 :focus nil :default nil
                 :text (font-to-str (get-property object prop-id))
@@ -407,7 +441,7 @@
       (setf fontbutton
 
             (om-make-di 'om-button 
-                        :resizable :w
+                        :resizable nil
                         :enable (and (valid-property-p object prop-id)
                                      (get-property object prop-id)
                                      (font-? (get-property object prop-id)))
@@ -433,7 +467,7 @@
                                         (get-property object prop-id)
                                         (font-? (get-property object prop-id)))
                         :text ""
-                        :resizable :w
+                        :resizable nil
                         :size (om-make-point 20 14)
                         :font (om-def-font :font1)
                         :di-action #'(lambda (item)
@@ -449,7 +483,7 @@
                                        (when update (update-view update object))
                                        )))
       (om-make-layout 'om-row-layout
-                      :subviews (list checkbox fontbutton nil)
+                      :subviews (list checkbox fontbutton)
                       :align :center
                       :delta nil)
       )))
@@ -463,7 +497,7 @@
   (let ((textview (om-make-view 'click-and-edit-text 
                 ;:enabled (valid-property-p object prop-id)
                                 :text (format nil "~A" (get-property object prop-id))
-                                :resizable :w
+                                :resizable nil
                                 :bg-color (om-def-color :window)
                                 :fg-color (if (probe-file (get-property object prop-id)) (om-def-color :black) (om-def-color :red))
                                 :border nil ;(om-def-color :gray)
@@ -578,7 +612,7 @@
                           :di-action #'(lambda (b) (declare (ignore b)) (action-set-params object))))
            (poplist (om-make-di 'om-popup-list 
                                 :items print-action-list 
-                                :resizable :w
+                                :resizable nil
                                 :value (if (equal other-name :?) curr-fun-name (format nil "other: ~A" other-name))
                                 :size (om-make-point (list :string (format nil "~A   " curr-fun-name)) 22)
                                 :font (om-def-font :font1)
