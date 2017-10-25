@@ -457,49 +457,53 @@
          (bpf obj)
          (xmax (+ x w)) (ymax (+ y h)))
    
-    (om-with-font (om-def-font :font1) 
-                  ;;; AXES & Grid
-                  (om-with-fg-color (om-def-color :dark-gray)
-                    (let ((center (list (x-to-pix self 0) (y-to-pix self 0))))
-                      (when (and (> (cadr center) 0) (< (cadr center) (h self)))
-                        (om-draw-line 0 (cadr center) (w self) (cadr center)))
-                      (when (and (> (car center) 0) (< (car center) (h self)))
-                        (om-draw-line (car center) 0 (car center) (h self))))
-                    (when (editor-get-edit-param editor :grid)
-                      ;(om-with-line '(2 2)  ;; seems tpo cost a lot in drawing...
-                      (om-with-fg-color (om-make-color 0.95 0.95 0.95)
-                        (draw-grid-from-ruler self (x-ruler self))
-                        (draw-grid-from-ruler self (y-ruler self))
-                        )
-                      ))
-
-                  (mapc #'(lambda (elt) (draw-background-element elt self editor x y xmax ymax)) 
-                        (list! (get-edit-param (object editor) :background)))
+    (om-with-font 
+     (om-def-font :font1) 
+     
+     ;;; GRID
+     (when (editor-get-edit-param editor :grid)
+         ;(om-with-line '(2 2)  ;; seems tpo cost a lot in drawing...
+         (om-with-fg-color (om-make-color 0.95 0.95 0.95)
+           (draw-grid-from-ruler self (x-ruler self))
+           (draw-grid-from-ruler self (y-ruler self))
+           ))
+     
+     ;;; AXES
+     (om-with-fg-color (om-def-color :gray)
+       (let ((center (list (x-to-pix self 0) (y-to-pix self 0))))
+         (when (and (> (cadr center) 0) (< (cadr center) (h self)))
+           (om-draw-line 0 (cadr center) (w self) (cadr center)))
+         (when (and (> (car center) 0) (< (car center) (h self)))
+           (om-draw-line (car center) 0 (car center) (h self)))
+         ))
+     
+     (mapc #'(lambda (elt) (draw-background-element elt self editor x y xmax ymax)) 
+           (list! (get-edit-param (object editor) :background)))
                                                                  
-                  ;;; draw multi ?
-                  (when (multi-display-p editor)
-                    (loop for bg-bpf in (remove obj (multi-obj-list editor))
-                          do (om-with-fg-color (om-make-color-alpha (or (color bg-bpf) (om-def-color :dark-gray)) 0.4) 
-                               (draw-one-bpf bg-bpf self editor nil x xmax y ymax))))
+     ;;; draw multi ?
+     (when (multi-display-p editor)
+       (loop for bg-bpf in (remove obj (multi-obj-list editor))
+             do (om-with-fg-color (om-make-color-alpha (or (color bg-bpf) (om-def-color :dark-gray)) 0.4) 
+                  (draw-one-bpf bg-bpf self editor nil x xmax y ymax))))
                   
-                  (when (point-list bpf)
-                    (om-with-fg-color (if (find T (selection editor))
-                                          (om-def-color :dark-red)
-                                        (or (color bpf) 
-                                            (om-def-color :dark-gray)))
+     (when (point-list bpf)
+       (om-with-fg-color (if (find T (selection editor))
+                             (om-def-color :dark-red)
+                           (or (color bpf) 
+                               (om-def-color :dark-gray)))
                       
-                      (draw-one-bpf bpf self editor t x xmax y ymax)
+         (draw-one-bpf bpf self editor t x xmax y ymax)
                       
-                      (when (interpol bpf)
-                        (let ((interpol-times (arithm-ser (get-first-time bpf) (get-obj-dur bpf) (interpol-time bpf))))
-                          (loop for time in interpol-times
-                                do (let ((new-p (time-sequence-make-timed-item-at bpf time)))
-                                     (draw-interpol-point (list (x-to-pix self (editor-point-x editor new-p)) 
-                                                                (y-to-pix self (editor-point-y editor new-p)))
-                                                          editor
-                                                          :time time)))))
-                      ))
-                  )
+         (when (interpol bpf)
+           (let ((interpol-times (arithm-ser (get-first-time bpf) (get-obj-dur bpf) (interpol-time bpf))))
+             (loop for time in interpol-times
+                   do (let ((new-p (time-sequence-make-timed-item-at bpf time)))
+                        (draw-interpol-point (list (x-to-pix self (editor-point-x editor new-p)) 
+                                                   (y-to-pix self (editor-point-y editor new-p)))
+                                             editor
+                                             :time time)))))
+         ))
+     )
     ))
       
 
