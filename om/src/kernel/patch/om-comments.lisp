@@ -26,7 +26,7 @@
 (add-preference-section :appearance "Comments" "Default values for comments with unspecified or disabled attributes")
 (add-preference :appearance :comment-fgcolor "Text color" :color (om-def-color :black))
 (add-preference :appearance :comment-bgcolor "Background color" :color-a (om-def-color :transparent))
-(add-preference :appearance :comment-border "Border" (make-number-in-range :min 0 :max 4) 1)
+(add-preference :appearance :comment-border "Border" (make-number-in-range :min 0 :max 4 :decimals 1) 1)
 (add-preference :appearance :comment-roundness "Corner roundness" (make-number-in-range :min 0 :max 20) 0)
 (add-preference :appearance :comment-font "Font" :font (om-def-font :font1 :style '(:italic)))
 (add-preference :appearance :comment-align "Text align" '(:left :center :right) :left)
@@ -37,7 +37,7 @@
   `(("Appearance" ;;; category
      (:fgcolor "Text color" :color-or-nil text-color (:appearance :comment-fgcolor))
      (:bgcolor "Background color" :color-or-nil color (:appearance :comment-bgcolor))
-     (:border "Border" ,(make-number-or-nil :min 0 :max 4) border (:appearance :comment-border))
+     (:border "Border" ,(make-number-or-nil :min 0 :max 4 :decimals 1) border (:appearance :comment-border))
      (:roundness "Corner" ,(make-number-or-nil :min 0 :max 20) roundness (:appearance :comment-roundness))
      (:text-font "Text font" :font-or-nil text-font (:appearance :comment-font))
      (:align "Text align" (:left :center :right :default) text-align (:appearance :comment-align))
@@ -82,10 +82,7 @@
         (om-string-size longest-line (get-pref-value :appearance :comment-style))
     
       (let ((newcomment (make-instance 'OMComment 
-                                       ;:text-font (get-pref-value :appearance :comment-font)
-                                       :icon-pos nil :border nil 
-                                       ;:color (get-pref-value :appearance :comment-bgcolor) 
-                                       ;:text-color (get-pref-value :appearance :comment-fgcolor)
+                                       :icon-pos nil 
                                        :box-x (om-point-x pos) :box-y (om-point-y pos)
                                        :box-w (+ 4 w) :box-h (+ 12 (* h (length comment-lines)))
                                      )))
@@ -125,7 +122,6 @@
                 :position (omp (box-x self) (box-y self))
                 :size (omp (box-w self) (box-h self))
                 :help "comment"
-                ;:bg-color (om-def-color :white)
                 :font (font-font (text-font self))
                 :object self)))
     (setf (frame self) view)
@@ -144,9 +140,13 @@
 (defmethod display-text-and-area ((self CommentFrame))
   (let ((font (or (font-font (text-font (object self))) (om-get-font self)))
         (lines (om-text-to-lines (value (object self)))))
+    
     (multiple-value-bind (w h) (om-string-size (car lines) font)
       (loop for l in (cdr lines) do (setf w (max w (om-string-size l font))))
-      (values (value (object self)) 3 8 w (* h (length lines))))))
+      
+      (values (value (object self)) 3 8 w (* h (length lines)))
+      ))
+  )
 
 (defmethod draw-border ((self OMComment) x y w h)  
   (om-with-line '(2 2)

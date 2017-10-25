@@ -262,11 +262,12 @@
   (let ((popup (om-make-di 'om-popup-list 
                            :items (remove :default type) 
                            :resizable nil
-                           :enable (and (valid-property-p object prop-id) (get-property object prop-id))
+                           :enable (and (valid-property-p object prop-id) 
+                                        (if default (get-property object prop-id) t))
                            :value (or (get-property object prop-id)
                                       (get-default-value default))
                            :size (om-make-point ;(list :string (format nil "~A" (get-property object prop-id))) 
-                                  (+ 40 (list-max (mapcar #'(lambda (x) (om-string-size (string x) (om-def-font :font1))) type)))
+                                  (+ 40 (list-max (mapcar #'(lambda (x) (om-string-size (format nil "~A" x) (om-def-font :font1))) type)))
                                   22)
                            :font (om-def-font :font1)
                            :di-action #'(lambda (item)

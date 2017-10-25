@@ -60,7 +60,7 @@
 (add-preference-module :appearance "Appearance")
 (add-preference-section :appearance "Boxes" "Default values for boxes with unspecified or disabled attributes")
 (add-preference :appearance :box-color "Color" :color-a (om-def-color :light-gray))
-(add-preference :appearance :box-border "Border" (make-number-in-range :min 0 :max 4) 2)
+(add-preference :appearance :box-border "Border" (make-number-in-range :min 0 :max 4 :decimals 1) 1.5)
 (add-preference :appearance :box-roundness "Corner roundness" (make-number-in-range :min 0 :max 20) 6)
 (add-preference :appearance :box-font "Text font" :font (om-def-font :font1))
 (add-preference :appearance :box-align "Text align" '(:left :center :right) :left)
@@ -76,7 +76,7 @@
   `(("Appearance" ;;; category
                ;(:icon "Icon position" (:left :top :noicon) icon-pos)
                (:color "Color" :color-or-nil color (:appearance :box-color))
-               (:border "Border" ,(make-number-or-nil :min 0 :max 4) border (:appearance :box-border))
+               (:border "Border" ,(make-number-or-nil :min 0 :max 4 :decimals 1) border (:appearance :box-border))
                (:roundness "Corner" ,(make-number-or-nil :min 0 :max 20) roundness (:appearance :box-roundness))
                (:text-font "Text font" :font-or-nil text-font (:appearance :box-font)) 
                (:align "Text align" (:left :center :right :default) text-align (:appearance :box-align))
