@@ -7,7 +7,7 @@
 ;   This program is free software. For information on usage 
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
-;   This program is distributed; in the hope that it will be useful,
+;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 ;
@@ -191,8 +191,18 @@
   ;;; if boxes have common inputs (in principle, they do!) => copy the values
   (loop for in in (inputs self) do
         (let ((newin (find (name in) (inputs newbox) :key 'name :test 'string-equal)))
-          (when newin (setf (value newin) (om-copy (value in))))))
+          (when newin 
+            (setf (value newin) (om-copy (value in)))
+            (setf (reactive newin) (reactive in)))
+          ))
   
+  (loop for out in (outputs self) do
+        (let ((newout (find (name out) (outputs newbox) :key 'name :test 'string-equal)))
+          (when newout 
+            (setf (reactive newout) (reactive out)))
+            
+          ))
+
   ;;; add relevant optional and keyword inputs
   (mapcar 
      #'(lambda (in) 
