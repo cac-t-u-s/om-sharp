@@ -39,7 +39,7 @@
                                :title (apply 'string+ (cons "OpenMusic Window" 
                                                             (if *current-workspace* (list " [Workspace: " (name *current-workspace*) "]")
                                                               '(""))))
-                               :size (om-make-point 300 300)
+                               :size (om-make-point 800 300)
                                :menu-items (om-menu-items nil))))
       (setf (elements-view win) (make-ws-elements-tab)
             (package-view win) (make-om-package-tab)
