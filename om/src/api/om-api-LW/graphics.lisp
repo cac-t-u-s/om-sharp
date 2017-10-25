@@ -311,7 +311,7 @@
           (gp::get-string-extent   
            *dummy-view* str
            (gp::find-best-font *dummy-view* (or font (om-def-font :font2))))
-        (values (round (- right left)) (- bottom top)))
+        (values (round (+ (- right left) 4)) (+ (- bottom top) 4)))
     (values 0 0)))
 
 ; (om-string-size "W" (om-def-font :font2))
