@@ -7,7 +7,7 @@
 ;   This program is free software. For information on usage 
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
-;   This program is distributed; in the hope that it will be useful,
+;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 ;
@@ -252,7 +252,9 @@
 (defmethod initialize-instance :after ((self numbox) &rest args) 
   (when-let (v (getf args :value))
     (set-value self v))
-  (set-min-max self :min (getf args :min-val) :max (getf args :max-val)))
+  (set-min-max self :min (getf args :min-val) :max (getf args :max-val))
+  (om-set-fg-color self (if (enabled self) (om-def-color :black) (om-def-color :gray))))
+
 
 ;; the value internally is always an integer
 (defmethod set-value ((self numbox) value)
@@ -280,7 +282,7 @@
 
 (defmethod enable-numbox ((self numbox) t-or-nil)
  (setf (enabled self) t-or-nil)
- (om-set-fg-color self (if (enable self) (om-def-color :black) (om-def-color :gray))))
+ (om-set-fg-color self (if (enabled self) (om-def-color :black) (om-def-color :gray))))
 
 (defmethod map-mouse-increment ((self numbox))
   (cond ((om-shift-key-p) 10) 
