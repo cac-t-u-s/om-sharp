@@ -96,7 +96,7 @@
     (let ((inspector-layout 
            (om-make-layout 
             'om-grid-layout
-            :delta '(10 0) :align :left
+            :delta '(10 0) :align nil
             :subviews (loop for category in (get-properties-list object)
                             when (cdr category)
                             append 

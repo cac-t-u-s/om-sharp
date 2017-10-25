@@ -223,7 +223,7 @@
 ;;; SPECIAL TYPES FOR PREFERENCES
 ;;;====================================
 
-(defstruct number-in-range (min) (max))
+(defstruct number-in-range (min) (max) (decimals))
 
 ;;;====================================
 ;;; DEFAULT MODULE

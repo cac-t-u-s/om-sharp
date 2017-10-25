@@ -26,7 +26,7 @@
    (to :initarg :to :accessor to :initform nil)
    (points :accessor points :initarg :points :initform nil)
    (modif :accessor modif :initarg :modif :initform nil)
-   (style :accessor style :initarg :style :initform nil) ; :curved)
+   (style :accessor style :initarg :style :initform nil)
    (color :accessor color :initarg :color :initform nil)
    (seleted :accessor selected :initarg :selected :initform nil)
    (graphic-connection :initform nil :accessor graphic-connection)))
@@ -34,19 +34,28 @@
 
 (add-preference-section :appearance "Connections" "Default values for connections with unspecified or disabled attributes")
 (add-preference :appearance :connection-color "Color" :color (om-def-color :dark-gray))
-(add-preference :appearance :connection-style "Syle" '(:normal :line :curved) :normal)
+(add-preference :appearance :connection-style "Syle" '(:square :rounded :curved :curved-2 :line) :square)
 
 (defmethod get-properties-list ((self OMConnection))
-  '(("Connection properties" ;;; category
+  '(("Appearance" ;;; category
      (:color "Color" :color-or-nil color (:appearance :connection-color)) ;;; id text type dafault
-     (:style "Style" (:normal :line :rounded :curved :curved-2 nil) style)
+     (:style "Style" (:square :rounded :curved :curved-2 :line :default) style (:appearance :connection-style)))
+    ("Execution" ;;; category
      (:reactive "Reactive (r)" :bool reactive))))
+
+
+
+(defmethod connection-draw-style ((c OMConnection)) 
+  (or (style c)
+      (get-pref-value :appearance :connection-style)))
+
+(defmethod connection-draw-color ((c OMConnection)) 
+  (if (color-? (color c))
+      (color-color (color c))
+    (get-pref-value :appearance :connection-color)))
 
 ;;; called in the properties management / inspector
 (defmethod object-accept-transparency ((self OMConnection)) nil)
-
-
-
 
 (defmethod omng-make-new-connection ((from box-output) (to box-input) &optional args)
   (if (recursive-connection-p (box from) (box to))
@@ -252,19 +261,16 @@
                                            (if (integerp (om-point-y p)) (om-point-y p) (* (om-point-y p) (om-point-y diff-points)))
                                            ))
                            ) (points c))))
-    (cond ((equal :rounded (style c))
-           (get-rounded-pts gpts 6) 
-           )
-          ((equal :curved (style c))
-           (get-spline-pts gpts 40) 
-           )
-          ((equal :curved-2 (style c))
-           (get-ramped-sine-pts gpts 40)
-           )
-          ((equal :line (style c))
-           (list (car gpts) (car (last gpts))))
-          (t gpts))))
-
+    (let ((style (connection-draw-style c)))
+      (case style 
+        (:rounded (get-rounded-pts gpts 4))
+        (:curved (get-spline-pts gpts 40))
+        (:curved-2 (get-ramped-sine-pts gpts 40))
+        (:line (list (car gpts) (car (last gpts))))
+        (otherwise gpts))
+      
+      )))
+  
 
 
 ;;; point generation for rounden connections
@@ -281,33 +287,56 @@
                (x2 (om-point-x (cadr p)))
                (y2 (om-point-y (cadr p)))
                (x3 (om-point-x (caddr p)))
-               (y3 (om-point-y (caddr p))))
+               (y3 (om-point-y (caddr p)))
+               p1x p1y p2x p2y)
                     
            (if (= x1 x2) 
                
                ;; first segment is vertical
                (let ((direction (- x3 x2))
                      (cc (min corner (/ (abs (- y1 y2)) 2) (/ (abs (- x3 x2)) 2))))
+                 
                  (cond
                   ((plusp direction) ;; second segment turns right
-                   (list  (omp x2 (+ y2 (if (> y1 y2) cc (- cc))))  
-                          (omp (+ x2 cc) y2)))
+                   (setf p1x x2 
+                         p1y (+ y2 (if (> y1 y2) cc (- cc))) 
+                         p2x (+ x2 cc) 
+                         p2y y2))
                   ((minusp direction) ;; second segment turns left
-                   (list  (omp x2 (+ y2 (if (> y1 y2) cc (- cc))))
-                          (omp (+ x2 (- cc)) y2)))
-                  ))
-
+                   (setf p1x x2 
+                         p1y (+ y2 (if (> y1 y2) cc (- cc)))
+                         p2x (+ x2 (- cc))
+                         p2y y2))
+                  )
+                 (when (and p1x p1y p2x p2y)
+                   (list 
+                    (omp p1x p1y)
+                    (omp (+ p1x (* 0.25 (- p2x p1x))) (+ p1y (* 0.5 (- p2y p1y))))
+                    (omp (+ p1x (* 0.5 (- p2x p1x))) (+ p1y (* 0.75 (- p2y p1y))))
+                    (omp p2x p2y))
+                   ))
+             
              ;;; first segment is horizontal
              (let ((direction (- y3 y2))
                    (cc (min corner (/ (abs (- x1 x2)) 2) (/ (abs (- y3 y2)) 2))))
                (cond ((plusp direction) ;; second segment goes down
-                      (list 
-                       (omp (+ x2 (if (plusp (- x2 x1)) (- cc) cc)) y2)
-                       (omp x2 (+ y2 cc))))
+                      (setf p1x (+ x2 (if (plusp (- x2 x1)) (- cc) cc)) 
+                            p1y y2
+                            p2x x2 
+                            p2y (+ y2 cc)))
                      ((minusp direction) ;; second segment goes down
-                      (list 
-                       (omp (+ x2 (if (plusp (- x2 x1)) (- cc) cc)) y2)
-                       (omp x2 (+ y2 (- cc)))))))
+                      (setf p1x (+ x2 (if (plusp (- x2 x1)) (- cc) cc))
+                            p1y y2
+                            p2x x2 
+                            p2y (+ y2 (- cc))))
+                     )
+               (when (and p1x p1y p2x p2y)
+                 (list 
+                  (omp p1x p1y)
+                  (omp (+ p1x (* 0.5 (- p2x p1x))) (+ p1y (* 0.25 (- p2y p1y))))
+                  (omp (+ p1x (* 0.75 (- p2x p1x))) (+ p1y (* 0.5 (- p2y p1y))))
+                  (omp p2x p2y))
+                 ))
                      
              ) ;; end if
            ) ;; end let
@@ -364,9 +393,7 @@
   (let ((line-w (if (selected (object self)) 2.5 1.5))
         (reactive (and (reactive (from (object self)))
                        (reactive (to (object self)))))
-        (color (if (and (color (object self)) (color-? (color (object self))))
-                   (color-color (color (object self)))
-                 (get-pref-value :appearance :connection-color))))
+        (color (connection-draw-color (object self))))
     (when reactive
       (om-draw (draw-points self) 
                :color (om-make-color-alpha (om-def-color :dark-red) ; (or (color (object self)) (om-def-color :dark-gray))

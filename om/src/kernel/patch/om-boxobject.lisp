@@ -277,6 +277,12 @@
 (defmethod special-box-type ((self t)) nil)
 
 (defmethod maximum-size ((self OMBoxEditCall)) nil)
+(defmethod minimum-size ((self OMBoxEditCall)) 
+  (om-make-point (+ 10 
+                    (max 60
+                         (* (length (inputs self)) 10)
+                         (* (box-n-outs self) 10)))
+                 40))
 
 (defmethod get-box-class ((self standard-class)) 
   (or (special-box-type (class-name self))
@@ -379,12 +385,8 @@
 (defmethod get-properties-list ((self OMBoxEditCall))
   (let ((properties 
          (append 
-          (hide-property (call-next-method) '(:icon :align))
-          ;'(("Editor/Display" 
-          ;  (:lock "Lock state (b/1)" (nil :locked :eval-once) lock-state) ;;; id text type slot
-          ;  (:lambda "Eval mode" (nil :lambda :reference :box) lambda-state) ;;; ex. :bool 
-          ; (:reactive "Reactive (r)" :bool reactive)))
-           )))
+          (hide-property (call-next-method) '(:icon :align :lambda))
+          )))
     (add-properties properties "Appearance" 
                     (append 
                      `((:name "Name" :text name)

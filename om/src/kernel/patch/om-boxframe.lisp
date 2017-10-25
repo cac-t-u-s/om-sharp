@@ -325,33 +325,40 @@
          (extra-w (+ (* statesign-w 2) (if eia 10 0))) 
          (n -1))
     (setf (areas self)
-          (append (mapcar #'(lambda (in)
-                              (setf (area in)
-                                    (make-instance 'input-area :object in :frame self
-                                                   :pos #'(lambda (f) 
-                                                            (om-make-point 
-                                                             (round (+ statesign-w 
-                                                                (* (- (w f) extra-w) 
-                                                                   (/ (1+ (* 2 (or (position in (inputs box)) 0))) (* 2 nin)))))
-                                                             +active-r+))
-                                                   :pick '(-6 -15 6 4))))
-                          (inputs box))
-                  (mapcar #'(lambda (out)
-                              (setf (area out) 
-                                    (make-instance 'output-area :object out :frame self
-                                                   :pos #'(lambda (f) 
-                                                            (om-make-point 
-                                                             (round (+ statesign-w 
-                                                                (* (- (w f) extra-w)
-                                                                   (/ (1+ (* 2 (or (position out (outputs box)) 0))) (* 2 nout)))))
-                                                             (- (round (h f)) +active-r+) ;;; (would be better if H was already an integer...)
-                                                             ))
-                                                   :pick '(-6 -6 6 6))))
-                          (outputs box))
-                  (resize-areas self)
-                  (info-area self)
-                  eia
-                  ))
+          (append 
+           (mapcar 
+            #'(lambda (in)
+                (setf (area in)
+                      (make-instance 
+                       'input-area :object in :frame self
+                       :pos #'(lambda (f) 
+                                (om-make-point 
+                                 (round (+ statesign-w 
+                                           (* (- (w f) extra-w) 
+                                              (/ (1+ (* 2 (or (position in (inputs box)) 0)))
+                                                 (* 2 nin)))))
+                                 +active-r+))
+                       :pick '(-6 -15 6 4))))
+            (inputs box))
+           (mapcar 
+            #'(lambda (out)
+                (setf (area out) 
+                      (make-instance 
+                       'output-area :object out :frame self
+                       :pos #'(lambda (f) 
+                                (om-make-point 
+                                 (round (+ statesign-w 
+                                           (* (- (w f) extra-w)
+                                              (/ (1+ (* 2 (or (position out (outputs box)) 0))) 
+                                                 (* 2 nout)))))
+                                 (- (round (h f)) +active-r+) ;;; (would be better if H was already an integer...)
+                                 ))
+                       :pick '(-6 -6 6 6))))
+            (outputs box))
+           (resize-areas self)
+           (info-area self)
+           eia
+           ))
     (mapcar 'update-points (get-box-connections box))
     (redraw-connections self)
     ))
@@ -524,8 +531,11 @@
             (om-with-font
              font
              ;(om-draw-rect x y w h)
-             (om-draw-string (max 2 x) (+ y (om-font-size (or font (om-get-font self)))) 
-                             text :selected nil :wrap (max 10 (- (w self) 8)))
+             (om-draw-string (max 2 x)
+                             (+ y (om-font-size (or font (om-get-font self)))) 
+                             text :selected nil 
+                             :wrap (max 10 (- w 8)) ;; (max 10 (- (w self) 8))
+                             :align (box-draw-text-align box))
              )))))
       
      ;;; border

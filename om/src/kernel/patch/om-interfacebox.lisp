@@ -88,7 +88,7 @@
       
       ;;; border
       (when (border box) 
-        (draw-border box 0 io-hspace (w self) (- (h self) (* 2 io-hspace)) (border box)))
+        (draw-border box 0 io-hspace (w self) (- (h self) (* 2 io-hspace))))
       )
   
     (draw-interface-component box 0 io-hspace (w self) (- (h self) (* 2 io-hspace)))
