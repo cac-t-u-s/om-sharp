@@ -39,7 +39,7 @@
 (defmethod get-properties-list ((self OMConnection))
   '(("Connection properties" ;;; category
      (:color "Color" :color-or-nil color (:appearance :connection-color)) ;;; id text type dafault
-     (:style "Style" (:normal :line :curved nil) style)
+     (:style "Style" (:normal :line :rounded :curved :curved-2 nil) style)
      (:reactive "Reactive (r)" :bool reactive))))
 
 ;;; called in the properties management / inspector
@@ -252,14 +252,107 @@
                                            (if (integerp (om-point-y p)) (om-point-y p) (* (om-point-y p) (om-point-y diff-points)))
                                            ))
                            ) (points c))))
-    (cond ((equal :curved (style c))
-           (mapcar #'(lambda (p) (om-make-point (car p) (cadr p)))
-                   (spline (mapcar #'(lambda (omp) (list (om-point-x omp) (om-point-y omp))) gpts)
-                           4 ;(max 3 (- (length gpts) 2)) 
-                           50)))
+    (cond ((equal :rounded (style c))
+           (get-rounded-pts gpts 6) 
+           )
+          ((equal :curved (style c))
+           (get-spline-pts gpts 40) 
+           )
+          ((equal :curved-2 (style c))
+           (get-ramped-sine-pts gpts 40)
+           )
           ((equal :line (style c))
            (list (car gpts) (car (last gpts))))
           (t gpts))))
+
+
+
+;;; point generation for rounden connections
+(defun get-rounded-pts (pts corner)
+  (append 
+   
+   (list (car pts))
+   
+   (loop for p on pts 
+         while (caddr p)
+         append
+         (let ((x1 (om-point-x (car p)))
+               (y1 (om-point-y (car p)))
+               (x2 (om-point-x (cadr p)))
+               (y2 (om-point-y (cadr p)))
+               (x3 (om-point-x (caddr p)))
+               (y3 (om-point-y (caddr p))))
+                    
+           (if (= x1 x2) 
+               
+               ;; first segment is vertical
+               (let ((direction (- x3 x2))
+                     (cc (min corner (/ (abs (- y1 y2)) 2) (/ (abs (- x3 x2)) 2))))
+                 (cond
+                  ((plusp direction) ;; second segment turns right
+                   (list  (omp x2 (+ y2 (if (> y1 y2) cc (- cc))))  
+                          (omp (+ x2 cc) y2)))
+                  ((minusp direction) ;; second segment turns left
+                   (list  (omp x2 (+ y2 (if (> y1 y2) cc (- cc))))
+                          (omp (+ x2 (- cc)) y2)))
+                  ))
+
+             ;;; first segment is horizontal
+             (let ((direction (- y3 y2))
+                   (cc (min corner (/ (abs (- x1 x2)) 2) (/ (abs (- y3 y2)) 2))))
+               (cond ((plusp direction) ;; second segment goes down
+                      (list 
+                       (omp (+ x2 (if (plusp (- x2 x1)) (- cc) cc)) y2)
+                       (omp x2 (+ y2 cc))))
+                     ((minusp direction) ;; second segment goes down
+                      (list 
+                       (omp (+ x2 (if (plusp (- x2 x1)) (- cc) cc)) y2)
+                       (omp x2 (+ y2 (- cc)))))))
+                     
+             ) ;; end if
+           ) ;; end let
+         ) ;; end loop
+   
+   ;;; last element to append...
+   (last pts))
+
+  )
+                
+
+
+;;; point generation for curved connections
+(defun get-spline-pts (pts resolution &optional (order 4))
+  (mapcar #'(lambda (p) (om-make-point (car p) (cadr p)))
+          (spline (mapcar #'(lambda (omp) (list (om-point-x omp) (om-point-y omp))) pts)
+                           4 ; (min 3 (- (length gpts) 1))
+                           40)))
+
+;;; another curved connection version by G. Holbrook
+(defun get-ramped-sine-pts (pts resolution)
+  (let ((x1 (om-point-x (car pts)))
+        (y1 (om-point-y (car pts)))
+        (x2 (om-point-x (last-elem pts)))
+        (y2 (om-point-y (last-elem pts))))
+    
+    (let* ((width (abs (- x2 x1)))
+         ;calculate 'mirrored' y2 (a clipped linear function)
+           (anti-y2 (om-max 
+                     (+ (* -1/3 y2)
+                        (* 4/3 (+ y1 (* 1/2 width))))
+                     y2)
+                    ))
+
+      (loop for k from 0 to resolution
+            for rad = (om-scale k -1.57 1.57 0 resolution)
+            for ramp = (* (* (+ (sin (om-scale k -1.57 1.57 0 resolution)) 1) 0.5) ;; 0 to 1 half-sine-curve 
+                          (- anti-y2 y2)) ;; positive number
+            collect
+            (omp (om-scale (sin rad) x1 x2 -1 1)
+                 (- (om-scale k y1 anti-y2 0 resolution)
+                    ramp
+                    ))))))
+
+
 
 (defmethod update-graphic-connection ((c omconnection))
   (when (graphic-connection c)
