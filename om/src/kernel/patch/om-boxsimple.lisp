@@ -7,7 +7,7 @@
 ;   This program is free software. For information on usage 
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
-;   This program is distributed; in the hope that it will be useful,
+;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 ;
@@ -31,8 +31,8 @@
   '(("Appearance" ;;; category
      (:color "Color" :color-or-nil color)
      (:border "Border" :bool border)
-     (:font "Text font" :font text-font) ;;; id text type slot-name
-     (:align "Text align" (:left :center :right) text-align)
+     (:font "Text font" :font-or-nil text-font) ;;; id text type slot-name
+     (:align "Text align" (:left :center :right :default) text-align (:appearance :box-align))
      )
     ("Execution" ;;; category
      (:lock "Lock state" (nil :locked :eval-once) lock-state) ;;; id text type 

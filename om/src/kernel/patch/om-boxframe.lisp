@@ -7,7 +7,7 @@
 ;   This program is free software. For information on usage 
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
-;   This program is distributed; in the hope that it will be useful,
+;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 ;
@@ -447,7 +447,7 @@
             (shift (if (equal :left (icon-pos (object self))) icon-size 0)))
         (multiple-value-bind (w h) (om-string-size text font)
           (values text
-                  (case (text-align (object self))
+                  (case (box-draw-text-align (object self))
                     (:center (+ shift (round (- (/ (- (w self) shift) 2) (/ w 2)))))
                     (:right (- (w self) w 4))
                     (otherwise (+ shift 4)))
@@ -459,18 +459,19 @@
   (om-with-clip-rect self 0 0 (w self) (h self) 
     (boxframe-draw-contents self (object self))))
 
-(defmethod draw-border ((self OMBox) x y w h stroke-size)
+(defmethod draw-border ((self OMBox) x y w h)
   
-  (let ((round (box-draw-roundness self)))
+  (let ((round (box-draw-roundness self))
+        (pensize (box-draw-border self)))
     
     (if (and round (plusp round))
-      
+        
         (om-draw-rounded-rect x y w h 
-                              :line (if (numberp stroke-size) stroke-size 1.5) :color (om-def-color :gray) 
+                              :line (number-number pensize) :color (om-def-color :gray) 
                               :round (min (round h 2) round))
       
       (om-draw-rect x y w h 
-                    :line (if (numberp stroke-size) stroke-size 1.5) 
+                    :line (number-number pensize) 
                     :color (om-def-color :gray))
       )))
 
@@ -524,15 +525,14 @@
              font
              ;(om-draw-rect x y w h)
              (om-draw-string (max 2 x) (+ y (om-font-size (or font (om-get-font self)))) 
-                             text :selected nil :wrap (max 10 (- (w self) 2)))
+                             text :selected nil :wrap (max 10 (- (w self) 8)))
              )))))
       
      ;;; border
-      (when (border box) 
-        (draw-border box 0 io-hspace (w self) (- (h self) (* 2 io-hspace)) 2))
-      
-
- ))
+     (when (and (box-draw-border box) (plusp (box-draw-border box)))
+       (draw-border box 0 io-hspace (w self) (- (h self) (* 2 io-hspace))))
+     
+     ))
   
   ;;; in/outs etc.
   (mapcar #'(lambda (a) (om-draw-area a)) (areas self))
