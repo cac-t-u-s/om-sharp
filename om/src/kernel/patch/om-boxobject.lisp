@@ -276,6 +276,8 @@
 
 (defmethod special-box-type ((self t)) nil)
 
+(defmethod default-size ((self OMBoxEditCall)) (om-make-point 80 40))
+
 (defmethod maximum-size ((self OMBoxEditCall)) nil)
 (defmethod minimum-size ((self OMBoxEditCall)) 
   (om-make-point (+ 10 
@@ -376,7 +378,7 @@
   ((box-play-time :initform nil :accessor box-play-time)))
 
 (defmethod get-box-frame-class ((self OMBoxEditCall)) 'OMObjectBoxFrame)
-(defmethod default-size ((self OMBoxEditCall)) (om-make-point 80 36))
+
 (defmethod get-box-help ((self OMBoxEditCall)) (format nil "Object of type ~A" (string-upcase (reference self))))
 
 (defmethod box-ed-params-properties ((self t)) nil)
