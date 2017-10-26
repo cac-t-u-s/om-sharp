@@ -64,6 +64,7 @@
    (duration :initform 0 :accessor duration :initarg :duration)
    (interpol :initform nil :accessor interpol :initarg :interpol)))
 
+
 (defmethod initialize-instance :after ((self time-sequence) &rest args)
   
   (setf (interpol self)

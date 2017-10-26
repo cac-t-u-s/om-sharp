@@ -812,13 +812,13 @@
 
 (defmethod get-all-time-markers ((self time-ruler))
   (sort (remove nil (flat (loop for view in (related-views self)
-                                                   collect
-                                                   (loop for timed-obj in (get-timed-objects-for-graduated-view view)
-                                                         when timed-obj collect
-                                                         (if (onset-p self)
-                                                             (om+ (get-time-markers timed-obj) (get-onset timed-obj))
-                                                           (get-time-markers timed-obj))
-                                                         )))) '<))
+                                collect
+                                (loop for timed-obj in (get-timed-objects-for-graduated-view view)
+                                      when timed-obj collect
+                                      (if (onset-p self)
+                                          (om+ (get-time-markers timed-obj) (get-onset timed-obj))
+                                        (get-time-markers timed-obj))
+                                      )))) '<))
   
 (defmethod get-related-views-editors ((self time-ruler))
   (remove-duplicates (remove nil (loop for rv in (related-views self) collect (get-editor-for-graduated-view rv)))))

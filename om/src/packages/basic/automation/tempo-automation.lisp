@@ -39,6 +39,8 @@
   ((past-beat :initform 0 :initarg :past-beat :accessor past-beat)
    (past-time :initform 0 :initarg :past-time :accessor past-time)))
 
+; (make-instance 'tempo-automation)
+
 (defmethod beat-date ((self tempo-point) (obj tempo-automation) beat)
   (let* ((dm (start-date self))
          (fun (fun self obj))
@@ -66,6 +68,17 @@
         do
         (setf (tp-fun pt) (get-function pt self)))
   self)
+
+#|
+(defmethod initialize-instance ((self tempo-automation) &rest initargs)
+  ;;;TMP : CONSTANT
+  (setf (point-list self) (list (make-tempo-point :y 120 :x 0)
+                                (make-tempo-point :y 120 :x *positive-infinity*)))
+  (loop for pt in (point-list self)
+        do
+        (setf (tp-fun pt) (get-function pt self)))
+  self)
+|#
 
 (defmethod tp-start-date ((self tempo-point) (obj tempo-automation))
   (get-beat-date obj (tp-x self)))
@@ -102,14 +115,7 @@
 (defmethod (setf point-list) ((point-list t) (self bpf))
   (setf (slot-value self 'point-list) point-list))
 
-(defmethod initialize-instance ((self tempo-automation) &rest initargs)
-  ;;;TMP : CONSTANT
-  (setf (point-list self) (list (make-tempo-point :y 120 :x 0)
-                                (make-tempo-point :y 120 :x *positive-infinity*)))
-  (loop for pt in (point-list self)
-        do
-        (setf (tp-fun pt) (get-function pt self)))
-  self)
+
 
 (defmethod get-function-auto ((self tempo-point) (auto tempo-automation))
   (or (ap-fun self)

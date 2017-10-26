@@ -23,10 +23,14 @@
 (defclass timed-object () 
   ((onset :accessor onset :initform 0 :initarg :onset)))
 
+;;; some objects just have NO time markers.. ?
+(defmethod get-time-markers ((self t)) nil)
+
 ;;;TIME MARKERS TO REDEFINE FOR YOUR SUBCLASS
 (defmethod get-time-markers ((self timed-object))
   "returns a list of time markers"
   (list 0))
+
 
 ;;;TIME MARKERS TO REDEFINE FOR YOUR SUBCLASS
 (defmethod get-elements-for-marker ((self timed-object) marker)

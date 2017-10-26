@@ -147,7 +147,7 @@
 
 (defclass maquette-view (patch-editor-view x-cursor-graduated-view y-graduated-view om-drop-view) ())
 
-(defmethod omng-x ((container maquette-view) pix-x) (pix-to-x container pix-x))
+(defmethod omng-x ((container maquette-view) pix-x) (round (pix-to-x container pix-x)))
 (defmethod omng-y ((container maquette-view) pix-y) (pix-to-y container pix-y))
 (defmethod omng-w ((container maquette-view) pix-w) (dpix-to-dx container pix-w))
 (defmethod omng-h ((container maquette-view) pix-h) (- (dpix-to-dy container pix-h)))
@@ -490,9 +490,12 @@
   (draw-mini-view object box x y w h time))
 
 (defmethod draw-temporal-box ((self OMBox) view x y w h &optional (time 0))
-  (when (color-? (color self))
-    (om-with-fg-color (om-make-color-alpha (color-color (color self)) 0.9)
-      (om-draw-rect x y w h :fill t)))
+  (let ((bgcolor (box-draw-color self)))
+    (unless (om-color-null-p bgcolor)
+      (om-with-fg-color (if (> (om-color-a (color-color bgcolor)) 0.6)
+                            (om-make-color-alpha (color-color bgcolor) 0.6)
+                          (color-color bgcolor))
+        (om-draw-rect x y w h :fill t))))
   (om-with-fg-color (om-def-color :white)
     (om-draw-rect x y w h :fill nil))
   (om-with-fg-color (om-def-color :white)
@@ -501,7 +504,9 @@
 (defmethod draw-temporal-box ((self OMBoxPatch) view x y w h &optional (time 0))
   (call-next-method)
   (case (display self)  
-    (:mini-view (draw-maquette-mini-view (reference self) self x y w h time))
+    (:mini-view 
+     (om-draw-picture (icon (reference self)) :x (+ x 4) :y (+ y 4) :w 18 :h 18)
+     (draw-maquette-mini-view (reference self) self (+ x 20) y (- w 40) h time))
     (:value 
      (let ((dur (or (get-obj-dur (get-box-value self)) (box-w self))))
        (om-with-clip-rect view x y w h
@@ -510,11 +515,23 @@
                                       (dx-to-dpix view dur)
                                     w)
                                   h time)
-         (om-draw-picture (icon (reference self)) :x (+ x 4) :y (+ y 4) :w 16 :h 16))))
+         ;;; icon
+         (om-draw-picture (icon (reference self)) :x (+ x 4) :y (+ y 4) :w 18 :h 18)
+         ;;; arrow
+         (let ((ax (+ x 16)))
+           (om-with-fg-color (om-make-color 1 1 1 0.7)
+             (om-draw-rect (+ ax 10) 8 8 6 :fill t)
+             (om-draw-polygon (list (+ ax 7) 13 (+ ax 21) 13 (+ ax 14) 19) :fill t)
+             ))
+         )))
     (:hidden  (om-with-font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))
                             (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
-                              (om-draw-string (+ x (/ w 2) -6) (max 22 (+ 6 (/ h 2))) "P")))))
+                              (om-draw-string (+ x (/ w 2) -30) (max 22 (+ 6 (/ h 2))) "PATCH"))))
+    
+    )
   
+  (draw-eval-buttons view self x y x 12)
+
   (when (find-if 'reactive (outputs self))
     (om-draw-rect x y w h :line 2 :color (om-make-color .9 .5 .6))) ; :dark-red)))
   
@@ -537,12 +554,13 @@
 
 ;;; !! this is a special case : the frame of the object must change
 ;;; + the 'update' reference of the inspector window (= self) becomes the wrong one
-;;; 1 solution = re-create the inspector if thrack is changed
+;;; 1 solution = re-create the inspector if track is changed
 ;;; other solution = invalidate all tracks all the time
 (defmethod update-view ((self sequencer-track-view) (object OMBox))
   (let ((editor (editor (om-view-window self))))
     ;;; sets the right frame for the box
-    (unless (and (frame object) (equal (num (frame object)) (group-id object)))
+    (unless (or (equal :none (group-id object))
+                (and (frame object) (equal (num self) (group-id object))))
       (setf (frame object) (find (group-id object) (get-g-component editor :track-views) :key 'num :test '=)))
     (mapcar 'om-invalidate-view (get-g-component editor :track-views))))
 

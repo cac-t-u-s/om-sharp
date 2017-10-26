@@ -182,12 +182,14 @@
     ))
 
 (defmethod minimum-size ((self OMBoxAbstraction))
-  (let ((text-size (round (om-string-size (name self) (font-font (text-font self))))))
-    (om-make-point (+ 10 
-                      (max (+ 28 text-size)
-                           (* (length (inputs self)) 10)
-                           (* (box-n-outs self) 10)))
-                   28)))
+  (multiple-value-bind (tw th) 
+      (om-string-size (name self) (box-draw-font self))
+    (om-make-point (round 
+                    (+ 10 
+                       (max (+ 28 tw)
+                            (* (length (inputs self)) 10)
+                            (* (box-n-outs self) 10))))
+                    (round (max th 28)))))
 
 (defmethod maximum-size ((self OMBoxAbstraction)) (omp 200 200))
 

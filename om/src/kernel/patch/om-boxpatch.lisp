@@ -55,22 +55,57 @@
 ;;; DISPLAY
      
 (defmethod box-draw ((self OMBoxAbstraction) (frame OMBoxFrame))
-  (case (display self)
-    (:mini-view 
-     (when (> (h frame) 36)
-       (draw-mini-view (reference self) self 0 0 (w frame) (h frame) nil)))
-    (:value frame
-      (when (> (h frame) 40)
-        (om-with-fg-color (om-def-color :gray)
-       (om-with-font (om-def-font :font1b)
-                     (om-draw-string 20 18 "VALUES")
-                     (loop for v in (value self) for y = 32 then (+ y 12) do 
-                           (om-draw-string 22 y  (format nil "- ~A" v)))
-                     )))
-      ))
   (draw-patch-icon self)
+  (when (> (h frame) 36)
+    (case (display self)
+      (:mini-view 
+       (draw-mini-view (reference self) self 10 0 (- (w frame) 20) (h frame) nil))
+      (:value 
+       ;;; arrow
+       (let ((ax 6) (ay 9)
+             (b 3) (w 6) (h 4))
+         (om-with-fg-color (om-make-color 1 1 1)
+           (om-draw-polygon (list 
+                             (+ ax b) ay 
+                             (+ ax b w) ay 
+                             (+ ax b w) (+ ay h)
+                             (+ ax b w b) (+ ay h) 
+                             (+ ax b (/ w 2)) (+ ay h 5) 
+                             ax (+ ay h)
+                             (+ ax b) (+ ay h))
+                            :fill t))
+         (om-with-fg-color (om-make-color .1 .1 .1)
+           (om-draw-polygon (list 
+                             (+ ax b) ay 
+                             (+ ax b w) ay 
+                             (+ ax b w) (+ ay h)
+                             (+ ax b w b) (+ ay h) 
+                             (+ ax b (/ w 2)) (+ ay h 5) 
+                             ax (+ ay h)
+                             (+ ax b) (+ ay h))
+                            :fill nil))
+         )
+         (om-with-fg-color (om-def-color :gray)
+           (om-with-font (om-def-font :font1b)
+                         (om-draw-string 24 18 "VALUES")
+                         (loop for v in (value self) for y = 32 then (+ y 12) do 
+                               (om-draw-string 26 y  (format nil "- ~A" v)))
+                         )))
+      (otherwise 
+       (om-with-font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))
+                     (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
+                       (om-draw-string (+ (/ (w frame) 2) -30) (max 22 (+ 6 (/ (h frame) 2))) "PATCH"))))
+
+
+     ))
   t)
-    
+
+#|
+         ;;; icon
+         (om-draw-picture (icon (reference self)) :x (+ x 4) :y (+ y 4) :w 18 :h 18)
+         
+|#
+
 (defmethod display-modes-for-object ((self OMPatch)) '(:hidden :value :mini-view))
 (defmethod object-for-miniview ((self OMBoxPatch)) (reference self))
 

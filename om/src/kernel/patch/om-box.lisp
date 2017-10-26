@@ -244,7 +244,7 @@
                          22
                          (* (length (inputs self)) 10)
                          (* (box-n-outs self) 10)))
-                   (+ h 18 (if (equal (icon-pos self) :top) 20 0))
+                   (+ h 16 (if (equal (icon-pos self) :top) 20 0))
                  )))
 
 (defmethod maximum-size ((self OMBox))

@@ -465,7 +465,7 @@
                    (or (name (object self)) (default-name (get-box-value (object self))))))
         (icon-size (get-icon-size (object self))))
     (when text
-      (let ((font (or (font-font (text-font (object self))) (om-get-font self)))
+      (let ((font (or (box-draw-font (object self)) (om-get-font self)))
             (shift (if (equal :left (icon-pos (object self))) icon-size 0)))
         (multiple-value-bind (w h) (om-string-size text font)
           (values text
@@ -473,7 +473,8 @@
                     (:center (+ shift (round (- (/ (- (w self) shift) 2) (/ w 2)))))
                     (:right (- (w self) w 4))
                     (otherwise (+ shift 4)))
-                  (if (equal :left (icon-pos (object self))) 6 (- (h self) 10 h))
+                  (if nil ; (equal :left (icon-pos (object self))) 
+                      6 (- (h self) 10 h))
                   w 
                   (+ h 2))
           )))))
@@ -575,31 +576,35 @@
 
 (defmethod boxframe-draw-contents ((self OMBoxFrame) (box OMBoxCall))
   (call-next-method)
+  (draw-eval-buttons self box 0 4 0 (- (h self) 15))
+  )
+
+(defmethod draw-eval-buttons ((self OMFrame) (box OMBoxCall) x-lock y-lock x-lambda y-lambda)
   ;;; lambda button
   (when (lambda-state box)
-    (om-draw-rect 0 (- (h self) 15) 11 11 ;(- (w self) 10) 4 12 11 
+    (om-draw-rect x-lambda y-lambda 11 11  
                   :color (om-def-color :dark-gray) :angles :round :fill t)
     (om-with-fg-color (om-def-color :white)
       (case (lambda-state box)
         (:lambda (multiple-value-bind (char font) (om-font-lambda 10)
                    (om-with-font font
-                                 (om-draw-string 3 (- (h self) 6) ;(- (w self) 7) 13 
+                                 (om-draw-string (+ x-lambda 3) (+ y-lambda 9) 
                                                  (string char)))))
         (:reference 
-         (om-draw-line 5 (- (h self) 13) 5 (- (h self) 6))
-         (om-draw-line 5 (- (h self) 6) 2 (- (h self) 9))
-         (om-draw-line 5 (- (h self) 6) 8 (- (h self) 9)))
-        (:box (om-draw-rect 2 (- (h self) 13) 7 7 :fill t))
+         (om-draw-line (+ x-lambda 5) (+ y-lambda 2) (+ x-lambda 5) (+ y-lambda 9))
+         (om-draw-line (+ x-lambda 5) (+ y-lambda 9) (+ x-lambda 2) (+ y-lambda 6))
+         (om-draw-line (+ x-lambda 5) (+ y-lambda 9) (+ x-lambda 8) (+ y-lambda 6)))
+        (:box (om-draw-rect (+ x-lambda 2) (+ y-lambda 2) 7 7 :fill t))
         )
       ))
     
   ;;; lock button
   (when (lock-state box)
-    (om-draw-rect 0 4 11 11 
+    (om-draw-rect x-lock y-lock 11 11 
                   :color (om-def-color :dark-gray) :angles :round :fill t)
     (om-with-fg-color (om-def-color :white)
       (om-with-font (om-def-font :font1 :size 9)
-                    (om-draw-string 2 13 (if (equal (lock-state (object self)) :eval-once) "1" "X")))
+                    (om-draw-string (+ x-lock 2) (+ y-lock 9) (if (equal (lock-state box) :eval-once) "1" "X")))
       ))
   )
 
