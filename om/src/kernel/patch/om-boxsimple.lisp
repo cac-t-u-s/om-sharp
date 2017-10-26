@@ -28,16 +28,7 @@
 (defmethod get-object-type-name ((self OMValueBox)) "Simple value")
 
 (defmethod get-properties-list ((self OMValueBox))
-  '(("Appearance" ;;; category
-     (:color "Color" :color-or-nil color)
-     (:border "Border" :bool border)
-     (:font "Text font" :font-or-nil text-font) ;;; id text type slot-name
-     (:align "Text align" (:left :center :right :default) text-align (:appearance :box-align))
-     )
-    ("Execution" ;;; category
-     (:lock "Lock state" (nil :locked :eval-once) lock-state) ;;; id text type 
-     (:reactive "Reactive (r)" :bool reactive))
-    ))
+  (hide-properties (call-next-method) '(:group-id :lambda)))
 
 
 (defmethod create-box-outputs ((self OMValueBox))
@@ -71,11 +62,12 @@
   (minimum-size self))
 
 (defmethod minimum-size ((self OMValueBox))
-  (let ((text-size (om-string-size (print-value self) (font-font (text-font self)))))
-    (om-make-point (max text-size
+  (multiple-value-bind (tw th)
+      (om-string-size (print-value self) (box-draw-font self))
+    (om-make-point (max (+ tw 18)
                         (+ 20 (* (length (inputs self)) 10))
                         32)
-                   28)))
+                   (max (+ th 18) 28))))
 
 (defmethod allow-text-input ((self OMValueBox)) 
   (values (format nil "~s" (car (value self)))
@@ -103,7 +95,13 @@
 (defmethod display-text-and-area ((self OMValueBoxFrame))
   (let ((font (or (font-font (text-font (object self))) (om-get-font self))))
     (multiple-value-bind (w h) (om-string-size (print-value (object self)) font)
-      (values (print-value (object self)) 3 8 w h))))
+      (values (print-value (object self)) 
+              (case (box-draw-text-align (object self))
+                    (:center (round (- (/ (w self) 2) (/ w 2))))
+                    (:right (- (w self) w 8))
+                    (otherwise 6))
+              6 
+              w h))))
 
 (defmethod om-view-doubleclick-handler ((self OMValueBoxFrame) position)
   (or (apply-in-area self 'click-in-area position)

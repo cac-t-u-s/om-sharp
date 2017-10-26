@@ -78,7 +78,7 @@
 
 (defclass OMMaqIn (OMIn) ())
 (defclass OMMaqInBox (OMInBox) ())
-(defmethod box-color ((self OMMaqInBox)) (om-make-color 0.6 0.2 0.2))
+(defmethod io-box-icon-color ((self OMMaqInBox)) (om-make-color 0.6 0.2 0.2))
 
 (defmethod special-box-p ((name (eql 'mymaquette))) t)
 (defmethod get-box-class ((self OMMaqIn)) 'OMMaqInBox)
