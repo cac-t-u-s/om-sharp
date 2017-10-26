@@ -46,11 +46,12 @@
   ;;;------
   (unless (ctrlpatch self)
     (let* ((patch (make-instance 'OMMaqControlPatch :name "Control Patch"))
-           (inbox (omng-make-special-box 'mymaquette (omp 150 10)))
-           (comment (omng-make-new-comment "This patch is a general controller for the maquette..." (omp 10 10))))
+           (inbox (omng-make-special-box 'mymaquette (omp 150 12)))
+           (comment (omng-make-new-comment "This patch is a general controller for the maquette..." (omp 10 40))))
       (setf (index (reference inbox)) 0
             (defval (reference inbox)) self)
       (omng-add-element patch inbox)
+      (omng-resize comment (omp 120 45))
       (omng-add-element patch comment)
       (set-control-patch self patch)
       ))

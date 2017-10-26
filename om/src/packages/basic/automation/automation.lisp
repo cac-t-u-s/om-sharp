@@ -69,7 +69,8 @@
   ((x-points :initform '(0.0 2000.0) :initarg :x-points)
    (y-points :initform '(0.0 100.0) :initarg :y-points)
    (c-points :initform '(0.5 0.5) :accessor c-points :initarg :c-points))
-  (:default-initargs :interpol (make-number-or-nil :number 10 :t-or-nil t)))
+  (:default-initargs :interpol (make-number-or-nil :number 10 :t-or-nil t))
+  )
 
 
 (defmethod automation-stretch ((self automation) k)
