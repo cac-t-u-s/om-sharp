@@ -147,6 +147,8 @@
 (defmethod make-timeline-left-item ((self bpf-editor) id) 
   (om-make-view 'om-view :size (omp 30 15)))
 
+(defmethod draw-modes-for-object ((self bpf-editor)) '(:draw-all :points-only :lines-only))
+
 (defmethod make-editor-window-contents ((editor bpf-editor))
   (let* ((object (object-value editor))
          (panel (om-make-view (get-curve-panel-class editor) :size (omp 50 100) :direct-draw t :bg-color (om-def-color :white) :scrollbars nil
@@ -185,7 +187,7 @@
                                        (om-make-di 'om-simple-text :text "Draw mode:" 
                                                    :size (omp 68 20) 
                                                    :font (om-def-font :font1))
-                                       (om-make-di 'om-popup-list :items '(:draw-all :points-only :lines-only) 
+                                       (om-make-di 'om-popup-list :items (draw-modes-for-object editor) 
                                                    :size (omp 80 24) :font (om-def-font :font1)
                                                    :value (editor-get-edit-param editor :draw-style)
                                                    :di-action #'(lambda (list) 
@@ -397,7 +399,7 @@
   (and (> (car pt) x1) (< (car pt) x2)
        (> (cadr pt) y1) (< (cadr pt) y2)))
 
-(defun draw-one-bpf (bpf view editor foreground? &optional x1 x2 y1 y2) 
+(defmethod draw-one-bpf ((bpf bpf) view editor foreground? &optional x1 x2 y1 y2) 
   (let ((pts (point-list bpf)))
     (when pts
       (let ((first-pt (list (x-to-pix view (editor-point-x editor (car pts)))
@@ -449,6 +451,16 @@
             (om-with-line-size (if (find T selection) 2 1)
               (om-draw-lines pt-list))
             ))
+        
+        (when (number-? (interpol bpf))
+           (let ((interpol-times (arithm-ser (get-first-time bpf) (get-obj-dur bpf) (number-number (interpol bpf)))))
+             (loop for time in interpol-times
+                   do (let ((new-p (time-sequence-make-timed-item-at bpf time)))
+                        (draw-interpol-point (list (x-to-pix view (editor-point-x editor new-p)) 
+                                                   (y-to-pix view (editor-point-y editor new-p)))
+                                             editor
+                                             :time time)))))
+
         ))))
 
 (defmethod om-draw-contents-area ((self bpf-bpc-panel) x y w h)
@@ -487,6 +499,7 @@
                   (draw-one-bpf bg-bpf self editor nil x xmax y ymax))))
                   
      (when (point-list bpf)
+       
        (om-with-fg-color (if (find T (selection editor))
                              (om-def-color :dark-red)
                            (or (color bpf) 
@@ -494,14 +507,6 @@
                       
          (draw-one-bpf bpf self editor t x xmax y ymax)
                       
-         (when (interpol bpf)
-           (let ((interpol-times (arithm-ser (get-first-time bpf) (get-obj-dur bpf) (interpol-time bpf))))
-             (loop for time in interpol-times
-                   do (let ((new-p (time-sequence-make-timed-item-at bpf time)))
-                        (draw-interpol-point (list (x-to-pix self (editor-point-x editor new-p)) 
-                                                   (y-to-pix self (editor-point-y editor new-p)))
-                                             editor
-                                             :time time)))))
          ))
      )
     ))
