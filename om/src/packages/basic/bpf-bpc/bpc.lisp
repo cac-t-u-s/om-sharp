@@ -292,9 +292,9 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 ;;;============================
 (defmethod get-action-list-for-play ((object bpc) interval &optional parent)
   (when (action object)
-    (if (interpol object)
+    (if (number-? (interpol object))
         (let* ((root (get-active-interpol-time object (car interval))))
-          (loop for interpolated-time in (arithm-ser root (1- (cadr interval)) (interpol-time object))
+          (loop for interpolated-time in (arithm-ser root (1- (cadr interval)) (number-number (interpol object)))
                 collect (list 
                          interpolated-time 
                          #'(lambda (pt) (funcall (action-fun object) pt)) 
@@ -309,9 +309,9 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 ;;; METHODS CALLED FROM OUTSIDE
 ;;;=========================================
 ;TODO SOlution Miracle de Dimitri qui marche pas (parce que t'es nul Jérém)
-(defmethod (setf interpol-time) (new-val (self BPC))
-  (setf (slot-value self 'interpol-time) new-val)
-  (setf (time-window self) new-val))
+;(defmethod (setf interpol-time) (new-val (self BPC))
+;  (setf (slot-value self 'interpol-time) new-val)
+;  (setf (time-window self) new-val))
 
 (defmethod arguments-for-action ((fun (eql 'send-xy-as-osc)))
   '((:string address "/point/xy")

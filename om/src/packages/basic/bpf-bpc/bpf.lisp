@@ -75,25 +75,25 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 (defmethod bpf-p ((self bpf)) t)
 (defmethod bpf-p ((self t)) nil)  
   
-(defmethod additional-class-attributes ((self BPF)) '(decimals color name action interpol interpol-time))
+(defmethod additional-class-attributes ((self BPF)) '(decimals color name action interpol))
 
 ;;; decimals will be set because it is initarg
 (defmethod initialize-instance ((self bpf) &rest args) 
   (call-next-method)
   (check-decimals self)
-  (init-bpf-points self) 
+  (init-bpf-points self)
   self)
 
 ;;;===============================
 
 (defmethod get-properties-list ((self bpf))
-  '((""
+  `((""
      (:decimals "Precision (decimals)" :number decimals (0 10))
      (:color "Color" :color color)
      (:name "Name" :text name)
-     (:action "Action" :action action)
-     (:interpol "Interpolation" :bool interpol)
-     (:interpol-time "Interpol Time (ms)" :number interpol-time (20 1000)))))
+     (:action "Action" :action action-accessor)
+     (:interpol "Interpolation" ,(make-number-or-nil :min 20 :max 1000) interpol)
+     )))
 
 (defun send-as-osc (bpf-point &optional (address "/bpf-point") (host "localhost") (port 3000))
   (osc-send (cons address bpf-point) host port))
@@ -106,6 +106,11 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 (defmethod get-def-action-list ((object BPF))
   '(print send-as-osc midi-controller))
              
+(defmethod action-accessor ((self bpf) &optional (value nil value-supplied-p))
+  (if value-supplied-p
+      (set-action self value)
+    (action self)))
+
 
 ;;;===============================
 
@@ -538,10 +543,10 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 ;;; RETURNS A LIST OF (ACTION TIME) TO PERFORM IN TIME-INTERVAL
 (defmethod get-action-list-for-play ((object BPF) time-interval &optional parent)
   (when (action object)
-    (if (interpol object)
+    (if (number-? (interpol object))
         (let* ((t1 (max 0 (car time-interval)))
                (t2 (min (get-obj-dur object) (cadr time-interval)))
-               (time-list (arithm-ser (get-active-interpol-time object t1) t2 (interpol-time object))))
+               (time-list (arithm-ser (get-active-interpol-time object t1) t2 (number-number (interpol object)))))
           (loop for interpolated-time in time-list
                 for val in (x-transfer object time-list)
                 collect (let ((v val)

@@ -348,10 +348,11 @@
                 (setf prev-point p)
                 ))
         ;draw ticks if interpolation selected
-        (when (and (interpol obj) (time-ruler editor)) ;;; sometimes this method is called before the time-ruler is even created (not good)
+        (when (and (number-? (interpol obj)) (time-ruler editor)) 
+          ;;; sometimes this method is called before the time-ruler is even created (not good)
           (loop for val from (max (v1 (time-ruler editor)) (get-first-time obj))
                 to (min (get-obj-dur obj) (v2 (time-ruler editor))) 
-                by (interpol-time obj)
+                by (number-number (interpol obj))
                 do
                 (let ((x-val (x-to-pix self val)))
                   (om-with-fg-color (om-get-darker-color color 0.1)
