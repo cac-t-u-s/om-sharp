@@ -57,14 +57,24 @@
 
 ;TODO: 
 ; - MOVE gesture time in editor
-; - Si interpol sorties de l'objet sont les interpolations (x y z t types internal times)
+; - Interpolate output values if interpol is on ?
 
 (defclass time-sequence (timed-object)
   ((time-types :initform nil :accessor time-types) ; :initarg :time-types) ;; this slot shall probably disappear..
    (duration :initform 0 :accessor duration :initarg :duration)
-   (interpol :initform nil :accessor interpol :initarg :interpol)
-   (interpol-time :initform 50 :accessor interpol-time :initarg :interpol-time)))
+   (interpol :initform nil :accessor interpol :initarg :interpol)))
 
+(defmethod initialize-instance :after ((self time-sequence) &rest args)
+  
+  (setf (interpol self)
+        (make-number-or-nil :number (or (and (number-? (interpol self))
+                                             (number-number (interpol self)))
+                                        50)
+                            :t-or-nil (number-? (interpol self))))
+
+  self)
+
+ 
 (defmethod om-init-instance :after ((self time-sequence) &optional initargs)
   (time-sequence-update-internal-times self)
   (update-obj-dur self))
@@ -213,12 +223,14 @@
 
 ; Active interpolated time for a time value
 (defmethod get-active-interpol-time ((self time-sequence) time)
-  (let* ((delta (- time (get-first-time self)))
-         (rest (mod delta (interpol-time self)))
-         (mod (floor (/ delta (interpol-time self)))))
+  (let* ((interpol-time (number-number (interpol self)))
+         (delta (- time (get-first-time self)))
+         (rest (mod delta interpol-time))
+         (mod (floor (/ delta interpol-time))))
     (if (< mod 0) 
         (get-first-time self)
-      (+ (* (if (= 0 rest) mod (1+ mod)) (interpol-time self)) (get-first-time self)))))
+      (+ (* (if (= 0 rest) mod (1+ mod)) interpol-time) (get-first-time self)))
+    ))
 
 
 (defmethod get-points-from-indices ((self time-sequence) indices)
@@ -266,7 +278,7 @@
   (time-sequence-make-timed-item-at self time))
 
 (defmethod time-sequence-get-active-timed-item-at ((self time-sequence) time)
-  (if (interpol self)
+  (if (number-? (interpol self))
       (let ((interpol-time (get-active-interpol-time self time)))
         (time-sequence-make-interpolated-timed-item-at self interpol-time))
     (let ((pos (find-active-position-at-time self time)))

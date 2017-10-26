@@ -178,60 +178,64 @@
 (defmethod number-? ((self number)) t)
 (defmethod number-number ((self number)) self)
 (defmethod number-? ((self t)) nil)
+(defmethod number-number ((self t)) nil)
 
 (defmethod make-prop-item ((type number-or-nil) prop-id object &key default update)
 
   (let* ((def (or default 0))
+         (current-value (get-property object prop-id))
          numbox checkbox)
 
     (setf numbox 
           (om-make-graphic-object 'numbox 
-                          :value (and (valid-property-p object prop-id)
-                                    (if (number-? (get-property object prop-id)) 
-                                        (number-number (get-property object prop-id))
-                                      (get-default-value def)))
-                          :enabled (and (valid-property-p object prop-id)
-                                      (get-property object prop-id)
-                                      (number-? (get-property object prop-id)))
-                          :bg-color (om-def-color :white)
-                          :border t
-                          :db-click t
-                          :decimals (or (number-or-nil-decimals type) 0)
-                          :size (om-make-point 60 18) 
-                          :resizable nil
-                          :font (om-def-font :font2)
-                          :min-val (or (number-or-nil-min type) 0) 
-                          :max-val (or (number-or-nil-max type) 10000)
-                          :after-fun #'(lambda (item)
-                                         (set-property 
-                                          object prop-id 
-                                          (make-number-or-nil :number (get-value item)
-                                                              :t-or-nil t))
-                                         (om-set-check-box checkbox t)
-                                         (when update (update-view update object))
-                                         )))
+                                  :value (or (number-number current-value)
+                                             (get-default-value def))
+                                  ;(and (valid-property-p object prop-id)
+                                  ;  (if (number-? (get-property object prop-id)) 
+                                  ;      (number-number (get-property object prop-id))
+                                  ;    (get-default-value def)))
+                                  :enabled (number-? current-value)
+                                  :bg-color (om-def-color :white)
+                                  :border t
+                                  :db-click t
+                                  :decimals (or (number-or-nil-decimals type) 0)
+                                  :size (om-make-point 60 18) 
+                                  :resizable nil
+                                  :font (om-def-font :font2)
+                                  :min-val (or (number-or-nil-min type) 0) 
+                                  :max-val (or (number-or-nil-max type) 10000)
+                                  :after-fun #'(lambda (item)
+                                                 (set-property 
+                                                  object prop-id 
+                                                  (make-number-or-nil :number (get-value item)
+                                                                      :t-or-nil t))
+                                                 ;(unless (om-checked-p checkbox)
+                                                 ;  (om-set-check-box checkbox t))
+                                                 (when update (update-view update object))
+                                                 )))
 
     (setf checkbox 
           (om-make-di 'om-check-box 
                       :checked-p (and (valid-property-p object prop-id)
-                                      (get-property object prop-id)
-                                      (number-? (get-property object prop-id)))
+                                      (number-? current-value))
                       :text ""
                       :resizable nil
                       :size (om-make-point 20 14)
                       :font (om-def-font :font1)
                       :di-action #'(lambda (item)
                                      (enable-numbox numbox (om-checked-p item))
-                                     (when (null (om-checked-p item))
+                                     ;;; when there is a default, it gets set when unckecked
+                                     (when (and default (null (om-checked-p item)))
                                        (set-value numbox (get-default-value default)))
                                      (set-property  
                                       object prop-id 
-                                      (make-number-or-nil :number (if (om-checked-p item) 
-                                                                    (get-default-value default)
-                                                                  nil)
-                                                         :t-or-nil (om-checked-p item)))
+                                      (make-number-or-nil 
+                                       ; :number (if (om-checked-p item) (get-default-value default) nil)
+                                       :number (get-value numbox)
+                                       :t-or-nil (om-checked-p item)))
                                      (when update (update-view update object))
                                      )))
+    
     (om-make-layout 'om-row-layout
                     :subviews (list checkbox numbox)
                     :delta nil :align :center)

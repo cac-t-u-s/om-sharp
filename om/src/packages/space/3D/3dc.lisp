@@ -421,16 +421,6 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
 ;;; PLAYER
 ;;;============================
 
-;;;===============================
-(defmethod get-properties-list ((self 3dc))
-  '(("" ;"BPF attributes" 
-     (:decimals "Precision (decimals)" :number decimals (0 10))
-     (:color "Color" :color color)
-     (:name "Name" :text name)
-     (:action "Action" :action action)
-     (:interpol "Interpolation" :bool interpol)
-     (:interpol-time "Interpol Time (ms)" :number interpol-time (20 1000)))))
-
 (defmethod arguments-for-action ((fun (eql 'send-xyz-as-osc)))
   '((:string address "/point/xyz")
     (:string host "localhost")

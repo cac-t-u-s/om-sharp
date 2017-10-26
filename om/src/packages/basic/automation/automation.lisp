@@ -69,7 +69,7 @@
   ((x-points :initform '(0.0 2000.0) :initarg :x-points)
    (y-points :initform '(0.0 100.0) :initarg :y-points)
    (c-points :initform '(0.5 0.5) :accessor c-points :initarg :c-points))
-  (:default-initargs :interpol t :interpol-time 10))
+  (:default-initargs :interpol (make-number-or-nil :number 10 :t-or-nil t)))
 
 
 (defmethod automation-stretch ((self automation) k)
@@ -90,11 +90,9 @@
 
 ;;;Property list (like bpf but hidden interpolation)
 (defmethod get-properties-list ((self automation))
-  '((""
-     (:decimals "Precision (decimals)" :number decimals (0 10))
-     (:color "Color" :color color)
-     (:name "Name" :text name)
-     (:action "Action" :action action))))
+  (hide-properties 
+   (call-next-method)
+   '(:interpol)))
 
 ;;;Object duration
 (defmethod get-obj-dur ((self automation))
@@ -251,7 +249,7 @@
 (defmethod get-action-list-for-play ((self automation) time-interval &optional parent)
   (when (action-fun self)
     (loop for ti from (car time-interval) to (1- (cadr time-interval))
-          by (interpol-time self)
+          by (number-number (interpol self))
           collect
           (let ((tmp ti))
             (list
