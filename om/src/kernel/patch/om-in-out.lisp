@@ -60,16 +60,20 @@
 ;;; GENERAL SUPERCLASS
 (defclass OMInOutBox (OMBoxCall) ())
 
-(defmethod box-color ((self t)) (om-def-color :black))
+(defmethod io-box-icon-color ((self t)) (om-def-color :black))
+
+(defmethod h-resizable ((self OMInOutBox)) t)
+(defmethod v-resizable ((self OMInOutBox)) nil)
 
 (defmethod omNG-make-new-boxcall ((reference OMPatchIO) pos &optional init-args)
   (let* ((box (make-instance (get-box-class reference)
                              :name (name reference)
                              :reference reference
                              :icon-pos :top
-                             :text-align :center
-                             :color nil
-                             :border nil))
+                             :text-align :center 
+                             :color (make-color-or-nil :color (om-def-color :transparent)
+                                                       :t-or-nil t)
+                             :border 0))
          (size (minimum-size box)))
     (setf (box-x box) (om-point-x pos)
           (box-y box) (om-point-y pos)
@@ -119,7 +123,8 @@
          (pos (if (equal (icon-pos self) :left)
                   (om-make-point 0 (- (h frame) 24))
                (om-make-point (round (- (w frame) (om-point-x size)) 2) 6))))
-    (om-with-fg-color (box-color self)
+    
+    (om-with-fg-color (io-box-icon-color self)
       (om-draw-rect (+ (om-point-x pos) 3) (om-point-y pos)
                   (- (om-point-x size) 6) (- (om-point-y size) 6)
                   :fill t)
@@ -128,6 +133,7 @@
                              (+ (om-point-x pos) (/ (om-point-x size) 2)) (+ (om-point-y pos) (om-point-y size)))
                        :fill t)
       )
+    
     (om-with-fg-color (om-def-color :white)
       (om-with-font (om-def-font :font1b)
                     (om-draw-string (- (+ (om-point-x pos) (/ (om-point-x size) 2)) 4) (if (equal (icon-pos self) :left) 14 16) 
@@ -145,7 +151,7 @@
 ;;; IN (GENERAL)
 (defclass OMInBox (OMInOutBox) ())
 (defmethod box-n-outs ((self OMInBox)) 1)
-(defmethod box-color ((self OMInBox)) (om-make-color 0.2 0.6 0.2))
+(defmethod io-box-icon-color ((self OMInBox)) (om-make-color 0.2 0.6 0.2))
 
 (defmethod special-box-p ((name (eql 'in))) t)
 (defmethod get-box-class ((self OMIn)) 'OMInBox)
@@ -165,7 +171,7 @@
 ;;; OUT
 (defclass OMOutBox (OMInOutBox) ())
 (defmethod box-n-outs ((self OMOutBox)) 0)
-(defmethod box-color ((self OMOutBox)) (om-make-color 0.3 0.6 0.8))
+(defmethod io-box-icon-color ((self OMOutBox)) (om-make-color 0.3 0.6 0.8))
 
 (defmethod create-box-inputs ((self OMOutBox)) 
   (list 
@@ -236,7 +242,7 @@
 
 (defclass OMSelfIn (OMIn) ())
 (defclass OMSelfInBox (OMInBox) ())
-(defmethod box-color ((self OMSelfInBox)) (om-make-color 0.6 0.2 0.2))
+(defmethod io-box-icon-color ((self OMSelfInBox)) (om-make-color 0.6 0.2 0.2))
 
 (defmethod special-box-p ((name (eql 'mybox))) t)
 (defmethod get-box-class ((self OMSelfIn)) 'OMSelfInBox)

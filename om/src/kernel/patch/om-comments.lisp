@@ -54,9 +54,8 @@
     (get-pref-value :appearance :comment-fgcolor)))
 
 (defmethod box-draw-text-align ((box OMComment)) 
-  (if (equal :default (text-align box))
-      (get-pref-value :appearance :comment-align)
-    (text-align box)))
+  (or (text-align box))
+      (get-pref-value :appearance :comment-align))
 
 (defmethod box-draw-font ((box OMComment)) 
   (if (font-? (text-font box))
@@ -94,7 +93,7 @@
          (longest-line (reduce #'(lambda (s1 s2) (if (> (length s1) (length s2)) s1 s2)) comment-lines)))
     (multiple-value-bind (w h)
         (om-string-size longest-line (box-draw-font self))
-      (omp (+ 4 w) (+ 16 (* h (length comment-lines)))))))
+      (omp (+ 12 w) (+ 8 (* h (length comment-lines)))))))
 
 
 (defmethod om-copy ((self OMComment)) 
@@ -137,6 +136,8 @@
 (defmethod set-frame-areas ((self CommentFrame))
   (setf (areas self) (resize-areas self)))
 
+
+;; not used
 (defmethod display-text-and-area ((self CommentFrame))
   (let ((font (or (font-font (text-font (object self))) (om-get-font self)))
         (lines (om-text-to-lines (value (object self)))))
@@ -148,11 +149,63 @@
       ))
   )
 
-(defmethod draw-border ((self OMComment) x y w h)  
-  (om-with-line '(2 2)
-    (call-next-method)
-    ))
- 
+(defmethod boxframe-draw-contents ((self CommentFrame) (box OMComment))
+  (let ((color (box-draw-color box))
+        (font (box-draw-font box))
+        (round (box-draw-roundness box))
+        (text (value box)))
+    
+    (om-with-fg-color (om-def-color :dark-gray)
+   
+      ;;; interior
+      (unless (om-color-null-p color)
+        (if (plusp round)
+            (om-draw-rounded-rect 0 0 (w self) (h self) 
+                                  :fill t :color color 
+                                  :round (min (round (h self) 2) round))
+          (om-draw-rect 0 0 (w self) (h self) 
+                        :fill t :color color :angles :round)
+          ))
+    
+      (when (selected box)
+        (if (plusp round)
+              (om-draw-rounded-rect 0 0 (w self) (h self) :fill t 
+                                    :color (om-make-color-alpha (om-def-color :gray) 0.3) 
+                                    :round (min (round (h self) 2) round))
+            (om-draw-rect 0 0 (w self) (h self) 
+                          :fill t 
+                          :color (om-make-color-alpha (om-def-color :gray) 0.3) 
+                          :angles :round)
+            ))
+
+      ;;; text
+      (when text
+        (om-with-clip-rect self 0 0 (w self) (h self) 
+          (multiple-value-bind (w h)
+              (om-string-size "A" font)
+            (om-with-fg-color (box-draw-text-color box)
+              (om-with-font
+               font
+               (om-draw-string 4 ; (max 2 x)
+                               h ;(+ y (om-font-size (or font (om-get-font self)))) 
+                               text :selected nil 
+                               :wrap (max 10 (- (w self) 8))
+                               :align (box-draw-text-align box))
+             )))))
+      
+     ;;; border
+     (when (and (box-draw-border box) (plusp (box-draw-border box)))
+         (om-with-line '(2 2)
+           (draw-border box 0 0 (w self) (h self))))
+     
+     ))
+  
+  ;;; resize etc. (do nothing)
+  (mapcar #'(lambda (a) (om-draw-area a)) (areas self))
+   
+  )
+
+
 (defmethod enter-new-comment ((self om-view) position)
   (let ((textinput 
          (om-make-di 'om-text-edit-view

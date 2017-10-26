@@ -42,14 +42,13 @@ All boxes which their reference is a OM generic function are instances of this c
 (defmethod allow-rename ((self OMBoxcall)) nil)
 
 
-
 (defmethod get-box-value ((self OMBoxCall)) (car (value self)))
 
 (defmethod set-property ((object OMBoxCall) (prop-id (eql :lambda)) val)
   (set-lambda object val))
 
 (defmethod set-lambda ((self OMBoxCall) value) 
-  ;;; reinit value only if switch from lambda to normal.
+  ;;; reinit value only if switch from lambda to normal
   (when (or (and (equal (lambda-state self) :lambda) (equal value nil))
             (and (equal (lambda-state self) nil) (equal value :lambda)))
     (setf (value self) nil))
@@ -202,6 +201,10 @@ All boxes which their reference is a OM generic function are instances of this c
 
 (defmethod box-n-outs ((self OMFunBoxcall)) 1)
 
+(defmethod h-resizable ((self OMFunBoxCall)) t)
+(defmethod v-resizable ((self OMFunBoxCall)) nil)
+
+
 (defmethod create-box-inputs ((self OMFunBoxcall)) 
   (mapcar #'(lambda (arg) 
               (make-instance 'box-input 
@@ -237,7 +240,7 @@ All boxes which their reference is a OM generic function are instances of this c
 (defmethod more-optional-input ((self OMFunBoxcall) &key name (value nil val-supplied-p) doc reactive)
   (let ((new-in (next-optional-input self)))
     (when (and name (not (string-equal name (string new-in))))
-      (print (format nil "WARNING -- WRONG OPTIONAL INPUT NAME: ~A -- Correct optional in the list is now: ~A" name new-in)))
+      (om-print-format "WARNING -- WRONG OPTIONAL INPUT NAME: ~A -- Correct optional in the list is now: ~A" (list name new-in)))
     (when new-in
       (add-optional-input self 
                           :name new-in

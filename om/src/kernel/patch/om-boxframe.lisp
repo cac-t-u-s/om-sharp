@@ -210,18 +210,27 @@
 (defclass h-resize-area (resize-area) ())
 (defclass v-resize-area (resize-area) ())
 
+(defmethod h-resizable ((self t)) t)
+(defmethod v-resizable ((self t)) t)
+
 (defmethod resize-areas ((self OMBoxFrame))
-  (list 
-   (make-instance 'resize-area :object self :frame self
-                  :pos #'(lambda (f) (om-make-point (- (w f) 8) (- (h f) 8)))
-                  :pick #'(lambda (f) (list 0 0 12 12)))
-   (make-instance 'h-resize-area :object self :frame self
-                  :pos #'(lambda (f) (om-make-point (- (w f) 8) 16))
-                  :pick #'(lambda (f) (list 0 0 12 (- (h f) 16))))
-   (make-instance 'v-resize-area :object self :frame self
-                  :pos #'(lambda (f) (om-make-point 0 (- (h f) 8)))
-                  :pick #'(lambda (f) (list 0 0 (- (w f) 8) 12)))
-   ))
+  (remove 
+   nil
+   (list 
+    (when (and (h-resizable (object self))
+               (v-resizable (object self)))
+      (make-instance 'resize-area :object self :frame self
+                     :pos #'(lambda (f) (om-make-point (- (w f) 8) (- (h f) 8)))
+                     :pick #'(lambda (f) (list 0 0 12 12))))
+    (when (h-resizable (object self))
+      (make-instance 'h-resize-area :object self :frame self
+                     :pos #'(lambda (f) (om-make-point (- (w f) 8) 16))
+                     :pick #'(lambda (f) (list 0 0 12 (- (h f) 16)))))
+    (when (h-resizable (object self))
+      (make-instance 'v-resize-area :object self :frame self
+                     :pos #'(lambda (f) (om-make-point 0 (- (h f) 8)))
+                     :pick #'(lambda (f) (list 0 0 (- (w f) 8) 12))))
+    )))
 
 (defparameter *resize-handler* nil)
 
@@ -235,12 +244,12 @@
 
 (defmethod resize-handle ((self resize-area) container frame pos) 
   (let ((pp (om-add-points (p0 self) pos)))
-      (om-set-view-size frame 
-       (om-borne-point 
-        (resize-frame-size self frame pp)
-        (minimum-size (object frame)) 
-        (maximum-size (object frame))
-        ))))
+    (om-set-view-size frame 
+                      (om-borne-point 
+                       (resize-frame-size self frame pp)
+                       (minimum-size (object frame))
+                       (maximum-size (object frame))
+                       ))))
 
 (defmethod resize-frame-size ((self resize-area) frame pos) pos)
 (defmethod resize-frame-size ((self h-resize-area) frame pos) (omp (om-point-x pos) (h frame)))
@@ -391,24 +400,28 @@
 
 
 (defmethod update-view ((self OMBoxFrame) (object OMBox))
+  
   (when (font-? (text-font object)) (om-set-font self (font-font (text-font object))))
+  
   (let ((best-size (om-borne-point (omp (box-w object) (box-h object)) 
                                    (minimum-size object) (maximum-size object))))
     (setf (box-w object) (om-point-x best-size)
           (box-h object) (om-point-y best-size))
     
     (om-set-view-size self (omp (box-w object) (box-h object))))
+  
   (om-invalidate-view self)
-  (update-frame-connections-display self)
-  )
+  (update-frame-connections-display self))
+
 
 (defmethod update-view ((self OMBoxFrame) (object OMBoxCall))
  
   (when (font-? (text-font object)) (om-set-font self (font-font (text-font object))))
  
-  (let ((adjusted-size (om-borne-point 
-                        (omp (box-w object) (box-h object))
-                        (minimum-size object) (maximum-size object))))
+  (let ((adjusted-size 
+         (om-borne-point 
+          (omp (box-w object) (box-h object))
+          (minimum-size object) (maximum-size object))))
     
     ;(print (list "update" 
     ;             (omp (box-w object) (box-h object))
@@ -416,12 +429,14 @@
     ;             adjusted-size))
     
     ;; adjust the size only if the box doesn't scale according to rulers
-    (unless (scale-in-x-? object) (setf (box-w object) (om-point-x adjusted-size)))
+    (unless (scale-in-x-? object) 
+      (setf (box-w object) (om-point-x adjusted-size)))
     
     (unless (scale-in-y-? object) 
-      (setf (box-h object) (om-point-y adjusted-size))  
-      (when (and (or (lambda-state object) (lock-state object)) (< (box-h object) 36))
-        (setf (box-h object) (+ (box-h object) 8))))
+      (setf (box-h object) (om-point-y adjusted-size))
+      ;(when (and (or (lambda-state object) (lock-state object)) (< (box-h object) 36))
+      ;  (setf (box-h object) (+ (box-h object) 8)))
+      )
     
     (om-set-view-size self (omp 
                             (if (scale-in-x-? object) (omg-w (om-view-container self) (box-w object)) (box-w object))
@@ -458,8 +473,9 @@
                     (:center (+ shift (round (- (/ (- (w self) shift) 2) (/ w 2)))))
                     (:right (- (w self) w 4))
                     (otherwise (+ shift 4)))
-                  (if (equal :left (icon-pos (object self))) 8 (- (h self) 10 h))
-                  w h)
+                  (if (equal :left (icon-pos (object self))) 6 (- (h self) 10 h))
+                  w 
+                  (+ h 2))
           )))))
 
 (defmethod om-draw-contents ((self OMBoxFrame))
@@ -488,28 +504,34 @@
   (let ((icon-size (get-icon-size box))
         (io-hspace 4)
         (color (box-draw-color box))
-        (font (box-draw-font box)))
+        (font (box-draw-font box))
+        (round (box-draw-roundness box)))
     (om-with-fg-color (om-def-color :dark-gray)
    
       ;;; interior
       (unless (om-color-null-p color)
-        (let ((round (box-draw-roundness box)))
-          (if (plusp round)
-              (om-draw-rounded-rect 0 io-hspace (w self) (- (h self) (* 2 io-hspace)) 
-                                    :color color 
-                                    :fill t
-                                    :round (min (round (h self) 2) round))
-            (om-draw-rect 0 io-hspace (w self) (- (h self) (* 2 io-hspace)) 
-                          :color color
-                          :angles :round
-                          :fill t))
-          ))
+        (if (plusp round)
+            (om-draw-rounded-rect 0 io-hspace (w self) (- (h self) (* 2 io-hspace)) 
+                                  :color color 
+                                  :fill t
+                                  :round (min (round (h self) 2) round))
+          (om-draw-rect 0 io-hspace (w self) (- (h self) (* 2 io-hspace)) 
+                        :color color
+                        :angles :round
+                        :fill t))
+        )
     
       (when (selected box)
+        (if (plusp round)
+            (om-draw-rounded-rect 0 io-hspace (w self) (- (h self) (* 2 io-hspace)) 
+                                  :color (om-make-color-alpha (om-def-color :gray) 0.3) 
+                                  :fill t
+                                  :round (min (round (h self) 2) round))
+          
         (om-draw-rect 0 io-hspace (w self) (- (h self) (* 2 io-hspace)) 
                       :color (om-make-color-alpha (om-def-color :gray) 0.3)
                       :angles :round
-                      :fill t))
+                      :fill t)))
 
       ;;; icon
       (or (box-draw box self)
@@ -527,16 +549,17 @@
         (multiple-value-bind (text x y w h)
             (display-text-and-area self)
           (when text
-            (om-with-fg-color (box-draw-text-color box)
+            (multiple-value-bind (tw th) (om-string-size text font)
+              (om-with-fg-color (box-draw-text-color box)
             (om-with-font
              font
              ;(om-draw-rect x y w h)
              (om-draw-string (max 2 x)
-                             (+ y (om-font-size (or font (om-get-font self)))) 
+                             (+ y th)
                              text :selected nil 
-                             :wrap (max 10 (- w 8)) ;; (max 10 (- (w self) 8))
-                             :align (box-draw-text-align box))
-             )))))
+                             ;:align (box-draw-text-align box) ;; handled by display-text-and-area
+                             )
+             ))))))
       
      ;;; border
      (when (and (box-draw-border box) (plusp (box-draw-border box)))
@@ -809,7 +832,7 @@
   (redraw-connections self))
 
 ;;;=============================
-;;; MAGIC: AUTO CONNECT
+;;; AUTO CONNECT
 ;;;=============================
 ;;; Several boxes are selected: the lower box's inputs are connected
 ;;; with the ouher boxes' outputs

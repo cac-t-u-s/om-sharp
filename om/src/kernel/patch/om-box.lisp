@@ -122,6 +122,12 @@
   (call-next-method)
   (when (container object) (update-container-groups (container object))))
 
+(defmethod set-property ((object OMBox) (prop-id (eql :icon)) val)
+  (call-next-method)
+  (initialize-size object))
+
+
+
 (defmethod close-internal-element :after ((self OMBox)) 
   (close-inspector-for-box self))
 
@@ -238,14 +244,14 @@
                          22
                          (* (length (inputs self)) 10)
                          (* (box-n-outs self) 10)))
-                 (+ h 14 (if (equal (icon-pos self) :top) 20 0))
+                   (+ h 18 (if (equal (icon-pos self) :top) 20 0))
                  )))
 
 (defmethod maximum-size ((self OMBox))
    (multiple-value-bind (w h) 
-      (om-string-size (name self) (box-draw-font self))   
+       (om-string-size (name self) (box-draw-font self))   
      (if (equal (icon-pos self) :left)
-         (om-make-point 500 (max (+ (get-icon-size self) 8) (+ h 16)))
+         (om-make-point 500 (max (+ (get-icon-size self) 8) (+ h 18)))
        (om-make-point 500 200))))
       
 (defmethod get-icon-size ((self OMBox)) 20)

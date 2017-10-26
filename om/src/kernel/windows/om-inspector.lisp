@@ -104,7 +104,7 @@
                              (list  ;     (car category)  ; (list (car category) (om-def-font :font1b)) 
                               (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)
                               (om-make-di 'om-simple-text :text (car category) :font (om-def-font :font2b)
-                                          :size (om-make-point (om-string-size (car category) (om-def-font :font2b)) 20)
+                                          :size (om-make-point (+ 10 (om-string-size (car category) (om-def-font :font2b))) 20)
                                           )
                               ;; prevents focus on other items :)  :right-extend
                               )
