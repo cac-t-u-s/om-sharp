@@ -389,13 +389,18 @@
   (dispatch-key-action (editor self) key))
 
 
+;;;
 (defmethod om-window-resized ((self OMEditorWindow) size)
   (when (editor self) ;;; sometimes the editor is not yet set (e.g. textbuffer editor)
-    (setf (window-size (object (editor self))) size)))
+    (setf (window-size (object (editor self))) size)
+    (report-modifications (editor self))))
   
 (defmethod om-window-moved ((self OMEditorWindow) pos)
   (when (editor self) ;;; sometimes the editor is not yet set (e.g. textbuffer editor)
-    (setf (window-pos (object (editor self))) pos)))
+    (setf (window-pos (object (editor self))) pos)
+    (report-modifications (editor self))))
+
+(defmethod save-command (self) nil)
 
 ;;;====================
 ;;; SELECTION TOOLS

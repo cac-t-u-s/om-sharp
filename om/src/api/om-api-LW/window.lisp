@@ -82,7 +82,7 @@
    (fullscreen :initarg :fullscreen :initform nil :accessor fullscreen))
   (:default-initargs
    :auto-menus nil
-   :geometry-change-callback 'om-resize-callback
+   :geometry-change-callback 'om-geometry-change-callback
    :activate-callback 'om-activate-callback
    :confirm-destroy-function 'om-confirm-destroy-function
    :help-callback 'om-help-callback
@@ -190,18 +190,18 @@
 (defmethod om-set-interior-size ((self om-abstract-window) size)
   (om-set-view-size self size))
 
-(defmethod om-resize-callback ((self om-abstract-window) x y w h)
-  (unless (and (vw self) (vh self))
-    (setf (vw self) w (vh self) h))
-  (unless (and (= w (vw self)) (= h (vh self)))
+(defmethod om-geometry-change-callback ((self om-abstract-window) x y w h)
+  
+  (unless (and (= w (vw self)) (= h (vh self)))  
     (om-window-resized self (om-make-point w h))
     #+windows(om-invalidate-view self)
     )
-  (unless (and (vx self) (vy self))
-    (setf (vx self) x (vy self) y))
+  
   (unless (and (= x (vx self)) (= y (vy self)))
-    (om-window-moved self (om-make-point x y))
-    ))
+    (om-window-moved self (om-make-point x y)))
+
+  (setf (vx self) x (vy self) y (vw self) w (vh self) h)
+  )
 
 (defmethod om-window-resized ((self om-abstract-window) size)
   (declare (ignore self size)) nil)
