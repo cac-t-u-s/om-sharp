@@ -113,7 +113,9 @@
 
 (defmethod om-draw-area ((area io-area))
   (let ((p (get-position area))
-        (r (if (active area) +active-r+ +inactive-r+)))
+        (r (if (and (active area)
+                    (not (edit-lock (editor (om-view-container (frame area))))))
+               +active-r+ +inactive-r+)))
     (when (reactive (object area))
       (om-with-fg-color (om-def-color :dark-red)
         (om-draw-circle (om-point-x p) (om-point-y p) (1+ r) :fill t)))
@@ -1073,41 +1075,44 @@
          (box (object boxframe))
          (c (car (connections input)))
          (editorview (om-view-container boxframe)))
+    
+    (unless (edit-lock (editor editorview))
+    
+      (if (subtypep (type-of input) 'box-keyword-input)
 
-    (if (subtypep (type-of input) 'box-keyword-input)
-
-        ;;; KEYWORD INPUTS = SPECIAL
-        (if (om-shift-key-p)
-            (if (get-input-menu box (name input))
-                (show-input-val-menu (object self) (object boxframe) editorview)
-              (popup-value-as-new-box self editorview)
-              )
-          ;;; NO SHIFT
-           (show-keywords-menu (object self) (object boxframe) editorview))
+          ;;; KEYWORD INPUTS = SPECIAL
+          (if (om-shift-key-p)
+              (if (get-input-menu box (name input))
+                  (show-input-val-menu (object self) (object boxframe) editorview)
+                (popup-value-as-new-box self editorview)
+                )
+            ;;; NO SHIFT
+            (show-keywords-menu (object self) (object boxframe) editorview))
       
 
-      ;;; ELSE (NO KEYWORD) 
-      (if c
-          ;;; IF CONNECTED
-          (cond          
-           ((om-shift-key-p) ;;; shift + click = unconnect
-            (let ((patch (object (editor editorview))))
-              (omng-remove-element patch c)
-              (apply 'om-invalidate-area (cons editorview (graphic-area c)))))
-           (t  ;;; click = reconnect
-               (let ((patch (object (editor editorview))))
-                 (reconnect-input-connection c patch)))
+        ;;; ELSE (NO KEYWORD) 
+        (if c
+            ;;; IF CONNECTED
+            (cond          
+             ((om-shift-key-p) ;;; shift + click = unconnect
+              (let ((patch (object (editor editorview))))
+                (omng-remove-element patch c)
+                (apply 'om-invalidate-area (cons editorview (graphic-area c)))))
+             (t  ;;; click = reconnect
+                 (let ((patch (object (editor editorview))))
+                   (reconnect-input-connection c patch)))
+             )
+          ;;; ELSE: NOT CONNECTED
+          (cond 
+           ((om-shift-key-p) ;;; shift + click = show value as a box
+            (popup-value-as-new-box self editorview))
+           ((get-input-menu box (name input)) ;;; there is a menu for this input: display
+            (show-input-val-menu (object self) (object boxframe) editorview))
+           ;;; click = open a text edit to enter a value
+           (t (enter-input-value self editorview))
            )
-        ;;; ELSE: NOT CONNECTED
-        (cond 
-         ((om-shift-key-p) ;;; shift + click = show value as a box
-          (popup-value-as-new-box self editorview))
-         ((get-input-menu box (name input)) ;;; there is a menu for this input: display
-          (show-input-val-menu (object self) (object boxframe) editorview))
-         ;;; click = open a text edit to enter a value
-         (t (enter-input-value self editorview))
-         )
-        ))))
+          )))
+    ))
 
 
 (defmethod om-get-menu-context ((self OMBoxFrame))

@@ -22,18 +22,23 @@
 ;;;==========================================
 
 (defclass OMPatch (OMProgrammingObject)         
-   ((boxes :initform nil :initarg :boxes :accessor boxes)
-    (lock :initform (mp:make-lock :name "content lock") :accessor lock)
-    (connections :initform nil :accessor connections)))
+  (; main contents
+   (boxes :initform nil :initarg :boxes :accessor boxes)
+   (connections :initform nil :accessor connections)
+   ; patch editing properties
+   (grid :accessor grid :initarg :grid :initform nil)
+   (lock :accessor lock :initarg :lock :initform nil)
+   ; internal lock for asynchronous accesses by the scheduler
+   (content-mp-lock :initform (mp:make-lock :name "patch content lock") :accessor content-mp-lock)))
 
 (defmethod default-compiled-gensym  ((self OMPatch)) (gensym "patch-"))
 
 (defmethod boxes ((self OMPatch))
-  (mp:with-lock ((lock self))
+  (mp:with-lock ((content-mp-lock self))
     (slot-value self 'boxes)))
 
 (defmethod (setf boxes) (new-boxes (self OMPatch))
-  (mp:with-lock ((lock self))
+  (mp:with-lock ((content-mp-lock self))
     (setf (slot-value self 'boxes) new-boxes)))
 
 (defmethod ompatch-p ((self OMPatch)) t)

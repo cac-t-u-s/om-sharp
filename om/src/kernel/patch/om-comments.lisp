@@ -235,25 +235,25 @@
     (add-box-in-patch-editor comment self)))
 
 (defmethod om-view-doubleclick-handler ((self CommentFrame) position)
-  (let* ((box (object self))
-         (container-view (om-view-container self))
-         (textinput (om-make-di 'om-text-edit-view
-                               :text (value box)
-                               :focus t
-                               ;:fg-color (text-color box)
-                               :di-action #'(lambda (item) 
-                                              (let ((newtext (om-dialog-item-text item)))
+   (unless (edit-lock (editor (om-view-container self)))
+     (let* ((box (object self))
+            (container-view (om-view-container self))
+            (textinput (om-make-di 'om-text-edit-view
+                                   :text (value box)
+                                   :focus t
+                                   :di-action #'(lambda (item) 
+                                                  (let ((newtext (om-dialog-item-text item)))
                                                 (om-end-text-edit item)
                                                 (om-remove-subviews container-view item)
                                                 (set-value box newtext)
                                                 (om-set-focus container-view)
                                                 ))
-                               :font (font-font (text-font box))
-                               :size (om-add-points (omp (box-w box) (box-h box)) (omp 4 4))
-                               :position (omp (box-x box) (box-y box))
-                               )))
-    (om-add-subviews container-view textinput)
-    (om-set-text-focus textinput t)))
+                                   :font (font-font (text-font box))
+                                   :size (om-add-points (omp (box-w box) (box-h box)) (omp 4 4))
+                                   :position (omp (box-x box) (box-y box))
+                                   )))
+       (om-add-subviews container-view textinput)
+       (om-set-text-focus textinput t))))
 
 
     
