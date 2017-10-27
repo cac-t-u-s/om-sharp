@@ -134,7 +134,9 @@
          (not (edit-lock (editor container-view))))))
 
 (defmethod set-frame-areas ((self CommentFrame))
-  (setf (areas self) (resize-areas self)))
+  (setf (areas self) 
+        (append (resize-areas self)
+                (info-area self))))
 
 
 ;; not used
