@@ -67,7 +67,7 @@
     (om-make-point (max (+ tw 18)
                         (+ 20 (* (length (inputs self)) 10))
                         32)
-                   (max (+ th 18) 28))))
+                   (max (+ th 16) 28))))
 
 (defmethod allow-text-input ((self OMValueBox)) 
   (values (format nil "~s" (car (value self)))
@@ -104,10 +104,11 @@
               w h))))
 
 (defmethod om-view-doubleclick-handler ((self OMValueBoxFrame) position)
-  (or (apply-in-area self 'click-in-area position)
-      (multiple-value-bind (edittext action)
-          (allow-text-input (object self))
-        (let* ((container-view (om-view-container self)))
-          (edit-text-in-patch edittext self container-view action (omp 0 0) (omp (w self) (h self)))
-          t))))
+  (unless (edit-lock (editor (om-view-container self)))
+    (or (apply-in-area self 'click-in-area position)
+        (multiple-value-bind (edittext action)
+            (allow-text-input (object self))
+          (let* ((container-view (om-view-container self)))
+            (edit-text-in-patch edittext self container-view action (omp 0 0) (omp (w self) (h self)))
+            t)))))
 

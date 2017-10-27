@@ -119,16 +119,17 @@ Frames can be simple frames (icons, boxes, etc.) or container frames (patch edit
     (setf (active-area self) aa)))
 
 (defmethod om-view-mouse-enter-handler ((self OMFrame))
+  ;(om-print-dbg "ENTER ~A" (list self))
   (let ((helptext (get-help self)))
     (when (and helptext (om-command-key-p))
       (om-show-tooltip (om-view-container self) helptext nil))))
 
 (defmethod om-view-mouse-leave-handler ((self OMFrame))
-  (if (active-area self)
-      (progn 
-        (om-leave-area (active-area self))
-        (setf (active-area self) nil))
-    (om-hide-tooltip (om-view-container self))))
+  ;(om-print-dbg "LEAVE ~A" (list self))
+  (when (active-area self)
+    (om-leave-area (active-area self))
+    (setf (active-area self) nil))
+  (om-hide-tooltip (om-view-container self)))
                                                                   
 
 ;;;=================================

@@ -22,13 +22,13 @@
 ;;;=============================
 
 (defclass patch-editor (OMDocumentEditor) 
-  ((grid :accessor grid :initarg :grid :initform nil)
-   (edit-lock :accessor edit-lock :initarg :edit-lock :initform nil)
-   (show-lisp-code :accessor show-lisp-code :initarg :show-lisp-code :initform nil)))
+  ((show-lisp-code :accessor show-lisp-code :initarg :show-lisp-code :initform nil)
+   (show-documentation :accessor show-documentation :initarg :show-documentation :initform nil)))
 
 (defmethod object-has-editor ((self OMPatch)) t)
 (defmethod get-editor-class ((self OMPatch)) 'patch-editor)
 
+(defmethod edit-lock ((self patch-editor)) (lock (object self)))
 
 (defclass patch-editor-window (OMEditorWindow) ())
 (defclass patch-editor-view (OMEditorView om-drop-view om-tt-view multi-view-editor-view) 
@@ -75,22 +75,21 @@
 (defun draw-v-grid-line (view x) 
   (om-draw-line x 0 x (h view)))
 
-(defmethod draw-patch-grid ((self patch-editor-view))
-  (let ((d 50))
-    (om-with-fg-color (om-def-color :light-gray)
-      (om-with-line '(2 2)
-        (loop for i from d to (w self) by d do
-              (draw-v-grid-line self i))
-        (loop for i from d to (h self) by d do
-              (draw-h-grid-line self i))))))
+(defmethod draw-patch-grid ((self patch-editor-view) d)
+  (om-with-fg-color (om-def-color :light-gray)
+    (om-with-line '(2 2)
+      (loop for i from d to (w self) by d do
+            (draw-v-grid-line self i))
+      (loop for i from d to (h self) by d do
+            (draw-h-grid-line self i)))))
 
 
 (defmethod draw-lock-buttons ((self patch-editor))
-  (om-draw-picture (if (edit-lock self) 'lock 'unlock) :x 0 :y 2 :w 20 :h 20))
+  (om-draw-picture (if (lock (object self)) 'lock 'unlock) :x 0 :y 2 :w 20 :h 20))
 
 (defmethod om-draw-contents ((self patch-editor-view))
   (let ((editor (editor (om-view-window self))))
-    (when (grid editor) (draw-patch-grid self))
+    (when (grid (object editor)) (draw-patch-grid self (grid (object editor))))
     (draw-lock-buttons editor) 
     (mapcar 'om-draw-contents (get-grap-connections self))))
 
@@ -124,9 +123,9 @@
                                           )
                                          (om-make-menu-item  
                                           "Edit lock" 
-                                          #'(lambda () (setf (edit-lock self) (not (edit-lock self)))
+                                          #'(lambda () (setf (lock (object self)) (not (lock (object self))))
                                               (om-invalidate-view (main-view self)))
-                                          :key "e" :selected #'(lambda () (edit-lock self))
+                                          :key "e" :selected #'(lambda () (lock (object self)))
                                           ))
                                    :selection t
                                    )
@@ -198,7 +197,7 @@
   ;;; special : click on teh lock-button
   (if (om-point-in-rect-p position 0 0 20 20)
       (progn
-        (setf (edit-lock (editor self)) (not (edit-lock (editor self))))
+        (setf (lock (object (editor self))) (not (lock (object (editor self)))))
         (om-invalidate-area self 0 0 20 20))
     (progn
       (unless (om-shift-key-p)
@@ -224,26 +223,35 @@
   
 (defmethod editor-key-action ((editor patch-editor) key)
   (let* ((panel (get-editor-view-for-action editor))
+         (patch (object editor))
          (selected-boxes (get-selected-boxes editor))
          (selected-connections (get-selected-connections editor)))
+
     (when panel
+
       (case key
-        (:om-key-delete (remove-selection editor))
-        (#\g (setf (grid editor) (not (grid editor)))
+
+        (:om-key-delete (unless (edit-lock editor) (remove-selection editor)))
+
+        (#\g (setf (grid patch) (if (grid patch) nil 50))
              (om-invalidate-view panel))
+
         (#\n (if selected-boxes
                  (mapc 'set-show-name selected-boxes)
-               (make-new-box panel)))
-        (#\i (mapc 'initialize-size (or selected-boxes selected-connections)))
+               (unless (edit-lock editor)
+                 (make-new-box panel))))
+
+        (#\i (unless (edit-lock editor) 
+               (mapc 'initialize-size (or selected-boxes selected-connections))))
                                
-        (:om-key-left (if (om-option-key-p) 
-                          (mapc 'optional-input-- selected-boxes)
-                        (unless (edit-lock editor)
+        (:om-key-left (unless (edit-lock editor)
+                        (if (om-option-key-p) 
+                            (mapc 'optional-input-- selected-boxes)
                           (mapc #'(lambda (f) (move-box f (if (om-shift-key-p) -10 -1) 0)) 
                                 (or selected-boxes selected-connections)))))
-        (:om-key-right (if (om-option-key-p) 
-                           (mapc 'optional-input++ selected-boxes)
-                         (unless (edit-lock editor)
+        (:om-key-right (unless (edit-lock editor)
+                         (if (om-option-key-p) 
+                             (mapc 'optional-input++ selected-boxes)
                            (mapc #'(lambda (f) (move-box f (if (om-shift-key-p) 10 1) 0)) 
                                  (or selected-boxes selected-connections)))))
         (:om-key-up (unless (edit-lock editor)
@@ -253,31 +261,33 @@
                         (mapc #'(lambda (f) (move-box f 0 (if (om-shift-key-p) 10 1))) 
                               (or selected-boxes selected-connections))))
       
-        (#\k (mapc 'keyword-input++ selected-boxes))
-        (#\+ (mapc 'keyword-input++ selected-boxes))
-        (#\K (mapc 'keyword-input-- selected-boxes))
-        (#\- (mapc 'keyword-input-- selected-boxes))
-        (#\> (mapc 'optional-input++ selected-boxes))
-        (#\< (mapc 'optional-input-- selected-boxes))
+        (#\k (unless (edit-lock editor) (mapc 'keyword-input++ selected-boxes)))
+        (#\+ (unless (edit-lock editor)(mapc 'keyword-input++ selected-boxes)))
+        (#\K (unless (edit-lock editor)(mapc 'keyword-input-- selected-boxes)))
+        (#\- (unless (edit-lock editor)(mapc 'keyword-input-- selected-boxes)))
+        (#\> (unless (edit-lock editor)(mapc 'optional-input++ selected-boxes)))
+        (#\< (unless (edit-lock editor)(mapc 'optional-input-- selected-boxes)))
     
         (#\b (mapc 'set-lock-mode selected-boxes))
-        (#\1 (mapc 'set-evonce-mode selected-boxes))
-        (#\l (mapc 'set-lambda-mode selected-boxes))
+        (#\1 (unless (edit-lock editor) (mapc 'set-evonce-mode selected-boxes)))
+        (#\l (unless (edit-lock editor) (mapc 'set-lambda-mode selected-boxes)))
 
         (#\m (mapc 'change-display selected-boxes))
-        (#\a (mapc 'internalize-abstraction selected-boxes))
 
-        (#\c (if selected-boxes
-                 (auto-connect-box selected-boxes editor panel)
-               (make-new-comment panel)))
-        (#\C (auto-connect-seq selected-boxes editor panel))
+        (#\a (unless (edit-lock editor) (mapc 'internalize-abstraction selected-boxes)))
+
+        (#\c (unless (edit-lock editor)
+               (if selected-boxes
+                   (auto-connect-box selected-boxes editor panel)
+                 (make-new-comment panel))))
+        (#\C (unless (edit-lock editor) (auto-connect-seq selected-boxes editor panel)))
         
-        (#\E (encapsulate-patchboxes editor panel selected-boxes))
-        (#\U (unencapsulate-patchboxes editor panel selected-boxes))
+        (#\E (unless (edit-lock editor) (encapsulate-patchboxes editor panel selected-boxes)))
+        (#\U (unless (edit-lock editor) (unencapsulate-patchboxes editor panel selected-boxes)))
 
         (#\v (eval-command panel selected-boxes))
     
-        (#\r (mapc 'set-reactive-mode (or selected-boxes selected-connections)))
+        (#\r (unless (edit-lock editor) (mapc 'set-reactive-mode (or selected-boxes selected-connections))))
       
         ;;; play/stop commands
         (#\p (play-boxes selected-boxes))
@@ -459,10 +469,10 @@
   (om-copy-command view))
 
 (defmethod cut-command-for-view ((editor patch-editor) (view om-editable-text))
-  (om-cut-command view))
+  (if (edit-lock editor) (om-beep) (om-cut-command view)))
 
 (defmethod paste-command-for-view ((editor patch-editor) (view om-editable-text))
-  (om-paste-command view))
+  (if (edit-lock editor) (om-beep) (om-paste-command view)))
 
 
 ;;; called from menu
@@ -588,7 +598,8 @@
            (newpositions (mapcar 
                           #'(lambda (view) (om-add-points position (om-subtract-points (om-view-position view) initpos))) 
                           (dragged-views patchview))))
-      (unless (find-if #'(lambda (p) (or (< (om-point-x p) 0) (< (om-point-y p) 0))) newpositions)
+      (unless (or (edit-lock (editor self))
+                  (find-if #'(lambda (p) (or (< (om-point-x p) 0) (< (om-point-y p) 0))) newpositions))
         (let ((connections (save-connections-from-boxes (mapcar 'object (dragged-views patchview))))
               (newboxes nil))
           (loop for dview in (dragged-views patchview) 

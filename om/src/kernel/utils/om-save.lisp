@@ -285,7 +285,9 @@
 (defmethod save-patch-contents ((self OMPatch) &optional (box-values nil))
  (append
    (call-next-method self t)
-   `((:boxes ,.(loop for box in (boxes self) 
+   `((:grid ,(grid self))
+     (:lock ,(lock self))
+     (:boxes ,.(loop for box in (boxes self) 
                      for i = 0 then (+ i 1) 
                      collect (append (if box-values (omng-save-with-value box) (omng-save box))
                                      (list (list :id i)))))
@@ -319,7 +321,11 @@
       (mapcar #'(lambda (box) (omng-add-element patch box)) boxes)
       (mapcar #'(lambda (c) (omng-add-element patch c))
               (restore-connections-to-boxes connections boxes))
-
+      
+      (setf (lock patch) (find-value-in-kv-list data :lock))
+      (setf (grid patch) (find-value-in-kv-list data :grid))
+      
+      
       (setf (loaded? patch) t)
       patch)))
 
