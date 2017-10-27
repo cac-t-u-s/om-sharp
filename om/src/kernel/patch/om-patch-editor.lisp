@@ -75,7 +75,7 @@
 (defun draw-v-grid-line (view x) 
   (om-draw-line x 0 x (h view)))
 
-(defmethod draw-patch-grid ((self patch-editor-view) d)
+(defmethod draw-patch-grid ((self patch-editor-view) &optional (d 50))
   (om-with-fg-color (om-def-color :light-gray)
     (om-with-line '(2 2)
       (loop for i from d to (w self) by d do
