@@ -181,13 +181,14 @@
     (om-add-subviews win 
                      
                      (if alpha
-                         (om-make-layout 'om-column-layout
+                         (om-make-layout 'om-row-layout
                                          :subviews (list 
                                                     coloritem
-                                                    (om-make-di 'om-slider ;; :direction :vertical ;; does not work... ?
+                                                    (om-make-di 'om-slider 
+                                                                :direction :vertical ;; does not work... ?
                                                                 :range '(0 255)
                                                                 :value (round (* (om-color-a (color coloritem)) 255))
-                                                                :size (omp nil 20)
+                                                                :size (omp 30 nil)
                                                                 :di-action #'(lambda (item) 
                                                                                (let ((newcolor (make-omcolor :c (color::color-with-alpha 
                                                                                                                  (omcolor-c (color coloritem)) 
