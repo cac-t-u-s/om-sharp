@@ -65,7 +65,8 @@ Lock the box ('b') to keep the current file.
 
 (defmethod om-init-instance ((self SDIFFile) &optional initargs)
   (call-next-method)
-  (load-sdif-file self)
+  (when(file-pathname self) 
+    (load-sdif-file self))
   self)
 
 
@@ -600,7 +601,9 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
    (get-sdif-frames self sID frameType tmin tmax))
 
 (defmethod get-sdif-frames ((self sdifFile) streamNum frameT tmin tmax)
-  (get-sdif-frames (file-pathname self) streamNum frameT tmin tmax))
+  (if (file-pathname self)
+      (get-sdif-frames (file-pathname self) streamNum frameT tmin tmax)
+    (om-beep-msg "SDIFFILE: no file loaded!" self)))
 
 (defmethod get-sdif-frames ((self pathname) streamNum frameT tmin tmax)
   (get-sdif-frames (namestring self) streamNum frameT tmin tmax))
