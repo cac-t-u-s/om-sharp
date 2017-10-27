@@ -299,7 +299,7 @@
 (defmethod def-reactive ((self OMBoxEditCall) key) 
   (find key (additional-box-attributes-names self)))
 
-;;; called when properties are changed in the inspector
+;;; NOT ! called when properties are changed in the inspector
 (defmethod om-init-instance ((self omboxeditcall) &optional initargs)
   (let ((name (find-value-in-kv-list initargs :name)))
     (when (and name (editor self))
@@ -414,9 +414,13 @@
 
 
 ;;; redefine when default init value is different
-(defmethod initialize-box-initval ((self t)) 
-  (set-name self (string-upcase (type-of self)))
-  self)
+(defmethod initialize-box-value ((self OMBoxeditCall) &optional value)
+  (let ((val (or value (make-instance (reference self)))))
+    (set-name val (string-upcase (reference self)))
+    (setf (value self) (list val))
+    (reset-cache-display self)
+    (when (frame self) 
+      (om-invalidate-view (frame self)))))
 
 (defmethod omNG-make-new-boxcall ((reference standard-class) pos &optional init-args)
   (let* ((box (make-instance (get-box-class reference)
@@ -431,11 +435,11 @@
     (setf (box-x box) (om-point-x pos)
           (box-y box) (om-point-y pos)
           (box-w box) (om-point-x size)
-          (box-h box) (om-point-y size)        
-          (value box) (list (or 
-                             (if (not (stringp init-args)) init-args) 
-                             ;;; should actually test that this is an instance of reference
-                             (initialize-box-initval (make-instance (class-name reference))))))
+          (box-h box) (om-point-y size))
+
+    ;;; if init-args is not a string, it is considered a value for init...
+    ;;; should actually test that this is an instance of reference
+    (initialize-box-value box (if (not (stringp init-args)) init-args))
     box))
 
 
