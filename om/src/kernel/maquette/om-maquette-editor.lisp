@@ -206,7 +206,8 @@
   (declare (ignore new-size))
   (update-temporalboxes view))
 
-(defmethod draw-patch-grid ((view maquette-view))
+(defmethod draw-patch-grid ((view maquette-view) &optional (d 50))
+  (declare (ignore d))
   (om-with-fg-color (om-gray-color 0 0.1)
     (draw-grid-from-ruler view (get-g-component (editor view) :metric-ruler))
     (draw-grid-from-ruler view (get-g-component (editor view) :y-ruler))
