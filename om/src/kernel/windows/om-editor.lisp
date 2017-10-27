@@ -388,8 +388,6 @@
   ;(print (list "omeditorwindow" self key))
   (dispatch-key-action (editor self) key))
 
-
-;;;
 (defmethod om-window-resized ((self OMEditorWindow) size)
   (when (editor self) ;;; sometimes the editor is not yet set (e.g. textbuffer editor)
     (setf (window-size (object (editor self))) size)

@@ -192,16 +192,15 @@
 
 (defmethod om-geometry-change-callback ((self om-abstract-window) x y w h)
   
-  (unless (and (= w (vw self)) (= h (vh self)))  
+  (unless (and (vx self) (vy self) (= x (vx self)) (= y (vy self)))
+    (om-window-moved self (om-make-point x y)))
+  
+  (unless (and (vw self) (vh self) (= w (vw self)) (= h (vh self)))  
     (om-window-resized self (om-make-point w h))
     #+windows(om-invalidate-view self)
     )
-  
-  (unless (and (= x (vx self)) (= y (vy self)))
-    (om-window-moved self (om-make-point x y)))
+  (setf (vx self) x (vy self) y (vw self) w (vh self) h))
 
-  (setf (vx self) x (vy self) y (vw self) w (vh self) h)
-  )
 
 (defmethod om-window-resized ((self om-abstract-window) size)
   (declare (ignore self size)) nil)
