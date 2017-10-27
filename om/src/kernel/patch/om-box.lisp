@@ -126,11 +126,6 @@
   (call-next-method)
   (initialize-size object))
 
-
-
-(defmethod close-internal-element :after ((self OMBox)) 
-  (close-inspector-for-box self))
-
 ;;;=============================
 
 (defgeneric gen-code (box &optional numout)  
@@ -144,6 +139,9 @@
 
 (defmethod omng-box-value ((self OMBox) &optional numout)
   (current-box-value self))
+
+(defmethod initialize-box-value ((self OMBox) &optional value)
+  (setf (value self) nil))
 
 (defmethod set-value ((self OMBox) value)
   (setf (value self) value))
@@ -163,7 +161,6 @@
     (setf (show-name box) (not (show-name box)))
     (update-inspector-for-box box)
     (om-invalidate-view (frame box))))
-
 
 (defmethod initialize-instance :after ((self OMBox) &rest args)
   (setf (inputs self) (create-box-inputs self))
@@ -249,7 +246,8 @@
 
 (defmethod maximum-size ((self OMBox))
    (multiple-value-bind (w h) 
-       (om-string-size (name self) (box-draw-font self))   
+       (om-string-size (name self) (box-draw-font self))  
+     (declare (ignore w))
      (if (equal (icon-pos self) :left)
          (om-make-point 500 (max (+ (get-icon-size self) 8) (+ h 18)))
        (om-make-point 500 200))))
@@ -290,6 +288,8 @@
 (defmethod editor-box-selection ((editor OMEditor) (box null))
   (unless (om-shift-key-p) (select-unselect-all editor nil)))
 
+(defmethod close-internal-element :after ((self OMBox)) 
+  (close-inspector-for-box self))
 
 ;;;===========================
 ;;; CHACHE DISPLAY SYSTEM
