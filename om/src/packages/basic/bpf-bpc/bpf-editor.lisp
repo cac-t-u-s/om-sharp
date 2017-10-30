@@ -339,7 +339,7 @@
   (call-next-method)
   (time-sequence-update-internal-times (object-value self)))
 
-;;; called from the inspector
+;;; called from the inspector ;; => not called anymore..
 (defmethod update-view ((view OMEditorWindow) (editor bpf-editor))
   (let ((value (object-value editor))
         (box (object editor)))

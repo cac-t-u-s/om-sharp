@@ -383,11 +383,13 @@
                               (or (find (get-icon-id-from-reference self) *om-loaded-picts*)
                                          'not-found)))))
     
-    (update-view view self)
     ;(om-set-view-size view (om-def-point (omp (box-w self) (box-h self))
     ;                                     (default-size self)))
+    
     (setf (frame self) view)
     (set-frame-areas view)
+    
+    (update-view view self)
     view))
 
 (defmethod update-frame-connections-display ((self OMBoxFrame))
