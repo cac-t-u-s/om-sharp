@@ -465,7 +465,7 @@
   (set-g-component (editor self) :default-view self)
   (set-contents self))
 
-;;; called from the property-item
+;;; called from the property-item ;; => not called anymore ?
 (defmethod update-view ((view OMDefaultEditorView) object)
   (let ((editor (editor view)))
     (update-to-editor editor editor)

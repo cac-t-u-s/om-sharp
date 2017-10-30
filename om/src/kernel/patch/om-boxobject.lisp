@@ -585,7 +585,7 @@
   (report-modifications (editor (container self)))
   (contextual-update self (container self))
   (when (frame self)
-    (update-inspector-for-box (frame self))
+    (update-inspector-for-box (frame self)) ;; ? sure about this ?
     (reset-cache-display self)
     (om-invalidate-view (frame self))))
 
@@ -594,7 +594,7 @@
   (report-modifications (editor (container self)))
   (contextual-update self (container self))
   (when (frame self)
-    (update-inspector-for-box (frame self))
+    (update-inspector-for-box (frame self)) ;; ? sure about this ?
     (reset-cache-display self)
     (om-invalidate-view (frame self))))
 

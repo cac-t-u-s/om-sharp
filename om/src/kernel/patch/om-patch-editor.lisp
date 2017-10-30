@@ -100,8 +100,11 @@
   (when (window self) ;; window is open and initialized
     (let ((selection (append (get-selected-boxes self) 
                              (get-selected-connections self))))
-      (update-inspector (if (= 1 (length selection)) (car selection) selection)
-                         (get-update-frame (car selection))))))
+ (if (= 1 (length selection)) 
+     (update-inspector (car selection) (get-update-frame (car selection)))
+   (update-inspector selection (mapcar 'get-update-frame selection)))
+ 
+ )))
 
 ;(defmethod init-editor ((self patch-editor))
 ;  (setf (saved? (object self)) t))
@@ -407,9 +410,9 @@
   (let ((selection (append (get-selected-boxes self)
                            (get-selected-connections self))))
     (if (= 1 (length selection))
-        (let ((obj (car selection)))
-          (show-inspector obj (get-my-view-for-update (get-update-frame obj))))
-      (om-beep-msg "Wrong selection for inspector..."))))
+        (show-inspector (car selection) (get-my-view-for-update (get-update-frame (car selection)))))
+    (show-inspector selection (loop for obj in selection collect (get-my-view-for-update (get-update-frame obj))))
+    ))
       
 (defmethod get-my-view-for-update ((self t)) self)
 
