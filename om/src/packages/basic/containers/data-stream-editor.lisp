@@ -49,29 +49,22 @@
                0)))
     (nth n (get-g-component editor :data-panel-list))))
 
-
-
 (defmethod editor-window-init-size ((self data-stream-editor)) (om-make-point 800 180))
 
 ;; lesser value and greater values in the ruler (bottom to top)
 (defmethod y-range-for-object ((self data-stream)) '(-100 100))
 
-(defmethod frame-display-modes-for-object ((self data-stream-editor) (object t))
-  '((:blocks "blocks") (:bubbles "bubbles")))
+(defmethod frame-display-modes-for-object ((self data-stream-editor) (object t)) '(:blocks :bubbles))
 
 (defun make-display-modes-menu (editor)
   (let ((object (object-value editor)))
     (when (> (length (frame-display-modes-for-object editor object)) 1)
       (om-make-di 'om-popup-list :size (omp 80 24) :font (om-def-font :font1)
-                  :items (mapcar 'cadr (frame-display-modes-for-object editor object))
+                  :items (frame-display-modes-for-object editor object)
                   :di-action #'(lambda (item) 
-                                 (editor-set-edit-param editor :display-mode 
-                                                        (car (find (om-get-selected-item item) 
-                                                                   (frame-display-modes-for-object editor object) 
-                                                                   :key 'cadr :test 'string-equal)))
-                                 (clear-frame-attributes object)
-                                 (set-graphic-attributes editor)
+                                 (editor-set-edit-param editor :display-mode (om-get-selected-item item)) 
                                  (mapc 'om-invalidate-view (get-g-component editor :data-panel-list)))
+                  :value (editor-get-edit-param editor :display-mode)
                   ))))
 
 (defun make-timeline-check-box (editor)
@@ -183,6 +176,7 @@
 
 
 ;===== MultiDisplay API
+
 (defmethod enable-multi-display ((editor data-stream-editor) obj-list) 
   (call-next-method)
   (when (container-editor editor)
@@ -204,13 +198,13 @@
            (make-editor-window-contents editor)))
     (init-editor-window editor)
     ))
-;======================
 
+;======================
 
 (defmethod init-editor-window ((editor data-stream-editor))
   (call-next-method)
-  (set-graphic-attributes editor)
-  (update-views-from-ruler (get-g-component editor :x-ruler))
+  (when (get-g-component editor :x-ruler)
+    (update-views-from-ruler (get-g-component editor :x-ruler)))
   (loop for view in (get-g-component editor :data-panel-list) do
         (setf (y2 view) (car (y-range-for-object (object-value editor)))
               (y1 view) (cadr (y-range-for-object (object-value editor))))
@@ -225,7 +219,6 @@
                           10000 
                         (+ (get-obj-dur data-stream) (editor-view-after-init-space data-stream)))))
   
-    (set-graphic-attributes editor)
     (when (get-g-component editor :x-ruler)
       (setf (vmax (get-g-component editor :x-ruler)) new-max-dur)
       (set-ruler-range 
@@ -261,66 +254,46 @@
   (get-g-component self :x-ruler))
 
 ;;;===========================================
-;;; FRAMES DRAW, SELECTION USING ATTRIBUTES
+;;; FRAMES DRAW & SELECTION
 ;;;===========================================
 ;;; attributes are no intrinsec data of the frame
 ;;; they should calculated depending on the frame data and according to a given mode of display
 
-(defmethod frame-graphic-duration ((self data-frame))
+(defmethod get-frame-graphic-duration ((self data-frame))
   (if (zerop (item-get-duration self)) 200 (item-get-duration self)))
-  
-(defmethod compute-frame-color ((self data-frame) editor) 
-  (declare (ignore editor))
-  (om-random-color 0.4))
 
-;;; posy and sizey must consider the y-range of the editor !
+(defmethod get-frame-color ((self data-frame)) 
+  (or (getf (attributes self) :color)
+      (setf (getf (attributes self) :color) (om-random-color 0.4))))
+ 
+;; random !
+(defmethod get-frame-posy ((self data-frame)) 
+  (or (getf (attributes self) :posy)
+      (setf (getf (attributes self) :posy) (om-random 0 90))))
 
-(defmethod compute-frame-posy ((self data-frame) editor) 
-  (case (editor-get-edit-param editor :display-mode) 
-    (:bubbles (or (get-frame-attribute self :posy) (om-random 0 90)))
-    (otherwise 60)))
-
-(defmethod compute-frame-sizey ((self data-frame) editor) 
-  (max 10 (* 1.5 (data-size self))))  ;;; arbitrary 
-
-(defmethod get-frame-attribute ((self data-frame) attribute &optional editor)
-  (unless (attributes self) 
-    (if editor 
-        (set-frame-attributes-from-editor self editor)
-      (om-beep-msg "no attributes found for data-frame!")))
-  (getf (attributes self) attribute))
-
-(defmethod set-frame-attribute ((self data-frame) attribute value)  
-  (setf (getf (attributes self) attribute) value))
-
-(defmethod set-frame-attributes-from-editor ((f data-frame) editor) 
-  (set-frame-attribute f :color (compute-frame-color f editor))
-  (set-frame-attribute f :posy (compute-frame-posy f editor))
-  (set-frame-attribute f :sizey (compute-frame-sizey f editor)))
-
+;; arbitrary !
+(defmethod get-frame-sizey ((self data-frame)) 
+  (max 10 (* 1.2 (data-size self))))
 
 (defmethod finalize-data-frame ((f data-frame) &rest args) nil)
 
 
-    
-
 ;; returns (x y w h)
 (defmethod get-frame-area ((frame data-frame) editor)
-  (let ((panel (active-panel editor)))
+  (let ((panel (active-panel editor))
+        (sizey (get-frame-sizey frame))
+        (posy (get-frame-posy frame)))
     (case (editor-get-edit-param editor :display-mode)
       (:bubbles (values 
-                 (- (x-to-pix panel (or (date frame) 0))  (dy-to-dpix panel (/ (get-frame-attribute frame :sizey editor) 2)))
-                 (- (h panel)
-                    (y-to-pix panel (- (get-frame-attribute frame :posy editor) 
-                                       (/ (get-frame-attribute frame :sizey editor) 2))))
-                 (dy-to-dpix panel (get-frame-attribute frame :sizey editor))
-                 (dy-to-dpix panel (get-frame-attribute frame :sizey editor))
+                 (- (x-to-pix panel (or (date frame) 0)) (dy-to-dpix panel (/ sizey 2)))
+                 (- (h panel) (y-to-pix panel (- posy (/ sizey 2))))
+                 (dy-to-dpix panel sizey)
+                 (dy-to-dpix panel sizey)
                  ))
       (:blocks (values (x-to-pix panel (date frame))
-                       (- (h panel)
-                          (y-to-pix panel (get-frame-attribute frame :posy editor)))
-                       (max 3 (dx-to-dpix panel (frame-graphic-duration frame)))
-                       (max 3 (dy-to-dpix panel (get-frame-attribute frame :sizey editor)))  ;; !! downwards
+                       (- (h panel) (y-to-pix panel posy))
+                       (max 3 (dx-to-dpix panel (get-frame-graphic-duration frame)))
+                       (max 3 (dy-to-dpix panel sizey))  ;; !! downwards
                        )))))
 
 
@@ -328,23 +301,21 @@
   (let* ((panel (active-panel editor)))
     (multiple-value-bind (x y w h)
         (get-frame-area frame editor)
-      (om-with-fg-color (if (and active (find i (selection editor))) 
-                            (om-make-color-alpha (om-def-color :dark-red) 0.5)
-                          (getf (attributes frame) :color (om-def-color :light-gray)))
+      (om-with-fg-color (get-frame-color frame)
         (case (editor-get-edit-param editor :display-mode) 
           (:bubbles
            (om-draw-circle (+ x (round w 2)) (+ y (round h 2)) (round h 2) :fill t)
-           ;(om-draw-rect (+ x 20) (+ y 20) (- w 40) (- h 40) :fill nil)
+           (when (and active (find i (selection editor)))
+             (om-draw-circle (+ x (round w 2)) (+ y (round h 2)) (round h 2) :fill t
+                             :color (om-make-color .5 .5 .5 .5)))
            )
           (otherwise 
-           ;(print (list 'rect w h)) 
-           (om-draw-rect x y w h :fill t)))
-        (om-with-font 
-         (om-def-font :font1 :size 8)
-         ;(om-draw-string (- x 5) 10 (number-to-string i))
-         ;(when (find i (selection editor))
-         ;  (om-draw-string (- x 5) 20 (number-to-string (date frame))))
-         )))))
+           (om-draw-rect x y w h :fill t)
+           (when (and active (find i (selection editor)))
+             (om-draw-rect x y w h :fill t
+                           :color (om-make-color .5 .5 .5 .5))))
+          )
+        ))))
 
 (defmethod frame-at-pos ((editor data-stream-editor) position)
   (let ((frames (data-stream-get-frames (object-value editor))))
@@ -370,15 +341,6 @@
 ;;; EDITOR FUNCTIONS
 ;;;=======================
 
-(defmethod clear-frame-attributes ((self data-stream))
-  (loop for f in (frames self) do (setf (attributes f) nil)))
-
-(defmethod set-graphic-attributes ((self data-stream-editor))
-  (when (object-value self)
-    (loop for f in (data-stream-get-frames (object-value self)) do
-          (unless (attributes f)
-            (set-frame-attributes-from-editor f self)))))
-  
 (defmethod draw-background ((editor data-stream-editor) (view stream-panel)) nil)
 
 (defmethod om-draw-contents ((self stream-panel))
@@ -433,10 +395,8 @@
   (loop for fp in (selection self) do
         (let ((frame (nth fp (data-stream-get-frames (object-value self)))))
           (finalize-data-frame frame)
-          (set-frame-attributes-from-editor frame self)
           )))
   
-
 (defmethod editor-sort-frames ((self data-stream-editor))
   (let* ((stream (object-value self))
          (tempselection (loop for pos in (selection self) collect (nth pos (data-stream-get-frames stream)))))
@@ -489,6 +449,7 @@
           (selection (frame-at-pos editor position)))
     
       (set-selection editor selection)
+      (update-timeline-editor editor)
       (om-invalidate-view self)
     
       (cond 
@@ -496,7 +457,6 @@
        ((and (null selection) (om-add-key-down))
         (let ((frame (time-sequence-make-timed-item-at (object-value editor) (pixel-to-time self (om-point-x p0)))))
           (finalize-data-frame frame :posy (pix-to-y self (- (h self) (om-point-y p0))))
-          (set-frame-attributes-from-editor frame editor)
           (insert-timed-point-in-time-sequence (object-value editor) frame)
           (report-modifications editor)
           (update-timeline-editor editor) 
@@ -518,7 +478,6 @@
                                (setf p0 pos)
                                (om-invalidate-view self))))
                :release #'(lambda (view pos) 
-                            (editor-finalize-selection editor)
                             (report-modifications editor) 
                             (om-invalidate-view self))
                :min-move 4)
@@ -536,7 +495,6 @@
                            (om-invalidate-view self)
                            ))
              :release #'(lambda (view pos) 
-                          (editor-finalize-selection editor) 
                           (editor-sort-frames editor)
                           (time-sequence-update-internal-times (object-value editor))
                           (update-timeline-editor editor)

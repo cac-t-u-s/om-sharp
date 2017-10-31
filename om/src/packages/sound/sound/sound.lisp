@@ -744,8 +744,7 @@ Press 'space' to play/stop the sound file.
 (defmethod get-editor-class ((self sound)) 'sound-editor)
 (defmethod editor-view-class ((self sound-editor)) 'sound-panel)
 
-(defmethod frame-display-modes-for-object ((self sound-editor) (object sound))
-  '((:lines "lines")))
+(defmethod frame-display-modes-for-object ((self sound-editor) (object sound)) '(:lines))
 
 (defmethod editor-view-after-init-space ((self sound)) 0)
 

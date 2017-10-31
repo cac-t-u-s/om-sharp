@@ -25,8 +25,6 @@
    (attributes :accessor attributes :initarg :attributes :initform nil :documentation "some additional attributes for drawing etc.")))
 
 ;;; TIME-SEQUENCE API
-;(defmethod date ((self dataframe)) (date self))
-;(defmethod (setf date) (date (self dataframe)) (setf (item-time self) date))
 (defmethod item-get-time ((self data-frame)) (date self))
 (defmethod item-set-time ((self data-frame) time) (setf (date self) time))
 
@@ -88,22 +86,16 @@
 (defmethod display-modes-for-object ((self data-stream))
   '(:hidden :text :mini-view))
 
-
-(defmethod get-cache-display-for-draw ((self data-stream))
-  (let ((pos-list (mapcar #'(lambda (f) (getf (attributes f) :posy)) (frames self))))
-    (list (or (list-max pos-list) 0) (or (list-min pos-list) 100))))
-
 (defmethod draw-mini-view ((self data-stream) (box t) x y w h &optional time)
   (let ((display-cache (get-display-draw box)))
-    (om-with-fg-color (om-def-color :dark-blue)
+    (om-with-fg-color (om-make-color-alpha (om-def-color :dark-blue) 0.5)
       (multiple-value-bind (fx ox)
           (conversion-factor-and-offset 0 (get-obj-dur self) w x)
-        (multiple-value-bind (fy oy) 
-            (conversion-factor-and-offset (car display-cache) (cadr display-cache) (- h 20) (+ y 10))
-          (loop for frame in (data-stream-get-frames self) do
-                (om-draw-circle (+ ox (* fx (or (date frame) 0))) (+ oy (* fy (getf (attributes frame) :posy 0))) 
-                                2 :fill t)))))))
-
+        (loop for frame in (data-stream-get-frames self) do
+              (om-draw-rect (+ ox (* fx (or (date frame) 0))) 
+                            15 4 (- h 24) 
+                            :fill t)
+              )))))
 
 ;;;======================================
 ;;; OBJECT PROPERTIES
@@ -150,8 +142,6 @@
    (insert-timed-point-in-time-sequence (get-box-value self) frame)
    (update-after-eval self)
    frame)
-
-
 
 (defmethod* clear-data-stream ((self data-stream))
  (time-sequence-set-timed-item-list self nil))
