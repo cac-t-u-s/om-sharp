@@ -435,8 +435,8 @@
 ;;; to stay connected to the editor view
 (defmethod get-my-view-for-update ((self graphic-connection)) (view self))
 
-;;; called for instance after an edit from the inspector
-(defmethod update-view (view (object omconnection))
+;;; called after an edit from the inspector
+(defmethod update-after-prop-edit (view (object omconnection))
   (update-graphic-connection object)
   (om-invalidate-view (graphic-connection object)))
 

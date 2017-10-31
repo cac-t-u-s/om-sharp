@@ -18,7 +18,7 @@
 
 
 ;;; called after a property is changed
-(defmethod update-view ((self t) (object t)) nil)
+(defmethod update-after-prop-edit ((self t) (object t)) nil)
 
 
 ;;;===========================================
@@ -169,10 +169,10 @@
 
 (defmethod get-update-frame ((self virtual-object-selection)) self)
 
-;;; dummy signature: todo = cleanup
-(defmethod update-view ((view virtual-object-selection) (object virtual-object-selection))
+;;; dummy signature
+(defmethod update-after-prop-edit ((view virtual-object-selection) (object virtual-object-selection))
   (loop for obj in (objects object) do
-        (update-view (get-update-frame obj) obj)))
+        (update-after-prop-edit (get-update-frame obj) obj)))
 
 ;;; !! object and view can be lists !!
 (defmethod set-inspector-contents (win (object cons) (view list))

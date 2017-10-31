@@ -389,7 +389,7 @@
     (setf (frame self) view)
     (set-frame-areas view)
     
-    (update-view view self)
+    (update-after-prop-edit view self)
     view))
 
 (defmethod update-frame-connections-display ((self OMBoxFrame))
@@ -403,52 +403,33 @@
    ))
 
 
-(defmethod update-view ((self OMBoxFrame) (object OMBox))
+(defmethod fit-box-and-frame ((box OMBox) (frame OMBoxFrame))
   
-  (when (font-? (text-font object)) (om-set-font self (font-font (text-font object))))
+  (when (font-? (text-font box)) (om-set-font frame (font-font (text-font box))))
   
-  (let ((best-size (om-borne-point (omp (box-w object) (box-h object)) 
-                                   (minimum-size object) (maximum-size object))))
-    (setf (box-w object) (om-point-x best-size)
-          (box-h object) (om-point-y best-size))
-    
-    (om-set-view-size self (omp (box-w object) (box-h object))))
-  
-  (om-invalidate-view self)
-  (update-frame-connections-display self))
-
-
-(defmethod update-view ((self OMBoxFrame) (object OMBoxCall))
- 
-  (when (font-? (text-font object)) (om-set-font self (font-font (text-font object))))
- 
   (let ((adjusted-size 
          (om-borne-point 
-          (omp (box-w object) (box-h object))
-          (minimum-size object) (maximum-size object))))
+          (omp (box-w box) (box-h box))
+          (minimum-size box) (maximum-size box))))
     
-    ;(print (list "update" 
-    ;             (omp (box-w object) (box-h object))
-    ;             (minimum-size object) (maximum-size object)
-    ;             adjusted-size))
+        (unless (scale-in-x-? box) 
+          (setf (box-w box) (om-point-x adjusted-size)))
     
-    ;; adjust the size only if the box doesn't scale according to rulers
-    (unless (scale-in-x-? object) 
-      (setf (box-w object) (om-point-x adjusted-size)))
-    
-    (unless (scale-in-y-? object) 
-      (setf (box-h object) (om-point-y adjusted-size))
-      ;(when (and (or (lambda-state object) (lock-state object)) (< (box-h object) 36))
-      ;  (setf (box-h object) (+ (box-h object) 8)))
-      )
-    
-    (om-set-view-size self (omp 
-                            (if (scale-in-x-? object) (omg-w (om-view-container self) (box-w object)) (box-w object))
-                            (if (scale-in-y-? object) (omg-h (om-view-container self) (box-h object)) (box-h object))))
-    
-    (om-invalidate-view self)
-    (update-frame-connections-display self)
-    ))
+        (unless (scale-in-y-? box) 
+          (setf (box-h box) (om-point-y adjusted-size)))
+        
+        (om-set-view-size frame 
+                          (omp 
+                           (if (scale-in-x-? box) (omg-w (om-view-container frame) (box-w box)) (box-w box))
+                           (if (scale-in-y-? box) (omg-h (om-view-container frame) (box-h box)) (box-h box))))
+        
+        (om-invalidate-view frame)
+        (update-frame-connections-display frame)
+        
+        ))
+
+(defmethod update-after-prop-edit ((self OMBoxFrame) (object OMBox))
+  (fit-box-and-frame object self))
 
 (defmethod update-to-editor ((self OMEditor) (from OMBox)) 
   ;(print (list "update" self "from BOX" from))

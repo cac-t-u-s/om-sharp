@@ -461,7 +461,7 @@
   (or (apply-in-area self 'click-in-area pos)
       (open-editor (object self))))
     
-(defmethod update-view ((self OMBoxFrame) (object OMBoxEditCall))
+(defmethod update-after-prop-edit ((self OMBoxFrame) (object OMBoxEditCall))
   (call-next-method)
   (when (editor object) (update-to-editor (editor object) object)))
 
