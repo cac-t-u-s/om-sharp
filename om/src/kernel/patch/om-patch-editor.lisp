@@ -197,7 +197,7 @@
     (enter-new-box self (om-add-points pos (om-make-point -8 -14)))))
 
 (defmethod om-view-click-handler ((self patch-editor-view) position)
-  ;;; special : click on teh lock-button
+  ;;; special : click on the lock-button
   (if (om-point-in-rect-p position 0 0 20 20)
       (progn
         (setf (lock (object (editor self))) (not (lock (object (editor self)))))
@@ -216,11 +216,24 @@
   
   (let ((selected-connection (find-if #'(lambda (c) 
                                           (point-in-connection pos c))
-                                      (get-grap-connections self))))
+                                      (get-grap-connections self)))
+        (p0 pos))
     (when selected-connection
       (setf (view selected-connection) self)
       (select-box (object selected-connection) 
                   (if (om-shift-key-p) (not (selected (object selected-connection))) t))
+
+      (om-init-temp-graphics-motion  
+       self pos nil
+       :motion #'(lambda (view p)
+                           
+                   (drag-connection (object selected-connection) 
+                                    (- (om-point-x p) (om-point-x p0))
+                                    (- (om-point-y p) (om-point-y p0)))
+                   (om-invalidate-view self)
+                   (setf p0 p)
+                   )
+       :min-move 4)
       t)
     ))
   
