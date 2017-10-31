@@ -277,7 +277,6 @@
 
 (defmethod finalize-data-frame ((f data-frame) &rest args) nil)
 
-
 ;; returns (x y w h)
 (defmethod get-frame-area ((frame data-frame) editor)
   (let ((panel (active-panel editor))
@@ -496,6 +495,7 @@
                            ))
              :release #'(lambda (view pos) 
                           (editor-sort-frames editor)
+                          (move-editor-selection editor :dy :round)
                           (time-sequence-update-internal-times (object-value editor))
                           (update-timeline-editor editor)
                           (report-modifications editor) 

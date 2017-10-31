@@ -126,15 +126,19 @@
 (defmethod move-editor-selection ((self piano-roll-editor) &key (dx 0) (dy 0))
   (loop for fp in (selection self) do
         (let ((frame (nth fp (data-stream-get-frames (object-value self)))))
-          (setf (pitch frame) (round (+ (pitch frame) dy))) 
+          (setf (pitch frame) 
+                (if (equal dy :round) 
+                    (round (pitch frame))
+                  (+ (pitch frame) dy)))
+          (when (equal dx :round)
+            (item-set-time frame (round (item-get-time frame))))
           ))
   (call-next-method))
 
 (defmethod finalize-data-frame ((frame midi-note) &rest args) 
   (let ((posy (getf args :posy)))
-    (when posy
-      (setf (pitch frame) (round posy))
-      )))
+    (when posy 
+      (setf (pitch frame) posy))))
 
 
 ;;;==================
