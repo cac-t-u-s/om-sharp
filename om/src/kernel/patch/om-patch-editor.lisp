@@ -276,9 +276,9 @@
         (#\> (unless (edit-lock editor)(mapc 'optional-input++ selected-boxes)))
         (#\< (unless (edit-lock editor)(mapc 'optional-input-- selected-boxes)))
     
-        (#\b (mapc 'set-lock-mode selected-boxes))
-        (#\1 (unless (edit-lock editor) (mapc 'set-evonce-mode selected-boxes)))
-        (#\l (unless (edit-lock editor) (mapc 'set-lambda-mode selected-boxes)))
+        (#\b (mapc 'switch-lock-mode selected-boxes))
+        (#\1 (unless (edit-lock editor) (mapc 'switch-evonce-mode selected-boxes)))
+        (#\l (unless (edit-lock editor) (mapc 'switch-lambda-mode selected-boxes)))
 
         (#\m (mapc 'change-display selected-boxes))
 
@@ -468,10 +468,13 @@
           (add-connection-in-view view c)
           ;(update-points c)
           )
+    
+    (mapc 'after-copy-action boxes) 
     (om-invalidate-view view)
     (set-om-clipboard (list (mapcar 'om-copy boxes) connections))
     ))
 
+(defmethod after-copy-action ((self t)) nil)
 
 (defmethod copy-command-for-view ((editor patch-editor) (view om-editable-text))
   (om-copy-command view))
@@ -670,6 +673,7 @@
                         (update-points c))
                     (restore-connections-to-boxes connections newboxes))
             (mapcar 'redraw-connections (get-boxframes self :only-selected t))
+            (mapc 'after-copy-action newboxes)
             (om-invalidate-view (editor-view init-patch))
             )
           t))

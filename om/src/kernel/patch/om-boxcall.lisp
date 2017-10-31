@@ -32,8 +32,6 @@ All boxes which their reference is a OM generic function are instances of this c
   (:metaclass omstandardclass))
 
 
-;---------------Protocole--------------
-
 (defmethod omNG-make-new-boxcall ((reference t) pos &optional init-args) nil)
 
 (defmethod add-keyword-input ((self t) &key key (value nil val-supplied-p) doc reactive) nil)
@@ -41,79 +39,7 @@ All boxes which their reference is a OM generic function are instances of this c
 
 (defmethod allow-rename ((self OMBoxcall)) nil)
 
-
 (defmethod get-box-value ((self OMBoxCall)) (car (value self)))
-
-(defmethod set-property ((object OMBoxCall) (prop-id (eql :lambda)) val)
-  (set-lambda object val))
-
-(defmethod set-lambda ((self OMBoxCall) value) 
-  ;;; reinit value only if switch from lambda to normal
-  (when (or (and (equal (lambda-state self) :lambda) (equal value nil))
-            (and (equal (lambda-state self) nil) (equal value :lambda)))
-    (setf (value self) nil))
-  (setf (lambda-state self) value))
-
-
-(defmethod set-lock-mode ((self t)) nil)
-(defmethod set-lambda-mode ((self t)) nil)
-(defmethod set-evonce-mode ((self t)) nil)
-
-(defmethod set-lock-mode ((box OMBoxCall)) 
-  (when (valid-property-p box :lock)
-    (setf (lock-state box) (if (lock-state box) nil :locked))
-    (update-inspector-for-box box)
-    (om-invalidate-view (frame box))
-    (when (container box)
-      (report-modifications (editor (container box))))))
-
-(defmethod set-evonce-mode ((box OMBoxCall)) 
-  (when (valid-property-p box :lock)
-    (setf (lock-state box) (if (equal (lock-state box) :eval-once) nil :eval-once))
-    (update-inspector-for-box box)
-    (om-invalidate-view (frame box))
-    (when (container box)
-      (report-modifications (editor (container box))))))
-  
-(defmethod set-lambda-mode ((box OMBoxCall)) 
-  (when (valid-property-p box :lambda)
-    (set-lambda box (if (lambda-state box) nil :lambda))
-    (update-inspector-for-box box)
-    (om-invalidate-view (frame box))
-    (when (container box)
-      (report-modifications (editor (container box))))))
-
-
-(defmethod set-reactive-mode ((box OMBox)) 
-  (if (or (inputs box) (outputs box))
-      (progn (set-reactive box (not (all-reactive-p box)))
-        (update-inspector-for-box box)
-        (om-invalidate-view (frame box))
-        (update-frame-connections-display (frame box))
-        (when (container box)
-          (report-modifications (editor (container box)))))
-    (om-print "Boxes must have inputs or outputs to be set reactive"))) 
-
-
-;;; from inspector
-
-;;; reactive is not a "real" property
-(defmethod valid-property-p ((object OMBox) (prop-id (eql :reactive))) nil)
-
-(defmethod set-property ((object OMBox) (prop-id (eql :reactive)) val)
-  (set-reactive object val))
-      
-(defmethod get-property ((object OMBox) (prop-id (eql :reactive)) &key (warn t))
-  (all-reactive-p object))
-
-(defmethod all-reactive-p ((self OMBox))
-  (and (or (inputs self) (outputs self))
-       (not (find-if-not 'reactive (append (inputs self) (outputs self))))))
-  
-(defmethod set-reactive ((self OMBox) val) 
-  (mapc #'(lambda (io) 
-            (setf (reactive io) val))
-        (append (inputs self) (outputs self))))
 
 (defmethod find-persistant-container ((self OMBox))
   (let ((container (container self)))
@@ -137,6 +63,78 @@ All boxes which their reference is a OM generic function are instances of this c
              (:lambda "Eval mode" ,(eval-modes-for-box self) lambda-state) ;;; ex. :bool 
              (:reactive "Reactive (r)" :bool reactive)))))
                   
+
+
+(defmethod set-property ((object OMBoxCall) (prop-id (eql :lambda)) val)
+  (set-lambda object val))
+
+(defmethod set-lambda ((self OMBoxCall) value) 
+  ;;; reinit value only if switch from lambda to normal
+  (when (or (and (equal (lambda-state self) :lambda) (equal value nil))
+            (and (equal (lambda-state self) nil) (equal value :lambda)))
+    (setf (value self) nil))
+  (setf (lambda-state self) value))
+
+(defmethod update-after-change-mode ((box OMBoxCall))
+  (update-inspector-for-box box)
+  (om-invalidate-view (frame box))
+  (when (container box)
+    (report-modifications (editor (container box)))))
+
+(defmethod set-lock-state ((box OMBoxCall) mode) 
+  (setf (lock-state box) mode)
+  (update-after-change-mode box))
+
+(defmethod switch-lock-mode ((self t)) nil)
+(defmethod switch-lambda-mode ((self t)) nil)
+(defmethod switch-evonce-mode ((self t)) nil)
+
+(defmethod switch-lock-mode ((box OMBoxCall)) 
+  (when (valid-property-p box :lock)
+    (set-lock-state 
+     box 
+     (if (lock-state box) nil :locked))))
+
+(defmethod switch-evonce-mode ((box OMBoxCall)) 
+  (when (valid-property-p box :lock)
+    (set-lock-state 
+     box 
+     (if (equal (lock-state box) :eval-once) nil :eval-once))
+    ))
+  
+(defmethod switch-lambda-mode ((box OMBoxCall)) 
+  (when (valid-property-p box :lambda)
+    (set-lambda box (if (lambda-state box) nil :lambda))
+    (update-after-change-mode box)
+    ))
+
+;;; reactive is not a "real" property
+(defmethod valid-property-p ((object OMBox) (prop-id (eql :reactive))) nil)
+
+(defmethod set-property ((object OMBox) (prop-id (eql :reactive)) val)
+  (set-reactive object val))
+      
+(defmethod get-property ((object OMBox) (prop-id (eql :reactive)) &key (warn t))
+  (all-reactive-p object))
+
+(defmethod all-reactive-p ((self OMBox))
+  (and (or (inputs self) (outputs self))
+       (not (find-if-not 'reactive (append (inputs self) (outputs self))))))
+  
+(defmethod set-reactive ((self OMBox) val) 
+  (mapc #'(lambda (io) 
+            (setf (reactive io) val))
+        (append (inputs self) (outputs self))))
+
+(defmethod set-reactive-mode ((box OMBox)) 
+  (if (or (inputs box) (outputs box))
+      (progn 
+        (set-reactive box (not (all-reactive-p box)))
+        (update-after-change-mode box)
+        (update-frame-connections-display (frame box)))
+    (om-print "Boxes must have inputs or outputs to be set reactive")))
+
+
 ;--------------------------------------
 ; DEFAULT OUTPUTS
 ;-------------------------------------------
@@ -149,8 +147,6 @@ All boxes which their reference is a OM generic function are instances of this c
                        :name (if (= 1 (box-n-outs self)) "out" (format nil "out~D" i))
                        :reference i
                        :doc-string (get-output-doc self i))))
-
-
 
 ;-------------------------------------------
 ; EDITOR

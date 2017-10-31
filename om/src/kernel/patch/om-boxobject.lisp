@@ -453,9 +453,9 @@
     (setf (value newbox) (om-copy (value self)))
     newbox))
 
-;(defmethod after-copy-action ((self OMBoxEditCall) &optional connections) 
-;  (unless (find 'connections (inputs self))
-;    (setf (lock-state self) t)))
+(defmethod after-copy-action ((self OMBoxEditCall)) 
+  (unless (find 'connections (inputs self))
+    (set-lock-state self :locked)))
 
 (defmethod om-view-doubleclick-handler ((self OMObjectBoxFrame) pos) 
   (or (apply-in-area self 'click-in-area pos)
