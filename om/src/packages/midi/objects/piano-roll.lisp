@@ -149,8 +149,6 @@
   ((pitch-min :accessor pitch-min :initarg :pitch-min :initform 36)
    (pitch-max :accessor pitch-max :initarg :pitch-max :initform 96)))
 
-
-
 (defmethod make-left-panel-for-object ((editor data-stream-editor) (object piano-roll))
   (om-make-view 'keyboard-view :size (omp 20 nil)))
 

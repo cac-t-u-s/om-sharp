@@ -210,22 +210,40 @@
   connection)
 
 
-;;; called from editor commands
+;;; dx and dy are ratios
+(defmethod modif-connection ((c OMConnection) dx dy)
+
+  (unless (modif c) (setf (modif c) '(0 0)))
+
+  (cond ((= 4 (length (points c))) ;; 'vertical' connection : consider only dy
+         (setf (cadr (modif c)) (max -0.45 (min 0.45 (+ (cadr (modif c)) dy)))))
+        ((= 6 (length (points c))) ;; 'horizontal' connection : consider only dx
+         (setf (car (modif c)) (max -0.45 (min 0.45 (+ (car (modif c)) dx)))))
+        (t nil))
+  
+  (update-points c)
+  (update-graphic-connection c))
+
+;;; mouse drag: dx and dy are pixels
+(defmethod drag-connection ((c OMConnection) dx dy) 
+  (let* ((from-p (om-add-points (get-position (area (from c)))
+                                (om-view-position (frame (area (from c))))))
+         (to-p (om-add-points (get-position (area (to c)))
+                              (om-view-position (frame (area (to c))))))
+         (x1 (om-point-x from-p))
+         (x2 (om-point-x to-p))
+         (y1 (om-point-y from-p))
+         (y2 (om-point-y to-p))
+         (dxx (if (= x1 x2) 0 (/ dx (- x2 x1))))
+         (dyy (if (= y1 y2) 0 (/ dy (- y2 y1)))))
+
+    (when (or dxx dyy) (modif-connection c dxx dyy))
+    ))
+
+;;; called from editor keys (dx / dx = 1 or 10)
 (defmethod move-box ((c OMConnection) dx dy)
-  (let* ((x1 (om-point-x (get-position (area (from c)))))
-         (x2 (om-point-x (get-position (area (to c)))))
-         (y1 (om-point-y (get-position (area (from c)))))
-         (y2 (om-point-y (get-position (area (to c)))))
-         (dxx (if (= x1 x2) 0 (/ dx (- x1 x2))))
-         (dyy (if (= y1 y2) 0 (/ dy (- y1 y2)))))
-    (unless (modif c) (setf (modif c) '(0 0)))
-    (cond ((= 4 (length (points c)))
-           (setf (cadr (modif c)) (+ (cadr (modif c)) dyy)))
-          ((= 6 (length (points c)))
-           (setf (car (modif c)) (+ (car (modif c)) dxx)))
-          (t nil))
-    (update-points c)
-    (update-graphic-connection c)))
+  (drag-connection c dx dy))
+
 
 
 ;;;=============================
