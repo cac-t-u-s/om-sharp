@@ -104,41 +104,37 @@
 
 (defmethod get-editor-class ((self piano-roll)) 'piano-roll-editor)
 
-(defmethod frame-display-modes-for-object ((self data-stream-editor) (object piano-roll))
-  '((:blocks "blocks")))
+(defmethod frame-display-modes-for-object ((self data-stream-editor) (object piano-roll)) '(:blocks))
 
 (defmethod y-range-for-object ((self piano-roll)) '(36 96))
 
 (defmethod resizable-frame ((self midi-note)) t)
 
-
-(defmethod set-frame-attributes-from-editor ((f midi-note) editor) 
-  (setf (getf (attributes f) :color) (get-midi-channel-color (channel f))
-        (getf (attributes f) :posy) (pitch f)
-        (getf (attributes f) :sizey) 1
-        ))
+(defmethod get-frame-color ((self midi-note)) (get-midi-channel-color (channel self)))
+(defmethod get-frame-posy ((self midi-note)) (pitch self))
+(defmethod get-frame-sizey ((self midi-note)) 1)
 
 (defmethod get-frame-area ((frame midi-note) editor)
   (let ((panel (active-panel editor)))
     (values (x-to-pix panel (date frame))
             (- (h panel)
-               (y-to-pix panel (+ (get-frame-attribute frame :posy editor))))
-            (max 3 (dx-to-dpix panel (frame-graphic-duration frame)))
-            (min -3 (dy-to-dpix panel (- (get-frame-attribute frame :sizey editor))))  ;; !! upwards
+               (y-to-pix panel (+ (get-frame-posy frame ))))
+            (max 3 (dx-to-dpix panel (get-frame-graphic-duration frame)))
+            (min -3 (dy-to-dpix panel (- (get-frame-sizey frame))))  ;; !! upwards
             )))
 
 (defmethod move-editor-selection ((self piano-roll-editor) &key (dx 0) (dy 0))
   (loop for fp in (selection self) do
         (let ((frame (nth fp (data-stream-get-frames (object-value self)))))
-          (set-frame-attribute frame :posy (+ (get-frame-attribute frame :posy self) dy))
+          (setf (pitch frame) (round (+ (pitch frame) dy))) 
           ))
   (call-next-method))
 
 (defmethod finalize-data-frame ((frame midi-note) &rest args) 
-  (let ((posy (or (getf args :posy) (get-frame-attribute frame :posy))))
-    (setf (pitch frame) (round posy))
-    ))
-
+  (let ((posy (getf args :posy)))
+    (when posy
+      (setf (pitch frame) (round posy))
+      )))
 
 
 ;;;==================
@@ -200,7 +196,7 @@
     ))
 
 
-(defmethod position-display ((self piano-roll-editor) position) ; (call-next-method))
+(defmethod position-display ((self piano-roll-editor) position)
   (when (om-add-key-down)
     (om-invalidate-view (active-panel self)))
   (call-next-method))
@@ -244,7 +240,6 @@
              (loop for notep in (selection editor) do
                    (let ((note (nth notep (data-stream-get-frames pr))))
                      (setf (channel (nth notep (data-stream-get-frames pr))) c)
-                     (set-frame-attributes-from-editor note editor)
                      )))
            ))
        (om-invalidate-view panel)
@@ -254,8 +249,6 @@
       )))
 
 
-
-  
 ;;;======================================
 ;;; PLAY
 ;;;======================================
@@ -310,7 +303,6 @@
           (conversion-factor-and-offset 36 96 (- h 20) (+ y 10))
         (om-with-line-size 2
           (loop for n in (midi-notes self) do
-                ;for frame in (data-stream-get-frames self) do
                 (om-with-fg-color (get-midi-channel-color (midinote-channel n))
                   (om-draw-line  (round (+ ox (* fx (midinote-onset n))))
                                  (round (+ (- oy) (- h (* fy (midinote-pitch n)))))
