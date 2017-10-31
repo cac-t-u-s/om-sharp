@@ -34,7 +34,7 @@
 
 (add-preference-section :appearance "Connections" "Default values for connections with unspecified or disabled attributes")
 (add-preference :appearance :connection-color "Color" :color (om-def-color :dark-gray))
-(add-preference :appearance :connection-style "Syle" '(:square :rounded :curved :curved-2 :line) :square)
+(add-preference :appearance :connection-style "Syle" '(:square :rounded :curved :curved-2 :line) :rounded)
 
 (defmethod get-properties-list ((self OMConnection))
   '(("Appearance" ;;; category
