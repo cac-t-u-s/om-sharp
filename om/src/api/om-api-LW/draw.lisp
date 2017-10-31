@@ -349,8 +349,8 @@
 (defun om-draw-arc (x y width height start-angle sweep-angle) 
   (gp::draw-arc *curstream* x y  width height start-angle sweep-angle))
 
-(defun om-draw-circle (x y r &key fill) 
-  (gp::draw-circle *curstream* x y r :filled fill))
+(defun om-draw-circle (x y r &key fill color) 
+  (gp::draw-circle *curstream* x y r :filled fill :foreground (get-real-color color)))
 
 ;(mapc #'(lambda (x) (list (car x) (cadr x))) '((1 2 3) (4 5 6) (7 8 9)))
 ;(apply 'append '((1 2 3) (4 5 6) (7 8 9)))
