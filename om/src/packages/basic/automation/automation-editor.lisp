@@ -32,7 +32,7 @@
 
 (defmethod get-curve-panel-class ((self automation-editor)) 'automation-panel)
 
-(defmethod draw-modes-for-object ((self bpf-editor)) '(:draw-all :lines-only))
+(defmethod draw-modes-for-object ((self automation-editor)) '(:draw-all :lines-only))
 
 (defmethod insert-point-at-pix ((editor automation-editor) (object automation) position &optional (time nil))
   (let ((res (call-next-method)))
