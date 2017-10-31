@@ -137,7 +137,7 @@
                                (set-property object prop-id 
                                              (if (string-equal (text item) "") nil
                                                (text item)))
-                               (when update (update-view update object))
+                               (when update (update-after-prop-edit update object))
                                )))
 
 ;;;====================================
@@ -160,7 +160,7 @@
                           :min-val (or (car def) 0) :max-val (or (cadr def) 10000)
                           :after-fun #'(lambda (item)
                              (set-property object prop-id (get-value item))
-                             (when update (update-view update object))
+                             (when update (update-after-prop-edit update object))
                              ))))
 
 
@@ -211,7 +211,7 @@
                                                                       :t-or-nil t))
                                                  ;(unless (om-checked-p checkbox)
                                                  ;  (om-set-check-box checkbox t))
-                                                 (when update (update-view update object))
+                                                 (when update (update-after-prop-edit update object))
                                                  )))
 
     (setf checkbox 
@@ -233,7 +233,7 @@
                                        ; :number (if (om-checked-p item) (get-default-value default) nil)
                                        :number (get-value numbox)
                                        :t-or-nil (om-checked-p item)))
-                                     (when update (update-view update object))
+                                     (when update (update-after-prop-edit update object))
                                      )))
     
     (om-make-layout 'om-row-layout
@@ -255,7 +255,7 @@
               :font (om-def-font :font1)
               :di-action #'(lambda (item)
                              (set-property object prop-id (om-checked-p item))
-                             (when update (update-view update object))
+                             (when update (update-after-prop-edit update object))
                              )))
 
 ;;;====================================
@@ -276,7 +276,7 @@
                            :font (om-def-font :font1)
                            :di-action #'(lambda (item)
                                           (set-property object prop-id (om-get-selected-item item))
-                                          (when update (update-view update object))
+                                          (when update (update-after-prop-edit update object))
                                           ))))
     (if (find :default type)
         
@@ -297,7 +297,7 @@
                                                      (if (om-checked-p item) 
                                                          (om-get-selected-item popup)
                                                        nil))
-                                       (when update (update-view update object))
+                                       (when update (update-after-prop-edit update object))
                                        ))))
           (om-make-layout 'om-row-layout
                     :subviews (list checkbox popup)
@@ -336,7 +336,7 @@
                                 (om-def-color :light-gray)))
                 :after-fun #'(lambda (item)
                                (set-property object prop-id (color item))
-                               (when update (update-view update object))
+                               (when update (update-after-prop-edit update object))
                                )))
 
 (defmethod make-prop-item ((type (eql :color-or-nil)) prop-id object &key default update)
@@ -362,7 +362,7 @@
                                         (make-color-or-nil :color (color item)
                                                            :t-or-nil t))
                                        (om-set-check-box colorbox t)
-                                       (when update (update-view update object))
+                                       (when update (update-after-prop-edit update object))
                                        )))
     (setf colorbox 
           (om-make-di 'om-check-box 
@@ -384,7 +384,7 @@
                                                                     (get-default-value default)
                                                                   nil) ;(get-default-value def)
                                                          :t-or-nil (om-checked-p item)))
-                                     (when update (update-view update object))
+                                     (when update (update-after-prop-edit update object))
                                      )))
     (om-make-layout 'om-row-layout
                     :subviews (list colorbox colorview)
@@ -422,7 +422,7 @@
                                                                               (and update (om-get-font update))))))
                                  (om-set-dialog-item-text item (font-to-str choice))
                                  (set-property object prop-id choice)
-                                 (when update (update-view update object))
+                                 (when update (update-after-prop-edit update object))
                                  )))))
 
 
@@ -462,7 +462,7 @@
                                          (set-property object prop-id 
                                                        (make-font-or-nil :font choice
                                                                          :t-or-nil t))
-                                         (when update (update-view update object))
+                                         (when update (update-after-prop-edit update object))
                                          )))
 
             )
@@ -485,7 +485,7 @@
                                                                     (get-default-value default)
                                                                   nil)
                                                           :t-or-nil (om-checked-p item)))
-                                       (when update (update-view update object))
+                                       (when update (update-after-prop-edit update object))
                                        )))
       (om-make-layout 'om-row-layout
                       :subviews (list checkbox fontbutton)
@@ -510,7 +510,7 @@
                                 :font (om-def-font :font1)
                                 :after-fun #'(lambda (item)
                                                 (set-property object prop-id (text item))
-                                                (when update (update-view update object))
+                                                (when update (update-after-prop-edit update object))
                                                 (om-set-fg-color 
                                                  item 
                                                  (if (probe-file (get-property object prop-id)) 
@@ -527,7 +527,7 @@
                                                                                             :directory *last-open-dir*)))
                                                            (when file
                                                              (set-property object prop-id (namestring file))
-                                                             (when update (update-view update object))
+                                                             (when update (update-after-prop-edit update object))
                                                              (setf (text textview) (get-property object prop-id))
                                                              (om-set-fg-color 
                                                               textview 
@@ -642,7 +642,7 @@
                                            
                                                  (set-property object prop-id fun))
                                            
-                                               (when update (update-view update object))
+                                               (when update (update-after-prop-edit update object))
                                                ))))
       (om-add-subviews layout poplist)
       (when (arguments-for-action curr-fun-name)
