@@ -127,9 +127,11 @@
   (loop for fp in (selection self) do
         (let ((frame (nth fp (data-stream-get-frames (object-value self)))))
           (setf (pitch frame) 
-                (if (equal dy :round) 
-                    (round (pitch frame))
-                  (+ (pitch frame) dy)))
+                (min 95 (max 36
+                             (if (equal dy :round) 
+                                 (round (pitch frame))
+                               (+ (pitch frame) dy))
+                             )))
           (when (equal dx :round)
             (item-set-time frame (round (item-get-time frame))))
           ))
