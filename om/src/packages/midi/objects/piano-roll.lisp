@@ -237,6 +237,15 @@
   (let* ((panel (active-panel editor))
          (pr (object-value editor)))
     (case key
+      (:om-key-up
+       (move-editor-selection editor :dy (if (om-shift-key-p) 12 1))
+       (om-invalidate-view panel)
+       (update-timeline-editor editor)
+       (report-modifications editor))
+      (:om-key-down
+       (move-editor-selection editor :dy (if (om-shift-key-p) -12 -1))
+       (om-invalidate-view panel)
+       (report-modifications editor))
       (#\c 
        (when (selection editor)
          (let ((c (select-channel-dialog :default (channel (nth (car (selection editor)) (data-stream-get-frames pr))))))
