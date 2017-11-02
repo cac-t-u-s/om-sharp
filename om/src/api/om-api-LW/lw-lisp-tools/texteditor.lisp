@@ -185,7 +185,7 @@
                                     :activate-callback 'text-edit-window-activate-callback
                                     :geometry-change-callback 'text-edit-window-change-callback
                                     ))
-        (let* ((buffer (if path (editor:find-file-buffer path) :temp)) ; (om-make-buffer)))
+        (let* ((buffer (if path (editor:find-file-buffer path) :temp))
                (text (cond ((consp contents)
                             (format nil "~{~a~^~%~}" contents))
                            ((stringp contents) contents) 
@@ -197,7 +197,7 @@
                                   ;; :destroy-callback #'(lambda (ep) (print (capi::editor-pane-buffer ep)))
                                   :change-callback #'(lambda (pane point old-length new-length) 
                                                        (om-text-editor-modified window))
-                                  :font *def-text-edit-font*)))
+                                  :font *text-editor-font*)))
           (setf (capi::layout-description (capi::pane-layout window))
                 (list (setf (ep window) ep))))
         (push window *editor-files-open*)
@@ -218,7 +218,28 @@
                       (reduce #'(lambda (s1 s2) (concatenate 'string s1 (string #\Newline) s2)) text))
        ))
 
+
+;;;========================
+;;; FONT MANAGEMENT
+;;;========================
+
+(defvar *text-editor-font* (gp::make-font-description :family #+linux "Liberation Mono" #-linux  "Verdana" :size 10))
+
+(defmethod change-text-edit-font ((self om-text-editor-window))
+  (with-slots (ep) self
+    (setf (capi::simple-pane-font ep) 
+          (setf *text-editor-font*
+                (capi::prompt-for-font "" :font (capi::simple-pane-font ep))))))
+
+(defmethod update-text-editor-font ((self om-text-editor-window))
+  (with-slots (ep) self
+    (setf (capi::simple-pane-font ep) *text-editor-font*)))
+
+(defun om-set-text-editor-font (newfont)
+  (setf *text-editor-font* newfont)
+  (mapc 'update-text-editor-font (capi::collect-interfaces 'om-text-editor-window)))
   
+
 ;;;========================
 ;;; OPEN FILE
 ;;;========================
@@ -474,14 +495,6 @@
     (let ((buffer (capi::editor-pane-buffer ep)))
       (call-editor ep (list 'editor::redo-command buffer)))))
 
-
-(defvar *def-text-edit-font* nil)
-
-(defmethod change-text-edit-font ((self om-text-editor-window))
-  (with-slots (ep) self
-    (setf (capi::simple-pane-font ep) 
-          (setf *def-text-edit-font*
-                (capi::prompt-for-font "" :font (capi::simple-pane-font ep))))))
 
 
 ;;; SELECT ALL BUFFER
