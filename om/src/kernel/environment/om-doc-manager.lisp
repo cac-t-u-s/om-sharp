@@ -41,7 +41,7 @@
   (push (make-doc-entry :doc self :file (and path (namestring path))) *open-documents*))
 
 (defmethod unregister-document ((self OMPersistantObject))
-  (om-print "Unregistering document: ~A - ~A" (list self (mypathname self)))
+  (om-print-dbg "Unregistering document: ~A - ~A" (list self (mypathname self)))
   (let ((doc-entry (find self *open-documents* :key 'doc-entry-doc)))
     (setf *open-documents* (remove self *open-documents* :key 'doc-entry-doc))
     (when (and (null *open-documents*) *quit-at-last-doc*
@@ -281,7 +281,7 @@
       
       (when (probe-file tempfile)
         (rename-file tempfile (mypathname self))
-        (om-print (list "Document saved on disk:" self (mypathname self)))
+        (om-print-format "Document saved on disk: ~A - ~A" (list self (mypathname self)))
         (setf (saved? self) t)))))
 
 (defvar *save-apply-all* nil)
