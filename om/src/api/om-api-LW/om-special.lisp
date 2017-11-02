@@ -106,12 +106,12 @@
 
 (defun om-inspect (object &optional position)
   (let* ((pos (or position (om-make-point 200 200)))
-         (win (om-make-window 'inspect-dialog :size (om-make-point 500 300)
+         (win (om-make-window 'inspect-dialog :size (omp 400 nil)
                              :position pos :resizable t
+                             :win-layout 'om-row-layout
                              :title (format nil "Inspecting ~A" object))))
     (setf (list1 win) (om-make-di 'om-single-item-list
-                         :position (om-make-point 10 10)
-                         :size (om-make-point 200 260)
+                         :size (om-make-point nil 260)
                          :focus nil
                          :scrollbars :v
                          :callback-type '(:collection)
@@ -131,8 +131,7 @@
                          ))
 
     (setf (list2 win) (om-make-di 'om-single-item-list
-                         :position (om-make-point 230 10)
-                         :size (om-make-point 200 260)
+                         :size (om-make-point nil 260)
                          :focus nil
                          :scrollbars :v
                          :callback-type '(:collection)
