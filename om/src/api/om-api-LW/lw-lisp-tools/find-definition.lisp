@@ -27,9 +27,6 @@
 
 (in-package :om-lisp)
 
-(export '(om-edit-definition
-          restore-ompath) :om-lisp)
-
 ;=======================
 ; find and edit source code 
 ;=======================
@@ -40,11 +37,20 @@
 
 (defun show-definitions-dialog (symb deflist)
   (let* ((w 400) (h 300)
-        (win (make-instance 'capi::interface
+         (win (make-instance 'capi::interface
                              :title (concatenate 'string "Definitions of " (string-upcase (string symb)))
                              :name (gensym)
                              :width w :height h
-                             :window-styles nil)))
+                             :window-styles nil 
+                             :auto-menus nil
+                             :menu-bar-items (list (make-instance 'capi::menu :title "File"
+                                                                  :items 
+                                                                  (list (make-instance 'capi::menu-item :title "Close"
+                                                                                               :callback-type :interface
+                                                                                               :callback #'(lambda (win) (destroy win)) 
+                                                                                               :accelerator #\w))))
+                             )))
+                                   
     (set-hint-table win (list :external-min-width w :external-max-width w 
                               :external-min-height h :external-max-height h))
     (setf (pane-layout win) (make-instance 'pinboard-layout :internal-border nil :visible-border nil 
@@ -77,14 +83,14 @@
 
 ;; to be redefined depending on actual source file location
 ;; (path records the original location at compiling the symbol
-(defun restore-ompath (path) path)
+(defun om-restore-source-path (path) path)
 
 
 (defun restore-definitions-pathnames (def-list)
   (loop for def in def-list collect
         (list (car def)
               (if (and (or (stringp (cadr def)) (pathnamep (cadr def))))
-                  (let ((restored (restore-ompath (cadr def))))
+                  (let ((restored (om-restore-source-path (cadr def))))
                     (if (and (pathnamep restored) (probe-file restored))
                         (truename restored)
                       (cadr def)))
@@ -117,7 +123,7 @@
                 (show-definitions-dialog symbol definitions))
                ))
           (progn (beep-pane nil)
-            (print (format nil "~A is not a valid symbol" symbol)))))
+            (print (format nil "no definition found for ~A" symbol)))))
     (progn (beep-pane nil)
       (print (format nil "~A is not a valid symbol" symbol)))))
 

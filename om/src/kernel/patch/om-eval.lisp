@@ -65,7 +65,7 @@
 
 (defun om-abort () 
   (when *current-eval-panel* (clear-ev-once *current-eval-panel*))
-  (om-listener-echo "Aborted")
+  (om-lisp::om-listener-echo "Aborted")
   (abort))
 
 (defmethod eval-box ((self ombox))

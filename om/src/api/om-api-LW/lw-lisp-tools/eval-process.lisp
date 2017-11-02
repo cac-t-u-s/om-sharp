@@ -24,8 +24,6 @@
 
 (in-package :om-lisp)
 
-(export '(om-eval-on-process om-abort-eval-process) :om-lisp)
-
 (defvar *om-eval-process* nil)
 
 (defun om-work-function ()
