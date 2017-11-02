@@ -215,14 +215,10 @@ Press 'space' to play/stop the sound file.
 
 (defmethod get-frame-action ((self marker-frame)) nil)
 
-(defmethod frame-graphic-duration ((self marker-frame)) 0)
-  
-(defmethod compute-frame-color ((self marker-frame) editor) 
-  (declare (ignore editor))
-  (om-def-color :gray))
-
-(defmethod compute-frame-posy ((self marker-frame) editor) 100)
-(defmethod compute-frame-sizey ((self marker-frame) editor) 200)
+(defmethod get-frame-graphic-duration ((self marker-frame)) 0)
+(defmethod get-frame-color ((self marker-frame)) (om-def-color :gray))
+(defmethod get-frame-posy ((self marker-frame)) 100)
+(defmethod get-frame-sizey ((self marker-frame)) 200)
 
 
 (defmethod get-time-markers ((self sound)) (markers self))
@@ -230,6 +226,7 @@ Press 'space' to play/stop the sound file.
 ;;; for the user markers are just numbers
 ;;; (in fact they are data-frames)
 (defmethod markers ((self sound)) (mapcar 'date (data-stream-get-frames self)))
+
 (defmethod (setf markers) (markers (self sound))
   (data-stream-set-frames 
    self
