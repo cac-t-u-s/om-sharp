@@ -93,11 +93,12 @@
   str)
 
 (defun om-print-format (format-string &optional args prompt)  
-  (if prompt 
-      (format *om-stream* "~A :: ~A~%" prompt
-              (apply 'format (append (list nil format-string) args)))
-    (apply 'format (append (list *om-stream* format-string) args))))
-    
+  (format 
+   *om-stream* 
+   (concatenate 'string 
+                (if prompt (concatenate 'string prompt " :: ") "")
+                (apply 'format (append (list nil (concatenate 'string format-string "~%")) args)))
+   ))
 
 ;;;=============================
 ;;; PRINT WINDOW
