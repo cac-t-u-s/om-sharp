@@ -30,7 +30,7 @@
 (defmethod object-default-edition-params ((self 3DC))
   (append (call-next-method)
           `((:line-width 1)
-            (:3D-bg-color ,(om-def-color :dark-gray)))))
+            (:3D-bg-color ,(om-def-color :light-gray)))))
 
 (defmethod object-has-editor ((self 3dc)) t)
 (defmethod get-editor-class ((self 3DC)) '3DC-editor)
@@ -95,7 +95,7 @@
          (decimals (decimals object))
          (3dPanel (om-make-view '3dpanel
                                 :editor editor
-                                :bg-color (om-def-color :dark-gray)
+                                :bg-color (editor-get-edit-param editor :3D-bg-color)
                                 :g-objects (create-GL-objects editor)
                                 ))
          (top-editor (make-instance 'bpc-editor :object (object editor)  :container-editor editor :decimals decimals
@@ -434,12 +434,15 @@
     (remove 
      nil
      (append 
+      
       (mapcar #'(lambda (obj) 
                   (make-instance 
                    '3D-lines
                    :points (format-3d-points obj) :color (color obj) 
-                   :draw-style :draw-all :line-width (editor-get-edit-param self :line-width)))
+                   :draw-style :draw-all :line-width (editor-get-edit-param self :line-width))
+                  )
               obj-list)
+             
       (when (editor-get-edit-param self :show-background)
         (mapcar 'make-3D-background-element 
                 (editor-get-edit-param self :background)))
@@ -602,10 +605,15 @@
 (defmethod om-get-bg-color ((self 3DPanel))
   (editor-get-edit-param (editor self) :3d-bg-color))
 
+(defmethod om-get-default-extents ((self 3DPanel))
+  (values -0.5 0.5 -0.5 0.5 -0.5 0.5))
 
 (defmethod om-draw-contents ((self 3DPanel))
   (let ((editor (editor self)))
       
+    ;(opengl:rendering-on (self)
+    ;  (gl-user::polar-rotate (gl-user::icotransform self) :dz -90 :dx 90))
+
     (when (editor-get-edit-param editor :show-axes)
       (opengl:gl-push-matrix) 
       (draw-3D-axes editor)
@@ -624,6 +632,7 @@
   )
 
 (defmethod draw-3D-axes ((self 3DC-Editor))
+  
   (let* ((l 1.0)
          (arrow-size (/ l 20.0)))
     ;X axis
@@ -750,6 +759,15 @@
 (defmethod default-color-vertices ((self 3dc-editor) (obj 3dc))
   (make-list (length (point-list obj)) :initial-element (or (color obj) (om-def-color :light-gray))))
 
+
+(defmethod om-view-key-handler ((self 3DPanel) key)
+  (let* ((ed (editor self))
+         (3DV (object-value ed)))
+    (case key 
+      (:om-key-esc  
+       (om-init-3D-view self))
+      (otherwise (call-next-method)))
+    ))
 
 ;;;===================
 ;;; OSC INPUT
