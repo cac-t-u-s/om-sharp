@@ -37,6 +37,7 @@ echo "***************************************************"
 	cp -R om "$APP_FOLDER"
 	rm -R "$APP_FOLDER"/build/
 	rm -R "$APP_FOLDER"/resources
+echo "=> PACKED IN BUILD FOLDER!"
 }
 
 # pack_app MUST have been called before..

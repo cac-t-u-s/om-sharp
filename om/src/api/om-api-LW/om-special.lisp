@@ -44,11 +44,12 @@
 
 ;;; SPECIAL FOR OM-LISP FIND-DEFINITION
 (defvar *recorded-root* nil)
+
 (setf *recorded-root* cl-user::*om-root-directory*)
 
-; (restore-ompath #P"/Applications/OM-6.0.10/patches/pitch-conversions.lisp")
+; (om-lisp::om-restore-source-path #P"/Applications/OM-6.0.10/patches/pitch-conversions.lisp")
 
-(defun restore-ompath (path) 
+(defun om-lisp::om-restore-source-path (path) 
   (let ((rec-root-dir (pathname-directory *recorded-root*))
         (path-dir (pathname-directory (translate-logical-pathname path))))   ; truename ?
     (if (and (>= (length path-dir) (length rec-root-dir))
@@ -105,11 +106,20 @@
 
 
 (defun om-inspect (object &optional position)
+  
   (let* ((pos (or position (om-make-point 200 200)))
          (win (om-make-window 'inspect-dialog :size (omp 400 nil)
                              :position pos :resizable t
                              :win-layout 'om-row-layout
-                             :title (format nil "Inspecting ~A" object))))
+                             :title (format nil "Inspecting ~A" object)
+                             :menu-items (list (om-make-menu 
+                                                "File" 
+                                                (list (om-make-menu-item 
+                                                       "Close inspectors" 
+                                                       #'(lambda () (mapc 'om-close-window (om-get-all-windows 'inspect-dialog))) 
+                                                       :key "w"))))
+                             )))
+    
     (setf (list1 win) (om-make-di 'om-single-item-list
                          :size (om-make-point nil 260)
                          :focus nil
