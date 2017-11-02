@@ -128,7 +128,7 @@
   (not (is-persistant (reference self))))
 
 ;;; only internal does report to the container's editor
-(defmethod update-from-editor ((self OMBoxAbstraction))
+(defmethod update-from-editor ((self OMBoxAbstraction) &key (value-changed t) (reactive t))
   (when (frame self)
     (reset-cache-display self)
     (om-invalidate-view (frame self)))

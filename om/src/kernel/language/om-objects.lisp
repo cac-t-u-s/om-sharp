@@ -162,8 +162,9 @@
   (setf (saved? self) nil)
   (call-next-method))
 
-(defmethod update-from-editor ((self OMProgrammingObject))
-  (mapcar 'update-from-editor (references-to self))
+(defmethod update-from-editor ((self OMProgrammingObject)  &key (value-changed t) (reactive t))
+  (loop for ref in (references-to self)
+        do (update-from-editor ref :value-changed value-changed :reactive reactive))
   (touch self)
   (call-next-method))
 

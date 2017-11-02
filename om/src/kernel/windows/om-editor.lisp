@@ -170,8 +170,12 @@
 
 ;;; called by the editor to notify a change
 ;;; to be redefined by the ObjectWithEditor subclasses
-(defmethod update-from-editor ((self ObjectWithEditor)) nil)
-(defmethod update-from-editor ((self t)) nil)
+;;; <value-changed> specifies if the object value has changed, typically to decide wether or not to invalidate display, lock the box, etc.
+;;; you don't wan to set it true, for instance, if this is just a graphical update (e.g. window size)
+;;; <reactive> specifies if this change should be a candidate for triggering reactive updates
+;;; you don't want to set it true, e.g. with changes that happen too frequently (e.g. results of move-drag actions).  
+(defmethod update-from-editor ((self ObjectWithEditor) &key (value-changed t) (reactive t)) nil)
+(defmethod update-from-editor ((self t) &key (value-changed t) (reactive t)) nil)
 
 
 (defmethod window-name-from-object ((self ObjectWithEditor)) (name self))
@@ -389,14 +393,21 @@
   (dispatch-key-action (editor self) key))
 
 (defmethod om-window-resized ((self OMEditorWindow) size)
-  (when (editor self) ;;; sometimes the editor is not yet set (e.g. textbuffer editor)
-    (setf (window-size (object (editor self))) size)
-    (report-modifications (editor self))))
+  (let ((ed (editor self)))
+    (when ed ;;; sometimes the editor is not yet set (e.g. textbuffer editor)
+      (let ((obj (object ed)))
+        (setf (window-size obj) size)
+        (update-from-editor obj :value-changed nil :reactive nil)
+        ))))
   
 (defmethod om-window-moved ((self OMEditorWindow) pos)
-  (when (editor self) ;;; sometimes the editor is not yet set (e.g. textbuffer editor)
-    (setf (window-pos (object (editor self))) pos)
-    (report-modifications (editor self))))
+  (let ((ed (editor self)))
+    (when ed ;;; sometimes the editor is not yet set (e.g. textbuffer editor)
+      (let ((obj (object ed)))
+        (setf (window-pos obj) pos)
+        (update-from-editor obj :value-changed nil :reactive nil)
+        ))))
+
 
 (defmethod save-command (self) nil)
 

@@ -580,26 +580,17 @@
     (update-to-editor (editor self) self)))
 
 
-(defmethod update-from-editor ((self OMBoxEditCall))
-  (setf (lock-state self) :locked)
-  (report-modifications (editor (container self)))
-  (contextual-update self (container self))
-  (when (frame self)
-    (update-inspector-for-box (frame self)) ;; ? sure about this ?
-    (reset-cache-display self)
-    (om-invalidate-view (frame self))))
+(defmethod update-from-editor ((self OMBoxEditCall) &key (value-changed t) (reactive t))
+  (when value-changed 
+    (setf (lock-state self) :locked)
+    (contextual-update self (container self))
+    (when (frame self)
+      (update-inspector-for-box (frame self)) ;; ? sure about this ?
+      (reset-cache-display self)
+      (om-invalidate-view (frame self)))
+    )
+  (report-modifications (editor (container self))))
 
-(defmethod soft-update-from-editor ((self OMBoxEditCall))
-  (setf (lock-state self) :locked)
-  (report-modifications (editor (container self)))
-  (contextual-update self (container self))
-  (when (frame self)
-    (update-inspector-for-box (frame self)) ;; ? sure about this ?
-    (reset-cache-display self)
-    (om-invalidate-view (frame self))))
-
-;; e.g. OMABstractContainer
-(defmethod soft-update-from-editor ((self t)) nil)
 
 ;;===========================================
 ;; THE SLOTS BOX
