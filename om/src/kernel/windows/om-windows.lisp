@@ -177,18 +177,18 @@
 ; (show-listener-win)
 
 ;;; redefine the menu-bar of the listener
-(defmethod om-lisp::om-listener-window-menus ((self om-listener))
+(defmethod om-lisp::om-listener-window-menus ((self om-lisp::om-listener))
   (om::om-menu-items self))
 
 (add-preference :general :listener-on-top "Keep Listener in Front" :bool nil "(Does not apply to the current Listener window)")
 
-(defun get-listener () (car (om-get-all-windows 'om-listener)))
+(defun get-listener () (car (om-get-all-windows 'om-lisp::om-listener)))
 
 (defun show-listener-win ()
   (let ((listenerwin (get-listener)))
     (if listenerwin (om-select-window listenerwin)
-      (om-make-listener :title "OM Listener" 
-                       ;:initial-lambda #'(lambda () (in-package :om-user))
+      (om-lisp::om-make-listener :title "OM Listener" 
+                        ;:initial-lambda #'(lambda () (in-package :om-user))
                         :initial-prompt *om-startup-string*
                         :height 200 
                         :on-top (get-pref-value :general :listener-on-top)
@@ -197,33 +197,36 @@
 
 ;(add-preference-section :appearance "Lisp")
 (add-preference :general :listener-font "Listener font" :font om-lisp::*listener-font* nil 'set-listener-font)
+(add-preference :general :textedit-font "Text editors font" :font om-lisp::*text-editor-font* nil 'set-text-editor-font)
 
 (defun set-listener-font ()
-  (om-set-listener-font (get-pref-value :general :listener-font)))
+  (om-lisp::om-set-listener-font (get-pref-value :general :listener-font)))
 
+(defun set-text-editor-font ()
+  (om-lisp::om-set-text-editor-font (get-pref-value :general :textedit-font)))
 
 
 #|
-(defmethod font-command ((window om-listener))
+(defmethod font-command ((window om-lisp::om-listener))
   #'(lambda () (om-lisp::change-listener-font window)))
 
-(defmethod copy-command ((window om-listener))
+(defmethod copy-command ((window om-lisp::om-listener))
   #'(lambda () (om-lisp::listener-copy window)))
 
-(defmethod cut-command ((window om-listener))
+(defmethod cut-command ((window om-lisp::om-listener))
   #'(lambda () (om-lisp::listener-cut window)))
 
-(defmethod paste-command ((window om-listener))
+(defmethod paste-command ((window om-lisp::om-listener))
   #'(lambda () (om-lisp::listener-paste window)))
 
-(defmethod select-all-command ((window om-listener))
+(defmethod select-all-command ((window om-lisp::om-listener))
   #'(lambda () (om-lisp::listener-select-all window)))
 
-(defmethod close-command ((window om-listener))
+(defmethod close-command ((window om-lisp::om-listener))
   #'(lambda () (om-lisp::listener-close window)))
 |#
 
-(defun show-shell () (om-open-shell)) 
+(defun show-shell () (om-lisp::om-open-shell)) 
 
 
 ;;;===============================
