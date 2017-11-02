@@ -164,11 +164,11 @@
 (defun om-eval-enqueue (form &optional view) 
   (if *use-eval-process*
       (om-lisp::om-eval-on-process #'(lambda () 
-                                       (om-listener-echo "Running...")
+                                       (om-lisp::om-listener-echo "Running...")
                                        (if view 
                                            (om-eval-in-context form view)
                                          (eval form))
-                                       (om-listener-echo "Ready")
+                                       (om-lisp::om-listener-echo "Ready")
                                        )
                                    )
     (eval form)))
@@ -185,7 +185,7 @@
        ;(om-lisp::om-open-text-editor :contents (pathname tempfile)))
     (progn
       (if redirect-output
-          (sys:call-system-showing-output str :wait t :output-stream *om-stream*)
+          (sys:call-system-showing-output str :wait t :output-stream om-lisp::*om-stream*)
         #-win32(sys:run-shell-command str :wait t)
         #+win32(sys:call-system str :wait t)
         ))))

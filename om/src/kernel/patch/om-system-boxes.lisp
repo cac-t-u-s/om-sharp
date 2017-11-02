@@ -32,8 +32,8 @@
 If <open-shell-window> the command will be executed in a special OM shell window. Otherwise the output is printed in the Listener window."
   (if open-shell-window
       (progn 
-        (om-open-shell)
-        (om-send-command-to-shell command-line))
+        (om-lisp::om-open-shell)
+        (om-lisp::om-send-command-to-shell command-line))
     (om-cmd-line command-line)))
 
 (defun om-cmd-line (str)

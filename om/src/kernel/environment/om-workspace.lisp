@@ -66,7 +66,7 @@ A workspace contains all the elements of an OM session (documents, pointer to li
      (when *error-files* 
        (print "==============================================")
        (print "Some files could not be loaded in the workspace (see documentation window).")
-       (om-show-output-lines (append (list "THE FOLLOWING FILES COULD NOT BE LOADED IN THE WORKSPACE:") *error-files*)))
+       (om-lisp::om-show-output-lines (append (list "THE FOLLOWING FILES COULD NOT BE LOADED IN THE WORKSPACE:") *error-files*)))
      (print (string+ "Workspace " (name self) " loaded."))
      elements))
 

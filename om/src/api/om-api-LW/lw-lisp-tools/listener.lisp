@@ -31,19 +31,9 @@
 ;;;===================
 ;;; export :
 ;;;===================
-(export '(om-listener
-          om-make-listener
-          om-listener-echo
-          om-listener-abort
-          om-set-listener-font
-          om-print om-print-format
-          *om-stream*
-          om-show-error-backtrace
-          om-shell
-          om-open-shell
-          om-send-command-to-shell
-          ) :om-lisp)
-
+(export '(om-print 
+          om-print-format) 
+        :om-lisp)
 
 ;;;=============================
 ;;; LISTENER
@@ -434,16 +424,16 @@
 
 (defparameter *om-shell* nil)
 
-(defclass om-shell (capi:interface) ())
+(defclass om-shell-window (capi:interface) ())
 
 ;(om-make-listener :input t)
 ;(setf om-lisp::*om-listener* nil)
 (defun om-open-shell (&key x y w h)
-  (or (and om-lisp::*om-shell* (capi::find-interface 'om-shell))
+  (or (and om-lisp::*om-shell* (capi::find-interface 'om-shell-window))
       (let ((sp (make-instance 'capi:shell-pane)))
         (capi::display
          (setf om-lisp::*om-shell*
-               (make-instance 'om-shell :title "SHELL"
+               (make-instance 'om-shell-window :title "SHELL"
                             :best-x x :best-y y
                             :best-width (or w 360) :best-height (or h 200)
                             :window-styles '(:no-character-palette)

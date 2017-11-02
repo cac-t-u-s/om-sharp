@@ -26,31 +26,8 @@
 (in-package :om-lisp)
 
 ;;;================= 
-;;; TEXT BUFFER ====
+;;; TEXT BUFFER 
 ;;;=================
-
-(export '(
-          om-make-buffer
-          om-copy-buffer
-          om-buffer-delete
-          om-buffer-set
-          om-kill-buffer
-          om-buffer-insert
-          om-buffer-insert-newline
-          om-buffer-text
-          om-buffer-char
-          om-buffer-size
-          om-buffer-substring
-          om-lines-in-buffer
-          om-buffer-lines
-          om-buffer-line-start   
-          om-buffer-line-end
-          om-buffer-skip-forward
-          om-buffer-insert-file
-          om-buffer-write-file
-          om-get-lisp-expression
-          ) :om-lisp)
-
 
 (defun om-make-buffer ()
   (editor::make-buffer (string (gensym)) :base-name "om-text-buffer-"
