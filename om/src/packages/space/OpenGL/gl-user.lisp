@@ -17,7 +17,7 @@
 
 ;===========================================================================
 ; Mid-level interface between LW OpenGL and OM 
-; Inspeired from LW OpenGL example
+; Adapted from the OpenGL example in LispWorks distribution
 ;;===========================================================================
 
 (defpackage :gl-user
@@ -68,9 +68,9 @@
 ;;; ------------------------------
 
 (defstruct xyz 
-  (x  0.0d0 :type double-float)
-  (y  0.0d0 :type double-float)
-  (z  0.0d0 :type double-float))
+  (x 0.0d0 :type double-float)
+  (y 0.0d0 :type double-float)
+  (z 0.0d0 :type double-float))
 
 
 ;;; ------------------------------------------------------------
@@ -399,7 +399,7 @@
     (opengl:gl-mult-matrixd (position-transform camera))
     (opengl:gl-translated (- (xyz-x center)) (- (xyz-y center)) (- (xyz-z center)))
     
-    (opengl:gl-enable opengl:*gl-lighting*)
+    ;(opengl:gl-enable opengl:*gl-lighting*) ;; can't get it to work correctly..
 
     (when (bgcolor camera)
       (opengl:gl-clear-color (car (bgcolor camera)) (cadr (bgcolor camera)) (caddr (bgcolor camera)) (cadddr (bgcolor camera)) ))
@@ -410,12 +410,14 @@
 
 
 (defun make-camera (&key eye center up projection color)
+  
   (make-instance 'camera
                  :eye (copy-structure (or eye *eye*))
                  :center (copy-structure (or center *center*))
                  :up (copy-structure (or up *up*))
                  :projection (or projection (make-projection))
-                 :bgcolor (or color '(0.9 0.9 0.9 1.0))))
+                 :bgcolor (or color '(0.9 0.9 0.9 1.0)))
+  )
 
 (defun init-camera (camera)
   (setf (eye camera) (copy-structure *eye*))
@@ -426,10 +428,17 @@
   (initialize-transform (position-transform camera))
   camera)
   
-  
+
 ;;; ------------------------------------------------------------
 ;;; The CAPI Interface
+;;; ------------------------------------------------------------
     
+(defun initialize-transform (transform)
+  (opengl:gl-matrix-mode opengl:*gl-modelview*)
+  (opengl:with-matrix-pushed
+    (opengl:gl-load-identity)
+    (opengl:gl-get-doublev opengl:*gl-modelview-matrix* transform)))
+
 (defun initialize-viewer (canvas)
   ;; Initialize the icotransform to unity.
   (opengl:rendering-on (canvas)
@@ -444,11 +453,9 @@
     (multiple-value-bind (w h) (capi::pinboard-pane-size canvas)
       (opengl-resize-canvas canvas 0 0 w h))))
 
-(defun initialize-transform (transform)
-  (opengl:gl-matrix-mode opengl:*gl-modelview*)
-  (opengl:with-matrix-pushed
-    (opengl:gl-load-identity)
-    (opengl:gl-get-doublev opengl:*gl-modelview-matrix* transform)))
+(defun initialize-icotransform (canvas)
+  (setf (icotransform canvas) (make-gl-double-vector 16))
+  (initialize-transform (icotransform canvas)))
 
 (defparameter *pointer-rotation-gain* 0.1d0)
 
@@ -502,7 +509,8 @@
 ;; must be called at runtime because of gl-vector pointers
 (defun set-lights-and-materials ()
   (setf *light-model-ambient* (gl-single-vector 0.4 0.4 0.4 1.0))  ;; (gl-single-vector 0.0 0.0 0.0 1.0)
-  (setf *light-position* (gl-single-vector 10.0 10.0 10.0 1.0))
+  ;(setf *light-position* (gl-single-vector 10.0 10.0 10.0 1.0))
+  (setf *light-position* (gl-single-vector 10.0 10.0 10.0 0.0))
   (setf *light-ambient* (gl-single-vector 0.1 0.1 0.1 1.0))
   (setf *light-diffuse* (gl-single-vector 0.8 0.8 0.8 1.0))
   (setf *light-specular* (gl-single-vector 0.8 0.8 0.8 1.0))
@@ -524,7 +532,9 @@
       (opengl-redisplay-canvas-standard canvas))
     ;swap buffers if double buffered
     (when (double-buffered-p canvas)
-      (opengl:swap-buffers canvas))))
+      (opengl:swap-buffers canvas))
+    ))
+
 
 (defun opengl-redisplay-canvas-standard (canvas)
   (opengl:gl-draw-buffer opengl:*gl-back*)
@@ -532,11 +542,11 @@
   (opengl:gl-clear opengl:*gl-depth-buffer-bit*)
   (opengl:gl-color-mask 1 1 1 1)
   ;draw the camera (background and view position)
-  (unless (position-transform (camera canvas))
-    (init-camera (camera canvas)))
+  (unless (position-transform (camera canvas)) (init-camera (camera canvas)))
   (draw (camera canvas))
   ;apply transform and render canvas light and objects
-  (opengl-redisplay-all canvas))
+  (opengl-redisplay-all canvas)
+  )
 
 
 (defun opengl-redisplay-all (canvas)
@@ -550,23 +560,25 @@
                          *light-specular*))
   
   (opengl:with-matrix-pushed
-      (opengl:gl-mult-matrixd (light-transform canvas))
       
-      (opengl:gl-light-modelfv opengl:*gl-light-model-ambient* *light-model-ambient*)
-      (opengl:gl-light-modelf opengl:*gl-light-model-local-viewer* 0.0)
-      (opengl:gl-light-modelf opengl:*gl-light-model-two-side* 0.0)
+    (opengl:gl-mult-matrixd (light-transform canvas))
       
-      (opengl:gl-enable opengl:*gl-light0*)
-      (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-position* *light-position*)
-      (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-ambient* *light-ambient*)
-      (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-diffuse* *light-diffuse*)
-      (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-specular* *light-specular*)
-      )
+    (opengl:gl-light-modelfv opengl:*gl-light-model-ambient* *light-model-ambient*)
+    (opengl:gl-light-modelf opengl:*gl-light-model-local-viewer* 0.0)
+    (opengl:gl-light-modelf opengl:*gl-light-model-two-side* 0.0)
+      
+    (opengl:gl-enable opengl:*gl-light0*)
+    (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-position* *light-position*)
+    (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-ambient* *light-ambient*)
+    (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-diffuse* *light-diffuse*)
+    (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-specular* *light-specular*)
+  
+    )
 
   (opengl:with-matrix-pushed
-    ;(opengl:gl-shade-model opengl:*gl-smooth*)
+    
+    ;;(opengl:gl-shade-model opengl:*gl-smooth*)
        
-
     ;material stuff
     (opengl:gl-cull-face opengl:*gl-back*)
     (opengl:gl-enable opengl:*gl-cull-face*)
@@ -583,7 +595,7 @@
     (draw-contents canvas)
     
     (opengl:with-matrix-pushed 
-      (opengl:gl-mult-matrixd (object-transform canvas))
+      ;(opengl:gl-mult-matrixd (object-transform canvas))
       (mapc #'draw (g-objects canvas)))
     )
   )
@@ -655,9 +667,6 @@
 
 
 
-
-
-
 ;;; USER INTERACTION
 (defmethod opengl-viewer-click (canvas x y)
   (setf (lastxy canvas) (cons x y)))
@@ -670,7 +679,7 @@
     (let ((last (lastxy canvas)))
       (when last
         (opengl:rendering-on (canvas)
-	  (polar-rotate-icosahedron canvas :dz (- x (car last)) :dx (- y (cdr last))))
+	  (polar-rotate-icosahedron canvas :dz (* 2 (- x (car last))) :dx (* 2 (- y (cdr last)))))
         (opengl-redisplay-canvas canvas))
       (setf (lastxy canvas) (cons x y))))
 
