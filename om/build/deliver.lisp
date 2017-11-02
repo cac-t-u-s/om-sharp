@@ -161,6 +161,10 @@
   (om::start-openmusic)
   )
 
+(list (merge-pathnames 
+       #+macosx(concatenate 'string "OM.app/Contents/Resources/dspec-database." (oa::om-compiled-type))
+       om-api::*om-root*))
+
 ;;;==========================
 ;;; SOURCE DEFINITIONS
 ;;;==========================

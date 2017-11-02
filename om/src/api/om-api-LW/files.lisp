@@ -57,6 +57,7 @@
 ;;;==================
 
 (defparameter *compiled-type* (pathname-type *load-pathname*))
+(setq *compiled-type* (pathname-type (cl-user::compile-file-pathname "")))
 
 ;;; NOT WORK IN STANDALONE !
 (defun om-compiled-type () 
