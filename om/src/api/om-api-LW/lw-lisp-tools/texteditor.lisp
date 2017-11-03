@@ -117,18 +117,14 @@
   (om-text-editor-resized win w h)
   (om-text-editor-moved win x y))
 
-(defmethod update-window-title ((self om-text-editor-window) &optional (modified nil modified-supplied-p))
-  (let ((base (if (file self) (namestring (file self)) "text buffer"))
-        (modified (if modified-supplied-p modified (buffer-modified-p self))))
-    (om-text-editor-window-set-title self (concatenate 'string base (if modified " [*]" "")))))
-
 (defmethod lisp-operations-enabled ((self t)) t)
 (defmethod lisp-operations-enabled ((self om-text-editor-window)) (lisp? self))
 
 (defmethod file-operations-enabled ((self t)) t)
 (defmethod file-operations-enabled ((self om-text-editor-window)) t)
 
-(defmethod save-operation-enabled ((self om-text-editor-window)) (buffer-modified-p self))
+(defmethod save-operation-enabled ((self om-text-editor-window)) 
+  (or (buffer-modified-p self) (null (file self))))
 
 (defmethod capi:interface-display :after ((win om-text-editor-window))
   (capi::execute-with-interface 
@@ -140,11 +136,25 @@
          (echo-string win "")))))
 
 
-(defmethod (setf file) :after (path (self om-text-editor-window))
-  (if path
-      (setf (capi::interface-title self) (namestring path))
-    (setf (capi::interface-title self) "Text Buffer")))
+(defun text-window-title-from-path (path)
+    (if path
+        (concatenate 'string 
+                     (pathname-name path)
+                     " ["
+                     (namestring (make-pathname :directory (pathname-directory path)))
+                     "]")
+      "Untitled [...]"))
 
+
+(defmethod (setf file) :after (path (self om-text-editor-window))
+  (setf (capi::interface-title self) 
+        (text-window-title-from-path path)))
+
+;;; called when the text is edited
+(defmethod update-window-title ((self om-text-editor-window) &optional (modified nil modified-supplied-p))
+  (let ((base (text-window-title-from-path (file self)))
+        (modified (if modified-supplied-p modified (buffer-modified-p self))))
+    (om-text-editor-window-set-title self (concatenate 'string (if modified "*") base))))
 
 ;;;=====================
 ;;; CREATE-WINDOW
@@ -176,7 +186,7 @@
                                     :name (concatenate 'string "TextEditor_" (string (gensym)))
                                     :best-x x :best-y y 
                                     :best-width (or w 500) :best-height (or h 500)
-                                    :title (or title (if path (namestring path) "New Text Buffer"))
+                                    :title (or title (text-window-title-from-path path))
                                     :parent (capi:convert-to-screen)
                                     :internal-border 5 :external-border 0
                                     ;:internal-min-height (or h 800) :internal-min-width (or w 800)
@@ -337,15 +347,17 @@
 
 (defmethod om-text-editor-check-before-close  ((self om-text-editor-window)) t)
 
+;;; used as callback of the capi::interface
 (defmethod check-close-buffer ((self om-text-editor-window))
   (and (om-text-editor-check-before-close self)
        (if (and (om-lisp::buffer-modified-p self) 
                 (om-lisp::save-operation-enabled self))
            (multiple-value-bind (answer successp)
                (capi:prompt-for-confirmation
-                (format nil "Changes on ~A were not saved.~% Save before closing?"
-                        (if (file self) (pathname-name (file self)) "this text buffer"))
-                :cancel-button t :default-button :ok)
+                (format nil "Some changes on ~A were not saved. Save it before close?"
+                        (if (file self) (pathname-name (file self)) "text buffer 'Untitled'"))
+                :cancel-button t :default-button :ok
+                :owner (capi:convert-to-screen))
              (when answer
                (with-slots (ep) self
                  (let ((buffer (capi::editor-pane-buffer ep)))
@@ -435,6 +447,7 @@
 (defmethod type-filter-for-text-editor ((self om-text-editor-window)) 
   '("Lisp Files" "*.lisp" "Text files" "*.txt" "All Files" "*.*"))
 
+
 (defmethod save-as-text-file ((self om-text-editor-window))
   (with-slots (ep) self
     (let ((buffer (capi::editor-pane-buffer ep)))
@@ -445,6 +458,8 @@
                                    :if-exists :prompt
                                    :operation :save))
         (setf *last-open-directory* (make-pathname :directory (pathname-directory path)))
+        (when-let (win (find-open-file path))
+          (capi::destroy win))
         (save-to-file (om-buffer-text buffer) path)
         (om-kill-buffer buffer)
         (setf (capi::editor-pane-buffer ep) (editor:find-file-buffer path))
