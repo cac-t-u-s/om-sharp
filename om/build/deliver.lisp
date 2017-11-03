@@ -89,7 +89,7 @@
    :title *app-name+version*
    :application-menu 'application-menu
 
-   :confirm-destroy-function 'quit-callback
+   ;:confirm-destroy-function 'quit-callback
    ;:destroy-callback #'(lambda (interface) (oa::om-exit-funcall))
    ;:top-level-hook 'oa::interface-handle-error
    ;:window-styles '(:internal-borderles :never-iconic :textured-background) ;; :hides-on-deactivate-window) :toolbox
@@ -141,9 +141,9 @@
 (defun default-interface ()
   (capi:set-application-interface (make-instance 'om-application)))
 
-#+cocoa
-(defun quit-callback (interface)
-  (om::quit-om-callback))
+; now we declare this in start-openmusic
+;#+cocoa
+;(defun quit-callback (interface) (om::quit-om-callback))
 
 
 ;;; DELIVER

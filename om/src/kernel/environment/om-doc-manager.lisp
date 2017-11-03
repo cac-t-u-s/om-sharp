@@ -317,7 +317,7 @@
 (defun om-save-y-n-cancel-dialog (name)
   (let* ((v (om-make-view 'om-view :bg-color (om-def-color :transparent)))
          (win (om-make-window 'om-dialog :position :centered :size (om-make-point 330 120)
-                              :resizable nil :maximize nil :minimize nil
+                              :resizable nil :maximize nil :minimize nil :owner nil
                               :win-layout (om-make-layout 'om-simple-layout :ratios '(1) :delta 20 :align :center)
                               :title ""
                               :subviews (list v)))
