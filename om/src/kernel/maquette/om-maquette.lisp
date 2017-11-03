@@ -281,8 +281,8 @@
    (set-box-onset tb (max (+ (get-box-onset tb) dx) 0))
    (setf (box-y tb) (+ (box-y tb) dy))
    
-   (when (frame tb)
-     (update-frame-to-position tb (omp (box-x tb) (box-y tb))))
+   (when (frame tb) (update-frame-to-box-position tb))
+
    (when (container tb)
      (report-modifications (editor (container tb))))
    

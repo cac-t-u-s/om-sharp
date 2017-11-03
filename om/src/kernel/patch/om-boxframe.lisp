@@ -266,10 +266,14 @@
 
 (defmethod om-click-release-handler ((self OMBoxFrame) pos)
   (when *resize-handler*
+    
     (setf *resize-handler* nil)
     (let* ((box (object self))
            (view (om-view-container self))
            (size (om-view-size self)))
+    
+      (notify-state-before-action (editor view))  ;;; for undo
+
       (omng-resize box 
                    (omp (if (scale-in-x-? box) (omng-w view (om-point-x size)) (om-point-x size))
                         (if (scale-in-y-? box) (omng-h view (om-point-y size)) (om-point-y size))))
@@ -434,7 +438,6 @@
 (defmethod update-to-editor ((self OMEditor) (from OMBox)) 
   ;(print (list "update" self "from BOX" from))
   (update-default-view self))
-
 
 ;;;===========================
 ;;; DRAW
@@ -756,6 +759,9 @@
   (let ((aa (active-area-at-pos self pos))
         (editor (editor patchpanel)))
     (when aa 
+
+      ;(notify-state-before-action editor)  ;;; for undo
+
       (let ((new-connection
              (cond ((subtypep (type-of aa) 'input-area)
                     (io-connect (object aa) (object output) (object editor) patchpanel))
@@ -819,6 +825,10 @@
 ;;; position is a symbolic position
 (defmethod move-frame-to-position ((self OMBoxFrame) (container-view om-view) position)
   (om-set-view-position self (om-round-point (omg-position container-view position)))
+  (redraw-connections self))
+
+(defmethod resize-frame-to-size ((self OMBoxFrame) (container-view om-view) size)
+  (om-set-view-size self (om-round-point (omg-size container-view size)))
   (redraw-connections self))
 
 ;;;=============================

@@ -194,19 +194,29 @@
     (report-modifications (editor (container self)))))
 
 
-;;; will be true for OMBoxFrame
+;;; will be defined for OMBoxFrame
 (defmethod move-frame-to-position ((self t) (container-view t) position) nil)
+(defmethod resize-frame-to-size ((self t) (container-view t) size) nil)
+
+(defmethod update-frame-to-box-position ((self OMBox))
+  (move-frame-to-position (frame self) 
+                          (om-view-container (frame self)) 
+                          (omp (box-x self) (box-y self))))
+
+(defmethod update-frame-to-box-size ((self OMBox))
+  (resize-frame-to-size (frame self) 
+                        (om-view-container (frame self))
+                        (omp (box-w self) (box-h self))))
 
 ;;; sometimes there is no boxframe at all (e.g. in sequencer tracks)
-(defmethod update-frame-to-position ((self t) position) nil)
+(defmethod update-frame-to-box-position ((self t)) nil)
+(defmethod update-frame-to-box-size ((self t)) nil)
 
-(defmethod update-frame-to-position ((self OMBox) position)
-  (move-frame-to-position (frame self) (om-view-container (frame self)) position))
 
 (defmethod move-box ((self OMBox) dx dy)
   (let ((pos (om-make-point (max 0 (+ (box-x self) dx)) (max 0 (+ (box-y self) dy)))))
     (omng-move self pos)
-    (when (frame self) (update-frame-to-position self pos))
+    (when (frame self) (update-frame-to-box-position self))
     (update-connections self)
     ))
 

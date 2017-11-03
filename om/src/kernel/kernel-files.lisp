@@ -118,6 +118,7 @@
                 
         "utils/om-copy"
         "utils/om-save"
+        "utils/om-undo"
         
         "kernel-pack"
              

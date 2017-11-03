@@ -21,7 +21,7 @@
 ;;; EDITOR
 ;;;=============================
 
-(defclass patch-editor (OMDocumentEditor) 
+(defclass patch-editor (OMDocumentEditor undoable-object-mixin) 
   ((show-lisp-code :accessor show-lisp-code :initarg :show-lisp-code :initform nil)
    (show-documentation :accessor show-documentation :initarg :show-documentation :initform nil)))
 
@@ -247,7 +247,9 @@
 
       (case key
 
-        (:om-key-delete (unless (edit-lock editor) (remove-selection editor)))
+        (:om-key-delete (unless (edit-lock editor) 
+                          (notify-state-before-action editor)
+                          (remove-selection editor)))
 
         (#\g (setf (grid patch) (if (grid patch) nil 50))
              (om-invalidate-view panel))
@@ -258,6 +260,7 @@
                  (make-new-box panel))))
 
         (#\i (unless (edit-lock editor) 
+               (notify-state-before-action editor)
                (mapc 'initialize-size (or selected-boxes selected-connections))))
         
         ; same thing... which one is best ?
@@ -268,47 +271,86 @@
         (:om-key-left (unless (edit-lock editor)
                         (if (om-option-key-p) 
                             (mapc 'optional-input-- selected-boxes)
-                          (mapc #'(lambda (f) (move-box f (if (om-shift-key-p) -10 -1) 0)) 
-                                (or selected-boxes selected-connections)))))
+                          (let ((selection (or selected-boxes selected-connections)))
+                            (notify-state-before-action editor :action :move :item selection)
+                            (mapc 
+                             #'(lambda (f) (move-box f (if (om-shift-key-p) -10 -1) 0)) 
+                             selection))
+                          )))
         (:om-key-right (unless (edit-lock editor)
                          (if (om-option-key-p) 
                              (mapc 'optional-input++ selected-boxes)
-                           (mapc #'(lambda (f) (move-box f (if (om-shift-key-p) 10 1) 0)) 
-                                 (or selected-boxes selected-connections)))))
+                            (let ((selection (or selected-boxes selected-connections)))
+                              (notify-state-before-action editor :action :move :item selection)
+                              (mapc #'(lambda (f) (move-box f (if (om-shift-key-p) 10 1) 0)) 
+                                    selection))
+                         )))
         (:om-key-up (unless (edit-lock editor)
+                      (notify-state-before-action editor :action :move :item (or selected-boxes selected-connections))
                       (mapc #'(lambda (f) (move-box f 0 (if (om-shift-key-p) -10 -1))) 
-                            (or selected-boxes selected-connections))))
+                            (or selected-boxes selected-connections))
+                      ))
         (:om-key-down (unless (edit-lock editor)
+                        (notify-state-before-action editor :action :move :item (or selected-boxes selected-connections))
                         (mapc #'(lambda (f) (move-box f 0 (if (om-shift-key-p) 10 1))) 
-                              (or selected-boxes selected-connections))))
+                              (or selected-boxes selected-connections))
+                        ))
       
-        (#\k (unless (edit-lock editor) (mapc 'keyword-input++ selected-boxes)))
-        (#\+ (unless (edit-lock editor)(mapc 'keyword-input++ selected-boxes)))
-        (#\K (unless (edit-lock editor)(mapc 'keyword-input-- selected-boxes)))
-        (#\- (unless (edit-lock editor)(mapc 'keyword-input-- selected-boxes)))
-        (#\> (unless (edit-lock editor)(mapc 'optional-input++ selected-boxes)))
-        (#\< (unless (edit-lock editor)(mapc 'optional-input-- selected-boxes)))
+        (#\k (unless (edit-lock editor) 
+               (notify-state-before-action editor)
+               (mapc 'keyword-input++ selected-boxes)))
+        (#\+ (unless (edit-lock editor) 
+               (notify-state-before-action editor)
+               (mapc 'keyword-input++ selected-boxes)))
+        (#\K (unless (edit-lock editor) 
+               (notify-state-before-action editor)
+               (mapc 'keyword-input-- selected-boxes)))
+        (#\- (unless (edit-lock editor) 
+               (notify-state-before-action editor)
+               (mapc 'keyword-input-- selected-boxes)))
+        (#\> (unless (edit-lock editor) 
+               (notify-state-before-action editor)
+               (mapc 'optional-input++ selected-boxes)))
+        (#\< (unless (edit-lock editor) 
+               (notify-state-before-action editor)
+               (mapc 'optional-input-- selected-boxes)))
     
-        (#\b (mapc 'switch-lock-mode selected-boxes))
-        (#\1 (unless (edit-lock editor) (mapc 'switch-evonce-mode selected-boxes)))
-        (#\l (unless (edit-lock editor) (mapc 'switch-lambda-mode selected-boxes)))
+        (#\b (notify-state-before-action editor) 
+             (mapc 'switch-lock-mode selected-boxes))
+        (#\1 (unless (edit-lock editor) 
+               (notify-state-before-action editor)
+               (mapc 'switch-evonce-mode selected-boxes)))
+        (#\l (unless (edit-lock editor) 
+               (notify-state-before-action editor)
+               (mapc 'switch-lambda-mode selected-boxes)))
 
         (#\m (mapc 'change-display selected-boxes))
 
-        (#\a (unless (edit-lock editor) (mapc 'internalize-abstraction selected-boxes)))
+        (#\a (unless (edit-lock editor) 
+               (notify-state-before-action editor)
+               (mapc 'internalize-abstraction selected-boxes)))
 
         (#\c (unless (edit-lock editor)
+               (notify-state-before-action editor)
                (if selected-boxes
                    (auto-connect-box selected-boxes editor panel)
                  (make-new-comment panel))))
-        (#\C (unless (edit-lock editor) (auto-connect-seq selected-boxes editor panel)))
+        (#\C (unless (edit-lock editor) 
+               (notify-state-before-action editor)
+               (auto-connect-seq selected-boxes editor panel)))
         
-        (#\E (unless (edit-lock editor) (encapsulate-patchboxes editor panel selected-boxes)))
-        (#\U (unless (edit-lock editor) (unencapsulate-patchboxes editor panel selected-boxes)))
+        (#\E (unless (edit-lock editor) 
+               (notify-state-before-action editor)
+               (encapsulate-patchboxes editor panel selected-boxes)))
+        (#\U (unless (edit-lock editor) 
+               (notify-state-before-action editor)
+               (unencapsulate-patchboxes editor panel selected-boxes)))
 
         (#\v (eval-command panel selected-boxes))
     
-        (#\r (unless (edit-lock editor) (mapc 'set-reactive-mode (or selected-boxes selected-connections))))
+        (#\r (unless (edit-lock editor) 
+               (notify-state-before-action editor)
+               (mapc 'set-reactive-mode (or selected-boxes selected-connections))))
       
         ;;; play/stop commands
         (#\p (play-boxes selected-boxes))
@@ -445,6 +487,7 @@
 
 (defmethod cut-command-for-view ((editor patch-editor) (view t))
   (copy-command-for-view editor view)
+  (notify-state-before-action editor) ;;; for undo
   (remove-selection editor))
 
 (defmethod paste-command-for-view ((editor patch-editor) (view t)) nil)
@@ -461,6 +504,9 @@
                           minimize (omg-y view (box-y bb)) into ymin
                           finally (return (om-make-point xmin ymin))))
       (set-paste-position nil))
+
+    (notify-state-before-action editor)  ;;; for undo
+    
     (loop for b in boxes do
           (let ((graphic-pos (if ref-pos 
                                 (om-add-points paste-pos 
@@ -475,12 +521,11 @@
                 (om-add-subviews view frame)
                 (select-box b t)
                 ))))
+    
     ;;; connections
     (loop for c in (restore-connections-to-boxes connections boxes) do
           (omng-add-element editor c)
-          (add-connection-in-view view c)
-          ;(update-points c)
-          )
+          (add-connection-in-view view c))
     
     (mapc 'after-copy-action boxes) 
     (om-invalidate-view view)
@@ -526,10 +571,13 @@
 
 
 
-(defmethod report-modifications ((self patch-editor))
-  (call-next-method)
-  (patch-editor-set-lisp-code self))
+(defmethod undo-command ((self patch-editor)) 
+  #'(lambda () 
+      (do-undo self)))
 
+(defmethod redo-command ((self patch-editor)) 
+  #'(lambda () 
+      (do-redo self)))
 
 #|
 (defmethod do-undo ((self relationeditor)) 
@@ -561,6 +609,9 @@
   )
 |#
        
+(defmethod report-modifications ((self patch-editor))
+  (call-next-method)
+  (patch-editor-set-lisp-code self))
 
 ;;;=============================
 ;;; DRAG BOXES
@@ -617,15 +668,19 @@
   (unless (om-points-equal-p (om-view-position dragged-view) position)
     (let* ((init-patch (container (object dragged-view)))
            (patchview (om-view-container dragged-view))
-           (target-patch (object (editor self)))
+           (editor (editor self))
+           (target-patch (object editor))
            (initpos (om-view-position dragged-view))
            (newpositions (mapcar 
                           #'(lambda (view) (om-add-points position (om-subtract-points (om-view-position view) initpos))) 
                           (dragged-views patchview))))
-      (unless (or (edit-lock (editor self))
+      (unless (or (edit-lock editor)
                   (find-if #'(lambda (p) (or (< (om-point-x p) 0) (< (om-point-y p) 0))) newpositions))
         (let ((connections (save-connections-from-boxes (mapcar 'object (dragged-views patchview))))
               (newboxes nil))
+          
+          (notify-state-before-action editor)  ;;; for undo
+              
           (loop for dview in (dragged-views patchview) 
                 for pos in newpositions do
                 (let* ((box (object dview))
