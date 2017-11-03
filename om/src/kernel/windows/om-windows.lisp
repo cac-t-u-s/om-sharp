@@ -148,6 +148,7 @@
 (defmethod paste-command (self) nil)
 (defmethod clear-command (self) nil)
 
+;;; always work
 (defmethod close-command (self) 
   #'(lambda () (om-close-window (om-front-window))))
 
@@ -178,7 +179,7 @@
 
 ;;; redefine the menu-bar of the listener
 (defmethod om-lisp::om-listener-window-menus ((self om-lisp::om-listener))
-  (om::om-menu-items self))
+  (om-menu-items self))
 
 (add-preference :general :listener-on-top "Keep Listener in Front" :bool nil "(Does not apply to the current Listener window)")
 
@@ -206,9 +207,7 @@
   (om-lisp::om-set-text-editor-font (get-pref-value :general :textedit-font)))
 
 
-#|
-(defmethod font-command ((window om-lisp::om-listener))
-  #'(lambda () (om-lisp::change-listener-font window)))
+
 
 (defmethod copy-command ((window om-lisp::om-listener))
   #'(lambda () (om-lisp::listener-copy window)))
@@ -221,6 +220,11 @@
 
 (defmethod select-all-command ((window om-lisp::om-listener))
   #'(lambda () (om-lisp::listener-select-all window)))
+
+
+#|
+(defmethod font-command ((window om-lisp::om-listener))
+  #'(lambda () (om-lisp::change-listener-font window)))
 
 (defmethod close-command ((window om-lisp::om-listener))
   #'(lambda () (om-lisp::listener-close window)))

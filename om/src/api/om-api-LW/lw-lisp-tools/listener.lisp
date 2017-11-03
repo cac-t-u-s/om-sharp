@@ -175,10 +175,11 @@
         )))
 
 
-;; to be redefined !
+;; to be redefined
 (defmethod om-listener-window-menus ((self om-listener)) nil) 
 
-
+;; used if om-listener-window-menus is not redefined
+;; the 'Lisp' patrt will be kept anyway
 (defmethod listener-default-window-menus ((self om-listener)) 
   (append (list (make-instance 'capi::menu :title "File"
                                :items 
@@ -411,8 +412,6 @@
         (beep-pane)
         (print "no backtrace recorded")
         nil)))
-
-
 
 
 ;;;===========================
