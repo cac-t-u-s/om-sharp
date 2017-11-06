@@ -20,7 +20,7 @@
 ;distance treshold to add a new point in pen mode
 (defvar *add-point-distance-treshold* 5)
 
-(defclass bpf-editor (multi-display-editor-mixin OMEditor play-editor-mixin) 
+(defclass bpf-editor (multi-display-editor-mixin OMEditor play-editor-mixin undoable-editor-mixin) 
   ((edit-mode :accessor edit-mode :initform :mouse)
    (decimals :accessor decimals :initform 0 :initarg :decimals)
    ;;; multi-view
@@ -63,6 +63,10 @@
 (defmethod get-obj-to-play ((self bpf-editor)) (object-value self))
 
 (defmethod handle-multi-display ((self bpf-editor)) t)
+
+;;; UNDO SYSTEM
+(defmethod undoable-object ((self bpf-editor)) (object-value self))
+(defmethod get-object-slots-for-undo ((self bpf)) (append (call-next-method) '(point-list)))
 
 (defparameter +bpf-editor-modes+ '(:mouse :pen :hand)) ; :zoomin :zoomout))
 
@@ -274,16 +278,17 @@
 
 (defmethod initialize-instance :after ((self bpf-bpc-panel) &rest args) 
   (let* ((editor (editor self))
-         (mode-buttons (list 
-                        (om-make-graphic-object 'om-icon-button :position (omp 10 5) :size (omp 20 20) :icon 'mouse :icon-pushed 'mouse-pushed 
-                                                :lock-push t :pushed (equal (edit-mode editor) :mouse) :id :mouse
-                                                :action #'(lambda (b) (editor-set-edit-mode editor :mouse)))
-                        (om-make-graphic-object 'om-icon-button :position (omp 30 5) :size (omp 20 20) :icon 'pen :icon-pushed 'pen-pushed 
-                                                :lock-push t :pushed (equal (edit-mode editor) :pen) :id :pen
-                                                :action #'(lambda (b) (editor-set-edit-mode editor :pen)))
-                        (om-make-graphic-object 'om-icon-button :position (omp 50 5) :size (omp 20 20) :icon 'hand :icon-pushed 'hand-pushed 
-                                                :lock-push t :pushed (equal (edit-mode editor) :hand) :id :hand
-                                                :action #'(lambda (b) (editor-set-edit-mode editor :hand))))))
+         (mode-buttons 
+          (list 
+           (om-make-graphic-object 'om-icon-button :position (omp 10 5) :size (omp 20 20) :icon 'mouse :icon-pushed 'mouse-pushed 
+                                   :lock-push t :pushed (equal (edit-mode editor) :mouse) :id :mouse
+                                   :action #'(lambda (b) (editor-set-edit-mode editor :mouse)))
+           (om-make-graphic-object 'om-icon-button :position (omp 30 5) :size (omp 20 20) :icon 'pen :icon-pushed 'pen-pushed 
+                                   :lock-push t :pushed (equal (edit-mode editor) :pen) :id :pen
+                                   :action #'(lambda (b) (editor-set-edit-mode editor :pen)))
+           (om-make-graphic-object 'om-icon-button :position (omp 50 5) :size (omp 20 20) :icon 'hand :icon-pushed 'hand-pushed 
+                                   :lock-push t :pushed (equal (edit-mode editor) :hand) :id :hand
+                                   :action #'(lambda (b) (editor-set-edit-mode editor :hand))))))
     (set-g-component editor :mode-buttons mode-buttons)
     (apply 'om-add-subviews (cons self mode-buttons))
     ))
@@ -553,8 +558,13 @@
       (select-bpf self)))
 
 (defmethod get-info-command ((self bpf-editor)) 
-  #'(lambda () 
-      (show-inspector (object self) self)))
+  #'(lambda () (show-inspector (object self) self)))
+
+(defmethod undo-command ((self bpf-editor)) 
+  #'(lambda () (do-undo self)))
+
+(defmethod redo-command ((self bpf-editor)) 
+  #'(lambda () (do-redo self)))
 
 (defmethod open-osc-manager-command ((self bpf-editor)) nil)
 
@@ -803,7 +813,9 @@
 (defmethod delete-editor-selection ((self bpc-editor))
   (if (find T (selection self))
       (setf (point-list (object-value self)) nil)
-    (mapcar #'(lambda (p) (remove-nth-timed-point-from-time-sequence (object-value self) p)) (sort (selection self) '>)))
+    (mapcar 
+     #'(lambda (p) (remove-nth-timed-point-from-time-sequence (object-value self) p)) 
+     (sort (selection self) '>)))
   (setf (selection self) nil)
   (update-to-editor (timeline-editor self) self))
   
@@ -955,6 +967,7 @@
                   (report-modifications editor)
                   (om-invalidate-view self)
                   (update-timeline-editor editor)
+                  (store-current-state-for-undo editor)
                   ;;; move the new point
                   (om-init-temp-graphics-motion self position nil :min-move 10
                                                 :motion #'(lambda (view pos)
@@ -978,23 +991,26 @@
                   (update-timeline-editor editor)
                   ;;; move the selection or select rectangle
                   (if selection
-                      (om-init-temp-graphics-motion 
-                       self position nil
-                       :motion #'(lambda (view pos)
-                                   (let ((dx (dpix-to-dx self (- (om-point-x pos) (om-point-x p0))))
-                                         (dy (dpix-to-dy self (- (om-point-y p0) (om-point-y pos)))))
-                                     (move-editor-selection editor :dx dx :dy dy)
-                                     (setf p0 pos)
-                                     (position-display editor pos)
-                                     (editor-invalidate-views editor)
-                                     ))
-                       :release #'(lambda (view pos) 
-                                    (round-point-values editor) 
-                                    (time-sequence-update-internal-times obj)
-                                    (report-modifications editor) 
-                                    (om-invalidate-view view)
-                                    (update-timeline-editor editor))
-                       :min-move 4)
+                      (let ()
+                        (store-current-state-for-undo editor)
+                        (om-init-temp-graphics-motion 
+                         self position nil
+                         :motion #'(lambda (view pos)
+                                     (let ((dx (dpix-to-dx self (- (om-point-x pos) (om-point-x p0))))
+                                           (dy (dpix-to-dy self (- (om-point-y p0) (om-point-y pos)))))
+                                       (move-editor-selection editor :dx dx :dy dy)
+                                       (setf p0 pos)
+                                       (position-display editor pos)
+                                       (editor-invalidate-views editor)
+                                       ))
+                         :release #'(lambda (view pos) 
+                                      (round-point-values editor) 
+                                      (time-sequence-update-internal-times obj)
+                                      (report-modifications editor) 
+                                      (om-invalidate-view view)
+                                      (update-timeline-editor editor))
+                         :min-move 4)
+                        )
                     (om-init-temp-graphics-motion 
                      self position 
                      (om-make-graphic-object 'selection-rectangle :position position :size (om-make-point 4 4))
@@ -1027,6 +1043,7 @@
                   ;find last time and add the default-offset
                   (setf time-offset (+ (get-obj-dur obj) (gesture-interval-time editor)))
                   )
+                (store-current-state-for-undo editor)
                 (insert-point-at-pix editor obj position time-offset)
                 (report-modifications editor)
                 (om-invalidate-view self)

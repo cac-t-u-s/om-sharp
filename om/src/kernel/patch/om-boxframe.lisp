@@ -272,7 +272,7 @@
            (view (om-view-container self))
            (size (om-view-size self)))
     
-      (notify-state-before-action (editor view))  ;;; for undo
+      (store-current-state-for-undo (editor view))
 
       (omng-resize box 
                    (omp (if (scale-in-x-? box) (omng-w view (om-point-x size)) (om-point-x size))
@@ -760,7 +760,7 @@
         (editor (editor patchpanel)))
     (when aa 
 
-      ;(notify-state-before-action editor)  ;;; for undo
+      (store-current-state-for-undo editor)
 
       (let ((new-connection
              (cond ((subtypep (type-of aa) 'input-area)

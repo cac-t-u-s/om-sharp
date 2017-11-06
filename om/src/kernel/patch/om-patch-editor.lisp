@@ -21,7 +21,7 @@
 ;;; EDITOR
 ;;;=============================
 
-(defclass patch-editor (OMDocumentEditor undoable-object-mixin) 
+(defclass patch-editor (OMDocumentEditor undoable-editor-mixin) 
   ((show-lisp-code :accessor show-lisp-code :initarg :show-lisp-code :initform nil)
    (show-documentation :accessor show-documentation :initarg :show-documentation :initform nil)))
 
@@ -248,7 +248,7 @@
       (case key
 
         (:om-key-delete (unless (edit-lock editor) 
-                          (notify-state-before-action editor)
+                          (store-current-state-for-undo editor)
                           (remove-selection editor)))
 
         (#\g (setf (grid patch) (if (grid patch) nil 50))
@@ -260,7 +260,7 @@
                  (make-new-box panel))))
 
         (#\i (unless (edit-lock editor) 
-               (notify-state-before-action editor)
+               (store-current-state-for-undo editor)
                (mapc 'initialize-size (or selected-boxes selected-connections))))
         
         ; same thing... which one is best ?
@@ -272,7 +272,7 @@
                         (if (om-option-key-p) 
                             (mapc 'optional-input-- selected-boxes)
                           (let ((selection (or selected-boxes selected-connections)))
-                            (notify-state-before-action editor :action :move :item selection)
+                            (store-current-state-for-undo editor :action :move :item selection)
                             (mapc 
                              #'(lambda (f) (move-box f (if (om-shift-key-p) -10 -1) 0)) 
                              selection))
@@ -281,75 +281,75 @@
                          (if (om-option-key-p) 
                              (mapc 'optional-input++ selected-boxes)
                             (let ((selection (or selected-boxes selected-connections)))
-                              (notify-state-before-action editor :action :move :item selection)
+                              (store-current-state-for-undo editor :action :move :item selection)
                               (mapc #'(lambda (f) (move-box f (if (om-shift-key-p) 10 1) 0)) 
                                     selection))
                          )))
         (:om-key-up (unless (edit-lock editor)
-                      (notify-state-before-action editor :action :move :item (or selected-boxes selected-connections))
+                      (store-current-state-for-undo editor :action :move :item (or selected-boxes selected-connections))
                       (mapc #'(lambda (f) (move-box f 0 (if (om-shift-key-p) -10 -1))) 
                             (or selected-boxes selected-connections))
                       ))
         (:om-key-down (unless (edit-lock editor)
-                        (notify-state-before-action editor :action :move :item (or selected-boxes selected-connections))
+                        (store-current-state-for-undo editor :action :move :item (or selected-boxes selected-connections))
                         (mapc #'(lambda (f) (move-box f 0 (if (om-shift-key-p) 10 1))) 
                               (or selected-boxes selected-connections))
                         ))
       
         (#\k (unless (edit-lock editor) 
-               (notify-state-before-action editor)
+               (store-current-state-for-undo editor)
                (mapc 'keyword-input++ selected-boxes)))
         (#\+ (unless (edit-lock editor) 
-               (notify-state-before-action editor)
+               (store-current-state-for-undo editor)
                (mapc 'keyword-input++ selected-boxes)))
         (#\K (unless (edit-lock editor) 
-               (notify-state-before-action editor)
+               (store-current-state-for-undo editor)
                (mapc 'keyword-input-- selected-boxes)))
         (#\- (unless (edit-lock editor) 
-               (notify-state-before-action editor)
+               (store-current-state-for-undo editor)
                (mapc 'keyword-input-- selected-boxes)))
         (#\> (unless (edit-lock editor) 
-               (notify-state-before-action editor)
+               (store-current-state-for-undo editor)
                (mapc 'optional-input++ selected-boxes)))
         (#\< (unless (edit-lock editor) 
-               (notify-state-before-action editor)
+               (store-current-state-for-undo editor)
                (mapc 'optional-input-- selected-boxes)))
     
-        (#\b (notify-state-before-action editor) 
+        (#\b (store-current-state-for-undo editor) 
              (mapc 'switch-lock-mode selected-boxes))
         (#\1 (unless (edit-lock editor) 
-               (notify-state-before-action editor)
+               (store-current-state-for-undo editor)
                (mapc 'switch-evonce-mode selected-boxes)))
         (#\l (unless (edit-lock editor) 
-               (notify-state-before-action editor)
+               (store-current-state-for-undo editor)
                (mapc 'switch-lambda-mode selected-boxes)))
 
         (#\m (mapc 'change-display selected-boxes))
 
         (#\a (unless (edit-lock editor) 
-               (notify-state-before-action editor)
+               (store-current-state-for-undo editor)
                (mapc 'internalize-abstraction selected-boxes)))
 
         (#\c (unless (edit-lock editor)
-               (notify-state-before-action editor)
+               (store-current-state-for-undo editor)
                (if selected-boxes
                    (auto-connect-box selected-boxes editor panel)
                  (make-new-comment panel))))
         (#\C (unless (edit-lock editor) 
-               (notify-state-before-action editor)
+               (store-current-state-for-undo editor)
                (auto-connect-seq selected-boxes editor panel)))
         
         (#\E (unless (edit-lock editor) 
-               (notify-state-before-action editor)
+               (store-current-state-for-undo editor)
                (encapsulate-patchboxes editor panel selected-boxes)))
         (#\U (unless (edit-lock editor) 
-               (notify-state-before-action editor)
+               (store-current-state-for-undo editor)
                (unencapsulate-patchboxes editor panel selected-boxes)))
 
         (#\v (eval-command panel selected-boxes))
     
         (#\r (unless (edit-lock editor) 
-               (notify-state-before-action editor)
+               (store-current-state-for-undo editor)
                (mapc 'set-reactive-mode (or selected-boxes selected-connections))))
       
         ;;; play/stop commands
@@ -487,7 +487,7 @@
 
 (defmethod cut-command-for-view ((editor patch-editor) (view t))
   (copy-command-for-view editor view)
-  (notify-state-before-action editor) ;;; for undo
+  (store-current-state-for-undo editor) 
   (remove-selection editor))
 
 (defmethod paste-command-for-view ((editor patch-editor) (view t)) nil)
@@ -505,7 +505,7 @@
                           finally (return (om-make-point xmin ymin))))
       (set-paste-position nil))
 
-    (notify-state-before-action editor)  ;;; for undo
+    (store-current-state-for-undo editor)
     
     (loop for b in boxes do
           (let ((graphic-pos (if ref-pos 
@@ -572,12 +572,10 @@
 
 
 (defmethod undo-command ((self patch-editor)) 
-  #'(lambda () 
-      (do-undo self)))
+  #'(lambda () (do-undo self)))
 
 (defmethod redo-command ((self patch-editor)) 
-  #'(lambda () 
-      (do-redo self)))
+  #'(lambda () (do-redo self)))
 
 #|
 (defmethod do-undo ((self relationeditor)) 
@@ -679,7 +677,7 @@
         (let ((connections (save-connections-from-boxes (mapcar 'object (dragged-views patchview))))
               (newboxes nil))
           
-          (notify-state-before-action editor)  ;;; for undo
+          (store-current-state-for-undo editor)
               
           (loop for dview in (dragged-views patchview) 
                 for pos in newpositions do
