@@ -21,17 +21,45 @@
 
 (in-package :om)
 
-;;; each undo-able object shoudl be a subclass of this 
-(defclass undoable-object-mixin ()
- ((level :initarg :level :initform 5 :accessor level)
+;;; => each undo-able object should be a subclass of this 
+(defclass undoable-editor-mixin ()
+ ((level :initarg :level :initform 6 :accessor level)
   (undo-stack :initform nil :accessor undo-stack)
   (redo-stack :initform nil :accessor redo-stack)
   (last-action :initform nil :accessor last-action)
   (last-item :initform nil :accessor last-item)
   ))
 
-;;; call this before any action which might require undo
-(defmethod notify-state-before-action ((self undoable-object-mixin) &key action item)
+(defmethod get-undoable-editor-state ((self undoable-editor-mixin))
+  (get-undoable-object-state (undoable-object self)))
+
+(defmethod restore-undoable-editor-state ((self undoable-editor-mixin) (state list))
+  (restore-undoable-object-state (undoable-object self) state)
+  (update-after-state-change self))
+
+(defmethod undoable-object ((self undoable-editor-mixin)) (object self))
+
+(defmethod update-after-state-change ((self t)) nil)
+(defmethod update-after-state-change ((self OMEditor)) (om-invalidate-view (main-view self)))
+
+
+(defmethod push-undo-state ((self undoable-editor-mixin))
+  (let ((state (get-undoable-editor-state self)))
+    (push state (undo-stack self)) 
+    (when (> (length (undo-stack self)) (level self))
+      (setf (undo-stack self) (butlast (undo-stack self))))
+    ))
+
+(defmethod push-redo-state ((self undoable-editor-mixin))
+  (let ((state (get-undoable-editor-state self)))
+    (push state (redo-stack self))
+    (when (> (length (redo-stack self)) (level self))
+      (setf (redo-stack self) (butlast (redo-stack self))))
+    ))
+
+
+;;; => call this before any action which might require undo
+(defmethod store-current-state-for-undo ((self undoable-editor-mixin) &key action item)
   (unless (and action
                (equal action (last-action self))
                (equal item (last-item self)))
@@ -40,22 +68,8 @@
   (setf (last-action self) action
         (last-item self) item))
                
-(defmethod push-undo-state ((self undoable-object-mixin))
-  (let ((state (get-undoable-object-state self)))
-    (push state (undo-stack self)) 
-    (when (> (length (undo-stack self)) (level self))
-      (setf (undo-stack self) (butlast (undo-stack self))))
-    ))
-
-(defmethod push-redo-state ((self undoable-object-mixin))
-  (let ((state (get-undoable-object-state self)))
-    (push state (redo-stack self))
-    (when (> (length (redo-stack self)) (level self))
-      (setf (redo-stack self) (butlast (redo-stack self))))
-    ))
-
-;;; call this to undo
-(defmethod do-undo ((self undoable-object-mixin))
+;;; => call this to undo
+(defmethod do-undo ((self undoable-editor-mixin))
   (setf (last-action self) nil
         (last-item self) nil)
   (if (undo-stack self)
@@ -64,13 +78,13 @@
       (push-redo-state self)
       ;;; restore state from undo-stack
       (let ((restored-state (pop (undo-stack self))))
-        (print restored-state)
-        (restore-undoable-object-state self restored-state))
+        ;(print restored-state)
+        (restore-undoable-editor-state self restored-state))
       )
     (om-beep)))
 
 ;;; call this to redo
-(defmethod do-redo ((self undoable-object-mixin))
+(defmethod do-redo ((self undoable-editor-mixin))
   (setf (last-action self) nil
         (last-item self) nil)
   (if (redo-stack self)
@@ -79,41 +93,29 @@
       (push-undo-state self)
       ;;; restore state from redo-stack
       (let ((restored-state (pop (redo-stack self))))
-        (restore-undoable-object-state self restored-state))
+        (restore-undoable-editor-state self restored-state))
       )
     (om-beep)))
 
-;;; all objects can implement this method (not only undoable-object-mixin)
+
+;;;=====================================
+;;; COLLECT/RESTORE STATES FOR UNDO/REDO
+;;;=====================================
+
+;;; GENERAL CASE: two methods to get/restore the state of an object
+(defmethod get-undoable-object-state ((self t)) (om-copy self))
+(defmethod restore-undoable-object-state ((self t) state) (setf self state))
+
+
+;;; STANDARD-OBJECTS
+;;; all objects can implement this method (not only undoable-editor-mixin)
 ;;; e.g. slots or deep-contained objects
 (defmethod get-object-slots-for-undo ((self t)) nil)
-(defmethod get-object-slots-for-undo ((self OMEditor)) '(object))
-(defmethod get-object-slots-for-undo ((self OMPatch)) '(boxes connections))
-
-(defmethod update-after-state-change ((self t)) nil)
-(defmethod update-after-state-change ((self OMEditor)) (om-invalidate-view (main-view self)))
-
-(defmethod update-after-state-change ((self patch-editor))
-  (let* ((patch (object self))
-         (view (main-view self)))
-    (om-remove-all-subviews view)
-    (put-patch-boxes-in-editor-view patch view)))
-
-;(defmethod update-after-state-change ((self OMBox))
-;  (update-frame-to-box-size self)
-;  (update-frame-to-box-position self))
-
 (defmethod get-object-slots-for-undo ((self standard-object)) 
   (loop for slot in (class-instance-slots (class-of self))
         when (slot-definition-initargs slot)
         collect (slot-definition-name slot)))
 
-
-;;; GENERAL CASE
-(defmethod get-undoable-object-state ((self t)) (om-copy self))
-(defmethod restore-undoable-object-state ((self t) state) state)
-
-;;; OBJECTS
-;;; collect/restore state...
 (defmethod get-undoable-object-state ((self standard-object)) 
   (om-print-dbg "collecting state of ~A" (list self) "UNDO")
   (loop for slot in (get-object-slots-for-undo self)
@@ -138,25 +140,38 @@
         do (restore-undoable-object-state (car item) (cadr item))
         collect (car item)))
 
-;;; PATCHES    
+
+;;; PATCHES 
+;;; need special care because connectiosn are restored from the box list
 (defmethod get-undoable-object-state ((self OMPatch)) 
   `((boxes ,(get-undoable-object-state (boxes self)))
     (connections ,(save-connections-from-boxes (boxes self)))))
 
 (defmethod restore-undoable-object-state ((self OMPatch) (state list)) 
-  (let* ((boxes (restore-undoable-object-state 
-                 (slot-value self 'boxes)
-                 (cadr (find 'boxes state :key 'car))))
-         (connections (restore-connections-to-boxes 
-                       (cadr (find 'connections state :key 'car)) 
-                       boxes)))
-    (setf (boxes self) boxes)
-    (setf (connections self) connections)
+  
+  (loop for element in (append (boxes self) (connections self))
+        do (omng-remove-element self element))
+  
+  (let* ((boxes-in-state (cadr (find 'boxes state :key 'car)))
+         (connections-in-state (cadr (find 'connections state :key 'car))))
+    
+    (loop for b-state in boxes-in-state do
+          (let ((b (car b-state)))
+            (restore-undoable-object-state b (cadr b-state))
+            (loop for box-io in (append (inputs b) (outputs b)) do
+                  (setf (connections box-io) nil))
+            (omng-add-element self b)
+            ))
+
+    (loop for c in (restore-connections-to-boxes connections-in-state (boxes self))
+          do (omng-add-element self c))
+    
     self))
     
-(defmethod restore-undoable-object-state ((self OMEDitor) (state list))
-  (call-next-method)
-  (update-after-state-change self)
-  self)
-
+(defmethod update-after-state-change ((self patch-editor))
+  (let* ((patch (object self))
+         (view (main-view self)))
+    (om-remove-all-subviews view)
+    (put-patch-boxes-in-editor-view patch view)
+    (om-invalidate-view view)))
 
