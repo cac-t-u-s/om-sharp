@@ -30,6 +30,14 @@
   (last-item :initform nil :accessor last-item)
   ))
 
+(defmethod undoable-object ((self undoable-editor-mixin)) (object self))
+
+(defmethod undo-command ((self undoable-editor-mixin)) 
+  (when (undo-stack self) #'(lambda () (do-undo self))))
+
+(defmethod redo-command ((self undoable-editor-mixin)) 
+  (when (redo-stack self) #'(lambda () (do-redo self))))
+
 (defmethod get-undoable-editor-state ((self undoable-editor-mixin))
   (get-undoable-object-state (undoable-object self)))
 
@@ -37,7 +45,17 @@
   (restore-undoable-object-state (undoable-object self) state)
   (update-after-state-change self))
 
-(defmethod undoable-object ((self undoable-editor-mixin)) (object self))
+(defmethod reset-undoable-editor-action ((self undoable-editor-mixin))
+  (setf (last-action self) nil
+        (last-item self) nil))
+
+(defmethod cleanup-undoable-editor-stack-elements ((self undoable-editor-mixin) deleted-states)
+  (cleanup-undoable-object-elements (undoable-object self)
+                                    deleted-states 
+                                    (append (undo-stack self) (redo-stack self))))
+
+(defmethod cleanup-undoable-object-elements ((self t) deleted-states stacked-states) nil)
+  
 
 (defmethod update-after-state-change ((self t)) nil)
 (defmethod update-after-state-change ((self OMEditor)) (om-invalidate-view (main-view self)))
@@ -47,15 +65,27 @@
   (let ((state (get-undoable-editor-state self)))
     (push state (undo-stack self)) 
     (when (> (length (undo-stack self)) (level self))
-      (setf (undo-stack self) (butlast (undo-stack self))))
-    ))
+      (let ((deleted-states (last (undo-stack self))))
+       (setf (undo-stack self) (butlast (undo-stack self)))
+       (cleanup-undoable-editor-stack-elements self deleted-states))
+      )
+    )
+  ;(om-print-dbg "UNDO STACK:")
+  ;(write (undo-stack self) :stream om-lisp::*om-stream* :pretty t)
+  )
 
 (defmethod push-redo-state ((self undoable-editor-mixin))
   (let ((state (get-undoable-editor-state self)))
-    (push state (redo-stack self))
-    (when (> (length (redo-stack self)) (level self))
-      (setf (redo-stack self) (butlast (redo-stack self))))
-    ))
+    (push state (redo-stack self)))
+    
+    ; in principle this is not necessary: 
+    ; the redo-stack size will never be longer than the undo stack
+    ;(when (> (length (redo-stack self)) (level self))
+    ;  (setf (redo-stack self) (butlast (redo-stack self))))
+  
+    ;(om-print-dbg "REDO STACK:")
+    ;(write (redo-stack self) :stream om-lisp::*om-stream* :pretty t)
+  )
 
 
 ;;; => call this before any action which might require undo
@@ -64,10 +94,15 @@
                (equal action (last-action self))
                (equal item (last-item self)))
     ;;; this is a new 'key state' we want to store
-    (push-undo-state self))
+    (push-undo-state self)
+    ;;; when we push a new undo state, the redo is reinitialized
+    (let ((deleted-states (copy-list (redo-stack self))))
+      (setf (redo-stack self) nil)
+      (cleanup-undoable-editor-stack-elements self deleted-states)
+      ))
   (setf (last-action self) action
         (last-item self) item))
-               
+  
 ;;; => call this to undo
 (defmethod do-undo ((self undoable-editor-mixin))
   (setf (last-action self) nil
@@ -106,6 +141,12 @@
 (defmethod get-undoable-object-state ((self t)) (om-copy self))
 (defmethod restore-undoable-object-state ((self t) state) (setf self state))
 
+;;; POINTS
+(defmethod get-undoable-object-state ((self ompoint)) (om-copy self))
+(defmethod restore-undoable-object-state ((self ompoint) state) 
+  (om-point-set-values-from-point self state)
+  self)
+
 
 ;;; STANDARD-OBJECTS
 ;;; all objects can implement this method (not only undoable-editor-mixin)
@@ -117,12 +158,12 @@
         collect (slot-definition-name slot)))
 
 (defmethod get-undoable-object-state ((self standard-object)) 
-  (om-print-dbg "collecting state of ~A" (list self) "UNDO")
+  ;(om-print-dbg "collecting state of ~A" (list self) "UNDO")
   (loop for slot in (get-object-slots-for-undo self)
         collect (list slot (get-undoable-object-state (slot-value self slot)))))
 
 (defmethod restore-undoable-object-state ((self standard-object) (state list)) 
-  (om-print-dbg "restoring state of ~A" (list self) "UNDO")
+  ;(om-print-dbg "restoring state of ~A" (list self) "UNDO")
   (loop for slot in (get-object-slots-for-undo self)
         do (setf (slot-value self slot) 
                  (restore-undoable-object-state (slot-value self slot)
@@ -134,7 +175,7 @@
   (loop for item in self
         collect (list item (get-undoable-object-state item))))
 
-;;; restore the list as stored, restore each object
+;;; restore a new list, restore each object in it
 (defmethod restore-undoable-object-state ((self cons) (state list)) 
   (loop for item in state 
         do (restore-undoable-object-state (car item) (cadr item))
@@ -151,6 +192,7 @@
   
   (loop for element in (append (boxes self) (connections self))
         do (omng-remove-element self element))
+  ;;; => must be properly removed !!!
   
   (let* ((boxes-in-state (cadr (find 'boxes state :key 'car)))
          (connections-in-state (cadr (find 'connections state :key 'car))))
@@ -175,3 +217,35 @@
     (put-patch-boxes-in-editor-view patch view)
     (om-invalidate-view view)))
 
+(defmethod cleanup-undoable-object-elements ((self OMPatch) deleted-states stacked-states) 
+  
+  (let ((removed-boxes (remove-duplicates 
+                        (loop for state in deleted-states
+                              append (mapcar 'car (cadr (find 'boxes state :key 'car))))))
+        (stacked-boxes (remove-duplicates 
+                        (loop for state in stacked-states
+                              append (mapcar 'car (cadr (find 'boxes state :key 'car)))))))
+    
+    ;(om-print-dbg "Delete from undo stacks: ~A" (list removed-boxes) "UNDO")
+    
+    (loop for box in removed-boxes do
+          (unless (find box stacked-boxes)
+            ;(om-print-dbg "CLEANUP: ~A" (list box) "UNDO") 
+            (omng-delete box)))
+  ))
+
+
+#|
+;;; BPF
+;;; just for debug
+(defmethod get-undoable-object-state ((self bpf)) 
+  (let ((rep (call-next-method)))
+    (om-print-dbg "COLLECT: ~A" (list (point-pairs self)))
+    rep))
+
+;;; just for debug
+(defmethod restore-undoable-object-state ((self bpf) (state list)) 
+  (let ((rep (call-next-method)))
+    (om-print-dbg "RESTORE: ~A" (list (point-pairs self)))
+    rep))
+|#

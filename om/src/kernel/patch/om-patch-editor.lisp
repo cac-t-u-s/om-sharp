@@ -381,10 +381,10 @@
 
 (defmethod remove-boxes ((self patch-editor) boxes)
   (mapc #'(lambda (box) 
-                (mapcar #'(lambda (c) (omng-remove-element self c)) (get-box-connections box))
-                (omng-remove-element self box)
-                (omng-delete box) ;;; will om-remove-subviews
-                )
+            (mapcar #'(lambda (c) (omng-remove-element self c)) (get-box-connections box))
+            (omng-remove-element self box)
+            (omng-delete box) ;;; will om-remove-subviews
+            )
         boxes))
 
 (defmethod remove-selection ((self patch-editor))
@@ -570,43 +570,6 @@
             (paste-command-for-view self focus)))))
 
 
-
-(defmethod undo-command ((self patch-editor)) 
-  #'(lambda () (do-undo self)))
-
-(defmethod redo-command ((self patch-editor)) 
-  #'(lambda () (do-redo self)))
-
-#|
-(defmethod do-undo ((self relationeditor)) 
-  (let ((type (car (undo self))))
-    (cond ((equal type 'remove)
-           (let (framelist)
-             (om-with-delayed-update (panel self)
-               (mapc #'(lambda (elem)
-                         (let ((newframe (make-frame-from-callobj elem)))
-                           (push newframe framelist)
-                           (om-add-subviews (panel self) newframe)
-                           (add-subview-extra newframe)
-                           )
-                         ) (cdr (undo self)))
-               )
-             (setf (undo self) (append (list 'add) framelist)) 
-           ))
-          ((equal type 'add)
-           (let (boxlist)
-             (om-with-delayed-update (panel self)
-               (mapc #'(lambda (frame)
-                         (push (object frame) boxlist)
-                         (omg-remove-element (panel self) frame)
-                         ) (cdr (undo self)))
-               )
-               (setf (undo self) (append (list 'remove) boxlist)) 
-           ))
-          (t (setf (undo self) nil))))
-  )
-|#
-       
 (defmethod report-modifications ((self patch-editor))
   (call-next-method)
   (patch-editor-set-lisp-code self))
@@ -932,6 +895,7 @@
   (default-size self))
 
 (defmethod add-box-in-patch-editor ((box OMBox) (view patch-editor-view))
+  (store-current-state-for-undo (editor view))
   (when (omNG-add-element (editor view) box)
     (let ((def-size (get-default-size-in-editor box (editor view))))
       (unless (box-w box) 

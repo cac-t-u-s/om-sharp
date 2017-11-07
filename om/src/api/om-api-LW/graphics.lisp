@@ -42,6 +42,7 @@
                 om-point-*
                 om-point-mv
                 om-point-set
+                om-point-set-values-from-point
                 om-max-point
                 om-min-point
                 om-borne-point
@@ -169,9 +170,10 @@
   (if y (setf (ompoint-y point) y))
   point)
 
+
 (defmethod om-point-set-values-from-point ((point ompoint) (from ompoint))
-  (setf (om-point-x point) (om-point-x from))
-  (setf (om-point-y point) (om-point-y from))
+  (setf (ompoint-x point) (ompoint-x from))
+  (setf (ompoint-y point) (ompoint-y from))
   point)
 
 (defmethod om-max-point ((p1 ompoint) (p2 ompoint))
