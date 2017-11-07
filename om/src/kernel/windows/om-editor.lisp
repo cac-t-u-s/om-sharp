@@ -409,8 +409,6 @@
         ))))
 
 
-(defmethod save-command (self) nil)
-
 ;;;====================
 ;;; SELECTION TOOLS
 ;;;====================
