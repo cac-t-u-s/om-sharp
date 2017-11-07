@@ -54,12 +54,6 @@
 (defmethod om-copy ((self automation-point))
   (make-automation-point :x (ap-x self) :y (ap-y self) :lock (ap-lock self) :coeff (ap-coeff self)))
 
-;;; redefinition !
-(defmethod om-point-set ((point bpfpoint) &key x y type)
-  (if x (setf (bpfpoint-x point) x))
-  (if y (setf (bpfpoint-y point) y))
-  (if type (setf (bpfpoint-type point) type))
-  point)
 
 ;;===========================================================================
 ;;;Automation = An object containing automation points
