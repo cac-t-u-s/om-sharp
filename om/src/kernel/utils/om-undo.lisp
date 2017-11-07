@@ -23,7 +23,7 @@
 
 ;;; => each undo-able object should be a subclass of this 
 (defclass undoable-editor-mixin ()
- ((level :initarg :level :initform 6 :accessor level)
+ ((level :initarg :level :initform 10 :accessor level)
   (undo-stack :initform nil :accessor undo-stack)
   (redo-stack :initform nil :accessor redo-stack)
   (last-action :initform nil :accessor last-action)
