@@ -68,6 +68,7 @@
 (defmethod undoable-object ((self bpf-editor)) (object-value self))
 (defmethod get-object-slots-for-undo ((self bpf)) (append (call-next-method) '(point-list)))
 
+
 (defparameter +bpf-editor-modes+ '(:mouse :pen :hand)) ; :zoomin :zoomout))
 
 (defclass bpf-bpc-panel (OMEditorView multi-view-editor-view) 
@@ -524,8 +525,8 @@
 
 (defun bpf-edit-menu-items (self)
   (list (om-make-menu-comp 
-         (list (om-make-menu-item "Undo" #'(lambda () (funcall (undo-command self))) :key "z" :enabled (and (undo-command self) t))
-               (om-make-menu-item "Redo" #'(lambda () (funcall (redo-command self))) :key "Z" :enabled (and (redo-command self) t))))
+         (list (om-make-menu-item "Undo" #'(lambda () (funcall (undo-command self))) :key "z" :enabled #'(lambda () (and (undo-command self) t)))
+               (om-make-menu-item "Redo" #'(lambda () (funcall (redo-command self))) :key "Z" :enabled #'(lambda () (and (redo-command self) t)))))
         (om-make-menu-comp 
          (list 
           (om-make-menu-item "Delete selection" #'(lambda () (funcall (clear-command self))) :enabled (and (clear-command self) t)))) 
@@ -559,12 +560,6 @@
 
 (defmethod get-info-command ((self bpf-editor)) 
   #'(lambda () (show-inspector (object self) self)))
-
-(defmethod undo-command ((self bpf-editor)) 
-  #'(lambda () (do-undo self)))
-
-(defmethod redo-command ((self bpf-editor)) 
-  #'(lambda () (do-redo self)))
 
 (defmethod open-osc-manager-command ((self bpf-editor)) nil)
 
@@ -864,16 +859,21 @@
                                        (and tt (read-number (om-dialog-item-text tt)))))
                (close-point-editor self))))
   
-      (setf xt (om-make-di 'om-editable-text :text (number-to-string x) :bg-color (om-def-color :white) :size (omp 80 32)) ; :di-action return-from-point-editor)
-            yt (om-make-di 'om-editable-text :text (number-to-string y) :bg-color (om-def-color :white) :size (omp 80 32)) ; :di-action return-from-point-editor)
-            zt (when z-supplied-p (om-make-di 'om-editable-text :text (number-to-string z) :bg-color (om-def-color :white) :size (omp 80 32))) ; :di-action return-from-point-editor))
-            tt (when time-supplied-p (om-make-di 'om-editable-text :text (number-to-string time)  :bg-color (om-def-color :white) :size (omp 80 32))) ; :di-action return-from-point-editor))
-         
+      (setf xt (om-make-di 'om-editable-text :text (number-to-string x) 
+                           :bg-color (om-def-color :white) :size (omp 80 32)) ; :di-action return-from-point-editor)
+            yt (om-make-di 'om-editable-text :text (number-to-string y) 
+                           :bg-color (om-def-color :white) :size (omp 80 32)) ; :di-action return-from-point-editor)
+            zt (when z-supplied-p 
+                 (om-make-di 'om-editable-text :text (number-to-string z) 
+                             :bg-color (om-def-color :white) :size (omp 80 32))) ; :di-action return-from-point-editor))
+            tt (when time-supplied-p 
+                 (om-make-di 'om-editable-text :text (number-to-string time)  
+                             :bg-color (om-def-color :white) :size (omp 80 32))) ; :di-action return-from-point-editor))
             cb (om-make-di 'om-button :text "Cancel" :size (omp 80 25)
                            :di-action #'(lambda (b) (close-point-editor self)))
             ob (om-make-di 'om-button :text "OK" :size (omp 80 25) :default t :focus t
                            :di-action return-from-point-editor))
-
+      
       (setf win (om-make-window  
                  'om-no-border-win :resizable nil
                
@@ -961,23 +961,25 @@
     (case (edit-mode editor)
       (:mouse
        (cond ((om-add-key-down)
+              (store-current-state-for-undo editor)
               (let ((p (insert-point-at-pix editor obj position)))
                 (when p
                   (setf (selection editor) (list p))   ; (position p (point-list obj))
                   (report-modifications editor)
                   (om-invalidate-view self)
                   (update-timeline-editor editor)
-                  (store-current-state-for-undo editor)
                   ;;; move the new point
                   (om-init-temp-graphics-motion self position nil :min-move 10
                                                 :motion #'(lambda (view pos)
                                                             (let ((dx (dpix-to-dx self (- (om-point-x pos) (om-point-x p0))))
                                                                   (dy (dpix-to-dy self (- (om-point-y p0) (om-point-y pos)))))
+                                                              (store-current-state-for-undo editor :action :move :item (selection editor))
                                                               (move-editor-selection editor :dx dx :dy dy)
                                                               (setf p0 pos)
                                                               (editor-invalidate-views editor)
                                                               (position-display editor pos)))
                                                 :release #'(lambda (view pos) 
+                                                             (reset-undoable-editor-action editor)
                                                              (round-point-values editor)
                                                              (time-sequence-update-internal-times obj)
                                                              (report-modifications editor)
@@ -992,18 +994,19 @@
                   ;;; move the selection or select rectangle
                   (if selection
                       (let ()
-                        (store-current-state-for-undo editor)
                         (om-init-temp-graphics-motion 
                          self position nil
                          :motion #'(lambda (view pos)
                                      (let ((dx (dpix-to-dx self (- (om-point-x pos) (om-point-x p0))))
                                            (dy (dpix-to-dy self (- (om-point-y p0) (om-point-y pos)))))
+                                       (store-current-state-for-undo editor :action :move :item (selection editor))
                                        (move-editor-selection editor :dx dx :dy dy)
                                        (setf p0 pos)
                                        (position-display editor pos)
                                        (editor-invalidate-views editor)
                                        ))
                          :release #'(lambda (view pos) 
+                                      (reset-undoable-editor-action editor)
                                       (round-point-values editor) 
                                       (time-sequence-update-internal-times obj)
                                       (report-modifications editor) 
@@ -1078,6 +1081,7 @@
       (#\- (zoom-rulers editor :dx -0.1 :dy -0.1))
       (#\+ (zoom-rulers editor :dx 0.1 :dy 0.1))
       (:om-key-delete 
+       (store-current-state-for-undo editor)
        (delete-editor-selection editor)
        (time-sequence-update-internal-times (object-value editor))
        (report-modifications editor)
@@ -1088,24 +1092,28 @@
        (call-next-method) ;;; will also reset the cursor interval
        (editor-invalidate-views editor))
       (:om-key-left
+       (store-current-state-for-undo editor :action :move :item (selection editor))
        (move-editor-selection editor :dx (/ (- (get-units (x-ruler panel) (if (om-shift-key-p) 400 40))) (scale-fact panel)))
        (time-sequence-update-internal-times (object-value editor))
        (update-timeline-editor editor)
        (editor-invalidate-views editor)
        (report-modifications editor))
       (:om-key-right
+       (store-current-state-for-undo editor :action :move :item (selection editor))
        (move-editor-selection editor :dx (/ (get-units (x-ruler panel) (if (om-shift-key-p) 400 40)) (scale-fact panel)))
        (time-sequence-update-internal-times (object-value editor))
        (update-timeline-editor editor)
        (editor-invalidate-views editor)
        (report-modifications editor))
       (:om-key-up
+       (store-current-state-for-undo editor :action :move :item (selection editor))
        (move-editor-selection editor :dy (/ (get-units (y-ruler panel) (if (om-shift-key-p) 400 40)) (scale-fact panel)))
        (time-sequence-update-internal-times (object-value editor))
        (update-timeline-editor editor)
        (editor-invalidate-views editor)
        (report-modifications editor))
       (:om-key-down
+       (store-current-state-for-undo editor :action :move :item (selection editor))
        (move-editor-selection editor :dy (/ (- (get-units (y-ruler panel) (if (om-shift-key-p) 400 40))) (scale-fact panel)))
        (time-sequence-update-internal-times (object-value editor))
        (update-timeline-editor editor)

@@ -41,7 +41,6 @@
   (declare (ignore env))
   `(make-bpfpoint :x ,(ompoint-x self) :y ,(ompoint-y self) :type ,(bpfpoint-type self)))
 
-
 (defmethod om-copy ((self bpfpoint))
   (make-bpfpoint :x (bpfpoint-x self) :y (bpfpoint-y self) :type (bpfpoint-type self)))
 
@@ -50,6 +49,13 @@
   (if y (setf (bpfpoint-y point) y))
   (if type (setf (bpfpoint-type point) type))
   point)
+
+(defmethod om-point-set-values-from-point ((point bpfpoint) (from bpfpoint))
+  (setf (bpfpoint-x point) (bpfpoint-x from))
+  (setf (bpfpoint-y point) (bpfpoint-y from))
+  (setf (bpfpoint-type point) (bpfpoint-type from))
+  point)
+
 
 (defmethod item-get-time ((self bpfpoint)) (om-point-x self))
 (defmethod item-set-time ((self bpfpoint) time) (om-point-set self :x time))
