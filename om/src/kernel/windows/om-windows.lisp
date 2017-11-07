@@ -181,7 +181,7 @@
 (defmethod om-lisp::om-listener-window-menus ((self om-lisp::om-listener))
   (om-menu-items self))
 
-(add-preference :general :listener-on-top "Keep Listener in Front" :bool nil "(Does not apply to the current Listener window)")
+(add-preference :general :listener-on-top "Keep Listener in Front" :bool nil "Does not apply to the current Listener window")
 
 (defun get-listener () (car (om-get-all-windows 'om-lisp::om-listener)))
 

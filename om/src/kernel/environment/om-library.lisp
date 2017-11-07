@@ -50,7 +50,7 @@
 (add-preference :libraries :libs-folder2 "Libraries folder 2" :folder :no-default nil 'update-libraries-folder)
 (add-preference :libraries :libs-folder3 "Libraries folder 3" :folder :no-default nil 'update-libraries-folder)
 (add-preference :libraries :libs-folder4 "Libraries folder 4" :folder :no-default nil 'update-libraries-folder)
-(add-preference :libraries :auto-load "Auto load" :bool nil "(Will silently load any required libraries)")
+(add-preference :libraries :auto-load "Auto load" :bool nil "Will silently load any required libraries")
 
 ;; typically used from libraries, this Preference tab will allow to deal with externalk utils' preferences (e.g. Csound, etc.)
 (add-preference-module :externals "Externals")
