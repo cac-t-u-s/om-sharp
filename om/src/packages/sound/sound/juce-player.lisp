@@ -40,10 +40,10 @@
 (add-preference :audio :samplerate "Sample Rate" '(44100) 44100 nil 'apply-audio-device-config)
 (add-preference :audio :buffersize "Buffer Size" '(256 512 1024) 512 nil 'apply-audio-device-config)
 (add-preference :audio :channels-config "Output channels routing" :list nil 
-                "List format : out-for-ch1 out-for-ch2 ... 
-NIL/- = mute channel
-Channels beyond the list will be routed to their direct output 
-This will NOT apply on sounds that are accessed from file" 
+                '("format : out-for-ch1 out-for-ch2 ..." 
+                  "NIL/- = mute channel"
+                  "Channels beyond the list will be routed to their direct output" 
+                  "This will NOT apply on sounds that are accessed from file")
                 'apply-audio-device-config)
 
 

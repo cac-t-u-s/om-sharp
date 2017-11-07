@@ -143,7 +143,7 @@
 ;;;=================
 
 ;;; set from the preferences
-(add-preference :general :catch-errors "Handle Error Messages" :bool nil "(Catch Lisp erros and display a simple message window)")
+(add-preference :general :catch-errors "Handle Error Messages" :bool nil "Catch Lisp erros and display a simple message window")
 
 ;;; SETS VALUE AS A LIST FOR EVERY OUPUT 
 ;;; RETURNS THE REQUESTED (OR FIRST) INPUT

@@ -301,13 +301,19 @@
          (g-item (make-preference-item (pref-item-type pref-item) pref-item))
          
          (doc-text (when (pref-item-doc pref-item)
-                     (om-make-di 
-                      'om-simple-text 
-                      :text (pref-item-doc pref-item) 
-                      :font (om-def-font :font1)
-                      :size (om-make-point (list :string (format nil "~A" (pref-item-doc pref-item))) 
-                                           (if (equal (pref-item-type pref-item) :title) 20 nil)))
-                     )))
+                     (let ((real-text (if (listp (pref-item-doc pref-item))
+                                          (reduce 
+                                           #'(lambda (s1 s2) (concatenate 'string s1 (string #\Newline) s2))
+                                           (pref-item-doc pref-item))
+                                        (pref-item-doc pref-item))))
+                       (om-make-di 
+                        'om-simple-text 
+                        :text real-text 
+                        :font (om-def-font :font1)
+                        :size (om-make-point (list :string (format nil "~A" real-text))
+                                             (if (equal (pref-item-type pref-item) :title) 20 
+                                               (if (listp (pref-item-doc pref-item)) (* 20 (length (pref-item-doc pref-item))) 20))))
+                       ))))
     
     (if (and (equal (pref-item-type pref-item) :title) doc-text)
         (om-make-layout 
