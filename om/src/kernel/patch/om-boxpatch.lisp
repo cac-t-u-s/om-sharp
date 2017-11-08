@@ -55,7 +55,7 @@
 ;;; DISPLAY
      
 (defmethod box-draw ((self OMBoxAbstraction) (frame OMBoxFrame))
-  (draw-patch-icon self)
+  
   (when (> (h frame) 36)
     (case (display self)
       (:mini-view 
@@ -98,6 +98,7 @@
 
 
      ))
+  (draw-patch-icon self)
   t)
 
 #|

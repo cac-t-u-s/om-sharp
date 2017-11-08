@@ -168,10 +168,14 @@
            (list (name lib) (or (version lib) "") (or (doc lib) "") (or (author lib) "")))
           
           ;;; load sources
-          (mapc #'(lambda (f)
-                    (let ((path (merge-pathnames (omng-load f) (mypathname lib))))   
-                      (compile&load (namestring path))))
-                files)
+          (with-relative-ref-path 
+           (mypathname lib)
+           (mapc #'(lambda (f)
+                     (let ;((path (merge-pathnames (omng-load f) (mypathname lib)))) 
+                         ((path (omng-load f)))
+                       (compile&load (namestring path))))
+                 files)
+           )
 
           ;;; set packages
           (CleanupPackage lib)

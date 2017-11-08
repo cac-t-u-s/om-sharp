@@ -89,15 +89,24 @@
      :directory dirlist :name (pathname-name path) :type (pathname-type path))
     ))
 
+
+(defvar *relative-path-reference* nil)
+
+(defmacro with-relative-ref-path (path &body body)
+  `(let ((current-relative-path *relative-path-reference*))
+     (setq *relative-path-reference* ,path)
+     (let ((rep ,@body))
+       (setq *relative-path-reference* current-relative-path)
+       rep)))
+
 ;(let ((*relative-path-reference* "/Users/bresson/WORKSPACES/mk-examples.omp"))
 ;  (restore-path "../../../../../../test/ist/ooo.omp"))
 
 
-(defmethod restore-path ((self pathname))
-  (let ((dir (pathname-directory self))
-        (refpath (relative-path-reference)))
-    ;;(print (list dir refpath))
-     (if refpath
+;;; seems like 'merge-pathnames' does pretty much the same job
+(defmethod restore-path ((self pathname) refpath)
+  (let ((dir (pathname-directory self)))
+    (if refpath
         (cond ((and (equal :relative (car dir)) (cdr dir))
                (let ((updirs (or (position-if-not #'(lambda (item) (equal item :up)) (cdr dir)) 0)))
                  (make-pathname 
@@ -114,12 +123,12 @@
                 :directory (pathname-directory refpath)
                 :name (pathname-name self) :type (pathname-type self))))
       self)
-    ))
+     ))
 
-(defmethod restore-path ((self string))
-  (restore-path (pathname self)))
+(defmethod restore-path ((self string) refpath)
+  (restore-path (pathname self) refpath))
 
-(defmethod restore-path ((self t)) nil)
+(defmethod restore-path ((self t) refpath) nil)
 
 ;;;=========================
 ;;; EXTERNAL EXECs

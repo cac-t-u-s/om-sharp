@@ -182,18 +182,24 @@
        (progn
          (om-print (list "Document found in register" (doc-entry-doc doc-entry)))
          (doc-entry-doc doc-entry))
-     (let ((*package* (find-package :om))
-           (*relative-path-reference* path)
-           (object (type-check type (load-object-from-file path))))
-       (if object
-         (progn 
-           (setf (mypathname object) path
-                 (name object) (pathname-name path)
-                 (loaded? object) t
-                 (saved? object) t)
-           (register-document object path))
-         (om-beep-msg "Document ~s of type ~S could not be loaded." path type))
-       object))))
+     (let ((*package* (find-package :om)))
+      
+       (with-relative-ref-path path
+             
+         (let ((object (type-check type (load-object-from-file path))))
+           (if object
+               (progn 
+                 (setf (mypathname object) path
+                       (name object) (pathname-name path)
+                       (loaded? object) t
+                       (saved? object) t)
+                 (register-document object path))
+             (om-beep-msg "Document ~s of type ~S could not be loaded." path type))
+           object)
+         )
+       )
+     )
+   ))
       
 (defun open-doc-from-file (type &optional path)
   (let ((file (or path (om-choose-file-dialog 

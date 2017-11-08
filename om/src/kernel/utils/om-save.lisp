@@ -51,7 +51,6 @@
   ;(let ((*package* (find-package :om)))
     (om-load-from-id (car self) (cdr self)))
 
-
 ;;; If ID is not recognized, the full list is loaded
 (defmethod om-load-from-id (id data) data)
 
@@ -150,11 +149,17 @@
     (:type ,(pathname-type self))))
 
 (defmethod om-load-from-id ((id (eql :pathname)) data)
-  (om-make-pathname :directory (find-value-in-kv-list data :directory)
-                    :device (find-value-in-kv-list data :device)
-                    :host (find-value-in-kv-list data :host)
-                    :name (find-value-in-kv-list data :name)
-                    :type (find-value-in-kv-list data :type)))
+  (let* ((dir (find-value-in-kv-list data :directory))
+         (path (om-make-pathname :directory dir
+                                 :device (find-value-in-kv-list data :device)
+                                 :host (find-value-in-kv-list data :host)
+                                 :name (find-value-in-kv-list data :name)
+                                 :type (find-value-in-kv-list data :type))))
+    (if (equal (car dir) :relative)
+        ;(restore-path path *relative-path-reference*)
+        (merge-pathnames path *relative-path-reference*)  
+      path)
+    ))
    
 
 (defmethod omng-save ((self gp::font-description))  
@@ -297,9 +302,15 @@
 (defmethod omng-save ((self OMPatch)) 
   (save-patch-contents self))
 
-(defmethod omng-save ((self OMPatchFile))  
-  `(:patch-from-file ,(namestring (mypathname self))))
-          
+;;; when we save an abstraction box..
+;;; I think this is never called anymore since OMBoxAbstraction handles its own omng-save
+;(defmethod omng-save ((self OMPatchFile))  
+;  `(:patch-from-file ,(namestring (mypathname self))))
+
+(defmethod omng-save-relative ((self OMPatchFile) ref-path)  
+  `(:patch-from-file ,(omng-save (relative-pathname (mypathname self) ref-path))))
+
+
 (defmethod load-patch-contents ((patch OMPatch) data)
   (let ((*required-libs-in-current-patch* nil))
     (let ((info (find-values-in-prop-list data :info))
@@ -344,7 +355,7 @@
     patch))
 
 (defmethod om-load-from-id ((id (eql :patch-from-file)) data)
-  (let ((file (car data)))
+  (let ((file (omng-load (car data))))
     (if (probe-file file)
         (load-doc-from-file file :patch)
       (progn 
@@ -379,12 +390,16 @@
     (load-patch-contents maq data)
     maq))
 
+
+
+(defmethod omng-save-relative ((self OMMaquetteFile) ref-path)  
+  `(:maquette-from-file ,(omng-save (relative-pathname (mypathname self) ref-path))))
+
 (defmethod om-load-from-id ((id (eql :maquette-from-file)) data)
   (let ((file (car data)))
     (if (probe-file file)
         (load-doc-from-file file :maquette)
       (om-beep-msg "FILE NOT FOUND: ~S !" file))))
-
 
 ;(let ((data (cdr (car (list-from-file "/Users/bresson/Desktop/test.omp")))))
   ;(find-values-in-prop-list data :info)
@@ -426,8 +441,14 @@
 (defmethod omng-save ((self OMLispFunction)) 
   (save-patch-contents self))
 
-(defmethod omng-save ((self OMLispFunctionFile))  
-  `(:textfun-from-file ,(namestring (mypathname self))))
+;;; when we save an abstraction box..
+;;; I think this is never called anymore since OMBoxAbstraction handles its own omng-save
+;(defmethod omng-save ((self OMLispFunctionFile))
+;  `(:textfun-from-file ,(namestring (mypathname self))))
+
+(defmethod omng-save-relative ((self OMLispFunctionFile) ref-path)  
+  `(:textfun-from-file ,(omng-save (relative-pathname (mypathname self) ref-path))))
+
 
 (defmethod om-load-from-id ((id (eql :textfun-from-file)) data)
   (let ((file (car data)))
@@ -502,7 +523,15 @@
 (defmethod box-type ((self OMBoxLisp)) :textfun)
 (defmethod box-type ((self OMInterfaceBox)) :interface)
 
-(defmethod save-box-reference ((self OMBox)) (omng-save (reference self)))
+(defmethod save-box-reference ((self OMBox)) 
+  (omng-save (reference self)))
+
+(defmethod save-box-reference ((self OMBoxAbstraction)) 
+   (if (and (is-persistant (reference self))
+            (find-persistant-container self))
+       (omng-save-relative (reference self) (mypathname (find-persistant-container self)))
+     (call-next-method)))
+
 
 ;;; THE CASE WHERE THE REFERENCE OBJECT IS FROM A LIBRARY
 (defmethod save-box-library ((self t)) nil)

@@ -500,21 +500,30 @@
 
 (defmethod make-prop-item ((type (eql :path)) prop-id object &key default update)
   (let ((textview (om-make-view 'click-and-edit-text 
-                ;:enabled (valid-property-p object prop-id)
-                                :text (format nil "~A" (get-property object prop-id))
+                                :enabled (get-property object prop-id) ;; it can happen that the value is NIL, e.g. in multiple-selection
+                                :text (if (get-property object prop-id)
+                                          (format nil "~A" (get-property object prop-id))
+                                        "   ...   ")
                                 :resizable nil
                                 :bg-color (om-def-color :window)
-                                :fg-color (if (probe-file (get-property object prop-id)) (om-def-color :black) (om-def-color :red))
-                                :border nil ;(om-def-color :gray)
-                                :size (om-make-point (list :string (format nil "~A" (get-property object prop-id))) 20)
+                                :fg-color (if (get-property object prop-id) 
+                                              (if (probe-file (get-property object prop-id))
+                                                  (om-def-color :black) 
+                                                (om-def-color :red))
+                                            (om-def-color :gray))
+                                :border nil 
+                                :size (om-make-point (if (get-property object prop-id)
+                                                         (list :string (format nil "~A" (get-property object prop-id)))
+                                                       100)
+                                                     20)
                                 :font (om-def-font :font1)
                                 :after-fun #'(lambda (item)
-                                                (set-property object prop-id (text item))
-                                                (when update (update-after-prop-edit update object))
-                                                (om-set-fg-color 
-                                                 item 
-                                                 (if (probe-file (get-property object prop-id)) 
-                                                     (om-def-color :black) (om-def-color :red))))
+                                               (set-property object prop-id (text item))
+                                               (when update (update-after-prop-edit update object))
+                                               (om-set-fg-color 
+                                                item 
+                                                (if (probe-file (get-property object prop-id)) 
+                                                    (om-def-color :black) (om-def-color :red))))
                                 )))
     (om-make-layout 'om-row-layout :subviews 
                     (list 
