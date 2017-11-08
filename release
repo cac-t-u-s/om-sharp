@@ -118,6 +118,7 @@ else
 	echo "-dmg = create DMG from previously packed app"
 	echo "-dpd = deliver, pack and create DMG"
 	echo "-dpz = deliver, pack and zip"
+	echo "-all = deliver, pack, SIGN and zip"
 fi
 
 exit 0
