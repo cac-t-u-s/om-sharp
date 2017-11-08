@@ -272,7 +272,8 @@
 
 (defmethod get-slot-val ((self class-array) slot-name)
   (or (get-col self (string slot-name) :warn-if-not-found nil)
-      (call-next-method)))
+      (when (slot-exists-p self slot-name)
+        (call-next-method))))
 
 (defmethod get-data ((self class-array))
   (mapcar #'array-field-data (data self)))
