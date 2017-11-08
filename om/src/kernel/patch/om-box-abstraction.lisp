@@ -51,10 +51,11 @@
      `(("Appearance"
         ((:display "View (m)" ,(display-modes-for-object (reference self)) display)))
        ("Abstraction"
-        ((:filename 
-          ,(if (is-persistant (reference self)) "File name" "Name") 
-          ,(if (is-persistant (reference self)) :path :text) 
-          box-patch-name)))
+        (
+         ,(if (is-persistant (reference self))
+              '(:filename "File name" :path box-patch-name)
+            '(:name "Name" :text box-patch-name))
+         ))
        ("Scheduling"
         ((:pre-delay "Pre-delay (ms)" :number pre-delay)))))))
 
@@ -170,14 +171,13 @@
     (om-beep-msg "The ~A '~A' is already internal." (type-of (reference self)) (name (reference self)))
     ))
       
-
 ;;;===================
 ;;; DISPLAY
 ;;;===================
 
 (defmethod draw-patch-icon ((self OMBoxAbstraction))
   (let* ((abs (reference self))
-         (iconsize (if (is-persistant abs) 24 16)))
+         (iconsize (if (is-persistant abs) 22 16)))
     (om-draw-picture (icon abs) :x 4 :y 6 :w iconsize :h iconsize)
     ))
 
@@ -189,7 +189,7 @@
                        (max (+ 28 tw)
                             (* (length (inputs self)) 10)
                             (* (box-n-outs self) 10))))
-                    (round (max th 28)))))
+                    (round (max th (if (is-persistant (reference self)) 36 28))))))
 
 (defmethod maximum-size ((self OMBoxAbstraction)) (omp 200 200))
 

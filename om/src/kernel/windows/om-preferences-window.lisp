@@ -70,7 +70,7 @@
               :checked-p (pref-item-value pref-item) 
               :text ""
               :resizable :w
-              :size (om-make-point 20 20)
+              :size (om-make-point nil 20)
               :font (om-def-font :font1)
               :di-action #'(lambda (item)
                               (setf (pref-item-value pref-item) (om-checked-p item))
@@ -78,16 +78,16 @@
                               )))
 
 (defmethod make-preference-item ((type (eql :folder)) pref-item) 
-  (let* ((curr-value (maybe-eval-pref-item-value pref-item))
+  (let* ((font (om-def-font :font1))
+         (curr-value (maybe-eval-pref-item-value pref-item))
          (textview (om-make-view 'click-and-edit-text 
                                 :text (if curr-value (format nil "~A" curr-value) "")
                                 :resizable :w
                                 :bg-color (om-def-color :window)
                                 ;:fg-color (if (probe-file curr-value) (om-def-color :black) (om-def-color :red))
                                 :border nil
-                                :size (omp 200 ;(list :string (format nil " ~A " curr-value)) 
-                                           20)
-                                :font (om-def-font :font1)
+                                :size (omp (+ 20 (om-string-size (format nil "~A" curr-value) font)) 20)
+                                :font font
                                 :after-fun #'(lambda (item)
                                                (let ((val (if (equal (text item) "") nil (text item))))
                                                 (setf (pref-item-value pref-item) val)
@@ -296,7 +296,7 @@
   (let* ((main-text (om-make-di 'om-simple-text 
                                 :text (pref-item-name pref-item) 
                                 :font (if (equal (pref-item-type pref-item) :title) (om-def-font :font3b) (om-def-font :font2))
-                                :size (om-make-point 160 ;(list :string (format nil "  ~A  " (pref-item-name pref-item))) 
+                                :size (om-make-point 180 ;(list :string (format nil "  ~A  " (pref-item-name pref-item))) 
                                                      20)))
          (g-item (make-preference-item (pref-item-type pref-item) pref-item))
          
@@ -358,7 +358,7 @@
   (let ((win (om-make-window  
               'preferences-window :title "OpenMusic Preferences" 
               :menu-items (om-menu-items nil)
-              ;:size (om-make-point 800 400) 
+              :size (om-make-point 800 nil) 
               ;:resizable :w
               )))
     (setf (tabs win)

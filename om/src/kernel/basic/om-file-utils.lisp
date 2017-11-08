@@ -39,13 +39,21 @@
 (defun def-output-folder () (default-folder "out-files"))
 (defun def-temp-folder () (default-folder "temp-files"))
 
-(add-preference-section :general "Default Folders")
-(add-preference :general :in-file "Input files" :folder 'def-input-folder)
-(add-preference :general :out-file "Output files" :folder 'def-output-folder)
-(add-preference :general :tmp-file "Temporary files" :folder 'def-temp-folder)
-(add-preference-section :general "File Management")
-(add-preference :general :delete-tmp-files "Delete Temporary Files" :bool nil)
-(add-preference :general :file-exists-ation "If Output File Exists..." '(replace auto-rename) 'replace)
+(add-preference-module :files "Files and folders")
+
+(add-preference-section :files "Default Folders" "Used by the functions infile/outfile/tmpfile and as default path by the file chooser dialog")
+(add-preference :files :in-file "Input files" :folder 'def-input-folder)
+(add-preference :files :out-file "Output files" :folder 'def-output-folder)
+(add-preference :files :tmp-file "Temporary files" :folder 'def-temp-folder)
+
+(add-preference-section :files "Misc.")
+(add-preference :files :delete-tmp-files "Auto-cleanup temporary files" :bool nil)
+(add-preference :files :file-exists-ation "If Output File Exists..." '(replace auto-rename) 'replace)
+
+(add-preference-section :files "Search paths" "= where to find embedded patch abstractions")
+(add-preference :files :search-path "Main search folder" :folder nil)
+(add-preference :files :search-path-rec "Recursive" :bool t "(= also search in sub-folders)")
+
 
 ;;;===================================
 ;;; GENERATE PATHNAMES
@@ -64,14 +72,14 @@ The IN FILES directory can be set in the OM Preferences. It is used as a default
 Ex. (infile \"myfile.midi\") ==> #P\"/Users/bresson/om-infiles/myfile.midi\"
 Ex. (infile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/bresson/om-infiles/folder1/folder2/myfile.midi\"
 "
-  (om-make-pathname :directory (append (pathname-directory (get-pref-value :general :in-file))
+  (om-make-pathname :directory (append (pathname-directory (get-pref-value :files :in-file))
                                        (list! subdirs))
-                    :host (and (get-pref-value :general :in-file) (pathname-host (get-pref-value :general :in-file)))
+                    :host (and (get-pref-value :files :in-file) (pathname-host (get-pref-value :files :in-file)))
                     :name (pathname-name name) :type (or type (pathname-type name))))
   
 (defmethod* infile ((name null) &key (subdirs nil) (type nil))
-  (om-make-pathname :directory (append (pathname-directory (get-pref-value :general :in-file)) (list! subdirs))
-                    :host (pathname-host (get-pref-value :general :in-file))))
+  (om-make-pathname :directory (append (pathname-directory (get-pref-value :files :in-file)) (list! subdirs))
+                    :host (pathname-host (get-pref-value :files :in-file))))
 
 ;;;===================================
 (defmethod* outfile ((name string) &key (subdirs nil) (type nil))
@@ -88,13 +96,13 @@ The OUT FILES directory can be set in the OM Preferences. It is used as a defaul
 Ex. (outfile \"myfile.midi\") ==> #P\"/Users/bresson/om-outfiles/myfile.midi\"
 Ex. (outfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/bresson/om-outfiles/folder1/folder2/myfile.midi\"
 "
-  (om-make-pathname :directory (append (pathname-directory (get-pref-value :general :out-file)) (list! subdirs))
-                 :host (pathname-host (get-pref-value :general :out-file))
+  (om-make-pathname :directory (append (pathname-directory (get-pref-value :files :out-file)) (list! subdirs))
+                 :host (pathname-host (get-pref-value :files :out-file))
                  :name (pathname-name name) :type (or type (pathname-type name))))
 
 (defmethod* outfile ((name null) &key (subdirs nil) (type nil))
-  (om-make-pathname :directory (append (pathname-directory (get-pref-value :general :out-file)) (list! subdirs))
-                    :host (pathname-host (get-pref-value :general :out-file))))
+  (om-make-pathname :directory (append (pathname-directory (get-pref-value :files :out-file)) (list! subdirs))
+                    :host (pathname-host (get-pref-value :files :out-file))))
 
 
 ;;;===================================
@@ -112,13 +120,13 @@ The TMP FILES directory can be set in the OM Preferences. It is used as a defaul
 Ex. (tmpfile \"myfile.midi\") ==> #P\"/Users/bresson/om-tmpfiles/myfile.midi\"
 Ex. (tmpfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/bresson/om-tmpfiles/folder1/folder2/myfile.midi\"
 "
-  (om-make-pathname :directory (append (pathname-directory (get-pref-value :general :tmp-file)) (list! subdirs)) 
-                    :host (pathname-host (get-pref-value :general :tmp-file))
+  (om-make-pathname :directory (append (pathname-directory (get-pref-value :files :tmp-file)) (list! subdirs)) 
+                    :host (pathname-host (get-pref-value :files :tmp-file))
                     :name (pathname-name name) :type (or type (pathname-type name))))
 
 (defmethod* tmpfile ((path null) &key (subdirs nil) (type nil))
-  (om-make-pathname :directory (append (pathname-directory (get-pref-value :general :tmp-file)) (list! subdirs))
-                    :host (pathname-host (get-pref-value :general :tmp-file))))
+  (om-make-pathname :directory (append (pathname-directory (get-pref-value :files :tmp-file)) (list! subdirs))
+                    :host (pathname-host (get-pref-value :files :tmp-file))))
 
 
 ;;;===================================
@@ -139,7 +147,7 @@ Ex. (tmpfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/
     (setf *tmpparfiles* nil)))
 
 (defun maybe-clean-tmp-files ()
-  (when (get-pref-value :general :delete-tmp-files)
+  (when (get-pref-value :files :delete-tmp-files)
     (clean-tmp-files)))
 
 
@@ -161,7 +169,7 @@ Ex. (tmpfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/
 ;;; IF AUTOMATIC-RENAME OPTION IS ON AND FILE EXISTS, FINDS A NEW NAME
 (defun handle-new-file-exists (newpath)
   (when (and newpath (probe-file newpath))
-    (if (equal 'auto-rename (get-pref-value :general :file-exists-ation))
+    (if (equal 'auto-rename (get-pref-value :files :file-exists-ation))
         (setf newpath (unique-pathname (make-pathname :directory (pathname-directory newpath)
                                                       :host (pathname-host newpath) :device (pathname-device newpath))
                                        (pathname-name newpath) (pathname-type newpath)))
@@ -177,14 +185,14 @@ Ex. (tmpfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/
 
 (defun def-save-directory ()
   (or (and *last-saved-dir* (probe-file *last-saved-dir*))
-      (and (get-pref-value :general :out-file) (probe-file (get-pref-value :general :out-file)))
+      (and (get-pref-value :files :out-file) (probe-file (get-pref-value :files :out-file)))
       (om-user-home)))
 
 (defvar *last-loaded-dir* nil)
 
 (defun def-load-directory ()
   (or (and *last-loaded-dir* (probe-file *last-loaded-dir*))
-      (and (get-pref-value :general :in-file) (probe-file (get-pref-value :general :in-file)))
+      (and (get-pref-value :files :in-file) (probe-file (get-pref-value :files :in-file)))
       (om-user-home)))
 
 

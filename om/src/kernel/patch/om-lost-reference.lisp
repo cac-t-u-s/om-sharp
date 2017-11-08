@@ -220,9 +220,9 @@
 
 (defmethod draw-patch-icon :after ((self OMBoxAbstraction))
   (when (lost-reference? self)
-    (let ((x1 5) (x2 (- 24 7))
-          (y1 10) (y2 (- 24 2)))
-      (om-with-fg-color (om-def-color :dark-red)
+    (let ((x1 8) (x2 (- 24 4))
+          (y1 10) (y2 (- 24 0)))
+      (om-with-fg-color (om-make-color-alpha (om-def-color :dark-red) .7)
         (om-with-line-size 3
           (om-draw-line x1 y1 x2 y2)
           (om-draw-line x1 y2 x2 y1)
@@ -237,7 +237,6 @@
         (setf (loaded? (reference self)) nil) ;; is it not ?
         )
     (call-next-method)))
-
 
 (defmethod boxcall-function :before ((self OMBoxAbstraction))
   (when (lost-reference? self)

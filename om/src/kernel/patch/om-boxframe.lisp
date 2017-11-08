@@ -449,14 +449,21 @@
 (defmethod default-name ((self t)) nil)
 
 (defmethod display-text-and-area ((self OMBoxFrame))
+  
   (let ((text (and (show-name (object self)) 
-                   (or (name (object self)) (default-name (get-box-value (object self))))))
-        (icon-size (get-icon-size (object self))))
+                   (or (name (object self)) (default-name (get-box-value (object self)))))))
+    
     (when text
-      (let ((font (or (box-draw-font (object self)) (om-get-font self)))
-            (shift (if (equal :left (icon-pos (object self))) icon-size 0)))
+      (let ((font (or (box-draw-font (object self)) (om-get-font self))))
+        
         (multiple-value-bind (w h) (om-string-size text font)
-          (values text
+          
+          (let* ((icon-size (get-icon-size (object self)))
+                 (shift (if (and (equal :left (icon-pos (object self)))
+                                 (< (h self) (+ icon-size h 12)))
+                            (+ icon-size 2) 0)))
+            
+            (values text
                   (case (box-draw-text-align (object self))
                     (:center (+ shift (round (- (/ (- (w self) shift) 2) (/ w 2)))))
                     (:right (- (w self) w 4))
@@ -465,7 +472,7 @@
                       6 (- (h self) 10 h))
                   w 
                   (+ h 2))
-          )))))
+          ))))))
 
 (defmethod om-draw-contents ((self OMBoxFrame))
   (om-with-clip-rect self 0 0 (w self) (h self) 
