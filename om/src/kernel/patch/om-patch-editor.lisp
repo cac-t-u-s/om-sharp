@@ -223,17 +223,19 @@
       (select-box (object selected-connection) 
                   (if (om-shift-key-p) (not (selected (object selected-connection))) t))
 
-      (om-init-temp-graphics-motion  
-       self pos nil
-       :motion #'(lambda (view p)
+      (unless (edit-lock (editor self))  
+        (om-init-temp-graphics-motion  
+         self pos nil
+         :motion #'(lambda (view p)
                            
-                   (drag-connection (object selected-connection) 
-                                    (- (om-point-x p) (om-point-x p0))
-                                    (- (om-point-y p) (om-point-y p0)))
-                   (om-invalidate-view self)
-                   (setf p0 p)
-                   )
-       :min-move 4)
+                     (drag-connection (object selected-connection) 
+                                      (- (om-point-x p) (om-point-x p0))
+                                      (- (om-point-y p) (om-point-y p0)))
+                     (om-invalidate-view self)
+                     (setf p0 p)
+                     )
+         :min-move 4)
+        )
       t)
     ))
   
