@@ -65,8 +65,56 @@
   (make-pathname :directory (pathname-directory pathname)
                  :host (pathname-host pathname) :device (pathname-device pathname)))
 
-;;; RELATIVE PATHNAMES
 
+; (find-file-in-folder "Untitled" "/Users/bresson/Desktop/" :recursive t :return-all t)
+
+(defun find-file-in-folder (name folder &key type recursive return-all)
+  
+  (let ((result nil)
+        (search-folder (if (equal folder :local) 
+                           (om-make-pathname :directory *load-pathname*)
+                         folder)))
+    
+    (if return-all 
+      
+        (loop for elt in (om-directory search-folder :files t :directories recursive) append 
+             
+              (if (om-directory-pathname-p elt)
+
+                  (find-file-in-folder name elt :type type :recursive recursive :return-all t)
+                
+                (when (and (pathname-name elt) 
+                           (string-equal name (pathname-name elt))
+                           (or (null type)
+                               (and (pathname-type elt) 
+                                    (string-equal type (pathname-type elt)))))
+                  (list elt))))
+      
+   (let ((result nil))
+     
+     ;;; we search files first (lower-level)
+     (loop for elt in (om-directory search-folder :files t :directories nil) 
+           while (not result) do
+           (when (and (pathname-name elt) 
+                      (string-equal name (pathname-name elt))
+                      (or (null type)
+                          (and (pathname-type elt) 
+                               (string-equal type (pathname-type elt)))))
+            (setf result elt)))
+     
+     ;;; then we search subfolders (if recursive)
+     (when (and (not result) recursive)
+       (loop for subfolder in (om-directory search-folder :files nil :directories t) 
+             while (not result) do
+             (setf result (find-file-in-folder name subfolder :type type :recursive t :return-all nil))))
+     
+     result)
+   
+   )))
+
+;;;=========================
+;;; RELATIVE PATHNAMES
+;;;=========================
 ;(setf p1 #P"/Users/bresson/WORKSPACES/aaaa/elements/mk-examples.omp")
 ;(setf p2 #P"/Users/bresson/WORKSPACES/aaaa/elements/NewFolder/bouches/piece1.omp")
 ;(setf p3 #P"/Users/bresson/WORKSPACES/infiles/test.aif")
