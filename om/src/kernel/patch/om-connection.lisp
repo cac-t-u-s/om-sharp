@@ -213,7 +213,7 @@
 ;;; dx and dy are ratios
 (defmethod modif-connection ((c OMConnection) dx dy)
 
-  (unless (modif c) (setf (modif c) '(0 0)))
+  (unless (modif c) (setf (modif c) (list 0 0)))
 
   (cond ((= 4 (length (points c))) ;; 'vertical' connection : consider only dy
          (setf (cadr (modif c)) (max -0.45 (min 0.45 (+ (cadr (modif c)) dy)))))
@@ -236,7 +236,7 @@
          (y2 (om-point-y to-p))
          (dxx (if (= x1 x2) 0 (/ dx (- x2 x1))))
          (dyy (if (= y1 y2) 0 (/ dy (- y2 y1)))))
-
+ 
     (when (or dxx dyy) (modif-connection c dxx dyy))
     ))
 
