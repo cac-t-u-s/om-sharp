@@ -199,15 +199,19 @@
    :data (array-field-data self)))
 
 (defmethod omng-save ((self array-field))  
-  (list :array-field 
-        :name (array-field-name self)
-        :doc (array-field-doc self)
-        :type (array-field-type self)
-        :default (array-field-default self)
-        :data (array-field-data self)))
+  `(:array-field 
+    (:name ,(array-field-name self))
+    (:doc ,(array-field-doc self))
+    (:type ,(array-field-type self))
+    (:default ,(omng-save (array-field-default self)))
+    (:data ,(omng-save (array-field-data self)))))
 
 (defmethod om-load-from-id ((id (eql :array-field)) data)
-  (apply 'make-array-field data))
+  (make-array-field :name (find-value-in-kv-list data :name) 
+                    :doc (find-value-in-kv-list data :doc)
+                    :type (find-value-in-kv-list data :type)
+                    :default (omng-load (find-value-in-kv-list data :default))
+                    :data (omng-load (find-value-in-kv-list data :data))))
    
 (defmethod get-array-field-data ((field array-field)) 
   (array-field-data field))
