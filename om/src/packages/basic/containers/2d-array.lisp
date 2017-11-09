@@ -188,13 +188,14 @@
 ;;; fields declares a number of main matrix-fields + defaults 
 ;;;============================================================
 
-(defstruct array-field (name) (doc) (type) (default) (data))
+(defstruct array-field (name) (doc) (type) (default) (data) (decimals))
 
 (defmethod om-copy ((self array-field))
   (make-array-field 
    :name (array-field-name self)
    :doc (array-field-doc self)
    :type (array-field-type self)
+   :decimals (array-field-decimals self)
    :default (array-field-default self)
    :data (array-field-data self)))
 
@@ -203,6 +204,7 @@
     (:name ,(array-field-name self))
     (:doc ,(array-field-doc self))
     (:type ,(array-field-type self))
+    (:decimals ,(array-field-decimals self))
     (:default ,(omng-save (array-field-default self)))
     (:data ,(omng-save (array-field-data self)))))
 
@@ -210,6 +212,7 @@
   (make-array-field :name (find-value-in-kv-list data :name) 
                     :doc (find-value-in-kv-list data :doc)
                     :type (find-value-in-kv-list data :type)
+                    :decimals (find-value-in-kv-list data :decimals)
                     :default (omng-load (find-value-in-kv-list data :default))
                     :data (omng-load (find-value-in-kv-list data :data))))
    
@@ -236,17 +239,18 @@
 
                   (cond (input-field 
                          ;; there's a new field to set
-                         (make-array-field :name field :default input-field
+                         (make-array-field :name field :default input-field :decimals 4
                                            :data (get-array-data-from-input input-field (num-elts self)))
                          )
                         (existing-field
                          ;; the field was already in the (potentially copied) data
                          (make-array-field :name field :default (array-field-default existing-field)
+                                           :decimals (array-field-decimals existing-field)
                                            :data (get-array-data-from-input (array-field-default existing-field) (num-elts self)))
                          )
                         (t 
                          ;; new and unspecified field
-                         (make-array-field :name field
+                         (make-array-field :name field :decimals 4
                                            :data (make-list (num-elts self) :initial-element nil)))
                         )
                   ))))
@@ -352,5 +356,12 @@
     (let* ((field-name (name (nth num (outputs box)))))
       (get-col (get-box-value box) field-name))))  
 
+
+
+;;;========================================
+;;; A superclass for 'playable' class-array
+;;;========================================
+
+(defclass SynthesisEvt (class-array schedulable-object) ())
 
 
