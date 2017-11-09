@@ -47,7 +47,7 @@
           om-delete-directory
           
           om-read-line
-          om-correct-line
+          om-clean-line
           om-stream-eof-p
           
           ) :om-api)
@@ -192,14 +192,14 @@
 (defun om-read-line (file)
   (read-line file nil 'eof))
 
-; enleve les mauvais caracteres à la fin
-(defun om-correct-line (line &optional stream) 
+; removes wrong characters at the end 
+(defun om-clean-line (line) 
   (if (stringp line)
       (if (> (length line) 0)
           (let ((lastchar (elt line (- (length line) 1))))
             (if (or (equal lastchar #\Space)
                     (equal lastchar #\LineFeed))
-                (om-correct-line (subseq line 0 (- (length line) 1)))
+                (om-clean-line (subseq line 0 (- (length line) 1)))
               line))
         line)
     line))
