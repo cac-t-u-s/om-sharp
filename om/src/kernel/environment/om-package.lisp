@@ -135,6 +135,9 @@ For easier browsing it is recommended that a package do not contain at the same 
           (omNG-add-element inPackage (find-class classname)))
       (om-beep-msg (format nil "Undefined class: ~A" classname))))
 
+(defmethod AddClass2Pack ((classname string) inPackage)
+  (AddClass2Pack (intern-om classname) inPackage))
+
 (defmethod AddClass2Pack ((classname list) inPackage)
   (mapc #'(lambda (class) (AddClass2Pack class inPackage)) classname))
 
@@ -150,6 +153,9 @@ For easier browsing it is recommended that a package do not contain at the same 
             (omNG-add-element inPackage (fdefinition funname))))
       (om-beep-msg (format nil "Undefined function: ~A" funname))
       ))
+
+(defmethod AddFun2Pack ((funname string) inPackage)
+  (AddFun2Pack (intern-om funname) inPackage))
 
 (defmethod AddSpecialItem2Pack ((item symbol) inPackage)
   (unless (find item (special-items inPackage) :test 'equal)
