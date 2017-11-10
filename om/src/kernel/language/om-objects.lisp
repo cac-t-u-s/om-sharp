@@ -51,7 +51,7 @@
 ;;;WHICH DO NOT ALLOW OMOBJECT INHERITANCE
 (defclass OMFuncallableObject (standard-generic-function) 
   ((name :initform nil :initarg :name :accessor name))
-  (:metaclass funcallable-standard-class))
+  (:metaclass clos::funcallable-standard-class))
 
 ;;; careful: some objects shall better not be renamed (functions, classes...)
 (defmethod set-name ((self OMFuncallableObject) text)  (setf (name self) text))
@@ -92,7 +92,7 @@
    (icon :initform nil :initarg :icon :accessor icon)
    (frames :initform nil :accessor frames)
    (references-to :initform nil :accessor references-to))
-  (:metaclass funcallable-standard-class))
+  (:metaclass clos::funcallable-standard-class))
 
 
 ;(defmethod omNG-rename ((self OMfuncallableObject) name)

@@ -231,7 +231,7 @@
 
 ;;; SYSTEM BEEP
 (defun om-beep ()
-   (beep-pane nil))
+  (capi::beep-pane nil))
 
 (defun om-choose-font-dialog (&key (font (om-def-font :font2)))
   (let ((font (capi::prompt-for-font "Choose a font" :font font :owner nil)))

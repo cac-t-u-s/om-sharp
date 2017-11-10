@@ -30,7 +30,9 @@
 
 (defpackage "OM-API"
   (:nicknames "OA")
-  (:use "COMMON-LISP" "CL-USER" "OM-LISP" "CAPI" "LISPWORKS" "GP"))
+  ;(:use "COMMON-LISP" "CL-USER" "OM-LISP" "CAPI" "LISPWORKS" "GP")
+  (:use "COMMON-LISP" "LISPWORKS")
+  )
 
 (in-package :oa)
 
@@ -94,7 +96,7 @@
                    )
                  ))
   (mapc #'(lambda (filename) 
-            (compile&load (make-pathname :directory *api-directory* :name filename))) 
+            (cl-user::compile&load (make-pathname :directory *api-directory* :name filename))) 
         api-files)
   )
 

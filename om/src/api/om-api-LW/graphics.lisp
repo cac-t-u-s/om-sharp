@@ -32,7 +32,7 @@
 ;;;=========================
 (export '(
                 ompoint
-                om-make-point
+                om-make-point omp
                 om-point-p
                 om-points-equal-p
                 om-add-points
@@ -122,7 +122,6 @@
   (make-ompoint :x x :y y))
 
 (defmacro omp (x y) `(om-make-point ,x ,y))
-(export 'omp :oa)
 
 (defmethod make-load-form ((self ompoint) &optional env)
   (declare (ignore env))

@@ -154,20 +154,20 @@
 (defun set-not-resizable (win &key (w nil w-supplied-p) (h nil h-supplied-p))
   (let ((width (if w-supplied-p (or w (om-point-x (om-view-size win)))))
         (height (if h-supplied-p (or h (om-point-y (om-view-size win))))))
-    (set-hint-table win  (list :external-min-width width :external-max-width width 
+    (capi::set-hint-table win  (list :external-min-width width :external-max-width width 
                                :external-min-height height :external-max-height height
                                ))))
 
 (defmethod om-set-view-size ((self om-abstract-window) size-point) 
   (let ((wi (om-point-x size-point))
         (he (om-point-y size-point)))
-    (execute-with-interface self 
+    (capi::execute-with-interface self 
                             #'(lambda (w h)
                                 ;(print (list w h))
                                 (unless (resizable self)
                                   (set-not-resizable self :w w :h h))
-                                (when (interface-visible-p self)
-                                  (set-top-level-interface-geometry 
+                                (when (capi::interface-visible-p self)
+                                  (capi::set-top-level-interface-geometry 
                                    self :width w :height h
                                    ;:x (vx self) :y (vy self)    ;; ?
                                    ))

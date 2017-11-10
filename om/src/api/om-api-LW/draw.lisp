@@ -136,7 +136,7 @@
 (defmethod om-draw-contents-callback ((self om-graphic-object) x y w h)
   (call-next-method)
   (om-with-error-handle 
-    (set-graphics-port-coordinates (om-get-view self) :left 0 :top 0)
+    (gp::set-graphics-port-coordinates (om-get-view self) :left 0 :top 0)
     (om-with-focused-view self
       ;(oa::om-with-clip-rect self 0 0 (vw self) (vh self)   ;;; removed from draw-contents for windows d&d...
         ;(capi::apply-in-pane-process (om-get-view self) 'om-draw-contents self))
@@ -170,7 +170,7 @@
 (defmethod om-invalidate-view ((self t)) nil)
 
 (defmethod om-invalidate-view ((self om-graphic-object))
-  (when (and (interface-visible-p self) (om-get-view self))
+  (when (and (capi::interface-visible-p self) (om-get-view self))
     (capi::with-atomic-redisplay ((om-get-view self))
       (capi::apply-in-pane-process (om-get-view self) 'internal-invalidate-view (om-get-view self)))))
 
@@ -189,7 +189,7 @@
 
 
 (defmethod om-invalidate-area ((self om-graphic-object) x1 y1 x2 y2)
-  (when (and (interface-visible-p self) (om-get-view self))
+  (when (and (capi::interface-visible-p self) (om-get-view self))
     (capi::with-atomic-redisplay ((om-get-view self))
       (capi::apply-in-pane-process (om-get-view self) 'gp::invalidate-rectangle (om-get-view self)
                                    (min x1 x2) (min y1 y2) (abs (- x2 x1)) (abs (- y2 y1)))

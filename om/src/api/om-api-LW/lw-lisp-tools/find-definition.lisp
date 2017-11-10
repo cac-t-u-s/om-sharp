@@ -84,6 +84,23 @@
 ;; to be redefined depending on actual source file location
 ;; (path records the original location at compiling the symbol
 (defun om-restore-source-path (path) path)
+; (om-lisp::om-restore-source-path #P"/Applications/OM-6.0.10/patches/pitch-conversions.lisp")
+
+;;; SPECIAL FOR OM-LISP FIND-DEFINITION
+(defvar *recorded-root* nil)
+(defvar *new-root* nil)
+
+(defun om-restore-source-path (path) 
+  (let ((rec-root-dir (pathname-directory *recorded-root*))
+        (path-dir (pathname-directory (translate-logical-pathname path))))   ; truename ?
+    (if (and (>= (length path-dir) (length rec-root-dir))
+             (equal rec-root-dir (butlast path-dir (- (length path-dir) (length rec-root-dir)))))
+        ;;; => path is recorded in the original rec-root-dir
+        (merge-pathnames (make-pathname :name (pathname-name path)
+                                        :type (pathname-type path)
+                                        :directory (append (pathname-directory *new-root*)
+                                                           (nthcdr (length rec-root-dir) path-dir))) *new-root*)
+      path)))
 
 
 (defun restore-definitions-pathnames (def-list)

@@ -45,6 +45,7 @@
 (defmethod (setf window-pos) (pos (self LostReferenceBox)) nil)
 (defmethod (setf window-size) (pos (self LostReferenceBox)) nil)
 
+(defmethod maximum-size ((self LostReferenceBox)) nil)
 
 ;(defmethod draw-border ((self LostReferenceBox) x y w h style)
 ;  (om-draw-rect x y w h :line (if (numberp style) style 3) :color (om-make-color 0.9 0.4 0.4) :angles :round))

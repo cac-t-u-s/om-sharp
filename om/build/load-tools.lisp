@@ -1,14 +1,8 @@
 (in-package :cl-user)
 
-(export '(
-          compile&load 
-          decode-local-path
-          ) :cl-user)
-
-
+(export '(compile&load decode-local-path) :cl-user)
 
 ; (clean-sources)
-
 
 (defun version-to-string (num &optional (full nil) (show-beta nil))
   (let* ((str (format nil "~,6f" num))
@@ -79,7 +73,6 @@
            (load file :verbose verbose)
            )))))
 
-(export 'compile&load :cl-user)
 
 ;;; TEMP -- BUG LISPWORKS
 ; (trace (error :backtrace :bug-form :trace-output *terminal-io*))

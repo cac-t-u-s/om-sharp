@@ -162,7 +162,7 @@
 (defmethod om-start-transient-drawing ((self om-transient-drawing-view) draw-fun position size &key display-mode)
   (om-stop-transient-drawing self)
   (setf (drawn-item self)
-        (make-instance 'drawn-pinboard-object
+        (make-instance 'capi::drawn-pinboard-object
                        :display-callback #'(lambda (pane obj x y w h)
                                              (when (and x y w h)
                                              (om-with-focused-view pane

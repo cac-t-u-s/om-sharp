@@ -36,7 +36,7 @@
 
 
 (mapc #'(lambda (filename) 
-          (compile&load (decode-local-path filename)))      
+          (cl-user::compile&load (cl-user::decode-local-path filename)))      
       '(
         "tools/om-lisptools"
         "tools/om-pathnames"
