@@ -30,37 +30,26 @@
 
 
 (export '( 
+          om-special-lisp-form-p
           om-root-folder
           om-set-root-folder
           om-inspect
           ) :om-api)
 
 
+(defun om-special-lisp-form-p (str)
+  (lispworks::special-form-p str))
+
+;=======================
+; SOURE MANAGEMENT
+;=======================
+
 (defparameter *om-root* cl-user::*om-root-directory*)
 (defun om-root-folder () *om-root*)
 (defun om-set-root-folder (path) (setf *om-root* path))
 
-
-
-;;; SPECIAL FOR OM-LISP FIND-DEFINITION
-(defvar *recorded-root* nil)
-
-(setf *recorded-root* cl-user::*om-root-directory*)
-
-; (om-lisp::om-restore-source-path #P"/Applications/OM-6.0.10/patches/pitch-conversions.lisp")
-
-(defun om-lisp::om-restore-source-path (path) 
-  (let ((rec-root-dir (pathname-directory *recorded-root*))
-        (path-dir (pathname-directory (translate-logical-pathname path))))   ; truename ?
-    (if (and (>= (length path-dir) (length rec-root-dir))
-             (equal rec-root-dir (butlast path-dir (- (length path-dir) (length rec-root-dir)))))
-        ;;; => path is recorded in the original rec-root-dir
-        (merge-pathnames (make-pathname :name (pathname-name path)
-                                        :type (pathname-type path)
-                                        :directory (append (pathname-directory *om-root*)
-                                                           (nthcdr (length rec-root-dir) path-dir))) *om-root*)
-      path)))
-
+(setf om-lisp::*recorded-root* cl-user::*om-root-directory*)
+(setf om-lisp::*new-root* *om-root*)
 
 ;=======================
 ; INSPECTOR

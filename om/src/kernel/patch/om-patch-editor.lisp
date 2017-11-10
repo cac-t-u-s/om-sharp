@@ -837,8 +837,6 @@
     t))
 
 
-
-
 (defmethod special-box-p (name) nil)
 
 (defmethod new-box-in-patch-editor ((self patch-editor-view) str position)     
@@ -861,7 +859,7 @@
                ((special-box-p name)
                 (omNG-make-special-box name pos args))
                
-               ((special-form-p name)
+               ((om-special-lisp-form-p name)
                 (om-beep-msg  (string+ "Special Lisp form '" str "' can not be created as an OM box!")))
            
                ((macro-function name)

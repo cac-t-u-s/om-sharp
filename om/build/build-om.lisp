@@ -20,19 +20,19 @@
 ;;;=======================================
 ;;; APP/VERSION DATA
 ;;;=======================================
+
 (defparameter *app-name* "o7")
 (defparameter *om-version* 0.000108)
 (defparameter *beta-release* t)
 (defparameter *version-string* "")
 (defparameter *release-language* :en)
-(defparameter *release-date* (sys::date-string nil nil)) ;; (subseq (sys::date-string nil nil) 0 10)
+(defparameter *release-date* (sys::date-string nil nil))
 (defparameter *release-author* "jean bresson")
 
 (setf *version-string* (version-to-string *om-version* nil *beta-release*))
 (export '(*app-name* *om-version* *beta-release* *version-string* *release-language* *release-date* *release-author*) :cl-user)
 
-
-(defparameter *om-root-directory*  (make-pathname :directory (butlast (pathname-directory *load-pathname*))))
+(defparameter *om-root-directory* (make-pathname :directory (butlast (pathname-directory *load-pathname*))))
 
 ;;;=======================================
 ;;;; LOAD OM-API
@@ -83,11 +83,14 @@
 ;;;=======================================
 
 (defpackage "OpenMusic"
-    (:use "COMMON-LISP" "CL-USER" "OM-API" "OM-FI" "LISPWORKS" "HCL" "OM-LISP")
-    (:import-from "CL-USER")
-    (:nicknames "OM"))
+  (:use "OM-API" "OM-FI" "OM-LISP" "COMMON-LISP" "CL-USER" "HCL")
+  (:nicknames "OM"))
 
 (in-package :om)
+
+(import '(cl-user:compile&load 
+          cl-user::decode-local-path) 
+        :om)
 
 (load (merge-pathnames "src/kernel/kernel-files.lisp" cl-user::*om-root-directory*))
 

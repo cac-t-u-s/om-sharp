@@ -27,6 +27,7 @@
 
 (in-package :om-api)
 
+
 (export '(function-name
           method-name
           function-arglist
@@ -40,6 +41,7 @@
           slot-type
           slot-doc
           ) :om-api)
+
 
 ;========================
 ; FUNCTION NAMES AND DOC

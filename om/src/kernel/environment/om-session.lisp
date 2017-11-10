@@ -189,7 +189,7 @@
   (register-om-icons)
     
   ;; #+(or om-deliver mswindows)
-  (define-action "Confirm when quitting image" "Prompt for confirmation" 'om::quit-om-callback)
+  (lispworks::define-action "Confirm when quitting image" "Prompt for confirmation" 'om::quit-om-callback)
   
   ;;; read the general OM prefs
   (read-om-preferences)

@@ -124,7 +124,7 @@
 (defmethod set-layout ((view t)) nil)
 
 (defmethod update-for-subviews-changes ((self om-view) &optional (recursive nil))
-  (apply-in-pane-process self (lambda () 
+  (capi::apply-in-pane-process self (lambda () 
                                 (set-layout self)
                                 ;;(capi:remove-capi-object-property self 'capi::prev-width-height)
                                 ))
@@ -196,7 +196,8 @@
 
 (defmethod om-set-view-position ((self om-graphic-object) pos-point) 
   (capi:apply-in-pane-process self #'(lambda ()
-                                       (setf (pinboard-pane-position self) (values (om-point-x pos-point) (om-point-y pos-point)))))
+                                       (setf (capi::pinboard-pane-position self) 
+                                             (values (om-point-x pos-point) (om-point-y pos-point)))))
   ;(set-hint-table self (list :default-x (om-point-x pos-point) :default-x (om-point-y pos-point))))
   (setf (vx self) (om-point-x pos-point)
         (vy self) (om-point-y pos-point)))
@@ -204,14 +205,15 @@
 (defmethod om-view-position ((self om-graphic-object))
   (if (capi::interface-visible-p self)
       (capi:apply-in-pane-process self #'(lambda ()
-             (multiple-value-bind (x y) (pinboard-pane-position self)
+             (multiple-value-bind (x y) (capi::pinboard-pane-position self)
                (setf (vx self) x) (setf (vy self) y)))))
   (om-make-point (vx self) (vy self)))
 
 (defmethod om-set-view-size ((self om-graphic-object) size-point) 
   (capi:apply-in-pane-process self 
                               #'(lambda ()                                  
-                                  (setf (pinboard-pane-size self) (values (om-point-x size-point) (om-point-y size-point)))
+                                  (setf (capi::pinboard-pane-size self) 
+                                        (values (om-point-x size-point) (om-point-y size-point)))
                                   ;; #+win32(setf (pinboard-pane-size (main-pinboard-object self)) (values (om-point-x size-point) (om-point-y size-point)))
                                   ))
   ; (set-hint-table self (list :default-width (om-point-x size-point) :default-height (om-point-y size-point))))
@@ -219,9 +221,9 @@
   (setf (vh self) (om-point-y size-point)))
 
 (defmethod om-view-size ((self om-graphic-object)) 
-  (if (interface-visible-p self)
+  (if (capi::interface-visible-p self)
       (capi:apply-in-pane-process self #'(lambda ()
-                (multiple-value-bind (w h) (pinboard-pane-size self)
+                (multiple-value-bind (w h) (capi::pinboard-pane-size self)
                   (setf (vw self) w)
                   (setf (vh self) h)))))
     (om-make-point (vw self) (vh self)))

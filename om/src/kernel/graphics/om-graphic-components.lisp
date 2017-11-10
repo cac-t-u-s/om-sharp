@@ -250,8 +250,8 @@
 (defmethod om-view-cursor ((self numbox)) (om-get-cursor :v-size))
 
 (defmethod initialize-instance :after ((self numbox) &rest args) 
-  (when-let (v (getf args :value))
-    (set-value self v))
+  (let ((v (getf args :value)))
+    (when v (set-value self v)))
   (set-min-max self :min (getf args :min-val) :max (getf args :max-val))
   (om-set-fg-color self (if (enabled self) (om-def-color :black) (om-def-color :gray))))
 

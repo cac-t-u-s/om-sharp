@@ -76,6 +76,7 @@ For easier browsing it is recommended that a package do not contain at the same 
               (setf ancestor (ancestor-p pack container)))
         ancestor)))
     
+#|
 ;;; Symbols in the OM package are exported in the Lisp package :om
 ;;; But not the symbols in user libs (except if Pack = NIL)
 (defun export-symbol-from-om (symb pack)
@@ -85,6 +86,14 @@ For easier browsing it is recommended that a package do not contain at the same 
               ;(ancestor-p *package-user* pack)
               )
     (export symb :om)))
+|#
+
+;;; Redefinition: atually we can just export from their origin package... (?)
+(defun export-symbol-from-om (symb pack)
+  (declare (ignore pack))
+  (export symb (symbol-package symb)))
+
+
 
 ;;; No function in this package and subpackages
 (defun empty-fun-p (pack)
@@ -136,7 +145,7 @@ For easier browsing it is recommended that a package do not contain at the same 
       (om-beep-msg (format nil "Undefined class: ~A" classname))))
 
 (defmethod AddClass2Pack ((classname string) inPackage)
-  (AddClass2Pack (intern-om classname) inPackage))
+  (AddClass2Pack (read-from-string classname) inPackage))
 
 (defmethod AddClass2Pack ((classname list) inPackage)
   (mapc #'(lambda (class) (AddClass2Pack class inPackage)) classname))
@@ -155,7 +164,8 @@ For easier browsing it is recommended that a package do not contain at the same 
       ))
 
 (defmethod AddFun2Pack ((funname string) inPackage)
-  (AddFun2Pack (intern-om funname) inPackage))
+  (AddFun2Pack (read-from-string funname) inPackage))
+
 
 (defmethod AddSpecialItem2Pack ((item symbol) inPackage)
   (unless (find item (special-items inPackage) :test 'equal)

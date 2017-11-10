@@ -224,7 +224,7 @@ A workspace contains all the elements of an OM session (documents, pointer to li
                       (add-one-lib (cadr lib) nil)
                     (om-message-dialog (string+ "Library " (car lib) " not found."))))
                 (when (or omlib (setf omlib (exist-lib-p (car lib))))
-                  (load-om-lib omlib))))
+                  (load-om-library omlib))))
           *libs-auto-load*)
     ))
 

@@ -30,65 +30,64 @@
 ;;; export :
 ;;;========
 (export '(
-                om-make-di
-                om-dialog-item-act
-                om-dialog-item-action
-                om-dialog-item-action-function
-                om-set-dialog-item-action-function
+          om-make-di
+          om-dialog-item-act
+          om-dialog-item-action
+          om-dialog-item-action-function
+          om-set-dialog-item-action-function
                 
-                om-dialog-item-text
-                om-set-dialog-item-text
-                om-enable-dialog-item
-                om-dialog-item-enabled
+          om-dialog-item-text
+          om-set-dialog-item-text
+          om-enable-dialog-item
+          om-dialog-item-enabled
                 
-                om-simple-text
-                om-multi-text
-                om-custom-edit-text
-                om-editable-text
-                om-set-text-focus
-                om-set-text-completion
-                om-complete-text
-                om-copy-command
-                om-cut-command
-                om-paste-command
+          om-simple-text
+          om-multi-text
+          om-custom-edit-text
+          om-editable-text
+          om-set-text-focus
+          om-set-text-completion
+          om-complete-text
+          om-copy-command
+          om-cut-command
+          om-paste-command
 
-                om-end-text-edit
-                om-text-edit-view
-                om-scroll-text-edit-view
-                om-make-edit-view
+          om-end-text-edit
+          om-text-edit-view
+          om-scroll-text-edit-view
+          om-make-edit-view
                 
-                om-button
-                ;om-icon-button
-                om-check-box
-                om-radio-button
+          om-button
+          om-check-box
+          om-radio-button
                 
-                om-checked-p
-                om-set-check-box
+          om-checked-p
+          om-set-check-box
                 
-                om-single-item-list
-                om-multi-item-list
-                om-popup-list
-                om-set-item-list
-                om-get-item-list
-                om-get-selected-item-index
-                om-set-selected-item-index
-                om-select-item-index
-                om-unselect-item-index
-                om-get-selected-item
-                om-set-selected-item
+          om-single-item-list
+          om-multi-item-list
+          om-popup-list
+          om-set-item-list
+          om-get-item-list
+          om-get-selected-item-index
+          om-set-selected-item-index
+          om-select-item-index
+          om-unselect-item-index
+          om-get-selected-item
+          om-set-selected-item
                 
-                om-slider
-                om-slider-value
-                om-slider-increment
-                om-set-slider-value
-                om-get-slider-range
-                om-get-slider-orientation
+          om-slider
+          om-slider-value
+          om-slider-increment
+          om-set-slider-value
+          om-get-slider-range
+          om-get-slider-orientation
 
-                om-simple-text
-                om-list-item
-                om-sort-list-by
-                om-multicol-item-list
-                ) :om-api)
+          om-simple-text
+          om-list-item
+          om-sort-list-by
+          om-multicol-item-list
+          ) :om-api)
 
 ;;;=====================
 ;;;ABSTRACT
@@ -568,14 +567,14 @@
       (let ((elems (capi::pane-children container)))
         (loop for item in elems do
               (when (and (om-radio-button-p item) (not (equal item self))
-                         (equal (radio-button-cluster item) (radio-button-cluster self)))
+                         (equal (radio-button-cluster item) (capi::radio-button-cluster self)))
                 (om-set-check-box item nil)))))
   (call-next-method)))
 
 (defmethod om-checked-p ((self om-radio-button)) (button-selected self))
 
 (defmethod om-set-check-box  ((self om-radio-button) check?)
-  (setf (button-selected self) check?))
+  (setf (capi::button-selected self) check?))
 
 
 
@@ -613,7 +612,7 @@
   (capi::choice-selection self))
 
 (defmethod om-set-selected-item-index ((self om-item-list) ind)
-  (setf (choice-selection self) ind))
+  (setf (capi::choice-selection self) ind))
 
 (defmethod double-click-on-list ((self om-item-list)) nil)
 
@@ -642,22 +641,22 @@
    :retract-callback 'item-list-unselect))
 
 (defmethod item-list-unselect ((self om-single-item-list))
-  (unless (choice-selection self)
-    (setf (choice-selection self) 0)
+  (unless (capi::choice-selection self)
+    (setf (capi::choice-selection self) 0)
     ))
 
 (defmethod om-select-item-index ((self om-single-item-list) i)
- (setf (choice-selection self) i))
+ (setf (capi::choice-selection self) i))
 
 (defmethod om-unselect-item-index ((self om-single-item-list) i)
-  (when (and (choice-selection self) (= (choice-selection self) i))
-    (setf (choice-selection self) nil)))
+  (when (and (capi::choice-selection self) (= (capi::choice-selection self) i))
+    (setf (capi::choice-selection self) nil)))
 
 (defmethod om-get-selected-item ((self om-single-item-list)) 
-  (choice-selected-item self))
+  (capi::choice-selected-item self))
 
 (defmethod om-set-selected-item ((self om-single-item-list) item) 
-  (setf (choice-selected-item self) item))
+  (setf (capi::choice-selected-item self) item))
 
 (defmethod om-dialog-item-action ((self om-single-item-list)) 
   (call-next-method))
@@ -674,16 +673,16 @@
 
 ;;; :multiple-selection
 (defmethod om-select-item-index ((self om-multi-item-list) i)
-  (setf (choice-selection self) (union (choice-selection self) (if (listp i) i (list i)))))
+  (setf (capi::choice-selection self) (union (capi::choice-selection self) (if (listp i) i (list i)))))
 
 (defmethod om-unselect-item-index ((self om-multi-item-list) i)
-  (setf (choice-selection self) (remove i (choice-selection self))))
+  (setf (capi::choice-selection self) (remove i (capi::choice-selection self))))
 
 (defmethod om-get-selected-item ((self om-multi-item-list)) 
-  (choice-selected-items self))
+  (capi::choice-selected-items self))
 
 (defmethod om-set-selected-item ((self om-multi-item-list) items) 
-  (setf (choice-selected-items self) (if (listp items) items (list items))))
+  (setf (capi::choice-selected-items self) (if (listp items) items (list items))))
 
 
 
@@ -710,13 +709,13 @@
    :show-value-p t))
  
 (defmethod om-slider-value ((self om-slider))
-  (* (round (range-slug-start self) (increment self)) (increment self)))
+  (* (round (capi::range-slug-start self) (increment self)) (increment self)))
 
 (defmethod om-slider-increment ((self om-slider))
   (increment self))
 
 (defmethod om-set-slider-value ((self om-slider) value)
-   (setf (range-slug-start self) value))
+   (setf (capi::range-slug-start self) value))
 
 (defmethod om-slider-item-action ((self om-standard-dialog-item) value type)
   (when (di-action self)
@@ -743,7 +742,7 @@
     (let ((pos (position (value self) (vector-col-to-list (capi::collection-items self )) 
                          :test (if (stringp (value self)) 'string-equal 'equal))))
       (when pos
-        (setf (choice-selection self) pos)))))
+        (setf (capi::choice-selection self) pos)))))
 
 (defmethod om-dialog-item-action ((self om-popup-list))  
   (when (di-action self)
