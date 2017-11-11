@@ -159,11 +159,18 @@
 (defmethod objFromObjs ((model t) (target t))
   (clone-object model target))
 
+;(defun set-slot-val (obj slot-name value)
+;  (eval `(setf (,(intern-pack slot-name (symbol-package (type-of obj))) ,obj) ',value)))
+
 (defun set-slot-val (obj slot-name value)
-  (eval `(setf (,(intern-pack slot-name (symbol-package (type-of obj))) ,obj) ',value)))
+  (eval `(setf (,slot-name ,obj) ',value)))
+
+
+;(defmethod get-slot-val (obj slot-name)
+;  (eval `(,(intern-pack slot-name (symbol-package (type-of obj))) ,obj)))
 
 (defmethod get-slot-val (obj slot-name)
-  (eval `(,(intern-pack slot-name (symbol-package (type-of obj))) ,obj)))
+  (eval `(,slot-name ,obj)))
 
 (defun set-value-slots (value args) 
   (mapcar #'(lambda (item) (set-slot-val value (car item) (cadr item))) args))
