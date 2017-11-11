@@ -76,25 +76,6 @@ For easier browsing it is recommended that a package do not contain at the same 
               (setf ancestor (ancestor-p pack container)))
         ancestor)))
     
-#|
-;;; Symbols in the OM package are exported in the Lisp package :om
-;;; But not the symbols in user libs (except if Pack = NIL)
-(defun export-symbol-from-om (symb pack)
-  (unless (or (null pack)
-              ;;; *current-lib* 
-              ;(ancestor-p *library-package* pack)
-              ;(ancestor-p *package-user* pack)
-              )
-    (export symb :om)))
-|#
-
-;;; Redefinition: atually we can just export from their origin package... (?)
-(defun export-symbol-from-om (symb pack)
-  (declare (ignore pack)) ;;; pack is the "OM" package
-  (let ((p (symbol-package symb)))
-    (export symb p)
-    (declare-known-package p)))
-
 
 ;;; No function in this package and subpackages
 (defun empty-fun-p (pack)
@@ -141,7 +122,7 @@ For easier browsing it is recommended that a package do not contain at the same 
 (defmethod AddClass2Pack ((classname symbol) inPackage)
     (if (find-class classname nil) 
         (unless (find classname (classes inPackage) :test 'equal :key 'class-name)
-          (export-symbol-from-om classname inPackage)
+          (export-symbol-from-om classname)
           (omNG-add-element inPackage (find-class classname)))
       (om-beep-msg (format nil "Undefined class: ~A" classname))))
 
@@ -157,7 +138,7 @@ For easier browsing it is recommended that a package do not contain at the same 
         (unless (find funname (functions inPackage) :test 'equal :test 'function-name)
           (if (subtypep (type-of (fdefinition funname)) 'omgenericfunction)
               (progn
-                (export-symbol-from-om funname inPackage)
+                (export-symbol-from-om funname)
                 (omNG-add-element inPackage (fdefinition funname)))
             ;;;(omNG-add-element inPackage (omNG-make-new-lispfun funName)) ; je crois que c'est pas la peine
             (omNG-add-element inPackage (fdefinition funname))))

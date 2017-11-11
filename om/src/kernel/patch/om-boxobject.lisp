@@ -424,9 +424,8 @@
 
 (defmethod omNG-make-new-boxcall ((reference standard-class) pos &optional init-args)
   (let* ((box (make-instance (get-box-class reference)
-                             :name (if (stringp init-args) ;;; when typed from the pach editor 
-                                       (format nil "~A" init-args)
-                                     nil)  ;; (string-upcase (class-name reference))
+                             ;;; when typed from the pach editor, the passed ibit-args is just a name (string) 
+                             :name (if (stringp init-args) init-args nil)  ; (format nil "~A" init-args) 
                              :reference (class-name reference)
                              :icon-pos :noicon :show-name nil
                              :text-font (om-def-font :font1 :style '(:italic))
