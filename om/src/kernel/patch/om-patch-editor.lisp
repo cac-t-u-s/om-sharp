@@ -839,46 +839,87 @@
 
 (defmethod special-box-p (name) nil)
 
+
+(defvar *known-packages* nil)
+
+(defun declare-known-package (p)
+  (pushnew p *known-packages*))
+
+(defun search-known-symbol (str)
+  (let* ((strUC (string-upcase str))
+         (sym nil)) ; (find-symbol strUC)
+    (unless sym
+      (loop for p in *known-packages* 
+            while (not sym) do
+            (setf sym (find-symbol strUC p))))
+    sym)) 
+
+#|
+
+(let ((sss (read-from-string "eww")))
+  (search-known-symbol "bpf"))
+(find-class "bpf")
+(find-package "OM")
+(find-symbol "BPF" :om)
+(unintern 'eww)
+(boundp 'ewn)
+
+|#
+
 (defmethod new-box-in-patch-editor ((self patch-editor-view) str position)     
   (om-with-error-handle 
     (when (and (stringp str) (> (length str) 0))
       (let* ((*package* (find-package :om))
-             (name (read-from-string str))
+             (read-sym (read-from-string str))
              (pos (omng-position self position))
              (args (decode-input-arguments str))
              (text (cadr (multiple-value-list (string-until-char str " "))))
              (newbox
               (cond          
-               ((or (listp name) (numberp name) (stringp name) (quoted-form-p name)
-                    (equal name t)
-                    (and (symbolp name) 
-                         (string-equal (package-name (symbol-package name)) "KEYWORD")))
-                (when (quoted-form-p name) (setf name (eval name)))
-                (omNG-make-new-boxcall 'value pos name))
+               ((or (listp read-sym) (numberp read-sym) (stringp read-sym) (quoted-form-p read-sym)
+                    (equal read-sym t)
+                    (and (symbolp read-sym) 
+                         (string-equal (package-name (symbol-package read-sym)) "KEYWORD")))
+                (when (quoted-form-p read-sym) (setf read-sym (eval read-sym)))
+                (omNG-make-new-boxcall 'value pos read-sym))
                
-               ((special-box-p name)
-                (omNG-make-special-box name pos args))
+               ((special-box-p read-sym)
+                (omNG-make-special-box read-sym pos args))
                
-               ((om-special-lisp-form-p name)
+               ((om-special-lisp-form-p read-sym)
                 (om-beep-msg  (string+ "Special Lisp form '" str "' can not be created as an OM box!")))
            
-               ((macro-function name)
+               ((macro-function read-sym)
                 (om-beep-msg  (string+ "OM does not accept macro functions: " str "")))
-
-               ((fboundp name) ;;; FUN BOX (Lisp or OM)
-                (let ((box (omNG-make-new-boxcall (fdefinition name) pos args)))
-                  (setf (name box) (string-downcase name)) ;;; sometimes the "real name" is not the same.. (e.g. "list")
-                  box))
+               
+               (t (unless (boundp read-sym)
+                    (unintern read-sym))
+                  
+                  ;;; 'regular' function or class name...
+                  ;;; first: figure out the package
+                  
+                  (let ((name-sym (search-known-symbol str)))
+                    (print (list str name-sym))
+                    (when name-sym
+                      (cond 
+                       ((fboundp name-sym) ;;; FUN BOX (Lisp or OM)
+                        (let ((box (omNG-make-new-boxcall (fdefinition name-sym) pos args)))
+                          (setf (name box) (string-downcase name-sym)) ;;; sometimes the "real name" is not the same.. (e.g. "list")
+                          box))
            
-               ((and (find-class name nil)  ;;; CLASS BOX
-                 ;(subtypep (class-of (find-class name nil)) 'OMClass)
-                 ; why not standard-classes... ?
-                     )
-                (if (or (om-shift-key-p) (string-equal "slots" (format nil "~A" (car args))))
-                    (omNG-make-new-boxcall 'slots pos (find-class name))
-                  (let ((box (omNG-make-new-boxcall (find-class name) pos text)))
-                    (if (and box text) (setf (show-name box) t))
-                    box)))
+                       ((and (find-class name-sym nil)  ;;; CLASS BOX
+                          ;(subtypep (class-of (find-class name-sym nil)) 'OMClass)
+                          ; why not standard-classes... ?
+                             )
+                        (if (or (om-shift-key-p) (string-equal "slots" (format nil "~A" (car args))))
+                            (omNG-make-new-boxcall 'slots pos (find-class name-sym))
+                          (let ((box (omNG-make-new-boxcall (find-class name-sym) pos text)))
+                            (if (and box text) (setf (show-name box) t))
+                            box)))
+                       (t nil))
+                      
+                      ))
+                  )
                )))
        
         (if newbox
@@ -886,7 +927,7 @@
             ;(when (and (allow-rename newbox) (car args)) ;; not sure this is needed anymore..
             ;  (set-name newbox text))
             (add-box-in-patch-editor newbox self))
-          (om-print (format nil "Could not create a box from '~A'" name) "PATCH")
+          (om-print (format nil "Could not create a box from '~A'" read-sym) "PATCH")
           )
         ))))
 

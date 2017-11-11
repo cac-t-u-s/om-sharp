@@ -90,9 +90,10 @@ For easier browsing it is recommended that a package do not contain at the same 
 
 ;;; Redefinition: atually we can just export from their origin package... (?)
 (defun export-symbol-from-om (symb pack)
-  (declare (ignore pack))
-  (export symb (symbol-package symb)))
-
+  (declare (ignore pack)) ;;; pack is the "OM" package
+  (let ((p (symbol-package symb)))
+    (export symb p)
+    (declare-known-package p)))
 
 
 ;;; No function in this package and subpackages
