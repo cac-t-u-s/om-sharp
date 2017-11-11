@@ -143,8 +143,8 @@
           (add-keyword-input self :key keyname
                              :value (if val-supplied-p value (get-input-def-value self keyname))
                              :doc (get-input-doc self (string-downcase keyname))
-                             :reactive (if reactive-supplied-p reactive (def-reactive self keyname))) 
-          ))
+                             :reactive (if reactive-supplied-p reactive (def-reactive self keyname)))
+          t))
       (om-beep-msg err-message)
       )))
 
