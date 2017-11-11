@@ -41,7 +41,18 @@
 
 (defmethod omng-save ((self null)) 'NIL)
 (defmethod omng-save ((self number)) self)
-(defmethod omng-save ((self symbol)) self)
+
+; (defmethod omng-save ((self symbol)) self)
+(defmethod omng-save ((self symbol)) 
+  (if (or (equal (symbol-package self) (find-package :keyword))
+          (equal (symbol-package self) (find-package :om)))
+      self
+    `(:symbol ,(symbol-name self) ,(package-name (symbol-package self)))))
+  
+(defmethod om-load-from-id ((id (eql :symbol)) data)
+  (let ((p (find-package (cadr data))))
+    (when p
+      (intern (car data) p))))
 
 
 ;;; CAR = IDENTIFIER, CDR = DATA
@@ -89,15 +100,15 @@
 (defmethod omng-save ((self standard-object))  ; OMObject
   (append 
    `(:object
-     (:class ,(type-of self))
+     (:class ,(omng-save (type-of self)))
      (:slots ,(loop for slot in (class-slots (class-of self))
                     when (slot-definition-initargs slot)
                     collect (list (car (slot-definition-initargs slot))
                                   (omng-save 
-                                  (if (fboundp (slot-definition-name slot))
-                                      (funcall (slot-definition-name slot) self)
-                                    (slot-value self (slot-definition-name slot)))
-                                  )))))
+                                   (if (fboundp (slot-definition-name slot))
+                                       (funcall (slot-definition-name slot) self)
+                                     (slot-value self (slot-definition-name slot)))
+                                   )))))
    (when (additional-slots-to-save self)
      `((:add-slots ,(loop for add-slot in (additional-slots-to-save self)
                           collect (list add-slot 
@@ -110,7 +121,7 @@
 
 
 (defmethod om-load-from-id ((id (eql :object)) data)
-  (let* ((class-name (find-value-in-kv-list data :class))
+  (let* ((class-name (omng-load (find-value-in-kv-list data :class)))
          (class (find-class class-name nil)))
     (if class
         (let ((slots (remove nil 
@@ -654,7 +665,7 @@
 
 (defmethod om-load-from-id ((id (eql :box)) data)
   (let* ((type (find-value-in-kv-list data :type))
-         (reference (find-value-in-kv-list data :reference))
+         (reference (omng-load (find-value-in-kv-list data :reference)))
          (x (find-value-in-kv-list data :x))
          (y (find-value-in-kv-list data :y))
          (w (find-value-in-kv-list data :w))
