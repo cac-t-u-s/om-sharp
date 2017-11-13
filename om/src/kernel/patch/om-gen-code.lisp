@@ -118,7 +118,7 @@
 (defmethod gen-code-locked ((self OMBoxRelatedWClass) numout) 
   (if (or (null numout) (= 0 numout))
       (gen-code (car (value self)))
-    `(get-slot-val ,(gen-code (car (value self))) ',(intern (name (nth numout (outputs self)))))))
+    `(get-slot-val ,(gen-code (car (value self))) ,(name (nth numout (outputs self))))))
 
 
 ;;; NOT LOCKED / FIRST EVAL-ONCE
@@ -145,7 +145,7 @@
     (if (or (null numout)  ;;; we are inside a let / ev-once statement : return all as 'values'
             (= numout 0))  ;;  first output
         `,(gen-code-for-call self)
-      `(get-slot-val ,(gen-code-for-call self) ',(intern (name (nth numout (outputs self)))))
+      `(get-slot-val ,(gen-code-for-call self) ,(name (nth numout (outputs self))))
       )))
 
 ;;;=================
@@ -222,7 +222,10 @@
   `(let ((obj ,(gen-code (car (inputs self)))))
      (when obj
        (set-value-slots obj (list ,.(mapcar #'(lambda (arg) `(list ,(intern-k (car arg)) ,(cadr arg)))
-                                            (get-connected-args self #'gen-code))))
+                                            (mapcar 
+                                             #'(lambda (arg)(list (symbol-name (car arg)) (cadr arg)))
+                                             (get-connected-args self #'gen-code))
+                                            )))
        obj)))
 
 ;;;=================

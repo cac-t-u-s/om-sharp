@@ -48,7 +48,7 @@
   (:documentation "Superclass for all OpenMusic Objects"))
 
 ;; SPECIALIZED FOR FUNCALLABLE OBJECTS
-;;;WHICH DO NOT ALLOW OMOBJECT INHERITANCE
+;; WHICH DO NOT ALLOW OMOBJECT INHERITANCE
 (defclass OMFuncallableObject (standard-generic-function) 
   ((name :initform nil :initarg :name :accessor name))
   (:metaclass clos::funcallable-standard-class))
