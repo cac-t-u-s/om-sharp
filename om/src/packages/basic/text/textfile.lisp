@@ -108,10 +108,11 @@ As output it returns the contents of the text buffer as a list formatted accordi
   (setf (reader object) (get-edit-param box :read-mode))
   object)
 
-(defmethod get-slot-val ((obj textbuffer) slot-name)
-  (if (string-equal slot-name "CONTENTS")
+(defmethod get-slot-val ((obj textbuffer) (slot-name symbol))
+  (if (equal slot-name 'contents)
       (format-from-text-lines (contents obj) (reader obj))
     (call-next-method)))
+
 ;;;===================================
 
 

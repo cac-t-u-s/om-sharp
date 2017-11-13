@@ -159,18 +159,34 @@
 (defmethod objFromObjs ((model t) (target t))
   (clone-object model target))
 
+
+; don't mess with packages: send interned symbols to these functions
+
 ;(defun set-slot-val (obj slot-name value)
 ;  (eval `(setf (,(intern-pack slot-name (symbol-package (type-of obj))) ,obj) ',value)))
 
-(defun set-slot-val (obj slot-name value)
+(defmethod set-slot-val (obj slot-name value)
   (eval `(setf (,slot-name ,obj) ',value)))
 
+(defmethod set-slot-val (obj (slot-name string) value)
+  (let ((slot (find slot-name (class-slots (class-of obj)) 
+                    :key #'(lambda (slot) (string (slot-name slot)))
+                    :test 'string-equal)))
+    (when slot
+      (set-slot-val obj (slot-name slot) value))))
 
 ;(defmethod get-slot-val (obj slot-name)
 ;  (eval `(,(intern-pack slot-name (symbol-package (type-of obj))) ,obj)))
 
 (defmethod get-slot-val (obj slot-name)
   (eval `(,slot-name ,obj)))
+
+(defmethod get-slot-val (obj (slot-name string))
+  (let ((slot (find slot-name (class-slots (class-of obj)) 
+                    :key #'(lambda (slot) (string (slot-name slot)))
+                    :test 'string-equal)))
+    (when slot
+      (get-slot-val obj (slot-name slot)))))
 
 (defun set-value-slots (value args) 
   (mapcar #'(lambda (item) (set-slot-val value (car item) (cadr item))) args))
@@ -212,11 +228,9 @@
          ;;; the regular class initargs
          (supplied-initargs (remove-if #'(lambda (item) (not (find item class-initargs :test 'find))) initargs :key 'car))
          ;;; not initargs but valid slots
-         (supplied-other-args (remove nil (loop for arg in initargs 
-                                                when (not (member (car arg) supplied-initargs :key 'car))
-                                                collect (list (find (car arg) class-slots-names :key 'intern-k)
-                                                              (cadr arg)))
-                                      :key 'car)))
+         (supplied-other-args (loop for arg in initargs 
+                                    when (not (member (car arg) supplied-initargs :key 'car))
+                                    collect (list (symbol-name (car arg)) (cadr arg)))))
     ;(print args)
     ;(print supplied-initargs)
     ;(print (list classname supplied-other-args))    
@@ -226,6 +240,8 @@
        obj)
      initargs)))
 
+(symbol-name :test)
+
 ;;; SPECIAL FOR BOXEDITCALL: 
 ;;; If the first input is connected the value is built by copying a prototype instance (<model>) 
 ;;; <args> are only the connected input values
@@ -233,10 +249,12 @@
   (let* ((target (make-instance type))
          (rep (objFromObjs model target))
          (class-slots-names (mapcar 'slot-name (class-instance-slots (find-class type))))
-         (slot-args (remove-if-not #'(lambda (arg) (find (car arg) class-slots-names :key 'intern-k)) initargs)))
+         (set-slot-args (loop for initarg in initargs 
+                              when (find (symbol-name (car initarg)) class-slots-names :key 'symbol-name :test 'string-equal)
+                              collect (list (symbol-name (car initarg)) (cadr initarg))))) 
     (if rep
         (progn 
-          (set-value-slots rep slot-args)
+          (set-value-slots rep set-slot-args)
           (om-init-instance rep initargs)  ;; ok ?
           )
       (progn (om-beep-msg "Can not create a ~A from ~A" type model)
@@ -247,6 +265,7 @@
   
 (defmethod prepare-obj-for-request ((object t) (box OMBoxRelatedWClass)) object)
 
+
 ;;; NEEDS TO BE REWORKED/SIMPLIFIED
 ;;; IN PRINCIPLE THE CASE LAMBDA NEVER HAPPENS
 (defmethod rep-editor ((box OMBoxRelatedWClass) num)
@@ -255,8 +274,10 @@
      ;;; GENERAL CASE
      ((null (lambda-state box))
       (let* ((obj (prepare-obj-for-request (get-box-value box) box))
-             (slot (intern-pack (name (nth num (outputs box))) (symbol-package (type-of obj)))))
-        (cond ((find slot (class-instance-slots (find-class (type-of obj))) :key 'slot-name)
+             (slot (name (nth num (outputs box))))) 
+        (cond ((find slot (class-instance-slots (find-class (type-of obj))) 
+                     :test 'string-equal 
+                     :key #'(lambda (slot) (symbol-name (slot-name slot))))
                (get-slot-val (car (value box)) slot))
               ((find (intern-k slot) (additional-box-attributes-names box))
                (get-edit-param box (intern-k slot)))
@@ -294,8 +315,12 @@
                  40))
 
 (defmethod get-box-class ((self standard-class)) 
-  (or (special-box-type (class-name self))
-      'OMBoxEditCall))
+  (let ((classes (clos::class-precedence-list self)))
+    (or 
+     (loop for c in classes 
+           when (special-box-type (class-name c))
+           return (special-box-type (class-name c)))
+     'OMBoxEditCall)))
 
 (defmethod window-title-for-object ((self t)) 
   (get-object-type-name self))
@@ -428,6 +453,7 @@
     (reset-cache-display self)
     (when (frame self) 
       (om-invalidate-view (frame self)))))
+
 
 (defmethod omNG-make-new-boxcall ((reference standard-class) pos &optional init-args)
   (let* ((box (make-instance (get-box-class reference)

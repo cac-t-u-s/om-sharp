@@ -115,6 +115,8 @@
          rep)
      (value self)))
 
+
+
 (defmethod get-args-eval-curry ((self OMBoxCall) &optional (input-eval-fun 'value))
   (let* ((new-symbs nil)
          (args (loop for input in (inputs self) collect
@@ -333,7 +335,8 @@
   (let ((self-in (omNG-box-value (car (inputs self)))))
     (if self-in
         (let ((connected-args (get-connected-args self #'omng-box-value))) 
-          (set-value-slots self-in connected-args)
+          (set-value-slots self-in (loop for arg in connected-args 
+                                         collect (list (symbol-name (car arg)) (cadr arg))))
           self-in)
       (error "!! The 'SLOTS' box must be connected to an instance of ~D" (string-upcase (reference self))))))
 
@@ -355,7 +358,7 @@
       (if self-in
           (eval `#'(lambda ,lambda-list
                      (let ((obj (objFromObjs ,self-in (make-instance ',(reference self)))))
-                       (set-value-slots obj (list ,.arglist))
+                       (set-value-slots obj ,(loop for arg in arglist collect (list (symbol-name (car arg)) (cadr arg))))
                        obj)))   
         (eval `#'(lambda ,(cdr lambda-list)
                      (make-value ',(reference self) (list ,.arglist))))
@@ -367,12 +370,12 @@
        (get-args-eval-curry self #'(lambda (input) `',(omNG-box-value  input)))
      (let* ((names (loop for i in (inputs self) collect (if (keyword-input-p i) nil (intern-k (name i)))))
             (obj (caar args))
-            (arglist (loop for arg in args
-                           for name in names
+            (arglist (loop for arg in (cdr args)
+                           for name in (cdr names)
                            collect (if name `(list ,name ,(car arg)) `(list ,.arg)))))
        (eval `#'(lambda ,lambda-list
-                  (set-value-slots ,obj (cdr (list ,.arglist)))
-                        ,obj))
+                  (set-value-slots ,obj ,(loop for arg in arglist collect (list (symbol-name (car arg)) (cadr arg))))
+                  ,obj))
        )))
 
 
