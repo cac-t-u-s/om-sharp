@@ -44,7 +44,7 @@
         "automation/automation-editor"
         "automation/tempo-automation"
         
-        "containers/2D-array"
+        "containers/2d-array"
         "containers/data-stream"
         "containers/data-stream-editor"
         
