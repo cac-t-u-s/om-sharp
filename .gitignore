@@ -1,10 +1,9 @@
 # Compiled source #
 ###################
-*.xfasl
-*.64xfasl
-*.ofasl
-*.nfasl
-*.ufasl
+*.*xfasl
+*.*ofasl
+*.*nfasl
+*.*ufasl
 
 *.lisp~
 *.lisp#
