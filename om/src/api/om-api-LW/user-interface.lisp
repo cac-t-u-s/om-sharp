@@ -107,7 +107,7 @@
 
 ;;; CHOOSE A DIRECTORY
 (defun om-choose-directory-dialog (&key (prompt "Choose a Directory") (directory nil))
-  (let ((rep (prompt-for-directory prompt :owner (def-dialog-owner) :pathname (or directory *last-directory*))))
+  (let ((rep (capi::prompt-for-directory prompt :owner (def-dialog-owner) :pathname (or directory *last-directory*))))
     (when rep 
       (setf *last-directory* (make-pathname :directory (pathname-directory rep))))
     rep))
