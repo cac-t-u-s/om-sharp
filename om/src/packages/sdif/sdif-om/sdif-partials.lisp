@@ -56,15 +56,15 @@
                   
                         (when bmat 
                           ;;; a begin matrix : set time info
-                          (loop for i in (get-col bmat "Id") do
+                          (loop for i in (get-field bmat "Id") do
                                 (sethash mrk-partials i (make-partial :t-list (list (frametime fr) (frametime fr))
                                                                       :f-list nil
                                                                       :a-list nil))))
                         (when pmat 
                           ;;; a parameter matrix : add data in partials
-                          (loop for i in (get-col pmat "Index") 
-                                for f in (get-col pmat "Frequency") 
-                                for a in (get-col pmat "Amplitude") 
+                          (loop for i in (get-field pmat "Index") 
+                                for f in (get-field pmat "Frequency") 
+                                for a in (get-field pmat "Amplitude") 
                                 do (let ((p (gethash i mrk-partials)))
                                      (when p
                                        (setf (partial-f-list p) (list f f))
@@ -72,7 +72,7 @@
                                        ))))
                         (when emat 
                           ;;; a end matrix: find the partial, set duration and put in the final list 
-                          (loop for i in (get-col emat "Id") do
+                          (loop for i in (get-field emat "Id") do
                                 (let ((p (gethash i mrk-partials)))
                                   (when p
                                     (setf (partial-t-list p) 
@@ -85,10 +85,10 @@
                  ((or (string-equal "1TRC" (frametype fr)) (string-equal "1HRM" (frametype fr)))
                   (loop for mat in (lmatrices fr) do
                      (when (or (string-equal "1TRC" (matrixtype mat)) (string-equal "1TRC" (matrixtype mat)))
-                       (loop for i in (get-col mat "Index") 
-                             for f in (get-col mat "Frequency") 
-                             for a in (get-col mat "Amplitude") 
-                             for ph in (get-col mat "Phase") 
+                       (loop for i in (get-field mat "Index") 
+                             for f in (get-field mat "Frequency") 
+                             for a in (get-field mat "Amplitude") 
+                             for ph in (get-field mat "Phase") 
                              do (let ((p (gethash i trc-partials)))
                                   (if p
                                       (setf (partial-t-list p) (append (partial-t-list p) (list (frametime fr)))

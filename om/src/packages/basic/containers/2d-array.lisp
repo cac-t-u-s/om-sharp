@@ -38,7 +38,11 @@
            (number-to-string (num-fields self)) "x" 
            (number-to-string (num-elts self)) "]"))
 
-(defmethod get-column-name ((self OMArray) (col integer)) (format nil "c_~D" col))
+(defmethod get-field-name ((self OMArray) (col integer)) (format nil "c_~D" col))
+
+;;; deprecated - use get-field
+(defmethod get-col ((self OMArray) col &key (warn-if-not-found t))
+  (get-field self col :warn-if-not-found warn-if-not-found))
 
 (defmethod display-modes-for-object ((self OMArray)) '(:hidden :text :mini-view))
 
@@ -58,7 +62,7 @@
             for yy = v-margin then (+ yy line-h inter-line) do
             (om-draw-rect h-margin yy line-w line-h :color (om-def-color :white) :fill t)
             (om-with-fg-color (om-def-color :gray)
-              (om-draw-string (- line-w (om-string-size (get-column-name self n))) (+ yy 8) (get-column-name self n)))
+              (om-draw-string (- line-w (om-string-size (get-field-name self n))) (+ yy 8) (get-field-name self n)))
             (draw-field-on-box self (nth n (data self)) h-margin yy line-w line-h)
       ))))
 
@@ -170,7 +174,7 @@
       (setf (num-fields self) 0)
       ))
 
-(defmethod get-col ((self 2D-array) (col integer) &key (warn-if-not-found t))
+(defmethod get-field ((self 2D-array) (col integer) &key (warn-if-not-found t))
   (if (< col (length (data self)))
       (nth col (data self))
     (if warn-if-not-found (om-beep-msg "Field #~D not found in '~A'" col self))))
@@ -225,7 +229,14 @@
   ((fields :initform nil :initarg :fields :accessor fields :documentation "field names and defaults")
    (num-elts :initform 1 :initarg :num-elts  :accessor num-elts :documentation "number of elements (a.k.a lines)")))
 
+(defmethod object-box-label ((self class-array))
+  (string+ (string-upcase (type-of self)) " ["
+           (number-to-string (length (data self)))
+           "x" 
+           (number-to-string (num-elts self)) "]"))
+
 (defmethod additional-slots-to-save ((self class-array)) '(data))
+
 
 (defmethod om-init-instance ((self class-array) &optional initargs)
   
@@ -256,34 +267,36 @@
                   ))))
   self)
 
-(defmethod object-box-label ((self class-array))
-  (string+ (string-upcase (type-of self)) " ["
-           (number-to-string (length (data self)))
-           "x" 
-           (number-to-string (num-elts self)) "]"))
 
-(defmethod get-col ((self class-array) (col integer) &key (warn-if-not-found t))
+
+  
+(defmethod get-field ((self class-array) (col integer) &key (warn-if-not-found t))
   (if (< col (length (data self)))
       (array-field-data (nth col (data self)))
     (if warn-if-not-found (om-beep-msg "Field #~D not found in '~A'" col self))))
 
-(defmethod get-col ((self class-array) (col string) &key (warn-if-not-found t))
+(defmethod get-field ((self class-array) (col string) &key (warn-if-not-found t))
   (let ((pos (position col (fields self) 
                        :test 'string-equal 
                        :key #'(lambda (elt) (if (stringp elt) elt (car elt))))))
-    (if pos (get-col self pos)
+    (if pos (get-field self pos)
       (if warn-if-not-found (om-beep-msg "Field '~A' not found in '~A'" col self)))))
 
-(defmethod get-column-name ((self class-array) (col integer)) 
-  (or (nth col (fields self))
+(defmethod get-field-name ((self class-array) (col integer)) 
+  (or (nth col (fields self))                        ;;; in principle these two are the same
+      (and (< col (length (data self)))
+           (array-field-name (nth col (data self)))) ;;; in principle these two are the same
       (format nil "c_~D" col)))
 
-(defmethod get-slot-val ((self class-array) slot-name)
-  (or (get-col self (string slot-name) :warn-if-not-found nil)
-      (call-next-method)))
+(defmethod get-field-type ((self class-array) (col integer)) 
+  (and (< col (length (data self)))
+       (array-field-type (nth col (data self)))))
 
-(defmethod get-data ((self class-array))
-  (mapcar #'array-field-data (data self)))
+
+;;; redefinition from OM methods
+(defmethod get-slot-val ((self class-array) slot-name)
+  (or (get-field self (string slot-name) :warn-if-not-found nil)
+      (call-next-method)))
  
 (defmethod get-cache-display-for-text ((self class-array))
   (append (call-next-method)
@@ -291,6 +304,11 @@
                 (list (intern-k field)
                       (get-slot-val self field)))
           ))
+
+
+;;; collect the raw internal data
+(defmethod get-data ((self class-array))
+  (mapcar #'array-field-data (data self)))
 
 ;;; methods for filling data
 (defmethod get-array-data-from-input ((input t) n)
@@ -315,7 +333,7 @@
 (defmethod get-array-data-from-input ((input bpf) n)
   (multiple-value-bind (bpf xx yy) (om-sample input n) yy))
 
-;;; in class array the meta-data determine the contents of the actual data
+;;; in class array some 'meta-data' determine the contents of the actual data
 (defmethod update-contents ((self class-array)) 
   (setf (num-fields self) (length (fields self)))
   (unless (num-elts self) (setf (num-elts self) 0)))
@@ -353,7 +371,7 @@
 (defmethod rep-editor ((box ClassArrayBox) num)
   (if (or (null num) (<= num 2)) (call-next-method)
     (let* ((field-name (name (nth num (outputs box)))))
-      (get-col (get-box-value box) field-name))))  
+      (get-field (get-box-value box) field-name))))  
 
 
 
