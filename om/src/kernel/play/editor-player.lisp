@@ -403,7 +403,7 @@
     (cond ((or (om-point-in-line-p position (omp bx 0) (omp bx (h self)) 4)
                (om-point-in-line-p position (omp ex 0) (omp ex (h self)) 4))
            (om-set-view-cursor self (om-get-cursor :h-size)))
-          (t (om-set-view-cursor self nil)
+          (t (om-set-view-cursor self (om-view-cursor self))
              (call-next-method)))))
 
 

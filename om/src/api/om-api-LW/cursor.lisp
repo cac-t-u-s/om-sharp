@@ -84,13 +84,13 @@
 ;;; VIEW CURSORS
 ;;;================
 
-;;; version CALLBACK   (MCL style)
-(defmethod om-view-cursor ((self om-graphic-object)) nil)
 
 ;;; version SETF   (LW style)
 (defmethod om-set-view-cursor ((self om-graphic-object) cursor) 
   (setf (capi::simple-pane-cursor (om-get-view self)) cursor))
 
+;;; version CALLBACK   (MCL style)
+(defmethod om-view-cursor ((self om-graphic-object)) nil)
 
 (defmethod update-view-cursor ((self om-view) pos)
   (setf (capi::simple-pane-cursor self) (om-view-cursor self)))
