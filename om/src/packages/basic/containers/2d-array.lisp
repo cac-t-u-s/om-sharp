@@ -210,7 +210,7 @@
   `(:array-field 
     (:name ,(array-field-name self))
     (:doc ,(array-field-doc self))
-    (:type ,(array-field-type self))
+    (:type ,(omng-save (array-field-type self)))
     (:decimals ,(array-field-decimals self))
     (:default ,(omng-save (array-field-default self)))
     (:data ,(omng-save (array-field-data self)))))
@@ -252,26 +252,28 @@
   (when initargs ;; INITARGS = NIL means we are loading a saved object (data is already in)
     (setf (data self)
           (loop for field in (fields self) collect
-                (let ((input-field (find-value-in-kv-list initargs (intern-k field)))
-                      (existing-field (find field (data self) :test 'string-equal :key 'array-field-name)))
-
-                  (cond (input-field 
-                         ;; there's a new field to set
-                         (make-array-field :name field :default input-field :decimals 4
-                                           :data (get-array-data-from-input input-field (num-elts self)))
-                         )
-                        (existing-field
-                         ;; the field was already in the (potentially copied) data
-                         (make-array-field :name field :default (array-field-default existing-field)
-                                           :decimals (array-field-decimals existing-field)
-                                           :data (get-array-data-from-input (array-field-default existing-field) (num-elts self)))
-                         )
-                        (t 
-                         ;; new and unspecified field
-                         (make-array-field :name field :decimals 4
-                                           :data (make-list (num-elts self) :initial-element nil)))
-                        )
-                  ))))
+                
+                (let* ((input-data (find-value-in-kv-list initargs (intern-k field)))
+                       
+                       ;; the field can already be in the data
+                       ;; if this data was copied or initialized from a subclass (e.g. cs-evt in OMChroma)
+                       (existing-field (find field (data self) :test 'string-equal :key 'array-field-name))
+                       
+                       (final-field (or existing-field (make-array-field :name field :decimals 4))))
+                  
+                  (if input-data 
+                      ;; the field is to set from specified data
+                      (setf (array-field-data final-field)
+                            (get-array-data-from-input input-data (num-elts self)))
+                    
+                    ;; the field will be filled from the default value (if any) or NIL
+                    (setf (array-field-data final-field)
+                          (get-array-data-from-input (array-field-default final-field) (num-elts self)))
+                    )
+                  
+                  final-field)
+                ))
+    )               
   self)
 
 
