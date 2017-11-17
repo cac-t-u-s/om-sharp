@@ -145,7 +145,7 @@
           (:patch (open-doc-from-file type file))
           (:maquette (open-doc-from-file type file))
           (:textfun (open-doc-from-file type file))
-          ((or :text :lisp) (om-lisp::om-open-text-editor :contents file))
+          ((or :text :lisp) (om-lisp::om-open-text-editor :contents file :lisp t))
           (otherwise (progn (om-message-dialog (format nil "Unknown document type: ~s" (pathname-type file)))
                         nil)))
         ))))

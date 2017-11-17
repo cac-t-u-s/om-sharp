@@ -69,8 +69,8 @@
   (om-make-di 'om-check-box 
               :checked-p (pref-item-value pref-item) 
               :text ""
-              :resizable :w
-              :size (om-make-point nil 20)
+              ;:resizable :w
+              :size (om-make-point 20 20)
               :font (om-def-font :font1)
               :di-action #'(lambda (item)
                               (setf (pref-item-value pref-item) (om-checked-p item))
@@ -308,7 +308,7 @@
                                         (pref-item-doc pref-item))))
                        (om-make-di 
                         'om-simple-text 
-                        :text real-text 
+                        :text real-text ; :bg-color (om-def-color :green)
                         :font (om-def-font :font1)
                         :size (om-make-point (list :string (format nil "~A" real-text))
                                              (if (equal (pref-item-type pref-item) :title) 20 
@@ -317,10 +317,10 @@
     
     (if (and (equal (pref-item-type pref-item) :title) doc-text)
         (om-make-layout 
-         'om-column-layout :name (pref-item-id pref-item)
+         'om-column-layout :name (pref-item-id pref-item) :align :left
          :subviews (list main-text doc-text))
       (om-make-layout 
-       'om-row-layout :name (pref-item-id pref-item)
+       'om-row-layout :name (pref-item-id pref-item) 
        :subviews (list main-text g-item doc-text))
       )
     ))
@@ -333,7 +333,7 @@
 
 (defun make-preference-panel (pref-module)
   (order-preference-module pref-module)
-  (om-make-layout 'preference-pane 
+  (om-make-layout 'preference-pane
                   :name (pref-module-name pref-module)
                   :module-id (pref-module-id pref-module)
                   ;:ratios '((1)(1))
