@@ -175,7 +175,7 @@
 
 ; (setf *editor-files-open* nil)
 
-(defun om-open-text-editor (&key contents class (lisp t) title x y w h)
+(defun om-open-text-editor (&key contents class (lisp nil) title x y w h)
   (let* ((path (and (pathnamep contents) contents))
          (window (when path (find-open-file path))))
     (if window 
@@ -201,7 +201,7 @@
                            ((stringp contents) contents) 
                            (contents (format nil "~a" contents))
                            (t "")))
-               (ep (make-instance 'capi::editor-pane :echo-area t 
+               (ep (make-instance 'capi::editor-pane :echo-area lisp 
                                   :buffer buffer 
                                   :text text
                                   ;; :destroy-callback #'(lambda (ep) (print (capi::editor-pane-buffer ep)))
@@ -233,7 +233,9 @@
 ;;; FONT MANAGEMENT
 ;;;========================
 
-(defvar *text-editor-font* (gp::make-font-description :family #+linux "Liberation Mono" #-linux  "Verdana" :size 10))
+(defparameter *text-editor-font* 
+  #+linux(gp::make-font-description :family "Liberation Mono" :size 10)
+  #-linux(gp::make-font-description :family "Consolas" :size 11))
 
 (defmethod change-text-edit-font ((self om-text-editor-window))
   (with-slots (ep) self
@@ -292,7 +294,7 @@
 
 ; cherche def in path
 (defun om-open-text-editor-at (path def)
-  (let ((edwin (om-open-text-editor :contents path))
+  (let ((edwin (om-open-text-editor :contents path :lisp t))
         (string-to-search (concatenate 'string (string (car def))
                                        "[!\*]* "
                                        (string (cadr def)))
