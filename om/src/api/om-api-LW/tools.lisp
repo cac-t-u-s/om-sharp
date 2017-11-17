@@ -54,7 +54,8 @@
            (hcl::method-lambda-list (car (hcl::generic-function-methods fdef))))
           ((macro-function fsym)
            (function-lambda-list 'setf))
-          (t (clos::extract-lambda-list-names-and-keys (function-lambda-list fsym))))
+          (fsym (clos::extract-lambda-list-names-and-keys (function-lambda-list fsym)))
+          (t (function-lambda-list fun)))
     ))
  
 (defmethod function-name (fun)
