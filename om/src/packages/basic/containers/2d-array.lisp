@@ -27,11 +27,11 @@
 
 (defclass OMArray ()
   ((num-elts :initform 0 :accessor num-elts :documentation "number of elements (a.k.a lines)")
-   (num-fields :initform 0  :accessor num-fields :documentation "number of fields (a.k.a columns)")
+   (num-fields :initform 0 :accessor num-fields :documentation "number of fields (a.k.a columns)")
    (data :initform nil :accessor data :documentation "data matrix")))
 
-(defmethod initialize-instance :after ((self OMArray) &rest args)
-  (update-contents self))
+;(defmethod initialize-instance :after ((self OMArray) &rest args)
+;  (update-contents self))
 
 (defmethod object-box-label ((self OMArray))
   (string+ (string-upcase (type-of self)) " ["
@@ -167,12 +167,15 @@
   ((data :initform nil :initarg :data :accessor data :documentation "data matrix / list of lists : (col1 col2 ...)")))
 
 ;; array dimensions are set according to <data>
-(defmethod update-contents ((self 2D-array))
+(defmethod om-init-instance ((self 2D-array) &optional initargs)
+  (call-next-method)
   (if (data self)
       (setf (num-fields self) (length (data self))
             (num-elts self) (apply 'max (mapcar 'length (data self))))
       (setf (num-fields self) 0)
-      ))
+      )
+  self)
+
 
 (defmethod get-field ((self 2D-array) (col integer) &key (warn-if-not-found t))
   (if (< col (length (data self)))
@@ -242,6 +245,10 @@
   
   (call-next-method) 
   
+  ;;; in class array some 'meta-data' determine the contents of the actual data
+  (setf (num-fields self) (length (fields self)))
+  (unless (num-elts self) (setf (num-elts self) 0))
+
   (when initargs ;; INITARGS = NIL means we are loading a saved object (data is already in)
     (setf (data self)
           (loop for field in (fields self) collect
@@ -276,17 +283,18 @@
     (if warn-if-not-found (om-beep-msg "Field #~D not found in '~A'" col self))))
 
 (defmethod get-field ((self class-array) (col string) &key (warn-if-not-found t))
-  (let ((pos (position col (fields self) 
+  (let ((array-field (find col (data self) 
                        :test 'string-equal 
-                       :key #'(lambda (elt) (if (stringp elt) elt (car elt))))))
-    (if pos (get-field self pos)
+                       :key #'array-field-name)))
+    (if array-field (array-field-data array-field)
       (if warn-if-not-found (om-beep-msg "Field '~A' not found in '~A'" col self)))))
 
 (defmethod get-field-name ((self class-array) (col integer)) 
-  (or (nth col (fields self))                        ;;; in principle these two are the same
-      (and (< col (length (data self)))
-           (array-field-name (nth col (data self)))) ;;; in principle these two are the same
-      (format nil "c_~D" col)))
+  (or                        
+   (and (< col (length (data self)))              ;;; v
+        (array-field-name (nth col (data self)))) ;;; in principle these are the same
+   (nth col (fields self))                        ;;; ^ 
+   (format nil "c_~D" col)))
 
 (defmethod get-field-type ((self class-array) (col integer)) 
   (and (< col (length (data self)))
@@ -300,9 +308,9 @@
  
 (defmethod get-cache-display-for-text ((self class-array))
   (append (call-next-method)
-          (loop for field in (fields self) collect 
-                (list (intern-k field)
-                      (get-slot-val self field)))
+          (loop for array-field in (data self) collect 
+                (list (intern-k (array-field-name array-field))
+                      (array-field-data array-field)))
           ))
 
 
@@ -322,8 +330,13 @@
         ((> (length input) n)
          (first-n (om-copy input) n))))
 
+
 (defmethod get-array-data-from-input ((input function) n)
-  (mapcar input (loop for i from 0 to (1- n) collect i)))
+  (case (length (function-arg-list input))
+    (1 (mapcar input (loop for i from 0 to (1- n) collect i)))
+    (0 (loop for i from 1 to n collect (funcall input)))
+    (otherwise (om-beep-msg "functions as array input must have 1 or 0 arguments!"))
+    ))
 
 (defmethod get-array-data-from-input ((input symbol) n)
   (if (fboundp input) 
@@ -333,10 +346,7 @@
 (defmethod get-array-data-from-input ((input bpf) n)
   (multiple-value-bind (bpf xx yy) (om-sample input n) yy))
 
-;;; in class array some 'meta-data' determine the contents of the actual data
-(defmethod update-contents ((self class-array)) 
-  (setf (num-fields self) (length (fields self)))
-  (unless (num-elts self) (setf (num-elts self) 0)))
+
 
 
 ;;;============================
@@ -353,7 +363,10 @@
 
 (defmethod update-key-inputs ((self ClassArrayBox))
   (when(get-box-value self)
-    (setf (keywords self) (mapcar 'intern-k (fields (get-box-value self)))))
+    (setf (keywords self) 
+          (mapcar 
+           #'(lambda (f) (intern-k (array-field-name f)))
+           (data (get-box-value self)))))
   (when (frame self)
     (set-frame-areas (frame self))
     (om-invalidate-view (frame self))))
