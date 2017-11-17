@@ -156,7 +156,6 @@
 #+mswindows
 (defmethod om-click-motion-handler :after ((self om-drop-view) pos)
   (when (drag-image self)
-    ;(om-set-view-cursor self (om-get-cursor (if (om-command-key-p) :wait nil)))
     (om-set-view-position (drag-image self) (om-subtract-points pos (clic-pos (drag-image self))))))
 
 #+mswindows

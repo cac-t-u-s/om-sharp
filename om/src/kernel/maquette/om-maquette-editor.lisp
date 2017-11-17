@@ -407,7 +407,7 @@
                     (remove-if-not #'resizable-box? (get-track-boxes (object (editor (om-view-window self))) (num self))))))
     (if (find mouse-x end-times-x :test #'(lambda (a b) (and (<= a b) (>= a (- b 5)))))
         (om-set-view-cursor self (om-get-cursor :h-size))
-      (progn (om-set-view-cursor self nil)
+      (progn (om-set-view-cursor self (om-view-cursor self))
         (call-next-method)
         ))))
 
