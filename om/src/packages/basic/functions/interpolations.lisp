@@ -125,17 +125,27 @@ The resulting function can be connected for example to SAMPLEFUN."
         collect (linear-interpol x1 x2 y1 y2 pointer)))
 
 (defun interpole (list-x list-y x-min x-max nbsamples)
-  (if (= 1 nbsamples) (list (x-transfer (mat-trans (list list-x list-y)) (+ x-min (/ (- x-max x-min) 2))))
-  (let ((step (/ (- x-max x-min) (1- (float nbsamples)))))
-    (loop with x = (pop list-x) and xx = (pop list-x) 
-          and y = (pop list-y) and yy = (pop list-y)
-          with x-index = x-min
-          with s-index = 0
-          while (and xx  (< s-index nbsamples))
-          if (and (>= x-index x) (<= x-index xx))
-          collect (linear-interpol x xx y yy x-index)
-          and do (setf x-index (+ x-min (* (incf s-index) step)))
-          else do (setf x xx xx (pop list-x) y yy yy (pop list-y))))))
+  (if (= 1 nbsamples) 
+      (list (x-transfer (mat-trans (list list-x list-y)) (+ x-min (/ (- x-max x-min) 2))))
+    (let* ((step (/ (- x-max x-min) (1- (float nbsamples))))
+           (last-point (car (last list-y)))
+           (series 
+            (loop with x = (pop list-x) and xx = (pop list-x) 
+                  and y = (pop list-y) and yy = (pop list-y)
+                  with x-index = x-min
+                  with s-index = 0
+                  while (and xx (< s-index nbsamples))
+                  if (and (>= x-index x) (<= x-index xx))
+                  collect (linear-interpol x xx y yy x-index)
+                  and do (setf x-index (+ x-min (* (incf s-index) step)))
+                  else do (setf x xx xx (pop list-x) y yy yy (pop list-y)))))
+       
+      (if (> (+ x-min (* step nbsamples)) x-max) 
+          ;; this can happend because of floatig-point errors
+          ;; (< (length series) nbsamples)  ;; equivalent
+          (append series (list last-point))
+        series)
+      )))
 
 
 
@@ -234,8 +244,8 @@ If <nbs-sr> is an float (e.g. 0.5, 1.0...) it is interpreted as the sample rate 
                         (mapcar #'(lambda (bpf) (multiple-value-list (om-sample bpf nbs-sr xmin xmax dec))) self))))
          ((numberp (car self))
           (let* ((x0 (or xmin 0))
-                 (x1 (or xmax (length self)))
-                 (lst (nthcdr x0 (if xmax (first-n self x1) self)))
+                 (x1 (or xmax (1- (length self))))
+                 (lst (subseq self x0 (1+ x1)))
                  (xpts (arithm-ser 0 (1- (length lst)) 1))
                  (ylist (if (integerp nbs-sr) 
                             (interpole xpts lst x0 x1 nbs-sr)

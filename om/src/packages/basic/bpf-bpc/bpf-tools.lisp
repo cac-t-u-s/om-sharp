@@ -98,31 +98,44 @@ If <color> is :random, will choose a random color. It can also be a color symbol
 ;;; OM-SAMPLE FOR BPF
 ;;;=========================================== 
 
+;;; could be smart to put this directly into arithm-ser
+(defun sample-interval (x1 x2 nb-samples)
+  (let* ((inter (/ (- x2 x1) (- nb-samples 1)))
+         (series (loop for i from x1 to x2 by inter collect i)))
+    (if (> (+ x1 (* inter nb-samples)) x2) 
+        ;; this can happend because of floatig-point errors
+        ;; (< (length series) nb-samples)  ;; equivalent
+        (append series (list x2))
+      series)))
+      
+
 (defmethod* om-sample ((self bpf) (nbs-sr number) &optional xmin xmax dec)
     :numouts 3
     (if (point-list self)
         (let* ((x0 (or xmin (first (x-points self)))) 
-           (x1 (or xmax (car (last (x-points self)))))
-           (nn (if (integerp nbs-sr)
-                   nbs-sr
-                 (+ 1 (floor (/ (- x1 x0) nbs-sr)))
-                 ))
-           (ylist (interpole (x-points self) (y-points self) x0 x1 nn))
-                   (xlist (if (integerp nbs-sr)
-                              (cond ((> nbs-sr 1)
-                                     (arithm-ser x0 x1 (float (/ (- x1 x0) (- nbs-sr 1))) nn))
-                                    ((= nbs-sr 1) 
-                                     (list (+ x0 (/ (- x1 x0) 2.0))))
-                                    (t (om-beep-msg "Number of sample must be > 0 !!!")))
-                            (arithm-ser x0 x1 nbs-sr))))
-              (values (and xlist ylist (make-instance (type-of self) :x-points xlist :y-points ylist 
-                                                      :decimals (or dec (decimals self))))
-                      xlist
-                      (if dec (om-round ylist dec) ylist))
-              )
+               (x1 (or xmax (car (last (x-points self)))))
+               (nn (if (integerp nbs-sr)
+                       nbs-sr
+                     (+ 1 (floor (/ (- x1 x0) nbs-sr)))
+                     ))
+               (ylist (interpole (x-points self) (y-points self) x0 x1 nn))
+               (xlist (if (integerp nbs-sr)
+                          (cond ((> nbs-sr 1)
+                                 (sample-interval x0 x1 nbs-sr))
+                                ((= nbs-sr 1) 
+                                 (list (+ x0 (/ (- x1 x0) 2.0))))
+                                (t (om-beep-msg "Number of sample must be > 0 !!!")))
+                        (arithm-ser x0 x1 nbs-sr))))
+          
+          (values (and xlist ylist (make-instance (type-of self) :x-points xlist :y-points ylist 
+                                                  :decimals (or dec (decimals self))))
+                  xlist
+                  (if dec (om-round ylist dec) ylist))
+          )
       (values 
        (make-instance (type-of self) :x-points nil :y-points nil :decimals (or dec (decimals self)))
        nil nil)))
+
 
 (defmethod* om-sample ((self BPC) (nbs-sr number) &optional xmin xmax dec)
  :numouts 3
