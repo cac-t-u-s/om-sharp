@@ -5,7 +5,7 @@
 # LWEXEC=lispworks-7-0-0-x86-darwin
 
 LWARCH=64-bit
-LWEXEC=lispworks-7-0-0-amd64-darwin
+LWEXEC=lispworks-7-1-0-amd64-darwin
 
 OM_VERSION="7.0"
 # APP_FOLDER="OM "$OM_VERSION
@@ -21,7 +21,7 @@ echo "COMPILING STANDALONE EXE"
 echo "***************************************************"
 
 	rm -rf ./om/*.app/
-	/Applications/LispWorks\ 7.0\ \($LWARCH\)/LispWorks\ \($LWARCH\).app/Contents/MacOS/$LWEXEC -build ./om/build/deliver.lisp
+	/Applications/LispWorks\ 7.1\ \($LWARCH\)/LispWorks\ \($LWARCH\).app/Contents/MacOS/$LWEXEC -build ./om/build/deliver.lisp
 }
 
 
