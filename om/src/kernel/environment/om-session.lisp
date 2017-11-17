@@ -122,8 +122,8 @@
        (make-pathname 
         :device (pathname-device (oa::om-lisp-image)) :host (pathname-host (oa::om-lisp-image))
         :directory 
-        #+cocoa(butlast (pathname-directory (truename (PATHNAME-LOCATION (oa::om-lisp-image)))) 3)
-        #+win32(pathname-directory (truename (PATHNAME-LOCATION  (oa::om-lisp-image))))
+        #+cocoa(butlast (pathname-directory (truename (lw::pathname-location (oa::om-lisp-image)))) 3)
+        #+win32(pathname-directory (truename (lw::pathname-location  (oa::om-lisp-image))))
         ))))
 
 ;;;======================================
