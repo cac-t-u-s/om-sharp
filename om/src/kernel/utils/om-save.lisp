@@ -114,7 +114,7 @@
                                    )))))
    (when (additional-slots-to-save self)
      `((:add-slots ,(loop for add-slot in (additional-slots-to-save self)
-                          collect (list add-slot 
+                          collect (list (intern-k add-slot) 
                                         (omng-save 
                                          ;(slot-value self add-slot)
                                          ;;; in _some cases_ the accessor is defined and not the slot...
@@ -134,13 +134,17 @@
                                            (om-beep-msg "LOAD: Slot '~A' not found in class ~A !!" (car slot) (string-upcase class-name))))
                                      (find-value-in-kv-list data :slots))))
               (more-slots (mapcar #'(lambda (slot)
-                                      (list (car slot) (omng-load (cadr slot)))) 
+                                      (list (car slot) (omng-load (cadr slot))))
                                   (find-value-in-kv-list data :add-slots))))
     
           (let ((object (apply 'make-instance (cons class-name (reduce 'append slots)))))
+            
             (loop for slot in more-slots
-                  when (slot-exists-p object (car slot))
-                  do (setf (slot-value object (car slot)) (cadr slot)))
+                  ;; when (slot-exists-p object (car slot))
+                  ;; do (setf (slot-value object (car slot)) (cadr slot))
+                  do (set-slot-val object (symbol-name (car slot)) (cadr slot))
+                  )
+            
             (om-init-instance object nil)
             ))
       (om-beep-msg "LOAD: Class ~A not found !!" class-name)
