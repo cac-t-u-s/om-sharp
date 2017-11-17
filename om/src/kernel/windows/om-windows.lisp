@@ -181,7 +181,20 @@
 (defmethod om-lisp::om-listener-window-menus ((self om-lisp::om-listener))
   (om-menu-items self))
 
-(add-preference :general :listener-on-top "Keep Listener in Front" :bool nil "Does not apply to the current Listener window")
+(add-preference :general :listener-on-top "Keep Listener in Front" :bool nil "Does not apply to the current Listener window" 'restart-listener)
+(add-preference :general :listener-input "Enable Listener Input" :bool nil "Allows you to type Lisp commands in the Listener window" 'restart-listener)
+
+(defun restart-listener ()
+  (let ((listenerwin (get-listener)))
+    (when listenerwin 
+      (let ((ig (capi::interface-geometry listenerwin)))
+        (om-close-window listenerwin)
+        (om-lisp::om-make-listener :title "OM Listener" 
+                                   :x (car ig) :y (cadr ig) :width (caddr ig) :height (cadddr ig)
+                                   :input (get-pref-value :general :listener-input)
+                                   :on-top (get-pref-value :general :listener-on-top)
+                                   )))))
+    
 
 (defun get-listener () (car (om-get-all-windows 'om-lisp::om-listener)))
 
@@ -192,6 +205,7 @@
                         ;:initial-lambda #'(lambda () (in-package :om-user))
                         :initial-prompt *om-startup-string*
                         :height 200 
+                        :input (get-pref-value :general :listener-input)
                         :on-top (get-pref-value :general :listener-on-top)
                         ))))
 
@@ -205,7 +219,6 @@
 
 (defun set-text-editor-font ()
   (om-lisp::om-set-text-editor-font (get-pref-value :general :textedit-font)))
-
 
 
 

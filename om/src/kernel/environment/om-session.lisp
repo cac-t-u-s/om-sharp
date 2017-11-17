@@ -183,13 +183,16 @@
   (setf *print-case* :downcase)
   (setf *catch-errors* nil)
   (in-package :om)
-  (show-listener-win)
+  
+  ;(show-listener-win)
 
   ;;(om::set-language *release-language*)
   (register-om-icons)
     
   ;; #+(or om-deliver mswindows)
   (lispworks::define-action "Confirm when quitting image" "Prompt for confirmation" 'om::quit-om-callback)
+  
+  (om-lisp::om-init-output-stream)
   
   ;;; read the general OM prefs
   (read-om-preferences)
@@ -207,7 +210,8 @@
   ;;;(in-package :om-user)
   (om-lisp::om-set-listener-font (get-pref-value :general :listener-font))
   (om-lisp::om-set-text-editor-font (get-pref-value :general :textedit-font))
-  
+  (show-listener-win)
+
   (capi::execute-with-interface om-lisp::*om-listener* #'(lambda () (in-package :om)))
   )
 
