@@ -836,10 +836,11 @@
   (let* ((strUC (string-upcase str))
          (sym nil)) ; (find-symbol strUC)
     (unless sym
-      (loop for p in *known-packages* 
+      (loop for p in (reverse *known-packages*) 
             while (not sym) do
             (setf sym (find-symbol strUC p))))
     sym))
+
 
 ; (search-known-symbol "t")
 
