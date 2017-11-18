@@ -62,10 +62,13 @@
 (defmethod default-size ((self OMValueBox))
   (minimum-size self))
 
+(defmethod maximum-size ((self OMValueBox))
+  (omp 1000 1000))
+
 (defmethod minimum-size ((self OMValueBox))
   (multiple-value-bind (tw th)
       (om-string-size (print-value self) (box-draw-font self))
-    (om-make-point (max (+ tw 18)
+    (om-make-point (max ; (+ tw 18)
                         (+ 20 (* (length (inputs self)) 10))
                         32)
                    (max (+ th 16) 28))))
