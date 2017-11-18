@@ -236,7 +236,7 @@
             (gp::get-string-extent *curstream* str real-font)
 
           (let ((text-list (or (ignore-errors 
-                                 (wrap-text-for-pane *curstream* str ;; (substitute #\Space #\Tab str) 
+                                 (capi::wrap-text-for-pane *curstream* str ;; (substitute #\Space #\Tab str) 
                                                      :visible-width wrap
                                                      :font real-font
                                                      ))
