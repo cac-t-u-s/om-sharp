@@ -552,7 +552,7 @@
              ;(om-draw-rect x y w h)
              (om-draw-string (max 2 x)
                              (+ y th)
-                             text :selected nil 
+                             text :selected nil :wrap (- (w self) 10)
                              ;:align (box-draw-text-align box) ;; handled by display-text-and-area
                              )
              ))))))
