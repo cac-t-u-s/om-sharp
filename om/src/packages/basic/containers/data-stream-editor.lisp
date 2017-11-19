@@ -144,6 +144,8 @@
     
     (set-g-component (timeline-editor editor) :main-panel (om-make-layout 'om-row-layout))
     
+    (set-g-component editor :main-panel (car (get-g-component editor :data-panel-list)))
+
     (when (editor-get-edit-param editor :show-timeline)
       (make-timeline-view (timeline-editor editor)))
     

@@ -238,6 +238,8 @@
       (build-editor-window self)
       (init-editor-window self)
       (om-show-window win)
+      (when (get-g-component self :main-panel)
+        (om-set-focus (get-g-component self :main-panel)))
       )))
 
 ;;; the g-component p-list allows to store and access 
@@ -350,7 +352,8 @@
       (multiple-value-bind (contents main)
           (make-editor-window-contents editor)
         (setf (main-view editor) (or main contents))
-        (om-add-subviews win contents)))))
+        (om-add-subviews win contents)
+        ))))
 
 (defmethod init-editor-window ((ed OMEditor)) nil)
 
