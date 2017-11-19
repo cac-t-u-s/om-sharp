@@ -47,8 +47,10 @@
 
 ; (defmethod omng-save ((self symbol)) self)
 (defmethod omng-save ((self symbol)) 
-  (if (find (symbol-package self) (cons (find-package :keyword)
-                                        (package-use-list :om)))
+  (if (find (symbol-package self) (append 
+                                   (list (find-package :om)
+                                         (find-package :keyword))
+                                   (package-use-list :om)))
       self
     `(:symbol ,(symbol-name self) ,(package-name (symbol-package self)))))
   
