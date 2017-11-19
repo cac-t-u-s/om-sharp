@@ -172,9 +172,27 @@
 (defmethod editor-play-state ((self play-editor-mixin))
   (player-get-object-state (player self) (get-obj-to-play self)))
 
+
+(defmethod start-box-callback ((self t)) nil)
+(defmethod stop-box-callback ((self t)) nil)
+
+(defmethod start-editor-callback ((self play-editor-mixin))
+  (when (pause-button self) (unselect (pause-button self)))
+  (when (play-button self) (select (play-button self)))
+  (mapcar #'start-cursor (cursor-panes self))
+  (when (object self) (start-box-callback (object self))))
+    
 (defmethod play-editor-callback ((self play-editor-mixin) time)
   (set-time-display self time)
-  (mapcar #'(lambda (view) (when view (update-cursor view time))) (cursor-panes self)))
+  (mapcar #'(lambda (view) (when view (update-cursor view time))) (cursor-panes self))
+  (when (object self) (play-box-callback (object self) time)))
+
+(defmethod stop-editor-callback ((self play-editor-mixin)) 
+  ;(mapcar #'(lambda (view) (stop-cursor view)) (cursor-panes self))
+  (when (play-button self) (unselect (play-button self)))
+  (when (pause-button self) (unselect (pause-button self)))
+  (mapcar 'stop-cursor (remove nil (cursor-panes self)))
+  (when (object self) (stop-box-callback (object self))))
 
 ;;; never used..
 (defmethod editor-callback-fun ((self play-editor-mixin))
@@ -187,9 +205,9 @@
 
 (defmethod editor-play ((self play-editor-mixin)) 
   (when (play-obj? (get-obj-to-play self))
-    (when (pause-button self) (unselect (pause-button self)))
-    (when (play-button self) (select (play-button self)))
-    (mapcar #'start-cursor (cursor-panes self))
+    
+    (start-editor-callback self)
+    
     (if (equal (player-get-object-state (player self) (get-obj-to-play self)) :pause)
         (progn
           (player-continue-object (player self) (get-obj-to-play self) )
@@ -211,10 +229,9 @@
 (defmethod editor-stop ((self t)) nil)
 
 (defmethod editor-stop ((self play-editor-mixin))
-  (when (play-button self) (unselect (play-button self)))
-  (when (pause-button self) (unselect (pause-button self)))
-  ;(if (equal (state (player self)) :record) (editor-stop-record self))
-  (mapcar #'stop-cursor (cursor-panes self))
+
+  (stop-editor-callback self)
+
   (player-stop-object (player self) (get-obj-to-play self))
   (if (and (metronome self) (metronome-on self)) (player-stop-object (player self) (metronome self)))
   (let ((start-time (or (car (play-interval self)) 0)))
@@ -231,11 +248,7 @@
       (editor-play self)
     (editor-pause self)))
 
-(defmethod stop-editor-callback ((self play-editor-mixin)) 
-  ;(mapcar #'(lambda (view) (stop-cursor view)) (cursor-panes self))
-  (when (play-button self) (unselect (play-button self)))
-  (when (pause-button self) (unselect (pause-button self)))
-  (mapcar 'stop-cursor (remove nil (cursor-panes self))))
+
 
 (defmethod editor-record ((self play-editor-mixin))
   ;;;(setf (engines (player self)) (list (get-player-engine self)))
