@@ -569,18 +569,15 @@
       )
 
     (when (play-state box)
-      (or (draw-cursor-on-box (get-obj-to-play box) frame (box-play-time frame))
-          (om-with-fg-color (om-make-color 0.37 0.73 0.62)
-            (om-draw-polygon (mapcan #'(lambda (x y) 
-                                         (list (+ x (/ (w frame) 2))
-                                               (+ y (/ (h frame) 2))))
-                                     '(-5 5 -5)
-                                     '(-5 0 5))
-                             :fill t))
-          )
-      )
+      (draw-cursor-on-box (get-obj-to-play box) frame (box-play-time frame)))
     ))
 
+#|
+ (om-with-fg-color (om-make-color 0.37 0.73 0.62)
+   (om-draw-polygon (mapcan #'(lambda (x y) (list (+ x (/ (w frame) 2))
+                                                  (+ y (/ (h frame) 2))))
+                            '(-5 5 -5) '(-5 0 5)) :fill t))
+|#
 
 (defmethod draw-cursor-on-box (object frame pos)
   (when pos

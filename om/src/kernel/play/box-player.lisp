@@ -52,61 +52,67 @@
   (list :port (get-edit-param self :outport)
         :approx (get-edit-param self :approx)))
 
-#|
-(defun box-player-stop (caller)
-  (declare (ignore caller))
-  (mapcar #'(lambda (box)
-              (setf (play-state box) nil)
-              (if (frame box)
-                  (om-invalidate-view (frame box))))
-          *play-boxes*)
-  (setf *play-boxes* nil))
-
-(defun box-player-callback (caller time)
-  (declare (ignore caller))
-  (handler-bind ((error #'(lambda (e) 
-                            (print (format nil "~A" e))
-                            (om-kill-process (callback-process *general-player*))
-                            (abort e))))
-    (mapc #'(lambda (box) (draw-cursor-at box time)) *play-boxes*)
-    ))
-|#
-
-(defun box-player-stop (caller)
-  (when caller
-    (setf (play-state caller) nil)
-    (when (frame caller) 
-      (setf (box-play-time (frame caller)) 0)
-      (om-invalidate-view (frame caller)))))
-  
-(defun box-player-callback (caller time)
-  (handler-bind ((error #'(lambda (e)
-                            (print (format nil "~A" e))
-                            ;(om-kill-process (callback-process *general-player*))
-                            (abort e))))
-    (draw-cursor-at caller time)))
-
-
-(defmethod play-editor-callback ((self t) time) nil)
-(defmethod stop-editor-callback ((self t)) (box-player-stop self))
-
-(defmethod play-editor-callback ((self OMBox) time)
-  (box-player-callback self time))
 
 (defun draw-cursor-at (box time)
   (let* ((frame (frame box)))
     (setf (box-play-time frame) time)  ; (- time (play-state box))))
     (om-invalidate-view frame)))
+  
+(defun play-box-callback (caller time)
+  (handler-bind ((error #'(lambda (e)
+                            (print (format nil "~A" e))
+                            ;(om-kill-process (callback-process *general-player*))
+                            (abort e))))
+    (draw-cursor-at caller time)
+    ))
+
+(defmethod start-box-callback ((self OMBox))
+  (setf (play-state self) t)
+  (when (frame self) 
+    (om-invalidate-view (frame self))))
+
+(defmethod stop-box-callback ((self OMBox))
+  (setf (play-state self) nil)
+  (when (frame self) 
+      (setf (box-play-time (frame self)) 0)
+      (om-invalidate-view (frame self))))
 
 
+(defun box-player-start (box)
+  (when box
+    (start-box-callback box)
+    (when (editor box) 
+      (start-editor-callback (editor box)))
+    ))
+
+(defun box-player-stop (box)
+  (when box
+    (stop-box-callback box)
+    (when (editor box) 
+      (stop-editor-callback (editor box)))))
+
+
+;;; called by the player
+(defmethod play-editor-callback ((self OMBox) time)
+  (play-box-callback self time)
+  (when (editor self) (play-editor-callback (editor self) time)))
+
+(defmethod stop-editor-callback ((self OMBox)) 
+  (box-player-stop self))
+
+
+
+
+
+;;; called from OM action
 (defmethod play-boxes ((boxlist list))
   (let ((list2play (remove-if-not 'play-box? boxlist)))
     (mapcar #'(lambda (box)
                 (when (play-obj? (car (value box)))
                   (player-play-object *general-player* (get-obj-to-play box) box)
-                  (setf (play-state box) t)
+                  (box-player-start box)
                   (push box *play-boxes*)
-                  (om-invalidate-view (frame box))))
+                  ))
             list2play)
     (when *play-boxes*
       ;(player-set-time-interval *general-player* 0 (+ now (loop for box in list2play maximize (get-obj-dur (get-obj-to-play box)))))
@@ -114,15 +120,13 @@
       (player-start *general-player*)
       )))
 
-; (print (get-edit-param box 'player))
 (defmethod stop-boxes ((boxlist list))
   (mapc #'(lambda (box)
             (when (play-obj? (car (value box)))
               (player-stop-object *general-player* (car (value box)))
               ;;; ABORT THE OBJECT !!
-              (setf (play-state box) nil)
+              (box-player-stop box)
               (setf *play-boxes* (remove box *play-boxes*))
-              (om-invalidate-view (frame box))
               ))
         boxlist)
   (unless *play-boxes* (player-stop *general-player*)))
@@ -134,20 +138,17 @@
         ;;; stop all
         (mapc #'(lambda (box) 
                   (player-stop-object *general-player* (get-obj-to-play box))
-                  (setf (play-state box) nil)
-                  (om-invalidate-view (frame box)))
+                  (box-player-stop box)
+                  )
               play-boxes)
       ;;; start all
       (mapc #'(lambda (box) 
                 (player-play-object *general-player* (get-obj-to-play box) box)
-                (setf (play-state box) t)
-                (om-invalidate-view (frame box)))
+                (box-player-start box)
+                )
             play-boxes))))
 
 (defmethod stop-all-boxes ()
   (stop-boxes *play-boxes*))
 
 
-
-
-    
