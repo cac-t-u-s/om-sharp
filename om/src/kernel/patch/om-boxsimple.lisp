@@ -60,7 +60,12 @@
   (format nil "~s" (car (value self))))
 
 (defmethod default-size ((self OMValueBox))
-  (minimum-size self))
+  (multiple-value-bind (tw th)
+      (om-string-size (print-value self) (box-draw-font self))
+    (om-make-point (max (min (+ tw 18) 500)
+                        (+ 20 (* (length (inputs self)) 10))
+                        32)
+                   (+ th 16))))
 
 (defmethod maximum-size ((self OMValueBox))
   (omp 1000 1000))
