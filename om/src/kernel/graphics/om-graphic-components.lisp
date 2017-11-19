@@ -177,7 +177,8 @@
   
     (unless (or (= (om-color-a c) 1) (= (om-color-a c) 0))
       (om-draw-rect 0 0 (om-width self) (om-height self) :color (om-make-color 1 1 1) :fill t))
-    (om-draw-rect 0 0 (om-width self) (om-height self) :color (or (color self) (om-def-color :gray)) :fill (color self))
+    (om-draw-rect 0 0 (om-width self) (om-height self) :color (or (color self) (om-def-color :gray)) 
+                  :fill (color self))
     
     (when (not (enabled self))
       (om-draw-rect 0 0 (om-width self) (om-height self) 
