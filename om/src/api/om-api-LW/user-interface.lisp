@@ -163,7 +163,7 @@
       
 (defmethod om-view-click-handler ((self om-pick-color-view) pos)
   (declare (ignore pos))
-  (let ((color (make-omcolor :c (prompt-for-color "Color Chooser" :color (omcolor-c (color self))))))
+  (let ((color (make-omcolor :c (capi::prompt-for-color "Color Chooser" :color (omcolor-c (color self))))))
     (set-color self color)))
 
 

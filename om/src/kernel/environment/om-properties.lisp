@@ -329,11 +329,10 @@
                 :size (om-make-point 60 16)
                 :resizable nil
                 :with-alpha (object-accept-transparency object)
-                :enabled (and (valid-property-p object prop-id) (get-property object prop-id))
-                :color (and (valid-property-p object prop-id)
-                            (or (get-property object prop-id)
-                                default
-                                (om-def-color :light-gray)))
+                :enabled t ; (get-property object prop-id)
+                :color (or (get-property object prop-id)
+                           default
+                           (om-def-color :gray))
                 :after-fun #'(lambda (item)
                                (set-property object prop-id (color item))
                                (when update (update-after-prop-edit update object))
