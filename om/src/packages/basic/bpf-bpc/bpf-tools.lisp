@@ -310,7 +310,7 @@ Outputs
 ;;; BPF TRANSFORMATIONS
 ;;;=========================================== 
 
-(defmethod bpf-scale ((self bpf) &key x1 x2 y1 y2)
+(defmethod* bpf-scale ((self bpf) &key x1 x2 y1 y2)
   :icon 233
   :indoc '("a BPF" "xmin" "xmax" "ymin" "ymax")
   :initvals '(nil 0 100 0 100)

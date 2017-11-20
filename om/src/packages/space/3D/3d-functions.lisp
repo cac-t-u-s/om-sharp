@@ -82,7 +82,7 @@ Outputs
   (make-instance type :x-points xlist :y-points ylist :z-points zlist :times timeslist :decimals decimals))
 
 ;;; RESAMPLE
-(defmethod 3D-sample ((self 3Dc) (samples number)  &optional decimals)
+(defmethod* 3D-sample ((self 3Dc) (samples number)  &optional decimals)
             :icon 213
             :initvals '(nil 1000 nil) ;
             :indoc '("object (3Dc)" "number of samples" "decimals")
