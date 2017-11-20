@@ -361,7 +361,12 @@
 (defmethod special-box-type ((self (eql 'class-array))) 'ClassArrayBox)
 
 ;;; list of proposed keywords are the declared names
-(defmethod get-all-keywords ((self ClassArrayBox)) (list (keywords self)))
+(defmethod get-all-keywords ((self ClassArrayBox)) 
+  (append (list (keywords self))
+          (call-next-method)
+          (list '(extra-control))))
+
+(defmethod box-free-keyword-name ((self ClassArrayBox)) 'extra-control)
 
 (defmethod update-key-inputs ((self ClassArrayBox))
   (when(get-box-value self)
