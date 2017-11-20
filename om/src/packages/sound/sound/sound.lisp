@@ -98,6 +98,7 @@
     (when (buffer self)
       (let ((new-ptr (make-audio-buffer (n-channels self) (n-samples self)))
             (self-ptr (oa::om-pointer-ptr (buffer self))))
+        (om-print-dbg "COPYING SOUND BUFFER (~D x ~D channels)..." (list (n-samples self) (n-channels self)) "SOUND_DEBUG")
         (dotimes (ch (n-channels self))
           (dotimes (smp (n-samples self))
             (setf (cffi::mem-aref (cffi::mem-aref new-ptr :pointer ch) :float smp)
@@ -283,11 +284,32 @@ Press 'space' to play/stop the sound file.
   new-path)
 
 
+(defmethod set-play-buffer ((self sound))  
+  
+  (om-print-format "Initializing ~A player for sound ~A (~D channels)"
+                   (list (if (and (file-pathname self) (access-from-file self)) "FILE" "BUFFER")
+                         self (n-channels self))
+                   "OM")
+  
+  (if (and (file-pathname self) (access-from-file self))
+       
+      (setf (buffer-player self) (make-player-from-file (namestring (file-pathname self))))
+
+    (when (buffer self) ;;; in principle at that point there should be a buffer..
+      (if (and (n-samples self) (n-channels self) (sample-rate self))
+          (setf (buffer-player self) (make-player-from-buffer 
+                                      (oa::om-pointer-ptr (buffer self)) 
+                                      (n-samples self) (n-channels self) (sample-rate self)))
+        (om-beep-msg "Incomplete info in SOUND object. Could not instanciate the player !!")
+        ))
+    ))
+
+
 (defmethod om-init-instance ((self sound) &optional initargs)
   
   (call-next-method)
   
-  (if (access-from-file self) 
+  (if (access-from-file self)
         
       (if (and (valid-pathname-p (file-pathname self)) 
                (file-exist-p (file-pathname self)))
@@ -309,19 +331,8 @@ Press 'space' to play/stop the sound file.
     )
          
   ;;; SET A PLAYER IN ANY CASE !
-  (if (and (file-pathname self) (access-from-file self))
-       
-      (setf (buffer-player self) (make-player-from-file (namestring (file-pathname self))))
-      
-    (when (buffer self) ;;; in principle at that point there should be a buffer..
-      (if (and (n-samples self) (n-channels self) (sample-rate self))
-          (setf (buffer-player self) (make-player-from-buffer 
-                                      (oa::om-pointer-ptr (buffer self)) 
-                                      (n-samples self) (n-channels self) (sample-rate self)))
-        (om-beep-msg "Incomplete info in SOUND object. Could not instanciate the player !!")
-        ))
-    )
-    
+  (set-play-buffer self)  ;; be lazy => do it later!
+  
   self)
 
 #|
@@ -425,7 +436,7 @@ Press 'space' to play/stop the sound file.
 
 
 (defun set-sound-data (sound path)
-
+  
   (when (buffer sound) (oa::om-release (buffer sound)))
   
   (if (probe-file path)
@@ -436,6 +447,7 @@ Press 'space' to play/stop the sound file.
         (unwind-protect 
             (progn
               ;(when (buffer sound) (oa::om-release (buffer sound)))
+              (om-print-format "Initializing audio buffer (~A channels)..." (list channels) "OM")
               (setf (buffer sound) (make-om-sound-buffer-GC :ptr buffer :count 1 :nch channels)
                     (smpl-type sound) *default-internal-sample-size*
                     (n-samples sound) size
@@ -487,6 +499,7 @@ Press 'space' to play/stop the sound file.
            (itl-buffer (fli:allocate-foreign-object :type :float :nelems (* nsmp nch))))
       (unwind-protect 
           (progn ;;; PROTECTED
+            (om-print-format "Writing file to disk: ~S" (list path))
             (interleave-buffer (oa::om-pointer-ptr (buffer sound)) itl-buffer nsmp nch)
             (audio-io::om-save-buffer-in-file itl-buffer (namestring path) 
                                              nsmp nch (sample-rate sound) 
@@ -593,11 +606,15 @@ Press 'space' to play/stop the sound file.
 
 (defmethod player-play-object ((self scheduler) (object sound) caller &key parent interval)
   ;(juce::setgainreader (bp-pointer (buffer-player object)) 0.1)
+  
+  (unless (buffer-player object) (set-play-buffer object))
+  
   (when (buffer-player object)
-    (start-buffer-player (buffer-player object) :start-frame (if (car interval)
-                                                                 (round (* (car interval) (/ (sample-rate object) 1000.0)))
-                                                               (or (car interval) 0)))
-  (call-next-method)))
+    (start-buffer-player (buffer-player object) 
+                         :start-frame (if (car interval)
+                                          (round (* (car interval) (/ (sample-rate object) 1000.0)))
+                                        (or (car interval) 0))))
+  (call-next-method))
 
 (defmethod player-stop-object ((self scheduler) (object sound))
   (if (buffer-player object) (stop-buffer-player (buffer-player object)))
