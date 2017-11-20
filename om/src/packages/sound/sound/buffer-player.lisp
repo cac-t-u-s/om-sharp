@@ -57,7 +57,7 @@
 
 
 (defmethod set-buffer-player-volume ((self buffer-player) volume)
-  (print (list "TODO : set volume" volume)))
+  (print (list "TODO: set volume" volume)))
 
 (defun make-player-from-file (path &optional (buffered nil))
   (if (not buffered)
