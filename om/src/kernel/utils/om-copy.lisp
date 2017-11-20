@@ -48,8 +48,10 @@
 
 (defmethod om-copy ((self t)) self)
 
+;;; clone-object doesn't om-init the object
+;;; om-copy does
 (defmethod om-copy ((self standard-object)) 
-  (clone-object self))
+  (om-init-instance (clone-object self)))
 
 (defmethod excluded-slots-for-copy ((from t)) nil)
 
@@ -69,6 +71,8 @@
 (defmethod condition-for-copy-slot ((from OMObject) (to t) slot)
   (and (call-next-method) (slot-definition-initargs slot)))
 
+;;; clone-object doesn't om-init the object
+;;; om-copy does
 (defmethod clone-object ((object standard-object) &optional clone)
   ;(om-print-dbg "=================== OBJECT ~A" (list object))
   (let ((new-object (or clone (clos::allocate-instance (class-of object)))))
@@ -78,7 +82,7 @@
           (setf (slot-value new-object (slot-definition-name slot)) 
                 (om-copy (slot-value object (slot-definition-name slot)))))
     (initialize-instance new-object)
-    (om-init-instance new-object)))
+    new-object))
 
 
 #|
