@@ -174,6 +174,7 @@
 
 
 (defmethod start-box-callback ((self t)) nil)
+(defmethod play-box-callback ((self t) time) nil)
 (defmethod stop-box-callback ((self t)) nil)
 
 (defmethod start-editor-callback ((self play-editor-mixin))
@@ -204,6 +205,7 @@
         (play-editor-callback editor time))))
 
 (defmethod editor-play ((self play-editor-mixin)) 
+
   (when (play-obj? (get-obj-to-play self))
     
     (start-editor-callback self)
@@ -337,7 +339,7 @@
 
 (defmethod stop-cursor ((self x-cursor-graduated-view))
   (om-stop-transient-drawing self)
-  (om-invalidate-view self)) 
+  (om-invalidate-view self))
               
 (defmethod reset-cursor ((self x-cursor-graduated-view))
   (update-cursor self 0))

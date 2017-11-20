@@ -1057,7 +1057,7 @@
 ;;; PLAYER INTERFACE
 ;;;=====================
 (defmethod editor-make-player ((self maquette-editor))
-  (make-player :reactive-player;:dynamic-scheduler
+  (make-player :reactive-player
                :run-callback 'play-editor-callback
                :stop-callback 'stop-editor-callback))
 

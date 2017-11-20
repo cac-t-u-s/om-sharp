@@ -26,10 +26,13 @@
 
 (defun init-om-player ()
   (setf *general-player*
-        (make-player :reactive-player;:dynamic-scheduler  
+        (make-player :reactive-player 
                      :run-callback 'play-editor-callback
                      :callback-tick 50
                      :stop-callback 'stop-editor-callback)))
+
+
+;(register *general-player*)
 
 (defun abort-om-player ()
   (destroy-player *general-player*)
@@ -37,6 +40,7 @@
 
 ;(abort-om-player)
 ;(init-om-player)
+
 (add-om-init-fun 'init-om-player)
 
 
@@ -53,18 +57,18 @@
         :approx (get-edit-param self :approx)))
 
 
-(defun draw-cursor-at (box time)
-  (let* ((frame (frame box)))
-    (setf (box-play-time frame) time)  ; (- time (play-state box))))
-    (om-invalidate-view frame)))
-  
-(defun play-box-callback (caller time)
+
+
+(defmethod play-box-callback ((self OMBox) time)
   (handler-bind ((error #'(lambda (e)
                             (print (format nil "~A" e))
                             ;(om-kill-process (callback-process *general-player*))
                             (abort e))))
-    (draw-cursor-at caller time)
+    (let* ((frame (frame self)))
+      (setf (box-play-time frame) time)  ; (- time (play-state box))))
+      (om-invalidate-view frame))
     ))
+
 
 (defmethod start-box-callback ((self OMBox))
   (setf (play-state self) t)
@@ -78,18 +82,20 @@
       (om-invalidate-view (frame self))))
 
 
+
+
+;;; called from OM / user
 (defun box-player-start (box)
   (when box
     (start-box-callback box)
-    (when (editor box) 
-      (start-editor-callback (editor box)))
+    (when (editor box) (start-editor-callback (editor box)))
     ))
 
 (defun box-player-stop (box)
   (when box
     (stop-box-callback box)
-    (when (editor box) 
-      (stop-editor-callback (editor box)))))
+    (when (editor box) (stop-editor-callback (editor box)))
+    ))
 
 
 ;;; called by the player
@@ -98,7 +104,8 @@
   (when (editor self) (play-editor-callback (editor self) time)))
 
 (defmethod stop-editor-callback ((self OMBox)) 
-  (box-player-stop self))
+  (box-player-stop self)
+  (when (editor self) (stop-editor-callback (editor self))))
 
 
 

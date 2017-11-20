@@ -177,6 +177,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
   (setf (interval self) (if (= (car interval) (cadr interval))
                             (list (car interval) *positive-infinity*)
                           interval)))
+
 (defmethod set-object-interval ((self t) interval)
   interval)
 
@@ -214,6 +215,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 (defmethod player-play/stop-object ((self t) (object t) caller &key parent (at 0) interval params)
   (declare (ignore self object caller parent at interval params))
   nil)
+
 ;;===========================================================================
 ;;===========================================================================
 ;;===========================================================================
@@ -544,7 +546,8 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 ;;;;;internal-time can be used to fix the start reference time (for sync between multiple objects)
 ;;;;;interval sets the playing interval of the object
 ;;;;;caller is the object to receive graphic updates
-(defmethod play-schedulable-object ((self schedulable-object) (sched scheduler) &key internal-time interval parent caller)
+(defmethod play-schedulable-object ((self schedulable-object) (sched scheduler) 
+                                    &key internal-time interval parent caller)
   (when (or (eq (state self) :stop)
             (not (state self)))
     (init-schedulable-object self :interval interval :parent parent)
@@ -581,6 +584,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 (defmethod register-object ((self scheduler) object caller)
   (mp:with-lock ((lock self))
       (push (list object caller) (register self))))
+
 (defmethod unregister-object ((self scheduler) object)
   (mp:with-lock ((lock self))
     (setf (register self) (remove object (register self) :key 'car))))
@@ -638,7 +642,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
           do
           (player-stop-object sched child))
     (unregister-object sched self)
-    (funcall (stop-callback sched) caller)
+    (when caller (funcall (stop-callback sched) caller))
     (abort-schedulable-object self)))
 
 (defmethod abort-schedulable-object ((self schedulable-object))

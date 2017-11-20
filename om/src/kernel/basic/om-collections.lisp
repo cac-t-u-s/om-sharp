@@ -144,6 +144,10 @@
 (defmethod editor-play-state ((self collection-editor))
   (editor-play-state (internal-editor self)))
 
+(defmethod editor-close ((self collection-editor)) 
+  (editor-close (internal-editor self))
+  (call-next-method))
+
 
 ;;;==================================
 ;multidisplay API
