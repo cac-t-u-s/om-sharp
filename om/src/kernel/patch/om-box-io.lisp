@@ -170,9 +170,11 @@
 
 ;;; :++ is a special keyword allowing to set a personalized keyword name
 ;;; used for instance in class-array
+(defmethod box-free-keyword-name ((self t)) :++)
+
 (defmethod change-keyword ((input box-keyword-input) key)
   (let ((old-name (name input))
-        (new-key (if (equal key :++) 
+        (new-key (if (equal key (box-free-keyword-name (box input))) 
                     (let ((new-name (om-get-user-string "type a new name" :initial-string (name input))))
                       (and new-name (intern-k new-name)))
                    key)))
