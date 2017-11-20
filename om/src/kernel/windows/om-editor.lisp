@@ -252,7 +252,10 @@
 
 ;;; callback called when anything closes the window
 ;;; called by the close-window event
+(defmethod editor-close ((self t)) nil) 
+
 (defmethod editor-close ((self OMEditor)) 
+  (call-next-method)
   (setf (editor (object self)) nil))
 
 ;;; callback called when the window is brought to front or back

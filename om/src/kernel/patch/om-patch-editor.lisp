@@ -265,10 +265,7 @@
                (store-current-state-for-undo editor)
                (mapc 'initialize-size (or selected-boxes selected-connections))))
         
-        ; same thing... which one is best ?
         (#\I (mapc 'initialize-box-value selected-boxes))
-        (:om-key-esc (mapc 'initialize-box-value selected-boxes))
-        
         
         (:om-key-left (unless (edit-lock editor)
                         (if (om-option-key-p) 
