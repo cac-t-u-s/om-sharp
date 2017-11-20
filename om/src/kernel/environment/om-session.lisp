@@ -60,7 +60,7 @@
 
   
 (defmethod save-om-preferences ()
-  (print "SAVING!!!!")
+
   (let ((path (om-preference-file)))
     (om-create-directory (make-pathname :directory (pathname-directory path)) :if-exists nil)
     (with-open-file (out path :direction :output 
