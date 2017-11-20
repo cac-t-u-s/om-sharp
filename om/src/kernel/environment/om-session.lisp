@@ -60,6 +60,7 @@
 
   
 (defmethod save-om-preferences ()
+  (print "SAVING!!!!")
   (let ((path (om-preference-file)))
     (om-create-directory (make-pathname :directory (pathname-directory path)) :if-exists nil)
     (with-open-file (out path :direction :output 
@@ -68,6 +69,7 @@
       (let ((*print-pretty* t))
         (pprint `(:info (:om-version ,*om-version*) (:saved ,(om-get-date))) out)
         (pprint `(:previous-ws  ,(omng-save *last-open-ws*)) out)
+        (pprint `(:recent-files  ,(omng-save (mapcar 'namestring *om-recent-files*))) out)
         ;;; if there is a workspace the preferences will be stored in that workspace
         (unless *current-workspace*
           (pprint `(:user-preferences
@@ -84,13 +86,16 @@
 
 ;(read-om-preferences)
 
+;(cdr (find :user-preferences pr-list :test 'equal :key 'car)
+
 (defmethod read-om-preferences ()
   (let* ((path (om-preference-file))
          (pr-list (and (file-exist-p path)
                        (list-from-file path))))
-    (load-saved-prefs
-     (cdr (find :user-preferences pr-list :test 'equal :key 'car)))))
-
+    
+    (setq *om-recent-files* (omng-load (find-value-in-kv-list pr-list :recent-files)))
+    (load-saved-prefs (find-values-in-prop-list pr-list :user-preferences))
+    ))
 
 
 ;;;======================================

@@ -36,6 +36,11 @@
                             (om-make-menu-item "New Text/Lisp Buffer" #'(lambda () (om-lisp::om-open-text-editor :lisp t)) :key "N")
                             ))
         (om-make-menu-item "Open..." #'(lambda () (funcall (open-command self))) :key "o" :enabled (and (open-command self) t))
+        (om-make-menu "Open Recent..."
+                      #'(lambda (item)
+                          (mapcar #'(lambda (file) 
+                                      (om-make-menu-item (namestring file) #'(lambda () (open-om-document file))))
+                                  *om-recent-files*)))
         (om-make-menu-comp 
          (list (om-make-menu-item "Save" #'(lambda () (funcall (save-command self))) :key "s" :enabled (and (save-command self) t))
                (om-make-menu-item (save-as-menu-name self) 

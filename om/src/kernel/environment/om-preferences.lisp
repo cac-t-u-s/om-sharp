@@ -181,7 +181,9 @@
                                           :defval val :value val
                                           :visible nil)))))
     )
-  (save-preferences))
+  ;;; will be called also when loading the preferences (i.e. a lot of times!)
+  (save-preferences)
+  )
       
 (defun set-pref (module-name key val &optional preferences-list)
   (set-pref-in-module (find-pref-module module-name preferences-list) key val))

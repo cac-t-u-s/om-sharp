@@ -131,15 +131,31 @@
 ;      (when file
 ;        (open-document-from-file file)))))
         
+(defvar *om-recent-files* nil)
+
+(defun record-recent-file (file)
+
+  (if (find (namestring file) *om-recent-files* :key 'namestring :test 'string-equal)
+      (setf *om-recent-files*
+            (cons file (remove (namestring file) *om-recent-files* :key 'namestring :test 'string-equal)))
+    (setf *om-recent-files*
+          (cons file (first-n *om-recent-files* 5)))
+    )
+  ;;; to store the list of documents...
+  (save-om-preferences))
+      
+
 ;;; called from the menu ("Open")
-(defun open-om-document ()
-  (let ((file (om-choose-file-dialog :prompt (string+ (om-str :open) "...")
-                                     :directory (or *last-open-dir* (om-user-home))
-                                     :types (append (append 
-                                                     (doctype-info :om)
+(defun open-om-document (&optional path)
+  (let ((file (or path 
+                  (om-choose-file-dialog :prompt (string+ (om-str :open) "...")
+                                         :directory (or *last-open-dir* (om-user-home))
+                                         :types (append (append 
+                                                         (doctype-info :om)
                                                      (doctype-info :patch) (doctype-info :maquette) (doctype-info :textfun))
-                                                    '("Text File" "*.txt" "Lisp File" "*.lisp;*.lsp" "All documents" "*.*")))))
+                                                        '("Text File" "*.txt" "Lisp File" "*.lisp;*.lsp" "All documents" "*.*"))))))
     (when file
+      (record-recent-file file)
       (let ((type (extension-to-doctype (pathname-type file))))
         (case type
           (:patch (open-doc-from-file type file))
