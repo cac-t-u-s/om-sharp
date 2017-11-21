@@ -46,6 +46,7 @@
    (om-make-pathname :directory (append (pathname-directory (lib-resources-folder self)) '("icons"))))
 
 (add-preference-module :libraries "Libraries")
+(add-preference-section :libraries "Libraries")
 (add-preference :libraries :libs-folder1 "Libraries folder 1" :folder :no-default nil 'update-libraries-folder)
 (add-preference :libraries :libs-folder2 "Libraries folder 2" :folder :no-default nil 'update-libraries-folder)
 (add-preference :libraries :libs-folder3 "Libraries folder 3" :folder :no-default nil 'update-libraries-folder)

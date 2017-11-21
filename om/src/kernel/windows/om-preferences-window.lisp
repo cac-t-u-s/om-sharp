@@ -169,7 +169,7 @@
               :items type 
               :resizable :w
               :value (pref-item-value pref-item)
-              :size (om-make-point (list :string (format nil "~A" (pref-item-value pref-item))) 22)
+              :size (om-make-point (list :string (format nil "~A" (pref-item-value pref-item))) #-linux 22 #+linux 30)
               :font (om-def-font :font1)
               :di-action #'(lambda (item)
                              (setf (pref-item-value pref-item) (om-get-selected-item item))
@@ -178,9 +178,9 @@
 
 
 (defmethod make-preference-item ((type number-in-range) pref-item)
-  (om-make-view 
+  (let ((y #-linux 18 #+linux 22)) (om-make-view 
    'om-view 
-   :size (omp 60 18) :resizable nil
+   :size (omp 60 y) :resizable nil
    :subviews (list 
               (om-make-graphic-object
                'numbox 
@@ -188,7 +188,7 @@
                :value (pref-item-value pref-item)
                :bg-color (om-def-color :white)
                :border t
-               :size (om-make-point 40 18) 
+               :size (om-make-point 40 y) 
                :font (om-def-font :font2)
                :decimals (or (number-in-range-decimals type) 0)
                :min-val (or (number-in-range-min type) 0) 
@@ -197,7 +197,7 @@
                               (setf (pref-item-value pref-item) (value item))
                               (maybe-apply-pref-item-after-fun pref-item)
                               ))
-              )))
+              ))))
 
 (defmethod make-preference-item ((type (eql :number)) pref-item)
   (make-preference-item (make-number-in-range :min -1000 :max 1000) pref-item))
@@ -377,7 +377,7 @@
                                             (om-make-di 
                                              'om-button 
                                              :text "Restore defaults" 
-                                             :size (om-make-point 120 24)
+                                             :size #-linux (om-make-point 120 24) (om-make-point 140 30)
                                              :di-action #'(lambda (item)
                                                             (declare (ignore item))
                                                             (let* ((current-panel (om-get-current-view (tabs win)))
