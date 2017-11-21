@@ -30,7 +30,7 @@
 (defmethod object-default-edition-params ((self 3DC))
   (append (call-next-method)
           `((:line-width 1)
-            (:3D-bg-color ,(om-def-color :light-gray)))))
+            (:3D-bg-color ,(om-def-color :gray)))))
 
 (defmethod object-has-editor ((self 3dc)) t)
 (defmethod get-editor-class ((self 3DC)) '3DC-editor)
