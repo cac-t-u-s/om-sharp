@@ -54,6 +54,7 @@
 
 (defparameter +control-button+ #+macosx :hyper #-macosx :control)
 (defparameter +2nd-press+ #+win32 :second-press #-win32 :nth-press)
+(defparameter +2nd-press-callback+ #+win32 om-double-clic-callback #-win32 'om-multiple-clic-callback)
 
 (defclass om-interactive-object () ()
   (:default-initargs 
@@ -92,14 +93,14 @@
                    ((:button-1 :release :meta)  om-clic-release-callback (nil nil t))
                    ((:button-1 :release)  om-clic-release-callback (nil nil nil))
                   
-                   ((:button-1 ,+2nd-press+ :shift ,+control-button+ :meta) om-double-clic-callback (t t t))
-                   ((:button-1 ,+2nd-press+ :shift ,+control-button+) om-double-clic-callback (t t nil))
-                   ((:button-1 ,+2nd-press+ :shift :meta) om-double-clic-callback (t nil t))
-                   ((:button-1 ,+2nd-press+ :meta ,+control-button+) om-double-clic-callback (nil t t))
-                   ((:button-1 ,+2nd-press+ :shift ) om-double-clic-callback (t nil nil))
-                   ((:button-1 ,+2nd-press+ ,+control-button+) om-double-clic-callback (nil t nil))
-                   ((:button-1 ,+2nd-press+ :meta) om-double-clic-callback (nil nil t))
-                   ((:button-1 ,+2nd-press+) om-double-clic-callback (nil nil nil))
+                   ((:button-1 ,+2nd-press+ :shift ,+control-button+ :meta) ,+2nd-press-callback+ (t t t))
+                   ((:button-1 ,+2nd-press+ :shift ,+control-button+) ,+2nd-press-callback+ (t t nil))
+                   ((:button-1 ,+2nd-press+ :shift :meta) ,+2nd-press-callback+ (t nil t))
+                   ((:button-1 ,+2nd-press+ :meta ,+control-button+) ,+2nd-press-callback+ (nil t t))
+                   ((:button-1 ,+2nd-press+ :shift ) ,+2nd-press-callback+ (t nil nil))
+                   ((:button-1 ,+2nd-press+ ,+control-button+) ,+2nd-press-callback+ (nil t nil))
+                   ((:button-1 ,+2nd-press+ :meta) ,+2nd-press-callback+ (nil nil t))
+                   ((:button-1 ,+2nd-press+) ,+2nd-press-callback+ (nil nil nil))
                   
                   ;(:post-menu om-context-menu-callback)
                    ((:button-3 :press) om-context-menu-callback)
