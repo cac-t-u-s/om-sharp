@@ -236,7 +236,7 @@
     (setf (capi::simple-pane-background (om-get-view self)) col)))
       
 (defmethod om-get-bg-color ((self om-graphic-object))
-  (let ((c (simple-pane-background (om-get-view self))))
+  (let ((c (capi::simple-pane-background (om-get-view self))))
     (when (and c (not (equal c :transparent)))
       (make-omcolor :c c))))
 
