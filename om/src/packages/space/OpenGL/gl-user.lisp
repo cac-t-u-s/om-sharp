@@ -595,7 +595,7 @@
     (draw-contents canvas)
     
     (opengl:with-matrix-pushed 
-      ;(opengl:gl-mult-matrixd (object-transform canvas))
+      (opengl:gl-mult-matrixd (object-transform canvas))
       (mapc #'draw (g-objects canvas)))
     )
   )
