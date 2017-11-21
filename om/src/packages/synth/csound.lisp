@@ -26,8 +26,12 @@
 ;;; Preferences
 ;;;=============================
 
+(defun which-executable (program-file &optional default)
+  (with-open-stream (s (sys::open-pipe (format nil "which ~A" program-file)))
+    (setf path (or (read-line s nil nil) default))))
+
 (add-preference-section :externals "Csound")
-(add-preference :externals :csound-path "Csound exec path" :file #P"/usr/local/bin/csound")
+(add-preference :externals :csound-path "Csound exec path" :file (pathname (which-executable "csound")))
 (add-preference :externals :csound-flags "Default flags" :string "-f -m7 -A -N -g -b8192 -B8192")
 (add-preference :externals :csound-gen-args "Max GEN arguments" (make-number-in-range :min 2 :max 10000) 1024)
 (add-preference :externals :csound-def-table "Default table" :string "f 1 0 4097 7  0 2048 1 2048 0")
