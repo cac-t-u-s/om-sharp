@@ -216,8 +216,9 @@
     (om-modal-dialog win owner)))
         
 #-cocoa             
-(defun om-choose-color-dialog (&key color)        
-  (let ((rep (capi::prompt-for-color  "Choose a color" :color (when color (omcolor-c color)))))
+(defun om-choose-color-dialog (&key color alpha owner)        
+  (let ((rep (capi::prompt-for-color "Choose a color" :color (when color (omcolor-c color))
+                                     :owner owner)))
     (when rep 
       (make-omcolor :c rep))))
 
