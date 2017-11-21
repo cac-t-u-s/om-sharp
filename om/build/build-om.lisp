@@ -100,11 +100,15 @@
 (defun load-om-package (name)
   (let ((packager-loader (make-pathname :directory (append (pathname-directory *packages-folder*) (list name)) 
                                         :name name :type "lisp")))
-    (when (probe-file packager-loader)
-      (print (format nil "LOADING PACKAGE: ~A" packager-loader))
-      (load packager-loader)
-      (push name *om-packages*)
-      name)
+    (if (probe-file packager-loader)
+      (progn 
+        (print (format nil "LOADING PACKAGE: ~A" packager-loader))
+        (load packager-loader)
+        (push name *om-packages*)
+        name)
+      (progn 
+        (print (format nil "PACKAGE LOADER NOT FOUND !!"))
+        nil))
     ))
 
 (defun find-om-package (name)
@@ -126,9 +130,9 @@
 (load-om-package "sdif")
 (load-om-package "osc")
 (load-om-package "sound")
+(load-om-package "synth")
 (load-om-package "space")
 (load-om-package "interface")
-(load-om-package "csound")
 ;(load-om-package "tempo")
 ;;(load-om-package "timing")
 

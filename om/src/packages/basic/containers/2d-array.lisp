@@ -395,10 +395,3 @@
 
 
 
-;;;========================================
-;;; A superclass for 'playable' class-array
-;;;========================================
-
-(defclass SynthesisEvt (class-array schedulable-object) ())
-
-
