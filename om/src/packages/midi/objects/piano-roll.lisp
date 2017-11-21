@@ -140,7 +140,7 @@
 (defmethod finalize-data-frame ((frame midi-note) &rest args) 
   (let ((posy (getf args :posy)))
     (when posy 
-      (setf (pitch frame) posy))))
+      (setf (pitch frame) (round posy)))))
 
 
 ;;;==================
