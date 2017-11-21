@@ -53,6 +53,7 @@
 (defun default-audio-output-device ()
   (or (and *juce-player* (car (juce::audio-driver-output-devices *juce-player* *audio-driver*))) ""))
 
+;(default-audio-output-device)
 
 ; (juce::get-audio-drivers *juce-player*)
 (defun setup-audio-device ()  
@@ -78,14 +79,14 @@
       
       (add-preference :audio :out-channels "Output Channels" device-supported-out-channels 2
                       nil 'apply-audio-device-config)
-      (add-preference :audio :samplerate "Sample Rate" device-supported-sample-rates (car device-supported-sample-rates)
+      (add-preference :audio :samplerate "Sample Rate" device-supported-sample-rates 44100
                       nil 'apply-audio-device-config)
-      (add-preference :audio :buffersize "Buffer Size" device-supported-buffer-sizes (juce::getdefaultbuffersize *juce-player*)
+      (add-preference :audio :buffersize "Buffer Size" device-supported-buffer-sizes 512
                       nil 'apply-audio-device-config)
 
       (unless (find (get-pref-value :audio :out-channels) device-supported-out-channels :test '=)
         (put-default-value (get-pref :audio :out-channels))
-        ;;; need to reapply the config with the defautl value
+        ;;; need to reapply the config with the default value
         (apply-audio-device-config))
            
       (unless (find (get-pref-value :audio :samplerate) device-supported-sample-rates :test '=)
@@ -122,12 +123,17 @@
   )
 
 ; (juce::getCurrentDeviceType *juce-player*)
-; (juce::audio-driver-output-devices *juce-player* "CoreAudio")
+; (juce::audio-driver-output-devices *juce-player* "Windows Audio")
 ;;; when this function si called the preferences are set to their default or saved values
 (defun open-juce-player ()
   (setq *juce-player* (juce::openAudioManager))
+
   (unless *audio-driver* 
-    (setf *audio-driver* (car (juce::get-audio-drivers *juce-player*))))
+    (loop for ad in (juce::get-audio-drivers *juce-player*)
+          while (not *audio-driver*)
+          do (setf *audio-driver* ad))
+    )
+
   (if *audio-driver*
       (progn 
         (om-print (format nil "Selecting default audio driver: \"~A\"." *audio-driver*) "AUDIO")
