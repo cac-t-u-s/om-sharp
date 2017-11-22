@@ -377,7 +377,7 @@
                                             (om-make-di 
                                              'om-button 
                                              :text "Restore defaults" 
-                                             :size #-linux (om-make-point 120 24) (om-make-point 140 30)
+                                             :size #-linux (om-make-point 120 24) #+linux (om-make-point 140 30)
                                              :di-action #'(lambda (item)
                                                             (declare (ignore item))
                                                             (let* ((current-panel (om-get-current-view (tabs win)))
