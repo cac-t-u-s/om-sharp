@@ -248,9 +248,9 @@
                                     (list 
                                      (oa::om-make-di 'oa::om-multi-text 
                                                      :size (oa::om-make-point #-linux 360 #+linux 400 row-height)
-                                                     :text (capi::wrap-text
+                                                     :text (oa::om-string-wrap
 							    "o7 detects MIDI device at startup. If some active MIDI devices do not appear in the lists, you might need to restart the program."
-							    65)
+							    #-linux 360 #+linux 400 (oa::om-def-font :font1))
                                                      :font (oa::om-def-font :font1))
                                      ;(oa::om-make-di 'oa::om-button :position (oa::om-make-point 20 265) :size (oa::om-make-point 130 20) :text "Refresh Devices"
                                      ;                :di-action #'(lambda (item) 
