@@ -76,7 +76,7 @@
        ((= 1 (length grouped-list)) ;; only one kind of synthesis (most frequent case...)
         
         (funcall (car (car grouped-list)) 
-                 (cadr (car groupedd-list))
+                 (cadr (car grouped-list))
                  :run run :name name :format format
                  :inits inits :tables tables))
             
