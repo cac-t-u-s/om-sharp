@@ -107,16 +107,24 @@ For easier browsing it is recommended that a package do not contain at the same 
           (loop for item in (elements self) append (get-all-symbol-names item))))
 
 
-
-
 ;;; Fill package tools : Subpackages
-(defmethod AddPackage2Pack ((new-Package OMAbstractPackage) inPackage)
-    (unless (member (name new-Package) (subpackages inPackage) :test 'string-equal :key 'name)
-      (omNG-add-element inPackage new-package)
-      new-package))
+(defmethod AddPackage2Pack ((new-package OMAbstractPackage) inPackage)
+  (let ((existing-pack (find (name new-package) (subpackages inPackage) :test 'string-equal :key 'name)))
+    (if existing-pack
+        (progn 
+          (setf (functions existing-pack)
+                (append (functions existing-pack) (functions new-package)))
+          (setf (classes existing-pack)
+                (append (classes existing-pack) (classes new-package)))
+          existing-pack)
+      (progn 
+        (omNG-add-element inPackage new-package)
+        new-package))))
 
 (defmethod AddPackage2Pack ((name string) inPackage)
-  (AddPackage2Pack (make-instance 'OMPackage :name package-name) in-package))
+  (let ((existing-pack (find name (subpackages inPackage) :test 'string-equal :key 'name)))
+    (or existing-pack
+        (AddPackage2Pack (make-instance 'OMPackage :name name) inPackage))))
 
 ;;; Fill package tools : Classes
 (defmethod AddClass2Pack ((classname symbol) inPackage)
