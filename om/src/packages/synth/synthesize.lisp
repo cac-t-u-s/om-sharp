@@ -22,3 +22,80 @@
 ;;;==============================================
 
 (defclass SynthesisEvt (schedulable-object) ())
+
+(defun filter-events (evt-list fun-s) 
+  (loop for item in evt-list
+        when (let ((rep t))
+               (loop for fun in (list! fun-s)
+                     while rep do
+                     (setf rep (funcall fun ev)))
+               rep)
+        collect item))
+
+(defmethod synthesize-method ((self t)) nil)
+
+(defun collect-events-by-synth (evt-list)
+  (let ((rep nil))
+    (loop for evt in evt-list do
+          (let ((synthesis-fun (synthesize-method evt)))
+            (if synthesis-fun
+                (let ((thislist (find synthesis-fun rep :key 'car)))
+                  (if thislist (setf (cadr thislist) (append (cadr thislist) (list evt)))
+                    (setf rep (append rep (list (list synthesis-fun (list evt)))))))
+              (om-beep-msg "No synthesis method for events of type ~A" (type-of evt))))
+          )
+    rep))
+    
+
+;;;==============================================
+;;; A generic synthesizer function 
+;;; (calls appropriate specific method for the type of input)
+;;;==============================================
+
+
+
+(defmethod* synthesize ((self synthesisevt) &key (run t) (name "my-synth") (format "aiff") filters inits tables)
+  (when (synthesize-method self)
+    (if (or (null filters)
+            (filter-events (list self) filters))
+        (funcall (synthesize-method self) 
+                 self
+                 :run run :name name :format format
+                 :inits inits :tables tables)
+      (om-beep-msg "SYNTHESIZE: event did not pass filter(s) !"))
+    ))
+
+(defmethod* synthesize ((self list) &key (run t) (name "my-synth") (format "aiff") filters inits tables)
+  
+  (let* ((evt-list (if filters (filter-events self filters) self))
+         (grouped-list (collect-events-by-synth evt-list)))
+    (when grouped-list
+      
+      (cond 
+       
+       ((= 1 (length grouped-list)) ;; only one kind of synthesis (most frequent case...)
+        
+        (funcall (car (car grouped-list)) 
+                 (cadr (car groupedd-list))
+                 :run run :name name :format format
+                 :inits inits :tables tables))
+            
+       (t (let ((rep-list (loop for elt in grouped-list  ;; several synthesis processes to mix
+                                for i = 1 then (+ i 1) collect
+                                (funcall (car elt) 
+                                         (cadr elt)
+                                         :run run 
+                                         :name (string+ name "-temp-" (integer-to-string i))
+                                         :format format
+                                         :inits inits :tables tables))))
+            (if run
+                ;;; mix all results
+                (save-sound 
+                 (reduce 'sound-mix rep) 
+                 (if (pathnamep name) name (outfile name :type format)))
+              
+                rep-list)))
+       )
+      )))
+
+
