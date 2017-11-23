@@ -168,6 +168,8 @@
            "=====================~%~A ~A ~%~A~%~A~%=====================~%~%"
            (list (name lib) (or (version lib) "") (or (doc lib) "") (or (author lib) "")))
           
+          (CleanupPackage lib)
+          
           ;;; load sources
           (with-relative-ref-path 
            (mypathname lib)
@@ -179,7 +181,6 @@
            )
 
           ;;; set packages
-          (CleanupPackage lib)
           (mapc #'(lambda (class) (addclass2pack class lib)) (find-values-in-prop-list symbols :classes))
           (mapc #'(lambda (fun) (addFun2Pack fun lib)) (find-values-in-prop-list symbols :functions))
           (mapc #'(lambda (pk) 

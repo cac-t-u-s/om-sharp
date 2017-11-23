@@ -785,7 +785,6 @@
 (defmethod om-load-from-id ((id (eql :package)) data)
   (let* ((name (find-value-in-kv-list data :name))
          (pack (make-instance 'OMPackage :name (or name "Untitled Package"))))
-    
     (mapc #'(lambda (class) (addclass2pack class pack)) (find-values-in-prop-list data :classes))
     (mapc #'(lambda (fun) (addFun2Pack fun pack)) (find-values-in-prop-list data :functions))
     (mapc #'(lambda (spk) 
