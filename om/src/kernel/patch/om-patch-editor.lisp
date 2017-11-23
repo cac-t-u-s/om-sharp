@@ -874,7 +874,8 @@
           (string-until-char str " ")
     
         (let* ((*package* (find-package :om))
-               (read-sym (search-known-symbol first-item))
+               (read-sym (and (not (equal #\( (elt first-item 0)))
+                              (search-known-symbol first-item)))
                (pos (omng-position self position))
                (newbox nil))
           
