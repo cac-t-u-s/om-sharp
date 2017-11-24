@@ -103,13 +103,14 @@
 
 (defun default-help-menu-items (self)
   (list
-   (om-make-menu-item "Editor Commands..." #'(lambda () (funcall (help-command self))) :key "H" :enabled (and (help-command self) t))
+   (om-make-menu-item "Editor Help..." #'(lambda () (funcall (help-command self))) :key "H" :enabled (and (help-command self) t))
    (om-make-menu-comp  
     (list 
-     (om-make-menu-item "Online User Manual" nil :enabled nil)
-     (om-make-menu-item "OM Function Reference" nil :enabled nil)
+     (om-make-menu-item "Online Resources" #'(lambda() (sys:open-url "https://openmusic-project.github.io/")) :enabled t)
+     (om-make-menu-item "Functions & Classs Reference" #'(lambda() (sys:open-url (namestring (get-om-reference-pages-index)))) :enabled t)
      ))
    ))
+
 
 (defun main-app-menu-item ()
   #-cocoa(when (om-standalone-p) 
