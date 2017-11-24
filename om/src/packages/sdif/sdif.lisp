@@ -32,7 +32,7 @@
 (omNG-make-package 
  "SDIF"
  :container-pack *om-package-tree*
- :doc "Tools for manipulating data in the Standard Description Interchange Format."
+ :doc "Tools for manipulating data in the Standard Description Interchange Format"
  :classes '(sdiffile sdifframe sdifmatrix sdiftype sdifnvt)
  :functions '( 
               GetSDIFData GetSDIFTimes GetSDIFFrames 

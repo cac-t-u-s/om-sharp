@@ -20,7 +20,7 @@
 
 (let ((basicpack (omNG-make-package "Basic Tools"
                    :container-pack *om-package-tree*
-                   :doc "Objects and tools for data representation and processing."
+                   :doc "Objects and tools for data representation and processing"
                    :subpackages 
                    (list (omNG-make-package "List Processing" 
                                             :doc ""

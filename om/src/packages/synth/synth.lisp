@@ -25,6 +25,6 @@
 (omNG-make-package 
  "Synth"
  :container-pack *om-package-tree*
- :doc "Sound synthesis tools / connection to external synthesizers."
+ :doc "Sound synthesis tools / connection to external synthesizers"
  :classes nil
  :functions '(synthesize csound-synth))

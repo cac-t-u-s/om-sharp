@@ -28,7 +28,7 @@
 (omNG-make-package 
  "MIDI"
  :container-pack *om-package-tree*
- :doc "MIDI tools and objects."
+ :doc "MIDI tools and objects"
  :classes '(piano-roll)
  :functions nil
  :subpackages nil)

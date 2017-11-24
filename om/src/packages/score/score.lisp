@@ -30,7 +30,7 @@
 (omNG-make-package 
  "Score"
  :container-pack *om-package-tree*
- :doc "Score tools and objects."
+ :doc "Score tools and objects"
  :classes nil
  :functions nil
  :subpackages  (list (omNG-make-package 

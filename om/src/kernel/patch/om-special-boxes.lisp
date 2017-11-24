@@ -73,7 +73,7 @@ Mind using this box in 'eval-once' mode when connected to several other boxes."
   :initvals '(nil) 
   :indoc '("a list")
   :doc 
-"Returns the elements of the list on different ouputs (up to 5O elements).
+"Returns the elements of the list on different ouputs (up to 50 elements).
 
 Use > and < to add/remove outputs.
 

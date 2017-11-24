@@ -42,6 +42,6 @@
 (omNG-make-package 
  "Spat"
  :container-pack *om-package-tree*
- :doc "Spatialization tools and connection to the Spat framework."
+ :doc "Spatialization tools and connection to the Spat framework"
  :classes '(3DC 3D-viewer)
  :functions '())
