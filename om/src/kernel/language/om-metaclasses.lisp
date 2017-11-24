@@ -62,6 +62,9 @@ This class is an OMClass (unlike OMClass itself!).")
   (:metaclass  funcallable-standard-class)
   )
 
+(defmethod omgenericfunction-p ((self t)) nil)
+(defmethod omgenericfunction-p ((self OMGenericFunction)) t)
+
 
 ; OMPersistantObject
 (defclass OMMethod (OMBasicObject standard-method) 

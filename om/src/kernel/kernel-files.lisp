@@ -42,6 +42,7 @@
         "tools/om-pathnames"
         "tools/om-strings"
         "tools/om-traduction"
+        "tools/om-documentation"
 
         "language/om-objects" 
         "language/om-metaclasses"   
@@ -61,6 +62,7 @@
         "environment/om-package"
         "environment/om-library"
         "environment/om-workspace" 
+        "environment/om-function-reference" 
 
         "windows/om-windows"
         "windows/om-main-window"

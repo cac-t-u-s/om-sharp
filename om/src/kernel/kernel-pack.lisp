@@ -50,7 +50,6 @@
 
 
 
-
 ;(defvar *filebox-package* (omNG-protect-object (omNG-make-new-package "File Box")))
 ;(AddGenFun2Pack '(file-box file-write-line file-write file-read-line file-eof-p) *filebox-package*)
 ;(AddPackage2Pack *filebox-package* *fileutils-package*)
@@ -63,9 +62,6 @@
 ;(AddClass2Pack '(text-box text-view button check-box 
 ;                          slider single-item-list multi-item-list pop-up-menu) *di-package*)
 
-
-
-; (gen-reference *om-ref-entries* *om-reference-dir*)
 
 
 
