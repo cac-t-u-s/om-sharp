@@ -134,7 +134,14 @@
                                    )
                                   )))
              (om-make-menu "Windows" (default-windows-menu-items self))
-             (om-make-menu "Help" (default-help-menu-items self))
+             (om-make-menu "Help" (cons 
+                                   (om-make-menu-item  
+                                          "See Function/Class reference page..." 
+                                          #'(lambda () 
+                                              (loop for ref in (remove-duplicates (mapcar 'reference (get-selected-boxes self)))
+                                                    do (show-reference-page ref)))
+                                          :key "d")
+                                   (default-help-menu-items self)))
              )))
 
 (defmethod get-boxframes ((self patch-editor-view) &key only-selected)

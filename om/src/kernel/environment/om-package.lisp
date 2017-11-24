@@ -160,7 +160,11 @@ For easier browsing it is recommended that a package do not contain at the same 
 (defmethod AddSpecialItem2Pack ((item symbol) inPackage)
   (unless (find item (special-items inPackage) :test 'equal)
     (omNG-add-element inPackage item)))
- 
+
+;;; used to refer in function/class reference pages 
+(defmethod special-item-reference-class ((item t)) nil)
+
+
 
 (defmethod AddFun2Pack ((funname list) inPackage)
    (mapcar #'(lambda (fun) (AddGenFun2Pack fun inPackage)) funname))

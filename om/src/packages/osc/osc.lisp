@@ -30,6 +30,6 @@
 (omNG-make-package 
  "OSC"
  :container-pack *om-package-tree*
-  :doc "Tools for manipulating/communicating with data using the Open Sound Protocol."
-   :classes '(osc-bundle)
-   :functions '(osc-send osc-receive route-osc))
+ :doc "Tools for manipulating/communicating with data using the Open Sound Protocol"
+ :classes '(osc-bundle)
+ :functions '(osc-send osc-receive route-osc))

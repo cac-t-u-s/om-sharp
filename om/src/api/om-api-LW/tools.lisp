@@ -101,7 +101,6 @@
         (system::class-documentation class)
       (concatenate 'string "Class " (string class) " not found"))))
 
-
 (defun class-instance-slots (class)
   (remove :class (class-slots class) :test 'equal :key 'slot-allocation))
 

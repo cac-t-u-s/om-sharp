@@ -74,7 +74,7 @@
   (let ((io-hspace 4))
     (om-with-fg-color (om-def-color :dark-gray)
       ;;; interior
-      (when (color-? (color box))
+      (when (box-draw-color box)
         (om-draw-rect 0 io-hspace (w self) (- (h self) (* 2 io-hspace)) 
                       :color (box-draw-color box)
                       :angles :round
@@ -108,6 +108,8 @@
    (decimals :accessor decimals :initarg :decimals :initform 0)
    (orientation :accessor orientation :initarg :orientation :initform :vertical)
    (action :accessor action :initarg :action :initform nil)))
+
+(defmethod special-item-reference-class ((item (eql 'slider))) 'SliderBox)
 
 (AddSpecialItem2Pack 'slider *interfaceboxes*)
 (defmethod special-box-p ((self (eql 'slider))) t)
@@ -213,6 +215,7 @@
 
 (AddSpecialItem2Pack 'button *interfaceboxes*)
 (defmethod special-box-p ((self (eql 'button))) t)
+(defmethod special-item-reference-class ((item (eql 'button))) 'ButtonBox)
 
 (defmethod get-all-keywords ((self ButtonBox))
   '((:send-value :text :action)))
@@ -268,8 +271,5 @@
                   (om-invalidate-view frame)
                   ))))
 
-#|
-    
-|#  
 
 
