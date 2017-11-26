@@ -28,12 +28,16 @@
 
 (defun which-executable (program-file &optional default)
   (with-open-stream (s (sys::open-pipe (format nil "which ~A" program-file)))
-    (setf path (or (read-line s nil nil) default))))
+    (let ((path (read-line s nil nil)))
+      (if path
+	  (handler-case (and (file-executable-p path) path)
+	    (simple-error () default))
+	  default))))
 
 (add-preference-section :externals "Csound")
 (add-preference :externals :csound-path "Csound exec path" 
                 :file 
-                #+linux(pathname (which-executable "csound"))
+                #+linux (pathname (which-executable "csound" "no csound found in $PATH"))
                 #-linux #P"/usr/local/bin/csound"
                 )
 (add-preference :externals :csound-flags "Default flags" :string "-f -m7 -A -N -g -b8192 -B8192")
