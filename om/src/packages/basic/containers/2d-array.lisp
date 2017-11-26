@@ -229,8 +229,25 @@
 ;;; the <data> slot is not visible and set according to the meta-info + optional additionl box inputs 
 ;;; (requires a dedicated box type)
 (defclass* class-array (OMArray) 
-  ((fields :initform nil :initarg :fields :accessor fields :documentation "field names and defaults")
-   (num-elts :initform 1 :initarg :num-elts  :accessor num-elts :documentation "number of elements (a.k.a lines)")))
+  ((fields :initform nil :initarg :fields :accessor fields :documentation "field (column) names ")
+   (num-elts :initform 1 :initarg :num-elts  :accessor num-elts :documentation "number of elements (lines)"))
+  (:documentation "
+CLASS-ARRAY is a special implementation of a 2D-array where specific semantics is given to the different fields (columns).
+
+<fields> is a list of strings. Each name in it initializes a column which becomes accessible through the additional/optional inputs of the CLASS-ARRAY box.
+
+<num-elts> is the number of lines/elements in the array.
+
+Data instanciation in a column is done according to the specified number of lines/elements (<num-elts>), either by
+
+- Repeating a single value
+- Applying list values
+- Looping through the list of value (if shorter than <num-elts>)
+- Sampling a BPF
+- Evaluating a lambda function of 0 or 1 argument (if 1, the argument is the element index in the array).
+"))
+
+
 
 (defmethod object-box-label ((self class-array))
   (string+ (string-upcase (type-of self)) " ["
