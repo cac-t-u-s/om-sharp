@@ -114,16 +114,7 @@
   (error "Empty input for CSOUND-SYNTH"))
 
 
-;;;=============================
-;;; Add to the main package tree
-;;;=============================
 
-(omNG-make-package 
- "Externals"
- :container-pack *om-package-tree*
- :doc "Connection to external software."
- :subpackages (list (omNG-make-package "Csound" :functions '(csound-synth)))
- )
 
 
 
