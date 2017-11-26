@@ -30,10 +30,10 @@
    (make-pathname :directory '(:relative "reference-pages"))
    (om-resources-folder)))
 
-(defun get-om-reference-pages-index ()
+(defun get-om-reference-pages-index (&optional folder)
   (merge-pathnames 
    (make-pathname :name "index" :type "html")
-   (get-om-reference-pages-folder)))
+   (or folder (get-om-reference-pages-folder))))
 
 ;;; characters to avoid in file names
 (defun special-path-check (name)
@@ -72,31 +72,56 @@
 ;;; AUTO GEN ENTRIES FROM PACKAGES
 ;;;======================================
 
-(defmethod gen-ref-entries ((pack OMAbstractPackage))
-  (list (list (name pack) (doc pack))
-              (cons
-               (list "" (remove nil (remove-duplicates 
-                                     (append (mapcar 'class-name (classes pack)) 
-                                             (mapcar 'function-name (functions pack))
-                                             (special-items pack))
-                                     :test 'string-equal)))
-               (remove nil (loop for pack in (subpackages pack) append 
-                                 (gen-subpack-entries pack)))
-               )))
+; (gen-package-entries *om-package-tree*)
+; (gen-om-reference)
 
+;;; the toplevel package
+(defmethod gen-package-entries ((pack OMAbstractPackage) &key exclude-packages)
+  `(:package 
+    (:name ,(name pack))
+    (:doc ,(doc pack))
+    (:entries 
+     ,(remove nil (remove-duplicates 
+                   (append (mapcar 'class-name (classes pack)) 
+                           (mapcar 'function-name (functions pack))
+                           (special-items pack))
+                   :test 'string-equal)))
+    (:sections 
+     ,(loop for sub-pack in (subpackages pack) 
+            when (not (find (name sub-pack) exclude-packages :test 'string-equal))
+            collect 
+            `(:section 
+              (:name ,(name sub-pack))
+              (:doc ,(doc sub-pack))
+              (:entries 
+               ,(remove nil (remove-duplicates 
+                             (append (mapcar 'class-name (classes sub-pack)) 
+                                     (mapcar 'function-name (functions sub-pack))
+                                     (special-items sub-pack))
+                   :test 'string-equal)))
+              (:groups ,(loop for sub-sub-pack in (subpackages sub-pack) 
+                              when (not (find (name sub-sub-pack) exclude-packages :test 'string-equal))
+                              append (gen-subpack-entries sub-sub-pack :exclude-packages exclude-packages))))
+            ))
+    ))
+
+;;; will keep all groups at the same hierarchical level (uses append)
 (defmethod gen-subpack-entries ((pack OMAbstractPackage) &key exclude-packages)
-  (unless (find (name pack) exclude-packages :test 'string-equal)
-    (let ((packentries (remove nil (remove-duplicates 
-                                    (append (mapcar 'class-name (classes pack)) 
-                                            (mapcar 'function-name (functions pack))
-                                            (special-items pack)) 
-                                    :test 'string-equal))))
-      (remove nil (cons
-                   (if packentries (list (list (name pack) (doc pack)) packentries))
-                   (loop for pk in (subpackages pack) append (gen-subpack-entries pk :exclude-packages exclude-packages))
-                   )))))
+  (cons `(:group 
+          (:name ,(name pack))
+          (:doc ,(doc pack))
+          (:entries ,(remove nil (remove-duplicates 
+                                  (append (mapcar 'class-name (classes pack)) 
+                                          (mapcar 'function-name (functions pack))
+                                          (special-items pack)) 
+                                  :test 'string-equal))))
+        (loop for sub-pack in (subpackages pack) 
+              when (not (find (name sub-pack) exclude-packages :test 'string-equal))
+              append 
+              (gen-subpack-entries sub-pack :exclude-packages exclude-packages))
+        ))
 
-
+  
 ;;;======================================
 ;;; EXTRACT INFO FROM METAOBJECTS
 ;;;======================================
@@ -163,23 +188,35 @@
   "This is the reference documentation for the main functions and classes in o7.")
 
 (defun gen-om-reference ()
-  (gen-reference (mapcar 'gen-ref-entries (subpackages *om-package-tree*))
+  (gen-reference (gen-package-entries *om-package-tree*)
                  (get-om-reference-pages-folder)
                  :maintext *om-ref-text*))
 
-(defun ensure-reference-pages ()
-  (unless (get-om-reference-pages-index)
+
+(defun ensure-om-reference-pages ()
+  (unless (probe-file (get-om-reference-pages-index))
     (gen-om-reference)))
 
 ;(show-reference-page 'om+)
 (defmethod show-reference-page ((symbol symbol))
-  (ensure-reference-pages)
-  (let ((file (om-make-pathname :directory (get-om-reference-pages-folder)
-                                :name (special-path-check (string-downcase (string symbol)))
-                                :type "html")))
-    (if (probe-file file)
-        (sys:open-url (namestring file))
-      (om-beep-msg "No reference page found for '~A'" symbol))))
+  
+  (let* ((lib (get-object-library symbol))
+         (reference-folder 
+          (if lib (let ((folder (get-lib-reference-pages-folder lib)))
+                    (unless (probe-file (get-om-reference-pages-index folder))
+                      (gen-lib-reference lib))
+                    folder)
+            (progn 
+              (ensure-om-reference-pages)
+              (get-om-reference-pages-folder)))))
+
+    (let ((file (om-make-pathname :directory reference-folder
+                                  :name (special-path-check (string-downcase (string symbol)))
+                                  :type "html")))
+      (if (probe-file file)
+          (sys:open-url (namestring file))
+        (om-beep-msg "No reference page found for '~A'" symbol))
+      )))
 
 ; (gen-om-reference)
 
@@ -258,19 +295,30 @@ table {
 
 ; (gen-om-reference)
 
-(defun gen-reference (entries dir &key title maintext)
+(defun gen-reference (package-entries dir &key title maintext logofile)
 
   (when (probe-file dir) (om-delete-directory dir))
   (om-create-directory dir)
   
-  (let ((title (or title (concatenate 'string "o7 " (cl-user::version-to-string *om-version*))))
-        (indexpath (om-make-pathname :directory dir
-                                  :name "index" :type "html"))
-        (alphaindexpath (om-make-pathname :directory dir
-                                  :name "ind-alpha" :type "html"))
-        (allsymbols (remove nil (loop for pack in entries append
-                                      (loop for group in (cadr pack) append (cadr group)))))
-        )
+  (let* ((data (cdr package-entries))
+         (title (or title (concatenate 'string "o7 " (cl-user::version-to-string *om-version*))))
+         (indexpath (om-make-pathname :directory dir :name "index" :type "html"))
+         (alphaindexpath (om-make-pathname :directory dir :name "ind-alpha" :type "html"))
+         (allsymbols (remove nil 
+                             (append 
+                             (find-value-in-kv-list data :entries)
+                             (loop for section in (find-value-in-kv-list data :sections) append
+                                   (append (find-value-in-kv-list (cdr section) :entries)
+                                           (loop for group in (find-value-in-kv-list (cdr section) :groups) append 
+                                                 (find-value-in-kv-list (cdr group) :entries)))))))
+         )
+
+    (let ((logopict (or logofile (om-make-pathname :directory (om-resources-folder) :name "om" :type "png"))))
+      (when (probe-file logopict)
+        (om-copy-file logopict
+                      (make-pathname :directory (pathname-directory dir) :name "logo" :type "png"))))
+
+
     (with-open-file (index indexpath :direction :output)
       ;;; HEADER
       (write-line "<html>" index)
@@ -298,44 +346,61 @@ table {
               (write-line par index)
               (write-line "</p>" index)))
       (write-line "</td>" index)
-      (write-line (concatenate 'string "<td><img src=./omlogo.png width=60 align=centre></td>") index)
+      (write-line (concatenate 'string "<td><img src=./logo.png width=60 align=centre></td>") index)
       (write-line "</tr>" index)
       
       ;;; PACKAGE LIST
-      (write-line "<tr><td colspan=2>" index)
-      (write-line "<p>Packages covered: " index)
-      (loop for pack in entries do
-            (let ((name (if (consp (car pack)) (first (car pack)) (car pack))))
+      (when (find-value-in-kv-list data :sections)
+        (write-line "<tr><td colspan=2>" index)
+        (write-line "<p>Packages covered: " index)
+        (loop for pack in (find-value-in-kv-list data :sections) do
+              (let ((name (find-value-in-kv-list (cdr pack) :name)))
               (when (and name (not (string-equal name "")))
                 (write-line (concatenate 'string "<a href=#" (string name) ">" (string-upcase (string name)) "</a> ") index))))
-      (write-line "</td></tr>" index)
-      
+        (write-line "</td></tr>" index)
+        )
+
       ;;; MAIN CONTENTS
       (write-line "<tr><td colspan=2>" index)
       
-      (loop for pack in entries do
-            (let ((name (if (consp (car pack)) (first (car pack)) (car pack)))
-                  (doc (if (consp (car pack)) (second (car pack)) nil)))
+      ;;; top level items (not in a section)
+      (write-line "<blockquote>" index)
+              
+      (loop for item in (find-value-in-kv-list data :entries) do
+            (write-line (concatenate 'string "<a href=" (special-path-check (string-downcase (string item))) ".html>" 
+                                     (special-html-check (string item)) "</a><br>") index))
+      (write-line "</blockquote>" index)
+              
+      (loop for section in (find-value-in-kv-list data :sections) do
+
+            (let ((name (find-value-in-kv-list (cdr section) :name))
+                  (doc (find-value-in-kv-list (cdr section) :doc)))
               
               (when name
                 (write-line (concatenate 'string "<a name=" (string name) ">" "<h2>" (string-upcase (string name)) "</h2></a>") index))
               (when doc
                 (write-line (concatenate 'string "<p>" doc "</p>") index))
+             
               (write-line "<blockquote>" index)
-              (loop for group in (cadr pack) do
-                    (let ((n (if (consp (car group)) (first (car group)) (car group)))
-                          (d (if (consp (car group)) (second (car group)) nil)))
+              
+              ;;; items in section (not in a sub-group)
+              (loop for item in (find-value-in-kv-list (cdr section) :entries) do
+                    (write-line (concatenate 'string "<a href=" (special-path-check (string-downcase (string item))) ".html>" 
+                                             (special-html-check (string item)) "</a><br>") index))
+              
+              (loop for group in (find-value-in-kv-list (cdr section) :groups) do
+                    
+                    (let ((n (find-value-in-kv-list (cdr group) :name))
+                          (d (find-value-in-kv-list (cdr group) :doc)))
                       (when n
                         (write-line (concatenate 'string "<h3>" (string n) "</h3>") index))
                       (when d
                         (write-line (concatenate 'string "<p>" (string d) "</p>") index))
-                       (loop for item in (cadr group) do
-                            (write-line (concatenate 'string "<a href=" 
-                                                     (special-path-check
-                                                      (string-downcase (string item))) ".html>" 
-                                                     (special-html-check (string item)) "</a><br>") index)
-                            )
-                       ))
+                      
+                      (loop for item in (find-value-in-kv-list (cdr group) :entries) do
+                            (write-line (concatenate 'string "<a href=" (special-path-check (string-downcase (string item))) ".html>" 
+                                                     (special-html-check (string item)) "</a><br>") index))
+                      ))
               (write-line "</blockquote>" index)
               ))
       (write-line "<br><br></td></tr><td colspan=2 class=center>" index)
@@ -371,25 +436,30 @@ table {
       (write-line (concatenate 'string "<tr><td class=center>" (credits-line) "</td></tr></table>") index)
       
       (write-line "</body></html>" index))
-    
+
+    ;;; GENERATE ALL THE PAGES
     (mapcar #'(lambda (symb) (make-ref-page symb dir title)) allsymbols)
-    
-    (let ((logopict (om-make-pathname :directory (om-resources-folder) :name "om" :type "png")))
-      (when (probe-file logopict)
-        (om-copy-file logopict
-                      (make-pathname :directory (pathname-directory dir) :name "omlogo" :type "png"))))
-    
+       
     indexpath))
 
 ; (gen-om-reference)
 
 (defun make-ref-page (symbol dir &optional title)
-  (let ((title (or title ""))
-        (pagepath (om-make-pathname :directory dir
-                                    :name (special-path-check
-                                           (string-downcase (string symbol)))
-                                    :type "html"))
-        (doc (get-documentation-info symbol)))
+  (let* ((title (or title ""))
+         (pagepath (om-make-pathname :directory dir
+                                     :name (special-path-check
+                                            (string-downcase (string symbol)))
+                                     :type "html"))
+         (doc (get-documentation-info symbol))
+         (object (cond ((or (string-equal (nth 1 doc) "FUNCTION")
+                            (string-equal (nth 1 doc) "GENERIC-FUNCTION"))
+                        (fdefinition symbol))
+                       ((string-equal (nth 1 doc) "CLASS")
+                        (find-class symbol))
+                       ((string-equal (nth 1 doc) "INTERFACE BOX")
+                        (find-class symbol nil))))
+         )
+
     (with-open-file (index pagepath :direction :output :if-exists :supersede)
       ;;; HEADER
       (write-line "<html>" index)
@@ -416,20 +486,21 @@ table {
       (write-line "</td>" index)
       
       ;;; ICON
-      (write-line "<td width=130 align=right>" index)
-      (let ((icn nil))
-        (cond ((and (find-class symbol nil) (omclass-p (find-class symbol nil)))
-               (setf icn (icon (find-class symbol nil))))
-              ((and (fboundp symbol) (omgenericfunction-p (fdefinition symbol)))
-               (setf icn (icon (fdefinition symbol))))
-              (t nil))
-        (let ((iconfile (and icn (om-relative-path '("icons" "boxes") (format nil "~A.png" icn) (om-resources-folder)))))
-          (if (file-exist-p iconfile)
-              (setf iconfile (namestring iconfile))
-            (setf iconfile "./omlogo.png"))
-          (write-line (concatenate 'string "<p class=right><img src=" iconfile " width=60></p>") index)
-          ))
-      
+      (write-line "<td width=130 align=right>" index)    
+      (let ((iconfile 
+             (when (or (and (string-equal (nth 1 doc) "CLASS") 
+                            (omclass-p object))
+                       (and (string-equal (nth 1 doc) "GENERIC-FUNCTION") 
+                            (omgenericfunction-p object)))
+               (if (icon object) 
+                   (if (library object)
+                       (om-relative-path '("icons") (format nil "~A.png" (icon object)) (lib-resources-folder (find-om-library (library object))))
+                     (om-relative-path '("icons" "boxes") (format nil "~A.png" (icon object)) (om-resources-folder)))))))
+        (if (file-exist-p (print iconfile))
+            (setf iconfile (namestring iconfile))
+          (setf iconfile "./logo.png"))
+        (write-line (concatenate 'string "<p class=right><img src=" iconfile " width=60></p>") index)
+        )
       (write-line "</td></tr>" index)
 
       ;;; MAIN BODY
@@ -448,40 +519,40 @@ table {
                    (progn
                      (write-line "<table width=100%>" index)
                      (loop for arg in (nth 2 doc) 
-                         for i = 0 then (+ i 1) do
-                         (write-line "<tr>" index)
-                         (if (and (not (consp arg)) (equal #\& (elt (string arg) 0)))
-                             (progn 
+                           for i = 0 then (+ i 1) do
+                           (write-line "<tr>" index)
+                           (if (and (not (consp arg)) (equal #\& (elt (string arg) 0)))
+                               (progn 
+                                 (write-line "<td>" index)
+                                 (write-line (concatenate 'string "<i><b>" (string-downcase (string arg))"</b></i>") index)
+                                 (write-line "</td>" index)
+                                 (write-line "<td colspan=3>&nbsp;</td></tr>" index)
+                                 (setf i (- i 1)))
+                             (let ((argname (if (consp arg) (car arg) arg)))
+                               (write-line "<td width=40>&nbsp;</td>" index) 
                                (write-line "<td>" index)
-                               (write-line (concatenate 'string "<i><b>" (string-downcase (string arg))"</b></i>") index)
+                               (write-line (concatenate 'string "- <font color=333366><b>" (format nil "~s" (intern (string-upcase argname))) "</b></font>") index)
                                (write-line "</td>" index)
-                               (write-line "<td colspan=3>&nbsp;</td></tr>" index)
-                               (setf i (- i 1)))
-                           (let ((argname (if (consp arg) (car arg) arg)))
-                             (write-line "<td width=40>&nbsp;</td>" index) 
-                             (write-line "<td>" index)
-                             (write-line (concatenate 'string "- <font color=333366><b>" (format nil "~s" (intern (string-upcase argname))) "</b></font>") index)
-                             (write-line "</td>" index)
-                             ;; doc and defaults
-                             (if (subtypep (class-of (fdefinition symbol)) 'OMGenericFunction)
+                               ;; doc and defaults
+                               (if (subtypep (class-of (fdefinition symbol)) 'OMGenericFunction)
                                  ; OM FUN
-                                 (let ((indoc (nth i (inputs-doc (fdefinition symbol))))
-                                       (defval (nth i (inputs-default (fdefinition symbol)))))
-                                   (if indoc
-                                       (write-line (concatenate 'string "<td>" (special-html-check indoc) "</td>") index)
+                                   (let ((indoc (nth i (inputs-doc (fdefinition symbol))))
+                                         (defval (nth i (inputs-default (fdefinition symbol)))))
+                                     (if indoc
+                                         (write-line (concatenate 'string "<td>" (special-html-check indoc) "</td>") index)
+                                       (write-line "<td>&nbsp;</td>" index))
+                                     (write-line (concatenate 'string "<td>[default = " (format nil "~s" defval) "]</td>") index)
+                                     )
+                                 (progn
+                                   (write-line "<td width=20%>&nbsp;</td>" index)
+                                   (if (consp arg)
+                                       (write-line (concatenate 'string "<td>[default = " (format nil "~s" (cadr arg)) "]</td>") index)
                                      (write-line "<td>&nbsp;</td>" index))
-                                   (write-line (concatenate 'string "<td>[default = " (format nil "~s" defval) "]</td>") index)
                                    )
-                               (progn
-                                 (write-line "<td width=20%>&nbsp;</td>" index)
-                                 (if (consp arg)
-                                     (write-line (concatenate 'string "<td>[default = " (format nil "~s" (cadr arg)) "]</td>") index)
-                                   (write-line "<td>&nbsp;</td>" index))
                                  )
-                               )
-                             (write-line "</tr>" index)
-                             ))
-                         (write-line "<tr>" index))
+                               (write-line "</tr>" index)
+                               ))
+                           (write-line "<tr>" index))
                      (write-line "</table>" index)
                      )))
                 
@@ -501,15 +572,15 @@ table {
                                   (write-line "</td>" index))
                                  ((null (cadr slot))
                                   (write-line (concatenate 'string "<td colspan=3> - <font color=333366><b>" (string-upcase (string (car slot))) "</b></font></td>") index))
-                                 (t (write-line (concatenate 'string "<td width=160> - <font color=333366><b>" (string-upcase (string (car slot))) "</b></font>:</td>") index)
+                                 (t (write-line (concatenate 'string "<td > - <font color=333366><b>" (string-upcase (string (car slot))) "</b></font>:</td>") index)
                                     (write-line (concatenate 'string "<td>" (if (nth 2 slot) (special-html-check (nth 2 slot)) "") "</td>") index)
                                     (write-line (concatenate 'string "<td>" (format nil "[default = ~A]" (nth 1 slot)) "</td>") index)
                                     ))
                            (write-line "</tr>" index)
                            )
                      (write-line "</table>" index))
-                 ))
-          (write-line "</td>" index))))
+                   ))
+                (write-line "</td>" index))))
       (write-line "</tr>" index)
 
       ;;; DESCRIPTION

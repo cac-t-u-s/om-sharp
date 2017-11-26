@@ -207,11 +207,53 @@
     ))
 
 
+;;;=================================
+;;; LOAD LIBRARY-DEPENDENT BOXES
+;;;=================================
 
+(defmethod get-lib-reference-pages-folder ((self OMLib))
+  (merge-pathnames 
+   (make-pathname :directory '(:relative "reference-pages"))
+   (lib-resources-folder self)))
+
+(defmethod gen-lib-reference ((lib t)) (om-beep))
+
+(defmethod gen-lib-reference ((lib string))
+  (gen-lib-reference (find-om-library lib)))
+
+(defmethod gen-lib-reference ((lib OMLib))
+
+  (unless (loaded? lib)
+    (load-om-library lib))
+  
+  ;;; one can define it's own reference-generation function for a lib 
+  ;;; by just defining a function called 'gen-LIBNAME-reference' 
+  (let ((ref-function (intern-om (string+ "gen-" (name lib) "-reference"))))
+    
+    (if (fboundp ref-function) (funcall ref-function)
+     
+      (gen-reference (gen-package-entries lib)
+                     (get-lib-reference-pages-folder lib) 
+                     :title (name lib)
+                     :maintext (doc lib)
+                     :logofile (probe-file (merge-pathnames (make-pathname :name "logo" :type "png")
+                                                            (lib-resources-folder lib))))
+      )))
+
+; (gen-lib-reference "om-supervp")
 
 ;;;=================================
 ;;; LOAD LIBRARY-DEPENDENT BOXES
 ;;;=================================
+
+(defmethod get-object-library ((self t)) nil)
+(defmethod get-object-library ((self OMClass)) (find-om-library (library self)))
+(defmethod get-object-library ((self OMGenericFunction)) (find-om-library (library self)))
+
+(defmethod get-object-library ((self symbol))
+  (cond ((fboundp self) (get-object-library (fdefinition self)))
+        ((find-class self nil) (get-object-library (find-class self nil)))
+        (t nil)))
 
 (defvar *required-libs-in-current-patch* nil)
 
