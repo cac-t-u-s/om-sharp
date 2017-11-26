@@ -318,10 +318,17 @@
     di))))
 
 (defun adjust-size (class w h)
-  (if (subtypep class 'om-editable-text)
-    #+windows (values (- w 10) (- h 10))
-    #-windows (values w h)
-    (values w h)))
+  #+linux (values (or (and (numberp w) (round w 3/4)) w)
+		  (or (and (numberp h) (round h 3/4)) h))
+  #-linux (if (subtypep class 'om-editable-text)
+	      #+windows (values (- w 10) (- h 10))
+	      #-windows (values w h)
+	      (values w h))
+  )
+
+
+
+
     
 
 ;=============================

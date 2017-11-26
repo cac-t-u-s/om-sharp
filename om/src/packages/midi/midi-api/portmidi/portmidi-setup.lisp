@@ -98,8 +98,7 @@
   (let ((devices (remove nil (loop for ref in (list-devices) 
                                    when (nth (if (equal (direction self) :in) 6 8) ref) 
                                    collect (nth 4 ref))))
-        (pos-in-settings (if (equal (direction self) :in) 0 1))
-	(row-height #-linux 24 #+linux 36))
+        (pos-in-settings (if (equal (direction self) :in) 0 1)))
     (oa::om-with-delayed-update self
       
       (apply 'oa::om-remove-subviews (cons self (portlines self)))
@@ -116,12 +115,12 @@
                                   :subviews 
                                   (list 
                                    (oa::om-make-di 'oa::om-simple-text 
-                                                   :size (oa::om-make-point 40 row-height)
+                                                   :size (oa::om-make-point 40 24)
                                                    :text (format nil "~D" (car portsetting))
                                                    :font (oa::om-def-font :font2b))
                                    
                                    (oa::om-make-di 'oa::om-button 
-                                                   :size (oa::om-make-point 40 row-height) 
+                                                   :size (oa::om-make-point 40 24) 
                                                    :text "-"
                                                    :di-action (let ((n (car portsetting)))
                                                                 (oa::om-dialog-item-act button
@@ -131,7 +130,7 @@
                                                                   )))
                                    
                                    (oa::om-make-di 'oa:om-popup-list 
-                                                   :size (oa::om-make-point 200 row-height)
+                                                   :size (oa::om-make-point 200 24)
                                                    :items (cons "[disconnected]" devices)
                                                    :value (car (cadr portsetting)) ;; device for this port  
                                                    :di-action (let ((p (position (car portsetting) (nth pos-in-settings (settings dialog)) 
@@ -141,14 +140,11 @@
                                                                   (setf (nth p (nth pos-in-settings (settings dialog)))
                                                                         (list port
                                                                               (if (= 0 (oa::om-get-selected-item-index list)) nil
-                                                                                (list (oa::om-get-selected-item list)))))
-                                                                  )))
-                                   nil
-                                   ))
-                                 ))
-                      nil)
-                      )
-               )))))
+										  (list (oa::om-get-selected-item list))))))))
+                                   nil))))
+                      nil)))))))
+
+
 
 (defun show-portmidi-dialog (settings)
 
@@ -159,28 +155,27 @@
                                 :settings settings))
         (inv (oa::om-make-layout 'portmidi-ports-view 
                                  :size (oa::om-make-point 300 210)
-                                 :direction :in))       
+                                 :direction :in))
         (outv (oa::om-make-layout 'portmidi-ports-view
                                   :size (oa::om-make-point 300 210)
-                                  :direction :out))
-	(row-height #-linux 24 #+linux 36))
-    
-    (oa::om-add-subviews 
-     inv 
+                                  :direction :out)))
+
+    (oa::om-add-subviews
+     inv
      (oa::om-make-layout 
       'oa::om-row-layout
       :ratios '(1 1 1 100)
       :subviews
-      (list 
-       (oa::om-make-di 'oa::om-simple-text 
-                       :size (oa::om-make-point 40 row-height) 
+      (list
+       (oa::om-make-di 'oa::om-simple-text
+                       :size (oa::om-make-point 40 24)
                        :text "In"
                        :font (oa::om-def-font :font2b))
-                         
-       (oa::om-make-di 'oa::om-button 
-                       :size (oa::om-make-point 40 row-height) 
+
+       (oa::om-make-di 'oa::om-button
+                       :size (oa::om-make-point 40 24)
                        :text "+"
-                       :di-action #'(lambda (item) 
+                       :di-action #'(lambda (item)
                                       (let ((newport 0))
                                         (loop while (find newport (car (settings dd)) :test '= :key 'car)
                                               do (setf newport (1+ newport)))
@@ -189,9 +184,9 @@
                                                              (cadr (settings dd))))
                                         (set-portmidi-connection-view inv dd)
                                         )))
-                         
-       (oa::om-make-di 'oa::om-simple-text 
-                       :size (oa::om-make-point 120 row-height) 
+
+       (oa::om-make-di 'oa::om-simple-text
+                       :size (oa::om-make-point 120 24)
                        :text "Input Devices"
                        :font (oa::om-def-font :font2b))
        NIL
@@ -204,17 +199,17 @@
       'oa::om-row-layout
       :ratios '(1 1 1 100)
       :subviews
-      (list 
-    
-       (oa::om-make-di 'oa::om-simple-text 
-                       :size (oa::om-make-point 40 row-height) 
+      (list
+
+       (oa::om-make-di 'oa::om-simple-text
+                       :size (oa::om-make-point 40 24)
                        :text "Out"
                        :font (oa::om-def-font :font2b))
-                         
-       (oa::om-make-di 'oa::om-button 
-                       :size (oa::om-make-point 40 row-height) 
+
+       (oa::om-make-di 'oa::om-button
+                       :size (oa::om-make-point 40 24)
                        :text "+"
-                       :di-action #'(lambda (item) 
+                       :di-action #'(lambda (item)
                                       (let ((newport 0))
                                         (loop while (find newport (cadr (settings dd)) :test '= :key 'car)
                                               do (setf newport (1+ newport)))
@@ -224,9 +219,9 @@
                                                              ))
                                         (set-portmidi-connection-view outv dd)
                                         )))
-                         
-       (oa::om-make-di 'oa::om-simple-text 
-                       :size (oa::om-make-point 120 row-height) 
+
+       (oa::om-make-di 'oa::om-simple-text
+                       :size (oa::om-make-point 120 24)
                        :text "Output Devices"
                        :font (oa::om-def-font :font2b))
        NIL
@@ -244,26 +239,27 @@
                 (oa::om-make-layout 'oa:om-row-layout :subviews (list inv outv))
                 nil
                 (oa::om-make-layout 'oa:om-row-layout 
-                                    :subviews 
-                                    (list 
-                                     (oa::om-make-di 'oa::om-multi-text 
-                                                     :size (oa::om-make-point #-linux 360 #+linux 400 row-height)
+                                    :subviews
+                                    (list
+                                     (oa::om-make-di 'oa::om-multi-text
+                                                     :size (oa::om-make-point 360 24)
                                                      :text (oa::om-string-wrap
 							    "o7 detects MIDI device at startup. If some active MIDI devices do not appear in the lists, you might need to restart the program."
-							    #-linux 360 #+linux 400 (oa::om-def-font :font1))
+							    360
+							    (oa::om-def-font :font1))
                                                      :font (oa::om-def-font :font1))
                                      ;(oa::om-make-di 'oa::om-button :position (oa::om-make-point 20 265) :size (oa::om-make-point 130 20) :text "Refresh Devices"
-                                     ;                :di-action #'(lambda (item) 
+                                     ;                :di-action #'(lambda (item)
                                      ;                               (portmidi-connect-ports (settings dd))
                                      ;                               (set-portmidi-connection-view inv dd)
                                      ;                               (set-portmidi-connection-view outv dd)
                                      ;                               ))
                                      NIL
-                                     (oa::om-make-di 'oa::om-button 
-                                                     :size (oa::om-make-point 80 row-height) :text "Cancel"
+                                     (oa::om-make-di 'oa::om-button
+                                                     :size (oa::om-make-point 80 24) :text "Cancel"
                                                      :di-action #'(lambda (item) (oa::om-return-from-modal-dialog dd nil)))
-                                     (oa::om-make-di 'oa::om-button 
-                                                     :size (oa::om-make-point 80 row-height) :text "OK"
+                                     (oa::om-make-di 'oa::om-button
+                                                     :size (oa::om-make-point 80 24) :text "OK"
                                                      :di-action #'(lambda (item) (oa::om-return-from-modal-dialog dd (settings dd))))
                                      ))
                 )))

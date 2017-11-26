@@ -57,8 +57,10 @@
 
 (defparameter *inspector-window* nil)
 
-(defclass inspector-window (oa::om-windoid) 
-  ((object :initarg :object :initform nil :accessor object)))
+#-linux (defclass inspector-window (oa::om-windoid) 
+	  ((object :initarg :object :initform nil :accessor object)))
+#+linux (defclass inspector-window (oa::om-window) 	    ;for now
+	  ((object :initarg :object :initform nil :accessor object)))
 
 (defmethod om-window-close-event ((self inspector-window))
   (setf *inspector-window* nil))
@@ -89,12 +91,11 @@
    win 
    (or (and (null object) "-")
        (and (consp object) "[MULTIPLE SELECTION]")
-       (object-name-in-inspector object) 
-       (string (type-of object)))
-   )
+       (object-name-in-inspector object)
+       (string (type-of object))))
   (when (get-properties-list object)
-    (let ((inspector-layout 
-           (om-make-layout 
+    (let ((inspector-layout
+           (om-make-layout
             'om-grid-layout
             :delta '(10 0) :align nil
             :subviews (loop for category in (get-properties-list object)
