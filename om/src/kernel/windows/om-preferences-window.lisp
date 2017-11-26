@@ -166,10 +166,10 @@
 (defmethod make-preference-item ((type cons) pref-item)
   (om-make-di 'om-popup-list 
               ;:enable (valid-property-p object prop-id)
-              :items type 
+              :items type
               :resizable :w
               :value (pref-item-value pref-item)
-              :size (om-make-point (list :string (format nil "~A" (pref-item-value pref-item))) #-linux 22 #+linux 30)
+              :size (om-make-point (list :string (format nil "~A" (pref-item-value pref-item))) 22)
               :font (om-def-font :font1)
               :di-action #'(lambda (item)
                              (setf (pref-item-value pref-item) (om-get-selected-item item))
@@ -189,7 +189,7 @@
                :bg-color (om-def-color :white)
                :border t
                :size (om-make-point 40 y) 
-               :font (om-def-font :font2)
+               :font (om-def-font #-linux :font2 #+linux :font1)
                :decimals (or (number-in-range-decimals type) 0)
                :min-val (or (number-in-range-min type) 0) 
                :max-val (or (number-in-range-max type) 10000)
@@ -213,7 +213,7 @@
                 ;:enable (valid-property-p object prop-id)
                 :focus nil :default nil
                 :text (font-to-str (pref-item-value pref-item))
-                :size (om-make-point (list :string (font-to-str (pref-item-value pref-item))) 26)
+                :size (om-make-point (list :string (font-to-str (pref-item-value pref-item))) #-linux 26 #+linux 20)
                 :font (om-def-font :font1)
                 :di-action #'(lambda (item)
                                (let ((choice (om-choose-font-dialog :font (pref-item-value pref-item))))
@@ -374,10 +374,10 @@
                  (om-make-layout 'om-row-layout
                                  :subviews (list 
                                             nil
-                                            (om-make-di 
-                                             'om-button 
-                                             :text "Restore defaults" 
-                                             :size #-linux (om-make-point 120 24) #+linux (om-make-point 140 30)
+                                            (om-make-di
+                                             'om-button
+                                             :text "Restore defaults"
+                                             :size (om-make-point 120 24)
                                              :di-action #'(lambda (item)
                                                             (declare (ignore item))
                                                             (let* ((current-panel (om-get-current-view (tabs win)))
