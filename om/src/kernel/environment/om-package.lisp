@@ -108,14 +108,20 @@ For easier browsing it is recommended that a package do not contain at the same 
 
 
 ;;; Fill package tools : Subpackages
+;;; merges the packages if already exists
 (defmethod AddPackage2Pack ((new-package OMAbstractPackage) inPackage)
   (let ((existing-pack (find (name new-package) (subpackages inPackage) :test 'string-equal :key 'name)))
     (if existing-pack
         (progn 
           (setf (functions existing-pack)
-                (append (functions existing-pack) (functions new-package)))
-          (setf (classes existing-pack)
-                (append (classes existing-pack) (classes new-package)))
+                (append (functions existing-pack) (functions new-package))
+                (classes existing-pack)
+                (append (classes existing-pack) (classes new-package))
+                (special-items existing-pack)
+                (append (special-items existing-pack) (special-items new-package))
+                (elements existing-pack)
+                (append (elements existing-pack) (elements new-package))
+                )
           existing-pack)
       (progn 
         (omNG-add-element inPackage new-package)
@@ -185,6 +191,17 @@ For easier browsing it is recommended that a package do not contain at the same 
     (mapcar #'(lambda (fun) (addFun2Pack fun new-pack)) functions)
     (mapcar #'(lambda (pk) (addpackage2pack pk new-pack)) subpackages)
     new-pack))
+
+
+(defmethod get-subpackage ((self OMAbstractPackage) subpackage-name)
+  (let ((pack nil))
+    (loop for p in (elements self)
+          while (not pack)
+          do (if (string-equal (name p) subpackage-name)
+                 (setf pack p)
+               (setf pack (get-subpackage p subpackage-name))))
+    pack))
+
 
 
 #|
