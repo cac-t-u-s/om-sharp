@@ -242,7 +242,7 @@ Ex. (2* (a z 2* (4 12) (1_5 )) 0_16s2)  =>  (a z 4 12 4 12 (1 2 3 4 5) a z 4 12 
 (defmethod* group-list ((list list) (segmentation list) mode)
    :icon 'list 
    :initvals '((1 2 3 4) (1 3) linear)
-   :indoc '("list to group" "list of group lengths" "normal or circular")
+   :indoc '("list to group (anything)" "list of group lengths (numbers)" "linear or circular")
    :doc  "Segments a <list> in successives sublists which lengths are successive values of the list <segmentation>.
  <mode> indicates if <list> is to be read in a circular way.
 
@@ -277,7 +277,7 @@ Ex. (group-list '(1 2 3 4) '(1 2 3) 'circular)  => ((1) (2 3) (4 1 2))
 (defmethod* remove-dup ((list list) (test symbol) (depth integer))
   :icon 'list 
   :initvals (list '(1 2 3 4) 'eq 1)
-  :indoc '("list" "equality test (function or function name)" "an integer")
+  :indoc '("a list" "equality test (function or function name)" "an integer")
   :doc  "Removes duplicates elements from <list>.
 If <depth> is more than 1 duplicates are removed from sublists of level <depth>.
 

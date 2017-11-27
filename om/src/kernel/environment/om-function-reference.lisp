@@ -266,7 +266,13 @@ H2 {
 
 H3 {
  color : #444444;
- font-size: 18;
+ font-size: 16;
+ font-weight: bold;
+}
+
+H4 {
+ color : #000000;
+ font-size: 15;
  font-weight: bold;
 }
 
@@ -367,86 +373,68 @@ TH {
 
       (write-line "<td>" index)
 
-      ;;; EMBEDDED TABLE AT CENTER
-      (write-line "<table width=100%>" index)
+      ;;; CENTER
+      (when maintext
+        (loop for par in (list! maintext) do
+              (write-line "<p>" index)
+              (write-line par index)
+              (write-line "</p>" index)))
       
-         ;;; Intro text and logo
-         (write-line "<tr><td>" index)
-
-         (write-line "<table width=100%><tr>" index)
-
-         (write-line "<td>" index)
-         (when maintext
-           (loop for par in (list! maintext) do
-                 (write-line "<p>" index)
-                 (write-line par index)
-                 (write-line "</p>" index)))
-         (write-line "</td>" index)
-         
-         ;(write-line (concatenate 'string "<td width=100 align=right><img src=./logo.png width=60 align=right></td>") index)
-         
-         (write-line "</tr></table>" index)
-         (write-line "</td></tr>" index)
-
-         ;;; PACKAGE LIST
-         (when (find-value-in-kv-list data :sections)
-           (write-line "<tr><td>" index)
-           (write-line "<br><p>Packages covered: " index)
-           (loop for pack in (find-value-in-kv-list data :sections) do
-                 (let ((name (find-value-in-kv-list (cdr pack) :name)))
-                   (when (and name (not (string-equal name "")))
-                     (write-line (concatenate 'string "<b><a href=#" (string name) ">" (string-upcase (string name)) "</a></b> ") index))))
-           (write-line "</td></tr>" index)
-           )
-
-         ;;; MAIN CONTENTS
-         (write-line "<tr><td>" index)
       
-         ;;; top level items (not in a section)
-         (write-line "<blockquote>" index)
+      ;;; PACKAGE LIST
+      (when (find-value-in-kv-list data :sections)
+        (write-line "<p>Packages covered: " index)
+        (loop for pack in (find-value-in-kv-list data :sections) do
+              (let ((name (find-value-in-kv-list (cdr pack) :name)))
+                (when (and name (not (string-equal name "")))
+                  (write-line (concatenate 'string "<b><a href=#" (string name) ">" (string-upcase (string name)) "</a></b> ") index))))
+        )
+      
+      ;;; MAIN CONTENTS
+
+      (when (find-value-in-kv-list data :entries)
+        (write-line "<hr>" index)
+        ;;; top level items (not in a section)
+        (loop for item in (find-value-in-kv-list data :entries) do
+              (write-line (concatenate 'string "<a href=" (special-path-check (string-downcase (string item))) ".html>" 
+                                       (special-html-check (string item)) "</a> ") index))
+        )
               
-         (loop for item in (find-value-in-kv-list data :entries) do
-               (write-line (concatenate 'string "<a href=" (special-path-check (string-downcase (string item))) ".html>" 
-                                        (special-html-check (string item)) "</a><br>") index))
-         (write-line "</blockquote>" index)
-              
-         (loop for section in (find-value-in-kv-list data :sections) do
+      (loop for section in (find-value-in-kv-list data :sections) do
                
-               (let ((name (find-value-in-kv-list (cdr section) :name))
-                     (doc (find-value-in-kv-list (cdr section) :doc)))
+            (let ((name (find-value-in-kv-list (cdr section) :name))
+                  (doc (find-value-in-kv-list (cdr section) :doc)))
               
-                 (when name
-                   (write-line (concatenate 'string "<a name=" (string name) ">" "<h2>" (string-upcase (string name)) "</h2></a>") index))
-                 (when doc
-                   (write-line (concatenate 'string "<p>" doc "</p>") index))
+              (write-line "<hr>" index)
+              (when name
+                (write-line (concatenate 'string "<a name=" (string name) ">" "<h2>" (string-upcase (string name)) "</h2></a>") index))
+              (when doc
+                (write-line (concatenate 'string "<p>" doc "</p>") index))
              
-                 (write-line "<blockquote>" index)
+              ;;; items in section (not in a sub-group)
+              (loop for item in (find-value-in-kv-list (cdr section) :entries) do
+                    (write-line (concatenate 'string "<a href=" (special-path-check (string-downcase (string item))) ".html>" 
+                                             (special-html-check (string item)) "</a> ") index))
               
-                 ;;; items in section (not in a sub-group)
-                 (loop for item in (find-value-in-kv-list (cdr section) :entries) do
-                       (write-line (concatenate 'string "<a href=" (special-path-check (string-downcase (string item))) ".html>" 
-                                                (special-html-check (string item)) "</a><br>") index))
-              
-                 (loop for group in (find-value-in-kv-list (cdr section) :groups) do
+              (loop for group in (find-value-in-kv-list (cdr section) :groups) do
                     
-                       (let ((n (find-value-in-kv-list (cdr group) :name))
-                             (d (find-value-in-kv-list (cdr group) :doc)))
-                         (when n
-                           (write-line (concatenate 'string "<h3>" (string n) "</h3>") index))
-                         (when d
-                           (write-line (concatenate 'string "<p>" (string d) "</p>") index))
+                    (let ((n (find-value-in-kv-list (cdr group) :name))
+                          (d (find-value-in-kv-list (cdr group) :doc)))
+                      (when n
+                        (write-line (concatenate 'string "<h3>" (string n) "</h3>") index))
+                      (when d
+                        (write-line (concatenate 'string "<p>" (string d) "</p>") index))
                       
-                         (loop for item in (find-value-in-kv-list (cdr group) :entries) do
-                               (write-line (concatenate 'string "<a href=" (special-path-check (string-downcase (string item))) ".html>" 
-                                                        (special-html-check (string item)) "</a><br>") index))
-                         ))
-                 (write-line "</blockquote>" index)
-                 ))
-      (write-line "</td></tr>" index)
+                      (loop for item in (find-value-in-kv-list (cdr group) :entries) do
+                            (write-line (concatenate 'string "<a href=" (special-path-check (string-downcase (string item))) ".html>" 
+                                                     (special-html-check (string item)) "</a> ") index))
+                      ))
+              ))
 
-      (write-line "<br><br><br><td class=center>" index)
-      (write-line (credits-line) index)
-      (write-line "</td></tr></table>" index)
+      (write-line "<br><br>" index)
+      (write-line (concatenate 'string "<center>" (credits-line) "</center>") index)
+      
+      (write-line "</td>" index)
 
       (write-line "<td width=10%>&nbsp;</td>" index)
       (write-line "</td></tr></table>" index)
@@ -478,18 +466,14 @@ TH {
       (write-line "<td width=10%>&nbsp;</td>" index)
       (write-line "<td>" index)
       
-      (write-line "<table width=100%>" index)
-      (write-line "<tr><td>" index)
-
       (mapcar #'(lambda (item) (write-line (concatenate 'string "<a href=" (special-path-check
                                                                                (string-downcase (string item))) ".html>" 
                                                         (string item) "</a><br>") index))
               (sort allsymbols 'string<))
-      (write-line "</td></tr>" index)
       
-      (write-line (concatenate 'string "<tr><td class=center>" (credits-line) "</td></tr>") index)
+      (write-line (concatenate 'string "<center>" (credits-line) "</center>") index)
 
-      (write-line "</table>" index)
+      (write-line "</td>" index)
 
       (write-line "<td width=10%>&nbsp;</td>" index)
       (write-line "</tr></table>" index)
