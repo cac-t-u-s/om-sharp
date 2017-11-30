@@ -27,3 +27,5 @@ ehthumbs.db
 Thumbs.db
 
 **/reference-pages/**/
+BUILD/**/*
+codesign-om7
