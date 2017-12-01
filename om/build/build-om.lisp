@@ -134,7 +134,7 @@
 (load-om-package "space")
 (load-om-package "interface")
 ;(load-om-package "tempo")
-;;(load-om-package "timing")
+;(load-om-package "timing")
 
 ;(cl-user::clean-sources)
 
