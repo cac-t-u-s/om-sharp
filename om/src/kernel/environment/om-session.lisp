@@ -102,13 +102,31 @@
 ;;; THE 'PATCHES' FOLDER CONTAIN CHANGES TO LOAD BEFORE STARTUP
 ;;;======================================
 
+(defun get-app-name ()
+  #+macosx(let ((app-bundle (find ".app" (om-directory (om-root-folder) :files nil)
+                                  :test 'search :key #'(lambda (dir) (car (last (pathname-directory dir)))))))
+            (when app-bundle
+              (car (last (pathname-directory app-bundle)))))
+  #+windows(find "exe" (om-directory (om-root-folder) :files t :directories nil)
+                 :test 'string-equal :key 'pathname-type))
+
+(defun get-init-patches-folder () 
+  (merge-pathnames (make-pathname 
+                    :directory 
+                    (cons :relative 
+                          #-macosx(list "init")
+                          #+macosx(if (member :om-deliver *features*) 
+                                      (list (get-app-name) "Contents" "Init")
+                                    (list "init"))
+                          ))
+                   (om-root-folder)))
+
 (defun load-modif-patches ()
-  (let ((patches-folder (om-relative-path '("init") nil :om)))
+  (let ((patches-folder (get-init-patches-folder)))
     (om-with-redefinitions
       (let ((*load-verbose* t))
         (when (probe-file patches-folder)
           (mapc #'(lambda (file)
-                    ;(om-message-dialog (namestring file))
                     (load file :verbose t)) 
                 (sort (om-directory patches-folder :type (list "lisp" (om-compiled-type)) :files t :directories nil)
                       'string< :key 'pathname-name)))
@@ -123,13 +141,13 @@
 ;;; called in delivered app init
 (defun om-root-init ()
   (when (om-standalone-p)
-      (om-set-root-folder 
-       (make-pathname 
-        :device (pathname-device (oa::om-lisp-image)) :host (pathname-host (oa::om-lisp-image))
-        :directory 
-        #+cocoa(butlast (pathname-directory (truename (lw::pathname-location (oa::om-lisp-image)))) 3)
-        #+win32(pathname-directory (truename (lw::pathname-location  (oa::om-lisp-image))))
-        ))))
+    (om-set-root-folder 
+     (make-pathname 
+      :device (pathname-device (oa::om-lisp-image)) :host (pathname-host (oa::om-lisp-image))
+      :directory 
+      #+cocoa(butlast (pathname-directory (truename (lw::pathname-location (oa::om-lisp-image)))) 3)
+      #+win32(pathname-directory (truename (lw::pathname-location  (oa::om-lisp-image))))
+      ))))
 
 ;;;======================================
 ;;; USER-RELATED STARTUP FUNCTIONS
