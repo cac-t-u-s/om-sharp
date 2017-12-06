@@ -17,7 +17,7 @@
 (print "==============================")
 
 (defparameter *app-name+version* "o7")
-;(setf *app-name+version* (concatenate 'string "OM " (version-to-string *om-version* nil *beta-release*)))
+;(defparameter *app-name+version* (concatenate 'string "o7-" (version-to-string *om-version* t nil)))
 
 (defparameter *om-directory-folders* (butlast (pathname-directory (current-pathname))))
 
@@ -203,30 +203,46 @@
 (print "CREATING APP")
 (print "==============================")
 
+(print "================================")
+(print "MOVING RESOURCES (macOS only)")
+(print "================================")
+
+
 (defun move-mac-resources ()
-  (let ((libs-folder (make-pathname :directory (append *om-directory-folders* '("resources" "lib" "mac"))))
-        (app-libs-folder (make-pathname 
-                          :directory (append 
-                                      *om-directory-folders* 
-                                      (list (concatenate 'string *app-name+version* ".app") "Contents" "Frameworks"))))
-        (app-resources-folder (make-pathname 
+  (let* ((app-contents-folder (make-pathname 
                                :directory (append 
                                            *om-directory-folders* 
-                                           (list (concatenate 'string *app-name+version* ".app") "Contents" "Resources")))))
+                                           (list (concatenate 'string *app-name+version* ".app") "Contents"))))
+         (app-libs-folder (merge-pathnames (make-pathname :directory '(:relative "Frameworks")) app-contents-folder))
+         (app-resources-folder (merge-pathnames (make-pathname :directory '(:relative "Resources")) app-contents-folder)))
   
     (print (format nil "COPYING LIBRARIES TO: ~A" app-libs-folder))
-    (unless (string-equal (namestring libs-folder) (namestring app-libs-folder))
-      (om::om-copy-directory libs-folder app-libs-folder))
+    (om::om-copy-directory 
+     (merge-pathnames "lib/mac/" (make-pathname :directory (append *om-directory-folders* '("resources"))))
+     app-libs-folder)
   
     (print (format nil "COPYING RESOURCES TO: ~A" app-resources-folder))
     (loop for item in (oa::om-directory (make-pathname :directory (append *om-directory-folders* '("resources"))) :files t :directories t) 
           unless (string-equal "lib" (car (last (pathname-directory item)))) do
           (if (system::directory-pathname-p item)
               (om::om-copy-directory item (make-pathname :device (pathname-device app-resources-folder) 
-                                                   :directory (append (pathname-directory app-resources-folder) (last (pathname-directory item)))))
+                                                         :directory (append (pathname-directory app-resources-folder) (last (pathname-directory item)))))
             (om::om-copy-file item (make-pathname :device (pathname-device app-resources-folder) 
                                                   :directory (pathname-directory app-resources-folder)
                                                   :name (pathname-name item) :type (pathname-type item)))))
+    
+    (om::om-copy-directory  (make-pathname :device (pathname-device app-resources-folder)
+                                           :directory (append *om-directory-folders* '("src")))
+                            (make-pathname :device (pathname-device app-resources-folder) 
+                                           :directory (append (pathname-directory app-resources-folder) '("src"))))
+    
+    (clean-sources (make-pathname :device (pathname-device app-resources-folder) 
+                                  :directory (append (pathname-directory app-resources-folder) '("src"))))
+    
+    (om::om-copy-directory  (make-pathname :device (pathname-device app-resources-folder)
+                                           :directory (append *om-directory-folders* '("init")))
+                            (make-pathname :device (pathname-device app-contents-folder) 
+                                           :directory (append (pathname-directory app-contents-folder) '("Init"))))
     ))
 
 ; (version-to-hex 6.020005)
@@ -271,7 +287,7 @@
            #+win32 :keep-gc-cursor #+ win32 nil
            #+win32 :versioninfo #+win32 (list :binary-version (read-from-string (version-to-hex *om-version*))
                                               :version-string (version-to-string *om-version* t nil)
-                                              :company-name "IRCAM" :product-name "OpenMusic" :file-description "")
+                                              :company-name "" :product-name "o7" :file-description "")
            #+win32 :console #+win32 :input
            :quit-when-no-windows #+win32 t #-win32 nil
            #+(or cocoa win32) :packages-to-keep #+cocoa '(:objc)  #+win32 '(:comm)

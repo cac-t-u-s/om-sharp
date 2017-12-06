@@ -45,11 +45,17 @@
 ;=======================
 
 (defparameter *om-root* cl-user::*om-root-directory*)
-(defun om-root-folder () *om-root*)
-(defun om-set-root-folder (path) (setf *om-root* path))
 
-(setf om-lisp::*recorded-root* cl-user::*om-root-directory*)
-(setf om-lisp::*new-root* *om-root*)
+(defun om-root-folder () *om-root*)
+
+(defun om-set-root-folder (path) 
+  (setf *om-root* path)
+  (setf om-lisp::*new-src-root* path))
+
+
+;;; used for source tracking
+(setf om-lisp::*recorded-src-root* cl-user::*om-root-directory*)
+(setf om-lisp::*new-src-root* *om-root*)
 
 ;=======================
 ; INSPECTOR
