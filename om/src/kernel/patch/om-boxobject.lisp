@@ -58,7 +58,7 @@
                                                      (or (slot-doc slot) "")
                                                      )))
               (remove-if-not 'slot-initargs (class-direct-instance-slots class)))   ;;; direct ?
-      )
+       )
       )))
 
 
@@ -136,8 +136,10 @@
     ))
 
 
-;;;-------------------------------------------------------
-;;; RELATION TO REFERENCE CLASS (WHEN THE CLASS IS AN OMCLASS)
+;;;===============================
+;;; RELATION TO REFERENCE CLASS 
+;;; (WHEN THE CLASS IS AN OMCLASS)
+;;;===============================
 (defmethod om-copy ((self OMBoxRelatedWClass)) 
   (let* ((newbox (call-next-method))
          (class (find-class (reference newbox) nil)))
@@ -152,9 +154,9 @@
       (release-reference class box))))
 
 
-;;;===========================
+;;;===============================
 ;;; EVALUATION
-;;;===========================
+;;;===============================
 
 (defmethod objFromObjs ((model t) (target t))
   (clone-object model target))
@@ -240,7 +242,6 @@
        obj)
      initargs)))
 
-(symbol-name :test)
 
 ;;; SPECIAL FOR BOXEDITCALL: 
 ;;; If the first input is connected the value is built by copying a prototype instance (<model>) 
@@ -252,10 +253,11 @@
          (set-slot-args (loop for initarg in initargs 
                               when (find (symbol-name (car initarg)) class-slots-names :key 'symbol-name :test 'string-equal)
                               collect (list (symbol-name (car initarg)) (cadr initarg))))) 
+
     (if rep
         (progn 
           (set-value-slots rep set-slot-args)
-          (om-init-instance rep initargs)  ;; ok ?
+          (om-init-instance rep (or initargs '(nil))) ;;; we want to pass a non-nil ['(NIL) and not NIL] value in order to signal evaluation to om-init-instance
           )
       (progn (om-beep-msg "Can not create a ~A from ~A" type model)
         (om-abort)))
