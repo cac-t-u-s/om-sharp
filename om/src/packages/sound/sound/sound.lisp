@@ -84,10 +84,10 @@
   (om-print-dbg "SOUND CLEANUP: ~A (~A)" (list self (buffer self)) "SOUND_DEBUG")
   (when (buffer self) (oa::om-release (buffer self))))
 
-(defmethod additional-slots-for-copy ((from om-internal-sound)) 
+(defmethod additional-slots-to-copy ((from om-internal-sound)) 
   (append (call-next-method) '(mute)))
 
-(defmethod excluded-slots-for-copy ((from om-internal-sound))  '(buffer))
+(defmethod excluded-slots-from-copy ((from om-internal-sound))  '(buffer))
 
 
 

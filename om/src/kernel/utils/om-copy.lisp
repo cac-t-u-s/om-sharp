@@ -53,9 +53,9 @@
 (defmethod om-copy ((self standard-object)) 
   (om-init-instance (clone-object self)))
 
-(defmethod excluded-slots-for-copy ((from t)) nil)
+(defmethod excluded-slots-from-copy ((from t)) nil)
 
-(defmethod additional-slots-for-copy ((from t)) 
+(defmethod additional-slots-to-copy ((from t)) 
   (additional-class-attributes from))
 
 ;;; the slot must exit in the target object
@@ -63,8 +63,8 @@
 (defmethod condition-for-copy-slot ((from t) (to t) slot)
   (and (slot-exists-p to (slot-definition-name slot))
        (or (slot-definition-initargs slot)
-           (member (slot-definition-name slot) (additional-slots-for-copy from)))
-       (not (member (slot-definition-name slot) (excluded-slots-for-copy from)))
+           (member (slot-definition-name slot) (additional-slots-to-copy from)))
+       (not (member (slot-definition-name slot) (excluded-slots-from-copy from)))
        ))
 
 ;;; OMObject copy/save only the slot with initargs
