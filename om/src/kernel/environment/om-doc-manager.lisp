@@ -246,8 +246,9 @@
         (progn 
           (setf (mypathname self) path)
           (set-name self (pathname-name path))
-          
-          (update-document-path self))))
+          (update-document-path self)
+          (record-recent-file path)
+          )))
     ))
   
 
