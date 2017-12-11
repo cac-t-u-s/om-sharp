@@ -26,7 +26,7 @@
     (color :initform (om-def-color :dark-gray) :accessor color :initarg :color)
     (decimals :initform 2 :accessor decimals :initarg :decimals :documentation "precision (integer) [0-10]")))
 
-(defmethod additional-slots-for-copy ((self internalBPF)) '(point-list))
+(defmethod additional-slots-to-copy ((self internalBPF)) '(point-list))
   
 ;;; POINTS IN BPF
 ;;; VIRTUALLY IMPLEMENTS TIMED-ITEM INTERFACE

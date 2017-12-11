@@ -174,7 +174,8 @@
   (if (data self)
       (setf (fields self) (length (data self))
             (elts self) (apply 'max (mapcar 'length (data self))))
-      (setf (fields self) 0)
+      (setf (fields self) 0 
+            (elts self 0))
       )
   self)
 
@@ -250,21 +251,14 @@ Data instanciation in a column is done according to the specified number of line
 "))
 
 
-(defmethod object-box-label ((self class-array))
-  (string+ (string-upcase (type-of self)) " ["
-           (number-to-string (length (data self)))
-           "x" 
-           (number-to-string (elts self)) "]"))
-
 (defmethod additional-slots-to-save ((self class-array)) '(data))
-(defmethod additional-slots-for-copy ((self class-array)) '(data))
-
+(defmethod additional-slots-to-copy ((self class-array)) '(data))
 
 (defmethod om-init-instance ((self class-array) &optional initargs)
    
   (call-next-method) 
   
-  ;;; in class array some 'meta-data' determine the contents of the actual data
+  ;;; in class-array some 'meta-data' determine the contents of the actual data
   (setf (fields self) (length (field-names self)))
   (unless (elts self) (setf (elts self) 0))
 
@@ -284,7 +278,7 @@ Data instanciation in a column is done according to the specified number of line
                          (make-array-field :name field :decimals 4
                                            :default (and existing-field (array-field-default existing-field))
                                            :type (and existing-field (array-field-type existing-field))
-                                           :data (get-array-data-from-input input-data (num-elts self))))
+                                           :data (get-array-data-from-input input-data (elts self))))
                         
                         (existing-field
                          ;; the field already exists
@@ -292,11 +286,11 @@ Data instanciation in a column is done according to the specified number of line
                                            :default (array-field-default existing-field)
                                            :type (array-field-type existing-field)
                                            :data (get-array-data-from-input (array-field-data existing-field)
-                                                                            (num-elts self))))
+                                                                            (elts self))))
                         (t
                          ;; the field will be filled from the default value (if any) or NIL
                          (make-array-field :name field :decimals 4
-                                           :data (get-array-data-from-input nil (num-elts self))))
+                                           :data (get-array-data-from-input nil (elts self))))
                         )
                   )))
     )
