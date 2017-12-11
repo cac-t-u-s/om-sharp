@@ -122,7 +122,7 @@
                                                                         ))
                                              devices))
                                     "MIDI")
-        (om-print "No MIDI devices detected"))
+        (om-lisp::om-print "No MIDI devices detected"))
       )))
 
 ; (portmidi-restart)
