@@ -973,14 +973,18 @@
 ;;; LISP CODE
 ;;;======================================
 
+(defun format-lisp-code-string (code margin) 
+  (write-to-string code :escape t :pretty t :right-margin margin :miser-width margin))
+
 (defmethod make-editor-window-contents ((editor patch-editor))
   (let ((patch-view (call-next-method)))
     (if (show-lisp-code editor)
         (let ((text-pane (om-make-di 'om-multi-text 
-                                     :text (get-patch-lisp-code (object editor)) 
+                                     :text (format-lisp-code-string (get-patch-lisp-code (object editor)) 60)
                                      :font (om-make-font "Courier New" 12)
-                                     :bg-color (om-def-color :white)
-                                     :size (omp nil nil))))
+                                     ;:bg-color (om-def-color :white)
+                                     :size (omp nil nil)
+                                     )))
           (set-g-component editor :lisp-code text-pane)
           (values 
            (om-make-layout 
@@ -989,7 +993,7 @@
                        patch-view 
                        :divider
                        (om-make-layout 
-                        'om-column-layout :ratios '(100 1)
+                        'om-column-layout :ratios '(1 nil)
                         :subviews (list text-pane
                                         (om-make-layout 
                                          'om-row-layout
@@ -1017,7 +1021,11 @@
 (defmethod patch-editor-set-lisp-code ((self patch-editor))
   (when (and (show-lisp-code self)
              (get-g-component self :lisp-code)) ;; just in case..
+    (let* ((textpane (get-g-component self :lisp-code))
+           (w (om-width textpane))
+           (wem (om-string-size "m" (om-get-font textpane))))
     (om-set-dialog-item-text 
      (get-g-component self :lisp-code)
-     (get-patch-lisp-code (object self)))))
-     
+     (format-lisp-code-string (get-patch-lisp-code (object self)) (round w wem)))
+    )))
+    

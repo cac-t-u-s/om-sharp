@@ -295,11 +295,10 @@
          (body (if (> (length out-boxes) 1)
                    `(values ,.(mapcar #'(lambda (out) (gen-code out)) out-boxes))
                  (gen-code (car out-boxes)))))
-    (let ((*PRINT-MISER-WIDTH* 60)
-          (*PRINT-RIGHT-MARGIN* 60))
-      (write-to-string 
-       `(lambda (,.input-names) (let* ,(reverse *let-list*) ,body)) 
-       :escape t :pretty t))))
+    `(lambda (,.input-names) 
+       ,(if *let-list*
+         `(let* ,(reverse *let-list*) ,body)
+          body))))
 
 #|
 
