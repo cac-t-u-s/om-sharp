@@ -147,10 +147,10 @@ Lock the box ('b') to keep the current file.
          (matrix (make-instance 
                   'SDIFMatrix 
                   :matrixtype sig
-                  :num-elts ne)))
+                  :elts ne)))
     
-    (setf (num-fields matrix) nf)
-    (setf (fields matrix)
+    (setf (fields matrix) nf)
+    (setf (field-names matrix)
           (let ((mtype (sdif::SdifTestMatrixType ptr (sdif::SdifStringToSignature sig))))
             (if (om-null-pointer-p mtype)
                 (loop for i from 1 to nf collect (format nil "c~D" i))
@@ -159,7 +159,7 @@ Lock the box ('b') to keep the current file.
     (if with-data
         (let ((bytesread 0))
           (setf (data matrix) 
-                (loop for f in (fields matrix) collect  
+                (loop for f in (field-names matrix) collect  
                       (make-array-field :name f
                                         :data (make-list ne))))
           (loop for r from 0 to (1- ne) 
@@ -222,15 +222,15 @@ Lock the box ('b') to keep the current file.
                           (setf (mstream-desc-tmin mstreamdesc) frame-time))
                         (when (> frame-time (mstream-desc-tmax mstreamdesc))
                           (setf (mstream-desc-tmax mstreamdesc) frame-time))
-                        (when (> (num-elts mat) (mstream-desc-rmax mstreamdesc))
-                          (setf (mstream-desc-rmax mstreamdesc) (num-elts mat)))
-                        ;(when (> (num-fields mat) (mstream-desc-fields mstreamdesc))
-                        ;  (setf (mstream-desc-fields mstreamdesc) (num-fields mat)))
+                        (when (> (elts mat) (mstream-desc-rmax mstreamdesc))
+                          (setf (mstream-desc-rmax mstreamdesc) (elts mat)))
+                        ;(when (> (fields mat) (mstream-desc-fields mstreamdesc))
+                        ;  (setf (mstream-desc-fields mstreamdesc) (fields mat)))
                         )
                     ;;; NEW MATRIX STREAM
                     (pushr (make-mstream-desc :msig (matrixtype mat) 
-                                              :fields (first-n (SDIFTypeDescription self (matrixtype mat) 'm) (num-fields mat))
-                                              :rmax (num-elts mat) :tmin frame-time :tmax frame-time
+                                              :fields (first-n (SDIFTypeDescription self (matrixtype mat) 'm) (fields mat))
+                                              :rmax (elts mat) :tmin frame-time :tmax frame-time
                                               :nf 1) 
                            (fstream-desc-matrices streamdesc)))
                   ))
@@ -242,8 +242,8 @@ Lock the box ('b') to keep the current file.
               :matrices  (loop for mat in (lmatrices frame) collect 
                                (make-mstream-desc 
                                 :msig (matrixtype mat) 
-                                :fields (first-n (SDIFTypeDescription self (matrixtype mat) 'm) (num-fields mat))
-                                :rmax (num-elts mat) :tmin (frametime frame) :tmax (frametime frame)
+                                :fields (first-n (SDIFTypeDescription self (matrixtype mat) 'm) (fields mat))
+                                :rmax (elts mat) :tmin (frametime frame) :tmax (frametime frame)
                                 :nf 1)))
              (file-map self))
       )))

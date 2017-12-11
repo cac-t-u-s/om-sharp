@@ -26,8 +26,8 @@
 ;============================================================
 
 (defclass OMArray ()
-  ((num-elts :initform 0 :accessor num-elts :documentation "number of elements (a.k.a lines)")
-   (num-fields :initform 0 :accessor num-fields :documentation "number of fields (a.k.a columns)")
+  ((elts :initform 0 :accessor elts :documentation "number of elements (a.k.a lines)")
+   (fields :initform 0 :accessor fields :documentation "number of fields (a.k.a columns)")
    (data :initform nil :accessor data :documentation "data matrix")))
 
 ;(defmethod initialize-instance :after ((self OMArray) &rest args)
@@ -35,8 +35,8 @@
 
 (defmethod object-box-label ((self OMArray))
   (string+ (string-upcase (type-of self)) " ["
-           (number-to-string (num-fields self)) "x" 
-           (number-to-string (num-elts self)) "]"))
+           (number-to-string (fields self)) "x" 
+           (number-to-string (elts self)) "]"))
 
 (defmethod get-field-name ((self OMArray) (col integer)) (format nil "c_~D" col))
 
@@ -71,8 +71,8 @@
 (defmethod get-array-field-data ((field list)) field)
 
 (defmethod draw-field-on-box ((self OMArray) field x y w h)
-  (when (> (num-elts self) 0)
-    (let ((x-space (/ w (num-elts self)))
+  (when (> (elts self) 0)
+    (let ((x-space (/ w (elts self)))
           (mid-y (+ y (/ h 2)))
           (margin-y (min 8 (/ h 2)))
           (field-data (get-array-field-data field)))
@@ -170,9 +170,9 @@
 (defmethod om-init-instance ((self 2D-array) &optional initargs)
   (call-next-method)
   (if (data self)
-      (setf (num-fields self) (length (data self))
-            (num-elts self) (apply 'max (mapcar 'length (data self))))
-      (setf (num-fields self) 0)
+      (setf (fields self) (length (data self))
+            (elts self) (apply 'max (mapcar 'length (data self))))
+      (setf (fields self) 0)
       )
   self)
 
@@ -229,20 +229,20 @@
 ;;; the <data> slot is not visible and set according to the meta-info + optional additionl box inputs 
 ;;; (requires a dedicated box type)
 (defclass* class-array (OMArray) 
-  ((fields :initform nil :initarg :fields :accessor fields :documentation "field (column) names ")
-   (num-elts :initform 1 :initarg :num-elts  :accessor num-elts :documentation "number of elements (lines)"))
+  ((field-names :initform nil :initarg :field-names :accessor field-names :documentation "field (column) names ")
+   (elts :initform 1 :initarg :elts  :accessor elts :documentation "number of elements (lines)"))
   (:documentation "
 CLASS-ARRAY is a special implementation of a 2D-array where specific semantics is given to the different fields (columns).
 
-<fields> is a list of strings. Each name in it initializes a column which becomes accessible through the additional/optional inputs of the CLASS-ARRAY box.
+<field-names> is a list of strings. Each name in it initializes a column which becomes accessible through the additional/optional inputs of the CLASS-ARRAY box.
 
-<num-elts> is the number of lines/elements in the array.
+<elts> is the number of lines/elements in the array.
 
-Data instanciation in a column is done according to the specified number of lines/elements (<num-elts>), either by
+Data instanciation in a column is done according to the specified number of lines/elements (<elts>), either by
 
 - Repeating a single value
 - Applying list values
-- Looping through the list of value (if shorter than <num-elts>)
+- Looping through the list of value (if shorter than <elts>)
 - Sampling a BPF
 - Evaluating a lambda function of 0 or 1 argument (if 1, the argument is the element index in the array).
 "))
@@ -253,7 +253,7 @@ Data instanciation in a column is done according to the specified number of line
   (string+ (string-upcase (type-of self)) " ["
            (number-to-string (length (data self)))
            "x" 
-           (number-to-string (num-elts self)) "]"))
+           (number-to-string (elts self)) "]"))
 
 (defmethod additional-slots-to-save ((self class-array)) '(data))
 
@@ -263,12 +263,12 @@ Data instanciation in a column is done according to the specified number of line
   (call-next-method) 
   
   ;;; in class array some 'meta-data' determine the contents of the actual data
-  (setf (num-fields self) (length (fields self)))
-  (unless (num-elts self) (setf (num-elts self) 0))
+  (setf (fields self) (length (field-names self)))
+  (unless (elts self) (setf (elts self) 0))
 
   (when initargs ;; INITARGS = NIL means we are loading a saved object (data is already in)
     (setf (data self)
-          (loop for field in (fields self) collect
+          (loop for field in (field-names self) collect
                 
                 (let* ((input-data (find-value-in-kv-list initargs (intern-k field)))
                        
@@ -281,11 +281,11 @@ Data instanciation in a column is done according to the specified number of line
                   (if input-data 
                       ;; the field is to set from specified data
                       (setf (array-field-data final-field)
-                            (get-array-data-from-input input-data (num-elts self)))
+                            (get-array-data-from-input input-data (elts self)))
                     
                     ;; the field will be filled from the default value (if any) or NIL
                     (setf (array-field-data final-field)
-                          (get-array-data-from-input (array-field-default final-field) (num-elts self)))
+                          (get-array-data-from-input (array-field-default final-field) (elts self)))
                     )
                   
                   final-field)

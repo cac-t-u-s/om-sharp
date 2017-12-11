@@ -179,8 +179,8 @@ Internally calls and formats data from GetSDIFChords.
                 (let ((1-partial-frames 
                        (loop for time in (partial-t-list partial)
                              for n from 0 collect
-                             (let ((matrix (make-instance 'SDIFMatrix :matrixtype "1TRC" :num-elts 1)))
-                               (setf (num-fields matrix) 4
+                             (let ((matrix (make-instance 'SDIFMatrix :matrixtype "1TRC" :elts 1)))
+                               (setf (fields matrix) 4
                                      (data matrix) (list (list (1+ i))
                                                          (list (nth n (partial-f-list partial)))
                                                          (list (or (nth n (partial-a-list partial)) 1.0))
@@ -238,10 +238,10 @@ Internally calls and formats data from GetSDIFChords.
                   '< :key 'car))
                 (matrix (make-instance 'SDIFMatrix 
                                        :matrixtype "1TRC"
-                                       :num-elts (length data))))
+                                       :elts (length data))))
            
            
-           (setf (num-fields matrix) 4
+           (setf (fields matrix) 4
                  (data matrix) (mat-trans data))
            
            (make-instance 'SDIFFrame :frametime time :streamid 0 

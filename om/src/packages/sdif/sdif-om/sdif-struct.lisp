@@ -82,7 +82,7 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF TYPES.
 (defclass* SDIFMatrix (class-array)
    ((matrixtype :initform nil :initarg :matrixtype :accessor matrixtype :documentation "SDIF matrix type signature")
     ;(fields :initform nil :initarg :fields :accessor fields :documentation "Name of SDIF fields")
-    (num-elts :initform 1 :initarg :num-elts  :accessor num-elts :documentation "number of elements (a.k.a lines)"))
+    (elts :initform 1 :initarg :elts  :accessor elts :documentation "number of elements (a.k.a lines)"))
    (:documentation "SDIF data stored as a 2D array.
 
 SDIF Matrix define multidimensional sound description data at a given moment (no temporal dimension).
@@ -90,7 +90,7 @@ The lines of the matrix define the different fields of the description data (e.g
 The number of fields usually depends on the SDIF type specification corresponding to <signature>.
 The number of elements is variable.
 
-SDIFMatrix is a virtual 2D array of <num-fields> x <num-elts>.
+SDIFMatrix is a virtual 2D array of <fields> x <elts>.
 All data is contained in <data> 
 - as a list of lists ((freqs) (amps) (phases) ...)
 or
@@ -148,7 +148,7 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
                       (let ((fmat (find (matrixtype matrix) (lmatrices (car newframes)) :test 'string-equal :key 'matrixtype)))
                         (if fmat 
                             (setf (data fmat) (merge-matrix-data (data fmat) (data matrix))
-                                  (num-elts fmat) (1+ (num-elts fmat)))
+                                  (elts fmat) (1+ (elts fmat)))
                           (setf (lmatrices fr) (append (lmatrices fr) (list matrix))))))
               (push (make-instance 'SDIFFrame :frametime (frametime fr) :frametype (frametype fr)
                                    :streamID 0 :lmatrices (lmatrices fr))
