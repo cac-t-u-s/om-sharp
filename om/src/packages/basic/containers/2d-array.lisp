@@ -168,7 +168,9 @@
 
 ;; array dimensions are set according to <data>
 (defmethod om-init-instance ((self 2D-array) &optional initargs)
+
   (call-next-method)
+
   (if (data self)
       (setf (fields self) (length (data self))
             (elts self) (apply 'max (mapcar 'length (data self))))
@@ -248,7 +250,6 @@ Data instanciation in a column is done according to the specified number of line
 "))
 
 
-
 (defmethod object-box-label ((self class-array))
   (string+ (string-upcase (type-of self)) " ["
            (number-to-string (length (data self)))
@@ -256,17 +257,18 @@ Data instanciation in a column is done according to the specified number of line
            (number-to-string (elts self)) "]"))
 
 (defmethod additional-slots-to-save ((self class-array)) '(data))
+(defmethod additional-slots-for-copy ((self class-array)) '(data))
 
 
 (defmethod om-init-instance ((self class-array) &optional initargs)
-  
+   
   (call-next-method) 
   
   ;;; in class array some 'meta-data' determine the contents of the actual data
   (setf (fields self) (length (field-names self)))
   (unless (elts self) (setf (elts self) 0))
 
-  (when initargs ;; INITARGS = NIL means we are loading a saved object (data is already in)
+  (when t ;initargs ;; INITARGS = NIL means we are loading a saved object (data is already in)
     (setf (data self)
           (loop for field in (field-names self) collect
                 
@@ -274,28 +276,34 @@ Data instanciation in a column is done according to the specified number of line
                        
                        ;; the field can already be in the data
                        ;; if this data was copied or initialized from a subclass (e.g. cs-evt in OMChroma)
-                       (existing-field (find field (data self) :test 'string-equal :key 'array-field-name))
-                       
-                       (final-field (or existing-field (make-array-field :name field :decimals 4))))
-                  
-                  (if input-data 
-                      ;; the field is to set from specified data
-                      (setf (array-field-data final-field)
-                            (get-array-data-from-input input-data (elts self)))
-                    
-                    ;; the field will be filled from the default value (if any) or NIL
-                    (setf (array-field-data final-field)
-                          (get-array-data-from-input (array-field-default final-field) (elts self)))
-                    )
-                  
-                  final-field)
-                ))
-    )               
+                       (existing-field (find field (data self) :test 'string-equal :key 'array-field-name)))
+                 
+
+                  (cond (input-data 
+                         ;; the field is to set from specified data, whatever existed before
+                         (make-array-field :name field :decimals 4
+                                           :default (and existing-field (array-field-default existing-field))
+                                           :type (and existing-field (array-field-type existing-field))
+                                           :data (get-array-data-from-input input-data (num-elts self))))
+                        
+                        (existing-field
+                         ;; the field already exists
+                         (make-array-field :name field :decimals 4
+                                           :default (array-field-default existing-field)
+                                           :type (array-field-type existing-field)
+                                           :data (get-array-data-from-input (array-field-data existing-field)
+                                                                            (num-elts self))))
+                        (t
+                         ;; the field will be filled from the default value (if any) or NIL
+                         (make-array-field :name field :decimals 4
+                                           :data (get-array-data-from-input nil (num-elts self))))
+                        )
+                  )))
+    )
+  
   self)
 
 
-
-  
 (defmethod get-field ((self class-array) (col integer) &key (warn-if-not-found t))
   (if (< col (length (data self)))
       (array-field-data (nth col (data self)))
@@ -376,6 +384,8 @@ Data instanciation in a column is done according to the specified number of line
   ((keywords :initform nil :accessor keywords :initarg :keywords)))
 
 (defmethod special-box-type ((self (eql 'class-array))) 'ClassArrayBox)
+
+(defmethod default-size ((self ClassArrayBox)) (om-make-point 100 100))
 
 ;;; list of proposed keywords are the declared names
 (defmethod get-all-keywords ((self ClassArrayBox)) 
