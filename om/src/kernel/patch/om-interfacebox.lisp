@@ -28,6 +28,7 @@
 
 
 (defclass OMInterfaceBox (OMBox) ())
+(defmethod lock-state ((self OMInterfaceBox)) nil)
 
 (defmethod get-properties-list ((self OMInterfaceBox))
   (hide-property (call-next-method) '(:text-font :align :group-id)))
