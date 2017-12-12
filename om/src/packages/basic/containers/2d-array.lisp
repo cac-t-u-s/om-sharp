@@ -28,6 +28,7 @@
 (defclass OMArray ()
   ((elts :initform 0 :accessor elts :documentation "number of elements (a.k.a lines)")
    (fields :initform 0 :accessor fields :documentation "number of fields (a.k.a columns)")
+   (field-names :initform nil :accessor field-names :documentation "field (column) names ")
    (data :initform nil :accessor data :documentation "data matrix")))
 
 ;(defmethod initialize-instance :after ((self OMArray) &rest args)
@@ -38,7 +39,10 @@
            (number-to-string (fields self)) "x" 
            (number-to-string (elts self)) "]"))
 
-(defmethod get-field-name ((self OMArray) (col integer)) (format nil "c_~D" col))
+(defmethod get-field-name ((self OMArray) (col integer)) 
+  (or (nth col (field-names self))
+      (format nil "c_~D" col)))
+
 
 ;;; deprecated - use get-field
 (defmethod get-col ((self OMArray) col &key (warn-if-not-found t))
@@ -102,7 +106,7 @@
                  (draw-cross x0 mid-y)
                  (om-draw-circle x0 y0 2 :fill t)
                  (om-draw-string (- x0 6) (- y0 6) (format nil "~A" val)) 
-                 (if (= y-values-range 0) (setf max-y-val nil)) ;; just to prevent drawing teh value again
+                 (if (= y-values-range 0) (setf max-y-val nil)) ;; just to prevent drawing the value again
 
                  (loop for n from 1 to (1- (length field-data)) 
                        by step do
@@ -165,6 +169,8 @@
 ;; <data> is redefined with :initarg so as to appear as a box input
 (defclass* 2D-array (OMArray) 
   ((data :initform nil :initarg :data :accessor data :documentation "data matrix / list of lists : (col1 col2 ...)")))
+
+(defmethod additional-class-attributes ((self 2D-array)) '(field-names))
 
 ;; array dimensions are set according to <data>
 (defmethod om-init-instance ((self 2D-array) &optional initargs)
@@ -256,13 +262,14 @@ Data instanciation in a column is done according to the specified number of line
 
 (defmethod om-init-instance ((self class-array) &optional initargs)
    
+  ;;; no next-method actually (T)
   (call-next-method) 
   
   ;;; in class-array some 'meta-data' determine the contents of the actual data
   (setf (fields self) (length (field-names self)))
   (unless (elts self) (setf (elts self) 0))
-
-  (when t ;initargs ;; INITARGS = NIL means we are loading a saved object (data is already in)
+  
+  (when t ;; initargs ;; INITARGS = NIL means we are loading a saved object (data is already in)
     (setf (data self)
           (loop for field in (field-names self) collect
                 
@@ -271,8 +278,7 @@ Data instanciation in a column is done according to the specified number of line
                        ;; the field can already be in the data
                        ;; if this data was copied or initialized from a subclass (e.g. cs-evt in OMChroma)
                        (existing-field (find field (data self) :test 'string-equal :key 'array-field-name)))
-                 
-
+                  
                   (cond (input-data 
                          ;; the field is to set from specified data, whatever existed before
                          (make-array-field :name field :decimals 4
@@ -285,8 +291,10 @@ Data instanciation in a column is done according to the specified number of line
                          (make-array-field :name field :decimals 4
                                            :default (array-field-default existing-field)
                                            :type (array-field-type existing-field)
-                                           :data (get-array-data-from-input (array-field-data existing-field)
-                                                                            (elts self))))
+                                           :data (get-array-data-from-input 
+                                                  (or (array-field-data existing-field)
+                                                      (array-field-default existing-field))
+                                                  (elts self))))
                         (t
                          ;; the field will be filled from the default value (if any) or NIL
                          (make-array-field :name field :decimals 4
@@ -384,13 +392,17 @@ Data instanciation in a column is done according to the specified number of line
 ;;; list of proposed keywords are the declared names
 (defmethod get-all-keywords ((self ClassArrayBox)) 
   (append (list (keywords self))
-          (call-next-method)
-          (list '(extra-control))))
+          (call-next-method) ;; additional-class-attributes of the reference
+          (when (allow-extra-controls (get-box-value self)) 
+            (list '(extra-control)))
+          ))
 
 (defmethod box-free-keyword-name ((self ClassArrayBox)) 'extra-control)
 
+(defmethod allow-extra-controls ((self class-array)) nil)
+
 (defmethod update-key-inputs ((self ClassArrayBox))
-  (when(get-box-value self)
+  (when (get-box-value self)
     (setf (keywords self) 
           (mapcar 
            #'(lambda (f) (intern-k (array-field-name f)))
