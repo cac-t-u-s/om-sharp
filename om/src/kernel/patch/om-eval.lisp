@@ -86,7 +86,7 @@
         (output-value-as-new-box val *current-eval-panel* 
                                  (om-add-points (io-position-in-patch (area (nth n (outputs self)))) (om-make-point 0 20))
                                  (and (om-option-key-p) (nth n (outputs self))))
-      (om-print-format "=> ~s~%" (list val) "OM"))))
+      (om-print-format "=> ~s" (list val) "OM"))))
 
 
 ;;;=================
