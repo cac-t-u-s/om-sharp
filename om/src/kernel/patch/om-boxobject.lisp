@@ -231,7 +231,8 @@
          (supplied-initargs (remove-if #'(lambda (item) (not (find item class-initargs :test 'find))) initargs :key 'car))
          ;;; not initargs but valid slots
          (supplied-other-args (loop for arg in initargs 
-                                    when (not (member (car arg) supplied-initargs :key 'car))
+                                    when (and (find (car arg) class-slots-names)
+                                              (not (member (car arg) supplied-initargs :key 'car)))
                                     collect (list (symbol-name (car arg)) (cadr arg)))))
     ;(print args)
     ;(print supplied-initargs)
@@ -257,7 +258,8 @@
     (if rep
         (progn 
           (set-value-slots rep set-slot-args)
-          (om-init-instance rep (or initargs '(nil))) ;;; we want to pass a non-nil ['(NIL) and not NIL] value in order to signal evaluation to om-init-instance
+          (om-init-instance rep (or initargs '(nil))) 
+          ;;; we want to pass a non-nil ['(NIL) and not NIL] value in order to signal evaluation mode to om-init-instance
           )
       (progn (om-beep-msg "Can not create a ~A from ~A" type model)
         (om-abort)))
