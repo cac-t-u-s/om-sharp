@@ -49,7 +49,7 @@
 ;;; Main Csound synthesis function
 ;;;=============================
 
-(defmethod* csound-synth ((sco pathname) (orc pathname) &key out format)
+(defmethod* csound-synth ((orc pathname) (sco pathname) &key out format)
   :icon 'csound
   (if (get-pref-value :externals :csound-path)
       (let* ((RT-OUT (equal out :rt))
@@ -94,8 +94,10 @@
     (om-beep-msg "ERROR: CSound exec not found! (check in OM/External preferences)")))
 
 
-(defmethod! csound-synth ((sco t) (orc t) &key out format)
-  (csound-synth (convert-input-to-csound sco "sco") (convert-input-to-csound orc "orc") :out out :format format))
+(defmethod! csound-synth ((orc t) (sco t) &key out format)
+  (csound-synth (convert-input-to-csound orc "orc") 
+                (convert-input-to-csound sco "sco") 
+                :out out :format format))
 
 (defmethod convert-input-to-csound ((self string) &optional type) (pathname self))
 (defmethod convert-input-to-csound ((self pathname) &optional type) self)
