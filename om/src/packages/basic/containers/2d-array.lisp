@@ -175,7 +175,7 @@
       (setf (fields self) (length (data self))
             (elts self) (apply 'max (mapcar 'length (data self))))
       (setf (fields self) 0 
-            (elts self 0))
+            (elts self) 0)
       )
   self)
 
