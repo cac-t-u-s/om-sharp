@@ -197,6 +197,8 @@
         collect (list (format nil "[~D]" i) field)))
 
 
+
+
 ;;;============================================================
 ;;; CLASS-ARRAY / OM6-LIKE
 ;;; A 2D-ARRAY with more explicit semantics assigned to each field.
@@ -239,7 +241,9 @@
 ;;; (requires a dedicated box type)
 (defclass* class-array (OMArray) 
   ((field-names :initform nil :initarg :field-names :accessor field-names :documentation "field (column) names ")
-   (elts :initform 1 :initarg :elts  :accessor elts :documentation "number of elements (lines)"))
+   (elts :initform 1 :initarg :elts  :accessor elts :documentation "number of elements (lines)")
+   (attached-components :accessor attached-components :initform nil) ;; a temporary list of 'active' accessed components
+   )
   (:documentation "
 CLASS-ARRAY is a special implementation of a 2D-array where specific semantics is given to the different fields (columns).
 
@@ -329,6 +333,8 @@ Data instanciation in a column is done according to the specified number of line
   (and (< col (length (data self)))
        (array-field-type (nth col (data self)))))
 
+(defmethod get-field-id ((self class-array) (field string))
+  (position field (field-names self) :test 'string-equal))
 
 ;;; redefinition from OM methods
 (defmethod get-slot-val ((self class-array) slot-name)
@@ -374,8 +380,6 @@ Data instanciation in a column is done according to the specified number of line
 
 (defmethod get-array-data-from-input ((input bpf) n)
   (multiple-value-bind (bpf xx yy) (om-sample input n) yy))
-
-
 
 
 ;;;============================
@@ -426,5 +430,153 @@ Data instanciation in a column is done according to the specified number of line
     (let* ((field-name (name (nth num (outputs box)))))
       (get-field (get-box-value box) field-name))))  
 
+
+
+;;;==============================================
+;;; Components are temporary structures 
+;;; used internally by OMChroma
+;;; to parse the contents of arrays by column
+;;;============================================== 
+
+;;; currently 'used' components of a same array 
+;;; are stored in a temporary slot of the array (attached-components)
+;;; in order to maintain the indexes when components are added or removed.
+
+(defstruct component  
+  (array nil)
+  (vals nil)
+  (index 0))
+
+;-----------Tools--------------
+
+(defmethod get-field-id ((self component) (field string))
+   (get-field-id (component-array self) field))
+
+
+(defmethod get-array-element ((self class-array) n)
+  (loop for array-field in (data self) collect
+        (nth n (array-field-data array-field))))
+
+(defmethod add-array-element ((self class-array) pos val-list)
+  (loop for array-field in (data self) 
+        for val in val-list do
+        (setf (array-field-data array-field)
+              (insert-in-list (array-field-data array-field) val pos)))
+  (setf (elts self) (1+ (elts self))))
+
+(defmethod set-array-element ((self class-array) pos val-list)
+  (loop for array-field in (data self) 
+        for val in val-list do
+        (setf (nth pos (array-field-data array-field)) val)))
+
+(defmethod remove-array-element ((self class-array) pos)
+  (loop for array-field in (data self) do 
+        (setf (array-field-data array-field)
+              (remove-nth pos (array-field-data array-field))))
+  (setf (elts self) (1- (elts self))))
+
+
+;-----------Interface-----------
+
+(defmethod* new-comp (vals)
+   :initvals '(nil)
+   :indoc '("component values")
+   :doc "Creates a new component filled with <vals>."
+   :icon 'array-comp
+   (make-component :val-list vals))
+
+
+(defmethod* get-comp ((self class-array) (n integer))
+   :initvals '(nil 0)
+   :indoc '("a class-array instance"  "component number")
+   :doc "Returns the <n>th component in <self> (a class-array object).
+
+Components are returned as instances of the class 'component' and can be accessed using the functions comp-field, comp-list, fill-comp."
+   :icon 'array-comp
+   (when (< n (elts self))
+     (let ((comp (make-component
+                  :array self
+                  :vals (get-array-element self n)
+                  :index n)))
+       (push comp (attached-components self))
+       comp)))
+
+
+(defmethod* add-comp ((self class-array) (comp component) &optional position)
+   :initvals '(nil nil)
+   :indoc '("a class-array instance"  "a component" "position in the array")
+   :doc "Adds <comp> in <self> at <pos>.
+If <pos> is not specified, the component is added at the end of the array."
+   :icon 'array-comp
+   (let* ((pos (or position (elts self))))
+     (setf (component-array comp) self)
+     (setf (component-index comp) pos)
+     (add-array-element self pos (component-vals comp))
+     (loop for cmp in (attached-components self) do
+           (when (>= (component-index cmp) pos)
+             (setf (component-index cmp) (1+ (component-index cmp)))))
+     (push comp (attached-components self))
+     comp))
+
+
+(defmethod* remove-comp ((self component)) 
+   :initvals '(nil)
+   :indoc '("a class-array component")
+   :doc 
+"Remove component <self> from its associated array.
+
+The modification is immediately applied in the original array."
+   :icon 'array-comp
+   (remove-array-element (component-array self) (component-index self))
+   (remove (component-index self) (attached-components (component-array self)) :key 'index :test '=)
+   ;;; !!! comp-array is still "self" for other removed components of same index
+   (loop for cmp in (attached-components (component-array self)) do
+         (when (> (component-index cmp) (component-index self))
+           (setf (component-index cmp) (1- (component-index cmp)))))        
+   (setf (component-array self) nil)
+   self)
+
+
+(defmethod! comp-list ((self component) &optional val-list) 
+   :initvals '(nil)
+   :indoc '("a class-array component")
+   :doc "Sets (if <val-list> is supplied) or returns (if not) the values in <self> (a class-array component).
+
+If <val-list> is supplied, the component itself is returned.
+
+The component must get attached to an array, i.e. previously pass through 'get-comp' or 'add-comp'. 
+The modifications are immediately stored in the original array."
+   :icon 323
+    (if val-list
+        (progn 
+          (setf (component-vals self) val-list)
+          (when (component-array self)
+            (set-array-element (component-array self) (component-index self) (component-vals self)))
+          self)
+      (component-vals self)))
+
+
+(defmethod* comp-field ((self component) (LineId integer) &optional val) 
+   :initvals '(nil 0 nil)
+   :indoc '("a class-array component" "a line identifier" "a value")
+   :doc 
+"Sets (if <val> is supplied) or returns (if not) the value of line <lineid> for component <self>.
+
+If <val>, the component itself is returned.
+
+The component must get attached to an array, i.e. previously pass through 'get-comp' or 'add-comp'. 
+The modifications are immediately stored in the original array.
+<lineid> can be a number (index of the line) or a string (name of the line)."
+   :icon 'array-comp
+   (if val 
+     (progn 
+       (setf (nth LineId (component-vals self)) val)
+       (when (component-array self)
+         (set-array-element (component-array self) (component-index self) (component-vals self)))
+       self)
+     (nth LineId (component-vals self))))
+
+(defmethod* comp-field ((self component) (LineId string) &optional val)
+   (comp-field self (get-field-id self LineId) val))
 
 
