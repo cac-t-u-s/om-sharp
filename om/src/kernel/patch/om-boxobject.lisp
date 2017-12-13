@@ -81,6 +81,7 @@
 
 
 ;;; ADDITIONAL CLASS AND BOX/EDITOR ATTRIBUTES CAN BE ADDED AS OPTIONAL/KEYWORDS
+;; will appear as a keyword input (must be a valid slot)
 (defmethod additional-class-attributes ((self t)) nil)
 
 (defmethod allow-more-optionals ((self OMBoxRelatedWClass)) t)
@@ -562,7 +563,7 @@
        (draw-mini-text object box 0 0 (w frame) (h frame) (box-play-time frame)))
       (:mini-view 
        (om-with-clip-rect frame  0 4 (w frame) (- (h frame) 8)
-         (draw-label box object) ; :color (om-make-color 0.6 0.6 0.6 0.2)
+         (draw-label box object :color (om-make-color 0.6 0.6 0.6 0.2))
          (ensure-cache-display-draw box object)
          (om-with-clip-rect frame  0 4 (w frame) (- (h frame) 8)
          (draw-mini-view object box 0 4 (w frame) (- (h frame) 8) (box-play-time frame)))))

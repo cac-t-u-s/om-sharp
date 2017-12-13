@@ -105,7 +105,7 @@
                  ;;; draw the first element 
                  (draw-cross x0 mid-y)
                  (om-draw-circle x0 y0 2 :fill t)
-                 (om-draw-string (- x0 6) (- y0 6) (format nil "~A" val)) 
+                 (om-draw-string (- x0 4) (- y0 6) (format nil "~A" val)) 
                  (if (= y-values-range 0) (setf max-y-val nil)) ;; just to prevent drawing the value again
 
                  (loop for n from 1 to (1- (length field-data)) 
