@@ -403,7 +403,8 @@
     (when ed ;;; sometimes the editor is not yet set (e.g. textbuffer editor)
       (let ((obj (object ed)))
         (setf (window-size obj) size)
-        (update-from-editor obj :value-changed nil :reactive nil)
+        (when (om-initialized-p self) ;;; avoids to do this during init calls
+          (update-from-editor obj :value-changed nil :reactive nil))
         ))))
   
 (defmethod om-window-moved ((self OMEditorWindow) pos)
@@ -411,7 +412,8 @@
     (when ed ;;; sometimes the editor is not yet set (e.g. textbuffer editor)
       (let ((obj (object ed)))
         (setf (window-pos obj) pos)
-        (update-from-editor obj :value-changed nil :reactive nil)
+        (when (om-initialized-p self) ;;; avoids to do this during init calls
+          (update-from-editor obj :value-changed nil :reactive nil))
         ))))
 
 

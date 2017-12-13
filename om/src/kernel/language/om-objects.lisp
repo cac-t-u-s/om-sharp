@@ -199,7 +199,7 @@
         (format nil "MISSING FILE ! [Will be saved as ~A]" (namestring (mypathname self)))
         )
     ;;; no pathname yet : newly created window
-    (format nil "*~A  [...]" (name self))))
+    (format nil "~A~A  [...]" (if (saved? self) "" "*") (name self))))
 
 ;;; DOES NOT COPY !! (e.G. if I copy a box refereing to a persistant object, the copy will refer to the same object)
 (defmethod om-copy ((self OMPersistantObject)) self)

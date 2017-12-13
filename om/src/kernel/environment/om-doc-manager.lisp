@@ -116,7 +116,7 @@
   (let ((newobj (make-new-om-doc type (om-str :untitled))))
     (setf (omversion newobj) *om-version*)
     (setf (create-info newobj) (list (om-get-date) (om-get-date)))
-    (setf (saved? newobj) nil)
+    (setf (saved? newobj) t)
     (register-document newobj)
     (open-editor newobj)
     newobj))
