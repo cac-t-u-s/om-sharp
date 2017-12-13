@@ -33,6 +33,7 @@
 (export '(
           om-graphic-object
           om-make-graphic-object
+          om-initialized-p
           om-width
           om-height
           om-view-size
@@ -114,6 +115,8 @@
     ;(while (null rep) (setf rep (capi::top-level-interface self)))
     ;rep
     ))
+
+(defmethod om-initialized-p ((self om-graphic-object)) (initialized-p self))
 
 ;;;======================
 ;;; TOOLS
