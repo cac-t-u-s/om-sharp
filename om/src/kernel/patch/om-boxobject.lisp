@@ -15,9 +15,15 @@
 ; File author: J. Bresson
 ;============================================================================
 
-;=========================================================================
+;;;====================================================
 ;;; OBJECT/DATA BOXES:  FACTORY, SLOTS, INSTANCE
 ;;;====================================================
+
+;;; Rules for object boxes:
+;;; - The main slots of the box are the direct slots that have declared initargs
+;;; - Additional (keyword) slots are declared with 'additional-class-attributes'
+;;; - They are matched to a slot accessor if this slot is declared with initarg (in one of the class' superclasses)
+
 
 (in-package :om)
 
