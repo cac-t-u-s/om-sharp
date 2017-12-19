@@ -28,7 +28,7 @@
 (defclass OMArray ()
   ((elts :initform 0 :accessor elts :documentation "number of elements (a.k.a lines)")
    (fields :initform 0 :accessor fields :documentation "number of fields (a.k.a columns)")
-   (field-names :initform nil :accessor field-names :documentation "field (column) names ")
+   (field-names :initform nil :accessor field-names :initarg :field-names :documentation "field (column) names ")
    (data :initform nil :accessor data :documentation "data matrix")))
 
 ;(defmethod initialize-instance :after ((self OMArray) &rest args)
