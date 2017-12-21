@@ -56,17 +56,23 @@
                          (omNG-make-package "Containers" 
                                             :doc ""
                                             :functions nil
-                                            :classes '(2D-array class-array data-stream))
+                                            :classes '(data-stream))
+                         (omNG-make-package "Arrays" 
+                                            :doc ""
+                                            :classes '(2D-array class-array)
+                                            :subpackages 
+                                            (list (omNG-make-package 
+                                                   "Components parsing" 
+                                                   :doc ""
+                                                   :functions '(new-comp get-comp add-comp remove-comp comp-list comp-field) 
+                                                   )))
                          ))))
-  ;(add-ref-section (gen-ref-entries kernelpack))
   )
 
 
 ;;; SPLINE
 ;(AddGenFun2Pack '(om-spline) *function-package*)
 
-;;; ARRAY
-;(AddGenFun2Pack '(new-comp get-comp comp-list comp-field add-comp remove-comp) *basic-data-package*)
 
 ;;; PICT
 ;(defvar *graphics-package*  (omNG-protect-object (omNG-make-new-package "Picture")))
