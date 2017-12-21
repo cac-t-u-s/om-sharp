@@ -449,6 +449,11 @@ Data instanciation in a column is done according to the specified number of line
 
 ;-----------Tools--------------
 
+(defmethod om-copy ((self component))
+  (make-component :array (component-array self)
+                  :vals (om-copy (component-vals self))
+                  :index nil))
+
 (defmethod get-field-id ((self component) (field string))
    (get-field-id (component-array self) field))
 
@@ -544,13 +549,13 @@ The modification is immediately applied in the original array."
 
 If <val-list> is supplied, the component itself is returned.
 
-The component must get attached to an array, i.e. previously pass through 'get-comp' or 'add-comp'. 
-The modifications are immediately stored in the original array."
+If the component is attached to an array, i.e. previously passed through 'get-comp' or 'add-comp',
+then the modifications are immediately stored in the original array."
    :icon 323
     (if val-list
         (progn 
           (setf (component-vals self) val-list)
-          (when (component-array self)
+          (when (and (component-array self) (component-index self))
             (set-array-element (component-array self) (component-index self) (component-vals self)))
           self)
       (component-vals self)))
@@ -564,14 +569,14 @@ The modifications are immediately stored in the original array."
 
 If <val>, the component itself is returned.
 
-The component must get attached to an array, i.e. previously pass through 'get-comp' or 'add-comp'. 
-The modifications are immediately stored in the original array.
+If the component is attached to an array, i.e. previously passed through 'get-comp' or 'add-comp',
+then the modifications are immediately stored in the original array.
 <lineid> can be a number (index of the line) or a string (name of the line)."
    :icon 'array-comp
    (if val 
      (progn 
        (setf (nth LineId (component-vals self)) val)
-       (when (component-array self)
+       (when (and (component-array self) (component-index self))
          (set-array-element (component-array self) (component-index self) (component-vals self)))
        self)
      (nth LineId (component-vals self))))
