@@ -42,7 +42,12 @@
 
 (defmethod sdif-write ((matrix sdifmatrix) file-ptr)
   (let* ((data-type-size 4)
-         (data (if (listp (car (data matrix))) (flat (mat-trans (data matrix))) (data matrix)))
+         ;;; flat data list
+         (data (cond ((listp (car (data matrix))) 
+                      (flat (mat-trans (data matrix))))
+                     ((array-field-p (car (data matrix)))
+                      (flat (mat-trans (mapcar 'array-field-data (data matrix)))))/Users/bresson/OM/out-files/
+                     (t (data matrix))))
          (data-ptr (om-alloc-memory (* data-type-size (fields matrix) (elts matrix)))))
     (loop for val in data 
           for i from 0 do
@@ -64,9 +69,6 @@
      (sdif::SdifFWriteFrameHeader file-ptr)
      (loop for item in (LMatrices self) do (sdif-write item file-ptr))
      ))
-
-
-
 
 
 ;;;======================================
@@ -128,4 +130,36 @@
 (defun sdif-write-IDS (file id str tree)
    (let ((idstable (sdif::SdifFStreamIDTable file)))
      (sdif::SdifStreamIDTablePutSID idstable id str tree)))
+
+
+
+;;;======================================
+;;; GENERAL / TOP-LEVEL
+;;;======================================
+
+(defmethod* write-sdif-file ((frames list) &key (outpath "out.sdif") types nvts)
+  (let ((out-path (cond ((pathnamep outpath) outpath)
+                         ((stringp outpath) (outfile outpath))
+                         (t (om-choose-new-file-dialog)))))
+    (when out-path
+      (let ((sdiffileptr (sdif::sdif-open-file out-path sdif::eWriteFile)))
+        (if sdiffileptr
+          (unwind-protect 
+              (progn (sdif::SdifFWriteGeneralHeader sdiffileptr)
+                
+                (loop for nvt in (cons (default-om-NVT) (list! nvts)) 
+                      do (sdif-write nvt sdiffileptr))
+                
+                (when types (sdif-write-types sdiffileptr (list! types)))
+            
+                (sdif::SdifFWriteAllASCIIChunks sdiffileptr)
+                
+                (loop for frame in frames
+                      do (sdif-write frame sdiffileptr))
+                )
+            (sdif::SDIFFClose sdiffileptr))
+          (om-beep-msg "Could not open file for writing: ~A" out-path))
+        (probe-file out-path)
+        ))))
+
 

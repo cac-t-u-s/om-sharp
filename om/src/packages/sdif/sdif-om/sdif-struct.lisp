@@ -101,10 +101,17 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF
 
  "))
 
+(defmethod allow-extra-controls ((self SDIFMatrix)) t)
+
 (defun merge-matrix-data (data1 data2)
   (loop for c1 in data1
         for c2 in data2 collect
         (append c1 c2)))
+
+
+;;; TODO:
+;;; matrixtype could be a SDIFtype and do something at initialization to initialize the fields...
+
 
 ;;;=========================
 ;;; SDIF FRAME
