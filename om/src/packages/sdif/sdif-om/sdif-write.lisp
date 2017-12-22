@@ -46,7 +46,7 @@
          (data (cond ((listp (car (data matrix))) 
                       (flat (mat-trans (data matrix))))
                      ((array-field-p (car (data matrix)))
-                      (flat (mat-trans (mapcar 'array-field-data (data matrix)))))/Users/bresson/OM/out-files/
+                      (flat (mat-trans (mapcar 'array-field-data (data matrix)))))
                      (t (data matrix))))
          (data-ptr (om-alloc-memory (* data-type-size (fields matrix) (elts matrix)))))
     (loop for val in data 
