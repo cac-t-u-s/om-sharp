@@ -269,6 +269,23 @@ Data instanciation in a column is done according to the specified number of line
   ;;; no next-method actually (T)
   (call-next-method) 
   
+  ;;; find the potential extra-controls and add them as field names
+  (setf (om::field-names self)
+        (append (om::field-names self)
+                (remove nil (loop for initarg in initargs
+                                  when (car initarg)  ;; sometimes initargs = (nil)
+                                  collect 
+                                  (let ((arg-name (symbol-name (car initarg))))
+                                    (unless (or ;; already there from previous initialization (e.g. from Csound orc)
+                                                (find arg-name (om::field-names self) :test 'string-equal) 
+                                                ;; member of the 'invisible' slots
+                                                (find arg-name (om::class-slots (class-of self)) :key 'om::slot-name
+                                                      :test 'string-equal)
+                                                )
+                                      arg-name))))
+                ))
+
+
   ;;; in class-array some 'meta-data' determine the contents of the actual data
   (setf (fields self) (length (field-names self)))
   (unless (elts self) (setf (elts self) 0))
@@ -393,15 +410,16 @@ Data instanciation in a column is done according to the specified number of line
 
 (defmethod default-size ((self ClassArrayBox)) (om-make-point 100 100))
 
+(defmethod box-free-keyword-name ((self ClassArrayBox)) 'm-field)
+
 ;;; list of proposed keywords are the declared names
 (defmethod get-all-keywords ((self ClassArrayBox)) 
   (append (list (keywords self))
           (call-next-method) ;; additional-class-attributes of the reference
-          (when (allow-extra-controls (get-box-value self)) 
-            (list '(extra-control)))
+          (when (and (get-box-value self) (allow-extra-controls (get-box-value self)))
+            `((,(box-free-keyword-name self))))
           ))
 
-(defmethod box-free-keyword-name ((self ClassArrayBox)) 'extra-control)
 
 (defmethod allow-extra-controls ((self class-array)) nil)
 
