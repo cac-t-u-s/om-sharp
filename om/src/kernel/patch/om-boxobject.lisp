@@ -109,11 +109,26 @@
           (box-attributes-names (additional-box-attributes val)))
     ))
 
+
+(defun make-unique-name (symbol-base name-list)
+  (let ((pack (symbol-package symbol-base))
+        (name (symbol-name symbol-base)))
+    (if (find name name-list :test 'string-equal)
+        (let ()
+          (loop while (find name name-list :test 'string-equal) 
+                for i = 2 then (+ i 1) do
+                (setf name (string+ (symbol-name symbol-base) "_" (number-to-string i))))
+          (intern name pack))
+      symbol-base)
+    ))
+
 (defmethod next-keyword-input ((self OMBoxRelatedWClass))
   (let ((keywordlist (apply 'append (get-all-keywords self)))
         (usedkeywords (mapcar #'(lambda (in) (name in)) (get-keyword-inputs self))))
-    (if keywordlist 
+    (if keywordlist
         (or (find-if-not #'(lambda (elt) (member elt usedkeywords :test 'string-equal)) keywordlist :key 'string)
+            (and (find (box-free-keyword-name self) keywordlist)
+                 (make-unique-name (box-free-keyword-name self) usedkeywords))
             (values nil "All keywords are already used.."))
       (values nil (string+ "No keyword for box '" (name self) "'.")))))
 
@@ -127,7 +142,6 @@
                                                       :box self
                                                       :doc-string (get-input-doc self name)))))
     ))
-
 
 (defmethod update-output-from-new-in ((box OMBoxRelatedWClass) name in) 
   (let ((out (find name (outputs box) :key 'name :test 'string-equal)))
