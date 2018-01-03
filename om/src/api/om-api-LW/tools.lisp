@@ -47,13 +47,20 @@
 ; FUNCTION NAMES AND DOC
 ;========================
 
+;;; cases and examples:
+;;; generic function, e.g. 'om::om+
+;;; functio,, e.g. 'append
+;;; special"macro-function", e.g. 'setf
+;;; anonymmous function
+;;; subfunction
+
 (defun function-arglist (fun)
   (let ((fsym (if (symbolp fun) fun (function-name fun)))
         (fdef (if (symbolp fun) (fdefinition fun) fun))) 
     (cond ((clos::generic-function-p fdef)
            (hcl::method-lambda-list (car (hcl::generic-function-methods fdef))))
           ((macro-function fsym)
-           (function-lambda-list 'setf))
+           (function-lambda-list fsym))
           (fsym (clos::extract-lambda-list-names-and-keys (function-lambda-list fsym)))
           (t (function-lambda-list fun)))
     ))
@@ -65,6 +72,7 @@
     (let ((lambda-exp-name (nth 2 (multiple-value-list (FUNCTION-LAMBDA-EXPRESSION fun)))))
       (cond ((equal lambda-exp-name 'system::fast-list) 'list)
             ((symbolp lambda-exp-name) lambda-exp-name)  ;; does not work, e.g. for CONS...
+            ((consp lambda-exp-name) nil) ;; the function is (?) a subfunction named by the compiler
             (t (system::function-name fun))   ;;; does not work with non-inbuilt functions...
             ))))
 
