@@ -73,7 +73,7 @@
   (let ((val (current-box-value self nil)))
     (if (<= (length val) 1)
         (om-print-format "=> ~s" (list (car val)) "OM")
-      (om-print-format "OM => [~{~s~^, ~}]" (list val) "OM"))
+      (om-print-format "=> [~{~s~^, ~}]" (list val) "OM"))
     ))
 
 (defmethod eval-box ((self omboxeditcall))
