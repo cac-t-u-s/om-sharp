@@ -350,6 +350,10 @@ Data instanciation in a column is done according to the specified number of line
   (and (< col (length (data self)))
        (array-field-type (nth col (data self)))))
 
+(defmethod get-field-default ((self class-array) (col integer)) 
+  (and (< col (length (data self)))
+       (array-field-default (nth col (data self)))))
+
 (defmethod get-field-id ((self class-array) (field string))
   (position field (field-names self) :test 'string-equal))
 
@@ -381,7 +385,6 @@ Data instanciation in a column is done according to the specified number of line
          (get-array-data-from-input (append (om-copy input) (om-copy input)) n))
         ((> (length input) n)
          (first-n (om-copy input) n))))
-
 
 (defmethod get-array-data-from-input ((input function) n)
   (case (length (function-arg-list input))
@@ -516,14 +519,14 @@ Data instanciation in a column is done according to the specified number of line
 
 Components are returned as instances of the class 'component' and can be accessed using the functions comp-field, comp-list, fill-comp."
    :icon 'array-comp
-   (when (< n (elts self))
-     (let ((comp (make-component
-                  :array self
-                  :vals (get-array-element self n)
-                  :index n)))
-       (push comp (attached-components self))
-       comp)))
-
+   (or (find n (attached-components self) :key 'component-index :test '=)
+       (when (< n (elts self))
+         (let ((comp (make-component
+                      :array self
+                      :vals (get-array-element self n)
+                      :index n)))
+           (pushr comp (attached-components self))
+           comp))))
 
 (defmethod* add-comp ((self class-array) (comp component) &optional position)
    :initvals '(nil nil)
@@ -538,7 +541,7 @@ If <pos> is not specified, the component is added at the end of the array."
      (loop for cmp in (attached-components self) do
            (when (>= (component-index cmp) pos)
              (setf (component-index cmp) (1+ (component-index cmp)))))
-     (push comp (attached-components self))
+     (pushr comp (attached-components self))
      comp))
 
 
