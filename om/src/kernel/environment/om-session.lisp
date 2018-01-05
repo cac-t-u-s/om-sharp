@@ -102,6 +102,9 @@
 ;;; THE 'PATCHES' FOLDER CONTAIN CHANGES TO LOAD BEFORE STARTUP
 ;;;======================================
 
+
+;;; pb: om-directory won't work on containing folder if the app is on quarantine
+#|
 (defun get-app-name ()
   #+macosx(let ((app-bundle (find ".app" (om-directory (om-root-folder) :files nil)
                                   :test 'search :key #'(lambda (dir) (car (last (pathname-directory dir)))))))
@@ -109,6 +112,13 @@
               (car (last (pathname-directory app-bundle)))))
   #+windows(find "exe" (om-directory (om-root-folder) :files t :directories nil)
                  :test 'string-equal :key 'pathname-type))
+|#
+
+(defun get-app-name ()
+  (string+ *app-name* 
+           #+macosx ".app" 
+           #+windows ".exe"
+           ))
 
 (defun get-init-patches-folder () 
   (merge-pathnames (make-pathname 
