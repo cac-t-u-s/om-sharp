@@ -46,7 +46,7 @@
         ;; attach the standard Services menu.
        ; :name :application-services)
        (:component
-        (("Hide OM"
+        (("Hide o7"
           :accelerator "accelerator-h"
           :callback-data :hidden)
          ("Hide Others"
@@ -62,29 +62,62 @@
           :callback #'(lambda (interface)
                         (capi:destroy interface))
           :callback-type :interface)))))
+
+   (open-recent-menu 
+    "Open Recent..." 
+    nil
+    :items-function #'(lambda (interface) 
+                        (mapcar #'(lambda (file)
+                                    (make-instance 'capi::menu-item :title (namestring file)
+                                                   :callback #'(lambda () (om::open-om-document file))
+                                                   :callback-type :none))
+                                om::*om-recent-files*))
+    )
+  
+   (file-menu
+      "File"
+      ((:component  
+        (("New Patch" 
+         :callback #'(lambda () (om::open-new-document :patch)) :callback-type :none
+          :accelerator "accelerator-n")
+        ("New Maquette" 
+         :callback #'(lambda () (om::open-new-document :maquette)) :callback-type :none
+         :accelerator "accelerator-m")
+        ("New Lisp function" 
+         :callback #'(lambda () (om::open-new-document :lispfun)) :callback-type :none)
+        ))
+        
+        ("New Text/Lisp Buffer" 
+         :callback #'(lambda () (om-lisp::om-open-text-editor :lisp t)) :callback-type :none
+         :accelerator "accelerator-N") 
+      
+        (:component 
+         (("Open..." 
+           :accelerator "accelerator-o"
+           :callback 'om::open-om-document
+           :callback-type :none)
+          
+          open-recent-menu
+          ))   
+        )
+      )
+
    (windows-menu
       "Windows"
       ((:component
-        (("Workspace"
-          :callback 'om::show-workspace-win
+        (("Workspace/Library Window"
+          :callback 'om::show-main-om-window
           :accelerator "accelerator-shift-w"
           :callback-type :none)
-         ("Library"
-          :callback 'om::show-packages-win
-          :accelerator "accelerator-shift-p"
-          :callback-type :none
-          :enabled-slot nil)
          ))
        (:component
         (("Lisp Listener"
           :callback 'om::show-listener-win
           :callback-type :none)
-         ("Lisp Editor"
-          :callback 'oa::om-open-new-text-editor
-          :callback-type :none)))
+         ))
        ))
    )
-  (:menu-bar application-menu windows-menu)
+  (:menu-bar application-menu file-menu windows-menu)
   (:default-initargs
    :title *app-name+version*
    :application-menu 'application-menu
