@@ -107,7 +107,7 @@
    (om-make-menu-comp  
     (list 
      (om-make-menu-item "Online Resources" #'(lambda() (sys:open-url "https://openmusic-project.github.io/")) :enabled t)
-     (om-make-menu-item "Functions & Classs Reference" #'(lambda() (sys:open-url (namestring (get-om-reference-pages-index)))) :enabled t)
+     (om-make-menu-item "Functions & Class Reference" #'(lambda() (sys:open-url (namestring (get-om-reference-pages-index)))) :enabled t)
      ))
    ))
 
