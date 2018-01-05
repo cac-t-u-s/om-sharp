@@ -413,7 +413,7 @@ Data instanciation in a column is done according to the specified number of line
 
 (defmethod default-size ((self ClassArrayBox)) (om-make-point 100 100))
 
-(defmethod box-free-keyword-name ((self ClassArrayBox)) 'm-field)
+(defmethod box-free-keyword-name ((self ClassArrayBox)) 'add-field)
 
 ;;; list of proposed keywords are the declared names
 (defmethod get-all-keywords ((self ClassArrayBox)) 
