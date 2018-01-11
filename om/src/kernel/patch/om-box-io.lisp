@@ -91,7 +91,7 @@
 (defmethod next-optional-input ((self OMBox)) nil)
 (defmethod more-optional-input ((self t) &key name (value nil val-supplied-p) doc reactive) nil)
 
-(defmethod add-optional-input ((self OMBox) &key name (value nil val-supplied-p) doc reactive)
+(defmethod add-optional-input ((self OMBox) &key name (value nil val-supplied-p) doc reactive) 
   (set-box-inputs self (append (inputs self)
                                (list (make-instance 'box-optional-input
                                                     :name (string-downcase name)
@@ -135,8 +135,11 @@
              (if key ;;; a specific name is asked for
                  (let ((keywordlist (mapcar 'intern-k (apply 'append (get-all-keywords self))))
                        (usedkeywords (mapcar #'(lambda (in) (intern-k (name in))) (get-keyword-inputs self))))
-                   (and (or (find (intern-k key) keywordlist) (om-beep-msg (string+ "Wrong keyword name: " (string key))))
-                        (or (not (find (intern-k key) usedkeywords)) (om-beep-msg (string+ "Keyword name already used: " (string key))))
+                   (and (or (find (intern-k key) keywordlist) 
+                            (find (intern-k (box-free-keyword-name self)) keywordlist)
+                            (om-beep-msg (string+ "Wrong keyword name: " (string key))))
+                        (or (not (find (intern-k key) usedkeywords)) 
+                            (om-beep-msg (string+ "Keyword name already used: " (string key))))
                         (intern-k key))) ;;; key is ok
                def-next)))
         (when keyname

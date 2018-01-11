@@ -574,6 +574,17 @@
   ;(find t (outputs self) :key 'reactive)
   t)
 
+(defmethod save-state ((i box-input))
+  (cond ((subtypep (type-of i) 'box-optional-input) 
+         `(:input (:type :optional) (:name ,(name i)) (:value ,(omng-save (value i))) (:reactive ,(reactive i))))
+        ((subtypep (type-of i) 'box-keyword-input) 
+         `(:input (:type :key) (:name ,(name i)) (:value ,(omng-save (value i))) (:reactive ,(reactive i))))
+        (t 
+         `(:input (:type :standard) (:name ,(name i)) (:value ,(omng-save (value i))) (:reactive ,(reactive i))))
+        ))
+
+(defmethod save-state ((o box-output)) 
+  `(:output (:name ,(name o)) (:reactive ,(reactive o))))
 
 (defmethod omng-save ((self OMBox))  
   (cons :box
@@ -591,18 +602,10 @@
                                    (list (car prop) (omng-save (slot-value self (nth 3 prop))))))
                              (get-flat-properties-list self)))
          
-         `((:inputs 
-            ,.(mapcar #'(lambda (i) 
-                          (cond ((subtypep (type-of i) 'box-optional-input) `(:input (:type :optional) (:name ,(name i)) (:value ,(omng-save (value i))) (:reactive ,(reactive i))))
-                                ((subtypep (type-of i) 'box-keyword-input) `(:input (:type :key) (:name ,(name i)) (:value ,(omng-save (value i))) (:reactive ,(reactive i))))
-                                (t `(:input (:type :standard) (:name ,(name i)) (:value ,(omng-save (value i))) (:reactive ,(reactive i))))))
-                      (inputs self))))
+         `((:inputs ,.(mapcar #'(lambda (i) (save-state i)) (inputs self))))
          
          (when (save-outputs? self)
-           `((:outputs 
-              ,.(mapcar 
-                 #'(lambda (o) `(:output (:name ,(name o)) (:reactive ,(reactive o))))
-                 (outputs self)))))
+           `((:outputs ,.(mapcar #'(lambda (o) (save-state o)) (outputs self)))))
          )))
 
 (defmethod restore-inputs ((self OMBox) inputs)
