@@ -105,7 +105,7 @@
                  ;;; draw the first element 
                  (draw-cross x0 mid-y)
                  (om-draw-circle x0 y0 2 :fill t)
-                 (om-draw-string (- x0 4) (- y0 6) (format nil "~A" val)) 
+                 (om-draw-string (+ x0 4) (- y0 6) (format nil "~A" val)) 
                  (if (= y-values-range 0) (setf max-y-val nil)) ;; just to prevent drawing the value again
 
                  (loop for n from 1 to (1- (length field-data)) 
@@ -125,7 +125,8 @@
                        )
                  (when (> step 1) 
                    (om-draw-rect (- (* w 0.5) 60) (- mid-y 10) 125 15 :color (om-make-color-alpha (om-def-color :white) 0.8)  :fill t)
-                   (om-draw-string (- (* w 0.5) 58) mid-y (format nil "[display down-sampled x 1/~D]" step)))
+                   (om-draw-string (- (* w 0.5) 58) mid-y (format nil "[display down-sampled x 1/~D]" step)
+                                   :color (om-make-color .7 .6 .7)))
                  ))
 
            ;;; NaN
@@ -440,8 +441,11 @@ Data instanciation in a column is done according to the specified number of line
   (declare (ignore args))
   (update-key-inputs self))
 
+#|
+;;; this will eventually call (setf value) anyway... => removed
 (defmethod omng-box-value :after ((self ClassArrayBox) &optional numout)
   (update-key-inputs self))
+|#
 
 (defmethod (setf value) :after (val (self ClassArrayBox))  
   (update-key-inputs self))
