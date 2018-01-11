@@ -55,6 +55,9 @@
         (string-until-char string separator)
       (cons token (string-to-list rest separator)))))
 
+(defun string-lines-to-list (string &optional (separator " "))
+  (string-to-list string (string #\Newline)))
+
 (defun number-to-string (num &optional decimals)
   (if decimals
       (format nil (format nil "~~,~DF" decimals) num)
