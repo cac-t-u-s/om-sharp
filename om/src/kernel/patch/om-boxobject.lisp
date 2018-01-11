@@ -220,7 +220,7 @@
 
 ;;; called after slots are set (including in OM)
 ;;; or when a new slot is set (e.g. slot box, property, etc.) 
-;;; <initargs> = NIL for save/load/copy
+;;; <initargs> = NIL for save/load/copy OR in the init value of a box
 ;;; <initargs> = all initargs in MAKE-VALUE / list incl. connected initargs MAKE-VALUE-FROM-MODEL
 ;;; ////// <initargs> = only the specific initarg e.g. in set-property ///// NOT ANYMORE !!
 (defmethod om-init-instance ((self t) &optional initargs) self)
@@ -472,7 +472,7 @@
 
 ;;; redefine when default init value is different
 (defmethod initialize-box-value ((self OMBoxeditCall) &optional value)
-  (let ((val (or value (make-instance (reference self)))))
+  (let ((val (or value (om-init-instance (make-instance (reference self))))))
     (set-name val (string-upcase (reference self)))
     (setf (value self) (list val))
     (reset-cache-display self)
