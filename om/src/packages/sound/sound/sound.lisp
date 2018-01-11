@@ -286,20 +286,22 @@ Press 'space' to play/stop the sound file.
 
 (defmethod set-play-buffer ((self sound))  
   
-  (om-print-format "Initializing ~A player for sound ~A (~D channels)"
-                   (list (if (and (file-pathname self) (access-from-file self)) "FILE" "BUFFER")
-                         self (n-channels self))
-                   "OM")
-  
   (if (and (file-pathname self) (access-from-file self))
-       
-      (setf (buffer-player self) (make-player-from-file (namestring (file-pathname self))))
+      (progn 
+        (om-print-format "Initializing FILE player for sound ~A (~D channels)"
+                         (list self (n-channels self))
+                         "OM")
+        (setf (buffer-player self) (make-player-from-file (namestring (file-pathname self)))))
 
     (when (buffer self) ;;; in principle at that point there should be a buffer..
       (if (and (n-samples self) (n-channels self) (sample-rate self))
-          (setf (buffer-player self) (make-player-from-buffer 
-                                      (oa::om-pointer-ptr (buffer self)) 
-                                      (n-samples self) (n-channels self) (sample-rate self)))
+          (progn
+            (om-print-format "Initializing BUFFER player for sound ~A (~D channels)"
+                             (list self (n-channels self))
+                             "OM")
+            (setf (buffer-player self) (make-player-from-buffer 
+                                        (oa::om-pointer-ptr (buffer self)) 
+                                        (n-samples self) (n-channels self) (sample-rate self))))
         (om-beep-msg "Incomplete info in SOUND object. Could not instanciate the player !!")
         ))
     ))
@@ -331,7 +333,7 @@ Press 'space' to play/stop the sound file.
     )
          
   ;;; SET A PLAYER IN ANY CASE !
-  (set-play-buffer self)  ;; be lazy => do it later!
+  ; (set-play-buffer self)  ;; be lazy => do it later!
   
   self)
 
