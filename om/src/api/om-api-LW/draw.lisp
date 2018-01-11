@@ -224,7 +224,7 @@
                         ))
           ))
 
-(defun om-draw-string (x y str &key selected wrap font align)
+(defun om-draw-string (x y str &key selected wrap font align color)
  
   (if wrap
       
@@ -255,7 +255,11 @@
                     (apply 'gp:draw-string  
                            (append 
                             (list *curstream* line xx yy :text-mode :default)
-                            (if selected '(:block t :foreground :color_highlighttext :background :color_highlight) '(:block nil))
+                            (if selected 
+                                '(:block t :foreground :color_highlighttext :background :color_highlight) 
+                              (if color 
+                                  `(:block nil :foreground ,(get-real-color color))
+                                '(:block nil)))
                             (when font `(:font ,real-font))))
                     )))))
     
@@ -263,7 +267,10 @@
            (append 
             (list *curstream* str ;; (substitute #\Space #\Tab str) 
                   x y :text-mode :default)
-            (if selected '(:block t :foreground :color_highlighttext :background :color_highlight) '(:block nil))
+            (if selected 
+                '(:block t :foreground :color_highlighttext :background :color_highlight) 
+              (if color `(:block nil :foreground ,(get-real-color color))
+                '(:block nil)))
             (when font `(:font ,(gp::find-best-font *curstream* font)))
             ))
     ))
