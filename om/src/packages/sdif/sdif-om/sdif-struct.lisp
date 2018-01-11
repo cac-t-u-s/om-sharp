@@ -30,9 +30,9 @@
 ;;; SDIF TYPE
 ;;;=========================
 (defclass* SDIFType ()
-   ((Struct :initform 'F :initarg :Struct :accessor struct :documentation "frame (= f) or matrix (= m)")
-    (Signature :initform "" :initarg :Signature :accessor signature :documentation "SDIF type signature")
-    (Description :initform nil :initarg :description :accessor description :documentation "type description"))
+   ((struct :initform 'F :initarg :struct :accessor struct :documentation "frame (= f) or matrix (= m)")
+    (signature :initform "" :initarg :Signature :accessor signature :documentation "SDIF type signature")
+    (description :initform nil :initarg :description :accessor description :documentation "type description"))
    (:documentation "An SDIF type declaration to be written in an SDIF file or buffer.
 
 SDIF types define data structures in the SDIF frameworks.
@@ -45,6 +45,27 @@ Frame type description is a list with the types and names of the different matri
 
 "
     ))
+
+;;; we don't really need this as a class...
+(defmethod* make-sdif-m-type (sign fieldnames)
+  (make-instance 'SDIFType :struct 'm :signature sign :description fieldnames))
+
+(defmethod* make-sdif-f-type (sign matrixtypes &optional matrixnames)
+  (make-instance 'SDIFType :struct 'f :signature sign 
+                 :description 
+                 (loop for type in (list! matrixtypes)
+                       for i = 0 then (+ i 1) collect
+                       (list type (or (nth i matrixnames) (format nil "matrix~D" (1+ i)))))))
+
+(defmethod sdif-types-from-field-names (field-names &key mat-type f-type)
+  (let ((ft (or f-type "XFRA"))
+        (mt (or mat-type "XMAT")))
+    (list (make-sdif-f-type ft mt)
+          (make-sdif-m-type mt field-names))
+    ))
+                                       
+
+
 
 ;;; NEEDS SUPPORT FOR MENUINS IN CLASSES !!
 ;; (("Frame" 'F)  ("Matrix" 'M))
