@@ -139,8 +139,8 @@
                 (make-instance 
                            'om-listener
                            :layout (make-instance 'capi:column-layout 
-                                                  :description (if in (list in out commands) (list out commands))
-                                                  :ratios (if in '(1 5 nil) '(1 nil))
+                                                  :description (if in (list in :divider out commands) (list out commands))
+                                                  :ratios (if in '(1 nil 5 nil) '(1 nil))
                                                   :adjust :right)
                            :window-styles (append (if on-top (list :always-on-top))
                                                   (list :no-character-palette))  ;:toolbox :shadowless :textured-background
