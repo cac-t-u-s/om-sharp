@@ -194,15 +194,20 @@
           (t nil))))
 
 (defmethod click-in-area ((self ++input-area) boxframe)
-  (add-next-input boxframe) t)
+  (let ((ed (editor (om-view-container boxframe))))
+    (store-current-state-for-undo ed)
+    (add-next-input boxframe) t))
       
 (defmethod click-in-area ((self --input-area) boxframe)
-  (let ((box (object boxframe)))
-    (if (get-optional-inputs box)
-        (optional-input-- box)
-      (if (get-keyword-inputs box)
-          (keyword-input-- box)))
-    t))
+  (let ((box (object boxframe))
+        (ed (editor (om-view-container boxframe))))
+    (cond ((get-optional-inputs box)
+           (store-current-state-for-undo ed)
+           (optional-input-- box))
+          ((get-keyword-inputs box)
+           (store-current-state-for-undo ed)
+           (keyword-input-- box))
+          (t t))))
 
 ;;;=============================
 ;;; RESIZE 

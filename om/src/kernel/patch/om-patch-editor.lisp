@@ -276,7 +276,9 @@
         
         (:om-key-left (unless (edit-lock editor)
                         (if (om-option-key-p) 
-                            (mapc 'optional-input-- selected-boxes)
+                            (when selected-boxes
+                              (store-current-state-for-undo editor)
+                              (mapc 'optional-input-- selected-boxes))
                           (let ((selection (or selected-boxes selected-connections)))
                             (store-current-state-for-undo editor :action :move :item selection)
                             (mapc 
@@ -285,7 +287,9 @@
                           )))
         (:om-key-right (unless (edit-lock editor)
                          (if (om-option-key-p) 
-                             (mapc 'optional-input++ selected-boxes)
+                             (when selected-boxes
+                               (store-current-state-for-undo editor)
+                               (mapc 'optional-input++ selected-boxes))
                             (let ((selection (or selected-boxes selected-connections)))
                               (store-current-state-for-undo editor :action :move :item selection)
                               (mapc #'(lambda (f) (move-box f (if (om-shift-key-p) 10 1) 0)) 
@@ -303,38 +307,48 @@
                         ))
       
         (#\k (unless (edit-lock editor) 
-               (store-current-state-for-undo editor)
-               (mapc 'keyword-input++ selected-boxes)))
+               (when selected-boxes
+                 (store-current-state-for-undo editor)
+                 (mapc 'keyword-input++ selected-boxes))))
         (#\+ (unless (edit-lock editor) 
-               (store-current-state-for-undo editor)
-               (mapc 'keyword-input++ selected-boxes)))
+               (when selected-boxes
+                 (store-current-state-for-undo editor)
+                 (mapc 'keyword-input++ selected-boxes))))
         (#\K (unless (edit-lock editor) 
-               (store-current-state-for-undo editor)
-               (mapc 'keyword-input-- selected-boxes)))
+               (when selected-boxes
+                 (store-current-state-for-undo editor)
+                 (mapc 'keyword-input-- selected-boxes))))
         (#\- (unless (edit-lock editor) 
-               (store-current-state-for-undo editor)
-               (mapc 'keyword-input-- selected-boxes)))
+               (when selected-boxes
+                 (store-current-state-for-undo editor)
+                 (mapc 'keyword-input-- selected-boxes))))
         (#\> (unless (edit-lock editor) 
-               (store-current-state-for-undo editor)
-               (mapc 'optional-input++ selected-boxes)))
+               (when selected-boxes
+                 (store-current-state-for-undo editor)
+                 (mapc 'optional-input++ selected-boxes))))
         (#\< (unless (edit-lock editor) 
-               (store-current-state-for-undo editor)
-               (mapc 'optional-input-- selected-boxes)))
+               (when selected-boxes
+                 (store-current-state-for-undo editor)
+                 (mapc 'optional-input-- selected-boxes))))
     
-        (#\b (store-current-state-for-undo editor) 
-             (mapc 'switch-lock-mode selected-boxes))
+        (#\b (when selected-boxes
+               (store-current-state-for-undo editor) 
+               (mapc 'switch-lock-mode selected-boxes)))
         (#\1 (unless (edit-lock editor) 
-               (store-current-state-for-undo editor)
-               (mapc 'switch-evonce-mode selected-boxes)))
+               (when selected-boxes
+                 (store-current-state-for-undo editor)
+                 (mapc 'switch-evonce-mode selected-boxes))))
         (#\l (unless (edit-lock editor) 
-               (store-current-state-for-undo editor)
-               (mapc 'switch-lambda-mode selected-boxes)))
-
+               (when selected-boxes
+                 (store-current-state-for-undo editor)
+                 (mapc 'switch-lambda-mode selected-boxes))))
+             
         (#\m (mapc 'change-display selected-boxes))
 
         (#\a (unless (edit-lock editor) 
-               (store-current-state-for-undo editor)
-               (mapc 'internalize-abstraction selected-boxes)))
+               (when selected-boxes
+                 (store-current-state-for-undo editor)
+                 (mapc 'internalize-abstraction selected-boxes))))
 
         (#\c (unless (edit-lock editor)
                (store-current-state-for-undo editor)
