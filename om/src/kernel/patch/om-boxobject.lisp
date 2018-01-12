@@ -585,8 +585,8 @@
        (om-with-clip-rect frame  0 4 (w frame) (- (h frame) 8)
          (draw-label box object :color (om-make-color 0.6 0.6 0.6 0.2))
          (ensure-cache-display-draw box object)
-         (om-with-clip-rect frame  0 4 (w frame) (- (h frame) 8)
-         (draw-mini-view object box 0 4 (w frame) (- (h frame) 8) (box-play-time frame)))))
+         (om-with-clip-rect frame 0 4 (w frame) (- (h frame) 8)
+         (draw-mini-view object box 4 4 (- (w frame) 8) (- (h frame) 8) (box-play-time frame)))))
       (:hidden 
        (om-with-clip-rect frame  0 4 (w frame) (- (h frame) 8)
          (draw-label box object)))

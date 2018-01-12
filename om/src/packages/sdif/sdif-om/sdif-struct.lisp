@@ -100,10 +100,12 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF TYPES.
 ;;; SDIF MATRIX
 ;;;=========================
 
-(defclass* SDIFMatrix (class-array)
+(defclass* SDIFMatrix (2D-array)
    ((matrixtype :initform nil :initarg :matrixtype :accessor matrixtype :documentation "SDIF matrix type signature")
+    (data :initform nil :initarg :data :accessor data :documentation "data matrix / list of lists : (field1 field2 ...)")
     ;(fields :initform nil :initarg :fields :accessor fields :documentation "Name of SDIF fields")
-    (elts :initform 1 :initarg :elts  :accessor elts :documentation "number of elements (a.k.a lines)"))
+    ;(elts :initform 1 :initarg :elts  :accessor elts :documentation "number of elements (a.k.a lines)")
+    )
    (:documentation "SDIF data stored as a 2D array.
 
 SDIF Matrix define multidimensional sound description data at a given moment (no temporal dimension).
@@ -122,7 +124,8 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF
 
  "))
 
-(defmethod allow-extra-controls ((self SDIFMatrix)) t)
+
+;(defmethod allow-extra-controls ((self SDIFMatrix)) t)
 
 (defun merge-matrix-data (data1 data2)
   (loop for c1 in data1

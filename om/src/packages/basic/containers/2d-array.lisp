@@ -59,16 +59,17 @@
          (line-h (if (data self) 
                      (/ (- h v-margin (* inter-line (1- n-lines))) n-lines)
                    (- h v-margin)))
-         (h-margin 2)
+         (h-margin (+ x 2))
          (line-w (- w 4)))
     (when (data self) 
       (loop for n from 0 to (1- n-lines)
             for yy = v-margin then (+ yy line-h inter-line) do
             (om-draw-rect h-margin yy line-w line-h :color (om-def-color :white) :fill t)
-            (om-with-fg-color (om-def-color :gray)
-              (om-draw-string (- line-w (om-string-size (get-field-name self n))) (+ yy 8) (get-field-name self n)))
+            (om-draw-string (- line-w (om-string-size (get-field-name self n) font)) (+ yy 10) (get-field-name self n) 
+                            :font font :color (om-make-color .6 .6 .7))
             (draw-field-on-box self (nth n (data self)) h-margin yy line-w line-h)
       ))))
+
 
 ;;; general case
 ;;; redefined for class-array
@@ -81,8 +82,8 @@
           (margin-y (min 8 (/ h 2)))
           (field-data (get-array-field-data field)))
   
-      (flet ((nth-x-pos (n) (* x-space (+ n 0.5)))
-             (draw-cross(x y) 
+      (flet ((nth-x-pos (n) (+ x (* x-space (+ n 0.5))))
+             (draw-cross (x y) 
                (om-draw-line (- x 1) y (+ x 1) y :color (om-def-color :light-gray))
                (om-draw-line x (- y 1) x (+ y 1) :color (om-def-color :light-gray))))
     
@@ -105,7 +106,7 @@
                  ;;; draw the first element 
                  (draw-cross x0 mid-y)
                  (om-draw-circle x0 y0 2 :fill t)
-                 (om-draw-string (+ x0 4) (- y0 6) (format nil "~A" val)) 
+                 (om-draw-string x0 (- y0 6) (format nil "~A" val)) 
                  (if (= y-values-range 0) (setf max-y-val nil)) ;; just to prevent drawing the value again
 
                  (loop for n from 1 to (1- (length field-data)) 
@@ -173,6 +174,9 @@
 
 (defmethod additional-class-attributes ((self 2D-array)) '(field-names))
 
+;;; collect the raw internal data / redefined in class-array
+(defmethod get-array-data ((self 2D-array)) (data self))
+
 ;; array dimensions are set according to <data>
 (defmethod om-init-instance ((self 2D-array) &optional initargs)
 
@@ -180,11 +184,12 @@
 
   (if (data self)
       (setf (fields self) (length (data self))
-            (elts self) (apply 'max (mapcar 'length (data self))))
+            (elts self) (loop for field in (get-array-data self) maximize (length (get-array-field-data field))))
       (setf (fields self) 0 
             (elts self) 0)
       )
   self)
+
 
 
 (defmethod get-field ((self 2D-array) (col integer) &key (warn-if-not-found t))
