@@ -56,7 +56,6 @@
 (defmethod editor-window-init-size ((self bpf-editor)) (om-make-point 550 400))
 
 (defmethod object-has-editor ((self bpf)) t)
-
 (defmethod get-editor-class ((self bpf)) 'bpf-editor)
 
 ;;; from play-editor-mixin
