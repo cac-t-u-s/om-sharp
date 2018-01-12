@@ -179,16 +179,17 @@ Internally calls and formats data from GetSDIFChords.
                 (let ((1-partial-frames 
                        (loop for time in (partial-t-list partial)
                              for n from 0 collect
-                             (let ((matrix (make-instance 'SDIFMatrix :matrixtype "1TRC" :elts 1)))
-                               (setf (fields matrix) 4
-                                     (data matrix) (list (list (1+ i))
-                                                         (list (nth n (partial-f-list partial)))
-                                                         (list (or (nth n (partial-a-list partial)) 1.0))
-                                                         (list (or (nth n (partial-ph-list partial)) 0))))
-                                                                           
+                             (let ((matrix (om-init-instance
+                                            (make-instance 'SDIFMatrix :matrixtype "1TRC" 
+                                                          :data  (list (list (1+ i))
+                                                                       (list (nth n (partial-f-list partial)))
+                                                                       (list (or (nth n (partial-a-list partial)) 1.0))
+                                                                       (list (or (nth n (partial-ph-list partial)) 0)))))))
+                                           
                                (make-instance 'SDIFFrame :frametime time :frametype "1TRC"
                                               :streamid (if separate-streams i 0) 
                                               :lmatrices (list matrix))))))
+                  
                   (setf (nth 2 (data (car (lmatrices (car (last 1-partial-frames)))))) (list 0.0))
                   1-partial-frames))
           '< :key 'frametime)))
@@ -236,13 +237,11 @@ Internally calls and formats data from GetSDIFChords.
                                   (<= time (car (last (partial-t-list partial)))))
                         collect (cons i (get-partial-f-a-ph-at-time partial time)))
                   '< :key 'car))
-                (matrix (make-instance 'SDIFMatrix 
+                
+                (matrix (om-init-instance 
+                         (make-instance 'SDIFMatrix 
                                        :matrixtype "1TRC"
-                                       :elts (length data))))
-           
-           
-           (setf (fields matrix) 4
-                 (data matrix) (mat-trans data))
+                                       :data (mat-trans data)))))
            
            (make-instance 'SDIFFrame :frametime time :streamid 0 
                           :frametype "1TRC"
