@@ -28,6 +28,7 @@
 (compile&load (decode-local-path "sdif-om/sdif-file"))
 (compile&load (decode-local-path "sdif-om/sdif-partials"))
 (compile&load (decode-local-path "sdif-om/sdif-write"))
+(compile&load (decode-local-path "sdif-om/sdif-tools"))
 
 (omNG-make-package 
  "SDIF"
@@ -38,6 +39,7 @@
               GetSDIFData GetSDIFTimes GetSDIFFrames 
                           GetSDIFPartials GetSDIFChords
                           SDIFTypeDescription GetNVTList SDIFInfo
-                          SDIF->text SDIF->chord-seq)
+                          SDIF->text SDIF->chord-seq SDIF->bpf SDIF->markers
+                          bpf->sdif markers->sdif)
  )
  
