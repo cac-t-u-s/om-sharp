@@ -29,6 +29,7 @@
 (compile&load (decode-local-path "sdif-om/sdif-partials"))
 (compile&load (decode-local-path "sdif-om/sdif-write"))
 (compile&load (decode-local-path "sdif-om/sdif-tools"))
+(compile&load (decode-local-path "sdif-om/sdif-editor"))
 
 (omNG-make-package 
  "SDIF"

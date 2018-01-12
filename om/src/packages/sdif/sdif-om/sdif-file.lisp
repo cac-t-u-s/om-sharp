@@ -200,6 +200,7 @@ Lock the box ('b') to keep the current file.
                  (sdif::SDIFFClose sdiffileptr))
              (om-beep-msg "Error loading SDIF file -- bad pointer: ~D" (file-pathname self)))
            )))
+  (setf (file-map self) (sort (file-map self) '< :key 'fstream-desc-id))  
   self)
 
 (defun record-in-streams (self frame)
