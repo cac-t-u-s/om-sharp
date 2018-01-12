@@ -477,7 +477,9 @@
     (setf (value self) (list val))
     (reset-cache-display self)
     (when (frame self) 
-      (om-invalidate-view (frame self)))))
+      (om-invalidate-view (frame self)))
+    (when (editor self)
+      (update-to-editor (editor self) self))))
 
 
 (defmethod omNG-make-new-boxcall ((reference standard-class) pos &optional init-args)

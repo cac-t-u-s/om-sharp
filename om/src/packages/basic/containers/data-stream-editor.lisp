@@ -229,6 +229,8 @@
        new-max-dur))
     (mapc 'om-invalidate-view (get-g-component editor :data-panel-list))
     (update-to-editor (timeline-editor editor) editor)
+
+    (call-next-method)
     ))
 
 (defmethod update-to-editor ((editor data-stream-editor) (from t))

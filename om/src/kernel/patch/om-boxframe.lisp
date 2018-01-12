@@ -442,6 +442,7 @@
 
 (defmethod update-to-editor ((self OMEditor) (from OMBox)) 
   ;(print (list "update" self "from BOX" from))
+  (call-next-method)
   (update-default-view self))
 
 ;;;===========================
