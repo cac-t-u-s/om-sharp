@@ -760,6 +760,12 @@ Press 'space' to play/stop the sound file.
 (defmethod get-editor-class ((self sound)) 'sound-editor)
 (defmethod editor-view-class ((self sound-editor)) 'sound-panel)
 
+(defmethod window-title-for-object ((self sound)) 
+  (string+ "SOUND - " 
+           (if (file-pathname self)
+               (namestring (file-pathname self))
+             "Temp Buffer")))
+
 (defmethod frame-display-modes-for-object ((self sound-editor) (object sound)) '(:lines))
 
 (defmethod editor-view-after-init-space ((self sound)) 0)

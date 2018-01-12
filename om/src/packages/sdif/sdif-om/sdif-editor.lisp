@@ -24,7 +24,12 @@
 (defmethod object-has-editor ((self SDIFFile)) t)
 (defmethod get-editor-class ((self SDIFFile)) 'sdiffile-editor)
 
-
+(defmethod window-title-for-object ((self SDIFFile)) 
+  (string+ "SDIF File - " 
+           (if (file-pathname self)
+               (namestring (file-pathname self))
+             "No file attached")))
+  
 (defmethod make-editor-window-contents ((editor sdiffile-editor))
   
   (set-g-component editor :filemap-layout (om-make-layout 'om-column-layout))
@@ -60,8 +65,7 @@
 
 (defmethod update-to-editor ((editor sdiffile-editor) (from t))
   (call-next-method)
-  (init-editor-window editor))
- 
+  (init-editor-window editor)) 
 
 ;;;==========================================================
 ;;; DISPLAY / SELECT MATRIX STREAMS
@@ -119,7 +123,7 @@
   
   (let ((sdiffile (object-value editor))
         (map-layout (get-g-component editor :filemap-layout)))
-    
+        
     (om-remove-all-subviews map-layout)
     
     (apply 'om-add-subviews 
@@ -186,7 +190,6 @@
       (loop for row in (reverse (data self))
             for i = 1 then (+ i 1) do
             (let ((c (- c-min (* i c-fact))))
-              (print c)
               (om-with-fg-color (om-make-color c c c)
                 (if (= 1 (length row)) 
                     (om-draw-string 20 (+ 20 (* i 20)) (format nil "~f" (cadr (car row))))
