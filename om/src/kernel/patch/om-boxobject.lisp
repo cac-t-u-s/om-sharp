@@ -252,7 +252,7 @@
          (supplied-initargs (remove-if #'(lambda (item) (not (find item class-initargs :test 'find))) initargs :key 'car))
          ;;; not initargs but valid slots
          (supplied-other-args (loop for arg in initargs 
-                                    when (and (find (car arg) class-slots-names)
+                                    when (and (find (symbol-name (car arg)) class-slots-names :key 'symbol-name :test 'string-equal)
                                               (not (member (car arg) supplied-initargs :key 'car)))
                                     collect (list (symbol-name (car arg)) (cadr arg)))))
     ;(print args)
