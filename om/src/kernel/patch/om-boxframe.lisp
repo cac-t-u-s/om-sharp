@@ -618,27 +618,34 @@
 
 (defmethod allow-text-input ((self t)) nil)
 
-(defmethod edit-area ((self OMBoxFrame) position)
-  (multiple-value-bind (text x y w h)
-      (display-text-and-area self)
-    (if (and text (om-point-in-rect-p position x y w h)
-             (allow-text-input (object self)))
-        ;;; EDIT THE NAME ?
-        (multiple-value-bind (edittext action)
-            (allow-text-input (object self))
-          (when text 
-            (let* ((container-view (om-view-container self)))
-              (edit-text-in-patch edittext self container-view action (omp x y) (omp w h))
-              t)))
-      )))
+(defmethod edit-text-area ((self OMBoxFrame) position)
+  (when (allow-text-input (object self))
+    (multiple-value-bind (text x y w h)
+        (display-text-and-area self)
+      (if (and text (om-point-in-rect-p position x y w h))
+          ;;; EDIT THE NAME ?
+          (multiple-value-bind (edittext action)
+              (allow-text-input (object self))
+            (when text 
+              (let* ((container-view (om-view-container self)))
+                (edit-text-in-patch edittext self container-view action (omp x y) (omp w h))
+                t)))
+        ))))
 
 
 (defmethod om-view-click-handler ((self OMBoxFrame) position)
   (when (clickable-box self)
+    
     ;;; if we're in multiple selection (SHIFT) or if the box is already selected: do not unselect all
-    (editor-box-selection (editor (om-view-container self)) (object self))
-    (apply-in-area self 'click-in-area position)
-    ;(and (selected (object self)) (not (om-command-key-p)) (edit-area self position))
+    
+    (or (and (selected (object self)) (not (om-command-key-p)) (not (om-shift-key-p))
+             (edit-text-area self position))
+        
+        (progn
+          (editor-box-selection (editor (om-view-container self)) (object self))
+          (apply-in-area self 'click-in-area position)
+          )
+        )
     self))
 
 ;;; handle boxframe click in multi-editor-view
@@ -657,7 +664,8 @@
 
 (defmethod om-view-doubleclick-handler ((self OMBoxFrame) position)
   (or ;; edit area is a simple click on a selected box
-      (and (selected (object self)) (not (om-command-key-p)) (edit-area self position)) 
+      (and (selected (object self)) (not (om-command-key-p)) 
+           (edit-text-area self position))
       (open-editor (object self))))
 
 (defun edit-text-in-patch (edittext frame container-view action pos size)
