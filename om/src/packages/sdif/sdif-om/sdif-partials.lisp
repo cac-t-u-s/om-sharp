@@ -40,73 +40,83 @@
 
 ;;; GetSDIFFrames will handle the dispatch wrt. type of self
 (defmethod chord-seq-raw-data ((self t) &optional (stream nil))
-   (let ((frames (GetSDIFFrames self :sid stream))
-         (mrk-partials (make-hash-table))
-         (trc-partials (make-hash-table))
-         bmat emat pmat partial-list)
+  (let ((frames (GetSDIFFrames self :sid stream))
+        (mrk-partials (make-hash-table))
+        (trc-partials (make-hash-table))
+        (trc-fields '("Index" "Frequency" "Amplitude" "Phase"))
+        (mrk-fields '("Id"))
+        bmat emat pmat partial-list)
+
+    (flet ((get-sdif-trc-field (matrix fieldname)
+             (nth (position fieldname trc-fields :test 'string-equal)
+                  (data matrix)))
+           (get-sdif-mrk-field (matrix fieldname)
+             (nth (position fieldname mrk-fields :test 'string-equal)
+                  (data matrix))))
     
-     (loop for fr in frames do
-           (cond ((string-equal "1MRK" (frametype fr))
+      (loop for fr in frames do
+            (cond ((string-equal "1MRK" (frametype fr))
                   
-                  (loop for mat in (lmatrices fr) do
-                        (cond ((string-equal "1BEG" (matrixtype mat)) (setf bmat mat))
-                              ((string-equal "1END" (matrixtype mat)) (setf emat mat))
-                              ((string-equal "1TRC" (matrixtype mat)) (setf pmat mat))
-                              (t nil))
+                   (loop for mat in (lmatrices fr) do
+                         (cond ((string-equal "1BEG" (matrixtype mat)) (setf bmat mat))
+                               ((string-equal "1END" (matrixtype mat)) (setf emat mat))
+                               ((string-equal "1TRC" (matrixtype mat)) (setf pmat mat))
+                               (t nil))
                   
-                        (when bmat 
-                          ;;; a begin matrix : set time info
-                          (loop for i in (get-field bmat "Id") do
-                                (sethash mrk-partials i (make-partial :t-list (list (frametime fr) (frametime fr))
-                                                                      :f-list nil
-                                                                      :a-list nil))))
-                        (when pmat 
-                          ;;; a parameter matrix : add data in partials
-                          (loop for i in (get-field pmat "Index") 
-                                for f in (get-field pmat "Frequency") 
-                                for a in (get-field pmat "Amplitude") 
-                                do (let ((p (gethash i mrk-partials)))
-                                     (when p
-                                       (setf (partial-f-list p) (list f f))
-                                       (setf (partial-a-list p) (list a a))
-                                       ))))
-                        (when emat 
-                          ;;; a end matrix: find the partial, set duration and put in the final list 
-                          (loop for i in (get-field emat "Id") do
-                                (let ((p (gethash i mrk-partials)))
-                                  (when p
-                                    (setf (partial-t-list p) 
-                                          (list (car (partial-t-list p)) (frametime fr)))))))
+                         (when bmat 
+                           ;;; a begin matrix : set time info
+                           (loop for i in (get-sdif-mrk-field bmat "Id") do
+                                 (sethash mrk-partials i (make-partial :t-list (list (frametime fr) (frametime fr))
+                                                                       :f-list nil
+                                                                       :a-list nil))))
+                         (when pmat 
+                           ;;; a parameter matrix : add data in partials
+                           (loop for i in (get-sdif-trc-field pmat "Index") 
+                                 for f in (get-sdif-trc-field pmat "Frequency") 
+                                 for a in (get-sdif-trc-field pmat "Amplitude") 
+                                 do (let ((p (gethash i mrk-partials)))
+                                      (when p
+                                        (setf (partial-f-list p) (list f f))
+                                        (setf (partial-a-list p) (list a a))
+                                        ))))
+                         (when emat 
+                           ;;; a end matrix: find the partial, set duration and put in the final list 
+                           (loop for i in (get-sdif-mrk-field emat "Id") do
+                                 (let ((p (gethash i mrk-partials)))
+                                   (when p
+                                     (setf (partial-t-list p) 
+                                           (list (car (partial-t-list p)) (frametime fr)))))))
              
-                        (setf bmat nil)
-                        (setf emat nil)
-                        (setf pmat nil)))
+                         (setf bmat nil)
+                         (setf emat nil)
+                         (setf pmat nil)))
                  
-                 ((or (string-equal "1TRC" (frametype fr)) (string-equal "1HRM" (frametype fr)))
-                  (loop for mat in (lmatrices fr) do
-                     (when (or (string-equal "1TRC" (matrixtype mat)) (string-equal "1TRC" (matrixtype mat)))
-                       (loop for i in (get-field mat "Index") 
-                             for f in (get-field mat "Frequency") 
-                             for a in (get-field mat "Amplitude") 
-                             for ph in (get-field mat "Phase") 
-                             do (let ((p (gethash i trc-partials)))
-                                  (if p
-                                      (setf (partial-t-list p) (append (partial-t-list p) (list (frametime fr)))
-                                            (partial-f-list p) (append (partial-f-list p) (list f))
-                                            (partial-a-list p) (append (partial-a-list p) (list a))
-                                            (partial-ph-list p) (append (partial-ph-list p) (list ph)))
+                  ((or (string-equal "1TRC" (frametype fr)) (string-equal "1HRM" (frametype fr)))
+                   (loop for mat in (lmatrices fr) do
+                         (when (or (string-equal "1TRC" (matrixtype mat)) (string-equal "1TRC" (matrixtype mat)))
+                           (loop for i in (get-sdif-trc-field mat "Index") 
+                                 for f in (get-sdif-trc-field mat "Frequency") 
+                                 for a in (get-sdif-trc-field mat "Amplitude") 
+                                 for ph in (get-sdif-trc-field mat "Phase") 
+                                 do (let ((p (gethash i trc-partials)))
+                                      (if p
+                                          (setf (partial-t-list p) (append (partial-t-list p) (list (frametime fr)))
+                                                (partial-f-list p) (append (partial-f-list p) (list f))
+                                                (partial-a-list p) (append (partial-a-list p) (list a))
+                                                (partial-ph-list p) (append (partial-ph-list p) (list ph)))
                                     
-                                    (sethash trc-partials i 
-                                             (make-partial :t-list (list (frametime fr))
-                                                           :f-list (list f) :a-list (list a) :ph-list (list ph))))
-                                  )))))
-                 ))
+                                        (sethash trc-partials i 
+                                                 (make-partial :t-list (list (frametime fr))
+                                                               :f-list (list f) :a-list (list a) :ph-list (list ph))))
+                                      )))))
+                  ))
+      )
            
-     (maphash #'(lambda (key p) (declare (ignore key)) (push p partial-list)) mrk-partials)
-     (maphash #'(lambda (key p) (declare (ignore key)) (push p partial-list)) trc-partials)
-     (sort (reverse partial-list) '< :key #'(lambda (p) (car (partial-t-list p))))
+    (maphash #'(lambda (key p) (declare (ignore key)) (push p partial-list)) mrk-partials)
+    (maphash #'(lambda (key p) (declare (ignore key)) (push p partial-list)) trc-partials)
+    (sort (reverse partial-list) '< :key #'(lambda (p) (car (partial-t-list p))))
      
-     ))
+    ))
 
 
 (defmethod* GetSDIFPartials ((self t) &optional (stream nil))
