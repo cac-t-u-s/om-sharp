@@ -228,9 +228,10 @@ Returns the selected pathname or NIL if cancelled."
                 ((and (equal type 'directory) (equal mode 'new))
                  (om-choose-new-directory-dialog :prompt message :directory initfolder)))
           )
-    (when rep (setf *last-loaded-dir* (om-make-pathname :directory rep)))
-    rep
-    ))
+    (if rep 
+        (setf *last-loaded-dir* (om-make-pathname :directory rep))
+      (om-abort))
+    rep))
 
 
 
