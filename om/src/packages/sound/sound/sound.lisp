@@ -277,11 +277,15 @@ Press 'space' to play/stop the sound file.
 
 (defmethod (setf file-pathname) (new-path (self sound))
   (when new-path
-    (let ((old-path (slot-value self 'file-pathname)))
-      (if (buffer self) (save-sound-data self new-path)
-        (if old-path (om-copy-file old-path new-path)))))
-  (setf (slot-value self 'file-pathname) new-path)
-  new-path)
+    ;;; we're assigning a new file-pathname
+    (let* ((old-path (slot-value self 'file-pathname))
+           (final-new-path (if (buffer self)
+                               ;;; a buffer was already in: save the buffer in the new file
+                               (save-sound-data self new-path)
+                             ;;; a path alreadt existed: copy in new
+                             (if old-path (om-copy-file old-path new-path)))))
+      (setf (slot-value self 'file-pathname) new-path)
+      final-new-path)))
 
 
 (defmethod set-play-buffer ((self sound))  
@@ -498,20 +502,25 @@ Press 'space' to play/stop the sound file.
   (when (buffer sound)
     (let* ((nch (n-channels sound))
            (nsmp (n-samples sound))
-           (itl-buffer (fli:allocate-foreign-object :type :float :nelems (* nsmp nch))))
+           (itl-buffer
+            (if (> nch 1)
+                (fli:allocate-foreign-object :type :float :nelems (* nsmp nch))
+              (cffi::mem-aref (oa::om-pointer-ptr (buffer sound)) :pointer 0))))
       (unwind-protect 
           (progn ;;; PROTECTED
             (om-print-format "Writing file to disk: ~S" (list path))
-            (interleave-buffer (oa::om-pointer-ptr (buffer sound)) itl-buffer nsmp nch)
+            (when (> nch 1) 
+              (interleave-buffer (oa::om-pointer-ptr (buffer sound)) itl-buffer nsmp nch))
             (audio-io::om-save-buffer-in-file itl-buffer (namestring path) 
                                              nsmp nch (sample-rate sound) 
                                              24 ; *audio-res* 
                                              :aiff ; *def-snd-format*   
                                              ;;; FOR BETTER CONTROL ON FORMAT AND RESOLUTION, USE SAVE-SOUND (?)
                                              )
-            (probe-file path))
+            (or (probe-file path)
+                (om-beep-msg "Error -- no file written")))
         ;;; CLEANUP
-        (om-free-memory itl-buffer)
+        (when (> nch 1) (om-free-memory itl-buffer))
         ))))
 
 
