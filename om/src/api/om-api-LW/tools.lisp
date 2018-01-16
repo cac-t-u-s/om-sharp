@@ -50,9 +50,13 @@
 ;;; cases and examples:
 ;;; generic function, e.g. 'om::om+
 ;;; functio,, e.g. 'append
-;;; special"macro-function", e.g. 'setf
+;;; special "macro-function", e.g. 'setf
 ;;; anonymmous function
 ;;; subfunction
+;;; struct accessors
+
+
+; (function-name (fdefinition 'pathname-name))
 
 (defun function-arglist (fun)
   (let ((fsym (if (symbolp fun) fun (function-name fun)))
@@ -65,14 +69,15 @@
           (t (function-lambda-list fun)))
     ))
  
+(defmethod function-name ((fun symbol)) fun)
+
 (defmethod function-name (fun)
-  (if (symbolp fun) (setf fun (fdefinition fun)))
   (if (clos::generic-function-p fun)
       (hcl::generic-function-name fun)
     (let ((lambda-exp-name (nth 2 (multiple-value-list (FUNCTION-LAMBDA-EXPRESSION fun)))))
       (cond ((equal lambda-exp-name 'system::fast-list) 'list)
             ((symbolp lambda-exp-name) lambda-exp-name)  ;; does not work, e.g. for CONS...
-            ((consp lambda-exp-name) nil) ;; the function is (?) a subfunction named by the compiler
+            ;; ((consp lambda-exp-name) nil) ;; the function is (?) a subfunction named by the compiler // removed because struct-accessors fall here...
             (t (system::function-name fun))   ;;; does not work with non-inbuilt functions...
             ))))
 
