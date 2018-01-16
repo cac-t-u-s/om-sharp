@@ -65,7 +65,7 @@ Lock the box ('b') to keep the current file.
 
 (defmethod om-init-instance ((self SDIFFile) &optional initargs)
   (call-next-method)
-  (when(file-pathname self) 
+  (when (file-pathname self) 
     (load-sdif-file self))
   self)
 
