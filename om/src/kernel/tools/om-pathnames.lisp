@@ -90,27 +90,28 @@
                                     (string-equal type (pathname-type elt)))))
                   (list elt))))
       
-   (let ((result nil))
+      
+      (let ((result nil))
      
-     ;;; we search files first (lower-level)
-     (loop for elt in (om-directory search-folder :files t :directories nil) 
-           while (not result) do
-           (when (and (pathname-name elt) 
-                      (string-equal name (pathname-name elt))
-                      (or (null type)
-                          (and (pathname-type elt) 
-                               (string-equal type (pathname-type elt)))))
-            (setf result elt)))
+        ;;; we search files first (lower-level)
+        (loop for elt in (om-directory search-folder :files t :directories nil) 
+              while (not result) do
+              (when (and (pathname-name elt) 
+                         (string-equal name (pathname-name elt))
+                         (or (null type)
+                             (and (pathname-type elt) 
+                                  (string-equal type (pathname-type elt)))))
+                (setf result elt)))
      
-     ;;; then we search subfolders (if recursive)
-     (when (and (not result) recursive)
-       (loop for subfolder in (om-directory search-folder :files nil :directories t) 
-             while (not result) do
-             (setf result (find-file-in-folder name subfolder :type type :recursive t :return-all nil))))
+        ;;; then we search subfolders (if recursive)
+        (when (and (not result) recursive)
+          (loop for subfolder in (om-directory search-folder :files nil :directories t) 
+                while (not result) do
+                (setf result (find-file-in-folder name subfolder :type type :recursive t :return-all nil))))
      
-     result)
+        result)
    
-   )))
+      )))
 
 ;;;=========================
 ;;; RELATIVE PATHNAMES

@@ -50,7 +50,8 @@
 (add-preference :files :delete-tmp-files "Auto-cleanup temporary files" :bool nil)
 (add-preference :files :file-exists-ation "If Output File Exists..." '(replace auto-rename) 'replace)
 
-(add-preference-section :files "Search paths" "= where to find embedded patch abstractions")
+(add-preference-section :files "Search path" 
+                        '("= where to find embedded patch abstractions when loading patches." "Empty/NIL means pathname search is relative to the top-level patch."))
 (add-preference :files :search-path "Main search folder" :folder nil)
 (add-preference :files :search-path-rec "Recursive" :bool t "(= also search in sub-folders)")
 
@@ -150,6 +151,26 @@ Ex. (tmpfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/
   (when (get-pref-value :files :delete-tmp-files)
     (clean-tmp-files)))
 
+
+;;;===================================
+;;; SEARCH PATH
+;;;===================================
+(defun check-path-using-search-path (path)
+      
+  (or (probe-file path)
+  
+      (when (get-pref-value :files :search-path)
+        
+        (let ((found-matches (find-file-in-folder (pathname-name path) (get-pref-value :files :search-path) 
+                                                  :type (pathname-type path) :recursive (get-pref-value :files :search-path-rec) :return-all t)))
+          
+          (when (> (length found-matches) 1)
+            (om-beep-msg "Warning: several candidates were found in the search path folder for file ~A.~A !!" (pathname-name path) (pathname-type path)))
+          
+          (or (car found-matches)
+              (om-beep-msg "Warning: file ~A.~A not found!!" (pathname-name path) (pathname-type path)))
+          ))
+      ))
 
 ;;;===================================
 ;;; HANDLE FILE EXIST

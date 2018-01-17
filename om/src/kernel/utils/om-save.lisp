@@ -169,17 +169,19 @@
     (:type ,(pathname-type self))))
 
 (defmethod om-load-from-id ((id (eql :pathname)) data)
+  
   (let* ((dir (find-value-in-kv-list data :directory))
          (path (om-make-pathname :directory dir
                                  :device (find-value-in-kv-list data :device)
                                  :host (find-value-in-kv-list data :host)
                                  :name (find-value-in-kv-list data :name)
                                  :type (find-value-in-kv-list data :type))))
+    
     (if (equal (car dir) :relative)
-        ;(restore-path path *relative-path-reference*)
-        (merge-pathnames path *relative-path-reference*)  
-      path)
-    ))
+        ; (restore-path path *relative-path-reference*)
+        (merge-pathnames path *relative-path-reference*)
+      
+      path)))
    
 
 (defmethod omng-save ((self gp::font-description))  
@@ -374,16 +376,20 @@
     (load-patch-contents patch data)
     patch))
 
+
 (defmethod om-load-from-id ((id (eql :patch-from-file)) data)
-  (let ((file (omng-load (car data))))
-    (if (probe-file file)
-        (load-doc-from-file file :patch)
+  
+  (let* ((path (omng-load (car data)))
+         (checked-path (check-path-using-search-path path)))
+    
+    (if checked-path
+        
+        (load-doc-from-file checked-path :patch)
+      
       (progn 
-        (om-beep-msg "PATCH NOT FOUND: ~S !" file)
-        (let ((patch (make-instance 
-                      'OMPatchFile 
-                      :name (pathname-name file))))
-          (setf (mypathname patch) file)
+        (om-beep-msg "PATCH NOT FOUND: ~S !" path)
+        (let ((patch (make-instance'OMPatchFile :name (pathname-name path))))
+          (setf (mypathname patch) path)
           patch)  
         ))))
 
@@ -416,10 +422,16 @@
   `(:maquette-from-file ,(omng-save (relative-pathname (mypathname self) ref-path))))
 
 (defmethod om-load-from-id ((id (eql :maquette-from-file)) data)
-  (let ((file (car data)))
-    (if (probe-file file)
-        (load-doc-from-file file :maquette)
-      (om-beep-msg "FILE NOT FOUND: ~S !" file))))
+
+  (let ((path (omng-load (car data)))
+        (checked-path (check-path-using-search-path path)))
+    
+    (if checked-path
+        
+        (load-doc-from-file checked-path :maquette)
+      
+      (om-beep-msg "FILE NOT FOUND: ~S !" path))
+    ))
 
 ;(let ((data (cdr (car (list-from-file "/Users/bresson/Desktop/test.omp")))))
   ;(find-values-in-prop-list data :info)
@@ -471,10 +483,15 @@
 
 
 (defmethod om-load-from-id ((id (eql :textfun-from-file)) data)
-  (let ((file (car data)))
-    (if (probe-file file)
-        (load-doc-from-file file :textfun)
-      (om-beep-msg "FILE NOT FOUND: ~S !" file))))
+  
+  (let ((path (omng-load (car data))))
+        (checked-path (check-path-using-search-path path)))
+    
+    (if checked-path
+        
+        (load-doc-from-file checked-path :textfun)
+
+      (om-beep-msg "FILE NOT FOUND: ~S !" path)))
 
 
 ;;;=================================
