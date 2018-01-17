@@ -43,6 +43,8 @@ Lock the box ('b') to keep the current file.
 
 
 (defmethod additional-slots-to-save ((self SDIFFile)) '(file-pathname))
+(defmethod additional-slots-to-copy ((self SDIFFile)) '(file-pathname))
+ 
 
 ;;; INIT METHODS
 (defmethod box-def-self-in ((self (eql 'SDIFFile))) :choose-file)
