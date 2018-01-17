@@ -34,7 +34,7 @@
   
   (set-g-component editor :filemap-layout (om-make-layout 'om-column-layout))
   (set-g-component editor :matrix-text (om-make-di 'om-simple-text :size (omp nil 22) :font (om-def-font :font1)))
-  (set-g-component editor :field-plot (om-make-view 'field-plot-view :bg-color (om-def-color :white)))
+  (set-g-component editor :field-plot (om-make-view 'field-plot-view :editor editor :bg-color (om-def-color :white)))
 
   (set-g-component editor :matrix-field-menu (om-make-di 
                                               'om-popup-list :size (omp nil 22) :font (om-def-font :font1)
@@ -71,14 +71,14 @@
 ;;; DISPLAY / SELECT MATRIX STREAMS
 ;;;==========================================================
 
-(defclass sdifmat-stream-view (om-view) 
+(defclass sdifmat-stream-view (OMEditorView) 
   ((f-desc :initform nil :initarg :f-desc :accessor f-desc)
    (m-desc :initform nil :initarg :m-desc :accessor m-desc)))
 
 
 (defmethod om-draw-contents ((self sdifmat-stream-view))
   
-  (let ((selected (equal (selection (editor (om-view-window self))) self)))
+  (let ((selected (equal (selection (editor self)) self)))
     
     (om-draw-rect 3 0 (- (w self) 6) (- (h self) 3) :fill t
                   :color (if selected 
@@ -94,7 +94,7 @@
       )))
 
 (defmethod om-view-click-handler ((self sdifmat-stream-view) pos)
-  (let ((ed (editor (om-view-window self))))
+  (let ((ed (editor self)))
     (unless (equal (selection ed) self)
       (setf (selection ed) self)
       (update-selected-contents ed (f-desc self) (m-desc self))
@@ -128,35 +128,39 @@
     
     (apply 'om-add-subviews 
            (cons map-layout
-                 (loop for stream-desc in (file-map sdiffile) collect
-                       (om-make-layout 
-                        'om-simple-layout :size (omp nil nil) :bg-color (om-def-color :gray) :delta 10
-                        :subviews (list 
-                                   (om-make-layout 
-                                    'om-column-layout :delta 0
-                                    :subviews 
-                                    (cons 
-                                     (om-make-di 
-                                      'om-simple-text :size (omp nil 16)
-                                      :font (om-def-font :font1) :fg-color (om-def-color :white)
-                                      :text (format nil "Stream ~D: ~A [~D frames from ~f to ~fs]" 
-                                                    (fstream-desc-id stream-desc) (fstream-desc-fsig stream-desc)
-                                                    (fstream-desc-nf stream-desc) (fstream-desc-tmin stream-desc) (fstream-desc-tmax stream-desc)))
-                                     (if (fstream-desc-matrices stream-desc)
-                                         (loop for mat-desc in (fstream-desc-matrices stream-desc) collect
-                                               (om-make-view 'sdifmat-stream-view 
-                                                             :m-desc mat-desc :f-desc stream-desc
-                                                             :size (omp nil nil) :bg-color (om-def-color :gray))
-                                               )
-                                       (list 
-                                        (om-make-di 
-                                        'om-simple-text :size (omp nil nil)
-                                        :font (om-def-font :font1) :fg-color (om-def-color :white)
-                                        :text "[no matrices inside]"))
-                                       )
-                                     )))
-                        )
-                       )))
+                 (cons (om-make-di 
+                        'om-simple-text :size (omp nil 16)
+                        :font (om-def-font :font1) :fg-color (om-def-color :dark-gray)
+                        :text (format nil "File: ~A" (file-pathname sdiffile))) 
+                       (loop for stream-desc in (file-map sdiffile) collect
+                             (om-make-layout 
+                              'om-simple-layout :size (omp nil nil) :bg-color (om-def-color :gray) :delta 10
+                              :subviews (list 
+                                         (om-make-layout 
+                                          'om-column-layout :delta 0
+                                          :subviews 
+                                          (cons 
+                                           (om-make-di 
+                                            'om-simple-text :size (omp nil 16)
+                                            :font (om-def-font :font1) :fg-color (om-def-color :white)
+                                            :text (format nil "Stream ~D: ~A [~D frames from ~f to ~fs]" 
+                                                          (fstream-desc-id stream-desc) (fstream-desc-fsig stream-desc)
+                                                          (fstream-desc-nf stream-desc) (fstream-desc-tmin stream-desc) (fstream-desc-tmax stream-desc)))
+                                           (if (fstream-desc-matrices stream-desc)
+                                               (loop for mat-desc in (fstream-desc-matrices stream-desc) collect
+                                                     (om-make-view 'sdifmat-stream-view :editor editor
+                                                                   :m-desc mat-desc :f-desc stream-desc
+                                                                   :size (omp nil nil) :bg-color (om-def-color :gray))
+                                                     )
+                                             (list 
+                                              (om-make-di 
+                                               'om-simple-text :size (omp nil nil)
+                                               :font (om-def-font :font1) :fg-color (om-def-color :white)
+                                               :text "[no matrices inside]"))
+                                             )
+                                           )))
+                              )
+                             ))))
     
     (update-selected-contents editor nil nil)
     
@@ -167,7 +171,7 @@
 ;;; PLOTS NUMERIC DATA
 ;;;==========================================================
 
-(defclass field-plot-view (om-view) 
+(defclass field-plot-view (OMEditorView) 
   ((data :initform nil :initarg :data :accessor data)
    (vmin :accessor vmin :initarg :vmin :initform nil)
    (vmax :accessor vmax :initarg :vmax :initform nil)
@@ -206,7 +210,7 @@
 
 
 (defmethod update-plot-data ((self field-plot-view) f-desc m-desc field-num)
-  (let ((ed (editor (om-view-window self))))
+  (let ((ed (editor self)))
     
     (if (and f-desc m-desc field-num)
         
