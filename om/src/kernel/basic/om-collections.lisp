@@ -203,7 +203,7 @@
   (let* ((collection (get-value-for-editor (object editor)))
          (text (format-current-text editor))
          (current-text (om-make-graphic-object 'om-item-text :size (omp (om-string-size text (om-def-font :font3b)) 16) 
-                                               :text text :font (om-def-font :font3 :style '(:italic))))
+                                               :text text :font (om-def-font :font2b)))
          (prev-button (om-make-graphic-object 'om-icon-button 
                                               :size (omp 16 16)
                                               :icon 'l-arrow :icon-pushed 'l-arrow-pushed :icon-disabled 'l-arrow-disabled

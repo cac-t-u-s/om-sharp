@@ -130,8 +130,6 @@
   ((editor :initarg :editor :initform nil :accessor editor)
    (side-panel :initarg :side-panel :initform nil :accessor side-panel)))
 
-;(defclass OMEditorView (om-view) 
-;  ((dragged-views :initform nil :accessor dragged-views)))
 
 ;;; CLASS LINKS
 (defmethod editor-window-class ((self OMEditor)) 'OMEditorWindow)
