@@ -423,8 +423,8 @@
 
 (defmethod om-load-from-id ((id (eql :maquette-from-file)) data)
 
-  (let ((path (omng-load (car data)))
-        (checked-path (check-path-using-search-path path)))
+  (let* ((path (omng-load (car data)))
+         (checked-path (check-path-using-search-path path)))
     
     (if checked-path
         
@@ -484,14 +484,15 @@
 
 (defmethod om-load-from-id ((id (eql :textfun-from-file)) data)
   
-  (let ((path (omng-load (car data))))
-        (checked-path (check-path-using-search-path path)))
+  (let* ((path (omng-load (car data)))
+         (checked-path (check-path-using-search-path path)))
     
     (if checked-path
         
         (load-doc-from-file checked-path :textfun)
 
-      (om-beep-msg "FILE NOT FOUND: ~S !" path)))
+      (om-beep-msg "FILE NOT FOUND: ~S !" path))
+    ))
 
 
 ;;;=================================

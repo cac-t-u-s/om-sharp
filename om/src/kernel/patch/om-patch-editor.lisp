@@ -267,6 +267,9 @@
                  (mapc 'set-show-name selected-boxes)
                (unless (edit-lock editor)
                  (make-new-box panel))))
+        
+        (#\p (unless (edit-lock editor)
+               (make-new-abstraction-box panel)))
 
         (#\i (unless (edit-lock editor) 
                (store-current-state-for-undo editor)
@@ -373,7 +376,7 @@
                (mapc 'set-reactive-mode (or selected-boxes selected-connections))))
       
         ;;; play/stop commands
-        (#\p (play-boxes selected-boxes))
+        ;(#\p (play-boxes selected-boxes))
         (#\s (stop-boxes selected-boxes))   
         (#\Space (play/stop-boxes selected-boxes))
       
@@ -439,6 +442,13 @@
   (let ((mp (om-mouse-position self)))
     (enter-new-box self (if (om-point-in-rect-p mp 0 0 (w self) (h self))
                             mp (om-make-point (round (w self) 2) (round (h self) 2))))
+    ))
+
+(defmethod make-new-abstraction-box ((self patch-editor-view))
+  (let ((mp (om-mouse-position self)))
+    (enter-new-box self (if (om-point-in-rect-p mp 0 0 (w self) (h self))
+                            mp (om-make-point (round (w self) 2) (round (h self) 2)))
+                   :patch)
     ))
 
 (defmethod make-new-comment ((self patch-editor-view))
@@ -770,6 +780,37 @@
     ;:destroy
     ))
 
+(defun patch-name-completion (patch string)
+  (if (and *om-box-name-completion* (>= (length string) 1))
+      (let* ((searchpath-strings (mapcar 'pathname-name 
+                                (and (get-pref-value :files :search-path)
+                                     (om-directory (get-pref-value :files :search-path)
+                                                   :files t :directories nil
+                                                   :type '("opat" "omaq" "olsp")
+                                                   :recursive (get-pref-value :files :search-path-rec)))))
+             
+             (localpath-strings 
+              (when (mypathname patch)
+                (let* ((currentpathbase (namestring (pathname-dir string)))
+                       (localfolder (pathname-dir (merge-pathnames string (mypathname patch))))
+                       (filecandidates
+                        (mapcar 'pathname-name 
+                                (om-directory localfolder
+                                              :files t :directories nil
+                                              :type '("opat" "omaq" "olsp")
+                                              :recursive nil))))
+                  (loop for file in filecandidates collect
+                        (string+ currentpathbase file))))))
+        
+        (remove-if 
+         #'(lambda (str) (not (equal 0 (search string str :test 'string-equal))))
+         (append searchpath-strings localpath-strings))
+        
+        )
+    ))
+        
+    
+
 ;(search "om-" "OM-SCALE" :test 'string-equal)
 ;(defmethod activate-completion ((self text-input-item))
   ;;; mode 1
@@ -793,33 +834,42 @@
   ;(if (capi:text-input-pane-text self) (capi:text-input-pane-complete-text self) nil)
   ;)
 
-(defmethod enter-new-box ((self patch-editor-view) position)
+(defmethod enter-new-box ((self patch-editor-view) position &optional type)
   ;;; mode 2
   ;(setf *om-box-name-completion* nil)
-  (let ((textinput 
-         (om-make-di 'text-input-item
-                     :text "enter box name"
+  (let* ((patch (object (editor self)))
+         (prompt (if (equal type :patch) "enter patch name (or pathname)" "enter box name"))
+         (completion-fun (if (equal type :patch) 
+                             #'(lambda (string) (unless (string-equal string prompt)
+                                                  (patch-name-completion patch string)))
+                           'box-name-completion))
+         (textinput 
+          (om-make-di 'text-input-item
+                      :text prompt
                      ;:focus t
-                     :fg-color (om-def-color :gray)
-                     :di-action #'(lambda (item) 
-                                    (let ((text (om-dialog-item-text item)))
-                                      (om-end-text-edit item)
-                                      (om-remove-subviews self item)
-                                      (unless (string-equal text "enter box name")
-                                        (new-box-in-patch-editor self text position))
-                                      (om-set-focus self)))
-                     :begin-edit-action #'(lambda (item)
-                                            (om-set-fg-color item (om-def-color :dark-gray))
-                                            )
-                     :edit-action #'(lambda (item)
-                                      (let ((textsize (length (om-dialog-item-text item))))
-                                        (om-set-fg-color item (om-def-color :dark-gray))
-                                        (om-set-view-size item (om-make-point (list :character (+ 2 textsize)) 20))
-                                        ))
-                     :completion 'box-name-completion
-                     :font (om-def-font :font1)
-                     :size (om-make-point 100 30)
-                     :position position
+                      :fg-color (om-def-color :gray)
+                      :di-action #'(lambda (item) 
+                                     (let ((text (om-dialog-item-text item)))
+                                       (om-end-text-edit item)
+                                       (om-remove-subviews self item)
+                                       (unless (string-equal text prompt)
+                                         (if (equal type :patch)
+                                             (new-abstraction-box-in-patch-editor self text position)
+                                           (new-box-in-patch-editor self text position)
+                                           ))
+                                       (om-set-focus self)))
+                      :begin-edit-action #'(lambda (item)
+                                             (om-set-fg-color item (om-def-color :dark-gray))
+                                             )
+                      :edit-action #'(lambda (item)
+                                       (let ((textsize (length (om-dialog-item-text item))))
+                                         (om-set-fg-color item (om-def-color :dark-gray))
+                                         (om-set-view-size item (om-make-point (list :character (+ 2 textsize)) 20))
+                                         ))
+                      :completion completion-fun
+                      :font (om-def-font :font1)
+                      :size (om-make-point 100 30)
+                      :position position
                      ;ouvre une nouvelle vue de clompletion mais ne la ferme pas...
                      ;:gesture-callbacks (list 
                      ;                    (cons
@@ -835,7 +885,7 @@
                      ;                         )
                      ;                     )
                      ;                    )
-        )))
+                      )))
     (om-add-subviews self textinput)
     (om-set-text-focus textinput t)
     t))
@@ -966,6 +1016,46 @@
             )
           )
         ))))
+
+
+;;; handle/warn on possible duplicates
+(defmethod new-abstraction-box-in-patch-editor ((self patch-editor-view) str position)     
+  (let* ((patch (object (editor self)))
+         (abs-types '("opat" "omaq" "olsp"))
+         (local-restored-path (merge-pathnames str (pathname-dir (mypathname patch))))
+         (local-matches (remove nil 
+                                (loop for type in abs-types collect
+                                      (probe-file 
+                                       (merge-pathnames local-restored-path
+                                                        (make-pathname :type type))))))
+         (doc-path (car local-matches)))
+    
+    (when (> (length local-matches) 1)
+      (om-beep-msg "Warning: there's more than 1 document named ~s in ~s" 
+                   (pathname-name local-restored-path)
+                   (pathname-dir local-restored-path)))
+    
+    (unless doc-path
+      ;;; try with the search folder
+      (let ((search-matches (remove nil 
+                                    (loop for type in abs-types collect
+                                          (print (check-path-using-search-path 
+                                           (print (merge-pathnames local-restored-path
+                                                            (make-pathname :type (print type))))))))))
+        (when (> (length local-matches) 1)
+          (om-beep-msg "Warning: there's more than 1 document named ~s in your search-path folder" 
+                       (pathname-name local-restored-path)))
+        
+        (print search-matches)
+        (setf doc-path (car search-matches))))
+    
+    (when doc-path
+      (let ((obj (load-doc-from-file doc-path (extension-to-doctype (pathname-type doc-path)))))
+        (when obj
+          (add-box-in-patch-editor 
+           (omNG-make-new-boxcall obj position) 
+           self))))
+    ))
                 
 (defmethod get-default-size-in-editor ((self OMBox) (editor patch-editor))
   (default-size self))
