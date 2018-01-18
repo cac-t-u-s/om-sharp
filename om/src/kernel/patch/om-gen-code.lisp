@@ -254,7 +254,7 @@
 
 (defmethod gen-input-name ((self OMIn))
   (read-from-string 
-   (string+ (format () "i~D" (index self)) (substitute #\- #\Space (name self)))))
+   (string+ (format () "in~D_" (index self)) (substitute #\_ #\Space (name self)))))
 
 
 ;;; compile : une fonction a n entrees et m sortrie avec tempin = 1e entree et tempout = 1e sortie
@@ -269,6 +269,7 @@
                   (sort (get-inputs self) '< :key 'index))) 
          body function-def)
     (setf *let-list* nil)
+    (setf (compiled? self) t)
     (setf body (if (> (length out-boxes) 1)
                    `(values ,.(mapcar #'(lambda (out) (gen-code out)) out-boxes))
                  (gen-code (car out-boxes))))
@@ -280,7 +281,6 @@
       ;(om-print-format "~%------------------------------------------------------~%~%")
     (compile (eval function-def))
     (setf *let-list* oldletlist)
-    (setf (compiled? self) t)
     ))
 
 

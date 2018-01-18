@@ -61,6 +61,7 @@
 ;;; MEMORY
 ;;;====================
 
+;;; :error :warn nil
 (setf system::*stack-overflow-behaviour* :warn)
 ;(hcl::current-stack-length)
 ;(hcl:extend-current-stack 50)

@@ -169,11 +169,12 @@
 
 (defmethod get-cache-display-for-draw ((self OMPatch))
   (let* ((patch self)
-         (bboxes (loop for b in (boxes patch) collect (list (box-x b) (box-y b)
-                                                            (cond ((equal (type-of b) 'ominbox) :in)
-                                                                  ((equal (type-of b) 'omoutbox) :out)
-                                                                  ((equal (type-of b) 'omboxeditcall) :b)
-                                                                  ))))
+         (bboxes (loop for b in (get-boxes-of-type patch 'OMBoxCall) 
+                       collect (list (box-x b) (box-y b)
+                                     (cond ((equal (type-of b) 'ominbox) :in)
+                                           ((equal (type-of b) 'omoutbox) :out)
+                                           ((equal (type-of b) 'omboxeditcall) :b)
+                                           ))))
          (cconecs (loop for c in (connections patch) collect 
                         (list (position (box (from c)) (boxes patch))
                               (position (box (to c)) (boxes patch))))))

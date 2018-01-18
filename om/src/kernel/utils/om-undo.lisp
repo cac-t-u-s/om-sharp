@@ -162,6 +162,8 @@
         when (slot-definition-initargs slot)
         collect (slot-definition-name slot)))
 
+; check classes here :)
+; (get-object-slots-for-undo (make-instance 'omboxabstraction))
 
 (defmethod get-undoable-object-state ((self standard-object)) 
   ;(om-print-dbg "collecting state of ~A" (list self) "UNDO")
@@ -203,6 +205,8 @@
   (restore-outputs self (nth 2 state))
   self)
 
+(defmethod get-object-slots-for-undo ((self OMBox)) 
+  (remove 'reference (call-next-method)))
 
 
 ;;; PATCHES 
