@@ -43,8 +43,6 @@
 (defmethod omng-save ((self number)) self)
 
 
-(package-use-list :om)
-
 ; (defmethod omng-save ((self symbol)) self)
 (defmethod omng-save ((self symbol)) 
   (if (find (symbol-package self) (append 
@@ -335,31 +333,38 @@
 
 (defmethod load-patch-contents ((patch OMPatch) data)
   (let ((*required-libs-in-current-patch* nil))
-    (let ((info (find-values-in-prop-list data :info))
-          (win (find-values-in-prop-list data :window))
-          (boxes (mapcar 'omng-load (find-values-in-prop-list data :boxes)))
-          (connections (find-values-in-prop-list data :connections)))
-    
+
+    (let ((name (find-value-in-kv-list data :name))
+          (info (find-values-in-prop-list data :info))
+          (win (find-values-in-prop-list data :window)))
+        
+      (setf (name patch) name)
+      
       (setf (create-info patch) (list (find-value-in-kv-list info :created)
                                       (find-value-in-kv-list info :modified))
             (doc patch) (find-value-in-kv-list data :doc)
             (omversion patch) (find-value-in-kv-list data :om-version))
-    
+      
       (when win
         (let ((pos (find-value-in-kv-list win :position))
               (size (find-value-in-kv-list win :size)))
           (when pos (setf (window-pos patch) (omp (car pos) (cadr pos))))
           (when size (setf (window-size patch) (omp (car size) (cadr size))))))
            
-      (mapcar #'(lambda (box) (omng-add-element patch box)) boxes)
-      (mapcar #'(lambda (c) (omng-add-element patch c))
-              (restore-connections-to-boxes connections boxes))
+      ;;; set loaded? now in case of self-nested patched
+      (setf (loaded? patch) t)
+
+      (let ((boxes (mapcar 'omng-load (find-values-in-prop-list data :boxes)))
+            (connections (find-values-in-prop-list data :connections)))
+        
+        (mapcar #'(lambda (box) (omng-add-element patch box)) boxes)
+        (mapcar #'(lambda (c) (omng-add-element patch c))
+                (restore-connections-to-boxes connections boxes))
+        )
       
       (setf (lock patch) (find-value-in-kv-list data :lock))
       (setf (grid patch) (find-value-in-kv-list data :grid))
-      
-      
-      (setf (loaded? patch) t)
+
       patch)))
 
 
@@ -372,8 +377,8 @@
 
 
 (defmethod om-load-from-id ((id (eql :patch)) data)
-  (let ((patch (make-instance 'OMPatchInternal :name (find-value-in-kv-list data :name))))
-    (load-patch-contents patch data)
+  (let ((patch (make-instance 'OMPatchInternal)))
+    (when data (load-patch-contents patch data))
     patch))
 
 
@@ -384,14 +389,22 @@
     
     (if checked-path
         
-        (load-doc-from-file checked-path :patch)
+        (let ((patch (load-doc-from-file checked-path :patch :load-contents NIL)))
+          
+          ;;; load contents after so that if the patch is already registered, 
+          ;;; it will not be loaded again => protects recursive patches
+          (unless (loaded? patch)
+            (let ((contents (cdr (car (list-from-file checked-path)))))
+              (load-patch-contents patch contents)))
+          
+          patch)
       
-      (progn 
+      (let ((patch (make-instance'OMPatchFile :name (pathname-name path))))
         (om-beep-msg "PATCH NOT FOUND: ~S !" path)
-        (let ((patch (make-instance'OMPatchFile :name (pathname-name path))))
-          (setf (mypathname patch) path)
-          patch)  
-        ))))
+        (setf (mypathname patch) path)
+        patch)  
+      
+      )))
 
 ;;;=================================
 ;;; MAQUETTE

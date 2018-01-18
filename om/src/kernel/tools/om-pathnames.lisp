@@ -144,7 +144,7 @@
 (defmacro with-relative-ref-path (path &body body)
   `(let ((current-relative-path *relative-path-reference*))
      (setq *relative-path-reference* ,path)
-     (let ((rep ,@body))
+     (let ((rep (progn ,@body)))
        (setq *relative-path-reference* current-relative-path)
        rep)))
 

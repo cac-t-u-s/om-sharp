@@ -166,10 +166,7 @@
                         nil)))
         ))))
 
-(defun load-object-from-file (file)
-  (let ((file-contents (car (list-from-file file))))
-    (omng-load file-contents)))
-    
+
 (defmethod type-check ((type (eql :patch)) obj)
   (let ((patch (ensure-type obj 'OMPatch)))
     (when patch
@@ -191,32 +188,45 @@
       (setf (icon fun) 'lisp-f-file))
     fun))
 
-(defmethod load-doc-from-file (path type)
+    
+(defmethod load-doc-from-file (path type &key (load-contents t))
   (om-print (list "Opening document:" path))
   (let ((doc-entry (find-doc-entry path)))
-   (if doc-entry 
-       (progn
-         (om-print (list "Document found in register" (doc-entry-doc doc-entry)))
-         (doc-entry-doc doc-entry))
+    (if doc-entry 
+      
+        (progn
+          (om-print (list "Document found in register" (doc-entry-doc doc-entry)))
+          (doc-entry-doc doc-entry))
+      
      (let ((*package* (find-package :om)))
       
        (with-relative-ref-path path
-             
-         (let ((object (type-check type (load-object-from-file path))))
+         
+         (let* ((file-contents (car (list-from-file path)))
+                (doc (omng-load (if load-contents 
+                                    file-contents ;; load all 
+                                  (list (car file-contents)) ;; load just the object type (no contents)
+                                  )))
+                (object (type-check type doc))) ;; will change the class of object to persistant
+           
            (if object
+             
                (progn 
                  (setf (mypathname object) path
                        (name object) (pathname-name path)
-                       (loaded? object) t
+                       (loaded? object) load-contents
                        (saved? object) t)
                  (register-document object path))
+             
              (om-beep-msg "Document ~s of type ~S could not be loaded." path type))
+           
            object)
          )
        )
      )
    ))
       
+
 (defun open-doc-from-file (type &optional path)
   (let ((file (or path (om-choose-file-dialog 
                         :prompt (string+ (om-str :open) "...") :types (doctype-info type)

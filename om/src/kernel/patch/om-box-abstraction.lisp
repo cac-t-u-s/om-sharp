@@ -82,23 +82,25 @@
 
 
 (defmethod create-box-inputs ((self OMBoxAbstraction)) 
-  (mapcar #'(lambda (in) 
-              (make-instance 'box-input :reference in 
-                             :name (name in)
-                             :box self
-                             :value (eval (defval in))
-                             :doc-string (doc in)))
-          (sort (get-inputs (reference self)) '< :key 'index)
-          ))
+  (when (reference self)
+    (mapcar #'(lambda (in) 
+                (make-instance 'box-input :reference in 
+                               :name (name in)
+                               :box self
+                               :value (eval (defval in))
+                               :doc-string (doc in)))
+            (sort (get-inputs (reference self)) '< :key 'index)
+            )))
 
 (defmethod create-box-outputs ((self OMBoxAbstraction)) 
-  (mapcar #'(lambda (out) 
-              (make-instance 'box-output :reference out 
-                             :name (name out)
-                             :box self
-                             :doc-string (doc out)))
-          (sort (get-outputs (reference self)) '< :key 'index)
-          ))
+  (when (reference self)
+    (mapcar #'(lambda (out) 
+                (make-instance 'box-output :reference out 
+                               :name (name out)
+                               :box self
+                               :doc-string (doc out)))
+            (sort (get-outputs (reference self)) '< :key 'index)
+            )))
 
 
 (defmethod update-from-reference ((self OMBoxAbstraction))
