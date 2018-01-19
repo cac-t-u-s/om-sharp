@@ -68,8 +68,11 @@ Frames can be simple frames (icons, boxes, etc.) or container frames (patch edit
   (let ((aa nil))
     (loop for area in (areas self)
           while (not aa) do
-          (setf aa (area-at-pos? area (om-point-x pos) (om-point-y pos))))
+          (setf aa (and (enabled-area area)
+                        (area-at-pos? area (om-point-x pos) (om-point-y pos)))))
     aa))
+
+(defmethod enabled-area ((self frame-area)) self)
 
 (defmethod area-at-pos? ((self frame-area) x y)
   (let ((p (get-position self))

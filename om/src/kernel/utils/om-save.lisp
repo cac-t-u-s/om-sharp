@@ -534,7 +534,6 @@
     (:type ,(type-of self)) 
     (:index ,(index self))
     (:name ,(name self))
-    ;(:defval ,(omng-save (defval self)))
     (:doc ,(doc self))))
 
 (defmethod omng-save ((self OMSelfIn))

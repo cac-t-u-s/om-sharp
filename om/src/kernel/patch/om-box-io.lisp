@@ -19,7 +19,7 @@
 (in-package :om)
 
 ;;;=============================
-; INPUTS/OUTPUTS
+; INPUTS/OUTPUTS OF A BOX
 ;;;=============================
 
 ;; reference can be an actual in/out box (e.g. in an abstraction box) 
@@ -92,13 +92,16 @@
 (defmethod more-optional-input ((self t) &key name (value nil val-supplied-p) doc reactive) nil)
 
 (defmethod add-optional-input ((self OMBox) &key name (value nil val-supplied-p) doc reactive) 
-  (set-box-inputs self (append (inputs self)
-                               (list (make-instance 'box-optional-input
-                                                    :name (string-downcase name)
-                                                    :value value
-                                                    :box self
-                                                    :doc-string (or doc "optional input")
-                                                    :reactive reactive)))))
+  (set-box-inputs 
+   self 
+   (append (inputs self)
+           (list (make-instance 'box-optional-input
+                                :name (string-downcase name)
+                                :value value
+                                :box self
+                                :doc-string (or doc "optional input")
+                                :reactive reactive)))))
+
 
 (defmethod remove-one-optional-input ((self OMBox))
    (let ((optionals (get-optional-inputs self)))

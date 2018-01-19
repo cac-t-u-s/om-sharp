@@ -153,12 +153,15 @@
             (list 
              (when (allow-add-inputs (object self))
                (make-instance '++input-area :object self :frame self
-                              :pos #'(lambda (f) (om-make-point (- (w f) (* 2 S)) S))
+                              :pos #'(lambda (f) (om-make-point 
+                                                  (- (w f) (* (if (allow-remove-inputs (object self)) 2 1.2) S))
+                                                  S))
                               :pick #'(lambda (f) (list (- S) (- S) S S))))
              (when (allow-remove-inputs (object self))
                (make-instance '--input-area :object self :frame self
-                            :pos #'(lambda (f) (om-make-point (- (w f) S) (* 2 S)))
-                            :pick #'(lambda (f) (list (- S) (- S) S S))))))))
+                            :pos #'(lambda (f) (om-make-point (- (w f) S) (* (if (allow-add-inputs (object self)) 2 1) S)))
+                            :pick #'(lambda (f) (list (- S) (- S) S S))))))
+    ))
 
 (defmethod om-draw-area ((area input-edit-area))
   (let ((p (get-position area)))
@@ -302,9 +305,13 @@
 
 (defmethod area-tt-text ((self get-info-area)) nil) ;"open inspector")
 
+;;; info area is virtually disabled if the box is too small
+(defmethod enabled-area ((area get-info-area))
+  (>= (w (frame area)) 40))
+
 (defmethod om-draw-area ((area get-info-area))
   (let ((p (get-position area)))
-    (when (and (active area) (> (w (frame area)) 40))
+    (when (and (active area) (enabled-area area))
       (om-with-fg-color (om-def-color :gray)
         (om-draw-circle (+ 7 (om-point-x p)) (om-point-y p) 6 :fill t))
       (om-with-fg-color (om-def-color :white)
@@ -314,8 +321,8 @@
          (om-def-font :font2b)
          (om-draw-string (+ (om-point-x p) 5) (+ (om-point-y p) 4) "i"))))))
 
-(defmethod click-in-area ((self get-info-area) boxframe)
-  (when (> (w boxframe) 40)
+(defmethod click-in-area ((area get-info-area) boxframe)
+  (when (enabled-area area)
     (if *inspector-window*
         (update-inspector (object boxframe) boxframe)
       (show-inspector (object boxframe) boxframe))))
@@ -342,10 +349,12 @@
          (nout (length (outputs box)))
          (eia (input-edit-areas self))
          (statesign-w 5)
-         (extra-w (+ (* statesign-w 2) (if eia 10 0))) 
+         (extra-w (+ (* statesign-w 2) (if (> (+ (length (inputs box)) (length eia)) 2) 10 0))) 
          (n -1))
+    
     (setf (areas self)
           (append 
+           
            (mapcar 
             #'(lambda (in)
                 (setf (area in)
@@ -360,6 +369,7 @@
                                  +active-r+))
                        :pick '(-6 -15 6 4))))
             (inputs box))
+           
            (mapcar 
             #'(lambda (out)
                 (setf (area out) 
@@ -375,6 +385,7 @@
                                  ))
                        :pick '(-6 -6 6 6))))
             (outputs box))
+           
            (resize-areas self)
            (info-area self)
            eia

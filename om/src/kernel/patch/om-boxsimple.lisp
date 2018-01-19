@@ -36,7 +36,6 @@
 
 (defmethod next-optional-input ((self OMValueBox)) t)
 
-;;; can add only one ?
 (defmethod more-optional-input ((self OMValueBox) &key name (value nil val-supplied-p) doc reactive)
   (unless nil ; (inputs self)
     (add-optional-input self :name "in" :value (if val-supplied-p value nil) :doc "set box value" :reactive reactive)

@@ -406,7 +406,6 @@
 
 
 (defmethod object-has-editor ((self t)) nil)
-(defmethod object-has-editor ((self omobject)) t)
 
 (defmethod get-value-for-editor ((self OMBoxEditCall)) (get-box-value self))
 
