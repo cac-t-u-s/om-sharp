@@ -23,7 +23,8 @@
   (:default-initargs :text-align :center :icon-pos :left)
   (:metaclass omstandardclass))
 
-(defmethod box-patch-name ((box OMBoxAbstraction) &optional (name nil name-provided-p))
+;;; a tricky accessor for patch names :)
+(defmethod box-patch-name-access ((box OMBoxAbstraction) &optional (name nil name-provided-p))
   (if name-provided-p 
       ;;; SET
       (if (is-persistant (reference box))
@@ -34,7 +35,8 @@
                   (release-reference oldpatch box)
                   (setf (reference box) newpatch)
                   (push box (references-to newpatch))
-                  (update-from-reference box))
+                  (update-from-reference box)
+                  )
              (progn 
                (om-message-dialog "this file is not a valid patch !")
                (update-inspector-for-box box))))
@@ -53,8 +55,8 @@
        ("Abstraction"
         (
          ,(if (is-persistant (reference self))
-              '(:filename "File name" :path box-patch-name)
-            '(:name "Name" :text box-patch-name))
+              '(:filename "File name" :path box-patch-name-access)
+            '(:name "Name" :text box-patch-name-access))
          ))
        ("Scheduling"
         ((:pre-delay "Pre-delay (ms)" :number pre-delay)))))))

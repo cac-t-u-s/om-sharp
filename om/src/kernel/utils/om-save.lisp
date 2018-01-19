@@ -333,7 +333,7 @@
 
 (defmethod load-patch-contents ((patch OMPatch) data)
   (let ((*required-libs-in-current-patch* nil))
-
+    
     (let ((name (find-value-in-kv-list data :name))
           (info (find-values-in-prop-list data :info))
           (win (find-values-in-prop-list data :window)))
@@ -354,13 +354,35 @@
       ;;; set loaded? now in case of self-nested patched
       (setf (loaded? patch) t)
 
-      (let ((boxes (mapcar 'omng-load (find-values-in-prop-list data :boxes)))
-            (connections (find-values-in-prop-list data :connections)))
-        
-        (mapcar #'(lambda (box) (omng-add-element patch box)) boxes)
-        (mapcar #'(lambda (c) (omng-add-element patch c))
-                (restore-connections-to-boxes connections boxes))
-        )
+      (let* ((saved-boxes (find-values-in-prop-list data :boxes))
+             (saved-connections (find-values-in-prop-list data :connections)))
+
+        ;;; we load the i/o boxes first (so they are taken into account, e.g. on self-embedded patch boxes
+        ;;; but we must not change the order of boxes in the list because of the connections
+        ;;; => double loop
+        (let ((boxes (loop for saved-box in saved-boxes
+                           collect
+                           (if (equal :io (find-value-in-kv-list (cdr saved-box) :type))
+                               (let ((box (omng-load saved-box)))
+                                 (omng-add-element patch box)
+                                 box)
+                               nil) ;; do it in the next round
+                           )))
+          
+          ;;; load other boxes
+          (loop for box in boxes
+                for i = 0 then (+ i 1) 
+                when (null box)
+                do (let ((box (omng-load (nth i saved-boxes))))
+                     (setf (nth i boxes) box)
+                     (omng-add-element patch box)
+                     ))
+                
+          (mapc 
+           #'(lambda (c) (omng-add-element patch c))
+           (restore-connections-to-boxes saved-connections boxes))
+          
+          ))
       
       (setf (lock patch) (find-value-in-kv-list data :lock))
       (setf (grid patch) (find-value-in-kv-list data :grid))
@@ -389,15 +411,7 @@
     
     (if checked-path
         
-        (let ((patch (load-doc-from-file checked-path :patch :load-contents NIL)))
-          
-          ;;; load contents after so that if the patch is already registered, 
-          ;;; it will not be loaded again => protects recursive patches
-          (unless (loaded? patch)
-            (let ((contents (cdr (car (list-from-file checked-path)))))
-              (load-patch-contents patch contents)))
-          
-          patch)
+        (load-doc-from-file checked-path :patch)
       
       (let ((patch (make-instance'OMPatchFile :name (pathname-name path))))
         (om-beep-msg "PATCH NOT FOUND: ~S !" path)
@@ -493,6 +507,9 @@
 
 (defmethod omng-save-relative ((self OMLispFunctionFile) ref-path)  
   `(:textfun-from-file ,(omng-save (relative-pathname (mypathname self) ref-path))))
+
+
+(defmethod load-patch-contents ((patch OMLispFunction) data) nil)
 
 
 (defmethod om-load-from-id ((id (eql :textfun-from-file)) data)
@@ -620,7 +637,9 @@
 (defmethod omng-save ((self OMBox))  
   (cons :box
         (append 
+         
          (and (save-box-library self) `((:library ,(save-box-library self))))
+         
          `((:reference ,(save-box-reference self))
            (:type ,(box-type self))
            (:group-id ,(group-id self))
@@ -650,7 +669,7 @@
               (:standard (let ((in (find name (inputs self) :test 'string-equal :key 'name)))
                            (if in 
                                (setf (value in) (omng-load val) (reactive in) reac)
-                             (om-print (format nil "input ~s not found on box ~A" name (name self))))
+                             (om-print-dbg "input ~s not found on box ~A" (list name (name self)) "restore-inputs"))
                            ))
               (:optional (more-optional-input self :name name :value (omng-load val) :reactive reac))
               (:key (more-keyword-input self :key name :value (omng-load val) :reactive reac))
@@ -663,7 +682,7 @@
                (out (find name (outputs self) :test 'string-equal :key 'name)))
           (if out
               (setf (reactive out) reac)
-            (om-print (format nil "output ~s not found on box ~A" name (name self))))
+            (om-print-dbg "output ~s not found on box ~A" (list name (name self)) "restore-outputs"))
           )))
 
 (defmethod save-value ((self OMBox))
@@ -707,6 +726,7 @@
 
 
 (defmethod om-load-from-id ((id (eql :box)) data)
+  ;; (print (list "load BOX" (find-value-in-kv-list data :type)))
   (let* ((type (find-value-in-kv-list data :type))
          (reference (omng-load (find-value-in-kv-list data :reference)))
          (x (find-value-in-kv-list data :x))
@@ -744,11 +764,10 @@
                             (omng-make-lost-slots-box reference pos))))
                 (otherwise (om-beep-msg "unknown box type: ~A" type))))) ;;; DO SOMETHING FOR UNKNOWN BOX ID (kind of 'dead boxes')
     
-
     (when box
-      
+    
       (load-box-attributes box data)
-              
+      
       (when size (setf (box-w box) (om-point-x size) (box-h box) (om-point-y size)))
       (when inputs (restore-inputs box inputs))
       (when outputs (restore-outputs box outputs))
@@ -758,8 +777,9 @@
             do (let ((prop (find-value-in-kv-list data (car property))))
                  (when prop (set-property box (car property) (omng-load prop)))))
       )
-    box
-    ))
+
+    box))
+
 
 (defmethod load-box-attributes ((box t) data) nil)
 

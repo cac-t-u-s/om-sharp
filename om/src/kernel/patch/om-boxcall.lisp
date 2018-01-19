@@ -161,7 +161,6 @@ All boxes which their reference is a OM generic function are instances of this c
     (if exists (copy-io exists) io)))
 
 (defmethod update-from-reference ((self OMBoxCall))
-
   (let ((new-inputs (append (loop for i in (create-box-inputs self) collect 
                                   (copy-if-exists i (inputs self)))
                             (get-keyword-inputs self)))
