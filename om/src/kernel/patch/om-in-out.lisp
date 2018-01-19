@@ -62,7 +62,7 @@
 
 (defmethod io-box-icon-color ((self t)) (om-def-color :black))
 
-(defmethod h-resizable ((self OMInOutBox)) t)
+(defmethod h-resizable ((self OMInOutBox)) nil)
 (defmethod v-resizable ((self OMInOutBox)) nil)
 
 (defmethod omNG-make-new-boxcall ((reference OMPatchIO) pos &optional init-args)
@@ -92,8 +92,9 @@
 (defmethod valid-property-p ((self OMInOutBox) (prop-id (eql :lambda))) nil)
 
 (defmethod minimum-size ((self OMInOutBox))
-  (om-make-point (+ 8 (om-string-size (name self) (font-font (text-font self)))
-                    (if (equal (icon-pos self) :left) 22 0))
+  (om-make-point (max 40
+                      (+ 22 (om-string-size (name self) (font-font (text-font self)))
+                         (if (equal (icon-pos self) :left) 22 0)))
                  (+ (if (equal (icon-pos self) :top) 14 0) 28)))
 
 (defmethod maximum-size ((self OMInOutBox))
@@ -122,7 +123,7 @@
   (let* ((size (om-make-point 20 16))
          (pos (if (equal (icon-pos self) :left)
                   (om-make-point 0 (- (h frame) 24))
-               (om-make-point (round (- (w frame) (om-point-x size)) 2) 6))))
+                (om-make-point (round (- (w frame) (om-point-x size)) 2) 8))))
     
     (om-with-fg-color (io-box-icon-color self)
       (om-draw-rect (+ (om-point-x pos) 3) (om-point-y pos)
@@ -136,7 +137,7 @@
     
     (om-with-fg-color (om-def-color :white)
       (om-with-font (om-def-font :font1b)
-                    (om-draw-string (- (+ (om-point-x pos) (/ (om-point-x size) 2)) 4) (if (equal (icon-pos self) :left) 14 16) 
+                    (om-draw-string (- (+ (om-point-x pos) (/ (om-point-x size) 2)) 4) (if (equal (icon-pos self) :left) 14 18) 
                                     (number-to-string (index (reference self))))
                     ))
     t))
@@ -157,15 +158,32 @@
 (defmethod get-box-class ((self OMIn)) 'OMInBox)
 (defmethod related-patchbox-slot ((self OMInBox)) 'inputs)
 
+(defmethod next-optional-input ((self OMInBox)) 
+  (not (inputs self)))
+
+
+(defmethod more-optional-input ((self OMInBox) &key name (value nil val-supplied-p) doc reactive)
+  (unless (inputs self)
+    (add-optional-input self :name "internal input value" 
+                        :value (if val-supplied-p value nil) 
+                        :doc "set box value" 
+                        :reactive reactive)
+    t))
+
 (defmethod omNG-make-special-box ((reference (eql 'in)) pos &optional init-args)
   (let ((name (car (list! init-args)))
         (val (cadr (list! init-args))))
-    (omNG-make-new-boxcall 
-     (make-instance 'OMIn :name (if name (string name) "in") :defval val)
-     pos init-args)))
-
+    (let ((box (omNG-make-new-boxcall 
+                (make-instance 'OMIn :name (if name (string name) "in")) ; :defval val
+                pos init-args)))
+      (when val 
+        (add-optional-input box :name "internal input value" 
+                        :value val 
+                        :doc "set box value"))
+      box)))
+      
 (defmethod current-box-value ((self OMInBox) &optional (numout nil))
-  (if numout (defval (reference self)) (list (defval (reference self)))))
+  (if numout (return-value self numout) (value self)))
 
 ;;;===================================
 ;;; OUT
@@ -246,6 +264,8 @@
 
 (defmethod special-box-p ((name (eql 'mybox))) t)
 (defmethod get-box-class ((self OMSelfIn)) 'OMSelfInBox)
+
+(defmethod next-optional-input ((self OMSelfInBox)) nil)
 
 (defmethod omNG-make-special-box ((reference (eql 'mybox)) pos &optional init-args)
   (omNG-make-new-boxcall 
