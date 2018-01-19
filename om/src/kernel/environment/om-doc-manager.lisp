@@ -189,13 +189,13 @@
     fun))
 
     
-(defmethod load-doc-from-file (path type &key (load-contents t))
-  (om-print (list "Opening document:" path))
+(defun load-doc-from-file (path type)
+  (om-print-format "Opening document: ~A" (list path))
   (let ((doc-entry (find-doc-entry path)))
     (if doc-entry 
       
         (progn
-          (om-print (list "Document found in register" (doc-entry-doc doc-entry)))
+          (om-print-dbg "Document found in register: ~A" (list (doc-entry-doc doc-entry)))
           (doc-entry-doc doc-entry))
       
      (let ((*package* (find-package :om)))
@@ -203,10 +203,7 @@
        (with-relative-ref-path path
          
          (let* ((file-contents (car (list-from-file path)))
-                (doc (omng-load (if load-contents 
-                                    file-contents ;; load all 
-                                  (list (car file-contents)) ;; load just the object type (no contents)
-                                  )))
+                (doc (omng-load (list (car file-contents)))) ;; load just the object type (no contents)
                 (object (type-check type doc))) ;; will change the class of object to persistant
            
            (if object
@@ -214,17 +211,19 @@
                (progn 
                  (setf (mypathname object) path
                        (name object) (pathname-name path)
-                       (loaded? object) load-contents
+                       (loaded? object) nil
                        (saved? object) t)
-                 (register-document object path))
+                 
+                 (register-document object path)
+                 (load-patch-contents object (cdr file-contents))
+                 )
              
              (om-beep-msg "Document ~s of type ~S could not be loaded." path type))
            
            object)
          )
        )
-     )
-   ))
+     )))
       
 
 (defun open-doc-from-file (type &optional path)
