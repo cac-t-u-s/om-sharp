@@ -194,6 +194,8 @@
 ;;;===================
 
 (defclass lisp-function-editor (OMDocumentEditor) ())
+
+(defmethod object-has-editor ((self OMLispFunction)) t)
 (defmethod get-editor-class ((self OMLispFunction)) 'lisp-function-editor)
 
 ;;; nothing, e.g. to close when the editor is closed
