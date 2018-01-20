@@ -589,10 +589,12 @@
     (let ((buffer (capi::editor-pane-buffer ep))
           (symbol nil))
       (editor::use-buffer buffer
-        (setf symbol (editor::intern-symbol-from-string (editor::read-symbol-from-point :previous t :read-package-name t)))
-        ;(print (list symbol (type-of symbol)))
+        (let ((*package* (editor::buffer-package-to-use (editor:current-point))))
+          (setf symbol (editor::intern-symbol-from-string (editor::read-symbol-from-point :previous t :read-package-name t))))
         (when symbol (om-lisp::om-edit-definition symbol))
-      ))))
+        ))))
+
+; (editor::intern-symbol-from-string "aaa") 
 
 ;;; LOAD THE LISP FILE ATTACHED...
 (defmethod load-lisp-file ((self om-text-editor-window))
@@ -648,7 +650,7 @@
             :items (list 
                     (make-instance 'capi::menu-item :title "New..."
                                    :callback-type :none
-                                   :callback 'om-open-text-editor
+                                   :callback #'(lambda () (om-open-text-editor :lisp (lisp? self))) 
                                    :accelerator #\n
                                    :enabled-function 'file-operations-enabled)
                     (make-instance 'capi::menu-item :title "Open..."

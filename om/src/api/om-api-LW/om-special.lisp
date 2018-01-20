@@ -49,13 +49,7 @@
 (defun om-root-folder () *om-root*)
 
 (defun om-set-root-folder (path) 
-  (setf *om-root* path)
-  (setf om-lisp::*new-src-root* path))
-
-
-;;; used for source tracking
-(setf om-lisp::*recorded-src-root* cl-user::*om-root-directory*)
-(setf om-lisp::*new-src-root* *om-root*)
+  (setf *om-root* path))
 
 ;=======================
 ; INSPECTOR

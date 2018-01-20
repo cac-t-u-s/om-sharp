@@ -150,14 +150,22 @@
 
 ;;; called in delivered app init
 (defun om-root-init ()
-  (when (om-standalone-p)
-    (om-set-root-folder 
-     (make-pathname 
-      :device (pathname-device (oa::om-lisp-image)) :host (pathname-host (oa::om-lisp-image))
-      :directory 
-      #+cocoa(butlast (pathname-directory (truename (lw::pathname-location (oa::om-lisp-image)))) 3)
-      #+win32(pathname-directory (truename (lw::pathname-location  (oa::om-lisp-image))))
-      ))))
+ (when (om-standalone-p)
+   (om-set-root-folder 
+    (make-pathname 
+     :device (pathname-device (oa::om-lisp-image)) :host (pathname-host (oa::om-lisp-image))
+     :directory 
+     #+cocoa(butlast (pathname-directory (truename (lw::pathname-location (oa::om-lisp-image)))) 3)
+     #+win32(pathname-directory (truename (lw::pathname-location  (oa::om-lisp-image))))
+     ))
+   (om-lisp::om-set-source-tree-root-folder
+    (make-pathname 
+     :device (pathname-device (oa::om-lisp-image)) :host (pathname-host (oa::om-lisp-image))
+     :directory 
+     #+cocoa(append (butlast (pathname-directory (truename (lw::pathname-location (oa::om-lisp-image))))) '("Resources" "src"))
+     #+win32(append (pathname-directory (truename (lw::pathname-location (oa::om-lisp-image)))) '("src"))
+     ))
+   ))
 
 ;;;======================================
 ;;; USER-RELATED STARTUP FUNCTIONS
