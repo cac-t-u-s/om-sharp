@@ -22,7 +22,7 @@
 ;;;=======================================
 
 (defparameter *app-name* "o7")
-(defparameter *om-version* 0.000018)
+(defparameter *om-version* 0.000019)
 (defparameter *beta-release* t)
 (defparameter *version-string* "")
 (defparameter *release-language* :en)
@@ -93,6 +93,12 @@
         :om)
 
 (load (merge-pathnames "src/kernel/kernel-files.lisp" cl-user::*om-root-directory*))
+
+
+;;; used for source tracking
+;;; updated in delivered init call
+(om-lisp::om-set-source-tree-root-folder (merge-pathnames "src/" cl-user::*om-root-directory*))
+
 
 (defparameter *om-packages* nil)
 (defparameter *packages-folder* (merge-pathnames "src/packages/" cl-user::*om-root-directory*))

@@ -86,6 +86,12 @@
 (defvar *recorded-src-root* nil)
 (defvar *new-src-root* nil)
 
+(defun om-set-source-tree-root-folder (path) 
+  (setq *new-src-root* path)
+  (unless (member :om-deliver *features*)
+    (setq *recorded-src-root* path)))
+
+
 (defun om-restore-source-path (path) 
   (let ((rec-root-dir (pathname-directory *recorded-src-root*))
         (path-dir (pathname-directory (translate-logical-pathname path))))   ; truename ?
@@ -109,11 +115,12 @@
                       (cadr def)))
                 (cadr def)))))
 
-; (dspec:find-name-locations dspec:*dspec-classes* 'om::picture)
+
+; (dspec:find-name-locations dspec:*dspec-classes* 'om::bpf)
 
 
 (defun om-edit-definition (symbol)
-    (if (symbolp symbol)
+  (if (symbolp symbol)
       (let ((definitions 
              ;(dspec:name-definition-locations dspec:*dspec-classes* symbol)
              (ignore-errors (dspec:find-name-locations dspec:*dspec-classes* symbol))))

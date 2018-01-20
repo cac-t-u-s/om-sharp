@@ -214,7 +214,7 @@
                                   :name (special-path-check (string-downcase (string symbol)))
                                   :type "html")))
       (if (probe-file file)
-          (sys:open-url (namestring file))
+          (om-open-in-browser (namestring file))
         (om-beep-msg "No reference page found for '~A'" symbol))
       )))
 

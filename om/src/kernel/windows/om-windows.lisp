@@ -101,15 +101,54 @@
          ))))
   )
 
+(defmethod get-selection-for-menu ((self t)) nil)
+
 (defun default-help-menu-items (self)
   (list
-   (om-make-menu-item "Editor Help..." #'(lambda () (funcall (help-command self))) :key "H" :enabled (and (help-command self) t))
+   
    (om-make-menu-comp  
     (list 
-     (om-make-menu-item "Online Resources" #'(lambda() (sys:open-url "https://openmusic-project.github.io/")) :enabled t)
-     (om-make-menu-item "Functions & Class Reference" #'(lambda() (sys:open-url (namestring (get-om-reference-pages-index)))) :enabled t)
+     
+     (om-make-menu-item  
+      "Find source..." 
+      #'(lambda () 
+          (let ((symbols (get-selection-for-menu self)))
+            (if symbols
+
+                (loop for ref in symbols do (om-lisp::om-edit-definition ref))
+              
+              (let ((str (om-get-user-string "Enter a Lisp function or class name to search.")))
+                (when str 
+                  (let ((symbol (read-from-string str)))
+                    (om-lisp::om-edit-definition symbol))))
+              )
+            ))
+      :key "E")
+     
+     (om-make-menu-item  
+      "Function/Class Reference" 
+      #'(lambda () 
+          (let ((symbols (get-selection-for-menu self)))
+            (if symbols 
+                (loop for ref in symbols do (show-reference-page ref))
+              (om-open-in-browser (namestring (get-om-reference-pages-index))))))
+      :key "d")
      ))
-   ))
+   
+    (om-make-menu-comp  
+     (list 
+      (om-make-menu-item 
+       "Editor Help..." 
+       #'(lambda () (funcall (help-command self))) 
+       :key "H" :enabled (and (help-command self) t))
+        
+      (om-make-menu-item 
+       "Online Resources" 
+       #'(lambda() (om-open-in-browser "https://openmusic-project.github.io/")) 
+       :enabled t)
+      ))
+    
+    ))
 
 
 (defun main-app-menu-item ()

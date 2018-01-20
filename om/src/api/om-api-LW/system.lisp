@@ -37,7 +37,8 @@
           om-get-user-name
           om-get-date
           om-error-handle-funcall om-with-error-handle om-trap-errors om-with-redefinitions om-ignore&print-error
-          om-set-clipboard om-get-clipboard       
+          om-set-clipboard om-get-clipboard  
+          om-open-in-browser
           ) :om-api)
 
 
@@ -134,6 +135,11 @@
 (defun om-get-clipboard ()
   (capi::clipboard (om-front-window)))
 
+;;;====================
+;;; WEB
+;;;====================
+(defun om-open-in-browser (url)
+  (sys::open-url url))
 
 
 

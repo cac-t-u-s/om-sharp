@@ -135,7 +135,7 @@
                                                                                               (editor::clear-buffer (capi::editor-pane-buffer out)))))
                                               :ratios '(nil)))
                      )
-
+                
                 (make-instance 
                            'om-listener
                            :layout (make-instance 'capi:column-layout 
@@ -156,7 +156,9 @@
                            ;                                           (internal-window-class-menubar window))))
                            )
                 ))
-
+        
+        (editor::clear-buffer (capi::editor-pane-buffer (op om-lisp::*om-listener*)))
+        
         (when initial-prompt
                   (princ initial-prompt *om-stream*) 
                   (terpri *om-stream*))
