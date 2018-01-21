@@ -180,8 +180,8 @@
      ;#+win32(setf (main-pinboard-object view) (make-instance 'om-view-pinboard-object))
      ;#+win32(setf (capi::pinboard-pane-size (main-pinboard-object view)) (values w h))
      ; #+cocoa
-
-     (when direct-draw (setf (capi::output-pane-display-callback view) 'om-draw-contents-callback))
+        
+        (when direct-draw (setf (capi::output-pane-display-callback view) 'om-draw-contents-callback))
 
     ;(when (om-view-p view)
     ;  (setf (capi::simple-pane-scroll-callback view) 'scroll-update)
