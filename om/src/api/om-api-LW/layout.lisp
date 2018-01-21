@@ -166,6 +166,8 @@
                   (substitute new old (capi::layout-description self) :test 'equal)))
    ))
 
+(defmethod om-invalidate-view ((self om-abstract-layout))
+  (mapc 'om-invalidate-view (capi::layout-description self)))
 
 ;;;================================
 ;;; SPECIAL FOR TAB-LAYOUT
