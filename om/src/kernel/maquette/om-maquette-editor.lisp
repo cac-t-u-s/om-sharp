@@ -33,6 +33,7 @@
 
 (defclass maquette-editor (multi-view-editor patch-editor play-editor-mixin)
   ((view-mode :accessor view-mode :initarg :view-mode :initform :tracks)
+   (show-control-patch :accessor show-control-patch :initarg :show-control-patch :initform nil)
    (snap-to-grid :accessor snap-to-grid :initarg :snap-to-grid :initform t)
    (beat-info :accessor beat-info :initarg :beat-info :initform (list :beat-count 0 :prevtime 0 :nexttime 1))))
 
@@ -40,7 +41,27 @@
   (remove nil (list 
    (main-app-menu-item)
    (om-make-menu "File" (default-file-menu-items self))
-   (om-make-menu "Edit" (default-edit-menu-items self))
+   (om-make-menu "Edit" (append 
+                            (default-edit-menu-items self)
+                            (list (om-make-menu-comp 
+                                   (list 
+                                    (om-make-menu-item 
+                                     "Show Inspector" 
+                                     #'(lambda () (patch-editor-set-window-config 
+                                                   self 
+                                                   (if (equal (editor-window-config self) :inspector) nil :inspector))) 
+                                     :key "i" :selected #'(lambda () (equal (editor-window-config self) :inspector))
+                                     )
+                                         
+                                    (om-make-menu-item  
+                                     "Edit lock" 
+                                     #'(lambda () (setf (lock (object self)) (not (lock (object self))))
+                                         (om-invalidate-view (main-view self)))
+                                     :key "e" :selected #'(lambda () (lock (object self)))
+                                     ))
+                                   :selection t
+                                   )
+                                  )))
    (om-make-menu "Windows" (default-windows-menu-items self))
    (om-make-menu "Help" (default-help-menu-items self))
    )))
@@ -104,23 +125,6 @@
   (let ((editorview (main-view self)))
     (append (get-boxframes editorview)
             (get-grap-connections editorview))))
-
-
-
-
-;;;========================
-;;; !!! INSPECTOR IN MAQUETTE...
-;;;========================
-
-(defmethod show-inspector-window ((self maquette-editor))
-  (if (and (selected-view self) (not (equal self (editor (selected-view self)))))
-      (show-inspector-window (editor (selected-view self)))
-    (call-next-method)))
-
-(defmethod update-inspector-for-editor ((self maquette-editor) &optional obj)
-  (if (and (selected-view self) (not (equal self (editor (selected-view self)))))
-      (update-inspector-for-editor (editor (selected-view self)) obj)
-    (call-next-method)))
     
 
 ;;;========================
@@ -725,30 +729,58 @@
 
 
 ;;;========================
-;;; GENERAL CONSTRUCTOR
+;;; INSPECTOR IN MAQUETTE...
 ;;;========================
 
-(defun show-control-patch-editor (maq-editor)
+(defmethod update-inspector-for-editor ((self maquette-editor) &optional obj)
+  (if (and (selected-view self) (not (equal self (editor (selected-view self)))))
+      (update-inspector-for-editor (editor (selected-view self)) obj)
+    (call-next-method)))
+
+;;;========================
+;;; CONTROL PATCH
+;;;========================
+
+(defun make-control-patch-view (maq-editor)
   (let ((ctrlpatch (ctrlpatch (object maq-editor))))
+    
     (unless (editor ctrlpatch)
-    (setf (editor ctrlpatch)
-          (make-instance 'patch-editor 
-                         :object ctrlpatch
-                         :container-editor maq-editor))
-    (let ((pl (get-g-component maq-editor :left-view))
+      (setf (editor ctrlpatch)
+            (make-instance 'patch-editor 
+                           :object ctrlpatch
+                           :container-editor maq-editor)))
+    
+    (let ((pl (om-make-layout 'om-simple-layout))
           (pv (make-editor-window-contents (editor ctrlpatch))))
-      (om-remove-all-subviews pl)
       (om-add-subviews pl pv)
       (setf (main-view (editor ctrlpatch)) pv)
-      (put-patch-boxes-in-editor-view ctrlpatch pv)))
-    (om-set-layout-ratios (main-view maq-editor) '(4 nil 6))))
+      (put-patch-boxes-in-editor-view ctrlpatch pv)
 
+      ;;; so that the inspector calls are passed through
+      (set-g-component (editor ctrlpatch) :inspector
+                       (get-g-component maq-editor :inspector))
+      (set-g-component (editor ctrlpatch) :inspector-title
+                       (get-g-component maq-editor :inspector-title))
 
-(defun hide-control-patch-editor (maq-editor)
-  ;(om-remove-all-subviews (get-g-component maq-editor :left-view))
-  (om-set-view-size (get-g-component maq-editor :left-view) (omp 0 0))
-  (om-set-layout-ratios (main-view maq-editor) '(1 nil 1000)))
+      (update-inspector-for-editor maq-editor)
+      
+      pl)))
+  
+(defun show-hide-control-patch-editor (maq-editor show)
+  
+  (unless (equal (show-control-patch maq-editor) show)
+   
+    (setf (show-control-patch maq-editor) show)
+   
+    (let ((ctrlpatch (ctrlpatch (object maq-editor))))
+      
+      (build-editor-window maq-editor)
+      (init-editor-window maq-editor)
+      )))
 
+;;;========================
+;;; GENERAL CONSTRUCTOR
+;;;========================
 
 (defmethod make-editor-window-contents ((editor maquette-editor))
   (let* ((maquette (get-obj-to-play editor))
@@ -829,11 +861,10 @@
                  (setq b1 (om-make-graphic-object 
                            'om-icon-button :size (omp 16 16) 
                            :icon 'ctrlpatch-black :icon-pushed 'ctrlpatch-gray
-                           :lock-push t :enabled t
+                           :lock-push t :enabled t :pushed (show-control-patch editor)
                            :action #'(lambda (b)
-                                       (if (pushed b)
-                                           (show-control-patch-editor editor)
-                                         (hide-control-patch-editor editor)))))
+                                       (show-hide-control-patch-editor editor (pushed b))
+                                       )))
                  (setq b2 (om-make-graphic-object 
                            'om-icon-button :size (omp 16 16) 
                            :icon 'maqeval-black :icon-pushed 'maqeval-gray
@@ -876,29 +907,49 @@
                                   :text "select a box to display contents..."
                                   :fg-color (om-def-color :gray)  ; (om-make-color (/ 215 256) (/ 215 256) (/ 215 256))
                                   )
-                      ))))
+                      )))
+         
+         (inspector-pane nil))
          
     (set-g-component editor :bottom-view bottom-view)
     (set-g-component editor :ctrl-view ctrl-view)
-    (set-g-component editor :left-view (om-make-layout 'om-simple-layout))
     (set-g-component editor :main-maq-view (om-make-layout 'om-simple-layout))
     
+
+    ;;; the inspector must be created first because  
+    ;;; it is used in the control-patch-view creation 
+    ;;; the control patch constructor will update the inspector if necessary
+    (when (equal (editor-window-config editor) :inspector)
+      (setf inspector-pane (make-inspector-pane editor)))
+
+    (when (show-control-patch editor) 
+      (set-g-component editor :left-view (make-control-patch-view editor)))
+        
     (om-add-subviews (get-g-component editor :main-maq-view) tracks-or-maq-view)
     
     (om-make-layout 
-     'om-row-layout :delta 2 :ratios '(1 nil 100)
-     :subviews (list 
-                ;;; LEFT PART
-                (get-g-component editor :left-view) 
-                :divider
-                ;;; REST (RIGHT)
-                (om-make-layout 
-                 'om-column-layout :delta nil :ratios '(nil 100 nil 1)
-                 :subviews (list 
-                            (get-g-component editor :ctrl-view)
-                            (get-g-component editor :main-maq-view) 
-                            :divider 
-                            (get-g-component editor :bottom-view)))))))
+     'om-row-layout :delta 2 :ratios (append 
+                                      (when (show-control-patch editor) '(40 nil)) 
+                                      '(100) 
+                                      (when (equal (editor-window-config editor) :inspector) '(nil 1)))
+     :subviews (append 
+                ;;; LEFT (PATCH)
+                (when (show-control-patch editor) 
+                  (list (get-g-component editor :left-view) 
+                        :divider))
+                ;;; MAIN
+                (list (om-make-layout 
+                       'om-column-layout :delta nil :ratios '(nil 100 nil 1)
+                       :subviews (list 
+                                  (get-g-component editor :ctrl-view)
+                                  (get-g-component editor :main-maq-view) 
+                                  :divider 
+                                  (get-g-component editor :bottom-view))))
+                ;;; RIGHT (INSPECTOR)
+                (when  (equal (editor-window-config editor) :inspector)
+                  (list :divider inspector-pane))
+                ))
+    ))
 
 
 
