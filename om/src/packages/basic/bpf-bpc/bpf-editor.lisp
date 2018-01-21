@@ -160,9 +160,6 @@
                               :editor editor))
          (rx (om-make-view 'x-ruler-view :related-views (list panel) :size (omp nil 20) :bg-color (om-def-color :white) :decimals (decimals editor)))
          (ry (om-make-view 'y-ruler-view :related-views (list panel) :size (omp 30 nil) :bg-color (om-def-color :white) :decimals (decimals editor)))
-         ;(info-button (om-make-graphic-object 'om-icon-button  :size (omp 16 16) 
-         ;                                     :icon 'info :icon-pushed 'info-pushed
-         ;                                     :action #'(lambda (b) (show-inspector (object-value editor) editor))))
          (mousepos-txt (om-make-graphic-object 'om-item-text :size (omp 200 16)))
          ;(name-txt (om-make-graphic-object 'om-item-text :size (omp 60 16) :text (name object)))
          (timeline-editor (make-instance 'timeline-editor :object (object editor) :container-editor editor))
@@ -297,11 +294,8 @@
 (defmethod init-editor-window ((editor bpf-editor))
   (call-next-method)
   (reinit-ranges editor)
-  ;(update-inspector editor win)
   )
 
-;(defmethod editor-activate ((self bpf-editor) t-or-nil)
-;  (when t-or-nil (select-bpf self)))
 
 (defmethod om-view-cursor ((self bpf-bpc-panel))
   (let ((editor (or (editor self) (editor (om-view-window self)))))
@@ -326,9 +320,11 @@
 (defmethod update-to-editor ((editor bpf-editor) (from t))
   (call-next-method)
   (let ((object (object-value editor)))
+    
     (when (g-components editor)
-      (set-decimals-in-editor editor (decimals object))
-      (enable-play-controls editor (action object))
+      (when object 
+        (set-decimals-in-editor editor (decimals object))
+        (enable-play-controls editor (action object)))
       (om-invalidate-view (get-g-component editor :main-panel))
       )
     (when (timeline-editor editor)
@@ -557,9 +553,6 @@
       (editor-invalidate-views self)
       (select-bpf self)))
 
-(defmethod get-info-command ((self bpf-editor)) 
-  #'(lambda () (show-inspector (object self) self)))
-
 (defmethod open-osc-manager-command ((self bpf-editor)) nil)
 
 ;;;==========================
@@ -702,9 +695,8 @@
         
 
 
-(defmethod select-bpf ((editor bpf-editor) &optional n)    
-  ;(update-inspector (object-value editor) editor)
-  )
+;;; do nothing...
+(defmethod select-bpf ((editor bpf-editor) &optional n))
       
 (defmethod points-in-area ((editor bpf-editor) p1 p2)
   (let* ((panel (get-g-component editor :main-panel))

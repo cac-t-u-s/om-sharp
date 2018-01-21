@@ -76,7 +76,7 @@ All boxes which their reference is a OM generic function are instances of this c
   (setf (lambda-state self) value))
 
 (defmethod update-after-change-mode ((box OMBoxCall))
-  (update-inspector-for-box box)
+  (update-inspector-for-object box)
   (om-invalidate-view (frame box))
   (when (container box)
     (report-modifications (editor (container box)))))

@@ -106,14 +106,20 @@
             (get-grap-connections editorview))))
 
 
+
+
+;;;========================
+;;; !!! INSPECTOR IN MAQUETTE...
+;;;========================
+
 (defmethod show-inspector-window ((self maquette-editor))
   (if (and (selected-view self) (not (equal self (editor (selected-view self)))))
       (show-inspector-window (editor (selected-view self)))
     (call-next-method)))
 
-(defmethod update-inspector-for-editor ((self maquette-editor))
+(defmethod update-inspector-for-editor ((self maquette-editor) &optional obj)
   (if (and (selected-view self) (not (equal self (editor (selected-view self)))))
-      (update-inspector-for-editor (editor (selected-view self)))
+      (update-inspector-for-editor (editor (selected-view self)) obj)
     (call-next-method)))
     
 
@@ -368,7 +374,7 @@
                                      for init-track in init-tracks do 
                                      (let ((new-box-id (+ init-track diff-track-id)))
                                        (when (and (> new-box-id 0) (<= new-box-id (n-track-views editor)))
-                                         (update-inspector-for-box tb) ;; here ?
+                                         (update-inspector-for-object tb) ;; here ?
                                          (setf (group-id tb) new-box-id)))))
                      
                              (move-editor-selection editor :dx dx)

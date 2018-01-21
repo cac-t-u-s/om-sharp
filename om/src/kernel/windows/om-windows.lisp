@@ -80,9 +80,6 @@
            ;(om-make-menu-item "MIDI Setup" 'show-midi-setup)
            ))
    (list 
-    (om-make-menu-comp 
-     (list (om-make-menu-item "Inspector" #'(lambda () (funcall (get-info-command self))) :key "i" 
-                              :enabled (and (get-info-command self) t))))
     (om-make-menu-comp  
      (list 
       (om-make-menu-item "Workspace/Library Window" 'show-main-om-window :key "W")
@@ -183,7 +180,6 @@
 (defmethod undo-command (self) nil)
 (defmethod redo-command (self) nil)
 (defmethod print-command (self) nil)
-(defmethod get-info-command (self) nil)
 (defmethod save-command (self) nil)
 (defmethod save-as-command (self) nil)
 (defmethod revert-command (self) nil)

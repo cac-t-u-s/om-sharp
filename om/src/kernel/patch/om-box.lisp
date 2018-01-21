@@ -159,7 +159,7 @@
 (defmethod set-show-name ((box OMBox)) 
   (when (visible-property (get-properties-list box) :showname)
     (setf (show-name box) (not (show-name box)))
-    (update-inspector-for-box box)
+    (update-inspector-for-object box)
     (om-invalidate-view (frame box))))
 
 (defmethod initialize-instance :after ((self OMBox) &rest args)

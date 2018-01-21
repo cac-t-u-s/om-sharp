@@ -59,7 +59,7 @@ Mind using this box in 'eval-once' mode when connected to several other boxes."
                                                 :box self
                                                 :doc-string (get-input-doc self name)))))
   (setf (lock-state self) :eval-once)
-  (update-inspector-for-box self))
+  (update-inspector-for-object self))
 
 (defmethod remove-one-optional-input ((self OMBoxSeqCall))
   (when (call-next-method)
@@ -110,7 +110,7 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
                                 :box self))
            ))
   (setf (lock-state self) :eval-once)
-  (update-inspector-for-box self)
+  (update-inspector-for-object self)
   t)
 
 (defmethod remove-one-optional-input ((self OMBoxSplit))

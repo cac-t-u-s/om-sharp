@@ -258,13 +258,12 @@
 
 ;;; callback called when the window is brought to front or back
 (defmethod editor-activate ((self OMEditor) t-or-nil) 
-  (if t-or-nil
-      (update-inspector-for-editor self)
-    (release-inspector self)))
+  (if t-or-nil (update-inspector-for-editor self)
+    ;;; (release-inspector self) ;; can remove this
+    ))
 
-(defmethod update-inspector-for-editor ((self OMEditor))
-  ;(when (window self) 
-    (update-inspector (object self) (window self)))
+(defmethod update-inspector-for-editor ((self OMEditor) &optional obj)
+  (update-inspector-for-object (or obj (object self))))
 
 ;;; called by the window/view to notify a change in the model
 (defmethod report-modifications ((self null)) t)

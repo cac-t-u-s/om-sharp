@@ -260,8 +260,8 @@
   (when (graphic-connection self) 
     (om-invalidate-view (graphic-connection self))
     (let ((ed (editor (om-view-window (graphic-connection self)))))
-      (when ed (update-inspector-for-editor ed)
-        ))))
+      (when ed (update-inspector-for-editor ed))
+      )))
 
 (defmethod get-draw-points ((self OMConnection))
   (and (graphic-connection self) 
@@ -449,10 +449,6 @@
 
 (defmethod get-update-frame ((self OMConnection)) (graphic-connection self))
 
-;;; Graphic-Connections behave differently with the inspector because they need
-;;; to stay connected to the editor view
-(defmethod get-my-view-for-update ((self graphic-connection)) (view self))
-
 ;;; called after an edit from the inspector
 (defmethod update-after-prop-edit (view (object omconnection))
   (update-graphic-connection object)
@@ -518,6 +514,6 @@
   (close-inspector-for-box self))
 
 (defmethod set-reactive-mode :after ((self omconnection)) 
-  (update-inspector-for-box self))
+  (update-inspector-for-object self))
 
 

@@ -22,8 +22,7 @@
 ;;;=============================
 
 (defclass patch-editor (OMDocumentEditor undoable-editor-mixin) 
-  ((show-lisp-code :accessor show-lisp-code :initarg :show-lisp-code :initform nil)
-   (show-documentation :accessor show-documentation :initarg :show-documentation :initform nil)))
+  ((editor-window-config :accessor editor-window-config :initarg :editor-window-config :initform nil)))
 
 (defmethod object-has-editor ((self OMPatch)) t)
 (defmethod get-editor-class ((self OMPatch)) 'patch-editor)
@@ -96,15 +95,6 @@
 (defmethod window-name-from-object ((self OMPatchInternal))
   (format nil "~A  [~A]" (name self) "internal patch"))
 
-(defmethod update-inspector-for-editor ((self patch-editor))
-  (when (window self) ;; window is open and initialized
-    (let ((selection (append (get-selected-boxes self) 
-                             (get-selected-connections self))))
- (if (= 1 (length selection)) 
-     (update-inspector (car selection) (get-update-frame (car selection)))
-   (update-inspector selection (mapcar 'get-update-frame selection)))
- 
- )))
 
 ;(defmethod init-editor ((self patch-editor))
 ;  (setf (saved? (object self)) t))
@@ -120,10 +110,20 @@
                             (default-edit-menu-items self)
                             (list (om-make-menu-comp 
                                    (list (om-make-menu-item  
-                                          "Show Lisp code" ;(if (show-lisp-code self) "Hide Lisp code" "Show Lisp code")
-                                          #'(lambda () (patch-editor-show-lisp-code self (not (show-lisp-code self))))
-                                          :key "l" :selected #'(lambda () (show-lisp-code self))
+                                          "Show Lisp code"
+                                          #'(lambda () (patch-editor-set-window-config 
+                                                        self 
+                                                        (if (equal (editor-window-config self) :lisp-code) nil :lisp-code)))
+                                          :key "l" :selected #'(lambda () (equal (editor-window-config self) :lisp-code))
                                           )
+                                         (om-make-menu-item 
+                                          "Show Inspector" 
+                                          #'(lambda () (patch-editor-set-window-config 
+                                                        self 
+                                                        (if (equal (editor-window-config self) :inspector) nil :inspector))) 
+                                          :key "i" :selected #'(lambda () (equal (editor-window-config self) :inspector))
+                                          )
+                                         
                                          (om-make-menu-item  
                                           "Edit lock" 
                                           #'(lambda () (setf (lock (object self)) (not (lock (object self))))
@@ -424,13 +424,6 @@
       (when view (om-invalidate-view view)))
     ))
 
-;;; CLOSE INSPECTOR IF ITS OBJECT HAS BEEN DESTROYED (?)
-(defmethod remove-selection :after ((self patch-editor))
-  (when (and *inspector-window*
-             (not (find (object *inspector-window*) (append (boxes (object self))
-                                                            (connections (object self)))
-                        :test 'equal)))
-    (om-close-window *inspector-window*)))
 
 ;;; called from menu
 (defmethod clear-command ((self patch-editor))
@@ -484,20 +477,6 @@
 ;;;=============================
 ;;; MENU COMMANDS
 ;;;=============================
-
-;Redefine for maquette etc ?
-(defmethod get-info-command ((self patch-editor)) 
-  #'(lambda () (show-inspector-window self)))
-
-(defmethod show-inspector-window ((self patch-editor))
-  (let ((selection (append (get-selected-boxes self)
-                           (get-selected-connections self))))
-    (if (= 1 (length selection))
-        (show-inspector (car selection) (get-my-view-for-update (get-update-frame (car selection)))))
-    (show-inspector selection (loop for obj in selection collect (get-my-view-for-update (get-update-frame obj))))
-    ))
-      
-(defmethod get-my-view-for-update ((self t)) self)
 
 (defmethod select-all-command ((self patch-editor))
   #'(lambda () (select-unselect-all self t)))
@@ -1077,52 +1056,12 @@
 ;;;======================================
 
 (defun format-lisp-code-string (code margin) 
-  (write-to-string code :escape t :pretty t :right-margin margin :miser-width margin))
-
-(defmethod make-editor-window-contents ((editor patch-editor))
-  (let ((patch-view (call-next-method)))
-    (if (show-lisp-code editor)
-        (let ((text-pane (om-make-di 'om-multi-text 
-                                     :text (format-lisp-code-string (get-patch-lisp-code (object editor)) 60)
-                                     :font (om-make-font "Courier New" 12)
-                                     ;:bg-color (om-def-color :white)
-                                     :size (omp nil nil)
-                                     )))
-          (set-g-component editor :lisp-code text-pane)
-          (values 
-           (om-make-layout 
-            'om-row-layout :delta 2 :ratios '(60 nil 40)
-            :subviews (list 
-                       patch-view 
-                       :divider
-                       (om-make-layout 
-                        'om-column-layout :ratios '(1 nil)
-                        :subviews (list text-pane
-                                        (om-make-layout 
-                                         'om-row-layout
-                                         :subviews (list
-                                                    (om-make-di 'om-button :text "Copy Lisp code" 
-                                                                :size (omp 140 32) :font (om-def-font :font1)
-                                                                :di-action #'(lambda (b) (om-copy-command text-pane)
-                                                                               (om-print "Lisp code copied to clipboard")))
-                                                    nil
-                                                    (om-make-di 'om-button :text "close" 
-                                                                :size (omp 60 32) :font (om-def-font :font1)
-                                                                :di-action #'(lambda (b) (patch-editor-show-lisp-code editor nil)))
-                                                    ))))))
-           patch-view))
-      (progn 
-        (set-g-component editor :lisp-code nil)
-        patch-view))))
-
-(defmethod patch-editor-show-lisp-code ((self patch-editor) t-or-nil)
-  (setf (show-lisp-code self) t-or-nil)
-  (build-editor-window self)
-  (init-editor-window self))
+  (concatenate 'string (string #\Newline) 
+               (write-to-string code :escape t :pretty t :right-margin margin :miser-width margin)))
 
 
 (defmethod patch-editor-set-lisp-code ((self patch-editor))
-  (when (and (show-lisp-code self)
+  (when (and (equal (editor-window-config self) :lisp-code)
              (get-g-component self :lisp-code)) ;; just in case..
     (let* ((textpane (get-g-component self :lisp-code))
            (w (om-width textpane))
@@ -1131,4 +1070,215 @@
      (get-g-component self :lisp-code)
      (format-lisp-code-string (get-patch-lisp-code (object self)) (round w wem)))
     )))
+
+;;;======================================
+;;; INSPECTOR
+;;;======================================
+
+(defclass inspector-view (om-view) 
+  ((object :initarg :object :initform nil :accessor object)))
+
+
+(defmethod object-name-in-inspector ((self OMObject)) (name self))
+(defmethod object-name-in-inspector ((self t)) nil)
+
+;;; redefined for connections
+(defmethod get-update-frame ((self t)) nil)
+
+(defmethod set-inspector-title ((self om-simple-text) obj-to-inspect)
+  (om-set-dialog-item-text 
+   self
+   (string+ "Inspector -- "
+            (or (and (null obj-to-inspect) "")
+                    (and (consp obj-to-inspect) "[MULTIPLE SELECTION]")
+                    (object-name-in-inspector obj-to-inspect)
+                    (string (type-of obj-to-inspect))))
+   ))
+
+(defmethod set-inspector-contents ((self inspector-view) object)
+  
+  (om-remove-all-subviews self)
+  (setf (object self) object)
+
+  (when (get-properties-list object)
+    (let ((inspector-layout
+           (om-make-layout
+            'om-grid-layout
+            :delta '(10 0) :align nil
+            :subviews (loop for category in (get-properties-list object)
+                            when (cdr category)
+                            append 
+                            (append 
+                             (list  ;     (car category)  ; (list (car category) (om-def-font :font1b)) 
+                              (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)
+                              (om-make-di 'om-simple-text :text (car category) :font (om-def-font :font2b)
+                                          :size (om-make-point (+ 10 (om-string-size (car category) (om-def-font :font2b))) 20)
+                                          )
+                              ;; prevents focus on other items :)  :right-extend
+                              )
+                             (loop for prop in (cdr category) append
+                                   (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font (om-def-font :font1)
+                                                     :size (om-make-point 110 20) :position (om-make-point 10 16))
+                                                                                       ; (nth 1 prop) ; (list (nth 1 prop) (om-def-font :font1))  
+                                         (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop) 
+                                                         :update (get-update-frame object)
+                                                         )
+                                         ))
+                             (list (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t) 
+                                   (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t))
+                             )
+                            )
+            )))
+      
+      (om-add-subviews self inspector-layout)
+      ))
+  )
+
+
+
+
+(defmethod update-inspector-for-editor ((self patch-editor) &optional obj)
+  (let ((obj-to-inspect 
+         (or obj 
+             (let ((selection (append (get-selected-boxes self)
+                                      (get-selected-connections self))))
+               (if (= 1 (length selection)) 
+                   (car selection) 
+                 selection)))))
+        
+    (when (get-g-component self :inspector-title)
+      (set-inspector-title (get-g-component self :inspector-title) obj-to-inspect))
+    
+    (when (get-g-component self :inspector)
+      (set-inspector-contents (get-g-component self :inspector) obj-to-inspect))  
+      
+    ))
+
+(defun update-inspector-for-object (obj)
+  (let ((ed (editor (get-update-frame obj))))
+    (when ed
+      (update-inspector-for-editor ed obj))))
+
+
+;;; when the object is deleted
+(defun close-inspector-for-box (box)
+  (let ((ed (editor (get-update-frame obj))))
+    (when ed
+      (update-inspector-for-editor ed nil))))
+
+(defmethod remove-selection :after ((self patch-editor))
+  (let ((inspector (get-g-component self :inspector)))
+    (when (and inspector
+               (not (find (object inspector) 
+                          (append (boxes (object self))
+                                (connections (object self)))
+                          :test 'equal)))
+      
+    (update-inspector-for-editor self nil))))
+
+
+
+;;; !! object and view can be lists !!
+(defmethod set-inspector-contents ((self inspector-view) (object cons))
+  (let ((virtual-obj (make-instance 'virtual-object-selection :objects object)))
+    (set-inspector-contents self virtual-obj)
+    ))
+
+
+;;;======================================
+;;; OPTIONAL SIDE PANEL (GENERAL)
+;;;======================================
+
+(defmethod patch-editor-set-window-config ((self patch-editor) mode)
+  (unless (equal (editor-window-config self) mode)
+    (setf (editor-window-config self) mode)
+    (build-editor-window self)
+    (init-editor-window self)))
+
+
+(defmethod make-editor-window-contents ((editor patch-editor))
+  (let ((patch-view (call-next-method)))
+    
+    (if (editor-window-config editor) ;; non-NIL
+
+        ;;; patch editor with side-panel
+        (let ((side-pane 
+               (cond ((equal (editor-window-config editor) :lisp-code)
+                      (let ((lisp-pane (om-make-di 'om-multi-text 
+                                              :text (format-lisp-code-string (get-patch-lisp-code (object editor)) 60)
+                                              :font (om-make-font "Courier New" 12)
+                                              :size (omp nil nil)
+                                              )))
+                        
+                        (set-g-component editor :lisp-code lisp-pane)
+                        
+                        (om-make-layout 
+                         'om-column-layout :ratios '(nil 1) :delta 10
+                         :subviews (list 
+                                    ;; top of the pane
+                                    (om-make-layout  'om-row-layout :align :bottom
+                                                     :subviews (list
+                                                                (om-make-di 'om-simple-text :text "Lisp code preview --" 
+                                                                            :size (omp nil 18) :font (om-def-font :font2))
+
+                                                                (om-make-graphic-object 'om-icon-button :icon 'x :icon-pushed 'x-pushed
+                                                                                        :size (omp 18 18)
+                                                                                        :action #'(lambda (b) (patch-editor-set-window-config editor nil))
+                                                                                        )
+                                                                ))
+                                    ;; main pane
+                                    (om-make-layout 'om-simple-layout :bg-color (om-def-color :white)
+                                                    :subviews (list lisp-pane))
+                                    
+                                    (om-make-di 'om-button :text "Copy Lisp code" 
+                                                :size (omp nil 32) :font (om-def-font :font1)
+                                                :di-action #'(lambda (b) (om-copy-command lisp-pane)
+                                                               (om-print "Lisp code copied to clipboard")))
+                                         ))))
+
+                     ((equal (editor-window-config editor) :inspector)
+
+                      (let ((inspector-pane (om-make-view 'inspector-view :size (omp nil nil)))
+                            (title-text (om-make-di 'om-simple-text :size (omp nil 18) :font (om-def-font :font2))))
+                        
+                        (set-g-component editor :inspector inspector-pane)
+                        (set-g-component editor :inspector-title title-text)
+                        
+                        ;;; initialize with current selection
+                        (update-inspector-for-editor editor)
+
+                        (om-make-layout 
+                         'om-column-layout :ratios '(nil 1) :delta 10
+                         :subviews (list 
+                                    ;; top of the pane
+                                    (om-make-layout  'om-row-layout
+                                                     :subviews (list
+                                                                title-text
+                                                                (om-make-graphic-object 'om-icon-button :icon 'x :icon-pushed 'x-pushed
+                                                                                        :size (omp 18 18)
+                                                                                        :action #'(lambda (b) (patch-editor-set-window-config editor nil))
+                                                                                        )
+                                                                ))
+                                    ;; main pane
+                                    inspector-pane
+                                    ))))
+                     
+                     (t nil))
+               ))
+           
+          (values 
+           (om-make-layout 'om-row-layout 
+                           :delta 2 :ratios `(10 nil ,(case (editor-window-config editor) (:inspector 2) (:lisp-code 3)))
+                           :subviews (list patch-view :divider side-pane))
+           patch-view))
+      
+      (progn ;; normal patch editor 
+        (set-g-component editor :lisp-code nil)
+        (set-g-component editor :inspector nil)
+        patch-view))))
+
+
+
+
+
     

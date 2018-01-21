@@ -69,7 +69,7 @@
         "windows/om-preferences-window"
         "windows/om-editor"
         "windows/om-multi-editor"
-        "windows/om-inspector"
+        ;;; "windows/om-inspector"
 
         "patch/om-box"
         "patch/om-box-io"

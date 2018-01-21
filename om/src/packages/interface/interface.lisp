@@ -41,7 +41,6 @@
 (defclass interface-editor-window (OMEditorWindow) ())
 (defmethod editor-window-class ((self interface-editor)) 'interface-editor-window)
 
-(defmethod update-inspector-for-editor ((self interface-editor)) nil)
 
 (defmethod update-to-editor ((self interface-editor) (from t))
   (om-invalidate-view (window self)))
