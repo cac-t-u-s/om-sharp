@@ -27,7 +27,11 @@
 (defmethod object-has-editor ((self OMPatch)) t)
 (defmethod get-editor-class ((self OMPatch)) 'patch-editor)
 
-(defmethod edit-lock ((self patch-editor)) (lock (object self)))
+(defmethod edit-lock ((self patch-editor))
+  (let ((ed (or (container-editor self) self))) ;; in case its an internal patch (e.g. in the maquette)
+    (lock (object ed))))
+
+
 
 (defclass patch-editor-window (OMEditorWindow) ())
 (defclass patch-editor-view (OMEditorView om-drop-view om-tt-view multi-view-editor-view) 
@@ -50,8 +54,10 @@
 ;;; can change, e.g. for a maquette-editor
 (defmethod get-editor-view-for-action ((self patch-editor)) (main-view self))
 
+;; will fall here for a maquette editor (main-view is not a patch-editor-view)
 (defmethod put-patch-boxes-in-editor-view ((self OMPatch) (view t)) nil)
  
+
 (defmethod put-patch-boxes-in-editor-view ((self OMPatch) (view patch-editor-view)) 
   (mapc 
    #'(lambda (box) 
@@ -59,12 +65,15 @@
    (boxes self))
   (mapc
    #'(lambda (c) (add-connection-in-view view c)) 
-   (connections self)))
+   (connections self))
+  )
 
-;;; redefined in maquette-editor
+
+  
 (defmethod init-editor-window ((editor patch-editor))
   (call-next-method)
   (put-patch-boxes-in-editor-view (object editor) (main-view editor)) 
+  (add-lock-item editor (main-view editor))
   (update-window-name editor))
 
 
@@ -83,13 +92,9 @@
             (draw-h-grid-line self i)))))
 
 
-(defmethod draw-lock-buttons ((self patch-editor))
-  (om-draw-picture (if (lock (object self)) 'lock 'unlock) :x 0 :y 2 :w 20 :h 20))
-
 (defmethod om-draw-contents ((self patch-editor-view))
   (let ((editor (editor (om-view-window self))))
     (when (grid (object editor)) (draw-patch-grid self (grid (object editor))))
-    (draw-lock-buttons editor) 
     (mapcar 'om-draw-contents (get-grap-connections self))))
 
 (defmethod window-name-from-object ((self OMPatchInternal))
@@ -99,6 +104,34 @@
 ;(defmethod init-editor ((self patch-editor))
 ;  (setf (saved? (object self)) t))
 
+;;;==========================
+;;; LOCK
+;;;==========================
+
+(defclass lock-view-area (om-item-view) 
+  ((editor :accessor editor :initarg :editor :initform nil)))
+
+(defmethod om-draw-contents ((self lock-view-area))
+  (om-draw-picture (if (lock (object (editor self))) 'lock 'unlock) 
+                   :x 0 :y 0 :w (om-width self) :h (om-height self)))
+
+(defmethod om-view-click-handler ((self lock-view-area) position)
+  (declare (ignore position))
+  (setf (lock (object (editor self))) (not (lock (object (editor self)))))
+  (om-invalidate-view self))
+
+(defmethod add-lock-item ((editor patch-editor) view)
+  (om-add-subviews 
+   view 
+   (om-make-graphic-object 'lock-view-area 
+                           :position (omp 0 2)
+                           :size (omp 20 20)
+                           :editor editor))
+  )
+
+;;;==========================
+;;; MENU
+;;;==========================
 
 (defmethod om-menu-items ((self patch-editor))
   (remove nil
@@ -116,6 +149,7 @@
                                                         (if (equal (editor-window-config self) :lisp-code) nil :lisp-code)))
                                           :key "l" :selected #'(lambda () (equal (editor-window-config self) :lisp-code))
                                           )
+                                         
                                          (om-make-menu-item 
                                           "Show Inspector" 
                                           #'(lambda () (patch-editor-set-window-config 
@@ -130,9 +164,9 @@
                                               (om-invalidate-view (main-view self)))
                                           :key "e" :selected #'(lambda () (lock (object self)))
                                           ))
-                                   :selection t
-                                   )
-                                  )))
+                                   :selection t)
+                                  ))
+                           )
              (om-make-menu "Windows" (default-windows-menu-items self))
              (om-make-menu "Help" (default-help-menu-items self))
              )))
@@ -181,7 +215,8 @@
   (call-next-method)
   (close-internal-elements (object self))
   (unless (references-to (object self))
-    (unregister-document (object self))))
+    (unregister-document (object self)))
+  )
 
 (defmethod close-internal-element ((self t)) t)
 
@@ -200,6 +235,7 @@
   (unless (or (om-point-in-rect-p pos 0 0 20 20)
               (edit-lock (editor self)))
     (enter-new-box self (om-add-points pos (om-make-point -8 -14)))))
+
 
 (defmethod om-view-click-handler ((self patch-editor-view) position)
   ;;; special : click on the lock-button
@@ -500,44 +536,45 @@
 (defmethod paste-command-for-view ((editor patch-editor) (view t)) nil)
 
 (defmethod paste-command-for-view ((editor patch-editor) (view patch-editor-view))
-  (let* ((boxes (car (get-om-clipboard)))
-         (connections (cadr (get-om-clipboard)))
-         (paste-pos (get-paste-position view))
-         (ref-pos))
-    (select-unselect-all editor nil)
-    (when paste-pos
-      (setq ref-pos (loop for bb in boxes 
-                          minimize (omg-x view (box-x bb)) into xmin
-                          minimize (omg-y view (box-y bb)) into ymin
-                          finally (return (om-make-point xmin ymin))))
-      (set-paste-position nil))
+  (unless (edit-lock editor)
+    (let* ((boxes (car (get-om-clipboard)))
+           (connections (cadr (get-om-clipboard)))
+           (paste-pos (get-paste-position view))
+           (ref-pos))
+      (select-unselect-all editor nil)
+      (when paste-pos
+        (setq ref-pos (loop for bb in boxes 
+                            minimize (omg-x view (box-x bb)) into xmin
+                            minimize (omg-y view (box-y bb)) into ymin
+                            finally (return (om-make-point xmin ymin))))
+        (set-paste-position nil))
 
-    (store-current-state-for-undo editor)
+      (store-current-state-for-undo editor)
     
-    (loop for b in boxes do
-          (let ((graphic-pos (if ref-pos 
-                                (om-add-points paste-pos 
-                                               (om-subtract-points (omg-position view (omp (box-x b) (box-y b))) 
-                                                                   ref-pos))
-                              (om-add-points (omg-position view (omp (box-x b) (box-y b))) 
-                                             (om-make-point 40 10)))))
-            (omng-move b (omng-position view graphic-pos))
-            (when (omNG-add-element editor b)
-              (let ((frame (make-frame-from-callobj b)))
-                (om-set-view-position frame graphic-pos)
-                (om-add-subviews view frame)
-                (select-box b t)
-                ))))
+      (loop for b in boxes do
+            (let ((graphic-pos (if ref-pos 
+                                   (om-add-points paste-pos 
+                                                  (om-subtract-points (omg-position view (omp (box-x b) (box-y b))) 
+                                                                      ref-pos))
+                                 (om-add-points (omg-position view (omp (box-x b) (box-y b))) 
+                                                (om-make-point 40 10)))))
+              (omng-move b (omng-position view graphic-pos))
+              (when (omNG-add-element editor b)
+                (let ((frame (make-frame-from-callobj b)))
+                  (om-set-view-position frame graphic-pos)
+                  (om-add-subviews view frame)
+                  (select-box b t)
+                  ))))
     
-    ;;; connections
-    (loop for c in (restore-connections-to-boxes connections boxes) do
-          (omng-add-element editor c)
-          (add-connection-in-view view c))
+      ;;; connections
+      (loop for c in (restore-connections-to-boxes connections boxes) do
+            (omng-add-element editor c)
+            (add-connection-in-view view c))
     
-    (mapc 'after-copy-action boxes) 
-    (om-invalidate-view view)
-    (set-om-clipboard (list (mapcar 'om-copy boxes) connections))
-    ))
+      (mapc 'after-copy-action boxes) 
+      (om-invalidate-view view)
+      (set-om-clipboard (list (mapcar 'om-copy boxes) connections))
+      )))
 
 (defmethod after-copy-action ((self t)) nil)
 
@@ -1196,7 +1233,7 @@
 
 ;;; when the object is deleted
 (defun close-inspector-for-box (box)
-  (let ((ed (editor (get-update-frame obj))))
+  (let ((ed (editor (get-update-frame box))))
     (when ed
       (update-inspector-for-editor ed nil))))
 

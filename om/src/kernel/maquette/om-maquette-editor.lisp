@@ -329,28 +329,30 @@
      
     (om-invalidate-view (om-view-window self))
     ;; (when selected-box (move-selection-in-track-action self editor selected-box position)) ;; ???
-   
-    (cond 
-     (selected-box
-      (let ((selected-end-time-x (and (scale-in-x-? selected-box) ;;; otherwise we just don't rescale in tracks view
-                                      (time-to-pixel self (get-box-end-date selected-box)))))
-        (if (and (resizable-box? selected-box) (scale-in-x-? selected-box)
-                 (<= (om-point-x position) selected-end-time-x) (>= (om-point-x position) (- selected-end-time-x 5)))
-            ;;; resize the box
-            (om-init-temp-graphics-motion 
-             self position nil
-             :motion #'(lambda (view pos)
-                         (when (> (- (om-point-x pos) (x-to-pix self (get-box-onset selected-box))) 10)
-                           (if (scale-in-x-? selected-box)
-                               (set-box-duration selected-box 
-                                                 (- (round (pix-to-x self (om-point-x pos)))
-                                                    (get-box-onset selected-box)))
-                             (setf (box-w selected-box) (- (om-point-x pos) (x-to-pix self (box-x selected-box)))))
-                           (om-invalidate-view self)))
-             :release #'(lambda (view pos) 
-                          (report-modifications editor) 
-                          (om-invalidate-view self))
-             :min-move 4)
+    
+    (unless (edit-lock editor)
+      
+      (cond 
+       (selected-box
+        (let ((selected-end-time-x (and (scale-in-x-? selected-box) ;;; otherwise we just don't rescale in tracks view
+                                        (time-to-pixel self (get-box-end-date selected-box)))))
+          (if (and (resizable-box? selected-box) (scale-in-x-? selected-box)
+                   (<= (om-point-x position) selected-end-time-x) (>= (om-point-x position) (- selected-end-time-x 5)))
+              ;;; resize the box
+              (om-init-temp-graphics-motion 
+               self position nil
+               :motion #'(lambda (view pos)
+                           (when (> (- (om-point-x pos) (x-to-pix self (get-box-onset selected-box))) 10)
+                             (if (scale-in-x-? selected-box)
+                                 (set-box-duration selected-box 
+                                                   (- (round (pix-to-x self (om-point-x pos)))
+                                                      (get-box-onset selected-box)))
+                               (setf (box-w selected-box) (- (om-point-x pos) (x-to-pix self (box-x selected-box)))))
+                             (om-invalidate-view self)))
+               :release #'(lambda (view pos) 
+                            (report-modifications editor) 
+                            (om-invalidate-view self))
+               :min-move 4)
             ;;; move the selection
             (let ((copy? (when (om-option-key-p) (mapcar 'om-copy (get-selected-boxes editor))))
                   (init-tracks (mapcar 'group-id (get-selected-boxes editor))))
@@ -388,34 +390,37 @@
                             (report-modifications editor) 
                             (om-invalidate-view (om-view-window self)))
                :min-move 4)))
-        ))
-     ((om-add-key-down)
-      (let ((box (new-box-in-maq-editor editor (omp time 0) (num self))))
-        (setf (frame box) self)
-        (om-set-view-cursor self (om-get-cursor :h-size))
-        (om-init-temp-graphics-motion 
-               self position nil
-               :motion #'(lambda (view pos)
-                           (when (> (- (om-point-x pos) (x-to-pix self (get-box-onset box))) 10)
-                             (set-box-duration box 
-                                               (- (round (pix-to-x self (om-point-x pos)))
-                                                  (get-box-onset box)))
-                           (om-invalidate-view self)))
-               :release #'(lambda (view pos) 
-                            (report-modifications editor)
-                            (om-invalidate-view self))
-               :min-move 4)
-        (report-modifications editor)))
-     (t (call-next-method))
-     )))
+          ))
+       ((om-add-key-down)
+        (let ((box (new-box-in-maq-editor editor (omp time 0) (num self))))
+          (setf (frame box) self)
+          (om-set-view-cursor self (om-get-cursor :h-size))
+          (om-init-temp-graphics-motion 
+           self position nil
+           :motion #'(lambda (view pos)
+                       (when (> (- (om-point-x pos) (x-to-pix self (get-box-onset box))) 10)
+                         (set-box-duration box 
+                                           (- (round (pix-to-x self (om-point-x pos)))
+                                              (get-box-onset box)))
+                         (om-invalidate-view self)))
+           :release #'(lambda (view pos) 
+                        (report-modifications editor)
+                        (om-invalidate-view self))
+           :min-move 4)
+          (report-modifications editor)))
+       (t (call-next-method))
+       ))
+    ))
 
 
 (defmethod om-view-mouse-motion-handler :around ((self sequencer-track-view) position)
-  (let ((mouse-x (om-point-x position))
-        (end-times-x (mapcar 
-                    #'(lambda (box) (time-to-pixel self (get-box-end-date box)))
-                    (remove-if-not #'resizable-box? (get-track-boxes (object (editor (om-view-window self))) (num self))))))
-    (if (find mouse-x end-times-x :test #'(lambda (a b) (and (<= a b) (>= a (- b 5)))))
+  (let* ((ed (editor (om-view-window self)))
+         (mouse-x (om-point-x position))
+         (end-times-x (mapcar 
+                       #'(lambda (box) (time-to-pixel self (get-box-end-date box)))
+                       (remove-if-not #'resizable-box? (get-track-boxes (object ed) (num self))))))
+    (if (and (find mouse-x end-times-x :test #'(lambda (a b) (and (<= a b) (>= a (- b 5)))))
+             (not (edit-lock ed)))
         (om-set-view-cursor self (om-get-cursor :h-size))
       (progn (om-set-view-cursor self (om-view-cursor self))
         (call-next-method)
@@ -469,27 +474,28 @@
 
 
 (defmethod paste-command-for-view ((editor maquette-editor) (view sequencer-track-view))
-  (let* ((boxes (car (get-om-clipboard)))
-         (connections (cadr (get-om-clipboard)))
-         (paste-info (get-paste-position view))
-         (paste-x-pos (if paste-info (om-point-x paste-info)
-                        (list-max (mapcar #'get-box-end-date boxes))))
-         (ref-x-pos (list-min (mapcar #'box-x boxes))))
+  (unless (edit-lock editor)
+    (let* ((boxes (car (get-om-clipboard)))
+           (connections (cadr (get-om-clipboard)))
+           (paste-info (get-paste-position view))
+           (paste-x-pos (if paste-info (om-point-x paste-info)
+                          (list-max (mapcar #'get-box-end-date boxes))))
+           (ref-x-pos (list-min (mapcar #'box-x boxes))))
+      
+      (select-unselect-all editor nil)
+      (set-paste-position nil)
     
-    (select-unselect-all editor nil)
-    (set-paste-position nil)
-    
-    (loop for new-box in boxes do
-          (let ((x-pos (+ paste-x-pos (- (box-x new-box) ref-x-pos))))
-            (setf (box-x new-box) x-pos
-                  (box-y new-box) 0 (box-h new-box) 10)
-            (add-box-in-track (object editor) new-box 
-                              (if paste-info (om-point-y paste-info)
-                                (group-id new-box)))
-            (setf (frame new-box) view)
-            (update-to-editor editor view)
-            (set-om-clipboard (list (mapcar 'om-copy boxes) connections))
-            ))))
+      (loop for new-box in boxes do
+            (let ((x-pos (+ paste-x-pos (- (box-x new-box) ref-x-pos))))
+              (setf (box-x new-box) x-pos
+                    (box-y new-box) 0 (box-h new-box) 10)
+              (add-box-in-track (object editor) new-box 
+                                (if paste-info (om-point-y paste-info)
+                                  (group-id new-box)))
+              (setf (frame new-box) view)
+              (update-to-editor editor view)
+              (set-om-clipboard (list (mapcar 'om-copy boxes) connections))
+              )))))
 
 ;;;===============================
 ;;; DISPLAY BOXES IN MAQUETTE TRACKS
@@ -585,21 +591,25 @@
   (let ((maquette (object editor)))
     (case key
       (:om-key-left
-       (move-editor-selection editor :dx (- (get-units (get-g-component editor :metric-ruler) (if (om-shift-key-p) 100 10))))
-       (om-invalidate-view (main-view editor))
-       (report-modifications editor))
+       (unless (edit-lock editor)
+         (move-editor-selection editor :dx (- (get-units (get-g-component editor :metric-ruler) (if (om-shift-key-p) 100 10))))
+         (om-invalidate-view (main-view editor))
+         (report-modifications editor)))
       (:om-key-right
-       (move-editor-selection editor :dx (get-units (get-g-component editor :metric-ruler) (if (om-shift-key-p) 100 10)))
-       (om-invalidate-view (main-view editor))
-       (report-modifications editor))
+       (unless (edit-lock editor)
+         (move-editor-selection editor :dx (get-units (get-g-component editor :metric-ruler) (if (om-shift-key-p) 100 10)))
+         (om-invalidate-view (main-view editor))
+         (report-modifications editor)))
       (:om-key-up 
-       (move-editor-selection editor :dy (if (om-shift-key-p) 10 1))
-       (om-invalidate-view (main-view editor))
-       (report-modifications editor))
+       (unless (edit-lock editor)
+         (move-editor-selection editor :dy (if (om-shift-key-p) 10 1))
+         (om-invalidate-view (main-view editor))
+         (report-modifications editor)))
       (:om-key-down 
-       (move-editor-selection editor :dy (if (om-shift-key-p) -10 -1))
-       (om-invalidate-view (main-view editor))
-       (report-modifications editor))
+       (unless (edit-lock editor)
+         (move-editor-selection editor :dy (if (om-shift-key-p) -10 -1))
+         (om-invalidate-view (main-view editor))
+         (report-modifications editor)))
       (#\v (with-schedulable-object maquette
                                     (loop for tb in (get-selected-boxes editor) do 
                                           (eval-box tb)
@@ -607,8 +617,9 @@
                                           (contextual-update tb maquette)))
            (om-invalidate-view (window editor))
            (report-modifications editor))
-      (#\r (loop for tb in (get-selected-boxes editor) do (set-reactive-mode tb))
-           (om-invalidate-view (window editor)))
+      (#\r (unless (edit-lock editor)
+             (loop for tb in (get-selected-boxes editor) do (set-reactive-mode tb))
+             (om-invalidate-view (window editor))))
       (otherwise
        (call-next-method)
        (om-invalidate-view (window editor))
@@ -752,10 +763,12 @@
     
     (let ((pl (om-make-layout 'om-simple-layout))
           (pv (make-editor-window-contents (editor ctrlpatch))))
+      
       (om-add-subviews pl pv)
       (setf (main-view (editor ctrlpatch)) pv)
+      
       (put-patch-boxes-in-editor-view ctrlpatch pv)
-
+            
       ;;; so that the inspector calls are passed through
       (set-g-component (editor ctrlpatch) :inspector
                        (get-g-component maq-editor :inspector))
@@ -802,11 +815,13 @@
            :bg-color +track-color-2+
            :subviews 
            (list
+              
             (om-make-layout
              'om-row-layout :delta 30 :position (om-make-point (+ *track-control-w* 2) 2) :align :bottom
              :ratios '(1 1 100 1 1 1)
              :subviews 
              (list
+              
               (om-make-layout
                'om-row-layout 
                :delta 5 
@@ -964,6 +979,7 @@
   ;;; needs to be done once the views are in place...
   (mapc 'update-connections (boxes (object editor))))
 
+
 (defun make-maquette-view (maq-editor)
   (let* ((ruler-maquette (om-make-view 'time-ruler 
                                        :size (om-make-point 30 20)
@@ -999,12 +1015,13 @@
                   :delta 2 :dimensions '(2 3) :ratios '((1 99) (1 99 1))
                   :subviews
                   (list
-                   (om-make-di 'om-simple-text 
-                               :size (om-make-point *track-control-w* 20) 
-                               :text "" ;"metric"
-                               :font (om-def-font :font1) 
-                               :fg-color (om-def-color :black)
-                               :bg-color +track-color-2+)
+                   
+                   ;;; lock here
+                   (om-make-graphic-object 
+                    'lock-view-area 
+                    :size (omp *track-control-w* 18)
+                    :editor maq-editor)
+                   
                    metric-ruler
                    y-ruler ; (om-make-view 'om-view :bg-color +track-color-1+)
                    maq-view
@@ -1034,6 +1051,7 @@
   (length (get-g-component maquette-editor :track-views)))
 
 (defun make-tracks-view (maq-editor)
+
   (let* ((ruler-tracks (om-make-view 'time-ruler :size (om-make-point 30 20) 
                                      :x1 (or (getf (get-range maq-editor) :x1) 0) 
                                      :x2 (or (getf (get-range maq-editor) :x2) 10000)
@@ -1070,13 +1088,14 @@
                 ;;; the ruler bar
                 (om-make-layout 
                  'om-row-layout :delta 2 :ratios '(1 99)
-                 :subviews (list (om-make-di 'om-simple-text 
-                                             :size (om-make-point *track-control-w* 20) 
-                                             :text "" ;"metric"
-                                             :font (om-def-font :font1) 
-                                             :fg-color (om-def-color :black)
-                                             :bg-color +track-color-2+)
-                                 metric-ruler))
+                 :subviews (list 
+
+                            (om-make-graphic-object 
+                             'lock-view-area 
+                             :size (omp *track-control-w* 18)
+                             :editor maq-editor)
+
+                            metric-ruler))
                 ;;; allows to scroll he sub-layout
                 (om-make-layout 
                  'om-simple-layout :subviews 
@@ -1108,6 +1127,17 @@
              (not (= (n-tracks (editor maquette)) (n-track-views (editor maquette)))))
     ;;; will update the number of tracks
     (set-main-maquette-view (editor maquette) :tracks)))
+
+
+;;; called at init: 
+(defmethod add-lock-item ((editor maquette-editor) view) nil)
+;  (om-add-subviews 
+;   (main-view (editor (ctrlpatch (object self)))) 
+;   (om-make-graphic-object 'lock-view-area 
+;                           :position (omp 0 0)
+;                           :size (omp 20 20)
+;                           :editor (editor view)))
+;  )
 
 
 ;;;=====================

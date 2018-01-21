@@ -105,7 +105,8 @@
 
 (defmethod set-name ((self OMInOutBox) name)
   (setf (name (reference self)) name)
-  (when (container self)
+  (when (and (container self)
+             (related-patchbox-slot self))
     (let ((patchboxes (references-to (container self))))
       (loop for box in patchboxes do
             (setf (name 
@@ -264,6 +265,10 @@
 
 (defmethod special-box-p ((name (eql 'mybox))) t)
 (defmethod get-box-class ((self OMSelfIn)) 'OMSelfInBox)
+
+(defmethod related-patchbox-slot ((self OMSelfInBox)) nil)
+(defmethod allow-text-input ((self OMSelfInBox)) nil)
+
 
 (defmethod next-optional-input ((self OMSelfInBox)) nil)
 

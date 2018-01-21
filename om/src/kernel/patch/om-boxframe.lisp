@@ -628,7 +628,8 @@
 (defmethod allow-text-input ((self t)) nil)
 
 (defmethod edit-text-area ((self OMBoxFrame) position)
-  (when (allow-text-input (object self))
+  (when (and (allow-text-input (object self))
+             (not (edit-lock (editor self))))
     (multiple-value-bind (text x y w h)
         (display-text-and-area self)
       (if (and text (om-point-in-rect-p position x y w h))
