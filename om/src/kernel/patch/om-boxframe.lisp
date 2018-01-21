@@ -321,13 +321,6 @@
          (om-def-font :font2b)
          (om-draw-string (+ (om-point-x p) 5) (+ (om-point-y p) 4) "i"))))))
 
-(defmethod click-in-area ((area get-info-area) boxframe)
-  (when (enabled-area area)
-    (if *inspector-window*
-        (update-inspector (object boxframe) boxframe)
-      (show-inspector (object boxframe) boxframe))))
-      
-
 (defmethod info-area ((self OMBoxFrame))
   (list 
    (make-instance 'get-info-area :object self :frame self
@@ -335,6 +328,11 @@
                   :pick #'(lambda (f) (list 0 -8 16 8)))
    ))
 
+(defmethod click-in-area ((area get-info-area) boxframe)
+  (when (enabled-area area)
+    (patch-editor-set-window-config (editor boxframe) :inspector)
+    (update-inspector-for-object (object boxframe))
+    ))
 
 
 ;;;=============================

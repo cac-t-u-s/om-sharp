@@ -506,9 +506,6 @@
       (update-3d-view self)
       ))
 
-(defmethod get-info-command ((self 3dc-editor)) 
-  #'(lambda () (show-inspector (object-value self) self)))
-
 (defmethod open-osc-manager-command ((self 3dc-editor))
   #'(lambda () (editor-open-osc-manager self)))
 

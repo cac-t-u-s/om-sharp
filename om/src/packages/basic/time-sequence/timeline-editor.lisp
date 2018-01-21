@@ -535,7 +535,6 @@
      ;point selection
     (if point
         (progn 
-          (update-inspector point self)
           (move-time-point-action self timeline-editor point position)
           (set-cursor-time timeline-editor (or (and point (item-get-time point)) time))
           (update-to-editor (container-editor timeline-editor) timeline-editor))

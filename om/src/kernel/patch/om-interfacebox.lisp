@@ -51,7 +51,7 @@
               (t
                (setf (slot-value self (intern-om (car attr))) 
                      (cadr attr)))))
-  (update-inspector-for-box self))
+  (update-inspector-for-object self))
 
 (defmethod eval-box :before ((self OMInterfaceBox))
   (apply-box-attributes self (eval-box-inputs self)))
@@ -154,7 +154,7 @@
               (max-value slider) (round-decimals (max-value slider) val)
               (increment slider) (round-decimals (increment slider) val))
         (setf (car (value slider)) (round-decimals (car (value slider)) val))
-        (update-inspector-for-box slider))
+        (update-inspector-for-object slider))
     (decimals slider)))
   
 (defmethod default-size ((self SliderBox)) 

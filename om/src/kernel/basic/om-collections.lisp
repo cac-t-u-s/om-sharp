@@ -381,7 +381,7 @@
          (new? (null (obj-list collection))))
     (setf (obj-list collection)
           (append (obj-list collection)
-                  (list (initialize-box-initval (make-instance (obj-type collection))))))
+                  (list (om-init-instance (make-instance (obj-type collection))))))
     (setf (current editor) (1- (length (obj-list collection))))
     (when new? ;;; need to (re)initialize an editor
       (init-editor editor)
@@ -411,9 +411,4 @@
   #'(lambda () 
       (when (and (internal-editor self) (select-all-command (internal-editor self)))
         (funcall (select-all-command (internal-editor self))))))
-
-(defmethod get-info-command ((self collection-editor)) 
-  #'(lambda () 
-      (when (and (internal-editor self) (get-info-command (internal-editor self)))
-        (funcall (get-info-command (internal-editor self))))))
 

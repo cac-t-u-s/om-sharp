@@ -118,6 +118,8 @@
 ;;; USED IN EDITORS OR INSPECTOR WINDOWS
 ;;;===========================================
 
+;;; called after a property is changed
+(defmethod update-after-prop-edit ((self t) (object t)) nil)
 
 ;;;====================================
 ;;; DEFAULT (UNSPECIFIED)
@@ -407,7 +409,8 @@
   (flet ((font-to-str (font) 
            (if (om-font-p font)
                (format nil " ~A ~Dpt ~A" (om-font-face font) (round (om-font-size font)) 
-                       (if (om-font-style font) (format nil "[~{~S~^ ~}]" (om-font-style font)) ""))
+                       (if nil ;(om-font-style font) 
+                           (format nil "[~{~S~^ ~}]" (om-font-style font)) ""))
              "-")))
     (om-make-di 'om-button 
                 :resizable nil
@@ -415,11 +418,12 @@
                 :focus nil :default nil
                 :text (font-to-str (get-property object prop-id))
                 :size (om-make-point (list :string (font-to-str (get-property object prop-id))) 26)
-                :font (om-def-font :font1)
+                :font (om-def-font :font1 :style (om-font-style (font-font current)))
                 :di-action #'(lambda (item)
                                (let ((choice (om-choose-font-dialog :font (or (get-property object prop-id)
                                                                               (and update (om-get-font update))))))
                                  (om-set-dialog-item-text item (font-to-str choice))
+                                 (om-set-font item (om-def-font :font1 :style (om-font-style choice)))
                                  (set-property object prop-id choice)
                                  (when update (update-after-prop-edit update object))
                                  )))))
@@ -431,7 +435,8 @@
          (font-to-str (font) 
            (if (om-font-p font)
                (format nil " ~A ~Dpt ~A" (om-font-face font) (round (om-font-size font)) 
-                       (if (om-font-style font) (format nil "[~{~S~^ ~}]" (om-font-style font)) ""))
+                       (if nil ;(om-font-style font) 
+                           (format nil "[~{~S~^ ~}]" (om-font-style font)) ""))
              "-"))
          )
          
@@ -452,12 +457,13 @@
                         :focus nil :default nil
                         :text (font-to-str (font-font current))
                         :size (om-make-point (list :string (font-to-str (font-font current))) 26)
-                        :font (om-def-font :font1)
+                        :font (om-def-font :font1 :style (om-font-style (font-font current)))
                         :di-action #'(lambda (item)
                                        (let ((choice (om-choose-font-dialog 
                                                       :font (or (font-font (get-property object prop-id))
                                                                 (and update (om-get-font update))))))
                                          (om-set-dialog-item-text item (font-to-str choice))
+                                         (om-set-font item (om-def-font :font1 :style (om-font-style choice)))
                                          (set-property object prop-id 
                                                        (make-font-or-nil :font choice
                                                                          :t-or-nil t))
@@ -658,4 +664,57 @@
       layout)))
 
            
+
+;;;============================================================================
+;;; A VIRTUAL OBJECT TO HANDLE MULTIPLE-SELECTION IN INSPECTOR...
+;;;============================================================================
+
+(defclass virtual-object-selection () 
+  ((objects :initarg :objects :initform nil :accessor objects)))
+   
+(defmethod object-name-in-inspector ((self virtual-object-selection)) "[MULTIPLE SELECTION]")
+
+(defmethod get-update-frame ((self virtual-object-selection)) self)
+
+;;; dummy signature
+(defmethod update-after-prop-edit ((view virtual-object-selection) (object virtual-object-selection))
+  (loop for obj in (objects object) do
+        (update-after-prop-edit (get-update-frame obj) obj)))
+
+
+
+;;; returns only the properties shared between all the objects
+(defmethod get-properties-list ((self virtual-object-selection))
+  (let ((one-list (get-properties-list (car (objects self))))
+        (invalid-properties nil))
+    (loop for category in one-list do
+          (loop for prop in (cdr category) do
+                (let ((valid t))
+                  (loop for other-object in (cdr (objects self)) 
+                        while valid do
+                        (unless (valid-property-p other-object (car prop))
+                          (push (car prop) invalid-properties)
+                          (setf valid nil))
+                      ))
+                ))
+    (hide-properties one-list invalid-properties)))
+
+
+;;; will return a value only if all the inspected objects have the same
+;;; otherwise, will trust the default spec of the property 
+(defmethod get-property ((self virtual-object-selection) prop-id &key (warn t)) 
+  (let ((val (get-property (car (objects self)) prop-id)))
+    (loop for o in (cdr (objects self))
+          while val do
+          (unless (equal val (get-property o prop-id))
+            (setf val nil)))
+    val))
+
+;;; set the same value to all objects
+(defmethod set-property ((self virtual-object-selection) prop-id val)
+  (loop for o in (objects self) do
+        (set-property o prop-id val)))
+
+
+
               

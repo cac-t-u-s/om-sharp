@@ -14,12 +14,8 @@
 ;============================================================================
 ; File author: J. Bresson
 ;============================================================================
+
 (in-package :om)
-
-
-;;; called after a property is changed
-(defmethod update-after-prop-edit ((self t) (object t)) nil)
-
 
 ;;;===========================================
 ;;; SPECIAL FOR EDITOR: MUST ACCESS THE EDITOR PROPS + THE VALUE PROPS
@@ -50,7 +46,7 @@
 |#
 
 
-
+#|
 ;;;===========================================
 ;;; INSPECTOR WINDOW
 ;;;===========================================
@@ -75,16 +71,15 @@
     (setf (object *inspector-window*) nil)
     (hide-inspector)))
 
-(defun update-inspector (object view &optional force)
+(defun update-inspector (object)
   (when (and *inspector-window* (om-window-open-p *inspector-window*)
-                    (or force 
-                        (not (equal object (object *inspector-window*)))))
-    (set-inspector-contents *inspector-window* object view)))
+             (not (equal object (object *inspector-window*))))
+    (set-inspector-contents *inspector-window* object)))
 
 (defmethod object-name-in-inspector ((self OMObject)) (name self))
 (defmethod object-name-in-inspector ((self t)) nil)
 
-(defmethod set-inspector-contents (win object view)
+(defmethod set-inspector-contents (win object)
   (om-remove-all-subviews win)
   (setf (object win) object)
   (om-set-window-title 
@@ -128,14 +123,14 @@
       ))
   )
 
-(defun show-inspector (object &optional view)
+(defun show-inspector (object)
   (let ((pos (and *inspector-window* (om-view-position *inspector-window*))))
     (unless *inspector-window*
       (setf *inspector-window* (om-make-window 'inspector-window :title "inspector"
                                                :size (om-make-point 300 nil)
                                                ;:resizable :h
                                                :position pos))
-      (set-inspector-contents *inspector-window* object view)
+      (set-inspector-contents *inspector-window* object)
       ;;; sets reizable NIL
       ;(om-set-view-size *inspector-window* (om-view-size *inspector-window*))
       (if (om-window-open-p *inspector-window*)    
@@ -143,75 +138,20 @@
         (om-open-window *inspector-window*))
       )))
 
- 
-
-    
+     
 (defun close-inspector-for-box (box)
   (when (and *inspector-window* (equal (object *inspector-window*) box))
     (om-close-window *inspector-window*)))
 
-
 (defmethod get-update-frame ((self t)) nil)
 
-(defun update-inspector-for-box (box)
+(defun update-inspector-for-object (box)
   (when (and *inspector-window* (equal (object *inspector-window*) box))
-    (set-inspector-contents *inspector-window* box (get-update-frame box))))
+    (set-inspector-contents *inspector-window* box)))
+|#
 
 
 
-;;;============================================================================
-;;; A VIRTUAL OBJECT TO HANDLE MULTIPLE-SELECTION IN INSPECTOR...
-;;;============================================================================
-
-(defclass virtual-object-selection () 
-  ((objects :initarg :objects :initform nil :accessor objects)))
-   
-(defmethod object-name-in-inspector ((self virtual-object-selection)) "[MULTIPLE SELECTION]")
-
-(defmethod get-update-frame ((self virtual-object-selection)) self)
-
-;;; dummy signature
-(defmethod update-after-prop-edit ((view virtual-object-selection) (object virtual-object-selection))
-  (loop for obj in (objects object) do
-        (update-after-prop-edit (get-update-frame obj) obj)))
-
-;;; !! object and view can be lists !!
-(defmethod set-inspector-contents (win (object cons) (view list))
-  (let ((virtual-obj (make-instance 'virtual-object-selection :objects object)))
-    (set-inspector-contents win virtual-obj view)
-    ))
-
-;;; returns only the properties shared between all the objects
-(defmethod get-properties-list ((self virtual-object-selection))
-  (let ((one-list (get-properties-list (car (objects self))))
-        (invalid-properties nil))
-    (loop for category in one-list do
-          (loop for prop in (cdr category) do
-                (let ((valid t))
-                  (loop for other-object in (cdr (objects self)) 
-                        while valid do
-                        (unless (valid-property-p other-object (car prop))
-                          (push (car prop) invalid-properties)
-                          (setf valid nil))
-                      ))
-                ))
-    (hide-properties one-list invalid-properties)))
-
-
-;;; will return a value only if all the inspected objects have the same
-;;; otherwise, will trust the default spec of the property 
-(defmethod get-property ((self virtual-object-selection) prop-id &key (warn t)) 
-  (let ((val (get-property (car (objects self)) prop-id)))
-    (loop for o in (cdr (objects self))
-          while val do
-          (unless (equal val (get-property o prop-id))
-            (setf val nil)))
-    val))
-
-;;; set the same value to all objects
-(defmethod set-property ((self virtual-object-selection) prop-id val)
-  (loop for o in (objects self) do
-        (set-property o prop-id val)))
 
 
 

@@ -459,7 +459,7 @@
 
 (defmethod set-display ((self OMBox) val)
   (setf (display self) val)
-  (update-inspector-for-box self)
+  (update-inspector-for-object self)
   (when (frame self) (om-invalidate-view (frame self))))
 
 (defmethod change-display ((self OMBox)) 
@@ -640,7 +640,7 @@
     (setf (lock-state self) :locked)
     (contextual-update self (container self))
     (when (frame self)
-      (update-inspector-for-box (frame self)) ;; ? sure about this ?
+      (update-inspector-for-object self) ;; ? sure about this ?
       (reset-cache-display self)
       (om-invalidate-view (frame self)))
     )

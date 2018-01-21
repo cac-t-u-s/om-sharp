@@ -39,7 +39,7 @@
                   )
              (progn 
                (om-message-dialog "this file is not a valid patch !")
-               (update-inspector-for-box box))))
+               (update-inspector-for-object box))))
         (set-name (reference box) name))
     ;;; GET
     (if (is-persistant (reference box))
@@ -155,7 +155,7 @@
             #'(lambda (box text)
                 ;;; the box name shall be updated as well
                 (set-name (reference self) text)
-                (update-inspector-for-box self)
+                (update-inspector-for-object self)
                 ))))
 
 (defmethod internalize-abstraction ((self OMBox)) nil)
