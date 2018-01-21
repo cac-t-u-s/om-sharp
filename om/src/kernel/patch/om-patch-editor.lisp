@@ -1078,11 +1078,42 @@
 (defclass inspector-view (om-view) 
   ((object :initarg :object :initform nil :accessor object)))
 
+
+(defmethod make-inspector-pane ((editor patch-editor))
+
+  (let ((inspector-pane (om-make-view 'inspector-view :size (omp nil nil) :direct-draw nil))
+        (title-text (om-make-di 'om-simple-text :size (omp 220 18)
+                                :font (om-def-font :font2b)
+                                :fg-color (om-def-color :dark-gray))))
+    
+    (set-g-component editor :inspector inspector-pane)
+    (set-g-component editor :inspector-title title-text)
+    
+    ;;; initialize with current selection
+    (update-inspector-for-editor editor)
+    
+    (om-make-layout 
+     'om-column-layout :ratios '(nil 1) :delta 10
+     :subviews (list 
+                ;; top of the pane
+                (om-make-layout  
+                 'om-row-layout
+                 :subviews (list
+                            title-text nil
+                            (om-make-graphic-object 
+                             'om-icon-button :icon 'x :icon-pushed 'x-pushed
+                             :size (omp 18 18)
+                             :action #'(lambda (b) (patch-editor-set-window-config editor nil))
+                             )
+                            ))
+                ;; main pane
+                inspector-pane
+                ))
+    ))
+
+
 (defmethod object-name-in-inspector ((self OMObject)) (name self))
 (defmethod object-name-in-inspector ((self t)) nil)
-
-;;; redefined for connections
-(defmethod get-update-frame ((self t)) nil)
 
 (defmethod set-inspector-title ((self om-simple-text) obj-to-inspect)
   (om-set-dialog-item-text 
@@ -1093,6 +1124,10 @@
                     (object-name-in-inspector obj-to-inspect)
                     (string (type-of obj-to-inspect))))
    ))
+
+
+;;; redefined for connections
+(defmethod get-update-frame ((self t)) nil)
 
 (defmethod set-inspector-contents ((self inspector-view) object)
   
@@ -1220,7 +1255,8 @@
                                     (om-make-layout  'om-row-layout :align :bottom
                                                      :subviews (list
                                                                 (om-make-di 'om-simple-text :text "Lisp code preview --" 
-                                                                            :size (omp nil 18) :font (om-def-font :font2))
+                                                                            :size (omp nil 18) :font (om-def-font :font2b)
+                                                                            :fg-color (om-def-color :dark-gray))
 
                                                                 (om-make-graphic-object 'om-icon-button :icon 'x :icon-pushed 'x-pushed
                                                                                         :size (omp 18 18)
@@ -1238,31 +1274,7 @@
                                          ))))
 
                      ((equal (editor-window-config editor) :inspector)
-
-                      (let ((inspector-pane (om-make-view 'inspector-view :size (omp nil nil) :direct-draw nil))
-                            (title-text (om-make-di 'om-simple-text :size (omp 220 18) :font (om-def-font :font2))))
-                        
-                        (set-g-component editor :inspector inspector-pane)
-                        (set-g-component editor :inspector-title title-text)
-                        
-                        ;;; initialize with current selection
-                        (update-inspector-for-editor editor)
-
-                        (om-make-layout 
-                         'om-column-layout :ratios '(nil 1) :delta 10
-                         :subviews (list 
-                                    ;; top of the pane
-                                    (om-make-layout  'om-row-layout
-                                                     :subviews (list
-                                                                title-text nil
-                                                                (om-make-graphic-object 'om-icon-button :icon 'x :icon-pushed 'x-pushed
-                                                                                        :size (omp 18 18)
-                                                                                        :action #'(lambda (b) (patch-editor-set-window-config editor nil))
-                                                                                        )
-                                                                ))
-                                    ;; main pane
-                                    inspector-pane
-                                    ))))
+                      (make-inspector-pane editor))
                      
                      (t nil))
                ))
