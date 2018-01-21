@@ -1078,7 +1078,6 @@
 (defclass inspector-view (om-view) 
   ((object :initarg :object :initform nil :accessor object)))
 
-
 (defmethod object-name-in-inspector ((self OMObject)) (name self))
 (defmethod object-name-in-inspector ((self t)) nil)
 
@@ -1203,7 +1202,9 @@
 
         ;;; patch editor with side-panel
         (let ((side-pane 
+
                (cond ((equal (editor-window-config editor) :lisp-code)
+
                       (let ((lisp-pane (om-make-di 'om-multi-text 
                                               :text (format-lisp-code-string (get-patch-lisp-code (object editor)) 60)
                                               :font (om-make-font "Courier New" 12)
@@ -1238,8 +1239,8 @@
 
                      ((equal (editor-window-config editor) :inspector)
 
-                      (let ((inspector-pane (om-make-view 'inspector-view :size (omp nil nil)))
-                            (title-text (om-make-di 'om-simple-text :size (omp nil 18) :font (om-def-font :font2))))
+                      (let ((inspector-pane (om-make-view 'inspector-view :size (omp nil nil) :direct-draw nil))
+                            (title-text (om-make-di 'om-simple-text :size (omp 220 18) :font (om-def-font :font2))))
                         
                         (set-g-component editor :inspector inspector-pane)
                         (set-g-component editor :inspector-title title-text)
@@ -1253,7 +1254,7 @@
                                     ;; top of the pane
                                     (om-make-layout  'om-row-layout
                                                      :subviews (list
-                                                                title-text
+                                                                title-text nil
                                                                 (om-make-graphic-object 'om-icon-button :icon 'x :icon-pushed 'x-pushed
                                                                                         :size (omp 18 18)
                                                                                         :action #'(lambda (b) (patch-editor-set-window-config editor nil))
@@ -1268,7 +1269,7 @@
            
           (values 
            (om-make-layout 'om-row-layout 
-                           :delta 2 :ratios `(10 nil ,(case (editor-window-config editor) (:inspector 2) (:lisp-code 3)))
+                           :delta 2 :ratios `(10 nil ,(case (editor-window-config editor) (:inspector nil) (:lisp-code 3)))
                            :subviews (list patch-view :divider side-pane))
            patch-view))
       
