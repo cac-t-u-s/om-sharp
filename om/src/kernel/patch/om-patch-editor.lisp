@@ -157,6 +157,14 @@
                                                         (if (equal (editor-window-config self) :inspector) nil :inspector))) 
                                           :key "i" :selected #'(lambda () (equal (editor-window-config self) :inspector))
                                           )
+
+                                         (om-make-menu-item 
+                                          "Show Grid" 
+                                          #'(lambda () 
+                                              (setf (grid (object self)) (if (grid (object self)) nil 50))
+                                              (om-invalidate-view (main-view self)))
+                                          :key "g" :selected #'(lambda () (grid (object self)))
+                                          )
                                          
                                          (om-make-menu-item  
                                           "Edit lock" 
@@ -294,9 +302,6 @@
                           (store-current-state-for-undo editor)
                           (remove-selection editor)))
 
-        (#\g (setf (grid patch) (if (grid patch) nil 50))
-             (om-invalidate-view panel))
-
         (#\n (if selected-boxes
                  (mapc 'set-show-name selected-boxes)
                (unless (edit-lock editor)
@@ -382,11 +387,6 @@
              
         (#\m (mapc 'change-display selected-boxes))
 
-        (#\a (unless (edit-lock editor) 
-               (when selected-boxes
-                 (store-current-state-for-undo editor)
-                 (mapc 'internalize-abstraction selected-boxes))))
-
         (#\c (unless (edit-lock editor)
                (store-current-state-for-undo editor)
                (if selected-boxes
@@ -396,9 +396,24 @@
                (store-current-state-for-undo editor)
                (auto-connect-seq selected-boxes editor panel)))
         
+        ;;; make a menu command ?
+        (#\A (unless (edit-lock editor) 
+               (when selected-boxes
+                 (store-current-state-for-undo editor)
+                 (mapc 'align-box selected-boxes))))
+
+        ;;; make a menu command ?
+        (#\a (unless (edit-lock editor) 
+               (when selected-boxes
+                 (store-current-state-for-undo editor)
+                 (mapc 'internalize-abstraction selected-boxes))))
+        
+        ;;; make a menu command ?
         (#\E (unless (edit-lock editor) 
                (store-current-state-for-undo editor)
                (encapsulate-patchboxes editor panel selected-boxes)))
+
+        ;;; make a menu command ?
         (#\U (unless (edit-lock editor) 
                (store-current-state-for-undo editor)
                (unencapsulate-patchboxes editor panel selected-boxes)))
@@ -1132,13 +1147,13 @@
                 (om-make-layout  
                  'om-row-layout
                  :subviews (list
-                            (om-make-di 'om-simple-text :size (omp 100 18)
+                            (om-make-di 'om-simple-text :size (omp 230 18)
                                 :font (om-def-font :font2b) :text "Inspector"
                                 :fg-color (om-def-color :dark-gray))
-                            nil
+                            
                             (om-make-graphic-object 
                              'om-icon-button :icon 'x :icon-pushed 'x-pushed
-                             :size (omp 18 18)
+                             :size (omp 14 14)
                              :action #'(lambda (b) (patch-editor-set-window-config editor nil))
                              )
                             ))
@@ -1156,67 +1171,66 @@
 
 (defmethod set-inspector-contents ((self inspector-view) object)
   
-  (om-remove-all-subviews self)
   (setf (object self) object)
-
-    
+  (om-remove-all-subviews self) 
+         
   (let ((inspector-layout
-         (om-make-layout
-          'om-grid-layout
-          :delta '(10 0) :align nil
-          :subviews 
-          (append 
-           (list 
-            (om-make-di 'om-simple-text :size (om-make-point 100 20) 
-                        :text (if object
-                                  (object-name-in-inspector object)
-                                "[no selection]")
-                        :focus t  ;; prevents focus on other items :)
-                        :font (om-def-font :font3b))
-            nil)
+           (om-make-layout
+            'om-grid-layout
+            :delta '(10 0) :align nil
+            :subviews 
+            (append 
+             (list 
+              (om-make-di 'om-simple-text :size (om-make-point nil 20) 
+                          :text (if object
+                                    (object-name-in-inspector object)
+                                  "[no selection]")
+                          :focus t  ;; prevents focus on other items :)
+                          :font (om-def-font :font3b))
+              nil)
            
-           (when object
-             (if (get-properties-list object)
+             (when object
+               (if (get-properties-list object)
                    
-                 ;;; ok
-                 (loop for category in (get-properties-list object)
-                       when (cdr category)
-                       append 
-                       (append 
-                        (list  ;     (car category)  ; (list (car category) (om-def-font :font1b))  ; :right-extend          
-                         (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)
-                         (om-make-di 'om-simple-text :text (car category) :font (om-def-font :font2b)
-                                     :size (om-make-point (+ 10 (om-string-size (car category) (om-def-font :font2b))) 20)
-                                     )
-                         )
-                        (loop for prop in (cdr category) append
-                              (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font (om-def-font :font1)
-                                                :size (om-make-point 110 20) :position (om-make-point 10 16))
-                                    (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop) 
-                                                    :update (get-update-frame object)
-                                                    )
-                                    ))
+                   ;;; ok
+                   (loop for category in (get-properties-list object)
+                         when (cdr category)
+                         append 
+                         (append 
+                          (list  ;     (car category)  ; (list (car category) (om-def-font :font1b))  ; :right-extend          
+                           (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)
+                           (om-make-di 'om-simple-text :text (car category) :font (om-def-font :font2b)
+                                       :size (om-make-point (+ 10 (om-string-size (car category) (om-def-font :font2b))) 20)
+                                       )
+                           )
+                          (loop for prop in (cdr category) append
+                                (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font (om-def-font :font1)
+                                                  :size (om-make-point 90 20) :position (om-make-point 10 16))
+                                      (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop) 
+                                                      :update (get-update-frame object)
+                                                      )
+                                      ))
                           
-                        (list (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t) 
-                              (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t))
-                        )
-                       )
+                          (list (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t) 
+                                (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t))
+                          )
+                         )
                  
-               ;;; object has no properties (unlikely)
-               (list 
-                (om-make-di 'om-simple-text :size (om-make-point 100 20) 
-                            :text "[no properties]"
-                            :font (om-def-font :font1)) 
-                nil))
+                 ;;; object has no properties (unlikely)
+                 (list 
+                  (om-make-di 'om-simple-text :size (om-make-point 100 20) 
+                              :text "[no properties]"
+                              :font (om-def-font :font1)) 
+                  nil))
+               )
              )
-           )
-          )))
+            )))
     
     (om-add-subviews self inspector-layout)
-    )
-  (when (window (editor self))
-    (om-update-layout (window (editor self))))
-  )
+   
+    (when (editor self)
+      (om-update-layout (window (editor self))))
+    ))
 
 
 (defmethod update-inspector-for-editor ((self patch-editor) &optional obj)
@@ -1304,7 +1318,7 @@
                                                                             :fg-color (om-def-color :dark-gray))
 
                                                                 (om-make-graphic-object 'om-icon-button :icon 'x :icon-pushed 'x-pushed
-                                                                                        :size (omp 18 18)
+                                                                                        :size (omp 14 14)
                                                                                         :action #'(lambda (b) (patch-editor-set-window-config editor nil))
                                                                                         )
                                                                 ))
