@@ -213,12 +213,14 @@
 (defmethod update-frame-to-box-size ((self t)) nil)
 
 
+
+(defmethod move-box-to ((self OMBox) x y)
+  (omng-move self (om-make-point x y))
+  (when (frame self) (update-frame-to-box-position self))
+  (update-connections self))
+
 (defmethod move-box ((self OMBox) dx dy)
-  (let ((pos (om-make-point (max 0 (+ (box-x self) dx)) (max 0 (+ (box-y self) dy)))))
-    (omng-move self pos)
-    (when (frame self) (update-frame-to-box-position self))
-    (update-connections self)
-    ))
+  (move-box-to self (max 0 (+ (box-x self) dx)) (max 0 (+ (box-y self) dy))))
 
 (defmethod scale-in-x-? ((self OMBox)) t)
 (defmethod scale-in-y-? ((self OMBox)) t)
@@ -300,6 +302,27 @@
 
 (defmethod close-internal-element :after ((self OMBox)) 
   (close-inspector-for-box self))
+
+;;;===========================
+;;; ALIGN TOOL: auto-set position
+;;;===========================
+
+;; a simple box alignment utility
+;; tries to best-guess according to proximity with neighbour boxes' borders, 
+;; and with box connections
+(defmethod align-box ((self OMBox))
+  (let ((other-boxes (remove self (boxes (container self)))))
+    ;;; X-ALIGNMENT
+    ;;; fin de closest top/bottom neighbour box x-deviation (with left and right borders)
+
+    ;;; find de smallest connection deviation
+    
+    ; Y-ALIGNMENT
+    ; find the closest left-right nighbour deviation (with top and bottom)
+    
+    (move-box self 10 10)    
+    ))
+
 
 ;;;===========================
 ;;; CHACHE DISPLAY SYSTEM

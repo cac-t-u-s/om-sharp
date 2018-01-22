@@ -184,10 +184,14 @@
 (defvar *menu-context-open* nil)
 
 (defmethod om-context-menu-callback ((self om-graphic-object) x y)
+  
   ;;; cancel d&d init
-  (let ((win (capi::top-level-interface self)))
-    (capi::find-interface (type-of win) :name (capi::capi-object-name win)))
+  ;;; ;;; => why ? temporarily removed because it tended to raise other windows on right clicks..
+  ;(let ((win (capi::top-level-interface self)))
+  ;  (capi::find-interface (type-of win) :name (capi::capi-object-name win)))
+  
   (om-activate-callback self t)
+
   (let ((clicked (om-find-view-containing-point self (om-make-point x y))))
     ;(om-view-click-handler clicked (om-convert-coordinates (om-make-point x y) self clicked))
     (when (om-get-menu-context clicked)
