@@ -317,6 +317,7 @@
   (setf (getf (range (object (editor view))) :x1) (x1 self)
         (getf (range (object (editor view))) :x2) (x2 self)))
 
+
 (defmethod om-view-click-handler ((self sequencer-track-view) position)
   (let* ((editor (editor (om-view-window self)))
          (time (round (pix-to-x self (om-point-x position))))
@@ -381,7 +382,8 @@
                                      (let ((new-box-id (+ init-track diff-track-id)))
                                        (when (and (> new-box-id 0) (<= new-box-id (n-track-views editor)))
                                          (update-inspector-for-object tb) ;; here ?
-                                         (setf (group-id tb) new-box-id)))))
+                                         (setf (group-id tb) new-box-id)
+                                         ))))
                      
                              (move-editor-selection editor :dx dx)
                              (setf p0 pos)
@@ -550,7 +552,7 @@
   (draw-eval-buttons view self x y x 12)
 
   (when (find-if 'reactive (outputs self))
-    (om-draw-rect x y w h :line 2 :color (om-make-color .9 .5 .6))) ; :dark-red)))
+    (om-draw-rect x y w h :line 2 :color (om-def-color :dark-red))) 
   
   (if (plusp (pre-delay self))
       (om-with-fg-color (om-def-color :red)
@@ -573,13 +575,14 @@
 ;;; + the 'update' reference of the inspector window (= self) becomes the wrong one
 ;;; 1 solution = re-create the inspector if track is changed
 ;;; other solution = invalidate all tracks all the time
-(defmethod update-view ((self sequencer-track-view) (object OMBox))
+(defmethod update-after-prop-edit ((self sequencer-track-view) (object OMBox))
   (let ((editor (editor (om-view-window self))))
     ;;; sets the right frame for the box
     (unless (or (equal :none (group-id object))
                 (and (frame object) (equal (num self) (group-id object))))
       (setf (frame object) (find (group-id object) (get-g-component editor :track-views) :key 'num :test '=)))
-    (mapcar 'om-invalidate-view (get-g-component editor :track-views))))
+    (mapcar 'om-invalidate-view (get-g-component editor :track-views))
+    ))
 
 (defmethod update-frame-connections-display ((self sequencer-track-view)) nil)
 
@@ -772,8 +775,6 @@
       ;;; so that the inspector calls are passed through
       (set-g-component (editor ctrlpatch) :inspector
                        (get-g-component maq-editor :inspector))
-      (set-g-component (editor ctrlpatch) :inspector-title
-                       (get-g-component maq-editor :inspector-title))
 
       (update-inspector-for-editor maq-editor)
       

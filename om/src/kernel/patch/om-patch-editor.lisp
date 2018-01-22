@@ -1118,13 +1118,9 @@
 
 (defmethod make-inspector-pane ((editor patch-editor))
 
-  (let ((inspector-pane (om-make-view 'inspector-view :size (omp nil nil) :direct-draw nil))
-        (title-text (om-make-di 'om-simple-text :size (omp 220 18)
-                                :font (om-def-font :font2b)
-                                :fg-color (om-def-color :dark-gray))))
+  (let ((inspector-pane (om-make-view 'inspector-view :size (omp nil nil) :direct-draw nil)))
     
     (set-g-component editor :inspector inspector-pane)
-    (set-g-component editor :inspector-title title-text)
     
     ;;; initialize with current selection
     (update-inspector-for-editor editor)
@@ -1136,7 +1132,10 @@
                 (om-make-layout  
                  'om-row-layout
                  :subviews (list
-                            title-text nil
+                            (om-make-di 'om-simple-text :size (omp 100 18)
+                                :font (om-def-font :font2b) :text "Inspector"
+                                :fg-color (om-def-color :dark-gray))
+                            nil
                             (om-make-graphic-object 
                              'om-icon-button :icon 'x :icon-pushed 'x-pushed
                              :size (omp 18 18)
@@ -1150,18 +1149,7 @@
 
 
 (defmethod object-name-in-inspector ((self OMObject)) (name self))
-(defmethod object-name-in-inspector ((self t)) nil)
-
-(defmethod set-inspector-title ((self om-simple-text) obj-to-inspect)
-  (om-set-dialog-item-text 
-   self
-   (string+ "Inspector -- "
-            (or (and (null obj-to-inspect) "")
-                    (and (consp obj-to-inspect) "[MULTIPLE SELECTION]")
-                    (object-name-in-inspector obj-to-inspect)
-                    (string (type-of obj-to-inspect))))
-   ))
-
+(defmethod object-name-in-inspector ((self t)) "-")
 
 ;;; redefined for connections
 (defmethod get-update-frame ((self t)) nil)
@@ -1171,41 +1159,64 @@
   (om-remove-all-subviews self)
   (setf (object self) object)
 
-  (when (get-properties-list object)
-    (let ((inspector-layout
-           (om-make-layout
-            'om-grid-layout
-            :delta '(10 0) :align nil
-            :subviews (loop for category in (get-properties-list object)
-                            when (cdr category)
-                            append 
-                            (append 
-                             (list  ;     (car category)  ; (list (car category) (om-def-font :font1b)) 
-                              (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)
-                              (om-make-di 'om-simple-text :text (car category) :font (om-def-font :font2b)
-                                          :size (om-make-point (+ 10 (om-string-size (car category) (om-def-font :font2b))) 20)
-                                          )
-                              ;; prevents focus on other items :)  :right-extend
-                              )
-                             (loop for prop in (cdr category) append
-                                   (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font (om-def-font :font1)
-                                                     :size (om-make-point 110 20) :position (om-make-point 10 16))
-                                                                                       ; (nth 1 prop) ; (list (nth 1 prop) (om-def-font :font1))  
-                                         (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop) 
-                                                         :update (get-update-frame object)
-                                                         )
-                                         ))
-                             (list (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t) 
-                                   (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t))
-                             )
-                            )
-            )))
-      
-      (om-add-subviews self inspector-layout)
-      ))
+    
+  (let ((inspector-layout
+         (om-make-layout
+          'om-grid-layout
+          :delta '(10 0) :align nil
+          :subviews 
+          (append 
+           (list 
+            (om-make-di 'om-simple-text :size (om-make-point 100 20) 
+                        :text (if object
+                                  (object-name-in-inspector object)
+                                "[no selection]")
+                        :focus t  ;; prevents focus on other items :)
+                        :font (om-def-font :font3b))
+            nil)
+           
+           (when object
+             (if (get-properties-list object)
+                   
+                 ;;; ok
+                 (loop for category in (get-properties-list object)
+                       when (cdr category)
+                       append 
+                       (append 
+                        (list  ;     (car category)  ; (list (car category) (om-def-font :font1b))  ; :right-extend          
+                         (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)
+                         (om-make-di 'om-simple-text :text (car category) :font (om-def-font :font2b)
+                                     :size (om-make-point (+ 10 (om-string-size (car category) (om-def-font :font2b))) 20)
+                                     )
+                         )
+                        (loop for prop in (cdr category) append
+                              (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font (om-def-font :font1)
+                                                :size (om-make-point 110 20) :position (om-make-point 10 16))
+                                    (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop) 
+                                                    :update (get-update-frame object)
+                                                    )
+                                    ))
+                          
+                        (list (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t) 
+                              (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t))
+                        )
+                       )
+                 
+               ;;; object has no properties (unlikely)
+               (list 
+                (om-make-di 'om-simple-text :size (om-make-point 100 20) 
+                            :text "[no properties]"
+                            :font (om-def-font :font1)) 
+                nil))
+             )
+           )
+          )))
+    
+    (om-add-subviews self inspector-layout)
+    )
+  (when (window (editor self))
+    (om-update-layout (window (editor self))))
   )
-
-
 
 
 (defmethod update-inspector-for-editor ((self patch-editor) &optional obj)
@@ -1216,10 +1227,7 @@
                (if (= 1 (length selection)) 
                    (car selection) 
                  selection)))))
-        
-    (when (get-g-component self :inspector-title)
-      (set-inspector-title (get-g-component self :inspector-title) obj-to-inspect))
-    
+
     (when (get-g-component self :inspector)
       (set-inspector-contents (get-g-component self :inspector) obj-to-inspect))  
       
@@ -1317,9 +1325,17 @@
                ))
            
           (values 
-           (om-make-layout 'om-row-layout 
-                           :delta 2 :ratios `(10 nil ,(case (editor-window-config editor) (:inspector nil) (:lisp-code 3)))
-                           :subviews (list patch-view :divider side-pane))
+           (case (editor-window-config editor) 
+             
+             (:inspector (om-make-layout 'om-row-layout 
+                                         :delta 2 :ratios '(10 nil)
+                                         :subviews (list patch-view side-pane)))
+             
+             (:lisp-code (om-make-layout 'om-row-layout 
+                                         :delta 2 :ratios '(10 nil 3)
+                                         :subviews (list patch-view :divider side-pane)))
+             )
+           
            patch-view))
       
       (progn ;; normal patch editor 

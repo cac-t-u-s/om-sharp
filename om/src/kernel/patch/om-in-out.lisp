@@ -88,6 +88,9 @@
                   "Appearance" 
                   '((:icon "Icon position" (:left :top) icon-pos))))
 
+
+(defmethod object-name-in-inspector ((self OMInOutBox)) (format nil "~A box" (type-of (reference self))))
+
 (defmethod valid-property-p ((self OMInOutBox) (prop-id (eql :lock))) nil)
 (defmethod valid-property-p ((self OMInOutBox) (prop-id (eql :lambda))) nil)
 

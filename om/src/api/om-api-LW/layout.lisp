@@ -124,6 +124,9 @@
   (setf (capi::layout-x-ratios self) (capi::layout-y-ratios self)
         (capi::layout-y-ratios self) (capi::layout-y-ratios self)))
 
+(defmethod om-update-layout ((self om-abstract-window))
+  (mapc 'om-update-layout (om-subviews self)))
+
 (defmethod om-subviews ((self om-abstract-layout)) (capi:layout-description self))
 
 (defmethod om-view-parent ((self om-abstract-layout)) (element-parent self))

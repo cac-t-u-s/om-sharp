@@ -61,6 +61,8 @@
        ("Scheduling"
         ((:pre-delay "Pre-delay (ms)" :number pre-delay)))))))
 
+(defmethod object-name-in-inspector ((self OMBoxAbstraction)) 
+  (format nil "~A box" (get-object-type-name (reference self))))
 
 (defmethod set-reactive ((self OMBoxAbstraction) val)
   (setf (ready self) nil)

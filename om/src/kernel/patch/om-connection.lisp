@@ -43,7 +43,7 @@
     ("Execution" ;;; category
      (:reactive "Reactive (r)" :bool reactive))))
 
-
+(defmethod object-name-in-inspector ((self OMConnection)) "connection")
 
 (defmethod connection-draw-style ((c OMConnection)) 
   (or (style c)
