@@ -132,7 +132,7 @@ All boxes which their reference is a OM generic function are instances of this c
         (set-reactive box (not (all-reactive-p box)))
         (update-after-change-mode box)
         (update-frame-connections-display (frame box)))
-    (om-print "Boxes must have inputs or outputs to be set reactive")))
+    (om-beep-msg "Boxes must have inputs or outputs to be set reactive")))
 
 
 ;--------------------------------------
