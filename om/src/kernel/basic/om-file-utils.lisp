@@ -24,8 +24,6 @@
 ; USER FILES 
 ;;;=========
 
-;(om-relative-path '("out-files") nil (if *current-workspace* :workspace (om-user-home)))
-
 (defun default-folder (name &optional reference-path)
   (let ((ref-path (or reference-path
                       (and *current-workspace* (mypathname *current-workspace*))

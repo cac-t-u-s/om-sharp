@@ -75,9 +75,10 @@
   (mapcar 
    #'(lambda (name)
        (case name
-         (:name '(:title "filename" :adjust :left :default-width 250))
-         (:date '(:title "modified" :adjust :left :default-width 150))
-         (otherwise `(:title ,(string-downcase name) :adjust :left :default-width 50))))
+         (:name '(:title "filename" :adjust :left :visible-min-width 200))
+         (:date '(:title "modified" :adjust :left :visible-min-width 150))
+         (otherwise `(:title ,(string-downcase name) :adjust :left :visible-min-width 50))
+         ))
    names))
 
 (defun gen-column-elements (element display-params &optional editor)  
@@ -140,7 +141,7 @@
                                                )
                                          )))
         (om-make-layout 
-         'om-column-layout :name "Workspace Elements"
+         'om-column-layout :name "Documents"
          :subviews (list 
                     elements-list
                     (om-make-layout 
@@ -204,7 +205,7 @@
     
     ;;; FILE VIEW
     (om-make-layout 
-         'om-column-layout :name "Workspace Elements" :align :center ; :ratios '(1 nil nil)
+         'om-column-layout :name "Documents" :align :center ; :ratios '(1 nil nil)
          :subviews (list 
                     (om-make-di 
                      'om-multicol-item-list
@@ -216,6 +217,7 @@
                                        (om-def-color :black) (om-make-color 0.8 0.2 0.2)))
                      :font (om-make-font "Courier" 12)
                      :alternating-background t
+                     :auto-reset-column-widths t
                      :action-callback #'dbclicked-item-in-list
                      :size (omp nil nil)
                      ;:sort-styles 
@@ -234,14 +236,15 @@
                      ;      )
                      )
                      
-                    (om-make-di 'om-multi-text :enable nil :size (om-make-point 300 20) 
-                                :font (om-def-font :font2)
-                                :fg-color (om-def-color :gray)
-                                :text "No Workspace has been created for this session")
-                    (om-make-di 'om-button :enable nil :size (om-make-point nil 24)
-                                :font (om-def-font :font2)
-                                :text "Create One?")))
-        ))
+                    ;(om-make-di 'om-multi-text :enable nil :size (om-make-point 300 20) 
+                    ;            :font (om-def-font :font2)
+                    ;            :fg-color (om-def-color :gray)
+                    ;            :text "No Workspace has been created for this session")
+                    ;(om-make-di 'om-button :enable nil :size (om-make-point nil 24)
+                    ;            :font (om-def-font :font2)
+                    ;            :text "Create One?")
+                    ))
+    ))
 
 
 (defmethod update-elements-tab ((window om-main-window))
@@ -335,7 +338,7 @@
                                              :icons (list 'icon-pack 'icon-fun 'icon-genfun 'icon-class 'icon-lib-loaded 'icon-lib)
                                              )))
       (om-make-layout 
-       'om-column-layout :name "Libraries" :align :right
+       'om-column-layout :name "External Libraries" :align :right
        :subviews (list libs-tree-view
                        (om-make-di 'om-button :size (om-make-point nil 24)
                                 :font (om-def-font :font2) 
