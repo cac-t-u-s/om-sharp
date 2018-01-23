@@ -131,7 +131,7 @@
            
            ;;; decide when to curve the connection => not if the two boxes overlap in x
            (threshold (if (or (>= (box-x (box (from c))) (+ (box-x (box (to c))) (box-w (box (to c)))))
-                              (>= (box-x (box (to c))) (+ (box-x (box (from c))) (box-w (box (from c)))))))
+                              (>= (box-x (box (to c))) (+ (box-x (box (from c))) (box-w (box (from c))))))
                           16 4)))
       
       (setf (points c)
@@ -143,8 +143,8 @@
                     (omp (+ +x 0.5) (round (- y2 y1 8)))
                     (omp 1.0 (round (- y2 y1 8)))
                     (omp 1.0 1.0))
-              )
-            ))))
+              ))
+      )))
 
 
               
