@@ -82,9 +82,10 @@
 ;;;; OPENMUSIC
 ;;;=======================================
 
-(defpackage "OpenMusic"
+(defpackage :openmusic
   (:use "OM-API" "OM-FI" "OM-LISP" "COMMON-LISP" "CL-USER" "HCL")
   (:nicknames "OM"))
+
 
 (in-package :om)
 
