@@ -141,7 +141,17 @@
              (om-make-menu "Edit" 
                            (append 
                             (default-edit-menu-items self)
-                            (list (om-make-menu-comp 
+                            (list 
+                             (om-make-menu-comp 
+                                   (list (om-make-menu-item  
+                                          "Auto align boxes..."
+                                          #'(lambda () 
+                                              (align-selected-boxes self))
+                                          :key "A" 
+                                          :enabled #'(lambda () (not (edit-lock self)))
+                                          )
+                                         ))
+                             (om-make-menu-comp 
                                    (list (om-make-menu-item  
                                           "Show Lisp code"
                                           #'(lambda () (patch-editor-set-window-config 
@@ -396,11 +406,9 @@
                (store-current-state-for-undo editor)
                (auto-connect-seq selected-boxes editor panel)))
         
-        ;;; make a menu command ?
-        (#\A (unless (edit-lock editor) 
-               (when selected-boxes
-                 (store-current-state-for-undo editor)
-                 (mapc 'align-box selected-boxes))))
+        ;;; => Edit menu command
+        ;(#\A (unless (edit-lock editor) 
+        ;       (align-selected-boxes editor)))
 
         ;;; make a menu command ?
         (#\a (unless (edit-lock editor) 
@@ -475,10 +483,16 @@
       (when view (om-invalidate-view view)))
     ))
 
-
-;;; called from menu
-(defmethod clear-command ((self patch-editor))
-  #'(lambda () (remove-selection self)))
+(defmethod align-selected-boxes ((editor patch-editor))
+  (let ((selected-boxes (get-selected-boxes editor)))
+    (when selected-boxes
+      (store-current-state-for-undo editor)
+      (mapc 'align-box selected-boxes))
+    ))
+    
+;;;=============================
+;;; MAKE BOXES
+;;;=============================
 
 (defmethod make-new-box ((self patch-editor-view))
   (let ((mp (om-mouse-position self)))
@@ -526,8 +540,12 @@
 
 
 ;;;=============================
-;;; MENU COMMANDS
+;;; DEF MENU COMMANDS
 ;;;=============================
+
+;;; called from menu
+(defmethod clear-command ((self patch-editor))
+  #'(lambda () (remove-selection self)))
 
 (defmethod select-all-command ((self patch-editor))
   #'(lambda () (select-unselect-all self t)))

@@ -311,17 +311,116 @@
 ;; tries to best-guess according to proximity with neighbour boxes' borders, 
 ;; and with box connections
 (defmethod align-box ((self OMBox))
-  (let ((other-boxes (remove self (boxes (container self)))))
-    ;;; X-ALIGNMENT
-    ;;; fin de closest top/bottom neighbour box x-deviation (with left and right borders)
+  
+  (labels (
+           (box-x2 (b) (+ (box-x b) (box-w b)))
+           (box-y2 (b) (+ (box-y b) (box-h b)))
+         
+           (overlap-in-x (b1 b2) 
+             (and (> (box-x2 b1) (box-x b2))
+                  (< (box-x b1) (box-x2 b2))))
 
-    ;;; find de smallest connection deviation
-    
-    ; Y-ALIGNMENT
-    ; find the closest left-right nighbour deviation (with top and bottom)
-    
-    (move-box self 10 10)    
-    ))
+           (overlap-in-y (b1 b2) 
+             (and (> (box-y2 b1) (box-y b2))
+                  (< (box-y b1) (box-y2 b2))))
+           
+           (farther-in-x (b1 b2 dist) 
+             (or (> (- (box-x b2) (box-x2 b1)) dist)
+                 (> (- (box-x b1) (box-x2 b2)) dist)))
+                 
+           (farther-in-y (b1 b2 dist) 
+             (or (> (- (box-y b2) (box-y2 b1)) dist)
+                 (> (- (box-y b1) (box-y2 b2)) dist)))
+
+           (overlap (b1 b2)
+             (and (overlap-in-x b1 b2)
+                  (overlap-in-y b1 b2)))
+           )
+         
+    (let ((other-boxes (remove self (boxes (container self))))
+          (threshold 20) (scope 100)
+          (smallest-dx nil) (smallest-dy nil))
+      
+      ;;; (try to) DE-OVERLAP
+      (loop for box in other-boxes do
+            (when (overlap self box)
+              (move-box-to self (box-x self) 
+                           (if (< (box-y self) (box-y box)) 
+                               (- (box-y box) (box-h self) 2)
+                             (+ (box-y2 box) 2)))
+              )
+            )
+      
+      ;;; find de smallest connection deviation
+      (loop for inp in (inputs self) do
+            (when (connections inp) ;; only 1 max
+              (let ((dx (- (om-point-x (io-position-in-patch (area (from (car (connections inp))))))
+                           (om-point-x (io-position-in-patch (area inp))))))
+                (when (or (null smallest-dx) 
+                          (< (abs dx) (abs smallest-dx)))
+                  (setf smallest-dx dx))
+                ))
+            )
+
+      (when (or (null smallest-dx)
+                (> (abs smallest-dx) threshold))
+
+        (loop for outp in (outputs self) do
+              (loop for c in (connections outp) do
+                (let ((dx (- (om-point-x (io-position-in-patch (area (to c))))
+                             (om-point-x (io-position-in-patch (area outp))))))
+                  (when (or (null smallest-dx) 
+                          (< (abs dx) (abs smallest-dx)))
+                    (setf smallest-dx dx))
+                  ))
+              )
+        )
+      
+      ;;; X-ALIGNMENT
+      ;;; find de closest top/bottom neighbour box x-deviation (with left and right borders)
+     (print "==============")
+     (when (or (null smallest-dx)
+                (> (abs smallest-dx) threshold))
+        
+       (loop for box in (remove-if #'(lambda (b) 
+                                               (print (reference b))
+                                               (or (print (overlap-in-y b self))
+                                                   (print (farther-in-y b self scope))))
+                                   other-boxes)
+              
+              do (let ((dx1 (- (box-x box) (box-x self)))
+                       (dx2 (- (box-x2 box) (box-x2 self))))
+                   (when (or (null smallest-dx)
+                             (< (abs dx1) (abs smallest-dx)))
+                     (setf smallest-dx dx1))
+                   
+                   (when (< (abs dx2) (abs smallest-dx))
+                     (setf smallest-dx dx2)))
+              )
+        )
+               
+      ;;; Y-ALIGNMENT
+      ;;; find the closest left-right nighbour deviation (with top and bottom)
+      (loop for box in (remove-if #'(lambda (b) 
+                                      (or (overlap-in-x b self)
+                                          (farther-in-x b self scope)))
+                                  other-boxes)
+          
+            do (let ((dy1 (- (box-y box) (box-y self)))
+                     (dy2 (- (box-y2 box) (box-y2 self))))
+               
+                 (when (or (null smallest-dy)
+                           (< (abs dy1) (abs smallest-dy)))
+                   (setf smallest-dy dy1))
+               
+                 (when (< (abs dy2) (abs smallest-dy))
+                   (setf smallest-dy dy2)))
+            )
+      
+      (move-box self 
+                (or (and smallest-dx (< (abs smallest-dx) threshold) smallest-dx) 0) 
+                (or (and smallest-dy (< (abs smallest-dy) threshold) smallest-dy) 0))
+      )))
 
 
 ;;;===========================
