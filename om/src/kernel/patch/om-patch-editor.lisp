@@ -485,9 +485,11 @@
 
 (defmethod align-selected-boxes ((editor patch-editor))
   (let ((selected-boxes (get-selected-boxes editor)))
-    (when selected-boxes
-      (store-current-state-for-undo editor)
-      (mapc 'align-box selected-boxes))
+    (if selected-boxes
+        (progn 
+          (store-current-state-for-undo editor)
+          (mapc 'align-box selected-boxes))
+      (om-beep))
     ))
     
 ;;;=============================

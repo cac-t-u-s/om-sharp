@@ -378,15 +378,13 @@
       
       ;;; X-ALIGNMENT
       ;;; find de closest top/bottom neighbour box x-deviation (with left and right borders)
-     (print "==============")
-     (when (or (null smallest-dx)
+      (when (or (null smallest-dx)
                 (> (abs smallest-dx) threshold))
         
-       (loop for box in (remove-if #'(lambda (b) 
-                                               (print (reference b))
-                                               (or (print (overlap-in-y b self))
-                                                   (print (farther-in-y b self scope))))
-                                   other-boxes)
+        (loop for box in (remove-if #'(lambda (b) 
+                                        (or (overlap-in-y b self)
+                                            (farther-in-y b self scope)))
+                                    other-boxes)
               
               do (let ((dx1 (- (box-x box) (box-x self)))
                        (dx2 (- (box-x2 box) (box-x2 self))))
