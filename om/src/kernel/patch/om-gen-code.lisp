@@ -84,8 +84,18 @@
          (gen-code box numout))
      (gen-code (value self))))
 
+
+
+;;;====================
+;;; PATCH COMPONENT BOX
+;;;====================
+
+(defmethod gen-code ((self OMPatchComponentBox) &optional numout)
+  (declare (ignore numout))
+  (mapcar 'gen-code (inputs self)))
+
 ;;;=================
-;;; OUTPUT BOX
+;;; INPUT BOX
 ;;;=================
 
 (defmethod gen-code ((self OMOutBox) &optional numout)
@@ -251,16 +261,76 @@
 ;;; MAIN COMPILATION FUNCTION
 ;;;=============================
 
-
-(defmethod gen-input-name ((self OMIn))
+(defmethod gen-input-name ((in OMIn))
   (read-from-string 
-   (string+ (format () "in~D_" (index self)) (substitute #\_ #\Space (name self)))))
+   (string+ (format () "in~D_" (index in)) 
+            (substitute #\_ #\Space (name in)))))
+
+(defmethod gen-patch-input-names ((self OMPatch)) 
+  (mapcar 
+   #'(lambda (in) 
+       (setf (in-symbol in) (gen-input-name in)))
+   (sort (get-inputs self) '< :key 'index))
+  )
 
 
-;;; compile : une fonction a n entrees et m sortrie avec tempin = 1e entree et tempout = 1e sortie
-;;; si ils existent
+(defmethod gen-patch-lisp-code ((self OMPatch)) 
+  (let* ((boxes (boxes self))
+         (input-names (gen-patch-input-names self))
+         (*let-list* nil)
+         
+         (init-boxes (sort (get-boxes-of-type self 'OMPatchInitBox) '< :key 'index))
+         (init-forms (loop for ib in init-boxes append (gen-code ib)))
+         
+         (out-boxes (sort (get-boxes-of-type self 'OMOutBox) '< :key 'index))
+         (body 
+          (if (> (length out-boxes) 1)
+              `(values ,.(mapcar #'(lambda (out) (gen-code out)) out-boxes))
+            (gen-code (car out-boxes)))))
+    
+    (values input-names
+            (if *let-list*
+                `(let* ,(reverse *let-list*) ,.init-forms ,body)
+              (if init-forms
+                  `(progn ,.init-forms ,body)
+                body)
+              )
+            )
+    ))
+
+
+(defmethod get-patch-lambda-expression ((self OMPatch))
+  (multiple-value-bind (input-names body)
+      (gen-patch-lisp-code self)
+    `(lambda (,.input-names) ,body)))
+
+
+;;; compile : a fonction with N inputs and M outputs 
+;;; (with tempin = 1st input / tempout = 1st output, if they exist)
 (defmethod compile-patch ((self OMPatch)) 
-  "Compilation of a lisp function from the patch."
+  (let* ((oldletlist *let-list*))
+    (setf *let-list* nil)
+    (setf (compiled? self) t)
+    
+    (multiple-value-bind (input-names body)
+        (gen-patch-lisp-code self)
+
+      (let ((f-def `(defun ,(intern (string (compiled-fun-name self)) :om) 
+                           (,.input-names) 
+                      ,body)))
+        
+      ;(om-print-format "~%------------------------------------------------------~%PATCH COMPILATION:~%")
+      ;(write function-def :stream om-lisp::*om-stream* :escape nil :pretty t)
+      ;(om-print-format "~%------------------------------------------------------~%~%")
+        
+        (compile (eval f-def))))
+         
+    (setf *let-list* oldletlist)))
+
+
+#|
+
+(defmethod compile-patch ((self OMPatch)) 
   (let* ((boxes (boxes self))
          (out-boxes (sort (get-boxes-of-type self 'OMOutBox) '< :key 'index))
          (oldletlist *let-list*)
@@ -284,23 +354,6 @@
     ))
 
 
-(defmethod get-patch-lisp-code ((self OMPatch)) 
-  "Generation of lisp code from the graphic boxes."
-  (let* ((boxes (boxes self))
-         (out-boxes (sort (get-boxes-of-type self 'OMOutBox) '< :key 'index))
-         (input-names 
-          (mapcar #'(lambda (in) (setf (in-symbol in) (gen-input-name in))) 
-                  (sort (get-inputs self) '< :key 'index))) 
-         (*let-list* nil)
-         (body (if (> (length out-boxes) 1)
-                   `(values ,.(mapcar #'(lambda (out) (gen-code out)) out-boxes))
-                 (gen-code (car out-boxes)))))
-    `(lambda (,.input-names) 
-       ,(if *let-list*
-         `(let* ,(reverse *let-list*) ,body)
-          body))))
-
-#|
 
 (defmethod curry-lambda-code ((self OMBoxEditCall) symbol)
   "Lisp code generetion for a factory in lambda mode."

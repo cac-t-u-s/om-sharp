@@ -21,11 +21,77 @@
 
 (in-package :om)
 
+;;;================================
+;;; TOP-LEVEL PATCH-COMPOENNT CLASS
+;;; Superclass for OMPatchIO, OMPatchInit, OMPatchIterator...
+;;;================================
+
+(defclass OMPatchComponent (OMBasicObject) ())
+(defclass OMPatchComponentBox (OMBoxCall) ())
+
+(defmethod omNG-make-new-boxcall ((reference OMPatchComponent) pos &optional init-args)
+  (let* ((box (make-instance (get-box-class reference)
+                             :name (name reference)
+                             :reference reference
+                             :color (make-color-or-nil :color (om-make-color 0.82 0.85 0.7)
+                                                       :t-or-nil t)
+                             :icon-pos :top
+                             :text-align :center))
+         (size (minimum-size box)))
+    
+    (setf (box-x box) (om-point-x pos)
+          (box-y box) (om-point-y pos)
+          (box-w box) (om-point-x size)
+          (box-h box) (om-point-y size))
+    box))
+
+
+(defmethod h-resizable ((self OMPatchComponentBox)) t)
+(defmethod v-resizable ((self OMPatchComponentBox)) nil)
+
+(defmethod get-properties-list ((self OMPatchComponentBox))
+  (add-properties (hide-properties 
+                   (call-next-method) 
+                   '(:icon :lock :lambda :group-id))
+                  "Appearance" 
+                  '((:icon "Icon position" (:left :top) icon-pos))))
+
+
+(defmethod object-name-in-inspector ((self OMPatchComponentBox)) (format nil "~A box" (type-of (reference self))))
+
+(defmethod valid-property-p ((self OMPatchComponentBox) (prop-id (eql :lock))) nil)
+(defmethod valid-property-p ((self OMPatchComponentBox) (prop-id (eql :lambda))) nil)
+
+(defmethod minimum-size ((self OMPatchComponentBox))
+  (om-make-point (max 40
+                      (+ 22 (om-string-size (name self) (font-font (text-font self)))
+                         (if (equal (icon-pos self) :left) 22 0))
+                      (+ 20 (* (length (inputs self)) 10)))
+                 (+ (if (equal (icon-pos self) :top) 14 0) 28)))
+
+
+(defmethod minimum-size ((self OMValueBox))
+  (multiple-value-bind (tw th)
+      (om-string-size (print-value self) (box-draw-font self))
+    (om-make-point (max ; (+ tw 18)
+                        (+ 20 (* (length (inputs self)) 10))
+                        32)
+                   (max (+ th 16) 28))))
+
+
+(defmethod maximum-size ((self OMPatchComponentBox))
+  (om-make-point 500 (+ (if (equal (icon-pos self) :top) 14 0) 28)))
+
+
+
+
+
+
 ;;;==========================
-;;; CLASSES
+;;; IN/OUT BOXES
 ;;;==========================
 
-(defclass OMPatchIO (OMBasicObject) 
+(defclass OMPatchIO (OMPatchComponent) 
   ((doc :initform "" :accessor doc :initarg :doc)
    (index :initform nil :accessor index)))
 
@@ -53,18 +119,6 @@
          '< :key #'(lambda (o) (or (index o) 0))))
 
 
-;;;==========================
-;;; BOX
-;;;==========================
-
-;;; GENERAL SUPERCLASS
-(defclass OMInOutBox (OMBoxCall) ())
-
-(defmethod io-box-icon-color ((self t)) (om-def-color :black))
-
-(defmethod h-resizable ((self OMInOutBox)) nil)
-(defmethod v-resizable ((self OMInOutBox)) nil)
-
 (defmethod omNG-make-new-boxcall ((reference OMPatchIO) pos &optional init-args)
   (let* ((box (make-instance (get-box-class reference)
                              :name (name reference)
@@ -81,28 +135,18 @@
           (box-h box) (om-point-y size))
     box))
 
-(defmethod get-properties-list ((self OMInOutBox))
-  (add-properties (hide-properties 
-                   (call-next-method) 
-                   '(:icon :lock :lambda :group-id))
-                  "Appearance" 
-                  '((:icon "Icon position" (:left :top) icon-pos))))
 
 
-(defmethod object-name-in-inspector ((self OMInOutBox)) (format nil "~A box" (type-of (reference self))))
+;;;==========================
+;;; BOX
+;;;==========================
 
-(defmethod valid-property-p ((self OMInOutBox) (prop-id (eql :lock))) nil)
-(defmethod valid-property-p ((self OMInOutBox) (prop-id (eql :lambda))) nil)
+;;; GENERAL SUPERCLASS
+(defclass OMInOutBox (OMPatchComponentBox) ())
 
-(defmethod minimum-size ((self OMInOutBox))
-  (om-make-point (max 40
-                      (+ 22 (om-string-size (name self) (font-font (text-font self)))
-                         (if (equal (icon-pos self) :left) 22 0)))
-                 (+ (if (equal (icon-pos self) :top) 14 0) 28)))
+(defmethod h-resizable ((self OMInOutBox)) nil)
 
-(defmethod maximum-size ((self OMInOutBox))
-  (om-make-point 500 (+ (if (equal (icon-pos self) :top) 14 0) 28)))
-
+(defmethod io-box-icon-color ((self t)) (om-def-color :black))
 
 (defmethod related-patchbox-slot ((self OMInOutBox)) nil)
 
@@ -165,7 +209,6 @@
 (defmethod next-optional-input ((self OMInBox)) 
   (not (inputs self)))
 
-
 (defmethod more-optional-input ((self OMInBox) &key name (value nil val-supplied-p) doc reactive)
   (unless (inputs self)
     (add-optional-input self :name "internal input value" 
@@ -207,7 +250,7 @@
 (defmethod get-box-class ((self OMOut)) 'OMOutBox)
 (defmethod related-patchbox-slot ((self OMOutBox)) 'outputs)
 
-(defmethod omNG-make-special-box ((reference (eql 'out)) pos &optional init-args)
+(defmethod omNG-make-special-box ((reference (eql 'out)) pos &optional init-args) 
   (let ((name (car (list! init-args))))
     (omNG-make-new-boxcall 
      (make-instance 'OMOut :name (if name (string name) "out"))

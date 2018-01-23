@@ -133,22 +133,26 @@
 
 
 ;;;==================================
-;;; (INTERNAL) INPUT EVALUATION
-;;; inputs are not evaluated when patch is compiled: they become function arguments...
+;;; (INTERNAL) PATCH-COMPONENT EVALUATION
 ;;;==================================
+
+(defmethod omNG-box-value ((self OMPatchComponentBox) &optional (numout 0))
+  (setf (value self) (mapcar #'omNG-box-value (inputs self))))
+
+;;; output is just normal...
+;(defmethod omNG-box-value ((self OMOutBox) &optional (numout 0))
+;  (setf (value self) (mapcar #'omNG-box-value (inputs self))))
+
+;;;=================
+;;; INPUT
+;;; inputs are not evaluated when patch is compiled: they become function arguments...
+;;;=================
 
 (defmethod omNG-box-value ((self OMInBox) &optional (numout 0)) 
   (when t ; (inputs self)
     (set-value self (eval-box-inputs self)))
   (return-value self numout))
 
-
-;;;=================
-;;; OUTPUT EVALUATION
-;;;=================
-
-(defmethod omNG-box-value ((self OMOutBox) &optional (numout 0))
-  (setf (value self) (mapcar #'omNG-box-value (inputs self))))
 
 ;;;=================
 ;;; BOX EVALUATION
