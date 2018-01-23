@@ -283,7 +283,11 @@ All boxes which their reference is a OM generic function are instances of this c
 
 (defmethod get-icon-id-from-reference ((self OMLispFBoxcall)) 'lisp)
 
-
+(defmethod box-draw ((self OMLispFBoxcall) (frame OMBoxFrame))
+  (let* ((pack (symbol-package (reference self)))
+         (pname (or (car (package-nicknames pack)) (package-name pack))))
+    (om-draw-string 2 2 pname)
+    t))
 
 ;-------------------------------------------
 ; BOX FOR OMGENERICFUNCTION
