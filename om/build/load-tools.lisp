@@ -117,7 +117,7 @@
     ))
 
 ; (clean-sources)
-; (clean-sources (make-pathname :directory (append (butlast (pathname-directory *load-pathname*) 3) '("IRCAM-FORGE" "LIBRARIES"))))
+; (clean-sources (make-pathname :directory (append (butlast (pathname-directory *load-pathname*) 3) '("ircam" "LIBRARIES"))))
 
 
 (defun count-lines (file)
