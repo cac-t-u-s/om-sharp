@@ -814,6 +814,7 @@
 ;;;=============================
 
 (defparameter *om-box-name-completion* t)
+
 (defparameter *all-om-pack-symbols* nil)
 
 (defun set-om-pack-symbols ()
@@ -1131,6 +1132,41 @@
   (concatenate 'string (string #\Newline) 
                (write-to-string code :escape t :pretty t :right-margin margin :miser-width margin)))
 
+(defun make-lisp-code-pane (editor)
+  (let ((lisp-pane (om-make-di 'om-multi-text 
+                               :text (format-lisp-code-string (get-patch-lambda-expression (object editor)) 60)
+                               :font (om-make-font "Courier New" 12)
+                               :size (omp nil nil)
+                               )))
+                        
+    (set-g-component editor :lisp-code lisp-pane)
+                        
+    (om-make-layout 
+     'om-column-layout :ratios '(nil 1) :delta 10
+     :subviews (list 
+                ;; top of the pane
+                (om-make-layout  'om-row-layout :align :bottom
+                                 :subviews (list
+                                            (om-make-di 'om-simple-text :text "Lisp code preview --" 
+                                                        :size (omp nil 18) :font (om-def-font :font2b)
+                                                        :fg-color (om-def-color :dark-gray))
+
+                                            (om-make-graphic-object 'om-icon-button :icon 'x :icon-pushed 'x-pushed
+                                                                    :size (omp 14 14)
+                                                                    :action #'(lambda (b) (patch-editor-set-window-config editor nil))
+                                                                    )
+                                            ))
+                ;; main pane
+                (om-make-layout 'om-simple-layout :bg-color (om-def-color :white)
+                                :subviews (list lisp-pane))
+                                    
+                (om-make-di 'om-button :text "Copy Lisp code" 
+                            :size (omp nil 32) :font (om-def-font :font1)
+                            :di-action #'(lambda (b) (om-copy-command lisp-pane)
+                                           (om-print "Lisp code copied to clipboard")))
+                ))
+    ))
+
 
 (defmethod patch-editor-set-lisp-code ((self patch-editor))
   (when (and (equal (editor-window-config self) :lisp-code)
@@ -1140,7 +1176,7 @@
            (wem (om-string-size "m" (om-get-font textpane))))
     (om-set-dialog-item-text 
      (get-g-component self :lisp-code)
-     (format-lisp-code-string (get-patch-lisp-code (object self)) (round w wem)))
+     (format-lisp-code-string (get-patch-lambda-expression (object self)) (round w wem)))
     )))
 
 ;;;======================================
@@ -1318,39 +1354,7 @@
         (let ((side-pane 
 
                (cond ((equal (editor-window-config editor) :lisp-code)
-
-                      (let ((lisp-pane (om-make-di 'om-multi-text 
-                                              :text (format-lisp-code-string (get-patch-lisp-code (object editor)) 60)
-                                              :font (om-make-font "Courier New" 12)
-                                              :size (omp nil nil)
-                                              )))
-                        
-                        (set-g-component editor :lisp-code lisp-pane)
-                        
-                        (om-make-layout 
-                         'om-column-layout :ratios '(nil 1) :delta 10
-                         :subviews (list 
-                                    ;; top of the pane
-                                    (om-make-layout  'om-row-layout :align :bottom
-                                                     :subviews (list
-                                                                (om-make-di 'om-simple-text :text "Lisp code preview --" 
-                                                                            :size (omp nil 18) :font (om-def-font :font2b)
-                                                                            :fg-color (om-def-color :dark-gray))
-
-                                                                (om-make-graphic-object 'om-icon-button :icon 'x :icon-pushed 'x-pushed
-                                                                                        :size (omp 14 14)
-                                                                                        :action #'(lambda (b) (patch-editor-set-window-config editor nil))
-                                                                                        )
-                                                                ))
-                                    ;; main pane
-                                    (om-make-layout 'om-simple-layout :bg-color (om-def-color :white)
-                                                    :subviews (list lisp-pane))
-                                    
-                                    (om-make-di 'om-button :text "Copy Lisp code" 
-                                                :size (omp nil 32) :font (om-def-font :font1)
-                                                :di-action #'(lambda (b) (om-copy-command lisp-pane)
-                                                               (om-print "Lisp code copied to clipboard")))
-                                         ))))
+                      (make-lisp-code-pane editor))
 
                      ((equal (editor-window-config editor) :inspector)
                       (make-inspector-pane editor))
