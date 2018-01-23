@@ -176,7 +176,7 @@ For easier browsing it is recommended that a package do not contain at the same 
    (mapcar #'(lambda (fun) (AddGenFun2Pack fun inPackage)) funname))
 
 ; Creates a package tree form a list of strings (names) and symbols, with pack as root
-(defun omNG-make-package  (package-name &key doc container-pack subpackages functions classes)
+(defun omNG-make-package  (package-name &key doc container-pack subpackages functions classes special-symbols)
   (let* ((new-pack (cond ((and package-name container-pack)
                           (or (find package-name (subpackages container-pack) :key 'name :test 'string-equal)
                               (let ((pack (make-instance 'OMPackage :name package-name)))
@@ -187,9 +187,10 @@ For easier browsing it is recommended that a package do not contain at the same 
                          (container-pack container-pack)
                          (t (make-instance 'OMPackage :name "Untitled Package")))))
     (when doc (setf (doc new-pack) doc))
-    (mapcar #'(lambda (class) (addclass2pack class new-pack)) classes)
-    (mapcar #'(lambda (fun) (addFun2Pack fun new-pack)) functions)
-    (mapcar #'(lambda (pk) (addpackage2pack pk new-pack)) subpackages)
+    (mapc #'(lambda (class) (addclass2pack class new-pack)) classes)
+    (mapc #'(lambda (fun) (addFun2Pack fun new-pack)) functions)
+    (mapc #'(lambda (sym) (addSpecialItem2pack sym new-pack)) special-symbols)
+    (mapc #'(lambda (pk) (addpackage2pack pk new-pack)) subpackages)
     new-pack))
 
 

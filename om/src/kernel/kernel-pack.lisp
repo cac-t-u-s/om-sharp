@@ -32,6 +32,7 @@
                          (omNG-make-package "Control" 
                                             :doc "Special boxes implementing control operators"
                                             :functions '(repeat-n seq hub list-elements omif omand omor)
+                                            :special-symbols '(in out init-do iterate)
                                             )
                          (omNG-make-package "Data" 
                                             :doc "Objects and data management in visual programs"

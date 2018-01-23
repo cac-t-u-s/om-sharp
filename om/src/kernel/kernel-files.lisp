@@ -92,6 +92,7 @@
         "patch/om-encapsulation"
         "patch/om-interfacebox"
         "patch/om-lost-reference"
+        "patch/om-loop"
  
 
         "basic/om-data-structures"
