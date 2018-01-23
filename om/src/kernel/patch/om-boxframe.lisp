@@ -236,7 +236,7 @@
       (make-instance 'h-resize-area :object self :frame self
                      :pos #'(lambda (f) (om-make-point (- (w f) 8) 16))
                      :pick #'(lambda (f) (list 0 0 12 (- (h f) 16)))))
-    (when (h-resizable (object self))
+    (when (v-resizable (object self))
       (make-instance 'v-resize-area :object self :frame self
                      :pos #'(lambda (f) (om-make-point 0 (- (h f) 8)))
                      :pick #'(lambda (f) (list 0 0 (- (w f) 8) 12))))
