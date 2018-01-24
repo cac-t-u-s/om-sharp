@@ -212,7 +212,9 @@
               (om-relative-path '("resources" "lib" "mac") nil (oa::om-root-folder)))
    #+linux (om-relative-path '("resources" "lib" "linux") nil (oa::om-root-folder))
    )
-
+  
+  #-om-deliver(setq *om-debug* t)
+  
   (load-modif-patches)
   
 #+cocoa(objc:make-autorelease-pool)
