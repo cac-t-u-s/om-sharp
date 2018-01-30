@@ -50,6 +50,7 @@
 
 ;;; SELF-NOTIFICATION (NOTIFIES AND REEVALUATES ON A NEW THREAD)
 (defmethod self-notify ((box OMBox) &optional (separate-thread t) (eval-box nil))
+  ;(print (list "SELF NOTIFY" (name box) (current-box-value box)))
   (let ((panel (and (frame box) (om-view-container (frame box)))))
       (funcall 
        (if separate-thread 'om-eval-enqueue 'eval)
@@ -62,7 +63,8 @@
             (setf (gen-lock ,box) t)
             (OMR-Notify ,box)
             (setf (gen-lock ,box) nil))
-          (if ,panel (clear-ev-once ,panel)))
+          (if ,panel (clear-ev-once ,panel))
+          )
          
          ;;;`(OMR-Notify ,box) )
          
@@ -145,7 +147,9 @@
 (defmethod eval-box :around ((self OMBox))
   (call-next-method)
   (setf (gen-lock self) t)
-  (self-notify self)
+  ;;; note : in mode eval-once we must not launch the self-notification on a separate thread
+  ;;; otherwise the clear-ev-once will be called too early
+  (self-notify self (not (equal (lock-state self) :eval-once)))
   (setf (gen-lock self) nil))
 
 
