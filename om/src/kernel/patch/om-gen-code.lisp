@@ -231,11 +231,11 @@
 (defmethod gen-code-for-call ((self OMSlotsBox) &optional args)
   `(let ((obj ,(gen-code (car (inputs self)))))
      (when obj
-       (set-value-slots obj (list ,.(mapcar #'(lambda (arg) `(list ,(intern-k (car arg)) ,(cadr arg)))
-                                            (mapcar 
-                                             #'(lambda (arg)(list (symbol-name (car arg)) (cadr arg)))
-                                             (get-connected-args self #'gen-code))
-                                            )))
+       (set-value-slots obj (list ,.
+                                  ;(mapcar #'(lambda (arg) `(list ,(intern-k (car arg)) ,(cadr arg)))
+                                  (mapcar #'(lambda (arg) `(list ,(symbol-name (car arg)) ,(cadr arg)))
+                                          (get-connected-args self #'gen-code))
+                                  ))
        obj)))
 
 ;;;=================

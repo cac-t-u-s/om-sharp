@@ -180,6 +180,7 @@
      
      ((and (equal (lock-state self) :locked) (value self)) 
       (return-value self numout))
+     
      ((and (equal (lock-state self) :eval-once) (ev-once-flag self)) 
       (return-value self numout))
      
