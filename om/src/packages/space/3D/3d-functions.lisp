@@ -28,8 +28,8 @@
          (let ((interp-x (interpolation (x-points first) (x-points second) steps curve))
                (interp-y (interpolation (y-points first) (y-points second) steps curve))
                (interp-z (interpolation (z-points first) (z-points second) steps curve))
-               (interp-times (interpolation (time-sequence-get-internal-times first) 
-                                            (time-sequence-get-internal-times second) 
+               (interp-times (interpolation (time-sequence-get-internal-times first)
+                                            (time-sequence-get-internal-times second)
                                             steps curve)))
            (values 
             (loop for x1 in interp-x for y1 in interp-y for z1 in interp-z for t1 in interp-times
@@ -39,8 +39,8 @@
         ((equal mode 'sample)
          (let ((l1 (length (point-list first)))
                (l2 (length (point-list second))))
-           (cond ((> l1 l2) (3D-interpolation first (om-sample second l1) steps curve decimals 'points))
-                 ((> l2 l1) (3D-interpolation (om-sample first l2) second steps curve decimals 'points))
+           (cond ((> l1 l2) (3D-interpolation first (3D-sample second l1) steps curve decimals 'points))
+                 ((> l2 l1) (3D-interpolation (3d-sample first l2) second steps curve decimals 'points))
                  (t (3D-interpolation first second steps curve decimals 'points)))
            ))
         ))
