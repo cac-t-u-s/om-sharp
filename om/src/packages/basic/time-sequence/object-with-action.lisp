@@ -51,5 +51,3 @@
     (set-action object action)
     object))
 
-(defun test-action (p) 
-  (print (list "test" p)))
