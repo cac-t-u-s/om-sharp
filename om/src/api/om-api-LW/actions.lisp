@@ -54,7 +54,7 @@
 
 (defparameter +control-button+ #+macosx :hyper #-macosx :control)
 (defparameter +2nd-press+ #+win32 :second-press #-win32 :nth-press)
-(defparameter +2nd-press-callback+ #+win32 om-double-clic-callback #-win32 'om-multiple-clic-callback)
+(defparameter +2nd-press-callback+ #+win32 'om-double-clic-callback #-win32 'om-multiple-clic-callback)
 
 (defclass om-interactive-object () ()
   (:default-initargs 
