@@ -1,5 +1,4 @@
 # Building 64-bit DLL resources for OpenMusic
-#### Proceedure written and tested on Windows 10 by David Stephen Grant, February 8 2018
 
 - Download and install WinGW-w64: https://sourceforge.net/projects/mingw-w64/
 - Download and install CMake: https://cmake.org/
@@ -52,3 +51,36 @@ Note: "C:\omresources" will be used as a temporary location for sources and buil
 15. Open Command Prompt and cd to C:\omresources\build\libsndfile
 16. Run "C:\Program Files\mingw-w64\x86_64-$MINGW-VERSION\mingw64\bin\mingw32-make.exe"
 17. libsndfile-1.dll is built in C:\omresources\build\libsndfile
+
+## libsamplerate
+ 1. Get latest sources: https://github.com/erikd/libsamplerate
+ 2. Extract to C:\omresources\src\libsamplerate
+ 3. Launch cmake-gui.exe (C:\Program Files\CMake\bin)
+ 4. Set source code path ('Where is the source code') to C:/omresources/src/libsamplerate
+ 5. Set build path ('Where to build the binaries') to C:/omresources/build/libsamplerate
+ 6. Hit 'Configure' ('Yes' to create build directory if prompted)
+ 7. Specify 'MinGW Makefiles' as generator for this project, select 'Specify native compilers' and hit 'Next'
+ 8. Specify path for C compiler (by default C:/Program Files/mingw-w64/x86_64-$MINGW-VERSION/mingw64/bin/gcc.exe) and C++ compiler (by default C:/Program Files/mingw-w64/x86_64-$MINGW-VERSION/mingw64/bin/g++.exe), then hit 'Finish'
+ 9. Wait for CMake to check compilers, then toggle ON the 'Advanced' checkbox
+10. Set CMAKE_BUILD_TYPE to Release
+11. Hit 'Add Entry':
+    - Name:  BUILD_SHARED_LIBS
+    - Type:  STRING
+    - Value: ON
+    'OK' to confirm the dialog
+11. Set ENABLE_STATIC_RUNTIME to 'ON'
+12. SNDFILE_INCLUDE_DIR C:/omresources/src/libsndfile/src
+13. SNDFILE_LIBRARY C:/omresources/build/libsndfile/libsndfile-1.dll
+13. Hit 'Configure'
+14. Hit 'Generate'
+15. *The example sources currently seem to block compilation, so remove them from CMakeLists.txt:*
+    - Open C:\OMRESOURCES\src\libsamplerate\CMakeLists.txt in an editor
+    - Find and remove:
+    set(EXAMPLE_SRCS
+	    ${PROJECT_SOURCE_DIR}/examples/sndfile-resample.c
+	    ${PROJECT_SOURCE_DIR}/examples/timewarp-file.c
+	    ${PROJECT_SOURCE_DIR}/examples/varispeed-play.c)
+    - Save, and close editor
+15. Open Command Prompt and cd to C:\omresources\build\libsamplerate
+16. Run "C:\Program Files\mingw-w64\x86_64-$MINGW-VERSION\mingw64\bin\mingw32-make.exe"
+17. libsamplerate-0.dll is built in C:\omresources\build\libsamplerate
