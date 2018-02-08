@@ -1,10 +1,10 @@
 # Building 64-bit DLL resources for OpenMusic
-## Proceedure written and tested on Windows 10 by David Stephen Grant
-### February 8 2018
+#### Proceedure written and tested on Windows 10 by David Stephen Grant, February 8 2018
 
 - Download and install WinGW-w64: https://sourceforge.net/projects/mingw-w64/
 - Download and install CMake: https://cmake.org/
 - Download and install Java JDK: http://www.oracle.com/technetwork/java/javase/downloads/index.html
+- Download and install Python 3.x.x (64-bit): https://www.python.org/downloads/windows/
 
 Note: "C:\omresources" will be used as a temporary location for sources and builds
 
@@ -31,3 +31,24 @@ Note: "C:\omresources" will be used as a temporary location for sources and buil
 14. Open Command Prompt and cd to C:\omresources\build\portmidi
 15. Run "C:\Program Files\mingw-w64\x86_64-$MINGW-VERSION\mingw64\bin\mingw32-make.exe"
 16. libportmidi.dll is built in C:\omresources\build\portmidi
+
+## libsndfile
+ 1. Get latest sources: https://github.com/erikd/libsndfile
+ 2. Extract to C:\omresources\src\libsndfile
+ 3. Launch cmake-gui.exe (C:\Program Files\CMake\bin)
+ 4. Set source code path ('Where is the source code') to C:/omresources/src/libsndfile
+ 5. Set build path ('Where to build the binaries') to C:/omresources/build/libsndfile
+ 6. Hit 'Configure' ('Yes' to create build directory if prompted)
+ 7. Specify 'MinGW Makefiles' as generator for this project, select 'Specify native compilers' and hit 'Next'
+ 8. Specify path for C compiler (by default C:/Program Files/mingw-w64/x86_64-$MINGW-VERSION/mingw64/bin/gcc.exe) and C++ compiler (by default C:/Program Files/mingw-w64/x86_64-$MINGW-VERSION/mingw64/bin/g++.exe), then hit 'Finish'
+ 9. Wait for CMake to check compilers, then toggle ON the 'Advanced' checkbox
+10. Set CMAKE_BUILD_TYPE to Release
+11. Set ENABLE_STATIC_RUNTIME to 'ON'
+12. Check that path to Python executable is correct.
+    Eg. on my system:
+    PYTHON_EXECUTABLE C:/Users/$USER/AppData/Local/Programs/Python/Python36/python.exe
+13. Hit 'Configure'
+14. Hit 'Generate'
+15. Open Command Prompt and cd to C:\omresources\build\libsndfile
+16. Run "C:\Program Files\mingw-w64\x86_64-$MINGW-VERSION\mingw64\bin\mingw32-make.exe"
+17. libsndfile-1.dll is built in C:\omresources\build\libsndfile
