@@ -134,7 +134,7 @@
 (load-om-package "midi")
 (load-om-package "metronome")
 (load-om-package "score")
-;(load-om-package "sdif")
+(load-om-package "sdif")
 (load-om-package "osc")
 (load-om-package "sound")
 (load-om-package "synth")
