@@ -165,7 +165,12 @@
      (let* ((filename (pathname (car args)))
             (type (pathname-type filename)))
        (cond ((find type '("opat" "omaq" "olsp") :test 'string-equal)
-              (om::open-doc-from-file (om::extension-to-doctype type) filename))
+              (oa::om-run-process 
+               "open doc"
+               #'(lambda ()
+                   (sleep 1) ;; leave time to load libs etc.
+                   (om::open-doc-from-file (om::extension-to-doctype type) filename))
+               ))
              ((string-equal "lisp" type)
               (om::om-open-new-text-editor filename))
              (t nil))
