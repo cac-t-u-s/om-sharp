@@ -118,12 +118,15 @@
           (integer (write-to-vector #\i))
           (float (write-to-vector #\f))
           (simple-string (write-to-vector #\s))
-          (symbol (write-to-vector #\s))  ;;; JBJMC201309
+          (symbol 
+           (if (or (null x) (equal x t))
+               (write-to-vector #\i) ;;; will be considered as (int 0/1)
+             (write-to-vector #\s)))  ;;; JBJMC201309: symbols = string
 	  (t (write-to-vector #\b)))))
     (cat lump
          (pad (padding-length (length lump))))))
 
-     		  
+     	  
 (defun encode-data (data)
   "encodes data in a format suitable for an OSC message"
   (let ((lump (make-array 0 :adjustable t :fill-pointer t)))
@@ -134,10 +137,14 @@
           (integer (enc encode-int32)) 
           (float (enc encode-float32)) 
           (simple-string (enc encode-string))
-          (symbol (setf lump (cat lump (encode-string (force-string x)))))   ;;; JBJMC201309
-	  (t (enc encode-blob))))
+          (symbol 
+           (cond ((null x) (setf lump (cat lump (encode-int32 0))))
+                 ((equal x t) (setf lump (cat lump (encode-int32 1))))
+                 (t (setf lump (cat lump (encode-string (force-string x)))))  ;;; JBJMC201309
+                 ))
+          (t (enc encode-blob))))
       lump)))
-                
+       
 ;;;;;; ;    ;;    ;     ; ;     ; ; ;         ;
 ;; 
 ;;    decoding OSC messages
