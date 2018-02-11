@@ -162,10 +162,11 @@
   (declare (ignore self))
   (case message
     (:open-file
-     (let ((filename (pathname (car args))))
-       (cond ((string-equal "omp" (pathname-type filename))
-              (om::open-patch-from-file filename))
-             ((string-equal "lisp" (pathname-type filename))
+     (let* ((filename (pathname (car args)))
+            (type (pathname-type filename)))
+       (cond ((find type '("opat" "omaq" "olsp") :test 'string-equal)
+              (om::open-doc-from-file (om::extension-to-doctype type) filename))
+             ((string-equal "lisp" type)
               (om::om-open-new-text-editor filename))
              (t nil))
        ))))
