@@ -37,6 +37,7 @@
   (list (make-instance 'box-output :box self :name "value")))
 
 (defmethod omNG-box-value ((self OMInterfaceBox) &optional (numout 0)) 
+  (apply-box-attributes self (eval-box-inputs self))
   (current-box-value self numout))
 
 ;;; set the box attributes
@@ -53,8 +54,8 @@
                      (cadr attr)))))
   (update-inspector-for-object self))
 
-(defmethod eval-box :before ((self OMInterfaceBox))
-  (apply-box-attributes self (eval-box-inputs self)))
+;(defmethod eval-box :before ((self OMInterfaceBox)) 
+;  (apply-box-attributes self (eval-box-inputs self)))
 
 (defmethod maximum-size ((self OMInterfaceBox)) nil)
 (defmethod minimum-size ((self OMInterfaceBox)) (omp 20 28))
