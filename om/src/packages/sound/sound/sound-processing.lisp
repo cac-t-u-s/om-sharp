@@ -237,7 +237,7 @@
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-FADE//////////////
 (defmethod* sound-fade ((s om-internal-sound) (in float) (out float))
   :icon 102
-  :initvals '(nil 100 100)
+  :initvals '(nil 0.1 0.1)
   :indoc '("a om-internal-sound" "fade in duration" "fade out duration")
   "Generates a fade-in and/or fade-out effect on <s>.
 
@@ -654,7 +654,8 @@
                           :sample-rate (sample-rate s1)
                           :smpl-type type1)))
         (t
-         (om-beep-msg "Error : trying to sequence 2 sounds with different number of channels or different sample-rate. Output is input 1.")
+         (om-beep-msg "Error: trying to sequence incompatible audio buffers: s1: ~Dch - sr=~DHz / s2: ~Dch - sr=~DHz. Output is input 1."
+                      (n-channels s1) (sample-rate s1) (n-channels s2) (sample-rate s2))
          s1)))
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-REVERSE///////////////
