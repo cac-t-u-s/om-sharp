@@ -182,7 +182,7 @@ All boxes which their reference is a OM generic function are instances of this c
 (defclass OMFunBoxcall (OMBoxcall) ()
   (:metaclass omstandardclass))
 
-(defmethod omNG-make-new-boxcall ((reference function) pos &optional init-args)
+(defmethod omNG-make-new-boxcall ((reference function) pos &optional (init-args nil args-supplied-p))
   (let* ((box (make-instance (get-box-class reference)
                              :name (string-downcase (function-name reference))
                              :reference (function-name reference)))
@@ -191,7 +191,7 @@ All boxes which their reference is a OM generic function are instances of this c
           (box-y box) (om-point-y pos)
           (box-w box) (om-point-x size)
           (box-h box) (om-point-y size))
-    (add-args-to-box box init-args)
+    (when args-supplied-p (add-args-to-box box init-args))
     box))
 
 (defmethod box-n-outs ((self OMFunBoxcall)) 1)

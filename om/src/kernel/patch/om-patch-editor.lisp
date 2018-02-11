@@ -146,6 +146,7 @@
                                    (list (om-make-menu-item  
                                           "Auto align boxes..."
                                           #'(lambda () 
+                                              (store-current-state-for-undo self)
                                               (align-selected-boxes self))
                                           :key "A" 
                                           :enabled #'(lambda () (not (edit-lock self)))
@@ -283,6 +284,7 @@
                   (if (om-shift-key-p) (not (selected (object selected-connection))) t))
 
       (unless (edit-lock (editor self))  
+        (store-current-state-for-undo (editor self))
         (om-init-temp-graphics-motion  
          self pos nil
          :motion #'(lambda (view p)

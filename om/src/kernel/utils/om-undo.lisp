@@ -74,8 +74,9 @@
        (cleanup-undoable-editor-stack-elements self deleted-states))
       )
     )
-  ;;(om-print-dbg "UNDO STACK:")
-  ;;(write (undo-stack self) :stream om-lisp::*om-stream* :pretty t)
+  ;(om-print-dbg "UNDO STACK:")
+  ;(write (undo-stack self) :stream om-lisp::*om-stream* :pretty t)
+  ;(terpri om-lisp::*om-stream*)
   )
 
 (defmethod push-redo-state ((self undoable-editor-mixin))
@@ -87,8 +88,9 @@
     ;(when (> (length (redo-stack self)) (level self))
     ;  (setf (redo-stack self) (butlast (redo-stack self))))
   
-    ;;(om-print-dbg "REDO STACK:")
-    ;;(write (redo-stack self) :stream om-lisp::*om-stream* :pretty t)
+    ;(om-print-dbg "REDO STACK:")
+    ;(write (redo-stack self) :stream om-lisp::*om-stream* :pretty t)
+    ;(terpri om-lisp::*om-stream*)
   )
 
 
@@ -199,9 +201,9 @@
 ;;; restore a new list, restore each object in it
 (defmethod restore-undoable-object-state ((self OMBox) (state list)) 
   (call-next-method self (car state))
-  (setf (inputs self) (create-box-inputs self) 
-        (outputs self) (create-box-outputs self)) 
+  (setf (inputs self) (create-box-inputs self))
   (restore-inputs self (nth 1 state))
+  (setf (outputs self) (create-box-outputs self)) 
   (restore-outputs self (nth 2 state))
   self)
 
@@ -226,11 +228,12 @@
     
     (loop for b-state in boxes-in-state do
           (let ((b (car b-state)))
-            (restore-undoable-object-state b (cadr b-state))
-            (loop for box-io in (append (inputs b) (outputs b)) do
-                  (setf (connections box-io) nil))
-            (omng-add-element self b)
-            ))
+            (when b 
+              (restore-undoable-object-state b (cadr b-state))
+              (loop for box-io in (append (inputs b) (outputs b)) do
+                    (setf (connections box-io) nil))
+              (omng-add-element self b)
+            )))
 
     (loop for c in (restore-connections-to-boxes connections-in-state (boxes self))
           do (omng-add-element self c))
@@ -244,6 +247,7 @@
          (view (main-view self)))
     (om-remove-all-subviews view)
     (put-patch-boxes-in-editor-view patch view)
+    (add-lock-item self view)
     (om-invalidate-view view)))
 
 (defmethod cleanup-undoable-object-elements ((self OMPatch) deleted-states stacked-states) 

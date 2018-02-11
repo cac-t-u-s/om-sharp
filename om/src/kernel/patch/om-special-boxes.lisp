@@ -80,7 +80,7 @@ Use > and < to add/remove outputs.
 It is advised to use this box in mode 'eval once' in order to avoid useless computations.
 "
   :icon 235
-  :numouts 0
+  :numouts 1
   (values-list (first-n list 50)))
 
 
@@ -109,7 +109,7 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
                                 :name (format nil "out~D" (length (outputs self))) 
                                 :box self))
            ))
-  (setf (lock-state self) :eval-once)
+  
   (update-inspector-for-object self)
   t)
 
@@ -118,20 +118,22 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
     (set-box-outputs self (butlast (outputs self)))))
 
 ;; hack: all inputs (actually, ouputs) can be removed as "optional"
-(defmethod get-optional-inputs ((self OMBoxSplit)) (outputs self))
+(defmethod get-optional-inputs ((self OMBoxSplit)) (cdr (outputs self)))
 
 (defmethod save-outputs? ((self OMBoxSplit)) t)
 
 (defmethod restore-outputs ((self OMBoxSplit) outputs)
-  (setf (outputs self) (list (car (outputs self))))
+  (when (outputs self)
+    (setf (outputs self) (list (car (outputs self)))))
   (loop for o in (cdr outputs) for n from 1 do
         (add-optional-input self))
   (call-next-method))
  
 (defmethod add-args-to-box ((box OMBoxSplit) args)
   (let ((n (if (numberp (car args)) (car args) 2)))
-    (dotimes (i n)
-      (add-optional-input box))))
+    (dotimes (i (- n (length (outputs box))))
+      (add-optional-input box))
+    (setf (lock-state box) :eval-once)))
 
 
 ;;;------------------------
