@@ -94,6 +94,19 @@ Use rather the get/set slots mechanism provided by the SLOTS boxes (shift+drag a
    (loop for item in object do (set-slot item slot value)))
 
 
+
+;;;========================================
+;;; MAP UTIL
+;;;========================================
+
+(defmethod map-list (function list &rest other-list)
+  (apply 'mapcar 
+         (append (list function list)
+                 other-list)
+         )
+  )
+
+
 ;;;========================================
 ;;; UTILITY TO TEST TYPE AND DISPATCH VALUES
 ;;;========================================
