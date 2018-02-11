@@ -58,7 +58,7 @@
 ;;==========
 
 (defmethod* osc-send (bundle host port)
-  :icon 611
+  :icon 'osc
   :initvals '(("/test" 0) "127.0.0.1" 3000)
   :indoc '("OSC message" "IP address" "port number")
   :doc "Sends the given and OSC message (<bundle>) port <port> of <host>.
@@ -74,7 +74,7 @@ Note: default host 127.0.0.1 is the 'localhost', i.e. the message is send to the
 
 
 (defmethod* osc-receive (port msg-processing &optional host)
-  :icon 611
+  :icon 'osc
   :indoc '("port number" "incoming message processing patch" "an IP address")
   :initvals '(3000 nil nil)
   :doc "A local OSC server.

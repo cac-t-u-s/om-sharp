@@ -43,7 +43,7 @@
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SAVE-SOUND///////////////
 (defmethod* save-sound ((self om-internal-sound) filename &optional (format *default-audio-format*))
-            :icon 107
+            :icon 'save-sound
             :initvals '(nil nil 'aiff)
             :indoc '("a sound or om-internal-sound buffer" "output file pathname" "audio format")
             :menuins '((2 (("AIFF" :aiff) ("WAV" :wav) ("FLAC" :flac) ("OGG Vorbis" :ogg))))
@@ -83,7 +83,7 @@
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-RESAMPLE//////////
 (defmethod* sound-resample ((s om-internal-sound) sample-rate &optional (resample-method 0))
-  :icon 114
+  :icon 'sound-resample
   :initvals '(nil 44100 0)
   :menuins '((2 (("Best Quality" 0)
                  ("Medium Quality" 1)
@@ -134,7 +134,7 @@
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-NORMALIZE/////////
 (defmethod* sound-normalize ((s om-internal-sound) &optional (method 0))
-  :icon 109
+  :icon 'sound-normalize
   :initvals '(nil 0)
   :menuins '((1 (("Peak" 0)
                  ("Peak RMS / Hard limiting" 1))))
@@ -210,7 +210,7 @@
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-SILENCE///////////
 (defmethod* sound-silence ((dur float) &optional (channels 1) (sample-rate *default-audio-rate*))
-  :icon 105
+  :icon 'sound-silence
   :initvals (list 1.0 1 *default-audio-rate*)
   :indoc '("duration (float or integer)" "number of channels")
   :doc "Generates a silence of duration = <dur>.
@@ -236,7 +236,7 @@
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-FADE//////////////
 (defmethod* sound-fade ((s om-internal-sound) (in float) (out float))
-  :icon 102
+  :icon 'sound-fade
   :initvals '(nil 0.1 0.1)
   :indoc '("a om-internal-sound" "fade in duration" "fade out duration")
   "Generates a fade-in and/or fade-out effect on <s>.
@@ -280,7 +280,7 @@
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-LOOP//////////////
 (defmethod* sound-loop ((s om-internal-sound) n)
-  :icon 103
+  :icon 'sound-loop
   :initvals '(nil 3)
   :indoc '("a sound" "a number")
   "Generates a <n>-times repetition of <s>."
@@ -304,7 +304,7 @@
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-CUT///////////////
 (defmethod* sound-cut ((s om-internal-sound) (beg float) (end float))
-  :icon 104
+  :icon 'sound-cut
   :initvals '(nil 0.0 1.0)
   :indoc '("a sound" "begin time" "end time")
   "Cuts and returns an extract between <beg> and <end> in <s>.
@@ -337,7 +337,7 @@
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-VOL///////////////
 (defmethod* sound-vol ((s om-internal-sound) gain &optional (in 1) (out 1))
-  :icon 106
+  :icon 'sound-vol
   :initvals '(nil 1.0 1 1)
   :indoc '("a sound" "a gain value" "fade in duration" "fade out duration")
   "Adds gain effect (volume) on <s>. 
@@ -379,7 +379,7 @@
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-MONO-TO-STEREO///
 (defmethod* sound-mono-to-stereo ((s om-internal-sound) &optional (pan 0))
-  :icon 111
+  :icon 'sound-mono-to-stereo
   :initvals '(nil 0)
   :indoc '("a sound" "a panoramic value between -100 and 100")
   "Stereo-ize a mono sound with possible panoramic <s>.
@@ -417,7 +417,7 @@
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-STEREO-TO-MONO///
 (defmethod* sound-stereo-to-mono ((s om-internal-sound))
-  :icon 112
+  :icon 'sound-stereo-to-mono
   :initvals '(nil)
   :indoc '("a sound")
   "Mono-ize a stereo sound."
@@ -448,7 +448,7 @@
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-PAN//////////////
 (defmethod* sound-stereo-pan ((s om-internal-sound) left right)
-  :icon 113
+  :icon 'sound-stereo-pan
   :initvals '(nil -100 100)
   :indoc '("a sound" "a left channel pan value" "a right channel pan value")
   "Pan a stereo sound.
@@ -491,7 +491,7 @@
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-MIX///////////////
 (defmethod* sound-mix ((s1 om-internal-sound) (s2 om-internal-sound) &optional (method 0))
-  :icon 101
+  :icon 'sound-mix
   :initvals '(nil nil 0)
   :menuins '((2 (("Sum" 0)
                  ("Sum / Average" 1)
@@ -548,7 +548,7 @@
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////
 (defmethod* sound-merge ((sound-list list))
-  :icon 111
+  :icon 'sound-mix
   :initvals '(nil)
   :indoc '("a list of sounds")
   "Merges several sounds into a single multi-channel sound."
@@ -584,7 +584,7 @@
 
 ;;; splits the channels of a sound
 (defmethod* sound-split ((s om-internal-sound))
-  :icon 111
+  :icon 'sound-mix
   :initvals '(nil)
   :indoc '("a (multichannel) sounds")
   "outputs a list of mono sounds from input channels"
@@ -610,7 +610,7 @@
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-SEQ///////////////
 (defmethod* sound-seq ((s1 om-internal-sound) (s2 om-internal-sound) &optional (crossfade 0))
-  :icon 100
+  :icon 'sound-seq
   :initvals '(nil nil 0)
   :indoc '("a sound" "a sound" "cross-fading duration (ms)")
   "Concatenates <s1> and <s2>. 
@@ -660,7 +660,7 @@
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-REVERSE///////////////
 (defmethod* sound-reverse ((s om-internal-sound))
-  :icon 113
+  :icon 'sound-reverse
   :initvals '(nil -100 100)
   :indoc '("a sound")
   "Reverse a sound."

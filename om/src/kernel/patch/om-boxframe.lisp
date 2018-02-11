@@ -509,7 +509,7 @@
                     :color (om-def-color :gray))
       )))
 
-
+(defmethod draw-name-as-icon (box frame) nil)
 
 (defmethod boxframe-draw-contents ((self OMBoxFrame) (box OMBox))
   (let ((icon-size (get-icon-size box))
@@ -546,14 +546,16 @@
 
       ;;; icon
       (or (box-draw box self)
-          (when (icon-id self)
-            (case (icon-pos box)
-              (:left (om-draw-picture (icon-id self) :x 2 :y (- (h self) icon-size io-hspace) :w icon-size :h icon-size))
-              (:top (let ((smaller (min (w self) (- (h self) icon-size io-hspace io-hspace))))
-                      (om-draw-picture (icon-id self) 
-                                       :x (round (- (w self) smaller) 2) 
-                                       :y (* io-hspace 1.5) :w smaller :h smaller)))
-              (otherwise nil))))
+          (if (icon-id self)
+              (case (icon-pos box)
+                (:left (om-draw-picture (icon-id self) :x 2 :y (- (h self) icon-size io-hspace) :w icon-size :h icon-size))
+                (:top (let ((smaller (min (w self) (- (h self) icon-size io-hspace io-hspace))))
+                        (om-draw-picture (icon-id self) 
+                                         :x (round (- (w self) smaller) 2) 
+                                         :y (* io-hspace 1.5) :w smaller :h smaller)))
+                (otherwise nil))
+            (draw-name-as-icon box self))
+          )
       
       ;;; name
       (om-with-clip-rect self 0 0 (w self) (- (h self) 8) 

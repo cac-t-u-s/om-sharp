@@ -25,14 +25,12 @@
 (defmethod* point-pairs ((self bpf)) 
   :initvals '(nil)
   :indoc '("a BPC")
-  :icon 241 
   :doc "Retruns the list of points in <self> as a list ((x1 y1) (x2 y2) ...)"
   (mat-trans (list (x-points self) (y-points self))))
 
 (defmethod* point-pairs ((self bpc)) 
   :initvals '(nil)
   :indoc '("a BPC")
-  :icon 241 
   :doc "Retruns the list of points in <self> as a list ((x1 y1 t1) (x2 y2 t2) ...)"
   (mat-trans (list (x-points self) (y-points self))))
 
@@ -238,7 +236,7 @@ Note that splines are supposed to be computed from BPFs with reltively few contr
 ;;;=========================================== 
 
 (defmethod* bpf-interpol ((first bpf) (second bpf) (steps number) &optional (curve 0.0) (decimals nil) (mode 'points))
-            :icon 213   
+            :icon 'bpf-interpol   
             :initvals '(nil nil 1 0.0 nil points) 
             :indoc '("a bpf or bpc" "a bpf or bpc" "number of steps" "interpolation curve" "precision" "interpolation mode")
             :outdoc '("list of BPFs" "list of x-points" "list of y-points")

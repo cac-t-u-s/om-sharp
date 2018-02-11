@@ -125,7 +125,8 @@
 ;-------------------------------------------------------------------------
 ;Define an OM method and an OM Generic function if this last doesn't exist
 
-(defun def-method-icon () 'default)
+;(defun def-method-icon () 'default)
+(defun def-method-icon () nil)
 
 (defun decode-menuins (list)
   (loop for in from 0 to (apply 'max (mapcar 'car list)) collect

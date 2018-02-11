@@ -395,7 +395,6 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
 (defmethod* point-pairs ((self 3dc)) 
   :initvals '(nil)
   :indoc '("a 3dc")
-  :icon 241 
   :doc "Retruns the list of points in <self> as a list ((x1 y1 z1 t1) (x2 y2 z2 t2) ...)"
   (mat-trans (list (x-points self) (y-points self) (z-points self) (time-sequence-get-internal-times self))))
 

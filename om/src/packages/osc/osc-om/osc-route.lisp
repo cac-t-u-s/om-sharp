@@ -25,6 +25,7 @@
     (string-equal address route-path))
 
 (defmethod* route-osc ((message list) &rest osc-paths)
+  :icon 'osc
   (values-list (copy-list (cons message 
                                 (mapcar 
                                  #'(lambda (route-path) (if (listp (car message))

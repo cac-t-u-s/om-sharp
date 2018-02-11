@@ -270,6 +270,15 @@ All boxes which their reference is a OM generic function are instances of this c
    '(:group-id)))
 
 
+(defmethod draw-name-as-icon ((box OMFunBoxCall) frame)
+  (let* ((pack (symbol-package (reference box)))
+         (pname (or (car (package-nicknames pack)) (package-name pack)))
+         (font (om-def-font :font1b :size 7)))
+    (om-draw-rounded-rect 2 6 20 (- (h frame) 12) :color (om-def-color :gray) :fill t :round 5)
+    (om-draw-string (- 8 (* (length pname) 1.2)) 17 pname :font font :color (om-def-color :light-gray))
+    t))
+
+
 ;-------------------------------------------
 ; BOX FOR STANDARD LISP FUNCTIONS
 ;-------------------------------------------
@@ -281,15 +290,10 @@ All boxes which their reference is a OM generic function are instances of this c
 
 (defmethod get-object-type-name ((self OMLispFBoxcall)) "Standard Lisp Function")
 
-(defmethod get-icon-id-from-reference ((self OMLispFBoxcall)) 'lisp)
+(defmethod get-icon-id-from-reference ((self OMLispFBoxcall)) nil) ;; lisp
 
-(defmethod box-draw ((self OMLispFBoxcall) (frame OMBoxFrame))
-  (let* ((pack (symbol-package (reference self)))
-         (pname (or (car (package-nicknames pack)) (package-name pack)))
-         (font (om-def-font :font1b :size 7)))
-    (om-draw-rounded-rect 2 6 20 (- (h frame) 12) :color (om-def-color :gray) :fill t :round 5)
-    (om-draw-string (- 8 (* (length pname) 1.2)) 17 pname :font font :color (om-def-color :light-gray))
-    t))
+;; (defmethod box-draw ((self OMLispFBoxcall) (frame OMBoxFrame)) (call-next-method))
+
 
 ;-------------------------------------------
 ; BOX FOR OMGENERICFUNCTION

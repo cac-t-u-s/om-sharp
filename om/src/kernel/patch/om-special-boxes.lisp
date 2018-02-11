@@ -79,7 +79,7 @@ Use > and < to add/remove outputs.
 
 It is advised to use this box in mode 'eval once' in order to avoid useless computations.
 "
-  :icon 235
+  :icon 'list
   :numouts 1
   (values-list (first-n list 50)))
 
@@ -172,7 +172,7 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
   :doc "Repeats <n> times the evaluation of <self> and collects the <n> results into a list.
 
 Ex. (repeat-n (+ 1 1) 4) ==> (2 2 2 2)" 
-  :icon 181
+  :icon 'repeat
   (loop for i from 1 to n collect (eval self)))
 
 (defclass OMRepeatNBoxCall (OMGFBoxcall) ())
@@ -316,3 +316,4 @@ OMAND can be used to compose conditions as input to an OMIF"
   (om-with-font 
    (om-def-font :font1b)
    (om-draw-string 65 18 (format nil "~A" (or (def-value self) "?")))))
+
