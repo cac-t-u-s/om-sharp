@@ -165,8 +165,7 @@ Ex. (tmpfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/
           (when (> (length found-matches) 1)
             (om-beep-msg "Warning: several candidates were found in the search path folder for file ~A.~A !!" (pathname-name path) (pathname-type path)))
           
-          (or (car found-matches)
-              (om-beep-msg "Warning: file ~A.~A not found!!" (pathname-name path) (pathname-type path)))
+          (car found-matches)
           ))
       ))
 

@@ -1073,35 +1073,38 @@
 
 ;;; handle/warn on possible duplicates
 (defmethod new-abstraction-box-in-patch-editor ((self patch-editor-view) str position)     
-  (let* ((patch (object (editor self)))
-         (abs-types '("opat" "omaq" "olsp"))
-         (local-restored-path (merge-pathnames str (pathname-dir (mypathname patch))))
-         (local-matches (remove nil 
-                                (loop for type in abs-types collect
-                                      (probe-file 
-                                       (merge-pathnames local-restored-path
-                                                        (make-pathname :type type))))))
-         (doc-path (car local-matches)))
+  (let ((patch (object (editor self)))
+        (abs-types '("opat" "omaq" "olsp"))
+        (doc-path nil))
     
-    (when (> (length local-matches) 1)
-      (om-beep-msg "Warning: there's more than 1 document named ~s in ~s" 
-                   (pathname-name local-restored-path)
-                   (pathname-dir local-restored-path)))
+    (when (mypathname patch)
+      (let* ((local-restored-path (merge-pathnames str (pathname-dir (mypathname patch))))
+             (local-matches (remove nil 
+                                    (loop for type in abs-types collect
+                                          (probe-file 
+                                           (merge-pathnames local-restored-path
+                                                            (make-pathname :type type)))))))
+        (setq doc-path (car local-matches))
+      
+        (when (> (length local-matches) 1)
+          (om-beep-msg "Warning: there's more than 1 document named ~s in ~s" 
+                       (pathname-name local-restored-path)
+                       (pathname-dir local-restored-path)))
+        ))
     
     (unless doc-path
       ;;; try with the search folder
       (let ((search-matches (remove nil 
                                     (loop for type in abs-types collect
-                                          (print (check-path-using-search-path 
-                                           (print (merge-pathnames local-restored-path
-                                                            (make-pathname :type (print type))))))))))
-        (when (> (length local-matches) 1)
-          (om-beep-msg "Warning: there's more than 1 document named ~s in your search-path folder" 
-                       (pathname-name local-restored-path)))
+                                          (check-path-using-search-path 
+                                           (merge-pathnames str
+                                                            (make-pathname :type type)))))))
+            (when (> (length search-matches) 1)
+              (om-beep-msg "Warning: there's more than 1 document named ~s in your search-path folder" 
+                           str))
+        ;(print search-matches)
+            (setf doc-path (car search-matches))))
         
-        (print search-matches)
-        (setf doc-path (car search-matches))))
-    
     (when doc-path
       (let ((obj (load-doc-from-file doc-path (extension-to-doctype (pathname-type doc-path)))))
         (when obj
