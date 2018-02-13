@@ -326,11 +326,6 @@
 ;;; when some things can be released.. (e.g. sound buffers)
 (defmethod release-previous-value ((self t)) nil)
 
-(defmethod set-value ((self OMBoxRelatedWClass) value)
-  (release-previous-value (car (value self)))
-  (call-next-method)
-  (update-after-eval self))
-
 (defmethod return-value ((self OMBoxRelatedWClass) &optional (numout 0))
   (rep-editor self numout))
 
@@ -339,6 +334,12 @@
    (when (equal (lock-state self) :eval-once)
      (setf (ev-once-flag self) nil)))
 
+(defmethod set-value ((self OMBoxEditCall) value)
+  (release-previous-value (car (value self)))
+  (call-next-method)
+  (update-after-eval self))
+
+
 (defmethod boxcall-value ((self OMBoxEditCall))
   (let ((self-in (omNG-box-value (car (inputs self)))))
     (if self-in
@@ -346,7 +347,7 @@
       (make-value (reference self) (get-all-args self #'omng-box-value))
       )))
 
-(defmethod boxcall-value ((self OMSlotsBox))
+(defmethod boxcall-value ((self OMSlotsBox)) 
   (let ((self-in (omNG-box-value (car (inputs self)))))
     (if self-in
         (let ((connected-args (get-connected-args self #'omng-box-value))) 
