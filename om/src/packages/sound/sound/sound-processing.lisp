@@ -278,6 +278,10 @@
       s2)))
 
 
+(defmethod* sound-fade ((s om-internal-sound) (in integer) (out integer))
+  (sound-fade s (ms->sec in) (ms->sec out)))
+
+
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-LOOP//////////////
 (defmethod* sound-loop ((s om-internal-sound) n)
   :icon 'sound-loop
@@ -333,6 +337,9 @@
                      :sample-rate sr
                      :smpl-type type))))
 
+
+(defmethod* sound-cut ((s om-internal-sound) (beg integer) (end integer))
+  (sound-cut s (ms->sec beg) (ms->sec end)))
 
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-VOL///////////////
@@ -628,23 +635,22 @@
                 (size2 (n-samples s2))
                 (cf (if (integerp crossfade) (* crossfade 0.001) crossfade))
                 (smp-cross (round (* cf sr)))
-                (smp-cross-side (ceiling smp-cross 2))
                 (factor1 (- (/ 1.0 (max 1 smp-cross))))
                 (factor2 (/ 1.0 (max 1 smp-cross)))
-                (final-size (- (+ size1 size2) smp-cross-side))
+                (final-size (- (+ size1 size2) smp-cross))
                 (final-buffer (allocate-split-buffer final-size nch type1)))
-
+           
            (dotimes (i final-size)
              (dotimes (n nch)
                (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type1)
                      (cond ((< i (- size1 smp-cross)) 
                             (fli:dereference (fli:dereference ptr1 :index n :type :pointer) :index i :type type1))
-                           ((and (>= i (- size1 smp-cross)) (<= i size1)) 
+                           ((and (>= i (- size1 smp-cross)) (< i size1)) 
                             (+ (* (1+ (* factor1 (- i (- size1 smp-cross))))
                                   (fli:dereference (fli:dereference ptr1 :index n :type :pointer) :index i :type type1))
                                (* factor2 (- i (- size1 smp-cross)) 
                                   (fli:dereference (fli:dereference ptr2 :index n :type :pointer) :index (+ smp-cross (- i size1)) :type type2))))
-                           ((> i size1) 
+                           ((>= i size1) 
                             (fli:dereference (fli:dereference ptr2 :index n :type :pointer) :index (+ smp-cross (- i size1)) :type type2))))))
 
            (make-instance 'sound 
