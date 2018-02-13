@@ -331,7 +331,9 @@
     ))
 
 
-;todo clean and avoid calls to om-copy
+; todo: 
+; - clean and avoid calls to om-copy
+; - simplify when all points have a time !!
 (defmethod time-sequence-update-internal-times ((self time-sequence) &optional (interpol-mode :constant-speed) (duration 10000) (modif-time nil))
   ;this function creates a list of times for all timed points even if they are nil.
   ;It can do with constant time or constant speed interpolations (interpol-mode :constant-speed :constant-time "default")

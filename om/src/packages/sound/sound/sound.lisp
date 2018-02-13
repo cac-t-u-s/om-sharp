@@ -231,7 +231,8 @@ Press 'space' to play/stop the sound file.
 (defmethod (setf markers) (markers (self sound))
   (data-stream-set-frames 
    self
-   (mapcar #'(lambda (m) (make-instance 'marker-frame :date m)) markers)))
+   (mapcar #'(lambda (m) (make-instance 'marker-frame :date m)) markers))
+  markers)
 
 ;;;===========================
 ;;; INITIALIZATION...

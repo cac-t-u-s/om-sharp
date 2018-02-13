@@ -74,7 +74,9 @@
 (defmethod (setf frames) (frames (self data-stream)) (setf (slot-value self (data-stream-frames-slot self)) frames))
 
 (defmethod data-stream-get-frames ((self data-stream)) (frames self))
-(defmethod data-stream-set-frames ((self data-stream) frames) (setf (frames self) frames))
+(defmethod data-stream-set-frames ((self data-stream) frames) 
+  (setf (frames self) frames)
+  (time-sequence-update-internal-times self))
  
 ;;; TIME-SEQUENCE API
 (defmethod time-sequence-get-timed-item-list ((self data-stream)) (data-stream-get-frames self))
