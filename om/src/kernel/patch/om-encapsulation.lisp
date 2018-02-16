@@ -168,7 +168,7 @@
               (let ((connection (omng-make-new-connection 
                                  dest-output
                                  (nth i (inputs patchbox))
-                                 `(:style :curved :color ,(om-def-color :dark-blue))
+                                 `(:color ,(om-def-color :dark-blue))
                                  )))
                 (omng-add-element thispatch connection)
                 (add-connection-in-view view connection))))
@@ -181,7 +181,7 @@
                     (let ((connection (omng-make-new-connection 
                                        (nth i (outputs patchbox))
                                        dest-input
-                                       `(:style :curved :color ,(om-def-color :dark-blue)))))
+                                       `(:color ,(om-def-color :dark-blue)))))
                       (omng-add-element thispatch connection)
                       (add-connection-in-view view connection)))))
  
@@ -253,7 +253,7 @@
                                (let ((new-connection (omng-make-new-connection 
                                                       (from (car connections-i))
                                                       (to c)
-                                                      `(:style :curved :color ,(om-def-color :dark-blue)))))
+                                                      `(:color ,(om-def-color :dark-blue)))))
                                  (omng-add-element patch new-connection)
                                  (add-connection-in-view view new-connection)))
                          )))
@@ -265,7 +265,7 @@
                              (let ((new-connection (omng-make-new-connection 
                                                     (from c)  ; who is connected to the index-th inlet of the box patch
                                                     to-in
-                                                    `(:style :curved :color ,(om-def-color :dark-blue)))))
+                                                    `(:color ,(om-def-color :dark-blue)))))
                                (omng-add-element patch new-connection)
                                (add-connection-in-view view new-connection)))
                        ))
@@ -277,7 +277,7 @@
                              (let ((new-connection (omng-make-new-connection 
                                                     from-out  
                                                     (to c) ; who is connected to the index-th inlet of the box patch
-                                                    `(:style :curved :color ,(om-def-color :dark-blue)))))
+                                                    `(:color ,(om-def-color :dark-blue)))))
                                (omng-add-element patch new-connection)
                                (add-connection-in-view view new-connection))
                              )))

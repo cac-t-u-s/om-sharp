@@ -95,6 +95,7 @@
         (om-string-size longest-line (box-draw-font self))
       (omp (+ 12 w) (+ 8 (* h (length comment-lines)))))))
 
+(defmethod maximum-size ((self OMComment)) nil)
 
 (defmethod om-copy ((self OMComment)) 
   (let ((newbox (call-next-method)))

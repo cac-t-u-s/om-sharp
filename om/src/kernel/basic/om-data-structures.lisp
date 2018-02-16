@@ -40,7 +40,6 @@ It can be accessed (get/set) using the methods get-slot / set-slot or using the 
 ;;;====================
 
 (defmethod* clone ((self t)) 
-   :icon 205
    :indoc '("object")
    :outdoc '("copy")
    :doc "Makes and returns a copy of an object."
@@ -55,7 +54,6 @@ It can be accessed (get/set) using the methods get-slot / set-slot or using the 
 (defmethod* get-slot ((object t) (slot symbol))
    :initvals '(nil nil) 
    :indoc '("object" "slot name") 
-   :icon 'om-get-slot
    :doc "Returns the value of an object's slot. 
 
 <object> must be an object instance (e.g. the first output of a factory box). 
@@ -73,7 +71,6 @@ In this case, prefer the get/set slots mechanism provided by the SLOTS boxes (sh
 (defmethod* set-slot ((object t) (slot symbol) (value t))
    :initvals '(nil nil nil) 
    :indoc '("object" "slot" "value") 
-   :icon 335
    :doc
    "Modifies the value of an object's slot. 
 

@@ -29,7 +29,7 @@
  "MIDI"
  :container-pack *om-package-tree*
  :doc "MIDI tools and objects"
- :classes '(piano-roll)
+ :classes '(piano-roll midi-note)
  :functions nil
  :subpackages nil)
  

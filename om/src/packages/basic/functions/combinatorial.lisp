@@ -86,7 +86,7 @@ Ex. (rotate '(a b c d e) 3) => (d e a b c)"
   :initvals '(nil)
   :indoc '("a list")
   :doc "Returns a randomly chosen element from <list>."
-  :icon 176
+  :icon 'recursif
   (nth (om-random-value (length list)) list))
 
 ;-------PERMUT-RANDOM---------
