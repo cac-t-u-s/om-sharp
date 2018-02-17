@@ -4,7 +4,7 @@
 
 ;(require "hqn-web")
 
-#+win32(require "ole")
+#+mswindows(require "ole")
 
 (print "==============================")
 (print "LOADING SOURCES")
@@ -301,8 +301,8 @@
                                          :identifier "fr.ircam.repmus.o7"
                                          :version (version-to-string *om-version* t nil)
                                          ))
-       #+win32
-       (make-pathname :directory (butlast (pathname-directory (current-pathname)) 2)
+       #+mswindows
+       (make-pathname :directory (butlast (pathname-directory (current-pathname)))
                       :name *app-name+version* :type "exe")))
   
   #+macosx(move-mac-resources)
@@ -310,7 +310,7 @@
   (deliver 'init-om-standalone
            application-pathname
            0 
-           :split :resources
+            #+macosx :split  #+macosx :resources
            :interface :capi
            :keep-editor t
            :keep-debug-mode t
@@ -323,14 +323,14 @@
            ;:keep-xref-info t   ;; ??
            ;:editor-style :default
            :startup-bitmap-file NIL ;; *startup-bmp*  ;; removed because of a delivery bug with menus in OM 7         
-           #+win32 :keep-gc-cursor #+ win32 nil
-           #+win32 :versioninfo #+win32 (list :binary-version (read-from-string (version-to-hex *om-version*))
+           #+mswindows :keep-gc-cursor #+mswindows nil
+           #+mswindows :versioninfo #+mswindows (list :binary-version (read-from-string (version-to-hex *om-version*))
                                               :version-string (version-to-string *om-version* t nil)
                                               :company-name "" :product-name "o7" :file-description "")
-           #+win32 :console #+win32 :input
-           :quit-when-no-windows #+win32 t #-win32 nil
-           #+(or cocoa win32) :packages-to-keep #+cocoa '(:objc)  #+win32 '(:comm)
-         ; #+win32 :icon-file #+win32 "./win/OpenMusic.ico"
+           #+mswindows :console #+mswindows :input
+           :quit-when-no-windows #+mswindows t #-mswindows nil
+           #+(or cocoa win32) :packages-to-keep #+cocoa '(:objc)  #+mswindows '(:comm)
+           #+mswindows :icon-file #+mswindows "./win/om.ico"
            )
   )
 
