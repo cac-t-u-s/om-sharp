@@ -111,16 +111,15 @@
 (defmethod get-frame-area ((frame chord) editor)
   (let ((panel (get-g-component editor :main-panel)))
     (values (x-to-pix panel (date frame))
-            (- (y-to-pix panel (get-frame-attribute frame :posy editor)) 4)
+            (- (y-to-pix panel (get-frame-posy frame)) 4)
             6
             4  ;; downwards
             )))
 
-(defmethod set-frame-attributes-from-editor ((f chord) editor) 
- (declare (ignore editor))
- (setf (getf (attributes f) :color) (om-def-color :black)
-       (getf (attributes f) :posy) (car (lmidic f))
-       (getf (attributes f) :sizey) 500))
+
+(defmethod get-frame-color ((self chord)) (om-def-color :black))
+(defmethod get-frame-posy ((self chord)) (car (lmidic self)))
+(defmethod get-frame-sizey ((self chord)) 500)
 
 (defmethod draw-data-frame ((frame chord) editor i &optional (active nil))
   (let* ((panel (get-g-component editor :main-panel)))
@@ -128,12 +127,15 @@
         (get-frame-area frame editor)
       (om-with-fg-color (if (and active (find i (selection editor))) 
                             (om-make-color-alpha (om-def-color :dark-red) 0.5)
-                          (getf (attributes frame) :color (om-def-color :light-gray)))
-        (om-draw-ellipse (+ x (round w 2)) y w h :fill t))
+                          (get-frame-color frame))
+        (om-draw-ellipse (+ x (round w 2)) (+ y (round h 2)) w h :fill t)
+        (om-draw-line (+ x w 3) (+ y 3) (+ x w 3) (- y 26))
+        )
       (om-with-font 
        (om-def-font :font1 :size 8)
-       (om-draw-string x (+ y 30) (format nil "b=~A" (symbolic-date frame)))
-       (om-draw-string x (+ y 40) (format nil "d=~A" (symbolic-dur frame)))
+       (when (symbolic-date frame)
+         (om-draw-string x (+ y 30) (format nil "b=~A" (symbolic-date frame)))
+         (om-draw-string x (+ y 40) (format nil "d=~A" (symbolic-dur frame))))
        (when (find i (selection editor))
          (om-draw-string (- x 5) 20 (number-to-string (date frame))))
        ))))
@@ -164,7 +166,7 @@
     (setf (contents (object (tempo-editor editor)))
           (tempo-curve (object-value editor)))
     (update-to-editor (tempo-editor editor) editor))
-  (update-tempo editor)
+  #+libt(update-tempo editor)
   (call-next-method))
 
 (defmethod report-modifications  ((self tempo-editor)) 
@@ -173,7 +175,7 @@
 
 ;;; not always / everywhere necessary...
 (defmethod report-modifications  ((self score-editor)) 
-  (update-beat-values self)
+  #+libt(update-beat-values self)
   (call-next-method))
   
 (defun make-tempo-editor (editor)
@@ -259,22 +261,24 @@
   (call-next-method)
   (make-tempo-editor editor))
        
-(defmethod make-editor-window-contents ((editor score-editor))
+(defmethod make-editor-window-contents ((editor score-editor)) (call-next-method))
   (om-make-layout 
    'om-column-layout 
    :ratios '(0.97 0.01 0.02)
    :subviews (list 
               ;;; first group with the 'main' editor:
-               (om-make-layout 
-                'om-row-layout :ratios '(nil 100) :subviews 
-                (list (om-make-view 'om-view :size (omp 28 nil))
-                      (om-make-layout 'om-column-layout :align :right
-                              :subviews (list 
-                                         (make-control-bar editor)
-                                         (get-g-component editor :main-panel) 
-                                         (get-g-component editor :x-ruler))
-                                :delta 2
-                                :ratios '(0.01 0.98 0.01))))
+              (om-make-layout 
+               'om-row-layout :ratios '(nil 100) :subviews 
+               (list (om-make-view 'om-view :size (omp 28 nil))
+                     (om-make-layout 'om-column-layout :align :right
+                                     :subviews (list 
+                                                (make-control-bar editor)
+                                                (get-g-component editor :main-panel)
+                                                (get-g-component editor :x-ruler))
+                                                )
+                                     :delta 2
+                                     :ratios '(0.01 0.98 0.01))
+                     ))
               ;;; the tempo editor
               (get-g-component (tempo-editor editor) :main-layout)
               ;;; the timeline editor:
