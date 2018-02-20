@@ -16,6 +16,8 @@ om/*.app/**/*
 o7/**/*
 *.zip
 
+*.exe
+
 # OS generated files #
 ######################
 .DS_Store

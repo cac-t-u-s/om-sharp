@@ -27,10 +27,12 @@
 (defun default-folder (name &optional reference-path)
   (let ((ref-path (or reference-path
                       (and *current-workspace* (mypathname *current-workspace*))
-                      (om-make-pathname :directory (append (pathname-directory (om-user-home)) '("OM")))
+                      (om-make-pathname :directory (append (pathname-directory (om-user-home)) '("OM"))
+                                        :host (pathname-host (om-user-home)))
                       )))
     (check-folder (om-make-pathname :device (pathname-device ref-path) :host (pathname-host ref-path)
-                                    :directory (append (pathname-directory ref-path) (list name))))))
+                                    :directory (append (pathname-directory ref-path) (list name))
+                                    :host (pathname-host ref-path)))))
 
 
 (defun def-input-folder () (default-folder "in-files"))
