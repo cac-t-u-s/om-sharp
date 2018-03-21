@@ -261,7 +261,7 @@
   (call-next-method)
   (make-tempo-editor editor))
        
-(defmethod make-editor-window-contents ((editor score-editor)) (call-next-method))
+(defmethod make-editor-window-contents ((editor score-editor))
   (om-make-layout 
    'om-column-layout 
    :ratios '(0.97 0.01 0.02)
@@ -290,7 +290,7 @@
                                               (make-tempo-check-box editor)
                                               (make-timeline-check-box editor)))
               ))
-  )
+
 
 
 (defmethod update-beat-values ((self score-editor))
