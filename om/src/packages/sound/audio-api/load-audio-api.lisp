@@ -20,16 +20,12 @@
 ;;===========================================================================
 (in-package :cl-user)
 
-(compile&load (decode-local-path "libsndfile/libsndfile"))
-(compile&load (decode-local-path "libsndfile/libsndfile-api"))
-(compile&load (decode-local-path "file-access"))
 (compile&load (decode-local-path "libsamplerate/libsamplerate"))
-(compile&load (decode-local-path "libsamplerate/libsamplerate-api"))
-(compile&load (decode-local-path "omjuceaudiolib/omjuceaudiolib"))
+(compile&load (decode-local-path "omaudiolib/omaudiolib"))
+(compile&load (decode-local-path "file-access"))
 
 
 (push :audio *features*)
-
 
 (defun load-audio-libs ()
 
@@ -39,13 +35,13 @@
      (:windows ,(om-fi::om-foreign-library-pathname "OMAudioLib.dll"))
      (:linux ,(om-fi::om-foreign-library-pathname "OMAudioLib.so"))))
   
-  (om-fi::om-load-foreign-library 
-   "LIBSNDFILE"
-   `((:macosx ,(om-fi::om-foreign-library-pathname "libsndfile.dylib"))
-     (:unix  (:default "libsndfile"))
-     (:windows (:or ,(om-fi::om-foreign-library-pathname "libsndfile-1.dll")
-                (:default "libsndfile-1")))
-     (t (:default "libsndfile"))))
+;  (om-fi::om-load-foreign-library 
+;   "LIBSNDFILE"
+;   `((:macosx ,(om-fi::om-foreign-library-pathname "libsndfile.dylib"))
+;     (:unix  (:default "libsndfile"))
+;     (:windows (:or ,(om-fi::om-foreign-library-pathname "libsndfile-1.dll")
+;                (:default "libsndfile-1")))
+;     (t (:default "libsndfile"))))
 
   (om-fi::om-load-foreign-library 
    "LIBSAMPLERATE"

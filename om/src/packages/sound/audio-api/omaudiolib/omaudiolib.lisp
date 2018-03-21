@@ -19,12 +19,7 @@
 
 (defpackage :juce)
 
-;(fli:register-module 
-; "OMJuceAudioLib" 
-; :real-name "/Users/bouche/Documents/GIT/om7/OPENMUSIC/resources/lib/mac/OMJuceAudioLib.dylib"
-; :connection-style :immediate)
-
-(push :omjuceaudiolib *features*)
+(push :omaudiolib *features*)
 
 (in-package :juce)
 
@@ -141,16 +136,93 @@
 ;;  BUFFER
 ;;;==============================================
 
-(cffi:defcfun ("MakeDataReader" MakeDataReader) :pointer (buffer :pointer) (channels :int) (size :int) (sr :int))
-(cffi:defcfun ("MakeFileReader" MakeFileReader) :pointer (file :string))
-(cffi:defcfun ("FreeReader" FreeReader) :void (reader :pointer))
-(cffi:defcfun ("StartReader" StartReader) :void (player :pointer) (reader :pointer))
-(cffi:defcfun ("PauseReader" PauseReader) :void (player :pointer) (reader :pointer))
-(cffi:defcfun ("StopReader" StopReader) :void (player :pointer) (reader :pointer))
-(cffi:defcfun ("SetPosReader" SetPosReader) :void (reader :pointer) (pos :long))
-(cffi:defcfun ("GetPosReader" GetPosReader) :long (reader :pointer))
-(cffi:defcfun ("LoopReader" LoopReader) :void (reader :pointer) (looper :boolean))
-(cffi:defcfun ("GetGainReader" GetGainReader) :float (reader :pointer))
-(cffi:defcfun ("SetGainReader" SetGainReader) :void (reader :pointer) (gain :float))
+(cffi:defcfun ("makeAudioSourceFromBuffer" makeAudioSourceFromBuffer) :pointer (buffer :pointer) (channels :int) (size :int) (sr :int))
+(cffi:defcfun ("makeAudioSourceFromFile" makeAudioSourceFromFile) :pointer (file :string))
+(cffi:defcfun ("freeAudioSource" freeAudioSource) :void (source :pointer))
+(cffi:defcfun ("startAudioSource" startAudioSource) :void (player :pointer) (source :pointer))
+(cffi:defcfun ("pauseAudioSource" pauseAudioSource) :void (player :pointer) (source :pointer))
+(cffi:defcfun ("stopAudioSource" stopAudioSource) :void (player :pointer) (source :pointer))
+(cffi:defcfun ("setAudioSourcePos" setAudioSourcePos) :void (source :pointer) (pos :long))
+(cffi:defcfun ("getAudioSourcePos" getAudioSourcePos) :long (source :pointer))
+(cffi:defcfun ("getAudioSourceGain" getAudioSourceGain) :float (source :pointer))
+(cffi:defcfun ("setAudioSourceGain" setAudioSourceGain) :void (source :pointer) (gain :float))
+
+;;;==============================================
+;;  FILE I/O
+;;;==============================================
+
+(cffi:defcfun ("makeAudioFileReader" makeAudioFileReader) :pointer (file :string))
+(cffi:defcfun ("freeAudioFileReader" freeAudioFileReader) :void (handler :pointer))
+
+(cffi:defcfun ("getAudioFileNumChannels" getAudioFileNumChannels) :int (handler :pointer))
+(cffi:defcfun ("getAudioFileNumSamples" getAudioFileNumSamples) :long (handler :pointer))
+(cffi:defcfun ("getAudioFileSampleRate" getAudioFileSampleRate) :double (handler :pointer))
+(cffi:defcfun ("getAudioFileSampleSize" getAudioFileSampleSize) :int (handler :pointer))
+(cffi:defcfun ("getAudioFileFloatFormat" getAudioFileFloatFormat) :boolean (handler :pointer))
+(cffi:defcfun ("getAudioFileFormat" getAudioFileFormat) :string (handler :pointer))
+
+(cffi:defcfun ("getAudioFileSamples" getAudioFileSamples) :boolean (handler :pointer) (buffer :pointer) (startp :long-long) (nsamples :int))
+
+(cffi:defcfun ("makeAudioFileWriter" makeAudioFileWriter) :pointer (file :string) (format :int))
+(cffi:defcfun ("freeAudioFileWriter" freeAudioFileWriter) :void (handler :pointer))
+(cffi:defcfun ("writeSamplesToAudioFile" writeSamplesToAudioFile) 
+    :boolean 
+  (handler :pointer) (buffer :pointer)
+  (nch :int) (size :long-long) (sr :double) (resolution :int))
+
+
+
+(defun juce-get-sound-info (path)
+  (let ((fileptr (juce::makeAudioFileReader path)))
+   (unless (fli:null-pointer-p fileptr)
+     (unwind-protect 
+         (let ((channels (juce::getAudioFileNumChannels fileptr))
+               (size (juce::getAudioFileNumSamples fileptr))
+               (sr (round (juce::getAudioFileSampleRate fileptr)))
+               (ss (juce::getAudioFileSampleSize fileptr))
+               (floats (juce::getAudioFileFloatFormat fileptr))
+               (format (juce::getAudioFileFormat fileptr)))
+           
+          (values format channels sr ss size floats)
+          )
+       (juce::freeAudioFileReader fileptr)))))
+ 
+(defun juce-get-sound-buffer (path &optional (datatype :float))
+  (let ((fileptr (juce::makeAudioFileReader path)))
+    (unless (fli:null-pointer-p fileptr)
+      (unwind-protect 
+          (let ((channels (juce::getAudioFileNumChannels fileptr))
+                (size (juce::getAudioFileNumSamples fileptr))
+                (sr (round (juce::getAudioFileSampleRate fileptr)))
+                (ss (juce::getAudioFileSampleSize fileptr))
+                (floats (juce::getAudioFileFloatFormat fileptr))
+                (format (juce::getAudioFileFormat fileptr)))
+            (let ((buffer (fli:allocate-foreign-object 
+                           :type :pointer :nelems channels 
+                           :initial-contents (loop for c from 0 to (1- channels) collect 
+                                                   (fli::allocate-foreign-object 
+                                                    :type datatype 
+                                                    :nelems size)))))
+              (juce::getAudioFileSamples fileptr buffer 0 size)
+              (values buffer format channels sr ss size floats)
+              ))
+        (juce::freeAudioFileReader fileptr)))))
+
+
+;;; format = :aiff, wav, :ogg, :flac ...
+(defun juce-save-sound-in-file (buffer filename size nch sr resolution format &optional (datatype :float))
+  (let* ((format_code (case format
+                   (:wav 0)
+                   (:aiff 1)
+                   (otherwise 0)))
+                   
+         (fileptr (juce::makeAudioFileWriter filename format_code)))
+
+    (unwind-protect 
+        (juce::writeSamplesToAudioFile fileptr buffer nch size (coerce sr 'double-float) resolution)
+      
+      (juce::freeAudioFileWriter fileptr))))
+
+
 
 

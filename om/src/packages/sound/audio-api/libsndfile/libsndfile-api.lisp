@@ -56,7 +56,7 @@
 ;(logior (ash sf::sf_format_aiff 1) (ash b 8) c)
 
 ;;; READ
-(defun sndfile-get-info (path)
+(defun sndfile-get-sound-info (path)
   "Returns info about the soudn file (not the actual data)."
   (cffi:with-foreign-object (sfinfo '(:struct |libsndfile|::sf_info))
     (setf (cffi:foreign-slot-value sfinfo '(:struct |libsndfile|::sf_info) 'sf::format) 0) ; Initialize the slots
@@ -78,37 +78,6 @@
 
 
 (defun sndfile-get-sound-buffer (path &optional (datatype :float))
-  "Returns a sound data buffer + info. The soudn buffer must be freed."
-  (cffi:with-foreign-object (sfinfo '(:struct |libsndfile|::sf_info))
-    (setf (cffi:foreign-slot-value sfinfo '(:struct |libsndfile|::sf_info) 'sf::format) 0) ; Initialize the slots
-    (let* ((sndfile-handle (sf::sf_open path sf::SFM_READ sfinfo))
-           (size-ptr (cffi:foreign-slot-pointer sfinfo '(:struct |libsndfile|::sf_info) 'sf::frames))
-           (size (fli::dereference size-ptr :type :int :index #+powerpc 1 #-powerpc 0))
-           (channels-ptr (cffi:foreign-slot-pointer sfinfo '(:struct |libsndfile|::sf_info) 'sf::channels))
-           (channels (fli::dereference channels-ptr :type :int :index #+powerpc 1 #-powerpc 0))
-           (sr-ptr (cffi:foreign-slot-pointer sfinfo '(:struct |libsndfile|::sf_info) 'sf::samplerate))
-           (sr (fli::dereference sr-ptr :type :int :index #+powerpc 1 #-powerpc 0))
-           (format-ptr (cffi:foreign-slot-pointer sfinfo '(:struct |libsndfile|::sf_info) 'sf::format))
-           (format (fli::dereference format-ptr :type :int :index #+powerpc 1 #-powerpc 0))
-           (skip (cffi:foreign-slot-value sfinfo '(:struct |libsndfile|::sf_info) 'sf::seekable))
-           (buffer-size (* size channels))
-           (buffer (fli:allocate-foreign-object :type datatype :nelems buffer-size :fill 0))
-           (frames-read 
-            (ignore-errors
-              (case datatype
-                (:double (sf::sf-readf-double sndfile-handle buffer buffer-size))
-                (:float (sf::sf-readf-float sndfile-handle buffer buffer-size))
-                (:int (sf::sf-readf-int sndfile-handle buffer buffer-size))
-                (:short (sf::sf-readf-short sndfile-handle buffer buffer-size))
-                (otherwise (print (concatenate 'string "Warning: unsupported datatype for reading audio data: " (string datatype))))))))
-      (multiple-value-bind (ff ss nn)
-          (decode-format format)
-        (sf::sf_close sndfile-handle) ; should return 0 on successful closure.
-        (values buffer nn channels sr ss size skip)))))
-
-;; same function...
-;; can we get a de-interleaved buffer with SNDfile ?
-(defun sndfile-get-2D-sound-buffer (path &optional (datatype :float))
   "Returns a sound data buffer + info. The soudn buffer must be freed."
   (cffi:with-foreign-object (sfinfo '(:struct |libsndfile|::sf_info))
     (setf (cffi:foreign-slot-value sfinfo '(:struct |libsndfile|::sf_info) 'sf::format) 0) ; Initialize the slots

@@ -47,13 +47,13 @@
                                 :size size
                                 :channels channels
                                 :sample-rate sample-rate))
-        (ptr (juce::makedatareader buffer channels size sample-rate)))
+        (ptr (juce::makeAudioSourceFromBuffer buffer channels size sample-rate)))
     (setf (bp-pointer bp) ptr)
     bp))
 
 (defun free-buffer-player (bp)
   (audio-io::om-free-sound-buffer (bp-buffer bp) (bp-channels bp))
-  (juce::freereader (bp-pointer bp)))
+  (juce::freeAudioSource (bp-pointer bp)))
 
 
 (defmethod set-buffer-player-volume ((self buffer-player) volume)
@@ -61,7 +61,7 @@
 
 (defun make-player-from-file (path &optional (buffered nil))
   (if (not buffered)
-      (make-buffer-player :pointer (juce::makefilereader path))
+      (make-buffer-player :pointer (juce::makeAudioSourceFromFile path))
     (progn
       (multiple-value-bind (buffer format channels sr ss size skip)
           (audio-io::om-get-sound-buffer path *default-audio-type* nil)
@@ -71,31 +71,31 @@
   (when (eq (bp-state self) :stop)
     (setf (bp-state self) :play)
     (jump-to-frame self start-frame)
-    (juce::startreader *juce-player* (bp-pointer self))))
+    (juce::startAudioSource *juce-player* (bp-pointer self))))
 
 (defmethod pause-buffer-player ((self buffer-player))
   (when (eq (bp-state self) :play)
     (setf (bp-state self) :pause)
-    (juce::pausereader *juce-player* (bp-pointer self))))
+    (juce::pauseAudioSource *juce-player* (bp-pointer self))))
 
 (defmethod continue-buffer-player ((self buffer-player))
   (when (eq (bp-state self) :pause)
     (setf (bp-state self) :play)
-    (juce::startreader *juce-player* (bp-pointer self))))
+    (juce::startAudioSource *juce-player* (bp-pointer self))))
 
 (defmethod stop-buffer-player ((self buffer-player))
   (when (not (eq (bp-state self) :stop))
     (setf (bp-state self) :stop)
-    (juce::stopreader *juce-player* (bp-pointer self))))
+    (juce::stopAudioSource *juce-player* (bp-pointer self))))
 
 (defmethod jump-to-frame ((self buffer-player) frame)
-  (juce::setposreader (bp-pointer self) frame))
+  (juce::setAudioSourcePos (bp-pointer self) frame))
 
 (defmethod jump-to-time ((self buffer-player) time)
-  (juce::setposreader (bp-pointer self) (min (max 0 (round (* time (/ (bp-sample-rate self) 1000.0)))) (bp-size self))))
+  (juce::setAudioSourcePos (bp-pointer self) (min (max 0 (round (* time (/ (bp-sample-rate self) 1000.0)))) (bp-size self))))
 
 (defmethod get-buffer-player-frame ((self buffer-player))
-  (juce::getposreader (bp-pointer self)))
+  (juce::setAudioSourcePos (bp-pointer self)))
 
 ;(defmethod restore-buffer-player-pointer ((self buffer-player))
 ;  ;(print "setpos error: restoring buffer-player")

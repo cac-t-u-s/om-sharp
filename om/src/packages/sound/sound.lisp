@@ -28,9 +28,9 @@
       '(
         "sound/sound"
         "sound/audio-tools"
-        "sound/juce-player"
-        "sound/buffer-player"
         "sound/sound-processing"
+        "player/juce-player"
+        "player/buffer-player"
         "sound-pack"
         )
       )

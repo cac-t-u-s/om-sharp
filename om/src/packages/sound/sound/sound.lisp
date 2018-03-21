@@ -447,22 +447,24 @@ Press 'space' to play/stop the sound file.
   (when (buffer sound) (oa::om-release (buffer sound)))
   
   (if (probe-file path)
+      
       (multiple-value-bind (buffer format channels sr ss size skip)
           
           (audio-io::om-get-sound-buffer (namestring path) *default-internal-sample-size* nil)
         
-        (unwind-protect 
-            (progn
+        (when buffer 
+          (unwind-protect 
+              (progn
               ;(when (buffer sound) (oa::om-release (buffer sound)))
-              (om-print-format "Initializing audio buffer (~A channels)..." (list channels) "OM")
-              (setf (buffer sound) (make-om-sound-buffer-GC :ptr buffer :count 1 :nch channels)
-                    (smpl-type sound) *default-internal-sample-size*
-                    (n-samples sound) size
-                    (n-channels sound) channels
-                    (sample-rate sound) sr
-                    (sample-size sound) ss)
+                (om-print-format "Initializing audio buffer (~A channels)..." (list channels) "OM")
+                (setf (buffer sound) (make-om-sound-buffer-GC :ptr buffer :count 1 :nch channels)
+                      (smpl-type sound) *default-internal-sample-size*
+                      (n-samples sound) size
+                      (n-channels sound) channels
+                      (sample-rate sound) sr
+                      (sample-size sound) ss)
           ;(om-print (format nil "Allocated buffer ~A for ~A" (buffer sound) sound) "SOUND_DEBUG")
-              sound)))
+                sound))))
     (progn 
       (om-beep-msg "Wrong pathname for sound: ~s" path)
       (setf (buffer sound) nil)
@@ -617,7 +619,6 @@ Press 'space' to play/stop the sound file.
   (external-player-actions self time-interval parent))
 
 (defmethod player-play-object ((self scheduler) (object sound) caller &key parent interval)
-  ;(juce::setgainreader (bp-pointer (buffer-player object)) 0.1)
   
   (unless (buffer-player object) (set-play-buffer object))
   

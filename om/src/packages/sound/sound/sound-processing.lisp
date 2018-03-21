@@ -44,7 +44,7 @@
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SAVE-SOUND///////////////
 (defmethod* save-sound ((self om-internal-sound) filename &optional (format *default-audio-format*))
             :icon 'save-sound
-            :initvals '(nil nil 'aiff)
+            :initvals '(nil nil :aiff)
             :indoc '("a sound or om-internal-sound buffer" "output file pathname" "audio format")
             :menuins '((2 (("AIFF" :aiff) ("WAV" :wav) ("FLAC" :flac) ("OGG Vorbis" :ogg))))
             :doc "Saves a <self> (om-internal-sound buffer) as an audio file."
@@ -58,18 +58,18 @@
                                                                                 ((equal format :flac) (list (format nil (om-str :file-format) "FLAC") "*.flac"))
                                                                                 ((equal format :ogg) (list (format nil (om-str :file-format) "OGG Vorbis") "*.ogg"))
                                                                                 (t nil)))))
-                     (interleaved (om-alloc-memory (* (n-samples self) (n-channels self)) :type (smpl-type self) :clear t)))
-                (interleave-buffer (oa::om-pointer-ptr (buffer self)) interleaved (n-samples self) (n-channels self))
+                     )
+                
               (when file
                 (setf *last-saved-dir* (make-pathname :directory (pathname-directory file)))
-                (audio-io::om-save-buffer-in-file interleaved 
-                                                 (namestring file) 
-                                                 (n-samples self) 
-                                                 (n-channels self) 
-                                                 (sample-rate self) 
-                                                 *default-audio-resolution*
-                                                 (or format *default-audio-format*)))
-              (om-free-memory interleaved)
+                (audio-io::om-save-buffer-in-file (oa::om-pointer-ptr (buffer self)) 
+                                                  (namestring file) 
+                                                  (n-samples self) 
+                                                  (n-channels self) 
+                                                  (sample-rate self) 
+                                                  *default-audio-resolution*
+                                                  (or format *default-audio-format*)))
+              
               (probe-file (namestring file)))))
 
 ;(defmethod! save-sound ((self sound) filename &optional (format 'aiff))

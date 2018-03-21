@@ -200,11 +200,11 @@
 ;(listen *terminal-io*) 
 ;(defun testgetmono (a) (setq *testbp1* (bp-pointer (buffer-player a))))
 ;(defun testgetstereo (a) (setq *testbp2* (bp-pointer (buffer-player a))))
-;(juce::setgainreader *testbp1* 0.2)
-;(juce::setgainreader *testbp2* 0.2)
+;(juce::setAudioSourceGain *testbp1* 0.2)
+;(juce::setAudioSourceGain *testbp2* 0.2)
 
-;(defun testgainmono (a n)  (juce::setgainreader *testbp1* n))
-;(defun testgainstereo (a n)  (juce::setgainreader *testbp2* n))
+;(defun testgainmono (a n)  (juce::setAudioSourceGain *testbp1* n))
+;(defun testgainstereo (a n)  (juce::setAudioSourceGain *testbp2* n))
 
 
 
