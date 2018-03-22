@@ -40,9 +40,14 @@
 (cffi:defcfun ("getNthOutputDeviceName" getNthOutputDeviceName) :string (player :pointer) (type :int) (n :int))
 (cffi:defcfun ("getInputDevicesCount" getInputDevicesCount) :int (player :pointer))
 (cffi:defcfun ("getOutputDevicesCount" getOutputDevicesCount) :int (player :pointer))
+(cffi:defcfun ("getCurrentDeviceName" getCurrentDeviceName) :string (player :pointer))
+(cffi:defcfun ("setInputDevice" setInputDevice) :int (player :pointer) (n :int))
+(cffi:defcfun ("setOutputDevice" setOutputDevice) :int (player :pointer) (n :int))
 
+(cffi:defcfun ("initializeAudioChannels" initializeAudioChannels) :void (player :pointer) (in-channels :int) (out-channels :int))
 (cffi:defcfun ("getInputChannelsCount" GetInputChannelsCount) :int (player :pointer))
 (cffi:defcfun ("getOutputChannelsCount" GetOutputChannelsCount) :int (player :pointer))
+(cffi:defcfun ("setOutputChannelsMapping" setOutputChannelsMapping) :int (player :pointer) (n :int) (map :pointer))
 
 (cffi:defcfun ("getAvailableSampleRatesCount" getAvailableSampleRatesCount) :int (player :pointer))
 (cffi:defcfun ("getNthAvailableSampleRate" getNthAvailableSampleRate) :int (player :pointer) (n :int))
@@ -58,7 +63,6 @@
 (cffi:defcfun ("setAudioDevice" setAudioDevice) :void 
   (player :pointer) (output :int) (input :int)  (in-channels :int) (out-channels :int) (sr :int) (buffsize :int))
 
-(cffi:defcfun ("setOutputChannelsMapping" setOutputChannelsMapping) :int (player :pointer) (n :int) (map :pointer))
 
 ;;; SCAN UTILITIES (INDEPENDENT ON THE CURRENT SETUP)
 (defun get-audio-drivers (audiomanager)
