@@ -209,9 +209,9 @@
   )
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-SILENCE///////////
-(defmethod* sound-silence ((dur float) &optional (channels 1) (sample-rate *default-audio-rate*))
+(defmethod* sound-silence ((dur float) &optional (channels 1) (sample-rate *default-audio-sr*))
   :icon 'sound-silence
-  :initvals (list 1.0 1 *default-audio-rate*)
+  :initvals (list 1.0 1 *default-audio-sr*)
   :indoc '("duration (float or integer)" "number of channels")
   :doc "Generates a silence of duration = <dur>.
 <dur> is considered to be in seconds if a float number is given (e.g. 20.0) or in milliseconds if integer (e.g. 20)\."
@@ -224,7 +224,7 @@
                    :sample-rate sample-rate
                    :smpl-type :float)))
 
-(defmethod* sound-silence ((dur integer) &optional (channels 1) (sample-rate *default-audio-rate*))
+(defmethod* sound-silence ((dur integer) &optional (channels 1) (sample-rate *default-audio-sr*))
   (let ((nsmpl (round (* dur (/ sample-rate 1000.0))))
         (ch (if (< channels 1) 1 channels)))
     (make-instance 'om-internal-sound 

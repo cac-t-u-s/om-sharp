@@ -26,8 +26,8 @@
         
 (mapc #'(lambda (filename) (compile&load (decode-local-path filename))) 
       '(
-        "sound/sound"
         "sound/audio-tools"
+        "sound/sound-object"
         "sound/sound-processing"
         "player/juce-player"
         "player/buffer-player"

@@ -19,12 +19,6 @@
 
 (declaim (optimize (speed 3) (safety 0) (debug 1)))
 
-(defvar *default-audio-channels* 2)
-(defvar *default-audio-rate* 44100)
-(defvar *default-audio-type* :float)
-(defvar *default-audio-format* :aiff)
-(defvar *default-audio-resolution* 24)
-
 ;;;=========================================================
 ;;; BUFFER PLAYER (Here using LAS)
 ;;;=========================================================
