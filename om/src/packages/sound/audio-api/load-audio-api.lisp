@@ -47,7 +47,7 @@
    "LIBSAMPLERATE"
    `((:macosx ,(om-fi::om-foreign-library-pathname "libsamplerate.dylib"))
      (:unix (:default "libsamplerate"))
-     (:windows (:or ,(om-fi::om-foreign-library-pathname "libsamplerate.dll")
+     (:windows (:or ,(om-fi::om-foreign-library-pathname "libsamplerate-0.dll")
                 (:default "libsamplerate")))
      (t (:default "libsamplerate"))))
   )
