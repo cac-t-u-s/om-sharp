@@ -140,8 +140,6 @@
 (load-om-package "synth")
 (load-om-package "space")
 (load-om-package "interface")
-(load-om-package "tempo")
-(load-om-package "timing")
 
 ;(cl-user::clean-sources)
 
