@@ -165,6 +165,7 @@ For easier browsing it is recommended that a package do not contain at the same 
 
 (defmethod AddSpecialItem2Pack ((item symbol) inPackage)
   (unless (find item (special-items inPackage) :test 'equal)
+    (export-symbol-from-om item)
     (omNG-add-element inPackage item)))
 
 ;;; used to refer in function/class reference pages 

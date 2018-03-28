@@ -955,21 +955,25 @@
 
 (defun search-known-symbol (str)
   (let* ((strUC (string-upcase str))
-         (package (when (find #\: strUC) (string-until-char strUC ":")))
-         (sym nil))
-    (when package 
-      (setf strUC (subseq strUC (1+ (position #\: strUC :from-end t)))))
-    (unless sym
-      (if package
-          (setf sym (find-symbol strUC (intern-k package)))
+         (package (when (find #\: strUC) (string-until-char strUC ":"))))
+    
+    (if package 
+        
+        (let ((sym-name (subseq strUC (1+ (position #\: strUC :from-end t)))))
+          (find-symbol sym-name (intern-k package)))
+    
+      (let ((sym nil))
         (loop for p in (reverse *known-packages*) 
               while (not sym) do
-              (setf sym (find-symbol strUC p))))
-      sym)))
+              (let ((s (find-symbol strUC p)))
+                (when (or (fboundp s) (find-class s nil) (special-box-p s))
+                  (setf sym s))))
+        sym)
+      )))
 
 ;(string-until-char "CR::CS-EVT" ":")
 ;(position #\: "CR:CS-EVT" :from-end t)
-; (search-known-symbol "cr::cs-evt")
+; (search-known-symbol "iae")
 ; (find-symbol "CR::CS-EVT" :cr)
 
 (defun export-symbol-from-om (symb)
