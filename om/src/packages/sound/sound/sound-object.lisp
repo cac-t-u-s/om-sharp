@@ -646,6 +646,10 @@ Press 'space' to play/stop the sound file.
   (call-next-method))
 
 
+;;; UTIL FUNCTION FOR JUST PLAYING A SOUND (NOW) E.G. IN A PATCH
+(defmethod play-sound ((sound om-internal-sound))
+  (player-play-object *general-player* sound nil))
+
 
 
 ;;;============================================
