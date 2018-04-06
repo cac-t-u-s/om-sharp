@@ -523,7 +523,7 @@ Ex. (om-mean '(1 2 3 4) '(3 2 1 1))  => 2.0
   (if (zerop (- low high))
     (+ low high (- high))
     (let ((low-min (min low high)))
-      (if (or (floatp  low) (floatp high))
+      (if (or (floatp low) (floatp high))
         (+ (om-random-value (- (max low high) low-min)) low-min)
         (+ (om-random-value (- (1+ (max low high)) low-min)) low-min)))))
 

@@ -1050,6 +1050,7 @@
             (let ((read-2 (read-from-string str nil)))
               
               (if (or (listp read-2) (numberp read-2) (stringp read-2) (quoted-form-p read-2)
+                      (characterp read-2)
                       (and (symbolp read-2) (string-equal (package-name (symbol-package read-2)) "KEYWORD")))
                   
                   ;;; => make a value box
@@ -1213,7 +1214,7 @@
                  'om-row-layout
                  :subviews (list
                             (om-make-di 'om-simple-text :size (omp 230 18)
-                                :font (om-def-font :font2b) :text "Inspector"
+                                :font (om-def-font :font2b) :text "INSPECTOR"
                                 :fg-color (om-def-color :dark-gray))
                             
                             (om-make-graphic-object 
@@ -1238,64 +1239,67 @@
   
   (setf (object self) object)
   (om-remove-all-subviews self) 
-         
-  (let ((inspector-layout
+       
+  (when object
+    (let ((inspector-layout
            (om-make-layout
-            'om-grid-layout
-            :delta '(10 0) :align nil
+            'om-column-layout
             :subviews 
-            (append 
-             (list 
-              (om-make-di 'om-simple-text :size (om-make-point nil 20) 
-                          :text (if object
-                                    (object-name-in-inspector object)
-                                  "[no selection]")
-                          :focus t  ;; prevents focus on other items :)
-                          :font (om-def-font :font3b))
-              nil)
-           
-             (when object
-               (if (get-properties-list object)
+            (list (om-make-di 'om-simple-text :size (om-make-point nil 20) 
+                              :text (if object
+                                        (string+ "-" (object-name-in-inspector object))
+                                      "[no selection]")
+                              :focus t  ;; prevents focus on other items :)
+                              :font (om-def-font :font3b))
+                  (om-make-layout
+                   'om-grid-layout
+                   :delta '(10 0) :align nil
+                   :subviews 
+                   (if (get-properties-list object)
                    
-                   ;;; ok
-                   (loop for category in (get-properties-list object)
-                         when (cdr category)
-                         append 
-                         (append 
-                          (list  ;     (car category)  ; (list (car category) (om-def-font :font1b))  ; :right-extend          
-                           (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)
-                           (om-make-di 'om-simple-text :text (car category) :font (om-def-font :font2b)
-                                       :size (om-make-point (+ 10 (om-string-size (car category) (om-def-font :font2b))) 20)
-                                       )
-                           )
-                          (loop for prop in (cdr category) append
-                                (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font (om-def-font :font1)
-                                                  :size (om-make-point 90 20) :position (om-make-point 10 16))
-                                      (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop) 
-                                                      :update (get-update-frame object)
-                                                      )
-                                      ))
+                       ;;; ok
+                       (loop for category in (get-properties-list object)
+                             when (cdr category)
+                             append 
+                             (append 
+                              (list  ;     (car category)  ; (list (car category) (om-def-font :font1b))  ; :right-extend          
+                               (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)
+                               (om-make-di 'om-simple-text :text (car category) :font (om-def-font :font2b)
+                                           :size (om-make-point (+ 10 (om-string-size (car category) (om-def-font :font2b))) 20)
+                                           )
+                               )
+                              (loop for prop in (cdr category) append
+                                    (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font (om-def-font :font1)
+                                                      :size (om-make-point 90 20) :position (om-make-point 10 16))
+                                          (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop) 
+                                                          :update (get-update-frame object)
+                                                          )
+                                          ))
                           
-                          (list (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t) 
-                                (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t))
-                          )
-                         )
+                              (list (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t) 
+                                    (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t))
+                              )
+                             )
                  
-                 ;;; object has no properties (unlikely)
-                 (list 
-                  (om-make-di 'om-simple-text :size (om-make-point 100 20) 
-                              :text "[no properties]"
-                              :font (om-def-font :font1)) 
-                  nil))
-               )
-             )
-            )))
+                     ;;; object has no properties (unlikely)
+                     (list 
+                      (om-make-di 'om-simple-text :size (om-make-point 100 20) 
+                                  :text "[no properties]"
+                                  :font (om-def-font :font1)) 
+                      nil))
+           
+             
+                   )
+                  ))))
     
-    (om-add-subviews self inspector-layout)
-   
-    (when (editor self)
-      (om-update-layout (window (editor self))))
-    ))
+      (om-add-subviews self inspector-layout)
+      )
+    )
+  
+  (when (editor self)
+    (om-update-layout (window (editor self))))
+  
+  )
 
 
 (defmethod update-inspector-for-editor ((self patch-editor) &optional obj)
