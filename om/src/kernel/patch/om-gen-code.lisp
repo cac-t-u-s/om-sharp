@@ -113,12 +113,21 @@
 ;;;=================
 ;;; GENERAL
 ;;;=================
+
 (defmethod gen-code ((self OMBoxCall) &optional numout)
    "Generate Lisp code for the box <self> evaluated at <numout>."
-   (case (lock-state self)
-    (:locked (gen-code-locked self numout))
-    (:eval-once (gen-code-for-ev-once self numout))
-    (otherwise (gen-code-for-eval self numout))
+   (cond
+    
+    ((equal (lock-state self) :locked)
+     (gen-code-locked self numout))
+    
+    ((or (equal (lock-state self) :eval-once) 
+         (and (get-pref-value :general :auto-ev-once-mode) 
+              (> (length (get-out-connections self)) 1)))
+     (gen-code-for-ev-once self numout))
+    
+    (t (gen-code-for-eval self numout))
+    
     ))
  
 
@@ -141,7 +150,7 @@
              ;    `,(gen-code-lambda self)
              ;  `(nth ,numout (multiple-value-list ,(gen-code-lambda self))))
             `,(gen-code-lambda self numout))
-    (otherwise (if (or (null numout)  ;;; we are iside a let / ev-once statement : return all as 'values'
+    (otherwise (if (or (null numout)  ;;; we are inside a let / ev-once statement : return all as 'values'
                        (= (length (outputs self)) 1)) ;;  single output (to simplify the code)
                    `,(gen-code-for-call self)
                  ;;; normal call (not ev-once) and several outputs
