@@ -15,10 +15,16 @@
 ; File author: J. Bresson
 ;============================================================================
 
+
+;;;==========================================================================
+;;; BOXES WITH SPECIFIC BEHAVIOURS FOR REACTIVE PROCESSES
+;;;==========================================================================
+
+
 (in-package :om)
 
 ;;;=====================================
-;;; SEND/RECEIVE
+;;; SEND/RECEIVE INTERNAL
 ;;;=====================================
 
 (defmethod* send ((self t) &optional (target :om))
@@ -73,6 +79,7 @@
 
 (defclass ReactiveRouteBox (RouteBox) 
   ((routed-o :initform nil :accessor routed-o)))
+
 (defmethod boxclass-from-function-name ((self (eql 'route))) 'ReactiveRouteBox)
 
 ;;; (does nothing if there is no memory)
@@ -102,45 +109,6 @@
     ))
 
 
-;;;==================================
-;;; Special boxes with memory
-;;;==================================
-
-(defclass FunBoxWithMemory (omgfboxcall) 
-  ((memory :initform nil :accessor memory)))
-
-;;;=====================================
-;;; DELAY / MEMORY
-
-(defmethod* mem (in size) 
-   :initvals '(nil nil) :numouts 2
-   (values in nil))
-
-(defclass ReactiveDelayBox (FunBoxWithMemory) ())
-(defmethod boxclass-from-function-name ((self (eql 'mem))) 'ReactiveDelayBox)
-
-(defmethod current-box-value ((self ReactiveDelayBox) &optional (numout nil))
-  (if numout (nth numout (memory self)) (memory self)))
-
-(defmethod boxcall-value ((self ReactiveDelayBox))
-  (let ((inval (omng-box-value (car (inputs self))))
-        (size (omng-box-value (cadr (inputs self)))))
-    (setf (memory self)
-          (if size
-              (list inval (first-n (cons (car (memory self)) (list! (cadr (memory self)))) size))
-            (list inval (car (memory self)))))
-    (values-list (memory self))))
-
-#|
-(defmethod process-input ((self ReactiveDelayBox) inputs)
-  (let ((in (omng-box-value (car inputs)))
-        (size (omng-box-value (cadr inputs))))
-    (setf (memory self)
-          (if size
-              (list in (first-n (cons (car (memory self)) (list! (cadr (memory self)))) size))
-            (list in (car (memory self)))))
-    in))
-|#
 
 ;;;=====================================
 ;;; COLLECT
@@ -149,7 +117,7 @@
 (defmethod* coll (data push init) 
   (values data push init))
 
-(defclass ReactiveCollBox (FunBoxWithMemory) ())
+(defclass ReactiveCollBox (BoxWithMemory OMGFBoxCall) ())
 (defmethod boxclass-from-function-name ((self (eql 'coll))) 'ReactiveCollBox)
 
 (defmethod current-box-value ((self ReactiveCollBox) &optional (numout 0))

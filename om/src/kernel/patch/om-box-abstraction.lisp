@@ -81,7 +81,7 @@
     box))
 
 
-(defmethod get-icon-id-from-reference ((self OMBoxAbstraction)) 
+(defmethod get-icon-id ((self OMBoxAbstraction)) 
   (icon (reference self)))
 
 

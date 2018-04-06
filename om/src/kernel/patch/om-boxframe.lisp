@@ -347,7 +347,9 @@
          (nout (length (outputs box)))
          (eia (input-edit-areas self))
          (statesign-w 5)
-         (extra-w (+ (* statesign-w 2) (if (> (+ (length (inputs box)) (length eia)) 2) 10 0))) 
+         (extra-w (+ (* statesign-w 2) 
+                     (if (and eia (inputs box)) 10 0)
+                     )) 
          (n -1))
     
     (setf (areas self)
@@ -397,8 +399,8 @@
                 :position (omp (box-x self) (box-y self))
                 ;:font (font-font (text-font self))
                 :object self
-                :icon-id (and (get-icon-id-from-reference self)
-                              (or (find (get-icon-id-from-reference self) *om-loaded-picts*)
+                :icon-id (and (get-icon-id self)
+                              (or (find (get-icon-id self) *om-loaded-picts*)
                                          'not-found)))))
     
     ;(om-set-view-size view (om-def-point (omp (box-w self) (box-h self))

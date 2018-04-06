@@ -35,7 +35,7 @@
 (defmethod special-box-p ((name (eql 'init-do))) t)
 (defmethod get-box-class ((self OMPatchInit)) 'OMPatchInitBox)
 
-(defmethod get-icon-id-from-reference ((self OMPatchInitBox)) 'm-play)
+(defmethod get-icon-id ((self OMPatchInitBox)) 'm-play)
 
 (defmethod object-name-in-inspector ((self OMPatchInitBox)) "init call box")
 
@@ -64,7 +64,10 @@
 ;;;====================
 ;;; ITERATE
 ;;;====================
-;;; triggers iteration according to the ITERATORs found in the patch
+;;; - triggers iteration according to the ITERATORs found in the patch
+;;; ALSO WORKS IN EVAL MODE:
+;;; - can be evaluated alone 
+;;; - reinitializes the COLLECTORS before to start
 
 (defclass OMPatchIterator (OMPatchComponent) ())
 (defclass OMPatchIteratorBox (OMPatchComponentBox) ())
@@ -72,7 +75,7 @@
 (defmethod special-box-p ((name (eql 'iterate))) t)
 (defmethod get-box-class ((self OMPatchIterator)) 'OMPatchIteratorBox)
 
-(defmethod get-icon-id-from-reference ((self OMPatchIteratorBox)) 'm-loop)
+(defmethod get-icon-id ((self OMPatchIteratorBox)) 'm-loop)
 
 (defmethod object-name-in-inspector ((self OMPatchIteratorBox)) "iterator box")
 
@@ -105,14 +108,16 @@
 
 
 ;;;====================
-;;; COUNT
+;;; COLLECTORS: collect count etc.
 ;;;====================
-;;; General-purpose counter
 
-;;;====================
+
+
+
+
 ;;; COLLECT
-;;;====================
-;;; Gerenarl-purpose data collector
+;;; General-purpose data collector
+
 
 
 

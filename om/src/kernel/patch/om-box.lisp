@@ -266,7 +266,7 @@
       
 (defmethod get-icon-size ((self OMBox)) 20)
 (defmethod default-size ((self OMBox)) (minimum-size self))
-(defmethod get-icon-id-from-reference ((self t)) nil)
+(defmethod get-icon-id ((self t)) nil)
 
 (defmethod om-cleanup ((self OMBox))
   (omng-delete self))

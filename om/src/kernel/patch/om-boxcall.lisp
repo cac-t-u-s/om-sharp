@@ -290,7 +290,7 @@ All boxes which their reference is a OM generic function are instances of this c
 
 (defmethod get-object-type-name ((self OMLispFBoxcall)) "Standard Lisp Function")
 
-(defmethod get-icon-id-from-reference ((self OMLispFBoxcall)) nil) ;; lisp
+(defmethod get-icon-id ((self OMLispFBoxcall)) nil) ;; lisp
 
 ;; (defmethod box-draw ((self OMLispFBoxcall) (frame OMBoxFrame)) (call-next-method))
 
@@ -311,7 +311,7 @@ All boxes which their reference is a OM generic function are instances of this c
 
 (defmethod get-object-type-name ((self OMGFBoxcall)) "Generic Function")
 
-(defmethod get-icon-id-from-reference ((self OMGFBoxcall)) 
+(defmethod get-icon-id ((self OMGFBoxcall)) 
   (let ((ic (icon (fdefinition (reference self)))))
     (if (symbolp ic) ic
       (intern (format nil "~A" ic)))))

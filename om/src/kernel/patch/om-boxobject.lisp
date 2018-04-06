@@ -35,7 +35,7 @@
   (:documentation "Boxes with a class as reference")
   (:metaclass omstandardclass))
 
-(defmethod get-icon-id-from-reference ((self OMBoxRelatedWClass)) 'icon-class)
+(defmethod get-icon-id ((self OMBoxRelatedWClass)) 'icon-class)
 
 
 ;;; for the moment we do not allow object boxes in lambda mode

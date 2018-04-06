@@ -32,8 +32,8 @@
 
 (defmethod clear-ev-once ((self OMBoxCall))
    "Reset the ev-once flag after each generation"
+   (setf (ev-once-flag self) nil)
    (when (equal (lock-state self) :eval-once)
-     (setf (ev-once-flag self) nil)
      (setf (value self) nil)))
 
 (defmethod clear-after-error ((self OMBoxCall))
@@ -131,18 +131,6 @@
      (values (reverse new-symbs) args)))
 
 
-
-;;;==================================
-;;; (INTERNAL) PATCH-COMPONENT EVALUATION
-;;;==================================
-
-(defmethod omNG-box-value ((self OMPatchComponentBox) &optional (numout 0))
-  (setf (value self) (mapcar #'omNG-box-value (inputs self))))
-
-;;; output is just normal...
-;(defmethod omNG-box-value ((self OMOutBox) &optional (numout 0))
-;  (setf (value self) (mapcar #'omNG-box-value (inputs self))))
-
 ;;;=================
 ;;; INPUT
 ;;; inputs are not evaluated when patch is compiled: they become function arguments...
@@ -160,6 +148,11 @@
 
 ;;; set from the preferences
 (add-preference :general :catch-errors "Handle Error Messages" :bool nil "Catch Lisp erros and display a simple message window")
+
+(add-preference :general :auto-ev-once-mode "Auto ev-once" :bool t "Boxes automatically set in 'eval-once' mode")
+
+;;; automatically decide wether a box should be evaluated in ev-once mode or not
+(defparameter *auto-ev-once-mode* t)
 
 ;;; SETS VALUE AS A LIST FOR EVERY OUPUT 
 ;;; RETURNS THE REQUESTED (OR FIRST) INPUT
@@ -181,7 +174,9 @@
      ((and (equal (lock-state self) :locked) (value self)) 
       (return-value self numout))
      
-     ((and (equal (lock-state self) :eval-once) (ev-once-flag self)) 
+     ((and (or (equal (lock-state self) :eval-once)
+               (get-pref-value :general :auto-ev-once-mode))
+           (ev-once-flag self)) 
       (return-value self numout))
      
      (t 
@@ -194,7 +189,8 @@
                    ;;; general case here:
                    (t (multiple-value-list (boxcall-value self)))
                    )))
-          (when (equal (lock-state self) :eval-once)
+          (when (or (equal (lock-state self) :eval-once)
+                    (get-pref-value :general :auto-ev-once-mode))
             ;;; first evaluation in this generation: set the value and flag
             (setf (ev-once-flag self) t))
           (set-value self new-val)
@@ -277,8 +273,8 @@
      ((and (equal (lock-state self) :eval-once) (ev-once-flag self)) (car (value self)))
      (t (when (inputs self) 
           (if (= 1 (length (inputs self))) 
-              (setf (value self) (eval-box-inputs self))
-            (setf (value self) (list (eval-box-inputs self)))))
+              (set-value self (eval-box-inputs self))
+            (set-value self (list (eval-box-inputs self)))))
         (when (equal (lock-state self) :eval-once)
           ;;; first evaluation in this generation: set the value and flag
           (setf (ev-once-flag self) t))

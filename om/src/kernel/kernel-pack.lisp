@@ -32,7 +32,7 @@
                          (omNG-make-package "Control" 
                                             :doc "Special boxes implementing control operators"
                                             :functions '(repeat-n seq hub list-elements omif omand omor)
-                                            :special-symbols '(in out init-do iterate)
+                                            :special-symbols '(in out init-do iterate mem collect)
                                             )
                          (omNG-make-package "Data" 
                                             :doc "Objects and data management in visual programs"
@@ -44,7 +44,7 @@
                                             )
                          (omNG-make-package "Reactive" 
                                             :doc "Special boxes for reactive patches"
-                                            :functions '(send receive route coll timed-coll group-in mem)
+                                            :functions '(send receive route timed-coll group-in)
                                             )))))
   ;(add-ref-section (gen-ref-entries kernelpack))
   )
