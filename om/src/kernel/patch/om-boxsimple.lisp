@@ -55,6 +55,11 @@
             (box-h box) (om-point-y size)))
     box))
 
+(defmethod set-value ((self OMValueBox) value)
+  (call-next-method)
+  (setf (reference self) (type-of (car value)))
+  value)
+
 (defmethod print-value ((self OMValueBox)) 
   (format nil "~s" (car (value self))))
 
