@@ -47,10 +47,10 @@
 
 (add-preference-module :libraries "Libraries")
 (add-preference-section :libraries "Libraries")
-(add-preference :libraries :libs-folder1 "Libraries folder 1" :folder :no-default nil 'update-libraries-folder)
-(add-preference :libraries :libs-folder2 "Libraries folder 2" :folder :no-default nil 'update-libraries-folder)
-(add-preference :libraries :libs-folder3 "Libraries folder 3" :folder :no-default nil 'update-libraries-folder)
-(add-preference :libraries :libs-folder4 "Libraries folder 4" :folder :no-default nil 'update-libraries-folder)
+(add-preference :libraries :libs-folder1 "Search folder 1" :folder :no-default nil 'update-libraries-folder)
+(add-preference :libraries :libs-folder2 "Search folder 2" :folder :no-default nil 'update-libraries-folder)
+(add-preference :libraries :libs-folder3 "Search folder 3" :folder :no-default nil 'update-libraries-folder)
+(add-preference :libraries :libs-folder4 "Search folder 4" :folder :no-default nil 'update-libraries-folder)
 (add-preference :libraries :auto-load "Auto load" :bool nil "Will silently load any required libraries")
 
 ;; typically used from libraries, this Preference tab will allow to deal with externalk utils' preferences (e.g. Csound, etc.)
@@ -104,13 +104,23 @@
                                     (get-pref-value :libraries :libs-folder2)
                                     (get-pref-value :libraries :libs-folder3)
                                     (get-pref-value :libraries :libs-folder4)))
-        do (mapc #'(lambda (path) 
-                     (let ((lib-name? (string-until-space (car (last (pathname-directory path))))))
-                       (if (probe-file (om-make-pathname :directory path :name lib-name? :type "omlib"))
-                         ;;; this is an OM library!
-                         (register-new-library lib-name? path warn-if-exists)
-                         (om-beep-msg "Library doesn't have a loader file: ~A.omlib not found.." lib-name?))))
-                 (om-directory folder :directories t :files nil))))
+        do (register-folder-library folder t warn-if-exists)))
+        
+        
+(defun register-folder-library (folder &optional (recursive t) (warn-if-exists t))
+  
+  (loop for path in (om-directory folder :directories t :files nil)
+        do (let ((lib-name? (string-until-space (car (last (pathname-directory path))))))
+             (if (probe-file (om-make-pathname :directory path :name lib-name? :type "omlib"))
+                 ;;; this is an OM library!
+                 (register-new-library lib-name? path warn-if-exists)
+               
+               (if recursive 
+                   (register-folder-library path t warn-if-exists)
+                 (om-beep-msg "Library doesn't have a loader file: ~A.omlib not found.." lib-name?))))
+        ))
+
+
 
 ;;; called when the folder(s) change
 ;;; can not unload loaded libraries: won"t be updated (but silently)
