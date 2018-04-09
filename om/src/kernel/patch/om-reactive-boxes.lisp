@@ -65,16 +65,18 @@
 ;;; ROUTE
 ;;;=====================================
 
+;;; todo: check for undo/redo
+
 (defun test-match (data test) 
   (if (functionp test) 
       (funcall test data)
     (equal test data)))
 
-(defmethod* route (message &rest test)
+(defmethod* route (input &rest test)
    (values-list (copy-list (cons message 
                                  (mapcar 
                                   #'(lambda (route-item) 
-                                      (when (test-match message route-item) message))
+                                      (when (test-match input route-item) input))
                                   test)))))
 
 (defclass ReactiveRouteBox (RouteBox) 
@@ -93,7 +95,7 @@
 
 ;;; NOTIFY ONLY THE ROUTED OUTPUT
 ;;; (can just check in values if there is no memory)
-(defmethod OMR-Notify ((self ReactiveRouteBox))
+(defmethod OMR-Notify ((self ReactiveRouteBox) &optional input-name)
   (unless (push-tag self)
     (setf (push-tag self) t)
     (omNG-box-value self)
@@ -109,78 +111,6 @@
     ))
 
 
-
-;;;=====================================
-;;; COLLECT
-;;;=====================================
-
-(defmethod* coll (data push init) 
-  (values data push init))
-
-(defclass ReactiveCollBox (BoxWithMemory OMGFBoxCall) ())
-(defmethod boxclass-from-function-name ((self (eql 'coll))) 'ReactiveCollBox)
-
-(defmethod current-box-value ((self ReactiveCollBox) &optional (numout 0))
-  (if numout (reverse (memory self))
-    (list (reverse (memory self)))))
-
-(defmethod omNG-box-value ((self ReactiveCollBox) &optional numout)
-  (current-box-value self numout))
-
-;;; NOTIFY ONLY IF PUSH
-(defmethod OMR-Notify ((self ReactiveCollBox))
-  ;(print (list "notif" self))
-  (unless (push-tag self)
-    (setf (push-tag self) t)
-    (let ((listeners (get-listeners self)))
-      (let ((push? (process-input self (inputs self))))
-        (when (and listeners push?)
-          (setf (gen-lock self) t)
-          (mapcar 'omr-notify listeners)
-          (setf (gen-lock self) nil)
-          )
-        ))))
-
-(defmethod process-input ((self ReactiveCollBox) inputs)
- (let ((init (omNG-box-value (nth 2 inputs)))      
-       (push (omNG-box-value (nth 1 inputs))))
-  (if init 
-      (setf (memory self) nil)
-    (let ((in (omNG-box-value (nth 0 inputs))))
-      (print (list in push))
-      (when (and in 
-                 (or (null push)
-                     (equal in push))) 
-        ;; the test is not very clean but 
-        ;; if in and push come from two different values, 
-        ;; we don't want to collect when push is T
-        (push in (memory self)))))
-  ;;; return value determines if the notification propagates
-  push))
-
-
-;;;=====================================
-;;; GROUP
-;;;=====================================
-
-(defmethod* group-in (in delta) 
-   :initvals '(nil 100)
-   (values in delta))
-
-(defclass ReactiveGroupBox (ReactiveCollBox) 
-  ((tt :initform nil :accessor tt)))
-
-(defmethod boxclass-from-function-name ((self (eql 'group-in))) 'ReactiveGroupBox)
-
-(defmethod process-input ((self ReactiveGroupBox) inputs)
-  (let ((in (omng-box-value (car inputs)))
-        (delta (omng-box-value (cadr inputs))))
-    (if (or (null (tt self))  ;;; fresh memory
-            (> (clock-time) (+ delta (tt self)))) ;;; time out
-        (setf (tt self) (clock-time)
-              (memory self) (if in (list in) nil))
-      (when in (push in (memory self))))
-    in))
 
 
 ;;;=====================================

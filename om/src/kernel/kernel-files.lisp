@@ -75,9 +75,6 @@
         "patch/om-boxcall"
         "patch/om-boxsimple"
         "patch/om-boxobject"   
-        "patch/om-special-boxes"
-        "patch/om-control-boxes"
-        "patch/om-system-boxes"
         "patch/om-reactive-boxes"
         "patch/om-connection"
         "patch/om-patch" 
@@ -95,7 +92,12 @@
         "patch/om-interfacebox"
         "patch/om-lost-reference"
         "patch/om-loop"
- 
+        
+        "boxes/special-boxes"
+        "boxes/control-boxes"
+        "boxes/system-boxes"
+        "boxes/repeat-n"
+        "boxes/mem-collect"  
 
         "basic/om-data-structures"
         "basic/om-file-utils"

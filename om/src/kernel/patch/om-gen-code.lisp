@@ -86,14 +86,6 @@
 
 
 
-;;;====================
-;;; PATCH COMPONENT BOX
-;;;====================
-
-(defmethod gen-code ((self OMPatchComponentBox) &optional numout)
-  (declare (ignore numout))
-  (mapcar 'gen-code (inputs self)))
-
 ;;;=================
 ;;; INPUT BOX
 ;;;=================

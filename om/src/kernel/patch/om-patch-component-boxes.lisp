@@ -34,7 +34,7 @@
                              :reference reference
                              :color (make-color-or-nil :color (om-make-color 0.82 0.85 0.7)
                                                        :t-or-nil t)
-                             :icon-pos :top
+                             :icon-pos (or (getf init-args :icon-pos) :top)
                              :text-align :center))
          (size (minimum-size box)))
     
@@ -78,150 +78,14 @@
 ;;; most patch components are just used as control and do not 'evaluate' themselves.
 ;;;==================================
 
-(defmethod omNG-box-value ((self OMPatchComponentBox) &optional (numout 0))
-  (setf (value self) (mapcar #'omNG-box-value (inputs self)))
-  (return-value self numout))
+(defmethod boxcall-value ((self OMPatchComponentBox))
+  (values-list (mapcar #'omNG-box-value (inputs self))))
 
+;;;====================
+;;; PATCH COMPONENT BOX
+;;;====================
 
-;;;==================================
-;;; BOXES WITH MEMORY
-;;;==================================
-
-(defclass OMPatchComponentWithMemory (OMPatchComponent) 
-  ((mem-var :initform (gensym "MEM") :accessor mem-var)))
-
-(defmethod get-icon-id ((self OMPatchComponentWithMemory)) 'm-mem)
-
-;;;------------------
-;;; DELAY: 'mem'
-;;; returns previous eveluation(s) on the right output
-;;;------------------
-
-(defmethod special-box-p ((name (eql 'mem))) t)
-
-(defclass OMMemory (OMPatchComponentWithMemory) ())
-(defclass OMMemoryBox (OMPatchComponentBox) ())
-
-(defmethod get-box-class ((self OMMemory)) 'OMMemoryBox)
-
-(defmethod get-icon-id ((self OMMemoryBox)) 'm-mem)
-(defmethod object-name-in-inspector ((self OMMemoryBox)) "memory/delay box")
-
-(defmethod omNG-make-special-box ((reference (eql 'mem)) pos &optional init-args)
-  (let ((name (car (list! init-args))))
-    (omNG-make-new-boxcall 
-     (make-instance 'OMMemory :name (if name (string name) "mem"))
-     pos)))
-
-(defmethod create-box-inputs ((self OMMemoryBox)) 
-  (list 
-   (make-instance 
-    'box-input :box self :value NIL
-    :name "data to record in memory")
-   (make-instance 
-    'box-input :box self :value NIL
-    :name "size of memory")))
-
-(defmethod create-box-outputs ((self OMMemoryBox)) 
-  (list 
-   (make-instance 
-    'box-output :box self :value NIL
-    :name "current value")
-   (make-instance 
-    'box-output :box self :value NIL
-    :name "past value(s)")))
-
-
-(defmethod omNG-box-value ((self OMMemoryBox) &optional (numout 0))
-    
-    (unless (ev-once-flag self)
-      
-       (let ((inval (omng-box-value (car (inputs self))))
-             (size (omng-box-value (cadr (inputs self)))))
- 
-         (setf (ev-once-flag self) t)
-         
-         (setf (value self)
-               (if size
-                   (list inval 
-                         (first-n (cons (car (value self)) 
-                                        (list! (cadr (value self))))
-                                  size))
-                 (list inval (car (value self)))))
-         ))
-
-    (return-value self numout))
-
-
-
-
-;;;------------------
-;;; COLLECT
-;;;------------------
-
-;;;------------------
-;;; DELAY: 'mem'
-;;; returns previous eveluation(s) on the right output
-;;;------------------
-
-(defmethod special-box-p ((name (eql 'collect))) t)
-
-(defclass OMCollect (OMPatchComponentWithMemory) ())
-(defclass OMCollectBox (OMPatchComponentBox) ())
-
-(defmethod get-box-class ((self OMCollect)) 'OMCollectBox)
-
-(defmethod get-icon-id ((self OMCollectBox)) 'm-mem)
-(defmethod object-name-in-inspector ((self OMCollectBox)) "collector box")
-
-(defmethod omNG-make-special-box ((reference (eql 'collect)) pos &optional init-args)
-  (let ((name (car (list! init-args))))
-    (omNG-make-new-boxcall 
-     (make-instance 'OMCollect :name (if name (string name) "collect"))
-     pos)))
-
-(defmethod create-box-inputs ((self OMCollectBox)) 
-  (list 
-   (make-instance 
-    'box-input :box self :value NIL
-    :name "data in (collected in memory)")
-   (make-instance 
-    'box-input :box self :value NIL
-    :name "push: propagates reactive notification to the data-out outlet")
-   (make-instance 
-    'box-input :box self :value NIL
-    :name "init: reinitializes memory")))
-
-(defmethod create-box-outputs ((self OMCollectBox)) 
-  (list 
-   (make-instance 
-    'box-output :box self :value NIL
-    :name "collect and output data-in")
-   (make-instance 
-    'box-output :box self :value NIL
-    :name "data-out (collected)")
-   (make-instance 
-    'box-output :box self :value NIL
-    :name "init: reinitializes memory")))
-
-
-(defmethod omNG-box-value ((self OMCollectBox) &optional (numout 0))
-    
-    (unless (ev-once-flag self)
-      
-       (let ((inval (omng-box-value (car (inputs self))))
-             (size (omng-box-value (cadr (inputs self)))))
- 
-         (setf (ev-once-flag self) t)
-         
-         (setf (value self)
-               (if size
-                   (list inval 
-                         (first-n (cons (car (value self)) 
-                                        (list! (cadr (value self))))
-                                  size))
-                 (list inval (car (value self)))))
-         ))
-
-    (return-value self numout))
+(defmethod gen-code-for-call ((self OMPatchComponentBox) &optional args)
+  (declare (ignore args)) ;; only for lambda generation
+  (mapcar 'gen-code (inputs self)))
 

@@ -31,8 +31,8 @@
                                                                list remove  cons  append  apply  funcall mapcar mapcan))
                          (omNG-make-package "Control" 
                                             :doc "Special boxes implementing control operators"
-                                            :functions '(repeat-n seq hub list-elements omif omand omor)
-                                            :special-symbols '(in out init-do iterate mem collect)
+                                            :functions '(seq hub list-elements omif omand omor)
+                                            :special-symbols '(in out repeat-n init-do iterate mem collect)
                                             )
                          (omNG-make-package "Data" 
                                             :doc "Objects and data management in visual programs"

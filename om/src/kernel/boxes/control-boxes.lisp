@@ -22,46 +22,6 @@
 
 (in-package :om)
 
-;;;----------------------------------
-;;; REPEAT-N: A COMPACT LOOP UTILITY
-;;;----------------------------------
-
-(defmethod* repeat-n  ((self t) (n integer)) :numouts 1 :initvals '(nil 0) :indoc '("something" "times")
-  :doc "Repeats <n> times the evaluation of <self> and collects the <n> results into a list.
-
-Ex. (repeat-n (+ 1 1) 4) ==> (2 2 2 2)" 
-  :icon 'repeat
-  (loop for i from 1 to n collect (eval self)))
-
-(defclass OMRepeatNBoxCall (OMGFBoxcall) ())
-(defmethod boxclass-from-function-name ((self (eql 'repeat-n))) 'OMRepeatNBoxCall)
-
-(defmethod boxcall-value ((self OMRepeatNBoxCall)) 
-   (loop for i from 1 to (omNG-box-value (cadr (inputs self)))
-         collect (omNG-box-value (car (inputs self)))))
-
-(defmethod box-lambda-value ((self OMRepeatNBoxCall))
-   (multiple-value-bind (new-symbs args) 
-       (get-args-eval-curry self #'(lambda (input) `',(omNG-box-value input)))
-     (let ((arglist (apply 'append args)))  ;;; flat the arg-list (for keywords etc.)
-       (eval `#'(lambda ,new-symbs
-                  (loop for i from 1 to ,(cadr arglist)
-                        collect ,(car arglist))
-                  )))))
-
-(defmethod gen-code-for-call ((self OMRepeatNBoxCall) &optional args)
-  `(loop for i from 1 to ,(gen-code (cadr (inputs self))) 
-         collect ,(gen-code (car (inputs self)))))
-
-(defmethod gen-code-lambda ((self OMRepeatNBoxCall) &optional numout)
-  (declare (ignore numout))
-  (multiple-value-bind (new-symbs args) 
-      (get-args-eval-curry self #'gen-code)
-    `#'(lambda ,new-symbs
-         (loop for i from 1 to ,(caadr args) 
-               collect ,(caar args))
-         )))
-
 ;;;------------------------
 ;;; IF
 ;;;------------------------

@@ -28,6 +28,8 @@
 ;;; SEQ: SEQUENCE OPERATIONS
 ;;;--------------------------
 
+;;; !! todo check in/outs with undo
+
 (defmethod* seq  ((op t) &rest op+) :numouts 1 
    :initvals '(nil) :indoc '("something to do" "something else to do")
    :icon 161
@@ -138,8 +140,10 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
 
 
 ;;;---------------------------------------------------------------------
-;; HUB: PROXY TO USE THE SAME (UNDEFINED) VALUE AT DIFFERENT INPUT PORTS
+;; HUB: PROXY TO USE THE SAME (UNDEFINED) VALUE AT DIFFERENT OUTPUT PORTS
 ;;;---------------------------------------------------------------------
+;;; todo: allow several inputs, too => all return the same
+
 (defmethod* hub (value &rest add-output)  
   :initvals '(nil) 
   :indoc '("anthing")

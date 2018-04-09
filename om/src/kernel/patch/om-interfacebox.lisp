@@ -225,7 +225,7 @@
 (defmethod get-properties-list ((self ButtonBox))
   (add-properties (call-next-method)
                   "Button" 
-                  `((:send-value "Value sent at pushing" t send-value)
+                  `((:send-value "Value sent" t send-value)
                     (:text "Text" :string text)
                     )))
 
@@ -244,7 +244,7 @@
   (let ((textcolor (if (car (value self)) 
                        (om-def-color :light-gray) 
                      (om-def-color :dark-gray))))
-    (if (car (value self))
+    (if (value self)
       (om-draw-rect x y w h :fill t :color (om-def-color :gray))
     (om-draw-rect x y w h :fill nil :line 3 :color (om-def-color :gray)))
     (when (text self)
@@ -258,7 +258,6 @@
                              (text self)))))))
     ))
  
-
 
 (defmethod interfacebox-action ((self ButtonBox) frame pos)
   (when (or (om-command-key-p)
@@ -274,4 +273,20 @@
                   ))))
 
 
+(defmethod OMR-Notify ((self ButtonBox) &optional input-name)
+  (cond 
+   ((and input-name (string-equal input-name "send-value"))
+    (unless (push-tag self)
+      (setf (push-tag self) t)
+      (let ((listeners (get-listeners self)))
+        (if listeners
+            (progn 
+              (set-value self (list (send-value self)))
+              (om-invalidate-view (frame self))
+              (loop for listener in listeners do (omr-notify (car listener) (cadr listener)))
+              (set-value self nil)
+            )
+          (omng-box-value self)))))
+   (t (call-next-method))
+   ))
 
