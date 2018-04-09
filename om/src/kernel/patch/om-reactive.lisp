@@ -23,14 +23,15 @@
 ;;;==================
 
 ;;; returns the active inputs connected to the active outputs of self
+;;; as a list of ((box input-name) ...)
 (defmethod get-listeners ((self OMBox))
   (remove-duplicates 
    (loop for o in (outputs self) when (reactive o)
          append (loop for c in (connections o) 
                       when (input-will-react (to c))
-                      collect (box (to c))))))
+                      collect (list (box (to c)) (name (to c))))
+         )))
   
-
 (defmethod input-will-react ((self box-input))
   (and (reactive self)
        (not (equal (lock-state (box self)) :locked))))
@@ -39,13 +40,13 @@
 ;;; NOTIFICATION
 ;;;==================
 
-(defmethod OMR-Notify ((self OMBox))
-  ;(print (list "NOTIFIED BOX" (name self)))
+(defmethod OMR-Notify ((self OMBox) &optional input-name)
+  ; (print (list "NOTIFIED BOX" self))
   (unless (push-tag self)
     (setf (push-tag self) t)
     (let ((listeners (get-listeners self)))
       (if listeners
-          (mapcar 'omr-notify listeners)
+          (loop for listener in listeners do (omr-notify (car listener) (cadr listener)))
         (omNG-box-value self)))))
 
 ;;; SELF-NOTIFICATION (NOTIFIES AND REEVALUATES ON A NEW THREAD)
