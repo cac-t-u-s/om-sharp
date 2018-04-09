@@ -31,8 +31,12 @@
                                                                list remove  cons  append  apply  funcall mapcar mapcan))
                          (omNG-make-package "Control" 
                                             :doc "Special boxes implementing control operators"
-                                            :functions '(seq hub list-elements omif omand omor)
+                                            :functions '(seq hub split omif omand omor)
                                             :special-symbols '(in out repeat-n init-do iterate mem collect)
+                                            )
+                         (omNG-make-package "Loop" 
+                                            :doc "Special boxes for visual loop implementation"
+                                            :special-symbols '(init-do iterate loop-for loop-while loop-list loop-onlist)
                                             )
                          (omNG-make-package "Data" 
                                             :doc "Objects and data management in visual programs"
@@ -44,7 +48,7 @@
                                             )
                          (omNG-make-package "Reactive" 
                                             :doc "Special boxes for reactive patches"
-                                            :functions '(send receive route timed-coll group-in)
+                                            :functions '(send receive route timed-coll)
                                             )))))
   ;(add-ref-section (gen-ref-entries kernelpack))
   )
