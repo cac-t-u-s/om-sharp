@@ -17,16 +17,35 @@
 
 (in-package :om)
 
+;;; set from the preferences
+(add-preference :general :catch-errors "Handle Error Messages" :bool nil "Catch Lisp erros and display a simple message window")
+;;; automatically decide wether a box should be evaluated in ev-once mode or not
+(add-preference :general :auto-ev-once-mode "Auto ev-once" :bool t "Boxes automatically set in 'eval-once' mode")
+
 
 (defvar *current-eval-panel* nil)
+
+;;; ev-once-context can be a repeat-n or an om-loop box
+;;; and return specific flags
+(defparameter *ev-once-context* t)
+(defmethod get-ev-once-flag ((self t)) t)
 
 (defmethod clear-ev-once ((self t)) nil)
 
 (defmethod clear-ev-once ((self patch-editor-view))
    "After one evaluation this methods set the ev-once flag of all boxes in ev-once mode to nil."
+   (mapc #'(lambda (boxframe)
+             (clear-ev-once (object boxframe))) (get-boxframes self))
+   (setf *current-eval-panel* nil)
+   (setf *ev-once-context* t))
+
+(defmethod clear-ev-once ((self OMPatch))
+   "After one evaluation this methods set the ev-once flag of all boxes in ev-once mode to nil."
    (mapc #'(lambda (box)
-             (clear-ev-once (object box))) (get-boxframes self))
-   (setf *current-eval-panel* nil))
+             (clear-ev-once box)) (boxes self))
+   (setf *current-eval-panel* nil)
+   (setf *ev-once-context* t))
+
 
 (defmethod clear-ev-once ((self OMBox)) nil)
 
@@ -146,13 +165,6 @@
 ;;; BOX EVALUATION
 ;;;=================
 
-;;; set from the preferences
-(add-preference :general :catch-errors "Handle Error Messages" :bool nil "Catch Lisp erros and display a simple message window")
-
-(add-preference :general :auto-ev-once-mode "Auto ev-once" :bool t "Boxes automatically set in 'eval-once' mode")
-
-;;; automatically decide wether a box should be evaluated in ev-once mode or not
-(defparameter *auto-ev-once-mode* t)
 
 ;;; SETS VALUE AS A LIST FOR EVERY OUPUT 
 ;;; RETURNS THE REQUESTED (OR FIRST) INPUT
@@ -175,8 +187,11 @@
       (return-value self numout))
      
      ((and (or (equal (lock-state self) :eval-once)
+               
                (get-pref-value :general :auto-ev-once-mode))
-           (ev-once-flag self)) 
+           
+           (equal (ev-once-flag self) (get-ev-once-flag *ev-once-context*)))
+      
       (return-value self numout))
      
      (t 
@@ -192,7 +207,8 @@
           (when (or (equal (lock-state self) :eval-once)
                     (get-pref-value :general :auto-ev-once-mode))
             ;;; first evaluation in this generation: set the value and flag
-            (setf (ev-once-flag self) t))
+            (setf (ev-once-flag self) (get-ev-once-flag *ev-once-context*)))
+
           (set-value self new-val)
           (setf (eval-flag self) nil)
           (return-value self numout)))
@@ -269,20 +285,27 @@
                               (clear-after-error self)
                               (om-abort)))))
     (cond
+
      ((equal (lock-state self) :locked) (car (value self)))
-     ((and (equal (lock-state self) :eval-once) (ev-once-flag self)) (car (value self)))
+
+     ((and (or (equal (lock-state self) :eval-once)
+               (get-pref-value :general :auto-ev-once-mode)) 
+           (equal (ev-once-flag self) (get-ev-once-flag *ev-once-context*)))
+      
+      (car (value self)))
+
      (t (when (inputs self) 
           (if (= 1 (length (inputs self))) 
               (set-value self (eval-box-inputs self))
             (set-value self (list (eval-box-inputs self)))))
         (when (equal (lock-state self) :eval-once)
           ;;; first evaluation in this generation: set the value and flag
-          (setf (ev-once-flag self) t))
+          (setf (ev-once-flag self) (get-ev-once-flag *ev-once-context*)))
         (nth numout (value self))
         ))))
 
 (defmethod clear-ev-once ((self OMValueBox))
-  (when (equal (lock-state self) :eval-once)
+  (when t ; (equal (lock-state self) :eval-once)
     (setf (ev-once-flag self) nil)))
 
 
@@ -297,7 +320,7 @@
   ;(unless (equal (lock-state self) :locked)
   ;  (setf (value self) (list (make-instance (reference self)))) ;; test if no problem...
   ;  (om-invalidate-view (frame self)))
-  
+
   (let ((box-attributes (loop for input in (cdr (inputs self))
                               when (and (find (intern-k (name input)) 
                                               (additional-box-attributes-names self))
@@ -327,7 +350,7 @@
 
 ;;; Reset the ev-once flag after each generation but does not reinitialize the value
 (defmethod clear-ev-once ((self OMBoxEditCall))
-   (when (equal (lock-state self) :eval-once)
+   (when t ; (equal (lock-state self) :eval-once)
      (setf (ev-once-flag self) nil)))
 
 (defmethod set-value ((self OMBoxEditCall) value)

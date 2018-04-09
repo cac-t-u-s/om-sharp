@@ -53,7 +53,10 @@ All boxes which their reference is a OM generic function are instances of this c
 ; PROPERTIES
 ;-------------------------------------------
 
-(defmethod lock-modes-for-box ((self OMBoxCall)) '(nil :locked :eval-once))
+(defmethod lock-modes-for-box ((self OMBoxCall)) 
+  (append '(nil :locked) 
+          (if (get-pref-value :general :auto-ev-once-mode) nil :eval-once)))
+
 (defmethod eval-modes-for-box ((self OMBoxCall)) '(nil :lambda :reference :box))
 
 (defmethod get-properties-list ((self OMBoxCall))
@@ -75,7 +78,7 @@ All boxes which their reference is a OM generic function are instances of this c
     (setf (value self) nil))
   (setf (lambda-state self) value))
 
-(defmethod update-after-change-mode ((box OMBoxCall))
+(defmethod update-after-change-mode ((box OMBox))
   (update-inspector-for-object box)
   (om-invalidate-view (frame box))
   (when (container box)
