@@ -518,7 +518,7 @@ Ex. (om-mean '(1 2 3 4) '(3 2 1 1))  => 2.0
 
 
 (defmethod* om-random ((low number) (high number))
-  :initvals '(0 1) :indoc '("min" "max") :icon 'alea 
+  :initvals '(0 1) :indoc '("min value" "max value") :icon 'alea 
   :doc "Returns a random number between <low> and <high>."
   (if (zerop (- low high))
     (+ low high (- high))

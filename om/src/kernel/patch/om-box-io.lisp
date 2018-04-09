@@ -26,7 +26,7 @@
 ;; or just a symbol (never used) corresponding to the name of the input
 (defclass OMBoxIO (OMVPObject) 
   ((reference :initform nil :initarg :reference :accessor reference)
-   (doc-string :initform "" :initarg :doc-string :accessor doc-string)
+   (doc-string :initform nil :initarg :doc-string :accessor doc-string)
    (value :initform nil :initarg :value :accessor value)
    (connections :initform nil :accessor connections :initarg :connections)
    (box :initform nil :initarg :box :accessor box)
@@ -58,15 +58,16 @@
 (defmethod set-value ((self OMBoxIO) value) 
   (setf (value self) value))
 
+;;; the doc-string can be either hard-coded, or collected from the class/method definition
 (defmethod get-input-doc-string ((self OMBoxIO))
-  (let ((doc (get-input-doc (box self) (name self))))
+  (let ((doc (or (doc-string self)
+                 (get-input-doc (box self) (name self)))))
     (and (stringp doc) (not (string-equal doc "")) doc)))
-
 
 (defmethod get-input-doc ((self OMBox) name) nil)
 (defmethod get-input-menu ((self OMBox) name) nil)
 (defmethod get-input-def-value ((self OMBox) name) nil)
-(defmethod get-output-doc ((self OMBox) i) (format nil "out~D" i))
+(defmethod get-output-doc ((self OMBox) i) nil) ; (format nil "out~D" i))
 
 ;----------------------------------------------------
 ; BOXES CAN HAVE SPECIAL OPTIONAL / KEYWORD INPUTS

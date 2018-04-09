@@ -87,7 +87,7 @@
 (defmethod io-color ((self box-keyword-input)) (om-make-color 0.2 0.4 0.5))
 (defmethod io-color ((self box-keyword-output)) (om-make-color 0.2 0.4 0.5))
 
-(defmethod area-tt-text ((self io-area)) 
+(defmethod area-tt-text ((self input-area)) 
   (remove 
    nil 
    (list (string+ 
@@ -97,6 +97,15 @@
           (if (connections (object self)) ""
             (format nil " [~s]" (value (object self)))))
          (get-input-doc-string (object self))
+         )))
+
+(defmethod area-tt-text ((self output-area)) 
+  (remove 
+   nil 
+   (list (format nil "~A~A" 
+                 (io-prefix (object self))
+                 (or (name (object self)) ""))
+         (doc-string (object self))
          )))
 
 (defmethod area-tt-pos ((self output-area)) 
