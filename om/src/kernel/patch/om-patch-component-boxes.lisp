@@ -24,7 +24,6 @@
 
 (in-package :om)
 
-
 (defclass OMPatchComponent (OMBasicObject) ())
 (defclass OMPatchComponentBox (OMBoxCall) ())
 
@@ -55,7 +54,6 @@
                   "Appearance" 
                   '((:icon "Icon position" (:left :top) icon-pos))))
 
-
 (defmethod object-name-in-inspector ((self OMPatchComponentBox)) (format nil "~A box" (type-of (reference self))))
 
 (defmethod valid-property-p ((self OMPatchComponentBox) (prop-id (eql :lock))) nil)
@@ -74,18 +72,17 @@
 
 
 ;;;==================================
-;;; (INTERNAL) PATCH-COMPONENT EVALUATION
+;;; PATCH-COMPONENT EVALUATION
 ;;; most patch components are just used as control and do not 'evaluate' themselves.
 ;;;==================================
 
 (defmethod boxcall-value ((self OMPatchComponentBox))
   (values-list (mapcar #'omNG-box-value (inputs self))))
 
-;;;====================
-;;; PATCH COMPONENT BOX
-;;;====================
 
 (defmethod gen-code-for-call ((self OMPatchComponentBox) &optional args)
   (declare (ignore args)) ;; only for lambda generation
   (mapcar 'gen-code (inputs self)))
+
+
 

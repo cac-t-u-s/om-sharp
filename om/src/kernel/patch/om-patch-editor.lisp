@@ -388,10 +388,12 @@
         (#\b (when selected-boxes
                (store-current-state-for-undo editor) 
                (mapc 'switch-lock-mode selected-boxes)))
+
         (#\1 (unless (or (edit-lock editor) (get-pref-value :general :auto-ev-once-mode))  
                (when selected-boxes
                  (store-current-state-for-undo editor)
                  (mapc 'switch-evonce-mode selected-boxes))))
+
         (#\l (unless (edit-lock editor) 
                (when selected-boxes
                  (store-current-state-for-undo editor)

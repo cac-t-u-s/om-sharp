@@ -339,8 +339,9 @@
           (info (find-values-in-prop-list data :info))
           (win (find-values-in-prop-list data :window)))
         
-      (setf (name patch) name)
-      
+      ; in principle the name is determined by the pathname
+      (unless (name patch) (setf (name patch) name))
+
       (setf (create-info patch) (list (find-value-in-kv-list info :created)
                                       (find-value-in-kv-list info :modified))
             (doc patch) (find-value-in-kv-list data :doc)
@@ -771,16 +772,20 @@
     
       (load-box-attributes box data)
       
-      (when size (setf (box-w box) (om-point-x size) (box-h box) (om-point-y size)))
+      
       (when inputs (restore-inputs box inputs))
       (when outputs (restore-outputs box outputs))
       (when name (set-name box name))
       (when group-id (setf (group-id box) group-id))
+      
       (loop for property in (get-flat-properties-list box)
             do (let ((prop (find-value-in-kv-list data (car property))))
                  (when prop (set-property box (car property) (omng-load prop)))))
+      
+      ;;; some properties (e.g. icon-pos) can modify the size of the box: better do it at the end
+      (when size (setf (box-w box) (om-point-x size)
+                       (box-h box) (om-point-y size)))
       )
-
     box))
 
 
