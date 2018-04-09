@@ -314,39 +314,3 @@
     (/ num den)))
 
 
-;; ============================================================================
-;; LELISP MACROS (deprecated)
-;; ============================================================================
-
-(defmacro ifnot (testform elseform &body body)
-  `(if (not ,testform) ,elseform (progn ,.body)))
-
-(defmacro repeat (count &body body)
-  `(dotimes (,(gensym) ,count)
-     ,.body))
-
-(defmacro for ((var begin step end) &body body)
-  (let ((s2 (gensym)) (s3 (gensym)))
-    `(let ((,var ,begin) (,s2 ,step) (,s3 ,end))
-       (if (> ,s2 0)
-         (loop
-           (when (> ,var ,s3) (return))
-           (progn ,.body)
-           (incf ,var ,s2))
-         (loop
-           (when (< ,var ,s3) (return))
-           (progn ,.body)
-           (incf ,var ,s2))))))
-
-(defmacro while (test &body body)
-  (let ((testlab (gensym))
-        (toplab (gensym)))
-    `(tagbody
-       (go ,testlab)
-      ,toplab
-      (progn ,@body)
-      ,testlab
-      (when ,test (go ,toplab)))))
-
-
-
