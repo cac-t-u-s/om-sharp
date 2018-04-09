@@ -74,26 +74,26 @@
 
 (defmethod boxframe-draw-contents ((self InterfaceBoxFrame) (box OMInterfaceBox))
   (let ((io-hspace 4))
-    (om-with-fg-color (om-def-color :dark-gray)
-      ;;; interior
-      (when (box-draw-color box)
-        (om-draw-rect 0 io-hspace (w self) (- (h self) (* 2 io-hspace)) 
-                      :color (box-draw-color box)
-                      :angles :round
-                      :fill t))
+    ;;; interior
+    (when (box-draw-color box)
+      (om-draw-rounded-rect 0 io-hspace (w self) (- (h self) (* 2 io-hspace)) 
+                            :color (box-draw-color box)
+                            :round (box-draw-roundness box)
+                            :fill t))
     
-      (when (selected box)
-        (om-draw-rect 0  io-hspace (w self) (- (h self) (* 2 io-hspace)) 
-                      :color (om-make-color-alpha (om-def-color :gray) 0.3)
-                      :angles :round
-                      :fill t))
+    (when (selected box)
+      (om-draw-rounded-rect 0 io-hspace (w self) (- (h self) (* 2 io-hspace)) 
+                            :color (om-make-color-alpha (om-def-color :gray) 0.3)
+                            :round (box-draw-roundness box)
+                            :fill t))
       
-      ;;; border
-      (when (border box) 
-        (draw-border box 0 io-hspace (w self) (- (h self) (* 2 io-hspace))))
-      )
-  
     (draw-interface-component box 0 io-hspace (w self) (- (h self) (* 2 io-hspace)))
+      
+    ;;; border
+    (when (border box) 
+      (draw-border box 0 io-hspace (w self) (- (h self) (* 2 io-hspace))))
+   
+    
     ;;; in/outs etc.
     (mapcar #'(lambda (a) (om-draw-area a)) (areas self))
     ))
@@ -176,10 +176,10 @@
   (let* ((val (or (car (value self)) (default-value self)))
          (pos-ratio (/ (- val (min-value self)) (- (max-value self) (min-value self)))))
     (cond ((equal (orientation self) :vertical)
-           (om-draw-line x (+ y (* (- 1 pos-ratio) h)) (+ x w) (+ y (* (- 1 pos-ratio) h)) 
+           (om-draw-line (+ x (* 2 (box-draw-border self))) (+ y (* (- 1 pos-ratio) h)) (- (+ x w) (* (box-draw-border self) 2)) (+ y (* (- 1 pos-ratio) h)) 
                          :color (om-def-color :dark-gray) :line 3))
           ((equal (orientation self) :horizontal)
-           (om-draw-line (+ x (* pos-ratio w)) y (+ x (* pos-ratio w)) (+ y h) 
+           (om-draw-line (+ x (* pos-ratio w)) (+ y (box-draw-border self)) (+ x (* pos-ratio w)) (- (+ y h) (box-draw-border self))
                          :color (om-def-color :dark-gray) :line 3))
           )))
 
@@ -244,9 +244,8 @@
   (let ((textcolor (if (car (value self)) 
                        (om-def-color :light-gray) 
                      (om-def-color :dark-gray))))
-    (if (value self)
-      (om-draw-rect x y w h :fill t :color (om-def-color :gray))
-    (om-draw-rect x y w h :fill nil :line 3 :color (om-def-color :gray)))
+    (when (value self)
+      (om-draw-rounded-rect x y w h :fill t :round (box-draw-roundness self) :color (om-def-color :gray)))
     (when (text self)
       (let ((font (om-def-font :font1b)))
         (multiple-value-bind (sw sh) (om-string-size (text self) font)
@@ -254,7 +253,7 @@
             (om-with-font 
              font
              (om-draw-string (+ x (/ w 2) (- (/ sw 2)))
-                             (+ y (/ h 2) (- (/ sh 2)) 8)
+                             (+ y (/ h 2) (- (/ sh 2)) 10)
                              (text self)))))))
     ))
  
