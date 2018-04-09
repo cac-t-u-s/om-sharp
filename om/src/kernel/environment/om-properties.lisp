@@ -125,8 +125,28 @@
 ;;; DEFAULT (UNSPECIFIED)
 ;;;====================================
 
-;;; general case = text box
+;;; general case = text box (value is READ by Lisp)
 (defmethod make-prop-item (type prop-id object &key default update)
+  (om-make-view 'click-and-edit-text 
+                ;:enabled (valid-property-p object prop-id)
+                :text (format nil "~A" (get-property object prop-id))
+                :resizable :w
+                :bg-color (om-def-color :window)
+                :border nil ;(om-def-color :gray)
+                :size (om-make-point (list :string (format nil "~A" (get-property object prop-id))) 20)
+                :font (om-def-font :font1)
+                :after-fun #'(lambda (item)
+                               (set-property object prop-id 
+                                             (if (string-equal (text item) "") nil
+                                               (read-from-string (text item))))
+                               (when update (update-after-prop-edit update object))
+                               )))
+
+;;;====================================
+;;; STRINGS
+;;;====================================
+
+(defmethod make-prop-item ((type (eql :string)) prop-id object &key default update)
   (om-make-view 'click-and-edit-text 
                 ;:enabled (valid-property-p object prop-id)
                 :text (if (get-property object prop-id) (format nil "~A" (get-property object prop-id)) "")
@@ -146,10 +166,13 @@
 ;;; NUMBERS
 ;;;====================================
 
+(defmethod prop-item-call-function-to-object ((object t) function)
+  (funcall function object))
+
 ;;; for number default is a list (min-val max-val decimals)
 (defmethod make-prop-item ((type (eql :number)) prop-id object &key default update)
   (let ((def (loop for element in (list! default) collect
-                   (if (functionp element) (funcall element object)
+                   (if (functionp element) (prop-item-call-function-to-object object element)
                      element))))
   (om-make-graphic-object 'numbox 
                           :value (get-property object prop-id)
@@ -681,6 +704,9 @@
   (loop for obj in (objects object) do
         (update-after-prop-edit (get-update-frame obj) obj)))
 
+
+(defmethod prop-item-call-function-to-object ((object virtual-object-selection) function)
+  (funcall function (car (objects object))))
 
 
 ;;; returns only the properties shared between all the objects
