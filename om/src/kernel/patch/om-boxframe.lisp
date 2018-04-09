@@ -357,8 +357,11 @@
          (eia (input-edit-areas self))
          (statesign-w 5)
          (extra-w (+ (* statesign-w 2) 
-                     (if (and eia (inputs box)) 10 0)
-                     )) 
+                     (if (and eia (inputs box) 
+                              (or (> (length (inputs box)) 1)
+                                  (< (w self) 40)))
+                         10 0)
+                     ))
          (n -1))
     
     (setf (areas self)
@@ -404,6 +407,7 @@
     ))
 
 (defmethod make-frame-from-callobj ((self OMBox))
+  
   (let ((view (om-make-graphic-object (get-box-frame-class self) 
                 :position (omp (box-x self) (box-y self))
                 ;:font (font-font (text-font self))
