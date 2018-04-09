@@ -70,9 +70,9 @@ Mind using this box in 'eval-once' mode when connected to several other boxes."
 
 
 ;;;------------------------------------------
-;; LIST-ELEMENTS: SPLIT A LIST in ITS OUTPUTS
+;; SPLIT A LIST in ITS OUTPUTS
 ;;;------------------------------------------
-(defmethod* list-elements ((list list) &rest add-output)  
+(defmethod* split ((list list) &rest add-output)  
   :initvals '(nil) 
   :indoc '("a list")
   :doc 
@@ -88,7 +88,7 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
 
 
 (defclass OMBoxSplit (OMGFBoxcall) ())
-(defmethod boxclass-from-function-name ((self (eql 'list-elements))) 'OMBoxSplit)
+(defmethod boxclass-from-function-name ((self (eql 'split))) 'OMBoxSplit)
 
 (defmethod boxcall-value ((self OMBoxSplit))
   (values-list (first-n (omNG-box-value (car (inputs self))) (length (outputs self)))))
