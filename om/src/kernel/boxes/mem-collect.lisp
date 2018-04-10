@@ -26,10 +26,13 @@
   ((mem-var :initform  (gentemp "MEM-") :accessor mem-var)
    (timer-var :initform  nil :accessor timer-var)))
 
+(defmethod get-patch-component-box-def-color ((self OMPatchComponentWithMemory)) (om-make-color 0.82 0.7 0.7))
+
 (defmethod initialize-instance :after ((self ompatchcomponentwithmemory) &rest initargs)
   (setf (timer-var self) (intern (string+ (symbol-name (mem-var self)) "-TIMER")))
   (eval `(defvar ,(mem-var self) nil))
   (eval `(defvar ,(timer-var self) nil)))
+
 
 ;;;------------------
 ;;; DELAY: 'mem'
@@ -199,9 +202,10 @@
     :name "init" :doc-string "reinitializes memory")))
 
 
+;;; COLLECT DOESN'T RESPOND TO EV-ONCE AT ALL: CAN BE CALLED SEVERAL TIMES
 (defmethod omNG-box-value ((self OMCollectBox) &optional (numout 0))
- 
-  (unless (equal (ev-once-flag self) (get-ev-once-flag *ev-once-context*))
+  
+  (unless nil ;;; (equal (ev-once-flag self) (get-ev-once-flag *ev-once-context*))
 
     (unless (value self) (setf (value self) '(nil)))
     
@@ -238,7 +242,6 @@
 
 ;;; REACTIVE BEHAVIOUR
 ;;; NOTIFY ONLY IF PUSH COMES IN
-
 ;;; stops reactive notification,
 ;;; performs evaluations if needed
 ;;; continue or not...
@@ -265,4 +268,34 @@
           (setf (gen-lock self) nil))))
      )
     ))
+
+
+;;; COMPILED FORM
+
+(defmethod gen-code  ((self OMCollectBox) &optional (numout 0))
+  
+  (let* ((global-var (mem-var (reference self)))
+         (local-name (intern (string+ (symbol-name global-var) "-LOCAL")))
+         (first-call (not (member local-name *let-list* :test 'equal :key 'car))))
+    
+    (when first-call
+      (let ((init-val (gen-code (nth 2 (inputs self)))))
+        (push `(,local-name ,(if (equal init-val t) nil init-val)) *let-list*)))
+    
+    (case numout
+      ;;; collect
+      (0 (let ((inval (gen-code (nth 0 (inputs self)))))
+           `(progn (pushr ,inval ,local-name)
+              ,inval)))
+      ;;; output
+      (1 local-name)
+      ;;; init with the value in
+      (2 (let ((init-val (gen-code (nth 2 (inputs self)))))
+           `(progn 
+              (setf ,local-name ,(if (equal init-val t) nil init-val))
+              ,init-val)))
+      )
+    ))
+
+
 
