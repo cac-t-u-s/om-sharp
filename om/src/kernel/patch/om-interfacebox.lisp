@@ -70,8 +70,10 @@
 (defmethod get-box-frame-class ((self OMInterfaceBox)) 'InterfaceBoxFrame)
 
 (defmethod om-view-click-handler ((self InterfaceBoxFrame) position)
-  (call-next-method)
-  (interfacebox-action (object self) self position))
+  ;;; this test avoids doing it when clicked on areas etc.
+  (when (equal self (call-next-method))
+    (interfacebox-action (object self) self position)
+    ))
 
 (defmethod interfacebox-action ((self OMInterfaceBox) frame pos) nil)
 
@@ -264,8 +266,10 @@
  
 
 (defmethod interfacebox-action ((self ButtonBox) frame pos)
-  (when (or (om-command-key-p)
-            (container-frames-locked (om-view-container frame)))
+  (when  (or (om-command-key-p)
+             (and (om-view-container frame) 
+                  ;;; for some reaso sometimes (e.g. while opening the inspector) the container becomes temporarily nil..
+                  (container-frames-locked (om-view-container frame))))
     (set-value self (list (send-value self)))
     (om-invalidate-view frame)
     (when (reactive (car (outputs self))) (self-notify self))
@@ -298,5 +302,5 @@
 (defmethod gen-code ((self ButtonBox) &optional (numout 0))
   (let ((val-input (find "send-value" (inputs self) :key 'name :test 'string-equal)))
     (if val-input
-        (gen-code val-input))
-    (current-box-value self numout)))
+        (gen-code val-input)
+      (current-box-value self numout))))

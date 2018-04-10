@@ -670,10 +670,10 @@
         
         (progn
           (editor-box-selection (editor (om-view-container self)) (object self))
-          (apply-in-area self 'click-in-area position)
-          )
-        )
-    self))
+          (apply-in-area self 'click-in-area position))
+        
+        self)
+    ))
 
 ;;; handle boxframe click in multi-editor-view
 (defmethod om-view-click-handler :around ((self OMBoxFrame) position)
