@@ -118,7 +118,8 @@
 (defmethod om-view-click-handler ((self lock-view-area) position)
   (declare (ignore position))
   (setf (lock (object (editor self))) (not (lock (object (editor self)))))
-  (om-invalidate-view self))
+  (om-invalidate-view self)
+  (om-invalidate-view (main-view (editor self))))
 
 (defmethod add-lock-item ((editor patch-editor) view)
   (om-add-subviews 
@@ -258,18 +259,12 @@
 
 (defmethod om-view-click-handler ((self patch-editor-view) position)
   ;;; special : click on the lock-button
-  (if (om-point-in-rect-p position 0 0 20 20)
+  (unless (om-shift-key-p)
+    (select-unselect-all (editor self) nil))
+  (or (click-connection-handle self position)
       (progn
-        (setf (lock (object (editor self))) (not (lock (object (editor self)))))
-        (om-invalidate-area self 0 0 20 20))
-    (progn
-      (unless (om-shift-key-p)
-        (select-unselect-all (editor self) nil))
-      (or (click-connection-handle self position)
-          (progn
-            (when (om-get-clipboard) (set-paste-position position self))
-            (mouse-selection self position))))
-    ))
+        (when (om-get-clipboard) (set-paste-position position self))
+        (mouse-selection self position))))
 
 ;;;handles the selction/drag, etc. of connections
 (defmethod click-connection-handle ((self patch-editor-view) pos)
@@ -1216,7 +1211,7 @@
                  'om-row-layout
                  :subviews (list
                             (om-make-di 'om-simple-text :size (omp 230 18)
-                                :font (om-def-font :font2b) :text "INSPECTOR"
+                                :font (om-def-font :font2) :text "--inspector"
                                 :fg-color (om-def-color :dark-gray))
                             
                             (om-make-graphic-object 
@@ -1234,6 +1229,11 @@
 (defmethod object-name-in-inspector ((self OMObject)) (name self))
 (defmethod object-name-in-inspector ((self t)) "-")
 
+(defmethod get-documentation ((self t)) "...")
+(defmethod get-documentation ((self OMFunBoxCall)) (function-documentation (reference self)))
+(defmethod get-documentation ((self OMBoxEditCall)) (class-documentation (reference self)))
+(defmethod get-documentation ((self OMPatchComponentBox)) (class-documentation (class-of (reference self))))
+
 ;;; redefined for connections
 (defmethod get-update-frame ((self t)) nil)
 
@@ -1249,10 +1249,11 @@
             :subviews 
             (list (om-make-di 'om-simple-text :size (om-make-point nil 20) 
                               :text (if object
-                                        (string+ "-" (object-name-in-inspector object))
+                                        (object-name-in-inspector object)
                                       "[no selection]")
                               :focus t  ;; prevents focus on other items :)
                               :font (om-def-font :font3b))
+                  
                   (om-make-layout
                    'om-grid-layout
                    :delta '(10 0) :align nil
@@ -1292,6 +1293,17 @@
            
              
                    )
+                  
+                  (om-make-di 'om-simple-text :size (om-make-point nil 18) 
+                              :text "--documentation"
+                              :font (om-def-font :font2)
+                              :fg-color (om-def-color :dark-gray))
+
+                  (let ((doc (get-documentation object)))
+                    (om-make-di 'om-multi-text :size (om-make-point nil (* 40 (length (string-lines-to-list doc)))) 
+                                :text doc
+                                :font (om-def-font :font1)))
+                  
                   ))))
     
       (om-add-subviews self inspector-layout)

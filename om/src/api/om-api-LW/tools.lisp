@@ -111,7 +111,7 @@
 (defun class-documentation (class)
   (let ((realclass (if (symbolp class) (find-class class nil) class)))
     (if realclass
-        (system::class-documentation class)
+        (system::class-documentation realclass)
       (concatenate 'string "Class " (string class) " not found"))))
 
 (defun class-instance-slots (class)

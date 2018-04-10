@@ -156,14 +156,13 @@
 ;;; COLLECT
 ;;;------------------
 
-;;;------------------
-;;; DELAY: 'mem'
-;;; returns previous eveluation(s) on the right output
-;;;------------------
+
 
 (defmethod special-box-p ((name (eql 'collect))) t)
 
-(defclass OMCollect (OMPatchComponentWithMemory) ())
+(defclass OMCollect (OMPatchComponentWithMemory) ()
+  (:documentation "Generalized collector utility."))
+
 (defclass OMCollectBox (OMPatchComponentBox) ())
 
 (defmethod get-box-class ((self OMCollect)) 'OMCollectBox)
