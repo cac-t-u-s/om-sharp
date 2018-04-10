@@ -31,7 +31,7 @@
   (let* ((box (make-instance (get-box-class reference)
                              :name (name reference)
                              :reference reference
-                             :color (make-color-or-nil :color (om-make-color 0.82 0.85 0.7)
+                             :color (make-color-or-nil :color (get-patch-component-box-def-color reference) 
                                                        :t-or-nil t)
                              :icon-pos (or (getf init-args :icon-pos) :top)
                              :text-align :center))
@@ -43,6 +43,8 @@
           (box-h box) (om-point-y size))
     box))
 
+
+(defmethod get-patch-component-box-def-color ((self OMPatchComponent)) (om-make-color 0.82 0.85 0.7))
 
 (defmethod h-resizable ((self OMPatchComponentBox)) t)
 (defmethod v-resizable ((self OMPatchComponentBox)) nil)
