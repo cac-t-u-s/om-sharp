@@ -98,6 +98,7 @@
         "boxes/system-boxes"
         "boxes/repeat-n"
         "boxes/mem-collect"  
+        "boxes/init-do"  
 
         "basic/om-data-structures"
         "basic/om-file-utils"

@@ -283,6 +283,9 @@
          (init-boxes (sort (get-boxes-of-type self 'OMPatchInitBox) '< :key 'index))
          (init-forms (loop for ib in init-boxes append (gen-code ib)))
          
+         (loop-boxes (sort (get-boxes-of-type self 'OMPatchIteratorBox) '< :key 'index))
+         (loop-forms (loop for lb in loop-boxes append (gen-code lb)))
+         
          (out-boxes (sort (get-boxes-of-type self 'OMOutBox) '< :key 'index))
          (body 
           (if (> (length out-boxes) 1)
@@ -291,9 +294,9 @@
     
     (values input-names
             (if *let-list*
-                `(let* ,(reverse *let-list*) ,.init-forms ,body)
-              (if init-forms
-                  `(progn ,.init-forms ,body)
+                `(let* ,(reverse *let-list*) ,.init-forms ,.loop-forms ,body)
+              (if (or init-forms loop-forms)
+                  `(progn ,.init-forms ,.loop-forms ,body)
                 body)
               )
             )
