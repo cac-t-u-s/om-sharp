@@ -40,6 +40,9 @@
   (apply-box-attributes self (eval-box-inputs self))
   (current-box-value self numout))
 
+(defmethod gen-code ((self OMInterfaceBox) &optional (numout 0))
+  (current-box-value self numout))
+
 ;;; set the box attributes
 (defmethod apply-box-attributes ((self OMInterfaceBox) attributes) 
   (loop for attr on attributes by 'cddr do
@@ -59,6 +62,8 @@
 
 (defmethod maximum-size ((self OMInterfaceBox)) nil)
 (defmethod minimum-size ((self OMInterfaceBox)) (omp 20 28))
+
+
 
 ;;; FRAME
 (defclass InterfaceBoxFrame (OMBoxFrame) ())
@@ -289,3 +294,9 @@
    (t (call-next-method))
    ))
 
+
+(defmethod gen-code ((self ButtonBox) &optional (numout 0))
+  (let ((val-input (find "send-value" (inputs self) :key 'name :test 'string-equal)))
+    (if val-input
+        (gen-code val-input))
+    (current-box-value self numout)))
