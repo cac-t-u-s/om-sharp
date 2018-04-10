@@ -158,10 +158,17 @@
   (append (get-in-connections self) (get-out-connections self)))
 
 (defmethod get-out-connected-boxes ((self OMBox))
-  (remove nil 
-          (loop for out in (outputs self) 
-                append (loop for c in (connections out) collect (box (to c))))))
-         
+  (remove-duplicates 
+   (remove nil 
+           (loop for out in (outputs self) 
+                 append (loop for c in (connections out) collect (box (to c)))))))
+  
+(defmethod get-in-connected-boxes ((self OMBox))
+  (remove-duplicates 
+   (remove nil 
+           (loop for in in (inputs self) 
+                 append (loop for c in (connections in) collect (box (from c)))))))
+  
 (defmethod recursive-connection-p ((from OMBox) (to OMBox))
   "Check if there is a cyclic connection"
   (let (rep)
@@ -171,6 +178,22 @@
               (setf rep t)
             (setf rep (recursive-connection-p from cb))))
     rep))
+
+
+;;; checks if box2 is up-connected to box1
+(defmethod is-connected-up-to ((box1 OMBox) (box2 OMBox))
+  (let ((up-boxes (get-in-connected-boxes box1)))
+    (or (find box2 up-boxes)
+        (let ((rep nil))
+          (loop for cb in up-boxes 
+                while (not rep)
+                do (setf rep (is-connected-up-to cb box2)))
+          rep))))
+
+(defmethod boxes-connected-p ((box1 OMBox) (box2 OMBox))
+  (or (is-connected-up-to box1 box2)
+      (is-connected-up-to box2 box1)))
+      
 
 (defmethod save-connections-from-boxes (box-list)
   (loop for box in box-list 
