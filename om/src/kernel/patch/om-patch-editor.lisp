@@ -1211,7 +1211,7 @@
                  'om-row-layout
                  :subviews (list
                             (om-make-di 'om-simple-text :size (omp 230 18)
-                                :font (om-def-font :font2) :text "--inspector"
+                                :font (om-def-font :font2) :text "----------inspector"
                                 :fg-color (om-def-color :dark-gray))
                             
                             (om-make-graphic-object 
@@ -1247,7 +1247,8 @@
            (om-make-layout
             'om-column-layout
             :subviews 
-            (list (om-make-di 'om-simple-text :size (om-make-point nil 20) 
+            (append 
+             (list (om-make-di 'om-simple-text :size (om-make-point nil 20) 
                               :text (if object
                                         (object-name-in-inspector object)
                                       "[no selection]")
@@ -1292,19 +1293,23 @@
                       nil))
            
              
-                   )
+                   ))
+             
+             (when (get-documentation object)
+               (list
+                (om-make-di 'om-simple-text :size (om-make-point nil 18) 
+                            :text "----------documentation"
+                            :font (om-def-font :font2)
+                            :fg-color (om-def-color :dark-gray))
+                
+                (let ((doc (get-documentation object)))
+                  (om-make-di 'om-multi-text :size (om-make-point nil (* 40 (length (string-lines-to-list doc)))) 
+                              :text doc
+                              :font (om-def-font :font1)))
                   
-                  (om-make-di 'om-simple-text :size (om-make-point nil 18) 
-                              :text "--documentation"
-                              :font (om-def-font :font2)
-                              :fg-color (om-def-color :dark-gray))
-
-                  (let ((doc (get-documentation object)))
-                    (om-make-di 'om-multi-text :size (om-make-point nil (* 40 (length (string-lines-to-list doc)))) 
-                                :text doc
-                                :font (om-def-font :font1)))
-                  
-                  ))))
+                ))
+            )
+            )))
     
       (om-add-subviews self inspector-layout)
       )
