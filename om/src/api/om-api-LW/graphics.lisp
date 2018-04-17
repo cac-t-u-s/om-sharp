@@ -329,13 +329,13 @@
 
 
 (defun om-def-font (f &key face size style)
-  (let ((def-face #+mswindows "Calibri"  #+linux "Liberation Sans" #+cocoa "Verdana")
-        (def-bold-face #+mswindows "Calibri"  #+linux "Liberation Sans" #+cocoa "Verdana")
+  (let ((def-face #+mswindows "Calibri"  #+linux "Liberation Sans" #+cocoa "Calibri")
+        (def-bold-face #+mswindows "Calibri"  #+linux "Liberation Sans" #+cocoa "Calibri")
         (score-face "Times New Roman")
         (sizes 
                ;#+mswindows'(8 10 11 13 20) 
                ;#-mswindows
-               '(10 11 12 16 24)))
+               '(12 13 14 16 20)))
     (let ((fa 
            (case f
              (:font1 (om-make-font def-face (nth 0 sizes)))
