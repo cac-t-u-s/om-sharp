@@ -276,7 +276,7 @@ All boxes which their reference is a OM generic function are instances of this c
 (defmethod draw-name-as-icon ((box OMFunBoxCall) frame)
   (let* ((pack (symbol-package (reference box)))
          (pname (or (car (package-nicknames pack)) (package-name pack)))
-         (font (om-def-font :font1b :size 7)))
+         (font (om-make-font "Verdana" 7 :style '(:bold))))
     (om-draw-rounded-rect 2 6 20 (- (h frame) 12) :color (om-def-color :gray) :fill t :round 5)
     (om-draw-string (- 8 (* (length pname) 1.2)) 17 pname :font font :color (om-def-color :light-gray))
     t))
