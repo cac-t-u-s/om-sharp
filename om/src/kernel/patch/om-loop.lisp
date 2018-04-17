@@ -50,14 +50,38 @@
     'box-output :box self :value NIL :name "i"
     :doc-string "current value of loop iterator (bound during iterate)")))
 
+(defmethod next-optional-input ((self OMPatchLoopBox)) 
+  (allow-optional-input (reference self) (inputs self)))
 
-(defmethod gen-loop-code-for-eval ((self OMPatchLoopBox)) 
-  (let ((input-values (mapcar 'omng-box-value (inputs self)))) 
-    (gen-iteration-code (reference self) input-values)))
+;; also returns the default value
+(defmethod allow-optional-input ((self OMPatchLoop) existing-inputs) nil)
 
-(defmethod gen-loop-box-update-code ((self OMPatchLoopBox)) 
-  `(do (setf (it-value ,(reference self)) ,(it-var (reference self)))))
+(defmethod more-optional-input ((self OMPatchLoopBox) &key name (value nil val-supplied-p) doc reactive)
+  (add-optional-input self :name "by"
+                      :value (if val-supplied-p value (allow-optional-input (reference self) (inputs self))) 
+                      :reactive reactive)
+  t)
 
+(defmethod gen-loop-code-for-eval ((self OMPatchLoopBox))
+  (let ((inputs-code (loop for inp in (inputs self) collect `(omng-box-value ,inp))))
+    (gen-iteration-code (reference self) inputs-code)))
+
+(defmethod gen-loop-code-for-compile ((self OMPatchLoopBox) &optional (gen-fun 'gen-code)) 
+  (let ((inputs-code (loop for inp in (inputs self) collect (gen-code inp))))
+    (gen-iteration-code (reference self) inputs-code)))
+
+
+(defmethod gen-loop-iterator-update-code ((self OMPatchLoop)) 
+  `(do (setf (it-value ,self) ,(it-var self))))
+
+;;; called at the beginning of a loop
+(defmethod box-init-iterator-value ((self OMPatchLoopBox))
+  (init-iterator-value (reference self) (mapcar 'omng-box-value (inputs self))))
+
+(defmethod init-iterator-value ((self OMPatchLoop) input-values)
+  (declare (ignore input-values))
+  (setf (it-value self) nil))
+  
 
 (defmethod boxcall-value ((self OMPatchLoopBox)) 
   (it-value (reference self)))
@@ -77,9 +101,12 @@
    (make-instance 'OMLoopFor :name "for")
    pos init-args))
 
-(defmethod gen-iteration-code ((self OMLoopFor) &optional input-values) 
-  `(for ,(it-var self) from ,(or (car input-values) 0) to ,(or (cadr input-values) 0)))
+(defmethod gen-iteration-code ((self OMLoopFor) &optional inputs) 
+  (append `(for ,(it-var self) from ,(or (car inputs) 0) to ,(or (cadr inputs) 0))
+          (when (caddr inputs) `(by ,(caddr inputs)))))
 
+(defmethod init-iterator-value ((self OMLoopFor) input-values)
+  (setf (it-value self) (car input-values)))
 
 (defmethod create-box-inputs-for-loop-box ((self OMLoopFor) box) 
   (list 
@@ -90,6 +117,71 @@
     'box-input :box box :value 10
     :name "to")))
 
+;;; returns the default value
+(defmethod allow-optional-input ((self OMLoopFor) existing-inputs)
+  (and (<= (length existing-inputs) 2) 1))
+
+
+;;;------------------------------------
+
+(defclass OMLoopList (OMPatchLoop) 
+  ((looped-list :initform nil :accessor looped-list :initarg :looped-list)))
+
+(defmethod special-box-p ((name (eql 'loop-list))) t)
+
+(defmethod omNG-make-special-box ((reference (eql 'loop-list)) pos &optional init-args)
+  (omNG-make-new-boxcall 
+   (make-instance 'OMLoopList :name "list-loop")
+   pos init-args))
+
+(defmethod gen-iteration-code ((self OMLoopList) &optional inputs) 
+  (append `(for ,(it-var self) in ,(car inputs))
+          (when (cadr inputs) `(by ,(cadr inputs)))))
+ 
+(defmethod init-iterator-value ((self OMLoopList) input-values)
+  (setf (it-value self) (car (car input-values))))
+
+(defmethod create-box-inputs-for-loop-box ((self OMLoopList) box) 
+  (list 
+   (make-instance 
+    'box-input :box box :value nil
+    :name "list")))
+
+;;; returns the default value
+(defmethod allow-optional-input ((self OMLoopList) existing-inputs)
+  (and (<= (length existing-inputs) 1) 'cdr))
+
+;;;------------------------------------
+
+(defclass OMLoopTail (OMPatchLoop) 
+  ((looped-list :initform nil :accessor looped-list :initarg :looped-list)))
+
+(defmethod special-box-p ((name (eql 'loop-tail))) t)
+
+(defmethod omNG-make-special-box ((reference (eql 'loop-tail)) pos &optional init-args)
+  (omNG-make-new-boxcall 
+   (make-instance 'OMLoopTail :name "tail-loop")
+   pos init-args))
+
+(defmethod gen-iteration-code ((self OMLoopTail) &optional inputs) 
+  (append `(for ,(it-var self) on ,(car inputs))
+          (when (cadr inputs) `(by ,(cadr inputs)))))
+
+(defmethod init-iterator-value ((self OMLoopTail) input-values)
+  (setf (it-value self) (car input-values)))
+
+
+(defmethod create-box-inputs-for-loop-box ((self OMLoopTail) box) 
+  (list 
+   (make-instance 
+    'box-input :box box :value nil
+    :name "list")))
+
+;;; returns the default value
+(defmethod allow-optional-input ((self OMLoopTail) existing-inputs)
+  (and (<= (length existing-inputs) 1) 'cdr))
+
+
 ;;;------------------------------------
 
 (defclass OMLoopWhile (OMPatchLoop) 
@@ -97,19 +189,22 @@
 
 (defmethod special-box-p ((name (eql 'loop-while))) t)
 
-;;;------------------------------------
+(defmethod omNG-make-special-box ((reference (eql 'loop-while)) pos &optional init-args)
+  (omNG-make-new-boxcall 
+   (make-instance 'OMLoopWhile :name "while")
+   pos init-args))
 
-(defclass OMLoopIn (OMPatchLoop) 
-  ((looped-list :initform nil :accessor looped-list :initarg :looped-list)))
+(defmethod gen-iteration-code ((self OMLoopWhile) &optional inputs)
+  `(while ,(car inputs)))
 
-(defmethod special-box-p ((name (eql 'loop-list))) t)
+(defmethod gen-loop-iterator-update-code ((self OMLoopWhile)) 
+  `(do (setf (it-value ,self) t)))
 
-;;;------------------------------------
-
-(defclass OMLoopOn (OMPatchLoop) 
-  ((looped-list :initform nil :accessor looped-list :initarg :looped-list)))
-
-(defmethod special-box-p ((name (eql 'loop-onlist))) t)
+(defmethod create-box-inputs-for-loop-box ((self OMLoopWhile) box) 
+  (list 
+   (make-instance 
+    'box-input :box box :value t
+    :name "condition")))
 
 
 
@@ -159,8 +254,12 @@
                       :reactive reactive)
   t)
 
+;;; we want to put the while boxes at the end 
+;;; (they are the only ones that can be reevaluated and depend on other ones during the loop)
 (defmethod collect-loop-boxes ((self OMPatch))
-  (get-boxes-of-type self 'OMPatchLoopBox))
+  (sort (get-boxes-of-type self 'OMPatchLoopBox)
+        #'(lambda (type1 type2) (if (subtypep type1 'OMLoopWhile) t nil))
+        :key 'type-of))
 
 (defmethod boxcall-value ((self OMPatchIteratorBox))
   
@@ -168,12 +267,19 @@
         (loopboxes (remove-if 
                     #'(lambda (b) (not (is-connected-up-to self b)))
                     (collect-loop-boxes (container self)))))
+
+    (if loopboxes 
+        (mapc 'box-init-iterator-value loopboxes)
+      (om-beep-msg "Warning: ITERATE box used without iterator in patch ~A !!" (name (container self))))
+
+    (print (mapcar 'reference loopboxes)) 
+    
     (unwind-protect 
         (progn
           (setf (n-iter (reference self)) 0)
           (setf *ev-once-context* self)
           (let* ((iterators-code (apply 'append (mapcar 'gen-loop-code-for-eval loopboxes)))
-                 (update-iterators-value-code (apply 'append (mapcar 'gen-loop-box-update-code loopboxes)))
+                 (update-iterators-value-code (apply 'append (mapcar #'(lambda (b) (gen-loop-iterator-update-code (reference b))) loopboxes)))
                  (loop-code 
                   `(loop 
                     ,.iterators-code
@@ -185,7 +291,7 @@
                                  `(omNG-box-value ,(car (inputs self)))
                                `(loop for inp in ',(inputs self) collect (omNG-box-value inp)))
                     )))
-            ;(pprint loop-code) (terpri)
+            (pprint loop-code) (terpri)
             (when iterators-code (eval loop-code))
             ))
      
@@ -196,20 +302,30 @@
 
 (defmethod gen-code ((self OMPatchIteratorBox) &optional args)
   (let* ((loopboxes (remove-if 
-                    #'(lambda (b) (not (is-connected-up-to self b)))
-                    (collect-loop-boxes (container self))))
-         (iterators-code (apply 'append (mapcar 'gen-loop-code-for-eval loopboxes))))
+                     #'(lambda (b) (not (is-connected-up-to self b)))
+                     (collect-loop-boxes (container self))))
+         (iterators-code (apply 'append (mapcar 'gen-loop-code-for-compile loopboxes))))
     
+    (if loopboxes 
     
-    (list 
-     `(loop ,.iterators-code
-            do ,(if (> (length (inputs self)) 1)
-                    `(progn 
-                       ,.(loop for inp in (inputs self) collect
-                               (gen-code inp)))
-                  (gen-code (car (inputs self)))
-                  ))
-     )))
+        (list 
+         `(loop ,.iterators-code
+                do 
+                (progn ;;; better keep a progn of actions in case the return value is not a function
+                  ,.(loop for inp in (inputs self) collect
+                          (gen-code inp)))
+                ;,(if (> (length (inputs self)) 1)
+                ;        `(progn 
+                ;           ,.(loop for inp in (inputs self) collect
+                ;                  (gen-code inp)))
+                ;      (gen-code (car (inputs self)))
+                ;      )
+                )
+         )
+      
+      (om-print-format "Warning: ITERATE box used without iterator in patch ~A !!" (list (name (container self))))
+      )
+    ))
 
 
 

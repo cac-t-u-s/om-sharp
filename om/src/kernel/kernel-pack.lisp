@@ -36,7 +36,7 @@
                                             )
                          (omNG-make-package "Loop" 
                                             :doc "Special boxes for visual loop implementation"
-                                            :special-symbols '(init-do iterate loop-for loop-while loop-list loop-onlist)
+                                            :special-symbols '(init-do iterate loop-for loop-while loop-list loop-tail)
                                             )
                          (omNG-make-package "Data" 
                                             :doc "Objects and data management in visual programs"
