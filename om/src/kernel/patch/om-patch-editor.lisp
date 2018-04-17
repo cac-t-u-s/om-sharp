@@ -1154,11 +1154,11 @@
                 ;; top of the pane
                 (om-make-layout  'om-row-layout :align :bottom
                                  :subviews (list
-                                            (om-make-di 'om-simple-text :text "Lisp code preview --" 
+                                            (om-make-di 'om-simple-text :text "Lisp code preview" 
                                                         :size (omp nil 18) :font (om-def-font :font2b)
                                                         :fg-color (om-def-color :dark-gray))
 
-                                            (om-make-graphic-object 'om-icon-button :icon 'x :icon-pushed 'x-pushed
+                                            (om-make-graphic-object 'om-icon-button :icon 'xx-pushed :icon-pushed 'xx
                                                                     :size (omp 14 14)
                                                                     :action #'(lambda (b) (patch-editor-set-window-config editor nil))
                                                                     )
@@ -1204,22 +1204,24 @@
     (update-inspector-for-editor editor)
     
     (om-make-layout 
-     'om-column-layout :ratios '(nil 1) :delta 10
+     'om-column-layout :ratios '(nil nil 1) :delta 10
      :subviews (list 
                 ;; top of the pane
                 (om-make-layout  
                  'om-row-layout
                  :subviews (list
                             (om-make-di 'om-simple-text :size (omp 230 18)
-                                :font (om-def-font :font2) :text "----------inspector"
-                                :fg-color (om-def-color :dark-gray))
+                                :font (om-def-font :font2b) :text "Inspector"
+                                :fg-color (om-def-color :dark-gray)
+                                )
                             
                             (om-make-graphic-object 
-                             'om-icon-button :icon 'x :icon-pushed 'x-pushed
+                             'om-icon-button :icon 'xx-pushed :icon-pushed 'xx
                              :size (omp 14 14)
                              :action #'(lambda (b) (patch-editor-set-window-config editor nil))
                              )
                             ))
+                :separator
                 ;; main pane
                 inspector-pane
                 ))
@@ -1297,10 +1299,12 @@
              
              (when (get-documentation object)
                (list
-                (om-make-di 'om-simple-text :size (om-make-point nil 18) 
-                            :text "----------documentation"
-                            :font (om-def-font :font2)
-                            :fg-color (om-def-color :dark-gray))
+                
+                ;(om-make-di 'om-simple-text :size (om-make-point nil 18) 
+                ;            :text "----------documentation"
+                ;            :font (om-def-font :font2)
+                ;            :fg-color (om-def-color :dark-gray))
+               :separator 
                 
                 (let ((doc (get-documentation object)))
                   (om-make-di 'om-multi-text :size (om-make-point nil (* 40 (length (string-lines-to-list doc)))) 
