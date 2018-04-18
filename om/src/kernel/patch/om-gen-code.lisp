@@ -106,6 +106,8 @@
 ;;; GENERAL
 ;;;=================
 
+(defvar *freeze-eval-once-mechanism* NIL)
+
 (defmethod gen-code ((self OMBoxCall) &optional numout)
    "Generate Lisp code for the box <self> evaluated at <numout>."
    (cond
@@ -114,7 +116,8 @@
      (gen-code-locked self numout))
     
     ((or (equal (lock-state self) :eval-once) 
-         (and (get-pref-value :general :auto-ev-once-mode) 
+         (and (get-pref-value :general :auto-ev-once-mode)
+              (not *freeze-eval-once-mechanism*)
               (> (length (get-out-connections self)) 1)))
      (gen-code-for-ev-once self numout))
     
@@ -164,30 +167,61 @@
 ;;;=================
 ;;; EV-ONCE APPLIES AS A "LET" WHEN A BOX IS CONNECTED TO SEVERAL DESCENDANTS
 ;;; OR TO A REPEAT-N BOX
-(defvar *let-list* nil)
+(defparameter *let-list-stack* '(nil))
+
+(defun push-let-context (&optional (context nil))
+  (push context *let-list-stack*))
+
+(defun pop-let-context ()
+  (pop *let-list-stack*))
+
+(defun output-current-let-context ()
+  (reverse (car *let-list-stack*)))
+
+(defun empty-current-let-context ()
+  (null (car *let-list-stack*)))
+
+(defun push-let-statement (form &optional (scope :local))
+  ; (print (list "push" form scope *let-list-stack*)) 
+  (if *let-list-stack*
+      (if (equal scope :local)
+          (setf (car *let-list-stack*)
+                (cons form (car *let-list-stack*)))
+        (setf (car (last *let-list-stack*))
+              (cons form (car (last *let-list-stack*))))
+        )
+    (setq *let-list-stack* (list (list form))))
+  )
+
+(defun check-let-statement (varname &optional (scope :local))
+  (if (equal scope :local)
+      (member varname (car *let-list-stack*) :test 'equal :key 'car)
+    (member varname (apply 'append *let-list-stack*) :test 'equal :key 'car)))
 
 ;;; PUSHES IN THE LET-LIST: 
 ;;; - A LIST IF MULTIPLE OUTPUTS
 ;;; - A SIMPLE ELEMENT IF ONE OUTPUT
 (defmethod gen-code-for-ev-once ((self OMBoxCall) numout)
-   (let* ((varname (gen-box-name self))
-          (newvar? (not (member varname *let-list* :test 'equal :key 'car))))
+   
+  (let* ((varname (gen-box-name self))
+         (newvar? (not (check-let-statement varname :local))))
+     
      (if (> (length (outputs self)) 1)
          (progn
            (when newvar?
-             (push `(,varname (multiple-value-list ,(gen-code-for-eval self nil))) *let-list*))
+             (push-let-statement `(,varname (multiple-value-list ,(gen-code-for-eval self nil)))))
            `(nth ,numout ,varname))
        (progn 
          (when newvar?
-           (push `(,varname ,(gen-code-for-eval self 0)) *let-list*))
+           (push-let-statement `(,varname ,(gen-code-for-eval self 0))))
          `,varname)
        )))
 
 (defmethod gen-code-for-ev-once ((self OMBoxEditCall) numout)
    (let* ((varname (gen-box-name self))
-          (newvar? (not (member varname *let-list* :test 'equal :key 'car))))
+          (newvar? (not (check-let-statement varname :local))))
      (when newvar?
-       (push `(,varname ,(gen-code-for-eval self nil)) *let-list*))
+       (push-let-statement `(,varname ,(gen-code-for-eval self nil))))
      (if (= numout 0)
           `,varname
        `(get-slot-val ,varname ,(name (nth numout (outputs self))))
@@ -276,31 +310,47 @@
 
 
 (defmethod gen-patch-lisp-code ((self OMPatch)) 
-  (let* ((boxes (boxes self))
-         (input-names (gen-patch-input-names self))
-         (*let-list* nil)
-         
-         (init-boxes (sort (get-boxes-of-type self 'OMPatchInitBox) '< :key 'index))
-         (init-forms (loop for ib in init-boxes append (gen-code ib)))
-         
-         (loop-boxes (sort (get-boxes-of-type self 'OMPatchIteratorBox) '< :key 'index))
-         (loop-forms (loop for lb in loop-boxes append (gen-code lb)))
-         
-         (out-boxes (sort (get-boxes-of-type self 'OMOutBox) '< :key 'index))
-         (body 
-          (if (> (length out-boxes) 1)
-              `(values ,.(mapcar #'(lambda (out) (gen-code out)) out-boxes))
-            (gen-code (car out-boxes)))))
-    
-    (values input-names
-            (if *let-list*
-                `(let* ,(reverse *let-list*) ,.init-forms ,.loop-forms ,body)
-              (if (or init-forms loop-forms)
-                  `(progn ,.init-forms ,.loop-forms ,body)
-                body)
-              ))
-    ))
+  
+  (let ((old-let-stack *let-list-stack*))
+      
+    (unwind-protect 
 
+        (progn 
+          
+          (setf *let-list-stack* '(nil))
+
+          (let* ((boxes (boxes self))
+                 (input-names (gen-patch-input-names self))
+         
+                 (init-boxes (sort (get-boxes-of-type self 'OMPatchInitBox) '< :key 'index))
+                 (init-forms (loop for ib in init-boxes append (gen-code ib)))
+         
+                 (loop-boxes (sort (get-boxes-of-type self 'OMPatchIteratorBox) '< :key 'index))
+                 (loop-forms (loop for lb in loop-boxes append (gen-code lb)))
+         
+                 (out-boxes (sort (get-boxes-of-type self 'OMOutBox) '< :key 'index))
+         
+                 (body 
+                  (if (> (length out-boxes) 1)
+                      `(values ,.(mapcar #'(lambda (out) (gen-code out)) out-boxes))
+                    (gen-code (car out-boxes)))))
+          
+            ;;; return this
+            (values input-names
+                    (if (empty-current-let-context)
+                      
+                        (if (or init-forms loop-forms)
+                            `(progn ,.init-forms ,.loop-forms ,body)
+                          body)
+                   
+                      `(let* ,(output-current-let-context) ,.init-forms ,.loop-forms ,body)
+                      ))
+            ))
+       
+      ;; cleanup
+      (setf *let-list-stack* old-let-stack)
+    
+      )))
 
 (defmethod get-patch-lambda-expression ((self OMPatch))
   (multiple-value-bind (input-names body)
@@ -311,52 +361,26 @@
 ;;; compile : a fonction with N inputs and M outputs 
 ;;; (with tempin = 1st input / tempout = 1st output, if they exist)
 (defmethod compile-patch ((self OMPatch)) 
-  (let* ((oldletlist *let-list*))
-    (setf *let-list* nil)
-    (setf (compiled? self) t)
-    
-    (multiple-value-bind (input-names body)
-        (gen-patch-lisp-code self)
+  
+  (setf (compiled? self) t)
+  
+  (multiple-value-bind (input-names body)
+      (gen-patch-lisp-code self)
 
-      (let ((f-def `(defun ,(intern (string (compiled-fun-name self)) :om) 
-                           (,.input-names) 
-                      ,body)))
-        
+    (let ((f-def `(defun ,(intern (string (compiled-fun-name self)) :om) 
+                         (,.input-names) 
+                    ,body)))
+      
       ;(om-print-format "~%------------------------------------------------------~%PATCH COMPILATION:~%")
       ;(write function-def :stream om-lisp::*om-stream* :escape nil :pretty t)
       ;(om-print-format "~%------------------------------------------------------~%~%")
-        
-        (compile (eval f-def))))
-         
-    (setf *let-list* oldletlist)))
+      
+      (compile (eval f-def))))
+ 
+  )
 
 
 #|
-
-(defmethod compile-patch ((self OMPatch)) 
-  (let* ((boxes (boxes self))
-         (out-boxes (sort (get-boxes-of-type self 'OMOutBox) '< :key 'index))
-         (oldletlist *let-list*)
-         (input-names 
-          (mapcar #'(lambda (in) (setf (in-symbol in) (gen-input-name in))) 
-                  (sort (get-inputs self) '< :key 'index))) 
-         body function-def)
-    (setf *let-list* nil)
-    (setf (compiled? self) t)
-    (setf body (if (> (length out-boxes) 1)
-                   `(values ,.(mapcar #'(lambda (out) (gen-code out)) out-boxes))
-                 (gen-code (car out-boxes))))
-    (setf function-def
-          `(defun ,(intern (string (compiled-fun-name self)) :om) (,.input-names) 
-             (let* ,(reverse *let-list*) ,body)))
-      ;(om-print-format "~%------------------------------------------------------~%PATCH COMPILATION:~%")
-      ;(write function-def :stream om-lisp::*om-stream* :escape nil :pretty t)
-      ;(om-print-format "~%------------------------------------------------------~%~%")
-    (compile (eval function-def))
-    (setf *let-list* oldletlist)
-    ))
-
-
 
 (defmethod curry-lambda-code ((self OMBoxEditCall) symbol)
   "Lisp code generetion for a factory in lambda mode."

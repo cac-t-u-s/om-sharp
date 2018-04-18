@@ -88,19 +88,19 @@
 ;;; in first-level patch the value is stored between evaluations and after, while in compiled version the variables are scoped.
 
 (defmethod gen-code-for-call ((self OMRepeatNBoxCall) &optional args)
-   (let ((oldletlist *let-list*))
-     (setf *let-list* nil)
+  
+  (push-let-context)
+  
+  (let* ((body (gen-code (car (inputs self))))
+         (code 
+          `(loop for i from 1 to ,(gen-code (cadr (inputs self))) 
+                 collect 
+                 (let* ,(output-current-let-context) ,body)
+                 )))
      
-     (let* ((body (gen-code (car (inputs self))))
-            (code 
-             `(loop for i from 1 to ,(gen-code (cadr (inputs self))) 
-                    collect 
-                    (let* ,(reverse *let-list*) ,body)
-                    )))
-     
-     (setf *let-list* oldletlist)
+    (pop-let-context)
 
-     code)))
+    code))
 
 
 ;;; NO LAMBDA OR OTHER FUNKY EVAL MODES FOR SPECIAL BOXES LIKE THIS...

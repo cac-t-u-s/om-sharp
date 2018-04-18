@@ -121,18 +121,19 @@
   (let* ((global-var (mem-var (reference self)))
          (global-timer (timer-var (reference self)))
          (local-name (intern (string+ (symbol-name global-var) "-LOCAL")))
-         (first-call (not (member local-name *let-list* :test 'equal :key 'car))))
+         (first-call (not (check-let-statement local-name :global))))
     
     (when first-call
       (let ((new-val (gen-code (car (inputs self))))
             (mem-size (gen-code (cadr (inputs self)))))
                 
-        (push `(,local-name (setf ,global-var 
-                                  ,(cond ((integerp mem-size)
-                                          `(list ,new-val  
-                                                 (first-n (cons (car ,global-var) 
-                                                                (list! (cadr ,global-var)))
-                                                          ,mem-size)))
+        (push-let-statement 
+         `(,local-name (setf ,global-var 
+                             ,(cond ((integerp mem-size)
+                                     `(list ,new-val  
+                                            (first-n (cons (car ,global-var) 
+                                                           (list! (cadr ,global-var)))
+                                                     ,mem-size)))
                                          ((floatp mem-size)
                                           `(list ,new-val
                                                  ;;; values received since last time-window started
@@ -145,7 +146,8 @@
                                                          (list! (cadr ,global-var))))
                                                  ))
                                          (t `(list ,new-val (car ,global-var))))))
-              *let-list*)))
+         :global)
+        ))
     
     `(nth ,numout ,local-name)
     ))
@@ -272,14 +274,16 @@
 ;;; COMPILED FORM
 
 (defmethod gen-code  ((self OMCollectBox) &optional (numout 0))
+
+  ; (print (list "gen-code collect - stack = " *let-list-stack*))
   
   (let* ((global-var (mem-var (reference self)))
          (local-name (intern (string+ (symbol-name global-var) "-LOCAL")))
-         (first-call (not (member local-name *let-list* :test 'equal :key 'car))))
+         (first-call (not (check-let-statement local-name :global))))
     
     (when first-call
       (let ((init-val (gen-code (nth 2 (inputs self)))))
-        (push `(,local-name ,(if (equal init-val t) nil init-val)) *let-list*)))
+        (push-let-statement `(,local-name ,(if (equal init-val t) nil init-val)) :global)))
     
     (case numout
       ;;; collect
