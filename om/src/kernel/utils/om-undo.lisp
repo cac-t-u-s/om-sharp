@@ -202,11 +202,15 @@
 
 ;;; restore a new list, restore each object in it
 (defmethod restore-undoable-object-state ((self OMBox) (state list)) 
+  
   (call-next-method self (car state))
+  
   (setf (inputs self) (create-box-inputs self))
+  (setf (outputs self) (create-box-outputs self))
+  
   (restore-inputs self (nth 1 state))
-  (setf (outputs self) (create-box-outputs self)) 
   (restore-outputs self (nth 2 state))
+  
   self)
 
 (defmethod get-object-slots-for-undo ((self OMBox)) 

@@ -135,10 +135,10 @@ It is returned on the first output in case of negative match.
   (call-next-method)
   (set-box-outputs self 
                    (append (outputs self)
-                (list (make-instance 'box-optional-output 
-                                     :name (format nil "~A~D" name (length (outputs self))) 
-                                     :box self
-                                     :doc-string "positive-test")))))
+                           (list (make-instance 'box-optional-output 
+                                                :name (format nil "~A~D" name (length (outputs self))) 
+                                                :box self
+                                                :doc-string "positive-test")))))
 
 (defmethod remove-one-optional-input ((self RouteBox))
   (when (call-next-method)
