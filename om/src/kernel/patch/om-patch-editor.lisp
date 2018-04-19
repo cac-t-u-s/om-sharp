@@ -1307,7 +1307,7 @@
                :separator 
                 
                 (let ((doc (get-documentation object)))
-                  (om-make-di 'om-multi-text :size (om-make-point nil (* 40 (length (string-lines-to-list doc)))) 
+                  (om-make-di 'om-multi-text :size (om-make-point nil nil) ; (* 40 (length (string-lines-to-list doc))) 
                               :text doc
                               :font (om-def-font :font1)))
                   
