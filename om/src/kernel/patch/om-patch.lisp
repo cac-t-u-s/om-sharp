@@ -29,6 +29,7 @@
    (grid :accessor grid :initarg :grid :initform nil)
    (lock :accessor lock :initarg :lock :initform nil)
    ; internal lock for asynchronous accesses by the scheduler
+   (let-list-stack :accessor let-list-stack :initform nil)
    (content-mp-lock :initform (mp:make-lock :name "patch content lock") :accessor content-mp-lock)))
 
 (defmethod default-compiled-gensym  ((self OMPatch)) (gensym "patch-"))

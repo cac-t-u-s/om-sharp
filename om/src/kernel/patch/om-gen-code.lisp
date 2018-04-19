@@ -167,7 +167,7 @@
 ;;;=================
 ;;; EV-ONCE APPLIES AS A "LET" WHEN A BOX IS CONNECTED TO SEVERAL DESCENDANTS
 ;;; OR TO A REPEAT-N BOX
-(defparameter *let-list-stack* '(nil))
+(defparameter *let-list-stack* nil)
 
 (defun push-let-context (&optional (context nil))
   (push context *let-list-stack*))
@@ -176,13 +176,14 @@
   (pop *let-list-stack*))
 
 (defun output-current-let-context ()
+  ;(print (list "LET OUTPUT" *let-list-stack*))
   (reverse (car *let-list-stack*)))
 
 (defun empty-current-let-context ()
   (null (car *let-list-stack*)))
 
 (defun push-let-statement (form &optional (scope :local))
-  ; (print (list "push" form scope *let-list-stack*)) 
+  ;(print (list "PUSH LET IN" form scope *let-list-stack*)) 
   (if *let-list-stack*
       (if (equal scope :local)
           (setf (car *let-list-stack*)
@@ -194,6 +195,7 @@
   )
 
 (defun check-let-statement (varname &optional (scope :local))
+  ;(print (list "CHECK LET IN" varname *let-list-stack*))
   (if (equal scope :local)
       (member varname (car *let-list-stack*) :test 'equal :key 'car)
     (member varname (apply 'append *let-list-stack*) :test 'equal :key 'car)))
@@ -311,46 +313,48 @@
 
 (defmethod gen-patch-lisp-code ((self OMPatch)) 
   
-  (let ((old-let-stack *let-list-stack*))
-      
-    (unwind-protect 
+  ; (print (list "GEN CODE" (name self) *let-list-stack*)) 
+  
+  (unwind-protect 
 
-        (progn 
+      (progn 
           
-          (setf *let-list-stack* '(nil))
-
-          (let* ((boxes (boxes self))
-                 (input-names (gen-patch-input-names self))
-         
-                 (init-boxes (sort (get-boxes-of-type self 'OMPatchInitBox) '< :key 'index))
-                 (init-forms (loop for ib in init-boxes append (gen-code ib)))
-         
-                 (loop-boxes (sort (get-boxes-of-type self 'OMPatchIteratorBox) '< :key 'index))
-                 (loop-forms (loop for lb in loop-boxes append (gen-code lb)))
-         
-                 (out-boxes (sort (get-boxes-of-type self 'OMOutBox) '< :key 'index))
-         
-                 (body 
-                  (if (> (length out-boxes) 1)
-                      `(values ,.(mapcar #'(lambda (out) (gen-code out)) out-boxes))
-                    (gen-code (car out-boxes)))))
+        (setf *let-list-stack* (let-list-stack self))
           
-            ;;; return this
-            (values input-names
-                    (if (empty-current-let-context)
+        (push-let-context)
+          
+        (let* ((boxes (boxes self))
+               (input-names (gen-patch-input-names self))
+         
+               (init-boxes (sort (get-boxes-of-type self 'OMPatchInitBox) '< :key 'index))
+               (init-forms (loop for ib in init-boxes append (gen-code ib)))
+         
+               (loop-boxes (sort (get-boxes-of-type self 'OMPatchIteratorBox) '< :key 'index))
+               (loop-forms (loop for lb in loop-boxes append (gen-code lb)))
+         
+               (out-boxes (sort (get-boxes-of-type self 'OMOutBox) '< :key 'index))
+         
+               (body 
+                (if (> (length out-boxes) 1)
+                    `(values ,.(mapcar #'(lambda (out) (gen-code out)) out-boxes))
+                  (gen-code (car out-boxes)))))
+          
+          ;;; return this
+          (values input-names
+                  (if (empty-current-let-context)
                       
-                        (if (or init-forms loop-forms)
-                            `(progn ,.init-forms ,.loop-forms ,body)
-                          body)
+                      (if (or init-forms loop-forms)
+                          `(progn ,.init-forms ,.loop-forms ,body)
+                        body)
                    
-                      `(let* ,(output-current-let-context) ,.init-forms ,.loop-forms ,body)
-                      ))
-            ))
+                    `(let* ,(output-current-let-context) ,.init-forms ,.loop-forms ,body)
+                    ))
+          ))
        
-      ;; cleanup
-      (setf *let-list-stack* old-let-stack)
-    
-      )))
+    ;; cleanup
+    (pop-let-context)
+      
+    ))
 
 (defmethod get-patch-lambda-expression ((self OMPatch))
   (multiple-value-bind (input-names body)
