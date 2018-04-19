@@ -219,7 +219,7 @@ All boxes which their reference is a OM generic function are instances of this c
     (mapcar #'(lambda (input val) (setf (value input) val)) (inputs box) main-args)
     (loop while other-args do
       (let ((arg (pop other-args)))
-        (print arg)
+        ;; (print arg)
         (or (more-optional-input box :value arg)
             (and (symbolp arg) (string-equal "KEYWORD" (package-name (symbol-package arg)))
                  (more-keyword-input box :key arg :value (pop other-args)))
