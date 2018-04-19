@@ -61,7 +61,7 @@ Mind using this box in 'eval-once' mode when connected to several other boxes."
                                                 :name (format nil "~A~D" name (length (outputs self)))
                                                 :box self
                                                 :doc-string (get-input-doc self name)))))
-  (setf (lock-state self) :eval-once)
+  ;(setf (lock-state self) :eval-once)
   (update-inspector-for-object self))
 
 (defmethod remove-one-optional-input ((self OMBoxSeqCall))
@@ -136,7 +136,8 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
   (let ((n (if (numberp (car args)) (car args) 2)))
     (dotimes (i (- n (length (outputs box))))
       (add-optional-input box))
-    (setf (lock-state box) :eval-once)))
+    ;;(setf (lock-state box) :eval-once)
+    ))
 
 
 ;;;---------------------------------------------------------------------
