@@ -45,7 +45,8 @@
 
 (defmethod restore-undoable-editor-state ((self undoable-editor-mixin) (state list))
   (restore-undoable-object-state (undoable-object self) state)
-  (update-after-state-change self))
+  (update-after-state-change self)
+  )
 
 (defmethod reset-undoable-editor-action ((self undoable-editor-mixin))
   (setf (last-action self) nil
@@ -121,7 +122,8 @@
       ;;; restore state from undo-stack
       (let ((restored-state (pop (undo-stack self))))
         ;(print restored-state)
-        (restore-undoable-editor-state self restored-state))
+        (restore-undoable-editor-state self restored-state)
+        )
       )
     (om-beep)))
 
@@ -217,26 +219,43 @@
   `((boxes ,(get-undoable-object-state (boxes self)))
     (connections ,(save-connections-from-boxes (boxes self)))))
 
+
 (defmethod restore-undoable-object-state ((self OMPatch) (state list)) 
   
-  (loop for element in (append (boxes self) (connections self))
-        do (omng-remove-element self element))
-  ;;; => must be properly removed !!!
+  ;;; need to save/restore the connections of referencing boxes...
+  (let* ((reference-containers (remove-duplicates (mapcar 'container (references-to self))))
+         (reference-containers-connections 
+          (loop for p in reference-containers collect (save-connections-from-boxes (boxes p)))))
   
-  (let* ((boxes-in-state (cadr (find 'boxes state :key 'car)))
-         (connections-in-state (cadr (find 'connections state :key 'car))))
+    (loop for element in (append (boxes self) (connections self))
+          do (omng-remove-element self element))
+    ;;; => must be properly removed !!!
     
-    (loop for b-state in boxes-in-state do
-          (let ((b (car b-state)))
-            (when b 
-              (restore-undoable-object-state b (cadr b-state))
-              (loop for box-io in (append (inputs b) (outputs b)) do
-                    (setf (connections box-io) nil))
-              (omng-add-element self b)
-            )))
+    (let* ((boxes-in-state (cadr (find 'boxes state :key 'car)))
+           (connections-in-state (cadr (find 'connections state :key 'car))))
+      
+      (loop for b-state in boxes-in-state do
+            (let ((b (car b-state)))
+              (when b 
+                (restore-undoable-object-state b (cadr b-state))
+                (loop for box-io in (append (inputs b) (outputs b)) do
+                      (setf (connections box-io) nil))
+                (omng-add-element self b)
+                )))
 
-    (loop for c in (restore-connections-to-boxes connections-in-state (boxes self))
-          do (omng-add-element self c))
+      (loop for c in (restore-connections-to-boxes connections-in-state (boxes self))
+            do (omng-add-element self c))
+      )
+    
+    ;;; restore the connections of referencing boxes
+    (loop for p in reference-containers
+          for c-list in reference-containers-connections
+          do 
+          (let ()
+            (loop for c in (restore-connections-to-boxes c-list (boxes p))
+                  do (omng-add-element p c))
+            (when (editor p) (update-after-state-change (editor p)))
+            ))
     
     self))
     
