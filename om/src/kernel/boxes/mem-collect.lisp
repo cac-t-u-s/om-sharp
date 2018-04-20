@@ -208,7 +208,7 @@
   
   (unless nil ;;; (equal (ev-once-flag self) (get-ev-once-flag *ev-once-context*))
 
-    (unless (value self) (setf (value self) '(nil)))
+    (unless (value self) (setf (value self) (list nil)))
     
     (case numout
       ;;; collect
@@ -287,16 +287,15 @@
     
     (case numout
       ;;; collect
-      (0 (let ((inval (gen-code (nth 0 (inputs self)))))
-           `(progn (pushr ,inval ,local-name)
-              ,inval)))
+      (0 `(let ((collect-val ,(gen-code (nth 0 (inputs self))))) 
+            (pushr collect-val ,local-name)
+            collect-val))
       ;;; output
       (1 local-name)
       ;;; init with the value in
-      (2 (let ((init-val (gen-code (nth 2 (inputs self)))))
-           `(progn 
-              (setf ,local-name ,(if (equal init-val t) nil init-val))
-              ,init-val)))
+      (2 `(let ((init-val ,(gen-code (nth 2 (inputs self)))))
+            (setf ,local-name (if (equal init-val t) nil init-val))
+            init-val))
       )
     ))
 
