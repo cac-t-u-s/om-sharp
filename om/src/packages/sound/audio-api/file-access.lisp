@@ -56,12 +56,23 @@
   (when nch (dotimes (c nch) (fli::free-foreign-object (fli:dereference buffer :type :pointer :index c))))
   (fli::free-foreign-object buffer))
 
+;;; audio buffer NOT interleaved
 (defun om-save-buffer-in-file (buffer filename size nch sr resolution format)
   (juce::juce-save-sound-in-file buffer filename size nch sr resolution format))
 
 
 #|
 ;;; USE LIBSNDFILE API
+
+;;; interleave-util code
+;(itl-buffer
+; (if (> nch 1)
+;     (fli:allocate-foreign-object :type :float :nelems (* nsmp nch))
+;   (cffi::mem-aref (oa::om-pointer-ptr (buffer sound)) :pointer 0)))
+;(when (> nch 1) 
+;  (interleave-buffer (oa::om-pointer-ptr (buffer sound)) itl-buffer nsmp nch))
+;(when (> nch 1) (om-free-memory itl-buffer))
+
 
 ;;; Acquire sound infos
 (defun om-get-sound-info (path)

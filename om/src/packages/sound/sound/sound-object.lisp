@@ -501,31 +501,23 @@ Press 'space' to play/stop the sound file.
             (cffi::mem-aref in :float (+ (* smp channels) ch)))))
   out)
 
+
+
+
 (defun save-sound-data (sound path)
   (when (buffer sound)
     (let* ((nch (n-channels sound))
-           (nsmp (n-samples sound))
-           (itl-buffer
-            (if (> nch 1)
-                (fli:allocate-foreign-object :type :float :nelems (* nsmp nch))
-              (cffi::mem-aref (oa::om-pointer-ptr (buffer sound)) :pointer 0))))
-      (unwind-protect 
-          (progn ;;; PROTECTED
-            (om-print-format "Writing file to disk: ~S" (list path))
-            (when (> nch 1) 
-              (interleave-buffer (oa::om-pointer-ptr (buffer sound)) itl-buffer nsmp nch))
-            (audio-io::om-save-buffer-in-file itl-buffer (namestring path) 
-                                             nsmp nch (sample-rate sound) 
-                                             24 ; *audio-res* 
-                                             :aiff ; *def-snd-format*   
-                                             ;;; FOR BETTER CONTROL ON FORMAT AND RESOLUTION, USE SAVE-SOUND (?)
-                                             )
-            (or (probe-file path)
-                (om-beep-msg "Error -- no file written")))
-        ;;; CLEANUP
-        (when (> nch 1) (om-free-memory itl-buffer))
-        ))))
-
+           (nsmp (n-samples sound)))
+      (om-print-format "Writing file to disk: ~S" (list path))
+      (audio-io::om-save-buffer-in-file (oa::om-pointer-ptr (buffer sound)) 
+                                        (namestring path) 
+                                        nsmp nch (sample-rate sound) 
+                                        *default-audio-resolution*
+                                        *default-audio-format*
+                                        )
+      (or (probe-file path)
+          (om-beep-msg "Error -- no file written")))
+    ))
 
 
 ;;;===========================
