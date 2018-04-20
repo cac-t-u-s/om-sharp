@@ -22,14 +22,14 @@
 ;;;=======================================
 
 (defparameter *app-name* "o7")
-(defparameter *om-version* 0.000021)
+(defparameter *om-version* 0.010000)
 (defparameter *beta-release* t)
 (defparameter *version-string* "")
 (defparameter *release-language* :en)
 (defparameter *release-date* (sys::date-string nil nil))
 (defparameter *release-author* "jean bresson")
 
-(setf *version-string* (version-to-string *om-version* nil *beta-release*))
+(setf *version-string* (version-to-string *om-version* t *beta-release*))
 (export '(*app-name* *om-version* *beta-release* *version-string* *release-language* *release-date* *release-author*) :cl-user)
 
 (defparameter *om-root-directory* (make-pathname :directory (butlast (pathname-directory *load-pathname*))))

@@ -13,7 +13,7 @@
         (v3 (read-from-string (subseq rest 2 (min 4 (length rest)))))
         (beta (if (> (length rest) 4) (read-from-string (subseq rest 4)))))
     (concatenate 'string (format nil "~d.~d" v v2) 
-                 (if (or (null full) (zerop v3)) "" (format nil ".~d" v3))
+                 (if (null full) "" (format nil ".~d" v3))
                  (if (or (null show-beta) (zerop beta)) "" (format nil " beta ~d" beta)))))
 
 
