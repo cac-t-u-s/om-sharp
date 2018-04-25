@@ -37,7 +37,12 @@
   (list (make-instance 'box-output :box self :name "value")))
 
 (defmethod omNG-box-value ((self OMInterfaceBox) &optional (numout 0)) 
-  (apply-box-attributes self (eval-box-inputs self))
+  
+  ;;; we move out of the eval process to do that! 
+  (capi:apply-in-pane-process 
+   (om-view-container (frame self)) 
+   'apply-box-attributes self (eval-box-inputs self))
+  
   (current-box-value self numout))
 
 (defmethod gen-code ((self OMInterfaceBox) &optional (numout 0))
@@ -55,7 +60,9 @@
               (t
                (setf (slot-value self (intern-om (car attr))) 
                      (cadr attr)))))
-  (update-inspector-for-object self))
+  
+  (update-inspector-for-object self)
+  )
 
 ;(defmethod eval-box :before ((self OMInterfaceBox)) 
 ;  (apply-box-attributes self (eval-box-inputs self)))
@@ -236,8 +243,7 @@
                     (:text "Text" :string text)
                     )))
 
-(defmethod default-size ((self ButtonBox)) 
-  (omp 28 28))
+(defmethod default-size ((self ButtonBox)) (omp 36 36))
 
 (defmethod omNG-make-special-box ((reference (eql 'button)) pos &optional init-args)
   (let* ((box (make-instance 'ButtonBox
@@ -268,7 +274,7 @@
 (defmethod interfacebox-action ((self ButtonBox) frame pos)
   (when  (or (om-command-key-p)
              (and (om-view-container frame) 
-                  ;;; for some reaso sometimes (e.g. while opening the inspector) the container becomes temporarily nil..
+                  ;;; for some reason sometimes (e.g. while opening the inspector) the container becomes temporarily nil..
                   (container-frames-locked (om-view-container frame))))
     (set-value self (list (send-value self)))
     (om-invalidate-view frame)
@@ -304,3 +310,6 @@
     (if val-input
         (gen-code val-input)
       (current-box-value self numout))))
+
+
+
