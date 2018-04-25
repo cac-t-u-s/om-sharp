@@ -63,11 +63,11 @@
    ;  #'(lambda () (eval expression)))
    ))
 
-(defun om-abort-eval-process ()
+(defun om-kill-eval-process ()
   (when (and *om-eval-process*
              (mp:process-alive-p *om-eval-process*))
     (mp::process-kill *om-eval-process*)))
 
-(define-action "When quitting image" "Abort EVAL process" 'om-abort-eval-process)
+(define-action "When quitting image" "Abort EVAL process" 'om-kill-eval-process)
 
 

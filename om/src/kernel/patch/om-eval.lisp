@@ -59,13 +59,74 @@
   (when (and (container self) (editor-view (container self)))
     (clear-ev-once (editor-view (container self)))))
 
+(defun prompt-on-listeners (message)
+  (om-lisp::om-listener-echo message)
+  (prompt-on-all-patch-listeners message))
+
+
+
+;;;==========================
+;;;==========================
+;;;==========================
+
+(defvar *flag-view-list* nil)
+
+(defclass eval-flag-view (om-view) ())
+
+(defmethod om-draw-contents ((self eval-flag-view))
+  (om-draw-rounded-rect 0 0 (w self) (h self) :fill t :round 4))
+
+(defun make-flag-view (box)
+  (let ((v (om-make-view 'eval-flag-view :size (omp (+ (box-w box) 8) (box-h box))
+                         :position (omp (- (box-x box) 4) (box-y box))
+                         :fg-color (om-make-color .3 .5 0.3 0.3))))
+    (push v *flag-view-list*)
+    v))
+       
+(defun remove-flag-view (v)
+  (when (om-view-container v)
+    (om-remove-subviews (om-view-container v) v))
+  (setf *flag-view-list* (remove v *flag-view-list*)))
+
+(defun fade-out-flag-view (fv)
+  (om-run-process 
+   "fade-out-view"
+   #'(lambda ()
+       (loop for a = (om-color-a (om-get-fg-color fv))
+             then (- a 0.1)
+             while (>= a 0)
+             do 
+             (om-set-fg-color fv (om-make-color-alpha (om-get-fg-color fv) a))
+             (om-invalidate-view fv)
+             (sleep 0.1))
+       (remove-flag-view fv)
+       )))
+
+(defun cleanup-flag-view-list ()
+  (loop for v in *flag-view-list* do 
+        (remove-flag-view v)))
+
+;;;==========================
+;;;==========================
+;;;==========================
+
 (defun eval-command (editor-view boxes)
-  (om-eval-enqueue 
+  
+  (prompt-on-listeners "Running...")
+  
+  (om-eval-enqueue  
    `(progn
       (setf *current-eval-panel* ,editor-view)
-      (mapc #'(lambda (b) (eval-box b)) ',boxes)
+      (loop for b in ',boxes do
+            (let ((fv (make-flag-view b)))
+              (om-add-subviews ,editor-view fv)
+              (eval-box b)
+              (fade-out-flag-view fv)))
       (clear-ev-once ,editor-view)
-      ))
+      )
+   :post-action #'(lambda ()
+                    (prompt-on-listeners "Ready")))
+  
   (om-invalidate-view editor-view))
 
 (defun output-eval-command (out-area)
@@ -73,19 +134,29 @@
          (box (object frame))
          (n (position (object out-area) (outputs box)))
          (editor-view (om-view-container frame)))
-  (om-eval-enqueue 
-   `(progn
-      (setf *current-eval-panel* ,editor-view)
-      (eval-box-output ,box ,n)
-      (clear-ev-once ,editor-view)
-      ))
-  (om-invalidate-view editor-view)
-  ))
+    (prompt-on-listeners "Running...")
+    (om-eval-enqueue 
+     `(progn
+        (setf *current-eval-panel* ,editor-view)
+        (eval-box-output ,box ,n)
+        (clear-ev-once ,editor-view)
+        )
+     :post-action #'(lambda () (prompt-on-listeners "Ready")))
+    (om-invalidate-view editor-view)
+    ))
 
 (defun om-abort () 
   (when *current-eval-panel* (clear-ev-once *current-eval-panel*))
-  (om-lisp::om-listener-echo "Aborted")
-  (abort))
+  (cleanup-flag-view-list)
+  (prompt-on-listeners "Aborted")
+  (om-lisp::om-kill-eval-process)
+  (om-run-process "prompt_wait" 
+                  #'(lambda () 
+                      (om-process-wait 1000)
+                      (prompt-on-listeners "Ready")))
+  ;; (abort)
+  )
+
 
 (defmethod eval-box ((self ombox))
   (omng-box-value self)

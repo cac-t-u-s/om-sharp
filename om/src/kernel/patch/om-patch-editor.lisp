@@ -143,23 +143,22 @@
                            (append 
                             (default-edit-menu-items self)
                             (list 
-                             (om-make-menu-comp 
-                                   (list (om-make-menu-item  
-                                          "Auto align boxes..."
-                                          #'(lambda () 
-                                              (store-current-state-for-undo self)
-                                              (align-selected-boxes self))
-                                          :key "A" 
-                                          :enabled #'(lambda () (not (edit-lock self)))
-                                          )
-                                         ))
+                             ;(om-make-menu-comp 
+                             ;      (list (om-make-menu-item  
+                             ;             "Auto align boxes..."
+                             ;             #'(lambda () 
+                             ;                 (store-current-state-for-undo self)
+                             ;                 (align-selected-boxes self))
+                             ;             :key "a" :key-mod nil 
+                             ;             :enabled #'(lambda () (not (edit-lock self)))
+                             ;             )))
                              (om-make-menu-comp 
                                    (list (om-make-menu-item  
                                           "Show Lisp code"
                                           #'(lambda () (patch-editor-set-window-config 
                                                         self 
                                                         (if (equal (editor-window-config self) :lisp-code) nil :lisp-code)))
-                                          :key "l" :selected #'(lambda () (equal (editor-window-config self) :lisp-code))
+                                          :key "k" :selected #'(lambda () (equal (editor-window-config self) :lisp-code))
                                           )
                                          
                                          (om-make-menu-item 
@@ -168,6 +167,14 @@
                                                         self 
                                                         (if (equal (editor-window-config self) :inspector) nil :inspector))) 
                                           :key "i" :selected #'(lambda () (equal (editor-window-config self) :inspector))
+                                          )
+
+                                         (om-make-menu-item  
+                                          "Show Listener Output"
+                                          #'(lambda () (patch-editor-set-window-config 
+                                                        self 
+                                                        (if (equal (editor-window-config self) :listener) nil :listener)))
+                                          :key "l" :selected #'(lambda () (equal (editor-window-config self) :listener))
                                           )
 
                                          (om-make-menu-item 
@@ -185,6 +192,15 @@
                                           :key "e" :selected #'(lambda () (lock (object self)))
                                           ))
                                    :selection t)
+
+                             (om-make-menu-comp 
+                              (list (om-make-menu-item  
+                                     "Abort Evaluation"
+                                         #'(lambda () (om-abort))
+                                         :key "A"
+                                         :enabled #'(lambda () (not (edit-lock self)))
+                                          )))
+                            
                                   ))
                            )
              (om-make-menu "Windows" (default-windows-menu-items self))
@@ -406,8 +422,9 @@
                (auto-connect-seq selected-boxes editor panel)))
         
         ;;; => Edit menu command
-        ;(#\A (unless (edit-lock editor) 
-        ;       (align-selected-boxes editor)))
+        (#\A (unless (edit-lock editor) 
+               (store-current-state-for-undo self)
+               (align-selected-boxes editor)))
 
         ;;; make a menu command ?
         (#\a (unless (edit-lock editor) 
@@ -1131,6 +1148,12 @@
         (select-box box t)
         frame))))
 
+
+
+;;;======================================;;;======================================
+;;; SIDE PANEL
+;;;======================================;;;======================================
+
 ;;;======================================
 ;;; LISP CODE
 ;;;======================================
@@ -1149,21 +1172,11 @@
     (set-g-component editor :lisp-code lisp-pane)
                         
     (om-make-layout 
-     'om-column-layout :ratios '(nil 1) :delta 10
+     'om-column-layout :ratios '(1 nil) :delta 10
      :subviews (list 
-                ;; top of the pane
-                (om-make-layout  'om-row-layout :align :bottom
-                                 :subviews (list
-                                            (om-make-di 'om-simple-text :text "Lisp code preview" 
-                                                        :size (omp nil 18) :font (om-def-font :font2b)
-                                                        :fg-color (om-def-color :dark-gray))
-
-                                            (om-make-graphic-object 'om-icon-button :icon 'xx-pushed :icon-pushed 'xx
-                                                                    :size (omp 14 14)
-                                                                    :action #'(lambda (b) (patch-editor-set-window-config editor nil))
-                                                                    )
-                                            ))
+                
                 ;; main pane
+                ;; om-simple-layout allows to st a background color
                 (om-make-layout 'om-simple-layout :bg-color (om-def-color :white)
                                 :subviews (list lisp-pane))
                                     
@@ -1187,6 +1200,43 @@
     )))
 
 ;;;======================================
+;;; LISTENER
+;;;======================================
+
+(defun make-listener-pane (editor)
+  (let ((listener-pane (om-lisp::om-make-listener-output-pane)))
+                        
+    (set-g-component editor :listener listener-pane)
+                        
+    (om-make-layout 
+     'om-column-layout :ratios '(1 nil) :delta 0
+     :subviews (list 
+                
+                ;; main pane
+                listener-pane
+                
+                (om-make-layout 'om-row-layout :subviews
+                                (list
+                                 nil
+                                 (om-make-di 'om-button :text "x" 
+                                             :size (omp 40 32) :font (om-def-font :font1)
+                                             :di-action #'(lambda (b) 
+                                                            (om-lisp::om-clear-listener-output-pane listener-pane)
+                                                            ))))
+                ))
+    ))
+
+(defun prompt-on-patch-listener (editor message)
+  (when (get-g-component editor :listener)
+    (om-lisp::om-prompt-on-echo-area 
+     (get-g-component editor :listener)
+     message)))
+
+(defun prompt-on-all-patch-listeners (message)
+  (loop for win in (om-get-all-windows 'patch-editor-window)
+        do (prompt-on-patch-listener (editor win) message)))
+
+;;;======================================
 ;;; INSPECTOR
 ;;;======================================
 
@@ -1203,29 +1253,7 @@
     ;;; initialize with current selection
     (update-inspector-for-editor editor)
     
-    (om-make-layout 
-     'om-column-layout :ratios '(nil nil 1) :delta 10
-     :subviews (list 
-                ;; top of the pane
-                (om-make-layout  
-                 'om-row-layout
-                 :subviews (list
-                            (om-make-di 'om-simple-text :size (omp 230 18)
-                                :font (om-def-font :font2b) :text "Inspector"
-                                :fg-color (om-def-color :dark-gray)
-                                )
-                            
-                            (om-make-graphic-object 
-                             'om-icon-button :icon 'xx-pushed :icon-pushed 'xx
-                             :size (omp 14 14)
-                             :action #'(lambda (b) (patch-editor-set-window-config editor nil))
-                             )
-                            ))
-                :separator
-                ;; main pane
-                inspector-pane
-                ))
-    ))
+    inspector-pane))
 
 
 (defmethod object-name-in-inspector ((self OMObject)) (name self))
@@ -1326,6 +1354,7 @@
 
 
 (defmethod update-inspector-for-editor ((self patch-editor) &optional obj)
+
   (let ((obj-to-inspect 
          (or obj 
              (let ((selection (append (get-selected-boxes self)
@@ -1335,7 +1364,7 @@
                  selection)))))
 
     (when (get-g-component self :inspector)
-      (set-inspector-contents (get-g-component self :inspector) obj-to-inspect))  
+      (set-inspector-contents (get-g-component self :inspector) obj-to-inspect))
       
     ))
 
@@ -1384,18 +1413,54 @@
 (defmethod make-editor-window-contents ((editor patch-editor))
   (let ((patch-view (call-next-method)))
     
-    (if (editor-window-config editor) ;; non-NIL
+     (set-g-component editor :lisp-code nil)
+     (set-g-component editor :listener nil)
+     (set-g-component editor :inspector nil)
+       
+     (if (editor-window-config editor) ;; non-NIL
 
         ;;; patch editor with side-panel
         (let ((side-pane 
+               
+               (om-make-layout 
+                'om-column-layout 
+                :ratios '(nil nil 1) :delta 10
+                :subviews (list 
+                           ;; top of the pane
+                           (om-make-layout  
+                            'om-row-layout
+                            :subviews (list
+                                       
+                                       ;;; title
+                                       (om-make-di 'om-simple-text :size (omp 230 18)
+                                                   :font (om-def-font :font2b) :text 
+                                                   (string-downcase (editor-window-config editor))
+                                                   :fg-color (om-def-color :dark-gray))
+                                                   
+                                       ;;; close button
+                                       (om-make-graphic-object 
+                                        'om-icon-button :icon 'xx-pushed :icon-pushed 'xx
+                                        :size (omp 14 14)
+                                        :action #'(lambda (b) (patch-editor-set-window-config editor nil))
+                                        )
+                                       ))
+                           :separator
+                           
+                           ;; main pane
+                           (cond ((equal (editor-window-config editor) :lisp-code)
+                                  (make-lisp-code-pane editor))
+                                 
+                                 ((equal (editor-window-config editor) :listener)
+                                  (make-listener-pane editor))
 
-               (cond ((equal (editor-window-config editor) :lisp-code)
-                      (make-lisp-code-pane editor))
+                                 ((equal (editor-window-config editor) :inspector)
+                                  (make-inspector-pane editor))
+                                 
+                                 (t nil))
+                           ))
 
-                     ((equal (editor-window-config editor) :inspector)
-                      (make-inspector-pane editor))
-                     
-                     (t nil))
+               
+               
                ))
            
           (values 
@@ -1405,17 +1470,16 @@
                                          :delta 2 :ratios '(10 nil)
                                          :subviews (list patch-view side-pane)))
              
-             (:lisp-code (om-make-layout 'om-row-layout 
+             (otherwise (om-make-layout 'om-row-layout 
                                          :delta 2 :ratios '(10 nil 3)
                                          :subviews (list patch-view :divider side-pane)))
              )
            
            patch-view))
       
-      (progn ;; normal patch editor 
-        (set-g-component editor :lisp-code nil)
-        (set-g-component editor :inspector nil)
-        patch-view))))
+      ;; normal patch editor 
+      patch-view)
+    ))
 
 
 

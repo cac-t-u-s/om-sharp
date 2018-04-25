@@ -101,6 +101,15 @@
 (defclass om-listener-in-pane (capi::listener-pane) ())
 (defclass om-listener-out-pane (capi::collector-pane) ())
 
+(defun om-make-listener-output-pane ()
+  (make-instance 'om-listener-out-pane 
+                 :stream *om-stream* 
+                 :echo-area t 
+                 :font *listener-font*))
+
+(defun om-clear-listener-output-pane (pane)
+  (editor::clear-buffer (capi::editor-pane-buffer pane)))
+
 
 ;(om-make-listener :input t)
 ;(setf om-lisp::*om-listener* nil)
@@ -123,16 +132,14 @@
                                                              (declare (ignore window))
                                                              (capi:execute-with-interface *om-listener* (lambda () (in-package :om))))))))
                      
-                     (out (make-instance 'om-listener-out-pane 
-                                         :stream *om-stream* 
-                                         :echo-area t 
-                                         :font *listener-font*))
+                     (out (om-make-listener-output-pane))
                      
                      (commands (make-instance 'capi:row-layout 
-                                              :description (list (make-instance 'capi::button :text "Clear Output"
+                                              :description (list (make-instance 'capi::button :text "x"
                                                                                 :callback-type :none
+                                                                                :font *listener-font*
                                                                                 :callback #'(lambda () 
-                                                                                              (editor::clear-buffer (capi::editor-pane-buffer out)))))
+                                                                                              (om-clear-listener-output-pane out))))
                                               :ratios '(nil)))
                      )
                 
@@ -250,11 +257,11 @@
                                                                              :callback 'listener-find-definition
                                                                              :enabled-function 'lisp-operations-enabled
                                                                              :accelerator #\.)
-                                                              (make-instance 'capi::menu-item :title "Abort"
-                                                                             :callback-type :interface
-                                                                             :callback 'listener-abort
-                                                                             ;:enabled-function 'lisp-operations-enabled
-                                                                             :accelerator #\A)
+                                                              ;(make-instance 'capi::menu-item :title "Abort"
+                                                              ;               :callback-type :interface
+                                                              ;               :callback 'listener-abort
+                                                              ;               ;:enabled-function 'lisp-operations-enabled
+                                                              ;               :accelerator #\A)
                                                               (make-instance 'capi::menu-item :title "Last Error Backtrace"
                                                                              :callback-type :interface
                                                                              :callback 'listener-error-backtrace
@@ -364,22 +371,26 @@
       ))))
 
 
+(defun om-prompt-on-echo-area (listener-pane message)
+  (with-slots (editor-window) listener-pane
+    (editor:process-character  
+     (list 'editor:message message)
+     editor-window)))
+
 (defun om-listener-echo (str)
   (when om-lisp::*om-listener*
     (capi:execute-with-interface 
      om-lisp::*om-listener*
      #'(lambda ()
          (with-slots (op) om-lisp::*om-listener*
-           (with-slots (editor-window) op
-             (editor:process-character  
-              (list 'editor:message str)
-              editor-window)))))))
+           (om-prompt-on-echo-area op str)
+           )))))
 
-
+;;; not called anymore: abort directly from the patch windows
 (defun listener-abort (listenerwin)
   (declare (ignore listenerwin))
-  (om-abort-eval-process)
-  (om-listener-echo "Aborted"))
+  (om-kill-eval-process)
+  (om-listener-echo "Aborted Evaluation"))
 
 
 (defmethod choose-listener-font ((self om-listener))

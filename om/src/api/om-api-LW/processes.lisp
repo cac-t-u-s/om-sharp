@@ -161,17 +161,23 @@
 (defun om-use-eval-process (mode)
   (setq *use-eval-process* mode))
 
-(defun om-eval-enqueue (form &optional view) 
-  (if *use-eval-process*
-      (om-lisp::om-eval-on-process #'(lambda () 
-                                       (om-lisp::om-listener-echo "Running...")
-                                       (if view 
-                                           (om-eval-in-context form view)
-                                         (eval form))
-                                       (om-lisp::om-listener-echo "Ready")
-                                       )
-                                   )
-    (eval form)))
+
+(defun om-eval-enqueue (form &key eval-context-view post-action) 
+  
+  (let ((eval-fun 
+         #'(lambda () 
+             (if eval-context-view 
+                 (om-eval-in-context form eval-context-view)
+               (eval form))
+             (when post-action (funcall post-action)))
+         ))
+    
+    (if *use-eval-process*
+        (om-lisp::om-eval-on-process eval-fun)
+      (funcall eval-fun)
+      
+      )))
+
 
 ;;;===============================
 ;;; RUN/MANAGE EXTERNAL PROGRAMS

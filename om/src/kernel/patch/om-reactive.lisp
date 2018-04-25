@@ -51,26 +51,30 @@
 
 ;;; SELF-NOTIFICATION (NOTIFIES AND REEVALUATES ON A NEW THREAD)
 (defmethod self-notify ((box OMBox) &optional (separate-thread t) (eval-box nil))
+  
   ;(print (list "SELF NOTIFY" (name box) (current-box-value box)))
-  (let ((panel (and (frame box) (om-view-container (frame box)))))
-      (funcall 
-       (if separate-thread 'om-eval-enqueue 'eval)
-       ;;;(if panel    
-           
-       `(progn
-          (setf *current-eval-panel* ,panel)
-          (when ,eval-box (omng-box-value ,box)) ; => only when an input is modified
-          (when (get-listeners ,box)
-            (setf (gen-lock ,box) t)
-            (OMR-Notify ,box)
-            (setf (gen-lock ,box) nil))
-          (if ,panel (clear-ev-once ,panel))
-          )
+  (let* ((panel (and (frame box) (om-view-container (frame box))))
          
-         ;;;`(OMR-Notify ,box) )
-         
-         
-         )))
+         (eval-form `(progn
+                      (setf *current-eval-panel* ,panel)
+                      (when ,eval-box (omng-box-value ,box)) ; => only when an input is modified
+                      (when (get-listeners ,box)
+                        (setf (gen-lock ,box) t)
+                        (OMR-Notify ,box)
+                        (setf (gen-lock ,box) nil))
+                      (if ,panel (clear-ev-once ,panel))
+                      )))
+    
+    (if separate-thread 
+    
+        (progn 
+          (prompt-on-listeners "Processing event...")
+          (om-eval-enqueue eval-form 
+                           :post-action #'(lambda () (prompt-on-listeners "Ready."))))
+      
+      (eval eval-form))
+    
+    ))
 
 (defmethod clear-ev-once :around ((self OMBox))
   ;(print "clear")
@@ -85,7 +89,7 @@
 ;;; DEBUG/VISUALIZE EVALUATION
 ;;;=================
 
-(defparameter *box-color-time* nil)
+(defparameter *box-color-time* .2)
 (defparameter *eval-color* (om-def-color :dark-red))
 (defparameter *notify-color* (om-make-color 0.5 0.6 0.7))
 
@@ -98,40 +102,50 @@
 
 ;(push :debug-mode *features*)
 
+(defmacro with-coloured-box (box color time &body body)
+  `(let ((init-color (color ,box)))
+     (unwind-protect 
+         (progn 
+           (temp-box-color ,box ,color ,time)
+            ,@body
+            )
+       (temp-box-color ,box init-color ,time))))
+ 
+
 #+debug-mode
-(defmethod OMR-Notify :around ((self OMBox))
-  (let ((bcolor (color self)) rep)
-    (unwind-protect 
-        (progn (temp-box-color self *notify-color* *box-color-time*)
-          (call-next-method))
-      (temp-box-color self bcolor *box-color-time*))))
+(defmethod OMR-Notify :around ((self OMBox) &optional input-name)
+  (with-coloured-box self *notify-color* *box-color-time*
+    (call-next-method)))
   
 ;;;==================
 ;;; BOX-VALUE
 ;;;==================
 
+#|
+ (let ((val (call-next-method)))
+   (setf (gen-flag self) t)
+   (when (or 
+          (not (gen-flag self))
+          (and (equal (lock-state self) :eval-once) (not (ev-once-flag self)))
+          (equal (lock-state self) nil))
+     (setf (gen-lock self) t)
+     (self-notify self)
+     (setf (gen-lock self) nil)
+     )
+   val)
+|#
+
 ;;; extend to OM Box ? (e.g. Interface boxes)
 (defmethod omNG-box-value :around ((self OMBox) &optional (numout 0))
   #+debug-mode
-  (let ((bcolor (color self)) rep)
-    (unwind-protect 
-        (progn 
-          (temp-box-color self *eval-color* *box-color-time*)
-          (if (gen-lock self)
-              (current-box-value self numout)
-            (let ((val (call-next-method)))
-              ;(when (or 
-              ;       (not (gen-flag self))
-              ;       (and (equal (lock-state self) :eval-once) (not (ev-once-flag self)))
-              ;       (equal (lock-state self) nil))
-              ;  (setf (gen-lock self) t)
-              ;  (self-notify self)
-              ;  ;(print (list "REF" (reference self)))
-              ;  (setf (gen-lock self) nil)
-              ;  )
-              (setf (gen-flag self) t)
-              val)))
-      (temp-box-color self bcolor *box-color-time*)))
+  (with-coloured-box self *eval-color* *box-color-time*
+    (if (gen-lock self)
+        (current-box-value self numout)
+      (let ((val (call-next-method)))
+        (setf (gen-flag self) t)
+        val))
+    )
+  
   #-debug-mode
   (if (gen-lock self)
       (current-box-value self numout)
@@ -150,7 +164,7 @@
   (setf (gen-lock self) t)
   ;;; note : in mode eval-once we must not launch the self-notification on a separate thread
   ;;; otherwise the clear-ev-once will be called too early
-  (self-notify self (not (equal (lock-state self) :eval-once)))
+  (self-notify self nil) ; (not (equal (lock-state self) :eval-once)))
   (setf (gen-lock self) nil))
 
 

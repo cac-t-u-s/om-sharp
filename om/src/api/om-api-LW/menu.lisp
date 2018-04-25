@@ -117,7 +117,7 @@
 
                      
 ;Creates a new leaf menu with the given <title> and <action>.
-(defun om-make-menu-item (title action &key (key nil) (enabled t) selected)
+(defun om-make-menu-item (title action &key (key nil) (key-mod :default) (enabled t) selected )
   ;(print (list enabled selected))
   (let ((enablefun (cond ((functionp enabled) #'(lambda (win) (funcall enabled)))
                          ((and (symbolp enabled) (fboundp enabled)) #'(lambda (win) (funcall enabled)))
@@ -129,7 +129,12 @@
                          (t #'(lambda (win) nil)))))
     (make-instance 'om-menu-item
                    :title title 
-                   :accelerator (if key (concatenate 'string "accelerator-" key) nil)
+                   :accelerator (if key (concatenate 'string 
+                                                     (case key-mod 
+                                                       (:default "accelerator-")
+                                                       (otherwise "alt-"))
+                                                     key)
+                                  nil)
                    :enabled-function enablefun
                    :callback-type :none
                    :selected-function selectfun

@@ -665,12 +665,14 @@
     
     ;;; if we're in multiple selection (SHIFT) or if the box is already selected: do not unselect all
     
-    (or (and (selected (object self)) (not (om-command-key-p)) (not (om-shift-key-p))
-             (edit-text-area self position))
+    (or (and (selected (object self)) 
+             (not (om-command-key-p)) (not (om-shift-key-p))
+             (edit-text-area self position)
+             t)
         
-        (progn
-          (editor-box-selection (editor (om-view-container self)) (object self))
-          (apply-in-area self 'click-in-area position))
+        (and
+         (editor-box-selection (editor (om-view-container self)) (object self))
+         (apply-in-area self 'click-in-area position))
         
         self)
     ))
@@ -742,7 +744,7 @@
 
 (defmethod click-in-area ((self output-area) boxframe)
   (if (om-command-key-p) 
-      (output-eval-command self)
+      (progn (output-eval-command self) t)
     (start-connection boxframe self)))
 
 (defvar *connection-handler* nil)
