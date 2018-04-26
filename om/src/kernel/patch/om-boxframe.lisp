@@ -670,7 +670,7 @@
              (edit-text-area self position)
              t)
         
-        (and
+        (progn
          (editor-box-selection (editor (om-view-container self)) (object self))
          (apply-in-area self 'click-in-area position))
         
