@@ -117,7 +117,7 @@
     ))
 
 ; (clean-sources)
-; (clean-sources (make-pathname :directory (append (butlast (pathname-directory *load-pathname*) 3) '("ircam" "LIBRARIES"))))
+; (clean-sources (make-pathname :directory (append (butlast (pathname-directory *load-pathname*) 4) '("om-6-7-libs" "OMChroma"))))
 
 
 (defun count-lines (file)
