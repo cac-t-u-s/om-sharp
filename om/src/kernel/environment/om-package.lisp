@@ -147,17 +147,17 @@ For easier browsing it is recommended that a package do not contain at the same 
   (mapc #'(lambda (class) (AddClass2Pack class inPackage)) classname))
 
 ;;; Fill package tools : Functions
-(defmethod AddFun2Pack ((funname symbol) inPackage)
-    (if (fboundp funname)
-        (unless (find funname (functions inPackage) :test 'equal :test 'function-name)
-          (if (subtypep (type-of (fdefinition funname)) 'omgenericfunction)
-              (progn
-                (export-symbol-from-om funname)
-                (omNG-add-element inPackage (fdefinition funname)))
-            ;;;(omNG-add-element inPackage (omNG-make-new-lispfun funName)) ; je crois que c'est pas la peine
-            (omNG-add-element inPackage (fdefinition funname))))
-      (om-beep-msg (format nil "Undefined function: ~A" funname))
-      ))
+(defmethod AddFun2Pack ((funname symbol) inPackage) 
+  (if (fboundp funname)
+      (unless (find funname (functions inPackage) :test 'equal :test 'function-name)
+        (if (subtypep (type-of (fdefinition funname)) 'omgenericfunction)
+            (progn
+              (export-symbol-from-om funname)
+              (omNG-add-element inPackage (fdefinition funname)))
+          ;;;(omNG-add-element inPackage (omNG-make-new-lispfun funName)) ; je crois que c'est pas la peine
+          (omNG-add-element inPackage (fdefinition funname))))
+    (om-beep-msg (format nil "Undefined function: ~A" funname))
+    ))
 
 (defmethod AddFun2Pack ((funname string) inPackage)
   (AddFun2Pack (read-from-string funname) inPackage))

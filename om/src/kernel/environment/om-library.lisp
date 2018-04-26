@@ -152,7 +152,7 @@
       (om-beep-msg "Library: ~S not registered !" lib))))
 
 
-(defmethod load-om-library ((lib OMLib))    
+(defmethod load-om-library ((lib OMLib))   
   (let ((lib-file (om-make-pathname :directory (mypathname lib) :name (name lib) :type "omlib")))                                      
     (if (probe-file lib-file)
       (handler-bind ((error #'(lambda (c)
@@ -160,7 +160,7 @@
                                                            (name lib) (om-report-condition c))
                                                    :size (om-make-point 300 200))
                                 (om-abort))))
-        (om-print-format "~%~%Loading library: ~A..." (list lib-file) "OM")
+        (om-print-format "~%~%Loading library: ~A..." (list lib-file))
         (let* ((*current-lib* lib)
                (file-contents (list-from-file lib-file))  ;; "/Users/bresson/SRC/OM7/OM7/LIBRARIES/om-supervp/om-supervp.omlib"
                (lib-data (find-values-in-prop-list file-contents :om-lib))
@@ -174,10 +174,6 @@
                 (doc lib) doc
                 (author lib) author)
           
-          (om-print-format 
-           "=====================~%~A ~A ~%~A~%~A~%=====================~%~%"
-           (list (name lib) (or (version lib) "") (or (doc lib) "") (or (author lib) "")))
-          
           (CleanupPackage lib)
           
           ;;; load sources
@@ -189,7 +185,6 @@
                        (compile&load (namestring path))))
                  files)
            )
-
           ;;; set packages
           (mapc #'(lambda (class) (addclass2pack class lib)) (find-values-in-prop-list symbols :classes))
           (mapc #'(lambda (fun) (addFun2Pack fun lib)) (find-values-in-prop-list symbols :functions))
@@ -202,7 +197,13 @@
           
           (register-images (lib-icons-folder lib))
           (setf (loaded? lib) t)
-          (update-preference-window-module :libraries) ;;; update the window is opened       
+          (update-preference-window-module :libraries) ;;; update the window is opened    
+
+          (om-print-format "~%==============================================")
+          (om-print-format "~A ~A ~%~A~%~A" 
+                           (list (name lib) (or (version lib) "") (or (doc lib) "") (or (author lib) "")))
+          (om-print-format "==============================================")
+          
           lib-file))
       (om-beep-msg "Library doesn't have a loader file: ~A NOT FOUND.." lib-file))
     ))
