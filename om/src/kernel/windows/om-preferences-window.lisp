@@ -356,7 +356,7 @@
 
 (defun make-preferences-window ()
   (let ((win (om-make-window  
-              'preferences-window :title "OpenMusic Preferences" 
+              'preferences-window :title "Preferences and Settings" 
               :menu-items (om-menu-items nil)
               :size (om-make-point 800 nil) 
               ;:resizable :w
