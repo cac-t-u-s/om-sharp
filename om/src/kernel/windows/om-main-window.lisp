@@ -33,7 +33,7 @@
 
 ; (show-main-om-window)
 
-(defun show-main-om-window ()
+(defun show-main-om-window (&key front-tab)
   (if *om-main-window*
       (om-select-window *om-main-window*)
     (let ((win (om-make-window 'om-main-window
@@ -52,6 +52,11 @@
                                                                  (package-view win) 
                                                                  (libs-view win)
                                                                  (listener-view win)))))
+      
+      (case front-tab
+        (:listener (om-set-current-view (main-layout win) (listener-view win)))
+        (:documents (om-set-current-view (main-layout win) (elements-view win))))
+      
       (setf *om-main-window* win)
       (om-show-window win))))
 

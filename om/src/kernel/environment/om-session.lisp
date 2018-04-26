@@ -225,6 +225,7 @@
   ;(clos::set-clos-initarg-checking nil)
   (setf *print-case* :downcase)
   (setf *catch-errors* nil)
+  
   (in-package :om)
   
   ;(show-listener-win)
@@ -252,8 +253,10 @@
   
   ;;;(in-package :om-user)
   
-  (show-main-om-window)
-
+  (show-main-om-window :front-tab :listener)
+  (capi:execute-with-interface *om-main-window* 'eval '(in-package :om))
+  (om-print-format *om-startup-string*)
+  
   )
 
 
