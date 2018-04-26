@@ -57,17 +57,20 @@
 
 (defmethod clear-after-error ((self OMBoxCall))
   (when (and (container self) (editor-view (container self)))
-    (clear-ev-once (editor-view (container self)))))
+    (clear-ev-once (editor-view (container self))))
+  )
 
 (defun prompt-on-listeners (message)
   (om-lisp::om-listener-echo message)
+  (prompt-on-main-window-listener message)
   (prompt-on-all-patch-listeners message))
 
 
 
-;;;==========================
-;;;==========================
-;;;==========================
+;;;====================================================
+;;; the 'flag' view is a utility view that tdisplays the box being evaluated
+;;; and/or the box where an error occured, etc...
+;;;====================================================
 
 (defvar *flag-view-list* nil)
 
@@ -76,10 +79,10 @@
 (defmethod om-draw-contents ((self eval-flag-view))
   (om-draw-rounded-rect 0 0 (w self) (h self) :fill t :round 4))
 
-(defun make-flag-view (box)
+(defun make-flag-view (box &optional color)
   (let ((v (om-make-view 'eval-flag-view :size (omp (+ (box-w box) 8) (box-h box))
                          :position (omp (- (box-x box) 4) (box-y box))
-                         :fg-color (om-make-color .3 .5 0.3 0.3))))
+                         :fg-color (or color (om-make-color .3 .5 0.3 0.3)))))
     (push v *flag-view-list*)
     v))
        
@@ -243,12 +246,19 @@
   "Eval the output <numout> in <self>."
   (handler-bind ((error #'(lambda (c)
                             (when (get-pref-value :general :catch-errors)
-                              (om-message-dialog (string+ "Error while evaluating the box " (string (name self)) " : " 
-                                                          (om-report-condition c))
-                                                 :size (om-make-point 300 200))
-                              (clear-after-error self)
-                              (setf (eval-flag self) nil)
-                              (om-abort)))))
+                              (let ((fv (make-flag-view self (om-make-color 0.6 .3 .3 .5))))
+                                
+                                (when *current-eval-panel*
+                                  (om-add-subviews *current-eval-panel* fv))
+                                
+                                (om-message-dialog (string+ "Error while evaluating the box " (string (name self)) " : " 
+                                                            (om-report-condition c))
+                                                   :size (om-make-point 300 200))
+                                (fade-out-flag-view fv)
+                                (clear-after-error self)
+                                (setf (eval-flag self) nil)
+                                (sleep .5)
+                                (om-abort))))))
     (cond
      
      ((equal (lambda-state self) :reference) (box-reference-value self))
@@ -350,11 +360,15 @@
   (declare (ignore num-out))
   (handler-bind ((error #'(lambda (c) 
                             (when (get-pref-value :general :catch-errors)
-                              (om-message-dialog (string+ "Error while evaluating the box " (string (reference self)) " : " 
-                                                          (om-report-condition c ))
-                                                 :size (om-make-point 300 200))
-                              (clear-after-error self)
-                              (om-abort)))))
+                              (let ((fv (make-flag-view self (om-make-color 0.6 .3 .3 .5))))
+                                (when *current-eval-panel*
+                                  (om-add-subviews *current-eval-panel* fv))
+                                (om-message-dialog (string+ "Error while evaluating the box " (string (reference self)) " : " 
+                                                            (om-report-condition c ))
+                                                   :size (om-make-point 300 200))
+                                (fade-out-flag-view fv)
+                                (clear-after-error self)
+                                (om-abort))))))
     (cond
 
      ((equal (lock-state self) :locked) (car (value self)))
