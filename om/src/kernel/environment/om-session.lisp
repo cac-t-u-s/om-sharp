@@ -251,11 +251,9 @@
   (save-om-preferences)
   
   ;;;(in-package :om-user)
-  (om-lisp::om-set-listener-font (get-pref-value :general :listener-font))
-  (om-lisp::om-set-text-editor-font (get-pref-value :general :textedit-font))
-  (show-listener-win)
+  
+  (show-main-om-window)
 
-  (capi::execute-with-interface om-lisp::*om-listener* #'(lambda () (in-package :om)))
   )
 
 

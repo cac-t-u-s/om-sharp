@@ -28,6 +28,7 @@
   ((ws-elements-view :accessor elements-view :initform nil)
    (package-view :accessor package-view :initform nil)
    (libs-view :accessor libs-view :initform nil)
+   (listener-view :accessor listener-view :initform nil)
    (main-layout :accessor main-layout :initform nil)))
 
 ; (show-main-om-window)
@@ -36,19 +37,21 @@
   (if *om-main-window*
       (om-select-window *om-main-window*)
     (let ((win (om-make-window 'om-main-window
-                               :title (apply 'string+ (cons "OpenMusic Window" 
+                               :title (apply 'string+ (cons "o7 Session" 
                                                             (if *current-workspace* (list " [Workspace: " (name *current-workspace*) "]")
                                                               '(""))))
                                :size (om-make-point 800 300)
                                :menu-items (om-menu-items nil))))
       (setf (elements-view win) (make-ws-elements-tab)
             (package-view win) (make-om-package-tab)
-            (libs-view win) (make-libs-tab))
+            (libs-view win) (make-libs-tab)
+            (listener-view win) (make-listener-tab))
       (om-add-subviews win (setf (main-layout win) 
                                  (om-make-layout 'om-tab-layout
                                                  :subviews (list (elements-view win) 
                                                                  (package-view win) 
-                                                                 (libs-view win)))))
+                                                                 (libs-view win)
+                                                                 (listener-view win)))))
       (setf *om-main-window* win)
       (om-show-window win))))
 
@@ -359,4 +362,38 @@
     (load-om-library self)
     (update-libraries-tab window)
     ))
+
+
+;;;===========================================
+;;; LISTENER
+;;;===========================================
+
+(defun make-listener-tab ()
+  
+  (let ((listener-pane (om-lisp::om-make-listener-output-pane)))
+    
+    (om-make-layout 
+     'om-column-layout  :name "Listener"
+     :ratios '(1 nil) :delta 0
+     :subviews (list 
+                
+                ;; main pane
+                listener-pane
+                
+                (om-make-layout 'om-row-layout :subviews
+                                (list
+                                 nil
+                                 (om-make-di 'om-button :text "x" 
+                                             :size (omp 40 32) :font (om-def-font :font1)
+                                             :di-action #'(lambda (b) 
+                                                            (om-lisp::om-clear-listener-output-pane listener-pane)
+                                                            ))))
+                ))))
+
+
+(defun prompt-on-main-window-listener (message)
+  (when *om-main-window*
+    (let ((listener-pane (car (om-subviews (listener-view *om-main-window*)))))
+      (when listener-pane 
+        (om-lisp::om-prompt-on-echo-area listener-pane message)))))
 

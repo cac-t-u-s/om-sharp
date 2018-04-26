@@ -82,7 +82,7 @@
    (list 
     (om-make-menu-comp  
      (list 
-      (om-make-menu-item "Workspace/Library Window" 'show-main-om-window :key "W")
+      (om-make-menu-item "Session Window" 'show-main-om-window :key "W")
       (om-make-menu-item "Lisp Listener" 'show-listener-win :key "L")
       (om-make-menu-item "Shell" 'show-shell)
       ))
@@ -230,26 +230,32 @@
     (when listenerwin 
       (let ((ig (capi::interface-geometry listenerwin)))
         (om-close-window listenerwin)
-        (om-lisp::om-make-listener :title "OM Listener" 
-                                   :x (car ig) :y (cadr ig) :width (caddr ig) :height (cadddr ig)
+        (om-lisp::om-make-listener :x (car ig) :y (cadr ig) :width (caddr ig) :height (cadddr ig)
                                    :input (get-pref-value :general :listener-input)
                                    :on-top (get-pref-value :general :listener-on-top)
+                                   :initial-lambda #'(lambda () (in-package :om))
                                    )))))
     
 
 (defun get-listener () (car (om-get-all-windows 'om-lisp::om-listener)))
 
 (defun show-listener-win ()
+  
   (let ((listenerwin (get-listener)))
-    (if listenerwin (om-select-window listenerwin)
-      (om-lisp::om-make-listener :title "OM Listener" 
-                        ;:initial-lambda #'(lambda () (in-package :om-user))
-                        :initial-prompt *om-startup-string*
-                        :height 200 
-                        :input (get-pref-value :general :listener-input)
-                        :on-top (get-pref-value :general :listener-on-top)
-                        ))))
+    
+    (om-lisp::om-set-listener-font (get-pref-value :general :listener-font))
+    (om-lisp::om-set-text-editor-font (get-pref-value :general :textedit-font))
+    
+    (if listenerwin
+        (om-select-window listenerwin)
+      (om-lisp::om-make-listener 
+       :initial-prompt *om-startup-string*
+       :height 200 
+       :input (get-pref-value :general :listener-input)
+       :on-top (get-pref-value :general :listener-on-top)
+       ))))
 
+      
 
 ;(add-preference-section :appearance "Lisp")
 (add-preference :general :listener-font "Listener font" :font om-lisp::*listener-font* nil 'set-listener-font)

@@ -130,7 +130,7 @@
                                                                (capi:execute-with-interface *om-listener* initial-lambda))
                                                            (lambda (window)
                                                              (declare (ignore window))
-                                                             (capi:execute-with-interface *om-listener* (lambda () (in-package :om))))))))
+                                                             (capi:execute-with-interface *om-listener* (lambda () (in-package :cl-user))))))))
                      
                      (out (om-make-listener-output-pane))
                      
@@ -152,7 +152,7 @@
                            :window-styles (append (if on-top (list :always-on-top))
                                                   (list :no-character-palette))  ;:toolbox :shadowless :textured-background
                            :ip in :op out
-                           :title (or title "OM Listener")
+                           :title (or title (concatenate 'string "Listener - " (if in "[system int/out]" "[system out]")))
                            :best-x (or x 100)
                            :best-y (or y (round (- (capi::screen-height (capi:convert-to-screen)) 250)))
                            :best-width (or width 420) :best-height (or height 200)
@@ -186,7 +186,7 @@
                                  (list (find "Lisp" def-menu :key 'capi::menu-title :test 'string-equal)))
                        def-menu))))
          om-lisp::*om-listener*)
-        
+       
         (capi::display om-lisp::*om-listener*)
         )))
 
