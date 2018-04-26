@@ -392,7 +392,8 @@
 
 
 (defun prompt-on-main-window-listener (message)
-  (when *om-main-window*
+  (when (and *om-main-window*
+             (equal (om-get-current-view (main-layout *om-main-window*)) (listener-view *om-main-window*)))
     (let ((listener-pane (car (om-subviews (listener-view *om-main-window*)))))
       (when listener-pane 
         (om-lisp::om-prompt-on-echo-area listener-pane message)))))
