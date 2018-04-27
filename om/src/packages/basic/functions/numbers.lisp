@@ -26,37 +26,37 @@
   :initvals '(0 1) :indoc '("a number" "a number")
   :doc "Tests if <num1> is smaller than <num2>.
 Returns T if the test is verified and NIL if not.
-" :icon 'om-< 
+"
   (< num1 num2))
 
 (defmethod* om> ((num1 number) (num2 number))  
   :initvals '(0 1) :indoc '("a number" "a number")
   :doc "Tests if <num1> is greater than <num2>
-Returns T if the test is verified and NIL if not." :icon 'om-> 
+Returns T if the test is verified and NIL if not." 
   (> num1 num2))
 
 (defmethod* om<= ((num1 number) (num2 number))  
   :initvals '(0 1) :indoc '("a number" "a number")
   :doc "Tests if <num1> is smaller or equal to <num2>
-Returns T if the test is verified and NIL if not." :icon 'om-<= 
+Returns T if the test is verified and NIL if not."
   (<= num1 num2))
 
 (defmethod* om>= ((num1 number) (num2 number))  
   :initvals '(0 1) :indoc '("a number" "a number")
   :doc "Tests if <num1> is greater or equal to <num2>
-Returns T if the test is verified and NIL if not." :icon 'om->=
+Returns T if the test is verified and NIL if not."
   (>= num1 num2))
 
 (defmethod* om= ((num1 number) (num2 number))  
   :initvals '(0 0) :indoc '("a number" "a number")
   :doc "Tests if <num1> is equal to <num2>
-Returns T if the test is verified and NIL if not." :icon 'om-= 
+Returns T if the test is verified and NIL if not."
   (= num1 num2))
 
 (defmethod* om/= ((num1 number) (num2 number))  
   :initvals '(0 0) :indoc '("a number" "a number")
   :doc "Tests if <num1> is NOT equal to <num2>
-Returns T if the test is verified and NIL if not." :icon 'om-n= 
+Returns T if the test is verified and NIL if not." 
   (/= num1 num2))
 
 

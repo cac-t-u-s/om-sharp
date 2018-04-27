@@ -24,7 +24,6 @@
 (defmethod* x->dx ((self list))
   :initvals (list 0 1)
   :indoc '("a list of numbers")
-  :icon 192
   :doc "Computes a list of intervals from a list of points.
 
 X->DX can be used for instance to get intervals from absolute pitches or to get a list of durations from time onsets:
@@ -38,7 +37,6 @@ Ex. (x->dx '(0 1000 1200 2000 5000)) => (1000 200 800 3000)
 (defmethod* dx->x ((start number) (list list))
   :initvals (list 0 (list 1 1))
   :indoc '("a number" "a list of numbers")
-  :icon 192
   :doc "Computes a list of points from a list of intervals and a initial point (<start>)
 
 DX->X can be used for instance to get absolute pitches from intervals or to get onsets from durations:
@@ -61,7 +59,6 @@ Ex. (dx->x 0 '(1000 200 800 3000)) => (0 1000 1200 2000 5000))
 <nummax> allows to limit the number of elements returned.
 
 Ex. (arithm-ser 1 5 0.5) => (1 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0)"
-  :icon 192
   (if (plusp step)
     (loop for i from begin to end by step
           for counter from 1 to nummax
@@ -87,7 +84,6 @@ Ex. (arithm-ser 1 5 0.5) => (1 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0)"
 Ex. (fibo-ser 0 1 10) => (0 1 1 2 3 5 8)
 Ex. (fibo-ser 1 3 10) => (1 3 4 7)
 "
-  :icon 192
   (labels ((compute-fibo (a b m n)
              (cond ((> m n) (values nil nil))
                    ((= m n) (values a b))
@@ -122,7 +118,6 @@ Ex. (fibo-ser 1 3 10) => (1 3 4 7)
 Ex. (geometric-ser 1 3 60) => (1 3 9 27)
 Ex. (geometric-ser 2 3 60) => (2 6 18 54)
 " 
-  :icon 192
   (let ((test (if (< factor 1) #'< #'>)) res)
     (do  ((accum seed (* accum factor)) (index 0 (1+ index)))
          ((funcall test accum limit) (nreverse res))
@@ -207,7 +202,6 @@ Ex. (geometric-ser 2 3 60) => (2 6 18 54)
 Ex. (prime? 53) => T
 Ex. (prime? 56) => NIL
 "
-  :icon 180
   (and (test-prime n (coerce *prime-numbers* 'list)) t))
 
 
@@ -230,7 +224,6 @@ Ex. (prime? 56) => NIL
   :doc "Prime numbers series: returns the set of prime-numbers ranging from 0 upto <max>.
 
 The optional parametre <numelem> limits the number of elements." 
-  :icon 192
   (coerce (gen-prime max numelem) 'list))
 
 ;-------PRIME-FACTORS---------
@@ -257,7 +250,6 @@ The optional parametre <numelem> limits the number of elements."
   :indoc '("number")
   :doc "Returns the prime decomposition of  <number> in the form (... (prime exponent) ...)
 Primes known to the system are the 1230 primes ranging from 1 to 9973."
-  :icon 192
   (prime-facts number))
 
 ;---------------
@@ -266,13 +258,12 @@ Primes known to the system are the 1230 primes ranging from 1 to 9973."
 (defmethod* inharm-ser ((begin number)
                         (dist number)
                         (npart number)) 
-            :icon 209
-            :indoc '("begin" "distortion" "number of elements (partials)")
-            :initvals (list 1 1 1)
-            :doc "Generates a list of <npart> partials from <begin> when partial n = <begin> * n^<dist>"
-            (let ((L ()))
-              (dotimes (n npart (reverse L))
-                (push (* begin (expt (1+ n) dist)) L))))
+  :indoc '("begin" "distortion" "number of elements (partials)")
+  :initvals (list 1 1 1)
+  :doc "Generates a list of <npart> partials from <begin> when partial n = <begin> * n^<dist>"
+  (let ((L ()))
+    (dotimes (n npart (reverse L))
+      (push (* begin (expt (1+ n) dist)) L))))
 
 
   

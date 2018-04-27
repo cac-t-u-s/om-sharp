@@ -1414,7 +1414,7 @@
     (om-make-layout 'om-column-layout 
                     :subviews (list 
                                (om-make-graphic-object 
-                                'om-icon-button :size (omp 12 12) 
+                                'om-icon-button :size (omp 16 16) 
                                 :icon 'info-gray :icon-disabled 'info
                                 :lock-push nil :enabled (not (equal (editor-window-config editor) :inspector))
                                 :action #'(lambda (b) 
@@ -1434,7 +1434,7 @@
                                 )
                     
                                (om-make-graphic-object 
-                                'om-icon-button :size (omp 12 12) 
+                                'om-icon-button :size (omp 16 16) 
                                 :icon 'listen-gray :icon-disabled 'listen
                                 :lock-push nil :enabled (not (equal (editor-window-config editor) :listener))
                                 :action #'(lambda (b) 
