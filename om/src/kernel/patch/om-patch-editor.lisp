@@ -1411,41 +1411,54 @@
 
 (defmethod make-layout-items ((editor patch-editor))
     
-    (om-make-layout 'om-column-layout 
-                    :subviews (list 
-                               (om-make-graphic-object 
-                                'om-icon-button :size (omp 16 16) 
-                                :icon 'info-gray :icon-disabled 'info
-                                :lock-push nil :enabled (not (equal (editor-window-config editor) :inspector))
-                                :action #'(lambda (b) 
-                                            (patch-editor-set-window-config 
-                                             editor 
-                                             (if (equal (editor-window-config editor) :inspector) nil :inspector)))
-                                )
+  (om-make-layout 
+   'om-column-layout 
+   :subviews (append
+               
+              (when (editor-window-config editor)
+                 (list 
+                  (om-make-graphic-object 
+                   'om-icon-button :icon 'xx :icon-pushed 'xx-pushed
+                   :size (omp 16 16)
+                   :action #'(lambda (b) (patch-editor-set-window-config editor nil))
+                   )
+                  nil))
+                                
+               (list 
+                (om-make-graphic-object 
+                 'om-icon-button :size (omp 16 16) 
+                 :icon 'info-gray :icon-disabled 'info
+                 :lock-push nil :enabled (not (equal (editor-window-config editor) :inspector))
+                 :action #'(lambda (b) 
+                             (patch-editor-set-window-config 
+                              editor 
+                              (if (equal (editor-window-config editor) :inspector) nil :inspector)))
+                 )
     
-                               (om-make-graphic-object 
-                                'om-icon-button :size (omp 16 16) 
-                                :icon 'lisp-gray :icon-disabled 'lisp
-                                :lock-push nil :enabled (not (equal (editor-window-config editor) :lisp-code))
-                                :action #'(lambda (b) 
-                                            (patch-editor-set-window-config 
-                                             editor 
-                                             (if (equal (editor-window-config editor) :lisp-code) nil :lisp-code)))
-                                )
+                (om-make-graphic-object 
+                 'om-icon-button :size (omp 16 16) 
+                 :icon 'lisp-gray :icon-disabled 'lisp
+                 :lock-push nil :enabled (not (equal (editor-window-config editor) :lisp-code))
+                 :action #'(lambda (b) 
+                             (patch-editor-set-window-config 
+                              editor 
+                              (if (equal (editor-window-config editor) :lisp-code) nil :lisp-code)))
+                 )
                     
-                               (om-make-graphic-object 
-                                'om-icon-button :size (omp 16 16) 
-                                :icon 'listen-gray :icon-disabled 'listen
-                                :lock-push nil :enabled (not (equal (editor-window-config editor) :listener))
-                                :action #'(lambda (b) 
-                                            (patch-editor-set-window-config 
-                                             editor 
-                                             (if (equal (editor-window-config editor) :listener) nil :listener)))
-                                )
+                (om-make-graphic-object 
+                 'om-icon-button :size (omp 16 16) 
+                 :icon 'listen-gray :icon-disabled 'listen
+                 :lock-push nil :enabled (not (equal (editor-window-config editor) :listener))
+                 :action #'(lambda (b) 
+                             (patch-editor-set-window-config 
+                              editor 
+                              (if (equal (editor-window-config editor) :listener) nil :listener)))
+                 )
                                
-                               nil ;;; space at the bottom
-                               ))
-    )
+                nil ;;; space at the bottom
+                ))
+   ))
+
 
 (defmethod make-editor-window-contents ((editor patch-editor))
 
@@ -1466,24 +1479,10 @@
                 :ratios '(nil nil 1) :delta 10
                 :subviews (list 
                            ;; top of the pane
-                           (om-make-layout  
-                            'om-row-layout
-                            :subviews (list
-                                       
-                                       ;;; title
-                                       (om-make-di 'om-simple-text :size (omp 230 18)
+                           (om-make-di 'om-simple-text :size (omp 230 18)
                                                    :font (om-def-font :font2b) :text 
                                                    (string-downcase (editor-window-config editor))
                                                    :fg-color (om-def-color :dark-gray))
-                                                   
-                                       nil
-                                       ;;; close button
-                                       (om-make-graphic-object 
-                                        'om-icon-button :icon 'xx :icon-pushed 'xx-pushed
-                                        :size (omp 14 14)
-                                        :action #'(lambda (b) (patch-editor-set-window-config editor nil))
-                                        )
-                                       ))
                            :separator
                            
                            ;; main pane
@@ -1508,11 +1507,11 @@
              
              (:inspector (om-make-layout 'om-row-layout 
                                          :delta 2 :ratios '(1 nil nil)
-                                         :subviews (list patch-view layout-items side-pane)))
+                                         :subviews (list patch-view side-pane layout-items)))
              
              (otherwise (om-make-layout 'om-row-layout 
-                                         :delta 2 :ratios '(10 nil nil 3)
-                                         :subviews (list patch-view layout-items :divider side-pane)))
+                                         :delta 2 :ratios '(10 nil 1 nil)
+                                         :subviews (list patch-view :divider side-pane layout-items)))
              )
            
            patch-view))
