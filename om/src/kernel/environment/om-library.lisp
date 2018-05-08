@@ -69,7 +69,7 @@
           (if loaded-only (remove-if-not 'loaded? (elements *om-libs-root-package*))
             (elements *om-libs-root-package*))))
 
-(defun find-om-library (name)
+(defun find-library (name)
   (find name (elements *om-libs-root-package*) :test 'string-equal :key 'name))
 
 ;;=============
@@ -87,7 +87,7 @@
 ;;; adds the library to the OM package tree
 ;;; does not load the lib yet
 (defun register-new-library (name path &optional (warn-if-exists t))
-  (if (find-om-library name)
+  (if (find-library name)
       (when warn-if-exists (om-beep-msg "A library named ~A already exists. Can not register it as new library." name))
     (let ((new-library (make-instance 'OMLib :mypathname path :name name)))
       (if new-library
@@ -147,19 +147,27 @@
 
 ;;; loads a registered library
 (defmethod load-om-library ((lib string))
-  (let ((the-lib (find-om-library lib)))
-    (if the-lib (load-om-library the-lib)
+  (let ((the-lib (find-library lib)))
+    (if the-lib (load-om-library the-lib 2ndtry)
       (om-beep-msg "Library: ~S not registered !" lib))))
 
 
+
 (defmethod load-om-library ((lib OMLib))   
-  (let ((lib-file (om-make-pathname :directory (mypathname lib) :name (name lib) :type "omlib")))                                      
+  (let ((lib-file (om-make-pathname :directory (mypathname lib) :name (name lib) :type "omlib"))
+        )                                      
     (if (probe-file lib-file)
       (handler-bind ((error #'(lambda (c)
-                                (om-message-dialog (format nil "Error while loading the library ~A:~%~s" 
-                                                           (name lib) (om-report-condition c))
-                                                   :size (om-make-point 300 200))
-                                (om-abort))))
+                                (progn 
+                                    (om-message-dialog (format nil "Error while loading the library ~A:~%~s" 
+                                                               (name lib) (om-report-condition c))
+                                                       :size (om-make-point 300 200))
+                                    (when 
+                                        (om-y-or-n-dialog (format nil 
+                                                                  "Try to delete compiled Lisp files (.*fasl) ?~%~%Deleting these files might be necessary in case they were created by a previous version of Lisp or OM/o7.."))
+                                      (common-lisp-user::clean-sources (mypathname lib)))
+                                    (abort c)))))
+
         (om-print-format "~%~%Loading library: ~A..." (list lib-file))
         (let* ((*current-lib* lib)
                (file-contents (list-from-file lib-file))  ;; "/Users/bresson/SRC/OM7/OM7/LIBRARIES/om-supervp/om-supervp.omlib"
@@ -210,7 +218,7 @@
 
 ;;; can be called from another library, etc.
 (defun require-library (name)
-  (let ((required-lib (find-om-library name)))
+  (let ((required-lib (find-library name)))
     (if required-lib
         (unless (loaded? required-lib)
           (load-om-library required-lib))
@@ -230,7 +238,7 @@
 (defmethod gen-lib-reference ((lib t)) (om-beep))
 
 (defmethod gen-lib-reference ((lib string))
-  (gen-lib-reference (find-om-library lib)))
+  (gen-lib-reference (find-library lib)))
 
 (defmethod gen-lib-reference ((lib OMLib))
 
@@ -258,8 +266,8 @@
 ;;;=================================
 
 (defmethod get-object-library ((self t)) nil)
-(defmethod get-object-library ((self OMClass)) (find-om-library (library self)))
-(defmethod get-object-library ((self OMGenericFunction)) (find-om-library (library self)))
+(defmethod get-object-library ((self OMClass)) (find-library (library self)))
+(defmethod get-object-library ((self OMGenericFunction)) (find-library (library self)))
 
 (defmethod get-object-library ((self symbol))
   (cond ((fboundp self) (get-object-library (fdefinition self)))
@@ -273,7 +281,7 @@
     (when (and library-name ;;; the box comes from a library
                (not (find library-name *required-libs-in-current-patch* :test 'string-equal))) ;;; situation already handled (for this patch): do not repeat 
       (push library-name *required-libs-in-current-patch*)
-      (let ((the-library (find-om-library library-name)))
+      (let ((the-library (find-library library-name)))
         (if the-library
             (unless (loaded? the-library)
               (when (or (get-pref-value :libraries :auto-load)
@@ -297,7 +305,7 @@
           (thefunction (fdefinition ',name))
           (function-lib (or *current-lib*  ;; the lib being loaded
                             (and function-already-exists (library thefunction)
-                                 (find-om-library (library thefunction))) ;; the lib specified in the existing function
+                                 (find-library (library thefunction))) ;; the lib specified in the existing function
                             )))
      ;;; function is in a user library and did not exist before
      ;;; we could maybe do this better by tracking in the file system which library we're in

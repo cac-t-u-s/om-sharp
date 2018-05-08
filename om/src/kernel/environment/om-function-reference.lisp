@@ -37,35 +37,37 @@
 
 ;;; characters to avoid in file names
 (defun special-path-check (name)
-  (loop while (setf pos (position #\/ name)) do
-        (replace name "I" :start1 pos))
-  (loop while (setf pos (position #\\ name)) do
-        (replace name "l" :start1 pos))
-  (loop while (setf pos (position #\: name)) do
-        (replace name "%" :start1 pos))
-  (loop while (setf pos (position #\* name)) do
-        (replace name "X" :start1 pos))
-  (loop while (setf pos (position #\? name)) do
-        (replace name "$" :start1 pos))
-  (loop while (setf pos (position #\" name)) do
-        (replace name "'" :start1 pos))
-  (loop while (setf pos (position #\> name)) do
-        (replace name ")" :start1 pos))
-  (loop while (setf pos (position #\< name)) do
-        (replace name "(" :start1 pos))
-  (loop while (setf pos (position #\| name)) do
-        (replace name "I" :start1 pos))
-  name)
+  (let ((pos nil))
+    (loop while (setf pos (position #\/ name)) do
+          (replace name "I" :start1 pos))
+    (loop while (setf pos (position #\\ name)) do
+          (replace name "l" :start1 pos))
+    (loop while (setf pos (position #\: name)) do
+          (replace name "%" :start1 pos))
+    (loop while (setf pos (position #\* name)) do
+          (replace name "X" :start1 pos))
+    (loop while (setf pos (position #\? name)) do
+          (replace name "$" :start1 pos))
+    (loop while (setf pos (position #\" name)) do
+          (replace name "'" :start1 pos))
+    (loop while (setf pos (position #\> name)) do
+          (replace name ")" :start1 pos))
+    (loop while (setf pos (position #\< name)) do
+          (replace name "(" :start1 pos))
+    (loop while (setf pos (position #\| name)) do
+          (replace name "I" :start1 pos))
+    name))
 
 ;;; characters to avoid in HTML files
 (defun special-html-check (name)
-  (loop while (setf pos (position #\> name)) do
-        (setf name (concatenate 'string (subseq name 0 pos)
-                                "&gt;" (subseq name (+ pos 1)))))
-  (loop while (setf pos (position #\< name)) do
-        (setf name (concatenate 'string (subseq name 0 pos)
-                                "&lt;" (subseq name (+ pos 1)))))
-  name)
+  (let ((pos nil))
+    (loop while (setf pos (position #\> name)) do
+          (setf name (concatenate 'string (subseq name 0 pos)
+                                  "&gt;" (subseq name (+ pos 1)))))
+    (loop while (setf pos (position #\< name)) do
+          (setf name (concatenate 'string (subseq name 0 pos)
+                                  "&lt;" (subseq name (+ pos 1)))))
+    name))
 
 
 ;;;======================================
@@ -552,7 +554,7 @@ TH {
                                  (omgenericfunction-p object)))
                     (if (icon object) 
                         (if (library object)
-                            (om-relative-path '("icons") (format nil "~A.png" (icon object)) (lib-resources-folder (find-om-library (library object))))
+                            (om-relative-path '("icons") (format nil "~A.png" (icon object)) (lib-resources-folder (find-library (library object))))
                           (om-relative-path '("icons" "boxes") (format nil "~A.png" (icon object)) (om-resources-folder)))))))
              (if (file-exist-p iconfile)
                  (setf iconfile (namestring iconfile))
