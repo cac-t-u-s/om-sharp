@@ -423,7 +423,7 @@
         
         ;;; => Edit menu command
         (#\A (unless (edit-lock editor) 
-               (store-current-state-for-undo self)
+               (store-current-state-for-undo editor)
                (align-selected-boxes editor)))
 
         ;;; make a menu command ?
