@@ -18,7 +18,7 @@
 (in-package :om)
 
 ;;;======================================
-;;; BASIC MIDI PIANO ROLL
+;;; BASIC MIDI NOTES / PIANO ROLL
 ;;; (just a data-stram with frames = midi-notes)
 ;;; (om-midi::portmidi-connect-ports (om-midi::portmidi-setup nil))
 ;;;======================================
@@ -66,6 +66,103 @@
                              :chan (or (midinote-channel note) 1) :port 0
                              :fields (list (midinote-pitch note) 0)))))
        (midinote-dur note))))
+
+
+;;;===================================
+;;; IMPORT NOTES
+;;;===================================
+;;; Main function:
+(defun import-midi-notes (&optional file)
+  (multiple-value-bind (evt-lists ntracks unit format)
+      (om-midi::midi-import file)
+    (when evt-lists
+      (midievents-to-midinotes (sort (flat evt-lists) '< :key 'om-midi::midi-evt-date) unit)
+      )))
+
+(defun midi-key-evt-pitch (evt)
+  (car (om-midi:midi-evt-fields evt)))
+
+(defun midi-key-evt-vel (evt)
+  (cadr (om-midi:midi-evt-fields evt)))
+
+(defun close-note-on (notelist chan pitch date) 
+  (flet ((match (x) (and (equal (midinote-pitch x) pitch) 
+                         (equal (midinote-channel x) chan) 
+                         (not (plusp (midinote-dur x))) ;;; note is still "open" 
+                         ;;; (equal (sixth x) track) (equal (seventh x) port) ;;; not used (yet)
+                         )))
+    (let ((pos (position-if #'match notelist :from-end t)))
+      (if pos
+          (setf (dur (nth pos notelist)) (- date (* -1 (midinote-dur (nth pos notelist)))))
+        (om-print-format "Warning: this MIDI sequence has orphan KeyOff messages in channel ~D: ~D (t=~Dms)." chan pitch date))
+      )))
+
+
+; OM MIDI tempo
+; 1000000 microseconds / beat
+; i.e. tempo = 60
+(defvar *midi-init-tempo* 1000000)   
+
+;;; from OM6
+(defun logical-time (abstract-time cur-tempo tempo-change-abst-time tempo-change-log-time unit/sec)
+  (+ tempo-change-log-time
+     (round (* (/ 1000.0 unit/sec) 
+               (* (- abstract-time tempo-change-abst-time)
+                  (/ cur-tempo *midi-init-tempo*))))))
+
+(defun midievents-to-midinotes (evtseq units/sec)
+
+  (let ((notelist nil)
+        
+        (cur-tempo *midi-init-tempo*)
+        (tempo-change-abst-time 0)
+        (tempo-change-log-time 0) date 
+        (initdate (om-midi::midi-evt-date (car evtseq))))
+    
+    (loop for event in evtseq do
+	  
+          (if (equal :Tempo (om-midi::midi-evt-type event))
+            
+              (let ((date (- (om-midi::midi-evt-date event) initdate)))
+                (setq tempo-change-log-time (logical-time date cur-tempo tempo-change-abst-time tempo-change-log-time units/sec))
+                (setq cur-tempo (car (om-midi:midi-evt-fields event)))
+                (setq tempo-change-abst-time date))
+          
+            (let ((date-ms (logical-time (om-midi::midi-evt-date event)  
+                                         cur-tempo tempo-change-abst-time 
+                                         tempo-change-log-time units/sec)))
+            
+              (case (om-midi::midi-evt-type event)   
+            
+                (:KeyOn 
+             
+                 (if (= (midi-key-evt-vel event) 0) ;;; actually it's a KeyOff
+                     (close-note-on notelist (om-midi::midi-evt-chan event) (midi-key-evt-pitch event) date-ms)
+               
+                   ;;; put a note on with duration open in the list
+                   (push (make-midinote :onset date-ms
+                                        :pitch (midi-key-evt-pitch event) 
+                                        :dur (* -1 date-ms)
+                                        :vel (midi-key-evt-vel event) 
+                                        :channel (om-midi::midi-evt-chan event))
+                     ;(om-midi::midi-evt-ref event)    ;;; not used (yet)
+                     ;(om-midi::midi-evt-port event))  ;;; not used (yet)
+                         notelist))
+                 )
+            
+                (:KeyOff (close-note-on notelist (om-midi::midi-evt-chan event) (midi-key-evt-pitch event) date-ms))
+            
+                )
+              )
+            )
+          )
+    
+    (when (find-if 'minusp notelist :key 'midinote-dur) 
+      (om-print (format nil "Warning: this MIDI sequence has unterminated notes!")))
+
+    (reverse notelist)))
+
+
 
 ;;;===================================================
 ;;; PIANO-ROLL IS JUST A SPECIAL KIND OF DATA-STREAM
