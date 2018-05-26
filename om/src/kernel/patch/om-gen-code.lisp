@@ -110,6 +110,7 @@
 
 (defmethod gen-code ((self OMBoxCall) &optional numout)
    "Generate Lisp code for the box <self> evaluated at <numout>."
+   ; (print (list "gen-code" (name self)))
    (cond
     
     ((equal (lock-state self) :locked)
@@ -118,7 +119,8 @@
     ((or (equal (lock-state self) :eval-once) 
          (and (get-pref-value :general :auto-ev-once-mode)
               (not *freeze-eval-once-mechanism*)
-              (> (length (get-out-connections self)) 1)))
+              (> (length (get-out-connections self)) 1)
+              ))
      (gen-code-for-ev-once self numout))
     
     (t (gen-code-for-eval self numout))
@@ -176,14 +178,14 @@
   (pop *let-list-stack*))
 
 (defun output-current-let-context ()
-  ;(print (list "LET OUTPUT" *let-list-stack*))
+  ; (print (list "LET OUTPUT" *let-list-stack*))
   (reverse (car *let-list-stack*)))
 
 (defun empty-current-let-context ()
   (null (car *let-list-stack*)))
 
 (defun push-let-statement (form &optional (scope :local))
-  ;(print (list "PUSH LET IN" form scope *let-list-stack*)) 
+  ; (print (list "PUSH LET IN" form scope *let-list-stack*)) 
   (if *let-list-stack*
       (if (equal scope :local)
           (setf (car *let-list-stack*)
@@ -195,7 +197,7 @@
   )
 
 (defun check-let-statement (varname &optional (scope :local))
-  ;(print (list "CHECK LET IN" varname *let-list-stack*))
+  ; (print (list "CHECK LET IN" varname *let-list-stack*))
   (if (equal scope :local)
       (member varname (car *let-list-stack*) :test 'equal :key 'car)
     (member varname (apply 'append *let-list-stack*) :test 'equal :key 'car)))
@@ -211,11 +213,13 @@
      (if (> (length (outputs self)) 1)
          (progn
            (when newvar?
-             (push-let-statement `(,varname (multiple-value-list ,(gen-code-for-eval self nil)))))
+             (push-let-statement `(,varname (multiple-value-list ,(gen-code-for-eval self nil))))
+             )
            `(nth ,numout ,varname))
        (progn 
          (when newvar?
-           (push-let-statement `(,varname ,(gen-code-for-eval self 0))))
+           (push-let-statement `(,varname ,(gen-code-for-eval self 0)))
+           )
          `,varname)
        )))
 
@@ -316,10 +320,8 @@
   ; (print (list "GEN CODE" (name self) *let-list-stack*)) 
   
   (unwind-protect 
-
+      
       (progn 
-          
-        (setf *let-list-stack* (let-list-stack self))
           
         (push-let-context)
           
@@ -353,12 +355,14 @@
        
     ;; cleanup
     (pop-let-context)
-      
-    ))
+    )
+  )
+ 
 
 (defmethod get-patch-lambda-expression ((self OMPatch))
   (multiple-value-bind (input-names body)
-      (gen-patch-lisp-code self)
+      (ignore-errors
+        (gen-patch-lisp-code self))
     `(lambda (,.input-names) ,body)))
 
 
@@ -366,20 +370,32 @@
 ;;; (with tempin = 1st input / tempout = 1st output, if they exist)
 (defmethod compile-patch ((self OMPatch)) 
   
+  ;; set the flag before in case of recursive patch!
   (setf (compiled? self) t)
   
-  (multiple-value-bind (input-names body)
-      (gen-patch-lisp-code self)
+  (handler-bind
+      ((error #'(lambda (err)
+                  
+                  (om-print err)
+                  (om-print-format "ABORTING COMPILATION OF PATCH ~A" (list (name self)) "[!!]")
+                  
+                  (setf (compiled? self) nil)
+                  (om-abort)
+                  )))
 
-    (let ((f-def `(defun ,(intern (string (compiled-fun-name self)) :om) 
-                         (,.input-names) 
-                    ,body)))
+    (multiple-value-bind (input-names body)
+        (gen-patch-lisp-code self)
+    
+      (let ((f-def `(defun ,(intern (string (compiled-fun-name self)) :om) 
+                           (,.input-names) 
+                      ,body)))
       
-      ;(om-print-format "~%------------------------------------------------------~%PATCH COMPILATION:~%")
-      ;(write function-def :stream om-lisp::*om-stream* :escape nil :pretty t)
-      ;(om-print-format "~%------------------------------------------------------~%~%")
+        (om-print-format "~%------------------------------------------------------~%PATCH COMPILATION:~%")
+        (write f-def :stream om-lisp::*om-stream* :escape nil :pretty t)
+        (om-print-format "~%------------------------------------------------------~%~%")
       
-      (compile (eval f-def))))
+        (compile (eval f-def))))
+    )
  
   )
 

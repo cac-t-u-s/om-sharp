@@ -62,10 +62,9 @@
   (om-abort))
 
 (defmethod gen-code ((self LostReferenceBox) &optional numout)
-  (om-beep-msg "MISSING REFERENCE FOR BOX [~A ~A]" 
-               (reference-type self)
-               (lost-reference self))
-  (om-abort))
+  (error (format nil "MISSING REFERENCE FOR BOX [~A ~A]" 
+                 (reference-type self)
+                 (lost-reference self))))
 
 ;;; we have to expliciely copy the inputs and outputs 
 ;;; and not le the default mechanism work

@@ -144,8 +144,9 @@
         do (om-invalidate-view (frame box))))
 
 (defmethod compile-if-needed ((self OMProgrammingObject))
-  ;(print (list "COMPILE" (name self)))
-  (unless (compiled? self) (compile-patch self)))
+  ; (print (list "COMPILE" (name self) (compiled? self)))
+  (unless (compiled? self) 
+    (compile-patch self)))
 
 (defmethod touch ((self t)) nil)
 
