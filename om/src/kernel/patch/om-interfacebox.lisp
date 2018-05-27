@@ -239,7 +239,7 @@
 (defmethod get-properties-list ((self ButtonBox))
   (add-properties (call-next-method)
                   "Button" 
-                  `((:send-value "Value sent" t send-value)
+                  `((:send-value "Value sent" NIL send-value)
                     (:text "Text" :string text)
                     )))
 
