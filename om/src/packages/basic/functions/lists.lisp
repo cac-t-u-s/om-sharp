@@ -85,11 +85,11 @@ Ex. (x-append '(1 2 3) 4 '(5 6 7)) => (1 2 3 4 5 6 7)
 
 (defun rev-flat (lst)  
   (let ((l ()))
-    (while lst
-           (if (not (consp (car lst)))
-             (push (pop lst) l)
-             (setq l (nconc (rev-flat (pop lst)) l))))
-    l ))
+    (loop while lst do
+          (if (not (consp (car lst)))
+              (push (pop lst) l)
+            (setq l (nconc (rev-flat (pop lst)) l))))
+    l))
 
 
 (defun lo-flat (list) 
@@ -190,7 +190,7 @@ Ex. (2* (a z 2* (4 12) (1_5 )) 0_16s2)  =>  (a z 4 12 4 12 (1 2 3 4 5) a z 4 12 
 
   (and list
        (let ((lists (list! list))  result)
-         (while lists
+         (loop while lists do 
                 (let ((next-elem (pop lists)))
                   (cond 
                    ((symbolp next-elem)
@@ -311,7 +311,7 @@ Ex. (list-modulo '(1 2 3 4 5 6 7 8 9) 3)  => ((1 4 7) (2 5 8) (3 6 9))
 
 (defun list-part (list ncol)  
   (let ((vector (make-array  ncol )) res)
-    (while list 
+    (loop while list do 
       (for (i 0 1 (1- ncol))
         (and list (vset vector i (push (pop list) (vref vector i))))))
     (for (i 0 1 (1- ncol))
@@ -557,7 +557,7 @@ If <bounds> is a list of pairs, each pair is applied to each successive element 
 (defmethod* range-filter ((list list) (posn list) (mode symbol))
   :initvals '((1 2 3 4 5) ((0 1) (3 4)) reject)
   :indoc '("a list" "position bounds" "pass or reject")
-  :menuins '((2 (("Reject" 'reject) ("Pass" 'pass))))
+  :menuins '((2 (("Reject" reject) ("Pass" pass))))
   :icon 'list 
   :doc  "Select elements in <list> whose positions (couting from 0) in the list are defined by <posn>
 <posn> is a list of pairs (min-pos max-pos) in increasing order with no everlap.
@@ -579,7 +579,7 @@ Ex. (range-filter '(10 11 12 13 14 15 16) '((0 1) (3 4)) 'reject) => (12 13)
 
 
 (defmethod* posn-match ((list list) (positions list))
-  :initvals '('(10 20 30 40 50 60 70 80 90) '((0 1) 4 (6)) )
+  :initvals '((10 20 30 40 50 60 70 80 90) ((0 1) 4 (6)) )
   :indoc '("a list" "a list positions")
   :icon 'list 
   :doc  "Constructs a new list by peeking elements in <list> at positions defined by <positions> (a list or tree of positions). 
