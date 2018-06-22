@@ -77,15 +77,18 @@
 ;; compute the ASCII-based numerical value of the string
 ;; [warning: works only if the chars are coded in ASCII]
 ;(eval-when (:compile-toplevel)
-  (defun string-code (s)
-    (let ((v 0))
-      (loop for i from 0 to (1- (length s))
-	    do (setf v (+ (* v 256) (char-code (aref s i)))))
-      v))
+(defun string-code (s)
+  (let ((v 0))
+    (loop for i from 0 to (1- (length s))
+          do (setf v (+ (* v 256) (char-code (aref s i)))))
+    v))
 ;)
 
-(defconstant +header-mthd+ #.(string-code "MThd"))
-(defconstant +header-mtrk+ #.(string-code "MTrk"))
+;(defconstant +header-mthd+ #.(string-code "MThd"))
+;(defconstant +header-mtrk+ #.(string-code "MTrk"))
+(defconstant +header-mthd+ 1297377380) ;; = (string-code "MThd"))
+(defconstant +header-mtrk+ 1297379947) ;; = (string-code "MTrk"))
+
 (defconstant +header-mthd-length+ 6 "value of the header MThd data's length")
 
 (defparameter *midi-input* nil "stream for reading a Midifile")
@@ -223,13 +226,16 @@
     (declare (ignore length))
     (unless (= type +header-mtrk+)
       (error (make-condition 'header :header "MTrk")))
+    ; (print (list "read track" type length))
     (loop with message = nil
+          for i = 0 then (+ i 1)
 	  do (setf message (read-timed-message))
+          ;do (print (list i (type-of message)))
 	  until (typep message 'end-of-track-message)
 	  collect message)))
 
 (defun write-track (track)
-  "write a track (which does not contain the end-of-track message"
+  "write a track (which does not contain the end-of-track message)"
   (write-fixed-length-quantity  +header-mtrk+ 4)
   (let ((end-of-track-message (make-instance 'end-of-track-message)))
     ;; write the length of the track
@@ -259,6 +265,7 @@
 	  (division (read-fixed-length-quantity 2)))
       (unless (and (= length +header-mthd-length+) (= type +header-mthd+)) 
 	(error (make-condition 'header :header "MThd")))
+      ; (print format)
       (make-instance 'midifile
 	:format format
 	:division division
