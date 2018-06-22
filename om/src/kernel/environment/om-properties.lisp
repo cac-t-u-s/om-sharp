@@ -441,7 +441,7 @@
                 :focus nil :default nil
                 :text (font-to-str (get-property object prop-id))
                 :size (om-make-point (list :string (font-to-str (get-property object prop-id))) 26)
-                :font (om-def-font :font1 :style (om-font-style (font-font current)))
+                :font (om-def-font :font1 :style (om-font-style (get-property object prop-id)))
                 :di-action #'(lambda (item)
                                (let ((choice (om-choose-font-dialog :font (or (get-property object prop-id)
                                                                               (and update (om-get-font update))))))
