@@ -36,6 +36,22 @@
 (defmethod create-box-outputs ((self OMInterfaceBox))
   (list (make-instance 'box-output :box self :name "value")))
 
+(defmethod maximum-size ((self OMInterfaceBox)) nil)
+(defmethod minimum-size ((self OMInterfaceBox)) (omp 20 28))
+
+;;; set the box attributes
+(defmethod apply-one-box-attribute ((self OMInterfaceBox) attr val) 
+  (setf (slot-value self (intern-om attr)) val))
+
+(defmethod apply-one-box-attribute ((self OMInterfaceBox) (attr (eql :value)) val) 
+  (set-value self (list val)))
+
+(defmethod apply-box-attributes ((self OMInterfaceBox) attributes) 
+  (loop for attr on attributes by 'cddr do
+        (apply-one-box-attribute self (car attr) (cadr attr)))
+  (update-inspector-for-object self)
+  )
+
 (defmethod omNG-box-value ((self OMInterfaceBox) &optional (numout 0)) 
   
   ;;; we move out of the eval process to do that! 
@@ -48,29 +64,13 @@
 (defmethod gen-code ((self OMInterfaceBox) &optional (numout 0))
   (current-box-value self numout))
 
-;;; set the box attributes
-(defmethod apply-box-attributes ((self OMInterfaceBox) attributes) 
-  (loop for attr on attributes by 'cddr do
-        (cond ((equal (car attr) :value) 
-               (set-value self (list (cadr attr))))
-              ((member (car attr) '(:min-value :max-value :increment))
-               (when (numberp (cadr attr)) 
-                 (setf (slot-value self (intern-om (car attr))) 
-                       (cadr attr))))
-              (t
-               (setf (slot-value self (intern-om (car attr))) 
-                     (cadr attr)))))
-  
-  (update-inspector-for-object self)
-  )
-
 ;(defmethod eval-box :before ((self OMInterfaceBox)) 
 ;  (apply-box-attributes self (eval-box-inputs self)))
 
-(defmethod maximum-size ((self OMInterfaceBox)) nil)
-(defmethod minimum-size ((self OMInterfaceBox)) (omp 20 28))
 
-
+(defmethod omng-save ((self OMInterfaceBox))  
+  (append (call-next-method)
+          (list (save-value self))))
 
 ;;; FRAME
 (defclass InterfaceBoxFrame (OMBoxFrame) ())
@@ -151,6 +151,13 @@
                     (:decimals "Decimals" :number slider-decimals (0 10 0))
                     (:orientation "Orientation" (:vertical :horizontal) orientation)
                     )))
+
+
+(defmethod apply-one-box-attribute ((self SliderBox) attr val) 
+  (if (member attr '(:min-value :max-value :increment))
+   (when (numberp val) 
+     (setf (slot-value self (intern-om attr)) val))
+    (call-next-method)))
 
 
 (defun min-incr (slider)
@@ -312,4 +319,102 @@
       (current-box-value self numout))))
 
 
+
+;;;===============================================================
+;;; LIST
+;;;===============================================================
+
+(defclass ListSelectionBox (OMInterfaceBox)
+  ((items :accessor items :initarg :items :initform nil)
+   (selection :accessor selection :initform nil)
+   (multiple-selection :accessor multiple-selection :initform nil)
+   (cell-height :accessor cell-height :initform 12)
+   (cell-font :accessor cell-font :initform (om-def-font :font1))))
+ 
+(AddSpecialItem2Pack 'list-selection *interfaceboxes*)
+
+(defmethod special-box-p ((self (eql 'list-selection))) t)
+(defmethod special-item-reference-class ((item (eql 'list-selection))) 'ListSelectionBox)
+
+(defmethod default-size ((self ListSelectionBox)) (omp 60 60))
+
+(defmethod get-all-keywords ((self ListSelectionBox))
+  '((:items)))
+
+(defmethod get-properties-list ((self ListSelectionBox))
+  (add-properties (call-next-method)
+                  "List selection display" 
+                  `((:multiple-selection "Multiple selection" :bool multiple-selection)
+                    (:cell-height "Cell size (px)" :number cell-height)
+                    (:cell-font "Cell font" :font cell-font)
+                    )))
+
+(defmethod apply-box-attributes ((self ListSelectionBox) attributes) 
+  (when attributes 
+    (let ((newlist (getf attributes :items)))
+      (unless (equal newlist (items self))
+        (setf (selection self) nil)
+        (set-value self nil))))
+  (call-next-method))
+
+
+(defmethod omng-save ((self ListSelectionBox))  
+  (append (call-next-method)
+          `((:items ,(omng-save (items self)))
+            (:selection ,(omng-save (selection self))))))
+
+(defmethod load-box-attributes ((box ListSelectionBox) data)
+  (setf (items box) (omng-load (find-value-in-kv-list data :items)))
+  (setf (selection box) (omng-load (find-value-in-kv-list data :selection)))
+  box)
+
+
+(defmethod omNG-make-special-box ((reference (eql 'list-selection)) pos &optional init-args)
+  (let* ((box (make-instance 'ListSelectionBox
+                             :name "list-selection"
+                             :reference 'list-selection)))
+    (setf (box-x box) (om-point-x pos)
+          (box-y box) (om-point-y pos))
+    box))
+
+(defmethod draw-interface-component ((self ListSelectionBox) x y w h) 
+  (om-with-font (cell-font self)
+     (loop for i = 0 then (+ i 1) 
+           for yy = y then (+ yy (cell-height self))
+           while (< (+ yy (cell-height self)) h)
+           while (< i (length (items self)))
+           do
+           (when (member i (selection self))
+             (om-draw-rect 10 (+ yy 2) (- w 20) (cell-height self) :fill t :color (om-def-color :dark-gray)))
+           (om-draw-string 10 (+ yy (cell-height self)) (format nil "~A" (nth i (items self)))
+                           :color (if (member i (selection self)) (om-def-color :white) (om-def-color :black)))
+           )))
+        
+
+(defmethod interfacebox-action ((self ListSelectionBox) frame pos)
+  (let* ((y (- (om-point-y pos) 4))
+         (n (floor y (cell-height self))))
+    (when (and (> (om-point-x pos) 10)
+               (< (om-point-x pos) (- (w frame) 20))
+               (< n (length (items self))))
+
+    (if (member n (selection self))
+
+        (setf (selection self) (remove n (selection self)))
+      
+      (setf (selection self) 
+            (if (multiple-selection self)
+                (sort (cons n (selection self)) '<)
+              (list n))))
+    
+    (set-value self 
+               (if (multiple-selection self)
+                   (list (posn-match (items self) (selection self)))
+                 (and (selection self)
+                      (list (nth (car (selection self)) (items self)))))
+               )
+
+    (when (reactive (car (outputs self))) (self-notify self))
+    (om-invalidate-view frame)
+    )))
 
