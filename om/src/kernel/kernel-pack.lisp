@@ -28,7 +28,7 @@
                    (list (omNG-make-package "Lisp" 
                                             :doc "Basic functions defined in the Lisp programming language"
                                             :functions '(first second third nth rest nthcdr butlast reverse length
-                                                               list remove  cons  append  apply  funcall mapcar mapcan))
+                                                               list remove cons append apply funcall mapcar mapcan))
                          (omNG-make-package "Control" 
                                             :doc "Special boxes implementing control operators"
                                             :functions '(seq hub split omif omand omor)
