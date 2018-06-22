@@ -765,7 +765,7 @@
                            :container-editor maq-editor)))
     
     (let ((pl (om-make-layout 'om-simple-layout))
-          (pv (make-editor-window-contents (editor ctrlpatch))))
+          (pv (cadr (multiple-value-list (make-editor-window-contents (editor ctrlpatch))))))
       
       (om-add-subviews pl pv)
       (setf (main-view (editor ctrlpatch)) pv)
@@ -783,7 +783,7 @@
 (defun show-hide-control-patch-editor (maq-editor show)
   
   (unless (equal (show-control-patch maq-editor) show)
-   
+    
     (setf (show-control-patch maq-editor) show)
    
     (let ((ctrlpatch (ctrlpatch (object maq-editor))))
