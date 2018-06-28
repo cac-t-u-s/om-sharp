@@ -72,12 +72,15 @@
 ;;; IMPORT NOTES
 ;;;===================================
 ;;; Main function:
-(defun import-midi-notes (&optional file)
+(defun import-midi-events (&optional file)
   (multiple-value-bind (evt-lists ntracks unit format)
       (om-midi::midi-import file)
     (when evt-lists
-      (midievents-to-midinotes (sort (flat evt-lists) '< :key 'om-midi::midi-evt-date) unit)
-      )))
+      (midievents-to-milliseconds (sort (flat evt-lists) '< :key 'om-midi::midi-evt-date) unit))
+      ))
+
+(defun import-midi-notes (&optional file)
+  (midievents-to-midinotes (import-midi-events file)))
 
 (defun midi-key-evt-pitch (evt)
   (car (om-midi:midi-evt-fields evt)))
@@ -110,10 +113,10 @@
                (* (- abstract-time tempo-change-abst-time)
                   (/ cur-tempo *midi-init-tempo*))))))
 
-(defun midievents-to-midinotes (evtseq units/sec)
 
-  (let ((notelist nil)
-        
+(defun midievents-to-milliseconds (evtseq units/sec)
+
+  (let ((rep nil)
         (cur-tempo *midi-init-tempo*)
         (tempo-change-abst-time 0)
         (tempo-change-log-time 0) date 
@@ -132,28 +135,45 @@
                                          cur-tempo tempo-change-abst-time 
                                          tempo-change-log-time units/sec)))
             
-              (case (om-midi::midi-evt-type event)   
+              (push (om-midi::make-midi-evt :date date-ms
+                                        :type (om-midi::midi-evt-type event) 
+                                        :chan (om-midi::midi-evt-chan event)
+                                        :ref (om-midi::midi-evt-ref event)
+                                        :port (om-midi::midi-evt-port event)
+                                        :fields (om-midi::midi-evt-fields event))
+                    rep)
+              )
+            )
+          )
+    
+    (reverse rep)))
+
+(defun midievents-to-midinotes (evtseq)
+
+  (let ((notelist nil))
+        
+    (loop for event in evtseq do
+	  
+          (case (om-midi::midi-evt-type event)   
             
-                (:KeyOn 
+            (:KeyOn 
              
-                 (if (= (midi-key-evt-vel event) 0) ;;; actually it's a KeyOff
-                     (close-note-on notelist (om-midi::midi-evt-chan event) (midi-key-evt-pitch event) date-ms)
+             (if (= (midi-key-evt-vel event) 0) ;;; actually it's a KeyOff
+                 (close-note-on notelist (om-midi::midi-evt-chan event) (midi-key-evt-pitch event) (om-midi::midi-evt-date event))
                
-                   ;;; put a note on with duration open in the list
-                   (push (make-midinote :onset date-ms
-                                        :pitch (midi-key-evt-pitch event) 
-                                        :dur (* -1 date-ms)
-                                        :vel (midi-key-evt-vel event) 
-                                        :channel (om-midi::midi-evt-chan event))
+               ;;; put a note on with duration open in the list
+               (push (make-midinote :onset (om-midi::midi-evt-date event)
+                                    :pitch (midi-key-evt-pitch event) 
+                                    :dur (* -1 (om-midi::midi-evt-date event))
+                                    :vel (midi-key-evt-vel event) 
+                                    :channel (om-midi::midi-evt-chan event))
                      ;(om-midi::midi-evt-ref event)    ;;; not used (yet)
                      ;(om-midi::midi-evt-port event))  ;;; not used (yet)
-                         notelist))
-                 )
+                     notelist))
+             )
             
-                (:KeyOff (close-note-on notelist (om-midi::midi-evt-chan event) (midi-key-evt-pitch event) date-ms))
+            (:KeyOff (close-note-on notelist (om-midi::midi-evt-chan event) (midi-key-evt-pitch event) (om-midi::midi-evt-date event)))
             
-                )
-              )
             )
           )
     
