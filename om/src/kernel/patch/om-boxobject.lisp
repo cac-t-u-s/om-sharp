@@ -447,7 +447,7 @@
           )))
     (add-properties properties "Appearance" 
                     (append 
-                     `((:name "Name" :text name)
+                     `((:name "Name" :string name)
                        (:display "View (m)" ,(display-modes-for-object (car (value self))) display)
                        (:showname "Show name (n)" :bool show-name))
                      (when (play-obj? (car (value self)))
