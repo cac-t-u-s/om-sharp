@@ -351,6 +351,7 @@
 (defmethod set-frame-areas ((self t)) nil)
 
 (defmethod set-frame-areas ((self OMBoxFrame))
+  
   (let* ((box (object self))
          (nin (length (inputs box)))
          (nout (length (outputs box)))
@@ -399,7 +400,7 @@
             (outputs box))
            
            (resize-areas self)
-           (info-area self)
+           ;(info-area self)
            eia
            ))
     (mapcar 'update-points (get-box-connections box))
@@ -665,17 +666,19 @@
     
     ;;; if we're in multiple selection (SHIFT) or if the box is already selected: do not unselect all
     
-    (or (and (selected (object self)) 
-             (not (om-command-key-p)) (not (om-shift-key-p))
-             (edit-text-area self position)
-             t)
+    (if (and (selected (object self)) 
+             (not (om-command-key-p)) (not (om-shift-key-p)))
         
-        (progn
-         (editor-box-selection (editor (om-view-container self)) (object self))
-         (apply-in-area self 'click-in-area position))
+        (edit-text-area self position))
+    
+    (or 
+     (progn
+       (editor-box-selection (editor (om-view-container self)) (object self))
+       (apply-in-area self 'click-in-area position))
         
-        self)
+       self)
     ))
+
 
 ;;; handle boxframe click in multi-editor-view
 (defmethod om-view-click-handler :around ((self OMBoxFrame) position)
@@ -692,10 +695,15 @@
 (defmethod click-in-area ((self frame-area) boxframe) self)
 
 (defmethod om-view-doubleclick-handler ((self OMBoxFrame) position)
-  (or ;; edit area is a simple click on a selected box
-      (and (selected (object self)) (not (om-command-key-p)) 
-           (edit-text-area self position))
-      (open-editor (object self))))
+    
+  ;(or ;; edit area is a simple click on a selected box
+
+      ;(and (selected (object self)) (not (om-command-key-p)) 
+      ;     (edit-text-area self position))
+
+      (open-editor (object self))
+
+      t)
 
 (defun edit-text-in-patch (edittext frame container-view action pos size)
   (let* ((box (object frame))
