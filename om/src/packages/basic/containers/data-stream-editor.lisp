@@ -293,31 +293,33 @@
                  (dy-to-dpix panel sizey)
                  (dy-to-dpix panel sizey)
                  ))
-      (:blocks (values (x-to-pix panel (date frame))
-                       (- (h panel) (y-to-pix panel posy))
-                       (max 3 (dx-to-dpix panel (get-frame-graphic-duration frame)))
-                       (max 3 (dy-to-dpix panel sizey))  ;; !! downwards
+      (otherwise (values (x-to-pix panel (date frame))
+                         (- (h panel) (y-to-pix panel posy))
+                         (max 3 (dx-to-dpix panel (get-frame-graphic-duration frame)))
+                         (max 3 (dy-to-dpix panel sizey))  ;; !! downwards
                        )))))
 
+(defmethod draw ((frame data-frame) x y w h selected) nil)
 
 (defmethod draw-data-frame ((frame data-frame) editor i &optional (active t))
   (let* ((panel (active-panel editor)))
     (multiple-value-bind (x y w h)
         (get-frame-area frame editor)
       (om-with-fg-color (get-frame-color frame)
-        (case (editor-get-edit-param editor :display-mode) 
-          (:bubbles
-           (om-draw-circle (+ x (round w 2)) (+ y (round h 2)) (round h 2) :fill t)
-           (when (and active (find i (selection editor)))
-             (om-draw-circle (+ x (round w 2)) (+ y (round h 2)) (round h 2) :fill t
-                             :color (om-make-color .5 .5 .5 .5)))
-           )
-          (otherwise 
-           (om-draw-rect x y w h :fill t)
-           (when (and active (find i (selection editor)))
-             (om-draw-rect x y w h :fill t
-                           :color (om-make-color .5 .5 .5 .5))))
-          )
+        (or (draw frame x y w h (and active (find i (selection editor))))
+            (case (editor-get-edit-param editor :display-mode) 
+              (:bubbles
+               (om-draw-circle (+ x (round w 2)) (+ y (round h 2)) (round h 2) :fill t)
+               (when (and active (find i (selection editor)))
+                 (om-draw-circle (+ x (round w 2)) (+ y (round h 2)) (round h 2) :fill t
+                                 :color (om-make-color .5 .5 .5 .5)))
+               )
+              (otherwise 
+               (om-draw-rect x y w h :fill t)
+               (when (and active (find i (selection editor)))
+                 (om-draw-rect x y w h :fill t
+                               :color (om-make-color .5 .5 .5 .5))))
+              ))
         ))))
 
 (defmethod frame-at-pos ((editor data-stream-editor) position)

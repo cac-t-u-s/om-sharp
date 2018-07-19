@@ -206,33 +206,59 @@ Press 'space' to play/stop the sound file.
 ;;; TIME MARKERS
 ;;;===========================
 
-(defclass marker-frame (data-frame) ())
+(defclass marker-frame (data-frame) 
+  ((label :accessor label :initarg :label :initform nil)))
 
 (defmethod print-object ((self marker-frame) out)
-  (format out "#<marker-at ~D>" (date self)))
+  (format out "#<marker-at ~D: ~A>" (date self) (label self)))
 
 (defmethod data-frame-text-description ((self marker-frame))
-  (list (format nil "t=~A" (date self))))
+  (list (format nil "t=~A" (date self))
+        (or (label self) "")))
 
 (defmethod get-frame-action ((self marker-frame)) nil)
 
-(defmethod get-frame-graphic-duration ((self marker-frame)) 0)
-(defmethod get-frame-color ((self marker-frame)) (om-def-color :gray))
+(defmethod get-frame-graphic-duration ((self marker-frame)) 10)
+(defmethod get-frame-color ((self marker-frame)) (om-make-color .5 .3 .3))
 (defmethod get-frame-posy ((self marker-frame)) 100)
 (defmethod get-frame-sizey ((self marker-frame)) 200)
 
+(defmethod draw ((frame marker-frame) x y w h selected) 
+ 
+  (om-draw-line x y x h :line (if selected 3 2) :style '(4 4) :color (if selected (om-def-color :dark-red) nil))
+  (when (label frame)
+    (om-draw-string (+ x 4) (+ y 12) (label frame) :color (if selected (om-def-color :dark-red) nil)))
+  t)
 
-(defmethod get-time-markers ((self sound)) (markers self))
+
+(defmethod get-time-markers ((self sound)) (markers-time self))
 
 ;;; for the user markers are just numbers
 ;;; (in fact they are data-frames)
-(defmethod markers ((self sound)) (mapcar 'date (data-stream-get-frames self)))
+(defmethod markers ((self sound)) 
+  (loop for frame in (data-stream-get-frames self)
+        collect (if (label frame) 
+                    (list (date frame) (label frame))
+                  (date frame))
+        ))
+
+(defmethod markers-time ((self sound)) 
+  (loop for frame in (data-stream-get-frames self)
+        collect (date frame)))
 
 (defmethod (setf markers) (markers (self sound))
   (data-stream-set-frames 
    self
-   (mapcar #'(lambda (m) (make-instance 'marker-frame :date m)) markers))
+   (loop for m in markers collect
+         (cond ((numberp m)
+                (make-instance 'marker-frame :date m))
+               ((consp m)
+                (make-instance 'marker-frame :date (car m) :label (cadr m)))
+               ((typep m 'marker-frame)
+                (om-copy m)))
+         ))
   markers)
+
 
 ;;;===========================
 ;;; INITIALIZATION...
@@ -544,7 +570,7 @@ Press 'space' to play/stop the sound file.
         (om-draw-picture pict :x x :y (+ y 4) :w w :h (- h 8))))
     (when (markers self)
       (let ((fact (/ w (get-obj-dur self))))
-        (loop for mrk in (markers self) do
+        (loop for mrk in (markers-time self) do
               (om-with-fg-color (om-def-color :gray)
                 (om-draw-line (+ x (* mrk fact)) 8 (+ x (* mrk fact)) h
                               :style '(2 2)
@@ -816,6 +842,27 @@ Press 'space' to play/stop the sound file.
                    (equal from (container-editor editor)))) 
     (setf (cache-display-list editor) nil))
   (call-next-method))
+
+(defmethod editor-key-action ((editor sound-editor) key)
+  (let* ((panel (active-panel editor))
+         (stream (object-value editor)))
+    (case key
+      (#\l 
+       (when (selection editor)
+         (let ((newlabel (om-get-user-string "enter a new label for selected markers"
+                                             :initial-string (or (label (nth (car (selection editor)) (frames stream)))
+                                                                 ""))))
+           (when newlabel
+             (loop for pos in (selection editor) do 
+                   (setf (label (nth pos (frames stream))) newlabel))
+             (om-invalidate-view panel)
+             (report-modifications editor)
+             )
+           ))
+       )
+      (otherwise (call-next-method)))
+    ))
+
 
 
 
