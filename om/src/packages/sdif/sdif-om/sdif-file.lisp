@@ -476,7 +476,7 @@ Name/Value tables are formatted as SDIFNVT objects.
                        
                              (if (and (or (not streamNum) (= streamNum sid))
                                       (string-equal frameT fsig) 
-                                      (or (not tmin) (>= time tmin)))
+                                      (or (not tmin) (>= curr-time tmin)))
                                  
                                  ;;; we're in a candidate frame
                                  (dotimes (m (sdif::SdifFCurrNbMatrix sdiffileptr))
