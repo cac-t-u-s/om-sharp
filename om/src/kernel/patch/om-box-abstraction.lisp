@@ -68,6 +68,11 @@
   (setf (ready self) nil)
   (call-next-method))
 
+(defmethod initialize-box-value ((self OMBoxAbstraction) &optional value)
+  (setf (ready self) nil)
+  (call-next-method))
+
+
 (defmethod omNG-make-new-boxcall ((reference OMProgrammingObject) pos &optional init-args)
   (let* ((box (make-instance (get-box-class reference)
                             :name (if init-args (format nil "~A" (car init-args)) (name reference))

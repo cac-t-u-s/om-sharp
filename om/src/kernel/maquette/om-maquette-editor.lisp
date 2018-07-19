@@ -613,13 +613,16 @@
          (move-editor-selection editor :dy (if (om-shift-key-p) -10 -1))
          (om-invalidate-view (main-view editor))
          (report-modifications editor)))
+
       (#\v (with-schedulable-object maquette
                                     (loop for tb in (get-selected-boxes editor) do 
                                           (eval-box tb)
                                           (reset-cache-display tb)
                                           (contextual-update tb maquette)))
            (om-invalidate-view (window editor))
+           (clear-ev-once (object editor))
            (report-modifications editor))
+
       (#\r (unless (edit-lock editor)
              (loop for tb in (get-selected-boxes editor) do (set-reactive-mode tb))
              (om-invalidate-view (window editor))))

@@ -116,7 +116,7 @@
 (defun eval-command (editor-view boxes)
   
   (prompt-on-listeners "Running...")
-  
+ 
   (om-eval-enqueue  
    `(progn
       (setf *current-eval-panel* ,editor-view)
@@ -244,6 +244,7 @@
 ;;; RETURNS THE REQUESTED (OR FIRST) INPUT
 (defmethod omNG-box-value ((self OMBoxCall) &optional (numout 0)) 
   "Eval the output <numout> in <self>."
+  
   (handler-bind ((error #'(lambda (c)
                             (when (get-pref-value :general :catch-errors)
                               (let ((fv (make-flag-view self (om-make-color 0.6 .3 .3 .5))))
@@ -259,6 +260,9 @@
                                 (setf (eval-flag self) nil)
                                 (sleep .5)
                                 (om-abort))))))
+
+    ; (print (list (lock-state self) (lambda-state self) (ev-once-flag self)))
+
     (cond
      
      ((equal (lambda-state self) :reference) (box-reference-value self))
@@ -268,7 +272,6 @@
       (return-value self numout))
      
      ((and (or (equal (lock-state self) :eval-once)
-               
                (get-pref-value :general :auto-ev-once-mode))
            
            (equal (ev-once-flag self) (get-ev-once-flag *ev-once-context*)))
@@ -278,6 +281,7 @@
      (t 
       (setf (eval-flag self) t)
       (om-invalidate-view (frame self))
+      
       (let ((new-val 
              (cond ((equal (lambda-state self) :lambda) 
                     (multiple-value-list (box-lambda-value self)))
