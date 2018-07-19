@@ -31,7 +31,7 @@
                       (list (om-make-menu-comp 
                              (list
                               (om-make-menu-item "New Patch" #'(lambda () (open-new-document :patch)) :key "n")
-                              (om-make-menu-item "New Maquette" #'(lambda () (open-new-document :maquette)) :key "m")
+                              (om-make-menu-item "New Maquette" #'(lambda () (open-new-document :maquette)))
                               (om-make-menu-item "New Lisp function" #'(lambda () (open-new-document :lispfun)))))
                             (om-make-menu-item "New Text/Lisp Buffer" #'(lambda () (om-lisp::om-open-text-editor :lisp t)) :key "N")
                             ))

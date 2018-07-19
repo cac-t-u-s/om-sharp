@@ -158,7 +158,7 @@
                                           #'(lambda () (patch-editor-set-window-config 
                                                         self 
                                                         (if (equal (editor-window-config self) :lisp-code) nil :lisp-code)))
-                                          :key "k" :selected #'(lambda () (equal (editor-window-config self) :lisp-code))
+                                          :key "l" :selected #'(lambda () (equal (editor-window-config self) :lisp-code))
                                           )
                                          
                                          (om-make-menu-item 
@@ -174,7 +174,7 @@
                                           #'(lambda () (patch-editor-set-window-config 
                                                         self 
                                                         (if (equal (editor-window-config self) :listener) nil :listener)))
-                                          :key "l" :selected #'(lambda () (equal (editor-window-config self) :listener))
+                                          :key "m" :selected #'(lambda () (equal (editor-window-config self) :listener))
                                           )
 
                                          (om-make-menu-item 
@@ -312,11 +312,12 @@
     ))
   
 (defmethod editor-key-action ((editor patch-editor) key)
+
   (let* ((panel (get-editor-view-for-action editor))
          (patch (object editor))
          (selected-boxes (get-selected-boxes editor))
          (selected-connections (get-selected-connections editor)))
-
+    
     (when panel
 
       (case key
