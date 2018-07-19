@@ -53,14 +53,14 @@
   :icon 'csound
   (if (get-pref-value :externals :csound-path)
       (let* ((RT-OUT (equal out :rt))
-             (outpath (if RT-OUT nil
+             (csout (if RT-OUT nil
                         (handle-new-file-exists
                          (cond ((pathnamep out) out)
                                ((stringp out) (outfile out))
                                (t (outfile (pathname-name sco)))))))
-             (csout (unless RT-OUT
+             (outpath (unless RT-OUT
                         (handle-new-file-exists 
-                         (om-make-pathname :directory outpath :name (pathname-name outpath) :type (or format "wav"))))))
+                         (om-make-pathname :directory csout :name (pathname-name csout) :type (or format "wav"))))))
    
         (om-print "======================================")
         (om-print "BEGIN CSOUND SYNTHESIS...")
