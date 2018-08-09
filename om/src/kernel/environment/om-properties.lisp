@@ -287,7 +287,7 @@
 ;;; LIST OF CHOICES
 ;;;====================================
 
-(defmethod make-prop-item ((type list) prop-id object &key default update)
+(defmethod make-prop-item ((type cons) prop-id object &key default update)
   (let ((popup (om-make-di 'om-popup-list 
                            :items (remove :default type) 
                            :resizable nil
