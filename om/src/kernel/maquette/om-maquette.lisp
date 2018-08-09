@@ -173,6 +173,7 @@
        (loop for box in (get-all-boxes self :sorted t)
              when (box-cross-interval box time-interval)
              when (not (and (all-reactive-p box) (not (ready box))))
+             when (group-id box) ;;; only boxes in tracks are played
              append
              (let ((interval-in-object (list
                                         (max (- (car time-interval) (get-box-onset box)) 0)
