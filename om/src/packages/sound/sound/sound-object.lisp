@@ -670,8 +670,9 @@ Press 'space' to play/stop the sound file.
   (call-next-method))
 
 (defmethod player-continue-object ((self scheduler) (object sound))
-  (continue-buffer-player (buffer-player object))
-  (call-next-method))
+   (when (buffer-player object) 
+     (continue-buffer-player (buffer-player object)))
+   (call-next-method))
 
 (defmethod set-object-time ((self sound) time)
   (jump-to-time (buffer-player self) time)
