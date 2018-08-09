@@ -22,8 +22,8 @@
 ;;;=======================================
 
 (defparameter *app-name* "o7")
-(defparameter *om-version* 0.010300)
-(defparameter *beta-release* t)
+(defparameter *om-version* 0.010301)
+(defparameter *beta-release* nil)
 (defparameter *version-string* "")
 (defparameter *release-language* :en)
 (defparameter *release-date* (sys::date-string nil nil))

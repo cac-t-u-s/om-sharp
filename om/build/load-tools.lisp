@@ -4,17 +4,19 @@
 
 ; (clean-sources)
 
-(defun version-to-string (num &optional (full nil) (show-beta nil))
+(defun version-to-string (num &optional (full nil) (beta nil))
   (let* ((str (format nil "~,6f" num))
         (pos (position #\. str))
         (v (read-from-string (subseq str 0 pos)))
         (rest (subseq str (+ 1 pos)))
         (v2 (read-from-string (subseq rest 0 2)))
         (v3 (read-from-string (subseq rest 2 (min 4 (length rest)))))
-        (beta (if (> (length rest) 4) (read-from-string (subseq rest 4)))))
+        (v4 (if (> (length rest) 4) (read-from-string (subseq rest 4)))))
     (concatenate 'string (format nil "~d.~d" v v2) 
-                 (if (null full) "" (format nil ".~d" v3))
-                 (if (or (null show-beta) (zerop beta)) "" (format nil " beta ~d" beta)))))
+                 (if full (format nil ".~d" v3) "")
+                 (if (and full v4 (plusp v4)) (format nil ".~d" v4) "")
+                 (if beta "beta" ""))
+    ))
 
 
 (defvar *compile-type* "xfasl")
