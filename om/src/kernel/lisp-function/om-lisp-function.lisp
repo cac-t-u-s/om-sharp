@@ -134,11 +134,11 @@
 (defclass OMBoxLisp (OMBoxAbstraction) ())
 (defmethod get-box-class ((self OMLispFunction)) 'OMBoxLisp)
 
-(defmethod draw-patch-icon :after ((self OMBoxLisp))
+(defmethod draw-patch-icon :after ((self OMBoxLisp) &optional (offset-x 0) (offset-y 0))
   (when (error-flag (reference self))
     (om-with-fg-color (om-def-color :dark-red)
       (om-with-font (om-make-font "Arial" 16 :style '(:bold))
-        (om-draw-string 2 (- (box-h self) 8) "Error !!")))))
+        (om-draw-string (+ offset-x 2) (+ offset-y (- (box-h self) 8)) "Error !!")))))
 
 ;;; OMLispFunction doesn't have OMIn boxes to buils the box-inputs from
 (defmethod create-box-inputs ((self OMBoxLisp)) 

@@ -218,10 +218,10 @@
 (defmethod box-draw-color ((self OMBoxAbstraction)) 
   (if (lost-reference? self) (om-make-color 1 0.6 0.5) (call-next-method)))
 
-(defmethod draw-patch-icon :after ((self OMBoxAbstraction))
+(defmethod draw-patch-icon :after ((self OMBoxAbstraction) &optional (offset-x 0) (offset-y 0))
   (when (lost-reference? self)
-    (let ((x1 8) (x2 (- 24 4))
-          (y1 10) (y2 (- 24 0)))
+    (let ((x1 (+ offset-x 8)) (x2 (+ offset-x (- 24 4)))
+          (y1 (+ offset-y 10)) (y2 (+ offset-y (- 24 0))))
       (om-with-fg-color (om-make-color-alpha (om-def-color :dark-red) .7)
         (om-with-line-size 3
           (om-draw-line x1 y1 x2 y2)

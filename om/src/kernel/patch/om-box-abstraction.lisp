@@ -186,10 +186,10 @@
 ;;; DISPLAY
 ;;;===================
 
-(defmethod draw-patch-icon ((self OMBoxAbstraction))
+(defmethod draw-patch-icon ((self OMBoxAbstraction) &optional (offset-x 0) (offset-y 0))
   (let* ((abs (reference self))
          (iconsize (if (is-persistant abs) 22 16)))
-    (om-draw-picture (icon abs) :x 4 :y 6 :w iconsize :h iconsize)
+    (om-draw-picture (icon abs) :x (+ 4 offset-x) :y (+ 6 offset-y) :w iconsize :h iconsize)
     ))
 
 (defmethod minimum-size ((self OMBoxAbstraction))

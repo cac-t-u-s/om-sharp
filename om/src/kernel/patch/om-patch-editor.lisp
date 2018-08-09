@@ -1271,82 +1271,100 @@
 (defmethod set-inspector-contents ((self inspector-view) object)
   
   (setf (object self) object)
-  (om-remove-all-subviews self) 
-       
-  (when object
-    (let ((inspector-layout
-           (om-make-layout
-            'om-column-layout
-            :subviews 
-            (append 
-             (list (om-make-di 'om-simple-text :size (om-make-point nil 20) 
-                              :text (if object
-                                        (object-name-in-inspector object)
-                                      "[no selection]")
-                              :focus t  ;; prevents focus on other items :)
-                              :font (om-def-font :font3b))
+  (om-remove-all-subviews self)        
+
+  (let ((inspector-layout
+         
+         (if object
+             
+             (om-make-layout
+              'om-column-layout
+              :subviews 
+              (append 
+               (cons 
+                (om-make-di 'om-simple-text :size (om-make-point nil 20) 
+                            :fg-color (om-def-color :dark-gray)
+                            :text (object-name-in-inspector object)
+                            :focus t  ;; prevents focus on other items :)
+                            :font (om-def-font :font3b))
                   
-                  (om-make-layout
-                   'om-grid-layout
-                   :delta '(10 0) :align nil
-                   :subviews 
-                   (if (get-properties-list object)
+                (when t ;object 
+                  (list 
+                   (om-make-layout
+                    'om-grid-layout
+                    :delta '(10 0) :align nil
+                    :subviews 
+                  
+                    (if (get-properties-list object)
                    
-                       ;;; ok
-                       (loop for category in (get-properties-list object)
-                             when (cdr category)
-                             append 
-                             (append 
-                              (list  ;     (car category)  ; (list (car category) (om-def-font :font1b))  ; :right-extend          
-                               (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)
-                               (om-make-di 'om-simple-text :text (car category) :font (om-def-font :font2b)
-                                           :size (om-make-point (+ 10 (om-string-size (car category) (om-def-font :font2b))) 20)
-                                           )
-                               )
-                              (loop for prop in (cdr category) append
-                                    (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font (om-def-font :font1)
-                                                      :size (om-make-point 90 20) :position (om-make-point 10 16))
-                                          (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop) 
-                                                          :update (get-update-frame object)
-                                                          )
-                                          ))
+                        ;;; ok
+                        (loop for category in (get-properties-list object)
+                              when (cdr category)
+                              append 
+                              (append 
+                               (list  ;     (car category)  ; (list (car category) (om-def-font :font1b))  ; :right-extend          
+                                (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)
+                                (om-make-di 'om-simple-text :text (car category) :font (om-def-font :font2b)
+                                            :size (om-make-point (+ 10 (om-string-size (car category) (om-def-font :font2b))) 20)
+                                            )
+                                )
+                               (loop for prop in (cdr category) append
+                                     (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font (om-def-font :font1)
+                                                       :size (om-make-point 90 20) :position (om-make-point 10 16))
+                                           (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop) 
+                                                           :update (get-update-frame object)
+                                                           )
+                                           ))
                           
-                              (list (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t) 
-                                    (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t))
+                               (list (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t) 
+                                     (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t))
+                               )
                               )
-                             )
                  
-                     ;;; object has no properties (unlikely)
-                     (list 
-                      (om-make-di 'om-simple-text :size (om-make-point 100 20) 
-                                  :text "[no properties]"
-                                  :font (om-def-font :font1)) 
-                      nil))
+                      ;;; object has no properties (unlikely)
+                      (list 
+                       (om-make-di 'om-simple-text :size (om-make-point 100 20) 
+                                   :text "[no properties]"
+                                   :font (om-def-font :font1)) 
+                       nil))
            
              
-                   ))
+                    ))))
              
-             (when (get-documentation object)
-               (list
+               (when (get-documentation object)
+                 (list
                 
                 ;(om-make-di 'om-simple-text :size (om-make-point nil 18) 
                 ;            :text "----------documentation"
                 ;            :font (om-def-font :font2)
                 ;            :fg-color (om-def-color :dark-gray))
-               :separator 
+                  :separator 
                 
-                (let ((doc (get-documentation object)))
-                  (om-make-di 'om-multi-text :size (om-make-point nil nil) ; (* 40 (length (string-lines-to-list doc))) 
-                              :text doc
-                              :font (om-def-font :font1)))
+                  (let ((doc (get-documentation object)))
+                    (om-make-di 'om-multi-text :size (om-make-point nil nil) ; (* 40 (length (string-lines-to-list doc))) 
+                                :text doc
+                                :font (om-def-font :font1)))
                   
-                ))
-            )
-            )))
+                  ))
+               )
+              )
+
+           ;;; else: no object
+           (om-make-layout
+            'om-simple-layout
+            :subviews 
+            (list 
+             (om-make-di 'om-simple-text :size (om-make-point 225 20) 
+                         :text "[no selection]"
+                         :fg-color (om-def-color :dark-gray)
+                         :focus t  ;; prevents focus on other items :)
+                         :font (om-def-font :font3b))
+             
+             )))
+         ))
     
-      (om-add-subviews self inspector-layout)
-      )
-    )
+    
+      (om-add-subviews self inspector-layout))
   
   (when (editor self)
     (om-update-layout (window (editor self))))
@@ -1420,7 +1438,7 @@
                  (list 
                   (om-make-graphic-object 
                    'om-icon-button :icon 'xx :icon-pushed 'xx-pushed
-                   :size (omp 16 16)
+                   :size (omp 12 12)
                    :action #'(lambda (b) (patch-editor-set-window-config editor nil))
                    )
                   nil))

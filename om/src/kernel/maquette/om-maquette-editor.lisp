@@ -511,9 +511,11 @@
 (defmethod draw-temporal-box ((self OMBox) view x y w h &optional (time 0))
   (let ((bgcolor (box-draw-color self)))
     (unless (om-color-null-p bgcolor)
-      (om-with-fg-color (if (> (om-color-a (color-color bgcolor)) 0.6)
-                            (om-make-color-alpha (color-color bgcolor) 0.6)
-                          (color-color bgcolor))
+      (om-with-fg-color (cond ((selected self)
+                               (om-make-color-alpha (color-color bgcolor) 1.0)) ;; 0.0 is also nice :)
+                              ((> (om-color-a (color-color bgcolor)) 0.6)
+                               (om-make-color-alpha (color-color bgcolor) 0.6))
+                              (t (color-color bgcolor)))
         (om-draw-rect x y w h :fill t))))
   (om-with-fg-color (om-def-color :white)
     (om-draw-rect x y w h :fill nil))
@@ -522,10 +524,12 @@
     
 (defmethod draw-temporal-box ((self OMBoxPatch) view x y w h &optional (time 0))
   (call-next-method)
+
   (case (display self)  
     (:mini-view 
-     (om-draw-picture (icon (reference self)) :x (+ x 4) :y (+ y 4) :w 18 :h 18)
      (draw-maquette-mini-view (reference self) self (+ x 20) y (- w 40) h time))
+    (:text 
+     (draw-values-as-text self x y))
     (:value 
      (let ((dur (or (get-obj-dur (get-box-value self)) (box-w self))))
        (om-with-clip-rect view x y w h
@@ -534,14 +538,13 @@
                                       (dx-to-dpix view dur)
                                     w)
                                   h time)
-         ;;; icon
-         (om-draw-picture (icon (reference self)) :x (+ x 4) :y (+ y 4) :w 18 :h 18)
+         (draw-mini-arrow (+ x 24) (+ y 9) 3 10 7 1)
          ;;; arrow
-         (let ((ax (+ x 16)))
-           (om-with-fg-color (om-make-color 1 1 1 0.7)
-             (om-draw-rect (+ ax 10) 8 8 6 :fill t)
-             (om-draw-polygon (list (+ ax 7) 13 (+ ax 21) 13 (+ ax 14) 19) :fill t)
-             ))
+         ;(let ((ax (+ x 16)))
+         ;  (om-with-fg-color (om-make-color 1 1 1 0.7)
+         ;    (om-draw-rect (+ ax 10) 8 8 6 :fill t)
+         ;    (om-draw-polygon (list (+ ax 7) 13 (+ ax 21) 13 (+ ax 14) 19) :fill t)
+         ;    ))
          )))
     (:hidden  (om-with-font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))
                             (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
@@ -549,6 +552,7 @@
     
     )
   
+  (draw-patch-icon self x y)
   (draw-eval-buttons view self x y x 12)
 
   (when (find-if 'reactive (outputs self))
@@ -966,7 +970,15 @@
                                   (get-g-component editor :bottom-view))))
                 ;;; RIGHT (INSPECTOR)
                 (when  (equal (editor-window-config editor) :inspector)
-                  (list :divider inspector-pane))
+                  (list :divider 
+                        (om-make-layout 
+                         'om-column-layout :delta nil :ratios '(nil 1) :align :right
+                         :subviews (list (om-make-graphic-object 
+                                          'om-icon-button :icon 'xx :icon-pushed 'xx-pushed
+                                          :size (omp 12 12)
+                                          :action #'(lambda (b) (patch-editor-set-window-config editor nil))
+                                          )
+                                         inspector-pane))))
                 ))
     ))
 

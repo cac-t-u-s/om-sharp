@@ -58,39 +58,17 @@
   
   (when (> (h frame) 36)
     (case (display self)
+      
       (:mini-view 
        (draw-mini-view (reference self) self 10 0 (- (w frame) 20) (h frame) nil))
+      
+      (:text 
+       (draw-values-as-text self 0 0))
+      
       (:value 
-       ;;; arrow
-       (let ((ax 6) (ay 9)
-             (b 3) (w 6) (h 4))
-         (om-with-fg-color (om-make-color 1 1 1)
-           (om-draw-polygon (list 
-                             (+ ax b) ay 
-                             (+ ax b w) ay 
-                             (+ ax b w) (+ ay h)
-                             (+ ax b w b) (+ ay h) 
-                             (+ ax b (/ w 2)) (+ ay h 5) 
-                             ax (+ ay h)
-                             (+ ax b) (+ ay h))
-                            :fill t))
-         (om-with-fg-color (om-make-color .1 .1 .1)
-           (om-draw-polygon (list 
-                             (+ ax b) ay 
-                             (+ ax b w) ay 
-                             (+ ax b w) (+ ay h)
-                             (+ ax b w b) (+ ay h) 
-                             (+ ax b (/ w 2)) (+ ay h 5) 
-                             ax (+ ay h)
-                             (+ ax b) (+ ay h))
-                            :fill nil))
-         )
-         (om-with-fg-color (om-def-color :gray)
-           (om-with-font (om-def-font :font1b)
-                         (om-draw-string 24 18 "VALUES")
-                         (loop for v in (value self) for y = 32 then (+ y 12) do 
-                               (om-draw-string 26 y  (format nil "- ~A" v)))
-                         )))
+       (draw-mini-view (get-box-value self) self 0 0 (- (w frame) 20) (- (h frame) 8) nil)
+       (draw-mini-arrow 24 9 3 10 7 1))
+      
       (otherwise 
        (om-with-font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))
                      (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
@@ -107,7 +85,7 @@
          
 |#
 
-(defmethod display-modes-for-object ((self OMPatch)) '(:hidden :value :mini-view))
+(defmethod display-modes-for-object ((self OMPatch)) '(:hidden :mini-view :value :text))
 (defmethod object-for-miniview ((self OMBoxPatch)) (reference self))
 
 ;;; from inspector
@@ -127,6 +105,45 @@
 (defmethod set-display ((self OMBoxPatch) val)
   (reset-cache-display self)
   (call-next-method))
+
+
+(defun draw-mini-arrow (ax ay b w h i) 
+  (om-with-fg-color (om-make-color 1 1 1)
+    (om-draw-polygon (list 
+                      (+ ax b) ay 
+                      (+ ax b w) ay 
+                      (+ ax b w) (+ ay h)
+                      (+ ax b w b) (+ ay h) 
+                      (+ ax b (/ w 2)) (+ ay h 5) 
+                      ax (+ ay h)
+                      (+ ax b) (+ ay h))
+                     :fill t))
+  (om-with-fg-color (om-make-color .5 .5 .5)
+    (om-draw-polygon (list 
+                      (+ ax b) ay 
+                      (+ ax b w) ay 
+                      (+ ax b w) (+ ay h)
+                      (+ ax b w b) (+ ay h) 
+                      (+ ax b (/ w 2)) (+ ay h 5) 
+                      ax (+ ay h)
+                      (+ ax b) (+ ay h))
+                     :fill nil))
+   
+   (om-draw-string  (+ ax 5) (+ ay 9) (format nil "~D" i) :font (om-def-font :font1b) :color (om-make-color .5 .5 .5))
+   
+   )
+
+(defmethod draw-values-as-text ((self OMBox) &optional (offset-x 0) (offset-y 0))
+  (om-with-fg-color (om-def-color :gray)
+    (om-with-font (om-def-font :font1b)
+                         ;(om-draw-string 40 18 "values:")
+                  (loop for v in (or (value self) (make-list (length (outputs self)))) 
+                        for y = (+ offset-y 18) then (+ y 16) 
+                        for i = 1 then (+ 1 i) do 
+                        (draw-mini-arrow (+ offset-x 24) (- y 9) 3 10 7 i)
+                        (om-draw-string (+ offset-x 45) y (format nil "~A" v)))
+                  ))
+  )
 
 (defmethod draw-mini-view ((self OMPatch) box x y w h &optional time)
   (flet 
