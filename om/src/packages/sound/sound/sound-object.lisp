@@ -561,13 +561,25 @@ Press 'space' to play/stop the sound file.
           (list (list :buffer (buffer object)))))
 
 (defmethod draw-mini-view ((self sound) (box t) x y w h &optional time) 
-  (let ((pict (get-display-draw box)))
-    (when pict
-      (if (equal pict :error)
-          (om-with-fg-color (om-def-color :orange)
-            (om-with-font (om-def-font :font2b)
-                          (om-draw-string (+ x 10) (+ y 14) "ERROR LOADING FILE" :wrap (box-w box))))
-        (om-draw-picture pict :x x :y (+ y 4) :w w :h (- h 8))))
+  (let ((pict (ensure-cache-display-draw box self)))
+    
+    (cond 
+     ((equal pict :error)
+      (om-with-fg-color (om-def-color :dark-red)
+        (om-with-font (om-def-font :font2b)
+                      (om-draw-string (+ x 10) (+ y 34) "ERROR LOADING SOUND FILE" :wrap (- (box-w box) 20)))
+        (when (file-pathname self)
+          (om-with-font (om-def-font :font1)
+                        (om-draw-string (+ x 10) (+ 34 20) (namestring (file-pathname self)) :wrap (- (box-w box) 20))))
+        ))
+     
+     (pict 
+      (om-draw-picture pict :x x :y (+ y 4) :w w :h (- h 8)))
+          
+     (t 
+      (om-draw-string (+ x 10) (+ y 34) "NO SOUND !" :color (om-def-color :white) :font (om-def-font :font2b)))
+     )
+    
     (when (markers self)
       (let ((fact (/ w (get-obj-dur self))))
         (loop for mrk in (markers-time self) do
@@ -648,11 +660,13 @@ Press 'space' to play/stop the sound file.
   (call-next-method))
 
 (defmethod player-stop-object ((self scheduler) (object sound))
-  (if (buffer-player object) (stop-buffer-player (buffer-player object)))
+  (when (buffer-player object) 
+    (stop-buffer-player (buffer-player object)))
   (call-next-method))
 
 (defmethod player-pause-object ((self scheduler) (object sound))
-  (pause-buffer-player (buffer-player object))
+  (when (buffer-player object) 
+    (pause-buffer-player (buffer-player object)))
   (call-next-method))
 
 (defmethod player-continue-object ((self scheduler) (object sound))
