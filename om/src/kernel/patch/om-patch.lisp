@@ -155,6 +155,15 @@
 ;  (mapcar 'update-from-editor (references-to self))
 ;  (touch self))
 
+;;;==========================================
+;;; META: TOOLS FOR MAQUETTE ETC.
+;;;==========================================
+
+(defmethod* get-boxes ((self OMPatch))
+  (boxes self))
+
+(defmethod* get-box-values ((self OMPatch))
+  (loop for b in (boxes self) collect (get-box-value b)))
 
 
 

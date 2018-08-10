@@ -49,7 +49,13 @@
                          (omNG-make-package "Reactive" 
                                             :doc "Special boxes for reactive patches"
                                             :functions '(send receive route timed-coll)
-                                            )))))
+                                            )
+                         (omNG-make-package "Meta" 
+                                            :doc "Visual program / maquette manipulation"
+                                            :functions '(get-boxes m-add m-remove m-move m-objects m-flush)
+                                            :special-symbols '(mybox mymaquette)
+                                            )
+                         ))))
   ;(add-ref-section (gen-ref-entries kernelpack))
   )
 
