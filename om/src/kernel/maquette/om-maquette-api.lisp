@@ -100,8 +100,8 @@
   (get-obj-time self))
 
 (defmethod m-objects ((self OMMaquette) &key (sorted t) (track nil))
-  (if tracknum 
-      (get-track-objects  self tracknum :sorted sorted)
+  (if track 
+      (get-track-objects self track :sorted sorted)
     (get-all-objects self :sorted sorted)))
 
 (defmethod m-flush ((self ommaquette) &key (track nil))
