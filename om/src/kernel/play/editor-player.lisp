@@ -280,6 +280,7 @@
              (call-next-method) ;; if the interval is already reset: check if there is another 'escape' to do
            (editor-reset-interval self)))
      (editor-stop self)
+     (call-next-method)
      t)
     (otherwise (call-next-method))
     ))
