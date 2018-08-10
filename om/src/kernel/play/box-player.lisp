@@ -44,13 +44,24 @@
 (add-om-init-fun 'init-om-player)
 
 
-(defmethod get-obj-to-play ((self ombox)) (play-obj-from-value (car (value self)) self))
-(defmethod play-obj-from-value (value box) value)
+(defmethod get-obj-to-play ((self ombox)) 
+  (play-obj-from-value (car (value self)) self))
+
+(defmethod play-obj-from-value (val box) val)
+
+
+;;; when the value of a box is another box...
+(defmethod play-obj-from-value ((val ombox) box) 
+  (play-obj-from-value (car (value val)) val))
+
 (defmethod play-box? ((self t)) nil)
 (defmethod play-box? ((self OMBoxEditCall)) t)
 (defmethod play-obj? ((self t)) nil)
 (defmethod get-obj-dur ((self t)) nil)
 (defmethod get-obj-dur ((self null)) nil)
+
+(defmethod get-obj-dur ((self ombox)) 
+  (get-obj-dur (get-obj-to-play self)))
 
 (defmethod additional-player-params ((self omboxeditcall))
   (list :port (get-edit-param self :outport)
@@ -65,7 +76,7 @@
                             ;(om-kill-process (callback-process *general-player*))
                             (abort e))))
     (let* ((frame (frame self)))
-      (setf (box-play-time frame) time)  ; (- time (play-state box))))
+      (set-box-play-time frame time)  ; (- time (play-state box))))
       (om-invalidate-view frame))
     ))
 
@@ -78,7 +89,7 @@
 (defmethod stop-box-callback ((self OMBox))
   (setf (play-state self) nil)
   (when (frame self) 
-      (setf (box-play-time (frame self)) 0)
+      (set-box-play-time (frame self) 0)
       (om-invalidate-view (frame self))))
 
 
@@ -115,7 +126,7 @@
 (defmethod play-boxes ((boxlist list))
   (let ((list2play (remove-if-not 'play-box? boxlist)))
     (mapcar #'(lambda (box)
-                (when (play-obj? (car (value box)))
+                (when (play-obj? (get-obj-to-play box))
                   (player-play-object *general-player* (get-obj-to-play box) box)
                   (box-player-start box)
                   (push box *play-boxes*)
@@ -129,8 +140,8 @@
 
 (defmethod stop-boxes ((boxlist list))
   (mapc #'(lambda (box)
-            (when (play-obj? (car (value box)))
-              (player-stop-object *general-player* (car (value box)))
+            (when (play-obj? (get-obj-to-play box))
+              (player-stop-object *general-player* (get-obj-to-play box))
               ;;; ABORT THE OBJECT !!
               (box-player-stop box)
               (setf *play-boxes* (remove box *play-boxes*))

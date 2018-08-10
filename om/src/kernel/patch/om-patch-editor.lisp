@@ -73,6 +73,7 @@
 (defmethod init-editor-window ((editor patch-editor))
   (call-next-method)
   (put-patch-boxes-in-editor-view (object editor) (main-view editor)) 
+  (update-inspector-for-editor editor)
   (add-lock-item editor (main-view editor))
   (update-window-name editor))
 
@@ -209,8 +210,13 @@
 
 ;;; will be passed to the Help menus
 (defmethod get-selection-for-menu ((self patch-editor))
-  (remove-duplicates (mapcar 'reference (get-selected-boxes self))))
+  (remove-duplicates 
+   (mapcar 
+    #'(lambda (b) (box-symbol (reference b)))
+    (get-selected-boxes self))
+   ))
 
+(defmethod box-symbol ((self t)) self)
 
 (defmethod get-boxframes ((self patch-editor-view) &key only-selected)
   (let ((frames (remove-if-not #'(lambda (item) (subtypep (type-of item) 'omframe)) (om-subviews self))))

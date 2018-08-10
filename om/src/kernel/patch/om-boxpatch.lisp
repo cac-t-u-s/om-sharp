@@ -66,7 +66,10 @@
        (draw-values-as-text self 0 0))
       
       (:value 
-       (draw-mini-view (get-box-value self) self 0 0 (- (w frame) 20) (- (h frame) 8) nil)
+       
+       (draw-mini-view (get-box-value self) 
+                       self 4 4 (- (w frame) 8) (- (h frame) 12) nil)
+       
        (draw-mini-arrow 24 9 3 10 7 1))
       
       (otherwise 
@@ -79,14 +82,34 @@
   (draw-patch-icon self)
   t)
 
-#|
-         ;;; icon
-         (om-draw-picture (icon (reference self)) :x (+ x 4) :y (+ y 4) :w 18 :h 18)
-         
-|#
+;;;========================
+;;; when the value is a box:
+;;;========================
+
+(defmethod draw-mini-view ((object OMBoxEditCall) (box OMBox) x y w h &optional time) 
+  (om-draw-rect (+ x 2) (+ y 4) (- w 4) (- h 16) :fill t :color (om-def-color :white))
+  ;(om-draw-rect (+ x 2) (+ y 4) (- w 4) (- h 16) :fill nil :color (om-def-color :dark-gray) :line 1.5)
+  (draw-mini-view (get-box-value object) box (+ x 8) (+ y 4) (- w 12) (- h 16) nil))
+
+(defmethod draw-maquette-mini-view ((object OMBoxEditCall) (box OMBox) x y w h &optional time)
+  (om-draw-rect (+ x 2) (+ y 4) (- w 4) (- h 16) :fill t :color (om-def-color :white))
+  (draw-maquette-mini-view (get-box-value object) box (+ x 8) (+ y 4) (- w 12) (- h 16) nil))
+
+
 
 (defmethod display-modes-for-object ((self OMPatch)) '(:hidden :mini-view :value :text))
 (defmethod object-for-miniview ((self OMBoxPatch)) (reference self))
+
+;;; to draw the mini-view...
+(defmethod get-edit-param ((self OMBoxPatch) param)
+  (get-patch-value-edit-param (get-box-value self) param))
+
+(defmethod get-patch-value-edit-param ((self t) param)
+  (find-value-in-kv-list (object-default-edition-params self) param))
+
+(defmethod get-patch-value-edit-param ((self object-with-edit-params) param)
+  (get-edit-param self param))
+
 
 ;;; from inspector
 (defmethod set-property ((object OMBoxPatch) (prop-id (eql :display)) val)

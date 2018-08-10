@@ -39,7 +39,7 @@
 
 
 ;;; for the moment we do not allow object boxes in lambda mode
-(defmethod valid-property-p ((self OMBoxRelatedWClass) (prop-id (eql :lambda))) nil)
+(defmethod valid-property-p ((self OMBoxRelatedWClass) (prop-id (eql :lambda))) t)
 (defmethod eval-modes-for-box ((self OMBoxRelatedWClass)) '(nil :reference :box))
 
 (defmethod box-def-self-in ((self t)) NIL)
@@ -423,6 +423,7 @@
 
 (defmethod object-default-edition-params ((self t)) nil)
 
+
 (defmethod get-default-edit-param ((self OMBoxEditCall) param)
   (let ((val (or (car (value self)) (make-instance (reference self)))))
     (find-value-in-kv-list (object-default-edition-params val) param)))
@@ -443,7 +444,7 @@
 (defmethod get-properties-list ((self OMBoxEditCall))
   (let ((properties 
          (append 
-          (hide-property (call-next-method) '(:icon :align :lambda))
+          (hide-property (call-next-method) '(:icon :align))
           )))
     (add-properties properties "Appearance" 
                     (append 
@@ -467,6 +468,9 @@
     (let ((next-mode (next-in-list (display-modes-for-object (car (value self)))
                                    (display self))))
       (set-display self next-mode))))
+
+(defmethod set-box-play-time ((self OMObjectBoxFrame) time) (setf (box-play-time self) time))
+(defmethod set-box-play-time ((self t) time) nil)
 
 
 ;;; redefine when default init value is different

@@ -106,7 +106,8 @@ All boxes which their reference is a OM generic function are instances of this c
     ))
   
 (defmethod switch-lambda-mode ((box OMBoxCall)) 
-  (when (valid-property-p box :lambda)
+  (when (and (valid-property-p box :lambda)
+             (member :lambda (eval-modes-for-box box)))
     (set-lambda box (if (lambda-state box) nil :lambda))
     (update-after-change-mode box)
     ))

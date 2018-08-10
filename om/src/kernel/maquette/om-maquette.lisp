@@ -101,6 +101,7 @@
 ;;; the box has changed, it must be updated (depending on its context)
 ;;; for convenience we do not allow the box being smaller than 100ms
 (defmethod contextual-update ((self OMBox) (container ommaquette))
+  (set-object-onset (get-box-value self) (box-x self))
   (let ((duration (get-obj-dur (get-box-value self))))
     (when duration 
       ;;; (max 100 (or (get-obj-dur (get-box-value self)) *temporalbox-def-w*))
@@ -127,6 +128,7 @@
   ; (set-meta-inputs (ctrlpatch maq) (car (references-to maq)) maq)
   (mapcar 'eval-box (get-boxes-of-type (ctrlpatch maq) 'omoutbox))
   
+  (clear-ev-once maq)
   ;(compile-patch (ctrlpatch maq))
   ;(apply (intern (string (compiled-fun-name (ctrlpatch maq))) :om) `(,maq))
   )
@@ -180,7 +182,9 @@
                                         (min (- (cadr time-interval) (get-box-onset box)) (get-box-duration box)))))
                (mapcar 
                 #'(lambda (b) (incf (car b) (get-box-onset box)) b)
-                (get-action-list-for-play (get-box-value box) interval-in-object self)))))
+                (get-action-list-for-play  
+                 (play-obj-from-value (get-box-value box) box)
+                 interval-in-object self)))))
    '< :key 'car))
 
 (defmethod set-object-time ((self ommaquette) time)

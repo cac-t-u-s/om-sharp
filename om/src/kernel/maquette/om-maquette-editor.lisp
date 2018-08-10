@@ -617,6 +617,9 @@
          (move-editor-selection editor :dy (if (om-shift-key-p) -10 -1))
          (om-invalidate-view (main-view editor))
          (report-modifications editor)))
+      
+      (:om-key-esc
+       (select-unselect-all editor nil))
 
       (#\v (with-schedulable-object maquette
                                     (loop for tb in (get-selected-boxes editor) do 
@@ -700,7 +703,7 @@
   "translates elements from a time marker with dt"
   (when (get-box-value self)
     (with-schedulable-object (container self)
-                             (translate-elements-from-time-marker (get-box-value self) elems dt))
+                             (translate-elements-from-time-marker (get-obj-to-play self) elems dt))
     (reset-cache-display self)
     (contextual-update self (container self))))
 
@@ -714,39 +717,6 @@
   (when (and (get-box-value self) (show-markers self))
     (get-time-markers (get-box-value self))))
 
-
-
-;;;========================
-;;; PLAYER
-;;;========================
-
-(defmethod play-editor-callback ((self maquette-editor) time)
-  (let ((t-auto (get-tempo-automation self)))
-    (set-time-display self time)
-    (mapcar #'(lambda (view) (when view (update-cursor view time))) (cursor-panes self))
-    ;(if (not (getf (beat-info self) :next-date))
-    ;    (setf (getf (beat-info self) :next-date) (get-beat-date t-auto (getf (beat-info self) :beat-count))))
-    ;(loop while (>= time (getf (beat-info self) :next-date))
-    ;      do
-    ;      (om-set-dialog-item-text (cadr (om-subviews (tempo-box self))) (format nil "~$" (tempo-at-beat t-auto (getf (beat-info self) :beat-count))))
-    ;      (incf (getf (beat-info self) :beat-count) 0.1)
-    ;      (setf (getf (beat-info self) :next-date) (get-beat-date t-auto (getf (beat-info self) :beat-count))))
-    ))
-
-(defmethod stop-editor-callback ((self maquette-editor))
-  (setf (getf (beat-info self) :beat-count) 0
-        (getf (beat-info self) :next-date) nil)
-  (when (tempo-box self)
-    (om-set-dialog-item-text (cadr (om-subviews (tempo-box self))) (format nil "~$" (tempo-at-beat (get-tempo-automation self) 0))))
-  (call-next-method))
-
-
-(defmethod get-interval-to-play ((self maquette-editor))
-  (let ((sb (get-selected-boxes self)))
-    (if sb
-        (list (reduce 'min sb :key 'get-box-onset)
-              (reduce 'max sb :key 'get-box-end-date))
-      (call-next-method))))
 
 
 ;;;========================
@@ -1187,6 +1157,38 @@
   (player-stop-object (player self) (metronome self))
   (call-next-method))
 
+
+;;;========================
+;;; PLAYER
+;;;========================
+
+(defmethod play-editor-callback ((self maquette-editor) time)
+  (let ((t-auto (get-tempo-automation self)))
+    (set-time-display self time)
+    (mapcar #'(lambda (view) (when view (update-cursor view time))) (cursor-panes self))
+    ;(if (not (getf (beat-info self) :next-date))
+    ;    (setf (getf (beat-info self) :next-date) (get-beat-date t-auto (getf (beat-info self) :beat-count))))
+    ;(loop while (>= time (getf (beat-info self) :next-date))
+    ;      do
+    ;      (om-set-dialog-item-text (cadr (om-subviews (tempo-box self))) (format nil "~$" (tempo-at-beat t-auto (getf (beat-info self) :beat-count))))
+    ;      (incf (getf (beat-info self) :beat-count) 0.1)
+    ;      (setf (getf (beat-info self) :next-date) (get-beat-date t-auto (getf (beat-info self) :beat-count))))
+    ))
+
+(defmethod stop-editor-callback ((self maquette-editor))
+  (setf (getf (beat-info self) :beat-count) 0
+        (getf (beat-info self) :next-date) nil)
+  (when (tempo-box self)
+    (om-set-dialog-item-text (cadr (om-subviews (tempo-box self))) (format nil "~$" (tempo-at-beat (get-tempo-automation self) 0))))
+  (call-next-method))
+
+
+(defmethod get-interval-to-play ((self maquette-editor))
+  (let ((sb (get-selected-boxes self)))
+    (if sb
+        (list (reduce 'min sb :key 'get-box-onset)
+              (reduce 'max sb :key 'get-box-end-date))
+      (call-next-method))))
 
 
 

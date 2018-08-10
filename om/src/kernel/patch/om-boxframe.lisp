@@ -121,15 +121,27 @@
 (defparameter +inactive-r+ 2.5)
 
 (defmethod om-draw-area ((area io-area))
+  
   (let ((p (get-position area))
         (r (if (and (active area)
                     (not (edit-lock (editor (om-view-container (frame area))))))
                +active-r+ +inactive-r+)))
+
     (when (reactive (object area))
-      (om-with-fg-color (om-def-color :dark-red)
-        (om-draw-circle (om-point-x p) (om-point-y p) (1+ r) :fill t)))
-    (om-with-fg-color (io-color (object area))
-      (om-draw-circle (om-point-x p) (om-point-y p) r :fill t))))
+      (om-draw-circle (om-point-x p) (om-point-y p) (1+ r) :fill t :color (om-def-color :dark-red)))
+
+    (om-draw-circle (om-point-x p) (om-point-y p) r :fill t 
+                    :color (io-color (object area)))
+    ))
+
+(defmethod om-draw-area ((area input-area))
+  (call-next-method)
+  (when (equal :reference (lambda-state (object (frame area))))
+    (let ((p (get-position area)))
+      (om-draw-circle (om-point-x p) (om-point-y p) +inactive-r+ :fill t 
+                      :color (om-def-color :light-gray))
+      )))
+
 
 ;;;=============================
 ;;; BOX I/O EDITS
