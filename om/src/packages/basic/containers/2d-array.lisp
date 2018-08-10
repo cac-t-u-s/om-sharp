@@ -51,7 +51,7 @@
 (defmethod display-modes-for-object ((self OMArray)) '(:hidden :text :mini-view))
 
 (defmethod draw-mini-view ((self OMArray) (box t) x y w h &optional time)
-  (let* ((display-cache (get-display-draw box))
+  (let* ((display-cache (ensure-cache-display-draw box self))
          (font (om-def-font :font1 :size 10))
          (n-lines (length (data self)))
          (inter-line 3)
@@ -65,7 +65,8 @@
       (loop for n from 0 to (1- n-lines)
             for yy = v-margin then (+ yy line-h inter-line) do
             (om-draw-rect h-margin yy line-w line-h :color (om-def-color :white) :fill t)
-            (om-draw-string (- line-w (om-string-size (get-field-name self n) font)) (+ yy 10) (get-field-name self n) 
+            (om-draw-string (+ x (- line-w (om-string-size (get-field-name self n) font)))
+                            (+ yy 10) (get-field-name self n) 
                             :font font :color (om-make-color .6 .6 .7))
             (draw-field-on-box self (nth n (data self)) h-margin yy line-w line-h)
       ))))
@@ -235,7 +236,7 @@
 (defmethod om-load-from-id ((id (eql :array-field)) data)
   (make-array-field :name (find-value-in-kv-list data :name) 
                     :doc (find-value-in-kv-list data :doc)
-                    :type (find-value-in-kv-list data :type)
+                    :type (omng-load (find-value-in-kv-list data :type))
                     :decimals (find-value-in-kv-list data :decimals)
                     :default (omng-load (find-value-in-kv-list data :default))
                     :data (omng-load (find-value-in-kv-list data :data))))
