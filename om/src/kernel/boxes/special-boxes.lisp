@@ -32,7 +32,7 @@
 
 (defmethod* seq  ((op t) &rest op+) :numouts 1 
    :initvals '(nil) :indoc '("something to do" "something else to do")
-   :icon 161
+   :icon 'seq
    :doc "Evaluates sequentially a series of values, functions or subpatches.
 
 Accepts many optional inputs as needed. 
@@ -51,6 +51,7 @@ Mind using this box in 'eval-once' mode when connected to several other boxes."
 (defmethod special-box-p ((name (eql 'sequence))) t)
 (defmethod omNG-make-special-box ((reference (eql 'sequence)) pos &optional init-args)
   (omNG-make-new-boxcall (fdefinition 'seq) pos init-args))
+
 
 (defmethod add-optional-input ((self OMBoxSeqCall) &key name (value nil val-supplied-p) doc reactive)
   (declare (ignore value doc reactive))
