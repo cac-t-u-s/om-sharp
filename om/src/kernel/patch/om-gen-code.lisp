@@ -129,19 +129,48 @@
  
 
 (defmethod gen-code-locked ((self OMBoxCall) numout) 
-  (gen-code (nth numout (value self))))
+   
+  (case (lambda-state self)
+    
+    (:reference `',(reference self))
+    
+    (:box `,self)
+ 
+    (otherwise 
+     (gen-code (nth numout (value self))))
+    
+    ))
 
 (defmethod gen-code-locked ((self OMBoxRelatedWClass) numout) 
+
+  (if (lambda-state self) ;; :box or :reference
+      
+      (call-next-method)
+
   (if (or (null numout) (= 0 numout))
       (gen-code (car (value self)))
-    `(get-slot-val ,(gen-code (car (value self))) ,(name (nth numout (outputs self))))))
+    `(get-slot-val ,(gen-code (car (value self))) ,(name (nth numout (outputs self)))))))
 
 
 ;;; NOT LOCKED / FIRST EVAL-ONCE
 (defmethod gen-code-for-eval ((self OMBoxCall) &optional numout)
+  
   (case (lambda-state self)
+    
     (:reference `',(reference self))
-    (:box `,self)
+    
+    (:box 
+    
+     (let ((value nil))
+       
+       (setf (lambda-state self) nil)
+       (setf value `(list .,(multiple-value-list (gen-code self))))
+       (setf (lambda-state self) :box)
+       
+       `(progn (setf (value ,self) ,value) ,self))
+
+     )
+    
     (:lambda ;(if (or (null numout)  ;;; we are iside a let / ev-once statement : return all as 'values'
              ;        (= (length (outputs self)) 1)) ;;  single output (to simplify the code)
              ;    `,(gen-code-lambda self)
@@ -156,8 +185,10 @@
     ))
 
 (defmethod gen-code-for-eval ((self OMBoxRelatedWClass) &optional numout)
-  (if (lambda-state self) 
+
+  (if (lambda-state self) ;; :box or :reference
       (call-next-method)
+  
     (if (or (null numout)  ;;; we are inside a let / ev-once statement : return all as 'values'
             (= numout 0))  ;;  first output
         `,(gen-code-for-call self)

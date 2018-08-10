@@ -261,12 +261,19 @@
                                 (sleep .5)
                                 (om-abort))))))
 
-    ; (print (list (lock-state self) (lambda-state self) (ev-once-flag self)))
+    ;(print (list (lock-state self) (lambda-state self) (ev-once-flag self)))
 
     (cond
      
      ((equal (lambda-state self) :reference) (box-reference-value self))
-     ((equal (lambda-state self) :box) self)
+     
+     ((equal (lambda-state self) :box) 
+      
+      ;;; reevaluate normal then return the box
+      (setf (lambda-state self) nil)
+      (omng-box-value self numout)
+      (setf (lambda-state self) :box)
+      self)
      
      ((and (equal (lock-state self) :locked) (value self)) 
       (return-value self numout))
