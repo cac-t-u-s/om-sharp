@@ -34,9 +34,11 @@
   ((it-var :initform (gentemp "IT-") :accessor it-var)
    (it-value :initform nil :accessor it-value)))
 
+
 (defclass OMPatchLoopBox (OMPatchComponentBox) ())
 
 (defmethod get-box-class ((self OMPatchLoop)) 'OMPatchLoopBox)
+(defmethod box-symbol ((self OMPatchLoop)) 'loop)
 
 (defmethod get-icon-id ((self OMPatchLoopBox)) 'm-iter)
 (defmethod get-icon-size ((self OMPatchLoopBox)) 20)
@@ -231,6 +233,8 @@
 
 (defmethod special-box-p ((name (eql 'iterate))) t)
 (defmethod get-box-class ((self OMPatchIterator)) 'OMPatchIteratorBox)
+(defmethod box-symbol ((self OMPatchIterator)) 'iterate)
+
 
 (defmethod get-ev-once-flag ((self OMPatchIteratorBox)) (list self (n-iter (reference self))))
 

@@ -31,6 +31,8 @@
 
 (defmethod special-box-p ((name (eql 'init-do))) t)
 (defmethod get-box-class ((self OMPatchInit)) 'OMPatchInitBox)
+(defmethod box-symbol ((self OMPatchInit)) 'init-do)
+
 
 (defmethod get-icon-id ((self OMPatchInitBox)) 'm-play)
 

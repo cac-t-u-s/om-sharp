@@ -48,6 +48,8 @@
 (defclass OMMemoryBox (OMPatchComponentBox) ())
 
 (defmethod get-box-class ((self OMMemory)) 'OMMemoryBox)
+(defmethod box-symbol ((self OMMemory)) 'mem)
+
 
 (defmethod get-icon-id ((self OMMemoryBox)) 'm-mem)
 (defmethod object-name-in-inspector ((self OMMemoryBox)) "memory/delay box")
@@ -168,9 +170,12 @@
 (defclass OMCollectBox (OMPatchComponentBox) ())
 
 (defmethod get-box-class ((self OMCollect)) 'OMCollectBox)
+(defmethod box-symbol ((self OMCollect)) 'collect)
 
 (defmethod get-icon-id ((self OMCollectBox)) 'm-mem)
 (defmethod object-name-in-inspector ((self OMCollectBox)) "collector box")
+
+
 
 (defmethod omNG-make-special-box ((reference (eql 'collect)) pos &optional init-args)
   (let ((name (car (list! init-args))))

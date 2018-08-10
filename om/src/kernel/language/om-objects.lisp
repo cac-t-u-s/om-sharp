@@ -136,6 +136,8 @@
 
 (defmethod default-compiled-gensym  ((self OMProgrammingObject)) (gensym "om-"))
 
+(defmethod box-symbol ((self OMProgrammingObject)) nil)
+
 (defmethod set-name ((self OMProgrammingObject) name)
   (call-next-method)
   (when (editor self) (update-window-name (editor self)))

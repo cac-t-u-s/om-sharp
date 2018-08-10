@@ -39,6 +39,8 @@
 (defmethod get-icon-id ((self OMRepeatNBoxCall)) 'repeat)
 (defmethod object-name-in-inspector ((self OMRepeatNBoxCall)) "repeat-n box")
 
+(defmethod box-symbol ((self Repeater)) 'repeat-n)
+
 (defmethod omNG-make-special-box ((reference (eql 'repeat-n)) pos &optional init-args)
   (omNG-make-new-boxcall 
    (make-instance 'Repeater :name "repeat-n" 

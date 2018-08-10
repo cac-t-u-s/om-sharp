@@ -85,6 +85,8 @@
 
 (defmethod special-box-p ((name (eql 'mymaquette))) t)
 (defmethod get-box-class ((self OMMaqIn)) 'OMMaqInBox)
+(defmethod box-symbol ((self OMMaqIn)) 'mymaquette)
+
 
 (defmethod related-patchbox-slot ((self OMMaqInBox)) nil)
 (defmethod allow-text-input ((self OMMaqInBox)) nil)
