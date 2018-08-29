@@ -51,6 +51,7 @@
           om-copy-command
           om-cut-command
           om-paste-command
+          om-select-all-command
 
           om-end-text-edit
           om-text-edit-view
@@ -490,6 +491,9 @@
 
 (defmethod om-cut-command ((self om-editable-text))
   (capi::text-input-pane-cut self))
+
+(defmethod om-select-all-command ((self om-editable-text))
+  (capi::set-text-input-pane-selection self 0 (length (capi::text-input-pane-text self))))
 
 (defmethod om-set-text-focus ((self om-editable-text) &optional select-contents)
   (om-set-focus self)

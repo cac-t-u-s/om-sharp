@@ -573,6 +573,14 @@
   #'(lambda () (remove-selection self)))
 
 (defmethod select-all-command ((self patch-editor))
+  #'(lambda () 
+      (let ((focus (or (om-get-subview-with-focus (window self))
+                       (main-view self))))
+        (when focus ;;; can be the main view or a text-input field for instance
+          (select-all-command-for-view self focus)
+          ))))
+
+(defmethod select-all-command-for-view ((self patch-editor) (view t))
   #'(lambda () (select-unselect-all self t)))
 
 
@@ -645,11 +653,15 @@
 (defmethod paste-command-for-view ((editor patch-editor) (view om-editable-text))
   (if (edit-lock editor) (om-beep) (om-paste-command view)))
 
+(defmethod select-all-command-for-view ((editor patch-editor) (view om-editable-text))
+  (om-select-all-command view))
+
+
 
 ;;; called from menu
 (defmethod copy-command ((self patch-editor))
   #'(lambda () 
-      (let ((focus (or (om-get-subview-with-focus (main-view self))
+      (let ((focus (or (om-get-subview-with-focus (window self))
                        (main-view self))))
         (when focus ;;; can be the main view or a text-input field for instance
           (copy-command-for-view self focus)
@@ -658,7 +670,7 @@
 ;;; called from menu
 (defmethod cut-command ((self patch-editor))
   #'(lambda () 
-      (let ((focus (or (om-get-subview-with-focus (main-view self))
+      (let ((focus (or (om-get-subview-with-focus (window self))
                        (main-view self))))
         (when focus ;;; can be the main view or a text-input field for instance
             (cut-command-for-view self focus)
@@ -666,7 +678,7 @@
 
 (defmethod paste-command ((self patch-editor))
   #'(lambda () 
-      (let ((focus (or (om-get-subview-with-focus (main-view self))
+      (let ((focus (or (om-get-subview-with-focus (window self))
                        (main-view self))))
         (when focus ;;; can be the main view or a text-input field for instance
             (paste-command-for-view self focus)))))
@@ -1243,6 +1255,18 @@
   (loop for win in (om-get-all-windows 'patch-editor-window)
         do (prompt-on-patch-listener (editor win) message)))
 
+(defmethod copy-command-for-view ((editor patch-editor) (view om-lisp::om-listener-pane))
+  (om-lisp::om-copy-command view))
+
+(defmethod cut-command-for-view ((editor patch-editor) (view om-lisp::om-listener-pane))
+  (om-lisp::om-cut-command view))
+
+(defmethod paste-command-for-view ((editor patch-editor) (view om-lisp::om-listener-pane))
+  (om-lisp::om-paste-command view))
+
+(defmethod select-all-command-for-view ((self patch-editor) (view om-lisp::om-listener-pane))
+  (om-lisp::om-select-all-command view))
+
 ;;;======================================
 ;;; INSPECTOR
 ;;;======================================
@@ -1506,7 +1530,10 @@
                            ;; top of the pane
                            (om-make-di 'om-simple-text :size (omp 230 18)
                                                    :font (om-def-font :font2b) :text 
-                                                   (string-downcase (editor-window-config editor))
+                                                   (case (editor-window-config editor)
+                                                     (:lisp-code "Lisp code")
+                                                     (:listener "listener / system out")
+                                                     (:inspector "inspector"))
                                                    :fg-color (om-def-color :dark-gray))
                            :separator
                            
