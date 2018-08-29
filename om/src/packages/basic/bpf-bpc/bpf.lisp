@@ -488,13 +488,18 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 
 ;;; to be redefined by objects if they have a specific miniview
 (defmethod draw-mini-view ((self bpf) (box t) x y w h &optional time)
-  (let ((display-cache (get-display-draw box)))
+  (let* ((display-cache (get-display-draw box))
+         (ranges (car display-cache))
+         (x-range (list (nth 0 ranges) (nth 1 ranges)))
+         (y-range (list (or (get-edit-param box :display-min) (nth 2 ranges))
+                        (or (get-edit-param box :display-max) (nth 3 ranges)))))
+    
     (draw-bpf-points-in-rect (cadr display-cache)
                              (color self) 
-                             (car display-cache)
+                             (append x-range y-range)
                              ;(+ x 7) (+ y 10) (- w 14) (- h 20)
                              x (+ y 10) w (- h 20)
-                             )
+                             (get-edit-param box :draw-style))
     t))
 
 (defun conversion-factor-and-offset (min max w delta)
@@ -503,37 +508,78 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
     (values factor (- delta (* min factor)))))
 
 (defun draw-bpf-points-in-rect (points color ranges x y w h &optional style)
+  
   (multiple-value-bind (fx ox) 
       (conversion-factor-and-offset (car ranges) (cadr ranges) w x)
     (multiple-value-bind (fy oy) 
         ;;; Y ranges are reversed !! 
         (conversion-factor-and-offset (cadddr ranges) (caddr ranges) h y)
+  
       (when points 
-        (om-with-fg-color (om-def-color :gray)
-        ;draw first point
-        (unless (equal style :lines)
-          (om-draw-circle (+ ox (* fx (car (car points))))
-                          (+ oy (* fy (cadr (car points))))
-                          3 :fill t))
-        (let ((lines (loop for pts on points
-                           while (cadr pts)
-                           append
-                           (let ((p1 (car pts))
-                                 (p2 (cadr pts)))
-                             (unless (equal style :lines)
-                               (om-draw-circle (+ ox (* fx (car p2)))
-                                               (+ oy (* fy (cadr p2)))
-                                               3 :fill t))
-                             ;;; collect for lines 
-                             (om+ 0.5
-                                  (list (+ ox (* fx (car p1)))
-                                        (+ oy (* fy (cadr p1)))
-                                        (+ ox (* fx (car p2)))
-                                        (+ oy (* fy (cadr p2)))))
-                             ))))
-          (om-with-fg-color (or color (om-def-color :dark-gray))
-            (om-draw-lines lines))))))))
-      
+          
+          (cond 
+           
+           ((equal style :points-only)
+        
+            (om-with-fg-color (om-def-color :dark-gray)
+        
+              (loop for pt in points do
+                    (om-draw-circle (+ ox (* fx (car pt)))
+                                    (+ oy (* fy (cadr pt)))
+                                    3 :fill t))
+              ))
+                 
+           ((equal style :lines-only)
+            
+            (let ((lines (loop for pts on points
+                               while (cadr pts)
+                               append
+                               (let ((p1 (car pts))
+                                     (p2 (cadr pts)))
+                                 (om+ 0.5
+                                      (list (+ ox (* fx (car p1)))
+                                            (+ oy (* fy (cadr p1)))
+                                            (+ ox (* fx (car p2)))
+                                            (+ oy (* fy (cadr p2)))))
+                                 ))))
+              (om-with-fg-color (or color (om-def-color :dark-gray))
+                (om-draw-lines lines))
+              ))
+                
+                
+           ((equal style :draw-all)
+            
+            (om-with-fg-color (om-def-color :gray)
+  
+              ; first point
+              (om-draw-circle (+ ox (* fx (car (car points))))
+                              (+ oy (* fy (cadr (car points))))
+                              3 :fill t)
+              (let ((lines (loop for pts on points
+                                 while (cadr pts)
+                                 append
+                                 (let ((p1 (car pts))
+                                       (p2 (cadr pts)))
+                                   (om-draw-circle (+ ox (* fx (car p2)))
+                                                   (+ oy (* fy (cadr p2)))
+                                                   3 :fill t)
+                                   ;;; collect for lines 
+                                   (om+ 0.5
+                                        (list (+ ox (* fx (car p1)))
+                                              (+ oy (* fy (cadr p1)))
+                                              (+ ox (* fx (car p2)))
+                                              (+ oy (* fy (cadr p2)))))
+                                   ))))
+                (om-with-fg-color (or color (om-def-color :dark-gray))
+                  (om-draw-lines lines))
+                )))
+           
+           
+          
+           ))
+        
+        )))
+
 
 ;;;=============================
 ;;; BPF PLAY

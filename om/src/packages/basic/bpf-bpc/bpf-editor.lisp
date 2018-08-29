@@ -40,7 +40,9 @@
 
 (defmethod object-default-edition-params ((self BPF))
   '((:draw-style :draw-all)
-    (:background nil)))
+    (:background nil)
+    (:display-min nil)
+    (:display-max nil)))
 
 (defun x-axis-accessor (editor) (case (x-axis-key editor) (:x 'om-point-x) (:y 'om-point-y) (:z 'om-point-z) (:time 'tpoint-time)))
 (defun y-axis-accessor (editor) (case (y-axis-key editor) (:x 'om-point-x) (:y 'om-point-y) (:z 'om-point-z)))
@@ -51,7 +53,9 @@
 (defun editor-point-set-y (editor point y) (funcall 'om-point-set point (y-axis-key editor) y))
 
 (defmethod additional-box-attributes ((self bpf)) 
-  '((:background "sets one or more background-element(s) (picture, etc.) in the editor" nil)))
+  '((:background "sets one or more background-element(s) (picture, etc.) in the editor" nil)
+    (:display-min "sets a min y-value for display" nil)
+    (:display-max "sets a max y-value for display" nil)))
 
 (defmethod editor-window-init-size ((self bpf-editor)) (om-make-point 550 400))
 
