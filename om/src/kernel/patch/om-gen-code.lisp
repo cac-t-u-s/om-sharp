@@ -254,7 +254,7 @@
          `,varname)
        )))
 
-(defmethod gen-code-for-ev-once ((self OMBoxEditCall) numout)
+(defmethod gen-code-for-ev-once ((self OMBoxRelatedWClass) numout)
    (let* ((varname (gen-box-name self))
           (newvar? (not (check-let-statement varname :local))))
      (when newvar?
