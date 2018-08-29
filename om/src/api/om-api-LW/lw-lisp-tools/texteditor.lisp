@@ -139,10 +139,12 @@
 (defun text-window-title-from-path (path)
     (if path
         (concatenate 'string 
-                     (pathname-name path)
-                     " ["
+                     (if (pathname-type path) 
+                         (concatenate 'string (pathname-name path) "." (pathname-type path))
+                       (pathname-name path))
+                     " [ "
                      (namestring (make-pathname :directory (pathname-directory path)))
-                     "]")
+                     " ]")
       "Untitled [...]"))
 
 
@@ -266,7 +268,7 @@
                                          :filter "*.*" 
                                          :filters '("Lisp Files" "*.lisp" "Text files" "*.txt" "All Files" "*.*")))
     (setf *last-open-directory* (make-pathname :directory (pathname-directory path)))
-    (om-open-text-editor :contents path)))
+    (om-open-text-editor :contents path :lisp (string-equal "lisp" (pathname-type path))))))
 
 (defmethod import-text-from-file ((self om-text-editor-window) &optional path)
   (with-slots (ep) self
