@@ -155,7 +155,7 @@
 (defmethod make-timeline-left-item ((self bpf-editor) id) 
   (om-make-view 'om-view :size (omp 30 15)))
 
-(defmethod draw-modes-for-object ((self bpf-editor)) '(:draw-all :points-only :lines-only))
+(defmethod draw-modes-for-object ((self bpf-editor)) '(:draw-all :points-only :lines-only :histogram))
 
 (defmethod make-editor-window-contents ((editor bpf-editor))
   (let* ((object (object-value editor))

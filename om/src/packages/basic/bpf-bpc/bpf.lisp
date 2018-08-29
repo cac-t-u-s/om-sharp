@@ -574,7 +574,41 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
                   (om-draw-lines lines))
                 )))
            
-           
+           ((equal style :histogram)
+            
+
+            (loop for i from 0 to (1- (length points))
+                  do 
+                  (let* ((p (nth i points))
+                         (x (+ ox (* fx (car p))))
+                         (prev-p (if (plusp i) (nth (1- i) points)))
+                         (next-p (nth (1+ i) points))
+                         (prev-px (if prev-p (+ ox (* fx (car prev-p)))))
+                         (next-px (if next-p (+ ox (* fx (car next-p)))))
+                         
+                         (x1 (if prev-px 
+                                 (/ (+ x prev-px) 2)
+                               (if next-px 
+                                   (- x (- next-px x))
+                                 (- x 1))))
+                         
+                         (x2 (if next-px 
+                                 (/ (+ x next-px) 2)
+                               (if prev-px 
+                                   (+ x (- x prev-px))
+                                 (+ x 1)))))
+                         
+                    (om-draw-rect x1 oy (- x2 x1) (* fy (cadr p))
+                                  :fill nil)
+                    (om-draw-rect x1 oy (- x2 x1) (* fy (cadr p)) 
+                                  :fill t :color (om-def-color :gray))
+                    
+                    (om-draw-string (- x 4) (- oy 4) (format nil "~D" (cadr p)) 
+                                    :font (om-def-font :font1 :size 9)
+                                    :color (om-def-color :white))
+                    ))
+            
+            )
           
            ))
         
