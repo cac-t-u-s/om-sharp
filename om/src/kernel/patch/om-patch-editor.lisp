@@ -428,7 +428,7 @@
                (store-current-state-for-undo editor)
                (auto-connect-seq selected-boxes editor panel)))
         
-        ;;; => Edit menu command
+        ;;; => Edit menu command ?
         (#\A (unless (edit-lock editor) 
                (store-current-state-for-undo editor)
                (align-selected-boxes editor)))
@@ -581,7 +581,7 @@
           ))))
 
 (defmethod select-all-command-for-view ((self patch-editor) (view t))
-  #'(lambda () (select-unselect-all self t)))
+  (select-unselect-all self t))
 
 
 ;;;===========================================
