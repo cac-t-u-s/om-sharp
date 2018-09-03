@@ -143,6 +143,11 @@ All boxes which their reference is a OM generic function are instances of this c
 ; DEFAULT OUTPUTS
 ;-------------------------------------------
 
+
+(defmethod inputs-visible ((self OMBoxCall))
+  (equal :reference (lambda-state self)))
+
+
 ;;; VERIFY/DECIDE IF THE INPUTS/OUTPUTS NAMES ARE SYMBOLS OR STRINGS !!
 
 (defmethod create-box-outputs ((self OMBoxCall)) 

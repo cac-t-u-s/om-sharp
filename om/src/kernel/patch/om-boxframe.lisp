@@ -134,9 +134,13 @@
                     :color (io-color (object area)))
     ))
 
+
+(defmethod inputs-visible ((self OMBox)) t)
+
+
 (defmethod om-draw-area ((area input-area))
   (call-next-method)
-  (when (equal :reference (lambda-state (object (frame area))))
+  (when (inputs-visible (object (frame area)))
     (let ((p (get-position area)))
       (om-draw-circle (om-point-x p) (om-point-y p) +inactive-r+ :fill t 
                       :color (om-def-color :light-gray))
