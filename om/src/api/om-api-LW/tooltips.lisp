@@ -185,9 +185,13 @@
                                       (om-string-size text *tt-font*)))
                    (tth view) (+ 6 (* 12 (if (listp text) (length text) 1)))
                    )
-             (om-start-transient-drawing view 
-                                         #'(lambda (view pos size) (tooltip-draw view))
-                                         pp (omp (ttw view) (tth view)))
+             (capi::apply-in-pane-process 
+              view 
+              #'(lambda () 
+                  (om-start-transient-drawing view 
+                                              #'(lambda (view pos size) (tooltip-draw view))
+                                              pp (omp (ttw view) (tth view)))))
+             
              ;(capi::apply-in-pane-process view 'om-invalidate-view 'tooltip-draw view)
              )))
     ))
