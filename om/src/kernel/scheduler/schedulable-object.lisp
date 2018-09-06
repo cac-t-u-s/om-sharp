@@ -649,8 +649,8 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
   (setf (state self) :stop
         (current-local-time self) (or (car (interval self)) 0)
         (play-planned? self) nil)
-  (mp:with-lock ((plan-lock self))
-    (setf (plan self) nil))
+  ;(mp:with-lock ((plan-lock self)) (setf (plan self) nil))
+  (setf (plan self) nil)
   (destroy-data self))
 
 (defmethod get-caller ((self schedulable-object) (sched scheduler)) 
