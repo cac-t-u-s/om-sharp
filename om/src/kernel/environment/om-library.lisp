@@ -160,7 +160,7 @@
       (handler-bind ((error #'(lambda (c)
                                 (progn 
                                     (om-message-dialog (format nil "Error while loading the library ~A:~%~s" 
-                                                               (name lib) (om-report-condition c))
+                                                               (name lib) (format nil "~A" c))
                                                        :size (om-make-point 300 200))
                                     (when 
                                         (om-y-or-n-dialog (format nil 

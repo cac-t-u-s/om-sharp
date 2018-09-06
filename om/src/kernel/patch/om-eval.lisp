@@ -239,7 +239,6 @@
 ;;; BOX EVALUATION
 ;;;=================
 
-
 ;;; SETS VALUE AS A LIST FOR EVERY OUPUT 
 ;;; RETURNS THE REQUESTED (OR FIRST) INPUT
 (defmethod omNG-box-value ((self OMBoxCall) &optional (numout 0)) 
@@ -253,7 +252,7 @@
                                   (om-add-subviews *current-eval-panel* fv))
                                 
                                 (om-message-dialog (string+ "Error while evaluating the box " (string (name self)) " : " 
-                                                            (om-report-condition c))
+                                                            (format nil "~A" c))
                                                    :size (om-make-point 300 200))
                                 (fade-out-flag-view fv)
                                 (clear-after-error self)
@@ -375,7 +374,7 @@
                                 (when *current-eval-panel*
                                   (om-add-subviews *current-eval-panel* fv))
                                 (om-message-dialog (string+ "Error while evaluating the box " (string (reference self)) " : " 
-                                                            (om-report-condition c ))
+                                                            (format nil "~A" c))
                                                    :size (om-make-point 300 200))
                                 (fade-out-flag-view fv)
                                 (clear-after-error self)

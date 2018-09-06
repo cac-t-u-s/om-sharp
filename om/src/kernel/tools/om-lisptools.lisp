@@ -188,24 +188,6 @@
   (and (subtypep (type-of object) type) object))
 
 ;=======================
-; Print OM messages
-;=======================
- 
-(defun om-beep-msg (format-string &rest args)
-   (om-beep)
-   (om-print (apply 'format (append (list nil format-string) args)) "[!!]")
-   NIL)
-
-(defmethod om-report-condition ((c condition))
-  (format nil "~A" c))
-
-(defparameter *om-debug* nil)
-
-(defun om-print-dbg (str &optional args prompt)  
-  (when *om-debug* (om-print-format str args (or prompt "DEBUG"))))
-
-
-;=======================
 ; FUNCTIONS / LAMBDA LIST PARSING
 ;=======================
 

@@ -294,6 +294,24 @@
 (defun show-shell () (om-lisp::om-open-shell)) 
 
 
+
+;=======================
+; Print OM messages
+;=======================
+ 
+(defun om-beep-msg (format-string &rest args)
+   (om-beep)
+   (om-print (apply 'format (append (list nil format-string) args)) "[!!]")
+   NIL)
+
+
+(add-preference :general :debug "Debug mode" :bool nil)
+
+(defun om-print-dbg (str &optional args prompt)  
+  (when (get-pref-value :general :debug)
+    (om-print-format str args (or prompt "DEBUG"))))
+
+
 ;;;===============================
 ;;; WORKSPACE
 ;;;===============================                            
