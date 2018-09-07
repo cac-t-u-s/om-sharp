@@ -81,14 +81,19 @@
 
 ;;; return the views to update
 (defmethod play-editor-get-ruler-views ((self play-editor-mixin)) nil)
-  
+
+(defmethod default-editor-min-x-range ((self play-editor-mixin)) 1000)
+
+(defmethod default-editor-x-range ((self play-editor-mixin))
+  (let ((play-obj (get-obj-to-play self))) 
+    (if play-obj
+        (list 0 (+ (get-obj-dur play-obj) (default-editor-min-x-range self)))
+      (list (vmin self) (or (vmax self) (default-editor-min-x-range self))))))
+
 (defmethod reinit-x-ranges ((self play-editor-mixin))
-  (let ((play-obj (get-obj-to-play self)))
+  (let ((def-range (default-editor-x-range self)))
     (mapcar #'(lambda (ruler-view)
-                (if play-obj
-                    (set-ruler-range ruler-view 0 (+ (get-obj-dur play-obj) 1000))
-                  (set-ruler-range ruler-view (vmin self) (or (vmax self) 1000)))
-                )
+                (set-ruler-range ruler-view (car def-range) (cadr def-range)))
             (list! (play-editor-get-ruler-views self)))
     ))
 

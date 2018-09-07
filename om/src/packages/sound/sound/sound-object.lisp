@@ -779,7 +779,8 @@ Press 'space' to play/stop the sound file.
     (let* ((window 128)
            (pictsize 512)
            (array-size (floor (n-samples self) window))
-           (array (make-array (list (n-channels self) array-size) :element-type 'single-float :initial-element 0.0 :allocation :static))
+           (array (make-array (list (n-channels self) array-size) 
+                              :element-type 'single-float :initial-element 0.0 :allocation :static))
            )
       (with-audio-buffer (b self)
         (if b
@@ -817,6 +818,9 @@ Press 'space' to play/stop the sound file.
 (defmethod frame-display-modes-for-object ((self sound-editor) (object sound)) '(:lines))
 
 (defmethod editor-view-after-init-space ((self sound)) 0)
+
+
+(defmethod default-editor-min-x-range ((self sound-editor)) 0)
 
 (defmethod om-draw-contents ((self sound-panel))
   (call-next-method)  
@@ -858,6 +862,7 @@ Press 'space' to play/stop the sound file.
     (setf (cache-display-list editor) nil))
   (call-next-method))
 
+
 (defmethod editor-key-action ((editor sound-editor) key)
   (let* ((panel (active-panel editor))
          (stream (object-value editor)))
@@ -873,8 +878,8 @@ Press 'space' to play/stop the sound file.
              (om-invalidate-view panel)
              (report-modifications editor)
              )
-           ))
-       )
+           )))
+      (:om-key-esc NIL) ;;; we don't want to reinit-x-ranges as in the next-method
       (otherwise (call-next-method)))
     ))
 
