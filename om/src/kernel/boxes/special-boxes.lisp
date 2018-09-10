@@ -146,6 +146,7 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
 ;;;---------------------------------------------------------------------
 ;;; todo: allow several inputs, too => all return the same
 
+;; It is advised to use this box in mode 'eval once' in order to avoid useless computations.
 (defmethod* hub (value &rest add-output)  
   :initvals '(nil) 
   :indoc '("anthing")
@@ -154,23 +155,18 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
 
 Use > and < to add/remove outputs.
 
-It is advised to use this box in mode 'eval once' in order to avoid useless computations.
 "
-  :icon 235
-  :numouts 0
-  (values-list (first-n list 50)))
+  :icon 'through
+  :numouts 1
+  value)
 
 
 (defclass OMBoxHub (OMBoxSplit) ())
 (defmethod boxclass-from-function-name ((self (eql 'hub))) 'OMBoxHub)
+
 (defmethod boxcall-value ((self OMBoxHub))
   (values-list (make-list (length (outputs self)) 
                           :initial-element (omNG-box-value (car (inputs self))))))
-
-(defmethod add-args-to-box ((box OMBoxHub) args)
-  (let ((n (if (numberp (car args)) (car args) 1)))
-    (dotimes (i n) (add-optional-input box))))
-
 
 
 ;;;------------------------
