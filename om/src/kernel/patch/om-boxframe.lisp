@@ -181,11 +181,11 @@
                               :pos #'(lambda (f) (om-make-point 
                                                   (- (w f) (* (if (allow-remove-inputs (object self)) 2 1.2) S))
                                                   S))
-                              :pick #'(lambda (f) (ignore f) (list (- S) (- S) S S))))
+                              :pick #'(lambda (f) (declare (ignore f)) (list (- S) (- S) S S))))
              (when (allow-remove-inputs (object self))
                (make-instance '--input-area :object self :frame self
                             :pos #'(lambda (f) (om-make-point (- (w f) S) (* (if (allow-add-inputs (object self)) 2 1) S)))
-                            :pick #'(lambda (f) (ignore f) (list (- S) (- S) S S))))))
+                            :pick #'(lambda (f) (declare (ignore f)) (list (- S) (- S) S S))))))
     ))
 
 (defmethod om-draw-area ((area input-edit-area))
@@ -256,7 +256,7 @@
                (v-resizable (object self)))
       (make-instance 'resize-area :object self :frame self
                      :pos #'(lambda (f) (om-make-point (- (w f) 8) (- (h f) 8)))
-                     :pick #'(lambda (f) (ignore f) (list 0 0 12 12))))
+                     :pick #'(lambda (f) (declare (ignore f)) (list 0 0 12 12))))
     (when (h-resizable (object self))
       (make-instance 'h-resize-area :object self :frame self
                      :pos #'(lambda (f) (om-make-point (- (w f) 8) 16))
