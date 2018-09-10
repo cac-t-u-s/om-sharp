@@ -376,8 +376,8 @@
          (extra-w (+ (* statesign-w 2) 
                      (if (and eia 
                               (inputs box) 
-                              (or (> (print (length (inputs box))) 1)
-                                  (< (print (box-w box)) 40)))
+                              (or (> (length (inputs box)) 1)
+                                  (< (box-w box) 40)))
                          10 0)
                      ))
          (n -1))
