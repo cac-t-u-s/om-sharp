@@ -181,11 +181,11 @@
                               :pos #'(lambda (f) (om-make-point 
                                                   (- (w f) (* (if (allow-remove-inputs (object self)) 2 1.2) S))
                                                   S))
-                              :pick #'(lambda (f) (list (- S) (- S) S S))))
+                              :pick #'(lambda (f) (ignore f) (list (- S) (- S) S S))))
              (when (allow-remove-inputs (object self))
                (make-instance '--input-area :object self :frame self
                             :pos #'(lambda (f) (om-make-point (- (w f) S) (* (if (allow-add-inputs (object self)) 2 1) S)))
-                            :pick #'(lambda (f) (list (- S) (- S) S S))))))
+                            :pick #'(lambda (f) (ignore f) (list (- S) (- S) S S))))))
     ))
 
 (defmethod om-draw-area ((area input-edit-area))
@@ -256,7 +256,7 @@
                (v-resizable (object self)))
       (make-instance 'resize-area :object self :frame self
                      :pos #'(lambda (f) (om-make-point (- (w f) 8) (- (h f) 8)))
-                     :pick #'(lambda (f) (list 0 0 12 12))))
+                     :pick #'(lambda (f) (ignore f) (list 0 0 12 12))))
     (when (h-resizable (object self))
       (make-instance 'h-resize-area :object self :frame self
                      :pos #'(lambda (f) (om-make-point (- (w f) 8) 16))
@@ -374,9 +374,10 @@
          (eia (input-edit-areas self))
          (statesign-w 5)
          (extra-w (+ (* statesign-w 2) 
-                     (if (and eia (inputs box) 
-                              (or (> (length (inputs box)) 1)
-                                  (< (w self) 40)))
+                     (if (and eia 
+                              (inputs box) 
+                              (or (> (print (length (inputs box))) 1)
+                                  (< (print (box-w box)) 40)))
                          10 0)
                      ))
          (n -1))
