@@ -53,6 +53,7 @@
 
 
 (defmethod draw-mini-view ((self score) (box t) x y w h &optional time)
+  (om-draw-rect x y w h :fill t :color (om-def-color :white))
   (let ((display-cache (get-display-draw box)))
     (multiple-value-bind (fx ox) 
         (conversion-factor-and-offset 0 (get-obj-dur self) (- w 60) 30)

@@ -45,6 +45,7 @@
           om-invalidate-area
           
           om-draw-string
+          om-draw-char
           om-draw-line
           om-draw-lines
           om-draw-dashed-line
@@ -223,6 +224,15 @@
                         (when style (format-line-style style))
                         ))
           ))
+
+
+(defun om-draw-char (x y char &key font color)
+  (apply 'gp:draw-character 
+         (append 
+          (list *curstream* char x y)
+          (when color `(:foreground ,(get-real-color color)))
+          (when font `(:font ,(gp::find-best-font *curstream* font)))
+          )))
 
 (defun om-draw-string (x y str &key selected wrap font align color)
  

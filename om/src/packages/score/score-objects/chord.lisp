@@ -192,3 +192,76 @@ A CHORD object (set of simultaneous notes) defined with
    (t nil)))
 
 |#
+
+
+
+;;;============ 
+;;; BOX
+;;;============
+
+(defmethod additional-box-attributes ((self chord)) 
+  '((font)))
+
+(defparameter *scale* 
+  '(; (mc degre line accidental)
+    (0 -1 nil)
+    (100 -1 :sharp) 
+    (200 -0.5 nil)
+    (300 -0.5 :sharp)
+    (400 0 nil)
+    (500 .5 nil)
+    (600 .5 :sharp)
+    (700 1 nil)
+    (800 1 :sharp)
+    (900 1.5 nil)
+    (1000 1.5 :sharp)
+    (1100 2 nil)))
+
+
+(defmethod display-modes-for-object ((self chord))
+  '(:hidden :text :mini-view))
+
+
+(defun pitch-to-line (pitch)
+  (nth 1 (find pitch *scale* :key 'car :test '>= :from-end t)))
+
+(defun pitch-to-acc (pitch)
+  (nth 2 (find pitch *scale* :key 'car :test '>= :from-end t)))
+
+
+(defmethod draw-mini-view ((self chord) (box t) x y w h &optional time)
+  
+  (om-draw-rect x y w h :fill t :color (om-def-color :white))
+
+  (let* ((font-size 24)
+         (interline (round font-size 4))
+         (base-line (- h 50)))
+  
+    (flet ((line-pos (line) (- base-line (* line interline))))
+      
+      (loop for line from 0 to 4 do 
+            (om-draw-line (+ x 10) (line-pos line)
+                          (- w 10) (line-pos line)
+                          :line 1))
+    
+      (om-with-font 
+     
+       (om-make-font "Bravura" font-size) 
+     
+       (om-draw-char 20 (line-pos 1) (code-char #xE050))
+
+       (loop for n in (inside self) do
+             (multiple-value-bind (oct int) (floor (midic n) 1200) 
+               (let ((line (line-pos (+ (* 3.5 (- oct 5))  ;;; octaves +/- middle C * 3.5 lines
+                                        (pitch-to-line int)))))
+                 (om-draw-char (/ w 2) line (code-char #xE0A4))
+                 (when (pitch-to-acc int)
+                   (om-draw-char (- (/ w 2) 16) line (code-char #xE262)))
+                         ;(om-draw-line (+ ox (* fx (date n)) 4) (+ oy (* fy (car (lmidic n))))
+          ;              (+ ox (* fx (date n)) 4) (+ oy (* fy (car (lmidic n))) -20))
+
+               )
+             )
+       ))
+  t)))
+
