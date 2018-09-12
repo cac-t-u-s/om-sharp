@@ -295,7 +295,13 @@
 (defmethod editor-box-selection ((editor OMEditor) (box OMBox))
   (unless (or (om-shift-key-p) (selected box))
     (select-unselect-all editor nil))
-  (select-box box (if (om-shift-key-p) (not (selected box)) t)))
+  
+  (if (om-shift-key-p)
+      (select-box box (not (selected box)))
+    
+    (unless (selected box)
+      (select-box box t))
+    ))
 
 (defmethod editor-box-selection ((editor OMEditor) (box null))
   (unless (om-shift-key-p) (select-unselect-all editor nil)))

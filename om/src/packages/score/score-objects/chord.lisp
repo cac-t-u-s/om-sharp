@@ -199,69 +199,42 @@ A CHORD object (set of simultaneous notes) defined with
 ;;; BOX
 ;;;============
 
+(defmethod object-default-edition-params ((self chord))
+  '((:font-size 24)
+    (:staff :gf)))
+
 (defmethod additional-box-attributes ((self chord)) 
-  '((font)))
-
-(defparameter *scale* 
-  '(; (mc degre line accidental)
-    (0 -1 nil)
-    (100 -1 :sharp) 
-    (200 -0.5 nil)
-    (300 -0.5 :sharp)
-    (400 0 nil)
-    (500 .5 nil)
-    (600 .5 :sharp)
-    (700 1 nil)
-    (800 1 :sharp)
-    (900 1.5 nil)
-    (1000 1.5 :sharp)
-    (1100 2 nil)))
-
+  '((:font-size "a default size for score display" 24)
+    (:staff "default staff configuration" 
+     (("G" :g) ("F" :f) ("GF" :gf) ("GG" :gg) ("FF" :ff) ("GGF" :ggf) ("GFF" :gff) ("GGFF" :ggff)))
+    ))
 
 (defmethod display-modes-for-object ((self chord))
   '(:hidden :text :mini-view))
 
 
-(defun pitch-to-line (pitch)
-  (nth 1 (find pitch *scale* :key 'car :test '>= :from-end t)))
-
-(defun pitch-to-acc (pitch)
-  (nth 2 (find pitch *scale* :key 'car :test '>= :from-end t)))
-
-
 (defmethod draw-mini-view ((self chord) (box t) x y w h &optional time)
-  
+
   (om-draw-rect x y w h :fill t :color (om-def-color :white))
-
-  (let* ((font-size 24)
-         (interline (round font-size 4))
-         (base-line (- h 50)))
   
-    (flet ((line-pos (line) (- base-line (* line interline))))
-      
-      (loop for line from 0 to 4 do 
-            (om-draw-line (+ x 10) (line-pos line)
-                          (- w 10) (line-pos line)
-                          :line 1))
-    
-      (om-with-font 
+  (let ((fontsize 24)
+        (staff (get-edit-param box :staff)))
+         
+    (let* ((staff-lines (apply 'append (mapcar 'staff-lines (staff-split staff))))
+           (unit (font-size-to-unit fontsize))
+           (n-lines (+ (- (car (last staff-lines)) (car staff-lines)) 10)) ;;; range of the staff lines + 10-margin
+           (draw-box-h (* n-lines unit)))
      
-       (om-make-font "Bravura" font-size) 
-     
-       (om-draw-char 20 (line-pos 1) (code-char #xE050))
+      (if (< draw-box-h h)
+          ;;; there's space: draw more in the middle
+          (setf y (+ y (round (- h draw-box-h) 2)))
+        ;;; there's no space: reduce font ?
+        (progn 
+          (setf unit (- unit (/ (- draw-box-h h) n-lines)))
+          (setf fontsize (unit-to-font-size unit)))
+        )
 
-       (loop for n in (inside self) do
-             (multiple-value-bind (oct int) (floor (midic n) 1200) 
-               (let ((line (line-pos (+ (* 3.5 (- oct 5))  ;;; octaves +/- middle C * 3.5 lines
-                                        (pitch-to-line int)))))
-                 (om-draw-char (/ w 2) line (code-char #xE0A4))
-                 (when (pitch-to-acc int)
-                   (om-draw-char (- (/ w 2) 16) line (code-char #xE262)))
-                         ;(om-draw-line (+ ox (* fx (date n)) 4) (+ oy (* fy (car (lmidic n))))
-          ;              (+ ox (* fx (date n)) 4) (+ oy (* fy (car (lmidic n))) -20))
+      (score-draw self x y w h fontsize nil staff)
+      )))
 
-               )
-             )
-       ))
-  t)))
 

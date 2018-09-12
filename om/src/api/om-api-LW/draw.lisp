@@ -136,24 +136,23 @@
 
 (defmethod om-draw-contents-callback ((self om-graphic-object) x y w h)
   (call-next-method)
-  (om-with-error-handle 
-    (gp::set-graphics-port-coordinates (om-get-view self) :left 0 :top 0)
-    (om-with-focused-view self
+  (gp::set-graphics-port-coordinates (om-get-view self) :left 0 :top 0)
+  (om-with-focused-view self
       ;(oa::om-with-clip-rect self 0 0 (vw self) (vh self)   ;;; removed from draw-contents for windows d&d...
         ;(capi::apply-in-pane-process (om-get-view self) 'om-draw-contents self))
       ;(gp::with-graphics-state ((om-get-view self) :mask (list 0 0 (vw self) (vh self)))
-      (om-draw-contents-area self x y w h)
+    (om-draw-contents-area self x y w h)
       ;(om-draw-contents self)
       
-      (mapcar #'(lambda (po) 
+    (mapcar #'(lambda (po) 
                 ;(print (list po x y w h))
-                  (when (capi::pinboard-object-overlap-p po x y (+ x w) (+ y h))
-                    (capi::draw-pinboard-object (om-get-view self) po
-                                                :x (item-x po) :y (item-y po) :width (vw po) :height (vh po))
-                    ))
-              (item-subviews (om-get-view self)))
-      )
-    ))
+                (when (capi::pinboard-object-overlap-p po x y (+ x w) (+ y h))
+                  (capi::draw-pinboard-object (om-get-view self) po
+                                              :x (item-x po) :y (item-y po) :width (vw po) :height (vh po))
+                  ))
+            (item-subviews (om-get-view self)))
+    )
+  )
 
 ;;; ONLY FOR WINDOWS
 ;;; draws a pinboard-object on top of the layout

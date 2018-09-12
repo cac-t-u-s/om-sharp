@@ -23,6 +23,7 @@
         "score-objects/chord"
         "score-objects/chord-seq"
         "score-objects/score"
+        "editor/score-draw"
         "tools/conversions"
         "import-export/musicxml"))
 
@@ -36,6 +37,6 @@
  :subpackages  (list (omNG-make-package 
                       "Utils"
                       :doc "Unit conversion utilities etc."
-                      :classes nil
+                      :classes '(chord score)
                       :functions '(approx-m mc->f f->mc mc->n n->mc beats->ms)
                       :subpackages nil)))

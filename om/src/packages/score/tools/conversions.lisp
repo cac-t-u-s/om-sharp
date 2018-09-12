@@ -124,52 +124,48 @@ Floating values are allowed for <approx>.
 
 ;; ---- midic -> symbol
 ;; why ?
-(export '(*ascii-note-scales* *ascii-note-C-scale* *ascii-note-do-scale*))
+;(export '(*ascii-note-scales* *ascii-note-C-scale* *ascii-note-do-scale*))
+ 
+;;===========
+;; The scales used by the functions mc->n and n->mc:
+;;===========
 
-(defvar *ascii-note-C-scale*)
-(defvar *ascii-note-do-scale*)
-(defvar *ascii-note-alterations*)
-(defvar *ascii-note-scales* nil "The scales used by the functions mc->n and n->mc." )
+(defvar *ascii-note-C-scale* 
+  '(("C") ("C" . :q) ("C" . :s) ("D" . :-q)
+    ("D") ("D" . :q) ("E" . :f) ("E" . :-q)
+    ("E") ("E" . :q)
+    ("F") ("F" . :q) ("F" . :s) ("G" . :-q)
+    ("G") ("G" . :q) ("G" . :s) ("A" . :-q)
+    ("A") ("A" . :q) ("B" . :f) ("B" . :-q)
+    ("B") ("B" . :q)))
 
-(setf *ascii-note-C-scale*
-  (mapc #'(lambda (x) (setf (car x) (string-upcase (string (car x)))))
-    '((C) (C . :q) (C . :s) (D . :-q)
-      (D) (D . :q) (E . :f) (E . :-q)
-      (E) (E . :q)
-      (F) (F . :q) (F . :s) (G . :-q)
-      (G) (G . :q) (G . :s) (A . :-q)
-      (A) (A . :q) (B . :f) (B . :-q)
-      (B) (B . :q)  )))
+(defvar *ascii-note-do-scale*
+  '(("do") ("do" . :q) ("do" . :s) ("re" . :-q)
+    ("re") ("re" . :q) ("mi" . :f) ("mi" . :-q)
+    ("mi") ("mi" . :q)
+    ("fa") ("fa" . :q) ("fa" . :s) ("sol" . :-q)
+    ("sol") ("sol" . :q) ("sol" . :s) ("la" . :-q)
+    ("la") ("la" . :q) ("si" . :f) ("si" . :-q)
+    ("si") ("si" . :q)))
 
-(setf *ascii-note-do-scale*
-  (mapc #'(lambda (x) (setf (car x) (string-downcase (string (car x)))))
-    '((do) (do . :q) (do . :s) (re . :-q)
-      (re) (re . :q) (mi . :f) (mi . :-q)
-      (mi) (mi . :q)
-      (fa) (fa . :q) (fa . :s) (sol . :-q)
-      (sol)(sol . :q)(sol . :s)(la . :-q)
-      (la) (la . :q) (si . :f) (si . :-q)
-      (si) (si . :q)  )))
+(defvar *ascii-note-alterations* 
+  '((:s "#" +100) (:f "b" -100)
+    (:q "+" +50) (:qs "#+" +150) (:-q "_" -50) (:f-q "b-" -150)
+    (:s "d" +100)))
 
-(setf *ascii-note-alterations*
-   '((:s "#" +100) (:f "b" -100)
-     (:q "+" +50) (:qs "#+" +150) (:-q "_" -50) (:f-q "b-" -150)
-     (:s "d" +100)))
-
-(setf *ascii-note-scales* (list *ascii-note-C-scale* *ascii-note-do-scale*))
-
-(defun mc->n1 (midic &optional (ascii-note-scale (car *ascii-note-scales*)))
+(
+(defun mc->n1 (midic &optional (ascii-note-scale *ascii-note-C-scale*))
   "Converts <midic> to a string representing a symbolic ascii note."
   (let ((dmidic (/ 1200 (length ascii-note-scale))) note)
     (multiple-value-bind (midic/50 cents) (round midic dmidic)
       (multiple-value-bind (oct+2 midic<1200) (floor (* midic/50 dmidic) 1200)
         (setq note (nth (/ midic<1200 dmidic) ascii-note-scale))
         (format nil "~A~A~A~A~A"
-                (car note) (or (cadr (find (cdr note) *ascii-note-alterations*)) "")
+                (car note) (or (cadr (find (cdr note) *ascii-note-alterations* :key 'car)) "")
                 (- oct+2 2) (if (> cents 0) "+" "") (if (zerop cents) "" cents) )))))
 
 
-(defun n->mc1 (str &optional (*ascii-note-scale* (car *ascii-note-scales*)))
+(defun n->mc1 (str &optional (*ascii-note-scale* *ascii-note-C-scale*))
   "Converts a string representing a symbolic ascii note to a midic."
   (setq str (string str))
   (let ((note (some #'(lambda (note)

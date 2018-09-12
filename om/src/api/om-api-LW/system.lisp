@@ -90,6 +90,8 @@
          ,@body)
     (progn ,@body)))
 
+
+
 (defmacro om-with-redefinitions (&body body)
   `(let ((lispworks::*HANDLE-WARN-ON-REDEFINITION* nil)) ,@body))
 
@@ -110,7 +112,7 @@
    (abort)))
 
 (defun om-trap-error-handler (condition)
-   (format *error-output* "~&~A~&" condition)
+   (format *error-output* "ERROR: ~A~&" condition)
    (throw 'trap-errors nil))
 
 (defmacro om-trap-errors (&rest forms)
