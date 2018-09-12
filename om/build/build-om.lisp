@@ -70,8 +70,8 @@
 (load (merge-pathnames "XML/load-xml" *externals-directory*))
 
 (progn 
-  (load (merge-pathnames "Yason/package" *externals-directory*))
-  (load (merge-pathnames "Yason/parse" *externals-directory*)))
+  (compile&load (merge-pathnames "Yason/package" *externals-directory*))
+  (compile&load (merge-pathnames "Yason/parse" *externals-directory*)))
 
 (progn
   (load (merge-pathnames "cl-svg/cl-svg.asd" *externals-directory*))
