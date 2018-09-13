@@ -153,7 +153,7 @@ Floating values are allowed for <approx>.
     (:q "+" +50) (:qs "#+" +150) (:-q "_" -50) (:f-q "b-" -150)
     (:s "d" +100)))
 
-(
+
 (defun mc->n1 (midic &optional (ascii-note-scale *ascii-note-C-scale*))
   "Converts <midic> to a string representing a symbolic ascii note."
   (let ((dmidic (/ 1200 (length ascii-note-scale))) note)
@@ -165,18 +165,17 @@ Floating values are allowed for <approx>.
                 (- oct+2 2) (if (> cents 0) "+" "") (if (zerop cents) "" cents) )))))
 
 
-(defun n->mc1 (str &optional (*ascii-note-scale* *ascii-note-C-scale*))
+(defun n->mc1 (str &optional (ascii-note-scale *ascii-note-C-scale*))
   "Converts a string representing a symbolic ascii note to a midic."
   (setq str (string str))
   (let ((note (some #'(lambda (note)
                         (when (and (null (cdr note))
                                    (eql 0 (search (car note) str :test #'string-equal)))
-                          note)) *ascii-note-scale*))
+                          note)) ascii-note-scale))
         index midic alt)
-    (unless note (error "Note not found in ~S using the ~S ~%~S"
-                        str '*ascii-note-scale* *ascii-note-scale*))
-    (setq midic (* (position note *ascii-note-scale*)
-                   (/ 1200 (length *ascii-note-scale*))))
+    (unless note (error "Note ~S not found in scale ~%~S" str ascii-note-scale))
+    (setq midic (* (position note ascii-note-scale)
+                   (/ 1200 (length ascii-note-scale))))
     ;; at this point: "C" -> 0 ; "D" -> 100 ; "E" -> 200 ; etc.
     (setq index (length (car note)))
     ;; alteration
@@ -194,10 +193,8 @@ Floating values are allowed for <approx>.
       (incf midic (parse-integer str :start index)))
     midic))
 
-(defvar *ascii-intervals*)
+(defvar *ascii-intervals* '("1" "2m" "2M" "3m" "3M" "4" "4A" "5" "6m" "6M" "7m" "7M"))
 
-(setf *ascii-intervals*
- '("1" "2m" "2M" "3m" "3M" "4" "4A" "5" "6m" "6M" "7m" "7M"))
 
 (defun int->symb1 (int)
   "Converts a midic interval to a symbolic interval."
