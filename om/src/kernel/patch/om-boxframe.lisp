@@ -523,8 +523,9 @@
           ))))))
 
 (defmethod om-draw-contents ((self OMBoxFrame))
-  (om-with-clip-rect self 0 0 (w self) (h self) 
-    (boxframe-draw-contents self (object self))))
+  (om-trap-errors   
+   (om-with-clip-rect self 0 0 (w self) (h self) 
+     (boxframe-draw-contents self (object self)))))
 
 (defmethod draw-border ((self OMBox) x y w h)
   
@@ -981,7 +982,6 @@
                          (loop for k in key collect (key-to-menu k box input))
                          )))
     (let ((selected (string-equal (name input) (string key))))
-      ;(print (list (name input) key selected))
       (if (and selected (get-input-menu box (name input)))
           ;;; it's a keyword which has a menu also for values
           (input-values-menu (string+ ":" (string-downcase key) " [select]") box input)

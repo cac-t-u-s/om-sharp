@@ -243,12 +243,14 @@
 
         (multiple-value-bind (left top right bottom)
             (gp::get-string-extent *curstream* str real-font)
+          
+          (declare (ignore left right))
 
           (let ((text-list (or (ignore-errors 
                                  (capi::wrap-text-for-pane *curstream* str ;; (substitute #\Space #\Tab str) 
-                                                     :visible-width wrap
-                                                     :font real-font
-                                                     ))
+                                                           :visible-width wrap
+                                                           :font real-font
+                                                           ))
                                (list str)))
                 (text-h (- bottom top)))
  
@@ -256,6 +258,9 @@
                   (let ((xx (if align 
                                 (multiple-value-bind (left top right bottom)
                                     (gp::get-string-extent *curstream* line real-font)
+                                  
+                                  (declare (ignore top bottom))
+                                  
                                   (let ((line-w (- right left)))
                                     (cond ((equal align :right) (+ x wrap (- line-w)))
                                           ((equal align :center) (+ x (round wrap 2) (- (round line-w 2))))
@@ -270,7 +275,8 @@
                                   `(:block nil :foreground ,(get-real-color color))
                                 '(:block nil)))
                             (when font `(:font ,real-font))))
-                    )))))
+                    ))))
+        )
     
     (apply 'gp:draw-string 
            (append 

@@ -242,8 +242,7 @@
     selection))
 
 (defmethod position-display ((editor tempo-editor) pos-pix)
-  (let* ((decimals (decimals editor))
-         (point (omp (pix-to-x (get-g-component editor :main-panel) (om-point-x pos-pix))
+  (let* ((point (omp (pix-to-x (get-g-component editor :main-panel) (om-point-x pos-pix))
                      (pix-to-y (get-g-component editor :main-panel) (om-point-y pos-pix)))))
     (om-show-tooltip (get-g-component editor :main-panel)
                      (format nil "~D" (round (om-point-y point)))
@@ -251,6 +250,7 @@
     ))
 
 (defmethod move-editor-selection ((self tempo-editor) &key (dx 0) (dy 0))
+  (declare (ignore dx dy))
   (call-next-method)
   (update-tempo (container-editor self)))
 

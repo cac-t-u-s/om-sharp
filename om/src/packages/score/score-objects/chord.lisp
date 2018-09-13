@@ -204,7 +204,7 @@ A CHORD object (set of simultaneous notes) defined with
     (:staff :gf)))
 
 (defmethod additional-box-attributes ((self chord)) 
-  '((:font-size "a default size for score display" 24)
+  '((:font-size "a default size for score display" nil)
     (:staff "default staff configuration" 
      (("G" :g) ("F" :f) ("GF" :gf) ("GG" :gg) ("FF" :ff) ("GGF" :ggf) ("GFF" :gff) ("GGFF" :ggff)))
     ))
@@ -233,8 +233,40 @@ A CHORD object (set of simultaneous notes) defined with
           (setf unit (- unit (/ (- draw-box-h h) n-lines)))
           (setf fontsize (unit-to-font-size unit)))
         )
-
-      (score-draw self x y w h fontsize nil staff)
+      
+      (om-with-fg-color (om-make-color 0.0 0.2 0.2)
+        (score-draw self x y w h fontsize nil staff))
       )))
 
+
+;;;============ 
+;;; EDITOR
+;;;============
+
+(defclass score-panel (OMEditorView) ())
+
+(defclass chord-editor (OMEditor) ())
+
+(defmethod editor-view-drawable ((self chord-editor)) t)
+
+(defmethod object-has-editor ((self chord)) t)
+(defmethod get-editor-class ((self chord)) 'chord-editor)
+(defmethod editor-view-class ((self chord-editor)) 'score-panel)
+
+(defmethod om-draw-contents ((self score-panel))
+  (let* ((editor (editor self))
+         (chord (object-value editor)))
+    (om-trap-errors 
+     (om-with-fg-color (om-make-color 0.0 0.2 0.2)
+       (score-draw chord 0 0 (w self) (h self) (editor-get-edit-param editor :font-size) nil :gf))
+     )))
+
+(defmethod update-to-editor ((editor chord-editor) (from t))
+  (call-next-method)
+  (om-invalidate-view (main-view editor)))
+
+;(defmethod get-properties-list ((self chord)) (call-next-method))
+;  '((""
+;     (:name "Name" :text name)
+;     )))
 
