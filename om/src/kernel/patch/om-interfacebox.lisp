@@ -15,9 +15,9 @@
 ; File author: J. Bresson
 ;============================================================================
 
-;=========================================================================
+;=======================================================================
 ; INTERFACE BOXES
-;=========================================================================
+;=======================================================================
 
 (in-package :om)
 
@@ -107,10 +107,9 @@
     (draw-interface-component box 0 io-hspace (w self) (- (h self) (* 2 io-hspace)))
       
     ;;; border
-    (when (border box) 
+    (when (and (box-draw-border box) (plusp (box-draw-border box))) 
       (draw-border box 0 io-hspace (w self) (- (h self) (* 2 io-hspace))))
-   
-    
+       
     ;;; in/outs etc.
     (mapcar #'(lambda (a) (om-draw-area a)) (areas self))
     ))
@@ -189,7 +188,6 @@
   (let* ((box (make-instance 'SliderBox
                              :name "slider"
                              :reference 'slider)))
-    ;(print init-args)
     (set-value box (list (default-value box)))
     (setf (box-x box) (om-point-x pos)
           (box-y box) (om-point-y pos))
@@ -208,26 +206,38 @@
           )))
 
 
+(defun sliderbox-pos-value (sbox frame pos)
+  (let ((ratio (min 1 
+                    (max 0 
+                         (if (equal (orientation sbox) :vertical)
+                             (- 1 (/ (om-point-y pos) (h frame)))
+                           (/ (om-point-x pos) (w frame)))))))
+    (round-decimals 
+     (+ (min-value sbox) 
+        (* (increment sbox)
+           (round (* ratio (- (max-value sbox) (min-value sbox)))
+                  (increment sbox))))
+     (decimals sbox))))
+  
+    
 (defmethod interfacebox-action ((self SliderBox) frame pos)
+
   (when (or (om-command-key-p)
             (container-frames-locked (om-view-container frame)))
-    (om-init-temp-graphics-motion 
-     frame pos nil
-     :motion #'(lambda (view pos)
-                 (let* ((ratio (min 1 
-                                    (max 0 
-                                         (if (equal (orientation self) :vertical)
-                                             (- 1 (/ (om-point-y pos) (h frame)))
-                                           (/ (om-point-x pos) (w frame))))))
-                        (val (+ (min-value self) 
-                                (* (increment self)
-                                   (round (* ratio (- (max-value self) (min-value self)))
-                                          (increment self))))))
-                   (set-value self (list (round-decimals val (decimals self))))
-                   (when (reactive (car (outputs self))) (self-notify self))
-                   (om-invalidate-view frame)
-                   )))
-    ))
+
+    (flet ((slider-action (view pos)
+             (let ((val (sliderbox-pos-value self view pos)))
+                   (unless (equal val (get-box-value self))
+                     (set-value self (list val))
+                     (when (reactive (car (outputs self))) (self-notify self))
+                     (om-invalidate-view view)
+                     ))))
+      
+      ;;; action for the click
+      (slider-action frame pos)
+      ;;; more if drag
+      (om-init-temp-graphics-motion frame pos nil :motion #'slider-action)
+      )))
 
 
 ;;;===============================================================
