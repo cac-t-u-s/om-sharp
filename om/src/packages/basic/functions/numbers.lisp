@@ -472,15 +472,6 @@ Ex. (om-max '(4 3 2 1) '(1 2 3 4))  => (4 3 3 4)"
   (mapcar #'(lambda (input1 input2)
               (om-max input1 input2)) a b))
 
-(defmethod* list-max ((self list) )
-  :initvals '((0 1 2)) :indoc '("a list") :icon 209
-  :doc "Returns the maximum element in a list.
-
-Ex. (list-max '(2 4 1 3))  => 4"
-  (and (remove nil self) (list-max2 (remove nil self) MOST-NEGATIVE-LONG-FLOAT)))
-
-(defmethod* list-max ((self t)) self);==============================
-
 
 (defun list-max2 (l minimum)
   (if (null l)
@@ -488,6 +479,36 @@ Ex. (list-max '(2 4 1 3))  => 4"
     (if (atom (first l))
       (list-max2 (rest l) (max minimum (first l)))
       (list-max2 (first l) (max minimum (list-max2 (rest l) minimum))))))
+
+
+(defmethod* list-max ((self list) )
+  :initvals '((0 1 2)) :indoc '("a list") :icon 209
+  :doc "Returns the maximum element in a list.
+
+Ex. (list-max '(2 4 1 3))  => 4"
+  (and (remove nil self) (list-max2 (remove nil self) MOST-NEGATIVE-LONG-FLOAT)))
+
+(defmethod* list-max ((self t)) self)
+
+
+
+(defmethod* all-equal ((list list) &optional (test 'equal))
+  :initvals '(nil equal) :indoc '("a list" "a binary test function") 
+  :icon 209
+  :doc "Tests if all elements of <list> are equal (using <test>).
+Returns the value if this is true.
+
+Ex. (all-equal '(8 8 8) '=)  => 8
+Ex. (all-equal '(8 8 7 8) '=) => NIL"
+
+  (if (loop for ll on list 
+            while (or (null (cdr ll)) ;; last elem
+                      (funcall test (car ll) (cadr ll)))
+            finally return ll) ;; if this is nil, then all elements were equal
+      NIL
+    (car list)))
+
+
 
 
 
