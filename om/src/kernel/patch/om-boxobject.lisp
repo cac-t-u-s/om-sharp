@@ -373,8 +373,6 @@
     (editor-close (editor box)))
   ))
 
-(defmethod get-box-value ((self OMBoxEditCall)) 
-  (car (value self)))
 
 (defmethod get-input-def-value ((self OMBoxEditCall) name)
   (let ((slot (find name (class-instance-slots (find-class (reference self) nil)) :key 'slot-name)))

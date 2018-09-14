@@ -146,6 +146,8 @@
 (defmethod set-value ((self OMBox) value)
   (setf (value self) value))
 
+(defmethod get-box-value ((self OMBox)) (car (value self)))
+
 (defmethod set-box-outputs ((self OMBox) outputs)
   (setf (outputs self) outputs)
   (when (container self)

@@ -39,7 +39,6 @@ All boxes which their reference is a OM generic function are instances of this c
 
 (defmethod allow-rename ((self OMBoxcall)) nil)
 
-(defmethod get-box-value ((self OMBoxCall)) (car (value self)))
 
 (defmethod find-persistant-container ((self OMBox))
   (let ((container (container self)))
