@@ -157,6 +157,7 @@
 
 (defmethod draw-modes-for-object ((self bpf-editor)) '(:draw-all :points-only :lines-only :histogram))
 
+;;; for a BPF editor the 'main-view' is the whole layout
 (defmethod make-editor-window-contents ((editor bpf-editor))
   (let* ((object (object-value editor))
          (panel (om-make-view (get-curve-panel-class editor) :size (omp 50 100) :direct-draw t :bg-color (om-def-color :white) :scrollbars nil

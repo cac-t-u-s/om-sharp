@@ -358,6 +358,7 @@
 (defmethod init-editor-window ((ed OMEditor)) nil)
 
 ;;; called by build-editor-window
+;;; this function is given the opportunity to provide what's the main-view of the editor thanks as a second value
 (defmethod make-editor-window-contents ((editor OMEditor))
   (make-default-editor-view editor))
 

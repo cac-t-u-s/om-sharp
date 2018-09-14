@@ -17,6 +17,11 @@
 
 (in-package :om)
 
+
+;;;===============
+;;; SMuFL fonts
+;;;===============
+
 (defvar *score-font* "Bravura")
 (defvar *score-font-metadata-table* nil)
 (defvar *score-font-bbox-table* nil)
@@ -76,26 +81,24 @@
 
 (add-om-init-fun 'load-font-defaults)
 
-; (mc degre line accidental)
-(defparameter *default-scale* 
-  '((0 -1 nil)
-    (100 -1 :sharp) 
-    (200 -0.5 nil)
-    (300 -0.5 :sharp)
-    (400 0 nil)
-    (500 .5 nil)
-    (600 .5 :sharp)
-    (700 1 nil)
-    (800 1 :sharp)
-    (900 1.5 nil)
-    (1000 1.5 :sharp)
-    (1100 2 nil)))
+;;;===============
+;;; STAVES
+;;;===============
 
-(defun accident-char (acc)
-  (case acc
-    (:sharp (code-char #xE262))
-    (otherwise nil)))
-  
+(defvar *score-staff-options* '(:g :f :gf :gg :ff :ggf :gff :ggff))
+
+(defun staff-split (staff-symbol)
+  (case staff-symbol
+    (:g '(:g))
+    (:f '(:f))
+    (:gg '(:g :g+))
+    (:ff '(:f- :f))
+    (:gf '(:f :g))
+    (:ggf '(:f :g :g+))
+    (:gff '(:f- :f :g))
+    (:ggff '(:f- :f :g :g+))
+    ))
+
 ;;; we consider line 0 = E3
 (defun staff-lines (staff)
   (case staff
@@ -104,7 +107,6 @@
     (:f '(-6 -5 -4 -3 -2))
     (:f- '(-13 -12 -11 -10 -9))
     ))
-
 
 (defun head-leger-lines (head-line staff-lines)
   (cond ((>= head-line (1+ (car (last staff-lines)))) 
@@ -116,8 +118,6 @@
         ((and (<= head-line -7) (>= head-line -8)) '(-7 -8))
         (t nil)))
         
-
-
 (defun staff-key-char (staff)
   (case staff
     (:g (code-char #xE050))
@@ -147,21 +147,31 @@
     (round (+ (cadr (staff-line-range (car (last lines))))
               (car (staff-line-range (car lines))))
            2)))
-              
+        
+;;;==================
+;;; SCALES
+;;;==================            
+; (degree line accidental)
+(defparameter *default-scale* 
+  '((0 -1 nil)
+    (100 -1 :sharp) 
+    (200 -0.5 nil)
+    (300 -0.5 :sharp)
+    (400 0 nil)
+    (500 .5 nil)
+    (600 .5 :sharp)
+    (700 1 nil)
+    (800 1 :sharp)
+    (900 1.5 nil)
+    (1000 1.5 :sharp)
+    (1100 2 nil)))
 
-(defun staff-split (staff-symbol)
-  (case staff-symbol
-    (:g '(:g))
-    (:f '(:f))
-    (:gg '(:g :g+))
-    (:ff '(:f- :f))
-    (:gf '(:f :g))
-    (:ggf '(:f :g :g+))
-    (:gff '(:f- :f :g))
-    (:ggff '(:f- :f :g :g+))
-    ))
-      
-     
+(defun accident-char (acc)
+  (case acc
+    (:sharp (code-char #xE262))
+    (otherwise nil)))
+
+
 (defun pitch-to-line (pitch &optional scale)
   (multiple-value-bind (octave interval) (floor pitch 1200) 
     ;;; line 0 is at 5th octave
@@ -176,141 +186,166 @@
                (or scale *default-scale*) 
                :key 'car :test '>= :from-end t)))
 
+
+;;;==================
+;;; DRAW
+;;;================== 
+
 (defun font-size-to-unit (size) (* size .25))
 (defun unit-to-font-size (u) (* u 4))
 
+(defun calculate-staff-line-shift (staff)
+  (+ 5 ;;; top margin in units (line-h)
+     ;;; + shift of the max number of lines above line-0 (E3)
+     (last-elem (staff-lines (last-elem (staff-split staff))))))
 
-(defmethod score-draw ((self chord) x y w h fontsize &optional 
-                       (scale *default-scale*)
-                       (staff :ggff))
- 
-   (let* ((staff-elems (staff-split staff))
-          (staff-lines (apply 'append (mapcar 'staff-lines staff-elems)))
+(defun staff-line-y-pos (line interline-h shift)
+  (* (- shift line) interline-h))
 
-          (unit (font-size-to-unit fontsize))
-          (interline unit) 
-          
-          (line-0-pos (+ y (* interline (+ 5 ;;; top margin in units (line-h)
-                                           ;;; + shift of the max number of lines above line-0 (E3)
-                                           (last-elem staff-lines)))))
-                     
-          (x0 (+ x 8 (max (/ w 2) 40)))
-          (thinBarlineThickness (* *thinBarLineThickness* unit))
-          (staffLineThickness (* *staffLineThickness* unit))
-          (stemThickness (* *stemThickness* unit))
-          (legerLineThickness (* *legerLineThickness* unit))
-          (legerLineExtension (* *legerLineExtension* unit)))
-          
-       
-     (flet ((line-pos (line) 
-              (- line-0-pos (* line interline))))
-      
-       (om-with-font 
-       
-        (om-make-font *score-font* fontsize)
-       
-        (loop for staff-symb in staff-elems do 
-              (loop for line in (staff-lines staff-symb) do
-                    ;;; line
-                    (om-draw-line (+ x 10) (line-pos line)
-                                  (+ x w -10) (line-pos line)
-                                  :line staffLineThickness)
-                    ;;; clef
-                    (om-draw-char (+ x 20) 
-                                  (line-pos (staff-key-line staff-symb)) 
-                                  (staff-key-char staff-symb))
-                    ))
+(defun draw-staff (x y w h fontsize staff)
+  
+  (let* ((staff-elems (staff-split staff))
+         (unit (font-size-to-unit fontsize)) 
+         (shift (calculate-staff-line-shift staff))
+         (thinBarlineThickness (* *thinBarLineThickness* unit))
+         (staffLineThickness (* *staffLineThickness* unit)))
+         
+    (flet ((line-to-y-pos (line) 
+             (+ y (staff-line-y-pos line unit shift))) ;;; by convention, unit = staff interline
+           (x-pos (a) (+ x a)))
+
+      (om-with-font 
+       (om-make-font *score-font* fontsize)
+  
+       (loop for staff-symb in staff-elems do 
+             ;;; lines
+             (loop for line in (staff-lines staff-symb) do
+                   (om-draw-line (x-pos 0) (line-to-y-pos line)
+                                 (x-pos w) (line-to-y-pos line)
+                                 :line staffLineThickness))
+             ;;; clef
+             (om-draw-char (x-pos 5) 
+                           (line-to-y-pos (staff-key-line staff-symb)) 
+                           (staff-key-char staff-symb))
+             ))
             
-        ;;; vertical lines at beginning and the end
-        (om-draw-line (+ x 10) (line-pos (car staff-lines))
-                      (+ x 10) (line-pos (last-elem staff-lines))
-                      :line thinBarlineThickness)
-        (om-draw-line (+ x w -10) (line-pos (car staff-lines))
-                      (+ x w -10) (line-pos (last-elem staff-lines))
-                      :line thinBarlineThickness)
+   ;;; vertical lines at beginning and the end
+   (om-draw-line (x-pos 0) (line-to-y-pos (car (staff-lines (car staff-elems))))
+                 (x-pos 0) (line-to-y-pos (last-elem (staff-lines (last-elem staff-elems))))
+                 :line thinBarlineThickness)
+   (om-draw-line (x-pos w) (line-to-y-pos (car (staff-lines (car staff-elems))))
+                 (x-pos w) (line-to-y-pos (last-elem (staff-lines (last-elem staff-elems))))
+                 :line thinBarlineThickness)
+   )))
+
+
+
+
+
+(defun draw-chord (notes x y w h fontsize 
+                         &optional 
+                         (scale *default-scale*)
+                         (staff :gf))
+ 
+  
+  (let* ((staff-elems (staff-split staff))
+         (staff-lines (apply 'append (mapcar 'staff-lines staff-elems)))
+         (unit (font-size-to-unit fontsize))
+         (interline unit) 
+         (shift (calculate-staff-line-shift staff))
+         (stemThickness (* *stemThickness* unit))
+         (legerLineThickness (* *legerLineThickness* unit))
+         (legerLineExtension (* *legerLineExtension* unit)))
+     
+    (flet ((line-to-y-pos (line) 
+             (+ y (staff-line-y-pos line unit shift))) ;;; by convention, unit = staff interline
+           (x-pos (a) (+ x a)))
       
+      (om-with-font 
+       
+       (om-make-font *score-font* fontsize)
         
-        (let ((head-w (* (get-font-width "noteheadBlack") unit))
-              (acc-w (* (get-font-width "accidentalSharp") unit 1.5))
-              (stem-size (* unit 3))
-              (head-char (code-char #xE0A4))
-              (accidental-columns nil)
-              (head-columns nil)
-              (leger-lines nil))
+       (let ((head-w (* (get-font-width "noteheadBlack") unit))
+             (acc-w (* (get-font-width "accidentalSharp") unit 1.5))
+             (stem-size (* unit 3))
+             (head-char (code-char #xE0A4))
+             (accidental-columns nil)
+             (head-columns nil)
+             (leger-lines nil))
 
-          (loop for n in (sort (inside self) '< :key 'midic) 
-                minimize (midic n) into pmin
-                maximize (midic n) into pmax
-                do
-                (let* ((line (pitch-to-line (midic n) scale))
-                       (line-y (line-pos line)))
+         (loop for n in (sort notes '< :key 'midic) 
+               minimize (midic n) into pmin
+               maximize (midic n) into pmax
+               do
+               (let* ((line (pitch-to-line (midic n) scale))
+                      (line-y (line-to-y-pos line)))
 
-                  ;;; note head
-                  (let ((head-col (position line head-columns 
-                                       :test #'(lambda (line col)
-                                                 ;;; there's no other note in this col at less than 1 line away
-                                                 (not (find line col :test #'(lambda (a b) (< (abs (- b a)) 1))))))))
-                    (if head-col 
-                        (push line (nth head-col head-columns))
-                      (setf head-col (length head-columns) ;; add a new column
-                            head-columns (append head-columns (list (list line)))))
+                 ;;; note head
+                 (let ((head-col (position line head-columns 
+                                           :test #'(lambda (line col)
+                                                     ;;; there's no other note in this col at less than 1 line away
+                                                     (not (find line col :test #'(lambda (a b) (< (abs (- b a)) 1))))))))
+                   (if head-col 
+                       (push line (nth head-col head-columns))
+                     (setf head-col (length head-columns) ;; add a new column
+                           head-columns (append head-columns (list (list line)))))
                     
-                    (let ((head-x (+ x0 (* head-col head-w))))
+                   (let ((head-x (x-pos (* head-col head-w))))
                       
-                      (om-draw-char head-x line-y head-char)
+                     (om-draw-char head-x line-y head-char)
                       
-                      ;;; add leger-line(s) (if needed)
-                      (setf leger-lines (remove-duplicates (append leger-lines (head-leger-lines line staff-lines))))
+                     ;;; add leger-line(s) (if needed)
+                     (setf leger-lines (remove-duplicates (append leger-lines (head-leger-lines line staff-lines))))
                       
-                      ))
+                     ))
                   
-                  ;;; accident (if any)
-                  (let ((acc (pitch-to-acc (midic n) scale)))
-                    (when acc
-                      (let ((col (position (midic n) accidental-columns 
-                                           :test #'(lambda (pitch col)
-                                                     ;;; there's no other note in this col at less than an octave
-                                                     (not (find pitch col :test #'(lambda (a b) (< (abs (- b a)) 1200))))))))
-                        (if col 
-                            (push (midic n) (nth col accidental-columns))
+                 ;;; accident (if any)
+                 (let ((acc (pitch-to-acc (midic n) scale)))
+                   (when acc
+                     (let ((col (position (midic n) accidental-columns 
+                                          :test #'(lambda (pitch col)
+                                                    ;;; there's no other note in this col at less than an octave
+                                                    (not (find pitch col :test #'(lambda (a b) (< (abs (- b a)) 1200))))))))
+                       (if col 
+                           (push (midic n) (nth col accidental-columns))
                           
-                          (setf col (length accidental-columns) ;; add a new column
-                                accidental-columns (append accidental-columns (list (list (midic n))))))
+                         (setf col (length accidental-columns) ;; add a new column
+                               accidental-columns (append accidental-columns (list (list (midic n))))))
                           
-                        (om-draw-char (- x0 (* (1+ col) acc-w)) line-y (accident-char acc))
-                        )))
+                       (om-draw-char (- (x-pos 0) (* (1+ col) acc-w)) line-y (accident-char acc))
+                       )))
                   
-                  )
+                 )
                 
-                finally
+               finally
                
-                (if (<= (/ (+ pmax pmin) 2) (staff-medium-pitch staff))
-                       ;;; stem up
+               (if (<= (/ (+ pmax pmin) 2) (staff-medium-pitch staff))
+                   ;;; stem up
                     
-                    (let ((stemUpSE-x (* unit (car *noteheadBlack_StemUpSE*)))
-                          (stemUpSE-y (* unit (cadr *noteheadBlack_StemUpSE*))))
-                      (om-draw-line (+ x0 stemUpSE-x) (- (line-pos (pitch-to-line pmin scale)) stemUpSE-y)
-                                    (+ x0 stemUpSE-x) (- (line-pos (pitch-to-line pmax scale)) stemUpSE-y stem-size)
-                                    :line stemThickness))
-                  ;;; stem down
-                  (let ((stemDownNW-x (* unit (car *noteheadBlack_StemDownNW*)))
-                        (stemDownNW-y (* unit (cadr *noteheadBlack_StemDownNW*))))
-                    (om-draw-line (+ x0 stemDownNW-x) (- (line-pos (pitch-to-line pmax scale)) stemDownNW-y)
-                                  (+ x0 stemDownNW-x) (- (line-pos (pitch-to-line pmin scale)) stemDownNW-y (- stem-size))
-                                  :line stemThickness))
-                  )
-                )
+                   (let ((stemUpSE-x (* unit (car *noteheadBlack_StemUpSE*)))
+                         (stemUpSE-y (* unit (cadr *noteheadBlack_StemUpSE*))))
+                     (om-draw-line (+ (x-pos 0) stemUpSE-x) (- (line-to-y-pos (pitch-to-line pmin scale)) stemUpSE-y)
+                                   (+ (x-pos 0) stemUpSE-x) (- (line-to-y-pos (pitch-to-line pmax scale)) stemUpSE-y stem-size)
+                                   :line stemThickness))
+                 ;;; stem down
+                 (let ((stemDownNW-x (* unit (car *noteheadBlack_StemDownNW*)))
+                       (stemDownNW-y (* unit (cadr *noteheadBlack_StemDownNW*))))
+                   (om-draw-line (+ (x-pos 0) stemDownNW-x) (- (line-to-y-pos (pitch-to-line pmax scale)) stemDownNW-y)
+                                 (+ (x-pos 0) stemDownNW-x) (- (line-to-y-pos (pitch-to-line pmin scale)) stemDownNW-y (- stem-size))
+                                 :line stemThickness))
+                 )
+               )
           
-          ;;; draw chord-leger-lines
-          (loop for ll in leger-lines do
-                (let ((ypos (line-pos ll))) 
-                  (om-draw-line (- x0 legerLineExtension) ypos 
-                                (+ x0 head-w legerLineExtension) ypos
-                                :line legerLineThickness)
-                  ))
+         ;;; draw chord-leger-lines
+         (loop for ll in leger-lines do
+               (let ((ypos (line-to-y-pos ll))) 
+                 (om-draw-line (- (x-pos 0) legerLineExtension) ypos 
+                               (+ (x-pos 0) head-w legerLineExtension) ypos
+                               :line legerLineThickness)
+                 ))
 
-          ))
-       t)))
+         ))
+      t)))
 
 
 

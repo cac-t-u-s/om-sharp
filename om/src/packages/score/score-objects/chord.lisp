@@ -87,12 +87,12 @@ A CHORD object (set of simultaneous notes) defined with
 
 (defmethod (setf Lmidic) ((LMidic list) (self chord))
   (do-initialize self 
-                       :LMidic LMidic
-                       :LVel (LVel self)
-                       :LOffset (LOffset self)
-                       :LDur (LDur self)
-                       :LChan (LChan self)
-                       :LPort (LPort self)))
+                 :LMidic LMidic
+                 :LVel (LVel self)
+                 :LOffset (LOffset self)
+                 :LDur (LDur self)
+                 :LChan (LChan self)
+                 :LPort (LPort self)))
 
 (defmethod (setf LChan) ((LChan list) (self chord))
   (do-initialize self 
@@ -196,24 +196,29 @@ A CHORD object (set of simultaneous notes) defined with
 
 
 ;;;============ 
-;;; BOX
+;;; BOXES
 ;;;============
 
-(defmethod object-default-edition-params ((self chord))
-  '((:font-size 24)
-    (:staff :gf)))
+(defmethod additional-box-attributes ((self note)) 
+  `((:font-size "a font size for score display" nil)
+    (:staff "default staff configuration" 
+     ,(loop for s in *score-staff-options* collect (list (string-upcase s) s)))
+    ))
 
 (defmethod additional-box-attributes ((self chord)) 
-  '((:font-size "a default size for score display" nil)
+  `((:font-size "a font size for score display" nil)
     (:staff "default staff configuration" 
-     (("G" :g) ("F" :f) ("GF" :gf) ("GG" :gg) ("FF" :ff) ("GGF" :ggf) ("GFF" :gff) ("GGFF" :ggff)))
+     ,(loop for s in *score-staff-options* collect (list (string-upcase s) s)))
     ))
+
+(defmethod display-modes-for-object ((self note))
+  '(:hidden :text :mini-view))
 
 (defmethod display-modes-for-object ((self chord))
   '(:hidden :text :mini-view))
 
 
-(defmethod draw-mini-view ((self chord) (box t) x y w h &optional time)
+(defun chord-mini-view (notes box x y w h)
 
   (om-draw-rect x y w h :fill t :color (om-def-color :white))
   
@@ -235,38 +240,206 @@ A CHORD object (set of simultaneous notes) defined with
         )
       
       (om-with-fg-color (om-make-color 0.0 0.2 0.2)
-        (score-draw self x y w h fontsize nil staff))
+        (draw-staff (+ x 5) y (- w 10) h fontsize staff)
+        (draw-chord notes (+ 8 (max (/ w 2) 20)) y w h fontsize nil staff))
       )))
+
+(defmethod draw-mini-view ((self chord) box x y w h &optional time)
+  (chord-mini-view (inside self) box x y w h))
+
+(defmethod draw-mini-view ((self note) box x y w h &optional time)
+  (chord-mini-view (list self) box x y w h))
 
 
 ;;;============ 
 ;;; EDITOR
 ;;;============
 
-(defclass score-panel (OMEditorView) ())
+(defmethod object-default-edition-params ((self chord))
+  '((:font-size 24)
+    (:staff :gf)
+    (:duration-display :hidden)
+    (:velocity-display :hidden)
+    (:channel-display :hidden)
+    (:midiport-display :hidden)
+    ))
+
+(defmethod object-default-edition-params ((self note))
+  '((:font-size 24)
+    (:staff :gf)
+    (:duration-display :hidden)
+    (:velocity-display :hidden)
+    (:channel-display :hidden)
+    (:midiport-display :hidden)
+    ))
+
+
+(defclass score-view (OMEditorView) ())
 
 (defclass chord-editor (OMEditor) ())
 
-(defmethod editor-view-drawable ((self chord-editor)) t)
-
 (defmethod object-has-editor ((self chord)) t)
 (defmethod get-editor-class ((self chord)) 'chord-editor)
-(defmethod editor-view-class ((self chord-editor)) 'score-panel)
 
-(defmethod om-draw-contents ((self score-panel))
+;; (defmethod editor-view-drawable ((self chord-editor)) t)
+
+(defmethod make-editor-window-contents ((editor chord-editor))
+  (let* ((object (object-value editor))
+         (panel (om-make-view 'score-view 
+                              :size (omp 50 100) :direct-draw t :bg-color (om-def-color :white) :scrollbars nil
+                              :editor editor))
+         
+         (bottom-area 
+          (om-make-layout 
+           'om-row-layout 
+           :align :center ; :size (omp 100 100)
+           ;:ratios '(1 1 nil) 
+           :subviews
+           (list 
+            (om-make-layout 
+             'om-column-layout
+             :subviews (list 
+                        
+                        (om-make-di 'om-simple-text :text "Score params" 
+                               :size (omp 140 22) ;; :bg-color (om-def-color :red)
+                               :font (om-def-font :font1b))
+
+                        (om-make-layout 
+                         'om-row-layout :align :center
+                         :subviews 
+                         (list 
+                          (om-make-di 'om-simple-text :text "Staff" 
+                                      :size (omp 60 20) 
+                                      :font (om-def-font :font1))
+                          (om-make-di 'om-popup-list :items *score-staff-options* 
+                                      :size (omp 60 24) :font (om-def-font :font1)
+                                      :value (editor-get-edit-param editor :staff)
+                                      :di-action #'(lambda (list) 
+                                                     (editor-set-edit-param editor :staff (om-get-selected-item list))
+                                                     (report-modifications editor) ;; to update the box drisplay as well...
+                                                     ))
+                          ))
+                             
+                        (om-make-layout 
+                         'om-row-layout :align :center
+                         :subviews
+                         (list 
+                          (om-make-di 'om-simple-text :text "Font size" 
+                                      :font (om-def-font :font1)
+                                      :size (omp 60 20))
+                          (om-make-graphic-object 'numbox 
+                                                  :value (editor-get-edit-param editor :font-size)
+                                                  :min-val 8 :max-val 120 
+                                                  :size (omp 40 18)
+                                                  :font (om-def-font :font1)
+                                                  :bg-color (om-def-color :white)
+                                                  :after-fun #'(lambda (numbox) 
+                                                                 (editor-set-edit-param editor :font-size (value numbox))))
+                          ))
+                        ))
+
+
+            (om-make-layout 
+             'om-column-layout
+             :subviews (list 
+                        
+                        (om-make-layout 
+                         'om-row-layout :align :center
+                         :subviews 
+                         (list 
+                          (om-make-di 'om-simple-text :text "duration" 
+                                      :size (omp 68 20) 
+                                      :font (om-def-font :font1))
+                          (om-make-di 'om-check-box :text "" :font (om-def-font :font1)
+                                      :checked-p (editor-get-edit-param editor :duration-display)
+                                      :di-action #'(lambda (item) 
+                                                     (editor-set-edit-param editor :duration-display (om-checked-p item))))
+                          ))
+
+                        (om-make-layout 
+                         'om-row-layout :align :center
+                         :subviews 
+                         (list 
+                          (om-make-di 'om-simple-text :text "velocity" 
+                                      :size (omp 68 20) 
+                                      :font (om-def-font :font1))
+                          (om-make-di 'om-check-box :text "" :font (om-def-font :font1)
+                                      :checked-p (editor-get-edit-param editor :velocity-display)
+                                      :di-action #'(lambda (item) 
+                                                     (editor-set-edit-param editor :velocity-display (om-checked-p item))))
+                          ))
+                        
+                        (om-make-layout 
+                         'om-row-layout :align :center
+                         :subviews 
+                         (list 
+                          (om-make-di 'om-simple-text :text "MIDI channel" 
+                                      :size (omp 68 20) 
+                                      :font (om-def-font :font1))
+                          (om-make-di 'om-popup-list :items '(:hidden :number :color :color-and-number) 
+                                      :size (omp 80 24) :font (om-def-font :font1)
+                                      :value (editor-get-edit-param editor :channel-display)
+                                      :di-action #'(lambda (list) 
+                                                     (editor-set-edit-param editor :channel-display (om-get-selected-item list))))
+                          ))
+                        
+                        (om-make-layout 
+                         'om-row-layout :align :center
+                         :subviews 
+                         (list 
+                          (om-make-di 'om-simple-text :text "MIDI port" 
+                                      :size (omp 68 20) 
+                                      :font (om-def-font :font1))
+                          (om-make-di 'om-check-box :text "" :font (om-def-font :font1)
+                                      :checked-p (editor-get-edit-param editor :port-display)
+                                      :di-action #'(lambda (item) 
+                                                     (editor-set-edit-param editor :port-display (om-checked-p item))))
+                          ))
+
+                        
+                        ))
+            ;nil
+            )
+           
+            )))
+
+    (set-g-component editor :main-panel panel)
+    (om-make-layout 'om-row-layout :ratios '(99 1) 
+                    :subviews 
+                    (list 
+                     (om-make-layout 'om-column-layout 
+                                     :ratios '(99 1)
+                                     :subviews (list panel bottom-area))
+                     (call-next-method)))
+    ))
+
+
+
+(defmethod om-draw-contents ((self score-view))
+  
   (let* ((editor (editor self))
          (chord (object-value editor)))
+    
     (om-trap-errors 
      (om-with-fg-color (om-make-color 0.0 0.2 0.2)
-       (score-draw chord 0 0 (w self) (h self) (editor-get-edit-param editor :font-size) nil :gf))
+       
+       (draw-staff 0 0 (w self) (h self) 
+                   (editor-get-edit-param editor :font-size) 
+                   (editor-get-edit-param editor :staff))
+       
+       (draw-chord (inside chord) (/ (w self) 2) 0 (w self) (h self) 
+                   (editor-get-edit-param editor :font-size) 
+                   nil ;; scale !! 
+                   (editor-get-edit-param editor :staff)))
      )))
+
+
 
 (defmethod update-to-editor ((editor chord-editor) (from t))
   (call-next-method)
-  (om-invalidate-view (main-view editor)))
+  (editor-invalidate-views editor))
 
-;(defmethod get-properties-list ((self chord)) (call-next-method))
-;  '((""
-;     (:name "Name" :text name)
-;     )))
+(defmethod editor-invalidate-views ((self chord-editor))
+  (call-next-method)
+  (om-invalidate-view (get-g-component self :main-panel)))
 
