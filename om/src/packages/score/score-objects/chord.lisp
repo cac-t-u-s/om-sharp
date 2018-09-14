@@ -41,6 +41,8 @@ A simple NOTE defined with :
 ")
   )
 
+(defmethod additional-class-attributes ((self note)) '(port offset))
+
 
 (defclass* chord (container score-object)  
   ((Lmidic :initform '(6000) :accessor LMidic :initarg :LMidic :type list :documentation "pitches (list of midicents)")
@@ -168,30 +170,30 @@ A CHORD object (set of simultaneous notes) defined with
   self)
 
 
-(defmethod Objfromobjs ((self note) (Type Chord)) 
-  (ObjFromObjs (list self) Type))
+(defmethod objfromobjs ((model note) (target Chord)) 
+  (objfromobjs (list model) target))
 
-#|
-(defmethod* Objfromobjs ((self list) (Type Chord))
+
+(defmethod objfromobjs ((model list) (target Chord))
+
   (cond
-   ((list-subtypep self 'chord)
-    (let ((notes (flat (mapcar 'inside self))))
-      (objfromobjs notes type)))
-   ((chord-p (car self)) (Clone (car self)))
-   ((list-subtypep self 'number)
-    (mki (type-of type) :LMidic self))
-   ((list-subtypep self 'note)
-    (let ((chord (make-instance (type-of type) :empty t)))
-      (setQValue chord 1000 :recursive nil)
-      (setf (inside chord) (mapcar 'clone self))
-      (QNormalize chord)
-      (setf (slot-value chord 'LMidic) nil  (slot-value chord 'LVel) nil 
-            (slot-value chord 'LOffset) nil  (slot-value chord 'LDur) nil 
-            (slot-value chord 'LChan) nil) 
-      chord))
-   (t nil)))
+   
+   ;;; a list of chords (=> merge)
+   ((list-subtypep model 'chord)
+    (let ((notes (flat (mapcar 'inside model))))
+      (objfromobjs notes target)))
+   
+   ;;; a list of number (probably a patching mistake, but consider it a list of pitches..)
+   ((list-subtypep model 'number)
+    (make-instance (type-of type) :lmidic model))
 
-|#
+   ;;; a list of notes
+   ((list-subtypep model 'note)
+    (let ((chord (make-instance (type-of target))))
+      (setf (inside chord) (mapcar 'clone model))
+      chord))
+   
+   (t nil)))
 
 
 
@@ -241,7 +243,7 @@ A CHORD object (set of simultaneous notes) defined with
       
       (om-with-fg-color (om-make-color 0.0 0.2 0.2)
         (draw-staff (+ x 5) y (- w 10) h fontsize staff)
-        (draw-chord notes (+ 8 (max (/ w 2) 20)) y w h fontsize nil staff))
+        (draw-chord notes (+ 8 (max (/ w 2) 20)) y w h fontsize :scale nil :staff staff))
       )))
 
 (defmethod draw-mini-view ((self chord) box x y w h &optional time)
@@ -258,19 +260,19 @@ A CHORD object (set of simultaneous notes) defined with
 (defmethod object-default-edition-params ((self chord))
   '((:font-size 24)
     (:staff :gf)
-    (:duration-display :hidden)
+    (:duration-display nil)
     (:velocity-display :hidden)
     (:channel-display :hidden)
-    (:midiport-display :hidden)
+    (:midiport-display nil)
     ))
 
 (defmethod object-default-edition-params ((self note))
   '((:font-size 24)
     (:staff :gf)
-    (:duration-display :hidden)
+    (:duration-display nil)
     (:velocity-display :hidden)
     (:channel-display :hidden)
-    (:midiport-display :hidden)
+    (:midiport-display nil)
     ))
 
 
@@ -363,10 +365,11 @@ A CHORD object (set of simultaneous notes) defined with
                           (om-make-di 'om-simple-text :text "velocity" 
                                       :size (omp 68 20) 
                                       :font (om-def-font :font1))
-                          (om-make-di 'om-check-box :text "" :font (om-def-font :font1)
-                                      :checked-p (editor-get-edit-param editor :velocity-display)
-                                      :di-action #'(lambda (item) 
-                                                     (editor-set-edit-param editor :velocity-display (om-checked-p item))))
+                          (om-make-di 'om-popup-list :items '(:hidden :value :symbol :size :alpha) 
+                                      :size (omp 80 24) :font (om-def-font :font1)
+                                      :value (editor-get-edit-param editor :velocity-display)
+                                      :di-action #'(lambda (list) 
+                                                     (editor-set-edit-param editor :velocity-display (om-get-selected-item list))))
                           ))
                         
                         (om-make-layout 
@@ -423,14 +426,19 @@ A CHORD object (set of simultaneous notes) defined with
     (om-trap-errors 
      (om-with-fg-color (om-make-color 0.0 0.2 0.2)
        
-       (draw-staff 0 0 (w self) (h self) 
+       (draw-staff 10 0 (- (w self) 20) (h self) 
                    (editor-get-edit-param editor :font-size) 
                    (editor-get-edit-param editor :staff))
        
-       (draw-chord (inside chord) (/ (w self) 2) 0 (w self) (h self) 
+       (draw-chord (inside chord) (/ (w self) 2) 0 (- (w self) 20) (h self) 
                    (editor-get-edit-param editor :font-size) 
-                   nil ;; scale !! 
-                   (editor-get-edit-param editor :staff)))
+                   :staff (editor-get-edit-param editor :staff)
+                   :draw-chans (editor-get-edit-param editor :channel-display)
+                   :draw-vels (editor-get-edit-param editor :velocity-display)
+                   :draw-ports (editor-get-edit-param editor :port-display)
+                   :draw-durs (editor-get-edit-param editor :duration-display)
+                   )
+       )
      )))
 
 
