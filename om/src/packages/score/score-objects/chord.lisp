@@ -22,7 +22,7 @@
 ;(defclass chord (data-frame)
 ;  ((onset :accessor onset :initarg :onset :initform 0 :documentation "onset of the chord (ms)")))
 
-(defclass* note ()
+(defclass* note (score-object)
   ((midic :initform 6000 :accessor midic :initarg :midic :type number :documentation "pitch (midicents)")
    (vel :initform 80 :accessor vel :initarg :vel :type number :documentation "velocity (0-127)")
    (dur :initform 1000 :accessor dur :initarg :dur :type number :documentation "duration (ms)")
@@ -44,9 +44,9 @@ A simple NOTE defined with :
 (defmethod additional-class-attributes ((self note)) '(port offset))
 
 
-(defclass* chord (container score-object)  
+(defclass* chord (container data-frame score-object)  
   ((Lmidic :initform '(6000) :accessor LMidic :initarg :LMidic :type list :documentation "pitches (list of midicents)")
-   (LVel :initform '(100) :accessor LVel :initarg :LVel :type list :documentation "velocities (list of values 0-127)")
+   (LVel :initform '(80) :accessor LVel :initarg :LVel :type list :documentation "velocities (list of values 0-127)")
    (LOffset :initform '(0) :accessor LOffset :initarg :LOffset :type list :documentation "offsets (list of values in ms)")
    (Ldur :initform '(1000) :accessor Ldur :initarg :Ldur :type list :documentation "durations (list of values in ms)")
    (LChan :initform '(1) :accessor LChan :initarg :LChan :type list :documentation "MIDI channels (list of values 0-16)")
@@ -430,14 +430,25 @@ A CHORD object (set of simultaneous notes) defined with
                    (editor-get-edit-param editor :font-size) 
                    (editor-get-edit-param editor :staff))
        
-       (draw-chord (inside chord) (/ (w self) 2) 0 (- (w self) 20) (h self) 
+       (setf 
+        (b-box chord)
+        (draw-chord (inside chord) (/ (w self) 2) 0 (- (w self) 20) (h self) 
                    (editor-get-edit-param editor :font-size) 
                    :staff (editor-get-edit-param editor :staff)
                    :draw-chans (editor-get-edit-param editor :channel-display)
                    :draw-vels (editor-get-edit-param editor :velocity-display)
                    :draw-ports (editor-get-edit-param editor :port-display)
                    :draw-durs (editor-get-edit-param editor :duration-display)
-                   )
+                   ))
+       
+       (let ((bb (om* (b-box chord) (font-size-to-unit (editor-get-edit-param editor :font-size)))))
+         (print bb)
+         (om-draw-rect (+ (/ (w self) 2) (nth 0 bb))
+                       (nth 1 bb)
+                       (- (nth 2 bb) (nth 0 bb))
+                       (- (nth 3 bb) (nth 1 bb)))
+         )
+                     
        )
      )))
 
