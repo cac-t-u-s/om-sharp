@@ -217,8 +217,6 @@
         '(:ppp :pp :p :mp :mf :f :ff :fff))))
   
 
-
-
 ;;;==================
 ;;; DRAW
 ;;;================== 
@@ -231,8 +229,7 @@
      ;;; + shift of the max number of lines above line-0 (E3)
      (last-elem (staff-lines (last-elem (staff-split staff))))))
 
-(defun staff-line-y-pos (line interline-h shift)
-  (* (- shift line) interline-h))
+(defparameter *score-selection-color* (om-def-color :dark-red))
 
 (defun draw-staff (x y w h fontsize staff)
   
@@ -243,7 +240,7 @@
          (staffLineThickness (ceiling (* *staffLineThickness* unit))))
          
     (flet ((line-to-y-pos (line) 
-             (let ((pos (+ y (staff-line-y-pos line unit shift)))) ;;; by convention, unit = staff interline
+             (let ((pos (+ y (* (- shift line) unit)))) ;;; by convention, unit = staff interline
                (if (> unit 5) (round pos) pos)))
            (x-pos (a) (+ x a)))
 
@@ -263,11 +260,11 @@
              ))
             
    ;;; vertical lines at beginning and the end
-   (om-draw-line (round (x-pos 0)) (line-to-y-pos (car (staff-lines (car staff-elems))))
-                 (round (x-pos 0)) (line-to-y-pos (last-elem (staff-lines (last-elem staff-elems))))
+   (om-draw-line (round (x-pos 0)) (1- (line-to-y-pos (car (staff-lines (car staff-elems)))))
+                 (round (x-pos 0)) (1+ (line-to-y-pos (last-elem (staff-lines (last-elem staff-elems)))))
                  :line thinBarlineThickness)
-   (om-draw-line (x-pos w) (line-to-y-pos (car (staff-lines (car staff-elems))))
-                 (x-pos w) (line-to-y-pos (last-elem (staff-lines (last-elem staff-elems))))
+   (om-draw-line (x-pos w) (1- (line-to-y-pos (car (staff-lines (car staff-elems)))))
+                 (x-pos w) (1+ (line-to-y-pos (last-elem (staff-lines (last-elem staff-elems)))))
                  :line thinBarlineThickness)
    )))
 
@@ -299,21 +296,24 @@
          (dur-factor (/ (- w 80) (* dur-max 2)))  ;;; we will multiply durations by this to display them on half-width of the view
          (unique-channel (and (not (equal draw-chans :hidden)) (all-equal (mapcar 'chan notes))))
          (unique-vel (and draw-vels (all-equal (mapcar 'vel notes))))
-         (unique-port (and draw-ports (all-equal (mapcar 'port notes))))
-          )
+         (unique-port (and draw-ports (all-equal (mapcar 'port notes)))))
      
     ;;; positions (in pixels) 
     (flet ((line-to-y-pos (line) 
-             (+ y (staff-line-y-pos line unit shift))) ;;; by convention, unit = staff interline
+             (+ y (* (- shift line) unit))) ;;; by convention, unit = staff interline
            (x-pos (a) (+ x a)))
          
         (om-with-font 
          (om-make-font *score-font* fontsize)
     
          ;;; in case of a unique channel we set the color right here
-         (om-with-fg-color (and unique-channel
+         (om-with-fg-color (if (equal selection t)
+                               
+                               *score-selection-color*
+                               
+                             (and unique-channel
                                 (member draw-chans '(:color :color-and-number))
-                                (get-midi-channel-color unique-channel))
+                                (get-midi-channel-color unique-channel)))
 
            
            ;;; Global stuff here (not needed for the head loop)
@@ -336,7 +336,7 @@
                    (om-draw-line (+ (x-pos 0) stemUpSE-x) (- y-min stemUpSE-y)
                                  (+ (x-pos 0) stemUpSE-x) (- y-max stemUpSE-y stem-size)
                                  :line stemThickness)
-                   (setf cy1 (- l-max *stem-height*)) ;; initial extesion for the chord bounding-box as well
+                   (setf cy1 (- shift l-max *stem-height*)) ;; initial extesion for the chord bounding-box as well
                    )
                ;;; stem down
                (let ((stemDownNW-x (* unit (car *noteheadBlack_StemDownNW*)))
@@ -344,7 +344,7 @@
                  (om-draw-line (+ (x-pos 0) stemDownNW-x) (- y-max stemDownNW-y)
                                (+ (x-pos 0) stemDownNW-x) (- y-min stemDownNW-y (- stem-size))
                                :line stemThickness)
-                 (setf cy2 (+ l-min *stem-height*)) ;; initial extesion for the chord bounding-box as well
+                 (setf cy2 (+ (- shift l-min) *stem-height*)) ;; initial extesion for the chord bounding-box as well
                  )
                )
 
@@ -395,12 +395,17 @@
                    (let* ((line (pitch-to-line (midic n) scale))
                           (line-y (line-to-y-pos line)))
                  
-                     (om-with-fg-color (cond ((member draw-chans '(:color :color-and-number))
+                     (om-with-fg-color (if (or (equal selection t)
+                                               (and (listp selection) (find n selection)))
+                                           
+                                           *score-selection-color*
+                                         
+                                         (cond ((member draw-chans '(:color :color-and-number))
                                               (om-make-color-alpha 
                                                (get-midi-channel-color (chan n))
                                                (if (equal draw-vels :alpha) (/ (vel n) 127) 1)))
                                              ((equal draw-vels :alpha) (om-make-color 0 0 0 (/ (vel n) 127)))
-                                             (t nil))
+                                             (t nil)))
                                            
                        ;;; note head
                        (let ((head-col (position line head-columns 
@@ -416,8 +421,8 @@
                                ;;; bounding-box values
                                (nx1 (* head-col head-w))
                                (nx2 (* (1+ head-col) head-w))
-                               (ny1 (- line (* head-h .5)))
-                               (ny2 (+ line (* head-h .5))))
+                               (ny1 (- shift line (* head-h .5)))
+                               (ny2 (- shift line (* head-h -.5))))
                            
                            ;;; bounding-box is in unit (not pixels)
                            (setf (b-box n) (list nx1 nx2 ny1 ny2)
@@ -426,7 +431,7 @@
                                  cx2 (if cx2 (max cx2 nx2) nx2)
                                  cy1 (if cy1 (min cy1 ny1) ny1)
                                  cy2 (if cy2 (max cy2 ny2) ny2))
-                         
+
                            ;;; HEAD
                            (om-draw-char head-x line-y head-char
                                          :font (when (equal draw-vels :size) (om-make-font *score-font* (* (vel n) fontsize .02))))
