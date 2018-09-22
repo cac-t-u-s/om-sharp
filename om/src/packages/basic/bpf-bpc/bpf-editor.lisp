@@ -373,25 +373,31 @@
       (let ((ti (nth i (time-sequence-get-internal-times self))))
         (and ti (- ti)))))
 
+
 (defun draw-bpf-point (p editor &key index time selected)
+
   (cond ((and time
               (equal (player-get-object-state (player editor) (object-value editor)) :play)
               (< (abs time) (player-get-object-time (player editor) (object-value editor)))
               )
          (om-with-fg-color (om-def-color :dark-red)
            (om-draw-circle (car p) (cadr p) 4 :fill t)))
+        
         (selected
          (om-with-fg-color (om-def-color :dark-red)
            (om-draw-circle (car p) (cadr p) 4 :fill t)))
+        
         ;;; draw normal except if lines only
         ((not (equal (editor-get-edit-param editor :draw-style) :lines-only))
          (om-draw-circle (car p) (cadr p) 3 :fill t))
         (t nil))
+
   (when index
     (om-draw-string (car p) (+ (cadr p) 15) (number-to-string index)))
   (when (and time (editor-get-edit-param editor :show-times))
     (om-with-fg-color (if (minusp time) (om-def-color :gray) (om-def-color :dark-blue) ) 
-      (om-draw-string (car p) (- (cadr p) 15) (number-to-string (abs time) 0)))))
+      (om-draw-string (car p) (- (cadr p) 15) (number-to-string (abs time) 0))))
+  )
 
 (defun draw-interpol-point (p editor &key time)
   (if (and (equal (player-get-object-state (player editor) (object-value editor)) :play) 
@@ -406,59 +412,105 @@
        (> (cadr pt) y1) (< (cadr pt) y2)))
 
 (defmethod draw-one-bpf ((bpf bpf) view editor foreground? &optional x1 x2 y1 y2) 
-  (let ((pts (point-list bpf)))
-    (when pts
-      (let ((first-pt (list (x-to-pix view (editor-point-x editor (car pts)))
-                            (y-to-pix view (editor-point-y editor (car pts)))))
-            (selection (and foreground? (selection editor)))
-            (show-indice (editor-get-edit-param editor :show-indices)))
-        (draw-bpf-point first-pt editor
-                        :selected (and (consp selection) (find 0 selection))
-                        :index (and foreground? show-indice 0)
-                        :time (and foreground? (time-to-draw bpf editor (car pts) 0))) ;TODO Change drawing args here !
+  (om-trap-errors 
+   (let ((pts (point-list bpf)))
+     (when pts
+       (let ((first-pt (list (x-to-pix view (editor-point-x editor (car pts)))
+                             (y-to-pix view (editor-point-y editor (car pts)))))
+             (selection (and foreground? (selection editor)))
+             (show-indice (editor-get-edit-param editor :show-indices)))
+        
+         (cond 
+          ;;; draw only points
+          ((equal (editor-get-edit-param editor :draw-style) :points-only) 
+          
+           (draw-bpf-point first-pt editor
+                           :selected (and (consp selection) (find 0 selection))
+                           :index (and foreground? show-indice 0)
+                           :time (and foreground? (time-to-draw bpf editor (car pts) 0))) ;TODO Change drawing args here !
 
-        (if (equal (editor-get-edit-param editor :draw-style) :points-only) 
-            ;;; a) draw only points
-            (loop for pt in (cdr pts) 
-                  for i = 1 then (1+ i) do
-                  (let ((p (list (x-to-pix view (editor-point-x editor pt))
-                                 (y-to-pix view (editor-point-y editor pt)))))
-                    (when (point-visible-p p x1 x2 y1 y2)
-                  ;(print (list "POINT" i))
-                      (draw-bpf-point p editor
-                                      :selected (and (consp selection) (find i selection))
-                                      :index (and foreground? show-indice i) 
-                                      :time (and foreground? (time-to-draw bpf editor pt i)))
-                      )))
-          ;;; b) draw points and lines
-          (let ((pt-list (loop for rest on pts 
-                               for i = 1 then (1+ i) 
-                               while (cadr rest)
-                               append
-                               (let* ((p1 (car rest))
-                                      (p2 (cadr rest))
-                                      (pp1 (list (x-to-pix view (editor-point-x editor p1)) 
-                                                 (y-to-pix view (editor-point-y editor p1))))
-                                      (pp2 (list (x-to-pix view (editor-point-x editor p2)) 
-                                                 (y-to-pix view (editor-point-y editor p2)))))
+           (loop for pt in (cdr pts) 
+                 for i = 1 then (1+ i) do
+                 (let ((p (list (x-to-pix view (editor-point-x editor pt))
+                                (y-to-pix view (editor-point-y editor pt)))))
+                   (when (point-visible-p p x1 x2 y1 y2)
+                     (draw-bpf-point p editor
+                                     :selected (and (consp selection) (find i selection))
+                                     :index (and foreground? show-indice i) 
+                                     :time (and foreground? (time-to-draw bpf editor pt i)))
+                     ))))
+          
+          ;;; histogram
+          ((equal (editor-get-edit-param editor :draw-style) :histogram) 
+          
+           (let ((origin-y (y-to-pix view (editor-point-y editor (omp 0 0)))))
+            
+             (loop for i from 0 to (1- (length pts))
+                   do 
+                   (let* ((pt (nth i pts))
+                          (x (x-to-pix view (editor-point-x editor pt)))
+                          (y (y-to-pix view (editor-point-y editor pt)))
+                          (next-pt (nth (1+ i) pts))
+                          (next-x (if next-pt (x-to-pix view (editor-point-x editor next-pt))
+                                    (if (plusp i) 
+                                        ;;; repeat last width
+                                        (let ((prev-pt (nth (1- i) pts)))
+                                          (+ x (- x (x-to-pix view (editor-point-x editor prev-pt)))))
+                                      ;;; last case: only one point
+                                      (+ x 100)))))
+                                         
+                     (om-draw-rect x origin-y (- next-x x) (- y origin-y)
+                                   :fill nil)
+                     (om-draw-rect x origin-y (- next-x x) (- y origin-y) 
+                                   :fill t :color (om-def-color :gray))
+                    
+                     (draw-bpf-point (list x y) editor
+                                     :selected (and (consp selection) (find i selection))
+                                     :index (and foreground? show-indice i) 
+                                     :time (and foreground? (time-to-draw bpf editor pt i)))
+
+                     (om-draw-string (1+ x) (- origin-y 4) (format nil "~D" (om-point-y pt)) 
+                                     :font (om-def-font :font1 :size 9)
+                                     :color (om-def-color :white))
+                     ))
+             ))
+              
+          ;;; draw lines (with/without points)
+          (t 
+           (draw-bpf-point first-pt editor
+                           :selected (and (consp selection) (find 0 selection))
+                           :index (and foreground? show-indice 0)
+                           :time (and foreground? (time-to-draw bpf editor (car pts) 0))) ;TODO Change drawing args here !
+
+           (let ((pt-list (loop for rest on pts 
+                                for i = 1 then (1+ i) 
+                                while (cadr rest)
+                                append
+                                (let* ((p1 (car rest))
+                                       (p2 (cadr rest))
+                                       (pp1 (list (x-to-pix view (editor-point-x editor p1)) 
+                                                  (y-to-pix view (editor-point-y editor p1))))
+                                       (pp2 (list (x-to-pix view (editor-point-x editor p2)) 
+                                                  (y-to-pix view (editor-point-y editor p2)))))
                                                ;(when ;(or (point-visible-p pp1 x xmax y ymax)
                                                      ;    (point-visible-p pp2 x xmax y ymax)
                                                      ;    (and (> x (car pp1)) (< x (car pp2))))
-                                 (unless (or (and (< (car pp1) x1) (< (car pp2) x1))
-                                             (and (> (car pp1) x2) (> (car pp2) x2)))
-                                                  
-                                   (draw-bpf-point pp2 editor
-                                                   :selected (and (consp selection) (find i selection))
-                                                   :index (and foreground? show-indice i)
-                                                   :time (and foreground? (time-to-draw bpf editor p2 i)))
-                                   (append pp1 pp2)
-                                   )
-                                 ))))
-            (om-with-line-size (if (find T selection) 2 1)
-              (om-draw-lines pt-list))
-            ))
+                                  (unless (or (and (< (car pp1) x1) (< (car pp2) x1))
+                                              (and (> (car pp1) x2) (> (car pp2) x2)))
+                                   
+                                    ;;; will not draw the point if line-only, except if selected etc.
+                                    (draw-bpf-point pp2 editor
+                                                    :selected (and (consp selection) (find i selection))
+                                                    :index (and foreground? show-indice i)
+                                                    :time (and foreground? (time-to-draw bpf editor p2 i)))
+                                    (append pp1 pp2)
+                                    )
+                                  ))))
+             (om-with-line-size (if (find T selection) 2 1)
+               (om-draw-lines pt-list))
+             )))
         
-        (when (number-? (interpol bpf))
+         (when (number-? (interpol bpf))
            (let ((interpol-times (arithm-ser (get-first-time bpf) (get-obj-dur bpf) (number-number (interpol bpf)))))
              (loop for time in interpol-times
                    do (let ((new-p (time-sequence-make-timed-item-at bpf time)))
@@ -467,7 +519,7 @@
                                              editor
                                              :time time)))))
 
-        ))))
+         )))))
 
 (defmethod om-draw-contents-area ((self bpf-bpc-panel) x y w h)
   (let* ((editor (editor self))
@@ -657,7 +709,7 @@
                                      (- (y-to-pix panel (editor-point-y editor p2)) delta)
                                      (* delta 2) (* delta 2))
                  (1+ pos))
-            (and p1 p2 (not (equal (editor-get-edit-param editor :draw-style) :points-only))
+            (and p1 p2 (not (find (editor-get-edit-param editor :draw-style) '(:points-only :histogram)))
                  (om-point-in-line-p position 
                                      (om-make-point (x-to-pix panel (editor-point-x editor p1))
                                                     (y-to-pix panel (editor-point-y editor p1)))
