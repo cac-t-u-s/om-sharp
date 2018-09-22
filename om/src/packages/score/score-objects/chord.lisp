@@ -427,11 +427,11 @@ A CHORD object (set of simultaneous notes) defined with
 
 
 
-(defmethod update-to-editor ((editor score-editor) (from t))
+(defmethod update-to-editor ((editor chord-editor) (from t))
   (call-next-method)
   (editor-invalidate-views editor))
 
-(defmethod editor-invalidate-views ((self score-editor))
+(defmethod editor-invalidate-views ((self chord-editor))
   (call-next-method)
   (om-invalidate-view (get-g-component self :main-panel)))
 
