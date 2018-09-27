@@ -21,7 +21,7 @@
 (defclass container ()
   ((inside :accessor inside :initarg :inside :initform nil :documentation "the contents of the container...")))
 
-(defclass score-object ()
+(defclass score-object (schedulable-object)
   (;;; symbolic date and symbolic-dur make sense only if the object is in a context with tempo
    (symbolic-date :accessor symbolic-date :initarg :symbolic-date :initform nil 
                   :documentation "date in symbolic musical time (ratio of beat)")
@@ -31,6 +31,15 @@
    ;;; bounding-box is a cached graphic information for score display 
    (b-box :accessor b-box :initform nil) 
    ))
+
+(defmethod display-modes-for-object ((self score-object))
+  '(:mini-view :hidden :text))
+
+(defmethod initialize-instance :after ((self score-object) &rest initargs)
+  (setf (autostop self) t) ;;; ??? wtf 
+  )
+
+
 
 
 

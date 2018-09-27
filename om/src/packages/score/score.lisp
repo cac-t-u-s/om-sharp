@@ -19,11 +19,16 @@
 
 (mapc #'(lambda (filename) 
           (compile&load (decode-local-path filename))) 
+      
       '("score-objects/score-object"
         "score-objects/chord"
         "score-objects/chord-seq"
+        "score-objects/voice"
         "score-objects/score"
+
         "editor/score-draw"
+        "editor/score-editor"
+
         "tools/conversions"
         "import-export/musicxml"))
 
@@ -37,6 +42,6 @@
  :subpackages  (list (omNG-make-package 
                       "Utils"
                       :doc "Unit conversion utilities etc."
-                      :classes '(chord score)
+                      :classes '(note chord chord-seq voice score)
                       :functions '(approx-m mc->f f->mc mc->n n->mc beats->ms)
                       :subpackages nil)))
