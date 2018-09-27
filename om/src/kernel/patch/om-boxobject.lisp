@@ -180,7 +180,8 @@
 ;;;===============================
 
 (defmethod objFromObjs ((model t) (target t))
-  (clone-object model target))
+  (when (subtypep (type-of target) (type-of model))
+    (clone-object model target)))
 
 
 ; don't mess with packages: send interned symbols to these functions
