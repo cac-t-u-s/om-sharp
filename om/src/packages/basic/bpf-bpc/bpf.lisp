@@ -252,7 +252,10 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 ;=======================================
 
 (defmethod time-sequence-get-timed-item-list ((self bpf)) (point-list self))
-(defmethod time-sequence-set-timed-item-list ((self bpf) points) (setf (point-list self) points))
+(defmethod time-sequence-set-timed-item-list ((self bpf) points) 
+  (setf (point-list self) points)
+  (call-next-method))
+
 (defmethod time-sequence-get-times ((self bpf)) (x-points self))
 (defmethod time-sequence-insert-timed-item ((self bpf) point &optional position) 
   (insert-point self point position))

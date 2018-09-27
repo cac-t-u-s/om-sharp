@@ -89,7 +89,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defmethod time-sequence-get-timed-item-list ((self time-sequence)) nil)
-(defmethod time-sequence-set-timed-item-list ((self time-sequence) items) nil)
+(defmethod time-sequence-set-timed-item-list ((self time-sequence) items) 
+  (update-obj-dur self))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;CAN be redefined by subclasses of TIME-SEQUENCE
@@ -420,7 +421,6 @@
          
          )))
 
-   (update-obj-dur self)
    (update-time-types self)
    ))
 

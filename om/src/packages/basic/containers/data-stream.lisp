@@ -76,8 +76,10 @@
 (defmethod data-stream-get-frames ((self data-stream)) (frames self))
 (defmethod data-stream-set-frames ((self data-stream) frames) 
   (setf (frames self) frames)
-  (time-sequence-update-internal-times self))
- 
+  (time-sequence-update-internal-times self)
+  (call-next-method) ;;; will update the duration
+  )
+
 ;;; TIME-SEQUENCE API
 (defmethod time-sequence-get-timed-item-list ((self data-stream)) (data-stream-get-frames self))
 (defmethod time-sequence-set-timed-item-list ((self data-stream) list) (data-stream-set-frames self list))
