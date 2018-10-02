@@ -59,7 +59,7 @@
 
 (add-preference-module :appearance "Appearance")
 (add-preference-section :appearance "Boxes" "Default values for boxes with unspecified or disabled attributes")
-(add-preference :appearance :box-color "Color" :color-a (om-def-color :light-gray))
+(add-preference :appearance :box-color "Color" :color-a (om-make-color .9 .9 .9))
 (add-preference :appearance :box-border "Border" (make-number-in-range :min 0 :max 4 :decimals 1) 1.5)
 (add-preference :appearance :box-roundness "Corner roundness" (make-number-in-range :min 0 :max 20) 2)
 (add-preference :appearance :box-font "Text font" :font (om-def-font :font1))
