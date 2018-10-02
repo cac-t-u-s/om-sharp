@@ -28,7 +28,7 @@
    (vel :initform 80 :accessor vel :initarg :vel :type number :documentation "velocity (0-127)")
    (dur :initform 1000 :accessor dur :initarg :dur :type number :documentation "duration (ms)")
    (chan :initform 1 :accessor chan :initarg :chan :type integer :documentation "MIDI channel (1-16)")
-   (port :initform 0 :accessor port :initarg :port)
+   (port :initform nil :accessor port :initarg :port)
    (offset :initform 0 :accessor offset :initarg :offset) ;;; offset makes sense only if the note is inside a chord 
    (tie :initform nil :accessor tie)
    ))
@@ -66,8 +66,8 @@ A simple NOTE defined with :
    (Lvel :initform '(80) :accessor Lvel :initarg :Lvel :type list :documentation "velocities (list of values 0-127)")
    (Loffset :initform '(0) :accessor Loffset :initarg :Loffset :type list :documentation "offsets (list of values in ms)")
    (Ldur :initform '(1000) :accessor Ldur :initarg :Ldur :type list :documentation "durations (list of values in ms)")
-   (Lchan :initform '(1) :accessor Lchan :type list :documentation "MIDI channels (list of values 0-16)")
-   (Lport :initform '(0) :accessor Lport :type list :documentation "MIDI ports (list of values 0-16)")
+   (Lchan :initform '(1) :accessor Lchan :initarg :Lchan :type list :documentation "MIDI channels (list of values 0-16)")
+   (Lport :initform nil :accessor Lport :initarg :Lport :type list :documentation "MIDI ports (list of values 0-16)")
    ))
 
 ;;; redefines only visible :initargs
@@ -160,11 +160,12 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
                  :LPort (LPort self)))
 
 
-;;  (NoteYype 'note))
-(defmethod initialize-instance ((self chord) &rest initargs &key (empty nil)) 
-  (declare (ignore initargs)) 
+;;  (NoteType 'note))
+(defmethod initialize-instance ((self chord) &rest initargs) 
+   
   (call-next-method)
-  (unless empty
+  
+  (when initargs
     (do-initialize self 
                    :Lmidic (slot-value self 'Lmidic) 
                    :Lvel (slot-value self 'Lvel)
@@ -173,6 +174,7 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
                    :Lchan (slot-value self 'Lchan)
                    :Lport (slot-value self 'Lport)
                    ))
+
   ;;; better to remove these values... ? 
   (setf (slot-value self 'Lmidic) nil 
         (slot-value self 'Lvel) nil 
@@ -180,19 +182,18 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
         (slot-value self 'Ldur) nil 
         (slot-value self 'Lchan) nil
         (slot-value self 'Lport) nil)
-  self
-  )
+  self)
 
 
 (defmethod do-initialize ((self chord) &key LMidic LVel Loffset LDur LChan LPort)
   (setf (inside self)
-        (loop while LMidic 
-              for midic = (or (pop LMidic) midic)
-              for vel = (or (pop LVel) vel)
-              for offset = (or (pop LOffset) offset)
-              for dur = (or (pop LDur) dur)
-              for chan = (or (pop LChan) chan)
-              for port = (or (pop LPort) port)  
+        (loop while Lmidic 
+              for midic = (or (pop Lmidic) midic)
+              for vel = (or (pop Lvel) vel)
+              for offset = (or (pop Loffset) offset)
+              for dur = (or (pop Ldur) dur)
+              for chan = (or (pop Lchan) chan)
+              for port = (or (pop Lport) port)  
               collect (make-instance 'note 
                                      :midic (round midic) 
                                      :vel (round vel) 
@@ -235,60 +236,32 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
 (defmethod get-notes ((self list))
   (loop for item in self append (get-notes item)))
 
+(defmethod item-get-duration ((self chord)) 
+  (apply 'max (mapcar 'dur (inside self))))
 
 
 ;;;============ 
 ;;; BOX
 ;;;============
 
-(defmethod additional-box-attributes ((self note)) 
-  `((:font-size "a font size for score display" nil)
-    (:staff "default staff configuration" 
-     ,(loop for s in *score-staff-options* collect (list (string-upcase s) s)))
-    ))
 
-(defmethod additional-box-attributes ((self chord)) 
-  `((:font-size "a font size for score display" nil)
-    (:staff "default staff configuration" 
-     ,(loop for s in *score-staff-options* collect (list (string-upcase s) s)))
-    ))
-
-
-(defun chord-mini-view (notes box x y w h)
+(defmethod score-object-mini-view ((self note) x-u y-u w h staff fontsize)
   
-  (om-draw-rect x y w h :fill t :color (om-def-color :white))
+  (let* ((unit (font-size-to-unit fontsize))
+         (middle-in-units (/ w 2 unit)))
+    
+    (draw-chord (list self) (+ 2 middle-in-units) y-u w h fontsize :scale nil :staff staff)
+    
+    ))
   
-  (let ((fontsize 24)
-        (staff (get-edit-param box :staff)))
-         
-    (let* ((staff-lines (apply 'append (mapcar 'staff-lines (staff-split staff))))
-           (unit (font-size-to-unit fontsize))
-           (n-lines (+ (- (car (last staff-lines)) (car staff-lines)) 8)) ;;; range of the staff lines + 10-margin
-           (draw-box-h (* n-lines unit))
-           (y-in-units (/ y unit)))
-     
-      (if (< draw-box-h h)
-          ;;; there's space: draw more in the middle
-          (setf y-in-units (+ y-in-units (/ (round (- h draw-box-h) 2) unit)))
-        ;;; there's no space: reduce font ?
-        (progn 
-          (setf unit (- unit (/ (- draw-box-h h) n-lines)))
-          (setf fontsize (unit-to-font-size unit)))
-        )
+
+(defmethod score-object-mini-view ((self chord) x-u y-u w h staff fontsize)
+  
+  (let* ((unit (font-size-to-unit fontsize))
+         (middle-in-units (/ w 2 unit)))
+    
+    (when (inside self)
+      (draw-chord (inside self) (+ 2 middle-in-units) y-u w h fontsize :scale nil :staff staff))
       
-      (let* ((margin 1)
-             (x-in-units (+ margin (/ x unit)))
-             (middle-in-units (/ w 2 unit)))
-        
-      (om-with-fg-color (om-make-color 0.0 0.2 0.2)
-        (draw-staff x-in-units y-in-units (- w (* margin unit)) h fontsize staff)
-        (draw-chord notes (+ 2 middle-in-units) y-in-units w h fontsize :scale nil :staff staff))
-      ))))
-
-(defmethod draw-mini-view ((self chord) box x y w h &optional time)
-  (chord-mini-view (inside self) box x y w h))
-
-(defmethod draw-mini-view ((self note) box x y w h &optional time)
-  (chord-mini-view (list self) box x y w h))
-
+    ))
 

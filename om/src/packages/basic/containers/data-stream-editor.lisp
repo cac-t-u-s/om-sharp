@@ -25,7 +25,8 @@
   ((timeline-editor :accessor timeline-editor :initform nil)))
 
 (defmethod object-default-edition-params ((self data-stream))
-  '((:display-mode :blocks)))
+  '((:display-mode :blocks)
+    (:grid t)))
 
 (defclass stream-panel (x-cursor-graduated-view y-graduated-view OMEditorView om-tt-view) 
   ((stream-id :accessor stream-id :initform 0 :initarg :stream-id)))
@@ -132,7 +133,8 @@
                             for i = 0 then (+ i 1) collect
                            (om-make-view (editor-view-class editor) :stream-id i
                                          :editor editor :size (omp 50 60) 
-                                         :direct-draw t :bg-color (om-def-color :white) 
+                                         :direct-draw t 
+                                         :bg-color (om-def-color :white) 
                                          :scrollbars nil)))
                      
     (set-g-component editor :x-ruler (om-make-view 'time-ruler 
@@ -156,6 +158,7 @@
                 ;;; first group with the 'main' editor:
                 (om-make-layout 
                  'om-grid-layout 
+                 :delta 0
                  :ratios `((nil 100) 
                            ,(append '(0.01) 
                                     (make-list n-objs :initial-element (/ 0.98 n-objs))
@@ -358,10 +361,11 @@
                    t)))
     
     (when active (draw-background editor self))
-
-    (om-with-fg-color (om-def-color :light-gray)
-      (om-with-line '(2 2)
-        (draw-grid-from-ruler self (get-g-component editor :x-ruler))))
+    
+    (when (editor-get-edit-param editor :grid)
+      (om-with-fg-color (om-def-color :light-gray)
+        (om-with-line '(2 2)
+          (draw-grid-from-ruler self (get-g-component editor :x-ruler)))))
     
     (when stream 
       (om-with-fg-color (om-def-color :dark-gray)

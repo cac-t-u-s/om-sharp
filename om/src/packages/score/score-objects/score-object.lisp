@@ -35,9 +35,51 @@
 (defmethod display-modes-for-object ((self score-object))
   '(:mini-view :hidden :text))
 
+(defmethod additional-box-attributes ((self score-object)) 
+  `((:font-size "a font size for score display" nil)
+    (:staff "default staff configuration" 
+     ,(loop for s in *score-staff-options* collect (list (string-upcase s) s)))
+    ))
+
+
 (defmethod initialize-instance :after ((self score-object) &rest initargs)
   (setf (autostop self) t) ;;; ??? wtf 
   )
+
+;;;============ 
+;;; BOX
+;;;============
+
+
+(defmethod draw-mini-view ((self score-object) box x y w h &optional time)
+  
+  ;(om-draw-rect x y w h :fill t :color (om-def-color :white))
+
+  (let ((fontsize 18)
+        (staff (get-edit-param box :staff)))
+         
+    (let* ((staff-lines (apply 'append (mapcar 'staff-lines (staff-split staff))))
+           (unit (font-size-to-unit fontsize))
+           (n-lines (+ (- (car (last staff-lines)) (car staff-lines)) 8)) ;;; range of the staff lines + 10-margin
+           (draw-box-h (* n-lines unit))
+           (y-in-units (/ y unit)))
+     
+      (if (< draw-box-h h)
+          ;;; there's space: draw more in the middle
+          (setf y-in-units (+ y-in-units (/ (round (- h draw-box-h) 2) unit)))
+        ;;; there's no space: reduce font ?
+        (progn 
+          (setf unit (- unit (/ (- draw-box-h h) n-lines)))
+          (setf fontsize (unit-to-font-size unit)))
+        )
+      
+      (let* ((x-in-units (/ x unit)))
+        
+        (om-with-fg-color (om-make-color 0.0 0.2 0.2)
+          (draw-staff x-in-units y-in-units w h fontsize staff 1 1 t)
+          (score-object-mini-view self x-in-units y-in-units w h staff fontsize)
+          )
+        ))))
 
 
 

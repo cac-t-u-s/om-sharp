@@ -78,11 +78,9 @@
  
 (defmethod om-init-instance :after ((self time-sequence) &optional initargs)
   (time-sequence-update-internal-times self)
-  (update-obj-dur self))
+  (update-obj-dur self) ;;; is this necessary ?
+  )
 
-;(defmethod initialize-instance ((self time-sequence) &rest initargs)
-;  (call-next-method)
-;  (update-obj-dur self))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;to be redefined by subclasses of TIME-SEQUENCE

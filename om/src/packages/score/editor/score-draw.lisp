@@ -266,7 +266,7 @@
 
 ;;; x and y are in score-units
 ;;; w and h are pixel-size of the frame
-(defun draw-staff (x y w h fontsize staff)
+(defun draw-staff (x y w h fontsize staff &optional (margin-l 0) (margin-r 0) (keys t))
   
   (let* ((staff-elems (staff-split staff))
          (unit (font-size-to-unit fontsize)) 
@@ -277,7 +277,7 @@
     (flet ((line-to-y-pos (line) 
              (let ((pos (* (+ y (- shift line)) unit))) ;;; by convention, unit = staff interline
                (if (> unit 5) (round pos) pos)))
-           (x-pos (a) (* (+ x a) unit)))
+           (x-pos (a) (* (+ x (or margin-l 0) a) unit)))
 
       (om-with-font 
        (om-make-font *score-font* fontsize)
@@ -286,22 +286,28 @@
              ;;; lines
              (loop for line in (staff-lines staff-symb) do
                    (om-draw-line (x-pos 0) (line-to-y-pos line)
-                                 w (line-to-y-pos line)
+                                 (- w (* (or margin-r 0) unit))
+                                 (line-to-y-pos line)
                                  :line staffLineThickness))
              ;;; clef
-             (om-draw-char (x-pos 1) 
-                           (line-to-y-pos (staff-key-line staff-symb)) 
-                           (staff-key-char staff-symb))
-             ))
+             (when keys 
+               (om-draw-char (x-pos 1) 
+                             (line-to-y-pos (staff-key-line staff-symb)) 
+                             (staff-key-char staff-symb))
+               )))
        
    ;;; vertical lines at beginning and the end
-   (om-draw-line (round (x-pos 0)) (1- (line-to-y-pos (car (staff-lines (car staff-elems)))))
-                 (round (x-pos 0)) (1+ (line-to-y-pos (last-elem (staff-lines (last-elem staff-elems)))))
-                 :line thinBarlineThickness)
-   (om-draw-line w (1- (line-to-y-pos (car (staff-lines (car staff-elems)))))
-                 w (1+ (line-to-y-pos (last-elem (staff-lines (last-elem staff-elems)))))
-                 :line thinBarlineThickness)
-   )))
+   (when margin-l
+     (om-draw-line (round (x-pos 0)) (1- (line-to-y-pos (car (staff-lines (car staff-elems)))))
+                   (round (x-pos 0)) (1+ (line-to-y-pos (last-elem (staff-lines (last-elem staff-elems)))))
+                   :line thinBarlineThickness))
+   (when margin-r
+     (om-draw-line (- w (* margin-r unit)) 
+                   (1- (line-to-y-pos (car (staff-lines (car staff-elems)))))
+                   (- w (* margin-r unit)) 
+                   (1+ (line-to-y-pos (last-elem (staff-lines (last-elem staff-elems)))))
+                   :line thinBarlineThickness)
+   ))))
 
 
 ;;; just for debug
@@ -338,15 +344,15 @@
          
          (dur-max (apply #'max (mapcar 'dur notes)))
          (dur-factor (/ (- w 80) (* dur-max 2)))  ;;; we will multiply durations by this to display them on half-width of the view
-         (unique-channel (and (not (equal draw-chans :hidden)) (all-equal (mapcar 'chan notes))))
-         (unique-vel (and draw-vels (all-equal (mapcar 'vel notes))))
-         (unique-port (and draw-ports (all-equal (mapcar 'port notes)))))
-     
+         (unique-channel (and (not (equal draw-chans :hidden)) (all-equal (mapcar 'chan notes)) (chan (car notes))))
+         (unique-vel (and draw-vels (all-equal (mapcar 'vel notes)) (vel (car notes))))
+         (unique-port (and draw-ports (all-equal (mapcar 'port notes)) (or (port (car notes)) :default))))
+   
     ;;; positions (in pixels) 
     (flet ((line-to-y-pos (line) 
              ;;; by convention, unit = staff interline and lines go up from the shift value corresp. to line-0
              (* (+ y shift (- line)) unit))
-           (x-pos (a) (* (+ x a) unit)))
+           (x-pos (a) (1+ (* (+ x a) unit))))
          
       (om-with-font 
        (om-make-font *score-font* fontsize)

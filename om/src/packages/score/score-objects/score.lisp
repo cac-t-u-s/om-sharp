@@ -31,26 +31,8 @@
 ;;; BOX
 ;;;======================================
 
-(defmethod draw-mini-view ((self score) (box t) x y w h &optional time)
-  (om-draw-rect x y w h :fill t :color (om-def-color :white))
-  (let ((display-cache (get-display-draw box)))
-    (multiple-value-bind (fx ox) 
-        (conversion-factor-and-offset 0 (get-obj-dur self) (- w 60) 30)
-      (multiple-value-bind (fy oy) 
-          (conversion-factor-and-offset 10000 4000 (- h 20) (+ y 10))
-        (loop for line in '(6400 6800 7200 7600 8000) do 
-              (om-draw-line 10 (+ oy (* fy line)) (- w 10) (+ oy (* fy line))))
-        
-        (loop for n in (contents self) do
-              (om-draw-ellipse (+ ox (* fx (date n))) (+ oy (* fy (car (lmidic n))))
-                              4 3 :fill t)
-              (om-draw-line (+ ox (* fx (date n)) 4) (+ oy (* fy (car (lmidic n))))
-                            (+ ox (* fx (date n)) 4) (+ oy (* fy (car (lmidic n))) -20))
-                            ))
-      )
-    t))
    
-
+#|
 ;;;======================================
 ;;; EDITOR
 ;;;======================================
@@ -155,6 +137,6 @@
               )))
 
 
-
+|#
 
 

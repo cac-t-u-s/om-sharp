@@ -648,7 +648,7 @@
 ;;; A RULER WITH TIME GRADUATION + MOVING CURSOR
 ;;;==========================
 (defclass time-ruler (x-ruler-view x-cursor-graduated-view)
-  ((unit :accessor unit :initform :sec :initarg :unit)
+  ((unit :accessor unit :initform :ms :initarg :unit)
    (bottom-p :accessor bottom-p :initform t :initarg :bottom-p) ;bottom-p indicates if the arrow need to be on the top or the bottom (default is on the top)
    (markers-p :accessor markers-p :initform t :initarg :markers-p) ;use or not markers
    (onset-p :accessor onset-p :initform t :initarg :onset-p) ;use or not onset for markers (maquette vs timeline)

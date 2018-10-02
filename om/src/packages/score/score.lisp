@@ -28,6 +28,8 @@
 
         "editor/score-draw"
         "editor/score-editor"
+        "editor/chord-editor"
+        "editor/chord-seq-editor"
 
         "tools/conversions"
         "import-export/musicxml"))
