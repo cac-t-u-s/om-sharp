@@ -506,9 +506,7 @@ Ex. (all-equal '(8 8 7 8) '=) => NIL"
                       (funcall test (car ll) (cadr ll)))
             finally return ll) ;; if this is nil, then all elements were equal
       NIL
-    (car list)))
-
-
+    (values T (car list))))
 
 
 

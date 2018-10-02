@@ -277,7 +277,7 @@
   (let ((textcolor (if (car (value self)) 
                        (om-def-color :light-gray) 
                      (om-def-color :dark-gray))))
-    (when (value self)
+    (when (car (value self))
       (om-draw-rounded-rect x y w h :fill t :round (box-draw-roundness self) :color (om-def-color :gray)))
     (when (text self)
       (let ((font (om-def-font :font1b)))

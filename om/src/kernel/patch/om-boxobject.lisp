@@ -137,10 +137,11 @@
   (call-next-method)
   (let ((name (string-downcase key)))
     (set-box-outputs self (append (outputs self)
-                                 (list (make-instance 'box-keyword-output 
-                                                      :name name
-                                                      :box self
-                                                      :doc-string (get-input-doc self name)))))
+                                 (list (make-instance 
+                                        'box-keyword-output 
+                                        :name name
+                                        :box self
+                                        :doc-string (get-input-doc self name)))))
     ))
 
 (defmethod update-output-from-new-in ((box OMBoxRelatedWClass) name in) 
