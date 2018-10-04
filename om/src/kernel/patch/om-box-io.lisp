@@ -218,7 +218,6 @@
      (get-optional-inputs self))
   (mapcar 
    #'(lambda (in) 
-       (print (name in))
        (more-keyword-input newbox :key (intern-k (name in)) :value (value in) :doc (doc-string in) :reactive (reactive in)))
    (get-keyword-inputs self)))
 
