@@ -58,11 +58,12 @@
                                  :name (string (slot-name slot)) :reference (slot-name slot) 
                                  :box self
                                  :value (valued-val (slot-initform slot))
-                                 :doc-string (format nil "[~A] ~S" 
-                                                     (slot-type slot) 
-                                                     ;;; (class-slot-input-doc class slot)
-                                                     (or (slot-doc slot) "")
-                                                     )))
+                                 :doc-string (apply 'concatenate (cons 'string 
+                                                                       (append 
+                                                                        (unless (equal t (slot-type slot)) (list "[" (string-downcase (slot-type slot)) "] "))
+                                                                        (list (slot-doc slot)))
+                                                                        )
+                                                                       )))
               (remove-if-not 'slot-initargs (class-direct-instance-slots class)))   ;;; direct ?
        )
       )))

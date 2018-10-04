@@ -975,6 +975,7 @@
 (defmethod additional-box-attributes-names ((self OMBox)) nil)
 
 (defun key-to-menu (key box input)
+
   (if (listp key)
       (om-make-menu-comp 
        (when key (append (if (find (car key) (additional-box-attributes-names box)) 
@@ -982,6 +983,7 @@
                          (loop for k in key collect (key-to-menu k box input))
                          )))
     (let ((selected (string-equal (name input) (string key))))
+      
       (if (and selected (get-input-menu box (name input)))
           ;;; it's a keyword which has a menu also for values
           (input-values-menu (string+ ":" (string-downcase key) " [select]") box input)
@@ -990,11 +992,11 @@
                          (let ((currentkey key))
                            #'(lambda () 
                                (change-keyword input currentkey)))
-                         :enabled (or selected
+                         :enabled (or nil ; selected
                                    (not (find (string key)
                                               (get-keyword-inputs box) 
                                               :test 'string-equal :key 'name)))
-                         :selected selected ;; will not wok if all items are enabled... ?
+                         :selected selected ;; will not wok if all items are enabled... (?)
                          )))))
 
 ;;; Displays a menu for the keyword arguments of a function

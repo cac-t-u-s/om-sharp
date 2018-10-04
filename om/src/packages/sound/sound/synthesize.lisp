@@ -53,19 +53,24 @@
 ;;;==============================================
 
 
+(defmethod* synthesize ((self synthesisevt) &key (name "my-synth") (run t) (format "aiff") filters inits tables sr kr)
 
-(defmethod* synthesize ((self synthesisevt) &key (run t) (name "my-synth") (format "aiff") filters inits tables)
+  :indoc '("a synthesis even (or list)" "name of output file" "run synthesis or generate params?" 
+           "audio output format" "filter function for synthesis events" "synth initializers" "wave/gen tables" "sample rate" "control rate")
+  :initvals '(nil "my-synth" t "aiff")
+
   (when (synthesize-method self)
     (if (or (null filters)
             (filter-events (list self) filters))
         (funcall (synthesize-method self) 
                  self
-                 :run run :name name :format format
-                 :inits inits :tables tables)
+                 :name name :run run :format format
+                 :inits inits :tables tables 
+                 :sr sr :kr kr)
       (om-beep-msg "SYNTHESIZE: event did not pass filter(s) !"))
     ))
 
-(defmethod* synthesize ((self list) &key (run t) (name "my-synth") (format "aiff") filters inits tables)
+(defmethod* synthesize ((self list) &key (name "my-synth") (run t) (format "aiff") filters inits tables sr kr)
   
   (let* ((evt-list (if filters (filter-events self filters) self))
          (grouped-list (collect-events-by-synth evt-list)))
@@ -78,7 +83,8 @@
         (funcall (car (car grouped-list)) 
                  (cadr (car grouped-list))
                  :run run :name name :format format
-                 :inits inits :tables tables))
+                 :inits inits :tables tables
+                 :sr sr :kr kr))
             
        (t (let ((rep-list (loop for elt in grouped-list  ;; several synthesis processes to mix
                                 for i = 1 then (+ i 1) collect
@@ -87,7 +93,8 @@
                                          :run run 
                                          :name (string+ name "-temp-" (integer-to-string i))
                                          :format format
-                                         :inits inits :tables tables))))
+                                         :inits inits :tables tables
+                                         :sr sr :kr kr))))
             (if run
                 ;;; mix all results
                 (save-sound 

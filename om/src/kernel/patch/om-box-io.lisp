@@ -149,7 +149,7 @@
         (when keyname
           (add-keyword-input self :key keyname
                              :value (if val-supplied-p value (get-input-def-value self keyname))
-                             :doc (get-input-doc self (string-downcase keyname))
+                             :doc (or doc (get-input-doc self (string-downcase keyname)))
                              :reactive (if reactive-supplied-p reactive (def-reactive self keyname)))
           t))
       (om-beep-msg err-message)
@@ -158,7 +158,7 @@
 (defmethod add-keyword-input ((self OMBox) &key key (value nil val-supplied-p) doc reactive)
     (set-box-inputs self (append (inputs self)
                                 (list (make-instance 'box-keyword-input
-                                                     :name (string key) ;; string-downcase
+                                                     :name (string-downcase key) ;; string-downcase
                                                      :value value
                                                      :box self
                                                      :doc-string (or doc "keyword input")
@@ -209,17 +209,17 @@
         (let ((newout (find (name out) (outputs newbox) :key 'name :test 'string-equal)))
           (when newout 
             (setf (reactive newout) (reactive out)))
-            
           ))
 
   ;;; add relevant optional and keyword inputs
   (mapcar 
      #'(lambda (in) 
-         (more-optional-input newbox :name (name in) :value (value in) :reactive (reactive in)))
+         (more-optional-input newbox :name (name in) :value (value in) :doc (doc-string in) :reactive (reactive in)))
      (get-optional-inputs self))
   (mapcar 
    #'(lambda (in) 
-       (more-keyword-input newbox :key (intern-k (name in)) :value (value in) :reactive (reactive in)))
+       (print (name in))
+       (more-keyword-input newbox :key (intern-k (name in)) :value (value in) :doc (doc-string in) :reactive (reactive in)))
    (get-keyword-inputs self)))
 
 (defmethod om-copy ((self OMBox)) 

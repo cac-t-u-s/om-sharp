@@ -308,10 +308,11 @@ Data instanciation in a column is done according to the specified number of line
                        (existing-field (find field (data self) :test 'string-equal :key 'array-field-name)))
                   
                   (cond (input-data 
-                         ;; the field is to set from specified data, whatever existed before
+                         ;; the field is to be set from specified data, whatever existed before
                          (make-array-field :name field :decimals 4
                                            :default (and existing-field (array-field-default existing-field))
                                            :type (and existing-field (array-field-type existing-field))
+                                           :doc (and existing-field (array-field-doc existing-field))
                                            :data (get-array-data-from-input input-data (elts self))))
                         
                         (existing-field
@@ -319,6 +320,7 @@ Data instanciation in a column is done according to the specified number of line
                          (make-array-field :name field :decimals 4
                                            :default (array-field-default existing-field)
                                            :type (array-field-type existing-field)
+                                           :doc (array-field-doc existing-field)
                                            :data (get-array-data-from-input 
                                                   (or (array-field-data existing-field)
                                                       (array-field-default existing-field))
@@ -446,6 +448,22 @@ Data instanciation in a column is done according to the specified number of line
 (defmethod initialize-instance :after ((self ClassArrayBox) &rest args)  
   (declare (ignore args))
   (update-key-inputs self))
+
+
+(defmethod get-input-doc ((self ClassArrayBox) name)
+  (or (call-next-method)
+      (when (get-box-value self) ;;; sometimes at the very beginning of box creation there is not yet a value...
+        (let ((field (find name (data (get-box-value self)) :test 'string-equal :key 'array-field-name)))
+          (when field 
+            (array-field-doc field))))))
+
+(defmethod get-input-def-value ((self ClassArrayBox) name)
+  (or (call-next-method)
+      (when (get-box-value self) ;;; sometimes at the very beginning of box creation there is not yet a value...
+        (let ((field (find name (data (get-box-value self)) :test 'string-equal :key 'array-field-name)))
+          (when field 
+            (array-field-default field))))))
+
 
 #|
 ;;; this will eventually call (setf value) anyway... => removed
