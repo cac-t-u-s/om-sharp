@@ -793,7 +793,7 @@
                                       (pix-to-y panel (om-point-y position)))))
     (when time
       (setf (tpoint-time new-point) time))
-    (insert-timed-point-in-time-sequence object new-point)))
+    (time-sequence-insert-timed-item-and-update object new-point)))
 
 
 ;;; insert at the correct place in BPF
@@ -827,7 +827,7 @@
           do (setf segment i))
     (when (and time (not segment))
       (setf (tpoint-time new-point) time))
-    (insert-timed-point-in-time-sequence object new-point (or segment (length (point-list object))))
+    (time-sequence-insert-timed-item-and-update object new-point (or segment (length (point-list object))))
     ))
 
 (defmethod move-editor-selection ((self bpf-editor) &key (dx 0) (dy 0))

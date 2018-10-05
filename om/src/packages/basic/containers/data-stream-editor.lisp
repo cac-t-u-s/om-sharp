@@ -466,7 +466,7 @@
        ((and (null selection) (om-add-key-down))
         (let ((frame (time-sequence-make-timed-item-at (object-value editor) (pixel-to-time self (om-point-x p0)))))
           (finalize-data-frame frame :posy (pix-to-y self (- (h self) (om-point-y p0))))
-          (insert-timed-point-in-time-sequence (object-value editor) frame)
+          (time-sequence-insert-timed-item-and-update (object-value editor) frame)
           (report-modifications editor)
           (update-timeline-editor editor) 
           (om-invalidate-view self)))

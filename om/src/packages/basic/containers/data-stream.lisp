@@ -137,7 +137,7 @@
 ;;;======================================
 
 (defmethod* add-frame-in-data-stream ((self data-stream) frame) 
-   (insert-timed-point-in-time-sequence self frame)
+   (time-sequence-insert-timed-item-and-update self frame)
    frame)
 
 (defmethod* add-frame-in-data-stream ((self t) frame) 
@@ -145,7 +145,7 @@
 
 ;;; when editing in mode "box" => allows to update editor
 (defmethod* add-frame-in-data-stream ((self omboxeditcall) frame) 
-   (insert-timed-point-in-time-sequence (get-box-value self) frame)
+   (time-sequence-insert-timed-item-and-update (get-box-value self) frame)
    (update-after-eval self)
    frame)
 

@@ -777,7 +777,7 @@
 
 (defmethod osc-manager-add-callback ((editor 3DC-editor))
   (let ((obj (object-value editor)))
-    (insert-timed-point-in-time-sequence obj point (length (point-list obj)))
+    (time-sequence-insert-timed-item-and-update obj point (length (point-list obj)))
     (report-modifications editor)
     (if (= (mod (length (point-list obj)) 10) 9)
         (editor-invalidate-views editor))

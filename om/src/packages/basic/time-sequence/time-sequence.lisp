@@ -115,7 +115,7 @@
 
 ;;; REDEFINE THIS METHOD IF NEEDED
 ; but should not called directly 
-; => USE insert-timed-point-in-time-sequence
+; => USE time-sequence-insert-timed-item-and-update
 (defmethod time-sequence-insert-timed-item ((self time-sequence) item &optional position)
   "Insert a timed-item into the item-list at pos position" 
   (let ((list (time-sequence-get-timed-item-list self))
@@ -128,7 +128,7 @@
 
 
 ; USE THIS METHOD TO UPDATE THE TIME PROPERTIES WHEN ADDING A POINT
-(defmethod insert-timed-point-in-time-sequence ((self time-sequence) point &optional position)
+(defmethod time-sequence-insert-timed-item-and-update ((self time-sequence) point &optional position)
   (let ((pos (or position (find-position-at-time self (item-get-time point)))))
     (clean-master-points-type self)
     (time-sequence-insert-timed-item self point pos)
