@@ -130,7 +130,10 @@
              (report-modifications editor)
              (editor-invalidate-views editor)
              
-             (setf (selection editor) (list container-chord))
+             (if (or (= 1 (length (inside container-chord)))
+                     (find container-chord (selection editor)))
+                 (setf (selection editor) (list container-chord))
+               (setf (selection editor) (list new-note)))
 
              (om-init-temp-graphics-motion 
               self position nil :min-move 1
