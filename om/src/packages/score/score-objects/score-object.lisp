@@ -19,14 +19,18 @@
 (in-package :om)
 
 (defclass container ()
-  ((inside :accessor inside :initarg :inside :initform nil :documentation "the contents of the container...")))
+  ((inside :accessor inside :initarg :inside :initform nil :documentation "the contents of the container")))
 
 (defclass score-object (schedulable-object)
-  (;;; symbolic date and symbolic-dur make sense only if the object is in a context with tempo
+  (
+   ;;; symbolic date and symbolic-dur make sense only if the object is in a context with tempo
    (symbolic-date :accessor symbolic-date :initarg :symbolic-date :initform nil 
                   :documentation "date in symbolic musical time (ratio of beat)")
    (symbolic-dur :accessor symbolic-dur :initarg :symbolic-dur :initform nil 
                  :documentation "duration in symbolic musical time (ratio of beat)")
+   
+   ;;; used for rhythmic computation
+   (extent :accessor extent :initarg :extent :initform 0 :documentation "a duration in the units of its own container")
    
    ;;; bounding-box is a cached graphic information for score display 
    (b-box :accessor b-box :initform nil) 
