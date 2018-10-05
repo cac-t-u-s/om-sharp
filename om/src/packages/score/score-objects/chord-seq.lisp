@@ -26,8 +26,8 @@
 ;;; some of the slots :initargs of INTERNAL-CHORD-SEQ are hidden in the graphical interface
 
 (defclass internal-chord-seq (score-object data-stream container)   
-  ((Lmidic :initform '((6000)) :accessor LMidic :initarg :LMidic :type list :documentation "pitches (mc): list or list of lists")
-   (Lonset :initform '(0 1000) :accessor LOnset :initarg :LOnset :type list :documentation "onsets (ms): list")
+  ((Lmidic :initform '((6000)) :accessor Lmidic :initarg :Lmidic :type list :documentation "pitches (mc): list or list of lists")
+   (Lonset :initform '(0 1000) :accessor Lonset :initarg :Lonset :type list :documentation "onsets (ms): list")
    (Ldur :initform '((1000)) :accessor Ldur :initarg :Ldur :type list :documentation "durations (ms): list or list of lists")
    (Lvel :initform 100 :accessor Lvel :initarg :Lvel :type list :documentation "velocities (0-127): list or list of lists")
    (Loffset :initform 0 :accessor Loffset  :initarg :Loffset :type list :documentation "offsets (ms): list or list of lists")

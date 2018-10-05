@@ -431,8 +431,7 @@
             (fp (frame-at-pos editor position)))
         (when fp
           (if (om-command-key-p)
-
-            ;;; show tooltip for the frame under the  mouse cursor
+              ;;; show tooltip for the frame under the  mouse cursor
             (om-show-tooltip self (data-frame-text-description (nth fp frames)) 
                              (omp (- (om-point-x position) 60) 20)
                              0)
