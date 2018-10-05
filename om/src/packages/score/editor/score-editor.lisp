@@ -80,7 +80,6 @@
        
 ;;; supposing that sub-bounding-boxes are always included
 (defmethod find-score-element-at-pos ((object note) pos)
-  (print (list pos (b-box object)))
   (and (point-in-bbox pos (b-box object))
        object))
 
@@ -104,6 +103,10 @@
    
    (t NIL) ;;; not here...
    ))
+
+;;; overrides data-stream-panel
+(defmethod om-view-mouse-motion-handler ((self score-view) position)
+  (position-display (editor self) position))
 
 
 (defmethod om-view-click-handler ((self score-view) position)
