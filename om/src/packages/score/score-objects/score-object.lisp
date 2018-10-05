@@ -32,6 +32,11 @@
    (b-box :accessor b-box :initform nil) 
    ))
 
+(defstruct b-box (x1) (x2) (y1) (y2))
+(defmethod b-box-w (b) (- (b-box-x2 b) (b-box-x1 b)))
+(defmethod b-box-h (b) (- (b-box-y2 b) (b-box-y1 b)))
+
+
 (defmethod display-modes-for-object ((self score-object))
   '(:mini-view :hidden :text))
 

@@ -73,16 +73,38 @@
 ;;;============
 
 (defun point-in-bbox (p bbox)
-  (and (>= (om-point-x p) (car bbox))
-       (<= (om-point-x p) (cadr bbox))
-       (>= (om-point-y p) (caddr bbox))
-       (<= (om-point-y p) (cadddr bbox))))
+  (and (>= (om-point-x p) (b-box-x1 bbox))
+       (<= (om-point-x p) (b-box-x2 bbox))
+       (>= (om-point-y p) (b-box-y1 bbox))
+       (<= (om-point-y p) (b-box-y2 bbox))))
        
 ;;; supposing that sub-bounding-boxes are always included
-(defun find-score-element-at-pos (editor object pos)
-  (when (and (b-box object) (point-in-bbox pos (b-box object)))
-    (or (find pos (inside object) :test 'point-in-bbox :key 'b-box)
-        object)))
+(defmethod find-score-element-at-pos ((object note) pos)
+  (print (list pos (b-box object)))
+  (and (point-in-bbox pos (b-box object))
+       object))
+
+(defmethod find-score-element-at-pos ((object container) pos)
+  
+  (cond 
+  
+   ((null (b-box object)) ;;; the object itself has no bounding box (yet?)
+    (let ((found nil))
+      (loop for elem in (inside object) ;; check its children..
+            while (not found)
+            do (setf found (find-score-element-at-pos elem pos)))
+      found))
+          
+   ((point-in-bbox pos (b-box object))  ;; the object has one, and we're inside 
+    (let ((found nil))
+      (loop for elem in (inside object) ;; check its children..
+            while (not found)
+            do (setf found (find-score-element-at-pos elem pos)))
+      (or found object)))
+   
+   (t NIL) ;;; not here...
+   ))
+
 
 (defmethod om-view-click-handler ((self score-view) position)
   
@@ -96,29 +118,31 @@
     (cond ((om-add-key-down)  ;;; add a note
            (store-current-state-for-undo editor)
            
-           (let* ((new-note (make-instance 'note :midic pitch)))
+           (let* ((new-note (make-instance 'note :midic pitch))
+                  (container-chord (get-chord-from-editor-click editor position)))
              
-             (setf (inside obj)
+             (setf (inside container-chord)
                    (sort (cons new-note
-                               (inside obj))
+                               (inside container-chord))
                          '< :key 'midic))
-                  
-             (report-modifications editor)
-             (om-invalidate-view self)
+             ;;; probably some updates of the time-sequence required here.. (?)
              
-             (setf (selection editor) (list new-note))   ; (position p (point-list obj))
+             (report-modifications editor)
+             (editor-invalidate-views editor)
+             
+             (setf (selection editor) (list container-chord))
 
              (om-init-temp-graphics-motion 
-              self position nil :min-move 10
+              self position nil :min-move 1
               :motion #'(lambda (view pos)
                           (let* ((new-y-in-units (- shift (/ (om-point-y pos) score-unit)))
                                  (new-pitch (line-to-pitch new-y-in-units))
                                  (diff (- new-pitch pitch)))
                             (store-current-state-for-undo editor :action :move :item (selection editor))
-                            (loop for n in (selection editor) do
+                            (loop for n in (get-notes (selection editor)) do
                                   (setf (midic n) (+ (midic n) diff)))
                             (setf pitch new-pitch)
-                            (editor-invalidate-views editor)
+                            (om-invalidate-view self)
                             ))
               :release #'(lambda (view pos) 
                            (reset-undoable-editor-action editor)
@@ -127,7 +151,7 @@
              ))
           
           ;; select
-          (t (let ((selection (find-score-element-at-pos editor obj position)))
+          (t (let ((selection (find-score-element-at-pos obj position)))
                
                (set-selection editor selection)
                (om-invalidate-view self)
@@ -137,7 +161,7 @@
                    
                    ;;; move it
                    (om-init-temp-graphics-motion 
-                    self position nil :min-move 10
+                    self position nil :min-move 1
                     :motion #'(lambda (view pos)
                                 (let* ((new-y-in-units (- shift (/ (om-point-y pos) score-unit)))
                                        (new-pitch (line-to-pitch new-y-in-units))
@@ -160,7 +184,7 @@
                   :min-move 10
                   :release #'(lambda (view position)
                                ;;; => selection IN RECTANGLE !!
-                               (set-selection editor (find-score-element-at-pos editor obj position))                         
+                               (set-selection editor (find-score-element-at-pos obj position))                         
                                (om-invalidate-view view)
                                )
                   )

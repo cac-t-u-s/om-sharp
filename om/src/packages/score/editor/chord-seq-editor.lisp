@@ -64,6 +64,29 @@
   (om-invalidate-view (main-view self))) ;; brutal..
 
 
+;;; called at add-click
+(defmethod get-chord-from-editor-click ((self chord-seq-editor) position) 
+ 
+  (let ((time-seq (object-value self))
+        (time-pos (pixel-to-time (get-g-component self :main-panel) (om-point-x position))))
+    
+    (or 
+     ;;; there's a selected chord near the click
+     (find-if #'(lambda (element)
+                  (and (typep element 'chord)
+                       (b-box element)
+                       (>= (om-point-x position) (b-box-x1 (b-box element)))
+                       (<= (om-point-x position) (b-box-x2 (b-box element)))))
+              (selection self))
+     ;;; make a new chord
+     (let ((new-chord (time-sequence-make-timed-item-at time-seq time-pos)))
+       (setf (inside new-chord) nil)
+       (time-sequence-insert-timed-item-and-update time-seq new-chord (find-position-at-time time-seq time-pos))
+       new-chord)
+     
+     )))
+
+
 (defmethod make-editor-window-contents ((editor chord-seq-editor))
   
   (let* ((obj (object-value editor))
@@ -125,6 +148,7 @@
         (port (editor-get-edit-param editor :port-display))
         (dur (editor-get-edit-param editor :duration-display)))
     
+    ;;; warning: so far we don't build/update a boundng-box for the chord-seq..
     (loop for chord in (inside (object-value editor)) do
           (setf 
            (b-box chord)
@@ -140,6 +164,9 @@
                        :draw-durs dur
                        :selection (if (find chord (selection editor)) T 
                                     (selection editor))
+                       :build-b-boxes t
                        ))
-          
+          ;(draw-b-box chord)
+          ;(mapcar 'draw-b-box (inside chord))
+    
           )))

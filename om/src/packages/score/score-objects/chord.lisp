@@ -237,7 +237,9 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
   (loop for item in self append (get-notes item)))
 
 (defmethod item-get-duration ((self chord)) 
-  (apply 'max (mapcar 'dur (inside self))))
+  (if (inside self)
+      (apply 'max (mapcar 'dur (inside self)))
+    0))
 
 
 ;;;============ 

@@ -61,6 +61,11 @@
   (om-invalidate-view (get-g-component self :main-panel)))
 
 
+;;; called at add-click
+(defmethod get-chord-from-editor-click ((self chord-editor) position) 
+  (declare (ignore position))
+  (object-value self))
+
 ;;; SPECIAL/SIMPLE CASE FOR CHORD-EDITOR
 (defmethod draw-score-object-in-editor-view ((editor chord-editor) view unit)
 
@@ -79,7 +84,8 @@
                  :draw-durs (editor-get-edit-param editor :duration-display)
                  :selection (if (find chord (selection editor)) T 
                               (selection editor))
+                 :build-b-boxes t
                  ))
     
-    ;(draw-b-box chord)
+    ; (draw-b-box chord)
     ))

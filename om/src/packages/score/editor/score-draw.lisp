@@ -312,14 +312,10 @@
 
 ;;; just for debug
 (defmethod draw-b-box ((self score-object))
-  (om-draw-rect (car (b-box self))
-                (caddr (b-box self))
-                (- (cadr (b-box self)) (car (b-box self)))
-                (- (cadddr (b-box self)) (caddr (b-box self)))
+  (om-draw-rect (b-box-x1 (b-box self)) (b-box-y1 (b-box self))
+                (b-box-w (b-box self)) (b-box-h (b-box self))
                 :style '(2 2)))
     
-
-
 (defun draw-chord (notes x y ; ref-position in score units
                          w h ; frame for drawing
                          fontsize 
@@ -327,7 +323,8 @@
                          (scale *default-scale*)
                          (staff :gf)
                          draw-chans draw-ports draw-vels draw-durs
-                         selection)
+                         selection
+                         build-b-boxes)
  
   
   (let* ((unit (font-size-to-unit fontsize))
@@ -340,7 +337,7 @@
          (head-w-pix (* head-w unit))    ;;; the width in pixels of a note-head
          (acc-w (* (get-font-width "accidentalSharp") unit 1.5)) ;;; the width in pixels of an accident symbol
          
-         cx1 cx2 cy1 cy2  ;;; chord bounding-box values (in units, not pixels)
+         cx1 cx2 cy1 cy2  ;;; chord bounding-box values (in pixels)
          
          (dur-max (apply #'max (mapcar 'dur notes)))
          (dur-factor (/ (- w 80) (* dur-max 2)))  ;;; we will multiply durations by this to display them on half-width of the view
@@ -451,9 +448,6 @@
                                                       (not (find line col :test #'(lambda (a b) (< (abs (- b a)) 1)))))))
                         (head-x nil))
                  
-                                                   
-                       
-
                    (if head-col 
                        (push line (nth head-col head-columns))
                      (setf head-col (length head-columns) ;; add a new column
@@ -461,20 +455,21 @@
                     
                    (setq head-x (x-pos (* head-col head-w)))
 
-                   (let* (;;; bounding-box values
-                          (nx1 head-x)
-                          (nx2 (+ head-x head-w-pix))
-                          (ny1 (line-to-y-pos (+ line (* head-h .5))))
-                          (ny2 (line-to-y-pos (- line (* head-h .5))))) ;;; lines are expressed bottom-up !!
-                         
-                     ;;; bounding-box is in unit (not pixels)
-                     (setf (b-box n) (list nx1 nx2 ny1 ny2)
-                           ;;; update the chord bbox as well..
-                           cx1 (if cx1 (min cx1 nx1) nx1)
-                           cx2 (if cx2 (max cx2 nx2) nx2)
-                           cy1 (if cy1 (min cy1 ny1) ny1)
-                           cy2 (if cy2 (max cy2 ny2) ny2)
-                           ))
+                   (when build-b-boxes 
+                     (let* (;;; bounding-box values
+                            (nx1 head-x)
+                            (nx2 (+ head-x head-w-pix))
+                            (ny1 (line-to-y-pos (+ line (* head-h .5))))
+                            (ny2 (line-to-y-pos (- line (* head-h .5))))) ;;; lines are expressed bottom-up !!
+                       
+                       ;;; bounding-box is in pixels
+                       (setf (b-box n) (make-b-box :x1 nx1 :x2 nx2 :y1 ny1 :y2 ny2)
+                             ;;; update the chord bbox as well..
+                             cx1 (if cx1 (min cx1 nx1) nx1)
+                             cx2 (if cx2 (max cx2 nx2) nx2)
+                             cy1 (if cy1 (min cy1 ny1) ny1)
+                             cy2 (if cy2 (max cy2 ny2) ny2)
+                             )))
                            
                    ;;; LEGER-LINES
                    (let ((l-lines (head-leger-lines line staff-lines)))
@@ -567,7 +562,8 @@
          )))
     
     ;;; return the bounding box
-    (list cx1 cx2 cy1 cy2)  
+    (when build-b-boxes 
+      (make-b-box :x1 cx1 :x2 cx2 :y1 cy1 :y2 cy2))
     ))
 
 
