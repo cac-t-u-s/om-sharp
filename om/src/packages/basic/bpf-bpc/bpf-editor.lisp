@@ -654,13 +654,27 @@
     (set-y-ruler-range (get-g-component self :main-panel) (* (nth 2 ranges) scaler) (* (nth 3 ranges) scaler))
     ))
 
-(defmethod zoom-rulers ((editor bpf-editor) &key (dx 0.1) (dy 0.1))
+(defmethod zoom-rulers ((editor bpf-editor) &key (dx 0.1) (dy 0.1) center)
+
+  
+
   (let* ((panel (get-g-component editor :main-panel))
-         (dxx (round (* (- (x2 panel) (x1 panel)) dx)))
-         (dyy (round (* (- (y2 panel) (y1 panel)) dy))))
-    (set-x-ruler-range (get-g-component editor :main-panel) (+ (x1 panel) dxx) (- (x2 panel) dxx))
-    (set-y-ruler-range (get-g-component editor :main-panel) (+ (y1 panel) dyy) (- (y2 panel) dyy))
+         (position (or center (omp (* (w panel) .5) (* (h panel) .5))))
+         (x-pos (pix-to-x panel (om-point-x position)))
+         (y-pos (pix-to-y panel (om-point-y position)))
+         (curr-w (- (x2 panel) (x1 panel)))
+         (curr-h (- (y2 panel) (y1 panel)))
+         (new-w (round (* curr-w (1+ dx))))
+         (new-h (round (* curr-h (1+ dy))))
+      
+         (new-x1 (round (- x-pos (/ (* (- x-pos (x1 panel)) new-w) curr-w))))
+         (new-y1 (round (- y-pos (/ (* (- y-pos (y1 panel)) new-h) curr-h))))
+         )
+    
+    (set-x-ruler-range (get-g-component editor :main-panel) new-x1 (+ new-x1 new-w))
+    (set-y-ruler-range (get-g-component editor :main-panel) new-y1 (+ new-y1 new-h))
     ))
+
 
 (defmethod move-rulers ((self bpf-editor) &key (dx 0) (dy 0))
   (let* ((rx (x-ruler (get-g-component self :main-panel)))
@@ -1123,11 +1137,18 @@
       )))
 
 
+(defmethod om-view-pan-handler ((self bpf-bpc-panel) position dx dy)
+  (let ((fact 10))
+    (move-rulers (editor self) :dx (* fact dx) :dy (* fact dy))))
+
+(defmethod om-view-zoom-handler ((self bpf-bpc-panel) position zoom-factor)
+  (zoom-rulers (editor self) :dx (- 1 zoom-factor) :dy (- 1 zoom-factor) :center position))
+
 (defmethod editor-key-action ((editor bpf-editor) key)
   (let ((panel (get-g-component editor :main-panel)))
     (case key
-      (#\- (zoom-rulers editor :dx -0.1 :dy -0.1))
-      (#\+ (zoom-rulers editor :dx 0.1 :dy 0.1))
+      (#\- (zoom-rulers editor :dx -0.1 :dy -0.1)) ;;; zoom out : the ruler gets bigger
+      (#\+ (zoom-rulers editor :dx 0.1 :dy 0.1)) ;;; zoom in : the ruler gets smaller
       (:om-key-delete 
        (store-current-state-for-undo editor)
        (delete-editor-selection editor)

@@ -34,7 +34,9 @@
           om-view-mouse-enter-handler
           om-view-mouse-leave-handler
           om-view-mouse-motion-handler
-          
+          om-view-pan-handler
+          om-view-zoom-handler
+
           om-init-motion
           om-click-motion-handler
           om-click-release-handler
@@ -106,7 +108,11 @@
                    ((:button-3 :press) om-context-menu-callback)
                    ((:button-3 :release) om-right-clic-callback (nil nil nil))
                    ((:button-3 :second-press) om-right-clic-callback (nil nil nil))
+                   
+                   #-linux((:touch :pan) om-pan-callback)
+                   #-linux((:touch :zoom) om-zoom-callback)
 
+                   
                    (:gesture-spec om-char-spec-callback)
                    ;; (:character om-char-callback (nil nil nil))
                    )
@@ -282,6 +288,20 @@
   )
    
 (defmethod om-click-motion-handler (self pos) t)
+
+;;;=================
+;;; TOUCH GESTURES
+;;;=================
+
+(defmethod om-zoom-callback ((self om-interactive-object) x y zoom-factor)
+  (om-view-zoom-handler self (om-make-point x y) zoom-factor))
+
+(defmethod om-pan-callback ((self om-interactive-object) x y delta-x delta-y) 
+  (om-view-pan-handler self (om-make-point x y) delta-x delta-y))
+
+;;; need to set *clicked-view* ??
+(defmethod om-view-zoom-handler ((self om-interactive-object) position zoom-factor) nil)
+(defmethod om-view-pan-handler ((self om-interactive-object) position delta-x delta-y) nil)
 
 
 ;;;=====================

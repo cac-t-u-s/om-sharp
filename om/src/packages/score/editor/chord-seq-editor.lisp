@@ -87,6 +87,19 @@
      )))
 
 
+
+(defmethod move-rulers ((self chord-seq-editor) &key (dx 0) (dy 0))
+  (let* ((rx (get-g-component self :x-ruler))
+         (dxx (* (/ dx (w rx)) (- (v2 rx) (v1 rx)))))
+    (unless (or (and (plusp dxx) (vmin rx) (= (vmin rx) (v1 rx))) 
+                (and (minusp dxx) (vmax rx) (= (vmax rx) (v2 rx))))
+      (set-ruler-range rx 
+                       (if (vmin rx) (max (vmin rx) (- (v1 rx) dxx)) (- (v1 rx) dxx))
+                       (if (vmax rx) (min (vmax rx) (- (v2 rx) dxx)) (- (v2 rx) dxx))))
+    ))
+
+
+
 (defmethod make-editor-window-contents ((editor chord-seq-editor))
   
   (let* ((obj (object-value editor))
@@ -98,7 +111,7 @@
                                          :editor editor :size (omp 50 60) 
                                          :direct-draw t 
                                          :bg-color (om-def-color :white) 
-                                         :scrollbars :h)))
+                                         )))
                      
     (set-g-component editor :x-ruler (om-make-view 'time-ruler 
                                                    :related-views (get-g-component editor :data-panel-list)

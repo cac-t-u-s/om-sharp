@@ -200,6 +200,13 @@
     ))
 
 
+(defmethod move-rulers ((self t) &key dx dy) nil)
+
+(defmethod om-view-pan-handler ((self score-view) position dx dy)
+  (let ((fact 10))
+    (move-rulers (editor self) :dx (* fact dx) :dy (* fact dy))))
+
+
 ;;;============ 
 ;;; CONTROL PANEL
 ;;;============
