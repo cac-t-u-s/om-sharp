@@ -30,42 +30,30 @@
 (defmethod fnumerator ((self t)) (numerator (fullratio self)))
 (defmethod fnumerator ((self list)) (first self))
 
-(defun subtree-extent (subtree)
-  (cond ((listp subtree) (fullratio (first subtree)))
-        ((floatp subtree) (round (abs subtree)))
-        ((or (ratiop subtree) (integerp subtree)) (abs subtree))))
-
-(defun  symbol->ratio (symbol)
-  (let ((string (copy-seq (symbol-name symbol))))
-  (loop for i from 0 to (1- (length string))
-        when (char= (elt string i) #\/) do (setf (elt string i) '#\Space))
-  (read-from-string (format () "(~A)" string)) ))
-
 
 ;(reduce #'(lambda (x y) (+ (abs x) (subtree-extent y))) 
 ;        '((2 8) (3 8) (4 8) (3 8) (2 8))
 ;        :initial-value 0)
 
+(defun subtree-extent (subtree)
+  (cond ((listp subtree) (fullratio (first subtree)))
+        ((floatp subtree) (round (abs subtree)))
+        ((or (ratiop subtree) (integerp subtree)) (abs subtree))))
 
 ;;; total extent in quarter-notes (formerly "resolve-?")
+;;; tree is the list of measure-trees
 (defun compute-total-extent (tree)
-  (cond 
-   ((numberp list) list)
-   ((or (numberp (first list)) (listp (first list)))
-    (if (listp (second list)) 
-        (list (first list) (mapcar #'resolve-? (second list)))
-      (error (format nil "Invalid Rhythm Tree : ~A" list))))
+  (let ((solved (mapcar #'compute-extent tree)))
+    (list (reduce #'(lambda (x y) (+ (abs x) (subtree-extent y))) 
+                  solved :initial-value 0)
+          solved)))
 
-   ((and (symbolp (first list)) (equal (symbol-name (first list)) "?"))
-    (let ((solved (mapcar #'resolve-? (second list))))
-      (list (reduce #'(lambda (x y) (+ (abs x) (subtree-extent y))) 
-                    solved :initial-value 0)
-            solved)))
-   ((symbolp (first list))
-    (if (listp (second list)) 
-        (list (symbol->ratio (first list)) (mapcar #'resolve-? (second list)))
-      (error (format nil "Invalid Rhythm Tree : ~A" list))))))
-
+(defun compute-extent (tree)
+  (if (numberp tree) tree
+    (if (listp (second tree)) 
+        (list (first tree) (mapcar #'compute-extent (second tree)))
+      (error (format nil "Invalid Rhythm Tree : ~A" tree))
+      )))
 
 
 ;;; convert to 'better' values
@@ -87,33 +75,46 @@
     (t  extent)))
 
 
-
+;;; simplify complex subdivisions into tied/simpler ones
 (defun normalize-tree (tree)
-  
-  (unless (listp (car tree))
-    ;;; probably "old-formatted" RT, with "?" etc.
-    (setf tree (second tree)))
-  
+   
   (labels 
-    ((normalize (tree)
+    ((normalize-recursive (tree)
        
        (cond 
-        ((numberp tree)
-         (let ((convert (convert-extent (abs (round tree)))))
-           (if (listp convert)
-               (progn 
-                 (if (plusp tree)
-                     (progn (setf (second convert) (float (second convert)))
-                       (when (floatp tree) (setf (first convert) (float (first convert)))))
-                   
-                   (setf (first convert) (- (first convert)) (second convert) (- (second convert))))
-                 convert)
-             (list tree))))
-             
+        
+        ;;; normalize recursively (the subdiv-part)
         ((listp tree)
-         (list (list (first tree) (mapcan #'normalize (second tree))))))))
+         (list (list (car tree) (mapcan #'normalize-recursive (cadr tree)))))
+        
+        ((numberp tree) ;;; a leaf
+         
+         (let ((converted-extent (convert-extent (abs (round tree))))) ;;; (1) convert to positive integer just to call convert-extent
+           
+           (if (listp converted-extent) ;;; the leaf was converted
+               (progn 
+                 
+                 (if (plusp tree) 
+                     ;;; abs did not apply in (1)
+                     (progn 
+                       ;;; tie the second pulse to the first pulse
+                       (setf (second converted-extent) (float (second converted-extent)))
+                       
+                       (when (floatp tree) 
+                         ;;; the first pulse was already a tie
+                         (setf (first converted-extent) (float (first converted-extent)))))
+                   
+                   ;;; else: (1) abs did invert the sign: restore it
+                   (setf (first converted-extent) (- (first converted-extent)) 
+                         (second converted-extent) (- (second converted-extent))))
+                 
+                 converted-extent)
+             
+             ;;; nothing changes
+             (list tree))))      
+        )))
     
-    (first (normalize tree))
+    (mapcan #'normalize-recursive tree)
     ))
 
 

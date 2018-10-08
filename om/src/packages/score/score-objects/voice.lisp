@@ -36,32 +36,36 @@
 ;;; some additional classes to build a rhythmic structure
 (defclass measure (score-object container) ())
 (defclass group (score-object container) ())
-(defclass rest (score-object ) ())
-(defclass grace-note (score-object ) ())
+(defclass rrest (score-object) ())
+(defclass grace-note (score-object) ())
 
 
 (defmethod additional-class-attributes ((self voice)) '(lvel loffset lchan lport))
 
-(defmethod initialize-instance ((self voice) &optional initargs)
+(defmethod initialize-instance ((self voice) &rest initargs)
   (call-next-method)
+  
+    ;;; probably "old-formatted" RT, with "?" etc.
+  (unless (listp (car (tree self)))
+    (setf (tree self) (cadr (tree self))))
+
   (setf (tree self) (normalize-tree (tree self)))
-  (setf (r-struct self) (init-seq-from-tree (tree self)))
+  (setf (r-struct self) (init-seq-from-tree self (tree self)))
   self)
 
 
 
 
-
-
 (defmethod init-seq-from-tree ((self voice) (tree list)) 
-  (let ((Extent (* (fullratio (first tree)) PropagateExtent))
+  (let ((Extent (compute-total-extent tree))
         (nbsubunits (reduce  
-                     #'(lambda (x y) (+   (abs x) (subtree-extent y))) 
-                     (second tree)
-                     :initial-value 0))
+                     #'(lambda (x y) (+ (abs x) (subtree-extent y))) 
+                     tree :initial-value 0))
         (curr-obj nil)
         (current-graces nil) (current-note nil))
     
+    (setf (extent self) extent)
+
     (remove 
      NIL
      (loop 

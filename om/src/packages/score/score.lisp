@@ -23,6 +23,7 @@
       '("score-objects/score-object"
         "score-objects/chord"
         "score-objects/chord-seq"
+        "score-objects/tree"
         "score-objects/voice"
         "score-objects/score"
 
