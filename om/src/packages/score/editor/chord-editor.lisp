@@ -23,7 +23,8 @@
 ;;; CHORD EDITOR
 ;;;========================================================================
 
-(defclass chord-editor (OMEditor undoable-editor-mixin) ())
+
+(defclass chord-editor (score-editor) ())
 (defmethod object-has-editor ((self chord)) t)
 (defmethod get-editor-class ((self chord)) 'chord-editor)
 

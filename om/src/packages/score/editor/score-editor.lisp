@@ -23,6 +23,8 @@
 ;;; SCORE EDITORS (GENERAL/SHARED FEATURES)
 ;;;===========================================
 
+(defclass score-editor (OMEditor undoable-editor-mixin) ())
+
 (defmethod object-default-edition-params ((self score-object))
   '((:font-size 24)
     (:staff :gf)
@@ -201,7 +203,7 @@
     ))
 
 
-(defmethod move-rulers ((self t) &key dx dy) nil)
+(defmethod move-rulers ((self score-editor) &key dx dy) nil)
 
 (defmethod om-view-pan-handler ((self score-view) position dx dy)
   (let ((fact 10))
@@ -212,16 +214,15 @@
         (d-size (if (> zoom 1) 1 -1))) 
     (set-font-size editor (+ d-size (editor-get-edit-param editor :font-size)))))
 
-
-
 ;;;====================== 
 ;;; CONTROL PANEL
 ;;;======================
 
-(defmethod set-font-size ((self chord-seq-editor) size)
+(defmethod set-font-size ((self score-editor) size)
   (let ((v (min 120 (max 8 size))))
     (editor-set-edit-param self :font-size v)
-    (set-value (get-g-component self :font-size-box) v)))
+    (when (get-g-component self :font-size-box)
+      (set-value (get-g-component self :font-size-box) v))))
 
 
 (defun make-score-control-panel (editor) 

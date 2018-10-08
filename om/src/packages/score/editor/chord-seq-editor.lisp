@@ -22,7 +22,7 @@
 ;;; CHORD-SEQ EDITOR
 ;;;========================================================================
 
-(defclass chord-seq-editor (data-stream-editor undoable-editor-mixin) ())
+(defclass chord-seq-editor (data-stream-editor score-editor) ())
 (defmethod get-editor-class ((self chord-seq)) 'chord-seq-editor)
 
 (defclass score-panel (score-view stream-panel) ()
