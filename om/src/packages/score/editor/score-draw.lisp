@@ -266,7 +266,7 @@
 
 ;;; x and y are in score-units
 ;;; w and h are pixel-size of the frame
-(defun draw-staff (x y w h fontsize staff &optional (margin-l 0) (margin-r 0) (keys t))
+(defun draw-staff (x y w h fontsize staff &key (margin-l 0) (margin-r 0) (keys t))
   
   (let* ((staff-elems (staff-split staff))
          (unit (font-size-to-unit fontsize)) 
@@ -288,7 +288,8 @@
                    (om-draw-line (x-pos 0) (line-to-y-pos line)
                                  (- w (* (or margin-r 0) unit))
                                  (line-to-y-pos line)
-                                 :line staffLineThickness))
+                                 :line staffLineThickness
+                                 ))
              ;;; clef
              (when keys 
                (om-draw-char (x-pos 1) 

@@ -85,7 +85,7 @@
       (let* ((x-in-units (/ x unit)))
         
         (om-with-fg-color (om-make-color 0.0 0.2 0.2)
-          (draw-staff x-in-units y-in-units w h fontsize staff 1 1 t)
+          (draw-staff x-in-units y-in-units w h fontsize staff :margin-l 1 :margin-r 1 :keys t)
           (score-object-mini-view self x-in-units y-in-units w h staff fontsize)
           )
         ))))

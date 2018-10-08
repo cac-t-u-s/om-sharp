@@ -38,8 +38,37 @@
   (append (call-next-method)
           '((:grid nil))))
 
+(defclass left-score-view (score-view) ())
+
+(defmethod om-draw-contents ((self left-score-view))
+  (let* ((editor (editor self))
+         (scrolled (> (x1 (get-g-component editor :main-panel)) 0))
+         (shift (* 2 (font-size-to-unit (editor-get-edit-param editor :font-size)))))
+    
+    (draw-staff 0 0 
+                (w self) (h self) 
+                (editor-get-edit-param editor :font-size) 
+                (editor-get-edit-param editor :staff)
+                :margin-l (margin-l self) :margin-r (margin-r self)
+                :keys (keys self))
+    
+    (when scrolled 
+      (om-draw-rect (- (w self) 20) 0 20 (h self)
+                    :fill t :color (om-make-color .9 .9 .9 .5))
+      (om-draw-string (- (w self) 15) 10 "...")
+      (om-draw-string (- (w self) 15) (- (h self) 10) "..."))
+    ))
+                      
+
+
+(defmethod update-view-from-ruler ((self x-ruler-view) (view score-panel))
+  (call-next-method)
+  (om-invalidate-view (get-g-component (editor view) :left-view)))
+
+
+
 (defmethod make-left-panel-for-object ((editor chord-seq-editor) (object score-object))
-  (om-make-view 'score-view :size (omp (* 2 (editor-get-edit-param editor :font-size)) nil)
+  (om-make-view 'left-score-view :size (omp (* 2 (editor-get-edit-param editor :font-size)) nil)
                 :direct-draw t 
                 :bg-color (om-def-color :white) 
                 :scrollbars nil
@@ -124,6 +153,8 @@
     (set-g-component editor :main-panel (car (get-g-component editor :data-panel-list)))
     (when (editor-get-edit-param editor :show-timeline) (make-timeline-view (timeline-editor editor)))
     
+    (set-g-component editor :left-view (make-left-panel-for-object editor obj))
+
     (om-make-layout 
      'om-column-layout 
      :ratios '(96 2 2)
@@ -137,7 +168,7 @@
                  :subviews 
                  (append (list nil (make-control-bar editor))
                          (loop for view in (get-g-component editor :data-panel-list)
-                               append (list (make-left-panel-for-object editor obj)
+                               append (list (get-g-component editor :left-view)
                                             view))
                          (list nil (get-g-component editor :x-ruler)))
                  )
