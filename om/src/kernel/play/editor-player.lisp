@@ -194,7 +194,6 @@
   (when (object self) (play-box-callback (object self) time)))
 
 (defmethod stop-editor-callback ((self play-editor-mixin)) 
-  ;(mapcar #'(lambda (view) (stop-cursor view)) (cursor-panes self))
   (when (play-button self) (unselect (play-button self)))
   (when (pause-button self) (unselect (pause-button self)))
   (mapcar 'stop-cursor (remove nil (cursor-panes self)))
@@ -320,11 +319,10 @@
 ;++++++++++++++++++++++++++++++++
 
 (defmethod draw-cursor-line ((self x-cursor-graduated-view) position size)
-  (om-with-line-size 2
-    (om-with-fg-color (om-make-color 0.8 0.5 0.5)
-      (om-draw-line (om-point-x position) (om-point-y position)
-                    (om-point-x position)
-                    (+ (om-point-y position) (om-point-y size))))))
+  (om-draw-line (om-point-x position) (om-point-y position)
+                (om-point-x position)
+                (+ (om-point-y position) (om-point-y size))
+                :color (om-make-color 0.8 0.5 0.5)))
 
 (defmethod drag-move-cursor ((self x-cursor-graduated-view) position)
   (om-init-temp-graphics-motion 

@@ -170,7 +170,7 @@
                        :x (om-point-x position) :y (om-point-y position)
                        :visible-min-width (om-point-x size) :visible-min-height (om-point-y size)
                        ))
-  (capi:manipulate-pinboard self (drawn-item self) :add-top)
+  (capi:apply-in-pane-process self 'capi:manipulate-pinboard self (drawn-item self) :add-top)
   )
 
 (defmethod om-stop-transient-drawing ((self om-transient-drawing-view))
@@ -179,9 +179,11 @@
     (om-stop-transient-drawing-process self)
     ;;;
     (when (drawn-item self)
-      (capi:manipulate-pinboard self (drawn-item self) :delete)
+      
+      (capi::apply-in-pane-process self 'capi:manipulate-pinboard self (drawn-item self) :delete)
       (om-invalidate-view self)
       (setf (drawn-item self) nil)
+      
       )))
 
 (defmethod om-update-transient-drawing ((self om-transient-drawing-view) &key x y w h)
