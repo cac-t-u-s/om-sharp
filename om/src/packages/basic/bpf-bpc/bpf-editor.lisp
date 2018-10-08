@@ -543,7 +543,7 @@
        (let ((center (list (x-to-pix self 0) (y-to-pix self 0))))
          (when (and (> (cadr center) 0) (< (cadr center) (h self)))
            (om-draw-line 0 (cadr center) (w self) (cadr center)))
-         (when (and (> (car center) 0) (< (car center) (h self)))
+         (when (and (> (car center) 0) (< (car center) (w self)))
            (om-draw-line (car center) 0 (car center) (h self)))
          ))
      
