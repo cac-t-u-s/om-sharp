@@ -85,12 +85,14 @@
   (om-draw-line x 0 x (h view)))
 
 (defmethod draw-patch-grid ((self patch-editor-view) &optional (d 50))
-  (om-with-fg-color (om-def-color :light-gray)
-    (om-with-line '(2 2)
+  (om-with-fg-color (om-make-color .95 .95 .95)
+    ;(om-with-line '(2 2) ;;; dash-lines are VERY unefficient
       (loop for i from d to (w self) by d do
             (draw-v-grid-line self i))
       (loop for i from d to (h self) by d do
-            (draw-h-grid-line self i)))))
+            (draw-h-grid-line self i))
+    ;  )
+    ))
 
 
 (defmethod om-draw-contents ((self patch-editor-view))
