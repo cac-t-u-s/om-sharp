@@ -195,10 +195,12 @@
 ;;;======================================
 
 ;;; will be printed in the Listener
+
+
 (defparameter *om-startup-string* 
   (format nil 
-          "===========================~%o7 v. ~D~%r. ~A~%==========================="
-          *version-string* *release-date*))
+          "===========================~%~A v~D~%r. ~A~%==========================="
+          *app-name* *version-string* *release-date*))
 
 ; (start-openmusic)
 

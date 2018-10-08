@@ -16,7 +16,6 @@
 ;============================================================================
 
 (in-package :om)
-
 ;;;=================
 ;;; MAIN WINDOW
 ;;;=================
@@ -37,9 +36,10 @@
   (if *om-main-window*
       (om-select-window *om-main-window*)
     (let ((win (om-make-window 'om-main-window
-                               :title (apply 'string+ (cons "o7 Session" 
-                                                            (if *current-workspace* (list " [Workspace: " (name *current-workspace*) "]")
-                                                              '(""))))
+                               :title (format nil "~A Window~A"
+                                              *app-name*
+                                              (if *current-workspace* (list " [Workspace: " (name *current-workspace*) "]")
+                                                ""))
                                :size (om-make-point 800 300)
                                :menu-items (om-menu-items nil))))
       (setf (elements-view win) (make-ws-elements-tab)
