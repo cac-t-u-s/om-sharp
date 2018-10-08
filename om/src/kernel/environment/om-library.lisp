@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -164,7 +164,7 @@
                                                        :size (om-make-point 300 200))
                                     (when 
                                         (om-y-or-n-dialog (format nil 
-                                                                  "Try to delete compiled Lisp files (.*fasl) ?~%~%Deleting these files might be necessary in case they were created by a previous version of Lisp or OM/o7.."))
+                                                                  "Try to delete compiled Lisp files (.*fasl) ?~%~%Deleting these files might be necessary in case they were created by a previous version of Lisp or OM."))
                                       (common-lisp-user::clean-sources (mypathname lib)))
                                     (abort c)))))
 

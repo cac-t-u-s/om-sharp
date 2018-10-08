@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -157,22 +157,25 @@
            )
           (class-documentation class))))
   
-;(class-to-doclist 'class-array)
+;(special-item-reference-class 'collect)
 
 (defun box-to-doclist (symbol) 
-  (let* ((class (find-class (special-item-reference-class symbol)))
-         (instance (make-instance (special-item-reference-class symbol))))
-    (list symbol "INTERFACE BOX"
-          ;;; slots desc
-          (loop for k in (flat (get-all-keywords instance)) 
-                collect 
-                (let ((slot (find (symbol-name k) (class-slots class) 
-                                  :key #'(lambda (slot) (symbol-name (slot-name slot))) 
-                                  :test 'string-equal)))
-                   (list (slot-name slot)
-                         (eval (slot-initform slot))
-                         (slot-doc slot))))
-          (class-documentation class))))
+  (let ((class (find-class (special-item-reference-class symbol) nil)))
+    (when class 
+      (let ((instance (make-instance (special-item-reference-class symbol))))
+        (list symbol "SPECIAL BOX"
+              ;;; slots desc
+              (loop for k in (flat (get-all-keywords instance)) 
+                    collect 
+                    (let ((slot (find (symbol-name k) (class-slots class) 
+                                      :key #'(lambda (slot) (symbol-name (slot-name slot))) 
+                                      :test 'string-equal)))
+                      (list (slot-name slot)
+                            (eval (slot-initform slot))
+                            (slot-doc slot))))
+              (class-documentation class))))))
+
+; (gen-om-reference)
 
 ;;;======================================
 ;;; REFERENCE-PAGES GENERATION AND ACCESS
@@ -187,7 +190,7 @@
     ))
 
 (defparameter *om-ref-text*
-  "This is the reference documentation for the main functions and classes in o7.")
+  "This is the reference documentation for the main functions and classes in om7.")
 
 (defun gen-om-reference ()
   (gen-reference (gen-package-entries *om-package-tree*)
@@ -313,7 +316,7 @@ TH {
   (concatenate 'string 
                "<center><font size=-2>" 
                "Auto doc generation by OM7 "
-               (cl-user::version-to-string *om-version*) 
+               (cl-user::version-to-string *om-version* t) 
                " - " 
                (om-get-date)  
                "</font></center>"))
@@ -327,7 +330,7 @@ TH {
   (om-create-directory dir)
   
   (let* ((data (cdr package-entries))
-         (title (or title (concatenate 'string "o7 " (cl-user::version-to-string *om-version*))))
+         (title (or title (format nil "~A v~A" *app-name* (cl-user::version-to-string *om-version* t))))
          (indexpath (om-make-pathname :directory dir :name "index" :type "html"))
          (alphaindexpath (om-make-pathname :directory dir :name "ind-alpha" :type "html"))
          (allsymbols (remove nil 

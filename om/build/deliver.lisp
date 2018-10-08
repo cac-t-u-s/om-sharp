@@ -17,7 +17,7 @@
 (print "==============================")
 
 (defparameter *app-name+version* "om7-beta")
-;(defparameter *app-name+version* (concatenate 'string "o7-" (version-to-string *om-version* t nil)))
+;(defparameter *app-name+version* (concatenate 'string "om7-" (version-to-string *om-version* t nil)))
 
 (defparameter *om-directory-folders* (butlast (pathname-directory (current-pathname))))
 
@@ -46,7 +46,7 @@
         ;; attach the standard Services menu.
        ; :name :application-services)
        (:component
-        (("Hide o7"
+        (("Hide OM"
           :accelerator "accelerator-h"
           :callback-data :hidden)
          ("Hide Others"
@@ -220,6 +220,11 @@
 
 (dspec:discard-source-info)
 
+;;;==========================
+;;; FUNCTION REFERENCE
+;;;==========================
+
+(om::gen-om-reference)
 
 ;;;==========================
 ;;; BUILD IMAGE
@@ -298,7 +303,7 @@
                                                                `("TextFun" ("olsp") ,(om::om-relative-path '("mac") "lsp-icon.icns"))
                                                                `("om Library" ("omlib") ,(om::om-relative-path '("mac") "omlib.icns")))
                                                            :application-icns (om::om-relative-path '("mac") "om.icns")
-                                         :identifier "fr.ircam.repmus.o7"
+                                         :identifier "fr.ircam.repmus.om7"
                                          :version (version-to-string *om-version* t nil)
                                          ))
        #+mswindows
@@ -326,7 +331,7 @@
            #+mswindows :keep-gc-cursor #+mswindows nil
            #+mswindows :versioninfo #+mswindows (list :binary-version (read-from-string (version-to-hex *om-version*))
                                               :version-string (version-to-string *om-version* t nil)
-                                              :company-name "" :product-name "o7" :file-description "")
+                                              :company-name "" :product-name "om7" :file-description "")
            #+mswindows :console #+mswindows :input
            :quit-when-no-windows #+mswindows t #-mswindows nil
            #+(or cocoa win32) :packages-to-keep #+cocoa '(:objc)  #+mswindows '(:comm)

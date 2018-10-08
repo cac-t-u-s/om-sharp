@@ -95,7 +95,7 @@
 
 (load (merge-pathnames "src/kernel/kernel-files.lisp" cl-user::*om-root-directory*))
 
-(push :o7 *features*)
+(push :om7 *features*)
 
 ;;; used for source tracking
 ;;; updated in delivered init call

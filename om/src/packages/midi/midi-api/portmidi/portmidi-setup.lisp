@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -244,7 +244,7 @@
                                      (oa::om-make-di 'oa::om-multi-text
                                                      :size (oa::om-make-point 360 24)
                                                      :text (oa::om-string-wrap
-							    "o7 detects MIDI device at startup. If some active MIDI devices do not appear in the lists, you might need to restart the program."
+							    "This software detects MIDI devices at startup. If some active MIDI devices do not appear in the lists, you might need to restart the program."
 							    360
 							    (oa::om-def-font :font1))
                                                      :font (oa::om-def-font :font1))
