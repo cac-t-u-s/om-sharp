@@ -108,7 +108,7 @@
 (defun om-load-foreign-library (name spec)
   (let ((lib (intern (string-upcase name) :keyword)))
     (eval `(cffi::define-foreign-library ,lib ,.spec))
-    (print (format nil "Loading foreign library: ~A" name))
+    (princ (format nil "Loading foreign library: ~A~&" name))
     (cffi::load-foreign-library lib)))
 
 (defvar *loaders* nil)
