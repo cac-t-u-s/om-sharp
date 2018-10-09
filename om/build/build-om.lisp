@@ -138,7 +138,6 @@
 (load-om-package "sdif")
 (load-om-package "osc")
 (load-om-package "sound")
-(load-om-package "synth")
 (load-om-package "space")
 (load-om-package "interface")
 
