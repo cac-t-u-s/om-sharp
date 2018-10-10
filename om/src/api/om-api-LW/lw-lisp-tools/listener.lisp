@@ -391,7 +391,9 @@
 
 (defun om-prompt-on-echo-area (listener-pane message)
   (with-slots (editor-window) listener-pane
-    (editor:process-character  
+    (capi::apply-in-pane-process 
+     listener-pane 
+     'editor:process-character    
      (list 'editor:message message)
      editor-window)))
 
