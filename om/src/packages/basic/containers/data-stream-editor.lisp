@@ -231,7 +231,9 @@
        (v1 (get-g-component editor :x-ruler))
        new-max-dur))
     (mapc 'om-invalidate-view (get-g-component editor :data-panel-list))
-    (update-to-editor (timeline-editor editor) editor)
+
+    (when (editor-get-edit-param editor :show-timeline)
+      (update-to-editor (timeline-editor editor) editor))
 
     (call-next-method)
     ))
