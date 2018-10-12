@@ -172,52 +172,53 @@
   (flet 
       ((pos-to-x (xpos) (+ x 15 (round (* xpos (- w 30)))))
        (pos-to-y (ypos) (+ y 12 (round (* ypos (- h 40))))))
-        (ensure-cache-display-draw box self)
-        (om-with-fg-color (om-def-color :gray)
-          (loop for b in (car (get-display-draw box)) do
-                (if (equal :b (caddr b))
-                    (om-draw-rect (- (pos-to-x (car b)) 8) (- (pos-to-y (cadr b)) 4) 16 8 :fill t)
-                  (progn  
-                    (om-with-fg-color (cond 
-                                       ((equal :in (caddr b)) (om-make-color 0.2 0.6 0.2))
-                                       ((equal :out (caddr b)) (om-make-color 0.3 0.6 0.8))
-                                       (t (om-def-color :gray)))
-                      (om-draw-circle (pos-to-x (car b)) (pos-to-y (cadr b)) 3.8 :fill t))
-                    (om-draw-rect (- (pos-to-x (car b)) 3) (- (pos-to-y (cadr b)) 3) 6 6 :fill t)
-                    )))
-          (loop for c in (cadr (get-display-draw box)) do
-                (when (and (car c) (cadr c)) ;; 2 boxes ok
-                  (let* ((from (nth (car c) (car (get-display-draw box))))
-                         (to (nth (cadr c) (car (get-display-draw box))))
-                         (from-x (pos-to-x (car from))) (from-y (pos-to-y (cadr from)))
-                         (to-x (pos-to-x (car to))) (to-y (pos-to-y (cadr to)))
-                         (mid-x (+ from-x (round (- to-x from-x) 2)))
-                         (mid-y (+ from-y (round (- to-y from-y) 2))))
+    (ensure-cache-display-draw box self)
+    (om-with-fg-color (om-def-color :gray)
+      (loop for b in (car (get-display-draw box)) do
+            (if (equal :b (caddr b))
+                (om-draw-rect (- (pos-to-x (car b)) 8) (- (pos-to-y (cadr b)) 4) 16 8 :fill t)
+              (progn  
+                (om-with-fg-color (cond 
+                                   ((equal :in (caddr b)) (om-make-color 0.2 0.6 0.2))
+                                   ((equal :out (caddr b)) (om-make-color 0.3 0.6 0.8))
+                                   (t (om-def-color :gray)))
+                  (om-draw-circle (pos-to-x (car b)) (pos-to-y (cadr b)) 3.8 :fill t))
+                (om-draw-rect (- (pos-to-x (car b)) 3) (- (pos-to-y (cadr b)) 3) 6 6 :fill t)
+                )))
+      (loop for c in (cadr (get-display-draw box)) do
+            (when (and (car c) (cadr c)) ;; 2 boxes ok
+              (let* ((from (nth (car c) (car (get-display-draw box))))
+                     (to (nth (cadr c) (car (get-display-draw box))))
+                     (from-x (pos-to-x (car from))) (from-y (pos-to-y (cadr from)))
+                     (to-x (pos-to-x (car to))) (to-y (pos-to-y (cadr to)))
+                     (mid-x (+ from-x (round (- to-x from-x) 2)))
+                     (mid-y (+ from-y (round (- to-y from-y) 2))))
                          
                     ;(om-draw-line (pos-to-x (car from)) (pos-to-y (cadr from))
                     ;              (pos-to-x (car to)) (pos-to-y (cadr to)))
-                    (if (>= to-y from-y)
-                        (progn 
-                          (om-draw-line from-x from-y from-x mid-y)
-                          (om-draw-line from-x mid-y to-x mid-y)
-                          (om-draw-line to-x mid-y to-x to-y))
-                      (progn 
-                          (om-draw-line from-x from-y mid-x from-y)
-                          (om-draw-line mid-x from-y mid-x to-y)
-                          (om-draw-line mid-x to-y to-x to-y)))
-                    ))))))
+                (if (>= to-y from-y)
+                    (progn 
+                      (om-draw-line from-x from-y from-x mid-y)
+                      (om-draw-line from-x mid-y to-x mid-y)
+                      (om-draw-line to-x mid-y to-x to-y))
+                  (progn 
+                    (om-draw-line from-x from-y mid-x from-y)
+                    (om-draw-line mid-x from-y mid-x to-y)
+                    (om-draw-line mid-x to-y to-x to-y)))
+                ))))))
 
 (defmethod get-cache-display-for-draw ((self OMPatch))
   (let* ((patch self)
-         (bboxes (loop for b in (get-boxes-of-type patch 'OMBoxCall) 
+         (p-boxes (get-boxes-of-type patch 'OMBoxCall))
+         (bboxes (loop for b in p-boxes 
                        collect (list (box-x b) (box-y b)
                                      (cond ((equal (type-of b) 'ominbox) :in)
                                            ((equal (type-of b) 'omoutbox) :out)
                                            ((equal (type-of b) 'omboxeditcall) :b)
                                            ))))
          (cconecs (loop for c in (connections patch) collect 
-                        (list (position (box (from c)) (boxes patch))
-                              (position (box (to c)) (boxes patch))))))
+                        (list (position (box (from c)) p-boxes)
+                              (position (box (to c)) p-boxes)))))
     (when bboxes
       (let* ((x0 (list-min (mapcar 'car bboxes)))
              (xs (max 10 (- (list-max (mapcar 'car bboxes)) x0)))
