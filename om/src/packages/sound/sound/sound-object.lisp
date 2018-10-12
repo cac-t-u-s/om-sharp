@@ -223,11 +223,10 @@ Press 'space' to play/stop the sound file.
 (defmethod get-frame-posy ((self marker-frame)) 100)
 (defmethod get-frame-sizey ((self marker-frame)) 200)
 
-(defmethod draw ((frame marker-frame) x y w h selected) 
- 
+(defmethod draw ((frame marker-frame) x y w h selected)
   (om-draw-line x y x h :line (if selected 3 2) :style '(4 4) :color (if selected (om-def-color :dark-red) nil))
   (when (label frame)
-    (om-draw-string (+ x 4) (+ y 12) (label frame) :color (if selected (om-def-color :dark-red) nil)))
+    (om-draw-string (+ x 4) (+ y 12) (format nil "~A" (label frame)) :color (if selected (om-def-color :dark-red) nil)))
   t)
 
 
@@ -836,7 +835,8 @@ Press 'space' to play/stop the sound file.
         (om-with-font (om-make-font "Arial" (round (h self) 4) :style '(:bold))
                       (om-draw-string 10 (+ (round (h self) 2) (round (h self) 8)) "No sound loaded..")
                       ))
-      )))
+      )
+    ))
 
 
 (defun draw-sound-waveform (sound editor view from to &optional (sound-id 0))

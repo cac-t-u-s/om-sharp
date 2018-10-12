@@ -369,7 +369,7 @@
     
     (when stream 
       (om-with-fg-color (om-def-color :dark-gray)
-        (loop for frame in (data-stream-get-frames stream) 
+        (loop for frame in (data-stream-get-frames stream)
               for i = 0 then (1+ i) do
               (draw-data-frame frame editor i active)))
       )
