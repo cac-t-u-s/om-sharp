@@ -108,9 +108,9 @@ As output it returns the contents of the text buffer as a list formatted accordi
   (setf (reader object) (get-edit-param box :read-mode))
   object)
 
-(defmethod get-slot-val ((obj textbuffer) (slot-name symbol))
-  (if (equal slot-name 'contents)
-      (format-from-text-lines (contents obj) (reader obj))
+(defmethod get-slot-val ((obj textbuffer) slot-name)
+  (if (string-equal (string slot-name) "contents")
+      (format-from-text-lines (contents obj) (print (reader obj)))
     (call-next-method)))
 
 ;;;===================================
@@ -134,6 +134,9 @@ As output it returns the contents of the text buffer as a list formatted accordi
 ;;; BOX
 ;;;========================
 
+(defclass TextBufferBox (omboxeditcall) ())
+(defmethod special-box-type ((self (eql 'textbuffer))) 'TextBufferBox)
+
 (defmethod display-modes-for-object ((self textbuffer)) '(:hidden :text :mini-view))
 
 (defmethod get-cache-display-for-text ((self textbuffer))
@@ -143,7 +146,7 @@ As output it returns the contents of the text buffer as a list formatted accordi
                 "<EMPTY>"))
         ))
         
-(defmethod draw-mini-view ((self textbuffer) (box t) x y w h &optional time)
+(defmethod draw-mini-view ((self textbuffer) (box TextBufferBox) x y w h &optional time)
   (let ((display-cache (get-display-draw box))
         (font (om-def-font :font1 :size 10)))
     (om-with-font 
@@ -163,6 +166,16 @@ As output it returns the contents of the text buffer as a list formatted accordi
                 (progn 
                   (om-draw-string (- (round w 2) 10) (- h 10) "...") 
                   (return)))))))
+
+
+
+(defmethod gen-code-for-call ((self TextBufferBox) &optional args)
+  (declare (ignore args))
+  `(let ((tb ,(call-next-method)))
+     (setf (reader tb) ,(get-edit-param self :read-mode))
+     tb))
+ 
+
 
 ;;;========================
 ;;; UTILS / OM FUNCTIONS
