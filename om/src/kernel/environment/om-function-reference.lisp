@@ -316,7 +316,7 @@ TH {
   (concatenate 'string 
                "<center><font size=-2>" 
                "Auto doc generation by OM7 "
-               (cl-user::version-to-string *om-version* t) 
+               *version-string* 
                " - " 
                (om-get-date)  
                "</font></center>"))
@@ -330,7 +330,7 @@ TH {
   (om-create-directory dir)
   
   (let* ((data (cdr package-entries))
-         (title (or title (format nil "~A v~A" *app-name* (cl-user::version-to-string *om-version* t))))
+         (title (or title (format nil "~A v~A" *app-name* *version-string*)))
          (indexpath (om-make-pathname :directory dir :name "index" :type "html"))
          (alphaindexpath (om-make-pathname :directory dir :name "ind-alpha" :type "html"))
          (allsymbols (remove nil 

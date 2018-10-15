@@ -22,15 +22,30 @@
 ;;;=======================================
 
 (defparameter *app-name* "om7-beta")
-(defparameter *om-version* 0.010501)
-(defparameter *beta-release* nil)
-(defparameter *version-string* "")
+
+(defparameter *version-major* 0) ;;; => 7!
+(defparameter *version-minor* 1) 
+(defparameter *version-patch* 5)
+(defparameter *version-update* 1)
+
+(defparameter *om-version* 
+  (+ *version-major* 
+     (* *version-minor* .01) 
+     (* *version-patch* .0001) 
+     (* *version-update* .000001)))
+
+(defparameter *version-string* 
+  (concatenate 'string (format nil "~d.~d" *version-major* *version-minor*)
+               (if (and *version-patch* (plusp *version-patch*)) (format nil ".~d" *version-patch*) "")
+               (if (and *version-update* (plusp *version-update*)) (format nil "-u~d" *version-update*) "")
+               ))
+
 (defparameter *release-language* :en)
 (defparameter *release-date* (sys::date-string nil nil))
 (defparameter *release-author* "jean bresson")
 
-(setf *version-string* (version-to-string *om-version* t *beta-release*))
-(export '(*app-name* *om-version* *beta-release* *version-string* *release-language* *release-date* *release-author*) :cl-user)
+
+(export '(*app-name* *om-version* *version-string* *release-language* *release-date* *release-author*) :cl-user)
 
 (defparameter *om-root-directory* (make-pathname :directory (butlast (pathname-directory *load-pathname*))))
 

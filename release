@@ -8,11 +8,10 @@ LWARCH=64-bit
 LWVERSION=7.1
 LWEXEC=lispworks-7-1-0-amd64-darwin
 
-OM_VERSION="0.1.5"
+OM_VERSION=$(<"VERSION") 
 BUILD_FOLDER="BUILD"
 APP_NAME="om7-beta"
-ZIP_NAME="$APP_NAME"-"$OM_VERSION"
-DMG_NAME="$APP_NAME"-"$OM_VERSION"-macOS
+
 
 deliver_app()
 {
@@ -22,6 +21,8 @@ echo "***************************************************"
 
 	rm -rf ./om/*.app/
 	/Applications/LispWorks\ $LWVERSION\ \($LWARCH\)/LispWorks\ \($LWARCH\).app/Contents/MacOS/$LWEXEC -build ./om/build/deliver.lisp
+	# update version
+	OM_VERSION=$(<"VERSION") 
 }
 
 
@@ -54,6 +55,7 @@ echo "***************************************************"
 echo "Preparing DMG distribution for $APP_FOLDER"
 echo "***************************************************"
 
+	DMG_NAME="$APP_NAME"-"$OM_VERSION"-macOS
 	cd $BUILD_FOLDER
 	rm -f "$DMG_NAME".dmg	
 	rm -rf _DMG
@@ -69,6 +71,7 @@ echo "***************************************************"
 
 zip_release()
 {
+	ZIP_NAME="$APP_NAME"-"$OM_VERSION"
 	cd $BUILD_FOLDER
 	rm -f "$ZIP_NAME".zip
 	rm -rf "$APP_NAME"

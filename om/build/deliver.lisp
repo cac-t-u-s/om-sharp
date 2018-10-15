@@ -17,9 +17,19 @@
 (print "==============================")
 
 (defparameter *app-name+version* "om7-beta")
-;(defparameter *app-name+version* (concatenate 'string "om7-" (version-to-string *om-version* t nil)))
 
 (defparameter *om-directory-folders* (butlast (pathname-directory (current-pathname))))
+
+(let ((version-str (concatenate 'string (format nil "~d.~d" *version-major* *version-minor*)
+                                (if (and *version-patch* (plusp *version-patch*)) (format nil ".~d" *version-patch*) ""))))
+  
+  (with-open-file (f (make-pathname :directory (butlast (pathname-directory (current-pathname)) 2)
+                                    :name "VERSION")
+                     :direction :output
+                     :if-exists :supersede)
+    (write-string version-str f)
+    ))
+
 
 ;;;==========================
 ;;; DEFAULT INTERFACE (MACOS)(defmethod osc-start-receive ((box ReceiveBox))
@@ -304,7 +314,7 @@
                                                                `("om Library" ("omlib") ,(om::om-relative-path '("mac") "omlib.icns")))
                                                            :application-icns (om::om-relative-path '("mac") "om.icns")
                                          :identifier "fr.ircam.repmus.om7"
-                                         :version (version-to-string *om-version* t nil)
+                                         :version *version-string*
                                          ))
        #+mswindows
        (make-pathname :directory (butlast (pathname-directory (current-pathname)))
@@ -330,7 +340,7 @@
            :startup-bitmap-file NIL ;; *startup-bmp*  ;; removed because of a delivery bug with menus in OM 7         
            #+mswindows :keep-gc-cursor #+mswindows nil
            #+mswindows :versioninfo #+mswindows (list :binary-version (read-from-string (version-to-hex *om-version*))
-                                              :version-string (version-to-string *om-version* t nil)
+                                              :version-string *version-string*
                                               :company-name "" :product-name "om7" :file-description "")
            #+mswindows :console #+mswindows :input
            :quit-when-no-windows #+mswindows t #-mswindows nil
