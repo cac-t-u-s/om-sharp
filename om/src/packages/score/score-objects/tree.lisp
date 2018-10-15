@@ -16,44 +16,35 @@
 ; File author: J. Bresson
 ;============================================================================
 
-;;; TOOLS TO WOR ON THE RHYTHM-TREE (list/text) REPRESENTATION
+;;; TOOLS TO WORK ON THE RHYTHM-TREE (list/text) REPRESENTATION
 ;;; mostly from OM6 code (by C. Agon & G. Assayag)
 
 (in-package :om)
 
-(defmethod fullratio ((self list)) (/ (first self) (second self)))
-(defmethod fullratio ((self number)) self)
-(defmethod fullratio ((self float)) (round self))
+;;; get the absolute duration (in proportion)
+(defun decode-extent (dur)
+  (cond ((listp dur) ;;; e.g. '(4 4)
+         (/ (first dur) (second dur)))
+        ((floatp dur) 
+         (round (abs dur)))
+        (t ;;; hopefully this is a number 
+           (abs dur))))
 
-(defmethod fdenominator ((self t)) (denominator (fullratio self)))
-(defmethod fdenominator ((self list)) (second self))
-(defmethod fnumerator ((self t)) (numerator (fullratio self)))
-(defmethod fnumerator ((self list)) (first self))
+;;; the duration of a tree
+(defmethod tree-extent ((tree list)) 
+  (decode-extent (car tree)))
 
+;;; the duration fo a leaf
+(defmethod tree-extent ((tree number)) 
+  (decode-extent tree))
 
-;(reduce #'(lambda (x y) (+ (abs x) (subtree-extent y))) 
-;        '((2 8) (3 8) (4 8) (3 8) (2 8))
-;        :initial-value 0)
-
-(defun subtree-extent (subtree)
-  (cond ((listp subtree) (fullratio (first subtree)))
-        ((floatp subtree) (round (abs subtree)))
-        ((or (ratiop subtree) (integerp subtree)) (abs subtree))))
-
-;;; total extent in quarter-notes (formerly "resolve-?")
-;;; tree is the list of measure-trees
+;;; total extent (formerly "resolve-?")
 (defun compute-total-extent (tree)
-  (let ((solved (mapcar #'compute-extent tree)))
-    (list (reduce #'(lambda (x y) (+ (abs x) (subtree-extent y))) 
-                  solved :initial-value 0)
-          solved)))
+  (reduce #'(lambda (x y) (+ (abs x) (tree-extent y)))
+          tree :initial-value 0))
 
-(defun compute-extent (tree)
-  (if (numberp tree) tree
-    (if (listp (second tree)) 
-        (list (first tree) (mapcar #'compute-extent (second tree)))
-      (error (format nil "Invalid Rhythm Tree : ~A" tree))
-      )))
+; (reduce #'(lambda (x y) (+ (abs x) (fullratio y))) '((2 8) (3 8) (4 8) (3 8) (2 8)) :initial-value 0)
+; (compute-total-extent '(1 (1 (2 5)) 1 1)) (((8 4) (1 (1 (2 5)) 1 1)) ((4 4) (1 1 5 1))))
 
 
 ;;; convert to 'better' values

@@ -27,16 +27,24 @@
 ;;; r-struct is a hierarchical structure of containers (measures/groups) whose leaves are either chords or rests
 ;;; the chords in r-struct are simple references to the time-sequence items
 
+
+
 (defclass* voice (chord-seq) 
-  ((Lmidic :initform '((6000)) :accessor Lmidic :initarg :Lmidic :type list :documentation "pitches (mc)/chords: list or list of lists")
+  ((Lmidic :initform '((6000)) :initarg :Lmidic :type list :documentation "pitches (mc)/chords: list or list of lists")
    (tree :initform '(((4 4) (1 1 1 1))) :accessor tree :initarg :tree :type list :documentation "a rhythm tree (list of measure-rythm-trees)")
    (tempo :accessor tempo :initform 60 :initarg :tempo :documentation "a tempo value or tempo-map")
-   (r-struct :accessor r-struct :initform nil :documentation "an internal hierarchical structure")))
+   (r-struct :accessor r-struct :initform nil :documentation "internal hierarchical structure")))
+;;; rename this slot "inside" ?
+
+(defclass rhythmic-object () 
+  ((tree :initform '(1 (1 1 1 1)) :accessor tree :initarg :tree :type list :documentation "a rhythm tree")
+   (r-struct :accessor r-struct :initform nil :documentation "internal hierarchical structure")))
 
 ;;; some additional classes to build a rhythmic structure
-(defclass measure (score-object container) ())
-(defclass group (score-object container) ())
+(defclass measure (score-object rhythmic-object) ())
+(defclass group (score-object rhythmic-object) ())
 (defclass rrest (score-object) ())
+(defclass cont-chord (score-object) ())
 (defclass grace-note (score-object) ())
 
 
@@ -50,60 +58,65 @@
     (setf (tree self) (cadr (tree self))))
 
   (setf (tree self) (normalize-tree (tree self)))
-  (setf (r-struct self) (init-seq-from-tree self (tree self)))
+  
+  ;;; build the rhythmic structures
+  (let ((m-dur 0))
+    (setf (r-struct self) 
+          (loop for m-tree in (tree self)
+                for beat = 0 then (+ beat m-dur)
+                do (setq m-dur (tree-extent m-tree))
+                collect (make-instance 'measure :tree m-tree
+                                     :symbolic-date beat
+                                     :symbolic-dur m-dur)))
+    )
+
+  ;;; distribute the actual chords and set the onset according to the tempo map.
+  
+  self)
+
+
+
+(defmethod initialize-instance ((self rhythmic-object) &rest initargs)
+ 
+  (call-next-method)
+  
+  (let ((total-dur (compute-total-extent (tree self)))
+        (sub-dur 0)) 
+    (setf (r-struct self) 
+          (loop for subtree in (cadr (tree self))
+                for beat = (symbolic-date self) then (+ beat sub-dur)
+                do 
+                collect 
+                (if (listp subtree) 
+                    ;; subgroup
+                    (progn
+                      (setq sub-dur (* (symbolic-dur self) (/ (car subtree) total-dur)))
+                      (make-instance 'group :tree subtree
+                                     :symbolic-date beat
+                                     :symbolic-dur sub-dur))
+                  
+                  (progn 
+                    (setq sub-dur (* (symbolic-dur self) (/ (decode-extent subtree) total-dur)))
+                    (cond ((minusp subtree)  ;; rest
+                           (make-instance 'rrest
+                                          :symbolic-date beat
+                                          :symbolic-dur sub-dur))
+                          ((floatp subtree) ;;; tied-chord
+                           (make-instance 'cont-chord
+                                          :symbolic-date beat
+                                          :symbolic-dur sub-dur))
+                          (t ;;; normal chord
+                             (make-instance 'chord
+                                            :symbolic-date beat
+                                            :symbolic-dur sub-dur)))
+                    ))
+                )))
   self)
 
 
 
 
-(defmethod init-seq-from-tree ((self voice) (tree list)) 
-  (let ((Extent (compute-total-extent tree))
-        (nbsubunits (reduce  
-                     #'(lambda (x y) (+ (abs x) (subtree-extent y))) 
-                     tree :initial-value 0))
-        (curr-obj nil)
-        (current-graces nil) (current-note nil))
-    
-    (setf (extent self) extent)
-
-#|
-    (remove 
-     NIL
-     (loop 
-      for subtree in tree
-      do (setf curr-obj 
-               (cond
-                ((numberp subtree)
-                 (let ((object 
-                        (cond 
-                         ((zerop subtree) ;; GRACE NOTE
-                          (if current-note (setf (mus-const current-note) (append (list! (mus-const current-note)) '(1)))
-                            (setf current-graces (cons -1 current-graces)))
-                          NIL)
-                         ((> subtree 0)
-                          (let ((note (make-instance 'note :empty t :extent (* (fullratio subtree) (/ Extent nbsubunits)))))
-                            (when current-graces ;; add grace notes before
-                              (setf (mus-const note) current-graces))
-                            (setf current-note note)
-                            note))
-                         ((< subtree 0)
-                          (make-instance 'rest :extent (*  (abs (fullratio subtree)) (/ Extent nbsubunits)))))))
-                   (when (and (plusp subtree) (floatp subtree))
-                     (setf (tie object) 'continue))
-                   object))
-                ((listp subtree)
-                 (make-instance (next-metric-class self)
-                                :tree subtree 
-                                :PropagateExtent (/ Extent nbsubunits)
-                                :InternalCall t))))
-      when curr-obj
-      collect curr-obj
-      into inside
-      finally 
-      (setf (slot-value self 'inside) inside
-            (slot-value self 'extent) Extent)
-    |#
-      ))
+     
 
 
 
