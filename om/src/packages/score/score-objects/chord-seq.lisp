@@ -25,15 +25,17 @@
 
 ;;; some of the slots :initargs of INTERNAL-CHORD-SEQ are hidden in the graphical interface
 
-(defclass internal-chord-seq (score-object data-stream container)   
-  ((Lmidic :initform '((6000)) :accessor Lmidic :initarg :Lmidic :type list :documentation "pitches (mc): list or list of lists")
-   (Lonset :initform '(0 1000) :accessor Lonset :initarg :Lonset :type list :documentation "onsets (ms): list")
-   (Ldur :initform '((1000)) :accessor Ldur :initarg :Ldur :type list :documentation "durations (ms): list or list of lists")
-   (Lvel :initform 100 :accessor Lvel :initarg :Lvel :type list :documentation "velocities (0-127): list or list of lists")
-   (Loffset :initform 0 :accessor Loffset  :initarg :Loffset :type list :documentation "offsets (ms): list or list of lists")
-   (Lchan :initform 1 :accessor Lchan  :initarg :Lchan :type list :documentation "MIDI channels (1-16): list or list of lists")
-   (Lport :initform nil :accessor Lport  :initarg :Lport :type list :documentation "MIDI ports: list or list of lists")
-   (Llegato :initform nil :accessor Llegato  :initarg :Llegato :documentation "relative chords duration (0.0-... or NIL)")
+;;; (almost) all slot accessors are redefined below in this file
+
+(defclass internal-chord-seq (score-object data-stream)   
+  ((Lmidic :initform '((6000)) :initarg :Lmidic :type list :documentation "pitches (mc): list or list of lists")
+   (Lonset :initform '(0 1000) :initarg :Lonset :type list :documentation "onsets (ms): list")
+   (Ldur :initform '((1000)) :initarg :Ldur :type list :documentation "durations (ms): list or list of lists")
+   (Lvel :initform 100 :initarg :Lvel :type list :documentation "velocities (0-127): list or list of lists")
+   (Loffset :initform 0 :initarg :Loffset :type list :documentation "offsets (ms): list or list of lists")
+   (Lchan :initform 1 :initarg :Lchan :type list :documentation "MIDI channels (1-16): list or list of lists")
+   (Lport :initform nil :initarg :Lport :type list :documentation "MIDI ports: list or list of lists")
+   (Llegato :accessor Llegato :initform nil :initarg :Llegato :documentation "relative chords duration (0.0-... or NIL)")   ;;; this one has no redefined accessor (do it?)
    )
   (:default-initargs :default-frame-type 'chord))
 
@@ -41,10 +43,10 @@
 ;;; redefines only visible :initargs
 (defclass* chord-seq (internal-chord-seq)   
  
-  ((Lmidic :initform '((6000)) :accessor LMidic :initarg :LMidic :type list :documentation "pitches (mc): list or list of lists")
-   (Lonset :initform '(0 1000) :accessor LOnset :initarg :LOnset :type list :documentation "onsets (ms): list")
-   (Ldur :initform '((1000)) :accessor Ldur :initarg :Ldur :type list :documentation "durations (ms): list or list of lists")
-   (Lvel :initform 100 :accessor LVel :initarg :LVel :type list :documentation "velocities (0-127): list or list of lists"))
+  ((Lmidic :initform '((6000)) :initarg :LMidic :type list :documentation "pitches (mc): list or list of lists")
+   (Lonset :initform '(0 1000) :initarg :LOnset :type list :documentation "onsets (ms): list")
+   (Ldur :initform '((1000)) :initarg :Ldur :type list :documentation "durations (ms): list or list of lists")
+   (Lvel :initform 100 :initarg :LVel :type list :documentation "velocities (0-127): list or list of lists"))
  
   (:documentation "
 A sequence of chords.
@@ -70,37 +72,38 @@ Internally most of these values are just used to build a list of CHORD objects, 
 
 "))
  
+(defmethod inside ((self chord-seq)) (frames self))
 
 
 (defmethod additional-class-attributes ((self chord-seq)) '(Loffset Lchan Lport Llegato))
 
-(defmethod data-stream-frames-slot ((self chord-seq)) 'inside)
+;; (defmethod data-stream-frames-slot ((self chord-seq)) 'inside)
 
 ;;; redefined from time-sequence
 (defmethod time-sequence-default-duration ((self chord-seq)) 1000)
 
 (defmethod get-chords ((self chord-seq))
-  (om-copy (inside slef))) 
+  (om-copy (frames self))) 
 
 
 (defmethod do-initialize ((self chord-seq) &key Lmidic Lvel Loffset Ldur Lonset Lchan Lport Llegato)
   
-  (let ((defdelay (if (>= (length LOnset) 2)
-                      (- (car (last LOnset)) (car (last LOnset 2)))
+  (let ((defdelay (if (>= (length Lonset) 2)
+                      (- (car (last Lonset)) (car (last Lonset 2)))
                     1000)) ;;; the default delay between two chords if not specified otherwise
-        (defstart (or (pop LOnset) 0)))
+        (defstart (or (pop Lonset) 0)))
     
     (cond 
      
      ;;; special cases.. 
      ((list-subtypep Lmidic '(chord)) ;;; this is probably a mistake but we can deal with it
       (om-print "chord-seq <lmidic> slot initialized with a list of chords." "Warning")
-      (setf (inside self) (om-copy Lmidic))) 
+      (time-sequence-set-timed-item-list self (om-copy Lmidic))) 
      
      ((list-subtypep LMidic '(note))
       (om-print "chord-seq <lmidic> slot initialized with a list of notes." "Warning")
-      (setf (inside self) 
-            (mapcar #'(lambda (n) (ObjfromObjs n (make-instance 'chord))) Lmidic)))
+      (time-sequence-set-timed-item-list self 
+                                         (mapcar #'(lambda (n) (ObjfromObjs n (make-instance 'chord))) Lmidic)))
 
      (t
       (let ((midics (list! Lmidic))
@@ -134,12 +137,13 @@ Internally most of these values are just used to build a list of CHORD objects, 
                 do (setf (date chord) onset)
                 do (when (and legato (> legato 0))
                      (let ((dur (round (* (- next-ontset onset) legato))))
-                       (loop for note in (inside self) 
+                       (loop for note in (notes chord) 
                              do (setf (offset note) 0 
                                       (dur note) dur))))
                 )
               
               (time-sequence-set-timed-item-list self chords)
+              
               )))
      )
     self
@@ -303,17 +307,19 @@ Internally most of these values are just used to build a list of CHORD objects, 
 
 (defmethod score-object-mini-view ((self chord-seq) x-u y-u w h staff fontsize)
   
+  (when (inside self)
+    
   (let* ((unit (font-size-to-unit fontsize))
          (shift-x-u 7) ;;  
          (w-u (- (/ w unit) shift-x-u 2));; +1 for margin each side 
          (x-ratio (/ w-u (get-obj-dur self))))
     
     (loop for chord in (inside self) do
-          (draw-chord (inside chord) 
+          (draw-chord (notes chord) 
                       (+ shift-x-u (* (date chord) x-ratio)) 
                       y-u 
                       w h fontsize :scale nil :staff staff)
-          )))
+          ))))
 
 
 
@@ -328,7 +334,7 @@ Internally most of these values are just used to build a list of CHORD objects, 
                              (inside object))
     
          append 
-         (loop for n in (inside c) append
+         (loop for n in (notes c) append
                (remove nil 
                        (list 
                         (if (in-interval (+ (date c) (offset n)) interval :exclude-high-bound t) 

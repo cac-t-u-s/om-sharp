@@ -18,8 +18,8 @@
 
 (in-package :om)
 
-(defclass container ()
-  ((inside :accessor inside :initarg :inside :initform nil :documentation "the contents of the container")))
+;(defclass container ()
+;  ((inside :accessor inside :initarg :inside :initform nil :documentation "the contents of the container")))
 
 (defclass score-object (schedulable-object)
   (
@@ -35,6 +35,10 @@
    ;;; bounding-box is a cached graphic information for score display 
    (b-box :accessor b-box :initform nil) 
    ))
+
+;;; this method to be defined according to the different objects' slot names etc.
+;;; also allows compat with OM6 naming
+(defmethod inside ((self score-object)) nil)
 
 (defstruct b-box (x1) (x2) (y1) (y2))
 (defmethod b-box-w (b) (- (b-box-x2 b) (b-box-x1 b)))

@@ -86,7 +86,7 @@
   (and (point-in-bbox pos (b-box object))
        object))
 
-(defmethod find-score-element-at-pos ((object container) pos)
+(defmethod find-score-element-at-pos ((object score-object) pos)
   
   (cond 
   
@@ -127,16 +127,16 @@
            (let* ((new-note (make-instance 'note :midic pitch))
                   (container-chord (get-chord-from-editor-click editor position)))
              
-             (setf (inside container-chord)
+             (setf (notes container-chord)
                    (sort (cons new-note
-                               (inside container-chord))
+                               (notes container-chord))
                          '< :key 'midic))
              ;;; probably some updates of the time-sequence required here.. (?)
              
              (report-modifications editor)
              (editor-invalidate-views editor)
              
-             (if (or (= 1 (length (inside container-chord)))
+             (if (or (= 1 (length (notes container-chord)))
                      (find container-chord (selection editor)))
                  (setf (selection editor) (list container-chord))
                (setf (selection editor) (list new-note)))

@@ -109,7 +109,7 @@
               (selection self))
      ;;; make a new chord
      (let ((new-chord (time-sequence-make-timed-item-at time-seq time-pos)))
-       (setf (inside new-chord) nil)
+       (setf (notes new-chord) nil)
        (time-sequence-insert-timed-item-and-update time-seq new-chord (find-position-at-time time-seq time-pos))
        new-chord)
      
@@ -192,7 +192,7 @@
         (port (editor-get-edit-param editor :port-display))
         (dur (editor-get-edit-param editor :duration-display)))
     
-    ;;; warning: so far we don't build/update a boundng-box for the chord-seq..
+    ;;; warning: so far we don't build/update a bounding-box for the chord-seq..
     (loop for chord in (inside (object-value editor)) do
           (setf 
            (b-box chord)

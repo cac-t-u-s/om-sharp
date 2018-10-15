@@ -61,13 +61,15 @@ A simple NOTE defined with :
 ;;;=============
 
 ;;; some of the slots :initargs of INTERNAL-CHORD are hidden in the graphical interface
-(defclass internal-chord (container data-frame score-object)  
+(defclass internal-chord (data-frame score-object)  
   ((Lmidic :initform '(6000) :accessor Lmidic :initarg :Lmidic :type list :documentation "pitches (list of midicents)")
    (Lvel :initform '(80) :accessor Lvel :initarg :Lvel :type list :documentation "velocities (list of values 0-127)")
    (Loffset :initform '(0) :accessor Loffset :initarg :Loffset :type list :documentation "offsets (list of values in ms)")
    (Ldur :initform '(1000) :accessor Ldur :initarg :Ldur :type list :documentation "durations (list of values in ms)")
    (Lchan :initform '(1) :accessor Lchan :initarg :Lchan :type list :documentation "MIDI channels (list of values 0-16)")
    (Lport :initform nil :accessor Lport :initarg :Lport :type list :documentation "MIDI ports (list of values 0-16)")
+   
+   (notes :initform nil :initarg :notes :accessor notes :type list :documentation "the actual list of notes")
    ))
 
 ;;; redefines only visible :initargs
@@ -93,71 +95,71 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
 ;;; allow as additional slots
 (defmethod additional-class-attributes ((self chord)) '(date Lchan Lport))
 
-(defmethod LMidic ((self chord))
-  (loop for note in (inside self)
+(defmethod Lmidic ((self chord))
+  (loop for note in (notes self)
         collect (midic note)))
 
-(defmethod LChan ((self chord))
-  (loop for note in (inside self)
+(defmethod Lchan ((self chord))
+  (loop for note in (notes self)
         collect (chan note)))
 
 (defmethod Lvel ((self chord))
-  (loop for note in (inside self)
+  (loop for note in (notes self)
         collect (vel note)))
 
-(defmethod LDur ((self chord))
-  (loop for note in (inside self)
+(defmethod Ldur ((self chord))
+  (loop for note in (notes self)
         collect (dur note)))
 
-(defmethod LOffset ((self chord))
-  (loop for note in (inside self)
+(defmethod Loffset ((self chord))
+  (loop for note in (notes self)
         collect (offset note)))
 
 
-(defmethod (setf Lmidic) ((LMidic list) (self chord))
+(defmethod (setf Lmidic) ((Lmidic list) (self chord))
   (do-initialize self 
-                 :LMidic LMidic
-                 :LVel (LVel self)
-                 :LOffset (LOffset self)
-                 :LDur (LDur self)
-                 :LChan (LChan self)
-                 :LPort (LPort self)))
+                 :Lmidic Lmidic
+                 :Lvel (Lvel self)
+                 :Loffset (Loffset self)
+                 :Ldur (Ldur self)
+                 :Lchan (Lchan self)
+                 :Lport (Lport self)))
 
-(defmethod (setf LChan) ((LChan list) (self chord))
+(defmethod (setf Lchan) ((Lchan list) (self chord))
   (do-initialize self 
-                 :LMidic (LMidic self)
-                 :LVel (LVel self)
-                 :LOffset (LOffset self)
-                 :LDur (LDur self)
-                 :LChan LChan
-                 :LPort (LPort self)))
+                 :Lmidic (Lmidic self)
+                 :Lvel (Lvel self)
+                 :Loffset (Loffset self)
+                 :Ldur (Ldur self)
+                 :Lchan Lchan
+                 :Lport (Lport self)))
 
-(defmethod (setf LVel) ((LVel list) (self chord))
+(defmethod (setf Lvel) ((Lvel list) (self chord))
   (do-initialize self 
-                 :LMidic (LMidic self)
-                 :LVel LVel
-                 :LOffset (LOffset self)
-                 :LDur (LDur self)
-                 :LChan (LChan self)
-                 :LPort (LPort self)))
+                 :LMidic (Lmidic self)
+                 :LVel Lvel
+                 :LOffset (Loffset self)
+                 :LDur (Ldur self)
+                 :LChan (Lchan self)
+                 :LPort (Lport self)))
 
-(defmethod (setf LOffset) ((LOffset list) (self chord))
+(defmethod (setf Loffset) ((Loffset list) (self chord))
   (do-initialize self 
-                 :LMidic (LMidic self)
-                 :LVel (LVel self)
-                 :LOffset LOffset
-                 :LDur (LDur self)
-                 :LChan (LChan self)
-                 :LPort (LPort self)))
+                 :LMidic (Lmidic self)
+                 :LVel (Lvel self)
+                 :LOffset Loffset
+                 :LDur (Ldur self)
+                 :LChan (Lchan self)
+                 :LPort (Lport self)))
 
-(defmethod (setf LDur) ((Ldur list) (self chord))
+(defmethod (setf Ldur) ((Ldur list) (self chord))
   (do-initialize self 
-                 :LMidic (LMidic self) 
-                 :LVel  (LVel self) 
-                 :LOffset (LOffset self)
-                 :LDur LDur
-                 :LChan (LChan self)
-                 :LPort (LPort self)))
+                 :LMidic (Lmidic self) 
+                 :LVel  (lvel self) 
+                 :LOffset (loffset self)
+                 :LDur ldur
+                 :LChan (lchan self)
+                 :LPort (lport self)))
 
 
 ;;  (NoteType 'note))
@@ -186,7 +188,7 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
 
 
 (defmethod do-initialize ((self chord) &key LMidic LVel Loffset LDur LChan LPort)
-  (setf (inside self)
+  (setf (notes self)
         (loop while Lmidic 
               for midic = (or (pop Lmidic) midic)
               for vel = (or (pop Lvel) vel)
@@ -215,7 +217,7 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
    
    ;;; a list of chords (=> merge)
    ((list-subtypep model 'chord)
-    (let ((notes (flat (mapcar 'inside model))))
+    (let ((notes (flat (mapcar 'notes model))))
       (objfromobjs notes target)))
    
    ;;; a list of number (probably a patching mistake, but consider it a list of pitches..)
@@ -225,20 +227,23 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
    ;;; a list of notes
    ((list-subtypep model 'note)
     (let ((chord (make-instance (type-of target))))
-      (setf (inside chord) (mapcar 'clone model))
+      (setf (notes chord) (mapcar 'clone model))
       chord))
    
    (t nil)))
 
 
-(defmethod get-notes ((self chord)) (inside self))
+;;; used in score utils and editor hierarchical/recursive calls
+(defmethod inside ((self chord)) (notes self))
+
+(defmethod get-notes ((self chord)) (notes self))
 (defmethod get-notes ((self note)) (list self))
 (defmethod get-notes ((self list))
   (loop for item in self append (get-notes item)))
 
 (defmethod item-get-duration ((self chord)) 
-  (if (inside self)
-      (apply 'max (mapcar 'dur (inside self)))
+  (if (notes self)
+      (apply 'max (mapcar 'dur (notes self)))
     0))
 
 
@@ -262,8 +267,8 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
   (let* ((unit (font-size-to-unit fontsize))
          (middle-in-units (/ w 2 unit)))
     
-    (when (inside self)
-      (draw-chord (inside self) (+ 2 middle-in-units) y-u w h fontsize :scale nil :staff staff))
+    (when (notes self)
+      (draw-chord (notes self) (+ 2 middle-in-units) y-u w h fontsize :scale nil :staff staff))
       
     ))
 
