@@ -24,4 +24,4 @@
 ;;; Equivalent to former POLY / MULTI-SEQ + MIXED-TYPES
 ;;;===================================================
 
-(defclass* score (score-object container) ())
+(defclass* score (score-object) ())
