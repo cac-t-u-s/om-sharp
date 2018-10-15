@@ -21,11 +21,6 @@
 
 (in-package :om)
 
-(defvar *interfaceboxes* 
-  (omNG-make-package "Interface Boxes"
-                     :container-pack *om-package-tree*
-                     :doc "This package contains special interface boxes and widgets to use in OM patches (sliders, buttons, etc.)"))
-
 
 (defclass OMInterfaceBox (OMBox) ())
 (defmethod lock-state ((self OMInterfaceBox)) nil)
@@ -129,7 +124,7 @@
 
 (defmethod special-item-reference-class ((item (eql 'slider))) 'SliderBox)
 
-(AddSpecialItem2Pack 'slider *interfaceboxes*)
+
 (defmethod special-box-p ((self (eql 'slider))) t)
 
 (defmethod get-all-keywords ((self SliderBox))
@@ -249,7 +244,6 @@
    (text :accessor text :initarg :text :initform "")
    (action :accessor action :initarg :action :initform nil)))
 
-(AddSpecialItem2Pack 'button *interfaceboxes*)
 (defmethod special-box-p ((self (eql 'button))) t)
 (defmethod special-item-reference-class ((item (eql 'button))) 'ButtonBox)
 
@@ -344,7 +338,6 @@
    (cell-height :accessor cell-height :initform 12)
    (cell-font :accessor cell-font :initform (om-def-font :font1))))
  
-(AddSpecialItem2Pack 'list-selection *interfaceboxes*)
 
 (defmethod special-box-p ((self (eql 'list-selection))) t)
 (defmethod special-item-reference-class ((item (eql 'list-selection))) 'ListSelectionBox)

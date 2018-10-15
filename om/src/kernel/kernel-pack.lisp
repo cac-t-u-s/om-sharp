@@ -50,6 +50,11 @@
                                             :doc "Special boxes for reactive patches"
                                             :functions '(send receive route timed-coll)
                                             )
+                         (omNG-make-package "Interactive boxes"
+                                            :doc "This package contains special interface boxes and widgets to use in OM patches (sliders, buttons, etc.)"
+                                            :special-symbols '(button slider list-selection)
+                                            )
+
                          (omNG-make-package "Meta" 
                                             :doc "Visual program / maquette manipulation"
                                             :functions '(get-boxes m-add m-remove m-move m-objects m-flush)

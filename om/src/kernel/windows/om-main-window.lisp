@@ -300,7 +300,7 @@
 ;;;===========================================
 
 (defmethod get-sub-items ((self OMAbstractPackage))
-  (append (subpackages self) (classes self) (functions self)))
+  (append (subpackages self) (classes self) (functions self) (special-items self)))
 
 (defmethod get-sub-items ((self t)) nil)
 
@@ -309,6 +309,8 @@
 (defmethod get-icon ((self OMGenericFunction)) 'icon-genfun)
 (defmethod get-icon ((self OMClass)) 'icon-class)
 (defmethod get-icon ((self OMLib)) (if (loaded? self) 'icon-lib-loaded 'icon-lib))
+(defmethod get-icon ((self symbol)) 'icon-special)
+
 
 (defun make-om-package-tab ()
   (let* ((pack *om-package-tree*))
@@ -319,8 +321,8 @@
                                              :font (om-def-font :font1)
                                              :bg-color (om-def-color :light-gray)
                                              :item-icon #'(lambda (item) (get-icon item))
-                                             :icons (list 'icon-pack 'icon-fun 'icon-genfun 'icon-class)
-                                             )))
+                                             :icons (list 'icon-pack 'icon-fun 'icon-genfun 'icon-class 'icon-special)
+                                             ))) 
       (om-make-layout 
        'om-simple-layout :name "Class/Function Library"
        :subviews (list pack-tree-view)

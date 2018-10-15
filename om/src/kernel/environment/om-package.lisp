@@ -98,6 +98,7 @@ For easier browsing it is recommended that a package do not contain at the same 
 ;;; Gets all symbol names in package
 
 (defmethod get-name ((self function)) (string-downcase (function-name self)))
+(defmethod get-name ((self symbol)) (string-downcase (symbol-name self)))
 
 ; (get-all-symbol-names *om-package-tree*)
 (defmethod get-all-symbol-names ((self OMAbstractPackage))

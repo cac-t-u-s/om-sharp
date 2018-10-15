@@ -40,8 +40,8 @@
 
 
 (omNG-make-package 
- "Spat"
- :container-pack *om-package-tree*
+ "3D"
+ :container-pack (get-subpackage *om-package-tree* "Basic Tools")
  :doc "Spatialization tools"
  :classes '(3DC 3D-viewer)
  :functions '())
