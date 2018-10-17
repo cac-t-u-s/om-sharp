@@ -58,14 +58,7 @@
       (om-draw-string (- (w self) 15) 10 "...")
       (om-draw-string (- (w self) 15) (- (h self) 10) "..."))
     ))
-                      
-
-
-(defmethod update-view-from-ruler ((self x-ruler-view) (view score-panel))
-  (call-next-method)
-  (om-invalidate-view (get-g-component (editor view) :left-view)))
-
-
+        
 
 (defmethod make-left-panel-for-object ((editor chord-seq-editor) (object score-object))
   (om-make-view 'left-score-view :size (omp (* 2 (editor-get-edit-param editor :font-size)) nil)
@@ -75,6 +68,16 @@
                 :editor editor
                 :margin-l 1 :margin-r nil :keys t :contents nil
                 ))
+              
+
+
+(defmethod update-view-from-ruler ((self x-ruler-view) (view score-panel))
+  (call-next-method)
+  (om-invalidate-view (get-g-component (editor view) :left-view)))
+
+(defmethod om-view-zoom-handler ((self score-panel) position zoom)
+  (zoom-rulers self :dx (- 1 zoom) :dy 0 :center position))
+
 
 
 ;;; leave some space (-200) for the first note...
@@ -91,6 +94,13 @@
 
 (defmethod editor-invalidate-views ((self chord-seq-editor))
   (om-invalidate-view (main-view self))) ;; brutal..
+
+
+(defmethod set-font-size ((self chord-seq-editor) size)
+  (call-next-method)
+  (build-editor-window self)
+  (init-editor-window self))
+
 
 
 ;;; called at add-click
@@ -117,17 +127,10 @@
 
 
 
-(defmethod move-rulers ((self chord-seq-editor) &key (dx 0) (dy 0))
-  (let* ((rx (get-g-component self :x-ruler))
-         (dxx (* (/ dx (w rx)) (- (v2 rx) (v1 rx)))))
-    (unless (or (and (plusp dxx) (vmin rx) (= (vmin rx) (v1 rx))) 
-                (and (minusp dxx) (vmax rx) (= (vmax rx) (v2 rx))))
-      (set-ruler-range rx 
-                       (if (vmin rx) (max (vmin rx) (- (v1 rx) dxx)) (- (v1 rx) dxx))
-                       (if (vmax rx) (min (vmax rx) (- (v2 rx) dxx)) (- (v2 rx) dxx))))
-    ))
 
-
+;;;=========================
+;;; WINDOW CONSTRUCTOR
+;;;=========================
 
 (defmethod make-editor-window-contents ((editor chord-seq-editor))
   
@@ -184,7 +187,12 @@
 
 
 (defmethod draw-score-object-in-editor-view ((editor chord-seq-editor) view unit)
-  
+  (draw-sequence editor (object-value editor) view unit))
+
+(defmethod draw-sequence ((editor chord-seq-editor) (object t) view unit) nil)
+
+(defmethod draw-sequence ((editor chord-seq-editor) (object chord-seq) view unit)
+
   (let ((font-size (editor-get-edit-param editor :font-size))
         (staff (editor-get-edit-param editor :staff))
         (chan (editor-get-edit-param editor :channel-display))
@@ -192,8 +200,8 @@
         (port (editor-get-edit-param editor :port-display))
         (dur (editor-get-edit-param editor :duration-display)))
     
-    ;;; warning: so far we don't build/update a bounding-box for the chord-seq..
-    (loop for chord in (inside (object-value editor)) do
+    ;;; NOTE: so far we don't build/update a bounding-box for the chord-seq itself (might be useful in POLY)..
+    (loop for chord in (chords object) do
           (setf 
            (b-box chord)
            (draw-chord (inside chord) 
@@ -214,3 +222,43 @@
           ;(mapcar 'draw-b-box (inside chord))
     
           )))
+
+
+(defmethod draw-sequence ((editor chord-seq-editor) (object voice) view unit)
+
+  (let ((font-size (editor-get-edit-param editor :font-size))
+        (staff (editor-get-edit-param editor :staff))
+        (chan (editor-get-edit-param editor :channel-display))
+        (vel (editor-get-edit-param editor :velocity-display))
+        (port (editor-get-edit-param editor :port-display))
+        (dur (editor-get-edit-param editor :duration-display)))
+    
+    ;;; NOTE: so far we don't build/update a bounding-box for the chord-seq itself (might be useful in POLY)..
+
+    (loop for m in (inside object) 
+          do (let* ((begin (beat-to-time (symbolic-date m) (tempo object)))
+                    (x (time-to-pixel view begin)))
+               (draw-measure-bar x font-size staff))) 
+    
+    (loop for chord in (chords object) do
+          (setf 
+           (b-box chord)
+           (draw-chord (inside chord) 
+                       (/ (time-to-pixel view (date chord)) unit)
+                       0 
+                       (w view) (h view) 
+                       font-size 
+                       :staff (editor-get-edit-param editor :staff)
+                       :draw-chans chan
+                       :draw-vels vel
+                       :draw-ports port
+                       :draw-durs dur
+                       :selection (if (find chord (selection editor)) T 
+                                    (selection editor))
+                       :build-b-boxes t
+                       ))
+          ;(draw-b-box chord)
+          ;(mapcar 'draw-b-box (inside chord))
+    
+          )))
+

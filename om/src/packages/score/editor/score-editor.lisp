@@ -83,7 +83,8 @@
        
 ;;; supposing that sub-bounding-boxes are always included
 (defmethod find-score-element-at-pos ((object note) pos)
-  (and (point-in-bbox pos (b-box object))
+  (and (b-box object) 
+       (point-in-bbox pos (b-box object))
        object))
 
 (defmethod find-score-element-at-pos ((object score-object) pos)
@@ -203,16 +204,14 @@
     ))
 
 
-(defmethod move-rulers ((self score-editor) &key dx dy) nil)
-
-(defmethod om-view-pan-handler ((self score-view) position dx dy)
-  (let ((fact 10))
-    (move-rulers (editor self) :dx (* fact dx) :dy (* fact dy))))
 
 (defmethod om-view-zoom-handler ((self score-view) position zoom)
   (let ((editor (editor self))
         (d-size (if (> zoom 1) 1 -1))) 
-    (set-font-size editor (+ d-size (editor-get-edit-param editor :font-size)))))
+    (set-font-size editor (+ d-size (editor-get-edit-param editor :font-size)))
+    ))
+
+
 
 ;;;====================== 
 ;;; CONTROL PANEL
@@ -222,8 +221,7 @@
   (let ((v (min 120 (max 8 size))))
     (editor-set-edit-param self :font-size v)
     (when (get-g-component self :font-size-box)
-      (set-value (get-g-component self :font-size-box) v))))
-
+      (om-set-selected-item (get-g-component self :font-size-box) v))))
 
 (defun make-score-control-panel (editor) 
   
@@ -264,15 +262,23 @@
                   (om-make-di 'om-simple-text :text "font-size:" 
                               :font (om-def-font :font1)
                               :size (omp 60 20))
+                  ;(set-g-component editor :font-size-box
+                  ;                 (om-make-graphic-object 'numbox 
+                  ;                                         :value (editor-get-edit-param editor :font-size)
+                  ;                                         :min-val 8 :max-val 120 
+                  ;                                         :size (omp 40 18)
+                  ;                                         :font (om-def-font :font1)
+                  ;                                         :bg-color (om-def-color :white)
+                  ;                                         :after-fun #'(lambda (numbox) 
+                  ;                                                        (set-font-size editor (value numbox))
+                  ;                                                        )))
                   (set-g-component editor :font-size-box
-                                   (om-make-graphic-object 'numbox 
-                                                           :value (editor-get-edit-param editor :font-size)
-                                                           :min-val 8 :max-val 120 
-                                                           :size (omp 40 18)
-                                                           :font (om-def-font :font1)
-                                                           :bg-color (om-def-color :white)
-                                                           :after-fun #'(lambda (numbox) 
-                                                                          (editor-set-edit-param editor :font-size (value numbox)))))
+                                   (om-make-di 'om-popup-list :items *score-fontsize-options* 
+                                               :size (omp 60 24) :font (om-def-font :font1)
+                                               :value (editor-get-edit-param editor :font-size)
+                                               :di-action #'(lambda (list) 
+                                                              (set-font-size editor (om-get-selected-item list))
+                                                              )))
                   ))
                 ))
 

@@ -93,6 +93,7 @@
 ;;;===============
 
 (defvar *score-staff-options* '(:g :f :gf :gg :ff :ggf :gff :ggff))
+(defvar *score-fontsize-options* '(8 12 16 20 24 28 32 36 40 44 48 52 56 60 64 68 72 76 80 84 88 92 96 100 104 108 112 116 120))
 
 (defun staff-split (staff-symbol)
   (case staff-symbol
@@ -261,8 +262,16 @@
 (defun font-size-to-unit (size) (* size .25))
 (defun unit-to-font-size (u) (* u 4))
 
+;;; by convention, unit = staff interline
+(defun line-to-ypos (line shift unit)
+  (* (- shift line) unit))
 
 (defparameter *score-selection-color* (om-def-color :dark-red))
+
+
+;;;=======================
+;;; STAFF
+;;;=======================
 
 ;;; x and y are in score-units
 ;;; w and h are pixel-size of the frame
@@ -274,9 +283,8 @@
          (thinBarlineThickness (ceiling (* *thinBarLineThickness* unit)))
          (staffLineThickness (ceiling (* *staffLineThickness* unit))))
          
-    (flet ((line-to-y-pos (line) 
-             (let ((pos (* (+ y (- shift line)) unit))) ;;; by convention, unit = staff interline
-               (if (> unit 5) (round pos) pos)))
+    (flet ((adjust-line-ypos (pos)
+             (if (> unit 5) (round pos) pos))
            (x-pos (a) (* (+ x (or margin-l 0) a) unit)))
 
       (om-with-font 
@@ -285,31 +293,67 @@
        (loop for staff-symb in staff-elems do 
              ;;; lines
              (loop for line in (staff-lines staff-symb) do
-                   (om-draw-line (x-pos 0) (line-to-y-pos line)
+                   (om-draw-line (x-pos 0) 
+                                 (adjust-line-ypos (line-to-ypos line shift unit))
                                  (- w (* (or margin-r 0) unit))
-                                 (line-to-y-pos line)
+                                 (adjust-line-ypos (line-to-ypos line shift unit))
                                  :line staffLineThickness
                                  ))
              ;;; clef
              (when keys 
                (om-draw-char (x-pos 1) 
-                             (line-to-y-pos (staff-key-line staff-symb)) 
+                             (adjust-line-ypos (line-to-ypos (staff-key-line staff-symb) shift unit)) 
                              (staff-key-char staff-symb))
                )))
        
    ;;; vertical lines at beginning and the end
    (when margin-l
-     (om-draw-line (round (x-pos 0)) (1- (line-to-y-pos (car (staff-lines (car staff-elems)))))
-                   (round (x-pos 0)) (1+ (line-to-y-pos (last-elem (staff-lines (last-elem staff-elems)))))
+     (om-draw-line (round (x-pos 0)) 
+                   (1- (adjust-line-ypos (line-to-ypos (car (staff-lines (car staff-elems))) shift unit)))
+                   (round (x-pos 0)) 
+                   (1+ (adjust-line-ypos (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit)))
                    :line thinBarlineThickness))
    (when margin-r
      (om-draw-line (- w (* margin-r unit)) 
-                   (1- (line-to-y-pos (car (staff-lines (car staff-elems)))))
+                   (1- (adjust-line-ypos (line-to-ypos (car (staff-lines (car staff-elems))) shift unit)))
                    (- w (* margin-r unit)) 
-                   (1+ (line-to-y-pos (last-elem (staff-lines (last-elem staff-elems)))))
+                   (1+ (adjust-line-ypos (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit)))
                    :line thinBarlineThickness)
    ))))
 
+;;;=======================
+;;; MESURE BARS
+;;;=======================
+(defun draw-measure-bar (x fontsize staff)
+
+  (let* ((staff-elems (staff-split staff))
+         (unit (font-size-to-unit fontsize)) 
+         (shift (calculate-staff-line-shift staff))
+         (thinBarlineThickness (ceiling (* *thinBarLineThickness* unit))))
+    
+    (om-draw-line x (1- (line-to-ypos (car (staff-lines (car staff-elems))) shift unit))
+                  x (1+ (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit))
+                  :line thinBarlineThickness)
+    ))
+
+;;; more efficient: all bars at once
+(defun draw-measure-bars (x-list fontsize staff)
+
+  (let* ((staff-elems (staff-split staff))
+         (unit (font-size-to-unit fontsize)) 
+         (shift (calculate-staff-line-shift staff))
+         (thinBarlineThickness (ceiling (* *thinBarLineThickness* unit))))
+    
+    (loop for x in x-list do
+          (om-draw-line x (1- (line-to-ypos (car (staff-lines (car staff-elems))) shift unit))
+                        x (1+ (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit))
+                        :line thinBarlineThickness)
+    )))
+
+
+;;;=======================
+;;; CHORDS
+;;;=======================
 
 ;;; just for debug
 (defmethod draw-b-box ((self score-object))
@@ -329,7 +373,7 @@
  
   
   (let* ((unit (font-size-to-unit fontsize))
-         (shift (calculate-staff-line-shift staff))
+         (shift (+ y (calculate-staff-line-shift staff)))
          (staff-elems (staff-split staff))
          (staff-lines (apply 'append (mapcar 'staff-lines staff-elems)))
          (head-box (get-font-bbox "noteheadBlack"))
@@ -347,10 +391,7 @@
          (unique-port (and draw-ports (all-equal (mapcar 'port notes)) (or (port (car notes)) :default))))
    
     ;;; positions (in pixels) 
-    (flet ((line-to-y-pos (line) 
-             ;;; by convention, unit = staff interline and lines go up from the shift value corresp. to line-0
-             (* (+ y shift (- line)) unit))
-           (x-pos (a) (1+ (* (+ x a) unit))))
+    (flet ((x-pos (a) (1+ (* (+ x a) unit))))
          
       (om-with-font 
        (om-make-font *score-font* fontsize)
@@ -370,8 +411,8 @@
                 (pmax (apply #'max pitches))
                 (l-min (pitch-to-line pmin scale))
                 (l-max (pitch-to-line pmax scale))
-                (y-min (line-to-y-pos l-min))
-                (y-max (line-to-y-pos l-max))
+                (y-min (line-to-ypos l-min shift unit))
+                (y-max (line-to-ypos l-max shift unit))
                 (stem-size (* unit *stem-height*))
                 (stemThickness (* *stemThickness* unit)))
                  
@@ -442,7 +483,7 @@
            (loop for n in (sort notes '< :key 'midic) do
                  
                  (let* ((line (pitch-to-line (midic n) scale))
-                        (line-y (line-to-y-pos line))
+                        (line-y (line-to-ypos line shift unit))
                         (head-col (position line head-columns 
                                             :test #'(lambda (line col)
                                                       ;;; there's no other note in this col at less than 1 line away
@@ -460,8 +501,8 @@
                      (let* (;;; bounding-box values
                             (nx1 head-x)
                             (nx2 (+ head-x head-w-pix))
-                            (ny1 (line-to-y-pos (+ line (* head-h .5))))
-                            (ny2 (line-to-y-pos (- line (* head-h .5))))) ;;; lines are expressed bottom-up !!
+                            (ny1 (line-to-ypos (+ line (* head-h .5)) shift unit))
+                            (ny2 (line-to-ypos (- line (* head-h .5)) shift unit))) ;;; lines are expressed bottom-up !!
                        
                        ;;; bounding-box is in pixels
                        (setf (b-box n) (make-b-box :x1 nx1 :x2 nx2 :y1 ny1 :y2 ny2)
@@ -477,7 +518,7 @@
                      ;;; draw add leger-line(s) to the record if they are not already there 
                      (loop for ll in l-lines 
                            unless (find ll leger-lines)
-                           do (let ((ypos (line-to-y-pos ll))) 
+                           do (let ((ypos (line-to-ypos ll shift unit))) 
                                 (om-draw-line (- (x-pos 0) legerLineExtension) ypos 
                                               (+ (x-pos 0) head-w-pix legerLineExtension) ypos
                                               :line legerLineThickness)
