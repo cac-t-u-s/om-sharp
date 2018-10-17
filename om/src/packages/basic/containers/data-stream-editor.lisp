@@ -567,3 +567,48 @@
       (otherwise (call-next-method))
       )))
 
+
+
+;;;=========================
+;;; TOUCH GESTURES
+;;;=========================
+
+
+
+(defmethod om-view-pan-handler ((self stream-panel) position dx dy)
+  (let ((fact 10))
+    (move-rulers self :dx (* fact dx) :dy (* fact dy))))
+
+
+(defmethod om-view-zoom-handler ((self stream-panel) position zoom)
+  (zoom-rulers self :dx (- 1 zoom) :dy 0 :center position))
+
+
+(defmethod move-rulers ((self stream-panel) &key (dx 0) (dy 0))
+  (let* ((rx (get-g-component (editor self) :x-ruler))
+         (dxx (* (/ dx (w rx)) (- (v2 rx) (v1 rx)))))
+    (unless (or (and (plusp dxx) (vmin rx) (= (vmin rx) (v1 rx))) 
+                (and (minusp dxx) (vmax rx) (= (vmax rx) (v2 rx))))
+      (set-ruler-range rx 
+                       (if (vmin rx) (max (vmin rx) (- (v1 rx) dxx)) (- (v1 rx) dxx))
+                       (if (vmax rx) (min (vmax rx) (- (v2 rx) dxx)) (- (v2 rx) dxx))))
+    ))
+
+
+;;; no y-ruler : zoom just in x
+(defmethod zoom-rulers ((panel stream-panel) &key (dx 0.1) (dy 0.1) center)
+
+  (let* ((position (or center (omp (* (w panel) .5) (* (h panel) .5))))
+         (x-pos (pix-to-x panel (om-point-x position)))
+         (y-pos (pix-to-y panel (om-point-y position)))
+         (curr-w (- (x2 panel) (x1 panel)))
+         (curr-h (- (y2 panel) (y1 panel)))
+         (new-w (round (* curr-w (1+ dx))))
+         (new-h (round (* curr-h (1+ dy))))
+         (new-x1 (round (- x-pos (/ (* (- x-pos (x1 panel)) new-w) curr-w))))
+         (new-y1 (round (- y-pos (/ (* (- y-pos (y1 panel)) new-h) curr-h)))))
+
+    (set-ruler-range (get-g-component (editor panel) :x-ruler) new-x1 (+ new-x1 new-w))
+    ))
+
+

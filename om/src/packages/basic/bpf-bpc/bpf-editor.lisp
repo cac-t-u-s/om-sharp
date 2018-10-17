@@ -654,44 +654,7 @@
     (set-y-ruler-range (get-g-component self :main-panel) (* (nth 2 ranges) scaler) (* (nth 3 ranges) scaler))
     ))
 
-(defmethod zoom-rulers ((editor bpf-editor) &key (dx 0.1) (dy 0.1) center)
 
-  
-
-  (let* ((panel (get-g-component editor :main-panel))
-         (position (or center (omp (* (w panel) .5) (* (h panel) .5))))
-         (x-pos (pix-to-x panel (om-point-x position)))
-         (y-pos (pix-to-y panel (om-point-y position)))
-         (curr-w (- (x2 panel) (x1 panel)))
-         (curr-h (- (y2 panel) (y1 panel)))
-         (new-w (round (* curr-w (1+ dx))))
-         (new-h (round (* curr-h (1+ dy))))
-      
-         (new-x1 (round (- x-pos (/ (* (- x-pos (x1 panel)) new-w) curr-w))))
-         (new-y1 (round (- y-pos (/ (* (- y-pos (y1 panel)) new-h) curr-h))))
-         )
-    
-    (set-x-ruler-range (get-g-component editor :main-panel) new-x1 (+ new-x1 new-w))
-    (set-y-ruler-range (get-g-component editor :main-panel) new-y1 (+ new-y1 new-h))
-    ))
-
-
-(defmethod move-rulers ((self bpf-editor) &key (dx 0) (dy 0))
-  (let* ((rx (x-ruler (get-g-component self :main-panel)))
-         (ry (y-ruler (get-g-component self :main-panel)))
-         (dxx (* (/ dx (w rx)) (- (v2 rx) (v1 rx))))
-         (dyy (* (/ dy (h ry)) (- (v2 ry) (v1 ry)))))
-    (unless (or (and (plusp dxx) (vmin rx) (= (vmin rx) (v1 rx))) 
-                (and (minusp dxx) (vmax rx) (= (vmax rx) (v2 rx))))
-      (set-ruler-range rx 
-                       (if (vmin rx) (max (vmin rx) (- (v1 rx) dxx)) (- (v1 rx) dxx))
-                       (if (vmax rx) (min (vmax rx) (- (v2 rx) dxx)) (- (v2 rx) dxx))))
-    (unless (or (and (plusp dyy) (vmin ry) (= (vmin ry) (v1 ry))) 
-                (and (minusp dyy) (vmax ry) (= (vmax ry) (v2 ry))))
-      (set-ruler-range ry 
-                       (if (vmin ry) (max (vmin ry) (- (v1 ry) dyy)) (+ (v1 ry) dyy))
-                       (if (vmax ry) (min (vmax ry) (- (v2 ry) dyy)) (+ (v2 ry) dyy))))
-    ))
   
 (defmethod set-rulers-from-selection ((self bpf-editor) x1 x2 y1 y2)
   (let ((panel (get-g-component self :main-panel)))
@@ -1137,18 +1100,55 @@
       )))
 
 
+
 (defmethod om-view-pan-handler ((self bpf-bpc-panel) position dx dy)
   (let ((fact 10))
-    (move-rulers (editor self) :dx (* fact dx) :dy (* fact dy))))
+    (move-rulers self :dx (* fact dx) :dy (* fact dy))))
 
-(defmethod om-view-zoom-handler ((self bpf-bpc-panel) position zoom-factor)
-  (zoom-rulers (editor self) :dx (- 1 zoom-factor) :dy (- 1 zoom-factor) :center position))
+(defmethod om-view-zoom-handler ((self bpf-bpc-panel) position zoom)
+  (zoom-rulers self :dx (- 1 zoom) :dy (- 1 zoom) :center position))
+
+
+(defmethod move-rulers ((self bpf-bpc-panel) &key (dx 0) (dy 0))
+  (let* ((rx (x-ruler self))
+         (ry (y-ruler self))
+         (dxx (* (/ dx (w rx)) (- (v2 rx) (v1 rx))))
+         (dyy (* (/ dy (h ry)) (- (v2 ry) (v1 ry)))))
+    (unless (or (and (plusp dxx) (vmin rx) (= (vmin rx) (v1 rx))) 
+                (and (minusp dxx) (vmax rx) (= (vmax rx) (v2 rx))))
+      (set-ruler-range rx 
+                       (if (vmin rx) (max (vmin rx) (- (v1 rx) dxx)) (- (v1 rx) dxx))
+                       (if (vmax rx) (min (vmax rx) (- (v2 rx) dxx)) (- (v2 rx) dxx))))
+    (unless (or (and (plusp dyy) (vmin ry) (= (vmin ry) (v1 ry))) 
+                (and (minusp dyy) (vmax ry) (= (vmax ry) (v2 ry))))
+      (set-ruler-range ry 
+                       (if (vmin ry) (max (vmin ry) (- (v1 ry) dyy)) (+ (v1 ry) dyy))
+                       (if (vmax ry) (min (vmax ry) (- (v2 ry) dyy)) (+ (v2 ry) dyy))))
+    ))
+
+
+(defmethod zoom-rulers ((panel bpf-bpc-panel) &key (dx 0.1) (dy 0.1) center)
+
+  (let* ((position (or center (omp (* (w panel) .5) (* (h panel) .5))))
+         (x-pos (* (pix-to-x panel (om-point-x position)) (scale-fact panel)))
+         (y-pos (* (pix-to-y panel (om-point-y position)) (scale-fact panel)))
+         (curr-w (- (x2 panel) (x1 panel)))
+         (curr-h (- (y2 panel) (y1 panel)))
+         (new-w (round (* curr-w (1+ dx))))
+         (new-h (round (* curr-h (1+ dy))))
+      
+         (new-x1 (round (- x-pos (/ (* (- x-pos (x1 panel)) new-w) curr-w))))
+         (new-y1 (round (- y-pos (/ (* (- y-pos (y1 panel)) new-h) curr-h)))))
+    (set-x-ruler-range panel new-x1 (+ new-x1 new-w))
+    (set-y-ruler-range panel new-y1 (+ new-y1 new-h))
+    ))
+
 
 (defmethod editor-key-action ((editor bpf-editor) key)
   (let ((panel (get-g-component editor :main-panel)))
     (case key
-      (#\- (zoom-rulers editor :dx -0.1 :dy -0.1)) ;;; zoom out : the ruler gets bigger
-      (#\+ (zoom-rulers editor :dx 0.1 :dy 0.1)) ;;; zoom in : the ruler gets smaller
+      (#\- (zoom-rulers panel :dx -0.1 :dy -0.1)) ;;; zoom out : the ruler gets bigger
+      (#\+ (zoom-rulers panel :dx 0.1 :dy 0.1)) ;;; zoom in : the ruler gets smaller
       (:om-key-delete 
        (store-current-state-for-undo editor)
        (delete-editor-selection editor)
@@ -1252,3 +1252,4 @@
 (defmethod get-color ((self bpf))
   (or (color self) (om-def-color :dark-gray)))
  
+

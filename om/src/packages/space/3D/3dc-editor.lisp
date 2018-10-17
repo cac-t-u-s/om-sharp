@@ -521,11 +521,11 @@
          (selected-editor (and (selected-view editor) (editor (selected-view editor))))
          (3dpanel (3dp editor)))
     (case key
-      (#\- (zoom-rulers top-editor :dx -0.1 :dy -0.1)
-           (zoom-rulers front-editor :dx -0.1 :dy -0.1)
+      (#\- (zoom-rulers top-panel :dx -0.1 :dy -0.1)
+           (zoom-rulers front-panel :dx -0.1 :dy -0.1)
            (zoom-view 3dpanel 0.8))
-      (#\+ (zoom-rulers top-editor :dx 0.1 :dy 0.1)
-           (zoom-rulers front-editor :dx 0.1 :dy 0.1)
+      (#\+ (zoom-rulers top-panel :dx 0.1 :dy 0.1)
+           (zoom-rulers front-panel :dx 0.1 :dy 0.1)
            (zoom-view 3dpanel 1.2))
       (:om-key-delete 
        (delete-editor-selection editor)
