@@ -71,8 +71,10 @@ Note: the last value of <lonset> is the end of the sequence (end-time of the lon
 Internally most of these values are just used to build a list of CHORD objects, accessible with GET-CHORDS.
 
 "))
- 
-(defmethod inside ((self chord-seq)) (frames self))
+
+(defmethod chords ((self chord-seq)) (time-sequence-get-timed-item-list self))
+
+(defmethod inside ((self chord-seq)) (chords self))
 
 
 (defmethod additional-class-attributes ((self chord-seq)) '(Loffset Lchan Lport Llegato))
@@ -177,27 +179,31 @@ Internally most of these values are just used to build a list of CHORD objects, 
 ;========================
 
 (defmethod Lmidic ((self chord-seq))
-  (loop for chord in (inside self)
+  (loop for chord in (chords self)
         collect (Lmidic chord)))
 
 (defmethod Lvel ((self chord-seq))
-   (loop for chord in (inside self)
+   (loop for chord in (chords self)
          collect (Lvel chord)))
+
 (defmethod Ldur ((self chord-seq))
-   (loop for chord in (inside self)
+   (loop for chord in (chords self)
          collect (Ldur chord)))
+
 (defmethod Loffset ((self chord-seq))
-   (loop for chord in (inside self)
+   (loop for chord in (chords self)
          collect (Loffset chord)))
+
 (defmethod Lchan ((self chord-seq))
-   (loop for chord in (inside self)
+   (loop for chord in (chords self)
          collect (Lchan chord)))
+
 (defmethod Lport ((self chord-seq))
-   (loop for chord in (inside self)
+   (loop for chord in (chords self)
          collect (Lport chord)))
 
 (defmethod Lonset ((self chord-seq))
-  (nconc (loop for chord in (inside self)
+  (nconc (loop for chord in (chords self)
                collect (item-get-time chord))
          (list (get-obj-dur self))))
 
@@ -307,19 +313,19 @@ Internally most of these values are just used to build a list of CHORD objects, 
 
 (defmethod score-object-mini-view ((self chord-seq) x-u y-u w h staff fontsize)
   
-  (when (inside self)
+  (when (chords self)
     
-  (let* ((unit (font-size-to-unit fontsize))
-         (shift-x-u 7) ;;  
-         (w-u (- (/ w unit) shift-x-u 2));; +1 for margin each side 
-         (x-ratio (/ w-u (get-obj-dur self))))
+    (let* ((unit (font-size-to-unit fontsize))
+           (shift-x-u 7) ;;  
+           (w-u (- (/ w unit) shift-x-u 2));; +1 for margin each side 
+           (x-ratio (/ w-u (get-obj-dur self))))
     
-    (loop for chord in (inside self) do
-          (draw-chord (notes chord) 
-                      (+ shift-x-u (* (date chord) x-ratio)) 
-                      y-u 
-                      w h fontsize :scale nil :staff staff)
-          ))))
+      (loop for chord in (chords self) do
+            (draw-chord (notes chord) 
+                        (+ shift-x-u (* (date chord) x-ratio)) 
+                        y-u 
+                        w h fontsize :scale nil :staff staff)
+            ))))
 
 
 
@@ -331,7 +337,7 @@ Internally most of these values are just used to build a list of CHORD objects, 
   (sort 
    (loop for c in (remove-if #'(lambda (chord) (or (< (+ (date chord) (get-obj-dur chord)) (car interval))
                                                    (> (date chord) (cadr interval))))
-                             (inside object))
+                             (chords object))
     
          append 
          (loop for n in (notes c) append

@@ -28,20 +28,9 @@
         ((floatp dur) 
          (round (abs dur)))
         (t ;;; hopefully this is a number 
-           (abs dur))))
+         (abs dur))
+        ))
 
-;;; the duration of a tree
-(defmethod tree-extent ((tree list)) 
-  (decode-extent (car tree)))
-
-;;; the duration fo a leaf
-(defmethod tree-extent ((tree number)) 
-  (decode-extent tree))
-
-;;; total extent (formerly "resolve-?")
-(defun compute-total-extent (tree)
-  (reduce #'(lambda (x y) (+ (abs x) (tree-extent y)))
-          tree :initial-value 0))
 
 ; (reduce #'(lambda (x y) (+ (abs x) (fullratio y))) '((2 8) (3 8) (4 8) (3 8) (2 8)) :initial-value 0)
 ; (compute-total-extent '(1 (1 (2 5)) 1 1)) (((8 4) (1 (1 (2 5)) 1 1)) ((4 4) (1 1 5 1))))
