@@ -219,10 +219,18 @@
   ; (print (list "PUSH LET IN" form scope *let-list-stack*)) 
   (if *let-list-stack*
       (if (equal scope :local)
+          
+          ;;; add the let statment to the head of the stack
           (setf (car *let-list-stack*)
                 (cons form (car *let-list-stack*)))
-        (setf (car (last *let-list-stack*))
-              (cons form (car (last *let-list-stack*))))
+        
+        ;;; add the let statment to the next position of the stack
+        (setf (cadr *let-list-stack*)
+              (cons form (cadr *let-list-stack*)))
+        
+        ;;; top-level: not good in case of nested abstractions
+        ;(setf (car (last *let-list-stack*))
+        ;      (cons form (car (last *let-list-stack*))))
         )
     (setq *let-list-stack* (list (list form))))
   )
@@ -421,9 +429,9 @@
                            (,.input-names) 
                       ,body)))
       
-        ;(om-print-format "~%------------------------------------------------------~%PATCH COMPILATION:~%")
-        ;(write f-def :stream om-lisp::*om-stream* :escape nil :pretty t)
-        ;(om-print-format "~%------------------------------------------------------~%~%")
+        (om-print-format "~%------------------------------------------------------~%PATCH COMPILATION: ~A ~%" (list (compiled-fun-name self)))
+        (write f-def :stream om-lisp::*om-stream* :escape nil :pretty t)
+        (om-print-format "~%------------------------------------------------------~%~%")
       
         (compile (eval f-def))))
     )
