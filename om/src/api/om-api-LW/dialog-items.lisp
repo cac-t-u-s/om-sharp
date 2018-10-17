@@ -787,12 +787,11 @@
   (setf (capi::choice-selection self) pos))
 
 (defmethod om-set-selected-item ((self om-popup-list) str)
-  (let ((pos (position str (om-get-item-list self) :test 'string-equal)))
+  (let ((pos (position str (om-get-item-list self) :test 'equal)))
     (when pos (setf (capi::choice-selection self) pos))))
 
 (defmethod om-select-item-index ((self om-popup-list) index)
  (setf (capi::choice-selection self) index))
  
-
 
 
