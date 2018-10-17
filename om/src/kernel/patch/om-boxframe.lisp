@@ -881,10 +881,10 @@
 
     (when (and all-points (om-view-container self))
       (om-invalidate-area (om-view-container self)
-                          (- (apply 'min (mapcar 'om-point-x all-points)) 4) ;;; replace with list-min etc. pb when too many points
-                          (- (apply 'min (mapcar 'om-point-y all-points)) 4)
-                          (+ (apply 'max (mapcar 'om-point-x all-points)) 4)
-                          (+ (apply 'max (mapcar 'om-point-y all-points)) 4)
+                          (- (reduce 'min (mapcar 'om-point-x all-points)) 4) ;;; replace with list-min etc. pb when too many points
+                          (- (reduce 'min (mapcar 'om-point-y all-points)) 4)
+                          (+ (reduce 'max (mapcar 'om-point-x all-points)) 4)
+                          (+ (reduce 'max (mapcar 'om-point-y all-points)) 4)
                           ))
     )))
 
