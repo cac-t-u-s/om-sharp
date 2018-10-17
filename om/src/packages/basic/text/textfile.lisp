@@ -110,7 +110,7 @@ As output it returns the contents of the text buffer as a list formatted accordi
 
 (defmethod get-slot-val ((obj textbuffer) slot-name)
   (if (string-equal (string slot-name) "contents")
-      (format-from-text-lines (contents obj) (print (reader obj)))
+      (format-from-text-lines (contents obj) (reader obj))
     (call-next-method)))
 
 ;;;===================================
