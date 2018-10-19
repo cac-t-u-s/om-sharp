@@ -155,7 +155,8 @@
   (with-open-file (file pathname :direction :output :if-does-not-exist :create)))
 
 (defun om-create-directory (pathname &key (if-exists nil))
-   (lw::ENSURE-DIRECTORIES-EXIST pathname))
+   (lw::ENSURE-DIRECTORIES-EXIST pathname)
+   pathname)
 
 (defun om-copy-file (sourcepath targetpath &key (if-exists :supersede))
   (handler-bind 
