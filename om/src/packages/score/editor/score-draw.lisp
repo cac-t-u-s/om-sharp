@@ -279,7 +279,7 @@
   
   (let* ((staff-elems (staff-split staff))
          (unit (font-size-to-unit fontsize)) 
-         (shift (calculate-staff-line-shift staff))
+         (shift (+ y (calculate-staff-line-shift staff)))
          (thinBarlineThickness (ceiling (* *thinBarLineThickness* unit)))
          (staffLineThickness (ceiling (* *staffLineThickness* unit))))
          
@@ -331,8 +331,8 @@
          (shift (calculate-staff-line-shift staff))
          (thinBarlineThickness (ceiling (* *thinBarLineThickness* unit))))
     
-    (om-draw-line x (1- (line-to-ypos (car (staff-lines (car staff-elems))) shift unit))
-                  x (1+ (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit))
+    (om-draw-line (- x unit) (1- (line-to-ypos (car (staff-lines (car staff-elems))) shift unit))
+                  (- x unit) (1+ (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit))
                   :line thinBarlineThickness)
     ))
 
