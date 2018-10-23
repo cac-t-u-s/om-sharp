@@ -43,6 +43,7 @@
 
 ;;; if the om-sound-buffer is created like this, it will be garbaged automatically 
 (defun make-om-sound-buffer-GC (&key ptr (count 1) (nch 1))
+  (om-print-dbg "Initializing audio buffer (~A channels)..." (list nch) "OM")
   (om-create-with-gc (make-om-sound-buffer :ptr ptr :count count :nch nch)))
 
 ;;; this is the garbage action
@@ -318,7 +319,7 @@ Press 'space' to play/stop the sound file.
   
   (if (and (file-pathname self) (access-from-file self))
       (progn 
-        (om-print-format "Initializing FILE player for sound ~A (~D channels)"
+        (om-print-dbg "Initializing FILE player for sound ~A (~D channels)"
                          (list self (n-channels self))
                          "OM")
         (setf (buffer-player self) (make-player-from-file (namestring (file-pathname self)))))
@@ -326,7 +327,7 @@ Press 'space' to play/stop the sound file.
     (when (buffer self) ;;; in principle at that point there should be a buffer..
       (if (and (n-samples self) (n-channels self) (sample-rate self))
           (progn
-            (om-print-format "Initializing BUFFER player for sound ~A (~D channels)"
+            (om-print-dbg "Initializing BUFFER player for sound ~A (~D channels)"
                              (list self (n-channels self))
                              "OM")
             (setf (buffer-player self) (make-player-from-buffer 
@@ -481,14 +482,12 @@ Press 'space' to play/stop the sound file.
           (unwind-protect 
               (progn
               ;(when (buffer sound) (oa::om-release (buffer sound)))
-                (om-print-format "Initializing audio buffer (~A channels)..." (list channels) "OM")
                 (setf (buffer sound) (make-om-sound-buffer-GC :ptr buffer :count 1 :nch channels)
                       (smpl-type sound) *default-internal-sample-size*
                       (n-samples sound) size
                       (n-channels sound) channels
                       (sample-rate sound) sr
                       (sample-size sound) ss)
-          ;(om-print (format nil "Allocated buffer ~A for ~A" (buffer sound) sound) "SOUND_DEBUG")
                 sound))))
     (progn 
       (om-beep-msg "Wrong pathname for sound: ~s" path)
