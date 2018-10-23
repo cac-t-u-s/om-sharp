@@ -25,8 +25,8 @@
 
 (defparameter *version-major* 0) ;;; => 7!
 (defparameter *version-minor* 1) 
-(defparameter *version-patch* 5)
-(defparameter *version-update* 2)
+(defparameter *version-patch* 6)
+(defparameter *version-update* 0)
 
 (defparameter *om-version* 
   (+ *version-major* 
