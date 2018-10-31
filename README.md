@@ -2,4 +2,4 @@ This project is a new implementation of the [OpenMusic](http://repmus.ircam.fr/o
 
 Created by Jean Bresson (2013-2018) IRCAM / UMR STMS
 
-More info / downloads : https://openmusic-project.github.io/
+See also: http://repmus.ircam.fr/openmusic/om7
