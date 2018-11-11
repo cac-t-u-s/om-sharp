@@ -34,3 +34,5 @@ om/resources/reference-pages/
 BUILD/**/*
 codesign-om7
 VERSION
+
+*.sublime-*
