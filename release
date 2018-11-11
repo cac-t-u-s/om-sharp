@@ -30,7 +30,7 @@ echo "***************************************************"
 pack_app()
 {
 echo "***************************************************"
-echo "Packing $APP_FOLDER"
+echo "Packing $BUILD_FOLDER/$APP_NAME.app"
 echo "***************************************************"
 
 	rm -Rf $BUILD_FOLDER
