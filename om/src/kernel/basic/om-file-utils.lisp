@@ -57,7 +57,7 @@
 ;;; GENERATE PATHNAMES
 ;;;===================================
 (defmethod* infile ((name string) &key (subdirs nil) (type nil))
-  :icon 'folder
+  :icon :folder
   :indoc '("file name" "directories" "type extension")
   :initvals '("" nil nil)
   :doc "Returns a file pathname corresponding to <name> in the default OM IN FILES directory.
@@ -81,7 +81,7 @@ Ex. (infile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/b
 
 ;;;===================================
 (defmethod* outfile ((name string) &key (subdirs nil) (type nil))
-  :icon 'folder
+  :icon :folder
   :indoc '("file name" "directories" "type extension")
   :initvals '("" nil nil)
   :doc "Returns a file pathname corresponding to <name> in the default OM OUT FILES directory.
@@ -105,7 +105,7 @@ Ex. (outfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/
 
 ;;;===================================
 (defmethod* tmpfile ((name string) &key (subdirs nil) (type nil))
-  :icon 'folder
+  :icon :folder
   :indoc '("file name" "directories" "type extension")
   :initvals '("" nil nil)
   :doc "Returns a file pathname corresponding to <name> in the default OM TMP FILES directory.
@@ -215,7 +215,7 @@ Ex. (tmpfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/
 
 ;;; FILE CHOOSE TOOLS
 (defmethod* file-chooser (&key (type 'file) (mode 'existing) (initial-folder nil) (message nil))
-  :icon 'folder
+  :icon :folder
   :initvals '(file existing desktop nil)
   :indoc '("file or directory" "new or existing" "pathname" "prompt for the dialog")
   :menuins '((0 (("file" file) ("directory" directory))) 

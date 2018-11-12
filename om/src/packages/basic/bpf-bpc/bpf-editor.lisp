@@ -282,13 +282,13 @@
   (let* ((editor (editor self))
          (mode-buttons 
           (list 
-           (om-make-graphic-object 'om-icon-button :position (omp 10 5) :size (omp 20 20) :icon 'mouse :icon-pushed 'mouse-pushed 
+           (om-make-graphic-object 'om-icon-button :position (omp 10 5) :size (omp 20 20) :icon :mouse :icon-pushed :mouse-pushed 
                                    :lock-push t :pushed (equal (edit-mode editor) :mouse) :id :mouse
                                    :action #'(lambda (b) (editor-set-edit-mode editor :mouse)))
-           (om-make-graphic-object 'om-icon-button :position (omp 30 5) :size (omp 20 20) :icon 'pen :icon-pushed 'pen-pushed 
+           (om-make-graphic-object 'om-icon-button :position (omp 30 5) :size (omp 20 20) :icon :pen :icon-pushed :pen-pushed 
                                    :lock-push t :pushed (equal (edit-mode editor) :pen) :id :pen
                                    :action #'(lambda (b) (editor-set-edit-mode editor :pen)))
-           (om-make-graphic-object 'om-icon-button :position (omp 50 5) :size (omp 20 20) :icon 'hand :icon-pushed 'hand-pushed 
+           (om-make-graphic-object 'om-icon-button :position (omp 50 5) :size (omp 20 20) :icon :hand :icon-pushed :hand-pushed 
                                    :lock-push t :pushed (equal (edit-mode editor) :hand) :id :hand
                                    :action #'(lambda (b) (editor-set-edit-mode editor :hand))))))
     (set-g-component editor :mode-buttons mode-buttons)

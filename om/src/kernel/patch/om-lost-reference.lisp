@@ -30,7 +30,7 @@
   (:default-initargs :reference :missing-reference)
   (:metaclass omstandardclass))
 
-(defmethod get-icon-id ((self LostReferenceBox)) 'dead)
+(defmethod get-icon-id ((self LostReferenceBox)) :dead)
 (defmethod object-name-in-inspector ((self LostReferenceBox)) 
   (format nil "Missing reference box [~A ~A]" 
           (reference-type self)

@@ -51,7 +51,7 @@
 (defmethod box-symbol ((self OMMemory)) 'mem)
 
 
-(defmethod get-icon-id ((self OMMemoryBox)) 'm-mem)
+(defmethod get-icon-id ((self OMMemoryBox)) :m-mem)
 (defmethod object-name-in-inspector ((self OMMemoryBox)) "memory/delay box")
 
 (defmethod omNG-make-special-box ((reference (eql 'mem)) pos &optional init-args)
@@ -173,7 +173,7 @@
 (defmethod get-box-class ((self OMCollect)) 'OMCollectBox)
 (defmethod box-symbol ((self OMCollect)) 'collect)
 
-(defmethod get-icon-id ((self OMCollectBox)) 'm-mem)
+(defmethod get-icon-id ((self OMCollectBox)) :m-mem)
 (defmethod object-name-in-inspector ((self OMCollectBox)) "collector box")
 
 

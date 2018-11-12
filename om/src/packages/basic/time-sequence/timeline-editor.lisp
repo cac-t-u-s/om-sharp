@@ -238,7 +238,7 @@
                  (timeline-item (make-timeline-left-item container-editor (id timeline-view)))
                  (fold-icon (om-make-graphic-object 
                              'om-icon-button :size (omp 10 10)
-                             :icon 'arrow-drop-right :icon-pushed 'arrow-drop-up
+                             :icon :arrow-drop-right :icon-pushed :arrow-drop-up
                              :lock-push t
                              :action #'(lambda (b)
                                          (if (pushed b)

@@ -430,9 +430,7 @@
                 :position (omp (box-x self) (box-y self))
                 ;:font (font-font (text-font self))
                 :object self
-                :icon-id (and (get-icon-id self)
-                              (or (find (get-icon-id self) *om-loaded-picts*)
-                                         'not-found)))))
+                :icon-id (get-icon-id self))))
     
     ;(om-set-view-size view (om-def-point (omp (box-w self) (box-h self))
     ;                                     (default-size self)))

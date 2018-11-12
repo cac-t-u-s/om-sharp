@@ -828,7 +828,7 @@
                (let (b1 b2)
                  (setq b1 (om-make-graphic-object 
                            'om-icon-button :size (omp 16 16) 
-                           :icon 'icon-maqview-black :icon-disabled 'icon-maqview-gray
+                           :icon :icon-maqview-black :icon-disabled :icon-maqview-gray
                            :lock-push nil :enabled (equal (view-mode editor) :tracks)
                            :action #'(lambda (b) 
                                        (unless (equal (view-mode editor) :maquette)
@@ -837,7 +837,7 @@
                                          ))))
                  (setq b2 (om-make-graphic-object 
                            'om-icon-button :size (omp 16 16) 
-                           :icon 'icon-trackview-black :icon-disabled 'icon-trackview-gray
+                           :icon :icon-trackview-black :icon-disabled :icon-trackview-gray
                            :lock-push nil :enabled (equal (view-mode editor) :maquette)
                            :action #'(lambda (b) 
                                        (unless (equal (view-mode editor) :tracks)
@@ -853,14 +853,14 @@
                (let (b1 b2 b3 b4)
                  (setq b1 (om-make-graphic-object 
                            'om-icon-button :size (omp 16 16) 
-                           :icon 'ctrlpatch-black :icon-pushed 'ctrlpatch-gray
+                           :icon :ctrlpatch-black :icon-pushed :ctrlpatch-gray
                            :lock-push t :enabled t :pushed (show-control-patch editor)
                            :action #'(lambda (b)
                                        (show-hide-control-patch-editor editor (pushed b))
                                        )))
                  (setq b2 (om-make-graphic-object 
                            'om-icon-button :size (omp 16 16) 
-                           :icon 'maqeval-black :icon-pushed 'maqeval-gray
+                           :icon :maqeval-black :icon-pushed :maqeval-gray
                            :lock-push nil :enabled t
                            :action #'(lambda (b)
                                        (let ((maq (get-obj-to-play editor)))
@@ -869,7 +869,7 @@
                                          ))))
                  (setq b3 (om-make-graphic-object 
                            'om-icon-button :size (omp 16 16) 
-                           :icon 'icon-trash-black :icon-pushed 'icon-trash-gray
+                           :icon :icon-trash-black :icon-pushed :icon-trash-gray
                            :lock-push nil :enabled t
                            :action #'(lambda (b) 
                                        (when (om-y-or-n-dialog "Do you really want to remove all boxes in the maquette?")
@@ -878,7 +878,7 @@
                                          ))))
                  (setq b4 (om-make-graphic-object 
                            'om-icon-button :size (omp 16 16) 
-                           :icon 'icon-no-exec-black :icon-pushed 'icon-no-exec-gray
+                           :icon :icon-no-exec-black :icon-pushed :icon-no-exec-gray
                            :lock-push t :enabled t
                            :action #'(lambda (b)
                                        (with-schedulable-object maquette
@@ -944,7 +944,7 @@
                         (om-make-layout 
                          'om-column-layout :delta nil :ratios '(nil 1) :align :right
                          :subviews (list (om-make-graphic-object 
-                                          'om-icon-button :icon 'xx :icon-pushed 'xx-pushed
+                                          'om-icon-button :icon :xx :icon-pushed :xx-pushed
                                           :size (omp 12 12)
                                           :action #'(lambda (b) (patch-editor-set-window-config editor nil))
                                           )

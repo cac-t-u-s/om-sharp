@@ -203,7 +203,7 @@
                                                :text text :font (om-def-font :font2b)))
          (prev-button (om-make-graphic-object 'om-icon-button 
                                               :size (omp 16 16)
-                                              :icon 'l-arrow :icon-pushed 'l-arrow-pushed :icon-disabled 'l-arrow-disabled
+                                              :icon :l-arrow :icon-pushed :l-arrow-pushed :icon-disabled :l-arrow-disabled
                                               :lock-push nil :enabled (> (length (obj-list collection)) 1)
                                               :action #'(lambda (b)
                                                           (declare (ignore b))
@@ -211,7 +211,7 @@
                                                           )))
          (next-button (om-make-graphic-object 'om-icon-button 
                                               :size (omp 16 16)
-                                              :icon 'r-arrow :icon-pushed 'r-arrow-pushed :icon-disabled 'r-arrow-disabled
+                                              :icon :r-arrow :icon-pushed :r-arrow-pushed :icon-disabled :r-arrow-disabled
                                               :lock-push nil :enabled (> (length (obj-list collection)) 1)
                                               :action #'(lambda (b)
                                                           (declare (ignore b))
@@ -219,7 +219,7 @@
                                                           )))
          (-button (om-make-graphic-object 'om-icon-button 
                                           :size (omp 16 16)
-                                          :icon '- :icon-pushed '--pushed :icon-disabled '--disabled
+                                          :icon :- :icon-pushed :--pushed :icon-disabled :--disabled
                                           :lock-push nil :enabled (obj-list collection)
                                           :action #'(lambda (b)
                                                       (remove-current-object editor)
@@ -233,7 +233,7 @@
                                           ))
          (+button (om-make-graphic-object 'om-icon-button 
                                           :size (omp 16 16)
-                                          :icon '+ :icon-pushed '+-pushed :icon-disabled '+-disabled
+                                          :icon :+ :icon-pushed :+-pushed :icon-disabled :+-disabled
                                           :lock-push nil :enabled (obj-type (get-value-for-editor (object editor)))
                                           :action #'(lambda (b)
                                                       (declare (ignore b))

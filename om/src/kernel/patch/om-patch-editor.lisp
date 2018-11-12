@@ -115,7 +115,7 @@
   ((editor :accessor editor :initarg :editor :initform nil)))
 
 (defmethod om-draw-contents ((self lock-view-area))
-  (om-draw-picture (if (lock (object (editor self))) 'lock 'unlock) 
+  (om-draw-picture (if (lock (object (editor self))) :lock :unlock) 
                    :x 0 :y 0 :w (om-width self) :h (om-height self)))
 
 (defmethod om-view-click-handler ((self lock-view-area) position)
@@ -1469,7 +1469,7 @@
               (when (editor-window-config editor)
                  (list 
                   (om-make-graphic-object 
-                   'om-icon-button :icon 'xx :icon-pushed 'xx-pushed
+                   'om-icon-button :icon :xx :icon-pushed :xx-pushed
                    :size (omp 12 12)
                    :action #'(lambda (b) (patch-editor-set-window-config editor nil))
                    )
@@ -1478,7 +1478,7 @@
                (list 
                 (om-make-graphic-object 
                  'om-icon-button :size (omp 16 16) 
-                 :icon 'info-gray :icon-disabled 'info
+                 :icon :info-gray :icon-disabled :info
                  :lock-push nil :enabled (not (equal (editor-window-config editor) :inspector))
                  :action #'(lambda (b) 
                              (patch-editor-set-window-config 
@@ -1488,7 +1488,7 @@
     
                 (om-make-graphic-object 
                  'om-icon-button :size (omp 16 16) 
-                 :icon 'lisp-gray :icon-disabled 'lisp
+                 :icon :lisp-gray :icon-disabled :lisp
                  :lock-push nil :enabled (not (equal (editor-window-config editor) :lisp-code))
                  :action #'(lambda (b) 
                              (patch-editor-set-window-config 
@@ -1498,7 +1498,7 @@
                     
                 (om-make-graphic-object 
                  'om-icon-button :size (omp 16 16) 
-                 :icon 'listen-gray :icon-disabled 'listen
+                 :icon :listen-gray :icon-disabled :listen
                  :lock-push nil :enabled (not (equal (editor-window-config editor) :listener))
                  :action #'(lambda (b) 
                              (patch-editor-set-window-config 

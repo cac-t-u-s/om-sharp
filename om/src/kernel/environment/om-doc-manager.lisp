@@ -171,21 +171,21 @@
   (let ((patch (ensure-type obj 'OMPatch)))
     (when patch
       (change-class patch 'OMPatchFile)
-      (setf (icon patch) 'patch-file)
+      (setf (icon patch) :patch-file)
       patch)))
 
 (defmethod type-check ((type (eql :maquette)) obj)
   (let ((maq (ensure-type obj 'OMMaquette)))
     (when maq
       (change-class maq 'OMMaquetteFile)
-      (setf (icon maq) 'maq-file))
+      (setf (icon maq) :maq-file))
     maq))
 
 (defmethod type-check ((type (eql :textfun)) obj)
   (let ((fun (ensure-type obj 'OMLispFunction)))
     (when fun
       (change-class fun 'OMLispFunctionFile)
-      (setf (icon fun) 'lisp-f-file))
+      (setf (icon fun) :lisp-f-file))
     fun))
 
     

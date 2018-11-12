@@ -50,7 +50,7 @@ Ex. (last-n '(1 2 3 4 5) 3)  => (3 4 5)
 Ex. (first-n '(1 2 3 4 5) 3)  => (1 2 3)
 "
   (cond
-   ((< (length list)  n) list)
+   ((< (length list) n) list)
    (t  (butlast list (- (length list) n)))))
 
 

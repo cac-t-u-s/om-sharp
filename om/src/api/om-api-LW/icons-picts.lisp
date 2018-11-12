@@ -70,21 +70,23 @@
 (defun om-register-picture (name path)
   (gp:register-image-translation name (gp:read-external-image path)))
 
+
 ;;; pict is a picture identifier
 (defmethod om-draw-picture ((pict-id symbol) &key (x 0) (y 0) w h (src-x 0) (src-y 0) src-w src-h)
-  (handler-bind ((error #'(lambda (e) 
-                            (print (format nil "~A: ~A" (type-of e) e))
-                            (abort))))
-    (let* ((port *curstream*)
-           (image (gp::load-image port pict-id)))
-      (when image 
-        (unwind-protect 
-            (gp::draw-image port image x y ; (+ x *pox*) (+ y *poy*)
-                            :to-width (or w (gp:image-width image)) :to-height (or h (gp:image-height image))
-                            :from-x src-x :from-y src-y
-                            :from-width (or src-w (gp:image-width image)) :from-height (or src-h (gp:image-height image)))
-          (gp::free-image port image) ;;; will be freed when port is destroyed
-          )))))
+  (when pict-id
+    (handler-bind ((error #'(lambda (e) 
+                              (print (format nil "~A: ~A" (type-of e) e))
+                              (abort))))
+      (let* ((port *curstream*)
+             (image (gp::load-image port pict-id)))
+        (when image 
+          (unwind-protect 
+              (gp::draw-image port image x y ; (+ x *pox*) (+ y *poy*)
+                              :to-width (or w (gp:image-width image)) :to-height (or h (gp:image-height image))
+                              :from-x src-x :from-y src-y
+                              :from-width (or src-w (gp:image-width image)) :from-height (or src-h (gp:image-height image)))
+            (gp::free-image port image) ;;; will be freed when port is destroyed
+            ))))))
 
 (defmethod om-draw-picture ((pict-id gp::image) &key (x 0) (y 0) w h (src-x 0) (src-y 0) src-w src-h)
   (handler-bind ((error #'(lambda (e) 

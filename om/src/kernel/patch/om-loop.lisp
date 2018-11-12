@@ -40,7 +40,7 @@
 (defmethod get-box-class ((self OMPatchLoop)) 'OMPatchLoopBox)
 (defmethod box-symbol ((self OMPatchLoop)) 'loop)
 
-(defmethod get-icon-id ((self OMPatchLoopBox)) 'm-iter)
+(defmethod get-icon-id ((self OMPatchLoopBox)) :m-iter)
 (defmethod get-icon-size ((self OMPatchLoopBox)) 20)
 
 (defmethod create-box-inputs ((self OMPatchLoopBox)) 
@@ -238,7 +238,7 @@
 
 (defmethod get-ev-once-flag ((self OMPatchIteratorBox)) (list self (n-iter (reference self))))
 
-(defmethod get-icon-id ((self OMPatchIteratorBox)) 'm-loop)
+(defmethod get-icon-id ((self OMPatchIteratorBox)) :m-loop)
 
 (defmethod object-name-in-inspector ((self OMPatchIteratorBox)) "iterator box")
 

@@ -32,7 +32,7 @@
 
 (defmethod* seq  ((op t) &rest op+) :numouts 1 
    :initvals '(nil) :indoc '("something to do" "something else to do")
-   :icon 'seq
+   :icon :seq
    :doc "Evaluates sequentially a series of values, functions or subpatches.
 
 Accepts many optional inputs as needed. 

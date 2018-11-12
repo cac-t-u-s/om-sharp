@@ -28,21 +28,21 @@
 
 
 (defclass OMLispFunctionInternal (OMLispFunction) ()
-  (:default-initargs :icon 'lisp-f)
+  (:default-initargs :icon :lisp-f)
   (:metaclass omstandardclass))
 
 (defmethod window-name-from-object ((self OMLispFunctionInternal))
   (format nil "~A  [~A]" (name self) "internal Lisp function"))
 
 (defclass OMLispFunctionFile (OMPersistantObject OMLispFunction) ()
-  (:default-initargs :icon 'lisp-f-file) 
+  (:default-initargs :icon :lisp-f-file) 
   (:metaclass omstandardclass))
 
 
 ;; For conversions
 (defmethod internalized-type ((self OMLispFunctionFile)) 'OMLispFunctionInternal)
 (defmethod externalized-type ((self OMLispFunction)) 'OMLispFunctionFile)
-(defmethod externalized-icon ((self OMLispFunction)) 'lisp-f-file)
+(defmethod externalized-icon ((self OMLispFunction)) :lisp-f-file)
 
 (defparameter *default-lisp-function-text* 
   '(";;; Edit a valid LAMBDA EXPRESSION"

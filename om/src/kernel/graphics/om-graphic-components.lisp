@@ -85,7 +85,7 @@
  
 ;(let ((win (om-make-window 'om-window))
 ;      (v (om-make-view 'om-view :size (om-make-point 500 500)))
-;      (but (om-make-graphic-object 'om-icon-button :icon 'but :icon-pushed 'but-pushed :lock-push t)))
+;      (but (om-make-graphic-object 'om-icon-button :icon :but :icon-pushed :but-pushed :lock-push t)))
 ;  (om-add-subviews win v)
 ;  (om-add-subviews v but)
 ;  win)

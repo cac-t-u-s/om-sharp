@@ -433,7 +433,7 @@
 (defmethod make-play-button ((editor play-editor-mixin) &key size enable) 
   (setf (play-button editor)
         (om-make-graphic-object 'om-icon-button :size (or size (omp 16 16)) 
-                                :icon 'icon-play-black :icon-pushed 'icon-play-green :icon-disabled 'icon-play-gray
+                                :icon :icon-play-black :icon-pushed :icon-play-green :icon-disabled :icon-play-gray
                                 :lock-push t :enabled enable
                                 :action #'(lambda (b)
                                             (declare (ignore b))
@@ -443,7 +443,7 @@
 (defmethod make-pause-button ((editor play-editor-mixin) &key size enable) 
   (setf (pause-button editor)
         (om-make-graphic-object 'om-icon-button :size (or size (omp 16 16)) 
-                                :icon 'icon-pause-black :icon-pushed 'icon-pause-orange :icon-disabled 'icon-pause-gray
+                                :icon :icon-pause-black :icon-pushed :icon-pause-orange :icon-disabled :icon-pause-gray
                                 :lock-push t :enabled enable
                                 :action #'(lambda (b)
                                             (declare (ignore b))
@@ -452,7 +452,7 @@
 (defmethod make-stop-button ((editor play-editor-mixin) &key size enable) 
   (setf (stop-button editor)
         (om-make-graphic-object 'om-icon-button :size (or size (omp 16 16)) 
-                                :icon 'icon-stop-black :icon-pushed 'icon-stop-white :icon-disabled 'icon-stop-gray
+                                :icon :icon-stop-black :icon-pushed :icon-stop-white :icon-disabled :icon-stop-gray
                                 :lock-push nil :enabled enable
                                 :action #'(lambda (b)
                                             (declare (ignore b))
@@ -463,7 +463,7 @@
 (defmethod make-previous-button ((editor play-editor-mixin) &key size enable) 
   (setf (prev-button editor)
         (om-make-graphic-object 'om-icon-button :size (or size (omp 16 16)) 
-                                :icon 'icon-previous-black :icon-pushed 'icon-previous-white :icon-disabled 'icon-previous-gray
+                                :icon :icon-previous-black :icon-pushed :icon-previous-white :icon-disabled :icon-previous-gray
                                 :lock-push nil :enabled enable
                                 :action #'(lambda (b)
                                             (declare (ignore b))
@@ -472,7 +472,7 @@
 (defmethod make-next-button ((editor play-editor-mixin) &key size enable) 
   (setf (next-button editor)
         (om-make-graphic-object 'om-icon-button :size (or size (omp 16 16)) 
-                                :icon 'icon-next-black :icon-pushed 'icon-next-white :icon-disabled 'icon-next-gray
+                                :icon :icon-next-black :icon-pushed :icon-next-white :icon-disabled :icon-next-gray
                                 :lock-push nil :enabled enable
                                 :action #'(lambda (b)
                                             (declare (ignore b))
@@ -481,7 +481,7 @@
 (defmethod make-rec-button ((editor play-editor-mixin) &key size enable) 
   (setf (rec-button editor)
         (om-make-graphic-object 'om-icon-button :size (or size (omp 16 16)) 
-                          :icon 'icon-record-black :icon-pushed 'icon-record-red :icon-disabled 'icon-record-gray
+                          :icon :icon-record-black :icon-pushed :icon-record-red :icon-disabled :icon-record-gray
                           :lock-push t :enabled enable
                           :action #'(lambda (b)
                                       (declare (ignore b))
@@ -491,7 +491,7 @@
 (defmethod make-repeat-button ((editor play-editor-mixin) &key size enable) 
   (setf (repeat-button editor)
         (om-make-graphic-object 'om-icon-button :size (or size (omp 16 16)) 
-                          :icon 'icon-repeat-black :icon-pushed 'icon-repeat-white
+                          :icon :icon-repeat-black :icon-pushed :icon-repeat-white
                           :lock-push t :enabled enable
                           :action #'(lambda (b)
                                       (editor-repeat editor (pushed b))))))

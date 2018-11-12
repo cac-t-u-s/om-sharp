@@ -46,11 +46,11 @@
 (defmethod ompatch-p ((self t)) nil)
 
 (defclass OMPatchInternal (OMPatch) ()
-  (:default-initargs :icon 'patch-0)
+  (:default-initargs :icon :patch-0)
   (:metaclass omstandardclass))
 
 (defclass OMPatchFile (OMPersistantObject OMPatch) ()
-  (:default-initargs :icon 'patch-file) 
+  (:default-initargs :icon :patch-file) 
   (:metaclass omstandardclass))
 
 (defmethod object-doctype ((self OMPatch)) :patch)
@@ -142,7 +142,7 @@
 ;; For conversions
 (defmethod internalized-type ((self OMPatchFile)) 'OMPatchInternal)
 (defmethod externalized-type ((self OMPatch)) 'OMPatchFile)
-(defmethod externalized-icon ((self OMPatch)) 'patch-file)
+(defmethod externalized-icon ((self OMPatch)) :patch-file)
 
 ;;;==========================================
 ;;; DIFFERENCES BETWEEN INTERNAL AND NOT INTERNAL :
