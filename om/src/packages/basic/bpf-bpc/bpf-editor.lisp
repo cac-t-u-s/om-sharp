@@ -1092,7 +1092,7 @@
       (:hand (let ((curr-pos position))
                (om-init-temp-graphics-motion self position nil
                                              :motion #'(lambda (view pos)
-                                                         (move-rulers editor 
+                                                         (move-rulers self 
                                                                       :dx (- (om-point-x pos) (om-point-x curr-pos))
                                                                       :dy (- (om-point-y pos) (om-point-y curr-pos)))
                                                          (setf curr-pos pos)
