@@ -51,7 +51,7 @@
 ;  (om-draw-rect x y w h :line (if (numberp style) style 3) :color (om-make-color 0.9 0.4 0.4) :angles :round))
 
 ;;; RE-SAVE AS IF EVERYTHING OK...
-(defmethod save-box-reference ((self LostReferenceBox)) (lost-reference self))
+(defmethod save-box-reference ((self LostReferenceBox)) (omng-save (lost-reference self)))
 (defmethod box-type ((self LostReferenceBox)) (reference-type self))
 
 ;;; EVAL/GEN-CODE
