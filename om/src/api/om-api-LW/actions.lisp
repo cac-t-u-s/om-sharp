@@ -61,7 +61,6 @@
 (defclass om-interactive-object () ()
   (:default-initargs 
    :input-model  `(
-                   
                    ;;; CALLBACKS ARGUMENTS = (SHIF CMD OPTION)
                    ((:button-1 :motion :shift ,+control-button+ :meta)  om-clic-motion-callback (t t t))
                    ((:button-1 :motion :shift ,+control-button+)  om-clic-motion-callback (t t nil))
