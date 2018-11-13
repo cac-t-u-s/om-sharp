@@ -26,7 +26,7 @@
 (defun register-images (folder)
   (mapc #'(lambda (file)
               (let* ((ic (read-from-string (pathname-name file)))
-                     (id (intern-k (format nil "~A" ic))))
+                     (id (if (numberp ic) ic (intern-k (format nil "~A" ic)))))
                 (om-register-picture id file)))
         (om-directory folder 
                       :type *om-pict-types*

@@ -72,13 +72,13 @@
 
 
 ;;; pict is a picture identifier
-(defmethod om-draw-picture ((pict-id symbol) &key (x 0) (y 0) w h (src-x 0) (src-y 0) src-w src-h)
+(defmethod om-draw-picture ((pict-id t) &key (x 0) (y 0) w h (src-x 0) (src-y 0) src-w src-h)
   (when pict-id
     (handler-bind ((error #'(lambda (e) 
                               (print (format nil "~A: ~A" (type-of e) e))
                               (abort))))
       (let* ((port *curstream*)
-             (image (gp::load-image port pict-id)))
+             (image (ignore-errors (gp::load-image port pict-id))))
         (when image 
           (unwind-protect 
               (gp::draw-image port image x y ; (+ x *pox*) (+ y *poy*)
