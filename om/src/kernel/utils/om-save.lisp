@@ -244,10 +244,11 @@
                             vallist (reverse vallist))
   `(:hash-table
     (:keys ,(omng-save keylist))
-    (:vals ,(omng-save vallist)))))
+    (:vals ,(omng-save vallist))
+    (:test ,(hash-table-test self)))))
 
 (defmethod om-load-from-id ((id (eql :hash-table)) data)
-  (let ((res (make-hash-table)))
+  (let ((res (make-hash-table :test (find-value-in-kv-list data :test))))
     (loop for key in (omng-load (find-value-in-kv-list data :keys))
           for val in (omng-load (find-value-in-kv-list data :vals))
           do
