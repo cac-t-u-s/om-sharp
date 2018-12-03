@@ -331,6 +331,13 @@
   ((center :accessor center :initarg :center :initform nil)
    (size :accessor size :initarg :size :initform nil)))
 
+
+(defmethod initialize-instance :after ((self 3D-sphere) &rest initargs)
+  (when (center self) ;; temporary: the poinst are also used for calculating the bounding-box   
+    (om-set-3Dobj-points self (list (center self)))
+    ))
+
+
 (defmethod om-draw-contents ((self 3D-sphere))
   (if (om-3Dobj-color self)
       (let ((col (om-color-to-single-float-list (om-3Dobj-color self))))
