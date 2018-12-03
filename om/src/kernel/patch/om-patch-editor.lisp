@@ -137,11 +137,19 @@
 ;;; MENU
 ;;;==========================
 
+
+
 (defmethod om-menu-items ((self patch-editor))
   (remove nil
             (list 
              (main-app-menu-item)
-             (om-make-menu "File" (default-file-menu-items self))
+             (om-make-menu "File" (append 
+                                   (default-file-menu-items self)
+                                   (list (om-make-menu-item "Open as text"
+                                                            #'(lambda () 
+                                                                (om-lisp::om-open-text-editor :contents (pathname (mypathname (object self))) :lisp t))
+                                                            :enabled (and (is-persistant (object self))
+                                                                          (mypathname (object self)))))))
              (om-make-menu "Edit" 
                            (append 
                             (default-edit-menu-items self)
