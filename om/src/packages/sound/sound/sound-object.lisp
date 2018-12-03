@@ -203,6 +203,29 @@ Press 'space' to play/stop the sound file.
 (defmethod get-sound-file ((self t)) nil)
 
 
+
+;;; UTILS FOR SYNTHESIS AND PROCESSING
+
+(defmacro with-sound-output ((snd &key (size 0) (nch 1) (sr 44100) (type :float)) &body body)
+  `(let ((,snd (make-instance 'sound :n-samples ,size :n-channels ,nch :sample-rate ,sr :smpl-type ,type
+                              :buffer (make-om-sound-buffer-GC :ptr (allocate-split-buffer ,size ,nch ,type) :nch ,nch))))
+     ,@body
+     
+     ,snd))
+
+(defmacro write-in-sound (snd chan pos value)
+  `(setf (fli:dereference 
+          (fli:dereference (oa::om-pointer-ptr (buffer ,snd)) :index ,chan :type :pointer) 
+          :index ,pos :type (smpl-type ,snd))
+         ,value)
+  )
+
+(defmacro read-in-sound (snd chan pos)
+  `(fli:dereference 
+    (fli:dereference (oa::om-pointer-ptr (buffer ,snd)) :index ,chan :type :pointer) 
+    :index ,pos :type (smpl-type ,snd)))
+
+
 ;;;===========================
 ;;; TIME MARKERS
 ;;;===========================
