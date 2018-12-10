@@ -36,3 +36,6 @@ codesign-om7
 VERSION
 
 *.sublime-*
+
+Gemfile.lock
+_site/**
