@@ -164,7 +164,26 @@
 
 
 
-
+;;;; MESURE BARS !!
+(defmethod score-object-mini-view ((self voice) x-u y-u w h staff fontsize)
+  
+  (when (chords self)
+    
+    (let* ((unit (font-size-to-unit fontsize))
+           (shift-x-u 7) ;;  
+           (w-u (- (/ w unit) shift-x-u 2));; +1 for margin each side 
+           (x-ratio (/ w-u (get-obj-dur self))))
+    
+      (loop for m in (cdr (inside self)) 
+            do (let* ((begin (beat-to-time (symbolic-date m) (tempo self))))
+                 (draw-measure-bar (* (* begin x-ratio) unit) fontsize staff)))
+      
+      (loop for chord in (chords self) do
+            (draw-chord (notes chord) 
+                        (+ shift-x-u (* (date chord) x-ratio)) 
+                        y-u 
+                        w h fontsize :scale nil :staff staff)
+            ))))
 
 
 

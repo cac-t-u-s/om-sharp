@@ -235,10 +235,16 @@
     
     ;;; NOTE: so far we don't build/update a bounding-box for the chord-seq itself (might be useful in POLY)..
 
-    (loop for m in (inside object) 
-          do (let* ((begin (beat-to-time (symbolic-date m) (tempo object)))
+    (let ((on-screen t))
+      (loop for m in (cdr (inside object)) 
+            for i = 1 then (+ i 1)
+            while on-screen
+            do (let* ((begin (beat-to-time (symbolic-date m) (tempo object)))
                     (x (time-to-pixel view begin)))
-               (draw-measure-bar x font-size staff))) 
+               (when (> x 0)
+                 (if (> x (w view)) (setf on-screen nil)
+                   (draw-measure-bar x font-size staff)))
+               )))
     
     (loop for chord in (chords object) do
           (setf 
