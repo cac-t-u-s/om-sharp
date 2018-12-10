@@ -38,4 +38,4 @@ VERSION
 *.sublime-*
 
 Gemfile.lock
-_site/**
+**/_site/**
