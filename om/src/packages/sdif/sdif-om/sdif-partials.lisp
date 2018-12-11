@@ -181,7 +181,7 @@ Internally calls and formats data from GetSDIFChords.
 ;;; WRITE...
 ;;;============================================
 
-(defun make-1TRC-frames (partials &optioanl separate-streams)
+(defun make-1TRC-frames (partials &optional separate-streams)
   (let ((frames 
          (sort 
           (loop for partial in (sort partials '< :key #'(lambda (p) (car (partial-t-list p)))) 
@@ -303,20 +303,23 @@ SDIF partials are resampled in synchronous frames at <frame-rate>
         ))))
 
 
-#|
+;;;==========================================
+;;; CHORD-SEQ
+;;;==========================================
 
-
+;;; returns list of (date ((id1 freq vel 0) (....))) for begins
+;;; and (date (id1 id2 ...)) for ends
 (defmethod! chordseq-to-datalist ((self chord-seq))
   (let* ((ind -1)
          (chord-data nil)
          (enddata nil)
          newendlist)
-    ;;; recup les donnees
+    ;;; recup data
     (setf chord-data 
           (loop for chord in (inside self) 
-                collect (list (offset->ms chord)
+                collect (list (date chord)
                               (loop for note in (inside chord) 
-                                    do (pushr (list (+ (offset->ms chord) (dur note)) (incf ind)) enddata)
+                                    do (pushr (list (+ (date chord) (dur note)) (incf ind)) enddata)
                                     collect (list ind (mc->f (midic note)) (/ (vel note) 1270.0) 0)))))
     ;;; mettre tous les end simulatnes dans une meme frame
     (setf enddata (sort enddata '< :key 'car))
@@ -328,59 +331,52 @@ SDIF partials are resampled in synchronous frames at <frame-rate>
     (sort (append chord-data newendlist) '< :key 'car)
     ))
 
-(defun write-mrk-frame (fileptr data) 
-   (let (beg end)
-     (loop for elt in (second data) do 
-           (if (consp elt) 
-             (pushr elt beg)
-             (pushr elt end)))
-  (let* ((time (/ (car data) 1000.0))
-         (datatype 4)
-         (numlinesb (length beg))
-         (numlinese (length end))
-         (framesize (+ 32 (calc-pad (* 4 datatype numlinesb)) (calc-pad (* 1 datatype (+ numlinesb numlinese)))))
-         (beg-values (om-make-pointer (* 1 datatype numlinesb)))
-         (trc-values (om-make-pointer (* 4 datatype numlinesb)))
-         (end-values (om-make-pointer (* 1 datatype numlinese)))
-         (nbmat 0))
-    (when beg (setf nbmat (+ nbmat 2))) 
-    (when end (setf nbmat (+ nbmat 1)))
-    (sdif::SdifFSetCurrFrameHeader fileptr (sdif::SdifStringToSignature  "1MRK") framesize nbmat 0 (coerce time 'double-float))
-    (sdif::SdifFWriteFrameHeader fileptr)
-    (loop for i from 0 to (- numlinesb 1)
-          for note in beg do
-          (om-write-ptr beg-values (* i datatype) :float (coerce (car note) 'single-float))
-          (om-write-ptr trc-values (* (* i 4) datatype) :float (coerce (car note) 'single-float) )
-          (om-write-ptr trc-values (* (+ (* i 4) 1) datatype) :float (coerce (second note) 'single-float) )
-          (om-write-ptr trc-values (* (+ (* i 4) 2) datatype) :float (coerce (third note) 'single-float) )
-          (om-write-ptr trc-values (* (+ (* i 4) 3) datatype) :float (coerce (fourth note) 'single-float) )
-          )
-    (loop for i from 0 to (- numlinese 1)
-          for note in end do
-          (om-write-ptr end-values (* i datatype) :float (coerce note 'single-float))
-          )
-    (when beg
-      (sdif::SdifFWriteMatrix fileptr (sdif::SdifStringToSignature "1BEG") datatype numlinesb 1 beg-values)
-      (sdif::SdifFWriteMatrix fileptr (sdif::SdifStringToSignature "1TRC") datatype numlinesb 4 trc-values))
-    (when end
-      (sdif::SdifFWriteMatrix fileptr (sdif::SdifStringToSignature "1END") datatype numlinese 1 end-values))
-    (om-free-pointer trc-values)
-    (om-free-pointer beg-values)
-    (om-free-pointer end-values)
-  )))
-     
- 
 
+     
 (defun make-1MRK-frames (datalist)
   (let ((last-time nil)
-        (frameslist nil))
+        (framesdatalist nil))
+    
+    ;;; group data in same frames
     (loop for data in datalist do
           (if (and last-time (= (car data) last-time))
-            (setf (cadr (last-elem frameslist))
-                  (append (cadr (last-elem frameslist)) (cadr data)))
-            (pushr data frameslist))
+            (setf (cadr (last-elem framesdatalist))
+                  (append (cadr (last-elem framesdatalist)) (cadr data)))
+            (pushr data framesdatalist))
           (setf last-time (car data)))
-    frameslist
+    
+
+    (loop for framedata in framesdatalist collect 
+        
+          (let ((date (/ (car framedata) 1000.0))
+                (begnotes nil) begmat
+                (endnotes nil) endmat)
+            
+            (loop for elt in (second framedata) do 
+                  (if (consp elt) 
+                      (pushr elt begnotes)
+                    (pushr elt endnotes)))
+            
+            (when begnotes
+              (setf begmat 
+                    (list (om-init-instance
+                           (make-instance 'SDIFMatrix :matrixtype "1BEG" 
+                                          :data  (list (mapcar 'car begnotes))))
+                           
+                          (om-init-instance
+                           (make-instance 'SDIFMatrix :matrixtype "1TRC" 
+                                          :data  (mat-trans begnotes)))
+                          )))
+            
+            (when endnotes
+              (setf endmat (list (om-init-instance
+                                  (make-instance 'SDIFMatrix :matrixtype "1END" 
+                                                 :data  (list endnotes))))))
+
+            (make-instance 'SDIFFrame :frametime date :streamid 0 
+                           :frametype "1MRK"
+                           :lmatrices (append begmat endmat))
+            ))
     ))
 
 
@@ -391,27 +387,33 @@ SDIF partials are resampled in synchronous frames at <frame-rate>
 
 Data is stored as a sequence of 1MRK frames containing 1BEG and 1END matrices for begin and end times, and 1TRC matrices for chords values.
 "
-  (let* ((error nil) time outfile
-         (out-path (cond ((pathnamep outpath) outpath)
-                         ((stringp outpath) (outfile outpath))
-                         (t (om-choose-new-file-dialog)))))
+  
+  (let ((out-path (cond ((pathnamep outpath) outpath)
+                        ((stringp outpath) (outfile outpath))
+                        (t (om-choose-new-file-dialog)))))
     (when out-path
-      (setf outfile (sdif-open-file (om-path2cmdpath out-path) 1))
-      (sdif::SdifFWriteGeneralHeader outfile)
-      (write-nvt-tables outfile (list (default-om-NVT)))
-      (write-sdif-types outfile  "{1FTD 1MRK {1TRC chord_seq_partials;}}")
-      (sdif::SdifFWriteAllASCIIChunks outfile)
-      (let ((datalist (chordseq-to-datalist self)))
-        (setf datalist (make-1MRK-frames datalist)) 
-        (loop for data in datalist
-              while (not error) do
-          (write-mrk-frame outfile data)
-          ))
-  (sdif-close-file outfile)
-  (probe-file out-path)
-  )))
+      (let ((sdiffileptr (sdif::sdif-open-file out-path sdif::eWriteFile)))
+        (if sdiffileptr
+            (unwind-protect 
+                (progn (sdif::SdifFWriteGeneralHeader sdiffileptr)
+                  (sdif-write (default-om-NVT) sdiffileptr)
+                  (sdif-write-types sdiffileptr 
+                                    (list (make-instance 'sdiftype :struct 'F :signature "1MRK" 
+                                                         :description '(("1BEG" "begin markers") ("1TRC" "sinusoidal tracks") ("1END" "end markers")))))
+                  (sdif::SdifFWriteAllASCIIChunks sdiffileptr)
+                  
+                  (let ((datalist (chordseq-to-datalist self)))
+                    (loop for frame in (make-1MRK-frames datalist) do
+                          (sdif-write frame sdiffileptr))
+                    ))
+              
+              (sdif::SDIFFClose sdiffileptr))
+          (om-beep-msg "Could not open file for writing: ~A" out-path))
+        (probe-file out-path)
+        ))))
 
 
 
 
-|#
+
+

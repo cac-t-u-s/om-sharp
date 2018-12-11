@@ -136,7 +136,6 @@
 ;;;======================================
 ;;; GENERAL / TOP-LEVEL
 ;;;======================================
-
 (defmethod* write-sdif-file ((frames list) &key (outpath "out.sdif") types nvts)
   (let ((out-path (cond ((pathnamep outpath) outpath)
                          ((stringp outpath) (outfile outpath))
@@ -161,5 +160,6 @@
           (om-beep-msg "Could not open file for writing: ~A" out-path))
         (probe-file out-path)
         ))))
+
 
 
