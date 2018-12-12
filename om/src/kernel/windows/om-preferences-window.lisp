@@ -128,7 +128,7 @@
                                 :size (omp 200 20)
                                 :font (om-def-font :font1)
                                 :after-fun #'(lambda (item)
-                                                (setf (pref-item-value pref-item) (text item))
+                                                (setf (pref-item-value pref-item) (pathname (text item)))
                                                 (maybe-apply-pref-item-after-fun pref-item)
                                                 (om-set-fg-color 
                                                  item 
@@ -146,11 +146,11 @@
                                                                               :position (omp 0 0)
                                                                               :icon :folder :icon-pushed :folder-pushed
                                                                               :action #'(lambda (button) (declare (ignore button))
-                                                                   (let ((dir (om-choose-directory-dialog :directory *last-open-dir*)))
-                                                                     (when dir
-                                                                       (setf *last-open-dir* dir)
-                                                                       (setf (pref-item-value pref-item) (namestring dir))
-                                                                       (setf (text textview) (pref-item-value pref-item))
+                                                                   (let ((file (om-choose-file-dialog 
+                                                                                :directory (om-make-pathname :directory (pref-item-value pref-item)))))
+                                                                     (when file
+                                                                       (setf (pref-item-value pref-item) file)
+                                                                       (setf (text textview) (namestring (pref-item-value pref-item)))
                                                                        (maybe-apply-pref-item-after-fun pref-item)
                                                                        (om-set-fg-color 
                                                                         textview 
