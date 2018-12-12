@@ -186,6 +186,8 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
   (setf (slot-value self 'y-points) NIL))
 
 
+
+
 (defmethod (setf x-points) ((x-points t) (self bpf))
   (set-bpf-points self :x x-points)
   x-points)
@@ -207,7 +209,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
   (decimals self))
 
 (defmethod make-points-from-lists ((listx list) (listy list) &optional (decimals 0) (mkpoint 'om-make-point))
-  (when (or listx listy)
+  (when (or listx listy) 
     (if (and (list-subtypep listx 'number) (list-subtypep listy 'number))
         (let* ((listx (mapcar (truncate-function decimals) (or listx '(0 1))))
                (listy (mapcar (truncate-function decimals) (or listy '(0 1))))
@@ -450,7 +452,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 (defmethod get-cache-display-for-draw ((self bpf)) 
   (list 
    (nice-bpf-range self)
-   (if (< (length (point-pairs self)) 500) 
+   (if (<= (length (point-pairs self)) 500) 
        (point-pairs self)
      ;(reduce-n-points (point-pairs self) 1000 100)
      ;(min-max-points (point-pairs self) 1000)

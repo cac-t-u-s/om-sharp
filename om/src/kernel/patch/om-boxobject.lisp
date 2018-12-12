@@ -258,14 +258,13 @@
                                     when (and (find (symbol-name (car arg)) class-slots-names :key 'symbol-name :test 'string-equal)
                                               (not (member (car arg) supplied-initargs :key 'car)))
                                     collect (list (symbol-name (car arg)) (cadr arg)))))
-    ;(print args)
-    ;(print supplied-initargs)
-    ;(print (list classname supplied-other-args))    
+    
     (om-init-instance 
      (let ((obj (apply 'make-instance (cons classname (reduce 'append supplied-initargs)))))
        (set-value-slots obj supplied-other-args)
        obj)
-     initargs)))
+     initargs)
+    ))
 
 
 ;;; SPECIAL FOR BOXEDITCALL: 
