@@ -163,7 +163,6 @@ For easier browsing it is recommended that a package do not contain at the same 
 (defmethod AddFun2Pack ((funname string) inPackage)
   (AddFun2Pack (read-from-string funname) inPackage))
 
-
 (defmethod AddSpecialItem2Pack ((item symbol) inPackage)
   (unless (find item (special-items inPackage) :test 'equal)
     (export-symbol-from-om item)
@@ -173,9 +172,8 @@ For easier browsing it is recommended that a package do not contain at the same 
 (defmethod special-item-reference-class ((item t)) nil)
 
 
-
 (defmethod AddFun2Pack ((funname list) inPackage)
-   (mapcar #'(lambda (fun) (AddGenFun2Pack fun inPackage)) funname))
+   (mapcar #'(lambda (fun) (AddFun2Pack fun inPackage)) funname))
 
 ; Creates a package tree form a list of strings (names) and symbols, with pack as root
 (defun omNG-make-package  (package-name &key doc container-pack subpackages functions classes special-symbols)
