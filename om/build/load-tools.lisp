@@ -32,7 +32,7 @@
        :directory (append (pathname-directory ref) (butlast decoded-path))
        :name (car (last decoded-path))))))
 
-(defun compile&load (file &optional (verbose t))
+(defun compile&load (file &optional (verbose t) (force-compile nil))
   (let* ((lisp-file (truename (if (pathname-type file) file (concatenate 'string (namestring file) ".lisp"))))
           (fasl-file (probe-file (make-pathname :directory (pathname-directory lisp-file)
                                                 :device (pathname-device lisp-file)
@@ -42,7 +42,7 @@
                                    (not (file-write-date fasl-file))
                                    (> (file-write-date lisp-file) (file-write-date fasl-file))))))
      (when (and (not (member :om-deliver *features*))
-                (or (not fasl-file) fasl-outofdate))
+                (or force-compile (not fasl-file) fasl-outofdate))
        (compile-file file :verbose verbose)
        (setf fasl-outofdate nil))
      (if fasl-outofdate

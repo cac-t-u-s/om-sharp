@@ -154,8 +154,7 @@
 
 
 (defmethod load-om-library ((lib OMLib))   
-  (let ((lib-file (om-make-pathname :directory (mypathname lib) :name (name lib) :type "omlib"))
-        )                                      
+  (let ((lib-file (om-make-pathname :directory (mypathname lib) :name (name lib) :type "omlib")))                                      
     (if (probe-file lib-file)
       (handler-bind ((error #'(lambda (c)
                                 (progn 
@@ -190,12 +189,15 @@
            (mapc #'(lambda (f)
                      (let ;((path (merge-pathnames (omng-load f) (mypathname lib)))) 
                          ((path (omng-load f)))
-                       (compile&load (namestring path))))
+                       (compile&load (namestring path) t t)))
                  files)
            )
           ;;; set packages
           (mapc #'(lambda (class) (addclass2pack class lib)) (find-values-in-prop-list symbols :classes))
-          (mapc #'(lambda (fun) (addFun2Pack fun lib)) (find-values-in-prop-list symbols :functions))
+          (mapc #'(lambda (fun) 
+                    (addFun2Pack fun lib)
+                    ) 
+                (find-values-in-prop-list symbols :functions))
           (mapc #'(lambda (pk) 
                     (let ((new-pack (omng-load pk)))
                       (addpackage2pack new-pack lib)))
