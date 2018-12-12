@@ -182,13 +182,15 @@ Press 'space' to play/stop the sound file.
 (defmethod get-sound ((self om-internal-sound)) 
   (om-init-instance (clone-object self (make-instance 'sound)) nil))
 
+
+;; `((:file-pathname ,self) (:access-from-file t))
 (defmethod get-sound ((self pathname)) 
   (when (probe-file self) 
-    (om-init-instance 
-     (make-instance 'sound ::file-pathname self) 
-     ;; `((:file-pathname ,self) (:access-from-file t))
-     )))
-
+    (let ((snd (make-instance 'sound)))
+      (setf (file-pathname snd) self)
+      (om-init-instance snd)
+      )))
+ 
 (defmethod get-sound ((self string)) (get-sound (pathname self)))
 
 
