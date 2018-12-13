@@ -29,8 +29,8 @@
 
 (export '(
           om-get-sound-info
-          om-get-sound-buffer
-          om-free-sound-buffer
+          om-get-audio-buffer
+          om-free-audio-buffer
           om-save-buffer-in-file
           ) :audio-io)
 
@@ -44,15 +44,15 @@
 ;  #+cocoa (external-format::decode-external-string (external-format::encode-lisp-string (namestring path) :utf-8) :latin-1)
 ;  #-cocoa (namestring path))
 
-; RETURNS: format n-channels sample-rate sample-size size skip
+; RETURNS: format n-channels sample-rate sample-size size
 (defun om-get-sound-info (path)
   (juce::juce-get-sound-info (convert-filename-encoding path)))
 
 ; RETURNS: buffer format n-channels sample-rate sample-size size skip
-(defun om-get-sound-buffer (path &optional (type :float) (interleaved nil))
+(defun om-get-audio-buffer (path &optional (type :float) (interleaved nil))
   (juce::juce-get-sound-buffer (convert-filename-encoding path) type))
 
-(defun om-free-sound-buffer (buffer nch)
+(defun om-free-audio-buffer (buffer nch)
   (when nch (dotimes (c nch) (fli::free-foreign-object (fli:dereference buffer :type :pointer :index c))))
   (fli::free-foreign-object buffer))
 
