@@ -169,6 +169,7 @@ Press 'space' to play/stop the sound file.
         (string+ (pathname-name (file-pathname self)) "." (pathname-type (file-pathname self)))
       (pathname-name (file-pathname self))))) 
 
+
 ;;;===========================
 ;;; UTILS
 ;;;===========================
@@ -178,7 +179,6 @@ Press 'space' to play/stop the sound file.
 ; spat-object (sources)
 ; merge-sounds
 ; with-sound-buffer
-
 
 ;;; called when, for some reason, we want a full-featured sound (with info etc.)
 (defmethod get-sound ((self sound)) self)
@@ -198,7 +198,6 @@ Press 'space' to play/stop the sound file.
  
 (defmethod get-sound ((self string)) (get-sound (pathname self)))
 
-
 (defmethod get-sound-name ((self pathname)) (pathname-name self))
 (defmethod get-sound-name ((self string)) self)
 (defmethod get-sound-name ((self sound)) (if (file-pathname self) (pathname-name (file-pathname self)) "sound"))
@@ -209,6 +208,12 @@ Press 'space' to play/stop the sound file.
 (defmethod get-sound-file ((self sound)) (get-sound-file (file-pathname self)))
 (defmethod get-sound-file ((self t)) nil)
 
+
+;;; cross-version API used in libs etc.
+(defmethod om-sound-file-name ((self sound)) (file-pathname self))
+(defmethod om-sound-sample-rate ((self sound)) (sample-rate self))
+(defmethod om-sound-n-samples ((self sound)) (n-samples self))
+(defmethod om-sound-n-channels ((self sound)) (n-channels self))
 
 
 ;;; UTILS FOR SYNTHESIS AND PROCESSING
