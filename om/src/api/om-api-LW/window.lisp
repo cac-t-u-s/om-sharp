@@ -411,7 +411,7 @@
    ((subtypep class 'om-no-border-win) '(:borderless :shadowed :always-on-top))
    ((subtypep class 'om-window) '(:motion-events-without-focus))
    ((subtypep class 'om-textured-dialog) '(:textured-background))
-   ((subtypep class 'om-dialog) '())
+   ((subtypep class 'om-dialog) '(:no-geometry-animation))
    ))
 
 ;(defclass om-default-view-layout (om-view) ()

@@ -112,6 +112,8 @@
    
 ;;; hack
 ;;; todo: check that this section does not already exist
+;;; it is useful to explicitely specify the sub-items of a section in order to ensure the display order 
+;;; in case things are loaded in a different order.
 (defun add-preference-section (module-id name &optional doc sub-items)
   (let* ((module (find-pref-module module-id))
          (existing-item (find name (remove-if-not 
@@ -123,6 +125,8 @@
       (setf (pref-module-items module)
             (append (pref-module-items module)
                     (list (make-pref-item :id :title :name name :type :title :visible t :value sub-items :doc doc)))))))
+
+
 
 ;;; will use the preference section's sub-items to sort
 (defun order-preference-module (module)

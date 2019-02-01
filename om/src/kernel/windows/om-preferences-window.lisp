@@ -80,13 +80,14 @@
 (defmethod make-preference-item ((type (eql :folder)) pref-item) 
   (let* ((font (om-def-font :font1))
          (curr-value (maybe-eval-pref-item-value pref-item))
+         (str (if curr-value (format nil "~A" curr-value) ""))
          (textview (om-make-view 'click-and-edit-text 
-                                :text (if curr-value (format nil "~A" curr-value) "")
+                                :text str
                                 :resizable :w
-                                :bg-color (om-def-color :window)
+                                :bg-color (om-def-color :white)
                                 ;:fg-color (if (probe-file curr-value) (om-def-color :black) (om-def-color :red))
                                 :border nil
-                                :size (omp (+ 20 (om-string-size (format nil "~A" curr-value) font)) 20)
+                                :size (omp (+ 20 (om-string-size str font)) 20)
                                 :font font
                                 :after-fun #'(lambda (item)
                                                (let ((val (if (equal (text item) "") nil (text item))))
@@ -119,14 +120,15 @@
 
 (defmethod make-preference-item ((type (eql :file)) pref-item) 
   (let* ((curr-value (maybe-eval-pref-item-value pref-item))
+         (font (om-def-font :font1))
          (textview (om-make-view 'click-and-edit-text 
                                 :text (format nil "~A" curr-value)
                                 :resizable :w
-                                :bg-color (om-def-color :window)
+                                :bg-color (om-def-color :white)
                                 :fg-color (if (probe-file curr-value) (om-def-color :black) (om-def-color :red))
                                 :border nil
-                                :size (omp 200 20)
-                                :font (om-def-font :font1)
+                                :size (omp (list :string (format nil "  ~A  " curr-value)) 20)
+                                :font font
                                 :after-fun #'(lambda (item)
                                                 (setf (pref-item-value pref-item) (pathname (text item)))
                                                 (maybe-apply-pref-item-after-fun pref-item)
@@ -244,7 +246,7 @@
 
 
 (defmethod make-preference-item ((type (eql :action)) pref-item)
-  (let ((buttonstr "-")) 
+  (let ((buttonstr "Open")) 
     (om-make-di 'om-button 
                 :resizable :w
                 :focus nil :default nil
