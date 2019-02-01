@@ -79,7 +79,7 @@
 ;;;=============================
 
 (defun om-print (obj &optional prompt)  
-  (format *om-stream* "~A :: ~A~%" (or prompt "") obj)
+  (format *om-stream* "~&~A :: ~A~%" (or prompt "") obj)
   obj)
 
 (defun om-print-format (format-string &optional args prompt)  
