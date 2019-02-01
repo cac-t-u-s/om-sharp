@@ -130,7 +130,9 @@
    :post-action #'(lambda ()
                     (prompt-on-listeners "Ready")))
   
-  (om-invalidate-view editor-view))
+  (om-invalidate-view editor-view)
+  (update-inspector-for-editor (editor editor-view)))
+
 
 (defun output-eval-command (out-area)
   (let* ((frame (frame out-area))
@@ -158,7 +160,7 @@
                       (om-process-wait 1000)
                       (prompt-on-listeners "Ready")))
   ;; (abort)
-  )
+  NIL)
 
 
 (defmethod eval-box ((self ombox))

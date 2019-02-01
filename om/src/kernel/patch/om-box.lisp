@@ -85,7 +85,6 @@
                (:group-id "Group/Track" (:none 1 2 3 4 5 6 7 8) group-id)
                )))
 
-
 (defmethod box-draw-color ((box OMBox)) 
   (if (color-? (color box))
       (color-color (color box))

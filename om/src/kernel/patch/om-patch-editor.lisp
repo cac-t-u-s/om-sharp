@@ -1201,8 +1201,13 @@
     (set-g-component editor :lisp-code lisp-pane)
                         
     (om-make-layout 
-     'om-column-layout :ratios '(1 nil) :delta 10
+     'om-column-layout :ratios '(nil 1 nil) :delta 10
      :subviews (list 
+                
+                (om-make-di 'om-multi-text :size (om-make-point nil 36) 
+                            :text "Add one or more output(s) (OUT) to get the corresponding Lisp code..."
+                            :fg-color (om-def-color :dark-gray)
+                            :font (om-def-font :font1))
                 
                 ;; main pane
                 ;; om-simple-layout allows to st a background color
@@ -1323,10 +1328,10 @@
               (append 
                (cons 
                 (om-make-di 'om-simple-text :size (om-make-point nil 20) 
-                            :fg-color (om-def-color :dark-gray)
+                            ;:fg-color (om-def-color :dark-gray)
                             :text (object-name-in-inspector object)
                             :focus t  ;; prevents focus on other items :)
-                            :font (om-def-font :font3b))
+                            :font (om-def-font :font3))
                   
                 (when t ;object 
                   (list 
@@ -1373,16 +1378,14 @@
              
                (when (get-documentation object)
                  (list
-                
-                ;(om-make-di 'om-simple-text :size (om-make-point nil 18) 
-                ;            :text "----------documentation"
-                ;            :font (om-def-font :font2)
-                ;            :fg-color (om-def-color :dark-gray))
+                    
                   :separator 
                 
                   (let ((doc (get-documentation object)))
-                    (om-make-di 'om-multi-text :size (om-make-point nil nil) ; (* 40 (length (string-lines-to-list doc))) 
-                                :text doc
+                    
+                    (om-make-di 'om-multi-text :size (om-make-point nil (* 24 (1+ (length (string-lines-to-list doc)))))
+                                :text (format nil "~%~A" doc)
+                                :fg-color (om-def-color :dark-gray)
                                 :font (om-def-font :font1)))
                   
                   ))
@@ -1391,14 +1394,21 @@
 
            ;;; else: no object
            (om-make-layout
-            'om-simple-layout
+            'om-column-layout :align :bottom
             :subviews 
             (list 
-             (om-make-di 'om-simple-text :size (om-make-point 225 20) 
-                         :text "[no selection]"
+             (om-make-di 'om-simple-text :size (om-make-point 275 20) 
+                         :text "--"
                          :fg-color (om-def-color :dark-gray)
                          :focus t  ;; prevents focus on other items :)
-                         :font (om-def-font :font3b))
+                         :font (om-def-font :font3))
+             
+             :separator
+            
+             (om-make-di 'om-multi-text :size (om-make-point nil 160) ; (* 40 (length (string-lines-to-list doc))) 
+                                :text *patch-inspector-help-text*
+                                :fg-color (om-def-color :dark-gray)
+                                :font (om-def-font :font1))
              
              )))
          ))
@@ -1410,6 +1420,17 @@
     (om-update-layout (window (editor self))))
   
   )
+
+
+
+(defparameter *patch-inspector-help-text* "
+This is a patch editor window.
+  
+Double-click or type 'N' to enter a new box by its name. Use the down-arrow key to pop-up auto-completed names after typing the first characters.
+
+The functiion/class reference accessible from the \"Help\" menu will provide you a liste of predefined functions.
+") 
+
 
 
 (defmethod update-inspector-for-editor ((self patch-editor) &optional obj)
@@ -1543,7 +1564,7 @@
                                                    (case (editor-window-config editor)
                                                      (:lisp-code "Lisp code")
                                                      (:listener "listener / system out")
-                                                     (:inspector "inspector"))
+                                                     (:inspector "info and properties"))
                                                    :fg-color (om-def-color :dark-gray))
                            :separator
                            

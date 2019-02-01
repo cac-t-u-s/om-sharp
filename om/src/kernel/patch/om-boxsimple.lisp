@@ -30,7 +30,6 @@
 (defmethod get-properties-list ((self OMValueBox))
   (hide-properties (call-next-method) '(:group-id :lambda)))
 
-
 (defmethod create-box-outputs ((self OMValueBox))
   (list (make-instance 'box-output :box self :name "value")))
 
@@ -44,8 +43,10 @@
 (defmethod omNG-make-new-boxcall ((reference (eql 'value)) pos &optional init-args)
   (let* ((box (make-instance 'OMValueBox
                             :name "value box"
-                            :reference (type-of init-args))))
-    ;(print (list "new box" reference))
+                            :reference (type-of init-args)
+                            ;;; by default these boxes are white..
+                            :color (make-color-or-nil :color (om-def-color :white) :t-or-nil t)
+                            )))
     (setf (value box) (list init-args)
           (box-x box) (om-point-x pos)
           (box-y box) (om-point-y pos)
@@ -73,6 +74,15 @@
 
 (defmethod maximum-size ((self OMValueBox))
   (omp 1000 1000))
+
+(defmethod object-name-in-inspector ((self OMValueBox)) "value box")
+
+(defmethod get-documentation ((self OMValueBox)) 
+  (format 
+   nil 
+   "Current value of type ~A.~%~%Use +/- to add/remove inputs.~%Double-click to edit contents." 
+   (string-upcase (reference self))))
+
 
 (defmethod minimum-size ((self OMValueBox))
   (multiple-value-bind (tw th)
