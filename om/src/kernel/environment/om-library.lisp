@@ -189,7 +189,7 @@
            (mapc #'(lambda (f)
                      (let ;((path (merge-pathnames (omng-load f) (mypathname lib)))) 
                          ((path (omng-load f)))
-                       (compile&load (namestring path) t t)))
+                       (compile&load (namestring path) t nil)))
                  files)
            )
           ;;; set packages
@@ -207,12 +207,13 @@
           
           (register-images (lib-icons-folder lib))
           (setf (loaded? lib) t)
-          (update-preference-window-module :libraries) ;;; update the window is opened    
+          (update-preference-window-module :libraries) ;;; update if the window is opened    
+          (update-preference-window-module :externals) ;;; update if the window is opened    
 
           (om-print-format "~%==============================================")
           (om-print-format "~A ~A" (list (name lib) (or (version lib) "")))
-          (when (doc lib) (om-print-format "~%~A" (list (doc lib))))
-          (when (author lib) (om-print-format "~%~A" (list (author lib))))
+          (when (doc lib) (om-print-format "~&~A" (list (doc lib))))
+          (when (author lib) (om-print-format "~&~A" (list (author lib))))
           (om-print-format "==============================================")
           
           lib-file))
@@ -279,21 +280,35 @@
 
 (defvar *required-libs-in-current-patch* nil)
 
+(defvar *lib-aliases* nil)
+
+(defun add-lib-alias (real-name alias-name)
+  (let ((entry (find alias-name *lib-aliases* :key 'car :test 'string-equal)))
+    (if entry (setf (cadr entry) real-name)
+      (push (list alias-name real-name) *lib-aliases*))))
+
+;;; when the name of a lib changes... :)
+(defun real-library-name (name) 
+  (or (cadr (find name *lib-aliases* :test 'string-equal :key 'car)) name))
+       
 (defmethod om-load-from-id :before ((id (eql :box)) data)
   (let ((library-name (find-value-in-kv-list data :library)))
-    (when (and library-name ;;; the box comes from a library
-               (not (find library-name *required-libs-in-current-patch* :test 'string-equal))) ;;; situation already handled (for this patch): do not repeat 
-      (push library-name *required-libs-in-current-patch*)
-      (let ((the-library (find-library library-name)))
-        (if the-library
-            (unless (loaded? the-library)
-              (when (or (get-pref-value :libraries :auto-load)
-                        (let ((reply (om-y-n-cancel-dialog (format nil "Some element(s) require the library '~A'.~%~%Do you want to load it ?" library-name))))
+    (when library-name ;;; the box comes from a library
+         
+      (let ((real-name (real-library-name library-name)))
+        
+        (when (not (find real-name *required-libs-in-current-patch* :test 'string-equal)) ;;; situation already handled (for this patch): do not repeat 
+          (push real-name *required-libs-in-current-patch*)
+          (let ((the-library (find-library real-name)))
+            (if the-library
+                (unless (loaded? the-library)
+                  (when (or (get-pref-value :libraries :auto-load)
+                            (let ((reply (om-y-n-cancel-dialog (format nil "Some element(s) require the library '~A'.~%~%Do you want to load it ?" real-name))))
                           (if (equal reply :cancel) (abort) reply)))
-                (load-om-library the-library)))
-          (om-message-dialog (format nil "Some element(s) require the unknow library: '~A'.~%~%These boxes will be temporarily disabled." library-name))
-          )))
-    ))
+                    (load-om-library the-library)))
+              (om-message-dialog (format nil "Some element(s) require the unknow library: '~A'.~%~%These boxes will be temporarily disabled." real-name))
+              )))
+        ))))
 
 
 ;;;=================================

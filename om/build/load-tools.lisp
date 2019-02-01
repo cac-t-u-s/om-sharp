@@ -57,7 +57,7 @@
                                                       (load file :verbose verbose)
                                                       (throw 'faslerror t)
                                                       ))))
-           (print file)
+           ;; (print file)
            (load file :verbose verbose)
            )))))
 
