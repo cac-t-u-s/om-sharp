@@ -66,7 +66,7 @@
 
 (defmethod draw-mini-view ((self score-object) box x y w h &optional time)
   
-  ;(om-draw-rect x y w h :fill t :color (om-def-color :white))
+  (om-draw-rect x y w h :fill t :color (om-def-color :white))
 
   (let ((fontsize 18)
         (staff (get-edit-param box :staff)))

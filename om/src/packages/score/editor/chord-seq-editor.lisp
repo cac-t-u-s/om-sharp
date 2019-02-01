@@ -19,7 +19,7 @@
 (in-package :om)
 
 ;;;======================================================================== 
-;;; CHORD-SEQ EDITOR
+;;; CHORD-SEQ EDITOR / GENERAL SCORE EDITOR
 ;;;========================================================================
 
 (defclass chord-seq-editor (data-stream-editor score-editor) ())
@@ -102,7 +102,6 @@
   (init-editor-window self))
 
 
-
 ;;; called at add-click
 (defmethod get-chord-from-editor-click ((self chord-seq-editor) position) 
  
@@ -124,8 +123,6 @@
        new-chord)
      
      )))
-
-
 
 
 ;;;=========================
@@ -191,6 +188,8 @@
 
 (defmethod draw-sequence ((editor chord-seq-editor) (object t) view unit) nil)
 
+
+;;; redefined this for other objects
 (defmethod draw-sequence ((editor chord-seq-editor) (object chord-seq) view unit)
 
   (let ((font-size (editor-get-edit-param editor :font-size))
@@ -224,47 +223,5 @@
           )))
 
 
-(defmethod draw-sequence ((editor chord-seq-editor) (object voice) view unit)
 
-  (let ((font-size (editor-get-edit-param editor :font-size))
-        (staff (editor-get-edit-param editor :staff))
-        (chan (editor-get-edit-param editor :channel-display))
-        (vel (editor-get-edit-param editor :velocity-display))
-        (port (editor-get-edit-param editor :port-display))
-        (dur (editor-get-edit-param editor :duration-display)))
-    
-    ;;; NOTE: so far we don't build/update a bounding-box for the chord-seq itself (might be useful in POLY)..
-
-    (let ((on-screen t))
-      (loop for m in (cdr (inside object)) 
-            for i = 1 then (+ i 1)
-            while on-screen
-            do (let* ((begin (beat-to-time (symbolic-date m) (tempo object)))
-                    (x (time-to-pixel view begin)))
-               (when (> x 0)
-                 (if (> x (w view)) (setf on-screen nil)
-                   (draw-measure-bar x font-size staff)))
-               )))
-    
-    (loop for chord in (chords object) do
-          (setf 
-           (b-box chord)
-           (draw-chord (inside chord) 
-                       (/ (time-to-pixel view (date chord)) unit)
-                       0 
-                       (w view) (h view) 
-                       font-size 
-                       :staff (editor-get-edit-param editor :staff)
-                       :draw-chans chan
-                       :draw-vels vel
-                       :draw-ports port
-                       :draw-durs dur
-                       :selection (if (find chord (selection editor)) T 
-                                    (selection editor))
-                       :build-b-boxes t
-                       ))
-          ;(draw-b-box chord)
-          ;(mapcar 'draw-b-box (inside chord))
-    
-          )))
 

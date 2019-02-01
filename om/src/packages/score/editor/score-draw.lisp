@@ -248,12 +248,38 @@
     (:fff (code-char #xE530))    
     (otherwise nil)))
 
-
 (defun velocity-char (val)
   (dynamics-char 
    (nth (position val '(20 40 55 60 85 100 115 127) :test '<)
         '(:ppp :pp :p :mp :mf :f :ff :fff))))
-  
+
+
+(defun note-head-char (symbol)
+  (case symbol
+    (:head-1/4 (code-char #xE0A4))
+    (:head-1/2 (code-char #xE0A3))
+    (:head-1 (code-char #xE0A2))
+    (:head-2 (code-char #xE0A1))
+    ;;(:head-4 (code-char #x????))
+    (:head-8 (code-char #xE0A0))  ;; not the right one, this is noteheadDoubleWhole
+    (otherwise (note-head-char :head-1/4))
+    ))
+    
+(defun rest-char (symbol)
+  (case symbol
+    (:rest-4 (code-char #xE4E1))
+    (:rest-2 (code-char #xE4E2))
+    (:rest-1 (code-char #xE4E3))
+    (:rest-1/2 (code-char #xE4E4))
+    (:rest-1/4 (code-char #xE4E5))
+    (:rest-1/8 (code-char #xE4E6))
+    (:rest-1/16 (code-char #xE4E7))
+    (:rest-1/32 (code-char #xE4E8))
+    (:rest-1/64 (code-char #xE4E9))
+    (:rest-1/128 (code-char #xE4EA))
+    (otherwise (rest-char :head-1/128))
+    ))
+
 
 ;;;==================
 ;;; DRAW
@@ -324,20 +350,20 @@
 ;;;=======================
 ;;; MESURE BARS
 ;;;=======================
-(defun draw-measure-bar (x fontsize staff)
+(defun draw-measure-bar (x y fontsize staff)
 
   (let* ((staff-elems (staff-split staff))
          (unit (font-size-to-unit fontsize)) 
-         (shift (calculate-staff-line-shift staff))
+         (shift (+ y (calculate-staff-line-shift staff)))
          (thinBarlineThickness (ceiling (* *thinBarLineThickness* unit))))
     
-    (om-draw-line (- x unit) (1- (line-to-ypos (car (staff-lines (car staff-elems))) shift unit))
-                  (- x unit) (1+ (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit))
+    (om-draw-line (* x unit) (+ -1 (line-to-ypos (car (staff-lines (car staff-elems))) shift unit))
+                  (* x unit) (+ 1 (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit))
                   :line thinBarlineThickness)
     ))
 
 ;;; more efficient: all bars at once
-(defun draw-measure-bars (x-list fontsize staff)
+(defun draw-measure-bars (x-list y fontsize staff)
 
   (let* ((staff-elems (staff-split staff))
          (unit (font-size-to-unit fontsize)) 
@@ -345,8 +371,8 @@
          (thinBarlineThickness (ceiling (* *thinBarLineThickness* unit))))
     
     (loop for x in x-list do
-          (om-draw-line x (1- (line-to-ypos (car (staff-lines (car staff-elems))) shift unit))
-                        x (1+ (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit))
+          (om-draw-line x (+ -1 (line-to-ypos (car (staff-lines (car staff-elems))) shift unit))
+                        x (+ y1 (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit))
                         :line thinBarlineThickness)
     )))
 
@@ -361,6 +387,8 @@
                 (b-box-w (b-box self)) (b-box-h (b-box self))
                 :style '(2 2)))
     
+
+
 (defun draw-chord (notes x y ; ref-position in score units
                          w h ; frame for drawing
                          fontsize 
@@ -473,7 +501,7 @@
            
            
          ;;; for the note-heads loop
-         (let* ((head-char (code-char #xE0A4))
+         (let* ((head-char (note-head-char :head-1/4))
                 (accidental-columns nil)
                 (head-columns nil)
                 (leger-lines nil)
