@@ -223,6 +223,10 @@
       (set-y-grid editor (if (equal (editor-get-edit-param editor :y-grid) :auto)
                                 (list ymi yma)
                               (editor-get-edit-param editor :y-grid))))
+
+    ;; in case the def value was :auto, we set it now to the actual value
+    (editor-set-edit-param editor :x-grid (x-grid editor))
+    (editor-set-edit-param editor :y-grid (y-grid editor))
     ))
 
 (defmethod set-x-grid ((editor 3d-viewer-editor) values)
