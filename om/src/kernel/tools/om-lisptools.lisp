@@ -296,3 +296,10 @@
     (/ num den)))
 
 
+;;; finds the closest power of two that is greater than val 
+(defun closest-pwr-of-2 (val)
+  (let ((size 2))
+    (loop while (> val size) do
+          (setf size (* size 2)))
+    size))
+

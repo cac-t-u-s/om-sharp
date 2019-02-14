@@ -54,7 +54,7 @@ All boxes which their reference is a OM generic function are instances of this c
 
 (defmethod lock-modes-for-box ((self OMBoxCall)) 
   (append '(nil :locked) 
-          (if (get-pref-value :general :auto-ev-once-mode) nil :eval-once)))
+          (if (get-pref-value :general :auto-ev-once-mode) nil '(:eval-once))))
 
 (defmethod eval-modes-for-box ((self OMBoxCall)) '(nil :lambda :reference :box))
 

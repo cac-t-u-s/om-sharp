@@ -159,11 +159,6 @@ If <samplerate> is NIL, the OM default sample rate is used to calculate the samp
 ;;; MISC. UTILS
 ;;;========================
 
-(defun closest-pwr-of-2 (val)
-  (let ((size 2))
-    (loop while (> val size) do
-          (setf size (* size 2)))
-    size))
 
 (defun clip (val &optional (min 0.0) (max 1.0))
 " If val is below min, return min,
