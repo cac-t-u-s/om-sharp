@@ -73,6 +73,7 @@
                                   (if (pref-item-visible prefitem) "" "[hidden]"))))
           (om-print "============================"))
     ))
+
 ; (display-om-preferences)
 
 ;;;======================================================
