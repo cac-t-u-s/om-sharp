@@ -47,7 +47,7 @@
 (defclass measure (rhythmic-object) ())
 (defclass group (rhythmic-object) ())
 
-(defclass rrest (score-object) ())
+(defclass r-rest (score-object) ())
 ;;; (defclass cont-chord (score-object) ())
 (defclass grace-note (score-object) ())
 
@@ -133,7 +133,7 @@
                     ;; (print (list "CHORD" sub-dur total-dur))
                     (cond 
                      ((minusp subtree)  ;; rest
-                      (make-instance 'rrest
+                      (make-instance 'r-rest
                                      :symbolic-date beat
                                      :symbolic-dur sub-dur))
                           
@@ -144,7 +144,6 @@
                           
                      (t ;;; normal chord: get the next in chord list
                         (setf curr-n-chord (1+ curr-n-chord))
-
                         
                         (let ((real-chord (nth curr-n-chord chords)))
 
@@ -185,7 +184,7 @@
                  ))
       
       (loop for chord in (chords self) do
-            (draw-chord (notes chord) 
+            (draw-chord chord
                         (+ shift-x-u (* (date chord) x-ratio)) 
                         y-u 
                         w h fontsize :scale nil :staff staff)

@@ -31,10 +31,13 @@
         "editor/score-editor"
         "editor/chord-editor"
         "editor/chord-seq-editor"
+        "editor/voice-editor"
 
         "tools/conversions"
         "import-export/musicxml"))
 
+;(compile&load (decode-local-path "libnot/libnot"))
+;(compile&load (decode-local-path "libnot/score-object"))
 
 (omNG-make-package 
  "Score"

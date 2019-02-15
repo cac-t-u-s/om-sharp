@@ -257,7 +257,8 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
   (let* ((unit (font-size-to-unit fontsize))
          (middle-in-units (/ w 2 unit)))
     
-    (draw-chord (list self) (+ 2 middle-in-units) y-u w h fontsize :scale nil :staff staff)
+    (draw-chord (make-instance 'chord :notes (list self)) 
+                (+ 2 middle-in-units) y-u w h fontsize :scale nil :staff staff)
     
     ))
   
@@ -268,7 +269,7 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
          (middle-in-units (/ w 2 unit)))
     
     (when (notes self)
-      (draw-chord (notes self) (+ 2 middle-in-units) y-u w h fontsize :scale nil :staff staff))
+      (draw-chord self (+ 2 middle-in-units) y-u w h fontsize :scale nil :staff staff))
       
     ))
 

@@ -203,7 +203,7 @@
     (loop for chord in (chords object) do
           (setf 
            (b-box chord)
-           (draw-chord (inside chord) 
+           (draw-chord chord
                        (/ (time-to-pixel view (date chord)) unit)
                        0 
                        (w view) (h view) 

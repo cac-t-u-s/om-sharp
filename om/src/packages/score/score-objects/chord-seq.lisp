@@ -321,7 +321,7 @@ Internally most of these values are just used to build a list of CHORD objects, 
            (x-ratio (/ w-u (get-obj-dur self))))
     
       (loop for chord in (chords self) do
-            (draw-chord (notes chord) 
+            (draw-chord chord
                         (+ shift-x-u (* (date chord) x-ratio)) 
                         y-u 
                         w h fontsize :scale nil :staff staff)

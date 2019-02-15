@@ -60,7 +60,7 @@
 (defun find-group-symbol (val)
   (let* ((haut (numerator val))
          (bas (denominator val))
-         (bef (car (before&after-bin bas))))
+         (bef (bin-value-below bas)))
     (list 
      (note-strict-beams (/ 1 bef)) 
      (denominator (/ bef bas)))))
@@ -80,10 +80,71 @@
     ((is-binaire? val) (round (- (log (denominator val) 2) 2)))
     (t (find-group-symbol val))))
 
+;;; get the notehead symbol and eventually points corresponding to a given duration
+(defun note-head-and-points (dur)
+   (let* ((haut (numerator dur))
+          (bas (denominator dur))
+          (bef (bin-value-below haut))
+          (points 0) (symbol :head-1/4))
+     (cond
+      ((= bef haut)
+       (setf symbol (note-symbol (/ haut bas))))
+      ((= (* bef 1.5) haut)
+       (setf symbol (note-symbol (/ bef bas)))
+       (setf points 1))
+      ((= (* bef 1.75) haut)
+       (setf symbol (note-symbol (/ bef bas)))
+       (setf points 2)))
+     (values symbol points)))
 
 
-;;; GROUPS
+(defun rest-head-and-points (dur)
+   (let* ((haut (numerator dur))
+          (bas (denominator dur))
+          (bef (bin-value-below haut))
+          (points 0) (symbol :rest-1/4))
+     (cond
+      ((= bef haut)
+       (setf symbol (rest-symbol (/ haut bas))))
+      ((= (* bef 1.5) haut)
+       (setf symbol (rest-symbol (/ bef bas)))
+       (setf points 1))
+      ((= (* bef 1.75) haut)
+       (setf symbol (rest-symbol (/ bef bas)))
+       (setf points 2)))
+     (values symbol points)))
 
+
+(defun note-symbol (val &optional rest)
+  (cond 
+   ((>= val 8) (list val)) 
+   ((= val 8) :head-8)   ;;; will never happen becvause of previous statement: fix that 
+   ((= val 4) :head-4)
+   ((= val 2) :head-2)
+   ((= val 1) :head-1)
+   ((= val 1/2) :head-1/2)    
+   (t :head-1/4)))
+
+(defun rest-symbol (val)
+  (cond
+   ((> val 4) (list val)) 
+   ((= val 4) :rest-4)
+   ((= val 2) :rest-2)
+   ((= val 1) :rest-1)
+   ((= val 1/2) :rest-1/2)
+   ((= val 1/4) :rest-1/4)
+   ((= val 1/8) :rest-1/8)
+   ((= val 1/16) :rest-1/16)
+   ((= val 1/32) :rest-1/32)
+   ((= val 1/64) :rest-1/64)
+   ((= val 1/128) :rest-1/128)
+   (t :rest-1/128)))
+
+;;;===============================================
+;;; DRAW
+;;;===============================================
+
+;;; GROUP
 (defmethod draw-score-element ((object rhythmic-object) tempo editor view unit level)
   (let* ((begin (beat-to-time (symbolic-date object) tempo))
          (end (beat-to-time (+ (symbolic-date object) (symbolic-dur object)) tempo))
@@ -97,11 +158,9 @@
     ))
 
 
-;;; CHORDS
+;;; CHORD
 (defmethod draw-score-element ((object chord) tempo editor view unit level)
   
-  (call-next-method)
-
   (let* ((begin (beat-to-time (symbolic-date object) tempo))
          (end (beat-to-time (+ (symbolic-date object) (symbolic-dur object)) tempo))
          (x1 (time-to-pixel view begin))
@@ -114,13 +173,16 @@
          (port (editor-get-edit-param editor :port-display))
          (dur (editor-get-edit-param editor :duration-display)))
     
+    ;; (print (list "chord" (symbolic-dur object)))
+
     (setf 
      (b-box object)
-     (draw-chord (inside object) 
+     (draw-chord object
                  (/ (time-to-pixel view (date object)) unit)
                  0 
                  (w view) (h view) 
                  font-size 
+                 :head (multiple-value-list (note-head-and-points (symbolic-dur object)))
                  :staff (editor-get-edit-param editor :staff)
                  :draw-chans chan
                  :draw-vels vel
@@ -134,19 +196,33 @@
     ))
 
 
-;;; OTHER (RESTS)
-(defmethod draw-score-element ((object score-object) tempo editor view unit level)
+;;; REST
+(defmethod draw-score-element ((object r-rest) tempo editor view unit level)
   
   (let* ((begin (beat-to-time (symbolic-date object) tempo))
          (end (beat-to-time (+ (symbolic-date object) (symbolic-dur object)) tempo))
          (x1 (time-to-pixel view begin))
-         (x2 (time-to-pixel view end)))
+         (x2 (time-to-pixel view end))
+         (font-size (editor-get-edit-param editor :font-size)))
     
     (om-draw-rect x1 10 (- x2 x1) (- (h view) (* (1+ level) 20)) :fill nil :color (om-def-color :light-red))
-
+    
+    ;; (print (list "rest" (symbolic-dur object)))
+    
+    (setf 
+     (b-box object)
+     (draw-rest object
+                (/ (time-to-pixel view begin) unit)
+                0 
+                (w view) (h view) 
+                font-size 
+                :head (multiple-value-list (rest-head-and-points (symbolic-dur object)))
+                :staff (editor-get-edit-param editor :staff)
+                :selection (if (find object (selection editor)) T 
+                             (selection editor))
+                :build-b-boxes t
+                ))
     ))
-
-
 
 
 
@@ -182,6 +258,24 @@
 ;;; todo
 #|
 ;;; TIED NOTES
+(defmethod get-tie-direction ((self grap-note))
+   (let* ((note (midic (reference self)))
+          (list (sort (lmidic (parent (reference self))) '<)))
+     (if (>= (position note list :test 'equal) (ceiling (/ (length list) 2)))
+       "up" "down")))
+
+(defmethod get-next-tied-noted ((self grap-note) )
+   (and (parent self)
+        (let ((next-chord (next-figure (parent self))))
+          (and next-chord (grap-ryth-chord-p next-chord) 
+               (find (midic (reference self)) (inside next-chord) :key #'(lambda (x) (midic (reference x))))))))
+
+(defmethod get-last-tied-noted ((self grap-note) )
+   (and (parent self)
+        (let ((previous (previous-figure (parent self))))
+          (and previous (grap-ryth-chord-p previous)
+               (find (midic (reference self)) (inside previous) :key #'(lambda (x) (midic (reference x))))))))
+
 (defun draw-liason-begin (left top right bot direction)
  (if (string-equal direction "down")
      (om-draw-ellipse-arc left top   (- right left)    (round (- bot top) 2) pi  (/ pi 2) )
