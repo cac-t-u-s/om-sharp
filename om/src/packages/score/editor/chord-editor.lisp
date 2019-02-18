@@ -70,12 +70,12 @@
 ;;; SPECIAL/SIMPLE CASE FOR CHORD-EDITOR
 (defmethod draw-score-object-in-editor-view ((editor chord-editor) view unit)
 
-  (let ((chord (object-value editor))
-        (middle-in-units (/ (w view) 2 unit)))
+  (let ((chord (object-value editor)))
     
     (setf 
      (b-box chord)
-     (draw-chord chord middle-in-units 0 
+     (draw-chord chord 
+                 (/ (w view) 2) 0 
                  (w view) (h view) 
                  (editor-get-edit-param editor :font-size) 
                  :staff (editor-get-edit-param editor :staff)

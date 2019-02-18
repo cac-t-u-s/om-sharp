@@ -18,221 +18,29 @@
 
 (in-package :om)
 
-;;;===========================
-;;; UTILS
-;;;===========================
+;;;====================================================
+;;; DRAW METHODS FOR SCORE EDITOR / MINIVIEW
+;;;====================================================
 
-(defun bin-value-below (num)
-  (/ (closest-pwr-of-2 num) 2))
 
-(defun closest-bin-value (num)
-  (let* ((high (closest-pwr-of-2 num))
-         (low (/ high 2)))
-    (if (< (- high num) (- num low))
-        hight low)))
-
-;;; is (numerator dur) a power of 2
-(defun is-binaire? (dur)
-  (and (= (numerator dur) 1) 
-       (= (denominator dur) (closest-pwr-of-2 (denominator dur)))
-       ))
-
-;;; gives number of beams for a given division
-(defun get-number-of-beams (val)
+(defmethod score-object-mini-view ((self voice) box x-pix y-u w h fontsize)
   
-  (let* ((haut (numerator val))
-         (bas (denominator val))
-         (bef (bin-value-below haut)))
-    
-     (cond
-      ((= bef haut)
-       (note-strict-beams (/ haut bas)))
-      
-      ((= (* bef 1.5) haut)
-       (note-strict-beams (/ bef bas) ))
-       
-      ((= (* bef 1.75) haut)
-       (setf beams (note-strict-beams (/ bef bas) )))
+  (draw-staff x-pix y-u w h fontsize (get-edit-param box :staff) :margin-l 1 :margin-r 1 :keys t)
 
-      (t 0))
-     ))
-
-(defun find-group-symbol (val)
-  (let* ((haut (numerator val))
-         (bas (denominator val))
-         (bef (bin-value-below bas)))
-    (list 
-     (note-strict-beams (/ 1 bef)) 
-     (denominator (/ bef bas)))))
-
-;;; entry in the process of determining the beaming for a given chord.
-;;; this code is directlty adapted from OM6 score editors
-(defun note-strict-beams (val)
-   (cond
-    ((or (= val 1/4) (= val 1/2) (>= val 1)) 0)
-    ((= val 1/8)  1)
-    ((= val 1/16) 2)
-    ((= val 1/32) 3)
-    ((= val 1/64) 4)
-    ((= val 1/128) 5)
-    ((= val 1/256) 6)
-    ((= val 1/512) 7)
-    ((is-binaire? val) (round (- (log (denominator val) 2) 2)))
-    (t (find-group-symbol val))))
-
-;;; get the notehead symbol and eventually points corresponding to a given duration
-(defun note-head-and-points (dur)
-   (let* ((haut (numerator dur))
-          (bas (denominator dur))
-          (bef (bin-value-below haut))
-          (points 0) (symbol :head-1/4))
-     (cond
-      ((= bef haut)
-       (setf symbol (note-symbol (/ haut bas))))
-      ((= (* bef 1.5) haut)
-       (setf symbol (note-symbol (/ bef bas)))
-       (setf points 1))
-      ((= (* bef 1.75) haut)
-       (setf symbol (note-symbol (/ bef bas)))
-       (setf points 2)))
-     (values symbol points)))
+  (loop for m in (inside self)
+        for i from 1
+        do (draw-score-element m (tempo self) box (frame box) :y-shift y-u :font-size fontsize :level i)
+        ))
 
 
-(defun rest-head-and-points (dur)
-   (let* ((haut (numerator dur))
-          (bas (denominator dur))
-          (bef (bin-value-below haut))
-          (points 0) (symbol :rest-1/4))
-     (cond
-      ((= bef haut)
-       (setf symbol (rest-symbol (/ haut bas))))
-      ((= (* bef 1.5) haut)
-       (setf symbol (rest-symbol (/ bef bas)))
-       (setf points 1))
-      ((= (* bef 1.75) haut)
-       (setf symbol (rest-symbol (/ bef bas)))
-       (setf points 2)))
-     (values symbol points)))
-
-
-(defun note-symbol (val &optional rest)
-  (cond 
-   ((>= val 8) (list val)) 
-   ((= val 8) :head-8)   ;;; will never happen becvause of previous statement: fix that 
-   ((= val 4) :head-4)
-   ((= val 2) :head-2)
-   ((= val 1) :head-1)
-   ((= val 1/2) :head-1/2)    
-   (t :head-1/4)))
-
-(defun rest-symbol (val)
-  (cond
-   ((> val 4) (list val)) 
-   ((= val 4) :rest-4)
-   ((= val 2) :rest-2)
-   ((= val 1) :rest-1)
-   ((= val 1/2) :rest-1/2)
-   ((= val 1/4) :rest-1/4)
-   ((= val 1/8) :rest-1/8)
-   ((= val 1/16) :rest-1/16)
-   ((= val 1/32) :rest-1/32)
-   ((= val 1/64) :rest-1/64)
-   ((= val 1/128) :rest-1/128)
-   (t :rest-1/128)))
-
-;;;===============================================
-;;; DRAW
-;;;===============================================
-
-;;; GROUP
-(defmethod draw-score-element ((object rhythmic-object) tempo editor view unit level)
-  (let* ((begin (beat-to-time (symbolic-date object) tempo))
-         (end (beat-to-time (+ (symbolic-date object) (symbolic-dur object)) tempo))
-         (x1 (time-to-pixel view begin))
-         (x2 (time-to-pixel view end)))
-    
-    (om-draw-rect x1 10 (- x2 x1) (- (h view) (* (1+ level) 20)) :fill nil :color (om-def-color :light-gray))
-    
-    (loop for element in (inside object) do
-          (draw-score-element element tempo editor view unit (1+ level)))
-    ))
-
-
-;;; CHORD
-(defmethod draw-score-element ((object chord) tempo editor view unit level)
-  
-  (let* ((begin (beat-to-time (symbolic-date object) tempo))
-         (end (beat-to-time (+ (symbolic-date object) (symbolic-dur object)) tempo))
-         (x1 (time-to-pixel view begin))
-         (x2 (time-to-pixel view end))
-
-         (font-size (editor-get-edit-param editor :font-size))
-         (staff (editor-get-edit-param editor :staff))
-         (chan (editor-get-edit-param editor :channel-display))
-         (vel (editor-get-edit-param editor :velocity-display))
-         (port (editor-get-edit-param editor :port-display))
-         (dur (editor-get-edit-param editor :duration-display)))
-    
-    ;; (print (list "chord" (symbolic-dur object)))
-
-    (setf 
-     (b-box object)
-     (draw-chord object
-                 (/ (time-to-pixel view (date object)) unit)
-                 0 
-                 (w view) (h view) 
-                 font-size 
-                 :head (multiple-value-list (note-head-and-points (symbolic-dur object)))
-                 :staff (editor-get-edit-param editor :staff)
-                 :draw-chans chan
-                 :draw-vels vel
-                 :draw-ports port
-                 :draw-durs dur
-                 :selection (if (find object (selection editor)) T 
-                              (selection editor))
-                 :build-b-boxes t
-                 ))
-
-    ))
-
-
-;;; REST
-(defmethod draw-score-element ((object r-rest) tempo editor view unit level)
-  
-  (let* ((begin (beat-to-time (symbolic-date object) tempo))
-         (end (beat-to-time (+ (symbolic-date object) (symbolic-dur object)) tempo))
-         (x1 (time-to-pixel view begin))
-         (x2 (time-to-pixel view end))
-         (font-size (editor-get-edit-param editor :font-size)))
-    
-    (om-draw-rect x1 10 (- x2 x1) (- (h view) (* (1+ level) 20)) :fill nil :color (om-def-color :light-red))
-    
-    ;; (print (list "rest" (symbolic-dur object)))
-    
-    (setf 
-     (b-box object)
-     (draw-rest object
-                (/ (time-to-pixel view begin) unit)
-                0 
-                (w view) (h view) 
-                font-size 
-                :head (multiple-value-list (rest-head-and-points (symbolic-dur object)))
-                :staff (editor-get-edit-param editor :staff)
-                :selection (if (find object (selection editor)) T 
-                             (selection editor))
-                :build-b-boxes t
-                ))
-    ))
-
-
-
-(defmethod draw-sequence ((editor chord-seq-editor) (object voice) view unit)
+;;; EDITOR
+(defmethod draw-sequence ((object voice) editor view unit)
 
   ;;; NOTE: so far we don't build/update a bounding-box for the containers
   
   (let ((on-screen t))
     (loop for m in (inside object)
-          for i from 0
+          for i from 1
           while on-screen
           do (let* ((begin (beat-to-time (symbolic-date m) (tempo object)))
                     (end (beat-to-time (+ (symbolic-date m) (symbolic-dur m)) (tempo object)))
@@ -242,20 +50,176 @@
                (if (> x1 (w view)) (setf on-screen nil)
                  ;;; else :
                  (when (> x2 0) 
+                   
                    ;;; DRAW THIS MEASURE
-                   
-                   (unless (zerop i) (draw-measure-bar (/ x1 unit) 0 font-size staff))
-                   
-                   ;; (om-draw-rect x1 10 (- x2 x1) (- (h view) 20) :fill t :color (om-random-color 0.5)) 
-                   
-                   (loop for element in (inside m) do
-                         (draw-score-element element (tempo object) editor view unit 1))
+                   (draw-score-element m (tempo object) (object editor) view :level i
+                                       :font-size (editor-get-edit-param editor :font-size)
+                                       :selection (selection editor))
                    )))
           ))
   )
 
 
+
+;;;===============================================
+;;; STRUCTURE
+;;;===============================================
+
+;;; MEASURE
+;;; for measure we use level as measure number
+(defmethod draw-score-element ((object measure) tempo param-obj view &key font-size (y-shift 0) (level 1) selection)
+  (let ((x-pix (time-to-pixel view (beat-to-time (symbolic-date object) tempo))))
+    
+    (unless (= level 1) 
+      (draw-measure-bar x-pix y-shift font-size (get-edit-param param-obj :staff))
+      (om-draw-string x-pix (- y-shift 1) (number-to-string level) 
+                      :font (om-def-font :font1 :size (/ font-size 3))))
+                   
+    (loop for element in (inside object) do
+          (draw-score-element element tempo param-obj view 
+                              :y-shift y-shift
+                              :font-size font-size
+                              :selection selection))
+    ))
+
+
+;;; GROUP
+(defmethod draw-score-element ((object group) tempo param-obj view &key font-size (y-shift 0) (level 1) selection)
+  (let* ((begin (beat-to-time (symbolic-date object) tempo))
+         (end (beat-to-time (+ (symbolic-date object) (symbolic-dur object)) tempo))
+         (x1 (time-to-pixel view begin))
+         (x2 (time-to-pixel view end)))
+    
+    (om-draw-rect x1 10 (- x2 x1) (- (h view) (* (1+ level) 20)) :fill nil :color (om-def-color :light-gray))
+    
+    (loop for element in (inside object) do
+          (draw-score-element element tempo param-obj view 
+                              :y-shift y-shift
+                              :font-size font-size 
+                              :level (1+ level) 
+                              :selection selection))
+    ))
+
+
+;;;===========================================
+;;; draw-stems of same size for group elements
+
+(defmethod group-draw-stems ((self t) dir x y rect zoom size) t)
+(defmethod group-draw-stems ((self group) dir x y rect zoom size)
+   (loop for item in (inside self) do
+         (group-draw-stems item dir x y rect zoom size)))
+
+(defmethod group-draw-stems ((self chord) dir x y rect zoom size)
+   (when (and (stem self) (x self))
+     (let* ((note-min-max (om+ y (get-min-max self)))
+            (ystart (if (string-equal dir "up") (second note-min-max) (first note-min-max)))
+            (ygroup (if (string-equal dir "up") (second rect) (fourth rect) )))
+       (setf y 0)
+       (draw-stem-no-group  (if (string-equal dir "up") 
+                              (round (+  x  (/ size 3.5) (* zoom (x self))))
+                              (round (+  x   (* zoom (x self))))) 
+                            (selected self) 
+                            (+ y ystart)
+                            (+ y ygroup)))))
+
+(defmethod group-draw-stems ((self r-rest) dir x y rect zoom size)
+   ""
+   (let* ((ystart (if (string-equal dir "up") (if (>= (beams-num self) 1) 
+                                                (+ (second (rectangle self)) (round (* (- (fourth (rectangle self)) 
+                                                                                          (second (rectangle self))) 0.4)))
+                                                (second (rectangle self))) 
+                      (if (>= (beams-num self) 1) 
+                        (- (fourth (rectangle self)) (round (* (- (fourth (rectangle self)) 
+                                                                  (second (rectangle self))) 0.4)))
+                        (fourth (rectangle self)))))
+          (ygroup (if (string-equal dir "up") (second rect) (fourth rect) )))
+     (draw-stem-no-group  (if (string-equal dir "up") 
+                            (round (+  x (/ size 3.5) (* zoom (x self))))
+                            (round (+  x  (* zoom (x self))))) 
+                          (selected self) 
+                          ystart
+                          ygroup)))
+
+
+;;;=======================================================
+;;; CHORD
+(defmethod draw-score-element ((object chord) 
+                               tempo param-obj view 
+                               &key font-size (y-shift 0) (level 1) selection)
+  
+  (let* ((begin (beat-to-time (symbolic-date object) tempo))
+         (end (beat-to-time (+ (symbolic-date object) (symbolic-dur object)) tempo))
+         (x1 (time-to-pixel view begin))
+         (x2 (time-to-pixel view end))
+
+         (staff (get-edit-param param-obj :staff))
+         (chan (get-edit-param param-obj :channel-display))
+         (vel (get-edit-param param-obj :velocity-display))
+         (port (get-edit-param param-obj :port-display))
+         (dur (get-edit-param param-obj :duration-display)))
+    
+    ;; (print (list "chord" (symbolic-dur object)))
+
+    (setf 
+     (b-box object)
+     (draw-chord object
+                 (time-to-pixel view begin)
+                 y-shift 
+                 (w view) (h view) 
+                 font-size 
+                 :head (multiple-value-list (note-head-and-points (symbolic-dur object)))
+                 :staff (get-edit-param param-obj :staff)
+                 :draw-chans chan
+                 :draw-vels vel
+                 :draw-ports port
+                 :draw-durs dur
+                 :selection (if (find object selection) T selection)
+                 :build-b-boxes t
+                 ))
+
+    ))
+
+;;; REST
+(defmethod draw-score-element ((object r-rest) tempo param-obj view &key font-size (y-shift 0) (level 1) selection)
+  
+  (let* ((begin (beat-to-time (symbolic-date object) tempo))
+         (end (beat-to-time (+ (symbolic-date object) (symbolic-dur object)) tempo))
+         (x1 (time-to-pixel view begin))
+         (x2 (time-to-pixel view end)))
+        
+    (setf 
+     (b-box object)
+     (draw-rest object
+                (time-to-pixel view begin)
+                y-shift 
+                (w view) (h view) 
+                font-size 
+                :head (multiple-value-list (rest-head-and-points (symbolic-dur object)))
+                :staff (get-edit-param param-obj :staff)
+                :selection (if (find object selection) T selection)
+                :build-b-boxes t
+                ))
+    ))
+
+
+
+
+
+     
+
+
+
+
+
+
+
 ;;; todo
+
+;;; GROUPS
+;;; TEMPO CHIFFRAGE
+;;; SPACING !!
+
+
 #|
 ;;; TIED NOTES
 (defmethod get-tie-direction ((self grap-note))
@@ -287,10 +251,4 @@
    (om-draw-ellipse-arc left top   (- right left)    (round (- bot top) 2) 0  (/ pi 2) )))
 |#
 
-;;; RESTS
 
-;;; POINTS
-
-;;; TEMPO / MESURE NUMBER / CHIFFRAGE
-
-;;; SPACING !!

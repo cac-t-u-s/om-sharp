@@ -252,24 +252,27 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
 ;;;============
 
 
-(defmethod score-object-mini-view ((self note) x-u y-u w h staff fontsize)
+(defmethod score-object-mini-view ((self note) box x-pix y-u w h fontsize)
   
-  (let* ((unit (font-size-to-unit fontsize))
-         (middle-in-units (/ w 2 unit)))
+  (let ((staff (get-edit-param box :staff)))
     
+    (draw-staff x-pix y-u w h fontsize staff :margin-l 1 :margin-r 1 :keys t)
+
     (draw-chord (make-instance 'chord :notes (list self)) 
-                (+ 2 middle-in-units) y-u w h fontsize :scale nil :staff staff)
+                (/ w 2)
+                y-u w h fontsize :scale nil :staff staff)
     
     ))
   
 
-(defmethod score-object-mini-view ((self chord) x-u y-u w h staff fontsize)
+(defmethod score-object-mini-view ((self chord) box x-pix y-u w h fontsize)
   
-  (let* ((unit (font-size-to-unit fontsize))
-         (middle-in-units (/ w 2 unit)))
+  (let* ((staff (get-edit-param box :staff)))
     
+    (draw-staff x-pix y-u w h fontsize staff :margin-l 1 :margin-r 1 :keys t)
+
     (when (notes self)
-      (draw-chord self (+ 2 middle-in-units) y-u w h fontsize :scale nil :staff staff))
-      
+      (draw-chord self (/ w 2) y-u w h fontsize :scale nil :staff staff))
+     
     ))
 

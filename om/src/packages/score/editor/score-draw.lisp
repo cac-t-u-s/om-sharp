@@ -159,6 +159,12 @@
     ))
 
 
+; alternate:
+; (values (code-char #xE1FC) "textAugmentationDot")
+(defun dot-char () 
+  (values (code-char #xE1E7) "augmentationDot"))
+
+
 ;;;===============
 ;;; STAVES
 ;;;===============
@@ -308,30 +314,33 @@
 (defun font-size-to-unit (size) (* size .25))
 (defun unit-to-font-size (u) (* u 4))
 
-;;; by convention, unit = staff interline
+;;; by convention, unit = staff interline in PIXEL
 (defun line-to-ypos (line shift unit)
   (* (- shift line) unit))
 
 (defparameter *score-selection-color* (om-def-color :dark-red))
+
+(defun time-unit-to-pixel (u) 20)
 
 
 ;;;=======================
 ;;; STAFF
 ;;;=======================
 
-;;; x and y are in score-units
+;;; x is in pixesl 
+;;; y is in score-units
 ;;; w and h are pixel-size of the frame
-(defun draw-staff (x y w h fontsize staff &key (margin-l 0) (margin-r 0) (keys t))
+(defun draw-staff (x y-u w h fontsize staff &key (margin-l 0) (margin-r 0) (keys t))
   
   (let* ((staff-elems (staff-split staff))
          (unit (font-size-to-unit fontsize)) 
-         (shift (+ y (calculate-staff-line-shift staff)))
+         (shift (+ y-u (calculate-staff-line-shift staff)))
          (thinBarlineThickness (ceiling (* *thinBarLineThickness* unit)))
          (staffLineThickness (ceiling (* *staffLineThickness* unit))))
          
     (flet ((adjust-line-ypos (pos)
-             (if (> unit 5) (round pos) pos))
-           (x-pos (a) (* (+ x (or margin-l 0) a) unit)))
+             (if (> unit 5) (+ (round pos)) pos))
+           (x-pos (a) (+ x (* (+ (or margin-l 0) a) unit))))
 
       (om-with-font 
        (om-make-font *score-font* fontsize)
@@ -370,31 +379,17 @@
 ;;;=======================
 ;;; MESURE BARS
 ;;;=======================
-(defun draw-measure-bar (x y fontsize staff)
+(defun draw-measure-bar (x-pix y-units fontsize staff)
 
   (let* ((staff-elems (staff-split staff))
          (unit (font-size-to-unit fontsize)) 
-         (shift (+ y (calculate-staff-line-shift staff)))
+         (shift (+ y-units (calculate-staff-line-shift staff)))
          (thinBarlineThickness (ceiling (* *thinBarLineThickness* unit))))
     
-    (om-draw-line (* x unit) (+ -1 (line-to-ypos (car (staff-lines (car staff-elems))) shift unit))
-                  (* x unit) (+ 1 (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit))
+    (om-draw-line x-pix (+ -1 (line-to-ypos (car (staff-lines (car staff-elems))) shift unit))
+                  x-pix (+ 1 (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit))
                   :line thinBarlineThickness)
     ))
-
-;;; more efficient: all bars at once
-(defun draw-measure-bars (x-list y fontsize staff)
-
-  (let* ((staff-elems (staff-split staff))
-         (unit (font-size-to-unit fontsize)) 
-         (shift (calculate-staff-line-shift staff))
-         (thinBarlineThickness (ceiling (* *thinBarLineThickness* unit))))
-    
-    (loop for x in x-list do
-          (om-draw-line x (+ -1 (line-to-ypos (car (staff-lines (car staff-elems))) shift unit))
-                        x (+ y1 (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit))
-                        :line thinBarlineThickness)
-    )))
 
 
 ;;;=======================
@@ -409,7 +404,8 @@
     
 
 
-(defun draw-chord (chord x y ; ref-position in score units
+(defun draw-chord (chord x-pix ; x in pixels
+                         y-units ; y-position in score units
                          w h ; frame for drawing
                          fontsize 
                          &key
@@ -419,7 +415,9 @@
                          draw-chans draw-ports draw-vels draw-durs
                          selection
                          build-b-boxes)
-  
+ 
+  ;;; (print head)
+
   (let ((head-symb (if (consp head) (car head) head))
         (n-points (if (consp head) (cadr head) 0)))
 
@@ -428,7 +426,7 @@
     
     (let* ((notes (inside chord))
            (unit (font-size-to-unit fontsize))
-           (shift (+ y (calculate-staff-line-shift staff)))
+           (shift (+ y-units (calculate-staff-line-shift staff)))
            (staff-elems (staff-split staff))
            (staff-lines (apply 'append (mapcar 'staff-lines staff-elems)))
            (head-box (get-font-bbox head-name))
@@ -446,7 +444,7 @@
            (unique-port (and draw-ports (all-equal (mapcar 'port notes)) (or (port (car notes)) :default))))
    
       ;;; positions (in pixels) 
-      (flet ((x-pos (a) (1+ (* (+ x a) unit))))
+      (flet ((x-pos (a) (+ x-pix 1 (* a unit))))
          
         (om-with-font 
          (om-make-font *score-font* fontsize)
@@ -468,29 +466,33 @@
                   (l-max (pitch-to-line pmax scale))
                   (y-min (line-to-ypos l-min shift unit))
                   (y-max (line-to-ypos l-max shift unit))
-                  (stem-size (* unit *stem-height*))
-                  (stemThickness (* *stemThickness* unit)))
-                 
+                  (stem? (not (or (listp head-symb) (member head-symb '(:head-1 :head-2 :head-4 :head-8))))))
+             
              ;;; STEM
-             (if (<= (/ (+ pmax pmin) 2) (staff-medium-pitch staff))
-                 ;;; stem up
+             (when stem?
+               
+               (let ((stem-size (* unit *stem-height*))
+                     (stemThickness (* *stemThickness* unit)))
+                 
+                 (if (<= (/ (+ pmax pmin) 2) (staff-medium-pitch staff))
+                     ;;; stem up
                     
-                 (let ((stemUpSE-x (* unit (car *noteheadBlack_StemUpSE*)))
-                       (stemUpSE-y (* unit (cadr *noteheadBlack_StemUpSE*))))
-                   (om-draw-line (+ (x-pos 0) stemUpSE-x) (- y-min stemUpSE-y)
-                                 (+ (x-pos 0) stemUpSE-x) (- y-max stemUpSE-y stem-size)
-                                 :line stemThickness)
-                   (setf cy1 (- y-max stemUpSE-y stem-size)) ;; initial extesion for the chord bounding-box as well
-                   )
-               ;;; stem down
-               (let ((stemDownNW-x (* unit (car *noteheadBlack_StemDownNW*)))
-                     (stemDownNW-y (* unit (cadr *noteheadBlack_StemDownNW*))))
-                 (om-draw-line (+ (x-pos 0) stemDownNW-x) (- y-max stemDownNW-y)
-                               (+ (x-pos 0) stemDownNW-x) (- y-min stemDownNW-y (- stem-size))
-                               :line stemThickness)
-                 (setf cy2 (- y-min stemDownNW-y (- stem-size))) ;; initial extesion for the chord bounding-box as well
-                 )
-               )
+                     (let ((stemUpSE-x (* unit (car *noteheadBlack_StemUpSE*)))
+                           (stemUpSE-y (* unit (cadr *noteheadBlack_StemUpSE*))))
+                       (om-draw-line (+ (x-pos 0) stemUpSE-x) (- y-min stemUpSE-y)
+                                     (+ (x-pos 0) stemUpSE-x) (- y-max stemUpSE-y stem-size)
+                                     :line stemThickness)
+                       (setf cy1 (- y-max stemUpSE-y stem-size)) ;; initial extesion for the chord bounding-box as well
+                       )
+                   ;;; stem down
+                   (let ((stemDownNW-x (* unit (car *noteheadBlack_StemDownNW*)))
+                         (stemDownNW-y (* unit (cadr *noteheadBlack_StemDownNW*))))
+                     (om-draw-line (+ (x-pos 0) stemDownNW-x) (- y-max stemDownNW-y)
+                                   (+ (x-pos 0) stemDownNW-x) (- y-min stemDownNW-y (- stem-size))
+                                   :line stemThickness)
+                     (setf cy2 (- y-min stemDownNW-y (- stem-size))) ;; initial extesion for the chord bounding-box as well
+                     )
+                   )))
 
              ;;; GLOBAL CHANNEL
              (when (and (member draw-chans '(:number :color-and-number)) 
@@ -595,7 +597,15 @@
                        ;;; HEAD
                        (om-draw-char head-x line-y head-char
                                      :font (when (equal draw-vels :size) (om-make-font *score-font* (* (vel n) fontsize .02))))
-                      
+                       
+                       ;;; DOTS
+                       (when (> n-points 0)
+                         (let ((p-y (+ line-y (* unit (if (zerop (rem line 1)) -0.4 0.1)))))
+                           (om-draw-char (+ head-x (* 1.5 head-w-pix)) p-y (dot-char))
+                           (when (= n-points 2)
+                             (om-draw-char (+ head-x (* 2.5 head-w-pix)) p-y (dot-char))
+                             )))
+                       
                        ;;; ACCIDENT (if any)
                        (let ((acc (pitch-to-acc (midic n) scale)))
                          (when acc
@@ -650,7 +660,6 @@
                             (om-draw-char (x-pos 0) (+ line-y (* unit 2)) (velocity-char (vel n))))
                            ))
                  
-                     
                        )) ;;; END DO
                    ) ;;; END NOTES LOOP
              ) ;;; END OF THE NOTE-HEADS LET
@@ -663,53 +672,207 @@
       
       ))))
 
-
-
-
-(defun draw-rest (rest x y ; ref-position in score units
-                      w h ; frame for drawing
-                      fontsize 
-                      &key 
-                      (staff :gf)
-                      selection
-                      build-b-boxes)
+(defun draw-rest (rest x-pix   ; x-pos in pixels
+                       y-units ; ref-position in score units
+                       w h ; frame for drawing
+                       fontsize 
+                       &key 
+                       (head :rest-1/4)
+                       (staff :gf)
+                       selection
+                       build-b-boxes)
   
   (declare (ignore w h))
   
-  (let* ((unit (font-size-to-unit fontsize))
-         (shift (+ y (calculate-staff-line-shift staff)))
-         (head-box (get-font-bbox "noteheadBlack"))
-         (head-w (- (nth 2 head-box) (nth 0 head-box)))    ;;; the width in units of a note-head
-         (head-h (- (nth 3 head-box) (nth 1 head-box)))    ;;; the width in units of a note-head
-         (head-char (rest-char :rest-1/4))
-         (line 3)
-         (line-y (line-to-ypos line shift unit)))
+  (let ((head-symb (if (consp head) (car head) head))
+        (n-points (if (consp head) (cadr head) 0)))
+  
+    (multiple-value-bind (head-char head-name)
+        (rest-char head-symb)
+ 
+      (let* ((unit (font-size-to-unit fontsize))
+             (shift (+ y-units (calculate-staff-line-shift staff)))
+             (head-box (get-font-bbox head-name))
+             (head-w (- (nth 2 head-box) (nth 0 head-box)))    ;;; the width in units of a note-head
+             (head-h (- (nth 3 head-box) (nth 1 head-box)))    ;;; the width in units of a note-head
+             (line 3)
+             (line-y (line-to-ypos line shift unit)))
               
-         
-    ;;; positions (in pixels) 
-    (flet ((x-pos (a) (1+ (* (+ x a) unit))))
+        ;;; positions (in pixels) 
+        (flet ((x-pos (a) (+ x-pix 1 (* a unit))))
       
-      (let ((head-x (x-pos 0)))
+          (let ((head-x (x-pos 0)))
       
-      (om-with-font 
-       (om-make-font *score-font* fontsize)
+            (om-with-font 
+             (om-make-font *score-font* fontsize)
          
-       (om-with-fg-color 
-           (if (or (equal selection t) (and (listp selection) (find rest selection)))
-               *score-selection-color*
-             nil)
+             (om-with-fg-color 
+                 (if (or (equal selection t) (and (listp selection) (find rest selection)))
+                     *score-selection-color*
+                   nil)
          
-         (om-draw-char head-x line-y head-char)
-         ))
+               ;;; SYMBOL
+               (om-draw-char head-x line-y head-char)
+               
+               ;;; DOTS
+               (when (> n-points 0)
+                 (let ((p-y (+ line-y (* unit (if (zerop (rem line 1)) -0.4 0.1)))))
+                   (om-draw-char (+ head-x (* 1.5 head-w unit)) p-y (dot-char))
+                   (when (= n-points 2)
+                     (om-draw-char (+ head-x (* 2.5 head-w unit)) p-y (dot-char))
+                     )))
          
-      ;;; return the bounding box
-       (when build-b-boxes 
-         (make-b-box :x1 head-x :x2 (+ head-x (* head-w unit)) 
-                     :y1 (line-to-ypos (+ line (* head-h .5)) shift unit) ;;; lines are expressed bottom-up !!
-                     :y2 (line-to-ypos (- line (* head-h .5)) shift unit)))
-       ))))
+               ))
+         
+            ;;; return the bounding box
+            (when build-b-boxes 
+              (make-b-box :x1 head-x :x2 (+ head-x (* head-w unit)) 
+                          :y1 (line-to-ypos (+ line (* head-h .5)) shift unit) ;;; lines are expressed bottom-up !!
+                          :y2 (line-to-ypos (- line (* head-h .5)) shift unit)))
+            ))))))
 
 
+;;;=======================
+;;; RHYTHM
+;;;=======================
 
+
+;;;========================
+;;; HEADS
+;;;========================
+
+(defun note-symbol (val &optional rest)
+  (cond 
+   ((>= val 8) (list val)) 
+   ((= val 8) :head-8)   ;;; will never happen becvause of previous statement: fix that 
+   ((= val 4) :head-4)
+   ((= val 2) :head-2)
+   ((= val 1) :head-1)
+   ((= val 1/2) :head-1/2)    
+   (t :head-1/4)))
+
+(defun rest-symbol (val)
+  (cond
+   ((> val 4) (list val)) 
+   ((= val 4) :rest-4)
+   ((= val 2) :rest-2)
+   ((= val 1) :rest-1)
+   ((= val 1/2) :rest-1/2)
+   ((= val 1/4) :rest-1/4)
+   ((= val 1/8) :rest-1/8)
+   ((= val 1/16) :rest-1/16)
+   ((= val 1/32) :rest-1/32)
+   ((= val 1/64) :rest-1/64)
+   ((= val 1/128) :rest-1/128)
+   (t :rest-1/128)))
+
+
+(defun bin-value-below (num)
+  (let ((cp2 (closest-pwr-of-2 num)))
+    (if (= num cp2) num (/ cp2 2))))
+
+(defun closest-bin-value (num)
+  (let* ((high (closest-pwr-of-2 num))
+         (low (/ high 2)))
+    (if (< (- high num) (- num low))
+        high low)))
+
+
+;;; get the notehead symbol and eventually points corresponding to a given duration
+(defun note-head-and-points (dur)
+   (let* ((num (numerator dur))
+          (den (denominator dur))
+          (bef (bin-value-below num))
+          (points 0) (symbol :head-1/4))
+     
+     (cond
+      ((= bef num)
+       (setf symbol (note-symbol (/ num den))))
+      ((= (* bef 1.5) num)
+       (setf symbol (note-symbol (/ bef den)))
+       (setf points 1))
+      ((= (* bef 1.75) num)
+       (setf symbol (note-symbol (/ bef den)))
+       (setf points 2)))
+     
+     (values symbol points)))
+
+
+(defun rest-head-and-points (dur)
+   (let* ((num (numerator dur))
+          (den (denominator dur))
+          (bef (bin-value-below num))
+          (points 0) (symbol :rest-1/4))
+     (cond
+      ((= bef num)
+       (setf symbol (rest-symbol (/ num den))))
+      ((= (* bef 1.5) num)
+       (setf symbol (rest-symbol (/ bef den)))
+       (setf points 1))
+      ((= (* bef 1.75) num)
+       (setf symbol (rest-symbol (/ bef den)))
+       (setf points 2)))
+     
+     (values symbol points)))
+
+
+;;;========================
+;;; BEAMING
+;;;========================
+
+(defmethod get-atoms-in-group ((self chord)) (list self))
+(defmethod get-atoms-in-group ((self r-rest)) (list self))
+(defmethod get-atoms-in-group ((self group))
+  (loop for item in (inside self) append (get-atoms-in-group item)))
+
+
+;;; is (denominator dur) a power of 2
+(defun is-binaire? (dur)
+  (and (= (numerator dur) 1) 
+       (= (denominator dur) (closest-pwr-of-2 (denominator dur)))
+       ))
+
+(defun find-group-symbol (val)
+  (let* ((num (numerator val))
+         (den (denominator val))
+         (bef (bin-value-below den)))
+    (list 
+     (note-strict-beams (/ 1 bef)) 
+     (denominator (/ bef den)))))
+
+(defun note-strict-beams (val)
+   (cond
+    ((or (= val 1/4) (= val 1/2) (>= val 1)) 0)
+    ((= val 1/8)  1)
+    ((= val 1/16) 2)
+    ((= val 1/32) 3)
+    ((= val 1/64) 4)
+    ((= val 1/128) 5)
+    ((= val 1/256) 6)
+    ((= val 1/512) 7)
+    ((is-binaire? val) (round (- (log (denominator val) 2) 2)))
+    (t (find-group-symbol val))))
+
+;;; gives number of beams for a given division
+;;; => entry in the process of determining the beaming for a given chord.
+;;; this code is directly adapted from OM6 score editors
+(defun get-number-of-beams (val)
+  
+  (let* ((num (numerator val))
+         (den (denominator val))
+         (bef (bin-value-below num)))
+    
+     (cond
+      ((= bef num)
+       (note-strict-beams (/ num den)))
+      
+      ((= (* bef 1.5) haut)
+       (note-strict-beams (/ bef den) ))
+       
+      ((= (* bef 1.75) haut)
+       (setf beams (note-strict-beams (/ bef den) )))
+
+      (t 0))
+     ))
 
 

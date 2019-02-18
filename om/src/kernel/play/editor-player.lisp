@@ -307,6 +307,12 @@
    (cursor-pos :initform 0 :accessor cursor-pos))
   (:default-initargs :fit-size-to-children nil))
 
+(defmethod time-to-pixel ((self x-cursor-graduated-view) time) 
+  (x-to-pix self time))
+
+;;; => TO GET IT TO APPLY FOR MINIVIEWS AS WELL
+(defmethod time-to-pixel ((self omobjectboxframe) time)
+  (miniview-time-to-pixel (get-box-value (object self)) self time))
 
 ;++++++++++++++++++++++++++++++++
 ; RULES FOR THE CURSOR:
@@ -363,8 +369,6 @@
   (update-cursor view (cursor-pos view))
   (call-next-method))
 
-(defmethod time-to-pixel ((self x-cursor-graduated-view) time) 
-  (x-to-pix self time))
 
 (defmethod pixel-to-time ((self x-cursor-graduated-view) x) 
    (round (pix-to-x self x)))

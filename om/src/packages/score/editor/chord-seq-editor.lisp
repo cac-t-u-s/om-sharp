@@ -184,13 +184,14 @@
 
 
 (defmethod draw-score-object-in-editor-view ((editor chord-seq-editor) view unit)
-  (draw-sequence editor (object-value editor) view unit))
+  (draw-sequence (object-value editor) editor view unit))
 
-(defmethod draw-sequence ((editor chord-seq-editor) (object t) view unit) nil)
+
+(defmethod draw-sequence ((object t) editor view unit) nil)
 
 
 ;;; redefined this for other objects
-(defmethod draw-sequence ((editor chord-seq-editor) (object chord-seq) view unit)
+(defmethod draw-sequence ((object chord-seq) editor view unit)
 
   (let ((font-size (editor-get-edit-param editor :font-size))
         (staff (editor-get-edit-param editor :staff))
@@ -204,7 +205,7 @@
           (setf 
            (b-box chord)
            (draw-chord chord
-                       (/ (time-to-pixel view (date chord)) unit)
+                       (time-to-pixel view (date chord))
                        0 
                        (w view) (h view) 
                        font-size 

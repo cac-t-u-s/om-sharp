@@ -63,6 +63,17 @@
 ;;; BOX
 ;;;============
 
+;;; MINI-VIEW
+(defmethod miniview-time-to-pixel ((object score-object) view time &optional force-fontsize)
+  (let* ((fontsize (or force-fontsize (get-edit-param (object view) :font-size) 24))
+         (unit (print (font-size-to-unit fontsize)))
+         (shift-x-u 7)  
+         (shif-x-pix (* shift-x-u unit))
+         (w-pix (- (w view) (* 2 shif-x-pix))))  ;; +1 x unit for right margin ???
+         
+    (+ shif-x-pix (* time (/ w-pix (get-obj-dur object))))
+    ))
+
 
 (defmethod draw-mini-view ((self score-object) box x y w h &optional time)
   
@@ -86,13 +97,10 @@
           (setf fontsize (unit-to-font-size unit)))
         )
       
-      (let* ((x-in-units (/ x unit)))
-        
-        (om-with-fg-color (om-make-color 0.0 0.2 0.2)
-          (draw-staff x-in-units y-in-units w h fontsize staff :margin-l 1 :margin-r 1 :keys t)
-          (score-object-mini-view self x-in-units y-in-units w h staff fontsize)
-          )
-        ))))
+      (om-with-fg-color (om-make-color 0.0 0.2 0.2)
+        (score-object-mini-view self box x y-in-units w h fontsize)
+        )
+      )))
 
 
 

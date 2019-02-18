@@ -311,21 +311,18 @@ Internally most of these values are just used to build a list of CHORD objects, 
 
 
 
-(defmethod score-object-mini-view ((self chord-seq) x-u y-u w h staff fontsize)
+(defmethod score-object-mini-view ((self chord-seq) box x-pix y-u w h fontsize)
   
-  (when (chords self)
+  (let ((staff (get-edit-param box :staff)))
     
-    (let* ((unit (font-size-to-unit fontsize))
-           (shift-x-u 7) ;;  
-           (w-u (- (/ w unit) shift-x-u 2));; +1 for margin each side 
-           (x-ratio (/ w-u (get-obj-dur self))))
-    
-      (loop for chord in (chords self) do
-            (draw-chord chord
-                        (+ shift-x-u (* (date chord) x-ratio)) 
-                        y-u 
-                        w h fontsize :scale nil :staff staff)
-            ))))
+    (draw-staff x-pix y-u w h fontsize staff :margin-l 1 :margin-r 1 :keys t)
+
+    (loop for chord in (chords self) do
+          (draw-chord chord
+                      (miniview-time-to-pixel self (frame box) (date chord) fontsize)
+                      y-u 
+                      w h fontsize :scale nil :staff staff)
+          )))
 
 
 
