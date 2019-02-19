@@ -114,6 +114,12 @@
   (position-display (editor self) position))
 
 
+(defmethod score-object-update ((self t)) nil)
+
+(defmethod score-object-update ((self time-sequence))  
+  (update-obj-dur self))
+
+
 (defmethod om-view-click-handler ((self score-view) position)
   
   (let* ((editor (editor self))
@@ -133,8 +139,9 @@
                    (sort (cons new-note
                                (notes container-chord))
                          '< :key 'midic))
-             ;;; probably some updates of the time-sequence required here.. (?)
              
+             ;;; some updates of the time-sequence required here
+             (score-object-update obj)
              (report-modifications editor)
              (editor-invalidate-views editor)
              

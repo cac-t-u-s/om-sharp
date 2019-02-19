@@ -120,6 +120,7 @@
   "Insert a timed-item into the item-list at pos position" 
   (let ((list (time-sequence-get-timed-item-list self))
         (p (or position (length list))))
+    
     (time-sequence-set-timed-item-list self 
                           (append (and list (first-n list p))
                                  (list item)
@@ -128,11 +129,15 @@
 
 
 ; USE THIS METHOD TO UPDATE THE TIME PROPERTIES WHEN ADDING A POINT
-(defmethod time-sequence-insert-timed-item-and-update ((self time-sequence) point &optional position)
-  (let ((pos (or position (find-position-at-time self (item-get-time point)))))
+(defmethod time-sequence-insert-timed-item-and-update ((self time-sequence) item &optional position)
+  (let ((pos (or position (find-position-at-time self (item-get-time item)))))
+    
     (clean-master-points-type self)
-    (time-sequence-insert-timed-item self point pos)
+
+    (time-sequence-insert-timed-item self item pos)
+
     (time-sequence-update-internal-times self)
+
     pos))
 
 
@@ -190,17 +195,20 @@
 (defmethod get-obj-dur ((self time-sequence))
   (duration self))
 
-  ;(if (time-sequence-get-timed-item-list self)
-  ;    (let ((last-frame (last-elem (time-sequence-get-timed-item-list self))))
-  ;      (+ (item-real-time last-frame) (item-duration last-frame)))
-   ; (time-sequence-default-duration self)))
 
 (defmethod update-obj-dur ((self time-sequence))
+  
+  
   (setf (duration self)
+
         (if (remove nil (time-sequence-get-timed-item-list self))
+          
             (let ((last-frame (last-elem (time-sequence-get-timed-item-list self))))
+                            
               (+ (item-real-time last-frame) (item-get-duration last-frame)))
-          (time-sequence-default-duration self))))
+          
+          (time-sequence-default-duration self))
+        ))
 
 (defmethod set-internal-times ((self time-sequence) internal-times)
   (loop for point in (time-sequence-get-timed-item-list self)
