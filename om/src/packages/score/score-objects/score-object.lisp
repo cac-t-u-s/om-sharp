@@ -56,34 +56,44 @@
 
 
 (defmethod initialize-instance :after ((self score-object) &rest initargs)
-  (setf (autostop self) t) ;;; ??? wtf 
+  (setf (autostop self) t) ;;; ??? why 
   )
 
 ;;;============ 
 ;;; BOX
 ;;;============
 
+
+(defmethod special-box-type ((self (eql 'score-object))) 'ScoreBox)
+
+(defclass ScoreBox (OMBoxEditCall) 
+  ((fontsize :accessor fontsize :initform 18)))
+
+
 ;;; MINI-VIEW
-(defmethod miniview-time-to-pixel ((object score-object) view time &optional force-fontsize)
-  (let* ((fontsize (or force-fontsize (get-edit-param (object view) :font-size) 24))
-         (unit (print (font-size-to-unit fontsize)))
-         (shift-x-u 7)  
-         (shif-x-pix (* shift-x-u unit))
-         (w-pix (- (w view) (* 2 shif-x-pix))))  ;; +1 x unit for right margin ???
-         
-    (+ shif-x-pix (* time (/ w-pix (get-obj-dur object))))
-    ))
+(defmethod miniview-time-to-pixel ((object score-object) view time)
+  (let* ((fontsize (or (fontsize (object view)) 24))
+         (unit (font-size-to-unit fontsize))
+         (shift-x-u 10)  
+         (shift-x-pix (* shift-x-u unit))
+         (w-pix (- (w view) shift-x-pix (* 2 unit))))  ;; +1 x unit for right margin ???
+    
+    ;;; (print (list object fontsize shift-x-pix (w view) (get-obj-dur object)))
+    
+    (+ shift-x-pix (* time (/ w-pix (get-obj-dur object))))
+    )) 
 
 
-(defmethod draw-mini-view ((self score-object) box x y w h &optional time)
+(defmethod draw-mini-view ((self score-object) (box ScoreBox) x y w h &optional time)
   
   (om-draw-rect x y w h :fill t :color (om-def-color :white))
 
-  (let ((fontsize 18)
-        (staff (get-edit-param box :staff)))
-         
+  (let ((staff (get-edit-param box :staff)))
+    
+    (setf (fontsize box) 18)
+    
     (let* ((staff-lines (apply 'append (mapcar 'staff-lines (staff-split staff))))
-           (unit (font-size-to-unit fontsize))
+           (unit (font-size-to-unit (fontsize box)))
            (n-lines (+ (- (car (last staff-lines)) (car staff-lines)) 8)) ;;; range of the staff lines + 10-margin
            (draw-box-h (* n-lines unit))
            (y-in-units (/ y unit)))
@@ -94,11 +104,11 @@
         ;;; there's no space: reduce font ?
         (progn 
           (setf unit (- unit (/ (- draw-box-h h) n-lines)))
-          (setf fontsize (unit-to-font-size unit)))
+          (setf (fontsize box) (unit-to-font-size unit)))
         )
       
       (om-with-fg-color (om-make-color 0.0 0.2 0.2)
-        (score-object-mini-view self box x y-in-units w h fontsize)
+        (score-object-mini-view self box x y-in-units w h)
         )
       )))
 

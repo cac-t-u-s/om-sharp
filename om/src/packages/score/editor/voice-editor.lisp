@@ -23,13 +23,13 @@
 ;;;====================================================
 
 
-(defmethod score-object-mini-view ((self voice) box x-pix y-u w h fontsize)
+(defmethod score-object-mini-view ((self voice) box x-pix y-u w h)
   
-  (draw-staff x-pix y-u w h fontsize (get-edit-param box :staff) :margin-l 1 :margin-r 1 :keys t)
+  (draw-staff x-pix y-u w h (fontsize box) (get-edit-param box :staff) :margin-l 1 :margin-r 1 :keys t)
 
   (loop for m in (inside self)
         for i from 1
-        do (draw-score-element m (tempo self) box (frame box) :y-shift y-u :font-size fontsize :level i)
+        do (draw-score-element m (tempo self) box (frame box) :y-shift y-u :font-size (fontsize box) :level i)
         ))
 
 
@@ -92,6 +92,8 @@
     
     (om-draw-rect x1 10 (- x2 x1) (- (h view) (* (1+ level) 20)) :fill nil :color (om-def-color :light-gray))
     
+    ;;; IF LEVEL = 1: do someting about beaming
+
     (loop for element in (inside object) do
           (draw-score-element element tempo param-obj view 
                               :y-shift y-shift
@@ -156,9 +158,16 @@
          (chan (get-edit-param param-obj :channel-display))
          (vel (get-edit-param param-obj :velocity-display))
          (port (get-edit-param param-obj :port-display))
-         (dur (get-edit-param param-obj :duration-display)))
+         (dur (get-edit-param param-obj :duration-display))
+
+         ;;; from OM6.. 
+         (beams (get-number-of-beams (symbolic-dur object))) 
+         (beams-num (if (listp beams) (car beams) beams))
+         (propre-group (if (listp beams) (cadr beams))))
     
-    ;; (print (list "chord" (symbolic-dur object)))
+    ;; (print (list "chord" (symbolic-dur object) beams))
+    
+    ;;; IF LEVEL = 1: draw individual stem and beaming
 
     (setf 
      (b-box object)
@@ -166,8 +175,10 @@
                  (time-to-pixel view begin)
                  y-shift 
                  (w view) (h view) 
-                 font-size 
+                 font-size
                  :head (multiple-value-list (note-head-and-points (symbolic-dur object)))
+                 :stem (= level 1)
+                 :beams beams-num
                  :staff (get-edit-param param-obj :staff)
                  :draw-chans chan
                  :draw-vels vel

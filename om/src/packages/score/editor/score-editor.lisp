@@ -61,7 +61,8 @@
                    (w self) (h self) 
                    (editor-get-edit-param editor :font-size) 
                    (editor-get-edit-param editor :staff)
-                   :margin-l (margin-l self) :margin-r (margin-r self)
+                   :margin-l (margin-l self) 
+                   :margin-r (margin-r self)
                    :keys (keys self))
        
        (when (contents self)
