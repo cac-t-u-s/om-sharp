@@ -238,6 +238,7 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
 
 (defmethod get-notes ((self chord)) (notes self))
 (defmethod get-notes ((self note)) (list self))
+(defmethod get-notes ((self r-rest)) nil)
 (defmethod get-notes ((self list))
   (loop for item in self append (get-notes item)))
 
