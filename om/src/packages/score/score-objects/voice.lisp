@@ -47,9 +47,21 @@
 (defclass measure (rhythmic-object) ())
 (defclass group (rhythmic-object) ())
 
+(defmethod get-all-chords ((self rhythmic-object))
+  (loop for obj in (inside self) append 
+        (get-all-chords obj)))
+
+(defmethod get-all-chords ((self chord)) (list self))
+(defmethod get-all-chords ((self t)) nil)
+
+
 (defclass r-rest (score-object) ())
+(defmethod get-notes ((self r-rest)) nil)
+
 ;;; (defclass cont-chord (score-object) ())
 (defclass grace-note (score-object) ())
+
+
 
 
 (defmethod initialize-instance ((self voice) &rest initargs)
@@ -105,6 +117,7 @@
 ;;; the duration fo a leaf
 (defmethod tree-extent ((tree number)) 
   (decode-extent tree))
+
 
 (defmethod build-rhythm-structure ((self rhythmic-object) chords n)
 

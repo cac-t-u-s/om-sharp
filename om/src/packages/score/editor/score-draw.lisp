@@ -435,7 +435,8 @@
                          (head :head-1/4)
                          (scale *default-scale*)
                          (staff :gf)
-                         (stem t) (beams 0)
+                         (stem t) ;; stem can be T or a position (in line or score units) 
+                         (beams '(0 0)) ;; (number-of-beams position-in-group)
                          draw-chans draw-ports draw-vels draw-durs
                          selection
                          build-b-boxes)
@@ -495,40 +496,89 @@
              (when stem?
                
                (let ((stem-size (* unit *stem-height*))
-                     (stemThickness (* *stemThickness* unit)))
+                     (stemThickness (* *stemThickness* unit))
+                     (stemUpSE-x (* unit (car *noteheadBlack_StemUpSE*))) ;;; SE = anchor for stem-up
+                     (stemUpSE-y (* unit (cadr *noteheadBlack_StemUpSE*)))
+                     (stemDownNW-x (* unit (car *noteheadBlack_StemDownNW*))) ;;; NW = anchor for stem-down
+                     (stemDownNW-y (* unit (cadr *noteheadBlack_StemDownNW*)))
+                     (n-beams (car beams))
+                     (pos-in-group (cadr beams)))
                  
-                 (if (<= (/ (+ pmax pmin) 2) (staff-medium-pitch staff))
-                     ;;; stem up
-                    
-                     (let ((stemUpSE-x (* unit (car *noteheadBlack_StemUpSE*)))
-                           (stemUpSE-y (* unit (cadr *noteheadBlack_StemUpSE*))))
+                 (if (numberp stem) ;;; we are in a group and the max position is fixed (stem, lin line number)
+                     
+                     (let ((stem-pos (line-to-ypos stem shift unit)))
                        
-                       (om-draw-line (+ x-pix stemUpSE-x) (- y-min stemUpSE-y)
-                                     (+ x-pix stemUpSE-x) (- y-max stemUpSE-y stem-size)
+                       (if (> stem l-min) ;; stem is higher than the min note of the chord
+                         
+                           ;;; up
+                           (progn 
+                             (om-draw-line (+ x-pix stemUpSE-x) (- y-min stemUpSE-y)
+                                           (+ x-pix stemUpSE-x) stem-pos
+                                           :line stemThickness)
+                             
+                             (when (> n-beams 0)
+                               (if (zerop pos-in-group) ;; first elem
+                                   (draw-beams x-pix (+ x-pix unit) stem :up n-beams y-units staff fontsize)
+                                 (draw-beams (- x-pix unit) x-pix stem :up n-beams y-units staff fontsize)
+                                 ))
+                          
+                             (setf cy1 stem-pos))
+
+                         ;;; down
+                         (progn
+                           (om-draw-line (+ x-pix stemDownNW-x) (- y-max stemDownNW-y)
+                                         (+ x-pix stemDownNW-x) stem-pos
+                                         :line stemThickness)
+                           (when (> n-beams 0)
+                             (if (zerop pos-in-group) ;; first elem
+                                   (draw-beams x-pix (+ x-pix unit) stem :down n-beams y-units staff fontsize)
+                                 (draw-beams (- x-pix unit) x-pix stem :down n-beams y-units staff fontsize)
+                                 ))
+                           
+                           (setf cy2 stem-pos))
+                         )
+
+                       
+                       )
+                 
+                   ;;; otherwise, this is a standalone chord with stem 
+                   (if (<= (/ (+ pmax pmin) 2) (staff-medium-pitch staff))
+                       ;;; stem up
+                    
+                       (let ((stem-x (+ x-pix stemUpSE-x)))
+                            
+                         (om-draw-line stem-x (- y-min stemUpSE-y)
+                                       stem-x (- y-max stemUpSE-y stem-size)
+                                       :line stemThickness)
+                       
+                         ;; initial extesion for the chord bounding-box 
+                         (setf cy1 (- y-max stemUpSE-y stem-size))
+
+                         (when (> n-beams 0)
+                           (let ((flag-char (flag-char :up n-beams)))
+                             (om-draw-char stem-x (- y-max stemUpSE-y stem-size) flag-char)
+                             ))
+                         )
+
+                     ;;; stem down
+                     (let ((stem-x (+ x-pix stemDownNW-x)))
+                       (om-draw-line stem-x (- y-max stemDownNW-y)
+                                     stem-x (- y-min stemDownNW-y (- stem-size))
                                      :line stemThickness)
-                       (setf cy1 (- y-max stemUpSE-y stem-size)) ;; initial extesion for the chord bounding-box as well
-                      
-                       (when (> beams 0)
-                         (let ((flag-char (flag-char :up beams)))
-                           (om-draw-char (+ x-pix stemUpSE-x) (- y-max stemUpSE-y stem-size) flag-char)
+                          
+                       ;; initial extesion for the chord bounding-box 
+                       (setf cy2 (- y-min stemDownNW-y (- stem-size))) 
+                          
+                       (when (> n-beams 0)
+                         (let ((flag-char (flag-char :down n-beams)))
+                           (om-draw-char stem-x (- y-min stemDownNW-y (- stem-size)) flag-char)
                            ))
                        )
-
-                   ;;; stem down
-                   (let ((stemDownNW-x (* unit (car *noteheadBlack_StemDownNW*)))
-                         (stemDownNW-y (* unit (cadr *noteheadBlack_StemDownNW*))))
-                     (om-draw-line (+ x-pix stemDownNW-x) (- y-max stemDownNW-y)
-                                   (+ x-pix stemDownNW-x) (- y-min stemDownNW-y (- stem-size))
-                                   :line stemThickness)
-                     (setf cy2 (- y-min stemDownNW-y (- stem-size))) ;; initial extesion for the chord bounding-box as well
-                     
-                     (when (> beams 0)
-                         (let ((flag-char (flag-char :down beams)))
-                           (om-draw-char (+ x-pix stemDownNW-x) (- y-min stemDownNW-y (- stem-size)) flag-char)
-                           ))
                      )
-                   )))
-
+                   )
+                 ))
+               
+             
              ;;; GLOBAL CHANNEL
              (when (and (member draw-chans '(:number :color-and-number)) 
                         unique-channel) ;;; if there's just one channel in the chord we'll display it here
@@ -855,59 +905,25 @@
 ;;; BEAMING
 ;;;========================
 
-(defmethod get-atoms-in-group ((self chord)) (list self))
-(defmethod get-atoms-in-group ((self r-rest)) (list self))
-(defmethod get-atoms-in-group ((self group))
-  (loop for item in (inside self) append (get-atoms-in-group item)))
-
-
-;;; is (denominator dur) a power of 2
-(defun is-binaire? (dur)
-  (and (= (numerator dur) 1) 
-       (= (denominator dur) (closest-pwr-of-2 (denominator dur)))
-       ))
-
-(defun find-group-symbol (val)
-  (let* ((num (numerator val))
-         (den (denominator val))
-         (bef (bin-value-below den)))
-    (list 
-     (note-strict-beams (/ 1 bef)) 
-     (denominator (/ bef den)))))
-
-(defun note-strict-beams (val)
-   (cond
-    ((or (= val 1/4) (= val 1/2) (>= val 1)) 0)
-    ((= val 1/8)  1)
-    ((= val 1/16) 2)
-    ((= val 1/32) 3)
-    ((= val 1/64) 4)
-    ((= val 1/128) 5)
-    ((= val 1/256) 6)
-    ((= val 1/512) 7)
-    ((is-binaire? val) (round (- (log (denominator val) 2) 2)))
-    (t (find-group-symbol val))))
-
-;;; gives number of beams for a given division
-;;; => entry in the process of determining the beaming for a given chord.
-;;; this code is directly adapted from OM6 score editors
-(defun get-number-of-beams (val)
+(defun draw-beams (begin-pix end-pix beam-line direction n-beams y-shift staff fontsize)
   
-  (let* ((num (numerator val))
-         (den (denominator val))
-         (bef (bin-value-below num)))
+  (let* ((unit (font-size-to-unit fontsize))
+         (beamThickness (ceiling (* *beamThickness* unit)))
+         (yshift (+ y-shift (calculate-staff-line-shift staff))))
     
-     (cond
-      ((= bef num)
-       (note-strict-beams (/ num den)))
-      
-      ((= (* bef 1.5) num)
-       (note-strict-beams (/ bef den) ))
-       
-      ((= (* bef 1.75) num)
-       (setf beams (note-strict-beams (/ bef den) )))
-
-      (t 0))
-     ))
+    (dotimes (i n-beams)
+      (if (equal direction :up)
+          (om-draw-rect (floor (+ begin-pix (* unit (car *noteheadBlack_StemUpSE*))))
+                        (1- (line-to-ypos (- beam-line i) yshift unit))
+                        (1+ (- end-pix begin-pix))
+                        (1+ beamThickness)
+                        :fill t)
+        (om-draw-rect (floor (+ begin-pix (* unit (car *noteheadBlack_StemDownNW*))))
+                      (1+ (round (- (line-to-ypos (+ beam-line i) yshift unit) beamThickness)))
+                      (1+ (- end-pix begin-pix))
+                      (1+ beamThickness)
+                      :fill t)
+        )
+      )))
 
 
