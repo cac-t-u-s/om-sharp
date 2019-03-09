@@ -414,6 +414,115 @@
                   :line thinBarlineThickness)
     ))
 
+;;;=======================
+;;; RHYTHM
+;;;=======================
+
+
+;;;========================
+;;; HEADS
+;;;========================
+
+(defun note-symbol (val &optional rest)
+  (cond 
+   ((>= val 8) (list val)) 
+   ((= val 8) :head-8)   ;;; will never happen becvause of previous statement: fix that 
+   ((= val 4) :head-4)
+   ((= val 2) :head-2)
+   ((= val 1) :head-1)
+   ((= val 1/2) :head-1/2)    
+   (t :head-1/4)))
+
+(defun rest-symbol (val)
+  (cond
+   ((> val 4) (list val)) 
+   ((= val 4) :rest-4)
+   ((= val 2) :rest-2)
+   ((= val 1) :rest-1)
+   ((= val 1/2) :rest-1/2)
+   ((= val 1/4) :rest-1/4)
+   ((= val 1/8) :rest-1/8)
+   ((= val 1/16) :rest-1/16)
+   ((= val 1/32) :rest-1/32)
+   ((= val 1/64) :rest-1/64)
+   ((= val 1/128) :rest-1/128)
+   (t :rest-1/128)))
+
+
+(defun bin-value-below (num)
+  (let ((cp2 (next-square-of-n num 2)))
+    (if (= num cp2) num (/ cp2 2))))
+
+(defun closest-square-of (num of)
+  (let* ((high (next-square-of-n num of))
+         (low (/ high 2)))
+    (if (< (- high num) (- num low))
+        high low)))
+
+
+;;; get the notehead symbol and eventually points corresponding to a given duration
+(defun note-head-and-points (dur)
+   (let* ((num (numerator dur))
+          (den (denominator dur))
+          (bef (bin-value-below num))
+          (points 0) (symbol :head-1/4))
+     
+     (cond
+      ((= bef num)
+       (setf symbol (note-symbol (/ num den))))
+      ((= (* bef 1.5) num)
+       (setf symbol (note-symbol (/ bef den)))
+       (setf points 1))
+      ((= (* bef 1.75) num)
+       (setf symbol (note-symbol (/ bef den)))
+       (setf points 2)))
+     
+     (values symbol points)))
+
+
+(defun rest-head-and-points (dur)
+   (let* ((num (numerator dur))
+          (den (denominator dur))
+          (bef (bin-value-below num))
+          (points 0) (symbol :rest-1/4))
+     (cond
+      ((= bef num)
+       (setf symbol (rest-symbol (/ num den))))
+      ((= (* bef 1.5) num)
+       (setf symbol (rest-symbol (/ bef den)))
+       (setf points 1))
+      ((= (* bef 1.75) num)
+       (setf symbol (rest-symbol (/ bef den)))
+       (setf points 2)))
+     
+     (values symbol points)))
+
+
+;;;========================
+;;; BEAMING
+;;;========================
+
+(defun draw-beams (begin-pix end-pix beam-line direction beams y-shift staff fontsize)
+  
+  (let* ((unit (font-size-to-unit fontsize))
+         (beamThickness (ceiling (* *beamThickness* unit)))
+         (yshift (+ y-shift (calculate-staff-line-shift staff))))
+    
+    (loop for i in beams do
+      (if (equal direction :up)
+          (om-draw-rect (floor (+ begin-pix (* unit (car *noteheadBlack_StemUpSE*))))
+                        (- (line-to-ypos (- beam-line i -1) yshift unit) 2)
+                        (1+ (- end-pix begin-pix))
+                        (1+ beamThickness)
+                        :fill t)
+        (om-draw-rect (floor (+ begin-pix (* unit (car *noteheadBlack_StemDownNW*))))
+                      (1+ (round (- (line-to-ypos (+ beam-line i -1) yshift unit) beamThickness)))
+                      (1+ (- end-pix begin-pix))
+                      (1+ beamThickness)
+                      :fill t)
+        )
+      )))
+
 
 ;;;=======================
 ;;; CHORDS
@@ -445,7 +554,10 @@
 
   (let ((head-symb (if (consp head) (car head) head))
         (n-points (if (consp head) (cadr head) 0)))
-
+    
+    ;;; TODO
+    ;;; if head-symb is a list => long figure and the value in (car head-symb) is the duration
+    
     (multiple-value-bind (head-char head-name)
         (note-head-char head-symb)
     
@@ -514,9 +626,9 @@
                            (progn 
                              (om-draw-line (+ x-pix stemUpSE-x) (- y-min stemUpSE-y)
                                            (+ x-pix stemUpSE-x) stem-pos
-                                           :line stemThickness)
+                                           :line stemThickness :end-style :projecting)
                              
-                             (when (> n-beams 0)
+                             (when n-beams
                                (if (zerop pos-in-group) ;; first elem
                                    (draw-beams x-pix (+ x-pix unit) stem :up n-beams y-units staff fontsize)
                                  (draw-beams (- x-pix unit) x-pix stem :up n-beams y-units staff fontsize)
@@ -526,10 +638,10 @@
 
                          ;;; down
                          (progn
-                           (om-draw-line (+ x-pix stemDownNW-x) (- y-max stemDownNW-y)
+                           (om-draw-line  (+ x-pix stemDownNW-x) (- y-max stemDownNW-y)
                                          (+ x-pix stemDownNW-x) stem-pos
-                                         :line stemThickness)
-                           (when (> n-beams 0)
+                                         :line stemThickness :end-style :projecting)
+                           (when n-beams
                              (if (zerop pos-in-group) ;; first elem
                                    (draw-beams x-pix (+ x-pix unit) stem :down n-beams y-units staff fontsize)
                                  (draw-beams (- x-pix unit) x-pix stem :down n-beams y-units staff fontsize)
@@ -554,8 +666,8 @@
                          ;; initial extesion for the chord bounding-box 
                          (setf cy1 (- y-max stemUpSE-y stem-size))
 
-                         (when (> n-beams 0)
-                           (let ((flag-char (flag-char :up n-beams)))
+                         (when n-beams
+                           (let ((flag-char (flag-char :up (list-max n-beams))))
                              (om-draw-char stem-x (- y-max stemUpSE-y stem-size) flag-char)
                              ))
                          )
@@ -569,8 +681,8 @@
                        ;; initial extesion for the chord bounding-box 
                        (setf cy2 (- y-min stemDownNW-y (- stem-size))) 
                           
-                       (when (> n-beams 0)
-                         (let ((flag-char (flag-char :down n-beams)))
+                       (when n-beams
+                         (let ((flag-char (flag-char :down (list-max n-beams))))
                            (om-draw-char stem-x (- y-min stemDownNW-y (- stem-size)) flag-char)
                            ))
                        )
@@ -817,113 +929,7 @@
             ))))))
 
 
-;;;=======================
-;;; RHYTHM
-;;;=======================
 
 
-;;;========================
-;;; HEADS
-;;;========================
-
-(defun note-symbol (val &optional rest)
-  (cond 
-   ((>= val 8) (list val)) 
-   ((= val 8) :head-8)   ;;; will never happen becvause of previous statement: fix that 
-   ((= val 4) :head-4)
-   ((= val 2) :head-2)
-   ((= val 1) :head-1)
-   ((= val 1/2) :head-1/2)    
-   (t :head-1/4)))
-
-(defun rest-symbol (val)
-  (cond
-   ((> val 4) (list val)) 
-   ((= val 4) :rest-4)
-   ((= val 2) :rest-2)
-   ((= val 1) :rest-1)
-   ((= val 1/2) :rest-1/2)
-   ((= val 1/4) :rest-1/4)
-   ((= val 1/8) :rest-1/8)
-   ((= val 1/16) :rest-1/16)
-   ((= val 1/32) :rest-1/32)
-   ((= val 1/64) :rest-1/64)
-   ((= val 1/128) :rest-1/128)
-   (t :rest-1/128)))
-
-
-(defun bin-value-below (num)
-  (let ((cp2 (closest-pwr-of-2 num)))
-    (if (= num cp2) num (/ cp2 2))))
-
-(defun closest-bin-value (num)
-  (let* ((high (closest-pwr-of-2 num))
-         (low (/ high 2)))
-    (if (< (- high num) (- num low))
-        high low)))
-
-
-;;; get the notehead symbol and eventually points corresponding to a given duration
-(defun note-head-and-points (dur)
-   (let* ((num (numerator dur))
-          (den (denominator dur))
-          (bef (bin-value-below num))
-          (points 0) (symbol :head-1/4))
-     
-     (cond
-      ((= bef num)
-       (setf symbol (note-symbol (/ num den))))
-      ((= (* bef 1.5) num)
-       (setf symbol (note-symbol (/ bef den)))
-       (setf points 1))
-      ((= (* bef 1.75) num)
-       (setf symbol (note-symbol (/ bef den)))
-       (setf points 2)))
-     
-     (values symbol points)))
-
-
-(defun rest-head-and-points (dur)
-   (let* ((num (numerator dur))
-          (den (denominator dur))
-          (bef (bin-value-below num))
-          (points 0) (symbol :rest-1/4))
-     (cond
-      ((= bef num)
-       (setf symbol (rest-symbol (/ num den))))
-      ((= (* bef 1.5) num)
-       (setf symbol (rest-symbol (/ bef den)))
-       (setf points 1))
-      ((= (* bef 1.75) num)
-       (setf symbol (rest-symbol (/ bef den)))
-       (setf points 2)))
-     
-     (values symbol points)))
-
-
-;;;========================
-;;; BEAMING
-;;;========================
-
-(defun draw-beams (begin-pix end-pix beam-line direction n-beams y-shift staff fontsize)
-  
-  (let* ((unit (font-size-to-unit fontsize))
-         (beamThickness (ceiling (* *beamThickness* unit)))
-         (yshift (+ y-shift (calculate-staff-line-shift staff))))
-    
-    (dotimes (i n-beams)
-      (if (equal direction :up)
-          (om-draw-rect (floor (+ begin-pix (* unit (car *noteheadBlack_StemUpSE*))))
-                        (1- (line-to-ypos (- beam-line i) yshift unit))
-                        (1+ (- end-pix begin-pix))
-                        (1+ beamThickness)
-                        :fill t)
-        (om-draw-rect (floor (+ begin-pix (* unit (car *noteheadBlack_StemDownNW*))))
-                      (1+ (round (- (line-to-ypos (+ beam-line i) yshift unit) beamThickness)))
-                      (1+ (- end-pix begin-pix))
-                      (1+ beamThickness)
-                      :fill t)
-        )
-      )))
 
 

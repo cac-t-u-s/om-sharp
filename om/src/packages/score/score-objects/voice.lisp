@@ -45,7 +45,9 @@
 
 ;;; some additional classes to build a rhythmic structure
 (defclass measure (rhythmic-object) ())
-(defclass group (rhythmic-object) ())
+
+(defclass group (rhythmic-object) 
+  ((numdenom :accessor numdenom :initarg :numdenom :initform nil)))
 
 (defmethod get-all-chords ((self rhythmic-object))
   (loop for obj in (inside self) append 
@@ -114,7 +116,7 @@
 (defmethod tree-extent ((tree list)) 
   (decode-extent (car tree)))
 
-;;; the duration fo a leaf
+;;; the duration of a leaf
 (defmethod tree-extent ((tree number)) 
   (decode-extent tree))
 
@@ -136,9 +138,26 @@
                     (let ((group (make-instance 'group :tree subtree
                                                 :symbolic-date beat
                                                 :symbolic-dur (* (symbolic-dur self) (/ (car subtree) total-dur)))))
+                      
+                      ;;; set the "numdenom" indicator
+                      ;;; direct from OM6: probably possible to simplify
+                      (let* ((group-ratio (get-group-ratio subtree))
+                             (num (or group-ratio (symbolic-dur group)))
+                             (denom (find-denom num (symbolic-dur group))))
+                        
+                        (when (listp denom) 
+                          (setq num (car denom))
+                          (setq denom (second denom)))
+                        
+                        (setf (numdenom group) (cond
+                                                ((not group-ratio) nil)
+                                                ((= (/ num denom) 1) nil)
+                                                (t (list num denom))))
+                        
                         (setq sub-dur (symbolic-dur group))
                         (setq curr-n-chord (build-rhythm-structure group chords curr-n-chord))
-                        group)
+                        
+                        group))
                   
                   (progn ;;; atom (leaf)
                     
@@ -173,6 +192,77 @@
                 ))
     
   curr-n-chord))
+
+
+
+;;;===============================================
+;;; UTILS FOR "NUMDENOM" COMPUTATION
+;;; direct from OM6
+;;;===============================================
+
+(defmethod get-group-ratio (tree)
+  
+  (let ((extent (car tree))
+        (addition (loop for item in (second tree) sum (floor (abs (if (listp item) (car item) item))))))
+     
+    (cond
+      ((= (round (abs addition)) 1) nil)
+      ((integerp (/ extent addition)) addition)
+      ;; never happen
+      ((and (integerp (/ extent addition)) 
+            (or (pwr-of-2-p (/ extent addition))
+                (and (integerp (/ addition extent)) 
+                     (pwr-of-2-p (/ addition extent))))) 
+       nil)
+      (t addition))))
+
+
+(defun find-beat-symbol (den) (bin-value-below den))
+
+; Find the right denom to ratio of tuplet.
+(defun find-denom (num durtot)
+  (cond
+   ((is-binaire? durtot) (get-denom-bin num))
+   ((is-ternaire? durtot) (get-denom-ter num))
+   (t (get-denom-other durtot num))))
+
+
+;;; is (denominator dur) a power of 2
+(defun is-binaire? (dur)
+  (and (= (numerator dur) 1) 
+       (= (denominator dur) (next-square-of-n (denominator dur) 2))   ;;; next-pwr-of-2, or closest ?
+       ))
+
+(defun is-ternaire? (durtot)
+  (and (= 3 (numerator durtot)) 
+       (is-binaire? (/ 1 (denominator durtot)))
+       ))
+
+(defmethod get-denom-bin (num)
+  (case num
+    (3 2)
+    (4 4) (5 4) (6 4) (7 4) (8 8) (9 8) (10 8) (11 8) (12 8) (13 8) (14 8)
+    (15 16) (16 16)
+    (otherwise (closest-bin-value num))))
+
+(defmethod get-denom-ter (num)
+  (case num
+    (2 3) (3 3) (4 3)
+    (5 6) (6 6) (7 6) (8 6) (9 6) 
+    (10 12) (11 12) (12 12) (13 12) (14 12) (15 12) (16 12) (17 12)
+    (otherwise (closest-square-of-n num 3))))
+
+; if the answer is a list, the num should be changed in the caller-group
+(defun get-denom-other (dur num)
+  (let ((durtot (numerator dur)))
+    (cond
+     ((= (+ num 1) durtot) durtot)
+     ((= num durtot) num)
+     ((< num durtot)
+      (list (* num 2) durtot))
+     ;((< num (- (* 2 durtot) 1)) durtot)  ;; OJO OJO ESTOS CASOS HAY QUE VERLOS CON KARIM
+     (t (closest-square-of num durtot))
+     )))
 
 
 

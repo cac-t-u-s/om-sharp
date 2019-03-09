@@ -60,13 +60,10 @@
   )
 
 
-
 ;;;===============================================
-;;; STRUCTURE
-;;;===============================================
-
 ;;; MEASURE
-;;; for measure we use level as measure number
+;;;===============================================
+
 (defmethod draw-score-element ((object measure) tempo param-obj view 
                                &key font-size (y-shift 0) (level 0) position beam-info selection)
 
@@ -88,7 +85,6 @@
                               :font-size font-size
                               :selection selection))
     ))
-
 
 ;;;========================
 ;;; BEAMING / GROUPS
@@ -116,12 +112,6 @@
       )
     ))
 
-
-;;; is (denominator dur) a power of 2
-(defun is-binaire? (dur)
-  (and (= (numerator dur) 1) 
-       (= (denominator dur) (closest-pwr-of-2 (denominator dur)))
-       ))
 
 (defun find-group-symbol (val)
   (let* ((den (denominator val))
@@ -165,6 +155,14 @@
       (t 0))
      ))
 
+;;; Get the depth of num/dem line in a group
+(defmethod calcule-chiff-level ((self t)) 0)
+(defmethod calcule-chiff-level ((self group))
+  (+ (if (numdenom self) 1 0) 
+     (loop for item in (inside self)
+           maximize (calcule-chiff-level item))))
+
+
 
 (defmethod draw-score-element ((object group) tempo param-obj view 
                                &key font-size (y-shift 0) (level 1) position beam-info selection)
@@ -172,47 +170,84 @@
   (declare (ignore position))
 
   (let* ((staff (get-edit-param param-obj :staff))
-         (beam-info (or beam-info (multiple-value-list (find-group-beam-line object staff)))))
+         (beam-n-and-dir (or (first-n beam-info 2) ;; the rest of the list is local info
+                             (multiple-value-list (find-group-beam-line object staff))))
+         (beams-from-parent (nth 2 beam-info)))
     
-    ;; the first group catching a beam information transfers to all descendants
-    
-    ;;; IF LEVEL = 1: do someting about beaming
-
-    
-    (loop for element in (inside object)
-          for i from 0 do
-          (draw-score-element element tempo param-obj view 
-                              :y-shift y-shift
-                              :font-size font-size
-                              :level (1+ level) 
-                              :beam-info beam-info
-                              :position i
-                              :selection selection))
-    
-    
+    ;; the first group catching a beam information transfers to all descendants 
+        
     (let ((beams (loop for c in (get-all-chords object)
-                           minimize (let ((bn (get-number-of-beams (symbolic-dur c))))
-                                      (if (listp bn) (car bn) bn)) into n 
-                           minimize (beat-to-time (symbolic-date c) tempo) into t1
-                           maximize (beat-to-time (symbolic-date c) tempo) into t2
-                           finally return (list n t1 t2)
-                           )))
+                       minimize (let ((bn (get-number-of-beams (symbolic-dur c))))
+                                  (if (listp bn) (car bn) bn)) into n 
+                       minimize (beat-to-time (symbolic-date c) tempo) into t1
+                       maximize (beat-to-time (symbolic-date c) tempo) into t2
+                       finally return (list (arithm-ser 1 n 1) t1 t2)
+                       )))
 
-      ;;; sub-groups or chords should subtract this now  
-      ;;; or they will re-draw on top of it
+      (loop for element in (inside object)
+            for i from 0 do
+            (draw-score-element element tempo param-obj view 
+                                :y-shift y-shift
+                                :font-size font-size
+                                :level (1+ level) 
+                                :beam-info (when beam-n-and-dir (append beam-n-and-dir (list (car beams))))
+                                ;;; send the beams already drawn in 3rd position
+                                :position i
+                                :selection selection))
+
+      ;;; sub-groups or chords wont draw these  
       (draw-beams (time-to-pixel view (nth 1 beams)) 
                   (time-to-pixel view (nth 2 beams))
-                  (car beam-info) ;; the beam init line
-                  (cadr beam-info) ;; the beam direction
-                  (car beams) ;; the number of beams
+                  (car beam-n-and-dir)  ;; the beam init line
+                  (cadr beam-n-and-dir) ;; the beam direction
+                  (set-difference (car beams) beams-from-parent)     ;; the beam numbers 
                   y-shift staff font-size)
+      
       )
-    ))
+
+    ;;; subdivision line and numbers 
+    (let* ((numdenom-level (calcule-chiff-level object)))
+      ;;; chiflevel tells us how much above or below the beam this should be placed
+      ;; (print (list object chiflevel (numdenom object)))
+      )
+    )
+    
+  )
 
 
-;;;========================
-;;; CHORDS / RESTS
-;;;========================
+
+#|
+;;; passed through groups as "durtot" in OM6:
+;;; starting at (* symb-beat-val factor) in measure
+
+ (real-beat-val (/ 1 (fdenominator (first tree))))
+ (symb-beat-val (/ 1 (find-beat-symbol (fdenominator (first tree)))))
+ (dur-obj-noire (/ (extent item) (qvalue item)))
+ (factor (/ (* 1/4 dur-obj-noire) real-beat-val))
+ (unite (/ durtot denom))
+;;; => 
+(if (not group-ratio) 
+     (let* ((dur-obj (/ (/ (extent item) (qvalue item)) 
+                        (/ (extent self) (qvalue self)))))
+       (* dur-obj durtot))
+   (let* ((operation (/ (/ (extent item) (qvalue item)) 
+                        (/ (extent self) (qvalue self))))
+          (dur-obj (numerator operation)))
+     (setf dur-obj (* dur-obj (/ num (denominator operation))))
+     (* dur-obj unite)))
+
+;;; passed through groups as "ryth"
+;;; starting at  (list real-beat-val (nth i (cadr (tree self)))) in measure
+;;; => 
+(list (/ (car (second ryth)) (first ryth))
+      (nth i (cadr (second ryth))))
+
+|#
+
+
+;;;===================
+;;; CHORD
+;;;===================
 
 (defmethod draw-score-element ((object chord) 
                                tempo param-obj view 
@@ -227,13 +262,15 @@
          (dur (get-edit-param param-obj :duration-display))
 
          ;;; from OM6.. 
-         (beams (get-number-of-beams (symbolic-dur object))) 
+         (beams (get-number-of-beams (symbolic-dur object)))
+         (beams-from-parent (nth 2 beam-info))
          (beams-num (if (listp beams) (car beams) beams))
-         (propre-group (if (listp beams) (cadr beams))))
+         (beams-to-draw (set-difference (arithm-ser 1 beams-num 1) beams-from-parent))
+         ;;(propre-group (if (listp beams) (cadr beams)))
+         )
     
     ;; (print (list "chord" (symbolic-dur object) beams))
-    
-    ;;; IF LEVEL = 1: draw individual stem and beaming
+    ;; in fact propre-group (= when a standalone chord has a small group indication) will never happen (in OM)
     
     (setf 
      (b-box object)
@@ -244,7 +281,7 @@
                  font-size
                  :head (multiple-value-list (note-head-and-points (symbolic-dur object)))
                  :stem (or (= level 1) (car beam-info))  ;; (car beam-info) is the beam-line 
-                 :beams (list beams-num position)
+                 :beams (list beams-to-draw position)
                  :staff staff
                  :draw-chans chan
                  :draw-vels vel
@@ -256,8 +293,10 @@
 
     ))
 
+;;;=========
 ;;; REST
-;;; todo: beaming
+;;;=========
+
 (defmethod draw-score-element ((object r-rest) tempo param-obj view &key font-size (y-shift 0) (level 1) position beam-info selection)
   
   (let* ((begin (beat-to-time (symbolic-date object) tempo)))
@@ -279,12 +318,13 @@
 
 
 ;;; todo
-;;; PROPRE-GROUPS
-;;; RESTS: GROUPS AND POSITIONS
+;;; LONG-HEAD (see draw-chord)
+;;; RESTS: GROUPS/BEAMING AND Y-POSITIONS
 ;;; TIES
 ;;; TEMPO / CHIFFRAGE MESURE
 ;;; SPACING
 ;;; TEMPO CHANGE
+;;; Grace notes
 
 
 #|

@@ -296,10 +296,15 @@
     (/ num den)))
 
 
-;;; finds the closest power of two that is greater than val 
-(defun closest-pwr-of-2 (val)
-  (let ((size 2))
-    (loop while (> val size) do
-          (setf size (* size 2)))
-    size))
+;;; finds the closest square of n that is greater than val
+(defun next-square-of-n (val n)
+  (let ((exp n))
+    (loop while (> val exp) do
+          (setf exp (* exp 2)))
+    exp))
+
+(defun pwr-of-2-p (n)
+  (or (= n 1) (= n 2)
+      (and (zerop (mod self 2)) 
+           (power-of-two-p (/ self 2)))))
 

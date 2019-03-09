@@ -291,6 +291,7 @@
     ))
 
 ;; #-cocoa :operation #-cocoa (if erasable boole-eqv boole-1)
+;; end-style = :round or :projecting
 (defun om-draw-line (x1 y1 x2 y2 &key color line style (end-style :round) )
   ;(gp:draw-line *curstream* (+ x1 0.5) (+ y1 0.5) (+ x2 0.5) (+ y2 0.5))
   (apply 'gp:draw-line 
@@ -299,7 +300,7 @@
                 (if (and line (integerp line) (oddp line))
                     (list (+ x1 0.5) (+ y1 0.5) (+ x2 0.5) (+ y2 0.5))
                   (list x1 y1 x2 y2))
-                `(:line-end-style ,end-style) ; :round or :projecting
+                `(:line-end-style ,end-style)
                 (format-graphic-args :fcolor color :line line :style style)
                 ))
          ))
