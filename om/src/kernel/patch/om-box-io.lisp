@@ -85,7 +85,7 @@
 (defmethod get-keyword-inputs ((box OMBox))
   (remove-if-not #'(lambda (item) (subtypep item 'box-keyword-input)) (inputs box) :key 'type-of))
 
-;;; used for subclasses such as patch boxes, loop boxes, sequence...
+;;; used (?) for subclasses such as patch boxes, loop boxes, sequence...
 (defmethod do-delete-one-input-extra ((self OMBox)) nil)
 
 
@@ -174,6 +174,8 @@
                 (connections last-in))
         (set-box-inputs self (remove last-in (inputs self) :test 'equal))
        t))))
+
+
 
 ;;; :++ is a special keyword allowing to set a personalized keyword name
 ;;; used for instance in class-array
@@ -265,4 +267,10 @@
 (defun get-keyword-outputs (box)
   (remove-if-not #'(lambda (item) (subtypep item 'box-keyword-output)) (outputs box) :key 'type-of))
 
+(defmethod remove-one-output ((self ombox) (output box-output))
+  (mapc #'(lambda (c) 
+            (omng-remove-element (container self) c)) 
+        (connections output))
+  (set-box-outputs self (remove output (outputs self))))
+  
 

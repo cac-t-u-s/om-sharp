@@ -67,7 +67,7 @@ Mind using this box in 'eval-once' mode when connected to several other boxes."
 
 (defmethod remove-one-optional-input ((self OMBoxSeqCall))
   (when (call-next-method)
-    (set-box-outputs self (butlast (outputs self)))))
+    (remove-one-output self (car (last (outputs self))))))
 
 
 ;;;------------------------------------------
@@ -119,7 +119,7 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
 
 (defmethod remove-one-optional-input ((self OMBoxSplit))
   (when (get-optional-inputs self)
-    (set-box-outputs self (butlast (outputs self)))))
+    (remove-one-output self (car (last (outputs self))))))
 
 ;; hack: all inputs (actually, ouputs) can be removed as "optional"
 (defmethod get-optional-inputs ((self OMBoxSplit)) (cdr (outputs self)))

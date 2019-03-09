@@ -137,5 +137,5 @@ It is returned on the first output in case of negative match.
 
 (defmethod remove-one-optional-input ((self RouteBox))
   (when (call-next-method)
-    (set-box-outputs self  (butlast (outputs self)))))
+    (remove-one-output self (car (last (outputs self))))))
 

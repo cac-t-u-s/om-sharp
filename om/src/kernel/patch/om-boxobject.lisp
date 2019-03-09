@@ -155,8 +155,7 @@
 
 (defmethod remove-one-keyword-input ((self OMBoxRelatedWClass))
   (when (call-next-method)
-    (set-box-outputs self (butlast (outputs self)))
-    ))
+    (remove-one-output self (car (last (outputs self))))))
 
 
 ;;;===============================
