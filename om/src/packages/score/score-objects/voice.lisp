@@ -30,8 +30,10 @@
 
 
 (defclass* voice (chord-seq)
-  ((Lmidic :initform '((6000)) :initarg :Lmidic :type list :documentation "pitches (mc)/chords: list or list of lists")
+  (
    (tree :initform '(((4 4) (1 1 1 1))) :accessor tree :initarg :tree :type list :documentation "a rhythm tree (list of measure-rythm-trees)")
+   (Lmidic :initform '((6000)) :initarg :Lmidic :type list :documentation "pitches (mc)/chords: list or list of lists")
+
    (tempo :accessor tempo :initform 60 :initarg :tempo :documentation "a tempo value or tempo-map")
    (inside :accessor inside :initform nil :documentation "internal hierarchical structure")
    ))
@@ -135,20 +137,27 @@
 
                 (if (listp subtree) 
                     ;;; subgroup
-                    (let ((group (make-instance 'group :tree subtree
+                    (let ((group (make-instance 'group :tree (list (car subtree) (simplify-subtrees (cadr subtree)))
                                                 :symbolic-date beat
                                                 :symbolic-dur (* (symbolic-dur self) (/ (car subtree) total-dur)))))
                       
                       ;;; set the "numdenom" indicator
                       ;;; direct from OM6: probably possible to simplify
-                      (let* ((group-ratio (get-group-ratio subtree))
+                      ;(print "===")
+                      ;(print (list subtree (symbolic-dur group)))
+                      (let* ((group-ratio (get-group-ratio (tree group)))
                              (num (or group-ratio (symbolic-dur group)))
                              (denom (find-denom num (symbolic-dur group))))
+                        
+                         
+                        ;(print (list group-ratio num denom))
                         
                         (when (listp denom) 
                           (setq num (car denom))
                           (setq denom (second denom)))
-                        
+
+                        ;(print (list num denom))
+
                         (setf (numdenom group) (cond
                                                 ((not group-ratio) nil)
                                                 ((= (/ num denom) 1) nil)
@@ -200,15 +209,15 @@
 ;;; direct from OM6
 ;;;===============================================
 
+
 (defmethod get-group-ratio (tree)
-  
   (let ((extent (car tree))
         (addition (loop for item in (second tree) sum (floor (abs (if (listp item) (car item) item))))))
      
     (cond
       ((= (round (abs addition)) 1) nil)
       ((integerp (/ extent addition)) addition)
-      ;; never happen
+      ;; never happens (?)
       ((and (integerp (/ extent addition)) 
             (or (pwr-of-2-p (/ extent addition))
                 (and (integerp (/ addition extent)) 
