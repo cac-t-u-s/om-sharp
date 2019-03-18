@@ -523,6 +523,44 @@
         )
       )))
 
+;;;========================
+;;; GROUP DIV NOTATION
+;;;========================
+
+(defun draw-group-div (num-den level begin-pix end-pix line direction y-shift staff fontsize)
+  
+  (let* ((unit (font-size-to-unit fontsize))
+         (beamThickness (ceiling (* *beamThickness* unit)))
+         (yshift (+ y-shift (calculate-staff-line-shift staff)))
+         (width (- end-pix begin-pix))
+         (x (if (equal direction :up) 
+                (floor (+ begin-pix (* unit (car *noteheadBlack_StemUpSE*))))
+              (floor (+ begin-pix (* unit (car *noteheadBlack_StemDownNW*))))))
+         (y (if (equal direction :up) 
+                (line-to-ypos (+ line (* 2 level)) yshift unit)
+              (line-to-ypos (- line (* 2 level)) yshift unit)))
+         (dy (round (if (equal direction :up) unit (- unit)) 2.))
+         (div-str (if (pwr-of-2-p (cadr num-den))
+                        (format nil "~A" (car num-den))
+                    (format nil "~A:~A" (car num-den) (cadr num-den))))
+         (font (om-def-font :font1 :size (round fontsize 2.2)))
+         (mid-space (* (1+ (length div-str)) unit)))
+
+    ;; (om-draw-string begin-pix 20 (format nil "~A" level))
+    
+    (om-draw-string (+ x (round (- width mid-space) 2) (* unit .5)) 
+                    (if (equal direction :up) y (+ y unit)) 
+                    div-str
+                    :font font)
+
+    (om-draw-line x y (+ x (round (- width mid-space) 2)) y)
+    (om-draw-line x y x (+ y dy))
+    
+    (om-draw-line (+ x (round (+ width mid-space) 2)) y (+ x width) y)
+    (om-draw-line (+ x width) y (+ x width) (+ y dy))
+         
+    ))
+
 
 ;;;=======================
 ;;; CHORDS

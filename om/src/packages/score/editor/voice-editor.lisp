@@ -102,8 +102,10 @@
                    ;(/ (apply '+ pitches) (length pitches)) 
                    (* (+ p-max p-min) .5)
                  7100)) ;;; default = B4
-         (max-beams (1- (list-max (mapcar #'(lambda (c) (get-number-of-beams (symbolic-dur c))) chords)))))
-    
+         (max-beams (list-max (mapcar #'(lambda (c) 
+                                              (get-number-of-beams (symbolic-dur c)))
+                                          chords))))
+    ;(print max-beams)
     (if (<= mean medium) 
         ;;; up
         (values (+ (pitch-to-line p-max) *stem-height* (* max-beams .5)) :up)
@@ -134,9 +136,10 @@
     (t (find-group-symbol val))))
 
 ;;; gives number of beams for a given division
+;;; might return a list if the denominator is not a power of two
 ;;; => entry in the process of determining the beaming for a given chord.
 ;;; this code is directly adapted from OM6 score editors
-(defun get-number-of-beams (val)
+(defun get-beaming (val)
   
   (let* ((num (numerator val))
          (den (denominator val))
@@ -155,6 +158,12 @@
       (t 0))
      ))
 
+
+(defun get-number-of-beams (val)
+  (let ((beams (get-beaming val)))
+    (if (listp beams) (car beams) beams)))
+  
+
 ;;; Get the depth of num/dem line in a group
 (defmethod calcule-chiff-level ((self t)) 0)
 (defmethod calcule-chiff-level ((self group))
@@ -164,54 +173,84 @@
 
 
 
+(defmethod beam-num ((self chord) dur)
+  ;(print (list "C" (symbolic-dur self) dur (get-number-of-beams dur)))
+  (get-number-of-beams dur))
+
+;;; gets the minimum number of beams in a group
+(defmethod beam-num ((self group) dur)
+ 
+  (let ((nd (or (numdenom self) (list 1 1))))  
+    ;; (print (list "G" (tree self) (numdenom self) (symbolic-dur self) dur (get-group-ratio (tree self))))
+    
+    (loop for element in (inside self)
+          minimize (beam-num element (* (/ (car nd) (cadr nd)) 
+                                        (/ (symbolic-dur element) (symbolic-dur self)) 
+                                        dur)))
+    ))
+                     
+
+;;; beam-info : (beam-pos beam-direction beams-already-drawn current-unit)
 (defmethod draw-score-element ((object group) tempo param-obj view 
                                &key font-size (y-shift 0) (level 1) position beam-info selection)
   
   (declare (ignore position))
+  
+  ;(print (list "=========="))
+  ;(print (list "GROUP" (tree object) (numdenom object) (symbolic-dur object)))
 
   (let* ((staff (get-edit-param param-obj :staff))
          (beam-n-and-dir (or (first-n beam-info 2) ;; the rest of the list is local info
                              (multiple-value-list (find-group-beam-line object staff))))
-         (beams-from-parent (nth 2 beam-info)))
+         (beams-from-parent (nth 2 beam-info))
+         ;; (r-unit (or (nth 3 beam-info) 1))
+         (nd (or (numdenom object) (list 1 1)))
+         (chords (get-all-chords object))
+         (pix-beg (time-to-pixel view (beat-to-time (symbolic-date (car chords)) tempo) ))
+         (pix-end (time-to-pixel view (beat-to-time (symbolic-date (car (last chords))) tempo) ))
+         
+         (n-beams (beam-num object (symbolic-dur object)))
+         (beams (arithm-ser 1 n-beams 1)))
+         
     
-    ;; the first group catching a beam information transfers to all descendants 
-        
-    (let ((beams (loop for c in (get-all-chords object)
-                       minimize (let ((bn (get-number-of-beams (symbolic-dur c))))
-                                  (if (listp bn) (car bn) bn)) into n 
-                       minimize (beat-to-time (symbolic-date c) tempo) into t1
-                       maximize (beat-to-time (symbolic-date c) tempo) into t2
-                       finally return (list (arithm-ser 1 n 1) t1 t2)
-                       )))
+    ;(print (list "=>" (tree object) "=" n-beams))
+    
+    ;; the first group catching a beam information transfers to all descendants  
+    (loop for element in (inside object)
+          for i from 0 do
+          (draw-score-element element tempo param-obj view 
+                              :y-shift y-shift
+                              :font-size font-size
+                              :level (1+ level) 
+                              :beam-info (when beam-n-and-dir (list 
+                                                               (nth 0 beam-n-and-dir)
+                                                               (nth 1 beam-n-and-dir)
+                                                               beams  ;;; send the beams already drawn in 3rd position
+                                                               ;; (/ (symbolic-dur object) (cadr nd))
+                                                               ))
+                              :position i
+                              :selection selection))
 
-      (loop for element in (inside object)
-            for i from 0 do
-            (draw-score-element element tempo param-obj view 
-                                :y-shift y-shift
-                                :font-size font-size
-                                :level (1+ level) 
-                                :beam-info (when beam-n-and-dir (append beam-n-and-dir (list (car beams))))
-                                ;;; send the beams already drawn in 3rd position
-                                :position i
-                                :selection selection))
-
-      ;;; sub-groups or chords wont draw these  
-      (draw-beams (time-to-pixel view (nth 1 beams)) 
-                  (time-to-pixel view (nth 2 beams))
-                  (car beam-n-and-dir)  ;; the beam init line
-                  (cadr beam-n-and-dir) ;; the beam direction
-                  (set-difference (car beams) beams-from-parent)     ;; the beam numbers 
-                  y-shift staff font-size)
-      
-      )
-
+    ;;; sub-groups or chords wont have to draw these beams
+    (draw-beams pix-beg pix-end
+                (car beam-n-and-dir)  ;; the beam init line
+                (cadr beam-n-and-dir) ;; the beam direction
+                (set-difference beams beams-from-parent)   ;; the beam numbers 
+                y-shift staff font-size)
+   
     ;;; subdivision line and numbers 
-    (let* ((numdenom-level (calcule-chiff-level object)))
-      ;;; chiflevel tells us how much above or below the beam this should be placed
-      ;; (print (list object chiflevel (numdenom object)))
-      )
+    (when (numdenom object)
+      (let* ((numdenom-level (calcule-chiff-level object)))
+        ;;; chiflevel tells us how much above or below the beam this should be placed
+        ;; (print (list object chiflevel (numdenom object)))
+        (draw-group-div (numdenom object)
+                        numdenom-level
+                        pix-beg pix-end
+                        (car beam-n-and-dir)  ;; the beam init line
+                        (cadr beam-n-and-dir) ;; the beam direction
+                        y-shift staff font-size)
+        ))
     )
-    
   )
 
 
@@ -262,9 +301,8 @@
          (dur (get-edit-param param-obj :duration-display))
 
          ;;; from OM6.. 
-         (beams (get-number-of-beams (symbolic-dur object)))
+         (beams-num (get-number-of-beams (symbolic-dur object)))
          (beams-from-parent (nth 2 beam-info))
-         (beams-num (if (listp beams) (car beams) beams))
          (beams-to-draw (set-difference (arithm-ser 1 beams-num 1) beams-from-parent))
          ;;(propre-group (if (listp beams) (cadr beams)))
          )

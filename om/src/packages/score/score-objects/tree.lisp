@@ -15,9 +15,9 @@
 ;============================================================================
 ; File author: J. Bresson
 ;============================================================================
-
+;;; mostly imported from OM6 code (by C. Agon & G. Assayag)
 ;;; TOOLS TO WORK ON THE RHYTHM-TREE (list/text) REPRESENTATION
-;;; mostly from OM6 code (by C. Agon & G. Assayag)
+
 
 (in-package :om)
 
@@ -97,4 +97,32 @@
     (mapcan #'normalize-recursive tree)
     ))
 
+
+
+
+;; fullratios are either ratios or lists (num denum)
+;; use fullratio function to cast a fullratio to a number
+;; use fdenominator and fdenominator to access to a fullratio num and denum
+;; obviously here to avoid MACL automatic simplification of ratios.
+
+(defmethod fullratio ((self list)) (/  (first self)  (second self)))
+(defmethod fullratio ((self number)) self)
+(defmethod fullratio ((self float)) (round self))
+
+(defmethod fdenominator ((self t)) (denominator (fullratio self)))
+(defmethod fdenominator ((self list)) (second self))
+(defmethod fnumerator ((self t)) (numerator (fullratio self)))
+(defmethod fnumerator ((self list)) (first self))
+
+(defun simplify-subtrees (subtrees)
+  
+  (let ((lcm (abs (reduce #'lcm subtrees :key #'(lambda (x) (fdenominator (if (listp x) (first x) x))))))
+        (gcd (abs (reduce #'gcd subtrees :key #'(lambda (x) (fnumerator (if (listp x) (first x) x)))))))
+    
+    (mapcar #'(lambda (x) 
+                (if (listp x) 
+                    (list (*  (fullratio (first x)) (/ lcm gcd)) (second x))
+                  (*  (fullratio x) (/ lcm gcd))))
+            subtrees)
+    ))
 
