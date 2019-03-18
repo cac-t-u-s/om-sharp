@@ -305,6 +305,6 @@
 
 (defun pwr-of-2-p (n)
   (or (= n 1) (= n 2)
-      (and (zerop (mod self 2)) 
-           (power-of-two-p (/ self 2)))))
+      (and (zerop (mod n 2)) 
+           (pwr-of-2-p (/ n 2)))))
 
