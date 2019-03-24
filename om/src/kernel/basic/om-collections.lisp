@@ -177,9 +177,11 @@
 ;;;==================================
 
 (defmethod init-editor ((editor collection-editor)) 
+
   (let* ((collection (get-value-for-editor (object editor)))
          (current-object (and (obj-type collection) (nth (current editor) (obj-list collection))))
          (abs-container (make-instance 'OMAbstractContainer :contents current-object)))
+
     (setf (internal-editor editor) 
           (make-instance (get-editor-class current-object)
                          :container-editor editor 
@@ -224,11 +226,11 @@
                                           :action #'(lambda (b)
                                                       (remove-current-object editor)
                                                       (let ((coll (get-value-for-editor (object editor))))
-                                                        (when (null (obj-list coll))
+                                                        (if (obj-list coll)
+                                                            (update-multi-display editor (editor-get-edit-param editor :show-all))
                                                           (disable b))
                                                         (when (<= (length (obj-list coll)) 1)
                                                           (disable prev-button) (disable next-button))
-                                                        (update-multi-display editor (editor-get-edit-param editor :show-all)) 
                                                         ))
                                           ))
          (+button (om-make-graphic-object 'om-icon-button 
@@ -287,18 +289,23 @@
                            (make-editor-window-contents editor)))
     ))
 
-(defmethod update-to-editor ((editor collection-editor) (from t))
+
+;;; when updated from the box (eval)
+(defmethod update-to-editor ((editor collection-editor) (from OMBox))
+  
   (let ((collection (get-value-for-editor (object editor))))
-    (unless (or (null (obj-type collection))
-                (equal (type-of (internal-editor editor))
-                       (get-editor-class (nth (current editor) (obj-list collection)))))
+    
+    (when (not (equal (type-of (internal-editor editor))  ;;; the new object has not the same editor
+                      (get-editor-class (nth (current editor) (obj-list collection)))))
+      
+      ;;; need to close/reset the internal editor
       (editor-close (internal-editor editor))
       (init-editor editor)
       (setf (current editor) 0)
       (set-window-contents editor))
+
     (set-current-text editor)
-    (update-to-editor (internal-editor editor) from)
-    )
+    (update-to-editor (internal-editor editor) from))
   (call-next-method))
 
 (defmethod format-current-text ((editor collection-editor))
@@ -366,6 +373,7 @@
         ;;; close the internal editor
         (editor-close (internal-editor editor))
         (setf (contents (object (internal-editor editor))) nil)
+        (init-editor editor) ;; need to init the editor (reset to an empty omeditor)
         ;;; rest the (empty) window
         (set-window-contents editor))
       ;;; othewise just update the editor

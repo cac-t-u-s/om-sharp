@@ -93,8 +93,10 @@
     (when time-sequence 
       (setf (selection editor) (get-indices-from-points time-sequence (selection from)))
       (time-sequence-update-internal-times time-sequence))
-    ;(update-timeline-editor editor)
-    (report-modifications editor)))
+    
+    ;;; we should do this only when the time-sequence is modified...
+    ;;; (report-modifications editor)
+    ))
 
 
 (defmethod editor-invalidate-views ((self timeline-editor))
@@ -501,7 +503,9 @@
                      (om-invalidate-view view)
                      (when (equal :master (item-get-type orig-point))
                        (om-invalidate-view (time-ruler editor)))
-                     (update-to-editor (container-editor editor) editor)))))))
+                     (update-to-editor (container-editor editor) editor)
+                     (report-modifications (container-editor editor))
+                     ))))))
 
 
 
@@ -512,6 +516,7 @@
 (defmethod alllow-insert-point-from-timeline ((self OMEditor)) t)
 
 (defmethod om-view-click-handler ((self om-timeline-view) position)
+  
   (let* ((timeline-editor (editor self))
          (time (pix-to-x self (om-point-x position)))
          (point (timed-item-at-time timeline-editor self time)))

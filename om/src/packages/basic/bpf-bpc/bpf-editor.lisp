@@ -339,7 +339,8 @@
   (call-next-method)
   (om-invalidate-view (get-g-component editor :main-panel))
   (update-timeline-editor editor)
-  (report-modifications editor))
+  (report-modifications editor)
+  )
 
 (defmethod update-to-editor ((self bpc-editor) (from t)) 
   (call-next-method)

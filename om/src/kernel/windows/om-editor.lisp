@@ -267,15 +267,21 @@
 
 ;;; called by the window/view to notify a change in the model
 (defmethod report-modifications ((self null)) t)
+
 (defmethod report-modifications ((self OMEditor))
+
   ;;; update the object
   (update-from-editor (object self))
+
   ;;; update the context (in case of embedded editors) 
   (when (container-editor self)
-    (update-to-editor (container-editor self) self))
+    (update-to-editor (container-editor self) self)
+    (report-modifications (container-editor self)))
+
   (when (related-editors self) 
     (loop for ed in (related-editors self) do
           (update-to-editor ed self)))
+
   ;;; window title
   (update-window-name self))
 
