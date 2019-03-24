@@ -96,7 +96,7 @@
   
   (let* ((medium (staff-medium-pitch staff))
          (chords (get-all-chords self)) ;;; can be nil if only rests !!
-         (pitches (apply 'append (mapcar 'lmidic chords)))
+         (pitches (loop for c in chords append (mapcar 'midic (inside c))))
          (p-max (list-max pitches)) (p-min (list-min pitches))
          (mean (if pitches 
                    ;(/ (apply '+ pitches) (length pitches)) 
@@ -164,17 +164,7 @@
     (if (listp beams) (car beams) beams)))
   
 
-;;; Get the depth of num/dem line in a group
-(defmethod calcule-chiff-level ((self t)) 0)
-(defmethod calcule-chiff-level ((self group))
-  (+ (if (numdenom self) 1 0) 
-     (loop for item in (inside self)
-           maximize (calcule-chiff-level item))))
-
-
-
-(defmethod beam-num ((self chord) dur)
-  ;(print (list "C" (symbolic-dur self) dur (get-number-of-beams dur)))
+(defmethod beam-num ((self score-object) dur)
   (get-number-of-beams dur))
 
 ;;; gets the minimum number of beams in a group
@@ -188,8 +178,16 @@
                                         (/ (symbolic-dur element) (symbolic-dur self)) 
                                         dur)))
     ))
-                     
 
+
+;;; Get the depth of num/dem line in a group
+(defmethod calcule-chiff-level ((self t)) 0)
+(defmethod calcule-chiff-level ((self group))
+  (+ (if (numdenom self) 1 0) 
+     (loop for item in (inside self)
+           maximize (calcule-chiff-level item))))
+
+                     
 ;;; beam-info : (beam-pos beam-direction beams-already-drawn current-unit)
 (defmethod draw-score-element ((object group) tempo param-obj view 
                                &key font-size (y-shift 0) (level 1) position beam-info selection)
@@ -292,6 +290,7 @@
                                tempo param-obj view 
                                &key font-size (y-shift 0) (level 1) (position 0) beam-info selection)
   
+
   (let* ((begin (beat-to-time (symbolic-date object) tempo))
          
          (staff (get-edit-param param-obj :staff))
@@ -328,8 +327,99 @@
                  :selection (if (find object selection) T selection)
                  :build-b-boxes t
                  ))
+    
+    
 
     ))
+
+
+
+
+;;;===================
+;;; CONTINUATION-CHORD
+;;;===================
+
+(defmethod draw-score-element ((object continuation-chord) 
+                               tempo param-obj view 
+                               &key font-size (y-shift 0) (level 1) (position 0) beam-info selection)
+  
+
+  (let* ((begin (beat-to-time (symbolic-date object) tempo))
+         (staff (get-edit-param param-obj :staff))
+         
+         ;;; from OM6.. 
+         (beams-num (get-number-of-beams (symbolic-dur object)))
+         (beams-from-parent (nth 2 beam-info))
+         (beams-to-draw (set-difference (arithm-ser 1 beams-num 1) beams-from-parent))
+         ;;(propre-group (if (listp beams) (cadr beams)))
+         )
+       
+    (setf 
+     (b-box object)
+     (draw-chord (previous-chord object)
+                 (time-to-pixel view begin)
+                 y-shift 
+                 (w view) (h view) 
+                 font-size
+                 :head (multiple-value-list (note-head-and-points (symbolic-dur object)))
+                 :stem (or (= level 1) (car beam-info))  ;; (car beam-info) is the beam-line 
+                 :beams (list beams-to-draw position)
+                 :staff staff
+                 :selection (if (find (previous-chord object) selection) T selection)
+                 :build-b-boxes nil
+                 ))
+    
+    (draw-tie object view font-size tempo)
+    
+    ))
+
+
+
+(defmethod draw-tie ((object t) view font-size tempo) nil)
+ 
+(defmethod draw-tie ((object continuation-chord) view font-size tempo)
+  ;;; draw a tie with the previous-chord
+  
+  (let* ((unit (font-size-to-unit font-size))
+         (tie-h (* unit 1))
+         (x2 (time-to-pixel view (beat-to-time (symbolic-date object) tempo))))
+
+    (om-with-line-size (* *stemThickness* unit 1.8)
+
+      (loop for n1 in (inside (previous-chord object))
+            do
+            (if (equal (get-tie-direction n1 (previous-chord object)) :down)
+                
+                (om-draw-arc (b-box-x2 (b-box n1))  ;; x1
+                             (- (b-box-y2 (b-box n1)) tie-h) ;; y1
+                             (- x2 (b-box-x2 (b-box n1)))
+                             (+ (- (b-box-y2 (b-box n1)) (b-box-y1 (b-box n1))) tie-h)
+                             0 (- pi))
+              
+              ;;; up
+              (om-draw-arc (b-box-x2 (b-box n1))  ;; x1
+                           (- (b-box-y1 (b-box n1)) tie-h);; y1
+                           (- x2 (b-box-x2 (b-box n1))) 
+                           (+ (- (b-box-y2 (b-box n1)) (b-box-y1 (b-box n1))) tie-h) 
+                           0 pi)
+              )
+            
+            ;(om-draw-rect (b-box-x2 (b-box n1)) ;; x1
+            ;              (- (b-box-y2 (b-box n1)) tie-h) ;; y1
+            ;              (- x2 (b-box-x2 (b-box n1))) 
+            ;              (+ (- (b-box-y2 (b-box n1)) (b-box-y1 (b-box n1))) tie-h)
+            ;              :color (om-def-color :red))
+            )
+      )
+    ))
+
+
+(defmethod get-tie-direction ((self note) (parent chord))
+  (let* ((m (midic self))
+         (m-list (sort (lmidic parent) '<)))
+    (if (>= (position m m-list :test '=) (ceiling (length m-list) 2))
+        :up :down)))
+
 
 ;;;=========
 ;;; REST
@@ -364,35 +454,5 @@
 ;;; TEMPO CHANGE
 ;;; Grace notes
 
-
-#|
-(defmethod get-tie-direction ((self grap-note))
-   (let* ((note (midic (reference self)))
-          (list (sort (lmidic (parent (reference self))) '<)))
-     (if (>= (position note list :test 'equal) (ceiling (/ (length list) 2)))
-       "up" "down")))
-
-(defmethod get-next-tied-noted ((self grap-note) )
-   (and (parent self)
-        (let ((next-chord (next-figure (parent self))))
-          (and next-chord (grap-ryth-chord-p next-chord) 
-               (find (midic (reference self)) (inside next-chord) :key #'(lambda (x) (midic (reference x))))))))
-
-(defmethod get-last-tied-noted ((self grap-note) )
-   (and (parent self)
-        (let ((previous (previous-figure (parent self))))
-          (and previous (grap-ryth-chord-p previous)
-               (find (midic (reference self)) (inside previous) :key #'(lambda (x) (midic (reference x))))))))
-
-(defun draw-liason-begin (left top right bot direction)
- (if (string-equal direction "down")
-     (om-draw-ellipse-arc left top   (- right left)    (round (- bot top) 2) pi  (/ pi 2) )
-   (om-draw-ellipse-arc left top   (- right left)    (round (- bot top) 2) (/ pi 2)  (/ pi 2) )))
-
-(defun draw-liason-end (left top right bot direction) 
- (if (string-equal direction "down")
-     (om-draw-ellipse-arc left top   (- right left)    (round (- bot top) 2) (* 3 (/ pi 2))  (/ pi 2) )
-   (om-draw-ellipse-arc left top   (- right left)    (round (- bot top) 2) 0  (/ pi 2) )))
-|#
 
 

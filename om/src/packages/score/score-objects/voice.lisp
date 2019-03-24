@@ -51,21 +51,26 @@
 (defclass group (rhythmic-object) 
   ((numdenom :accessor numdenom :initarg :numdenom :initform nil)))
 
+(defclass continuation-chord (score-object)
+  ((previous-chord :accessor previous-chord :initarg :previous-chord 
+                   :initform nil :documentation "the tied previous element")))
+
+(defclass r-rest (score-object) ())
+
+(defclass grace-note (score-object) ())
+
+
 (defmethod get-all-chords ((self rhythmic-object))
   (loop for obj in (inside self) append 
         (get-all-chords obj)))
 
 (defmethod get-all-chords ((self chord)) (list self))
+(defmethod get-all-chords ((self continuation-chord)) (list self))
 (defmethod get-all-chords ((self t)) nil)
 
-
-(defclass r-rest (score-object) ())
 (defmethod get-notes ((self r-rest)) nil)
-
-;;; (defclass cont-chord (score-object) ())
-(defclass grace-note (score-object) ())
-
-
+(defmethod get-notes ((self continuation-chord)) 
+  (get-notes (previous-chord self)))
 
 
 (defmethod initialize-instance ((self voice) &rest initargs)
@@ -149,14 +154,9 @@
                              (num (or group-ratio (symbolic-dur group)))
                              (denom (find-denom num (symbolic-dur group))))
                         
-                         
-                        ;(print (list group-ratio num denom))
-                        
                         (when (listp denom) 
                           (setq num (car denom))
                           (setq denom (second denom)))
-
-                        ;(print (list num denom))
 
                         (setf (numdenom group) (cond
                                                 ((not group-ratio) nil)
@@ -170,6 +170,8 @@
                   
                   (progn ;;; atom (leaf)
                     
+                    
+                    
                     (setq sub-dur (* (symbolic-dur self) (/ (decode-extent subtree) total-dur)))
                     ;; (print (list "CHORD" sub-dur total-dur))
                     (cond 
@@ -179,9 +181,15 @@
                                      :symbolic-dur sub-dur))
                           
                      ((floatp subtree) ;;; tied-chord: keep current-chord in chord-list (important: same reference!)
-                      (let ((real-chord (nth curr-n-chord chords)))
-                        (setf (symbolic-dur real-chord) (+ (symbolic-dur real-chord) sub-dur)) ;;; extends the duration of the main chord
-                        real-chord))
+                      (let* ((real-chord (nth curr-n-chord chords))
+                             (cont-chord (make-instance 'continuation-chord)))
+                        
+                        (setf ;; (symbolic-dur real-chord) (+ (symbolic-dur real-chord) sub-dur) ;;; extends the duration of the main chord
+                              (previous-chord cont-chord) real-chord
+                              (symbolic-date cont-chord) beat
+                              (symbolic-dur cont-chord) sub-dur)
+
+                        cont-chord))
                           
                      (t ;;; normal chord: get the next in chord list
                         (setf curr-n-chord (1+ curr-n-chord))

@@ -121,8 +121,10 @@
     
     (mapcar #'(lambda (x) 
                 (if (listp x) 
-                    (list (*  (fullratio (first x)) (/ lcm gcd)) (second x))
-                  (*  (fullratio x) (/ lcm gcd))))
+                    (list (* (fullratio (first x)) (/ lcm gcd)) (second x))
+                  (let ((div (*  (fullratio x) (/ lcm gcd))))
+                    (if (floatp x) (float div) div))
+                  ))
             subtrees)
     ))
 
