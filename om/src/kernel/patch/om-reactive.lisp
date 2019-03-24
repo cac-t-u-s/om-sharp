@@ -49,16 +49,23 @@
           (loop for listener in listeners do (omr-notify (car listener) (cadr listener)))
         (omNG-box-value self)))))
 
+(quote nil)
+
 ;;; SELF-NOTIFICATION (NOTIFIES AND REEVALUATES ON A NEW THREAD)
 (defmethod self-notify ((box OMBox) &optional (separate-thread t) (eval-box nil))
   
   ;(print (list "SELF NOTIFY" (name box) (current-box-value box)))
-  (let* ((panel (and (frame box) (om-view-container (frame box))))
+  
+  (let ((listeners (get-listeners box)))
+    
+    (when (or listeners eval-box)
+      
+      (let* ((panel (and (frame box) (om-view-container (frame box))))
          
          (eval-form `(progn
                       (setf *current-eval-panel* ,panel)
                       (when ,eval-box (omng-box-value ,box)) ; => only when an input is modified
-                      (when (get-listeners ,box)
+                      (when ',listeners
                         (setf (gen-lock ,box) t)
                         (OMR-Notify ,box)
                         (setf (gen-lock ,box) nil))
@@ -74,7 +81,7 @@
       
       (eval eval-form))
     
-    ))
+    ))))
 
 (defmethod clear-ev-once :around ((self OMBox))
   ;(print "clear")
@@ -183,6 +190,6 @@
 ;;; when an editor reports to the box
 (defmethod update-from-editor :around ((self OMBoxEditCall) &key (value-changed t) (reactive t))
   (call-next-method)
-  (when reactive (self-notify self)))
+  (when reactive (self-notify self t NIL)))
 
 
