@@ -216,13 +216,12 @@
         (set-shift-and-factor view))
   )
 
-
-(defmethod update-to-editor ((editor data-stream-editor) (from ombox))
-  
-  (let* ((data-stream (object-value editor))
-         (new-max-dur (if (zerop (get-obj-dur data-stream)) 
-                          10000 
-                        (+ (get-obj-dur data-stream) (editor-view-after-init-space data-stream)))))
+(defmethod update-to-editor ((editor data-stream-editor) (from ombox)) 
+  (let* ((data-stream (object-value editor)))
+    (when data-stream
+      (let ((new-max-dur (if (zerop (get-obj-dur data-stream)) 
+                             10000 
+                           (+ (get-obj-dur data-stream) (editor-view-after-init-space data-stream)))))
   
     (when (get-g-component editor :x-ruler)
       (setf (vmax (get-g-component editor :x-ruler)) new-max-dur)
@@ -236,7 +235,7 @@
       (update-to-editor (timeline-editor editor) editor))
 
     (call-next-method)
-    ))
+    ))))
 
 (defmethod update-to-editor ((editor data-stream-editor) (from t))
   (call-next-method)
@@ -385,8 +384,10 @@
 
 
 (defmethod position-display ((editor data-stream-editor) pos-pix)
-  (let* ((time (round (pix-to-x (active-panel editor) (om-point-x pos-pix)))))
-    (om-set-text (get-g-component editor :mousepos-txt) (format nil "~Dms" time))))
+  (when (active-panel editor)
+    (let* ((time (round (pix-to-x (active-panel editor) (om-point-x pos-pix)))))
+      (om-set-text (get-g-component editor :mousepos-txt) (format nil "~Dms" time))))
+  )
 
 
 (defmethod move-editor-selection ((self data-stream-editor) &key (dx 0) (dy 0))
