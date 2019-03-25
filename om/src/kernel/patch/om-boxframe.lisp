@@ -644,11 +644,18 @@
     
   ;;; lock button
   (when (lock-state box)
-    (om-draw-rect x-lock y-lock 11 11 
-                  :color (om-def-color :dark-gray) :angles :round :fill t)
-    (om-with-fg-color (om-def-color :white)
-      (om-with-font (om-def-font :font1 :size 9)
-                    (om-draw-string (+ x-lock 2) (+ y-lock 9) (if (equal (lock-state box) :eval-once) "1" "X")))
+    (let ((state-str (if (equal (lock-state box) :locked) 
+                         "X"
+                       (if (and (equal (lock-state box) :eval-once)
+                                (not (get-pref-value :general :auto-ev-once-mode)))
+                           "1"))))
+      (when state-str
+        (om-draw-rect x-lock y-lock 11 11 
+                      :color (om-def-color :dark-gray) :angles :round :fill t)
+        (om-draw-string (+ x-lock 2) (+ y-lock 9) 
+                        state-str
+                        :font (om-def-font :font1 :size 9)
+                        :color (om-def-color :white)))
       ))
   )
 

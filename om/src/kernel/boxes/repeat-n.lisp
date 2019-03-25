@@ -39,6 +39,15 @@
 (defmethod get-icon-id ((self OMRepeatNBoxCall)) :repeat)
 (defmethod object-name-in-inspector ((self OMRepeatNBoxCall)) "repeat-n box")
 
+;;; as compared to other OMPatchComponentBox, REPEAT-N has a lock option
+(defmethod valid-property-p ((self OMRepeatNBoxCall) (prop-id (eql :lock))) t)
+(defmethod get-properties-list ((self OMRepeatNBoxCall))
+  (add-properties 
+   (call-next-method) 
+   "Execution" 
+   `((:lock "Lock state (b/1)" ,(lock-modes-for-box self) lock-state))))
+
+
 (defmethod box-symbol ((self Repeater)) 'repeat-n)
 
 (defmethod omNG-make-special-box ((reference (eql 'repeat-n)) pos &optional init-args)
@@ -82,12 +91,14 @@
               collect (omNG-box-value (car (inputs self))))
         )
       (setf *ev-once-context* old-context)
-      (clear-ev-once (container self)))
+      ; (clear-ev-once (container self))
+      )
     ))
 
 
 ;;; known issue: the compiled version does not behave the same with regards to ev-once behaviour
 ;;; in first-level patch the value is stored between evaluations and after, while in compiled version the variables are scoped.
+;;; update 25/03/2019: I think this is fixed now => otherwise try to single out an example
 
 (defmethod gen-code-for-call ((self OMRepeatNBoxCall) &optional args)
   
