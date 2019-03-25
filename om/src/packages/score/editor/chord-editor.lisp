@@ -39,7 +39,7 @@
                               :scrollbars nil
                               :editor editor))
          
-         (bottom-area (make-score-control-panel editor)))
+         (bottom-area (make-score-display-params-controls editor)))
 
     (set-g-component editor :main-panel panel)
     (om-make-layout 'om-row-layout :ratios '(99 1) 

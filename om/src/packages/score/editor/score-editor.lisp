@@ -231,7 +231,8 @@
     (when (get-g-component self :font-size-box)
       (om-set-selected-item (get-g-component self :font-size-box) v))))
 
-(defun make-score-control-panel (editor) 
+
+(defmethod make-score-display-params-controls ((editor score-editor)) 
   
   (om-make-layout 
    'om-row-layout 

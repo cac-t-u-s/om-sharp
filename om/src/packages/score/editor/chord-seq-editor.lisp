@@ -57,8 +57,11 @@
                     :fill t :color (om-make-color .9 .9 .9 .5))
       (om-draw-string (- (w self) 15) 10 "...")
       (om-draw-string (- (w self) 15) (- (h self) 10) "..."))
+
     ))
-        
+
+
+
 
 (defmethod make-left-panel-for-object ((editor chord-seq-editor) (object score-object))
   (om-make-view 'left-score-view :size (omp (* 2 (editor-get-edit-param editor :font-size)) nil)
@@ -68,12 +71,14 @@
                 :editor editor
                 :margin-l 1 :margin-r nil :keys t :contents nil
                 ))
-              
 
+(defmethod make-editor-controls ((editor chord-seq-editor))
+  (make-score-display-params-controls editor))
 
+         
 (defmethod update-view-from-ruler ((self x-ruler-view) (view score-panel))
   (call-next-method)
-  (om-invalidate-view (get-g-component (editor view) :left-view)))
+  (om-invalidate-view (left-view view)))
 
 (defmethod om-view-zoom-handler ((self score-panel) position zoom)
   (zoom-rulers self :dx (- 1 zoom) :dy 0 :center position))
@@ -130,62 +135,17 @@
 ;;; WINDOW CONSTRUCTOR
 ;;;=========================
 
-(defmethod make-editor-window-contents ((editor chord-seq-editor))
+(defmethod data-stream-get-x-ruler-vmin ((self chord-seq-editor)) -200)
+
+
+(defmethod make-editor-window-contents ((editor chord-seq-editor)) (call-next-method))
   
-  (let* ((obj (object-value editor))
-         (max-dur (get-obj-dur obj))
-         (ed-dur (if (zerop max-dur) 10000 (+ max-dur 1000))))
-
-    (set-g-component editor :data-panel-list ;;; compat with data-stream-editor 
-                     (list (om-make-view (editor-view-class editor) :stream-id 0
-                                         :editor editor :size (omp 50 60) 
-                                         :direct-draw t 
-                                         :bg-color (om-def-color :white) 
-                                         )))
-                     
-    (set-g-component editor :x-ruler (om-make-view 'time-ruler 
-                                                   :related-views (get-g-component editor :data-panel-list)
-                                                   :size (omp nil 20) 
-                                                   :bg-color (om-def-color :white)
-                                                   :vmin -200
-                                                   :x1 -200 :x2 ed-dur))
-    
-    (set-g-component (timeline-editor editor) :main-panel (om-make-layout 'om-row-layout)) 
-    (set-g-component editor :main-panel (car (get-g-component editor :data-panel-list)))
-    (when (editor-get-edit-param editor :show-timeline) (make-timeline-view (timeline-editor editor)))
-    
-    (set-g-component editor :left-view (make-left-panel-for-object editor obj))
-
-    (om-make-layout 
-     'om-column-layout 
-     :ratios '(96 2 2)
-     :subviews (list 
-                ;;; first group with the 'main' editor:
-                (om-make-layout 
-                 'om-grid-layout 
-                 :delta 0
-                 :ratios '((nil 100) 
-                           (1 98 1))
-                 :subviews 
-                 (append (list nil (make-control-bar editor))
-                         (loop for view in (get-g-component editor :data-panel-list)
-                               append (list (get-g-component editor :left-view)
-                                            view))
-                         (list nil (get-g-component editor :x-ruler)))
-                 )
-                ;;; the timeline editor:
-                (get-g-component (timeline-editor editor) :main-panel)
-                ;;; the bottom control bar:
-                (om-make-layout 'om-row-layout 
-                                :size (omp nil 40) 
-                                :subviews (list (make-score-control-panel editor) nil (make-timeline-check-box editor)))
-                ))
-    ))
-
-
 
 (defmethod draw-score-object-in-editor-view ((editor chord-seq-editor) view unit)
-  (draw-sequence (object-value editor) editor view unit))
+  (let ((obj (if (multi-display-p editor)
+                 (nth (stream-id view) (multi-obj-list editor))
+               (object-value editor))))
+    (draw-sequence obj editor view unit)))
 
 
 (defmethod draw-sequence ((object t) editor view unit) nil)

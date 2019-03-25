@@ -29,7 +29,8 @@
     (:grid t)))
 
 (defclass stream-panel (x-cursor-graduated-view y-graduated-view OMEditorView om-tt-view) 
-  ((stream-id :accessor stream-id :initform 0 :initarg :stream-id)))
+  ((stream-id :accessor stream-id :initform 0 :initarg :stream-id)
+   (left-view :accessor left-view :initform nil :initarg :left-view)))
 
 (defmethod editor-view-class ((self data-stream-editor)) 'stream-panel)
 (defmethod object-has-editor ((self data-stream)) t)
@@ -57,7 +58,7 @@
 
 (defmethod frame-display-modes-for-object ((self data-stream-editor) (object t)) '(:blocks :bubbles))
 
-(defun make-display-modes-menu (editor)
+(defmethod make-editor-controls ((editor data-stream-editor))
   (let ((object (object-value editor)))
     (when (> (length (frame-display-modes-for-object editor object)) 1)
       (om-make-di 'om-popup-list :size (omp 80 24) :font (om-def-font :font1)
@@ -113,8 +114,8 @@
   (om-make-view 'om-view :size (omp 28 nil)))
 
 
-;(multi-display-p editor)
-;(multi-obj-list editor))
+
+(defmethod data-stream-get-x-ruler-vmin ((self data-stream-editor)) 0)
 
 (defmethod make-editor-window-contents ((editor data-stream-editor))
   
@@ -129,31 +130,34 @@
                 (+ max-dur (editor-view-after-init-space data-stream)))))
 
     (set-g-component editor :data-panel-list 
-                      (loop for data-stream in object-s 
+                      (loop for d-s in object-s 
                             for i = 0 then (+ i 1) collect
                            (om-make-view (editor-view-class editor) :stream-id i
                                          :editor editor :size (omp 50 60) 
                                          :direct-draw t 
                                          :bg-color (om-def-color :white) 
-                                         :scrollbars nil)))
+                                         :scrollbars nil
+                                         :left-view (make-left-panel-for-object editor d-s)
+                                         )))
                      
     (set-g-component editor :x-ruler (om-make-view 'time-ruler 
                                                    :related-views (get-g-component editor :data-panel-list)
                                                    :size (omp nil 20) 
                                                    :bg-color (om-def-color :white)
-                                                   :vmin 0 ; :vmax ed-dur
-                                                   :x1 0 :x2 ed-dur))
+                                                   :vmin (data-stream-get-x-ruler-vmin editor)
+                                                   :x1 (data-stream-get-x-ruler-vmin editor) 
+                                                   :x2 ed-dur))
     
     (set-g-component (timeline-editor editor) :main-panel (om-make-layout 'om-row-layout))
     
     (set-g-component editor :main-panel (car (get-g-component editor :data-panel-list)))
-
+    
     (when (editor-get-edit-param editor :show-timeline)
       (make-timeline-view (timeline-editor editor)))
     
     (om-make-layout 
      'om-column-layout 
-     :ratios '(0.96 0.02)
+     :ratios '(96 2 2)
      :subviews (list 
                 ;;; first group with the 'main' editor:
                 (om-make-layout 
@@ -166,8 +170,7 @@
                  :subviews 
                  (append (list nil (make-control-bar editor))
                          (loop for view in (get-g-component editor :data-panel-list)
-                               append (list (make-left-panel-for-object editor data-stream)
-                                            view))
+                               append (list (left-view view) view))
                          (list nil (get-g-component editor :x-ruler)))
                  )
                 ;;; the timeline editor:
@@ -175,7 +178,7 @@
                 ;;; the bottom control bar:
                 (om-make-layout 'om-row-layout 
                                 :size (omp nil 40) 
-                                :subviews (list (make-display-modes-menu editor) nil (make-timeline-check-box editor)))
+                                :subviews (list (make-editor-controls editor) nil (make-timeline-check-box editor)))
                 ))
     ))
 
@@ -378,9 +381,10 @@
 
 (defmethod om-draw-contents :after ((self stream-panel))
   (when (and (multi-display-p (editor self))
-           (not (equal self (active-panel (editor self)))))
-    (om-draw-rect 0 0 (w self) (h self) :fill t 
-                  :color (om-make-color .96 .96 .96 0.7))))
+             (equal self (active-panel (editor self))))
+    (om-draw-rect 0 0 (w self) (h self) :fill nil 
+                  :line 4 :color (om-make-color .8 .4 .4))
+    ))
 
 
 (defmethod position-display ((editor data-stream-editor) pos-pix)
@@ -449,12 +453,21 @@
         ))))
 
 
-(defmethod om-view-click-handler ((self stream-panel) position)
+
+
+(defmethod om-view-click-handler :around ((self stream-panel) position)
   (let ((editor (editor self)))
-    
     (when (and (container-editor editor) 
                (not (equal self (active-panel editor))))
       (set-current-nth (container-editor editor) (stream-id self)))
+    (call-next-method)
+    ))
+
+
+(defmethod om-view-click-handler ((self stream-panel) position)
+  (let ((editor (editor self)))
+    
+
 
     (let ((p0 position)
           (selection (frame-at-pos editor position)))
