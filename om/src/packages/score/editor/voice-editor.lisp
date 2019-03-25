@@ -365,7 +365,7 @@
                  :stem (or (= level 1) (car beam-info))  ;; (car beam-info) is the beam-line 
                  :beams (list beams-to-draw position)
                  :staff staff
-                 :selection (if (find (previous-chord object) selection) T selection)
+                 :selection (if (find object selection) T selection)
                  :build-b-boxes nil
                  ))
     
@@ -382,7 +382,7 @@
   
   (let* ((unit (font-size-to-unit font-size))
          (tie-h (* unit 1))
-         (x2 (time-to-pixel view (beat-to-time (symbolic-date object) tempo))))
+         (x2 (- (time-to-pixel view (beat-to-time (symbolic-date object) tempo)) (* unit .3))))
 
     (om-with-line-size (* *stemThickness* unit 1.8)
 
