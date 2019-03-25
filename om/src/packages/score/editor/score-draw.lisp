@@ -540,7 +540,7 @@
                 (line-to-ypos (+ line (* 2 level)) yshift unit)
               (line-to-ypos (- line (* 2 level)) yshift unit)))
          (dy (round (if (equal direction :up) unit (- unit)) 2.))
-         (div-str (if (pwr-of-2-p (cadr num-den))
+         (div-str (if (power-of-two-p (cadr num-den))
                         (format nil "~A" (car num-den))
                     (format nil "~A:~A" (car num-den) (cadr num-den))))
          (font (om-def-font :font1 :size (round fontsize 2.2)))
@@ -788,22 +788,23 @@
                     
                      (setq head-x (+ x-pix (* head-col head-w unit)))
 
-                     (when build-b-boxes 
-                       (let* (;;; bounding-box values
-                              (nx1 head-x)
-                              (nx2 (+ head-x head-w-pix))
-                              (ny1 (line-to-ypos (+ line (* head-h .5)) shift unit))
-                              (ny2 (line-to-ypos (- line (* head-h .5)) shift unit))) ;;; lines are expressed bottom-up !!
+                     (let (;;; bounding-box values
+                           (nx1 head-x)
+                           (nx2 (+ head-x head-w-pix))
+                           (ny1 (line-to-ypos (+ line (* head-h .5)) shift unit))
+                           (ny2 (line-to-ypos (- line (* head-h .5)) shift unit))) ;;; lines are expressed bottom-up !!
                        
                          ;;; bounding-box is in pixels
-                         (setf (b-box n) (make-b-box :x1 nx1 :x2 nx2 :y1 ny1 :y2 ny2)
-                               ;;; update the chord bbox as well..
-                               cx1 (if cx1 (min cx1 nx1) nx1)
+                         ;;; update the chord bbox as well..
+                         (setf cx1 (if cx1 (min cx1 nx1) nx1)
                                cx2 (if cx2 (max cx2 nx2) nx2)
                                cy1 (if cy1 (min cy1 ny1) ny1)
-                               cy2 (if cy2 (max cy2 ny2) ny2)
-                               )))
-                           
+                               cy2 (if cy2 (max cy2 ny2) ny2))
+                         
+                         (when build-b-boxes
+                           (setf (b-box n) (make-b-box :x1 nx1 :x2 nx2 :y1 ny1 :y2 ny2)))
+                         )
+
                      ;;; LEGER-LINES
                      (let ((l-lines (head-leger-lines line staff-lines)))
                        ;;; draw add leger-line(s) to the record if they are not already there 
@@ -902,7 +903,7 @@
            ))
     
         ;;; return the bounding box
-        (when build-b-boxes 
+        (when t ; build-b-boxes 
           (make-b-box :x1 cx1 :x2 cx2 :y1 cy1 :y2 cy2))
       
         ))))

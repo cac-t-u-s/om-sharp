@@ -55,6 +55,8 @@
     (t  extent)))
 
 
+
+
 ;;; simplify complex subdivisions into tied/simpler ones
 (defun normalize-tree (tree)
    
@@ -97,7 +99,128 @@
     (mapcan #'normalize-recursive tree)
     ))
 
+;;;=============================================
+;;; other pre-processing of rhythm-trees
+;;; from OM6
+;;;=============================================
 
+;Check the syntax of the tree and computes the value of '? if there is in the tree
+;-- we're not using this one...
+(defun resolve-? (list)
+  (flet ((subtree-extent (subtree) 
+           (cond ((listp subtree) (fullratio (first subtree)))
+                 ((floatp subtree) (round (abs subtree)))
+                 ((or (ratiop subtree)(integerp subtree)) (abs subtree)))))
+    (cond 
+     ((numberp list) list)
+     ((or (numberp (first list)) (listp (first list)))
+      (if (listp (second list)) 
+          (list (first list) (mapcar #'resolve-? (second list)))
+        (error (format nil "Invalid Rhythm Tree : ~A" list))))
+     ((and (symbolp (first list)) (equal (symbol-name (first list)) "?"))
+      (let ((solved (mapcar #'resolve-? (second list))))
+        (list (reduce #'(lambda (x y) (+  (abs x) (subtree-extent y))) 
+                      solved :initial-value 0)
+              solved)))
+     ((symbolp (first list))
+      (if (listp (second list)) 
+          (list (symbol->ratio (first list)) (mapcar #'resolve-? (second list)))
+        (error (format nil "Invalid Rhythm Tree : ~A" list)))))
+    ))
+
+;-- we're not using this one...
+
+(defun replace-num-in-tree (old new)
+  (cond
+   ((minusp old) (* -1 new))
+   ((floatp old) (* 1.0 new))
+   (t new)))
+
+(defun rw-singleton (list &optional reduction)
+  (cond
+   ((= (length list) 1)
+    (let ((elem (first list)))
+      (if (numberp elem)
+        (if reduction (list (replace-num-in-tree elem reduction)) list)
+        (if reduction 
+          (if (= (length (second elem)) 1)
+            (rw-singleton (second elem) reduction)
+            (list (list reduction (rw-singleton (second elem)))))
+          (if (= (length (second elem)) 1)
+            (rw-singleton (second elem) (car elem))
+            (list (list (first elem) (rw-singleton (second elem)))))))))
+   (t
+    (loop for item in list append
+          (if (numberp item) 
+            (rw-singleton (list item))
+            (if (= (length (second item)) 1)
+              (list (list (first item) (rw-singleton (second item) (first item))))
+              (list (list (first item) (rw-singleton (second item))))))))))
+
+
+(defun singleton (tree)
+   (let* ((measures (cadr tree)))
+     (list (car tree)
+           (mapcar #'(lambda (mes)  ;pour chaque measure
+                       (let ((sign (first mes))
+                             (slist (second mes)))
+                         (cond
+                          ((measure-super-single? mes) ;un mesure de la forme ((4//4 (n))) avec n n number
+                           (list sign (list (replace-num-in-tree (first slist) (first sign)))))
+                          ((measure-single? mes) ;un mesure de la forme ((4//4 (g))) ou g es un grupo, donc une liste
+                           (let ((group (first slist))) ;grupo es un RT
+                             (if (= (length (second group)) 1)
+                               (list sign (rw-singleton (second group) (caar mes)))
+                               (list sign (list (list (first sign)
+                                                      (rw-singleton (second group))))))))
+                          (t ;un mesure de la forme ((4//4 (r1 r2 ...rn))) ou r es un grupo ou un number
+                           (list sign (rw-singleton (second mes)))))))
+                   measures))))
+
+;-- we're not using this one...
+
+; If only one element
+;'((4 4) ((1 (1 1 1)))) = T
+(defun measure-single? (mes)
+  (= (length (cadr mes)) 1))
+
+; If only one leaf
+;'((4 4) (5)) = T
+(defun measure-super-single? (mes)
+  (and (measure-single? mes) (numberp (caadr mes))))
+
+;;; returns top-level subdivision of the measure
+;'((4 4) (3 (1 (1 1 1)) -5)) = '(3 1 5)
+(defun measure-repartition (mes)
+   (loop for item in (cadr mes)
+         collect (floor (if (numberp item) (abs item)
+                          (abs (car item))))))
+
+(defun modulo3-p (n)
+  (or (zerop ( mod n 3)) (= n 1)))
+
+(defun list-first-layer (measure-tree)
+  
+  (if (measure-single? measure-tree) 
+      
+      measure-tree 
+    
+    (let* ((signature (car measure-tree))
+           (subdivs (apply '+ (measure-repartition measure-tree)))
+           (ratio1 (/ subdivs (car signature))))
+      (cond
+       ((and (integerp ratio1) (power-of-two-p ratio1)) measure-tree)
+       ((and (power-of-two-p subdivs) 
+             (or (power-of-two-p (car signature))
+                 (and (integerp ratio1) (modulo3-p (car signature))))) measure-tree)
+       ((not (integerp (/ (car signature) subdivs))) 
+        (list signature (list (list (car signature) (cadr measure-tree)))))
+       ((and (= (numerator ratio1) 1) (not (power-of-two-p (denominator ratio1))) measure-tree)
+        (list signature (list (list (car signature) (cadr measure-tree)))))
+       (t measure-tree)))))
+
+(defun format-tree (measures) 
+  (mapcar #'list-first-layer measures))
 
 
 ;; fullratios are either ratios or lists (num denum)

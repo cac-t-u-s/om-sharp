@@ -303,8 +303,8 @@
           (setf exp (* exp 2)))
     exp))
 
-(defun pwr-of-2-p (n)
+(defun power-of-two-p (n)
   (or (= n 1) (= n 2)
       (and (zerop (mod n 2)) 
-           (pwr-of-2-p (/ n 2)))))
+           (power-of-two-p (/ n 2)))))
 

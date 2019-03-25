@@ -30,8 +30,7 @@
 
 
 (defclass* voice (chord-seq)
-  (
-   (tree :initform '(((4 4) (1 1 1 1))) :accessor tree :initarg :tree :type list :documentation "a rhythm tree (list of measure-rythm-trees)")
+  ((tree :initform '(((4 4) (1 1 1 1))) :accessor tree :initarg :tree :type list :documentation "a rhythm tree (list of measure-rythm-trees)")
    (Lmidic :initform '((6000)) :initarg :Lmidic :type list :documentation "pitches (mc)/chords: list or list of lists")
 
    (tempo :accessor tempo :initform 60 :initarg :tempo :documentation "a tempo value or tempo-map")
@@ -81,6 +80,7 @@
     (setf (tree self) (cadr (tree self))))
 
   (setf (tree self) (normalize-tree (tree self)))
+  (setf (tree self) (format-tree (tree self)))
   
   (build-rhythm-structure self (chords self) -1)
   
@@ -227,9 +227,9 @@
       ((integerp (/ extent addition)) addition)
       ;; never happens (?)
       ((and (integerp (/ extent addition)) 
-            (or (pwr-of-2-p (/ extent addition))
+            (or (power-of-two-p (/ extent addition))
                 (and (integerp (/ addition extent)) 
-                     (pwr-of-2-p (/ addition extent))))) 
+                     (power-of-two-p (/ addition extent))))) 
        nil)
       (t addition))))
 
