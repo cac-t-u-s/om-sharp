@@ -33,7 +33,8 @@
 ;;;===================
 (export '(om-init-output-stream
           om-print 
-          om-print-format) 
+          om-print-format
+          om-print-list) 
         :om-lisp)
 
 ;;;=============================
@@ -75,7 +76,7 @@
 
 
 ;;;=============================
-;;; PRINT REDEFS
+;;; PRINT REDEFS AND UTILS
 ;;;=============================
 
 (defun om-print (obj &optional prompt)  
@@ -89,6 +90,10 @@
                 (if prompt (concatenate 'string prompt " :: ") "")
                 (apply 'format (append (list nil (concatenate 'string format-string "~%")) args)))
    ))
+
+(defun om-print-list (&rest elements)  
+  (om-print elements))
+
 
 ;;;=============================
 ;;; PRINT WINDOW
