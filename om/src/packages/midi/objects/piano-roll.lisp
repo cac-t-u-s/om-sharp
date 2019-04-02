@@ -432,14 +432,14 @@
   (multiple-value-bind (fx ox) 
         (conversion-factor-and-offset 0 (get-obj-dur self) w x)
       (multiple-value-bind (fy oy) 
-          (conversion-factor-and-offset 36 96 (- h 20) (+ y 10))
+          (conversion-factor-and-offset 96 36 (- h 20) (+ y 10))
         (om-with-line-size 2
           (loop for n in (midi-notes self) do
                 (om-with-fg-color (get-midi-channel-color (midinote-channel n))
-                  (om-draw-line  (round (+ ox (* fx (midinote-onset n))))
-                                 (round (+ (- oy) (- h (* fy (midinote-pitch n)))))
-                                 (round (+ ox (* fx (midinote-end n))))
-                                 (round(+ (- oy) (-  h (* fy (midinote-pitch n))))))
+                  (om-draw-line (round (+ ox (* fx (midinote-onset n))))
+                                (round (+ oy (* fy (midinote-pitch n))))
+                                (round (+ ox (* fx (midinote-end n))))
+                                (round(+ oy (* fy (midinote-pitch n)))))
                   ))))
       t))
 
