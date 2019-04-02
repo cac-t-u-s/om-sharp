@@ -83,7 +83,12 @@
   (mapc #'omng-delete (boxes self))
   (call-next-method))
 
+
 (defmethod index ((self t)) -1)
+
+;;; ompatchio has an index accessor
+;;; otherwise, special types of boxes can organize themselves by redefining the method
+;;; (eg. to set priority between loop iterator boxes, see om-loop.lisp)
 (defun sort-boxes (boxes)
   (sort boxes '< :key #'(lambda (b) (index (reference b)))))
 

@@ -281,16 +281,18 @@
 
 (defmethod gen-code  ((self OMCollectBox) &optional (numout 0))
 
-  ; (print (list "gen-code collect - stack = " *let-list-stack*))
+  ;(print (list (mem-var (reference self)) "gen-code collect - stack = " *let-list-stack*))
   
   (let* ((global-var (mem-var (reference self)))
          (local-name (intern (string+ (symbol-name global-var) "-LOCAL")))
          (first-call (not (check-let-statement local-name :global))))
     
+    ; (print (list "gen-code" local-name first-call))
+
     (when first-call
       (let ((init-val (gen-code (nth 2 (inputs self)))))
         (push-let-statement `(,local-name ,(if (equal init-val t) nil init-val)) :global)))
-    
+   
     (case numout
       ;;; collect
       (0 `(let ((collect-val ,(gen-code (nth 0 (inputs self))))) 
@@ -303,6 +305,7 @@
             (setf ,local-name (if (equal init-val t) nil init-val))
             init-val))
       )
+    
     ))
 
 

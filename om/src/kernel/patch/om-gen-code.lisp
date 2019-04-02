@@ -176,6 +176,7 @@
              ;    `,(gen-code-lambda self)
              ;  `(nth ,numout (multiple-value-list ,(gen-code-lambda self))))
             `,(gen-code-lambda self numout))
+
     (otherwise (if (or (null numout)  ;;; we are inside a let / ev-once statement : return all as 'values'
                        (= (length (outputs self)) 1)) ;;  single output (to simplify the code)
                    `,(gen-code-for-call self)
@@ -216,15 +217,20 @@
   (null (car *let-list-stack*)))
 
 (defun push-let-statement (form &optional (scope :local))
-  ; (print (list "PUSH LET IN" form scope *let-list-stack*)) 
+  ;(print (list "PUSH LET IN" form scope *let-list-stack*)) 
   (if *let-list-stack*
-      (if (equal scope :local)
+      
+      (if (or (equal scope :local)
+              (= 1 (length *let-list-stack*)))
           
           ;;; add the let statment to the head of the stack
           (setf (car *let-list-stack*)
                 (cons form (car *let-list-stack*)))
         
-        ;;; add the let statment to the next position of the stack
+        ;;; add the let statment to the previous position of the stack
+        ;;; = higher-level context
+        ;;; this is used essentially for gloval variables used in loops 
+        ;;; (loop has its own context within the patch)
         (setf (cadr *let-list-stack*)
               (cons form (cadr *let-list-stack*)))
         
@@ -232,11 +238,16 @@
         ;(setf (car (last *let-list-stack*))
         ;      (cons form (car (last *let-list-stack*))))
         )
-    (setq *let-list-stack* (list (list form))))
+
+    ;;; create a new stack
+    (setq *let-list-stack* (list (list form)))
+    )
   )
 
+
+
 (defun check-let-statement (varname &optional (scope :local))
-  ; (print (list "CHECK LET IN" varname *let-list-stack*))
+  ;(print (list "CHECK LET IN" varname *let-list-stack*))
   (if (equal scope :local)
       (member varname (car *let-list-stack*) :test 'equal :key 'car)
     (member varname (apply 'append *let-list-stack*) :test 'equal :key 'car)))
@@ -356,24 +367,23 @@
 
 (defmethod gen-patch-lisp-code ((self OMPatch)) 
   
-  ; (print (list "GEN CODE" (name self) *let-list-stack*)) 
+  ;(print (list "GEN CODE" (name self) *let-list-stack*)) 
   
+  (push-let-context)
+
   (unwind-protect 
-      
-      (progn 
-          
-        (push-let-context)
           
         (let* ((boxes (boxes self))
                (input-names (gen-patch-input-names self))
-         
-               (init-boxes (sort (get-boxes-of-type self 'OMPatchInitBox) '< :key 'index))
+               
+               ;;; as far as I can say OMPatchInitBox have no index... ?
+               (init-boxes (sort-boxes (get-boxes-of-type self 'OMPatchInitBox)))
                (init-forms (loop for ib in init-boxes append (gen-code ib)))
-         
-               (loop-boxes (sort (get-boxes-of-type self 'OMPatchIteratorBox) '< :key 'index))
+               
+               (loop-boxes (sort-boxes (get-boxes-of-type self 'OMPatchIteratorBox)))
                (loop-forms (loop for lb in loop-boxes append (gen-code lb)))
          
-               (out-boxes (sort (get-boxes-of-type self 'OMOutBox) '< :key 'index))
+               (out-boxes (sort-boxes (get-boxes-of-type self 'OMOutBox)))
          
                (body 
                 (if (> (length out-boxes) 1)
@@ -390,7 +400,7 @@
                    
                     `(let* ,(output-current-let-context) ,.init-forms ,.loop-forms ,body)
                     ))
-          ))
+          )
        
     ;; cleanup
     (pop-let-context)
@@ -413,15 +423,18 @@
   (setf (compiled? self) t)
   
   (handler-bind
-      ((error #'(lambda (err)
-                  
-                  (om-print err)
-                  (om-print-format "ABORTING COMPILATION OF PATCH ~A" (list (name self)) "[!!]")
-                  
-                  (setf (compiled? self) nil)
-                  (om-abort)
-                  )))
-
+      ()
+    ;((error #'(lambda (err)
+    ;              
+    ;              (om-print err)
+    ;              (om-print-format "ABORTING COMPILATION OF PATCH ~A" (list (name self)) "[!!]")
+    ;              
+    ;              (setf (compiled? self) nil)
+    ;              ; (om-abort)
+    ;              (error err)
+    ;              )))
+    
+    (print "gggggg")
     (multiple-value-bind (input-names body)
         (gen-patch-lisp-code self)
     

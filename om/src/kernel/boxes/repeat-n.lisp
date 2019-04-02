@@ -104,17 +104,18 @@
   
   (push-let-context)
   
-  (let* ((body (gen-code (car (inputs self))))
-         (code 
-          `(loop for i from 1 to ,(gen-code (cadr (inputs self))) 
-                 collect 
-                 (let* ,(output-current-let-context) ,body)
-                 )))
-     
+  (unwind-protect
+      
+      (let* ((body (gen-code (car (inputs self)))))
+        `(loop for i from 1 to ,(gen-code (cadr (inputs self))) 
+                     collect 
+                     (let* ,(output-current-let-context) ,body)
+                     )
+        )
+
     (pop-let-context)
 
-    code))
-
+    ))
 
 ;;; NO LAMBDA OR OTHER FUNKY EVAL MODES FOR SPECIAL BOXES LIKE THIS...
 ;;; (the following code should work though...)

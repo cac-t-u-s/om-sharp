@@ -35,6 +35,8 @@
    (it-value :initform nil :accessor it-value)))
 
 
+(defmethod index ((self OMPatchLoop)) 0)
+
 (defclass OMPatchLoopBox (OMPatchComponentBox) ())
 
 (defmethod get-box-class ((self OMPatchLoop)) 'OMPatchLoopBox)
@@ -203,6 +205,9 @@
    (make-instance 'OMLoopWhile :name "while")
    pos init-args))
 
+;;; loopwhiel goes after other iterators declarations
+(defmethod index ((self OMLoopWhile)) 1)
+
 (defmethod gen-iteration-code ((self OMLoopWhile) &optional inputs)
   (push-let-statement `(,(it-var self) nil))
   ; with ,(it-var self) = nil 
@@ -274,9 +279,10 @@
 (defmethod boxcall-value ((self OMPatchIteratorBox))
   
   (let ((old-context *ev-once-context*)
-        (loopboxes (remove-if 
-                    #'(lambda (b) (not (is-connected-up-to self b)))
-                    (collect-loop-boxes (container self)))))
+        (loopboxes (sort-boxes 
+                    (remove-if 
+                     #'(lambda (b) (not (is-connected-up-to self b)))
+                     (collect-loop-boxes (container self))))))
 
     (if loopboxes 
         (mapc 'box-init-iterator-value loopboxes)
@@ -286,6 +292,7 @@
         (progn
           (setf (n-iter (reference self)) 0)
           (setf *ev-once-context* self)
+          (push-let-context)
           (let* ((iterators-code (apply 'append (mapcar 'gen-loop-code-for-eval loopboxes)))
                  (update-iterators-value-code (apply 'append (mapcar #'(lambda (b) (gen-loop-iterator-update-code (reference b))) loopboxes)))
                  (loop-code 
@@ -299,7 +306,9 @@
                                  `(omNG-box-value ,(car (inputs self)))
                                `(loop for inp in ',(inputs self) collect (omNG-box-value inp)))
                     )))
-            ;(pprint loop-code) (terpri)
+            
+            (pop-let-context)
+            (pprint loop-code) (terpri)
             (when iterators-code (eval loop-code))
             ))
      
@@ -314,12 +323,13 @@
 
 (defmethod gen-code ((self OMPatchIteratorBox) &optional args)
 
-  (let ((loopboxes (remove-if 
-                    #'(lambda (b) (not (is-connected-up-to self b)))
-                    (collect-loop-boxes (container self)))))
+  (let ((loopboxes 
+         (sort-boxes 
+          (remove-if 
+           #'(lambda (b) (not (is-connected-up-to self b)))
+           (collect-loop-boxes (container self))))))
          
-    (push-let-context)
-    
+    ;(push-let-context)
 
     (unwind-protect 
         
@@ -332,33 +342,31 @@
             
               (let ((iterators-code (apply 'append (mapcar 'gen-loop-code-for-compile loopboxes)))
                     (declarations-code (gen-loop-declarations (output-current-let-context))))
-              
+                
                 (pop-let-context)
                 (setf *freeze-eval-once-mechanism* nil)
               
-              (let ((loop-code (loop for inp in (inputs self) collect (gen-code inp))))
-                
-                (list 
-                 `(loop ,.declarations-code
-                        ,.iterators-code
-                        do 
-                        (let* ,(output-current-let-context)
-                          ,.loop-code))
-                 ))))
+                (push-let-context)
+                (unwind-protect 
+                    (let ((loop-code (loop for inp in (inputs self) collect (gen-code inp))))
+                      
+                      (list 
+                       `(loop ,.declarations-code
+                              ,.iterators-code
+                              do 
+                              (let* ,(output-current-let-context)
+                                ,.loop-code))
+                       ))
+                  (pop-let-context))
+                ))
               
-              ;;; else: no loop boxes
-              (om-print-format "Warning: ITERATE box used without iterator in patch ~A !!" (list (name (container self))))
-              )
-      
-          ;;; protect cleanup
-          (pop-let-context)
+          ;;; else: no loop boxes
+          (om-print-format "Warning: ITERATE box used without iterator in patch ~A !!" (list (name (container self))))
           )
+      
+      ;;; protect cleanup
+      ;(pop-let-context)
+      )
     ))
-
-
-
-
-
-
 
 
