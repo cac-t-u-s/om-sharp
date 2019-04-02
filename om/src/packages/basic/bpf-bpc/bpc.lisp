@@ -140,6 +140,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
   (setf (slot-value self 'decimals) decimals)
   (check-decimals self)
   (set-bpf-points self :x x :y y :time times)
+  (time-sequence-update-internal-times self)
   (decimals self)))
 
 (defmethod init-bpf-points ((self BPC))

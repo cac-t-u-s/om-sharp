@@ -137,6 +137,7 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
   (setf (slot-value self 'decimals) decimals)
   (check-decimals self)
   (set-bpf-points self :x x :y y :z z)
+  (time-sequence-update-internal-times self)
   (decimals self)))
 
 (defmethod adapt-point ((self 3DC) point)
