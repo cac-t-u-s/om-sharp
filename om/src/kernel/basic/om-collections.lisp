@@ -100,22 +100,29 @@
     (if (subtypep (obj-type self) 'BPF)
         (let ((ranges (car display-cache)))
           (loop for o in (obj-list self) do 
-                (draw-bpf-points-in-rect (point-pairs o)
-                                         (color o) 
-                                         ranges
-                                         x (+ y 10) w (- h 20)
-                                         :lines))
-          (om-with-font  (om-def-font :font1 :size 8)
-            (om-draw-string (+ x 10) (+ y (- h 4)) (number-to-string (nth 0 ranges)))
-            (om-draw-string (+ x (- w (om-string-size (number-to-string (nth 1 ranges)) (om-def-font :font1 :size 8)) 4))
-                            (+ y (- h 4)) 
-                            (number-to-string (nth 1 ranges)))
-            (om-draw-string x (+ y (- h 14)) (number-to-string (nth 2 ranges)))
-            (om-draw-string x (+ y 10) (number-to-string (nth 3 ranges)))
-            ))
-      (loop for o in (obj-list self) do 
+                (draw-bpf-points-in-rect
+                 (point-pairs o)
+                 (color o) 
+                 ranges
+                 x (+ y 10) w (- h 20)
+                 :lines-only)
+                )
+          (om-with-font (om-def-font :font1 :size 8)
+                        (om-draw-string (+ x 10) (+ y (- h 4)) (number-to-string (nth 0 ranges)))
+                        (om-draw-string (+ x (- w (om-string-size (number-to-string (nth 1 ranges)) (om-def-font :font1 :size 8)) 4))
+                                        (+ y (- h 4)) 
+                                        (number-to-string (nth 1 ranges)))
+                        (om-draw-string x (+ y (- h 14)) (number-to-string (nth 2 ranges)))
+                        (om-draw-string x (+ y 10) (number-to-string (nth 3 ranges)))
+                        ))
+      (let ((ho (/ h (length (obj-list self)))))
+        (loop for o in (obj-list self) 
+              for yo = y then (+ yo ho) do 
               (set-cache-display box o)
-              (draw-mini-view o box x y w h time)))))
+              (draw-mini-view o box x yo w ho time))
+        )
+      )
+    ))
 
 
 
