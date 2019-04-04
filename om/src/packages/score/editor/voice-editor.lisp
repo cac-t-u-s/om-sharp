@@ -369,7 +369,7 @@
          (draw-bboxes (typep view 'score-panel))
          )
     
-    (print (list "chord" s-dur parent-nd graphic-dur))
+    ;(print (list "chord" s-dur parent-nd graphic-dur))
     ;; in fact propre-group (= when a standalone chord has a small group indication) will never happen (in OM)
     
     (let ((bbox? 
