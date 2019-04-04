@@ -89,8 +89,8 @@
        object))
 
 (defmethod find-score-element-at-pos ((object score-object) pos)
-  
-  (cond 
+ 
+ (cond 
   
    ((null (b-box object)) ;;; the object itself has no bounding box (yet?)
     (let ((found nil))
@@ -99,7 +99,7 @@
             do (setf found (find-score-element-at-pos elem pos)))
       found))
           
-   ((point-in-bbox pos (b-box object))  ;; the object has one, and we're inside 
+   ((point-in-bbox pos (b-box object)) ;; the object has one, and we're inside 
     (let ((found nil))
       (loop for elem in (inside object) ;; check its children..
             while (not found)
@@ -149,28 +149,29 @@
                      (find container-chord (selection editor)))
                  (setf (selection editor) (list container-chord))
                (setf (selection editor) (list new-note)))
-
-             (om-init-temp-graphics-motion 
-              self position nil :min-move 1
-              :motion #'(lambda (view pos)
-                          (let* ((new-y-in-units (- shift (/ (om-point-y pos) score-unit)))
-                                 (new-pitch (line-to-pitch new-y-in-units))
-                                 (diff (- new-pitch pitch)))
-                            (store-current-state-for-undo editor :action :move :item (selection editor))
-                            (loop for n in (get-notes (selection editor)) do
-                                  (setf (midic n) (+ (midic n) diff)))
-                            (setf pitch new-pitch)
-                            (om-invalidate-view self)
-                            ))
-              :release #'(lambda (view pos) 
-                           (reset-undoable-editor-action editor)
-                           (report-modifications editor))
-              )
-             ))
+             
+               (om-init-temp-graphics-motion 
+                self position nil :min-move 1
+                :motion #'(lambda (view pos)
+                            (let* ((new-y-in-units (- shift (/ (om-point-y pos) score-unit)))
+                                   (new-pitch (line-to-pitch new-y-in-units))
+                                   (diff (- new-pitch pitch)))
+                              (unless (zerop diff)
+                                (store-current-state-for-undo editor :action :move :item (selection editor))
+                                (loop for n in (get-notes (selection editor)) do
+                                      (setf (midic n) (+ (midic n) diff)))
+                                (setf pitch new-pitch)
+                                (om-invalidate-view self))
+                              ))
+                :release #'(lambda (view pos) 
+                             (reset-undoable-editor-action editor)
+                             (report-modifications editor))
+                )
+               ))
           
           ;; select
           (t (let ((selection (find-score-element-at-pos obj position)))
-               
+
                (set-selection editor selection)
                (om-invalidate-view self)
                ;;; move the selection or select rectangle
@@ -178,22 +179,26 @@
                (if selection
                    
                    ;;; move it
-                   (om-init-temp-graphics-motion 
-                    self position nil :min-move 1
-                    :motion #'(lambda (view pos)
-                                (let* ((new-y-in-units (- shift (/ (om-point-y pos) score-unit)))
-                                       (new-pitch (line-to-pitch new-y-in-units))
-                                       (diff (- new-pitch pitch)))
-                                  (store-current-state-for-undo editor :action :move :item (selection editor))
-                                  (loop for n in (get-notes (selection editor)) do
-                                        (setf (midic n) (+ (midic n) diff)))
-                                  (setf pitch new-pitch)
-                                  (editor-invalidate-views editor)
-                                  ))
+                   (let ((modif nil))
+                     (om-init-temp-graphics-motion 
+                      self position nil :min-move 1
+                      :motion #'(lambda (view pos)
+                                  (let* ((new-y-in-units (- shift (/ (om-point-y pos) score-unit)))
+                                         (new-pitch (line-to-pitch new-y-in-units))
+                                         (diff (- new-pitch pitch)))
+                                    (unless (zerop diff)
+                                      (setf modif t)
+                                      (store-current-state-for-undo editor :action :move :item (selection editor))
+                                      (loop for n in (get-notes (selection editor)) do
+                                            (setf (midic n) (+ (midic n) diff)))
+                                      (setf pitch new-pitch)
+                                      (editor-invalidate-views editor)
+                                      )))
                       :release #'(lambda (view pos) 
-                                   (reset-undoable-editor-action editor)
-                                   (report-modifications editor))
-                      )
+                                   (when modif
+                                     (reset-undoable-editor-action editor)
+                                     (report-modifications editor)))
+                      ))
 
                  ;;; no selection: start selection-rectangle
                  (om-init-temp-graphics-motion 

@@ -67,6 +67,8 @@
   (declare (ignore position))
   (object-value self))
 
+
+ 
 ;;; SPECIAL/SIMPLE CASE FOR CHORD-EDITOR
 (defmethod draw-score-object-in-editor-view ((editor chord-editor) view unit)
 
@@ -75,7 +77,8 @@
     (setf 
      (b-box chord)
      (draw-chord chord 
-                 (/ (w view) 2) 0 
+                 0 
+                 0 
                  (w view) (h view) 
                  (editor-get-edit-param editor :font-size) 
                  :staff (editor-get-edit-param editor :staff)
@@ -85,6 +88,12 @@
                  :draw-durs (editor-get-edit-param editor :duration-display)
                  :selection (if (find chord (selection editor)) T 
                               (selection editor))
+
+                 :time-function #'(lambda (time) 
+                                    (+ (/ (w view) 2) 
+                                       (* (/ (- (w view) 80) 2) 
+                                          (/ time (list-max (apply #'dur (notes chord))))))
+                                    )
                  :build-b-boxes t
                  ))
     

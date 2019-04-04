@@ -319,9 +319,11 @@ Internally most of these values are just used to build a list of CHORD objects, 
 
     (loop for chord in (chords self) do
           (draw-chord chord
-                      (miniview-time-to-pixel self (frame box) (date chord))
+                      (date chord)
                       y-u 
-                      w h (fontsize box) :scale nil :staff staff)
+                      w h (fontsize box) :scale nil :staff staff
+                      :time-function #'(lambda (time) (miniview-time-to-pixel self (frame box) time))
+                      )
           )))
 
 

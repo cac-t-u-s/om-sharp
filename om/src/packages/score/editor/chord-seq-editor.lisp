@@ -166,7 +166,7 @@
           (setf 
            (b-box chord)
            (draw-chord chord
-                       (time-to-pixel view (date chord))
+                       (date chord) 
                        0 
                        (w view) (h view) 
                        font-size 
@@ -177,6 +177,7 @@
                        :draw-durs dur
                        :selection (if (find chord (selection editor)) T 
                                     (selection editor))
+                       :time-function #'(lambda (time) (time-to-pixel view time))
                        :build-b-boxes t
                        ))
           ;(draw-b-box chord)
