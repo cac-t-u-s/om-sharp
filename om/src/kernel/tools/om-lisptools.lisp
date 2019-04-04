@@ -72,10 +72,23 @@
    "Checks if every elt in 'list' belongs to one of the subtypes in 'typelist'"
    (every #'(lambda (elt) (some #'(lambda (type) (subtypep (type-of elt) type)) (list! typelist))) list))
 
-(defun next-in-list (list item) 
-  (let* ((pos (position item list))
-         (newpos (if pos (mod (1+ pos) (length list)) 0)))
-    (nth newpos list)))
+(defun next-in-list (list item &optional (circular t)) 
+  (let* ((pos (position item list)))
+    (if circular 
+        (let ((newpos (if pos (mod (1+ pos) (length list)) 0)))
+          (nth newpos list))
+      (when pos 
+        (nth (1+ pos) list))
+      )))
+
+(defun previous-in-list (list item &optional (circular t)) 
+  (let* ((pos (position item list)))
+    (if circular 
+        (let ((newpos (if pos (mod (1- pos) (length list)) 0)))
+          (nth newpos list))
+      (when (and pos (> pos 0))
+        (nth (1- pos) list))
+      )))
 
 
 (defmacro %car (x)

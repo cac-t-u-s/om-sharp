@@ -21,6 +21,20 @@
 
 (in-package :om)
 
+
+;;;===================================
+;;; A ratio keeping track of denum
+;;;===================================
+(defstruct r-ratio (num) (denom))
+(defmethod r-ratio-value ((r r-ratio))
+  (/ (r-ratio-num r) (r-ratio-denom r)))
+(defmethod r-ratio-* ((r r-ratio) (n number))
+  (make-r-ratio :num (* (r-ratio-num r) n) :denom (r-ratio-denom r)))
+(defmethod r-ratio-* ((r r-ratio) (n ratio))
+  (make-r-ratio :num (* (r-ratio-num r) (numerator n)) :denom (* (r-ratio-denom r) (denominator n))))
+
+
+
 ;;; get the absolute duration (in proportion)
 (defun decode-extent (dur)
   (cond ((listp dur) ;;; e.g. '(4 4)
@@ -104,8 +118,10 @@
 ;;; from OM6
 ;;;=============================================
 
+;;;===================================================================
 ;Check the syntax of the tree and computes the value of '? if there is in the tree
-;-- we're not using this one...
+;-- not used
+; ->
 (defun resolve-? (list)
   (flet ((subtree-extent (subtree) 
            (cond ((listp subtree) (fullratio (first subtree)))
@@ -128,7 +144,9 @@
         (error (format nil "Invalid Rhythm Tree : ~A" list)))))
     ))
 
-;-- we're not using this one...
+
+;;;===================================================================
+;-- not used
 
 (defun replace-num-in-tree (old new)
   (cond
@@ -157,7 +175,7 @@
               (list (list (first item) (rw-singleton (second item) (first item))))
               (list (list (first item) (rw-singleton (second item))))))))))
 
-
+;; ->
 (defun singleton (tree)
    (let* ((measures (cadr tree)))
      (list (car tree)
@@ -177,7 +195,8 @@
                            (list sign (rw-singleton (second mes)))))))
                    measures))))
 
-;-- we're not using this one...
+
+;;;===================================================================
 
 ; If only one element
 ;'((4 4) ((1 (1 1 1)))) = T
@@ -219,6 +238,9 @@
         (list signature (list (list (car signature) (cadr measure-tree)))))
        (t measure-tree)))))
 
+
+;;;===================================================================
+;;; called at voice intialization:
 (defun format-tree (measures) 
   (mapcar #'list-first-layer measures))
 
@@ -228,7 +250,7 @@
 ;; use fdenominator and fdenominator to access to a fullratio num and denum
 ;; obviously here to avoid MACL automatic simplification of ratios.
 
-(defmethod fullratio ((self list)) (/  (first self)  (second self)))
+(defmethod fullratio ((self list)) (/ (first self)  (second self)))
 (defmethod fullratio ((self number)) self)
 (defmethod fullratio ((self float)) (round self))
 

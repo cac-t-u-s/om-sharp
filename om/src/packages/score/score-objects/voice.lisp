@@ -71,6 +71,7 @@
 (defmethod get-notes ((self continuation-chord)) 
   (get-notes (previous-chord self)))
 
+; (format-tree '(((5 3) (1 3 (4 (3 1 (2 (8 1)) 2))))))
 
 (defmethod initialize-instance ((self voice) &rest initargs)
   (call-next-method)
@@ -96,7 +97,7 @@
 (defun set-timing-from-tempo (chords tempo)
   (loop for c in chords do
         (setf (date c) (beat-to-time (symbolic-date c) tempo))
-        (ldur c) (beat-to-time (symbolic-dur c) tempo)
+        (ldur c) (beat-to-time (r-ratio-value (symbolic-dur c)) tempo)
         ))
 
 
@@ -106,11 +107,12 @@
     
     (setf (inside self)
           (loop for m-tree in (tree self)
-                collect (let* ((m-dur (decode-extent (car m-tree)))
+                collect (let* (;; (m-dur (decode-extent (car m-tree)))
+                               (m-dur (make-r-ratio :num (car (car m-tree)) :denom (cadr (car m-tree))))
                                (mesure (make-instance 'measure :tree m-tree
                                                       :symbolic-date curr-beat
                                                       :symbolic-dur m-dur)))
-                          (setq curr-beat (+ curr-beat m-dur))
+                          (setq curr-beat (+ curr-beat (r-ratio-value m-dur)))
                           (setq curr-n-chord (build-rhythm-structure mesure chords curr-n-chord))
                           mesure)))
 
@@ -131,80 +133,98 @@
 (defmethod build-rhythm-structure ((self rhythmic-object) chords n)
 
   (let ((total-dur (apply '+ (mapcar 'tree-extent (cadr (tree self))))) ;;; sum of subdivisions
-        (sub-dur 0)
+        (curr-beat (symbolic-date self))
+        (s-dur (symbolic-dur self))
         (curr-n-chord n)) 
     
+    (print (list "build" self (symbolic-dur self)))
+
     (setf (inside self) 
           
           (loop for subtree in (cadr (tree self))
-                for beat = (symbolic-date self) then (+ beat sub-dur)
                 collect 
 
                 (if (listp subtree) 
-                    ;;; subgroup
-                    (let ((group (make-instance 'group :tree (list (car subtree) (simplify-subtrees (cadr subtree)))
-                                                :symbolic-date beat
-                                                :symbolic-dur (* (symbolic-dur self) (/ (car subtree) total-dur)))))
+                    ;;; SUBGROUP
+                    (let* ((relative-dur (/ (car subtree) total-dur))
+                           (sub-dur (r-ratio-* s-dur relative-dur))
+                           (tree (list (r-ratio-value sub-dur) (simplify-subtrees (cadr subtree))))
+                           (group (make-instance 'group :tree tree
+                                                 :symbolic-date curr-beat
+                                                 :symbolic-dur sub-dur)))
                       
                       ;;; set the "numdenom" indicator
                       ;;; direct from OM6: probably possible to simplify
-                      ;(print "===")
-                      ;(print (list subtree (symbolic-dur group)))
+                      (print (list "group:" subtree "=>" (tree group) (symbolic-dur group)))
                       (let* ((group-ratio (get-group-ratio (tree group)))
-                             (num (or group-ratio (symbolic-dur group)))
-                             (denom (find-denom num (symbolic-dur group))))
+                             (group-s-dur (r-ratio-value (symbolic-dur group)))
+                             (num (or group-ratio group-s-dur))
+                             (dur-for-denom (if (= group-s-dur (r-ratio-value s-dur))
+                                                group-s-dur
+                                              (/ group-s-dur (r-ratio-value s-dur))))
+                             (denom (find-denom num dur-for-denom)))
                         
+                        ; (print (list group-ratio num denom))
+
                         (when (listp denom) 
                           (setq num (car denom))
                           (setq denom (second denom)))
-
+                        
                         (setf (numdenom group) (cond
                                                 ((not group-ratio) nil)
                                                 ((= (/ num denom) 1) nil)
-                                                (t (list num denom))))
+                                                (t (reduce-num-den num denom))))
+                        )
                         
-                        (setq sub-dur (symbolic-dur group))
-                        (setq curr-n-chord (build-rhythm-structure group chords curr-n-chord))
+                      (setq curr-beat (+ curr-beat (r-ratio-value sub-dur)))
+                      (setq curr-n-chord (build-rhythm-structure group chords curr-n-chord))
                         
-                        group))
+                      group)
                   
-                  (progn ;;; atom (leaf)
+                  ;;; ATOM (leaf)
+                  (let ((sub-dur (r-ratio-* (symbolic-dur self) (/ (decode-extent subtree) total-dur))))
                     
-                    
-                    
-                    (setq sub-dur (* (symbolic-dur self) (/ (decode-extent subtree) total-dur)))
                     ;; (print (list "CHORD" sub-dur total-dur))
-                    (cond 
-                     ((minusp subtree)  ;; rest
-                      (make-instance 'r-rest
-                                     :symbolic-date beat
-                                     :symbolic-dur sub-dur))
+                    (let ((object
+                           (cond 
+                            ;;; REST
+                            ((minusp subtree)  
+                             (make-instance 'r-rest
+                                            :symbolic-date curr-beat
+                                            :symbolic-dur sub-dur))
                           
-                     ((floatp subtree) ;;; tied-chord: keep current-chord in chord-list (important: same reference!)
-                      (let* ((real-chord (nth curr-n-chord chords))
-                             (cont-chord (make-instance 'continuation-chord)))
+                            ;;; CONTINUATION CHORD
+                            ((floatp subtree) ;;; keep current-chord in chord-list (important: same reference!)
+                             (let* ((real-chord (nth curr-n-chord chords))
+                                    (cont-chord (make-instance 'continuation-chord)))
                         
-                        (setf ;; (symbolic-dur real-chord) (+ (symbolic-dur real-chord) sub-dur) ;;; extends the duration of the main chord
-                              (previous-chord cont-chord) real-chord
-                              (symbolic-date cont-chord) beat
-                              (symbolic-dur cont-chord) sub-dur)
+                               (setf ;; (symbolic-dur real-chord) (+ (symbolic-dur real-chord) sub-dur) ;;; extends the duration of the main chord
+                                     (previous-chord cont-chord) real-chord
+                                     (symbolic-date cont-chord) curr-beat
+                                     (symbolic-dur cont-chord) sub-dur)
 
-                        cont-chord))
-                          
-                     (t ;;; normal chord: get the next in chord list
-                        (setf curr-n-chord (1+ curr-n-chord))
+                               cont-chord))
+                     
+                            ;;; CHORD
+                            (t ;;; get the next in chord list
+                               (setf curr-n-chord (1+ curr-n-chord))
                         
-                        (let ((real-chord (nth curr-n-chord chords)))
+                               (let ((real-chord (nth curr-n-chord chords)))
 
-                          (unless real-chord ;;; chord-list exhausted: repeat the last one as needed to finish the tree
-                            (setq real-chord (clone (car (last chords))))
-                            (pushr real-chord chords))
+                                 (unless real-chord ;;; chord-list exhausted: repeat the last one as needed to finish the tree
+                                   (setq real-chord (clone (car (last chords))))
+                                   (pushr real-chord chords))
 
-                          (setf (symbolic-date real-chord) beat
-                                (symbolic-dur real-chord) sub-dur)
+                                 (setf (symbolic-date real-chord) curr-beat
+                                       (symbolic-dur real-chord) sub-dur)
                           
-                          real-chord))
-                     )
+                                 real-chord))
+                            )))
+                      
+                      ;;; udate curr-beat for the general loop
+                      (setq curr-beat (+ curr-beat (r-ratio-value sub-dur)))
+                      
+                      object)
                     ))
                 ))
     
@@ -229,7 +249,7 @@
       ((and (integerp (/ extent addition)) 
             (or (power-of-two-p (/ extent addition))
                 (and (integerp (/ addition extent)) 
-                     (power-of-two-p (/ addition extent))))) 
+                     (power-of-two-p (/ addition extent)))))
        nil)
       (t addition))))
 
@@ -280,6 +300,13 @@
      ;((< num (- (* 2 durtot) 1)) durtot)  ;; OJO OJO ESTOS CASOS HAY QUE VERLOS CON KARIM
      (t (closest-square-of num durtot))
      )))
+
+;; returns the smallest multiples of 2 (e.g. 14/8 => 7/4)
+(defun reduce-num-den (num den)
+  (if (and (evenp num) (evenp den))
+      (reduce-num-den (/ num 2) (/ den 2))
+    (list num den)))
+
 
 
 
