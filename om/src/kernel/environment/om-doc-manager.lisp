@@ -41,12 +41,11 @@
   (push (make-doc-entry :doc self :file (and path (namestring path))) *open-documents*))
 
 (defmethod unregister-document ((self OMPersistantObject))
-  (om-print-dbg "Unregistering document: ~A - ~A" (list self (mypathname self)))
-  (let ((doc-entry (find self *open-documents* :key 'doc-entry-doc)))
-    (setf *open-documents* (remove self *open-documents* :key 'doc-entry-doc))
-    (when (and (null *open-documents*) *quit-at-last-doc*
-               (member :om-deliver *features*))
-      (om-quit))))
+  (om-print-dbg "Unregistering document: ~A - ~A" (list self (mypathname self))) 
+  (setf *open-documents* (remove self *open-documents* :key 'doc-entry-doc))
+  (when (and (null *open-documents*) *quit-at-last-doc*
+             (member :om-deliver *features*))
+    (om-quit)))
 
 (defmethod update-document-path ((self OMPersistantObject))
   (let ((doc-entry (find self *open-documents* :key 'doc-entry-doc)))
@@ -109,8 +108,11 @@
         ((or (string-equal str "lisp")
              (string-equal str "lsp")) :lisp)
         ((string-equal str "txt") :text)
-        (otherwise nil)))
+        ((or (string-equal str "omp") (string-equal str "omm")) :old)        
+        (t nil)))
         
+
+
 ;;; called by the interface menus and commands ("New")
 (defun open-new-document (&optional (type :patch)) 
   (let ((newobj (make-new-om-doc type (om-str :untitled))))
@@ -162,6 +164,7 @@
           (:maquette (open-doc-from-file type file))
           (:textfun (open-doc-from-file type file))
           ((or :text :lisp) (om-lisp::om-open-text-editor :contents file :lisp t))
+          (:old (import-doc-from-previous-om file))
           (otherwise (progn (om-message-dialog (format nil "Unknown document type: ~s" (pathname-type file)))
                         nil)))
         ))))
@@ -225,6 +228,13 @@
        )
      )))
       
+
+(defun import-doc-from-previous-om (path)
+  (let ((obj (load-om6-patch path)))
+    (if obj (open-editor obj)
+      (om-print (string+ "file: \""  (namestring path) "\" could not be open.")))
+    obj))
+
 
 (defun open-doc-from-file (type &optional path)
   (let ((file (or path (om-choose-file-dialog 

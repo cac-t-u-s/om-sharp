@@ -64,6 +64,7 @@
         "environment/om-library"
         "environment/om-workspace" 
         "environment/om-function-reference" 
+        "environment/om-compatibility" 
 
         "windows/om-windows"
         "windows/om-main-window"
