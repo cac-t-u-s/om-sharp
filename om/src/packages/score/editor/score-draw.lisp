@@ -449,17 +449,6 @@
    (t :rest-1/128)))
 
 
-(defun bin-value-below (num)
-  (let ((cp2 (next-square-of-n num 2)))
-    (if (= num cp2) num (/ cp2 2))))
-
-(defun closest-square-of (num of)
-  (let* ((high (next-square-of-n num of))
-         (low (/ high 2)))
-    (if (< (- high num) (- num low))
-        high low)))
-
-
 ;;; get the notehead symbol and eventually points corresponding to a given duration
 (defun note-head-and-points (dur)
    (let* ((num (numerator dur))

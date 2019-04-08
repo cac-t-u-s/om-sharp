@@ -254,7 +254,9 @@
 
 (defun valued-val (val)
    (if (or (symbolp val) 
-           (and (consp nil) (or (not (symbolp (car list))) (not (fboundp (car list))))))
+           (and (consp val) 
+                (or (not (symbolp (car val))) 
+                    (not (fboundp (car val))))))
        val 
      (eval val)))
 
@@ -309,12 +311,12 @@
     (/ num den)))
 
 
-;;; finds the closest square of n that is greater than val
-(defun next-square-of-n (val n)
-  (let ((exp n))
-    (loop while (> val exp) do
-          (setf exp (* exp 2)))
-    exp))
+;;; finds the closest multiple of n and 2 that is greater than val
+(defun next-double-of-n (val n)
+  (let ((rep n))
+    (loop while (> val rep) do
+          (setf rep (* rep 2)))
+    rep))
 
 (defun power-of-two-p (n)
   (or (= n 1) (= n 2)

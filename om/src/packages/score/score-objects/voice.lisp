@@ -27,11 +27,9 @@
 ;;; r-struct is a hierarchical structure of containers (measures/groups) whose leaves are either chords or rests
 ;;; the chords in r-struct are simple references to the time-sequence items
 
-
-
 (defclass* voice (chord-seq)
   ((tree :initform '(((4 4) (1 1 1 1))) :accessor tree :initarg :tree :type list :documentation "a rhythm tree (list of measure-rythm-trees)")
-   (Lmidic :initform '((6000)) :initarg :Lmidic :type list :documentation "pitches (mc)/chords: list or list of lists")
+   (Lmidic :initform '((6000)) :initarg :Lmidic :initarg :chords :type list :documentation "pitches (mc)/chords: list or list of lists")
 
    (tempo :accessor tempo :initform 60 :initarg :tempo :documentation "a tempo value or tempo-map")
    (inside :accessor inside :initform nil :documentation "internal hierarchical structure")
@@ -83,6 +81,10 @@
   (setf (tree self) (normalize-tree (tree self)))
   (setf (tree self) (format-tree (tree self)))
   
+  ;;; compat OM 6 (temp)
+  (when (listp (tempo self))  ;; e.g. ((1/4 60) ...)
+    (setf (tempo self) (cadr (car (tempo self)))))
+
   (build-rhythm-structure self (chords self) -1)
   
   (set-timing-from-tempo (chords self) (tempo self))
@@ -137,7 +139,7 @@
         (s-dur (symbolic-dur self))
         (curr-n-chord n)) 
     
-    (print (list "build" self (symbolic-dur self)))
+    ;(print (list "build" self (symbolic-dur self)))
 
     (setf (inside self) 
           
@@ -155,7 +157,7 @@
                       
                       ;;; set the "numdenom" indicator
                       ;;; direct from OM6: probably possible to simplify
-                      (print (list "group:" subtree "=>" (tree group) (symbolic-dur group)))
+                      ;(print (list "group:" subtree "=>" (tree group) (symbolic-dur group)))
                       (let* ((group-ratio (get-group-ratio (tree group)))
                              (group-s-dur (r-ratio-value (symbolic-dur group)))
                              (num (or group-ratio group-s-dur))
@@ -253,6 +255,15 @@
        nil)
       (t addition))))
 
+(defun bin-value-below (num)
+  (let ((cp2 (next-double-of-n num 2)))
+    (if (= num cp2) num (/ cp2 2))))
+
+(defun closest-double-of (num of)
+  (let* ((high (next-double-of-n num of))
+         (low (/ high 2)))
+    (if (< (- high num) (- num low))
+        high low)))
 
 (defun find-beat-symbol (den) (bin-value-below den))
 
@@ -267,7 +278,7 @@
 ;;; is (denominator dur) a power of 2
 (defun is-binaire? (dur)
   (and (= (numerator dur) 1) 
-       (= (denominator dur) (next-square-of-n (denominator dur) 2))   ;;; next-pwr-of-2, or closest ?
+       (= (denominator dur) (next-double-of-n (denominator dur) 2))   ;;; next-pwr-of-2, or closest ?
        ))
 
 (defun is-ternaire? (durtot)
@@ -280,14 +291,15 @@
     (3 2)
     (4 4) (5 4) (6 4) (7 4) (8 8) (9 8) (10 8) (11 8) (12 8) (13 8) (14 8)
     (15 16) (16 16)
-    (otherwise (closest-bin-value num))))
+    (otherwise (closest-double-of num 2))))
 
 (defmethod get-denom-ter (num)
   (case num
     (2 3) (3 3) (4 3)
     (5 6) (6 6) (7 6) (8 6) (9 6) 
     (10 12) (11 12) (12 12) (13 12) (14 12) (15 12) (16 12) (17 12)
-    (otherwise (closest-square-of-n num 3))))
+    (otherwise (closest-double-of num 3))))
+
 
 ; if the answer is a list, the num should be changed in the caller-group
 (defun get-denom-other (dur num)
@@ -298,7 +310,7 @@
      ((< num durtot)
       (list (* num 2) durtot))
      ;((< num (- (* 2 durtot) 1)) durtot)  ;; OJO OJO ESTOS CASOS HAY QUE VERLOS CON KARIM
-     (t (closest-square-of num durtot))
+     (t (closest-double-of num durtot))
      )))
 
 ;; returns the smallest multiples of 2 (e.g. 14/8 => 7/4)
