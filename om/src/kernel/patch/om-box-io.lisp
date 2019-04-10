@@ -134,7 +134,7 @@
 (defmethod more-keyword-input ((self OMBox) &key key (value nil val-supplied-p) doc (reactive nil reactive-supplied-p))
   (multiple-value-bind (def-next err-message) 
       (next-keyword-input self)
-    (if def-next ;;; a kyword exist/is available
+    (if def-next ;;; a keyword exist/is available
       (let ((keyname 
              (if key ;;; a specific name is asked for
                  (let ((keywordlist (mapcar 'intern-k (apply 'append (get-all-keywords self))))

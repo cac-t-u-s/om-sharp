@@ -337,7 +337,7 @@
             (let ((doc (doc-entry-doc doc-entry)))
             (when (null (saved? doc))
               (let ((win (window (editor doc))))
-                (om-select-window win)
+                (when win (om-select-window win))
                 (when (or (and *save-apply-all* (= *save-apply-all* 1))
                           (let ((rep (om-save-y-n-cancel-dialog (name doc))))
                             (if rep 
@@ -346,7 +346,7 @@
                               (setf ok nil))
                             (car rep)))
                   (or (prog1 (save-document doc)
-                        (om-set-window-title win (window-name-from-object doc)))
+                        (and win (om-set-window-title win (window-name-from-object doc))))
                       (setf ok nil)))))
             )
             ))

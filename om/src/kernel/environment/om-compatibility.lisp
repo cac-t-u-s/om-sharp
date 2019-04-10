@@ -57,6 +57,7 @@
               
             (setf (omversion object) *om-version*
                   (create-info object) (list (om-get-date) (om-get-date))
+                  (window-size object) (eval (nth 4 metadata))
                   (saved? object) nil)
             
             (register-document object)
@@ -125,33 +126,129 @@
 ;============================================================================
 ; BOXES
 ;============================================================================
+;;; a box input
+(defun om-load-inputfun (class doc name value) 
+  `(:input (:type :standard) (:name ,name) (:value ,(omng-save value))))
+
+;;; a box input "keyword" 
+(defun om-load-inputkeyword (class doc name value defval menu) 
+  `(:input (:type :key) (:name ,name) (:value ,(omng-save defval))))
+
+;;; a box input with menu for different values
+(defun om-load-inputfunmenu1 (class doc name value items) 
+  `(:input (:type :standard) (:name ,name) (:value ,(omng-save value))))
 
 
-(defmethod om-load-boxcall ((class t) name reference inputs position size value lock &rest rest) 
-  (omng-load `(:box 
-               (:reference ,reference) 
-               (:x ,(om-point-x position))
-               (:y ,(om-point-y position)))
-             ))
-               
 
-(defmethod om-load-boxcall ((self (eql 'abstraction)) name reference inputs position size value lock &rest rest) )
-(defmethod om-load-boxcall ((self (eql 'maqabs)) name reference inputs position size value lock &rest rest) )
-(defmethod om-load-boxcall ((self (eql 'editor)) name reference inputs position size value lock &rest rest) )
-(defmethod om-load-boxcall ((self (eql 'slot)) name reference inputs position size value lock &rest rest) )
-(defmethod om-load-boxcall ((self (eql 'lispfun)) name reference inputs position size value lock &rest rest) )
+;;; handle dispatch to 'lispfun or handle unknown box 
+(defmethod om-load-boxcall ((class t) name reference inputs position size value lock &rest rest)
+  (cond ((fboundp reference)
+         (om-load-boxcall 'lispfun name reference inputs position size value lock))
+        
+        (t 
+         (om-print-format "Unknown box type (~A) for '~A'" (list class reference) "Compatibility")
+         (omng-load `(:box 
+                      (:type :unknown)
+                      (:reference ,reference)
+                      (:x ,(om-point-x position))
+                      (:y ,(om-point-y position))
+                      (:inputs .,(mapcar #'eval inputs))
+                      )))
+        ))
+  
 
+(defmethod changed-arg-names (function) nil)
+
+
+(defun check-arg-for-new-name (reference name)
+  (or (cadr (find name (changed-arg-names reference) :key #'car :test #'string-equal))
+      (and (string-equal name "add-input") (fboundp reference)
+           (getf (function-arglist reference) '&rest)) ;;; the last element in lambda-list is the name of the &rest arg
+      name))
+  
+
+;;; Function boxes
+(defmethod om-load-boxcall ((self (eql 'lispfun)) name reference inputs position size value lock &rest rest) 
+  
+  (let ((inputs (loop for formatted-in in (mapcar #'eval inputs) collect
+                      ;;; correct the type and eventually the name of box inputs
+                      (let ((name (check-arg-for-new-name 
+                                   reference 
+                                   (find-value-in-kv-list (cdr formatted-in) :name))))
+                        (cond ((find name (mapcar #'symbol-name (function-main-args reference)) :test #'string-equal)
+                               `(:input (:type :standard) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
+                              ((find name (mapcar #'symbol-name (function-optional-args reference)) :test #'string-equal)
+                               `(:input (:type :optional) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
+                              ((find name (mapcar #'symbol-name (function-keyword-args reference)) :test #'string-equal)
+                               `(:input (:type :key) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
+                              ((equal name (getf (function-arglist reference) '&rest))
+                               `(:input (:type :optional) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
+                              (t (om-print-format "Unknown input for function '~A': ~A" (list reference name) "Compatibility")
+                                 formatted-in))
+                        ))))
+    (omng-load `(:box 
+                 (:type :function)
+                 (:reference ,reference)
+                 (:x ,(om-point-x position))
+                 (:y ,(om-point-y position))
+                 (:lock ,(if lock (cond ((string-equal lock "x") :locked) 
+                                        ((string-equal lock "&") :eval-once))))
+                 (:lambda ,(if lock (cond ((string-equal lock "l") :lambda) 
+                                          ((string-equal lock "o") :reference))))
+                 (:inputs .,inputs)
+                 ))
+    ))
+
+  
 
 
 ;;; Object boxes
-(defun om-load-editor-box1 (name reference inputs position size value lock &rest rest)
+(defun om-load-editor-box1 (name reference inputs position size value lock &optional fname editparams spict meditor pictlist show-name)
+  
+  (let ((inputs (loop for formatted-in in (mapcar #'eval inputs) collect
+                      ;;; correct the type and eventually the name of box inputs
+                      (let ((name (check-arg-for-new-name 
+                                   reference 
+                                   (find-value-in-kv-list (cdr formatted-in) :name))))
+
+                        (cond ((find name (mapcar #'symbol-name (additional-class-attributes (make-instance reference)))
+                                     :test #'string-equal)  ;;; if the input has become a keywork input
+                               `(:input (:type :key) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
+                              (t formatted-in))
+                        ))))
+                        
+    (omng-load `(:box
+                 (:type :object)
+                 (:reference ,reference)
+                 (:name ,name)
+                 (:value ,value)
+                 (:x ,(om-point-x position))
+                 (:y ,(om-point-y position))
+                 (:w ,(om-point-x size))
+                 (:h ,(om-point-y size))
+                 (:lock ,(if lock (cond ((string-equal lock "x") :locked)
+                                        ((string-equal lock "&") :eval-once))))
+                 (:showname ,show-name)
+                 (:display ,(if spict :mini-view :hidden))
+                 (:inputs .,inputs)
+                 ))
+    ))
+    
+
+;;; Value boxes
+(defmethod om-load-boxcall ((self (eql 'bastype)) name reference inputs position size value lock &rest rest)
   (omng-load `(:box 
-               (:type :object)
+               (:type :value)
                (:reference ,reference) 
+               (:value ,value)
                (:name ,name)
                (:x ,(om-point-x position))
-               (:y ,(om-point-y position)))
+               (:y ,(om-point-y position))
+               (:w ,(om-point-x size))
+               (:h ,(om-point-y size))
+               )
              ))
+
 
 ;;; This was used to save OMLoops
 ;;; In om7 OMloop is just an normal patch
@@ -159,17 +256,6 @@
   (declare (ignore numouts))
   (let ((patch (om-load-patch-abs1 name boxes conec)))
     (om-load-boxcall 'abstraction name reference inputs position size patch lock)))
-
-
-;;; Value boxes
-(defmethod om-load-boxcall ((self (eql 'bastype)) name reference inputs position size value lock &rest rest)
-  (omng-load `(:box 
-               (:type :value)
-               (:reference ,reference) 
-               (:name ,name)
-               (:x ,(om-point-x position))
-               (:y ,(om-point-y position)))
-             ))
 
 
 (defun om-load-boxin (name indice position docu &optional fname val fsize) )
@@ -183,16 +269,20 @@
 (defun om-load-ominstance1 (class name icon instance edparams &optional pictlist doc &rest rest) )
 
 
-;;; a box input
-(defun om-load-inputfun (class doc name value) ) 
-;;; a box input "keyword" 
-(defun om-load-inputkeyword (class doc name value defval menu) )
-;;; a box input with menu for different values
-(defun om-load-inputfunmenu1 (class doc name value items) )
-
-
 (defun om-load-boxtypein (name type indice position docu keys defval &optional fname fsize) )
 (defun om-load-initin  (name type indice posi self? class &optional fsize) )
+
+
+(defmethod om-load-boxcall ((self (eql 'abstraction)) name reference inputs position size value lock &rest rest) )
+(defmethod om-load-boxcall ((self (eql 'maqabs)) name reference inputs position size value lock &rest rest) )
+(defmethod om-load-boxcall ((self (eql 'editor)) name reference inputs position size value lock &rest rest) )
+(defmethod om-load-boxcall ((self (eql 'slot)) name reference inputs position size value lock &rest rest) )
+
+(defmethod om-load-boxcall ((self (eql 'comment)) name reference inputs position size value lock &rest rest) )
+(defmethod om-load-boxcall ((self (eql 'mk-ins)) name reference inputs position size value lock &rest rest) )
+
+(defmethod om-load-boxcall ((self (eql 'undefined)) name reference inputs position size value lock &rest trest) nil)
+
 
 ;============================================================================
 ; MAQUETTE
@@ -258,5 +348,56 @@
 (defun simple-bpf-from-list (x-points y-points &optional (class 'bpf) (decimals 0))
   (make-instance class :x-points x-points :y-points y-points :decimals decimals))
  
+;;; OM-SAMPLE
+(defmethod changed-arg-names ((function (eql 'om-sample)))
+  '(("sample-rate" "nbs-sr")))
 
 
+
+#|
+;;;=========================================
+;;; TESTS
+;;;=========================================
+
+;;; Main boxes
+x VALUE BOX
+X FUNCTION BOX
+X EDITOR BOX
+ COMMENTS
+
+;;; Inputs/Connections
+X INPUT VALUES
+X KEYWORD INPUTS incl. stored value (ex. sort-list)
+X INPUTS WITH MENUINS eg. band-filter
+X OPTIONAL INPUTS 
+X REST INPUTS ex. list
+X CHANGE OPTIONAL => KEY   ex. FILE-CHOOSER
+X OBJECT NEW KEYWORDS ex. BPF decimals
+ CONNECTIONS incl color
+
+;;; State
+X LOCK/EV-ONCE
+X LAMBDA
+X REF MODE
+
+;;; Special boxes
+REPEAT-N
+LIST-ELEMENTS
+
+;;; Abstractions
+LISP-FUNCTIONS
+ABSTRACTION
+IN/OUTS
+
+OMLOOP
+
+TEXTFILE
+
+CLASS-ARRAY
+
+PATCH WITH LIB FUNCTIONS
+
+MAQUETTE
+
+
+|#
