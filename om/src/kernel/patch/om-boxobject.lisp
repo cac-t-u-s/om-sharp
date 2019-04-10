@@ -490,7 +490,6 @@
                              :name (if (stringp init-args) init-args nil)  ; (format nil "~A" init-args) 
                              :reference (class-name reference)
                              :icon-pos :noicon :show-name nil
-                             :text-font (om-def-font :font1 :style '(:italic))
                              :display :mini-view
                              :text-align :right))
          (size (default-size box)))
