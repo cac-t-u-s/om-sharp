@@ -204,7 +204,7 @@ If <color> is :random, will choose a random color. It can also be a color symbol
 ;;;=========================================== 
 
 (defmethod* om-spline ((self bpf) (resolution integer) (degree integer))
-  :icon 234
+  :icon :bpf-spline
   :initvals '(nil 100 3)
   :indoc '("a BPF or BPC" "number of points" "interpolation degree")
   :numouts 3

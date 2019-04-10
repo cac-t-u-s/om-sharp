@@ -233,7 +233,7 @@ Ex. (om/ '(8 5) '(2 4))  => (4 5/4)"
 ;===========================
 
 (defmethod* om^ ((a number) (b number)) 
-  :initvals '(1 1) :indoc '("number or list" "number or list") :icon 197
+  :initvals '(1 1) :indoc '("number or list" "number or list")
   :doc "Exponentiation of base a and exponent b.
 
 Corresponds to the multiplication of <a> repeated <b> times.
@@ -263,7 +263,7 @@ Ex. (om^ '(2 3 4) '(2 3 4))  => (4 27 256)
 ;===========================
 
 (defmethod* om-e ((n number)) 
-  :initvals '(1) :indoc '("number or list") :icon 198
+  :initvals '(1) :indoc '("number or list")
   :doc "Exponential function.
 
 This function can be applied on numbers or lists.
@@ -283,7 +283,7 @@ Ex. (om-e '(3 4))  => (20.085537 54.59815)
 ;===========================
 
 (defmethod* om-log ((n number) &optional (base (exp 1)))
-  :initvals (list 1 (exp 1)) :indoc '("a number or list" "a number") :icon 199
+  :initvals (list 1 (exp 1)) :indoc '("a number or list" "a number")
   :doc "Logarithm function. 
 (the logarithm of a number to the base is the power to which the base must be raised in order to produce the number)
 
@@ -307,7 +307,7 @@ Ex. (om-log '(3 4))  => (1.0986123 1.3862944)
 ;===========================
 
 (defmethod* om-round ((n number) &optional (decimals 0) (divisor 1))
-  :initvals '(1 0 1) :indoc '("number or list" "number of decimals" "divisor") :icon 209
+  :initvals '(1 0 1) :indoc '("number or list" "number of decimals" "divisor")
   :doc "Rounds a number or a list of numbers with a given number of decimals (default = 0, i.e. returns integer values) and a divisor.
 
 This function can be applied to numbers or lists.
@@ -337,7 +337,7 @@ Ex. (om-round '(4.308 5.167 6.809) 1 2)  => (2.2 2.6 3.4)
 
 
 (defmethod* om//  ((n number) (divisor number))
-  :initvals '(1 1) :indoc '("number or list"  "number or list") :icon 209
+  :initvals '(1 1) :indoc '("number or list"  "number or list")
   :numouts 2
   :doc "Euclidean division of <n> and <divisor>. 
 Yields an integer result and the rest of the division. 
@@ -382,7 +382,7 @@ Ex. (om// '(5.5 6) '(2 3))  =>  (2 2) , (1.5 0)
 ;===========================
 
 (defmethod* om-abs ((self number))
-  :initvals (list 1 ) :indoc '("number or tree" ) :icon 209
+  :initvals (list 1 ) :indoc '("number or tree" )
   :doc "Absolute value.
 
 This function can be applied to numbers or lists.
@@ -404,7 +404,7 @@ Ex. (om-abs '(3 -4 -1.5 6))  => (3 4 1.5 6)
 ;===========================
 
 (defmethod* om-min ((a number) (b number)) 
-  :initvals '(1 1) :indoc '("number or list" "number or list") :icon 209
+  :initvals '(1 1) :indoc '("number or list" "number or list")
   :doc "Minimum of two numbers.
 
 This function can be applied to numbers or lists.
@@ -430,7 +430,7 @@ Ex. (om-min '(4 3 2 1) '(1 2 3 4))  => (1 2 2 1)
 
 
 (defmethod* list-min ((self list))
-  :initvals '((0 1 2)) :indoc '("a list") :icon 209
+  :initvals '((0 1 2)) :indoc '("a list")
   :doc "Returns the minimum element in a list.
 
 Ex. (list-min '(2 3 1 4))  => 1"
@@ -450,7 +450,7 @@ Ex. (list-min '(2 3 1 4))  => 1"
 
 
 (defmethod* om-max ((a number) (b number)) 
-  :initvals '(1 1) :indoc '("number or list" "number or list") :icon 209
+  :initvals '(1 1) :indoc '("number or list" "number or list")
   :doc "Maximum of two numbers.
 
 This function can be applied to numbers or lists.
@@ -482,7 +482,7 @@ Ex. (om-max '(4 3 2 1) '(1 2 3 4))  => (4 3 3 4)"
 
 
 (defmethod* list-max ((self list) )
-  :initvals '((0 1 2)) :indoc '("a list") :icon 209
+  :initvals '((0 1 2)) :indoc '("a list")
   :doc "Returns the maximum element in a list.
 
 Ex. (list-max '(2 4 1 3))  => 4"
@@ -494,7 +494,6 @@ Ex. (list-max '(2 4 1 3))  => 4"
 
 (defmethod* all-equal ((list list) &optional (test 'equal))
   :initvals '(nil equal) :indoc '("a list" "a binary test function") 
-  :icon 209
   :doc "Tests if all elements of <list> are equal (using <test>).
 Returns the value if this is true.
 
@@ -515,7 +514,7 @@ Ex. (all-equal '(8 8 7 8) '=) => NIL"
 ;===========================
 
 (defmethod* om-mean ((self list) &optional (weights 1))
-  :initvals (list '(1) 1) :indoc '("list of numbers" "list of numbers") :icon 209
+  :initvals (list '(1) 1) :indoc '("list of numbers" "list of numbers")
   :doc "Arithmetic mean of numbers in a list. 
 
 The optional input <weights> is a list of weights used to ponderate the successive elements in the list.
@@ -532,12 +531,12 @@ Ex. (om-mean '(1 2 3 4) '(3 2 1 1))  => 2.0
 
 ;;; COMPATIBILITY
 (defmethod* aleanum ((high number) (low number)) 
-  :initvals '(0 0) :indoc '("min" "max") :icon 200 
+  :initvals '(0 0) :indoc '("min" "max")
   (om-random high low))
 
 
 (defmethod* om-random ((low number) (high number))
-  :initvals '(0 1) :indoc '("min value" "max value") :icon 'alea 
+  :initvals '(0 1) :indoc '("min value" "max value") :icon :alea 
   :doc "Returns a random number between <low> and <high>."
   (if (zerop (- low high))
     (+ low high (- high))
@@ -548,7 +547,7 @@ Ex. (om-mean '(1 2 3 4) '(3 2 1 1))  => 2.0
 
 
 (defmethod* perturbation ((self number) (percent number))
-  :initvals '(1 0) :indoc '("number or list"  "number or list") :icon 200
+  :initvals '(1 0) :indoc '("number or list"  "number or list") :icon :alea
   :doc "Applies to <self> a random deviation bounded by the <percent> parameter, a value in [0 1]. 
 <self> and <percent> can be numbers or lists."
   (mulalea self percent))
@@ -572,7 +571,7 @@ Ex. (om-mean '(1 2 3 4) '(3 2 1 1))  => 2.0
 ;===========================
 
 (defmethod* om-scale ((self number) (minout number) (maxout number) &optional (minin 0) (maxin 0))
-  :initvals '(1 0 1 0 1) :indoc '("number or list"  "a number" "a number" ) :icon 209
+  :initvals '(1 0 1 0 1) :indoc '("number or list"  "a number" "a number" ) :icon :scale
   :doc 
 "Scales <self> (a number or list of numbers) considered to be in the interval [<minin> <maxin>] towards the interval [<minout> <maxout>].
 
@@ -658,7 +657,6 @@ Ex. (om-scale/sum '(2 3 5) 30)  => (6 9 15) "
 Primes known to the system are the 1230 primes ranging from 1 to 9973.
 
 Ex. (factorize 100) => ((2 2) (5 2))     [100 = 2^2 * 5^2]"
-  :icon 209
   (prime-facts number))
 
 
@@ -676,7 +674,7 @@ Ex. (factorize 100) => ((2 2) (5 2))     [100 = 2^2 * 5^2]"
 
 (defmethod* interpolation ((begin number) (end number) (samples integer) (curve number))
   :initvals '(0 1 5 0.0)
-  :icon 209
+  :icon :bpf-interpol
   :indoc '("number or list" "number or list" "integer" "number")
   :doc "Interpolates 2 numbers or lists (from <begin> to <end>) through <samples> steps.
 

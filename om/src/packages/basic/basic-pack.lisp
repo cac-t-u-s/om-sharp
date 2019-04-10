@@ -47,7 +47,7 @@
                                             :functions '(x-transfer y-transfer om-sample linear-fun reduce-points reduce-n-points))
                          (omNG-make-package "Curves & Functions" 
                                             :doc ""
-                                            :functions '(point-pairs bpf-interpol bpf-scale set-color)
+                                            :functions '(point-pairs bpf-interpol bpf-scale set-color om-spline)
                                             :classes '(bpf bpc)) 
                          (omNG-make-package "Text" 
                                             :doc ""
