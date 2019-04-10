@@ -535,7 +535,7 @@ Ex. (table-filter 'oddp '((1 2 3) (4 5 6) (7 8 9)) 1 'reject)  --> ((1 2 3) (7 8
 (defmethod* band-filter ((list list) (bounds list) (mode symbol))
   :initvals '((1 2 3 4 5) ((0 2) (5 10)) pass)
   :indoc '("a list" "a list of (low high) pairs" "pass or reject" )
-  :menuins '((2 (("Reject" 'reject) ("Pass" 'pass))))
+  :menuins '((2 (("Reject" reject) ("Pass" pass))))
   :icon 'list 
   :doc  "Filters out <list> using <bounds>.
 <bounds> is a pair or list of pairs (min-value max-value). 
