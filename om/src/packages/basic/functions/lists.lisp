@@ -309,13 +309,15 @@ Ex. (list-modulo '(1 2 3 4 5 6 7 8 9) 3)  => ((1 4 7) (2 5 8) (3 6 9))
 "
   (when (and (> ncol 0) (< ncol (length list))) (list-part list ncol)))
 
+
 (defun list-part (list ncol)  
-  (let ((vector (make-array  ncol )) res)
+  (let ((vector (make-array ncol))
+        (res nil))
     (loop while list do 
-      (for (i 0 1 (1- ncol))
-        (and list (vset vector i (push (pop list) (vref vector i))))))
-    (for (i 0 1 (1- ncol))
-      (push (remove nil (nreverse (vref vector i))) res))
+          (loop for i from 0 to (1- ncol) do
+                (and list (setf (svref vector i) (push (pop list) (svref vector i))))))
+    (loop for i from 0 to (1- ncol) do
+          (push (remove nil (nreverse (svref vector i))) res))
     (nreverse res)))
 
 ;;;-----------------INTERLOCK
@@ -460,7 +462,7 @@ Ex. (list-explode '(1 2 3 4 5 6 7 8 9) 12)  => ((1) (2) (3) (4) (5) (6) (7) (8) 
              (end (- length 1 rest))
              (ser (arithm-ser 0  (1- step) 1))
              res)
-        (for (i 0 step end)
+        (loop for i from 0 to end by step do
           (push (remove () (posn-match  list (om+  i ser))) res))
         (setq low (length (flat-once res)))
         (if (< low length) (setq res (cons (append (first res) (nthcdr low
@@ -568,9 +570,9 @@ If <bounds> is a list of pairs, each pair is applied to each successive element 
 Ex. (range-filter '(10 11 12 13 14 15 16) '((0 1) (3 4)) 'pass)  => (10 11 13 14)
 Ex. (range-filter '(10 11 12 13 14 15 16) '((0 1) (3 4)) 'reject) => (12 13)
 "
-  (loop for item in list
+  (loop with bound = (pop posn)
+        for item in list
         for i from 0 
-        with bound = (pop posn)
         while bound
         when (and (eq mode 'pass) (>= i (first bound)) (<= i (second bound))) collect item
         when (and (eq mode 'reject) (or (< i (first bound)) (> i (second bound)))) collect item
