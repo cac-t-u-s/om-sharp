@@ -24,7 +24,6 @@
 (in-package :om)
 
 ;;; THE EQUIVALENT FUNCTION IN TEXT CODE WOULD BE:
-
 (defmacro repeat-n (body count)
   `(loop for ,(gensym) from 1 to ,count
          collect ,body))
@@ -34,10 +33,11 @@
 
 (defclass OMRepeatNBoxCall (OMPatchComponentBox) ())
 
-(defmethod special-box-p ((name (eql 'repeat-n))) t)
+(defmethod special-box-p ((name (eql 'v))) t)
 (defmethod get-box-class ((self Repeater)) 'OMRepeatNBoxCall)
 (defmethod get-icon-id ((self OMRepeatNBoxCall)) :repeat)
 (defmethod object-name-in-inspector ((self OMRepeatNBoxCall)) "repeat-n box")
+
 
 ;;; as compared to other OMPatchComponentBox, REPEAT-N has a lock option
 (defmethod valid-property-p ((self OMRepeatNBoxCall) (prop-id (eql :lock))) t)
@@ -49,6 +49,9 @@
 
 
 (defmethod box-symbol ((self Repeater)) 'repeat-n)
+
+(defmethod save-box-reference ((self OMRepeatNBoxCall)) 
+  (box-symbol (reference self)))
 
 (defmethod omNG-make-special-box ((reference (eql 'repeat-n)) pos &optional init-args)
   (omNG-make-new-boxcall 

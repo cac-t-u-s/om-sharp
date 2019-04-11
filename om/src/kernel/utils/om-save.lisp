@@ -768,7 +768,8 @@
                 (:io (omng-make-new-boxcall (omng-load reference) pos))
                 
                 (:special 
-                 (let ((box (omng-make-new-boxcall (omng-load reference) pos)))
+                 (let (; (box (omng-make-new-boxcall (omng-load reference) pos))
+                       (box (omNG-make-special-box reference pos)))
                    (set-value box (list val))
                    box))
                 
