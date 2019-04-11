@@ -252,11 +252,11 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
 ;;;============
 
 
-(defmethod score-object-mini-view ((self note) box x-pix y-u w h)
+(defmethod score-object-mini-view ((self note) box x-pix y-pix y-u w h)
   
   (let ((staff (get-edit-param box :staff)))
     
-    (draw-staff x-pix y-u w h (fontsize box) staff :margin-l 1 :margin-r 1 :keys t)
+    (draw-staff x-pix y-pix y-u w h (fontsize box) staff :margin-l 1 :margin-r 1 :keys t)
 
     (draw-chord (make-instance 'chord :notes (list self)) 
                 y-u w h (fontsize box) :scale nil :staff staff
@@ -266,11 +266,11 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
     ))
   
 
-(defmethod score-object-mini-view ((self chord) box x-pix y-u w h)
+(defmethod score-object-mini-view ((self chord) box x-pix y-pix y-u w h)
   
   (let* ((staff (get-edit-param box :staff)))
     
-    (draw-staff x-pix y-u w h (fontsize box) staff :margin-l 1 :margin-r 1 :keys t)
+    (draw-staff x-pix y-pix y-u w h (fontsize box) staff :margin-l 1 :margin-r 1 :keys t)
 
     (when (notes self)
       (draw-chord self 0 y-u w h (fontsize box) :scale nil :staff staff

@@ -24,4 +24,21 @@
 ;;; Equivalent to former POLY / MULTI-SEQ + MIXED-TYPES
 ;;;===================================================
 
-(defclass* score (score-object) ())
+(defclass* poly (score-object collection) 
+  ((obj-list :initarg :obj-list :initarg :voices
+             :accessor obj-list :initform nil)))
+
+;;; deprecated
+(defclass* multi-seq (poly) 
+  ((obj-list :initarg :obj-list :initarg :chord-seqs
+             :accessor obj-list :initform nil)))
+
+
+(defmethod score-object-mini-view ((self poly) box x-pix y-pix y-u w h)
+  (let ((voice-h (if (obj-list self) (/ h (length (obj-list self))) h)))
+    (loop for voice in (obj-list self)
+          for i from 0
+          do (progn
+               ;(draw-staff x-pix (* i voice-h) y-u w voice-h (fontsize box) (get-edit-param box :staff) :margin-l 1 :margin-r 1 :keys t)
+               (score-object-mini-view voice box x-pix (+ y-pix (* i voice-h)) 0 w voice-h))
+          )))

@@ -23,9 +23,9 @@
 ;;;====================================================
 
 ;;; MINIVIEW
-(defmethod score-object-mini-view ((self voice) box x-pix y-u w h)
+(defmethod score-object-mini-view ((self voice) box x-pix y-pix y-u w h)
   
-  (draw-staff x-pix y-u w h (fontsize box) (get-edit-param box :staff) :margin-l 1 :margin-r 1 :keys t)
+  (draw-staff x-pix y-pix y-u w h (fontsize box) (get-edit-param box :staff) :margin-l 1 :margin-r 1 :keys t)
 
   (loop for m in (inside self)
         for i from 1

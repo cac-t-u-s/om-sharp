@@ -108,7 +108,7 @@
         )
       
       (om-with-fg-color (om-make-color 0.0 0.2 0.2)
-        (score-object-mini-view self box x y-in-units w h)
+        (score-object-mini-view self box x y y-in-units w h)
         )
       )))
 

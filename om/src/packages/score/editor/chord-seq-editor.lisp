@@ -45,7 +45,7 @@
          (scrolled (> (x1 (get-g-component editor :main-panel)) 0))
          (shift (* 2 (font-size-to-unit (editor-get-edit-param editor :font-size)))))
     
-    (draw-staff 0 0 
+    (draw-staff 0 0 0 
                 (w self) (h self) 
                 (editor-get-edit-param editor :font-size) 
                 (editor-get-edit-param editor :staff)
@@ -170,7 +170,7 @@
                        0 
                        (w view) (h view) 
                        font-size 
-                       :staff (editor-get-edit-param editor :staff)
+                       :staff staff
                        :draw-chans chan
                        :draw-vels vel
                        :draw-ports port

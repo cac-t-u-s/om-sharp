@@ -57,7 +57,7 @@
     (om-trap-errors 
      ;(om-with-fg-color (om-make-color 0.0 0.2 0.2)
        
-       (draw-staff 0 0 
+       (draw-staff 0 0 0
                    (w self) (h self) 
                    (editor-get-edit-param editor :font-size) 
                    (editor-get-edit-param editor :staff)

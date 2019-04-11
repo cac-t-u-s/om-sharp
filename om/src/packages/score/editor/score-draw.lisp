@@ -348,11 +348,11 @@
 ;;; STAFF
 ;;;=======================
 
-;;; x is in pixels 
-;;; y is in score-units
+;;; x and y are in pixels 
+;;; y-u is additional shift in score-units
 ;;; w and h are pixel-size of the frame
 ;;; margins in units (= proportional to fontsize)
-(defun draw-staff (x y-u w h fontsize staff &key (margin-l 0) (margin-r 0) (keys t))
+(defun draw-staff (x y y-u w h fontsize staff &key (margin-l 0) (margin-r 0) (keys t))
   
   (let* ((staff-elems (staff-split staff))
          (unit (font-size-to-unit fontsize)) 
@@ -363,7 +363,7 @@
          (x2 (+ x (- w (* (or margin-r 0) unit)))))
          
     (flet ((adjust-line-ypos (pos)
-             (if (> unit 5) (+ (round pos)) pos)))
+             (+ y (if (> unit 5) (+ (round pos)) pos))))
 
       (om-with-font 
        (om-make-font *score-font* fontsize)
