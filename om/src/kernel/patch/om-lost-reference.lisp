@@ -37,7 +37,7 @@
           (lost-reference self)))
 
 ;; hacks the accessors
-(defmethod box-draw-color ((self LostReferenceBox)) (om-make-color 1 0.6 0.5))
+(defmethod box-draw-color ((self LostReferenceBox)) (om-make-color .9 0.8 0.7))
 (defmethod box-draw-text-color ((self LostReferenceBox)) (om-make-color .8 0. 0.))
 (defmethod border ((self LostReferenceBox)) nil)
 
@@ -161,7 +161,8 @@
                              :reference-type :object))
          (size (minimum-size box)))
     (setf (box-x box) (om-point-x pos)
-          (box-y box) (om-point-y pos))
+          (box-y box) (om-point-y pos)
+          (text-align box) :center)
     (setf (name box) (string (lost-reference box)))
     box))
 
