@@ -129,7 +129,17 @@
      :host (pathname-host (oa::om-root-folder))
      :device (pathname-device (oa::om-root-folder)) 
      :directory (append (pathname-directory (oa::om-root-folder)) '("resources"))))
-  #-macosx 
+  #+linux
+  (if (oa::om-standalone-p) 
+      (make-pathname
+       :host (pathname-host (oa::om-lisp-image))
+       :device (pathname-device (oa::om-lisp-image)) 
+       :directory (append (butlast (pathname-directory (oa::om-lisp-image))) '("share" "openmusic" "resources")))
+      (make-pathname
+       :host (pathname-host (oa::om-root-folder))
+       :device (pathname-device (oa::om-root-folder)) 
+       :directory (append (pathname-directory (oa::om-root-folder)) '("resources"))))
+  #- (or macosx linux) 
   (make-pathname
    :host (pathname-host (oa::om-root-folder))
    :device (pathname-device (oa::om-root-folder)) 

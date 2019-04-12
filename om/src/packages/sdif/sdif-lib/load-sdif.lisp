@@ -41,7 +41,7 @@
          "SDIF"
          `((:macosx ,(om-fi::om-foreign-library-pathname "libSDIF.dylib"))
            (:windows (:or ,(om-fi::om-foreign-library-pathname "libsdif.dll") (:default "sdif")))
-	   (:linux (:or "/usr/local/lib/libsdif.so" "libsdif.so" ,(om-fi::om-foreign-library-pathname "libsdif.so")))
+	   (:linux (:or "libsdif.so" ,(om-fi::om-foreign-library-pathname "libsdif.so")))
            (t (:default "libsdif")))))
   (setf sdif::*sdif-initialized* NIL))
 

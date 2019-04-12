@@ -6,7 +6,7 @@
 
 
 (defvar *compile-type* "xfasl")
-;;; should be : "xfasl" on MacIntel, "nfasl" on MacPPC, "ofasl" on Win32.
+;;; should be : "xfasl" on MacIntel, "nfasl" on MacPPC, "ofasl" on Win32, "64xfasl" or "xfasl" on Linux
 (setf *compile-type* (pathname-type (cl-user::compile-file-pathname "")))
 
 #+win32(editor::bind-key "Find Source" "Control-." :global :pc)

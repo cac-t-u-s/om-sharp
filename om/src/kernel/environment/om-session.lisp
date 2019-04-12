@@ -157,6 +157,7 @@
      :directory 
      #+cocoa(butlast (pathname-directory (truename (lw::pathname-location (oa::om-lisp-image)))) 3)
      #+win32(pathname-directory (truename (lw::pathname-location  (oa::om-lisp-image))))
+     #+linux(pathname-directory (truename (lw::pathname-location  (oa::om-lisp-image))))
      ))
    (om-lisp::om-set-source-tree-root-folder
     (make-pathname 
@@ -164,6 +165,7 @@
      :directory 
      #+cocoa(append (butlast (pathname-directory (truename (lw::pathname-location (oa::om-lisp-image))))) '("Resources" "src"))
      #+win32(append (pathname-directory (truename (lw::pathname-location (oa::om-lisp-image)))) '("src"))
+     #+linux(append (pathname-directory (truename (lw::pathname-location (oa::om-lisp-image)))) '("src"))
      ))
    ))
 
