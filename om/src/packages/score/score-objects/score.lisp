@@ -34,8 +34,10 @@
              :accessor obj-list :initform nil)))
 
 
+(defmethod num-voices ((self poly)) (length (obj-list self)))
+
 (defmethod score-object-mini-view ((self poly) box x-pix y-pix y-u w h)
-  (let ((voice-h (if (obj-list self) (/ h (length (obj-list self))) h)))
+  (let ((voice-h (if (obj-list self) (/ h (num-voices self)) h)))
     (loop for voice in (obj-list self)
           for i from 0
           do (progn

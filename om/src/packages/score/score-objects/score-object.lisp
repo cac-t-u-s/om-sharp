@@ -83,12 +83,15 @@
     (+ shift-x-pix (* time (/ w-pix (get-obj-dur object))))
     )) 
 
+;;; only poly has more than 1 voice
+(defmethod num-voices ((self score-object)) 1)
 
 (defmethod draw-mini-view ((self score-object) (box ScoreBox) x y w h &optional time)
   
   (om-draw-rect x y w h :fill t :color (om-def-color :white))
 
-  (let ((staff (get-edit-param box :staff)))
+  (let ((staff (get-edit-param box :staff))
+        (h-per-voice (/ h (num-voices self))))
     
     (setf (fontsize box) 18)
     
@@ -98,12 +101,12 @@
            (draw-box-h (* n-lines unit))
            (y-in-units (/ y unit)))
      
-      (if (< draw-box-h h)
+      (if (< draw-box-h h-per-voice)
           ;;; there's space: draw more in the middle
-          (setf y-in-units (+ y-in-units (/ (round (- h draw-box-h) 2) unit)))
+          (setf y-in-units (+ y-in-units (/ (round (- h-per-voice draw-box-h) 2) unit)))
         ;;; there's no space: reduce font ?
         (progn 
-          (setf unit (- unit (/ (- draw-box-h h) n-lines)))
+          (setf unit (- unit (/ (- draw-box-h h-per-voice) n-lines)))
           (setf (fontsize box) (unit-to-font-size unit)))
         )
       
