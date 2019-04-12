@@ -237,7 +237,7 @@
 (defmethod get-lib-reference-pages-folder ((self OMLib))
   (merge-pathnames 
    (make-pathname :directory '(:relative "reference-pages"))
-   (lib-resources-folder self)))
+   (mypathname self)))
 
 (defmethod gen-lib-reference ((lib t)) (om-beep))
 
