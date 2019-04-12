@@ -1,0 +1,78 @@
+SHELL		= /bin/sh
+
+INSTALL_PROGRAM	= install
+compress	= gzip
+
+PREFIX		= /usr/local
+
+# DESTDIR for local builds, ie. by rpmbuild etc.
+
+bindir		= $(DESTDIR)$(PREFIX)/bin
+libdir		= $(DESTDIR)$(PREFIX)/lib64/openmusic
+datadir		= $(DESTDIR)$(PREFIX)/share
+omfontsdir	= $(DESTDIR)$(PREFIX)/share/fonts/omfonts
+omroot		= $(datadir)/$(APPNAME)
+ICONDIR		= $(datadir)/icons/hicolor/64x64/apps
+
+
+path_to_omroot	= ./
+thisfile	= $(lastword $(MAKEFILE_LIST))
+thisdir		= $(dir $(thisfile))
+builddir	= $(shell cd $(dir $(thisfile)) && cd $(path_to_omroot) && pwd)
+
+BUILDROOT	= $(builddir)
+APPNAME		= openmusic
+INSTALLRES	= $(BUILDROOT)/build/linux
+
+app_name_version = om7-alpha
+
+faslname	= 64ufasl
+rubbish		= *.$(faslname)
+
+# rsyncflags	= -v -rlt -z
+rsyncflags	= -v -rlt -z -C --include '*.so'
+exclude_fasl	= --include 'dspec-database.$(faslname)' --exclude '$(rubbish)'
+exclude_mac	= --exclude 'build/mac/' --exclude '*.finderinfo'
+exclude_win	= --exclude 'build/win/'
+exclude_libs	= --exclude 'resources/lib/'
+
+checkname	= $(shell ls $(BUILDROOT) | grep "om7-")
+ifdef $(checkname)
+releaseappname	= $(checkname)
+else
+releaseappname	= $(app_name_version)
+endif
+
+help:
+	@echo targets: install, uninstall
+
+install: 
+	mkdir -p $(omroot)
+	cd $(BUILDROOT) && rsync $(rsyncflags) $(exclude_fasl) $(exclude_libs) $(exclude_mac) $(exclude_win) --exclude 'Makefile' --exclude $(releaseappname) . $(omroot)
+	cd $(BUILDROOT)/resources/lib/linux && rsync $(rsyncflags) . $(libdir)
+	cd $(BUILDROOT) && $(INSTALL_PROGRAM) -D -m 0755 $(releaseappname) $(bindir)/$(releaseappname)
+	mkdir -p $(datadir)/applications/
+	cd $(INSTALLRES) && $(INSTALL_PROGRAM) -D -m 0644 OM7.desktop $(datadir)/applications/
+	mkdir -p $(ICONDIR)
+	cd $(BUILDROOT)/resources/ && $(INSTALL_PROGRAM) -D -m 0644 om.png $(ICONDIR)
+	mkdir -p $(omfontsdir)/
+	cd $(BUILDROOT)/resources/fonts && rsync $(rsyncflags) *.otf $(omfontsdir)
+
+uninstall:
+	rm -rf $(omroot)
+	rm -f $(bindir)/$(APPNAME)
+	rm -f $(bindir)/$(releaseappname)
+	rm -f $(datadir)/applications/OM7.desktop
+	rm -f $(ICONDIR)/om.png
+	rm -rf $(omfontsdir)
+	rm -rf $(libdir)
+
+tardist:
+	tar cvjf om7_alpha.tar.bz2 \
+	   --exclude=.git \
+	   --exclude=.gitignore \
+	   --exclude=om7/om/build/mac \
+	   --exclude=om7/om/build/win* \
+	   --exclude=om7/om/resources/lib/mac \
+	   --exclude=om7/om/resources/lib/win* \
+	   om7
