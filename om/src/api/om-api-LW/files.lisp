@@ -139,7 +139,7 @@
        :host (pathname-host (oa::om-root-folder))
        :device (pathname-device (oa::om-root-folder)) 
        :directory (append (pathname-directory (oa::om-root-folder)) '("resources"))))
-  #- (or macosx linux) 
+  #+win32 
   (make-pathname
    :host (pathname-host (oa::om-root-folder))
    :device (pathname-device (oa::om-root-folder)) 
