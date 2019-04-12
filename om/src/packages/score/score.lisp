@@ -46,7 +46,7 @@
  :subpackages  (list (omNG-make-package 
                       "Utils"
                       :doc "Unit conversion utilities etc."
-                      :classes '(note chord chord-seq voice score)
+                      :classes '(note chord chord-seq voice)
                       :functions '(approx-m mc->f f->mc mc->n n->mc beats->ms)
                       :subpackages nil)))
 
