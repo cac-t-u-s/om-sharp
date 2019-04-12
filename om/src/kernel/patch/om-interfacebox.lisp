@@ -172,7 +172,8 @@
               (min-value slider) (round-decimals (min-value slider) val)
               (max-value slider) (round-decimals (max-value slider) val)
               (increment slider) (round-decimals (increment slider) val))
-        (setf (car (value slider)) (round-decimals (car (value slider)) val))
+        (when (car (value slider))
+          (setf (car (value slider)) (round-decimals (car (value slider)) val)))
         (update-inspector-for-object slider))
     (decimals slider)))
   
