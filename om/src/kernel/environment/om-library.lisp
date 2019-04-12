@@ -189,7 +189,7 @@
            (mapc #'(lambda (f)
                      (let ;((path (merge-pathnames (omng-load f) (mypathname lib)))) 
                          ((path (omng-load f)))
-                       (compile&load (namestring path) t nil)))
+                       (compile&load (namestring path) t t)))
                  files)
            )
           ;;; set packages
