@@ -86,3 +86,14 @@ uninstall:
 clean:
 	cd $(BUILDROOT)/src && find . -name $(rubbish) -delete
 	rm $(BUILDROOT)/$(releaseappname)
+
+tardist:
+	cd $(dir $(BUILDROOT))../ && \
+	tar cvjf om7_alpha.tar.bz2 \
+	   --exclude=.git \
+	   --exclude=.gitignore \
+	   --exclude=om7/om/build/mac \
+	   --exclude=om7/om/build/win* \
+	   --exclude=om7/om/resources/lib/mac \
+	   --exclude=om7/om/resources/lib/win* \
+	   om7

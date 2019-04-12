@@ -20,7 +20,7 @@ thisfile	= $(lastword $(MAKEFILE_LIST))
 thisdir		= $(dir $(thisfile))
 builddir	= $(shell cd $(dir $(thisfile)) && cd $(path_to_omroot) && pwd)
 
-BUILDROOT	= $(builddir)
+BUILDROOT	= $(builddir)/om
 APPNAME		= openmusic
 INSTALLRES	= $(BUILDROOT)/build/linux
 
@@ -67,12 +67,3 @@ uninstall:
 	rm -rf $(omfontsdir)
 	rm -rf $(libdir)
 
-tardist:
-	tar cvjf om7_alpha.tar.bz2 \
-	   --exclude=.git \
-	   --exclude=.gitignore \
-	   --exclude=om7/om/build/mac \
-	   --exclude=om7/om/build/win* \
-	   --exclude=om7/om/resources/lib/mac \
-	   --exclude=om7/om/resources/lib/win* \
-	   om7
