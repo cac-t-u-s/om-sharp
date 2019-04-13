@@ -97,11 +97,9 @@
   (let* ((medium (staff-medium-pitch staff))
          (chords (get-all-chords self)) ;;; can be nil if only rests !!
          (pitches (loop for c in chords append (mapcar 'midic (inside c))))
-         (p-max (list-max pitches)) (p-min (list-min pitches))
-         (mean (if pitches 
-                   ;(/ (apply '+ pitches) (length pitches)) 
-                   (* (+ p-max p-min) .5)
-                 7100)) ;;; default = B4
+         (p-max (or (list-max pitches) 7100)) ;;; default = B4
+         (p-min (or (list-min pitches) 7100)) ;;; default = B4
+         (mean (* (+ p-max p-min) .5)) ;(/ (apply '+ pitches) (length pitches)) 
          (max-beams (list-max (mapcar #'(lambda (c) 
                                               (get-number-of-beams (r-ratio-value (symbolic-dur c))))
                                           chords))))
@@ -376,6 +374,7 @@
            (draw-chord object
                        begin
                        y-shift 
+                       0 0
                        (w view) (h view) 
                        font-size
                        :head (multiple-value-list (note-head-and-points graphic-dur))
@@ -433,6 +432,7 @@
            (draw-chord (previous-chord object)
                        begin
                        y-shift 
+                       0 0
                        (w view) (h view) 
                        font-size
                        :head (multiple-value-list (note-head-and-points graphic-dur))
@@ -448,7 +448,7 @@
       (when draw-bboxes
         (setf (b-box object) bbox?))
       
-      (draw-tie object view font-size tempo)
+      ;(draw-tie object view font-size tempo)
       
       bbox?)
     ))
@@ -467,7 +467,7 @@
      (draw-rest object
                 begin
                 y-shift 
-                (w view) (h view) 
+                0 0 (w view) (h view) 
                 font-size 
                 :head (multiple-value-list (rest-head-and-points (r-ratio-value (symbolic-dur object))))
                 :staff (get-edit-param param-obj :staff)

@@ -77,8 +77,8 @@
     (setf 
      (b-box chord)
      (draw-chord chord 
-                 0 
-                 0 
+                 0 0
+                 0 0 
                  (w view) (h view) 
                  (editor-get-edit-param editor :font-size) 
                  :staff (editor-get-edit-param editor :staff)

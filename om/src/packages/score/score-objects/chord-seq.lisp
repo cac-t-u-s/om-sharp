@@ -321,7 +321,8 @@ Internally most of these values are just used to build a list of CHORD objects, 
           (draw-chord chord
                       (date chord)
                       y-u 
-                      w h (fontsize box) :scale nil :staff staff
+                      x-pix y-pix w h
+                      (fontsize box) :scale nil :staff staff
                       :time-function #'(lambda (time) (miniview-time-to-pixel self (frame box) time))
                       )
           )))

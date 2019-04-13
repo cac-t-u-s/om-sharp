@@ -357,7 +357,7 @@
   (let* ((staff-elems (staff-split staff))
          (unit (font-size-to-unit fontsize)) 
          (shift (+ y-u (calculate-staff-line-shift staff)))
-         (thinBarlineThickness (ceiling (* *thinBarLineThickness* unit)))
+         (thinBarlineThickness (* *thinBarLineThickness* unit))
          (staffLineThickness (* *staffLineThickness* unit))
          (x1 (+ x (* (or margin-l 0) unit)))
          (x2 (+ x (- w (* (or margin-r 0) unit)))))
@@ -386,16 +386,16 @@
        
    ;;; vertical lines at beginning and the end
    (when margin-l
-     (om-draw-line (round x1) 
-                   (1- (adjust-line-ypos (line-to-ypos (car (staff-lines (car staff-elems))) shift unit)))
-                   (round x1)
-                   (1+ (adjust-line-ypos (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit)))
+     (om-draw-line (- x1 1) 
+                   (adjust-line-ypos (line-to-ypos (car (staff-lines (car staff-elems))) shift unit))
+                   (- x1 1)
+                   (adjust-line-ypos (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit))
                    :line thinBarlineThickness))
    (when margin-r
      (om-draw-line x2 
-                   (1- (adjust-line-ypos (line-to-ypos (car (staff-lines (car staff-elems))) shift unit)))
+                   (adjust-line-ypos (line-to-ypos (car (staff-lines (car staff-elems))) shift unit))
                    x2 
-                   (1+ (adjust-line-ypos (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit)))
+                   (adjust-line-ypos (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit))
                    :line thinBarlineThickness)
    ))))
 
@@ -564,6 +564,7 @@
 
 (defun draw-chord (chord x-ms ; x in ms
                          y-units ; y-position in score units
+                         x y ; absolute offsets in pixels
                          w h ; frame dimensions for drawing
                          fontsize 
                          &key
@@ -577,8 +578,10 @@
                          tied-to
                          (time-function #'identity)
                          build-b-boxes)
- 
-  (let ((head-symb (if (consp head) (car head) head))
+
+  (om-with-translation x y 
+
+    (let ((head-symb (if (consp head) (car head) head))
         (n-points (if (consp head) (cadr head) 0)))
     
     ;;; TODO
@@ -668,9 +671,9 @@
                           
                          ;;; down
                          (progn
-                           (om-draw-line  (+ x-pix stemDownNW-x) (- y-max stemDownNW-y)
-                                          (+ x-pix stemDownNW-x) stem-pos
-                                          :line stemThickness :end-style :projecting)
+                           (om-draw-line (+ x-pix stemDownNW-x) (- y-max stemDownNW-y)
+                                         (+ x-pix stemDownNW-x) stem-pos
+                                         :line stemThickness :end-style :projecting)
                            (when n-beams
                              (if (zerop pos-in-group) ;; first elem
                                  (draw-beams x-pix (+ x-pix unit) stem :down n-beams y-units staff fontsize)
@@ -914,7 +917,7 @@
            (make-b-box :x1 cx1 :x2 cx2 :y1 cy1 :y2 cy2))
       
          )
-      )))
+      ))))
 
 
 ;;;==========================================================
@@ -923,6 +926,7 @@
 
 (defun draw-rest (rest x-ms   ; x-pos in pixels
                        y-units ; ref-position in score units
+                       x y ; absolute offsets in pixels
                        w h ; frame for drawing
                        fontsize 
                        &key 
@@ -934,53 +938,55 @@
   
   (declare (ignore w h))
   
-  (let ((head-symb (if (consp head) (car head) head))
-        (n-points (if (consp head) (cadr head) 0))
-        (x-pix (funcall time-function x-ms)))
+  (om-with-translation x y 
+
+    (let ((head-symb (if (consp head) (car head) head))
+          (n-points (if (consp head) (cadr head) 0))
+          (x-pix (funcall time-function x-ms)))
   
-    (multiple-value-bind (head-char head-name)
-        (rest-char head-symb)
+      (multiple-value-bind (head-char head-name)
+          (rest-char head-symb)
  
-      (let* ((unit (font-size-to-unit fontsize))
-             (shift (+ y-units (calculate-staff-line-shift staff)))
-             (head-box (get-font-bbox head-name))
-             (head-w (- (nth 2 head-box) (nth 0 head-box)))    ;;; the width in units of a note-head
-             (head-h (- (nth 3 head-box) (nth 1 head-box)))    ;;; the width in units of a note-head
-             (line 3)
-             (line-y (line-to-ypos line shift unit)))
+        (let* ((unit (font-size-to-unit fontsize))
+               (shift (+ y-units (calculate-staff-line-shift staff)))
+               (head-box (get-font-bbox head-name))
+               (head-w (- (nth 2 head-box) (nth 0 head-box)))    ;;; the width in units of a note-head
+               (head-h (- (nth 3 head-box) (nth 1 head-box)))    ;;; the width in units of a note-head
+               (line 3)
+               (line-y (line-to-ypos line shift unit)))
               
-        ;;; positions (in pixels) 
-        (flet ((x-pos (a) (+ x-pix 1 (* a unit))))
+          ;;; positions (in pixels) 
+          (flet ((x-pos (a) (+ x-pix 1 (* a unit))))
       
-          (let ((head-x (x-pos 0)))
+            (let ((head-x (x-pos 0)))
       
-            (om-with-font 
-             (om-make-font *score-font* fontsize)
+              (om-with-font 
+               (om-make-font *score-font* fontsize)
          
-             (om-with-fg-color 
-                 (if (or (equal selection t) (and (listp selection) (find rest selection)))
-                     *score-selection-color*
-                   nil)
+               (om-with-fg-color 
+                   (if (or (equal selection t) (and (listp selection) (find rest selection)))
+                       *score-selection-color*
+                     nil)
          
-               ;;; SYMBOL
-               (om-draw-char head-x line-y head-char)
+                 ;;; SYMBOL
+                 (om-draw-char head-x line-y head-char)
                
-               ;;; DOTS
-               (when (> n-points 0)
-                 (let ((p-y (+ line-y (* unit (if (zerop (rem line 1)) -0.4 0.1)))))
-                   (om-draw-char (+ head-x (* 1.5 head-w unit)) p-y (dot-char))
-                   (when (= n-points 2)
-                     (om-draw-char (+ head-x (* 2.5 head-w unit)) p-y (dot-char))
-                     )))
+                 ;;; DOTS
+                 (when (> n-points 0)
+                   (let ((p-y (+ line-y (* unit (if (zerop (rem line 1)) -0.4 0.1)))))
+                     (om-draw-char (+ head-x (* 1.5 head-w unit)) p-y (dot-char))
+                     (when (= n-points 2)
+                       (om-draw-char (+ head-x (* 2.5 head-w unit)) p-y (dot-char))
+                       )))
          
-               ))
+                 ))
          
-            ;;; return the bounding box
-            (when build-b-boxes 
-              (make-b-box :x1 head-x :x2 (+ head-x (* head-w unit)) 
-                          :y1 (line-to-ypos (+ line (* head-h .5)) shift unit) ;;; lines are expressed bottom-up !!
-                          :y2 (line-to-ypos (- line (* head-h .5)) shift unit)))
-            ))))))
+              ;;; return the bounding box
+              (when build-b-boxes 
+                (make-b-box :x1 head-x :x2 (+ head-x (* head-w unit)) 
+                            :y1 (line-to-ypos (+ line (* head-h .5)) shift unit) ;;; lines are expressed bottom-up !!
+                            :y2 (line-to-ypos (- line (* head-h .5)) shift unit)))
+              )))))))
 
 
 

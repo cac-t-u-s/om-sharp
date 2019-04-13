@@ -168,6 +168,7 @@
            (draw-chord chord
                        (date chord) 
                        0 
+                       0 0
                        (w view) (h view) 
                        font-size 
                        :staff staff
