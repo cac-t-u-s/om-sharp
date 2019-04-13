@@ -506,6 +506,16 @@
                              ;(+ x 7) (+ y 10) (- w 14) (- h 20)
                              x (+ y 10) w (- h 20)
                              (get-edit-param box :draw-style))
+
+    (om-with-font (om-def-font :font1 :size 8)
+                        (om-draw-string (+ x 10) (+ y (- h 4)) (number-to-string (nth 0 x-range)))
+                        (om-draw-string (+ x (- w (om-string-size (number-to-string (nth 1 x-range)) (om-def-font :font1 :size 8)) 4))
+                                        (+ y (- h 4)) 
+                                        (number-to-string (nth 1 ranges)))
+                        (om-draw-string x (+ y (- h 14)) (number-to-string (nth 0 y-range)))
+                        (om-draw-string x (+ y 10) (number-to-string (nth 1 y-range)))
+                        )
+    
     t))
 
 (defun conversion-factor-and-offset (min max w delta)
