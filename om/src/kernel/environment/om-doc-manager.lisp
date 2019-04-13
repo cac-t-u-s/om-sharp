@@ -141,7 +141,7 @@
       (setf *om-recent-files*
             (cons file (remove (namestring file) *om-recent-files* :key 'namestring :test 'string-equal)))
     (setf *om-recent-files*
-          (cons file (first-n *om-recent-files* 5)))
+          (cons file (first-n *om-recent-files* 9)))
     )
   ;;; to store the list of documents...
   (save-om-preferences))
@@ -157,6 +157,7 @@
                                                      (doctype-info :patch) (doctype-info :maquette) (doctype-info :textfun))
                                                         '("Text File" "*.txt" "Lisp File" "*.lisp;*.lsp" "All documents" "*.*"))))))
     (when file
+      (setf *last-open-dir* (om-make-pathname :directory file))
       (record-recent-file file)
       (let ((type (extension-to-doctype (pathname-type file))))
         (case type
@@ -236,27 +237,23 @@
     obj))
 
 
-(defun open-doc-from-file (type &optional path)
-  (let ((file (or path (om-choose-file-dialog 
-                        :prompt (string+ (om-str :open) "...") :types (doctype-info type)
-                        :directory (or *last-open-dir* (om-user-home))))))
-    (when file
-      (if (not (probe-file file))
-          (om-message-dialog (format nil (om-str :file-not-exists) (namestring file)))
-        (om-with-error-handle    
-          (setf *last-open-dir* (pathname-dir file))
-          (let ((obj (load-doc-from-file file type)))
-            (if obj (open-editor obj)
-              (om-print (string+ "file: \""  (namestring file) "\" could not be open.")))
-            obj)
-          )))))
+(defun open-doc-from-file (type file)
+  (when file
+    (if (not (probe-file file))
+        (om-message-dialog (format nil (om-str :file-not-exists) (namestring file)))
+      (om-with-error-handle    
+        (let ((obj (load-doc-from-file file type)))
+          (if obj (open-editor obj)
+            (om-print (string+ "file: \""  (namestring file) "\" could not be open.")))
+          obj)
+        ))))
 
 (defmethod prepare-save-as ((self OMPersistantObject))
   (let ((path (om-choose-new-file-dialog :prompt (om-str :save-as)
                                          :directory (or *last-open-dir* (om-user-home))
                                          :types (doctype-info (object-doctype self)))))
     (when path 
-      (setf *last-open-dir* (pathname-dir path))
+      (setf *last-open-dir* (om-make-pathname :directory file))
       (if (find-doc-entry path)
           (progn (om-message-dialog 
            (format nil "An open document named ~S already exist in this folder.~%Please choose another name or location." 

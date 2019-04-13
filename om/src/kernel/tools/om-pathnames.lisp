@@ -61,10 +61,6 @@
   (unless (probe-file path) (om-create-directory path :if-exists nil))
   path)
 
-(defun pathname-dir (pathname)
-  (make-pathname :directory (pathname-directory pathname)
-                 :host (pathname-host pathname) :device (pathname-device pathname)))
-
 
 ; (find-file-in-folder "Untitled" "/Users/bresson/Desktop/" :recursive t :return-all t)
 

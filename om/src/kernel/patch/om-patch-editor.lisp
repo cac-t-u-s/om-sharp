@@ -887,8 +887,8 @@
              
              (localpath-strings 
               (when (mypathname patch)
-                (let* ((currentpathbase (namestring (pathname-dir string)))
-                       (localfolder (pathname-dir (merge-pathnames string (mypathname patch))))
+                (let* ((currentpathbase (namestring (om-make-pathname :directory string)))
+                       (localfolder (om-make-pathname :directory (merge-pathnames string (mypathname patch))))
                        (filecandidates
                         (mapcar 'pathname-name 
                                 (om-directory localfolder
@@ -1126,7 +1126,7 @@
         (doc-path nil))
     
     (when (mypathname patch)
-      (let* ((local-restored-path (merge-pathnames str (pathname-dir (mypathname patch))))
+      (let* ((local-restored-path (merge-pathnames str (om-make-pathname :directory (mypathname patch))))
              (local-matches (remove nil 
                                     (loop for type in abs-types collect
                                           (probe-file 
@@ -1137,7 +1137,7 @@
         (when (> (length local-matches) 1)
           (om-beep-msg "Warning: there's more than 1 document named ~s in ~s" 
                        (pathname-name local-restored-path)
-                       (pathname-dir local-restored-path)))
+                       (om-make-pathname :directory local-restored-path)))
         ))
     
     (unless doc-path
