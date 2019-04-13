@@ -63,7 +63,7 @@
 (add-preference :appearance :box-border "Border" (make-number-in-range :min 0 :max 4 :decimals 1) 1.5)
 (add-preference :appearance :box-roundness "Corner roundness" (make-number-in-range :min 0 :max 20) 2)
 (add-preference :appearance :box-font "Text font" :font (om-def-font :font1))
-(add-preference :appearance :box-align "Text align" '(:left :center :right) :left)
+(add-preference :appearance :box-align "Text align" '(:left :center :right) :center)
 
 ;;;=============================
 ; PROPERTIES

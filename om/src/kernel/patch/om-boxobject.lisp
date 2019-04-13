@@ -441,10 +441,7 @@
 (defmethod editor-ed-params-properties ((self t)) nil)
 
 (defmethod get-properties-list ((self OMBoxEditCall))
-  (let ((properties 
-         (append 
-          (hide-property (call-next-method) '(:icon :align))
-          )))
+  (let ((properties (call-next-method)))  ;; (append (hide-property (call-next-method) '(:icon :align)))))
     (add-properties properties "Appearance" 
                     (append 
                      `((:name "Name" :string name)
@@ -491,7 +488,7 @@
                              :reference (class-name reference)
                              :icon-pos :noicon :show-name nil
                              :display :mini-view
-                             :text-align :right))
+                             :text-align :center))
          (size (default-size box)))
     (setf (box-x box) (om-point-x pos)
           (box-y box) (om-point-y pos)
@@ -608,11 +605,14 @@
                             '(-5 5 -5) '(-5 0 5)) :fill t))
 |#
 
-(defmethod draw-cursor-on-box (object frame pos)
-  (when pos
+(defmethod miniview-time-to-pixel (object view time) 
+  (* (w view) 
+     (/ time (if (plusp (get-obj-dur object)) (get-obj-dur object) 1000))))
+
+(defmethod draw-cursor-on-box (object frame time)
+  (when time
     (om-with-fg-color (om-make-color 0.73 0.37 0.42)
-      (let ((x (* (w frame) 
-                  (/ pos (if (plusp (get-obj-dur object)) (get-obj-dur object) 1000)))))
+      (let ((x (miniview-time-to-pixel object frame time)))
         (om-draw-polygon (list (- x 5) 4 x 9 (+ x 5) 4) :fill t)
         (om-with-line '(2 2)
         (om-draw-line x 4 x (- (h frame) 6))
