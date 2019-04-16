@@ -89,31 +89,32 @@
 (defmethod draw-mini-view ((self score-object) (box ScoreBox) x y w h &optional time)
   
   (om-draw-rect x y w h :fill t :color (om-def-color :white))
-
-  (let ((staff (get-edit-param box :staff))
-        (h-per-voice (/ h (num-voices self))))
+  
+  (when (> (num-voices self) 0)
+    (let ((staff (get-edit-param box :staff))
+          (h-per-voice (/ h (num-voices self))))
     
-    (setf (fontsize box) 18)
+      (setf (fontsize box) 18)
     
-    (let* ((staff-lines (apply 'append (mapcar 'staff-lines (staff-split staff))))
-           (unit (font-size-to-unit (fontsize box)))
-           (n-lines (+ (- (car (last staff-lines)) (car staff-lines)) 8)) ;;; range of the staff lines + 10-margin
-           (draw-box-h (* n-lines unit))
-           (y-in-units (/ y unit)))
+      (let* ((staff-lines (apply 'append (mapcar 'staff-lines (staff-split staff))))
+             (unit (font-size-to-unit (fontsize box)))
+             (n-lines (+ (- (car (last staff-lines)) (car staff-lines)) 8)) ;;; range of the staff lines + 10-margin
+             (draw-box-h (* n-lines unit))
+             (y-in-units (/ y unit)))
      
-      (if (< draw-box-h h-per-voice)
-          ;;; there's space: draw more in the middle
-          (setf y-in-units (+ y-in-units (/ (round (- h-per-voice draw-box-h) 2) unit)))
-        ;;; there's no space: reduce font ?
-        (progn 
-          (setf unit (- unit (/ (- draw-box-h h-per-voice) n-lines)))
-          (setf (fontsize box) (unit-to-font-size unit)))
-        )
+        (if (< draw-box-h h-per-voice)
+            ;;; there's space: draw more in the middle
+            (setf y-in-units (+ y-in-units (/ (round (- h-per-voice draw-box-h) 2) unit)))
+          ;;; there's no space: reduce font ?
+          (progn 
+            (setf unit (- unit (/ (- draw-box-h h-per-voice) n-lines)))
+            (setf (fontsize box) (unit-to-font-size unit)))
+          )
       
-      (om-with-fg-color (om-make-color 0.0 0.2 0.2)
-        (score-object-mini-view self box x y y-in-units w h)
-        )
-      )))
+        (om-with-fg-color (om-make-color 0.0 0.2 0.2)
+          (score-object-mini-view self box x y y-in-units w h)
+          )
+        ))))
 
 
 

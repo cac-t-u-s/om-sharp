@@ -158,6 +158,7 @@
                       ;;; set the "numdenom" indicator
                       ;;; direct from OM6: probably possible to simplify
                       ;(print (list "group:" subtree "=>" (tree group) (symbolic-dur group)))
+
                       (let* ((group-ratio (get-group-ratio (tree group)))
                              (group-s-dur (r-ratio-value (symbolic-dur group)))
                              (num (or group-ratio group-s-dur))
