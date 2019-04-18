@@ -25,6 +25,8 @@
 ;;;===================================
 ;;; A ratio keeping track of denum
 ;;;===================================
+;;; not sure we need this anymore ? or maybe just to replace (numdenom)
+
 (defstruct r-ratio (num) (denom))
 (defmethod r-ratio-value ((r r-ratio))
   (/ (r-ratio-num r) (r-ratio-denom r)))

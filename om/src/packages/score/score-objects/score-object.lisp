@@ -72,6 +72,7 @@
 
 ;;; MINI-VIEW
 (defmethod miniview-time-to-pixel ((object score-object) view time)
+  
   (let* ((fontsize (or (fontsize (object view)) 24))
          (unit (font-size-to-unit fontsize))
          (shift-x-u 10)  

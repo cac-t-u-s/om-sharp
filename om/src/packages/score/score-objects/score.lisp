@@ -36,6 +36,8 @@
 
 (defmethod num-voices ((self poly)) (length (obj-list self)))
 
+(defmethod get-obj-dur ((self poly)) (apply 'max (mapcar 'get-obj-dur (obj-list self))))
+
 (defmethod score-object-mini-view ((self poly) box x-pix y-pix y-u w h)
   (let ((voice-h (if (obj-list self) (/ h (num-voices self)) h)))
     (loop for voice in (obj-list self)

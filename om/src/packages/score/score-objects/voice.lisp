@@ -52,6 +52,12 @@
   ((previous-chord :accessor previous-chord :initarg :previous-chord 
                    :initform nil :documentation "the tied previous element")))
 
+(defmethod get-real-chord ((self continuation-chord))
+  (get-real-chord (previous-chord self)))
+
+(defmethod get-real-chord ((self chord)) self)
+
+
 (defclass r-rest (score-object) ())
 
 (defclass grace-note (score-object) ())
@@ -67,7 +73,7 @@
 
 (defmethod get-notes ((self r-rest)) nil)
 (defmethod get-notes ((self continuation-chord)) 
-  (get-notes (previous-chord self)))
+  (get-notes (get-real-chord self)))
 
 ; (format-tree '(((5 3) (1 3 (4 (3 1 (2 (8 1)) 2))))))
 
@@ -103,9 +109,10 @@
         ))
 
 
-(defmethod build-rhythm-structure ((self voice) chords n)
+(defmethod build-rhythm-structure ((self voice) chords n &key last-chord)
   (let ((curr-beat 0)
-        (curr-n-chord n))
+        (curr-n-chord n)
+        (curr-last-chord last-chord))
     
     (setf (inside self)
           (loop for m-tree in (tree self)
@@ -115,12 +122,14 @@
                                                       :symbolic-date curr-beat
                                                       :symbolic-dur m-dur)))
                           (setq curr-beat (+ curr-beat (r-ratio-value m-dur)))
-                          (setq curr-n-chord (build-rhythm-structure mesure chords curr-n-chord))
+                          (multiple-value-setq
+                              (curr-n-chord curr-last-chord)
+                              (build-rhythm-structure mesure chords curr-n-chord :last-chord curr-last-chord))
                           mesure)))
 
     (time-sequence-set-timed-item-list self (first-n (chords self) (1+ curr-n-chord)))
 
-    curr-beat))
+    (values curr-n-chord curr-last-chord)))
 
 
 ;;; the duration of a tree
@@ -132,12 +141,13 @@
   (decode-extent tree))
 
 
-(defmethod build-rhythm-structure ((self rhythmic-object) chords n)
+(defmethod build-rhythm-structure ((self rhythmic-object) chords n &key last-chord)
 
   (let ((total-dur (apply '+ (mapcar 'tree-extent (cadr (tree self))))) ;;; sum of subdivisions
         (curr-beat (symbolic-date self))
         (s-dur (symbolic-dur self))
-        (curr-n-chord n)) 
+        (curr-n-chord n)
+        (curr-last-chord last-chord))
     
     ;(print (list "build" self (symbolic-dur self)))
 
@@ -180,8 +190,11 @@
                         )
                         
                       (setq curr-beat (+ curr-beat (r-ratio-value sub-dur)))
-                      (setq curr-n-chord (build-rhythm-structure group chords curr-n-chord))
-                        
+                      
+                      (multiple-value-setq
+                          (curr-n-chord curr-last-chord)
+                          (build-rhythm-structure group chords curr-n-chord :last-chord curr-last-chord))
+
                       group)
                   
                   ;;; ATOM (leaf)
@@ -202,15 +215,16 @@
                                     (cont-chord (make-instance 'continuation-chord)))
                         
                                (setf ;; (symbolic-dur real-chord) (+ (symbolic-dur real-chord) sub-dur) ;;; extends the duration of the main chord
-                                     (previous-chord cont-chord) real-chord
+                                     (previous-chord cont-chord) curr-last-chord
                                      (symbolic-date cont-chord) curr-beat
                                      (symbolic-dur cont-chord) sub-dur)
-
+                               
+                               (setq curr-last-chord cont-chord)
                                cont-chord))
                      
                             ;;; CHORD
                             (t ;;; get the next in chord list
-                               (setf curr-n-chord (1+ curr-n-chord))
+                               (setq curr-n-chord (1+ curr-n-chord))
                         
                                (let ((real-chord (nth curr-n-chord chords)))
 
@@ -220,7 +234,8 @@
 
                                  (setf (symbolic-date real-chord) curr-beat
                                        (symbolic-dur real-chord) sub-dur)
-                          
+                                 
+                                 (setq curr-last-chord real-chord)
                                  real-chord))
                             )))
                       
@@ -231,7 +246,7 @@
                     ))
                 ))
     
-  curr-n-chord))
+    (values curr-n-chord curr-last-chord)))
 
 
 

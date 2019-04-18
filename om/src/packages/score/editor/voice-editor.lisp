@@ -26,11 +26,14 @@
 (defmethod score-object-mini-view ((self voice) box x-pix y-pix y-u w h)
   
   (draw-staff x-pix y-pix y-u w h (fontsize box) (get-edit-param box :staff) :margin-l 1 :margin-r 1 :keys t)
-
-  (loop for m in (inside self)
-        for i from 1
-        do (draw-score-element m (tempo self) box (frame box) :y-shift y-u :font-size (fontsize box) :position i)
-        ))
+  
+  (om-with-translation x-pix y-pix
+    
+    (loop for m in (inside self)
+          for i from 1
+          do (draw-score-element m (tempo self) box (frame box) :y-shift y-u :font-size (fontsize box) :position i)
+          
+          )))
 
 
 ;;; EDITOR
@@ -451,8 +454,8 @@
          
          (beam-start-line (if t (car beam-info)
                    (if (equal :up (cadr beam-info))
-                       (+ (pitch-to-line (list-max (lmidic (previous-chord object)))) *stem-height* (* beams-num .25))
-                     (- (pitch-to-line (list-min (lmidic (previous-chord object)))) *stem-height* (* beams-num .25)))))
+                       (+ (pitch-to-line (list-max (lmidic (get-real-chord object)))) *stem-height* (* beams-num .25))
+                     (- (pitch-to-line (list-min (lmidic (get-real-chord object)))) *stem-height* (* beams-num .25)))))
          
          (draw-bboxes (typep view 'score-panel))
          )
@@ -460,7 +463,7 @@
     ;(print (list "cont-chord" (symbolic-dur object) parent-nd graphic-dur))
 
     (let ((bbox? 
-           (draw-chord (previous-chord object)
+           (draw-chord (get-real-chord object)
                        begin
                        y-shift 
                        0 0
@@ -471,7 +474,7 @@
                        :beams (list beams-to-draw position)
                        :staff staff
                        :selection (if (find object selection) T selection)
-                       :tied-to (previous-chord object)
+                       :tied-to-ms (beat-to-time (symbolic-date (previous-chord object)) tempo)
                        :time-function #'(lambda (time) (time-to-pixel view time))
                        :build-b-boxes nil
                        )))

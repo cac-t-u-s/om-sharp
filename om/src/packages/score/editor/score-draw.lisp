@@ -407,7 +407,7 @@
   (let* ((staff-elems (staff-split staff))
          (unit (font-size-to-unit fontsize)) 
          (shift (+ y-units (calculate-staff-line-shift staff)))
-         (thinBarlineThickness (ceiling (* *thinBarLineThickness* unit))))
+         (thinBarlineThickness (* *thinBarLineThickness* unit)))
     
     (om-draw-line x-pix (+ -1 (line-to-ypos (car (staff-lines (car staff-elems))) shift unit))
                   x-pix (+ 1 (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit))
@@ -575,7 +575,7 @@
                          (beams '(0 0)) ;; (number-of-beams position-in-group)
                          draw-chans draw-ports draw-vels draw-durs
                          selection
-                         tied-to
+                         tied-to-ms
                          (time-function #'identity)
                          build-b-boxes)
 
@@ -891,14 +891,14 @@
                                ))
                        
                            ;;; TIES
-                           (when tied-to 
+                           (when tied-to-ms 
                              (let ((tie-h unit)
-                                   (x0 (+ (funcall time-function (date tied-to)) head-w-pix)))
+                                   (x0 (+ (funcall time-function tied-to-ms) head-w-pix)))
                              
                              (om-with-line-size (* *stemThickness* unit 1.8)
                                
                                (if (>= (position (midic n) pitches :test '=) 
-                                         (ceiling (length pitches) 2)) ;;; up/down depends on position (rank) in the chord
+                                       (ceiling (length pitches) 2)) ;;; up/down depends on position (rank) in the chord
                                    ;;; up
                                    (om-draw-arc x0 (- ny1 tie-h) (- x-pix x0) (+ (- ny2 ny1) tie-h) 0 pi)
                                    ;;; down
