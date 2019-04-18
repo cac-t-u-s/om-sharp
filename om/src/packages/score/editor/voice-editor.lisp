@@ -104,23 +104,39 @@
 ;;; accordingly, the beam-point is <beam-size> above max pitch, or below min-pitch
 
 ;;; won't work for sub-groups...
+;;; cleanup extra-size 
 (defmethod find-group-beam-line ((self group) staff beat-unit)
   
   (let* ((medium (staff-medium-pitch staff))
          (chords (get-all-chords self)) ;;; can be nil if only rests !!
-         (pitches (loop for c in chords append (mapcar 'midic (inside c))))
+         (best-directions (loop for c in chords collect (stem-direction c staff)))
+         (pitches (loop for c in chords append (mapcar #'midic (get-notes c))))
          (p-max (or (list-max pitches) 7100)) ;;; default = B4
          (p-min (or (list-min pitches) 7100)) ;;; default = B4
          (mean (* (+ p-max p-min) .5)) ;(/ (apply '+ pitches) (length pitches)) 
          (max-beams (list-max (mapcar #'(lambda (c) 
-                                              (get-number-of-beams (* (r-ratio-value (symbolic-dur c)) beat-unit)))
-                                          chords))))
-    (if (<= mean medium) 
-        ;;; up
-        (values (+ (pitch-to-line p-max) *stem-height* (* max-beams .5)) :up)
-      ;;; down
-      (values (- (pitch-to-line p-min) *stem-height* (* max-beams .5)) :down)
-      )
+                                          (get-number-of-beams (* (r-ratio-value (symbolic-dur c)) beat-unit)))
+                                      chords ;(inside self)
+                                      )))
+         (stem-length (+ *stem-height* 
+                         (* (max 0 (- max-beams 2)) *beamthickness* 2))) ;; if more than 2 beams, add 2xbeam-h by beam
+         )
+    
+    ;; (print (list self max-beams))
+    
+    (cond ((and (> (abs (- p-min medium)) (abs (- p-max medium)))
+                (< (- p-min medium) -1200)) ;;; p-min is really low
+           ;;; up
+           (values (+ (pitch-to-line p-max) stem-length) :up))
+          ((> (- p-max medium) 1200)  ;;; p-max is really high
+           ;;; down
+           (values (- (pitch-to-line p-min) stem-length) :down))
+          (t
+           (if (>= (count :up best-directions) (count :down best-directions))
+               (values (+ (pitch-to-line p-max) stem-length) :up)
+             (values (- (pitch-to-line p-min) stem-length) :down)
+             ))
+          )
     ))
 
 
@@ -180,7 +196,6 @@
 (defmethod beam-num ((self group) dur)
  
   (let ((nd (or (numdenom self) (list 1 1))))  
-    ;; (print (list "G" (tree self) (numdenom self) (symbolic-dur self) dur (get-group-ratio (tree self))))
     
     (loop for element in (inside self)
           minimize (beam-num element (* (/ (car nd) (cadr nd)) 
@@ -197,6 +212,16 @@
      (loop for item in (inside self)
            maximize (calcule-chiff-level item))))
 
+;;; just for debug
+(defmethod draw-group-rect ((object group) view tempo level)
+  (om-draw-rect (time-to-pixel view (beat-to-time (symbolic-date object) tempo))
+                0
+                (- (time-to-pixel view (beat-to-time (+ (symbolic-date object) (r-ratio-value (symbolic-dur object))) tempo))
+                   (time-to-pixel view (beat-to-time (symbolic-date object) tempo)))
+                (- (h view) (* level 10))
+                :color (om-random-color .5)
+                :fill t))
+
 ;;; beam-info : (beam-pos beam-direction beams-already-drawn parent-dur parent-denom)
 (defmethod draw-score-element ((object group) tempo param-obj view 
                                &key font-size (y-shift 0) (level 1) 
@@ -207,7 +232,7 @@
   
   ;(print (list "=========="))
   ;(print (list "GROUP" (tree object) (numdenom object) (symbolic-dur object)))
-
+  
   (let* ((staff (get-edit-param param-obj :staff))
          (beam-n-and-dir (or (first-n beam-info 2) ;; the rest of the list is local info
                              (multiple-value-list (find-group-beam-line object staff beat-unit))))
@@ -219,11 +244,12 @@
          (pix-beg (time-to-pixel view (beat-to-time (symbolic-date (car chords)) tempo) ))
          (pix-end (time-to-pixel view (beat-to-time (symbolic-date (car (last chords))) tempo) ))
          
-         (n-beams (beam-num object (r-ratio-value (symbolic-dur object))))
+         (n-beams (beam-num object (* (r-ratio-value (symbolic-dur object)) beat-unit)))
          (group-beams (arithm-ser 1 n-beams 1))
-         
          )
-         
+    
+    ;(draw-group-rect object view tempo level)
+       
     ;;; local variables for the loop
     (let ((beams-drawn-in-sub-group nil))
     
@@ -231,20 +257,20 @@
       (loop with sub-group-beams = 0
             for element in (inside object)
             for i from 0 do
-            
-            ;; (print (list element i))
-            
+                        
             ;;; here we hanlde "virtual sub-group" displayed as tied beams
-            ;;; when a sucession of atomic elements have the same beaming
+            ;;; when a sucession of atomic elements in a same group have the same beaming
             (unless (typep element 'group)
 
-              (let*  ((graphic-dur (* (r-ratio-value (symbolic-dur element)) group-ratio))
+              (let*  ((graphic-dur (* (r-ratio-value (symbolic-dur element)) group-ratio beat-unit))
                       (n-beams-in-current (beam-num element graphic-dur))
                       (prev (previous-in-list (inside object) element nil))
                       (next (next-in-list (inside object) element nil))
-                      (n-beams-in-previous (and prev (beam-num prev (* (r-ratio-value (symbolic-dur prev)) group-ratio))))
-                      (n-beams-in-next (and next (beam-num next (* (r-ratio-value (symbolic-dur next)) group-ratio)))))
-              
+                      (n-beams-in-previous (and prev (beam-num prev (* (r-ratio-value (symbolic-dur prev)) group-ratio beat-unit))))
+                      (n-beams-in-next (and next (beam-num next (* (r-ratio-value (symbolic-dur next)) group-ratio beat-unit)))))
+                
+                ;(print (list element n-beams-in-current n-beams-in-previous n-beams-in-next n-beams))
+                
                 (when  (> n-beams-in-current sub-group-beams) 
                   ;;; first of a new "sub-group" (same number of sub-beams) 
                   ;;; will draw additional single-beams on the right if any
@@ -256,23 +282,29 @@
                   (when (and prev next 
                              (not (typep next 'group)) ;; also if this one is the last of its group
                              (> n-beams-in-next n-beams-in-previous))
+                    (print "iiiii")
                     (setq i 0))
                   )
                  
                 
-                (when (and (> n-beams-in-current n-beams) ;;; more beams than the current "real" container group
-                           (> i 0)) ;;; this is not the 1st element
+                (when (> n-beams-in-current n-beams) ;;; more beams than the current "real" container group
                   
-                  (setq beams-drawn-in-sub-group (arithm-ser 1 (min n-beams-in-current (or n-beams-in-previous 0)) 1))
-                          
-                  ;;; draw beams between i and (i-1) and update the beaming count for sub-elements
-                  (draw-beams (time-to-pixel view (beat-to-time (symbolic-date prev) tempo))
-                              (time-to-pixel view (beat-to-time (symbolic-date element) tempo))
-                              (car beam-n-and-dir)  ;; the beam init line
-                              (cadr beam-n-and-dir) ;; the beam direction
-                              beams-drawn-in-sub-group  ;; the beam numbers 
-                              y-shift staff font-size)
-                  )))
+                  (if (= i 0) ;;; this is the 1st element
+                      
+                      (setq beams-drawn-in-sub-group (arithm-ser 1 (min n-beams-in-current (or n-beams-in-next 0)) 1))
+                    
+                    (progn
+                      (setq beams-drawn-in-sub-group (arithm-ser 1 (min n-beams-in-current (or n-beams-in-previous 0)) 1))
+                      ;;; draw beams between i and (i-1) and update the beaming count for sub-elements
+                      (draw-beams (time-to-pixel view (beat-to-time (symbolic-date prev) tempo))
+                                  (time-to-pixel view (beat-to-time (symbolic-date element) tempo))
+                                  (car beam-n-and-dir)  ;; the beam init line
+                                  (cadr beam-n-and-dir) ;; the beam direction
+                                  beams-drawn-in-sub-group  ;; the beam numbers 
+                                  y-shift staff font-size)
+                      ))
+                  )
+                ))
                 
               
 
@@ -284,9 +316,9 @@
                                                                  (nth 0 beam-n-and-dir)
                                                                  (nth 1 beam-n-and-dir)
                                                                  ;;; send the beams already drawn in 3rd position
-                                                                 ;group-beams
-                                                                 (append group-beams beams-drawn-in-sub-group)
-                                                                 ;; nd
+                                                                 ; passing '(0) at min will force the stem height of sub-chords 
+                                                                 ; even if there is no beams
+                                                                 (append (or group-beams '(0)) beams-drawn-in-sub-group)
                                                                  ))
                                 :position i
                                 :beat-unit (* beat-unit group-ratio)
@@ -460,7 +492,7 @@
          (draw-bboxes (typep view 'score-panel))
          )
     
-    ;(print (list "cont-chord" (symbolic-dur object) parent-nd graphic-dur))
+    ;(print (list "cont-chord" (symbolic-dur object) beams-to-draw))
 
     (let ((bbox? 
            (draw-chord (get-real-chord object)

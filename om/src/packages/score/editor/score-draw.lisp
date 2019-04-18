@@ -494,7 +494,7 @@
 (defun draw-beams (begin-pix end-pix beam-line direction beams y-shift staff fontsize)
   
   (let* ((unit (font-size-to-unit fontsize))
-         (beamThickness (ceiling (* *beamThickness* unit)))
+         (beamThickness (* *beamThickness* unit))
          (yshift (+ y-shift (calculate-staff-line-shift staff))))
     
     (loop for i in beams do
@@ -503,11 +503,13 @@
                         (- (line-to-ypos (- beam-line i -1) yshift unit) 2)
                         (1+ (- end-pix begin-pix))
                         (1+ beamThickness)
+                        ;:color (om-random-color .8)
                         :fill t)
         (om-draw-rect (floor (+ begin-pix (* unit (car *noteheadBlack_StemDownNW*))))
                       (1+ (round (- (line-to-ypos (+ beam-line i -1) yshift unit) beamThickness)))
                       (1+ (- end-pix begin-pix))
                       (1+ beamThickness)
+                      ;:color (om-random-color 0.7)
                       :fill t)
         )
       )))
@@ -551,6 +553,17 @@
     ))
 
 
+;;;========================
+;;; STEM
+;;;========================
+
+(defun stem-direction (chord staff)
+  (let* ((pitches (sort (mapcar 'midic (get-notes chord)) '<))
+         (pmin (car pitches))
+         (pmax (car (last pitches))))
+    (if (< (/ (+ pmax pmin) 2) (staff-medium-pitch staff))
+        :up :down)))
+ 
 ;;;=======================
 ;;; CHORDS
 ;;;=======================
@@ -572,7 +585,7 @@
                          (scale *default-scale*)
                          (staff :gf)
                          (stem t) ;; stem can be T or a position (in line or score units) 
-                         (beams '(0 0)) ;; (number-of-beams position-in-group)
+                         (beams '(nil 0)) ;; (beams position-in-group)
                          draw-chans draw-ports draw-vels draw-durs
                          selection
                          tied-to-ms
@@ -601,7 +614,8 @@
              (head-h (- (nth 3 head-box) (nth 1 head-box)))    ;;; the width in units of a note-head
              (head-w-pix (* head-w unit))    ;;; the width in pixels of a note-head
              (acc-w (* (get-font-width "accidentalSharp") unit 1.5)) ;;; the width in pixels of an accident symbol
-         
+             
+             (stem-direction :up) 
              cx1 cx2 cy1 cy2  ;;; chord bounding-box values (in pixels)
          
              (dur-max (apply #'max (mapcar 'dur notes)))
@@ -637,6 +651,11 @@
              ;;; STEM
              (when stem?
                
+               ;;; determine direction (default is :up)
+               (setq stem-direction (if (numberp stem) ;;; in a group: stem is already decided
+                                        (if (> stem l-min) :up :down)  ;;; stem is higher than the min note of the chord: :down
+                                      (stem-direction chord staff)))
+                     
                (let ((stem-size (* unit *stem-height*))
                      (stemThickness (* *stemThickness* unit))
                      (stemUpSE-x (* unit (car *noteheadBlack_StemUpSE*))) ;;; SE = anchor for stem-up
@@ -645,14 +664,12 @@
                      (stemDownNW-y (* unit (cadr *noteheadBlack_StemDownNW*)))
                      (n-beams (car beams))
                      (pos-in-group (cadr beams)))
-                 
-                 ;(print pos-in-group)
-
+               
                  (if (numberp stem) ;;; we are in a group and the max position is fixed (stem, in line-number)
                      
                      (let ((stem-pos (line-to-ypos stem shift unit)))
                        
-                       (if (> stem l-min) ;; stem is higher than the min note of the chord
+                       (if (equal stem-direction :up)
                          
                            ;;; up
                            (progn 
@@ -662,8 +679,8 @@
                              
                              (when n-beams
                                (if (zerop pos-in-group) ;; first elem
-                                   (draw-beams x-pix (+ x-pix unit) stem :up n-beams y-units staff fontsize)
-                                 (draw-beams (- x-pix unit) x-pix stem :up n-beams y-units staff fontsize)
+                                   (draw-beams x-pix (+ x-pix head-w-pix) stem :up n-beams y-units staff fontsize)
+                                 (draw-beams (- x-pix head-w-pix) x-pix stem :up n-beams y-units staff fontsize)
                                  ))
                           
                              (setf cy1 stem-pos))
@@ -676,8 +693,8 @@
                                          :line stemThickness :end-style :projecting)
                            (when n-beams
                              (if (zerop pos-in-group) ;; first elem
-                                 (draw-beams x-pix (+ x-pix unit) stem :down n-beams y-units staff fontsize)
-                               (draw-beams (- x-pix unit) x-pix stem :down n-beams y-units staff fontsize)
+                                 (draw-beams x-pix (+ x-pix head-w-pix) stem :down n-beams y-units staff fontsize)
+                               (draw-beams (- x-pix head-w-pix) x-pix stem :down n-beams y-units staff fontsize)
                                ))
                            
                            (setf cy2 stem-pos))
@@ -685,9 +702,9 @@
                        )
                  
                    ;;; otherwise, this is a standalone chord with stem 
-                   (if (<= (/ (+ pmax pmin) 2) (staff-medium-pitch staff))
+                   (if (equal stem-direction :up)
+                       
                        ;;; stem up
-                    
                        (let ((stem-x (+ x-pix stemUpSE-x)))
                             
                          (om-draw-line stem-x (- y-min stemUpSE-y)
@@ -892,19 +909,23 @@
                        
                            ;;; TIES
                            (when tied-to-ms 
-                             (let ((tie-h unit)
-                                   (x0 (+ (funcall time-function tied-to-ms) head-w-pix)))
-                             
-                             (om-with-line-size (* *stemThickness* unit 1.8)
+                             (let* ((x0 (+ (funcall time-function tied-to-ms) head-w-pix))
+                                    (tie-h (if (> (abs (/ (- x-pix x0) unit)) 5) unit (* unit .5))))
                                
-                               (if (>= (position (midic n) pitches :test '=) 
-                                       (ceiling (length pitches) 2)) ;;; up/down depends on position (rank) in the chord
-                                   ;;; up
-                                   (om-draw-arc x0 (- ny1 tie-h) (- x-pix x0) (+ (- ny2 ny1) tie-h) 0 pi)
-                                   ;;; down
-                                   (om-draw-arc x0 (- ny2 tie-h) (- x-pix x0) (+ (- ny2 ny1) tie-h) 0 (- pi))
+                               (om-with-line-size (* *stemThickness* unit 1.8)
+                                 
+                                 (let ((tie-direction
+                                        (if (= (length pitches) 1) ;;; if only one note
+                                            (if (equal stem-direction :up) :down :up) ;;; opposed to beam
+                                          (if (>= (position (midic n) pitches :test '=) 
+                                                  (ceiling (length pitches) 2)) ;;; depends on position (rank) in the chord
+                                              :up :down))))
+                                   (if (equal tie-direction :up)
+                                       (om-draw-arc x0 (- ny1 tie-h) (- x-pix x0 (* .3 unit)) (* 2 tie-h) 0 pi)
+                                     (om-draw-arc x0 (- ny2 tie-h) (- x-pix x0 (* .3 unit)) (* 2 tie-h) 0 (- pi)))
                                    )
-                               )))
+                                 )
+                               ))
                            ))
                          )) ;;; END DO
                      ) ;;; END NOTES LOOP
