@@ -103,8 +103,9 @@
 
 (defmethod set-font-size ((self chord-seq-editor) size)
   (call-next-method)
-  (build-editor-window self)
-  (init-editor-window self))
+  ;(build-editor-window self) 
+  ;(init-editor-window self) ;; can't remeber why I did this.. :( => remove 
+  )
 
 
 ;;; called at add-click
