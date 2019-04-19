@@ -27,11 +27,12 @@
         "score-objects/voice"
         "score-objects/score"
 
-        "editor/score-draw"
+        "editor/draw-score-basic"
+        "editor/draw-score-rhythm"
+
         "editor/score-editor"
         "editor/chord-editor"
         "editor/chord-seq-editor"
-        "editor/voice-editor"
 
         "tools/conversions"
         "import-export/musicxml"))
