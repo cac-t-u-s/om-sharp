@@ -437,7 +437,7 @@
 (defmethod order-points-by-time ((self timeline-editor))
   (loop for tlv in (timeline-views self) do
         (let ((obj (editor-get-time-sequence self (id tlv))))
-          (reorder-tpoints obj))))
+          (time-sequence-reorder-timed-item-list obj))))
 
 (defmethod add-point-at-time ((self timeline-editor) time id)
   (let* ((obj (editor-get-time-sequence self id))

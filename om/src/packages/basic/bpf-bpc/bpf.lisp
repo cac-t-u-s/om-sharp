@@ -632,6 +632,43 @@
 
 
 ;;;=============================
+;;; FOR DRAW ON COLLECTION BOXES
+;;;=============================
+
+(defmethod collection-cache-display ((type BPF) list)
+  (if (list-subtypep list 'BPF) ;;; works only is all objects are BPFs
+      (list (nice-bpf-range list))
+    (call-next-method)))
+
+
+(defmethod collection-draw-mini-view ((type BPF) list box x y w h time)
+   (if (list-subtypep list 'BPF) ;;; works only is all objects are BPFs
+      
+       (let* ((display-cache (get-display-draw box))
+              (ranges (car display-cache)))
+
+         (loop for o in list do 
+               (draw-bpf-points-in-rect
+                (point-pairs o)
+                (color o) 
+                ranges
+                x (+ y 10) w (- h 20)
+                :lines-only)
+               )
+         (om-with-font (om-def-font :font1 :size 8)
+                       (om-draw-string (+ x 10) (+ y (- h 4)) (number-to-string (nth 0 ranges)))
+                       (om-draw-string (+ x (- w (om-string-size (number-to-string (nth 1 ranges)) (om-def-font :font1 :size 8)) 4))
+                                       (+ y (- h 4)) 
+                                       (number-to-string (nth 1 ranges)))
+                       (om-draw-string x (+ y (- h 14)) (number-to-string (nth 2 ranges)))
+                       (om-draw-string x (+ y 10) (number-to-string (nth 3 ranges)))
+                       ))
+     
+       (call-next-method))
+   )
+
+
+;;;=============================
 ;;; BPF PLAY
 ;;;=============================
 

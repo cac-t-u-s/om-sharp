@@ -563,7 +563,7 @@
   ; (om-def-font :font1b :size 10)
   ; (om-draw-string (+ x 14) (+ y 14) (draw-type-of-object object)))
   (om-with-font 
-   (om-def-font :font1 :size 8)
+   (om-def-font :font1 :size 10)
    (loop for i = (+ y 20) then (+ i 10) 
          for sl in (ensure-cache-display-text box object)
          while (< i (- h 6)) do

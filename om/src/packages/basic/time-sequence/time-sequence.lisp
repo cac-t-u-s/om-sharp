@@ -198,7 +198,6 @@
 
 (defmethod update-obj-dur ((self time-sequence))
   
-  
   (setf (duration self)
 
         (if (remove nil (time-sequence-get-timed-item-list self))
@@ -430,6 +429,18 @@
    (update-time-types self)
    ))
 
+
+(defmethod time-sequence-reorder-timed-item-list ((self time-sequence))
+  (let ((points (time-sequence-get-timed-item-list self)))
+    (when points
+      (clean-master-points-type self)
+      ;order point list
+      (time-sequence-set-timed-item-list self (sort points '< :key 'item-get-internal-time))
+      ;update internal-times
+      (time-sequence-update-internal-times self))))
+
+
+
 (defmethod get-all-master-points-positions ((self time-sequence))
   (om-all-positions :master (time-types self)))
 
@@ -479,14 +490,7 @@
     (update-time-types-from-tpoint-list self)
     ))
 
-(defmethod reorder-tpoints ((self time-sequence))
-  (let ((points (time-sequence-get-timed-item-list self)))
-    (when points
-      (clean-master-points-type self)
-      ;order point list
-      (time-sequence-set-timed-item-list self (sort points '< :key 'item-get-internal-time))
-      ;update internal-times
-      (time-sequence-update-internal-times self))))
+
 
 (defmethod temporal-translate-all ((self time-sequence) dt)
   (loop for point in (time-sequence-get-timed-item-list self) do

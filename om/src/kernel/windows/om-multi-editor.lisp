@@ -29,6 +29,7 @@
 
 
 (defmethod handle-multi-editor-click ((self om-view) (editor t)) nil)
+
 (defmethod handle-multi-editor-click ((self om-view) (editor multi-view-editor))
   (setf (selected-view editor) self))
 

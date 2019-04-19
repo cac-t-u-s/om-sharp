@@ -49,6 +49,8 @@
   (setf (edition-params self)
         (set-value-in-kv-list (edition-params self) param value)))
 
+
+
 ;;; this is useful to open the editor of something that is not necessarily in a box 
 ;;; serves as the 'object' of the editor
 (defclass OMAbstractContainer (ObjectWithEditor object-with-edit-params)
@@ -69,9 +71,13 @@
 (defmethod get-value-for-editor ((self OMAbstractContainer)) (contents self))
 
 (defmethod object-value ((self OMEditor))
-  (cond ((object self) (get-value-for-editor (object self)))
-        ((container-editor self) (object-value (container-editor self)))
-        (t nil)))
+  (cond 
+   ((object self) (get-value-for-editor (object self)))
+   ((container-editor self) (object-value (container-editor self)))
+   (t nil)
+   ))
+
+
 
 ;;;=============================
 ;;; Superclass for OM root editors (patch, maquette, Lispfile, etc.)

@@ -429,8 +429,9 @@
 ;; (defmethod get-cache-display-for-draw ((self piano-roll)) (list 30 100)) 
 
 (defmethod draw-mini-view ((self piano-roll) (box t) x y w h &optional time)
+  
   (multiple-value-bind (fx ox) 
-        (conversion-factor-and-offset 0 (get-obj-dur self) w x)
+      (conversion-factor-and-offset 0 (get-obj-dur (get-box-value box)) w x)
       (multiple-value-bind (fy oy) 
           (conversion-factor-and-offset 96 36 (- h 20) (+ y 10))
         (om-with-line-size 2
