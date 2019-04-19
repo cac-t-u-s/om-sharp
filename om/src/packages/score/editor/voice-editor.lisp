@@ -104,7 +104,6 @@
 ;;; accordingly, the beam-point is <beam-size> above max pitch, or below min-pitch
 
 ;;; won't work for sub-groups...
-;;; cleanup extra-size 
 (defmethod find-group-beam-line ((self group) staff beat-unit)
   
   (let* ((medium (staff-medium-pitch staff))
@@ -116,13 +115,11 @@
          (mean (* (+ p-max p-min) .5)) ;(/ (apply '+ pitches) (length pitches)) 
          (max-beams (list-max (mapcar #'(lambda (c) 
                                           (get-number-of-beams (* (r-ratio-value (symbolic-dur c)) beat-unit)))
-                                      chords ;(inside self)
-                                      )))
-         (stem-length (+ *stem-height* 
-                         (* (max 0 (- max-beams 2)) *beamthickness* 2))) ;; if more than 2 beams, add 2xbeam-h by beam
+                                      chords)))
+         (stem-length (+ *stem-height* (* (max 0 (- max-beams 2)) *beamthickness* 2))) ;; if more than 2 beams, add 2xbeam-h by beam
          )
     
-    ;; (print (list self max-beams))
+   ;;(print (list self max-beams))
     
     (cond ((and (> (abs (- p-min medium)) (abs (- p-max medium)))
                 (< (- p-min medium) -1200)) ;;; p-min is really low
@@ -234,12 +231,12 @@
   ;(print (list "GROUP" (tree object) (numdenom object) (symbolic-dur object)))
   
   (let* ((staff (get-edit-param param-obj :staff))
-         (beam-n-and-dir (or (first-n beam-info 2) ;; the rest of the list is local info
-                             (multiple-value-list (find-group-beam-line object staff beat-unit))))
-         (beams-from-parent (nth 2 beam-info))
-         ;; (r-unit (or (nth 3 beam-info) 1))
-         ;; (nd (or (numdenom object) (list 1 1)))
          (group-ratio (if (numdenom object) (fullratio (numdenom object)) 1))
+         
+         (beam-n-and-dir (or (first-n beam-info 2) ;; the rest of the list is local info
+                             (multiple-value-list (find-group-beam-line object staff (* beat-unit group-ratio)))))
+         (beams-from-parent (nth 2 beam-info))
+         
          (chords (get-all-chords object))
          (pix-beg (time-to-pixel view (beat-to-time (symbolic-date (car chords)) tempo) ))
          (pix-end (time-to-pixel view (beat-to-time (symbolic-date (car (last chords))) tempo) ))
@@ -282,7 +279,6 @@
                   (when (and prev next 
                              (not (typep next 'group)) ;; also if this one is the last of its group
                              (> n-beams-in-next n-beams-in-previous))
-                    (print "iiiii")
                     (setq i 0))
                   )
                  
