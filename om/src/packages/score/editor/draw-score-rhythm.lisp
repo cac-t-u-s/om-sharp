@@ -69,10 +69,10 @@
 
 (defmethod draw-score-element ((object measure) tempo param-obj view 
                                &key font-size (y-shift 0) (level 0) 
-                               position beam-info beat-unit 
+                               position beam-info beat-unit rest-line
                                selection)
 
-  (declare (ignore level beam-info))
+  (declare (ignore level beam-info rest-line))
 
   (let ((x-pix (time-to-pixel view (beat-to-time (symbolic-date object) tempo)))
         (beat-unit (/ (fdenominator (car (tree object)))
@@ -100,38 +100,39 @@
 ;;; BEAMING / GROUPS
 ;;;========================
 
+(defstruct beam-info (line) (direction) (beams))
+
 ;;; select up or down according to the mean-picth in this group vs. center of the current staff
 ;;; accordingly, the beam-point is <beam-size> above max pitch, or below min-pitch
-
 ;;; won't work for sub-groups...
 (defmethod find-group-beam-line ((self group) staff beat-unit)
   
   (let* ((medium (staff-medium-pitch staff))
          (chords (get-all-chords self)) ;;; can be nil if only rests !!
-         (best-directions (loop for c in chords collect (stem-direction c staff)))
+         (best-directions (loop for c in chords when (get-notes c) collect (stem-direction c staff)))
          (pitches (loop for c in chords append (mapcar #'midic (get-notes c))))
-         (p-max (or (list-max pitches) 7100)) ;;; default = B4
-         (p-min (or (list-min pitches) 7100)) ;;; default = B4
+         (default (staff-medium-pitch (car (last (staff-split staff)))))
+         (p-max (or (list-max pitches) default)) ;;; default = middle ?
+         (p-min (or (list-min pitches) default)) ;;; default = middle ?
          (mean (* (+ p-max p-min) .5)) ;(/ (apply '+ pitches) (length pitches)) 
-         (max-beams (list-max (mapcar #'(lambda (c) 
+         (max-beams (or (list-max (mapcar #'(lambda (c) 
                                           (get-number-of-beams (* (r-ratio-value (symbolic-dur c)) beat-unit)))
-                                      chords)))
-         (stem-length (+ *stem-height* (* (max 0 (- max-beams 2)) *beamthickness* 2))) ;; if more than 2 beams, add 2xbeam-h by beam
+                                      chords))
+                        0))
+         (stem-length (+ *stem-height* (* (max 0 (- max-beams 2)) *beamthickness* 1.5))) ;; if more than 1 beams, add 2xbeam-h by beam
          )
-    
-   ;;(print (list self max-beams))
     
     (cond ((and (> (abs (- p-min medium)) (abs (- p-max medium)))
                 (< (- p-min medium) -1200)) ;;; p-min is really low
            ;;; up
-           (values (+ (pitch-to-line p-max) stem-length) :up))
+           (make-beam-info :line (+ (pitch-to-line p-max) stem-length) :direction :up))
           ((> (- p-max medium) 1200)  ;;; p-max is really high
            ;;; down
-           (values (- (pitch-to-line p-min) stem-length) :down))
+           (make-beam-info :line (- (pitch-to-line p-min) stem-length) :direction :down))
           (t
            (if (>= (count :up best-directions) (count :down best-directions))
-               (values (+ (pitch-to-line p-max) stem-length) :up)
-             (values (- (pitch-to-line p-min) stem-length) :down)
+               (make-beam-info :line (+ (pitch-to-line p-max) stem-length) :direction :up)
+             (make-beam-info :line (- (pitch-to-line p-min) stem-length) :direction :down)
              ))
           )
     ))
@@ -219,10 +220,18 @@
                 :color (om-random-color .5)
                 :fill t))
 
-;;; beam-info : (beam-pos beam-direction beams-already-drawn parent-dur parent-denom)
+
+
+(defun get-mean-pitch (group) 
+  (let ((pitches (mapcar #'midic (loop for elt in (get-all-chords group) append (get-notes elt)))))
+    (and pitches 
+         (/ (apply #'+ pitches) (length pitches)))
+    ))
+
+;;; beam-info : beam-pos (line) , beam-direction (:up/:down) , beams-already-drawn (list of indices)
 (defmethod draw-score-element ((object group) tempo param-obj view 
                                &key font-size (y-shift 0) (level 1) 
-                               position beam-info beat-unit 
+                               position beam-info beat-unit rest-line
                                selection)
   
   (declare (ignore position))
@@ -233,9 +242,12 @@
   (let* ((staff (get-edit-param param-obj :staff))
          (group-ratio (if (numdenom object) (fullratio (numdenom object)) 1))
          
-         (beam-n-and-dir (or (first-n beam-info 2) ;; the rest of the list is local info
-                             (multiple-value-list (find-group-beam-line object staff (* beat-unit group-ratio)))))
-         (beams-from-parent (nth 2 beam-info))
+         (beam-pos-and-dir (if beam-info
+                               ;; the rest actual list of beams will be set later
+                               (make-beam-info :line (beam-info-line beam-info) :direction (beam-info-direction beam-info))
+                             (find-group-beam-line object staff (* beat-unit group-ratio))))
+
+         (beams-from-parent (and beam-info (beam-info-beams beam-info)))
          
          (chords (get-all-chords object))
          (pix-beg (time-to-pixel view (beat-to-time (symbolic-date (car chords)) tempo) ))
@@ -243,8 +255,9 @@
          
          (n-beams (beam-num object (* (r-ratio-value (symbolic-dur object)) beat-unit)))
          (group-beams (arithm-ser 1 n-beams 1))
+         
          )
-    
+
     ;(draw-group-rect object view tempo level)
        
     ;;; local variables for the loop
@@ -294,37 +307,38 @@
                       ;;; draw beams between i and (i-1) and update the beaming count for sub-elements
                       (draw-beams (time-to-pixel view (beat-to-time (symbolic-date prev) tempo))
                                   (time-to-pixel view (beat-to-time (symbolic-date element) tempo))
-                                  (car beam-n-and-dir)  ;; the beam init line
-                                  (cadr beam-n-and-dir) ;; the beam direction
+                                  (beam-info-line beam-pos-and-dir)  ;; the beam init line
+                                  (beam-info-direction beam-pos-and-dir) ;; the beam direction
                                   beams-drawn-in-sub-group  ;; the beam numbers 
                                   y-shift staff font-size)
                       ))
                   )
                 ))
                 
-              
-
             (draw-score-element element tempo param-obj view 
                                 :y-shift y-shift
                                 :font-size font-size
                                 :level (1+ level) 
-                                :beam-info (when beam-n-and-dir (list 
-                                                                 (nth 0 beam-n-and-dir)
-                                                                 (nth 1 beam-n-and-dir)
-                                                                 ;;; send the beams already drawn in 3rd position
-                                                                 ; passing '(0) at min will force the stem height of sub-chords 
-                                                                 ; even if there is no beams
-                                                                 (append (or group-beams '(0)) beams-drawn-in-sub-group)
-                                                                 ))
+                                :beam-info (when beam-pos-and-dir 
+                                             ;;; send the beams already drawn in 3rd position
+                                             ; passing '(0) at min will force the stem height of sub-chords 
+                                             ; even if there is no beams
+                                             (setf (beam-info-beams beam-pos-and-dir)
+                                                   (append (or group-beams '(0)) beams-drawn-in-sub-group))
+                                             beam-pos-and-dir)
+                                              
                                 :position i
                                 :beat-unit (* beat-unit group-ratio)
+                                :rest-line (or rest-line (let ((mean-pitch (get-mean-pitch object)))
+                                                           (when mean-pitch (pitch-to-line mean-pitch))))
+                                ;;; the higher-level group will determine the y-position for all rests
                                 :selection selection)
             ))
 
     ;;; sub-groups or chords wont have to draw these beams
     (draw-beams pix-beg pix-end
-                (car beam-n-and-dir)  ;; the beam init line
-                (cadr beam-n-and-dir) ;; the beam direction
+                (beam-info-line beam-pos-and-dir)  ;; the beam init line
+                (beam-info-direction beam-pos-and-dir) ;; the beam direction
                 (set-difference group-beams beams-from-parent)   ;; the beam numbers 
                 y-shift staff font-size)
    
@@ -336,8 +350,8 @@
         (draw-group-div (numdenom object)
                         numdenom-level
                         pix-beg pix-end
-                        (car beam-n-and-dir)  ;; the beam init line
-                        (cadr beam-n-and-dir) ;; the beam direction
+                        (beam-info-line beam-pos-and-dir)  ;; the beam init line
+                        (beam-info-direction beam-pos-and-dir) ;; the beam direction
                         y-shift staff font-size)
         ))
     )
@@ -383,11 +397,11 @@
 ;;; CHORD
 ;;;===================
 
-;;; beam-info = (beam-init-line dir already-draw)
+;;; beam-info : beam-pos (line) , beam-direction (:up/:down) , beams-already-drawn (list of indices)
 (defmethod draw-score-element ((object chord) 
                                tempo param-obj view 
                                &key font-size (y-shift 0) (level 1) 
-                               (position 0) beam-info beat-unit 
+                               (position 0) beam-info beat-unit rest-line
                                selection)
   
 
@@ -409,16 +423,16 @@
          
          ;;; from OM6.. 
          (beams-num (get-number-of-beams graphic-dur))
-         (beams-from-parent (nth 2 beam-info))
+         (beams-from-parent (when beam-info (beam-info-beams beam-info)))
          (beams-to-draw (set-difference (arithm-ser 1 beams-num 1) beams-from-parent))
          ;; (propre-group (if (listp beams) (cadr beams)))
          
-         (beam-start-line (if beams-from-parent (car beam-info)
-                            (if (equal :up (cadr beam-info))
+         (beam-start-line (if beams-from-parent (beam-info-line beam-info)
+                            (if (and beam-info (equal :up (beam-info-direction beam-info)))
                                 (+ (pitch-to-line (list-max (lmidic object))) *stem-height* (* beams-num .25))
                               (- (pitch-to-line (list-min (lmidic object))) *stem-height* (* beams-num .25)))))
          
-         (draw-bboxes (typep view 'score-panel))
+         (create-bboxes (typep view 'score-panel))
          )
     
     ; (print (list "chord" s-dur "unit:" beat-unit "=>" graphic-dur))
@@ -441,10 +455,10 @@
                        :draw-durs dur
                        :selection (if (find object selection) T selection)
                        :time-function #'(lambda (time) (time-to-pixel view time))
-                       :build-b-boxes draw-bboxes
+                       :build-b-boxes create-bboxes
                        )))
       
-      (when draw-bboxes
+      (when create-bboxes
         (setf (b-box object) bbox?))
       
       bbox?)))
@@ -459,7 +473,7 @@
 (defmethod draw-score-element ((object continuation-chord) 
                                tempo param-obj view 
                                &key font-size (y-shift 0) (level 1) 
-                               (position 0) beam-info beat-unit
+                               (position 0) beam-info beat-unit rest-line
                                selection)
   
 
@@ -476,16 +490,16 @@
         
          ;;; from OM6.. 
          (beams-num (get-number-of-beams graphic-dur))
-         (beams-from-parent (nth 2 beam-info))
+         (beams-from-parent (and beam-info (beam-info-beams beam-info)))
          (beams-to-draw (set-difference (arithm-ser 1 beams-num 1) beams-from-parent))
          ;;(propre-group (if (listp beams) (cadr beams)))
          
-         (beam-start-line (if t (car beam-info)
-                   (if (equal :up (cadr beam-info))
-                       (+ (pitch-to-line (list-max (lmidic (get-real-chord object)))) *stem-height* (* beams-num .25))
-                     (- (pitch-to-line (list-min (lmidic (get-real-chord object)))) *stem-height* (* beams-num .25)))))
+         (beam-start-line (and beam-info (beam-info-line beam-info)))
+         ;(if (equal :up (beam-info-direction beam-info))
+         ;    (+ (pitch-to-line (list-max (lmidic (get-real-chord object)))) *stem-height* (* beams-num .25))
+         ;  (- (pitch-to-line (list-min (lmidic (get-real-chord object)))) *stem-height* (* beams-num .25)))))
          
-         (draw-bboxes (typep view 'score-panel))
+         (create-bboxes (typep view 'score-panel))
          )
     
     ;(print (list "cont-chord" (symbolic-dur object) beams-to-draw))
@@ -504,14 +518,12 @@
                        :selection (if (find object selection) T selection)
                        :tied-to-ms (beat-to-time (symbolic-date (previous-chord object)) tempo)
                        :time-function #'(lambda (time) (time-to-pixel view time))
-                       :build-b-boxes nil
+                       :build-b-boxes create-bboxes
                        )))
       
-      (when draw-bboxes
+      (when create-bboxes
         (setf (b-box object) bbox?))
-      
-      ;(draw-tie object view font-size tempo)
-      
+
       bbox?)
     ))
 
@@ -522,33 +534,45 @@
 
 (defmethod draw-score-element ((object r-rest) tempo param-obj view &key 
                                font-size (y-shift 0) (level 1) 
-                               position beam-info beat-unit
+                               position beam-info beat-unit rest-line
                                selection)
   
   (let* ((begin (beat-to-time (symbolic-date object) tempo))
-         (symbol-dur (* (r-ratio-value (symbolic-dur object)) beat-unit)))
+         (graphic-dur (* (r-ratio-value (symbolic-dur object)) beat-unit))
+         (beams-num (get-number-of-beams graphic-dur))
+         (beams-from-parent (and beam-info (beam-info-beams beam-info)))
+         (beams-to-draw (set-difference (arithm-ser 1 beams-num 1) beams-from-parent))
+         (beam-start-line (when beam-info (beam-info-line beam-info))))
         
-    (setf 
-     (b-box object)
-     (draw-rest object
-                begin
-                y-shift 
-                0 0 (w view) (h view) 
-                font-size 
-                :head (multiple-value-list (rest-head-and-points symbol-dur))
-                :staff (get-edit-param param-obj :staff)
-                :selection (if (find object selection) T selection)
-                :time-function #'(lambda (time) (time-to-pixel view time))
-                :build-b-boxes t
-                ))
+    (let* ((create-bboxes (typep view 'score-panel))
+           (bbox? 
+            (draw-rest object
+                       begin
+                       y-shift 
+                       0 0 (w view) (h view) 
+                       font-size 
+                       :head (multiple-value-list (rest-head-and-points graphic-dur))
+                       :line rest-line ;; can be NIL for display at default y-pos 
+                       :stem  beam-start-line
+                       :beams (list beams-to-draw position)
+                       :staff (get-edit-param param-obj :staff)
+                       :selection (if (find object selection) T selection)
+                       :time-function #'(lambda (time) (time-to-pixel view time))
+                       :build-b-boxes create-bboxes
+                       )))
+      (when create-bboxes
+        (setf (b-box object) bbox?))
+      
+      )
     ))
 
 
 
 ;;; todo
 ;;; LONG-HEADS (see draw-chord)
-;;; RESTS: HEADS, GROUPS/BEAMING, Y-POSITIONS
-;;; TEMPO / CHIFFRAGE MESURE
+;;; LONG-RESTS
+;;; TEMPO 
+;;; CHIFFRAGE MESURE
 ;;; SPACING
 ;;; TEMPO CHANGE
 ;;; GRACE NOTES

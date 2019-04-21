@@ -38,7 +38,7 @@
 (defvar *noteheadBlack_bBoxNE* '(1.18 0.5))
 (defvar *noteheadBlack_bBoxSW* '(0.0 -0.5))
 
-(defvar *stem-height* 3)
+(defparameter *stem-height* 3.25)
 
 (defun get-smufl-metadata (key &optional table)
   (if (consp key)
@@ -499,14 +499,16 @@
     
     (loop for i in beams do
       (if (equal direction :up)
-          (om-draw-rect (floor (+ begin-pix (* unit (car *noteheadBlack_StemUpSE*))))
-                        (- (line-to-ypos (- beam-line i -1) yshift unit) 2)
+
+          (om-draw-rect (+ begin-pix (* unit (car *noteheadBlack_StemUpSE*))) ;;; floor ?
+                        (- (line-to-ypos (- beam-line (* i .75) -1) yshift unit) 0)
                         (1+ (- end-pix begin-pix))
                         (1+ beamThickness)
                         ;:color (om-random-color .8)
                         :fill t)
-        (om-draw-rect (floor (+ begin-pix (* unit (car *noteheadBlack_StemDownNW*))))
-                      (1+ (round (- (line-to-ypos (+ beam-line i -1) yshift unit) beamThickness)))
+
+        (om-draw-rect (+ begin-pix (* unit (car *noteheadBlack_StemDownNW*)))
+                      (1+ (round (- (line-to-ypos (+ beam-line (* i .75) -1) yshift unit) beamThickness)))
                       (1+ (- end-pix begin-pix))
                       (1+ beamThickness)
                       ;:color (om-random-color 0.7)
@@ -561,18 +563,20 @@
   (let* ((pitches (sort (mapcar 'midic (get-notes chord)) '<))
          (pmin (car pitches))
          (pmax (car (last pitches))))
-    (if (< (/ (+ pmax pmin) 2) (staff-medium-pitch staff))
-        :up :down)))
- 
+    (if (and pmax pmin (>= (/ (+ pmax pmin) 2) (staff-medium-pitch staff)))
+        :down :up)))
+
 ;;;=======================
 ;;; CHORDS
 ;;;=======================
 
 ;;; just for debug
 (defmethod draw-b-box ((self score-object))
-  (om-draw-rect (b-box-x1 (b-box self)) (b-box-y1 (b-box self))
-                (b-box-w (b-box self)) (b-box-h (b-box self))
-                :style '(2 2)))
+  (when (b-box self)
+    (om-draw-rect (b-box-x1 (b-box self)) (b-box-y1 (b-box self))
+                  (b-box-w (b-box self)) (b-box-h (b-box self))
+                  :style '(2 2)))
+  (b-box self))
     
 
 (defun draw-chord (chord x-ms ; x in ms
@@ -611,7 +615,7 @@
              (staff-lines (apply 'append (mapcar 'staff-lines staff-elems)))
              (head-box (get-font-bbox head-name))
              (head-w (- (nth 2 head-box) (nth 0 head-box)))    ;;; the width in units of a note-head
-             (head-h (- (nth 3 head-box) (nth 1 head-box)))    ;;; the width in units of a note-head
+             (head-h (- (nth 3 head-box) (nth 1 head-box)))    ;;; the height in units of a note-head
              (head-w-pix (* head-w unit))    ;;; the width in pixels of a note-head
              (acc-w (* (get-font-width "accidentalSharp") unit 1.5)) ;;; the width in pixels of an accident symbol
              
@@ -847,7 +851,7 @@
                        
                            ;;; DOTS
                            (when (> n-points 0)
-                             (let ((p-y (+ line-y (* unit (if (zerop (rem line 1)) -0.4 0.1)))))
+                             (let ((p-y (+ line-y (* unit (if (zerop (rem line 1)) -0.45 0.05)))))
                                (om-draw-char (+ head-x (* 1.5 head-w-pix)) p-y (dot-char))
                                (when (= n-points 2)
                                  (om-draw-char (+ head-x (* 2.5 head-w-pix)) p-y (dot-char))
@@ -933,10 +937,10 @@
              
              ))
     
-         ;;; return the bounding box
+         ;;; return the bounding box (always)
          (when t ;build-b-boxes 
            (make-b-box :x1 cx1 :x2 cx2 :y1 cy1 :y2 cy2))
-      
+         
          )
       ))))
 
@@ -945,13 +949,18 @@
 ;;; RESTS
 
 
-(defun draw-rest (rest x-ms   ; x-pos in pixels
+(staff-lines :g)
+
+(defun draw-rest (rest x-ms   ; x-pos in ms
                        y-units ; ref-position in score units
                        x y ; absolute offsets in pixels
                        w h ; frame for drawing
                        fontsize 
                        &key 
                        (head :rest-1/4)
+                       line
+                       stem
+                       beams
                        (staff :gf)
                        selection
                        (time-function #'identity)
@@ -963,23 +972,30 @@
 
     (let ((head-symb (if (consp head) (car head) head))
           (n-points (if (consp head) (cadr head) 0))
+          
           (x-pix (funcall time-function x-ms)))
   
       (multiple-value-bind (head-char head-name)
           (rest-char head-symb)
- 
+        
         (let* ((unit (font-size-to-unit fontsize))
                (shift (+ y-units (calculate-staff-line-shift staff)))
                (head-box (get-font-bbox head-name))
                (head-w (- (nth 2 head-box) (nth 0 head-box)))    ;;; the width in units of a note-head
-               (head-h (- (nth 3 head-box) (nth 1 head-box)))    ;;; the width in units of a note-head
-               (line 3)
-               (line-y (line-to-ypos line shift unit)))
-              
+               (head-h (- (nth 3 head-box) (nth 1 head-box)))    ;;; the height in units of a note-head
+               (line-pos (or line (nth 2 (staff-lines (car (last (staff-split staff))))))) ;;; the default position is the middle of the top staff
+               )
+
+          (cond ((equal head-symb :rest-1) ;; the whole rest is 1 line upper
+                 (setf line-pos (floor (1+ line-pos))))
+                ((equal head-symb :rest-1/2) ;; the 1/2 rest on a line
+                 (setf line-pos (floor line-pos))))
+
           ;;; positions (in pixels) 
           (flet ((x-pos (a) (+ x-pix 1 (* a unit))))
       
-            (let ((head-x (x-pos 0)))
+            (let ((head-x (x-pos 0))
+                  (line-y (line-to-ypos line-pos shift unit)))
       
               (om-with-font 
                (om-make-font *score-font* fontsize)
@@ -994,20 +1010,75 @@
                
                  ;;; DOTS
                  (when (> n-points 0)
-                   (let ((p-y (+ line-y (* unit (if (zerop (rem line 1)) -0.4 0.1)))))
+                   (let ((p-y (+ line-y 
+                                 (* unit (if (zerop (rem line-pos 1)) ;; avoid dots on a line 
+                                             -0.45 
+                                           0.05))
+                                 (if (equal head-symb :rest-1) unit 0) ;; the whole rest is on the upper line (4)
+                                 )
+                              ))
                      (om-draw-char (+ head-x (* 1.5 head-w unit)) p-y (dot-char))
                      (when (= n-points 2)
                        (om-draw-char (+ head-x (* 2.5 head-w unit)) p-y (dot-char))
                        )))
-         
+
+                 ;; special case for whole rest and half-rest: draw a small line when needed
+                 (when (or (equal head-symb :rest-1)(equal head-symb :rest-1/2))
+                   (om-draw-line (- head-x (* unit .5)) line-y (+ head-x (* unit (+ head-w .5))) line-y
+                                 :line (* *thinBarLineThickness* unit)))
+                 
                  ))
-         
+              
+              ;;; draw a small beam (when the rest is in a group)
+              (when stem
+                
+                (let ((stemThickness (* *stemThickness* unit))
+                      (beam-y (line-to-ypos stem shift unit))
+                      (head-w-pix (* (car *noteheadBlack_StemUpSE*) unit)) ;;; to align with beam position
+                      (head-h-pix (* head-h unit))
+                      (n-beams (car beams))
+                      (pos-in-group (cadr beams)))
+
+                  (if (>= stem line-pos)  ;;; stem up
+                    
+                      (progn 
+                        (om-draw-line (+ head-x head-w-pix) (- line-y (/ (+ head-h-pix unit) 2))
+                                      (+ head-x head-w-pix) beam-y
+                                      :line stemThickness :end-style :projecting)
+                        (when n-beams
+                          (if (zerop pos-in-group) ;; first elem
+                              (draw-beams x-pix (+ x-pix head-w-pix) stem :up n-beams y-units staff fontsize)
+                            (draw-beams (- x-pix head-w-pix) x-pix stem :up n-beams y-units staff fontsize)
+                            ))
+                        )
+
+                          
+                    ;;; down
+                    (progn
+                      (om-draw-line x-pix (+ line-y (/ (+ head-h-pix unit) 2))
+                                    x-pix beam-y
+                                    :line stemThickness  :end-style :projecting)
+                            
+                      (when n-beams
+                        (if (zerop pos-in-group) ;; first elem
+                            (draw-beams x-pix (+ x-pix head-w-pix) stem :down n-beams y-units staff fontsize)
+                          (draw-beams (- x-pix head-w-pix) x-pix stem :down n-beams y-units staff fontsize)
+                          ))
+                      )
+                    )
+                  ))
+
+
               ;;; return the bounding box
-              (when build-b-boxes 
+              (when t ; build-b-boxes 
                 (make-b-box :x1 head-x :x2 (+ head-x (* head-w unit)) 
-                            :y1 (line-to-ypos (+ line (* head-h .5)) shift unit) ;;; lines are expressed bottom-up !!
-                            :y2 (line-to-ypos (- line (* head-h .5)) shift unit)))
-              )))))))
+                            :y1 (line-to-ypos (+ line-pos (* head-h .5)) shift unit) ;;; lines are expressed bottom-up !!
+                            :y2 (line-to-ypos (- line-pos (* head-h .5)) shift unit))
+                )
+              )))
+        ))
+    )
+  )
 
 
 

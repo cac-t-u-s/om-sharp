@@ -69,6 +69,7 @@
 
 (defmethod get-all-chords ((self chord)) (list self))
 (defmethod get-all-chords ((self continuation-chord)) (list self))
+(defmethod get-all-chords ((self r-rest)) (list self))
 (defmethod get-all-chords ((self t)) nil)
 
 (defmethod get-notes ((self r-rest)) nil)
@@ -210,7 +211,8 @@
                                             :symbolic-dur sub-dur))
                           
                             ;;; CONTINUATION CHORD
-                            ((floatp subtree) ;;; keep current-chord in chord-list (important: same reference!)
+                            ((and (floatp subtree) ;;; keep current-chord in chord-list (important: same reference!)
+                                  (>= curr-n-chord 0)) ;;; just to prevent error when a continuation chord has no previous chord
                              (let* ((real-chord (nth curr-n-chord chords))
                                     (cont-chord (make-instance 'continuation-chord)))
                         
@@ -224,6 +226,10 @@
                      
                             ;;; CHORD
                             (t ;;; get the next in chord list
+                               
+                               (when (< curr-n-chord 0)
+                                 (om-print "Tied chord has no previous chord. Will be converted to a normal chord." "Warning"))
+                               
                                (setq curr-n-chord (1+ curr-n-chord))
                         
                                (let ((real-chord (nth curr-n-chord chords)))
