@@ -73,9 +73,12 @@
 ;;; MINI-VIEW
 (defmethod miniview-time-to-pixel ((object score-object) view time)
   
-  (let* ((fontsize (or (fontsize (object view)) 24))
+  (let* ((box (object view))
+         (fontsize (or (fontsize box) 24))
          (unit (font-size-to-unit fontsize))
-         (shift-x-u 10)  
+         (shift-x-u (if (or (equal (get-edit-param box :staff) :line)
+                            (equal (get-edit-param box :staff) :empty))
+                        2 10))  
          (shift-x-pix (* shift-x-u unit))
          (w-pix (- (w view) shift-x-pix (* 2 unit))))  ;; +1 x unit for right margin ???
     
