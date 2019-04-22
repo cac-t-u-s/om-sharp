@@ -1005,7 +1005,8 @@
                (head-w (- (nth 2 head-box) (nth 0 head-box)))    ;;; the width in units of a note-head
                (head-h (- (nth 3 head-box) (nth 1 head-box)))    ;;; the height in units of a note-head
                (staff-lines (staff-lines (car (last (staff-split staff)))))
-               (line-pos (or line (+ (car staff-lines) (/ (- (car (last staff-lines)) (car staff-lines)) 2)))) ;;; the default position is the middle of the top staff
+               (line-pos (or line (+ (car staff-lines) (/ (- (car (last staff-lines)) (car staff-lines)) 2)))) 
+               ;;; the default position is the middle of the top staff
                )
           
           (cond ((and (equal head-symb :rest-1) ;; the whole rest is 1 line upper (except on 1-lien staff)
@@ -1032,9 +1033,9 @@
                      nil)
                  
                  (when head-extra-number
-                   (setf head-x (+ head-x (* unit 4)))
+                   (setf head-x (+ head-x (* unit 1)))
                    (let ((font (om-def-font :font1 :size (round fontsize 2.2))))
-                     (om-draw-string (+ head-x (* head-w unit .2))
+                     (om-draw-string (+ head-x (* head-w unit .3))
                                      (- line-y (* unit 1)) (number-to-string head-extra-number)
                                      :font font)
                      )
@@ -1051,9 +1052,9 @@
                                  (if (equal head-symb :rest-1) unit 0) ;; the whole rest is on the upper line (4)
                                  )
                               ))
-                     (om-draw-char (+ head-x (* 1.5 unit)) p-y (dot-char))
+                     (om-draw-char (+ head-x (* (+ head-w .5) unit)) p-y (dot-char))
                      (when (= n-points 2)
-                       (om-draw-char (+ head-x (* 2 unit)) p-y (dot-char))
+                       (om-draw-char (+ head-x (* (+ head-w .5) 2 unit)) p-y (dot-char))
                        )))
 
                  ;; special case for whole rest and half-rest: draw a small line when needed

@@ -79,7 +79,6 @@
                       (find-beat-symbol (fdenominator (car (tree object))))
                       )))
                       
-    
     (unless (= position 1)
       (draw-measure-bar x-pix y-shift font-size (get-edit-param param-obj :staff))
       (om-draw-string x-pix (- y-shift 1) (number-to-string position)
@@ -314,7 +313,8 @@
                       ))
                   )
                 ))
-                
+            
+            ;; (print (list (numdenom object) group-ratio beat-unit))
             (draw-score-element element tempo param-obj view 
                                 :y-shift y-shift
                                 :font-size font-size
@@ -434,7 +434,7 @@
          
          (create-bboxes (typep view 'score-panel)))
     
-    ; (print (list "chord" s-dur "unit:" beat-unit "=>" graphic-dur))
+    ;;; (print (list "chord" s-dur "unit:" beat-unit "=>" graphic-dur))
     ;; in fact propre-group (= when a standalone chord has a small group indication) will never happen (in OM)
     
     (let ((bbox? 
@@ -552,7 +552,7 @@
                        font-size 
                        :head (multiple-value-list (rest-head-and-points graphic-dur))
                        :line rest-line ;; can be NIL for display at default y-pos 
-                       :stem  beam-start-line
+                       :stem  (when beams-to-draw beam-start-line)
                        :beams (list beams-to-draw position)
                        :staff (get-edit-param param-obj :staff)
                        :selection (if (find object selection) T selection)
@@ -568,7 +568,6 @@
 
 
 ;;; todo
-;;; LONG-HEADS/REST: division par 3
 ;;; TEMPO 
 ;;; CHIFFRAGE MESURE
 ;;; SPACING
