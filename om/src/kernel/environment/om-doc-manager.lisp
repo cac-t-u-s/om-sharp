@@ -253,7 +253,7 @@
                                          :directory (or *last-open-dir* (om-user-home))
                                          :types (doctype-info (object-doctype self)))))
     (when path 
-      (setf *last-open-dir* (om-make-pathname :directory file))
+      (setf *last-open-dir* (om-make-pathname :directory path))
       (if (find-doc-entry path)
           (progn (om-message-dialog 
            (format nil "An open document named ~S already exist in this folder.~%Please choose another name or location." 
