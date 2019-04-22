@@ -81,7 +81,7 @@
 (defmethod get-obj-dur ((self voice))
   (let ((last-element (last-elem (get-all-chords (last-elem (inside self))))))
     (if last-element
-        (beat-to-time (+ (symbolic-date last-element) (r-ratio-value (symbolic-dur last-element)))
+        (beat-to-time (+ (symbolic-date last-element) (symbolic-dur last-element))
                       (tempo self))
       0)))
 
@@ -113,7 +113,7 @@
 (defun set-timing-from-tempo (chords tempo)
   (loop for c in chords do
         (setf (date c) (beat-to-time (symbolic-date c) tempo))
-        (ldur c) (beat-to-time (r-ratio-value (symbolic-dur c)) tempo)
+        (ldur c) (beat-to-time (symbolic-dur c) tempo)
         ))
 
 
@@ -124,12 +124,11 @@
     
     (setf (inside self)
           (loop for m-tree in (tree self)
-                collect (let* (;; (m-dur (decode-extent (car m-tree)))
-                               (m-dur (make-r-ratio :num (car (car m-tree)) :denom (cadr (car m-tree))))
+                collect (let* ((m-dur (decode-extent (car m-tree)))
                                (mesure (make-instance 'measure :tree m-tree
                                                       :symbolic-date curr-beat
                                                       :symbolic-dur m-dur)))
-                          (setq curr-beat (+ curr-beat (r-ratio-value m-dur)))
+                          (setq curr-beat (+ curr-beat m-dur))
                           (multiple-value-setq
                               (curr-n-chord curr-last-chord)
                               (build-rhythm-structure mesure chords curr-n-chord :last-chord curr-last-chord))
@@ -167,8 +166,8 @@
                 (if (listp subtree) 
                     ;;; SUBGROUP
                     (let* ((relative-dur (/ (car subtree) total-dur))
-                           (sub-dur (r-ratio-* s-dur relative-dur))
-                           (tree (list (r-ratio-value sub-dur) (simplify-subtrees (cadr subtree))))
+                           (sub-dur (* s-dur relative-dur))
+                           (tree (list sub-dur (simplify-subtrees (cadr subtree))))
                            (group (make-instance 'group :tree tree
                                                  :symbolic-date curr-beat
                                                  :symbolic-dur sub-dur)))
@@ -178,11 +177,11 @@
                       ;(print (list "group:" subtree "=>" (tree group) (symbolic-dur group)))
 
                       (let* ((group-ratio (get-group-ratio (tree group)))
-                             (group-s-dur (r-ratio-value (symbolic-dur group)))
+                             (group-s-dur (symbolic-dur group))
                              (num (or group-ratio group-s-dur))
-                             (dur-for-denom (if (= group-s-dur (r-ratio-value s-dur))
+                             (dur-for-denom (if (= group-s-dur s-dur)
                                                 group-s-dur
-                                              (/ group-s-dur (r-ratio-value s-dur))))
+                                              (/ group-s-dur s-dur)))
                              (denom (find-denom num dur-for-denom)))
                         
                         (when (listp denom) 
@@ -195,7 +194,7 @@
                                                 (t (reduce-num-den num denom))))
                         )
                         
-                      (setq curr-beat (+ curr-beat (r-ratio-value sub-dur)))
+                      (setq curr-beat (+ curr-beat sub-dur))
                       
                       (multiple-value-setq
                           (curr-n-chord curr-last-chord)
@@ -204,7 +203,7 @@
                       group)
                   
                   ;;; ATOM (leaf)
-                  (let ((sub-dur (r-ratio-* (symbolic-dur self) (/ (decode-extent subtree) total-dur))))
+                  (let ((sub-dur (* (symbolic-dur self) (/ (decode-extent subtree) total-dur))))
                     
                     ; (print (list "CHORD" curr-n-chord subtree))
                     
@@ -252,7 +251,7 @@
                             )))
                       
                       ;;; udate curr-beat for the general loop
-                      (setq curr-beat (+ curr-beat (r-ratio-value sub-dur)))
+                      (setq curr-beat (+ curr-beat sub-dur))
                       
                       object)
                     ))

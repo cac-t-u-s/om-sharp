@@ -27,6 +27,7 @@
 ;;;===================================
 ;;; not sure we need this anymore ? or maybe just to replace (numdenom)
 
+#|
 (defstruct r-ratio (num) (denom))
 (defmethod r-ratio-value ((r r-ratio))
   (/ (r-ratio-num r) (r-ratio-denom r)))
@@ -34,7 +35,7 @@
   (make-r-ratio :num (* (r-ratio-num r) n) :denom (r-ratio-denom r)))
 (defmethod r-ratio-* ((r r-ratio) (n ratio))
   (make-r-ratio :num (* (r-ratio-num r) (numerator n)) :denom (* (r-ratio-denom r) (denominator n))))
-
+|#
 
 
 ;;; get the absolute duration (in proportion)
@@ -292,10 +293,9 @@
     (list-first-layer tree))))
 
 
-;; fullratios are either ratios or lists (num denum)
+;; fullratios are either ratios or lists (num denom)
 ;; use fullratio function to cast a fullratio to a number
 ;; use fdenominator and fdenominator to access to a fullratio num and denum
-;; obviously here to avoid MACL automatic simplification of ratios.
 
 (defmethod fullratio ((self list)) (/ (first self)  (second self)))
 (defmethod fullratio ((self number)) self)

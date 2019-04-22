@@ -46,7 +46,7 @@
           for i from 1
           while on-screen
           do (let* ((begin (beat-to-time (symbolic-date m) (tempo object)))
-                    (end (beat-to-time (+ (symbolic-date m) (r-ratio-value (symbolic-dur m))) (tempo object)))
+                    (end (beat-to-time (+ (symbolic-date m) (symbolic-dur m)) (tempo object)))
                     (x1 (time-to-pixel view begin))
                     (x2 (time-to-pixel view end)))
                
@@ -115,7 +115,7 @@
          (p-min (or (list-min pitches) default)) ;;; default = middle ?
          (mean (* (+ p-max p-min) .5)) ;(/ (apply '+ pitches) (length pitches)) 
          (max-beams (or (list-max (mapcar #'(lambda (c) 
-                                          (get-number-of-beams (* (r-ratio-value (symbolic-dur c)) beat-unit)))
+                                          (get-number-of-beams (* (symbolic-dur c) beat-unit)))
                                       chords))
                         0))
          (stem-length (+ *stem-height* (* (max 0 (- max-beams 2)) *beamthickness* 1.5))) ;; if more than 1 beams, add 2xbeam-h by beam
@@ -196,8 +196,8 @@
     
     (loop for element in (inside self)
           minimize (beam-num element (* (/ (car nd) (cadr nd)) 
-                                        (/ (r-ratio-value (symbolic-dur element))
-                                           (r-ratio-value (symbolic-dur self))) 
+                                        (/ (symbolic-dur element)
+                                           (symbolic-dur self))
                                         dur)))
     ))
 
@@ -213,7 +213,7 @@
 (defmethod draw-group-rect ((object group) view tempo level)
   (om-draw-rect (time-to-pixel view (beat-to-time (symbolic-date object) tempo))
                 0
-                (- (time-to-pixel view (beat-to-time (+ (symbolic-date object) (r-ratio-value (symbolic-dur object))) tempo))
+                (- (time-to-pixel view (beat-to-time (+ (symbolic-date object) (symbolic-dur object)) tempo))
                    (time-to-pixel view (beat-to-time (symbolic-date object) tempo)))
                 (- (h view) (* level 10))
                 :color (om-random-color .5)
@@ -252,7 +252,7 @@
          (pix-beg (time-to-pixel view (beat-to-time (symbolic-date (car chords)) tempo) ))
          (pix-end (time-to-pixel view (beat-to-time (symbolic-date (car (last chords))) tempo) ))
          
-         (n-beams (beam-num object (* (r-ratio-value (symbolic-dur object)) beat-unit)))
+         (n-beams (beam-num object (* (symbolic-dur object) beat-unit)))
          (group-beams (arithm-ser 1 n-beams 1))
          
          )
@@ -271,12 +271,12 @@
             ;;; when a sucession of atomic elements in a same group have the same beaming
             (unless (typep element 'group)
 
-              (let*  ((graphic-dur (* (r-ratio-value (symbolic-dur element)) group-ratio beat-unit))
+              (let*  ((graphic-dur (* (symbolic-dur element) group-ratio beat-unit))
                       (n-beams-in-current (beam-num element graphic-dur))
                       (prev (previous-in-list (inside object) element nil))
                       (next (next-in-list (inside object) element nil))
-                      (n-beams-in-previous (and prev (beam-num prev (* (r-ratio-value (symbolic-dur prev)) group-ratio beat-unit))))
-                      (n-beams-in-next (and next (beam-num next (* (r-ratio-value (symbolic-dur next)) group-ratio beat-unit)))))
+                      (n-beams-in-previous (and prev (beam-num prev (* (symbolic-dur prev) group-ratio beat-unit))))
+                      (n-beams-in-next (and next (beam-num next (* (symbolic-dur next) group-ratio beat-unit)))))
                 
                 ;(print (list element n-beams-in-current n-beams-in-previous n-beams-in-next n-beams))
                 
@@ -416,10 +416,7 @@
          
          ;; (parent-nd (nth 3 beam-info))
          ;; (parent-ratio (if parent-nd (/ (car parent-nd) (cadr parent-nd)) 1))
-         ;; (graphic-dur (* (/ (r-ratio-num s-dur) (bin-value-below (r-ratio-denom s-dur))) parent-ratio))
-         (graphic-dur (* (r-ratio-value s-dur) beat-unit))
-         ;(graphic-dur (* (r-ratio-value s-dur) parent-ratio))
-         ;(graphic-dur (* (r-ratio-value s-dur) beat-unit parent-ratio))
+         (graphic-dur (* s-dur beat-unit))
          
          ;;; from OM6.. 
          (beams-num (get-number-of-beams graphic-dur))
@@ -483,9 +480,7 @@
          
          ;(parent-nd (nth 3 beam-info))
          ;(parent-ratio (if parent-nd (/ (car parent-nd) (cadr parent-nd)) 1))
-         ;(graphic-dur (if (= 1 parent-ratio) (/ (r-ratio-num s-dur) 4) (* s-dur parent-ratio)))
-         ;(graphic-dur (* (r-ratio-value s-dur) parent-ratio))
-         (graphic-dur (* (r-ratio-value s-dur) beat-unit))
+         (graphic-dur (* s-dur beat-unit))
         
          ;;; from OM6.. 
          (beams-num (get-number-of-beams graphic-dur))
@@ -537,7 +532,7 @@
                                selection)
   
   (let* ((begin (beat-to-time (symbolic-date object) tempo))
-         (graphic-dur (* (r-ratio-value (symbolic-dur object)) beat-unit))
+         (graphic-dur (* (symbolic-dur object) beat-unit))
          (beams-num (get-number-of-beams graphic-dur))
          (beams-from-parent (and beam-info (beam-info-beams beam-info)))
          (beams-to-draw (set-difference (arithm-ser 1 beams-num 1) beams-from-parent))
