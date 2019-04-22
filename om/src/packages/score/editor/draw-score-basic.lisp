@@ -115,6 +115,7 @@
     (:g+ (values (code-char #xE050) "gClef"))
     (:f (values (code-char #xE062) "fClef"))
     (:f- (values (code-char #xE062) "fClef"))
+    (otherwise nil)
     ))
 
 
@@ -190,8 +191,8 @@
 ;;; STAVES
 ;;;===============
 
-(defvar *score-staff-options* '(:g :f :gf :gg :ff :ggf :gff :ggff))
-(defvar *score-fontsize-options* '(8 12 16 20 24 28 32 36 40 44 48 52 56 60 64 68 72 76 80 84 88 92 96 100 104 108 112 116 120))
+(defparameter *score-staff-options* '(:g :f :gf :gg :ff :ggf :gff :ggff :line :empty))
+(defparameter *score-fontsize-options* '(8 12 16 20 24 28 32 36 40 44 48 52 56 60 64 68 72 76 80 84 88 92 96 100 104 108 112 116 120))
 
 (defun staff-split (staff-symbol)
   (case staff-symbol
@@ -203,6 +204,8 @@
     (:ggf '(:f :g :g+))
     (:gff '(:f- :f :g))
     (:ggff '(:f- :f :g :g+))
+    (:line '(:line))
+    (:empty '(:empty))
     ))
 
 ;;; we consider line 0 = E3
@@ -212,6 +215,8 @@
     (:g '(1 2 3 4 5))
     (:f '(-5 -4 -3 -2 -1))
     (:f- '(-12 -11 -10 -9 -8))
+    (:line '(0))
+    (:empty '(0))
     ))
 
 (defun head-leger-lines (head-line staff-lines)
@@ -230,6 +235,8 @@
     (:g+ 9)
     (:f -2)
     (:f- -9)
+    (:line 0)
+    (:empty 0)
     ))
 
 (defun staff-line-range (staff)
@@ -238,6 +245,8 @@
     (:g+ '(8800 10100))
     (:f '(4300 5700))
     (:f- '(1900 3300))
+    (:line '(6000 6000))
+    (:empty '(6000 6000))
     ))
 
 (defun staff-medium-pitch (staff-symb)
@@ -353,51 +362,52 @@
 ;;; w and h are pixel-size of the frame
 ;;; margins in units (= proportional to fontsize)
 (defun draw-staff (x y y-u w h fontsize staff &key (margin-l 0) (margin-r 0) (keys t))
-  
-  (let* ((staff-elems (staff-split staff))
-         (unit (font-size-to-unit fontsize)) 
-         (shift (+ y-u (calculate-staff-line-shift staff)))
-         (thinBarlineThickness (* *thinBarLineThickness* unit))
-         (staffLineThickness (* *staffLineThickness* unit))
-         (x1 (+ x (* (or margin-l 0) unit)))
-         (x2 (+ x (- w (* (or margin-r 0) unit)))))
+  (unless (equal staff :empty)
+    (let* ((staff-elems (staff-split staff))
+           (unit (font-size-to-unit fontsize)) 
+           (shift (+ y-u (calculate-staff-line-shift staff)))
+           (thinBarlineThickness (* *thinBarLineThickness* unit))
+           (staffLineThickness (* *staffLineThickness* unit))
+           (x1 (+ x (* (or margin-l 0) unit)))
+           (x2 (+ x (- w (* (or margin-r 0) unit)))))
          
-    (flet ((adjust-line-ypos (pos)
-             (+ y (if (> unit 5) (+ (round pos)) pos))))
+      (flet ((adjust-line-ypos (pos)
+               (+ y (if (> unit 5) (+ (round pos)) pos))))
 
-      (om-with-font 
-       (om-make-font *score-font* fontsize)
+        (om-with-font 
+         (om-make-font *score-font* fontsize)
   
-       (loop for staff-symb in staff-elems do 
-             ;;; lines
-             (loop for line in (staff-lines staff-symb) do
-                   (om-draw-line x1
-                                 (adjust-line-ypos (line-to-ypos line shift unit))
-                                 x2
-                                 (adjust-line-ypos (line-to-ypos line shift unit))
-                                 :line staffLineThickness
-                                 ))
-             ;;; clef
-             (when keys 
-               (om-draw-char (+ x1 (* unit 1)) 
-                             (adjust-line-ypos (line-to-ypos (staff-key-line staff-symb) shift unit)) 
-                             (staff-key-char staff-symb))
-               )))
+         (loop for staff-symb in staff-elems do 
+               ;;; lines
+               (loop for line in (staff-lines staff-symb) do
+                     (om-draw-line x1
+                                   (adjust-line-ypos (line-to-ypos line shift unit))
+                                   x2
+                                   (adjust-line-ypos (line-to-ypos line shift unit))
+                                   :line staffLineThickness
+                                   ))
+               ;;; clef
+               (when keys 
+                 (om-draw-char (+ x1 (* unit 1)) 
+                               (adjust-line-ypos (line-to-ypos (staff-key-line staff-symb) shift unit)) 
+                               (staff-key-char staff-symb))
+                 )))
        
-   ;;; vertical lines at beginning and the end
-   (when margin-l
-     (om-draw-line (- x1 1) 
-                   (adjust-line-ypos (line-to-ypos (car (staff-lines (car staff-elems))) shift unit))
-                   (- x1 1)
-                   (adjust-line-ypos (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit))
-                   :line thinBarlineThickness))
-   (when margin-r
-     (om-draw-line x2 
-                   (adjust-line-ypos (line-to-ypos (car (staff-lines (car staff-elems))) shift unit))
-                   x2 
-                   (adjust-line-ypos (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit))
-                   :line thinBarlineThickness)
-   ))))
+        ;;; vertical lines at beginning and the end
+        (when margin-l
+          (om-draw-line (- x1 1) 
+                        (adjust-line-ypos (line-to-ypos (car (staff-lines (car staff-elems))) shift unit))
+                        (- x1 1)
+                        (adjust-line-ypos (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit))
+                        :line thinBarlineThickness))
+        (when margin-r
+          (om-draw-line x2 
+                        (adjust-line-ypos (line-to-ypos (car (staff-lines (car staff-elems))) shift unit))
+                        x2 
+                        (adjust-line-ypos (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit))
+                        :line thinBarlineThickness)
+          )))
+    ))
 
 ;;;=======================
 ;;; MESURE BARS
@@ -562,9 +572,10 @@
 (defun stem-direction (chord staff)
   (let* ((pitches (sort (mapcar 'midic (get-notes chord)) '<))
          (pmin (car pitches))
-         (pmax (car (last pitches))))
-    (if (and pmax pmin (>= (/ (+ pmax pmin) 2) (staff-medium-pitch staff)))
-        :down :up)))
+         (pmax (car (last pitches)))
+         (test-op (if (or (equal staff :line) (equal staff :empty)) '> '>=)))
+    (if (and pmax pmin (funcall test-op (/ (+ pmax pmin) 2) (staff-medium-pitch staff)))
+        :down :up))))
 
 ;;;=======================
 ;;; CHORDS
@@ -948,8 +959,7 @@
 ;;;==========================================================
 ;;; RESTS
 
-
-(staff-lines :g)
+(1- (* 5 .5))
 
 (defun draw-rest (rest x-ms   ; x-pos in ms
                        y-units ; ref-position in score units
@@ -983,7 +993,8 @@
                (head-box (get-font-bbox head-name))
                (head-w (- (nth 2 head-box) (nth 0 head-box)))    ;;; the width in units of a note-head
                (head-h (- (nth 3 head-box) (nth 1 head-box)))    ;;; the height in units of a note-head
-               (line-pos (or line (nth 2 (staff-lines (car (last (staff-split staff))))))) ;;; the default position is the middle of the top staff
+               (staff-lines (staff-lines (car (last (staff-split staff)))))
+               (line-pos (or line (/ (- (car (last staff-lines)) (car staff-lines)) 2))) ;;; the default position is the middle of the top staff
                )
 
           (cond ((equal head-symb :rest-1) ;; the whole rest is 1 line upper
