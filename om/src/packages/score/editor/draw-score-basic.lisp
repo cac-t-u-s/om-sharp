@@ -959,8 +959,6 @@
 ;;;==========================================================
 ;;; RESTS
 
-(1- (* 5 .5))
-
 (defun draw-rest (rest x-ms   ; x-pos in ms
                        y-units ; ref-position in score units
                        x y ; absolute offsets in pixels
