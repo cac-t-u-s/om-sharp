@@ -185,8 +185,6 @@
                                               (/ group-s-dur (r-ratio-value s-dur))))
                              (denom (find-denom num dur-for-denom)))
                         
-                        ; (print (list group-ratio num denom))
-
                         (when (listp denom) 
                           (setq num (car denom))
                           (setq denom (second denom)))
@@ -300,9 +298,17 @@
 ; Find the right denom to ratio of tuplet.
 (defun find-denom (num durtot)
   (cond
-   ((is-binaire? durtot) (get-denom-bin num))
-   ((is-ternaire? durtot) (get-denom-ter num))
-   (t (get-denom-other durtot num))))
+   
+   ((or (is-binaire? durtot)
+        (power-of-two-p durtot))
+    (get-denom-bin num))
+
+   ((is-ternaire? durtot) 
+    (get-denom-ter num))
+   
+   (t 
+    (get-denom-other durtot num))))
+
 
 
 ;;; is (denominator dur) a power of 2
@@ -312,7 +318,7 @@
        ))
 
 (defun is-ternaire? (durtot)
-  (and (= 3 (numerator durtot)) 
+  (and (= 3 (numerator durtot))
        (is-binaire? (/ 1 (denominator durtot)))
        ))
 
