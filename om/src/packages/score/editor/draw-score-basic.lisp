@@ -575,7 +575,7 @@
          (pmax (car (last pitches)))
          (test-op (if (or (equal staff :line) (equal staff :empty)) '> '>=)))
     (if (and pmax pmin (funcall test-op (/ (+ pmax pmin) 2) (staff-medium-pitch staff)))
-        :down :up))))
+        :down :up)))
 
 ;;;=======================
 ;;; CHORDS
