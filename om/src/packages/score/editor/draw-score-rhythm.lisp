@@ -432,8 +432,7 @@
                                 (+ (pitch-to-line (list-max (lmidic object))) *stem-height* (* beams-num .25))
                               (- (pitch-to-line (list-min (lmidic object))) *stem-height* (* beams-num .25)))))
          
-         (create-bboxes (typep view 'score-panel))
-         )
+         (create-bboxes (typep view 'score-panel)))
     
     ; (print (list "chord" s-dur "unit:" beat-unit "=>" graphic-dur))
     ;; in fact propre-group (= when a standalone chord has a small group indication) will never happen (in OM)
@@ -521,7 +520,7 @@
                        :build-b-boxes create-bboxes
                        )))
       
-      (when create-bboxes
+      (when create-bboxes 
         (setf (b-box object) bbox?))
 
       bbox?)
@@ -543,7 +542,7 @@
          (beams-from-parent (and beam-info (beam-info-beams beam-info)))
          (beams-to-draw (set-difference (arithm-ser 1 beams-num 1) beams-from-parent))
          (beam-start-line (when beam-info (beam-info-line beam-info))))
-        
+
     (let* ((create-bboxes (typep view 'score-panel))
            (bbox? 
             (draw-rest object
@@ -569,8 +568,7 @@
 
 
 ;;; todo
-;;; LONG-HEADS (see draw-chord)
-;;; LONG-RESTS
+;;; LONG-HEADS/REST: division par 3
 ;;; TEMPO 
 ;;; CHIFFRAGE MESURE
 ;;; SPACING

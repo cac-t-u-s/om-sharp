@@ -78,6 +78,14 @@
 
 ; (format-tree '(((5 3) (1 3 (4 (3 1 (2 (8 1)) 2))))))
 
+(defmethod get-obj-dur ((self voice))
+  (let ((last-element (last-elem (get-all-chords (last-elem (inside self))))))
+    (if last-element
+        (beat-to-time (+ (symbolic-date last-element) (r-ratio-value (symbolic-dur last-element)))
+                      (tempo self))
+      0)))
+
+
 (defmethod initialize-instance ((self voice) &rest initargs)
   (call-next-method)
   
@@ -85,8 +93,7 @@
   (unless (listp (car (tree self)))
     (setf (tree self) (cadr (tree self))))
 
-  (setf (tree self) (normalize-tree (tree self)))
-  (setf (tree self) (format-tree (tree self)))
+  (setf (tree self) (format-tree (normalize-tree (tree self))))
   
   ;;; compat OM 6 (temp)
   (when (listp (tempo self))  ;; e.g. ((1/4 60) ...)
@@ -201,7 +208,8 @@
                   ;;; ATOM (leaf)
                   (let ((sub-dur (r-ratio-* (symbolic-dur self) (/ (decode-extent subtree) total-dur))))
                     
-                    ;; (print (list "CHORD" sub-dur total-dur))
+                    ; (print (list "CHORD" curr-n-chord subtree))
+                    
                     (let ((object
                            (cond 
                             ;;; REST
@@ -227,7 +235,7 @@
                             ;;; CHORD
                             (t ;;; get the next in chord list
                                
-                               (when (< curr-n-chord 0)
+                               (when (and (floatp subtree) (< curr-n-chord 0))
                                  (om-print "Tied chord has no previous chord. Will be converted to a normal chord." "Warning"))
                                
                                (setq curr-n-chord (1+ curr-n-chord))

@@ -141,7 +141,9 @@
     (:head-4 (values (code-char #xE937) "mensuralNoteheadLongaWhite"))
     (:head-8 (values (code-char #xE933) "mensuralNoteheadMaximaWhite"))
     
-    (otherwise (note-head-char :head-1/4))
+    (otherwise (if (consp symbol) ;;; super-longa
+                   (note-head-char :head-8)
+                 (note-head-char :head-1/4)))
     ))
 
 (defun flag-char (orientation n)
@@ -177,7 +179,9 @@
     (:rest-1/32 (values (code-char #xE4E8) "rest32nd"))
     (:rest-1/64 (values (code-char #xE4E9) "rest64th"))
     (:rest-1/128 (values (code-char #xE4EA) "rest128th"))
-    (otherwise (values (rest-char :head-1/128) ))
+    (otherwise (if (consp symbol) ;;; super-longa
+                   (values (code-char #xE4EE) "restHBar")
+                 (rest-char :head-1/128)))
     ))
 
 
@@ -609,9 +613,11 @@
 
   (om-with-translation x y 
 
-    (let ((head-symb (if (consp head) (car head) head))
-        (n-points (if (consp head) (cadr head) 0)))
-    
+    (let* ((head-symb (if (consp head) (car head) head))
+           (n-points (if (consp head) (cadr head) 0))
+           (head-extra-number (if (listp head-symb) (car head-symb))))
+      
+    ;;; (print (list head head-symb)) 
     ;;; TODO
     ;;; if head-symb is a list => long figure and the value in (car head-symb) is the duration
     
@@ -796,7 +802,15 @@
                     (leger-lines nil)
                     (legerLineThickness (* *legerLineThickness* unit))
                     (legerLineExtension (* *legerLineExtension* unit)))
-             
+               
+               ;; number for big durations
+               (when head-extra-number
+                 (let ((font (om-def-font :font1 :size (round fontsize 2.2))))
+                   (om-draw-string (+ x-pix (* head-w-pix .1)) 
+                                   (+ y-min (* unit 2)) (number-to-string head-extra-number)
+                                   :font font)
+                   ))
+
                (loop for n in (sort notes '< :key 'midic) do
                  
                      (let* ((line (pitch-to-line (midic n) scale))
@@ -855,7 +869,7 @@
                                        (if (equal draw-vels :alpha) (/ (vel n) 127) 1)))
                                      ((equal draw-vels :alpha) (om-make-color 0 0 0 (/ (vel n) 127)))
                                      (t nil)))
-                     
+                           
                            ;;; HEAD
                            (om-draw-char head-x line-y head-char
                                          :font (when (equal draw-vels :size) (om-make-font *score-font* (* (vel n) fontsize .02))))
@@ -980,9 +994,8 @@
 
     (let ((head-symb (if (consp head) (car head) head))
           (n-points (if (consp head) (cadr head) 0))
-          
           (x-pix (funcall time-function x-ms)))
-  
+      
       (multiple-value-bind (head-char head-name)
           (rest-char head-symb)
         
@@ -992,19 +1005,23 @@
                (head-w (- (nth 2 head-box) (nth 0 head-box)))    ;;; the width in units of a note-head
                (head-h (- (nth 3 head-box) (nth 1 head-box)))    ;;; the height in units of a note-head
                (staff-lines (staff-lines (car (last (staff-split staff)))))
-               (line-pos (or line (/ (- (car (last staff-lines)) (car staff-lines)) 2))) ;;; the default position is the middle of the top staff
+               (line-pos (or line (+ (car staff-lines) (/ (- (car (last staff-lines)) (car staff-lines)) 2)))) ;;; the default position is the middle of the top staff
                )
-
-          (cond ((equal head-symb :rest-1) ;; the whole rest is 1 line upper
+          
+          (cond ((and (equal head-symb :rest-1) ;; the whole rest is 1 line upper (except on 1-lien staff)
+                      (not (equal staff :line)))
                  (setf line-pos (floor (1+ line-pos))))
-                ((equal head-symb :rest-1/2) ;; the 1/2 rest on a line
+                ((or (equal head-symb :rest-1) (equal head-symb :rest-1/2)) ;; the 1/2 rest on a line
                  (setf line-pos (floor line-pos))))
+          
+          ;(print (list line-pos head-symb staff-lines))
 
           ;;; positions (in pixels) 
           (flet ((x-pos (a) (+ x-pix 1 (* a unit))))
       
             (let ((head-x (x-pos 0))
-                  (line-y (line-to-ypos line-pos shift unit)))
+                  (line-y (line-to-ypos line-pos shift unit))
+                  (head-extra-number (if (listp head-symb) (car head-symb))))
       
               (om-with-font 
                (om-make-font *score-font* fontsize)
@@ -1013,7 +1030,15 @@
                    (if (or (equal selection t) (and (listp selection) (find rest selection)))
                        *score-selection-color*
                      nil)
-         
+                 
+                 (when head-extra-number
+                   (setf head-x (+ head-x (* unit 4)))
+                   (let ((font (om-def-font :font1 :size (round fontsize 2.2))))
+                     (om-draw-string (+ head-x (* head-w unit .2))
+                                     (- line-y (* unit 1)) (number-to-string head-extra-number)
+                                     :font font)
+                     )
+                   )
                  ;;; SYMBOL
                  (om-draw-char head-x line-y head-char)
                
@@ -1026,9 +1051,9 @@
                                  (if (equal head-symb :rest-1) unit 0) ;; the whole rest is on the upper line (4)
                                  )
                               ))
-                     (om-draw-char (+ head-x (* 1.5 head-w unit)) p-y (dot-char))
+                     (om-draw-char (+ head-x (* 1.5 unit)) p-y (dot-char))
                      (when (= n-points 2)
-                       (om-draw-char (+ head-x (* 2.5 head-w unit)) p-y (dot-char))
+                       (om-draw-char (+ head-x (* 2 unit)) p-y (dot-char))
                        )))
 
                  ;; special case for whole rest and half-rest: draw a small line when needed

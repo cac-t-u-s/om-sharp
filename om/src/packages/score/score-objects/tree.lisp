@@ -118,11 +118,12 @@
 ;;;=============================================
 ;;; other pre-processing of rhythm-trees
 ;;; from OM6
+;;; TOP-LEVEL RULES MARKED WITH ->
 ;;;=============================================
 
 ;;;===================================================================
 ;Check the syntax of the tree and computes the value of '? if there is in the tree
-;-- not used
+;-- NOT USED
 ; ->
 (defun resolve-? (list)
   (flet ((subtree-extent (subtree) 
@@ -148,7 +149,16 @@
 
 
 ;;;===================================================================
-;-- not used
+; If only one element
+;'((4 4) ((1 (1 1 1)))) = T
+(defun measure-single? (mes)
+  (= (length (cadr mes)) 1))
+
+; If only one leaf
+;'((4 4) (5)) = T
+(defun measure-super-single? (mes)
+  (and (measure-single? mes) (numberp (caadr mes))))
+
 
 (defun replace-num-in-tree (old new)
   (cond
@@ -177,10 +187,10 @@
               (list (list (first item) (rw-singleton (second item) (first item))))
               (list (list (first item) (rw-singleton (second item))))))))))
 
-;; ->
-(defun singleton (tree)
-   (let* ((measures (cadr tree)))
-     (list (car tree)
+; ->
+(defun resolve-singletons (tree)
+   (let* ((measures tree))
+     ; (list (car tree)
            (mapcar #'(lambda (mes)  ;pour chaque measure
                        (let ((sign (first mes))
                              (slist (second mes)))
@@ -195,21 +205,12 @@
                                                       (rw-singleton (second group))))))))
                           (t ;un mesure de la forme ((4//4 (r1 r2 ...rn))) ou r es un grupo ou un number
                            (list sign (rw-singleton (second mes)))))))
-                   measures))))
+                   measures)
+           ;)
+   ))
 
 
 ;;;===================================================================
-
-; If only one element
-;'((4 4) ((1 (1 1 1)))) = T
-(defun measure-single? (mes)
-  (= (length (cadr mes)) 1))
-
-; If only one leaf
-;'((4 4) (5)) = T
-(defun measure-super-single? (mes)
-  (and (measure-single? mes) (numberp (caadr mes))))
-
 ;;; returns top-level subdivision of the measure
 ;'((4 4) (3 (1 (1 1 1)) -5)) = '(3 1 5)
 (defun measure-repartition (mes)
@@ -220,31 +221,75 @@
 (defun modulo3-p (n)
   (or (zerop ( mod n 3)) (= n 1)))
 
-(defun list-first-layer (measure-tree)
+; ->
+(defun list-first-layer (tree)
   
-  (if (measure-single? measure-tree) 
+  (loop for measure-tree in tree collect 
+        
+        (if (measure-single? measure-tree) 
       
-      measure-tree 
+            measure-tree 
     
-    (let* ((signature (car measure-tree))
-           (subdivs (apply '+ (measure-repartition measure-tree)))
-           (ratio1 (/ subdivs (car signature))))
-      (cond
-       ((and (integerp ratio1) (power-of-two-p ratio1)) measure-tree)
-       ((and (power-of-two-p subdivs) 
-             (or (power-of-two-p (car signature))
-                 (and (integerp ratio1) (modulo3-p (car signature))))) measure-tree)
-       ((not (integerp (/ (car signature) subdivs))) 
-        (list signature (list (list (car signature) (cadr measure-tree)))))
-       ((and (= (numerator ratio1) 1) (not (power-of-two-p (denominator ratio1))) measure-tree)
-        (list signature (list (list (car signature) (cadr measure-tree)))))
-       (t measure-tree)))))
+          (let* ((signature (car measure-tree))
+                 (subdivs (apply '+ (measure-repartition measure-tree)))
+                 (ratio1 (/ subdivs (car signature))))
+            (cond
+             ((and (integerp ratio1) (power-of-two-p ratio1)) measure-tree)
+             ((and (power-of-two-p subdivs) 
+                   (or (power-of-two-p (car signature))
+                       (and (integerp ratio1) (modulo3-p (car signature))))) measure-tree)
+             ((not (integerp (/ (car signature) subdivs))) 
+              (list signature (list (list (car signature) (cadr measure-tree)))))
+             ((and (= (numerator ratio1) 1) (not (power-of-two-p (denominator ratio1))) measure-tree)
+              (list signature (list (list (car signature) (cadr measure-tree)))))
+             (t measure-tree)))
+          )
+        )
+  )
+
+
+;;;===================================================================
+;;; convert long/uneven durations to even + ties
+
+(defun only-one-point (n)
+  (cond
+   ((floatp n) (mapcar 'float (only-one-point (round n))))  
+   (t                              
+    (if (member n '(0 1 2 3 4 6 8 12 16 32)) ;only for optimization
+        (list n)
+      (let ((bef (bin-value-below n)))
+        (cond
+         ((or (= bef n) (= (* bef 1.5) n) (= (* bef 1.75) n))  (list n))
+         ((> n (* bef 1.5))
+          (append (list (+ bef (/ bef 2))) (only-one-point (/ (- n (* bef 1.5)) 1.0))))
+         (t (cons bef (only-one-point (/ (- n bef) 1.0))))))))))
+
+(defun add-measure-ties (tree)
+  (cond ((numberp tree)
+         (let ((convert (only-one-point (abs tree))))
+           (if (minusp tree)
+               (setf convert (om* convert -1)))
+           convert))
+        ((listp tree)
+         (list (list (first tree) (mapcan #'add-measure-ties (second tree)))))))
+
+; ->
+(defun add-ties-to-tree (tree)
+   (let* ((measures tree))
+     ;(list (car tree)
+     (mapcar #'(lambda (mes)
+                 (list (first mes) (mapcan #'add-measure-ties (second mes))))
+             measures)
+     ;)
+   ))
 
 
 ;;;===================================================================
 ;;; called at voice intialization:
-(defun format-tree (measures) 
-  (mapcar #'list-first-layer measures))
+(defun format-tree (tree) 
+  (add-ties-to-tree 
+   (resolve-singletons 
+    (list-first-layer tree))))
 
 
 ;; fullratios are either ratios or lists (num denum)
