@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -39,7 +39,7 @@
 
 
 ;;; for the moment we do not allow object boxes in lambda mode
-(defmethod valid-property-p ((self OMBoxRelatedWClass) (prop-id (eql :lambda))) nil)
+(defmethod valid-property-p ((self OMBoxRelatedWClass) (prop-id (eql :lambda))) t)
 (defmethod eval-modes-for-box ((self OMBoxRelatedWClass)) '(nil :reference :box))
 
 (defmethod box-def-self-in ((self t)) NIL)
@@ -58,11 +58,12 @@
                                  :name (string (slot-name slot)) :reference (slot-name slot) 
                                  :box self
                                  :value (valued-val (slot-initform slot))
-                                 :doc-string (format nil "[~A] ~S" 
-                                                     (slot-type slot) 
-                                                     ;;; (class-slot-input-doc class slot)
-                                                     (or (slot-doc slot) "")
-                                                     )))
+                                 :doc-string (apply 'concatenate (cons 'string 
+                                                                       (append 
+                                                                        (unless (equal t (slot-type slot)) (list "[" (string-downcase (slot-type slot)) "] "))
+                                                                        (list (slot-doc slot)))
+                                                                        )
+                                                                       )))
               (remove-if-not 'slot-initargs (class-direct-instance-slots class)))   ;;; direct ?
        )
       )))
@@ -137,10 +138,11 @@
   (call-next-method)
   (let ((name (string-downcase key)))
     (set-box-outputs self (append (outputs self)
-                                 (list (make-instance 'box-keyword-output 
-                                                      :name name
-                                                      :box self
-                                                      :doc-string (get-input-doc self name)))))
+                                 (list (make-instance 
+                                        'box-keyword-output 
+                                        :name name
+                                        :box self
+                                        :doc-string (get-input-doc self name)))))
     ))
 
 (defmethod update-output-from-new-in ((box OMBoxRelatedWClass) name in) 
@@ -153,8 +155,7 @@
 
 (defmethod remove-one-keyword-input ((self OMBoxRelatedWClass))
   (when (call-next-method)
-    (set-box-outputs self (butlast (outputs self)))
-    ))
+    (remove-one-output self (car (last (outputs self))))))
 
 
 ;;;===============================
@@ -180,7 +181,8 @@
 ;;;===============================
 
 (defmethod objFromObjs ((model t) (target t))
-  (clone-object model target))
+  (when (subtypep (type-of target) (type-of model))
+    (clone-object model target)))
 
 
 ; don't mess with packages: send interned symbols to these functions
@@ -255,14 +257,13 @@
                                     when (and (find (symbol-name (car arg)) class-slots-names :key 'symbol-name :test 'string-equal)
                                               (not (member (car arg) supplied-initargs :key 'car)))
                                     collect (list (symbol-name (car arg)) (cadr arg)))))
-    ;(print args)
-    ;(print supplied-initargs)
-    ;(print (list classname supplied-other-args))    
+    
     (om-init-instance 
      (let ((obj (apply 'make-instance (cons classname (reduce 'append supplied-initargs)))))
        (set-value-slots obj supplied-other-args)
        obj)
-     initargs)))
+     initargs)
+    ))
 
 
 ;;; SPECIAL FOR BOXEDITCALL: 
@@ -373,8 +374,6 @@
     (editor-close (editor box)))
   ))
 
-(defmethod get-box-value ((self OMBoxEditCall)) 
-  (car (value self)))
 
 (defmethod get-input-def-value ((self OMBoxEditCall) name)
   (let ((slot (find name (class-instance-slots (find-class (reference self) nil)) :key 'slot-name)))
@@ -423,6 +422,7 @@
 
 (defmethod object-default-edition-params ((self t)) nil)
 
+
 (defmethod get-default-edit-param ((self OMBoxEditCall) param)
   (let ((val (or (car (value self)) (make-instance (reference self)))))
     (find-value-in-kv-list (object-default-edition-params val) param)))
@@ -441,13 +441,10 @@
 (defmethod editor-ed-params-properties ((self t)) nil)
 
 (defmethod get-properties-list ((self OMBoxEditCall))
-  (let ((properties 
-         (append 
-          (hide-property (call-next-method) '(:icon :align :lambda))
-          )))
+  (let ((properties (call-next-method)))  ;; (append (hide-property (call-next-method) '(:icon :align)))))
     (add-properties properties "Appearance" 
                     (append 
-                     `((:name "Name" :text name)
+                     `((:name "Name" :string name)
                        (:display "View (m)" ,(display-modes-for-object (car (value self))) display)
                        (:showname "Show name (n)" :bool show-name))
                      (when (play-obj? (car (value self)))
@@ -468,6 +465,9 @@
                                    (display self))))
       (set-display self next-mode))))
 
+(defmethod set-box-play-time ((self OMObjectBoxFrame) time) (setf (box-play-time self) time))
+(defmethod set-box-play-time ((self t) time) nil)
+
 
 ;;; redefine when default init value is different
 (defmethod initialize-box-value ((self OMBoxeditCall) &optional value)
@@ -487,8 +487,8 @@
                              :name (if (stringp init-args) init-args nil)  ; (format nil "~A" init-args) 
                              :reference (class-name reference)
                              :icon-pos :noicon :show-name nil
-                             :text-font (om-def-font :font1 :style '(:italic))
-                             :text-align :right))
+                             :display :mini-view
+                             :text-align :center))
          (size (default-size box)))
     (setf (box-x box) (om-point-x pos)
           (box-y box) (om-point-y pos)
@@ -563,7 +563,7 @@
   ; (om-def-font :font1b :size 10)
   ; (om-draw-string (+ x 14) (+ y 14) (draw-type-of-object object)))
   (om-with-font 
-   (om-def-font :font1 :size 8)
+   (om-def-font :font1 :size 10)
    (loop for i = (+ y 20) then (+ i 10) 
          for sl in (ensure-cache-display-text box object)
          while (< i (- h 6)) do
@@ -605,11 +605,14 @@
                             '(-5 5 -5) '(-5 0 5)) :fill t))
 |#
 
-(defmethod draw-cursor-on-box (object frame pos)
-  (when pos
+(defmethod miniview-time-to-pixel (object view time) 
+  (* (w view) 
+     (/ time (if (plusp (get-obj-dur object)) (get-obj-dur object) 1000))))
+
+(defmethod draw-cursor-on-box (object frame time)
+  (when time
     (om-with-fg-color (om-make-color 0.73 0.37 0.42)
-      (let ((x (* (w frame) 
-                  (/ pos (if (plusp (get-obj-dur object)) (get-obj-dur object) 1000)))))
+      (let ((x (miniview-time-to-pixel object frame time)))
         (om-draw-polygon (list (- x 5) 4 x 9 (+ x 5) 4) :fill t)
         (om-with-line '(2 2)
         (om-draw-line x 4 x (- (h frame) 6))

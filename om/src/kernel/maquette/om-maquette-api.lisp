@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -99,22 +99,16 @@
 (defmethod m-get-time ((self OMMaquette))
   (get-obj-time self))
 
-(defmethod m-track-objects ((self OMMaquette) tracknum)
-  (if tracknum
-      (get-track-objects self tracknum)))
+(defmethod m-objects ((self OMMaquette) &key (sorted t) (track nil))
+  (if track 
+      (get-track-objects self track :sorted sorted)
+    (get-all-objects self :sorted sorted)))
 
-(defmethod m-objects ((self OMMaquette) &optional (sorted t))
-  (get-all-objects self :sorted sorted))
+(defmethod m-flush ((self ommaquette) &key (track nil))
+  (loop for box in (if track (get-track-boxes self track) (get-all-boxes self))
+        do (omng-remove-element self box)))
 
-(defmethod m-flush ((self ommaquette))
-  (loop for box in (get-all-boxes self)
-        do
-        (omng-remove-element self box)))
 
-(defmethod m-flush-track ((self ommaquette) track)
-  (loop for box in (get-track-boxes self track)
-        do
-        (omng-remove-element self box)))
 
 (defmethod set-patch-inputs ((self OMPatchInternal) (defvals list))
   (loop for inp in (get-inputs self)

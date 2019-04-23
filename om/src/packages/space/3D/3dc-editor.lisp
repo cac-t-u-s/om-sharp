@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -521,11 +521,11 @@
          (selected-editor (and (selected-view editor) (editor (selected-view editor))))
          (3dpanel (3dp editor)))
     (case key
-      (#\- (zoom-rulers top-editor :dx -0.1 :dy -0.1)
-           (zoom-rulers front-editor :dx -0.1 :dy -0.1)
+      (#\- (zoom-rulers top-panel :dx -0.1 :dy -0.1)
+           (zoom-rulers front-panel :dx -0.1 :dy -0.1)
            (zoom-view 3dpanel 0.8))
-      (#\+ (zoom-rulers top-editor :dx 0.1 :dy 0.1)
-           (zoom-rulers front-editor :dx 0.1 :dy 0.1)
+      (#\+ (zoom-rulers top-panel :dx 0.1 :dy 0.1)
+           (zoom-rulers front-panel :dx 0.1 :dy 0.1)
            (zoom-view 3dpanel 1.2))
       (:om-key-delete 
        (delete-editor-selection editor)
@@ -777,7 +777,7 @@
 
 (defmethod osc-manager-add-callback ((editor 3DC-editor))
   (let ((obj (object-value editor)))
-    (insert-timed-point-in-time-sequence obj point (length (point-list obj)))
+    (time-sequence-insert-timed-item-and-update obj point (length (point-list obj)))
     (report-modifications editor)
     (if (= (mod (length (point-list obj)) 10) 9)
         (editor-invalidate-views editor))

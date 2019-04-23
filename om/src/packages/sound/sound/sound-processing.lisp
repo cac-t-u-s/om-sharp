@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -103,7 +103,7 @@
                 (out-size (round (* ratio size)))
                 (interleaved-in (om-alloc-memory (* size nch) :type (smpl-type s) :clear t))
                 (interleaved-out (om-alloc-memory (* out-size nch) :type (smpl-type s) :clear t))
-                (final-buffer (allocate-split-buffer out-size nch (smpl-type s)))
+                (final-buffer (make-audio-buffer nch out-size (smpl-type s)))
                 s2)
            
            (interleave-buffer buffer interleaved-in size nch)
@@ -160,7 +160,7 @@
              (indx 0)
              (rms 0.0)
              (tampon-size 100)
-             (final-buffer (allocate-split-buffer size nch type)))
+             (final-buffer (make-audio-buffer nch size type)))
 
         (cond ((= method 0)
                (progn 
@@ -218,7 +218,7 @@
   (let ((nsmpl (round (* dur sample-rate)))
         (ch (if (< channels 1) 1 channels)))
     (make-instance 'om-internal-sound 
-                   :buffer (make-om-sound-buffer-GC :ptr (allocate-split-buffer nsmpl ch :float) :nch ch)
+                   :buffer (make-om-sound-buffer-GC :ptr (make-audio-buffer ch nsmpl :float) :nch ch)
                    :n-samples nsmpl
                    :n-channels ch
                    :sample-rate sample-rate
@@ -228,7 +228,7 @@
   (let ((nsmpl (round (* dur (/ sample-rate 1000.0))))
         (ch (if (< channels 1) 1 channels)))
     (make-instance 'om-internal-sound 
-                   :buffer (make-om-sound-buffer-GC :ptr (allocate-split-buffer nsmpl ch :float) :nch ch)
+                   :buffer (make-om-sound-buffer-GC :ptr (make-audio-buffer ch nsmpl :float) :nch ch)
                    :n-samples nsmpl
                    :n-channels ch
                    :sample-rate sample-rate
@@ -256,7 +256,7 @@
            (fade-out-factor (- (/ 1.0 fade-out-frames)))
            (b1 (om-alloc-memory size2 :type (smpl-type s) :clear t))
            (b2 (om-alloc-memory size2 :type (smpl-type s) :clear t))
-           (out-buffer (allocate-split-buffer size nch (smpl-type s)))
+           (out-buffer (make-audio-buffer nch size (smpl-type s)))
            s2)
       (interleave-buffer (oa::om-pointer-ptr (buffer s)) b1 size nch)  
       (dotimes (i size2)
@@ -292,7 +292,7 @@
       (om-beep-msg "Error: null sound buffer")
     (let* ((nch (n-channels s))
            (size (n-samples s))
-           (final-buffer (allocate-split-buffer (* n size) nch (smpl-type s))))
+           (final-buffer (make-audio-buffer nch (* n size) (smpl-type s))))
 
       (dotimes (i (* n size))
         (dotimes (n nch)
@@ -323,7 +323,7 @@
            (sr (sample-rate s))
            (size (round (* (- end beg) sr)))
            (start (round (* beg sr))) 
-           (final-buffer (allocate-split-buffer size nch type)))
+           (final-buffer (make-audio-buffer nch size type)))
 
       (dotimes (i size)
         (dotimes (n nch)
@@ -366,7 +366,7 @@
            (fade-out-frames (round (* out sr)))
            (fade-out-factor (/ (- 1 gain) fade-out-frames))
            (fade-out-frame-start (- size fade-out-frames))
-           (final-buffer (allocate-split-buffer size nch type)))
+           (final-buffer (make-audio-buffer nch size type)))
 
       (dotimes (i size)
         (dotimes (n nch)
@@ -401,7 +401,7 @@
                 (type (smpl-type s))
                 (size (n-samples s))
                 (nch (n-channels s))
-                (final-buffer (allocate-split-buffer size 2 type))
+                (final-buffer (make-audio-buffer 2 size type))
                 (pan (/ pan 100.0))
                 (Lgain (if (<= pan 0) 1 (- 1 pan)))
                 (Rgain (if (>= pan 0) 1 (+ 1 pan)))
@@ -433,7 +433,7 @@
         ((= (n-channels s) 2)
          (let* ((ptr (oa::om-pointer-ptr (buffer s)))
                 (type (smpl-type s))
-                (final-buffer (allocate-split-buffer (n-samples s) (n-channels s) type))    
+                (final-buffer (make-audio-buffer (n-channels s) (n-samples s) type))    
                 (x 0.0))
 
            (dotimes (i (n-samples s))
@@ -477,7 +477,7 @@
                 (rightRgain (+ 0.5 (* (/ 1.0 200) right)))
                 (rightLgain (- 0.5 (* (/ 1.0 200) right)))
                 (xl 0.0) (xr 0.0)
-                (final-buffer (allocate-split-buffer size nch type)))
+                (final-buffer (make-audio-buffer nch size type)))
 
            (dotimes (i size)
              (setf xl (fli:dereference (fli:dereference ptr :index 0 :type :pointer) :index i :type type)
@@ -517,7 +517,7 @@
                 (size1 (n-samples s1))
                 (size2 (n-samples s2))
                 (final-size (max size1 size2))
-                (final-buffer (allocate-split-buffer final-size nch type1))
+                (final-buffer (make-audio-buffer nch final-size type1))
                 (res 0.0))
 
            (cond ((= method 0)
@@ -566,7 +566,7 @@
          ;;; actually we should check if all sounds have same type and sample-rate
          (n-samples-out (apply 'max (mapcar 'n-samples sounds)))
          (n-channels-out (apply '+ (mapcar 'n-channels sounds)))
-         (final-buffer (allocate-split-buffer n-samples-out n-channels-out type))
+         (final-buffer (make-audio-buffer n-channels-out n-samples-out type))
          (c 0))
     
     (loop for snd in sounds do
@@ -600,7 +600,7 @@
     (with-audio-buffer (b s)
       (let ((bptr (oa::om-pointer-ptr b)))
         (loop for c from 0 to (1- (n-channels s)) collect
-              (let ((new-buffer (allocate-split-buffer (n-samples s) 1 type)))            
+              (let ((new-buffer (make-audio-buffer 1 (n-samples s) type)))            
                 (dotimes (i (n-samples snd))
                   (setf (fli:dereference (fli:dereference new-buffer :index 0 :type :pointer) :type type :index i) 
                         (fli:dereference (fli:dereference bptr :index c :type :pointer) :type type :index i)))
@@ -638,7 +638,7 @@
                 (factor1 (- (/ 1.0 (max 1 smp-cross))))
                 (factor2 (/ 1.0 (max 1 smp-cross)))
                 (final-size (- (+ size1 size2) smp-cross))
-                (final-buffer (allocate-split-buffer final-size nch type1)))
+                (final-buffer (make-audio-buffer nch final-size type1)))
            
            (dotimes (i final-size)
              (dotimes (n nch)
@@ -678,7 +678,7 @@
                 (type (smpl-type s))
                 (nch (n-channels s))
                 (size (n-samples s))
-                (final-buffer (allocate-split-buffer size nch type)))
+                (final-buffer (make-audio-buffer nch size type)))
 
            (dotimes (i size)
              (dotimes (n nch)

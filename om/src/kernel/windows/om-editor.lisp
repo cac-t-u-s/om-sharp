@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -49,6 +49,8 @@
   (setf (edition-params self)
         (set-value-in-kv-list (edition-params self) param value)))
 
+
+
 ;;; this is useful to open the editor of something that is not necessarily in a box 
 ;;; serves as the 'object' of the editor
 (defclass OMAbstractContainer (ObjectWithEditor object-with-edit-params)
@@ -69,9 +71,13 @@
 (defmethod get-value-for-editor ((self OMAbstractContainer)) (contents self))
 
 (defmethod object-value ((self OMEditor))
-  (cond ((object self) (get-value-for-editor (object self)))
-        ((container-editor self) (object-value (container-editor self)))
-        (t nil)))
+  (cond 
+   ((object self) (get-value-for-editor (object self)))
+   ((container-editor self) (object-value (container-editor self)))
+   (t nil)
+   ))
+
+
 
 ;;;=============================
 ;;; Superclass for OM root editors (patch, maquette, Lispfile, etc.)
@@ -267,15 +273,21 @@
 
 ;;; called by the window/view to notify a change in the model
 (defmethod report-modifications ((self null)) t)
+
 (defmethod report-modifications ((self OMEditor))
+
   ;;; update the object
   (update-from-editor (object self))
+
   ;;; update the context (in case of embedded editors) 
   (when (container-editor self)
-    (update-to-editor (container-editor self) self))
+    (update-to-editor (container-editor self) self)
+    (report-modifications (container-editor self)))
+
   (when (related-editors self) 
     (loop for ed in (related-editors self) do
           (update-to-editor ed self)))
+
   ;;; window title
   (update-window-name self))
 
@@ -358,6 +370,7 @@
 (defmethod init-editor-window ((ed OMEditor)) nil)
 
 ;;; called by build-editor-window
+;;; this function is given the opportunity to provide what's the main-view of the editor thanks as a second value
 (defmethod make-editor-window-contents ((editor OMEditor))
   (make-default-editor-view editor))
 

@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -154,17 +154,16 @@
 
 
 (defmethod load-om-library ((lib OMLib))   
-  (let ((lib-file (om-make-pathname :directory (mypathname lib) :name (name lib) :type "omlib"))
-        )                                      
+  (let ((lib-file (om-make-pathname :directory (mypathname lib) :name (name lib) :type "omlib")))                                      
     (if (probe-file lib-file)
       (handler-bind ((error #'(lambda (c)
                                 (progn 
                                     (om-message-dialog (format nil "Error while loading the library ~A:~%~s" 
-                                                               (name lib) (om-report-condition c))
+                                                               (name lib) (format nil "~A" c))
                                                        :size (om-make-point 300 200))
                                     (when 
                                         (om-y-or-n-dialog (format nil 
-                                                                  "Try to delete compiled Lisp files (.*fasl) ?~%~%Deleting these files might be necessary in case they were created by a previous version of Lisp or OM/o7.."))
+                                                                  "Try to delete compiled Lisp files (.*fasl) ?~%~%Deleting these files might be necessary in case they were created by a previous version of Lisp or OM."))
                                       (common-lisp-user::clean-sources (mypathname lib)))
                                     (abort c)))))
 
@@ -190,12 +189,15 @@
            (mapc #'(lambda (f)
                      (let ;((path (merge-pathnames (omng-load f) (mypathname lib)))) 
                          ((path (omng-load f)))
-                       (compile&load (namestring path))))
+                       (compile&load (namestring path) t t)))
                  files)
            )
           ;;; set packages
           (mapc #'(lambda (class) (addclass2pack class lib)) (find-values-in-prop-list symbols :classes))
-          (mapc #'(lambda (fun) (addFun2Pack fun lib)) (find-values-in-prop-list symbols :functions))
+          (mapc #'(lambda (fun) 
+                    (addFun2Pack fun lib)
+                    ) 
+                (find-values-in-prop-list symbols :functions))
           (mapc #'(lambda (pk) 
                     (let ((new-pack (omng-load pk)))
                       (addpackage2pack new-pack lib)))
@@ -205,11 +207,13 @@
           
           (register-images (lib-icons-folder lib))
           (setf (loaded? lib) t)
-          (update-preference-window-module :libraries) ;;; update the window is opened    
+          (update-preference-window-module :libraries) ;;; update if the window is opened    
+          (update-preference-window-module :externals) ;;; update if the window is opened    
 
           (om-print-format "~%==============================================")
-          (om-print-format "~A ~A ~%~A~%~A" 
-                           (list (name lib) (or (version lib) "") (or (doc lib) "") (or (author lib) "")))
+          (om-print-format "~A ~A" (list (name lib) (or (version lib) "")))
+          (when (doc lib) (om-print-format "~&~A" (list (doc lib))))
+          (when (author lib) (om-print-format "~&~A" (list (author lib))))
           (om-print-format "==============================================")
           
           lib-file))
@@ -233,7 +237,7 @@
 (defmethod get-lib-reference-pages-folder ((self OMLib))
   (merge-pathnames 
    (make-pathname :directory '(:relative "reference-pages"))
-   (lib-resources-folder self)))
+   (mypathname self)))
 
 (defmethod gen-lib-reference ((lib t)) (om-beep))
 
@@ -276,21 +280,35 @@
 
 (defvar *required-libs-in-current-patch* nil)
 
+(defvar *lib-aliases* nil)
+
+(defun add-lib-alias (real-name alias-name)
+  (let ((entry (find alias-name *lib-aliases* :key 'car :test 'string-equal)))
+    (if entry (setf (cadr entry) real-name)
+      (push (list alias-name real-name) *lib-aliases*))))
+
+;;; when the name of a lib changes... :)
+(defun real-library-name (name) 
+  (or (cadr (find name *lib-aliases* :test 'string-equal :key 'car)) name))
+       
 (defmethod om-load-from-id :before ((id (eql :box)) data)
   (let ((library-name (find-value-in-kv-list data :library)))
-    (when (and library-name ;;; the box comes from a library
-               (not (find library-name *required-libs-in-current-patch* :test 'string-equal))) ;;; situation already handled (for this patch): do not repeat 
-      (push library-name *required-libs-in-current-patch*)
-      (let ((the-library (find-library library-name)))
-        (if the-library
-            (unless (loaded? the-library)
-              (when (or (get-pref-value :libraries :auto-load)
-                        (let ((reply (om-y-n-cancel-dialog (format nil "Some element(s) require the library '~A'.~%~%Do you want to load it ?" library-name))))
+    (when library-name ;;; the box comes from a library
+         
+      (let ((real-name (real-library-name library-name)))
+        
+        (when (not (find real-name *required-libs-in-current-patch* :test 'string-equal)) ;;; situation already handled (for this patch): do not repeat 
+          (push real-name *required-libs-in-current-patch*)
+          (let ((the-library (find-library real-name)))
+            (if the-library
+                (unless (loaded? the-library)
+                  (when (or (get-pref-value :libraries :auto-load)
+                            (let ((reply (om-y-n-cancel-dialog (format nil "Some element(s) require the library '~A'.~%~%Do you want to load it ?" real-name))))
                           (if (equal reply :cancel) (abort) reply)))
-                (load-om-library the-library)))
-          (om-message-dialog (format nil "Some element(s) require the unknow library: '~A'.~%~%These boxes will be temporarily disabled." library-name))
-          )))
-    ))
+                    (load-om-library the-library)))
+              (om-message-dialog (format nil "Some element(s) require the unknow library: '~A'.~%~%These boxes will be temporarily disabled." real-name))
+              )))
+        ))))
 
 
 ;;;=================================

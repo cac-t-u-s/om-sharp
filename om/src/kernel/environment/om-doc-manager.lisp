@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -41,12 +41,11 @@
   (push (make-doc-entry :doc self :file (and path (namestring path))) *open-documents*))
 
 (defmethod unregister-document ((self OMPersistantObject))
-  (om-print-dbg "Unregistering document: ~A - ~A" (list self (mypathname self)))
-  (let ((doc-entry (find self *open-documents* :key 'doc-entry-doc)))
-    (setf *open-documents* (remove self *open-documents* :key 'doc-entry-doc))
-    (when (and (null *open-documents*) *quit-at-last-doc*
-               (member :om-deliver *features*))
-      (om-quit))))
+  (om-print-dbg "Unregistering document: ~A - ~A" (list self (mypathname self))) 
+  (setf *open-documents* (remove self *open-documents* :key 'doc-entry-doc))
+  (when (and (null *open-documents*) *quit-at-last-doc*
+             (member :om-deliver *features*))
+    (om-quit)))
 
 (defmethod update-document-path ((self OMPersistantObject))
   (let ((doc-entry (find self *open-documents* :key 'doc-entry-doc)))
@@ -109,8 +108,11 @@
         ((or (string-equal str "lisp")
              (string-equal str "lsp")) :lisp)
         ((string-equal str "txt") :text)
-        (otherwise nil)))
+        ((or (string-equal str "omp") (string-equal str "omm")) :old)        
+        (t nil)))
         
+
+
 ;;; called by the interface menus and commands ("New")
 (defun open-new-document (&optional (type :patch)) 
   (let ((newobj (make-new-om-doc type (om-str :untitled))))
@@ -139,7 +141,7 @@
       (setf *om-recent-files*
             (cons file (remove (namestring file) *om-recent-files* :key 'namestring :test 'string-equal)))
     (setf *om-recent-files*
-          (cons file (first-n *om-recent-files* 5)))
+          (cons file (first-n *om-recent-files* 9)))
     )
   ;;; to store the list of documents...
   (save-om-preferences))
@@ -155,6 +157,7 @@
                                                      (doctype-info :patch) (doctype-info :maquette) (doctype-info :textfun))
                                                         '("Text File" "*.txt" "Lisp File" "*.lisp;*.lsp" "All documents" "*.*"))))))
     (when file
+      (setf *last-open-dir* (om-make-pathname :directory file))
       (record-recent-file file)
       (let ((type (extension-to-doctype (pathname-type file))))
         (case type
@@ -162,6 +165,7 @@
           (:maquette (open-doc-from-file type file))
           (:textfun (open-doc-from-file type file))
           ((or :text :lisp) (om-lisp::om-open-text-editor :contents file :lisp t))
+          (:old (import-doc-from-previous-om file))
           (otherwise (progn (om-message-dialog (format nil "Unknown document type: ~s" (pathname-type file)))
                         nil)))
         ))))
@@ -171,21 +175,21 @@
   (let ((patch (ensure-type obj 'OMPatch)))
     (when patch
       (change-class patch 'OMPatchFile)
-      (setf (icon patch) 'patch-file)
+      (setf (icon patch) :patch-file)
       patch)))
 
 (defmethod type-check ((type (eql :maquette)) obj)
   (let ((maq (ensure-type obj 'OMMaquette)))
     (when maq
       (change-class maq 'OMMaquetteFile)
-      (setf (icon maq) 'maq-file))
+      (setf (icon maq) :maq-file))
     maq))
 
 (defmethod type-check ((type (eql :textfun)) obj)
   (let ((fun (ensure-type obj 'OMLispFunction)))
     (when fun
       (change-class fun 'OMLispFunctionFile)
-      (setf (icon fun) 'lisp-f-file))
+      (setf (icon fun) :lisp-f-file))
     fun))
 
     
@@ -226,27 +230,30 @@
      )))
       
 
-(defun open-doc-from-file (type &optional path)
-  (let ((file (or path (om-choose-file-dialog 
-                        :prompt (string+ (om-str :open) "...") :types (doctype-info type)
-                        :directory (or *last-open-dir* (om-user-home))))))
-    (when file
-      (if (not (probe-file file))
-          (om-message-dialog (format nil (om-str :file-not-exists) (namestring file)))
-        (om-with-error-handle    
-          (setf *last-open-dir* (pathname-dir file))
-          (let ((obj (load-doc-from-file file type)))
-            (if obj (open-editor obj)
-              (om-print (string+ "file: \""  (namestring file) "\" could not be open.")))
-            obj)
-          )))))
+(defun import-doc-from-previous-om (path)
+  (let ((obj (load-om6-patch path)))
+    (if obj (open-editor obj)
+      (om-print (string+ "file: \""  (namestring path) "\" could not be open.")))
+    obj))
+
+
+(defun open-doc-from-file (type file)
+  (when file
+    (if (not (probe-file file))
+        (om-message-dialog (format nil (om-str :file-not-exists) (namestring file)))
+      (om-with-error-handle    
+        (let ((obj (load-doc-from-file file type)))
+          (if obj (open-editor obj)
+            (om-print (string+ "file: \""  (namestring file) "\" could not be open.")))
+          obj)
+        ))))
 
 (defmethod prepare-save-as ((self OMPersistantObject))
   (let ((path (om-choose-new-file-dialog :prompt (om-str :save-as)
                                          :directory (or *last-open-dir* (om-user-home))
                                          :types (doctype-info (object-doctype self)))))
     (when path 
-      (setf *last-open-dir* (pathname-dir path))
+      (setf *last-open-dir* (om-make-pathname :directory path))
       (if (find-doc-entry path)
           (progn (om-message-dialog 
            (format nil "An open document named ~S already exist in this folder.~%Please choose another name or location." 
@@ -327,7 +334,7 @@
             (let ((doc (doc-entry-doc doc-entry)))
             (when (null (saved? doc))
               (let ((win (window (editor doc))))
-                (om-select-window win)
+                (when win (om-select-window win))
                 (when (or (and *save-apply-all* (= *save-apply-all* 1))
                           (let ((rep (om-save-y-n-cancel-dialog (name doc))))
                             (if rep 
@@ -336,7 +343,7 @@
                               (setf ok nil))
                             (car rep)))
                   (or (prog1 (save-document doc)
-                        (om-set-window-title win (window-name-from-object doc)))
+                        (and win (om-set-window-title win (window-name-from-object doc))))
                       (setf ok nil)))))
             )
             ))

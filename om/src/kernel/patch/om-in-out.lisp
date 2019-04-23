@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -140,6 +140,8 @@
 (defmethod special-box-p ((name (eql 'in))) t)
 (defmethod get-box-class ((self OMIn)) 'OMInBox)
 (defmethod related-patchbox-slot ((self OMInBox)) 'inputs)
+(defmethod box-symbol ((self OMIn)) 'in)
+
 
 (defmethod next-optional-input ((self OMInBox)) 
   (not (inputs self)))
@@ -184,6 +186,8 @@
 (defmethod special-box-p ((name (eql 'out))) t)
 (defmethod get-box-class ((self OMOut)) 'OMOutBox)
 (defmethod related-patchbox-slot ((self OMOutBox)) 'outputs)
+(defmethod box-symbol ((self OMOut)) 'out)
+
 
 (defmethod omNG-make-special-box ((reference (eql 'out)) pos &optional init-args) 
   (let ((name (car (list! init-args))))
@@ -246,6 +250,7 @@
 
 (defmethod special-box-p ((name (eql 'mybox))) t)
 (defmethod get-box-class ((self OMSelfIn)) 'OMSelfInBox)
+(defmethod box-symbol ((self OMSelfIn)) 'mybox)
 
 (defmethod related-patchbox-slot ((self OMSelfInBox)) nil)
 (defmethod allow-text-input ((self OMSelfInBox)) nil)

@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -51,7 +51,7 @@
 (defmethod display-modes-for-object ((self OMArray)) '(:hidden :text :mini-view))
 
 (defmethod draw-mini-view ((self OMArray) (box t) x y w h &optional time)
-  (let* ((display-cache (get-display-draw box))
+  (let* ((display-cache (ensure-cache-display-draw box self))
          (font (om-def-font :font1 :size 10))
          (n-lines (length (data self)))
          (inter-line 3)
@@ -65,7 +65,8 @@
       (loop for n from 0 to (1- n-lines)
             for yy = v-margin then (+ yy line-h inter-line) do
             (om-draw-rect h-margin yy line-w line-h :color (om-def-color :white) :fill t)
-            (om-draw-string (- line-w (om-string-size (get-field-name self n) font)) (+ yy 10) (get-field-name self n) 
+            (om-draw-string (+ x (- line-w (om-string-size (get-field-name self n) font)))
+                            (+ yy 10) (get-field-name self n) 
                             :font font :color (om-make-color .6 .6 .7))
             (draw-field-on-box self (nth n (data self)) h-margin yy line-w line-h)
       ))))
@@ -161,7 +162,7 @@
                              (- center-x (* w .45)) 
                              (- center-y (* h .45)) 
                              (* w .9) (* h .9)
-                             :lines)))
+                             :lines-only)))
 
 ;============================================================
 ; SIMPLE 2D-ARRAY
@@ -235,7 +236,7 @@
 (defmethod om-load-from-id ((id (eql :array-field)) data)
   (make-array-field :name (find-value-in-kv-list data :name) 
                     :doc (find-value-in-kv-list data :doc)
-                    :type (find-value-in-kv-list data :type)
+                    :type (omng-load (find-value-in-kv-list data :type))
                     :decimals (find-value-in-kv-list data :decimals)
                     :default (omng-load (find-value-in-kv-list data :default))
                     :data (omng-load (find-value-in-kv-list data :data))))
@@ -307,10 +308,11 @@ Data instanciation in a column is done according to the specified number of line
                        (existing-field (find field (data self) :test 'string-equal :key 'array-field-name)))
                   
                   (cond (input-data 
-                         ;; the field is to set from specified data, whatever existed before
+                         ;; the field is to be set from specified data, whatever existed before
                          (make-array-field :name field :decimals 4
                                            :default (and existing-field (array-field-default existing-field))
                                            :type (and existing-field (array-field-type existing-field))
+                                           :doc (and existing-field (array-field-doc existing-field))
                                            :data (get-array-data-from-input input-data (elts self))))
                         
                         (existing-field
@@ -318,6 +320,7 @@ Data instanciation in a column is done according to the specified number of line
                          (make-array-field :name field :decimals 4
                                            :default (array-field-default existing-field)
                                            :type (array-field-type existing-field)
+                                           :doc (array-field-doc existing-field)
                                            :data (get-array-data-from-input 
                                                   (or (array-field-data existing-field)
                                                       (array-field-default existing-field))
@@ -445,6 +448,22 @@ Data instanciation in a column is done according to the specified number of line
 (defmethod initialize-instance :after ((self ClassArrayBox) &rest args)  
   (declare (ignore args))
   (update-key-inputs self))
+
+
+(defmethod get-input-doc ((self ClassArrayBox) name)
+  (or (call-next-method)
+      (when (get-box-value self) ;;; sometimes at the very beginning of box creation there is not yet a value...
+        (let ((field (find name (data (get-box-value self)) :test 'string-equal :key 'array-field-name)))
+          (when field 
+            (array-field-doc field))))))
+
+(defmethod get-input-def-value ((self ClassArrayBox) name)
+  (or (call-next-method)
+      (when (get-box-value self) ;;; sometimes at the very beginning of box creation there is not yet a value...
+        (let ((field (find name (data (get-box-value self)) :test 'string-equal :key 'array-field-name)))
+          (when field 
+            (array-field-default field))))))
+
 
 #|
 ;;; this will eventually call (setf value) anyway... => removed

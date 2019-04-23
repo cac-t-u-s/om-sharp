@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -59,11 +59,11 @@
 
 (add-preference-module :appearance "Appearance")
 (add-preference-section :appearance "Boxes" "Default values for boxes with unspecified or disabled attributes")
-(add-preference :appearance :box-color "Color" :color-a (om-def-color :light-gray))
+(add-preference :appearance :box-color "Color" :color-a (om-make-color .9 .9 .9))
 (add-preference :appearance :box-border "Border" (make-number-in-range :min 0 :max 4 :decimals 1) 1.5)
 (add-preference :appearance :box-roundness "Corner roundness" (make-number-in-range :min 0 :max 20) 2)
 (add-preference :appearance :box-font "Text font" :font (om-def-font :font1))
-(add-preference :appearance :box-align "Text align" '(:left :center :right) :left)
+(add-preference :appearance :box-align "Text align" '(:left :center :right) :center)
 
 ;;;=============================
 ; PROPERTIES
@@ -84,7 +84,6 @@
     ("Structure" ;;; category
                (:group-id "Group/Track" (:none 1 2 3 4 5 6 7 8) group-id)
                )))
-
 
 (defmethod box-draw-color ((box OMBox)) 
   (if (color-? (color box))
@@ -145,6 +144,8 @@
 
 (defmethod set-value ((self OMBox) value)
   (setf (value self) value))
+
+(defmethod get-box-value ((self OMBox)) (car (value self)))
 
 (defmethod set-box-outputs ((self OMBox) outputs)
   (setf (outputs self) outputs)
@@ -295,7 +296,13 @@
 (defmethod editor-box-selection ((editor OMEditor) (box OMBox))
   (unless (or (om-shift-key-p) (selected box))
     (select-unselect-all editor nil))
-  (select-box box (if (om-shift-key-p) (not (selected box)) t)))
+  
+  (if (om-shift-key-p)
+      (select-box box (not (selected box)))
+    
+    (unless (selected box)
+      (select-box box t))
+    ))
 
 (defmethod editor-box-selection ((editor OMEditor) (box null))
   (unless (om-shift-key-p) (select-unselect-all editor nil)))

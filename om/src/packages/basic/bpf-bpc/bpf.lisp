@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -71,11 +71,12 @@
     (y-points :initform '(0 100) :initarg :y-points :documentation "Y coordinates (list)")
     (gain :initform 1.0 :accessor gain :documentation "A gain factor for Y values"))
    (:icon 'bpf)
-   (:documentation "BREAK-POINTS FUNCTION: a 2D function defined as y=f(x) by a list of [x,y] coordinates.
+   (:documentation "BREAK-POINTS FUNCTION: a 2D function defined as y=f(x) by a list of [x,y] coordinates (<x-points> / <y-points>).
 
-BPF objects are constructed from the list of X coordinates (<x-points>) and the list of Y coordinates (<y-points>)
-<x-point> must be stricly increasing or will be sorted at initialization.
-If <x-list> and <y-list> are not of the same length, the last step in the shorter one is repeated."))
+- <x-point> must be stricly increasing or will be sorted at initialization.
+
+- If <x-list> and <y-list> are not of the same length, the last step in the shorter one is repeated."
+))
 
 (defmethod bpf-p ((self bpf)) t)
 (defmethod bpf-p ((self t)) nil)  
@@ -186,6 +187,8 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
   (setf (slot-value self 'y-points) NIL))
 
 
+
+
 (defmethod (setf x-points) ((x-points t) (self bpf))
   (set-bpf-points self :x x-points)
   x-points)
@@ -207,7 +210,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
   (decimals self))
 
 (defmethod make-points-from-lists ((listx list) (listy list) &optional (decimals 0) (mkpoint 'om-make-point))
-  (when (or listx listy)
+  (when (or listx listy) 
     (if (and (list-subtypep listx 'number) (list-subtypep listy 'number))
         (let* ((listx (mapcar (truncate-function decimals) (or listx '(0 1))))
                (listy (mapcar (truncate-function decimals) (or listy '(0 1))))
@@ -252,7 +255,10 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 ;=======================================
 
 (defmethod time-sequence-get-timed-item-list ((self bpf)) (point-list self))
-(defmethod time-sequence-set-timed-item-list ((self bpf) points) (setf (point-list self) points))
+(defmethod time-sequence-set-timed-item-list ((self bpf) points) 
+  (setf (point-list self) points)
+  (call-next-method))
+
 (defmethod time-sequence-get-times ((self bpf)) (x-points self))
 (defmethod time-sequence-insert-timed-item ((self bpf) point &optional position) 
   (insert-point self point position))
@@ -447,7 +453,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 (defmethod get-cache-display-for-draw ((self bpf)) 
   (list 
    (nice-bpf-range self)
-   (if (< (length (point-pairs self)) 500) 
+   (if (<= (length (point-pairs self)) 500) 
        (point-pairs self)
      ;(reduce-n-points (point-pairs self) 1000 100)
      ;(min-max-points (point-pairs self) 1000)
@@ -488,13 +494,28 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 
 ;;; to be redefined by objects if they have a specific miniview
 (defmethod draw-mini-view ((self bpf) (box t) x y w h &optional time)
-  (let ((display-cache (get-display-draw box)))
+  (let* ((display-cache (get-display-draw box))
+         (ranges (car display-cache))
+         (x-range (list (nth 0 ranges) (nth 1 ranges)))
+         (y-range (list (or (get-edit-param box :display-min) (nth 2 ranges))
+                        (or (get-edit-param box :display-max) (nth 3 ranges)))))
+    
     (draw-bpf-points-in-rect (cadr display-cache)
                              (color self) 
-                             (car display-cache)
+                             (append x-range y-range)
                              ;(+ x 7) (+ y 10) (- w 14) (- h 20)
                              x (+ y 10) w (- h 20)
-                             )
+                             (get-edit-param box :draw-style))
+
+    (om-with-font (om-def-font :font1 :size 8)
+                        (om-draw-string (+ x 10) (+ y (- h 4)) (number-to-string (nth 0 x-range)))
+                        (om-draw-string (+ x (- w (om-string-size (number-to-string (nth 1 x-range)) (om-def-font :font1 :size 8)) 4))
+                                        (+ y (- h 4)) 
+                                        (number-to-string (nth 1 ranges)))
+                        (om-draw-string x (+ y (- h 14)) (number-to-string (nth 0 y-range)))
+                        (om-draw-string x (+ y 10) (number-to-string (nth 1 y-range)))
+                        )
+    
     t))
 
 (defun conversion-factor-and-offset (min max w delta)
@@ -503,37 +524,149 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
     (values factor (- delta (* min factor)))))
 
 (defun draw-bpf-points-in-rect (points color ranges x y w h &optional style)
+  
   (multiple-value-bind (fx ox) 
       (conversion-factor-and-offset (car ranges) (cadr ranges) w x)
     (multiple-value-bind (fy oy) 
         ;;; Y ranges are reversed !! 
         (conversion-factor-and-offset (cadddr ranges) (caddr ranges) h y)
+  
       (when points 
-        (om-with-fg-color (om-def-color :gray)
-        ;draw first point
-        (unless (equal style :lines)
-          (om-draw-circle (+ ox (* fx (car (car points))))
-                          (+ oy (* fy (cadr (car points))))
-                          3 :fill t))
-        (let ((lines (loop for pts on points
-                           while (cadr pts)
-                           append
-                           (let ((p1 (car pts))
-                                 (p2 (cadr pts)))
-                             (unless (equal style :lines)
-                               (om-draw-circle (+ ox (* fx (car p2)))
-                                               (+ oy (* fy (cadr p2)))
-                                               3 :fill t))
-                             ;;; collect for lines 
-                             (om+ 0.5
-                                  (list (+ ox (* fx (car p1)))
-                                        (+ oy (* fy (cadr p1)))
-                                        (+ ox (* fx (car p2)))
-                                        (+ oy (* fy (cadr p2)))))
-                             ))))
-          (om-with-fg-color (or color (om-def-color :dark-gray))
-            (om-draw-lines lines))))))))
+          
+          (cond 
+           
+           ((equal style :points-only)
+        
+            (om-with-fg-color (om-def-color :dark-gray)
+        
+              (loop for pt in points do
+                    (om-draw-circle (+ ox (* fx (car pt)))
+                                    (+ oy (* fy (cadr pt)))
+                                    3 :fill t))
+              ))
+                 
+           ((equal style :lines-only)
+            
+            (let ((lines (loop for pts on points
+                               while (cadr pts)
+                               append
+                               (let ((p1 (car pts))
+                                     (p2 (cadr pts)))
+                                 (om+ 0.5
+                                      (list (+ ox (* fx (car p1)))
+                                            (+ oy (* fy (cadr p1)))
+                                            (+ ox (* fx (car p2)))
+                                            (+ oy (* fy (cadr p2)))))
+                                 ))))
+              (om-with-fg-color (or color (om-def-color :dark-gray))
+                (om-draw-lines lines))
+              ))
+                
+                
+           ((equal style :draw-all)
+            
+            (om-with-fg-color (om-def-color :gray)
+  
+              ; first point
+              (om-draw-circle (+ ox (* fx (car (car points))))
+                              (+ oy (* fy (cadr (car points))))
+                              3 :fill t)
+              (let ((lines (loop for pts on points
+                                 while (cadr pts)
+                                 append
+                                 (let ((p1 (car pts))
+                                       (p2 (cadr pts)))
+                                   (om-draw-circle (+ ox (* fx (car p2)))
+                                                   (+ oy (* fy (cadr p2)))
+                                                   3 :fill t)
+                                   ;;; collect for lines 
+                                   (om+ 0.5
+                                        (list (+ ox (* fx (car p1)))
+                                              (+ oy (* fy (cadr p1)))
+                                              (+ ox (* fx (car p2)))
+                                              (+ oy (* fy (cadr p2)))))
+                                   ))))
+                (om-with-fg-color (or color (om-def-color :dark-gray))
+                  (om-draw-lines lines))
+                )))
+           
+           ((equal style :histogram)
+            
+
+            (loop for i from 0 to (1- (length points))
+                  do 
+                  (let* ((p (nth i points))
+                         (x (+ ox (* fx (car p))))
+                         (prev-p (if (plusp i) (nth (1- i) points)))
+                         (next-p (nth (1+ i) points))
+                         (prev-px (if prev-p (+ ox (* fx (car prev-p)))))
+                         (next-px (if next-p (+ ox (* fx (car next-p)))))
+                         
+                         (x1 (if prev-px 
+                                 (/ (+ x prev-px) 2)
+                               (if next-px 
+                                   (- x (- next-px x))
+                                 (- x 1))))
+                         
+                         (x2 (if next-px 
+                                 (/ (+ x next-px) 2)
+                               (if prev-px 
+                                   (+ x (- x prev-px))
+                                 (+ x 1)))))
+                         
+                    (om-draw-rect x1 oy (- x2 x1) (* fy (cadr p))
+                                  :fill nil)
+                    (om-draw-rect x1 oy (- x2 x1) (* fy (cadr p)) 
+                                  :fill t :color (om-def-color :gray))
+                    
+                    (om-draw-string (- x 4) (- oy 4) (format nil "~D" (cadr p)) 
+                                    :font (om-def-font :font1 :size 9)
+                                    :color (om-def-color :white))
+                    ))
+            
+            )
+          
+           ))
+        
+        )))
+
+
+;;;=============================
+;;; FOR DRAW ON COLLECTION BOXES
+;;;=============================
+
+(defmethod collection-cache-display ((type BPF) list)
+  (if (list-subtypep list 'BPF) ;;; works only is all objects are BPFs
+      (list (nice-bpf-range list))
+    (call-next-method)))
+
+
+(defmethod collection-draw-mini-view ((type BPF) list box x y w h time)
+   (if (list-subtypep list 'BPF) ;;; works only is all objects are BPFs
       
+       (let* ((display-cache (get-display-draw box))
+              (ranges (car display-cache)))
+
+         (loop for o in list do 
+               (draw-bpf-points-in-rect
+                (point-pairs o)
+                (color o) 
+                ranges
+                x (+ y 10) w (- h 20)
+                :lines-only)
+               )
+         (om-with-font (om-def-font :font1 :size 8)
+                       (om-draw-string (+ x 10) (+ y (- h 4)) (number-to-string (nth 0 ranges)))
+                       (om-draw-string (+ x (- w (om-string-size (number-to-string (nth 1 ranges)) (om-def-font :font1 :size 8)) 4))
+                                       (+ y (- h 4)) 
+                                       (number-to-string (nth 1 ranges)))
+                       (om-draw-string x (+ y (- h 14)) (number-to-string (nth 2 ranges)))
+                       (om-draw-string x (+ y 10) (number-to-string (nth 3 ranges)))
+                       ))
+     
+       (call-next-method))
+   )
+
 
 ;;;=============================
 ;;; BPF PLAY
@@ -575,8 +708,12 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 (defmethod set-object-pan ((self bpf) pan)
   nil)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;Replanning si edition
+
+;;; DB:
+;;; in order to limit replanning operations, it is preferrable to 
+;;; call (setf point-list) only once all modifications are performed
+;;; For example, when drawing a curve, don't call (setf point-list) on 
+;;; each insert-point but only once the mouse is released
 (defmethod (setf point-list) ((point-list t) (self bpf))
   (with-schedulable-object 
    self

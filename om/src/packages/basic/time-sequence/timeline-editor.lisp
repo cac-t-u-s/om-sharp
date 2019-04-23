@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -93,8 +93,10 @@
     (when time-sequence 
       (setf (selection editor) (get-indices-from-points time-sequence (selection from)))
       (time-sequence-update-internal-times time-sequence))
-    ;(update-timeline-editor editor)
-    (report-modifications editor)))
+    
+    ;;; we should do this only when the time-sequence is modified...
+    ;;; (report-modifications editor)
+    ))
 
 
 (defmethod editor-invalidate-views ((self timeline-editor))
@@ -238,7 +240,7 @@
                  (timeline-item (make-timeline-left-item container-editor (id timeline-view)))
                  (fold-icon (om-make-graphic-object 
                              'om-icon-button :size (omp 10 10)
-                             :icon 'arrow-drop-right :icon-pushed 'arrow-drop-up
+                             :icon :arrow-drop-right :icon-pushed :arrow-drop-up
                              :lock-push t
                              :action #'(lambda (b)
                                          (if (pushed b)
@@ -435,12 +437,12 @@
 (defmethod order-points-by-time ((self timeline-editor))
   (loop for tlv in (timeline-views self) do
         (let ((obj (editor-get-time-sequence self (id tlv))))
-          (reorder-tpoints obj))))
+          (time-sequence-reorder-timed-item-list obj))))
 
 (defmethod add-point-at-time ((self timeline-editor) time id)
   (let* ((obj (editor-get-time-sequence self id))
          (point (time-sequence-make-timed-item-at obj (round time))))
-    (insert-timed-point-in-time-sequence obj point)))
+    (time-sequence-insert-timed-item-and-update obj point)))
 
 (defmethod translate-selection ((self timeline-editor) dt)
   (when (selection self)
@@ -501,7 +503,9 @@
                      (om-invalidate-view view)
                      (when (equal :master (item-get-type orig-point))
                        (om-invalidate-view (time-ruler editor)))
-                     (update-to-editor (container-editor editor) editor)))))))
+                     (update-to-editor (container-editor editor) editor)
+                     (report-modifications (container-editor editor))
+                     ))))))
 
 
 
@@ -512,6 +516,7 @@
 (defmethod alllow-insert-point-from-timeline ((self OMEditor)) t)
 
 (defmethod om-view-click-handler ((self om-timeline-view) position)
+  
   (let* ((timeline-editor (editor self))
          (time (pix-to-x self (om-point-x position)))
          (point (timed-item-at-time timeline-editor self time)))

@@ -4,21 +4,9 @@
 
 ; (clean-sources)
 
-(defun version-to-string (num &optional (full nil) (show-beta nil))
-  (let* ((str (format nil "~,6f" num))
-        (pos (position #\. str))
-        (v (read-from-string (subseq str 0 pos)))
-        (rest (subseq str (+ 1 pos)))
-        (v2 (read-from-string (subseq rest 0 2)))
-        (v3 (read-from-string (subseq rest 2 (min 4 (length rest)))))
-        (beta (if (> (length rest) 4) (read-from-string (subseq rest 4)))))
-    (concatenate 'string (format nil "~d.~d" v v2) 
-                 (if (null full) "" (format nil ".~d" v3))
-                 (if (or (null show-beta) (zerop beta)) "" (format nil " beta ~d" beta)))))
-
 
 (defvar *compile-type* "xfasl")
-;;; should be : "xfasl" on MacIntel, "nfasl" on MacPPC, "ofasl" on Win32.
+;;; should be : "xfasl" on MacIntel, "nfasl" on MacPPC, "ofasl" on Win32, "64xfasl" or "xfasl" on Linux
 (setf *compile-type* (pathname-type (cl-user::compile-file-pathname "")))
 
 #+win32(editor::bind-key "Find Source" "Control-." :global :pc)
@@ -44,7 +32,7 @@
        :directory (append (pathname-directory ref) (butlast decoded-path))
        :name (car (last decoded-path))))))
 
-(defun compile&load (file &optional (verbose t))
+(defun compile&load (file &optional (verbose t) (force-compile nil))
   (let* ((lisp-file (truename (if (pathname-type file) file (concatenate 'string (namestring file) ".lisp"))))
           (fasl-file (probe-file (make-pathname :directory (pathname-directory lisp-file)
                                                 :device (pathname-device lisp-file)
@@ -54,7 +42,7 @@
                                    (not (file-write-date fasl-file))
                                    (> (file-write-date lisp-file) (file-write-date fasl-file))))))
      (when (and (not (member :om-deliver *features*))
-                (or (not fasl-file) fasl-outofdate))
+                (or force-compile (not fasl-file) fasl-outofdate))
        (compile-file file :verbose verbose)
        (setf fasl-outofdate nil))
      (if fasl-outofdate
@@ -69,7 +57,7 @@
                                                       (load file :verbose verbose)
                                                       (throw 'faslerror t)
                                                       ))))
-           (print file)
+           ;; (print file)
            (load file :verbose verbose)
            )))))
 

@@ -91,7 +91,6 @@
   (or (system::function-documentation function)
       (documentation function 'function)))
 
-
 ;=================
 ; CLOS/MOP
 ;=================

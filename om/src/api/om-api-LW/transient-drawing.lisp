@@ -32,7 +32,7 @@
    om-update-transient-drawing
    om-transient-drawing-item-clicked
 
-  ;om-init-motion-click     ;; only 1 of the 2 !
+   ; om-init-motion-click            ;; only 1 of the 2 !
    om-init-temp-graphics-motion      ;; only 1 of the 2 !
    ) 
  :oa)
@@ -170,7 +170,7 @@
                        :x (om-point-x position) :y (om-point-y position)
                        :visible-min-width (om-point-x size) :visible-min-height (om-point-y size)
                        ))
-  (capi:manipulate-pinboard self (drawn-item self) :add-top)
+  (capi:apply-in-pane-process self 'capi:manipulate-pinboard self (drawn-item self) :add-top)
   )
 
 (defmethod om-stop-transient-drawing ((self om-transient-drawing-view))
@@ -179,30 +179,33 @@
     (om-stop-transient-drawing-process self)
     ;;;
     (when (drawn-item self)
-      (capi:manipulate-pinboard self (drawn-item self) :delete)
+      
+      (capi::apply-in-pane-process self 'capi:manipulate-pinboard self (drawn-item self) :delete)
       (om-invalidate-view self)
       (setf (drawn-item self) nil)
+      
       )))
 
 (defmethod om-update-transient-drawing ((self om-transient-drawing-view) &key x y w h)
-  ;;;
+  
+  ;;; => drawing process not used 
   (om-update-transient-drawing-process self :x x :y y :w w :h h)
-  ;;;
-    (capi::apply-in-pane-process 
-     self
-     #'(lambda ()
-         (when (drawn-item self)
-           (capi:with-geometry (drawn-item self)
-             (when (or x y)
-               (setf (capi:pinboard-pane-position (drawn-item self)) 
-                     (values (or x capi:%x% 0) (or y capi:%y% 0))))
-             (when (or w h)
-               (setf (capi:pinboard-pane-size (drawn-item self)) 
-                     (values (or w capi:%width% 0) (or h capi:%height% 0))))
-             )
-          ;(capi::redraw-pinboard-object (drawn-item self))
+ 
+  (capi::apply-in-pane-process 
+   self
+   #'(lambda ()
+       (when (drawn-item self)
+         (capi:with-geometry (drawn-item self)
+           (when (or x y)
+             (setf (capi:pinboard-pane-position (drawn-item self)) 
+                   (values (or x capi:%x% 0) (or y capi:%y% 0))))
+           (when (or w h)
+             (setf (capi:pinboard-pane-size (drawn-item self)) 
+                   (values (or w capi:%width% 0) (or h capi:%height% 0))))
+           )
+          ;; (capi::redraw-pinboard-object (drawn-item self))
          ))
-    ))
+   ))
 
 
 ;;;=====================
@@ -227,47 +230,67 @@
 
 ;;; initites the handling of a movable graphics
 (defmethod om-init-temp-graphics-motion ((self om-graphic-object) pos graphics &key motion release (min-move 0))
+
   (init-motion-handler)
+
   (when (and (temp-graphics *global-motion-handler*) (om-view-container (temp-graphics *global-motion-handler*)))
     (om-remove-subviews (om-view-container (temp-graphics *global-motion-handler*))
                         (temp-graphics *global-motion-handler*)))
+
   (setf (container-view *global-motion-handler*) self
-        (init-pos *global-motion-handler*) pos
-        (min-move *global-motion-handler*) min-move
-        (temp-graphics *global-motion-handler*) graphics
-        (motion-fun *global-motion-handler*) motion
-        (release-fun *global-motion-handler*) release
-        (active *global-motion-handler*) (null (min-move *global-motion-handler*)) 
-        ;; if min-move is null the motion is considered active straight away
-        )
-  (when (temp-graphics *global-motion-handler*)
-    (om-add-subviews (container-view *global-motion-handler*) (temp-graphics *global-motion-handler*)))
+      (init-pos *global-motion-handler*) pos
+      (min-move *global-motion-handler*) min-move
+      (temp-graphics *global-motion-handler*) graphics
+      (motion-fun *global-motion-handler*) motion
+      (release-fun *global-motion-handler*) release)
+  
+  (when (null (min-move *global-motion-handler*))
+    ;; if min-move is null the motion is considered active straight away
+    (setf (active *global-motion-handler*) t) 
+    (when (temp-graphics *global-motion-handler*)
+      (om-add-subviews (container-view *global-motion-handler*) (temp-graphics *global-motion-handler*))))
+  
   t)
 
 (defmethod default-motion-action ((self t) position) nil)
 
-(defun handle-temp-graphics-motion (sender pos)
+(defun handle-temp-graphics-motion (sender pos)  
   (when (and *global-motion-handler* (container-view *global-motion-handler*)) 
     (let ((position (om-convert-coordinates pos sender (container-view *global-motion-handler*))))
       (unless (om-points-equal-p (init-pos *global-motion-handler*) position)
+        
         (unless (active *global-motion-handler*)
           (when (or (null (min-move *global-motion-handler*))
                     (>= (abs (- (om-point-x position) (om-point-x (init-pos *global-motion-handler*)))) 
                         (min-move *global-motion-handler*))
                     (>= (abs (- (om-point-y position) (om-point-y (init-pos *global-motion-handler*)))) 
                         (min-move *global-motion-handler*)))
+            
+            (when (temp-graphics *global-motion-handler*)
+              (om-add-subviews (container-view *global-motion-handler*) (temp-graphics *global-motion-handler*)))
+           
             (setf (active *global-motion-handler*) t)
-            ; => move to init function above
-            ;(when (temp-graphics *global-motion-handler*)
-            ;  (om-add-subviews (container-view *global-motion-handler*) (temp-graphics *global-motion-handler*)))
             ))      
+        
         (when (active *global-motion-handler*)
           (default-motion-action (temp-graphics *global-motion-handler*) position)
           (when (motion-fun *global-motion-handler*)
             (funcall (motion-fun *global-motion-handler*) (container-view *global-motion-handler*) position))
-          )))))
+          )
+        ))))
  
+
+(defmethod restore-drawable-view ((self t)) nil)
+
+(defmethod restore-drawable-view ((self om-transient-drawing-view)) 
+  (when (drawn-item self)
+    (capi:manipulate-pinboard self (drawn-item self) :delete)
+    (capi:manipulate-pinboard self (drawn-item self) :add-top)
+    ))
+  
+        
 (defun handle-temp-graphics-release (sender pos)
+  
   (when (and *global-motion-handler* (container-view *global-motion-handler*))
     (let ((position (om-convert-coordinates pos sender (container-view *global-motion-handler*))))
       (when (and (or (null (min-move *global-motion-handler*))
@@ -275,8 +298,12 @@
                  (active *global-motion-handler*)
                  (release-fun *global-motion-handler*))
         (funcall (release-fun *global-motion-handler*) (container-view *global-motion-handler*) position))
+      
       (when (temp-graphics *global-motion-handler*)
         (om-remove-subviews (container-view *global-motion-handler*) (temp-graphics *global-motion-handler*)))
+      
+      (restore-drawable-view (container-view *global-motion-handler*))
+
       (setf (temp-graphics *global-motion-handler*) nil
             (motion-fun *global-motion-handler*) nil
             (release-fun *global-motion-handler*) nil
@@ -284,10 +311,11 @@
             (init-pos *global-motion-handler*) pos
             (min-move *global-motion-handler*) 0
             (container-view *global-motion-handler*) nil)
+      
       )))
 
 ;;; for click&drag actions
-(defmethod om-click-motion-handler :after ((self om-graphic-object) pos) 
+(defmethod om-click-motion-handler :after ((self om-graphic-object) pos)
   (handle-temp-graphics-motion self pos))
 
 (defmethod om-click-release-handler :after ((self om-graphic-object) pos)
@@ -298,13 +326,13 @@
 
 #|
 
-
 ;;;=====================================
 ;;; CLICK-AND-DRAG DRAWING
 ;;;=====================================
 
 ;;; typically called in a click-handler
-(defmethod om-init-motion-click ((self om-graphic-object) position &key motion-draw draw-pane motion-action release-action display-mode)
+(defmethod om-init-motion-click ((self om-graphic-object) position 
+                                 &key motion-draw draw-pane motion-action release-action display-mode)
   ;(print (list "start" self))
   (setf *click-motion-view* self)
   (setf *click-motion-action* t)
@@ -389,7 +417,8 @@
            ;; nothing more to do...
            (setf (capi:output-pane-cached-display-user-info (or draw-pane view)) nil))
           (when release-action
-            (capi::apply-in-pane-process (om-get-view view) release-action view (om-make-point x0 y0) (om-convert-coordinates pos self view))
+            (capi::apply-in-pane-process (om-get-view view) release-action view 
+                                         (om-make-point x0 y0) (om-convert-coordinates pos self view))
             )))
       ;(setf *click-motion-action* nil)
       (setf (temp-data view) nil))))

@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -256,7 +256,6 @@ Lock the box ('b') to keep the current file.
 
 
 (defmethod* SDIFInfo ((self sdifFile) &optional (print t))
-   :icon 639
    :doc "Prints/returns information about the SDIF data in <self>.
 Returns an advanced stream description with every FrameType-MatrixType pair in the file.
 "
@@ -322,7 +321,7 @@ Returns an advanced stream description with every FrameType-MatrixType pair in t
       )))
       
 (defmethod* SDIFTypeDescription ((self SDIFFile) (signature string) &optional (type 'm))
-            :icon 639
+            
             :indoc '("SDIF file" "SDIF type Signature" "Frame / Matrix")
             :initvals '(nil "1TYP" m)
             :menuins '((2 (("Matrix" m) ("Frame" f))))
@@ -401,7 +400,7 @@ Frame type description is a list of lists containing the internal matrix signatu
 
 
 (defmethod* GetNVTList ((self t))
-            :icon 639
+            
             :indoc '("SDIF file")
             :initvals '(nil)
             :doc "Returns the list of Name/Value tables in <self> (SDIFFile object or path to an SDIF file).
@@ -414,7 +413,7 @@ Name/Value tables are formatted as SDIFNVT objects.
 
 
 (defmethod* find-in-nvtlist ((nvtlist list) (entry string) &optional table-num)
-            :icon 639
+            
             :indoc '("list of SDIFNVT" "A name entry in the NameValue table" "Table Number")
             :initvals '(nil "" nil)
             :doc "Finds value corresponding to name <entry> in the name/value tables <nvtlist>.
@@ -432,7 +431,7 @@ Name/Value tables are formatted as SDIFNVT objects.
         rep)))
          
 (defmethod* find-in-nvt ((nvt SDIFNVT) (entry string))
-            :icon 639
+            
             :indoc '("a SDIFNVT object" "A name entry in the Name/Value table")
             :initvals '(nil "")
             :doc "Finds value corresponding to name <entry> in the name/value table <nvt>."
@@ -476,7 +475,7 @@ Name/Value tables are formatted as SDIFNVT objects.
                        
                              (if (and (or (not streamNum) (= streamNum sid))
                                       (string-equal frameT fsig) 
-                                      (or (not tmin) (>= time tmin)))
+                                      (or (not tmin) (>= curr-time tmin)))
                                  
                                  ;;; we're in a candidate frame
                                  (dotimes (m (sdif::SdifFCurrNbMatrix sdiffileptr))
@@ -552,7 +551,7 @@ Name/Value tables are formatted as SDIFNVT objects.
 
 
 (defmethod* GetSDIFData ((self t) sID (frameType string) (matType string) Cnum rmin rmax tmin tmax)
-   :icon 639
+   
    :indoc '("SDIF file" "stream number (int)" "frame type (string)" "matrix type (string)" "field number (int or list)" "min row" "max row" "min time (s)" "max time (s)")
    :outdoc '("matrix values" "times")
    :initvals '(nil 0 "" "" 0 nil nil nil nil)
@@ -667,7 +666,7 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
 
 
 (defmethod* GetSDIFTimes ((self sdifFile) sID frameType matType tmin tmax)
-   :icon 639
+   
    :indoc '("SDIF file" "stream number (integer)" "frame type" "matrix type" "min time (s)" "max time (s)")
    :initvals '(nil 0 "" "" nil nil)
    :doc "Returns a list of times (s) between <tmin> and <tmax> for frames of type <frameType> from the stream <sID> in <self>, containing a matrix of type <matType>.
@@ -683,7 +682,7 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
 
 
 (defmethod* GetSDIFFrames ((self t) &key sID frameType tmin tmax)
-   :icon 639
+   
    :indoc '("SDIF file" "frame type (string)" "matrix type (string)" "stream number"  "min time (s)" "max time (s)")
    :initvals '(nil nil nil 0 nil nil)
    :doc "Creates and returns an SDIFStream instance from SDIF data in stream <sid> of <self>.
@@ -757,7 +756,7 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
 ;;;==========================
 
 (defmethod* SDIF->text ((self string) &optional out-filename)
-   :icon 639
+   
    :indoc '("SDIF file" "text file pathname")
    :doc "Converts <self> to text-SDIF in <out-filename>."
    (let ((outfile (if out-filename 

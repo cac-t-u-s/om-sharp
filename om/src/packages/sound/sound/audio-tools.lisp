@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -59,7 +59,7 @@ If either <amp2> or <d> is NIL, generates a simple envelope with attack and rele
 
 ;;; DB / LIN
 (defmethod* dB->lin ((x t))
-  :icon 141
+  :icon 'conversion
   :indoc '("a value or list of values in dB")
   :initvals '(-20)
   :doc "Converts <x> from dB to linear value."
@@ -68,7 +68,7 @@ If either <amp2> or <d> is NIL, generates a simple envelope with attack and rele
         (t (error "illegal arg ~a" x))))
 
 (defmethod* lin->dB ((x t))
-  :icon 141
+  :icon 'conversion
   :indoc '("a value or list of values")
   :initvals '(0.1)
   :doc "Converts <x> from linear to dB."
@@ -79,32 +79,32 @@ If either <amp2> or <d> is NIL, generates a simple envelope with attack and rele
 
 ;;; SAMPLES / SECONDS
 (defmethod* sec->ms ((n number))
-           :icon 141 
-           :initvals '(0)
-           :indoc '("seconds")
-           :numouts 1
-           :doc "Converts <n> (seconds / floats) to milliseconds (intergers)."
-           (round (* n 1000)))
+  :icon 'conversion
+  :initvals '(0)
+  :indoc '("seconds")
+  :numouts 1
+  :doc "Converts <n> (seconds / floats) to milliseconds (intergers)."
+  (round (* n 1000)))
 
 (defmethod* sec->ms ((n list)) (mapcar #'(lambda (s) (sec->ms s)) n))
 
 (defmethod* ms->sec ((n number))
-           :icon 141 
-           :initvals '(0)
-           :indoc '("milliseconds")
-           :numouts 1
-           :doc "Converts <n> (milliseconds / integers) to seconds (floats)."
+  :icon 'conversion
+  :initvals '(0)
+  :indoc '("milliseconds")
+  :numouts 1
+  :doc "Converts <n> (milliseconds / integers) to seconds (floats)."
   (* n 0.001))
 
 (defmethod* ms->sec ((n list)) (mapcar #'(lambda (s) (ms->sec s)) n))
 
 ;;; SAMPLES / SECONDS
 (defmethod* samples->sec ((samples number) samplerate)
-           :icon 141 
-           :initvals '(0 nil)
-           :indoc '("number of samples" "sample rate (Hz)")
-           :numouts 1
-           :doc "Converts <samples> to a time (or duration) in seconds depending on <samplerate>.
+  :icon 'conversion
+  :initvals '(0 nil)
+  :indoc '("number of samples" "sample rate (Hz)")
+  :numouts 1
+  :doc "Converts <samples> to a time (or duration) in seconds depending on <samplerate>.
 
 If <samplerate> is NIL, the OM default sample rate is used to calculate the time."
    (float (/ samples (or samplerate *default-audio-sr*))))
@@ -113,11 +113,11 @@ If <samplerate> is NIL, the OM default sample rate is used to calculate the time
   (mapcar #'(lambda (input) (samples->sec input samplerate)) samples))
 
 (defmethod* sec->samples ((secs number) samplerate) 
-           :icon 141  
-           :initvals '(0 nil)
-           :indoc '("duration (s)" "sample rate (Hz)")
-           :numouts 1
-           :doc "Converts <secs> to a number of samples depending on <samplerate>.
+  :icon 'conversion
+  :initvals '(0 nil)
+  :indoc '("duration (s)" "sample rate (Hz)")
+  :numouts 1
+  :doc "Converts <secs> to a number of samples depending on <samplerate>.
 
 If <samplerate> is NIL, the OM default sample rate is used to calculate the samples."
   (round (* secs (or samplerate *default-audio-sr*))))
@@ -128,11 +128,11 @@ If <samplerate> is NIL, the OM default sample rate is used to calculate the samp
 
 ;;; SAMPLES / MILLISECONDS
 (defmethod* samples->ms ((samples number) samplerate)
-           :icon 141 
-           :initvals '(0 nil)
-           :indoc '("number of samples" "sample rate (Hz)")
-           :numouts 1
-           :doc "Converts <samples> to a time (or duration) in milliseconds depending on <samplerate>.
+  :icon 'conversion
+  :initvals '(0 nil)
+  :indoc '("number of samples" "sample rate (Hz)")
+  :numouts 1
+  :doc "Converts <samples> to a time (or duration) in milliseconds depending on <samplerate>.
 
 If <samplerate> is NIL, the OM default sample rate is used to calculate the time."
   (* (/ samples (or samplerate *default-audio-sr*)) 1000.0))
@@ -141,11 +141,11 @@ If <samplerate> is NIL, the OM default sample rate is used to calculate the time
   (mapcar #'(lambda (input) (samples->ms input samplerate)) samples))
 
 (defmethod* ms->samples ((ms number) samplerate) 
-           :icon 141  
-           :initvals '(0 nil)
-           :indoc '("duration (ms)" "sample rate (Hz)")
-           :numouts 1
-           :doc "Converts <ms> to a number of samples depending on <samplerate>.
+  :icon 'conversion
+  :initvals '(0 nil)
+  :indoc '("duration (ms)" "sample rate (Hz)")
+  :numouts 1
+  :doc "Converts <ms> to a number of samples depending on <samplerate>.
 
 If <samplerate> is NIL, the OM default sample rate is used to calculate the samples."
   (round (* ms (or samplerate *default-audio-sr*) 0.001)))
@@ -159,11 +159,6 @@ If <samplerate> is NIL, the OM default sample rate is used to calculate the samp
 ;;; MISC. UTILS
 ;;;========================
 
-(defun closest-pwr-of-2 (val)
-  (let ((size 2))
-    (loop while (> val size) do
-          (setf size (* size 2)))
-    size))
 
 (defun clip (val &optional (min 0.0) (max 1.0))
 " If val is below min, return min,

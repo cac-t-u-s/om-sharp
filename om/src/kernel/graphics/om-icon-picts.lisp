@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -21,20 +21,18 @@
 
 (in-package :om)
 
-(defvar *om-loaded-picts* nil)
-
 ;;; Registers all images in a folder OM resources/icon
+;;; ALL IDENTIFIERS ARE KEYWORD SYMBOLS
 (defun register-images (folder)
   (mapc #'(lambda (file)
               (let* ((ic (read-from-string (pathname-name file)))
-                     (id (if (symbolp ic) ic (intern (format nil "~A" ic)))))
-                (om-register-picture id file)
-                (push id *om-loaded-picts*)))
-          (om-directory folder 
-                        :type *om-pict-types*
-                        :directories nil
-                        :recursive t))
-  *om-loaded-picts*)
+                     (id (if (numberp ic) ic (intern-k (format nil "~A" ic)))))
+                (om-register-picture id file)))
+        (om-directory folder 
+                      :type *om-pict-types*
+                      :directories nil
+                      :recursive t))
+  T)
 
 ;;; called at startup
 (defun register-om-icons ()

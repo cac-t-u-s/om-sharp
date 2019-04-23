@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -24,7 +24,6 @@
 (in-package :om)
 
 ;;; THE EQUIVALENT FUNCTION IN TEXT CODE WOULD BE:
-
 (defmacro repeat-n (body count)
   `(loop for ,(gensym) from 1 to ,count
          collect ,body))
@@ -34,10 +33,25 @@
 
 (defclass OMRepeatNBoxCall (OMPatchComponentBox) ())
 
-(defmethod special-box-p ((name (eql 'repeat-n))) t)
+(defmethod special-box-p ((name (eql 'v))) t)
 (defmethod get-box-class ((self Repeater)) 'OMRepeatNBoxCall)
-(defmethod get-icon-id ((self OMRepeatNBoxCall)) 'repeat)
+(defmethod get-icon-id ((self OMRepeatNBoxCall)) :repeat)
 (defmethod object-name-in-inspector ((self OMRepeatNBoxCall)) "repeat-n box")
+
+
+;;; as compared to other OMPatchComponentBox, REPEAT-N has a lock option
+(defmethod valid-property-p ((self OMRepeatNBoxCall) (prop-id (eql :lock))) t)
+(defmethod get-properties-list ((self OMRepeatNBoxCall))
+  (add-properties 
+   (call-next-method) 
+   "Execution" 
+   `((:lock "Lock state (b/1)" ,(lock-modes-for-box self) lock-state))))
+
+
+(defmethod box-symbol ((self Repeater)) 'repeat-n)
+
+(defmethod save-box-reference ((self OMRepeatNBoxCall)) 
+  (box-symbol (reference self)))
 
 (defmethod omNG-make-special-box ((reference (eql 'repeat-n)) pos &optional init-args)
   (omNG-make-new-boxcall 
@@ -80,28 +94,31 @@
               collect (omNG-box-value (car (inputs self))))
         )
       (setf *ev-once-context* old-context)
-      (clear-ev-once (container self)))
+      ; (clear-ev-once (container self))
+      )
     ))
 
 
 ;;; known issue: the compiled version does not behave the same with regards to ev-once behaviour
 ;;; in first-level patch the value is stored between evaluations and after, while in compiled version the variables are scoped.
+;;; update 25/03/2019: I think this is fixed now => otherwise try to single out an example
 
 (defmethod gen-code-for-call ((self OMRepeatNBoxCall) &optional args)
   
   (push-let-context)
   
-  (let* ((body (gen-code (car (inputs self))))
-         (code 
-          `(loop for i from 1 to ,(gen-code (cadr (inputs self))) 
-                 collect 
-                 (let* ,(output-current-let-context) ,body)
-                 )))
-     
+  (unwind-protect
+      
+      (let* ((body (gen-code (car (inputs self)))))
+        `(loop for i from 1 to ,(gen-code (cadr (inputs self))) 
+                     collect 
+                     (let* ,(output-current-let-context) ,body)
+                     )
+        )
+
     (pop-let-context)
 
-    code))
-
+    ))
 
 ;;; NO LAMBDA OR OTHER FUNKY EVAL MODES FOR SPECIAL BOXES LIKE THIS...
 ;;; (the following code should work though...)

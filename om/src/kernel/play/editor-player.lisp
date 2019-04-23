@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -81,14 +81,19 @@
 
 ;;; return the views to update
 (defmethod play-editor-get-ruler-views ((self play-editor-mixin)) nil)
-  
+
+(defmethod default-editor-min-x-range ((self play-editor-mixin)) 1000)
+
+(defmethod default-editor-x-range ((self play-editor-mixin))
+  (let ((play-obj (get-obj-to-play self))) 
+    (if play-obj
+        (list 0 (+ (get-obj-dur play-obj) (default-editor-min-x-range self)))
+      (list (vmin self) (or (vmax self) (default-editor-min-x-range self))))))
+
 (defmethod reinit-x-ranges ((self play-editor-mixin))
-  (let ((play-obj (get-obj-to-play self)))
+  (let ((def-range (default-editor-x-range self)))
     (mapcar #'(lambda (ruler-view)
-                (if play-obj
-                    (set-ruler-range ruler-view 0 (+ (get-obj-dur play-obj) 1000))
-                  (set-ruler-range ruler-view (vmin self) (or (vmax self) 1000)))
-                )
+                (set-ruler-range ruler-view (car def-range) (cadr def-range)))
             (list! (play-editor-get-ruler-views self)))
     ))
 
@@ -189,7 +194,6 @@
   (when (object self) (play-box-callback (object self) time)))
 
 (defmethod stop-editor-callback ((self play-editor-mixin)) 
-  ;(mapcar #'(lambda (view) (stop-cursor view)) (cursor-panes self))
   (when (play-button self) (unselect (play-button self)))
   (when (pause-button self) (unselect (pause-button self)))
   (mapcar 'stop-cursor (remove nil (cursor-panes self)))
@@ -280,6 +284,7 @@
              (call-next-method) ;; if the interval is already reset: check if there is another 'escape' to do
            (editor-reset-interval self)))
      (editor-stop self)
+     (call-next-method)
      t)
     (otherwise (call-next-method))
     ))
@@ -302,6 +307,12 @@
    (cursor-pos :initform 0 :accessor cursor-pos))
   (:default-initargs :fit-size-to-children nil))
 
+(defmethod time-to-pixel ((self x-cursor-graduated-view) time) 
+  (x-to-pix self time))
+
+;;; => TO GET IT TO APPLY FOR MINIVIEWS AS WELL
+(defmethod time-to-pixel ((self omobjectboxframe) time)
+  (miniview-time-to-pixel (get-box-value (object self)) self time))
 
 ;++++++++++++++++++++++++++++++++
 ; RULES FOR THE CURSOR:
@@ -314,11 +325,10 @@
 ;++++++++++++++++++++++++++++++++
 
 (defmethod draw-cursor-line ((self x-cursor-graduated-view) position size)
-  (om-with-line-size 2
-    (om-with-fg-color (om-make-color 0.8 0.5 0.5)
-      (om-draw-line (om-point-x position) (om-point-y position)
-                    (om-point-x position)
-                    (+ (om-point-y position) (om-point-y size))))))
+  (om-draw-line (om-point-x position) (om-point-y position)
+                (om-point-x position)
+                (+ (om-point-y position) (om-point-y size))
+                :color (om-make-color 0.8 0.5 0.5)))
 
 (defmethod drag-move-cursor ((self x-cursor-graduated-view) position)
   (om-init-temp-graphics-motion 
@@ -359,8 +369,6 @@
   (update-cursor view (cursor-pos view))
   (call-next-method))
 
-(defmethod time-to-pixel ((self x-cursor-graduated-view) time) 
-  (x-to-pix self time))
 
 (defmethod pixel-to-time ((self x-cursor-graduated-view) x) 
    (round (pix-to-x self x)))
@@ -429,7 +437,7 @@
 (defmethod make-play-button ((editor play-editor-mixin) &key size enable) 
   (setf (play-button editor)
         (om-make-graphic-object 'om-icon-button :size (or size (omp 16 16)) 
-                                :icon 'icon-play-black :icon-pushed 'icon-play-green :icon-disabled 'icon-play-gray
+                                :icon :icon-play-black :icon-pushed :icon-play-green :icon-disabled :icon-play-gray
                                 :lock-push t :enabled enable
                                 :action #'(lambda (b)
                                             (declare (ignore b))
@@ -439,7 +447,7 @@
 (defmethod make-pause-button ((editor play-editor-mixin) &key size enable) 
   (setf (pause-button editor)
         (om-make-graphic-object 'om-icon-button :size (or size (omp 16 16)) 
-                                :icon 'icon-pause-black :icon-pushed 'icon-pause-orange :icon-disabled 'icon-pause-gray
+                                :icon :icon-pause-black :icon-pushed :icon-pause-orange :icon-disabled :icon-pause-gray
                                 :lock-push t :enabled enable
                                 :action #'(lambda (b)
                                             (declare (ignore b))
@@ -448,7 +456,7 @@
 (defmethod make-stop-button ((editor play-editor-mixin) &key size enable) 
   (setf (stop-button editor)
         (om-make-graphic-object 'om-icon-button :size (or size (omp 16 16)) 
-                                :icon 'icon-stop-black :icon-pushed 'icon-stop-white :icon-disabled 'icon-stop-gray
+                                :icon :icon-stop-black :icon-pushed :icon-stop-white :icon-disabled :icon-stop-gray
                                 :lock-push nil :enabled enable
                                 :action #'(lambda (b)
                                             (declare (ignore b))
@@ -459,7 +467,7 @@
 (defmethod make-previous-button ((editor play-editor-mixin) &key size enable) 
   (setf (prev-button editor)
         (om-make-graphic-object 'om-icon-button :size (or size (omp 16 16)) 
-                                :icon 'icon-previous-black :icon-pushed 'icon-previous-white :icon-disabled 'icon-previous-gray
+                                :icon :icon-previous-black :icon-pushed :icon-previous-white :icon-disabled :icon-previous-gray
                                 :lock-push nil :enabled enable
                                 :action #'(lambda (b)
                                             (declare (ignore b))
@@ -468,7 +476,7 @@
 (defmethod make-next-button ((editor play-editor-mixin) &key size enable) 
   (setf (next-button editor)
         (om-make-graphic-object 'om-icon-button :size (or size (omp 16 16)) 
-                                :icon 'icon-next-black :icon-pushed 'icon-next-white :icon-disabled 'icon-next-gray
+                                :icon :icon-next-black :icon-pushed :icon-next-white :icon-disabled :icon-next-gray
                                 :lock-push nil :enabled enable
                                 :action #'(lambda (b)
                                             (declare (ignore b))
@@ -477,7 +485,7 @@
 (defmethod make-rec-button ((editor play-editor-mixin) &key size enable) 
   (setf (rec-button editor)
         (om-make-graphic-object 'om-icon-button :size (or size (omp 16 16)) 
-                          :icon 'icon-record-black :icon-pushed 'icon-record-red :icon-disabled 'icon-record-gray
+                          :icon :icon-record-black :icon-pushed :icon-record-red :icon-disabled :icon-record-gray
                           :lock-push t :enabled enable
                           :action #'(lambda (b)
                                       (declare (ignore b))
@@ -487,7 +495,7 @@
 (defmethod make-repeat-button ((editor play-editor-mixin) &key size enable) 
   (setf (repeat-button editor)
         (om-make-graphic-object 'om-icon-button :size (or size (omp 16 16)) 
-                          :icon 'icon-repeat-black :icon-pushed 'icon-repeat-white
+                          :icon :icon-repeat-black :icon-pushed :icon-repeat-white
                           :lock-push t :enabled enable
                           :action #'(lambda (b)
                                       (editor-repeat editor (pushed b))))))
@@ -642,7 +650,7 @@
 ;;; A RULER WITH TIME GRADUATION + MOVING CURSOR
 ;;;==========================
 (defclass time-ruler (x-ruler-view x-cursor-graduated-view)
-  ((unit :accessor unit :initform :sec :initarg :unit)
+  ((unit :accessor unit :initform :ms :initarg :unit)
    (bottom-p :accessor bottom-p :initform t :initarg :bottom-p) ;bottom-p indicates if the arrow need to be on the top or the bottom (default is on the top)
    (markers-p :accessor markers-p :initform t :initarg :markers-p) ;use or not markers
    (onset-p :accessor onset-p :initform t :initarg :onset-p) ;use or not onset for markers (maquette vs timeline)

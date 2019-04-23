@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -60,10 +60,6 @@
 (defun check-folder (path)
   (unless (probe-file path) (om-create-directory path :if-exists nil))
   path)
-
-(defun pathname-dir (pathname)
-  (make-pathname :directory (pathname-directory pathname)
-                 :host (pathname-host pathname) :device (pathname-device pathname)))
 
 
 ; (find-file-in-folder "Untitled" "/Users/bresson/Desktop/" :recursive t :return-all t)
@@ -185,14 +181,15 @@
 
 ;;; a utility function to get the executable path from a .app on Mac
 (defun real-exec-pathname (path)
-  (let ((name (car (last (pathname-directory path)))))
-    (if (and (om-directory-pathname-p path)
+  (let* ((path-path (pathname path))
+         (name (car (last (pathname-directory path-path)))))
+    (if (and (om-directory-pathname-p path-path)
              (string-equal "app" (subseq name (- (length name) 3))))
         ;;; path is an application bundle
-        (make-pathname :directory (append (pathname-directory path) (list "Contents" "MacOS"))
+        (make-pathname :directory (append (pathname-directory path-path) (list "Contents" "MacOS"))
                        :name (subseq name 0 (- (length name) 4)))
       ;;; otherwise...
-      path)))
+      path-path)))
 
 
 

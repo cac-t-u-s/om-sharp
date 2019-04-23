@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -48,8 +48,10 @@
 (defclass OMMemoryBox (OMPatchComponentBox) ())
 
 (defmethod get-box-class ((self OMMemory)) 'OMMemoryBox)
+(defmethod box-symbol ((self OMMemory)) 'mem)
 
-(defmethod get-icon-id ((self OMMemoryBox)) 'm-mem)
+
+(defmethod get-icon-id ((self OMMemoryBox)) :m-mem)
 (defmethod object-name-in-inspector ((self OMMemoryBox)) "memory/delay box")
 
 (defmethod omNG-make-special-box ((reference (eql 'mem)) pos &optional init-args)
@@ -161,16 +163,20 @@
 
 
 (defmethod special-box-p ((name (eql 'collect))) t)
+(defmethod special-item-reference-class ((item (eql 'collect))) 'OMCollect)
 
 (defclass OMCollect (OMPatchComponentWithMemory) ()
-  (:documentation "Generalized collector utility."))
+  (:documentation "General collector"))
 
 (defclass OMCollectBox (OMPatchComponentBox) ())
 
 (defmethod get-box-class ((self OMCollect)) 'OMCollectBox)
+(defmethod box-symbol ((self OMCollect)) 'collect)
 
-(defmethod get-icon-id ((self OMCollectBox)) 'm-mem)
+(defmethod get-icon-id ((self OMCollectBox)) :m-mem)
 (defmethod object-name-in-inspector ((self OMCollectBox)) "collector box")
+
+
 
 (defmethod omNG-make-special-box ((reference (eql 'collect)) pos &optional init-args)
   (let ((name (car (list! init-args))))
@@ -275,16 +281,18 @@
 
 (defmethod gen-code  ((self OMCollectBox) &optional (numout 0))
 
-  ; (print (list "gen-code collect - stack = " *let-list-stack*))
+  ;(print (list (mem-var (reference self)) "gen-code collect - stack = " *let-list-stack*))
   
   (let* ((global-var (mem-var (reference self)))
          (local-name (intern (string+ (symbol-name global-var) "-LOCAL")))
          (first-call (not (check-let-statement local-name :global))))
     
+    ; (print (list "gen-code" local-name first-call))
+
     (when first-call
       (let ((init-val (gen-code (nth 2 (inputs self)))))
         (push-let-statement `(,local-name ,(if (equal init-val t) nil init-val)) :global)))
-    
+   
     (case numout
       ;;; collect
       (0 `(let ((collect-val ,(gen-code (nth 0 (inputs self))))) 
@@ -297,6 +305,7 @@
             (setf ,local-name (if (equal init-val t) nil init-val))
             init-val))
       )
+    
     ))
 
 

@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -19,10 +19,21 @@
 
 (mapc #'(lambda (filename) 
           (compile&load (decode-local-path filename))) 
+      
       '("score-objects/score-object"
         "score-objects/chord"
         "score-objects/chord-seq"
+        "score-objects/tree"
+        "score-objects/voice"
         "score-objects/score"
+
+        "editor/draw-score-basic"
+        "editor/draw-score-rhythm"
+
+        "editor/score-editor"
+        "editor/chord-editor"
+        "editor/chord-seq-editor"
+
         "tools/conversions"
         "import-export/musicxml"))
 
@@ -36,6 +47,8 @@
  :subpackages  (list (omNG-make-package 
                       "Utils"
                       :doc "Unit conversion utilities etc."
-                      :classes nil
+                      :classes '(note chord chord-seq voice)
                       :functions '(approx-m mc->f f->mc mc->n n->mc beats->ms)
                       :subpackages nil)))
+
+

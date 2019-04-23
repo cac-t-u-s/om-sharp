@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -287,7 +287,7 @@
 ;;; LIST OF CHOICES
 ;;;====================================
 
-(defmethod make-prop-item ((type list) prop-id object &key default update)
+(defmethod make-prop-item ((type cons) prop-id object &key default update)
   (let ((popup (om-make-di 'om-popup-list 
                            :items (remove :default type) 
                            :resizable nil
@@ -441,7 +441,7 @@
                 :focus nil :default nil
                 :text (font-to-str (get-property object prop-id))
                 :size (om-make-point (list :string (font-to-str (get-property object prop-id))) 26)
-                :font (om-def-font :font1 :style (om-font-style (font-font current)))
+                :font (om-def-font :font1 :style (om-font-style (get-property object prop-id)))
                 :di-action #'(lambda (item)
                                (let ((choice (om-choose-font-dialog :font (or (get-property object prop-id)
                                                                               (and update (om-get-font update))))))
@@ -557,7 +557,7 @@
                     (list 
                      textview
                      (om-make-graphic-object 'om-icon-button :size (omp 20 18) 
-                                             :icon 'folder :icon-pushed 'folder-pushed
+                                             :icon :folder :icon-pushed :folder-pushed
                                              :action #'(lambda (button) (declare (ignore button))
                                                          (let ((file (om-choose-file-dialog :prompt "Select a new reference file"
                                                                                             :types (doctype-info :om)
@@ -695,7 +695,7 @@
 (defclass virtual-object-selection () 
   ((objects :initarg :objects :initform nil :accessor objects)))
    
-(defmethod object-name-in-inspector ((self virtual-object-selection)) "[MULTIPLE SELECTION]")
+(defmethod object-name-in-inspector ((self virtual-object-selection)) "multiple selection")
 
 (defmethod get-update-frame ((self virtual-object-selection)) self)
 

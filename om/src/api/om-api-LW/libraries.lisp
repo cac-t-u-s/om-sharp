@@ -107,6 +107,9 @@
 
 (defun om-pointer-get-ptr (om-pointer) (om-pointer-ptr om-pointer))
 
+;;; can be redefined for subtypes of om-pointer
+(defmethod om-pointer-release-function ((self om-pointer)) 'om-free-pointer)
+
 (defmethod om-free-pointer ((self om-pointer))
   (om-free-memory (om-pointer-ptr self)))
 
@@ -114,8 +117,9 @@
   (setf (om-pointer-count omptr) (1+ (om-pointer-count omptr))))
 
 (defmethod om-release ((omptr om-pointer))
-  (when (<= (setf (om-pointer-count omptr) (1- (om-pointer-count omptr))) 0)
-    (om-free-pointer omptr)))
+  (setf (om-pointer-count omptr) (1- (om-pointer-count omptr)))
+  (when (<= (om-pointer-count omptr) 0)
+    (funcall (om-pointer-release-function omptr) omptr)))
 
 ;;;========================
 ;;; CLEANUP/DEALLOC UTILS

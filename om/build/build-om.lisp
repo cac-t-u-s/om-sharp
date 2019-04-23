@@ -21,16 +21,31 @@
 ;;; APP/VERSION DATA
 ;;;=======================================
 
-(defparameter *app-name* "o7")
-(defparameter *om-version* 0.010200)
-(defparameter *beta-release* t)
-(defparameter *version-string* "")
+(defparameter *app-name* "om7-beta")
+
+(defparameter *version-major* 0) ;;; => 7!
+(defparameter *version-minor* 1) 
+(defparameter *version-patch* 8)
+(defparameter *version-update* 0)
+
+(defparameter *om-version* 
+  (+ *version-major* 
+     (* *version-minor* .01) 
+     (* *version-patch* .0001) 
+     (* *version-update* .000001)))
+
+(defparameter *version-string* 
+  (concatenate 'string (format nil "~d.~d" *version-major* *version-minor*)
+               (if (and *version-patch* (plusp *version-patch*)) (format nil ".~d" *version-patch*) "")
+               (if (and *version-update* (plusp *version-update*)) (format nil "-u~d" *version-update*) "")
+               ))
+
 (defparameter *release-language* :en)
 (defparameter *release-date* (sys::date-string nil nil))
 (defparameter *release-author* "jean bresson")
 
-(setf *version-string* (version-to-string *om-version* t *beta-release*))
-(export '(*app-name* *om-version* *beta-release* *version-string* *release-language* *release-date* *release-author*) :cl-user)
+
+(export '(*app-name* *om-version* *version-string* *release-language* *release-date* *release-author*) :cl-user)
 
 (defparameter *om-root-directory* (make-pathname :directory (butlast (pathname-directory *load-pathname*))))
 
@@ -70,8 +85,8 @@
 (load (merge-pathnames "XML/load-xml" *externals-directory*))
 
 (progn 
-  (load (merge-pathnames "Yason/package" *externals-directory*))
-  (load (merge-pathnames "Yason/parse" *externals-directory*)))
+  (compile&load (merge-pathnames "Yason/package" *externals-directory*))
+  (compile&load (merge-pathnames "Yason/parse" *externals-directory*)))
 
 (progn
   (load (merge-pathnames "cl-svg/cl-svg.asd" *externals-directory*))
@@ -95,7 +110,7 @@
 
 (load (merge-pathnames "src/kernel/kernel-files.lisp" cl-user::*om-root-directory*))
 
-(push :o7 *features*)
+(push :om7 *features*)
 
 ;;; used for source tracking
 ;;; updated in delivered init call
@@ -138,7 +153,6 @@
 (load-om-package "sdif")
 (load-om-package "osc")
 (load-om-package "sound")
-(load-om-package "synth")
 (load-om-package "space")
 (load-om-package "interface")
 

@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -41,8 +41,9 @@
          "SDIF"
          `((:macosx ,(om-fi::om-foreign-library-pathname "libSDIF.dylib"))
            (:windows (:or ,(om-fi::om-foreign-library-pathname "libsdif.dll") (:default "sdif")))
-	   (:linux (:or "/usr/local/lib/libsdif.so" "libsdif.so" ,(om-fi::om-foreign-library-pathname "libsdif.so")))
-           (t (:default "libsdif"))))))
+	   (:linux (:or "libsdif.so" ,(om-fi::om-foreign-library-pathname "libsdif.so")))
+           (t (:default "libsdif")))))
+  (setf sdif::*sdif-initialized* NIL))
 
 (om-fi::add-foreign-loader 'load-sdif-lib)
 

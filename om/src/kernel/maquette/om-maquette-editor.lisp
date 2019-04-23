@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -511,9 +511,11 @@
 (defmethod draw-temporal-box ((self OMBox) view x y w h &optional (time 0))
   (let ((bgcolor (box-draw-color self)))
     (unless (om-color-null-p bgcolor)
-      (om-with-fg-color (if (> (om-color-a (color-color bgcolor)) 0.6)
-                            (om-make-color-alpha (color-color bgcolor) 0.6)
-                          (color-color bgcolor))
+      (om-with-fg-color (cond ((selected self)
+                               (om-make-color-alpha (color-color bgcolor) 1.0)) ;; 0.0 is also nice :)
+                              ((> (om-color-a (color-color bgcolor)) 0.6)
+                               (om-make-color-alpha (color-color bgcolor) 0.6))
+                              (t (color-color bgcolor)))
         (om-draw-rect x y w h :fill t))))
   (om-with-fg-color (om-def-color :white)
     (om-draw-rect x y w h :fill nil))
@@ -522,10 +524,12 @@
     
 (defmethod draw-temporal-box ((self OMBoxPatch) view x y w h &optional (time 0))
   (call-next-method)
+
   (case (display self)  
     (:mini-view 
-     (om-draw-picture (icon (reference self)) :x (+ x 4) :y (+ y 4) :w 18 :h 18)
      (draw-maquette-mini-view (reference self) self (+ x 20) y (- w 40) h time))
+    (:text 
+     (draw-values-as-text self x y))
     (:value 
      (let ((dur (or (get-obj-dur (get-box-value self)) (box-w self))))
        (om-with-clip-rect view x y w h
@@ -534,14 +538,13 @@
                                       (dx-to-dpix view dur)
                                     w)
                                   h time)
-         ;;; icon
-         (om-draw-picture (icon (reference self)) :x (+ x 4) :y (+ y 4) :w 18 :h 18)
+         (draw-mini-arrow (+ x 24) (+ y 9) 3 10 7 1)
          ;;; arrow
-         (let ((ax (+ x 16)))
-           (om-with-fg-color (om-make-color 1 1 1 0.7)
-             (om-draw-rect (+ ax 10) 8 8 6 :fill t)
-             (om-draw-polygon (list (+ ax 7) 13 (+ ax 21) 13 (+ ax 14) 19) :fill t)
-             ))
+         ;(let ((ax (+ x 16)))
+         ;  (om-with-fg-color (om-make-color 1 1 1 0.7)
+         ;    (om-draw-rect (+ ax 10) 8 8 6 :fill t)
+         ;    (om-draw-polygon (list (+ ax 7) 13 (+ ax 21) 13 (+ ax 14) 19) :fill t)
+         ;    ))
          )))
     (:hidden  (om-with-font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))
                             (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
@@ -549,6 +552,7 @@
     
     )
   
+  (draw-patch-icon self x y)
   (draw-eval-buttons view self x y x 12)
 
   (when (find-if 'reactive (outputs self))
@@ -613,13 +617,19 @@
          (move-editor-selection editor :dy (if (om-shift-key-p) -10 -1))
          (om-invalidate-view (main-view editor))
          (report-modifications editor)))
+      
+      (:om-key-esc
+       (select-unselect-all editor nil))
+
       (#\v (with-schedulable-object maquette
                                     (loop for tb in (get-selected-boxes editor) do 
                                           (eval-box tb)
                                           (reset-cache-display tb)
                                           (contextual-update tb maquette)))
            (om-invalidate-view (window editor))
+           (clear-ev-once (object editor))
            (report-modifications editor))
+
       (#\r (unless (edit-lock editor)
              (loop for tb in (get-selected-boxes editor) do (set-reactive-mode tb))
              (om-invalidate-view (window editor))))
@@ -693,7 +703,7 @@
   "translates elements from a time marker with dt"
   (when (get-box-value self)
     (with-schedulable-object (container self)
-                             (translate-elements-from-time-marker (get-box-value self) elems dt))
+                             (translate-elements-from-time-marker (get-obj-to-play self) elems dt))
     (reset-cache-display self)
     (contextual-update self (container self))))
 
@@ -707,39 +717,6 @@
   (when (and (get-box-value self) (show-markers self))
     (get-time-markers (get-box-value self))))
 
-
-
-;;;========================
-;;; PLAYER
-;;;========================
-
-(defmethod play-editor-callback ((self maquette-editor) time)
-  (let ((t-auto (get-tempo-automation self)))
-    (set-time-display self time)
-    (mapcar #'(lambda (view) (when view (update-cursor view time))) (cursor-panes self))
-    ;(if (not (getf (beat-info self) :next-date))
-    ;    (setf (getf (beat-info self) :next-date) (get-beat-date t-auto (getf (beat-info self) :beat-count))))
-    ;(loop while (>= time (getf (beat-info self) :next-date))
-    ;      do
-    ;      (om-set-dialog-item-text (cadr (om-subviews (tempo-box self))) (format nil "~$" (tempo-at-beat t-auto (getf (beat-info self) :beat-count))))
-    ;      (incf (getf (beat-info self) :beat-count) 0.1)
-    ;      (setf (getf (beat-info self) :next-date) (get-beat-date t-auto (getf (beat-info self) :beat-count))))
-    ))
-
-(defmethod stop-editor-callback ((self maquette-editor))
-  (setf (getf (beat-info self) :beat-count) 0
-        (getf (beat-info self) :next-date) nil)
-  (when (tempo-box self)
-    (om-set-dialog-item-text (cadr (om-subviews (tempo-box self))) (format nil "~$" (tempo-at-beat (get-tempo-automation self) 0))))
-  (call-next-method))
-
-
-(defmethod get-interval-to-play ((self maquette-editor))
-  (let ((sb (get-selected-boxes self)))
-    (if sb
-        (list (reduce 'min sb :key 'get-box-onset)
-              (reduce 'max sb :key 'get-box-end-date))
-      (call-next-method))))
 
 
 ;;;========================
@@ -765,7 +742,7 @@
                            :container-editor maq-editor)))
     
     (let ((pl (om-make-layout 'om-simple-layout))
-          (pv (make-editor-window-contents (editor ctrlpatch))))
+          (pv (cadr (multiple-value-list (make-editor-window-contents (editor ctrlpatch))))))
       
       (om-add-subviews pl pv)
       (setf (main-view (editor ctrlpatch)) pv)
@@ -783,7 +760,7 @@
 (defun show-hide-control-patch-editor (maq-editor show)
   
   (unless (equal (show-control-patch maq-editor) show)
-   
+    
     (setf (show-control-patch maq-editor) show)
    
     (let ((ctrlpatch (ctrlpatch (object maq-editor))))
@@ -851,7 +828,7 @@
                (let (b1 b2)
                  (setq b1 (om-make-graphic-object 
                            'om-icon-button :size (omp 16 16) 
-                           :icon 'icon-maqview-black :icon-disabled 'icon-maqview-gray
+                           :icon :icon-maqview-black :icon-disabled :icon-maqview-gray
                            :lock-push nil :enabled (equal (view-mode editor) :tracks)
                            :action #'(lambda (b) 
                                        (unless (equal (view-mode editor) :maquette)
@@ -860,7 +837,7 @@
                                          ))))
                  (setq b2 (om-make-graphic-object 
                            'om-icon-button :size (omp 16 16) 
-                           :icon 'icon-trackview-black :icon-disabled 'icon-trackview-gray
+                           :icon :icon-trackview-black :icon-disabled :icon-trackview-gray
                            :lock-push nil :enabled (equal (view-mode editor) :maquette)
                            :action #'(lambda (b) 
                                        (unless (equal (view-mode editor) :tracks)
@@ -876,14 +853,14 @@
                (let (b1 b2 b3 b4)
                  (setq b1 (om-make-graphic-object 
                            'om-icon-button :size (omp 16 16) 
-                           :icon 'ctrlpatch-black :icon-pushed 'ctrlpatch-gray
+                           :icon :ctrlpatch-black :icon-pushed :ctrlpatch-gray
                            :lock-push t :enabled t :pushed (show-control-patch editor)
                            :action #'(lambda (b)
                                        (show-hide-control-patch-editor editor (pushed b))
                                        )))
                  (setq b2 (om-make-graphic-object 
                            'om-icon-button :size (omp 16 16) 
-                           :icon 'maqeval-black :icon-pushed 'maqeval-gray
+                           :icon :maqeval-black :icon-pushed :maqeval-gray
                            :lock-push nil :enabled t
                            :action #'(lambda (b)
                                        (let ((maq (get-obj-to-play editor)))
@@ -892,7 +869,7 @@
                                          ))))
                  (setq b3 (om-make-graphic-object 
                            'om-icon-button :size (omp 16 16) 
-                           :icon 'icon-trash-black :icon-pushed 'icon-trash-gray
+                           :icon :icon-trash-black :icon-pushed :icon-trash-gray
                            :lock-push nil :enabled t
                            :action #'(lambda (b) 
                                        (when (om-y-or-n-dialog "Do you really want to remove all boxes in the maquette?")
@@ -901,7 +878,7 @@
                                          ))))
                  (setq b4 (om-make-graphic-object 
                            'om-icon-button :size (omp 16 16) 
-                           :icon 'icon-no-exec-black :icon-pushed 'icon-no-exec-gray
+                           :icon :icon-no-exec-black :icon-pushed :icon-no-exec-gray
                            :lock-push t :enabled t
                            :action #'(lambda (b)
                                        (with-schedulable-object maquette
@@ -963,7 +940,15 @@
                                   (get-g-component editor :bottom-view))))
                 ;;; RIGHT (INSPECTOR)
                 (when  (equal (editor-window-config editor) :inspector)
-                  (list :divider inspector-pane))
+                  (list :divider 
+                        (om-make-layout 
+                         'om-column-layout :delta nil :ratios '(nil 1) :align :right
+                         :subviews (list (om-make-graphic-object 
+                                          'om-icon-button :icon :xx :icon-pushed :xx-pushed
+                                          :size (omp 12 12)
+                                          :action #'(lambda (b) (patch-editor-set-window-config editor nil))
+                                          )
+                                         inspector-pane))))
                 ))
     ))
 
@@ -1172,6 +1157,38 @@
   (player-stop-object (player self) (metronome self))
   (call-next-method))
 
+
+;;;========================
+;;; PLAYER
+;;;========================
+
+(defmethod play-editor-callback ((self maquette-editor) time)
+  (let ((t-auto (get-tempo-automation self)))
+    (set-time-display self time)
+    (mapcar #'(lambda (view) (when view (update-cursor view time))) (cursor-panes self))
+    ;(if (not (getf (beat-info self) :next-date))
+    ;    (setf (getf (beat-info self) :next-date) (get-beat-date t-auto (getf (beat-info self) :beat-count))))
+    ;(loop while (>= time (getf (beat-info self) :next-date))
+    ;      do
+    ;      (om-set-dialog-item-text (cadr (om-subviews (tempo-box self))) (format nil "~$" (tempo-at-beat t-auto (getf (beat-info self) :beat-count))))
+    ;      (incf (getf (beat-info self) :beat-count) 0.1)
+    ;      (setf (getf (beat-info self) :next-date) (get-beat-date t-auto (getf (beat-info self) :beat-count))))
+    ))
+
+(defmethod stop-editor-callback ((self maquette-editor))
+  (setf (getf (beat-info self) :beat-count) 0
+        (getf (beat-info self) :next-date) nil)
+  (when (tempo-box self)
+    (om-set-dialog-item-text (cadr (om-subviews (tempo-box self))) (format nil "~$" (tempo-at-beat (get-tempo-automation self) 0))))
+  (call-next-method))
+
+
+(defmethod get-interval-to-play ((self maquette-editor))
+  (let ((sb (get-selected-boxes self)))
+    (if sb
+        (list (reduce 'min sb :key 'get-box-onset)
+              (reduce 'max sb :key 'get-box-end-date))
+      (call-next-method))))
 
 
 

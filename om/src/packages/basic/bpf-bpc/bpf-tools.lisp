@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -98,13 +98,17 @@ If <color> is :random, will choose a random color. It can also be a color symbol
 
 ;;; could be smart to put this directly into arithm-ser
 (defun sample-interval (x1 x2 nb-samples)
-  (let* ((inter (/ (- x2 x1) (- nb-samples 1)))
+  (if (= x1 x2) 
+      (make-list nb-samples :initial-element x1)
+    
+    (let* ((inter (/ (- x2 x1) (- nb-samples 1)))
          (series (loop for i from x1 to x2 by inter collect i)))
-    (if (> (+ x1 (* inter nb-samples)) x2) 
-        ;; this can happend because of floatig-point errors
-        ;; (< (length series) nb-samples)  ;; equivalent
-        (append series (list x2))
-      series)))
+      (if (> (+ x1 (* inter nb-samples)) x2) 
+          ;; this can happend because of floatig-point errors
+          ;; (< (length series) nb-samples)  ;; equivalent
+          (append series (list x2))
+        series))
+  ))
       
 
 (defmethod* om-sample ((self bpf) (nbs-sr number) &optional xmin xmax dec)
@@ -200,7 +204,7 @@ If <color> is :random, will choose a random color. It can also be a color symbol
 ;;;=========================================== 
 
 (defmethod* om-spline ((self bpf) (resolution integer) (degree integer))
-  :icon 234
+  :icon :bpf-spline
   :initvals '(nil 100 3)
   :indoc '("a BPF or BPC" "number of points" "interpolation degree")
   :numouts 3

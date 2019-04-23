@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -282,7 +282,7 @@ If <nbs-sr> is an float (e.g. 0.5, 1.0...) it is interpreted as the sample rate 
 (defmethod* reduce-points ((points list) &optional (approx 0.02))
             :indoc '("a list of (x y) points or a BPF" "a number between 0.0 and 1.0")
   :initvals '(nil 0.02)
-  :icon 910
+  :icon :bpf-sample
   :doc "Reduces <points> by removing all points closer than [<approx> * the amplitude range of the function] to the corresponding interpolated values.
 
   <approx> = 1 means the maximum reduction (all intermediate points are removed)

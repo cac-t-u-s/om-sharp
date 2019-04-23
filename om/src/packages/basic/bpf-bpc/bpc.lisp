@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -140,6 +140,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
   (setf (slot-value self 'decimals) decimals)
   (check-decimals self)
   (set-bpf-points self :x x :y y :time times)
+  (time-sequence-update-internal-times self)
   (decimals self)))
 
 (defmethod init-bpf-points ((self BPC))

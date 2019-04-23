@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -330,6 +330,13 @@
 (defclass 3D-sphere (om-3D-object) 
   ((center :accessor center :initarg :center :initform nil)
    (size :accessor size :initarg :size :initform nil)))
+
+
+(defmethod initialize-instance :after ((self 3D-sphere) &rest initargs)
+  (when (center self) ;; temporary: the poinst are also used for calculating the bounding-box   
+    (om-set-3Dobj-points self (list (center self)))
+    ))
+
 
 (defmethod om-draw-contents ((self 3D-sphere))
   (if (om-3Dobj-color self)

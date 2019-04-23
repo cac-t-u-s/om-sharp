@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -28,7 +28,7 @@
                    (list (omNG-make-package "Lisp" 
                                             :doc "Basic functions defined in the Lisp programming language"
                                             :functions '(first second third nth rest nthcdr butlast reverse length
-                                                               list remove  cons  append  apply  funcall mapcar mapcan))
+                                                               list remove cons append apply funcall mapcar mapcan))
                          (omNG-make-package "Control" 
                                             :doc "Special boxes implementing control operators"
                                             :functions '(seq hub split omif omand omor)
@@ -49,7 +49,18 @@
                          (omNG-make-package "Reactive" 
                                             :doc "Special boxes for reactive patches"
                                             :functions '(send receive route timed-coll)
-                                            )))))
+                                            )
+                         (omNG-make-package "Interactive boxes"
+                                            :doc "This package contains special interface boxes and widgets to use in OM patches (sliders, buttons, etc.)"
+                                            :special-symbols '(button slider list-selection)
+                                            )
+
+                         (omNG-make-package "Meta" 
+                                            :doc "Visual program / maquette manipulation"
+                                            :functions '(get-boxes m-add m-remove m-move m-objects m-flush)
+                                            :special-symbols '(mybox mymaquette)
+                                            )
+                         ))))
   ;(add-ref-section (gen-ref-entries kernelpack))
   )
 

@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -39,7 +39,6 @@ All boxes which their reference is a OM generic function are instances of this c
 
 (defmethod allow-rename ((self OMBoxcall)) nil)
 
-(defmethod get-box-value ((self OMBoxCall)) (car (value self)))
 
 (defmethod find-persistant-container ((self OMBox))
   (let ((container (container self)))
@@ -55,7 +54,7 @@ All boxes which their reference is a OM generic function are instances of this c
 
 (defmethod lock-modes-for-box ((self OMBoxCall)) 
   (append '(nil :locked) 
-          (if (get-pref-value :general :auto-ev-once-mode) nil :eval-once)))
+          (if (get-pref-value :general :auto-ev-once-mode) nil '(:eval-once))))
 
 (defmethod eval-modes-for-box ((self OMBoxCall)) '(nil :lambda :reference :box))
 
@@ -106,7 +105,8 @@ All boxes which their reference is a OM generic function are instances of this c
     ))
   
 (defmethod switch-lambda-mode ((box OMBoxCall)) 
-  (when (valid-property-p box :lambda)
+  (when (and (valid-property-p box :lambda)
+             (member :lambda (eval-modes-for-box box)))
     (set-lambda box (if (lambda-state box) nil :lambda))
     (update-after-change-mode box)
     ))
@@ -141,6 +141,11 @@ All boxes which their reference is a OM generic function are instances of this c
 ;--------------------------------------
 ; DEFAULT OUTPUTS
 ;-------------------------------------------
+
+
+(defmethod inputs-visible ((self OMBoxCall))
+  (equal :reference (lambda-state self)))
+
 
 ;;; VERIFY/DECIDE IF THE INPUTS/OUTPUTS NAMES ARE SYMBOLS OR STRINGS !!
 
@@ -316,9 +321,11 @@ All boxes which their reference is a OM generic function are instances of this c
 
 (defmethod get-icon-id ((self OMGFBoxcall)) 
   (let ((ic (icon (fdefinition (reference self)))))
-    (if (symbolp ic) ic
-      (intern (format nil "~A" ic)))))
-
+    (and ic 
+         (if (numberp ic) ic
+           (intern-k (format nil "~A" ic)))
+         )))
+ 
 (defmethod box-n-outs ((self OMGFBoxcall))  
   (numouts (fdefinition (reference self))))
 

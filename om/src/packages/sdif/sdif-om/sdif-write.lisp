@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -136,7 +136,6 @@
 ;;;======================================
 ;;; GENERAL / TOP-LEVEL
 ;;;======================================
-
 (defmethod* write-sdif-file ((frames list) &key (outpath "out.sdif") types nvts)
   (let ((out-path (cond ((pathnamep outpath) outpath)
                          ((stringp outpath) (outfile outpath))
@@ -161,5 +160,6 @@
           (om-beep-msg "Could not open file for writing: ~A" out-path))
         (probe-file out-path)
         ))))
+
 
 

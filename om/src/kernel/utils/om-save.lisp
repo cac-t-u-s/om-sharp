@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -244,10 +244,11 @@
                             vallist (reverse vallist))
   `(:hash-table
     (:keys ,(omng-save keylist))
-    (:vals ,(omng-save vallist)))))
+    (:vals ,(omng-save vallist))
+    (:test ,(hash-table-test self)))))
 
 (defmethod om-load-from-id ((id (eql :hash-table)) data)
-  (let ((res (make-hash-table)))
+  (let ((res (make-hash-table :test (find-value-in-kv-list data :test))))
     (loop for key in (omng-load (find-value-in-kv-list data :keys))
           for val in (omng-load (find-value-in-kv-list data :vals))
           do
@@ -746,28 +747,50 @@
          (inputs (find-values-in-prop-list data :inputs))
          (outputs (find-values-in-prop-list data :outputs))
          (box (case type
-                (:value val (omng-make-new-boxcall 'value pos val))
-                (:function (if (fboundp reference) 
-                               (omng-make-new-boxcall (fdefinition reference) pos)
-                             (progn (om-beep-msg "unknown function: ~A" reference)
-                               (omng-make-lost-fun-box reference pos)
-                               )))
-                (:patch (let ((box (omng-make-new-boxcall (omng-load reference) pos)))
-                          ;; sometimes (e.g. in maquettes) the patches save their value
-                          (when box (setf (value box) (list val)))
-                          box))
+                
+                (:value (omng-make-new-boxcall 'value pos val))
+                
+                (:function 
+                 (if (fboundp reference) 
+                     (omng-make-new-boxcall (fdefinition reference) pos)
+                   (progn (om-beep-msg "unknown function: ~A" reference)
+                     (omng-make-lost-fun-box reference pos)
+                     )))
+                
+                (:patch 
+                 (let ((box (omng-make-new-boxcall (omng-load reference) pos)))
+                   ;; sometimes (e.g. in maquettes) the patches save their value
+                   (when box (setf (value box) (list val)))
+                   box))
+                
                 (:textfun (omng-make-new-boxcall (omng-load reference) pos))
+                
                 (:io (omng-make-new-boxcall (omng-load reference) pos))
-                (:special (omng-make-new-boxcall (omng-load reference) pos))
-                (:interface (omNG-make-special-box reference pos))
-                (:object (if (find-class reference nil) 
+                
+                (:special 
+                 (let ((box (if (symbolp reference)
+                                (omNG-make-special-box reference pos) 
+                              (omng-make-new-boxcall (omng-load reference) pos))))
+                   (set-value box (list val))
+                   box))
+                
+                (:interface 
+                 (let ((box (omNG-make-special-box reference pos)))
+                   (set-value box (list val))
+                   box))
+                
+                (:object 
+                 (if (find-class reference nil) 
                              (omng-make-new-boxcall (find-class reference nil) pos val)
                            (progn (om-beep-msg "unknown class: ~A" reference)
                              (omng-make-lost-class-box reference pos))))
-                (:slots (if (find-class reference nil) 
-                            (omng-make-new-boxcall 'slots pos (find-class reference nil))
-                          (progn (om-beep-msg "unknown class: ~A" reference)
-                            (omng-make-lost-slots-box reference pos))))
+                
+                (:slots 
+                 (if (find-class reference nil) 
+                     (omng-make-new-boxcall 'slots pos (find-class reference nil))
+                   (progn (om-beep-msg "unknown class: ~A" reference)
+                     (omng-make-lost-slots-box reference pos))))
+                
                 (otherwise (om-beep-msg "unknown box type: ~A" type))))) ;;; DO SOMETHING FOR UNKNOWN BOX ID (kind of 'dead boxes')
     
     (when box

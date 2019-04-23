@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -25,12 +25,13 @@
       (pushnew func-name *init-func-list*)))
 
 (defun om-init-funcall ()
-  (om-print-dbg "START OM INIT CALLS")
+  ;(om-print-dbg "START OM INIT CALLS")
   (mapc #'(lambda (x) 
             (om-print-dbg (string x)) 
             (funcall x))
         (reverse *init-func-list*))
-  (om-print-dbg "END OM INIT CALLS"))
+  ;(om-print-dbg "END OM INIT CALLS")
+  )
 
 
 
@@ -63,6 +64,7 @@
         "environment/om-library"
         "environment/om-workspace" 
         "environment/om-function-reference" 
+        "environment/om-compatibility" 
 
         "windows/om-windows"
         "windows/om-main-window"

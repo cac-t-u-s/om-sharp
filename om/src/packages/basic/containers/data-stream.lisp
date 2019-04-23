@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -77,10 +77,14 @@
 (defmethod data-stream-set-frames ((self data-stream) frames) 
   (setf (frames self) frames)
   (time-sequence-update-internal-times self))
- 
+
 ;;; TIME-SEQUENCE API
 (defmethod time-sequence-get-timed-item-list ((self data-stream)) (data-stream-get-frames self))
-(defmethod time-sequence-set-timed-item-list ((self data-stream) list) (data-stream-set-frames self list))
+
+(defmethod time-sequence-set-timed-item-list ((self data-stream) list) 
+  (data-stream-set-frames self list)
+  (call-next-method) ;;; will update the duration
+  )
 
 (defmethod time-sequence-make-timed-item-at ((self data-stream) at)
   (make-instance (default-frame-type self) :date at))
@@ -133,7 +137,7 @@
 ;;;======================================
 
 (defmethod* add-frame-in-data-stream ((self data-stream) frame) 
-   (insert-timed-point-in-time-sequence self frame)
+   (time-sequence-insert-timed-item-and-update self frame)
    frame)
 
 (defmethod* add-frame-in-data-stream ((self t) frame) 
@@ -141,7 +145,7 @@
 
 ;;; when editing in mode "box" => allows to update editor
 (defmethod* add-frame-in-data-stream ((self omboxeditcall) frame) 
-   (insert-timed-point-in-time-sequence (get-box-value self) frame)
+   (time-sequence-insert-timed-item-and-update (get-box-value self) frame)
    (update-after-eval self)
    frame)
 

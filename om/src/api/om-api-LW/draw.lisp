@@ -45,6 +45,7 @@
           om-invalidate-area
           
           om-draw-string
+          om-draw-char
           om-draw-line
           om-draw-lines
           om-draw-dashed-line
@@ -135,24 +136,23 @@
 
 (defmethod om-draw-contents-callback ((self om-graphic-object) x y w h)
   (call-next-method)
-  (om-with-error-handle 
-    (gp::set-graphics-port-coordinates (om-get-view self) :left 0 :top 0)
-    (om-with-focused-view self
+  (gp::set-graphics-port-coordinates (om-get-view self) :left 0 :top 0)
+  (om-with-focused-view self
       ;(oa::om-with-clip-rect self 0 0 (vw self) (vh self)   ;;; removed from draw-contents for windows d&d...
         ;(capi::apply-in-pane-process (om-get-view self) 'om-draw-contents self))
       ;(gp::with-graphics-state ((om-get-view self) :mask (list 0 0 (vw self) (vh self)))
-      (om-draw-contents-area self x y w h)
+    (om-draw-contents-area self x y w h)
       ;(om-draw-contents self)
       
-      (mapcar #'(lambda (po) 
+    (mapcar #'(lambda (po) 
                 ;(print (list po x y w h))
-                  (when (capi::pinboard-object-overlap-p po x y (+ x w) (+ y h))
-                    (capi::draw-pinboard-object (om-get-view self) po
-                                                :x (item-x po) :y (item-y po) :width (vw po) :height (vh po))
-                    ))
-              (item-subviews (om-get-view self)))
-      )
-    ))
+                (when (capi::pinboard-object-overlap-p po x y (+ x w) (+ y h))
+                  (capi::draw-pinboard-object (om-get-view self) po
+                                              :x (item-x po) :y (item-y po) :width (vw po) :height (vh po))
+                  ))
+            (item-subviews (om-get-view self)))
+    )
+  )
 
 ;;; ONLY FOR WINDOWS
 ;;; draws a pinboard-object on top of the layout
@@ -224,6 +224,15 @@
                         ))
           ))
 
+
+(defun om-draw-char (x y char &key font color)
+  (apply 'gp:draw-character 
+         (append 
+          (list *curstream* char x y)
+          (when color `(:foreground ,(get-real-color color)))
+          (when font `(:font ,(gp::find-best-font *curstream* font)))
+          )))
+
 (defun om-draw-string (x y str &key selected wrap font align color)
  
   (if wrap
@@ -234,12 +243,14 @@
 
         (multiple-value-bind (left top right bottom)
             (gp::get-string-extent *curstream* str real-font)
+          
+          (declare (ignore left right))
 
           (let ((text-list (or (ignore-errors 
                                  (capi::wrap-text-for-pane *curstream* str ;; (substitute #\Space #\Tab str) 
-                                                     :visible-width wrap
-                                                     :font real-font
-                                                     ))
+                                                           :visible-width wrap
+                                                           :font real-font
+                                                           ))
                                (list str)))
                 (text-h (- bottom top)))
  
@@ -247,6 +258,9 @@
                   (let ((xx (if align 
                                 (multiple-value-bind (left top right bottom)
                                     (gp::get-string-extent *curstream* line real-font)
+                                  
+                                  (declare (ignore top bottom))
+                                  
                                   (let ((line-w (- right left)))
                                     (cond ((equal align :right) (+ x wrap (- line-w)))
                                           ((equal align :center) (+ x (round wrap 2) (- (round line-w 2))))
@@ -261,7 +275,8 @@
                                   `(:block nil :foreground ,(get-real-color color))
                                 '(:block nil)))
                             (when font `(:font ,real-font))))
-                    )))))
+                    ))))
+        )
     
     (apply 'gp:draw-string 
            (append 
@@ -276,13 +291,18 @@
     ))
 
 ;; #-cocoa :operation #-cocoa (if erasable boole-eqv boole-1)
+;; end-style = :round or :projecting
 (defun om-draw-line (x1 y1 x2 y2 &key color line style (end-style :round) )
   ;(gp:draw-line *curstream* (+ x1 0.5) (+ y1 0.5) (+ x2 0.5) (+ y2 0.5))
   (apply 'gp:draw-line 
-         (append 
-          (list  *curstream* x1 y1 x2 y2 :line-end-style end-style) ; :round or :projecting
-          (format-graphic-args :fcolor color :line line :style style)
-          )
+         (cons *curstream* 
+               (append 
+                (if (and line (integerp line) (oddp line))
+                    (list (+ x1 0.5) (+ y1 0.5) (+ x2 0.5) (+ y2 0.5))
+                  (list x1 y1 x2 y2))
+                `(:line-end-style ,end-style)
+                (format-graphic-args :fcolor color :line line :style style)
+                ))
          ))
 
 (defun om-draw-dashed-line (x1 y1 x2 y2)

@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -72,10 +72,23 @@
    "Checks if every elt in 'list' belongs to one of the subtypes in 'typelist'"
    (every #'(lambda (elt) (some #'(lambda (type) (subtypep (type-of elt) type)) (list! typelist))) list))
 
-(defun next-in-list (list item) 
-  (let* ((pos (position item list))
-         (newpos (if pos (mod (1+ pos) (length list)) 0)))
-    (nth newpos list)))
+(defun next-in-list (list item &optional (circular t)) 
+  (let* ((pos (position item list)))
+    (if circular 
+        (let ((newpos (if pos (mod (1+ pos) (length list)) 0)))
+          (nth newpos list))
+      (when pos 
+        (nth (1+ pos) list))
+      )))
+
+(defun previous-in-list (list item &optional (circular t)) 
+  (let* ((pos (position item list)))
+    (if circular 
+        (let ((newpos (if pos (mod (1- pos) (length list)) 0)))
+          (nth newpos list))
+      (when (and pos (> pos 0))
+        (nth (1- pos) list))
+      )))
 
 
 (defmacro %car (x)
@@ -188,24 +201,6 @@
   (and (subtypep (type-of object) type) object))
 
 ;=======================
-; Print OM messages
-;=======================
- 
-(defun om-beep-msg (format-string &rest args)
-   (om-beep)
-   (om-print (apply 'format (append (list nil format-string) args)) "[!!]")
-   NIL)
-
-(defmethod om-report-condition ((c condition))
-  (format nil "~A" c))
-
-(defparameter *om-debug* nil)
-
-(defun om-print-dbg (str &optional args prompt)  
-  (when *om-debug* (om-print-format str args (or prompt "DEBUG"))))
-
-
-;=======================
 ; FUNCTIONS / LAMBDA LIST PARSING
 ;=======================
 
@@ -259,7 +254,9 @@
 
 (defun valued-val (val)
    (if (or (symbolp val) 
-           (and (consp nil) (or (not (symbolp (car list))) (not (fboundp (car list))))))
+           (and (consp val) 
+                (or (not (symbolp (car val))) 
+                    (not (fboundp (car val))))))
        val 
      (eval val)))
 
@@ -313,4 +310,16 @@
           (incf den ampl))
     (/ num den)))
 
+
+;;; finds the closest multiple of n and 2 that is greater than val
+(defun next-double-of-n (val n)
+  (let ((rep n))
+    (loop while (> val rep) do
+          (setf rep (* rep 2)))
+    rep))
+
+(defun power-of-two-p (n)
+  (or (= n 1) (= n 2)
+      (and (zerop (mod n 2)) 
+           (power-of-two-p (/ n 2)))))
 

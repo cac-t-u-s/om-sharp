@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -121,15 +121,31 @@
 (defparameter +inactive-r+ 2.5)
 
 (defmethod om-draw-area ((area io-area))
+  
   (let ((p (get-position area))
         (r (if (and (active area)
                     (not (edit-lock (editor (om-view-container (frame area))))))
                +active-r+ +inactive-r+)))
+
     (when (reactive (object area))
-      (om-with-fg-color (om-def-color :dark-red)
-        (om-draw-circle (om-point-x p) (om-point-y p) (1+ r) :fill t)))
-    (om-with-fg-color (io-color (object area))
-      (om-draw-circle (om-point-x p) (om-point-y p) r :fill t))))
+      (om-draw-circle (om-point-x p) (om-point-y p) (1+ r) :fill t :color (om-def-color :dark-red)))
+
+    (om-draw-circle (om-point-x p) (om-point-y p) r :fill t 
+                    :color (io-color (object area)))
+    ))
+
+
+(defmethod inputs-visible ((self OMBox)) t)
+
+
+(defmethod om-draw-area ((area input-area))
+  (call-next-method)
+  (when (inputs-visible (object (frame area)))
+    (let ((p (get-position area)))
+      (om-draw-circle (om-point-x p) (om-point-y p) +inactive-r+ :fill t 
+                      :color (om-def-color :light-gray))
+      )))
+
 
 ;;;=============================
 ;;; BOX I/O EDITS
@@ -165,11 +181,11 @@
                               :pos #'(lambda (f) (om-make-point 
                                                   (- (w f) (* (if (allow-remove-inputs (object self)) 2 1.2) S))
                                                   S))
-                              :pick #'(lambda (f) (list (- S) (- S) S S))))
+                              :pick #'(lambda (f) (declare (ignore f)) (list (- S) (- S) S S))))
              (when (allow-remove-inputs (object self))
                (make-instance '--input-area :object self :frame self
                             :pos #'(lambda (f) (om-make-point (- (w f) S) (* (if (allow-add-inputs (object self)) 2 1) S)))
-                            :pick #'(lambda (f) (list (- S) (- S) S S))))))
+                            :pick #'(lambda (f) (declare (ignore f)) (list (- S) (- S) S S))))))
     ))
 
 (defmethod om-draw-area ((area input-edit-area))
@@ -240,7 +256,7 @@
                (v-resizable (object self)))
       (make-instance 'resize-area :object self :frame self
                      :pos #'(lambda (f) (om-make-point (- (w f) 8) (- (h f) 8)))
-                     :pick #'(lambda (f) (list 0 0 12 12))))
+                     :pick #'(lambda (f) (declare (ignore f)) (list 0 0 12 12))))
     (when (h-resizable (object self))
       (make-instance 'h-resize-area :object self :frame self
                      :pos #'(lambda (f) (om-make-point (- (w f) 8) 16))
@@ -351,15 +367,17 @@
 (defmethod set-frame-areas ((self t)) nil)
 
 (defmethod set-frame-areas ((self OMBoxFrame))
+  
   (let* ((box (object self))
          (nin (length (inputs box)))
          (nout (length (outputs box)))
          (eia (input-edit-areas self))
          (statesign-w 5)
          (extra-w (+ (* statesign-w 2) 
-                     (if (and eia (inputs box) 
+                     (if (and eia 
+                              (inputs box) 
                               (or (> (length (inputs box)) 1)
-                                  (< (w self) 40)))
+                                  (< (box-w box) 40)))
                          10 0)
                      ))
          (n -1))
@@ -399,7 +417,7 @@
             (outputs box))
            
            (resize-areas self)
-           (info-area self)
+           ;(info-area self)
            eia
            ))
     (mapcar 'update-points (get-box-connections box))
@@ -412,9 +430,7 @@
                 :position (omp (box-x self) (box-y self))
                 ;:font (font-font (text-font self))
                 :object self
-                :icon-id (and (get-icon-id self)
-                              (or (find (get-icon-id self) *om-loaded-picts*)
-                                         'not-found)))))
+                :icon-id (get-icon-id self))))
     
     ;(om-set-view-size view (om-def-point (omp (box-w self) (box-h self))
     ;                                     (default-size self)))
@@ -505,8 +521,9 @@
           ))))))
 
 (defmethod om-draw-contents ((self OMBoxFrame))
-  (om-with-clip-rect self 0 0 (w self) (h self) 
-    (boxframe-draw-contents self (object self))))
+  (om-trap-errors   
+   (om-with-clip-rect self 0 0 (w self) (h self) 
+     (boxframe-draw-contents self (object self)))))
 
 (defmethod draw-border ((self OMBox) x y w h)
   
@@ -584,7 +601,8 @@
              ;(om-draw-rect x y w h)
              (om-draw-string (max 2 x)
                              (+ y th)
-                             text :selected nil :wrap (- (w self) 10)
+                             text 
+                             :selected nil :wrap (- (w self) 10)
                              ;:align (box-draw-text-align box) ;; handled by display-text-and-area
                              )
              ))))))
@@ -627,11 +645,18 @@
     
   ;;; lock button
   (when (lock-state box)
-    (om-draw-rect x-lock y-lock 11 11 
-                  :color (om-def-color :dark-gray) :angles :round :fill t)
-    (om-with-fg-color (om-def-color :white)
-      (om-with-font (om-def-font :font1 :size 9)
-                    (om-draw-string (+ x-lock 2) (+ y-lock 9) (if (equal (lock-state box) :eval-once) "1" "X")))
+    (let ((state-str (if (equal (lock-state box) :locked) 
+                         "X"
+                       (if (and (equal (lock-state box) :eval-once)
+                                (not (get-pref-value :general :auto-ev-once-mode)))
+                           "1"))))
+      (when state-str
+        (om-draw-rect x-lock y-lock 11 11 
+                      :color (om-def-color :dark-gray) :angles :round :fill t)
+        (om-draw-string (+ x-lock 2) (+ y-lock 9) 
+                        state-str
+                        :font (om-def-font :font1 :size 9)
+                        :color (om-def-color :white)))
       ))
   )
 
@@ -665,17 +690,19 @@
     
     ;;; if we're in multiple selection (SHIFT) or if the box is already selected: do not unselect all
     
-    (or (and (selected (object self)) 
-             (not (om-command-key-p)) (not (om-shift-key-p))
-             (edit-text-area self position)
-             t)
+    (if (and (selected (object self)) 
+             (not (om-command-key-p)) (not (om-shift-key-p)))
         
-        (progn
-         (editor-box-selection (editor (om-view-container self)) (object self))
-         (apply-in-area self 'click-in-area position))
+        (edit-text-area self position))
+    
+    (or 
+     (progn
+       (editor-box-selection (editor (om-view-container self)) (object self))
+       (apply-in-area self 'click-in-area position))
         
-        self)
+       self)
     ))
+
 
 ;;; handle boxframe click in multi-editor-view
 (defmethod om-view-click-handler :around ((self OMBoxFrame) position)
@@ -692,10 +719,15 @@
 (defmethod click-in-area ((self frame-area) boxframe) self)
 
 (defmethod om-view-doubleclick-handler ((self OMBoxFrame) position)
-  (or ;; edit area is a simple click on a selected box
-      (and (selected (object self)) (not (om-command-key-p)) 
-           (edit-text-area self position))
-      (open-editor (object self))))
+    
+  ;(or ;; edit area is a simple click on a selected box
+
+      ;(and (selected (object self)) (not (om-command-key-p)) 
+      ;     (edit-text-area self position))
+
+      (open-editor (object self))
+
+      t)
 
 (defun edit-text-in-patch (edittext frame container-view action pos size)
   (let* ((box (object frame))
@@ -855,10 +887,10 @@
 
     (when (and all-points (om-view-container self))
       (om-invalidate-area (om-view-container self)
-                          (- (apply 'min (mapcar 'om-point-x all-points)) 4) ;;; replace with list-min etc. pb when too many points
-                          (- (apply 'min (mapcar 'om-point-y all-points)) 4)
-                          (+ (apply 'max (mapcar 'om-point-x all-points)) 4)
-                          (+ (apply 'max (mapcar 'om-point-y all-points)) 4)
+                          (- (reduce 'min (mapcar 'om-point-x all-points)) 4) ;;; replace with list-min etc. pb when too many points
+                          (- (reduce 'min (mapcar 'om-point-y all-points)) 4)
+                          (+ (reduce 'max (mapcar 'om-point-x all-points)) 4)
+                          (+ (reduce 'max (mapcar 'om-point-y all-points)) 4)
                           ))
     )))
 
@@ -949,6 +981,7 @@
 (defmethod additional-box-attributes-names ((self OMBox)) nil)
 
 (defun key-to-menu (key box input)
+
   (if (listp key)
       (om-make-menu-comp 
        (when key (append (if (find (car key) (additional-box-attributes-names box)) 
@@ -956,7 +989,7 @@
                          (loop for k in key collect (key-to-menu k box input))
                          )))
     (let ((selected (string-equal (name input) (string key))))
-      ;(print (list (name input) key selected))
+      
       (if (and selected (get-input-menu box (name input)))
           ;;; it's a keyword which has a menu also for values
           (input-values-menu (string+ ":" (string-downcase key) " [select]") box input)
@@ -965,11 +998,11 @@
                          (let ((currentkey key))
                            #'(lambda () 
                                (change-keyword input currentkey)))
-                         :enabled (or selected
+                         :enabled (or nil ; selected
                                    (not (find (string key)
                                               (get-keyword-inputs box) 
                                               :test 'string-equal :key 'name)))
-                         :selected selected ;; will not wok if all items are enabled... ?
+                         :selected selected ;; will not wok if all items are enabled... (?)
                          )))))
 
 ;;; Displays a menu for the keyword arguments of a function

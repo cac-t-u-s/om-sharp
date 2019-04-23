@@ -1,22 +1,19 @@
-;=========================================================================
-; o7: visual programming language for music composition
+;============================================================================
+; om7: visual programming language for computer-aided music composition
+; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
+;============================================================================
 ;
-;    This program is free software: you can redistribute it and/or modify
-;    it under the terms of the GNU General Public License as published by
-;    the Free Software Foundation, either version 3 of the License, or
-;    (at your option) any later version.
+;   This program is free software. For information on usage 
+;   and redistribution, see the "LICENSE" file in this distribution.
 ;
-;    This program is distributed; in the hope that it will be useful,
-;    but WITHOUT ANY WARRANTY; without even the implied warranty of
-;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;    GNU General Public License for more details.
+;   This program is distributed in the hope that it will be useful,
+;   but WITHOUT ANY WARRANTY; without even the implied warranty of
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 ;
-;    You should have received a copy of the GNU General Public License
-;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-;
-; Author: J. Bresson
-;=========================================================================
+;============================================================================
+; File author: J. Bresson
+;============================================================================
 
 (in-package :om)
 
@@ -60,7 +57,7 @@
 ;;; GENERATE PATHNAMES
 ;;;===================================
 (defmethod* infile ((name string) &key (subdirs nil) (type nil))
-  :icon 'folder
+  :icon :folder
   :indoc '("file name" "directories" "type extension")
   :initvals '("" nil nil)
   :doc "Returns a file pathname corresponding to <name> in the default OM IN FILES directory.
@@ -84,7 +81,7 @@ Ex. (infile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/b
 
 ;;;===================================
 (defmethod* outfile ((name string) &key (subdirs nil) (type nil))
-  :icon 'folder
+  :icon :folder
   :indoc '("file name" "directories" "type extension")
   :initvals '("" nil nil)
   :doc "Returns a file pathname corresponding to <name> in the default OM OUT FILES directory.
@@ -108,7 +105,7 @@ Ex. (outfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/
 
 ;;;===================================
 (defmethod* tmpfile ((name string) &key (subdirs nil) (type nil))
-  :icon 'folder
+  :icon :folder
   :indoc '("file name" "directories" "type extension")
   :initvals '("" nil nil)
   :doc "Returns a file pathname corresponding to <name> in the default OM TMP FILES directory.
@@ -218,7 +215,7 @@ Ex. (tmpfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/
 
 ;;; FILE CHOOSE TOOLS
 (defmethod* file-chooser (&key (type 'file) (mode 'existing) (initial-folder nil) (message nil))
-  :icon 'folder
+  :icon :folder
   :initvals '(file existing desktop nil)
   :indoc '("file or directory" "new or existing" "pathname" "prompt for the dialog")
   :menuins '((0 (("file" file) ("directory" directory))) 

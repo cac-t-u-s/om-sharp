@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -46,7 +46,7 @@
     bp))
 
 (defun free-buffer-player (bp)
-  (audio-io::om-free-sound-buffer (bp-buffer bp) (bp-channels bp))
+  (audio-io::om-free-audio-buffer (bp-buffer bp) (bp-channels bp))
   (juce::freeAudioSource (bp-pointer bp)))
 
 
@@ -57,8 +57,8 @@
   (if (not buffered)
       (make-buffer-player :pointer (juce::makeAudioSourceFromFile path))
     (progn
-      (multiple-value-bind (buffer format channels sr ss size skip)
-          (audio-io::om-get-sound-buffer path *default-audio-type* nil)
+      (multiple-value-bind (buffer format channels sr ss size)
+          (audio-io::om-get-audio-buffer path *default-audio-type* nil)
         (make-player-from-buffer buffer size channels sr)))))
 
 (defmethod start-buffer-player ((self buffer-player) &key (start-frame 0))
@@ -89,7 +89,7 @@
   (juce::setAudioSourcePos (bp-pointer self) (min (max 0 (round (* time (/ (bp-sample-rate self) 1000.0)))) (bp-size self))))
 
 (defmethod get-buffer-player-frame ((self buffer-player))
-  (juce::setAudioSourcePos (bp-pointer self)))
+  (juce::getAudioSourcePos (bp-pointer self)))
 
 ;(defmethod restore-buffer-player-pointer ((self buffer-player))
 ;  ;(print "setpos error: restoring buffer-player")

@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -85,7 +85,7 @@
 (defmethod get-keyword-inputs ((box OMBox))
   (remove-if-not #'(lambda (item) (subtypep item 'box-keyword-input)) (inputs box) :key 'type-of))
 
-;;; used for subclasses such as patch boxes, loop boxes, sequence...
+;;; used (?) for subclasses such as patch boxes, loop boxes, sequence...
 (defmethod do-delete-one-input-extra ((self OMBox)) nil)
 
 
@@ -134,7 +134,7 @@
 (defmethod more-keyword-input ((self OMBox) &key key (value nil val-supplied-p) doc (reactive nil reactive-supplied-p))
   (multiple-value-bind (def-next err-message) 
       (next-keyword-input self)
-    (if def-next ;;; a kyword exist/is available
+    (if def-next ;;; a keyword exist/is available
       (let ((keyname 
              (if key ;;; a specific name is asked for
                  (let ((keywordlist (mapcar 'intern-k (apply 'append (get-all-keywords self))))
@@ -149,7 +149,7 @@
         (when keyname
           (add-keyword-input self :key keyname
                              :value (if val-supplied-p value (get-input-def-value self keyname))
-                             :doc (get-input-doc self (string-downcase keyname))
+                             :doc (or doc (get-input-doc self (string-downcase keyname)))
                              :reactive (if reactive-supplied-p reactive (def-reactive self keyname)))
           t))
       (om-beep-msg err-message)
@@ -158,7 +158,7 @@
 (defmethod add-keyword-input ((self OMBox) &key key (value nil val-supplied-p) doc reactive)
     (set-box-inputs self (append (inputs self)
                                 (list (make-instance 'box-keyword-input
-                                                     :name (string key) ;; string-downcase
+                                                     :name (string-downcase key) ;; string-downcase
                                                      :value value
                                                      :box self
                                                      :doc-string (or doc "keyword input")
@@ -174,6 +174,8 @@
                 (connections last-in))
         (set-box-inputs self (remove last-in (inputs self) :test 'equal))
        t))))
+
+
 
 ;;; :++ is a special keyword allowing to set a personalized keyword name
 ;;; used for instance in class-array
@@ -209,17 +211,16 @@
         (let ((newout (find (name out) (outputs newbox) :key 'name :test 'string-equal)))
           (when newout 
             (setf (reactive newout) (reactive out)))
-            
           ))
 
   ;;; add relevant optional and keyword inputs
   (mapcar 
      #'(lambda (in) 
-         (more-optional-input newbox :name (name in) :value (value in) :reactive (reactive in)))
+         (more-optional-input newbox :name (name in) :value (value in) :doc (doc-string in) :reactive (reactive in)))
      (get-optional-inputs self))
   (mapcar 
    #'(lambda (in) 
-       (more-keyword-input newbox :key (intern-k (name in)) :value (value in) :reactive (reactive in)))
+       (more-keyword-input newbox :key (intern-k (name in)) :value (value in) :doc (doc-string in) :reactive (reactive in)))
    (get-keyword-inputs self)))
 
 (defmethod om-copy ((self OMBox)) 
@@ -266,4 +267,10 @@
 (defun get-keyword-outputs (box)
   (remove-if-not #'(lambda (item) (subtypep item 'box-keyword-output)) (outputs box) :key 'type-of))
 
+(defmethod remove-one-output ((self ombox) (output box-output))
+  (mapc #'(lambda (c) 
+            (omng-remove-element (container self) c)) 
+        (connections output))
+  (set-box-outputs self (remove output (outputs self))))
+  
 

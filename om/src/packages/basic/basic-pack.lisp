@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -30,7 +30,7 @@
                          (omNG-make-package "Arithmetic" 
                                             :doc ""
                                             :functions '(om+ om- om* om/ om// om^ om-e om-abs om-min om-max
-                                                             list-min list-max om-mean om-log om-round om-scale om-scale/sum reduce-tree
+                                                             list-min list-max all-equal om-mean om-log om-round om-scale om-scale/sum reduce-tree
                                                              interpolation factorize om-random perturbation
                                                              om< om> om<= om>= om= om/=))
                          (omNG-make-package "Combinatorial" 
@@ -47,7 +47,7 @@
                                             :functions '(x-transfer y-transfer om-sample linear-fun reduce-points reduce-n-points))
                          (omNG-make-package "Curves & Functions" 
                                             :doc ""
-                                            :functions '(point-pairs bpf-interpol bpf-scale set-color)
+                                            :functions '(point-pairs bpf-interpol bpf-scale set-color om-spline)
                                             :classes '(bpf bpc)) 
                          (omNG-make-package "Text" 
                                             :doc ""

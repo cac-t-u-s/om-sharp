@@ -13,7 +13,7 @@
 *.omp~
 
 om/*.app/**/*
-o7/**/*
+om7/**/*
 *.zip
 
 *.exe
@@ -33,3 +33,11 @@ om/resources/reference-pages/
 
 BUILD/**/*
 codesign-om7
+VERSION
+
+*.sublime-*
+
+Gemfile.lock
+**/_site/**
+/om/om7-alpha
+**/docs/_temp/**

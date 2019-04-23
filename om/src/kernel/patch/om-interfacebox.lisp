@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -15,26 +15,40 @@
 ; File author: J. Bresson
 ;============================================================================
 
-;=========================================================================
+;=======================================================================
 ; INTERFACE BOXES
-;=========================================================================
+;=======================================================================
 
 (in-package :om)
-
-(defvar *interfaceboxes* 
-  (omNG-make-package "Interface Boxes"
-                     :container-pack *om-package-tree*
-                     :doc "This package contains special interface boxes and widgets to use in OM patches (sliders, buttons, etc.)"))
 
 
 (defclass OMInterfaceBox (OMBox) ())
 (defmethod lock-state ((self OMInterfaceBox)) nil)
+
+(defmethod box-symbol ((self OMInterfaceBox)) 'interface)
+
 
 (defmethod get-properties-list ((self OMInterfaceBox))
   (hide-property (call-next-method) '(:text-font :align :group-id)))
 
 (defmethod create-box-outputs ((self OMInterfaceBox))
   (list (make-instance 'box-output :box self :name "value")))
+
+(defmethod maximum-size ((self OMInterfaceBox)) nil)
+(defmethod minimum-size ((self OMInterfaceBox)) (omp 20 28))
+
+;;; set the box attributes
+(defmethod apply-one-box-attribute ((self OMInterfaceBox) attr val) 
+  (setf (slot-value self (intern-om attr)) val))
+
+(defmethod apply-one-box-attribute ((self OMInterfaceBox) (attr (eql :value)) val) 
+  (set-value self (list val)))
+
+(defmethod apply-box-attributes ((self OMInterfaceBox) attributes) 
+  (loop for attr on attributes by 'cddr do
+        (apply-one-box-attribute self (car attr) (cadr attr)))
+  (update-inspector-for-object self)
+  )
 
 (defmethod omNG-box-value ((self OMInterfaceBox) &optional (numout 0)) 
   
@@ -48,29 +62,13 @@
 (defmethod gen-code ((self OMInterfaceBox) &optional (numout 0))
   (current-box-value self numout))
 
-;;; set the box attributes
-(defmethod apply-box-attributes ((self OMInterfaceBox) attributes) 
-  (loop for attr on attributes by 'cddr do
-        (cond ((equal (car attr) :value) 
-               (set-value self (list (cadr attr))))
-              ((member (car attr) '(:min-value :max-value :increment))
-               (when (numberp (cadr attr)) 
-                 (setf (slot-value self (intern-om (car attr))) 
-                       (cadr attr))))
-              (t
-               (setf (slot-value self (intern-om (car attr))) 
-                     (cadr attr)))))
-  
-  (update-inspector-for-object self)
-  )
-
 ;(defmethod eval-box :before ((self OMInterfaceBox)) 
 ;  (apply-box-attributes self (eval-box-inputs self)))
 
-(defmethod maximum-size ((self OMInterfaceBox)) nil)
-(defmethod minimum-size ((self OMInterfaceBox)) (omp 20 28))
 
-
+(defmethod omng-save ((self OMInterfaceBox))  
+  (append (call-next-method)
+          (list (save-value self))))
 
 ;;; FRAME
 (defclass InterfaceBoxFrame (OMBoxFrame) ())
@@ -104,10 +102,9 @@
     (draw-interface-component box 0 io-hspace (w self) (- (h self) (* 2 io-hspace)))
       
     ;;; border
-    (when (border box) 
+    (when (and (box-draw-border box) (plusp (box-draw-border box))) 
       (draw-border box 0 io-hspace (w self) (- (h self) (* 2 io-hspace))))
-   
-    
+       
     ;;; in/outs etc.
     (mapcar #'(lambda (a) (om-draw-area a)) (areas self))
     ))
@@ -127,7 +124,7 @@
 
 (defmethod special-item-reference-class ((item (eql 'slider))) 'SliderBox)
 
-(AddSpecialItem2Pack 'slider *interfaceboxes*)
+
 (defmethod special-box-p ((self (eql 'slider))) t)
 
 (defmethod get-all-keywords ((self SliderBox))
@@ -153,6 +150,13 @@
                     )))
 
 
+(defmethod apply-one-box-attribute ((self SliderBox) attr val) 
+  (if (member attr '(:min-value :max-value :increment))
+   (when (numberp val) 
+     (setf (slot-value self (intern-om attr)) val))
+    (call-next-method)))
+
+
 (defun min-incr (slider)
   (float (expt 10 (- (decimals slider)))))
 
@@ -168,7 +172,8 @@
               (min-value slider) (round-decimals (min-value slider) val)
               (max-value slider) (round-decimals (max-value slider) val)
               (increment slider) (round-decimals (increment slider) val))
-        (setf (car (value slider)) (round-decimals (car (value slider)) val))
+        (when (car (value slider))
+          (setf (car (value slider)) (round-decimals (car (value slider)) val)))
         (update-inspector-for-object slider))
     (decimals slider)))
   
@@ -179,7 +184,6 @@
   (let* ((box (make-instance 'SliderBox
                              :name "slider"
                              :reference 'slider)))
-    ;(print init-args)
     (set-value box (list (default-value box)))
     (setf (box-x box) (om-point-x pos)
           (box-y box) (om-point-y pos))
@@ -198,26 +202,38 @@
           )))
 
 
+(defun sliderbox-pos-value (sbox frame pos)
+  (let ((ratio (min 1 
+                    (max 0 
+                         (if (equal (orientation sbox) :vertical)
+                             (- 1 (/ (om-point-y pos) (h frame)))
+                           (/ (om-point-x pos) (w frame)))))))
+    (round-decimals 
+     (+ (min-value sbox) 
+        (* (increment sbox)
+           (round (* ratio (- (max-value sbox) (min-value sbox)))
+                  (increment sbox))))
+     (decimals sbox))))
+  
+    
 (defmethod interfacebox-action ((self SliderBox) frame pos)
+
   (when (or (om-command-key-p)
             (container-frames-locked (om-view-container frame)))
-    (om-init-temp-graphics-motion 
-     frame pos nil
-     :motion #'(lambda (view pos)
-                 (let* ((ratio (min 1 
-                                    (max 0 
-                                         (if (equal (orientation self) :vertical)
-                                             (- 1 (/ (om-point-y pos) (h frame)))
-                                           (/ (om-point-x pos) (w frame))))))
-                        (val (+ (min-value self) 
-                                (* (increment self)
-                                   (round (* ratio (- (max-value self) (min-value self)))
-                                          (increment self))))))
-                   (set-value self (list (round-decimals val (decimals self))))
-                   (when (reactive (car (outputs self))) (self-notify self))
-                   (om-invalidate-view frame)
-                   )))
-    ))
+
+    (flet ((slider-action (view pos)
+             (let ((val (sliderbox-pos-value self view pos)))
+                   (unless (equal val (get-box-value self))
+                     (set-value self (list val))
+                     (when (reactive (car (outputs self))) (self-notify self))
+                     (om-invalidate-view view)
+                     ))))
+      
+      ;;; action for the click
+      (slider-action frame pos)
+      ;;; more if drag
+      (om-init-temp-graphics-motion frame pos nil :motion #'slider-action)
+      )))
 
 
 ;;;===============================================================
@@ -229,7 +245,6 @@
    (text :accessor text :initarg :text :initform "")
    (action :accessor action :initarg :action :initform nil)))
 
-(AddSpecialItem2Pack 'button *interfaceboxes*)
 (defmethod special-box-p ((self (eql 'button))) t)
 (defmethod special-item-reference-class ((item (eql 'button))) 'ButtonBox)
 
@@ -257,7 +272,7 @@
   (let ((textcolor (if (car (value self)) 
                        (om-def-color :light-gray) 
                      (om-def-color :dark-gray))))
-    (when (value self)
+    (when (car (value self))
       (om-draw-rounded-rect x y w h :fill t :round (box-draw-roundness self) :color (om-def-color :gray)))
     (when (text self)
       (let ((font (om-def-font :font1b)))
@@ -312,4 +327,101 @@
       (current-box-value self numout))))
 
 
+
+;;;===============================================================
+;;; LIST
+;;;===============================================================
+
+(defclass ListSelectionBox (OMInterfaceBox)
+  ((items :accessor items :initarg :items :initform nil)
+   (selection :accessor selection :initform nil)
+   (multiple-selection :accessor multiple-selection :initform nil)
+   (cell-height :accessor cell-height :initform 12)
+   (cell-font :accessor cell-font :initform (om-def-font :font1))))
+ 
+
+(defmethod special-box-p ((self (eql 'list-selection))) t)
+(defmethod special-item-reference-class ((item (eql 'list-selection))) 'ListSelectionBox)
+
+(defmethod default-size ((self ListSelectionBox)) (omp 60 60))
+
+(defmethod get-all-keywords ((self ListSelectionBox))
+  '((:items)))
+
+(defmethod get-properties-list ((self ListSelectionBox))
+  (add-properties (call-next-method)
+                  "List selection display" 
+                  `((:multiple-selection "Multiple selection" :bool multiple-selection)
+                    (:cell-height "Cell size (px)" :number cell-height)
+                    (:cell-font "Cell font" :font cell-font)
+                    )))
+
+(defmethod apply-box-attributes ((self ListSelectionBox) attributes) 
+  (when attributes 
+    (let ((newlist (getf attributes :items)))
+      (unless (equal newlist (items self))
+        (setf (selection self) nil)
+        (set-value self nil))))
+  (call-next-method))
+
+
+(defmethod omng-save ((self ListSelectionBox))  
+  (append (call-next-method)
+          `((:items ,(omng-save (items self)))
+            (:selection ,(omng-save (selection self))))))
+
+(defmethod load-box-attributes ((box ListSelectionBox) data)
+  (setf (items box) (omng-load (find-value-in-kv-list data :items)))
+  (setf (selection box) (omng-load (find-value-in-kv-list data :selection)))
+  box)
+
+
+(defmethod omNG-make-special-box ((reference (eql 'list-selection)) pos &optional init-args)
+  (let* ((box (make-instance 'ListSelectionBox
+                             :name "list-selection"
+                             :reference 'list-selection)))
+    (setf (box-x box) (om-point-x pos)
+          (box-y box) (om-point-y pos))
+    box))
+
+(defmethod draw-interface-component ((self ListSelectionBox) x y w h) 
+  (om-with-font (cell-font self)
+     (loop for i = 0 then (+ i 1) 
+           for yy = y then (+ yy (cell-height self))
+           while (< (+ yy (cell-height self)) h)
+           while (< i (length (items self)))
+           do
+           (when (member i (selection self))
+             (om-draw-rect 10 (+ yy 2) (- w 20) (cell-height self) :fill t :color (om-def-color :dark-gray)))
+           (om-draw-string 10 (+ yy (cell-height self)) (format nil "~A" (nth i (items self)))
+                           :color (if (member i (selection self)) (om-def-color :white) (om-def-color :black)))
+           )))
+        
+
+(defmethod interfacebox-action ((self ListSelectionBox) frame pos)
+  (let* ((y (- (om-point-y pos) 4))
+         (n (floor y (cell-height self))))
+    (when (and (> (om-point-x pos) 10)
+               (< (om-point-x pos) (- (w frame) 20))
+               (< n (length (items self))))
+
+    (if (member n (selection self))
+
+        (setf (selection self) (remove n (selection self)))
+      
+      (setf (selection self) 
+            (if (multiple-selection self)
+                (sort (cons n (selection self)) '<)
+              (list n))))
+    
+    (set-value self 
+               (if (multiple-selection self)
+                   (list (posn-match (items self) (selection self)))
+                 (and (selection self)
+                      (list (nth (car (selection self)) (items self)))))
+               )
+
+    (when (reactive (car (outputs self))) (self-notify self))
+    (om-invalidate-view frame)
+    )))
 

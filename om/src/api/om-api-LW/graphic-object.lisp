@@ -130,8 +130,10 @@
          ;(rx  (+ (om-point-x vpos) (om-h-scroll-position view)))
          ;(ry  (+ (om-point-y vpos) (om-v-scroll-position view)))
          )
-    (and (om-point-x vpos) (> x (om-point-x vpos)) 
-         (om-point-y vpos) (> y (om-point-y vpos))
+    (and (om-point-x vpos) (om-point-y vpos)
+         (om-point-x vsize) (om-point-y vsize)
+         (> x (om-point-x vpos)) 
+         (> y (om-point-y vpos))
          (< x (+ (om-point-x vpos) (om-point-x vsize))) 
          (< y (+ (om-point-y vpos) (om-point-y vsize))))))
 

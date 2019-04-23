@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -67,6 +67,11 @@
 (defmethod set-reactive ((self OMBoxAbstraction) val)
   (setf (ready self) nil)
   (call-next-method))
+
+(defmethod initialize-box-value ((self OMBoxAbstraction) &optional value)
+  (setf (ready self) nil)
+  (call-next-method))
+
 
 (defmethod omNG-make-new-boxcall ((reference OMProgrammingObject) pos &optional init-args)
   (let* ((box (make-instance (get-box-class reference)
@@ -181,10 +186,10 @@
 ;;; DISPLAY
 ;;;===================
 
-(defmethod draw-patch-icon ((self OMBoxAbstraction))
+(defmethod draw-patch-icon ((self OMBoxAbstraction) &optional (offset-x 0) (offset-y 0))
   (let* ((abs (reference self))
          (iconsize (if (is-persistant abs) 22 16)))
-    (om-draw-picture (icon abs) :x 4 :y 6 :w iconsize :h iconsize)
+    (om-draw-picture (icon abs) :x (+ 4 offset-x) :y (+ 6 offset-y) :w iconsize :h iconsize)
     ))
 
 (defmethod minimum-size ((self OMBoxAbstraction))

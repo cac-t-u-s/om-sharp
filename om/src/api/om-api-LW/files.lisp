@@ -129,7 +129,17 @@
      :host (pathname-host (oa::om-root-folder))
      :device (pathname-device (oa::om-root-folder)) 
      :directory (append (pathname-directory (oa::om-root-folder)) '("resources"))))
-  #-macosx 
+  #+linux
+  (if (oa::om-standalone-p) 
+      (make-pathname
+       :host (pathname-host (oa::om-lisp-image))
+       :device (pathname-device (oa::om-lisp-image)) 
+       :directory (append (butlast (pathname-directory (oa::om-lisp-image))) '("share" "openmusic" "resources")))
+      (make-pathname
+       :host (pathname-host (oa::om-root-folder))
+       :device (pathname-device (oa::om-root-folder)) 
+       :directory (append (pathname-directory (oa::om-root-folder)) '("resources"))))
+  #+win32 
   (make-pathname
    :host (pathname-host (oa::om-root-folder))
    :device (pathname-device (oa::om-root-folder)) 
@@ -155,7 +165,8 @@
   (with-open-file (file pathname :direction :output :if-does-not-exist :create)))
 
 (defun om-create-directory (pathname &key (if-exists nil))
-   (lw::ENSURE-DIRECTORIES-EXIST pathname))
+   (lw::ENSURE-DIRECTORIES-EXIST pathname)
+   pathname)
 
 (defun om-copy-file (sourcepath targetpath &key (if-exists :supersede))
   (handler-bind 

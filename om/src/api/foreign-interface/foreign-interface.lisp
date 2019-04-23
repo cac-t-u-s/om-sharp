@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -77,7 +77,11 @@
 (defvar *load-folder* (lw-tools::lisp-image-name))
 
 ;;; dans le dossier de l'appli
-(defun om-foreign-libraries-directory () *load-folder*)
+(defun om-foreign-libraries-directory ()
+  #-linux *load-folder*
+  #+linux (make-pathname :directory (append (butlast (pathname-directory (oa::om-lisp-image))) '("lib64" "openmusic"))
+			 :host (pathname-host (oa::om-lisp-image)) :device (pathname-device (oa::om-lisp-image))))
+
 
 ;  #+win32(make-pathname :directory (pathname-directory (LISP-IMAGE-NAME))
 ;                 :host (pathname-host (LISP-IMAGE-NAME)) :device (pathname-device (lw::LISP-IMAGE-NAME)))
@@ -108,7 +112,7 @@
 (defun om-load-foreign-library (name spec)
   (let ((lib (intern (string-upcase name) :keyword)))
     (eval `(cffi::define-foreign-library ,lib ,.spec))
-    (print (format nil "Loading foreign library: ~A" name))
+    (princ (format nil "~%Loading foreign library: ~A" name))
     (cffi::load-foreign-library lib)))
 
 (defvar *loaders* nil)

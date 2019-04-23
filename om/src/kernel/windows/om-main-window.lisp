@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -16,7 +16,6 @@
 ;============================================================================
 
 (in-package :om)
-
 ;;;=================
 ;;; MAIN WINDOW
 ;;;=================
@@ -37,9 +36,10 @@
   (if *om-main-window*
       (om-select-window *om-main-window*)
     (let ((win (om-make-window 'om-main-window
-                               :title (apply 'string+ (cons "o7 Session" 
-                                                            (if *current-workspace* (list " [Workspace: " (name *current-workspace*) "]")
-                                                              '(""))))
+                               :title (format nil "~A Window~A"
+                                              *app-name*
+                                              (if *current-workspace* (list " [Workspace: " (name *current-workspace*) "]")
+                                                ""))
                                :size (om-make-point 800 300)
                                :menu-items (om-menu-items nil))))
       (setf (elements-view win) (make-ws-elements-tab)
@@ -300,15 +300,17 @@
 ;;;===========================================
 
 (defmethod get-sub-items ((self OMAbstractPackage))
-  (append (subpackages self) (classes self) (functions self)))
+  (append (subpackages self) (classes self) (functions self) (special-items self)))
 
 (defmethod get-sub-items ((self t)) nil)
 
-(defmethod get-icon ((self OMAbstractPackage)) 'icon-pack)
-(defmethod get-icon ((self Function)) 'icon-fun)
-(defmethod get-icon ((self OMGenericFunction)) 'icon-genfun)
-(defmethod get-icon ((self OMClass)) 'icon-class)
-(defmethod get-icon ((self OMLib)) (if (loaded? self) 'icon-lib-loaded 'icon-lib))
+(defmethod get-icon ((self OMAbstractPackage)) :icon-pack)
+(defmethod get-icon ((self Function)) :icon-fun)
+(defmethod get-icon ((self OMGenericFunction)) :icon-genfun)
+(defmethod get-icon ((self OMClass)) :icon-class)
+(defmethod get-icon ((self OMLib)) (if (loaded? self) :icon-lib-loaded :icon-lib))
+(defmethod get-icon ((self symbol)) :icon-special)
+
 
 (defun make-om-package-tab ()
   (let* ((pack *om-package-tree*))
@@ -319,8 +321,8 @@
                                              :font (om-def-font :font1)
                                              :bg-color (om-def-color :light-gray)
                                              :item-icon #'(lambda (item) (get-icon item))
-                                             :icons (list 'icon-pack 'icon-fun 'icon-genfun 'icon-class)
-                                             )))
+                                             :icons (list :icon-pack :icon-fun :icon-genfun :icon-class :icon-special)
+                                             ))) 
       (om-make-layout 
        'om-simple-layout :name "Class/Function Library"
        :subviews (list pack-tree-view)
@@ -343,7 +345,7 @@
                                              :font (om-def-font :font1)
                                              :bg-color (om-def-color :light-gray)
                                              :item-icon #'(lambda (item) (get-icon item))
-                                             :icons (list 'icon-pack 'icon-fun 'icon-genfun 'icon-class 'icon-lib-loaded 'icon-lib)
+                                             :icons (list :icon-pack :icon-fun :icon-genfun :icon-class :icon-lib-loaded :icon-lib)
                                              )))
       (om-make-layout 
        'om-column-layout :name "External Libraries" :align :right

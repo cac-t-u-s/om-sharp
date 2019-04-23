@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -46,11 +46,11 @@
 (defmethod ompatch-p ((self t)) nil)
 
 (defclass OMPatchInternal (OMPatch) ()
-  (:default-initargs :icon 'patch-0)
+  (:default-initargs :icon :patch-0)
   (:metaclass omstandardclass))
 
 (defclass OMPatchFile (OMPersistantObject OMPatch) ()
-  (:default-initargs :icon 'patch-file) 
+  (:default-initargs :icon :patch-file) 
   (:metaclass omstandardclass))
 
 (defmethod object-doctype ((self OMPatch)) :patch)
@@ -83,7 +83,12 @@
   (mapc #'omng-delete (boxes self))
   (call-next-method))
 
+
 (defmethod index ((self t)) -1)
+
+;;; ompatchio has an index accessor
+;;; otherwise, special types of boxes can organize themselves by redefining the method
+;;; (eg. to set priority between loop iterator boxes, see om-loop.lisp)
 (defun sort-boxes (boxes)
   (sort boxes '< :key #'(lambda (b) (index (reference b)))))
 
@@ -142,7 +147,7 @@
 ;; For conversions
 (defmethod internalized-type ((self OMPatchFile)) 'OMPatchInternal)
 (defmethod externalized-type ((self OMPatch)) 'OMPatchFile)
-(defmethod externalized-icon ((self OMPatch)) 'patch-file)
+(defmethod externalized-icon ((self OMPatch)) :patch-file)
 
 ;;;==========================================
 ;;; DIFFERENCES BETWEEN INTERNAL AND NOT INTERNAL :
@@ -155,6 +160,15 @@
 ;  (mapcar 'update-from-editor (references-to self))
 ;  (touch self))
 
+;;;==========================================
+;;; META: TOOLS FOR MAQUETTE ETC.
+;;;==========================================
+
+(defmethod* get-boxes ((self OMPatch))
+  (boxes self))
+
+(defmethod* get-box-values ((self OMPatch))
+  (loop for b in (boxes self) collect (get-box-value b)))
 
 
 

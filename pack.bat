@@ -1,7 +1,7 @@
 rmdir BUILD
 mkdir BUILD
 
-xcopy om BUILD\o7\ /E /y
+xcopy om7 BUILD\om7\ /E /y
 
 copy "om\resources\lib\win32\libportmidi.dll" BUILD\o7\
 copy "om\resources\lib\win32\libsndfile-1.dll" BUILD\o7\

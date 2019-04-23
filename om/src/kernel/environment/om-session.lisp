@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -44,7 +44,7 @@
 ;(defvar *om-preferences* nil)
 
 (defun om-preference-file ()
-  (merge-pathnames "o7/preferences.om" (om-user-pref-folder)))
+  (merge-pathnames "om7/preferences.om" (om-user-pref-folder)))
 
 ;(WITH-OPEN-FILE (out "/Users/bresson/Desktop/test.txt" :direction :output 
 ;                         :if-does-not-exist :create :if-exists :supersede) 
@@ -157,6 +157,7 @@
      :directory 
      #+cocoa(butlast (pathname-directory (truename (lw::pathname-location (oa::om-lisp-image)))) 3)
      #+win32(pathname-directory (truename (lw::pathname-location  (oa::om-lisp-image))))
+     #+linux(pathname-directory (truename (lw::pathname-location  (oa::om-lisp-image))))
      ))
    (om-lisp::om-set-source-tree-root-folder
     (make-pathname 
@@ -164,6 +165,7 @@
      :directory 
      #+cocoa(append (butlast (pathname-directory (truename (lw::pathname-location (oa::om-lisp-image))))) '("Resources" "src"))
      #+win32(append (pathname-directory (truename (lw::pathname-location (oa::om-lisp-image)))) '("src"))
+     #+linux(append (pathname-directory (truename (lw::pathname-location (oa::om-lisp-image)))) '("src"))
      ))
    ))
 
@@ -195,10 +197,12 @@
 ;;;======================================
 
 ;;; will be printed in the Listener
+
+
 (defparameter *om-startup-string* 
   (format nil 
-          "===========================~%o7 v. ~D~%r. ~A~%==========================="
-          *version-string* *release-date*))
+          "===========================~%~A v~D~%r. ~A~%==========================="
+          *app-name* *version-string* *release-date*))
 
 ; (start-openmusic)
 

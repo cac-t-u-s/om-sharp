@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -28,21 +28,21 @@
 
 
 (defclass OMLispFunctionInternal (OMLispFunction) ()
-  (:default-initargs :icon 'lisp-f)
+  (:default-initargs :icon :lisp-f)
   (:metaclass omstandardclass))
 
 (defmethod window-name-from-object ((self OMLispFunctionInternal))
   (format nil "~A  [~A]" (name self) "internal Lisp function"))
 
 (defclass OMLispFunctionFile (OMPersistantObject OMLispFunction) ()
-  (:default-initargs :icon 'lisp-f-file) 
+  (:default-initargs :icon :lisp-f-file) 
   (:metaclass omstandardclass))
 
 
 ;; For conversions
 (defmethod internalized-type ((self OMLispFunctionFile)) 'OMLispFunctionInternal)
 (defmethod externalized-type ((self OMLispFunction)) 'OMLispFunctionFile)
-(defmethod externalized-icon ((self OMLispFunction)) 'lisp-f-file)
+(defmethod externalized-icon ((self OMLispFunction)) :lisp-f-file)
 
 (defparameter *default-lisp-function-text* 
   '(";;; Edit a valid LAMBDA EXPRESSION"
@@ -134,11 +134,11 @@
 (defclass OMBoxLisp (OMBoxAbstraction) ())
 (defmethod get-box-class ((self OMLispFunction)) 'OMBoxLisp)
 
-(defmethod draw-patch-icon :after ((self OMBoxLisp))
+(defmethod draw-patch-icon :after ((self OMBoxLisp) &optional (offset-x 0) (offset-y 0))
   (when (error-flag (reference self))
     (om-with-fg-color (om-def-color :dark-red)
       (om-with-font (om-make-font "Arial" 16 :style '(:bold))
-        (om-draw-string 2 (- (box-h self) 8) "Error !!")))))
+        (om-draw-string (+ offset-x 2) (+ offset-y (- (box-h self) 8)) "Error !!")))))
 
 ;;; OMLispFunction doesn't have OMIn boxes to buils the box-inputs from
 (defmethod create-box-inputs ((self OMBoxLisp)) 

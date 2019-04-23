@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -116,7 +116,7 @@
 (defun eval-command (editor-view boxes)
   
   (prompt-on-listeners "Running...")
-  
+ 
   (om-eval-enqueue  
    `(progn
       (setf *current-eval-panel* ,editor-view)
@@ -130,7 +130,9 @@
    :post-action #'(lambda ()
                     (prompt-on-listeners "Ready")))
   
-  (om-invalidate-view editor-view))
+  (om-invalidate-view editor-view)
+  (update-inspector-for-editor (editor editor-view)))
+
 
 (defun output-eval-command (out-area)
   (let* ((frame (frame out-area))
@@ -158,7 +160,7 @@
                       (om-process-wait 1000)
                       (prompt-on-listeners "Ready")))
   ;; (abort)
-  )
+  NIL)
 
 
 (defmethod eval-box ((self ombox))
@@ -239,11 +241,11 @@
 ;;; BOX EVALUATION
 ;;;=================
 
-
 ;;; SETS VALUE AS A LIST FOR EVERY OUPUT 
 ;;; RETURNS THE REQUESTED (OR FIRST) INPUT
 (defmethod omNG-box-value ((self OMBoxCall) &optional (numout 0)) 
   "Eval the output <numout> in <self>."
+  
   (handler-bind ((error #'(lambda (c)
                             (when (get-pref-value :general :catch-errors)
                               (let ((fv (make-flag-view self (om-make-color 0.6 .3 .3 .5))))
@@ -252,23 +254,32 @@
                                   (om-add-subviews *current-eval-panel* fv))
                                 
                                 (om-message-dialog (string+ "Error while evaluating the box " (string (name self)) " : " 
-                                                            (om-report-condition c))
+                                                            (format nil "~A" c))
                                                    :size (om-make-point 300 200))
                                 (fade-out-flag-view fv)
                                 (clear-after-error self)
                                 (setf (eval-flag self) nil)
                                 (sleep .5)
                                 (om-abort))))))
+
+    ;(print (list (lock-state self) (lambda-state self) (ev-once-flag self)))
+
     (cond
      
      ((equal (lambda-state self) :reference) (box-reference-value self))
-     ((equal (lambda-state self) :box) self)
+     
+     ((equal (lambda-state self) :box) 
+      
+      ;;; reevaluate normal then return the box
+      (setf (lambda-state self) nil)
+      (omng-box-value self numout)
+      (setf (lambda-state self) :box)
+      self)
      
      ((and (equal (lock-state self) :locked) (value self)) 
       (return-value self numout))
      
      ((and (or (equal (lock-state self) :eval-once)
-               
                (get-pref-value :general :auto-ev-once-mode))
            
            (equal (ev-once-flag self) (get-ev-once-flag *ev-once-context*)))
@@ -278,6 +289,7 @@
      (t 
       (setf (eval-flag self) t)
       (om-invalidate-view (frame self))
+      
       (let ((new-val 
              (cond ((equal (lambda-state self) :lambda) 
                     (multiple-value-list (box-lambda-value self)))
@@ -364,7 +376,7 @@
                                 (when *current-eval-panel*
                                   (om-add-subviews *current-eval-panel* fv))
                                 (om-message-dialog (string+ "Error while evaluating the box " (string (reference self)) " : " 
-                                                            (om-report-condition c ))
+                                                            (format nil "~A" c))
                                                    :size (om-make-point 300 200))
                                 (fade-out-flag-view fv)
                                 (clear-after-error self)

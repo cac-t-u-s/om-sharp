@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -31,7 +31,7 @@
                       (list (om-make-menu-comp 
                              (list
                               (om-make-menu-item "New Patch" #'(lambda () (open-new-document :patch)) :key "n")
-                              (om-make-menu-item "New Maquette" #'(lambda () (open-new-document :maquette)) :key "m")
+                              (om-make-menu-item "New Maquette" #'(lambda () (open-new-document :maquette)))
                               (om-make-menu-item "New Lisp function" #'(lambda () (open-new-document :lispfun)))))
                             (om-make-menu-item "New Text/Lisp Buffer" #'(lambda () (om-lisp::om-open-text-editor :lisp t)) :key "N")
                             ))
@@ -249,6 +249,7 @@
     (if listenerwin
         (om-select-window listenerwin)
       (om-lisp::om-make-listener 
+       :initial-lambda #'(lambda () (in-package :om))
        :initial-prompt *om-startup-string*
        :height 200 
        :input (get-pref-value :general :listener-input)
@@ -291,6 +292,24 @@
 |#
 
 (defun show-shell () (om-lisp::om-open-shell)) 
+
+
+
+;=======================
+; Print OM messages
+;=======================
+ 
+(defun om-beep-msg (format-string &rest args)
+   (om-beep)
+   (om-print (apply 'format (append (list nil format-string) args)) "[!!]")
+   NIL)
+
+
+(add-preference :general :debug "Debug mode" :bool nil)
+
+(defun om-print-dbg (str &optional args prompt)  
+  (when (get-pref-value :general :debug)
+    (om-print-format str args (or prompt "DEBUG"))))
 
 
 ;;;===============================

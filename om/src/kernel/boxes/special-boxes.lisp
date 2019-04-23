@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -32,7 +32,7 @@
 
 (defmethod* seq  ((op t) &rest op+) :numouts 1 
    :initvals '(nil) :indoc '("something to do" "something else to do")
-   :icon 161
+   :icon :seq
    :doc "Evaluates sequentially a series of values, functions or subpatches.
 
 Accepts many optional inputs as needed. 
@@ -52,6 +52,7 @@ Mind using this box in 'eval-once' mode when connected to several other boxes."
 (defmethod omNG-make-special-box ((reference (eql 'sequence)) pos &optional init-args)
   (omNG-make-new-boxcall (fdefinition 'seq) pos init-args))
 
+
 (defmethod add-optional-input ((self OMBoxSeqCall) &key name (value nil val-supplied-p) doc reactive)
   (declare (ignore value doc reactive))
   (call-next-method)
@@ -66,7 +67,7 @@ Mind using this box in 'eval-once' mode when connected to several other boxes."
 
 (defmethod remove-one-optional-input ((self OMBoxSeqCall))
   (when (call-next-method)
-    (set-box-outputs self (butlast (outputs self)))))
+    (remove-one-output self (car (last (outputs self))))))
 
 
 ;;;------------------------------------------
@@ -118,7 +119,7 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
 
 (defmethod remove-one-optional-input ((self OMBoxSplit))
   (when (get-optional-inputs self)
-    (set-box-outputs self (butlast (outputs self)))))
+    (remove-one-output self (car (last (outputs self))))))
 
 ;; hack: all inputs (actually, ouputs) can be removed as "optional"
 (defmethod get-optional-inputs ((self OMBoxSplit)) (cdr (outputs self)))
@@ -145,6 +146,7 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
 ;;;---------------------------------------------------------------------
 ;;; todo: allow several inputs, too => all return the same
 
+;; It is advised to use this box in mode 'eval once' in order to avoid useless computations.
 (defmethod* hub (value &rest add-output)  
   :initvals '(nil) 
   :indoc '("anthing")
@@ -153,23 +155,18 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
 
 Use > and < to add/remove outputs.
 
-It is advised to use this box in mode 'eval once' in order to avoid useless computations.
 "
-  :icon 235
-  :numouts 0
-  (values-list (first-n list 50)))
+  :icon 'through
+  :numouts 1
+  value)
 
 
 (defclass OMBoxHub (OMBoxSplit) ())
 (defmethod boxclass-from-function-name ((self (eql 'hub))) 'OMBoxHub)
+
 (defmethod boxcall-value ((self OMBoxHub))
   (values-list (make-list (length (outputs self)) 
                           :initial-element (omNG-box-value (car (inputs self))))))
-
-(defmethod add-args-to-box ((box OMBoxHub) args)
-  (let ((n (if (numberp (car args)) (car args) 1)))
-    (dotimes (i n) (add-optional-input box))))
-
 
 
 ;;;------------------------

@@ -16,10 +16,20 @@
 (print "APPLICATION SETUP")
 (print "==============================")
 
-(defparameter *app-name+version* "o7")
-;(defparameter *app-name+version* (concatenate 'string "o7-" (version-to-string *om-version* t nil)))
+(defparameter *app-name+version* #-linux "om7-beta" #+linux "om7-alpha")
 
 (defparameter *om-directory-folders* (butlast (pathname-directory (current-pathname))))
+
+(let ((version-str (concatenate 'string (format nil "~d.~d" *version-major* *version-minor*)
+                                (if (and *version-patch* (plusp *version-patch*)) (format nil ".~d" *version-patch*) ""))))
+  
+  (with-open-file (f (make-pathname :directory (butlast (pathname-directory (current-pathname)) 2)
+                                    :name "VERSION")
+                     :direction :output
+                     :if-exists :supersede)
+    (write-string version-str f)
+    ))
+
 
 ;;;==========================
 ;;; DEFAULT INTERFACE (MACOS)(defmethod osc-start-receive ((box ReceiveBox))
@@ -46,7 +56,7 @@
         ;; attach the standard Services menu.
        ; :name :application-services)
        (:component
-        (("Hide o7"
+        (("Hide OM"
           :accelerator "accelerator-h"
           :callback-data :hidden)
          ("Hide Others"
@@ -220,6 +230,11 @@
 
 (dspec:discard-source-info)
 
+;;;==========================
+;;; FUNCTION REFERENCE
+;;;==========================
+
+(om::gen-om-reference)
 
 ;;;==========================
 ;;; BUILD IMAGE
@@ -298,12 +313,15 @@
                                                                `("TextFun" ("olsp") ,(om::om-relative-path '("mac") "lsp-icon.icns"))
                                                                `("om Library" ("omlib") ,(om::om-relative-path '("mac") "omlib.icns")))
                                                            :application-icns (om::om-relative-path '("mac") "om.icns")
-                                         :identifier "fr.ircam.repmus.o7"
-                                         :version (version-to-string *om-version* t nil)
+                                         :identifier "fr.ircam.repmus.om7"
+                                         :version *version-string*
                                          ))
        #+mswindows
        (make-pathname :directory (butlast (pathname-directory (current-pathname)))
-                      :name *app-name+version* :type "exe")))
+                      :name *app-name+version* :type "exe")
+       #+linux
+       (make-pathname :directory (butlast (pathname-directory (current-pathname)))
+                      :name *app-name+version*)))
   
   #+macosx(move-mac-resources)
 
@@ -325,8 +343,8 @@
            :startup-bitmap-file NIL ;; *startup-bmp*  ;; removed because of a delivery bug with menus in OM 7         
            #+mswindows :keep-gc-cursor #+mswindows nil
            #+mswindows :versioninfo #+mswindows (list :binary-version (read-from-string (version-to-hex *om-version*))
-                                              :version-string (version-to-string *om-version* t nil)
-                                              :company-name "" :product-name "o7" :file-description "")
+                                              :version-string *version-string*
+                                              :company-name "" :product-name "om7" :file-description "")
            #+mswindows :console #+mswindows :input
            :quit-when-no-windows #+mswindows t #-mswindows nil
            #+(or cocoa win32) :packages-to-keep #+cocoa '(:objc)  #+mswindows '(:comm)

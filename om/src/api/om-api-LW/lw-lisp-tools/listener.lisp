@@ -33,7 +33,8 @@
 ;;;===================
 (export '(om-init-output-stream
           om-print 
-          om-print-format) 
+          om-print-format
+          om-print-list) 
         :om-lisp)
 
 ;;;=============================
@@ -75,11 +76,11 @@
 
 
 ;;;=============================
-;;; PRINT REDEFS
+;;; PRINT REDEFS AND UTILS
 ;;;=============================
 
 (defun om-print (obj &optional prompt)  
-  (format *om-stream* "~A :: ~A~%" (or prompt "") obj)
+  (format *om-stream* "~&~A :: ~A~%" (or prompt "") obj)
   obj)
 
 (defun om-print-format (format-string &optional args prompt)  
@@ -90,6 +91,10 @@
                 (apply 'format (append (list nil (concatenate 'string format-string "~%")) args)))
    ))
 
+(defun om-print-list (&rest elements)  
+  (om-print elements))
+
+
 ;;;=============================
 ;;; PRINT WINDOW
 ;;;=============================
@@ -98,8 +103,10 @@
   ((ip :accessor ip :initarg :ip)
    (op :accessor op :initarg :op)))
 
-(defclass om-listener-in-pane (capi::listener-pane) ())
-(defclass om-listener-out-pane (capi::collector-pane) ())
+(defclass om-listener-pane () ())
+
+(defclass om-listener-in-pane (om-listener-pane capi::listener-pane) ())
+(defclass om-listener-out-pane (om-listener-pane capi::collector-pane) ())
 
 (defun om-make-listener-output-pane ()
   (make-instance 'om-listener-out-pane 
@@ -301,31 +308,47 @@
        (when (capi:pane-has-focus-p p)
          (return-from find-capi-pane-with-focus p)))))
 
-(defun listener-paste (listenerwin)
-  (let* ((pane (find-capi-pane-with-focus (pane-layout listenerwin)))
-         (buffer (editor-pane-buffer pane)))
-    (call-editor pane (list 'editor::insert-cut-buffer-command buffer))))
+
+(defmethod om-copy-command ((self om-listener-pane))
+  (call-editor self (list 'editor::copy-to-cut-buffer-command (editor-pane-buffer self))))
 
 (defun listener-copy (listenerwin)
-  (let* ((pane (find-capi-pane-with-focus (pane-layout listenerwin)))
-         (buffer (editor-pane-buffer pane)))
-    (call-editor pane (list 'editor::copy-to-cut-buffer-command buffer))))
+  (let ((pane (find-capi-pane-with-focus (pane-layout listenerwin))))
+    (om-copy-command pane)))
+
+
+(defmethod om-paste-command ((self om-listener-pane))
+  (call-editor self (list 'editor::insert-cut-buffer-command (editor-pane-buffer self))))
+
+(defun listener-paste (listenerwin)
+  (let ((pane (find-capi-pane-with-focus (pane-layout listenerwin))))
+    (om-paste-command PANE)))
+
+
+(defmethod om-cut-command ((self om-listener-pane))
+  (let ((buffer (editor-pane-buffer self)))
+    (call-editor self (list 'editor::copy-to-cut-buffer-command buffer))
+    (call-editor self (list 'editor::kill-region-command buffer))))
 
 (defun listener-cut (listenerwin)
-  (let* ((pane (find-capi-pane-with-focus (pane-layout listenerwin)))
-         (buffer (editor-pane-buffer pane)))
-    (call-editor pane (list 'editor::copy-to-cut-buffer-command buffer))
-    (call-editor pane (list 'editor::kill-region-command buffer))))
+  (let ((pane (find-capi-pane-with-focus (pane-layout listenerwin))))
+    (om-cut-command pane)))
 
-(defun listener-select-all (listenerwin)
-  (let* ((pane (find-capi-pane-with-focus (pane-layout listenerwin)))
-         (buffer (editor-pane-buffer pane)))
+
+(defmethod om-select-all-command ((self om-listener-pane))
+  (let ((buffer (editor-pane-buffer self)))
     (editor::use-buffer buffer
       (editor::with-point ((p (editor::buffer-point buffer)))
-        (call-editor pane (list 'editor::beginning-of-buffer-cancelling-selection-command buffer))
-        #+cocoa(call-editor pane (list 'editor::end-of-buffer-extending-selection-command buffer))
-        #-cocoa(call-editor pane (list 'editor::end-of-buffer-modifying-selection-command buffer))
-        ))))
+        (call-editor self (list 'editor::beginning-of-buffer-cancelling-selection-command buffer))
+        #+cocoa(call-editor self (list 'editor::end-of-buffer-extending-selection-command buffer))
+        #-cocoa(call-editor self (list 'editor::end-of-buffer-modifying-selection-command buffer))
+        ))
+    ))
+
+(defun listener-select-all (listenerwin)
+  (let ((pane (find-capi-pane-with-focus (pane-layout listenerwin))))
+    (om-select-all-command pane)))
+
 
 (defun listener-end-of-buffer (listenerwin)
   (let* ((pane (op listenerwin))
@@ -373,7 +396,9 @@
 
 (defun om-prompt-on-echo-area (listener-pane message)
   (with-slots (editor-window) listener-pane
-    (editor:process-character  
+    (capi::apply-in-pane-process 
+     listener-pane 
+     'editor:process-character    
      (list 'editor:message message)
      editor-window)))
 

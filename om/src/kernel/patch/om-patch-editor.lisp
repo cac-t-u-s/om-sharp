@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -73,6 +73,7 @@
 (defmethod init-editor-window ((editor patch-editor))
   (call-next-method)
   (put-patch-boxes-in-editor-view (object editor) (main-view editor)) 
+  (update-inspector-for-editor editor)
   (add-lock-item editor (main-view editor))
   (update-window-name editor))
 
@@ -84,12 +85,14 @@
   (om-draw-line x 0 x (h view)))
 
 (defmethod draw-patch-grid ((self patch-editor-view) &optional (d 50))
-  (om-with-fg-color (om-def-color :light-gray)
-    (om-with-line '(2 2)
+  (om-with-fg-color (om-make-color .95 .95 .95)
+    ;(om-with-line '(2 2) ;;; dash-lines are VERY unefficient
       (loop for i from d to (w self) by d do
             (draw-v-grid-line self i))
       (loop for i from d to (h self) by d do
-            (draw-h-grid-line self i)))))
+            (draw-h-grid-line self i))
+    ;  )
+    ))
 
 
 (defmethod om-draw-contents ((self patch-editor-view))
@@ -112,7 +115,7 @@
   ((editor :accessor editor :initarg :editor :initform nil)))
 
 (defmethod om-draw-contents ((self lock-view-area))
-  (om-draw-picture (if (lock (object (editor self))) 'lock 'unlock) 
+  (om-draw-picture (if (lock (object (editor self))) :lock :unlock) 
                    :x 0 :y 0 :w (om-width self) :h (om-height self)))
 
 (defmethod om-view-click-handler ((self lock-view-area) position)
@@ -134,11 +137,19 @@
 ;;; MENU
 ;;;==========================
 
+
+
 (defmethod om-menu-items ((self patch-editor))
   (remove nil
             (list 
              (main-app-menu-item)
-             (om-make-menu "File" (default-file-menu-items self))
+             (om-make-menu "File" (append 
+                                   (default-file-menu-items self)
+                                   (list (om-make-menu-item "Open as text"
+                                                            #'(lambda () 
+                                                                (om-lisp::om-open-text-editor :contents (pathname (mypathname (object self))) :lisp t))
+                                                            :enabled (and (is-persistant (object self))
+                                                                          (mypathname (object self)))))))
              (om-make-menu "Edit" 
                            (append 
                             (default-edit-menu-items self)
@@ -158,7 +169,7 @@
                                           #'(lambda () (patch-editor-set-window-config 
                                                         self 
                                                         (if (equal (editor-window-config self) :lisp-code) nil :lisp-code)))
-                                          :key "k" :selected #'(lambda () (equal (editor-window-config self) :lisp-code))
+                                          :key "l" :selected #'(lambda () (equal (editor-window-config self) :lisp-code))
                                           )
                                          
                                          (om-make-menu-item 
@@ -174,7 +185,7 @@
                                           #'(lambda () (patch-editor-set-window-config 
                                                         self 
                                                         (if (equal (editor-window-config self) :listener) nil :listener)))
-                                          :key "l" :selected #'(lambda () (equal (editor-window-config self) :listener))
+                                          :key "m" :selected #'(lambda () (equal (editor-window-config self) :listener))
                                           )
 
                                          (om-make-menu-item 
@@ -209,8 +220,13 @@
 
 ;;; will be passed to the Help menus
 (defmethod get-selection-for-menu ((self patch-editor))
-  (remove-duplicates (mapcar 'reference (get-selected-boxes self))))
+  (remove-duplicates 
+   (mapcar 
+    #'(lambda (b) (box-symbol (reference b)))
+    (get-selected-boxes self))
+   ))
 
+(defmethod box-symbol ((self t)) self)
 
 (defmethod get-boxframes ((self patch-editor-view) &key only-selected)
   (let ((frames (remove-if-not #'(lambda (item) (subtypep (type-of item) 'omframe)) (om-subviews self))))
@@ -312,11 +328,12 @@
     ))
   
 (defmethod editor-key-action ((editor patch-editor) key)
+
   (let* ((panel (get-editor-view-for-action editor))
          (patch (object editor))
          (selected-boxes (get-selected-boxes editor))
          (selected-connections (get-selected-connections editor)))
-
+    
     (when panel
 
       (case key
@@ -421,7 +438,7 @@
                (store-current-state-for-undo editor)
                (auto-connect-seq selected-boxes editor panel)))
         
-        ;;; => Edit menu command
+        ;;; => Edit menu command ?
         (#\A (unless (edit-lock editor) 
                (store-current-state-for-undo editor)
                (align-selected-boxes editor)))
@@ -566,7 +583,15 @@
   #'(lambda () (remove-selection self)))
 
 (defmethod select-all-command ((self patch-editor))
-  #'(lambda () (select-unselect-all self t)))
+  #'(lambda () 
+      (let ((focus (or (om-get-subview-with-focus (window self))
+                       (main-view self))))
+        (when focus ;;; can be the main view or a text-input field for instance
+          (select-all-command-for-view self focus)
+          ))))
+
+(defmethod select-all-command-for-view ((self patch-editor) (view t))
+  (select-unselect-all self t))
 
 
 ;;;===========================================
@@ -638,11 +663,15 @@
 (defmethod paste-command-for-view ((editor patch-editor) (view om-editable-text))
   (if (edit-lock editor) (om-beep) (om-paste-command view)))
 
+(defmethod select-all-command-for-view ((editor patch-editor) (view om-editable-text))
+  (om-select-all-command view))
+
+
 
 ;;; called from menu
 (defmethod copy-command ((self patch-editor))
   #'(lambda () 
-      (let ((focus (or (om-get-subview-with-focus (main-view self))
+      (let ((focus (or (om-get-subview-with-focus (window self))
                        (main-view self))))
         (when focus ;;; can be the main view or a text-input field for instance
           (copy-command-for-view self focus)
@@ -651,7 +680,7 @@
 ;;; called from menu
 (defmethod cut-command ((self patch-editor))
   #'(lambda () 
-      (let ((focus (or (om-get-subview-with-focus (main-view self))
+      (let ((focus (or (om-get-subview-with-focus (window self))
                        (main-view self))))
         (when focus ;;; can be the main view or a text-input field for instance
             (cut-command-for-view self focus)
@@ -659,7 +688,7 @@
 
 (defmethod paste-command ((self patch-editor))
   #'(lambda () 
-      (let ((focus (or (om-get-subview-with-focus (main-view self))
+      (let ((focus (or (om-get-subview-with-focus (window self))
                        (main-view self))))
         (when focus ;;; can be the main view or a text-input field for instance
             (paste-command-for-view self focus)))))
@@ -858,8 +887,8 @@
              
              (localpath-strings 
               (when (mypathname patch)
-                (let* ((currentpathbase (namestring (pathname-dir string)))
-                       (localfolder (pathname-dir (merge-pathnames string (mypathname patch))))
+                (let* ((currentpathbase (namestring (om-make-pathname :directory string)))
+                       (localfolder (om-make-pathname :directory (merge-pathnames string (mypathname patch))))
                        (filecandidates
                         (mapcar 'pathname-name 
                                 (om-directory localfolder
@@ -1097,7 +1126,7 @@
         (doc-path nil))
     
     (when (mypathname patch)
-      (let* ((local-restored-path (merge-pathnames str (pathname-dir (mypathname patch))))
+      (let* ((local-restored-path (merge-pathnames str (om-make-pathname :directory (mypathname patch))))
              (local-matches (remove nil 
                                     (loop for type in abs-types collect
                                           (probe-file 
@@ -1108,7 +1137,7 @@
         (when (> (length local-matches) 1)
           (om-beep-msg "Warning: there's more than 1 document named ~s in ~s" 
                        (pathname-name local-restored-path)
-                       (pathname-dir local-restored-path)))
+                       (om-make-pathname :directory local-restored-path)))
         ))
     
     (unless doc-path
@@ -1172,8 +1201,13 @@
     (set-g-component editor :lisp-code lisp-pane)
                         
     (om-make-layout 
-     'om-column-layout :ratios '(1 nil) :delta 10
+     'om-column-layout :ratios '(nil 1 nil) :delta 10
      :subviews (list 
+                
+                (om-make-di 'om-multi-text :size (om-make-point nil 36) 
+                            :text "Add one or more output(s) (OUT) to get the corresponding Lisp code..."
+                            :fg-color (om-def-color :dark-gray)
+                            :font (om-def-font :font1))
                 
                 ;; main pane
                 ;; om-simple-layout allows to st a background color
@@ -1236,6 +1270,18 @@
   (loop for win in (om-get-all-windows 'patch-editor-window)
         do (prompt-on-patch-listener (editor win) message)))
 
+(defmethod copy-command-for-view ((editor patch-editor) (view om-lisp::om-listener-pane))
+  (om-lisp::om-copy-command view))
+
+(defmethod cut-command-for-view ((editor patch-editor) (view om-lisp::om-listener-pane))
+  (om-lisp::om-cut-command view))
+
+(defmethod paste-command-for-view ((editor patch-editor) (view om-lisp::om-listener-pane))
+  (om-lisp::om-paste-command view))
+
+(defmethod select-all-command-for-view ((self patch-editor) (view om-lisp::om-listener-pane))
+  (om-lisp::om-select-all-command view))
+
 ;;;======================================
 ;;; INSPECTOR
 ;;;======================================
@@ -1270,87 +1316,121 @@
 (defmethod set-inspector-contents ((self inspector-view) object)
   
   (setf (object self) object)
-  (om-remove-all-subviews self) 
-       
-  (when object
-    (let ((inspector-layout
-           (om-make-layout
-            'om-column-layout
-            :subviews 
-            (append 
-             (list (om-make-di 'om-simple-text :size (om-make-point nil 20) 
-                              :text (if object
-                                        (object-name-in-inspector object)
-                                      "[no selection]")
-                              :focus t  ;; prevents focus on other items :)
-                              :font (om-def-font :font3b))
+  (om-remove-all-subviews self)        
+
+  (let ((inspector-layout
+         
+         (if object
+             
+             (om-make-layout
+              'om-column-layout
+              :subviews 
+              (append 
+               (cons 
+                (om-make-di 'om-simple-text :size (om-make-point nil 20) 
+                            ;:fg-color (om-def-color :dark-gray)
+                            :text (object-name-in-inspector object)
+                            :focus t  ;; prevents focus on other items :)
+                            :font (om-def-font :font3))
                   
-                  (om-make-layout
-                   'om-grid-layout
-                   :delta '(10 0) :align nil
-                   :subviews 
-                   (if (get-properties-list object)
+                (when t ;object 
+                  (list 
+                   (om-make-layout
+                    'om-grid-layout
+                    :delta '(10 0) :align nil
+                    :subviews 
+                  
+                    (if (get-properties-list object)
                    
-                       ;;; ok
-                       (loop for category in (get-properties-list object)
-                             when (cdr category)
-                             append 
-                             (append 
-                              (list  ;     (car category)  ; (list (car category) (om-def-font :font1b))  ; :right-extend          
-                               (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)
-                               (om-make-di 'om-simple-text :text (car category) :font (om-def-font :font2b)
-                                           :size (om-make-point (+ 10 (om-string-size (car category) (om-def-font :font2b))) 20)
-                                           )
-                               )
-                              (loop for prop in (cdr category) append
-                                    (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font (om-def-font :font1)
-                                                      :size (om-make-point 90 20) :position (om-make-point 10 16))
-                                          (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop) 
-                                                          :update (get-update-frame object)
-                                                          )
-                                          ))
+                        ;;; ok
+                        (loop for category in (get-properties-list object)
+                              when (cdr category)
+                              append 
+                              (append 
+                               (list  ;     (car category)  ; (list (car category) (om-def-font :font1b))  ; :right-extend          
+                                (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)
+                                (om-make-di 'om-simple-text :text (car category) :font (om-def-font :font2b)
+                                            :size (om-make-point (+ 10 (om-string-size (car category) (om-def-font :font2b))) 20)
+                                            )
+                                )
+                               (loop for prop in (cdr category) append
+                                     (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font (om-def-font :font1)
+                                                       :size (om-make-point 90 20) :position (om-make-point 10 16))
+                                           (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop) 
+                                                           :update (get-update-frame object)
+                                                           )
+                                           ))
                           
-                              (list (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t) 
-                                    (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t))
+                               (list (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t) 
+                                     (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t))
+                               )
                               )
-                             )
                  
-                     ;;; object has no properties (unlikely)
-                     (list 
-                      (om-make-di 'om-simple-text :size (om-make-point 100 20) 
-                                  :text "[no properties]"
-                                  :font (om-def-font :font1)) 
-                      nil))
+                      ;;; object has no properties (unlikely)
+                      (list 
+                       (om-make-di 'om-simple-text :size (om-make-point 100 20) 
+                                   :text "[no properties]"
+                                   :font (om-def-font :font1)) 
+                       nil))
            
              
-                   ))
+                    ))))
              
-             (when (get-documentation object)
-               (list
+               (when (get-documentation object)
+                 (list
+                    
+                  :separator 
                 
-                ;(om-make-di 'om-simple-text :size (om-make-point nil 18) 
-                ;            :text "----------documentation"
-                ;            :font (om-def-font :font2)
-                ;            :fg-color (om-def-color :dark-gray))
-               :separator 
-                
-                (let ((doc (get-documentation object)))
-                  (om-make-di 'om-multi-text :size (om-make-point nil nil) ; (* 40 (length (string-lines-to-list doc))) 
-                              :text doc
-                              :font (om-def-font :font1)))
+                  (let ((doc (get-documentation object)))
+                    
+                    (om-make-di 'om-multi-text :size (om-make-point nil (* 24 (1+ (length (string-lines-to-list doc)))))
+                                :text (format nil "~%~A" doc)
+                                :fg-color (om-def-color :dark-gray)
+                                :font (om-def-font :font1)))
                   
-                ))
-            )
-            )))
+                  ))
+               )
+              )
+
+           ;;; else: no object
+           (om-make-layout
+            'om-column-layout :align :bottom
+            :subviews 
+            (list 
+             (om-make-di 'om-simple-text :size (om-make-point 275 20) 
+                         :text "--"
+                         :fg-color (om-def-color :dark-gray)
+                         :focus t  ;; prevents focus on other items :)
+                         :font (om-def-font :font3))
+             
+             :separator
+            
+             (om-make-di 'om-multi-text :size (om-make-point nil 160) ; (* 40 (length (string-lines-to-list doc))) 
+                                :text *patch-inspector-help-text*
+                                :fg-color (om-def-color :dark-gray)
+                                :font (om-def-font :font1))
+             
+             )))
+         ))
     
-      (om-add-subviews self inspector-layout)
-      )
-    )
+    
+      (om-add-subviews self inspector-layout))
   
   (when (editor self)
     (om-update-layout (window (editor self))))
   
   )
+
+
+
+(defparameter *patch-inspector-help-text* "
+This is a patch editor window.
+  
+Double-click or type 'N' to enter a new box by its name. Use the down-arrow key to pop-up auto-completed names after typing the first characters.
+
+The functiion/class reference accessible from the \"Help\" menu will provide you a liste of predefined functions.
+") 
+
 
 
 (defmethod update-inspector-for-editor ((self patch-editor) &optional obj)
@@ -1418,8 +1498,8 @@
               (when (editor-window-config editor)
                  (list 
                   (om-make-graphic-object 
-                   'om-icon-button :icon 'xx :icon-pushed 'xx-pushed
-                   :size (omp 16 16)
+                   'om-icon-button :icon :xx :icon-pushed :xx-pushed
+                   :size (omp 12 12)
                    :action #'(lambda (b) (patch-editor-set-window-config editor nil))
                    )
                   nil))
@@ -1427,7 +1507,7 @@
                (list 
                 (om-make-graphic-object 
                  'om-icon-button :size (omp 16 16) 
-                 :icon 'info-gray :icon-disabled 'info
+                 :icon :info-gray :icon-disabled :info
                  :lock-push nil :enabled (not (equal (editor-window-config editor) :inspector))
                  :action #'(lambda (b) 
                              (patch-editor-set-window-config 
@@ -1437,7 +1517,7 @@
     
                 (om-make-graphic-object 
                  'om-icon-button :size (omp 16 16) 
-                 :icon 'lisp-gray :icon-disabled 'lisp
+                 :icon :lisp-gray :icon-disabled :lisp
                  :lock-push nil :enabled (not (equal (editor-window-config editor) :lisp-code))
                  :action #'(lambda (b) 
                              (patch-editor-set-window-config 
@@ -1447,7 +1527,7 @@
                     
                 (om-make-graphic-object 
                  'om-icon-button :size (omp 16 16) 
-                 :icon 'listen-gray :icon-disabled 'listen
+                 :icon :listen-gray :icon-disabled :listen
                  :lock-push nil :enabled (not (equal (editor-window-config editor) :listener))
                  :action #'(lambda (b) 
                              (patch-editor-set-window-config 
@@ -1481,7 +1561,10 @@
                            ;; top of the pane
                            (om-make-di 'om-simple-text :size (omp 230 18)
                                                    :font (om-def-font :font2b) :text 
-                                                   (string-downcase (editor-window-config editor))
+                                                   (case (editor-window-config editor)
+                                                     (:lisp-code "Lisp code")
+                                                     (:listener "listener / system out")
+                                                     (:inspector "info and properties"))
                                                    :fg-color (om-def-color :dark-gray))
                            :separator
                            

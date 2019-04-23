@@ -8,11 +8,10 @@ LWARCH=64-bit
 LWVERSION=7.1
 LWEXEC=lispworks-7-1-0-amd64-darwin
 
-OM_VERSION="0.1.2"
+OM_VERSION=$(<"VERSION") 
 BUILD_FOLDER="BUILD"
-APP_NAME="o7"
-ZIP_NAME="$APP_NAME"-"$OM_VERSION"
-DMG_NAME="$APP_NAME"-"$OM_VERSION"-macOS
+APP_NAME="om7-beta"
+
 
 deliver_app()
 {
@@ -22,6 +21,8 @@ echo "***************************************************"
 
 	rm -rf ./om/*.app/
 	/Applications/LispWorks\ $LWVERSION\ \($LWARCH\)/LispWorks\ \($LWARCH\).app/Contents/MacOS/$LWEXEC -build ./om/build/deliver.lisp
+	# update version
+	OM_VERSION=$(<"VERSION") 
 }
 
 
@@ -29,26 +30,23 @@ echo "***************************************************"
 pack_app()
 {
 echo "***************************************************"
-echo "Packing $APP_FOLDER"
+echo "Packing $BUILD_FOLDER/$APP_NAME.app"
 echo "***************************************************"
 
 	rm -Rf $BUILD_FOLDER
 	mkdir $BUILD_FOLDER
 	cp -R om/"$APP_NAME".app $BUILD_FOLDER
-	
-	echo "=> PACKED IN BUILD FOLDER!"
-}
 
-# pack_app MUST have been called before..
-set_fonts()
-{   
-   cp "$BUILD_FOLDER"/"$APP_NAME".app/Contents/Resources/fonts/mac/* "$BUILD_FOLDER"/"$APP_NAME".app/Contents/Resources/fonts/
-   rm -rf "$BUILD_FOLDER"/"$APP_NAME".app/Contents/Resources/fonts/
+echo "=> Setting fonts...."	
+#   cp om/resources/fonts/* "$BUILD_FOLDER"/"$APP_NAME".app/Contents/Resources/fonts/
    	 	   
    cp "$BUILD_FOLDER"/"$APP_NAME".app/Contents/Info.plist .	   
    defaults write $(pwd)/Info.plist ATSApplicationFontsPath -string "fonts/"
    mv ./Info.plist "$BUILD_FOLDER"/"$APP_NAME".app/Contents/Info.plist
+
+echo "=> PACKED IN BUILD FOLDER!"
 }
+
 
 # pack_app MUST have been called before..
 create_simple_dmg()
@@ -57,6 +55,7 @@ echo "***************************************************"
 echo "Preparing DMG distribution for $APP_FOLDER"
 echo "***************************************************"
 
+	DMG_NAME="$APP_NAME"-"$OM_VERSION"-macOS
 	cd $BUILD_FOLDER
 	rm -f "$DMG_NAME".dmg	
 	rm -rf _DMG
@@ -72,6 +71,7 @@ echo "***************************************************"
 
 zip_release()
 {
+	ZIP_NAME="$APP_NAME"-"$OM_VERSION"
 	cd $BUILD_FOLDER
 	rm -f "$ZIP_NAME".zip
 	rm -rf "$APP_NAME"
@@ -103,14 +103,14 @@ change_permission()
 #=============================
 
 if 		[ "$1" = "-d" ]; 	then 	deliver_app
-elif	[ "$1" = "-p" ];	then	pack_app; set_fonts
-elif	[ "$1" = "-dp" ];	then	deliver_app; pack_app; set_fonts
+elif	[ "$1" = "-p" ];	then	pack_app
+elif	[ "$1" = "-dp" ];	then	deliver_app; pack_app
 elif	[ "$1" = "-dmg" ];	then	create_simple_dmg
 elif	[ "$1" = "-zip" ];	then	zip_release
 elif	[ "$1" = "-sign" ];	then	sign_release	
-elif	[ "$1" = "-dpd" ];	then	deliver_app; pack_app; set_fonts;  sign_release;create_simple_dmg
-elif	[ "$1" = "-dpz" ];	then	deliver_app; pack_app; set_fonts; sign_release; zip_release
-elif	[ "$1" = "-all" ];	then	deliver_app; pack_app; set_fonts; sign_release; zip_release; create_simple_dmg
+elif	[ "$1" = "-dpd" ];	then	deliver_app; pack_app; sign_release;create_simple_dmg
+elif	[ "$1" = "-dpz" ];	then	deliver_app; pack_app; sign_release; zip_release
+elif	[ "$1" = "-all" ];	then	deliver_app; pack_app; sign_release; zip_release; create_simple_dmg
 else 	
 	echo "Dont'know what to do! :("	
 	echo "Options:"

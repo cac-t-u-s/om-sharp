@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -234,19 +234,16 @@
      dd 
      (oa::om-make-layout 
      'oa:om-column-layout 
-     :ratios '(99 2 1)
+     :ratios '(1 nil)
      :subviews (list 
                 (oa::om-make-layout 'oa:om-row-layout :subviews (list inv outv))
-                nil
-                (oa::om-make-layout 'oa:om-row-layout 
+                (oa::om-make-layout 'oa:om-row-layout :align :bottom
                                     :subviews
                                     (list
                                      (oa::om-make-di 'oa::om-multi-text
-                                                     :size (oa::om-make-point 360 24)
-                                                     :text (oa::om-string-wrap
-							    "o7 detects MIDI device at startup. If some active MIDI devices do not appear in the lists, you might need to restart the program."
-							    360
-							    (oa::om-def-font :font1))
+                                                     :size (oa::om-make-point 400 36)
+                                                     :fg-color (oa:om-def-color :dark-gray)
+                                                     :text "This software detects MIDI devices at startup. If some active MIDI devices do not appear in the lists, you might need to restart the program."
                                                      :font (oa::om-def-font :font1))
                                      ;(oa::om-make-di 'oa::om-button :position (oa::om-make-point 20 265) :size (oa::om-make-point 130 20) :text "Refresh Devices"
                                      ;                :di-action #'(lambda (item)

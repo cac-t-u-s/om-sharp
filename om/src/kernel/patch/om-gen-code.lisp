@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -129,24 +129,54 @@
  
 
 (defmethod gen-code-locked ((self OMBoxCall) numout) 
-  (gen-code (nth numout (value self))))
+   
+  (case (lambda-state self)
+    
+    (:reference `',(reference self))
+    
+    (:box `,self)
+ 
+    (otherwise 
+     (gen-code (nth numout (value self))))
+    
+    ))
 
 (defmethod gen-code-locked ((self OMBoxRelatedWClass) numout) 
+
+  (if (lambda-state self) ;; :box or :reference
+      
+      (call-next-method)
+
   (if (or (null numout) (= 0 numout))
       (gen-code (car (value self)))
-    `(get-slot-val ,(gen-code (car (value self))) ,(name (nth numout (outputs self))))))
+    `(get-slot-val ,(gen-code (car (value self))) ,(name (nth numout (outputs self)))))))
 
 
 ;;; NOT LOCKED / FIRST EVAL-ONCE
 (defmethod gen-code-for-eval ((self OMBoxCall) &optional numout)
+  
   (case (lambda-state self)
+    
     (:reference `',(reference self))
-    (:box `,self)
+    
+    (:box 
+    
+     (let ((value nil))
+       
+       (setf (lambda-state self) nil)
+       (setf value `(list .,(multiple-value-list (gen-code self))))
+       (setf (lambda-state self) :box)
+       
+       `(progn (setf (value ,self) ,value) ,self))
+
+     )
+    
     (:lambda ;(if (or (null numout)  ;;; we are iside a let / ev-once statement : return all as 'values'
              ;        (= (length (outputs self)) 1)) ;;  single output (to simplify the code)
              ;    `,(gen-code-lambda self)
              ;  `(nth ,numout (multiple-value-list ,(gen-code-lambda self))))
             `,(gen-code-lambda self numout))
+
     (otherwise (if (or (null numout)  ;;; we are inside a let / ev-once statement : return all as 'values'
                        (= (length (outputs self)) 1)) ;;  single output (to simplify the code)
                    `,(gen-code-for-call self)
@@ -156,8 +186,10 @@
     ))
 
 (defmethod gen-code-for-eval ((self OMBoxRelatedWClass) &optional numout)
-  (if (lambda-state self) 
+
+  (if (lambda-state self) ;; :box or :reference
       (call-next-method)
+  
     (if (or (null numout)  ;;; we are inside a let / ev-once statement : return all as 'values'
             (= numout 0))  ;;  first output
         `,(gen-code-for-call self)
@@ -185,19 +217,37 @@
   (null (car *let-list-stack*)))
 
 (defun push-let-statement (form &optional (scope :local))
-  ; (print (list "PUSH LET IN" form scope *let-list-stack*)) 
+  ;(print (list "PUSH LET IN" form scope *let-list-stack*)) 
   (if *let-list-stack*
-      (if (equal scope :local)
+      
+      (if (or (equal scope :local)
+              (= 1 (length *let-list-stack*)))
+          
+          ;;; add the let statment to the head of the stack
           (setf (car *let-list-stack*)
                 (cons form (car *let-list-stack*)))
-        (setf (car (last *let-list-stack*))
-              (cons form (car (last *let-list-stack*))))
+        
+        ;;; add the let statment to the previous position of the stack
+        ;;; = higher-level context
+        ;;; this is used essentially for gloval variables used in loops 
+        ;;; (loop has its own context within the patch)
+        (setf (cadr *let-list-stack*)
+              (cons form (cadr *let-list-stack*)))
+        
+        ;;; top-level: not good in case of nested abstractions
+        ;(setf (car (last *let-list-stack*))
+        ;      (cons form (car (last *let-list-stack*))))
         )
-    (setq *let-list-stack* (list (list form))))
+
+    ;;; create a new stack
+    (setq *let-list-stack* (list (list form)))
+    )
   )
 
+
+
 (defun check-let-statement (varname &optional (scope :local))
-  ; (print (list "CHECK LET IN" varname *let-list-stack*))
+  ;(print (list "CHECK LET IN" varname *let-list-stack*))
   (if (equal scope :local)
       (member varname (car *let-list-stack*) :test 'equal :key 'car)
     (member varname (apply 'append *let-list-stack*) :test 'equal :key 'car)))
@@ -223,7 +273,7 @@
          `,varname)
        )))
 
-(defmethod gen-code-for-ev-once ((self OMBoxEditCall) numout)
+(defmethod gen-code-for-ev-once ((self OMBoxRelatedWClass) numout)
    (let* ((varname (gen-box-name self))
           (newvar? (not (check-let-statement varname :local))))
      (when newvar?
@@ -317,24 +367,23 @@
 
 (defmethod gen-patch-lisp-code ((self OMPatch)) 
   
-  ; (print (list "GEN CODE" (name self) *let-list-stack*)) 
+  ;(print (list "GEN CODE" (name self) *let-list-stack*)) 
   
+  (push-let-context)
+
   (unwind-protect 
-      
-      (progn 
-          
-        (push-let-context)
           
         (let* ((boxes (boxes self))
                (input-names (gen-patch-input-names self))
-         
-               (init-boxes (sort (get-boxes-of-type self 'OMPatchInitBox) '< :key 'index))
+               
+               ;;; as far as I can say OMPatchInitBox have no index... ?
+               (init-boxes (sort-boxes (get-boxes-of-type self 'OMPatchInitBox)))
                (init-forms (loop for ib in init-boxes append (gen-code ib)))
-         
-               (loop-boxes (sort (get-boxes-of-type self 'OMPatchIteratorBox) '< :key 'index))
+               
+               (loop-boxes (sort-boxes (get-boxes-of-type self 'OMPatchIteratorBox)))
                (loop-forms (loop for lb in loop-boxes append (gen-code lb)))
          
-               (out-boxes (sort (get-boxes-of-type self 'OMOutBox) '< :key 'index))
+               (out-boxes (sort-boxes (get-boxes-of-type self 'OMOutBox)))
          
                (body 
                 (if (> (length out-boxes) 1)
@@ -351,7 +400,7 @@
                    
                     `(let* ,(output-current-let-context) ,.init-forms ,.loop-forms ,body)
                     ))
-          ))
+          )
        
     ;; cleanup
     (pop-let-context)
@@ -374,15 +423,18 @@
   (setf (compiled? self) t)
   
   (handler-bind
-      ((error #'(lambda (err)
-                  
-                  (om-print err)
-                  (om-print-format "ABORTING COMPILATION OF PATCH ~A" (list (name self)) "[!!]")
-                  
-                  (setf (compiled? self) nil)
-                  (om-abort)
-                  )))
-
+      ()
+    ;((error #'(lambda (err)
+    ;              
+    ;              (om-print err)
+    ;              (om-print-format "ABORTING COMPILATION OF PATCH ~A" (list (name self)) "[!!]")
+    ;              
+    ;              (setf (compiled? self) nil)
+    ;              ; (om-abort)
+    ;              (error err)
+    ;              )))
+    
+    (print "gggggg")
     (multiple-value-bind (input-names body)
         (gen-patch-lisp-code self)
     
@@ -390,7 +442,7 @@
                            (,.input-names) 
                       ,body)))
       
-        (om-print-format "~%------------------------------------------------------~%PATCH COMPILATION:~%")
+        (om-print-format "~%------------------------------------------------------~%PATCH COMPILATION: ~A ~%" (list (compiled-fun-name self)))
         (write f-def :stream om-lisp::*om-stream* :escape nil :pretty t)
         (om-print-format "~%------------------------------------------------------~%~%")
       

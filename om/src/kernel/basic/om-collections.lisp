@@ -1,22 +1,19 @@
-;=========================================================================
-; o7: visual programming language for music composition
+;============================================================================
+; om7: visual programming language for computer-aided music composition
+; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
+;============================================================================
 ;
-;    This program is free software: you can redistribute it and/or modify
-;    it under the terms of the GNU General Public License as published by
-;    the Free Software Foundation, either version 3 of the License, or
-;    (at your option) any later version.
+;   This program is free software. For information on usage 
+;   and redistribution, see the "LICENSE" file in this distribution.
 ;
-;    This program is distributed; in the hope that it will be useful,
-;    but WITHOUT ANY WARRANTY; without even the implied warranty of
-;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;    GNU General Public License for more details.
+;   This program is distributed in the hope that it will be useful,
+;   but WITHOUT ANY WARRANTY; without even the implied warranty of
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 ;
-;    You should have received a copy of the GNU General Public License
-;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-;
-; Author: J. Bresson
-;=========================================================================
+;============================================================================
+; File author: J. Bresson
+;============================================================================
 
 
 (in-package :om)
@@ -87,40 +84,44 @@
 (defmethod object-box-label ((object collection))
   (string+ (string-upcase (type-of object)) " of "
            (number-to-string (length (obj-list object))) " " 
-           (string-upcase (obj-type object)) 
+           (if (obj-type object) (string-upcase (obj-type object)) "?")
            (if (> (length (obj-list object)) 1) "s" "")
            ))
 
 
 (defmethod display-modes-for-object ((self collection)) '(:hidden :text :mini-view))
 
+(defmethod get-cache-display-for-text ((self collection))
+  (loop for obj in (obj-list self) 
+        for i = 0 then (1+ i) 
+        collect (list (format nil "[~D]" i) obj)))
+
+;;; type is an object used for specialization
+(defmethod collection-cache-display ((type t) list) nil)
+
 (defmethod get-cache-display-for-draw ((object collection)) 
-  (when (subtypep (obj-type object) 'BPF)
-    (list (nice-bpf-range (obj-list object)))))
+  (collection-cache-display (car (obj-list object)) (obj-list object)))
 
-(defmethod draw-mini-view ((self collection) (box t) x y w h &optional time)
-  (let ((display-cache (get-display-draw box)))
-    (if (subtypep (obj-type self) 'BPF)
-        (let ((ranges (car display-cache)))
-          (loop for o in (obj-list self) do 
-                (draw-bpf-points-in-rect (point-pairs o)
-                                         (color o) 
-                                         ranges
-                                         x (+ y 10) w (- h 20)
-                                         :lines))
-          (om-with-font  (om-def-font :font1 :size 8)
-            (om-draw-string (+ x 10) (+ y (- h 4)) (number-to-string (nth 0 ranges)))
-            (om-draw-string (+ x (- w (om-string-size (number-to-string (nth 1 ranges)) (om-def-font :font1 :size 8)) 4))
-                            (+ y (- h 4)) 
-                            (number-to-string (nth 1 ranges)))
-            (om-draw-string x (+ y (- h 14)) (number-to-string (nth 2 ranges)))
-            (om-draw-string x (+ y 10) (number-to-string (nth 3 ranges)))
-            ))
-      (loop for o in (obj-list self) do 
-              (set-cache-display box o)
-              (draw-mini-view o box x y w h time)))))
+;;; type is an object used for specialization
+(defmethod collection-draw-mini-view ((type t) list box x y w h time)
+  (when list
+    (let ((ho (/ h (length list))))
+      (loop for o in list
+            for yo = y then (+ yo ho) do 
+            (set-cache-display box o)
+            (draw-mini-view o box x yo w ho time))
+      )))
 
+;;; type is an object used for specialization
+(defmethod draw-mini-view ((self collection) (box t) x y w h &optional time)  
+  (collection-draw-mini-view 
+   (car (obj-list self)) 
+   (obj-list self) 
+   box x y w h time))
 
+;;; used for display etc.
+(defmethod get-obj-dur ((self collection))
+  (apply #'max (remove nil (mapcar #'get-obj-dur (obj-list self)))))
 
 ;;;===========================
 ;;; EDITOR
@@ -180,15 +181,18 @@
 ;;;==================================
 
 (defmethod init-editor ((editor collection-editor)) 
+
   (let* ((collection (get-value-for-editor (object editor)))
          (current-object (and (obj-type collection) (nth (current editor) (obj-list collection))))
          (abs-container (make-instance 'OMAbstractContainer :contents current-object)))
+
     (setf (internal-editor editor) 
           (make-instance (get-editor-class current-object)
                          :container-editor editor 
-                         :object abs-container)
-          )
-    (setf (edition-params abs-container) (edition-params (object editor))) ;;; will share the same list in principle
+                         :object abs-container))
+    
+    (setf (edition-params abs-container) (edition-params (object editor))) 
+    ;;; will share the same list in principle
     (init-editor (internal-editor editor))
     ))
 
@@ -202,51 +206,57 @@
 (defmethod make-editor-window-contents ((editor collection-editor))
   (let* ((collection (get-value-for-editor (object editor)))
          (text (format-current-text editor))
-         (current-text (om-make-graphic-object 'om-item-text :size (omp (om-string-size text (om-def-font :font3b)) 16) 
-                                               :text text :font (om-def-font :font2b)))
-         (prev-button (om-make-graphic-object 'om-icon-button 
-                                              :size (omp 16 16)
-                                              :icon 'l-arrow :icon-pushed 'l-arrow-pushed :icon-disabled 'l-arrow-disabled
-                                              :lock-push nil :enabled (> (length (obj-list collection)) 1)
-                                              :action #'(lambda (b)
-                                                          (declare (ignore b))
-                                                          (set-current-previous editor)
-                                                          )))
-         (next-button (om-make-graphic-object 'om-icon-button 
-                                              :size (omp 16 16)
-                                              :icon 'r-arrow :icon-pushed 'r-arrow-pushed :icon-disabled 'r-arrow-disabled
-                                              :lock-push nil :enabled (> (length (obj-list collection)) 1)
-                                              :action #'(lambda (b)
-                                                          (declare (ignore b))
-                                                          (set-current-next editor)
-                                                          )))
-         (-button (om-make-graphic-object 'om-icon-button 
-                                          :size (omp 16 16)
-                                          :icon '- :icon-pushed '--pushed :icon-disabled '--disabled
-                                          :lock-push nil :enabled (obj-list collection)
-                                          :action #'(lambda (b)
-                                                      (remove-current-object editor)
-                                                      (let ((coll (get-value-for-editor (object editor))))
-                                                        (when (null (obj-list coll))
-                                                          (disable b))
-                                                        (when (<= (length (obj-list coll)) 1)
-                                                          (disable prev-button) (disable next-button))
-                                                        (update-multi-display editor (editor-get-edit-param editor :show-all)) 
-                                                        ))
-                                          ))
-         (+button (om-make-graphic-object 'om-icon-button 
-                                          :size (omp 16 16)
-                                          :icon '+ :icon-pushed '+-pushed :icon-disabled '+-disabled
-                                          :lock-push nil :enabled (obj-type (get-value-for-editor (object editor)))
-                                          :action #'(lambda (b)
-                                                      (declare (ignore b))
-                                                      (add-new-object editor)
-                                                      (let ((coll (get-value-for-editor (object editor))))
-                                                        (enable -button)  ;; in case it was disabled..
-                                                        (when (> (length (obj-list coll)) 1)
-                                                          (enable prev-button) (enable next-button)))
-                                                      (update-multi-display editor (editor-get-edit-param editor :show-all))
-                                                      )))
+         (current-text (om-make-graphic-object 
+                        'om-item-text
+                        :size (omp (om-string-size text (om-def-font :font3b)) 16) 
+                        :text text :font (om-def-font :font2b)))
+         (prev-button (om-make-graphic-object 
+                       'om-icon-button 
+                       :size (omp 16 16)
+                       :icon :l-arrow :icon-pushed :l-arrow-pushed :icon-disabled :l-arrow-disabled
+                       :lock-push nil :enabled (> (length (obj-list collection)) 1)
+                       :action #'(lambda (b)
+                                   (declare (ignore b))
+                                   (set-current-previous editor)
+                                   )))
+         (next-button (om-make-graphic-object 
+                       'om-icon-button 
+                       :size (omp 16 16)
+                       :icon :r-arrow :icon-pushed :r-arrow-pushed :icon-disabled :r-arrow-disabled
+                       :lock-push nil :enabled (> (length (obj-list collection)) 1)
+                       :action #'(lambda (b)
+                                   (declare (ignore b))
+                                   (set-current-next editor)
+                                   )))
+         (-button (om-make-graphic-object 
+                   'om-icon-button 
+                   :size (omp 16 16)
+                   :icon :- :icon-pushed :--pushed :icon-disabled :--disabled
+                   :lock-push nil :enabled (obj-list collection)
+                   :action #'(lambda (b)
+                               (remove-current-object editor)
+                               (let ((coll (get-value-for-editor (object editor))))
+                                 (if (obj-list coll)
+                                     (update-multi-display editor (editor-get-edit-param editor :show-all))
+                                   (disable b))
+                                 (when (<= (length (obj-list coll)) 1)
+                                   (disable prev-button) (disable next-button))
+                                 ))
+                   ))
+         (+button (om-make-graphic-object 
+                   'om-icon-button 
+                   :size (omp 16 16)
+                   :icon :+ :icon-pushed :+-pushed :icon-disabled :+-disabled
+                   :lock-push nil :enabled (obj-type (get-value-for-editor (object editor)))
+                   :action #'(lambda (b)
+                               (declare (ignore b))
+                               (add-new-object editor)
+                               (let ((coll (get-value-for-editor (object editor))))
+                                 (enable -button)  ;; in case it was disabled..
+                                 (when (> (length (obj-list coll)) 1)
+                                   (enable prev-button) (enable next-button)))
+                               (update-multi-display editor (editor-get-edit-param editor :show-all))
+                               )))
          )
     (set-g-component editor :current-text current-text)
     (om-make-layout 
@@ -259,21 +269,25 @@
        :subviews 
        (list (om-make-layout 
               'om-row-layout :delta 0 :align :bottom
-              :subviews (list prev-button next-button 
-                              (om-make-graphic-object 'om-item-view :size (omp 20 20))
-                              (when (handle-multi-display (internal-editor editor))
-                                (om-make-di 'om-check-box :text " Show All" :size (omp 80 16) :font (om-def-font :font2)
-                                            :checked-p (editor-get-edit-param editor :show-all) :focus nil :default nil
-                                            :di-action #'(lambda (item) 
-                                                           (editor-set-edit-param editor :show-all (om-checked-p item))
-                                                           (update-multi-display editor (om-checked-p item)))
-                                            ))
-                              nil
-                              current-text))
+              :subviews
+              (list prev-button next-button 
+                    (om-make-graphic-object 'om-item-view :size (omp 20 20))
+                    (when (handle-multi-display (internal-editor editor))
+                      (om-make-di 
+                       'om-check-box 
+                       :text " Show All" :size (omp 80 16) :font (om-def-font :font2)
+                       :checked-p (editor-get-edit-param editor :show-all) :focus nil :default nil
+                       :di-action #'(lambda (item) 
+                                      (editor-set-edit-param editor :show-all (om-checked-p item))
+                                      (update-multi-display editor (om-checked-p item)))
+                       ))
+                    nil
+                    current-text))
              nil
-             (om-make-layout 'om-row-layout :delta 0 
-                             :subviews 
-                             (list +button -button))
+             (om-make-layout 
+              'om-row-layout :delta 0 
+              :subviews 
+              (list +button -button))
              ))
       (if (object-value (internal-editor editor))
           (setf (main-view (internal-editor editor)) 
@@ -290,19 +304,29 @@
                            (make-editor-window-contents editor)))
     ))
 
-(defmethod update-to-editor ((editor collection-editor) (from t))
+
+;;; when updated from the box (eval)
+(defmethod update-to-editor ((editor collection-editor) (from OMBox))
+  
   (let ((collection (get-value-for-editor (object editor))))
-    (unless (or (null (obj-type collection))
-                (equal (type-of (internal-editor editor))
-                       (get-editor-class (nth (current editor) (obj-list collection)))))
+    
+    (when (not (equal (type-of (internal-editor editor))  ;;; the new object has not the same editor
+                      (get-editor-class (nth (current editor) (obj-list collection)))))
+      
+      ;;; need to close/reset the internal editor
       (editor-close (internal-editor editor))
       (init-editor editor)
       (setf (current editor) 0)
-      (set-window-contents editor))
-    (set-current-text editor)
-    (update-to-editor (internal-editor editor) from)
-    )
-  (call-next-method))
+      (set-window-contents editor)
+      ))
+  
+  ;;; with reset the virtual object for internal-editor
+  (update-collection-editor editor)
+  (set-current-text editor)  
+  (update-to-editor (internal-editor editor) from)
+  (update-multi-display editor (editor-get-edit-param editor :show-all))
+  (call-next-method)
+  )
 
 (defmethod format-current-text ((editor collection-editor))
   (let ((collection (get-value-for-editor (object editor))))
@@ -317,6 +341,7 @@
 (defmethod editor-invalidate-views ((editor collection-editor))
   (when (internal-editor editor)
     (om-invalidate-view (internal-editor editor))))
+
 
 (defmethod set-current-text ((editor collection-editor))
   (let ((text-component (get-g-component editor :current-text)))
@@ -335,7 +360,7 @@
       (setf (contents abs-container) 
             (nth (current editor) (obj-list (get-value-for-editor (object editor))))))
     (update-default-view internal-editor)
-    (update-to-editor internal-editor editor)
+    (update-to-editor internal-editor editor) 
     (editor-invalidate-views internal-editor)))
    
 
@@ -369,6 +394,7 @@
         ;;; close the internal editor
         (editor-close (internal-editor editor))
         (setf (contents (object (internal-editor editor))) nil)
+        (init-editor editor) ;; need to init the editor (reset to an empty omeditor)
         ;;; rest the (empty) window
         (set-window-contents editor))
       ;;; othewise just update the editor
@@ -397,7 +423,6 @@
 ;;; DISPATCH ACTIONS...
 ;;;=========================
 (defmethod editor-key-action ((editor collection-editor) key)
-  ;(print key)
   (cond ((and (om-command-key-p) (equal key :om-key-left))
          (set-current-previous editor)
          (update-collection-editor editor))

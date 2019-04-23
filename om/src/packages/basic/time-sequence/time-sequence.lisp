@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -78,18 +78,17 @@
  
 (defmethod om-init-instance :after ((self time-sequence) &optional initargs)
   (time-sequence-update-internal-times self)
-  (update-obj-dur self))
+  (update-obj-dur self) ;;; is this necessary ?
+  )
 
-;(defmethod initialize-instance ((self time-sequence) &rest initargs)
-;  (call-next-method)
-;  (update-obj-dur self))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;to be redefined by subclasses of TIME-SEQUENCE
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defmethod time-sequence-get-timed-item-list ((self time-sequence)) nil)
-(defmethod time-sequence-set-timed-item-list ((self time-sequence) items) nil)
+(defmethod time-sequence-set-timed-item-list ((self time-sequence) items) 
+  (update-obj-dur self))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;CAN be redefined by subclasses of TIME-SEQUENCE
@@ -116,11 +115,12 @@
 
 ;;; REDEFINE THIS METHOD IF NEEDED
 ; but should not called directly 
-; => USE insert-timed-point-in-time-sequence
+; => USE time-sequence-insert-timed-item-and-update
 (defmethod time-sequence-insert-timed-item ((self time-sequence) item &optional position)
   "Insert a timed-item into the item-list at pos position" 
   (let ((list (time-sequence-get-timed-item-list self))
         (p (or position (length list))))
+    
     (time-sequence-set-timed-item-list self 
                           (append (and list (first-n list p))
                                  (list item)
@@ -129,11 +129,15 @@
 
 
 ; USE THIS METHOD TO UPDATE THE TIME PROPERTIES WHEN ADDING A POINT
-(defmethod insert-timed-point-in-time-sequence ((self time-sequence) point &optional position)
-  (let ((pos (or position (find-position-at-time self (item-get-time point)))))
+(defmethod time-sequence-insert-timed-item-and-update ((self time-sequence) item &optional position)
+  (let ((pos (or position (find-position-at-time self (item-get-time item)))))
+    
     (clean-master-points-type self)
-    (time-sequence-insert-timed-item self point pos)
+
+    (time-sequence-insert-timed-item self item pos)
+
     (time-sequence-update-internal-times self)
+
     pos))
 
 
@@ -191,17 +195,19 @@
 (defmethod get-obj-dur ((self time-sequence))
   (duration self))
 
-  ;(if (time-sequence-get-timed-item-list self)
-  ;    (let ((last-frame (last-elem (time-sequence-get-timed-item-list self))))
-  ;      (+ (item-real-time last-frame) (item-duration last-frame)))
-   ; (time-sequence-default-duration self)))
 
 (defmethod update-obj-dur ((self time-sequence))
+  
   (setf (duration self)
+
         (if (remove nil (time-sequence-get-timed-item-list self))
+          
             (let ((last-frame (last-elem (time-sequence-get-timed-item-list self))))
+                            
               (+ (item-real-time last-frame) (item-get-duration last-frame)))
-          (time-sequence-default-duration self))))
+          
+          (time-sequence-default-duration self))
+        ))
 
 (defmethod set-internal-times ((self time-sequence) internal-times)
   (loop for point in (time-sequence-get-timed-item-list self)
@@ -420,9 +426,20 @@
          
          )))
 
-   (update-obj-dur self)
    (update-time-types self)
    ))
+
+
+(defmethod time-sequence-reorder-timed-item-list ((self time-sequence))
+  (let ((points (time-sequence-get-timed-item-list self)))
+    (when points
+      (clean-master-points-type self)
+      ;order point list
+      (time-sequence-set-timed-item-list self (sort points '< :key 'item-get-internal-time))
+      ;update internal-times
+      (time-sequence-update-internal-times self))))
+
+
 
 (defmethod get-all-master-points-positions ((self time-sequence))
   (om-all-positions :master (time-types self)))
@@ -473,14 +490,7 @@
     (update-time-types-from-tpoint-list self)
     ))
 
-(defmethod reorder-tpoints ((self time-sequence))
-  (let ((points (time-sequence-get-timed-item-list self)))
-    (when points
-      (clean-master-points-type self)
-      ;order point list
-      (time-sequence-set-timed-item-list self (sort points '< :key 'item-get-internal-time))
-      ;update internal-times
-      (time-sequence-update-internal-times self))))
+
 
 (defmethod temporal-translate-all ((self time-sequence) dt)
   (loop for point in (time-sequence-get-timed-item-list self) do

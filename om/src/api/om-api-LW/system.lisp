@@ -90,8 +90,10 @@
          ,@body)
     (progn ,@body)))
 
+
+
 (defmacro om-with-redefinitions (&body body)
-  `(let ((lispworks::*HANDLE-WARN-ON-REDEFINITION* nil)) ,@body))
+  `(let ((lispworks::*redefinition-action* nil)) ,@body))
 
 (defmacro om-ignore&print-error (&rest body)
   `(multiple-value-bind (a b) 
@@ -110,7 +112,7 @@
    (abort)))
 
 (defun om-trap-error-handler (condition)
-   (format *error-output* "~&~A~&" condition)
+   (format *error-output* "ERROR: ~A~&" condition)
    (throw 'trap-errors nil))
 
 (defmacro om-trap-errors (&rest forms)
@@ -143,6 +145,32 @@
 
 
 
+#|
+
+;;; test: trying to access remote file contents via HTTP
+;;; not working very well so far...
+
+ (defun test-http ()
+   (with-open-stream (http (comm:open-tcp-stream 
+                            "www.lispworks.com" 
+                         ;""https://github.com/openmusic-project/OM6/blob/master/README.md""
+                            80
+                            :errorp t))
+
+     (format http "GET / HTTP/1.0~C~C~C~C"
+             (code-char 13) (code-char 10)
+             (code-char 13) (code-char 10))
+
+     (force-output http)
+
+     (write-string "Waiting to reply...")
+
+     (loop for line = (read-line http nil nil);
+           while line
+           do (write-line line))
+     )
+   )
+|#
 
 
 

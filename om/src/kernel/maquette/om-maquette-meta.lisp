@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -85,6 +85,8 @@
 
 (defmethod special-box-p ((name (eql 'mymaquette))) t)
 (defmethod get-box-class ((self OMMaqIn)) 'OMMaqInBox)
+(defmethod box-symbol ((self OMMaqIn)) 'mymaquette)
+
 
 (defmethod related-patchbox-slot ((self OMMaqInBox)) nil)
 (defmethod allow-text-input ((self OMMaqInBox)) nil)

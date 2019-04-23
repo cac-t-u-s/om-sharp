@@ -1,5 +1,5 @@
 ;============================================================================
-; o7: visual programming language for computer-aided music composition
+; om7: visual programming language for computer-aided music composition
 ; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
 ; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
 ;============================================================================
@@ -30,14 +30,14 @@
   (:default-initargs :reference :missing-reference)
   (:metaclass omstandardclass))
 
-(defmethod get-icon-id ((self LostReferenceBox)) 'dead)
+(defmethod get-icon-id ((self LostReferenceBox)) :dead)
 (defmethod object-name-in-inspector ((self LostReferenceBox)) 
   (format nil "Missing reference box [~A ~A]" 
           (reference-type self)
           (lost-reference self)))
 
 ;; hacks the accessors
-(defmethod box-draw-color ((self LostReferenceBox)) (om-make-color 1 0.6 0.5))
+(defmethod box-draw-color ((self LostReferenceBox)) (om-make-color .9 0.8 0.7))
 (defmethod box-draw-text-color ((self LostReferenceBox)) (om-make-color .8 0. 0.))
 (defmethod border ((self LostReferenceBox)) nil)
 
@@ -51,7 +51,7 @@
 ;  (om-draw-rect x y w h :line (if (numberp style) style 3) :color (om-make-color 0.9 0.4 0.4) :angles :round))
 
 ;;; RE-SAVE AS IF EVERYTHING OK...
-(defmethod save-box-reference ((self LostReferenceBox)) (lost-reference self))
+(defmethod save-box-reference ((self LostReferenceBox)) (omng-save (lost-reference self)))
 (defmethod box-type ((self LostReferenceBox)) (reference-type self))
 
 ;;; EVAL/GEN-CODE
@@ -161,7 +161,8 @@
                              :reference-type :object))
          (size (minimum-size box)))
     (setf (box-x box) (om-point-x pos)
-          (box-y box) (om-point-y pos))
+          (box-y box) (om-point-y pos)
+          (text-align box) :center)
     (setf (name box) (string (lost-reference box)))
     box))
 
@@ -218,10 +219,10 @@
 (defmethod box-draw-color ((self OMBoxAbstraction)) 
   (if (lost-reference? self) (om-make-color 1 0.6 0.5) (call-next-method)))
 
-(defmethod draw-patch-icon :after ((self OMBoxAbstraction))
+(defmethod draw-patch-icon :after ((self OMBoxAbstraction) &optional (offset-x 0) (offset-y 0))
   (when (lost-reference? self)
-    (let ((x1 8) (x2 (- 24 4))
-          (y1 10) (y2 (- 24 0)))
+    (let ((x1 (+ offset-x 8)) (x2 (+ offset-x (- 24 4)))
+          (y1 (+ offset-y 10)) (y2 (+ offset-y (- 24 0))))
       (om-with-fg-color (om-make-color-alpha (om-def-color :dark-red) .7)
         (om-with-line-size 3
           (om-draw-line x1 y1 x2 y2)
