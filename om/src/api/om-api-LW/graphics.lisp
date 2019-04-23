@@ -175,16 +175,26 @@
   (setf (ompoint-y point) (ompoint-y from))
   point)
 
+(defun max-null (a b)
+  (cond ((and a b) (max a b))
+        ((null a) b)
+        ((null b) a)))
+
+(defun min-null (a b)
+  (cond ((and a b) (min a b))
+        ((null a) b)
+        ((null b) a)))
+
 (defmethod om-max-point ((p1 ompoint) (p2 ompoint))
-  (make-ompoint :x (max (ompoint-x p1) (ompoint-x p2))
-                :y (max (ompoint-y p1) (ompoint-y p2))))
+  (make-ompoint :x (max-null (ompoint-x p1) (ompoint-x p2))
+                :y (max-null (ompoint-y p1) (ompoint-y p2))))
 
 (defmethod om-max-point ((p1 ompoint) (p2 null)) p1)
 (defmethod om-max-point ((p1 null) (p2 ompoint)) p2)
 
 (defmethod om-min-point ((p1 ompoint) (p2 ompoint))
-  (make-ompoint :x (min (ompoint-x p1) (ompoint-x p2))
-                :y (min (ompoint-y p1) (ompoint-y p2))))
+  (make-ompoint :x (min-null (ompoint-x p1) (ompoint-x p2))
+                :y (min-null (ompoint-y p1) (ompoint-y p2))))
 
 (defmethod om-min-point ((p1 ompoint) (p2 null)) p1)
 (defmethod om-min-point ((p1 null) (p2 ompoint)) p2)
