@@ -47,11 +47,12 @@
             
             (error (err) 
               (om-print err "Compatibility")
-              ;(abort)
-              (error err)
-              ))
+              (abort)
+              ; (error err)
+              )
+            )
           
-          (when *om-current-persistent* ;;; should have been filled in the patch-loading process
+          (when *om-current-persistent* ;;; filled in the patch-loading process
 
             (let ((object (make-instance 'OMPatchFile :name (pathname-name path))))
               
@@ -69,7 +70,6 @@
         
           )))
     
-
     (clos::set-clos-initarg-checking t)
     ))
 
@@ -146,20 +146,17 @@
 (defmethod om-load-boxcall ((class t) name reference inputs position size value lock &rest rest)
   (cond ((fboundp reference)
          (om-load-boxcall 'lispfun name reference inputs position size value lock))
-        
         (t 
-         (om-print-format "Unknown box type (~A) for '~A'" (list class reference) "Compatibility")
-         ;(omng-load 
-          `(:box 
-            (:type :unknown)
-            (:reference ,reference)
-            (:x ,(om-point-x position))
-            (:y ,(om-point-y position))
-            (:w ,(and size (om-point-x size)))
-            (:h ,(and size (om-point-y size)))
-            (:inputs .,(mapcar #'eval inputs))
-          ;  )
-          ))
+         ;; (om-print-format "Unknown function for box of type ~A: '~A'" (list class reference) "Compatibility")
+         ;; => will be signaled in om-load-from-id
+         `(:box 
+           (:type :function)
+           (:reference ,reference)
+           (:x ,(om-point-x position))
+           (:y ,(om-point-y position))
+           (:w ,(and size (om-point-x size)))
+           (:inputs .,(mapcar #'eval inputs))
+           ))
         ))
   
 
@@ -192,14 +189,13 @@
                               (t (om-print-format "Unknown input for function '~A': ~A" (list reference name) "Compatibility")
                                  formatted-in))
                         ))))
-    ;(omng-load 
     `(:box 
       (:type :function)
       (:reference ,reference)
       (:x ,(om-point-x position))
       (:y ,(om-point-y position))
       ;;; importing the size of function boxes might not be necessary...
-      ;(:w ,(and size (om-point-x size)))
+      (:w ,(and size (om-point-x size)))
       ;(:h ,(and size (om-point-y size)))
       (:lock ,(if lock (cond ((string-equal lock "x") :locked) 
                              ((string-equal lock "&") :eval-once))))
@@ -207,10 +203,18 @@
                                ((string-equal lock "o") :reference))))
       (:inputs .,inputs)
       )
-    ; )
     ))
 
-  
+
+;;; super filou
+(defmethod (setf numouts) (n (box-data list)) 
+  (setf (cdr (last box-data))
+        `((:outputs
+           ,.(loop for i from 1 to n collect 
+                   '(:output (:name "out"))))
+          ))
+  box-data)
+
 ;;; Object boxes
 (defun om-load-editor-box1 (name reference inputs position size value lock &optional fname editparams spict meditor pictlist show-name)
   
@@ -227,8 +231,7 @@
                               (t formatted-in))
                         ))))
                         
-    ;(omng-load 
-     `(:box
+    `(:box
        (:type :object)
        (:reference ,reference)
        (:name ,name)
@@ -243,23 +246,20 @@
        (:display ,(if spict :mini-view :hidden))
        (:inputs .,inputs)
        )
-     ;)
     ))
     
 
 ;;; Value boxes
 (defmethod om-load-boxcall ((self (eql 'bastype)) name reference inputs position size value lock &rest rest)
-  ;(omng-load 
-   `(:box 
+  `(:box 
      (:type :value)
      (:reference ,reference) 
-     (:value ,value)
+     (:value ,(omng-save value))
      (:name ,name)
      (:x ,(om-point-x position))
      (:y ,(om-point-y position))
      (:w ,(om-point-x size))
      (:h ,(om-point-y size)))
-   ;)
   )
 
 
@@ -316,8 +316,7 @@
   (map 'string #'(lambda (x) (if (equal x #\Newline) #\$ x)) str))
 
 (defun om-load-boxcomment (name size reference value position fname color style) 
-  ;(omng-load
-   `(:comment
+  `(:comment
      (:text ,(str-with-nl reference))
      (:x ,(om-point-x position))
      (:y ,(om-point-y position))
@@ -327,36 +326,34 @@
      (:fgcolor ,color)
      (:border 0)
      )
-   ;)
-)
+  )
 
 ;============================================================================
 ; OTHER
 ;============================================================================
 
-(defmethod om-load-seqbox (name reference inputs position sizeload value lock numouts) )
+;;; IN BOX
+(defun om-load-boxin (name indice position docu &optional fname val fsize) 
+  `(:box
+    (:type :io)
+    (:reference (:in (:type omin) (:index ,indice) (:name ,name) (:doc ,docu)))
+    (:name ,name)
+    (:value ,(omng-save val))
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:outputs (:output (:name "out")))
+    ))
 
-(defun om-load-boxinstance (name instance inputs position &optional fname size) )
-(defun om-load-ominstance1 (class name icon instance edparams &optional pictlist doc &rest rest) )
-
-
-(defun om-load-boxtypein (name type indice position docu keys defval &optional fname fsize) )
-(defun om-load-initin  (name type indice posi self? class &optional fsize) )
-
-
-(defmethod om-load-boxcall ((self (eql 'abstraction)) name reference inputs position size value lock &rest rest) )
-(defmethod om-load-boxcall ((self (eql 'maqabs)) name reference inputs position size value lock &rest rest) )
-(defmethod om-load-boxcall ((self (eql 'editor)) name reference inputs position size value lock &rest rest) )
-(defmethod om-load-boxcall ((self (eql 'slot)) name reference inputs position size value lock &rest rest) )
-
-(defmethod om-load-boxcall ((self (eql 'comment)) name reference inputs position size value lock &rest rest) )
-(defmethod om-load-boxcall ((self (eql 'mk-ins)) name reference inputs position size value lock &rest rest) )
-
-(defmethod om-load-boxcall ((self (eql 'undefined)) name reference inputs position size value lock &rest trest) nil)
-
-
-(defun om-load-boxin (name indice position docu &optional fname val fsize) )
-(defun om-load-boxout (name indice position inputs &optional fname fsize) )
+;;; OUT BOX
+(defun om-load-boxout (name indice position inputs &optional fname fsize) 
+  `(:box
+    (:type :io)
+    (:reference (:out (:type omout) (:name ,fname) (:index ,indice)))
+    (:name ,fname)
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:inputs .,(mapcar #'eval inputs))
+    ))
 
 
 ;;; REPEAT-N BOX
@@ -369,6 +366,26 @@
     (:inputs .,(mapcar #'eval inputs))
     ))
 
+
+;============================================================================
+; TODO !!!
+;============================================================================
+
+(defmethod om-load-seqbox (name reference inputs position sizeload value lock numouts) )
+
+(defun om-load-boxinstance (name instance inputs position &optional fname size) )
+(defun om-load-ominstance1 (class name icon instance edparams &optional pictlist doc &rest rest) )
+
+(defun om-load-boxtypein (name type indice position docu keys defval &optional fname fsize) )
+(defun om-load-initin  (name type indice posi self? class &optional fsize) )
+
+(defmethod om-load-boxcall ((self (eql 'abstraction)) name reference inputs position size value lock &rest rest) )
+(defmethod om-load-boxcall ((self (eql 'maqabs)) name reference inputs position size value lock &rest rest) )
+(defmethod om-load-boxcall ((self (eql 'editor)) name reference inputs position size value lock &rest rest) )
+(defmethod om-load-boxcall ((self (eql 'slot)) name reference inputs position size value lock &rest rest) )
+(defmethod om-load-boxcall ((self (eql 'comment)) name reference inputs position size value lock &rest rest) )
+(defmethod om-load-boxcall ((self (eql 'mk-ins)) name reference inputs position size value lock &rest rest) )
+(defmethod om-load-boxcall ((self (eql 'undefined)) name reference inputs position size value lock &rest trest) nil)
 
 ;============================================================================
 ; MAQUETTE
@@ -448,6 +465,12 @@
 (defmethod changed-arg-names ((reference (eql 'chord-seq)))
   '(("legato" "llegato")))
 
+;============================================================================
+; CHANGED NAMES
+;============================================================================
+(defmethod changed-name ((reference (eql 'list-elements))) 'split)
+
+
 #|
 ;;;=========================================
 ;;; TESTS
@@ -476,12 +499,12 @@ X REF MODE
 
 ;;; Special boxes
 X REPEAT-N
-LIST-ELEMENTS
+X LIST-ELEMENTS
 
 ;;; Abstractions
+X IN/OUTS
 LISP-FUNCTIONS
 ABSTRACTION
-IN/OUTS
 
 OMLOOP
 

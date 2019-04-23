@@ -211,26 +211,55 @@
                                                     :style (style out-c)
                                                     :modif (modif out-c)))
                             ))))
-                         
+
+
+;;; SOME BOXES MAY GENERATE THE IN/OUTPUTS ON REQUEST
+;;; e.g. at loading undefined/lost-reference boxes
+(defmethod get-nth-output ((self OMBox) n)
+  (nth n (outputs self)))
+
+(defmethod get-nth-input ((self OMBox) n)
+  (nth n (inputs self)))
+
+
 (defmethod restore-connections-to-boxes (connections box-list)
   (remove 
    nil
    (loop for c in connections collect
          (let* ((connection-info (cdr c))
-                (b1 (find-value-in-kv-list connection-info :from)) ;;; actually a list (box-num out-num)
-                (b2 (find-value-in-kv-list connection-info :to)) ;;; actually a list (box-num in-num)
-                (out (when (nth (getf b1 :box) box-list) (nth (getf b1 :out) (outputs (nth (getf b1 :box) box-list)))))
-                (in (when (nth (getf b2 :box) box-list) (nth (getf b2 :in) (inputs (nth (getf b2 :box) box-list)))))
+                (b1 (find-value-in-kv-list connection-info :from)) ;;; actually a list (:box box-num :out out-num)
+                (b2 (find-value-in-kv-list connection-info :to)) ;;; actually a list (:box box-num :in in-num)
+                (box-from (nth (getf b1 :box) box-list))
+                (box-to (nth (getf b2 :box) box-list))
+                (out (when box-from (get-nth-output box-from (getf b1 :out))))
+                (in (when box-to (get-nth-input box-to (getf b2 :in))))
                 (attributes (find-value-in-kv-list connection-info :attributes)))
-           (if (and out in)
-               (omng-make-new-connection out
-                                         in
-                                         (list :color (omng-load (getf attributes :color))
-                                               :style (getf attributes :style)
-                                               :modif (getf attributes :modif)))
-             (progn (om-print "Connection could not be restored !" "WARNING") NIL)
-             )
-           ))))
+           (cond ((and out in)
+                  (omng-make-new-connection out
+                                            in
+                                            (list :color (omng-load (getf attributes :color))
+                                                  :style (getf attributes :style)
+                                                  :modif (getf attributes :modif))))
+                 ((null box-from)
+                  (om-print-format "Connection could not be restored: missing box #~D" 
+                                   (list (getf b1 :box))
+                                   "WARNING")
+                  NIL)
+                 ((null box-to)
+                  (om-print-format "Connection could not be restored: missing box #~D" 
+                                   (list (getf b2 :box))
+                                   "WARNING")
+                  NIL)
+                 (t ;;; two boxes are here but no input or outputs 
+                    (om-print-format "Connection could not be restored from ~A (~D) to ~A (~D)" 
+                                     (list (name box-from) (getf b1 :out) (name box-to) (getf b2 :in))
+                                     "WARNING")
+                    NIL))
+                 
+           )
+         )
+   )
+  )
 
 
 (defmethod adopt-connection ((self box-input) (connection omconnection))

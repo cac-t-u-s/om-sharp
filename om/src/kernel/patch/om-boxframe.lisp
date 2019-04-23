@@ -461,10 +461,12 @@
           (omp (box-w box) (box-h box))
           (minimum-size box) (maximum-size box))))
     
-        (unless (scale-in-x-? box) 
+        (when (or (not (scale-in-x-? box))
+                  (null (box-w box)))
           (setf (box-w box) (om-point-x adjusted-size)))
     
-        (unless (scale-in-y-? box) 
+        (when (or (not (scale-in-y-? box))
+                  (null (box-h box)))
           (setf (box-h box) (om-point-y adjusted-size)))
         
         (om-set-view-size frame 

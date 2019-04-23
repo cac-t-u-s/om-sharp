@@ -730,6 +730,8 @@
 ;  (append (call-next-method)
 ;          `((:defval ,(omng-save (defval self))))))
 
+;;; foir compatibility, in case some functions have changed name
+(defmethod changed-name ((reference t)) nil)
 
 (defmethod om-load-from-id ((id (eql :box)) data)
   ;; (print (list "load BOX" (find-value-in-kv-list data :type)))
@@ -753,9 +755,16 @@
                 (:function 
                  (if (fboundp reference) 
                      (omng-make-new-boxcall (fdefinition reference) pos)
-                   (progn (om-beep-msg "unknown function: ~A" reference)
-                     (omng-make-lost-fun-box reference pos)
-                     )))
+                   
+                   (let ((new-name (changed-name reference)))
+                     (if (and new-name (fboundp new-name))
+                         (progn (setf name (string new-name))
+                           (omng-make-new-boxcall (fdefinition new-name) pos))
+                       (progn
+                         (om-beep-msg "unknown function: ~A" reference)
+                         (omng-make-lost-fun-box reference pos))
+                       ))
+                   ))
                 
                 (:patch 
                  (let ((box (omng-make-new-boxcall (omng-load reference) pos)))
@@ -798,9 +807,9 @@
       (load-box-attributes box data)
       
       
+      (when name (set-name box name))
       (when inputs (restore-inputs box inputs))
       (when outputs (restore-outputs box outputs))
-      (when name (set-name box name))
       (when group-id (setf (group-id box) group-id))
       
       (loop for property in (get-flat-properties-list box)

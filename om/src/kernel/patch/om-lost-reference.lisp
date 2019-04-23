@@ -136,6 +136,17 @@
 (defmethod restore-outputs ((self LostReferenceBox) outputs)
   (restore-outputs-from-saved-desc self outputs))
 
+;;; called if the output is requested, e.g. at loading an old patch
+(defmethod get-nth-output ((self LostReferenceBox) n)
+  (or 
+   (nth n (outputs self))
+   (progn
+     (setf (outputs self) (append (outputs self)
+                                 (loop for i from (length (outputs self)) to n
+                                       collect (make-instance 'box-output :box self
+                                                              :reference i))))
+     (nth n (outputs self)))
+   ))
 
 
 ;;;===================
@@ -144,11 +155,16 @@
 (defmethod omng-make-lost-fun-box (reference pos &optional init-args)
   (let* ((box (make-instance 'LostReferenceBox
                              :lost-reference reference
-                             :reference-type :function))
-         (size (minimum-size box)))
-    (setf (box-x box) (om-point-x pos)
-          (box-y box) (om-point-y pos))
+                             :reference-type :function)))
+    
     (setf (name box) (string (lost-reference box)))
+    
+    (let ((size (default-size box))) ;;; default size will depend on the name
+      (setf (box-x box) (om-point-x pos)
+            (box-y box) (om-point-y pos)
+            (box-w box) (om-point-x size)
+            (box-h box) (om-point-y size)))
+    
     box))
 
 

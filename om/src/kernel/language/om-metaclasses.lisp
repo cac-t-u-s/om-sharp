@@ -30,7 +30,7 @@
 (defmethod omclass-p ((self OMClass)) t)
 
 (defmethod slot-missing ((class OMClass) instance slot-name operation &optional new-value)
-  (om-beep-msg "!!! Attempt to access non existing slot ~A in class ~A !!!" slot-name (class-name class))) 
+  (om-beep-msg "!!! Attempt to access non existing slot ~A in class ~A !!!" slot-name (class-name class)))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defmethod validate-superclass ((class omclass) (super standard-class)) t)
