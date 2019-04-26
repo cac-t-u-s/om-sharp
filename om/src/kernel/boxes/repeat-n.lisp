@@ -81,20 +81,23 @@
 
 (defmethod get-ev-once-flag ((self OMRepeatNBoxCall)) (list self (n-iter (reference self))))
 
+;;; issue : should we set the ev-once context of a REPEAT-N or not ?
+;;; there's two possibilities
+
 (defmethod boxcall-value ((self OMRepeatNBoxCall)) 
   (let ((n (omNG-box-value (cadr (inputs self))))
         (old-context *ev-once-context*))
     (unwind-protect 
       (progn
         (setf (n-iter (reference self)) 0)
-        (setf *ev-once-context* self)
+        ;;; keep this for a new context at each iteration:
+        ; (setf *ev-once-context* self) 
         (loop for i from 1 to n
               do (setf (n-iter (reference self)) (1+ (n-iter (reference self))))
-              ; do (print (list " ======= repeat: " (n-iter (reference self))))
               collect (omNG-box-value (car (inputs self))))
         )
-      (setf *ev-once-context* old-context)
-      ; (clear-ev-once (container self))
+      ;;; keep this for a new context at each iteration:
+      ;(setf *ev-once-context* old-context)  
       )
     ))
 
@@ -105,20 +108,26 @@
 
 (defmethod gen-code-for-call ((self OMRepeatNBoxCall) &optional args)
   
-  (push-let-context)
+  ;;; keep this for a new context at each iteration:
+  ;(push-let-context)
   
   (unwind-protect
       
       (let* ((body (gen-code (car (inputs self)))))
         `(loop for i from 1 to ,(gen-code (cadr (inputs self))) 
                      collect 
-                     (let* ,(output-current-let-context) ,body)
+                     ;;; use this for a new context at each iteration:
+                     ; (let* ,(output-current-let-context) ,body)
+                     ;;; use this for a global context:
+                     (progn ,body)
                      )
         )
-
-    (pop-let-context)
+    ;;; keep this for a new context at each iteration:
+    ; (pop-let-context)
 
     ))
+
+
 
 ;;; NO LAMBDA OR OTHER FUNKY EVAL MODES FOR SPECIAL BOXES LIKE THIS...
 ;;; (the following code should work though...)
