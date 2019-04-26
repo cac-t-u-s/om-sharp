@@ -24,6 +24,7 @@
 (defmethod* x->dx ((self list))
   :initvals (list 0 1)
   :indoc '("a list of numbers")
+  :icon 'series
   :doc "Computes a list of intervals from a list of points.
 
 X->DX can be used for instance to get intervals from absolute pitches or to get a list of durations from time onsets:
@@ -37,6 +38,7 @@ Ex. (x->dx '(0 1000 1200 2000 5000)) => (1000 200 800 3000)
 (defmethod* dx->x ((start number) (list list))
   :initvals (list 0 (list 1 1))
   :indoc '("a number" "a list of numbers")
+  :icon 'series
   :doc "Computes a list of points from a list of intervals and a initial point (<start>)
 
 DX->X can be used for instance to get absolute pitches from intervals or to get onsets from durations:
@@ -55,6 +57,7 @@ Ex. (dx->x 0 '(1000 200 800 3000)) => (0 1000 1200 2000 5000))
 (defmethod* arithm-ser ((begin number) (end number) (step number) &optional (nummax MOST-POSITIVE-FIXNUM))
   :initvals (list 0 10 1 MOST-POSITIVE-FIXNUM)
   :indoc '("begin" "end " "step" "nummax")
+  :icon 'series
   :doc "Arithmetic series: returns a list of numbers from <begin> to <end> with increment of <step>. 
 <nummax> allows to limit the number of elements returned.
 
@@ -74,6 +77,7 @@ Ex. (arithm-ser 1 5 0.5) => (1 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0)"
                       &optional  (begin 0) (end MOST-POSITIVE-FIXNUM)) 
   :initvals (list 0 1 10  0 MOST-POSITIVE-FIXNUM)
   :indoc '("a number" "a number" "a number" "a number" "a number")
+  :icon 'series
   :doc   "Fibonacci series: f(i) = f(i-1) + f(i-2)
 <seed1> = f(0) the first element of the series
 <seed1> = f(1) the second element of the series
@@ -109,6 +113,7 @@ Ex. (fibo-ser 1 3 10) => (1 3 4 7)
                            &optional (nummax (expt 2 32)) (begin 0) (end (expt 2 32)))
   :initvals '(1 2 10 10 0 10)
   :indoc '("seed" "factor" "limit" "nummax" "begin" "end")
+  :icon 'series
   :doc  "Geometric series: starts from <seed> and returns a list with f(i) = factor * f(i-1)
 <limit> is the limit of returned list list.
 
@@ -221,6 +226,7 @@ Ex. (prime? 56) => NIL
 (defmethod* prime-ser ((max number) &optional (numelem (expt 2 32))) 
   :initvals '(100 10)
   :indoc '("max prime" "max elements")
+  :icon 'series
   :doc "Prime numbers series: returns the set of prime-numbers ranging from 0 upto <max>.
 
 The optional parametre <numelem> limits the number of elements." 
@@ -260,6 +266,7 @@ Primes known to the system are the 1230 primes ranging from 1 to 9973."
                         (npart number)) 
   :indoc '("begin" "distortion" "number of elements (partials)")
   :initvals (list 1 1 1)
+  :icon 'series
   :doc "Generates a list of <npart> partials from <begin> when partial n = <begin> * n^<dist>"
   (let ((L ()))
     (dotimes (n npart (reverse L))

@@ -40,7 +40,7 @@ Ex. (omif (= 4 5) 'A 'B)  ==>  'B
 Ex. (omif (= 4 5) 'A)  ==>  NIL
 
 " 
-   :icon 180
+   :icon 'cond
    (if test action else))
 
 (defclass OMIFBoxCall (OMGFBoxcall) ())
@@ -70,7 +70,7 @@ Yields the value T (true) if one at least among the values connected to it evalu
 Accepts as many optional inputs as needed.
 
 OMOR can be used to compose conditions as input to an OMIF" 
-   :icon 219
+   :icon 'log-or
    (eval `(or ,self ,.rest)))
 
 
@@ -81,7 +81,7 @@ Yields the value T (true) if all the values connected to it evaluates to T.
 Accepts as many optional inputs as needed.
 
 OMAND can be used to compose conditions as input to an OMIF"
-   :icon 218
+   :icon 'log-and
    (eval `(and ,self ,.rest)))
 
 (defclass OMAndBoxCall (OMGFBoxcall) ())
