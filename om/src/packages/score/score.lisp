@@ -24,6 +24,7 @@
         "score-objects/chord"
         "score-objects/chord-seq"
         "score-objects/tree"
+        "score-objects/ratios"
         "score-objects/voice"
         "score-objects/score"
 
@@ -45,6 +46,12 @@
  :classes nil
  :functions nil
  :subpackages  (list (omNG-make-package 
+                      "Rhythm Trees"
+                      :doc "Manipulation of rhythm trees and ratios"
+                      :classes nil
+                      :functions '(mktree tree2ratio)
+                      :subpackages nil)
+                     (omNG-make-package 
                       "Utils"
                       :doc "Unit conversion utilities etc."
                       :classes '(note chord chord-seq voice)
