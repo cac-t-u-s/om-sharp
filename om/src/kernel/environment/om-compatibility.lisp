@@ -41,16 +41,14 @@
               (om-print-format "Converting from OM ~D (type '~A')" (list (car metadata) (cadr metadata)) "Compatibility")
             (om-print-format "No header found in document..." nil "Compatibility"))
           
-          (handler-case  
-          
-              (load path)
-            
-            (error (err) 
-              (om-print err "Compatibility")
-              (abort)
-              ; (error err)
-              )
-            )
+            ;(handler-case  
+               (load path)
+            ;(error (err) 
+            ;  (om-print err "Compatibility")
+            ;  (abort)
+            ;;;(error err)
+            ;  )
+            ;)
           
           (when *om-current-persistent* ;;; filled in the patch-loading process
 
@@ -184,7 +182,8 @@
                                `(:input (:type :optional) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
                               ((find name (mapcar #'symbol-name (function-keyword-args reference)) :test #'string-equal)
                                `(:input (:type :key) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
-                              ((equal name (getf (function-arglist reference) '&rest))
+                              ((and (find '&rest (function-arglist reference))
+                                    (equal name (getf (function-arglist reference) '&rest)))
                                `(:input (:type :optional) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
                               (t (om-print-format "Unknown input for function '~A': ~A" (list reference name) "Compatibility")
                                  formatted-in))
