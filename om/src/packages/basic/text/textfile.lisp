@@ -29,7 +29,7 @@
 
 - <contents> represents the data in the TEXTBUFFER 
 As input it can be a single item (string or value) or a list, and then each item is considered as a new line in the text buffer.
-As output it returns the contents of the text buffer as a list formatted according to the box :read-mode
+As output it returns the contents of the text buffer as a list formatted according to the box :output-mode
 
 - <input-mode> determines how input <contents> is read and formatted. The options are 
     - 'lines-cols' [default] : each item of the input list becomes a line of text, each element in the line is a 'row'
@@ -42,7 +42,7 @@ As output it returns the contents of the text buffer as a list formatted accordi
 ;The input can be connected to a pathname to attach and fill the TextFile buffer with a file on the disk. 
 ;(Note: use the contextual menu in order to change the TextFile attachement settings.)
 
-;- <read-mode> determines how <contents> access is formatted. The options are 
+;- <output-mode> determines how <contents> access is formatted. The options are 
 ;    - NIL (default) : each line is read as a string (returns a list of strings)
 ;    - ':lines' : each line is collected in a list of values (returns a list of lists)
 ;    - ':lines-cols' : each line is collected a value (returns a list of lists)
@@ -59,16 +59,16 @@ As output it returns the contents of the text buffer as a list formatted accordi
                  ("plain" :value)))))
   
 (defmethod additional-box-attributes ((self textbuffer)) 
-  '((:read-mode "determines how <contents> text is formatted for output" 
-     (("2D matrix" :lines-cols) 
-      ("list of lines" :lines) 
+  '((:output-mode "determines how <contents> text is formatted for output" 
+     (("list of lists" :lines-cols) 
+      ("list of values/line" :lines) 
       ("single value (lisp reader)" :value) 
       ("flat list (ignore lines)" :list)
       ("list of text lines" :text-list) 
       ("plain text" :text)))))
 
 (defmethod object-default-edition-params ((self textbuffer))
-  '((:read-mode :text)))
+  '((:output-mode :text)))
 
 
 ;;;===================================
@@ -105,7 +105,7 @@ As output it returns the contents of the text buffer as a list formatted accordi
 
 
 (defmethod prepare-obj-for-request ((object textbuffer) (box omboxeditcall)) 
-  (setf (reader object) (get-edit-param box :read-mode))
+  (setf (reader object) (get-edit-param box :output-mode))
   object)
 
 (defmethod get-slot-val ((obj textbuffer) slot-name)
@@ -172,7 +172,7 @@ As output it returns the contents of the text buffer as a list formatted accordi
 (defmethod gen-code-for-call ((self TextBufferBox) &optional args)
   (declare (ignore args))
   `(let ((tb ,(call-next-method)))
-     (setf (reader tb) ,(get-edit-param self :read-mode))
+     (setf (reader tb) ,(get-edit-param self :output-mode))
      tb))
  
 
