@@ -43,18 +43,16 @@
  "Score"
  :container-pack *om-package-tree*
  :doc "Score tools and objects"
- :classes nil
+ :classes '(note chord chord-seq voice poly)
  :functions nil
  :subpackages  (list (omNG-make-package 
                       "Rhythm Trees"
                       :doc "Manipulation of rhythm trees and ratios"
-                      :classes nil
                       :functions '(mktree tree2ratio)
                       :subpackages nil)
                      (omNG-make-package 
                       "Utils"
                       :doc "Unit conversion utilities etc."
-                      :classes '(note chord chord-seq voice)
                       :functions '(approx-m mc->f f->mc mc->n n->mc beats->ms)
                       :subpackages nil)))
 
