@@ -284,11 +284,11 @@ Gradations smaller than a quartertone are expressed as the closest  quartertone 
 (defmethod* mc->n ((midic number))
   (mc->n1 midic))
 
-(defmethod! n->mc ((strs list))
+(defmethod* n->mc ((strs list))
   :initvals '(("C3")) 
   :indoc '("note name or list of note names")
   :icon 'conversion
-  :doc   "
+  :doc "
 Converts <strs> to pitch values in midicents. 
 
 Symbolic note names follow standard notation with middle c (midicent 6000) being C3. 
