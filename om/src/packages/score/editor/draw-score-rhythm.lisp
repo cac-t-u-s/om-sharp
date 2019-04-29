@@ -562,12 +562,6 @@
 
 
 
-;;; todo
-;;; TEMPO 
-;;; CHIFFRAGE MESURE
-;;; SPACING
-;;; TEMPO CHANGE
-;;; GRACE NOTES
 
 
 
