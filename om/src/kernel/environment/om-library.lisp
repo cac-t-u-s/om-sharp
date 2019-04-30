@@ -43,7 +43,12 @@
    (om-make-pathname :directory (append (pathname-directory (mypathname self)) '("resources"))))
 
 (defmethod lib-icons-folder ((self OMLib))
-   (om-make-pathname :directory (append (pathname-directory (lib-resources-folder self)) '("icons"))))
+  (or 
+   (probe-file 
+    (om-make-pathname :directory (append (pathname-directory (lib-resources-folder self)) '("icons"))
+                      :host (lib-resources-folder self) :device (lib-resources-folder self)))
+   (om-make-pathname :directory (append (pathname-directory (lib-resources-folder self)) '("icon"))
+                     :host (lib-resources-folder self) :device (lib-resources-folder self))))
 
 (add-preference-module :libraries "Libraries")
 (add-preference-section :libraries "Libraries")
