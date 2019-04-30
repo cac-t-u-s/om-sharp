@@ -40,15 +40,12 @@
 
 ;;; conventional folders for library
 (defmethod lib-resources-folder ((self OMLib))
-   (om-make-pathname :directory (append (pathname-directory (mypathname self)) '("resources"))))
+   (merge-pathnames "resources/" (mypathname self)))
 
 (defmethod lib-icons-folder ((self OMLib))
-  (or 
-   (probe-file 
-    (om-make-pathname :directory (append (pathname-directory (lib-resources-folder self)) '("icons"))
-                      :host (lib-resources-folder self) :device (lib-resources-folder self)))
-   (om-make-pathname :directory (append (pathname-directory (lib-resources-folder self)) '("icon"))
-                     :host (lib-resources-folder self) :device (lib-resources-folder self))))
+  (or (probe-file (merge-pathnames "icons/" (lib-resources-folder self)))
+      (merge-pathnames "icons/" (lib-resources-folder self))))
+
 
 (add-preference-module :libraries "Libraries")
 (add-preference-section :libraries "Libraries")
@@ -153,7 +150,7 @@
 ;;; loads a registered library
 (defmethod load-om-library ((lib string))
   (let ((the-lib (find-library lib)))
-    (if the-lib (load-om-library the-lib 2ndtry)
+    (if the-lib (load-om-library the-lib)
       (om-beep-msg "Library: ~S not registered !" lib))))
 
 
