@@ -11,7 +11,7 @@ PREFIX		= /usr/local
 # DESTDIR for local builds, ie. by rpmbuild etc.
 
 bindir		= $(DESTDIR)$(PREFIX)/bin
-libdir		= $(DESTDIR)$(PREFIX)/lib64/openmusic
+libdir		= $(DESTDIR)$(PREFIX)/lib/openmusic
 datadir		= $(DESTDIR)$(PREFIX)/share
 omfontsdir	= $(DESTDIR)$(PREFIX)/share/fonts/omfonts
 omroot		= $(datadir)/$(APPNAME)
@@ -85,7 +85,7 @@ uninstall:
 
 clean:
 	cd $(BUILDROOT)/src && find . -name $(rubbish) -delete
-	rm $(BUILDROOT)/$(releaseappname)
+	rm -f $(BUILDROOT)/$(releaseappname)
 
 tardist:
 	cd $(dir $(BUILDROOT))../ && \
