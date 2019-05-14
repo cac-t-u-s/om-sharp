@@ -259,7 +259,7 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
     (draw-staff x-pix y-pix y-u w h (fontsize box) staff :margin-l 1 :margin-r 1 :keys t)
 
     (draw-chord (make-instance 'chord :notes (list self)) 
-                0 y-u 0 0 w h 
+                0 y-u 0 y-pix w h 
                 (fontsize box) :scale nil :staff staff
                 :time-function #'(lambda (time) (/ w 2))
                 )
@@ -274,7 +274,7 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
     (draw-staff x-pix y-pix y-u w h (fontsize box) staff :margin-l 1 :margin-r 1 :keys t)
 
     (when (notes self)
-      (draw-chord self 0 y-u 0 0 w h (fontsize box) :scale nil :staff staff
+      (draw-chord self 0 y-u 0 y-pix w h (fontsize box) :scale nil :staff staff
                   :time-function #'(lambda (time) (/ w 2))
                   ))
      
