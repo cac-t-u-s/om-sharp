@@ -20,7 +20,7 @@
 ;;; set from the preferences
 (add-preference :general :catch-errors "Handle Error Messages" :bool nil "Catch Lisp erros and display a simple message window")
 ;;; automatically decide wether a box should be evaluated in ev-once mode or not
-(add-preference :general :auto-ev-once-mode "Auto ev-once" :bool t "Boxes automatically set in 'eval-once' mode")
+(add-preference :general :auto-ev-once-mode "Auto ev-once" :bool nil "Boxes automatically set in 'eval-once' mode")
 
 
 (defvar *current-eval-panel* nil)
