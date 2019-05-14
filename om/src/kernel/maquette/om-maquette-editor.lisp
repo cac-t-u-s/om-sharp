@@ -66,8 +66,8 @@
    (om-make-menu "Help" (default-help-menu-items self))
    )))
 
-;;; maquette-editor is its own container
-(defmethod container-editor ((self maquette-editor)) self)
+;;; maquette-editor is its own container;;; why ? this makes the report-modification process hang infinitely !!
+;;; (defmethod container-editor ((self maquette-editor)) nil)
 
 (defmethod get-editor-class ((self OMMaquette)) 'maquette-editor)
 (defmethod get-obj-to-play ((self maquette-editor)) (object self))
@@ -335,8 +335,10 @@
       
       (cond 
        (selected-box
+        
         (let ((selected-end-time-x (and (scale-in-x-? selected-box) ;;; otherwise we just don't rescale in tracks view
                                         (time-to-pixel self (get-box-end-date selected-box)))))
+          
           (if (and (resizable-box? selected-box) (scale-in-x-? selected-box)
                    (<= (om-point-x position) selected-end-time-x) (>= (om-point-x position) (- selected-end-time-x 5)))
               ;;; resize the box
@@ -354,44 +356,53 @@
                             (report-modifications editor) 
                             (om-invalidate-view self))
                :min-move 4)
+            
             ;;; move the selection
             (let ((copy? (when (om-option-key-p) (mapcar 'om-copy (get-selected-boxes editor))))
                   (init-tracks (mapcar 'group-id (get-selected-boxes editor))))
+              
               (when copy?
                 (select-unselect-all editor nil)
                 (mapcar #'(lambda (b) 
                             (setf (group-id b) NIL)
                             (select-box b t))
                         copy?))
-              (om-init-temp-graphics-motion 
+              
+              (om-init-temp-graphics-motion  
                self position nil
                :motion #'(lambda (view pos)
                            (let ((dx (round (dpix-to-dx self (- (om-point-x pos) (om-point-x p0)))))
                                  (py (om-point-y pos)))
-                     
+                             
                              (when copy?
                                (mapcar #'(lambda (b) 
                                            (unless (group-id b)
                                              (add-box-in-track (object editor) b (num self))
                                              (setf (frame b) self)))
                                        copy?))
-                     
+                             
                              (let ((diff-track-id (floor py (h self))))
                                (loop for tb in (get-selected-boxes editor) 
                                      for init-track in init-tracks do 
                                      (let ((new-box-id (+ init-track diff-track-id)))
-                                       (when (and (> new-box-id 0) (<= new-box-id (n-track-views editor)))
+                                      (when (and (> new-box-id 0) (<= new-box-id (n-track-views editor)))
                                          (update-inspector-for-object tb) ;; here ?
                                          (setf (group-id tb) new-box-id)
                                          ))))
-                     
+                             
                              (move-editor-selection editor :dx dx)
+                             
                              (setf p0 pos)
-                             (om-invalidate-view (om-view-window self))))
+                             (om-invalidate-view (om-view-window self))
+                             ))
+               
                :release #'(lambda (view pos) 
                             (report-modifications editor) 
                             (om-invalidate-view (om-view-window self)))
-               :min-move 4)))
+               
+               :min-move 4)
+              )
+            )
           ))
        ((om-add-key-down)
         (let ((box (new-box-in-maq-editor editor (omp time 0) (num self))))
@@ -409,7 +420,8 @@
                         (report-modifications editor)
                         (om-invalidate-view self))
            :min-move 4)
-          (report-modifications editor)))
+          (report-modifications editor)
+          ))
        (t (call-next-method))
        ))
     ))
