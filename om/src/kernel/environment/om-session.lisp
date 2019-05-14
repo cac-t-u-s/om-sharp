@@ -214,8 +214,9 @@
    #+macosx (if (oa::om-standalone-p) 
                 (om-make-pathname :directory (append (butlast (pathname-directory (oa::om-lisp-image))) '("Frameworks")))
               (om-relative-path '("resources" "lib" "mac") nil (oa::om-root-folder)))
-   #+linux (om-relative-path '("resources" "lib" "linux") nil (oa::om-root-folder))
-   )
+   #+linux (if (oa::om-standalone-p)
+	       (pathname "/usr/local/share/openmusic")
+	       (om-relative-path '("resources" "lib" "linux") nil (oa::om-root-folder))))
   
   #-om-deliver(setq *om-debug* t)
   

@@ -77,11 +77,7 @@
 (defvar *load-folder* (lw-tools::lisp-image-name))
 
 ;;; dans le dossier de l'appli
-(defun om-foreign-libraries-directory ()
-  #-linux *load-folder*
-  #+linux (make-pathname :directory (append (butlast (pathname-directory (oa::om-lisp-image))) '("lib64" "openmusic"))
-			 :host (pathname-host (oa::om-lisp-image)) :device (pathname-device (oa::om-lisp-image))))
-
+(defun om-foreign-libraries-directory () *load-folder*)
 
 ;  #+win32(make-pathname :directory (pathname-directory (LISP-IMAGE-NAME))
 ;                 :host (pathname-host (LISP-IMAGE-NAME)) :device (pathname-device (lw::LISP-IMAGE-NAME)))
