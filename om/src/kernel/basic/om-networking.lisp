@@ -79,16 +79,15 @@
 (defmethod omNG-box-value ((self OMReceiveBox) &optional (numout 0))
   (current-box-value self numout))
 
-
-(defmethod set-delivered-value ((box OMReceiveBox) msg)
-  (setf (value box) (list msg)))
+(defmethod set-delivered-value ((box OMReceiveBox) msg &rest more-values)
+  (setf (value box) (cons msg more-values)))
 
 (defmethod set-reactive ((box OMReceiveBox) val)
   (call-next-method)
   (if val (start-box box) (stop-box box))
   (setf (state box) val))
 
-(defmethod set-delivered-value :after ((box OMReceiveBox) msg)
+(defmethod set-delivered-value :after ((box OMReceiveBox) msg &rest more-values)
   (self-notify box nil))
 
 ;;====================
