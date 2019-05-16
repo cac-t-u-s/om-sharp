@@ -278,7 +278,6 @@
 
 
 ;;; COMPILED FORM
-
 (defmethod gen-code  ((self OMCollectBox) &optional (numout 0))
 
   ;(print (list (mem-var (reference self)) "gen-code collect - stack = " *let-list-stack*))
@@ -307,6 +306,117 @@
       )
     
     ))
+
+
+
+;;;------------------
+;;; ACCUM
+;;; MORE ADVANCED COLLECTION...
+;;;------------------
+
+(defmethod special-box-p ((name (eql 'accum))) t)
+(defmethod special-item-reference-class ((item (eql 'accum))) 'OMAccum)
+
+(defclass OMAccum (OMCollect) ()
+  (:documentation "General accumulator for loops"))
+
+(defclass OMAccumBox (OMCollectBox) ())
+
+(defmethod get-box-class ((self OMAccum)) 'OMAccumBox)
+(defmethod box-symbol ((self OMAccum)) 'accum)
+
+(defmethod object-name-in-inspector ((self OMAccumBox)) "accumulator box")
+
+(defmethod omNG-make-special-box ((reference (eql 'accum)) pos &optional init-args)
+  (let ((name (car (list! init-args))))
+    (omNG-make-new-boxcall 
+     (make-instance 'OMAccum :name (if name (string name) "accum"))
+     pos)))
+
+
+(defmethod create-box-inputs ((self OMAccumBox)) 
+  (list 
+   (make-instance 
+    'box-input :box self :value NIL
+    :name "data-in" :doc-string "(acumulated in memory)")
+   (make-instance 
+    'box-input :box self :value NIL
+    :name "accum-function" :doc-string "accumulation function (a function of 2 arguments)")
+   (make-instance 
+    'box-input :box self :value NIL
+    :name "init" :doc-string "intializes memory with this value")))
+
+
+(defmethod omNG-box-value ((self OMAccumBox) &optional (numout 0))
+  
+  (unless nil ;;; (equal (ev-once-flag self) (get-ev-once-flag *ev-once-context*))
+    
+    
+    (unless (value self) (setf (value self) (list (nth 2 (inputs self)))))
+    
+    (case numout
+      ;;; ACCUM ;;; this is the only difference with collect
+      (0 (let ((inval (omng-box-value (nth 0 (inputs self))))
+               (accum-fun (omng-box-value (nth 1 (inputs self)))))
+           (setf (car (value self)) (funcall accum-fun (car (value self)) inval))
+           ))
+      ;;; output ; does nothing to the memory
+      (1 NIL)
+      ;;; init with the value in
+      (2 (let ((initval (omng-box-value (nth 2 (inputs self)))))
+           (setf (car (value self)) 
+                 (if (equal initval t) NIL
+                   (list! (om-copy initval))))))
+      )
+    )
+  
+    (return-value self numout))
+
+
+(defmethod return-value ((self OMAccumBox) &optional (numout 0))
+  (case numout
+    ;;; last pushed
+    (0 (caar (value self)))
+    ;;; output ; does nothing to the memory
+    (1 (car (value self)))
+    ;;; init
+    (2 nil)
+    ))
+
+
+;;; COMPILED FORM
+(defmethod gen-code  ((self OMAccumBox) &optional (numout 0))
+
+  ;(print (list (mem-var (reference self)) "gen-code collect - stack = " *let-list-stack*))
+  
+  (let* ((global-var (mem-var (reference self)))
+         (local-name (intern (string+ (symbol-name global-var) "-LOCAL")))
+         (first-call (not (check-let-statement local-name :global))))
+    
+    ; (print (list "gen-code" local-name first-call))
+
+    (when first-call
+      (let ((init-val (gen-code (nth 2 (inputs self)))))
+        (push-let-statement `(,local-name ,(if (equal init-val t) nil init-val)) :global)))
+   
+    (case numout
+      ;;; collect
+      (0 `(let ((accum-val ,(gen-code (nth 0 (inputs self))))
+                (accum-fun ,(gen-code (nth 1 (inputs self)))))
+            (setf ,local-name (funcall accum-fun ,local-name accum-val))
+            accum-val))
+      ;;; output
+      (1 local-name)
+      ;;; init with the value in
+      (2 `(let ((init-val ,(gen-code (nth 2 (inputs self)))))
+            (setf ,local-name (if (equal init-val t) nil init-val))
+            init-val))
+      )
+    
+    ))
+
+
+
 
 
 
