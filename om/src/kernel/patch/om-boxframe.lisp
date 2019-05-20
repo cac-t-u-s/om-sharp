@@ -100,13 +100,9 @@
          )))
 
 (defmethod area-tt-text ((self output-area)) 
-  (remove 
-   nil 
-   (list (format nil "~A~A" 
-                 (io-prefix (object self))
-                 (or (name (object self)) ""))
-         (doc-string (object self))
-         )))
+  (or (doc-string (object self))
+      (name (object self))))
+
 
 (defmethod area-tt-pos ((self output-area)) 
   (om-add-points 
