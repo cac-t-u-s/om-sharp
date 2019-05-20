@@ -377,7 +377,7 @@
 
 (defun make-listener-tab ()
   
-  (let ((listener-pane (om-lisp::om-make-listener-output-pane)))
+  (let ((listener-pane (om-lisp::om-make-listener-output-pane (get-pref-value :general :listener-font))))
     
     (om-make-layout 
      'om-column-layout  :name "Listener"

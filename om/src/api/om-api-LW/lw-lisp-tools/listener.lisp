@@ -45,19 +45,15 @@
 (defvar *om-stream* nil)
 (defparameter *om-prompt* "")
 
-(defparameter *listener-font* 
+(defparameter *default-listener-font* 
   #+linux(gp::make-font-description :family "Liberation Mono" :size 10)
   #-linux(gp::make-font-description :family "Consolas" :size 11))
-
-
-;; (defclass om-listener-pane (capi:listener-pane capi:collector-pane) ())
 
 
 (defun om-init-output-stream ()
   (setq *om-stream* (capi:collector-pane-stream  (make-instance 'capi:collector-pane)))
   (setq hcl::*background-output* *om-stream* )
   (redef-print))
-
 
 (defun redef-print ()
   (let ((lispworks::*HANDLE-WARN-ON-REDEFINITION* nil))
@@ -73,7 +69,6 @@
       something
       ))
     ))
-
 
 ;;;=============================
 ;;; PRINT REDEFS AND UTILS
@@ -94,7 +89,6 @@
 (defun om-print-list (&rest elements)  
   (om-print elements))
 
-
 ;;;=============================
 ;;; PRINT WINDOW
 ;;;=============================
@@ -108,11 +102,12 @@
 (defclass om-listener-in-pane (om-listener-pane capi::listener-pane) ())
 (defclass om-listener-out-pane (om-listener-pane capi::collector-pane) ())
 
-(defun om-make-listener-output-pane ()
+;;; Embed Listener output panes in other windows:
+(defun om-make-listener-output-pane (&optional font)
   (make-instance 'om-listener-out-pane 
                  :stream *om-stream* 
                  :echo-area t 
-                 :font *listener-font*))
+                 :font (or font *default-listener-font*)))
 
 (defun om-clear-listener-output-pane (pane)
   (editor::clear-buffer (capi::editor-pane-buffer pane)))
@@ -120,34 +115,38 @@
 
 ;(om-make-listener :input t)
 ;(setf om-lisp::*om-listener* nil)
-(defun om-make-listener (&key title x y width height initial-lambda initial-prompt (input nil) (on-top nil))
+(defun om-make-listener (&key title x y width height initial-lambda 
+                              initial-prompt 
+                              font 
+                              (input nil) (on-top nil))
+  
   (or (and om-lisp::*om-listener* (capi::find-interface 'om-listener))
-      (progn
-        ;(init-output-streams)
+      
+      (let ((listener-font (or font *default-listener-font*)))
         
         (setf om-lisp::*om-listener* 
-              (let* ((in (when input (make-instance 'om-listener-in-pane
-                                        ;:maximum-visible-height 0
-                                        :echo-area t
-                                        :font *listener-font*
-                                        :stream *om-stream* 
-                                        :create-callback (if initial-lambda
-                                                             (lambda (window) 
-                                                               (declare (ignore window)) 
-                                                               (capi:execute-with-interface *om-listener* initial-lambda))
-                                                           (lambda (window)
-                                                             (declare (ignore window))
-                                                             (capi:execute-with-interface *om-listener* (lambda () (in-package :cl-user))))))))
+              (let* ((in (when input (make-instance 
+                                      'om-listener-in-pane
+                                      :echo-area t
+                                      :font listener-font
+                                      :stream *om-stream* 
+                                      :create-callback (if initial-lambda
+                                                           (lambda (window) 
+                                                             (declare (ignore window)) 
+                                                             (capi:execute-with-interface *om-listener* initial-lambda))
+                                                         (lambda (window)
+                                                           (declare (ignore window))
+                                                           (capi:execute-with-interface *om-listener* (lambda () (in-package :cl-user))))))))
                      
                      (out (om-make-listener-output-pane))
                      
-                     (commands (make-instance 'capi:row-layout 
-                                              :description (list (make-instance 'capi::button :text "x"
-                                                                                :callback-type :none
-                                                                                :font *listener-font*
-                                                                                :callback #'(lambda () 
-                                                                                              (om-clear-listener-output-pane out))))
-                                              :ratios '(nil)))
+                     (commands (make-instance 
+                                'capi:row-layout 
+                                :description (list (make-instance 'capi::button :text "x"
+                                                                  :callback-type :none
+                                                                  :callback #'(lambda () 
+                                                                                (om-clear-listener-output-pane out))))
+                                :ratios '(nil)))
                      )
                 
                 (make-instance 
@@ -163,7 +162,9 @@
                            :best-x (or x 100)
                            :best-y (or y (round (- (capi::screen-height (capi:convert-to-screen)) 250)))
                            :best-width (or width 420) :best-height (or height 200)
-                           :destroy-callback (lambda (window) (setf om-lisp::*om-listener* nil))
+                           :destroy-callback (lambda (window) 
+                                               (declare (ignore window)) 
+                                               (setf om-lisp::*om-listener* nil))
                            :auto-menus nil
                            ;:activate-callback (lambda (window activatep) 
                            ;                     (when activatep (setf (capi::interface-menu-bar-items window)
@@ -174,13 +175,13 @@
         (editor::clear-buffer (capi::editor-pane-buffer (op om-lisp::*om-listener*)))
         
         (when initial-prompt
-                  (princ initial-prompt *om-stream*) 
-                  (terpri *om-stream*))
+          (princ initial-prompt *om-stream*) 
+          (terpri *om-stream*))
         
-        (setf (capi::simple-pane-font (capi::editor-pane-echo-area (op om-lisp::*om-listener*))) *listener-font*)
+        (setf (capi::simple-pane-font (capi::editor-pane-echo-area (op om-lisp::*om-listener*))) listener-font)
         
         (when (ip om-lisp::*om-listener*)
-          (setf (capi::simple-pane-font (capi::editor-pane-echo-area (ip om-lisp::*om-listener*))) *listener-font*)
+          (setf (capi::simple-pane-font (capi::editor-pane-echo-area (ip om-lisp::*om-listener*))) listener-font)
           (setf (capi::editor-pane-text  (capi::editor-pane-echo-area (ip om-lisp::*om-listener*))) ""))
         
         (capi::execute-with-interface 
@@ -198,107 +199,112 @@
         )))
 
 
-;; to be redefined
+;; to be redefined for custom-listener menus 
 (defmethod om-listener-window-menus ((self om-listener)) nil) 
 
 ;; used if om-listener-window-menus is not redefined
-;; the 'Lisp' patrt will be kept anyway
+;; the 'Lisp' part will be kept anyway
 (defmethod listener-default-window-menus ((self om-listener)) 
-  (append (list (make-instance 'capi::menu :title "File"
-                               :items 
-                               (append (list (make-instance 'capi::menu-item :title "Close Listener"
-                                                            :callback-type :interface
-                                                            :callback 'listener-close
-                                                            :accelerator #\w))
+
+  (append (list (make-instance 
+                 'capi::menu :title "File"
+                 :items 
+                 (append (list (make-instance 'capi::menu-item :title "Close Listener"
+                                              :callback-type :interface
+                                              :callback 'listener-close
+                                              :accelerator #\w))
                                      
-                                       (if (handler-case (find-class 'om-lisp::om-text-editor-window) (error () nil))
-                                           (list (make-instance 'capi::menu-component 
-                                                                :items (list 
-                                                                        (make-instance 'capi::menu-item :title "New..."
-                                                                                       :callback-type :interface
-                                                                                       :callback 'listener-new-text-editor
-                                                                                       :accelerator #\n
-                                                                                       :enabled-function 'file-operations-enabled)
-                                                                        (make-instance 'capi::menu-item :title "Open..."
-                                                                                       :callback-type :interface
-                                                                                       :callback 'listener-open-text-file
-                                                                                       :accelerator #\o
-                                                                                       :enabled-function 'file-operations-enabled)))))
-                                       
-                                       ))
-                (make-instance 'capi::menu :title "Edit"
-                               :items (list (make-instance 'capi::menu-component 
-                                                           :items (list 
-                                                                   (make-instance 'capi::menu-item :title "Cut"
-                                                                                  :callback-type :interface
-                                                                                  :callback 'listener-cut
-                                                                                  :accelerator #\x)
-                                                                   (make-instance 'capi::menu-item :title "Copy"
-                                                                                  :callback-type :interface
-                                                                                  :callback 'listener-copy
-                                                                                  :accelerator #\c)
-                                                                   (make-instance 'capi::menu-item :title "Paste"
-                                                                                  :callback-type :interface
-                                                                                  :callback 'listener-paste
-                                                                                  :accelerator #\v)))
-                                            (make-instance 'capi::menu-component 
-                                                           :items (list 
-                                                                   (make-instance 'capi::menu-item :title "Select All" 
-                                                                                  :callback 'listener-select-all 
-                                                                                  :accelerator #\a
-                                                                                  :callback-type :interface)
+                         (if (handler-case (find-class 'om-lisp::om-text-editor-window) (error () nil))
+                             (list (make-instance 
+                                    'capi::menu-component 
+                                    :items (list 
+                                            (make-instance 'capi::menu-item :title "New..."
+                                                           :callback-type :interface
+                                                           :callback 'listener-new-text-editor
+                                                           :accelerator #\n
+                                                           :enabled-function 'file-operations-enabled)
+                                            (make-instance 'capi::menu-item :title "Open..."
+                                                           :callback-type :interface
+                                                           :callback 'listener-open-text-file
+                                                           :accelerator #\o
+                                                           :enabled-function 'file-operations-enabled)))))
+                         ))
+
+                (make-instance 
+                 'capi::menu :title "Edit"
+                 :items (list (make-instance 'capi::menu-component 
+                                             :items (list 
+                                                     (make-instance 'capi::menu-item :title "Cut"
+                                                                    :callback-type :interface
+                                                                    :callback 'listener-cut
+                                                                    :accelerator #\x)
+                                                     (make-instance 'capi::menu-item :title "Copy"
+                                                                    :callback-type :interface
+                                                                    :callback 'listener-copy
+                                                                    :accelerator #\c)
+                                                     (make-instance 'capi::menu-item :title "Paste"
+                                                                    :callback-type :interface
+                                                                    :callback 'listener-paste
+                                                                    :accelerator #\v)))
+                              (make-instance 'capi::menu-component 
+                                             :items (list 
+                                                     (make-instance 'capi::menu-item :title "Select All" 
+                                                                    :callback 'listener-select-all 
+                                                                    :accelerator #\a
+                                                                    :callback-type :interface)
                                                                                
-                                                                   ))
+                                                     ))
                                             
-                                            ;(make-instance 'capi::menu-item :title "Text Font" 
-                                            ;               :callback 'choose-listener-font 
-                                            ;               :accelerator nil
-                                            ;               :callback-type :interface)
-                                            ))
-                (make-instance 'capi::menu :title "Lisp"
-                               :items (list 
-                                       (make-instance 'capi::menu-component 
-                                                      :items (list 
-                                                              (make-instance 'capi::menu-item :title "Find Definition"
-                                                                             :callback-type :interface
-                                                                             :callback 'listener-find-definition
-                                                                             :enabled-function 'lisp-operations-enabled
-                                                                             :accelerator #\.)
+                              (make-instance 'capi::menu-item :title "Text Font" 
+                                             :callback 'choose-listener-font 
+                                             :accelerator nil
+                                             :callback-type :interface)
+                                            
+                              ))
+
+                (make-instance 
+                 'capi::menu :title "Lisp"
+                 :items (list 
+                         (make-instance 'capi::menu-component 
+                                        :items (list 
+                                                (make-instance 'capi::menu-item :title "Find Definition"
+                                                               :callback-type :interface
+                                                               :callback 'listener-find-definition
+                                                               :enabled-function 'lisp-operations-enabled
+                                                               :accelerator #\.)
                                                               ;(make-instance 'capi::menu-item :title "Abort"
                                                               ;               :callback-type :interface
                                                               ;               :callback 'listener-abort
                                                               ;               ;:enabled-function 'lisp-operations-enabled
                                                               ;               :accelerator #\A)
-                                                              (make-instance 'capi::menu-item :title "Last Error Backtrace"
-                                                                             :callback-type :interface
-                                                                             :callback 'listener-error-backtrace
-                                                                             :enabled-function 'backtrace-enabled
-                                                                             :accelerator #\B)))
+                                                (make-instance 'capi::menu-item :title "Last Error Backtrace"
+                                                               :callback-type :interface
+                                                               :callback 'listener-error-backtrace
+                                                               :enabled-function 'backtrace-enabled
+                                                               :accelerator #\B)))
                                               
-                                       (make-instance 'capi::menu-component 
-                                                      :items (list 
-                                                              (make-instance 'capi::menu-item :title "Load File..."
-                                                                             :callback-type :interface
-                                                                             :callback 'load-a-lisp-file
-                                                                             :accelerator nil
-                                                                             :enabled-function 'file-operations-enabled)
-                                                              ))
+                         (make-instance 'capi::menu-component 
+                                        :items (list 
+                                                (make-instance 'capi::menu-item :title "Load File..."
+                                                               :callback-type :interface
+                                                               :callback 'load-a-lisp-file
+                                                               :accelerator nil
+                                                               :enabled-function 'file-operations-enabled)
+                                                ))
                                               
-                                       )))
+                         )))
           ))
 
-
-
-(defun close-listener ()
-  (om-close-window om-lisp::*om-listener*))
 
 (defun listener-close (listenerwin)
   (capi::quit-interface listenerwin))
 
-(defun listener-open-text-file (listenerwin &optional path)
+(defun listener-open-text-file (window)
+  (declare (ignore window))
   (open-text-file))
 
-(defun listener-new-text-editor (listenerwin)
+(defun listener-new-text-editor (window)
+  (declare (ignore window))
   (om-open-text-editor :lisp t))
 
 (defun find-capi-pane-with-focus (layout)
@@ -362,14 +368,9 @@
      pane buffer)))
 
 
-(defvar *fasl-extension* (pathname-type (cl-user::compile-file-pathname "")))
-(defvar *last-open-directory* nil)
 
 (defmethod load-a-lisp-file ((self t))
-  (let ((filename (capi::prompt-for-file "Choose a File to Load..." 
-                                         :filters (list "All files" "*.*" "Lisp File" "*.lisp" "Compiled Lisp File" 
-                                                      (concatenate 'string "*." *fasl-extension*))
-                                         :pathname *last-open-directory*)))
+  (let ((filename (prompt-for-lisp-file)))
     (when filename
       (if (probe-file filename)
           (progn 
@@ -384,15 +385,13 @@
       )))
 
 (defun listener-find-definition (listenerwin)
- (with-slots (ep) listenerwin
-    (let* ((pane (find-capi-pane-with-focus (pane-layout listenerwin)))
+ (let* ((pane (find-capi-pane-with-focus (pane-layout listenerwin)))
           (buffer (editor-pane-buffer pane))
           (symbol nil))
       (editor::use-buffer buffer
         (setf symbol (editor::intern-symbol-from-string (editor::read-symbol-from-point :previous t :read-package-name t)))
         (when symbol (om-lisp::om-edit-definition symbol))
-      ))))
-
+        )))
 
 (defun om-prompt-on-echo-area (listener-pane message)
   (with-slots (editor-window) listener-pane
@@ -411,39 +410,39 @@
            (om-prompt-on-echo-area op str)
            )))))
 
-;;; not called anymore: abort directly from the patch windows
+;;; not called anymore in OM: abort directly from the patch windows
 (defun listener-abort (listenerwin)
   (declare (ignore listenerwin))
   (om-kill-eval-process)
   (om-listener-echo "Aborted Evaluation"))
 
 
-(defmethod choose-listener-font ((self om-listener))
-  (with-slots (ip op) self
-    (let ((newfont (capi::prompt-for-font "" :font (capi::simple-pane-font op))))
-      
-      (when ip (setf (capi::simple-pane-font ip) *listener-font*)
-        (when (capi::editor-pane-echo-area ip)
-          (setf (capi::simple-pane-font (capi::editor-pane-echo-area ip)) *listener-font*)))
-      
-      (setf (capi::simple-pane-font op) *listener-font*)
-      (setf (capi::simple-pane-font (capi::editor-pane-echo-area op)) *listener-font*)
-      )))
+;;;========================
+;;; FONT MANAGEMENT
+;;;========================
 
-(defmethod update-listener-font ((self om-listener))
+;;; applies to one specific Listener window
+(defmethod change-listener-font ((self om-listener))
+  (with-slots (op) self
+    (update-listener-font self (capi::prompt-for-font "" :font (capi::simple-pane-font op)))))
+
+(defmethod update-listener-font ((self om-listener) new-font)
   (with-slots (ip op) self
-    (when ip (setf (capi::simple-pane-font ip) *listener-font*)
-        (when (capi::editor-pane-echo-area ip)
-          (setf (capi::simple-pane-font (capi::editor-pane-echo-area ip)) *listener-font*)))
-    (when ip (setf (capi::simple-pane-font op) *listener-font*)
-        (when (capi::editor-pane-echo-area op)
-          (setf (capi::simple-pane-font (capi::editor-pane-echo-area op)) *listener-font*)))
+    (when ip 
+      (setf (capi::simple-pane-font ip) new-font)
+      (when (capi::editor-pane-echo-area ip)
+        (setf (capi::simple-pane-font (capi::editor-pane-echo-area ip)) new-font)))
+    (when op 
+      (setf (capi::simple-pane-font op) new-font)
+      (when (capi::editor-pane-echo-area op)
+        (setf (capi::simple-pane-font (capi::editor-pane-echo-area op)) new-font)))
     ))
 
-(defun om-set-listener-font (newfont)
-  (setf *listener-font* newfont)
-  (mapc 'update-listener-font (capi::collect-interfaces 'om-listener)))
-
+;;; API function (called form OM): changes the font for all Listener windows
+(defun om-set-listener-font (new-font)
+  (setf *default-listener-font* new-font)
+  (mapc #'(lambda (w) (update-listener-font w new-font))
+        (capi::collect-interfaces 'om-listener)))
 
 
 ;;;===========================
@@ -452,9 +451,13 @@
 
 (defparameter *error-backtrace* nil)
 
-(defun backtrace-enabled (listenerwin) *error-backtrace*)
+(defun backtrace-enabled (window) 
+  (declare (ignore window))
+  *error-backtrace*)
 
-(defun listener-error-backtrace (listenerwin) (om-show-error-backtrace))
+(defun listener-error-backtrace (window) 
+  (declare (ignore window))
+  (om-show-error-backtrace))
 
 (defun om-show-error-backtrace ()
   (if *error-backtrace*
@@ -487,7 +490,9 @@
                             :best-x x :best-y y
                             :best-width (or w 360) :best-height (or h 200)
                             :window-styles '(:no-character-palette)
-                            :destroy-callback (lambda (window) (setf om-lisp::*om-shell* nil))
+                            :destroy-callback (lambda (window) 
+                                                (declare (ignore window)) 
+                                                (setf om-lisp::*om-shell* nil))
                             :layout (make-instance 'capi:simple-layout 
                                                    :description  (list sp)))))
         )))

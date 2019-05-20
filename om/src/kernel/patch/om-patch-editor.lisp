@@ -1238,7 +1238,8 @@
 ;;;======================================
 
 (defun make-listener-pane (editor)
-  (let ((listener-pane (om-lisp::om-make-listener-output-pane)))
+
+  (let ((listener-pane (om-lisp::om-make-listener-output-pane (get-pref-value :general :listener-font))))
                         
     (set-g-component editor :listener listener-pane)
                         

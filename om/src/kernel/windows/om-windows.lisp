@@ -233,6 +233,7 @@
         (om-lisp::om-make-listener :x (car ig) :y (cadr ig) :width (caddr ig) :height (cadddr ig)
                                    :input (get-pref-value :general :listener-input)
                                    :on-top (get-pref-value :general :listener-on-top)
+                                   :font (get-pref-value :general :listener-font)
                                    :initial-lambda #'(lambda () (in-package :om))
                                    )))))
     
@@ -242,8 +243,7 @@
 (defun show-listener-win ()
   
   (let ((listenerwin (get-listener)))
-    
-    (om-lisp::om-set-listener-font (get-pref-value :general :listener-font))
+
     (om-lisp::om-set-text-editor-font (get-pref-value :general :textedit-font))
     
     (if listenerwin
@@ -251,7 +251,8 @@
       (om-lisp::om-make-listener 
        :initial-lambda #'(lambda () (in-package :om))
        :initial-prompt *om-startup-string*
-       :height 200 
+       :height 200  
+       :font (get-pref-value :general :listener-font)
        :input (get-pref-value :general :listener-input)
        :on-top (get-pref-value :general :listener-on-top)
        ))))
@@ -259,7 +260,7 @@
       
 
 ;(add-preference-section :appearance "Lisp")
-(add-preference :general :listener-font "Listener font" :font om-lisp::*listener-font* nil 'set-listener-font)
+(add-preference :general :listener-font "Listener font" :font om-lisp::*default-listener-font* nil 'set-listener-font)
 (add-preference :general :textedit-font "Text editors font" :font om-lisp::*text-editor-font* nil 'set-text-editor-font)
 
 (defun set-listener-font ()
@@ -282,11 +283,10 @@
 (defmethod select-all-command ((window om-lisp::om-listener))
   #'(lambda () (om-lisp::listener-select-all window)))
 
-
-#|
 (defmethod font-command ((window om-lisp::om-listener))
   #'(lambda () (om-lisp::change-listener-font window)))
 
+#|
 (defmethod close-command ((window om-lisp::om-listener))
   #'(lambda () (om-lisp::listener-close window)))
 |#

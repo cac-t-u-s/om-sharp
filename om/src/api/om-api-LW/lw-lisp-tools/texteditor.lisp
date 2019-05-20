@@ -60,9 +60,13 @@
 ;;; MAIN CLASS 
 ;;;==========================
 
-(defvar *om-text-editor-initial-xy*)
-(setq *om-text-editor-initial-xy* #(100 100))
-(setq *om-text-editor-count* 0)
+(defvar *om-text-editor-initial-xy* #(100 100))
+(defvar *om-text-editor-count* 0)
+
+(defparameter *text-editor-font* 
+  #+linux(gp::make-font-description :family "Liberation Mono" :size 10)
+  #-linux(gp::make-font-description :family "Consolas" :size 11))
+
 
 (defclass om-text-editor-window (capi::interface)
   ((ep :initform nil :accessor ep :initarg :ep)
@@ -177,9 +181,10 @@
 
 ; (setf *editor-files-open* nil)
 
-(defun om-open-text-editor (&key contents class (lisp nil) title x y w h)
+(defun om-open-text-editor (&key contents class (lisp nil) title x y w h font)
   (let* ((path (and (pathnamep contents) contents))
-         (window (when path (find-open-file path))))
+         (window (when path (find-open-file path)))
+         (ed-font (or font *text-editor-font*)))
     (if window 
         ;;; the file is already open ! (get the window)
         (capi::find-interface (type-of window) :name (capi::capi-object-name window))      
@@ -208,8 +213,9 @@
                                   :text text
                                   ;; :destroy-callback #'(lambda (ep) (print (capi::editor-pane-buffer ep)))
                                   :change-callback #'(lambda (pane point old-length new-length) 
+                                                       (declare (ignore pane point old-length new-length))
                                                        (om-text-editor-modified window))
-                                  :font *text-editor-font*)))
+                                  :font ed-font)))
           (setf (capi::layout-description (capi::pane-layout window))
                 (list (setf (ep window) ep))))
         (push window *editor-files-open*)
@@ -234,24 +240,22 @@
 ;;;========================
 ;;; FONT MANAGEMENT
 ;;;========================
-
-(defparameter *text-editor-font* 
-  #+linux(gp::make-font-description :family "Liberation Mono" :size 10)
-  #-linux(gp::make-font-description :family "Consolas" :size 11))
-
+;;; applies to one specific window
 (defmethod change-text-edit-font ((self om-text-editor-window))
-  (with-slots (ep) self
-    (setf (capi::simple-pane-font ep) 
-          (setf *text-editor-font*
-                (capi::prompt-for-font "" :font (capi::simple-pane-font ep))))))
+   (with-slots (ep) self
+     (update-text-editor-font 
+      self 
+      (capi::prompt-for-font "" :font (capi::simple-pane-font ep)))))
 
-(defmethod update-text-editor-font ((self om-text-editor-window))
+(defmethod update-text-editor-font ((self om-text-editor-window) newfont)
   (with-slots (ep) self
-    (setf (capi::simple-pane-font ep) *text-editor-font*)))
+    (setf (capi::simple-pane-font ep) newfont)))
 
+;;; API function (called form OM): changes the font for all windows
 (defun om-set-text-editor-font (newfont)
   (setf *text-editor-font* newfont)
-  (mapc 'update-text-editor-font (capi::collect-interfaces 'om-text-editor-window)))
+  (mapc #'(lambda (w) (update-text-editor-font w newfont))
+        (capi::collect-interfaces 'om-text-editor-window)))
   
 
 ;;;========================
@@ -392,10 +396,8 @@
 ;;;====================
 
 ;;;  Utility functions
-(defvar *om-text-editor-creator-code*)
-(setq *om-text-editor-creator-code* "")
-(defvar *om-text-editor-type-code*)
-(setq *om-text-editor-type-code* "")
+(defvar *om-text-editor-creator-code* "")
+(defvar *om-text-editor-type-code* "")
 
 ;;; what is is this for ? :-s
 (defun set-hfs-codes (path type creator)
@@ -550,6 +552,16 @@
 (defparameter *lisp-eval-mode* :buffer)
 (defvar *lisp-eval-current-editor-file*)
 
+(defvar *fasl-extension* (pathname-type (cl-user::compile-file-pathname "")))
+
+(defun prompt-for-lisp-file ()
+  (capi::prompt-for-file 
+   "Choose a Lisp file..." 
+   :filters (list "All files" "*.*" "Lisp File" "*.lisp" "Compiled Lisp File" 
+                  (concatenate 'string "*." *fasl-extension*))
+   :pathname *last-open-directory*))
+
+
 ;;; EVAL the buffer...
 (defmethod eval-lisp-buffer ((self om-text-editor-window))
   (with-slots (ep) self
@@ -610,14 +622,9 @@
         (echo-string self (concatenate 'string "This buffer is not attached to a file."))))))
 
 
-(defvar *fasl-extension* (pathname-type (cl-user::compile-file-pathname "")))
-
 ;;; LOAD ANOTHER FILE
 (defmethod load-a-lisp-file ((self om-text-editor-window))
-  (let ((filename (capi::prompt-for-file "Choose a File to Load..." 
-                                         :filters (list "All files" "*.*" "Lisp File" "*.lisp" "Compiled Lisp File" 
-                                                        (concatenate 'string "*." *fasl-extension*))
-                                         :pathname *last-open-directory*)))
+  (let ((filename (prompt-for-lisp-file)))
     (when filename
       (if (probe-file filename)
           (progn 
@@ -713,13 +720,13 @@
                                            :callback 'text-select-all 
                                            :accelerator #\a
                                            :callback-type :interface)
-                            ;(make-instance 
-                            ; 'capi::menu-component 
-                            ; :items (list (make-instance 'capi::menu-item :title "Text Font"
-                            ;                             :callback-type :interface
-                            ;                             :callback 'change-text-edit-font
-                            ;                             :accelerator nil)
-                            ;              ))
+                            (make-instance 
+                             'capi::menu-component 
+                             :items (list (make-instance 'capi::menu-item :title "Text Font"
+                                                         :callback-type :interface
+                                                         :callback 'change-text-edit-font
+                                                         :accelerator #\T)
+                                          ))
                             (make-instance 
                              'capi::menu-component 
                              :items (list 
