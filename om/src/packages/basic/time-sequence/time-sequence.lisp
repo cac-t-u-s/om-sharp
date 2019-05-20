@@ -547,7 +547,7 @@
             (item-set-time (nth point_index (time-sequence-get-timed-item-list self)) 
                            (max 0  (+ (nth point_index (time-sequence-get-internal-times self)) dt))))))
     (time-sequence-update-internal-times self))
-   
+
 (defmethod time-stretch-from-master-point ((self time-sequence) point dt)
   (let* ((master-time (item-get-internal-time point))
          (new-t (max 0 (+ dt master-time)))
@@ -635,6 +635,7 @@
                  (dur (- t2 t1)))
             (if (= dur 0) -1 (/ dist dur)))))))
   
+
 (defmethod give-length-profile ((self time-sequence))
 ;give length profile (all segment legnthes) for the curve. Returns nil if no points.
     (let ((points (time-sequence-get-timed-item-list self)))
@@ -646,11 +647,12 @@
                      (p2 (nth (1+ i) points)))
                 (items-distance p1 p2))))))
 
+
 (defmethod give-length ((self time-sequence))
 ;give the length of the curve. return 0 if no points
   (if (not (time-sequence-get-timed-item-list self))
       0
-    (apply '+ (give-length-profile self))))
+    (reduce '+ (give-length-profile self))))
 
 
 (defmethod give-normalized-cumulative-length-profile ((self time-sequence))
@@ -659,8 +661,9 @@
     (when (>= (length pl) 1)
       (let ((length-profile (give-length-profile self)))
         (when length-profile 
-          (let ((length (apply '+ length-profile))
+          (let ((length (reduce '+ length-profile))
                 (val (dx->x 0 length-profile)))
-            (om/ val length)))))))
+            (if (zerop length) (list 0)
+              (om/ val length))))))))
 
 
