@@ -96,7 +96,8 @@
                    )
                  ))
   (mapc #'(lambda (filename) 
-            (cl-user::compile&load (make-pathname :directory *api-directory* :name filename))) 
+            (cl-user::compile&load (make-pathname :directory *api-directory* :name filename))
+            (terpri)) 
         api-files)
   )
 

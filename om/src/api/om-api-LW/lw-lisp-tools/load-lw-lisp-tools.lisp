@@ -62,10 +62,11 @@
            ))
        )))
 
-(mapc #'(lambda (filename) (compile-if-needed-and-load 
-                            (make-pathname :directory *lw-lisp-tools-directory* 
-                                           :name filename))) 
-      '("textbuffer" "listener" "texteditor" "editor-find-dialogs" "find-definition" "eval-process" "output"))
+(mapc #'(lambda (filename) 
+          (compile-if-needed-and-load 
+           (make-pathname :directory *lw-lisp-tools-directory* :name filename))
+          (terpri)) 
+      '("eval-process" "textbuffer" "find-definition" "editor-find-dialogs" "output" "texteditor" "listener"))
 
 
 

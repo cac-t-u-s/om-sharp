@@ -108,7 +108,8 @@
                               (editor::buffers-end buffer)))))
 
 (defun om-buffer-lines (buffer)
-  (let (numlines listline)
+  (let ((numlines nil)
+        (listlines nil))
     (editor::use-buffer buffer
       (setq numlines (editor::count-lines (editor::buffers-start buffer)
                                           (editor::buffers-end buffer)))
@@ -127,7 +128,7 @@
         (editor::use-buffer buffer
           (editor::with-point ((p1 (editor::buffers-start buffer)) 
                                (p2 (if end (editor::buffers-start buffer)
-                                     (editor::buffers-endbuffer))))
+                                     (editor::buffers-end buffer))))
             (editor::character-offset p1 start)
             (when end (editor::character-offset p2 end))
             (editor::delete-between-points p1 p2)           
