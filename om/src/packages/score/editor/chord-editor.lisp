@@ -76,7 +76,7 @@
     
     (setf 
      (b-box chord)
-     (draw-chord chord 
+     (draw-chord chord
                  0 0
                  0 0 
                  (w view) (h view) 
@@ -92,7 +92,7 @@
                  :time-function #'(lambda (time) 
                                     (+ (/ (w view) 2) 
                                        (* (/ (- (w view) 80) 2) 
-                                          (/ time (list-max (apply #'dur (notes chord))))))
+                                          (/ time (list-max (mapcar #'dur (notes chord))))))
                                     )
                  :build-b-boxes t
                  ))
