@@ -355,48 +355,54 @@
 
 
 (defun om-save-y-n-cancel-dialog (name)
-  (let* ((v (om-make-view 'om-view :bg-color (om-def-color :transparent)))
-         ;; vertical grid, should probably use some capi::layout logic here
-	 (vgrid 20)
-	 (win (om-make-window 'om-dialog :position :centered :size (om-make-point 330 (* 6 vgrid))
-                              :resizable nil :maximize nil :minimize nil :owner nil
-                              :win-layout (om-make-layout 'om-simple-layout :ratios '(1) :delta 20 :align :center)
-                              :title ""
-                              :subviews (list v)))
-         (text (om-make-di 'om-simple-text :position (om-make-point 25 (* 1 vgrid)) :size (om-make-point 280 (* 2 vgrid))
-                           :text (format nil (om-str :save-changes-in) name)
-                           ;:font (om-def-font :font1)
-                           ))
-         (box (om-make-di 'om-check-box :position (om-make-point 150 80) :size (om-make-point 200 (* 1 vgrid))
-                                   :text (om-str :apply-all)
-                                   :font (om-def-font :gui)
-                                   )))
-      
-    (om-add-subviews v 
-                     text 
-                     box
-                     (om-make-di 'om-button
-				 :position (om-make-point 20 (* 2.5 vgrid))
-				 :size (om-make-point 80 (* 1 vgrid))
-				 :text (om-str :cancel)
-                                 :di-action (om-dialog-item-act item
-                                              (om-return-from-modal-dialog win nil)))
-                     
-                     (om-make-di 'om-button
-				 :position (om-make-point 145 (* 2.5 vgrid))
-				 :size (om-make-point 80 (* 1 vgrid))
-				 :text (om-str :no)
-                                 :di-action (om-dialog-item-act item
-                                              (om-return-from-modal-dialog win (list nil (om-checked-p box)))))
-                     
-                     (om-make-di 'om-button
-				 :position (om-make-point 230 (* 2.5 vgrid))
-				 :size (om-make-point 80 (* 1 vgrid))
-				 :text (om-str :yes)
-                                 :default-button t
-                                 :di-action (om-dialog-item-act item
-                                              (om-return-from-modal-dialog win (list t (om-checked-p box)))))
-                     )
+  (let* ((y-grid 24)
+         (win (om-make-window 'om-dialog :position :centered 
+                              :resizable t :maximize nil :minimize nil :owner nil
+                              :title ""))
+         (box (om-make-di 'om-check-box
+                          :size (om-make-point 200 y-grid)
+                          :text (om-str :apply-all)
+                          :font (om-def-font :gui))))
+    
+    (om-add-subviews 
+     win
+     (om-make-layout 
+      'om-column-layout 
+      :subviews
+      (list 
+       (om-make-di 'om-simple-text 
+                   :size (om-make-point 330 y-grid)
+                   :text (format nil (om-str :save-changes-in) name))
+            
+       (om-make-layout 
+        'om-row-layout 
+        :subviews
+        (list NIL
+              (om-make-di 'om-button
+                          :size (om-make-point 80 y-grid)
+                          :text (om-str :no)
+                          :di-action #'(lambda (item) (declare (ignore item))
+                                         (om-return-from-modal-dialog win (list nil (om-checked-p box)))))
+              (om-make-di 'om-button
+                          :size (om-make-point 80 y-grid)
+                          :text (om-str :yes)
+                          :default-button t
+                          :di-action #'(lambda (item) (declare (ignore item))
+                                         (om-return-from-modal-dialog win (list t (om-checked-p box)))))))
+            
+       (om-make-layout 
+        'om-row-layout 
+        :subviews
+        (list 
+         NIL
+         box
+         (om-make-di 'om-button
+                     :size (om-make-point 80 y-grid)
+                     :text (om-str :cancel)
+                     :di-action #'(lambda (item) (declare (ignore item))
+                                    (om-return-from-modal-dialog win nil)))
+         )))
+      ))
+    
     (om-modal-dialog win)
-    ;(om-open-window win)
     ))
