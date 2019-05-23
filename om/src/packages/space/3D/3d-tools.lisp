@@ -33,7 +33,7 @@
 ;;;  PHASE-UNWRAP ******************* (ported from Matlab)
 
 (defmethod phase-unwrap ((degrees list))
-    :icon 127
+    :icon :conversion
     :initvals '(nil)
     :indoc '("angles")
     :numouts 1
@@ -52,7 +52,7 @@ Arguments can be numbers or lists."
 ;;;  POL->CAR ************
 
 (defmethod pol->car ((r number) (a number))
-    :icon 141
+    :icon :conversion
     :initvals '(0 0)
     :indoc '("radius (magnitude)" "angle (phase)")
     :numouts 2
@@ -79,7 +79,7 @@ Arguments can be numbers or lists."
 ;;;  CAR->POL ************
 
 (defmethod car->pol ((x number) (y number))
-    :icon 141
+    :icon :conversion
     :initvals '(0 0)
     :indoc '("x" "y")
     :numouts 2
@@ -107,7 +107,7 @@ Arguments can be numbers or lists."
 ;;; RAD->DEG   ************
 
 (defmethod rad->deg ((radians number))
-    :icon 141
+    :icon :conversion
     :indoc '("radians")
     :doc "Converts radians to degree.
 
@@ -121,7 +121,7 @@ Arguments can be numbers or lists."
 ;;; DEG->RAD   ************
 
 (defmethod deg->rad ((degrees number))
-    :icon 141
+    :icon :conversion
     :indoc '("degrees")
     :doc "Donverts degrees to radians.
 
@@ -137,7 +137,7 @@ Arguments can be numbers or lists."
 ;;; XY -> AD  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 (defmethod xy->ad ((x number) (y number))
-            :icon 141  
+            :icon :conversion  
             :initvals '(0 0)
             :indoc '("x" "y")
             :numouts 2
@@ -204,7 +204,7 @@ Returns 2 values (numbers, lists or bpfs) for 'azimuth' and 'distance'."
 ;;; AD -> XY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 (defmethod ad->xy ((a number) (d number))
-            :icon 141  
+            :icon :conversion  
             :initvals '(0 0)
             :indoc '("azimuth" "distance")
             :numouts 2
@@ -272,7 +272,7 @@ Returns 2 values (numbers, lists or bpfs) for 'x' and 'y'."
 ;;; XYZ -> AED ************
 
 (defmethod* xyz->aed ((x number) (y number) (z number))
-            :icon 141  
+            :icon :conversion  
             :initvals '(0 0 0)
             :indoc '("x" "y" "z")
             :numouts 3
@@ -327,7 +327,7 @@ Returns 3 values (or lists) for 'azimuth', 'elevation' and 'distance'."
 ;;; AED -> XYZ ************
 
 (defmethod* aed->xyz ((a number) (e number) (d number))
-            :icon 141  
+            :icon :conversion  
             :initvals '(0 0 0)
             :indoc '("azimuth" "elevation" "distance")
             :numouts 3
