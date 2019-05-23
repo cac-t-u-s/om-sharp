@@ -386,7 +386,7 @@
               (om-make-di 'om-button
                           :size (om-make-point 80 y-grid)
                           :text (om-str :yes)
-                          :default-button t
+                          :default t
                           :di-action #'(lambda (item) (declare (ignore item))
                                          (om-return-from-modal-dialog win (list t (om-checked-p box)))))))
             
