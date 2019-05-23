@@ -25,7 +25,7 @@
 ;;; Frames can be extracted to a data-stream for further manipulations
 ;;;================================================================================
 (defclass* SDIFFile (sdif-object)   
-   ((file-pathname  :initform nil :accessor file-pathname)
+   ((file-pathname :initform nil :accessor file-pathname)
     (file-map :initform nil :accessor file-map))
    (:documentation "
 SDIFFILE represents an SDIF file stored somewhere in your hard drive.
@@ -88,13 +88,13 @@ Lock the box ('b') to keep the current file.
             )
      )))
 
-(defmethod default-name ((self SDIFFILE)) 
+(defmethod default-name ((self sdiffile)) 
   (when (file-pathname self)
     (string+ (pathname-name (file-pathname self)) "." (pathname-type (file-pathname self)))))
 
-(defmethod draw-mini-view ((self SDIFFIle) (box t) x y w h &optional time)
+(defmethod draw-mini-view ((self sdiffile) (box t) x y w h &optional time)
   (let* ((n-streams (length (file-map self)))
-         (stream-h (round (- h 8) (max n-streams 1)))
+         (stream-h (round h (max n-streams 1)))
          (max-t (list-max (mapcar 'fstream-desc-tmax (file-map self))))
          (font (om-def-font :font1 :size 10)))
     (om-with-font 
@@ -104,16 +104,16 @@ Lock the box ('b') to keep the current file.
     (om-with-font 
      font 
      (loop for stream in (file-map self) 
-           for ypos = 8 then (+ ypos stream-h) 
+           for ypos = y then (+ ypos stream-h) 
            do 
            (when (> max-t 0)
-             (om-draw-rect (* w (/ (fstream-desc-tmin stream) max-t)) 
+             (om-draw-rect (+ x (* w (/ (fstream-desc-tmin stream) max-t)))
                            (+ ypos 2) 
                            (* w (/ (fstream-desc-tmax stream) max-t)) 
                            (- stream-h 4) 
-                           :color (om-make-color-alpha (om-def-color :dark-blue) 0.6) :fill t))
+                           :color (om-make-color-alpha (om-def-color :dark-blue) 0.5) :fill t))
            (om-with-fg-color (om-def-color :white) 
-             (om-draw-string 2 (+ ypos 12) 
+             (om-draw-string (+ x 4) (+ ypos 12) 
                              (format nil "~D:~A ~A" (fstream-desc-id stream) (fstream-desc-fsig stream)
                                      (mapcar 'mstream-desc-msig (fstream-desc-matrices stream))))))
      )))
