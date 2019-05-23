@@ -658,7 +658,9 @@
   (:default-initargs :border nil))
 
 (defmethod default-size ((self OMSlotsBox))
-  (om-make-point 80 28))
+  (minimum-size self))
+
+(defmethod v-resizable ((self OMSlotsBox)) nil)
 
 (defmethod get-box-help ((self OMSlotsBox)) (format nil "Get/set values for the slots of a ~A" (string-upcase (reference self))))
 
@@ -668,11 +670,12 @@
 
 (defmethod make-slots-boxcall ((reference standard-class) pos)
   (let* ((box (make-instance 'OMSlotsBox
-                            :name (string+ (string-downcase (class-name reference)) " slots")
+                            :name (string+ (string-upcase (class-name reference)) " SLOTS")
                             :reference (class-name reference)
                             :icon-pos :left
-                            :text-font (om-def-font :font1 :style '(:italic))
-                            :text-align :right))
+                            ;:text-font (om-def-font :font1 :style '(:italic))
+                            :color (om-make-color 0.9 0.88 0.81)
+                            :text-align :left))
          (size (default-size box)))
     (setf (box-x box) (om-point-x pos)
           (box-y box) (om-point-y pos)
