@@ -51,9 +51,9 @@
                    )))
     (if ref
         (make-pathname
-     :host (pathname-host ref) :device (pathname-device ref) 
-     :directory (append (pathname-directory ref) dirs)
-     :name file))))
+         :host (pathname-host ref) :device (pathname-device ref) 
+         :directory (append (pathname-directory ref) dirs)
+         :name file))))
 
 
 ;;; Check if a folder exist and create it if it does not
@@ -144,9 +144,10 @@
        (setq *relative-path-reference* current-relative-path)
        rep)))
 
-;(let ((*relative-path-reference* "/Users/bresson/WORKSPACES/mk-examples.omp"))
-;  (restore-path "../../../../../../test/ist/ooo.omp"))
-
+#|
+ (let ((relative-path-reference "/Users/bresson/WORKSPACES/mk-examples.omp"))
+  (restore-path "../test/ist/ooo.omp" relative-path-reference))
+|#
 
 ;;; seems like 'merge-pathnames' does pretty much the same job
 (defmethod restore-path ((self pathname) refpath)
@@ -174,6 +175,8 @@
   (restore-path (pathname self) refpath))
 
 (defmethod restore-path ((self t) refpath) nil)
+
+
 
 ;;;=========================
 ;;; EXTERNAL EXECs
