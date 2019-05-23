@@ -58,9 +58,41 @@
 (defmethod put-patch-boxes-in-editor-view ((self OMPatch) (view t)) nil)
  
 
+(defmethod set-default-size-in-editor (box view)
+  
+  (let ((def-size (default-size box)))
+    
+    (unless (box-w box) 
+      (setf (box-w box) (if (scale-in-x-? box) (omng-w view (om-point-x def-size)) (om-point-x def-size))))
+    
+    (unless (box-h box) 
+      (setf (box-h box) (if (scale-in-y-? box) (omng-h view (om-point-y def-size)) (om-point-y def-size))))
+
+    ))
+
+
+;;; called when one box is added by a user action
+(defmethod add-box-in-patch-editor ((box OMBox) (view patch-editor-view))
+  
+  (store-current-state-for-undo (editor view))
+  
+  (when (omNG-add-element (editor view) box)
+    
+    (set-default-size-in-editor box view)
+    
+    (let ((frame (make-frame-from-callobj box)))
+      (omg-add-element view frame)
+      (select-box box t)
+      frame)
+ 
+    ))
+
+
+;;; called by the patch window initialization
 (defmethod put-patch-boxes-in-editor-view ((self OMPatch) (view patch-editor-view)) 
   (mapc 
    #'(lambda (box) 
+       (set-default-size-in-editor box view)
        (omg-add-element view (make-frame-from-callobj box)))
    (boxes self))
   (mapc
@@ -1161,27 +1193,11 @@
            self))))
     ))
                 
-(defmethod get-default-size-in-editor ((self OMBox) (editor patch-editor))
-  (default-size self))
-
-(defmethod add-box-in-patch-editor ((box OMBox) (view patch-editor-view))
-  (store-current-state-for-undo (editor view))
-  (when (omNG-add-element (editor view) box)
-    (let ((def-size (get-default-size-in-editor box (editor view))))
-      (unless (box-w box) 
-        (setf (box-w box) (if (scale-in-x-? box) (omng-w view (om-point-x def-size)) (om-point-x def-size))))
-      (unless (box-h box) 
-        (setf (box-h box) (if (scale-in-y-? box) (omng-h view (om-point-y def-size)) (om-point-y def-size))))
-      (let ((frame (make-frame-from-callobj box)))
-        (omg-add-element view frame)
-        (select-box box t)
-        frame))))
 
 
-
-;;;======================================;;;======================================
+;;;============================================================================
 ;;; SIDE PANEL
-;;;======================================;;;======================================
+;;;============================================================================
 
 ;;;======================================
 ;;; LISP CODE

@@ -262,7 +262,8 @@
        (om-string-size (name self) (box-draw-font self))  
      (declare (ignore w))
      (if (equal (icon-pos self) :left)
-         (om-make-point 500 (max (+ (get-icon-size self) 8) (+ h 18)))
+         (om-make-point 500 
+                        (max (+ (get-icon-size self) 8) (+ h 16)))
        (om-make-point 500 200))))
       
 (defmethod get-icon-size ((self OMBox)) 20)

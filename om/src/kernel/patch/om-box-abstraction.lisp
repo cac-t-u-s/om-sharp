@@ -76,11 +76,12 @@
 (defmethod omNG-make-new-boxcall ((reference OMProgrammingObject) pos &optional init-args)
   (let* ((box (make-instance (get-box-class reference)
                             :name (if init-args (format nil "~A" (car init-args)) (name reference))
-                            :reference reference)))
+                            :reference reference))
+         (size (stret (minimum-size box)))
     (setf (box-x box) (om-point-x pos)
           (box-y box) (om-point-y pos)
-          ;(box-w box) (om-point-x (minimum-size box))
-          ;(box-h box) 50
+          ;(box-w box) (om-point-x size)
+          ;(box-h box) (om-point-y size)
           )
     (push box (references-to reference))
     box))
@@ -200,7 +201,7 @@
                        (max (+ 28 tw)
                             (* (length (inputs self)) 10)
                             (* (box-n-outs self) 10))))
-                    (round (max th (if (is-persistant (reference self)) 36 28))))))
+                   (round (max th (if (is-persistant (reference self)) 36 28))))))
 
 (defmethod maximum-size ((self OMBoxAbstraction)) (omp 200 200))
 
