@@ -99,6 +99,7 @@
 
 ;;; CLONE A SOUND
 (defmethod clone-object ((self om-internal-sound) &optional clone)
+ 
   (let ((snd (call-next-method)))
     
     (when (buffer self)
@@ -125,7 +126,7 @@
  
 
 (defclass* sound (om-internal-sound data-stream named-object)
-  ((markers :initform nil :documentation "a list of markers (s)")  ;; :accessor markers ;; => accessor is redefined below
+  ((markers :initform nil :documentation "a list of markers (ms)")  ;; :accessor markers ;; => accessor is redefined below
    (file-pathname  :initform nil :documentation "a pathname")      ;; :accessor file-pathname ;; => accessor is redefined below
    (gain :accessor gain :initform 1.0 :documentation "gain controller [0.0-1.0]")
    (access-from-file :accessor access-from-file :initform nil :documentation "read from file or allocate buffer"))
@@ -138,7 +139,7 @@ If it is unlocked and unconnected, evaluating the box will open a file chooser d
 
 The other inputs/outputs :
 - <gain> = a gain applied to the audio buffer for playback. If a list is supplied, it will be considered as a set of gains to apply to the different channels of the sound.
-- <markers> = a list of markers (time in seconds). The markers can also be added/moved/removed from the sound editor.
+- <markers> = a list of markers (time in milliseconds). The markers can also be added/moved/removed from the sound editor.
 - <access-from-file> = if this parameter is non-NIL, then this sound will work without an internal audio buffer,that is, referring to a file on disk.
 Press 'space' to play/stop the sound file.
 "))
@@ -286,6 +287,12 @@ Press 'space' to play/stop the sound file.
         ))
 
 (defmethod (setf markers) (markers (self sound))
+
+  ;;; markers used to be in seconds in OM6... :-s
+  (when (find-if #'floatp markers)
+    (om-print "Warning: float-formatted markers will be converted to milliseconds" "SOUND-BOX")
+    (setf markers (sec->ms markers)))
+
   (data-stream-set-frames 
    self
    (loop for m in markers collect
@@ -652,10 +659,10 @@ Press 'space' to play/stop the sound file.
   :initvals '(nil)
   :indoc '("a sound object or file pathname")
   :doc "Returns the duration of <sound> in seconds."
-   (if (and (n-samples sound) (sample-rate sound)
-            (> (sample-rate sound) 0))
-       (float (/ (n-samples sound) (sample-rate sound)))
-     0))
+  (if (and (n-samples sound) (sample-rate sound)
+           (> (sample-rate sound) 0))
+      (float (/ (n-samples sound) (sample-rate sound)))
+    0))
 
 (defmethod* sound-dur ((sound pathname))
   (sound-dur (namestring sound)))
