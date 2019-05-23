@@ -86,9 +86,11 @@
 
 (defmethod default-editor-x-range ((self play-editor-mixin))
   (let ((play-obj (get-obj-to-play self))) 
-    (if play-obj
-        (list 0 (+ (get-obj-dur play-obj) (default-editor-min-x-range self)))
-      (list (vmin self) (or (vmax self) (default-editor-min-x-range self))))))
+    (list 0 
+          (+ (or (get-obj-dur play-obj) 0) (default-editor-min-x-range self)))))
+
+;;; (list (vmin self) (or (vmax self) (default-editor-min-x-range self)))
+
 
 (defmethod reinit-x-ranges ((self play-editor-mixin))
   (let ((def-range (default-editor-x-range self)))
