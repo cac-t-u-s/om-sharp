@@ -610,7 +610,7 @@
                          tied-to-ms
                          (time-function #'identity)
                          build-b-boxes)
-
+  
   (om-with-translation x y 
 
     (let* ((head-symb (if (consp head) (car head) head))
@@ -623,7 +623,7 @@
     
     (multiple-value-bind (head-char head-name)
         (note-head-char head-symb)
-    
+
       (let* ((x-pix (funcall time-function x-ms))
              (notes (inside chord))
              (unit (font-size-to-unit fontsize))
@@ -644,11 +644,10 @@
              (unique-channel (and (not (equal draw-chans :hidden)) (all-equal (mapcar 'chan notes)) (chan (car notes))))
              (unique-vel (and draw-vels (all-equal (mapcar 'vel notes)) (vel (car notes))))
              (unique-port (and draw-ports (all-equal (mapcar 'port notes)) (or (port (car notes)) :default))))
-   
-          
+           
         (om-with-font 
          (om-make-font *score-font* fontsize)
-    
+                 
          ;;; in case of a unique channel we set the color right here
          (om-with-fg-color (if (equal selection t)
                                
@@ -675,7 +674,8 @@
                ;;; determine direction (default is :up)
                (setq stem-direction (if (numberp stem) ;;; in a group: stem is already decided
                                         (if (> stem l-min) :up :down)  ;;; stem is higher than the min note of the chord: :down
-                                      (stem-direction chord staff)))
+                                      (stem-direction chord staff)
+                                      ))
                      
                (let ((stem-size (* unit *stem-height*))
                      (stemThickness (* *stemThickness* unit))
@@ -685,7 +685,7 @@
                      (stemDownNW-y (* unit (cadr *noteheadBlack_StemDownNW*)))
                      (n-beams (car beams))
                      (pos-in-group (cadr beams)))
-               
+                 
                  (if (numberp stem) ;;; we are in a group and the max position is fixed (stem, in line-number)
                      
                      (let ((stem-pos (line-to-ypos stem shift unit)))
@@ -759,13 +759,12 @@
                    )
                  ))
                
-             
              ;;; GLOBAL CHANNEL
              (when (and (member draw-chans '(:number :color-and-number)) 
                         unique-channel) ;;; if there's just one channel in the chord we'll display it here
                (om-draw-string (+ x-pix (* head-w-pix 2)) (+ y-min (* unit .5)) (format nil "~D" unique-channel) 
                                :font (om-def-font :font1 :size (round fontsize 2))))
-                   
+             
              ;;; GLOBAL MIDI PORT
              (when (and draw-ports unique-port) ;;; if there's just one port in the chord we'll display it here
                (if (member draw-chans '(:number :color-and-number))
@@ -784,6 +783,8 @@
                  (:symbol 
                   (om-draw-char x-pix (+ y-min (* unit 4)) (velocity-char unique-vel)))
                  ))
+
+
                    
              (when draw-durs
                (let ((dur-w (funcall time-function dur-max)))
@@ -810,7 +811,9 @@
                                    (+ y-min (* unit 2)) (number-to-string head-extra-number)
                                    :font font)
                    ))
-
+               
+            
+               
                (loop for n in (sort notes '< :key 'midic) do
                  
                      (let* ((line (pitch-to-line (midic n) scale))
