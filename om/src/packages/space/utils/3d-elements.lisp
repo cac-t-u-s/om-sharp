@@ -23,11 +23,25 @@
   ((pos :accessor pos :initarg :pos :initform nil)
    (size :accessor size :initarg :size :initform 1)))
 
+
 (defun make-bg-speakers (speakers)
-  (mapcar #'(lambda (spk)
-              (make-instance 'speaker :pos (make-3dpoint :x (car spk) :y (cadr spk) :z (or (caddr spk) 0))
-                             :size .08))
-          speakers))
+  
+  (let* ((max-xy-extent (loop for spk in speakers
+                           minimize (car spk) into minx
+                           maximize (car spk) into maxx
+                           minimize (cadr spk) into miny
+                           maximize (cadr spk) into maxy
+                           minimize (caddr spk) into minz
+                           maximize (caddr spk) into maxz
+                           finally return (max (abs (- maxx minx)) 
+                                               (abs (- maxy miny)) 
+                                               (abs (- minz maxz)))))
+         (speaker-size (* .005 max-xy-extent)))
+    
+    (loop for spk in speakers collect
+                (make-instance 'speaker :pos (make-3dpoint :x (car spk) :y (cadr spk) :z (or (caddr spk) 0))
+                               :size speaker-size))
+    ))
 
 (defmethod draw-background-element ((self speaker) (view bpf-bpc-panel) editor &optional x1 y1 x2 y2)
   (om-draw-rect (x-to-pix view (- (editor-point-x editor (pos self)) (* (size self) .5)))
