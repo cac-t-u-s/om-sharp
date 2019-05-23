@@ -140,12 +140,30 @@ The resulting function can be connected for example to SAMPLEFUN."
                   and do (setf x-index (+ x-min (* (incf s-index) step)))
                   else do (setf x xx xx (pop list-x) y yy yy (pop list-y)))))
        
-      (if (> (+ x-min (* step nbsamples)) x-max) 
+      (if (> (+ x-min (* step (1- nbsamples))) x-max)
           ;; this can happend because of floatig-point errors
           ;; (< (length series) nbsamples)  ;; equivalent
           (append series (list last-point))
         series)
       )))
+
+
+;;; in om-sample for BPF
+;;; it could be smart to put this directly into arithm-ser
+(defun sample-interval (x1 x2 nb-samples)
+  
+  (if (= x1 x2) 
+      (make-list nb-samples :initial-element x1)
+    
+    (let* ((inter (/ (- x2 x1) (1- nb-samples)))
+           (series (loop for i from x1 to x2 by inter collect i)))
+      (if (> (+ x1 (* inter (1- nb-samples))) x2) 
+          ;; the loop has stopped before reaching x2
+          ;; this can happend because of floatig-point errors
+          ;; (< (length series) nb-samples)  ;; equivalent
+          (append series (list x2))
+        series))
+  ))
 
 
 

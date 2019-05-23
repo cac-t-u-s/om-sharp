@@ -96,20 +96,6 @@ If <color> is :random, will choose a random color. It can also be a color symbol
 ;;; OM-SAMPLE FOR BPF
 ;;;=========================================== 
 
-;;; could be smart to put this directly into arithm-ser
-(defun sample-interval (x1 x2 nb-samples)
-  (if (= x1 x2) 
-      (make-list nb-samples :initial-element x1)
-    
-    (let* ((inter (/ (- x2 x1) (- nb-samples 1)))
-         (series (loop for i from x1 to x2 by inter collect i)))
-      (if (> (+ x1 (* inter nb-samples)) x2) 
-          ;; this can happend because of floatig-point errors
-          ;; (< (length series) nb-samples)  ;; equivalent
-          (append series (list x2))
-        series))
-  ))
-      
 
 (defmethod* om-sample ((self bpf) (nbs-sr number) &optional xmin xmax dec)
     :numouts 3
