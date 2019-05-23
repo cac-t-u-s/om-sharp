@@ -87,7 +87,7 @@
       (om-make-menu-item "Shell" 'show-shell)
       ))
     (om-make-menu-comp 
-     #'(lambda (w) 
+     #'(lambda (win) 
          (mapcar #'(lambda (w) 
                      (om-make-menu-item (om-window-title w)
                                         #'(lambda () (om-select-window w))
@@ -144,7 +144,35 @@
        #'(lambda() (om-open-in-browser "https://openmusic-project.github.io/")) 
        :enabled t)
       ))
-    
+
+    (om-make-menu-comp  
+     #'(lambda (win) 
+         (list 
+          (om-make-menu
+           "Help patches..." 
+           (append 
+            (loop for help-patch in (get-base-help-patches) 
+                  collect  
+                  (om-make-menu-item 
+                   (pathname-name help-patch) 
+                   #'(lambda () (open-help-patch help-patch))))
+            (list 
+             (om-make-menu-comp 
+              #'(lambda (win) 
+                  (cons 
+                   (om-make-menu-item "Libraries:" nil :enabled nil)
+                   (loop for lib in (all-om-libraries) 
+                         when (get-lib-help-patches lib)
+                         collect (om-make-menu 
+                                  lib
+                                  (loop for help-patch in (get-lib-help-patches lib) 
+                                        collect  
+                                        (om-make-menu-item 
+                                         (pathname-name help-patch) 
+                                         (open-help-patch help-patch)))
+                                  ))
+                   ))))
+            )))))
     ))
 
 

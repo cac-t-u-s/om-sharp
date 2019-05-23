@@ -44,6 +44,7 @@
         "tools/om-strings"
         "tools/om-traduction"
         "tools/om-documentation"
+        "tools/om-help"
 
         "language/om-objects" 
         "language/om-metaclasses"   
