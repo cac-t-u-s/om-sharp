@@ -68,7 +68,7 @@ As output it returns the contents of the text buffer as a list formatted accordi
       ("plain text" :text)))))
 
 (defmethod object-default-edition-params ((self textbuffer))
-  '((:output-mode :text)))
+  '((:output-mode :lines-cols)))
 
 
 ;;;===================================
