@@ -161,7 +161,8 @@
 
 (defmethod enable-multi-display ((self t) obj-list) nil)
 (defmethod enable-multi-display ((self multi-display-editor-mixin) obj-list) 
-  (setf (multi-display-p self) t (multi-obj-list self) obj-list))
+  (setf (multi-display-p self) t 
+        (multi-obj-list self) obj-list))
 
 (defmethod disable-multi-display ((self t)) nil)
 (defmethod disable-multi-display ((self multi-display-editor-mixin))
