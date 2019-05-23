@@ -803,10 +803,9 @@
                 (otherwise (om-beep-msg "unknown box type: ~A" type))))) ;;; DO SOMETHING FOR UNKNOWN BOX ID (kind of 'dead boxes')
     
     (when box
-    
+      
       (load-box-attributes box data)
-      
-      
+
       (when name (set-name box name))
       (when inputs (restore-inputs box inputs))
       (when outputs (restore-outputs box outputs))

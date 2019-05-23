@@ -60,7 +60,7 @@
                     (create-info object) (list (om-get-date) (om-get-date))
                     (window-size object) (eval (nth 4 metadata))
                     (saved? object) nil)
-            
+              
               (register-document object)
             
               object)
@@ -72,33 +72,33 @@
     ))
 
 
-
 ;============================================================================
 ; CONVERT ALL OM6 FUNCTIONS TO OM7 CALLS...
 ;============================================================================
 
-;============================================================================
+;======================================
 ; REQUIRED LIBS
-;============================================================================
+;======================================
 ;;; called to lod libs prior to the patch
 (defun load-lib-for (list)
   (loop for libname in list do (require-library libname)))
 
 
-;============================================================================
+;======================================
 ; PATCH (MAIN SECTION)
-;============================================================================
+;======================================
 ;;; main patch file
 (defun om-load-patch1 (name boxes connections &rest ignore)
   
   (declare (ignore ignore))
   
   ;(let ((patch (make-instance 'OMPatchFile :name name)))
- ;   (loop for box-code in boxes do
- ;         (let ((box (eval box-code)))
- ;           (when box (omng-add-element patch box))))
- ;   patch)
+  ; (loop for box-code in boxes do
+  ;   (let ((box (eval box-code)))
+  ;     (when box (omng-add-element patch box))))
+  ;  patch)
    
+  ;;; only top-level patch acually load their contents:
   (omng-load
    `(:patch
      (:boxes .,(loop for box-code in boxes collect (eval box-code)))
@@ -108,24 +108,61 @@
   )
     
 
-
 ;;; internal sub-patch
 (defun om-load-patch-abs1 (name boxes connections &rest ignore)
   (declare (ignore ignore))
   
-  (let ((patch (make-instance 'OMPatchInternal :name name)))
+  ;(let ((patch (make-instance 'OMPatchInternal :name name)))
+  ;  (loop for box-code in boxes do
+  ;        (let ((box (eval box-code)))
+  ;          (when box 
+  ;            (omng-add-element patch box))))      
+  ;  patch)
+  `(:patch
+    (:name ,name) 
+    (:boxes .,(loop for box-code in boxes collect (eval box-code)))
+    (:connections .,(loop for c in connections collect (format-imported-connection c)))
+    )
+  )
+
+
+;;; This was used to save OMLoops
+;;; In om7 OMloop is just an normal patch
+(defmethod om-load-boxwithed1 ((class t) name reference inputs position size value lock boxes conec numouts) 
+  (declare (ignore numouts))
+  (let ((patch (om-load-patch-abs1 name boxes conec)))
+    (om-load-boxcall 'abstraction name reference inputs position size patch lock)))
+
+
+;======================================
+; PATCH BOX
+;======================================
+(defmethod om-load-boxcall ((self (eql 'abstraction)) name reference inputs position size value lock &rest rest)
+
+  (declare (ignore name value rest))
   
-    (loop for box-code in boxes do
-          (let ((box (eval box-code)))
-            (when box 
-              (omng-add-element patch box))))
-          
-    patch))
+  `(:box 
+    (:type :patch)
+    (:reference ,reference)   ;; contains the actual patch
+    (:name ,name)
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:w ,(and size (om-point-x size)))
+    (:h ,(if size (om-point-y size) 48))
+    (:lock ,(if lock (cond ((string-equal lock "x") :locked) 
+                           ((string-equal lock "&") :eval-once))))
+    (:lambda ,(if lock (cond ((string-equal lock "l") :lambda) 
+                             ((string-equal lock "o") :reference))))
+    (:inputs .,inputs)
+    (:display :mini-view)
+    )
+  )
 
 
-;============================================================================
-; BOXES
-;============================================================================
+
+;======================================
+; BOXES (GENERAL)
+;======================================
 ;;; a box input
 (defun om-load-inputfun (class doc name value) 
   `(:input (:type :standard) (:name ,name) (:value ,(omng-save value))))
@@ -137,7 +174,6 @@
 ;;; a box input with menu for different values
 (defun om-load-inputfunmenu1 (class doc name value items) 
   `(:input (:type :standard) (:name ,name) (:value ,(omng-save value))))
-
 
 
 ;;; handle dispatch to 'lispfun or handle unknown box 
@@ -168,7 +204,10 @@
       name))
   
 
-;;; Function boxes
+;======================================
+; FUNCTION BOXES
+;======================================
+
 (defmethod om-load-boxcall ((self (eql 'lispfun)) name reference inputs position size value lock &rest rest) 
   
   (let ((inputs (loop for formatted-in in (mapcar #'eval inputs) collect
@@ -214,7 +253,13 @@
           ))
   box-data)
 
-;;; Object boxes
+
+(defmethod update-reference ((self t)) nil)
+
+;======================================
+; OBJECT BOXES
+;======================================
+
 (defun om-load-editor-box1 (name reference inputs position size value lock &optional fname editparams spict meditor pictlist show-name)
   
   (let ((inputs (loop for formatted-in in (mapcar #'eval inputs) collect
@@ -229,7 +274,12 @@
                                `(:input (:type :key) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
                               (t formatted-in))
                         ))))
-                        
+    
+    ;;; when a class has changed into something else...
+    (when (update-reference reference) 
+      (setf reference (update-reference reference))
+      (setf value (update-value value)))
+    
     `(:box
        (:type :object)
        (:reference ,reference)
@@ -247,8 +297,33 @@
        )
     ))
     
+;======================================
+; 'SLOTS' BOXES
+;======================================
 
-;;; Value boxes
+(defmethod om-load-boxcall ((self (eql 'slot)) name reference inputs position size value lock &rest rest)
+  
+  (declare (ignore value rest))
+  
+  `(:box 
+    (:type :slots)
+    (:reference ,reference) 
+    (:name ,(concatenate 'string (string-upcase reference) " SLOTS"))
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:w ,(and size (om-point-x size)))
+    (:h ,(and size (om-point-y size)))
+    (:lock ,(if lock (cond ((string-equal lock "x") :locked)
+                           ((string-equal lock "&") :eval-once))))
+    (:inputs .,inputs))
+  )
+
+
+
+;======================================
+; SIMPLE VALUE BOXES
+;======================================
+
 (defmethod om-load-boxcall ((self (eql 'bastype)) name reference inputs position size value lock &rest rest)
   `(:box 
      (:type :value)
@@ -262,17 +337,63 @@
   )
 
 
-;;; This was used to save OMLoops
-;;; In om7 OMloop is just an normal patch
-(defmethod om-load-boxwithed1 ((class t) name reference inputs position size value lock boxes conec numouts) 
-  (declare (ignore numouts))
-  (let ((patch (om-load-patch-abs1 name boxes conec)))
-    (om-load-boxcall 'abstraction name reference inputs position size patch lock)))
+;======================================
+; INSTANCE BOXES
+;======================================
 
+(defclass ominstance () 
+  ((instance :accessor instance :initform nil)
+   (edition-params :accessor edition-params :initform nil)
+   (create-info :accessor create-info :initform nil)
+   (doc :accessor doc :initform nil)))
+
+(defclass omlistinstance (ominstance) ())
+
+(defun om-load-boxinstance (name instance inputs position &optional fname size) 
+  
+  (declare (ignore inputs fname size))
+  
+  (let* ((value (instance instance))
+         (type (type-of value)))
+    
+    (cond ((listp value)
+           ;;; lists => simple value boxes
+           `(:box 
+             (:type :value)
+             (:reference list) 
+             (:value ,(omng-save value))
+             (:name ,name)
+             (:lock :locked)
+             (:x ,(om-point-x position))
+             (:y ,(om-point-y position))
+             (:w ,(om-point-x size))
+             (:h ,(om-point-y size)))
+           )
+           
+          (t ;;; other sort of objects => object box
+             (when (update-reference type) 
+               (setf type (update-reference type))
+               (setf value (update-value value)))
+             
+             `(:box
+               (:type :object)
+               (:reference ,type)
+               (:name ,name)
+               (:value ,value)
+               (:x ,(om-point-x position))
+               (:y ,(om-point-y position))
+               (:lock :locked)
+               (:showname t)
+               (:display :mini-view :hidden)
+               )
+             ))
+    )
+  )
 
 ;============================================================================
 ; CONNECTIONS
 ;============================================================================
+
 (defun n-to-color (n)
   (case n 
     (1 (om-def-color :blue))
@@ -328,11 +449,14 @@
   )
 
 ;============================================================================
-; OTHER
+; OTHER BOXES
 ;============================================================================
 
 ;;; IN BOX
 (defun om-load-boxin (name indice position docu &optional fname val fsize) 
+  
+  (declare (ignore fname fsize))
+
   `(:box
     (:type :io)
     (:reference (:in (:type omin) (:index ,indice) (:name ,name) (:doc ,docu)))
@@ -345,6 +469,9 @@
 
 ;;; OUT BOX
 (defun om-load-boxout (name indice position inputs &optional fname fsize) 
+
+  (declare (ignore name fsize))
+
   `(:box
     (:type :io)
     (:reference (:out (:type omout) (:name ,fname) (:index ,indice)))
@@ -357,66 +484,89 @@
 
 ;;; REPEAT-N BOX
 (defmethod om-load-boxcall ((class t) name (reference (eql 'repeat-n)) inputs position size value lock &rest rest)
+  
+  (declare (ignore class name size value rest))
+
+  (when (string-equal lock "l")
+    (om-print 
+     "REPEAT-N boxes can not be use in 'lambda' mode. In order to restore the patch, encapsulate it in a lambda-patch !"  
+     "Compatibility"))
+  
   `(:box 
     (:type :special)
-    (:reference ,reference)
+    (:reference repeat-n)
     (:x ,(om-point-x position))
     (:y ,(om-point-y position))
     (:inputs .,(mapcar #'eval inputs))
+    (:lock ,(when lock (cond ((string-equal lock "x") :locked)
+                             ((string-equal lock "&") :eval-once))))
     ))
 
 
-;============================================================================
-; TODO !!!
-;============================================================================
+;;; SEQUENCE BOX
+(defmethod om-load-seqbox (name reference inputs position sizeload value lock numouts) 
 
-(defmethod om-load-seqbox (name reference inputs position sizeload value lock numouts) )
+  (declare (ignore name reference value numouts))
 
-(defun om-load-boxinstance (name instance inputs position &optional fname size) )
-(defun om-load-ominstance1 (class name icon instance edparams &optional pictlist doc &rest rest) )
+  `(:box 
+    (:type :special)
+    (:reference sequence)
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:w ,(om-point-x sizeload))
+    (:inputs .,(cons (eval (car inputs))
+                     (mapcar #'(lambda (i) '(:input (:type :optional) (:name "op+"))) (cdr inputs))))
+    (:lock ,(when lock (cond ((string-equal lock "x") :locked)
+                             ((string-equal lock "&") :eval-once))))
+    )
+  )
 
-(defun om-load-boxtypein (name type indice position docu keys defval &optional fname fsize) )
-(defun om-load-initin  (name type indice posi self? class &optional fsize) )
-
-(defmethod om-load-boxcall ((self (eql 'abstraction)) name reference inputs position size value lock &rest rest) )
-(defmethod om-load-boxcall ((self (eql 'maqabs)) name reference inputs position size value lock &rest rest) )
-(defmethod om-load-boxcall ((self (eql 'editor)) name reference inputs position size value lock &rest rest) )
-(defmethod om-load-boxcall ((self (eql 'slot)) name reference inputs position size value lock &rest rest) )
-(defmethod om-load-boxcall ((self (eql 'comment)) name reference inputs position size value lock &rest rest) )
-(defmethod om-load-boxcall ((self (eql 'mk-ins)) name reference inputs position size value lock &rest rest) )
+;;; these are useless and should just disappear
 (defmethod om-load-boxcall ((self (eql 'undefined)) name reference inputs position size value lock &rest trest) nil)
+
+;======================================
+; old forms not supported: 
+;======================================
+; old-old: not exported by OM6
+;(defun om-load-ominstance1 (class name icon instance edparams &optional pictlist doc &rest rest) )
+;(defmethod om-load-boxcall ((self (eql 'editor)) name reference inputs position size value lock &rest rest) )
+;(defmethod om-load-boxcall ((self (eql 'slot)) name reference inputs position size value lock &rest rest) )
+;(defmethod om-load-boxcall ((self (eql 'comment)) name reference inputs position size value lock &rest rest) )
+;(defmethod om-load-boxcall ((self (eql 'mk-ins)) name reference inputs position size value lock &rest rest) )
+
+; No Visual OOP in OM7
+;(defun om-load-boxtypein (name type indice position docu keys defval &optional fname fsize) )
+;(defun om-load-initin  (name type indice posi self? class &optional fsize) )
+
 
 ;============================================================================
 ; MAQUETTE
 ;============================================================================
-
+#|
+(defmethod om-load-boxcall ((self (eql 'maqabs)) name reference inputs position size value lock &rest rest) )
 (defun om-load-maq1 (name boxes connections range markers &rest ignore) )
 (defun om-load-maq2 (name boxes connections range markers &rest ignore) )
-
 (defun om-load-maq-abs1 (name boxes connections range markers) )
-
 (defun om-load-maq-boxin (name indice position docu &optional fname val fsize) )
 (defun om-load-maq-boxout (name indice position inputs &optional fname fsize) )
-(defun om-load-boxmaqselfin (name  position  &optional fsize) )
-
-(defun om-load-temp-patch (name boxes connections &optional (version nil)) )
-(defun om-load-temp-patch1 (name boxes connections &optional (version nil) pictlist) )
-
+(defun om-load-boxmaqselfin (name position  &optional fsize) )
+(defun om-load-temp-patch (name boxes connections &optional version) )
+(defun om-load-temp-patch1 (name boxes connections &optional version pictlist) )
 (defun om-load-tempobj1 (name inputs refer numouts posx sizex clorf value ignorepict) )
-
-(defun om-load-boxselfin (name  position  &optional fsize) )
+(defun om-load-boxselfin (name position  &optional fsize) )
 (defun om-load-tempboxout (name position inputs &optional fname fsize) )
+|#
 
 ;============================================================================
 ; LISP-PATCH
 ;============================================================================
-
+#|
 (defun om-load-lisp-patch (name version expression) )
 (defun om-load-lisp-abspatch (name version expression) )
-
+|#
 
 ;============================================================================
-; DATA
+; DATA: specific conversions for object types
 ;============================================================================
 
 (defun load-obj-list-from-save (list)
@@ -453,10 +603,38 @@
 ;;; BPF
 (defun simple-bpf-from-list (x-points y-points &optional (class 'bpf) (decimals 0))
   (make-instance class :x-points x-points :y-points y-points :decimals decimals))
- 
+
+
+;;;============================================================================
+;;; FROM EXTERNAL RESOURCES
+;;;============================================================================
+
+;;; If the resource is not found we give a try in the in-file folder
+(defun search-for-resource (pathname)
+  (let ((in-file-folder (get-pref-value :files :in-file)))
+    (or (probe-file (om-make-pathname 
+                     :name (pathname-name pathname)
+                     :type (pathname-type pathname)
+                     :directory in-file-folder))
+        pathname)))
+
+;;; SDIFFILE
+(defmethod load-sdif-file ((path pathname))
+  (let ((sdiff (make-instance 'SDIFFILE))
+        (filepath (or (file-exist-p path)
+                      (search-for-resource path))))
+    (setf (file-pathname sdiff) filepath)
+    (om-init-instance sdiff)))
+
+;;; SOUND
+(defun load-sound (path &optional track vol pan)
+  (let ((filepath (or (file-exist-p path)
+                      (search-for-resource path))))
+    (get-sound filepath)))
+
 
 ;============================================================================
-; CHANGED INPUT NAMES
+; CHANGED ARG NAMES
 ;============================================================================
 (defmethod changed-arg-names ((reference (eql 'om-sample)))
   '(("sample-rate" "nbs-sr")))
@@ -469,50 +647,69 @@
 ;============================================================================
 (defmethod changed-name ((reference (eql 'list-elements))) 'split)
 
+;============================================================================
+; CHANGED CLASSES
+;============================================================================
+
+;;; xxx-LIBs
+(defmethod update-reference ((ref (eql 'bpf-lib))) 'collection)
+(defmethod update-reference ((ref (eql 'bpc-lib))) 'collection)
+(defmethod update-reference ((ref (eql '3dc-lib))) 'collection)
+
+(defclass bpf-lib () ((bpf-list :accessor bpf-list :initarg :bpf-list :initform nil)))
+(defclass bpc-lib (bpf-lib) ())
+(defclass 3DC-lib (bpc-lib) ())
+
+(defmethod update-value ((self bpf-lib))
+  (make-instance 'collection :obj-list (bpf-list self)))
+
+
 
 #|
-;;;=========================================
-;;; TESTS
-;;;=========================================
 
 ;;; Main boxes
 x VALUE BOX
-X FUNCTION BOX
-X EDITOR BOX
-X COMMENTS
+x FUNCTION BOX
+x EDITOR BOX
+x COMMENTS
 
 ;;; Inputs/Connections
-X INPUT VALUES
-X KEYWORD INPUTS incl. stored value (ex. sort-list)
-X INPUTS WITH MENUINS eg. band-filter
-X OPTIONAL INPUTS 
-X REST INPUTS ex. list
-X CHANGE OPTIONAL => KEY   ex. FILE-CHOOSER
-X OBJECT NEW KEYWORDS ex. BPF decimals
-X CONNECTIONS incl color
+x INPUT VALUES
+x KEYWORD INPUTS incl. stored value (ex. sort-list)
+x INPUTS WITH MENUINS eg. band-filter
+x OPTIONAL INPUTS 
+x REST INPUTS ex. list
+x CHANGE OPTIONAL => KEY   ex. FILE-CHOOSER
+x OBJECT NEW KEYWORDS ex. BPF decimals
+x CONNECTIONS incl color
 
 ;;; State
-X LOCK/EV-ONCE
-X LAMBDA
-X REF MODE
+x LOCK/EV-ONCE
+x LAMBDA
+x REF MODE
 
 ;;; Special boxes
-X REPEAT-N
-X LIST-ELEMENTS
+x SLOTS
+x REPEAT-N
+x LIST-ELEMENTS
+x SEQUENCE
+
+x INSTANCE BOXES
 
 ;;; Abstractions
-X IN/OUTS
+x IN/OUTS
+x INTERNAL PATCH
+GLOBAL PATCHES
 LISP-FUNCTIONS
-ABSTRACTION
-
+MAQUETTE
 OMLOOP
 
+x PATCH WITH LIB FUNCTIONS
+
+x SDIFFILE
+x SOUND  !!! markers seconds vs. milliseconds
+
 TEXTFILE
-
 CLASS-ARRAY
-
-PATCH WITH LIB FUNCTIONS
-
-MAQUETTE
 
 |#
