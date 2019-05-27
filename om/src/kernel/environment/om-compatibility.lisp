@@ -210,25 +210,26 @@
 
 (defmethod om-load-boxcall ((self (eql 'lispfun)) name reference inputs position size value lock &rest rest) 
 
-  (let ((inputs 
-         (when (fboundp reference)
-           (loop for formatted-in in (mapcar #'eval inputs) collect
-                 ;;; correct the type and eventually the name of box inputs
-                 (let ((name (check-arg-for-new-name 
+  (let ((new-inputs 
+         (loop for formatted-in in (mapcar #'eval inputs) collect
+               ;;; correct the type and eventually the name of box inputs
+               (let ((name (check-arg-for-new-name 
                               reference 
                               (find-value-in-kv-list (cdr formatted-in) :name))))
-                   (cond ((find name (mapcar #'symbol-name (function-main-args reference)) :test #'string-equal)
-                          `(:input (:type :standard) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
-                         ((find name (mapcar #'symbol-name (function-optional-args reference)) :test #'string-equal)
-                          `(:input (:type :optional) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
-                         ((find name (mapcar #'symbol-name (function-keyword-args reference)) :test #'string-equal)
-                          `(:input (:type :key) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
-                         ((and (find '&rest (function-arglist reference))
-                               (equal name (getf (function-arglist reference) '&rest)))
-                          `(:input (:type :optional) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
-                         (t (om-print-format "Unknown input for function '~A': ~A" (list reference name) "Compatibility")
-                            formatted-in))
-                   )))))
+                 (cond ((not (fboundp reference)) formatted-in)
+                       ((find name (mapcar #'symbol-name (function-main-args reference)) :test #'string-equal)
+                        `(:input (:type :standard) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
+                       ((find name (mapcar #'symbol-name (function-optional-args reference)) :test #'string-equal)
+                        `(:input (:type :optional) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
+                       ((find name (mapcar #'symbol-name (function-keyword-args reference)) :test #'string-equal)
+                        `(:input (:type :key) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
+                       ((and (find '&rest (function-arglist reference))
+                             (equal name (getf (function-arglist reference) '&rest)))
+                        `(:input (:type :optional) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
+                       (t (om-print-format "Unknown input for function '~A': ~A" (list reference name) "Compatibility")
+                          formatted-in))
+                 ))))
+
     `(:box 
       (:type :function)
       (:reference ,reference)
@@ -241,8 +242,8 @@
                              ((string-equal lock "&") :eval-once))))
       (:lambda ,(if lock (cond ((string-equal lock "l") :lambda) 
                                ((string-equal lock "o") :reference))))
-      (:inputs .,inputs)
-      )
+      (:inputs .,new-inputs)
+      )   
     ))
 
 
