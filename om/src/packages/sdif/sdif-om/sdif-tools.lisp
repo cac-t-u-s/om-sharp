@@ -79,7 +79,7 @@
   )
 
 
-(defmethod* fftdata->sdif ((fftdata list) &key timelist out-file)
+(defmethod fftdata->sdif ((fftdata list) &key timelist out-file)
 
   (let* ((out-path (or (and out-file (handle-new-file-exists out-file))
                        (om-choose-new-file-dialog)))
@@ -117,7 +117,7 @@
 ;;;==========================================================================
 
 (defmethod* sdif->bpf ((self sdiffile) &key (frametype "1FQ0") (matrixtype "1FQ0") (stream 0) (field 0) (tmin nil) (tmax nil))
-    :icon 608
+    :icon :sdif
     :indoc '("SDIF file" "frame type (string)" "matrix type (string)" "stream ID (int)" "field number" "min time (s)" "max time (s)")
     :initvals '(nil "1FQ0" "1FQ0" 0 0 nil nil)
     :doc "Reads SDIF data and formats results as a BPF.
@@ -133,7 +133,7 @@ Other type of data can be extracted by setting the <stream>, <frame>, <matrix> a
 
 
 (defmethod* bpf->sdif ((self bpf) ftype mtype &key (scope 'time) (typedefs nil) (out-file "mybpf.sdif"))
-  :icon 608
+  :icon :sdif
   :initvals '(nil "1FQ0" "1FQ0" 'time nil nil "mybpf.sdif")
   :indoc '("a BPF" "frame type (string)" "matrix type (string)" "x = time or elements" "custom types declaration" "output file")
   :menuins '((3 (("Time" time) ("Elements" elts))))
@@ -201,8 +201,8 @@ If <outfile> is just a filename (not a pathname) the file is written in the defa
 ;;;==========================================================================
 
 (defmethod* sdif->markers ((self sdiffile) &key (frame "1MRK") (matrix nil) (stream 0) (tmin nil) (tmax))
-    :icon 608
-        :indoc '("SDIF file" "frame type (string)" "matrix type (string)" "stream ID (int)" "min time (s)" "max time (s)")
+    :icon :sdif
+    :indoc '("SDIF file" "frame type (string)" "matrix type (string)" "stream ID (int)" "min time (s)" "max time (s)")
     :initvals '(nil "1MRK" nil 0 nil nil)
     :doc "Reads SDIF data and formats results as a list of time lmarkers (in s).
 
@@ -216,7 +216,7 @@ Other more specific type of data can be extracted by setting the <stream>, <fram
 
 
 (defmethod* markers->sdif ((self list) &key (ftype "1MRK") (typedefs nil) (out-file "markers.sdif"))
-  :icon 608
+  :icon :sdif
   :initvals '(nil "1MRK" nil "mybpf.sdif")
   :indoc '("onset list (s)" "SDIF frame type" "custom types declaration" "output file")
   :doc "Saves <self> (a list of onsets) as an SDIF file in <outfile>.

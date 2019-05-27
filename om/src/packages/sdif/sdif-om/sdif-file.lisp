@@ -260,6 +260,7 @@ Lock the box ('b') to keep the current file.
 Returns an advanced stream description with every FrameType-MatrixType pair in the file.
 "
    :indoc '("SDIF file")
+   :icon :sdif
    (let ((rep-list nil))
      (when print 
        (om-print-format "----------------------------------------------------------~%")
@@ -325,6 +326,7 @@ Returns an advanced stream description with every FrameType-MatrixType pair in t
             :indoc '("SDIF file" "SDIF type Signature" "Frame / Matrix")
             :initvals '(nil "1TYP" m)
             :menuins '((2 (("Matrix" m) ("Frame" f))))
+            :icon :sdif
             :doc "Returns a description of type <signature>.
 
 This function must be connected to an SDIF file (<self>) containing this data type.
@@ -400,10 +402,10 @@ Frame type description is a list of lists containing the internal matrix signatu
 
 
 (defmethod* GetNVTList ((self t))
-            
-            :indoc '("SDIF file")
-            :initvals '(nil)
-            :doc "Returns the list of Name/Value tables in <self> (SDIFFile object or path to an SDIF file).
+  :icon :sdif
+  :indoc '("SDIF file")
+  :initvals '(nil)
+  :doc "Returns the list of Name/Value tables in <self> (SDIFFile object or path to an SDIF file).
 
 Name/Value tables are formatted as SDIFNVT objects.
 "
@@ -413,10 +415,11 @@ Name/Value tables are formatted as SDIFNVT objects.
 
 
 (defmethod* find-in-nvtlist ((nvtlist list) (entry string) &optional table-num)
-            
-            :indoc '("list of SDIFNVT" "A name entry in the NameValue table" "Table Number")
-            :initvals '(nil "" nil)
-            :doc "Finds value corresponding to name <entry> in the name/value tables <nvtlist>.
+  
+  :indoc '("list of SDIFNVT" "A name entry in the NameValue table" "Table Number")
+  :initvals '(nil "" nil)
+  :icon :sdif
+  :doc "Finds value corresponding to name <entry> in the name/value tables <nvtlist>.
 
 <table-num> allows to look specifically in table number <table-num> as internally assigned to SDIF NVTs.
 "
@@ -433,6 +436,7 @@ Name/Value tables are formatted as SDIFNVT objects.
 (defmethod* find-in-nvt ((nvt SDIFNVT) (entry string))
             
             :indoc '("a SDIFNVT object" "A name entry in the Name/Value table")
+            :icon :sdif
             :initvals '(nil "")
             :doc "Finds value corresponding to name <entry> in the name/value table <nvt>."
     (cadr (find entry (nv-pairs nvt) :test 'string-equal :key 'car)))
@@ -555,6 +559,7 @@ Name/Value tables are formatted as SDIFNVT objects.
    :indoc '("SDIF file" "stream number (int)" "frame type (string)" "matrix type (string)" "field number (int or list)" "min row" "max row" "min time (s)" "max time (s)")
    :outdoc '("matrix values" "times")
    :initvals '(nil 0 "" "" 0 nil nil nil nil)
+   :icon :sdif
    :doc "Extracts and returns a data array (<rmin>-<rmax>, <tmin>-<tmax>) from the <cnum> field of the <matType> matrix from the Stream <sid> of <frameType> frames from <self>.
 
 <self> can be an SDIFFile object or a pathname to a valid SDIF file.
@@ -669,6 +674,7 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
    
    :indoc '("SDIF file" "stream number (integer)" "frame type" "matrix type" "min time (s)" "max time (s)")
    :initvals '(nil 0 "" "" nil nil)
+   :icon :sdif
    :doc "Returns a list of times (s) between <tmin> and <tmax> for frames of type <frameType> from the stream <sID> in <self>, containing a matrix of type <matType>.
 
 Unspecified arguments mean respectively that all streamms (for <sID>), frames (<frameType>), matrices (<matType>) and no time boundaries (<tmin> and <tmax>) are considered.
@@ -685,6 +691,7 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
    
    :indoc '("SDIF file" "frame type (string)" "matrix type (string)" "stream number"  "min time (s)" "max time (s)")
    :initvals '(nil nil nil 0 nil nil)
+   :icon :sdif
    :doc "Creates and returns an SDIFStream instance from SDIF data in stream <sid> of <self>.
 
 <self> can be an SDIFFile object or a pathname to a valid SDIF file.
@@ -758,6 +765,7 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
 (defmethod* SDIF->text ((self string) &optional out-filename)
    
    :indoc '("SDIF file" "text file pathname")
+   :icon :sdif
    :doc "Converts <self> to text-SDIF in <out-filename>."
    (let ((outfile (if out-filename 
                       (or (handle-new-file-exists out-filename)
