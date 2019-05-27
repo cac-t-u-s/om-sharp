@@ -224,6 +224,7 @@
 
 ;;; can be called from another library, etc.
 (defun require-library (name)
+  (om-print-format "Requiring library: ~A" (list name) "OM")
   (let ((required-lib (find-library name)))
     (if required-lib
         (unless (loaded? required-lib)

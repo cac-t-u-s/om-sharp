@@ -646,7 +646,7 @@
 ; CHANGED NAMES
 ;============================================================================
 (defmethod changed-name ((reference (eql 'list-elements))) 'split)
-
+(defmethod changed-name ((reference (eql 'get-mrk-onsets))) 'sdif->markers)
 ;============================================================================
 ; CHANGED CLASSES
 ;============================================================================

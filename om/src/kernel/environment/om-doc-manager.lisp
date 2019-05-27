@@ -91,15 +91,21 @@
 (defmethod make-new-om-doc (type name)
   (om-beep-msg "Document type ~S unknown." type))
 
-(defmethod doctype-info ((type (eql :patch))) '("OM Patch" "*.opat"))
-(defmethod doctype-info ((type (eql :maquette))) '("OM Maquette" "*.omaq"))
-(defmethod doctype-info ((type (eql :textfun))) '("OM Text (Lisp) Function" "*.olsp"))
+(defmethod doctype-info ((type (eql :patch))) '("om7 Patch" "*.opat"))
+(defmethod doctype-info ((type (eql :maquette))) '("om7 Maquette" "*.omaq"))
+(defmethod doctype-info ((type (eql :textfun))) '("om7 Text (Lisp) Function" "*.olsp"))
 
 (defmethod doctype-info ((type (eql :om)))
-  (list "OM Documents" (string+ (cadr (doctype-info :patch)) ";" 
+  (list "om7 Documents" (string+ (cadr (doctype-info :patch)) ";" 
                                 (cadr (doctype-info :maquette)) ";"
                                 (cadr (doctype-info :textfun))
                                 )))
+
+(defmethod doctype-info ((type (eql :text))) '("Text File" "*.txt"))
+(defmethod doctype-info ((type (eql :lisp))) '("Lisp File" "*.lisp;*.lsp"))
+
+(defmethod doctype-info ((type (eql :old))) '("OM6 Patches [compatibility mode]" "*.omp;*.omm"))
+
 
 (defun extension-to-doctype (str)
   (cond ((string-equal str "opat") :patch)
@@ -152,10 +158,12 @@
   (let ((file (or path 
                   (om-choose-file-dialog :prompt (string+ (om-str :open) "...")
                                          :directory (or *last-open-dir* (om-user-home))
-                                         :types (append (append 
-                                                         (doctype-info :om)
-                                                     (doctype-info :patch) (doctype-info :maquette) (doctype-info :textfun))
-                                                        '("Text File" "*.txt" "Lisp File" "*.lisp;*.lsp" "All documents" "*.*"))))))
+                                         :types (append  
+                                                 (doctype-info :om)
+                                                 (doctype-info :patch) (doctype-info :maquette) (doctype-info :textfun)
+                                                 (doctype-info :lisp) (doctype-info :text)
+                                                 (doctype-info :old)
+                                                 '("All documents" "*.*"))))))
     (when file
       (setf *last-open-dir* (om-make-pathname :directory file))
       (record-recent-file file)
@@ -333,7 +341,7 @@
           (unless (and *save-apply-all* (= *save-apply-all* 0)) 
             (let ((doc (doc-entry-doc doc-entry)))
             (when (null (saved? doc))
-              (let ((win (window (editor doc))))
+              (let ((win (editor-window doc)))
                 (when win (om-select-window win))
                 (when (or (and *save-apply-all* (= *save-apply-all* 1))
                           (let ((rep (om-save-y-n-cancel-dialog (name doc))))
