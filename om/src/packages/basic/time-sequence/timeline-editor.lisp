@@ -270,23 +270,26 @@
     (setf (related-views time-ruler) (append timeline-views (related-views time-ruler)))
     (om-remove-all-subviews main-panel)
     (when main-panel
-      (om-add-subviews main-panel (om-make-layout 
-                                   'om-column-layout 
-                                   :size (omp 500 50)
-                                   :delta 0
-                                   :subviews
-                                   (append
-                                    (list (build-transport-and-options-layout self))
-                                    (append  
-                                     foldable-containers
-                                     (list (om-make-layout 
-                                            'om-row-layout
-                                            :subviews
-                                            (list
-                                             ;;; a dummy view to take the same size as the timeline-item
-                                             (om-make-view 'om-view :size (omp left-item-w nil)) 
-                                             time-ruler)
-                                            :ratios '(0.001 1)))))))
+      (om-add-subviews 
+       main-panel 
+       (om-make-layout 
+        'om-column-layout 
+        :ratios (append '(1) (make-list (length foldable-containers) :initial-element 100) '(1))
+        :subviews
+        (append
+         (list (build-transport-and-options-layout self))
+         (append  
+          foldable-containers
+          (list ;;; ruler 
+                (om-make-layout 
+                 'om-row-layout
+                 :subviews
+                 (list
+                  ;;; a dummy view to take the same size as the timeline-item
+                  (om-make-view 'om-view :size (omp left-item-w nil)) 
+                  time-ruler)
+                 :ratios '(0.001 1))
+                )))))
       (setf (time-ruler self) time-ruler)
       (setf (timeline-views self) timeline-views)
       (reinit-ranges self)

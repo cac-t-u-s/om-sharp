@@ -31,8 +31,8 @@
                            maximize (car spk) into maxx
                            minimize (cadr spk) into miny
                            maximize (cadr spk) into maxy
-                           minimize (caddr spk) into minz
-                           maximize (caddr spk) into maxz
+                           when (caddr spk) minimize (caddr spk) into minz
+                           when (caddr spk) maximize (caddr spk) into maxz
                            finally return (max (abs (- maxx minx)) 
                                                (abs (- maxy miny)) 
                                                (abs (- minz maxz)))))

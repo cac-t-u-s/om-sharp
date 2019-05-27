@@ -28,6 +28,7 @@
    (window :initarg :window :initform nil :accessor window)
    (main-view :initarg :main-view :initform nil :accessor main-view)
    (g-components :initarg :g-components :initform nil :accessor g-components)
+   (with-default-components :initarg :with-default-components :accessor with-default-components :initform t)
    (selection :accessor selection :initform nil)))
 
 
@@ -278,7 +279,7 @@
 
   ;;; update the object
   (update-from-editor (object self))
-
+  
   ;;; update the context (in case of embedded editors) 
   (when (container-editor self)
     (update-to-editor (container-editor self) self)
@@ -376,14 +377,15 @@
 
 ;;; can be called in redefinitions of make-editor-window-contents
 (defmethod make-default-editor-view ((editor OMEditor))
-  (apply 'om-make-view 
-         (append (list 
-                  (editor-view-class editor)
-                  :direct-draw (editor-view-drawable editor)
-                  :editor editor
-                  :scrollbars (editor-view-scroll-params editor))
-                 (and (editor-view-bg-color editor) (list :bg-color (editor-view-bg-color editor))))
-         ))
+  (when (with-default-components editor)
+    (apply 'om-make-view 
+           (append (list 
+                    (editor-view-class editor)
+                    :direct-draw (editor-view-drawable editor)
+                    :editor editor
+                    :scrollbars (editor-view-scroll-params editor))
+                   (and (editor-view-bg-color editor) (list :bg-color (editor-view-bg-color editor))))
+           )))
 
 ;;; not very clean...
 ;(defmethod build-editor-window :after (editor) 
@@ -474,8 +476,8 @@
                               (list  ;     (car category)  ; (list (car category) (om-def-font :font1b)) 
                                ;(om-make-di 'om-simple-text :size (om-make-point 20 26) :text "" :focus t)
                                (om-make-di  'om-simple-text :text (car category) :font (om-def-font :font2b)
-                                              :size (om-make-point (list :string (car category)) 20) 
-                                              :position (om-make-point 0 6))
+                                            :size (om-make-point (list :string (car category)) 20) 
+                                            :position (om-make-point 0 6))
                                )
                               (loop for prop in (cdr category) append
                                     (list (om-make-di 'om-simple-text :text (nth 1 prop) :font (om-def-font :font1b)

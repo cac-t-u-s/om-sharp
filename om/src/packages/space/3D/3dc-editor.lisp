@@ -24,16 +24,24 @@
    (front-bpc-editor :accessor front-bpc-editor :initform nil)
    (3Dp :accessor 3Dp :initform nil)
    (timeline-editor :accessor timeline-editor :initform nil)
+   (timeline-enabled :accessor timeline-enabled :initarg :timeline-enabled :initform t)
    (osc-manager :accessor osc-manager :initform nil)
+   (color-options :accessor color-options :initarg :color-options :initform '(:single :indices :length :speed))
    ))
 
 (defmethod object-default-edition-params ((self 3DC))
   (append (call-next-method)
           `((:line-width 1)
-            (:3D-bg-color ,(om-def-color :gray)))))
+            (:3D-bg-color ,(om-def-color :white)))))
 
 (defmethod object-has-editor ((self 3dc)) t)
 (defmethod get-editor-class ((self 3DC)) '3DC-editor)
+
+(defmethod init-editor ((self 3dc-editor))
+  (when (timeline-enabled self)
+    (setf (timeline-editor self)
+          (make-instance 'timeline-editor :object (object self) :container-editor self))
+    ))
 
 (defmethod make-3D-background-element ((self background-element)) nil)
 
@@ -66,7 +74,8 @@
     (cursor-panes (timeline-editor self))))
 
 (defmethod set-time-display ((self 3dc-editor) time)
-  (set-time-display (timeline-editor self) time)
+  (when (timeline-editor self) 
+    (set-time-display (timeline-editor self) time))
   (call-next-method))
 
 ;;;==========================
@@ -91,13 +100,15 @@
   (om-make-view 'om-view :size (omp 0 15)))
 
 (defmethod make-editor-window-contents ((editor 3DC-editor))
-  (let* ((object (object-value editor))
+  (let* ((object (or (object-value editor) (make-instance '3DC))) ;;; dummy-object just in case...
          (decimals (decimals object))
+         
          (3dPanel (om-make-view '3dpanel
                                 :editor editor
                                 :bg-color (editor-get-edit-param editor :3D-bg-color)
                                 :g-objects (create-GL-objects editor)
                                 ))
+         
          (top-editor (make-instance 'bpc-editor :object (object editor)  :container-editor editor :decimals decimals
                                     :x-axis-key :x :y-axis-key :y 
                                     :make-point-function #'(lambda (x y) (make-3Dpoint :x x :y y))))
@@ -112,20 +123,12 @@
 
          (top-mousepos-txt (om-make-graphic-object 'om-item-text :size (omp 60 16)))
          (front-mousepos-txt (om-make-graphic-object 'om-item-text :size (omp 60 16)))
-         (timeline-editor (make-instance 'timeline-editor :object (object editor) :container-editor editor ))
-         (timeline (om-make-layout 'om-row-layout))
-         (top-area (om-make-layout 'om-row-layout ;:align :center
-                                   :ratios '(0.8 0.5 0.05)
-                                   :subviews (list
-                                              nil
-                                              (make-time-monitor editor :time (if (action object) 0 nil))
-                                              (om-make-layout 
-                                               'om-row-layout ;:size (omp 60 20)
-                                               :subviews (list (make-play-button editor :enable t) 
-                                                               (make-pause-button editor :enable t) 
-                                                               (make-stop-button editor :enable t))))
-                                   ))
+         
+         (timeline-editor (timeline-editor editor))
+         
+         (transport-area nil)
          (bottom-area nil)   
+         
          (top-layout 
           (om-make-layout 
            'om-grid-layout :dimensions '(2 3) :ratios '((0.01 0.99) (0.01 0.98 0.01))
@@ -208,22 +211,23 @@
                                                             (editor-set-edit-param editor :line-width (value item))
                                                             (set-3D-objects editor)))
                      ))
-                   (om-make-layout 
-                    'om-row-layout
-                    :subviews
-                    (list
-                     (om-make-di 'om-simple-text :text "color mapping:" :size (omp 80 30)
-                                 :font (om-def-font :font1))
-                     (om-make-di 'om-popup-list 
-                                 :items '(:single :indices :length :speed) 
-                                 :size (omp 80 22) :font (om-def-font :font1)
-                                 :value (editor-get-edit-param editor :color-style)
-                                 :di-action #'(lambda (list) 
-                                                (editor-set-edit-param editor :color-style
-                                                                       (om-get-selected-item list))
-                                                (update-3d-curve-vertices-colors editor)
-                                                (update-3D-view editor))))
-                    )
+                   (when (color-options editor)
+                     (om-make-layout 
+                      'om-row-layout
+                      :subviews
+                      (list
+                       (om-make-di 'om-simple-text :text "color mapping:" :size (omp 80 30)
+                                   :font (om-def-font :font1))
+                       (om-make-di 'om-popup-list 
+                                   :items (color-options editor) 
+                                   :size (omp 80 22) :font (om-def-font :font1)
+                                   :value (editor-get-edit-param editor :color-style)
+                                   :di-action #'(lambda (list) 
+                                                  (editor-set-edit-param editor :color-style
+                                                                         (om-get-selected-item list))
+                                                  (update-3d-curve-vertices-colors editor)
+                                                  (update-3D-view editor))))
+                      ))
                    ))
                  (om-make-layout 
                   'om-column-layout
@@ -267,12 +271,13 @@
                                               (editor-set-edit-param editor :show-background (om-checked-p item))
                                               (set-3D-objects editor)))
 
-                    
-                   (om-make-di 'om-check-box :text "anaglyph" :size (omp 75 24) :font (om-def-font :font1)
-                               :checked-p gl-user::*om-3d-anaglyph*
-                               :di-action #'(lambda (item) 
-                                              (gl-user::opengl-enable-or-disable-anaglyph (om-checked-p item))
-                                              (update-3D-view editor)))
+                   ; anaglyph works biut not really useful for the moment
+                   ;(om-make-di 'om-check-box :text "anaglyph" :size (omp 75 24) :font (om-def-font :font1)
+                   ;            :checked-p gl-user::*om-3d-anaglyph*
+                   ;            :di-action #'(lambda (item) 
+                   ;                           (gl-user::opengl-enable-or-disable-anaglyph (om-checked-p item))
+                   ;                           (update-3D-view editor)))
+
                    nil))
 
                  (om-make-layout 
@@ -298,17 +303,20 @@
                   'om-column-layout
                   :subviews
                   (list 
-                   (om-make-di 'om-check-box 
-                               :text "show timeline" :size (omp 100 24) 
-                               :font (om-def-font :font1)
-                               :checked-p (editor-get-edit-param editor :show-timeline)
-                               :di-action #'(lambda (item) 
-                                              (editor-set-edit-param editor :show-timeline (om-checked-p item))
-                                              (clear-timeline timeline-editor)
-                                              (om-invalidate-view timeline)
-                                              (when (om-checked-p item) 
-                                                (make-timeline-view timeline-editor))
-                                              (om-update-layout (main-view editor))))
+                   (when timeline-editor 
+                     (om-make-di 'om-check-box 
+                                 :text "show timeline" :size (omp 100 24) 
+                                 :font (om-def-font :font1)
+                                 :checked-p (editor-get-edit-param editor :show-timeline)
+                                 :di-action #'(lambda (item) 
+                                                (editor-set-edit-param editor :show-timeline (om-checked-p item))
+                                                (clear-timeline timeline-editor)
+                                                (om-invalidate-view (get-g-component timeline-editor :main-panel))
+                                                (when (om-checked-p item) 
+                                                  (make-timeline-view timeline-editor))
+                                                (om-update-layout (main-view editor))))
+                     )
+#|
                    (om-make-layout 
                     'om-row-layout
                     :subviews
@@ -325,10 +333,25 @@
                                                             (setf (gesture-interval-time top-editor) (value numbox)
                                                                   (gesture-interval-time front-editor) (value numbox)))))
                     )
+|#
                    ))
            
                  nil
                  )))
+
+    
+    (when (timeline-enabled editor)
+      (setf transport-area (om-make-layout 'om-row-layout ;:align :center
+                                           :ratios '(0.8 0.5 0.05)
+                                           :subviews (list
+                                                      nil
+                                                      (make-time-monitor editor :time (if (action object) 0 nil))
+                                                      (om-make-layout 
+                                                       'om-row-layout ;:size (omp 60 20)
+                                                       :subviews (list (make-play-button editor :enable t) 
+                                                                       (make-pause-button editor :enable t) 
+                                                                       (make-stop-button editor :enable t))))
+                                           )))
 
     (set-g-component editor :main-panel 3dpanel)
     (set-g-component top-editor :main-panel top-panel)
@@ -338,14 +361,13 @@
     (setf (3Dp editor) 3dPanel
           (top-bpc-editor editor) top-editor
           (front-bpc-editor editor) front-editor)
+    
     (update-3d-curve-vertices-colors editor)
     
-    ; timeline
-    (setf (timeline-editor editor) timeline-editor)
-    (set-g-component timeline-editor :main-panel timeline)
-    
-    (when (editor-get-edit-param editor :show-timeline)
-      (make-timeline-view timeline-editor))
+    (when timeline-editor
+      (set-g-component timeline-editor :main-panel (om-make-layout 'om-row-layout))
+      (when (editor-get-edit-param editor :show-timeline)
+        (make-timeline-view timeline-editor)))
       
     (om-make-layout 
      'om-row-layout
@@ -354,7 +376,7 @@
                 (om-make-layout 
                  'om-column-layout 
                  :subviews (list 
-                            top-area
+                            transport-area
                             (om-make-layout 
                              'om-row-layout 
                              :subviews (list 
@@ -368,11 +390,12 @@
                                                      front-layout)))
                              :ratios '(0.6 nil 0.4)
                              )
-                            timeline
+                            (when timeline-editor (get-g-component timeline-editor :main-panel))
                             bottom-area) 
                  :delta 2
                  :ratios '(0.01 1 0.01 0.01))
-                (call-next-method))) ;side panel 
+                (call-next-method)
+                )) ;side panel 
     ))
 
 (defmethod editor-close ((self 3dc-editor)) 
@@ -384,7 +407,8 @@
 (defmethod editor-invalidate-views ((self 3Dc-editor))
   (editor-invalidate-views (top-bpc-editor self))
   (editor-invalidate-views (front-bpc-editor self))
-  (editor-invalidate-views (timeline-editor self))
+  (when (timeline-editor self)
+    (editor-invalidate-views (timeline-editor self)))
   (update-editor-3d-object self)
   (update-3d-view self))
 
@@ -397,7 +421,7 @@
   (update-editor-3d-object editor)
   (om-init-3D-view (3Dp editor)))
 
-;when the object is modified
+; when the object is modified
 (defmethod update-to-editor ((self 3DC-editor) (from t))
   (setf (selection self) nil)
   (when (window self)
@@ -407,6 +431,7 @@
     (update-sub-editors self)
     ))
 
+; when the timeline is edited 
 (defmethod update-to-editor ((self 3DC-editor) (from timeline-editor))
   (setf (selection self) (get-indices-from-points (object-value self) (selection from)))
   (when (window self)
@@ -418,7 +443,7 @@
   (report-modifications self) 
   )
 
-;; called from an internal editor
+; when internal editors are edited
 (defmethod update-to-editor ((self 3DC-editor) (from bpf-editor))
   (setf (selection self) (selection from))
   (update-sub-editors self)
@@ -430,7 +455,9 @@
   (mat-trans (list (x-points self) (y-points self) (z-points self) (times self))))
 
 (defmethod create-GL-objects ((self 3DC-editor))
-  (let ((obj-list (cons (object-value self) (remove (object-value self) (multi-obj-list self)))))
+  (let ((obj-list (if (object-value self) 
+                      (cons (object-value self) (remove (object-value self) (multi-obj-list self)))
+                    (multi-obj-list self))))
     (remove 
      nil
      (append 
@@ -462,14 +489,18 @@
   (update-3d-curve-vertices-colors self)
   (update-3D-view self))
 
+
 (defmethod update-editor-3d-object ((self 3dc-editor))
   (let ((3d-obj (car (om-get-gl-objects (3DP self))))
         (obj (object-value self)))
-    (setf (selected-points 3d-obj) (selection self)
-          (draw-style 3d-obj) (editor-get-edit-param self :draw-style))
-    (om-set-3Dobj-points 3d-obj (format-3d-points obj))
+    (when obj
+      (setf (selected-points 3d-obj) (selection self)
+            (draw-style 3d-obj) (editor-get-edit-param self :draw-style))
+      (om-set-3Dobj-points 3d-obj (format-3d-points obj)))
     (update-3d-curve-vertices-colors self)))
-    
+   
+
+ 
 (defmethod update-sub-editors ((self 3DC-editor))
   (when (window self)
     (setf (selection (top-bpc-editor self)) (selection self)
@@ -685,6 +716,7 @@
 (defmethod point-to-list ((point 3dpoint))
   (list (3dpoint-x point) (3dpoint-y point) (3dpoint-z point) (3dpoint-time point)))
 
+
 (defmethod update-3d-curve-vertices-colors ((self 3dc-editor))
   (let ((g-objects (om-get-gl-objects (3Dp self)))
         (om-objects (cons (object-value self) (remove (object-value self) (multi-obj-list self)))))
@@ -754,7 +786,7 @@
     (setf speeds (om/ (om- speeds min_speed) range_speed))))
 
 (defmethod default-color-vertices ((self 3dc-editor) (obj 3dc))
-  (make-list (length (point-list obj)) :initial-element (or (color obj) (om-def-color :light-gray))))
+  (make-list (length (point-list obj)) :initial-element (or (color obj) (om-def-color :black))))
 
 
 (defmethod om-view-key-handler ((self 3DPanel) key)
