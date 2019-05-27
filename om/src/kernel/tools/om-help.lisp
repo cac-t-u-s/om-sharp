@@ -38,5 +38,19 @@
           )))))
       
 
-(defun open-help-patch (patchpath) nil)
 
+(defun open-help-patch (path)
+  
+  (om-print-format "Opening help-patch : ~A" (list (pathname-name path)) "HELP")
+  
+  (case (extension-to-doctype (pathname-type path))
+    
+    (:old (import-doc-from-previous-om path))
+    
+    (otherwise 
+     (let ((doc (open-om-document path)))
+       (setf (mypathname doc) nil)
+       (update-window-name (editor doc))
+       doc))
+    ))
+    

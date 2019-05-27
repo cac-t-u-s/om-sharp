@@ -169,7 +169,7 @@
                                         collect  
                                         (om-make-menu-item 
                                          (pathname-name help-patch) 
-                                         (open-help-patch help-patch)))
+                                         #'(lambda () (open-help-patch help-patch))))
                                   ))
                    ))))
             )))))
