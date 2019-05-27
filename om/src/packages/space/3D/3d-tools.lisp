@@ -288,11 +288,6 @@ Returns 3 values (or lists) for 'azimuth', 'elevation' and 'distance'."
                distz)
        )))      
 
-;;; TODO !
-;(defmethod* xyz->aed ((self 3dc) nothing anything)
-;            (multiple-value-bind (a e d) (xyz->aed (x-points self) (y-points self) (z-points self))
-;              (3dc-from-list a e d '3dc (decimals self)))
-;              )
 
 (defmethod* xyz->aed ((x number) (y number) (z list))
             (xyz->aed (make-list (length z) :initial-element x) (make-list (length z) :initial-element y) z))
@@ -365,11 +360,6 @@ Returns 3 values (or lists) for 'x', 'y' and 'z'."
 (defmethod* aed->xyz ((a list) (e number) (d number))
    (aed->xyz a (make-list (length a) :initial-element e) (make-list (length a) :initial-element d))) 
 
-;;; => TODO !!
-;(defmethod* aed->xyz ((self 3dc) nothing anything)
-;            (multiple-value-bind (x y z) (aed->xyz (x-points self) (y-points self) (z-points self))
-;              (3dc-from-list x y z '3dc (decimals self)))
-;              )
 
 (defmethod gen-circles (n r n-points)
    :initvals '(1 10 200)

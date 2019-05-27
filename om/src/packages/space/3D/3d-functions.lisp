@@ -46,14 +46,14 @@
         ))
 
 (defmethod* 3D-interpol ((first 3DC) (second 3DC) (steps number) &optional (curve 0.0) (decimals nil) (mode 'points))
-   :icon 213   
-            :initvals '(nil nil 1 0.0 nil points) 
-            :indoc '("a 3DC or trajectory" "a 3DC or trajectory" "number of steps" "interpolation curve" "precision" "interpolation mode")
-            :outdoc '("list of 3DC" "list of x-points" "list of y-points" "list of z-points" "list of times")
-            :numouts 5
-            :menuins '((5 (("points to point" points) ("resample curves" sample))))
-            :doc 
-"Interpolates between two 3D curves or trajectories).
+  :icon 213   
+  :initvals '(nil nil 1 0.0 nil points) 
+  :indoc '("a 3DC or trajectory" "a 3DC or trajectory" "number of steps" "interpolation curve" "precision" "interpolation mode")
+  :outdoc '("list of 3DC" "list of x-points" "list of y-points" "list of z-points" "list of times")
+  :numouts 5
+  :menuins '((5 (("points to point" points) ("resample curves" sample))))
+  :doc 
+  "Interpolates between two 3D curves or trajectories).
 
 <steps> is the number of interpolated curves wanted, including <first> and <second>.
   1 means one value between <first> and <seconds>.
@@ -76,24 +76,24 @@ Outputs
  4) list of z-points
  5) list of times
 "
-   (3D-interpolation first second steps curve decimals mode))
+  (3D-interpolation first second steps curve decimals mode))
 
-(defmethod 3DC-from-list (xlist ylist zlist type timeslist decimals)
-  (make-instance type :x-points xlist :y-points ylist :z-points zlist :times timeslist :decimals decimals))
 
 ;;; RESAMPLE
 (defmethod* 3D-sample ((self 3Dc) (samples number)  &optional decimals)
-            :icon 213
-            :initvals '(nil 1000 nil) ;
-            :indoc '("object (3Dc)" "number of samples" "decimals")
-            :numouts 5
-            :doc "samples a 3Dc"  
-            (let ((x (third (multiple-value-list (om-sample (x-points self) samples))))
-                  (y (third (multiple-value-list (om-sample (y-points self) samples))))
-                  (z (third (multiple-value-list (om-sample (z-points self) samples))))
-                  (times (third (multiple-value-list (om-sample (time-sequence-get-internal-times self) samples)))))
-              (values (3dc-from-list x y z (type-of self) times (or decimals (decimals self)))
-                      x y z times)))
+  :icon 213
+  :initvals '(nil 1000 nil) ;
+  :indoc '("object (3Dc)" "number of samples" "decimals")
+  :numouts 5
+  :doc "samples a 3Dc"  
+  (let ((x (third (multiple-value-list (om-sample (x-points self) samples))))
+        (y (third (multiple-value-list (om-sample (y-points self) samples))))
+        (z (third (multiple-value-list (om-sample (z-points self) samples))))
+        (times (third (multiple-value-list (om-sample (time-sequence-get-internal-times self) samples)))))
+    (values (make-instance (type-of self) 
+                           :x-points x :y-points y :z-points z 
+                           :times times :decimals (or decimals (decimals self)))
+            x y z times)))
 
 ;;;=======================================
 ;;; REDEFINITION OF BPC FUNCTIONS FOR 3DCs and 3D-trajectories from OMPrisma
@@ -108,17 +108,24 @@ Outputs
        (setf res 
              (multiple-value-bind (a e d) (xyz->aed (x-points res) (y-points res) (z-points res))
                (multiple-value-bind (x y z) (aed->xyz (om+ a yaw) e d)
-                 (3dc-from-list x y z (type-of self) (times self) (decimals self))))))
+                 (make-instance (type-of self) 
+                                :x-points x :y-points y :z-points z 
+                                :times (times self) :decimals (decimals self))
+                 ))))
      (when (and pitch (not (zerop pitch)))
        (setf res 
              (multiple-value-bind (a e d) (xyz->aed (z-points res) (y-points res) (x-points res))
                (multiple-value-bind (x y z) (aed->xyz (om+ a pitch) e d)
-                 (3dc-from-list z y x (type-of self) (times self) (decimals self))))))
+                 (make-instance (type-of self) 
+                                :x-points x :y-points y :z-points z 
+                                :times (times self) :decimals (decimals self))))))
      (when (and roll (not (zerop roll)))
        (setf res 
              (multiple-value-bind (a e d) (xyz->aed (x-points res) (z-points res) (y-points res))
                (multiple-value-bind (x y z) (aed->xyz (om+ a roll) e d)
-                 (3dc-from-list x z y (type-of self) (times self) (decimals self))))))
+                 (make-instance (type-of self) 
+                                :x-points x :y-points y :z-points z 
+                                :times (times self) :decimals (decimals self))))))
      (setf (color res) (color self))
      res))
 
@@ -147,26 +154,29 @@ Outputs
 ;;; TRANSLATION 
 ;;; From OMPrisma traj-translate
 (defmethod* om-translate ((self 3dc) &key x y z time)  
-            (let ((res self)
-                  (thex x) (they y) (thez z) (thet time))
-              (unless (numberp x) (setf thex 0))
-              (unless (numberp y) (setf they 0))
-              (unless (numberp z) (setf thez 0))
-              (unless (numberp time) (setf thet 0))
-              (setf res (3dc-from-list (om+ (x-points self) thex) (om+ (y-points self) they) 
-                                       (om+ (z-points self) thez) (type-of self)  
-                                       (om+ (time-sequence-get-internal-times self) thet)
-                                       (decimals self)))
-              (setf (color res) (color self))
-              res))
+  (let ((res self)
+        (thex x) (they y) (thez z) (thet time))
+    (unless (numberp x) (setf thex 0))
+    (unless (numberp y) (setf they 0))
+    (unless (numberp z) (setf thez 0))
+    (unless (numberp time) (setf thet 0))
+    (setf res (make-instance 
+               (type-of self) 
+               :x-points (om+ (x-points self) thex) :y-points (om+ (y-points self) they) :z-points (om+ (z-points self) thez) 
+               :times (om+ (time-sequence-get-internal-times self) thet) :decimals (decimals self))
+          )
+    (setf (color res) (color self))
+    res))
 
 (defmethod* om-mirror ((self 3DC) &key x y z times)
-            (let ((res (3Dc-from-list (if x (om* -1 (x-points self)) (x-points self)) 
-                                      (if y (om* -1 (y-points self)) (y-points self)) 
-                                      (if z (om* -1 (z-points self)) (z-points self))
-                                      (type-of self)
-                                      (if times (om* -1 (time-sequence-get-internal-times self))
-                                        (time-sequence-get-internal-times self))
-                                      (decimals self))))
-              (setf (color res) (color self))
-              res))
+  (let ((res (make-instance 
+              (type-of self) 
+              :x-points (if x (om* -1 (x-points self)) (x-points self)) 
+              :y-points (if y (om* -1 (y-points self)) (y-points self)) 
+              :z-points (if z (om* -1 (z-points self)) (z-points self)) 
+              :times (if times (om* -1 (time-sequence-get-internal-times self))
+                       (time-sequence-get-internal-times self)) 
+              :decimals (decimals self))))
+                       
+    (setf (color res) (color self))
+    res))
