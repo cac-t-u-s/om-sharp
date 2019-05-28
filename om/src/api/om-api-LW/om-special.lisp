@@ -37,8 +37,12 @@
           ) :om-api)
 
 
-(defun om-special-lisp-form-p (str)
-  (lispworks::special-form-p str))
+
+;;; types of functions that are not accepted as OM boxes
+(defun om-special-lisp-form-p (symbol)
+  (or 
+   (lispworks::special-form-p symbol)
+   (system:closurep (fdefinition symbol))))
 
 ;=======================
 ; SOURE MANAGEMENT
