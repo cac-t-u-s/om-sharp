@@ -99,7 +99,7 @@
           (conversion-factor-and-offset 0 (get-obj-dur self) w x)
         (loop for frame in (data-stream-get-frames self) do
               (om-draw-rect (+ ox (* fx (or (date frame) 0))) 
-                            15 4 (- h 24) 
+                            y 4 h 
                             :fill t)
               )))))
 
