@@ -36,6 +36,8 @@
         "editor/chord-seq-editor"
 
         "tools/conversions"
+        "functions/trees"
+        "functions/quantify"
         "import-export/musicxml"))
 
 
@@ -46,14 +48,19 @@
  :classes '(note chord chord-seq voice poly)
  :functions nil
  :subpackages  (list (omNG-make-package 
-                      "Rhythm Trees"
+                      "Rhythm"
                       :doc "Manipulation of rhythm trees and ratios"
-                      :functions '(mktree tree2ratio)
+                      :functions '(mktree tree2ratio 
+                                          pulsemaker maketreegroups
+                                          n-pulses group-pulses get-pulse-places get-rest-places get-signatures
+                                          reducetree tietree filtertree reversetree rotatetree
+                                          remove-rests subst-rhythm invert-rhythm
+                                          omquantify)
                       :subpackages nil)
                      (omNG-make-package 
                       "Utils"
                       :doc "Unit conversion utilities etc."
-                      :functions '(approx-m mc->f f->mc mc->n n->mc beats->ms)
+                      :functions '(approx-m mc->f f->mc mc->n n->mc int->symb symb->int beats->ms)
                       :subpackages nil)))
 
 
