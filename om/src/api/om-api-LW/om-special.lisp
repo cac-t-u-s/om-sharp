@@ -42,7 +42,8 @@
 (defun om-special-lisp-form-p (symbol)
   (or 
    (lispworks::special-form-p symbol)
-   (system:closurep (fdefinition symbol))))
+   (and (fboundp symbol)
+        (system:closurep (fdefinition symbol)))))
 
 ;=======================
 ; SOURE MANAGEMENT
