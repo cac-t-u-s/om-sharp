@@ -138,7 +138,7 @@
                                                            (declare (ignore window))
                                                            (capi:execute-with-interface *om-listener* (lambda () (in-package :cl-user))))))))
                      
-                     (out (om-make-listener-output-pane))
+                     (out (om-make-listener-output-pane font))
                      
                      (commands (make-instance 
                                 'capi:row-layout 
@@ -171,10 +171,9 @@
                            ;                                           (internal-window-class-menubar window))))
                            )
                 ))
-        
-        (editor::clear-buffer (capi::editor-pane-buffer (op om-lisp::*om-listener*)))
-        
+               
         (when initial-prompt
+          (editor::clear-buffer (capi::editor-pane-buffer (op om-lisp::*om-listener*)))
           (princ initial-prompt *om-stream*) 
           (terpri *om-stream*))
         

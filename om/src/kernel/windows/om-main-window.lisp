@@ -391,10 +391,17 @@
                 
                 (om-make-layout 'om-row-layout :subviews
                                 (list
+                                 (om-make-di 'om-button :text "Open as separate window" 
+                                             :size (omp 180 32) :font (om-def-font :font1)
+                                             :di-action #'(lambda (b) 
+                                                            (declare (ignore b))
+                                                            (show-listener-win)
+                                                            ))
                                  nil
                                  (om-make-di 'om-button :text "x" 
                                              :size (omp 40 32) :font (om-def-font :font1)
                                              :di-action #'(lambda (b) 
+                                                            (declare (ignore b))
                                                             (om-lisp::om-clear-listener-output-pane listener-pane)
                                                             ))))
                 ))))

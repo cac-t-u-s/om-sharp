@@ -280,7 +280,7 @@
         (om-select-window listenerwin)
       (om-lisp::om-make-listener 
        :initial-lambda #'(lambda () (in-package :om))
-       :initial-prompt *om-startup-string*
+       ; :initial-prompt *om-startup-string*
        :height 200  
        :font (get-pref-value :general :listener-font)
        :input (get-pref-value :general :listener-input)
