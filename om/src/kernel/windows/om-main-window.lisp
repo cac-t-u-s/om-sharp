@@ -256,8 +256,10 @@
 
 
 (defmethod update-elements-tab ((window om-main-window))
-  (om-substitute-subviews (main-layout window) (elements-view window) (setf (elements-view window) (make-ws-elements-tab)))
-  (om-set-current-view (main-layout window) (elements-view window)))
+  (let ((current (om-get-current-view (main-layout window))))
+    (om-substitute-subviews (main-layout window) (elements-view window) (setf (elements-view window) (make-ws-elements-tab)))
+    (om-set-current-view (main-layout window) current))
+  )
 
 (defun dbclicked-item-in-list (list)
   (mapc 'open-editor (om-get-selected-item list)))

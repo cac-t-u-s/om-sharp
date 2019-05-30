@@ -47,10 +47,11 @@
     
     (:old (import-doc-from-previous-om path))
     
-    (otherwise 
+    (otherwise ;;; need to perform specific actions to abvoid opening it as a normal patch...
      (let ((doc (open-om-document path)))
        (setf (mypathname doc) nil)
        (update-window-name (editor doc))
+       (update-elements-tab *om-main-window*) 
        doc))
     ))
     
