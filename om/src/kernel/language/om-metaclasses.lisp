@@ -28,6 +28,9 @@
 
 (defmethod omclass-p ((self t)) nil)
 (defmethod omclass-p ((self OMClass)) t)
+(defmethod omclass-p ((self symbol)) 
+  (and (find-class self nil) (omclass-p (find-class self))))
+
 
 (defmethod slot-missing ((class OMClass) instance slot-name operation &optional new-value)
   (om-beep-msg "!!! Attempt to access non existing slot ~A in class ~A !!!" slot-name (class-name class)))
@@ -64,7 +67,8 @@ This class is an OMClass (unlike OMClass itself!).")
 
 (defmethod omgenericfunction-p ((self t)) nil)
 (defmethod omgenericfunction-p ((self OMGenericFunction)) t)
-
+(defmethod omgenericfunction-p ((self symbol)) 
+  (and (fboundp self) (omgenericfunction-p (fdefinition self))))
 
 ; OMPersistantObject
 (defclass OMMethod (OMBasicObject standard-method) 
