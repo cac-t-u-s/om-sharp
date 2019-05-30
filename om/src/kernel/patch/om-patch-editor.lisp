@@ -1445,7 +1445,7 @@ This is a patch editor window.
   
 Double-click or type 'N' to enter a new box by its name. Use the down-arrow key to pop-up auto-completed names after typing the first characters.
 
-The functiion/class reference accessible from the \"Help\" menu will provide you a liste of predefined functions.
+The function and class reference accessible from the \"Help\" menu, or the \"Class/Function Library\" tab in the Session Winows (CMD/Ctrl+SHIFT+W) can provide you a list of available predefined functions.
 ") 
 
 
