@@ -153,9 +153,10 @@
            (append 
             (loop for help-patch in (get-base-help-patches) 
                   collect  
-                  (om-make-menu-item 
-                   (pathname-name help-patch) 
-                   #'(lambda () (open-help-patch help-patch))))
+                  (let ((path help-patch))
+                    (om-make-menu-item 
+                     (pathname-name path) 
+                     #'(lambda () (open-help-patch path)))))
             (list 
              (om-make-menu-comp 
               #'(lambda (win) 
@@ -167,9 +168,10 @@
                                   lib
                                   (loop for help-patch in (get-lib-help-patches lib) 
                                         collect  
-                                        (om-make-menu-item 
-                                         (pathname-name help-patch) 
-                                         #'(lambda () (open-help-patch help-patch))))
+                                        (let ((path help-patch))
+                                          (om-make-menu-item 
+                                           (pathname-name path) 
+                                           #'(lambda () (open-help-patch path)))))
                                   ))
                    ))))
             )))))
