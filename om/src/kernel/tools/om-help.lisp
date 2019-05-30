@@ -28,16 +28,29 @@
     (om-directory path :type "opat")))
 
 (defun get-lib-help-patches (lib) 
-  (let ((lib (find-library lib)))
-    (when lib
-      (let ((help-folder (find-if 
-                          #'(lambda (path) (member (car (last (pathname-directory path))) '("patches" "tutorials" "examples") :test #'string-equal))
-                          (om-directory (mypathname lib) :directories t :files nil))))
+  (let ((thelib (if (stringp lib) (find-library lib) lib)))
+    (when thelib
+      (let ((help-folder 
+             (find-if 
+              #'(lambda (path) (member (car (last (pathname-directory path))) '("patches" "tutorials" "examples") :test #'string-equal))
+              (om-directory (mypathname thelib) :directories t :files nil))))
         (when help-folder
           (om-directory help-folder :type '("opat" "omp") :recursive t)
           )))))
-      
+    
+;;; can be redefined for specific symbols  
+(defmethod symbol-reference-patch-name ((self symbol)) (string self))
 
+
+(defun get-symbol-help-patch (symb)
+  (let* ((from-lib (or (and (omclass-p symb) (library (find-class symb)))
+                       (and (omgenericfunction-p symb) (library (fdefinition symb)))))
+         (file-list (if from-lib 
+                       (get-lib-help-patches from-lib)
+                     (get-base-help-patches))))
+    (find (symbol-reference-patch-name symb)
+          file-list :key 'pathname-name :test 'string-equal)))
+                     
 
 (defun open-help-patch (path)
   
@@ -51,7 +64,7 @@
      (let ((doc (open-om-document path)))
        (setf (mypathname doc) nil)
        (update-window-name (editor doc))
-       (update-elements-tab *om-main-window*) 
+       (when *om-main-window* (update-elements-tab *om-main-window*))
        doc))
     ))
     

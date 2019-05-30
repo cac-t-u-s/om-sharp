@@ -130,14 +130,26 @@
                 (loop for ref in symbols do (show-reference-page ref))
               (om-open-in-browser (namestring (get-om-reference-pages-index))))))
       :key "d")
+     
+     (om-make-menu-item  
+      "Help Patch" 
+      #'(lambda () 
+          (let ((help-patches (remove nil (mapcar #'get-symbol-help-patch (get-selection-for-menu self)))))
+            (if (print help-patches) 
+              (loop for patch in help-patches do 
+                    (open-help-patch patch))
+              (om-beep))
+            ))
+      :enabled #'(lambda () (get-selection-for-menu self))
+      :key "H")
      ))
    
     (om-make-menu-comp  
      (list 
-      (om-make-menu-item 
-       "Editor Help..." 
-       #'(lambda () (funcall (help-command self))) 
-       :key "H" :enabled (and (help-command self) t))
+      ;(om-make-menu-item 
+      ; "Editor Help..." 
+      ; #'(lambda () (funcall (help-command self))) 
+      ; :key "H" :enabled (and (help-command self) t))
         
       (om-make-menu-item 
        "Online Resources" 
