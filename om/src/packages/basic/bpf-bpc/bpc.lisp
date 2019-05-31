@@ -98,14 +98,14 @@
            ((x-points :initform nil :initarg :x-points)
             (y-points :initform nil :initarg :y-points))
            (:icon 'bpc)
-           (:documentation "
-BREAK-POINTS CURVE: a 2D function defined by a list of [x,y] coordinates.
+           (:documentation 
+"BPC / BREAK-POINTS CURVE: a 2D function defined by a list of [x,y] coordinates.
 
-BPC objects are constructed from the list of X coordinates (<x-points>) and the list of Y coordinates (<y-points>)
-<x-point> are NOT necesarily increasing (contrary to BPF objects).
+BPC objects are constructed from the list of X coordinates (<x-points>) and the list of Y coordinates (<y-points>). The values in <x-point> are not necesarily increasing (contrary to BPF objects).
+
 If <x-list> and <y-list> are not of the same length, the last step in the shorter one is repeated.
 
-<decimals> allows to specify the precision of the function (0 = integers, n > 0 = number of decimals)."))
+<decimals> determines the floating-point precision of the function (0 = integers, n > 0 = number of decimals)."))
 
 (defmethod additional-class-attributes ((self BPC)) 
   (append '(times) (call-next-method)))
