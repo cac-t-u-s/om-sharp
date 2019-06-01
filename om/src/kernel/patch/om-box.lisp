@@ -319,6 +319,7 @@
 ;; a simple box alignment utility
 ;; tries to best-guess according to proximity with neighbour boxes' borders, 
 ;; and with box connections
+;;; works only if the box is visible on screen
 (defmethod align-box ((self OMBox))
   
   (labels (

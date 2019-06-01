@@ -87,6 +87,9 @@
 ;======================================
 ; PATCH (MAIN SECTION)
 ;======================================
+
+;;; idea: consider an auto-alignment option for patches, set "on" when an old patch is loaded...
+
 ;;; main patch file
 (defun om-load-patch1 (name boxes connections &rest ignore)
   
@@ -124,14 +127,6 @@
     (:connections .,(loop for c in connections collect (format-imported-connection c)))
     )
   )
-
-
-;;; This was used to save OMLoops
-;;; In om7 OMloop is just an normal patch
-(defmethod om-load-boxwithed1 ((class t) name reference inputs position size value lock boxes conec numouts) 
-  (declare (ignore numouts))
-  (let ((patch (om-load-patch-abs1 name boxes conec)))
-    (om-load-boxcall 'abstraction name reference inputs position size patch lock)))
 
 
 ;======================================
@@ -516,7 +511,7 @@
     (:reference sequence)
     (:x ,(om-point-x position))
     (:y ,(om-point-y position))
-    (:w ,(om-point-x sizeload))
+    (:w ,(and sizeload (om-point-x sizeload)))
     (:inputs .,(cons (eval (car inputs))
                      (mapcar #'(lambda (i) '(:input (:type :optional) (:name "op+"))) (cdr inputs))))
     (:lock ,(when lock (cond ((string-equal lock "x") :locked)
@@ -526,6 +521,170 @@
 
 ;;; these are useless and should just disappear
 (defmethod om-load-boxcall ((self (eql 'undefined)) name reference inputs position size value lock &rest trest) nil)
+
+
+
+;======================================
+; OMLOOP
+;======================================
+
+;;; This was used to save OMLoops
+;;; In om7 OMloop is just an normal patch
+
+(defmethod om-load-boxwithed1  ((class t) name reference inputs position size value lock boxes connec numouts &optional fname pictlist) 
+  `(:box 
+    (:type :patch)
+    (:name ,name)
+
+    (:reference 
+     (:loop-patch ;;; special reference to make adaptations -- see just below
+      (:name ,name) 
+      (:boxes .,boxes)
+      (:connections .,(loop for c in connec collect (format-imported-connection c)))))
+    
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:w ,(and size (om-point-x size)))
+    (:h ,(if size (om-point-y size) 48))
+    (:lock ,(if lock (cond ((string-equal lock "x") :locked) 
+                           ((string-equal lock "&") :eval-once))))
+    (:lambda ,(if lock (cond ((string-equal lock "l") :lambda) 
+                             ((string-equal lock "o") :reference))))
+    (:inputs .,inputs)
+    (:display :mini-view)
+    ))
+
+
+;;; SOME MODIFICATIONS TO MAKE:
+;;; input order in accum
+;;; auto connect forloop/while loops etc. to iterate
+;;; convert the finally to several outputs
+
+(defmethod om-load-from-id ((id (eql :loop-patch)) data)
+  (let ((patch (om-load-from-id :patch data)))
+    
+    ;;; do corrections
+    (loop for box in (boxes patch) do
+          (initialize-size box))
+   
+    patch))
+
+
+(defmethod om-load-boxcall ((class (eql 'genfun)) name (reference (eql 'listloop)) inputs position size value lock &rest rest)
+  `(:box
+    (:type :special)
+    (:reference loop-list)
+    (:name "list-loop")
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:w ,(and size (om-point-x size)))
+    (:inputs .,inputs)))
+
+(defmethod om-load-boxcall ((class (eql 'genfun)) name (reference (eql 'onlistloop)) inputs position size value lock &rest rest)
+  `(:box
+    (:type :special)
+    (:reference loop-tail)
+    (:name "tail-loop")
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:w ,(and size (om-point-x size)))
+    (:inputs .,inputs)))
+
+(defmethod om-load-boxcall ((class (eql 'genfun)) name (reference (eql 'forloop)) inputs position size value lock &rest rest)
+  `(:box
+    (:type :special)
+    (:reference loop-for)
+    (:name "for")
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:w ,(and size (om-point-x size)))
+    (:inputs .,inputs)))
+
+(defmethod om-load-boxcall ((class (eql 'genfun)) name (reference (eql 'whileloop)) inputs position size value lock &rest rest)
+  `(:box
+    (:type :special)
+    (:reference loop-while)
+    (:name "while")
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:w ,(and size (om-point-x size)))
+    (:inputs .,inputs)))
+
+(defmethod om-load-boxcall ((class (eql 'genfun)) name (reference (eql 'listing)) inputs position size value lock &rest rest)
+  `(:box
+    (:type :special)
+    (:reference collect)
+    (:name "collect")
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:w ,(and size (om-point-x size)))
+    (:inputs .,inputs)))
+
+
+;;; EACH-TIME
+(defmethod om-load-seqbox (name (reference (eql 'loopdo)) inputs position size value lock numouts)
+
+  (declare (ignore name reference value numouts))
+
+  `(:box
+    (:type :special)
+    (:reference iterate)
+    (:name "iterate")
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:w ,(and size (om-point-x size)))
+    (:inputs .,(cons (eval (car inputs))
+                     (mapcar #'(lambda (i) '(:input (:type :optional) (:name "op+"))) (cdr inputs)))))
+  )
+
+;;; INITDO
+(defmethod om-load-seqbox (name (reference (eql 'initdo)) inputs position size value lock numouts)
+
+  (declare (ignore name reference value numouts))
+
+  `(:box
+    (:type :special)
+    (:reference init-do)
+    (:name "init-do")
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:w ,(and size (om-point-x size)))
+    (:inputs .,(cons (eval (car inputs))
+                     (mapcar #'(lambda (i) '(:input (:type :optional) (:name "op+"))) (cdr inputs)))))
+  )
+
+
+;;; Finally box needs to be replaced by one or several output boxe(es)
+;;; but we need to "simulate" a single box during the time of loading the patch 
+;;; in order to restore connections correctly
+
+;;; probably not everything is needed:
+(defclass TempFinally (OMPatchInit) ())
+(defclass TempFinallyBox (OMPatchInitBox) ())
+(defmethod special-box-p ((name (eql 'temp-finally))) t)
+(defmethod get-box-class ((self TempFinally)) 'TempFinallyBox)
+(defmethod box-symbol ((self TempFinally)) 'temp-finally)
+
+
+
+;;; FINALLY
+(defmethod om-load-seqbox (name (reference (eql 'finaldo)) inputs position size value lock numouts)
+
+  (declare (ignore name reference value numouts))
+
+  `(:box
+    (:type :special)
+    (:reference temp-finally)
+    (:name "temp-finally")
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:w ,(and size (om-point-x size)))
+    (:inputs .,(cons (eval (car inputs))
+                     (mapcar #'(lambda (i) '(:input (:type :optional) (:name "op+"))) (cdr inputs)))))
+  )
+
+
+
 
 ;======================================
 ; old forms not supported: 
