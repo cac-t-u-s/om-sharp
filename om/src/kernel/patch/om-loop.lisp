@@ -106,6 +106,7 @@
 (defclass OMLoopFor (OMPatchLoop) ())
 
 (defmethod special-box-p ((name (eql 'loop-for))) t)
+(defmethod box-symbol ((self OMLoopFor)) 'loop-for)
 
 (defmethod omNG-make-special-box ((reference (eql 'loop-for)) pos &optional init-args)
   (omNG-make-new-boxcall 
@@ -139,6 +140,7 @@
   ((looped-list :initform nil :accessor looped-list :initarg :looped-list)))
 
 (defmethod special-box-p ((name (eql 'loop-list))) t)
+(defmethod box-symbol ((self OMLoopList)) 'loop-list)
 
 (defmethod omNG-make-special-box ((reference (eql 'loop-list)) pos &optional init-args)
   (omNG-make-new-boxcall 
@@ -168,6 +170,7 @@
   ((looped-list :initform nil :accessor looped-list :initarg :looped-list)))
 
 (defmethod special-box-p ((name (eql 'loop-tail))) t)
+(defmethod box-symbol ((self OMLoopTail)) 'loop-tail)
 
 (defmethod omNG-make-special-box ((reference (eql 'loop-tail)) pos &optional init-args)
   (omNG-make-new-boxcall 
@@ -199,6 +202,7 @@
   ((loop-cond :initform nil :accessor loop-cond :initarg :loop-cond)))
 
 (defmethod special-box-p ((name (eql 'loop-while))) t)
+(defmethod box-symbol ((self OMLoopWhile)) 'loop-while)
 
 (defmethod omNG-make-special-box ((reference (eql 'loop-while)) pos &optional init-args)
   (omNG-make-new-boxcall 

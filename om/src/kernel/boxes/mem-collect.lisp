@@ -160,8 +160,6 @@
 ;;; COLLECT
 ;;;------------------
 
-
-
 (defmethod special-box-p ((name (eql 'collect))) t)
 (defmethod special-item-reference-class ((item (eql 'collect))) 'OMCollect)
 

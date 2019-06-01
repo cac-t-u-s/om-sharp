@@ -79,6 +79,11 @@
 ;;; GENERAL SUPERCLASS
 (defclass OMInOutBox (OMPatchComponentBox) ())
 
+;;; other OMPatchComponentBox just save their box-symbol
+(defmethod save-box-reference ((self OMPatchComponentBox)) 
+  (omng-save (reference self)))
+
+
 (defmethod h-resizable ((self OMInOutBox)) nil)
 
 (defmethod io-box-icon-color ((self t)) (om-def-color :black))

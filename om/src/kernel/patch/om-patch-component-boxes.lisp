@@ -43,6 +43,8 @@
           (box-h box) (om-point-y size))
     box))
 
+(defmethod save-box-reference ((self OMPatchComponentBox)) 
+  (box-symbol (reference self)))
 
 (defmethod get-patch-component-box-def-color ((self OMPatchComponent)) (om-make-color 0.82 0.85 0.7))
 

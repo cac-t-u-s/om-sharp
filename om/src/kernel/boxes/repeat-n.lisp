@@ -50,9 +50,6 @@
 
 (defmethod box-symbol ((self Repeater)) 'repeat-n)
 
-(defmethod save-box-reference ((self OMRepeatNBoxCall)) 
-  (box-symbol (reference self)))
-
 (defmethod omNG-make-special-box ((reference (eql 'repeat-n)) pos &optional init-args)
   (omNG-make-new-boxcall 
    (make-instance 'Repeater :name "repeat-n" 
