@@ -342,10 +342,10 @@
   (let ((def-face #+mswindows "Calibri"  #+linux "Liberation Sans" #+cocoa "Calibri")
         (def-bold-face #+mswindows "Calibri"  #+linux "Liberation Sans" #+cocoa "Calibri")
         (score-face "Times New Roman")
-        (sizes 
-               ;#+mswindows'(8 10 11 13 20) 
+        (sizes ;#+mswindows'(8 10 11 13 20) 
                ;#-mswindows
-               '(12 13 14 16 20)))
+               #+cocoa '(12 13 14 16 20)		    ;72 ppi
+	       #-cocoa '(9 10 11 13 15)))		    ;96 ppi
     (let ((fa 
            (case f
              (:font1 (om-make-font def-face (nth 0 sizes)))
