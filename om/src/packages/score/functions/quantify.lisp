@@ -63,11 +63,11 @@
                         &optional forbid offset precis)
   :initvals '((100) 60 (4 4) 8 nil 0 0.5)
   :icon :score
-  :indoc '("durations (list)" "tempo" "list of time signature(s)" "maximum subdivision"  "list forbidden subdivisions" "grace-notes?" "precision (0.0-1.0)")
-  :doc "Quantizes a list of durs (1000 = 1 sec.) into a metric structure.
+  :indoc '("durations" "tempo" "list of time signature(s)" "maximum subdivision"  "list forbidden subdivisions" "grace-notes?" "precision (0.0-1.0)")
+  :doc "Quantizes a list of durs in milliseconds into a metric structure.
 The result is a rhythm tree to be connected to the <tree> input of a voice.
 
-<durs>   is a list of durations in 1/1000th of a second.
+<durs>   is a list of durations in milliseconds (or a CHORD-SEQ object).
 <tempi>  is a tempo
 <measures> is a list of measure signature (e.g. ((3 4) (7 8) (1 4) ... ) )
 <max/>   is the maximum  subdivision of the beat (8 with beat=quarter means 32nd note)
@@ -140,6 +140,17 @@ at the beat level. Here is an example:
                          forbid (or offset 0) 1)))
     (korrected-kant (reducetree rep))
     ))
+
+
+
+(defmethod* omquantify ((self chord-seq) (tempi t) (measures list) (max/ t)
+                        &optional forbid offset precis)
+  (omquantify ; (true-durations self)
+   (x->dx (lonset self))
+   tempi measures max/ forbid offset precis))
+
+
+
 
 
 ; correction by K. Haddad included in omquantify 21/10/2008 in OM 6.0.4

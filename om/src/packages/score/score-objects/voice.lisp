@@ -37,6 +37,12 @@
 
 (defmethod additional-class-attributes ((self voice)) '(lvel loffset lchan lport))
 
+(defmethod objFromObjs ((model chord-seq) (target voice))
+  (make-instance 'voice
+                 :tree (omquantify model 60 '(4 4) 8)
+                 :lmidic (lmidic model) 
+                 :tempo 60))
+
 
 (defclass rhythmic-object (score-object) 
   ((tree :initform '(1 (1 1 1 1)) :accessor tree :initarg :tree :type list :documentation "a rhythm tree")
@@ -258,6 +264,11 @@
                 ))
     
     (values curr-n-chord curr-last-chord)))
+
+
+
+
+
 
 
 
