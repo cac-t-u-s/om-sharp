@@ -555,21 +555,6 @@
     ))
 
 
-;;; SOME MODIFICATIONS TO MAKE:
-;;; input order in accum
-;;; auto connect forloop/while loops etc. to iterate
-;;; convert the finally to several outputs
-
-(defmethod om-load-from-id ((id (eql :loop-patch)) data)
-  (let ((patch (om-load-from-id :patch data)))
-    
-    ;;; do corrections
-    (loop for box in (boxes patch) do
-          (initialize-size box))
-   
-    patch))
-
-
 (defmethod om-load-boxcall ((class (eql 'genfun)) name (reference (eql 'listloop)) inputs position size value lock &rest rest)
   `(:box
     (:type :special)
@@ -578,7 +563,20 @@
     (:x ,(om-point-x position))
     (:y ,(om-point-y position))
     (:w ,(and size (om-point-x size)))
-    (:inputs .,inputs)))
+    (:inputs .,(remove nil 
+                       (list
+                        `(:input 
+                          (:type :standard) 
+                          (:name "list")
+                          (:value ,(find-value-in-kv-list (cdr (eval (first inputs))) :value)))
+                        (when (second inputs)
+                          `(:input 
+                            (:type :optional) 
+                            (:name "by")
+                            (:value ,(find-value-in-kv-list (cdr (eval (second inputs))) :value)))
+                          )))
+     )))
+
 
 (defmethod om-load-boxcall ((class (eql 'genfun)) name (reference (eql 'onlistloop)) inputs position size value lock &rest rest)
   `(:box
@@ -588,7 +586,19 @@
     (:x ,(om-point-x position))
     (:y ,(om-point-y position))
     (:w ,(and size (om-point-x size)))
-    (:inputs .,inputs)))
+    (:inputs .,(remove nil 
+                       (list
+                        `(:input 
+                          (:type :standard) 
+                          (:name "list")
+                          (:value ,(find-value-in-kv-list (cdr (eval (first inputs))) :value)))
+                        (when (second inputs)
+                          `(:input 
+                            (:type :optional) 
+                            (:name "by")
+                            (:value ,(find-value-in-kv-list (cdr (eval (second inputs))) :value)))
+                          ))))
+    ))
 
 (defmethod om-load-boxcall ((class (eql 'genfun)) name (reference (eql 'forloop)) inputs position size value lock &rest rest)
   `(:box
@@ -598,7 +608,22 @@
     (:x ,(om-point-x position))
     (:y ,(om-point-y position))
     (:w ,(and size (om-point-x size)))
-    (:inputs .,inputs)))
+    (:inputs .,(remove nil 
+                       (list
+                        `(:input 
+                          (:type :standard) 
+                          (:name "from")
+                          (:value ,(find-value-in-kv-list (cdr (eval (first inputs))) :value)))
+                        `(:input 
+                          (:type :standard) 
+                          (:name "to")
+                          (:value ,(find-value-in-kv-list (cdr (eval (second inputs))) :value)))
+                        (when (third inputs)
+                          `(:input 
+                            (:type :optional) 
+                            (:name "by")
+                            (:value ,(find-value-in-kv-list (cdr (eval (second inputs))) :value)))
+                          ))))))
 
 (defmethod om-load-boxcall ((class (eql 'genfun)) name (reference (eql 'whileloop)) inputs position size value lock &rest rest)
   `(:box
@@ -610,6 +635,8 @@
     (:w ,(and size (om-point-x size)))
     (:inputs .,inputs)))
 
+
+;;; COLLECT
 (defmethod om-load-boxcall ((class (eql 'genfun)) name (reference (eql 'listing)) inputs position size value lock &rest rest)
   `(:box
     (:type :special)
@@ -619,6 +646,129 @@
     (:y ,(om-point-y position))
     (:w ,(and size (om-point-x size)))
     (:inputs .,inputs)))
+
+
+;;; ACCUM
+(defmethod om-load-boxcall ((class (eql 'genfun)) name (reference (eql 'accumulator)) inputs position size value lock &rest rest)
+
+  (declare (ignore name reference value numouts))
+  
+  `(:box
+    (:type :special)
+    (:reference accum)
+    (:name "accum")
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:w ,(and size (om-point-x size)))
+    (:inputs .,inputs)
+    (:inputs 
+     (:input (:type :standard) (:name "data-in")
+      (:value ,(find-value-in-kv-list (cdr (eval (first inputs))) :value)))
+     
+     ; !!! we invert the values of 2nd and 3rd input
+     (:input (:type :standard) (:name "accum-function")
+      (:value ,(find-value-in-kv-list (cdr (eval (third inputs))) :value)))
+     (:input (:type :standard) (:name "init")
+      (:value ,(find-value-in-kv-list (cdr (eval (second inputs))) :value)))
+     )
+    ))
+
+
+(defmethod om-load-boxcall ((class (eql 'genfun)) name (reference (eql 'minim)) inputs position size value lock &rest rest)
+  (om-print "Warning/OMLoop: MIN converted to ACCUM" "Compatibility")
+  `(:box
+    (:type :special)
+    (:reference accum)
+    (:name "accum (converted from min)")
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:w ,(and size (om-point-x size)))
+    (:inputs 
+     (:input (:type :standard) (:name "data-in")
+      (:value ,(find-value-in-kv-list (cdr (eval (first inputs))) :value)))
+     (:input (:type :standard) (:name "accum-function")
+      (:value om-min))
+     (:input (:type :standard) (:name "init")
+      (:value nil))
+     )
+    ))
+  
+(defmethod om-load-boxcall ((class (eql 'genfun)) name (reference (eql 'maxi)) inputs position size value lock &rest rest)
+  (om-print "Warning/OMLoop: MAX converted to ACCUM" "Compatibility")
+  `(:box
+    (:type :special)
+    (:reference accum)
+    (:name "accum")
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:w ,(and size (om-point-x size)))
+    (:inputs 
+     (:input (:type :standard) (:name "data-in")
+      (:value ,(find-value-in-kv-list (cdr (eval (first inputs))) :value)))
+     (:input (:type :standard) (:name "accum-function")
+      (:value om-max))
+     (:input (:type :standard) (:name "init")
+      (:value nil))
+     )
+    ))
+
+(defmethod om-load-boxcall ((class (eql 'genfun)) name (reference (eql 'sum)) inputs position size value lock &rest rest)
+  (om-print "Warning/OMLoop: SUM converted to ACCUM" "Compatibility")
+  `(:box
+    (:type :special)
+    (:reference accum)
+    (:name "accum")
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:w ,(and size (om-point-x size)))
+    (:inputs 
+     (:input (:type :standard) (:name "data-in")
+      (:value ,(find-value-in-kv-list (cdr (eval (first inputs))) :value)))
+     (:input (:type :standard) (:name "accum-function")
+      (:value om+))
+     (:input (:type :standard) (:name "init")
+      (:value 0))
+     )
+    ))
+
+(defmethod om-load-boxcall ((class (eql 'genfun)) name (reference (eql 'counter)) inputs position size value lock &rest rest)
+  (om-print "Warning/OMLoop: COUNT converted to ACCUM" "Compatibility")
+  `(:box
+    (:type :special)
+    (:reference accum)
+    (:name "accum")
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:w ,(and size (om-point-x size)))
+    (:inputs 
+     (:input (:type :standard) (:name "data-in")
+      (:value ,(find-value-in-kv-list (cdr (eval (first inputs))) :value)))
+     (:input (:type :standard) (:name "accum-function")
+      (:value om-1+))
+     (:input (:type :standard) (:name "init")
+      (:value 0))
+     )
+    ))
+
+
+
+;;; used for the eachtime/iterate, finally/tempfinall, initdo/init-do boxes 
+(defun convert-loop-box-inputs (inputs)
+  (cons 
+   ;;; one standard input...
+   (let* ((in (eval (car inputs)))
+          (val (find-value-in-kv-list (cdr in) :value)))
+     `(:input 
+       (:type :standard) 
+       (:name "action")
+       (:value ,val)))
+   ;;; .. and the rest of optional inputs
+   (mapcar #'(lambda (i) 
+               (let* ((in (eval i))
+                      (val (find-value-in-kv-list (cdr in) :value)))
+                 `(:input 
+                   (:type :optional) (:name "action")
+                   (:value ,val)))) (cdr inputs))))
 
 
 ;;; EACH-TIME
@@ -633,8 +783,8 @@
     (:x ,(om-point-x position))
     (:y ,(om-point-y position))
     (:w ,(and size (om-point-x size)))
-    (:inputs .,(cons (eval (car inputs))
-                     (mapcar #'(lambda (i) '(:input (:type :optional) (:name "op+"))) (cdr inputs)))))
+    (:inputs .,(convert-loop-box-inputs inputs)) 
+    )
   )
 
 ;;; INITDO
@@ -649,22 +799,20 @@
     (:x ,(om-point-x position))
     (:y ,(om-point-y position))
     (:w ,(and size (om-point-x size)))
-    (:inputs .,(cons (eval (car inputs))
-                     (mapcar #'(lambda (i) '(:input (:type :optional) (:name "op+"))) (cdr inputs)))))
+    (:inputs .,(convert-loop-box-inputs inputs)))
   )
 
 
 ;;; Finally box needs to be replaced by one or several output boxe(es)
 ;;; but we need to "simulate" a single box during the time of loading the patch 
 ;;; in order to restore connections correctly
-
-;;; probably not everything is needed:
 (defclass TempFinally (OMPatchInit) ())
 (defclass TempFinallyBox (OMPatchInitBox) ())
 (defmethod special-box-p ((name (eql 'temp-finally))) t)
 (defmethod get-box-class ((self TempFinally)) 'TempFinallyBox)
 (defmethod box-symbol ((self TempFinally)) 'temp-finally)
-
+(defmethod omNG-make-special-box ((reference (eql 'temp-finally)) pos &optional init-args)
+  (omNG-make-new-boxcall (make-instance 'TempFinally :name "finally") pos init-args))
 
 
 ;;; FINALLY
@@ -679,10 +827,94 @@
     (:x ,(om-point-x position))
     (:y ,(om-point-y position))
     (:w ,(and size (om-point-x size)))
-    (:inputs .,(cons (eval (car inputs))
-                     (mapcar #'(lambda (i) '(:input (:type :optional) (:name "op+"))) (cdr inputs)))))
+    (:inputs .,(convert-loop-box-inputs inputs)))
   )
 
+
+
+(defmethod convert-temp-finally-to-outputs ((self TempFinallyBox) (patch OMPatch))
+ 
+  (let ((init-x (box-x self))
+        (init-y (box-y self)))
+
+    (loop for input in (inputs self)
+          for i from 0
+          do (let ((newout (omng-make-new-boxcall 
+                            (make-instance 'omout :index i :name (format nil "output ~D" (1+ i)))
+                          (om-make-point (+ init-x (* i 60)) init-y))))
+               
+               (omng-add-element patch newout)
+               (setf (value (car (inputs newout))) (value input))
+               
+               (when (car (connections input)) ;;; the input was connected...
+                 (let ((new-connection (omng-make-new-connection 
+                                        (from (car (connections input))) ;;; same "from" output
+                                        (car (inputs newout)))))
+                   (omng-add-element patch new-connection)))
+                   
+               ))
+    
+    (omng-remove-element patch self)))
+
+
+(defmethod connect-to-iterator-box ((self OMPatchLoopBox) (patch OMPatch))
+  
+  (unless (connections (car (outputs self)))
+    (let ((iterate-box (car (get-boxes-of-type patch 'OMPatchIteratorBox))))
+      ;;; in principle there will be one (and only one) iterate in the patch
+      (when iterate-box
+        (optional-input++ iterate-box)
+        (omng-add-element 
+         patch 
+         (omng-make-new-connection 
+          (car (outputs self))
+          (car (last (inputs iterate-box))))))
+      )))
+
+
+(defmethod flip-box-incoming-connections ((self OMBox) i1 i2)
+  
+  (let* ((in1 (nth i1 (inputs self)))
+         (in2 (nth i2 (inputs self)))
+         (c1 (car (connections in1)))
+         (c2 (car (connections in2))))
+    
+    (when c1 (setf (to c1) in2))
+    (when c2 (setf (to c2) in1))
+
+    ))
+ 
+
+;;; SOME MODIFICATIONS MADE:
+;;; - input order in accum
+;;; - auto connect forloop/while loops etc. to iterate
+;;; - convert the finally to several outputs
+
+(defmethod om-load-from-id ((id (eql :loop-patch)) data)
+  (let ((patch (om-load-from-id :patch data)))
+    
+    ;;; do corrections
+    (loop for box in (boxes patch) do
+
+          (setf (box-y box) (- (box-y box) 40))
+
+          (typecase box
+            
+            (OMValueBox 
+             (initialize-size box))
+            
+            (TempFinallyBox 
+             (convert-temp-finally-to-outputs box patch))
+            
+            (OMPatchLoopBox
+             (connect-to-iterator-box box patch))
+
+            (OMAccumBox
+             (flip-box-incoming-connections box 1 2))
+
+            (otherwise nil)))
+        
+    patch))
 
 
 
@@ -741,7 +973,7 @@
 (defmethod init-mus-color ((self t) color) )
 (defmethod set-extra-pairs ((self t) extras) )
 (defmethod set-tonalite ((self t) tonalite) )
-
+(defmethod set-object-analysis ((self t) analyse) )
 
 ;;; SCORE EDITOR PARAMS
 ;;; => hack / to(re)do when score editors are operational
@@ -867,7 +1099,7 @@ x INTERNAL PATCH
 GLOBAL PATCHES
 LISP-FUNCTIONS
 MAQUETTE
-OMLOOP
+x OMLOOP
 
 x PATCH WITH LIB FUNCTIONS
 

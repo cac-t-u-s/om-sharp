@@ -30,13 +30,13 @@
                                             :functions '(first second third nth rest nthcdr butlast reverse length
                                                                list remove cons append apply funcall mapcar mapcan))
                          (omNG-make-package "Control" 
-                                            :doc "Special boxes implementing control operators"
+                                            :doc "Special boxes implementing control operators, argumenta passing and memory"
                                             :functions '(seq hub split omif omand omor)
-                                            :special-symbols '(in out repeat-n init-do iterate mem collect)
+                                            :special-symbols '(in out repeat-n init-do mem collect)
                                             )
                          (omNG-make-package "Loop" 
                                             :doc "Special boxes for visual loop implementation"
-                                            :special-symbols '(init-do iterate loop-for loop-while loop-list loop-tail)
+                                            :special-symbols '(iterate init-do loop-for loop-while loop-list loop-tail accum collect)
                                             )
                          (omNG-make-package "Data" 
                                             :doc "Objects and data management in visual programs"

@@ -415,6 +415,10 @@ Ex. (om-min '(4 3 2 1) '(1 2 3 4))  => (1 2 2 1)
 "
   (min a b))
 
+ 
+(defmethod* om-min ((a number) (b null)) a)
+(defmethod* om-min ((a null) (b number)) b)
+
 (defmethod* om-min ((a number) (b list))  
   (mapcar #'(lambda (input)
                  (om-min a input)) b))
@@ -460,6 +464,9 @@ Ex. (om-max 3 '(1 2 3 4))  => (3 3 3 4)
 Ex. (om-max '(4 3 2 1) '(1 2 3 4))  => (4 3 3 4)"
   (max a b))
 
+(defmethod* om-max ((a number) (b null)) a)
+(defmethod* om-max ((a null) (b number)) b)
+
 (defmethod* om-max ((a number) (b list))  
   (mapcar #'(lambda (input)
                  (om-max a input)) b))
@@ -491,6 +498,9 @@ Ex. (list-max '(2 4 1 3))  => 4"
 (defmethod* list-max ((self t)) self)
 
 
+;===========================
+; ALL-EQUAL TEST
+;===========================
 
 (defmethod* all-equal ((list list) &optional (test 'equal))
   :initvals '(nil equal) :indoc '("a list" "a binary test function") 
@@ -506,6 +516,16 @@ Ex. (all-equal '(8 8 7 8) '=) => NIL"
             finally return ll) ;; if this is nil, then all elements were equal
       NIL
     (values T (car list))))
+
+
+;===========================
+; INCREMENT (incf
+;===========================
+(defmethod* om-1+ (a &optional (test t))
+  :initvals '(0 t)
+  :indoc '("a value" "something or nil")
+  :doc "increments <a> if <test> is non-NIL"
+  (if test (1+ a) a))
 
 
 

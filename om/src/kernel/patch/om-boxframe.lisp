@@ -802,9 +802,10 @@
                                                  (setf *connection-handler* nil)
                                                  (let ((target (om-find-view-containing-point panel pos)))
                                                    (when (and target (not (equal target self)))
-                                                     (let ((connected? (handle-connect-release target 
-                                                                                               (om-convert-coordinates pos panel target) 
-                                                                                               self oa patchpanel)))
+                                                     (let ((connected? (handle-connect-release 
+                                                                        target 
+                                                                        (om-convert-coordinates pos panel target) 
+                                                                        self oa patchpanel)))
                                                        (when after-fun (funcall after-fun connected?)) 
                                                        ;;; will not be called in handle-connect-release returns nil
                                                        )

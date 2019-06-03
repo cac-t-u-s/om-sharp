@@ -434,7 +434,6 @@
     ;              (error err)
     ;              )))
     
-    (print "gggggg")
     (multiple-value-bind (input-names body)
         (gen-patch-lisp-code self)
     
