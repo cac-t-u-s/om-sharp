@@ -131,7 +131,7 @@
                                          :fg-color #'(lambda (item) 
                                                        (if (and (mypathname item) (probe-file (mypathname item)))
                                                            (om-def-color :black) (om-make-color 0.8 0.2 0.2)))
-                                         :font (om-make-font "Courier" 12)
+                                         :font (om-def-font :mono)
                                          :alternating-background t
                                          :sort-styles 
                                          (list (list :name
@@ -223,7 +223,7 @@
                      :fg-color #'(lambda (item) 
                                    (if (and (mypathname item) (probe-file (mypathname item)))
                                        (om-def-color :black) (om-make-color 0.8 0.2 0.2)))
-                     :font (om-make-font "Courier" 12)
+                     :font (om-def-font :mono)
                      :alternating-background t
                      :auto-reset-column-widths t
                      :action-callback #'dbclicked-item-in-list

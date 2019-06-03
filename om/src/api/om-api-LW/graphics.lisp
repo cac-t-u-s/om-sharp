@@ -361,6 +361,7 @@
 	      #+linux (om-make-font "Bistream Vera Sans" 13)
               #-(or cocoa linux) (om-make-font def-face (nth 0 sizes)))
              (:score (om-make-font score-face 10))
+	     (:mono (om-make-font #-linux "Courier New" #+linux "Courier" 12))
              (:lambda ) ; ... a font that contains the lambda character...
              (otherwise (om-make-font def-face (nth 0 sizes))))))
       (when face (setf fa (gp::augment-font-description fa :family face)))
