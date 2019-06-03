@@ -23,29 +23,30 @@
 
 
 (defclass OMPatchComponentWithMemory (OMPatchComponent) 
-  ((mem-var :initform  (gentemp "MEM-") :accessor mem-var)
-   (timer-var :initform  nil :accessor timer-var)))
+  ((mem-var :initform  (gentemp "MEM-") :accessor mem-var)))
 
 (defmethod get-patch-component-box-def-color ((self OMPatchComponentWithMemory)) (om-make-color 0.82 0.7 0.7))
-
-(defmethod initialize-instance :after ((self ompatchcomponentwithmemory) &rest initargs)
-  (setf (timer-var self) (intern (string+ (symbol-name (mem-var self)) "-TIMER")))
-  (eval `(defvar ,(mem-var self) nil))
-  (eval `(defvar ,(timer-var self) nil)))
 
 
 ;;;------------------
 ;;; DELAY: 'mem'
 ;;; returns previous evaluation(s) on the right output
 ;;; the 'size' of memory can be expressed in number of cells (int) or in seconds (float)
+;;; !! MEM is not a global variable: it has a limited scope inside its containing patch
 ;;;------------------
 
 (defmethod special-box-p ((name (eql 'mem))) t)
 
 (defclass OMMemory (OMPatchComponentWithMemory) 
-  ((timetag :initform nil :accessor timetag)))
+  ((timer-var :initform  nil :accessor timer-var)
+   (timetag :initform nil :accessor timetag)))
 
 (defclass OMMemoryBox (OMPatchComponentBox) ())
+
+(defmethod initialize-instance :after ((self OMMemory) &rest initargs)
+  (setf (timer-var self) (intern (string+ (symbol-name (mem-var self)) "-TIMER")))
+  (eval `(defvar ,(timer-var self) nil)))
+
 
 (defmethod get-box-class ((self OMMemory)) 'OMMemoryBox)
 (defmethod box-symbol ((self OMMemory)) 'mem)
@@ -76,7 +77,8 @@
     :name "current value")
    (make-instance 
     'box-output :box self :value NIL
-    :name "past value(s)")))
+    :name "previous value(s)")))
+
 
 ;;; ALWAYS IN "EV-ONCE" MODE
 
@@ -117,7 +119,7 @@
     (return-value self numout))
 
 
-
+#|
 (defmethod gen-code  ((self OMMemoryBox) &optional (numout 0))
   
   (let* ((global-var (mem-var (reference self)))
@@ -136,24 +138,68 @@
                                             (first-n (cons (car ,global-var) 
                                                            (list! (cadr ,global-var)))
                                                      ,mem-size)))
-                                         ((floatp mem-size)
-                                          `(list ,new-val
-                                                 ;;; values received since last time-window started
-                                                 (if (or (null ,global-timer)  ;;; fresh memory
-                                                         (> (clock-time) (+ ,(* mem-size 1000) ,global-timer))) ;;; time out
-                                                     (progn 
-                                                       (setf ,global-timer (clock-time))
-                                                       (list ,new-val))
-                                                   (cons ,new-val 
-                                                         (list! (cadr ,global-var))))
-                                                 ))
-                                         (t `(list ,new-val (car ,global-var))))))
+                                    ((floatp mem-size)
+                                     `(list ,new-val
+                                            ;;; values received since last time-window started
+                                            (if (or (null ,global-timer)  ;;; fresh memory
+                                                    (> (clock-time) (+ ,(* mem-size 1000) ,global-timer))) ;;; time out
+                                                (progn 
+                                                  (setf ,global-timer (clock-time))
+                                                  (list ,new-val))
+                                              (cons ,new-val 
+                                                    (list! (cadr ,global-var))))
+                                            ))
+                                    (t `(list ,new-val (car ,global-var))))))
          :global)
         ))
     
     `(nth ,numout ,local-name)
     ))
+|#
+
+
+
+
+(defmethod gen-code  ((self OMMemoryBox) &optional (numout 0))
   
+  (let* ((global-var (mem-var (reference self)))
+         (global-timer (timer-var (reference self)))
+         (local-name (intern (string+ (symbol-name global-var) "-LOCAL")))
+         (first-call (not (check-let-statement local-name :global))))
+    
+    (if first-call
+        ;;; mem is always in a sort of ev-once mode
+        (let ((mem-size (gen-code (cadr (inputs self))))
+              (new-val (gen-code (car (inputs self)))))
+          
+          (push-let-statement `(,local-name nil) :global)
+          
+          `(PROGN (setf ,local-name 
+                        ,(cond ((integerp mem-size)
+                                `(list ,new-val  
+                                       (first-n (cons (car ,local-name) 
+                                                      (list! (cadr ,local-name)))
+                                                ,mem-size)))
+                               
+                       ((floatp mem-size)
+                        `(list ,new-val
+                               ;;; values received since last time-window started
+                               (if (or (null ,global-timer)  ;;; fresh memory
+                                       (> (clock-time) (+ ,(* mem-size 1000) ,global-timer))) ;;; time out
+                                   (progn 
+                                     (setf ,global-timer (clock-time))
+                                     (list ,new-val))
+                                 (cons ,new-val 
+                                       (list! (cadr ,local-name))))
+                               ))
+
+                       (t `(list ,new-val (car ,local-name)))))
+             (nth ,numout ,local-name))
+          )
+      
+    `(nth ,numout ,local-name)
+    )))
+
   
 
 ;;;------------------
