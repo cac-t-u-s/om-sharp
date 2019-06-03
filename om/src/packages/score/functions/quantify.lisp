@@ -59,13 +59,9 @@
 (defvar *proportions-iota* 0.001)
 
 
-(defmethod* omquantify ((durs list) (tempi t) (measures list)
-                            (max/ t)
-                            &optional
-                            forbid
-                            offset
-                            precis)
-  :initvals '((100) 60 (4 4) 8  nil 0 0.5)
+(defmethod* omquantify ((durs list) (tempi t) (measures list) (max/ t)
+                        &optional forbid offset precis)
+  :initvals '((100) 60 (4 4) 8 nil 0 0.5)
   :icon :score
   :indoc '("durations (list)" "tempo" "list of time signature(s)" "maximum subdivision"  "list forbidden subdivisions" "grace-notes?" "precision (0.0-1.0)")
   :doc "Quantizes a list of durs (1000 = 1 sec.) into a metric structure.
@@ -117,30 +113,31 @@ To impose subdivisions, you add a !  at the beginning of the lists.
 
 At a global level
 
-(! 5)           imposes a subdivision by five on the entire sequence
-(! 5 7 6)       imposes a subdivision by 5, by 7, or by 6 on the entire sequence.
+ (! 5)           imposes a subdivision by five on the entire sequence
+ (! 5 7 6)       imposes a subdivision by 5, by 7, or by 6 on the entire sequence.
 
 The syntax is the same for all other levels:
 
 For measures
 
-((!  3 4) (! 5) () () ())
+ ((!  3 4) (! 5) () () ())
 
 and for beats
 
-(   ((! 5 4) () (!  3 6) ())  (() () ( ! 8 7) ())  (!  3 2)  ()  ) .
+ (   ((! 5 4) () (!  3 6) ())  (() () ( ! 8 7) ())  (!  3 2)  ()  ) .
 
 Of course, it is possible to mix syntaxes at the measure level as well as
 at the beat level. Here is an example:
-(   (( 5 4) () (!  3 6) ())  ((! 6) () (  8 7) ())  (!  3 2)  (6 8)  )"
+ (   (( 5 4) () (!  3 6) ())  ((! 6) () (  8 7) ())  (!  3 2)  (6 8)  )"
 
   (unless precis (setq precis 0.5))
   (setf *distance-weight*  (if (numberp precis) (list (list precis)) precis))
   ; (quant-edit durs tempi measures  (if (numberp max/) (list (list max/))
   ;                                     max/) forbid (or offset 0) 1)
   ;aaa 12-03-98 quantify in ms
-  (let ((rep (quant-edit (om/ durs 10) tempi measures  (if (numberp max/) (list (list max/))
-                                                         max/) forbid (or offset 0) 1)))
+  (let ((rep (quant-edit (om/ durs 10) tempi measures 
+                         (if (numberp max/) (list (list max/)) max/)
+                         forbid (or offset 0) 1)))
     (korrected-kant (reducetree rep))
     ))
 
@@ -212,7 +209,7 @@ A list of forbidden <forbid> unit divisions can optionally be
 specified. The output is a list of
 'measure-objects' that can be entered directly into an rtm-
 box."
- (setf max/ (reduit-max max/))  ;by AAA
+  (setf max/ (reduit-max max/))  ;by AAA
   (let* ((tempos (if (= autom 2) (select-tempo durs) (expand-lst (list! tempi))))   ;(expand-lists (list! tempi))))
          (measures-x (expand-lst measures))
          (measures (if (consp (car measures-x)) measures-x (list measures-x)))
@@ -233,10 +230,12 @@ box."
          (def-preci (first (last *distance-weight*)))
          *global-grace-notes* old-silence (*max-division* max/))
     (reset-error)
-    (do ()  ((null atimes))
+    
+    (do ()  ((null (cdr atimes)))      ; dx->x above adds an extra item at the end...
       (setf *max-division* (or (nth (+ 1 measure-number) max-list) def-max))
       (setf *distance-weight* (or (nth (+ 1 measure-number) max-preci) def-preci))
-      (multiple-value-bind (beats times slur? current-time )
+
+      (multiple-value-bind (beats times slur? current-time)
                            (get-rhythms atimes :tempo (setq current-tempo (or (pop tempos) deftempo))
                                         :sign (if (car measures)
                                                 (cons (first (car measures))
@@ -244,6 +243,7 @@ box."
                                                 (progn (setq current-unit (cdr def-measure)) def-measure))
                                         :start-time c-time :forbid (or (nth (incf measure-number) forbids) def-forbid)
                                         :old-slur? slur-fl)
+        
         (setq atimes times c-time current-time)
         (setq slur-fl slur?)
         (if beats
@@ -251,9 +251,12 @@ box."
                                (put-in-silences beats durs old-silence)
             (setq old-silence new-silence)
             (when beats-with-silences
-              (push (make-a-measure  beats-with-silences current-tempo current-unit) result)       
+              (push (make-a-measure beats-with-silences current-tempo current-unit) result)       
               (setq durs (nthcdr modifs durs))))
-          (setq atimes nil))))
+          (setq atimes nil)))
+      
+      )
+
     (unless (zerop *unquantized-notes*)
       (if result
           (om-print-format
@@ -262,6 +265,7 @@ box."
                   "OMQUANTIFY")
         (om-print "Cannot quantize with the given constraints" "OMQUANTIFY"))
       (om-beep))
+    
     (setq result (nreverse result))
 
     ;;(unless (zerop *unquantized-notes*)
@@ -335,6 +339,7 @@ box."
       (loop-beats beats))))
 
 
+
 (defun get-rhythms (notes &key (tempo 60) (sign '(4 . 4)) (nb-pulse-max 16)
                           start-time  old-slur? forbid)
   (declare (ignore nb-pulse-max))
@@ -392,13 +397,21 @@ box."
       (setf *minimum-quant-dur* (/ 60 tempo *max-division*))
       ;
       )
+
     (when (not atimes)
-      (when old-slur? (last-division-is-silence beat-rythm-forms) (setq
-                                                                   old-slur? nil))
-      (do () ((not (>= (- measure-end to-dur) *minimum-quant-dur*))) (push
-                                                                      '(-1) beat-rythm-forms) (incf to-dur beat-dur)))
-    (values (compound-beats (nreverse beat-rythm-forms)) atimes old-slur?
-            to-dur beat-dur)))
+      (when old-slur? 
+        (last-division-is-silence beat-rythm-forms) 
+        (setq old-slur? nil))
+      (do () ((not (>= (- measure-end to-dur) *minimum-quant-dur*))) 
+        (push '(-1) beat-rythm-forms) (incf to-dur beat-dur)))
+    
+    (values 
+     (compound-beats (nreverse beat-rythm-forms))
+     atimes 
+     old-slur? 
+     to-dur 
+     beat-dur)
+))
 
 (defun compound-beats (beat-list)
   (mapcar #'(lambda (beat) (if (null (cdr beat)) (car beat) (list 1 beat)))
