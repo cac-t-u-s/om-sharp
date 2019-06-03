@@ -60,9 +60,12 @@ Converts <tree> into a list of ratio where
 1/4 is a quarter note, 1/8 is an eight note etc.
 "
   (let* ((res ())
-         (pulses (flat (get-pulses tree)))
-         (ratios (flat (tree-to-ratios tree))))
-
+         (tree-formatted (if (listp (car tree))
+                             (list (length tree) tree)
+                             tree))
+         (pulses (flat (get-pulses tree-formatted)))
+         (ratios (flat (tree-to-ratios tree-formatted))))
+    
     (loop for p in pulses
           do (if (floatp p)
                  (progn 
