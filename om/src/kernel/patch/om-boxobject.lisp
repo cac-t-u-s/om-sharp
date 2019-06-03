@@ -181,8 +181,11 @@
 ;;;===============================
 
 (defmethod objFromObjs ((model t) (target t))
-  (when (subtypep (type-of target) (type-of model))
-    (clone-object model target)))
+  (if (or (subtypep (type-of target) (type-of model))
+          (subtypep (type-of model) (type-of target)))
+      (clone-object model target)
+    (om-beep-msg "No conversion method was found from ~A to ~A" (type-of model) (type-of target))
+    ))
 
 
 ; don't mess with packages: send interned symbols to these functions

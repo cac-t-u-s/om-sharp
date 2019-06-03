@@ -158,19 +158,20 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
 
 
 (defmethod set-bpf-points ((self 3DC) &key x y z time time-types)
+  
+  (setf (point-list self)  (make-3D-points-from-lists (or x (x-values-from-points self)) 
+                                                      (or y (y-values-from-points self)) 
+                                                      (or z (z-values-from-points self))
+                                                      (decimals self)
+                                                      'om-make-3dpoint))
   (let ((times (or time (time-values-from-points self))))
-    (setf (point-list self)  (make-3D-points-from-lists (or x (x-values-from-points self)) 
-                                                        (or y (y-values-from-points self)) 
-                                                        (or z (z-values-from-points self))
-                                                        (decimals self)
-                                                        'om-make-3dpoint))
     (when times
       (if (listp times)
-        (loop for p in (point-list self)
-              for time in times do (setf (tpoint-time p) time))
+          (loop for p in (point-list self)
+                for time in times do (setf (tpoint-time p) time))
         (loop for p in (point-list self)
               do (setf (tpoint-time p) times))))
-     (when time-types
+    (when time-types
       (loop for p in (point-list self)
             for type in time-types do (om-point-set p :type type)))
     
@@ -291,17 +292,12 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
   (om-beep-msg "BUILD 3DC POINTS: Wrong coordinate lists!"))
 
 
-;;; need to convert the points to 3Dpoints 
-(defmethod objfromobjs ((model bpf) (target 3DC))
+;;; need to convert the points between the different subtypes of BPF 
+(defmethod objfromobjs ((model bpf) (target bpf))
   (let ((rep (call-next-method)))
     (init-bpf-points rep)
     rep))
 
-;;; need to convert the 3Dpoints to points 
-(defmethod objfromobjs ((model 3DC) (target bpf))
-  (let ((rep (call-next-method)))
-    (init-bpf-points rep)
-    rep))
 
 ;;;==========================
 ;;;redefined timed objects methods

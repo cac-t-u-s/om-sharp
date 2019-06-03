@@ -131,7 +131,9 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 (defmethod bpc-p ((self bpc)) t)
 (defmethod bpc-p ((self t)) nil)
 
+
 (defmethod time-values-from-points ((self BPC)) (mapcar #'tpoint-time (point-list self)))
+
 
 (defmethod (setf decimals) ((decimals t) (self BPC))
   (let ((x (x-values-from-points self))
@@ -155,17 +157,20 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 
 ;;; NO X-SORT IN BPCS
 (defmethod set-bpf-points ((self bpc) &key x y z time time-types)
+  
+  (setf (point-list self) (make-points-from-lists (or x (x-values-from-points self)) ;  (slot-value self 'x-points))
+                                                  (or y (y-values-from-points self)) ;  (slot-value self 'y-points))
+                                                  (decimals self)
+                                                  'om-make-tpoint))
+  
   (let ((times (or time (time-values-from-points self))))
-    (setf (point-list self)  (make-points-from-lists (or x (x-values-from-points self)) ;  (slot-value self 'x-points))
-                                                     (or y (y-values-from-points self)) ;  (slot-value self 'y-points))
-                                                     (decimals self)
-                                                     'om-make-tpoint))
     (when times
       (loop for p in (point-list self)
             for time in times do (setf (tpoint-time p) time)))
     (when time-types
       (loop for p in (point-list self)
             for type in time-types do (om-point-set p :type type)))
+
     (setf (slot-value self 'x-points) NIL)
     (setf (slot-value self 'y-points) NIL)
     (setf (slot-value self 'times) NIL)
