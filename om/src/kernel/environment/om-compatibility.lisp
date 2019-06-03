@@ -104,6 +104,7 @@
   ;;; only top-level patch acually load their contents:
   (omng-load
    `(:patch
+     (:name ,name)
      (:boxes .,(loop for box-code in boxes collect (eval box-code)))
      (:connections .,(loop for c in connections collect (format-imported-connection c)))
      )
@@ -132,6 +133,8 @@
 ;======================================
 ; PATCH BOX
 ;======================================
+;;; textfun will also call this one. 
+;;; they load ok anyway.
 (defmethod om-load-boxcall ((self (eql 'abstraction)) name reference inputs position size value lock &rest rest)
 
   (declare (ignore name value rest))
@@ -154,20 +157,31 @@
   )
 
 
+(defun om-load-lisp-abspatch (name version expression)
+  `(:textfun
+    (:om-version ,version)
+    (:name ,name)
+    (:text
+     (:list .,(string-to-list expression "$")))
+    ))
+
 
 ;======================================
 ; BOXES (GENERAL)
 ;======================================
 ;;; a box input
 (defun om-load-inputfun (class doc name value) 
+  (declare (ignore class doc))
   `(:input (:type :standard) (:name ,name) (:value ,(omng-save value))))
 
 ;;; a box input "keyword" 
 (defun om-load-inputkeyword (class doc name value defval menu) 
+  (declare (ignore class doc value menu))
   `(:input (:type :key) (:name ,name) (:value ,(omng-save defval))))
 
 ;;; a box input with menu for different values
 (defun om-load-inputfunmenu1 (class doc name value items) 
+  (declare (ignore class doc items))
   `(:input (:type :standard) (:name ,name) (:value ,(omng-save value))))
 
 
@@ -258,8 +272,10 @@
 ; OBJECT BOXES
 ;======================================
 
-(defun om-load-editor-box1 (name reference inputs position size value lock &optional fname editparams spict meditor pictlist show-name)
-  
+(defun om-load-editor-box1 (name reference inputs position size value lock 
+                                 &optional fname editparams spict meditor pictlist show-name)
+  (declare (ignore fname editparams meditor pictlist))
+
   (let ((inputs (loop for formatted-in in (mapcar #'eval inputs) collect
                       ;;; correct the type and eventually the name of box inputs
                       (let ((name (check-arg-for-new-name 
@@ -349,7 +365,7 @@
 
 (defun om-load-boxinstance (name instance inputs position &optional fname size) 
   
-  (declare (ignore inputs fname size))
+  (declare (ignore inputs fname))
   
   (let* ((value (instance instance))
          (type (type-of value)))
@@ -434,6 +450,8 @@
   (map 'string #'(lambda (x) (if (equal x #\Newline) #\$ x)) str))
 
 (defun om-load-boxcomment (name size reference value position fname color style) 
+  (declare (ignore name value fname))
+  
   `(:comment
      (:text ,(str-with-nl reference))
      (:x ,(om-point-x position))
@@ -513,7 +531,10 @@
     (:y ,(om-point-y position))
     (:w ,(and sizeload (om-point-x sizeload)))
     (:inputs .,(cons (eval (car inputs))
-                     (mapcar #'(lambda (i) '(:input (:type :optional) (:name "op+"))) (cdr inputs))))
+                     (mapcar #'(lambda (i) 
+                                 (declare (ignore i))
+                                 '(:input (:type :optional) (:name "op+")))
+                             (cdr inputs))))
     (:lock ,(when lock (cond ((string-equal lock "x") :locked)
                              ((string-equal lock "&") :eval-once))))
     )
@@ -840,7 +861,7 @@
     (loop for input in (inputs self)
           for i from 0
           do (let ((newout (omng-make-new-boxcall 
-                            (make-instance 'omout :index i :name (format nil "output ~D" (1+ i)))
+                            (make-instance 'omout :name (format nil "output ~D" (1+ i)))
                           (om-make-point (+ init-x (* i 60)) init-y))))
                
                (omng-add-element patch newout)
@@ -1025,6 +1046,7 @@
 
 ;;; SOUND
 (defun load-sound (path &optional track vol pan)
+  (declare (ignore track vol pan))
   (let ((filepath (or (file-exist-p path)
                       (search-for-resource path))))
     (get-sound filepath)))
@@ -1096,10 +1118,13 @@ x INSTANCE BOXES
 ;;; Abstractions
 x IN/OUTS
 x INTERNAL PATCH
-GLOBAL PATCHES
-LISP-FUNCTIONS
-MAQUETTE
+x LISP-FUNCTIONS
 x OMLOOP
+
+GLOBAL PATCHES
+GLOBAL VARS
+MAQUETTE
+DIALOG-ITEMS
 
 x PATCH WITH LIB FUNCTIONS
 
