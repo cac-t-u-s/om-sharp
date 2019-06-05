@@ -219,10 +219,10 @@
                 :font (om-def-font :font1)
                 :di-action #'(lambda (item)
                                (let ((choice (om-choose-font-dialog :font (pref-item-value pref-item))))
-                                 (om-set-dialog-item-text item (font-to-str choice))
-                                 (setf (pref-item-value pref-item) choice)
-                                 (maybe-apply-pref-item-after-fun pref-item)
-                                 )))))
+                                 (when choice
+				   (om-set-dialog-item-text item (font-to-str choice))
+                                   (setf (pref-item-value pref-item) choice)
+                                   (maybe-apply-pref-item-after-fun pref-item)))))))
 
 (defmethod make-preference-item ((type (eql :color)) pref-item)
   (om-make-view 'color-view 

@@ -1296,7 +1296,7 @@
 (defun make-lisp-code-pane (editor)
   (let ((lisp-pane (om-make-di 'om-multi-text 
                                :text (format-lisp-code-string (get-patch-lambda-expression (object editor)) 60)
-                               :font (om-make-font "Courier New" 12)
+			       :font (om-def-font :mono)
                                :size (omp nil nil)
                                )))
                         
