@@ -358,7 +358,7 @@
   (window-title-for-object (car (value self))))
 
 (defmethod def-reactive ((self OMBoxEditCall) key) 
-  (find key (additional-box-attributes-names self)))
+  (if (find key (additional-box-attributes-names self)) T NIL))
 
 ;;; NOT ! called when properties are changed in the inspector
 (defmethod om-init-instance ((self omboxeditcall) &optional initargs)

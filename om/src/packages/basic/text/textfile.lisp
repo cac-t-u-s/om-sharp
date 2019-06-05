@@ -51,13 +51,16 @@ As output it returns the contents of the text buffer as a list formatted accordi
 ;    - ':text' : returns a single text
 
 
+;;; I don't remember why :output-mode is a box attribute and :input-mode a class attrobute... :(
+
+
 (defmethod additional-class-attributes ((self textbuffer)) '(input-mode))
 
 (defmethod class-attributes-menus ((self textbuffer))
   '((input-mode (("2D matrix" :lines-cols) 
                  ("list of lines" :lines) 
                  ("plain" :value)))))
-  
+
 (defmethod additional-box-attributes ((self textbuffer)) 
   '((:output-mode "determines how <contents> text is formatted for output" 
      (("list of lists" :lines-cols) 

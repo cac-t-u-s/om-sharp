@@ -272,7 +272,7 @@
 ; OBJECT BOXES
 ;======================================
 
-(defun om-load-editor-box1 (name reference inputs position size value lock 
+(defmethod om-load-editor-box1 (name reference inputs position size value lock 
                                  &optional fname editparams spict meditor pictlist show-name)
   (declare (ignore fname editparams meditor pictlist))
 
@@ -1015,6 +1015,9 @@
    (sheet-id :accessor sheet-id)
    (page-mode :accessor page-mode)))
    
+
+;;; CHORD-SEQ LEGATO IS NO LONGER % but a simple factor
+
 ;;; BPF
 (defun simple-bpf-from-list (x-points y-points &optional (class 'bpf) (decimals 0))
   (make-instance class :x-points x-points :y-points y-points :decimals decimals))
@@ -1051,6 +1054,9 @@
                       (search-for-resource path))))
     (get-sound filepath)))
 
+(defun om-load-if (pathname fun)
+  (funcall fun pathname))
+
 
 ;============================================================================
 ; CHANGED ARG NAMES
@@ -1081,6 +1087,50 @@
 
 (defmethod update-value ((self bpf-lib))
   (make-instance 'collection :obj-list (bpf-list self)))
+
+
+;;; TEXTFILE
+;(defmethod update-reference ((ref (eql 'textfile))) 'textbuffer)
+;(defclass textfile (textbuffer) ())
+;(defmethod update-value ((self textbuffer)) self)
+
+(defun load-buffer-textfile (listline class edmode &optional (evmode "text"))
+  (omng-load 
+   `(:object
+     (:class textbuffer)
+     (:slots ((:contents ,(omng-save listline)))))))
+
+(defmethod om-load-editor-box1 (name (reference (eql 'textfile)) 
+                                     inputs position size value lock 
+                                     &optional fname editparams spict meditor pictlist show-name)
+  (declare (ignore reference fname editparams meditor pictlist))
+
+  (let* ((eval-mode-str (find-value-in-kv-list (cdr (eval (fourth inputs))) :value))
+         (eval-mode (cond ((string-equal eval-mode-str "text") :text-list)
+                          ((string-equal eval-mode-str "data list") :lines-cols)
+                          ((string-equal eval-mode-str "list") :list)
+                          ((string-equal eval-mode-str "value") :value)
+                          )))
+    `(:box
+      (:type :object)
+      (:reference textbuffer)
+      (:name ,name)
+      (:value ,value)
+      (:x ,(om-point-x position))
+      (:y ,(om-point-y position))
+      (:w ,(om-point-x size))
+      (:h ,(om-point-y size))
+      (:lock ,(if lock (cond ((string-equal lock "x") :locked)
+                             ((string-equal lock "&") :eval-once))))
+      (:showname ,show-name)
+      (:display ,(if spict :mini-view :hidden))
+      (:edition-params (:output-mode ,eval-mode))
+      (:inputs 
+       (:input (:type :standard) (:name "self") (:value nil))
+       (:input (:type :standard) (:name "contents") (:value nil))
+       (:input (:type :key) (:name "output-mode") (:value ,eval-mode))
+       )
+      )))
 
 
 
