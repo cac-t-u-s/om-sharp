@@ -445,11 +445,11 @@
                 :di-action #'(lambda (item)
                                (let ((choice (om-choose-font-dialog :font (or (get-property object prop-id)
                                                                               (and update (om-get-font update))))))
-                                 (om-set-dialog-item-text item (font-to-str choice))
-                                 (om-set-font item (om-def-font :font1 :style (om-font-style choice)))
-                                 (set-property object prop-id choice)
-                                 (when update (update-after-prop-edit update object))
-                                 )))))
+                                 (when choice
+				   (om-set-dialog-item-text item (font-to-str choice))
+                                   (om-set-font item (om-def-font :font1 :style (om-font-style choice)))
+                                   (set-property object prop-id choice)
+                                   (when update (update-after-prop-edit update object))))))))
 
 
 (defmethod make-prop-item ((type (eql :font-or-nil)) prop-id object &key default update)
@@ -485,13 +485,13 @@
                                        (let ((choice (om-choose-font-dialog 
                                                       :font (or (font-font (get-property object prop-id))
                                                                 (and update (om-get-font update))))))
-                                         (om-set-dialog-item-text item (font-to-str choice))
-                                         (om-set-font item (om-def-font :font1 :style (om-font-style choice)))
-                                         (set-property object prop-id 
-                                                       (make-font-or-nil :font choice
-                                                                         :t-or-nil t))
-                                         (when update (update-after-prop-edit update object))
-                                         )))
+                                         (when choice
+					   (om-set-dialog-item-text item (font-to-str choice))
+                                           (om-set-font item (om-def-font :font1 :style (om-font-style choice)))
+                                           (set-property object prop-id 
+							 (make-font-or-nil :font choice
+                                                                           :t-or-nil t))
+                                           (when update (update-after-prop-edit update object))))))
 
             )
       (setf checkbox 
