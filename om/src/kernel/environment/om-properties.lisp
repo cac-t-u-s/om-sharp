@@ -226,7 +226,7 @@
                                   :decimals (or (number-or-nil-decimals type) 0)
                                   :size (om-make-point 60 18) 
                                   :resizable nil
-                                  :font (om-def-font :font2)
+                                  :font (om-def-font #-cocoa :font1 #+cocoa :font2)
                                   :min-val (or (number-or-nil-min type) 0) 
                                   :max-val (or (number-or-nil-max type) 10000)
                                   :after-fun #'(lambda (item)
@@ -296,7 +296,8 @@
                            :value (or (get-property object prop-id)
                                       (get-default-value default))
                            :size (om-make-point ;(list :string (format nil "~A" (get-property object prop-id))) 
-                                  (+ 40 (list-max (mapcar #'(lambda (x) (om-string-size (format nil "~A" x) (om-def-font :font1))) type)))
+                                  (+ #+cocoa 40 #-cocoa 30
+				     (list-max (mapcar #'(lambda (x) (om-string-size (format nil "~A" x) (om-def-font :font1))) type)))
                                   22)
                            :font (om-def-font :font1)
                            :di-action #'(lambda (item)
@@ -454,10 +455,9 @@
 
 (defmethod make-prop-item ((type (eql :font-or-nil)) prop-id object &key default update)
   
-  (flet (
-         (font-to-str (font) 
+  (flet ((font-to-str (font) 
            (if (om-font-p font)
-               (format nil " ~A ~Dpt ~A" (om-font-face font) (round (om-font-size font)) 
+               (format nil "~A ~Dpt" (om-font-face font) (round (om-font-size font)) 
                        (if nil ;(om-font-style font) 
                            (format nil "[~{~S~^ ~}]" (om-font-style font)) ""))
              "-"))
@@ -479,8 +479,8 @@
                                      (font-? (get-property object prop-id)))
                         :focus nil :default nil
                         :text (font-to-str (font-font current))
-                        :size (om-make-point (list :string (font-to-str (font-font current))) 26)
-                        :font (om-def-font :font1 :style (om-font-style (font-font current)))
+			:size (om-make-point (om-string-size (font-to-str (font-font current))) #+cocoa 26 #-cocoa nil)
+			:font (om-def-font :font1 :style (om-font-style (font-font current)))
                         :di-action #'(lambda (item)
                                        (let ((choice (om-choose-font-dialog 
                                                       :font (or (font-font (get-property object prop-id))
