@@ -95,10 +95,14 @@
 (defmethod initialize-instance ((self voice) &rest initargs)
   (call-next-method)
   
+  (when (list-subtypep (tree self) '(ratio number))
+    ;;; probably a list of ratios
+    (setf (tree self) (mktree (tree self) '(4 4))))
+   
+  (when (atom (car (tree self)))
     ;;; probably "old-formatted" RT, with "?" etc.
-  (unless (listp (car (tree self)))
     (setf (tree self) (cadr (tree self))))
-
+     
   (setf (tree self) (format-tree (normalize-tree (tree self))))
   
   ;;; compat OM 6 (temp)
