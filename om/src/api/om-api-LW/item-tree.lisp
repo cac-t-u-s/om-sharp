@@ -26,7 +26,8 @@
 
 (export '(om-item-tree
           om-make-tree-view
-          om-clicked-item-from-tree-view) :om-api)
+          om-double-clicked-item-from-tree-view
+          om-selected-item-from-tree-view) :om-api)
 
 ;;; the capi::extended-selection-tree-view may be better (?)
 ;;; but the simple one looks better...
@@ -62,10 +63,10 @@
                      (t #'(lambda (icon) item-icon)))
                    :callback-type :interface-data
                    :print-function (or print-item #'(lambda(x) (format nil "~a"  x )))
-                 ;:selection-callback #'(lambda (self item) (add-a-message self  "~&Selected item ~S" item))
+                   :selection-callback #'tree-view-selected-function
+                   :action-callback #'tree-view-action-function 
                  ;:extend-callback #'(lambda (self item)(add-a-message self  "~&Extended item ~S" item))
                  ;:retract-callback  #'(lambda (self item) (add-a-message self "~&Retracted item ~S" item))
-                   :action-callback 'test-extend-tree-view-action-function 
                  ;:delete-item-callback 'test-extend-tree-view-delete-callback
                    )))
 
@@ -78,10 +79,14 @@
     (apply 'format stream format-string args)))
     
 
-(defmethod om-clicked-item-from-tree-view (item window) nil)
+(defmethod om-double-clicked-item-from-tree-view (item window) nil)
+(defmethod om-selected-item-from-tree-view (item window) nil)
 
-(defun test-extend-tree-view-action-function (window item)
-  (om-clicked-item-from-tree-view item window))
+(defun tree-view-selected-function (window item)
+  (om-selected-item-from-tree-view item window))
+
+(defun tree-view-action-function (window item)
+  (om-double-clicked-item-from-tree-view item window))
   ;(print (list self item))
   ;(with-slots (tree) self
   ;  (capi:tree-view-update-item tree item t))
