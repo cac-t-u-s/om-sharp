@@ -93,63 +93,62 @@ Internally most of these values are just used to build a list of CHORD objects, 
   (let ((defdelay (if (>= (length Lonset) 2)
                       (- (car (last Lonset)) (car (last Lonset 2)))
                     1000)) ;;; the default delay between two chords if not specified otherwise
-        (defstart (or (pop Lonset) 0)))
-    
-    (cond 
-     
-     ;;; special cases.. 
-     ((list-subtypep Lmidic '(chord)) ;;; this is probably a mistake but we can deal with it
-      (om-print "chord-seq <lmidic> slot initialized with a list of chords." "Warning")
-      (time-sequence-set-timed-item-list self (om-copy Lmidic))) 
-     
-     ((list-subtypep LMidic '(note))
-      (om-print "chord-seq <lmidic> slot initialized with a list of notes." "Warning")
-      (time-sequence-set-timed-item-list self 
-                                         (mapcar #'(lambda (n) (ObjfromObjs n (make-instance 'chord))) Lmidic)))
-
-     (t
-      (let ((midics (list! Lmidic))
-            (vels (list! Lvel))
-            (durs (list! Ldur))
-            (offsets (list! Loffset))
-            (chans (list! Lchan))
-            (ports (list! Lport))
-            (legatos (list! Llegato)))
+        (defstart (or (pop Lonset) 0))
         
-        (let ((chords (loop while (or midics vels durs offsets ports)
-                            for midic = (or (pop midics) midic)
-                            for vel = (or (pop vels) vel)
-                            for dur = (or (pop durs) dur)
-                            for offset = (or (pop offsets) offset)
-                            for chan = (or (pop chans) chan)
-                            for port = (or (pop ports) port) 
-                            collect (make-instance 'chord 
-                                                   :Lmidic (list! midic) 
-                                                   :Lvel (list! vel)
-                                                   :Ldur (list! dur)
-                                                   :Loffset (list! offset)
-                                                   :Lchan (list! chan)
-                                                   :Lport (list! port)
-                                  ))))
-          
-          (loop for chord in chords
-                for onset = defstart then (or (pop Lonset)  (+ onset defdelay))
-                for next-ontset = (or (first Lonset) (+ onset defdelay))
-                for legato = (or (pop legatos) legato) 
-                do (setf (date chord) onset)
-                do (when (and legato (> legato 0))
-                     (let ((dur (round (* (- next-ontset onset) legato))))
-                       (loop for note in (notes chord) 
-                             do (setf (offset note) 0 
-                                      (dur note) dur))))
-                )
+        (midics (list! Lmidic))
+        (vels (list! Lvel))
+        (durs (list! Ldur))
+        (offsets (list! Loffset))
+        (chans (list! Lchan))
+        (ports (list! Lport))
+        (legatos (list! Llegato)))
+    
+    (let ((chord-list 
+           (cond 
+            
+            ;;; special cases.. 
+            ((list-subtypep Lmidic '(chord)) ;;; this is probably a mistake but we can deal with it
+             (om-print "chord-seq <lmidic> slot initialized with a list of chords." "Warning")
+             (om-copy Lmidic))
+            
+            ((list-subtypep LMidic '(note))
+             (om-print "chord-seq <lmidic> slot initialized with a list of notes." "Warning")
+             (mapcar #'(lambda (n) (ObjfromObjs n (make-instance 'chord))) Lmidic))
+
+            (t
+             (loop while (or midics vels durs offsets ports)
+                   for midic = (or (pop midics) midic)
+                   for vel = (or (pop vels) vel)
+                   for dur = (or (pop durs) dur)
+                   for offset = (or (pop offsets) offset)
+                   for chan = (or (pop chans) chan)
+                   for port = (or (pop ports) port) 
+                   collect (make-instance 
+                            'chord 
+                            :Lmidic (list! midic) 
+                            :Lvel (list! vel)
+                            :Ldur (list! dur)
+                            :Loffset (list! offset)
+                            :Lchan (list! chan)
+                            :Lport (list! port)
+                            )))
+             ))) ;;; end chord-list definition
+      
+      (loop for chord in chord-list
+            for onset = defstart then (or (pop Lonset)  (+ onset defdelay))
+            for next-ontset = (or (first Lonset) (+ onset defdelay))
+            for legato = (or (pop legatos) legato) 
+            do (setf (date chord) onset)
+            do (when (and legato (> legato 0))
+                 (let ((dur (round (* (- next-ontset onset) legato))))
+                   (loop for note in (notes chord) 
+                         do (setf (offset note) 0 
+                                  (dur note) dur))))
+            )
               
-              (time-sequence-set-timed-item-list self chords)
+      (time-sequence-set-timed-item-list self chord-list)
               
-              )))
-     )
-    self
-    ))
+      self)))
 
 
 (defmethod initialize-instance ((self chord-seq) &rest initargs)
