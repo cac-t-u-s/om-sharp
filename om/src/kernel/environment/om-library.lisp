@@ -84,18 +84,18 @@
 
 (defmethod lib-loader-file ((self OMLib))
    (om-make-pathname :directory (mypathname self) :name (name self) :type "omlib"))
+       
 
-  
 ;;; adds the library to the OM package tree
 ;;; does not load the lib yet
 (defun register-new-library (name path &optional (warn-if-exists t))
   (if (find-library name)
       (when warn-if-exists (om-beep-msg "A library named ~A already exists. Can not register it as new library." name))
     (let ((new-library (make-instance 'OMLib :mypathname path :name name)))
-      (if new-library
-          (setf (elements *om-libs-root-package*)
-                (append (elements *om-libs-root-package*) (list new-library)))
-        (om-beep-msg "Could not register library: ~A" path)))))
+      (load-library-metadata new-library)
+      (setf (elements *om-libs-root-package*)
+            (append (elements *om-libs-root-package*) (list new-library)))
+      )))
 
 
 (defun register-all-libraries (&optional (warn-if-exists t))
@@ -147,12 +147,22 @@
 ;;; used by defmethod! and defclass!
 (defvar *current-lib* nil "containts the library that is being loaded")
 
+(defmethod load-library-metadata ((lib OMLib))  
+  (let ((lib-file (om-make-pathname :directory (mypathname lib) :name (name lib) :type "omlib")))                                      
+    (when (probe-file lib-file)
+
+        (let ((lib-data (find-values-in-prop-list (list-from-file lib-file) :om-lib)))
+          
+          (setf (version lib) (find-value-in-kv-list lib-data :version)  
+                (doc lib) (find-value-in-kv-list lib-data :doc)
+                (author lib) (find-value-in-kv-list lib-data :author))
+          ))))
+
 ;;; loads a registered library
 (defmethod load-om-library ((lib string))
   (let ((the-lib (find-library lib)))
     (if the-lib (load-om-library the-lib)
       (om-beep-msg "Library: ~S not registered !" lib))))
-
 
 
 (defmethod load-om-library ((lib OMLib))   
@@ -179,6 +189,7 @@
                (files (find-values-in-prop-list lib-data :source-files))
                (symbols (find-values-in-prop-list lib-data :symbols)))
         
+          ;;; update the metadata ?
           (setf (version lib) version
                 (doc lib) doc
                 (author lib) author)
@@ -189,9 +200,13 @@
           (with-relative-ref-path 
            (mypathname lib)
            (mapc #'(lambda (f)
-                     (let ;((path (merge-pathnames (omng-load f) (mypathname lib)))) 
-                         ((path (omng-load f)))
-                       (compile&load (namestring path) t t)))
+                     (let ((path (omng-load f)))
+                       
+                       ;;; therefore we support both pathnames "om-formatted", and raw pathnames and strings
+                       (when (equal (car (pathname-directory path)) :relative)
+                         (setf path (merge-pathnames path (mypathname lib))))
+             
+                       (compile&load (namestring path) t t "omfasl")))
                  files)
            )
           ;;; set packages
