@@ -249,9 +249,85 @@
                             
                                   ))
                            )
+
+             (om-make-menu "Boxes"
+                           (list (om-make-menu "New..." 
+                                               (list 
+                                                ;(om-make-menu-item "Abstraction (p)" #'(lambda () (om-beep)))
+                                                ;(om-make-menu-item "Comment (c)" #'(lambda () (om-beep)))
+                                                ))
+                                 (om-make-menu-comp 
+                                  (list 
+                                   
+                                   (om-make-menu-item "Selection:" nil :enabled nil)
+                                   
+                                   (om-make-menu-item "Align"
+                                                      
+                                                      #'(lambda () (store-current-state-for-undo self)
+                                                          (align-selected-boxes self))
+                                                      
+                                                      :key "A"
+                                                      :enabled #'(lambda () (and (not (edit-lock self))
+                                                                                 (get-selected-boxes self)))
+                                                      )
+
+                                   (om-make-menu-item "Init Size"
+                                                      
+                                                      #'(lambda () (store-current-state-for-undo self)
+                                                          (mapc 'initialize-size 
+                                                                (or (get-selected-boxes self) (get-selected-connections self))))
+                                                      ; :key "i"
+                                                      :enabled #'(lambda () (and (not (edit-lock self))
+                                                                                 (or (get-selected-boxes self) 
+                                                                                     (get-selected-connections self))))
+                                                      )
+
+                                   (om-make-menu-item "Reinit Content"
+                                                      
+                                                      #'(lambda () (store-current-state-for-undo self)
+                                                          (mapc 'initialize-size 
+                                                                (or (get-selected-boxes self) (get-selected-connections self))))
+
+                                                      :enabled #'(lambda () (and (not (edit-lock self))
+                                                                                 (or (get-selected-boxes self) 
+                                                                                     (get-selected-connections self))))
+                                                      ; :key "I" :key-mod nil
+                                                      )
+
+                                   (om-make-menu-item "Connect One"
+                                                      
+                                                      #'(lambda () (store-current-state-for-undo self)
+                                                          (auto-connect-box (get-selected-boxes self) self (main-view self)))
+                                                      
+                                                      :enabled #'(lambda () (and (not (edit-lock self))
+                                                                                 (get-selected-boxes self)))
+                                                      )
+
+                                   (om-make-menu-item "Connect Sequence"
+
+                                                      #'(lambda () (store-current-state-for-undo self)
+                                                          (auto-connect-seq (get-selected-boxes self) self (main-view self)))
+                                                      
+                                                      :enabled #'(lambda () (and (not (edit-lock self))
+                                                                                 (get-selected-boxes self)))
+                                                      )
+
+                                   (om-make-menu-item "Set Reactive"
+
+                                                      #'(lambda () (store-current-state-for-undo self)
+                                                          (mapc 'set-reactive-mode (or (get-selected-boxes self) 
+                                                                                       (get-selected-connections self))))
+                                                      
+                                                      :enabled #'(lambda () (and (not (edit-lock self))
+                                                                                 (or (get-selected-boxes self) 
+                                                                                     (get-selected-connections self))))
+                                                      )
+                                   ))))
+             
              (om-make-menu "Windows" (default-windows-menu-items self))
              (om-make-menu "Help" (default-help-menu-items self))
              )))
+
 
 ;;; will be passed to the Help menus
 (defmethod get-selection-for-menu ((self patch-editor))
@@ -372,7 +448,12 @@
     (when panel
 
       (case key
-
+        
+        ;;; play/stop commands
+        ;(#\p (play-boxes selected-boxes))
+        (#\s (stop-boxes selected-boxes))   
+        (#\Space (play/stop-boxes selected-boxes))
+        
         (:om-key-delete (unless (edit-lock editor) 
                           (store-current-state-for-undo editor)
                           (remove-selection editor)))
@@ -384,12 +465,6 @@
         
         (#\p (unless (edit-lock editor)
                (make-new-abstraction-box panel)))
-
-        (#\i (unless (edit-lock editor) 
-               (store-current-state-for-undo editor)
-               (mapc 'initialize-size (or selected-boxes selected-connections))))
-        
-        (#\I (mapc 'initialize-box-value selected-boxes))
         
         (:om-key-left (unless (edit-lock editor)
                         (if (om-option-key-p) 
@@ -439,6 +514,7 @@
                (when selected-boxes
                  (store-current-state-for-undo editor)
                  (mapc 'keyword-input-- selected-boxes))))
+
         (#\> (unless (edit-lock editor) 
                (when selected-boxes
                  (store-current-state-for-undo editor)
@@ -463,48 +539,55 @@
                  (mapc 'switch-lambda-mode selected-boxes))))
              
         (#\m (mapc 'change-display selected-boxes))
+        
+        ;;; Box editing
+        ;;; =>  menu commands ?
 
+        ;(#\A (unless (edit-lock editor) 
+        ;       (store-current-state-for-undo editor)
+        ;       (align-selected-boxes editor)))
+        
         (#\c (unless (edit-lock editor)
                (store-current-state-for-undo editor)
                (if selected-boxes
                    (auto-connect-box selected-boxes editor panel)
                  (make-new-comment panel))))
+
         (#\C (unless (edit-lock editor) 
                (store-current-state-for-undo editor)
                (auto-connect-seq selected-boxes editor panel)))
         
-        ;;; => Edit menu command ?
-        (#\A (unless (edit-lock editor) 
+                (#\r (unless (edit-lock editor) 
                (store-current-state-for-undo editor)
-               (align-selected-boxes editor)))
+               (mapc 'set-reactive-mode (or selected-boxes selected-connections))))
+        
+        (#\i (unless (edit-lock editor) 
+               (store-current-state-for-undo editor)
+               (mapc 'initialize-size (or selected-boxes selected-connections))))
+        
+        (#\I (mapc 'initialize-box-value selected-boxes))
 
-        ;;; make a menu command ?
+         (#\r (unless (edit-lock editor) 
+               (store-current-state-for-undo editor)
+               (mapc 'set-reactive-mode (or selected-boxes selected-connections))))
+
+        ;;; abstractions
         (#\a (unless (edit-lock editor) 
                (when selected-boxes
                  (store-current-state-for-undo editor)
                  (mapc 'internalize-abstraction selected-boxes))))
         
-        ;;; make a menu command ?
         (#\E (unless (edit-lock editor) 
                (store-current-state-for-undo editor)
                (encapsulate-patchboxes editor panel selected-boxes)))
 
-        ;;; make a menu command ?
         (#\U (unless (edit-lock editor) 
                (store-current-state-for-undo editor)
                (unencapsulate-patchboxes editor panel selected-boxes)))
 
+
         (#\v (eval-command panel selected-boxes))
-    
-        (#\r (unless (edit-lock editor) 
-               (store-current-state-for-undo editor)
-               (mapc 'set-reactive-mode (or selected-boxes selected-connections))))
-      
-        ;;; play/stop commands
-        ;(#\p (play-boxes selected-boxes))
-        (#\s (stop-boxes selected-boxes))   
-        (#\Space (play/stop-boxes selected-boxes))
-      
+
         (#\w (om-debug))
 
         (otherwise nil))

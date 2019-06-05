@@ -130,9 +130,10 @@
     (make-instance 'om-menu-item
                    :title title 
                    :accelerator (if key (concatenate 'string 
-                                                     (case key-mod 
-                                                       (:default "accelerator-")
-                                                       (otherwise "alt-"))
+                                                     (cond ((equal key-mod :default)
+                                                            "accelerator-")
+                                                           (key-mod (concatenate 'string key-mod "-"))
+                                                           (t ""))
                                                      key)
                                   nil)
                    :enabled-function enablefun
