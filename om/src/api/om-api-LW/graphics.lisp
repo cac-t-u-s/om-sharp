@@ -284,7 +284,7 @@
   (gp::make-font-description 
    ;:name face   ; --> name is not portable for find-best-font process
    :family face
-   :size (round size)
+   :size #+cocoa (round size) #-cocoa (* 3/4 (round size))
    :slant (if (member :italic style) :italic :roman)
    :weight (if (member :bold style) :bold :normal)
    :pitch :variable
@@ -345,8 +345,8 @@
         (score-face "Times New Roman")
         (sizes ;#+mswindows'(8 10 11 13 20) 
                ;#-mswindows
-               #+cocoa '(12 13 14 16 20)		    ;72 ppi
-	       #-cocoa '(9 10 11 13 15)))		    ;96 ppi
+               '(12 13 14 16 20)		    ;72 ppi
+	       ))
     (let ((fa 
            (case f
              (:font1 (om-make-font def-face (nth 0 sizes)))
