@@ -1317,7 +1317,7 @@
                                 :subviews (list lisp-pane))
                                     
                 (om-make-di 'om-button :text "Copy Lisp code" 
-                            :size (omp nil 32) :font (om-def-font :font1)
+                            :size (omp nil #+cocoa 32 #-cocoa 24) :font (om-def-font :font1)
                             :di-action #'(lambda (b) (om-copy-command lisp-pane)
                                            (om-print "Lisp code copied to clipboard")))
                 ))
@@ -1356,10 +1356,11 @@
                                 (list
                                  nil
                                  (om-make-di 'om-button :text "x" 
-                                             :size (omp 40 32) :font (om-def-font :font1)
-                                             :di-action #'(lambda (b) 
-                                                            (om-lisp::om-clear-listener-output-pane listener-pane)
-                                                            ))))
+							:size #+cocoa (omp 40 32) #-cocoa (omp 24 24)
+							:font (om-def-font #+cocoa :font1 #-cocoa :font4)
+							:di-action #'(lambda (b) 
+								       (om-lisp::om-clear-listener-output-pane listener-pane)
+								       ))))
                 ))
     ))
 
