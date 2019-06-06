@@ -250,7 +250,7 @@
                            :text text
                            :font font
                            :enabled enable
-                           :background (or (and (om-color-p bg-color) (omcolor-c bg-color)) :transparent)
+                           :background (or (and (om-color-p bg-color) (omcolor-c bg-color)) #+cocoa :transparent #-cocoa :background)
                            :foreground (and (om-color-p fg-color) (omcolor-c fg-color))
                            :color-function (when (or (functionp fg-color)
                                                     (and (symbolp fg-color) (fboundp fg-color)))

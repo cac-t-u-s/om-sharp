@@ -38,7 +38,7 @@
  
 ; 
 (defclass om-simple-layout (om-abstract-layout om-interactive-object capi::simple-pinboard-layout) ()
-  (:default-initargs :background :transparent))
+  (:default-initargs :background #+cocoa :transparent #-cocoa :background))
 (defclass om-tab-layout (om-abstract-layout capi::tab-layout) ())
 (defclass om-column-layout (om-abstract-layout capi::column-layout) ())
 (defclass om-row-layout (om-abstract-layout capi::row-layout) ())
