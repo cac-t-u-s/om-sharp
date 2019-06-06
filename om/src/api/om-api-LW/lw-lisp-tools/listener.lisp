@@ -46,7 +46,7 @@
 (defparameter *om-prompt* "")
 
 (defparameter *default-listener-font* 
-  #+linux(gp::make-font-description :family "Liberation Mono" :size 10)
+  #+linux(gp::make-font-description :family "Liberation Mono" :size 11)
   #-linux(gp::make-font-description :family "Consolas" :size 11))
 
 

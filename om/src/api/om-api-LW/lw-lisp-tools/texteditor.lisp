@@ -64,7 +64,7 @@
 (defvar *om-text-editor-count* 0)
 
 (defparameter *text-editor-font* 
-  #+linux(gp::make-font-description :family "Liberation Mono" :size 10)
+  #+linux(gp::make-font-description :family "Liberation Mono" :size 11)
   #-linux(gp::make-font-description :family "Consolas" :size 11))
 
 
