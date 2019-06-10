@@ -53,6 +53,8 @@ As output it returns the contents of the text buffer as a list formatted accordi
 
 ;;; I don't remember why :output-mode is a box attribute and :input-mode a class attrobute... :(
 
+;;; compat OM6
+(defclass textfile (textbuffer) ())
 
 (defmethod additional-class-attributes ((self textbuffer)) '(input-mode))
 
