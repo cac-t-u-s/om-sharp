@@ -940,6 +940,34 @@
 
 
 ;======================================
+; DI-BOXES 
+;======================================
+(defmethod om-make-dialog-item ((type t) pos size text &rest args) nil)
+(defmethod om-make-dialog-item ((type (eql 'text-box)) pos size text &rest args) text)
+
+
+(defmethod om-load-editor-box1 (name (reference (eql 'text-box))
+                                     inputs position size value lock 
+                                     &optional fname editparams spict meditor pictlist show-name)
+  (declare (ignore reference fname editparams meditor pictlist))
+  
+  `(:box 
+     (:type :value)
+     (:reference ,(type-of (read-from-string value))) 
+     (:value ,(read-from-string value))
+     (:name ,name)
+     (:x ,(om-point-x position))
+     (:y ,(om-point-y position))
+     (:w ,(om-point-x size))
+     (:h ,(om-point-y size))
+     (:inputs 
+      (:input (:type :optional) (:name "in")
+       (:value ,(find-value-in-kv-list (cdr (eval (first inputs))) :value))))
+     ))
+
+
+
+;======================================
 ; old forms not supported: 
 ;======================================
 ; old-old: not exported by OM6
@@ -1089,11 +1117,7 @@
   (make-instance 'collection :obj-list (bpf-list self)))
 
 
-;;; TEXTFILE
-;(defmethod update-reference ((ref (eql 'textfile))) 'textbuffer)
-;(defclass textfile (textbuffer) ())
-;(defmethod update-value ((self textbuffer)) self)
-
+;;; TextFile
 (defun load-buffer-textfile (listline class edmode &optional (evmode "text"))
   (omng-load 
    `(:object
@@ -1180,8 +1204,8 @@ x PATCH WITH LIB FUNCTIONS
 
 x SDIFFILE
 x SOUND  !!! markers seconds vs. milliseconds
+x TEXTFILE
 
-TEXTFILE
 CLASS-ARRAY
 
 |#
