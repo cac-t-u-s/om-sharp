@@ -166,7 +166,11 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
 (defmethod initialize-instance ((self chord) &rest initargs) 
    
   (call-next-method)
-  
+
+  (unless (listp (slot-value self 'Lmidic))
+    (om-print "CHORD object initialized with single value for pitch-list (converting to list)." "Warning")
+    (setf (slot-value self 'Lmidic) (list (slot-value self 'Lmidic))))
+    
   (when initargs
     (do-initialize self 
                    :Lmidic (slot-value self 'Lmidic) 
