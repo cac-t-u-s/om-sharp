@@ -80,18 +80,24 @@
   (system::directory-pathname-p p))
 
 (defun om-directory (path &key (type nil) (directories nil) (files t) (resolve-aliases nil) (hidden-files nil) (recursive nil))
+  
   (when path
     (let ((rep (directory (namestring path) :link-transparency resolve-aliases)))
+      
       (when (not files)
         (setf rep (remove-if-not 'om-directory-pathname-p rep)))
+      
       (when (not directories)
         (setf rep (remove-if 'om-directory-pathname-p rep)))
+      
       (when (not hidden-files)
-        (setf rep (remove-if #'(lambda (item) (or (and (om-directory-pathname-p item) 
-                                                       (string-equal (subseq (car (last (pathname-directory item))) 0 1) "."))
-                                                  (and (stringp (pathname-name item)) (> (length (pathname-name item)) 0)
-                                                       (string-equal (subseq (pathname-name item) 0 1) "."))))
+        (setf rep (remove-if #'(lambda (item) 
+                                 (or (and (om-directory-pathname-p item) 
+                                          (string-equal (subseq (car (last (pathname-directory item))) 0 1) "."))
+                                     (and (stringp (pathname-name item)) (> (length (pathname-name item)) 0)
+                                          (string-equal (subseq (pathname-name item) 0 1) "."))))
                              rep)))
+
       (when type
         (cond ((stringp type)
                (setf rep (loop for item in rep when (or (om-directory-pathname-p item) (string-equal (pathname-type item) type)) collect item)))
@@ -99,6 +105,7 @@
                (setf rep (loop for item in rep when (or (om-directory-pathname-p item) 
                                                         (member (pathname-type item) type :test 'string-equal)) collect item)))
               (t nil)))
+
       (if recursive
           (append rep 
                   (loop for dir in (om-directory path :directories t :files nil :hidden-files hidden-files :recursive nil)
