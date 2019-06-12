@@ -514,16 +514,16 @@
     (loop for i in beams do
       (if (equal direction :up)
 
-          (om-draw-rect (+ begin-pix (* unit (car *noteheadBlack_StemUpSE*))) ;;; floor ?
+          (om-draw-rect (1- (+ begin-pix (* unit (car *noteheadBlack_StemUpSE*)))) ;;; floor ?
                         (- (line-to-ypos (- beam-line (* i .75) -1) yshift unit) 0)
-                        (1+ (- end-pix begin-pix))
+                        (2+ (- end-pix begin-pix))
                         (1+ beamThickness)
                         ;:color (om-random-color .8)
                         :fill t)
 
-        (om-draw-rect (+ begin-pix (* unit (car *noteheadBlack_StemDownNW*)))
+        (om-draw-rect (1- (+ begin-pix (* unit (car *noteheadBlack_StemDownNW*))))
                       (1+ (round (- (line-to-ypos (+ beam-line (* i .75) -1) yshift unit) beamThickness)))
-                      (1+ (- end-pix begin-pix))
+                      (2+ (- end-pix begin-pix))
                       (1+ beamThickness)
                       ;:color (om-random-color 0.7)
                       :fill t)
