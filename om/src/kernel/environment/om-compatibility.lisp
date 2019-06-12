@@ -206,9 +206,14 @@
 ;;; redefine with eql-specializers for specific functions of class name
 (defmethod changed-arg-names (function) nil)
 
+;; this is the automatic name given in OM6 to added "rest" inputs
+(defun is-om6-rest-arg (name)
+  (find name '("add-input") :test 'string-equal))
+
 (defun check-arg-for-new-name (reference name)
   (or (cadr (find name (changed-arg-names reference) :key #'car :test #'string-equal))
-      (and (string-equal name "add-input") (fboundp reference)
+      (and (is-om6-rest-arg name) 
+           (fboundp reference)
            (getf (function-arglist reference) '&rest)) ;;; the last element in lambda-list is the name of the &rest arg
       name))
   
@@ -233,7 +238,7 @@
                        ((find name (mapcar #'symbol-name (function-keyword-args reference)) :test #'string-equal)
                         `(:input (:type :key) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
                        ((and (find '&rest (function-arglist reference))
-                             (equal name (getf (function-arglist reference) '&rest)))
+                             (equal name (string (getf (function-arglist reference) '&rest))))
                         `(:input (:type :optional) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
                        (t (om-print-format "Unknown input for function '~A': ~A" (list reference name) "Compatibility")
                           formatted-in))
