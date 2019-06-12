@@ -256,9 +256,14 @@
          (group-beams (arithm-ser 1 n-beams 1))
          
          )
-
+    
+    ;(print (list group-beams beams-from-parent))
     ;(draw-group-rect object view tempo level)
-       
+    (when (list-subtypep (inside object) 'group) 
+      ;;; here we allow subgroups to get grouped individiually
+      ;;; ..but is that always correct ?
+      (setf group-beams (list (car group-beams))))
+      
     ;;; local variables for the loop
     (let ((beams-drawn-in-sub-group nil))
     
@@ -314,7 +319,6 @@
                   )
                 ))
             
-            ;; (print (list (numdenom object) group-ratio beat-unit))
             (draw-score-element element tempo param-obj view 
                                 :y-shift y-shift
                                 :font-size font-size
@@ -334,13 +338,14 @@
                                 ;;; the higher-level group will determine the y-position for all rests
                                 :selection selection)
             ))
-
+    
+    
     ;;; sub-groups or chords wont have to draw these beams
     (draw-beams pix-beg pix-end
                 (beam-info-line beam-pos-and-dir)  ;; the beam init line
-                (beam-info-direction beam-pos-and-dir) ;; the beam direction
-                (set-difference group-beams beams-from-parent)   ;; the beam numbers 
-                y-shift staff font-size)
+               (beam-info-direction beam-pos-and-dir) ;; the beam direction
+               (set-difference group-beams beams-from-parent)   ;; the beam numbers 
+               y-shift staff font-size)
    
     ;;; subdivision line and numbers 
     (when (numdenom object)
