@@ -295,6 +295,9 @@
 ; MATH
 ;=======================
 
+(defun 2+ (x) (+ x 2))
+(defun 2- (x) (- x 2))
+
 (defun space-ranges (range &optional (factor 0.05) (min 1))
   (list (- (first range) (max min (abs (* (- (second range) (first range)) factor))))
         (+ (second range) (max min (abs (* (- (second range) (first range)) factor))))
