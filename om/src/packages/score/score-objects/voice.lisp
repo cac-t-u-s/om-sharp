@@ -43,6 +43,9 @@
                  :lmidic (lmidic model) 
                  :tempo 60))
 
+;;; catch-up with default behaviour
+(defmethod objFromObjs ((model voice) (target voice))
+  (clone-object model target))
 
 (defclass rhythmic-object (score-object) 
   ((tree :initform '(1 (1 1 1 1)) :accessor tree :initarg :tree :type list :documentation "a rhythm tree")

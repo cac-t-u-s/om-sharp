@@ -36,6 +36,7 @@
         "editor/chord-seq-editor"
 
         "tools/conversions"
+        "functions/score-functions"
         "functions/trees"
         "functions/quantify"
         "import-export/musicxml"))
@@ -48,8 +49,13 @@
  :classes '(note chord chord-seq voice poly)
  :functions nil
  :subpackages  (list (omNG-make-package 
+                      "Score Manipulations"
+                      :doc "Manipulation of score objects"
+                      :functions '(object-dur get-chords concat)
+                      :subpackages nil)
+                     (omNG-make-package 
                       "Rhythm"
-                      :doc "Manipulation of rhythm trees and ratios"
+                      :doc "Operations on rhythm trees and ratios"
                       :functions '(mktree tree2ratio 
                                           pulsemaker maketreegroups
                                           n-pulses group-pulses get-pulse-places get-rest-places get-signatures

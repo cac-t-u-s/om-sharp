@@ -84,8 +84,6 @@ Internally most of these values are just used to build a list of CHORD objects, 
 ;;; redefined from time-sequence
 (defmethod time-sequence-default-duration ((self chord-seq)) 1000)
 
-(defmethod get-chords ((self chord-seq))
-  (om-copy (frames self))) 
 
 
 (defmethod do-initialize ((self chord-seq) &key Lmidic Lvel Loffset Ldur Lonset Lchan Lport Llegato)

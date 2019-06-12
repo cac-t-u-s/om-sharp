@@ -33,10 +33,24 @@
   ((obj-list :initarg :obj-list :initarg :chord-seqs
              :accessor obj-list :initform nil)))
 
+(defmethod voice-type ((self poly)) 'voice)
+(defmethod voice-type ((self multi-seq)) 'chord-seq)
+
+
+(defmethod inside ((self poly)) (obj-list self))
 
 (defmethod num-voices ((self poly)) (length (obj-list self)))
 
 (defmethod get-obj-dur ((self poly)) (apply 'max (mapcar 'get-obj-dur (obj-list self))))
+
+(defmethod objfromobjs ((model poly) (target poly))
+  (setf (obj-list target)
+        (loop for obj in (obj-list model) collect
+              (objfromobjs obj (make-instance (voice-type target)))))
+  target)
+
+
+
 
 (defmethod score-object-mini-view ((self poly) box x-pix y-pix y-u w h)
   (let ((voice-h (if (obj-list self) (/ h (num-voices self)) h)))
