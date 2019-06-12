@@ -214,9 +214,8 @@
   (or (cadr (find name (changed-arg-names reference) :key #'car :test #'string-equal))
       (and (is-om6-rest-arg name) 
            (fboundp reference)
-           (getf (function-arglist reference) '&rest)) ;;; the last element in lambda-list is the name of the &rest arg
-      name))
-  
+           (string (getf (function-arglist reference) '&rest))) ;;; the last element in lambda-list is the name of the &rest arg
+      name)) 
 
 ;======================================
 ; FUNCTION BOXES
