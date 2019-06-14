@@ -206,9 +206,7 @@
 ;;; doit retourner un ID !!
 ;;; path = un exe ou bien un .app dont on vet executer l'exe
 (defun om-run-program (path &optional afterfun)
-  (let* ((pathstr (namestring path))
-         (dir (om-make-pathname :directory path))
-         (name (pathname-name path)))
+  (let ((pathstr (namestring path)))
     (when (equal (elt pathstr (- (length pathstr) 1)) #\/)
       (setf pathstr (subseq pathstr 0 (- (length pathstr) 1)))
       (let ((appname (pathname-name (pathname (subseq pathstr 0 (- (length pathstr) 1))))))

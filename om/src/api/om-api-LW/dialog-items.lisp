@@ -31,7 +31,6 @@
 ;;;========
 (export '(
           om-make-di
-          om-dialog-item-act
           om-dialog-item-action
           om-dialog-item-action-function
           om-set-dialog-item-action-function
@@ -119,6 +118,8 @@
 ;;; ACTION
 ;;;==========
 
+#|
+;;; => put this in teh callbacks directly ?
 (defmacro om-dialog-item-act (var &body body)
   `#'(lambda (,var) 
        (handler-bind 
@@ -126,6 +127,7 @@
                        (capi::display-message "An error of type ~a occurred: ~a" (type-of err) (format nil "~A" err))
                        (abort err))))
          ,@body)))
+|#
 
 (defmethod om-dialog-item-action ((self om-standard-dialog-item))  
   (when (di-action self)
@@ -151,9 +153,9 @@
   (setf (capi::item-text self) text))
 
 
-(defmethod om-create-callback ((self om-standard-dialog-item))
-  (set-hint-table self (list :default-x (vx self) :default-y (vy self) 
-                             :default-width (vw self) :defalut-height (vh self))))
+;(defmethod om-create-callback ((self om-standard-dialog-item))
+;  (capi::set-hint-table self (list :default-x (vx self) :default-y (vy self) 
+;                             :default-width (vw self) :defalut-height (vh self))))
 
 (defmethod om-view-position ((self om-standard-dialog-item)) 
    (if  (capi::interface-visible-p self) 
@@ -212,15 +214,14 @@
 
 (defmethod di-after-settings ((self t)) nil)
 
-(defun om-make-di (class  &rest attributes &key
+(defun om-make-di (class  &rest other-attributes &key
                           position size (text "")
-                          container font bg-color fg-color (enable t) print
+                          container font bg-color fg-color (enabled t) print
                           (checked-p nil) cancel default focus range items
                           sort-styles
                           (scrollbars nil) selection
-                          (direction :horizontal) (tick-side :default) (value 0) (radio-button-cluster nil)
+                          (direction :horizontal) (value 0)
                           di-action edit-action begin-edit-action completion resizable
-                          image
                           &allow-other-keys)
   (let* (;(wi (or (and size (om-point-x size)) 20)) 
          (wi (if size (om-point-x size) 20)) 
@@ -229,94 +230,106 @@
          (x (and position (+ (om-point-x position) shift)))
          (y (and position (+ (om-point-y position) shift))))
     (multiple-value-bind (w h) (adjust-size class wi hi) 
-    (let ((di (apply 'make-instance 
-                   (append (list class
+      (let ((di (apply 'make-instance 
+                       (append 
+                        (list class
                            ;:x x :y y
-                           :default-x x :default-y y
+                              :default-x x :default-y y
                            ;:external-min-width (max w 30)
                            ;:external-max-width w
-                           :initial-constraints (list :visible-min-width w :visible-min-height h)
-                           :visible-min-width w
-                           :visible-max-width (if (or (equal resizable t) (equal resizable :w)) nil w)
+                              :initial-constraints (list :visible-min-width w :visible-min-height h)
+                              :visible-min-width w
+                              :visible-max-width (if (or (equal resizable t) (equal resizable :w)) nil w)
                            ;:internal-min-width w
                            ;:internal-max-width w
                            
-                           :external-min-height h
-                           :visible-min-height h                       
-                           :visible-max-height (if (or (equal resizable t) (equal resizable :h)) nil h)
+                              :external-min-height h
+                              :visible-min-height h                       
+                              :visible-max-height (if (or (equal resizable t) (equal resizable :h)) nil h)
                            ;:internal-min-height h
                            ;:internal-max-height (print h)
                                                   
-                           :text text
-                           :font font
-                           :enabled enable
-                           :background (or (and (om-color-p bg-color) (omcolor-c bg-color)) #+cocoa :transparent #-cocoa :background)
-                           :foreground (and (om-color-p fg-color) (omcolor-c fg-color))
-                           :color-function (when (or (functionp fg-color)
-                                                    (and (symbolp fg-color) (fboundp fg-color)))
-                                             #'(lambda (list-panel item state)
-                                                 (let ((col (funcall fg-color item)))
-                                                   (and col (omcolor-c col)))))
-                           :sort-descriptions (convert-sort-styles sort-styles)
-                           :selected checked-p
-                           :default-p default
-                           :cancel-p cancel
-                           :items items
-                           :start (or (first range) 0) :end (or (second range) 100)
-                           :orientation direction
-                           :start-point :default
-                           :slug-start value
-                           :internal-border 0
-                           :title-adjust t
-                           :accepts-focus-p enable
-                           :horizontal-scroll (dialog-item-scrollbar-h scrollbars)
-                           :vertical-scroll (dialog-item-scrollbar-v scrollbars)
+                              :text text
+                              :font font
+                              :enabled enabled
+                              
+                              :di-action di-action 
+                              :edit-action edit-action 
+                              :begin-edit-action begin-edit-action
+                              
+                              :background (or (and (om-color-p bg-color) (omcolor-c bg-color)) #+cocoa :transparent #-cocoa :background)
+                              :foreground (and (om-color-p fg-color) (omcolor-c fg-color))
+                              :color-function (when (or (functionp fg-color)
+                                                        (and (symbolp fg-color) (fboundp fg-color)))
+                                                #'(lambda (list-panel item state)
+                                                    (declare (ignore list-panel state))
+                                                    (let ((col (funcall fg-color item)))
+                                                      (and col (omcolor-c col)))))
+                              :sort-descriptions (convert-sort-styles sort-styles)
+                              :selected checked-p
+                              :default-p default
+                              :cancel-p cancel
+                              :items items
+                              :start (or (first range) 0) 
+                              :end (or (second range) 100)
+                              :orientation direction
+                              :start-point :default
+                              :slug-start value
+                              :internal-border 0
+                              :title-adjust t
+                              :accepts-focus-p enabled
+                              :horizontal-scroll (dialog-item-scrollbar-h scrollbars)
+                              :vertical-scroll (dialog-item-scrollbar-v scrollbars)
                            
-                           :visible-border t
+                              :visible-border t
 
-                           :di-action di-action 
-                           
-                           ;;; only for text-edit
-                           :allows-newline-p nil
-                           :edit-action edit-action :begin-edit-action begin-edit-action
-                           :in-place-completion-function 
-                           (when completion 
-                             #'(lambda (item str) 
-                                 (or 
-                                  (funcall completion str)
-                                  (progn (capi::beep-pane) :destroy))))
-                           :allow-other-keys t)
-                   attributes))))
+                              
+                              ;;; only for text-edit
+                              :allows-newline-p nil
+                              
+                              :in-place-completion-function (when completion 
+                                                              #'(lambda (item str) 
+                                                                  (declare (ignore item))
+                                                                  (or (funcall completion str)
+                                                                      (progn (capi::beep-pane) :destroy))))
+                              
+                              :allow-other-keys t
+                              
+                              )
+                        ;;; other attributes/keywords of the dialog-items
+                        other-attributes
+                        ))))
     
-    (when print 
-      (setf (capi::collection-print-function di) print))
+        (when print 
+          (setf (capi::collection-print-function di) print))
     
-    (when selection
-      (om-set-selected-item di selection))
+        (when selection
+          (om-set-selected-item di selection))
     
-    (when (or bg-color (special-bg di))
-      (om-set-bg-color di (or bg-color (special-bg di))))
+        (when (or bg-color (special-bg di))
+          (om-set-bg-color di (or bg-color (special-bg di))))
     
-    (when position 
-      (setf (vx di) x ; (om-point-x position)
-            (vy di) y ; (om-point-y position)
-            ))
-    (when size 
-      (setf (vw di) w ; (om-point-x size) 
-            (vh di) h ;(om-point-y size)
-            ))
+        (when position 
+          (setf (vx di) x ; (om-point-x position)
+                (vy di) y ; (om-point-y position)
+                ))
+        (when size 
+          (setf (vw di) w ; (om-point-x size) 
+                (vh di) h ;(om-point-y size)
+                ))
     
-    (when container (om-add-subviews container di))
+        (when container (om-add-subviews container di))
     
-    (when font (om-set-font di font))
+        (when font (om-set-font di font))
    
-    (di-after-settings di)
+        (di-after-settings di)
     
-    (if focus (capi::set-pane-focus di))
+        (if focus (capi::set-pane-focus di))
 
-    (when completion (om-complete-text di))
+        (when completion (om-complete-text di))
     
-    di))))
+        di))))
+
 
 (defun adjust-size (class w h)
   #+linux (values (or (and (numberp w) (round w 3/4)) w)
@@ -443,6 +456,7 @@
     ))
  
 (defun text-edit-changed-action (text self win position)
+  (declare (ignore text win position))
   (om-text-edit-action self)
   ;(unless (or (string-equal text "") (> position (length text)))
   ;  (om-view-key-handler self (elt text (max 0 (- position 1)))))
@@ -566,7 +580,7 @@
 ;--------om-radio-button
 
 (defclass om-radio-button (om-standard-dialog-item capi::radio-button) 
-  ((radio-button-cluster :initarg :radio-button-cluster :initform nil :accessor radio-button-cluster))
+  ((button-group :initarg :button-group :initform nil :accessor button-group))
   (:default-initargs :callback 'om-dialog-item-action))
 
 (defmethod om-radio-button-p ((self om-radio-button))  t)
@@ -578,11 +592,11 @@
       (let ((elems (capi::pane-children container)))
         (loop for item in elems do
               (when (and (om-radio-button-p item) (not (equal item self))
-                         (equal (radio-button-cluster item) (capi::radio-button-cluster self)))
+                         (equal (button-group item) (button-group self)))
                 (om-set-check-box item nil)))))
   (call-next-method)))
 
-(defmethod om-checked-p ((self om-radio-button)) (button-selected self))
+(defmethod om-checked-p ((self om-radio-button)) (capi::button-selected self))
 
 (defmethod om-set-check-box  ((self om-radio-button) check?)
   (setf (capi::button-selected self) check?))

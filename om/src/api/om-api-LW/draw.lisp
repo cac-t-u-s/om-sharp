@@ -68,16 +68,13 @@
 (defvar *curstream* nil)
 (defvar *alpha* nil)
 
+; formerly if (om-item-view-p ,view)
+; => (multiple-value-bind (*pox* *poy*) (capi::pinboard-pane-position ,view) ,@body)
+
 (defmacro om-with-focused-view (view &body body)
-  `(if (om-item-view-p ,view)
-       (let ((*curstream* (om-get-view ,view)))
-         (when *curstream*
-           (multiple-value-bind (*pox* *poy*) (capi::pinboard-pane-position ,view)
-             ,@body)
-           ))
-     (let ((*curstream* (om-get-view ,view)))
-       (when *curstream*
-         ,@body))))
+  (declare (special *curstream*))
+  `(let ((*curstream* (om-get-view ,view)))
+     (when *curstream* ,@body)))
 
 (defmacro om-with-alpha (a &body body)
   `(let ((*alpha* ,a))
@@ -320,7 +317,6 @@
    (abs w)
    (abs h)))
 
-;(+ x *pox*) (+ y *poy*) w h 
                
 (defun om-draw-rect (x y w h &key angles line color fill style)
   (multiple-value-bind (xx yy ww hh) (convert-rect x y w h)

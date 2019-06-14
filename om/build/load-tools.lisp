@@ -56,7 +56,7 @@
       (compile-file 
        file 
        :verbose 0
-       :output-file (print (if compile-ext fasl-file nil)))
+       :output-file (if compile-ext fasl-file nil))
 
        (setf fasl-outofdate nil))
 

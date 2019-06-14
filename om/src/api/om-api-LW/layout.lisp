@@ -129,7 +129,7 @@
 
 (defmethod om-subviews ((self om-abstract-layout)) (capi:layout-description self))
 
-(defmethod om-view-parent ((self om-abstract-layout)) (element-parent self))
+(defmethod om-view-parent ((self om-abstract-layout)) (capi::element-parent self))
 
 (defmethod om-add-subviews ((self om-abstract-layout) &rest subviews)
   (capi::apply-in-pane-process 

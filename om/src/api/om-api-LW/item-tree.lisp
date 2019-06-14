@@ -24,16 +24,17 @@
 (in-package :om-api)
 
 
-(export '(om-item-tree
-          om-make-tree-view
+(export '(om-make-tree-view
           om-double-clicked-item-from-tree-view
-          om-selected-item-from-tree-view) :om-api)
+          om-selected-item-from-tree-view) 
+        :om-api)
 
 ;;; the capi::extended-selection-tree-view may be better (?)
 ;;; but the simple one looks better...
 (defclass om-item-tree (om-graphic-object capi:tree-view) ())
 
 (defun om-make-tree-view (base-items &key expand-item position size bg-color item-icon icons print-item font)
+  (declare (ignore position)) ;;; for the moment (but in general this is positioned in a layout)
   (let ((ilist (when icons 
                  (make-instance 'capi:image-list
                                 :image-sets icons
@@ -50,7 +51,6 @@
                    :accepts-focus-p nil
                  ;:image-width 16
                    :checkbox-status nil
-                 ;:pane-menu 'extend-tree-view-test-menu
                    :image-lists (list :normal ilist)
                    :image-function 
                    (cond 
@@ -60,43 +60,50 @@
                          #'(lambda (item) (position (funcall item-icon item) icons))
                        item-icon))
                      ((null item-icon) item-icon)
-                     (t #'(lambda (icon) item-icon)))
+                     (t #'(lambda (item) (declare (ignore item)) item-icon)))
                    :callback-type :interface-data
-                   :print-function (or print-item #'(lambda(x) (format nil "~a"  x )))
+                   :print-function (or print-item #'(lambda (x) (format nil "~a"  x )))
                    :selection-callback #'tree-view-selected-function
                    :action-callback #'tree-view-action-function 
-                 ;:extend-callback #'(lambda (self item)(add-a-message self  "~&Extended item ~S" item))
+                   
+                 ;:extend-callback #'(lambda (self item) (add-a-message self  "~&Extended item ~S" item))
                  ;:retract-callback  #'(lambda (self item) (add-a-message self "~&Retracted item ~S" item))
                  ;:delete-item-callback 'test-extend-tree-view-delete-callback
-                   )))
-
-
-
-
-(defun add-a-message (interface format-string &rest args)
-  (let* ((message-pane (slot-value interface  'message-pane))
-         (stream (capi:collector-pane-stream message-pane)))
-    (apply 'format stream format-string args)))
-    
+                 ;:pane-menu 'extend-tree-view-test-menu
+                   
+                   )))    
 
 (defmethod om-double-clicked-item-from-tree-view (item window) nil)
+
+(defun tree-view-action-function (window item)
+  (om-double-clicked-item-from-tree-view item window))
+
 (defmethod om-selected-item-from-tree-view (item window) nil)
 
 (defun tree-view-selected-function (window item)
   (om-selected-item-from-tree-view item window))
 
-(defun tree-view-action-function (window item)
-  (om-double-clicked-item-from-tree-view item window))
+
+
   ;(print (list self item))
   ;(with-slots (tree) self
   ;  (capi:tree-view-update-item tree item t))
   ;(add-a-message self "~&Action item ~S" item)
 
 
+#|
+;;; FROM LW:
 ;;; The undocumented interface in 6.0 for :delete-item-callback
 ;;; changed in 6.1, and this code show a way of coding
 ;;; to cope with both interfaces. It works because the items
 ;;; themselves are not never lists in this example. 
+
+
+(defun add-a-message (interface format-string &rest args)
+  (let* ((message-pane (slot-value interface  'message-pane))
+         (stream (capi:collector-pane-stream message-pane)))
+    (apply 'format stream format-string args)))
+
 
 (defun test-extend-tree-view-delete-callback (tree item)
   (if (listp item)   ;; true since 6.1, false until 6.0
@@ -132,3 +139,4 @@
                       ;;redo the tree
                       (setf (capi:tree-view-roots tree) (capi:tree-view-roots tree))))))))
    :callback-type :interface)
+|#

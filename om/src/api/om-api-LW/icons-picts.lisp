@@ -33,38 +33,24 @@
 ;;;==========
 
 (export '(
-          *om-pict-types*
+          om-get-know-pict-types
           om-register-picture
           om-pict-width
           om-pict-height
-          om-get-picture-size
           om-draw-picture
-          om-draw-icon 
           
           om-picture-values
           om-picture-array
-          om-create-picture
          
-          om-kill-picture
-   
-
-          om-draw-picture-part
           om-record-pict
-          om-internal-picture-to-pict
-          om-record-picture-in-pict
-
-          om-open-score-page
-          om-close-score-page
+          
           ) :om-api)
 
 ;;;================
 
-(defvar *om-pict-types* nil)
+(defun om-get-know-pict-types ()
+  (mapcar 'string-downcase (append (gp::list-known-image-formats nil) '(:tif))))
 
-(defun init-pict-types ()
-  (setf *om-pict-types* (mapcar 'string-downcase (append (gp::list-known-image-formats nil) '(:tif)))))
-
-(om-api-add-init-fun 'init-pict-types)
 
 ;;; allows to call image by its name from then on
 (defun om-register-picture (name path)
@@ -81,7 +67,7 @@
              (image (ignore-errors (gp::load-image port pict-id))))
         (when image 
           (unwind-protect 
-              (gp::draw-image port image x y ; (+ x *pox*) (+ y *poy*)
+              (gp::draw-image port image x y
                               :to-width (or w (gp:image-width image)) :to-height (or h (gp:image-height image))
                               :from-x src-x :from-y src-y
                               :from-width (or src-w (gp:image-width image)) :from-height (or src-h (gp:image-height image)))
@@ -93,7 +79,7 @@
                             (print (format nil "~A: ~A" (type-of e) e))
                             (abort))))
     (let* ((port *curstream*))
-        (gp::draw-image port pict-id x y ; (+ x *pox*) (+ y *poy*)
+        (gp::draw-image port pict-id x y
                         :to-width (or w (gp:image-width pict-id)) :to-height (or h (gp:image-height pict-id))
                         :from-width (or src-w (gp:image-width pict-id)) :from-height (or src-h (gp:image-height pict-id))
                         :from-x src-x :from-y src-y
@@ -113,97 +99,14 @@
 (defun om-pict-height (image) (gp::image-height image))
 
 
-
 #|
-
-(defclass internal-picture ()
-  ((themetafile :initform nil :initarg :themetafile :accessor themetafile)
-   (size-x :initform 0 :initarg :size-x :accessor size-x)
-   (size-y :initform 0 :initarg :size-y :accessor size-y)))
-
-(defmethod om-kill-picture ((self internal-picture))
-  (when (themetafile self)
-    (capi::free-metafile (themetafile self)))
-  (setf (themetafile self) nil))
-
-(defmethod om-get-view ((self t))  (or *default-printer-port* self))
-
-;;;(defmethod om-draw-picture (view pict-id &key (x 0) (y 0) w h (src-x 0) (src-y 0) src-w src-h)
-
-(defmethod om-draw-picture ((pict internal-picture) &key (x 0) (y 0) w h (src-x 0) (src-y 0) src-w src-h)
-  (when (themetafile pict)
-    (let* ((port *curstream*))
-      ;(om-inspect port)
-      (print (list port (themetafile pict) 
-                            ; (+ x *pox*) (+ y *poy*)
-                           x y
-                           (or w 200) ;(gp:image-width (themetafile pict)))
-                           (or h 200)))
-      (capi::draw-metafile port (themetafile pict) 
-                            ; (+ x *pox*) (+ y *poy*)
-                           x y
-                           (or w 200) ;(gp:image-width (themetafile pict)))
-                           (or h 200) ;(gp:image-height (themetafile pict))))
-                           )
-      ;(if (om-item-view-p view) 
-      ;   ; #-win32
-      ;  (setf dx (item-x view) dy (item-y view))
-      ;    ;#+win32
-     ;     ;(setf dx (- (item-x view) (om-h-scroll-position port)) dy (- (item-y view) (om-v-scroll-position port)))                             
-      ;  (if (scroller-p view) (setf pw (om-point-x (om-field-size view)) ph (om-point-y (om-field-size view)))
-      ;    ))
-      ;(let* ((x (om-point-x topleft))
-      ;       (y (om-point-y topleft))
-      ;       (w  (om-point-x size))
-      ;       (h (om-point-y size)))
-      ;  (gp::with-graphics-state (port :mask (list dx dy pw ph))
-      ;    #+cocoa(draw-metafile  port (themetafile pict) (+ x *pox*) (+ y *poy*) w h)  ; (+ x dx) (+ y dy) w h)
-      ;    #-cocoa(draw-metafile port (themetafile pict)  (+ x *pox*) (+ y *poy*) w h)
-      ;  )
-        
-      )))
-
-
-(defmethod om-internal-picture-to-pict  ((self internal-picture) view)
-  (when (themetafile self)
-    (capi::draw-metafile-to-image view (themetafile self))))
-
-(defmethod om-draw-picture-part (view (pict internal-picture) srctopleft srcsize desttopleft destsize)
-  (when (themetafile pict)
-    (let ((image (draw-metafile-to-image view (themetafile pict))))
-      (om-draw-picture-part view image srctopleft srcsize desttopleft destsize))))
-
-(defmethod om-get-picture-size ((picture internal-picture))
-  (om-make-point (size-x picture) (size-y picture)))
-
-(defmethod om-pict-width ((picture internal-picture))
-  (size-x picture))
-
-(defmethod om-pict-height ((picture internal-picture))
-  (size-y picture))
-
-
-                 
-     
-;     (make-instance 'internal-picture
-;                    :themetafile metafile
-;                    :size-x (om-point-x ,size)
-;                    :size-y (om-point-y ,size))
-;     
-   
-
-|#
-
-
-
-
 (defmethod om-record-picture-in-pict (pict &optional (pos (om-make-point 0 0)) size)
   (when pict
     (let* ((pw (om-pict-width pict))
            (ph (om-pict-height pict))
            (destw (if size (om-point-x size) pw))
            (desth (if size (om-point-y size) ph))
-           (port (gp::create-pixmap-port *record-view* (om-point-x size) (om-point-y size) 
+           (port (gp::create-pixmap-port *dummy-view* (om-point-x size) (om-point-y size) 
                                          :background :white :clear t))
            (image (gp::load-image port pict)))
       (gp::draw-image *curstream* image (om-point-x pos) (om-point-y pos)
@@ -223,7 +126,7 @@
 (defun om-close-score-page (port size)
   (let ((image (gp::make-image-from-port port 0 0 (om-point-x size) (om-point-y size))))
          (gp::externalize-image port image)))
-
+|#
 
 ;;;;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ;;; SAVE / LOAD PICTURES
@@ -247,7 +150,7 @@
   (when *temp-pictwin*
     (capi::destroy *temp-pictwin*)))
 
-(define-action "When quitting image" "Delete temp pict intervface" 'clean-pict-win)
+(define-action "When quitting image" "Delete temp pict interface" 'clean-pict-win)
 
 (defmethod om-externalize-image ((img gp::image))
   (ensure-pict-win)

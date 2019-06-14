@@ -44,6 +44,8 @@
 
 (defmethod initialize-instance :after ((self om-item-view) &rest args)
   (om-create-callback self))
+(defmethod om-create-callback ((self om-item-view)) nil)
+
 
 (defun om-make-graphic-object (class &rest attributes
                                      &key position (size (om-make-point 10 10)) font text 
@@ -89,8 +91,8 @@
 
 (defmethod internal-add-subview ((self om-abstract-window) (subview om-item-view))
   (call-next-method)
-  (setf (item-container subview) (pane-layout self))
-  (setf (item-subviews (pane-layout self)) (append (item-subviews (pane-layout self)) (list subview)))
+  (setf (item-container subview) (capi::pane-layout self))
+  (setf (item-subviews (capi::pane-layout self)) (append (item-subviews (capi::pane-layout self)) (list subview)))
   (mapcar #'(lambda (sv) (po-add-subview subview sv)) (vsubviews subview)))
 
 (defmethod internal-add-subview ((self om-item-view) (subview om-item-view))
@@ -116,9 +118,9 @@
 (defmethod internal-remove-subview ((self om-abstract-window) (subview om-item-view))  
   (mapcar #'(lambda (sv) (po-remove-subview subview sv)) (vsubviews subview))
   (setf (item-container subview) nil)
-  (setf (item-subviews (pane-layout self)) (remove subview (item-subviews (pane-layout self))))
-  (capi::apply-in-pane-process (pane-layout self)
-                               (lambda () (capi::manipulate-pinboard (pane-layout self) subview :delete)))
+  (setf (item-subviews (capi::pane-layout self)) (remove subview (item-subviews (capi::pane-layout self))))
+  (capi::apply-in-pane-process (capi::pane-layout self)
+                               (lambda () (capi::manipulate-pinboard (capi::pane-layout self) subview :delete)))
   (call-next-method))
 
 (defmethod internal-remove-subview ((self om-item-view) (subview om-item-view))
@@ -134,9 +136,6 @@
 
 (defmethod om-subviews ((self om-item-view)) 
   (vsubviews self))
-
-;;; (capi::highlight-pinboard-object (item-container self) self t)
-;;; (defmethod om-create-callback ((self om-item-view)) nil)
 
 
 (defun update-po-position (self)
@@ -233,6 +232,7 @@
     (capi::set-pane-focus (item-container self))))
 
 (defmethod capi::draw-pinboard-object (pane (self om-item-view) &key x y w h)
+  (declare (ignore x y w h))
   (call-next-method)
   (capi::apply-in-pane-process pane 'draw-item-view pane self))
 

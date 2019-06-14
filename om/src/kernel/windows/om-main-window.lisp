@@ -244,11 +244,11 @@
                      ;      )
                      )
                      
-                    ;(om-make-di 'om-multi-text :enable nil :size (om-make-point 300 20) 
+                    ;(om-make-di 'om-multi-text :enabled nil :size (om-make-point 300 20) 
                     ;            :font (om-def-font :font2)
                     ;            :fg-color (om-def-color :gray)
                     ;            :text "No Workspace has been created for this session")
-                    ;(om-make-di 'om-button :enable nil :size (om-make-point nil 24)
+                    ;(om-make-di 'om-button :enabled nil :size (om-make-point nil 24)
                     ;            :font (om-def-font :font2)
                     ;            :text "Create One?")
                     ))

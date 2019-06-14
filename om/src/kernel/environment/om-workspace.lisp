@@ -177,10 +177,10 @@ A workspace contains all the elements of an OM session (documents, pointer to li
 
 (defun create-new-workspace (path)
   (let ((wsfile (om-make-pathname :directory path :name (car (last (pathname-directory path))) :type "omws")))
-    (om-create-directory (om-make-pathname :directory path) :if-exists nil)
+    (om-create-directory (om-make-pathname :directory path))
     (create-ws-main-ws-file wsfile)
-    (om-create-directory (om-make-pathname :directory (append (pathname-directory path) (list "elements"))) :if-exists nil)
-    (om-create-directory (om-make-pathname :directory (append (pathname-directory path) (list "files"))) :if-exists nil)
+    (om-create-directory (om-make-pathname :directory (append (pathname-directory path) (list "elements"))))
+    (om-create-directory (om-make-pathname :directory (append (pathname-directory path) (list "files"))))
     wsfile))
   
 

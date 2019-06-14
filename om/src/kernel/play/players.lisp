@@ -130,13 +130,13 @@
                                                   (om-make-point 300 20) (player-name pl)
                                                   :checked-p (equal pl selected-player)
                                                   :di-action (let ((p pl))
-                                                               (om-dialog-item-act item
-                                                                 (declare (ignore item))
-                                                                 (setf selected-player p)
-                                                                 (player-selection-settings-pane (player-type selected-player) 
-                                                                                                paneports reference 
-                                                                                                selected-player)
-                                                                 ))
+                                                               #'(lambda (item) 
+                                                                   (declare (ignore item))
+                                                                   (setf selected-player p)
+                                                                   (player-selection-settings-pane (player-type selected-player) 
+                                                                                                   paneports reference 
+                                                                                                   selected-player)
+                                                                   ))
                                                   :font *om-default-font2*)
                              (om-make-dialog-item 'om-static-text (om-make-point 40 (+ y 20)) (om-make-point 160 20) 
                                                   (string+ "type: " (if (player-type pl) (symbol-name (player-type pl)) "undefined"))
@@ -152,16 +152,16 @@
       (om-add-subviews dialog
                        paneplayer paneports
                        (om-make-dialog-item 'om-button (om-make-point 170 y) (om-make-point 80 24) "Cancel" 
-                                            :di-action (om-dialog-item-act item
-                                                         (declare (ignore item))
-                                                         (om-return-from-modal-dialog dialog nil)))
+                                            :di-action #'(lambda (item) 
+                                                           (declare (ignore item))
+                                                           (om-return-from-modal-dialog dialog nil)))
                        (om-make-dialog-item 'om-button (om-make-point 260 y) (om-make-point 80 24) "OK" 
-                                            :di-action (om-dialog-item-act item
-                                                         (declare (ignore item))
-                                                         (set-edit-param reference 'player selected-player)
-                                                         (set-param-from-settings-pane (player-type selected-player) paneports reference)
-                                                         (om-return-from-modal-dialog dialog selected-player)
-                                                         )
+                                            :di-action #'(lambda (item) 
+                                                           (declare (ignore item))
+                                                           (set-edit-param reference 'player selected-player)
+                                                           (set-param-from-settings-pane (player-type selected-player) paneports reference)
+                                                           (om-return-from-modal-dialog dialog selected-player)
+                                                           )
                                             :default-button t))
       (om-modal-dialog dialog)))
 

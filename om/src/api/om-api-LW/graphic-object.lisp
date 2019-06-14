@@ -55,7 +55,6 @@
           om-add-subviews
           om-remove-subviews
           om-with-delayed-update
-          om-create-callback
           ) :om-api)
 ;;;=====================
 
@@ -83,12 +82,13 @@
    (initialized-p :initform nil :accessor initialized-p)
    ))
  
-(defmethod om-create-callback (self))
-(defmethod om-destroy-callback (self))
 
 ;;; different pour om-window
 (defmethod om-get-view ((self t)) self)
-(defmethod om-get-view ((self om-graphic-object)) (or *default-printer-port* self))
+(defmethod om-get-view ((self om-graphic-object)) 
+  (declare (special *default-printer-port*))
+  (or *default-printer-port* self))
+
 (defmethod om-subviews ((self om-graphic-object)) (vsubviews self))
 
 ;;; for windows, skip default window layout
@@ -117,6 +117,98 @@
     ))
 
 (defmethod om-initialized-p ((self om-graphic-object)) (initialized-p self))
+
+
+
+;;;======================
+;;; SUBVIEW MANAGEMENT
+;;;======================
+
+(defun maybe-call-update (graphic-obj)
+  (when (and (initialized-p graphic-obj) (not (locked graphic-obj))) ;; (interface-visible-p graphic-obj)
+    (update-for-subviews-changes graphic-obj t)
+    ))
+  
+(defmethod update-for-subviews-changes ((self om-graphic-object) &optional (recursive nil)) nil)
+
+(defmacro om-with-delayed-update (view &body body)
+   `(progn 
+      (setf (locked ,view) t)
+      ,@body
+      (setf (locked ,view) nil)
+      (maybe-call-update ,view)
+      ))
+
+(defmethod om-add-subviews ((self om-graphic-object) &rest subviews)
+  "Adds subviews to a graphicbject"
+  (loop for item in subviews do (internal-add-subview self item))
+  (maybe-call-update self)
+  )
+
+(defmethod internal-add-subview ((self om-graphic-object) (subview om-graphic-object))
+  (setf (vcontainer subview) self)
+  (setf (vsubviews self) (append (vsubviews self) (list subview))))
+
+(defmethod om-remove-subviews ((self om-graphic-object) &rest subviews)
+  (capi::apply-in-pane-process (om-get-view self) #'(lambda ()
+                                                      (loop for item in subviews do (internal-remove-subview self item))
+                                                      (maybe-call-update self)
+                                                      )))
+
+(defmethod om-remove-all-subviews ((self om-graphic-object))
+  (capi::apply-in-pane-process (om-get-view self) #'(lambda ()
+                                                        (loop for item in (om-subviews self) do (internal-remove-subview self item))
+                                                        (maybe-call-update self))))
+
+
+
+
+(defmethod internal-remove-subview ((self om-graphic-object) (subview om-graphic-object))
+  (setf (vcontainer subview) nil)
+  (setf (vsubviews self) (remove subview (vsubviews self))))
+
+
+
+;;;======================
+;;; POSITION AND SIZE
+;;;======================
+
+(defmethod om-set-view-position ((self om-graphic-object) pos-point) 
+  (capi:apply-in-pane-process self #'(lambda ()
+                                       (setf (capi::pinboard-pane-position self) 
+                                             (values (om-point-x pos-point) (om-point-y pos-point)))))
+  ;(set-hint-table self (list :default-x (om-point-x pos-point) :default-x (om-point-y pos-point))))
+  (setf (vx self) (om-point-x pos-point)
+        (vy self) (om-point-y pos-point)))
+
+(defmethod om-view-position ((self om-graphic-object))
+  (if (capi::interface-visible-p self)
+      (capi:apply-in-pane-process self #'(lambda ()
+             (multiple-value-bind (x y) (capi::pinboard-pane-position self)
+               (setf (vx self) x) (setf (vy self) y)))))
+  (om-make-point (vx self) (vy self)))
+
+(defmethod om-set-view-size ((self om-graphic-object) size-point) 
+  (capi:apply-in-pane-process self 
+                              #'(lambda ()                                  
+                                  (setf (capi::pinboard-pane-size self) 
+                                        (values (om-point-x size-point) (om-point-y size-point)))
+                                  ;; #+win32(setf (pinboard-pane-size (main-pinboard-object self)) (values (om-point-x size-point) (om-point-y size-point)))
+                                  ))
+  ; (set-hint-table self (list :default-width (om-point-x size-point) :default-height (om-point-y size-point))))
+  (setf (vw self) (om-point-x size-point))
+  (setf (vh self) (om-point-y size-point)))
+
+(defmethod om-view-size ((self om-graphic-object)) 
+  (if (capi::interface-visible-p self)
+      (capi:apply-in-pane-process self #'(lambda ()
+                (multiple-value-bind (w h) (capi::pinboard-pane-size self)
+                  (setf (vw self) w)
+                  (setf (vh self) h)))))
+    (om-make-point (vw self) (vh self)))
+
+(defmethod om-width ((item om-graphic-object)) (om-point-x (om-view-size item)))
+(defmethod om-height ((item om-graphic-object)) (om-point-y (om-view-size item)))
 
 ;;;======================
 ;;; TOOLS
@@ -179,54 +271,6 @@
   (capi::pane-descendant-child-with-focus view))
 
 
-(defun maybe-call-update (graphic-obj)
-  (when (and (initialized-p graphic-obj) (not (locked graphic-obj))) ;; (interface-visible-p graphic-obj)
-    (update-for-subviews-changes graphic-obj t)
-    ))
-  
-(defmethod update-for-subviews-changes ((self om-graphic-object) &optional (recursive nil)) nil)
-
-(defmacro om-with-delayed-update (view &body body)
-   `(progn 
-      (setf (locked ,view) t)
-      ,@body
-      (setf (locked ,view) nil)
-      (maybe-call-update ,view)
-      ))
-
-(defmethod om-add-subviews ((self om-graphic-object) &rest subviews)
-  "Adds subviews to a graphicbject"
-  (loop for item in subviews do (internal-add-subview self item))
-  (maybe-call-update self)
-  )
-
-(defmethod internal-add-subview ((self om-graphic-object) (subview om-graphic-object))
-  (setf (vcontainer subview) self)
-  (setf (vsubviews self) (append (vsubviews self) (list subview))))
-
-(defmethod om-remove-subviews ((self om-graphic-object) &rest subviews)
-  (capi::apply-in-pane-process (om-get-view self) #'(lambda ()
-                                                      (loop for item in subviews do (internal-remove-subview self item))
-                                                      (maybe-call-update self)
-                                                      )))
-
-(defmethod om-remove-all-subviews ((self om-graphic-object))
-  (capi::apply-in-pane-process (om-get-view self) #'(lambda ()
-                                                        (loop for item in (om-subviews self) do (internal-remove-subview self item))
-                                                        (maybe-call-update self))))
-
-
-
-
-(defmethod internal-remove-subview ((self om-graphic-object) (subview om-graphic-object))
-  (setf (vcontainer subview) nil)
-  (setf (vsubviews self) (remove subview (vsubviews self))))
-
-
-(defmethod om-width ((item om-graphic-object)) (om-point-x (om-view-size item)))
-(defmethod om-height ((item om-graphic-object)) (om-point-y (om-view-size item)))
-
-(defmethod om-interior-size ((self om-graphic-object)) (om-view-size self))
 
 (defmethod om-set-bg-color ((self om-graphic-object) color)
   (let ((col (when color (omcolor-c color))))

@@ -303,16 +303,13 @@
                           :initform (om-make-color-alpha (om-def-color :gray) 0.2))
    (cursor-interval-lines-color :accessor cursor-interval-lines-color :initarg :cursor-interval-lines-color 
                           :initform (om-make-color 0.4 0.2 0.2))
-   
-
-   ;(cursor :accessor cursor :initform nil)
    (cursor-pos :initform 0 :accessor cursor-pos))
   (:default-initargs :fit-size-to-children nil))
 
 (defmethod time-to-pixel ((self x-cursor-graduated-view) time) 
   (x-to-pix self time))
 
-;;; => TO GET IT TO APPLY FOR MINIVIEWS AS WELL
+;;; => applies for miniviews as well...
 (defmethod time-to-pixel ((self omobjectboxframe) time)
   (miniview-time-to-pixel (get-box-value (object self)) self time))
 

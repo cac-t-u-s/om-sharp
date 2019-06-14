@@ -18,13 +18,13 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 ;=========================================================================
-; Authors: J. Bresson, C. Agon
+; Authors: C. Agon
 ;=========================================================================
 
 ;;===========================================================================
 ; PRINT UTILITY
 ;;===========================================================================
-
+;;; NOT USED ATM
 
 (in-package :om-api)
 
@@ -44,13 +44,11 @@
 (defun om-draw-score-line (x1 y1 x2 y2)  
   (gp:draw-line *curstream* x1 y1 x2 y2  :thickness *score-thickness* ))
 
-
 (defun om-page-setup ()
   (capi::page-setup-dialog))
 
 (defmethod om-print-window ((self om-abstract-window))
   (om-print-document self))
-
 
 
 ;print the window in one page IL FAUT ALIGNER A LA TAILLE DU PATCH ET NON DE LA FENETRE

@@ -254,8 +254,7 @@
                                   (om-add-subviews *current-eval-panel* fv))
                                 
                                 (om-message-dialog (string+ "Error while evaluating the box " (string (name self)) " : " 
-                                                            (format nil "~A" c))
-                                                   :size (om-make-point 300 200))
+                                                            (format nil "~A" c)))
                                 (fade-out-flag-view fv)
                                 (clear-after-error self)
                                 (setf (eval-flag self) nil)
@@ -376,8 +375,7 @@
                                 (when *current-eval-panel*
                                   (om-add-subviews *current-eval-panel* fv))
                                 (om-message-dialog (string+ "Error while evaluating the box " (string (reference self)) " : " 
-                                                            (format nil "~A" c))
-                                                   :size (om-make-point 300 200))
+                                                            (format nil "~A" c)))
                                 (fade-out-flag-view fv)
                                 (clear-after-error self)
                                 (om-abort))))))

@@ -272,7 +272,7 @@
 
 (defmethod make-prop-item ((type (eql :bool)) prop-id object &key default update)
   (om-make-di 'om-check-box 
-              ;:enable (valid-property-p object prop-id)
+              ;:enabled (valid-property-p object prop-id)
               :checked-p (get-property object prop-id) ; (and (valid-property-p object prop-id) (get-property object prop-id))
               :text ""
               :resizable nil
@@ -291,7 +291,7 @@
   (let ((popup (om-make-di 'om-popup-list 
                            :items (remove :default type) 
                            :resizable nil
-                           :enable (and (valid-property-p object prop-id) 
+                           :enabled (and (valid-property-p object prop-id) 
                                         (if default (get-property object prop-id) t))
                            :value (or (get-property object prop-id)
                                       (get-default-value default))
@@ -438,7 +438,7 @@
              "-")))
     (om-make-di 'om-button 
                 :resizable nil
-                ;:enable (valid-property-p object prop-id)
+                ;:enabled (valid-property-p object prop-id)
                 :focus nil :default nil
                 :text (font-to-str (get-property object prop-id))
                 :size (om-make-point (list :string (font-to-str (get-property object prop-id))) 26)
@@ -474,7 +474,7 @@
 
             (om-make-di 'om-button 
                         :resizable nil
-                        :enable (and (valid-property-p object prop-id)
+                        :enabled (and (valid-property-p object prop-id)
                                      (get-property object prop-id)
                                      (font-? (get-property object prop-id)))
                         :focus nil :default nil

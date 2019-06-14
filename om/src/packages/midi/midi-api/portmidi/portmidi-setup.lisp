@@ -123,11 +123,12 @@
                                                    :size (oa::om-make-point 40 24) 
                                                    :text "-"
                                                    :di-action (let ((n (car portsetting)))
-                                                                (oa::om-dialog-item-act button
-                                                                  (setf (nth pos-in-settings (settings dialog)) 
-                                                                        (remove n (nth pos-in-settings (settings dialog)) :key 'car :test '=))
-                                                                  (set-portmidi-connection-view self dialog)
-                                                                  )))
+                                                                #'(lambda (button)
+                                                                    (declare (ignore button))
+                                                                    (setf (nth pos-in-settings (settings dialog)) 
+                                                                          (remove n (nth pos-in-settings (settings dialog)) :key 'car :test '=))
+                                                                    (set-portmidi-connection-view self dialog)
+                                                                    )))
                                    
                                    (oa::om-make-di 'oa:om-popup-list 
                                                    :size (oa::om-make-point 200 24)
@@ -136,10 +137,10 @@
                                                    :di-action (let ((p (position (car portsetting) (nth pos-in-settings (settings dialog)) 
                                                                                  :test '= :key 'car))
                                                                     (port (car portsetting)))
-                                                                (oa::om-dialog-item-act list
-                                                                  (setf (nth p (nth pos-in-settings (settings dialog)))
-                                                                        (list port
-                                                                              (if (= 0 (oa::om-get-selected-item-index list)) nil
+                                                                #'(lambda (list) 
+                                                                    (setf (nth p (nth pos-in-settings (settings dialog)))
+                                                                          (list port
+                                                                                (if (= 0 (oa::om-get-selected-item-index list)) nil
 										  (list (oa::om-get-selected-item list))))))))
                                    nil))))
                       nil)))))))
@@ -176,6 +177,7 @@
                        :size (oa::om-make-point 40 24)
                        :text "+"
                        :di-action #'(lambda (item)
+                                      (declare (ignore item))
                                       (let ((newport 0))
                                         (loop while (find newport (car (settings dd)) :test '= :key 'car)
                                               do (setf newport (1+ newport)))
@@ -210,6 +212,7 @@
                        :size (oa::om-make-point 40 24)
                        :text "+"
                        :di-action #'(lambda (item)
+                                      (declare (ignore item))
                                       (let ((newport 0))
                                         (loop while (find newport (cadr (settings dd)) :test '= :key 'car)
                                               do (setf newport (1+ newport)))
@@ -254,10 +257,12 @@
                                      NIL
                                      (oa::om-make-di 'oa::om-button
                                                      :size (oa::om-make-point 80 24) :text "Cancel"
-                                                     :di-action #'(lambda (item) (oa::om-return-from-modal-dialog dd nil)))
+                                                     :di-action #'(lambda (item) (declare (ignore item)) 
+                                                                    (oa::om-return-from-modal-dialog dd nil)))
                                      (oa::om-make-di 'oa::om-button
                                                      :size (oa::om-make-point 80 24) :text "OK"
-                                                     :di-action #'(lambda (item) (oa::om-return-from-modal-dialog dd (settings dd))))
+                                                     :di-action #'(lambda (item) (declare (ignore item))
+                                                                    (oa::om-return-from-modal-dialog dd (settings dd))))
                                      ))
                 )))
     

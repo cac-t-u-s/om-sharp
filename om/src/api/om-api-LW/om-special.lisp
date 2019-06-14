@@ -33,6 +33,7 @@
           om-special-lisp-form-p
           om-root-folder
           om-set-root-folder
+          om-resources-folder
           om-inspect
           ) :om-api)
 
@@ -55,6 +56,36 @@
 
 (defun om-set-root-folder (path) 
   (setf *om-root* path))
+
+
+(defun om-resources-folder ()
+  #+macosx 
+  (if (oa::om-standalone-p) 
+      (make-pathname
+       :host (pathname-host (oa::om-lisp-image))
+       :device (pathname-device (oa::om-lisp-image)) 
+       :directory (append (butlast (pathname-directory (oa::om-lisp-image))) '("Resources")))
+    (make-pathname
+     :host (pathname-host (oa::om-root-folder))
+     :device (pathname-device (oa::om-root-folder)) 
+     :directory (append (pathname-directory (oa::om-root-folder)) '("resources"))))
+  #+linux
+  (if (oa::om-standalone-p) 
+      (make-pathname
+       :host (pathname-host (oa::om-lisp-image))
+       :device (pathname-device (oa::om-lisp-image)) 
+       :directory (append (butlast (pathname-directory (oa::om-lisp-image))) '("share" "openmusic" "resources")))
+      (make-pathname
+       :host (pathname-host (oa::om-root-folder))
+       :device (pathname-device (oa::om-root-folder)) 
+       :directory (append (pathname-directory (oa::om-root-folder)) '("resources"))))
+  #+win32 
+  (make-pathname
+   :host (pathname-host (oa::om-root-folder))
+   :device (pathname-device (oa::om-root-folder)) 
+   :directory (append (pathname-directory (oa::om-root-folder)) '("resources")))
+  )
+
 
 ;=======================
 ; INSPECTOR

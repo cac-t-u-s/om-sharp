@@ -56,11 +56,11 @@
 (defparameter *api-cleanup-list* nil)
 
 (defun om-add-cleanup-fun (fun-name &optional last?)  
-(unless (member fun-name *api-cleanup-list* :test 'equal)
-  (if last?
-     (push fun-name  *api-cleanup-list*)
-     (setf  *api-cleanup-list* (append  *api-cleanup-list* (list fun-name)))
-     )))
+  (unless (member fun-name *api-cleanup-list* :test 'equal)
+    (if last?
+        (push fun-name  *api-cleanup-list*)
+      (setf  *api-cleanup-list* (append  *api-cleanup-list* (list fun-name)))
+      )))
 
 (defun om-api-exit ()
   (mapc #'(lambda (x) (funcall x)) (reverse *api-cleanup-list*))
@@ -68,7 +68,6 @@
 
 
 (let ((api-files '(
-                   "system"
                    "files"
                    "processes"
                    "scheduler"
@@ -90,17 +89,22 @@
                    "user-interface"
                    "draganddrop"
                    "tooltips"
-                   "print"
-                   "libraries"                 
+                   "system"
+                   "libraries"    
                    "om-special"  
                    )
                  ))
+
   (mapc #'(lambda (filename) 
             (cl-user::compile&load (make-pathname :directory *api-directory* :name filename))
-            (terpri)) 
+            (terpri))
         api-files)
   )
 
+
+;;; not loaded:
+; print
+; picture-processing
 
 
 

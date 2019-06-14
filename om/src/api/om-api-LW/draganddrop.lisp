@@ -79,7 +79,8 @@
 ;;;===========================================================
 
 (defmethod build-d&d-image ((dragged om-drag-view) pane)
-  (multiple-value-bind (x1 y1 x2 y2) (om-drag-area dragged)
+  (multiple-value-bind (x1 y1 x2 y2) 
+      (om-drag-area dragged)
     (let ((pp (gp:create-pixmap-port pane 
                                      (abs (round (- x2 x1)))
                                      (abs (round (- y2 y1))) 
@@ -96,7 +97,6 @@
                         ))
         (progn 
           (gp:destroy-pixmap-port pp)
-          ;(print "destroy")
           )))))
 
 

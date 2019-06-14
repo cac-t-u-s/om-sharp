@@ -100,7 +100,7 @@
 (defun make-tempo-check-box (editor)
   (om-make-di 'om-check-box :text "tempo" :size (omp 65 24) :font (om-def-font :font1)
               :checked-p nil
-              :enable (tempo-editor editor)
+              :enabled (tempo-editor editor)
               :di-action #'(lambda (item) 
                              (if (om-checked-p item) 
                                  (show-tempo-editor editor)

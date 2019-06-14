@@ -87,10 +87,10 @@
 (defvar *dummy-view* nil)
 
 (defun init-dummy-view ()
-  (let* ((pl (make-instance 'capi:pinboard-layout))
-         (win (capi:display (make-instance 'capi:interface 
-                                           :display-state :hidden
-                                           :layout pl))))
+  (let* ((pl (make-instance 'capi:pinboard-layout)))
+    (capi:display (make-instance 'capi:interface 
+                                 :display-state :hidden
+                                 :layout pl))
     (setf *dummy-view* pl)))
 
 (om-api-add-init-fun 'init-dummy-view)
@@ -279,8 +279,7 @@
 
 (defmethod om-font-p ((self t)) (gp::font-description-p self))
 
-(defun om-make-font (face size &key (family nil) (style nil) (mode nil))
-  (declare (ignore mode))
+(defun om-make-font (face size &key (style nil))
   (gp::make-font-description 
    ;:name face   ; --> name is not portable for find-best-font process
    :family face
@@ -288,8 +287,8 @@
    :slant (if (member :italic style) :italic :roman)
    :weight (if (member :bold style) :bold :normal)
    :pitch :variable
-   :underline nil  ; souligné
-   :strikeout nil ; barré
+   :underline nil  
+   :strikeout nil
    :charset :ansi 
    :devicep nil 
    :type :truetype 
@@ -330,6 +329,7 @@
 ; (om-string-wrap "dfghjklmùlkjhgf gfhjlkhg" 10 (om-def-font :font2))
 
 (defun om-string-wrap (str width font)
+  (declare (special *curstream* *dummy-view*))
   (let* ((view (or *curstream* *dummy-view*))
          (w (max width  (om-string-size "W" font))))
   (capi::wrap-text-for-pane 

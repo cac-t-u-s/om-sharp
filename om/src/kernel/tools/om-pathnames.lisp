@@ -58,7 +58,8 @@
 
 ;;; Check if a folder exist and create it if it does not
 (defun check-folder (path)
-  (unless (probe-file path) (om-create-directory path :if-exists nil))
+  (unless (probe-file path) 
+    (om-create-directory path))
   path)
 
 

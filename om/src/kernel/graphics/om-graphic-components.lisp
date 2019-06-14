@@ -59,8 +59,8 @@
   (call-next-method)
   (let ((x (om-h-scroll-position self))
         (y (om-v-scroll-position self))
-        (w (om-point-x (om-interior-size self)))
-        (h (om-point-y (om-interior-size self))))
+        (w (om-point-x (om-view-size self)))
+        (h (om-point-y (om-view-size self))))
     (draw-3D-border self x y (+ x w) (+ y h))))
 
 (defun draw-3D-border (self x y xx yy)

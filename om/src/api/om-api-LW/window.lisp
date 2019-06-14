@@ -99,7 +99,6 @@
   (setf (initialized-p self) t)
   t)
 
-
 ;;; Called by CAPI when destroying the window
 (defmethod om-destroy-callback  ((self om-abstract-window))
   (capi::execute-with-interface self 'om-window-close-event self)
@@ -176,7 +175,8 @@
                                 )
                             wi he)
     ))
-    
+
+
 (defmethod om-interior-size ((self om-abstract-window))
  ;(print (capi::interface-geometry self))
   #+win32(if (capi::interface-visible-p (capi::pane-layout self))
@@ -186,6 +186,7 @@
   ;;;(om-subtract-points (om-view-size self) (om-make-point 30 30))
   #-win32(om-view-size self)
   )
+
 
 (defmethod om-set-interior-size ((self om-abstract-window) size)
   (om-set-view-size self size))
@@ -218,10 +219,14 @@
   (declare (ignore self)) nil)
 
 (defmethod capi::calculate-constraints ((self om-abstract-window))
+
+  (declare (special capi:%min-width% capi:%min-height%))
+  
   (call-next-method)
+  
   (let ((msize (om-minimum-size self)))
     (when msize
-      (with-geometry self
+      (capi::with-geometry self
         (setf capi:%min-width% (om-point-x msize))
         (setf capi:%min-height% (om-point-y msize))
         ))))
@@ -268,7 +273,7 @@
 
 (defmethod om-hide-window ((self om-abstract-window))
   (capi::execute-with-interface self 
-                                #'(lambda (x) (setf (top-level-interface-display-state x) :hidden))
+                                #'(lambda (x) (setf (capi::top-level-interface-display-state x) :hidden))
                                 self))
 
 (defmethod om-window-visible-p ((self om-abstract-window))
@@ -347,6 +352,7 @@
                         :position-relative-to (and owner :owner) :x (vx dialog) :y (vy dialog)))
 
 (defun om-return-from-modal-dialog (dialog val) 
+  (declare (ignore dialog))
   (capi::exit-dialog val))
 
 ;;;====================
@@ -368,11 +374,13 @@
 ;  (make-instance 'window-layout :internal-border nil :visible-border nil 
 ;                 :background :transparent))
 
+#|
 (defmethod om-set-view-size ((self om-windoid) size-point) 
   (let ((w (om-point-x size-point))
         (h (om-point-y size-point)))
     ;(set-not-resizable self :w w :h h)
     (call-next-method)))
+|#
 
 (defmethod correct-win-h ((win om-windoid)) nil)
 
@@ -419,10 +427,15 @@
 
 (defun om-make-window (class &rest attributes 
 			  &key position size
-			  name title owner font bg-color border menu-items
+			  name title owner bg-color border menu-items
                           win-layout
-			  (show t) subviews (resizable t) (close t) (minimize t) (maximize t) (topmost nil) (toolbox nil)
+			  (show t) subviews 
+                          (resizable t) (close t) (minimize t) (maximize t) 
+                          (topmost nil) (toolbox nil)
 			  &allow-other-keys)  
+  
+  (declare (ignore close maximize)) ;;; enable these options someday :)
+  
   (let* ((winparent (or owner (capi:convert-to-screen)))
          (winname (or name title (string (gensym))))
          (wintitle (or title name "OM Window"))

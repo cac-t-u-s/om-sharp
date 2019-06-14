@@ -29,7 +29,7 @@
                      (id (if (numberp ic) ic (intern-k (format nil "~A" ic)))))
                 (om-register-picture id file)))
         (om-directory folder 
-                      :type *om-pict-types*
+                      :type (om-get-know-pict-types)
                       :directories nil
                       :recursive t))
   T)

@@ -34,7 +34,6 @@
                 om-set-menu-bar
                 om-get-menu-bar
                 
-
                 om-pop-up-menu
                 om-open-pop-up-menu
                 
@@ -88,10 +87,10 @@
 
 ;;;Creates a new menu with the given <title> and the list of <menus>.
 (defun om-make-menu (title items &key (enabled t))
-  (let ((enablefun (cond ((functionp enabled) #'(lambda (win) (funcall enabled)))
-                         ((and (symbolp enabled) (fboundp enabled)) #'(lambda (win) (funcall enabled)))
-                         (enabled #'(lambda (win) t))
-                         (t #'(lambda (win) nil)))))
+  (let ((enablefun (cond ((functionp enabled) #'(lambda (item) (declare (ignore item)) (funcall enabled)))
+                         ((and (symbolp enabled) (fboundp enabled)) #'(lambda (item) (declare (ignore item)) (funcall enabled)))
+                         (enabled #'(lambda (item) (declare (ignore item)) t))
+                         (t #'(lambda (item) (declare (ignore item)) nil)))))
         (make-instance 'om-menu 
                  :title title 
                  :callback-type :none
@@ -119,14 +118,14 @@
 ;Creates a new leaf menu with the given <title> and <action>.
 (defun om-make-menu-item (title action &key (key nil) (key-mod :default) (enabled t) selected )
   ;(print (list enabled selected))
-  (let ((enablefun (cond ((functionp enabled) #'(lambda (win) (funcall enabled)))
-                         ((and (symbolp enabled) (fboundp enabled)) #'(lambda (win) (funcall enabled)))
-                         (enabled #'(lambda (win) t))
-                         (t #'(lambda (win) nil))))
-        (selectfun (cond ((functionp selected) #'(lambda (win) (funcall selected)))
-                         ((and (symbolp selected) (fboundp selected)) #'(lambda (win) (funcall selected)))
-                         (selected #'(lambda (win) t))
-                         (t #'(lambda (win) nil)))))
+  (let ((enablefun (cond ((functionp enabled) #'(lambda (item) (declare (ignore item)) (funcall enabled)))
+                         ((and (symbolp enabled) (fboundp enabled)) #'(lambda (item) (declare (ignore item)) (funcall enabled)))
+                         (enabled #'(lambda (item) (declare (ignore item)) t))
+                         (t #'(lambda (item) (declare (ignore item)) nil))))
+        (selectfun (cond ((functionp selected) #'(lambda (item) (declare (ignore item)) (funcall selected)))
+                         ((and (symbolp selected) (fboundp selected)) #'(lambda (item) (declare (ignore item)) (funcall selected)))
+                         (selected #'(lambda (item) (declare (ignore item)) t))
+                         (t #'(lambda (item) (declare (ignore item)) nil)))))
     (make-instance 'om-menu-item
                    :title title 
                    :accelerator (if key (concatenate 'string 
@@ -149,6 +148,7 @@
                  :interaction (if selection :multiple-selection :none)))
 
 (defmethod om-make-menu-comp ((items function) &key selection)
+  (declare (ignore selection))
   (make-instance 'om-menu-group
                  :items-function items
                  :callback-type :item

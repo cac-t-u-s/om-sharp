@@ -252,8 +252,7 @@
 (defmethod om-click-release-handler ((self om-interactive-object) pos) nil) 
 
 (defmethod om-click-release-handler :before ((self om-interactive-object) position) 
-  (setf *clicked-view* nil
-        *drag-disabled* nil))
+  (setf *clicked-view* nil))
 
 ;;;=================
 ;;; DOUBLE CLIC
@@ -328,7 +327,6 @@
 
 ;; never used
 (defmethod om-char-callback ((self om-interactive-object) x y c modifiers)
-  (print (list "char callback" self x y spec))
   (set-meta-keys modifiers)
   (om-with-error-handle 
     (om-view-key-handler self (get-om-character c)))

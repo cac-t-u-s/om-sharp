@@ -25,9 +25,15 @@
 ;;; Manipulation of pictures using LW
 ;;;==============================
 
-(export '(om-save-picture) :om-api)
+;;; ALL THIS IS NOT USED AT ALL ATM
 
-(in-packahge :oa)
+(in-package :oa)
+
+(export '(om-create-picture
+          om-picture-values
+          om-picture-array
+          om-save-picture)
+        :om-api)
 
 
 ;;; !!! ARRAY EN BGRA
@@ -41,8 +47,7 @@
                                   :element-type '(unsigned-byte 8)))
          (color-array (make-array (list h w 4)
                                   :element-type '(unsigned-byte 8)
-                                  :displaced-to bgra-vector))
-         (pix nil) (color nil))
+                                  :displaced-to bgra-vector)))
   (gp::image-access-transfer-from-image ia)
   (gp:image-access-pixels-to-bgra ia bgra-vector)
   (gp::free-image-access ia)
@@ -57,7 +62,7 @@
          (w (gp:image-access-width ia))
          (h (gp:image-access-height ia))
          color-array
-         (pix nil) (color nil))
+         (color nil))
     (gp::image-access-transfer-from-image ia)
     (setf color-array
           (loop for j from 0 to (- h 1) collect
@@ -146,9 +151,9 @@
   path)
 
 
-;;; (gp::externalize-and-write-image  
-
-(defmethod om-save-picture ((pict internal-picture) path)
+#|
+;;; for internal-picture:
+(defmethod om-save-picture (pict path)
   (unwind-protect
       (gp:externalize-and-write-image 
        *record-view*
@@ -156,4 +161,4 @@
        path :if-exists :supersede :errorp nil)
     (gp:free-image *record-view* image))
   (probe-file path))
-
+|#

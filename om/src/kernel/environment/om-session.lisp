@@ -62,7 +62,7 @@
 (defmethod save-om-preferences ()
 
   (let ((path (om-preference-file)))
-    (om-create-directory (make-pathname :directory (pathname-directory path)) :if-exists nil)
+    (om-create-directory (make-pathname :directory (pathname-directory path)))
     (with-open-file (out path :direction :output 
                          :if-does-not-exist :create 
                          :if-exists :supersede) 
@@ -281,7 +281,7 @@
                               :owner nil :focus t
                               ))
          (view (om-make-view 'om-view :size (om-make-point 350 300) 
-                             :bg-color (om-def-color :white) :enable nil))
+                             :bg-color (om-def-color :white)))
          (y 10) prev exist new no-ws)
     (om-add-subviews win view)
     
@@ -303,10 +303,10 @@
                      (setf prev (om-make-di 'om-radio-button :position (om-make-point 20 y) :size (om-make-point 200 20)
                                             :text " Open previous workspace"
                                             :checked-p (and previous-ws (probe-file (pathname previous-ws)))
-                                            :enable (and previous-ws (probe-file (pathname previous-ws)))
+                                            :enabled (and previous-ws (probe-file (pathname previous-ws)))
                                             :font font
-                                             :bg-color (om-def-color :white)
-                                            :radio-button-cluster 'proj
+                                            :bg-color (om-def-color :white)
+                                            :button-group 'proj
                                             ))
                      (om-make-di 'om-multi-text :position (om-make-point 40 (+ y 24)) :size (om-make-point 320 32)
                                  :text (if previous-ws 
@@ -323,7 +323,7 @@
                                              :checked-p (and previous-ws (not (probe-file (pathname previous-ws))))
                                              :font font
                                              :bg-color (om-def-color :white)
-                                             :radio-button-cluster 'proj
+                                             :button-group 'proj
                                              ))
                      (om-make-di 'om-multi-text :position (om-make-point 40 (+ y 24)) :size (om-make-point 290 16)
                                  :text "[Select the main \".omws\" workspace file]"
@@ -337,7 +337,7 @@
                                            :checked-p nil
                                            :font font
                                            :bg-color (om-def-color :white)
-                                           :radio-button-cluster 'proj
+                                           :button-group 'proj
                                            )))
     (incf y 40)
     (om-add-subviews view
@@ -353,9 +353,9 @@
                                              :font font
                                              :checked-p (not previous-ws)
                                              :bg-color (om-def-color :white)
-                                             :enable t
+                                             :enabled t
                                              :font font
-                                             :radio-button-cluster 'proj
+                                             :button-group 'proj
                                              ))
                      
                      )

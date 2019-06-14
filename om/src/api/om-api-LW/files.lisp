@@ -37,8 +37,7 @@
           om-lisp-image
           om-user-home
           om-user-pref-folder
-          om-resources-folder
-
+         
           om-create-file
           om-create-directory
           om-copy-file
@@ -56,8 +55,7 @@
 ;;; PATHNAME MANAGEMENT (create, copy, delete...)
 ;;;==================
 
-(defparameter *compiled-type* (pathname-type *load-pathname*))
-(setq *compiled-type* (pathname-type (cl-user::compile-file-pathname "")))
+(defparameter *compiled-type* (pathname-type (cl-user::compile-file-pathname "")))
 
 ;;; NOT WORK IN STANDALONE !
 (defun om-compiled-type () 
@@ -68,7 +66,8 @@
 ;; handles device, host, etc.
 ;; dircetory is a pathname
 (defun om-make-pathname (&key directory name type host device)
-  (make-pathname #+win32 :host #+win32 (or host (and directory (pathnamep directory) (pathname-host directory)))
+  #-mswindows(declare (ignore host))
+  (make-pathname #+mswindows :host #+mswindows (or host (and directory (pathnamep directory) (pathname-host directory)))
                  :device (or device (and directory (pathnamep directory) (pathname-device directory)))
                  :directory (if (or (stringp directory) (pathnamep directory)) (pathname-directory directory) directory)
                  :name name :type type))
@@ -125,35 +124,6 @@
 (defun om-user-home ()
  (USER-HOMEDIR-PATHNAME))
 
-(defun om-resources-folder ()
-  #+macosx 
-  (if (oa::om-standalone-p) 
-      (make-pathname
-       :host (pathname-host (oa::om-lisp-image))
-       :device (pathname-device (oa::om-lisp-image)) 
-       :directory (append (butlast (pathname-directory (oa::om-lisp-image))) '("Resources")))
-    (make-pathname
-     :host (pathname-host (oa::om-root-folder))
-     :device (pathname-device (oa::om-root-folder)) 
-     :directory (append (pathname-directory (oa::om-root-folder)) '("resources"))))
-  #+linux
-  (if (oa::om-standalone-p) 
-      (make-pathname
-       :host (pathname-host (oa::om-lisp-image))
-       :device (pathname-device (oa::om-lisp-image)) 
-       :directory (append (butlast (pathname-directory (oa::om-lisp-image))) '("share" "openmusic" "resources")))
-      (make-pathname
-       :host (pathname-host (oa::om-root-folder))
-       :device (pathname-device (oa::om-root-folder)) 
-       :directory (append (pathname-directory (oa::om-root-folder)) '("resources"))))
-  #+win32 
-  (make-pathname
-   :host (pathname-host (oa::om-root-folder))
-   :device (pathname-device (oa::om-root-folder)) 
-   :directory (append (pathname-directory (oa::om-root-folder)) '("resources")))
-  )
-   
-
 (defun om-user-pref-folder ()
   (let* ((userhome (om-user-home)))
     (make-pathname
@@ -169,22 +139,25 @@
 ;;; FILE/FOLDER MANAGEMENT (create, copy, delete...)
 ;;;==================
 (defun om-create-file (pathname)
-  (with-open-file (file pathname :direction :output :if-does-not-exist :create)))
+  (with-open-file (file pathname :direction :output :if-does-not-exist :create)
+    (declare (ignore file))))
 
-(defun om-create-directory (pathname &key (if-exists nil))
-   (lw::ENSURE-DIRECTORIES-EXIST pathname)
-   pathname)
+(defun om-create-directory (pathname &key (replace-if-exists nil))
+  (when (and (probe-file pathname) replace-if-exists)
+    (om-delete-directory pathname))
+  (lw::ENSURE-DIRECTORIES-EXIST pathname)
+  pathname)
 
-(defun om-copy-file (sourcepath targetpath &key (if-exists :supersede))
+(defun om-copy-file (sourcepath targetpath &key (replace-if-exists t))
   (handler-bind 
       ((error #'(lambda (err)
                   (capi::display-message "An error of type ~a occurred: ~a" (type-of err) (format nil "~A" err))
                   (abort err))))
-    (when (probe-file targetpath)
+    (when (and (probe-file targetpath) replace-if-exists)
       (delete-file targetpath))
-    (system::copy-file sourcepath targetpath) ;;:if-exists if-exists
-    targetpath
-    ))
+    (system::copy-file sourcepath targetpath)
+    targetpath))
+    
 
 (defun om-copy-directory (sourcedir targetpath)
   (system::call-system (concatenate 'string "cp -R \"" (namestring sourcedir) "\" \"" 

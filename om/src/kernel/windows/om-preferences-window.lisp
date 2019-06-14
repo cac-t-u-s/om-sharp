@@ -167,7 +167,7 @@
 
 (defmethod make-preference-item ((type cons) pref-item)
   (om-make-di 'om-popup-list 
-              ;:enable (valid-property-p object prop-id)
+              ;:enabled (valid-property-p object prop-id)
               :items type
               :resizable :w
               :value (pref-item-value pref-item)
@@ -213,7 +213,7 @@
              "-")))
     (om-make-di 'om-button 
                 :resizable :w
-                ;:enable (valid-property-p object prop-id)
+                ;:enabled (valid-property-p object prop-id)
                 :focus nil :default nil
                 :text (font-to-str (pref-item-value pref-item))
                 :size (om-make-point (list :string (font-to-str (pref-item-value pref-item))) #-linux 26 #+linux 20)

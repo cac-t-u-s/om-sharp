@@ -58,8 +58,7 @@
 
 ;;; ASK USER FOR STRING
 ;(om-get-user-string "dame" :initial-string "yo")
-(defun om-get-user-string (prompt &key (initial-string "") (window-title "Get string") owner 
-                                  (position (om-make-point 200 140)))
+(defun om-get-user-string (prompt &key (initial-string "")) 
   (capi::prompt-for-string prompt :initial-value initial-string
                            :pane-args `(:visible-min-width ,(max 300 (om-string-size initial-string)))
                            :accept-null-string t))
@@ -69,7 +68,7 @@
 ;(om-choose-file-dialog :prompt "escoja" :types '("All" "*.*"))
 
 
-(defun om-choose-file-dialog (&key (prompt "Choose a File") (directory nil) (button-string "OK") (types nil))
+(defun om-choose-file-dialog (&key (prompt "Choose a File") (directory nil) (types nil))
   (let ((rep (capi::prompt-for-file prompt :filters types :filter (if types (cadr types)) :owner (def-dialog-owner)
                                     :pathname (or directory *last-directory*))))
     (when rep
@@ -91,9 +90,8 @@
 ;     ,@body))
 
 ;;; CHOOSE A NEW FILE
-(defun om-choose-new-file-dialog (&key (prompt "Choose a new file") (directory nil) (name "") (button-string "OK") (types nil))
-   (declare (ignore name))
-   (let* ((dir (or directory *last-directory*))
+(defun om-choose-new-file-dialog (&key (prompt "Choose a new file") (directory nil) (name "") (types nil))
+  (let* ((dir (or directory *last-directory*))
          (rep (capi::prompt-for-file prompt :filters types :filter (if types (cadr types)) :owner (def-dialog-owner) 
                     :pathname (make-pathname :directory (when dir (pathname-directory dir)) :name name) 
                     :operation :save)))
@@ -122,7 +120,7 @@
          (def (if dir 
                  (make-pathname :directory (pathname-directory dir) :name defname)
                defname))
-        (path (prompt-for-file prompt :owner (def-dialog-owner)
+        (path (capi::prompt-for-file prompt :owner (def-dialog-owner)
                                :filter nil :filters nil :pathname def
                                :operation :save)))
     (when path
@@ -132,10 +130,10 @@
 
 
 ;;; YES OR NO DIALOG
-(defun om-y-or-n-dialog (message &key (size (om-make-point 300 150)) (default-button nil))
+(defun om-y-or-n-dialog (message &key (default-button nil))
   (capi::prompt-for-confirmation message :default-button (if (equal default-button :yes) :ok nil)))
 
-(defun om-y-n-cancel-dialog (message &key (size (om-make-point 300 150)) (default-button nil))
+(defun om-y-n-cancel-dialog (message &key (default-button nil))
   (multiple-value-bind (answer successp)
       (capi:prompt-for-confirmation message :cancel-button t 
                                     :default-button (if (equal default-button :yes) :ok nil))
@@ -202,16 +200,18 @@
                                      :subviews (list 
                                              (om-make-di 'om-button :position (om-make-point 130 26) :size (om-make-point 80 24)
                                                          :text "Cancel"
-                                                         :di-action (om-dialog-item-act item
-                                                                      (om-return-from-modal-dialog win nil)))
+                                                         :di-action #'(lambda (item) 
+                                                                        (declare (ignore item))
+                                                                        (om-return-from-modal-dialog win nil)))
                                              (om-make-di 'om-button 
                                                          :position (om-make-point 130 58) 
                                                          :size (om-make-point 80 24)
                                                          :text "OK"
                                                          :focus t
                                                          :default-button t
-                                                         :di-action (om-dialog-item-act item
-                                                                      (om-return-from-modal-dialog win (color coloritem)))))
+                                                         :di-action #'(lambda (item) 
+                                                                        (declare (ignore item))
+                                                                        (om-return-from-modal-dialog win (color coloritem)))))
                                      ))
     (om-modal-dialog win owner)))
         
@@ -225,9 +225,7 @@
 ; (om-choose-color-dialog)
 
 ;;;MESSAGE
-(defun om-message-dialog (message &key (window-title "Warning") owner (size (om-make-point 335 100)) 
-                                  (position (om-make-point 200 140)))
-  (declare (ignore owner))
+(defun om-message-dialog (message) 
   (capi::display-message message))
 
 ;;; SYSTEM BEEP

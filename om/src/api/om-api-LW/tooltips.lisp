@@ -102,9 +102,6 @@
   (when (om-get-view self)
     (capi:display-tooltip (om-get-view self))))
 
-(defmethod om-show-tooltip ((self om-standard-dialog-item) &optional remove short) nil) 
-(defmethod om-hide-tooltip ((self om-standard-dialog-item)) nil) 
-
 |#
 
 
@@ -169,7 +166,9 @@
     ))
     
 (defmethod om-show-tooltip ((view om-tt-view) text &optional pos (delay 0.3))
+  
   (when *tt-process* (om-kill-process *tt-process*)) 
+  
   (let ((pp (or pos (om-add-points (om-mouse-position view) (om-make-point 0 -25)))))
     
     (setf *tt-process*
@@ -189,7 +188,9 @@
               view 
               #'(lambda () 
                   (om-start-transient-drawing view 
-                                              #'(lambda (view pos size) (tooltip-draw view))
+                                              #'(lambda (view position size) 
+                                                  (declare (ignore position size))
+                                                  (tooltip-draw view))
                                               pp (omp (ttw view) (tth view)))))
              
              ;(capi::apply-in-pane-process view 'om-invalidate-view 'tooltip-draw view)

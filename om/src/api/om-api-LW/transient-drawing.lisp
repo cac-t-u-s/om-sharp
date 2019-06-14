@@ -44,7 +44,8 @@
 
 (defmethod transient-drawing-view-destroy-calback ((self om-transient-drawing-view))
   (om-stop-transient-drawing self)
-  (om-destroy-callback self))
+  (om-destroy-callback self) ;;; does nothing.. ?
+  )
 
 (defmethod om-transient-drawing-active-p ((self om-transient-drawing-view))
   (if (or (drawn-item self) (drawing-process self)) T NIL))
@@ -81,12 +82,15 @@
    (capi:start-drawing-with-cached-display 
     view     
     #'(lambda (view x y w h)
+        (declare (ignore x y w h))
         (let ((user-info (capi:output-pane-cached-display-user-info view)))
           (when user-info
-            (destructuring-bind (mode x y w h)
+            (destructuring-bind (mode xx yy ww hh)
                 user-info 
+              (declare (ignore mode))
               (om-with-focused-view view 
-                (funcall draw-fun view (om-make-point x y) (om-make-point w h)))))))
+                (funcall draw-fun view (om-make-point xx yy) (om-make-point ww hh))))
+            )))
     :user-info (list display-mode
                      (om-point-x position) (om-point-y position)
                      (om-point-x size) (om-point-y size))
@@ -160,10 +164,14 @@
 
   
 (defmethod om-start-transient-drawing ((self om-transient-drawing-view) draw-fun position size &key display-mode)
+  
+  (declare (ignore display-mode))
+  
   (om-stop-transient-drawing self)
   (setf (drawn-item self)
         (make-instance 'capi::drawn-pinboard-object
                        :display-callback #'(lambda (pane obj x y w h)
+                                             (declare (ignore obj))
                                              (when (and x y w h)
                                              (om-with-focused-view pane
                                                (funcall draw-fun pane (om-make-point x y) (om-make-point w h)))))
