@@ -85,10 +85,8 @@
 
 ;;; different pour om-window
 (defmethod om-get-view ((self t)) self)
-(defmethod om-get-view ((self om-graphic-object)) 
-  (declare (special *default-printer-port*))
-  (or *default-printer-port* self))
-
+(defmethod om-get-view ((self om-graphic-object)) self)
+  
 (defmethod om-subviews ((self om-graphic-object)) (vsubviews self))
 
 ;;; for windows, skip default window layout

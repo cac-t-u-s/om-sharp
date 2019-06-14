@@ -279,7 +279,8 @@
 
 (defmethod om-font-p ((self t)) (gp::font-description-p self))
 
-(defun om-make-font (face size &key (style nil))
+;; &allow-other-keys is for compatibility with OM6 patches
+(defun om-make-font (face size &key (style nil) &allow-other-keys)
   (gp::make-font-description 
    ;:name face   ; --> name is not portable for find-best-font process
    :family face
