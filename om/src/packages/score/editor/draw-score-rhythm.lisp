@@ -50,7 +50,7 @@
                     (x1 (time-to-pixel view begin))
                     (x2 (time-to-pixel view end)))
                
-               (if (> x1 (w view)) (setf on-screen nil)
+               (if (> x1 (w view)) (setf on-screen nil) ;;; this should also take into account measures before screen
                  ;;; else :
                  (when (> x2 0) 
                    
@@ -75,6 +75,7 @@
   (declare (ignore level beam-info rest-line))
 
   (let ((x-pix (time-to-pixel view (beat-to-time (symbolic-date object) tempo)))
+        ; (x-pix (x-to-pix view (- (time-to-x (editor view) (beat-to-time (symbolic-date object) tempo)) 500)))
         (beat-unit (/ (fdenominator (car (tree object)))
                       (find-beat-symbol (fdenominator (car (tree object))))
                       )))

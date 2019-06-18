@@ -376,7 +376,7 @@
            (x2 (+ x (- w (* (or margin-r 0) unit)))))
          
       (flet ((adjust-line-ypos (pos)
-               (+ y (if (> unit 5) (+ (round pos)) pos))))
+               (+ y (if (> unit 5) (round pos) pos))))
 
         (om-with-font 
          (om-make-font *score-font* fontsize)
