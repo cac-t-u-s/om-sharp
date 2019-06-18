@@ -89,13 +89,18 @@
 ;;; adds the library to the OM package tree
 ;;; does not load the lib yet
 (defun register-new-library (name path &optional (warn-if-exists t))
-  (if (find-library name)
-      (when warn-if-exists (om-beep-msg "A library named ~A already exists. Can not register it as new library." name))
-    (let ((new-library (make-instance 'OMLib :mypathname path :name name)))
-      (load-library-metadata new-library)
-      (setf (elements *om-libs-root-package*)
-            (append (elements *om-libs-root-package*) (list new-library)))
-      )))
+  (let ((samelib (find-library name)))
+    (if samelib
+        (when warn-if-exists (om-beep-msg "A library named ~A already exists: ~A. Can not register ~A as new library." 
+                                          name
+                                          (mypathname samelib)
+                                          path
+                                          ))
+      (let ((new-library (make-instance 'OMLib :mypathname path :name name)))
+        (load-library-metadata new-library)
+        (setf (elements *om-libs-root-package*)
+              (append (elements *om-libs-root-package*) (list new-library)))
+        ))))
 
 
 (defun register-all-libraries (&optional (warn-if-exists t))
