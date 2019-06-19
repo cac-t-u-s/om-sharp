@@ -188,7 +188,7 @@
        (when (contents self)
          
          ;;; do this maybe somewhere else, only when necessary
-         (build-editor-time-map editor)
+         ;; (build-editor-time-map editor)
          
          (draw-score-object-in-editor-view editor self unit))
        
