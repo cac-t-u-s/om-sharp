@@ -196,7 +196,10 @@
 ;;;===============
 
 (defparameter *score-staff-options* '(:g :f :gf :gg :ff :ggf :gff :ggff :line :empty))
-(defparameter *score-fontsize-options* '(8 12 16 20 24 28 32 36 40 44 48 52 56 60 64 68 72 76 80 84 88 92 96 100 104 108 112 116 120))
+
+(defparameter *score-fontsize-options*
+  #+darwin '(8 12 16 20 24 28 32 36 40 44 48 52 56 60 64 68 72 76 80 84 88 92 96 100 104 108 112 116 120)
+  #-darwin '(6 9 12 15 18 21 24 27 30 33 36 39 42 45 48 51 54 57 60 63 66 69 72 75 78 81 84 87 90))
 
 (defun staff-split (staff-symbol)
   (case staff-symbol
@@ -379,7 +382,7 @@
                (+ y (if (> unit 5) (round pos) pos))))
 
         (om-with-font 
-         (om-make-font *score-font* fontsize)
+         (om-make-font *score-font* #+darwin fontsize #-darwin (* 3/4 fontsize))
   
          (loop for staff-symb in staff-elems do 
                ;;; lines
@@ -646,7 +649,7 @@
              (unique-port (and draw-ports (all-equal (mapcar 'port notes)) (or (port (car notes)) :default))))
            
         (om-with-font 
-         (om-make-font *score-font* fontsize)
+         (om-make-font *score-font* #+darwin fontsize #-darwin (* 3/4 fontsize))
                  
          ;;; in case of a unique channel we set the color right here
          (om-with-fg-color (if (equal selection t)
@@ -875,7 +878,8 @@
                            
                            ;;; HEAD
                            (om-draw-char head-x line-y head-char
-                                         :font (when (equal draw-vels :size) (om-make-font *score-font* (* (vel n) fontsize .02))))
+                                         :font (when (equal draw-vels :size)
+						 (om-make-font *score-font* (* #+darwin 1 #-darwin 3/4 (vel n) fontsize .02))))
                        
                            ;;; DOTS
                            (when (> n-points 0)
