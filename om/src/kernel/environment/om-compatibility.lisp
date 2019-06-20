@@ -287,7 +287,7 @@
                                    (find-value-in-kv-list (cdr formatted-in) :name))))
 
                         (cond ((and (find-class reference nil)
-                                    (find name (mapcar #'symbol-name (additional-class-attributes (make-instance reference)))
+                                    (find name (mapcar #'symbol-name (additional-class-attributes value))
                                           :test #'string-equal))  ;;; if the input has become a keywork input
                                `(:input (:type :key) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
                               (t formatted-in))
