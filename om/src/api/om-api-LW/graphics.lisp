@@ -284,7 +284,7 @@
   (gp::make-font-description 
    ;:name face   ; --> name is not portable for find-best-font process
    :family face
-   :size #+cocoa (round size) #-cocoa (* 3/4 (round size))
+   :size (round size)
    :slant (if (member :italic style) :italic :roman)
    :weight (if (member :bold style) :bold :normal)
    :pitch :variable
@@ -341,12 +341,13 @@
 
 
 (defun om-def-font (f &key face size style)
-  (let ((def-face #+mswindows "Calibri"  #+linux "Liberation Sans" #+cocoa "Calibri")
-        (def-bold-face #+mswindows "Calibri"  #+linux "Liberation Sans" #+cocoa "Calibri")
+  (let ((def-face #+mswindows "Calibri"  #+linux "Liberation Sans" #+darwin "Calibri")
+        (def-bold-face #+mswindows "Calibri"  #+linux "Liberation Sans" #+darwin "Calibri")
         (score-face "Times New Roman")
         (sizes ;#+mswindows'(8 10 11 13 20) 
                ;#-mswindows
-               '(12 13 14 16 20)		    ;72 ppi
+               #+darwin '(12 13 14 16 20)		    ;72 ppi
+               #-darwin '(9 10 11 12 15)			    ;96 ppi
 	       ))
     (let ((fa 
            (case f
@@ -359,11 +360,11 @@
              (:font3b (om-make-font def-bold-face (nth 2 sizes) :style '(:bold)))
              (:font4b (om-make-font def-bold-face (nth 3 sizes) :style '(:bold)))
              (:gui 
-              #+cocoa (om-make-font "LucidaGrande" 13)
-	      #+linux (om-make-font "Bistream Vera Sans" 13)
-              #-(or cocoa linux) (om-make-font def-face (nth 0 sizes)))
+              #+darwin (om-make-font "LucidaGrande" 13)
+	      #+linux (om-make-font "Bistream Vera Sans" 10) 
+              #-(or darwin linux) (om-make-font def-face (nth 0 sizes)))
              (:score (om-make-font score-face 10))
-	     (:mono (om-make-font #-linux "Courier New" #+linux "Courier" 12))
+	     (:mono (om-make-font #-linux "Courier New" #+linux "Courier" #+darwin 12 #-darwin 10))
              (:lambda ) ; ... a font that contains the lambda character...
              (otherwise (om-make-font def-face (nth 0 sizes))))))
       (when face (setf fa (gp::augment-font-description fa :family face)))
