@@ -814,7 +814,7 @@
                
             
                
-               (loop for n in (sort notes '< :key 'midic) do
+               (loop for n in (sort (copy-list notes) '< :key 'midic) do
                  
                      (let* ((line (pitch-to-line (midic n) scale))
                             (line-y (line-to-ypos line shift unit))
