@@ -258,7 +258,8 @@
         ))))
 
 (defmethod prepare-save-as ((self OMPersistantObject))
-  (let ((path (om-choose-new-file-dialog :prompt (om-str :save-as)
+  (let ((path (om-choose-new-file-dialog :prompt (om-str :save-as) 
+                                         :name (name self)
                                          :directory (or *last-open-dir* (om-user-home))
                                          :types (doctype-info (object-doctype self)))))
     (when path 
