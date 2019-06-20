@@ -72,6 +72,7 @@
                    "processes"
                    "scheduler"
                    "tools"
+                   "system"
                    "graphics"
                    "graphic-object"
                    "actions"
@@ -89,7 +90,6 @@
                    "user-interface"
                    "draganddrop"
                    "tooltips"
-                   "system"
                    "libraries"    
                    "om-special"  
                    )

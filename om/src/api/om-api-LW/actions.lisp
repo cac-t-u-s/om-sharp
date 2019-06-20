@@ -223,7 +223,8 @@
 (defmethod om-clic-callback ((self om-interactive-object) x y modifiers)
   (om-with-error-handle 
     (set-meta-keys modifiers)
-    (apply-in-item-subview self 'om-view-click-handler (om-make-point x y))))
+    (apply-in-item-subview self 'om-view-click-handler (om-make-point x y))
+    ))
 
 (defmethod om-view-click-handler ((self om-interactive-object) position) nil)
 (defmethod om-view-click-handler :before ((self om-interactive-object) position) 
@@ -377,8 +378,8 @@
 ;;; LIST = SHIFT - CMD - ALT
 (defun set-meta-keys (list)
   (setf *om-shift-key-p* (first list))
-  (setf #+macosx *om-command-key-p* #-macosx *om-control-key-p*  (second list) )
-  (setf *om-option-key-p*   (third list)))
+  (setf #+macosx *om-command-key-p* #-macosx *om-control-key-p*  (second list))
+  (setf *om-option-key-p* (third list)))
 
 (defun release-meta-keys ()
   (setf *om-shift-key-p* nil)
