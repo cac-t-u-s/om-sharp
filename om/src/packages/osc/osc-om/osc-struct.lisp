@@ -38,7 +38,13 @@
 (defmethod initialize-instance :after ((self osc-bundle) &rest args)
   (unless (and (listp (messages self))
                (listp (car (messages self))))
-    (setf (messages self) (list (messages self)))))
+    (setf (messages self) (list (messages self))))
+  
+  (loop for msg in (messages self) 
+        unless (stringp (car msg))
+        do (setf (car msg) (string-downcase (car msg))))
+  
+  )
 
 (defmethod data-size ((self osc-bundle))
   (length (flat (messages self))))
