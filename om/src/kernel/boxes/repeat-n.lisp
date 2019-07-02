@@ -30,7 +30,7 @@
 
 (defclass Repeater (OMPatchComponent) 
   ((n-iter :accessor n-iter :initform 0 :initarg :n-iter)
-   (scope :accessor scope :initform :global :initarg :scope)))
+   (scope :accessor scope :initform :local :initarg :scope)))
 
 (defclass OMRepeatNBoxCall (OMPatchComponentBox) ())
 
@@ -45,7 +45,7 @@
 
 (defmethod more-optional-input ((self OMRepeatNBoxCall) &key name (value nil val-supplied-p) doc reactive)
   (add-optional-input  self :name "scope"
-                      :value (if val-supplied-p value :global) 
+                      :value (if val-supplied-p value :local) 
                       :reactive reactive)
   t)
 
@@ -129,7 +129,7 @@
 (defmethod gen-code-for-call ((self OMRepeatNBoxCall) &optional args)
   
   (let ((scope (if (third (inputs self)) 
-                    (gen-code (third (inputs self)))
+                    (eval (gen-code (third (inputs self))))
                   (scope (reference self)))))
 
     (if (equal scope :global)
