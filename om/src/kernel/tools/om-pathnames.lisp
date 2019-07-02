@@ -151,7 +151,7 @@
 |#
 
 ;;; seems like 'merge-pathnames' does pretty much the same job
-(defmethod restore-path ((self pathname) refpath)
+(defmethod restore-path ((self pathname) &optional refpath)
   (let ((dir (pathname-directory self)))
     (if refpath
         (cond ((and (equal :relative (car dir)) (cdr dir))
@@ -172,10 +172,10 @@
       self)
      ))
 
-(defmethod restore-path ((self string) refpath)
+(defmethod restore-path ((self string) &optional refpath)
   (restore-path (pathname self) refpath))
 
-(defmethod restore-path ((self t) refpath) nil)
+(defmethod restore-path ((self t) &optional refpath) nil)
 
 
 

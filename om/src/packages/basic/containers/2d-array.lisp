@@ -297,7 +297,7 @@ Data instanciation in a column is done according to the specified number of line
   (setf (fields self) (length (field-names self)))
   (unless (elts self) (setf (elts self) 0))
   
-  (when t ;; initargs ;; INITARGS = NIL means we are loading a saved object (data is already in)
+  (when initargs ;; INITARGS = NIL means we are loading a saved object (data is already in)
     (setf (data self)
           (loop for field in (field-names self) collect
                 
@@ -309,11 +309,12 @@ Data instanciation in a column is done according to the specified number of line
                   
                   (cond (input-data 
                          ;; the field is to be set from specified data, whatever existed before
-                         (make-array-field :name field :decimals 4
-                                           :default (and existing-field (array-field-default existing-field))
-                                           :type (and existing-field (array-field-type existing-field))
-                                           :doc (and existing-field (array-field-doc existing-field))
-                                           :data (get-array-data-from-input input-data (elts self))))
+                         (let ((type (and existing-field (array-field-type existing-field))))
+                           (make-array-field :name field :decimals 4
+                                             :default (and existing-field (array-field-default existing-field))
+                                             :type type
+                                             :doc (and existing-field (array-field-doc existing-field))
+                                             :data (get-array-data-from-input input-data (elts self) type))))
                         
                         (existing-field
                          ;; the field already exists
@@ -324,11 +325,12 @@ Data instanciation in a column is done according to the specified number of line
                                            :data (get-array-data-from-input 
                                                   (or (array-field-data existing-field)
                                                       (array-field-default existing-field))
-                                                  (elts self))))
+                                                  (elts self)
+                                                  (array-field-type existing-field))))
                         (t
                          ;; the field will be filled from the default value (if any) or NIL
                          (make-array-field :name field :decimals 4
-                                           :data (get-array-data-from-input nil (elts self))))
+                                           :data (get-array-data-from-input nil (elts self) nil)))
                         )
                   )))
     )
@@ -384,31 +386,37 @@ Data instanciation in a column is done according to the specified number of line
   (mapcar #'array-field-data (data self)))
 
 ;;; methods for filling data
-(defmethod get-array-data-from-input ((input t) n)
+(defmethod get-array-data-from-input ((input t) n type)
+  (declare (ignore type))
   (make-list n :initial-element (om-copy input)))
 
-(defmethod get-array-data-from-input ((input cons) n)
+(defmethod get-array-data-from-input ((input cons) n type)
+  (declare (ignore type))
   (cond ((= (length input) n) 
          (om-copy input))
         ((< (length input) n) 
-         (get-array-data-from-input (append (om-copy input) (om-copy input)) n))
+         (get-array-data-from-input (append (om-copy input) (om-copy input)) n type))
         ((> (length input) n)
          (first-n (om-copy input) n))))
 
-(defmethod get-array-data-from-input ((input function) n)
+(defmethod get-array-data-from-input ((input function) n type)
+   (declare (ignore type))
+   
   (case (length (function-arg-list input))
-    (1 (mapcar input (loop for i from 0 to (1- n) collect i)))
+    (1 (mapcar input (loop for i from 1 to n collect i)))
     (0 (loop for i from 1 to n collect (funcall input)))
     (otherwise (om-beep-msg "functions as array input must have 1 or 0 arguments!"))
     ))
 
-(defmethod get-array-data-from-input ((input symbol) n)
+(defmethod get-array-data-from-input ((input symbol) n type)
+  (declare (ignore type))
   (if (fboundp input) 
-      (get-array-data-from-input (fdefinition input) n) 
+      (get-array-data-from-input (fdefinition input) n type)
     (call-next-method)))
 
-(defmethod get-array-data-from-input ((input bpf) n)
-  (multiple-value-bind (bpf xx yy) (om-sample input n) yy))
+(defmethod get-array-data-from-input ((input bpf) n type)
+ (declare (ignore type)) 
+ (multiple-value-bind (bpf xx yy) (om-sample input n) yy))
 
 
 ;;;============================

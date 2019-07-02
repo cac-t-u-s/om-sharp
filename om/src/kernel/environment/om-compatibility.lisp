@@ -91,8 +91,10 @@
 ;;; idea: consider an auto-alignment option for patches, set "on" when an old patch is loaded...
 
 ;;; main patch file
-(defun om-load-patch1 (name boxes connections &rest ignore)
+;;; macro allows us not to load any argument in &rest
+(defmacro om-load-patch1 (name boxes connections &rest ignore)
   
+  ;;; among the ignored arguments are also the patch-pictures
   (declare (ignore ignore))
   
   ;(let ((patch (make-instance 'OMPatchFile :name name)))
@@ -100,16 +102,20 @@
   ;   (let ((box (eval box-code)))
   ;     (when box (omng-add-element patch box))))
   ;  patch)
-   
-  ;;; only top-level patch acually load their contents:
-  (omng-load
-   `(:patch
-     (:name ,name)
-     (:boxes .,(loop for box-code in boxes collect (eval box-code)))
-     (:connections .,(loop for c in connections collect (format-imported-connection c)))
-     )
-   )
-  )
+  
+  `(let ((name-loaded ,name)
+         (boxes-loaded ,boxes)
+         (connections-loaded ,connections))
+     
+     ;;; only top-level patch acually load their contents:
+     (omng-load
+      `(:patch
+        (:name ,name-loaded)
+        (:boxes .,(loop for box-code in boxes-loaded collect (eval box-code)))
+        (:connections .,(loop for c in connections-loaded collect (format-imported-connection c)))
+        )
+      )
+     ))
     
 
 ;;; internal sub-patch
@@ -137,7 +143,7 @@
 ;;; they load ok anyway.
 (defmethod om-load-boxcall ((self (eql 'abstraction)) name reference inputs position size value lock &rest rest)
 
-  (declare (ignore name value rest))
+  (declare (ignore value rest))
   
   `(:box 
     (:type :patch)
@@ -1048,14 +1054,7 @@
    (page-mode :accessor page-mode)))
    
 
-;;; CHORD-SEQ LEGATO IS NO LONGER % but a simple factor
-
-;;; BPF
-(defun simple-bpf-from-list (x-points y-points &optional (class 'bpf) (decimals 0))
-  (make-instance class :x-points x-points :y-points y-points :decimals decimals))
-
-(defun 3Dc-from-list (xlist ylist zlist &optional (class '3DC) (decimals 0))
-  (make-instance class :x-points xlist :y-points ylist :z-points zlist :decimals decimals))
+;;; Note/ToDo: CHORD-SEQ LEGATO IS NO LONGER % but a simple factor
 
 
 ;;;============================================================================
@@ -1089,6 +1088,19 @@
 (defun om-load-if (pathname fun)
   (funcall fun pathname))
 
+
+;;; PITCURES IN PATCHES: TODO
+#|
+(defun restore-pict-path (path) path)
+(defun om-get-picture (name location) nil)
+
+(defclass patch-picture () 
+  ((pict-pos :accessor pict-pos :initarg :pict-pos)
+   (pict-size :accessor pict-size :initarg :pict-size)))
+  
+;(let ((newpict (make-instance (quote patch-picture) :name "arrow_down_1" :source (quote user) :pict-pathname (restore-pict-path (restore-path nil)) :thepict (om-get-picture "arrow_down_1" (quote user)) :storemode :external :draw-params (quote (p 0 0 100 100)) :extraobjs nil))) (setf (pict-pos newpict) (om-make-point 619 173)) (setf (pict-size newpict) (om-make-point 50 112)) newpict)
+
+|#
 
 ;============================================================================
 ; CHANGED ARG NAMES

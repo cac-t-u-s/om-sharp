@@ -54,7 +54,8 @@
 ;    "classes;omgraphics"
 ;    "functions;file"
 ;    "classes;time-array" 
-    
+        
+        "compatibility"
         "basic-pack"
     
         ))
