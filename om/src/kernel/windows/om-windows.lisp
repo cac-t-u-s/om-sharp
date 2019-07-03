@@ -132,7 +132,7 @@
       :key "d")
      
      (om-make-menu-item  
-      "Help Patch" 
+      "Box Help" 
       #'(lambda () 
           (let ((help-patches (remove nil (mapcar #'get-symbol-help-patch (get-selection-for-menu self)))))
             (if (print help-patches) 
@@ -163,12 +163,7 @@
           (om-make-menu
            "Help patches..." 
            (append 
-            (loop for help-patch in (get-base-help-patches) 
-                  collect  
-                  (let ((path help-patch))
-                    (om-make-menu-item 
-                     (pathname-name path) 
-                     #'(lambda () (open-help-patch path)))))
+            (make-base-help-menu-items)  
             (list 
              (om-make-menu-comp 
               #'(lambda (win) 
@@ -176,18 +171,13 @@
                    (om-make-menu-item "Libraries:" nil :enabled nil)
                    (loop for lib in (all-om-libraries) 
                          when (get-lib-help-patches lib)
-                         collect (om-make-menu 
-                                  lib
-                                  (loop for help-patch in (get-lib-help-patches lib) 
-                                        collect  
-                                        (let ((path help-patch))
-                                          (om-make-menu-item 
-                                           (pathname-name path) 
-                                           #'(lambda () (open-help-patch path)))))
-                                  ))
-                   ))))
+                         collect (make-lib-help-menu lib))
+                   ))
+              ))
             )))))
     ))
+
+
 
 
 (defun main-app-menu-item ()

@@ -20,12 +20,29 @@
 (in-package :om)
 
 
+(defun menus-from-list (folder)
+  (append 
+   (loop for sub in (sort (om-directory folder :directories t :files nil) #'string< 
+                          :key #'(lambda (path) (car (last (pathname-directory path)))))
+         collect (om-make-menu (car (last (pathname-directory sub)))
+                               (menus-from-list sub)))
+   (loop for item in (sort (om-directory folder :type '("opat" "omp")) #'string< :key #'pathname-name)
+         collect  (let ((path item))           
+                    (om-make-menu-item 
+                     (pathname-name path)
+                     #'(lambda () (open-help-patch path)))))
+   ))
+  
 (defun get-base-help-patches () 
   (let* ((folder-name "help-patches/")
-         (path (if (oa::om-standalone-p) 
+         (help-folder (if (oa::om-standalone-p) 
                    (merge-pathnames folder-name (om-resources-folder))
                  (merge-pathnames folder-name (om-root-folder)))))
-    (om-directory path :type "opat")))
+    help-folder))
+
+(defun make-base-help-menu-items ()
+  (menus-from-list (get-base-help-patches)))
+
 
 (defun get-lib-help-patches (lib) 
   (let ((thelib (if (stringp lib) (find-library lib) lib)))
@@ -34,10 +51,13 @@
              (find-if 
               #'(lambda (path) (member (car (last (pathname-directory path))) '("patches" "tutorials" "examples") :test #'string-equal))
               (om-directory (mypathname thelib) :directories t :files nil))))
-        (when help-folder
-          (om-directory help-folder :type '("opat" "omp") :recursive t)
-          )))))
-    
+        help-folder
+        ))))
+
+
+(defun make-lib-help-menu (lib)
+  (om-make-menu lib (menus-from-list (get-lib-help-patches lib))))
+
 ;;; can be redefined for specific symbols  
 (defmethod symbol-reference-patch-name ((self symbol)) (string self))
 
