@@ -129,9 +129,15 @@
            (+x (or (car (modif c)) 0))
            (+y (or (cadr (modif c)) 0))
            
+           (frombox-x (box-x (box (from c))))
+           (tobox-x (box-x (box (to c))))
+           
+           (tobox-width (or (box-w (box (to c))) (w (frame (box (to c)))))) ;;; sometimes box-w is nil
+           (frombox-width (or (box-w (box (from c))) (w (frame (box (from c)))))) ;;; sometimes box-w is nil
+           
            ;;; decide when to curve the connection => not if the two boxes overlap in x
-           (threshold (if (or (>= (box-x (box (from c))) (+ (box-x (box (to c))) (box-w (box (to c)))))
-                              (>= (box-x (box (to c))) (+ (box-x (box (from c))) (box-w (box (from c))))))
+           (threshold (if (or (>= frombox-x (+ tobox-x tobox-width))
+                              (>= tobox-x (+ frombox-x frombox-width)))
                           16 4)))
       
       (setf (points c)

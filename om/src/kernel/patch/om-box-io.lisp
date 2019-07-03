@@ -141,9 +141,11 @@
                        (usedkeywords (mapcar #'(lambda (in) (intern-k (name in))) (get-keyword-inputs self))))
                    (and (or (find (intern-k key) keywordlist) 
                             (find (intern-k (box-free-keyword-name self)) keywordlist)
-                            (om-beep-msg (string+ "Wrong keyword name: " (string key))))
+                            (om-beep-msg "Unknown keyword name in box ~A: ~A" (name self) key)
+                            ;(intern-k key) ; uncomment this if we want to return the keyword anyway...
+                            )
                         (or (not (find (intern-k key) usedkeywords)) 
-                            (om-beep-msg (string+ "Keyword name already used: " (string key))))
+                            (om-beep-msg "Keyword name already used in box ~A: ~A" (name self) key))
                         (intern-k key))) ;;; key is ok
                def-next)))
         (when keyname

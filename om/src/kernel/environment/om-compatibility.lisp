@@ -183,7 +183,7 @@
 ;;; a box input "keyword" 
 (defun om-load-inputkeyword (class doc name value defval menu) 
   (declare (ignore class doc value menu))
-  `(:input (:type :key) (:name ,name) (:value ,(omng-save defval))))
+  `(:input (:type :key) (:name ,value) (:value ,(omng-save defval))))
 
 ;;; a box input with menu for different values
 (defun om-load-inputfunmenu1 (class doc name value items) 
@@ -283,43 +283,51 @@
 ;======================================
 
 (defmethod om-load-editor-box1 (name reference inputs position size value lock 
-                                 &optional fname editparams spict meditor pictlist show-name)
+                                     &optional fname editparams spict meditor pictlist show-name)
   (declare (ignore fname editparams meditor pictlist))
 
-  (let ((inputs (loop for formatted-in in (mapcar #'eval inputs) collect
-                      ;;; correct the type and eventually the name of box inputs
-                      (let ((name (check-arg-for-new-name 
-                                   reference 
-                                   (find-value-in-kv-list (cdr formatted-in) :name))))
-
-                        (cond ((and (find-class reference nil)
-                                    (find name (mapcar #'symbol-name (additional-class-attributes value))
-                                          :test #'string-equal))  ;;; if the input has become a keywork input
-                               `(:input (:type :key) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
-                              (t formatted-in))
-                        ))))
+  (let* ((val (or value (make-instance reference)))
+         (inputs (loop for formatted-in in (mapcar #'eval inputs) collect
+                       ;;; correct the type and eventually the name of box inputs
+                       (let ((name (check-arg-for-new-name 
+                                    reference 
+                                    (find-value-in-kv-list (cdr formatted-in) :name))))
+                         
+                         (cond ((and (find-class reference nil)
+                                     (find name (mapcar #'symbol-name (additional-class-attributes val))
+                                           :test #'string-equal))  ;;; if the input has become a keywork input
+                                `(:input 
+                                  (:type :key) 
+                                  (:name ,name) 
+                                  (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
+                              
+                               (t `(:input 
+                                    (:type ,(find-value-in-kv-list (cdr formatted-in) :type))
+                                    (:name ,name) 
+                                    (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
+                               )))))
     
-    ;;; when a class has changed into something else...
-    (when (update-reference reference) 
-      (setf reference (update-reference reference))
-      (setf value (update-value value)))
+  ;;; when a class has changed into something else...
+  (when (update-reference reference) 
+    (setf reference (update-reference reference))
+    (setf value (update-value value)))
     
-    `(:box
-       (:type :object)
-       (:reference ,reference)
-       (:name ,name)
-       (:value ,value)
-       (:x ,(om-point-x position))
-       (:y ,(om-point-y position))
-       (:w ,(om-point-x size))
-       (:h ,(om-point-y size))
-       (:lock ,(if lock (cond ((string-equal lock "x") :locked)
-                              ((string-equal lock "&") :eval-once))))
-       (:showname ,show-name)
-       (:display ,(if spict :mini-view :hidden))
-       (:inputs .,inputs)
-       )
-    ))
+  `(:box
+    (:type :object)
+    (:reference ,reference)
+    (:name ,name)
+    (:value ,value)
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:w ,(om-point-x size))
+    (:h ,(om-point-y size))
+    (:lock ,(if lock (cond ((string-equal lock "x") :locked)
+                           ((string-equal lock "&") :eval-once))))
+    (:showname ,show-name)
+    (:display ,(if spict :mini-view :hidden))
+    (:inputs .,inputs)
+    )
+  ))
     
 ;======================================
 ; 'SLOTS' BOXES
@@ -953,8 +961,8 @@
 ; DI-BOXES 
 ;======================================
 (defmethod om-make-dialog-item ((type t) pos size text &rest args) nil)
-(defmethod om-make-dialog-item ((type (eql 'text-box)) pos size text &rest args) text)
 
+(defmethod om-make-dialog-item ((type (eql 'text-box)) pos size text &rest args) text)
 
 (defmethod om-load-editor-box1 (name (reference (eql 'text-box))
                                      inputs position size value lock 
@@ -970,11 +978,88 @@
      (:y ,(om-point-y position))
      (:w ,(om-point-x size))
      (:h ,(om-point-y size))
+     (:lock ,(if lock :locked nil))
      (:inputs 
       (:input (:type :optional) (:name "in")
        (:value ,(find-value-in-kv-list (cdr (eval (first inputs))) :value))))
      ))
 
+
+(defmethod om-make-dialog-item ((type (eql 'single-item-list)) pos size text &rest args) 
+  (mapcar #'list (getf args :range)))
+(defmethod om-make-dialog-item ((type (eql 'multi-item-list)) pos size text &rest args) 
+  (mapcar #'list (getf args :range)))
+(defmethod om-set-selected-item-index ((self list) index)
+  (let ((ilist (list! index)))
+    (loop for pos in ilist do
+          (setf (nth pos self) (list (car (nth pos self)) t)))))
+(defmethod (setf di-data) (data list) nil)
+
+
+(defmethod om-load-editor-box1 (name (reference (eql 'single-item-list))
+                                     inputs position size value lock 
+                                     &optional fname editparams spict meditor pictlist show-name)
+
+  (declare (ignore name lock reference fname editparams meditor pictlist))
+  
+  (let* ((items-list value)
+         (items (mapcar #'car items-list))
+         (selection-index (list (position t items-list :key #'cadr)))
+         (selection (car (find t items-list :key #'cadr))))
+    
+    `(:box 
+      (:type :interface)
+      (:reference list-selection)
+      (:name "list-selection")
+      (:multiple-selection nil)
+      (:value ,selection)
+      (:items ,(omng-save items))
+      (:selection ,(omng-save selection-index))
+      (:x ,(om-point-x position))
+      (:y ,(om-point-y position))
+      (:w ,(om-point-x size))
+      (:h ,(om-point-y size))
+      (:inputs 
+       (:input (:type :key) (:name "items")
+        (:value ,(if lock (omng-save items)
+                   (find-value-in-kv-list (cdr (eval (first inputs))) :value)))))
+      )
+    ))
+
+(defmethod om-load-editor-box1 (name (reference (eql 'multi-item-list))
+                                     inputs position size value lock 
+                                     &optional fname editparams spict meditor pictlist show-name)
+
+  (declare (ignore name lock reference fname editparams meditor pictlist))
+  
+  (let* ((items-list value)
+         (items (mapcar #'car items-list))
+         (selection-indices (loop for i from 0 
+                                  for item in items-list 
+                                  when (cadr item) 
+                                  collect i))
+         (selection (loop for item in items-list 
+                          when (cadr item) 
+                          collect (car item))))
+ 
+    `(:box 
+      (:type :interface)
+      (:reference list-selection)
+      (:multiple-selection t)
+      (:items ,(omng-save items))
+      (:selection ,(omng-save selection-indices))
+      (:value ,(omng-save selection))
+      (:name "list-selection")
+      (:x ,(om-point-x position))
+      (:y ,(om-point-y position))
+      (:w ,(om-point-x size))
+      (:h ,(om-point-y size))
+      (:inputs 
+       (:input (:type :key) (:name "items")
+        (:value (if lock (omng-save items)
+                  (find-value-in-kv-list (cdr (eval (first inputs))) :value)))))
+      )
+    ))
 
 
 ;======================================
@@ -1110,6 +1195,15 @@
 
 (defmethod changed-arg-names ((reference (eql 'chord-seq)))
   '(("legato" "llegato")))
+
+(defmethod changed-arg-names ((reference (eql 'synthesize)))
+  '(("elements" "obj")))
+
+(defmethod changed-arg-names (reference)
+  (when (find-class reference nil)
+    (cond ((subtypep reference 'class-array)
+           '(("numcols" "elts")))
+          (t nil))))
 
 ;============================================================================
 ; CHANGED NAMES
