@@ -287,7 +287,7 @@
   `(let ((prev-check *no-check*))
      (setf *no-check* t) 
      (let ((rep ,@body))
-       (setf *no-check* nil)
+       (setf *no-check* prev-check)
        rep)))
      
 
