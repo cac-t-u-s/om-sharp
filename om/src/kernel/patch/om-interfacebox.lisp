@@ -65,11 +65,9 @@
 ;(defmethod eval-box :before ((self OMInterfaceBox)) 
 ;  (apply-box-attributes self (eval-box-inputs self)))
 
-
 (defmethod omng-save ((self OMInterfaceBox))  
   (append (call-next-method)
           (list (save-value self))))
-
 
 (defmethod additional-slots-to-copy ((from OMInterfaceBox)) '(value))
 
@@ -114,6 +112,52 @@
     ))
 
 
+
+
+;;;===============================================================
+;;; CHECK-BOX
+;;;===============================================================
+(defclass CheckBoxBox (OMInterfaceBox) ())
+
+(defmethod special-item-reference-class ((item (eql 'check-box))) 'CheckBoxBox)
+(defmethod special-box-p ((self (eql 'check-box))) t)
+
+(defmethod omNG-make-special-box ((reference (eql 'check-box)) pos &optional init-args)
+  (let* ((box (make-instance 'CheckBoxBox
+                             :name "check-box"
+                             :reference 'check-box)))
+    (setf (box-x box) (om-point-x pos)
+          (box-y box) (om-point-y pos))
+    box))
+
+(defmethod maximum-size ((self CheckBoxBox)) (om-make-point 40 40))
+
+(defmethod draw-interface-component ((self CheckBoxBox) x y w h) 
+  (let* ((line-w 2)
+         (border 4)
+         (size (- (min w h) 10))
+         (x1 (- (/ w 2) (/ size 2)))
+         (y1 (+ border (- (/ h 2) (/ size 2))))
+         (x2 (+ (/ w 2) (/ size 2)))
+         (y2 (+ border (/ h 2) (/ size 2))))
+    
+    (when (car (value self))
+      (om-draw-line x1 y1
+                    x2 y2
+                    :line line-w
+                    :color (om-def-color :dark-gray))
+      (om-draw-line x1 y2 
+                    x2 y1
+                    :line line-w
+                    :color (om-def-color :dark-gray))
+      )))
+   
+(defmethod interfacebox-action ((self CheckBoxBox) frame pos)
+   (when (or (om-command-key-p)
+             (container-frames-locked (om-view-container frame)))
+     (set-value self (list (not (get-box-value self))))
+     (om-invalidate-view frame)))
+
 ;;;===============================================================
 ;;; SLIDER
 ;;;===============================================================
@@ -127,7 +171,6 @@
    (action :accessor action :initarg :action :initform nil)))
 
 (defmethod special-item-reference-class ((item (eql 'slider))) 'SliderBox)
-
 
 (defmethod special-box-p ((self (eql 'slider))) t)
 
