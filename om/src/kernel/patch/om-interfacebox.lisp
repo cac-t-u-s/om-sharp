@@ -70,6 +70,10 @@
   (append (call-next-method)
           (list (save-value self))))
 
+
+(defmethod additional-slots-to-copy ((from OMInterfaceBox)) '(value))
+
+
 ;;; FRAME
 (defclass InterfaceBoxFrame (OMBoxFrame) ())
 (defmethod get-box-frame-class ((self OMInterfaceBox)) 'InterfaceBoxFrame)
@@ -334,10 +338,10 @@
 
 (defclass ListSelectionBox (OMInterfaceBox)
   ((items :accessor items :initarg :items :initform nil)
-   (selection :accessor selection :initform nil)
-   (multiple-selection :accessor multiple-selection :initform nil)
-   (cell-height :accessor cell-height :initform 12)
-   (cell-font :accessor cell-font :initform (om-def-font :font1))))
+   (selection :accessor selection :initarg :selection :initform nil)
+   (multiple-selection :accessor multiple-selection :initarg :multiple-selection :initform nil)
+   (cell-height :accessor cell-height :initarg :cell-height :initform 12)
+   (cell-font :accessor cell-font :initarg :cell-height :initform (om-def-font :font1))))
  
 
 (defmethod special-box-p ((self (eql 'list-selection))) t)
@@ -347,6 +351,7 @@
 
 (defmethod get-all-keywords ((self ListSelectionBox))
   '((:items)))
+
 
 (defmethod get-properties-list ((self ListSelectionBox))
   (add-properties (call-next-method)
@@ -392,8 +397,8 @@
            while (< i (length (items self)))
            do
            (when (member i (selection self))
-             (om-draw-rect 10 (+ yy 2) (- w 20) (cell-height self) :fill t :color (om-def-color :dark-gray)))
-           (om-draw-string 10 (+ yy (cell-height self)) (format nil "~A" (nth i (items self)))
+             (om-draw-rect 5 (+ yy 2) (- w 10) (cell-height self) :fill t :color (om-def-color :dark-gray)))
+           (om-draw-string 5 (+ yy (cell-height self)) (format nil "~A" (nth i (items self)))
                            :color (if (member i (selection self)) (om-def-color :white) (om-def-color :black)))
            )))
         
@@ -401,8 +406,8 @@
 (defmethod interfacebox-action ((self ListSelectionBox) frame pos)
   (let* ((y (- (om-point-y pos) 4))
          (n (floor y (cell-height self))))
-    (when (and (> (om-point-x pos) 10)
-               (< (om-point-x pos) (- (w frame) 20))
+    (when (and (> (om-point-x pos) 5)
+               (< (om-point-x pos) (- (w frame) 10))
                (< n (length (items self))))
 
     (if (member n (selection self))
