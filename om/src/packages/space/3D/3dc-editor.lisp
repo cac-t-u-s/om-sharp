@@ -405,10 +405,15 @@
   (call-next-method))
 
 (defmethod editor-invalidate-views ((self 3Dc-editor))
-  (editor-invalidate-views (top-bpc-editor self))
-  (editor-invalidate-views (front-bpc-editor self))
+  
+  (when (top-bpc-editor self)
+    (editor-invalidate-views (top-bpc-editor self)))
+  (when (front-bpc-editor self)
+    (editor-invalidate-views (front-bpc-editor self)))
+  
   (when (timeline-editor self)
     (editor-invalidate-views (timeline-editor self)))
+  
   (update-editor-3d-object self)
   (update-3d-view self))
 
@@ -479,8 +484,9 @@
 
 ;;; will redraw the existing objects 
 (defmethod update-3D-view ((self 3DC-editor))
-  (gl-user::clear-gl-display-list (3Dp self))
-  (om-invalidate-view (3Dp self)))
+  (when (3DP self)
+    (gl-user::clear-gl-display-list (3Dp self))
+    (om-invalidate-view (3Dp self))))
 
 ;;; will rebuild the objects then redraw
 ;;; the gl-objets are drawn in an optimized OpenGL call-list
@@ -491,13 +497,14 @@
 
 
 (defmethod update-editor-3d-object ((self 3dc-editor))
-  (let ((3d-obj (car (om-get-gl-objects (3DP self))))
-        (obj (object-value self)))
-    (when obj
-      (setf (selected-points 3d-obj) (selection self)
-            (draw-style 3d-obj) (editor-get-edit-param self :draw-style))
-      (om-set-3Dobj-points 3d-obj (format-3d-points obj)))
-    (update-3d-curve-vertices-colors self)))
+  (when (3DP self)
+    (let ((3d-obj (car (om-get-gl-objects (3DP self))))
+          (obj (object-value self)))
+      (when obj
+        (setf (selected-points 3d-obj) (selection self)
+              (draw-style 3d-obj) (editor-get-edit-param self :draw-style))
+        (om-set-3Dobj-points 3d-obj (format-3d-points obj)))
+      (update-3d-curve-vertices-colors self))))
    
 
  

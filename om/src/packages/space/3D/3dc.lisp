@@ -147,11 +147,12 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
   point)
 
 (defmethod init-bpf-points ((self 3DC))
+
   (set-bpf-points self 
                   :x (slot-value self 'x-points)
                   :y (slot-value self 'y-points)
                   :z (slot-value self 'z-points)
-                  :time (slot-value self 'times)
+                  :time (times self) ;;; time is not accessed by slot-value...
                   :time-types (slot-value self 'time-types))
   (time-sequence-update-internal-times self)
   self)
@@ -332,6 +333,7 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
 ;-------------------get the min  max points in x and y axis------------------------------
 ;;; using reduce 'mix/max is fatser when interpreted but not when compiled
 (defmethod nice-bpf-range ((self 3dc))
+  
   (multiple-value-bind (x1 x2 y1 y2 z1 z2 t1 t2)
       (loop for x in (x-values-from-points self) 
             for y in (y-values-from-points self)
@@ -342,6 +344,7 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
             minimize z into z1 maximize z into z2
             minimize time into t1 maximize time into t2
             finally (return (values x1 x2 y1 y2 z1 z2 t1 t2)))
+    
     (append (list x1 x2) (list y1 y2) (list z1 z2) (list t1 t2))
     ; (if (< (- x2 x1) 10) (list (- x1 5) (+ x2 5)) (list x1 x2))
     ; (if (< (- y2 y1) 10) (list (- y1 5) (+ y2 5)) (list y1 y2)))
