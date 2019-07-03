@@ -60,7 +60,7 @@
 
 ;;; the slot must exit in the target object
 ;;; .. and not be excluded!
-(defmethod condition-for-copy-slot ((from t) (to t) slot)
+(defmethod condition-for-copy-slot ((from t) (to t) slot) 
   (and (slot-exists-p to (slot-definition-name slot))
        (or (slot-definition-initargs slot)
            (member (slot-definition-name slot) (additional-slots-to-copy from)))
@@ -68,8 +68,9 @@
        ))
 
 ;;; OMObject copy/save only the slot with initargs
-(defmethod condition-for-copy-slot ((from OMObject) (to t) slot)
-  (and (call-next-method) (slot-definition-initargs slot)))
+;;; whey ? => the previous method ensures this except if the slot is in additional-slots-to-copy
+;;(defmethod condition-for-copy-slot ((from OMObject) (to t) slot)
+;;  (and (call-next-method) (slot-definition-initargs slot)))
 
 ;;; clone-object doesn't om-init the object
 ;;; om-copy does
