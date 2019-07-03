@@ -545,8 +545,9 @@
                                     3 :fill t))
               ))
                  
-           ((equal style :lines-only)
-            
+           ((or (equal style :lines-only)
+                (null style))
+
             (let ((lines (loop for pts on points
                                while (cadr pts)
                                append
