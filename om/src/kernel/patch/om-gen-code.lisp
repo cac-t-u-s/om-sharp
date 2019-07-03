@@ -142,6 +142,8 @@
     ))
 
 (defmethod gen-code-locked ((self OMBoxRelatedWClass) numout) 
+  
+  (prepare-obj-for-request (car (value self)) self)
 
   (if (lambda-state self) ;; :box or :reference
       
