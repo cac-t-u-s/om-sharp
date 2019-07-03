@@ -28,7 +28,7 @@
         when (let ((rep t))
                (loop for fun in (list! fun-s)
                      while rep do
-                     (setf rep (funcall fun ev)))
+                     (setf rep (funcall fun item)))
                rep)
         collect item))
 
@@ -53,27 +53,28 @@
 ;;;==============================================
 
 
-(defmethod* synthesize ((self synthesisevt) &key (name "my-synth") (run t) (format "aiff") filters inits tables sr kr)
+(defmethod* synthesize ((obj synthesisevt) &key (name "my-synth") (run t) (format "aiff") filters inits tables sr kr)
 
   :indoc '("a synthesis even (or list)" "name of output file" "run synthesis or generate params?" 
            "audio output format" "filter function for synthesis events" "synth initializers" "wave/gen tables" "sample rate" "control rate")
   :initvals '(nil "my-synth" t "aiff")
 
-  (when (synthesize-method self)
+  (when (synthesize-method obj)
     (if (or (null filters)
-            (filter-events (list self) filters))
-        (funcall (synthesize-method self) 
-                 self
+            (filter-events (list obj) filters))
+        (funcall (synthesize-method obj) 
+                 obj
                  :name name :run run :format format
                  :inits inits :tables tables 
                  :sr sr :kr kr)
       (om-beep-msg "SYNTHESIZE: event did not pass filter(s) !"))
     ))
 
-(defmethod* synthesize ((self list) &key (name "my-synth") (run t) (format "aiff") filters inits tables sr kr)
+(defmethod* synthesize ((obj list) &key (name "my-synth") (run t) (format "aiff") filters inits tables sr kr)
   
-  (let* ((evt-list (if filters (filter-events self filters) self))
+  (let* ((evt-list (if filters (filter-events obj filters) obj))
          (grouped-list (collect-events-by-synth evt-list)))
+    
     (when grouped-list
       
       (cond 
@@ -91,14 +92,14 @@
                                 (funcall (car elt) 
                                          (cadr elt)
                                          :run run 
-                                         :name (string+ name "-temp-" (integer-to-string i))
+                                         :name (string+ name "-temp-" (number-to-string i))
                                          :format format
                                          :inits inits :tables tables
                                          :sr sr :kr kr))))
             (if run
                 ;;; mix all results
                 (save-sound 
-                 (reduce 'sound-mix rep) 
+                 (reduce 'sound-mix rep-list) 
                  (if (pathnamep name) name (outfile name :type format)))
               
                 rep-list)))
