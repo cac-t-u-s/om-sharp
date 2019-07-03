@@ -148,6 +148,8 @@
                                                            :reverse  #'(lambda (x y) (string-lessp (cadr (create-info x)) (cadr (create-info y))))))
                                                )
                                          )))
+
+          
         (om-make-layout 
          'om-column-layout :name "Documents"
          :subviews (list 
@@ -212,22 +214,20 @@
          )))
     
     ;;; FILE VIEW
-    (om-make-layout 
-         'om-column-layout :name "Documents" :align :center ; :ratios '(1 nil nil)
-         :subviews (list 
-                    (om-make-di 
-                     'om-multicol-item-list
-                     :columns (gen-columns-list '(:name :type :date))
-                     :items (mapcar 'doc-entry-doc *open-documents*)
-                     :column-function #'(lambda (item) (gen-column-elements item '(:name :type :date)))
-                     :fg-color #'(lambda (item) 
-                                   (if (and (mypathname item) (probe-file (mypathname item)))
-                                       (om-def-color :black) (om-make-color 0.8 0.2 0.2)))
-                     :font (om-def-font :mono)
-                     :alternating-background t
-                     :auto-reset-column-widths t
-                     :action-callback #'dbclicked-item-in-list
-                     :size (omp nil nil)
+    (let ((doc-list 
+           (om-make-di 
+            'om-multicol-item-list
+            :columns (gen-columns-list '(:name :type :date))
+            :items (mapcar 'doc-entry-doc *open-documents*)
+            :column-function #'(lambda (item) (gen-column-elements item '(:name :type :date)))
+            :fg-color #'(lambda (item) 
+                          (if (and (mypathname item) (probe-file (mypathname item)))
+                              (om-def-color :black) (om-make-color 0.8 0.2 0.2)))
+            :font (om-def-font :mono)
+            :alternating-background t
+            :auto-reset-column-widths t
+            :action-callback #'dbclicked-item-in-list
+            :size (omp nil nil)
                      ;:sort-styles 
                      ;(list (list :name
                      ;            (list :sort #'(lambda (x y) (string-greaterp (name x) (name y)))
@@ -242,7 +242,12 @@
                      ;            (list :sort #'(lambda (x y) (string-greaterp (cadr (create-info x)) (cadr (create-info y))))
                      ;                  :reverse  #'(lambda (x y) (string-lessp (cadr (create-info x)) (cadr (create-info y))))))
                      ;      )
-                     )
+            )))
+      
+      (om-make-layout 
+           'om-column-layout :name "Documents" :align :center ; :ratios '(1 nil nil)
+           :subviews (list 
+                      doc-list
                      
                     ;(om-make-di 'om-multi-text :enabled nil :size (om-make-point 300 20) 
                     ;            :font (om-def-font :font2)
@@ -251,7 +256,19 @@
                     ;(om-make-di 'om-button :enabled nil :size (om-make-point nil 24)
                     ;            :font (om-def-font :font2)
                     ;            :text "Create One?")
-                    ))
+
+                      (om-make-layout 'om-row-layout :subviews
+                                      (list
+                                       nil
+                                       (om-make-di 'om-button :text "Close selection" 
+                                                   :size (omp 100 32) :font (om-def-font :font1)
+                                                   :di-action #'(lambda (b) 
+                                                                  (declare (ignore b))
+                                                                  (close-documents doc-list)
+                                                                  ))))
+                    
+                      ))
+      )
     ))
 
 
@@ -263,6 +280,9 @@
 
 (defun dbclicked-item-in-list (list)
   (mapc 'open-editor (om-get-selected-item list)))
+
+(defun close-documents (list)
+  (mapc 'close-editor (om-get-selected-item list)))
 
 (defmethod register-document :after ((self OMPersistantObject) &optional path)
   (when *om-main-window* (update-elements-tab *om-main-window*)))
