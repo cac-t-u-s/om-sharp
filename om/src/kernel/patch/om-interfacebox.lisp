@@ -473,3 +473,128 @@
     (om-invalidate-view frame)
     )))
 
+
+
+
+;;;===============================================================
+;;; SWITCH
+;;;===============================================================
+(defclass SwitchBox (OMInterfaceBox) 
+   ((selection :accessor selection :initarg :selection :initform nil)
+    (multiple-selection :accessor multiple-selection :initarg :multiple-selection :initform nil)))
+
+(defmethod special-item-reference-class ((item (eql 'switch))) 'SwitchBox)
+(defmethod special-box-p ((self (eql 'switch))) t)
+
+(defmethod omNG-make-special-box ((reference (eql 'switch)) pos &optional init-args)
+  (let* ((box (make-instance 'SwitchBox
+                             :name "switch"
+                             :reference 'switch)))
+    (setf (box-x box) (om-point-x pos)
+          (box-y box) (om-point-y pos))
+    box))
+
+(defmethod create-box-inputs ((self SwitchBox)) 
+  (list 
+   (make-instance 'box-input 
+                  :name "opt1"
+                  :box self
+                  :value NIL
+                  :doc-string "option 1")))
+
+
+(defmethod next-optional-input ((self SwitchBox)) t)
+
+(defmethod more-optional-input ((self SwitchBox) &key name (value nil val-supplied-p) doc reactive)
+  (let ((n (1+ (length (inputs self)))))
+    (add-optional-input self :name (format nil "opt~D" n) :value (if val-supplied-p value nil) 
+                        :doc (format nil "option ~D" n) 
+                        :reactive reactive)
+    t))
+
+
+(defmethod get-properties-list ((self SwitchBox))
+  (add-properties (call-next-method)
+                  "List selection display" 
+                  `((:multiple-selection "Multiple selection" :bool multiple-selection)
+                    )))
+
+
+(defmethod set-property ((self SwitchBox) (attr (eql :multiple-selection)) val) 
+  (call-next-method)
+  (when (null val)
+    (setf (selection self) (list (car (selection self))))))
+
+
+(defmethod maximum-size ((self SwitchBox)) (om-make-point nil 40))
+
+(defmethod draw-interface-component ((self SwitchBox) x y w h) 
+  (let* ((border 4)
+         (n (length (inputs self)))
+         (cell-w (/ (- w (* 2 border)) n))
+         (cell-h (- h (* 2 border))))
+    
+    (dotimes (i n)
+      (om-draw-rect (+ border (* i cell-w)) (+ 4 border) cell-w cell-h
+                    :color (om-def-color :dark-gray))
+      (when (find i (selection self))
+        (om-draw-rect (+ border (* i cell-w)) (+ 4 border) cell-w cell-h 
+                      :color (om-def-color :dark-gray) :fill t))
+      )
+    ))
+     
+(defmethod interfacebox-action ((self SwitchBox) frame pos)
+  
+  (when (or (om-command-key-p)
+            (container-frames-locked (om-view-container frame)))
+    
+    (let* ((border 4)
+           (n (length (inputs self)))
+           (cell-w (/ (- (w frame) (* 2 border)) n))
+           (cell-h (- (h frame) (* 2 border)))
+           (sel (floor (- (om-point-x pos) border) cell-w)))
+     
+      (when (and (> (om-point-y pos) (+ 4 border))
+                 (< (om-point-y pos) (- (h frame) (* 2 border)))
+                 (< sel n))
+
+        (if (member sel (selection self))
+          
+            (setf (selection self) (remove sel (selection self)))
+      
+          (setf (selection self) 
+                (if (multiple-selection self)
+                    (sort (cons sel (selection self)) '<)
+                  (list sel))))
+    
+        (when (reactive (car (outputs self))) (self-notify self))
+        (om-invalidate-view frame)
+        (when (container self)
+          (report-modifications (editor (container self))))
+        ))))
+
+
+(defmethod omNG-box-value ((self SwitchBox) &optional (numout 0)) 
+  (let ((vals (loop for sel in (list! (selection self)) collect
+                    (when (< sel (length (inputs self)))
+                      (omNG-box-value (nth sel (inputs self)))))))
+    (set-value self 
+               (list 
+                (if (multiple-selection self)
+                    vals 
+                  (car vals))))
+    ;;; numout always 0...
+    (nth numout (value self))))
+
+
+(defmethod gen-code ((self OMInterfaceBox) &optional (numout 0))
+  (let ((vals (loop for sel in (list! (selection self)) collect
+                    (when (< sel (length (inputs self)))
+                      (gen-code (nth sel (inputs self)))))))
+    (if (multiple-selection self)
+        `(list .,vals) 
+      (car vals))))
+
+
+    
+

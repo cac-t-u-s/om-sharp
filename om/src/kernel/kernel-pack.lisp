@@ -52,7 +52,7 @@
                                             )
                          (omNG-make-package "Interactive boxes"
                                             :doc "This package contains special interface boxes and widgets to use in OM patches (sliders, buttons, etc.)"
-                                            :special-symbols '(button slider check-box list-selection)
+                                            :special-symbols '(button slider check-box list-selection switch)
                                             )
 
                          (omNG-make-package "Meta" 
