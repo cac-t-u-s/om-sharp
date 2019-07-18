@@ -231,7 +231,7 @@
                             ;;; CONTINUATION CHORD
                             ((and (floatp subtree) ;;; keep current-chord in chord-list (important: same reference!)
                                   (>= curr-n-chord 0)) ;;; just to prevent error when a continuation chord has no previous chord
-                             (let* ((real-chord (nth curr-n-chord chords))
+                             (let* (;; (real-chord (nth curr-n-chord chords))
                                     (cont-chord (make-instance 'continuation-chord)))
                         
                                (setf ;; (symbolic-dur real-chord) (+ (symbolic-dur real-chord) sub-dur) ;;; extends the duration of the main chord

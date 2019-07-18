@@ -124,30 +124,24 @@
 
 ;;;===================================================================
 ;Check the syntax of the tree and computes the value of '? if there is in the tree
-;-- NOT USED
-; ->
-(defun resolve-? (list)
-  (flet ((subtree-extent (subtree) 
-           (cond ((listp subtree) (fullratio (first subtree)))
-                 ((floatp subtree) (round (abs subtree)))
-                 ((or (ratiop subtree)(integerp subtree)) (abs subtree)))))
-    (cond 
-     ((numberp list) list)
-     ((or (numberp (first list)) (listp (first list)))
-      (if (listp (second list)) 
-          (list (first list) (mapcar #'resolve-? (second list)))
-        (error (format nil "Invalid Rhythm Tree : ~A" list))))
-     ((and (symbolp (first list)) (equal (symbol-name (first list)) "?"))
-      (let ((solved (mapcar #'resolve-? (second list))))
-        (list (reduce #'(lambda (x y) (+  (abs x) (subtree-extent y))) 
-                      solved :initial-value 0)
-              solved)))
-     ((symbolp (first list))
-      (if (listp (second list)) 
-          (list (symbol->ratio (first list)) (mapcar #'resolve-? (second list)))
-        (error (format nil "Invalid Rhythm Tree : ~A" list)))))
-    ))
+(defun subtree-extent (subtree) ;verifier qui l'appele
+  (cond ((listp subtree) (fullratio (first subtree)))
+        ((floatp subtree) (round (abs subtree)))
+        ((or (lw::ratiop subtree)(integerp subtree))  (abs subtree)) ))
 
+(defun resolve-? (list)
+  (cond 
+   ((numberp list) list)
+   ((or (numberp (first list)) (listp (first list)))
+    (if (listp (second list)) 
+        (list (first list) (mapcar #'resolve-? (second list)))
+      (error (format nil "Invalid Rhythm Tree : ~A" list))))
+   ((and (symbolp (first list)) (equal (symbol-name (first list)) "?"))
+    (let ((solved (mapcar #'resolve-? (second list))))
+      (list (reduce #'(lambda (x y) (+  (abs x) (subtree-extent y))) 
+                    solved :initial-value 0)
+            solved)))
+   ))
 
 ;;;===================================================================
 ; If only one element
