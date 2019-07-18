@@ -608,6 +608,9 @@
                             '(-5 5 -5) '(-5 0 5)) :fill t))
 |#
 
+(defmethod x-to-pix ((self omobjectboxframe) x)
+  (miniview-time-to-pixel (get-box-value (object self)) self x))
+
 (defmethod miniview-time-to-pixel (object view time) 
   (* (w view) 
      (/ time (if (plusp (get-obj-dur object)) (get-obj-dur object) 1000))))

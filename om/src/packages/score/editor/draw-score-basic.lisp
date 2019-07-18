@@ -357,8 +357,6 @@
 
 (defparameter *score-selection-color* (om-def-color :dark-red))
 
-(defun time-unit-to-pixel (u) 20)
-
 
 ;;;=======================
 ;;; STAFF
@@ -369,6 +367,9 @@
 ;;; w and h are pixel-size of the frame
 ;;; margins in units (= proportional to fontsize)
 (defun draw-staff (x y y-u w h fontsize staff &key (margin-l 0) (margin-r 0) (keys t))
+  
+  (declare (ignore h))
+
   (unless (equal staff :empty)
     (let* ((staff-elems (staff-split staff))
            (unit (font-size-to-unit fontsize)) 
@@ -440,7 +441,7 @@
 ;;; HEADS
 ;;;========================
 
-(defun note-symbol (val &optional rest)
+(defun note-symbol (val)
   (cond 
    ((>= val 8) (list val)) 
    ((= val 8) :head-8)   ;;; will never happen becvause of previous statement: fix that 
@@ -540,7 +541,7 @@
 (defun draw-group-div (num-den level begin-pix end-pix line direction y-shift staff fontsize)
   
   (let* ((unit (font-size-to-unit fontsize))
-         (beamThickness (ceiling (* *beamThickness* unit)))
+         (linethickness (ceiling (* *stemthickness* unit)))
          (yshift (+ y-shift (calculate-staff-line-shift staff)))
          (width (- end-pix begin-pix))
          (x (if (equal direction :up) 
@@ -563,11 +564,11 @@
                     div-str
                     :font font)
 
-    (om-draw-line x y (+ x (round (- width mid-space) 2)) y)
-    (om-draw-line x y x (+ y dy))
+    (om-draw-line x y (+ x (round (- width mid-space) 2)) y :line linethickness)
+    (om-draw-line x y x (+ y dy) :line linethickness)
     
-    (om-draw-line (+ x (round (+ width mid-space) 2)) y (+ x width) y)
-    (om-draw-line (+ x width) y (+ x width) (+ y dy))
+    (om-draw-line (+ x (round (+ width mid-space) 2)) y (+ x width) y :line linethickness)
+    (om-draw-line (+ x width) y (+ x width) (+ y dy) :line linethickness)
          
     ))
 
@@ -598,6 +599,7 @@
     
 
 (defun draw-chord (chord x-ms ; x in ms
+                         x-units ; a global x-shift in units
                          y-units ; y-position in score units
                          x y ; absolute offsets in pixels
                          w h ; frame dimensions for drawing
@@ -614,6 +616,8 @@
                          (time-function #'identity)
                          build-b-boxes)
   
+  (declare (ignore w))
+
   (om-with-translation x y 
 
     (let* ((head-symb (if (consp head) (car head) head))
@@ -627,9 +631,9 @@
     (multiple-value-bind (head-char head-name)
         (note-head-char head-symb)
 
-      (let* ((x-pix (funcall time-function x-ms))
+      (let* ((unit (font-size-to-unit fontsize))
+             (x-pix (+ (* x-units unit) (funcall time-function x-ms)))
              (notes (inside chord))
-             (unit (font-size-to-unit fontsize))
              (shift (+ y-units (calculate-staff-line-shift staff)))
              (staff-elems (staff-split staff))
              (staff-lines (apply 'append (mapcar 'staff-lines staff-elems)))
@@ -981,6 +985,7 @@
 ;;; RESTS
 
 (defun draw-rest (rest x-ms   ; x-pos in ms
+                       x-units 
                        y-units ; ref-position in score units
                        x y ; absolute offsets in pixels
                        w h ; frame for drawing
@@ -999,15 +1004,15 @@
   
   (om-with-translation x y 
 
-    (let ((head-symb (if (consp head) (car head) head))
-          (n-points (if (consp head) (cadr head) 0))
-          (x-pix (funcall time-function x-ms)))
+    (let* ((unit (font-size-to-unit fontsize))
+           (x-pix (+ (* x-units unit) (funcall time-function x-ms)))
+           (head-symb (if (consp head) (car head) head))
+           (n-points (if (consp head) (cadr head) 0)))
       
       (multiple-value-bind (head-char head-name)
           (rest-char head-symb)
         
-        (let* ((unit (font-size-to-unit fontsize))
-               (shift (+ y-units (calculate-staff-line-shift staff)))
+        (let* ((shift (+ y-units (calculate-staff-line-shift staff)))
                (head-box (get-font-bbox head-name))
                (head-w (- (nth 2 head-box) (nth 0 head-box)))    ;;; the width in units of a note-head
                (head-h (- (nth 3 head-box) (nth 1 head-box)))    ;;; the height in units of a note-head

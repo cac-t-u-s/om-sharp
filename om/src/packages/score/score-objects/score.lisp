@@ -49,14 +49,3 @@
               (objfromobjs obj (make-instance (voice-type target)))))
   target)
 
-
-
-
-(defmethod score-object-mini-view ((self poly) box x-pix y-pix y-u w h)
-  (let ((voice-h (if (obj-list self) (/ h (num-voices self)) h)))
-    (loop for voice in (obj-list self)
-          for i from 0
-          do (progn
-               ;(draw-staff x-pix (* i voice-h) y-u w voice-h (fontsize box) (get-edit-param box :staff) :margin-l 1 :margin-r 1 :keys t)
-               (score-object-mini-view voice box x-pix (+ y-pix (* i voice-h)) 0 w voice-h))
-          )))

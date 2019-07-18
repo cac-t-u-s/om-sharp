@@ -309,10 +309,6 @@
 (defmethod time-to-pixel ((self x-cursor-graduated-view) time) 
   (x-to-pix self time))
 
-;;; => applies for miniviews as well...
-(defmethod time-to-pixel ((self omobjectboxframe) time)
-  (miniview-time-to-pixel (get-box-value (object self)) self time))
-
 ;++++++++++++++++++++++++++++++++
 ; RULES FOR THE CURSOR:
 ; - Set cursot at a position = click on the view 

@@ -34,6 +34,8 @@
         "editor/score-editor"
         "editor/chord-editor"
         "editor/chord-seq-editor"
+        "editor/spacing"
+        "editor/score-boxes"
 
         "tools/conversions"
         "functions/score-functions"

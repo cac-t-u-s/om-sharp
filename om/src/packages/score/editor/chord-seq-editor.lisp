@@ -45,7 +45,8 @@
 (defmethod om-draw-contents ((self left-score-view))
   (let* ((editor (editor self))
          (scrolled (> (x1 (get-g-component editor :main-panel)) 0))
-         (shift (* 2 (font-size-to-unit (editor-get-edit-param editor :font-size)))))
+         ;; (shift (* 2 (font-size-to-unit (editor-get-edit-param editor :font-size))))
+         )
     
     (draw-staff 0 0 0 
                 (w self) (h self) 
@@ -170,7 +171,7 @@
            (b-box chord)
            (draw-chord chord
                        (date chord) 
-                       0 
+                       0 0
                        0 0
                        (w view) (h view) 
                        font-size 

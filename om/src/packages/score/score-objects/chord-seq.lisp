@@ -302,30 +302,6 @@ Internally most of these values are just used to build a list of CHORD objects, 
                  :Lonset (Lonset self)
                  ))
 
-;;;============ 
-;;; BOX
-;;;============
-
-
-
-(defmethod score-object-mini-view ((self chord-seq) box x-pix y-pix y-u w h)
-  
-  (let ((staff (get-edit-param box :staff)))
-    
-    (draw-staff x-pix y-pix y-u w h (fontsize box) staff :margin-l 1 :margin-r 1 :keys t)
-
-    (loop for chord in (chords self) do
-          (draw-chord chord
-                      (date chord)
-                      y-u 
-                      x-pix y-pix w h
-                      (fontsize box) :scale nil :staff staff
-                      :time-function #'(lambda (time) (miniview-time-to-pixel self (frame box) time))
-                      )
-          )))
-
-
-
 
 ;;;======================================
 ;;; PLAY

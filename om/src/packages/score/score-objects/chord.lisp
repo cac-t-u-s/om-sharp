@@ -62,11 +62,12 @@ A simple NOTE defined with :
 
 ;;; some of the slots :initargs of INTERNAL-CHORD are hidden in the graphical interface
 (defclass internal-chord (data-frame score-object)  
-  ((Lmidic :initform '(6000) :accessor Lmidic :initarg :Lmidic :type list :documentation "pitches (list of midicents)")
-   (Lvel :initform '(80) :accessor Lvel :initarg :Lvel :type list :documentation "velocities (list of values 0-127)")
-   (Loffset :initform '(0) :accessor Loffset :initarg :Loffset :type list :documentation "offsets (list of values in ms)")
-   (Ldur :initform '(1000) :accessor Ldur :initarg :Ldur :type list :documentation "durations (list of values in ms)")
-   (Lchan :initform '(1) :accessor Lchan :initarg :Lchan :type list :documentation "MIDI channels (list of values 0-16)")
+  ((Lmidic :initform '(6000) :initarg :Lmidic :type list :documentation "pitches (list of midicents)")
+   (Lvel :initform '(80) :initarg :Lvel :type list :documentation "velocities (list of values 0-127)")
+   (Loffset :initform '(0) :initarg :Loffset :type list :documentation "offsets (list of values in ms)")
+   (Ldur :initform '(1000) :initarg :Ldur :type list :documentation "durations (list of values in ms)")
+   (Lchan :initform '(1) :initarg :Lchan :type list :documentation "MIDI channels (list of values 0-16)")
+
    (Lport :initform nil :accessor Lport :initarg :Lport :type list :documentation "MIDI ports (list of values 0-16)")
    
    (notes :initform nil :initarg :notes :accessor notes :type list :documentation "the actual list of notes")
@@ -74,10 +75,10 @@ A simple NOTE defined with :
 
 ;;; redefines only visible :initargs
 (defclass* chord (internal-chord)  
-  ((Lmidic :initform '(6000) :accessor Lmidic :initarg :Lmidic :type list :documentation "pitches (list of midicents)")
-   (Lvel :initform '(80) :accessor Lvel :initarg :Lvel :type list :documentation "velocities (list of values 0-127)")
-   (Loffset :initform '(0) :accessor Loffset :initarg :Loffset :type list :documentation "offsets (list of values in ms)")
-   (Ldur :initform '(1000) :accessor Ldur :initarg :Ldur :type list :documentation "durations (list of values in ms)")
+  ((Lmidic :initform '(6000) :initarg :Lmidic :type list :documentation "pitches (list of midicents)")
+   (Lvel :initform '(80) :initarg :Lvel :type list :documentation "velocities (list of values 0-127)")
+   (Loffset :initform '(0) :initarg :Loffset :type list :documentation "offsets (list of values in ms)")
+   (Ldur :initform '(1000) :initarg :Ldur :type list :documentation "durations (list of values in ms)")
    )
   
   (:documentation "
@@ -226,7 +227,7 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
    
    ;;; a list of number (probably a patching mistake, but consider it a list of pitches..)
    ((list-subtypep model 'number)
-    (make-instance (type-of type) :lmidic model))
+    (make-instance (type-of target) :lmidic model))
 
    ;;; a list of notes
    ((list-subtypep model 'note)
@@ -250,37 +251,4 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
       (apply 'max (mapcar 'dur (notes self)))
     0))
 
-
-;;;============ 
-;;; BOX
-;;;============
-
-
-(defmethod score-object-mini-view ((self note) box x-pix y-pix y-u w h)
-  
-  (let ((staff (get-edit-param box :staff)))
-    
-    (draw-staff x-pix y-pix y-u w h (fontsize box) staff :margin-l 1 :margin-r 1 :keys t)
-
-    (draw-chord (make-instance 'chord :notes (list self)) 
-                0 y-u 0 y-pix w h 
-                (fontsize box) :scale nil :staff staff
-                :time-function #'(lambda (time) (/ w 2))
-                )
-    
-    ))
-  
-
-(defmethod score-object-mini-view ((self chord) box x-pix y-pix y-u w h)
-  
-  (let* ((staff (get-edit-param box :staff)))
-    
-    (draw-staff x-pix y-pix y-u w h (fontsize box) staff :margin-l 1 :margin-r 1 :keys t)
-
-    (when (notes self)
-      (draw-chord self 0 y-u 0 y-pix w h (fontsize box) :scale nil :staff staff
-                  :time-function #'(lambda (time) (/ w 2))
-                  ))
-     
-    ))
 

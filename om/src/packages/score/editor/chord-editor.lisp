@@ -31,8 +31,7 @@
 
 (defmethod make-editor-window-contents ((editor chord-editor))
   
-  (let* ((object (object-value editor))
-         (panel (om-make-view 'score-view 
+  (let* ((panel (om-make-view 'score-view 
                               :size (omp 50 100) 
                               :direct-draw t 
                               :bg-color (om-def-color :white) 
@@ -77,6 +76,7 @@
     (setf 
      (b-box chord)
      (draw-chord chord
+                 0 
                  0 0
                  0 0 
                  (w view) (h view) 

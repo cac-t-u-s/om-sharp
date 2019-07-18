@@ -23,9 +23,9 @@
 ;;; SCORE EDITORS (GENERAL/SHARED FEATURES)
 ;;;===========================================
 
-(defclass score-editor (OMEditor undoable-editor-mixin) 
-  ((time-map :accessor time-map :initform '((-1 -1) (0 0)))))
+(defclass score-editor (OMEditor undoable-editor-mixin) ())
 
+;;; these params are shared between the editor and the box
 (defmethod object-default-edition-params ((self score-object))
   '((:font-size 24)
     (:staff :gf)
@@ -33,118 +33,8 @@
     (:velocity-display :hidden)
     (:channel-display :hidden)
     (:midiport-display nil)
+    (:time-map ((-1 -1) (0 0)))    ;;; not necessary to store it as a persistent param....
     ))
-
-#|
-(position-if 
- #'(lambda (e) (and (<= (car e) 4200)
-                    (not (caddr e))))
- '((0 10) (0 110) (4000 210) (8000 310)))
-|#
-
-;;;============ 
-;;; TIME-MAP
-;;;============
-;;; time-map is a simple BPF-like list with (time pos) pairs 
-
-(defmethod time-to-x ((ed score-editor) time)
-  (let* ((prev-point-pos (position time (time-map ed) :test #'>= :key #'car :from-end t))
-         (prev-point (nth prev-point-pos (time-map ed)))
-         (next-point (nth (1+ prev-point-pos) (time-map ed))))
-    (cond ((= time (car prev-point))
-           ;;; the point was in the list
-           (cadr prev-point))
-          (next-point
-           ;(print (list "interpole" time))
-           ;;; interpolate between prev and next
-           (+ (cadr prev-point)
-              (* (- time (car prev-point)) 
-                 (/ (- (cadr next-point) (cadr prev-point)) (- (car next-point) (car prev-point)))))
-           )
-          (t ;;; we are after the last: extrapolate from last
-             ;(print (list "last" time))
-             (let ((prev-prev-point (nth (1- prev-point-pos) (time-map ed))))
-               (+ (cadr prev-point)
-                  (* (- time (car prev-point)) 
-                     (/ (- (cadr prev-point) (cadr prev-prev-point)) (- (car prev-point) (car prev-prev-point)))))
-             ))
-          )
-    ))
-
-
-(defstruct space-point (onset) (before) (after))
-
-
-(defmethod build-editor-time-map ((editor score-editor))
-  (let* ((obj (object-value editor))
-         (time-space (sort 
-                      (loop for sub in (inside obj)
-                            append (build-object-time-space sub (tempo obj)))
-                      #'< :key #'space-point-onset))
-         (merged-list ()))
-
-    ;;; build-object-time-space returns a list of (onset (spacebefore space-after))
-    ;;; objects with same onsets must be grouped, and space maximized
-    ;;; negative space (e.g. from measures) will affect the space of previous item 
-    
-    (loop for item in time-space
-          do (if (and (car merged-list) 
-                      (= (space-point-onset item) (space-point-onset (car merged-list))))  ;;; already something there
-                 
-                 (setf (space-point-before (car merged-list))  
-                       (if (plusp (space-point-before item))
-                           (max (space-point-before (car merged-list)) (space-point-before item))
-                         (+ (space-point-before (car merged-list)) (- (space-point-before item))))
-                         
-                       (space-point-after (car merged-list))  
-                       (max (space-point-after (car merged-list)) (space-point-after item)))
-               
-               (push item merged-list)))
-    
-    (setf merged-list (reverse merged-list))
-    
-    (setf (time-map editor)
-          (cons 
-           (list (space-point-onset (car merged-list))
-                 (space-point-before (car merged-list)))
-           
-           (loop with curr-x = (space-point-before (car merged-list))
-                 for rest on merged-list
-                 while (cdr rest)
-                 do (setf curr-x (+ curr-x 
-                                    (space-point-after (car rest)) 
-                                    (space-point-before (cadr rest))))
-                 collect (list (space-point-onset (cadr rest)) curr-x))
-           ))
-    ))
-                              
-     
-(defmethod build-object-time-space ((self rhythmic-object) tempo)
- (let ((space (object-space-in-units self)))
-   (cons 
-    (make-space-point :onset  (beat-to-time (symbolic-date self) tempo)
-                      :before (first space) :after (second space))
-    (loop for sub in (inside self) append  
-          (build-object-time-space sub tempo))
-    )))
-
-(defmethod build-object-time-space ((self score-object) tempo)
-  (let ((space (object-space-in-units self)))
-    (list (make-space-point :onset  (beat-to-time (symbolic-date self) tempo)
-                            :before (first space) :after (second space)))))
-
-
-
-(defmethod object-space-in-units ((self t)) '(0 0))
-(defmethod object-space-in-units ((self measure)) '(4 4))
-(defmethod object-space-in-units ((self chord)) (list 2 (* 5 (symbolic-dur self))))
-(defmethod object-space-in-units ((self continuation-chord)) 
-  (object-space-in-units (previous-chord self)))
-
-
-; (+ 500 (* 1000 (symbolic-dur self)))
-(defmethod object-space-in-units ((self r-rest)) '(100 500))
-
 
 
 
@@ -158,14 +48,6 @@
    (margin-r :accessor margin-r :initarg :margin-r :initform 1)
    (keys :accessor keys :initarg :keys :initform t)
    (contents :accessor contents :initarg :contents :initform t)))
-
-
-(defmethod time-to-pixel ((self score-view) time) 
-  (x-to-pix self time))
-
-;(defmethod time-to-pixel ((self score-view) time)
-;  (x-to-pix self (time-to-x (editor self) time)))
-
 
 
 
@@ -187,14 +69,14 @@
        
        (when (contents self)
          
-         ;;; do this maybe somewhere else, only when necessary
-         ;; (build-editor-time-map editor)
-         
          (draw-score-object-in-editor-view editor self unit))
        
        ;)
     )
   ))
+
+
+
 
 ;;;============ 
 ;;; INTERACTION
@@ -277,6 +159,7 @@
                (om-init-temp-graphics-motion 
                 self position nil :min-move 1
                 :motion #'(lambda (view pos)
+                            (declare (ignore view))
                             (let* ((new-y-in-units (- shift (/ (om-point-y pos) score-unit)))
                                    (new-pitch (line-to-pitch new-y-in-units))
                                    (diff (- new-pitch pitch)))
@@ -288,6 +171,7 @@
                                 (om-invalidate-view self))
                               ))
                 :release #'(lambda (view pos) 
+                             (declare (ignore view pos))
                              (reset-undoable-editor-action editor)
                              (report-modifications editor))
                 )
@@ -307,6 +191,7 @@
                      (om-init-temp-graphics-motion 
                       self position nil :min-move 1
                       :motion #'(lambda (view pos)
+                                  (declare (ignore view))
                                   (let* ((new-y-in-units (- shift (/ (om-point-y pos) score-unit)))
                                          (new-pitch (line-to-pitch new-y-in-units))
                                          (diff (- new-pitch pitch)))
@@ -319,6 +204,7 @@
                                       (editor-invalidate-views editor)
                                       )))
                       :release #'(lambda (view pos) 
+                                   (declare (ignore view pos))
                                    (when modif
                                      (reset-undoable-editor-action editor)
                                      (report-modifications editor)))
@@ -401,16 +287,6 @@
                               :font (om-def-font :font1)
                               :size (omp 60 20))
 
-                  ;(set-g-component editor :font-size-box
-                  ;                 (om-make-graphic-object 'numbox 
-                  ;                                         :value (editor-get-edit-param editor :font-size)
-                  ;                                         :min-val 8 :max-val 120 
-                  ;                                         :size (omp 40 18)
-                  ;                                         :font (om-def-font :font1)
-                  ;                                         :bg-color (om-def-color :white)
-                  ;                                         :after-fun #'(lambda (numbox) 
-                  ;                                                        (set-font-size editor (value numbox))
-                  ;                                                        )))
                   (set-g-component editor :font-size-box
                                    (om-make-di 'om-popup-list :items *score-fontsize-options* 
                                                :size (omp 60 24) :font (om-def-font :font1)

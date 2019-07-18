@@ -22,42 +22,35 @@
 ;;; DRAW METHODS FOR SCORE EDITOR / MINIVIEW
 ;;;====================================================
 
-;;; MINIVIEW
-(defmethod score-object-mini-view ((self voice) box x-pix y-pix y-u w h)
-  
-  (draw-staff x-pix y-pix y-u w h (fontsize box) (get-edit-param box :staff) :margin-l 1 :margin-r 1 :keys t)
-  
-  (om-with-translation x-pix y-pix
-    
-    (loop for m in (inside self)
-          for i from 1
-          do (draw-score-element m (tempo self) box (frame box) :y-shift y-u :font-size (fontsize box) :position i)
-          
-          )))
-
 
 ;;; EDITOR
 (defmethod draw-sequence ((object voice) editor view unit)
 
   ;;; NOTE: so far we don't build/update a bounding-box for the containers
   
-  (let ((on-screen t))
+  (let* ((time-map (editor-get-edit-param editor :time-map))
+         (font-size (editor-get-edit-param editor :font-size))
+         (unit (font-size-to-unit font-size))
+         (selection (selection editor))
+         (on-screen t))
+    
     (loop for m in (inside object)
           for i from 1
           while on-screen
-          do (let* ((begin (beat-to-time (symbolic-date m) (tempo object)))
-                    (end (beat-to-time (+ (symbolic-date m) (symbolic-dur m)) (tempo object)))
-                    (x1 (time-to-pixel view begin))
-                    (x2 (time-to-pixel view end)))
+          do (let* 
+                 ((begin (beat-to-time (symbolic-date m) (tempo object)))
+                  (end (beat-to-time (+ (symbolic-date m) (symbolic-dur m)) (tempo object)))
+                  (x1 (score-time-to-pixel view begin time-map unit))
+                  (x2 (score-time-to-pixel view end time-map unit)))
                
                (if (> x1 (w view)) (setf on-screen nil) ;;; this should also take into account measures before screen
                  ;;; else :
                  (when (> x2 0) 
-                   
                    ;;; DRAW THIS MEASURE
                    (draw-score-element m (tempo object) (object editor) view :position i
-                                       :font-size (editor-get-edit-param editor :font-size)
-                                       :selection (selection editor))
+                                       :font-size font-size
+                                       :selection selection
+                                       :time-map time-map)
                    )))
           ))
   )
@@ -68,17 +61,18 @@
 ;;;===============================================
 
 (defmethod draw-score-element ((object measure) tempo param-obj view 
-                               &key font-size (y-shift 0) (level 0) 
+                               &key font-size (x-shift 0) (y-shift 0) (level 0) 
                                position beam-info beat-unit rest-line
-                               selection)
+                               selection time-map)
 
   (declare (ignore level beam-info rest-line))
 
-  (let ((x-pix (time-to-pixel view (beat-to-time (symbolic-date object) tempo)))
-        ; (x-pix (x-to-pix view (- (time-to-x (editor view) (beat-to-time (symbolic-date object) tempo)) 500)))
-        (beat-unit (/ (fdenominator (car (tree object)))
-                      (find-beat-symbol (fdenominator (car (tree object))))
-                      )))
+  (let* ((unit (font-size-to-unit font-size))
+         (x-pix (- (score-time-to-pixel view (beat-to-time (symbolic-date object) tempo) time-map unit)
+                   (* (car (object-space-in-units object)) unit)))
+         (beat-unit (/ (fdenominator (car (tree object)))
+                       (find-beat-symbol (fdenominator (car (tree object))))
+                       )))
                       
     (unless (= position 1)
       (draw-measure-bar x-pix y-shift font-size (get-edit-param param-obj :staff))
@@ -90,10 +84,12 @@
           (draw-score-element element tempo param-obj view 
                               :level 1
                               :position i
+                              :x-shift x-shift
                               :y-shift y-shift
                               :font-size font-size
                               :beat-unit beat-unit
-                              :selection selection))
+                              :selection selection
+                              :time-map time-map))
     ))
 
 ;;;========================
@@ -212,13 +208,22 @@
 
 ;;; just for debug
 (defmethod draw-group-rect ((object group) view tempo level)
-  (om-draw-rect (time-to-pixel view (beat-to-time (symbolic-date object) tempo))
-                0
-                (- (time-to-pixel view (beat-to-time (+ (symbolic-date object) (symbolic-dur object)) tempo))
-                   (time-to-pixel view (beat-to-time (symbolic-date object) tempo)))
-                (- (h view) (* level 10))
-                :color (om-random-color .5)
-                :fill t))
+ (let ((unit (font-size-to-unit (editor-get-edit-param (editor view) :font-size)))
+       (tempo-map (editor-get-edit-param (editor view) :time-map)))
+   
+   (om-draw-rect (score-time-to-pixel view 
+                                      (beat-to-time (symbolic-date object) tempo)
+                                      tempo-map unit)
+                                     
+                 0
+                 (- (score-time-to-pixel view (beat-to-time (+ (symbolic-date object) (symbolic-dur object)) tempo)
+                                         tempo-map unit)
+                    (score-time-to-pixel view (beat-to-time (symbolic-date object) tempo)
+                                         tempo-map unit))
+                 (- (h view) (* level 10))
+                 :color (om-random-color .5)
+                 :fill t)
+   ))
 
 
 
@@ -230,9 +235,9 @@
 
 ;;; beam-info : beam-pos (line) , beam-direction (:up/:down) , beams-already-drawn (list of indices)
 (defmethod draw-score-element ((object group) tempo param-obj view 
-                               &key font-size (y-shift 0) (level 1) 
+                               &key font-size (x-shift 0) (y-shift 0) (level 1) 
                                position beam-info beat-unit rest-line
-                               selection)
+                               selection time-map)
   
   (declare (ignore position))
   
@@ -240,6 +245,7 @@
   ;(print (list "GROUP" (tree object) (numdenom object) (symbolic-dur object)))
   
   (let* ((staff (get-edit-param param-obj :staff))
+         (unit (font-size-to-unit font-size))
          (group-ratio (if (numdenom object) (fullratio (numdenom object)) 1))
          
          (beam-pos-and-dir (if beam-info
@@ -250,8 +256,10 @@
          (beams-from-parent (and beam-info (beam-info-beams beam-info)))
          
          (chords (get-all-chords object))
-         (pix-beg (time-to-pixel view (beat-to-time (symbolic-date (car chords)) tempo) ))
-         (pix-end (time-to-pixel view (beat-to-time (symbolic-date (car (last chords))) tempo) ))
+         (pix-beg (+ (* x-shift unit)
+                     (score-time-to-pixel view (beat-to-time (symbolic-date (car chords)) tempo) time-map unit)))
+         (pix-end (+ (* x-shift unit)
+                     (score-time-to-pixel view (beat-to-time (symbolic-date (car (last chords))) tempo) time-map unit)))
          
          (n-beams (beam-num object (* (symbolic-dur object) beat-unit)))
          (group-beams (arithm-ser 1 n-beams 1))
@@ -310,8 +318,8 @@
                     (progn
                       (setq beams-drawn-in-sub-group (arithm-ser 1 (min n-beams-in-current (or n-beams-in-previous 0)) 1))
                       ;;; draw beams between i and (i-1) and update the beaming count for sub-elements
-                      (draw-beams (time-to-pixel view (beat-to-time (symbolic-date prev) tempo))
-                                  (time-to-pixel view (beat-to-time (symbolic-date element) tempo))
+                      (draw-beams (score-time-to-pixel view (beat-to-time (symbolic-date prev) tempo) time-map unit)
+                                  (score-time-to-pixel view (beat-to-time (symbolic-date element) tempo) time-map unit)
                                   (beam-info-line beam-pos-and-dir)  ;; the beam init line
                                   (beam-info-direction beam-pos-and-dir) ;; the beam direction
                                   beams-drawn-in-sub-group  ;; the beam numbers 
@@ -321,6 +329,7 @@
                 ))
             
             (draw-score-element element tempo param-obj view 
+                                :x-shift x-shift
                                 :y-shift y-shift
                                 :font-size font-size
                                 :level (1+ level) 
@@ -337,16 +346,17 @@
                                 :rest-line (or rest-line (let ((mean-pitch (get-mean-pitch object)))
                                                            (when mean-pitch (pitch-to-line mean-pitch))))
                                 ;;; the higher-level group will determine the y-position for all rests
-                                :selection selection)
+                                :selection selection
+                                :time-map time-map)
             ))
     
     
     ;;; sub-groups or chords wont have to draw these beams
     (draw-beams pix-beg pix-end
                 (beam-info-line beam-pos-and-dir)  ;; the beam init line
-               (beam-info-direction beam-pos-and-dir) ;; the beam direction
-               (set-difference group-beams beams-from-parent)   ;; the beam numbers 
-               y-shift staff font-size)
+                (beam-info-direction beam-pos-and-dir) ;; the beam direction
+                (set-difference group-beams beams-from-parent)   ;; the beam numbers 
+                y-shift staff font-size)
    
     ;;; subdivision line and numbers 
     (when (numdenom object)
@@ -406,9 +416,9 @@
 ;;; beam-info : beam-pos (line) , beam-direction (:up/:down) , beams-already-drawn (list of indices)
 (defmethod draw-score-element ((object chord) 
                                tempo param-obj view 
-                               &key font-size (y-shift 0) (level 1) 
+                               &key font-size (x-shift 0) (y-shift 0) (level 1) 
                                (position 0) beam-info beat-unit rest-line
-                               selection)
+                               selection time-map)
   
 
   (let* ((begin (beat-to-time (symbolic-date object) tempo))
@@ -443,7 +453,7 @@
     (let ((bbox? 
            (draw-chord object
                        begin
-                       y-shift 
+                       x-shift y-shift 
                        0 0
                        (w view) (h view) 
                        font-size
@@ -456,7 +466,9 @@
                        :draw-ports port
                        :draw-durs dur
                        :selection (if (find object selection) T selection)
-                       :time-function #'(lambda (time) (time-to-pixel view time))
+                       :time-function #'(lambda (time) (score-time-to-pixel view time 
+                                                                            time-map
+                                                                            (font-size-to-unit font-size)))
                        :build-b-boxes create-bboxes
                        )))
       
@@ -474,9 +486,9 @@
 
 (defmethod draw-score-element ((object continuation-chord) 
                                tempo param-obj view 
-                               &key font-size (y-shift 0) (level 1) 
+                               &key font-size (x-shift 0) (y-shift 0) (level 1) 
                                (position 0) beam-info beat-unit rest-line
-                               selection)
+                               selection time-map) 
   
 
   (let* ((begin (beat-to-time (symbolic-date object) tempo))
@@ -507,7 +519,7 @@
     (let ((bbox? 
            (draw-chord (get-real-chord object)
                        begin
-                       y-shift 
+                       x-shift y-shift 
                        0 0
                        (w view) (h view) 
                        font-size
@@ -517,7 +529,9 @@
                        :staff staff
                        :selection (if (find object selection) T selection)
                        :tied-to-ms (beat-to-time (symbolic-date (previous-chord object)) tempo)
-                       :time-function #'(lambda (time) (time-to-pixel view time))
+                       :time-function #'(lambda (time) (score-time-to-pixel view time 
+                                                                            time-map
+                                                                            (font-size-to-unit font-size)))
                        :build-b-boxes create-bboxes
                        )))
       
@@ -533,9 +547,9 @@
 ;;;=========
 
 (defmethod draw-score-element ((object r-rest) tempo param-obj view &key 
-                               font-size (y-shift 0) (level 1) 
+                               font-size (x-shift 0) (y-shift 0) (level 1) 
                                position beam-info beat-unit rest-line
-                               selection)
+                               selection time-map)
   
   (let* ((begin (beat-to-time (symbolic-date object) tempo))
          (graphic-dur (* (symbolic-dur object) beat-unit))
@@ -548,7 +562,7 @@
            (bbox? 
             (draw-rest object
                        begin
-                       y-shift 
+                       x-shift y-shift 
                        0 0 (w view) (h view) 
                        font-size 
                        :head (multiple-value-list (rest-head-and-points graphic-dur))
@@ -557,7 +571,9 @@
                        :beams (list beams-to-draw position)
                        :staff (get-edit-param param-obj :staff)
                        :selection (if (find object selection) T selection)
-                       :time-function #'(lambda (time) (time-to-pixel view time))
+                       :time-function #'(lambda (time) (score-time-to-pixel view time 
+                                                                            time-map
+                                                                            (font-size-to-unit font-size)))
                        :build-b-boxes create-bboxes
                        )))
       (when create-bboxes

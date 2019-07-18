@@ -70,25 +70,9 @@
   ((fontsize :accessor fontsize :initform 18)))
 
 
-;;; MINI-VIEW
-(defmethod miniview-time-to-pixel ((object score-object) view time)
-  
-  (let* ((box (object view))
-         (fontsize (or (fontsize box) 24))
-         (unit (font-size-to-unit fontsize))
-         (shift-x-u (if (or (equal (get-edit-param box :staff) :line)
-                            (equal (get-edit-param box :staff) :empty))
-                        2 10))  
-         (shift-x-pix (* shift-x-u unit))
-         (w-pix (- (w view) shift-x-pix (* 2 unit))))  ;; +1 x unit for right margin ???
-    
-    ;;; (print (list object fontsize shift-x-pix (w view) (get-obj-dur object)))
-    
-    (+ shift-x-pix (* time (/ w-pix (get-obj-dur object))))
-    )) 
-
 ;;; only poly has more than 1 voice
 (defmethod num-voices ((self score-object)) 1)
+
 
 (defmethod draw-mini-view ((self score-object) (box ScoreBox) x y w h &optional time)
   
