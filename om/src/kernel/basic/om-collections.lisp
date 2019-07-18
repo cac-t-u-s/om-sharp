@@ -108,7 +108,8 @@
     (let ((ho (/ h (length list))))
       (loop for o in list
             for yo = y then (+ yo ho) do 
-            (set-cache-display box o)
+            (reset-cache-display box)
+            (ensure-cache-display-draw box o)
             (draw-mini-view o box x yo w ho time))
       )))
 

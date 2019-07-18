@@ -449,15 +449,16 @@
 ;;; to be redefined by objects if they have a specific draw/cache strategy
 (defmethod get-cache-display-for-draw ((object t)) nil)
 
-(defmethod set-cache-display ((self OMBox) object)
-  (setf (cache-display self)
-        (make-cache-display :text (get-cache-display-for-text object)
-                            :draw (get-cache-display-for-draw object))))
+;;; never called (just verify for collection editors, where the cache-display must be set several times)
+;(defmethod set-cache-display ((self OMBox) object)
+;  (setf (cache-display self)
+;        (make-cache-display :text (get-cache-display-for-text object)
+;                            :draw (get-cache-display-for-draw object))))
 
 (defmethod reset-cache-display ((self OMBox))
   (setf (cache-display self) nil))
 
-(defun ensure-cache-display-text (box object)
+(defmethod ensure-cache-display-text (box object)
   (if (cache-display box) 
       (or (cache-display-text (cache-display box))
           (setf (cache-display-text (cache-display box)) (get-cache-display-for-text object)))
@@ -466,7 +467,7 @@
             (make-cache-display :text (get-cache-display-for-text object)))
       (cache-display-text (cache-display box)))))
 
-(defun ensure-cache-display-draw (box object)
+(defmethod ensure-cache-display-draw (box object)
   (if (cache-display box) 
       (or (cache-display-draw (cache-display box))
           (setf (cache-display-draw (cache-display box)) (get-cache-display-for-draw object)))
