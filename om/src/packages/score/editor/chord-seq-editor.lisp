@@ -38,6 +38,8 @@
   (append (call-next-method)
           '((:grid nil))))
 
+(defmethod editor-with-timeline ((self chord-seq-editor)) nil)
+
 (defclass left-score-view (score-view) ())
 
 (defmethod om-draw-contents ((self left-score-view))

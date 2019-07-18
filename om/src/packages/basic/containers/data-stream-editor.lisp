@@ -69,6 +69,8 @@
                   :value (editor-get-edit-param editor :display-mode)
                   ))))
 
+(defmethod editor-with-timeline ((self data-stream-editor)) t)
+
 (defun make-timeline-check-box (editor)
   (om-make-di 'om-check-box :text "timeline" :size (omp 65 24) :font (om-def-font :font1)
               :checked-p (editor-get-edit-param editor :show-timeline)
@@ -178,7 +180,9 @@
                 ;;; the bottom control bar:
                 (om-make-layout 'om-row-layout 
                                 :size (omp nil 40) 
-                                :subviews (list (make-editor-controls editor) nil (make-timeline-check-box editor)))
+                                :subviews (list (make-editor-controls editor) nil 
+                                                (and (editor-with-timeline editor)
+                                                     (make-timeline-check-box editor))))
                 ))
     ))
 
