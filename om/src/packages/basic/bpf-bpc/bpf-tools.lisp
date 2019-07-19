@@ -185,6 +185,22 @@ If <color> is :random, will choose a random color. It can also be a color symbol
 ;                 (mapcar #'(lambda (bpf) (multiple-value-list (om-sample bpf nbs-sr xmin xmax dec))) (bpf-list self)))))  
 
 
+
+(defmethod* bpf-sample ((self bpf) xmin xmax (nbsamples integer) &optional (coeff 1) (nbdec 0))
+  :initvals (list (make-instance 'bpf) nil nil 10 1 0)
+  :indoc '("a BPF" "a number" "a number" "an integer" "a number" "an integer")
+  :icon 233
+  :doc "DEPRECATED - see OM-SAMPLE"
+  (let ((min (or xmin (first (x-points self)))) 
+        (max (or xmax (car (last (x-points self))))))
+  (cond ((= 0 nbsamples) 0)
+        ((= 1 nbsamples) min)
+        (t
+         (let ((interpolation (interpole (x-points self) (y-points self) min max nbsamples)))
+           (unless (= coeff 1) (setf interpolation (om* interpolation coeff)))
+           (om-round interpolation nbdec))))))
+
+
 ;;;=========================================== 
 ;;; SPLINE CURVE FROM BPF
 ;;;=========================================== 
