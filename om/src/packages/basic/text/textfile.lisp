@@ -141,7 +141,8 @@ As output it returns the contents of the text buffer as a list formatted accordi
 
 (defmethod display-modes-for-object ((self textbuffer)) '(:hidden :text :mini-view))
 
-(defmethod get-cache-display-for-text ((self textbuffer))
+(defmethod get-cache-display-for-text ((self textbuffer) box)
+  (declare (ignore box))
   (list (list :text-buffer 
               (if (contents self) 
                   (format nil "[~D lines]" (length (contents self)))

@@ -149,7 +149,7 @@
   (om-draw-string center-x center-y (format nil "~A" self)))
 
 (defmethod draw-element-in-array-field ((self bpf) center-x center-y w h)
-  (let ((dummy-cache (get-cache-display-for-draw self))) ;; dummy because it is not cached actually (bad)
+  (let ((dummy-cache (get-cache-display-for-draw self nil))) ;; dummy because it is not cached actually (bad)
     
     (om-draw-line (+ center-x (* w .5)) (- center-y (* h .48)) 
                   (+ center-x (* w .5)) (+ center-y (* h .48))
@@ -198,7 +198,8 @@
       (nth col (data self))
     (if warn-if-not-found (om-beep-msg "Field #~D not found in '~A'" col self))))
 
-(defmethod get-cache-display-for-text ((self 2D-array))
+(defmethod get-cache-display-for-text ((self 2D-array) box)
+  (declare (ignore box))
   (loop for field in (data self) 
         for i = 0 then (1+ i) 
         collect (list (format nil "[~D]" i) field)))
@@ -373,7 +374,8 @@ Data instanciation in a column is done according to the specified number of line
   (or (get-field self (string slot-name) :warn-if-not-found nil)
       (call-next-method)))
  
-(defmethod get-cache-display-for-text ((self class-array))
+(defmethod get-cache-display-for-text ((self class-array) box)
+  (declare (ignore box))
   (append (call-next-method)
           (loop for array-field in (data self) collect 
                 (list (intern-k (array-field-name array-field))

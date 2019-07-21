@@ -207,7 +207,8 @@
                     (om-draw-line mid-x to-y to-x to-y)))
                 ))))))
 
-(defmethod get-cache-display-for-draw ((self OMPatch))
+(defmethod get-cache-display-for-draw ((self OMPatch) box)
+  (declare (ignore box))
   (let* ((patch self)
          (p-boxes (get-boxes-of-type patch 'OMBoxCall))
          (bboxes (loop for b in p-boxes 

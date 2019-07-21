@@ -426,7 +426,7 @@
 (defmethod display-modes-for-object ((self piano-roll))
   '(:hidden :text :mini-view))
 
-;; (defmethod get-cache-display-for-draw ((self piano-roll)) (list 30 100)) 
+;; (defmethod get-cache-display-for-draw ((self piano-roll) box) (list 30 100)) 
 
 (defmethod draw-mini-view ((self piano-roll) (box t) x y w h &optional time)
   

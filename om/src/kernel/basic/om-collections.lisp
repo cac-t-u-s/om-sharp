@@ -91,7 +91,8 @@
 
 (defmethod display-modes-for-object ((self collection)) '(:hidden :text :mini-view))
 
-(defmethod get-cache-display-for-text ((self collection))
+(defmethod get-cache-display-for-text ((self collection) box)
+  (declare (ignore box))
   (loop for obj in (obj-list self) 
         for i = 0 then (1+ i) 
         collect (list (format nil "[~D]" i) obj)))
@@ -99,7 +100,8 @@
 ;;; type is an object used for specialization
 (defmethod collection-cache-display ((type t) list) nil)
 
-(defmethod get-cache-display-for-draw ((object collection)) 
+(defmethod get-cache-display-for-draw ((object collection) box) 
+  (declare (ignore box))
   (collection-cache-display (car (obj-list object)) (obj-list object)))
 
 ;;; type is an object used for specialization

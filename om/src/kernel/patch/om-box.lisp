@@ -441,19 +441,20 @@
 (defmethod get-display-draw ((self OMBox)) (cache-display-draw (cache-display self)))
 
 ;;; to be redefined by objects if they have a specific draw/cache strategy
-(defmethod get-cache-display-for-text ((object t))
+(defmethod get-cache-display-for-text ((object t) box)
+  (declare (ignore box))
   (loop for sl in (append (mapcar 'slot-name (remove-if-not 'slot-initargs (class-direct-instance-slots (class-of object))))
                           (additional-class-attributes object))
         collect (list sl (get-slot-val object sl))))
 
 ;;; to be redefined by objects if they have a specific draw/cache strategy
-(defmethod get-cache-display-for-draw ((object t)) nil)
+(defmethod get-cache-display-for-draw ((object t) box) nil)
 
 ;;; never called (just verify for collection editors, where the cache-display must be set several times)
 ;(defmethod set-cache-display ((self OMBox) object)
 ;  (setf (cache-display self)
 ;        (make-cache-display :text (get-cache-display-for-text object)
-;                            :draw (get-cache-display-for-draw object))))
+;                            :draw (get-cache-display-for-draw object box))))
 
 (defmethod reset-cache-display ((self OMBox))
   (setf (cache-display self) nil))
@@ -461,19 +462,19 @@
 (defmethod ensure-cache-display-text (box object)
   (if (cache-display box) 
       (or (cache-display-text (cache-display box))
-          (setf (cache-display-text (cache-display box)) (get-cache-display-for-text object)))
+          (setf (cache-display-text (cache-display box)) (get-cache-display-for-text object box)))
     (progn
       (setf (cache-display box)
-            (make-cache-display :text (get-cache-display-for-text object)))
+            (make-cache-display :text (get-cache-display-for-text object box)))
       (cache-display-text (cache-display box)))))
 
 (defmethod ensure-cache-display-draw (box object)
   (if (cache-display box) 
       (or (cache-display-draw (cache-display box))
-          (setf (cache-display-draw (cache-display box)) (get-cache-display-for-draw object)))
+          (setf (cache-display-draw (cache-display box)) (get-cache-display-for-draw object box)))
     (progn
       (setf (cache-display box)
-            (make-cache-display :draw (get-cache-display-for-draw object)))
+            (make-cache-display :draw (get-cache-display-for-draw object box)))
       (cache-display-draw (cache-display box)))))
 
 

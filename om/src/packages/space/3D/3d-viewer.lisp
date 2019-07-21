@@ -681,7 +681,8 @@
   '(:hidden :text :mini-view))
 
 
-(defmethod get-cache-display-for-draw ((self 3D-viewer)) 
+(defmethod get-cache-display-for-draw ((self 3D-viewer) box)
+  (declare (ignore box))
   (when (data self)
     (multiple-value-bind (xmi xma ymi yma zmi zma) 
         (get-extents (data self))

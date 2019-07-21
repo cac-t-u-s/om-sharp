@@ -450,7 +450,7 @@
         finally (return (list x1 x2 y1 y2))))
 
 ;;; redefined by objects if they have a specific draw/cache strategy
-(defmethod get-cache-display-for-draw ((self bpf)) 
+(defmethod get-cache-display-for-draw ((self bpf) box) 
   (list 
    (nice-bpf-range self)
    (if (<= (length (point-pairs self)) 500) 

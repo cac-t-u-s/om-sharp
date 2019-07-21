@@ -79,7 +79,8 @@ Lock the box ('b') to keep the current file.
 ;;; DISPLAY BOX
 (defmethod display-modes-for-object ((self sdiffile)) '(:hidden :text :mini-view))
 
-(defmethod get-cache-display-for-text ((self sdiffile))
+(defmethod get-cache-display-for-text ((self sdiffile) box)
+  (declare (ignore box))
   `((:file-pathname ,(file-pathname self))
     (:file-contents 
      ,(loop for stream in (file-map self) collect 

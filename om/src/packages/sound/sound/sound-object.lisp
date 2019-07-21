@@ -597,7 +597,8 @@ Press 'space' to play/stop the sound file.
 (defmethod display-modes-for-object ((self sound))
   '(:hidden :text :mini-view))
 
-(defmethod get-cache-display-for-text ((object sound)) ;(call-next-method))
+(defmethod get-cache-display-for-text ((object sound) box)
+  (declare (ignore box))
   (append (call-next-method) 
           (list (list :buffer (buffer object)))))
 
@@ -815,7 +816,8 @@ Press 'space' to play/stop the sound file.
         )))
     ))
 
-(defmethod get-cache-display-for-draw ((self sound))
+(defmethod get-cache-display-for-draw ((self sound) box)
+  (declare (ignore box))
   (when (and (n-samples self) (> (n-samples self) 0) (n-channels self)
              (or (buffer self) (file-pathname self)))
     (let* ((window 128)
@@ -886,8 +888,8 @@ Press 'space' to play/stop the sound file.
   (unless (nth sound-id (cache-display-list editor))
     (setf (cache-display-list editor) 
           (if (multi-display-p editor)
-              (mapcar 'get-cache-display-for-draw (multi-obj-list editor))
-            (list (get-cache-display-for-draw (object-value editor))))))
+              (mapcar #'(lambda (o) (get-cache-display-for-draw o nil)) (multi-obj-list editor))
+            (list (get-cache-display-for-draw (object-value editor) nil)))))
   (let ((dur (get-obj-dur sound))
         (pict (nth sound-id (cache-display-list editor))))
     (when (and pict (not (equal :error pict)))  
