@@ -184,6 +184,7 @@
 ;;; when a value box is modified
 (defmethod set-value ((self OMValueBox) value)
   (call-next-method)
+  (setf (reference self) (type-of (car value)))
   (when (reactive (car (outputs self)))
     (self-notify self)))
 
