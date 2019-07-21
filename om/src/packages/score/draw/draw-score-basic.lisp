@@ -835,7 +835,7 @@
                            (push line (nth head-col head-columns))
                          (setf head-col (length head-columns) ;; add a new column
                                head-columns (append head-columns (list (list line)))))
-                    
+                       
                        (setq head-x (+ x-pix (* head-col head-w unit)))
 
                        (let (;;; bounding-box values

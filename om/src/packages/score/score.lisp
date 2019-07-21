@@ -28,19 +28,21 @@
         "score-objects/voice"
         "score-objects/score"
 
-        "editor/draw-score-basic"
-        "editor/draw-score-rhythm"
+        "draw/draw-score-basic"
+        "draw/draw-score-rhythm"
+        "draw/spacing"
 
         "editor/score-editor"
         "editor/chord-editor"
         "editor/chord-seq-editor"
-        "editor/spacing"
+        "editor/voice-editor"
         "editor/score-boxes"
 
-        "tools/conversions"
+        "functions/conversions"
         "functions/score-functions"
         "functions/trees"
         "functions/quantify"
+
         "import-export/musicxml"))
 
 

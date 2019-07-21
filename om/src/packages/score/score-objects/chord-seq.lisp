@@ -27,6 +27,7 @@
 
 ;;; (almost) all slot accessors are redefined below in this file
 
+
 (defclass internal-chord-seq (score-object data-stream)   
   ((Lmidic :initform '((6000)) :initarg :Lmidic :type list :documentation "pitches (mc): list or list of lists")
    (Lonset :initform '(0 1000) :initarg :Lonset :type list :documentation "onsets (ms): list")

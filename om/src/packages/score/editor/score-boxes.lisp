@@ -16,7 +16,7 @@
 ;============================================================================
 
 ;;;===========================
-;;; DRAW SCOIRE OBJECT BOXES
+;;; DRAW SCORE OBJECT BOXES
 ;;;===========================
 
 (in-package :om)
@@ -28,15 +28,37 @@
       2 6))
 
 
-(defmethod miniview-time-to-pixel ((object score-object) view time)
+(defmethod miniview-time-to-pixel-proportional ((object score-object) view time)
   (let* ((box (object view))
          (fontsize (or (fontsize box) 24))
-         (unit (font-size-to-unit fontsize)))
-    (+ (* (+ 1 (score-mini-view-left-shift-in-units box)) unit)
-       (score-time-to-pixel view time (get-edit-param box :time-map) unit))
+         (unit (font-size-to-unit fontsize))
+         
+         (shift-x-pix (* (score-mini-view-left-shift-in-units box) 
+                         (font-size-to-unit (fontsize box)))))
+    
+    (+ unit ;; left margin
+       shift-x-pix 
+       (* (- (w view) shift-x-pix (* 2 unit)) 
+          (/ time (if (plusp (get-obj-dur object)) (get-obj-dur object) 1000))))
     ))
 
-; (+ shift-x-pix (* time (/ (- (w view) shift-x-pix (* 2 unit)) (get-obj-dur object))))
+
+(defmethod miniview-time-to-pixel-rhythmic ((object score-object) view time)
+
+  (let* ((box (object view))
+         (fontsize (or (fontsize box) 24))
+         (unit (font-size-to-unit fontsize))
+         (time-map (get-edit-param box :time-map)))
+    
+    (score-time-to-pixel view time time-map unit)
+    ))
+
+(defmethod miniview-time-to-pixel ((object score-object) view time)
+  (miniview-time-to-pixel-proportional object view time))
+
+(defmethod miniview-time-to-pixel ((object voice) view time)
+  (miniview-time-to-pixel-rhythmic object view time))
+
 
 
 
@@ -56,7 +78,6 @@
                 (fontsize box) :scale nil :staff staff
                 :time-function #'(lambda (time) (declare (ignore time)) (/ w 2))
                 )
-    
     ))
   
 
@@ -81,31 +102,39 @@
 ;;;===========================
 (defmethod score-object-mini-view ((self chord-seq) box x-pix y-pix y-u w h)
   
-  (let ((staff (get-edit-param box :staff)))
-    
+  (let ((staff (get-edit-param box :staff))
+        (x-shift (* (score-mini-view-left-shift-in-units box) 
+                    (font-size-to-unit (fontsize box)))))
+        
     (draw-staff x-pix y-pix y-u w h (fontsize box) staff :margin-l 1 :margin-r 1 :keys t)
-
+    
     (loop for chord in (chords self) do
           (draw-chord chord
                       (date chord)
                       0 y-u  
-                      x-pix y-pix w h
+                      (+ x-pix x-shift) 
+                      y-pix 
+                      w h
                       (fontsize box) :scale nil :staff staff
                       :time-function #'(lambda (time) (miniview-time-to-pixel self (frame box) time))
                       )
           )))
 
 
-
+;;;===========================
+;;; VOICE
+;;;===========================
 
 (defmethod score-object-mini-view ((self voice) box x-pix y-pix y-u w h)
   
   (let ((time-map (get-edit-param box :time-map)))
     
-    (draw-staff x-pix y-pix y-u w h (fontsize box) (get-edit-param box :staff) :margin-l 1 :margin-r 1 :keys t)
+    (draw-staff x-pix y-pix y-u w h (fontsize box) (get-edit-param box :staff) 
+                :margin-l 1 :margin-r 1 :keys t)
   
     (om-with-translation 
-        (+ x-pix (* (score-mini-view-left-shift-in-units box) (font-size-to-unit (fontsize box))))
+        (+ x-pix (* (score-mini-view-left-shift-in-units box) 
+                    (font-size-to-unit (fontsize box))))
         y-pix
       
       (loop for m in (inside self)
@@ -117,6 +146,7 @@
                                    :font-size (fontsize box) 
                                    :time-map time-map)
             ))))
+
 
 ;;;===========================
 ;;; POLY

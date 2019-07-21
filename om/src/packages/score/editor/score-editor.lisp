@@ -15,7 +15,6 @@
 ; File author: J. Bresson
 ;============================================================================
 
-
 (in-package :om)
 
 
@@ -28,14 +27,19 @@
 ;;; these params are shared between the editor and the box
 (defmethod object-default-edition-params ((self score-object))
   '((:font-size 24)
-    (:staff :gf)
+    (:staff :g)
     (:duration-display nil)
     (:velocity-display :hidden)
     (:channel-display :hidden)
     (:midiport-display nil)
     (:time-map ((-1 -1) (0 0)))    ;;; not necessary to store it as a persistent param....
-    ))
+    (:h-stretch 1)))
 
+
+;;; redo time-map at editing the object
+(defmethod report-modifications ((self score-editor))
+  (call-next-method)
+  (editor-set-edit-param self :time-map (build-time-map (object-value self))))
 
 
 ;;;============ 
@@ -50,7 +54,24 @@
    (contents :accessor contents :initarg :contents :initform t)))
 
 
+;;; used by cursors
+(defmethod time-to-pixel ((self score-view) time) 
+  (let* ((ed (editor self))
+         (stretch (editor-get-edit-param ed :h-stretch)))
+    
+    (if (numberp stretch)
+        
+        (let ((time-map (editor-get-edit-param ed :time-map))
+              (adjusted-stretch-factor (* stretch (font-size-to-unit (editor-get-edit-param ed :font-size)))))
+          (- 
+           (score-time-to-pixel self time time-map adjusted-stretch-factor)
+           (score-time-to-pixel self (x1 self) time-map adjusted-stretch-factor)))
 
+      (call-next-method)
+      )
+    ))
+                  
+                  
 (defmethod om-draw-contents ((self score-view))
   
   (let* ((editor (editor self))
