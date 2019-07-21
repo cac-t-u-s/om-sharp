@@ -25,10 +25,10 @@
 (defclass chord-seq-editor (data-stream-editor score-editor) ())
 (defmethod get-editor-class ((self chord-seq)) 'chord-seq-editor)
 
-(defclass score-panel (score-view stream-panel) ()
+(defclass chord-seq-panel (score-view stream-panel) ()
   (:default-initargs :keys nil :margin-l nil :margin-r 1))
 
-(defmethod editor-view-class ((self chord-seq-editor)) 'score-panel)
+(defmethod editor-view-class ((self chord-seq-editor)) 'chord-seq-panel)
 
 
 ;;; this will just disable the display-mode menu 
@@ -79,11 +79,11 @@
   (make-score-display-params-controls editor))
 
          
-(defmethod update-view-from-ruler ((self x-ruler-view) (view score-panel))
+(defmethod update-view-from-ruler ((self x-ruler-view) (view chord-seq-panel))
   (call-next-method)
   (om-invalidate-view (left-view view)))
 
-(defmethod om-view-zoom-handler ((self score-panel) position zoom)
+(defmethod om-view-zoom-handler ((self chord-seq-panel) position zoom)
   (zoom-rulers self :dx (- 1 zoom) :dy 0 :center position))
 
 

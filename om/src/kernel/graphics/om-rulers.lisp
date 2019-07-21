@@ -183,6 +183,7 @@
   (let ((min-unit-size 40))
     (multiple-value-bind (unit-dur unit-size)
         (get-units self)
+      ;(print (list unit-dur unit-size))
       ;(when (> unit-size 200) (setf unit-dur (/ unit-dur 10)))
       (om-with-focused-view self
         (om-with-fg-color (om-def-color :black)
@@ -224,6 +225,8 @@
     ))
 
 
+(defmethod ruler-zoom-? ((self ruler-view)) t)
+
 (defmethod om-view-click-handler ((self ruler-view) pos)
   (let ((curr-pos pos)
         (vmin (or (vmin self) nil)) ; -1000000
@@ -237,7 +240,7 @@
                         (zoom (pix-diff-to-value self (- (zoom-value self position) (zoom-value self curr-pos))))
                         (shift (pix-diff-to-value self (- (shift-value self position) (shift-value self curr-pos)))))
 
-                   (if (> (abs zoom) (abs shift))
+                   (if (and (ruler-zoom-? self) (> (abs zoom) (abs shift)))
                        ;;; ZOOM
                        (let* ((newdur (+ dur (* zoom 0.01 dur)))
                               (v1 (max? vmin (- curr-v (/ (* (- curr-v (v1 self)) newdur) dur))))     
@@ -252,6 +255,7 @@
                                           (min? vmax (- (v2 self) dt))))))
                    (setf curr-pos position)))
      :release #'(lambda (view position) (update-views-from-ruler self)))))
+
 
 ;;; !! reinit ranges apply on the editor attached to the first related-view
 ;;; to define a more specific behaviour, better sub-class the ruler

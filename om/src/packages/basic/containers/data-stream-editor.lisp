@@ -119,6 +119,19 @@
 
 (defmethod data-stream-get-x-ruler-vmin ((self data-stream-editor)) 0)
 
+
+;;; voice editor has a different ruler
+(defmethod make-time-ruler ((editor data-stream-editor) dur)
+
+  (om-make-view 'time-ruler 
+                :related-views (get-g-component editor :data-panel-list)
+                :size (omp nil 20) 
+                :bg-color (om-def-color :white)
+                :vmin (data-stream-get-x-ruler-vmin editor)
+                :x1 (data-stream-get-x-ruler-vmin editor) 
+                :x2 dur)
+  )
+
 (defmethod make-editor-window-contents ((editor data-stream-editor))
   
   (let* ((data-stream (object-value editor))
@@ -128,8 +141,8 @@
          (n-objs (length object-s))
          (max-dur (loop for obj in object-s maximize (or (get-obj-dur obj) 0)))
          (ed-dur (if (zerop max-dur) 
-                  10000 
-                (+ max-dur (editor-view-after-init-space data-stream)))))
+                     10000 
+                   (+ max-dur (editor-view-after-init-space data-stream)))))
 
     (set-g-component editor :data-panel-list
                       (loop for d-s in object-s 
@@ -142,13 +155,7 @@
                                          :left-view (make-left-panel-for-object editor d-s)
                                          )))
                      
-    (set-g-component editor :x-ruler (om-make-view 'time-ruler 
-                                                   :related-views (get-g-component editor :data-panel-list)
-                                                   :size (omp nil 20) 
-                                                   :bg-color (om-def-color :white)
-                                                   :vmin (data-stream-get-x-ruler-vmin editor)
-                                                   :x1 (data-stream-get-x-ruler-vmin editor) 
-                                                   :x2 ed-dur))
+    (set-g-component editor :x-ruler (make-time-ruler editor ed-dur))
     
     (set-g-component (timeline-editor editor) :main-panel (om-make-layout 'om-row-layout))
     
