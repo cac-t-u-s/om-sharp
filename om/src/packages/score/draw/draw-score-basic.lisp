@@ -491,7 +491,7 @@
     
     (om-draw-string (+ x-pix unit) y-pix 
                     (format nil "= ~D"  (tempo object))
-                    :font (om-def-font :font1 :size (round font-size 2.5)))
+                    :font (om-def-font :font1 :size (round font-size 2.2)))
     ))
      
 
