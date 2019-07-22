@@ -573,7 +573,9 @@
          ;; (update-obj-dur stream)
          (report-modifications editor)))   
       (:om-key-esc 
-       (reinit-x-ranges editor))
+       ;; maybe not needed ? we already have the db-click on ruler for that...
+       ;; (reinit-x-ranges editor)
+       )
       (:om-key-left
        (move-editor-selection editor :dx (- (get-units (get-g-component editor :x-ruler) (if (om-shift-key-p) 100 10))))
        (editor-sort-frames editor)

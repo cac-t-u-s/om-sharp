@@ -106,6 +106,8 @@
 ;;; INTERVAL
 ;;;=====================================
 
+(defmethod play-editor-default-interval ((self t)) '(0 0))
+
 (defmethod get-interval-to-play ((self play-editor-mixin))
   (when (and (play-selection-first self) 
              (play-interval self)
@@ -242,7 +244,7 @@
 
   (player-stop-object (player self) (get-obj-to-play self))
   (if (and (metronome self) (metronome-on self)) (player-stop-object (player self) (metronome self)))
-  (let ((start-time (or (car (play-interval self)) 0)))
+  (let ((start-time (or (car (play-interval self)) (car (play-editor-default-interval self)))))
     (set-time-display self start-time)
     (mapcar #'(lambda (view) (update-cursor view start-time)) (cursor-panes self))))
 
@@ -268,8 +270,9 @@
 (defmethod editor-previous-step ((self play-editor-mixin)) nil)
 (defmethod editor-repeat ((self play-editor-mixin) t-or-nil) nil)
 
+
 (defmethod editor-reset-interval ((self play-editor-mixin))
-  (editor-set-interval self '(0 0))
+  (editor-set-interval self (play-editor-default-interval self))
   (mapcar 'reset-cursor (cursor-panes self)))
 
 (defmethod editor-reset-cursor ((self play-editor-mixin))
@@ -281,10 +284,10 @@
     (#\p (editor-play/pause self) t)
     (#\s (editor-stop self) t)    
     (:om-key-esc 
-     (if (eq (player-get-object-state (player self) (get-obj-to-play self)) :stop)
-         (if (equal '(0 0) (play-interval self))
-             (call-next-method) ;; if the interval is already reset: check if there is another 'escape' to do
-           (editor-reset-interval self)))
+     (when (eq (player-get-object-state (player self) (get-obj-to-play self)) :stop)
+       (if (equal '(0 0) (play-interval self))
+           (call-next-method) ;; if the interval is already reset: check if there is another 'escape' to do
+         (editor-reset-interval self)))
      (editor-stop self)
      (call-next-method)
      t)
