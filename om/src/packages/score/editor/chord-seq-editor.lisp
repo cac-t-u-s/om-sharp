@@ -48,7 +48,8 @@
          ;; (shift (* 2 (font-size-to-unit (editor-get-edit-param editor :font-size))))
          )
     
-    (draw-staff 0 0 0 
+    (draw-staff 0 0 
+                (editor-get-edit-param editor :y-shift)
                 (w self) (h self) 
                 (editor-get-edit-param editor :font-size) 
                 (editor-get-edit-param editor :staff)
@@ -93,6 +94,8 @@
         (list -200 (+ (get-obj-dur play-obj) (default-editor-min-x-range self)))
       (list (vmin self) (or (vmax self) (default-editor-min-x-range self))))))
 
+
+(defmethod play-editor-default-interval ((self chord-seq-editor)) '(-1000 -1000))
 
 (defmethod update-to-editor ((editor chord-seq-editor) (from t))
   (call-next-method)
@@ -162,7 +165,8 @@
            (b-box chord)
            (draw-chord chord
                        (date chord) 
-                       0 0
+                       0 
+                       (editor-get-edit-param editor :font-size)
                        0 0
                        (w view) (h view) 
                        font-size 

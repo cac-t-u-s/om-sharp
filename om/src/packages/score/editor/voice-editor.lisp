@@ -74,6 +74,7 @@
 ;;; a "fake" negative duration to allow for teh first time-signature to show
 (defmethod data-stream-get-x-ruler-vmin ((self voice-editor)) -2000)
 
+
 (defmethod make-time-ruler ((editor voice-editor) dur)
   (om-make-view 'voice-ruler 
                 :related-views (get-g-component editor :data-panel-list)
@@ -103,6 +104,7 @@
          (font-size (editor-get-edit-param editor :font-size))
          (staff (editor-get-edit-param editor :staff))
          (h-stretch (editor-get-edit-param editor :h-stretch))
+         (y-shift (editor-get-edit-param editor :y-shift))
          (unit (font-size-to-unit font-size))
          (selection (selection editor)))
     
@@ -123,6 +125,7 @@
                    ;;; DRAW THIS MEASURE
                    (draw-measure m (tempo object) (object editor) view 
                                  :position i
+                                 :y-shift y-shift
                                  :with-signature (not (equal (car (tree m)) prev-signature))
                                  :selection selection
                                  :staff staff

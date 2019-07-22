@@ -579,6 +579,9 @@
 (defmethod draw-type-of-object ((object t))
   (string-upcase (type-of object)))
 
+(defparameter *miniview-x-margin* 4)
+(defparameter *miniview-y-margin* 4)
+
 (defmethod draw-value-in-frame ((object t) (frame OMObjectBoxFrame)) 
   (let ((box (object frame)))
     (case (display box)
@@ -586,13 +589,18 @@
        (draw-label box object :color (om-make-color 0.6 0.6 0.6 0.2))
        (draw-mini-text object box 0 0 (w frame) (h frame) (box-play-time frame)))
       (:mini-view 
-       (om-with-clip-rect frame  0 4 (w frame) (- (h frame) 8)
+       (om-with-clip-rect frame 
+           *miniview-x-margin* *miniview-y-margin* 
+           (- (w frame) (* 2 *miniview-x-margin*)) (- (h frame) (* 2 *miniview-y-margin*))
          (draw-label box object :color (om-make-color 0.6 0.6 0.6 0.2))
          (ensure-cache-display-draw box object)
-         (om-with-clip-rect frame 0 4 (w frame) (- (h frame) 8)
-         (draw-mini-view object box 4 4 (- (w frame) 8) (- (h frame) 8) (box-play-time frame)))))
+         (draw-mini-view object box 
+                         *miniview-x-margin* *miniview-y-margin* 
+                         (- (w frame) (* 2 *miniview-x-margin*)) (- (h frame) (* 2 *miniview-y-margin*)) 
+                         (box-play-time frame))
+         ))
       (:hidden 
-       (om-with-clip-rect frame  0 4 (w frame) (- (h frame) 8)
+       (om-with-clip-rect frame  0 *miniview-y-margin* (w frame) (- (h frame) (* 2 *miniview-y-margin*))
          (draw-label box object)))
       (otherwise nil) 
       )
@@ -613,6 +621,7 @@
   (when time
     (om-with-fg-color (om-make-color 0.73 0.37 0.42)
       (let ((x (miniview-time-to-pixel object frame time)))
+        ; (print (list "cursor" time x))
         (om-draw-polygon (list (- x 5) 4 x 9 (+ x 5) 4) :fill t)
         (om-with-line '(2 2)
         (om-draw-line x 4 x (- (h frame) 6))

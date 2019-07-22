@@ -420,9 +420,9 @@
        
         ;;; vertical lines at beginning and the end
         (when margin-l
-          (om-draw-line (- x1 1) 
+          (om-draw-line x1
                         (adjust-line-ypos (line-to-ypos (car (staff-lines (car staff-elems))) shift unit))
-                        (- x1 1)
+                        x1
                         (adjust-line-ypos (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit))
                         :line thinBarlineThickness))
         (when margin-r

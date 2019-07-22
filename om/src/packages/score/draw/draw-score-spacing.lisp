@@ -107,7 +107,7 @@
                               (space-point-after (car rest)) 
                               (space-point-before (cadr rest))
                               (space-point-extra (cadr rest))))
-           collect (list (space-point-onset (cadr rest)) (round curr-x)))
+           collect (list (space-point-onset (cadr rest)) curr-x))
      )
     ))
                               
@@ -118,7 +118,7 @@
    (make-space-point :onset  (beat-to-time (symbolic-date self) tempo)
                      :before 0 :after 0
                      :extra (+ (if (= position 1) 0 6)
-                               (if with-signature 6 0)))
+                               (if with-signature 4 0)))
    (loop for sub in (inside self) append  
          (build-object-time-space sub tempo))
    ))

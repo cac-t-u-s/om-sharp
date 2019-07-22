@@ -30,10 +30,13 @@
   (let* ((unit (font-size-to-unit font-size))
          (extra-units-for-bar (if (= position 1) 0 4))
          (extra-units-for-sig (if with-signature 6 0))
-         (bar-x-pix (- (time-to-pixel view (beat-to-time (symbolic-date object) tempo))
+         (bar-x-pix (- (+ (* x-shift unit) 
+                          (time-to-pixel view (beat-to-time (symbolic-date object) tempo)))
                        (* (+ extra-units-for-bar extra-units-for-sig)
                           (if (numberp stretch) (* unit stretch) 
-                            (if (= position 1) (/ unit 1.5) 1))))))
+                            ;;; proportional:
+                            (if (= position 1) (/ unit 1.5) 1)))
+                       )))
     
     (unless (= position 1)
       (draw-measure-bar bar-x-pix y-shift font-size staff)
@@ -211,6 +214,7 @@
   
   (let* ((staff (get-edit-param param-obj :staff))
          (unit (font-size-to-unit font-size))
+         (x-shift-pix (* x-shift unit))
          (group-ratio (if (numdenom object) (fullratio (numdenom object)) 1))
          
          (beam-pos-and-dir (if beam-info
@@ -221,9 +225,9 @@
          (beams-from-parent (and beam-info (beam-info-beams beam-info)))
          
          (chords (get-all-chords object))
-         (pix-beg (+ (* x-shift unit)
+         (pix-beg (+ x-shift-pix
                      (time-to-pixel view (beat-to-time (symbolic-date (car chords)) tempo))))
-         (pix-end (+ (* x-shift unit)
+         (pix-end (+ x-shift-pix
                      (time-to-pixel view (beat-to-time (symbolic-date (car (last chords))) tempo))))
          
          (n-beams (beam-num object (* (symbolic-dur object) beat-unit)))
@@ -283,8 +287,8 @@
                     (progn
                       (setq beams-drawn-in-sub-group (arithm-ser 1 (min n-beams-in-current (or n-beams-in-previous 0)) 1))
                       ;;; draw beams between i and (i-1) and update the beaming count for sub-elements
-                      (draw-beams (time-to-pixel view (beat-to-time (symbolic-date prev) tempo))
-                                  (time-to-pixel view (beat-to-time (symbolic-date element) tempo))
+                      (draw-beams (+ x-shift-pix (time-to-pixel view (beat-to-time (symbolic-date prev) tempo)))
+                                  (+ x-shift-pix (time-to-pixel view (beat-to-time (symbolic-date element) tempo)))
                                   (beam-info-line beam-pos-and-dir)  ;; the beam init line
                                   (beam-info-direction beam-pos-and-dir) ;; the beam direction
                                   beams-drawn-in-sub-group  ;; the beam numbers 

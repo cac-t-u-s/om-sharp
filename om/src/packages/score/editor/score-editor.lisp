@@ -33,7 +33,8 @@
     (:channel-display :hidden)
     (:midiport-display nil)
     (:time-map ((-1 -1) (0 0)))    ;;; not necessary to store it as a persistent param....
-    (:h-stretch 1)))
+    (:h-stretch 1)
+    (:y-shift 4)))
 
 
 ;;; redo time-map at editing the object
@@ -80,14 +81,15 @@
     (om-trap-errors 
      ;(om-with-fg-color (om-make-color 0.0 0.2 0.2)
        
-       (draw-staff 0 0 0
-                   (w self) (h self) 
-                   (editor-get-edit-param editor :font-size) 
-                   (editor-get-edit-param editor :staff)
-                   :margin-l (margin-l self) 
-                   :margin-r (margin-r self)
-                   :keys (keys self))
-       
+     (draw-staff 0 0 
+                 (editor-get-edit-param editor :y-shift)
+                 (w self) (h self) 
+                 (editor-get-edit-param editor :font-size) 
+                 (editor-get-edit-param editor :staff)
+                 :margin-l (margin-l self) 
+                 :margin-r (margin-r self)
+                 :keys (keys self))
+     
        (when (contents self)
          
          (draw-score-object-in-editor-view editor self unit))
