@@ -36,6 +36,9 @@
 ;; extra is some independent, extra time needed (typically for measures bars and time signature)
 (defstruct space-point (onset) (before) (after) (extra))
 
+
+
+
 ;;;=====================================
 ;;; Rebuilding time-map
 ;;;=====================================
@@ -57,8 +60,13 @@
   ;; (print "REBUILD")
 
   (let* ((time-space (sort 
-                      (loop for sub in (inside obj)
-                            append (build-object-time-space sub (tempo obj)))
+                      (loop with prev-signature = nil 
+                            for m in (inside obj)
+                            for position from 1
+                            append (build-measure-time-space m (tempo obj) 
+                                                             position
+                                                             (not (equal (car (tree m)) prev-signature)))
+                            do (setf prev-signature (car (tree m))))
                       #'< :key #'space-point-onset))
          (merged-list ()))
 
@@ -105,9 +113,20 @@
                               
 
    
+(defmethod build-measure-time-space ((self measure) tempo position with-signature)
+  (cons 
+   (make-space-point :onset  (beat-to-time (symbolic-date self) tempo)
+                     :before 0 :after 0
+                     :extra (+ (if (= position 1) 0 6)
+                               (if with-signature 6 0)))
+   (loop for sub in (inside self) append  
+         (build-object-time-space sub tempo))
+   ))
+
+
 ;;;                         
 ;;; data for specific objects:
-;;;
+;;; this is for a group
 (defmethod build-object-time-space ((self score-object) tempo)
  (let ((space (object-space-in-units self)))
    (cons 
@@ -118,6 +137,18 @@
           (build-object-time-space sub tempo))
     )
    ))
+
+
+(defmethod object-space-in-units ((self t)) '(0 0 0))
+
+(defmethod object-space-in-units ((self chord)) 
+  (list 2 (+ 1 (* 10 (symbolic-dur self)))))
+
+(defmethod object-space-in-units ((self continuation-chord)) 
+  (object-space-in-units (previous-chord self)))
+
+(defmethod object-space-in-units ((self r-rest)) 
+  (list 2 (+ 1 (* 10 (symbolic-dur self)))))
 
 ;;; chord is terminal (no look inside)
 (defmethod build-object-time-space ((self chord) tempo)
@@ -134,20 +165,6 @@
                             :extra (or (third space) 0)))
     ))
 
-
-
-(defmethod object-space-in-units ((self t)) '(0 0))
-
-(defmethod object-space-in-units ((self measure)) '(0 0 4))
-
-(defmethod object-space-in-units ((self chord)) 
-  (list 2 (+ 1 (* 10 (symbolic-dur self)))))
-
-(defmethod object-space-in-units ((self continuation-chord)) 
-  (object-space-in-units (previous-chord self)))
-
-(defmethod object-space-in-units ((self r-rest)) 
-  (list 2 (+ 1 (* 10 (symbolic-dur self)))))
 
 
 
@@ -187,12 +204,4 @@
      0))
  )
 
-#|
-(defmethod make-time-function ((view score-view) map unit)
-  (let* ((ed (editor view))
-         (stretch (editor-get-edit-param ed :h-stretch)))
-    (if stretch
-        #'(lambda (time) (score-time-to-pixel view time map (* unit stretch)))
-      #'(lambda (time) (time-to-pixel view time)))))
-|#           
 

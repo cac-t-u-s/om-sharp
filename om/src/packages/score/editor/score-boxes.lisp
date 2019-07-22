@@ -25,7 +25,7 @@
 (defun score-mini-view-left-shift-in-units (box)
   (if (or (equal (get-edit-param box :staff) :line)
           (equal (get-edit-param box :staff) :empty))
-      2 6))
+      2 4))
 
 
 (defmethod miniview-time-to-pixel-proportional ((object score-object) view time)
@@ -127,24 +127,30 @@
 
 (defmethod score-object-mini-view ((self voice) box x-pix y-pix y-u w h)
   
-  (let ((time-map (get-edit-param box :time-map)))
+  (let ((time-map (get-edit-param box :time-map))
+        (staff (get-edit-param box :staff))
+        (font-size (fontsize box)))
     
-    (draw-staff x-pix y-pix y-u w h (fontsize box) (get-edit-param box :staff) 
+    (draw-staff x-pix y-pix y-u w h font-size staff 
                 :margin-l 1 :margin-r 1 :keys t)
   
     (om-with-translation 
         (+ x-pix (* (score-mini-view-left-shift-in-units box) 
-                    (font-size-to-unit (fontsize box))))
+                    (font-size-to-unit font-size)))
         y-pix
       
-      (loop for m in (inside self)
+      (loop with prev-signature = nil
+            for m in (inside self)
             for i from 1
-            do (draw-score-element m (tempo self) box (frame box) 
-                                   :position i
-                                   :x-shift 0
-                                   :y-shift y-u 
-                                   :font-size (fontsize box) 
-                                   :time-map time-map)
+            do (draw-measure m (tempo self) box (frame box) 
+                             :position i
+                             :with-signature (not (equal (car (tree m)) prev-signature))
+                             :staff staff
+                             :x-shift 0
+                             :y-shift y-u 
+                             :font-size font-size 
+                             :time-map time-map)
+            (setf prev-signature (car (tree m)))
             ))))
 
 

@@ -15,87 +15,52 @@
 ; File author: J. Bresson
 ;============================================================================
 
+;;; RHYTHMIC ASPECTS OF SCORE DRAWING (IN VOICE/POLY EDITORS)
 
 (in-package :om)
-
-;;;====================================================
-;;; DRAW METHODS FOR SCORE EDITOR / MINIVIEW
-;;;====================================================
-
-
-;;; EDITOR
-(defmethod draw-sequence ((object voice) editor view unit)
-
-  ;;; NOTE: so far we don't build/update a bounding-box for the containers
-  
-  (let* ((time-map (editor-get-edit-param editor :time-map))
-         (font-size (editor-get-edit-param editor :font-size))
-         (unit (font-size-to-unit font-size))
-         (selection (selection editor))
-         (on-screen t))
-    
-    (loop for m in (inside object)
-          for i from 1
-          while on-screen
-          do (let* 
-                 ((begin (beat-to-time (symbolic-date m) (tempo object)))
-                  (end (beat-to-time (+ (symbolic-date m) (symbolic-dur m)) (tempo object)))
-                  (x1 (time-to-pixel view begin))
-                  (x2 (time-to-pixel view end)))
-               
-               (if (> x1 (w view)) (setf on-screen nil) ;;; this should also take into account measures before screen
-                 ;;; else :
-                 (when (> x2 0) 
-                   ;;; DRAW THIS MEASURE
-                   (draw-score-element m (tempo object) (object editor) view :position i
-                                       :font-size font-size
-                                       :selection selection
-                                       :time-map time-map)
-                   )))
-          ))
-  )
-
 
 ;;;===============================================
 ;;; MEASURE
 ;;;===============================================
 
-(defmethod draw-score-element ((object measure) tempo param-obj view 
-                               &key font-size (x-shift 0) (y-shift 0) (level 0) 
-                               position beam-info beat-unit rest-line
-                               selection time-map)
-
-  (declare (ignore level beam-info rest-line beat-unit))
+(defmethod draw-measure ((object measure) tempo param-obj view 
+                         &key staff font-size position with-signature selection time-map
+                         (stretch 1) (x-shift 0) (y-shift 0))
 
   (let* ((unit (font-size-to-unit font-size))
-         (stretch (get-edit-param param-obj :h-stretch))
-         (x-pix (- (time-to-pixel view (beat-to-time (symbolic-date object) tempo))
-                   (if (numberp stretch) 
-                       (* (third (object-space-in-units object)) ; in principle this value is negative 
-                          unit stretch)
-                     0)
-                   ))
-         (measure-beat-unit (/ (fdenominator (car (tree object)))
-                               (find-beat-symbol (fdenominator (car (tree object))))))
-         )
-                      
+         (extra-units-for-bar (if (= position 1) 0 4))
+         (extra-units-for-sig (if with-signature 6 0))
+         (bar-x-pix (- (time-to-pixel view (beat-to-time (symbolic-date object) tempo))
+                       (* (+ extra-units-for-bar extra-units-for-sig)
+                          (if (numberp stretch) (* unit stretch) 
+                            (if (= position 1) (/ unit 1.5) 1))))))
+    
     (unless (= position 1)
-      (draw-measure-bar x-pix y-shift font-size (get-edit-param param-obj :staff))
-      (om-draw-string x-pix (* (+ 2 y-shift) unit) (number-to-string position)
+      (draw-measure-bar bar-x-pix y-shift font-size staff)
+      (om-draw-string bar-x-pix (* (+ 2 y-shift) unit) (number-to-string position)
                       :font (om-def-font :font1 :size (/ font-size 3))))
-                   
-    (loop for element in (inside object) 
-          for i from 0 do
-          (draw-score-element element tempo param-obj view 
-                              :level 1
-                              :position i
-                              :x-shift x-shift
-                              :y-shift y-shift
-                              :font-size font-size
-                              :beat-unit measure-beat-unit
-                              :selection selection
-                              :time-map time-map))
-    ))
+
+    (when with-signature
+      (draw-time-signature (car (tree object)) 
+                           (+ bar-x-pix (* (if (= position 1) 1 (/ extra-units-for-sig 2))
+                                           (if (numberp stretch) (* unit stretch) 1)))
+                           y-shift font-size staff))
+    
+    ;;; contents
+    (let ((measure-beat-unit (/ (fdenominator (car (tree object)))
+                                (find-beat-symbol (fdenominator (car (tree object)))))))
+      (loop for element in (inside object) 
+            for i from 0 do
+            (draw-rhytmic-element element tempo param-obj view 
+                                :level 1
+                                :position i
+                                :x-shift x-shift
+                                :y-shift y-shift
+                                :font-size font-size
+                                :beat-unit measure-beat-unit
+                                :selection selection
+                                :time-map time-map))
+      )))
 
 ;;;========================
 ;;; BEAMING / GROUPS
@@ -234,7 +199,7 @@
     ))
 
 ;;; beam-info : beam-pos (line) , beam-direction (:up/:down) , beams-already-drawn (list of indices)
-(defmethod draw-score-element ((object group) tempo param-obj view 
+(defmethod draw-rhytmic-element ((object group) tempo param-obj view 
                                &key font-size (x-shift 0) (y-shift 0) (level 1) 
                                position beam-info beat-unit rest-line
                                selection time-map)
@@ -328,7 +293,7 @@
                   )
                 ))
             
-            (draw-score-element element tempo param-obj view 
+            (draw-rhytmic-element element tempo param-obj view 
                                 :x-shift x-shift
                                 :y-shift y-shift
                                 :font-size font-size
@@ -414,7 +379,7 @@
 ;;;===================
 
 ;;; beam-info : beam-pos (line) , beam-direction (:up/:down) , beams-already-drawn (list of indices)
-(defmethod draw-score-element ((object chord) 
+(defmethod draw-rhytmic-element ((object chord) 
                                tempo param-obj view 
                                &key font-size (x-shift 0) (y-shift 0) (level 1) 
                                (position 0) beam-info beat-unit rest-line
@@ -482,7 +447,7 @@
 ;;; CONTINUATION-CHORD
 ;;;===================
 
-(defmethod draw-score-element ((object continuation-chord) 
+(defmethod draw-rhytmic-element ((object continuation-chord) 
                                tempo param-obj view 
                                &key font-size (x-shift 0) (y-shift 0) (level 1) 
                                (position 0) beam-info beat-unit rest-line
@@ -542,7 +507,7 @@
 ;;; REST
 ;;;=========
 
-(defmethod draw-score-element ((object r-rest) tempo param-obj view &key 
+(defmethod draw-rhytmic-element ((object r-rest) tempo param-obj view &key 
                                font-size (x-shift 0) (y-shift 0) (level 1) 
                                position beam-info beat-unit rest-line
                                selection time-map)

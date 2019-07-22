@@ -629,18 +629,23 @@
 
 ;;; no y-ruler : zoom just in x
 (defmethod zoom-rulers ((panel stream-panel) &key (dx 0.1) (dy 0.1) center)
-
-  (let* ((position (or center (omp (* (w panel) .5) (* (h panel) .5))))
-         (x-pos (pix-to-x panel (om-point-x position)))
-         (y-pos (pix-to-y panel (om-point-y position)))
-         (curr-w (- (x2 panel) (x1 panel)))
-         (curr-h (- (y2 panel) (y1 panel)))
-         (new-w (round (* curr-w (1+ dx))))
-         (new-h (round (* curr-h (1+ dy))))
-         (new-x1 (round (- x-pos (/ (* (- x-pos (x1 panel)) new-w) curr-w))))
-         (new-y1 (round (- y-pos (/ (* (- y-pos (y1 panel)) new-h) curr-h)))))
-
-    (set-ruler-range (get-g-component (editor panel) :x-ruler) new-x1 (+ new-x1 new-w))
-    ))
+  
+  (let ((x-ruler (get-g-component (editor panel) :x-ruler)))
+    
+    (when (and x-ruler (ruler-zoom-? x-ruler))
+    
+      (let* ((position (or center (omp (* (w panel) .5) (* (h panel) .5))))
+             (x-pos (pix-to-x panel (om-point-x position)))
+             (y-pos (pix-to-y panel (om-point-y position)))
+             (curr-w (- (x2 panel) (x1 panel)))
+             (curr-h (- (y2 panel) (y1 panel)))
+             (new-w (round (* curr-w (1+ dx))))
+             (new-h (round (* curr-h (1+ dy))))
+             (new-x1 (round (- x-pos (/ (* (- x-pos (x1 panel)) new-w) curr-w))))
+             (new-y1 (round (- y-pos (/ (* (- y-pos (y1 panel)) new-h) curr-h)))))
+        
+        (set-ruler-range x-ruler new-x1 (+ new-x1 new-w))
+        
+        ))))
 
 

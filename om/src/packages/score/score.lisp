@@ -30,7 +30,7 @@
 
         "draw/draw-score-basic"
         "draw/draw-score-rhythm"
-        "draw/spacing"
+        "draw/draw-score-spacing"
 
         "editor/score-editor"
         "editor/chord-editor"

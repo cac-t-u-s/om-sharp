@@ -27,7 +27,7 @@
 
 
 (defparameter *stretch-options*
-  '(.25 .5 .75 1 1.5 2 3 4 5 10 :proportional))
+  '(.25 .5 .75 1 1.5 2 4 :proportional))
 
 (defmethod make-score-display-params-controls ((editor voice-editor)) 
   
@@ -71,6 +71,9 @@
 ;;; voice editor has a different ruler
 (defclass voice-ruler (time-ruler) ())
 
+;;; a "fake" negative duration to allow for teh first time-signature to show
+(defmethod data-stream-get-x-ruler-vmin ((self voice-editor)) -2000)
+
 (defmethod make-time-ruler ((editor voice-editor) dur)
   (om-make-view 'voice-ruler 
                 :related-views (get-g-component editor :data-panel-list)
@@ -90,5 +93,50 @@
 (defmethod ruler-zoom-? ((self ruler-view)) 
   ;;; if h-stretch is a number, we are not in proportional view
   (not (numberp (editor-get-edit-param (editor (car (related-views self))) :h-stretch))))
+
+
+(defmethod draw-sequence ((object voice) editor view unit)
+
+  ;;; NOTE: so far we don't build/update a bounding-box for the containers
+  
+  (let* ((time-map (editor-get-edit-param editor :time-map))
+         (font-size (editor-get-edit-param editor :font-size))
+         (staff (editor-get-edit-param editor :staff))
+         (h-stretch (editor-get-edit-param editor :h-stretch))
+         (unit (font-size-to-unit font-size))
+         (selection (selection editor)))
+    
+    (loop with on-screen = t
+          with prev-signature = nil
+          for m in (inside object)
+          for i from 1
+          while on-screen
+          do (let* 
+                 ((begin (beat-to-time (symbolic-date m) (tempo object)))
+                  (end (beat-to-time (+ (symbolic-date m) (symbolic-dur m)) (tempo object)))
+                  (x1 (time-to-pixel view begin))
+                  (x2 (time-to-pixel view end)))
+               
+               (if (> x1 (w view)) (setf on-screen nil) ;;; this should also take into account measures before screen
+                 ;;; else :
+                 (when (> x2 0) 
+                   ;;; DRAW THIS MEASURE
+                   (draw-measure m (tempo object) (object editor) view 
+                                 :position i
+                                 :with-signature (not (equal (car (tree m)) prev-signature))
+                                 :selection selection
+                                 :staff staff
+                                 :stretch h-stretch
+                                 :font-size font-size
+                                 :time-map time-map)
+                   ))
+               (setf prev-signature (car (tree m)))
+               )
+          ))
+  )
+
+
+
+
 
            

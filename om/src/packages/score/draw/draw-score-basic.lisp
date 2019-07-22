@@ -185,6 +185,21 @@
     ))
 
 
+(defun timesig-number-char (char)
+  (case char
+    (#\0 (values (code-char #xE080) "timeSig0"))
+    (#\1 (values (code-char #xE081) "timeSig1"))
+    (#\2 (values (code-char #xE082) "timeSig2"))
+    (#\3 (values (code-char #xE083) "timeSig3"))
+    (#\4 (values (code-char #xE084) "timeSig4"))
+    (#\5 (values (code-char #xE085) "timeSig5"))
+    (#\6 (values (code-char #xE086) "timeSig6"))
+    (#\7 (values (code-char #xE087) "timeSig7"))
+    (#\8 (values (code-char #xE088) "timeSig8"))
+    (#\9 (values (code-char #xE089) "timeSig9"))
+    ))
+
+
 ; alternate:
 ; (values (code-char #xE1FC) "textAugmentationDot")
 (defun dot-char () 
@@ -198,13 +213,15 @@
 (defparameter *score-staff-options* '(:g :f :gf :gg :ff :ggf :gff :ggff :line :empty))
 
 (defparameter *score-fontsize-options*
-  #+darwin '(8 12 16 20 24 28 32 36 40 44 48 52 56 60 64 68 72 76 80 84 88 92 96 100 104 108 112 116 120)
+  #+darwin '(8 12 16 20 24 28 32 36 40 44 48 52 56 60 64 68 72 76 80 84 88 92 96)
   #-darwin '(6 9 12 15 18 21 24 27 30 33 36 39 42 45 48 51 54 57 60 63 66 69 72 75 78 81 84 87 90))
 
 (defun staff-split (staff-symbol)
   (case staff-symbol
     (:g '(:g))
     (:f '(:f))
+    (:f- '(:f-))
+    (:g+ '(:g+))
     (:gg '(:g :g+))
     (:ff '(:f- :f))
     (:gf '(:f :g))
@@ -431,6 +448,34 @@
                   x-pix (+ 1 (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit))
                   :line thinBarlineThickness)
     ))
+
+
+;; we must use lwx::bmp-string here because string by default only supports base-char charcaters
+;; another possibility is to do (lispworks:set-default-character-element-type 'character)
+
+(defun draw-time-signature (signature x-pix y-units fontsize staff)
+
+  (let* ((staff-elems (staff-split staff))
+         (unit (font-size-to-unit fontsize)) 
+         (shift (+ y-units (calculate-staff-line-shift staff))))
+    
+    (om-with-font 
+     (om-make-font *score-font* #+darwin fontsize #-darwin (* 3/4 fontsize))
+
+     (loop for staff-elem in staff-elems do
+
+           (let ((mid-line (+ (car (staff-lines staff-elem)) 
+                              (/ (- (car (last (staff-lines staff-elem))) (car (staff-lines staff-elem))) 2))))
+
+             (om-draw-string x-pix (line-to-ypos (+ mid-line 1) shift unit)
+                           (map 'lw::bmp-string #'timesig-number-char (number-to-string (car signature))))
+           
+           (om-draw-string x-pix (line-to-ypos (- mid-line 1) shift unit)
+                           (map 'lw::bmp-string #'timesig-number-char (number-to-string (cadr signature))))
+           ))
+     )))
+
+
 
 ;;;=======================
 ;;; RHYTHM
