@@ -58,9 +58,10 @@
 ;;; used by cursors
 (defmethod time-to-pixel ((self score-view) time) 
   (let* ((ed (editor self))
-         (stretch (editor-get-edit-param ed :h-stretch)))
+         (stretch (editor-get-edit-param ed :h-stretch))
+         (time-map (editor-get-edit-param ed :time-map)))
     
-    (if (numberp stretch)
+    (if (and time-map (numberp stretch)) ;;; in principle only VOICEs have a time-map
         
         (let ((time-map (editor-get-edit-param ed :time-map))
               (adjusted-stretch-factor (* stretch (font-size-to-unit (editor-get-edit-param ed :font-size)))))

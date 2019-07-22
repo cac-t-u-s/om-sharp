@@ -165,8 +165,8 @@
            (b-box chord)
            (draw-chord chord
                        (date chord) 
-                       0 
-                       (editor-get-edit-param editor :font-size)
+                       0  
+                       (editor-get-edit-param editor :y-shift)
                        0 0
                        (w view) (h view) 
                        font-size 
