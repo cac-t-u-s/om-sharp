@@ -64,10 +64,8 @@
     ))
 
 
-
-
 (defmethod make-left-panel-for-object ((editor chord-seq-editor) (object score-object))
-  (om-make-view 'left-score-view :size (omp (* 2 (editor-get-edit-param editor :font-size)) nil)
+  (om-make-view 'left-score-view :size (omp (* 1.4 (editor-get-edit-param editor :font-size)) nil)
                 :direct-draw t 
                 :bg-color (om-def-color :white) 
                 :scrollbars nil
@@ -78,11 +76,11 @@
 (defmethod make-editor-controls ((editor chord-seq-editor))
   (make-score-display-params-controls editor))
 
-         
 (defmethod update-view-from-ruler ((self x-ruler-view) (view chord-seq-panel))
   (call-next-method)
   (om-invalidate-view (left-view view)))
 
+;;; just like stream-panel (not like score-view)
 (defmethod om-view-zoom-handler ((self chord-seq-panel) position zoom)
   (zoom-rulers self :dx (- 1 zoom) :dy 0 :center position))
 
@@ -104,11 +102,11 @@
   (om-invalidate-view (main-view self))) ;; brutal..
 
 
+;;; rebuild when font-size has changed, in order to adjust the left-view...
 (defmethod set-font-size ((self chord-seq-editor) size)
   (call-next-method)
-  ;(build-editor-window self) 
-  ;(init-editor-window self) ;; can't remeber why I did this.. :( => remove 
-  )
+  (build-editor-window self) 
+  (init-editor-window self))
 
 
 ;;; called at add-click
@@ -136,23 +134,16 @@
 
 
 ;;;=========================
-;;; WINDOW CONSTRUCTOR
+;;; DISPLAY
 ;;;=========================
 
 (defmethod data-stream-get-x-ruler-vmin ((self chord-seq-editor)) -200)
-
-
-(defmethod make-editor-window-contents ((editor chord-seq-editor)) (call-next-method))
-  
 
 (defmethod draw-score-object-in-editor-view ((editor chord-seq-editor) view unit)
   (let ((obj (if (multi-display-p editor)
                  (nth (stream-id view) (multi-obj-list editor))
                (object-value editor))))
     (draw-sequence obj editor view unit)))
-
-
-(defmethod draw-sequence ((object t) editor view unit) nil)
 
 
 ;;; redefined this for other objects
