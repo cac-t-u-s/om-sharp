@@ -91,7 +91,7 @@
 (defmethod ruler-value-to-pix ((self voice-ruler) v) 
   (time-to-pixel (car (related-views self)) v))
 
-(defmethod ruler-zoom-? ((self ruler-view)) 
+(defmethod ruler-zoom-? ((self voice-ruler)) 
   ;;; if h-stretch is a number, we are not in proportional view
   (not (numberp (editor-get-edit-param (editor (car (related-views self))) :h-stretch))))
 
