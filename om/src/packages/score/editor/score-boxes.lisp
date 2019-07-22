@@ -143,6 +143,8 @@
     (draw-staff x-pix y-pix shift-y w h font-size staff 
                 :margin-l 0 :margin-r 0 :keys t)
     
+    (draw-tempo self 4 (+ shift-y 2.5) font-size) 
+
     (loop with on-screen = t 
           with prev-signature = nil
           for m in (inside self)

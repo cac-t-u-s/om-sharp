@@ -199,6 +199,10 @@
     (#\9 (values (code-char #xE089) "timeSig9"))
     ))
 
+(defun tempo-note (fig)
+  (declare (ignore fig))
+  ;;; for now we support only this one..
+  (values (code-char #xE1D5) "noteQuarterUp"))
 
 ; alternate:
 ; (values (code-char #xE1FC) "textAugmentationDot")
@@ -474,6 +478,22 @@
                            (map 'lw::bmp-string #'timesig-number-char (number-to-string (cadr signature))))
            ))
      )))
+
+(defmethod draw-tempo ((object t) x-u y-u font-size) nil)
+
+(defmethod draw-tempo ((object voice) x-u y-u font-size) 
+  (let* ((unit (font-size-to-unit font-size))
+         (y-pix (* y-u unit))
+         (x-pix (* x-u unit)))
+        
+    (om-draw-char x-pix y-pix (tempo-note :quater)
+                  :font (om-make-font *score-font* #+darwin (/ font-size 2) #-darwin (* 3/8 font-size)))
+    
+    (om-draw-string (+ x-pix unit) y-pix 
+                    (format nil "= ~D"  (tempo object))
+                    :font (om-def-font :font1 :size (round font-size 2.5)))
+    ))
+     
 
 
 
