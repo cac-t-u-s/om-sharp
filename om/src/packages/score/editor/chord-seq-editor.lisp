@@ -107,12 +107,13 @@
                       self position nil :min-move 1
                       :motion #'(lambda (view pos)
                                   (declare (ignore view))
-                                  
+                                  (when (and (> (om-point-y pos) 10)
+                                             (< (om-point-y pos) (- (h self) 10)))
                                   (let ((y-diff-in-units (/ (- (om-point-y pos) (om-point-y position)) unit)))
                                     (editor-set-edit-param editor :y-shift (+ y-shift y-diff-in-units))
                                     (om-invalidate-view self)
                                     (om-invalidate-view (main-view editor)))
-                                  )))
+                                  ))))
       (set-selection editor nil))
     
     (om-invalidate-view self)
