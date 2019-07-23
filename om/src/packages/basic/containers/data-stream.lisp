@@ -57,11 +57,17 @@
    (slice-duration :accessor slice-duration :initform nil)  ;;; what is it for ?
    ))
 
-(defmethod om-init-instance ((self data-stream) &optional initargs)
+;;; makes copies of the frames if provided as initargs
+(defmethod initialize-instance ((self data-stream) &rest initargs)
   (call-next-method)
   (if initargs 
       (setf (frames self) (sort (remove nil (om-copy (frames self))) '< :key 'item-get-time)) 
-    (setf (frames self) (sort (remove nil (frames self)) '< :key 'item-get-time))) 
+    (setf (frames self) (sort (remove nil (frames self)) '< :key 'item-get-time)))
+  self)
+
+;;; called after initialize-instance in OM-context
+(defmethod om-init-instance ((self data-stream) &optional initargs)
+  (call-next-method)
   (let ((frames (find-value-in-kv-list initargs :frames)))
     (when frames (setf (default-frame-type self) (type-of (car frames))))
     (mapc #'(lambda (f) (setf (attributes f) nil)) frames))
