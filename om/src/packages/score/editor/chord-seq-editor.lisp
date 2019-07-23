@@ -126,7 +126,6 @@
 ;;; EDITOR
 ;;;=========================
 
-
 (defmethod make-editor-controls ((editor chord-seq-editor))
   (make-score-display-params-controls editor))
 
@@ -165,6 +164,8 @@
   (init-editor-window self))
 
 
+(defmethod add-chords-allowed ((self chord-seq-editor)) t)
+
 ;;; called at add-click
 (defmethod get-chord-from-editor-click ((self chord-seq-editor) position) 
  
@@ -181,11 +182,12 @@
               (selection self))
      
      ;;; else, make a new chord
-     (let ((new-chord (time-sequence-make-timed-item-at time-seq time-pos)))
-       (setf (notes new-chord) nil)
-       ;;; notes = NIL here so the duration will be 0 at updating the time-sequence
-       (time-sequence-insert-timed-item-and-update time-seq new-chord (find-position-at-time time-seq time-pos))
-       new-chord)
+     (when (add-chords-allowed self)
+       (let ((new-chord (time-sequence-make-timed-item-at time-seq time-pos)))
+         (setf (notes new-chord) nil)
+         ;;; notes = NIL here so the duration will be 0 at updating the time-sequence
+         (time-sequence-insert-timed-item-and-update time-seq new-chord (find-position-at-time time-seq time-pos))
+         new-chord))
      
      )))
 

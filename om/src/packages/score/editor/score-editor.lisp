@@ -212,47 +212,50 @@
     (cond ((om-add-key-down)  ;;; add a note
            (store-current-state-for-undo editor)
            
-           (let* ((container-chord (get-chord-from-editor-click editor position))
-                  (new-note (make-instance 'note :midic clicked-pitch)))
+           (let ((container-chord (get-chord-from-editor-click editor position)))
              
-             (when (notes container-chord)
-               (setf (dur new-note) (list-max (ldur container-chord))))
+             (when container-chord
+               (let ((new-note (make-instance 'note :midic clicked-pitch)))
+                 
+                 ;;; set to the same dur as others (important in voices)
+                 (when (notes container-chord)
+                   (setf (dur new-note) (list-max (ldur container-chord))))
+                 
+                 (setf (notes container-chord)
+                       (sort (cons new-note
+                                   (notes container-chord))
+                             '< :key 'midic))
              
-             (setf (notes container-chord)
-                   (sort (cons new-note
-                               (notes container-chord))
-                         '< :key 'midic))
+                 ;;; some updates of the time-sequence required here
+                 (score-object-update obj)
+                 (report-modifications editor)
+                 (editor-invalidate-views editor)
              
-             ;;; some updates of the time-sequence required here
-             (score-object-update obj)
-             (report-modifications editor)
-             (editor-invalidate-views editor)
+                 (if (or (= 1 (length (notes container-chord)))
+                         (find container-chord (selection editor)))
+                     (setf (selection editor) (list container-chord))
+                   (setf (selection editor) (list new-note)))
              
-             (if (or (= 1 (length (notes container-chord)))
-                     (find container-chord (selection editor)))
-                 (setf (selection editor) (list container-chord))
-               (setf (selection editor) (list new-note)))
-             
-               (om-init-temp-graphics-motion 
-                self position nil :min-move 1
-                :motion #'(lambda (view pos)
-                            (declare (ignore view))
-                            (let* ((new-y-in-units (- shift (/ (om-point-y pos) unit)))
-                                   (new-pitch (line-to-pitch new-y-in-units))
-                                   (diff (- new-pitch clicked-pitch)))
-                              (unless (zerop diff)
-                                (store-current-state-for-undo editor :action :move :item (selection editor))
-                                (loop for n in (get-notes (selection editor)) do
-                                      (setf (midic n) (+ (midic n) diff)))
-                                (setf clicked-pitch new-pitch)
-                                (om-invalidate-view self))
-                              ))
-                :release #'(lambda (view pos) 
-                             (declare (ignore view pos))
-                             (reset-undoable-editor-action editor)
-                             (report-modifications editor))
-                )
-               ))
+                 (om-init-temp-graphics-motion 
+                  self position nil :min-move 1
+                  :motion #'(lambda (view pos)
+                              (declare (ignore view))
+                              (let* ((new-y-in-units (- shift (/ (om-point-y pos) unit)))
+                                     (new-pitch (line-to-pitch new-y-in-units))
+                                     (diff (- new-pitch clicked-pitch)))
+                                (unless (zerop diff)
+                                  (store-current-state-for-undo editor :action :move :item (selection editor))
+                                  (loop for n in (get-notes (selection editor)) do
+                                        (setf (midic n) (+ (midic n) diff)))
+                                  (setf clicked-pitch new-pitch)
+                                  (om-invalidate-view self))
+                                ))
+                  :release #'(lambda (view pos) 
+                               (declare (ignore view pos))
+                               (reset-undoable-editor-action editor)
+                               (report-modifications editor))
+                  )
+                 ))))
           
           ;; select
           (t (let ((selection (find-score-element-at-pos obj position)))
