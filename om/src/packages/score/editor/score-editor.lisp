@@ -42,6 +42,8 @@
   (call-next-method)
   (editor-set-edit-param self :time-map (build-time-map (object-value self))))
 
+;;; only chord-seq-editor allows to edit time
+(defmethod edit-time-? ((self score-editor)) nil)
 
 ;;;============ 
 ;;; SCORE VIEW
@@ -72,6 +74,9 @@
       (call-next-method)
       )
     ))
+
+
+
                   
                   
 (defmethod om-draw-contents ((self score-view))
@@ -111,6 +116,13 @@
        (<= (om-point-x p) (b-box-x2 bbox))
        (>= (om-point-y p) (b-box-y1 bbox))
        (<= (om-point-y p) (b-box-y2 bbox))))
+
+(defun bbox-in-rect (bbox x1 y1 x2 y2)
+  (and (<= x1 (b-box-x1 bbox))
+       (>= x2 (b-box-x2 bbox))
+       (<= y1 (b-box-y1 bbox))
+       (>= y2 (b-box-y2 bbox))))
+       
        
 ;;; supposing that sub-bounding-boxes are always included
 (defmethod find-score-element-at-pos ((object note) pos)
@@ -139,6 +151,20 @@
    (t NIL) ;;; not here...
    ))
 
+
+(defmethod find-score-elements-in-area ((object score-object) x1 y1 x2 y2)
+        
+   (if (and (b-box object) 
+            (bbox-in-rect (b-box object) x1 y1 x2 y2)) ;; the object has one, and it's inside 
+       object ;;; the whole object is selected
+     ;;; else: go check in the children
+     (flat 
+      (loop for elem in (inside object) ;; check its children..
+            collect (find-score-elements-in-area elem x1 y1 x2 y2)))) 
+   )
+
+
+
 ;;; overrides data-stream-panel
 (defmethod om-view-mouse-motion-handler ((self score-view) position)
   (position-display (editor self) position))
@@ -147,22 +173,29 @@
 (defmethod score-object-update ((self t)) nil)
 
 (defmethod score-object-update ((self time-sequence))  
-  (update-obj-dur self))
+  (time-sequence-reorder-timed-item-list self)
+  (time-sequence-update-obj-dur self))
 
+
+;;; for simple score-view that are not x-graduated
+(defmethod pixel-to-time ((self om-view) x) 0)
 
 (defmethod om-view-click-handler ((self score-view) position)
   
   (let* ((editor (editor self))
          (obj (object-value editor))
-         (shift (calculate-staff-line-shift (editor-get-edit-param editor :staff)))
+         (shift (+ (calculate-staff-line-shift (editor-get-edit-param editor :staff))
+                   (editor-get-edit-param editor :y-shift)))
          (score-unit (font-size-to-unit (editor-get-edit-param editor :font-size)))
+         (clicked-pos position)
          (click-y-in-units (- shift (/ (om-point-y position) score-unit)))
-         (pitch (line-to-pitch click-y-in-units))) ;;; <= scale here ??? )
+         (clicked-pitch (line-to-pitch click-y-in-units)) ;;; <= scale here ??? )
+         (clicked-time (pixel-to-time self (om-point-x position))))
     
     (cond ((om-add-key-down)  ;;; add a note
            (store-current-state-for-undo editor)
            
-           (let* ((new-note (make-instance 'note :midic pitch))
+           (let* ((new-note (make-instance 'note :midic clicked-pitch))
                   (container-chord (get-chord-from-editor-click editor position)))
              
              (setf (notes container-chord)
@@ -186,12 +219,12 @@
                             (declare (ignore view))
                             (let* ((new-y-in-units (- shift (/ (om-point-y pos) score-unit)))
                                    (new-pitch (line-to-pitch new-y-in-units))
-                                   (diff (- new-pitch pitch)))
+                                   (diff (- new-pitch clicked-pitch)))
                               (unless (zerop diff)
                                 (store-current-state-for-undo editor :action :move :item (selection editor))
                                 (loop for n in (get-notes (selection editor)) do
                                       (setf (midic n) (+ (midic n) diff)))
-                                (setf pitch new-pitch)
+                                (setf clicked-pitch new-pitch)
                                 (om-invalidate-view self))
                               ))
                 :release #'(lambda (view pos) 
@@ -203,7 +236,10 @@
           
           ;; select
           (t (let ((selection (find-score-element-at-pos obj position)))
-
+               
+               (unless selection 
+                 (setf selection 
+                 
                (set-selection editor selection)
                (om-invalidate-view self)
                ;;; move the selection or select rectangle
@@ -216,20 +252,47 @@
                       self position nil :min-move 1
                       :motion #'(lambda (view pos)
                                   (declare (ignore view))
-                                  (let* ((new-y-in-units (- shift (/ (om-point-y pos) score-unit)))
-                                         (new-pitch (line-to-pitch new-y-in-units))
-                                         (diff (- new-pitch pitch)))
-                                    (unless (zerop diff)
-                                      (setf modif t)
-                                      (store-current-state-for-undo editor :action :move :item (selection editor))
-                                      (loop for n in (get-notes (selection editor)) do
-                                            (setf (midic n) (+ (midic n) diff)))
-                                      (setf pitch new-pitch)
-                                      (editor-invalidate-views editor)
-                                      )))
+
+                                  (let ((x-move (- (om-point-x pos) (om-point-x clicked-pos)))
+                                        (y-move (- (om-point-y pos) (om-point-y clicked-pos))))
+
+                                    (if (and (edit-time-? editor)
+                                             (> (abs x-move) (abs y-move)))
+                                        
+                                        (let* ((new-time (pixel-to-time self (om-point-x pos)))
+                                               (diff (- new-time clicked-time)))
+                                          (unless (zerop diff)
+                                            (setf modif t)
+                                            (store-current-state-for-undo editor :action :move :item (selection editor))
+                                            ;;; remove-duplicates: continuation chords refer to existing notes !
+                                            (loop for c in (remove-duplicates 
+                                                            (remove-if-not #'(lambda (obj) (typep obj 'chord))
+                                                                           (selection editor)))
+                                                  do (item-set-time c (+ (item-get-time c) diff)))
+                                            (setf clicked-time new-time)
+                                            (editor-invalidate-views editor)
+                                            )
+                                          )
+
+                                      (let* ((new-y-in-units (- shift (/ (om-point-y pos) score-unit)))
+                                             (new-pitch (line-to-pitch new-y-in-units))
+                                             (diff (- new-pitch clicked-pitch)))
+                                        (unless (zerop diff)
+                                          (setf modif t)
+                                          (store-current-state-for-undo editor :action :move :item (selection editor))
+                                          ;;; remove-duplicates: continuation chords refer to existing notes !
+                                          (loop for n in (remove-duplicates (get-notes (selection editor))) 
+                                                do (setf (midic n) (+ (midic n) diff)))
+                                          (setf clicked-pitch new-pitch)
+                                          (editor-invalidate-views editor)
+                                          )))
+                                    (setf clicked-pos pos)
+                                    ))
+
                       :release #'(lambda (view pos) 
                                    (declare (ignore view pos))
                                    (when modif
+                                     (score-object-update obj)
                                      (reset-undoable-editor-action editor)
                                      (report-modifications editor)))
                       ))
@@ -239,11 +302,14 @@
                   self position 
                   (om-make-graphic-object 'selection-rectangle :position position :size (om-make-point 4 4))
                   :min-move 10
-                  :release #'(lambda (view position)
-                               ;;; => selection IN RECTANGLE !!
-                               (set-selection editor (find-score-element-at-pos obj position))                         
-                               (om-invalidate-view view)
-                               )
+                  :release #'(lambda (view end-pos)
+                               (let ((x1 (min (om-point-x position) (om-point-x end-pos)))
+                                     (x2 (max (om-point-x position) (om-point-x end-pos)))
+                                     (y1 (min (om-point-y position) (om-point-y end-pos)))
+                                     (y2 (max (om-point-y position) (om-point-y end-pos))))
+                                 (set-selection editor (find-score-elements-in-area obj x1 y1 x2 y2))                         
+                                 (om-invalidate-view view)
+                                 ))
                   )
                  )
                ))

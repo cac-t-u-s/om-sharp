@@ -30,6 +30,8 @@
 
 (defmethod editor-view-class ((self chord-seq-editor)) 'chord-seq-panel)
 
+(defmethod edit-time-? ((self chord-seq-editor)) t)
+
 
 ;;; this will just disable the display-mode menu 
 (defmethod frame-display-modes-for-object ((self data-stream-editor) (object score-object)) '(:chords))
@@ -105,7 +107,7 @@
   (editor-invalidate-views editor))
 
 (defmethod editor-invalidate-views ((self chord-seq-editor))
-  (om-invalidate-view (main-view self))) ;; brutal..
+  (om-invalidate-view (main-view self))) ;; mmm..
 
 
 ;;; rebuild when font-size has changed, in order to adjust the left-view...
@@ -129,7 +131,8 @@
                        (>= (om-point-x position) (b-box-x1 (b-box element)))
                        (<= (om-point-x position) (b-box-x2 (b-box element)))))
               (selection self))
-     ;;; make a new chord
+     
+     ;;; else, make a new chord
      (let ((new-chord (time-sequence-make-timed-item-at time-seq time-pos)))
        (setf (notes new-chord) nil)
        ;;; notes = NIL here so the duration will be 0 at updating the time-sequence
@@ -137,6 +140,9 @@
        new-chord)
      
      )))
+
+
+                  
 
 
 ;;;=========================

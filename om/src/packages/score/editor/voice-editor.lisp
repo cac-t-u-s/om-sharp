@@ -25,6 +25,7 @@
 (defclass voice-editor (chord-seq-editor) ())
 (defmethod get-editor-class ((self voice)) 'voice-editor)
 
+(defmethod edit-time-? ((self voice-editor)) nil)
 
 (defparameter *stretch-options*
   '(.25 .5 .75 1 1.5 2 4 :proportional))

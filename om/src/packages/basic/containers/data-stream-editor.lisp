@@ -570,7 +570,7 @@
          (setf (selection editor) nil)
          (om-invalidate-view panel)
          (update-timeline-editor editor)
-         ;; (update-obj-dur stream)
+         ;; (time-sequence-update-obj-dur stream)
          (report-modifications editor)))   
       (:om-key-esc 
        ;; maybe not needed ? we already have the db-click on ruler for that...

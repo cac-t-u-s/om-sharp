@@ -86,6 +86,7 @@
                  :draw-vels (editor-get-edit-param editor :velocity-display)
                  :draw-ports (editor-get-edit-param editor :port-display)
                  :draw-durs (editor-get-edit-param editor :duration-display)
+                 :draw-dur-ruler t
                  :selection (if (find chord (selection editor)) T 
                               (selection editor))
 

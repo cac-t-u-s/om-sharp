@@ -78,7 +78,7 @@
  
 (defmethod om-init-instance :after ((self time-sequence) &optional initargs)
   (time-sequence-update-internal-times self)
-  (update-obj-dur self) ;;; is this necessary ?
+  (time-sequence-update-obj-dur self) ;;; is this necessary ?
   )
 
 
@@ -88,7 +88,7 @@
 
 (defmethod time-sequence-get-timed-item-list ((self time-sequence)) nil)
 (defmethod time-sequence-set-timed-item-list ((self time-sequence) items) 
-  (update-obj-dur self))
+  (time-sequence-update-obj-dur self))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;CAN be redefined by subclasses of TIME-SEQUENCE
@@ -196,10 +196,11 @@
   (duration self))
 
 
-(defmethod update-obj-dur ((self time-sequence))
+;;; !!! assume the timed-items are time-sorted 
+(defmethod time-sequence-update-obj-dur ((self time-sequence))
   
   (setf (duration self)
-
+     
         (if (remove nil (time-sequence-get-timed-item-list self))
           
             (let ((last-frame (last-elem (time-sequence-get-timed-item-list self))))
