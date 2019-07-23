@@ -28,9 +28,8 @@
                   :documentation "date in symbolic musical time (ratio of beat)")
    (symbolic-dur :accessor symbolic-dur :initarg :symbolic-dur :initform nil 
                  :documentation "duration in symbolic musical time (ratio of beat)")
-   
-   ;;; used for rhythmic computation
-   (extent :accessor extent :initarg :extent :initform 0 :documentation "a duration in the units of its own container")
+   (symbolic-dur-extent :accessor symbolic-dur-extent :initarg :symbolic-dur-extent :initform 0 
+                        :documentation "an extension of the duration (used for tied chords)")
    
    ;;; bounding-box is a cached graphic information for score display 
    (b-box :accessor b-box :initform nil) 

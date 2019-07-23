@@ -96,6 +96,7 @@
 
 
 (defmethod initialize-instance ((self voice) &rest initargs)
+  
   (call-next-method)
   
   (when (list-subtypep (tree self) '(ratio number))
@@ -115,7 +116,7 @@
   (build-rhythm-structure self (chords self) -1)
   
   (set-timing-from-tempo (chords self) (tempo self))
-     
+
   self)
 
 
@@ -126,11 +127,14 @@
 (defun set-timing-from-tempo (chords tempo)
   (loop for c in chords do
         (setf (date c) (beat-to-time (symbolic-date c) tempo))
-        (ldur c) (beat-to-time (symbolic-dur c) tempo)
+        (setf (ldur c) (list (- (beat-to-time (+ (symbolic-date c) (symbolic-dur c) (symbolic-dur-extent c)) tempo)
+                                (beat-to-time (symbolic-date c) tempo)
+                                1)))
         ))
 
 
 (defmethod build-rhythm-structure ((self voice) chords n &key last-chord)
+
   (let ((curr-beat 0)
         (curr-n-chord n)
         (curr-last-chord last-chord))
@@ -231,13 +235,16 @@
                             ;;; CONTINUATION CHORD
                             ((and (floatp subtree) ;;; keep current-chord in chord-list (important: same reference!)
                                   (>= curr-n-chord 0)) ;;; just to prevent error when a continuation chord has no previous chord
-                             (let* (;; (real-chord (nth curr-n-chord chords))
+                             (let* ((real-chord (nth curr-n-chord chords))
                                     (cont-chord (make-instance 'continuation-chord)))
                         
-                               (setf ;; (symbolic-dur real-chord) (+ (symbolic-dur real-chord) sub-dur) ;;; extends the duration of the main chord
-                                     (previous-chord cont-chord) curr-last-chord
-                                     (symbolic-date cont-chord) curr-beat
-                                     (symbolic-dur cont-chord) sub-dur)
+                               (setf 
+                                ;;; extends the duration of the main chord
+                                (symbolic-dur-extent real-chord) (+ (symbolic-dur-extent real-chord) sub-dur) 
+                                
+                                (previous-chord cont-chord) curr-last-chord
+                                (symbolic-date cont-chord) curr-beat
+                                (symbolic-dur cont-chord) sub-dur)
                                
                                (setq curr-last-chord cont-chord)
                                cont-chord))

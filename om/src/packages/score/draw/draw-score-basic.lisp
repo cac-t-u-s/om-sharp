@@ -869,7 +869,11 @@
                                  (format nil "~D ms" dur-max) 
                                  :font (om-def-font :font1))))
              
-           
+             ; draw symbolic dur (for debug)
+             ;(om-draw-string x-pix (- h 55) (format nil "~D" (symbolic-dur chord)) :font (om-def-font :font1))
+             ; draw absolute dur (for debug)
+             ;(om-draw-string x-pix (- h 35) (format nil "~D" (ldur chord)) :font (om-def-font :font1))
+             
              ;;; for the note-heads loop
              (let* ((accidental-columns nil)
                     (head-columns nil)
