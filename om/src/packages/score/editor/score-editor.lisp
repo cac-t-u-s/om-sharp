@@ -175,7 +175,11 @@
             collect (find-score-elements-in-area elem x1 y1 x2 y2)))) 
    )
 
-
+;;; measure is special: it is selected only by clickking on the bar/signature
+(defmethod find-score-elements-in-area ((object measure) x1 y1 x2 y2)      
+  (flat 
+   (loop for elem in (inside object) ;; check its children..
+         collect (find-score-elements-in-area elem x1 y1 x2 y2))))
 
 ;;; overrides data-stream-panel
 (defmethod om-view-mouse-motion-handler ((self score-view) position)
