@@ -30,25 +30,28 @@
   (let* ((unit (font-size-to-unit font-size))
          (extra-units-for-bar (if (= position 1) 0 4))
          (extra-units-for-sig (if with-signature 6 0))
-         (bar-x-pix (- (+ (* x-shift unit) 
-                          (time-to-pixel view (beat-to-time (symbolic-date object) tempo)))
-                       (* (+ extra-units-for-bar extra-units-for-sig)
+         (extra-pixels (* (+ extra-units-for-bar extra-units-for-sig)
                           (if (numberp stretch) (* unit stretch) 
                             ;;; proportional:
-                            (if (= position 1) (/ unit 1.5) 1)))
-                       )))
+                            (if (= position 1) (/ unit 1.5) 1))))
+         (bar-x-pix (- (+ (* x-shift unit) 
+                          (time-to-pixel view (beat-to-time (symbolic-date object) tempo)))
+                       extra-pixels)))
     
-    (unless (= position 1)
-      (draw-measure-bar bar-x-pix y-shift font-size staff)
-      (om-draw-string bar-x-pix (* (+ 2 y-shift) unit) (number-to-string position)
-                      :font (om-def-font :font1 :size (/ font-size 3))))
+    (om-with-fg-color (when (find object selection) *score-selection-color*)
+      
+      (unless (= position 1)
+        (draw-measure-bar bar-x-pix y-shift font-size staff)
+        (om-draw-string bar-x-pix (* (+ 2 y-shift) unit) (number-to-string position)
+                        :font (om-def-font :font1 :size (/ font-size 3))))
 
-    (when with-signature
-      (draw-time-signature (car (tree object)) 
-                           (+ bar-x-pix (* (if (= position 1) 1 (/ extra-units-for-sig 2))
-                                           (if (numberp stretch) (* unit stretch) 1)))
-                           y-shift font-size staff))
-    
+      (when with-signature
+        (draw-time-signature (car (tree object)) 
+                             (+ bar-x-pix (* (if (= position 1) 1 (/ extra-units-for-sig 2))
+                                             (if (numberp stretch) (* unit stretch) 1)))
+                             y-shift font-size staff))
+      )
+
     ;;; contents
     (let ((measure-beat-unit (/ (fdenominator (car (tree object)))
                                 (find-beat-symbol (fdenominator (car (tree object)))))))
@@ -63,7 +66,20 @@
                                 :beat-unit measure-beat-unit
                                 :selection selection
                                 :time-map time-map))
-      )))
+      )
+
+    (when (typep view 'score-view)
+      (let ((staff-y-minmax (staff-y-range staff y-shift unit)))
+        (setf (b-box object) 
+              (make-b-box :x1 bar-x-pix 
+                          :x2 (+ bar-x-pix extra-pixels)
+                          :y1 (car staff-y-minmax)
+                          :y2 (cadr staff-y-minmax)
+                          ))
+        ))
+    ))
+
+
 
 ;;;========================
 ;;; BEAMING / GROUPS

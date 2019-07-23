@@ -383,6 +383,12 @@
 ;;; STAFF
 ;;;=======================
 
+(defun staff-y-range (staff y-shift unit)
+  (let ((y-full-shift (+ y-shift (calculate-staff-line-shift staff)))
+        (staff-elems (staff-split staff)))
+    (list (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) y-full-shift unit)
+          (line-to-ypos (car (staff-lines (car staff-elems))) y-full-shift unit))))
+
 ;;; x and y are in pixels 
 ;;; y-u is additional shift in score-units
 ;;; w and h are pixel-size of the frame
@@ -443,13 +449,12 @@
 ;;;=======================
 (defun draw-measure-bar (x-pix y-units fontsize staff)
 
-  (let* ((staff-elems (staff-split staff))
-         (unit (font-size-to-unit fontsize)) 
-         (shift (+ y-units (calculate-staff-line-shift staff)))
+  (let* ((unit (font-size-to-unit fontsize)) 
+         (staff-y-minmax (staff-y-range staff y-units unit))
          (thinBarlineThickness (* *thinBarLineThickness* unit)))
     
-    (om-draw-line x-pix (+ -1 (line-to-ypos (car (staff-lines (car staff-elems))) shift unit))
-                  x-pix (+ 1 (line-to-ypos (last-elem (staff-lines (last-elem staff-elems))) shift unit))
+    (om-draw-line x-pix (- (car staff-y-minmax) 1) 
+                  x-pix (+ (cadr staff-y-minmax) 1)
                   :line thinBarlineThickness)
     ))
 

@@ -85,6 +85,8 @@
 (defmethod get-notes ((self continuation-chord)) 
   (get-notes (get-real-chord self)))
 
+(defmethod get-notes ((self t)) nil)
+
 ; (format-tree '(((5 3) (1 3 (4 (3 1 (2 (8 1)) 2))))))
 
 (defmethod get-obj-dur ((self voice))

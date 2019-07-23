@@ -42,6 +42,11 @@
 
 (defmethod editor-with-timeline ((self chord-seq-editor)) nil)
 
+
+;;;=========================
+;;; LEFT-VIEW
+;;;=========================
+
 (defclass left-score-view (score-view) ())
 
 (defmethod om-draw-contents ((self left-score-view))
@@ -51,13 +56,17 @@
          (y-shift (editor-get-edit-param editor :y-shift))
          (font-size (editor-get-edit-param editor :font-size)))
     
-    (draw-staff 0 0 
-                y-shift
-                (w self) (h self) 
-                font-size
-                (editor-get-edit-param editor :staff)
-                :margin-l (margin-l self) :margin-r (margin-r self)
-                :keys (keys self))
+    ;(om-with-fg-color 
+    ;    (when (find (object-value editor) (selection editor)) *score-selection-color*)
+      
+      (draw-staff 0 0 
+                  y-shift
+                  (w self) (h self) 
+                  font-size
+                  (editor-get-edit-param editor :staff)
+                  :margin-l (margin-l self) :margin-r (margin-r self)
+                  :keys (keys self))
+    ;)
     
     (draw-tempo (object-value editor) 2 y-shift font-size)
     
@@ -78,6 +87,44 @@
                 :editor editor
                 :margin-l 1 :margin-r nil :keys t :contents nil
                 ))
+
+
+(defmethod om-view-click-handler ((self left-score-view) position)
+
+  ;;; is the staff-line selected ?
+  (let* ((editor (editor self))
+         (unit (font-size-to-unit (editor-get-edit-param editor :font-size)))
+         (y-shift (editor-get-edit-param editor :y-shift))
+         (staff (editor-get-edit-param editor :staff))
+         (staff-y-minmax (staff-y-range staff y-shift unit)))
+    
+    (if (and (>= (om-point-y position) (car staff-y-minmax))
+             (<= (om-point-y position) (cadr staff-y-minmax)))
+
+        (progn 
+          (set-selection editor (object-value editor))
+          (om-init-temp-graphics-motion 
+                      self position nil :min-move 1
+                      :motion #'(lambda (view pos)
+                                  (declare (ignore view))
+                                  
+                                  (let ((y-diff-in-units (/ (- (om-point-y pos) (om-point-y position)) unit)))
+                                    (editor-set-edit-param editor :y-shift (+ y-shift y-diff-in-units))
+                                    (om-invalidate-view self)
+                                    (om-invalidate-view (main-view editor)))
+                                  )))
+      (set-selection editor nil))
+    
+    (om-invalidate-view self)
+    (om-invalidate-view (main-view editor))
+    ))
+
+
+
+;;;=========================
+;;; EDITOR
+;;;=========================
+
 
 (defmethod make-editor-controls ((editor chord-seq-editor))
   (make-score-display-params-controls editor))

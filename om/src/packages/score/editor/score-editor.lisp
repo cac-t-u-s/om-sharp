@@ -82,10 +82,12 @@
 (defmethod om-draw-contents ((self score-view))
   
   (let* ((editor (editor self))
+         (obj (object-value editor)) 
          (unit (font-size-to-unit (editor-get-edit-param editor :font-size))))
     
     (om-trap-errors 
-     ;(om-with-fg-color (om-make-color 0.0 0.2 0.2)
+     
+     ;(om-with-fg-color (if (find obj (selection editor)) *score-selection-color*)  ; (om-make-color 0.0 0.2 0.2)
        
      (draw-staff 0 0 
                  (editor-get-edit-param editor :y-shift)
@@ -95,6 +97,7 @@
                  :margin-l (margin-l self) 
                  :margin-r (margin-r self)
                  :keys (keys self))
+     ;)
      
        (when (contents self)
          
@@ -130,24 +133,33 @@
        (point-in-bbox pos (b-box object))
        object))
 
+;;; in measure the "selectable" bounding box does not contain the internal element's bounding boxes
+(defmethod find-score-element-at-pos ((object measure) pos)
+  (if (point-in-bbox pos (b-box object))
+      object 
+    (let ((found nil))
+      (loop for elem in (inside object) ;; check its children..
+            while (not found)
+            do (setf found (find-score-element-at-pos elem pos)))
+      found)))
+
 (defmethod find-score-element-at-pos ((object score-object) pos)
- 
- (cond 
   
-   ((null (b-box object)) ;;; the object itself has no bounding box (yet?)
+  (cond 
+   ((null (b-box object)) ;;; the object itself has no bounding box (yet?) or, we have clicked outside
     (let ((found nil))
       (loop for elem in (inside object) ;; check its children..
             while (not found)
             do (setf found (find-score-element-at-pos elem pos)))
       found))
-          
+   
    ((point-in-bbox pos (b-box object)) ;; the object has one, and we're inside 
     (let ((found nil))
       (loop for elem in (inside object) ;; check its children..
             while (not found)
             do (setf found (find-score-element-at-pos elem pos)))
       (or found object)))
-   
+  
    (t NIL) ;;; not here...
    ))
 
@@ -184,19 +196,23 @@
   
   (let* ((editor (editor self))
          (obj (object-value editor))
-         (shift (+ (calculate-staff-line-shift (editor-get-edit-param editor :staff))
-                   (editor-get-edit-param editor :y-shift)))
-         (score-unit (font-size-to-unit (editor-get-edit-param editor :font-size)))
+         (staff (editor-get-edit-param editor :staff))
+         (y-shift (editor-get-edit-param editor :y-shift))
+         (shift (+ (calculate-staff-line-shift staff) y-shift))
+         (unit (font-size-to-unit (editor-get-edit-param editor :font-size)))
          (clicked-pos position)
-         (click-y-in-units (- shift (/ (om-point-y position) score-unit)))
+         (click-y-in-units (- shift (/ (om-point-y position) unit)))
          (clicked-pitch (line-to-pitch click-y-in-units)) ;;; <= scale here ??? )
          (clicked-time (pixel-to-time self (om-point-x position))))
     
     (cond ((om-add-key-down)  ;;; add a note
            (store-current-state-for-undo editor)
            
-           (let* ((new-note (make-instance 'note :midic clicked-pitch))
-                  (container-chord (get-chord-from-editor-click editor position)))
+           (let* ((container-chord (get-chord-from-editor-click editor position))
+                  (new-note (make-instance 'note :midic clicked-pitch)))
+             
+             (when (notes container-chord)
+               (setf (dur new-note) (list-max (ldur container-chord))))
              
              (setf (notes container-chord)
                    (sort (cons new-note
@@ -217,7 +233,7 @@
                 self position nil :min-move 1
                 :motion #'(lambda (view pos)
                             (declare (ignore view))
-                            (let* ((new-y-in-units (- shift (/ (om-point-y pos) score-unit)))
+                            (let* ((new-y-in-units (- shift (/ (om-point-y pos) unit)))
                                    (new-pitch (line-to-pitch new-y-in-units))
                                    (diff (- new-pitch clicked-pitch)))
                               (unless (zerop diff)
@@ -237,12 +253,10 @@
           ;; select
           (t (let ((selection (find-score-element-at-pos obj position)))
                
-               (unless selection 
-                 (setf selection 
-                 
                (set-selection editor selection)
-               (om-invalidate-view self)
-               ;;; move the selection or select rectangle
+               (editor-invalidate-views editor)
+               
+               ;;; move the selection or select rectangle...
                
                (if selection
                    
@@ -274,7 +288,7 @@
                                             )
                                           )
 
-                                      (let* ((new-y-in-units (- shift (/ (om-point-y pos) score-unit)))
+                                      (let* ((new-y-in-units (- shift (/ (om-point-y pos) unit)))
                                              (new-pitch (line-to-pitch new-y-in-units))
                                              (diff (- new-pitch clicked-pitch)))
                                         (unless (zerop diff)
