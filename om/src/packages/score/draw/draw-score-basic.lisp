@@ -675,7 +675,7 @@
                          (staff :gf)
                          (stem t) ;; stem can be T or a position (in line or score units) 
                          (beams '(nil 0)) ;; (beams position-in-group)
-                         draw-chans draw-ports draw-vels draw-durs
+                         draw-chans draw-ports draw-vels draw-durs draw-dur-ruler
                          selection
                          tied-to-ms
                          (time-function #'identity)
@@ -858,13 +858,14 @@
 
 
                    
-             (when draw-durs
-               (let ((dur-w (funcall time-function dur-max)))
-                 (om-draw-line x-pix (- h 50) (+ x-pix dur-w) (- h 50) :style '(2 2))
+             (when (and draw-durs draw-dur-ruler)
+               
+               (let ((end-pix (+ (* x-units unit) (funcall time-function (+ x-ms dur-max)))))
+                 (om-draw-line x-pix (- h 50) end-pix (- h 50) :style '(2 2))
                  (om-draw-line x-pix (- h 54) x-pix (- h 46))
-                 (om-draw-line (+ x-pix dur-w) (- h 54) 
-                               (+ x-pix dur-w) (- h 46))
-                 (om-draw-string (+ x-pix dur-w -20) (- h 55) 
+                 (om-draw-line end-pix (- h 54) 
+                               end-pix (- h 46))
+                 (om-draw-string (+ end-pix -20) (- h 55) 
                                  (format nil "~D ms" dur-max) 
                                  :font (om-def-font :font1))))
              
@@ -976,13 +977,19 @@
                      
                            ;;; DURATION line (maybe)
                            (when draw-durs
-                       
-                             (om-with-fg-color
-                                 (if t ;(member draw-chans '(:color :color-and-number))
-                                     (om-make-color-alpha (get-midi-channel-color (chan n)) .5)
-                                   (om-make-color 0 0 0 .5))
-                               (om-draw-rect x-pix (- line-y (* unit .25)) (funcall time-function (dur n)) (* unit .5) :fill t))
-                             )
+                             (let ((end-pix (+ (* x-units unit) (funcall time-function (+ x-ms (dur n))))))
+                               
+                               (om-with-fg-color
+                                   (if t ;(member draw-chans '(:color :color-and-number))
+                                       (om-make-color-alpha (get-midi-channel-color (chan n)) .5)
+                                     (om-make-color 0 0 0 .5))
+                                 
+                                 (om-draw-rect x-pix 
+                                               (- line-y (* unit .25))
+                                               (- end-pix x-pix) 
+                                               (* unit .5) 
+                                               :fill t))
+                               ))
 
                            ;;; MIDI channel (maybe)
                            ;;; if there's just one channel in the chord we'll display it somewhere else
