@@ -409,7 +409,7 @@
 ;;; OBJECT BOX
 ;;;----------------------
 
-;;; SETS the edit-params, no matter if the box is locked or not
+;;; SETS the edit-params for reactive inputs, no matter if the box is locked or not
 (defmethod omNG-box-value ((self OMBoxEditCall) &optional (numout 0)) 
   
   ;(unless (equal (lock-state self) :locked)
