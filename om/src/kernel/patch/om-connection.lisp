@@ -222,10 +222,10 @@
 ;;; SOME BOXES MAY GENERATE THE IN/OUTPUTS ON REQUEST
 ;;; e.g. at loading undefined/lost-reference boxes
 (defmethod get-nth-output ((self OMBox) n)
-  (nth n (outputs self)))
+  (and n (nth n (outputs self))))
 
 (defmethod get-nth-input ((self OMBox) n)
-  (nth n (inputs self)))
+  (and n (nth n (inputs self))))
 
 
 (defmethod restore-connections-to-boxes (connections box-list)
