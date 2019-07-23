@@ -130,7 +130,7 @@
 (defmethod build-object-time-space ((self score-object) tempo)
  (let ((space (object-space-in-units self)))
    (cons 
-    (make-space-point :onset  (beat-to-time (symbolic-date self) tempo)
+    (make-space-point :onset (beat-to-time (symbolic-date self) tempo)
                       :before (first space) :after (second space)
                       :extra (or (third space) 0))
     (loop for sub in (inside self) append  
@@ -142,7 +142,7 @@
 (defmethod object-space-in-units ((self t)) '(0 0 0))
 
 (defmethod object-space-in-units ((self chord)) 
-  (list 2 (+ 1 (* 10 (symbolic-dur self)))))
+  (list (+ 2 (* .5 (length (notes self)))) (+ (* .5 (length (notes self))) (* 10 (symbolic-dur self)))))
 
 (defmethod object-space-in-units ((self continuation-chord)) 
   (object-space-in-units (previous-chord self)))
