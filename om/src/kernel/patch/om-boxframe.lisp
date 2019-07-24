@@ -584,7 +584,7 @@
                                         :w icon-size :h icon-size))
                 (:top (let ((w2 icon-size))  ; (min (w self) (- (h self) icon-size (* io-hspace 2)))))
                         (om-draw-picture (icon-id self) 
-                                         :x (/ (+ (w self) w2) 2) 
+                                         :x (/ (- (w self) w2) 2) 
                                          :y 7 :w w2 :h w2)))
                 (otherwise nil))
             (draw-name-as-icon box self))
