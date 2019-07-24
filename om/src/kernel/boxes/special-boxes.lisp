@@ -156,7 +156,7 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
 Use > and < to add/remove outputs.
 
 "
-  :icon 'through
+  :icon 'hub
   :numouts 1
   value)
 

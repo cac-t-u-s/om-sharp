@@ -266,7 +266,7 @@
                         (max (+ (get-icon-size self) 8) (+ h 16)))
        (om-make-point 500 200))))
       
-(defmethod get-icon-size ((self OMBox)) 20)
+
 (defmethod default-size ((self OMBox)) (minimum-size self))
 (defmethod get-icon-id ((self t)) nil)
 

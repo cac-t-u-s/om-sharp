@@ -492,6 +492,8 @@
 (defmethod object-for-miniview ((self OMBox)) (get-box-value self))
 (defmethod default-name ((self t)) nil)
 
+(defmethod get-icon-size ((self OMBox)) 16)
+
 (defmethod display-text-and-area ((self OMBoxFrame))
   
   (let ((text (and (show-name (object self)) 
@@ -578,11 +580,12 @@
       (or (box-draw box self)
           (if (icon-id self)
               (case (icon-pos box)
-                (:left (om-draw-picture (icon-id self) :x 2 :y (- (h self) icon-size io-hspace) :w icon-size :h icon-size))
-                (:top (let ((smaller (min (w self) (- (h self) icon-size io-hspace io-hspace))))
+                (:left (om-draw-picture (icon-id self) :x 2 :y 6 ; (- (h self) icon-size io-hspace) 
+                                        :w icon-size :h icon-size))
+                (:top (let ((w2 icon-size))  ; (min (w self) (- (h self) icon-size (* io-hspace 2)))))
                         (om-draw-picture (icon-id self) 
-                                         :x (round (- (w self) smaller) 2) 
-                                         :y (* io-hspace 1.5) :w smaller :h smaller)))
+                                         :x (/ (+ (w self) w2) 2) 
+                                         :y 7 :w w2 :h w2)))
                 (otherwise nil))
             (draw-name-as-icon box self))
           )

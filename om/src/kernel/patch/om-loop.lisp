@@ -43,7 +43,6 @@
 (defmethod box-symbol ((self OMPatchLoop)) 'loop)
 
 (defmethod get-icon-id ((self OMPatchLoopBox)) :m-iter)
-(defmethod get-icon-size ((self OMPatchLoopBox)) 20)
 
 (defmethod create-box-inputs ((self OMPatchLoopBox)) 
   (create-box-inputs-for-loop-box (reference self) self))
