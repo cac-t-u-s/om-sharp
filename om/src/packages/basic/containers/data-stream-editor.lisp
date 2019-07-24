@@ -33,8 +33,8 @@
    (left-view :accessor left-view :initform nil :initarg :left-view)))
 
 (defmethod editor-view-class ((self data-stream-editor)) 'stream-panel)
-(defmethod object-has-editor ((self data-stream)) t)
-(defmethod get-editor-class ((self data-stream)) 'data-stream-editor)
+(defmethod object-has-editor ((self internal-data-stream)) t)
+(defmethod get-editor-class ((self internal-data-stream)) 'data-stream-editor)
 (defmethod get-obj-to-play ((self data-stream-editor)) (object-value self))
 
 (defmethod alllow-insert-point-from-timeline ((self data-stream-editor)) nil)
@@ -51,10 +51,10 @@
                0)))
     (nth n (get-g-component editor :data-panel-list))))
 
-(defmethod editor-window-init-size ((self data-stream-editor)) (om-make-point 800 180))
+(defmethod editor-window-init-size ((self data-stream-editor)) (om-make-point 650 200))
 
 ;; lesser value and greater values in the ruler (bottom to top)
-(defmethod y-range-for-object ((self data-stream)) '(-100 100))
+(defmethod y-range-for-object ((self internal-data-stream)) '(-100 100))
 
 (defmethod frame-display-modes-for-object ((self data-stream-editor) (object t)) '(:blocks :bubbles))
 

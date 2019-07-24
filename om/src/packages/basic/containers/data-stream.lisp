@@ -49,51 +49,63 @@
                  :actions actions))
 
 ;;;======================================
-;;; MAIN CLASS
+;;; INTERNAL CLASS
 ;;;======================================
-(defclass* data-stream (named-object time-sequence schedulable-object)
-  ((default-frame-type :accessor default-frame-type :initarg :default-frame-type :initform 'act-bundle)
-   (frames :accessor frames :initarg :frames :initform nil :documentation "a list of timed data chunks")
+(defclass internal-data-stream (named-object time-sequence schedulable-object)
+  ((default-frame-type :accessor default-frame-type :initform 'act-bundle)
+   (frames :accessor frames :initform nil :documentation "a list of timed data chunks")
    (slice-duration :accessor slice-duration :initform nil)  ;;; what is it for ?
    ))
 
-;;; makes copies of the frames if provided as initargs
-(defmethod initialize-instance ((self data-stream) &rest initargs)
-  (call-next-method)
-  (if initargs 
-      (setf (frames self) (sort (remove nil (om-copy (frames self))) '< :key 'item-get-time)) 
-    (setf (frames self) (sort (remove nil (frames self)) '< :key 'item-get-time)))
-  self)
-
-;;; called after initialize-instance in OM-context
-(defmethod om-init-instance ((self data-stream) &optional initargs)
-  (call-next-method)
-  (let ((frames (find-value-in-kv-list initargs :frames)))
-    (when frames (setf (default-frame-type self) (type-of (car frames))))
-    (mapc #'(lambda (f) (setf (attributes f) nil)) frames))
-  self)
 
 ;; redefine for other slots
-(defmethod data-stream-frames-slot ((self data-stream)) 'frames)
+(defmethod data-stream-frames-slot ((self internal-data-stream)) 'frames)
 
-(defmethod frames ((self data-stream)) (slot-value self (data-stream-frames-slot self)))
-(defmethod (setf frames) (frames (self data-stream)) (setf (slot-value self (data-stream-frames-slot self)) frames))
+(defmethod frames ((self internal-data-stream)) (slot-value self (data-stream-frames-slot self)))
+(defmethod (setf frames) (frames (self internal-data-stream)) (setf (slot-value self (data-stream-frames-slot self)) frames))
 
-(defmethod data-stream-get-frames ((self data-stream)) (frames self))
-(defmethod data-stream-set-frames ((self data-stream) frames) 
+(defmethod data-stream-get-frames ((self internal-data-stream)) (frames self))
+(defmethod data-stream-set-frames ((self internal-data-stream) frames) 
   (setf (frames self) frames)
   (time-sequence-update-internal-times self))
 
 ;;; TIME-SEQUENCE API
-(defmethod time-sequence-get-timed-item-list ((self data-stream)) (data-stream-get-frames self))
+(defmethod time-sequence-get-timed-item-list ((self internal-data-stream)) (data-stream-get-frames self))
 
-(defmethod time-sequence-set-timed-item-list ((self data-stream) list) 
+(defmethod time-sequence-set-timed-item-list ((self internal-data-stream) list) 
   (data-stream-set-frames self list)
   (call-next-method) ;;; will update the duration
   )
 
-(defmethod time-sequence-make-timed-item-at ((self data-stream) at)
+(defmethod time-sequence-make-timed-item-at ((self internal-data-stream) at)
   (make-instance (default-frame-type self) :date at))
+
+
+;;;======================================
+;;; MAIN CLASS
+;;;======================================
+
+;;; redefines the slots as :initargs
+(defclass* data-stream (internal-data-stream named-object time-sequence schedulable-object)
+  ((default-frame-type :accessor default-frame-type :initarg :default-frame-type :initform 'act-bundle)
+   (frames :accessor frames :initarg :frames :initform nil :documentation "a list of timed data chunks")
+   ))
+
+
+;;; called after initialize-instance in OM-context
+(defmethod om-init-instance ((self data-stream) &optional initargs)  
+
+  (let ((frames (find-value-in-kv-list initargs :frames)))
+    (when frames 
+      (setf (default-frame-type self) (type-of (car frames)))
+      ;;; => makes copies of the frames if provided as initargs
+      (setf (frames self) (om-copy (frames self))))
+    
+    (setf (frames self) (sort (remove nil (frames self)) '< :key 'item-get-time))
+    (mapc #'(lambda (f) (setf (attributes f) nil)) frames))
+  
+  (call-next-method))
+
 
 (defmethod display-modes-for-object ((self data-stream))
   '(:hidden :text :mini-view))
@@ -109,16 +121,17 @@
                             :fill t)
               )))))
 
+
 ;;;======================================
 ;;; OBJECT PROPERTIES
 ;;;======================================
-(defmethod play-obj? ((self data-stream)) t)
+(defmethod play-obj? ((self internal-data-stream)) t)
 
-(defmethod get-obj-dur ((self data-stream)) 
+(defmethod get-obj-dur ((self internal-data-stream)) 
   (or (slice-duration self) ;; ???
       (call-next-method)))
 
-(defmethod get-action-list-for-play ((object data-stream) interval &optional parent)
+(defmethod get-action-list-for-play ((object internal-data-stream) interval &optional parent)
   (mapcar 
    #'(lambda (frame) 
        (list (date frame)
@@ -127,7 +140,7 @@
               (data-stream-get-frames object) 
               :key 'date)))
 
-(defmethod prune-object ((self data-stream) t1-ms t2-ms)
+(defmethod prune-object ((self internal-data-stream) t1-ms t2-ms)
   (let ((t1 (max 0 (or t1-ms 0)))
         (t2 (min (get-obj-dur self) (or t2-ms *positive-infinity*))))
     (data-stream-set-frames self (filter-list (data-stream-get-frames self)
@@ -142,7 +155,7 @@
 ;;; OMMETHOD FOR PATCHES
 ;;;======================================
 
-(defmethod* add-frame-in-data-stream ((self data-stream) frame) 
+(defmethod* add-frame-in-data-stream ((self internal-data-stream) frame) 
    (time-sequence-insert-timed-item-and-update self frame)
    frame)
 
@@ -155,7 +168,7 @@
    (update-after-eval self)
    frame)
 
-(defmethod* clear-data-stream ((self data-stream))
+(defmethod* clear-data-stream ((self internal-data-stream))
  (time-sequence-set-timed-item-list self nil))
 
 (defmethod* clear-data-stream ((self t))
