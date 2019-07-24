@@ -169,38 +169,76 @@
 
 
 ;;; Time-function:
-(defmethod score-time-to-pixel (view time time-map unit)
+;;; returns the position ins score units of a give time
+(defmethod score-time-to-units (time-map time)
   
  (if time-map
   
      (let* 
       ((prev-point-pos (or (position time time-map :test #'>= :key #'car :from-end t) 0))
        (prev-point (nth prev-point-pos time-map))
-       (next-point (nth (1+ prev-point-pos) time-map))
+       (next-point (nth (1+ prev-point-pos) time-map)))
          
-       (units-from-0 
-        (cond 
-         ((= time (car prev-point)) ;;; the point was in the list
-          (cadr prev-point))
-         
-         (next-point ;;; interpolate between prev and next
-          (+ (cadr prev-point)
-             (* (- time (car prev-point)) 
-                (/ (- (cadr next-point) (cadr prev-point)) (- (car next-point) (car prev-point)))))
-          )
-         
-         (t ;;; we are after the last: extrapolate from last
+       (cond 
+        
+        (;;; the point was in the list
+         (= time (car prev-point)) 
+         (cadr prev-point))
+        
+        (;;; interpolate between prev and next
+         next-point 
+         (+ (cadr prev-point)
+            (* (- time (car prev-point)) 
+               (/ (- (cadr next-point) (cadr prev-point)) (- (car next-point) (car prev-point)))))
+         )
+        
+        (t ;;; we are after the last: extrapolate from last
            (let ((prev-prev-point (nth (1- prev-point-pos) time-map)))
              (+ (cadr prev-point)
                 (* (- time (car prev-point)) 
                    (/ (- (cadr prev-point) (cadr prev-prev-point)) (- (car prev-point) (car prev-prev-point)))))
              )))
-        ))
-
-     (* units-from-0 unit))
+       )
    
    (progn 
      (om-print "Error in score display: no time-map!")
+     0))
+ )
+
+
+
+(defmethod score-units-to-time (time-map pos)
+  
+ (if time-map
+  
+     (let* 
+      ((prev-point-pos (or (position pos time-map :test #'>= :key #'cadr :from-end t) 0))
+       (prev-point (nth prev-point-pos time-map))
+       (next-point (nth (1+ prev-point-pos) time-map)))
+         
+       (cond 
+        
+        (;;; the point was in the list
+         (= pos (car prev-point)) 
+         (car prev-point))
+        
+        (;;; interpolate between prev and next
+         next-point 
+         (+ (car prev-point)
+            (* (- pos (cadr prev-point)) 
+               (/ (- (car next-point) (car prev-point)) (- (cadr next-point) (cadr prev-point)))))
+         )
+        
+        (t ;;; we are after the last: extrapolate from last
+           (let ((prev-prev-point (nth (1- prev-point-pos) time-map)))
+             (+ (car prev-point)
+                (* (- pos (cadr prev-point)) 
+                   (/ (- (car prev-point) (car prev-prev-point)) (- (cadr prev-point) (cadr prev-prev-point)))))
+             )))
+       )
+   
+   (progn 
+     (om-print "Error time-mapping: no time-map!")
      0))
  )
 

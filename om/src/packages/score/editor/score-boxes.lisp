@@ -53,7 +53,7 @@
          (time-map (get-edit-param box :time-map)))
     
     (+ shift-x-pix
-       (score-time-to-pixel view time time-map unit))
+       (* unit (score-time-to-units time-map time)))
     ))
 
 (defmethod miniview-time-to-pixel ((object score-object) view time)

@@ -52,6 +52,10 @@
    (contents :accessor contents :initarg :contents :initform t)))
 
 
+;;;======================== 
+;;; TIME/SPACE CONVERSIONS
+;;;========================
+
 (defmethod time-to-pixel ((self score-view) time) 
   (let* ((ed (editor self))
          (stretch (editor-get-edit-param ed :h-stretch))
@@ -60,20 +64,44 @@
     ;(print (list ed time-map stretch))
     (if (and time-map (numberp stretch)) ;;; in principle only VOICEs have a time-map
         
-        (let ((time-map (editor-get-edit-param ed :time-map))
-              (adjusted-stretch-factor (* stretch (font-size-to-unit (editor-get-edit-param ed :font-size)))))
-          (- 
-           (score-time-to-pixel self time time-map adjusted-stretch-factor)
-           (score-time-to-pixel self (x1 self) time-map adjusted-stretch-factor)))
+        (let ((adjusted-stretch-factor (* stretch (font-size-to-unit (editor-get-edit-param ed :font-size)))))
+          
+          (* adjusted-stretch-factor
+             (- 
+              (score-time-to-units time-map time)
+              (score-time-to-units time-map (x1 self)))))
 
-      (call-next-method)
-      )
-    ))
-
+      (call-next-method))))
 
 
-                  
-                  
+;;; used afaik only when we click on the view to re-position the play cursor
+;;; DOES NOT WORK !!
+(defmethod pixel-to-time ((self score-view) pixel)
+ (let* ((ed (editor self))
+        (stretch (editor-get-edit-param ed :h-stretch))
+        (time-map (editor-get-edit-param ed :time-map)))  
+   
+   ;; (print time-map)
+
+   (if (and time-map (numberp stretch))
+       
+        (let* ((unit (font-size-to-unit (editor-get-edit-param ed :font-size)))
+               (pixels-from-0 (- pixel (time-to-pixel self 0)))
+               (0-in-units (/ (time-to-pixel self 0) (* stretch unit)))
+               (pos-in-units (/ pixels-from-0 (* stretch unit))))
+          
+          ;; (print pos-in-units) ;;; <= THIS VALUE IS WRONG !!
+          
+          (score-units-to-time time-map pos-in-units))
+          
+     (call-next-method))))
+
+   
+;;;======================== 
+;;; DISPLAY
+;;;========================
+
+
 (defmethod om-draw-contents ((self score-view))
   
   (let* ((editor (editor self))
