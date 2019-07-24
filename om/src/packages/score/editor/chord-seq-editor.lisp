@@ -32,6 +32,7 @@
 
 (defmethod edit-time-? ((self chord-seq-editor)) t)
 
+(defmethod editor-window-init-size ((self chord-seq-editor)) (om-make-point 650 300))
 
 ;;; this will just disable the display-mode menu 
 (defmethod frame-display-modes-for-object ((self data-stream-editor) (object score-object)) '(:chords))
@@ -223,7 +224,7 @@
           (setf 
            (b-box chord)
            (draw-chord chord
-                       (date chord) 
+                       (date chord)
                        0  
                        (editor-get-edit-param editor :y-shift)
                        0 0

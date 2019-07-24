@@ -32,15 +32,10 @@
     (:velocity-display :hidden)
     (:channel-display :hidden)
     (:midiport-display nil)
-    (:time-map ((-1 -1) (0 0)))    ;;; not necessary to store it as a persistent param....
+    ;; (:time-map ((-1 -1) (0 0)))    ;;; not necessary to store it as a persistent param....
     (:h-stretch 1)
     (:y-shift 4)))
 
-
-;;; redo time-map at editing the object
-(defmethod report-modifications ((self score-editor))
-  (call-next-method)
-  (editor-set-edit-param self :time-map (build-time-map (object-value self))))
 
 ;;; only chord-seq-editor allows to edit time
 (defmethod edit-time-? ((self score-editor)) nil)
@@ -57,12 +52,12 @@
    (contents :accessor contents :initarg :contents :initform t)))
 
 
-;;; used by cursors
 (defmethod time-to-pixel ((self score-view) time) 
   (let* ((ed (editor self))
          (stretch (editor-get-edit-param ed :h-stretch))
          (time-map (editor-get-edit-param ed :time-map)))
     
+    ;(print (list ed time-map stretch))
     (if (and time-map (numberp stretch)) ;;; in principle only VOICEs have a time-map
         
         (let ((time-map (editor-get-edit-param ed :time-map))
@@ -135,7 +130,7 @@
 
 ;;; in measure the "selectable" bounding box does not contain the internal element's bounding boxes
 (defmethod find-score-element-at-pos ((object measure) pos)
-  (if (point-in-bbox pos (b-box object))
+  (if (and (b-box object) (point-in-bbox pos (b-box object)))
       object 
     (let ((found nil))
       (loop for elem in (inside object) ;; check its children..

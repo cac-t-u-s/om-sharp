@@ -31,6 +31,13 @@
 (defparameter *stretch-options*
   '(.25 .5 .75 1 1.5 2 4 :proportional))
 
+;;; redo time-map at editing the object
+(defmethod report-modifications ((self voice-editor))
+  (call-next-method)
+  (editor-set-edit-param self :time-map (build-time-map (object-value self))))
+
+
+
 (defmethod make-score-display-params-controls ((editor voice-editor)) 
   
   (om-make-layout  

@@ -28,7 +28,7 @@
 ;;; (almost) all slot accessors are redefined below in this file
 
 
-(defclass internal-chord-seq (score-object data-stream)   
+(defclass internal-chord-seq (score-object internal-data-stream)   
   ((Lmidic :initform '((6000)) :initarg :Lmidic :type list :documentation "pitches (mc): list or list of lists")
    (Lonset :initform '(0 1000) :initarg :Lonset :type list :documentation "onsets (ms): list")
    (Ldur :initform '((1000)) :initarg :Ldur :type list :documentation "durations (ms): list or list of lists")
@@ -38,13 +38,18 @@
    (Lport :initform nil :initarg :Lport :type list :documentation "MIDI ports: list or list of lists")
    (Llegato :accessor Llegato :initform nil :initarg :Llegato :documentation "relative chords duration (0.0-... or NIL)")   ;;; this one has no redefined accessor (do it?)
    )
-  (:default-initargs :default-frame-type 'chord))
+  ;; (:default-initargs :default-frame-type 'chord)
+  )
 
+(defmethod initialize-instance ((self internal-chord-seq) &rest args)
+  (setf (default-frame-type self) 'chord)
+  (call-next-method))
 
 ;;; redefines only visible :initargs
 (defclass* chord-seq (internal-chord-seq)   
  
-  ((Lmidic :initform '((6000)) :initarg :LMidic :type list :documentation "pitches (mc): list or list of lists")
+  ((frames :accessor frames :initform nil :documentation "a list of timed data chunks")
+   (Lmidic :initform '((6000)) :initarg :LMidic :type list :documentation "pitches (mc): list or list of lists")
    (Lonset :initform '(0 1000) :initarg :LOnset :type list :documentation "onsets (ms): list")
    (Ldur :initform '((1000)) :initarg :Ldur :type list :documentation "durations (ms): list or list of lists")
    (Lvel :initform 100 :initarg :LVel :type list :documentation "velocities (0-127): list or list of lists"))
@@ -154,7 +159,7 @@ Internally most of these values are just used to build a list of CHORD objects, 
   
   (call-next-method)
   
-  (when initargs
+  (when t ; initargs
     (do-initialize self 
                    :Lmidic (slot-value self 'Lmidic)
                    :Lvel (slot-value self 'Lvel)  

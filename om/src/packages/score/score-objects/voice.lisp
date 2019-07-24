@@ -28,9 +28,10 @@
 ;;; the chords in r-struct are simple references to the time-sequence items
 
 (defclass* voice (chord-seq)
-  ((tree :initform '(((4 4) (1 1 1 1))) :accessor tree :initarg :tree :type list :documentation "a rhythm tree (list of measure-rythm-trees)")
-   (Lmidic :initform '((6000)) :initarg :Lmidic :initarg :chords :type list :documentation "pitches (mc)/chords: list or list of lists")
-
+  ((tree :initform '(((4 4) (1 1 1 1))) :accessor tree :initarg :tree :type list 
+         :documentation "a rhythm tree (list of measure-rythm-trees)")
+   (Lmidic :initform '((6000)) :initarg :Lmidic :initarg :chords :type list 
+           :documentation "pitches (mc)/chords: list or list of lists")
    (tempo :accessor tempo :initform 60 :initarg :tempo :documentation "a tempo value or tempo-map")
    (inside :accessor inside :initform nil :documentation "internal hierarchical structure")
    ))
@@ -46,6 +47,12 @@
 ;;; catch-up with default behaviour
 (defmethod objFromObjs ((model voice) (target voice))
   (clone-object model target))
+
+
+(defmethod objFromObjs ((model voice) (target chord-seq))
+  (clone-object model target))
+
+
 
 (defclass rhythmic-object (score-object) 
   ((tree :initform '(1 (1 1 1 1)) :accessor tree :initarg :tree :type list :documentation "a rhythm tree")
@@ -116,7 +123,7 @@
     (setf (tempo self) (cadr (car (tempo self)))))
 
   (build-rhythm-structure self (chords self) -1)
-  
+
   (set-timing-from-tempo (chords self) (tempo self))
 
   self)
@@ -152,7 +159,8 @@
                               (curr-n-chord curr-last-chord)
                               (build-rhythm-structure mesure chords curr-n-chord :last-chord curr-last-chord))
                           mesure)))
-
+    
+    ;;; cut the end of the chords list
     (time-sequence-set-timed-item-list self (first-n (chords self) (1+ curr-n-chord)))
 
     (values curr-n-chord curr-last-chord)))
@@ -262,7 +270,7 @@
                                (let ((real-chord (nth curr-n-chord chords)))
 
                                  (unless real-chord ;;; chord-list exhausted: repeat the last one as needed to finish the tree
-                                   (setq real-chord (clone (car (last chords))))
+                                   (setq real-chord (or (clone (car (last chords))) (make-instance 'chord :lmidic '(6000))))
                                    (pushr real-chord chords))
 
                                  (setf (symbolic-date real-chord) curr-beat
@@ -280,10 +288,6 @@
                 ))
     
     (values curr-n-chord curr-last-chord)))
-
-
-
-
 
 
 
@@ -380,6 +384,45 @@
   (if (and (evenp num) (evenp den))
       (reduce-num-den (/ num 2) (/ den 2))
     (list num den)))
+
+
+
+
+;;;===============================================
+;;; FOR VOICE IT IS IMPORTANT TO KEEP A REFERENCE TO THE SAME CHORDS AS THEY ARE 
+;;; CONTAINED IN BOTH THE TIME-SEQUENCE, AND THERHYTMIC STRUCTURE
+;;;===============================================
+;;; continue if the lists are exhausted ??
+
+(defmethod (setf Lmidic) ((Lmidic list) (self voice))
+  (loop for midics in lmidic
+        for c in (chords self)
+        do (setf (lmidic c) midics)
+        ))
+
+(defmethod (setf Lvel) ((Lvel list) (self voice))
+  (loop for vels in lvel
+        for c in (chords self)
+        do (setf (lvel c) vels)
+        ))
+
+(defmethod (setf Loffset) ((Loffset list) (self voice))
+  (loop for offsets in Loffset
+        for c in (chords self)
+        do (setf (loffset c) offsets)
+        ))
+
+(defmethod (setf Lchan) ((Lchan list) (self voice))
+  (loop for chans in Lchan
+        for c in (chords self)
+        do (setf (lchan c) chans)
+        ))
+
+(defmethod (setf LPort) ((LPort list) (self voice))
+  (loop for ports in LPort
+        for c in (chords self)
+        do (setf (lport c) ports)
+        ))
 
 
 
