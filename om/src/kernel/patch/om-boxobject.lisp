@@ -273,17 +273,18 @@
 ;;; If the first input is connected the value is built by copying a prototype instance (<model>) 
 ;;; <args> are only the connected input values
 (defun make-value-from-model (type model initargs)
+
   (let* ((target (make-instance type))
          (rep (objFromObjs model target))
          (class-slots-names (mapcar 'slot-name (class-instance-slots (find-class type))))
          (set-slot-args (loop for initarg in initargs 
                               when (find (symbol-name (car initarg)) class-slots-names :key 'symbol-name :test 'string-equal)
                               collect (list (symbol-name (car initarg)) (cadr initarg))))) 
-
+ 
     (if rep
         (progn 
           (set-value-slots rep set-slot-args)
-          (om-init-instance rep (or initargs '(nil))) 
+          (om-init-instance rep (or initargs '(nil)))
           ;;; we want to pass a non-nil ['(NIL) and not NIL] value in order to signal evaluation mode to om-init-instance
           )
       (progn (om-beep-msg "Can not create a ~A from ~A" type model)

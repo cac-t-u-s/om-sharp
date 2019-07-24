@@ -72,6 +72,12 @@
 ;;(defmethod condition-for-copy-slot ((from OMObject) (to t) slot)
 ;;  (and (call-next-method) (slot-definition-initargs slot)))
 
+;; reads using the accessor if defined, or with the slot value otherwise
+(defun read-slot-value (object slot)
+  (if (fboundp (slot-definition-name slot))
+      (funcall (slot-definition-name slot) object)
+    (slot-value object (slot-definition-name slot))))
+
 ;;; clone-object doesn't om-init the object
 ;;; om-copy does
 (defmethod clone-object ((object standard-object) &optional clone)
@@ -81,9 +87,10 @@
           when (condition-for-copy-slot object new-object slot)
           do ; (om-print-dbg "SLOT ~A" (list (slot-definition-name slot)))
           (setf (slot-value new-object (slot-definition-name slot)) 
-                (om-copy (slot-value object (slot-definition-name slot)))))
+                (om-copy (read-slot-value object slot))))
     (initialize-instance new-object)
     new-object))
+
 
 
 #|
