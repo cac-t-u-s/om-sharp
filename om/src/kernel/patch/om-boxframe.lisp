@@ -581,7 +581,9 @@
           (if (icon-id self)
               (case (icon-pos box)
                 (:left (om-draw-picture (icon-id self) :x 2 :y 6 ; (- (h self) icon-size io-hspace) 
-                                        :w icon-size :h icon-size))
+                                       ; :w icon-size :h icon-size
+                                        :w (- (h self) 12) :h (- (h self) 12)
+                                        ))
                 (:top (let ((w2 icon-size))  ; (min (w self) (- (h self) icon-size (* io-hspace 2)))))
                         (om-draw-picture (icon-id self) 
                                          :x (/ (- (w self) w2) 2) 
