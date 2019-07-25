@@ -68,7 +68,7 @@
 (defmethod handle-multi-display ((self bpf-editor)) t)
 
 ;;; UNDO SYSTEM
-(defmethod undoable-object ((self bpf-editor)) (object-value self))
+;; (defmethod undoable-object ((self bpf-editor)) (object-value self))
 (defmethod get-object-slots-for-undo ((self bpf)) (append (call-next-method) '(point-list)))
 
 

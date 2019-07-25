@@ -30,7 +30,9 @@
   (last-item :initform nil :accessor last-item)
   ))
 
-(defmethod undoable-object ((self undoable-editor-mixin)) (object self))
+;;; object-value will be the object (BPF, etc.) for an object-box
+;;; ... or the "object" slot for a patch
+(defmethod undoable-object ((self undoable-editor-mixin)) (object-value self))
 
 (defmethod undo-command ((self undoable-editor-mixin)) 
   (when (undo-stack self) 
@@ -170,12 +172,12 @@
 ; (get-object-slots-for-undo (make-instance 'omboxabstraction))
 
 (defmethod get-undoable-object-state ((self standard-object)) 
-  ;(om-print-dbg "collecting state of ~A" (list self) "UNDO")
+  ; (om-print-dbg "collecting state of ~A" (list self) "UNDO")
   (loop for slot in (get-object-slots-for-undo self)
         collect (list slot (get-undoable-object-state (slot-value self slot)))))
 
 (defmethod restore-undoable-object-state ((self standard-object) (state list)) 
-  ;(om-print-dbg "restoring state of ~A" (list self) "UNDO")
+  ; (om-print-dbg "restoring state of ~A" (list self) "UNDO")
   (loop for slot in (get-object-slots-for-undo self)
         do (setf (slot-value self slot) 
                  (restore-undoable-object-state (slot-value self slot)
