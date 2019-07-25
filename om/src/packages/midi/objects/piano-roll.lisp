@@ -172,7 +172,10 @@
                      notelist))
              )
             
-            (:KeyOff (close-note-on notelist (om-midi::midi-evt-chan event) (midi-key-evt-pitch event) (om-midi::midi-evt-date event)))
+            (:KeyOff (close-note-on notelist 
+                                    (om-midi::midi-evt-chan event) 
+                                    (midi-key-evt-pitch event) 
+                                    (om-midi::midi-evt-date event)))
             
             )
           )
@@ -198,9 +201,9 @@
 (defmethod data-stream-frames-slot ((self piano-roll)) 'midi-notes)
 
 ;;; midi-notes is just a short-hand to the frame slot of data-stream
-;(defmethod midi-notes ((self piano-roll)) (frames self))
-;(defmethod (setf midi-notes) (notes (self piano-roll)) (setf (frames self) notes))
-;(defmethod set-midi-notes ((self piano-roll) notes) (setf (midi-notes self) notes))
+(defmethod midi-notes ((self piano-roll)) (frames self))
+(defmethod (setf midi-notes) (notes (self piano-roll)) (setf (frames self) notes))
+(defmethod set-midi-notes ((self piano-roll) notes) (setf (midi-notes self) notes))
 
 (defmethod initialize-instance ((self piano-roll) &rest initargs)
   (call-next-method)
@@ -208,7 +211,7 @@
   self)
 
 (defmethod initialize-instance :after ((self piano-roll) &rest initargs)
-  (setf (autostop self) t) ;;; ??? wtf 
+  (setf (autostop self) t) ;;; ??? what is this  
   )
 
 ;;; redefined from time-sequence
@@ -240,6 +243,7 @@
             (min -3 (dy-to-dpix panel (- (get-frame-sizey frame))))  ;; !! upwards
             )))
 
+
 (defmethod move-editor-selection ((self piano-roll-editor) &key (dx 0) (dy 0))
   (loop for fp in (selection self) do
         (let ((frame (nth fp (data-stream-get-frames (object-value self)))))
@@ -253,6 +257,7 @@
             (item-set-time frame (round (item-get-time frame))))
           ))
   (call-next-method))
+
 
 (defmethod finalize-data-frame ((frame midi-note) &rest args) 
   (let ((posy (getf args :posy)))
