@@ -192,8 +192,45 @@
      
      )))
 
+;;; redefines from data-stream-editor
+(defmethod move-editor-selection ((self chord-seq-editor) &key (dx 0) (dy 0))
+  
+  (unless (zerop dx)
+    (loop for item in (selection self) 
+          when (typep item 'chord)
+          do (item-set-time item (max 0 (round (+ (item-get-time item) dx))))))
 
-                  
+  (unless (zerop dy)
+    (let ((notes (loop for item in (selection self) append (get-notes item))))
+      (loop for n in notes do
+            (setf (midic n) (+ (midic n) (* dy 100))))))
+  )
+
+
+
+(defmethod editor-sort-frames ((self chord-seq-editor))
+  (time-sequence-reorder-timed-item-list (object-value self)))
+
+
+(defmethod editor-key-action ((editor chord-seq-editor) key)
+  
+  (case key
+
+    ;;; left/right are handled in data-stream-editor and processed by move-editor-selection (above)
+
+    (:om-key-up
+     (store-current-state-for-undo editor)
+     (move-editor-selection editor :dy (if (om-shift-key-p) 12 1))
+     (editor-invalidate-views editor)
+     (report-modifications editor))
+    (:om-key-down
+     (store-current-state-for-undo editor)
+     (move-editor-selection editor :dy (if (om-shift-key-p) -12 -1))
+     (editor-invalidate-views editor)
+     (report-modifications editor))
+   
+    (otherwise 
+     (call-next-method))))
 
 
 ;;;=========================

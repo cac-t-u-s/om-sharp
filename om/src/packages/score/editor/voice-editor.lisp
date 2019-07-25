@@ -105,6 +105,10 @@
   (not (numberp (editor-get-edit-param (editor (car (related-views self))) :h-stretch))))
 
 
+(defmethod move-editor-selection ((self voice-editor) &key (dx 0) (dy 0))
+  (call-next-method self :dx 0 :dy dy))
+
+
 (defmethod draw-sequence ((object voice) editor view unit)
 
   ;;; NOTE: so far we don't build/update a bounding-box for the containers

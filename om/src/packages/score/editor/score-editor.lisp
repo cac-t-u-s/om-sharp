@@ -193,10 +193,11 @@
             (bbox-in-rect (b-box object) x1 y1 x2 y2)) ;; the object has one, and it's inside 
        object ;;; the whole object is selected
      ;;; else: go check in the children
-     (flat 
-      (loop for elem in (inside object) ;; check its children..
-            collect (find-score-elements-in-area elem x1 y1 x2 y2)))) 
-   )
+     (remove nil 
+             (flat 
+              (loop for elem in (inside object) ;; check its children..
+                    collect (find-score-elements-in-area elem x1 y1 x2 y2)))) 
+     ))
 
 ;;; measure is special: it is selected only by clickking on the bar/signature
 (defmethod find-score-elements-in-area ((object measure) x1 y1 x2 y2)      
@@ -296,7 +297,9 @@
                       self position nil :min-move 1
                       :motion #'(lambda (view pos)
                                   (declare (ignore view))
-
+                                  
+                                  (store-current-state-for-undo editor :action :move)
+                                  
                                   (let ((x-move (- (om-point-x pos) (om-point-x clicked-pos)))
                                         (y-move (- (om-point-y pos) (om-point-y clicked-pos))))
 
