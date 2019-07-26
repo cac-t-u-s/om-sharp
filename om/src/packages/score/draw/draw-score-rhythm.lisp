@@ -513,7 +513,9 @@
                        :selection (if (find object selection) T selection)
                        :tied-to-ms (beat-to-time (symbolic-date (previous-chord object)) tempo)
                        :time-function #'(lambda (time) (time-to-pixel view time))
-                       :build-b-boxes create-bboxes
+                       ; no b-box for notes inside a continuation chord:
+                       ; they actually just refer to the main chord's notes
+                       :build-b-boxes nil 
                        )))
       
       (when create-bboxes 
