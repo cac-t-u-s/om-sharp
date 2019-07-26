@@ -1170,8 +1170,8 @@
                   (if (>= stem line-pos)  ;;; stem up
                     
                       (progn 
-                        (om-draw-line (+ head-x head-w-pix) (- line-y (/ (+ head-h-pix unit) 2))
-                                      (+ head-x head-w-pix) beam-y
+                        (om-draw-line (+ head-x head-w-pix -1) (- line-y (/ (+ head-h-pix unit) 2))
+                                      (+ head-x head-w-pix -1) beam-y
                                       :line stemThickness :end-style :projecting)
                         (when n-beams
                           (if (zerop pos-in-group) ;; first elem

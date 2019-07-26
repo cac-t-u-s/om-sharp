@@ -540,6 +540,8 @@
          (beams-from-parent (and beam-info (beam-info-beams beam-info)))
          (beams-to-draw (set-difference (arithm-ser 1 beams-num 1) beams-from-parent))
          (beam-start-line (when beam-info (beam-info-line beam-info))))
+    
+    ;; (print (list beams-from-parent beams-to-draw beam-start-line))
 
     (let* ((create-bboxes (typep view 'score-view))
            (bbox? 
@@ -550,7 +552,7 @@
                        font-size 
                        :head (multiple-value-list (rest-head-and-points graphic-dur))
                        :line rest-line ;; can be NIL for display at default y-pos 
-                       :stem  (when beams-to-draw beam-start-line)
+                       :stem  (when beams-from-parent beam-start-line)
                        :beams (list beams-to-draw position)
                        :staff (get-edit-param param-obj :staff)
                        :selection (if (find object selection) T selection)
