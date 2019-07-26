@@ -429,5 +429,19 @@
         ))
 
 
+;;;======================================
+;;; EDITION
+;;;======================================
+
+;;; todo: turn to silence, i.e. start editing rhythm...
+(defmethod remove-from-obj ((self voice) (item chord)) nil)
+
+(defmethod remove-from-obj ((self voice) (item note))
+  (loop for c in (chords self)
+        do (when (find item (notes c))
+             (when (> (length (notes c)) 1) ;;; temp
+               (setf (notes c) (remove item (notes c))))
+             (return))
+        ))
 
 

@@ -22,7 +22,7 @@
 ;;; CHORD-SEQ EDITOR / GENERAL SCORE EDITOR
 ;;;========================================================================
 
-(defclass chord-seq-editor (data-stream-editor score-editor) ())
+(defclass chord-seq-editor (score-editor data-stream-editor) ())
 (defmethod get-editor-class ((self chord-seq)) 'chord-seq-editor)
 
 (defclass chord-seq-panel (score-view stream-panel) ()
@@ -206,31 +206,27 @@
             (setf (midic n) (+ (midic n) (* dy 100))))))
   )
 
+(defmethod score-editor-change-selection-durs ((self chord-seq-editor) delta) 
+  
+  (when (editor-get-edit-param self :duration-display)
+    (let ((notes (loop for item in (selection self) append (get-notes item))))
+      
+      (loop for n in notes
+            do (setf (dur n) (max 0 (round (+ (dur n) delta)))))
+      )))
 
+
+(defmethod score-editor-delete ((self chord-seq-editor) element)
+  (remove-from-obj (object-value self) element))
+ 
 
 (defmethod editor-sort-frames ((self chord-seq-editor))
   (time-sequence-reorder-timed-item-list (object-value self)))
 
 
-(defmethod editor-key-action ((editor chord-seq-editor) key)
-  
-  (case key
+(defmethod score-editor-delete ((self chord-seq-editor) element) nil)
 
-    ;;; left/right are handled in data-stream-editor and processed by move-editor-selection (above)
 
-    (:om-key-up
-     (store-current-state-for-undo editor)
-     (move-editor-selection editor :dy (if (om-shift-key-p) 12 1))
-     (editor-invalidate-views editor)
-     (report-modifications editor))
-    (:om-key-down
-     (store-current-state-for-undo editor)
-     (move-editor-selection editor :dy (if (om-shift-key-p) -12 -1))
-     (editor-invalidate-views editor)
-     (report-modifications editor))
-   
-    (otherwise 
-     (call-next-method))))
 
 
 ;;;=========================

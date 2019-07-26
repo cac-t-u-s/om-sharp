@@ -310,6 +310,24 @@ Internally most of these values are just used to build a list of CHORD objects, 
 
 
 ;;;======================================
+;;; EDITION
+;;;======================================
+
+(defmethod remove-from-obj ((self chord-seq) (item t)) nil)
+
+(defmethod remove-from-obj ((self chord-seq) (item chord))
+  (time-sequence-remove-timed-item self item))
+
+(defmethod remove-from-obj ((self chord-seq) (item note))
+  (loop for c in (chords self)
+        do (when (find item (notes c))
+             (setf (notes c) (remove item (notes c)))
+             (when (null (notes c))
+               (remove-from-obj self c))
+             (return))
+        ))
+
+;;;======================================
 ;;; PLAY
 ;;;======================================
 (defmethod get-action-list-for-play ((object chord-seq) interval &optional parent)
