@@ -42,6 +42,10 @@ Lock the box ('b') to keep the current file.
 "))
 
 
+;;; compat om6/7
+(defmethod filepathname ((self sdiffile)) (file-pathname self))
+(defmethod streamsdesc ((self sdiffile)) (file-map self))
+
 (defmethod additional-slots-to-save ((self SDIFFile)) '(file-pathname))
 (defmethod additional-slots-to-copy ((self SDIFFile)) '(file-pathname))
  
