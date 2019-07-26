@@ -39,69 +39,19 @@
 ;;; also allows compat with OM6 naming
 (defmethod inside ((self score-object)) nil)
 
+;;; only poly has more than 1 voice
+(defmethod num-voices ((self score-object)) 1)
+
 (defstruct b-box (x1) (x2) (y1) (y2))
 (defmethod b-box-w (b) (- (b-box-x2 b) (b-box-x1 b)))
 (defmethod b-box-h (b) (- (b-box-y2 b) (b-box-y1 b)))
 
-
-(defmethod display-modes-for-object ((self score-object))
-  '(:mini-view :hidden :text))
-
-(defmethod additional-box-attributes ((self score-object)) 
-  `((:font-size "a font size for score display" nil)
-    (:staff "default staff configuration" 
-     ,(loop for s in *score-staff-options* collect (list (string-upcase s) s)))
-    ))
 
 
 (defmethod initialize-instance :after ((self score-object) &rest initargs)
   (setf (autostop self) t) ;;; ??? why 
   )
 
-;;;============ 
-;;; BOX
-;;;============
-
-
-(defmethod special-box-type ((self (eql 'score-object))) 'ScoreBox)
-
-(defclass ScoreBox (OMBoxEditCall) 
-  ((fontsize :accessor fontsize :initform 18)))
-
-
-;;; only poly has more than 1 voice
-(defmethod num-voices ((self score-object)) 1)
-
-
-(defmethod draw-mini-view ((self score-object) (box ScoreBox) x y w h &optional time)
-  
-  (om-draw-rect x y w h :fill t :color (om-def-color :white))
-  
-  (when (> (num-voices self) 0)
-    (let ((staff (get-edit-param box :staff))
-          (h-per-voice (/ h (num-voices self))))
-    
-      (setf (fontsize box) 18)
-    
-      (let* ((staff-lines (apply 'append (mapcar 'staff-lines (staff-split staff))))
-             (unit (font-size-to-unit (fontsize box)))
-             (n-lines (+ (- (car (last staff-lines)) (car staff-lines)) 8)) ;;; range of the staff lines + 10-margin
-             (draw-box-h (* n-lines unit))
-             (y-in-units (/ y unit)))
-     
-        (if (< draw-box-h h-per-voice)
-            ;;; there's space: draw more in the middle
-            (setf y-in-units (+ y-in-units (/ (round (- h-per-voice draw-box-h) 2) unit)))
-          ;;; there's no space: reduce font ?
-          (progn 
-            (setf unit (- unit (/ (- draw-box-h h-per-voice) n-lines)))
-            (setf (fontsize box) (unit-to-font-size unit)))
-          )
-      
-        (om-with-fg-color (om-make-color 0.0 0.2 0.2)
-          (score-object-mini-view self box x y y-in-units w h)
-          )
-        ))))
 
 
 
