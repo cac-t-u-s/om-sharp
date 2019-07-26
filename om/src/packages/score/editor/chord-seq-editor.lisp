@@ -219,12 +219,10 @@
 (defmethod score-editor-delete ((self chord-seq-editor) element)
   (remove-from-obj (object-value self) element))
  
-
 (defmethod editor-sort-frames ((self chord-seq-editor))
   (time-sequence-reorder-timed-item-list (object-value self)))
 
 
-(defmethod score-editor-delete ((self chord-seq-editor) element) nil)
 
 
 

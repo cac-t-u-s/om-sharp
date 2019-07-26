@@ -383,7 +383,6 @@
 (defmethod score-editor-delete ((self score-editor) element) nil) 
 (defmethod score-editor-change-selection-durs ((self score-editor) delta) nil)
 
-(defmethod editor-key-action ((editor chord-seq-editor) key) (call-next-method))
 
 (defmethod editor-key-action ((editor score-editor) key)
   
@@ -421,7 +420,7 @@
      (editor-invalidate-views editor)
      (report-modifications editor))
 
-    (:om-key-delete 
+    (:om-key-delete
      (when (selection editor)
        (store-current-state-for-undo editor)
        (loop for element in (selection editor) do 
