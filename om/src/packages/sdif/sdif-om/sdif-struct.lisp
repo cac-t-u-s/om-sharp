@@ -143,14 +143,14 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF
 ;;; Ensemble de matrices correspondant a un instant d'echantillonnage 
 ;;; Unite minimum pour ecrire dans un fichier SDIF
 (defclass* SDIFFrame (sdif-object data-frame)
-   ((frametime :accessor frametime :initarg :frametime :initform 0.0 :documentation "time of the frame (s)")
-    (frametype :initform nil :initarg :frametype :accessor frametype :documentation "4-char signature of the SDIF frame type")
-    (streamID :initform 0 :initarg :streamID :accessor streamID :documentation "SDIF stream ID (integer)")
-    (lMatrices :initform nil :initarg :LMatrices :accessor LMatrices :documentation "list of SDIFMatrix objects"))
+   ((ftime :accessor ftime :initarg :ftime :initform 0.0 :documentation "time of the frame (s)")
+    (frametype :initform nil :initarg :frametype :initarg :signature :accessor frametype :documentation "4-char signature of the SDIF frame type")
+    (streamid :initform 0 :initarg :streamid :accessor streamid :documentation "SDIF stream ID (integer)")
+    (lmatrix :initform nil :initarg :lmatrix :accessor lmatrix :documentation "list of SDIFMatrix objects"))
    (:documentation "An SDIF data chunk.
 
-SDIF frames are data chunk containing one or more SDIF matrices (<lMatrices>) and precisely localized in time (<fTime>).
-Frames can be grouped in streams identified by an ID (<streamID>) in order to describe parallele data.  
+SDIF frames are data chunk containing one or more SDIF matrices (<lmatrix>) and precisely localized in time (<fTime>).
+Frames can be grouped in streams identified by an ID (<streamid>) in order to describe parallele data.  
 The number and type of matrices allowed in a given frame depends on the SDIF frame type specification corresponding to <signature>.
 
 See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
@@ -159,30 +159,30 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
 
 ;;; in case there is just 1 matrix -- avoids using list
 (defmethod initialize-instance :after ((self sdifframe) &rest initargs)
-   (setf (LMatrices self) (list! (LMatrices self)))
-   (setf (slot-value self 'date) (sec->ms (frametime self))))
+   (setf (lmatrix self) (list! (lmatrix self)))
+   (setf (slot-value self 'date) (sec->ms (ftime self))))
 
-;;; the date from data-frame is computed from frametime
-(defmethod date ((self SDIFFrame)) (sec->ms (frametime self)))
+;;; the date from data-frame is computed from ftime
+(defmethod date ((self SDIFFrame)) (sec->ms (ftime self)))
 (defmethod (setf date) (date (self SDIFFrame)) 
   (call-next-method)
-  (setf (frametime self) (ms->sec date)))
+  (setf (ftime self) (ms->sec date)))
 
 ;;; merge frames for same kind of (single) matrices (adds data in the matrix)
 (defun merge-frame-data (frames)
   (let ((newframes nil))
     (loop while frames do
           (let ((fr (pop frames)))
-            (if (and newframes (= (frametime (car newframes)) (frametime fr))
+            (if (and newframes (= (ftime (car newframes)) (ftime fr))
                      (string-equal (frametype (car newframes)) (frametype fr)))
-                (loop for matrix in (lmatrices fr) do
-                      (let ((fmat (find (matrixtype matrix) (lmatrices (car newframes)) :test 'string-equal :key 'matrixtype)))
+                (loop for matrix in (lmatrix fr) do
+                      (let ((fmat (find (matrixtype matrix) (lmatrix (car newframes)) :test 'string-equal :key 'matrixtype)))
                         (if fmat 
                             (setf (data fmat) (merge-matrix-data (data fmat) (data matrix))
                                   (elts fmat) (1+ (elts fmat)))
-                          (setf (lmatrices fr) (append (lmatrices fr) (list matrix))))))
-              (push (make-instance 'SDIFFrame :frametime (frametime fr) :frametype (frametype fr)
-                                   :streamID 0 :lmatrices (lmatrices fr))
+                          (setf (lmatrix fr) (append (lmatrix fr) (list matrix))))))
+              (push (make-instance 'SDIFFrame :ftime (ftime fr) :frametype (frametype fr)
+                                   :streamID 0 :lmatrix (lmatrix fr))
                     newframes))))
     (reverse newframes)))
 
@@ -190,14 +190,14 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
 ;;; merge frames for same kind of frames (appends matrices)
 (defun merge-frames (frames)
   (let ((newframes nil))
-    (setf frames (sort frames '< :key 'frametime))
+    (setf frames (sort frames '< :key 'ftime))
     (loop while frames do
           (let ((fr (pop frames)))
-            (if (and newframes (= (frametime (car newframes)) (frametime fr))
+            (if (and newframes (= (ftime (car newframes)) (ftime fr))
                      (= (streamID (car newframes)) (streamID fr))
                      (string-equal (frametype (car newframes)) (frametype fr)))
                 (setf (lmatrix (car newframes))
-                      (append (lmatrices (car newframes)) (lmatrices fr)))
+                      (append (lmatrix (car newframes)) (lmatrix fr)))
               (push fr newframes))))
     (reverse newframes)))
 
@@ -207,5 +207,5 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
   (cons (string+ "SDIF " (frametype self))
         (flat (mapcar #'(lambda (m) 
                           (format nil "~A ~A" (matrixtype m) (data m)))
-                      (lmatrices self))))
+                      (lmatrix self))))
   )

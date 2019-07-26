@@ -135,8 +135,8 @@ Lock the box ('b') to keep the current file.
   (let ((sig (sdif::SdifSignatureToString (sdif::SdifFCurrFrameSignature ptr)))
         (time (sdif::SdifFCurrTime ptr))
         (sid (sdif::SdifFCurrId ptr)))
-    (make-instance 'SDIFFrame :frametime time :frametype sig :streamid sid
-                   :lmatrices (let ((nummatrix (sdif::SdifFCurrNbMatrix ptr)))
+    (make-instance 'SDIFFrame :ftime time :frametype sig :streamid sid
+                   :lmatrix (let ((nummatrix (sdif::SdifFCurrNbMatrix ptr)))
                                 (loop for i from 1 to nummatrix 
                                       collect (get-matrix-from-sdif ptr with-data))))))
 
@@ -212,13 +212,13 @@ Lock the box ('b') to keep the current file.
                                     (and (string-equal (frametype frame) (fstream-desc-fsig stream))
                                          (= (streamid frame) (fstream-desc-id stream)))))))
     (if streamdesc
-        (let ((frame-time (frametime frame))) ;;; EXISTING FRAME STREAM
+        (let ((frame-time (ftime frame))) ;;; EXISTING FRAME STREAM
           (setf (fstream-desc-nf streamdesc) (1+ (fstream-desc-nf streamdesc)))
           (when (< frame-time (fstream-desc-tmin streamdesc))
             (setf (fstream-desc-tmin streamdesc) frame-time))
           (when (> frame-time (fstream-desc-tmax streamdesc))
             (setf (fstream-desc-tmax streamdesc) frame-time))
-          (loop for mat in (lmatrices frame) do
+          (loop for mat in (lmatrix frame) do
                 (let ((mstreamdesc (find mat (fstream-desc-matrices streamdesc)
                                          :test #'(lambda (mat mstreamdesc) 
                                                    (string-equal (matrixtype mat) (mstream-desc-msig mstreamdesc))))))
@@ -245,12 +245,12 @@ Lock the box ('b') to keep the current file.
       ;;; NEW FRAME STREAM
       (pushr (make-fstream-desc 
               :fsig (frametype frame) :id (streamid frame)
-              :tmin (frametime frame) :tmax (frametime frame) :nf 1
-              :matrices  (loop for mat in (lmatrices frame) collect 
+              :tmin (ftime frame) :tmax (ftime frame) :nf 1
+              :matrices  (loop for mat in (lmatrix frame) collect 
                                (make-mstream-desc 
                                 :msig (matrixtype mat) 
                                 :fields (first-n (SDIFTypeDescription self (matrixtype mat) 'm) (fields mat))
-                                :rmax (elts mat) :tmin (frametime frame) :tmax (frametime frame)
+                                :rmax (elts mat) :tmin (ftime frame) :tmax (ftime frame)
                                 :nf 1)))
              (file-map self))
       )))
@@ -743,8 +743,8 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
                                         (or (not tmin) (>= curr-time tmin))
                                         (or (not tmax) (<= curr-time tmax)))
                                  
-                                 (let ((frame (make-instance 'SDIFFrame :frametime curr-time :frametype sig :streamid sid
-                                                      :lmatrices (let ((nummatrix (sdif::SdifFCurrNbMatrix sdiffileptr)))
+                                 (let ((frame (make-instance 'SDIFFrame :ftime curr-time :frametype sig :streamid sid
+                                                      :lmatrix (let ((nummatrix (sdif::SdifFCurrNbMatrix sdiffileptr)))
                                                                    (loop for i from 1 to nummatrix 
                                                                          collect (get-matrix-from-sdif sdiffileptr t))))))
                                    (when apply-fun (funcall apply-fun frame))

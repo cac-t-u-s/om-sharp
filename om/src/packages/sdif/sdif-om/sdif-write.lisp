@@ -38,7 +38,7 @@
   (reduce 
    '+ (cons
        (sdif-header-size self)
-       (mapcar 'sdif-size (LMatrices self)))))
+       (mapcar 'sdif-size (lmatrix self)))))
 
 (defmethod sdif-write ((matrix sdifmatrix) file-ptr)
   (let* ((data-type-size 4)
@@ -64,10 +64,10 @@
    (let ((framesize (sdif-size self)))
      (sdif::SdifFSetCurrFrameHeader file-ptr 
                                     (sdif::SdifStringToSignature (frametype self))
-                                    framesize (length (Lmatrices self)) 
-                                    (streamID self) (coerce (frametime self) 'double-float))
+                                    framesize (length (lmatrix self)) 
+                                    (streamID self) (coerce (ftime self) 'double-float))
      (sdif::SdifFWriteFrameHeader file-ptr)
-     (loop for item in (LMatrices self) do (sdif-write item file-ptr))
+     (loop for item in (lmatrix self) do (sdif-write item file-ptr))
      ))
 
 
