@@ -42,10 +42,12 @@
                                :box (box self)
                                :reactive (reactive self)
                                :doc-string (doc-string self))))
+
     (setf (connections new-io)
           (mapcar 
            #'(lambda (c) (adopt-connection new-io c))
            (connections self)))
+
     new-io))
   
   

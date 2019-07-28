@@ -176,6 +176,12 @@ All boxes which their reference is a OM generic function are instances of this c
                                    (copy-if-exists o (outputs self)))
                              (get-keyword-outputs self))))
     
+    
+    (let ((patch (container self)))
+      (loop for io in (append (inputs self) (outputs self)) do
+            (loop for c in (connections io)
+                  do (omng-remove-element patch c))))
+    
     (set-box-inputs self new-inputs)
     (set-box-outputs self new-outputs)
 
