@@ -38,6 +38,8 @@
         "bpf-bpc/bpf-tools"
         "bpf-bpc/bpf-editor"
         
+        "functions/modulations" 
+        
         "text/textfile"
         
         "automation/automation"
