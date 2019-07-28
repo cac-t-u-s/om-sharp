@@ -286,7 +286,7 @@
                                      &optional fname editparams spict meditor pictlist show-name)
   (declare (ignore fname editparams meditor pictlist))
 
-  (let* ((val (or value (make-instance reference)))
+  (let* ((val (or value (and (find-class reference nil) (make-instance reference))))
          (inputs (loop for formatted-in in (mapcar #'eval inputs) collect
                        ;;; correct the type and eventually the name of box inputs
                        (let ((name (check-arg-for-new-name 
