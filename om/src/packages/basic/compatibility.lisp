@@ -15,7 +15,7 @@
 ; File author: J. Bresson
 ;============================================================================
 
-;;; SPECIAL HACKS TO LOAD OBJECTS FROM OM6 PATCHES
+;;; SPECIAL HACKS TO LOAD OBJECTS AND CODE FROM OM6
 
 (in-package :om)
 
@@ -40,8 +40,6 @@
           (class-slots (find-class class))))
 
 (defmethod (setf lcontrols) (val obj) nil)
-
-
 
 
 (defmethod (setf data) (data (array class-array))

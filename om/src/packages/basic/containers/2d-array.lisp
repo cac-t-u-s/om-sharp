@@ -182,13 +182,24 @@
 (defmethod om-init-instance ((self 2D-array) &optional initargs)
 
   (call-next-method)
+  
+  (setf (data self) (list! (data self)))
+  ;;; fields and elts are not necessary set (especially if called from an OM patch)
+  ;;; fields is reset in any case to match with the data
+  (setf (fields self) (length (data self)))   ;; (get-array-data self)
 
-  (if (data self)
-      (setf (fields self) (length (data self))
-            (elts self) (loop for field in (get-array-data self) maximize (length (get-array-field-data field))))
-      (setf (fields self) 0 
-            (elts self) 0)
-      )
+  (unless (elts self)
+    (setf (elts self)
+          (loop for field in (data self) 
+                when (listp field) 
+                maximize (length field))))     ;; (get-array-field-data field)
+
+  ;;; if a field is specified as a single/constant value: reset data as a list with this values
+  (loop for i from 0 to (1- (fields self)) do
+        (unless (listp (nth i (data self)))
+          (setf (nth i (data self)) (make-list (elts self) :initial-element (nth i (data self))))
+          ))
+  
   self)
 
 

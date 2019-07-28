@@ -22,8 +22,8 @@
 ;;;=========================
 (defclass sdif-object () ())
 
-(defmethod initialize-instance :after ((self sdif-object) &rest initargs)
-  (sdif::sdif-init-cond))
+;(defmethod initialize-instance :after ((self sdif-object) &rest initargs)
+;  (sdif::sdif-init-cond))
 
 
 ;;;=========================
@@ -102,9 +102,9 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF TYPES.
 
 (defclass* SDIFMatrix (2D-array)
    ((matrixtype :initform nil :initarg :matrixtype :accessor matrixtype :documentation "SDIF matrix type signature")
-    (data :initform nil :initarg :data :accessor data :documentation "data matrix / list of lists : (field1 field2 ...)")
+    (elts :initform 1 :initarg :elts  :accessor elts :documentation "number of elements (a.k.a lines)")
     ;(fields :initform nil :initarg :fields :accessor fields :documentation "Name of SDIF fields")
-    ;(elts :initform 1 :initarg :elts  :accessor elts :documentation "number of elements (a.k.a lines)")
+    (data :initform nil :initarg :data :accessor data :documentation "data matrix / list of lists : (field1 field2 ...)")
     )
    (:documentation "SDIF data stored as a 2D array.
 
@@ -125,7 +125,7 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF
  "))
 
 
-;(defmethod allow-extra-controls ((self SDIFMatrix)) t)
+; (defmethod allow-extra-controls ((self SDIFMatrix)) t)
 
 (defun merge-matrix-data (data1 data2)
   (loop for c1 in data1
@@ -143,10 +143,10 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF
 ;;; Ensemble de matrices correspondant a un instant d'echantillonnage 
 ;;; Unite minimum pour ecrire dans un fichier SDIF
 (defclass* SDIFFrame (sdif-object data-frame)
-   ((ftime :accessor ftime :initarg :ftime :initform 0.0 :documentation "time of the frame (s)")
-    (frametype :initform nil :initarg :frametype :initarg :signature :accessor frametype :documentation "4-char signature of the SDIF frame type")
-    (streamid :initform 0 :initarg :streamid :accessor streamid :documentation "SDIF stream ID (integer)")
-    (lmatrix :initform nil :initarg :lmatrix :accessor lmatrix :documentation "list of SDIFMatrix objects"))
+  ((frametype :initform nil :initarg :frametype :initarg :signature :accessor frametype :documentation "4-char signature of the SDIF frame type")
+   (ftime :accessor ftime :initarg :ftime :initform 0.0 :documentation "time of the frame (s)")
+   (streamid :initform 0 :initarg :streamid :accessor streamid :documentation "SDIF stream ID (integer)")
+   (lmatrix :initform nil :initarg :lmatrix :accessor lmatrix :documentation "list of SDIFMatrix objects"))
    (:documentation "An SDIF data chunk.
 
 SDIF frames are data chunk containing one or more SDIF matrices (<lmatrix>) and precisely localized in time (<fTime>).
