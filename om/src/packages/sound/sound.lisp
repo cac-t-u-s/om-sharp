@@ -32,6 +32,7 @@
         "sound/synthesize"
         "player/juce-player"
         "player/buffer-player"
+        "sound-preferences"
         "sound-pack"
         )
       )
