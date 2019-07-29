@@ -50,13 +50,16 @@
     (setf *sdif-initialized* t)))
 
 (defun sdif-kill ()
-   (sdif::SdifGenKill)
-   (setf *sdif-initialized* nil))
+  (print "Killing SDIF...")
+  (sdif::SdifGenKill)
+  (setf *sdif-initialized* nil))
 
 (defun sdif-check-file (filename)
+  (sdif::sdif-init-cond)
   (not (zerop (sdif::SdifCheckFileFormat (namestring filename)))))
 
 (defmethod sdif-open-file ((self string) &optional (mode sdif::eReadWriteFile))
+  (sdif::sdif-init-cond)
   (let ((fileptr (sdif::SDIFFOpen self mode)))
     (and (not (fli:null-pointer-p fileptr)) fileptr)))
 

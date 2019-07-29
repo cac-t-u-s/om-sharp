@@ -69,10 +69,16 @@ Lock the box ('b') to keep the current file.
   (objfromobjs (pathname model) target))
 
 
+;;; Calls to the SDIF library must be all in the same thread 
+;;; => We do it in the OM patch evaluation thread 
+(defun eval-sdif-expression (function)
+  (om-lisp::om-eval-on-process function))
+
+
 (defmethod om-init-instance ((self SDIFFile) &optional initargs)
   (call-next-method)
   (when (file-pathname self) 
-    (load-sdif-file self))
+    (eval-sdif-expression #'(lambda () (load-sdif-file self))))
   self)
 
 
@@ -183,7 +189,6 @@ Lock the box ('b') to keep the current file.
       )
     
     matrix))
-
 
 (defmethod load-sdif-file ((self SDIFFile))
   (cond ((not (file-pathname self))
