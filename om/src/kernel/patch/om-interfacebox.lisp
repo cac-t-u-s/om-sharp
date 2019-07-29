@@ -156,6 +156,7 @@
    (when (or (om-command-key-p)
              (container-frames-locked (om-view-container frame)))
      (set-value self (list (not (get-box-value self))))
+     (when (reactive (car (outputs self))) (self-notify self))
      (om-invalidate-view frame)))
 
 ;;;===============================================================
