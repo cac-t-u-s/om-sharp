@@ -1175,14 +1175,16 @@
 
 
 ;;; PITCURES IN PATCHES: TODO
-#|
+
+(defclass picture () ())
 (defun restore-pict-path (path) path)
 (defun om-get-picture (name location) nil)
-
 (defclass patch-picture () 
   ((pict-pos :accessor pict-pos :initarg :pict-pos)
    (pict-size :accessor pict-size :initarg :pict-size)))
-  
+
+#|
+
 ;(let ((newpict (make-instance (quote patch-picture) :name "arrow_down_1" :source (quote user) :pict-pathname (restore-pict-path (restore-path nil)) :thepict (om-get-picture "arrow_down_1" (quote user)) :storemode :external :draw-params (quote (p 0 0 100 100)) :extraobjs nil))) (setf (pict-pos newpict) (om-make-point 619 173)) (setf (pict-size newpict) (om-make-point 50 112)) newpict)
 
 |#
@@ -1316,6 +1318,8 @@ x SDIFFILE
 x SOUND  !!! markers seconds vs. milliseconds
 x TEXTFILE
 
-CLASS-ARRAY
+X CLASS-ARRAY
+
+PICTURE
 
 |#
