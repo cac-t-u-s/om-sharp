@@ -1419,7 +1419,7 @@
 
 (defmethod set-inspector-contents ((self inspector-view) object)
   
-  (unless (equal (object self) object)
+  (unless nil ;; (equal (object self) object)
 
     (setf (object self) object)
     (om-remove-all-subviews self)        
@@ -1550,9 +1550,12 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                                       (get-selected-connections self))))
                (if (= 1 (length selection)) 
                    (car selection) 
-                 selection)))))
-
-    (when (get-g-component self :inspector)
+                 selection))))
+        (inspector-view (get-g-component self :inspector)))
+    
+    (when (and inspector-view
+               (or obj ;;; explicit request for this object
+                   (not (equal (object inspector-view) obj-to-inspect))))
       (set-inspector-contents (get-g-component self :inspector) obj-to-inspect))
       
     ))
