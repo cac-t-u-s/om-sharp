@@ -23,7 +23,7 @@
 
 (defclass internalBPF (named-object schedulable-object object-with-action)
    ((point-list :initform nil :accessor point-list)
-    (color :initform (om-def-color :dark-gray) :accessor color :initarg :color)
+    (color :initform (om-def-color :black) :accessor color :initarg :color)
     (decimals :initform 2 :accessor decimals :initarg :decimals :documentation "precision (integer) [0-10]")))
 
 (defmethod additional-slots-to-copy ((self internalBPF)) '(point-list action-fun))
