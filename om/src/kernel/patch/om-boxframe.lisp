@@ -1003,9 +1003,10 @@
                            #'(lambda () 
                                (change-keyword input currentkey)))
                          :enabled (or nil ; selected
-                                   (not (find (string key)
-                                              (get-keyword-inputs box) 
-                                              :test 'string-equal :key 'name)))
+                                      (equal key (box-free-keyword-name box))
+                                      (not (find (string key)
+                                                 (get-keyword-inputs box) 
+                                                 :test 'string-equal :key 'name)))
                          :selected selected ;; will not wok if all items are enabled... (?)
                          )))))
 
