@@ -280,9 +280,26 @@ Data instanciation in a column is done according to the specified number of line
 "))
 
 
+#|
+;;; OM7 - TO BUILD A CH-FOF (or other class-array) in Lisp, use :
+(defun test () 
+  (om-init-instance (make-instance 'om::class-array :elts 4) '((:freq (440 880 1200)) (:bw (59 70 90 80))))
+  )
+|#
+
+
 (defmethod additional-slots-to-save ((self class-array)) '(data))
 (defmethod additional-slots-to-copy ((self class-array)) '(data))
 
+(defmethod default-array-field-from-slot ((self class-array) (field string))
+  (let ((slot (find field (class-slots (class-of self)) :key 'slot-name :test 'string-equal)))
+    (when slot 
+      (make-array-field :name field :decimals 4
+                        :default (slot-initform slot)
+                        :type (slot-type slot)
+                        :doc (slot-doc slot))
+                        )))
+      
 (defmethod om-init-instance ((self class-array) &optional initargs)
    
   ;;; no next-method actually (T)
@@ -304,21 +321,23 @@ Data instanciation in a column is done according to the specified number of line
                                       arg-name))))
                 ))
 
-
   ;;; in class-array some 'meta-data' determine the contents of the actual data
   (setf (fields self) (length (field-names self)))
   (unless (elts self) (setf (elts self) 0))
   
   (when initargs ;; INITARGS = NIL means we are loading a saved object (data is already in)
-    (setf (data self)
+    (setf (data self) ;; (SETF DATA) will recall this initialization methods with :initargs = NIL :( 
           (loop for field in (field-names self) collect
                 
                 (let* ((input-data (find-value-in-kv-list initargs (intern-k field)))
                        
-                       ;; the field can already be in the data
-                       ;; if this data was copied or initialized from a subclass (e.g. cs-evt in OMChroma)
-                       (existing-field (find field (data self) :test 'string-equal :key 'array-field-name)))
-                  
+                       (existing-field (or 
+                                        ;; the field can already be in the data
+                                        ;; if this data was copied or initialized from a subclass (e.g. cs-evt in OMChroma)
+                                        (find field (data self) :test 'string-equal :key 'array-field-name)
+                                        ;; the class definition contains infprmation about this field in its own declaration
+                                        (default-array-field-from-slot self field))))
+                       
                   (cond (input-data 
                          ;; the field is to be set from specified data, whatever existed before
                          (let ((type (and existing-field (array-field-type existing-field))))
@@ -346,7 +365,7 @@ Data instanciation in a column is done according to the specified number of line
                         )
                   )))
     )
-  
+
   self)
 
 
@@ -379,20 +398,6 @@ Data instanciation in a column is done according to the specified number of line
 
 (defmethod get-field-id ((self class-array) (field string))
   (position field (field-names self) :test 'string-equal))
-
-;;; redefinition from OM methods
-(defmethod get-slot-val ((self class-array) slot-name)
-  (or (get-field self (string slot-name) :warn-if-not-found nil)
-      (call-next-method)))
- 
-(defmethod get-cache-display-for-text ((self class-array) box)
-  (declare (ignore box))
-  (append (call-next-method)
-          (loop for array-field in (data self) collect 
-                (list (intern-k (array-field-name array-field))
-                      (array-field-data array-field)))
-          ))
-
 
 ;;; collect the raw internal data
 (defmethod get-data ((self class-array))
@@ -443,6 +448,8 @@ Data instanciation in a column is done according to the specified number of line
 
 (defmethod default-size ((self ClassArrayBox)) (om-make-point 100 100))
 
+;;; class-array can be added "free fields"
+(defmethod allow-extra-controls ((self class-array)) t)
 (defmethod box-free-keyword-name ((self ClassArrayBox)) 'add-field)
 
 ;;; list of proposed keywords are the declared names
@@ -453,8 +460,6 @@ Data instanciation in a column is done according to the specified number of line
             `((,(box-free-keyword-name self))))
           ))
 
-
-(defmethod allow-extra-controls ((self class-array)) nil)
 
 (defmethod update-key-inputs ((self ClassArrayBox))
   (when (get-box-value self)
@@ -496,11 +501,27 @@ Data instanciation in a column is done according to the specified number of line
   (update-key-inputs self))
 
 (defmethod rep-editor ((box ClassArrayBox) num)
-  (if (or (null num) (<= num 2)) (call-next-method)
-    (let* ((field-name (name (nth num (outputs box)))))
-      (get-field (get-box-value box) field-name))))  
+  (let ((num-direct-in-outs (1+ (length (remove-if-not 
+                                         #'slot-initargs 
+                                         (class-direct-instance-slots (find-class (reference box))))))))
+    (if (or (null num) (< num num-direct-in-outs)) (call-next-method)
+      (let* ((field-name (name (nth num (outputs box)))))
+        (get-field (get-box-value box) field-name)))))
 
 
+;;; redefinition from OM methods
+(defmethod get-slot-val ((self class-array) slot-name)
+  (or (get-field self (string slot-name) :warn-if-not-found nil)
+      (call-next-method)))
+ 
+
+(defmethod get-cache-display-for-text ((self class-array) box)
+  (declare (ignore box))
+  (append (call-next-method)
+          (loop for array-field in (data self) collect 
+                (list (intern-k (array-field-name array-field))
+                      (array-field-data array-field)))
+          ))
 
 ;;;==============================================
 ;;; Components are temporary structures 
