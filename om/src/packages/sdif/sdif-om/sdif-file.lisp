@@ -153,7 +153,10 @@ Lock the box ('b') to keep the current file.
 
 (defun get-matrix-column-name-protect (mtype i)
   (or (ignore-errors (sdif::SdifMatrixTypeGetColumnName mtype i))
-      (format nil "Xx~D" i)))
+      (progn
+        (om-print "SDIF library seems damaged...." "WARNING")
+        (format nil "Xx~D" i))
+      ))
 
 (defmethod get-matrix-from-sdif (ptr &optional (with-data t))
   

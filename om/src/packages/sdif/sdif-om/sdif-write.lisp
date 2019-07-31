@@ -96,7 +96,8 @@
   (let ((sstr (sdif::SdifStringNew)))
     (sdif::SdifStringAppend sstr types-string)
     (sdif::SdifStringGetC sstr)
-    (sdif::SdifFGetAllTypefromSdifString fileptr sstr)))
+    (sdif::SdifFGetAllTypefromSdifString fileptr sstr)
+    ))
   
 ;;; write a list of SDIFType objects 
 (defun sdif-write-types (fileptr typeslist)
