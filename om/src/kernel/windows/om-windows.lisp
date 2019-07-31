@@ -170,7 +170,7 @@
                   (cons 
                    (om-make-menu-item "Libraries:" nil :enabled nil)
                    (loop for lib in (all-om-libraries) 
-                         when (get-lib-help-patches lib)
+                         when (get-lib-help-patches-foler lib)
                          collect (make-lib-help-menu lib))
                    ))
               ))
