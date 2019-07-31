@@ -151,6 +151,10 @@ Lock the box ('b') to keep the current file.
                                       collect (get-matrix-from-sdif ptr with-data))))))
 
 
+(defun get-matrix-column-name-protect (mtype i)
+  (or (ignore-errors (sdif::SdifMatrixTypeGetColumnName mtype i))
+      (format nil "Xx~D" i)))
+
 (defmethod get-matrix-from-sdif (ptr &optional (with-data t))
   
   (sdif::SdifFReadMatrixHeader ptr)
@@ -164,7 +168,8 @@ Lock the box ('b') to keep the current file.
           (let ((mtype (sdif::SdifTestMatrixType ptr (sdif::SdifStringToSignature sig))))
             (if (om-null-pointer-p mtype)
                 (loop for i from 1 to nf collect (format nil "c~D" i))
-              (loop for i from 1 to nf collect (sdif::SdifMatrixTypeGetColumnName mtype i)))))
+              (loop for i from 1 to nf collect (get-matrix-column-name-protect mtype i))
+              )))
     
     (if with-data
 
@@ -309,7 +314,7 @@ Returns an advanced stream description with every FrameType-MatrixType pair in t
           NIL)
       (let ((mnumcol (sdif::SdifMatrixTypeGetNbColumns mtype)))
         (loop for i = 1 then (+ i 1) while (<= i mnumcol)
-              collect (sdif::SdifMatrixTypeGetColumnName mtype i))
+              collect (get-matrix-column-name-protect mtype i))
         )
       )))
 
@@ -371,7 +376,7 @@ Frame type description is a list of lists containing the internal matrix signatu
               (sdif::SdifFReadAllASCIIChunks fileptr)
               (let* ((nvtlist (sdif::SdifFNameValueList fileptr))
                      (nvtl (sdif::SdifNameValueTableList nvtlist))
-                     (numnvt (sdif::SdifListGetNbData nvtl))
+                     ;; (numnvt (sdif::SdifListGetNbData nvtl))
                      (nvtiter (sdif::SdifCreateHashTableIterator nil)))
                 (unwind-protect
                     (progn (sdif::SdifListInitLoop nvtl)
@@ -435,12 +440,12 @@ Name/Value tables are formatted as SDIFNVT objects.
 "
     (if (and table-num (numberp table-num))
         (let ((nvt (find table-num nvtlist :key 'tnum)))
-          (if nvt 
+          (if nvt
               (find-in-nvt nvt entry)
             (om-beep-msg (string+ "There is no table number " (integer-to-string table-num)))))
       (let ((rep nil))
         (loop for nvt in nvtlist while (not rep) do
-              (setf rep (find-in-nvt nvt entry))) fstream-desc
+              (setf rep (find-in-nvt nvt entry)))
         rep)))
          
 (defmethod* find-in-nvt ((nvt SDIFNVT) (entry string))
@@ -498,7 +503,9 @@ Name/Value tables are formatted as SDIFNVT objects.
                                    (let ((msig (sdif::SdifSignatureToString (sdif::SdifFCurrMatrixSignature sdiffileptr)))
                                          (ne (sdif::SdifFCurrNbRow sdiffileptr))
                                          (nf (sdif::SdifFCurrNbCol sdiffileptr))
-                                         (size (sdif::SdifSizeofDataType (sdif::SdifFCurrDataType sdiffileptr))))
+                                         ;; (size (sdif::SdifSizeofDataType (sdif::SdifFCurrDataType sdiffileptr)))
+                                         ;; don't need size ??
+                                         )
                                      
                                      (if (or (null matT)
                                              (string-equal msig matT))
@@ -513,7 +520,6 @@ Name/Value tables are formatted as SDIFNVT objects.
                                                      (bytesread 0))
                                                  (when (and rmin (> ne rmin)) (setf r1 rmin))
                                                  (when (and rmax (> ne rmax)) (setf r1 rmax))
-                                      ;(print (list msig ne nf size))
                                                  ;;; go to r1
                                                  (loop for k from 0 to (1- r1) 
                                                        do (setf bytesread (+ bytesread (sdif::SdifFSkipOneRow sdiffileptr))))
@@ -635,7 +641,7 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
                        
                              (if (and (or (not streamNum) (= streamNum sid))
                                       (or (not frameT) (string-equal frameT fsig))
-                                      (or (not tmin) (>= time tmin)))
+                                      (or (not tmin) (>= curr-time tmin)))
                                  ;;; we're in a candidate frame..
                                 
                                  (if (null matT) 
