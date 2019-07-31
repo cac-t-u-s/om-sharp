@@ -71,11 +71,11 @@
   (cond ((equal filter :all) elements)
         ((equal filter :patches) (loop for elt in elements 
                                        when (and (mypathname elt)
-                                                 (string-equal (pathname-type (mypathname elt)) "omp"))
+                                                 (string-equal (pathname-type (mypathname elt)) "opat"))
                                        collect elt))
         ((equal filter :maquettes) (loop for elt in elements 
                                        when (and (mypathname elt)
-                                                 (string-equal (pathname-type (mypathname elt)) "omm"))
+                                                 (string-equal (pathname-type (mypathname elt)) "omaq"))
                                        collect elt))))
 
 
@@ -282,7 +282,9 @@
   (mapc 'open-editor (om-get-selected-item list)))
 
 (defun close-documents (list)
-  (mapc 'close-editor (om-get-selected-item list)))
+  (setf *save-apply-all* nil)
+  (mapc 'close-editor (om-get-selected-item list))
+  (setf *save-apply-all* nil))
 
 (defmethod register-document :after ((self OMPersistantObject) &optional path)
   (when *om-main-window* (update-elements-tab *om-main-window*)))

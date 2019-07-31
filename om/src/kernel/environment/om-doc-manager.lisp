@@ -278,33 +278,6 @@
     ))
   
 
-
-;;; T = OK (close)
-(defmethod ask-save-before-close ((self t)) t)
-
-(defvar *no-check* nil)
-(defmacro with-no-check (&body body)
-  `(let ((prev-check *no-check*))
-     (setf *no-check* t) 
-     (let ((rep ,@body))
-       (setf *no-check* prev-check)
-       rep)))
-     
-
-(defmethod ask-save-before-close ((self OMPersistantObject))
-  (let ((close? (or *no-check* 
-                    (saved? self)
-                    (let ((rep (om-save-y-n-cancel-dialog (name self))))
-                      (cond 
-                       ((equal rep nil) nil)  ;;; cancel : do not close
-                       ((and (consp rep) (equal (car rep) nil)) t)  ;; No : do not save and close
-                       ((and (consp rep) (equal (car rep) t))   ;; Yes : save and close if save is OK
-                        (save-document self)
-                        (and (mypathname self) (saved? self)))
-                       (t nil))))))
-    close?))
-
-
 (defmethod save-document ((self OMPersistantObject))
   
   (unless (mypathname self)
@@ -333,23 +306,69 @@
         (om-print-format "Document saved on disk: ~A - ~A" (list self (mypathname self)))
         (setf (saved? self) t)))))
 
+
+
+;;; T = OK (close)
+(defmethod ask-save-before-close ((self t)) t)
+
+(defvar *no-check* nil)
+(defmacro with-no-check (&body body)
+  `(let ((prev-check *no-check*))
+     (setf *no-check* t) 
+     (let ((rep ,@body))
+       (setf *no-check* prev-check)
+       rep)))
+     
 (defvar *save-apply-all* nil)
 
+;;; Called autiomatically when the document is closed
+;;; Must return T or NIL depending on wether we can actually close it or not
+(defmethod ask-save-before-close ((self OMPersistantObject))
+  (or 
+   
+   *no-check*  
+   (equal *save-apply-all* :no)
+   (saved? self)
+                 
+   (if (equal *save-apply-all* :yes)
+                     
+       (progn 
+         (save-document self)
+         ;;; return this: will be T if save went ok
+         (and (mypathname self) (saved? self)))
+                       
+     (let ((rep (om-save-y-n-cancel-dialog (name self))))
+                     
+       (when (and rep (cadr rep)) ;;; dialog exited with yes or no, and the apply-all box was checked
+         (setf *save-apply-all* (if (car rep) :yes :no)))
+                     
+       (cond 
+        ((equal rep nil) nil)  ;;; cancel : do not close
+        ((and (consp rep) (equal (car rep) nil)) t)  ;; No : do not save and close
+        ((and (consp rep) (equal (car rep) t))   ;; Yes : save and close if save is OK
+         (save-document self)
+         (and (mypathname self) (saved? self)))
+        (t nil))
+       ))
+   ))
+
+
+;;; Called when OM quits
 (defun check-om-docs-before-close ()
   (setf *save-apply-all* nil)
   (let ((ok t))
     (loop for doc-entry in *open-documents* 
           while ok do
-          (unless (and *save-apply-all* (= *save-apply-all* 0)) 
+          (unless (and *save-apply-all* (equal *save-apply-all* :no)) 
             (let ((doc (doc-entry-doc doc-entry)))
             (when (null (saved? doc))
               (let ((win (editor-window doc)))
                 (when win (om-select-window win))
-                (when (or (and *save-apply-all* (= *save-apply-all* 1))
+                (when (or (and *save-apply-all* (equal *save-apply-all* :yes))
                           (let ((rep (om-save-y-n-cancel-dialog (name doc))))
                             (if rep 
                                 (when (cadr rep)
-                                  (setf *save-apply-all* (if (car rep) 1 0)))
+                                  (setf *save-apply-all* (if (car rep) :yes :no)))
                               (setf ok nil))
                             (car rep)))
                   (or (prog1 (save-document doc)
@@ -362,7 +381,6 @@
 
 ; (check-om-docs-before-close)
 ; (om-save-y-n-cancel-dialog "Test")
-
 
 (defun om-save-y-n-cancel-dialog (name)
   (let* ((y-grid 24)
