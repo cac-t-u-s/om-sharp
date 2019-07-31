@@ -60,4 +60,11 @@
    (page-mode :accessor page-mode)))
    
 
+;;; SHEET
+(defclass sheet-track-obj () 
+  ((end-t :accessor end-t)
+   (obj-size :accessor obj-size)
+   (obj-margin :accessor obj-margin)
+   (obj-staff :accessor obj-staff)  
+   ))
 
