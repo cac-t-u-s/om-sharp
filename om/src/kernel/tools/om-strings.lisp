@@ -25,15 +25,21 @@
 (defun string+ (&rest strings) (eval `(concatenate 'string ,.strings)))
 
 (defun om-read-list-from-string (string &optional (pos 0))
-  (block nil
-    (handler-bind ((error #'(lambda (e) (om-beep-msg "read error: ~A" (type-of e)) 
-                              (return nil))))
-      (multiple-value-bind (val pos) 
-          (read-from-string string nil :eof :start pos)
-        (if (eql val :eof)
-            nil
-          (cons val (om-read-list-from-string string pos)))))))
+  (let ((str2 (delete-lisp-comments string)))
+    
+    (block nil
+      (handler-bind ((error #'(lambda (e) (om-beep-msg "read error: ~A in ~s" (type-of e) str2) 
+                                (return nil))))
+        
+        (multiple-value-bind (val pos) 
+            (read-from-string str2 nil :eof :start pos)
+          
+          (if (eql val :eof)
+              nil
+            (cons val (om-read-list-from-string str2 pos))))
+        ))))
   
+
 (defun om-text-to-lines (text)
   (let ((p2 (position #\Newline text)) 
         (rep nil))
@@ -77,6 +83,8 @@
   (let ((index (search " " string)))
     (if index (subseq string 0 index) string)))
 
+(defun delete-lisp-comments (string)
+  (string-until-char string ";"))
 
 (defun delete-spaces (string)
    (let ((pos (position-if #'(lambda (x) (and 
