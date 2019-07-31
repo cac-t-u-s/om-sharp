@@ -217,7 +217,7 @@
   (or (cadr (find name (update-arg-names reference) :key #'car :test #'string-equal))
       (and (is-om6-rest-arg name) 
            (fboundp reference)
-           (string (getf (function-arglist reference) '&rest))) ;;; the last element in lambda-list is the name of the &rest arg
+           (string (cadr (member '&rest (function-arglist reference))))) ;;; the last element in lambda-list is the name of the &rest arg
       name)) 
 
 ;======================================
@@ -240,7 +240,7 @@
                        ((find name (mapcar #'symbol-name (function-keyword-args reference)) :test #'string-equal)
                         `(:input (:type :key) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
                        ((and (find '&rest (function-arglist reference))
-                             (equal name (string (getf (function-arglist reference) '&rest))))
+                             (equal name (string (cadr (member '&rest (function-arglist reference))))))
                         `(:input (:type :optional) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
                        (t (om-print-format "Unknown input for function '~A': ~A" (list reference name) "Compatibility")
                           formatted-in))
