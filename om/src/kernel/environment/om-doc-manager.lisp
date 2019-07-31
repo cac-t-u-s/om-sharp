@@ -50,7 +50,7 @@
 (defmethod update-document-path ((self OMPersistantObject))
   (let ((doc-entry (find self *open-documents* :key 'doc-entry-doc)))
     (if doc-entry 
-        (setf (doc-entry-file doc-entry) (namestring (mypathname self)))
+        (setf (doc-entry-file doc-entry) (and (mypathname self) (namestring (mypathname self))))
       (om-beep-msg "Problem: patch ~A was not registered!" self))))
 
 (defmethod update-create-info ((self OMPersistantObject))
