@@ -92,7 +92,7 @@
         (om-with-font 
          (om-def-font :font1 :size 8)
      
-         (if (numberp (car field-data))
+         (if (list-subtypep field-data 'number)
         
              ;; Numbers: draw bpf-kind
              (let* ((min-y-val (list-min field-data))
