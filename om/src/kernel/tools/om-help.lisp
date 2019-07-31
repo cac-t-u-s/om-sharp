@@ -26,7 +26,7 @@
                           :key #'(lambda (path) (car (last (pathname-directory path)))))
          collect (om-make-menu (car (last (pathname-directory sub)))
                                (menus-from-list sub)))
-   (loop for item in (sort (om-directory folder :type '("opat" "omp")) #'string< :key #'pathname-name)
+   (loop for item in (sort (om-directory folder :type '("opat")) #'string< :key #'pathname-name)
          collect  (let ((path item))           
                     (om-make-menu-item 
                      (pathname-name path)
