@@ -90,6 +90,10 @@
   (init-bpf-points self)
   self)
 
+
+(defun om-make-bpf (type xpts ypts dec)
+  (make-instance type :x-points xpts :y-points ypts :decimals dec))
+
 ;;;===============================
 
 (defmethod get-properties-list ((self bpf))
