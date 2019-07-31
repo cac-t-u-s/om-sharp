@@ -119,13 +119,16 @@
 
 (defmethod get-all-keywords ((self t)) nil)
 
-(defmethod next-keyword-input ((self OMBox))
+(defmethod next-keyword-input ((self OMBox)) 
+
   (let ((keywordlist (apply 'append (get-all-keywords self)))
         (usedkeywords (mapcar #'(lambda (in) (intern-k (name in))) (get-keyword-inputs self))))
+    
     (if keywordlist 
         (or (find-if-not #'(lambda (elt) (member elt usedkeywords)) keywordlist)
             (values nil "All keywords are already used.."))
-      (values nil (string+ "No keyword for box '" (name self) "'.")))))
+      (values nil (string+ "No keyword for box '" (name self) "'.")))
+    ))
 
 (defmethod io-prefix ((self box-keyword-input)) ":")
 
@@ -133,9 +136,12 @@
 
 (defmethod def-reactive ((self OMBox) key) nil)
 
-(defmethod more-keyword-input ((self OMBox) &key key (value nil val-supplied-p) doc (reactive nil reactive-supplied-p))
+(defmethod more-keyword-input ((self OMBox) &key key (value nil val-supplied-p) doc (reactive nil reactive-supplied-p)) 
+
   (multiple-value-bind (def-next err-message) 
+
       (next-keyword-input self)
+
     (if def-next ;;; a keyword exist/is available
       (let ((keyname 
              (if key ;;; a specific name is asked for
@@ -202,7 +208,7 @@
 (defmethod update-output-from-new-in (box name in) nil)
 
 (defmethod smart-copy-additional-inputs ((self OMBox) newbox)
-  
+
   ;;; if boxes have common inputs (in principle, they do!) => copy the values
   (loop for in in (inputs self) do
         (let ((newin (find (name in) (inputs newbox) :key 'name :test 'string-equal)))
@@ -210,7 +216,7 @@
             (setf (value newin) (om-copy (value in)))
             (setf (reactive newin) (reactive in)))
           ))
-  
+
   (loop for out in (outputs self) do
         (let ((newout (find (name out) (outputs newbox) :key 'name :test 'string-equal)))
           (when newout 
@@ -222,10 +228,12 @@
      #'(lambda (in) 
          (more-optional-input newbox :name (name in) :value (value in) :doc (doc-string in) :reactive (reactive in)))
      (get-optional-inputs self))
+
   (mapcar 
    #'(lambda (in) 
        (more-keyword-input newbox :key (intern-k (name in)) :value (value in) :doc (doc-string in) :reactive (reactive in)))
-   (get-keyword-inputs self)))
+   (get-keyword-inputs self))
+  )
 
 (defmethod om-copy ((self OMBox)) 
   (let ((newbox (call-next-method)))

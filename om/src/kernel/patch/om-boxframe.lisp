@@ -169,18 +169,22 @@
       (next-keyword-input self)))
 
 (defmethod input-edit-areas ((self OMBoxFrame))
-  (let ((S 5))
+
+  (let ((S 5)
+        (allow-add (allow-add-inputs (object self)))
+        (allow-remove (allow-remove-inputs (object self))))
+        
     (remove nil 
             (list 
              (when (allow-add-inputs (object self))
                (make-instance '++input-area :object self :frame self
                               :pos #'(lambda (f) (om-make-point 
-                                                  (- (w f) (* (if (allow-remove-inputs (object self)) 2 1.2) S))
+                                                  (- (w f) (* (if allow-remove 2 1.2) S))
                                                   S))
                               :pick #'(lambda (f) (declare (ignore f)) (list (- S) (- S) S S))))
              (when (allow-remove-inputs (object self))
                (make-instance '--input-area :object self :frame self
-                            :pos #'(lambda (f) (om-make-point (- (w f) S) (* (if (allow-add-inputs (object self)) 2 1) S)))
+                            :pos #'(lambda (f) (om-make-point (- (w f) S) (* (if allow-add 2 1) S)))
                             :pick #'(lambda (f) (declare (ignore f)) (list (- S) (- S) S S))))))
     ))
 
@@ -189,7 +193,7 @@
     (om-with-fg-color (om-def-color :light-gray)
       (om-draw-circle (om-point-x p) (om-point-y p) 5 :fill t))))
 
-(defmethod om-draw-area ((area ++input-area))
+(defmethod om-draw-area ((area ++input-area)) 
   (unless (disabled-area area)
     (let ((p (get-position area)))
       (call-next-method)
@@ -200,7 +204,7 @@
           (om-draw-line (- (om-point-x p) 2.5) (om-point-y p)
                         (+ (om-point-x p) 2.5) (om-point-y p)))))))
 
-(defmethod om-draw-area ((area --input-area))
+(defmethod om-draw-area ((area --input-area)) 
   (unless (disabled-area area)
     (let ((p (get-position area)))
       (call-next-method) 
@@ -362,7 +366,7 @@
 
 (defmethod set-frame-areas ((self t)) nil)
 
-(defmethod set-frame-areas ((self OMBoxFrame))
+(defmethod set-frame-areas ((self OMBoxFrame)) 
   
   (let* ((box (object self))
          (nin (length (inputs box)))
@@ -1011,10 +1015,12 @@
                          )))))
 
 ;;; Displays a menu for the keyword arguments of a function
-(defun show-keywords-menu (input box view)
-;; IF ALL THE ITEMS ARE ENABLED THE SELECTION DOESN'T WORK: MYSTERIOUS...
+(defun show-keywords-menu (input box view) 
+
+; IF ALL THE ITEMS ARE ENABLED THE SELECTION DOESN'T WORK: MYSTERIOUS...
 ;(let ((fakeitem (when (= 1 (length (get-keyword-inputs box)))
 ;                    (list (om-make-menu-item "" nil :enabled nil :selected nil)))))                               
+
   (let ((menu (om-make-menu 
                "keyword arguments"                           
                (loop for key in (get-all-keywords box)

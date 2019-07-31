@@ -124,14 +124,19 @@
     ))
 
 (defmethod next-keyword-input ((self OMBoxRelatedWClass))
+
   (let ((keywordlist (apply 'append (get-all-keywords self)))
         (usedkeywords (mapcar #'(lambda (in) (name in)) (get-keyword-inputs self))))
+    
     (if keywordlist
+        
         (or (find-if-not #'(lambda (elt) (member elt usedkeywords :test 'string-equal)) keywordlist :key 'string)
             (and (find (box-free-keyword-name self) keywordlist)
                  (make-unique-name (box-free-keyword-name self) usedkeywords))
             (values nil "All keywords are already used.."))
-      (values nil (string+ "No keyword for box '" (name self) "'.")))))
+      
+      (values nil (string+ "No keyword for box '" (name self) "'.")))
+    ))
 
 
 (defmethod add-keyword-input ((self OMBoxRelatedWClass) &key key (value nil val-supplied-p) doc reactive)
