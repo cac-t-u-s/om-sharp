@@ -54,7 +54,7 @@
   (let* ((display-cache (ensure-cache-display-draw box self))
          (font (om-def-font :font1 :size 10))
          (n-lines (length (data self)))
-         (inter-line 3)
+         (inter-line 1)
          (v-margin 8)
          (line-h (if (data self) 
                      (/ (- h v-margin (* inter-line (1- n-lines))) n-lines)
@@ -77,10 +77,11 @@
 (defmethod get-array-field-data ((field list)) field)
 
 (defmethod draw-field-on-box ((self OMArray) field x y w h)
+
   (when (> (elts self) 0)
     (let ((x-space (/ w (elts self)))
           (mid-y (+ y (/ h 2)))
-          (margin-y (min 8 (/ h 2)))
+          (margin-y 2) ; (min 8 (/ h 2)))
           (field-data (get-array-field-data field)))
   
       (flet ((nth-x-pos (n) (+ x (* x-space (+ n 0.5))))
@@ -97,17 +98,22 @@
              (let* ((min-y-val (list-min field-data))
                     (max-y-val (list-max field-data))
                     (y-values-range (- max-y-val min-y-val))
-                    (y-factor (if (zerop y-values-range) 1 (float (/ (- h (* 2 margin-y)) y-values-range)))))
-          
+                    (y-factor (if (zerop y-values-range) 1 (float (/ (- h (* 2 margin-y)) y-values-range))))
+                    (draw-annex-elements (and (> h 20) (< (length field-data) 100))))
+               
                (let* ((x0 (nth-x-pos 0))
                       (val (car field-data))
-                      (y0 (+ y (- h margin-y (* (- val min-y-val) y-factor))))
-                      (step (ceiling (/ (length field-data) w)))) 
+                      (y0 (if (zerop y-values-range)
+                              mid-y
+                            (+ y (- h margin-y (* (- val min-y-val) y-factor)))))
+                      (step (ceiling (/ (length field-data) w))))
                         
                  ;;; draw the first element 
-                 (draw-cross x0 mid-y)
-                 (om-draw-circle x0 y0 2 :fill t)
+                 (when draw-annex-elements
+                   (draw-cross x0 mid-y)
+                   (om-draw-circle x0 y0 2 :fill t))
                  (om-draw-string x0 (- y0 6) (format nil "~A" val)) 
+
                  (if (= y-values-range 0) (setf max-y-val nil)) ;; just to prevent drawing the value again
 
                  (loop for n from 1 to (1- (length field-data)) 
@@ -116,9 +122,14 @@
                        (let* ((elt (nth n field-data))
                               (xx (nth-x-pos n))
                               (val (nth n field-data))
-                              (yy (+ y (- h margin-y (* (- val min-y-val) y-factor)))))
-                         (if (< (length field-data) 200) (draw-cross xx mid-y))
-                         (when (< (length field-data) 100) (om-draw-circle xx yy 2 :fill t))
+                              (yy (if (zerop y-values-range)
+                                      mid-y 
+                                    (+ y (- h margin-y (* (- val min-y-val) y-factor))))))
+                         
+                         (when draw-annex-elements
+                           (draw-cross xx mid-y)
+                           (om-draw-circle xx yy 2 :fill t))
+
                          (when (and max-y-val (= val max-y-val)) 
                            (om-draw-string xx yy (format nil "~A" val))
                            (setf max-y-val nil))
@@ -454,8 +465,9 @@ Data instanciation in a column is done according to the specified number of line
 
 ;;; list of proposed keywords are the declared names
 (defmethod get-all-keywords ((self ClassArrayBox)) 
-  (append (list (keywords self))
-          (call-next-method) ;; additional-class-attributes of the reference
+  (append (if (keywords self) 
+              (list (keywords self)) 
+            (call-next-method)) ;; additional-class-attributes of the reference
           (when (and (get-box-value self) (allow-extra-controls (get-box-value self)))
             `((,(box-free-keyword-name self))))
           ))

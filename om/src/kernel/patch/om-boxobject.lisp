@@ -106,8 +106,10 @@
   ;; this function can be called when the value is not yet initialised in the box
   (let ((val (or (and (null (lambda-state self)) (get-box-value self))
                  (make-instance (reference self)))))
-    (list (additional-class-attributes val)
-          (box-attributes-names (additional-box-attributes val)))
+    (remove nil
+            (list (additional-class-attributes val)
+                  (box-attributes-names (additional-box-attributes val))
+                  ))
     ))
 
 
