@@ -43,7 +43,10 @@
         "functions/trees"
         "functions/quantify"
 
-        "import-export/musicxml"))
+        "import-export/musicxml"
+        "compatibility"
+        ))
+
 
 
 (omNG-make-package 

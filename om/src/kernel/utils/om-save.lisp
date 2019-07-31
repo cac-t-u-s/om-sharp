@@ -730,8 +730,8 @@
 ;  (append (call-next-method)
 ;          `((:defval ,(omng-save (defval self))))))
 
-;;; foir compatibility, in case some functions have changed name
-(defmethod changed-name ((reference t)) nil)
+;;; for compatibility, in case some functions have changed name
+(defmethod function-changed-name ((reference t)) nil)
 
 (defmethod om-load-from-id ((id (eql :box)) data)
   ;; (print (list "load BOX" (find-value-in-kv-list data :type)))
@@ -756,7 +756,7 @@
                  (if (fboundp reference) 
                      (omng-make-new-boxcall (fdefinition reference) pos)
                    
-                   (let ((new-name (changed-name reference)))
+                   (let ((new-name (function-changed-name reference)))
                      (if (and new-name (fboundp new-name))
                          (progn (setf name (string new-name))
                            (omng-make-new-boxcall (fdefinition new-name) pos))

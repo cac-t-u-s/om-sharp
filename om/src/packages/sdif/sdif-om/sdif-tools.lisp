@@ -200,6 +200,9 @@ If <outfile> is just a filename (not a pathname) the file is written in the defa
 ;;; MARKERS TOOLS
 ;;;==========================================================================
 
+;;; for compat when loading old patches
+(defmethod function-changed-name ((reference (eql 'get-mrk-onsets))) 'sdif->markers)
+
 (defmethod* sdif->markers ((self sdiffile) &key (frame "1MRK") (matrix nil) (stream 0) (tmin nil) (tmax))
     :icon :sdif
     :indoc '("SDIF file" "frame type (string)" "matrix type (string)" "stream ID (int)" "min time (s)" "max time (s)")

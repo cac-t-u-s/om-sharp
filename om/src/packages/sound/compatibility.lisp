@@ -15,25 +15,9 @@
 ; File author: J. Bresson
 ;============================================================================
 
-;;;=================
-;;; SOUND PROJECT
-;;;=================
+;;; LOAD OBJECTS AND CODE FROM OM6
 
 
-(in-package :om)
-
-(load (decode-local-path "audio-api/load-audio-api.lisp"))
-        
-(mapc #'(lambda (filename) (compile&load (decode-local-path filename))) 
-      '(
-        "sound/audio-tools"
-        "sound/sound-object"
-        "sound/sound-processing"
-        "sound/synthesize"
-        "player/juce-player"
-        "player/buffer-player"
-        "sound-preferences"
-        "compatibility"
-        "sound-pack"
-        ))
+(defmethod update-arg-names ((reference (eql 'synthesize)))
+  '(("elements" "obj")))
 
