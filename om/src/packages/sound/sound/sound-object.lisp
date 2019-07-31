@@ -52,7 +52,7 @@
 
 ;;; this is the garbage action
 (defmethod om-cleanup ((self om-sound-buffer))
-  (om-print-dbg "AUDIO BUFFER CLEANUP: ~A" (list self) "SOUND_DEBUG")
+  (om-print-dbg "Free Audio buffer: ~A" (list self) "OM")
   (when (and (oa::om-pointer-ptr self) (not (om-null-pointer-p (oa::om-pointer-ptr self))))
     (audio-io::om-free-audio-buffer (oa::om-pointer-ptr self) (om-sound-buffer-nch self))))
 
@@ -87,7 +87,7 @@
 ;; om-internal-sound never explicitly frees its buffer but just releases it.
 ;; => buffer must be created 'with-GC' 
 (defmethod om-cleanup ((self om-internal-sound))
-  (om-print-dbg "SOUND CLEANUP: ~A (~A)" (list self (buffer self)) "SOUND_DEBUG")
+  (om-print-dbg "SOUND cleanup: ~A (~A)" (list self (buffer self)) "OM")
   (when (buffer self) (oa::om-release (buffer self))))
 
 (defmethod additional-slots-to-copy ((from om-internal-sound)) 
@@ -105,7 +105,7 @@
     (when (buffer self)
       (let ((new-ptr (make-audio-buffer (n-channels self) (n-samples self)))
             (self-ptr (oa::om-pointer-ptr (buffer self))))
-        (om-print-dbg "COPYING SOUND BUFFER (~D x ~D channels)..." (list (n-samples self) (n-channels self)) "SOUND_DEBUG")
+        (om-print-dbg "Copying sound buffer (~D x ~D channels)..." (list (n-samples self) (n-channels self)) "OM")
         (dotimes (ch (n-channels self))
           (dotimes (smp (n-samples self))
             (setf (cffi::mem-aref (cffi::mem-aref new-ptr :pointer ch) :float smp)
@@ -523,35 +523,44 @@ Press 'space' to play/stop the sound file.
   (when (buffer sound) (oa::om-release (buffer sound)))
   
   (if (probe-file path)
-      
-      (multiple-value-bind (buffer format channels sr ss size)
+      (progn 
+        (om-print-dbg "Loading sound from: ~s" (list path) "OM")
+        (multiple-value-bind (buffer format channels sr ss size)
+            
+            (audio-io::om-get-audio-buffer (namestring path) *default-internal-sample-size* nil)
           
-          (audio-io::om-get-audio-buffer (namestring path) *default-internal-sample-size* nil)
-        
-        (when buffer 
-          (unwind-protect 
-              (progn
-                (setf (buffer sound) (make-om-sound-buffer-GC :ptr buffer :count 1 :nch channels)
-                      (smpl-type sound) *default-internal-sample-size*
-                      (n-samples sound) size
-                      (n-channels sound) channels
-                      (sample-rate sound) sr
-                      (sample-size sound) ss)
-                sound))))
+          (when buffer 
+            (unwind-protect 
+                (progn
+                  (setf (buffer sound) (make-om-sound-buffer-GC :ptr buffer :count 1 :nch channels)
+                        (smpl-type sound) *default-internal-sample-size*
+                        (n-samples sound) size
+                        (n-channels sound) channels
+                        (sample-rate sound) sr
+                        (sample-size sound) ss)
+                  sound)))))
     (progn 
-      (om-beep-msg "Wrong pathname for sound: ~s" path)
+      (om-beep-msg "Unable to load soudn from: ~s" path)
       (setf (buffer sound) nil)
-      )))
+      nil)
+    ))
 
 
 (defun set-sound-info (sound path)
-  (multiple-value-bind (format channels sr ss size)
-      (audio-io::om-get-sound-info (namestring path))
-    (setf (n-samples sound) size
-          (n-channels sound) channels
-          (sample-rate sound) sr
-          (sample-size sound) ss)
-     sound))
+  
+  (if (probe-file path)
+
+      (multiple-value-bind (format channels sr ss size)
+          (audio-io::om-get-sound-info (namestring path))
+        (setf (n-samples sound) size
+              (n-channels sound) channels
+              (sample-rate sound) sr
+              (sample-size sound) ss)
+        )
+    
+    (om-beep-msg "Unable to load soudn from: ~s" path))
+
+  sound)
 
 
 (defun interleave-buffer (in out samples channels)
