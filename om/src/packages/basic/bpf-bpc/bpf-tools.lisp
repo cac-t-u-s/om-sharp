@@ -77,6 +77,31 @@ If <color> is :random, will choose a random color. It can also be a color symbol
    (x-transfer (point-pairs self) x-val dec))
 
 
+(defmethod! bpf-extract ((self bpf) x1 x2) 
+  :icon 233
+  :indoc '("a BPF" "x1" "x2")
+  :initvals '(nil nil nil)
+  :doc "Extracts a segment (between <x1> and <x2>) from <self>."
+  (let* ((xpts (x-points self))
+         
+         (x1-exact-pos (if x1 (position x1 xpts :test '=) 0))
+         (x1-pos (or x1-exact-pos (position x1 xpts :test '<) (length xpts)))
+
+         (x2-exact-pos (if x2 (position x2 xpts :test '=) (1- (length xpts))))
+         (x2-pos (or x2-exact-pos (position x2 xpts :test '> :from-end t) 0))
+         )
+    (om-make-bpf (type-of self)
+     (om- (append (unless x1-exact-pos (list x1))
+                  (subseq xpts x1-pos (1+ x2-pos))
+                  (unless x2-exact-pos (list x2)))
+          (or x1 (car xpts)))
+     (append (unless x1-exact-pos (list (x-transfer self x1)))
+             (subseq (y-points self) x1-pos (1+ x2-pos))
+             (unless x2-exact-pos (list (x-transfer self x2))))
+     
+     (decimals self))))
+
+
 ;;; REDUCTION
 (defmethod* reduce-points ((self bpf) &optional (approx 0.02))
      (let ((reduced-points (reduce-points (point-pairs self) approx)))
@@ -91,6 +116,7 @@ If <color> is :random, will choose a random color. It can also be a color symbol
                       :x-points (mapcar 'car reduced-points)
                       :y-points (mapcar 'cadr reduced-points)
                       :decimals (decimals self))))
+
 
 ;;;=========================================== 
 ;;; OM-SAMPLE FOR BPF
@@ -185,6 +211,9 @@ If <color> is :random, will choose a random color. It can also be a color symbol
 ;                 (mapcar #'(lambda (bpf) (multiple-value-list (om-sample bpf nbs-sr xmin xmax dec))) (bpf-list self)))))  
 
 
+;;;=========================================== 
+;;; OM-SAMPLE FOR BPF
+;;;=========================================== 
 
 (defmethod* bpf-sample ((self bpf) xmin xmax (nbsamples integer) &optional (coeff 1) (nbdec 0))
   :initvals (list (make-instance 'bpf) nil nil 10 1 0)
@@ -315,7 +344,7 @@ Outputs
 ;;;=========================================== 
 
 (defmethod* bpf-scale ((self bpf) &key x1 x2 y1 y2)
-  :icon 233
+  :icon :bpf
   :indoc '("a BPF" "xmin" "xmax" "ymin" "ymax")
   :initvals '(nil 0 100 0 100)
   :doc "Rescales <self> betwenn the supplied X (<x1>,<x2>) and/or Y (<y1>,<y2>) values."
@@ -327,5 +356,76 @@ Outputs
     (make-instance (class-of self) :x-points xlist :y-points ylist 
                    :decimals (decimals self)
                    :action (action self) :color (color self)))))
+
+
+
+(defmethod! bpf-offset ((self bpf) offset)
+            :icon :bpf   
+            :initvals '(nil 0) 
+            :indoc '("a bpf" "x offset")
+            :outdoc '("offset BPF")
+            :numouts 1
+            :doc "Generates a new BPF by addif <offset> to the x-points of <self>"
+            (let ((newbpf (clone self))) 
+              (setf (x-points newbpf) (om+ (x-points self) offset))
+              newbpf))
+
+
+(defmethod! bpf-crossfade ((bpf1 bpf) (bpf2 bpf) &key xfade-profile)
+            :icon :bpf   
+            :initvals '(nil nil nil nil) 
+            :indoc '("bpf" "bpf" "crossfade profile (bpf)")
+            :outdoc '("merged/crossfaded BPF")
+            :numouts 1
+            :doc "Generates a new BPF by crossfading the overlapping interval between BPF1 and BPF2.
+
+- <xfade-profile> determines the general crossfade profile (default = linear). 
+"
+            (let* ((first bpf1)
+                   (second bpf2))
+              (when (< (caar (point-pairs second)) (caar (point-pairs first)))
+                (setf first second)
+                (setf second bpf1))
+              (let* ((t1 (car (car (point-pairs second))))
+                     (t2 (car (last-elem (point-pairs first))))
+                     (commonxpoints (band-filter (sort (x-union (copy-list (x-points first)) 
+                                                                (copy-list (x-points second))) '<)
+                                                 (list (list t1 t2)) 'pass))
+                     (scaled-profile (if (< t1 t2)
+                                       (if xfade-profile (om-make-bpf 'bpf 
+                                                        (om-scale (x-points xfade-profile) (car commonxpoints) (last-elem commonxpoints))
+                                                        (om-scale (y-points xfade-profile) 0.0 1.0)
+                                                        3)
+                                         (om-make-bpf 'bpf
+                                                      (list (car commonxpoints) (last-elem commonxpoints))
+                                                      '(0.0 1.0)
+                                                      3)
+                                         )
+                                       (om-make-bpf 'bpf 
+                                                    '(0.5 0.5)
+                                                    '(0.0 1.0)
+                                                    3)
+                                       ))
+                     
+                     (seg1 (loop for p in (point-pairs first)
+                                 while (< (car p) t1) collect p))
+                     (seg2 (loop for p in (point-pairs second)
+                                 when (> (car p) t2) collect p))
+                     (segx (loop for xp in commonxpoints
+                                 collect 
+                                 (let ((y1 (x-transfer first xp))
+                                       (y2 (x-transfer second xp))
+                                       (itpfact (x-transfer scaled-profile xp)))
+                                   (list xp (linear-interpol 0.0 1.0 y1 y2 itpfact)))))
+                     )
+                    
+                   (om-make-bpf (type-of bpf1) 
+                                (mapcar 'car (append seg1 segx seg2)) 
+                                (mapcar 'cadr (append seg1 segx seg2)) 
+                                (max (decimals bpf1) (decimals bpf2)))
+                   )))
+
+
+
 
 
