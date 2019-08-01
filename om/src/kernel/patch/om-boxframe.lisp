@@ -100,8 +100,10 @@
          )))
 
 (defmethod area-tt-text ((self output-area)) 
-  (or (doc-string (object self))
-      (name (object self))))
+  (if (doc-string (object self))
+      (list (name (object self))
+            (doc-string (object self)))
+    (name (object self))))
 
 
 (defmethod area-tt-pos ((self output-area)) 

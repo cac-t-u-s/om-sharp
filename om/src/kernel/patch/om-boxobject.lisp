@@ -82,7 +82,7 @@
                                   :name (string (slot-name slot)) 
                                   :reference (slot-name slot)
                                   :box self
-                                 :doc-string  (or (slot-doc slot) "")))
+                                  :doc-string  (or (slot-doc slot) nil)))
                (remove-if-not 'slot-initargs (class-direct-instance-slots class)))    ;;; direct ?
       ))))
 
