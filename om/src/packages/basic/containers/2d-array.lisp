@@ -79,6 +79,7 @@
 (defmethod draw-field-on-box ((self OMArray) field x y w h)
 
   (when (> (elts self) 0)
+
     (let ((x-space (/ w (elts self)))
           (mid-y (+ y (/ h 2)))
           (margin-y 2) ; (min 8 (/ h 2)))
@@ -199,7 +200,7 @@
   ;;; fields is reset in any case to match with the data
   (setf (fields self) (length (data self)))   ;; (get-array-data self)
 
-  (unless (elts self)
+  (unless (and (elts self) (plusp (elts self)))
     (setf (elts self)
           (loop for field in (data self) 
                 when (listp field) 
