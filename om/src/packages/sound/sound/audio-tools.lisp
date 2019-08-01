@@ -94,7 +94,7 @@ If either <amp2> or <d> is NIL, generates a simple envelope with attack and rele
   :indoc '("milliseconds")
   :numouts 1
   :doc "Converts <n> (milliseconds / integers) to seconds (floats)."
-  (* n 0.001))
+  (/ n 1000.0))
 
 (defmethod* ms->sec ((n list)) (mapcar #'(lambda (s) (ms->sec s)) n))
 
