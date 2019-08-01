@@ -443,9 +443,9 @@
                            (,.input-names) 
                       ,body)))
       
-        (om-print-format "~%------------------------------------------------------~%PATCH COMPILATION: ~A ~%" (list (compiled-fun-name self)))
-        (write f-def :stream om-lisp::*om-stream* :escape nil :pretty t)
-        (om-print-format "~%------------------------------------------------------~%~%")
+        ;(om-print-format "~%------------------------------------------------------~%PATCH COMPILATION: ~A ~%" (list (compiled-fun-name self)))
+        ;(write f-def :stream om-lisp::*om-stream* :escape nil :pretty t)
+        ;(om-print-format "~%------------------------------------------------------~%~%")
       
         (compile (eval f-def))))
     )
