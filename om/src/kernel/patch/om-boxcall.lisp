@@ -169,16 +169,18 @@ All boxes which their reference is a OM generic function are instances of this c
     (if exists (copy-io exists) io)))
 
 (defmethod update-from-reference ((self OMBoxCall))
-  (let ((new-inputs (append (loop for i in (create-box-inputs self) collect 
-                                  (copy-if-exists i (inputs self)))
+
+  (let ((new-inputs (append (loop for i in (create-box-inputs self)
+                                  collect (copy-if-exists i (inputs self)))
                             (get-keyword-inputs self)))
-        (new-outputs (append (loop for o in (create-box-outputs self) collect 
-                                   (copy-if-exists o (outputs self)))
+                    
+        (new-outputs (append (loop for o in (create-box-outputs self)
+                                   collect (copy-if-exists o (outputs self)))
                              (get-keyword-outputs self))))
     
-    
+    ;;; remove former i-o connections 
     (let ((patch (container self)))
-      (loop for io in (append (inputs self) (outputs self)) do
+      (loop for io in (append (get-standard-inputs self) (get-standard-outputs self)) do
             (loop for c in (connections io)
                   do (omng-remove-element patch c))))
     

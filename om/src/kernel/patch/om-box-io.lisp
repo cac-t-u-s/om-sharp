@@ -87,6 +87,10 @@
 (defmethod get-keyword-inputs ((box OMBox))
   (remove-if-not #'(lambda (item) (subtypep item 'box-keyword-input)) (inputs box) :key 'type-of))
 
+(defmethod get-standard-inputs ((box OMBox))
+  (remove-if #'(lambda (item) (or (subtypep item 'box-keyword-input)
+                                  (subtypep item 'box-optional-input))) (inputs box) :key 'type-of))
+
 ;;; used (?) for subclasses such as patch boxes, loop boxes, sequence...
 (defmethod do-delete-one-input-extra ((self OMBox)) nil)
 
@@ -278,6 +282,15 @@
 
 (defun get-keyword-outputs (box)
   (remove-if-not #'(lambda (item) (subtypep item 'box-keyword-output)) (outputs box) :key 'type-of))
+
+(defun get-optional-outputs (box)
+  (remove-if-not #'(lambda (item) (subtypep item 'box-optional-output)) (outputs box) :key 'type-of))
+
+(defun get-standard-outputs (box)
+  (remove-if #'(lambda (item) (or (subtypep item 'box-keyword-output)
+                                  (subtypep item 'box-optional-output)))
+             (outputs box) :key 'type-of))
+
 
 (defmethod remove-one-output ((self ombox) (output box-output))
   (mapc #'(lambda (c) 
