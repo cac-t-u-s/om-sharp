@@ -53,7 +53,7 @@
 ;;;======================================
 (defclass internal-data-stream (named-object time-sequence schedulable-object)
   ((default-frame-type :accessor default-frame-type :initform 'act-bundle)
-   (frames :accessor frames :initform nil :documentation "a list of timed data chunks")
+   (frames :initform nil :documentation "a list of timed data chunks")
    (slice-duration :accessor slice-duration :initform nil)  ;;; what is it for ?
    ))
 
@@ -88,7 +88,7 @@
 ;;; redefines the slots as :initargs
 (defclass* data-stream (internal-data-stream named-object time-sequence schedulable-object)
   ((default-frame-type :accessor default-frame-type :initarg :default-frame-type :initform 'act-bundle)
-   (frames :accessor frames :initarg :frames :initform nil :documentation "a list of timed data chunks")
+   (frames :initarg :frames :initform nil :documentation "a list of timed data chunks")
    ))
 
 
@@ -96,6 +96,7 @@
 (defmethod om-init-instance ((self data-stream) &optional initargs)  
 
   (let ((frames (find-value-in-kv-list initargs :frames)))
+    
     (when frames 
       (setf (default-frame-type self) (type-of (car frames)))
       ;;; => makes copies of the frames if provided as initargs
