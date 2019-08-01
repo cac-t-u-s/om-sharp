@@ -227,11 +227,12 @@
           (set-om-pack-symbols) ;; brutal...
           
           (register-images (lib-icons-folder lib))
-          (gen-lib-reference lib)
-
+          
           (setf (loaded? lib) t)
           (update-preference-window-module :libraries) ;;; update if the window is opened    
           (update-preference-window-module :externals) ;;; update if the window is opened    
+
+          (gen-lib-reference lib)
 
           (om-print-format "~%==============================================")
           (om-print-format "~A ~A" (list (name lib) (or (version lib) "")))
