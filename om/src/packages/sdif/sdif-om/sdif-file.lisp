@@ -46,8 +46,8 @@ Lock the box ('b') to keep the current file.
 (defmethod filepathname ((self sdiffile)) (file-pathname self))
 (defmethod streamsdesc ((self sdiffile)) (file-map self))
 
-(defmethod additional-slots-to-save ((self SDIFFile)) '(file-pathname))
-(defmethod additional-slots-to-copy ((self SDIFFile)) '(file-pathname))
+(defmethod additional-slots-to-save ((self SDIFFile)) '(file-pathname file-map))
+(defmethod additional-slots-to-copy ((self SDIFFile)) '(file-pathname file-map))
  
 
 ;;; INIT METHODS
@@ -77,8 +77,15 @@ Lock the box ('b') to keep the current file.
 
 (defmethod om-init-instance ((self SDIFFile) &optional initargs)
   (call-next-method)
-  (when (file-pathname self) 
-    (eval-sdif-expression #'(lambda () (load-sdif-file self))))
+  
+  (when (and initargs    ;;; we want to load only in evaluations (not in copy/load-patch) 
+             (file-pathname self))
+    
+    ;;; this would be in case we do it outside of evaluation context...
+    ;; (eval-sdif-expression #'(lambda () (load-sdif-file self)))
+    (load-sdif-file self)
+    )
+
   self)
 
 
@@ -136,6 +143,69 @@ Lock the box ('b') to keep the current file.
 
 (defstruct fstream-desc id fsig tmin tmax nf matrices)
 (defstruct mstream-desc msig fields rmax tmin tmax nf)
+
+;;; COPY / SAVE / LOAD UTILS
+
+(defmethod om-copy ((self fstream-desc))
+  (make-fstream-desc 
+   :id (fstream-desc-id self)
+   :fsig (fstream-desc-fsig self)
+   :tmin (fstream-desc-tmin self)
+   :tmax (fstream-desc-tmax self)
+   :nf (fstream-desc-nf self)
+   :matrices (om-copy (fstream-desc-matrices self))))
+  
+(defmethod omng-save ((self fstream-desc))  
+  `(:fstream-desc 
+    (:id ,(fstream-desc-id self))
+    (:fsig ,(fstream-desc-fsig self))
+    (:tmin ,(fstream-desc-tmin self))
+    (:tmax ,(fstream-desc-tmax self))
+    (:nf ,(fstream-desc-nf self))
+    (:matrices ,(omng-save (fstream-desc-matrices self)))))
+
+(defmethod om-load-from-id ((id (eql :fstream-desc)) data)
+  (make-fstream-desc 
+   :id (find-value-in-kv-list data :id) 
+   :fsig (find-value-in-kv-list data :fsig)
+   :tmin (find-value-in-kv-list data :tmin)
+   :tmax (find-value-in-kv-list data :tmax)
+   :nf (find-value-in-kv-list data :nf)
+   :matrices (omng-load (find-value-in-kv-list data :matrices))
+   ))
+
+
+(defmethod om-copy ((self mstream-desc))
+  (make-mstream-desc
+   :msig (mstream-desc-msig self)
+   :fields (mstream-desc-fields self)
+   :rmax (mstream-desc-rmax self)
+   :tmin (mstream-desc-tmin self)
+   :tmax (mstream-desc-tmax self)
+   :nf (mstream-desc-nf self)))
+  
+(defmethod omng-save ((self mstream-desc))  
+  `(:mstream-desc 
+    (:msig ,(mstream-desc-msig self))
+    (:fields ,(mstream-desc-fields self))
+    (:rmax ,(mstream-desc-rmax self))
+    (:tmin ,(mstream-desc-tmin self))
+    (:tmax ,(mstream-desc-tmax self))
+    (:nf ,(mstream-desc-nf self))))
+
+(defmethod om-load-from-id ((id (eql :mstream-desc)) data)
+  (make-mstream-desc 
+   :msig (find-value-in-kv-list data :msig) 
+   :fields (find-value-in-kv-list data :fields)
+   :rmax (find-value-in-kv-list data :rmax)
+   :tmin (find-value-in-kv-list data :tmin)
+   :tmax (find-value-in-kv-list data :tmax)
+   :nf (find-value-in-kv-list data :nf)
+   ))
+
+
+
+
 
 (defun check-current-singnature (ptr)
   (sdif::sdif-check-signature (sdif::SdifSignatureToString (sdif::SdifFCurrSignature ptr))))
@@ -445,7 +515,7 @@ Name/Value tables are formatted as SDIFNVT objects.
         (let ((nvt (find table-num nvtlist :key 'tnum)))
           (if nvt
               (find-in-nvt nvt entry)
-            (om-beep-msg (string+ "There is no table number " (integer-to-string table-num)))))
+            (om-beep-msg "There is no table number ~D" table-num)))
       (let ((rep nil))
         (loop for nvt in nvtlist while (not rep) do
               (setf rep (find-in-nvt nvt entry)))

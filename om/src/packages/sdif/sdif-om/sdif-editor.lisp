@@ -211,6 +211,7 @@
 
 (defmethod update-plot-data ((self field-plot-view) f-desc m-desc field-num)
   
+  ;;; will do this in the main OM-EVAL thread where all SDIF happens
   (eval-sdif-expression 
    
    #'(lambda ()
