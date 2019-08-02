@@ -138,6 +138,13 @@
 ;;; GENERAL / TOP-LEVEL
 ;;;======================================
 (defmethod* write-sdif-file ((frames list) &key (outpath "out.sdif") types nvts)
+  
+  :indoc '("a list of SDIFFrame objects" "SDIF file pathname" "list of SDIFType obvjects" "list of SDIFNVT objects")
+  :outdoc '("pathname of written SDIF file")
+  :initvals '(nil "out.sdif" nil nil)
+  :icon 'sdif
+  :doc "Writes a list of SDIFFrame objects as a new SDIF file."
+  
   (let ((out-path (cond ((pathnamep outpath) outpath)
                          ((stringp outpath) (outfile outpath))
                          (t (om-choose-new-file-dialog)))))
