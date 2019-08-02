@@ -49,7 +49,7 @@
          `((:macosx ,(om-fi::om-foreign-library-pathname "libportmidi.dylib"))
            (:windows (:or ,(om-fi::om-foreign-library-pathname "libportmidi.dll")
                       (:default "libportmidi")))
-           (:linux (:or "libportmidi.so" ,(om-fi::om-foreign-library-pathname "libportmidi.dll")))
+           (:linux (:or "libportmidi.so" ,(om-fi::om-foreign-library-pathname "libportmidi.so")))
 	   ((:default "libportmidi"))))))
 (om-fi::add-foreign-loader 'load-midi-lib)
 (om::add-om-init-fun 'om-midi::om-start-portmidi)
