@@ -34,9 +34,10 @@
           om-view-mouse-enter-handler
           om-view-mouse-leave-handler
           om-view-mouse-motion-handler
+          om-reset-mouse-motion
           om-view-pan-handler
           om-view-zoom-handler
-
+          
           om-init-motion
           om-click-motion-handler
           om-click-release-handler
@@ -194,6 +195,9 @@
 
 ;; CF. CURSOR.LISP
 (defmethod update-view-cursor ((self t) pos) nil)
+
+(defun om-reset-mouse-motion ()
+  (setf *last-visited-view* nil))
 
 (defmethod internal-motion-callback ((self om-interactive-object) pos)
   (unless (equal *last-visited-view* self)

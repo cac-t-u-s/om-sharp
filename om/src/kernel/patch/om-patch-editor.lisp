@@ -407,7 +407,11 @@
   (or (click-connection-handle self position)
       (progn
         (when (om-get-clipboard) (set-paste-position position self))
-        (mouse-selection self position))))
+        (if *add-item-on-patch*
+            (new-box-in-patch-editor self (string *add-item-on-patch*) position)
+          (mouse-selection self position))
+        ))
+  )
 
 ;;;handles the selction/drag, etc. of connections
 (defmethod click-connection-handle ((self patch-editor-view) pos)
