@@ -24,14 +24,12 @@
 
 (defmethod* point-pairs ((self bpf)) 
   :initvals '(nil)
-  :indoc '("a BPC")
-  :doc "Retruns the list of points in <self> as a list ((x1 y1) (x2 y2) ...)"
+  :indoc '("a BPC or BPF")
+  :doc "Retruns the list of points in <self> as a list ((x1 y1) (x2 y2) ...) or ((x1 y1 t1) (x2 y2 t2) ...)"
+  :icon :bpf
   (mat-trans (list (x-points self) (y-points self))))
 
 (defmethod* point-pairs ((self bpc)) 
-  :initvals '(nil)
-  :indoc '("a BPC")
-  :doc "Retruns the list of points in <self> as a list ((x1 y1 t1) (x2 y2 t2) ...)"
   (mat-trans (list (x-points self) (y-points self))))
 
 ;;; compat 
@@ -50,7 +48,7 @@
 (defmethod* set-color ((self bpf) color &optional (new? t)) 
   :initvals '(nil nil t)
   :indoc '("a BPF or BPC" " color" "create a new object")
-  :icon 241 
+  :icon :bpf-colors 
   :doc "Sets the color of <self> with <color>.
 
 If <new?> the function will retrun a new colored object; otherwise it will change the color of <self>.
@@ -82,6 +80,7 @@ If <color> is :random, will choose a random color. It can also be a color symbol
   :indoc '("a BPF" "x1" "x2")
   :initvals '(nil nil nil)
   :doc "Extracts a segment (between <x1> and <x2>) from <self>."
+  :icon :bpf-extract
   (let* ((xpts (x-points self))
          
          (x1-exact-pos (if x1 (position x1 xpts :test '=) 0))
@@ -104,18 +103,18 @@ If <color> is :random, will choose a random color. It can also be a color symbol
 
 ;;; REDUCTION
 (defmethod* reduce-points ((self bpf) &optional (approx 0.02))
-     (let ((reduced-points (reduce-points (point-pairs self) approx)))
-       (make-instance (type-of self) 
-                      :x-points (mapcar 'car reduced-points)
-                      :y-points (mapcar 'cadr reduced-points)
-                      :decimals (decimals self))))
+  (let ((reduced-points (reduce-points (point-pairs self) approx)))
+    (make-instance (type-of self) 
+                   :x-points (mapcar 'car reduced-points)
+                   :y-points (mapcar 'cadr reduced-points)
+                   :decimals (decimals self))))
 
 (defmethod* reduce-n-points ((self bpf) n &optional (precision 10) (verbose nil))
-     (let ((reduced-points (reduce-n-points (point-pairs self) n precision verbose)))
-       (make-instance (type-of self) 
-                      :x-points (mapcar 'car reduced-points)
-                      :y-points (mapcar 'cadr reduced-points)
-                      :decimals (decimals self))))
+  (let ((reduced-points (reduce-n-points (point-pairs self) n precision verbose)))
+    (make-instance (type-of self) 
+                   :x-points (mapcar 'car reduced-points)
+                   :y-points (mapcar 'cadr reduced-points)
+                   :decimals (decimals self))))
 
 
 ;;;=========================================== 
