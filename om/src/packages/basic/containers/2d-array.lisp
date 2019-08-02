@@ -93,68 +93,76 @@
         (om-with-font 
          (om-def-font :font1 :size 8)
      
-         (if (list-subtypep field-data 'number)
-        
-             ;; Numbers: draw bpf-kind
-             (let* ((min-y-val (list-min field-data))
-                    (max-y-val (list-max field-data))
-                    (y-values-range (- max-y-val min-y-val))
-                    (y-factor (if (zerop y-values-range) 1 (float (/ (- h (* 2 margin-y)) y-values-range))))
-                    (draw-annex-elements (and (> h 20) (< (length field-data) 100))))
+         (cond 
+
+          ((null field-data)
+           (om-draw-string (- (* w 0.5) 40) mid-y "[no data]"))
+          
+          ((list-subtypep field-data 'number)
+           ;; Numbers: draw bpf-kind
+           (let* ((min-y-val (list-min field-data))
+                  (max-y-val (list-max field-data))
+                  (y-values-range (- max-y-val min-y-val))
+                  (y-factor (if (zerop y-values-range) 1 (float (/ (- h (* 2 margin-y)) y-values-range))))
+                  (draw-annex-elements (and (> h 20) (< (length field-data) 100))))
                
-               (let* ((x0 (nth-x-pos 0))
-                      (val (car field-data))
-                      (y0 (if (zerop y-values-range)
-                              mid-y
-                            (+ y (- h margin-y (* (- val min-y-val) y-factor)))))
-                      (step (ceiling (/ (length field-data) w))))
+             (let* ((x0 (nth-x-pos 0))
+                    (val (car field-data))
+                    (y0 (if (zerop y-values-range)
+                            mid-y
+                          (+ y (- h margin-y (* (- val min-y-val) y-factor)))))
+                    (step (ceiling (/ (length field-data) w))))
                         
-                 ;;; draw the first element 
-                 (when draw-annex-elements
-                   (draw-cross x0 mid-y)
-                   (om-draw-circle x0 y0 2 :fill t))
-                 (om-draw-string x0 (- y0 6) (format nil "~A" val)) 
+               ;;; draw the first element 
+               (when draw-annex-elements
+                 (draw-cross x0 mid-y)
+                 (om-draw-circle x0 y0 2 :fill t))
+               (om-draw-string x0 (- y0 6) (format nil "~A" val)) 
 
-                 (if (= y-values-range 0) (setf max-y-val nil)) ;; just to prevent drawing the value again
+               (if (= y-values-range 0) (setf max-y-val nil)) ;; just to prevent drawing the value again
 
-                 (loop for n from 1 to (1- (length field-data)) 
-                       by step do
+               (loop for n from 1 to (1- (length field-data)) 
+                     by step do
                      ;(if (> step 1) (setf n (min (1- (length field-data)) (+ n (om-random 0 step)))))
-                       (let* ((elt (nth n field-data))
-                              (xx (nth-x-pos n))
-                              (val (nth n field-data))
-                              (yy (if (zerop y-values-range)
-                                      mid-y 
-                                    (+ y (- h margin-y (* (- val min-y-val) y-factor))))))
+                     (let* ((elt (nth n field-data))
+                            (xx (nth-x-pos n))
+                            (val (nth n field-data))
+                            (yy (if (zerop y-values-range)
+                                    mid-y 
+                                  (+ y (- h margin-y (* (- val min-y-val) y-factor))))))
                          
-                         (when draw-annex-elements
-                           (draw-cross xx mid-y)
-                           (om-draw-circle xx yy 2 :fill t))
+                       (when draw-annex-elements
+                         (draw-cross xx mid-y)
+                         (om-draw-circle xx yy 2 :fill t))
 
-                         (when (and max-y-val (= val max-y-val)) 
-                           (om-draw-string xx yy (format nil "~A" val))
-                           (setf max-y-val nil))
-                         (om-draw-line x0 y0 xx yy) 
-                         (setf x0 xx y0 yy))
-                       )
-                 (when (> step 1) 
-                   (om-draw-rect (- (* w 0.5) 60) (- mid-y 10) 125 15 :color (om-make-color-alpha (om-def-color :white) 0.8)  :fill t)
-                   (om-draw-string (- (* w 0.5) 58) mid-y (format nil "[display down-sampled x 1/~D]" step)
-                                   :color (om-make-color .7 .6 .7)))
-                 ))
+                       (when (and max-y-val (= val max-y-val)) 
+                         (om-draw-string xx yy (format nil "~A" val))
+                         (setf max-y-val nil))
+                       (om-draw-line x0 y0 xx yy) 
+                       (setf x0 xx y0 yy))
+                     )
+               (when (> step 1) 
+                 (om-draw-rect (- (* w 0.5) 60) (- mid-y 10) 125 15 :color (om-make-color-alpha (om-def-color :white) 0.8)  :fill t)
+                 (om-draw-string (- (* w 0.5) 58) mid-y (format nil "[display down-sampled x 1/~D]" step)
+                                 :color (om-make-color .7 .6 .7)))
+               ))
+           )
 
            ;;; NaN
-           (if (< (length field-data) 200)
-               (loop for elt in field-data
-                     for n = 0 then (+ n 1) do
-                     (let* ((xx (nth-x-pos n))
-                            (val (nth n field-data))
-                            (yy (+ y (* h .5))))
-                       (draw-cross xx mid-y)  
-                       (draw-element-in-array-field val xx yy x-space h)
-                       ))
-             (om-draw-string (- (* w 0.5) 40) mid-y "[...(list too long)...]"))
-           ))))))
+           ((< (length field-data) 200)
+            (loop for elt in field-data
+                  for n = 0 then (+ n 1) do
+                  (let* ((xx (nth-x-pos n))
+                         (val (nth n field-data))
+                         (yy (+ y (* h .5))))
+                    (draw-cross xx mid-y)  
+                    (draw-element-in-array-field val xx yy x-space h)
+                    )))
+           
+           (t
+            (om-draw-string (- (* w 0.5) 40) mid-y "[...(list too long)...]")))
+         ) ;; end COND
+        ))))
 
 
 (defmethod draw-element-in-array-field ((self t) center-x center-y w h)
@@ -337,7 +345,7 @@ Data instanciation in a column is done according to the specified number of line
   (setf (fields self) (length (field-names self)))
   (unless (elts self) (setf (elts self) 0))
   
-  (when initargs ;; INITARGS = NIL means we are loading a saved object (data is already in)
+  (when  initargs ;; INITARGS = NIL means we are loading a saved object (data is already in)
     (setf (data self) ;; (SETF DATA) will recall this initialization methods with :initargs = NIL :( 
           (loop for field in (field-names self) collect
                 
