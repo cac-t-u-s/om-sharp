@@ -603,11 +603,13 @@ Name/Value tables are formatted as SDIFNVT objects.
                                                               collect 
                                                               (cond
                                                                ((numberp colNum) 
-                                                                (sdif::SdifFCurrOneRowCol sdiffileptr (1+ colNum)))
+                                                                (coerce (sdif::SdifFCurrOneRowCol sdiffileptr (1+ colNum)) 'single-float))
                                                                ((consp colNum) 
-                                                                (loop for n in colNum collect (sdif::SdifFCurrOneRowCol sdiffileptr (1+ n))))
-                                                               ((null colNum) (loop for n from 1 to nf collect 
-                                                                                    (coerce (sdif::SdifFCurrOneRowCol sdiffileptr n) 'single-float)))))
+                                                                (loop for n in colNum collect 
+                                                                      (coerce (sdif::SdifFCurrOneRowCol sdiffileptr (1+ n)) 'single-float)))
+                                                               ((null colNum) 
+                                                                (loop for n from 1 to nf collect 
+                                                                      (coerce (sdif::SdifFCurrOneRowCol sdiffileptr n) 'single-float)))))
                                                         ))
                                                    (loop for k from (1+ r2) to (1- ne) 
                                                          do (setf bytesread (+ bytesread (sdif::SdifFSkipOneRow sdiffileptr))))
@@ -759,7 +761,7 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
   )
 
 
-(defmethod* GetSDIFTimes ((self sdifFile) sID frameType matType tmin tmax)
+(defmethod* GetSDIFTimes ((self t) sID frameType matType tmin tmax)
    
    :indoc '("SDIF file" "stream number (integer)" "frame type" "matrix type" "min time (s)" "max time (s)")
    :initvals '(nil 0 "" "" nil nil)
@@ -774,6 +776,8 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
 
 "
    (get-sdif-times self sID frameType matType tmin tmax))
+
+
 
 
 (defmethod* GetSDIFFrames ((self t) &key sID frameType tmin tmax)
