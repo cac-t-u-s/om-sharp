@@ -64,6 +64,7 @@
                    :callback-type :interface-data
                    :print-function (or print-item #'(lambda (x) (format nil "~a"  x )))
                    :selection-callback #'tree-view-selected-function
+                   :retract-callback #'tree-view-unselected-function
                    :action-callback #'tree-view-action-function 
                    
                  ;:extend-callback #'(lambda (self item) (add-a-message self  "~&Extended item ~S" item))
@@ -83,6 +84,8 @@
 (defun tree-view-selected-function (window item)
   (om-selected-item-from-tree-view item window))
 
+(defun tree-view-unselected-function (window item)
+  (om-selected-item-from-tree-view nil window))
 
 
   ;(print (list self item))

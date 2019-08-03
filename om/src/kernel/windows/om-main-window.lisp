@@ -335,6 +335,13 @@
 (defmethod get-icon ((self OMLib)) (if (loaded? self) :icon-lib-loaded :icon-lib))
 (defmethod get-icon ((self symbol)) :icon-special)
 
+(defparameter *packages-tab-text* "
+The list on the left show the packages inbuilt in the OM environment.
+
+Each packages contain classes (object constructors), functions, and/or special boxes.
+
+Double click on one of these items and add it by just clicking in an patch window.
+")
 
 (defun make-om-package-tab ()
   (let ((pack-tree-view (om-make-tree-view (subpackages *om-package-tree*) 
@@ -348,7 +355,9 @@
                                            ))
         (side-panel (om-make-di 'om-multi-text 
                                 :size (om-make-point nil nil)
-                                :font (om-def-font :font1))))
+                                :font (om-def-font :font1)
+                                :fg-color (om-def-color :dark-gray)
+                                :text *packages-tab-text*)))
     (om-make-layout 
      'om-row-layout :name "Packages Library"
      :subviews (list pack-tree-view 
@@ -406,9 +415,19 @@
          )
         )))
 
+
 ;;;===========================================
 ;;; LIBRARIES
 ;;;===========================================
+
+
+(defparameter *libs-tab-text* "
+The list on the left show all libraries found in OM libraries search paths.
+
+- Double click on a library icon to load it in OM.
+- Double click on an internal item's icon (of a loaded library) and add it by just clicking in an patch window.
+")
+
 
 (defun make-libs-tab ()
   (let ((libs-tree-view (om-make-tree-view (subpackages *om-libs-root-package*) 
@@ -420,9 +439,14 @@
                                              :item-icon #'(lambda (item) (get-icon item))
                                              :icons (list :icon-pack :icon-fun :icon-genfun :icon-class :icon-lib-loaded :icon-lib)
                                              ))
-          (side-panel (om-make-di 'om-multi-text 
-                                  :size (om-make-point nil nil)
-                                  :font (om-def-font :font1))))
+          (side-panel 
+           (om-make-di 
+            'om-multi-text 
+            :size (om-make-point nil nil)
+            :font (om-def-font :font1) 
+            :fg-color (om-def-color :dark-gray)
+            :text *libs-tab-text*)))
+          
       (om-make-layout 
        'om-row-layout :name "External Libraries"
        :subviews (list 
@@ -447,7 +471,7 @@
 
 (defmethod om-double-clicked-item-from-tree-view ((self OMLib) (window om-main-window)) 
   (when (or (not (loaded? self))
-            (om-y-or-n-dialog (format nil "The library '~A' is already loaded. Reload ?" (name self))))
+            (om-y-or-n-dialog (format nil "The library '~A' is already loaded. Reload it ?" (name self))))
     (load-om-library self)
     (update-libraries-tab window)
 
@@ -507,6 +531,22 @@
 (defmethod om-double-clicked-item-from-tree-view ((self symbol) (window om-main-window)) 
   (set-add-item-on-patch self))
 
+
+
+;;; UNSELECT
+(defmethod om-selected-item-from-tree-view ((self null) (window om-main-window)) 
+  (let ((view (om-get-current-view (main-layout window))))
+    (cond 
+     ((equal view (libs-view window))
+      (let ((info-text (nth 2 (om-subviews view))))
+        (om-set-fg-color info-text (om-def-color :dark-gray))
+        (om-set-dialog-item-text info-text *libs-tab-text*))) 
+
+     ((equal view (package-view window))
+      (let ((info-text (nth 2 (om-subviews view))))
+        (om-set-fg-color info-text (om-def-color :dark-gray))
+        (om-set-dialog-item-text info-text *packages-tab-text*))) 
+     (t nil))))
 
 
 
