@@ -76,7 +76,7 @@ As output it returns the contents of the text buffer as a list formatted accordi
 ;;;===================================
 ;;; FORMATTING
 (defun format-from-text-lines (lines mode)
-  (case (print mode) 
+  (case mode 
     (:lines-cols (remove nil (loop for line in lines collect (om-read-list-from-string line)))) ;; (or ... (list line))
     (:lines (remove nil (mapcar #'(lambda (l) (ignore-errors (read-from-string l nil))) lines)))
     (:value (read-from-string (apply 'string+ (mapcar #'(lambda (line) (string+ (delete-lisp-comments line) " ")) lines)) nil))
