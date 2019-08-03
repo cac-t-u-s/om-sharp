@@ -959,6 +959,8 @@
 ;======================================
 (defmethod om-make-dialog-item ((type t) pos size text &rest args) nil)
 
+;;; TEXT BOX
+
 (defmethod om-make-dialog-item ((type (eql 'text-box)) pos size text &rest args) text)
 
 (defmethod om-load-editor-box1 (name (reference (eql 'text-box))
@@ -981,6 +983,20 @@
        (:value ,(find-value-in-kv-list (cdr (eval (first inputs))) :value))))
      ))
 
+
+;;; TEXT-VIEW
+
+(defmethod om-make-dialog-item ((type (eql 'text-view)) pos size text &rest args) (list text))
+(defmethod om-set-dialog-item-text ((dummy list) text) (setf (car dummy) text))
+
+(defmethod om-load-editor-box1 (name (reference (eql 'text-view))
+                                     inputs position size value lock 
+                                     &optional fname editparams spict meditor pictlist show-name)
+  (om-load-editor-box1 name 'text-box 
+                       inputs position size (car value) lock 
+                       fname editparams spict meditor pictlist show-name))
+  
+;;; SINGLE-ITEM-LIST / MULTI-ITEM-LIST
 
 (defmethod om-make-dialog-item ((type (eql 'single-item-list)) pos size text &rest args) 
   (mapcar #'list (getf args :range)))
