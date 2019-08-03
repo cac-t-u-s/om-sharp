@@ -44,7 +44,8 @@
   (<= (length (inputs self)) 2))
 
 (defmethod more-optional-input ((self OMRepeatNBoxCall) &key name (value nil val-supplied-p) doc reactive)
-  (add-optional-input  self :name "scope"
+  (declare (ignore name doc))
+  (add-optional-input self :name "scope"
                       :value (if val-supplied-p value :local) 
                       :reactive reactive)
   t)
@@ -54,7 +55,7 @@
     '(("global" :global)
       ("local" :local))
     ))
-      
+
 
 ;;; as compared to other OMPatchComponentBox, REPEAT-N has a lock option
 (defmethod valid-property-p ((self OMRepeatNBoxCall) (prop-id (eql :lock))) t)
