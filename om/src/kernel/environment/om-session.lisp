@@ -209,13 +209,13 @@
 (defun start-openmusic ()
   (push :om *features*)
   (oa::om-api-init)
-  (om-fi::om-load-foreign-libs 
+  (om-fi::om-load-foreign-libs
    #+windows (oa::om-lisp-image) 
    #+macosx (if (oa::om-standalone-p) 
                 (om-make-pathname :directory (append (butlast (pathname-directory (oa::om-lisp-image))) '("Frameworks")))
               (om-relative-path '("resources" "lib" "mac") nil (oa::om-root-folder)))
    #+linux (if (oa::om-standalone-p)
-	       (pathname "/usr/local/share/openmusic")
+	       (om-make-pathname :directory (append (butlast (pathname-directory (oa::om-lisp-image))) '("lib" "openmusic")))
 	       (om-relative-path '("resources" "lib" "linux") nil (oa::om-root-folder))))
   
   #-om-deliver(setq *om-debug* t)
