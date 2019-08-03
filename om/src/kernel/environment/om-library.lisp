@@ -44,7 +44,7 @@
 
 (defmethod lib-icons-folder ((self OMLib))
   (or (probe-file (merge-pathnames "icons/" (lib-resources-folder self)))
-      (merge-pathnames "icons/" (lib-resources-folder self))))
+      (merge-pathnames "icon/" (lib-resources-folder self))))
 
 
 (add-preference-module :libraries "Libraries")
