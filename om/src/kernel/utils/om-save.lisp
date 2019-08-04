@@ -46,15 +46,18 @@
 
 ; (defmethod omng-save ((self symbol)) self)
 (defmethod omng-save ((self symbol)) 
-  (if (find (symbol-package self) (append 
-                                   (list (find-package :om)
-                                         (find-package :keyword)
-                                         (find-package :common-lisp))
+  (if (or (null (symbol-package self))
+          (find (symbol-package self) 
+                (append 
+                 (list (find-package :om)
+                       (find-package :keyword)
+                       (find-package :common-lisp))
                                    ;(package-use-list :om)
-                                   ))
+                 )))
       self
-    `(:symbol ,(symbol-name self) ,(package-name (symbol-package self)))))
-  
+    `(:symbol ,(symbol-name self) ,(package-name (symbol-package self)))
+    ))
+
 (defmethod om-load-from-id ((id (eql :symbol)) data)
   (let ((p (find-package (cadr data))))
     (when p

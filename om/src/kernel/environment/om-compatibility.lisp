@@ -220,6 +220,10 @@
            (string (cadr (member '&rest (function-arglist reference))))) ;;; the last element in lambda-list is the name of the &rest arg
       name)) 
 
+
+(defmethod (setf frame-position) (pos box) pos)
+        
+
 ;======================================
 ; FUNCTION BOXES
 ;======================================
@@ -344,7 +348,7 @@
     (:h ,(and size (om-point-y size)))
     (:lock ,(if lock (cond ((string-equal lock "x") :locked)
                            ((string-equal lock "&") :eval-once))))
-    (:inputs .,inputs))
+    (:inputs .,(mapcar #'eval inputs)))
   )
 
 
@@ -1177,13 +1181,16 @@
 ;;; THE "COMPATIBILITY API":
 ;============================================================================
 
-;;; When a reference has changed: 
-;;; e.g.: (defmethod update-reference ((ref (eql 'old-class))) 'new-class) 
-(defmethod update-reference ((ref t)) nil)
+
 
 ;;; Also useful, from OM-LOAD-FROM-ID:
 ;;; The function FUNCTION-CHANGED-NAME allows to convert a box to a new one.
 ;;; (e.g. (defmethod function-changed-name ((reference (eql 'old-name))) 'new-name))
+
+
+;;; When a reference has changed: 
+;;; e.g.: (defmethod update-reference ((ref (eql 'old-class))) 'new-class) 
+(defmethod update-reference ((ref t)) nil)
 
 ;;; When the class exists (might have been redefined just for enabling import) 
 ;;; and needs to be converted to something else
