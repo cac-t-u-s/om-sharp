@@ -345,7 +345,7 @@ Data instanciation in a column is done according to the specified number of line
   (setf (fields self) (length (field-names self)))
   (unless (elts self) (setf (elts self) 0))
   
-  (when  initargs ;; INITARGS = NIL means we are loading a saved object (data is already in)
+  (when initargs ;; INITARGS = NIL means we are loading a saved object (data is already in)
     (setf (data self) ;; (SETF DATA) will recall this initialization methods with :initargs = NIL :( 
           (loop for field in (field-names self) collect
                 

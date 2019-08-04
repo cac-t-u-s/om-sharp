@@ -694,7 +694,7 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
         (t 
          (let ((sdiffileptr (sdif::sdif-open-file self sdif::eReadWriteFile))
                (error nil) (sdiftimes nil))
-           (om-print "rxtracting frame times..." "SDIF")
+           (om-print "extracting frame times..." "SDIF")
            
            (if sdiffileptr
                (unwind-protect 
@@ -713,7 +713,7 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
                                  (sid (sdif::SdifFCurrId sdiffileptr)))
                              
                              (setq curr-time (sdif::SdifFCurrTime sdiffileptr))
-                       
+                             
                              (if (and (or (not streamNum) (= streamNum sid))
                                       (or (not frameT) (string-equal frameT fsig))
                                       (or (not tmin) (>= curr-time tmin)))
@@ -724,7 +724,11 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
                                      ;;; OK: keep this one
                                      (progn 
                                        (push curr-time sdiftimes)
-                                       (sdif::sdiffskipframedata sdiffileptr))
+                                       (unless (= 0 (sdif::SdifFCurrNbMatrix sdiffileptr))
+                                         (sdif::sdiffskipframedata sdiffileptr))
+                                       ; no skip if there's not data
+                                       ; that seemed to actually skip the next frame...
+                                       )
 
                                    ;;; search matrices
                                    (dotimes (m (sdif::SdifFCurrNbMatrix sdiffileptr))
@@ -764,7 +768,7 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
 (defmethod* GetSDIFTimes ((self t) sID frameType matType tmin tmax)
    
    :indoc '("SDIF file" "stream number (integer)" "frame type" "matrix type" "min time (s)" "max time (s)")
-   :initvals '(nil 0 "" "" nil nil)
+   :initvals '(nil 0 nil nil nil nil)
    :icon :sdif
    :doc "Returns a list of times (s) between <tmin> and <tmax> for frames of type <frameType> from the stream <sID> in <self>, containing a matrix of type <matType>.
 
