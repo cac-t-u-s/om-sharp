@@ -291,6 +291,10 @@ If <nbs-sr> is an float (e.g. 0.5, 1.0...) it is interpreted as the sample rate 
     (loop for i from 0 to (+ 1 nbsteps) collect
           (om+ (om* v2 (nth i weightfun)) (om* v1 (om- 1 (nth i weightfun)))))))
 
+; A helper function to interpolate in the cr-control patch
+(defmethod* interpol-value ((list1 list) (list2 list) (nbsteps integer) i &optional profil)
+  (nth i (interpole-points list1 list2 nbsteps profil)))
+
 
 ;;;====================================
 ;;; Function reduction tools
