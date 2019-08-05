@@ -420,7 +420,7 @@ Data instanciation in a column is done according to the specified number of line
   (position field (field-names self) :test 'string-equal))
 
 ;;; collect the raw internal data
-(defmethod get-data ((self class-array))
+(defmethod get-array-data ((self class-array))
   (mapcar #'array-field-data (data self)))
 
 ;;; methods for filling data
