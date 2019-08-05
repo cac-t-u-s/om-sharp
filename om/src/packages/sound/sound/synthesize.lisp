@@ -58,35 +58,40 @@
 
 
 (defmethod* synthesize ((obj synthesisevt) 
-                        &key (name "my-synth") (run t) (format :aiff) 
+                        &key (name "my-synth") (run t) 
+                        format resolution 
+                        (normalize nil normalize-supplied-p) 
                         inits tables filters
-                        resolution normalize 
                         sr kr)
 
   :indoc '("a synthesis even (or list)" "name of output file" "run synthesis or generate params?" 
            "audio output format" "filter function for synthesis events" "synth initializers" "wave/gen tables" "sample rate" "control rate")
   :initvals '(nil "my-synth" t "aiff")
-
+  
   (when (synthesize-method obj)
     (if (or (null filters)
             (filter-events (list obj) filters))
         (funcall (synthesize-method obj) 
                  obj
-                 :name name :run run :format format
+                 :name name :run run 
+                 :format (or format (get-pref-value :audio :format))
+                 :resolution resolution
+                 :normalize (if normalize-supplied-p normalize (get-pref-value :audio :normalize))
                  :inits inits :tables tables
-                 :resolution resolution :normalize normalize 
                  :sr sr :kr kr)
       (om-beep-msg "SYNTHESIZE: event did not pass filter(s) !"))
     ))
 
 (defmethod* synthesize ((obj list)                      
-                        &key (name "my-synth") (run t) (format :aiff) 
+                        &key (name "my-synth") (run t) 
+                        format resolution 
+                        (normalize nil normalize-supplied-p)
                         inits tables filters
-                        resolution normalize 
                         sr kr)
   
   (let* ((evt-list (if filters (filter-events obj filters) obj))
-         (grouped-list (collect-events-by-synth evt-list)))
+         (grouped-list (collect-events-by-synth evt-list))
+         (out-normalize (if normalize-supplied-p normalize (get-pref-value :audio :normalize))))
     
     (when grouped-list
       
@@ -98,7 +103,8 @@
                  (cadr (car grouped-list))
                  :name name :run run :format format
                  :inits inits :tables tables
-                 :resolution resolution :normalize normalize 
+                 :resolution resolution 
+                 :normalize out-normalize 
                  :sr sr :kr kr))
             
        (t (let ((rep-list (loop for elt in grouped-list  ;; several synthesis processes to mix
@@ -107,7 +113,8 @@
                                          (cadr elt)
                                          :name (string+ name "-temp-" (number-to-string i)) :run run :format format
                  :inits inits :tables tables
-                 :resolution resolution :normalize normalize 
+                 :resolution resolution 
+                 :normalize out-normalize
                  :sr sr :kr kr))))
             (if run
                 ;;; mix all results
