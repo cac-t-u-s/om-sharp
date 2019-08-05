@@ -42,15 +42,16 @@
 
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SAVE-SOUND///////////////
-(defmethod* save-sound ((self om-internal-sound) filename &optional (format *default-audio-format*))
+(defmethod* save-sound ((self om-internal-sound) filename &key format resolution)
             :icon 'save-sound
             :initvals '(nil nil :aiff)
-            :indoc '("a sound or om-internal-sound buffer" "output file pathname" "audio format")
-            :menuins '((2 (("AIFF" :aiff) ("WAV" :wav) ("FLAC" :flac) ("OGG Vorbis" :ogg))))
+            :indoc '("a sound or om-internal-sound buffer" "output file pathname" "audio format" "audio resolution (16, 24, 32)")
+            :menuins '((2 (("AIFF" :aiff) ("WAV" :wav) ("FLAC" :flac) ("OGG Vorbis" :ogg))) 
+                       (3 ((16 16) (24 24) (32 32))))
             :doc "Saves a <self> (om-internal-sound buffer) as an audio file."
             (if (null (oa::om-pointer-ptr (buffer self)))
                 (om-beep-msg "Error: null sound buffer")
-              (let* ((format (or format *default-audio-format*))
+              (let* ((format (or format (get-pref-value :audio :format)))
                      (file (or filename (om-choose-new-file-dialog :directory (def-save-directory) 
                                                                    :prompt (om-str "Save as...")
                                                                    :types (cond ((equal format :aiff) (list (format nil (om-str :file-format) "AIFF") "*.aiff;*.aif"))
@@ -67,14 +68,14 @@
                                                   (n-samples self) 
                                                   (n-channels self) 
                                                   (sample-rate self) 
-                                                  *default-audio-resolution*
-                                                  (or format *default-audio-format*)))
+                                                  (or resolution (get-pref-value :audio :resolution))
+                                                  format))
               
               (probe-file (namestring file)))))
 
+
 ;(defmethod! save-sound ((self sound) filename &optional (format 'aiff))
 ;  (save-sound (get-om-internal-sound self) filename format))
-
 
 ;(defmethod* objfromobjs ((self om-internal-sound) (type sound))
 ;  (let ((snd (save-sound self nil)))
@@ -133,14 +134,15 @@
 
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-NORMALIZE/////////
-(defmethod* sound-normalize ((s om-internal-sound) &optional (method 0))
+(defmethod* sound-normalize ((s om-internal-sound) &key (level 0) (method :peak))
   :icon 'sound-normalize
-  :initvals '(nil 0)
-  :menuins '((1 (("Peak" 0)
-                 ("Peak RMS / Hard limiting" 1))))
-  :indoc '("a sound" "a normalization method")
+  :initvals '(nil 0 :peak)
+  :menuins '((2 (("Peak" :peak)
+                 ("Peak RMS / Hard limiting" :peak-rms))))
+  :indoc '("a sound" "a normalization level" "a normalization method")
   "Normalizes a sound <s>.
 
+<level> is the max level of normalized samples. It is used only in the default 'peak' normalization method.
 <method> is a normalization method. Choose between Peak detection or Peak RMS detection."
 
   (with-audio-buffer (input-buffer s)
@@ -152,43 +154,50 @@
              (type (smpl-type s))
              (nch (n-channels s))
              (size (n-samples s))
-             (peak 0.0)
-             (peak-rms 0.0)
-             (gain 0.0)
-             (x 0.0)
-             (tampon (list))
-             (indx 0)
-             (rms 0.0)
-             (tampon-size 100)
+             (normalize-level (if (plusp level) level (db->lin level)))
              (final-buffer (make-audio-buffer nch size type)))
 
-        (cond ((= method 0)
-               (progn 
-                 (dotimes (i size)
-                   (dotimes (n nch)
-                     (setq x (abs (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type)))
-                     (if (> x peak) (setf peak x))))
-                 (if (> peak 0)
-                     (progn
-                       (setq gain (/ 1.0 peak))
-                       (dotimes (i size)
-                         (dotimes (n nch)
-                           (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type)
-                                 (* gain (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type)))))))))
-              ((= method 1)
-               (progn
-                 (setf indx 0)
+        (cond 
+         
+         ((equal method :peak)
+          (let ((gain 0.0)
+                (peak 0.0)
+                (x 0.0)) 
+            
+            ; get peak
+            (dotimes (i size)
+              (dotimes (n nch)
+                (setq x (abs (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type)))
+                (if (> x peak) (setf peak x))))
+            
+            (when (> peak 0)
+              (setq gain (/ normalize-level peak))
+              (dotimes (i size)
+                (dotimes (n nch)
+                  (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type)
+                        (* gain (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type))))))))
+
+              ((equal method :peak-rms)
+               (let ((peak-rms 0.0)
+                     (tampon (list))
+                     (indx 0)
+                     (rms 0.0)
+                     (tampon-size 100)
+                     (x 0.0))
+                 
+                 ; get peak-rms
                  (loop while (< indx size) do
                        (dotimes (i tampon-size)
                          (dotimes (n nch)
-                         ;(when (< indx size)
                            (push (fli:dereference (fli:dereference ptr :index n :type :pointer) :index indx :type type) tampon));)
                          (incf indx))
+                       
                        (when tampon
                          (setq tampon (mapcar #'(lambda (x) (* x x)) tampon))
                          (setq rms (sqrt (/ (reduce #'+ tampon) tampon-size)))
                          (if (> rms peak-rms) (setf peak-rms rms))
                          (setf tampon nil)))
+                 
                  (dotimes (i size)
                    (dotimes (n nch)
                      (setq x (/ (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type) peak-rms))
@@ -203,35 +212,41 @@
                        :n-channels nch
                        :sample-rate (sample-rate s)
                        :smpl-type type)
-        )
-      )
-    )
-  )
+        ))))
+
+
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-SILENCE///////////
-(defmethod* sound-silence ((dur float) &optional (channels 1) (sample-rate *default-audio-sr*))
+(defmethod* sound-silence ((dur float) &optional (channels 1) sample-rate)
   :icon 'sound-silence
-  :initvals (list 1.0 1 *default-audio-sr*)
-  :indoc '("duration (float or integer)" "number of channels")
+  :initvals (list 1.0 1 nil)
+  :indoc '("duration (float or integer)" "number of channels" "sample rate (Hz)")
   :doc "Generates a silence of duration = <dur>.
-<dur> is considered to be in seconds if a float number is given (e.g. 20.0) or in milliseconds if integer (e.g. 20)\."
-  (let ((nsmpl (round (* dur sample-rate)))
+<dur> is considered to be in seconds if a float number is given (e.g. 20.0) or in milliseconds if integer (e.g. 20)\.
+
+<channels> is the number of channel of generated audio sound.
+
+<sample-rate> is the output sample rate in Hz. If NIL, the sample rate is used from OM 'Audio' preferences.
+"
+  (let ((sr (or sample-rate (get-pref-value :audio :samplerate)))
+        (nsmpl (round (* dur sr)))
         (ch (if (< channels 1) 1 channels)))
     (make-instance 'om-internal-sound 
                    :buffer (make-om-sound-buffer-GC :ptr (make-audio-buffer ch nsmpl :float) :nch ch)
                    :n-samples nsmpl
                    :n-channels ch
-                   :sample-rate sample-rate
+                   :sample-rate sr
                    :smpl-type :float)))
 
-(defmethod* sound-silence ((dur integer) &optional (channels 1) (sample-rate *default-audio-sr*))
-  (let ((nsmpl (round (* dur (/ sample-rate 1000.0))))
+(defmethod* sound-silence ((dur integer) &optional (channels 1) sample-rate)
+  (let ((sr (or sample-rate (get-pref-value :audio :samplerate)))
+        (nsmpl (round (* dur (/ sr 1000.0))))
         (ch (if (< channels 1) 1 channels)))
     (make-instance 'om-internal-sound 
                    :buffer (make-om-sound-buffer-GC :ptr (make-audio-buffer ch nsmpl :float) :nch ch)
                    :n-samples nsmpl
                    :n-channels ch
-                   :sample-rate sample-rate
+                   :sample-rate sr
                    :smpl-type :float)))
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-FADE//////////////
@@ -492,8 +507,9 @@
                           :sample-rate (sample-rate s)
                           :smpl-type type)))
         (t
-         (om-beep-msg (format nil "Error : trying to pan a sound with ~A channels. Needs 2. Output is the original input." (nch s)))
-         s)))
+         (om-beep-msg "Error : trying to pan a sound with ~A channels. Needs 2. Output is the original input." (n-channels s))
+         s)
+        ))
 
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-MIX///////////////

@@ -25,11 +25,11 @@
 (add-preference :audio :format "Default format" '(:aiff :wav) :aiff
                 "Applies as default choice for audio synthesis functions")
 
-(add-preference :audio :resolution "Default resolution" '(16 24 32) 16
-                "Applies as default choice for audio synthesis functions")
-
 (add-preference :audio :normalize "Normalization" :bool t
                 "Applies as default choice for audio synthesis functions")
+
+(add-preference :audio :resolution "Default sample size" '(16 24 32) 16
+                "Applies as parameter for saving audio buffers")
 
 ;(add-preference :audio :normalize "Normalization level (db)" :bool t
 ;                "Applies as default choice for audio synthesis functions")

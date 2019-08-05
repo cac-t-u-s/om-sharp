@@ -18,11 +18,6 @@
 
 (in-package :om)
 
-(defvar *default-audio-channels* 2)
-(defvar *default-audio-sr* 44100)
-(defvar *default-audio-type* :float)
-(defvar *default-audio-format* :aiff)
-(defvar *default-audio-resolution* 24)
 
 
 
@@ -107,7 +102,7 @@ If either <amp2> or <d> is NIL, generates a simple envelope with attack and rele
   :doc "Converts <samples> to a time (or duration) in seconds depending on <samplerate>.
 
 If <samplerate> is NIL, the OM default sample rate is used to calculate the time."
-   (float (/ samples (or samplerate *default-audio-sr*))))
+  (float (/ samples (or samplerate (get-pref-value :audio :samplerate)))))
 
 (defmethod* samples->sec ((samples list) samplerate)
   (mapcar #'(lambda (input) (samples->sec input samplerate)) samples))
@@ -120,7 +115,7 @@ If <samplerate> is NIL, the OM default sample rate is used to calculate the time
   :doc "Converts <secs> to a number of samples depending on <samplerate>.
 
 If <samplerate> is NIL, the OM default sample rate is used to calculate the samples."
-  (round (* secs (or samplerate *default-audio-sr*))))
+  (round (* secs (or samplerate (get-pref-value :audio :samplerate)))))
 
 (defmethod* sec->samples ((secs list) (samplerate number)) 
   (mapcar #'(lambda (input) (sec->samples input samplerate)) secs))
@@ -135,7 +130,7 @@ If <samplerate> is NIL, the OM default sample rate is used to calculate the samp
   :doc "Converts <samples> to a time (or duration) in milliseconds depending on <samplerate>.
 
 If <samplerate> is NIL, the OM default sample rate is used to calculate the time."
-  (* (/ samples (or samplerate *default-audio-sr*)) 1000.0))
+  (* (/ samples (or samplerate (get-pref-value :audio :samplerate))) 1000.0))
 
 (defmethod* samples->ms ((samples list) samplerate)
   (mapcar #'(lambda (input) (samples->ms input samplerate)) samples))
@@ -148,7 +143,7 @@ If <samplerate> is NIL, the OM default sample rate is used to calculate the time
   :doc "Converts <ms> to a number of samples depending on <samplerate>.
 
 If <samplerate> is NIL, the OM default sample rate is used to calculate the samples."
-  (round (* ms (or samplerate *default-audio-sr*) 0.001)))
+  (round (* ms (or samplerate (get-pref-value :audio :samplerate)) 0.001)))
 
 (defmethod* ms->samples ((ms list) (samplerate number)) 
   (mapcar #'(lambda (input) (ms->samples input samplerate)) ms))

@@ -239,6 +239,35 @@ Press 'space' to play/stop the sound file.
     :index ,pos :type (smpl-type ,snd)))
 
 
+#|
+;;; example of use:
+
+(defun synth (dur freq gain envelope)
+
+  (let* ((sr 44100)
+         (nbsamples (round (* dur sr)))
+         (freqs (list! freq))
+         (steps (loop for f in freqs collect (/ f sr)))
+         (sampled-envelope (om-scale (nth 2 (multiple-value-list (om-sample envelope nbsamples))) 0.0 1.0)))
+    
+    (with-sound-output (mysound :nch 2 :size nbsamples :sr 44100 :type :float)
+      
+      (loop for x from 0 to (1- nbsamples)
+            for y-list = (make-list (length steps) :initial-element 0) then (om+ y-list steps)
+            for amp in sampled-envelope
+            do
+            (write-in-sound mysound 1 x
+                            (* gain amp 
+                               (apply '+
+                                      (loop for y in y-list collect
+                                            (sin (* 2 (coerce pi 'single-float) (cadr (multiple-value-list (floor y))))))
+                               
+                                      ))
+                            )
+            )
+      )))
+|#
+
 ;;;===========================
 ;;; TIME MARKERS
 ;;;===========================
@@ -492,8 +521,9 @@ Press 'space' to play/stop the sound file.
 |#
 
 ;;; executes its body with buffer-name bound to a valid audio buffer
-;;; this bufer can be found in sound or produced from the filename
+;;; this buffer can be found in sound or produced from the filename
 ;;; in the second case, it is freed at the end 
+;;; sound must also have a valid n-samples and n-channels 
 ;;; => do it without '-GC' ?
 (defmacro with-audio-buffer ((buffer-name sound) &body body)
   `(let ((snd (get-sound ,sound)))
@@ -578,8 +608,6 @@ Press 'space' to play/stop the sound file.
   out)
 
 
-
-
 (defun save-sound-data (sound path)
   (when (buffer sound)
     (let* ((nch (n-channels sound))
@@ -588,8 +616,8 @@ Press 'space' to play/stop the sound file.
       (audio-io::om-save-buffer-in-file (oa::om-pointer-ptr (buffer sound)) 
                                         (namestring path) 
                                         nsmp nch (sample-rate sound) 
-                                        *default-audio-resolution*
-                                        *default-audio-format*
+                                        (get-pref-value :audio :resolution)
+                                        (get-pref-value :audio :format)
                                         )
       (or (probe-file path)
           (om-beep-msg "Error -- no file written")))
