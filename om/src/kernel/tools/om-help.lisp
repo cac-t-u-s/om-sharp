@@ -20,20 +20,21 @@
 (in-package :om)
 
 
-(defun menus-from-list (folder)
+(defun menus-from-folder (folder)
   (append 
    (loop for sub in (sort (om-directory folder :directories t :files nil) #'string< 
                           :key #'(lambda (path) (car (last (pathname-directory path)))))
+         when (menus-from-folder sub)
          collect (om-make-menu (car (last (pathname-directory sub)))
-                               (menus-from-list sub)))
-   (loop for item in (sort (om-directory folder :type '("opat" "omp")) #'string< :key #'pathname-name)
+                               (menus-from-folder sub)))
+   (loop for item in (sort (om-directory folder :type '("opat")) #'string< :key #'pathname-name)
          collect  (let ((path item))           
                     (om-make-menu-item 
                      (pathname-name path)
                      #'(lambda () (open-help-patch path)))))
    ))
   
-(defun get-base-help-patches () 
+(defun get-base-help-patches-folder () 
   (let* ((folder-name "help-patches/")
          (help-folder (if (oa::om-standalone-p) 
                    (merge-pathnames folder-name (om-resources-folder))
@@ -41,22 +42,24 @@
     help-folder))
 
 (defun make-base-help-menu-items ()
-  (menus-from-list (get-base-help-patches)))
+  (menus-from-folder (get-base-help-patches-folder)))
 
 
-(defun get-lib-help-patches (lib) 
+(defun get-lib-help-patches-foler (lib) 
   (let ((thelib (if (stringp lib) (find-library lib) lib)))
     (when thelib
       (let ((help-folder 
              (find-if 
-              #'(lambda (path) (member (car (last (pathname-directory path))) '("patches" "tutorials" "examples") :test #'string-equal))
+              #'(lambda (path) (and 
+                                (member (car (last (pathname-directory path))) '("patches" "tutorials" "examples") :test #'string-equal)
+                                (menus-from-folder path)))
               (om-directory (mypathname thelib) :directories t :files nil))))
         help-folder
         ))))
 
 
 (defun make-lib-help-menu (lib)
-  (om-make-menu lib (menus-from-list (get-lib-help-patches lib))))
+  (om-make-menu lib (menus-from-folder (get-lib-help-patches-foler lib))))
 
 ;;; can be redefined for specific symbols  
 (defmethod symbol-reference-patch-name ((self symbol)) (string self))
@@ -66,8 +69,8 @@
   (let* ((from-lib (or (and (omclass-p symb) (library (find-class symb)))
                        (and (omgenericfunction-p symb) (library (fdefinition symb)))))
          (file-list (if from-lib 
-                       (get-lib-help-patches from-lib)
-                     (get-base-help-patches))))
+                        (get-lib-help-patches-foler from-lib)
+                      (get-base-help-patches-folder))))
     (find (symbol-reference-patch-name symb)
           file-list :key 'pathname-name :test 'string-equal)))
                      
@@ -81,8 +84,9 @@
     (:old (import-doc-from-previous-om path))
     
     (otherwise ;;; need to perform specific actions to abvoid opening it as a normal patch...
-     (let ((doc (open-om-document path)))
+     (let ((doc (open-om-document path nil)))
        (setf (mypathname doc) nil)
+       (update-document-path doc)  ;; for the document manager
        (update-window-name (editor doc))
        (when *om-main-window* (update-elements-tab *om-main-window*))
        doc))

@@ -170,17 +170,18 @@
 
 
 
-(defun sound-silence-sam  (dur  &optional (channels 1) (sample-rate *default-audio-sr*))
+(defun sound-silence-sam  (dur  &optional (channels 1) sample-rate)
 (compute
  (sound-silence dur channels sample-rate)))
 
 
-(defun sound-silence-mixer-sam  (dur  &optional (channels 1) (sample-rate *default-audio-sr*))
+(defun sound-silence-mixer-sam  (dur  &optional (channels 1) sample-rate)
   (compute
    (if (eq(length *list-buffer*) 100 )
        (setq *list-buffer* (list-without-last *list-buffer*))
      (push   (sound-silence dur channels sample-rate)  *list-buffer*))
    ))
+
 ;(sound-silence 100)
 ;(sound-silence-sam 100)
 

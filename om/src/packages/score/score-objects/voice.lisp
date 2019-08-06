@@ -92,6 +92,10 @@
 (defmethod get-notes ((self continuation-chord)) 
   (get-notes (get-real-chord self)))
 
+(defmethod get-notes ((self group)) 
+  (loop for element in (inside self) 
+        append (get-notes element)))
+
 (defmethod get-notes ((self t)) nil)
 
 ; (format-tree '(((5 3) (1 3 (4 (3 1 (2 (8 1)) 2))))))
@@ -425,5 +429,19 @@
         ))
 
 
+;;;======================================
+;;; EDITION
+;;;======================================
+
+;;; todo: turn to silence, i.e. start editing rhythm...
+(defmethod remove-from-obj ((self voice) (item chord)) nil)
+
+(defmethod remove-from-obj ((self voice) (item note))
+  (loop for c in (chords self)
+        do (when (find item (notes c))
+             (when (> (length (notes c)) 1) ;;; temp
+               (setf (notes c) (remove item (notes c))))
+             (return))
+        ))
 
 

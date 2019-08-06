@@ -663,12 +663,13 @@
                                                (let* ((fun-i (om-get-selected-item-index list))
                                                       (fun 
                                                        (if (= fun-i (1+ (length def-action-list)))
-                                                           (let ((user-fun (om-get-user-string "Enter a function name or a list (function arguments)" 
-                                                                                               :initial-string (get-property object prop-id))))
+                                                           (let ((user-fun (om-get-user-string 
+                                                                            "Enter a function name or a list (function arguments)" 
+                                                                            :initial-string (format nil "~A" (get-property object prop-id)))))
                                                              (when user-fun 
                                                                (om-set-item-list list (append '(nil) def-action-list (list (format nil "other: ~A" user-fun))))
                                                                (om-set-selected-item-index list (1+ (length def-action-list)))
-                                                               (read-from-string user-fun)))
+                                                               (ignore-errors (read-from-string user-fun))))
                                                          (nth fun-i print-action-list))))
                                                  (om-remove-subviews layout b)
                                                  (when (arguments-for-action fun)

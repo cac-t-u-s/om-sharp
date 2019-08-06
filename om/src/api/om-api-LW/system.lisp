@@ -93,7 +93,7 @@
 
 
 (defmacro om-with-redefinitions (&body body)
-  `(let ((lispworks::*redefinition-action* nil)) ,@body))
+  `(let ((lispworks::*HANDLE-WARN-ON-REDEFINITION* nil)) ,@body))
 
 (defmacro om-ignore&print-error (&rest body)
   `(multiple-value-bind (a b) 

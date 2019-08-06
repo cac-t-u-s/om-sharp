@@ -105,6 +105,16 @@
   (not (numberp (editor-get-edit-param (editor (car (related-views self))) :h-stretch))))
 
 
+(defmethod move-editor-selection ((self voice-editor) &key (dx 0) (dy 0))
+  (call-next-method self :dx 0 :dy dy))
+
+(defmethod score-editor-change-selection-durs ((self voice-editor) delta) nil)
+
+;;; TODO: do something with rhythms ?
+(defmethod score-editor-delete ((self voice-editor) element) (call-next-method))
+
+
+
 (defmethod draw-sequence ((object voice) editor view unit)
 
   ;;; NOTE: so far we don't build/update a bounding-box for the containers

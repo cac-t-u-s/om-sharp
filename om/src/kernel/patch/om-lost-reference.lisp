@@ -217,6 +217,7 @@
 ;;; The user can also go and look for the file by himself
 (defmethod lost-reference? ((box OMBoxAbstraction))
   (and (is-persistant (reference box))
+       (mypathname (reference box))
        (not (probe-file (mypathname (reference box))))))
 
 (defmethod restore-inputs ((self OMBoxAbstraction) inputs)

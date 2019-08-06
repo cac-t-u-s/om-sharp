@@ -44,7 +44,8 @@
   (<= (length (inputs self)) 2))
 
 (defmethod more-optional-input ((self OMRepeatNBoxCall) &key name (value nil val-supplied-p) doc reactive)
-  (add-optional-input  self :name "scope"
+  (declare (ignore name doc))
+  (add-optional-input self :name "scope"
                       :value (if val-supplied-p value :local) 
                       :reactive reactive)
   t)
@@ -54,7 +55,7 @@
     '(("global" :global)
       ("local" :local))
     ))
-      
+
 
 ;;; as compared to other OMPatchComponentBox, REPEAT-N has a lock option
 (defmethod valid-property-p ((self OMRepeatNBoxCall) (prop-id (eql :lock))) t)
@@ -109,14 +110,14 @@
       (progn
         (setf (n-iter (reference self)) 0)
 
-        ;;; creates a new context at each iteration:
+        ;;; creates a new context:
         (when (equal scope :local) (setf *ev-once-context* self))
 
         (loop for i from 1 to n
               do (setf (n-iter (reference self)) (1+ (n-iter (reference self))))
               collect (omNG-box-value (car (inputs self))))
         )
-      ;;; restores previous context after each iteration:
+      ;;; restores previous context after iteration:
       (when (equal scope :local) (setf *ev-once-context* old-context))
       )
     ))
@@ -143,23 +144,27 @@
                      (progn ,body)
                      )
           )
-
+      
+      ;;; :local
       (progn
         ;;; a new context will be created at each iteration:
-        (push-let-context)
-  
-        (unwind-protect
+        
+        (let ((n (gen-code (cadr (inputs self)))))
+        
+          (push-let-context)
+          
+          (unwind-protect
+              
+              (let* ((body (gen-code (car (inputs self)))))
+                `(loop for i from 1 to ,n 
+                       collect 
+                       ;;; new context at each iteration:
+                       (let* ,(output-current-let-context) ,body)
+                       ))
+          
+            (pop-let-context)
             
-            (let* ((body (gen-code (car (inputs self)))))
-              `(loop for i from 1 to ,(gen-code (cadr (inputs self))) 
-                     collect 
-                     ;;; new context at each iteration:
-                     (let* ,(output-current-let-context) ,body)
-                     ))
-          
-          (pop-let-context)
-          
-          )
+            ))
         ))
     ))
 

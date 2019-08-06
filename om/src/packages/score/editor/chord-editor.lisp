@@ -67,7 +67,39 @@
   (object-value self))
 
 
+(defmethod score-editor-delete ((self chord-editor) element) 
+  (let ((c (object-value self)))
+    (if (equal element c)
+        (setf (notes c) nil)
+      (setf (notes c) (remove element (notes c))))))
+
  
+(defmethod move-editor-selection ((self chord-editor) &key (dx 0) (dy 0))
+  
+  (declare (ignore dx))
+
+  (let* ((chord (object-value self))
+         (notes (if (find chord (selection self))
+                    (notes chord)
+                  (selection self))))
+
+    (unless (zerop dy)
+      (loop for n in notes do
+            (setf (midic n) (+ (midic n) (* dy 100)))))
+    ))
+
+
+(defmethod score-editor-change-selection-durs ((self chord-editor) delta) 
+  (let* ((chord (object-value self))
+         (notes (if (find chord (selection self))
+                    (notes chord)
+                  (selection self))))
+    
+    (loop for n in notes
+          do (setf (dur n) (max 0 (round (+ (dur n) delta)))))
+    ))
+
+
 ;;; SPECIAL/SIMPLE CASE FOR CHORD-EDITOR
 (defmethod draw-score-object-in-editor-view ((editor chord-editor) view unit)
 
@@ -77,7 +109,7 @@
      (b-box chord)
      (draw-chord chord
                  0 
-                 0 0
+                 0 (editor-get-edit-param editor :y-shift)
                  0 0 
                  (w view) (h view) 
                  (editor-get-edit-param editor :font-size) 

@@ -73,6 +73,9 @@ Mind using this box in 'eval-once' mode when connected to several other boxes."
 ;;;------------------------------------------
 ;; SPLIT A LIST in ITS OUTPUTS
 ;;;------------------------------------------
+
+(defmethod function-changed-name ((reference (eql 'list-elements))) 'split)
+
 (defmethod* split ((list list) &rest add-output)  
   :initvals '(nil) 
   :indoc '("a list")

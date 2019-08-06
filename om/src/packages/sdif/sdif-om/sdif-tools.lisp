@@ -56,8 +56,8 @@
           
               (get-sdif-frames self stream-num "1GB4" nil nil
                                  :apply-fun #'(lambda (frame)
-                                                (let ((mat (find "1GB4" (lmatrices frame) :key 'matrixtype :test 'string-equal)))
-                                                  (om-print-format "Sampling SDIF frame at ~D" (list (frametime frame)))
+                                                (let ((mat (find "1GB4" (lmatrix frame) :key 'matrixtype :test 'string-equal)))
+                                                  (om-print-format "Sampling SDIF frame at ~D" (list (ftime frame)))
                                                   (when mat 
                                                     (let* ((f-a-list (mat-trans (get-array-data mat)))
                                                            (sampled-f-a-list 
@@ -100,9 +100,9 @@
                                (make-instance 'SDIFMatrix :matrixtype "1GB1" 
                                               :data (list framedata))))
                          (frame (make-instance 'SDIFFrame :frametype "XFFT" 
-                                               :frametime (if timelist (nth i timelist) i)
+                                               :ftime (if timelist (nth i timelist) i)
                                                :streamid 0
-                                               :lmatrices (list mat))))
+                                               :lmatrix (list mat))))
                     (sdif-write frame outptr)
                     ))
             (namestring out-path))
@@ -170,9 +170,9 @@ If <outfile> is just a filename (not a pathname) the file is written in the defa
                                    (make-instance 'SDIFMatrix :matrixtype mtype 
                                                   :data (list (list val)))))
                              (frame (make-instance 'SDIFFrame :frametype ftype 
-                                                   :frametime time
+                                                   :ftime time
                                                    :streamid 0
-                                                   :lmatrices (list mat))))
+                                                   :lmatrix (list mat))))
                         (sdif-write frame outptr)
                         ))
               
@@ -181,9 +181,9 @@ If <outfile> is just a filename (not a pathname) the file is written in the defa
                            (make-instance 'SDIFMatrix :matrixtype mtype 
                                           :data (list (y-points self)))))
                      (frame (make-instance 'SDIFFrame :frametype ftype
-                                           :frametime 0.0
+                                           :ftime 0.0
                                            :streamid 0
-                                           :lmatrices (list mat))))
+                                           :lmatrix (list mat))))
                 (sdif-write frame outptr)
                 )
               )
@@ -199,6 +199,9 @@ If <outfile> is just a filename (not a pathname) the file is written in the defa
 ;;;==========================================================================
 ;;; MARKERS TOOLS
 ;;;==========================================================================
+
+;;; for compat when loading old patches
+(defmethod function-changed-name ((reference (eql 'get-mrk-onsets))) 'sdif->markers)
 
 (defmethod* sdif->markers ((self sdiffile) &key (frame "1MRK") (matrix nil) (stream 0) (tmin nil) (tmax))
     :icon :sdif
@@ -246,7 +249,7 @@ If <outfile> is just a filename (not a pathname) the file is written in the defa
             ;;; write a sequence of frames
             (loop for time in self do
                   (let* ((frame (make-instance 'SDIFFrame :frametype ftype 
-                                               :frametime time
+                                               :ftime time
                                                :streamid 0)))
                     (sdif-write frame outptr)
                     ))

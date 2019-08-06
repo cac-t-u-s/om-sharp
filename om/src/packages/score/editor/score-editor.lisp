@@ -96,6 +96,8 @@
           
      (call-next-method))))
 
+;;; for simple views that are not x-graduated (e.g. chord)
+(defmethod pixel-to-time ((self om-view) x) 0)
    
 ;;;======================== 
 ;;; DISPLAY
@@ -193,10 +195,11 @@
             (bbox-in-rect (b-box object) x1 y1 x2 y2)) ;; the object has one, and it's inside 
        object ;;; the whole object is selected
      ;;; else: go check in the children
-     (flat 
-      (loop for elem in (inside object) ;; check its children..
-            collect (find-score-elements-in-area elem x1 y1 x2 y2)))) 
-   )
+     (remove nil 
+             (flat 
+              (loop for elem in (inside object) ;; check its children..
+                    collect (find-score-elements-in-area elem x1 y1 x2 y2)))) 
+     ))
 
 ;;; measure is special: it is selected only by clickking on the bar/signature
 (defmethod find-score-elements-in-area ((object measure) x1 y1 x2 y2)      
@@ -204,10 +207,11 @@
    (loop for elem in (inside object) ;; check its children..
          collect (find-score-elements-in-area elem x1 y1 x2 y2))))
 
-;;; overrides data-stream-panel
-(defmethod om-view-mouse-motion-handler ((self score-view) position)
-  (position-display (editor self) position))
 
+
+;;;======================
+;;; MOUSE ACTIONS
+;;;======================
 
 (defmethod score-object-update ((self t)) nil)
 
@@ -216,8 +220,10 @@
   (time-sequence-update-obj-dur self))
 
 
-;;; for simple score-view that are not x-graduated
-(defmethod pixel-to-time ((self om-view) x) 0)
+;;; overrides data-stream-panel in chord-seq-editor
+(defmethod om-view-mouse-motion-handler ((self score-view) position)
+  (position-display (editor self) position))
+
 
 (defmethod om-view-click-handler ((self score-view) position)
   
@@ -296,7 +302,9 @@
                       self position nil :min-move 1
                       :motion #'(lambda (view pos)
                                   (declare (ignore view))
-
+                                  
+                                  (store-current-state-for-undo editor :action :move)
+                                  
                                   (let ((x-move (- (om-point-x pos) (om-point-x clicked-pos)))
                                         (y-move (- (om-point-y pos) (om-point-y clicked-pos))))
 
@@ -361,12 +369,70 @@
     ))
 
 
-
 (defmethod om-view-zoom-handler ((self score-view) position zoom)
   (let ((editor (editor self))
         (d-size (if (> zoom 1) 1 -1))) 
     (set-font-size editor (+ d-size (editor-get-edit-param editor :font-size)))
     ))
+
+;;;======================
+;;; KEYBOARD ACTIONS
+;;;======================
+
+;;; to be specialized for specific types of editor/objects 
+(defmethod score-editor-delete ((self score-editor) element) nil) 
+(defmethod score-editor-change-selection-durs ((self score-editor) delta) nil)
+
+
+(defmethod editor-key-action ((editor score-editor) key)
+  
+  (case key
+    
+    (:om-key-left 
+     (if (om-option-key-p)
+         (progn 
+           (store-current-state-for-undo editor)
+           (score-editor-change-selection-durs editor (if (om-shift-key-p) -1000 -100))
+           (editor-invalidate-views editor)
+           (report-modifications editor))
+       (call-next-method)))
+         
+    (:om-key-right 
+     (if (om-option-key-p)
+         (progn 
+           (store-current-state-for-undo editor)
+           (score-editor-change-selection-durs editor (if (om-shift-key-p) 1000 100))
+           (editor-invalidate-views editor)
+           (report-modifications editor))
+       (call-next-method)))
+    
+    ;;; if not with "option", left/right for chord-seq are handled in data-stream-editor only
+    
+    (:om-key-up
+     (store-current-state-for-undo editor)
+     (move-editor-selection editor :dy (if (om-shift-key-p) 12 1))
+     (editor-invalidate-views editor)
+     (report-modifications editor))
+
+    (:om-key-down
+     (store-current-state-for-undo editor)
+     (move-editor-selection editor :dy (if (om-shift-key-p) -12 -1))
+     (editor-invalidate-views editor)
+     (report-modifications editor))
+
+    (:om-key-delete
+     (when (selection editor)
+       (store-current-state-for-undo editor)
+       (loop for element in (selection editor) do 
+             (score-editor-delete editor element))
+       (setf (selection editor) nil)
+       (editor-invalidate-views editor)
+       (report-modifications editor)))
+   
+    (otherwise 
+     (call-next-method))
+    ))
+
 
 
 

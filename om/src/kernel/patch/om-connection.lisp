@@ -269,11 +269,15 @@
 
 
 (defmethod adopt-connection ((self box-input) (connection omconnection))
-  (setf (to connection) self)
+  (let ((previous (to connection)))
+    (setf (connections previous) (remove connection (connections previous)))
+    (setf (to connection) self))
   connection)
 
 (defmethod adopt-connection ((self box-output) (connection omconnection))
-  (setf (from connection) self)
+  (let ((previous (from connection)))
+    (setf (connections previous) (remove connection (connections previous)))
+    (setf (from connection) self))
   connection)
 
 

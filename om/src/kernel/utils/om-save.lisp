@@ -46,15 +46,18 @@
 
 ; (defmethod omng-save ((self symbol)) self)
 (defmethod omng-save ((self symbol)) 
-  (if (find (symbol-package self) (append 
-                                   (list (find-package :om)
-                                         (find-package :keyword)
-                                         (find-package :common-lisp))
+  (if (or (null (symbol-package self))
+          (find (symbol-package self) 
+                (append 
+                 (list (find-package :om)
+                       (find-package :keyword)
+                       (find-package :common-lisp))
                                    ;(package-use-list :om)
-                                   ))
+                 )))
       self
-    `(:symbol ,(symbol-name self) ,(package-name (symbol-package self)))))
-  
+    `(:symbol ,(symbol-name self) ,(package-name (symbol-package self)))
+    ))
+
 (defmethod om-load-from-id ((id (eql :symbol)) data)
   (let ((p (find-package (cadr data))))
     (when p
@@ -730,8 +733,8 @@
 ;  (append (call-next-method)
 ;          `((:defval ,(omng-save (defval self))))))
 
-;;; foir compatibility, in case some functions have changed name
-(defmethod changed-name ((reference t)) nil)
+;;; for compatibility, in case some functions have changed name
+(defmethod function-changed-name ((reference t)) nil)
 
 (defmethod om-load-from-id ((id (eql :box)) data)
   ;; (print (list "load BOX" (find-value-in-kv-list data :type)))
@@ -756,7 +759,7 @@
                  (if (fboundp reference) 
                      (omng-make-new-boxcall (fdefinition reference) pos)
                    
-                   (let ((new-name (changed-name reference)))
+                   (let ((new-name (function-changed-name reference)))
                      (if (and new-name (fboundp new-name))
                          (progn (setf name (string new-name))
                            (omng-make-new-boxcall (fdefinition new-name) pos))

@@ -280,9 +280,7 @@
      
      ((and (or (equal (lock-state self) :eval-once)
                (get-pref-value :general :auto-ev-once-mode))
-           
            (equal (ev-once-flag self) (get-ev-once-flag *ev-once-context*)))
-      
       (return-value self numout))
      
      (t 

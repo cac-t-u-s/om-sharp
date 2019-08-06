@@ -57,7 +57,7 @@
       (loop for fr in frames do
             (cond ((string-equal "1MRK" (frametype fr))
                   
-                   (loop for mat in (lmatrices fr) do
+                   (loop for mat in (lmatrix fr) do
                          (cond ((string-equal "1BEG" (matrixtype mat)) (setf bmat mat))
                                ((string-equal "1END" (matrixtype mat)) (setf emat mat))
                                ((string-equal "1TRC" (matrixtype mat)) (setf pmat mat))
@@ -66,7 +66,7 @@
                          (when bmat 
                            ;;; a begin matrix : set time info
                            (loop for i in (get-sdif-mrk-field bmat "Id") do
-                                 (sethash mrk-partials i (make-partial :t-list (list (frametime fr) (frametime fr))
+                                 (sethash mrk-partials i (make-partial :t-list (list (ftime fr) (ftime fr))
                                                                        :f-list nil
                                                                        :a-list nil))))
                          (when pmat 
@@ -85,14 +85,14 @@
                                  (let ((p (gethash i mrk-partials)))
                                    (when p
                                      (setf (partial-t-list p) 
-                                           (list (car (partial-t-list p)) (frametime fr)))))))
+                                           (list (car (partial-t-list p)) (ftime fr)))))))
              
                          (setf bmat nil)
                          (setf emat nil)
                          (setf pmat nil)))
                  
                   ((or (string-equal "1TRC" (frametype fr)) (string-equal "1HRM" (frametype fr)))
-                   (loop for mat in (lmatrices fr) do
+                   (loop for mat in (lmatrix fr) do
                          (when (or (string-equal "1TRC" (matrixtype mat)) (string-equal "1TRC" (matrixtype mat)))
                            (loop for i in (get-sdif-trc-field mat "Index") 
                                  for f in (get-sdif-trc-field mat "Frequency") 
@@ -100,13 +100,13 @@
                                  for ph in (get-sdif-trc-field mat "Phase") 
                                  do (let ((p (gethash i trc-partials)))
                                       (if p
-                                          (setf (partial-t-list p) (append (partial-t-list p) (list (frametime fr)))
+                                          (setf (partial-t-list p) (append (partial-t-list p) (list (ftime fr)))
                                                 (partial-f-list p) (append (partial-f-list p) (list f))
                                                 (partial-a-list p) (append (partial-a-list p) (list a))
                                                 (partial-ph-list p) (append (partial-ph-list p) (list ph)))
                                     
                                         (sethash trc-partials i 
-                                                 (make-partial :t-list (list (frametime fr))
+                                                 (make-partial :t-list (list (ftime fr))
                                                                :f-list (list f) :a-list (list a) :ph-list (list ph))))
                                       )))))
                   ))
@@ -196,13 +196,13 @@ Internally calls and formats data from GetSDIFChords.
                                                                        (list (or (nth n (partial-a-list partial)) 1.0))
                                                                        (list (or (nth n (partial-ph-list partial)) 0)))))))
                                            
-                               (make-instance 'SDIFFrame :frametime time :frametype "1TRC"
+                               (make-instance 'SDIFFrame :ftime time :frametype "1TRC"
                                               :streamid (if separate-streams i 0) 
-                                              :lmatrices (list matrix))))))
+                                              :lmatrix (list matrix))))))
                   
-                  (setf (nth 2 (data (car (lmatrices (car (last 1-partial-frames)))))) (list 0.0))
+                  (setf (nth 2 (data (car (lmatrix (car (last 1-partial-frames)))))) (list 0.0))
                   1-partial-frames))
-          '< :key 'frametime)))
+          '< :key 'ftime)))
     (if separate-streams 
         frames
       (merge-frame-data frames))
@@ -253,24 +253,24 @@ Internally calls and formats data from GetSDIFChords.
                                        :matrixtype "1TRC"
                                        :data (mat-trans data)))))
            
-           (make-instance 'SDIFFrame :frametime time :streamid 0 
+           (make-instance 'SDIFFrame :ftime time :streamid 0 
                           :frametype "1TRC"
-                          :lmatrices (list matrix)))))
+                          :lmatrix (list matrix)))))
     (if sr 
         
         (let* ((t-lists (mapcar 'partial-t-list partials))
                (tmin (reduce 'min (mapcar 'list-min t-lists)))
                (tmax (reduce 'max (mapcar 'list-max t-lists))))
-          (loop for frametime from tmin to (+ tmax .2) by sr collect
-                (make-frame-at-time partials frametime)))
+          (loop for ftime from tmin to (+ tmax .2) by sr collect
+                (make-frame-at-time partials ftime)))
       
       (let ((timeslist (sort (remove-duplicates 
                               (loop for partial in partials 
                                     append (partial-t-list partial))
                               :test '=)
                              '<)))
-        (loop for frametime in timeslist collect
-              (make-frame-at-time partials frametime)))
+        (loop for ftime in timeslist collect
+              (make-frame-at-time partials ftime)))
 
       )))
 
@@ -373,9 +373,9 @@ SDIF partials are resampled in synchronous frames at <frame-rate>
                                   (make-instance 'SDIFMatrix :matrixtype "1END" 
                                                  :data  (list endnotes))))))
 
-            (make-instance 'SDIFFrame :frametime date :streamid 0 
+            (make-instance 'SDIFFrame :ftime date :streamid 0 
                            :frametype "1MRK"
-                           :lmatrices (append begmat endmat))
+                           :lmatrix (append begmat endmat))
             ))
     ))
 

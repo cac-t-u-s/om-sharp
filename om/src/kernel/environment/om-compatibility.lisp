@@ -53,9 +53,9 @@
           (when *om-current-persistent* ;;; filled in the patch-loading process
 
             (let ((object (make-instance 'OMPatchFile :name (pathname-name path))))
-              
+
               (copy-contents *om-current-persistent* object)
-              
+
               (setf (omversion object) *om-version*
                     (create-info object) (list (om-get-date) (om-get-date))
                     (window-size object) (eval (nth 4 metadata))
@@ -209,19 +209,20 @@
         ))
   
 
-;;; redefine with eql-specializers for specific functions of class name
-(defmethod changed-arg-names (function) nil)
-
 ;; this is the automatic name given in OM6 to added "rest" inputs
 (defun is-om6-rest-arg (name)
   (find name '("add-input") :test 'string-equal))
 
 (defun check-arg-for-new-name (reference name)
-  (or (cadr (find name (changed-arg-names reference) :key #'car :test #'string-equal))
+  (or (cadr (find name (update-arg-names reference) :key #'car :test #'string-equal))
       (and (is-om6-rest-arg name) 
            (fboundp reference)
-           (string (getf (function-arglist reference) '&rest))) ;;; the last element in lambda-list is the name of the &rest arg
+           (string (cadr (member '&rest (function-arglist reference))))) ;;; the last element in lambda-list is the name of the &rest arg
       name)) 
+
+
+(defmethod (setf frame-position) (pos box) pos)
+        
 
 ;======================================
 ; FUNCTION BOXES
@@ -233,8 +234,8 @@
          (loop for formatted-in in (mapcar #'eval inputs) collect
                ;;; correct the type and eventually the name of box inputs
                (let ((name (check-arg-for-new-name 
-                              reference 
-                              (find-value-in-kv-list (cdr formatted-in) :name))))
+                            reference 
+                            (find-value-in-kv-list (cdr formatted-in) :name))))
                  (cond ((not (fboundp reference)) formatted-in)
                        ((find name (mapcar #'symbol-name (function-main-args reference)) :test #'string-equal)
                         `(:input (:type :standard) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
@@ -243,7 +244,7 @@
                        ((find name (mapcar #'symbol-name (function-keyword-args reference)) :test #'string-equal)
                         `(:input (:type :key) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
                        ((and (find '&rest (function-arglist reference))
-                             (equal name (string (getf (function-arglist reference) '&rest))))
+                             (equal name (string (cadr (member '&rest (function-arglist reference))))))
                         `(:input (:type :optional) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
                        (t (om-print-format "Unknown input for function '~A': ~A" (list reference name) "Compatibility")
                           formatted-in))
@@ -276,7 +277,7 @@
   box-data)
 
 
-(defmethod update-reference ((self t)) nil)
+
 
 ;======================================
 ; OBJECT BOXES
@@ -285,8 +286,8 @@
 (defmethod om-load-editor-box1 (name reference inputs position size value lock 
                                      &optional fname editparams spict meditor pictlist show-name)
   (declare (ignore fname editparams meditor pictlist))
-
-  (let* ((val (or value (make-instance reference)))
+  
+  (let* ((val (or value (and (find-class reference nil) (make-instance reference))))
          (inputs (loop for formatted-in in (mapcar #'eval inputs) collect
                        ;;; correct the type and eventually the name of box inputs
                        (let ((name (check-arg-for-new-name 
@@ -311,7 +312,7 @@
   (when (update-reference reference) 
     (setf reference (update-reference reference))
     (setf value (update-value value)))
-    
+
   `(:box
     (:type :object)
     (:reference ,reference)
@@ -347,7 +348,7 @@
     (:h ,(and size (om-point-y size)))
     (:lock ,(if lock (cond ((string-equal lock "x") :locked)
                            ((string-equal lock "&") :eval-once))))
-    (:inputs .,inputs))
+    (:inputs .,(mapcar #'eval inputs)))
   )
 
 
@@ -962,6 +963,8 @@
 ;======================================
 (defmethod om-make-dialog-item ((type t) pos size text &rest args) nil)
 
+;;; TEXT BOX
+
 (defmethod om-make-dialog-item ((type (eql 'text-box)) pos size text &rest args) text)
 
 (defmethod om-load-editor-box1 (name (reference (eql 'text-box))
@@ -984,6 +987,20 @@
        (:value ,(find-value-in-kv-list (cdr (eval (first inputs))) :value))))
      ))
 
+
+;;; TEXT-VIEW
+
+(defmethod om-make-dialog-item ((type (eql 'text-view)) pos size text &rest args) (list text))
+(defmethod om-set-dialog-item-text ((dummy list) text) (setf (car dummy) text))
+
+(defmethod om-load-editor-box1 (name (reference (eql 'text-view))
+                                     inputs position size value lock 
+                                     &optional fname editparams spict meditor pictlist show-name)
+  (om-load-editor-box1 name 'text-box 
+                       inputs position size (car value) lock 
+                       fname editparams spict meditor pictlist show-name))
+  
+;;; SINGLE-ITEM-LIST / MULTI-ITEM-LIST
 
 (defmethod om-make-dialog-item ((type (eql 'single-item-list)) pos size text &rest args) 
   (mapcar #'list (getf args :range)))
@@ -1107,44 +1124,10 @@
 ; DATA: specific conversions for object types
 ;============================================================================
 
-(defun load-obj-list-from-save (list)
-  (loop for item in list collect (eval item)))
-
-;;; SCORE OBJECTS
-;;; => TODO
-(defmethod set-patch-pairs ((self t) list) )
-(defmethod load-port-info ((self t) port) )
-(defmethod init-mus-color ((self t) color) )
-(defmethod set-extra-pairs ((self t) extras) )
-(defmethod set-tonalite ((self t) tonalite) )
-(defmethod set-object-analysis ((self t) analyse) )
-
-;;; SCORE EDITOR PARAMS
-;;; => hack / to(re)do when score editors are operational
-(defclass edition-values () 
-  ((paper-size :accessor paper-size)
-   (top-margin :accessor top-margin)
-   (left-margin :accessor left-margin)
-   (right-margin :accessor right-margin)
-   (bottom-margin :accessor bottom-margin)
-   (orientation :accessor orientation)
-   (scale :accessor scale)
-   (system-space :accessor system-space)
-   (system-color :accessor system-color)
-   (line-space :accessor line-space)
-   (title :accessor title)
-   (show-title? :accessor show-title?)
-   (show-page? :accessor show-page?)
-   (sheet-id :accessor sheet-id)
-   (page-mode :accessor page-mode)))
-   
-
-;;; Note/ToDo: CHORD-SEQ LEGATO IS NO LONGER % but a simple factor
-
-
 ;;;============================================================================
 ;;; FROM EXTERNAL RESOURCES
 ;;;============================================================================
+;;; REdefinition of some OM6 load-utilities
 
 ;;; If the resource is not found we give a try in the in-file folder
 (defun search-for-resource (pathname)
@@ -1154,6 +1137,10 @@
                      :type (pathname-type pathname)
                      :directory in-file-folder))
         pathname)))
+
+(defun om-load-if (pathname fun)
+  (funcall fun pathname))
+
 
 ;;; SDIFFILE
 (defmethod load-sdif-file ((path pathname))
@@ -1170,101 +1157,50 @@
                       (search-for-resource path))))
     (get-sound filepath)))
 
-(defun om-load-if (pathname fun)
-  (funcall fun pathname))
 
+;;;============================================================================
+;;; PICTURES
+;;;============================================================================
+;;; TODO
 
-;;; PITCURES IN PATCHES: TODO
-#|
+(defclass picture () ())
 (defun restore-pict-path (path) path)
 (defun om-get-picture (name location) nil)
-
 (defclass patch-picture () 
   ((pict-pos :accessor pict-pos :initarg :pict-pos)
    (pict-size :accessor pict-size :initarg :pict-size)))
-  
+
+#|
+
 ;(let ((newpict (make-instance (quote patch-picture) :name "arrow_down_1" :source (quote user) :pict-pathname (restore-pict-path (restore-path nil)) :thepict (om-get-picture "arrow_down_1" (quote user)) :storemode :external :draw-params (quote (p 0 0 100 100)) :extraobjs nil))) (setf (pict-pos newpict) (om-make-point 619 173)) (setf (pict-size newpict) (om-make-point 50 112)) newpict)
 
 |#
 
-;============================================================================
-; CHANGED ARG NAMES
-;============================================================================
-(defmethod changed-arg-names ((reference (eql 'om-sample)))
-  '(("sample-rate" "nbs-sr")))
-
-(defmethod changed-arg-names ((reference (eql 'chord-seq)))
-  '(("legato" "llegato")))
-
-(defmethod changed-arg-names ((reference (eql 'synthesize)))
-  '(("elements" "obj")))
-
-(defmethod changed-arg-names (reference)
-  (when (find-class reference nil)
-    (cond ((subtypep reference 'class-array)
-           '(("numcols" "elts")))
-          (t nil))))
 
 ;============================================================================
-; CHANGED NAMES
-;============================================================================
-(defmethod changed-name ((reference (eql 'list-elements))) 'split)
-(defmethod changed-name ((reference (eql 'get-mrk-onsets))) 'sdif->markers)
-;============================================================================
-; CHANGED CLASSES
+;;; THE "COMPATIBILITY API":
 ;============================================================================
 
-;;; xxx-LIBs
-(defmethod update-reference ((ref (eql 'bpf-lib))) 'collection)
-(defmethod update-reference ((ref (eql 'bpc-lib))) 'collection)
-(defmethod update-reference ((ref (eql '3dc-lib))) 'collection)
-
-(defclass bpf-lib () ((bpf-list :accessor bpf-list :initarg :bpf-list :initform nil)))
-(defclass bpc-lib (bpf-lib) ())
-(defclass 3DC-lib (bpc-lib) ())
-
-(defmethod update-value ((self bpf-lib))
-  (make-instance 'collection :obj-list (bpf-list self)))
 
 
-;;; TextFile
-(defun load-buffer-textfile (listline class edmode &optional (evmode "text"))
-  (omng-load 
-   `(:object
-     (:class textbuffer)
-     (:slots ((:contents ,(omng-save listline)))))))
+;;; Also useful, from OM-LOAD-FROM-ID:
+;;; The function FUNCTION-CHANGED-NAME allows to convert a box to a new one.
+;;; (e.g. (defmethod function-changed-name ((reference (eql 'old-name))) 'new-name))
 
-(defmethod om-load-editor-box1 (name (reference (eql 'textfile)) 
-                                     inputs position size value lock 
-                                     &optional fname editparams spict meditor pictlist show-name)
-  (declare (ignore reference fname editparams meditor pictlist))
 
-  (let* ((eval-mode-str (find-value-in-kv-list (cdr (eval (fourth inputs))) :value))
-         (eval-mode (cond ((string-equal eval-mode-str "text") :text-list)
-                          ((string-equal eval-mode-str "data list") :lines-cols)
-                          ((string-equal eval-mode-str "list") :list)
-                          ((string-equal eval-mode-str "value") :value)
-                          )))
-    `(:box
-      (:type :object)
-      (:reference textbuffer)
-      (:name ,name)
-      (:value ,value)
-      (:x ,(om-point-x position))
-      (:y ,(om-point-y position))
-      (:w ,(om-point-x size))
-      (:h ,(om-point-y size))
-      (:lock ,(if lock (cond ((string-equal lock "x") :locked)
-                             ((string-equal lock "&") :eval-once))))
-      (:showname ,show-name)
-      (:display ,(if spict :mini-view :hidden))
-      (:edition-params (:output-mode ,eval-mode))
-      (:inputs 
-       (:input (:type :standard) (:name "self") (:value nil))
-       (:input (:type :standard) (:name "contents") (:value nil))
-       (:input (:type :key) (:name "output-mode") (:value ,eval-mode))
-       )
-      )))
+;;; When a reference has changed: 
+;;; e.g.: (defmethod update-reference ((ref (eql 'old-class))) 'new-class) 
+(defmethod update-reference ((ref t)) nil)
+
+;;; When the class exists (might have been redefined just for enabling import) 
+;;; and needs to be converted to something else
+;;; e.g.: (defmethod update-value ((self 'old-class)) (make-instance 'new-class)) 
+(defmethod update-value ((self t)) nil)
+
+;;; When some box inputs have changed name 
+;;; redefine with eql-specializers for specific functions of class name
+;;; e.g. (defmethod update-arg-names ((reference (eql 'function-or-class))) '(("old-arg-name" "new-arg-name")))
+(defmethod update-arg-names ((ref t)) nil)
 
 
 
@@ -1316,6 +1252,8 @@ x SDIFFILE
 x SOUND  !!! markers seconds vs. milliseconds
 x TEXTFILE
 
-CLASS-ARRAY
+X CLASS-ARRAY
+
+PICTURE
 
 |#

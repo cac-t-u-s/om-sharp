@@ -53,6 +53,9 @@
 (defmethod set-buffer-player-volume ((self buffer-player) volume)
   (print (list "TODO: set volume" volume)))
 
+
+(defvar *default-audio-type* :float)
+
 (defun make-player-from-file (path &optional (buffered nil))
   (if (not buffered)
       (make-buffer-player :pointer (juce::makeAudioSourceFromFile path))

@@ -38,7 +38,7 @@
   (reduce 
    '+ (cons
        (sdif-header-size self)
-       (mapcar 'sdif-size (LMatrices self)))))
+       (mapcar 'sdif-size (lmatrix self)))))
 
 (defmethod sdif-write ((matrix sdifmatrix) file-ptr)
   (let* ((data-type-size 4)
@@ -64,10 +64,10 @@
    (let ((framesize (sdif-size self)))
      (sdif::SdifFSetCurrFrameHeader file-ptr 
                                     (sdif::SdifStringToSignature (frametype self))
-                                    framesize (length (Lmatrices self)) 
-                                    (streamID self) (coerce (frametime self) 'double-float))
+                                    framesize (length (lmatrix self)) 
+                                    (streamID self) (coerce (ftime self) 'double-float))
      (sdif::SdifFWriteFrameHeader file-ptr)
-     (loop for item in (LMatrices self) do (sdif-write item file-ptr))
+     (loop for item in (lmatrix self) do (sdif-write item file-ptr))
      ))
 
 
@@ -96,7 +96,8 @@
   (let ((sstr (sdif::SdifStringNew)))
     (sdif::SdifStringAppend sstr types-string)
     (sdif::SdifStringGetC sstr)
-    (sdif::SdifFGetAllTypefromSdifString fileptr sstr)))
+    (sdif::SdifFGetAllTypefromSdifString fileptr sstr)
+    ))
   
 ;;; write a list of SDIFType objects 
 (defun sdif-write-types (fileptr typeslist)
@@ -137,6 +138,13 @@
 ;;; GENERAL / TOP-LEVEL
 ;;;======================================
 (defmethod* write-sdif-file ((frames list) &key (outpath "out.sdif") types nvts)
+  
+  :indoc '("a list of SDIFFrame objects" "SDIF file pathname" "list of SDIFType obvjects" "list of SDIFNVT objects")
+  :outdoc '("pathname of written SDIF file")
+  :initvals '(nil "out.sdif" nil nil)
+  :icon 'sdif
+  :doc "Writes a list of SDIFFrame objects as a new SDIF file."
+  
   (let ((out-path (cond ((pathnamep outpath) outpath)
                          ((stringp outpath) (outfile outpath))
                          (t (om-choose-new-file-dialog)))))

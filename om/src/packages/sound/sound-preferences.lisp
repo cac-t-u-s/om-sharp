@@ -15,25 +15,21 @@
 ; File author: J. Bresson
 ;============================================================================
 
-;;;=================
-;;; SOUND PROJECT
-;;;=================
 
+;;;=================
+;;; SOUND PREFS
+;;;=================
 
 (in-package :om)
 
-(load (decode-local-path "audio-api/load-audio-api.lisp"))
-        
-(mapc #'(lambda (filename) (compile&load (decode-local-path filename))) 
-      '(
-        "sound/audio-tools"
-        "sound/sound-object"
-        "sound/sound-processing"
-        "sound/synthesize"
-        "player/juce-player"
-        "player/buffer-player"
-        "sound-preferences"
-        "compatibility"
-        "sound-pack"
-        ))
+(add-preference :audio :format "Default format" '(:aiff :wav) :aiff
+                "Applies as default choice for audio synthesis functions")
 
+(add-preference :audio :normalize "Normalization" :bool t
+                "Applies as default choice for audio synthesis functions")
+
+(add-preference :audio :resolution "Default sample size" '(16 24 32) 16
+                "Applies as parameter for saving audio buffers")
+
+;(add-preference :audio :normalize "Normalization level (db)" :bool t
+;                "Applies as default choice for audio synthesis functions")

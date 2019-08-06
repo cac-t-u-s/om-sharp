@@ -30,7 +30,9 @@
   (last-item :initform nil :accessor last-item)
   ))
 
-(defmethod undoable-object ((self undoable-editor-mixin)) (object self))
+;;; object-value will be the object (BPF, etc.) for an object-box
+;;; ... or the "object" slot for a patch
+(defmethod undoable-object ((self undoable-editor-mixin)) (object-value self))
 
 (defmethod undo-command ((self undoable-editor-mixin)) 
   (when (undo-stack self) 
@@ -170,12 +172,12 @@
 ; (get-object-slots-for-undo (make-instance 'omboxabstraction))
 
 (defmethod get-undoable-object-state ((self standard-object)) 
-  ;(om-print-dbg "collecting state of ~A" (list self) "UNDO")
+  ; (om-print-dbg "collecting state of ~A" (list self) "UNDO")
   (loop for slot in (get-object-slots-for-undo self)
         collect (list slot (get-undoable-object-state (slot-value self slot)))))
 
 (defmethod restore-undoable-object-state ((self standard-object) (state list)) 
-  ;(om-print-dbg "restoring state of ~A" (list self) "UNDO")
+  ; (om-print-dbg "restoring state of ~A" (list self) "UNDO")
   (loop for slot in (get-object-slots-for-undo self)
         do (setf (slot-value self slot) 
                  (restore-undoable-object-state (slot-value self slot)
@@ -227,10 +229,12 @@
 (defmethod restore-undoable-object-state ((self OMPatch) (state list)) 
   
   ;;; need to save/restore the connections of referencing boxes...
-  (let* ((reference-containers (remove-duplicates (mapcar 'container (references-to self))))
+  (let* ((reference-boxes (remove-duplicates (references-to self) :key #'container))
          (reference-containers-connections 
-          (loop for p in reference-containers collect (save-connections-from-boxes (boxes p)))))
-  
+          (loop for ref-b in reference-boxes 
+                collect (save-connections-from-boxes (boxes (container ref-b))))))
+
+    
     (loop for element in (append (boxes self) (connections self))
           do (omng-remove-element self element))
     ;;; => must be properly removed !!!
@@ -251,16 +255,20 @@
             do (omng-add-element self c))
       )
     
+    
     ;;; restore the connections of referencing boxes
-    (loop for p in reference-containers
+    (loop for ref-b in reference-boxes
           for c-list in reference-containers-connections
           do 
-          (let ()
-            (loop for c in (restore-connections-to-boxes c-list (boxes p))
-                  do (omng-add-element p c))
-            (when (editor p) (update-after-state-change (editor p)))
-            ))
-    
+          (let ((pat (container ref-b)))
+            (loop for c in (restore-connections-to-boxes c-list (boxes pat))
+                  when (or (equal ref-b (box (to c)))    
+                           (equal ref-b (box (from c))))
+                  do (omng-add-element pat c))
+            (when (editor pat) (update-after-state-change (editor pat)))
+            )
+          )
+          
     self))
     
 

@@ -210,33 +210,40 @@
 
 
 (defmethod update-plot-data ((self field-plot-view) f-desc m-desc field-num)
-  (let ((ed (editor self)))
-    
-    (if (and f-desc m-desc field-num)
-        
-        (multiple-value-bind (sdifdata sdiftimes) 
-            (getsdifdata (object-value ed)
-                         (fstream-desc-id f-desc)
-                         (fstream-desc-fsig f-desc)
-                         (mstream-desc-msig m-desc)
-                         field-num nil nil nil nil)
-          (setf (vmin self) (list-min (flat sdifdata)))
-          (setf (vmax self) (list-max (flat sdifdata)))
-          (setf (tmax self) (car (last sdiftimes)))
-      
-          (setf (data self) 
-                ;;; TAKES ONLY the FIRST 100 ROWS
-                (loop for r from 0 to (min 100 (1- (mstream-desc-rmax m-desc))) collect
-                      (loop for timetag in sdiftimes
-                            for data in sdifdata 
-                            when (nth r data) collect 
-                            (list timetag (nth r data)))
-                      ))
-          )
-      (setf (data self) nil))
-    (om-invalidate-view self)
-    ))
+  
+  ;;; will do this in the main OM-EVAL thread where all SDIF happens
+  (eval-sdif-expression 
+   
+   #'(lambda ()
 
+       (let ((ed (editor self)))
+                              
+         (if (and f-desc m-desc field-num)
+                                  
+             (multiple-value-bind (sdifdata sdiftimes) 
+                 (getsdifdata (object-value ed)
+                              (fstream-desc-id f-desc)
+                              (fstream-desc-fsig f-desc)
+                              (mstream-desc-msig m-desc)
+                              field-num nil nil nil nil)
+               (setf (vmin self) (list-min (flat sdifdata)))
+               (setf (vmax self) (list-max (flat sdifdata)))
+               (setf (tmax self) (car (last sdiftimes)))
+          
+               (setf (data self) 
+                     ;;; TAKES ONLY the FIRST 100 ROWS
+                     (loop for r from 0 to (min 100 (1- (mstream-desc-rmax m-desc))) collect
+                           (loop for timetag in sdiftimes
+                                 for data in sdifdata 
+                                 when (nth r data) collect 
+                                 (list timetag (nth r data)))
+                           ))
+               )
+           (setf (data self) nil))
+         (om-invalidate-view self)
+         ))
+   ))
+  
 
 
 

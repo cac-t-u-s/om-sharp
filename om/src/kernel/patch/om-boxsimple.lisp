@@ -93,7 +93,7 @@
           #'(lambda (box text)
                    (handler-bind ((error #'(lambda (error) (om-beep) (om-abort)))) 
                      ;;(setf (name box) text)
-                     (let ((val (read-from-string text)))
+                     (let ((val (ignore-errors (read-from-string text))))
                        (set-value box (list (if (quoted-form-p val) (eval val) val)))
                        )))
           ))

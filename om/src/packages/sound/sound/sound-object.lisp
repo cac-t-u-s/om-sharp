@@ -52,7 +52,7 @@
 
 ;;; this is the garbage action
 (defmethod om-cleanup ((self om-sound-buffer))
-  (om-print-dbg "AUDIO BUFFER CLEANUP: ~A" (list self) "SOUND_DEBUG")
+  (om-print-dbg "Free Audio buffer: ~A" (list self) "OM")
   (when (and (oa::om-pointer-ptr self) (not (om-null-pointer-p (oa::om-pointer-ptr self))))
     (audio-io::om-free-audio-buffer (oa::om-pointer-ptr self) (om-sound-buffer-nch self))))
 
@@ -87,7 +87,7 @@
 ;; om-internal-sound never explicitly frees its buffer but just releases it.
 ;; => buffer must be created 'with-GC' 
 (defmethod om-cleanup ((self om-internal-sound))
-  (om-print-dbg "SOUND CLEANUP: ~A (~A)" (list self (buffer self)) "SOUND_DEBUG")
+  (om-print-dbg "SOUND cleanup: ~A (~A)" (list self (buffer self)) "OM")
   (when (buffer self) (oa::om-release (buffer self))))
 
 (defmethod additional-slots-to-copy ((from om-internal-sound)) 
@@ -105,7 +105,7 @@
     (when (buffer self)
       (let ((new-ptr (make-audio-buffer (n-channels self) (n-samples self)))
             (self-ptr (oa::om-pointer-ptr (buffer self))))
-        (om-print-dbg "COPYING SOUND BUFFER (~D x ~D channels)..." (list (n-samples self) (n-channels self)) "SOUND_DEBUG")
+        (om-print-dbg "Copying sound buffer (~D x ~D channels)..." (list (n-samples self) (n-channels self)) "OM")
         (dotimes (ch (n-channels self))
           (dotimes (smp (n-samples self))
             (setf (cffi::mem-aref (cffi::mem-aref new-ptr :pointer ch) :float smp)
@@ -238,6 +238,35 @@ Press 'space' to play/stop the sound file.
     (fli:dereference (oa::om-pointer-ptr (buffer ,snd)) :index ,chan :type :pointer) 
     :index ,pos :type (smpl-type ,snd)))
 
+
+#|
+;;; example of use:
+
+(defun synth (dur freq gain envelope)
+
+  (let* ((sr 44100)
+         (nbsamples (round (* dur sr)))
+         (freqs (list! freq))
+         (steps (loop for f in freqs collect (/ f sr)))
+         (sampled-envelope (om-scale (nth 2 (multiple-value-list (om-sample envelope nbsamples))) 0.0 1.0)))
+    
+    (with-sound-output (mysound :nch 2 :size nbsamples :sr 44100 :type :float)
+      
+      (loop for x from 0 to (1- nbsamples)
+            for y-list = (make-list (length steps) :initial-element 0) then (om+ y-list steps)
+            for amp in sampled-envelope
+            do
+            (write-in-sound mysound 1 x
+                            (* gain amp 
+                               (apply '+
+                                      (loop for y in y-list collect
+                                            (sin (* 2 (coerce pi 'single-float) (cadr (multiple-value-list (floor y))))))
+                               
+                                      ))
+                            )
+            )
+      )))
+|#
 
 ;;;===========================
 ;;; TIME MARKERS
@@ -492,8 +521,9 @@ Press 'space' to play/stop the sound file.
 |#
 
 ;;; executes its body with buffer-name bound to a valid audio buffer
-;;; this bufer can be found in sound or produced from the filename
+;;; this buffer can be found in sound or produced from the filename
 ;;; in the second case, it is freed at the end 
+;;; sound must also have a valid n-samples and n-channels 
 ;;; => do it without '-GC' ?
 (defmacro with-audio-buffer ((buffer-name sound) &body body)
   `(let ((snd (get-sound ,sound)))
@@ -523,35 +553,44 @@ Press 'space' to play/stop the sound file.
   (when (buffer sound) (oa::om-release (buffer sound)))
   
   (if (probe-file path)
-      
-      (multiple-value-bind (buffer format channels sr ss size)
+      (progn 
+        (om-print-dbg "Loading sound from: ~s" (list path) "OM")
+        (multiple-value-bind (buffer format channels sr ss size)
+            
+            (audio-io::om-get-audio-buffer (namestring path) *default-internal-sample-size* nil)
           
-          (audio-io::om-get-audio-buffer (namestring path) *default-internal-sample-size* nil)
-        
-        (when buffer 
-          (unwind-protect 
-              (progn
-                (setf (buffer sound) (make-om-sound-buffer-GC :ptr buffer :count 1 :nch channels)
-                      (smpl-type sound) *default-internal-sample-size*
-                      (n-samples sound) size
-                      (n-channels sound) channels
-                      (sample-rate sound) sr
-                      (sample-size sound) ss)
-                sound))))
+          (when buffer 
+            (unwind-protect 
+                (progn
+                  (setf (buffer sound) (make-om-sound-buffer-GC :ptr buffer :count 1 :nch channels)
+                        (smpl-type sound) *default-internal-sample-size*
+                        (n-samples sound) size
+                        (n-channels sound) channels
+                        (sample-rate sound) sr
+                        (sample-size sound) ss)
+                  sound)))))
     (progn 
-      (om-beep-msg "Wrong pathname for sound: ~s" path)
+      (om-beep-msg "Unable to load soudn from: ~s" path)
       (setf (buffer sound) nil)
-      )))
+      nil)
+    ))
 
 
 (defun set-sound-info (sound path)
-  (multiple-value-bind (format channels sr ss size)
-      (audio-io::om-get-sound-info (namestring path))
-    (setf (n-samples sound) size
-          (n-channels sound) channels
-          (sample-rate sound) sr
-          (sample-size sound) ss)
-     sound))
+  
+  (if (probe-file path)
+
+      (multiple-value-bind (format channels sr ss size)
+          (audio-io::om-get-sound-info (namestring path))
+        (setf (n-samples sound) size
+              (n-channels sound) channels
+              (sample-rate sound) sr
+              (sample-size sound) ss)
+        )
+    
+    (om-beep-msg "Unable to load soudn from: ~s" path))
+
+  sound)
 
 
 (defun interleave-buffer (in out samples channels)
@@ -569,8 +608,6 @@ Press 'space' to play/stop the sound file.
   out)
 
 
-
-
 (defun save-sound-data (sound path)
   (when (buffer sound)
     (let* ((nch (n-channels sound))
@@ -579,8 +616,8 @@ Press 'space' to play/stop the sound file.
       (audio-io::om-save-buffer-in-file (oa::om-pointer-ptr (buffer sound)) 
                                         (namestring path) 
                                         nsmp nch (sample-rate sound) 
-                                        *default-audio-resolution*
-                                        *default-audio-format*
+                                        (get-pref-value :audio :resolution)
+                                        (get-pref-value :audio :format)
                                         )
       (or (probe-file path)
           (om-beep-msg "Error -- no file written")))

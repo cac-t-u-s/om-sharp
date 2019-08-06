@@ -136,8 +136,9 @@
 
 (defmethod set-frame-areas ((self CommentFrame))
   (setf (areas self) 
-        (append (resize-areas self)
-                (info-area self))))
+        ;(append (info-area self)
+        (resize-areas self)
+        ))
 
 
 ;; not used

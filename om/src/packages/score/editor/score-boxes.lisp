@@ -22,11 +22,24 @@
 (in-package :om)
 
 
-(defun score-mini-view-left-shift-in-units (box)
-  (if (or (equal (get-edit-param box :staff) :line)
-          (equal (get-edit-param box :staff) :empty))
-      1 5))
 
+;;;============ 
+;;; BOX
+;;;============
+
+(defclass ScoreBox (OMBoxEditCall) 
+  ((fontsize :accessor fontsize :initform 18)))
+
+(defmethod special-box-type ((self (eql 'score-object))) 'ScoreBox)
+
+(defmethod display-modes-for-object ((self score-object))
+  '(:mini-view :hidden :text))
+
+(defmethod additional-box-attributes ((self score-object)) 
+  `((:font-size "a font size for score display" nil) 
+    (:staff "default staff configuration" 
+     ,(loop for s in *score-staff-options* collect (list (string-upcase s) s)))
+    ))
 
 (defmethod miniview-time-to-pixel-proportional ((object score-object) view time)
 
@@ -42,7 +55,6 @@
            (/ time (if (plusp (get-obj-dur object)) (get-obj-dur object) 1000))))
      ;)
      ))
-
 
 (defmethod miniview-time-to-pixel-rhythmic ((object score-object) view time)
 
@@ -63,22 +75,67 @@
   (miniview-time-to-pixel-rhythmic object view time))
 
 
+(defun score-mini-view-left-shift-in-units (box)
+  (if (or (equal (get-edit-param box :staff) :line)
+          (equal (get-edit-param box :staff) :empty))
+      1 5))
+
+
+(defmethod draw-mini-view ((self score-object) (box ScoreBox) x y w h &optional time)
+  
+  (om-draw-rect x y w h :fill t :color (om-def-color :white))
+  
+  (when (> (num-voices self) 0)
+    (let ((staff (get-edit-param box :staff))
+          (h-per-voice (/ h (num-voices self))))
+    
+      (setf (fontsize box) 18)
+    
+      (let* ((staff-lines (apply 'append (mapcar 'staff-lines (staff-split staff))))
+             (unit (font-size-to-unit (fontsize box)))
+             (n-lines (+ (- (car (last staff-lines)) (car staff-lines)) 8)) ;;; range of the staff lines + 10-margin
+             (draw-box-h (* n-lines unit))
+             (y-in-units (/ y unit)))
+     
+        (if (< draw-box-h h-per-voice)
+            ;;; there's space: draw more in the middle
+            (setf y-in-units (+ y-in-units (/ (round (- h-per-voice draw-box-h) 2) unit)))
+          ;;; there's no space: reduce font ?
+          (progn 
+            (setf unit (- unit (/ (- draw-box-h h-per-voice) n-lines)))
+            (setf (fontsize box) (unit-to-font-size unit)))
+          )
+      
+        (om-with-fg-color (om-make-color 0.0 0.2 0.2)
+          (score-object-mini-view self box x y y-in-units w h)
+          )
+        ))))
 
 
 
 ;;;===========================
 ;;; NOTE
 ;;;===========================
+
+;;; note has no editor (at the moment) so the font-size is not used
+(defmethod additional-box-attributes ((self note)) 
+  `((:staff "default staff configuration" 
+     ,(loop for s in *score-staff-options* collect (list (string-upcase s) s)))
+    ))
+
 (defmethod score-object-mini-view ((self note) box x-pix y-pix y-u w h)
   
-  (let ((staff (get-edit-param box :staff)))
+  (let ((staff (get-edit-param box :staff))
+        (font-size (fontsize box)))
     
-    (draw-staff x-pix y-pix y-u w h (fontsize box) staff :margin-l 1 :margin-r 1 :keys t)
+    (draw-staff x-pix y-pix y-u w h font-size staff :margin-l 1 :margin-r 1 :keys t)
 
     (draw-chord (make-instance 'chord :notes (list self)) 
                 0 
                 0 y-u 0 y-pix w h 
-                (fontsize box) :scale nil :staff staff
+                font-size 
+                :scale nil :staff staff
+                :stem NIL
                 :time-function #'(lambda (time) (declare (ignore time)) (/ w 2))
                 )
     ))

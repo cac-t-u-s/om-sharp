@@ -22,7 +22,7 @@
 ;;; CHORD-SEQ EDITOR / GENERAL SCORE EDITOR
 ;;;========================================================================
 
-(defclass chord-seq-editor (data-stream-editor score-editor) ())
+(defclass chord-seq-editor (score-editor data-stream-editor) ())
 (defmethod get-editor-class ((self chord-seq)) 'chord-seq-editor)
 
 (defclass chord-seq-panel (score-view stream-panel) ()
@@ -192,8 +192,39 @@
      
      )))
 
+;;; redefines from data-stream-editor
+(defmethod move-editor-selection ((self chord-seq-editor) &key (dx 0) (dy 0))
+  
+  (unless (zerop dx)
+    (loop for item in (selection self) 
+          when (typep item 'chord)
+          do (item-set-time item (max 0 (round (+ (item-get-time item) dx))))))
 
-                  
+  (unless (zerop dy)
+    (let ((notes (loop for item in (selection self) append (get-notes item))))
+      (loop for n in notes do
+            (setf (midic n) (+ (midic n) (* dy 100))))))
+  )
+
+(defmethod score-editor-change-selection-durs ((self chord-seq-editor) delta) 
+  
+  (when (editor-get-edit-param self :duration-display)
+    (let ((notes (loop for item in (selection self) append (get-notes item))))
+      
+      (loop for n in notes
+            do (setf (dur n) (max 0 (round (+ (dur n) delta)))))
+      )))
+
+
+(defmethod score-editor-delete ((self chord-seq-editor) element)
+  (remove-from-obj (object-value self) element))
+ 
+(defmethod editor-sort-frames ((self chord-seq-editor))
+  (time-sequence-reorder-timed-item-list (object-value self)))
+
+
+
+
 
 
 ;;;=========================

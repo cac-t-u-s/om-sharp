@@ -32,6 +32,10 @@
                rep)
         collect item))
 
+;;; the function pointed by synthesize method must accept the following keyword arguments
+;;; (even if it ignores them) :
+;;; :name :run :format :inits :tables :filters :resolution :normalize :sr :kr
+
 (defmethod synthesize-method ((self t)) nil)
 
 (defun collect-events-by-synth (evt-list)
@@ -53,27 +57,41 @@
 ;;;==============================================
 
 
-(defmethod* synthesize ((obj synthesisevt) &key (name "my-synth") (run t) (format "aiff") filters inits tables sr kr)
+(defmethod* synthesize ((obj synthesisevt) 
+                        &key (name "my-synth") (run t) 
+                        format resolution 
+                        (normalize nil normalize-supplied-p) 
+                        inits tables filters
+                        sr kr)
 
   :indoc '("a synthesis even (or list)" "name of output file" "run synthesis or generate params?" 
            "audio output format" "filter function for synthesis events" "synth initializers" "wave/gen tables" "sample rate" "control rate")
   :initvals '(nil "my-synth" t "aiff")
-
+  
   (when (synthesize-method obj)
     (if (or (null filters)
             (filter-events (list obj) filters))
         (funcall (synthesize-method obj) 
                  obj
-                 :name name :run run :format format
-                 :inits inits :tables tables 
+                 :name name :run run 
+                 :format (or format (get-pref-value :audio :format))
+                 :resolution resolution
+                 :normalize (if normalize-supplied-p normalize (get-pref-value :audio :normalize))
+                 :inits inits :tables tables
                  :sr sr :kr kr)
       (om-beep-msg "SYNTHESIZE: event did not pass filter(s) !"))
     ))
 
-(defmethod* synthesize ((obj list) &key (name "my-synth") (run t) (format "aiff") filters inits tables sr kr)
+(defmethod* synthesize ((obj list)                      
+                        &key (name "my-synth") (run t) 
+                        format resolution 
+                        (normalize nil normalize-supplied-p)
+                        inits tables filters
+                        sr kr)
   
   (let* ((evt-list (if filters (filter-events obj filters) obj))
-         (grouped-list (collect-events-by-synth evt-list)))
+         (grouped-list (collect-events-by-synth evt-list))
+         (out-normalize (if normalize-supplied-p normalize (get-pref-value :audio :normalize))))
     
     (when grouped-list
       
@@ -83,19 +101,21 @@
         
         (funcall (car (car grouped-list)) 
                  (cadr (car grouped-list))
-                 :run run :name name :format format
+                 :name name :run run :format format
                  :inits inits :tables tables
+                 :resolution resolution 
+                 :normalize out-normalize 
                  :sr sr :kr kr))
             
        (t (let ((rep-list (loop for elt in grouped-list  ;; several synthesis processes to mix
                                 for i = 1 then (+ i 1) collect
                                 (funcall (car elt) 
                                          (cadr elt)
-                                         :run run 
-                                         :name (string+ name "-temp-" (number-to-string i))
-                                         :format format
-                                         :inits inits :tables tables
-                                         :sr sr :kr kr))))
+                                         :name (string+ name "-temp-" (number-to-string i)) :run run :format format
+                 :inits inits :tables tables
+                 :resolution resolution 
+                 :normalize out-normalize
+                 :sr sr :kr kr))))
             (if run
                 ;;; mix all results
                 (save-sound 

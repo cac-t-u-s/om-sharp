@@ -82,7 +82,7 @@
                                   :name (string (slot-name slot)) 
                                   :reference (slot-name slot)
                                   :box self
-                                 :doc-string  (or (slot-doc slot) "")))
+                                  :doc-string  (or (slot-doc slot) nil)))
                (remove-if-not 'slot-initargs (class-direct-instance-slots class)))    ;;; direct ?
       ))))
 
@@ -106,8 +106,10 @@
   ;; this function can be called when the value is not yet initialised in the box
   (let ((val (or (and (null (lambda-state self)) (get-box-value self))
                  (make-instance (reference self)))))
-    (list (additional-class-attributes val)
-          (box-attributes-names (additional-box-attributes val)))
+    (remove nil
+            (list (additional-class-attributes val)
+                  (box-attributes-names (additional-box-attributes val))
+                  ))
     ))
 
 
@@ -124,14 +126,19 @@
     ))
 
 (defmethod next-keyword-input ((self OMBoxRelatedWClass))
+
   (let ((keywordlist (apply 'append (get-all-keywords self)))
         (usedkeywords (mapcar #'(lambda (in) (name in)) (get-keyword-inputs self))))
+    
     (if keywordlist
+        
         (or (find-if-not #'(lambda (elt) (member elt usedkeywords :test 'string-equal)) keywordlist :key 'string)
             (and (find (box-free-keyword-name self) keywordlist)
                  (make-unique-name (box-free-keyword-name self) usedkeywords))
             (values nil "All keywords are already used.."))
-      (values nil (string+ "No keyword for box '" (name self) "'.")))))
+      
+      (values nil (string+ "No keyword for box '" (name self) "'.")))
+    ))
 
 
 (defmethod add-keyword-input ((self OMBoxRelatedWClass) &key key (value nil val-supplied-p) doc reactive)

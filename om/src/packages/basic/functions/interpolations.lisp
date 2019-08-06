@@ -115,11 +115,11 @@ The resulting function can be connected for example to SAMPLEFUN."
 
 
 (defun interpolate (list-x list-y step)
-  (loop for pointer from (first list-x) by step
-        with x1
+  (loop with x1
         with y1 
         with x2 = (pop list-x)
         with y2 = (pop list-y)
+        for pointer from (first list-x) by step
         if (>= pointer x2)  do (setf x1 x2 y1 y2 x2 (pop list-x) y2 (pop list-y))
         if (null x2) collect y1 and do (loop-finish)
         collect (linear-interpol x1 x2 y1 y2 pointer)))
@@ -173,7 +173,7 @@ The resulting function can be connected for example to SAMPLEFUN."
 (defmethod* y-transfer ((self list) (y0 number) &optional (dec nil))
   :initvals (list nil 10  0)
   :indoc '("list of points, BPF or BPC"  "Y value"  "number of decimals")
-  :icon 233
+  :icon :y-transfer
   :doc "Returns a list of interpolated X values corresponding to a list of points ((x1 y1) (x2 y2) ...), or a BPF/BPC (<self>) and a Y position <y0>. 
 
 Optional <dec> is the number of decimals in the result."
@@ -190,7 +190,7 @@ Optional <dec> is the number of decimals in the result."
 
 
 (defmethod* x-transfer ((self list) (x-val number) &optional (dec nil))    
-  :icon 233
+  :icon :y-transfer
   :indoc '("a list or BPF" "X value" "number of decimals")
   :initvals '(((0 0) (100 100)) 50 nil)
   :doc "Returns the interpolated Y value(s) in a BPF or a list ((x1 y1) (x2 y2) ...) corresponding to an X value or a list of X values (<x-val>).
@@ -281,7 +281,6 @@ If <nbs-sr> is an float (e.g. 0.5, 1.0...) it is interpreted as the sample rate 
 ;;; Interpole avec profil
 ;;; (todo: merge with "interpolation")
 (defmethod* interpole-points ((v1 t) (v2 t) (nbsteps integer) &optional profil)
-  :icon 233
   :indoc '("value 1" "value 2" "number or intermediate steps" "interpolation profile")
   :doc "Interpolates <nbsteps> values between <v1> and <v2> following a profile.
 
@@ -292,13 +291,17 @@ If <nbs-sr> is an float (e.g. 0.5, 1.0...) it is interpreted as the sample rate 
     (loop for i from 0 to (+ 1 nbsteps) collect
           (om+ (om* v2 (nth i weightfun)) (om* v1 (om- 1 (nth i weightfun)))))))
 
+; A helper function to interpolate in the cr-control patch
+(defmethod* interpol-value ((list1 list) (list2 list) (nbsteps integer) i &optional profil)
+  (nth i (interpole-points list1 list2 nbsteps profil)))
+
 
 ;;;====================================
 ;;; Function reduction tools
 ;;; from S. Lemouton's code for Chroma
 
 (defmethod* reduce-points ((points list) &optional (approx 0.02))
-            :indoc '("a list of (x y) points or a BPF" "a number between 0.0 and 1.0")
+  :indoc '("a list of (x y) points or a BPF" "a number between 0.0 and 1.0")
   :initvals '(nil 0.02)
   :icon :bpf-sample
   :doc "Reduces <points> by removing all points closer than [<approx> * the amplitude range of the function] to the corresponding interpolated values.
@@ -333,7 +336,7 @@ If <nbs-sr> is an float (e.g. 0.5, 1.0...) it is interpreted as the sample rate 
 (defmethod* reduce-n-points (points n &optional (precision 10) (verbose nil))
   :indoc '("a list of (x y) points or a BPF" "a number (int)" "a number (int)")
   :initvals '(nil 20 10)
-  :icon 910
+  :icon :bpf-sample
   :doc "Reduces <points> to less than <n> points using approximations with the function REDUCE-POINTS.
 
 <precision> sets the maximum number of iterations for searching the closest result possible.

@@ -21,7 +21,7 @@
 ;;; EDITOR
 ;;;======================================
 
-(defclass data-stream-editor (OMEditor play-editor-mixin multi-display-editor-mixin) 
+(defclass data-stream-editor (OMEditor play-editor-mixin undoable-editor-mixin multi-display-editor-mixin) 
   ((timeline-editor :accessor timeline-editor :initform nil)))
 
 (defmethod object-default-edition-params ((self data-stream))
@@ -37,13 +37,17 @@
 (defmethod get-editor-class ((self internal-data-stream)) 'data-stream-editor)
 (defmethod get-obj-to-play ((self data-stream-editor)) (object-value self))
 
+(defmethod get-object-slots-for-undo ((self internal-data-stream)) '(frames))
+
 (defmethod alllow-insert-point-from-timeline ((self data-stream-editor)) nil)
+
 
 ;;; from play-editor-mixin
 (defmethod cursor-panes ((self data-stream-editor)) 
   ;(append (get-g-component self :data-panel-list)
   (cons (active-panel self)
-        (cursor-panes (timeline-editor self))))
+        (and (timeline-editor self) 
+             (cursor-panes (timeline-editor self)))))
 
 (defmethod active-panel ((editor data-stream-editor))
   (let ((n (or (and (multi-display-p editor)
@@ -99,11 +103,12 @@
 
 (defmethod init-editor ((editor data-stream-editor))
   (call-next-method)
-  (setf (timeline-editor editor) 
-        (make-instance 'timeline-editor 
-                       :object (object editor) 
-                       :container-editor editor))
-  )
+  (when (editor-with-timeline editor)
+    (setf (timeline-editor editor) 
+          (make-instance 'timeline-editor 
+                         :object (object editor) 
+                         :container-editor editor))
+    ))
 
 ;;; sets the editor slightly longer that the actual object length  
 (defmethod editor-view-after-init-space ((self t)) 1000)
@@ -157,12 +162,14 @@
                      
     (set-g-component editor :x-ruler (make-time-ruler editor ed-dur))
     
-    (set-g-component (timeline-editor editor) :main-panel (om-make-layout 'om-row-layout))
     
     (set-g-component editor :main-panel (car (get-g-component editor :data-panel-list)))
     
-    (when (editor-get-edit-param editor :show-timeline)
-      (make-timeline-view (timeline-editor editor)))
+    (when (timeline-editor editor)
+      (set-g-component (timeline-editor editor) :main-panel (om-make-layout 'om-row-layout))
+
+      (when (editor-get-edit-param editor :show-timeline)
+        (make-timeline-view (timeline-editor editor))))
     
     (om-make-layout 
      'om-column-layout 
@@ -182,8 +189,11 @@
                                append (list (left-view view) view))
                          (list nil (get-g-component editor :x-ruler)))
                  )
+
                 ;;; the timeline editor:
-                (get-g-component (timeline-editor editor) :main-panel)
+                (when (timeline-editor editor)
+                  (get-g-component (timeline-editor editor) :main-panel))
+
                 ;;; the bottom control bar:
                 (om-make-layout 'om-row-layout 
                                 :size (omp nil 40) 
@@ -246,7 +256,8 @@
        new-max-dur))
     (mapc 'om-invalidate-view (get-g-component editor :data-panel-list))
 
-    (when (editor-get-edit-param editor :show-timeline)
+    (when (and (timeline-editor editor) 
+               (editor-get-edit-param editor :show-timeline))
       (update-to-editor (timeline-editor editor) editor))
 
     (call-next-method)
@@ -405,7 +416,6 @@
       (om-set-text (get-g-component editor :mousepos-txt) (format nil "~Dms" time))))
   )
 
-
 (defmethod move-editor-selection ((self data-stream-editor) &key (dx 0) (dy 0))
   (loop for fp in (selection self) do
         (let ((frame (nth fp (data-stream-get-frames (object-value self)))))
@@ -419,18 +429,25 @@
           (item-set-duration frame (max 0 (round (+ (item-get-duration frame) dx))))
           )))
 
+#|
 (defmethod editor-finalize-selection ((self data-stream-editor))
   (loop for fp in (selection self) do
         (let ((frame (nth fp (data-stream-get-frames (object-value self)))))
           (finalize-data-frame frame)
           )))
-  
+|#
+
+;;; sort the frames and reset the selection indices correctly
 (defmethod editor-sort-frames ((self data-stream-editor))
   (let* ((stream (object-value self))
-         (tempselection (loop for pos in (selection self) collect (nth pos (data-stream-get-frames stream)))))
-    (data-stream-set-frames stream (sort (data-stream-get-frames stream) '< :key 'date))
+         (selected-objects (loop for pos in (selection self) collect 
+                                 (nth pos (data-stream-get-frames stream)))))
+    
+    ;; (data-stream-set-frames stream (sort (data-stream-get-frames stream) '< :key 'date))
+    (time-sequence-reorder-timed-item-list stream)
+    
     (setf (selection self)
-          (loop for selected in tempselection 
+          (loop for selected in selected-objects 
                 collect (position selected (data-stream-get-frames stream))))))
      
 
@@ -557,12 +574,14 @@
           ))
         ))))
 
+
 (defmethod editor-key-action ((editor data-stream-editor) key)
   (let* ((panel (active-panel editor))
          (stream (object-value editor)))
     (case key
       (:om-key-delete 
        (when (selection editor)
+         (store-current-state-for-undo editor)
          (loop for pos in (sort (selection editor) '>) do 
                ;; (data-stream-set-frames stream (remove (nth pos (frames stream)) (frames stream)))
                (remove-nth-timed-point-from-time-sequence stream pos)
@@ -577,6 +596,7 @@
        ;; (reinit-x-ranges editor)
        )
       (:om-key-left
+       (store-current-state-for-undo editor)
        (move-editor-selection editor :dx (- (get-units (get-g-component editor :x-ruler) (if (om-shift-key-p) 100 10))))
        (editor-sort-frames editor)
        (time-sequence-update-internal-times stream)
@@ -585,6 +605,7 @@
        (report-modifications editor)
        )
       (:om-key-right
+       (store-current-state-for-undo editor)
        (move-editor-selection editor :dx (get-units (get-g-component editor :x-ruler) (if (om-shift-key-p) 100 10)))
        (editor-sort-frames editor)
        (time-sequence-update-internal-times stream)

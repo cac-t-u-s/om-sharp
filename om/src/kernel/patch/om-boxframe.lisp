@@ -100,8 +100,10 @@
          )))
 
 (defmethod area-tt-text ((self output-area)) 
-  (or (doc-string (object self))
-      (name (object self))))
+  (if (doc-string (object self))
+      (list (name (object self))
+            (doc-string (object self)))
+    (name (object self))))
 
 
 (defmethod area-tt-pos ((self output-area)) 
@@ -169,18 +171,22 @@
       (next-keyword-input self)))
 
 (defmethod input-edit-areas ((self OMBoxFrame))
-  (let ((S 5))
+
+  (let ((S 5)
+        (allow-add (allow-add-inputs (object self)))
+        (allow-remove (allow-remove-inputs (object self))))
+        
     (remove nil 
             (list 
              (when (allow-add-inputs (object self))
                (make-instance '++input-area :object self :frame self
                               :pos #'(lambda (f) (om-make-point 
-                                                  (- (w f) (* (if (allow-remove-inputs (object self)) 2 1.2) S))
+                                                  (- (w f) (* (if allow-remove 2 1.2) S))
                                                   S))
                               :pick #'(lambda (f) (declare (ignore f)) (list (- S) (- S) S S))))
              (when (allow-remove-inputs (object self))
                (make-instance '--input-area :object self :frame self
-                            :pos #'(lambda (f) (om-make-point (- (w f) S) (* (if (allow-add-inputs (object self)) 2 1) S)))
+                            :pos #'(lambda (f) (om-make-point (- (w f) S) (* (if allow-add 2 1) S)))
                             :pick #'(lambda (f) (declare (ignore f)) (list (- S) (- S) S S))))))
     ))
 
@@ -189,7 +195,7 @@
     (om-with-fg-color (om-def-color :light-gray)
       (om-draw-circle (om-point-x p) (om-point-y p) 5 :fill t))))
 
-(defmethod om-draw-area ((area ++input-area))
+(defmethod om-draw-area ((area ++input-area)) 
   (unless (disabled-area area)
     (let ((p (get-position area)))
       (call-next-method)
@@ -200,7 +206,7 @@
           (om-draw-line (- (om-point-x p) 2.5) (om-point-y p)
                         (+ (om-point-x p) 2.5) (om-point-y p)))))))
 
-(defmethod om-draw-area ((area --input-area))
+(defmethod om-draw-area ((area --input-area)) 
   (unless (disabled-area area)
     (let ((p (get-position area)))
       (call-next-method) 
@@ -362,7 +368,7 @@
 
 (defmethod set-frame-areas ((self t)) nil)
 
-(defmethod set-frame-areas ((self OMBoxFrame))
+(defmethod set-frame-areas ((self OMBoxFrame)) 
   
   (let* ((box (object self))
          (nin (length (inputs box)))
@@ -581,7 +587,9 @@
           (if (icon-id self)
               (case (icon-pos box)
                 (:left (om-draw-picture (icon-id self) :x 2 :y 6 ; (- (h self) icon-size io-hspace) 
-                                        :w icon-size :h icon-size))
+                                       ; :w icon-size :h icon-size
+                                        :w (- (h self) 12) :h (- (h self) 12)
+                                        ))
                 (:top (let ((w2 icon-size))  ; (min (w self) (- (h self) icon-size (* io-hspace 2)))))
                         (om-draw-picture (icon-id self) 
                                          :x (/ (- (w self) w2) 2) 
@@ -809,8 +817,9 @@
                                                                         target 
                                                                         (om-convert-coordinates pos panel target) 
                                                                         self oa patchpanel)))
+                                                        
+                                                       ;;; will not be called if handle-connect-release returns nil
                                                        (when after-fun (funcall after-fun connected?)) 
-                                                       ;;; will not be called in handle-connect-release returns nil
                                                        )
                                                      )))
                                     )
@@ -1001,17 +1010,20 @@
                            #'(lambda () 
                                (change-keyword input currentkey)))
                          :enabled (or nil ; selected
-                                   (not (find (string key)
-                                              (get-keyword-inputs box) 
-                                              :test 'string-equal :key 'name)))
+                                      (equal key (box-free-keyword-name box))
+                                      (not (find (string key)
+                                                 (get-keyword-inputs box) 
+                                                 :test 'string-equal :key 'name)))
                          :selected selected ;; will not wok if all items are enabled... (?)
                          )))))
 
 ;;; Displays a menu for the keyword arguments of a function
-(defun show-keywords-menu (input box view)
-;; IF ALL THE ITEMS ARE ENABLED THE SELECTION DOESN'T WORK: MYSTERIOUS...
+(defun show-keywords-menu (input box view) 
+
+; IF ALL THE ITEMS ARE ENABLED THE SELECTION DOESN'T WORK: MYSTERIOUS...
 ;(let ((fakeitem (when (= 1 (length (get-keyword-inputs box)))
 ;                    (list (om-make-menu-item "" nil :enabled nil :selected nil)))))                               
+
   (let ((menu (om-make-menu 
                "keyword arguments"                           
                (loop for key in (get-all-keywords box)

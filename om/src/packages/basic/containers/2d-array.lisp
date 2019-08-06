@@ -54,7 +54,7 @@
   (let* ((display-cache (ensure-cache-display-draw box self))
          (font (om-def-font :font1 :size 10))
          (n-lines (length (data self)))
-         (inter-line 3)
+         (inter-line 1)
          (v-margin 8)
          (line-h (if (data self) 
                      (/ (- h v-margin (* inter-line (1- n-lines))) n-lines)
@@ -77,10 +77,12 @@
 (defmethod get-array-field-data ((field list)) field)
 
 (defmethod draw-field-on-box ((self OMArray) field x y w h)
+
   (when (> (elts self) 0)
+
     (let ((x-space (/ w (elts self)))
           (mid-y (+ y (/ h 2)))
-          (margin-y (min 8 (/ h 2)))
+          (margin-y 2) ; (min 8 (/ h 2)))
           (field-data (get-array-field-data field)))
   
       (flet ((nth-x-pos (n) (+ x (* x-space (+ n 0.5))))
@@ -91,58 +93,76 @@
         (om-with-font 
          (om-def-font :font1 :size 8)
      
-         (if (numberp (car field-data))
-        
-             ;; Numbers: draw bpf-kind
-             (let* ((min-y-val (list-min field-data))
-                    (max-y-val (list-max field-data))
-                    (y-values-range (- max-y-val min-y-val))
-                    (y-factor (if (zerop y-values-range) 1 (float (/ (- h (* 2 margin-y)) y-values-range)))))
-          
-               (let* ((x0 (nth-x-pos 0))
-                      (val (car field-data))
-                      (y0 (+ y (- h margin-y (* (- val min-y-val) y-factor))))
-                      (step (ceiling (/ (length field-data) w)))) 
-                        
-                 ;;; draw the first element 
-                 (draw-cross x0 mid-y)
-                 (om-draw-circle x0 y0 2 :fill t)
-                 (om-draw-string x0 (- y0 6) (format nil "~A" val)) 
-                 (if (= y-values-range 0) (setf max-y-val nil)) ;; just to prevent drawing the value again
+         (cond 
 
-                 (loop for n from 1 to (1- (length field-data)) 
-                       by step do
+          ((null field-data)
+           (om-draw-string (- (* w 0.5) 40) mid-y "[no data]"))
+          
+          ((list-subtypep field-data 'number)
+           ;; Numbers: draw bpf-kind
+           (let* ((min-y-val (list-min field-data))
+                  (max-y-val (list-max field-data))
+                  (y-values-range (- max-y-val min-y-val))
+                  (y-factor (if (zerop y-values-range) 1 (float (/ (- h (* 2 margin-y)) y-values-range))))
+                  (draw-annex-elements (and (> h 20) (< (length field-data) 100))))
+               
+             (let* ((x0 (nth-x-pos 0))
+                    (val (car field-data))
+                    (y0 (if (zerop y-values-range)
+                            mid-y
+                          (+ y (- h margin-y (* (- val min-y-val) y-factor)))))
+                    (step (ceiling (/ (length field-data) w))))
+                        
+               ;;; draw the first element 
+               (when draw-annex-elements
+                 (draw-cross x0 mid-y)
+                 (om-draw-circle x0 y0 2 :fill t))
+               (om-draw-string x0 (- y0 6) (format nil "~A" val)) 
+
+               (if (= y-values-range 0) (setf max-y-val nil)) ;; just to prevent drawing the value again
+
+               (loop for n from 1 to (1- (length field-data)) 
+                     by step do
                      ;(if (> step 1) (setf n (min (1- (length field-data)) (+ n (om-random 0 step)))))
-                       (let* ((elt (nth n field-data))
-                              (xx (nth-x-pos n))
-                              (val (nth n field-data))
-                              (yy (+ y (- h margin-y (* (- val min-y-val) y-factor)))))
-                         (if (< (length field-data) 200) (draw-cross xx mid-y))
-                         (when (< (length field-data) 100) (om-draw-circle xx yy 2 :fill t))
-                         (when (and max-y-val (= val max-y-val)) 
-                           (om-draw-string xx yy (format nil "~A" val))
-                           (setf max-y-val nil))
-                         (om-draw-line x0 y0 xx yy) 
-                         (setf x0 xx y0 yy))
-                       )
-                 (when (> step 1) 
-                   (om-draw-rect (- (* w 0.5) 60) (- mid-y 10) 125 15 :color (om-make-color-alpha (om-def-color :white) 0.8)  :fill t)
-                   (om-draw-string (- (* w 0.5) 58) mid-y (format nil "[display down-sampled x 1/~D]" step)
-                                   :color (om-make-color .7 .6 .7)))
-                 ))
+                     (let* ((elt (nth n field-data))
+                            (xx (nth-x-pos n))
+                            (val (nth n field-data))
+                            (yy (if (zerop y-values-range)
+                                    mid-y 
+                                  (+ y (- h margin-y (* (- val min-y-val) y-factor))))))
+                         
+                       (when draw-annex-elements
+                         (draw-cross xx mid-y)
+                         (om-draw-circle xx yy 2 :fill t))
+
+                       (when (and max-y-val (= val max-y-val)) 
+                         (om-draw-string xx yy (format nil "~A" val))
+                         (setf max-y-val nil))
+                       (om-draw-line x0 y0 xx yy) 
+                       (setf x0 xx y0 yy))
+                     )
+               (when (> step 1) 
+                 (om-draw-rect (- (* w 0.5) 60) (- mid-y 10) 125 15 :color (om-make-color-alpha (om-def-color :white) 0.8)  :fill t)
+                 (om-draw-string (- (* w 0.5) 58) mid-y (format nil "[display down-sampled x 1/~D]" step)
+                                 :color (om-make-color .7 .6 .7)))
+               ))
+           )
 
            ;;; NaN
-           (if (< (length field-data) 200)
-               (loop for elt in field-data
-                     for n = 0 then (+ n 1) do
-                     (let* ((xx (nth-x-pos n))
-                            (val (nth n field-data))
-                            (yy (+ y (* h .5))))
-                       (draw-cross xx mid-y)  
-                       (draw-element-in-array-field val xx yy x-space h)
-                       ))
-             (om-draw-string (- (* w 0.5) 40) mid-y "[...(list too long)...]"))
-           ))))))
+           ((< (length field-data) 200)
+            (loop for elt in field-data
+                  for n = 0 then (+ n 1) do
+                  (let* ((xx (nth-x-pos n))
+                         (val (nth n field-data))
+                         (yy (+ y (* h .5))))
+                    (draw-cross xx mid-y)  
+                    (draw-element-in-array-field val xx yy x-space h)
+                    )))
+           
+           (t
+            (om-draw-string (- (* w 0.5) 40) mid-y "[...(list too long)...]")))
+         ) ;; end COND
+        ))))
 
 
 (defmethod draw-element-in-array-field ((self t) center-x center-y w h)
@@ -182,13 +202,24 @@
 (defmethod om-init-instance ((self 2D-array) &optional initargs)
 
   (call-next-method)
+  
+  (setf (data self) (list! (data self)))
+  ;;; fields and elts are not necessary set (especially if called from an OM patch)
+  ;;; fields is reset in any case to match with the data
+  (setf (fields self) (length (data self)))   ;; (get-array-data self)
 
-  (if (data self)
-      (setf (fields self) (length (data self))
-            (elts self) (loop for field in (get-array-data self) maximize (length (get-array-field-data field))))
-      (setf (fields self) 0 
-            (elts self) 0)
-      )
+  (unless (and (elts self) (plusp (elts self)))
+    (setf (elts self)
+          (loop for field in (data self) 
+                when (listp field) 
+                maximize (length field))))     ;; (get-array-field-data field)
+
+  ;;; if a field is specified as a single/constant value: reset data as a list with this values
+  (loop for i from 0 to (1- (fields self)) do
+        (unless (listp (nth i (data self)))
+          (setf (nth i (data self)) (make-list (elts self) :initial-element (nth i (data self))))
+          ))
+  
   self)
 
 
@@ -269,9 +300,26 @@ Data instanciation in a column is done according to the specified number of line
 "))
 
 
+#|
+;;; OM7 - TO BUILD A CH-FOF (or other class-array) in Lisp, use :
+(defun test () 
+  (om-init-instance (make-instance 'om::class-array :elts 4) '((:freq (440 880 1200)) (:bw (59 70 90 80))))
+  )
+|#
+
+
 (defmethod additional-slots-to-save ((self class-array)) '(data))
 (defmethod additional-slots-to-copy ((self class-array)) '(data))
 
+(defmethod default-array-field-from-slot ((self class-array) (field string))
+  (let ((slot (find field (class-slots (class-of self)) :key 'slot-name :test 'string-equal)))
+    (when slot 
+      (make-array-field :name field :decimals 4
+                        :default (slot-initform slot)
+                        :type (slot-type slot)
+                        :doc (slot-doc slot))
+                        )))
+      
 (defmethod om-init-instance ((self class-array) &optional initargs)
    
   ;;; no next-method actually (T)
@@ -293,21 +341,23 @@ Data instanciation in a column is done according to the specified number of line
                                       arg-name))))
                 ))
 
-
   ;;; in class-array some 'meta-data' determine the contents of the actual data
   (setf (fields self) (length (field-names self)))
   (unless (elts self) (setf (elts self) 0))
   
   (when initargs ;; INITARGS = NIL means we are loading a saved object (data is already in)
-    (setf (data self)
+    (setf (data self) ;; (SETF DATA) will recall this initialization methods with :initargs = NIL :( 
           (loop for field in (field-names self) collect
                 
                 (let* ((input-data (find-value-in-kv-list initargs (intern-k field)))
                        
-                       ;; the field can already be in the data
-                       ;; if this data was copied or initialized from a subclass (e.g. cs-evt in OMChroma)
-                       (existing-field (find field (data self) :test 'string-equal :key 'array-field-name)))
-                  
+                       (existing-field (or 
+                                        ;; the field can already be in the data
+                                        ;; if this data was copied or initialized from a subclass (e.g. cs-evt in OMChroma)
+                                        (find field (data self) :test 'string-equal :key 'array-field-name)
+                                        ;; the class definition contains infprmation about this field in its own declaration
+                                        (default-array-field-from-slot self field))))
+                       
                   (cond (input-data 
                          ;; the field is to be set from specified data, whatever existed before
                          (let ((type (and existing-field (array-field-type existing-field))))
@@ -335,7 +385,7 @@ Data instanciation in a column is done according to the specified number of line
                         )
                   )))
     )
-  
+
   self)
 
 
@@ -369,22 +419,8 @@ Data instanciation in a column is done according to the specified number of line
 (defmethod get-field-id ((self class-array) (field string))
   (position field (field-names self) :test 'string-equal))
 
-;;; redefinition from OM methods
-(defmethod get-slot-val ((self class-array) slot-name)
-  (or (get-field self (string slot-name) :warn-if-not-found nil)
-      (call-next-method)))
- 
-(defmethod get-cache-display-for-text ((self class-array) box)
-  (declare (ignore box))
-  (append (call-next-method)
-          (loop for array-field in (data self) collect 
-                (list (intern-k (array-field-name array-field))
-                      (array-field-data array-field)))
-          ))
-
-
 ;;; collect the raw internal data
-(defmethod get-data ((self class-array))
+(defmethod get-array-data ((self class-array))
   (mapcar #'array-field-data (data self)))
 
 ;;; methods for filling data
@@ -432,18 +468,19 @@ Data instanciation in a column is done according to the specified number of line
 
 (defmethod default-size ((self ClassArrayBox)) (om-make-point 100 100))
 
+;;; class-array can be added "free fields"
+(defmethod allow-extra-controls ((self class-array)) t)
 (defmethod box-free-keyword-name ((self ClassArrayBox)) 'add-field)
 
 ;;; list of proposed keywords are the declared names
 (defmethod get-all-keywords ((self ClassArrayBox)) 
-  (append (list (keywords self))
-          (call-next-method) ;; additional-class-attributes of the reference
+  (append (if (keywords self) 
+              (list (keywords self)) 
+            (call-next-method)) ;; additional-class-attributes of the reference
           (when (and (get-box-value self) (allow-extra-controls (get-box-value self)))
             `((,(box-free-keyword-name self))))
           ))
 
-
-(defmethod allow-extra-controls ((self class-array)) nil)
 
 (defmethod update-key-inputs ((self ClassArrayBox))
   (when (get-box-value self)
@@ -485,11 +522,27 @@ Data instanciation in a column is done according to the specified number of line
   (update-key-inputs self))
 
 (defmethod rep-editor ((box ClassArrayBox) num)
-  (if (or (null num) (<= num 2)) (call-next-method)
-    (let* ((field-name (name (nth num (outputs box)))))
-      (get-field (get-box-value box) field-name))))  
+  (let ((num-direct-in-outs (1+ (length (remove-if-not 
+                                         #'slot-initargs 
+                                         (class-direct-instance-slots (find-class (reference box))))))))
+    (if (or (null num) (< num num-direct-in-outs)) (call-next-method)
+      (let* ((field-name (name (nth num (outputs box)))))
+        (get-field (get-box-value box) field-name)))))
 
 
+;;; redefinition from OM methods
+(defmethod get-slot-val ((self class-array) slot-name)
+  (or (get-field self (string slot-name) :warn-if-not-found nil)
+      (call-next-method)))
+ 
+
+(defmethod get-cache-display-for-text ((self class-array) box)
+  (declare (ignore box))
+  (append (call-next-method)
+          (loop for array-field in (data self) collect 
+                (list (intern-k (array-field-name array-field))
+                      (array-field-data array-field)))
+          ))
 
 ;;;==============================================
 ;;; Components are temporary structures 

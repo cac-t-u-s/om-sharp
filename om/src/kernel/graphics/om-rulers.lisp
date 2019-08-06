@@ -206,7 +206,11 @@
                                                 (draw-string-at self pixii (unit-value-str self vii unit-dur)))
                                 (when (eql (mod vii (/ big-unit 4)) 0)
                                   (om-with-font (om-def-font :font1 :size 8)
-                                                (draw-string-at self pixii (unit-value-str self vii unit-dur))))))))))))))))
+                                                (draw-string-at self pixii (unit-value-str self vii unit-dur)))
+                                  ))
+                              )))
+                    )))))
+      )))
 
 (defmethod draw-grid-line-from-ruler ((self om-view) (ruler x-ruler-view) x) (draw-v-grid-line self x))
 (defmethod draw-grid-line-from-ruler ((self om-view) (ruler y-ruler-view) y) (draw-h-grid-line self y))

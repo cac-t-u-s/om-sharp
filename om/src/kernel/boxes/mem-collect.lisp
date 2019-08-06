@@ -395,8 +395,9 @@
   
   (unless nil ;;; (equal (ev-once-flag self) (get-ev-once-flag *ev-once-context*))
     
+    ;; (print (omng-box-value (nth 2 (inputs self))))
     
-    (unless (value self) (setf (value self) (list (nth 2 (inputs self)))))
+    (unless (value self) (setf (value self) (list (omng-box-value (nth 2 (inputs self))))))
     
     (case numout
       ;;; ACCUM ;;; this is the only difference with collect
@@ -414,13 +415,13 @@
       )
     )
   
-    (return-value self numout))
+  (return-value self numout))
 
 
 (defmethod return-value ((self OMAccumBox) &optional (numout 0))
   (case numout
     ;;; last pushed
-    (0 (caar (value self)))
+    (0 (car (value self)))
     ;;; output ; does nothing to the memory
     (1 (car (value self)))
     ;;; init
@@ -448,7 +449,7 @@
       (0 `(let ((accum-val ,(gen-code (nth 0 (inputs self))))
                 (accum-fun ,(gen-code (nth 1 (inputs self)))))
             (setf ,local-name (funcall accum-fun ,local-name accum-val))
-            accum-val))
+            ,local-name))
       ;;; output
       (1 local-name)
       ;;; init with the value in

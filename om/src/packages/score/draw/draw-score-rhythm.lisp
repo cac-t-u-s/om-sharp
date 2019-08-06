@@ -513,7 +513,9 @@
                        :selection (if (find object selection) T selection)
                        :tied-to-ms (beat-to-time (symbolic-date (previous-chord object)) tempo)
                        :time-function #'(lambda (time) (time-to-pixel view time))
-                       :build-b-boxes create-bboxes
+                       ; no b-box for notes inside a continuation chord:
+                       ; they actually just refer to the main chord's notes
+                       :build-b-boxes nil 
                        )))
       
       (when create-bboxes 
@@ -538,6 +540,8 @@
          (beams-from-parent (and beam-info (beam-info-beams beam-info)))
          (beams-to-draw (set-difference (arithm-ser 1 beams-num 1) beams-from-parent))
          (beam-start-line (when beam-info (beam-info-line beam-info))))
+    
+    ;; (print (list beams-from-parent beams-to-draw beam-start-line))
 
     (let* ((create-bboxes (typep view 'score-view))
            (bbox? 
@@ -548,7 +552,7 @@
                        font-size 
                        :head (multiple-value-list (rest-head-and-points graphic-dur))
                        :line rest-line ;; can be NIL for display at default y-pos 
-                       :stem  (when beams-to-draw beam-start-line)
+                       :stem  (when beams-from-parent beam-start-line)
                        :beams (list beams-to-draw position)
                        :staff (get-edit-param param-obj :staff)
                        :selection (if (find object selection) T selection)
