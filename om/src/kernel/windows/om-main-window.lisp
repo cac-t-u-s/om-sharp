@@ -502,9 +502,10 @@ The list on the left show all libraries found in OM libraries search paths.
   (om-set-view-cursor *om-main-window* (om-get-cursor :add)))
 
 (defun cancel-add-item-on-patch ()
-  (setf *add-item-on-patch* nil)
-  (om-reset-mouse-motion)
-  (om-set-view-cursor *om-main-window* nil))
+  (when *add-item-on-patch*
+    (setf *add-item-on-patch* nil)
+    (om-reset-mouse-motion)
+    (om-set-view-cursor *om-main-window* nil)))
 
 (defmethod om-view-cursor :around ((self t))
   (if *add-item-on-patch*
