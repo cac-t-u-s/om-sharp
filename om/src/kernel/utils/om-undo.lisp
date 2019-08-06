@@ -229,10 +229,12 @@
 (defmethod restore-undoable-object-state ((self OMPatch) (state list)) 
   
   ;;; need to save/restore the connections of referencing boxes...
-  (let* ((reference-containers (remove-duplicates (mapcar 'container (references-to self))))
+  (let* ((reference-boxes (remove-duplicates (references-to self) :key #'container))
          (reference-containers-connections 
-          (loop for p in reference-containers collect (save-connections-from-boxes (boxes p)))))
-  
+          (loop for ref-b in reference-boxes 
+                collect (save-connections-from-boxes (boxes (container ref-b))))))
+
+    
     (loop for element in (append (boxes self) (connections self))
           do (omng-remove-element self element))
     ;;; => must be properly removed !!!
@@ -253,16 +255,20 @@
             do (omng-add-element self c))
       )
     
+    
     ;;; restore the connections of referencing boxes
-    (loop for p in reference-containers
+    (loop for ref-b in reference-boxes
           for c-list in reference-containers-connections
           do 
-          (let ()
-            (loop for c in (restore-connections-to-boxes c-list (boxes p))
-                  do (omng-add-element p c))
-            (when (editor p) (update-after-state-change (editor p)))
-            ))
-    
+          (let ((pat (container ref-b)))
+            (loop for c in (restore-connections-to-boxes c-list (boxes pat))
+                  when (or (equal ref-b (box (to c)))    
+                           (equal ref-b (box (from c))))
+                  do (omng-add-element pat c))
+            (when (editor pat) (update-after-state-change (editor pat)))
+            )
+          )
+          
     self))
     
 
