@@ -217,7 +217,7 @@ If <color> is :random, will choose a random color. It can also be a color symbol
 (defmethod* bpf-sample ((self bpf) xmin xmax (nbsamples integer) &optional (coeff 1) (nbdec 0))
   :initvals (list (make-instance 'bpf) nil nil 10 1 0)
   :indoc '("a BPF" "a number" "a number" "an integer" "a number" "an integer")
-  :icon 233
+  :icon :bpf-sample
   :doc "DEPRECATED - see OM-SAMPLE"
   (let ((min (or xmin (first (x-points self)))) 
         (max (or xmax (car (last (x-points self))))))
