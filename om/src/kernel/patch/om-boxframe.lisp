@@ -817,8 +817,9 @@
                                                                         target 
                                                                         (om-convert-coordinates pos panel target) 
                                                                         self oa patchpanel)))
+                                                        
+                                                       ;;; will not be called if handle-connect-release returns nil
                                                        (when after-fun (funcall after-fun connected?)) 
-                                                       ;;; will not be called in handle-connect-release returns nil
                                                        )
                                                      )))
                                     )
