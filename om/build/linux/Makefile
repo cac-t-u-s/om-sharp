@@ -6,12 +6,12 @@ compress	= gzip
 LISPFLAGS	= -build
 LISP		= $(HOME)/bin/lw $(LISPFLAGS)
 
-PREFIX		= /usr/local
+PREFIX		= /usr
 
 # DESTDIR for local builds, ie. by rpmbuild etc.
 
 bindir		= $(DESTDIR)$(PREFIX)/bin
-libdir		= $(DESTDIR)$(PREFIX)/lib/openmusic
+libdir		= $(DESTDIR)$(PREFIX)/lib64/openmusic
 datadir		= $(DESTDIR)$(PREFIX)/share
 omfontsdir	= $(DESTDIR)$(PREFIX)/share/fonts/omfonts
 omroot		= $(datadir)/$(APPNAME)
@@ -27,7 +27,7 @@ BUILDROOT	= $(builddir)
 APPNAME		= openmusic
 INSTALLRES	= $(BUILDROOT)/build/linux
 
-app_name_version = om7-alpha
+app_name_version = om7-beta
 
 faslname	= 64ufasl
 rubbish		= *.$(faslname)
@@ -39,7 +39,7 @@ exclude_mac	= --exclude 'build/mac/' --exclude '*.finderinfo'
 exclude_win	= --exclude 'build/win/'
 exclude_libs	= --exclude 'resources/lib/'
 
-checkname	= $(shell ls $(BUILDROOT) | grep "om7-")
+checkname	= $(shell ls $(BUILDROOT) | grep "om7_")
 ifdef $(checkname)
 releaseappname	= $(checkname)
 else
@@ -65,6 +65,7 @@ compile:
 install: $(BUILDROOT)/$(releaseappname)
 	mkdir -p $(omroot)
 	cd $(BUILDROOT) && rsync $(rsyncflags) $(exclude_fasl) $(exclude_libs) $(exclude_mac) $(exclude_win) --exclude 'Makefile' --exclude $(releaseappname) . $(omroot)
+	mkdir -p $(libdir)
 	cd $(BUILDROOT)/resources/lib/linux && rsync $(rsyncflags) . $(libdir)
 	cd $(BUILDROOT) && $(INSTALL_PROGRAM) -D -m 0755 $(releaseappname) $(bindir)/$(releaseappname)
 	mkdir -p $(datadir)/applications/
@@ -89,7 +90,7 @@ clean:
 
 tardist:
 	cd $(dir $(BUILDROOT))../ && \
-	tar cvjf om7_alpha.tar.bz2 \
+	tar cvjf om7.tar.bz2 \
 	   --exclude=.git \
 	   --exclude=.gitignore \
 	   --exclude=om7/om/build/mac \

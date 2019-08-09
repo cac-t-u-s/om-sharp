@@ -3,12 +3,12 @@ SHELL		= /bin/sh
 INSTALL_PROGRAM	= install
 compress	= gzip
 
-PREFIX		= /usr/local
+PREFIX		= /usr
 
 # DESTDIR for local builds, ie. by rpmbuild etc.
 
 bindir		= $(DESTDIR)$(PREFIX)/bin
-libdir		= $(DESTDIR)$(PREFIX)/lib/openmusic
+libdir		= $(DESTDIR)$(PREFIX)/lib64/openmusic
 datadir		= $(DESTDIR)$(PREFIX)/share
 omfontsdir	= $(DESTDIR)$(PREFIX)/share/fonts/omfonts
 omroot		= $(datadir)/$(APPNAME)
@@ -24,7 +24,7 @@ BUILDROOT	= $(builddir)/om
 APPNAME		= openmusic
 INSTALLRES	= $(BUILDROOT)/build/linux
 
-app_name_version = om7-alpha
+app_name_version = om7-beta
 
 faslname	= 64ufasl
 rubbish		= *.$(faslname)
@@ -49,6 +49,7 @@ help:
 install: 
 	mkdir -p $(omroot)
 	cd $(BUILDROOT) && rsync $(rsyncflags) $(exclude_fasl) $(exclude_libs) $(exclude_mac) $(exclude_win) --exclude 'Makefile' --exclude $(releaseappname) . $(omroot)
+	mkdir -p $(libdir)
 	cd $(BUILDROOT)/resources/lib/linux && rsync $(rsyncflags) . $(libdir)
 	cd $(BUILDROOT) && $(INSTALL_PROGRAM) -D -m 0755 $(releaseappname) $(bindir)/$(releaseappname)
 	mkdir -p $(datadir)/applications/
