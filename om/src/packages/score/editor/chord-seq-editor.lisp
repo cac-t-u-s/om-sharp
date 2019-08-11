@@ -55,7 +55,8 @@
          (scrolled (> (x1 (get-g-component editor :main-panel)) 0))
          ;; (shift (* 2 (font-size-to-unit (editor-get-edit-param editor :font-size))))
          (y-shift (editor-get-edit-param editor :y-shift))
-         (font-size (editor-get-edit-param editor :font-size)))
+         (font-size (editor-get-edit-param editor :font-size))
+         (unit (font-size-to-unit font-size)))
     
     ;(om-with-fg-color 
     ;    (when (find (object-value editor) (selection editor)) *score-selection-color*)
@@ -69,7 +70,7 @@
                   :keys (keys self))
     ;)
     
-    (draw-tempo (object-value editor) 2 y-shift font-size)
+    (draw-tempo (object-value editor) (* 2 unit) y-shift font-size)
     
     (when scrolled 
       (om-draw-rect (- (w self) 20) 0 20 (h self)

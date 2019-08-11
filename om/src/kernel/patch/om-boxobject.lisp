@@ -141,7 +141,10 @@
     ))
 
 
-(defmethod add-keyword-input ((self OMBoxRelatedWClass) &key key (value nil val-supplied-p) doc reactive)
+(defmethod add-keyword-input ((self OMBoxRelatedWClass) &key key value doc reactive)
+
+  (declare (ignore value doc reactive))
+  
   (call-next-method)
   (let ((name (string-downcase key)))
     (set-box-outputs self (append (outputs self)
@@ -557,6 +560,7 @@
                (object-box-label object)))
         (font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))))
     (multiple-value-bind (sw sh) (om-string-size str font)
+      (declare (ignore sw))
       (let* ((lines (om-string-wrap str (- (w frame) 18) font))
              (y0 (max 24 (- (+ 6 (/ (h frame) 2))
                             (round (* (1- (length lines)) sh) 2)))))
@@ -619,16 +623,16 @@
 
 
 (defmethod time-to-pixel ((self omobjectboxframe) x) 
-  (miniview-time-to-pixel (get-box-value (object self)) self x))
+  (miniview-time-to-pixel (get-box-value (object self)) (object self) self x))
 
-(defmethod miniview-time-to-pixel (object view time) 
+(defmethod miniview-time-to-pixel (object box view time) 
   (* (w view) 
      (/ time (if (plusp (get-obj-dur object)) (get-obj-dur object) 1000))))
 
 (defmethod draw-cursor-on-box (object frame time)
   (when time
     (om-with-fg-color (om-make-color 0.73 0.37 0.42)
-      (let ((x (miniview-time-to-pixel object frame time)))
+      (let ((x (miniview-time-to-pixel object (object frame) frame time)))
         ; (print (list "cursor" time x))
         (om-draw-polygon (list (- x 5) 4 x 9 (+ x 5) 4) :fill t)
         (om-with-line '(2 2)

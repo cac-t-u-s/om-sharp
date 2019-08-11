@@ -24,19 +24,24 @@
 ;;;===============================================
 
 (defmethod draw-measure ((object measure) tempo param-obj view 
-                         &key staff font-size position with-signature selection time-map
-                         (stretch 1) (x-shift 0) (y-shift 0))
+                         &key staff font-size position with-signature selection
+                         (stretch 1) (x-shift 0) (y-shift 0)
+                         time-function)
 
   (let* ((unit (font-size-to-unit font-size))
          (extra-units-for-bar (if (= position 1) 0 4))
          (extra-units-for-sig (if with-signature 6 0))
-         (extra-pixels (* (+ extra-units-for-bar extra-units-for-sig)
-                          (if (numberp stretch) (* unit stretch) 
-                            ;;; proportional:
-                            (if (= position 1) (/ unit 1.5) 1))))
+         (extra-pixels (if (typep view 'sequencer-track-view) 0   ; :-s
+                         (* (+ extra-units-for-bar extra-units-for-sig)
+                            (if (numberp stretch) (* unit stretch) 
+                              ;;; proportional:
+                              (if (= position 1) (/ unit 1.5) 1)))))
          (bar-x-pix (- (+ (* x-shift unit) 
-                          (time-to-pixel view (beat-to-time (symbolic-date object) tempo)))
-                       extra-pixels)))
+                          (funcall 
+                           (or time-function #'(lambda (time) (time-to-pixel view time)))
+                           (beat-to-time (symbolic-date object) tempo)))
+                       extra-pixels
+                       )))
     
     (om-with-fg-color (when (find object selection) *score-selection-color*)
       
@@ -44,7 +49,7 @@
         (draw-measure-bar bar-x-pix y-shift font-size staff)
         (om-draw-string bar-x-pix (* (+ 2 y-shift) unit) (number-to-string position)
                         :font (om-def-font :font1 :size (/ font-size 3))))
-
+      
       (when with-signature
         (draw-time-signature (car (tree object)) 
                              (+ bar-x-pix (* (if (= position 1) 1 (/ extra-units-for-sig 2))
@@ -65,7 +70,8 @@
                                 :font-size font-size
                                 :beat-unit measure-beat-unit
                                 :selection selection
-                                :time-map time-map))
+                                :time-function time-function
+                                ))
       )
 
     (when (typep view 'score-view)
@@ -197,9 +203,7 @@
 
 ;;; just for debug
 (defmethod draw-group-rect ((object group) view tempo level)
- (let ((unit (font-size-to-unit (editor-get-edit-param (editor view) :font-size)))
-       (tempo-map (editor-get-edit-param (editor view) :time-map)))
-   
+
    (om-draw-rect (time-to-pixel view (beat-to-time (symbolic-date object) tempo))
                  0
                  (- (time-to-pixel view (beat-to-time (+ (symbolic-date object) (symbolic-dur object)) tempo))
@@ -207,7 +211,7 @@
                  (- (h view) (* level 10))
                  :color (om-random-color .5)
                  :fill t)
-   ))
+   )
 
 
 
@@ -221,12 +225,13 @@
 (defmethod draw-rhytmic-element ((object group) tempo param-obj view 
                                &key font-size (x-shift 0) (y-shift 0) (level 1) 
                                position beam-info beat-unit rest-line
-                               selection time-map)
+                               selection time-function)
   
   (declare (ignore position))
   
   ;(print (list "=========="))
   ;(print (list "GROUP" (tree object) (numdenom object) (symbolic-dur object)))
+  
   
   (let* ((staff (get-edit-param param-obj :staff))
          (unit (font-size-to-unit font-size))
@@ -242,9 +247,15 @@
          
          (chords (get-all-chords object))
          (pix-beg (+ x-shift-pix
-                     (time-to-pixel view (beat-to-time (symbolic-date (car chords)) tempo))))
+                     ;; (time-to-pixel view (beat-to-time (symbolic-date (car chords)) tempo))
+                     (funcall (or time-function #'(lambda (time) (time-to-pixel view time)))
+                              (beat-to-time (symbolic-date (car chords)) tempo))
+                     ))
          (pix-end (+ x-shift-pix
-                     (time-to-pixel view (beat-to-time (symbolic-date (car (last chords))) tempo))))
+                     ;; (time-to-pixel view (beat-to-time (symbolic-date (car (last chords))) tempo))
+                      (funcall (or time-function #'(lambda (time) (time-to-pixel view time)))
+                               (beat-to-time (symbolic-date (car (last chords))) tempo))
+                      ))
          
          (n-beams (beam-num object (* (symbolic-dur object) beat-unit)))
          (group-beams (arithm-ser 1 n-beams 1))
@@ -303,8 +314,16 @@
                     (progn
                       (setq beams-drawn-in-sub-group (arithm-ser 1 (min n-beams-in-current (or n-beams-in-previous 0)) 1))
                       ;;; draw beams between i and (i-1) and update the beaming count for sub-elements
-                      (draw-beams (+ x-shift-pix (time-to-pixel view (beat-to-time (symbolic-date prev) tempo)))
-                                  (+ x-shift-pix (time-to-pixel view (beat-to-time (symbolic-date element) tempo)))
+                      (draw-beams (+ x-shift-pix 
+                                     ;;(time-to-pixel view (beat-to-time (symbolic-date prev) tempo))
+                                     (funcall (or time-function #'(lambda (time) (time-to-pixel view time)))
+                                              (beat-to-time (symbolic-date prev) tempo))
+                                     )
+                                  (+ x-shift-pix 
+                                     ;; (time-to-pixel view (beat-to-time (symbolic-date element) tempo))
+                                     (funcall (or time-function #'(lambda (time) (time-to-pixel view time)))
+                                              (beat-to-time (symbolic-date element) tempo))
+                                     )
                                   (beam-info-line beam-pos-and-dir)  ;; the beam init line
                                   (beam-info-direction beam-pos-and-dir) ;; the beam direction
                                   beams-drawn-in-sub-group  ;; the beam numbers 
@@ -332,7 +351,8 @@
                                                            (when mean-pitch (pitch-to-line mean-pitch))))
                                 ;;; the higher-level group will determine the y-position for all rests
                                 :selection selection
-                                :time-map time-map)
+                                :time-function time-function
+                                )
             ))
     
     
@@ -403,8 +423,9 @@
                                tempo param-obj view 
                                &key font-size (x-shift 0) (y-shift 0) (level 1) 
                                (position 0) beam-info beat-unit rest-line
-                               selection time-map)
+                               selection time-function)
   
+  (declare (ignore rest-line))
 
   (let* ((begin (beat-to-time (symbolic-date object) tempo))
          (s-dur (symbolic-dur object))
@@ -451,7 +472,7 @@
                        :draw-ports port
                        :draw-durs dur
                        :selection (if (find object selection) T selection)
-                       :time-function #'(lambda (time) (time-to-pixel view time))
+                       :time-function (or time-function #'(lambda (time) (time-to-pixel view time)))
                        :build-b-boxes create-bboxes
                        )))
       
@@ -471,8 +492,9 @@
                                tempo param-obj view 
                                &key font-size (x-shift 0) (y-shift 0) (level 1) 
                                (position 0) beam-info beat-unit rest-line
-                               selection time-map) 
+                               selection time-function) 
   
+  (declare (ignore rest-line))
 
   (let* ((begin (beat-to-time (symbolic-date object) tempo))
          (staff (get-edit-param param-obj :staff))
@@ -512,7 +534,7 @@
                        :staff staff
                        :selection (if (find object selection) T selection)
                        :tied-to-ms (beat-to-time (symbolic-date (previous-chord object)) tempo)
-                       :time-function #'(lambda (time) (time-to-pixel view time))
+                       :time-function (or time-function #'(lambda (time) (time-to-pixel view time)))
                        ; no b-box for notes inside a continuation chord:
                        ; they actually just refer to the main chord's notes
                        :build-b-boxes nil 
@@ -532,8 +554,10 @@
 (defmethod draw-rhytmic-element ((object r-rest) tempo param-obj view &key 
                                font-size (x-shift 0) (y-shift 0) (level 1) 
                                position beam-info beat-unit rest-line
-                               selection time-map)
+                               selection time-function)
   
+  (declare (ignore level))
+    
   (let* ((begin (beat-to-time (symbolic-date object) tempo))
          (graphic-dur (* (symbolic-dur object) beat-unit))
          (beams-num (get-number-of-beams graphic-dur))
@@ -556,7 +580,7 @@
                        :beams (list beams-to-draw position)
                        :staff (get-edit-param param-obj :staff)
                        :selection (if (find object selection) T selection)
-                       :time-function #'(lambda (time) (time-to-pixel view time))
+                       :time-function (or time-function #'(lambda (time) (time-to-pixel view time)))
                        :build-b-boxes create-bboxes
                        )))
       (when create-bboxes

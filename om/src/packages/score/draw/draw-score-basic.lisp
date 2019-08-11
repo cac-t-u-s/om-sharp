@@ -484,13 +484,12 @@
            ))
      )))
 
-(defmethod draw-tempo ((object t) x-u y-u font-size) nil)
+(defmethod draw-tempo ((object t) x-pix y-u font-size) nil)
 
-(defmethod draw-tempo ((object voice) x-u y-u font-size) 
+(defmethod draw-tempo ((object voice) x-pix y-u font-size) 
   (let* ((unit (font-size-to-unit font-size))
-         (y-pix (* y-u unit))
-         (x-pix (* x-u unit)))
-        
+         (y-pix (* y-u unit)))
+    
     (om-draw-char x-pix y-pix (tempo-note :quater)
                   :font (om-make-font *score-font* #+darwin (/ font-size 2) #-darwin (* 3/8 font-size)))
     

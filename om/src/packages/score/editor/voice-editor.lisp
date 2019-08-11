@@ -106,6 +106,7 @@
 
 
 (defmethod move-editor-selection ((self voice-editor) &key (dx 0) (dy 0))
+  (declare (ignore dx))
   (call-next-method self :dx 0 :dy dy))
 
 (defmethod score-editor-change-selection-durs ((self voice-editor) delta) nil)
@@ -119,12 +120,10 @@
 
   ;;; NOTE: so far we don't build/update a bounding-box for the containers
   
-  (let* ((time-map (editor-get-edit-param editor :time-map))
-         (font-size (editor-get-edit-param editor :font-size))
+  (let* ((font-size (editor-get-edit-param editor :font-size))
          (staff (editor-get-edit-param editor :staff))
          (h-stretch (editor-get-edit-param editor :h-stretch))
          (y-shift (editor-get-edit-param editor :y-shift))
-         (unit (font-size-to-unit font-size))
          (selection (selection editor)))
     
     (loop with on-screen = t
@@ -150,7 +149,7 @@
                                  :staff staff
                                  :stretch h-stretch
                                  :font-size font-size
-                                 :time-map time-map)
+                                 )
                    ))
                (setf prev-signature (car (tree m)))
                )
