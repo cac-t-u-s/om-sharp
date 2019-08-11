@@ -748,7 +748,7 @@
                 (let ((valid t))
                   (loop for other-object in (cdr (objects self)) 
                         while valid do
-                        (unless (valid-property-p other-object (car prop))
+                        (unless (get-property-spec other-object (car prop))
                           (push (car prop) invalid-properties)
                           (setf valid nil))
                       ))
