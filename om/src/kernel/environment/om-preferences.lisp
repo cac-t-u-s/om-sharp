@@ -209,7 +209,8 @@
               (list (pref-item-id pref) (omng-save (pref-item-value pref))))))
 
 (defun save-preferences ()
-  (when *current-workSpace* (save-workspace-file *current-workSpace*))
+  (declare (special *current-workspace*))
+  (when *current-workspace* (save-workspace-file *current-workSpace*))
   (save-om-preferences))
 
 (defun load-saved-prefs (saved-prefs)
