@@ -127,6 +127,9 @@
 
 ;;; general case = text box (value is READ by Lisp)
 (defmethod make-prop-item (type prop-id object &key default update)
+  
+  (declare (ignore default))
+  
   (om-make-view 'click-and-edit-text 
                 ;:enabled (valid-property-p object prop-id)
                 :text (format nil "~A" (get-property object prop-id))
@@ -147,6 +150,9 @@
 ;;;====================================
 
 (defmethod make-prop-item ((type (eql :string)) prop-id object &key default update)
+  
+  (declare (ignore default))
+  
   (om-make-view 'click-and-edit-text 
                 ;:enabled (valid-property-p object prop-id)
                 :text (if (get-property object prop-id) (format nil "~A" (get-property object prop-id)) "")
@@ -174,19 +180,19 @@
   (let ((def (loop for element in (list! default) collect
                    (if (functionp element) (prop-item-call-function-to-object object element)
                      element))))
-  (om-make-graphic-object 'numbox 
-                          :value (get-property object prop-id)
-                          :bg-color (om-def-color :white)
-                          :border t
-                          :db-click t
-                          :decimals (or (caddr def) 0)
-                          :size (om-make-point 60 18) 
-                          :font (om-def-font :font2)
-                          :min-val (or (car def) 0) :max-val (or (cadr def) 10000)
-                          :after-fun #'(lambda (item)
-                             (set-property object prop-id (get-value item))
-                             (when update (update-after-prop-edit update object))
-                             ))))
+    (om-make-graphic-object 'numbox 
+                            :value (get-property object prop-id)
+                            :bg-color (om-def-color :white)
+                            :border t
+                            :db-click t
+                            :decimals (or (caddr def) 0)
+                            :size (om-make-point 60 18) 
+                            :font (om-def-font :font2)
+                            :min-val (or (car def) 0) :max-val (or (cadr def) 10000)
+                            :after-fun #'(lambda (item)
+                                           (set-property object prop-id (get-value item))
+                                           (when update (update-after-prop-edit update object))
+                                           ))))
 
 
 ;;; number-or-nil work slightly differently:
@@ -271,6 +277,9 @@
 ;;;====================================
 
 (defmethod make-prop-item ((type (eql :bool)) prop-id object &key default update)
+  
+  (declare (ignore default))
+
   (om-make-di 'om-check-box 
               ;:enabled (valid-property-p object prop-id)
               :checked-p (get-property object prop-id) ; (and (valid-property-p object prop-id) (get-property object prop-id))
@@ -430,6 +439,9 @@
 
 
 (defmethod make-prop-item ((type (eql :font)) prop-id object &key default update)
+  
+  (declare (ignore default))
+
   (flet ((font-to-str (font) 
            (if (om-font-p font)
                (format nil " ~A ~Dpt ~A" (om-font-face font) (round (om-font-size font)) 
@@ -528,6 +540,9 @@
 ;;;====================================
 
 (defmethod make-prop-item ((type (eql :path)) prop-id object &key default update)
+  
+  (declare (ignore default))
+
   (let ((textview (om-make-view 'click-and-edit-text 
                                 :enabled (get-property object prop-id) ;; it can happen that the value is NIL, e.g. in multiple-selection
                                 :text (if (get-property object prop-id)
@@ -589,13 +604,19 @@
 (defun get-arguments-dialog (arglist &optional (vals nil vals-supplied-p))
   (let* ((win nil) (fields nil)
          (font (om-def-font :font1))
+         
          (cb (om-make-di 'om-button :text "Cancel" :size (omp 80 25) :font font
-                         :di-action #'(lambda (b) (om-return-from-modal-dialog win nil))))
+                         :di-action #'(lambda (b)   
+                                        (declare (ignore b))
+                                        (om-return-from-modal-dialog win nil))))
+         
          (ob (om-make-di 'om-button :text "OK" :size (omp 80 25) :default t :focus t :font font
-                         :di-action #'(lambda (b) (om-return-from-modal-dialog 
-                                                   win 
-                                                   (loop for edt in (reverse fields) collect 
-                                                         (read-from-string (om-dialog-item-text edt))))))))
+                         :di-action #'(lambda (b) 
+                                        (declare (ignore b))
+                                        (om-return-from-modal-dialog 
+                                         win 
+                                         (loop for edt in (reverse fields) collect 
+                                               (read-from-string (om-dialog-item-text edt))))))))
     
     (setf win (om-make-window  
                'om-dialog ;:resizable :h 
@@ -630,21 +651,26 @@
 
 
 (defmethod make-prop-item ((type (eql :action)) prop-id object &key default update)
-  (labels ((object-action-other-name (ob)
+  
+  (declare (ignore default))
+
+  (labels (
+           (object-action-other-name (ob)
              (let* ((curr-fun (get-property ob prop-id))
-                    (curr-fun-name (if (consp curr-fun) (car curr-fun) curr-fun))
-                    (curr-fun-args (if (consp curr-fun) (cdr curr-fun) nil)))
+                    (curr-fun-name (if (consp curr-fun) (car curr-fun) curr-fun)))
                (if (and curr-fun (not (find curr-fun-name (get-def-action-list ob)))) curr-fun-name :?)))
+           
            (action-set-params (ob)
              (let* ((curr-fun (get-property ob prop-id))
                     (curr-fun-name (if (consp curr-fun) (car curr-fun) curr-fun))
                     (curr-fun-args (if (consp curr-fun) (cdr curr-fun) nil))
                     (args (if curr-fun-args (get-arguments-dialog (arguments-for-action curr-fun-name) curr-fun-args)
                             (get-arguments-dialog (arguments-for-action curr-fun-name)))))
-               (when args (set-property object prop-id (cons curr-fun-name args))))))
+               (when args (set-property object prop-id (cons curr-fun-name args)))))
+           )
+
     (let* ((curr-fun (get-property object prop-id))
            (curr-fun-name (if (consp curr-fun) (car curr-fun) curr-fun))
-           (curr-fun-args (if (consp curr-fun) (cdr curr-fun) nil))
            (other-name (object-action-other-name object))
            (def-action-list (get-def-action-list object))
            (print-action-list (append '(nil) def-action-list (list (format nil "other: ~A" other-name))))
@@ -652,7 +678,9 @@
            (b (om-make-di 'om-button 
                           :resizable nil :focus nil :default nil
                           :text "..." :size (om-make-point 40 24) :font (om-def-font :font1)
-                          :di-action #'(lambda (b) (declare (ignore b)) (action-set-params object))))
+                          :di-action #'(lambda (b) 
+                                         (declare (ignore b)) 
+                                         (action-set-params object))))
            (poplist (om-make-di 'om-popup-list 
                                 :items print-action-list 
                                 :resizable nil
@@ -729,8 +757,10 @@
 
 
 ;;; will return a value only if all the inspected objects have the same
-;;; otherwise, will trust the default spec of the property 
 (defmethod get-property ((self virtual-object-selection) prop-id &key (warn t)) 
+  
+  (declare (ignore warn))
+  
   (let ((val (get-property (car (objects self)) prop-id)))
     (loop for o in (cdr (objects self))
           while val do
