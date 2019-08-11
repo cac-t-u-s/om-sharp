@@ -443,8 +443,8 @@
 (defun get-spline-pts (pts resolution &optional (order 4))
   (mapcar #'(lambda (p) (om-make-point (car p) (cadr p)))
           (spline (mapcar #'(lambda (omp) (list (om-point-x omp) (om-point-y omp))) pts)
-                           4 ; (min 3 (- (length gpts) 1))
-                           40)))
+                           order ; (min 3 (- (length gpts) 1))
+                           resolution)))
 
 ;;; another curved connection version by G. Holbrook
 (defun get-ramped-sine-pts (pts resolution)
@@ -576,6 +576,7 @@
   (set-reactive object val))
       
 (defmethod get-property ((object OMConnection) (prop-id (eql :reactive)) &key (warn t))
+  (declare (ignore warn))
   (is-reactive object))
 
 ;;;=============================
