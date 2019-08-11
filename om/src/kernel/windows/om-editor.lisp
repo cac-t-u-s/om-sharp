@@ -32,6 +32,15 @@
    (selection :accessor selection :initform nil)))
 
 
+;;; redefinition of teh window slot accessor 
+(defmethod window ((self OMEditor))
+  (or (slot-value self 'window)
+      (and (container-editor self) 
+           (not (equal self (container-editor self))) 
+           ;;; in the maquette editor, the editor is its own container..
+           (window (container-editor self)))))
+
+
 ;;;=============================
 ;;; EDIT-PARAMS
 ;;;=============================
@@ -59,14 +68,6 @@
 
 (defmethod get-default-edit-param ((self OMAbstractContainer) param)
   (find-value-in-kv-list (object-default-edition-params (contents self)) param))
-
-
-(defmethod window ((self OMEditor))
-  (or (slot-value self 'window)
-      (and (container-editor self) 
-           (not (equal self (container-editor self))) 
-           ;;; in teh maquette editor, the editor is its own container..
-           (window (container-editor self)))))
 
 (defmethod get-value-for-editor ((self t)) self)
 (defmethod get-value-for-editor ((self OMAbstractContainer)) (contents self))
@@ -179,8 +180,8 @@
 ;;; you don't wan to set it true, for instance, if this is just a graphical update (e.g. window size)
 ;;; <reactive> specifies if this change should be a candidate for triggering reactive updates
 ;;; you don't want to set it true, e.g. with changes that happen too frequently (e.g. results of move-drag actions).  
-(defmethod update-from-editor ((self ObjectWithEditor) &key (value-changed t) (reactive t)) nil)
-(defmethod update-from-editor ((self t) &key (value-changed t) (reactive t)) nil)
+(defmethod update-from-editor ((self ObjectWithEditor) &key (value-changed t) (reactive t)) (declare (ignore value-changed reactive)) nil)
+(defmethod update-from-editor ((self t) &key (value-changed t) (reactive t)) (declare (ignore value-changed reactive)) nil)
 
 
 (defmethod window-name-from-object ((self ObjectWithEditor)) (name self))

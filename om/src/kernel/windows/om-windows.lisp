@@ -38,6 +38,7 @@
         (om-make-menu-item "Open..." #'(lambda () (funcall (open-command self))) :key "o" :enabled (and (open-command self) t))
         (om-make-menu "Open Recent..."
                       #'(lambda (item)
+                          (declare (ignore item))
                           (mapcar #'(lambda (file) 
                                       (om-make-menu-item (namestring file) #'(lambda () (open-om-document file))))
                                   *om-recent-files*)))
@@ -74,6 +75,9 @@
         ))
 
 (defun default-windows-menu-items (self)
+  
+  (declare (ignore self))
+
   (append 
    (unless (om-standalone-p) 
      (list (om-make-menu-item "Preferences" 'show-preferences-win :key ",")
@@ -88,6 +92,7 @@
       ))
     (om-make-menu-comp 
      #'(lambda (win) 
+         (declare (ignore win))
          (mapcar #'(lambda (w) 
                      (om-make-menu-item (om-window-title w)
                                         #'(lambda () (om-select-window w))
@@ -135,7 +140,7 @@
       "Box Help" 
       #'(lambda () 
           (let ((help-patches (remove nil (mapcar #'get-symbol-help-patch (get-selection-for-menu self)))))
-            (if (print help-patches) 
+            (if help-patches 
               (loop for patch in help-patches do 
                     (open-help-patch patch))
               (om-beep))
@@ -153,12 +158,13 @@
         
       (om-make-menu-item 
        "Online Resources" 
-       #'(lambda() (om-open-in-browser "https://openmusic-project.github.io/")) 
+       #'(lambda () (om-open-in-browser "https://openmusic-project.github.io/")) 
        :enabled t)
       ))
 
     (om-make-menu-comp  
      #'(lambda (win) 
+         (declare (ignore win))
          (list 
           (om-make-menu
            "Help patches..." 
@@ -167,6 +173,7 @@
             (list 
              (om-make-menu-comp 
               #'(lambda (win) 
+                  (declare (ignore win))
                   (cons 
                    (om-make-menu-item "Libraries:" nil :enabled nil)
                    (loop for lib in (all-om-libraries) 

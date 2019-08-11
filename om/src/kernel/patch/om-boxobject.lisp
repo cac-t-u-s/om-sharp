@@ -155,6 +155,7 @@
                                         :doc-string (get-input-doc self name)))))
     ))
 
+
 (defmethod update-output-from-new-in ((box OMBoxRelatedWClass) name in) 
   (let ((out (find name (outputs box) :key 'name :test 'string-equal)))
     (when out
@@ -324,7 +325,7 @@
               (t nil))))
      ;;; LAMBDA 
      ((equal (lambda-state box) :lambda)
-      (let ((new-arg-list (function-lambda-list (car (value box)))))  
+      (let ((new-arg-list (function-arg-list (car (value box)))))
         ; (loop for n from 1 to (length (function-lambda-list (car (value box)))) collect (gensym))))
         (eval `#'(lambda ,new-arg-list 
                    (let ((value (funcall ,(car (value box)) ,.new-arg-list)))
@@ -660,6 +661,9 @@
 
 
 (defmethod update-from-editor ((self OMBoxEditCall) &key (value-changed t) (reactive t))
+  
+  (declare (ignore reactive)) ;;; reactive is handled in a :around method
+  
   (when value-changed 
     (setf (lock-state self) :locked)
     (contextual-update self (container self))

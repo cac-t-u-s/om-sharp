@@ -36,6 +36,9 @@
 (defmethod next-optional-input ((self OMValueBox)) t)
 
 (defmethod more-optional-input ((self OMValueBox) &key name (value nil val-supplied-p) doc reactive)
+
+  (declare (ignore name doc))
+
   (unless nil ; (inputs self)
     (add-optional-input self :name "in" :value (if val-supplied-p value nil) :doc "set box value" :reactive reactive)
     t))
@@ -60,6 +63,15 @@
 (defmethod print-value ((self OMValueBox)) 
   (format nil "~s" (car (value self))))
 
+(defmethod object-name-in-inspector ((self OMValueBox)) "value box")
+
+(defmethod get-documentation ((self OMValueBox)) 
+  (format 
+   nil 
+   "Current value of type ~A.~%~%Use +/- to add/remove inputs.~%Double-click to edit contents." 
+   (string-upcase (reference self))))
+
+
 (defmethod default-size ((self OMValueBox))
   (multiple-value-bind (tw th)
       (om-string-size (print-value self) (box-draw-font self))
@@ -70,15 +82,6 @@
 
 (defmethod maximum-size ((self OMValueBox))
   (omp 1000 1000))
-
-(defmethod object-name-in-inspector ((self OMValueBox)) "value box")
-
-(defmethod get-documentation ((self OMValueBox)) 
-  (format 
-   nil 
-   "Current value of type ~A.~%~%Use +/- to add/remove inputs.~%Double-click to edit contents." 
-   (string-upcase (reference self))))
-
 
 (defmethod minimum-size ((self OMValueBox))
   (multiple-value-bind (tw th)
@@ -91,7 +94,7 @@
 (defmethod allow-text-input ((self OMValueBox)) 
   (values (format nil "~s" (car (value self)))
           #'(lambda (box text)
-                   (handler-bind ((error #'(lambda (error) (om-beep) (om-abort)))) 
+                   (handler-bind ((error #'(lambda (error) (declare (ignore error)) (om-beep) (om-abort)))) 
                      ;;(setf (name box) text)
                      (let ((val (ignore-errors (read-from-string text))))
                        (set-value box (list (if (quoted-form-p val) (eval val) val)))

@@ -235,7 +235,7 @@
 ;;; DEFAULT MODULE
 ;;;====================================
 
-(add-preference-module :general "General")
+(add-preference-module :general "General") 
 (add-preference :general :user-name "User name" :string "me")
 
 ;;; special case: sets a behavior from the OM-API

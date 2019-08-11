@@ -23,7 +23,7 @@
 
 (defclass OMPatch (OMProgrammingObject)         
   (; main contents
-   (boxes :initform nil :initarg :boxes :accessor boxes)
+   (boxes :initform nil :initarg :boxes)
    (connections :initform nil :accessor connections)
    ; patch editing properties
    (grid :accessor grid :initarg :grid :initform nil)
@@ -120,7 +120,7 @@
 ;;;========================================
 
 (defmethod* get-box-by-name ((self OMPatch) (name string))
-   (find name (boxes self) :key 'name test 'string-equal))
+   (find name (boxes self) :key 'name :test 'string-equal))
 
 
 ;;;=============================

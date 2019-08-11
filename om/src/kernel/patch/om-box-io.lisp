@@ -96,9 +96,9 @@
 
 
 (defmethod next-optional-input ((self OMBox)) nil)
-(defmethod more-optional-input ((self t) &key name (value nil val-supplied-p) doc reactive) nil)
+(defmethod more-optional-input ((self t) &key name value doc reactive) (declare (ignore name value doc reactive)) nil)
 
-(defmethod add-optional-input ((self OMBox) &key name (value nil val-supplied-p) doc reactive) 
+(defmethod add-optional-input ((self OMBox) &key name value doc reactive) 
   (set-box-inputs 
    self 
    (append (inputs self)
@@ -169,7 +169,7 @@
       (om-beep-msg err-message)
       )))
 
-(defmethod add-keyword-input ((self OMBox) &key key (value nil val-supplied-p) doc reactive)
+(defmethod add-keyword-input ((self OMBox) &key key value doc reactive)
     (set-box-inputs self (append (inputs self)
                                 (list (make-instance 'box-keyword-input
                                                      :name (string-downcase key) ;; string-downcase

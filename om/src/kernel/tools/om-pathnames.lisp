@@ -67,8 +67,7 @@
 
 (defun find-file-in-folder (name folder &key type recursive return-all)
   
-  (let ((result nil)
-        (search-folder (if (equal folder :local) 
+  (let ((search-folder (if (equal folder :local) 
                            (om-make-pathname :directory *load-pathname*)
                          folder)))
     
@@ -127,8 +126,10 @@
           while (string-equal path-dir ref-dir) do
           (setf refrest (cdr refrest)
                 dirrest (cdr dirrest)))
-    (loop for item in refrest do
-          (setf dirlist (append dirlist (list ".."))))
+
+    (dotimes (i (length refrest))
+      (setf dirlist (append dirlist (list ".."))))
+
     (loop for item in dirrest do
           (setf dirlist (append dirlist (list item))))
     (make-pathname :device (pathname-device refpath) :host (pathname-host refpath)

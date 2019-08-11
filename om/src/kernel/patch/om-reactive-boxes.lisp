@@ -73,7 +73,7 @@
     (equal test data)))
 
 (defmethod* route (input &rest test)
-   (values-list (copy-list (cons message 
+   (values-list (copy-list (cons input 
                                  (mapcar 
                                   #'(lambda (route-item) 
                                       (when (test-match input route-item) input))

@@ -143,6 +143,9 @@
 
 ;;; only internal does report to the container's editor
 (defmethod update-from-editor ((self OMBoxAbstraction) &key (value-changed t) (reactive t))
+
+  (declare (ignore value-changed reactive)) ;;; reactive is handled in a :around method
+    
   (when (frame self)
     (reset-cache-display self)
     (om-invalidate-view (frame self)))

@@ -22,8 +22,7 @@
 ;===========================
 ;; OMPersistantObject
 (defclass OMClass (standard-class OMBasicObject) 
-   ((library :initform nil :accessor library)
-    (internal-met :initform nil :accessor internal-met))
+   ((library :initform nil :accessor library))
    (:documentation "OM metaclass."))
 
 (defmethod omclass-p ((self t)) nil)

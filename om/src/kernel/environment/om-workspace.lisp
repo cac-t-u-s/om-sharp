@@ -14,7 +14,7 @@
 ;============================================================================
 ; File author: J. Bresson
 ;============================================================================
-; WORKSPACE
+; WORKSPACE (NOT USED IN OM7!)
 ;=========================================================================
 
 (in-package :om)
@@ -60,7 +60,7 @@ A workspace contains all the elements of an OM session (documents, pointer to li
     ;(setf (elements self) (remove nil (mapcar #'(lambda (x) (ws-load-element x (incf j))) elements) :test 'equal))
     (setf elements
         (loop for file in (find-values-in-prop-list list :patches) collect
-              (make-instance 'ompatch :mypathname file
+              (make-instance 'OMPatchFile :mypathname file
                              :name (pathname-name file))))  
     (setf *skip-libs* skip-libs)
      (when *error-files* 
@@ -143,8 +143,10 @@ A workspace contains all the elements of an OM session (documents, pointer to li
          (find "elements" dirs :test 'string-equal)
          (find "omws" files :test 'string-equal :key 'pathname-type))))
   
+
+
 (defun choose-user-ws-folder ()
-  (let* ((prev (get-om-pref :prev-ws))
+  (let* ((prev (read-om-preference :previous-ws))
          (choix (ws-dialog prev))
          (search-folder (if prev 
                             (om-make-pathname :device (pathname-device prev) :directory (butlast (pathname-directory prev))) 
@@ -205,28 +207,9 @@ A workspace contains all the elements of an OM session (documents, pointer to li
       (load-ws-from-file *current-workspace* pathname)
       ))
   
-  ;(libs-autoload)
-
   (show-main-om-window)
   (save-workspace-file *current-workspace*)
   )
-
-
-(defvar *libs-auto-load* nil)
-
-(defun libs-autoload ()
-  (when *libs-auto-load* 
-    (mapc #'(lambda (lib) 
-              (let* ((libname (lib-true-name (car lib)))
-                     (omlib (exist-lib-p libname)))
-                (unless omlib
-                  (if (and (pathnamep (cadr lib)) (probe-file (cadr lib)))
-                      (add-one-lib (cadr lib) nil)
-                    (om-message-dialog (string+ "Library " (car lib) " not found."))))
-                (when (or omlib (setf omlib (exist-lib-p (car lib))))
-                  (load-om-library omlib))))
-          *libs-auto-load*)
-    ))
 
 
 ; (start-workspace)

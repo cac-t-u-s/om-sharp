@@ -239,6 +239,7 @@
     (om-init-temp-graphics-motion 
      self pos NIL
      :motion #'(lambda (view position)
+                 (declare (ignore view))
                  (let* ((curr-v (ruler-value-at-pos self position))
                         (dur (- (v2 self) (v1 self)))
                         (zoom (pix-diff-to-value self (- (zoom-value self position) (zoom-value self curr-pos))))
@@ -258,7 +259,9 @@
                                           (max? vmin (- (v1 self) dt))
                                           (min? vmax (- (v2 self) dt))))))
                    (setf curr-pos position)))
-     :release #'(lambda (view position) (update-views-from-ruler self)))))
+     :release #'(lambda (view position) 
+                  (declare (ignore view position))
+                  (update-views-from-ruler self)))))
 
 
 ;;; !! reinit ranges apply on the editor attached to the first related-view

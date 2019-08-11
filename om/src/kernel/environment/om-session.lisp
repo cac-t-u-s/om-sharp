@@ -79,16 +79,20 @@
     path))
 
 
-; (save-om-preferences)
+;(save-om-preferences)
 ;(set-om-pref :prev-ws #P"/Users/bress/")
 ;(list-from-file (om-preference-file))
-;
-
-;(read-om-preferences)
-
 ;(cdr (find :user-preferences pr-list :test 'equal :key 'car)
 
-(defmethod read-om-preferences ()
+;;; reads one preference in the preference file
+(defmethod read-om-preference (key)
+  (let* ((path (om-preference-file))
+         (pref-list (and (file-exist-p path)
+                       (list-from-file path))))
+    (find-values-in-prop-list pref-list key)))
+    
+;;; read and loads the main OM prefs for a session
+(defmethod load-om-preferences ()
   (let* ((path (om-preference-file))
          (pr-list (and (file-exist-p path)
                        (list-from-file path))))
@@ -218,8 +222,6 @@
 	       (om-make-pathname :directory (append (butlast (pathname-directory (oa::om-lisp-image))) '("lib64" "openmusic")))
 	       (om-relative-path '("resources" "lib" "linux") nil (oa::om-root-folder))))
   
-  #-om-deliver(setq *om-debug* t)
-  
   (load-modif-patches)
   
 #+cocoa(objc:make-autorelease-pool)
@@ -229,7 +231,6 @@
   (editor:setup-indent "defclass!" 2 2 2)
   ;(clos::set-clos-initarg-checking nil)
   (setf *print-case* :downcase)
-  (setf *catch-errors* nil)
   
   (in-package :om)
   
@@ -244,7 +245,7 @@
   (om-lisp::om-init-output-stream)
   
   ;;; read the general OM prefs
-  (read-om-preferences)
+  (load-om-preferences)
 
   (when (find-om-package :midi) (midi-apply-ports-settings))
 
@@ -361,30 +362,29 @@
                      )
  
     (om-add-subviews win
-                     (setf rl (om-make-layout 'om-row-layout 
-                                              :subviews (list 
-                                                         (setf ok (om-make-di 'om-button :size (om-make-point 80 24) 
-                                                                              :text "OK"
-                                                                              :default t 
-                                                                              :focus t
-                                                                              :di-action #'(lambda (button)
-                                                                                             (declare (ignore button))
-                                                                                             (om-return-from-modal-dialog 
-                                                                                              win 
-                                                                                              (cond 
-                                                                                               ((and prev (om-checked-p prev)) 'previous)
-                                                                                               ((om-checked-p exist) 'existing)
-                                                                                               ((om-checked-p new) 'new)
-                                                                                               ((om-checked-p no-ws) 'no)
-                                                                                               (t nil))))
-                                                            ))
+                     (om-make-layout 'om-row-layout 
+                                     :subviews (list 
+                                                (om-make-di 'om-button :size (om-make-point 80 24) 
+                                                            :text "OK"
+                                                            :default t 
+                                                            :focus t
+                                                            :di-action #'(lambda (button)
+                                                                           (declare (ignore button))
+                                                                           (om-return-from-modal-dialog 
+                                                                            win 
+                                                                            (cond 
+                                                                             ((and prev (om-checked-p prev)) 'previous)
+                                                                             ((om-checked-p exist) 'existing)
+                                                                             ((om-checked-p new) 'new)
+                                                                             ((om-checked-p no-ws) 'no)
+                                                                             (t nil))))
+                                                            )
                                                          
-                                                         (om-make-di 'om-button :size (om-make-point 80 24) :text "Quit"
-                                                                     :di-action #'(lambda (button)
-                                                                                    (declare (ignore button))
-                                                                                    (om-return-from-modal-dialog win 'quit))))
-                                              )
-                           )
+                                                (om-make-di 'om-button :size (om-make-point 80 24) :text "Quit"
+                                                            :di-action #'(lambda (button)
+                                                                           (declare (ignore button))
+                                                                           (om-return-from-modal-dialog win 'quit))))
+                                     )
                      )
     
     (om-modal-dialog win)

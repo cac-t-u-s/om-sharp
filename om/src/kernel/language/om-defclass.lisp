@@ -52,25 +52,22 @@
 ;;; supported options are
 ;;; :icon :documentation :metaclass :update 
 (defmacro defclass* (name superclasses slots &rest class-options)
-  (let ((slot-doc (loop for slot in slots
-                        collect (list (car slot) 
-                                      (let ((p (position :documentation slot :test 'equal)))
-                                        (if p (nth (1+ p) slot) ""))))))
-
-    (multiple-value-bind (new-options icon metaclass doc up?)
-       (parse-defclass-options class-options)
-      (unless metaclass (setf metaclass *def-metaclass-class*))
-      (unless doc (setf doc ""))
-     
-     `(let ((new-class (defclass ,name ,superclasses ,slots 
-                         (:metaclass ,metaclass)
-                         (:documentation ,doc)
-                         ,.new-options)))
-        
-        
-        ;(setf (slot-docs new-class) ',slot-doc)
-        (setf (name new-class) (string ',name))
-        (setf (icon new-class) (or ,icon 'icon-class))
-        (update-from-reference new-class)
-        new-class)
-     )))
+ 
+  (multiple-value-bind (new-options icon metaclass doc update?)
+      (parse-defclass-options class-options)
+    
+    (declare (ignore update?))
+    
+    (unless metaclass (setf metaclass *def-metaclass-class*))
+    (unless doc (setf doc ""))
+    
+    `(let ((new-class (defclass ,name ,superclasses ,slots 
+                        (:metaclass ,metaclass)
+                        (:documentation ,doc)
+                        ,.new-options)))
+       
+       (setf (name new-class) (string ',name))
+       (setf (icon new-class) (or ,icon 'icon-class))
+       (update-from-reference new-class)
+       new-class)
+     ))

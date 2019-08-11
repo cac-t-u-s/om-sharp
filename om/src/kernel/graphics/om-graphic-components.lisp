@@ -268,7 +268,7 @@
                  ))
   (om-invalidate-view self))
 
-(defmethod set-min-max ((self numbox) &key (min nil min-supplied-p) (max nil max-supplied-p))
+(defmethod set-min-max ((self numbox) &key min max)
   (when min 
     (setf (min-val self) (round (* min (expt 10 (decimals self))))))
   (when max 
@@ -297,6 +297,7 @@
       (when start-v
         (om-init-temp-graphics-motion self where NIL
                                       :motion #'(lambda (view position)
+                                                  (declare (ignore view))
                                                   (let* ((inc (- start-y (om-point-y position)))
                                                          (new-val (+ start-v (* (map-mouse-increment self) inc))))
                                                   ;(print (list (min-val self) (max-val self)))
@@ -316,6 +317,7 @@
                                                         (funcall (change-fun self) self)))))
                                       
                                       :release #'(lambda (view position) 
+                                                   (declare (ignore view position))
                                                    (when (after-fun self) (funcall (after-fun self) self)))
                                       )
         ))))

@@ -67,24 +67,26 @@
 
 
 (defmacro defgeneric* (function-name lambda-list &rest options-and-methods &environment env)
-   (multiple-value-bind (numouts initvals icon indoc doc menuins)
-                        (parse-defgeneric* options-and-methods)
-     (unless initvals
-         (setf initvals `',(make-list (length lambda-list) :initial-element nil)))
-       (unless indoc
-         (setf indoc `',(make-list (length lambda-list) :initial-element "no documentation")))
-     `(let* ((gen-fun (defgeneric ,function-name ,lambda-list  
-                               (:documentation ,doc) 
-                               (:generic-function-class ,*def-metaclass-genfun*)
-                               (:method-class ,*def-metaclass-method*)
-                               ,.(remove-om-options options-and-methods))))
-               (setf (numouts gen-fun) ,numouts)
-               (setf (inputs-default gen-fun) ,initvals)
-               (setf (inputs-doc gen-fun) ,indoc)
-               (setf (inputs-menus gen-fun) ',menuins)
-               (setf (icon gen-fun) ,icon)
-               (setf (name gen-fun) ,(string function-name))
-        gen-fun)))
+  (declare (ignore env))
+
+  (multiple-value-bind (numouts initvals icon indoc doc menuins)
+      (parse-defgeneric* options-and-methods)
+    (unless initvals
+      (setf initvals `',(make-list (length lambda-list) :initial-element nil)))
+    (unless indoc
+      (setf indoc `',(make-list (length lambda-list) :initial-element "no documentation")))
+    `(let* ((gen-fun (defgeneric ,function-name ,lambda-list  
+                       (:documentation ,doc) 
+                       (:generic-function-class ,*def-metaclass-genfun*)
+                       (:method-class ,*def-metaclass-method*)
+                       ,.(remove-om-options options-and-methods))))
+       (setf (numouts gen-fun) ,numouts)
+       (setf (inputs-default gen-fun) ,initvals)
+       (setf (inputs-doc gen-fun) ,indoc)
+       (setf (inputs-menus gen-fun) ',menuins)
+       (setf (icon gen-fun) ,icon)
+       (setf (name gen-fun) ,(string function-name))
+       gen-fun)))
 
 
 ;-----------------
@@ -95,13 +97,19 @@
 ;select the optional keys in the function definition
 
 (defun parse-defmethod* (name args)
+  
+  (declare (ignore name))
+  
   (let* ((theargs args)
-          (body? nil)
-          qualy lambda-list icon numouts initvals doc menuins body indoc outdoc)
-     (when (or (equal (car theargs) :after) (equal (car theargs) :before) (equal (car theargs) :around))
-       (setf qualy (list (pop theargs))))
-     (setf lambda-list (pop theargs))
-     (loop while (and theargs (not body?))
+         (body? nil)
+         qualy lambda-list icon numouts initvals doc menuins body indoc outdoc)
+    
+    (when (or (equal (car theargs) :after) (equal (car theargs) :before) (equal (car theargs) :around))
+      (setf qualy (list (pop theargs))))
+    
+    (setf lambda-list (pop theargs))
+    
+    (loop while (and theargs (not body?))
            do
            (cond
             ((equal (car theargs) :numouts)  (pop theargs) (setf numouts  (pop theargs)))
