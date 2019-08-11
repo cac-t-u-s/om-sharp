@@ -34,8 +34,13 @@ All boxes which their reference is a OM generic function are instances of this c
 
 (defmethod omNG-make-new-boxcall ((reference t) pos &optional init-args) nil)
 
-(defmethod add-keyword-input ((self t) &key key (value nil val-supplied-p) doc reactive) nil)
-(defmethod add-optional-input ((self t) &key name (value nil val-supplied-p) doc reactive) nil)
+(defmethod add-keyword-input ((self t) &key key (value nil val-supplied-p) doc reactive) 
+  (declare (ignore key value val-supplied-p doc reactive))
+  nil)
+
+(defmethod add-optional-input ((self t) &key name (value nil val-supplied-p) doc reactive) 
+  (declare (ignore name value val-supplied-p doc reactive))
+  nil)
 
 (defmethod allow-rename ((self OMBoxcall)) nil)
 
@@ -78,10 +83,13 @@ All boxes which their reference is a OM generic function are instances of this c
   (setf (lambda-state self) value))
 
 (defmethod update-after-change-mode ((box OMBox))
-  (update-inspector-for-object box)
-  (om-invalidate-view (frame box))
-  (when (container box)
-    (report-modifications (editor (container box)))))
+  (let ((ed (and (container box) (editor (container box)))))
+    (if ed 
+        (update-inspector-for-editor ed) ;;; will take into account possible multiple selection etc.
+      (update-inspector-for-object box)) ;;; does this (no editor) really happens ?
+    (om-invalidate-view (frame box))
+    (when ed
+      (report-modifications ed))))
 
 (defmethod set-lock-state ((box OMBoxCall) mode) 
   (setf (lock-state box) mode)
@@ -118,6 +126,7 @@ All boxes which their reference is a OM generic function are instances of this c
   (set-reactive object val))
       
 (defmethod get-property ((object OMBox) (prop-id (eql :reactive)) &key (warn t))
+  (declare (ignore warn))
   (all-reactive-p object))
 
 (defmethod all-reactive-p ((self OMBox))
@@ -250,6 +259,9 @@ All boxes which their reference is a OM generic function are instances of this c
           (t nil))))
 
 (defmethod more-optional-input ((self OMFunBoxcall) &key name (value nil val-supplied-p) doc reactive)
+  
+  (declare (ignore doc))
+
   (let ((new-in (next-optional-input self)))
     (when (and name (not (string-equal name (string new-in))))
       (om-print-format "WARNING -- WRONG OPTIONAL INPUT NAME: ~A -- Correct optional in the list is now: ~A" (list name new-in)))
