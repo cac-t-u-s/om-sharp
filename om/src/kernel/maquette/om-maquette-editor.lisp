@@ -66,8 +66,10 @@
    (om-make-menu "Help" (default-help-menu-items self))
    )))
 
-;;; maquette-editor is its own container;;; why ? this makes the report-modification process hang infinitely !!
-;;; (defmethod container-editor ((self maquette-editor)) nil)
+;;; maquette-editor is its own container
+;;; this is needed by the multi-editor click-system 
+;;; => requires a check in the report-modification process ! 
+(defmethod container-editor ((self maquette-editor)) self)
 
 (defmethod get-editor-class ((self OMMaquette)) 'maquette-editor)
 (defmethod get-obj-to-play ((self maquette-editor)) (object self))
