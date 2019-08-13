@@ -40,4 +40,5 @@ VERSION
 Gemfile.lock
 **/_site/**
 /om/om7-alpha
+/om/om7-beta
 **/docs/_temp/**
