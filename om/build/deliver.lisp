@@ -16,7 +16,7 @@
 (print "APPLICATION SETUP")
 (print "==============================")
 
-(defparameter *app-name+version* "om7-beta" "om7-alpha")
+(defparameter *app-name+version* "om7-beta")
 
 (defparameter *om-directory-folders* (butlast (pathname-directory (current-pathname))))
 
