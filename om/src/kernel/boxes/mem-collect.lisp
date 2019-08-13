@@ -17,6 +17,10 @@
 
 ;;;==================================
 ;;; BOXES WITH MEMORY
+;;; - MEM 
+;;; - COLLECT 
+;;; - TIME-COLLECT 
+;;; - ACCUM
 ;;;==================================
 
 (in-package :om)
@@ -28,12 +32,13 @@
 (defmethod get-patch-component-box-def-color ((self OMPatchComponentWithMemory)) (om-make-color 0.82 0.7 0.7))
 
 
-;;;------------------
+;;;------------------------------------------------------------------------------------------
 ;;; DELAY: 'mem'
 ;;; returns previous evaluation(s) on the right output
 ;;; the 'size' of memory can be expressed in number of cells (int) or in seconds (float)
 ;;; !! MEM is not a global variable: it has a limited scope inside its containing patch
-;;;------------------
+;;;------------------------------------------------------------------------------------------
+
 
 (defmethod special-box-p ((name (eql 'mem))) t)
 
@@ -202,9 +207,9 @@
 
   
 
-;;;------------------
+;;;------------------------------------------------------------------------------------------
 ;;; COLLECT
-;;;------------------
+;;;------------------------------------------------------------------------------------------
 
 (defmethod special-box-p ((name (eql 'collect))) t)
 (defmethod special-item-reference-class ((item (eql 'collect))) 'OMCollect)
@@ -234,7 +239,7 @@
     'box-input :box self :value NIL
     :name "data-in" :doc-string "(collected in memory)")
    (make-instance 
-    'box-input :box self :value NIL
+    'box-input :box self :value T
     :name "push" :doc-string "propagates reactive notification to the data-out outlet")
    (make-instance 
     'box-input :box self :value NIL
@@ -334,7 +339,9 @@
 
     (when first-call
       (let ((init-val (gen-code (nth 2 (inputs self)))))
-        (push-let-statement `(,local-name ,(if (equal init-val t) nil init-val)) :global)))
+        (push-let-statement `(,local-name ,(if (or (null init-val) (equal init-val t)) 
+                                               nil 
+                                             `(list ,init-val))) :global)))
    
     (case numout
       ;;; collect
@@ -352,11 +359,194 @@
     ))
 
 
+;;;------------------------------------------------------------------------------------------
+;;; TIMED-COLLECT
+;;; just like a collect but uses a delay to group data in a same chunk
+;;; also return times for the different chuncks
+;;;------------------------------------------------------------------------------------------
 
-;;;------------------
+(defmethod special-box-p ((name (eql 'timed-collect))) t)
+(defmethod special-item-reference-class ((item (eql 'timed-collect))) 'OMTimedCollect)
+
+(defclass OMTimedCollect (OMCollect) 
+  ((timer-var :initform  nil :accessor timer-var)
+   (last-tt :initform nil :accessor last-tt)
+   (first-tt :initform nil :accessor first-tt)))
+
+(defclass OMTimedCollectBox (OMCollectBox) ())
+
+(defmethod initialize-instance :after ((self OMTimedCollect) &rest initargs)
+  (setf (timer-var self) (intern (string+ (symbol-name (mem-var self)) "-TIMER")))
+  (eval `(defvar ,(timer-var self) nil)))
+
+
+(defmethod get-box-class ((self OMTimedCollect)) 'OMTimedCollectBox)
+(defmethod box-symbol ((self OMTimedCollect)) 'timed-collect)
+
+(defmethod get-icon-id ((self OMTimedCollectBox)) :m-mem)
+(defmethod object-name-in-inspector ((self OMTimedCollectBox)) "timed-collector box")
+
+
+(defmethod omNG-make-special-box ((reference (eql 'timed-collect)) pos &optional init-args)
+  (let ((name (car (list! init-args))))
+    (omNG-make-new-boxcall 
+     (make-instance 'OMTimedCollect :name (if name (string name) "timed-collect"))
+     pos)))
+
+
+(defmethod create-box-inputs ((self OMTimedCollectBox)) 
+  (append (call-next-method)
+          (list 
+           (make-instance 
+            'box-input :box self :value 0
+            :name "delay" :doc-string "delay for collect in a same chunck (ms)"))))
+
+
+(defmethod create-box-outputs ((self OMTimedCollectBox)) 
+  (append (call-next-method)
+          (list 
+           (make-instance 
+            'box-output :box self :value NIL
+            :name "time-list" :doc-string "get time-list of collection"))
+          ))
+
+
+;;; COLLECT DOESN'T RESPOND TO EV-ONCE AT ALL: CAN BE CALLED SEVERAL TIMES
+(defmethod omNG-box-value ((self OMTimedCollectBox) &optional (numout 0))
+  
+  (unless nil ;;; (equal (ev-once-flag self) (get-ev-once-flag *ev-once-context*))
+
+    (unless (value self) (setf (value self) (list nil nil)))
+    
+    (case numout
+
+      ;;; collect
+      (0 (let ((inval (omng-box-value (nth 0 (inputs self))))
+               (delta (omng-box-value (nth 3 (inputs self))))
+               (curr-t (clock-time)))
+           
+           (unless (first-tt (reference self)) (setf (first-tt (reference self)) curr-t))
+
+           (if (or (null (last-tt (reference self)))  ;;; fresh memory
+                   (> curr-t (+ delta (last-tt (reference self))))) ;;; time out
+
+               (progn ;;; new chunk
+                 (setf (last-tt (reference self)) curr-t)
+                 (push (list inval) (car (value self)))
+                 (push (- curr-t (first-tt (reference self))) (cadr (value self))))
+             
+             ;;; push in current chunk
+             (push inval (car (car (value self)))))
+           
+           ))
+
+      ;;; output - does nothing to the memory
+      (1 NIL)
+
+      ;;; time-values - does nothing to the memory
+      (3 NIL)
+
+      ;;; init with the value in
+      (2 (let ((initval (omng-box-value (nth 2 (inputs self)))))
+           (if (equal initval t)
+               ;;; reset
+               (setf (car (value self)) NIL 
+                     (cadr (value self)) NIL
+                     (first-tt (reference self)) NIL
+                     (last-tt (reference self)) NIL)
+             ;;; reset/init
+             (let ((curr-t (clock-time)))
+               (setf (car (value self)) (list! (om-copy initval)) 
+                     (cadr (value self)) (list 0)
+                     (first-tt (reference self)) curr-t
+                     (last-tt (reference self)) curr-t)
+                     )
+             
+             )))
+      )
+    )
+  
+  (return-value self numout))
+
+
+(defmethod return-value ((self OMTimedCollectBox) &optional (numout 0))
+  (case numout
+    ;;; last pushed
+    (0 (caar (value self)))
+    ;;; output ; does nothing to the memory
+    (1 (reverse (car (value self))))
+    ;;; init
+    (2 nil)
+    ;;; time values
+    (3 (reverse (cadr (value self))))
+    ))
+
+
+;; REACTIVE BEHAVIOUR
+;; calls the method from OMCollectBox
+; (defmethod OMR-Notify ((self OMCollectBox) &optional input-name) (call-next-method))
+
+
+;;; COMPILED FORM
+(defmethod gen-code  ((self OMTimedCollectBox) &optional (numout 0))
+
+  (let* ((global-var (mem-var (reference self)))
+         (global-timer (timer-var (reference self)))
+         (local-name (intern (string+ (symbol-name global-var) "-LOCAL")))
+         (first-call (not (check-let-statement local-name :global))))
+    
+    (when first-call
+      (let ((init-val (gen-code (nth 2 (inputs self)))))
+        (push-let-statement `(,local-name ,(if (or (null init-val) (equal init-val t)) 
+                                               `(list nil nil) 
+                                             `(list (list ,init-val) (list 0))))
+                            :global)))
+   
+    (case numout
+      ;;; collect
+      (0 `(let ((collect-val ,(gen-code (nth 0 (inputs self))))
+                (delta ,(gen-code (nth 3 (inputs self))))
+                (curr-t (clock-time)))
+
+            (if (print (or (null ,global-timer)  ;;; fresh memory
+                           (> curr-t (+ (cadr ,global-timer) delta)))) ;;; time out
+            
+                (progn 
+                  (when (null ,global-timer) 
+                    (setf ,global-timer (list curr-t nil)))
+                  (setf (cadr ,global-timer) curr-t)
+                  (push (list collect-val) (car ,local-name))
+                  (push (- curr-t (car ,global-timer)) (cadr ,local-name)))
+             
+             ;;; else: push in current chunk
+             (push collect-val (car (car ,local-name)))
+             )
+            collect-val))
+
+      ;;; output
+      (1 `(reverse (car ,local-name)))
+      
+      ;;; init with the value in
+      (2 `(let ((init-val ,(gen-code (nth 2 (inputs self)))))
+            (setf ,local-name (if (equal init-val t) 
+                                  (list nil nil) 
+                                `(list (list ,init-val) (list 0))))
+            (setf ,global-timer nil)
+            init-val))
+      
+      ;; times
+      (3 `(reverse (cadr ,local-name)))
+      )
+    
+    ))
+
+
+
+
+;;;------------------------------------------------------------------------------------------
 ;;; ACCUM
 ;;; MORE ADVANCED COLLECTION...
-;;;------------------
+;;;------------------------------------------------------------------------------------------
 
 (defmethod special-box-p ((name (eql 'accum))) t)
 (defmethod special-item-reference-class ((item (eql 'accum))) 'OMAccum)

@@ -736,6 +736,8 @@
 ;;; for compatibility, in case some functions have changed name
 (defmethod function-changed-name ((reference t)) nil)
 
+(defmethod omNG-make-special-box ((symbol t) pos &optional args) nil)
+
 (defmethod om-load-from-id ((id (eql :box)) data)
   ;; (print (list "load BOX" (find-value-in-kv-list data :type)))
   (let* ((type (find-value-in-kv-list data :type))
@@ -783,7 +785,8 @@
                  (let ((box (if (symbolp reference)
                                 (omNG-make-special-box reference pos) 
                               (omng-make-new-boxcall (omng-load reference) pos))))
-                   (set-value box (list val))
+                   (when box 
+                     (set-value box (list val)))
                    box))
                 
                 (:interface 

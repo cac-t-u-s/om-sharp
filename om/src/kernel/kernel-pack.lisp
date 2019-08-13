@@ -32,7 +32,7 @@
                          (omNG-make-package "Control" 
                                             :doc "Special boxes implementing control operators, argumenta passing and memory"
                                             :functions '(seq hub split omif omand omor)
-                                            :special-symbols '(in out repeat-n init-do mem collect)
+                                            :special-symbols '(in out repeat-n init-do mem collect timed-collect)
                                             )
                          (omNG-make-package "Loop" 
                                             :doc "Special boxes for visual loop implementation"
@@ -48,7 +48,7 @@
                                             )
                          (omNG-make-package "Reactive" 
                                             :doc "Special boxes for reactive patches"
-                                            :functions '(send receive route timed-coll)
+                                            :functions '(send receive route)
                                             )
                          (omNG-make-package "Interactive boxes"
                                             :doc "This package contains special interface boxes and widgets to use in OM patches (sliders, buttons, etc.)"
