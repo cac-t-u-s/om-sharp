@@ -29,14 +29,22 @@
 ;;;=====================================
 
 (defmethod* send ((self t) &optional (target :om))
-   (let ((boxes (find-receive-boxes target)))
-     (mapcar #'(lambda (b)
-                 (setf (value b) (list self))
-                 (self-notify b nil))
-             boxes)
-     (length boxes)))
-                 
-(defmethod* receive (targetname) :initvals '(:om) t)
+  :initvals '(nil :om)
+  :indoc '("something to send" "a target label")
+  :doc "Sends <self> out for being received by RECEIVE boxes initialized with the <target> label."
+  (let ((boxes (find-receive-boxes target)))
+    (mapcar #'(lambda (b)
+                (setf (value b) (list self))
+                (self-notify b nil))
+            boxes)
+    (length boxes)))
+           
+      
+(defmethod* receive (targetname) 
+  :initvals '(:om)
+  :indoc '("a target label")
+  :doc "Receives data sent through SEND with the <targetname> label."
+  t)
 
 (defclass ReactiveReceiveBox (OMGFBoxCall) ())
 
@@ -75,11 +83,20 @@
     (equal test data)))
 
 (defmethod* route (input &rest test)
-   (values-list (copy-list (cons input 
-                                 (mapcar 
-                                  #'(lambda (route-item) 
+  :indoc '("input data" "test-value or function")
+  :doc "ROUTE sets its various outputs' values to <input> when <input> satisfies the test of the corresponding inputs, or to NIL otherwise.
+
+The <test> can be a simple value (equality test) or a function (lambda) of 1 argument.
+
+If the box output connections are reactive, reactive notifications will be send for non-NIL outputs.
+
+The first output always outputs <input>.
+"   
+  (values-list (copy-list (cons input 
+                                (mapcar 
+                                 #'(lambda (route-item) 
                                       (when (test-match input route-item) input))
-                                  test)))))
+                                 test)))))
 
 (defclass ReactiveRouteBox (RouteBox) 
   ((routed-o :initform nil :accessor routed-o)))
