@@ -53,7 +53,7 @@ Mind using this box in 'eval-once' mode when connected to several other boxes."
   (omNG-make-new-boxcall (fdefinition 'seq) pos init-args))
 
 
-(defmethod add-optional-input ((self OMBoxSeqCall) &key name (value nil val-supplied-p) doc reactive)
+(defmethod add-optional-input ((self OMBoxSeqCall) &key name value doc reactive)
   (declare (ignore value doc reactive))
   (call-next-method)
   (set-box-outputs self  
@@ -102,12 +102,13 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
 (defmethod allow-remove-inputs ((self OMBoxSplit)) (> (length (outputs self)) 1))
 
 ;; on this special box adding an input actually adds an ouput...
-(defmethod more-optional-input ((self OMBoxSplit) &key name (value nil val-supplied-p) doc reactive)
+(defmethod more-optional-input ((self OMBoxSplit) &key name value doc reactive)
   ;;; no checks
+  (declare (ignore name value doc reactive))
   (add-optional-input self) 
   t) 
 
-(defmethod add-optional-input ((self OMBoxSplit) &key name (value nil val-supplied-p) doc reactive)
+(defmethod add-optional-input ((self OMBoxSplit) &key name value doc reactive)
   (declare (ignore name value doc reactive))
   (set-box-outputs 
    self 
@@ -132,8 +133,8 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
 (defmethod restore-outputs ((self OMBoxSplit) outputs)
   (when (outputs self)
     (setf (outputs self) (list (car (outputs self)))))
-  (loop for o in (cdr outputs) for n from 1 do
-        (add-optional-input self))
+  (dotimes (o (length (cdr outputs))) 
+    (add-optional-input self))
   (call-next-method))
  
 (defmethod add-args-to-box ((box OMBoxSplit) args)

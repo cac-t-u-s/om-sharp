@@ -55,6 +55,7 @@
 (defmethod next-optional-input ((self OMPatchInitBox)) t)
 
 (defmethod more-optional-input ((self OMPatchInitBox) &key name (value nil val-supplied-p) doc reactive)
+  (declare (ignore name doc))
   (add-optional-input self :name "action to do before to evaluate patch outputs" 
                       :value (if val-supplied-p value nil) 
                       :reactive reactive)
