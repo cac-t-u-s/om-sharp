@@ -345,6 +345,7 @@
     (om-init-temp-graphics-motion 
      frame pos nil :min-move nil
      :release #'(lambda (view pos)
+                  (declare (ignore view pos))
                   (set-value self nil)
                   (om-invalidate-view frame)
                   ))))
@@ -507,6 +508,7 @@
 (defmethod next-optional-input ((self SwitchBox)) t)
 
 (defmethod more-optional-input ((self SwitchBox) &key name (value nil val-supplied-p) doc reactive)
+  (declare (ignore name doc))
   (let ((n (1+ (length (inputs self)))))
     (add-optional-input self :name (format nil "opt~D" n) :value (if val-supplied-p value nil) 
                         :doc (format nil "option ~D" n) 
@@ -556,7 +558,7 @@
            (sel (floor (- (om-point-x pos) border) cell-w)))
      
       (when (and (> (om-point-y pos) (+ 4 border))
-                 (< (om-point-y pos) (- (h frame) (* 2 border)))
+                 (< (om-point-y pos) cell-h)
                  (< sel n))
 
         (if (member sel (selection self))
@@ -588,7 +590,7 @@
     (nth numout (value self))))
 
 
-(defmethod gen-code ((self OMInterfaceBox) &optional (numout 0))
+(defmethod gen-code ((self SwitchBox) &optional (numout 0))
   (let ((vals (loop for sel in (list! (selection self)) collect
                     (when (< sel (length (inputs self)))
                       (gen-code (nth sel (inputs self)))))))
