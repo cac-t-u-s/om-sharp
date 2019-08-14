@@ -111,6 +111,7 @@
 ;;; CLASS-ARRAY
 ;;;================
 
+;;; refefines the base method here... (not good)
 (defmethod update-arg-names (reference)
   (when (find-class reference nil)
     (cond ((subtypep reference 'class-array)
