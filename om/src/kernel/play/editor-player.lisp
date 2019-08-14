@@ -23,12 +23,10 @@
 
 (defclass play-editor-mixin ()
    ((player :initform nil :accessor player)
-    (player-type :initform nil :accessor player-type)
     (loop-play :initform nil :accessor loop-play)
     (play-interval :initform nil :accessor play-interval)
     (end-callback :initform nil :accessor end-callback)
-    (player-specific-controls :initform nil :accessor player-specific-controls)
-    ;;=====
+    
     (play-button :initform nil :accessor play-button)
     (pause-button :initform nil :accessor pause-button)
     (stop-button :initform nil :accessor stop-button)
@@ -37,12 +35,11 @@
     (repeat-button :initform nil :accessor repeat-button)
     (next-button :initform nil :accessor next-button)
     (prev-button :initform nil :accessor prev-button)
-    ;;=====
+    
     (metronome :initform nil :initarg :metronome :accessor metronome :type metronome)
     (metronome-on :initform nil :type boolean)
-    ;;=====
-    (tempo-box :initform nil :accessor tempo-box)
-    (signature-box :initform nil :accessor signature-box)))
+    (tempo :initform nil)
+    (time-signature :initform nil)))
 
 (defmethod editor-make-player ((self play-editor-mixin))
   (make-player :reactive-player 
@@ -126,6 +123,7 @@
                  (let ((t2 (round (pix-to-x view (om-point-x p2)))))
                    (editor-set-interval self (list (min t1 t2) (max t1 t2)))))
      :release #'(lambda (view pos) 
+                  (declare (ignore view pos))
                   (om-invalidate-view (window self)))
      :min-move 10)))
 
@@ -136,6 +134,7 @@
                (let ((t1 (round (pix-to-x view (om-point-x p)))))
                  (editor-set-interval self (list t1 (cadr (play-interval self))))))
    :release #'(lambda (view pos) 
+                (declare (ignore view pos))
                 (editor-set-interval self (list (apply 'min (play-interval self)) 
                                                 (apply 'max (play-interval self))))
                 (om-invalidate-view (window self)))
@@ -148,6 +147,7 @@
                (let ((t2 (round (pix-to-x view (om-point-x p)))))
                  (editor-set-interval self (list (car (play-interval self)) t2))))
    :release #'(lambda (view pos) 
+                (declare (ignore view pos))
                 (editor-set-interval self (list (apply 'min (play-interval self)) 
                                                 (apply 'max (play-interval self))))
                 (om-invalidate-view (window self)))
@@ -227,13 +227,14 @@
         (player-play-object (player self) (get-obj-to-play self) self :interval interval)
         (player-start (player self) :start-t (or (car interval) 0) :end-t (cadr interval))))))
 
+
 (defmethod editor-pause ((self play-editor-mixin))
-  (let ((ti (om-get-internal-time)))
-    (when (play-button self) (unselect (play-button self)))
-    (when (pause-button self) (select (pause-button self)))
-    (if (and (metronome self) (metronome-on self))
-        (player-pause-object (player self) (metronome self)))
-    (player-pause-object (player self) (get-obj-to-play self))))
+  (when (play-button self) (unselect (play-button self)))
+  (when (pause-button self) (select (pause-button self)))
+  (if (and (metronome self) (metronome-on self))
+      (player-pause-object (player self) (metronome self)))
+  (player-pause-object (player self) (get-obj-to-play self)))
+
 
 ;;; this is called sometimes to reset by security..
 (defmethod editor-stop ((self t)) nil)
@@ -332,9 +333,11 @@
   (om-init-temp-graphics-motion 
    self position nil
    :motion #'(lambda (view p)
+               (declare (ignore view))
                (let ((t1 (round (pix-to-x self (om-point-x p)))))
                  (set-cursor-time (editor self) t1)))
    :release #'(lambda (view pos) 
+                (declare (ignore view pos))
                 (om-invalidate-view (window (editor self))))
    :min-move 4))
 
@@ -498,115 +501,6 @@
                           :action #'(lambda (b)
                                       (editor-repeat editor (pushed b))))))
 
-(defmethod metronome-on ((self play-editor-mixin))
-  (slot-value self 'metronome-on))
-
-(defmethod (setf metronome-on) (t-or-nil (self play-editor-mixin))
-  (setf (slot-value self 'metronome-on) t-or-nil)
-  (when (metronome self)
-    (if t-or-nil
-        (if (eq (state (get-obj-to-play self)) :play)
-            (player-play-object (player self) (metronome self) nil 
-                                :interval (list (get-obj-time (get-obj-to-play self)) nil)))
-      (player-stop-object (player self) (metronome self)))))
-
-(defmethod (setf tempo) (new-tempo (self play-editor-mixin))
-  (when (tempo-box self)
-    (om-set-dialog-item-text (cadr (om-subviews (tempo-box self))) 
-                             (format nil "~$" new-tempo))))
-
-(defmethod time-signature ((self play-editor-mixin))
-  (slot-value self 'time-signature))
-
-(defmethod (setf time-signature) (new-signature (self play-editor-mixin))
-  (setf (slot-value self 'time-signature) new-signature)
-  (when (metronome self)
-    (with-schedulable-object (metronome self)
-                             (setf (time-signature (metronome self)) new-signature)))à)
-
-(defmethod make-tempo-box ((editor play-editor-mixin) &key fg-color bg-color font)
-  (declare (ignore bg-color font))
-  (setf (tempo-box editor)
-        (om-make-layout
-         'om-row-layout 
-         :delta 2
-         :align :bottom
-         :subviews (list
-                    (om-make-di 'om-check-box :text "" :size (omp 15 16) :font (om-def-font :font1)
-                                :checked-p (metronome-on editor)
-                                :di-action #'(lambda (item)
-                                               (setf (metronome-on editor) (om-checked-p item))))
-                    (om-make-di 'om-simple-text 
-                                :size (omp 50 16) 
-                                :text "120.00"
-                                :font (om-def-font :font2b) 
-                                :fg-color (or fg-color (om-def-color :black)))
-                    ;(om-make-graphic-object 'numbox 
-                    ;                        :value 120
-                    ;                        :bg-color (or bg-color (om-def-color :white))
-                    ;                        :fg-color (or fg-color (om-def-color :black))
-                    ;                        :size (om-make-point 23 16) 
-                    ;                        :font (or font (om-def-font :font2b))
-                    ;                        :min-val 20 :max-val 999
-                    ;                        :change-fun #'(lambda (item)
-                    ;                                       (setf (tempo editor) (+ (value item) (mod (tempo editor) 1)))))
-                    ;(om-make-di 'om-simple-text 
-                    ;            :size (omp 9 17) 
-                    ;            :text " ."
-                    ;            :font (om-def-font :font2b) 
-                    ;            :fg-color (or fg-color (om-def-color :black)))
-                    ;(om-make-graphic-object 'numbox 
-                    ;                        :value 0
-                    ;                        :bg-color (or bg-color (om-def-color :white))
-                    ;                        :fg-color (or fg-color (om-def-color :black))
-                    ;                        :border t
-                    ;                        :size (om-make-point 20 16) 
-                    ;                        :font (or font (om-def-font :font2b))
-                    ;                        :min-val 0 :max-val 99
-                    ;                        :change-fun #'(lambda (item)
-                    ;                                       (setf (tempo editor) (+ (floor (tempo editor)) (/ (value item) 100.0)))))
-                    ))))
-
-
-(defmethod make-signature-box ((editor play-editor-mixin) &key fg-color bg-color font rulers)
-  (setf (signature-box editor)
-        (om-make-layout
-         'om-row-layout 
-         :delta 2
-         :align :bottom
-         :subviews (list
-                    (om-make-di 'om-check-box :text "" :size (omp 15 16) :font (om-def-font :font1)
-                                :checked-p nil
-                                :di-action #'(lambda (item)
-                                               (loop for ruler in rulers
-                                                     do
-                                                     (setf (signature-on ruler) (om-checked-p item)))))
-                    (om-make-graphic-object 'numbox 
-                                            :value 4
-                                            :bg-color (or bg-color (om-def-color :white))
-                                            :fg-color (or fg-color (om-def-color :black))
-                                            :border t
-                                            :size (om-make-point 17 16) 
-                                            :font (or font (om-def-font :font2b))
-                                            :min-val 1 :max-val 99
-                                            :after-fun #'(lambda (item)
-                                                           (setf (time-signature editor) (append (list (value item))
-                                                                                                 (list (cadr (time-signature editor)))))))
-                    (om-make-di 'om-simple-text :size (omp 9 17) :text "/"
-                                :font (om-def-font :font1b) :fg-color (om-def-color :black))
-                    (om-make-graphic-object 'numbox 
-                                            :value 4
-                                            :bg-color (or bg-color (om-def-color :white))
-                                            :fg-color (or fg-color (om-def-color :black))
-                                            :border t
-                                            :size (om-make-point 20 16) 
-                                            :font (or font (om-def-font :font2b))
-                                            :min-val 0 :max-val 5
-                                            :change-fun #'(lambda (item)
-                                                            (set-value item (expt 2 (value item))))
-                                            :after-fun #'(lambda (item)
-                                                           (setf (time-signature editor) (append (list (car (time-signature editor)))
-                                                                                                 (list (value item))))))))))
 
 
 (defun time-display (time_ms &optional format)
@@ -908,4 +802,126 @@
     (if (find-marker-at-time self (pix-to-x self (om-point-x pos)))
         (om-set-view-cursor self nil)
       (om-set-view-cursor self (om-view-cursor self)))))
+
+
+;======================================
+; METRONOME UTILS (NOT REALLY USED..)
+;======================================
+
+(defmethod metronome-on ((self play-editor-mixin))
+  (slot-value self 'metronome-on))
+
+(defmethod (setf metronome-on) (t-or-nil (self play-editor-mixin))
+  (setf (slot-value self 'metronome-on) t-or-nil)
+  (when (metronome self)
+    (if t-or-nil
+        (if (eq (state (get-obj-to-play self)) :play)
+            (player-play-object (player self) (metronome self) nil 
+                                :interval (list (get-obj-time (get-obj-to-play self)) nil)))
+      (player-stop-object (player self) (metronome self)))))
+
+
+(defmethod tempo ((self play-editor-mixin))
+  (slot-value self 'tempo))
+
+(defmethod (setf tempo) (new-tempo (self play-editor-mixin))
+  (when (get-g-component self :tempo-box)
+    (om-set-dialog-item-text (cadr (om-subviews (get-g-component self :tempo-box))) 
+                             (format nil "~$" new-tempo))))
+
+
+(defmethod time-signature ((self play-editor-mixin))
+  (slot-value self 'time-signature))
+
+(defmethod (setf time-signature) (new-signature (self play-editor-mixin))
+  (setf (slot-value self 'time-signature) new-signature)
+  (when (metronome self)
+    (with-schedulable-object (metronome self)
+                             (setf (time-signature (metronome self)) new-signature))))
+
+
+(defmethod play-editor-make-tempo-box ((editor play-editor-mixin) &key fg-color font)
+  
+  (set-g-component editor :tempo-box
+        (om-make-layout
+         'om-row-layout 
+         :delta 2
+         :align :bottom
+         :subviews (list
+                    (om-make-di 'om-check-box :text "" :size (omp 15 16) :font (om-def-font :font1)
+                                :checked-p (metronome-on editor)
+                                :di-action #'(lambda (item)
+                                               (setf (metronome-on editor) (om-checked-p item))))
+                    (om-make-di 'om-simple-text 
+                                :size (omp 50 16) 
+                                :text "120.00"
+                                :font (or font (om-def-font :font2b))
+                                :fg-color (or fg-color (om-def-color :black)))
+                    ;(om-make-graphic-object 'numbox 
+                    ;                        :value 120
+                    ;                        :bg-color (or bg-color (om-def-color :white))
+                    ;                        :fg-color (or fg-color (om-def-color :black))
+                    ;                        :size (om-make-point 23 16) 
+                    ;                        :font (or font (om-def-font :font2b))
+                    ;                        :min-val 20 :max-val 999
+                    ;                        :change-fun #'(lambda (item)
+                    ;                                       (setf (tempo editor) (+ (value item) (mod (tempo editor) 1)))))
+                    ;(om-make-di 'om-simple-text 
+                    ;            :size (omp 9 17) 
+                    ;            :text " ."
+                    ;            :font (om-def-font :font2b) 
+                    ;            :fg-color (or fg-color (om-def-color :black)))
+                    ;(om-make-graphic-object 'numbox 
+                    ;                        :value 0
+                    ;                        :bg-color (or bg-color (om-def-color :white))
+                    ;                        :fg-color (or fg-color (om-def-color :black))
+                    ;                        :border t
+                    ;                        :size (om-make-point 20 16) 
+                    ;                        :font (or font (om-def-font :font2b))
+                    ;                        :min-val 0 :max-val 99
+                    ;                        :change-fun #'(lambda (item)
+                    ;                                       (setf (tempo editor) (+ (floor (tempo editor)) (/ (value item) 100.0)))))
+                    ))))
+
+
+(defmethod play-editor-make-signature-box ((editor play-editor-mixin) &key fg-color bg-color font)
+  (set-g-component editor :time-signature
+        (om-make-layout
+         'om-row-layout 
+         :delta 2
+         :align :bottom
+         :subviews (list
+                    
+                    (om-make-graphic-object 'numbox 
+                                            :value 4
+                                            :bg-color (or bg-color (om-def-color :white))
+                                            :fg-color (or fg-color (om-def-color :black))
+                                            :border t
+                                            :size (om-make-point 17 16) 
+                                            :font (or font (om-def-font :font2b))
+                                            :min-val 1 :max-val 99
+                                            :after-fun #'(lambda (item)
+                                                           (setf (time-signature editor) (append (list (value item))
+                                                                                                 (list (cadr (time-signature editor)))))))
+                    (om-make-di 'om-simple-text :size (omp 9 17) :text "/"
+                                :font (om-def-font :font1b) :fg-color (om-def-color :black))
+                    (om-make-graphic-object 'numbox 
+                                            :value 4
+                                            :bg-color (or bg-color (om-def-color :white))
+                                            :fg-color (or fg-color (om-def-color :black))
+                                            :border t
+                                            :size (om-make-point 20 16) 
+                                            :font (or font (om-def-font :font2b))
+                                            :min-val 0 :max-val 5
+                                            :change-fun #'(lambda (item)
+                                                            (set-value item (expt 2 (value item))))
+                                            :after-fun #'(lambda (item)
+                                                           (setf (time-signature editor) (append (list (car (time-signature editor)))
+                                                                                                 (list (value item))))))
+                    )
+         )))
+
+
+
+
 

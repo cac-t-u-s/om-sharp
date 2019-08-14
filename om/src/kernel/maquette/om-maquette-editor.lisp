@@ -820,8 +820,8 @@
                :position (om-make-point (+ *track-control-w* 2) 2)
                :align :bottom
                :size (om-make-point 90 15)
-               :subviews (list ;(make-signature-box editor :bg-color +track-color-2+ :rulers (list ruler-tracks))
-                          (when (metronome editor) (make-tempo-box editor :bg-color +track-color-2+))
+               :subviews (list ;(play-editor-make-signature-box editor :bg-color +track-color-2+)
+                          (when (metronome editor) (play-editor-make-tempo-box editor :bg-color +track-color-2+))
                           ))
               (om-make-layout
                'om-row-layout 
@@ -1192,8 +1192,9 @@
 (defmethod stop-editor-callback ((self maquette-editor))
   (setf (getf (beat-info self) :beat-count) 0
         (getf (beat-info self) :next-date) nil)
-  (when (tempo-box self)
-    (om-set-dialog-item-text (cadr (om-subviews (tempo-box self))) (format nil "~$" (tempo-at-beat (get-tempo-automation self) 0))))
+  (when (get-g-component self :tempo-box) ;; see editor-play-mixin
+    (om-set-dialog-item-text (cadr (om-subviews (get-g-component self :tempo-box))) 
+                             (format nil "~$" (tempo-at-beat (get-tempo-automation self) 0))))
   (call-next-method))
 
 
