@@ -1,0 +1,1681 @@
+
+(:patch
+ (:om-version 1.0E-4)
+ (:name "arrays")
+ (:doc "")
+ (:info
+  (:created "2017/09/13 12:02:23")
+  (:modified "2019/08/14 7:31:49"))
+ (:window (:size (1314 814)) (:position (556 561)))
+ (:grid nil)
+ (:lock nil)
+ (:boxes
+  (:box
+   (:reference om-random)
+   (:type :function)
+   (:group-id nil)
+   (:name "om-random")
+   (:x 708)
+   (:y 41)
+   (:w 103)
+   (:h 30)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
+   (:roundness (:number-or-nil (:number 3) (:t-or-nil t)))
+   (:text-font nil)
+   (:align :left)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "LOW")
+     (:value -1000)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "HIGH")
+     (:value 1000)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 0))
+  (:box
+   (:reference fixnum)
+   (:type :value)
+   (:group-id nil)
+   (:name "value box")
+   (:x 780)
+   (:y 70)
+   (:w 32)
+   (:h 30)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
+   (:roundness (:number-or-nil (:number 3) (:t-or-nil t)))
+   (:text-font nil)
+   (:align :left)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 30)
+   (:id 1))
+  (:box
+   (:reference class-array)
+   (:type :object)
+   (:group-id nil)
+   (:name nil)
+   (:x 655)
+   (:y 211)
+   (:w 289)
+   (:h 167)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
+   (:roundness (:number-or-nil (:number 3) (:t-or-nil t)))
+   (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
+   (:align :center)
+   (:name nil)
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "FIELD-NAMES")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "ELTS")
+     (:value 30)
+     (:reactive nil))
+    (:input (:type :key) (:name "uno") (:value nil) (:reactive nil))
+    (:input (:type :key) (:name "dos") (:value nil) (:reactive nil))
+    (:input (:type :key) (:name "tres") (:value nil) (:reactive nil))
+    (:input (:type :key) (:name "cuatro") (:value nil) (:reactive nil))
+    (:input (:type :key) (:name "cinco") (:value nil) (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "FIELD-NAMES") (:reactive nil))
+    (:output (:name "ELTS") (:reactive nil))
+    (:output (:name "uno") (:reactive nil))
+    (:output (:name "dos") (:reactive nil))
+    (:output (:name "tres") (:reactive nil))
+    (:output (:name "cuatro") (:reactive nil))
+    (:output (:name "cinco") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class class-array)
+     (:slots
+      ((:elts 30)
+       (:field-names (:list "uno" "dos" "tres" "cuatro" "cinco"))))
+     (:add-slots
+      ((:data
+        (:list
+         (:array-field
+          (:name "uno")
+          (:doc nil)
+          (:type nil)
+          (:decimals 4)
+          (:default nil)
+          (:data
+           (:list
+            -653
+            6
+            52
+            -193
+            198
+            -64
+            -297
+            331
+            -535
+            -520
+            -320
+            -696
+            498
+            -75
+            34
+            -481
+            -126
+            64
+            -614
+            -117
+            51
+            337
+            -898
+            247
+            -252
+            765
+            -784
+            -61
+            -741
+            557)))
+         (:array-field
+          (:name "dos")
+          (:doc nil)
+          (:type nil)
+          (:decimals 4)
+          (:default nil)
+          (:data
+           (:list
+            1
+            2
+            10
+            1
+            2
+            10
+            1
+            2
+            10
+            1
+            2
+            10
+            1
+            2
+            10
+            1
+            2
+            10
+            1
+            2
+            10
+            1
+            2
+            10
+            1
+            2
+            10
+            1
+            2
+            10)))
+         (:array-field
+          (:name "tres")
+          (:doc nil)
+          (:type nil)
+          (:decimals 4)
+          (:default nil)
+          (:data
+           (:list
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000
+            1000)))
+         (:array-field
+          (:name "cuatro")
+          (:doc nil)
+          (:type nil)
+          (:decimals 4)
+          (:default nil)
+          (:data
+           (:list
+            471.0
+            299.3012
+            127.60239
+            -44.096436
+            -215.79523
+            -225.74211
+            -217.16254
+            -208.58296
+            -200.00339
+            -191.42382
+            -182.84424
+            -174.26465
+            -165.68509
+            -157.1055
+            -148.52594
+            -139.94635
+            -131.36679
+            -364.2611
+            -369.99344
+            -375.72574
+            -381.45807
+            -387.19037
+            -392.9227
+            -398.65503
+            -404.38733
+            -410.11963
+            -360.82028
+            -90.31375
+            180.19351
+            450.70004)))
+         (:array-field
+          (:name "cinco")
+          (:doc nil)
+          (:type nil)
+          (:decimals 4)
+          (:default nil)
+          (:data
+           (:list
+            0.84147096
+            0.9092974
+            0.14112
+            -0.7568025
+            -0.9589243
+            -0.2794155
+            0.6569866
+            0.98935825
+            0.4121185
+            -0.5440211
+            -0.9999902
+            -0.53657294
+            0.42016703
+            0.9906074
+            0.65028787
+            -0.2879033
+            -0.96139747
+            -0.75098724
+            0.1498772
+            0.9129453
+            0.8366556
+            -0.008851309
+            -0.84622044
+            -0.9055784
+            -0.13235176
+            0.76255847
+            0.95637596
+            0.2709058
+            -0.6636339
+            -0.9880316)))))))))
+   (:id 2))
+  (:box
+   (:reference cons)
+   (:type :value)
+   (:group-id nil)
+   (:name "value box")
+   (:x 2843/5)
+   (:y 717/5)
+   (:w 115)
+   (:h 48)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
+   (:roundness (:number-or-nil (:number 3) (:t-or-nil t)))
+   (:text-font nil)
+   (:align :left)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value (:list "uno" "dos" "tres" "cuatro" "cinco"))
+   (:id 3))
+  (:box
+   (:reference cons)
+   (:type :value)
+   (:group-id nil)
+   (:name "value box")
+   (:x 3913/5)
+   (:y 642/5)
+   (:w 55)
+   (:h 30)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
+   (:roundness (:number-or-nil (:number 3) (:t-or-nil t)))
+   (:text-font nil)
+   (:align :left)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value (:list 1 2 10))
+   (:id 4))
+  (:box
+   (:reference fixnum)
+   (:type :value)
+   (:group-id nil)
+   (:name "value box")
+   (:x 823)
+   (:y 164)
+   (:w 43)
+   (:h 30)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
+   (:roundness (:number-or-nil (:number 3) (:t-or-nil t)))
+   (:text-font nil)
+   (:align :left)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 1000)
+   (:id 5))
+  (:box
+   (:reference 2d-array)
+   (:type :object)
+   (:group-id nil)
+   (:name nil)
+   (:x 223)
+   (:y 596)
+   (:w 205)
+   (:h 176)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
+   (:roundness (:number-or-nil (:number 3) (:t-or-nil t)))
+   (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
+   (:align :center)
+   (:name nil)
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "DATA")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "DATA") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class 2d-array)
+     (:slots
+      ((:field-names nil)
+       (:data
+        (:list
+         (:list
+          -653
+          6
+          52
+          -193
+          198
+          -64
+          -297
+          331
+          -535
+          -520
+          -320
+          -696
+          498
+          -75
+          34
+          -481
+          -126
+          64
+          -614
+          -117
+          51
+          337
+          -898
+          247
+          -252
+          765
+          -784
+          -61
+          -741
+          557)
+         (:list
+          1
+          2
+          10
+          1
+          2
+          10
+          1
+          2
+          10
+          1
+          2
+          10
+          1
+          2
+          10
+          1
+          2
+          10
+          1
+          2
+          10
+          1
+          2
+          10
+          1
+          2
+          10
+          1
+          2
+          10)
+         (:list
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000
+          1000)
+         (:list
+          471.0
+          299.3012
+          127.60239
+          -44.096436
+          -215.79523
+          -225.74211
+          -217.16254
+          -208.58296
+          -200.00339
+          -191.42382
+          -182.84424
+          -174.26465
+          -165.68509
+          -157.1055
+          -148.52594
+          -139.94635
+          -131.36679
+          -364.2611
+          -369.99344
+          -375.72574
+          -381.45807
+          -387.19037
+          -392.9227
+          -398.65503
+          -404.38733
+          -410.11963
+          -360.82028
+          -90.31375
+          180.19351
+          450.70004)
+         (:list
+          0.84147096
+          0.9092974
+          0.14112
+          -0.7568025
+          -0.9589243
+          -0.2794155
+          0.6569866
+          0.98935825
+          0.4121185
+          -0.5440211
+          -0.9999902
+          -0.53657294
+          0.42016703
+          0.9906074
+          0.65028787
+          -0.2879033
+          -0.96139747
+          -0.75098724
+          0.1498772
+          0.9129453
+          0.8366556
+          -0.008851309
+          -0.84622044
+          -0.9055784
+          -0.13235176
+          0.76255847
+          0.95637596
+          0.2709058
+          -0.6636339
+          -0.9880316)))))
+     (:add-slots ((:field-names nil)))))
+   (:id 6))
+  (:box
+   (:reference sin)
+   (:type :function)
+   (:group-id nil)
+   (:name "sin")
+   (:x 886)
+   (:y 168)
+   (:w 52)
+   (:h 30)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
+   (:roundness (:number-or-nil (:number 3) (:t-or-nil t)))
+   (:text-font nil)
+   (:align :left)
+   (:lock nil)
+   (:lambda :lambda)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "A")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 7))
+  (:box
+   (:reference bpf)
+   (:type :object)
+   (:group-id nil)
+   (:name nil)
+   (:x 858)
+   (:y 94)
+   (:w 118)
+   (:h 65)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
+   (:roundness (:number-or-nil (:number 3) (:t-or-nil t)))
+   (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
+   (:align :center)
+   (:name nil)
+   (:display :mini-view)
+   (:showname nil)
+   (:show-markers t)
+   (:group-id nil)
+   (:lock :locked)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "X-POINTS")
+     (:value (:list 0 2000))
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "Y-POINTS")
+     (:value (:list 0 100))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "X-POINTS") (:reactive nil))
+    (:output (:name "Y-POINTS") (:reactive nil)))
+   (:window (:size (585 400)) (:position (352 412)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class bpf)
+     (:slots
+      ((:onset 0)
+       (:duration 5292.89)
+       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:action nil)
+       (:color nil)
+       (:decimals 2)
+       (:x-points (:list 0.0 748.81 3082.46 3101.42 4708.99 5292.89))
+       (:y-points
+        (:list 471.0 -233.44 -123.74 -364.22 -414.71 450.7))))
+     (:add-slots
+      ((:decimals 2)
+       (:color nil)
+       (:name "BPF")
+       (:action nil)
+       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))))))
+   (:id 8))
+  (:box
+   (:reference class-array)
+   (:type :object)
+   (:group-id nil)
+   (:name nil)
+   (:x 500)
+   (:y 553)
+   (:w 196)
+   (:h 188)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
+   (:roundness (:number-or-nil (:number 3) (:t-or-nil t)))
+   (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
+   (:align :center)
+   (:name nil)
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "FIELD-NAMES")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "ELTS")
+     (:value 1)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "FIELD-NAMES") (:reactive nil))
+    (:output (:name "ELTS") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class class-array)
+     (:slots
+      ((:elts 10)
+       (:field-names (:list "uno" "dos" "tres" "cuatro" "cinco"))))
+     (:add-slots
+      ((:data
+        (:list
+         (:array-field
+          (:name "uno")
+          (:doc nil)
+          (:type nil)
+          (:decimals 4)
+          (:default nil)
+          (:data (:list -607 364 -940 742 324 -146 921 -80 -971 921)))
+         (:array-field
+          (:name "dos")
+          (:doc nil)
+          (:type nil)
+          (:decimals 4)
+          (:default nil)
+          (:data (:list 1 2 10 1 2 10 1 2 10 1)))
+         (:array-field
+          (:name "tres")
+          (:doc nil)
+          (:type nil)
+          (:decimals 4)
+          (:default nil)
+          (:data
+           (:list 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000)))
+         (:array-field
+          (:name "cuatro")
+          (:doc nil)
+          (:type nil)
+          (:decimals 4)
+          (:default nil)
+          (:data
+           (:list
+            471.0
+            -82.25165
+            -213.3494
+            -185.7041
+            -158.0588
+            -130.4135
+            -377.6365
+            -396.1073
+            -414.5781
+            450.6993)))
+         (:array-field
+          (:name "cinco")
+          (:doc nil)
+          (:type nil)
+          (:decimals 4)
+          (:default nil)
+          (:data
+           (:list
+            0.84147096
+            0.9092974
+            0.14112
+            -0.7568025
+            -0.9589243
+            -0.2794155
+            0.6569866
+            0.98935825
+            0.4121185
+            -0.5440211)))))))))
+   (:id 9))
+  (:box
+   (:reference fixnum)
+   (:type :value)
+   (:group-id nil)
+   (:name "value box")
+   (:x 636)
+   (:y 517)
+   (:w 32)
+   (:h 30)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
+   (:roundness (:number-or-nil (:number 3) (:t-or-nil t)))
+   (:text-font nil)
+   (:align :left)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 10)
+   (:id 10))
+  (:comment
+   (:x 572)
+   (:y 121)
+   (:w 82)
+   (:h 21)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Calibri") (:size 11) (:style :bold)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text "FIELDS NAMES")
+   (:id 11))
+  (:comment
+   (:x 957)
+   (:y 345)
+   (:w 207)
+   (:h 22)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:text "<= function (sin) is evaluated over <elts>")
+   (:id 12))
+  (:comment
+   (:x 959)
+   (:y 251)
+   (:w 182)
+   (:h 22)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:text "<= shorter list is repeated circularly")
+   (:id 13))
+  (:comment
+   (:x 959)
+   (:y 312)
+   (:w 178)
+   (:h 22)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:text "<= BPF is sampled on <elts> points")
+   (:id 14))
+  (:box
+   (:reference class-array)
+   (:type :object)
+   (:group-id nil)
+   (:name nil)
+   (:x 887)
+   (:y 553)
+   (:w 157)
+   (:h 145)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
+   (:roundness (:number-or-nil (:number 3) (:t-or-nil t)))
+   (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
+   (:align :center)
+   (:name nil)
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "FIELD-NAMES")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "ELTS")
+     (:value 1)
+     (:reactive nil))
+    (:input (:type :key) (:name "tres") (:value nil) (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "FIELD-NAMES") (:reactive nil))
+    (:output (:name "ELTS") (:reactive nil))
+    (:output (:name "tres") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class class-array)
+     (:slots
+      ((:elts 10) (:field-names (:list "dos" "tres" "cinco" "seis"))))
+     (:add-slots
+      ((:data
+        (:list
+         (:array-field
+          (:name "dos")
+          (:doc nil)
+          (:type nil)
+          (:decimals 4)
+          (:default nil)
+          (:data (:list 1 2 10 1 2 10 1 2 10 1)))
+         (:array-field
+          (:name "tres")
+          (:doc nil)
+          (:type nil)
+          (:decimals 4)
+          (:default nil)
+          (:data (:list 1 2 10 1 2 10 1 2 10 1)))
+         (:array-field
+          (:name "cinco")
+          (:doc nil)
+          (:type nil)
+          (:decimals 4)
+          (:default nil)
+          (:data
+           (:list
+            0.84147096
+            0.9092974
+            0.14112
+            -0.7568025
+            -0.9589243
+            -0.2794155
+            0.6569866
+            0.98935825
+            0.4121185
+            -0.5440211)))
+         (:array-field
+          (:name "seis")
+          (:doc nil)
+          (:type nil)
+          (:decimals 4)
+          (:default nil)
+          (:data
+           (:list nil nil nil nil nil nil nil nil nil nil)))))))))
+   (:id 15))
+  (:box
+   (:reference fixnum)
+   (:type :value)
+   (:group-id nil)
+   (:name "value box")
+   (:x 962)
+   (:y 511)
+   (:w 32)
+   (:h 30)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
+   (:roundness (:number-or-nil (:number 3) (:t-or-nil t)))
+   (:text-font nil)
+   (:align :left)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 10)
+   (:id 16))
+  (:comment
+   (:x 1059)
+   (:y 563)
+   (:w 212)
+   (:h 41)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:text
+    "copy-array with different filed-names:
+=> copy existing fields if not redefined")
+   (:id 17))
+  (:box
+   (:reference cons)
+   (:type :value)
+   (:group-id nil)
+   (:name "value box")
+   (:x 867)
+   (:y 453)
+   (:w 152)
+   (:h 30)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
+   (:roundness (:number-or-nil (:number 3) (:t-or-nil t)))
+   (:text-font nil)
+   (:align :left)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value (:list "dos" "tres" "cinco" "seis"))
+   (:id 18))
+  (:box
+   (:reference cons)
+   (:type :value)
+   (:group-id nil)
+   (:name "value box")
+   (:x 984)
+   (:y 484)
+   (:w 55)
+   (:h 30)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
+   (:roundness (:number-or-nil (:number 3) (:t-or-nil t)))
+   (:text-font nil)
+   (:align :left)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value (:list 1 2 10))
+   (:id 19))
+  (:box
+   (:reference get-array-data)
+   (:type :function)
+   (:group-id nil)
+   (:name "get-array-data")
+   (:x 313)
+   (:y 552)
+   (:w 108)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 20))
+  (:comment
+   (:x 958)
+   (:y 282)
+   (:w 144)
+   (:h 22)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:text "<= constant value repeated")
+   (:id 21))
+  (:comment
+   (:x 958)
+   (:y 218)
+   (:w 103)
+   (:h 22)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:text "<= longer list is cut")
+   (:id 22))
+  (:box
+   (:reference fixnum)
+   (:type :value)
+   (:group-id nil)
+   (:name "value box")
+   (:x 728)
+   (:y 175)
+   (:w 32)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 30)
+   (:id 23))
+  (:box
+   (:reference
+    (:object
+     (:class repeater)
+     (:slots
+      ((:name "repeat-n")
+       (:protected-p nil)
+       (:icon nil)
+       (:n-iter 30)
+       (:scope :local)))))
+   (:type :special)
+   (:group-id nil)
+   (:name "repeat-n")
+   (:x 738)
+   (:y 98)
+   (:w 90)
+   (:h 28)
+   (:color
+    (:color-or-nil (:color (:color 0.82 0.85 0.7 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:icon :left)
+   (:lock nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "program to repeat")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "n") (:value 0) (:reactive nil)))
+   (:outputs (:output (:name "collected results") (:reactive nil)))
+   (:id 24))
+  (:comment
+   (:x 701)
+   (:y 152)
+   (:w 59)
+   (:h 21)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Calibri") (:size 11) (:style :bold)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text "NUM ELTS")
+   (:id 25))
+  (:comment
+   (:x 277)
+   (:y 22)
+   (:w 134)
+   (:h 30)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text "ARRAYS IN OM7")
+   (:id 26))
+  (:box
+   (:reference 2d-array)
+   (:type :object)
+   (:group-id nil)
+   (:name nil)
+   (:x 74)
+   (:y 213)
+   (:w 225)
+   (:h 193)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
+   (:align :center)
+   (:name nil)
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "DATA")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :key)
+     (:name "field-names")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "DATA") (:reactive nil))
+    (:output (:name "field-names") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class 2d-array)
+     (:slots
+      ((:field-names (:list "a" "b" "c" "d"))
+       (:data
+        (:list
+         (:list
+          -704
+          -613
+          -150
+          261
+          525
+          -292
+          252
+          215
+          -434
+          -645
+          126
+          362
+          682
+          -737
+          610
+          183
+          -320
+          -348
+          622
+          370
+          900
+          -224
+          884
+          716
+          -311
+          734
+          -388
+          -118
+          -884
+          815)
+         (:list
+          -767
+          -608
+          -183
+          -392
+          -648
+          -782
+          -955
+          -19
+          -916
+          161
+          743
+          851
+          965
+          330
+          325
+          599
+          41
+          811
+          888
+          200
+          226
+          803
+          -58
+          81
+          -963
+          204
+          -193
+          613
+          743
+          -898)
+         (:list
+          582
+          -352
+          727
+          447
+          -675
+          326
+          11
+          588
+          208
+          573
+          840
+          889
+          -179
+          -405
+          702
+          718
+          -687
+          753
+          242
+          -460
+          574
+          974
+          568
+          396
+          -119
+          468
+          -737
+          -67
+          27
+          -422)
+         (:list
+          633
+          538
+          6
+          -651
+          -20
+          -980
+          909
+          -620
+          42
+          912
+          -858
+          52
+          777
+          -227
+          199
+          370
+          -663
+          962
+          -146
+          -184
+          740
+          989
+          670
+          84
+          119
+          654
+          425
+          776
+          -655
+          -417)))))
+     (:add-slots ((:field-names (:list "a" "b" "c" "d"))))))
+   (:id 27))
+  (:box
+   (:reference cons)
+   (:type :value)
+   (:group-id nil)
+   (:name "value box")
+   (:x 246)
+   (:y 174)
+   (:w 95)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value (:list "a" "b" "c" "d"))
+   (:id 28))
+  (:box
+   (:reference om-random)
+   (:type :function)
+   (:group-id nil)
+   (:name "om-random")
+   (:x 54)
+   (:y 86)
+   (:w 103)
+   (:h 30)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
+   (:roundness (:number-or-nil (:number 3) (:t-or-nil t)))
+   (:text-font nil)
+   (:align :left)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "LOW")
+     (:value -1000)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "HIGH")
+     (:value 1000)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 29))
+  (:box
+   (:reference fixnum)
+   (:type :value)
+   (:group-id nil)
+   (:name "value box")
+   (:x 126)
+   (:y 115)
+   (:w 32)
+   (:h 30)
+   (:color (:color-or-nil (:color nil) (:t-or-nil nil)))
+   (:border (:number-or-nil (:number 1.5) (:t-or-nil nil)))
+   (:roundness (:number-or-nil (:number 2) (:t-or-nil nil)))
+   (:text-font nil)
+   (:align :left)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 30)
+   (:id 30))
+  (:box
+   (:reference
+    (:object
+     (:class repeater)
+     (:slots
+      ((:name "repeat-n")
+       (:protected-p nil)
+       (:icon nil)
+       (:n-iter 30)
+       (:scope :local)))))
+   (:type :special)
+   (:group-id nil)
+   (:name "repeat-n")
+   (:x 84)
+   (:y 143)
+   (:w 90)
+   (:h 28)
+   (:color
+    (:color-or-nil (:color (:color 0.82 0.85 0.7 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:icon :left)
+   (:lock nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "program to repeat")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "n") (:value 0) (:reactive nil)))
+   (:outputs (:output (:name "collected results") (:reactive nil)))
+   (:id 31))
+  (:box
+   (:reference
+    (:object
+     (:class repeater)
+     (:slots
+      ((:name "repeat-n")
+       (:protected-p nil)
+       (:icon nil)
+       (:n-iter 4)
+       (:scope :local)))))
+   (:type :special)
+   (:group-id nil)
+   (:name "repeat-n")
+   (:x 142)
+   (:y 179)
+   (:w 90)
+   (:h 28)
+   (:color
+    (:color-or-nil (:color (:color 0.82 0.85 0.7 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:icon :left)
+   (:lock nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "program to repeat")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "n") (:value 0) (:reactive nil)))
+   (:outputs (:output (:name "collected results") (:reactive nil)))
+   (:id 32))
+  (:box
+   (:reference fixnum)
+   (:type :value)
+   (:group-id nil)
+   (:name "value box")
+   (:x 184)
+   (:y 144)
+   (:w 32)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 4)
+   (:id 33))
+  (:comment
+   (:x 257)
+   (:y 140)
+   (:w 82)
+   (:h 32)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Calibri") (:size 11) (:style :bold)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text "FIELDS NAMES (optional)")
+   (:id 34))
+  (:comment
+   (:x 309)
+   (:y 344)
+   (:w 89)
+   (:h 30)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text "2D-ARRAY")
+   (:id 35))
+  (:comment
+   (:x 511)
+   (:y 217)
+   (:w 134)
+   (:h 30)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text "CLASS-ARRAY")
+   (:id 36))
+  (:comment
+   (:x 493)
+   (:y 246)
+   (:w 149)
+   (:h 38)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:text "Evaluates in field inputs acording to predefined size")
+   (:id 37))
+  (:comment
+   (:x 305)
+   (:y 375)
+   (:w 98)
+   (:h 22)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:text "Simple data array")
+   (:id 38))
+  (:comment
+   (:x 1045)
+   (:y 486)
+   (:w 135)
+   (:h 22)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:text ":tres values are redefined")
+   (:id 39))
+  (:comment
+   (:x 702)
+   (:y 558)
+   (:w 137)
+   (:h 40)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:text "copy-array with different number of elements")
+   (:id 40))
+  (:comment
+   (:x 211)
+   (:y 546)
+   (:w 92)
+   (:h 40)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:text "CLASS-ARRAY to 2D-ARRAY")
+   (:id 41)))
+ (:connections
+  (:connection
+   (:from (:box 0 :out 0))
+   (:to (:box 24 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 1 :out 0))
+   (:to (:box 24 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 2 :out 0))
+   (:to (:box 9 :in 0))
+   (:attributes
+    (:color (:color 0.3 0.3 0.3 1.0) :style nil :modif (0 0))))
+  (:connection
+   (:from (:box 2 :out 0))
+   (:to (:box 15 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 2 :out 0))
+   (:to (:box 20 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 3 :out 0))
+   (:to (:box 2 :in 1))
+   (:attributes
+    (:color (:color 0.3 0.3 0.3 1.0) :style nil :modif (0 0))))
+  (:connection
+   (:from (:box 4 :out 0))
+   (:to (:box 2 :in 4))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 5 :out 0))
+   (:to (:box 2 :in 5))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 7 :out 0))
+   (:to (:box 2 :in 7))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 8 :out 0))
+   (:to (:box 2 :in 6))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 10 :out 0))
+   (:to (:box 9 :in 2))
+   (:attributes
+    (:color (:color 0.3 0.3 0.3 1.0) :style nil :modif nil)))
+  (:connection
+   (:from (:box 16 :out 0))
+   (:to (:box 15 :in 2))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 18 :out 0))
+   (:to (:box 15 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 19 :out 0))
+   (:to (:box 15 :in 3))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 20 :out 0))
+   (:to (:box 6 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 23 :out 0))
+   (:to (:box 2 :in 2))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 24 :out 0))
+   (:to (:box 2 :in 3))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 28 :out 0))
+   (:to (:box 27 :in 2))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 29 :out 0))
+   (:to (:box 31 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 30 :out 0))
+   (:to (:box 31 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 31 :out 0))
+   (:to (:box 32 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 32 :out 0))
+   (:to (:box 27 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 33 :out 0))
+   (:to (:box 32 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))))

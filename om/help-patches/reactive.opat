@@ -5,8 +5,8 @@
  (:doc "")
  (:info
   (:created "2017/03/05 16:40:15")
-  (:modified "2019/05/23 21:46:57"))
- (:window (:size (589 513)) (:position (938 25)))
+  (:modified "2019/08/14 7:22:19"))
+ (:window (:size (589 513)) (:position (685 199)))
  (:grid nil)
  (:lock nil)
  (:boxes
@@ -13767,8 +13767,8 @@
   (:comment
    (:x 439)
    (:y 187)
-   (:w 74)
-   (:h 30)
+   (:w 75)
+   (:h 36)
    (:fgcolor (:color 0.0 0.0 0.0 1.0))
    (:bgcolor nil)
    (:border nil)
@@ -13800,7 +13800,7 @@
   (:comment
    (:x 109)
    (:y 26)
-   (:w 135)
+   (:w 155)
    (:h 25)
    (:fgcolor nil)
    (:bgcolor nil)
@@ -13808,10 +13808,10 @@
    (:roundness (:number-or-nil (:number 0) (:t-or-nil nil)))
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
-   (:text "Reactive connections")
+   (:text "Reactive connections (R)")
    (:id 8)))
  (:connections
   (:connection
