@@ -434,6 +434,7 @@
     (time-sequence-update-internal-times (object-value self))
     ; (enable-play-controls self (action (object-value self))) ;;; leave T
     (update-sub-editors self)
+    (update-default-view self)
     ))
 
 ; when the timeline is edited 
@@ -491,9 +492,10 @@
 ;;; will rebuild the objects then redraw
 ;;; the gl-objets are drawn in an optimized OpenGL call-list
 (defmethod set-3D-objects ((self 3dc-editor)) 
-  (om-set-gl-objects (3Dp self) (create-GL-objects self))
-  (update-3d-curve-vertices-colors self)
-  (update-3D-view self))
+  (when (3Dp self)
+    (om-set-gl-objects (3Dp self) (create-GL-objects self))
+    (update-3d-curve-vertices-colors self)
+    (update-3D-view self)))
 
 
 (defmethod update-editor-3d-object ((self 3dc-editor))
@@ -581,7 +583,8 @@
               (panel (get-g-component ed :main-panel)))
          (move-editor-selection ed :dx (/ (- (get-units (x-ruler panel) (if (om-shift-key-p) 400 40))) (scale-fact panel)))
          (time-sequence-update-internal-times (object-value editor))
-         (report-modifications top-editor)))
+         (report-modifications top-editor)
+         ))
       (:om-key-right
        (let* ((ed (or selected-editor top-editor))
               (panel (get-g-component ed :main-panel)))
