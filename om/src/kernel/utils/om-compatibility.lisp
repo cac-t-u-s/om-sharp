@@ -182,7 +182,7 @@
 
 ;;; a box input "keyword" 
 (defun om-load-inputkeyword (class doc name value defval menu) 
-  (declare (ignore class doc value menu))
+  (declare (ignore class doc name menu))
   `(:input (:type :key) (:name ,value) (:value ,(omng-save defval))))
 
 ;;; a box input with menu for different values

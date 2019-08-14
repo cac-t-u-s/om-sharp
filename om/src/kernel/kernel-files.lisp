@@ -128,8 +128,7 @@
         "utils/om-copy"
         "utils/om-save"
         "utils/om-undo"
-        
-        "environment/om-compatibility" 
+        "utils/om-compatibility" 
 
         "kernel-pack"
              
