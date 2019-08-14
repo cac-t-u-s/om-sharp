@@ -683,7 +683,7 @@
 
 ;(defmethod get-all-times ((self bpf)) (x-points self))
 
-;;; RETURNS A LIST OF (ACTION TIME) TO PERFORM IN TIME-INTERVAL
+;;; RETURNS A LIST OF (TIME ACTION) TO PERFORM IN TIME-INTERVAL
 (defmethod get-action-list-for-play ((object BPF) time-interval &optional parent)
   (when (action object)
     (if (number-? (interpol object))
