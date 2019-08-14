@@ -352,7 +352,7 @@
   (list 
    (make-instance 'get-info-area :object self :frame self
                   :pos #'(lambda (f) (om-make-point 0 (/ (h f) 2)))
-                  :pick #'(lambda (f) (list 0 -8 16 8)))
+                  :pick #'(lambda (f) (declare (ignore f)) (list 0 -8 16 8)))
    ))
 
 (defmethod click-in-area ((area get-info-area) boxframe)
@@ -381,8 +381,7 @@
                               (or (> (length (inputs box)) 1)
                                   (< (box-w box) 40)))
                          10 0)
-                     ))
-         (n -1))
+                     )))
     
     (setf (areas self)
           (append 
@@ -602,8 +601,10 @@
       (om-with-clip-rect self 0 0 (w self) (- (h self) 8) 
         (multiple-value-bind (text x y w h)
             (display-text-and-area self)
+          (declare (ignore w h))
           (when text
             (multiple-value-bind (tw th) (om-string-size text font)
+              (declare (ignore tw))
               (om-with-fg-color (box-draw-text-color box)
             (om-with-font
              font
@@ -1060,9 +1061,10 @@
                                           (om-convert-coordinates (get-position self) (frame self) view)
                                           (om-make-point -10 -40))
                                          (value (object self))))
-         (frame (add-box-in-patch-editor new-box view))
          (patch (object (editor view))))
     
+    (add-box-in-patch-editor new-box view)
+
     (move-box new-box
                 (- (om-point-x (io-position-in-patch self))
                    (om-point-x (io-position-in-patch (area (first (outputs new-box))))))

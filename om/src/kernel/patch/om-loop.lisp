@@ -60,6 +60,7 @@
 (defmethod allow-optional-input ((self OMPatchLoop) existing-inputs) nil)
 
 (defmethod more-optional-input ((self OMPatchLoopBox) &key name (value nil val-supplied-p) doc reactive)
+  (declare (ignore name doc))
   (add-optional-input self :name "by"
                       :value (if val-supplied-p value (allow-optional-input (reference self) (inputs self))) 
                       :reactive reactive)
@@ -267,6 +268,7 @@
 (defmethod get-input-doc ((self OMPatchIteratorBox) name) "to do at each iteration")
  
 (defmethod more-optional-input ((self OMPatchIteratorBox) &key name (value nil val-supplied-p) doc reactive)
+  (declare (ignore name doc))
   (add-optional-input self :name "action"
                       :value (if val-supplied-p value nil) 
                       :reactive reactive)
@@ -276,7 +278,9 @@
 ;;; (they are the only ones that can be reevaluated and depend on other ones during the loop)
 (defmethod collect-loop-boxes ((self OMPatch))
   (sort (get-boxes-of-type self 'OMPatchLoopBox)
-        #'(lambda (type1 type2) (if (subtypep type1 'OMLoopWhile) t nil))
+        #'(lambda (type1 type2) 
+            (declare (ignore type2))
+            (if (subtypep type1 'OMLoopWhile) t nil)) 
         :key 'type-of))
 
 (defmethod boxcall-value ((self OMPatchIteratorBox))

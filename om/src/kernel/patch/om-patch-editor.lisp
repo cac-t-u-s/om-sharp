@@ -430,7 +430,7 @@
         (om-init-temp-graphics-motion  
          self pos nil
          :motion #'(lambda (view p)
-                           
+                     (declare (ignore view))
                      (drag-connection (object selected-connection) 
                                       (- (om-point-x p) (om-point-x p0))
                                       (- (om-point-y p) (om-point-y p0)))
@@ -445,7 +445,6 @@
 (defmethod editor-key-action ((editor patch-editor) key)
 
   (let* ((panel (get-editor-view-for-action editor))
-         (patch (object editor))
          (selected-boxes (get-selected-boxes editor))
          (selected-connections (get-selected-connections editor)))
     
@@ -1147,16 +1146,7 @@
     (declare-known-package p)))
 
 (defun decode-input-arguments (text)
-  (let ((args nil)
-        (texte text)
-        (pos 0))
-    (loop while (> (length texte) 0) do
-          (setf temp (multiple-value-list (read-from-string texte)))
-          (setf pos (cadr temp))
-          (push (car temp) args)
-          (setf texte (subseq texte pos)))
-    (reverse args)))
-
+  (om-read-list-from-string text))
 
 (defmethod new-box-in-patch-editor ((self patch-editor-view) str position)     
   
@@ -1322,7 +1312,8 @@
                                     
                 (om-make-di 'om-button :text "Copy Lisp code" 
                             :size (omp nil #+cocoa 32 #-cocoa 24) :font (om-def-font :font1)
-                            :di-action #'(lambda (b) (om-copy-command lisp-pane)
+                            :di-action #'(lambda (b) (declare (ignore b))
+                                           (om-copy-command lisp-pane)
                                            (om-print "Lisp code copied to clipboard")))
                 ))
     ))
@@ -1363,6 +1354,7 @@
 							:size #+cocoa (omp 40 32) #-cocoa (omp 24 24)
 							:font (om-def-font #+cocoa :font1 #-cocoa :font4)
 							:di-action #'(lambda (b) 
+                                                                       (declare (ignore b))
 								       (om-lisp::om-clear-listener-output-pane listener-pane)
 								       ))))
                 ))
@@ -1616,7 +1608,9 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                   (om-make-graphic-object 
                    'om-icon-button :icon :xx :icon-pushed :xx-pushed
                    :size (omp 12 12)
-                   :action #'(lambda (b) (patch-editor-set-window-config editor nil))
+                   :action #'(lambda (b) 
+                               (declare (ignore b))
+                               (patch-editor-set-window-config editor nil))
                    )
                   nil))
                                 
@@ -1626,6 +1620,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                  :icon :info-gray :icon-disabled :info
                  :lock-push nil :enabled (not (equal (editor-window-config editor) :inspector))
                  :action #'(lambda (b) 
+                             (declare (ignore b))
                              (patch-editor-set-window-config 
                               editor 
                               (if (equal (editor-window-config editor) :inspector) nil :inspector)))
@@ -1636,6 +1631,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                  :icon :lisp-gray :icon-disabled :lisp
                  :lock-push nil :enabled (not (equal (editor-window-config editor) :lisp-code))
                  :action #'(lambda (b) 
+                             (declare (ignore b))
                              (patch-editor-set-window-config 
                               editor 
                               (if (equal (editor-window-config editor) :lisp-code) nil :lisp-code)))
@@ -1646,6 +1642,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                  :icon :listen-gray :icon-disabled :listen
                  :lock-push nil :enabled (not (equal (editor-window-config editor) :listener))
                  :action #'(lambda (b) 
+                             (declare (ignore b))
                              (patch-editor-set-window-config 
                               editor 
                               (if (equal (editor-window-config editor) :listener) nil :listener)))

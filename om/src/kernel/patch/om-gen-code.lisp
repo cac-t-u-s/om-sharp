@@ -375,8 +375,7 @@
 
   (unwind-protect 
           
-        (let* ((boxes (boxes self))
-               (input-names (gen-patch-input-names self))
+        (let* ((input-names (gen-patch-input-names self))
                
                ;;; as far as I can say OMPatchInitBox have no index... ?
                (init-boxes (sort-boxes (get-boxes-of-type self 'OMPatchInitBox)))

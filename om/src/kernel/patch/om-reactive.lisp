@@ -190,6 +190,7 @@
 
 ;;; when an editor reports to the box
 (defmethod update-from-editor :around ((self OMBoxEditCall) &key (value-changed t) (reactive t))
+  (declare (ignore value-changed))
   (call-next-method)
   (when reactive (self-notify self t NIL)))
 

@@ -47,10 +47,12 @@
       (name (reference box)))))
 
 (defmethod get-properties-list ((self OMBoxAbstraction))
-  (let ((properties ))   
-    (add-properties-list 
-     (call-next-method) 
-     `(("Appearance"
+  
+  (add-properties-list 
+   
+   (call-next-method) 
+   
+   `(("Appearance"
         ((:display "View (m)" ,(display-modes-for-object (reference self)) display)))
        ("Abstraction"
         (
@@ -59,7 +61,8 @@
             '(:name "Name" :text box-patch-name-access))
          ))
        ("Scheduling"
-        ((:pre-delay "Pre-delay (ms)" :number pre-delay)))))))
+        ((:pre-delay "Pre-delay (ms)" :number pre-delay))))
+   ))
 
 (defmethod object-name-in-inspector ((self OMBoxAbstraction)) 
   (format nil "~A box" (get-object-type-name (reference self))))
@@ -165,6 +168,7 @@
   (unless (is-persistant (reference self))
     (values (name self)
             #'(lambda (box text)
+                (declare (ignore box))
                 ;;; the box name shall be updated as well
                 (set-name (reference self) text)
                 (update-inspector-for-object self)

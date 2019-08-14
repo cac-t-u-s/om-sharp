@@ -187,6 +187,8 @@
         (om-with-clip-rect self 0 0 (w self) (h self) 
           (multiple-value-bind (w h)
               (om-string-size "A" font)
+            
+            (declare (ignore w))
             (om-with-fg-color (box-draw-text-color box)
               (om-with-font
                font
