@@ -18,7 +18,7 @@
 
 (in-package :om)
 
-(defmethod make-player ((id (eql :reactive-player)) &key run-callback stop-callback (callback-tick 50) (time-window 5) single-threaded)
+(defmethod make-player ((id (eql :reactive-player)) &key run-callback stop-callback (callback-tick 50) (time-window 5))
   (declare (ignore time-window))
   (let ((sched (or *scheduler* (setq *scheduler* (build-scheduler :run-callback run-callback
                                                                   :stop-callback stop-callback)))))

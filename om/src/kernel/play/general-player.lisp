@@ -103,8 +103,8 @@
   (mapcar 'cadr (remove-if-not #'(lambda (x) (equal x engine)) play-list :key 'car)))
 
 
-(defmethod make-player ((id t) &key run-callback stop-callback (callback-tick 0.05) time-window single-threaded)
-  (declare (ignore time-window single-threaded))
+(defmethod make-player ((id t) &key run-callback stop-callback (callback-tick 0.05) time-window)
+  (declare (ignore time-window))
   (make-instance 'omplayer 
                  :callback-fun run-callback
                  :callback-tick callback-tick

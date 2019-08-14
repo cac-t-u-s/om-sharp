@@ -16,7 +16,7 @@
 ;============================================================================
 
 ;;===========================================================================
-;  Clock
+;  Clock: an OM object used just like a clock in musical sequences
 ;;===========================================================================
 
 (in-package :om)
@@ -32,7 +32,7 @@
 (defmethod display-modes-for-object ((self clock))
   '(:hidden :text :mini-view))
 
-;;;Accessor redefinition so the action output is accessible
+;;; Accessor redefinition so the action output is accessible
 (defmethod action ((self clock))
   (outval self))
 
@@ -41,13 +41,6 @@
 
 (defmethod set-period ((self clock) new-period)
   (setf (period self) new-period))
-
-;(defmethod clone-object ((object clock) &optional clone)
-;  (let ((new-obj (or clone (make-instance (type-of object)))))
-;    (setf (action new-obj) (slot-value object 'action)
-;          (period new-obj) (slot-value object 'period)
-;          (duration new-obj) (slot-value object 'duration))
-;    new-obj))
 
 
 (defmethod initialize-instance :after ((self clock) &rest initargs)
@@ -67,6 +60,7 @@
                  (self-notify (parentbox object)))))))
 
 (defmethod player-play-object ((self scheduler) (object clock) caller &key parent interval)
+  (declare (ignore parent interval))
   (setf (parentbox object) caller)
   (call-next-method))
 
@@ -77,31 +71,19 @@
 (defmethod get-obj-dur ((self clock)) (or (duration self) (period self)))
 
 (defmethod get-obj-time ((self clock) &key internal-time)
+  (declare (ignore internal-time))
   (if (duration self)
       (call-next-method)
     (mod (call-next-method) (period self))))
 
-(defmethod draw-mini-view ((self clock) (box t) x y w h &optional time)
-  (let ((display-cache (get-display-draw box)))
-    (multiple-value-bind (fx ox) 
-        (conversion-factor-and-offset 0 (get-obj-dur self) w x)
-      (multiple-value-bind (fy oy) 
-          (conversion-factor-and-offset h 0 (- h 20) (+ y 10))
-        (om-with-font (om-def-font :font2b) 
-                      (om-draw-string (+ ox (* fx 10)) 
-                                      (+ oy (* fy (+ (/ h 2) 10))) (format nil "~A ms Loop" (period self))))
-        (om-draw-dashed-line (+ ox (* fx x)) (+ oy (* fy (/ h 2)))
-                      (+ ox (* fx (+ x 10000))) (+ oy (* fy (/ h 2))))))))
+(defmethod draw-mini-view ((self clock) (box t) x y w h &optional time)  
+  (multiple-value-bind (fx ox) 
+      (conversion-factor-and-offset 0 (get-obj-dur self) w x)
+    (multiple-value-bind (fy oy) 
+        (conversion-factor-and-offset h 0 (- h 20) (+ y 10))
+      (om-with-font (om-def-font :font2b) 
+                    (om-draw-string (+ ox (* fx 10)) 
+                                    (+ oy (* fy (+ (/ h 2) 10))) (format nil "~A ms Loop" (period self))))
+      (om-draw-dashed-line (+ ox (* fx x)) (+ oy (* fy (/ h 2)))
+                      (+ ox (* fx (+ x 10000))) (+ oy (* fy (/ h 2)))))))
 
-
-
-;;;
-(defun gen-notes (p)
-  (if p
-      (loop for i from 0 to 19
-            collect
-            (make-midinote :onset (* i 50)
-                           :pitch (+ (- (mod p 40) 20) 60)
-                           :vel 100
-                           :dur 45
-                           :channel 1))))

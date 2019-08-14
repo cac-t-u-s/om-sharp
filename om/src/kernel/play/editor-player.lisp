@@ -45,7 +45,7 @@
     (signature-box :initform nil :accessor signature-box)))
 
 (defmethod editor-make-player ((self play-editor-mixin))
-  (make-player :reactive-player; :dynamic-scheduler 
+  (make-player :reactive-player 
                :run-callback 'play-editor-callback
                :stop-callback 'stop-editor-callback))
 

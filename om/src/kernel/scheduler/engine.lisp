@@ -42,11 +42,6 @@
 (defmethod (setf task-plan) (plan (self engine))
   (setf (engine-task-plan self) plan))
 
-(defmethod alarm ((self engine))
-  (engine-alarm self))
-(defmethod (setf alarm) (t-or-nil (self engine))
-  (setf (engine-alarm self) t-or-nil))
-
 (defmethod behavior ((self engine))
   (engine-behavior self))
 (defmethod (setf behavior) (new (self engine))

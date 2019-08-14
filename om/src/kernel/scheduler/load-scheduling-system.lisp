@@ -21,15 +21,12 @@
           (compile&load (decode-local-path filename)))      
       '(
         "action"
-        
         "scheduler"
         "engine"
         "thread-pool"
         "dispatcher"
         "graphics-callback"
-
         "schedulable-object"
-        
         "scheduling-system"
-        
         "mode-switcher"))
+
