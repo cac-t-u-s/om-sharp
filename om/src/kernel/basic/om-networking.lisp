@@ -147,6 +147,7 @@ By default the server is only local. Set <host> to your current IP address to al
       (om-beep-msg (format nil "Error - bad port number for UDP-RECEIVE: ~A" port)))))
 
 (defun udp-stop-receive (box process)
+  (declare (ignore box))
   (when process
     (om-stop-udp-server process)
     (om-print (format nil "RECEIVE STOP: ~A" (om-process-name process)) "UDP")))

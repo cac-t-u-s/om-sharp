@@ -76,6 +76,7 @@ Ex. (infile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/b
                     :name (pathname-name name) :type (or type (pathname-type name))))
   
 (defmethod* infile ((name null) &key (subdirs nil) (type nil))
+  (declare (ignore type))
   (om-make-pathname :directory (append (pathname-directory (get-pref-value :files :in-file)) (list! subdirs))
                     :host (pathname-host (get-pref-value :files :in-file))))
 
@@ -99,6 +100,7 @@ Ex. (outfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/
                  :name (pathname-name name) :type (or type (pathname-type name))))
 
 (defmethod* outfile ((name null) &key (subdirs nil) (type nil))
+  (declare (ignore type))
   (om-make-pathname :directory (append (pathname-directory (get-pref-value :files :out-file)) (list! subdirs))
                     :host (pathname-host (get-pref-value :files :out-file))))
 
@@ -123,6 +125,7 @@ Ex. (tmpfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/
                     :name (pathname-name name) :type (or type (pathname-type name))))
 
 (defmethod* tmpfile ((path null) &key (subdirs nil) (type nil))
+  (declare (ignore type))
   (om-make-pathname :directory (append (pathname-directory (get-pref-value :files :tmp-file)) (list! subdirs))
                     :host (pathname-host (get-pref-value :files :tmp-file))))
 

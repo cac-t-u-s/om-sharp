@@ -125,7 +125,7 @@ It is returned on the first output in case of negative match.
 (defclass RouteBox (OMGFBoxCall) ())
 (defmethod boxclass-from-function-name ((self (eql 'test-type))) 'RouteBox)
 
-(defmethod add-optional-input ((self RouteBox) &key name (value nil val-supplied-p) doc reactive)
+(defmethod add-optional-input ((self RouteBox) &key name value doc reactive)
   (declare (ignore value doc reactive))
   (call-next-method)
   (set-box-outputs self 
