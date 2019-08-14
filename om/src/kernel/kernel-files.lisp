@@ -101,7 +101,8 @@
         "boxes/mem-collect"  
         "boxes/init-do"  
         "boxes/send-receive-route"  
-
+        "boxes/lisp-function"
+        
         "basic/om-data-structures"
         "basic/om-file-utils"
         "basic/om-write-to-disk"
@@ -121,9 +122,7 @@
         "maquette/om-metric-ruler"
         "maquette/om-maquette-api"
         "maquette/om-maquette-meta"
-
-        "lisp-function/om-lisp-function"
-                
+        
         "utils/om-copy"
         "utils/om-save"
         "utils/om-undo"
