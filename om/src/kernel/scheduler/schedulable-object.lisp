@@ -268,7 +268,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 
 (defmethod auto-adapt-time-window ((self schedulable-object))
   (getf (scheduler-info self) :auto-adapt-time-window))
-(defmethod (setf time-window) (t-or-nil (self schedulable-object))
+(defmethod (setf auto-adapt-time-window) (t-or-nil (self schedulable-object))
   (setf (getf (scheduler-info self) :auto-adapt-time-window) t-or-nil))
 
 (defmethod update-object-time-window ((self schedulable-object))
