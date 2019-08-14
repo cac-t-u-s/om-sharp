@@ -549,51 +549,122 @@
                            (max 0  (+ (nth point_index (time-sequence-get-internal-times self)) dt))))))
     (time-sequence-update-internal-times self))
 
-(defmethod time-stretch-from-master-point ((self time-sequence) point dt)
-  (let* ((master-time (item-get-internal-time point))
+
+
+
+;;; return T if the right-move is ok
+(defmethod move-the-right-side ((self time-sequence) master-point dt)
+  
+  (let* ((points (time-sequence-get-timed-item-list self))
+         (times (time-sequence-get-internal-times self))
+         (master-time (item-get-internal-time master-point))
+         (new-t (max 0 (+ dt master-time)))
+         (master-pos (find-position-at-time self master-time))
+         (all-master-pos (get-all-master-points-positions self))
+         (pos-in-masters (position master-pos all-master-pos))
+         (next-master-pos (nth (1+ pos-in-masters) all-master-pos))
+         (next-master-time (nth next-master-pos times))
+         (next-master-ratio (if (= master-time next-master-time) 0 ;;; in principle we want to avoid this
+                              (/ (- new-t next-master-time) (- master-time next-master-time))))
+         (move-ok t))
+    
+    ;;; process all points between the two adjacent master-poinyts
+    (loop for idx = (1- next-master-pos) then (- idx 1)
+          while (> idx master-pos)
+          do
+          (let ((p (nth idx points)))
+            (when (item-get-time p)
+              (let ((new-p-time (round (+ (* next-master-ratio (- (nth idx times) master-time)) new-t)))
+                    (next-p-time (nth (1+ idx) times)))
+                (if (< new-p-time next-p-time)
+                    (item-set-time p new-p-time)
+                  (setf move-ok nil))
+                )
+              )))
+    move-ok))
+  
+
+;;; return T if the left-move is ok
+(defmethod move-the-left-side ((self time-sequence) master-point dt)
+  (let* ((points (time-sequence-get-timed-item-list self))
+         (times (time-sequence-get-internal-times self))
+         (master-time (item-get-internal-time master-point))
+         (new-t (max 0 (+ dt master-time)))
+         (master-pos (find-position-at-time self master-time))
+         (all-master-pos (get-all-master-points-positions self))
+         (pos-in-masters (position master-pos all-master-pos))
+         (prev-master-pos (nth (1- pos-in-masters) all-master-pos))
+         (prev-master-time (nth prev-master-pos times))
+         (prev-master-ratio (/ (- new-t prev-master-time) (- master-time prev-master-time)))
+         
+         (move-ok t))
+    
+    ;;; process all points between the two adjacent master-poinyts
+    (loop for idx from (1+ prev-master-pos) to (1- master-pos) 
+          do
+          (let ((p (nth idx points)))
+            (when (item-get-time p)
+              (let ((new-p-time (round (+ (* prev-master-ratio (- (nth idx times) prev-master-time)) prev-master-time)))
+                    (prev-p-time (nth (1- idx) times)))
+                (if (> new-p-time prev-p-time)
+                    (item-set-time p new-p-time)
+                  (setf move-ok nil))
+                )
+              )))
+    move-ok))
+
+
+
+(defmethod time-stretch-from-master-point ((self time-sequence) master-point dt)
+
+  (let* ((points (time-sequence-get-timed-item-list self))
+         (master-time (item-get-internal-time master-point))
          (new-t (max 0 (+ dt master-time)))
          (pos (find-position-at-time self master-time))
-         (points (time-sequence-get-timed-item-list self))
-         (times (time-sequence-get-internal-times self))
          (all-master-pos (get-all-master-points-positions self))
          (pos-index-in-masters (position pos all-master-pos))
-         (master-point-before (find point points :test #'(lambda (p1 p2) 
-                                                           (and (equal (item-get-type p2) :master)
-                                                                (> (item-get-internal-time p1) (item-get-internal-time p2))))
+         (master-point-before (find master-point points :test #'(lambda (p1 p2) 
+                                                                  (and (equal (item-get-type p2) :master)
+                                                                       (> (item-get-internal-time p1) (item-get-internal-time p2))))
                                     :from-end t))
-         (master-point-after (find point points :test #'(lambda (p1 p2) 
-                                                          (and (equal (item-get-type p2) :master)
-                                                               (< (item-get-internal-time p1) (item-get-internal-time p2)))))))
+         (master-point-after (find master-point points :test #'(lambda (p1 p2) 
+                                                                 (and (equal (item-get-type p2) :master)
+                                                                      (< (item-get-internal-time p1) (item-get-internal-time p2)))))))
+
     (when (and pos-index-in-masters
                (or (eql (length points) 1)
                    (and (or (null master-point-before)
-                            (> new-t (item-get-internal-time master-point-before)))
+                            (> (round new-t) (item-get-internal-time master-point-before)))
                         (or (null master-point-after)
-                            (< new-t (item-get-internal-time master-point-after))))))
-      (item-set-time point (round new-t))
-      (when (not (null master-point-before))
-        (let* ((prev-pos (nth (1- pos-index-in-masters) all-master-pos))
-               (prev-time (nth prev-pos times))
-               (prev-ratio nil))
-          (setf prev-ratio (/ (- new-t prev-time) (- master-time prev-time)))
-          (loop for idx from (1+ prev-pos) to (1- pos) do
-                (let ((np (nth idx points)))
-                  (when (item-get-time np)
-                    (item-set-time np (round (+ (* prev-ratio (- (nth idx times) prev-time)) prev-time))))))))
+                            (< (round new-t) (item-get-internal-time master-point-after))))))
       
-      (when (not (null master-point-after))
-        (let* ((next-pos (nth (1+ pos-index-in-masters) all-master-pos))
-               (next-time (nth next-pos times))
-               (next-ratio nil))
-          (setf next-ratio (if (= master-time next-time) 0
-                             (/ (- new-t next-time) (- master-time next-time))))
-          (item-set-time (nth pos points) (round new-t))
-          (loop for idx from (1+ pos) to (1- next-pos) do
-                (let ((np (nth idx points)))
-                  (when (item-get-time np)
-                    (item-set-time np (round (+ (* next-ratio (- (nth idx times) master-time)) new-t))))))))
-      )
-  ))
+      ; => The move is OK wrt. other master-points
+
+      (cond ((> dt 0) ;;; MOVE-RIGHT
+             ;;; check right-compression first
+             (let ((do-it (or (null master-point-after) 
+                              (move-the-right-side self master-point dt))))
+               (when do-it 
+                 (item-set-time master-point (round new-t))
+                 (when master-point-before
+                   (move-the-left-side self master-point dt)))
+               ))
+               
+            ((< dt 0) ;;; MOVE LEFT
+             ;;; check left-compression first
+             (let ((do-it (or (null master-point-before) 
+                              (move-the-left-side self master-point dt))))
+               (when do-it 
+                 (item-set-time master-point (round new-t))
+                 (when master-point-after
+                   (move-the-right-side self master-point dt)))
+               ))
+          
+            (t nil))
+      )))
+
+          
+
 
 ;;;=========================================
 ;;; TIME MARKERS METHODS
