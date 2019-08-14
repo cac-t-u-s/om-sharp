@@ -35,7 +35,7 @@
 (defmethod player-reset (player) t)
 
 
-(defmethod player-start (player &key start-t end-t))
+(defmethod player-start (player &key start-t end-t) (declare (ignore start-t end-t)))
 (defmethod player-stop (player))
 (defmethod player-pause (player))
 (defmethod player-continue (player))
@@ -44,26 +44,19 @@
 (defmethod player-stop-record (player))
 
 ;;; RETURN A LIST OF ACTIONS + TIME FOR AN OBJECT TO BE PLAYED
-;;; VOIR SI ON SUPPRIME INTERVALLE ?
 (defmethod get-action-list-for-play (object interval &optional parent) nil)
- ; (let ((engines-available (enabled-players-for-object object))
- ;       (engine (getf params :player)))
- ;   (unless (find engine engines-available)
- ;       (om-print (format nil "Warning: player engine ~s not available for ~A." engine object) "PLAYER")
- ;       (setf engine (car engines-available))
- ;       (if engine 
- ;           (om-print (format nil "~A will be played on ~s" object engine) "PLAYER")
- ;           (om-print (format nil "~A will not be played" object) "PLAYER")))
- ;   (list (list 0 #'(lambda () (player-play-object engine object :interval interval))))))
 
 (defmethod player-play-object (engine object caller &key parent interval)
-  (print (format NIL "NO RENDERER FOR ~A" object)))
+  (declare (ignore parent interval))
+  (om-print (format nil "NO RENDERER FOR ~A" object)))
 
 ;(defmethod player-stop-object ((engine t) &optional objects) nil)
+
 
 ;;;=================================
 ;;; DEFAULT PLAYER
 ;;; (simple loop on a list of events)
+;;; This player is actually not used anymore in OM7
 ;;;=================================
 (defclass omplayer () 
   ((state :accessor state :initform :stop)    ; :play :pause :stop :record
@@ -85,8 +78,6 @@
    (scheduler-tick :initform 0.01 :accessor scheduler-tick :initarg :scheduler-tick)
    ;;; OBJECTS
    (play-list :initform nil :accessor play-list :initarg :play-list)
-   ;;; ENGINES
-   (engines :initform nil :accessor engines :initarg :engines)
    ))
 
 (defmethod sort-events ((self omplayer))
@@ -111,6 +102,7 @@
                  :stop-fun stop-callback))
 
 (defun clock-time () (om-get-internal-time))
+
 (defmethod player-get-time ((player omplayer))
   (cond ((equal (state player) :play)
          (+ (player-offset player) (start-time player) (- (clock-time) (ref-clock-time player))))
@@ -134,17 +126,15 @@
 
 ;;; CALLED WHEN THE PLAYER HAS TO PLAY SEVERAL THINGS OR PREPARE THEM IN ADVANCE
 (defmethod player-play-object ((player omplayer) obj caller &key parent interval) 
+  (declare (ignore parent))
   (setf (caller player) caller)
-  (player-schedule-tasks player obj (prepare-to-play obj 0 interval nil)))
+  (player-schedule-tasks player obj (get-action-list-for-play obj interval)))
 
 (defmethod player-get-object-state ((player omplayer) object) (state player))
 (defmethod player-stop-object ((player omplayer) object) (player-stop player))
 (defmethod player-pause-object ((player omplayer) object) (player-pause player))
 (defmethod player-continue-object ((player omplayer) object) (player-continue player))
 
-;(unless (find engine (engines player)) (push engine (engines player)))
-;(push (list engine object) (play-list player))
-  
 ;;; CALLED TO START PLAYER
 (defmethod player-start ((player omplayer) &key (start-t 0) (end-t 3600000))
   ;(let ((start-t (or (car (play-interval player)) 0))
@@ -182,27 +172,18 @@
                                         ))
                                    :priority 10)
                    ))
-           
-         ;(when (loop-play player) 
-         ;  (mapcar #'(lambda (pl) (player-set-loop pl start-t end-t)) 
-         ;          (engines player)))
-
-         ;(mapcar #'player-start (engines player) 
-         ;        (mapcar #'(lambda (engine) (get-my-play-list engine (play-list player))) (engines player)))
-           
+         
          (setf (state player) :play
                (start-time player) start-t
                (ref-clock-time player) (clock-time))
            
            ;(om-delayed-funcall stop-time #'player-stop player obj)
          )
-         )) ;)
+        ))
 
 
 ;;; CALLED TO PAUSE PLAYER
 (defmethod player-pause ((player omplayer))
-  ;(mapcar #'player-pause (engines player)
-  ;        (mapcar #'(lambda (engine) (get-my-play-list engine (play-list player))) (engines player)))
   (when (equal (state player) :play)
     (setf (start-time player) (player-get-time player)
           (state player) :pause)
@@ -212,8 +193,6 @@
 
 ;;; CALLED TO CONTINUE PLAYER
 (defmethod player-continue ((player omplayer))
-  ;(mapcar #'player-continue (engines player)
-  ;        (mapcar #'(lambda (engine) (get-my-play-list engine (play-list player))) (engines player)))
   (om-resume-process (scheduling-process player))
   (om-resume-process (callback-process player))
   (setf (ref-clock-time player) (clock-time)
@@ -221,23 +200,14 @@
 
 ;;; CALLED TO LOOP PLAYER
 (defmethod player-loop ((player omplayer))
-       ;(print "general loop")
   ;(setf (stop-time player) (cadr (play-interval player)))
   (setf (start-time player) (or (car (play-interval player)) 0)
-        (ref-clock-time player) (clock-time))
-  ;;; ask every engine to reschedule their play-list
-  ;(mapcar #'(lambda (engine play-list) (player-loop engine player play-list))
-  ;        (engines player)
-  ;        (mapcar #'(lambda (engine) (get-my-play-list engine (play-list player))) (engines player)))
-  )
+        (ref-clock-time player) (clock-time)))
 
 ;;; CALLED TO STOP PLAYER
 (defmethod player-stop ((player omplayer))
-  ;(mapcar #'player-stop (engines player)
-  ;        (mapcar #'(lambda (engine) (get-my-play-list engine (play-list player))) (engines player)))
   (unschedule-all player)
-  (setf (engines player) nil
-        (play-list player) nil)
+  (setf (play-list player) nil)
   (when (and (stop-fun player) (caller player))
     (funcall (stop-fun player) (caller player)))
   (when (callback-process player)
@@ -251,18 +221,16 @@
     (setf (scheduling-process player) nil))
   )
 
+
 ;;; CALLED TO START RECORD WITH PLAYER
 (defmethod player-start-record ((player omplayer))
   (if (equal (state player) :stop)
     (progn
-      (setf (state player) :record)
-      (mapcar #'player-record-start (engines player)))
+      (setf (state player) :record))
     (om-beep)))
 
 ;;; CALLED TO STOP RECORD WITH PLAYER
 (defmethod player-stop-record ((player omplayer))
-  (setf (play-list player)
-        (mapcar #'(lambda (pl) (list pl (player-record-stop pl))) (engines player)))
   (when (callback-process player)
     (om-kill-process (callback-process player))
     (setf (callback-process player) nil))
@@ -271,8 +239,7 @@
         (start-time player) 0)
   (when (scheduling-process player)
     (om-kill-process (scheduling-process player))
-    (setf (scheduling-process player) nil))
-  (setf (engines player) nil))
+    (setf (scheduling-process player) nil)))
 
 
 

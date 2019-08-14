@@ -115,7 +115,6 @@
         "play/general-player"
         "play/box-player"
         "play/editor-player"
-        "play/players"
         
         "maquette/om-maquette"  
         "maquette/om-maquette-editor"
