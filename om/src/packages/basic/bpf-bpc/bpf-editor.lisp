@@ -1073,7 +1073,7 @@
                  (om-make-graphic-object 'selection-rectangle :position position :size (om-make-point 4 4))
                  :min-move 10
                  :release #'(lambda (view position)
-                              (setf (selection editor) (points-in-area editor p0 position))
+                              (set-selection editor (points-in-area editor p0 position))
                               (om-invalidate-view view)
                               (update-timeline-editor editor))
                  ))
