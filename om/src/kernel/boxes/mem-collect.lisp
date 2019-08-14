@@ -102,17 +102,17 @@
                 ((integerp size)
                  (list inval 
                        ;;; last-n values
-                       (first-n (cons (car (value self)) 
-                                      (list! (cadr (value self))))
-                                size)))
+                       (subseq (cons (car (value self)) 
+                                     (list! (cadr (value self))))
+                                0 size)))
                 
                 ((floatp size)
                  (list inval
                        ;;; values received since last time-window started
                        (if (or (null (timetag (reference self)))  ;;; fresh memory
-                               (> (clock-time) (+ (* size 1000) (timetag (reference self))))) ;;; time out
+                               (> (om-get-internal-time) (+ (* size 1000) (timetag (reference self))))) ;;; time out
                            (progn 
-                             (setf (timetag (reference self)) (clock-time))
+                             (setf (timetag (reference self)) (om-get-internal-time))
                              (list inval))
                          (cons inval 
                                (list! (cadr (value self)))))
@@ -147,9 +147,9 @@
                                      `(list ,new-val
                                             ;;; values received since last time-window started
                                             (if (or (null ,global-timer)  ;;; fresh memory
-                                                    (> (clock-time) (+ ,(* mem-size 1000) ,global-timer))) ;;; time out
+                                                    (> (om-get-internal-time) (+ ,(* mem-size 1000) ,global-timer))) ;;; time out
                                                 (progn 
-                                                  (setf ,global-timer (clock-time))
+                                                  (setf ,global-timer (om-get-internal-time))
                                                   (list ,new-val))
                                               (cons ,new-val 
                                                     (list! (cadr ,global-var))))
@@ -190,9 +190,9 @@
                         `(list ,new-val
                                ;;; values received since last time-window started
                                (if (or (null ,global-timer)  ;;; fresh memory
-                                       (> (clock-time) (+ ,(* mem-size 1000) ,global-timer))) ;;; time out
+                                       (> (om-get-internal-time) (+ ,(* mem-size 1000) ,global-timer))) ;;; time out
                                    (progn 
-                                     (setf ,global-timer (clock-time))
+                                     (setf ,global-timer (om-get-internal-time))
                                      (list ,new-val))
                                  (cons ,new-val 
                                        (list! (cadr ,local-name))))
@@ -423,7 +423,7 @@
       ;;; collect
       (0 (let ((inval (omng-box-value (nth 0 (inputs self))))
                (delta (omng-box-value (nth 3 (inputs self))))
-               (curr-t (clock-time)))
+               (curr-t (om-get-internal-time)))
            
            (unless (first-tt (reference self)) (setf (first-tt (reference self)) curr-t))
 
@@ -455,7 +455,7 @@
                      (first-tt (reference self)) NIL
                      (last-tt (reference self)) NIL)
              ;;; reset/init
-             (let ((curr-t (clock-time)))
+             (let ((curr-t (om-get-internal-time)))
                (setf (car (value self)) (list! (om-copy initval)) 
                      (cadr (value self)) (list 0)
                      (first-tt (reference self)) curr-t
@@ -506,7 +506,7 @@
       ;;; collect
       (0 `(let ((collect-val ,(gen-code (nth 0 (inputs self))))
                 (delta ,(gen-code (nth 3 (inputs self))))
-                (curr-t (clock-time)))
+                (curr-t (om-get-internal-time)))
 
             (if (print (or (null ,global-timer)  ;;; fresh memory
                            (> curr-t (+ (cadr ,global-timer) delta)))) ;;; time out
