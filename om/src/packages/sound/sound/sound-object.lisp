@@ -660,13 +660,19 @@ Press 'space' to play/stop the sound file.
      )
     
     (when (markers self)
-      (let ((fact (/ w (get-obj-dur self))))
-        (loop for mrk in (markers-time self) do
-              (om-with-fg-color (om-def-color :gray)
-                (om-draw-line (+ x (* mrk fact)) 8 (+ x (* mrk fact)) h
-                              :style '(2 2)
-                              )))))
-    ))
+      (let ((dur (if (plusp (get-obj-dur self)) 
+                     (get-obj-dur self)
+                   (+ (last-elem (markers self)) 
+                      (- (last-elem (markers self))
+                         (or (last-elem (butlast (markers self))) 0)))))) 
+        (let ((fact (/ w dur)))
+          (loop for mrk in (markers-time self) do
+                (om-with-fg-color (om-def-color :gray)
+                  (om-draw-line (+ x (* mrk fact)) 8 (+ x (* mrk fact)) h
+                                :style '(2 2)
+                                ))
+                ))))
+      ))
 
 
 
