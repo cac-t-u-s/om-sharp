@@ -284,15 +284,18 @@
   (let* ((editor (editor self))
          (mode-buttons 
           (list 
-           (om-make-graphic-object 'om-icon-button :position (omp 10 5) :size (omp 20 20) :icon :mouse :icon-pushed :mouse-pushed 
+           (om-make-graphic-object 'om-icon-button :position (omp 10 5) :size (omp 20 20) 
+                                   :icon :mouse :icon-pushed :mouse-pushed 
                                    :lock-push t :pushed (equal (edit-mode editor) :mouse) :id :mouse
-                                   :action #'(lambda (b) (editor-set-edit-mode editor :mouse)))
-           (om-make-graphic-object 'om-icon-button :position (omp 30 5) :size (omp 20 20) :icon :pen :icon-pushed :pen-pushed 
+                                   :action #'(lambda (b) (declare (ignore b)) (editor-set-edit-mode editor :mouse)))
+           (om-make-graphic-object 'om-icon-button :position (omp 30 5) :size (omp 20 20) 
+                                   :icon :pen :icon-pushed :pen-pushed 
                                    :lock-push t :pushed (equal (edit-mode editor) :pen) :id :pen
-                                   :action #'(lambda (b) (editor-set-edit-mode editor :pen)))
-           (om-make-graphic-object 'om-icon-button :position (omp 50 5) :size (omp 20 20) :icon :hand :icon-pushed :hand-pushed 
+                                   :action #'(lambda (b) (declare (ignore b)) (editor-set-edit-mode editor :pen)))
+           (om-make-graphic-object 'om-icon-button :position (omp 50 5) :size (omp 20 20) 
+                                   :icon :hand :icon-pushed :hand-pushed 
                                    :lock-push t :pushed (equal (edit-mode editor) :hand) :id :hand
-                                   :action #'(lambda (b) (editor-set-edit-mode editor :hand))))))
+                                   :action #'(lambda (b) (declare (ignore b)) (editor-set-edit-mode editor :hand))))))
     (set-g-component editor :mode-buttons mode-buttons)
     (apply 'om-add-subviews (cons self mode-buttons))
     ))
@@ -381,22 +384,24 @@
 
 
 (defun draw-bpf-point (p editor &key index time selected)
-
-  (cond ((and time
-              (equal (player-get-object-state (player editor) (object-value editor)) :play)
-              (< (abs time) (player-get-object-time (player editor) (object-value editor)))
-              )
-         (om-with-fg-color (om-def-color :dark-red)
-           (om-draw-circle (car p) (cadr p) 4 :fill t)))
+  
+  (cond 
+   ((and time
+         (equal (player-get-object-state (player editor) (object-value editor)) :play)
+         (< (abs time) (player-get-object-time (player editor) (object-value editor)))
+         )
+    (om-with-fg-color (om-def-color :dark-red)
+      (om-draw-circle (car p) (cadr p) 4 :fill t)))
         
-        (selected
-         (om-with-fg-color (om-def-color :dark-red)
-           (om-draw-circle (car p) (cadr p) 4 :fill t)))
+   (selected
+    (om-with-fg-color (om-def-color :dark-red)
+      (om-draw-circle (car p) (cadr p) 4 :fill t)))
         
-        ;;; draw normal except if lines only
-        ((not (equal (editor-get-edit-param editor :draw-style) :lines-only))
-         (om-draw-circle (car p) (cadr p) 3 :fill t))
-        (t nil))
+   ;;; draw normal except if lines only
+   ((not (equal (editor-get-edit-param editor :draw-style) :lines-only))
+    (om-draw-circle (car p) (cadr p) 3 :fill t))
+   (t nil))
+    
 
   (when index
     (om-draw-string (car p) (+ (cadr p) 15) (number-to-string index)))
@@ -406,7 +411,7 @@
   )
 
 (defun draw-interpol-point (p editor &key time)
-  (if (and (equal (player-get-object-state (player editor) (object-value editor)) :play) 
+  (if (and time (equal (player-get-object-state (player editor) (object-value editor)) :play) 
            (>= (player-get-object-time (player editor) (object-value editor)) time))
       (om-with-fg-color (om-def-color :dark-red)
         (om-draw-circle (car p) (cadr p) 1 :fill nil))
@@ -418,7 +423,9 @@
        (> (cadr pt) y1) (< (cadr pt) y2)))
 
 (defmethod draw-one-bpf ((bpf bpf) view editor foreground? &optional x1 x2 y1 y2) 
+  
   (om-trap-errors 
+   
    (let ((pts (point-list bpf)))
      (when pts
        (let ((first-pt (list (x-to-pix view (editor-point-x editor (car pts)))
@@ -523,9 +530,10 @@
                         (draw-interpol-point (list (x-to-pix view (editor-point-x editor new-p)) 
                                                    (y-to-pix view (editor-point-y editor new-p)))
                                              editor
-                                             :time time)))))
+                                             :time (and foreground? time))))))
 
          )))))
+
 
 (defmethod om-draw-contents-area ((self bpf-bpc-panel) x y w h)
   (let* ((editor (editor self))
@@ -887,6 +895,7 @@
          xt yt zt tt cb ob win)
     (let ((return-from-point-editor 
            #'(lambda (item)
+               (declare (ignore item))
                (set-point-in-obj self p
                                  (list (read-number (om-dialog-item-text xt))
                                        (read-number (om-dialog-item-text yt))
@@ -905,7 +914,7 @@
                  (om-make-di 'om-editable-text :text (number-to-string time)  
                              :bg-color (om-def-color :white) :size (omp 80 32))) ; :di-action return-from-point-editor))
             cb (om-make-di 'om-button :text "Cancel" :size (omp 80 25)
-                           :di-action #'(lambda (b) (close-point-editor self)))
+                           :di-action #'(lambda (b) (declare (ignore b)) (close-point-editor self)))
             ob (om-make-di 'om-button :text "OK" :size (omp 80 25) :default t :focus t
                            :di-action return-from-point-editor))
       
@@ -1009,23 +1018,26 @@
                     (om-invalidate-view self)
                     (update-timeline-editor editor)
                     ;;; move the new point
-                    (om-init-temp-graphics-motion self position nil :min-move 10
-                                                  :motion #'(lambda (view pos)
-                                                              (let ((dx (dpix-to-dx self (- (om-point-x pos) (om-point-x p0))))
-                                                                    (dy (dpix-to-dy self (- (om-point-y p0) (om-point-y pos)))))
-                                                                (store-current-state-for-undo editor :action :move :item (selection editor))
-                                                                (move-editor-selection editor :dx dx :dy dy)
-                                                                (setf p0 pos)
-                                                                (editor-invalidate-views editor)
-                                                                (position-display editor pos)))
-                                                  :release #'(lambda (view pos) 
-                                                               (reset-undoable-editor-action editor)
-                                                               (round-point-values editor)
-                                                               (time-sequence-update-internal-times obj)
-                                                               (report-modifications editor)
-                                                               (om-invalidate-view view)
-                                                               (update-timeline-editor editor))
-                                                  )
+                    (om-init-temp-graphics-motion 
+                     self position nil :min-move 10
+                     :motion #'(lambda (view pos)
+                                 (declare (ignore view))
+                                 (let ((dx (dpix-to-dx self (- (om-point-x pos) (om-point-x p0))))
+                                       (dy (dpix-to-dy self (- (om-point-y p0) (om-point-y pos)))))
+                                   (store-current-state-for-undo editor :action :move :item (selection editor))
+                                   (move-editor-selection editor :dx dx :dy dy)
+                                   (setf p0 pos)
+                                   (editor-invalidate-views editor)
+                                   (position-display editor pos)))
+                     :release #'(lambda (view pos) 
+                                  (declare (ignore pos))
+                                  (reset-undoable-editor-action editor)
+                                  (round-point-values editor)
+                                  (time-sequence-update-internal-times obj)
+                                  (report-modifications editor)
+                                  (om-invalidate-view view)
+                                  (update-timeline-editor editor))
+                     )
                     )))
                (t (let ((selection (find-clicked-point-or-curve editor obj position)))
                     (set-selection editor selection)
@@ -1037,6 +1049,7 @@
                           (om-init-temp-graphics-motion 
                            self position nil
                            :motion #'(lambda (view pos)
+                                       (declare (ignore view))
                                        (let ((dx (dpix-to-dx self (- (om-point-x pos) (om-point-x p0))))
                                              (dy (dpix-to-dy self (- (om-point-y p0) (om-point-y pos)))))
                                          (store-current-state-for-undo editor :action :move :item (selection editor))
@@ -1046,6 +1059,7 @@
                                          (editor-invalidate-views editor)
                                          ))
                            :release #'(lambda (view pos) 
+                                        (declare (ignore pos))
                                         (reset-undoable-editor-action editor)
                                         (round-point-values editor) 
                                         (time-sequence-update-internal-times obj)
@@ -1106,6 +1120,7 @@
                                                               (om-invalidate-view view)
                                                               ))
                                                 :release #'(lambda (view pos) 
+                                                             (declare (ignore pos))
                                                              (time-sequence-update-internal-times obj)
                                                              (report-modifications editor)
                                                              (om-invalidate-view view)
@@ -1114,6 +1129,7 @@
         (:hand (let ((curr-pos position))
                  (om-init-temp-graphics-motion self position nil
                                                :motion #'(lambda (view pos)
+                                                           (declare (ignore view))
                                                            (move-rulers self 
                                                                         :dx (- (om-point-x pos) (om-point-x curr-pos))
                                                                         :dy (- (om-point-y pos) (om-point-y curr-pos)))

@@ -455,7 +455,8 @@
   (update-sub-editors self)
   (when (window self)
     (update-editor-3d-object self)
-    (update-3d-view self)))
+    (update-3d-view self))
+  (report-modifications self))
 
 (defmethod format-3D-points  ((self 3DC))
   (mat-trans (list (x-points self) (y-points self) (z-points self) (times self))))
@@ -500,12 +501,16 @@
 
 (defmethod update-editor-3d-object ((self 3dc-editor))
   (when (3DP self)
-    (let ((3d-obj (car (om-get-gl-objects (3DP self))))
+    (let ((3d-objs (if (multi-obj-list self) 
+                       (first-n (om-get-gl-objects (3DP self)) (length (multi-obj-list self)))
+                     (list (car (om-get-gl-objects (3DP self))))))
           (obj (object-value self)))
       (when obj
-        (setf (selected-points 3d-obj) (selection self)
-              (draw-style 3d-obj) (editor-get-edit-param self :draw-style))
-        (om-set-3Dobj-points 3d-obj (format-3d-points obj)))
+        (setf (selected-points (car 3d-objs)) (selection self))
+        (loop for 3d-obj in 3d-objs 
+              for o in (cons obj (remove obj (multi-obj-list self))) do 
+              (setf (draw-style 3d-obj) (editor-get-edit-param self :draw-style))
+              (om-set-3Dobj-points 3d-obj (format-3d-points o))))
       (update-3d-curve-vertices-colors self))))
    
 
@@ -715,12 +720,17 @@
 
 
 (defmethod  draw-3D-player-cursor-position ((self 3DC-Editor) time)
-  "Draw the player cursor" 
-  (let ((point (time-sequence-get-active-timed-item-at (object-value self) time)))
-    (when point
-      (opengl:gl-color4-f 0.9 0.3 0.1 1.0)
-      (draw-sphere (point-to-list point) (* (editor-get-edit-param self :line-width) 0.04))
-      ))    
+  "Draw the player cursor(s)"
+  (loop for obj in (or (multi-obj-list self) (list (object-value self))) do 
+        (let ((point (time-sequence-get-active-timed-item-at obj time)))
+          (when point
+            ; (opengl:gl-color4-f 0.9 0.3 0.1 1.0)
+            (let ((c (color obj)))
+              (opengl:gl-color3-f (coerce (om-color-r c) 'single-float) 
+                                  (coerce (om-color-g c) 'single-float) 
+                                  (coerce (om-color-b c) 'single-float)))
+            (draw-sphere (point-to-list point) (* (editor-get-edit-param self :line-width) 0.06))
+            )))
   (restore-om-gl-colors-and-attributes))
  
 (defmethod point-to-list ((point 3dpoint))
