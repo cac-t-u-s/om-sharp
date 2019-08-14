@@ -5,8 +5,8 @@
  (:doc "")
  (:info
   (:created "2017/09/13 12:02:23")
-  (:modified "2019/08/14 7:31:49"))
- (:window (:size (1314 814)) (:position (556 561)))
+  (:modified "2019/08/14 9:50:46"))
+ (:window (:size (1314 814)) (:position (556 364)))
  (:grid nil)
  (:lock nil)
  (:boxes
@@ -1074,15 +1074,7 @@
    (:value 30)
    (:id 23))
   (:box
-   (:reference
-    (:object
-     (:class repeater)
-     (:slots
-      ((:name "repeat-n")
-       (:protected-p nil)
-       (:icon nil)
-       (:n-iter 30)
-       (:scope :local)))))
+   (:reference repeat-n)
    (:type :special)
    (:group-id nil)
    (:name "repeat-n")
@@ -1383,15 +1375,7 @@
    (:value 30)
    (:id 30))
   (:box
-   (:reference
-    (:object
-     (:class repeater)
-     (:slots
-      ((:name "repeat-n")
-       (:protected-p nil)
-       (:icon nil)
-       (:n-iter 30)
-       (:scope :local)))))
+   (:reference repeat-n)
    (:type :special)
    (:group-id nil)
    (:name "repeat-n")
@@ -1417,15 +1401,7 @@
    (:outputs (:output (:name "collected results") (:reactive nil)))
    (:id 31))
   (:box
-   (:reference
-    (:object
-     (:class repeater)
-     (:slots
-      ((:name "repeat-n")
-       (:protected-p nil)
-       (:icon nil)
-       (:n-iter 4)
-       (:scope :local)))))
+   (:reference repeat-n)
    (:type :special)
    (:group-id nil)
    (:name "repeat-n")
