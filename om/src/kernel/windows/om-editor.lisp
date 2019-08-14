@@ -477,9 +477,9 @@
                       append (append 
                               (list  ;     (car category)  ; (list (car category) (om-def-font :font1b)) 
                                ;(om-make-di 'om-simple-text :size (om-make-point 20 26) :text "" :focus t)
-                               (om-make-di  'om-simple-text :text (car category) :font (om-def-font :font2b)
-                                            :size (om-make-point (list :string (car category)) 20) 
-                                            :position (om-make-point 0 6))
+                               (om-make-di 'om-simple-text :text (car category) :font (om-def-font :font2b)
+                                           :size (om-make-point (list :string (car category)) 20) 
+                                           :position (om-make-point 0 6))
                                )
                               (loop for prop in (cdr category) append
                                     (list (om-make-di 'om-simple-text :text (nth 1 prop) :font (om-def-font :font1b)

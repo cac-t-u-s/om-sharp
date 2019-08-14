@@ -76,6 +76,7 @@
   (not (equal (get-property object prop-id :warn nil) :invalid)))
 
 (defun access-value (object accessor &optional (val nil val-supplied-p))
+
   (if val-supplied-p
       (cond ((and accessor (slot-exists-p object accessor))
              (setf (slot-value object accessor) val))

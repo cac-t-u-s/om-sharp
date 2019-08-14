@@ -1188,7 +1188,8 @@
        (time-sequence-update-internal-times (object-value editor))
        (update-timeline-editor editor)
        (editor-invalidate-views editor)
-       (report-modifications editor))
+       (report-modifications editor)
+       )
       (:om-key-right
        (store-current-state-for-undo editor :action :move :item (selection editor))
        (move-editor-selection editor :dx (/ (get-units (x-ruler panel) (if (om-shift-key-p) 400 40)) (scale-fact panel)))
