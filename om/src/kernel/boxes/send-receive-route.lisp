@@ -25,6 +25,7 @@
 
 ;;;=====================================
 ;;; SEND/RECEIVE INTERNAL
+;;; WORKS WITH REACTIVE PROGRAMS
 ;;;=====================================
 
 (defmethod* send ((self t) &optional (target :om))
@@ -63,6 +64,7 @@
 
 ;;;=====================================
 ;;; ROUTE
+;;; WORKS WITH REACTIVE PROGRAMS
 ;;;=====================================
 
 ;;; todo: check for undo/redo

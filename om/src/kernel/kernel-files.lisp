@@ -77,7 +77,6 @@
         "patch/om-boxcall"
         "patch/om-boxsimple"
         "patch/om-boxobject"   
-        "patch/om-reactive-boxes"
         "patch/om-connection"
         "patch/om-patch" 
         "patch/om-patch-component-boxes"  
@@ -101,6 +100,7 @@
         "boxes/repeat-n"
         "boxes/mem-collect"  
         "boxes/init-do"  
+        "boxes/send-receive-route"  
 
         "basic/om-data-structures"
         "basic/om-file-utils"
