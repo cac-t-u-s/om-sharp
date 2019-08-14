@@ -80,7 +80,7 @@
 (defclass OMInOutBox (OMPatchComponentBox) ())
 
 ;;; other OMPatchComponentBox just save their box-symbol
-(defmethod save-box-reference ((self OMPatchComponentBox)) 
+(defmethod save-box-reference ((self OMInOutBox)) 
   (omng-save (reference self)))
 
 
@@ -152,6 +152,7 @@
   (not (inputs self)))
 
 (defmethod more-optional-input ((self OMInBox) &key name (value nil val-supplied-p) doc reactive)
+  (declare (ignore name doc))
   (unless (inputs self)
     (add-optional-input self :name "internal input value" 
                         :value (if val-supplied-p value nil) 
