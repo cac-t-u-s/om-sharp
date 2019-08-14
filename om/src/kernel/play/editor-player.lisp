@@ -552,6 +552,8 @@
 
 (defmethod start-cursor ((self time-ruler)) nil)
 
+(defmethod pixel-to-time ((self time-ruler) x) 
+   (round (pix-to-x self x)))
 
 ;;;;;;;;;;;;;;;;;
 ;;;;;DRAWING;;;;;
@@ -761,7 +763,7 @@
       :motion #'(lambda (view pos)
                   (let* ((tmp_time (pixel-to-time view (om-point-x pos)))
                          (dt (round (- tmp_time ref-time)))
-                         (new-dt (if (snap-to-grid self) (adapt-dt-for-grid-and-markers self marker dt) dt))) 
+                         (new-dt (if (snap-to-grid self) (adapt-dt-for-grid-and-markers self marker dt) dt)))
                     (when (not (zerop new-dt))
                       (loop for item in obj-elem-list do
                             (let ((obj (car item))

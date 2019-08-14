@@ -238,6 +238,7 @@
         (r-size (ruler-size self)))
     (om-init-temp-graphics-motion 
      self pos NIL
+     
      :motion #'(lambda (view position)
                  (declare (ignore view))
                  (let* ((curr-v (ruler-value-at-pos self position))
@@ -259,6 +260,7 @@
                                           (max? vmin (- (v1 self) dt))
                                           (min? vmax (- (v2 self) dt))))))
                    (setf curr-pos position)))
+     
      :release #'(lambda (view position) 
                   (declare (ignore view position))
                   (update-views-from-ruler self)))))
