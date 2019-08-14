@@ -565,8 +565,7 @@
          (next-master-pos (nth (1+ pos-in-masters) all-master-pos))
          (next-master-time (nth next-master-pos times))
          (next-master-ratio (if (= master-time next-master-time) 0 ;;; in principle we want to avoid this
-                              (/ (- new-t next-master-time) (- master-time next-master-time))))
-         (move-ok t))
+                              (/ (- new-t next-master-time) (- master-time next-master-time)))))
     
     ;;; process all points between the two adjacent master-poinyts
     (loop for idx = (1- next-master-pos) then (- idx 1)
@@ -576,12 +575,12 @@
             (when (item-get-time p)
               (let ((new-p-time (round (+ (* next-master-ratio (- (nth idx times) master-time)) new-t)))
                     (next-p-time (nth (1+ idx) times)))
-                (if (< new-p-time next-p-time)
-                    (item-set-time p new-p-time)
-                  (setf move-ok nil))
+                (when (< new-p-time next-p-time)
+                  (item-set-time p new-p-time))
                 )
               )))
-    move-ok))
+    (< (round new-t) (nth (1+ master-pos) times))
+    ))
   
 
 ;;; return T if the left-move is ok
@@ -595,9 +594,7 @@
          (pos-in-masters (position master-pos all-master-pos))
          (prev-master-pos (nth (1- pos-in-masters) all-master-pos))
          (prev-master-time (nth prev-master-pos times))
-         (prev-master-ratio (/ (- new-t prev-master-time) (- master-time prev-master-time)))
-         
-         (move-ok t))
+         (prev-master-ratio (/ (- new-t prev-master-time) (- master-time prev-master-time))))
     
     ;;; process all points between the two adjacent master-poinyts
     (loop for idx from (1+ prev-master-pos) to (1- master-pos) 
@@ -606,12 +603,13 @@
             (when (item-get-time p)
               (let ((new-p-time (round (+ (* prev-master-ratio (- (nth idx times) prev-master-time)) prev-master-time)))
                     (prev-p-time (nth (1- idx) times)))
-                (if (> new-p-time prev-p-time)
-                    (item-set-time p new-p-time)
-                  (setf move-ok nil))
+                (when (> new-p-time prev-p-time)
+                  (item-set-time p new-p-time))
                 )
               )))
-    move-ok))
+
+    (> (round new-t) (nth (1- master-pos) times))
+    ))
 
 
 
