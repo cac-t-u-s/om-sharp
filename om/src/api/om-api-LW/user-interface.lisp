@@ -67,7 +67,7 @@
 ;;; CHOOSE A FILE
 ;(om-choose-file-dialog :prompt "escoja" :types '("All" "*.*"))
 
-
+;;; prompt does not work (macOS 10.14) ?
 (defun om-choose-file-dialog (&key (prompt "Choose a File") (directory nil) (types nil))
   (let ((rep (capi::prompt-for-file prompt :filters types :filter (if types (cadr types)) :owner (def-dialog-owner)
                                     :pathname (or directory *last-directory*))))
