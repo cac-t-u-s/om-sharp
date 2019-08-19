@@ -842,7 +842,7 @@
                              (setf (time-signature (metronome self)) new-signature))))
 
 
-(defmethod play-editor-make-tempo-box ((editor play-editor-mixin) &key fg-color font)
+(defmethod play-editor-make-tempo-box ((editor play-editor-mixin) &key fg-color bg-color font)
   
   (set-g-component editor :tempo-box
         (om-make-layout
