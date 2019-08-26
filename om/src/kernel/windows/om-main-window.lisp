@@ -16,6 +16,7 @@
 ;============================================================================
 
 (in-package :om)
+
 ;;;=================
 ;;; MAIN WINDOW
 ;;;=================
@@ -24,7 +25,7 @@
 
 
 (defclass om-main-window (om-window)  
-  ((ws-elements-view :accessor elements-view :initform nil)
+  ((elements-view :accessor elements-view :initform nil)
    (package-view :accessor package-view :initform nil)
    (libs-view :accessor libs-view :initform nil)
    (listener-view :accessor listener-view :initform nil)
@@ -41,11 +42,12 @@
                                               (if *current-workspace* (list " [Workspace: " (name *current-workspace*) "]")
                                                 ""))
                                :size (om-make-point 800 300)
-                               :menu-items (om-menu-items nil))))
+                               )))
       (setf (elements-view win) (make-ws-elements-tab)
             (package-view win) (make-om-package-tab)
             (libs-view win) (make-libs-tab)
             (listener-view win) (make-listener-tab))
+      (om-set-menu-bar win (om-menu-items win))
       (om-add-subviews win (setf (main-layout win) 
                                  (om-make-layout 'om-tab-layout
                                                  :subviews (list (elements-view win) 
@@ -62,6 +64,37 @@
 
 (defmethod om-window-close-event ((self om-main-window))
   (setf *om-main-window* nil))
+
+;;; select-all works only in the documents view
+(defmethod select-all-command ((self om-main-window))
+  (cond ((equal (om-get-current-view (main-layout self))
+                (elements-view self))
+         #'(lambda () 
+             (select-all-documents self)))
+        ((equal (om-get-current-view (main-layout self))
+                (listener-view self))
+         #'(lambda () 
+             (listener-view-select-all self)))
+        (t nil)))
+  
+;;; copy-paste works only in the Listener view
+(defmethod copy-command ((self om-main-window))
+  (when (equal (om-get-current-view (main-layout self))
+               (listener-view self))
+    #'(lambda () 
+        (listener-view-copy self))))
+
+(defmethod cut-command ((self om-main-window))
+  (when (equal (om-get-current-view (main-layout self))
+               (listener-view self))
+    #'(lambda () 
+        (listener-view-cut self))))
+
+(defmethod paste-command ((self om-main-window))
+  (when (equal (om-get-current-view (main-layout self))
+               (listener-view self))
+    #'(lambda () 
+        (listener-view-paste self))))
 
 ;;;===========================================
 ;;; WS TAB
@@ -224,6 +257,7 @@
                           (if (and (mypathname item) (probe-file (mypathname item)))
                               (om-def-color :black) (om-make-color 0.8 0.2 0.2)))
             :font (om-def-font :mono)
+            :scrollbars t
             :alternating-background t
             :auto-reset-column-widths t
             :action-callback #'dbclicked-item-in-list
@@ -271,6 +305,12 @@
       )
     ))
 
+
+(defmethod select-all-documents ((window om-main-window))
+  (let* ((view (elements-view window))
+         (list (car (om-subviews view))))
+    (dotimes (i (length *open-documents*))
+      (om-select-item-index list i))))
 
 (defmethod update-elements-tab ((window om-main-window))
   (let ((current (om-get-current-view (main-layout window))))
@@ -583,6 +623,27 @@ The list on the left show all libraries found in OM libraries search paths.
                                                             (om-lisp::om-clear-listener-output-pane listener-pane)
                                                             ))))
                 ))))
+
+
+(defmethod listener-view-copy ((window om-main-window))
+  (let* ((view (listener-view window))
+         (pane (car (om-subviews view))))
+    (om-lisp::om-copy-command pane)))
+
+(defmethod listener-view-cut ((window om-main-window))
+  (let* ((view (listener-view window))
+         (pane (car (om-subviews view))))
+    (om-lisp::om-cut-command pane)))
+
+(defmethod listener-view-paste ((window om-main-window))
+  (let* ((view (listener-view window))
+         (pane (car (om-subviews view))))
+    (om-lisp::om-paste-command pane)))
+
+(defmethod listener-view-select-all ((window om-main-window))
+  (let* ((view (listener-view window))
+         (pane (car (om-subviews view))))
+    (om-lisp::om-select-all-command pane)))
 
 
 (defun prompt-on-main-window-listener (message)
