@@ -35,19 +35,29 @@
 (defclass OMMaquetteFile (OMPersistantObject OMMaquette) ()
   (:metaclass omstandardclass))
 
+(add-om-doctype :maquette "omaq" "OM7 Maquette")
+
 (defclass OMMaquetteInternal (OMMaquette) ()
   (:metaclass omstandardclass))
 
 ; (class-precedence-list (find-class 'ommaquettefile))
 
+
 ;;;===========================
 
-(defmethod obj-file-extension ((self OMMaquette)) "omaq")
 (defmethod get-object-type-name ((self OMMaquette)) "Maquette")
 (defmethod object-doctype ((self OMMaquette)) :maquette)
 
 (defmethod make-new-om-doc ((type (eql :maquette)) name)
   (make-instance 'OMMaquetteFile :name name))
+
+
+(defmethod type-check ((type (eql :maquette)) obj)
+  (let ((maq (ensure-type obj 'OMMaquette)))
+    (when maq
+      (change-class maq 'OMMaquetteFile)
+      (setf (icon maq) :maq-file))
+    maq))
 
 (defmethod unregister-document ((self OMMaquette))
   (player-stop-object *general-player* self)
