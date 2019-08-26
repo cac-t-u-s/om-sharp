@@ -327,7 +327,7 @@
 
 (defun listener-paste (listenerwin)
   (let ((pane (find-capi-pane-with-focus (pane-layout listenerwin))))
-    (om-paste-command PANE)))
+    (om-paste-command pane)))
 
 
 (defmethod om-cut-command ((self om-listener-pane))
