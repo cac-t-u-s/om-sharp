@@ -87,37 +87,60 @@
 ;;;==================================================================
 ;;;==================================================================
 ;;;==================================================================
-                    
-(defmethod make-new-om-doc (type name)
-  (om-beep-msg "Document type ~S unknown." type))
+     
+               
+(defvar *doctypes*
+  '((:patch "opat" "OM7 Patch")
+    (:lisp ("lisp" "lsp") "Lisp File")
+    (:text "txt" "Text File")
+    (:om ("opat") "OM7 Documents")))
 
-(defmethod doctype-info ((type (eql :patch))) '("om7 Patch" "*.opat"))
-(defmethod doctype-info ((type (eql :maquette))) '("om7 Maquette" "*.omaq"))
-(defmethod doctype-info ((type (eql :textfun))) '("om7 Text (Lisp) Function" "*.olsp"))
+(defvar *om-doctypes* '(:patch))
 
-(defmethod doctype-info ((type (eql :om)))
-  (list "om7 Documents" (string+ (cadr (doctype-info :patch)) ";" 
-                                (cadr (doctype-info :maquette)) ";"
-                                (cadr (doctype-info :textfun))
-                                )))
+;;; used to add doc types for Lisp functions and maquette...
+(defun add-om-doctype (type ext desc)
+  (setf *om-doctypes* (append *om-doctypes* (list type)))
+  
+  (setf *doctypes* (cons (car *doctypes*)
+                         (cons (list type ext desc)
+                               (cdr *doctypes*))))
+                         
+  (let ((om-entry-pos (position :om *doctypes* :key #'car)))
+    (setf (nth 1 (nth om-entry-pos *doctypes*))
+          (append (nth 1 (nth om-entry-pos *doctypes*)) (list ext))))
+  )
 
-(defmethod doctype-info ((type (eql :text))) '("Text File" "*.txt"))
-(defmethod doctype-info ((type (eql :lisp))) '("Lisp File" "*.lisp;*.lsp"))
 
-(defmethod doctype-info ((type (eql :old))) '("OM6 Patches [compatibility mode]" "*.omp;*.omm"))
-
+(defun doctype-name (symb) 
+  (caddr (find symb *doctypes* :key #'car)))
 
 (defun extension-to-doctype (str)
-  (cond ((string-equal str "opat") :patch)
-        ((string-equal str "omaq") :maquette)
-        ((string-equal str "olsp") :textfun)
-        ((or (string-equal str "lisp")
-             (string-equal str "lsp")) :lisp)
-        ((string-equal str "txt") :text)
-        ((or (string-equal str "omp") (string-equal str "omm")) :old)        
-        (t nil)))
-        
+  (car 
+   (find-if #'(lambda (elt) 
+                (cond ((listp (cadr elt))
+                       (find str (cadr elt) :test #'string-equal))
+                      ((stringp (cadr elt))
+                       (string-equal str (cadr elt)))
+                      (t nil)))
+            *doctypes*)))
 
+(defun doctype-to-extension (symb)
+  (let ((ext (cadr (find symb *doctypes* :key #'car))))
+    (if (listp ext) (car ext) ext)))
+
+(defun doctype-to-ext-list (symb)
+  (list! (cadr (find symb *doctypes* :key #'car))))
+
+(defun doctype-info (symb) 
+  (list (doctype-name symb)
+        (format nil "~{~a~^;~}" 
+                (loop for ext in (doctype-to-ext-list symb) 
+                      collect (string+ "*." ext)))
+        ))
+
+
+(defmethod make-new-om-doc (type name)
+  (om-beep-msg "Document type ~S unknown." type))
 
 ;;; called by the interface menus and commands ("New")
 (defun open-new-document (&optional (type :patch)) 
@@ -158,9 +181,9 @@
   (let ((file (or path 
                   (om-choose-file-dialog :prompt (string+ (om-str :open) "...")
                                          :directory (or *last-open-dir* (om-user-home))
-                                         :types (append  
+                                         :types (append
                                                  (doctype-info :om)
-                                                 (doctype-info :patch) (doctype-info :maquette) (doctype-info :textfun)
+                                                 (loop for type in *om-doctypes* append (doctype-info type))
                                                  (doctype-info :lisp) (doctype-info :text)
                                                  (doctype-info :old)
                                                  '("All documents" "*.*"))))))
@@ -169,14 +192,14 @@
         (setf *last-open-dir* (om-make-pathname :directory file))
         (record-recent-file file))
       (let ((type (extension-to-doctype (pathname-type file))))
-        (case type
-          (:patch (open-doc-from-file type file))
-          (:maquette (open-doc-from-file type file))
-          (:textfun (open-doc-from-file type file))
-          ((or :text :lisp) (om-lisp::om-open-text-editor :contents file :lisp t))
-          (:old (import-doc-from-previous-om file))
-          (otherwise (progn (om-message-dialog (format nil "Unknown document type: ~s" (pathname-type file)))
-                        nil)))
+        (cond ((find type *om-doctypes*)
+               (open-doc-from-file type file))
+              ((find type '(:text :lisp))
+               (om-lisp::om-open-text-editor :contents file :lisp t))
+              ((equal type :old) 
+               (import-doc-from-previous-om file))
+              (t (om-message-dialog (format nil "Unknown document type: ~s" (pathname-type file)))
+                 nil))
         ))))
 
 
@@ -187,20 +210,8 @@
       (setf (icon patch) :patch-file)
       patch)))
 
-(defmethod type-check ((type (eql :maquette)) obj)
-  (let ((maq (ensure-type obj 'OMMaquette)))
-    (when maq
-      (change-class maq 'OMMaquetteFile)
-      (setf (icon maq) :maq-file))
-    maq))
 
-(defmethod type-check ((type (eql :textfun)) obj)
-  (let ((fun (ensure-type obj 'OMLispFunction)))
-    (when fun
-      (change-class fun 'OMLispFunctionFile)
-      (setf (icon fun) :lisp-f-file))
-    fun))
-
+(defmethod type-check ((type t) obj) nil)
     
 (defun load-doc-from-file (path type)
   (om-print-format "Opening document: ~A" (list path))
@@ -240,7 +251,7 @@
       
 
 (defun import-doc-from-previous-om (path)
-  (let ((obj (load-om6-patch path)))
+  (let ((obj (load-om6-file path)))
     (if obj (open-editor obj)
       (om-print (string+ "file: \""  (namestring path) "\" could not be open.")))
     obj))
