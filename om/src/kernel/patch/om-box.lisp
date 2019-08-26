@@ -275,8 +275,8 @@
 
 (defmethod omng-delete ((box OMBox))
   (when (and (frame box) (om-view-container (frame box)))
-    (om-remove-subviews (om-view-container (frame box)) (frame box))
-    (setf (frame box) nil))
+    (om-remove-subviews (om-view-container (frame box)) (frame box)))
+  (setf (frame box) nil)
   (call-next-method))
 
 (defmethod get-update-frame ((self OMBox)) (frame self))
