@@ -17,42 +17,24 @@
 
 (in-package :om)
 
+
 (defclass OMLispFunction (OMProgrammingObject) 
   ((text :initarg :text :initform "" :accessor text)
    (error-flag :initform nil :accessor error-flag)
    ))
 
-(defmethod object-doctype ((self OMLispFunction)) :textfun)
+(defmethod get-object-type-name ((self OMLispFunction)) "LispFun")
+
 (defmethod default-compiled-gensym  ((self OMLispFunction)) (gensym "lispfun-"))
-
-
 
 (defclass OMLispFunctionInternal (OMLispFunction) ()
   (:default-initargs :icon :lisp-f)
   (:metaclass omstandardclass))
 
-(defmethod window-name-from-object ((self OMLispFunctionInternal))
-  (format nil "~A  [~A]" (name self) "internal Lisp function"))
-
-(defclass OMLispFunctionFile (OMPersistantObject OMLispFunction) ()
-  (:default-initargs :icon :lisp-f-file) 
-  (:metaclass omstandardclass))
-
-
-;; For conversions
-(defmethod internalized-type ((self OMLispFunctionFile)) 'OMLispFunctionInternal)
-(defmethod externalized-type ((self OMLispFunction)) 'OMLispFunctionFile)
-(defmethod externalized-icon ((self OMLispFunction)) :lisp-f-file)
-
 (defparameter *default-lisp-function-text* 
   '(";;; Edit a valid LAMBDA EXPRESSION"
     ";;; e.g. (lambda (arg1 arg2 ...) ( ... ))"
     "(lambda () (om-beep))"))
-
-(defmethod make-new-om-doc ((type (eql :lispfun)) name)
-  (make-instance 'OMLispFunctionFile 
-                 :name name
-                 :text *default-lisp-function-text*))
 
 (defmethod omNG-make-special-box ((reference (eql 'lisp)) pos &optional init-args)
   (omNG-make-new-boxcall 
@@ -63,34 +45,10 @@
 
 (defmethod decapsulable ((self OMLispFunction)) nil)
 
-#|
-(defmethod get-inputs ((self OMLispFunction)) 
-  (compile-if-needed self)
-  (let ((fname (intern (string (compiled-fun-name self)) :om)))
-    (when (fboundp fname) 
-      (let ((args (function-arg-list fname)))
-        (loop for a in args 
-              for i from 0 collect 
-          (let ((in (make-instance 'OMIn :name (string a))))
-            (setf (index in) i)
-            in)))
-      )))
-
-(defmethod get-outputs ((self OMLispFunction)) 
-  ;(compile-if-needed self)
-  (let ((o (make-instance 'OMOut :name "out")))
-    (setf (index o) 0)
-    o))
-|#
-
 (defmethod update-lisp-fun ((self OMLispFunction))
   (compile-patch self)
   (loop for item in (references-to self) do
         (update-from-reference item)))
-
-(defmethod save-document ((self OMLispFunctionFile))
-  (call-next-method)
-  (update-lisp-fun self))
 
 (defmethod copy-contents ((from OMLispFunction) (to OMLispFunction))  
   (setf (text to) (text from))
@@ -125,8 +83,60 @@
       )
     ))
 
+
+
+
+;============================================================================
+; Lisp Function as external file
+;============================================================================
+
+
+(defclass OMLispFunctionFile (OMPersistantObject OMLispFunction) ()
+  (:default-initargs :icon :lisp-f-file) 
+  (:metaclass omstandardclass))
+
+(add-om-doctype :textfun "olsp" "OM7 Text (Lisp) Function")
+
+(defmethod object-doctype ((self OMLispFunction)) :textfun)
+
+(defmethod type-check ((type (eql :textfun)) obj)
+  (let ((fun (ensure-type obj 'OMLispFunction)))
+    (when fun
+      (change-class fun 'OMLispFunctionFile)
+      (setf (icon fun) :lisp-f-file))
+    fun))
+
+
+; For conversions
+(defmethod internalized-type ((self OMLispFunctionFile)) 'OMLispFunctionInternal)
+(defmethod externalized-type ((self OMLispFunction)) 'OMLispFunctionFile)
+(defmethod externalized-icon ((self OMLispFunction)) :lisp-f-file)
+
+(defmethod make-new-om-doc ((type (eql :lispfun)) name)
+  (make-instance 'OMLispFunctionFile 
+                 :name name
+                 :text *default-lisp-function-text*))
+
+(defmethod save-document ((self OMLispFunctionFile))
+  (call-next-method)
+  (update-lisp-fun self))
+
+(defmethod omng-save-relative ((self OMLispFunctionFile) ref-path)  
+  `(:textfun-from-file ,(omng-save (relative-pathname (mypathname self) ref-path))))
+
+(defmethod om-load-from-id ((id (eql :textfun-from-file)) data)
+  
+  (let* ((path (omng-load (car data)))
+         (checked-path (check-path-using-search-path path)))
+    
+    (if checked-path  
+        (load-doc-from-file checked-path :textfun)
+      (om-beep-msg "FILE NOT FOUND: ~S !" path))
+    ))
+
+
 ;;;===================
-;;; BOX
+;;; LISP FUNCTION BOX
 ;;;===================
 
 (defmethod special-box-p ((name (eql 'lisp))) t)
@@ -151,6 +161,7 @@
                              :box self :reference nil)))
       )))
 
+
 ;;; OMLispFunction doesn't have OMOut boxes to buils the box-inputs from
 (defmethod create-box-outputs ((self OMBoxLisp)) 
   (list 
@@ -160,8 +171,7 @@
 
 
 (defmethod update-from-reference ((self OMBoxLisp))
-  
-  
+ 
   (let ((new-inputs (loop for i in (create-box-inputs self) 
                           for ni from 0 collect 
                           (if (nth ni (inputs self)) 
@@ -186,8 +196,6 @@
     t))
 
 
-
-
 ;;;===================
 ;;; EDITOR
 ;;;===================
@@ -204,6 +212,12 @@
 
 (defclass lisp-function-editor-window (om-lisp::om-text-editor-window) 
   ((editor :initarg :editor :initform nil :accessor editor)))
+
+(defmethod window-name-from-object ((self OMLispFunctionInternal))
+  (format nil "~A  [internal Lisp function]" (name self)))
+
+(defmethod om-lisp::type-filter-for-text-editor ((self lisp-function-editor-window)) 
+  '("OM Lisp function" "*.olsp"))
 
 ;;; this will disable the default save/persistent behaviours of the text editor
 ;;; these will be handled by OM following the model of OMPatch
@@ -270,9 +284,6 @@
       (update-lisp-fun (object (editor win))))
     ))
 
-(defmethod om-lisp::type-filter-for-text-editor ((self lisp-function-editor-window)) 
-  '("OM Lisp function" "*.olsp"))
-
 ;;; called from menu
 (defmethod copy-command ((self lisp-function-editor))
   #'(lambda () (om-lisp::text-edit-copy (window self))))
@@ -294,3 +305,6 @@
 
 (defmethod font-command ((self lisp-function-editor))
   #'(lambda () (om-lisp::change-text-edit-font (window self))))
+
+
+

@@ -100,6 +100,8 @@
 (defmethod save-as-menu-name ((self OMDocumentEditor)) 
   (if (is-persistant (object self)) "Save as..." "Externalize..."))
 
+(defmethod externalized-type ((self t)) nil)
+
 (defmethod save-as-command ((self OMDocumentEditor))
  (let ((doc (object self)))
    (if (is-persistant doc)
@@ -112,16 +114,17 @@
               (setf (mypathname doc) sg-pathname)))
           )
       
-      ;;; create a persistant patch
-      #'(lambda ()
-          (change-class doc (externalized-type doc) 
-                        :icon (externalized-icon doc))
-          (setf (create-info doc) (list (om-get-date) (om-get-date)))
-          (register-document doc)
-          (save-document doc)   ;; set name is done here in save-document
-          (funcall (revert-command self)) ;; to update menus etc.
-        )
-    )))
+      ;;; create a persistant patch if the type exists
+      (when (externalized-type doc)
+        #'(lambda ()
+            (change-class doc (externalized-type doc) 
+                          :icon (externalized-icon doc))
+            (setf (create-info doc) (list (om-get-date) (om-get-date)))
+            (register-document doc)
+            (save-document doc)   ;; set name is done here in save-document
+            (funcall (revert-command self)) ;; to update menus etc.
+            ))
+      )))
 
 (defmethod revert-command ((self OMDocumentEditor))
   (and (is-persistant (object self)) (mypathname (object self))
@@ -170,6 +173,7 @@
 (defmethod close-editor ((self ObjectWithEditor))
   (when (editor-window self) (om-close-window (editor-window self)))
   t)
+
 
 (defmethod close-editor ((self t)) t)
 

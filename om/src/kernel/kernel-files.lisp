@@ -93,6 +93,7 @@
         "patch/om-interfacebox"
         "patch/om-lost-reference"
         "patch/om-loop"
+        "patch/om-lisp-function"
         
         "boxes/special-boxes"
         "boxes/control-boxes"
@@ -101,7 +102,6 @@
         "boxes/mem-collect"  
         "boxes/init-do"  
         "boxes/send-receive-route"  
-        "boxes/lisp-function"
         
         "basic/om-data-structures"
         "basic/om-file-utils"
