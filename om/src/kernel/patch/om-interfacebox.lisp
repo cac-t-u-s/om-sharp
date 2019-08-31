@@ -290,14 +290,13 @@
 
 (defclass ButtonBox (OMInterfaceBox)
   ((send-value :accessor send-value :initarg :send-value :initform t)
-   (text :accessor text :initarg :text :initform "")
-   (action :accessor action :initarg :action :initform nil)))
+   (text :accessor text :initarg :text :initform "")))
 
 (defmethod special-box-p ((self (eql 'button))) t)
 (defmethod special-item-reference-class ((item (eql 'button))) 'ButtonBox)
 
 (defmethod get-all-keywords ((self ButtonBox))
-  '((:send-value :text :action)))
+  '((:send-value :text)))
 
 (defmethod get-properties-list ((self ButtonBox))
   (add-properties (call-next-method)
@@ -473,6 +472,87 @@
 
     (when (reactive (car (outputs self))) (self-notify self))
     (om-invalidate-view frame)
+    )))
+
+
+
+;;;===============================================================
+;;; MENU
+;;;===============================================================
+
+(defclass ListMenuBox (OMInterfaceBox)
+  ((items :accessor items :initarg :items :initform nil)
+   (selection :accessor selection :initarg :selection :initform 0)))
+ 
+
+(defmethod special-box-p ((self (eql 'list-menu))) t)
+(defmethod special-item-reference-class ((item (eql 'list-menu))) 'ListMenuBox)
+
+(defmethod default-size ((self ListMenuBox)) (omp 100 30))
+(defmethod maximum-size ((self ListMenuBox)) (omp nil 30))
+(defmethod minimum-size ((self ListMenuBox)) (omp 100 30))
+
+(defmethod get-all-keywords ((self ListMenuBox))
+  '((:items)))
+
+
+(defmethod apply-box-attributes ((self ListMenuBox) attributes) 
+  (when attributes 
+    (let ((newlist (getf attributes :items)))
+      (unless (equal newlist (items self))
+        (setf (selection self) 0)
+        (set-value self nil))))
+  (call-next-method))
+
+(defmethod omng-save ((self ListMenuBox))  
+  (append (call-next-method)
+          `((:items ,(omng-save (items self)))
+            (:selection ,(omng-save (selection self))))))
+
+(defmethod load-box-attributes ((box ListMenuBox) data)
+  (setf (items box) (omng-load (find-value-in-kv-list data :items)))
+  (setf (selection box) (omng-load (find-value-in-kv-list data :selection)))
+  box)
+
+
+(defmethod omNG-make-special-box ((reference (eql 'list-menu)) pos &optional init-args)
+  (let* ((box (make-instance 'ListMenuBox
+                             :name "list-menu"
+                             :reference 'list-menu)))
+    (setf (box-x box) (om-point-x pos)
+          (box-y box) (om-point-y pos))
+    box))
+
+(defmethod draw-interface-component ((self ListMenuBox) x y w h) 
+  (om-draw-rect x y 24 h :color (om-def-color :gray) :fill t)
+  (om-with-font 
+   (om-def-font :font1b)
+   (om-draw-string (+ x 30) (+ y 14) 
+                   (format nil "~A"
+                           (nth (selection self) (items self))))))
+
+ 
+(defmethod interfacebox-action ((self ListMenuBox) frame pos)
+ 
+  (when (< (om-point-x pos) 30)
+    
+    (let ((menu (om-make-menu "list items"                            
+               (loop for item in (items self)
+                     for i from 0
+                     collect (let ((sel i)
+                                   (val item))
+                               (om-make-menu-item 
+                                (format nil "~A" item)
+                                #'(lambda () 
+                                    (setf (selection self) sel)
+                                    (set-value self (list val))
+                                    (when (reactive (car (outputs self))) (self-notify self))
+                                    (om-invalidate-view frame))
+                                :selected (= i (selection self))
+                                ))))))
+    
+    (om-open-pop-up-menu menu (om-view-container frame))
+    
     )))
 
 

@@ -37,11 +37,11 @@
 (defmethod unregister-document ((self OMObject)) nil)
 
 (defmethod register-document ((self OMPersistantObject) &optional path)
-  (om-print-dbg "Registering document: ~A - ~A" (list self (mypathname self)))
+  (om-print-dbg "Registering document:  ~A (~A / ~A)" (list (name self) self (mypathname self)))
   (push (make-doc-entry :doc self :file (and path (namestring path))) *open-documents*))
 
 (defmethod unregister-document ((self OMPersistantObject))
-  (om-print-dbg "Unregistering document: ~A - ~A" (list self (mypathname self))) 
+  (om-print-dbg "Unregistering document: ~A (~A / ~A)" (list (name self) self (mypathname self))) 
   (setf *open-documents* (remove self *open-documents* :key 'doc-entry-doc))
   (when (and (null *open-documents*) *quit-at-last-doc*
              (member :om-deliver *features*))
@@ -56,34 +56,28 @@
 (defmethod update-create-info ((self OMPersistantObject))
   (setf (cadr (create-info self)) (om-get-date)))
 
-#|
-;------------------------------------------------------------------------------
-; HANDLING PATCH DEPENDENCIES
-;------------------------------------------------------------------------------
-(defmethod register-editor ((self OMPersistantObject))
-  (let ((doc-entry (find self *open-documents* :key 'doc-entry-doc)))
-    (if doc-entry
-        (setf (doc-entry-editor doc-entry) t)
-      (om-beep-msg "Problem: patch ~A was not registered!" self))))
 
-(defmethod unregister-editor ((self OMPersistantObject))
-  (let ((doc-entry (find self *open-documents* :key 'doc-entry-doc)))
-    (if doc-entry 
-        (progn 
-          (setf (doc-entry-editor doc-entry) nil)
-          (when (<= (length (references-to self)) 0)
-            (unregister-document self)))
-      (om-beep-msg "Problem: patch ~A was not registered!" self)
-      )))
-
-;;; A new dependency link is created
-(defmethod register-dependency ((self OMPatch) (sub-patch OMPatch))
-  (unless (find sub-patch (dependencies self))
-    (push sub-patch (dependencies self))))
-|#
-
-
-
+(defun print-documents ()
+  
+  (let ((str (format nil "DOCUMENTS~%")))
+    (loop for doc in *open-documents*
+          do (setf str (string+ str (format nil "- ~A (~A) ~A references" 
+                                            (name (doc-entry-doc doc)) 
+                                            (doc-entry-file doc) 
+                                            (length (references-to (doc-entry-doc doc))))))
+          (when (editor-window (doc-entry-doc doc))
+            (setf str (string+ str " + EDITOR")))
+          
+          (setf str (string+ str (format nil "~%")))
+          
+          (loop for ref in (references-to (doc-entry-doc doc))
+                do 
+                (setf str (string+ str (format nil "--- ~A (~A)~%" (name ref) ref))))
+          )
+    (print str)))
+           
+; (print-documents)
+                                    
 ;;;==================================================================
 ;;;==================================================================
 ;;;==================================================================
