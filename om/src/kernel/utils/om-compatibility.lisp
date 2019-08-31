@@ -1135,7 +1135,6 @@
     ))
 
 
-
 ;;; SINGLE-ITEM-LIST / MULTI-ITEM-LIST
 
 (defmethod om-make-dialog-item ((type (eql 'single-item-list)) pos size text &rest args) 
@@ -1154,7 +1153,6 @@
 (defmethod om-load-editor-box1 (name (reference (eql 'single-item-list))
                                      inputs position size value lock 
                                      &optional fname editparams spict meditor pictlist show-name)
-
   (declare (ignore name lock reference fname editparams meditor pictlist))
   
   (let* ((items-list value)
@@ -1184,7 +1182,6 @@
 (defmethod om-load-editor-box1 (name (reference (eql 'multi-item-list))
                                      inputs position size value lock 
                                      &optional fname editparams spict meditor pictlist show-name)
-
   (declare (ignore name lock reference fname editparams meditor pictlist))
   
   (let* ((items-list value)
@@ -1225,7 +1222,6 @@
 (defmethod om-load-editor-box1 (name (reference (eql 'pop-up-menu))
                                      inputs position size value lock 
                                      &optional fname editparams spict meditor pictlist show-name)
-
   (declare (ignore name lock reference fname editparams meditor pictlist))
   
   (let* ((items-list value)
@@ -1257,7 +1253,6 @@
 (defmethod om-load-editor-box1 (name (reference (eql 'check-box))
                                      inputs position size value lock 
                                      &optional fname editparams spict meditor pictlist show-name)
-
   (declare (ignore name size lock reference fname editparams meditor pictlist))
   
   `(:box 
@@ -1277,7 +1272,6 @@
 (defmethod om-load-editor-box1 (name (reference (eql 'button))
                                      inputs position size value lock 
                                      &optional fname editparams spict meditor pictlist show-name)
-
   (declare (ignore name lock reference fname editparams meditor pictlist))
   
   `(:box 
@@ -1453,10 +1447,7 @@ x INTERNAL PATCH
 x LISP-FUNCTIONS
 x OMLOOP
 
-GLOBAL PATCHES
-GLOBAL VARS
-MAQUETTE
-DIALOG-ITEMS
+X DIALOG-ITEMS
 
 x PATCH WITH LIB FUNCTIONS
 
@@ -1467,5 +1458,8 @@ x TEXTFILE
 X CLASS-ARRAY
 
 PICTURE
+GLOBAL PATCHES
+GLOBAL VARS
+MAQUETTE
 
 |#
