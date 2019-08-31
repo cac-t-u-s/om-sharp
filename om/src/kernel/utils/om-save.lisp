@@ -335,8 +335,10 @@
 ;  `(:patch-from-file ,(namestring (mypathname self))))
 
 (defmethod omng-save-relative ((self OMPatchFile) ref-path)  
-  `(:patch-from-file ,(omng-save (relative-pathname (mypathname self) ref-path))))
-
+  `(:patch-from-file 
+    ,(if (mypathname self)
+         (omng-save (relative-pathname (mypathname self) ref-path))
+       (omng-save (pathname (name self))))))
 
 (defmethod load-patch-contents ((patch OMPatch) data)
   (let ((*required-libs-in-current-patch* nil))
@@ -359,7 +361,7 @@
           (when pos (setf (window-pos patch) (omp (car pos) (cadr pos))))
           (when size (setf (window-size patch) (omp (car size) (cadr size))))))
            
-      ;;; set loaded? now in case of self-nested patched
+      ;;; set loaded? now in case of recursive (self-included) patched 
       (setf (loaded? patch) t)
 
       (let* ((saved-boxes (find-values-in-prop-list data :boxes))
@@ -389,7 +391,6 @@
           (mapc 
            #'(lambda (c) (omng-add-element patch c))
            (restore-connections-to-boxes saved-connections boxes))
-          
           ))
       
       (setf (lock patch) (find-value-in-kv-list data :lock))
@@ -415,18 +416,27 @@
 (defmethod om-load-from-id ((id (eql :patch-from-file)) data)
   
   (let* ((path (omng-load (car data)))
-         (checked-path (check-path-using-search-path path)))
-    
-    (if checked-path
-        
-        (load-doc-from-file checked-path :patch)
-      
-      (let ((patch (make-instance'OMPatchFile :name (pathname-name path))))
-        (om-beep-msg "PATCH NOT FOUND: ~S !" path)
-        (setf (mypathname patch) path)
-        patch)  
-      
-      )))
+         (checked-path (and (pathname-directory path)  ;; normal case
+                            (check-path-using-search-path path)))
+         (patch 
+                        
+          (if checked-path
+              
+              (load-doc-from-file checked-path :patch)
+                
+            ;;; no pathname-directory can occur while loading old patch abstractions from OM6
+            ;;; in this case we look for a not-yet-save file with same name in registered documents
+            (let ((registered-entry (find (pathname-name path) *open-documents* :test 'string-equal :key #'(lambda (entry) (name (doc-entry-doc entry))))))
+              (when registered-entry
+                (doc-entry-doc registered-entry)))
+            )))
+
+    (unless patch
+      (om-beep-msg "PATCH NOT FOUND: ~S !" path)
+      (setf patch (make-instance'OMPatchFile :name (pathname-name path)))
+      (setf (mypathname patch) path))
+
+    patch))
 
 ;;;=================================
 ;;; MAQUETTE
@@ -475,15 +485,35 @@
 ;  )
 ;(omng-load '(:box (:reference pprint) (:position (:point 260 242)) (:size (:point 63 28)) (:icon :left) (:color nil) (:border t) (:font nil) (:align :left) (:lock nil) (:lambda nil) (:reactive nil) (:inputs (:standard "OBJECT" nil))))
 
+
+
+
 ;;;=================================
 ;;; LISP FUNCTION
 ;;;=================================
 
+(defmethod save-patch-contents ((self OMLispFunction) &optional (box-values nil))
+  (append
+   (call-next-method self t)
+   `((:text ,(omng-save (text self))))))
+
+(defmethod omng-save ((self OMLispFunction)) 
+  (save-patch-contents self))
+
+
 (defmethod om-load-from-id ((id (eql :textfun)) data)
-  (let ((fun (make-instance 'OMLispFunctionInternal :name (find-value-in-kv-list data :name)))
+  (let ((fun (make-instance 'OMLispFunctionInternal)))
+    (when data (load-patch-contents fun data))
+    fun))
+
+(defmethod load-patch-contents ((fun OMLispFunction) data) 
+  
+  (let ((name (find-value-in-kv-list data :name))
         (info (find-values-in-prop-list data :info))
         (win (find-values-in-prop-list data :window)))
     
+    (unless (name fun) (setf (name fun) name))
+
     (setf 
      (text fun) (omng-load (find-value-in-kv-list data :text))
      (create-info fun) (list (find-value-in-kv-list info :created)
@@ -500,37 +530,7 @@
     (setf (loaded? fun) t)
     fun))
 
-(defmethod save-patch-contents ((self OMLispFunction) &optional (box-values nil))
-  (append
-   (call-next-method self t)
-   `((:text ,(omng-save (text self))))))
 
-(defmethod omng-save ((self OMLispFunction)) 
-  (save-patch-contents self))
-
-;;; when we save an abstraction box..
-;;; I think this is never called anymore since OMBoxAbstraction handles its own omng-save
-;(defmethod omng-save ((self OMLispFunctionFile))
-;  `(:textfun-from-file ,(namestring (mypathname self))))
-
-(defmethod omng-save-relative ((self OMLispFunctionFile) ref-path)  
-  `(:textfun-from-file ,(omng-save (relative-pathname (mypathname self) ref-path))))
-
-
-(defmethod load-patch-contents ((patch OMLispFunction) data) nil)
-
-
-(defmethod om-load-from-id ((id (eql :textfun-from-file)) data)
-  
-  (let* ((path (omng-load (car data)))
-         (checked-path (check-path-using-search-path path)))
-    
-    (if checked-path
-        
-        (load-doc-from-file checked-path :textfun)
-
-      (om-beep-msg "FILE NOT FOUND: ~S !" path))
-    ))
 
 
 ;;;=================================
@@ -604,10 +604,36 @@
   (omng-save (reference self)))
 
 (defmethod save-box-reference ((self OMBoxAbstraction)) 
-   (if (and (is-persistant (reference self))
-            (find-persistant-container self))
-       (omng-save-relative (reference self) (mypathname (find-persistant-container self)))
-     (call-next-method)))
+
+  (let ((patch (reference self))
+        (container (find-persistant-container self)))
+
+    (if (and (is-persistant patch) container)
+
+       (let ((curr-path (mypathname patch)))
+
+         (unless curr-path
+           
+           ;;; probably a not-saved loaded/converted abstraction
+           (om-print-format "The abstraction ~s was saved on disk in ~s." 
+                            (list (name patch) 
+                                  (namestring (om-make-pathname :directory (mypathname container))))
+                            "Import/Compatibility")
+
+           (setf (mypathname patch)
+                 (om-make-pathname :name (name patch) 
+                                   :directory (mypathname container)
+                                   :type (doctype-to-extension (object-doctype patch))))
+           
+           (save-document patch)
+           (when (frame self) (om-invalidate-view (frame self)))
+           )
+           
+          ;;; save the :patch-from-file relatively to the next persistent container
+          (omng-save-relative patch (mypathname container)))
+     
+     (call-next-method)
+     )))
 
 
 ;;; THE CASE WHERE THE REFERENCE OBJECT IS FROM A LIBRARY
@@ -725,13 +751,6 @@
   (append (call-next-method)
           (list (save-value self))))
 
-;(defmethod omng-save ((self OMInOutBox))
-;  (append (call-next-method)
-;          `((:index ,(index self))
-;            (:doc ,(doc self)))))
-;(defmethod omng-save ((self OMInBox)) (call-next-method))  
-;  (append (call-next-method)
-;          `((:defval ,(omng-save (defval self))))))
 
 ;;; for compatibility, in case some functions have changed name
 (defmethod function-changed-name ((reference t)) nil)
