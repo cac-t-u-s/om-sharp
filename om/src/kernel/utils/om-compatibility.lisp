@@ -18,58 +18,68 @@
 
 (in-package :om)
 
-(defvar *om-current-persistent*)
+(defvar *om-current-persistent* nil)
+(defvar *current-loading-document* nil)
 
-(defun load-om6-patch (path)
+(pushr '(:old ("omp" "omm" "oml") "OM6 Files [compatibility mode]") *doctypes*)
+
+(defun load-om6-file (path)
   
-  (om-print-format "Opening document : ~A" (list path) "Compatibility")
+  (declare (special *om-current-persistent* *current-loading-document*))
+  
+  (om-print-format "Opening document : ~A" (list path) "Import/Compatibility")
 
   (clos::set-clos-initarg-checking nil) ;; in case some class initargs do not exist anymore...
   
-  (unwind-protect 
-  
-  (with-relative-ref-path path
+  (let* ((previous-loading-document *current-loading-document*)
+         (obj-type (cond ((string-equal (pathname-type path) "omp") 'OMPatchFile)
+                         ((string-equal (pathname-type path) "oml") 'OMLispFunctionFile)
+                         (t nil)))
+         (object (when obj-type (make-instance obj-type :name (pathname-name path)))))
     
-    (with-open-file (in path :direction :input :if-does-not-exist nil)
-      
-      (unless (equal (read-line in nil :eof) :eof) ;; not empty
-        
-        ;; line #2 contains meta-data about the patch
-        (let ((metadata (read-from-string (subseq (om-read-line in) 1))))
-      
-          (if metadata 
-              (om-print-format "Converting from OM ~D (type '~A')" (list (car metadata) (cadr metadata)) "Compatibility")
-            (om-print-format "No header found in document..." nil "Compatibility"))
-          
-            ;(handler-case  
-               (load path)
-            ;(error (err) 
-            ;  (om-print err "Compatibility")
-            ;  (abort)
-            ;;;(error err)
-            ;  )
-            ;)
-          
-          (when *om-current-persistent* ;;; filled in the patch-loading process
-
-            (let ((object (make-instance 'OMPatchFile :name (pathname-name path))))
-
-              (copy-contents *om-current-persistent* object)
-
-              (setf (omversion object) *om-version*
-                    (create-info object) (list (om-get-date) (om-get-date))
-                    (window-size object) (eval (nth 4 metadata))
-                    (saved? object) nil)
-              
-              (register-document object)
+    (when object 
+      (setf *current-loading-document* path)
+      (register-document object)
             
-              object)
-            ))
-        
-          )))
+      (unwind-protect 
+  
+          (with-relative-ref-path path
     
-    (clos::set-clos-initarg-checking t)
-    ))
+            (with-open-file (in path :direction :input :if-does-not-exist nil)
+      
+              (unless (equal (read-line in nil :eof) :eof) ;; not empty
+        
+                ;; line #2 contains meta-data about the patch
+                (let ((metadata (read-from-string (subseq (om-read-line in) 1))))
+      
+                  (if metadata 
+                      (om-print-format "Converting from OM ~D (type '~A')" (list (car metadata) (cadr metadata)) "Import/Compatibility")
+                    (om-print-format "No header found in document..." nil "Import/Compatibility"))
+                
+                  (load path)
+                
+                  (if *om-current-persistent* ;;; filled in the patch-loading process
+                  
+                      (progn 
+                    
+                        (copy-contents *om-current-persistent* object)
+                    
+                        (setf (omversion object) *om-version*
+                              (create-info object) (list (om-get-date) (om-get-date))
+                              (window-size object) (eval (nth 4 metadata))
+                              (saved? object) nil)
+
+                        (close-internal-elements *om-current-persistent*) ;;; remove references etc.
+                        object
+                        )
+                  
+                    (unregister-document object))
+                  ))))
+        
+        (unless previous-loading-document (clos::set-clos-initarg-checking t))
+        (setf *current-loading-document* previous-loading-document)
+        ))))
+
 
 
 ;============================================================================
@@ -88,9 +98,10 @@
 ; PATCH (MAIN SECTION)
 ;======================================
 
-;;; idea: consider an auto-alignment option for patches, set "on" when an old patch is loaded...
+;;; idea: consider an auto-alignment option for patches, 
+;;; => set a global variable "on" when an old patch is being loaded...
 
-;;; main patch file
+;;; Patch file
 ;;; macro allows us not to load any argument in &rest
 (defmacro om-load-patch1 (name boxes connections &rest ignore)
   
@@ -116,7 +127,7 @@
         )
       )
      ))
-    
+
 
 ;;; internal sub-patch
 (defun om-load-patch-abs1 (name boxes connections &rest ignore)
@@ -137,32 +148,19 @@
 
 
 ;======================================
-; PATCH BOX
+; LISP FUNCTIONS
 ;======================================
-;;; textfun will also call this one. 
-;;; they load ok anyway.
-(defmethod om-load-boxcall ((self (eql 'abstraction)) name reference inputs position size value lock &rest rest)
 
-  (declare (ignore value rest))
-  
-  `(:box 
-    (:type :patch)
-    (:reference ,reference)   ;; contains the actual patch
-    (:name ,name)
-    (:x ,(om-point-x position))
-    (:y ,(om-point-y position))
-    (:w ,(and size (om-point-x size)))
-    (:h ,(if size (om-point-y size) 48))
-    (:lock ,(if lock (cond ((string-equal lock "x") :locked) 
-                           ((string-equal lock "&") :eval-once))))
-    (:lambda ,(if lock (cond ((string-equal lock "l") :lambda) 
-                             ((string-equal lock "o") :reference))))
-    (:inputs .,inputs)
-    (:display :mini-view)
-    )
-  )
+;; Lisp-patch will return an "interned" version of the the form:
+;; `(:textfun (:name ,name) (:text (:list "(lambda (x) (+ x 1))")))
 
 
+;;; Lisp-fun file
+(defun om-load-lisp-patch (name version expression)
+  (omng-load 
+   (om-load-lisp-abspatch name version expression)))
+
+;;; internal Lisp fun
 (defun om-load-lisp-abspatch (name version expression)
   `(:textfun
     (:om-version ,version)
@@ -170,6 +168,124 @@
     (:text
      (:list .,(string-to-list expression "$")))
     ))
+
+
+;======================================
+; ABSTRACTION BOX (PATCH/LISP FUN)
+;======================================
+;;; textfun will also call this one. 
+;;; they load ok anyway.
+(defmethod om-load-boxcall ((self (eql 'abstraction)) name reference inputs position size value lock &rest rest)
+
+  (declare (ignore value rest))
+  
+  ;; reference contains the actual patch-code
+  (let ((type (if (equal (car reference) :textfun) :textfun :patch)))
+    
+    `(:box 
+      (:type ,type)
+      (:reference ,reference)   ;; contains the actual patch-code
+      (:name ,name)
+      (:x ,(om-point-x position))
+      (:y ,(om-point-y position))
+      (:w ,(and size (om-point-x size)))
+      (:h ,(if size (om-point-y size) 48))
+      (:lock ,(if lock (cond ((string-equal lock "x") :locked) 
+                             ((string-equal lock "&") :eval-once))))
+      (:lambda ,(if lock (cond ((string-equal lock "l") :lambda) 
+                               ((string-equal lock "o") :reference))))
+      (:inputs .,inputs)
+      (:display :mini-view)
+      )
+    ))
+
+
+;======================================
+; EXTERNAL PATCH (BLUE)
+;======================================
+
+(defun load-om6-patch-from-relative-path (path-list)
+  
+  (declare (special *om-current-persistent* *current-loading-document*))
+  
+  (let* ((name (car (last path-list)))
+         ;;; try to locate the container-patch's OM6 workspace 
+         (workspace-root 
+          (when (find "elements" (pathname-directory *current-loading-document*) :test 'string-equal)
+            (om-make-pathname :directory 
+                              (subseq (pathname-directory *current-loading-document*) 0 
+                                      (position "elements" (pathname-directory *current-loading-document*) :test 'string-equal)))))
+         ;;; try to guess the abstraction absolute path 
+         (doc-path-folder (when workspace-root
+                            (om-make-pathname :directory 
+                                              (append (pathname-directory workspace-root) (butlast path-list)))))
+         ;;; determine the actual abstraction file
+         ;;; (or ask user to locate it)
+         (doc-path (or (and doc-path-folder 
+                            (find name (om-directory doc-path-folder :type (doctype-to-ext-list :old)) 
+                                  :key 'pathname-name :test 'string-equal))
+                       
+                       ;;; also search in-current-path:
+                       (find name (om-directory (om-make-pathname :directory *current-loading-document*) 
+                                                :type (doctype-to-ext-list :old)) 
+                             :key 'pathname-name :test 'string-equal)
+                       
+                       ;;; ask user ?
+                       (and (om-y-or-n-dialog (format nil "Can you locate the original OM6 abstraction ~s ?~%(Not found in ~s)" 
+                                                      name 
+                                                      (reduce #'(lambda (s1 s2) (concatenate 'string s1 "/" s2)) (butlast (cdr path-list)))))
+                            (om-choose-file-dialog 
+                             :prompt (format nil "Please: locate OM6 abstraction ~s." name) 
+                             :directory *current-loading-document* :types (doctype-info :old))))))
+    
+    
+
+    (if (and doc-path (probe-file doc-path)) 
+         
+     ;;; if the main form is a om-load-patch1, the returned form will be a patch
+     (let* ((expected-type (cond ((string-equal (pathname-type doc-path) "omp") "Patch")
+                                ((string-equal (pathname-type doc-path) "oml") "LispFun")
+                                ((string-equal (pathname-type doc-path) "omm") "Maquette")))
+            
+            ;;; check if there is a registered open document with same name that is _not yet saved_
+            ;;; this happens in recursive patches or patches with several references to the same abstraction
+            (registered-entry (find-if #'(lambda (entry) 
+                                           (and (string-equal (name (doc-entry-doc entry)) name)
+                                                (string-equal (get-object-type-name (doc-entry-doc entry)) expected-type)
+                                                (null (doc-entry-file entry))))
+                                    *open-documents*))
+            (new-patch (if registered-entry ;; the doc was already loaded
+                           (doc-entry-doc registered-entry)
+                         (load-om6-file doc-path))))
+       
+       ;;; when no pathname the file will be searched for in the doc manager
+       (omng-save-relative new-patch *current-loading-document*))
+
+      
+      (progn ;;; not found 
+        (om-print-format "Abstraction box: ~s was not imported." (list name) "Import/Compatibility")
+        ;;; will appear as "not found patch box"
+        `(:patch-from-file
+          (:pathname
+           (:directory ,(cons :relative (butlast path-list))
+           (:name ,name)
+           )))
+        ))
+    
+    ))
+  
+
+;;; reference is a relative-path list pointing to a Patch or Lisp-fun file
+(defmethod om-load-boxcall ((self (eql 'patch-box)) name reference inputs position size value lock &rest rest)
+  
+  (declare (ignore value rest))
+  
+  (let ((loaded-reference (load-om6-patch-from-relative-path reference)))
+    
+    (om-load-boxcall 'abstraction name loaded-reference inputs position size value lock)
+    
+    ))
+
 
 
 ;======================================
@@ -196,7 +312,7 @@
   (cond ((fboundp reference)
          (om-load-boxcall 'lispfun name reference inputs position size value lock))
         (t 
-         ;; (om-print-format "Unknown function for box of type ~A: '~A'" (list class reference) "Compatibility")
+         ;; (om-print-format "Unknown function for box of type ~A: '~A'" (list class reference) "Import/Compatibility")
          ;; => will be signaled in om-load-from-id
          `(:box 
            (:type :function)
@@ -246,7 +362,7 @@
                        ((and (find '&rest (function-arglist reference))
                              (equal name (string (cadr (member '&rest (function-arglist reference))))))
                         `(:input (:type :optional) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
-                       (t (om-print-format "Unknown input for function '~A': ~A" (list reference name) "Compatibility")
+                       (t (om-print-format "Unknown input for function '~A': ~A" (list reference name) "Import/Compatibility")
                           formatted-in))
                  ))))
 
@@ -505,12 +621,12 @@
 ;;; OUT BOX
 (defun om-load-boxout (name indice position inputs &optional fname fsize) 
 
-  (declare (ignore name fsize))
+  (declare (ignore fname fsize))
 
   `(:box
     (:type :io)
-    (:reference (:out (:type omout) (:name ,fname) (:index ,indice)))
-    (:name ,fname)
+    (:reference (:out (:type omout) (:name ,name) (:index ,indice)))
+    (:name ,name)
     (:x ,(om-point-x position))
     (:y ,(om-point-y position))
     (:inputs .,(mapcar #'eval inputs))
@@ -525,7 +641,7 @@
   (when (string-equal lock "l")
     (om-print 
      "REPEAT-N boxes can not be use in 'lambda' mode. In order to restore the patch, encapsulate it in a lambda-patch !"  
-     "Compatibility"))
+     "Import/Compatibility"))
   
   `(:box 
     (:type :special)
@@ -715,7 +831,7 @@
 
 
 (defmethod om-load-boxcall ((class (eql 'genfun)) name (reference (eql 'minim)) inputs position size value lock &rest rest)
-  (om-print "Warning/OMLoop: MIN converted to ACCUM" "Compatibility")
+  (om-print "Warning/OMLoop: MIN converted to ACCUM" "Import/Compatibility")
   `(:box
     (:type :special)
     (:reference accum)
@@ -734,7 +850,7 @@
     ))
   
 (defmethod om-load-boxcall ((class (eql 'genfun)) name (reference (eql 'maxi)) inputs position size value lock &rest rest)
-  (om-print "Warning/OMLoop: MAX converted to ACCUM" "Compatibility")
+  (om-print "Warning/OMLoop: MAX converted to ACCUM" "Import/Compatibility")
   `(:box
     (:type :special)
     (:reference accum)
@@ -753,7 +869,7 @@
     ))
 
 (defmethod om-load-boxcall ((class (eql 'genfun)) name (reference (eql 'sum)) inputs position size value lock &rest rest)
-  (om-print "Warning/OMLoop: SUM converted to ACCUM" "Compatibility")
+  (om-print "Warning/OMLoop: SUM converted to ACCUM" "Import/Compatibility")
   `(:box
     (:type :special)
     (:reference accum)
@@ -772,7 +888,7 @@
     ))
 
 (defmethod om-load-boxcall ((class (eql 'genfun)) name (reference (eql 'counter)) inputs position size value lock &rest rest)
-  (om-print "Warning/OMLoop: COUNT converted to ACCUM" "Compatibility")
+  (om-print "Warning/OMLoop: COUNT converted to ACCUM" "Import/Compatibility")
   `(:box
     (:type :special)
     (:reference accum)
@@ -974,13 +1090,12 @@
   
   `(:box 
      (:type :value)
-     (:reference ,(type-of (read-from-string value))) 
-     (:value ,(read-from-string value))
+     (:reference string) 
+     (:value ,value)
      (:name ,name)
      (:x ,(om-point-x position))
      (:y ,(om-point-y position))
      (:w ,(om-point-x size))
-     (:h ,(om-point-y size))
      (:lock ,(if lock :locked nil))
      (:inputs 
       (:input (:type :optional) (:name "in")
@@ -989,27 +1104,50 @@
 
 
 ;;; TEXT-VIEW
-
+;;; => Convert to textbuffer
 (defmethod om-make-dialog-item ((type (eql 'text-view)) pos size text &rest args) (list text))
 (defmethod om-set-dialog-item-text ((dummy list) text) (setf (car dummy) text))
 
 (defmethod om-load-editor-box1 (name (reference (eql 'text-view))
                                      inputs position size value lock 
                                      &optional fname editparams spict meditor pictlist show-name)
-  (om-load-editor-box1 name 'text-box 
-                       inputs position size (car value) lock 
-                       fname editparams spict meditor pictlist show-name))
-  
+
+  `(:box
+    (:type :object)
+    (:reference textbuffer)
+    (:name "text-view")
+    (:value (:object
+             (:class textbuffer)
+             (:slots ((:contents ,(omng-save (string-to-list (car value) (string #\Newline))))))))
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:w ,(om-point-x size))
+    (:h ,(om-point-y size))
+    (:lock ,(if lock :locked nil))
+    (:showname nil)
+    (:display :mini-view)
+    (:edition-params (:output-mode :text))
+    (:inputs 
+     (:input (:type :standard) (:name "self") (:value nil))
+     (:input (:type :standard) (:name "contents") (:value nil))
+     (:input (:type :key) (:name "output-mode") (:value :text))
+     )
+    ))
+
+
+
 ;;; SINGLE-ITEM-LIST / MULTI-ITEM-LIST
 
 (defmethod om-make-dialog-item ((type (eql 'single-item-list)) pos size text &rest args) 
   (mapcar #'list (getf args :range)))
 (defmethod om-make-dialog-item ((type (eql 'multi-item-list)) pos size text &rest args) 
   (mapcar #'list (getf args :range)))
+
 (defmethod om-set-selected-item-index ((self list) index)
   (let ((ilist (list! index)))
     (loop for pos in ilist do
           (setf (nth pos self) (list (car (nth pos self)) t)))))
+
 (defmethod (setf di-data) (data list) nil)
 
 
@@ -1076,6 +1214,80 @@
         (:value (if lock (omng-save items)
                   (find-value-in-kv-list (cdr (eval (first inputs))) :value)))))
       )
+    ))
+
+
+;;; MENU
+
+(defmethod om-make-dialog-item ((type (eql 'pop-up-menu)) pos size text &rest args) 
+  (mapcar #'list (getf args :range)))
+
+(defmethod om-load-editor-box1 (name (reference (eql 'pop-up-menu))
+                                     inputs position size value lock 
+                                     &optional fname editparams spict meditor pictlist show-name)
+
+  (declare (ignore name lock reference fname editparams meditor pictlist))
+  
+  (let* ((items-list value)
+         (items (mapcar #'car items-list))
+         (selection (position t items-list :key #'cadr)))
+    
+   (print `(:box 
+      (:type :interface)
+      (:reference list-menu)
+      (:name "list-menu")
+      (:value ,(nth selection items))
+      (:items ,(omng-save items))
+      (:selection ,selection)
+      (:x ,(om-point-x position))
+      (:y ,(om-point-y position))
+      (:w ,(om-point-x size))
+      (:inputs 
+       (:input (:type :key) (:name "items")
+        (:value ,(if lock (omng-save items)
+                   (find-value-in-kv-list (cdr (eval (first inputs))) :value)))))
+      )
+    )))
+
+;;; CHECK-BOX
+
+(defmethod om-make-dialog-item ((type (eql 'check-box)) pos size text &rest args) (list nil))
+(defmethod om-set-check-box ((self list) val) (setf (car self) val))
+
+(defmethod om-load-editor-box1 (name (reference (eql 'check-box))
+                                     inputs position size value lock 
+                                     &optional fname editparams spict meditor pictlist show-name)
+
+  (declare (ignore name size lock reference fname editparams meditor pictlist))
+  
+  `(:box 
+    (:type :interface)
+    (:reference check-box)
+    (:name "check-box")
+    (:value ,(car value))
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    )
+    )
+
+;;; BUTTON
+
+(defmethod om-make-dialog-item ((type (eql 'button)) pos size text &rest args) text)
+
+(defmethod om-load-editor-box1 (name (reference (eql 'button))
+                                     inputs position size value lock 
+                                     &optional fname editparams spict meditor pictlist show-name)
+
+  (declare (ignore name lock reference fname editparams meditor pictlist))
+  
+  `(:box 
+    (:type :interface)
+    (:reference button)
+    (:name "button")
+    (:text ,value)
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:w ,(om-point-x size))
     ))
 
 
