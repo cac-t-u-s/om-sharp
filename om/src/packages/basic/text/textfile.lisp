@@ -151,11 +151,11 @@ As output it returns the contents of the text buffer as a list formatted accordi
         
 (defmethod draw-mini-view ((self textbuffer) (box TextBufferBox) x y w h &optional time)
   (let ((display-cache (get-display-draw box))
-        (font (om-def-font :font1 :size 10)))
+        (font (om-def-font :font1 :size 11)))
     (om-with-font 
      font 
      (loop for line in (list! (contents self)) 
-           for y = 18 then (+ y 12) 
+           for y = 22 then (+ y 12) 
            do (if (< y (- h 8)) 
                   (let ((line (format nil "~A" line)))
                     (if (> (om-string-size line font) (- w 10))
