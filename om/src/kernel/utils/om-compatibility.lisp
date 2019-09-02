@@ -1243,7 +1243,7 @@
         (:value ,(if lock (omng-save items)
                    (find-value-in-kv-list (cdr (eval (first inputs))) :value)))))
       )
-    )))
+    ))
 
 ;;; CHECK-BOX
 
