@@ -30,7 +30,8 @@
 
 (defmethod om-cleanup ((self fstream))
   (when (open? self)
-    (close (fs self))))
+    (close (fs self))
+    (setf (open? self) nil)))
 
 (defmethod* open-file-stream (path &key (direction :io) (if-exists :supersede))
   :initvals '(nil :io :supersede)
