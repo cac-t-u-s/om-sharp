@@ -184,8 +184,11 @@
 ;;; you don't wan to set it true, for instance, if this is just a graphical update (e.g. window size)
 ;;; <reactive> specifies if this change should be a candidate for triggering reactive updates
 ;;; you don't want to set it true, e.g. with changes that happen too frequently (e.g. results of move-drag actions).  
-(defmethod update-from-editor ((self ObjectWithEditor) &key (value-changed t) (reactive t)) (declare (ignore value-changed reactive)) nil)
-(defmethod update-from-editor ((self t) &key (value-changed t) (reactive t)) (declare (ignore value-changed reactive)) nil)
+(defmethod update-from-editor ((self ObjectWithEditor) &key (value-changed t) (reactive t)) 
+  (declare (ignore value-changed reactive)) nil)
+
+(defmethod update-from-editor ((self t) &key (value-changed t) (reactive t)) 
+  (declare (ignore value-changed reactive)) nil)
 
 
 (defmethod window-name-from-object ((self ObjectWithEditor)) (name self))

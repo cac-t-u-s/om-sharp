@@ -229,7 +229,9 @@
 (defmethod restore-undoable-object-state ((self OMPatch) (state list)) 
   
   ;;; need to save/restore the connections of referencing boxes...
-  (let* ((reference-boxes (remove-duplicates (references-to self) :key #'container))
+  (let* ((reference-boxes (remove-duplicates 
+                           (remove-if-not #'(lambda (ref) (subtypep (type-of ref) 'OMBox)) (references-to self))
+                           :key #'container))
          (reference-containers-connections 
           (loop for ref-b in reference-boxes 
                 collect (save-connections-from-boxes (boxes (container ref-b))))))

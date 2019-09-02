@@ -69,7 +69,7 @@
                               (window-size object) (eval (nth 4 metadata))
                               (saved? object) nil)
 
-                        (close-internal-elements *om-current-persistent*) ;;; remove references etc.
+                        (omng-delete *om-current-persistent*) ;;; remove references etc.
                         object
                         )
                   
@@ -1228,7 +1228,7 @@
          (items (mapcar #'car items-list))
          (selection (position t items-list :key #'cadr)))
     
-   (print `(:box 
+    `(:box 
       (:type :interface)
       (:reference list-menu)
       (:name "list-menu")
