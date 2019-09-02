@@ -171,3 +171,72 @@
 
 
 
+;;;==================================
+;;; USING DYNAMIC STREAM POINTER (IN A VISUAL PROGRAM)
+;;; EQUIVALENT TO OM6's FILE-BOX
+;;; ==================================
+
+(defclass sdif-fstream (fstream) ())
+
+(defmethod om-cleanup ((self sdif-fstream))
+  (when (open? self)
+    (sdif::sdiffclose (fs self))
+    (setf (open? self) nil)))
+
+
+(defmethod* open-SDIF-stream (path &key (direction :io))
+  :initvals '(nil :io :supersede)
+  :indoc '("a valid pathname" "stream direction (read/write)" "behaviour if the file exists")
+  :menuins '((1 (("read" :input) ("write" :output) ("read/write" :io))) 
+             (2 (("rename" :rename) ("supersede" :supersede) ("overwrite" :overwrite) ("append" :append))))
+  :icon :file
+  :doc "Opens an SDIF file stream where other functions can read and write.
+
+Open FILE-STREAMs are automatically closed when they are not used anymore by the Common Lisp garbage collection system, however, it is recommended to close them explicitely with CLOSE-FILE-STREAM as soon as they are not needed in order to limit the number of streams open
+" 
+  (let ((SDIFF (sdif::sdif-open-file path
+                                     (case direction
+                                       (:input 'sdif::eReadFile)
+                                       (:output 'sdif::eWriteFile)
+                                       (otherwise 'sdif::eReadWriteFile)))))
+    (make-instance 'sdif-fstream 
+                   :fs SDIFF
+                   :fpath path
+                   :open? t)
+    ))
+
+
+
+(defmethod* sdif-write-header ((fstream sdif-fstream) &optional (types nil) (nvts nil) (sids nil))
+  :icon :write
+  :indoc '("an SDIF file pointer" "list of SDIFType" "list of SDIFNVT" "list of stream ID list")
+  :doc "Writes the header of the SDIF file in <fstream>.
+
+This is a compulsory operation before to start writing SDIF frames in the file.
+<fstream> is a file pointer created by open-SDIF-stream.
+
+<types>, <nvts> and <sids> are SDIF types, name/value tables to declare and write in the file header.
+" 
+  (sdif::SdifFWriteGeneralHeader (fs fstream))
+  (loop for NVT in (cons (default-om-NVT) (list! nvts))
+        do (sdif-write NVT (fs fstream)))
+  (when types (sdif-write-types (fs fstream) (list! types)))
+  (when sids 
+     (loop for SID in sids do
+           (apply #'sdif-write-IDS (cons (fs fstream) SID))))
+  (sdif::SdifFWriteAllASCIIChunks (fs fstream)))
+
+
+
+(defmethod* sdif-write-frame ((self sdifframe) (fstream sdif-fstream))
+  :icon :write
+  :indoc '("an SDIFFrame to write" "an SDIF file pointer")
+  :doc "Writes the SDIF frame <self> in <fstream>.
+
+<fstream> is a file pointer created by open-SDIF-stream." 
+  (sdif-write self (fs fstream)))
+
+(defmethod* sdif-write-frame ((self t) (fstream sdif-fstream))
+  (print "Error: only write frames in SDIF files!") 
+  nil)
+

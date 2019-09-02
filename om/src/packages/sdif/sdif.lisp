@@ -41,6 +41,7 @@
                           GetSDIFPartials GetSDIFChords
                           SDIFTypeDescription GetNVTList SDIFInfo
                           SDIF->text SDIF->chord-seq SDIF->bpf SDIF->markers
-                          bpf->sdif markers->sdif)
+                          bpf->sdif markers->sdif
+                          open-sdif-stream sdif-write-frame sdif-write-header)
  )
  
