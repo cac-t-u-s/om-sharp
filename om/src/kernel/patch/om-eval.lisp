@@ -358,7 +358,7 @@
   (compile-if-needed (reference self))
   (intern (string (compiled-fun-name (reference self))) :om))
 
-(defmethod box-reference-value ((self OMBoxPatch))
+(defmethod box-reference-value ((self OMBoxAbstraction))
   (reference self))
 
 ;;;----------------------
