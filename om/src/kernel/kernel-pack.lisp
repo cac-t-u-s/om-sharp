@@ -44,7 +44,7 @@
                                             :classes '(store collection))
                          (omNG-make-package "Files" 
                                             :doc "File I/O management and utilities"
-                                            :functions '(file-chooser infile outfile tmpfile)
+                                            :functions '(file-chooser infile outfile tmpfile open-file-stream close-file-stream file-write file-write-line file-read-line)
                                             )
                          (omNG-make-package "Reactive" 
                                             :doc "Special boxes for reactive patches"

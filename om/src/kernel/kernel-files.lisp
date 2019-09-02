@@ -106,6 +106,7 @@
         "basic/om-data-structures"
         "basic/om-file-utils"
         "basic/om-write-to-disk"
+        "basic/om-file-stream"
         "basic/om-collections"
         "basic/om-networking"
 
