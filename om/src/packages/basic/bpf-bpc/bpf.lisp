@@ -498,7 +498,7 @@
 
 ;;; to be redefined by objects if they have a specific miniview
 (defmethod draw-mini-view ((self bpf) (box t) x y w h &optional time)
-  (let* ((display-cache (get-display-draw box))
+  (let* ((display-cache (ensure-cache-display-draw box self))
          (ranges (car display-cache))
          (x-range (list (nth 0 ranges) (nth 1 ranges)))
          (y-range (list (or (get-edit-param box :display-min) (nth 2 ranges))
