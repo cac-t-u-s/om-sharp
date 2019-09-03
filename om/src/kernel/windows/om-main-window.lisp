@@ -295,6 +295,12 @@
                       (om-make-layout 'om-row-layout :subviews
                                       (list
                                        nil
+                                       (om-make-di 'om-button :text "Save selection" 
+                                                   :size (omp 100 32) :font (om-def-font :font1)
+                                                   :di-action #'(lambda (b) 
+                                                                  (declare (ignore b))
+                                                                  (save-documents doc-list)
+                                                                  ))
                                        (om-make-di 'om-button :text "Close selection" 
                                                    :size (omp 100 32) :font (om-def-font :font1)
                                                    :di-action #'(lambda (b) 
@@ -324,8 +330,35 @@
 
 (defun close-documents (list)
   (setf *save-apply-all* nil)
-  (mapc 'close-editor (om-get-selected-item list))
+  (loop for doc in  (om-get-selected-item list)
+        do (if (editor-window doc)
+               (close-editor doc) ;;; will close-document as well
+             (close-document doc)))
   (setf *save-apply-all* nil))
+
+(defmethod close-document ((doc t)) nil)
+
+(defun save-documents (list)
+  (let ((selected-docs (om-get-selected-item list))
+        (abort nil))
+    (when (and (> (length selected-docs) 1)
+               (find-if #'(lambda (doc) (null (mypathname doc))) selected-docs))
+      (let ((action (om-y-or-n-dialog (format nil "Some documents in the list have no attached file yet ! ~%~% Select a common destination folder (Yes) or cancel (No)."))))
+        (if action 
+            (let ((folder (om-choose-directory-dialog)))
+              (if folder
+                (loop for doc in selected-docs 
+                      when (null (mypathname doc))
+                      do (setf (mypathname doc) (om-make-pathname :directory folder
+                                                                  :name (name doc)
+                                                                  :type (doctype-to-extension (object-doctype doc)))))
+                (setf abort t)))
+          (setf abort t))))
+    (unless abort
+      (setf *save-apply-all* :yes)
+      (loop for doc in (om-get-selected-item list)
+            do (save-document doc)))
+    ))
 
 (defmethod register-document :after ((self OMPersistantObject) &optional path)
   (when *om-main-window* (update-elements-tab *om-main-window*)))
