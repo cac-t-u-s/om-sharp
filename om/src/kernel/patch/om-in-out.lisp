@@ -94,12 +94,12 @@
   (setf (name (reference self)) name)
   (when (and (container self)
              (related-patchbox-slot self))
-    (let ((patchboxes (references-to (container self))))
-      (loop for box in patchboxes do
-            (setf (name 
-                   (nth (1- (index (reference self))) 
-                        (funcall (related-patchbox-slot self) box))
-                   ) name))))
+    (loop for ref in (box-references-to (container self))
+          do
+          (setf (name 
+                 (nth (1- (index (reference self))) 
+                      (funcall (related-patchbox-slot self) ref))
+                 ) name)))
   (call-next-method))
  
 (defmethod allow-text-input ((self OMInOutBox)) 
@@ -231,8 +231,7 @@
   (call-next-method)
   (register-patch-io self (reference box))
   ;(unless *loaading-stack* ;;; do not update if patch is being loaded: inputs are already OK
-  (loop for item in (references-to self) do
-        (update-from-reference item))
+  (loop for item in (references-to self) do (update-from-reference item))
   t)
 
 (defvar *erased-io* nil)
@@ -275,9 +274,9 @@
 
 (defmethod box-container ((self OMBox)) (box-container (container self)))
 
-;;; if there are severa references (OMPatchFile) 
+;;; if there are several references (OMPatchFile) 
 ;;; we assume that the first in the list is the current caller
-;;; this is handled by the omng-box-value :before
+;;; this is set by omng-box-value :before
 (defmethod box-container ((self OMPatch)) (car (references-to self)))
 
 ;;; BOX VALUE

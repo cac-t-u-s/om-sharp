@@ -171,7 +171,8 @@
 
 ;;; Close the editor for the object
 (defmethod close-editor ((self ObjectWithEditor))
-  (when (editor-window self) (om-close-window (editor-window self)))
+  (when (editor-window self) 
+    (om-close-window (editor-window self))) ;;; will call "close-editor" from the callback
   t)
 
 
@@ -284,7 +285,7 @@
 (defmethod report-modifications ((self null)) t)
 
 (defmethod report-modifications ((self OMEditor))
-
+  
   ;;; update the object
   (update-from-editor (object self))
   
@@ -297,7 +298,6 @@
   (when (related-editors self) 
     (loop for ed in (related-editors self) do
           (update-to-editor ed self)))
-
   ;;; window title
   (update-window-name self))
 

@@ -34,7 +34,7 @@
                 (let ((oldpatch (reference box)))
                   (release-reference oldpatch box)
                   (setf (reference box) newpatch)
-                  (push box (references-to newpatch))
+                  (retain-reference newpatch box)
                   (update-from-reference box)
                   )
              (progn 
@@ -79,42 +79,80 @@
 (defmethod omNG-make-new-boxcall ((reference OMProgrammingObject) pos &optional init-args)
   (let* ((box (make-instance (get-box-class reference)
                             :name (if init-args (format nil "~A" (car init-args)) (name reference))
-                            :reference reference))
-         ;(size (minimum-size box))
-         )
+                            :reference reference)))
+
     (setf (box-x box) (om-point-x pos)
-          (box-y box) (om-point-y pos)
-          ;(box-w box) (om-point-x size)
-          ;(box-h box) (om-point-y size)
-          )
-    (push box (references-to reference))
+          (box-y box) (om-point-y pos))
+
+    (retain-reference reference box)
     box))
 
 
 (defmethod get-icon-id ((self OMBoxAbstraction)) 
   (icon (reference self)))
 
-
+ 
 (defmethod create-box-inputs ((self OMBoxAbstraction)) 
+ 
   (when (reference self)
-    (mapcar #'(lambda (in) 
-                (make-instance 'box-input :reference in 
-                               :name (name in)
-                               :box self
-                               :value (eval (defval in))
-                               :doc-string (doc in)))
-            (sort (get-inputs (reference self)) '< :key 'index)
-            )))
+
+    ;;; temp inputs might have been created for non-finished abstraction boxes (e.g. loading recursive patches)
+    (let* ((temp-ins (remove-if-not #'numberp (inputs self) :key #'reference))
+          
+           (new-inputs 
+            (mapcar #'(lambda (in) 
+                        (make-instance 'box-input :reference in 
+                                       :name (name in)
+                                       :box self
+                                       :value (eval (defval in))
+                                       :doc-string (doc in)))
+                    (sort (get-inputs (reference self)) '< :key 'index)
+                    )))
+      
+      (when (> (length temp-ins) (length new-inputs))
+          (setf new-inputs (append new-inputs (nthcdr (length new-inputs) temp-ins))))
+      
+      new-inputs)))
+      
 
 (defmethod create-box-outputs ((self OMBoxAbstraction)) 
+ 
   (when (reference self)
-    (mapcar #'(lambda (out) 
-                (make-instance 'box-output :reference out 
-                               :name (name out)
-                               :box self
-                               :doc-string (doc out)))
-            (sort (get-outputs (reference self)) '< :key 'index)
-            )))
+
+    ;;; when temp inputs have been created for non-finished abstraction boxes (e.g. loading recursive patches)
+    (let ((temp-outs (remove-if-not #'numberp (outputs self) :key #'reference))
+          
+          (new-outputs 
+           (mapcar #'(lambda (out) 
+                       (make-instance 'box-output :reference out 
+                                      :name (name out)
+                                      :box self
+                                      :doc-string (doc out)))
+                   (sort (get-outputs (reference self)) '< :key 'index)
+                   )))
+      
+      (when (> (length temp-outs) (length new-outputs))
+          (setf new-outputs (append new-outputs (nthcdr (length new-outputs) temp-outs))))
+      
+      new-outputs)))
+      
+      
+
+;;; artificially create temporary inputs for non-finished abstraction boxes (e.g. loading recursive patches)
+(defmethod gen-temp-nth-input ((self OMBoxAbstraction) n)
+  (setf (inputs self) 
+        (append (inputs self)
+                (loop for i from (length (inputs self)) to n
+                      collect (make-instance 'box-input :box self :reference i))))
+  (nth n (inputs self)))
+
+;;; artificially create temporary outputs for non-finished abstraction boxes (e.g. loading recursive patches)
+(defmethod gen-temp-nth-output ((self OMBoxAbstraction) n)  
+  (setf (outputs self) 
+        (append (outputs self)
+                (loop for i from (length (outputs self)) to n
+                      collect (make-instance 'box-output :box self :reference i))))
+  (nth n (outputs self)))
 
 
 (defmethod update-from-reference ((self OMBoxAbstraction))
@@ -125,44 +163,66 @@
 (defmethod om-copy ((self OMBoxAbstraction)) 
   (let ((newbox (call-next-method)))
     (setf (box-w newbox) (box-w self) (box-h newbox) (box-h self))
-    (push newbox (references-to (reference newbox)))
+    (retain-reference (reference newbox) newbox)
     newbox))
 
+
+(defmethod collect-all-containers ((patch OMPatch))
+  (let ((containers nil))
+    (loop for ref in (references-to patch)
+          when (and (subtypep (type-of ref) 'OMBox) 
+                    (not (find (container ref) containers)))
+          do (setf containers (append containers (cons (container ref) 
+                                                       (collect-all-containers (container ref))))))
+    containers))
+
+
 (defmethod omng-delete ((box OMBoxAbstraction))
+  
   (let ((patch (reference box)))
-    (release-reference patch box)
-    (unless (is-persistant patch) ;; do not destroy the patch when the box is deleted
-      (omng-delete patch)))
-  (call-next-method))
+    
+    (when (find box (references-to patch)) ;;; avoid cyclic calls in case of recursive patches
+      (release-reference patch box)
+      (close-internal-element box))
+    
+    (call-next-method)))
 
 
 ;;;=======================
-;;; THESE BEHAVIOURS DIFFER BETWEEN 
-;;; INTERNAL OR FILE ABSTRACTION
+;;; THE FOLLOWING BEHAVIOURS DIFFER BETWEEN INTERNAL- AND FILE-ABSTRACTION
 ;;;=======================
+  
+;;; called when the patch it is in is closed/deleted
+(defmethod close-internal-element ((self OMBoxAbstraction)) 
+  
+  (let ((patch (reference self)))
+
+    (unless (is-persistant patch) ;;; we don't know if persiste,nt patches are not used somewhere else...
+        
+        (close-internal-elements patch)
+        (close-editor patch)
+        (release-reference patch self)
+        )
+    t))
 
 (defmethod allow-rename ((self OMBoxAbstraction)) 
   (not (is-persistant (reference self))))
+
 
 ;;; only internal does report to the container's editor
 (defmethod update-from-editor ((self OMBoxAbstraction) &key (value-changed t) (reactive t))
 
   (declare (ignore value-changed reactive)) ;;; reactive is handled in a :around method
-    
+  
   (when (frame self)
     (reset-cache-display self)
     (om-invalidate-view (frame self)))
+  
   (unless (is-persistant (reference self))
     (report-modifications (editor (container self))))
+  
   (call-next-method))
 
-;;; called when the patch it is in is closed/deleted
-(defmethod close-internal-element ((self OMBoxAbstraction)) 
-  (unless (is-persistant (reference self))
-    (close-internal-elements (reference self))
-    (close-editor (reference self)))
-  (omng-delete self)
-  t)
 
 (defmethod allow-text-input ((self OMBoxAbstraction)) 
   (unless (is-persistant (reference self))
@@ -173,6 +233,7 @@
                 (set-name (reference self) text)
                 (update-inspector-for-object self)
                 ))))
+
 
 (defmethod internalize-abstraction ((self OMBox)) nil)
 (defmethod internalized-type ((self t)) (type-of self))
@@ -186,14 +247,104 @@
         (copy-contents old-ref new-ref)
         (release-reference old-ref self)
         (setf (reference self) new-ref)
-        (push self (references-to new-ref))
+        (retain-reference new-ref self)
         (redraw-frame self))
     (om-beep-msg "The ~A '~A' is already internal." (type-of (reference self)) (name (reference self)))
     ))
       
+
+(defmethod allowed-move ((box OMBoxAbstraction) (destination patch-editor)) 
+  (or (is-persistant (reference box)) ;; recursion
+      (and 
+       (not (equal (reference box) (object destination))) ;; patch in itself
+       (not (find (reference box) (collect-all-containers (object destination)))) ;;; patch in one of its own childs
+       )))
+
+
 ;;;===================
 ;;; DISPLAY
 ;;;===================
+
+(defmethod box-draw ((self OMBoxAbstraction) (frame OMBoxFrame))
+  
+  (when (> (h frame) 36)
+    (case (display self)
+      
+      (:mini-view 
+       (draw-mini-view (reference self) self 10 0 (- (w frame) 20) (h frame) nil))
+      
+      (:text 
+       (draw-values-as-text self 0 0))
+      
+      (:value 
+       
+       (draw-mini-view (get-box-value self) 
+                       self 4 4 (- (w frame) 8) (- (h frame) 12) nil)
+       
+       (draw-mini-arrow 24 9 3 10 7 1))
+      
+      (otherwise 
+       (let ((label (string-upcase (get-object-type-name (reference self))))
+             (font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))))
+       (om-with-font font
+                     (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
+                       (om-draw-string (- (/ (w frame) 2) (/ (om-string-size label font) 2))
+                                       (max 22 (+ 6 (/ (h frame) 2)))
+                                       label)))
+
+
+                     ))
+      ))
+  (draw-patch-icon self)
+  t)
+
+
+(defun draw-mini-arrow (ax ay b w h i) 
+  (om-with-fg-color (om-make-color 1 1 1)
+    (om-draw-polygon (list 
+                      (+ ax b) ay 
+                      (+ ax b w) ay 
+                      (+ ax b w) (+ ay h)
+                      (+ ax b w b) (+ ay h) 
+                      (+ ax b (/ w 2)) (+ ay h 5) 
+                      ax (+ ay h)
+                      (+ ax b) (+ ay h))
+                     :fill t))
+  (om-with-fg-color (om-make-color .5 .5 .5)
+    (om-draw-polygon (list 
+                      (+ ax b) ay 
+                      (+ ax b w) ay 
+                      (+ ax b w) (+ ay h)
+                      (+ ax b w b) (+ ay h) 
+                      (+ ax b (/ w 2)) (+ ay h 5) 
+                      ax (+ ay h)
+                      (+ ax b) (+ ay h))
+                     :fill nil))
+   
+   (om-draw-string  (+ ax 5) (+ ay 9) (format nil "~D" i) :font (om-def-font :font1b) :color (om-make-color .5 .5 .5))
+   
+   )
+
+
+;;; display reference instead of value
+(defmethod change-display ((self OMBoxAbstraction)) 
+  (when (visible-property (get-properties-list self) :display)
+    (let ((next-mode (next-in-list (display-modes-for-object (reference self))
+                                   (display self))))
+      (set-display self next-mode))))
+
+
+(defmethod draw-values-as-text ((self OMBox) &optional (offset-x 0) (offset-y 0))
+  (om-with-fg-color (om-def-color :gray)
+    (om-with-font (om-def-font :font1b)
+                         ;(om-draw-string 40 18 "values:")
+                  (loop for v in (or (value self) (make-list (length (outputs self)))) 
+                        for y = (+ offset-y 18) then (+ y 16) 
+                        for i = 1 then (+ 1 i) do 
+                        (draw-mini-arrow (+ offset-x 24) (- y 9) 3 10 7 i)
+                        (om-draw-string (+ offset-x 45) y (format nil "~A" v)))
+                  ))
+  )
 
 (defmethod draw-patch-icon ((self OMBoxAbstraction) &optional (offset-x 0) (offset-y 0))
   (let* ((abs (reference self))

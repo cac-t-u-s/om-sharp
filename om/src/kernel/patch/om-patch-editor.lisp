@@ -46,9 +46,11 @@
 
 
 (defmethod init-editor ((ed patch-editor))
-  (unless (loaded? (object ed))
-    (load-contents (object ed)))
-  (call-next-method))
+  (let ((patch (object ed)))
+    (unless (loaded? patch)
+      (load-contents patch))
+    (retain-reference patch ed)
+    (call-next-method)))
  
 ;;; the default location of the editor view
 ;;; can change, e.g. for a maquette-editor
@@ -104,10 +106,12 @@
   
 (defmethod init-editor-window ((editor patch-editor))
   (call-next-method)
-  (put-patch-boxes-in-editor-view (object editor) (main-view editor)) 
-  (update-inspector-for-editor editor)
-  (add-lock-item editor (main-view editor))
-  (update-window-name editor))
+  (let ((patch (object editor)))
+    (put-patch-boxes-in-editor-view patch (main-view editor)) 
+    (update-inspector-for-editor editor)
+    (add-lock-item editor (main-view editor))
+    (update-window-name editor)
+    ))
 
 
 (defun draw-h-grid-line (view y) 
@@ -354,18 +358,6 @@
 ;;; EVENT HANDLERS
 ;;;=========================
 
-(defmethod get-internal-elements ((self OMPatch))
-  (append (boxes self) (connections self)))
-
-(defmethod close-internal-elements ((self OMPatch))
-  (let ((not-closed-elements 
-         (loop for element in (get-internal-elements self)
-               when (null (close-internal-element element))
-               collect element)))
-    (when not-closed-elements
-      (om-print (format nil "~%The following elements were not closed:~{~%~A~}~%------" not-closed-elements) "ERROR"))
-    t))
-
 (defmethod get-selected-boxes ((self patch-editor))
   (let ((boxes (boxes (object self))))
     (remove-if-not 'selected boxes)))
@@ -374,25 +366,14 @@
   (let ((connections (connections (object self))))
     (remove-if-not 'selected connections)))
 
+;;; callback from the GUI 
 (defmethod editor-close ((self patch-editor))
   (call-next-method)
-  (close-internal-elements (object self))
-  (unless (references-to (object self))
-    (unregister-document (object self)))
-  )
-
-(defmethod close-internal-element ((self t)) t)
-
-(defmethod close-internal-element ((self ObjectWithEditor)) 
-  (close-editor self)
-  (call-next-method)
-  t)
-
-(defmethod close-internal-element ((self OMBox)) 
-  (call-next-method)
-  (omng-delete self)
-  (setf (frame self) nil)
-  t)
+  (let ((patch (object self)))
+    (close-document patch)
+    (release-reference patch self)
+    ))
+ 
 
 (defmethod om-view-doubleclick-handler ((self patch-editor-view) pos) 
   (unless (or (om-point-in-rect-p pos 0 0 20 20)
@@ -871,7 +852,11 @@
           )
     )))
 
+
+(defmethod allowed-move (box destination) t)
+
 (defmethod om-drag-receive ((self patch-editor-view) (dragged-view OMBoxFrame) position &optional (effect nil))
+  
   (unless (om-points-equal-p (om-view-position dragged-view) position)
     (let* ((init-patch (container (object dragged-view)))
            (patchview (om-view-container dragged-view))
@@ -881,8 +866,18 @@
            (newpositions (mapcar 
                           #'(lambda (view) (om-add-points position (om-subtract-points (om-view-position view) initpos))) 
                           (dragged-views patchview))))
-      (unless (or (edit-lock editor)
-                  (find-if #'(lambda (p) (or (< (om-point-x p) 0) (< (om-point-y p) 0))) newpositions))
+      
+      ;;; conditions for cancelled dag-and-drop:
+      (unless (or ;;; editor locked
+                  (edit-lock editor)   
+                  ;;; wrong final position
+                  (find-if #'(lambda (p) (or (< (om-point-x p) 0) (< (om-point-y p) 0))) newpositions)
+                  ;;; move patch in itself or other not-allowed move
+                  (and (not (equal effect :copy))
+                       (not (equal init-patch target-patch))
+                       (member nil (loop for dview in (dragged-views patchview) collect
+                                         (allowed-move (object dview) editor)))))
+
         (let ((connections (save-connections-from-boxes (mapcar 'object (dragged-views patchview))))
               (newboxes nil))
           
@@ -893,7 +888,9 @@
                 (let* ((box (object dview))
                        ;;; in case of maquette container
                        (box-beg-position (omng-position self pos)))
+                  
                   (if (equal effect :copy)
+                     
                       ;;; COPY
                       (let ((newbox (om-copy box)))
                         (pushr newbox newboxes)     
@@ -913,33 +910,36 @@
                             (om-invalidate-view dview)
                             t
                             )))
-                    ;;; NOT COPY = MOVE
-                    (cond ((equal init-patch target-patch) ;;; IN THE SAME PATCH
-                           (omng-move box box-beg-position)
-                           (om-set-view-position dview pos)
-                           (update-connections box)
-                           (redraw-connections dview)
-                           (om-invalidate-view self)
-                           t)
 
-                          (t ;;; IN ANOTHER PATCH
-                             (omng-remove-element init-patch box)
-                             (report-modifications (editor init-patch))
-                             (mapcar #'(lambda (c) (omng-remove-element init-patch c)) (get-box-connections box))
-                             (om-remove-subviews patchview dview)
-                     
-                             (pushr box newboxes)
-                             (when (omNG-add-element (editor self) box)
-                               (omng-move box box-beg-position)
-                               ;;; set the frame at the graphic pos & size
+                    ;;; NOT COPY = MOVE
+                    (if (equal init-patch target-patch) ;;; IN THE SAME PATCH
+                        
+                        (progn
+                          (omng-move box box-beg-position)
+                          (om-set-view-position dview pos)
+                          (update-connections box)
+                          (redraw-connections dview)
+                          (om-invalidate-view self)
+                          t)
+
+                      (progn ;;; IN ANOTHER PATCH
+                        (omng-remove-element init-patch box)
+                        (report-modifications (editor init-patch))
+                        (mapcar #'(lambda (c) (omng-remove-element init-patch c)) (get-box-connections box))
+                        (om-remove-subviews patchview dview)
+                        (pushr box newboxes)
+                        (when (omNG-add-element editor box)
+                          (omng-move box box-beg-position)
+                          ;;; set the frame at the graphic pos & size
                                (om-set-view-position dview pos)
                                (om-set-view-size dview (om-view-size dview))
                                (om-add-subviews self dview)
                                (update-connections box)
                                (om-invalidate-view dview)
                                )
-                             t)
-                          ))))
+                        t)
+                      ))))
+          
           (setf (dragged-views self) nil)
           (when newboxes ;;; the boxes have been copied: restore the connections !
             (mapcar #'(lambda (c)
@@ -966,7 +966,7 @@
   (let* ((file (pathname (car file-list)))
          (objtype (extension-to-doctype (pathname-type file)))
          (newbox 
-          (cond ((member objtype '(:patch :maquette :textfun))
+          (cond ((member objtype *om-doctypes*)
                  ;;; TRY TO LOAD THE PATCH
                  (let ((obj (load-doc-from-file file objtype)))
                    (when obj (omNG-make-new-boxcall obj position))))
@@ -1233,9 +1233,9 @@
 
 ;;; handle/warn on possible duplicates
 (defmethod new-abstraction-box-in-patch-editor ((self patch-editor-view) str position)     
-  (let ((patch (object (editor self)))
+  (let ((patch (find-persistant-container (object (editor self))))
         (abs-types '("opat" "omaq" "olsp"))
-        (doc-path nil))
+        (doc-path str))
     
     (when (mypathname patch)
       (let* ((local-restored-path (merge-pathnames str (om-make-pathname :directory (mypathname patch))))
@@ -1265,12 +1265,14 @@
         ;(print search-matches)
             (setf doc-path (car search-matches))))
         
-    (when doc-path
+    (if doc-path
       (let ((obj (load-doc-from-file doc-path (extension-to-doctype (pathname-type doc-path)))))
         (when obj
           (add-box-in-patch-editor 
            (omNG-make-new-boxcall obj position) 
-           self))))
+           self)))
+      (om-beep-msg "Warning: no file named ~s in your search-path folder" 
+                   (pathname-name str)))
     ))
                 
 
@@ -1396,8 +1398,9 @@
     
     (set-g-component editor :inspector inspector-pane)
     
-    ;;; initialize with current selection
-    (update-inspector-for-editor editor)
+    ;;; initialize with current selection 
+    ;; => wrong update frame (the window is not yet created)
+    ;; (update-inspector-for-editor editor)
     
     inspector-pane))
 
@@ -1595,7 +1598,10 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
   (unless (equal (editor-window-config self) mode)
     (setf (editor-window-config self) mode)
     (build-editor-window self)
-    (init-editor-window self)))
+    (init-editor-window self)
+    (when (equal (editor-window-config self) :inspector)
+      (update-inspector-for-editor self))
+    ))
 
 (defmethod make-layout-items ((editor patch-editor))
     
@@ -1644,7 +1650,8 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                  :action #'(lambda (b) 
                              (declare (ignore b))
                              (patch-editor-set-window-config 
-                              editor 
+                     
+         editor 
                               (if (equal (editor-window-config editor) :listener) nil :listener)))
                  )
                                

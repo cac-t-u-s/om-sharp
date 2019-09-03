@@ -57,23 +57,25 @@
                     (om-print-format "No header found in document..." nil "Import/Compatibility"))
                 
                   (load path)
-                
+                      
                   (if *om-current-persistent* ;;; filled in the patch-loading process
-                  
-                      (progn 
-                    
-                        (copy-contents *om-current-persistent* object)
-                    
-                        (setf (omversion object) *om-version*
-                              (create-info object) (list (om-get-date) (om-get-date))
-                              (window-size object) (eval (nth 4 metadata))
-                              (saved? object) nil)
-
-                        (omng-delete *om-current-persistent*) ;;; remove references etc.
-                        object
-                        )
-                  
+                          
+                      (unwind-protect 
+                          
+                          (progn 
+                            (copy-contents *om-current-persistent* object)
+                            
+                            (setf (omversion object) *om-version*
+                                  (create-info object) (list (om-get-date) (om-get-date))
+                                  (window-size object) (eval (nth 4 metadata))
+                                  (saved? object) nil)
+                            object)
+                        
+                        ;;; remove references etc.
+                        (omng-delete *om-current-persistent*))
+                        
                     (unregister-document object))
+                  
                   ))))
         
         (unless previous-loading-document (clos::set-clos-initarg-checking t))
@@ -194,7 +196,7 @@
                              ((string-equal lock "&") :eval-once))))
       (:lambda ,(if lock (cond ((string-equal lock "l") :lambda) 
                                ((string-equal lock "o") :reference))))
-      (:inputs .,inputs)
+      (:inputs .,(mapcar #'eval inputs))
       (:display :mini-view)
       )
     ))

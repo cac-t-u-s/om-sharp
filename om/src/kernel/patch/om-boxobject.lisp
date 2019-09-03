@@ -177,7 +177,7 @@
   (let* ((newbox (call-next-method))
          (class (find-class (reference newbox) nil)))
     (when (omclass-p class)
-      (push newbox (references-to class)))
+      (retain-reference class newbox))
     newbox))
 
 (defmethod omng-delete ((box OMBoxRelatedWClass))
@@ -518,7 +518,7 @@
 
 (defmethod omNG-make-new-boxcall ((reference OMClass) pos &optional init-args)
   (let ((box (call-next-method)))
-    (push box (references-to reference))
+    (retain-reference reference box)
     box))
 
 (defmethod om-copy ((self OMBoxEditCall)) 
@@ -710,7 +710,7 @@
 
 (defmethod make-slots-boxcall ((reference OMClass) pos)
   (let ((box (call-next-method)))
-    (push box (references-to reference))
+    (retain-reference reference box)
     box))
 
 (defmethod make-slots-boxcall ((reference t) pos)

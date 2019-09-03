@@ -65,6 +65,23 @@
 (add-preference :appearance :box-font "Text font" :font (om-def-font :font1))
 (add-preference :appearance :box-align "Text align" '(:left :center :right) :center)
 
+
+;;;=============================
+; DEPENDENCY/DOCUMENT MANAGEMENT
+;;;=============================
+
+(defmethod find-persistant-container ((self OMBox))
+  (let ((container (container self)))
+    (if container
+        (or (is-persistant container)
+            (let ((one-box-ref (find-if #'(lambda (b) (subtypep (type-of b) 'OMBox)) 
+                                        (references-to container))))
+              (and one-box-ref
+                   (find-persistant-container one-box-ref))))
+      (om-beep-msg "ERROR :: Could not find any parent document!"))
+    ))
+
+
 ;;;=============================
 ; PROPERTIES
 ;;;=============================

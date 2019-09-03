@@ -45,14 +45,6 @@ All boxes which their reference is a OM generic function are instances of this c
 (defmethod allow-rename ((self OMBoxcall)) nil)
 
 
-(defmethod find-persistant-container ((self OMBox))
-  (let ((container (container self)))
-    (if container
-        (or (is-persistant container)
-            (find-persistant-container (car (references-to container))))
-      (om-beep-msg "ERROR :: Could not find any parent document!"))
-    ))
-
 ;-------------------------------------------
 ; PROPERTIES
 ;-------------------------------------------
@@ -84,8 +76,8 @@ All boxes which their reference is a OM generic function are instances of this c
 
 (defmethod update-after-change-mode ((box OMBox))
   (let ((ed (and (container box) (editor (container box)))))
-    (if ed 
-        (update-inspector-for-editor ed) ;;; will take into account possible multiple selection etc.
+    (if ed
+        (update-inspector-for-editor ed box) ;;; will take into account possible multiple selection etc.
       (update-inspector-for-object box)) ;;; does this (no editor) really happens ?
     (om-invalidate-view (frame box))
     (when ed
@@ -173,18 +165,29 @@ All boxes which their reference is a OM generic function are instances of this c
   (when (object-has-editor (reference self))
     (open-editor (reference self))))
 
-(defmethod copy-if-exists ((io OMBoxIO) iolist)
-  (let ((exists (find (reference io) iolist :test 'equal :key 'reference)))
-    (if exists (copy-io exists) io)))
+;;; for temporary in/outputs, the reference is sometimes just a number
+(defmethod copy-if-exists ((io OMBoxIO) n iolist)
+ 
+  (let ((exists (find-if #'(lambda (old-io) 
+                             (or 
+                              (and (numberp (reference old-io))
+                                   (= (reference old-io) n))
+                              (equal (reference io) (reference old-io))))
+                         iolist)))
+    
+    (if exists (copy-io exists) io)
+    ))
 
 (defmethod update-from-reference ((self OMBoxCall))
-
+  
   (let ((new-inputs (append (loop for i in (create-box-inputs self)
-                                  collect (copy-if-exists i (inputs self)))
+                                  for n from 0
+                                  collect (copy-if-exists i n (inputs self)))
                             (get-keyword-inputs self)))
                     
         (new-outputs (append (loop for o in (create-box-outputs self)
-                                   collect (copy-if-exists o (outputs self)))
+                                   for n from 0
+                                   collect (copy-if-exists o n (outputs self)))
                              (get-keyword-outputs self))))
     
     ;;; remove former i-o connections 
@@ -241,7 +244,6 @@ All boxes which their reference is a OM generic function are instances of this c
     (mapcar #'(lambda (input val) (setf (value input) val)) (inputs box) main-args)
     (loop while other-args do
       (let ((arg (pop other-args)))
-        ;; (print arg)
         (or (more-optional-input box :value arg)
             (and (symbolp arg) (string-equal "KEYWORD" (package-name (symbol-package arg)))
                  (more-keyword-input box :key arg :value (pop other-args)))
@@ -264,7 +266,7 @@ All boxes which their reference is a OM generic function are instances of this c
 
   (let ((new-in (next-optional-input self)))
     (when (and name (not (string-equal name (string new-in))))
-      (om-print-format "WARNING -- WRONG OPTIONAL INPUT NAME: ~A -- Correct optional in the list is now: ~A" (list name new-in)))
+      (om-print-format "WRONG OPTIONAL INPUT NAME: ~A -- Correct optional in the list is now: ~A" (list name new-in) "Warning"))
     (when new-in
       (add-optional-input self 
                           :name new-in

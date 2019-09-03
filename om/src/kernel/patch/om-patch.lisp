@@ -54,7 +54,6 @@
   (:metaclass omstandardclass))
 
 (defmethod object-doctype ((self OMPatch)) :patch)
-(defmethod obj-file-extension ((self OMPatch)) "opat")
 (defmethod get-object-type-name ((self OMPatch)) "Patch")
   
 (defmethod allowed-element ((self OMPatch) (elem OMBox)) t)
@@ -68,10 +67,6 @@
 
 (defmethod omNG-add-element ((self OMPatch) (elem OMBox))
   (setf (container elem) self)
-  ;(print "================================================")
-  ;(print (boxes self))
-  ;(print elem)
-  ;(print "================================================")
   (setf (boxes self) (append (boxes self) (list elem))))
 
 (defmethod omng-remove-element ((self OMPatch) (elem OMBox))
@@ -79,10 +74,9 @@
     (setf (container elem) nil))
   (setf (boxes self) (remove elem (boxes self) :test 'equal)))
 
-(defmethod omng-delete ((self OMPatch)) 
-  (mapc #'omng-delete (boxes self))
-  (call-next-method))
-
+;;;========================================
+;;; LOADING...
+;;;========================================
 
 (defmethod index ((self t)) -1)
 
@@ -96,9 +90,13 @@
   (let* ((sorted-boxes (sort-boxes (boxes from)))
          (connections (save-connections-from-boxes sorted-boxes))
          (boxes (mapcar 'om-copy sorted-boxes)))
-    (mapc #'(lambda (b) (omng-add-element to b)) boxes)
+
+    (mapc #'(lambda (b) 
+              (omng-add-element to b)) boxes)
+    
     (mapc #'(lambda (c) (omng-add-element to c))
           (restore-connections-to-boxes connections (boxes to)))
+    
     to))
 
 (defmethod om-copy ((self OMPatch))  
@@ -115,6 +113,64 @@
         (copy-contents tmppatch self))
     (om-beep-msg "CAN NOT LOAD PATCH '~A'" (name self))))
 
+
+;;;========================================
+;;; CLOSING / RELEASING REFERENCES...
+;;;========================================
+
+(defmethod omng-delete ((self OMPatch)) 
+  (om-print (list self (name self)) "delete patch") 
+  (mapc #'omng-delete (boxes self))
+  (setf (boxes self) nil)
+  (setf (connections self) nil)
+  (setf (loaded? self) nil)
+  (call-next-method))
+
+
+(defmethod get-internal-elements ((self OMPatch))
+  (append (boxes self) (connections self)))
+
+(defmethod close-internal-elements ((self OMPatch))
+  (let ((not-closed-elements 
+         (loop for element in (get-internal-elements self)
+               when (null (close-internal-element element))
+               collect element
+               )))
+    
+    (when not-closed-elements
+      (om-print (format nil "~%The following elements were not closed:~{~%~A~}~%------" not-closed-elements) "ERROR"))
+    t))
+
+
+(defmethod close-document ((patch OMPatch))
+  
+  (close-internal-elements patch)
+    
+  (unless 
+      ;;; are there references to the same patch outside this patch
+      (find-if-not
+       #'(lambda (b) 
+           (equal patch (find-persistant-container b)))
+       (box-references-to patch))
+    ;;; if not, remove all box references (they are all inside) this patch
+    (loop for refb in (box-references-to patch)
+          do (release-reference patch refb))
+    )
+  )
+
+(defmethod close-internal-element ((self t)) t)
+
+;;; nothing to do
+(defmethod close-internal-element ((self OMBox)) t)
+
+(defmethod close-internal-element ((self ObjectWithEditor)) 
+  (close-editor self)
+  (call-next-method)
+  t)
+
+
+
+
 ;;;========================================
 ;;; CAN BE CALLED FROM OMPATCHES / MAQUETTE
 ;;;========================================
@@ -125,6 +181,7 @@
 
 ;;;=============================
 ;;; CONNECTIONS
+;;;=============================
 
 (defmethod omng-add-element ((self OMPatch) (elem OMConnection))
   (omng-connect elem)

@@ -63,7 +63,7 @@
     (apply 'make-instance (append (list 'omconnection :from from :to to) args))))
 
 (defmethod set-graphic-connection ((c OMConnection))
-  (when (and (area (from c)) (area (to c))) 
+  (when (and (area (from c)) (area (to c)))
     (update-points c)
     (setf (graphic-connection c)
           (make-instance 'graphic-connection
@@ -227,6 +227,9 @@
 (defmethod get-nth-input ((self OMBox) n)
   (and n (nth n (inputs self))))
 
+;;; some boxes can greate artificially some temporary in/outs (used at loading self-contaiend, recursive abstractions)
+(defmethod gen-temp-nth-input ((self t) n) nil)
+(defmethod gen-temp-nth-output ((self t) n) nil)
 
 (defmethod restore-connections-to-boxes (connections box-list)
   (remove 
@@ -240,32 +243,73 @@
                 (out (when box-from (get-nth-output box-from (getf b1 :out))))
                 (in (when box-to (get-nth-input box-to (getf b2 :in))))
                 (attributes (find-value-in-kv-list connection-info :attributes)))
+           
            (cond ((and out in)
                   (omng-make-new-connection out
                                             in
                                             (list :color (omng-load (getf attributes :color))
                                                   :style (getf attributes :style)
                                                   :modif (getf attributes :modif))))
+                 
                  ((null box-from)
                   (om-print-format "Connection could not be restored: missing box #~D" 
                                    (list (getf b1 :box))
                                    "WARNING")
                   NIL)
+
                  ((null box-to)
                   (om-print-format "Connection could not be restored: missing box #~D" 
                                    (list (getf b2 :box))
                                    "WARNING")
                   NIL)
-                 (t ;;; two boxes are here but no input or outputs 
+
+                 ((null out) ;;; two boxes are here but no nth output 
+                  (let ((temp-out (gen-temp-nth-output box-from (getf b1 :out))))
+                    (if temp-out 
+                        (progn 
+                          (om-print-dbg "Creating temporary output ~D for ~A: ~A" (list (getf b1 :out) (name box-from) temp-out) "Import Warning")
+                          (omng-make-new-connection temp-out
+                                            in
+                                            (list :color (omng-load (getf attributes :color))
+                                                  :style (getf attributes :style)
+                                                  :modif (getf attributes :modif)))
+                          )
+                      (progn 
+                        (om-print-format "Connection could not be restored normally from ~A (~D) [NO OUTPUT] to ~A (~D)" 
+                                         (list (name box-from) (getf b1 :out) 
+                                               (name box-to) (getf b2 :in))
+                                         "Import Warning")
+                        NIL))
+                    ))
+
+                 ((null in) ;;; two boxes are here but no nth input 
+                  (let ((temp-in (gen-temp-nth-input box-to (getf b2 :in))))
+                    (if temp-in 
+                        (progn 
+                          (om-print-dbg "Creating temporary input ~D for ~A: ~A." (list (getf b2 :in) (name box-to) temp-in) "Import Warning")
+                          (omng-make-new-connection out
+                                            temp-in
+                                            (list :color (omng-load (getf attributes :color))
+                                                  :style (getf attributes :style)
+                                                  :modif (getf attributes :modif))))
+                      (progn 
+                        (om-print-format "Connection could not be restored normally from ~A (~D) to ~A (~D)  [NO INPUT]" 
+                                         (list (name box-from) (getf b1 :out) 
+                                               (name box-to) (getf b2 :in))
+                                         "Import Warning")
+                        NIL))
+                    ))
+
+                 (t ;;; no way (this case should never happen...°
                     (om-print-format "Connection could not be restored from ~A (~D) to ~A (~D)" 
-                                     (list (name box-from) (getf b1 :out) (name box-to) (getf b2 :in))
-                                     "WARNING")
+                                     (list (name box-from) (getf b1 :out)
+                                           (name box-to) (getf b2 :in))
+                                     "Import Warning")
                     NIL))
                  
            )
-         )
-   )
-  )
+         )))
+
 
 
 (defmethod adopt-connection ((self box-input) (connection omconnection))
@@ -349,8 +393,8 @@
                                           (om-make-point 
                                            (if (integerp (om-point-x p)) (om-point-x p) (* (om-point-x p) (om-point-x diff-points)))
                                            (if (integerp (om-point-y p)) (om-point-y p) (* (om-point-y p) (om-point-y diff-points)))
-                                           ))
-                           ) (points c))))
+                                           )))
+                       (points c))))
     (let ((style (connection-draw-style c)))
       (case style 
         (:rounded (get-rounded-pts gpts 4))
@@ -486,17 +530,13 @@
         (color (connection-draw-color (object self))))
     (when reactive
       (om-draw (draw-points self) 
-               :color (om-make-color-alpha (om-def-color :dark-red) ; (or (color (object self)) (om-def-color :dark-gray))
+               :color (om-make-color-alpha (om-def-color :dark-red)
                                            (if (equal (state self) :disabled) 0.3 1)) 
                :line (1+ line-w)))
 
     (om-draw (draw-points self) 
              :color (om-make-color-alpha color (if (equal (state self) :disabled) 0.3 1))
              :line line-w)
-  ;(om-draw (draw-points self) 
-  ;         :color (om-make-color-alpha (om-def-color :light-gray) ; (or (color (object self)) (om-def-color :red))
-  ;                                     (if (equal (state self) :disabled) 0.3 1)) 
-  ;         :line (if (selected (object self)) 2.5 1.5))
   
   ;(when (and (selected (object self)) (not (equal :spline (style (object self)))))
   ;  (mapcar 

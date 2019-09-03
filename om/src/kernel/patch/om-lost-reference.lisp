@@ -213,10 +213,10 @@
 ;;; For persistant abstraction boxes we play it differently:
 ;;; The box remaions but it highlighted until the refence is missing (i.e., file not found)
 ;;; The user can also go and look for the file by himself
-(defmethod lost-reference? ((box OMBoxAbstraction))
-  (and (is-persistant (reference box))
-       (mypathname (reference box))
-       (not (probe-file (mypathname (reference box))))))
+(defmethod lost-reference? ((self OMBoxAbstraction))
+  (and (is-persistant (reference self))
+       (mypathname (reference self))
+       (not (probe-file (mypathname (reference self))))))
 
 (defmethod restore-inputs ((self OMBoxAbstraction) inputs)
   (if (lost-reference? self)
@@ -229,7 +229,12 @@
     (call-next-method)))
 
 (defmethod box-draw-text-color ((self OMBoxAbstraction))
-  (if (lost-reference? self) (om-make-color .8 0. 0.) (call-next-method)))
+  (cond ((lost-reference? self)
+         (om-make-color .8 0 0))
+        ((and (is-persistant (reference self))
+              (null (mypathname (reference self))))
+         (om-make-color .8 0.3 0.3))
+        (t (call-next-method))))
 
 (defmethod box-draw-color ((self OMBoxAbstraction)) 
   (if (lost-reference? self) (om-make-color 1 0.6 0.5) (call-next-method)))

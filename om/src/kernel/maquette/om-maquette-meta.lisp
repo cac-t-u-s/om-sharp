@@ -58,8 +58,8 @@
   self)
 
 (defmethod omng-delete ((self OMMaquette)) 
-  (release-reference (ctrlpatch self) self)
   (omng-delete (ctrlpatch self))
+  (release-reference (ctrlpatch self) self)
   (call-next-method))
 
 (defmethod close-internal-elements ((self OMMaquette))

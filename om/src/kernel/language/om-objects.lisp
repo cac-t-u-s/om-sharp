@@ -78,10 +78,14 @@
    )
   (:documentation "Superclass for OM metaobjects, like patches, classes, generic functions..."))
 
-(defmethod release-reference ((self t) from) nil)
+(defmethod release-reference ((self t) pointer) nil)
 
-(defmethod release-reference ((self OMBasicObject) from)  
-  (setf (references-to self) (remove from (references-to self))))
+(defmethod release-reference ((self OMBasicObject) pointer)  
+  (setf (references-to self) (remove pointer (references-to self))))
+
+(defmethod retain-reference ((self OMBasicObject) pointer)  
+  (setf (references-to self) (cons pointer (references-to self))))
+
 
 ;===========================
 ; FUNCTIONS, METHODS ARE FUNCALLABLE BASIC OBJECTS
@@ -141,9 +145,10 @@
 (defmethod set-name ((self OMProgrammingObject) name)
   (call-next-method)
   (when (editor self) (update-window-name (editor self)))
-  (loop for box in (references-to self) ;; in principel there is only one at this stage
-        do (set-name box (name self))
-        do (om-invalidate-view (frame box))))
+  (loop for box in (box-references-to self) ;; in principle there is only one at this stage
+        do 
+        (set-name box (name self))
+        (when (frame box) (om-invalidate-view (frame box)))))
 
 (defmethod compile-if-needed ((self OMProgrammingObject))
   ; (print (list "COMPILE" (name self) (compiled? self)))
@@ -156,6 +161,11 @@
   (setf (compiled? self) nil)
   (call-next-method))
 
+
+;;;=======================================
+;;; PERSISTANT
+;;;=======================================
+
 (defclass OMPersistantObject () 
   ((mypathname :initform nil :initarg :mypathname :accessor mypathname :documentation "associated file pathname")
    (saved? :initform nil :accessor saved? :documentation "as the object been modified without saving?"))
@@ -166,7 +176,7 @@
   (call-next-method))
 
 (defmethod update-from-editor ((self OMProgrammingObject)  &key (value-changed t) (reactive t))
-  (loop for ref in (references-to self)
+  (loop for ref in (box-references-to self)
         do (update-from-editor ref :value-changed value-changed :reactive reactive))
   (touch self)
   (call-next-method))
@@ -174,22 +184,6 @@
 ;(defmethod update-from-editor ((self OMPersistantObject))
 ;  (touch self)
 ;  (call-next-method))
-
-(defmethod is-persistant ((self OMPersistantObject)) self)
-(defmethod is-persistant ((self t)) nil)
-
-(defmethod find-persistant-container ((self OMPersistantObject)) self)
-
-;;; go check with the container of the reference box
-;;; in principle all references have the same container
-(defmethod find-persistant-container ((self OMProgrammingObject))
-  (when (references-to self)
-    (find-persistant-container (car (references-to self)))))
-
-(defmethod release-reference :around ((self OMPersistantObject) from)  
-  (call-next-method)
-  (unless (or (references-to self) (editor-window self))
-    (unregister-document self)))
 
 (defmethod window-name-from-object ((self OMPersistantObject))
   (if (mypathname self) 
@@ -219,6 +213,43 @@
 (defclass OMPersistantFolder (OMFolder OMPersistantObject) ()
   (:documentation "Superclass of persistant objects that are saved as folders."))
 
+
+
+
+;;;=======================================
+;;; DEPENDENCY MANAGEMENT
+;;;=======================================
+
+
+(defmethod is-persistant ((self OMPersistantObject)) self)
+(defmethod is-persistant ((self t)) nil)
+
+(defmethod find-persistant-container ((self OMPersistantObject)) self)
+
+;;; go check with the container of the reference box
+;;; in principle all references have the same container
+;;; This method is also specialized for OMBox
+(defmethod find-persistant-container ((self OMProgrammingObject))
+  (let ((one-box-ref (find-if #'(lambda (b) (subtypep (type-of b) 'OMBox)) 
+                              (references-to self))))
+    (when one-box-ref
+      (find-persistant-container one-box-ref))))
+
+(defmethod box-references-to ((self OMProgrammingObject))
+  (remove-if 
+   #'(lambda (ref)
+       (not (subtypep (type-of ref) 'OMBox)))
+   (references-to self)))
+
+(defmethod release-reference :around ((self OMPersistantObject) from)  
+  (call-next-method)
+  (unless (references-to self)
+    (unregister-document self)))
+
+(defmethod release-reference :around ((self OMProgrammingObject) from)  
+  (call-next-method)
+  (unless (references-to self)
+    (omng-delete self)))
 
 
 
