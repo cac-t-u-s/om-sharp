@@ -61,18 +61,22 @@
   
   (let ((str (format nil "DOCUMENTS~%")))
     (loop for doc in *open-documents*
-          do (setf str (string+ str (format nil "- ~A (~A) ~A references" 
+          do (setf str (string+ str (format nil "- ~A (~A) ~A reference(s)" 
                                             (name (doc-entry-doc doc)) 
                                             (doc-entry-file doc) 
                                             (length (references-to (doc-entry-doc doc))))))
           (when (editor-window (doc-entry-doc doc))
-            (setf str (string+ str " + EDITOR")))
+            (setf str (string+ str " (incl. EDITOR)")))
           
           (setf str (string+ str (format nil "~%")))
           
           (loop for ref in (references-to (doc-entry-doc doc))
                 do 
-                (setf str (string+ str (format nil "--- ~A (~A)~%" (name ref) ref))))
+                (setf str (string+ str (format nil "--- ~A (~A)~%" 
+                                               ref
+                                               (if (subtypep (type-of ref) 'OMBox) (list (name ref) "in" (container ref))
+                                                 "EDITOR")
+                                               ))))
           )
     (print str)))
            
