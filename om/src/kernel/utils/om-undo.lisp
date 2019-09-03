@@ -234,6 +234,7 @@
                            :key #'container))
          (reference-containers-connections 
           (loop for ref-b in reference-boxes 
+                when (container ref-b)
                 collect (save-connections-from-boxes (boxes (container ref-b))))))
 
     
@@ -263,11 +264,13 @@
           for c-list in reference-containers-connections
           do 
           (let ((pat (container ref-b)))
-            (loop for c in (restore-connections-to-boxes c-list (boxes pat))
-                  when (or (equal ref-b (box (to c)))    
-                           (equal ref-b (box (from c))))
+            (when pat
+              (loop for c in (restore-connections-to-boxes c-list (boxes pat))
+                    when (or (equal ref-b (box (to c)))    
+                             (equal ref-b (box (from c))))
                   do (omng-add-element pat c))
-            (when (editor pat) (update-after-state-change (editor pat)))
+              (when (editor pat) (update-after-state-change (editor pat)))
+              )
             )
           )
           
