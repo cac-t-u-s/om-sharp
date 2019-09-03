@@ -258,9 +258,9 @@
                     (< (get-box-onset tb) (x2 self)))
           do
           (let ((x1 (x-to-pix self (get-box-onset tb)))
-                (x2 (print (if (scale-in-x-? tb) 
+                (x2 (if (scale-in-x-? tb) 
                                (x-to-pix self (get-box-end-date tb))
-                             (box-w tb)))))
+                             (box-w tb))))
             (draw-temporal-box tb self x1 0 (- x2 x1) (h self) (- (get-obj-time maquette) (get-box-onset tb)))
             (when (selected tb)
               (om-with-fg-color (om-make-color-alpha (om-def-color :gray) 0.5)
@@ -347,6 +347,7 @@
               (om-init-temp-graphics-motion 
                self position nil
                :motion #'(lambda (view pos)
+                           (declare (ignore view))
                            (when (> (- (om-point-x pos) (x-to-pix self (get-box-onset selected-box))) 10)
                              (if (scale-in-x-? selected-box)
                                  (set-box-duration selected-box 
@@ -355,6 +356,7 @@
                                (setf (box-w selected-box) (- (om-point-x pos) (x-to-pix self (box-x selected-box)))))
                              (om-invalidate-view self)))
                :release #'(lambda (view pos) 
+                            (declare (ignore view pos))
                             (report-modifications editor) 
                             (om-invalidate-view self))
                :min-move 4)
@@ -373,6 +375,7 @@
               (om-init-temp-graphics-motion  
                self position nil
                :motion #'(lambda (view pos)
+                           (declare (ignore view))
                            (let ((dx (round (dpix-to-dx self (- (om-point-x pos) (om-point-x p0)))))
                                  (py (om-point-y pos)))
                              
@@ -399,6 +402,7 @@
                              ))
                
                :release #'(lambda (view pos) 
+                            (declare (ignore view pos))
                             (report-modifications editor) 
                             (om-invalidate-view (om-view-window self)))
                
@@ -413,12 +417,14 @@
           (om-init-temp-graphics-motion 
            self position nil
            :motion #'(lambda (view pos)
+                       (declare (ignore view))
                        (when (> (- (om-point-x pos) (x-to-pix self (get-box-onset box))) 10)
                          (set-box-duration box 
                                            (- (round (pix-to-x self (om-point-x pos)))
                                               (get-box-onset box)))
                          (om-invalidate-view self)))
            :release #'(lambda (view pos) 
+                        (declare (ignore view pos))
                         (report-modifications editor)
                         (om-invalidate-view self))
            :min-move 4)
@@ -448,6 +454,7 @@
   (om-init-temp-graphics-motion 
    self position nil :min-move 4
    :motion #'(lambda (view pos)
+               (declare (ignore view))
                (let* ((dx (round (dpix-to-dx self (- (om-point-x pos) (om-point-x position)))))
                       (selected-box-onset (get-box-onset orig-box))
                       (snap-delta 200)
@@ -460,6 +467,7 @@
                    (update-to-editor editor self)
                    )))
    :release #'(lambda (view pos) 
+                (declare (ignore view pos))
                 (report-modifications editor) 
                 (update-to-editor editor self))))
 
@@ -521,6 +529,11 @@
 (defmethod draw-maquette-mini-view ((object t) (box OMBox) x y w h &optional time)
   (ensure-cache-display-draw box object)
   (draw-mini-view object box x y w h time))
+
+(defmethod draw-maquette-mini-view ((object OMBoxEditCall) (box OMBox) x y w h &optional time)
+  (om-draw-rect (+ x 2) (+ y 4) (- w 4) (- h 16) :fill t :color (om-def-color :white))
+  (draw-maquette-mini-view (get-box-value object) box (+ x 8) (+ y 4) (- w 12) (- h 16) nil))
+
 
 (defmethod draw-temporal-box ((self OMBox) view x y w h &optional (time 0))
   (let ((bgcolor (box-draw-color self)))
@@ -776,12 +789,9 @@
   (unless (equal (show-control-patch maq-editor) show)
     
     (setf (show-control-patch maq-editor) show)
-   
-    (let ((ctrlpatch (ctrlpatch (object maq-editor))))
-      
-      (build-editor-window maq-editor)
-      (init-editor-window maq-editor)
-      )))
+    (build-editor-window maq-editor)
+    (init-editor-window maq-editor)
+    ))
 
 ;;;========================
 ;;; GENERAL CONSTRUCTOR
@@ -789,9 +799,6 @@
 
 (defmethod make-editor-window-contents ((editor maquette-editor))
   (let* ((maquette (get-obj-to-play editor))
-         
-         (control-patch? t)
-         (box-viewer? t)
          
          (tracks-or-maq-view 
           (if (equal (view-mode editor) :maquette)
@@ -877,6 +884,7 @@
                            :icon :maqeval-black :icon-pushed :maqeval-gray
                            :lock-push nil :enabled t
                            :action #'(lambda (b)
+                                       (declare (ignore b))
                                        (let ((maq (get-obj-to-play editor)))
                                          (eval-maquette maq)
                                          (om-invalidate-view tracks-or-maq-view)
@@ -886,6 +894,7 @@
                            :icon :icon-trash-black :icon-pushed :icon-trash-gray
                            :lock-push nil :enabled t
                            :action #'(lambda (b) 
+                                       (declare (ignore b))
                                        (when (om-y-or-n-dialog "Do you really want to remove all boxes in the maquette?")
                                          (m-flush (get-obj-to-play editor))
                                          (om-invalidate-view tracks-or-maq-view)
@@ -895,6 +904,7 @@
                            :icon :icon-no-exec-black :icon-pushed :icon-no-exec-gray
                            :lock-push t :enabled t
                            :action #'(lambda (b)
+                                       (declare (ignore b))
                                        (with-schedulable-object maquette
                                                                 (setf (no-exec maquette) 
                                                                       (not (no-exec maquette)))))))
@@ -960,7 +970,9 @@
                          :subviews (list (om-make-graphic-object 
                                           'om-icon-button :icon :xx :icon-pushed :xx-pushed
                                           :size (omp 12 12)
-                                          :action #'(lambda (b) (patch-editor-set-window-config editor nil))
+                                          :action #'(lambda (b) 
+                                                      (declare (ignore b))
+                                                      (patch-editor-set-window-config editor nil))
                                           )
                                          inspector-pane))))
                 ))
@@ -1041,11 +1053,11 @@
         (get-g-component self :metric-ruler)))
 
 (defun make-track-control (n editor)
-  (let ((f-color +font-color+))
-    (om-make-view 
-     'sequencer-track-control :num n
-     :size (om-make-point *track-control-w* *track-h*)
-     :bg-color (nth (mod n 2) (list +track-color-1+ +track-color-2+)))))
+  (declare (ignore editor))
+  (om-make-view 
+   'sequencer-track-control :num n
+   :size (om-make-point *track-control-w* *track-h*)
+   :bg-color (nth (mod n 2) (list +track-color-1+ +track-color-2+))))
 
 (defun n-track-views (maquette-editor)
   (length (get-g-component maquette-editor :track-views)))
@@ -1177,17 +1189,17 @@
 ;;;========================
 
 (defmethod play-editor-callback ((self maquette-editor) time)
-  (let ((t-auto (get-tempo-automation self)))
     (set-time-display self time)
     (mapcar #'(lambda (view) (when view (update-cursor view time))) (cursor-panes self))
-    ;(if (not (getf (beat-info self) :next-date))
+    ;(let ((t-auto (get-tempo-automation self)))
+    ; (if (not (getf (beat-info self) :next-date))
     ;    (setf (getf (beat-info self) :next-date) (get-beat-date t-auto (getf (beat-info self) :beat-count))))
-    ;(loop while (>= time (getf (beat-info self) :next-date))
-    ;      do
-    ;      (om-set-dialog-item-text (cadr (om-subviews (tempo-box self))) (format nil "~$" (tempo-at-beat t-auto (getf (beat-info self) :beat-count))))
-    ;      (incf (getf (beat-info self) :beat-count) 0.1)
-    ;      (setf (getf (beat-info self) :next-date) (get-beat-date t-auto (getf (beat-info self) :beat-count))))
-    ))
+    ;  (loop while (>= time (getf (beat-info self) :next-date))
+    ;        do
+    ;        (om-set-dialog-item-text (cadr (om-subviews (tempo-box self))) (format nil "~$" (tempo-at-beat t-auto (getf (beat-info self) :beat-count))))
+    ;        (incf (getf (beat-info self) :beat-count) 0.1)
+    ;        (setf (getf (beat-info self) :next-date) (get-beat-date t-auto (getf (beat-info self) :beat-count))))
+    )
 
 (defmethod stop-editor-callback ((self maquette-editor))
   (setf (getf (beat-info self) :beat-count) 0

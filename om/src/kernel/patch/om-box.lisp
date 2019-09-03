@@ -240,6 +240,8 @@
 (defmethod move-box ((self OMBox) dx dy)
   (move-box-to self (max 0 (+ (box-x self) dx)) (max 0 (+ (box-y self) dy))))
 
+
+;;; Does the box scale if placed in a timed view (e.g. a maquette)
 (defmethod scale-in-x-? ((self OMBox)) t)
 (defmethod scale-in-y-? ((self OMBox)) t)
 

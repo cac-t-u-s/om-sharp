@@ -27,7 +27,7 @@
    (lambda-state :initform nil :accessor lambda-state :initarg :lambda-state)  ;;; can be (nil :lambda :reference :box)
    (ev-once-flag :accessor ev-once-flag :initform nil)
    (eval-flag :accessor eval-flag :initform nil))
-  (:documentation "This is the class for boxes in a Patch or in a maquette.
+  (:documentation "This is the class for boxes which can be evaluated.
 All boxes which their reference is a OM generic function are instances of this class.")
   (:metaclass omstandardclass))
 
@@ -291,7 +291,7 @@ All boxes which their reference is a OM generic function are instances of this c
                   :pick #'(lambda (f) (list 0 0 12 (- (h f) 16))))
    ))
 
-;;; IN MAQUETTE VIEW
+;;; Does the box scale if placed in a timed view (e.g. a maquette)
 (defmethod scale-in-x-? ((self OMFunBoxCall)) nil)
 (defmethod scale-in-y-? ((self OMFunBoxCall)) nil)
 

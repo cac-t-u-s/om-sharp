@@ -148,6 +148,7 @@
 
 (load-om-package "basic")
 (load-om-package "midi")
+(load-om-package "maquette")
 (load-om-package "metronome")
 (load-om-package "score")
 (load-om-package "sdif")

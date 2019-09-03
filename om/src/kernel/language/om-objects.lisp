@@ -133,7 +133,7 @@
    (create-info :initform '(nil nil) :accessor create-info :documentation "information about creation and last modification of the document (text)")
    (loaded? :initform t :accessor loaded? :documentation "is this document loaded?")
    (dependencies :initform nil :accessor dependencies :documentation "a list of subpatches"))
-  (:documentation "Superclass for programming object and workspace elements (patches, maquette, etc.)"))
+  (:documentation "Superclass for programming object and workspace elements"))
 
 (defmethod initialize-instance :after ((self OMProgrammingObject) &rest initargs)
   (setf (compiled-fun-name self) (default-compiled-gensym self)))
@@ -206,7 +206,7 @@
 ;;;=======================================
 
 (defclass OMFolder (OMBasicObject) 
-   ((elements :initform nil :accessor elements :documentation "folders, patches and maquettes contained in the workspace"))
+   ((elements :initform nil :accessor elements :documentation "folders contained in the workspace"))
    ;(presentation :initform 1 :initarg :presentation :accessor presentation :documentation "presentation mode: 1=list, 0=icons"))
    (:documentation "The class of the OM folders"))
 

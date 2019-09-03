@@ -95,7 +95,7 @@
 
 (defvar *om-doctypes* '(:patch))
 
-;;; used to add doc types for Lisp functions and maquette...
+;;; used to add doc types for Lisp functions, maquette...
 (defun add-om-doctype (type ext desc)
   (setf *om-doctypes* (append *om-doctypes* (list type)))
   

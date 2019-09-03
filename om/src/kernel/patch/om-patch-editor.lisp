@@ -374,7 +374,7 @@
                                     
                        #'(lambda () 
                            (store-current-state-for-undo self)
-                           (unencapsulate-patchboxes self (main-view self) selected-boxes))
+                           (unencapsulate-patchboxes self (main-view self) (get-selected-boxes self)))
                                                       
                        :enabled #'(lambda () (and (not (edit-lock self))
                                                   (get-selected-boxes self)))
@@ -1057,7 +1057,7 @@
                                 (and (get-pref-value :files :search-path)
                                      (om-directory (get-pref-value :files :search-path)
                                                    :files t :directories nil
-                                                   :type '("opat" "omaq" "olsp")
+                                                   :type (mapcar #'doctype-to-extension *om-doctypes*)
                                                    :recursive (get-pref-value :files :search-path-rec)))))
              
              (localpath-strings 
@@ -1067,8 +1067,8 @@
                        (filecandidates
                         (mapcar 'pathname-name 
                                 (om-directory localfolder
-                                              :files t :directories nil
-                                              :type '("opat" "omaq" "olsp")
+                                              :files t :directories nil 
+                                              :type (mapcar #'doctype-to-extension *om-doctypes*)
                                               :recursive nil))))
                   (loop for file in filecandidates collect
                         (string+ currentpathbase file))))))
@@ -1288,7 +1288,7 @@
 ;;; handle/warn on possible duplicates
 (defmethod new-abstraction-box-in-patch-editor ((self patch-editor-view) str position)     
   (let ((patch (find-persistant-container (object (editor self))))
-        (abs-types '("opat" "omaq" "olsp"))
+        (abs-types (mapcar #'doctype-to-extension *om-doctypes*))
         (doc-path str))
     
     (when (mypathname patch)

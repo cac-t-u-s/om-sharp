@@ -69,8 +69,8 @@
 ;;; FOR THE META INPUTS
 ;;; the references-to a control patch is just the maquette
 (defmethod maquette-container ((self OMMaqControlPatch)) (car (references-to self)))
-;;; if there are severa references (maquetteFile) we assume that the first in the list is the current caller
-(defmethod box-container ((self OMMaqControlPatch)) (car (references (car (references-to self)))))
+;;; if there are several references (maquetteFile) we assume that the first in the list is the current caller
+(defmethod box-container ((self OMMaqControlPatch))  (car (references-to (car (references-to self)))))
 
 
 ;;;====================================
@@ -118,6 +118,14 @@
 
 (defmethod current-box-value ((self OMMaqInBox) &optional (numout nil))
   (if numout (return-value self numout) (value self)))
+
+
+(defmethod omng-save ((self OMMaqIn))
+  `(:in
+    (:type ,(type-of self)) 
+    (:index ,(index self))
+    (:name ,(name self))
+    (:doc ,(doc self))))
 
 
 

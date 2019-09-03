@@ -438,54 +438,6 @@
 
     patch))
 
-;;;=================================
-;;; MAQUETTE
-;;;=================================
-(defmethod save-patch-contents ((self OMMaquette) &optional (box-values nil)) 
-  (append
-   (call-next-method self t)
-   `((:range ,(range self))
-     (:control-patch ,(omng-save (ctrlpatch self))))))
-
-
-(defmethod load-patch-contents ((patch OMMaquette) data)
-  (let ((maquette (call-next-method))
-        (patch (find-value-in-kv-list data :control-patch))
-        (range (find-value-in-kv-list data :range)))
-    (when patch (set-control-patch maquette (omng-load patch)))
-    (when range (setf (range maquette) range))
-    maquette))
-      
-(defmethod om-load-from-id ((id (eql :maquette)) data)
-  (let ((maq (make-instance 'OMMaquetteInternal :name (find-value-in-kv-list data :name))))
-    (load-patch-contents maq data)
-    maq))
-
-
-
-(defmethod omng-save-relative ((self OMMaquetteFile) ref-path)  
-  `(:maquette-from-file ,(omng-save (relative-pathname (mypathname self) ref-path))))
-
-(defmethod om-load-from-id ((id (eql :maquette-from-file)) data)
-
-  (let* ((path (omng-load (car data)))
-         (checked-path (check-path-using-search-path path)))
-    
-    (if checked-path
-        
-        (load-doc-from-file checked-path :maquette)
-      
-      (om-beep-msg "FILE NOT FOUND: ~S !" path))
-    ))
-
-;(let ((data (cdr (car (list-from-file "/Users/bresson/Desktop/test.omp")))))
-  ;(find-values-in-prop-list data :info)
- ; (mapcar #'omng-load (find-values-in-prop-list data :boxes))
-;  (find-values-in-prop-list data :boxes)
-;  )
-;(omng-load '(:box (:reference pprint) (:position (:point 260 242)) (:size (:point 63 28)) (:icon :left) (:color nil) (:border t) (:font nil) (:align :left) (:lock nil) (:lambda nil) (:reactive nil) (:inputs (:standard "OBJECT" nil))))
-
-
 
 
 ;;;=================================
@@ -551,12 +503,6 @@
     (:name ,(name self))
     (:doc ,(doc self))))
 
-(defmethod omng-save ((self OMMaqIn))
-  `(:in
-    (:type ,(type-of self)) 
-    (:index ,(index self))
-    (:name ,(name self))
-    (:doc ,(doc self))))
 
 (defmethod omng-save ((self OMOut))
   `(:out

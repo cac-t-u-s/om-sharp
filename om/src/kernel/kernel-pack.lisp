@@ -54,12 +54,6 @@
                                             :doc "This package contains special interface boxes and widgets to use in OM patches (sliders, buttons, etc.)"
                                             :special-symbols '(button slider check-box switch list-selection list-menu)
                                             )
-
-                         (omNG-make-package "Meta" 
-                                            :doc "Visual program / maquette manipulation"
-                                            :functions '(get-boxes m-add m-remove m-move m-objects m-flush)
-                                            :special-symbols '(mybox mymaquette)
-                                            )
                          ))))
   ;(add-ref-section (gen-ref-entries kernelpack))
   )

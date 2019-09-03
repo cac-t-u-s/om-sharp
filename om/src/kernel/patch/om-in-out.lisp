@@ -41,7 +41,7 @@
          nil 
          (loop for box in (boxes self) 
                when (equal (type-of (reference box)) 'OMIn) 
-               ;; here we do not include teh special inputs (mybox, mymaquete etc.)
+               ;; here we do not include the special inputs (mybox, mymaquete etc.)
                collect (reference box)))
          '< :key #'(lambda (i) (or (index i) 0))))
 
@@ -210,7 +210,7 @@
    (let ((inputs (remove elem (get-inputs self))))
      (setf (index elem) 
            (if inputs ;; index is +1 of the max existing indices
-               (1+ (list-max (mapcar 'index inputs)))
+               (1+ (apply #'max (mapcar 'index inputs)))
              1)))))
  
 (defmethod register-patch-io ((self OMPatch) (elem OMOut))
@@ -290,44 +290,5 @@
 
 (defmethod current-box-value ((self OMSelfInBox) &optional (numout nil))
   (if numout (return-value self numout) (value self)))
-
-
-#|
-;;; note : maybe this is all not useful and I should set the meta just at eval
-
-;;; TRY TO SET THE DEFVAL AS THE CONTAINER BOX
-(defmethod register-patch-io ((self OMMaqControlPatch) (elem OMSelfIn))
-  (call-next-method)
-  ;;; For OMMaqControlPatch the only references-to is the maquette
-  (let ((maquette (car (references-to self))))
-    (if (= 1 (length (references-to maquette))) ;;; can be many boxes if this is a maquettefile...
-        (setf (defval elem) (car (references-to maquette))))))
-
-(defmethod register-patch-io ((self OMPatchInternal) (elem OMSelfIn))
-  (call-next-method)
-  ;;; For OMPatchInternal the only references-to is the box
-  (setf (defval elem) (car (references-to self))))
-
-(defmethod register-patch-io ((self OMPatchFile) (elem OMSelfIn))
-  (call-next-method)
-  ;;; For OMPatchFile the only references-to can be multiples
-  ;;; In this case, it will be set only before eval
-  (if (= 1 (length (references-to self)))
-      (setf (defval elem) (car (references-to self)))))
-|#
-
-
-#|
-(defmethod set-meta-inputs ((self t) box maq) nil)
-
-(defmethod set-meta-inputs ((self OMPatch) box maq)
-  (mapc
-   #'(lambda (i) (setf (defval (reference i)) maq)) 
-   (get-boxes-of-type self 'OMMaqInBox))
-  (mapc 
-   #'(lambda (i) (setf (defval (reference i)) box)) 
-   (get-boxes-of-type self 'OMSelfInBox)))
-|#
-
 
 
