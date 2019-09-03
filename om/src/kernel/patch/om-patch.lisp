@@ -119,7 +119,6 @@
 ;;;========================================
 
 (defmethod omng-delete ((self OMPatch)) 
-  (om-print (list self (name self)) "delete patch") 
   (mapc #'omng-delete (boxes self))
   (setf (boxes self) nil)
   (setf (connections self) nil)
@@ -150,7 +149,8 @@
       ;;; are there references to the same patch outside this patch
       (find-if-not
        #'(lambda (b) 
-           (equal patch (find-persistant-container b)))
+           (or (null (find-persistant-container b))
+               (equal patch (find-persistant-container b))))
        (box-references-to patch))
     ;;; if not, remove all box references (they are all inside) this patch
     (loop for refb in (box-references-to patch)
