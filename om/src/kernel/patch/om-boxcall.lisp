@@ -192,9 +192,10 @@ All boxes which their reference is a OM generic function are instances of this c
     
     ;;; remove former i-o connections 
     (let ((patch (container self)))
-      (loop for io in (append (get-standard-inputs self) (get-standard-outputs self)) do
-            (loop for c in (connections io)
-                  do (omng-remove-element patch c))))
+      (when patch 
+        (loop for io in (append (get-standard-inputs self) (get-standard-outputs self)) do
+              (loop for c in (connections io)
+                    do (omng-remove-element patch c)))))
     
     (set-box-inputs self new-inputs)
     (set-box-outputs self new-outputs)
