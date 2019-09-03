@@ -179,20 +179,22 @@
   (remove nil
             (list 
              (main-app-menu-item)
-             (om-make-menu "File" 
-                           (append 
-                            (default-file-menu-items self)
-                            (list (om-make-menu-item 
-                                   "Open as Text..."
-                                   #'(lambda () 
-                                       (om-lisp::om-open-text-editor :contents (pathname (mypathname (object self))) :lisp t))
-                                   :enabled #'(lambda ()
-                                                (and (is-persistant (object self))
-                                                     (mypathname (object self))))))))
-             (om-make-menu "Edit" 
-                           (append 
-                            (default-edit-menu-items self)
-                            (list 
+             (om-make-menu 
+              "File" 
+              (append 
+               (default-file-menu-items self)
+               (list (om-make-menu-item 
+                      "Open as Text..."
+                      #'(lambda () 
+                          (om-lisp::om-open-text-editor :contents (pathname (mypathname (object self))) :lisp t))
+                      :enabled #'(lambda ()
+                                   (and (is-persistant (object self))
+                                        (mypathname (object self))))))))
+             (om-make-menu 
+              "Edit" 
+              (append 
+               (default-edit-menu-items self)
+               (list 
                              ;(om-make-menu-comp 
                              ;      (list (om-make-menu-item  
                              ;             "Auto align boxes..."
@@ -202,131 +204,182 @@
                              ;             :key "a" :key-mod nil 
                              ;             :enabled #'(lambda () (not (edit-lock self)))
                              ;             )))
-                             (om-make-menu-comp 
-                                   (list (om-make-menu-item  
-                                          "Show Lisp code"
-                                          #'(lambda () (patch-editor-set-window-config 
-                                                        self 
-                                                        (if (equal (editor-window-config self) :lisp-code) nil :lisp-code)))
-                                          :key "l" :selected #'(lambda () (equal (editor-window-config self) :lisp-code))
-                                          )
+                (om-make-menu-comp 
+                 (list (om-make-menu-item  
+                        "Show Lisp code"
+                        #'(lambda () (patch-editor-set-window-config 
+                                      self 
+                                      (if (equal (editor-window-config self) :lisp-code) nil :lisp-code)))
+                        :key "l" :selected #'(lambda () (equal (editor-window-config self) :lisp-code))
+                        )
                                          
-                                         (om-make-menu-item 
-                                          "Show Inspector" 
-                                          #'(lambda () (patch-editor-set-window-config 
-                                                        self 
-                                                        (if (equal (editor-window-config self) :inspector) nil :inspector))) 
-                                          :key "i" :selected #'(lambda () (equal (editor-window-config self) :inspector))
-                                          )
+                       (om-make-menu-item 
+                        "Show Inspector" 
+                        #'(lambda () (patch-editor-set-window-config 
+                                      self 
+                                      (if (equal (editor-window-config self) :inspector) nil :inspector))) 
+                        :key "i" :selected #'(lambda () (equal (editor-window-config self) :inspector))
+                        )
 
-                                         (om-make-menu-item  
-                                          "Show Listener Output"
-                                          #'(lambda () (patch-editor-set-window-config 
-                                                        self 
-                                                        (if (equal (editor-window-config self) :listener) nil :listener)))
-                                          :key "m" :selected #'(lambda () (equal (editor-window-config self) :listener))
-                                          )
+                       (om-make-menu-item  
+                        "Show Listener Output"
+                        #'(lambda () (patch-editor-set-window-config 
+                                      self 
+                                      (if (equal (editor-window-config self) :listener) nil :listener)))
+                        :key "m" :selected #'(lambda () (equal (editor-window-config self) :listener))
+                        )
 
-                                         (om-make-menu-item 
-                                          "Show Grid" 
-                                          #'(lambda () 
-                                              (setf (grid (object self)) (if (grid (object self)) nil 50))
-                                              (om-invalidate-view (main-view self)))
-                                          :key "g" :selected #'(lambda () (grid (object self)))
-                                          )
+                       (om-make-menu-item 
+                        "Show Grid" 
+                        #'(lambda () 
+                            (setf (grid (object self)) (if (grid (object self)) nil 50))
+                            (om-invalidate-view (main-view self)))
+                        :key "g" :selected #'(lambda () (grid (object self)))
+                        )
                                          
-                                         (om-make-menu-item  
-                                          "Edit lock" 
-                                          #'(lambda () (setf (lock (object self)) (not (lock (object self))))
-                                              (om-invalidate-view (main-view self)))
-                                          :key "e" :selected #'(lambda () (lock (object self)))
-                                          ))
-                                   :selection t)
+                       (om-make-menu-item  
+                        "Edit lock" 
+                        #'(lambda () (setf (lock (object self)) (not (lock (object self))))
+                            (om-invalidate-view (main-view self)))
+                        :key "e" :selected #'(lambda () (lock (object self)))
+                        ))
+                 :selection t)
 
-                             (om-make-menu-comp 
-                              (list (om-make-menu-item  
-                                     "Abort Evaluation"
-                                         #'(lambda () (om-abort))
-                                         :key "A"
-                                         :enabled #'(lambda () (not (edit-lock self)))
-                                          )))
+                (om-make-menu-comp 
+                 (list (om-make-menu-item  
+                        "Abort Evaluation"
+                        #'(lambda () (om-abort))
+                        :key "A"
+                        :enabled #'(lambda () (not (edit-lock self)))
+                        )))
                             
-                                  ))
-                           )
+                ))
+              )
 
-             (om-make-menu "Boxes"
-                           (list (om-make-menu "New..." 
-                                               (list 
+             (om-make-menu 
+              "Boxes"
+              (list (om-make-menu "New..." 
+                                  (list 
                                                 ;(om-make-menu-item "Abstraction (p)" #'(lambda () (om-beep)))
                                                 ;(om-make-menu-item "Comment (c)" #'(lambda () (om-beep)))
-                                                ))
-                                 (om-make-menu-comp 
-                                  (list 
+                                   ))
+                    (om-make-menu-comp 
+                     (list 
                                    
-                                   (om-make-menu-item "Selection:" nil :enabled nil)
+                      (om-make-menu-item "Selection:" nil :enabled nil)
                                    
-                                   (om-make-menu-item "Align"
+                      (om-make-menu-item 
+                       "Align [A]"
+                                    
+                       #'(lambda () (store-current-state-for-undo self)
+                           (align-selected-boxes self))
                                                       
-                                                      #'(lambda () (store-current-state-for-undo self)
-                                                          (align-selected-boxes self))
-                                                      
-                                                      :key "A"
-                                                      :enabled #'(lambda () (and (not (edit-lock self))
-                                                                                 (get-selected-boxes self)))
-                                                      )
+                                                      ; :key "A"
+                       :enabled #'(lambda () (and (not (edit-lock self))
+                                                  (get-selected-boxes self)))
+                       )
 
-                                   (om-make-menu-item "Init Size"
+                      (om-make-menu-item 
+                       "Init size [i]"
                                                       
-                                                      #'(lambda () (store-current-state-for-undo self)
-                                                          (mapc 'initialize-size 
-                                                                (or (get-selected-boxes self) (get-selected-connections self))))
+                       #'(lambda () (store-current-state-for-undo self)
+                           (mapc 'initialize-size 
+                                 (or (get-selected-boxes self) (get-selected-connections self))))
                                                       ; :key "i"
-                                                      :enabled #'(lambda () (and (not (edit-lock self))
-                                                                                 (or (get-selected-boxes self) 
-                                                                                     (get-selected-connections self))))
-                                                      )
+                       :enabled #'(lambda () (and (not (edit-lock self))
+                                                  (or (get-selected-boxes self) 
+                                                      (get-selected-connections self))))
+                       )
 
-                                   (om-make-menu-item "Reinit Content"
+                      (om-make-menu-item 
+                       "Reinit content [I]"
                                                       
-                                                      #'(lambda () (store-current-state-for-undo self)
-                                                          (mapc 'initialize-size 
-                                                                (or (get-selected-boxes self) (get-selected-connections self))))
+                       #'(lambda () (store-current-state-for-undo self)
+                           (mapc 'initialize-size 
+                                 (or (get-selected-boxes self) (get-selected-connections self))))
 
-                                                      :enabled #'(lambda () (and (not (edit-lock self))
-                                                                                 (or (get-selected-boxes self) 
-                                                                                     (get-selected-connections self))))
+                       :enabled #'(lambda () (and (not (edit-lock self))
+                                                  (or (get-selected-boxes self) 
+                                                      (get-selected-connections self))))
                                                       ; :key "I" :key-mod nil
-                                                      )
+                       )
 
-                                   (om-make-menu-item "Connect One"
+                      (om-make-menu-item 
+                       "Connect one [c]"
                                                       
-                                                      #'(lambda () (store-current-state-for-undo self)
-                                                          (auto-connect-box (get-selected-boxes self) self (main-view self)))
+                       #'(lambda () (store-current-state-for-undo self)
+                           (auto-connect-box (get-selected-boxes self) self (main-view self)))
                                                       
-                                                      :enabled #'(lambda () (and (not (edit-lock self))
-                                                                                 (get-selected-boxes self)))
-                                                      )
+                       :enabled #'(lambda () (and (not (edit-lock self))
+                                                  (get-selected-boxes self)))
+                       )
 
-                                   (om-make-menu-item "Connect Sequence"
+                      (om-make-menu-item 
+                       "Connect sequence [C]"
 
-                                                      #'(lambda () (store-current-state-for-undo self)
-                                                          (auto-connect-seq (get-selected-boxes self) self (main-view self)))
+                       #'(lambda () (store-current-state-for-undo self)
+                           (auto-connect-seq (get-selected-boxes self) self (main-view self)))
                                                       
-                                                      :enabled #'(lambda () (and (not (edit-lock self))
-                                                                                 (get-selected-boxes self)))
-                                                      )
+                       :enabled #'(lambda () (and (not (edit-lock self))
+                                                  (get-selected-boxes self)))
+                       )
 
-                                   (om-make-menu-item "Set Reactive"
+                      (om-make-menu-item 
+                       "Set Reactive [r]"
 
-                                                      #'(lambda () (store-current-state-for-undo self)
-                                                          (mapc 'set-reactive-mode (or (get-selected-boxes self) 
-                                                                                       (get-selected-connections self))))
+                       #'(lambda () (store-current-state-for-undo self)
+                           (mapc 'set-reactive-mode (or (get-selected-boxes self) 
+                                                        (get-selected-connections self))))
                                                       
-                                                      :enabled #'(lambda () (and (not (edit-lock self))
-                                                                                 (or (get-selected-boxes self) 
-                                                                                     (get-selected-connections self))))
-                                                      )
-                                   ))))
+                       :enabled #'(lambda () (and (not (edit-lock self))
+                                                  (or (get-selected-boxes self) 
+                                                      (get-selected-connections self))))
+                       )
+
+                      (om-make-menu-item 
+                       "Internalize abstraction(s) [a]"
+
+                       #'(lambda () (store-current-state-for-undo self)
+                           (mapc 'internalize-abstraction (get-selected-boxes self)))
+                                                      
+                       :enabled #'(lambda () (and (not (edit-lock self))
+                                                  (get-selected-boxes self)))
+                       )
+
+
+                      (om-make-menu-item 
+                       "Internalize abstraction(s) [a]"
+                                    
+                       #'(lambda () 
+                           (store-current-state-for-undo self)
+                           (encapsulate-patchboxes self (main-view self) (get-selected-boxes self)))
+                                                      
+                       :enabled #'(lambda () (and (not (edit-lock self))
+                                                  (get-selected-boxes self)))
+                       )
+
+                      (om-make-menu-item 
+                       "Encapsulate selection [E]"
+                                    
+                       #'(lambda () 
+                           (store-current-state-for-undo self)
+                           (encapsulate-patchboxes self (main-view self) (get-selected-boxes self)))
+                                                      
+                       :enabled #'(lambda () (and (not (edit-lock self))
+                                                  (get-selected-boxes self)))
+                       )
+
+                      (om-make-menu-item 
+                       "Unencapsulate selection [U]"
+                                    
+                       #'(lambda () 
+                           (store-current-state-for-undo self)
+                           (unencapsulate-patchboxes self (main-view self) selected-boxes))
+                                                      
+                       :enabled #'(lambda () (and (not (edit-lock self))
+                                                  (get-selected-boxes self)))
+                       )
+                      ))))
              
              (om-make-menu "Windows" (default-windows-menu-items self))
              (om-make-menu "Help" (default-help-menu-items self))
@@ -524,12 +577,13 @@
              
         (#\m (mapc 'change-display selected-boxes))
         
+        
         ;;; Box editing
-        ;;; =>  menu commands ?
+        ;;; => menu commands ?
 
-        ;(#\A (unless (edit-lock editor) 
-        ;       (store-current-state-for-undo editor)
-        ;       (align-selected-boxes editor)))
+        (#\A (unless (edit-lock editor) 
+               (store-current-state-for-undo editor)
+               (align-selected-boxes editor)))
         
         (#\c (unless (edit-lock editor)
                (store-current-state-for-undo editor)
@@ -551,7 +605,7 @@
         
         (#\I (mapc 'initialize-box-value selected-boxes))
 
-         (#\r (unless (edit-lock editor) 
+        (#\r (unless (edit-lock editor) 
                (store-current-state-for-undo editor)
                (mapc 'set-reactive-mode (or selected-boxes selected-connections))))
 
