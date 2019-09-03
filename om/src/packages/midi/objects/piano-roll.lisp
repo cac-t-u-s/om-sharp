@@ -460,20 +460,7 @@
                              (setf (midi-notes object) (list note))))
   (om-invalidate-view object))
 
-(defmethod prune-object ((self t) t1-ms t2-ms) nil)
 
-(defmethod prune-object ((self piano-roll) t1-ms t2-ms)
-  (let* ((t1 (max 0 (or t1-ms 0)))
-         (t2 (min (get-obj-dur self) (or t2-ms *positive-infinity*)))
-         (new-notes (filter-list (midi-notes self)
-                                 (max 0 (or t1-ms 0))
-                                 (min (get-obj-dur self) (or t2-ms *positive-infinity*))
-                                 :key 'midinote-onset)))
-    (loop for note in new-notes
-          do (decf (car note) t1))
-    (setf (midi-notes self) new-notes
-          (slice-duration self) (- t2 t1))
-    (om-invalidate-view self)))
 
 ;; not used (?)
 (defmethod tile-notes ((object piano-roll) (notes list) &key (preserve-overlap t))

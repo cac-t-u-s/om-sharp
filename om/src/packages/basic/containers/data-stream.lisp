@@ -54,7 +54,6 @@
 (defclass internal-data-stream (named-object time-sequence schedulable-object)
   ((default-frame-type :accessor default-frame-type :initform 'act-bundle)
    (frames :initform nil :documentation "a list of timed data chunks")
-   (slice-duration :accessor slice-duration :initform nil)  ;;; what is it for ?
    ))
 
 
@@ -128,10 +127,6 @@
 ;;;======================================
 (defmethod play-obj? ((self internal-data-stream)) t)
 
-(defmethod get-obj-dur ((self internal-data-stream)) 
-  (or (slice-duration self) ;; ???
-      (call-next-method)))
-
 (defmethod get-action-list-for-play ((object internal-data-stream) interval &optional parent)
   (mapcar 
    #'(lambda (frame) 
@@ -140,17 +135,6 @@
    (remove-if #'(lambda (date) (or (< date (car interval)) (> date (cadr interval)))) 
               (data-stream-get-frames object) 
               :key 'date)))
-
-(defmethod prune-object ((self internal-data-stream) t1-ms t2-ms)
-  (let ((t1 (max 0 (or t1-ms 0)))
-        (t2 (min (get-obj-dur self) (or t2-ms *positive-infinity*))))
-    (data-stream-set-frames self (filter-list (data-stream-get-frames self)
-                                     t1
-                                     t2
-                                     :key 'date)
-          (slice-duration self) (- t2 t1))
-    (om-invalidate-view self)))
-
 
 ;;;======================================
 ;;; OMMETHOD FOR PATCHES
