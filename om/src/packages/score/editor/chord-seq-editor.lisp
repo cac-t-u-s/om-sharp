@@ -214,6 +214,7 @@
       
       (loop for n in notes
             do (setf (dur n) (max 0 (round (+ (dur n) delta)))))
+      (time-sequence-update-obj-dur (object-value self))
       )))
 
 
