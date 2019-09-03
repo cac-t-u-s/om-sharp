@@ -27,6 +27,7 @@
 
 (defmethod default-compiled-gensym  ((self OMLispFunction)) (gensym "lispfun-"))
 
+
 (defclass OMLispFunctionInternal (OMLispFunction) ()
   (:default-initargs :icon :lisp-f)
   (:metaclass omstandardclass))
@@ -195,6 +196,17 @@
     (om-invalidate-view (frame self))
     t))
 
+
+(defmethod display-modes-for-object ((self OMLispFunction)) '(:hidden :mini-view :value))
+
+(defmethod draw-mini-view ((self OMLispFunction) box x y w h &optional time)
+  (let ((di 12))
+    (om-with-font 
+     (om-def-font :font1 :size 10)
+     (loop for line in (text self)
+           for i = (+ y 18) then (+ i di)
+           while (< i (- h 18)) do
+           (om-draw-string (+ x 12) i line)))))
 
 ;;;===================
 ;;; EDITOR
