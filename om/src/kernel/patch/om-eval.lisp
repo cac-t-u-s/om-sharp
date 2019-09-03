@@ -269,7 +269,8 @@
      
      ((equal (lambda-state self) :box) 
       
-      ;;; reevaluate normal then return the box
+      ;;; evaluate normal then return the box 
+      ;;; ... (why?)
       (setf (lambda-state self) nil)
       (omng-box-value self numout)
       (setf (lambda-state self) :box)
