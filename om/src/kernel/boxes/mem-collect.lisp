@@ -88,40 +88,43 @@
 ;;; ALWAYS IN "EV-ONCE" MODE
 
 (defmethod omNG-box-value ((self OMMemoryBox) &optional (numout 0))
+  
+  (unless (equal (ev-once-flag self) (get-ev-once-flag *ev-once-context*))
     
-    (unless (equal (ev-once-flag self) (get-ev-once-flag *ev-once-context*))
+    (let ((inval (omng-box-value (car (inputs self))))
+          (size (omng-box-value (cadr (inputs self)))))
       
-       (let ((inval (omng-box-value (car (inputs self))))
-             (size (omng-box-value (cadr (inputs self)))))
- 
-         (setf (ev-once-flag self) (get-ev-once-flag *ev-once-context*))
+      (setf (ev-once-flag self) (get-ev-once-flag *ev-once-context*))
          
-         (setf (value self)
-               
-               (cond 
-                ((integerp size)
-                 (list inval 
-                       ;;; last-n values
-                       (subseq (cons (car (value self)) 
-                                     (list! (cadr (value self))))
-                                0 size)))
+      (setf (value self)
+            
+            (cond 
+             ((integerp size)
+              (let ((new-memory (cons (car (value self)) 
+                                      (list! (cadr (value self))))))
+                (list inval 
+                      ;;; first-n values of memory
+                      (if (< (length new-memory) size) 
+                          new-memory
+                        (subseq new-memory 0 size)))))
+                 
+             ((floatp size)
+              (list inval
+                    ;;; values received since last time-window started
+                    (if (or (null (timetag (reference self)))  ;;; fresh memory
+                            (> (om-get-internal-time) (+ (* size 1000) (timetag (reference self))))) ;;; time out
+                        (progn 
+                          (setf (timetag (reference self)) (om-get-internal-time))
+                          (list inval))
+                      (cons inval 
+                            (list! (cadr (value self)))))
+                    ))
                 
-                ((floatp size)
-                 (list inval
-                       ;;; values received since last time-window started
-                       (if (or (null (timetag (reference self)))  ;;; fresh memory
-                               (> (om-get-internal-time) (+ (* size 1000) (timetag (reference self))))) ;;; time out
-                           (progn 
-                             (setf (timetag (reference self)) (om-get-internal-time))
-                             (list inval))
-                         (cons inval 
-                               (list! (cadr (value self)))))
-                       ))
-                
-                (t (list inval (car (value self))))))
-         )
-       )
-    (return-value self numout))
+             (t (list inval (car (value self))))))
+      )
+    )
+
+  (return-value self numout))
 
 
 #|
@@ -161,7 +164,6 @@
     `(nth ,numout ,local-name)
     ))
 |#
-
 
 
 
@@ -225,13 +227,12 @@
 (defmethod get-icon-id ((self OMCollectBox)) :m-mem)
 (defmethod object-name-in-inspector ((self OMCollectBox)) "collector box")
 
-
-
 (defmethod omNG-make-special-box ((reference (eql 'collect)) pos &optional init-args)
   (let ((name (car (list! init-args))))
     (omNG-make-new-boxcall 
      (make-instance 'OMCollect :name (if name (string name) "collect"))
      pos)))
+
 
 (defmethod create-box-inputs ((self OMCollectBox)) 
   (list 
@@ -415,8 +416,9 @@
 (defmethod omNG-box-value ((self OMTimedCollectBox) &optional (numout 0))
   
   (unless nil ;;; (equal (ev-once-flag self) (get-ev-once-flag *ev-once-context*))
-
-    (unless (value self) (setf (value self) (list nil nil)))
+    
+    (cond ((null (value self)) (setf (value self) (list nil nil)))
+          ((= 1 (length (value self))) (setf (value self) (list (car (value self)) nil))))
     
     (case numout
 

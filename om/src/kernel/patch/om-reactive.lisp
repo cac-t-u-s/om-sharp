@@ -41,7 +41,7 @@
 ;;;==================
 
 (defmethod OMR-Notify ((self OMBox) &optional input-name)
-  ; (print (list "NOTIFIED BOX" self))
+  (print (list "NOTIFIED BOX" self))
   (unless (push-tag self)
     (setf (push-tag self) t)
     (let ((listeners (get-listeners self)))
@@ -49,7 +49,6 @@
           (loop for listener in listeners do (omr-notify (car listener) (cadr listener)))
         (omNG-box-value self)))))
 
-(quote nil)
 
 ;;; SELF-NOTIFICATION (NOTIFIES AND REEVALUATES ON A NEW THREAD)
 (defmethod self-notify ((box OMBox) &optional (separate-thread t) (eval-box nil))

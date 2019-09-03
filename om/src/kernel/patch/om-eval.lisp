@@ -390,8 +390,9 @@
 
      (t (when (inputs self) 
           (if (= 1 (length (inputs self))) 
-              (set-value self (eval-box-inputs self))
-            (set-value self (list (eval-box-inputs self)))))
+              (setf (value self) (eval-box-inputs self))
+            (setf (value self) (list (eval-box-inputs self)))))
+        (setf (reference self) (type-of (car (value self))))
         (when (equal (lock-state self) :eval-once)
           ;;; first evaluation in this generation: set the value and flag
           (setf (ev-once-flag self) (get-ev-once-flag *ev-once-context*)))
@@ -401,7 +402,6 @@
 (defmethod clear-ev-once ((self OMValueBox))
   (when t ; (equal (lock-state self) :eval-once)
     (setf (ev-once-flag self) nil)))
-
 
 
 ;;;----------------------
