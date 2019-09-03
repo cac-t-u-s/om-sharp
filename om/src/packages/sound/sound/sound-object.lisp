@@ -87,7 +87,7 @@
 ;; om-internal-sound never explicitly frees its buffer but just releases it.
 ;; => buffer must be created 'with-GC' 
 (defmethod om-cleanup ((self om-internal-sound))
-  (om-print-dbg "SOUND cleanup: ~A (~A)" (list self (buffer self)) "OM")
+  (om-print-dbg "SOUND cleanup: ~A (~A)" (list self (buffer self)))
   (when (buffer self) (oa::om-release (buffer self))))
 
 (defmethod additional-slots-to-copy ((from om-internal-sound)) 
