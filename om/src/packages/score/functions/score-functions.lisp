@@ -169,6 +169,41 @@ POLY: each voice is concatenated, regardless of the global duration.
 ;--------------------
 
 
+(defmethod* select ((self chord-seq) (start number) (end number))
+  :initvals '(nil 0 1000) 
+  :indoc '("a sequence" "an integer" "an integer")
+  :doc "
+Extracts a subseqence :
+
+when :
+<self> is a chord-seq, <start> and <end> are absolute positions in ms, result is a chord-seq.
+<self> is a voice, <start> and <end> are measure numbers, result is a voice.
+<self> is a multi-seq, <start> and <end> are absolute positions in ms, result is a multi-seq.
+"
+  (if (or (< start 0)
+          (>= start end))
+       
+     (om-beep-msg "select : Bad start/end values")
+     
+    (let ((rep (make-instance (type-of self))))
+      
+      (data-stream-set-frames 
+       rep 
+       (loop for chord in (data-stream-get-frames self)
+             when (and (>= (item-get-time chord) start)
+                       (< (item-get-time chord) end))
+             collect (let ((c (om-copy chord)))
+                       (setf (onset c) (- (onset chord) start))
+                       c)))
+
+      rep)
+    ))
+
+(defmethod* select ((self multi-seq) (start number) (end number))
+   (make-instance 'multi-seq
+                  :obj-list (loop for cs in (obj-list self)
+                                  collect (select cs start end))))
+
 
 ;--------------------
 ;  MASK

@@ -58,7 +58,7 @@
  :subpackages  (list (omNG-make-package 
                       "Score Manipulations"
                       :doc "Manipulation of score objects"
-                      :functions '(object-dur get-chords concat)
+                      :functions '(object-dur get-chords concat select)
                       :subpackages nil)
                      (omNG-make-package 
                       "Rhythm"
