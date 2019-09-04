@@ -42,6 +42,7 @@
                           (mapcar #'(lambda (file) 
                                       (om-make-menu-item (namestring file) #'(lambda () (open-om-document file))))
                                   *om-recent-files*)))
+        (om-make-menu-item "Open Folder..." #'(lambda () (funcall (open-folder-command self))) :enabled (and (open-command self) t))
         (om-make-menu-comp 
          (list (om-make-menu-item "Save" #'(lambda () (funcall (save-command self))) :key "s" :enabled (and (save-command self) t))
                (om-make-menu-item (save-as-menu-name self) 
@@ -234,6 +235,23 @@
 
 (defmethod open-command (self) 
   #'(lambda () (open-om-document)))
+
+(defmethod open-folder-command (self) 
+  #'(lambda ()
+      (let ((folder (om-choose-directory-dialog :directory (or *last-open-dir* (om-user-home)))))
+        (when folder
+          (let ((files (om-directory folder :type (append 
+                                                   (mapcar #'doctype-to-extension *om-doctypes*)
+                                                   (doctype-to-ext-list :old)))))
+            (loop for file in files 
+                  do (handler-bind ((error #'(lambda (e)
+                                               (om-message-dialog (format nil "An error occured at loading ~S: ~%~%~A" file e))
+                                               (abort)
+                                               )))
+                       
+                       (open-om-document file nil)))
+            )))))
+
 
 
 ;;;===============================
