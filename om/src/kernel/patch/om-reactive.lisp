@@ -41,7 +41,7 @@
 ;;;==================
 
 (defmethod OMR-Notify ((self OMBox) &optional input-name)
-  (print (list "NOTIFIED BOX" self))
+
   (unless (push-tag self)
     (setf (push-tag self) t)
     (let ((listeners (get-listeners self)))
@@ -83,7 +83,6 @@
     ))))
 
 (defmethod clear-ev-once :around ((self OMBox))
-  ;(print "clear")
   (call-next-method)
   (setf (gen-lock self) nil)
   (setf (gen-flag self) nil)
