@@ -242,9 +242,9 @@
                                (let ((coll (get-value-for-editor (object editor))))
                                  (if (obj-list coll)
                                      (update-multi-display editor (editor-get-edit-param editor :show-all))
-                                   (disable b))
+                                   (button-disable b))
                                  (when (<= (length (obj-list coll)) 1)
-                                   (disable prev-button) (disable next-button))
+                                   (button-disable prev-button) (button-disable next-button))
                                  ))
                    ))
          (+button (om-make-graphic-object 
@@ -256,9 +256,9 @@
                                (declare (ignore b))
                                (add-new-object editor)
                                (let ((coll (get-value-for-editor (object editor))))
-                                 (enable -button)  ;; in case it was disabled..
+                                 (button-enable -button)  ;; in case it was disabled..
                                  (when (> (length (obj-list coll)) 1)
-                                   (enable prev-button) (enable next-button)))
+                                   (button-enable prev-button) (button-enable next-button)))
                                (update-multi-display editor (editor-get-edit-param editor :show-all))
                                )))
          )

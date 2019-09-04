@@ -634,7 +634,7 @@
 
 (defmethod editor-set-edit-mode ((self bpf-editor) mode)
   (mapcar #'(lambda (b) 
-              (if (equal mode (id b)) (select b) (unselect b)))
+              (if (equal mode (id b)) (button-select b) (button-unselect b)))
           (get-g-component self :mode-buttons))
   (setf (edit-mode self) mode)
   (om-set-view-cursor (get-g-component self :main-panel) 

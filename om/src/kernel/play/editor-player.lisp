@@ -187,8 +187,8 @@
 (defmethod stop-box-callback ((self t)) nil)
 
 (defmethod start-editor-callback ((self play-editor-mixin))
-  (when (pause-button self) (unselect (pause-button self)))
-  (when (play-button self) (select (play-button self)))
+  (when (pause-button self) (button-unselect (pause-button self)))
+  (when (play-button self) (button-select (play-button self)))
   (mapcar #'start-cursor (cursor-panes self))
   (when (object self) (start-box-callback (object self))))
     
@@ -198,8 +198,8 @@
   (when (object self) (play-box-callback (object self) time)))
 
 (defmethod stop-editor-callback ((self play-editor-mixin)) 
-  (when (play-button self) (unselect (play-button self)))
-  (when (pause-button self) (unselect (pause-button self)))
+  (when (play-button self) (button-unselect (play-button self)))
+  (when (pause-button self) (button-unselect (pause-button self)))
   (mapcar 'stop-cursor (remove nil (cursor-panes self)))
   (when (object self) (stop-box-callback (object self))))
 
@@ -229,8 +229,8 @@
 
 
 (defmethod editor-pause ((self play-editor-mixin))
-  (when (play-button self) (unselect (play-button self)))
-  (when (pause-button self) (select (pause-button self)))
+  (when (play-button self) (button-unselect (play-button self)))
+  (when (pause-button self) (button-select (pause-button self)))
   (if (and (metronome self) (metronome-on self))
       (player-pause-object (player self) (metronome self)))
   (player-pause-object (player self) (get-obj-to-play self)))
@@ -466,8 +466,8 @@
                                 :lock-push nil :enabled enable
                                 :action #'(lambda (b)
                                             (declare (ignore b))
-                                            (when (pause-button editor) (unselect (pause-button editor)))
-                                            (when (play-button editor) (unselect (play-button editor)))
+                                            (when (pause-button editor) (button-unselect (pause-button editor)))
+                                            (when (play-button editor) (button-unselect (play-button editor)))
                                             (editor-stop editor)))))
 
 (defmethod make-previous-button ((editor play-editor-mixin) &key size enable) 

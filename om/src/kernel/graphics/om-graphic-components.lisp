@@ -107,19 +107,19 @@
   (setf (fg-color self) color)
   (om-invalidate-view self))
 
-(defmethod select ((self om-icon-button))
+(defmethod button-select ((self om-icon-button))
   (setf (pushed self) t)
   (om-invalidate-view self))
 
-(defmethod unselect ((self om-icon-button))
+(defmethod button-unselect ((self om-icon-button))
   (setf (pushed self) nil)
   (om-invalidate-view self))
 
-(defmethod enable ((self om-icon-button))
+(defmethod button-enable ((self om-icon-button))
   (setf (enabled self) t)
   (om-invalidate-view self))
 
-(defmethod disable ((self om-icon-button))
+(defmethod button-disable ((self om-icon-button))
   (setf (enabled self) nil)
   (om-invalidate-view self))
 

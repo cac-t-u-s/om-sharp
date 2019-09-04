@@ -853,7 +853,7 @@
                            :lock-push nil :enabled (equal (view-mode editor) :tracks)
                            :action #'(lambda (b) 
                                        (unless (equal (view-mode editor) :maquette)
-                                         (disable b) (enable b2)
+                                         (button-isable b) (button-enable b2)
                                          (set-main-maquette-view editor :maquette)
                                          ))))
                  (setq b2 (om-make-graphic-object 
@@ -862,7 +862,7 @@
                            :lock-push nil :enabled (equal (view-mode editor) :maquette)
                            :action #'(lambda (b) 
                                        (unless (equal (view-mode editor) :tracks)
-                                         (disable b) (enable b1)
+                                         (button-disable b) (button-enable b1)
                                          (set-main-maquette-view editor :tracks)
                                          ))))
                  (list b1 b2)))
