@@ -165,7 +165,7 @@
                 :keys (not in-sequencer?))
 
     (when (notes self)
-      (draw-chord self 0 0 y-u 0 y-pix w h (fontsize box) :scale nil :staff staff
+      (draw-chord self 0 0 y-u x-pix y-pix w h (fontsize box) :scale nil :staff staff
                   :time-function #'(lambda (time) (declare (ignore time)) (/ w 2))
                   ))
     ))
