@@ -105,8 +105,12 @@
 
 (defun midi-import (&optional filename)
   (let ((file (or filename (om-api:om-choose-file-dialog :types '("MIDI file" "*.mid;*.midi")))))
-    (when (probe-file file)
-      (cl-midi-load-file file))))
+    (when file 
+      (if (probe-file file)
+          (cl-midi-load-file file)
+        (progn 
+          (print (format nil "File not found: ~s" (namestring file))) 
+          nil)))))
 
 
 
