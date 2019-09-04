@@ -21,9 +21,14 @@
 (in-package :om)
 
 (defclass timed-object () 
-  ((onset :accessor onset :initform 0 :initarg :onset)))
+  ((onset :accessor onset :initform 0 
+          :initarg :onset :initarg :date  ;;; two possible initargs (for compatibility)
+          :documentation "date/time of the object")))
 
-;;; some objects just have NO time markers.. ?
+;;; redefine for subclasses
+(defmethod get-obj-dur ((self timed-object)) 1)
+
+;;; some objects just have no time markers ?
 (defmethod get-time-markers ((self t)) nil)
 
 ;;;TIME MARKERS TO REDEFINE FOR YOUR SUBCLASS

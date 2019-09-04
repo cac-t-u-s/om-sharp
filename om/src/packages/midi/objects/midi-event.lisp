@@ -22,7 +22,7 @@
 ;;; MIDI-EVENT AS A DATA-FRAME (see data-stream container)
 ;;;============================
 (defclass* midi-event (data-frame)
-  ((date :accessor date :initarg :date :initform 0 :documentation "time of the frame")
+  (;; (date :accessor date :initarg :date :initform 0 :documentation "time of the frame")
    (ev-type :accessor ev-type :initarg :ev-type :initform nil :documentation "type of event")
    (ev-channel :accessor ev-channel :initarg :ev-channel :initform 1 :documentation "MIDI channel (1-16)")
    (ev-value :accessor ev-value :initarg :ev-value :initform 0 :documentation "value(s)")

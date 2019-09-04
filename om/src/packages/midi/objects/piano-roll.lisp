@@ -24,7 +24,7 @@
 ;;;======================================
 
 (defclass* midi-note (data-frame) 
-  ((date :accessor date :initarg :date :initform 0 :documentation "date of the note")
+  (;; (date :accessor date :initarg :date :initform 0 :documentation "date of the note")
    (pitch :accessor pitch :initarg :pitch :initform 60 :documentation "pitch (MIDI)")
    (vel :accessor vel :initarg :vel :initform 100 :documentation "velocity (0-127)")
    (dur :accessor dur :initarg :dur :initform 500 :documentation "duration(ms)")

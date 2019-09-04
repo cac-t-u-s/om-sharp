@@ -20,9 +20,13 @@
 ;;;======================================
 ;;; DIFFERENT KIND OF DATA (FRAMES/BUNDLES)
 ;;;======================================
-(defclass* data-frame (timed-item)
-  ((date :accessor date :initarg :date :initform 0 :documentation "date/time of the frame")
+(defclass* data-frame (timed-item timed-object)
+  (;; (date :accessor date :initarg :date :initform 0 :documentation "date/time of the frame")
    (attributes :accessor attributes :initarg :attributes :initform nil :documentation "some additional attributes for drawing etc.")))
+
+;;; COMPAT: REPLACE THE CALLS WITH ONSET
+(defmethod date ((self data-frame)) (onset self))
+(defmethod (setf date) (time (self data-frame)) (setf (onset self) time))
 
 ;;; TIME-SEQUENCE API
 (defmethod item-get-time ((self data-frame)) (date self))
@@ -34,10 +38,11 @@
 (defmethod get-frame-action ((self data-frame)) 
   #'(lambda () (print "EMPTY ACTION")))
 
+(defmethod get-obj-dur ((self data-frame)) (item-get-duration self))
 
 ;;; SIMPLEST DATA FRAME
 (defclass act-bundle (data-frame)
-  ((date :accessor date :initarg :dateg :initform 0 :documentation "date/time of the frame")
+  (;; (date :accessor date :initarg :dateg :initform 0 :documentation "date/time of the frame")
    (actions :accessor actions :initarg :actions :initform nil)))
 
 (defmethod get-frame-action ((self act-bundle)) 
@@ -77,7 +82,7 @@
   )
 
 (defmethod time-sequence-make-timed-item-at ((self internal-data-stream) at)
-  (make-instance (default-frame-type self) :date at))
+  (make-instance (default-frame-type self) :onset at))
 
 
 ;;;======================================

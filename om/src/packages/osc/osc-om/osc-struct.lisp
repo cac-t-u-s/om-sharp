@@ -21,7 +21,7 @@
 ;;; OSC BUNDLE OBJECT
 ;;;============================
 (defclass* osc-bundle (data-frame)
-  ((date :accessor date :initarg :date :initform 0 :documentation "time of the frame")
+  (;; (date :accessor date :initarg :date :initform 0 :documentation "time of the frame")
    (messages :accessor messages :initarg :messages :initform nil :documentation "list of osc messages")))
 
 ;(defmethod om-init-instance ((self osc-bundle) args)
