@@ -73,10 +73,12 @@ POLY: each voice is concatenated, regardless of the global duration.
 "
   
   (let ((cs (make-instance 'chord-seq)))
+
     (time-sequence-set-timed-item-list cs (append (get-chords s1) (get-chords s2)))
     (time-sequence-set-times cs (append (time-sequence-get-times s1)
-                                        (om+ (time-sequence-get-times s2) 
-                                             (or s2-offset (object-dur s1)))))
+                                               (om+ (time-sequence-get-times s2) 
+                                                    (or s2-offset (object-dur s1)))))
+    (time-sequence-update-obj-dur cs)
     cs))
 
 ;;; TODO: concatenate the tempo list (see below)
