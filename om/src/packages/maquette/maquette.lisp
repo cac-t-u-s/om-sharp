@@ -26,7 +26,7 @@
 (compile&load (decode-local-path "om-maquette-meta"))
 
 
-(omNG-make-package "Meta" 
+(omNG-make-package "Maquette/Meta" 
 	:container-pack *om-package-tree*
 	:doc "Visual program / maquette manipulation"
     :functions '(get-boxes m-add m-remove m-move m-objects m-flush)

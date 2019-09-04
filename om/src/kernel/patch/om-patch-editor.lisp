@@ -258,133 +258,148 @@
 
              (om-make-menu 
               "Boxes"
-              (list (om-make-menu "New..." 
-                                  (list 
-                                                ;(om-make-menu-item "Abstraction (p)" #'(lambda () (om-beep)))
-                                                ;(om-make-menu-item "Comment (c)" #'(lambda () (om-beep)))
-                                   ))
-                    (om-make-menu-comp 
-                     (list 
+              (list 
+               
+               (om-make-menu "Add box..." (add-box-menu-items))
+                                  
+               (om-make-menu-comp 
+                (list 
                                    
-                      (om-make-menu-item "Selection:" nil :enabled nil)
+                 (om-make-menu-item "Selection:" nil :enabled nil)
                                    
-                      (om-make-menu-item 
-                       "Align [A]"
+                 (om-make-menu-item 
+                  "Align [A]"
                                     
-                       #'(lambda () (store-current-state-for-undo self)
-                           (align-selected-boxes self))
+                  #'(lambda () (store-current-state-for-undo self)
+                      (align-selected-boxes self))
                                                       
                                                       ; :key "A"
-                       :enabled #'(lambda () (and (not (edit-lock self))
-                                                  (get-selected-boxes self)))
-                       )
+                  :enabled #'(lambda () (and (not (edit-lock self))
+                                             (get-selected-boxes self)))
+                  )
 
-                      (om-make-menu-item 
-                       "Init size [i]"
+                 (om-make-menu-item 
+                  "Init size [i]"
                                                       
-                       #'(lambda () (store-current-state-for-undo self)
-                           (mapc 'initialize-size 
-                                 (or (get-selected-boxes self) (get-selected-connections self))))
+                  #'(lambda () (store-current-state-for-undo self)
+                      (mapc 'initialize-size 
+                            (or (get-selected-boxes self) (get-selected-connections self))))
                                                       ; :key "i"
-                       :enabled #'(lambda () (and (not (edit-lock self))
-                                                  (or (get-selected-boxes self) 
-                                                      (get-selected-connections self))))
-                       )
+                  :enabled #'(lambda () (and (not (edit-lock self))
+                                             (or (get-selected-boxes self) 
+                                                 (get-selected-connections self))))
+                  )
 
-                      (om-make-menu-item 
-                       "Reinit content [I]"
+                 (om-make-menu-item 
+                  "Reinit content [I]"
                                                       
-                       #'(lambda () (store-current-state-for-undo self)
-                           (mapc 'initialize-size 
-                                 (or (get-selected-boxes self) (get-selected-connections self))))
+                  #'(lambda () (store-current-state-for-undo self)
+                      (mapc 'initialize-size 
+                            (or (get-selected-boxes self) (get-selected-connections self))))
 
-                       :enabled #'(lambda () (and (not (edit-lock self))
-                                                  (or (get-selected-boxes self) 
-                                                      (get-selected-connections self))))
+                  :enabled #'(lambda () (and (not (edit-lock self))
+                                             (or (get-selected-boxes self) 
+                                                 (get-selected-connections self))))
                                                       ; :key "I" :key-mod nil
-                       )
+                  )
 
-                      (om-make-menu-item 
-                       "Connect one [c]"
+                 (om-make-menu-item 
+                  "Connect one [c]"
                                                       
-                       #'(lambda () (store-current-state-for-undo self)
-                           (auto-connect-box (get-selected-boxes self) self (main-view self)))
+                  #'(lambda () (store-current-state-for-undo self)
+                      (auto-connect-box (get-selected-boxes self) self (main-view self)))
                                                       
-                       :enabled #'(lambda () (and (not (edit-lock self))
-                                                  (get-selected-boxes self)))
-                       )
+                  :enabled #'(lambda () (and (not (edit-lock self))
+                                             (get-selected-boxes self)))
+                  )
 
-                      (om-make-menu-item 
-                       "Connect sequence [C]"
+                 (om-make-menu-item 
+                  "Connect sequence [C]"
 
-                       #'(lambda () (store-current-state-for-undo self)
-                           (auto-connect-seq (get-selected-boxes self) self (main-view self)))
+                  #'(lambda () (store-current-state-for-undo self)
+                      (auto-connect-seq (get-selected-boxes self) self (main-view self)))
                                                       
-                       :enabled #'(lambda () (and (not (edit-lock self))
-                                                  (get-selected-boxes self)))
-                       )
+                  :enabled #'(lambda () (and (not (edit-lock self))
+                                             (get-selected-boxes self)))
+                  )
 
-                      (om-make-menu-item 
-                       "Set Reactive [r]"
+                 (om-make-menu-item 
+                  "Set Reactive [r]"
 
-                       #'(lambda () (store-current-state-for-undo self)
-                           (mapc 'set-reactive-mode (or (get-selected-boxes self) 
-                                                        (get-selected-connections self))))
+                  #'(lambda () (store-current-state-for-undo self)
+                      (mapc 'set-reactive-mode (or (get-selected-boxes self) 
+                                                   (get-selected-connections self))))
                                                       
-                       :enabled #'(lambda () (and (not (edit-lock self))
-                                                  (or (get-selected-boxes self) 
-                                                      (get-selected-connections self))))
-                       )
+                  :enabled #'(lambda () (and (not (edit-lock self))
+                                             (or (get-selected-boxes self) 
+                                                 (get-selected-connections self))))
+                  )
 
-                      (om-make-menu-item 
-                       "Internalize abstraction(s) [a]"
+                 (om-make-menu-item 
+                  "Internalize abstraction(s) [a]"
 
-                       #'(lambda () (store-current-state-for-undo self)
-                           (mapc 'internalize-abstraction (get-selected-boxes self)))
+                  #'(lambda () (store-current-state-for-undo self)
+                      (mapc 'internalize-abstraction (get-selected-boxes self)))
                                                       
-                       :enabled #'(lambda () (and (not (edit-lock self))
-                                                  (get-selected-boxes self)))
-                       )
+                  :enabled #'(lambda () (and (not (edit-lock self))
+                                             (get-selected-boxes self)))
+                  )
 
 
-                      (om-make-menu-item 
-                       "Internalize abstraction(s) [a]"
+                 (om-make-menu-item 
+                  "Internalize abstraction(s) [a]"
                                     
-                       #'(lambda () 
-                           (store-current-state-for-undo self)
-                           (encapsulate-patchboxes self (main-view self) (get-selected-boxes self)))
+                  #'(lambda () 
+                      (store-current-state-for-undo self)
+                      (encapsulate-patchboxes self (main-view self) (get-selected-boxes self)))
                                                       
-                       :enabled #'(lambda () (and (not (edit-lock self))
-                                                  (get-selected-boxes self)))
-                       )
+                  :enabled #'(lambda () (and (not (edit-lock self))
+                                             (get-selected-boxes self)))
+                  )
 
-                      (om-make-menu-item 
-                       "Encapsulate selection [E]"
+                 (om-make-menu-item 
+                  "Encapsulate selection [E]"
                                     
-                       #'(lambda () 
-                           (store-current-state-for-undo self)
-                           (encapsulate-patchboxes self (main-view self) (get-selected-boxes self)))
+                  #'(lambda () 
+                      (store-current-state-for-undo self)
+                      (encapsulate-patchboxes self (main-view self) (get-selected-boxes self)))
                                                       
-                       :enabled #'(lambda () (and (not (edit-lock self))
-                                                  (get-selected-boxes self)))
-                       )
+                  :enabled #'(lambda () (and (not (edit-lock self))
+                                             (get-selected-boxes self)))
+                  )
 
-                      (om-make-menu-item 
-                       "Unencapsulate selection [U]"
+                 (om-make-menu-item 
+                  "Unencapsulate selection [U]"
                                     
-                       #'(lambda () 
-                           (store-current-state-for-undo self)
-                           (unencapsulate-patchboxes self (main-view self) (get-selected-boxes self)))
+                  #'(lambda () 
+                      (store-current-state-for-undo self)
+                      (unencapsulate-patchboxes self (main-view self) (get-selected-boxes self)))
                                                       
-                       :enabled #'(lambda () (and (not (edit-lock self))
-                                                  (get-selected-boxes self)))
-                       )
-                      ))))
+                  :enabled #'(lambda () (and (not (edit-lock self))
+                                             (get-selected-boxes self)))
+                  )
+                 ))))
              
              (om-make-menu "Windows" (default-windows-menu-items self))
              (om-make-menu "Help" (default-help-menu-items self))
              )))
 
+
+
+(defun add-box-menu-items ()
+  (list 
+   (om-make-menu-item "Input" #'(lambda () (set-add-item-on-patch "in")))
+   (om-make-menu-item "Output" #'(lambda () (set-add-item-on-patch "out")))
+   (om-make-menu-item "Internal patch" #'(lambda () (set-add-item-on-patch "patch")))
+   (om-make-menu-item "Internal Lisp function" #'(lambda () (set-add-item-on-patch "lisp")))
+   (om-make-menu-item "External abstraction (p)" #'(lambda () (set-add-item-on-patch "import")))
+   (om-make-menu-item "Comment (c)" #'(lambda () (set-add-item-on-patch "comment")))
+   (om-make-menu-comp 
+    (loop for pack in (elements *om-package-tree*) collect (make-package-menu pack)))))
+
+
+
+   
 
 ;;; will be passed to the Help menus
 (defmethod get-selection-for-menu ((self patch-editor))
@@ -684,6 +699,7 @@
 ;;;=============================
 ;;; MAKE BOXES
 ;;;=============================
+;;; called from keyboard actions: do it at the last click pos
 
 (defmethod make-new-box ((self patch-editor-view))
   (let ((mp (om-mouse-position self)))
@@ -1109,7 +1125,7 @@
   ;;; mode 2
   ;(setf *om-box-name-completion* nil)
   (let* ((patch (object (editor self)))
-         (prompt (if (equal type :patch) "enter patch name (or pathname)" "enter box name"))
+         (prompt (if (equal type :patch) "enter external patch name (or pathname)" "enter box name"))
          (completion-fun (if (equal type :patch) 
                              #'(lambda (string) (unless (string-equal string prompt)
                                                   (patch-name-completion patch string)))
@@ -1285,14 +1301,35 @@
         ))))
 
 
-;;; handle/warn on possible duplicates
 (defmethod new-abstraction-box-in-patch-editor ((self patch-editor-view) str position)     
-  (let ((patch (find-persistant-container (object (editor self))))
-        (abs-types (mapcar #'doctype-to-extension *om-doctypes*))
+  (let* ((patch (find-persistant-container (object (editor self))))
+         (new-box (omng-make-abstraction-box str position patch)))
+    (when new-box
+      (add-box-in-patch-editor new-box self))))
+
+
+(defmethod special-box-p ((name (eql 'import))) t)
+
+(defmethod omNG-make-special-box ((reference (eql 'import)) pos &optional init-args) 
+  (let ((file (if init-args (string (car (list! init-args)))
+                (om-choose-file-dialog :types (doctype-info :om)))))
+    (if file 
+        (omng-make-abstraction-box (namestring file) pos)
+      (om-beep-msg "Abort external import"))))
+
+
+;;; refpatch allows to type the file path relative to the cirrebt patch
+;;; this is available from the "p" shortcut
+;;; handle/warn on possible duplicates
+
+(defmethod omng-make-abstraction-box (str position &optional in-patch)
+
+  (let ((abs-types (mapcar #'doctype-to-extension *om-doctypes*))
         (doc-path str))
     
-    (when (mypathname patch)
-      (let* ((local-restored-path (merge-pathnames str (om-make-pathname :directory (mypathname patch))))
+    (when (and in-patch (mypathname in-patch))
+      
+      (let* ((local-restored-path (merge-pathnames str (om-make-pathname :directory (mypathname in-patch))))
              (local-matches (remove nil 
                                     (loop for type in abs-types collect
                                           (probe-file 
@@ -1306,29 +1343,31 @@
                        (om-make-pathname :directory local-restored-path)))
         ))
     
-    (unless doc-path
+    (unless (probe-file doc-path)
+      
       ;;; try with the search folder
       (let ((search-matches (remove nil 
                                     (loop for type in abs-types collect
                                           (check-path-using-search-path 
-                                           (merge-pathnames str
-                                                            (make-pathname :type type)))))))
-            (when (> (length search-matches) 1)
-              (om-beep-msg "Warning: there's more than 1 document named ~s in your search-path folder" 
-                           str))
-        ;(print search-matches)
-            (setf doc-path (car search-matches))))
+                                           (merge-pathnames str (make-pathname :type type)))))))
+        (when (> (length search-matches) 1)
+          (om-beep-msg "Warning: there's more than 1 document named ~s in your search-path folder" str))
         
+        ;(print search-matches)
+        (setf doc-path (car search-matches))))
+
     (if doc-path
-      (let ((obj (load-doc-from-file doc-path (extension-to-doctype (pathname-type doc-path)))))
-        (when obj
-          (add-box-in-patch-editor 
-           (omNG-make-new-boxcall obj position) 
-           self)))
-      (om-beep-msg "Warning: no file named ~s in your search-path folder" 
-                   (pathname-name str)))
+        (let ((obj (load-doc-from-file doc-path (extension-to-doctype (pathname-type doc-path)))))
+          (when obj
+            (omNG-make-new-boxcall obj position)
+            ))
+      (om-beep-msg "Warning: no file named ~s in your search-path folder" (pathname-name str)))
+
     ))
-                
+  
+
+
+
 
 
 ;;;============================================================================

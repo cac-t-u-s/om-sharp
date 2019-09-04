@@ -204,6 +204,40 @@ For easier browsing it is recommended that a package do not contain at the same 
     pack))
 
 
+(defun make-package-menu (pack)
+  (om-make-menu 
+   (name pack)
+   (remove nil (list (when (functions pack)
+                       (om-make-menu-comp 
+                        (cons (om-make-menu-item "Functions" nil :enabled nil)
+                              (loop for f in (functions pack)
+                                    collect (let ((fun f))
+                                              (om-make-menu-item 
+                                               (string (get-name fun)) 
+                                               #'(lambda () (set-add-item-on-patch (get-name fun)))))))))
+                     (when (classes pack)
+                       (om-make-menu-comp 
+                        (cons (om-make-menu-item "Classes/Objects" nil :enabled nil)
+                              (loop for c in (classes pack)
+                                    collect (let ((class c))
+                                              (om-make-menu-item 
+                                               (string (get-name class)) 
+                                               #'(lambda () (set-add-item-on-patch (get-name class)))))))))
+                     (when (special-items pack)
+                       (om-make-menu-comp 
+                        (cons (om-make-menu-item "Special boxes" nil :enabled nil)
+                              (loop for i in (special-items pack)
+                                    collect (let ((item i))
+                                              (om-make-menu-item 
+                                               (string item) 
+                                               #'(lambda () (set-add-item-on-patch item))))))))
+                     (when (elements pack)
+                       (om-make-menu-comp 
+                        (loop for p in (elements pack)
+                              collect (make-package-menu p))))
+                     ))
+   ))
+
 
 #|
 ;;; Creates a menu with package functions

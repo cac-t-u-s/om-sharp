@@ -73,6 +73,13 @@
     (get-pref-value :appearance :comment-roundness)))
 
 
+(defmethod special-box-p ((name (eql 'comment))) t)
+
+(defmethod omNG-make-special-box ((reference (eql 'comment)) pos &optional init-args) 
+  (let ((text (if init-args (format nil "~{~A ~}" (list! init-args))
+                "enter your comment here...")))
+    (omNG-make-new-comment text pos)))
+
 
 (defmethod omNG-make-new-comment (text pos)
   (let* ((comment-lines (om-text-to-lines text))
@@ -83,7 +90,7 @@
       (let ((newcomment (make-instance 'OMComment 
                                        :icon-pos nil 
                                        :box-x (om-point-x pos) :box-y (om-point-y pos)
-                                       :box-w (+ 4 w) :box-h (+ 12 (* h (length comment-lines)))
+                                       :box-w (+ 8 w) :box-h (+ 12 (* h (length comment-lines)))
                                      )))
       (setf (value newcomment) text)
       newcomment))))
