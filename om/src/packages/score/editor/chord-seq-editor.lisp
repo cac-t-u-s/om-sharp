@@ -44,6 +44,7 @@
 (defmethod editor-with-timeline ((self chord-seq-editor)) nil)
 
 
+
 ;;;=========================
 ;;; LEFT-VIEW
 ;;;=========================
@@ -92,7 +93,7 @@
 
 
 (defmethod om-view-click-handler ((self left-score-view) position)
-
+  
   ;;; is the staff-line selected ?
   (let* ((editor (editor self))
          (unit (font-size-to-unit (editor-get-edit-param editor :font-size)))
@@ -106,16 +107,16 @@
         (progn 
           (set-selection editor (object-value editor))
           (om-init-temp-graphics-motion 
-                      self position nil :min-move 1
-                      :motion #'(lambda (view pos)
-                                  (declare (ignore view))
-                                  (when (and (> (om-point-y pos) 10)
-                                             (< (om-point-y pos) (- (h self) 10)))
-                                  (let ((y-diff-in-units (/ (- (om-point-y pos) (om-point-y position)) unit)))
-                                    (editor-set-edit-param editor :y-shift (+ y-shift y-diff-in-units))
-                                    (om-invalidate-view self)
-                                    (om-invalidate-view (main-view editor)))
-                                  ))))
+           self position nil :min-move 1
+           :motion #'(lambda (view pos)
+                       (declare (ignore view))
+                       (when (and (> (om-point-y pos) 10)
+                                  (< (om-point-y pos) (- (h self) 10)))
+                         (let ((y-diff-in-units (/ (- (om-point-y pos) (om-point-y position)) unit)))
+                           (editor-set-edit-param editor :y-shift (+ y-shift y-diff-in-units))
+                           (om-invalidate-view self)
+                           (om-invalidate-view (main-view editor)))
+                         ))))
       (set-selection editor nil))
     
     (om-invalidate-view self)
@@ -167,6 +168,12 @@
 
 
 (defmethod add-chords-allowed ((self chord-seq-editor)) t)
+
+
+(defmethod om-view-click-handler ((self chord-seq-panel) position)
+  (or (handle-selection-extent self position)
+      (call-next-method)) ;;; => score-view
+  )
 
 ;;; called at add-click
 (defmethod get-chord-from-editor-click ((self chord-seq-editor) position) 

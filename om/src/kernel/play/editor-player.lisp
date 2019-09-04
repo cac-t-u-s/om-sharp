@@ -390,8 +390,8 @@
                           (omp 4 (h self))))
       )))
     
-;;; return T if detected/did somethin g
-(defmethod om-view-click-handler ((self x-cursor-graduated-view) position)
+;;; return T if detected/did something
+(defmethod handle-selection-extent ((self x-cursor-graduated-view) position)
   (let ((tpl-editor (editor (om-view-window self)))
         (bx (time-to-pixel self (car (cursor-interval self))))
         (ex (time-to-pixel self (cadr (cursor-interval self)))))   
@@ -406,6 +406,10 @@
            ;(start-interval-selection tpl-editor self position)
            nil
            ))))
+
+(defmethod om-view-click-handler ((self x-cursor-graduated-view) position)
+  (handle-selection-extent self position))
+
 
 (defmethod om-transient-drawing-item-clicked ((self x-cursor-graduated-view) clicked-pos-in-view) 
   (drag-move-cursor self clicked-pos-in-view))

@@ -497,82 +497,85 @@
 
 
 (defmethod om-view-click-handler ((self stream-panel) position)
+  
   (let ((editor (editor self)))
     
-    (when (object-value editor)
+    (unless (handle-selection-extent self position) ;; => play-editor-mixi handles cursor etc.
     
-      (let ((p0 position)
-            (selection (frame-at-pos editor position)))
+      (when (object-value editor)
     
-        (set-selection editor selection)
-        (update-timeline-editor editor)
-        (om-invalidate-view self)
+        (let ((p0 position)
+              (selection (frame-at-pos editor position)))
     
-        (cond 
+          (set-selection editor selection)
+          (update-timeline-editor editor)
+          (om-invalidate-view self)
+    
+          (cond 
      
-         ((and (null selection) (om-add-key-down))
-          (let ((frame (time-sequence-make-timed-item-at (object-value editor) (pixel-to-time self (om-point-x p0)))))
-            (finalize-data-frame frame :posy (pix-to-y self (- (h self) (om-point-y p0))))
-            (time-sequence-insert-timed-item-and-update (object-value editor) frame)
-            (report-modifications editor)
-            (update-timeline-editor editor)
-            (om-invalidate-view self)))
+           ((and (null selection) (om-add-key-down))
+            (let ((frame (time-sequence-make-timed-item-at (object-value editor) (pixel-to-time self (om-point-x p0)))))
+              (finalize-data-frame frame :posy (pix-to-y self (- (h self) (om-point-y p0))))
+              (time-sequence-insert-timed-item-and-update (object-value editor) frame)
+              (report-modifications editor)
+              (update-timeline-editor editor)
+              (om-invalidate-view self)))
      
-         (selection
-          (let* ((selected-frame (nth selection (data-stream-get-frames (object-value editor))))
-                 (selected-frame-end-t (time-to-pixel self (item-end-time selected-frame))))
+           (selection
+            (let* ((selected-frame (nth selection (data-stream-get-frames (object-value editor))))
+                   (selected-frame-end-t (time-to-pixel self (item-end-time selected-frame))))
             
-            ;;; resize the selected frame ?
-            (if (and (resizable-frame selected-frame)
-                     (<= (om-point-x position) selected-frame-end-t) (>= (om-point-x position) (- selected-frame-end-t 5)))
+              ;;; resize the selected frame ?
+              (if (and (resizable-frame selected-frame)
+                       (<= (om-point-x position) selected-frame-end-t) (>= (om-point-x position) (- selected-frame-end-t 5)))
+                  (om-init-temp-graphics-motion 
+                   self position nil
+                   :motion #'(lambda (view pos)
+                               (let ((dx (dpix-to-dx self (- (om-point-x pos) (om-point-x p0)))))
+                                 (when (> (- (om-point-x pos) (x-to-pix self (item-get-time selected-frame))) 10)
+                                   (resize-editor-selection editor :dx (round dx))
+                                   (setf p0 pos)
+                                   (om-invalidate-view self))))
+                   :release #'(lambda (view pos) 
+                                (report-modifications editor) 
+                                (om-invalidate-view self))
+                   :min-move 4)
+            
+                ;;; move the selection
                 (om-init-temp-graphics-motion 
                  self position nil
                  :motion #'(lambda (view pos)
-                             (let ((dx (dpix-to-dx self (- (om-point-x pos) (om-point-x p0)))))
-                               (when (> (- (om-point-x pos) (x-to-pix self (item-get-time selected-frame))) 10)
-                                 (resize-editor-selection editor :dx (round dx))
-                                 (setf p0 pos)
-                                 (om-invalidate-view self))))
+                             (let ((dx (dpix-to-dx self (- (om-point-x pos) (om-point-x p0))))
+                                   (dy (dpix-to-dy self (- (om-point-y pos) (om-point-y p0)))))
+                               (move-editor-selection editor :dx dx :dy dy)
+                               (setf p0 pos)
+                               (position-display editor pos)
+                               (update-timeline-editor editor)
+                               (om-invalidate-view self)
+                               ))
                  :release #'(lambda (view pos) 
+                              (editor-sort-frames editor)
+                              (move-editor-selection editor :dy :round)
+                              (time-sequence-reorder-timed-item-list (object-value editor))
+                              (update-timeline-editor editor)
                               (report-modifications editor) 
                               (om-invalidate-view self))
                  :min-move 4)
-            
-              ;;; move the selection
-              (om-init-temp-graphics-motion 
-               self position nil
-               :motion #'(lambda (view pos)
-                           (let ((dx (dpix-to-dx self (- (om-point-x pos) (om-point-x p0))))
-                                 (dy (dpix-to-dy self (- (om-point-y pos) (om-point-y p0)))))
-                             (move-editor-selection editor :dx dx :dy dy)
-                             (setf p0 pos)
-                             (position-display editor pos)
-                             (update-timeline-editor editor)
-                             (om-invalidate-view self)
-                             ))
-               :release #'(lambda (view pos) 
-                            (editor-sort-frames editor)
-                            (move-editor-selection editor :dy :round)
-                            (time-sequence-reorder-timed-item-list (object-value editor))
-                            (update-timeline-editor editor)
-                            (report-modifications editor) 
-                            (om-invalidate-view self))
-               :min-move 4)
-              ))
-          )
-         (t 
-          ;; no selection: start selection lasso
-          (om-init-temp-graphics-motion 
-           self position 
-           (om-make-graphic-object 'selection-rectangle :position position :size (om-make-point 4 4))
-           :min-move 10
-           :release #'(lambda (view position)
-                        (setf (selection editor) (frames-in-area editor p0 position))
-                        (update-timeline-editor editor)
-                        (om-invalidate-view self))
-           )
-          ))
-        ))))
+                ))
+            )
+           (t 
+            ;; no selection: start selection lasso
+            (om-init-temp-graphics-motion 
+             self position 
+             (om-make-graphic-object 'selection-rectangle :position position :size (om-make-point 4 4))
+             :min-move 10
+             :release #'(lambda (view position)
+                          (setf (selection editor) (frames-in-area editor p0 position))
+                          (update-timeline-editor editor)
+                          (om-invalidate-view self))
+             )
+            ))
+          )))))
 
 
 (defmethod editor-key-action ((editor data-stream-editor) key)
