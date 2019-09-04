@@ -629,7 +629,7 @@
     ;; (om-draw-string begin-pix 20 (format nil "~A" level))
     
     (om-draw-string (+ x (round (- width mid-space) 2) (* unit .5)) 
-                    (if (equal direction :up) y (+ y unit)) 
+                    (if (equal direction :up) (+ y 4) (+ y unit -4)) 
                     div-str
                     :font font)
 
