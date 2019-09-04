@@ -627,6 +627,24 @@
 
 
 
+;;;==================================
+;;; TURN PAGES / FOLLOW PLAY POSITION
+;;;==================================
+
+
+(defmethod play-editor-callback ((editor data-stream-editor) time)
+  (call-next-method)
+  (let* ((panel (get-g-component editor :main-panel))
+         (x-ruler (get-g-component editor :x-ruler))
+         (x-range (round (- (x2 panel) (x1 panel)))))
+    (cond ((> time (x2 panel))
+           (set-ruler-range x-ruler (+ (v1 x-ruler) x-range) (+ (v2 x-ruler) x-range)))
+          ((< time (x1 panel))
+           (set-ruler-range x-ruler time (+ time x-range)))
+          (t nil))))
+
+
+
 ;;;=========================
 ;;; TOUCH GESTURES
 ;;;=========================

@@ -366,8 +366,9 @@
     (setf (cursor-pos self) time))
   (om-update-transient-drawing self :x (time-to-pixel self (cursor-pos self))))
 
+
 (defmethod update-view-from-ruler ((self x-ruler-view) (view x-cursor-graduated-view))
-  (update-cursor view (cursor-pos view))
+  (om-update-transient-drawing self :x (time-to-pixel self (cursor-pos self)))
   (call-next-method))
 
 

@@ -154,9 +154,10 @@
       (setf (v1 self) (max? (vmin self) v11))
       (setf (v2 self) (min? (vmax self) v22))))
   (set-shift-and-factor self)
-  (om-with-delayed-redraw
+  (om-with-delayed-redraw self
       (om-invalidate-view self)
-    (update-views-from-ruler self)))
+      (update-views-from-ruler self))
+  )
 
 
 (defmethod om-view-cursor ((self x-ruler-view)) (om-get-cursor :h-size))

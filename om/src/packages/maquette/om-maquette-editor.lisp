@@ -1189,8 +1189,24 @@
 ;;;========================
 
 (defmethod play-editor-callback ((self maquette-editor) time)
-    (set-time-display self time)
-    (mapcar #'(lambda (view) (when view (update-cursor view time))) (cursor-panes self))
+  
+  (set-time-display self time)
+  
+  ;;; draw cursor lines (does not work so well with the rulers...)
+  (mapcar #'(lambda (view) 
+              (when view 
+                (update-cursor view time)))
+          (cursor-panes self))
+
+  ;;; update range to play position ("turn pages")   
+  (let* ((x-ruler (get-g-component self :abs-ruler))
+         (x-range (round (- (v2 x-ruler) (v1 x-ruler)))))
+    (cond ((> time (v2 x-ruler))
+           (set-ruler-range x-ruler (+ (v1 x-ruler) x-range) (+ (v2 x-ruler) x-range)))
+          ((< time (v1 x-ruler))
+           (set-ruler-range x-ruler time (+ time x-range)))
+          (t nil)))
+
     ;(let ((t-auto (get-tempo-automation self)))
     ; (if (not (getf (beat-info self) :next-date))
     ;    (setf (getf (beat-info self) :next-date) (get-beat-date t-auto (getf (beat-info self) :beat-count))))
@@ -1199,7 +1215,7 @@
     ;        (om-set-dialog-item-text (cadr (om-subviews (tempo-box self))) (format nil "~$" (tempo-at-beat t-auto (getf (beat-info self) :beat-count))))
     ;        (incf (getf (beat-info self) :beat-count) 0.1)
     ;        (setf (getf (beat-info self) :next-date) (get-beat-date t-auto (getf (beat-info self) :beat-count))))
-    )
+  )
 
 (defmethod stop-editor-callback ((self maquette-editor))
   (setf (getf (beat-info self) :beat-count) 0
