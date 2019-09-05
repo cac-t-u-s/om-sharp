@@ -43,8 +43,9 @@
 (defun om-special-lisp-form-p (symbol)
   (or 
    (lispworks::special-form-p symbol)
-   (and (fboundp symbol)
-        (system:closurep (fdefinition symbol)))))
+   #+macos(and (fboundp symbol) ;;; what is this for... ?
+               (system:closurep (fdefinition symbol)))
+   ))
 
 ;=======================
 ; SOURE MANAGEMENT
