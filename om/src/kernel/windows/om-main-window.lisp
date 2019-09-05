@@ -63,6 +63,15 @@
       (setf *om-main-window* win)
       (om-show-window win))))
 
+#+windows
+(defmethod om-window-check-before-close ((self om-main-window)) 
+  (om-y-or-n-dialog "Quit OM?"))
+
+#+windows
+(defmethod om-window-close-event :after ((self om-main-window)) 
+  (om-quit))
+
+
 (defmethod om-window-close-event ((self om-main-window))
   (setf *om-main-window* nil))
 
