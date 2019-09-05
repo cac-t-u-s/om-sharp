@@ -146,7 +146,7 @@
                  (list (slot-name slot)
                        (eval (slot-initform slot))
                        (slot-doc slot)))
-           (when(additional-class-attributes instance)
+           (when (additional-class-attributes instance)
              (cons "Optional:"
                    (loop for add-slot in (additional-class-attributes instance) 
                          collect
