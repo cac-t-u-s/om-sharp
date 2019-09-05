@@ -194,7 +194,7 @@
       )))
 
 (defmacro om-with-delayed-redraw (view &body body)
-   `(capi:with-atomic-redisplay (,view) ,@body))
+  `(capi:with-atomic-redisplay (,view) ,@body))
 
 ;;; nouveau.. 
 (defmethod om-redraw-view ((self om-graphic-object))
