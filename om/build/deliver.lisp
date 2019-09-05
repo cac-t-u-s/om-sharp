@@ -88,18 +88,16 @@
       "File"
       ((:component  
         (("New Patch" 
-         :callback #'(lambda () (om::open-new-document :patch)) :callback-type :none
-          :accelerator "accelerator-n")
-        ("New Maquette" 
-         :callback #'(lambda () (om::open-new-document :maquette)) :callback-type :none
-         :accelerator "accelerator-m")
-        ("New Lisp function" 
-         :callback #'(lambda () (om::open-new-document :lispfun)) :callback-type :none)
-        ))
+          :callback #'(lambda () (om::open-new-document :patch)) :callback-type :none :accelerator "accelerator-n")
+         ("New Maquette" 
+          :callback #'(lambda () (om::open-new-document :maquette)) :callback-type :none)
+         ("New Lisp function" 
+          :callback #'(lambda () (om::open-new-document :lispfun)) :callback-type :none)
+         ))
         
         ("New Text/Lisp Buffer" 
          :callback #'(lambda () (om-lisp::om-open-text-editor :lisp t)) :callback-type :none
-         :accelerator "accelerator-N") 
+         :accelerator "accelerator-N")
       
         (:component 
          (("Open..." 
@@ -123,7 +121,8 @@
        (:component
         (("Lisp Listener"
           :callback 'om::show-listener-win
-          :callback-type :none)
+          :callback-type :none
+          :accelerator "accelerator-shift-l")
          ))
        ))
    )
@@ -147,23 +146,18 @@
 (capi:define-menu om-dock-menu (self)
   "Dock Menu"
   ((:component
-        (("Workspace"
-          :callback 'om::show-workspace-win
-          :accelerator "accelerator-shift-w"
-          :callback-type :none)
-         ("Library"
-          :callback 'om::show-packages-win
-          :callback-type :none
-          :enabled-slot nil)
-         ))
-       (:component
-        (("Lisp Listener"
-          :callback 'om::show-listener-win
-          :callback-type :none)
-         ("Lisp Editor"
-          :callback 'oa::om-open-new-text-editor
-          :callback-type :none)))
-       )
+    (("Workspace/Library Window"
+      :callback 'om::show-main-om-window
+      :accelerator "accelerator-shift-w"
+      :callback-type :none)
+     ))
+   (:component
+    (("Lisp Listener"
+      :callback 'om::show-listener-win
+      :callback-type :none
+      :accelerator "accelerator-shift-l")
+     ))
+   )
   )
 
 
@@ -285,6 +279,11 @@
                                                   :directory (pathname-directory app-resources-folder)
                                                   :name (pathname-name item) :type (pathname-type item)))))
     
+    (om::om-copy-directory  (make-pathname :device (pathname-device app-resources-folder)
+                                           :directory (append *om-directory-folders* '("help-patches")))
+                            (make-pathname :device (pathname-device app-resources-folder) 
+                                           :directory (append (pathname-directory app-resources-folder) '("help-patches"))))
+
     (om::om-copy-directory  (make-pathname :device (pathname-device app-resources-folder)
                                            :directory (append *om-directory-folders* '("src")))
                             (make-pathname :device (pathname-device app-resources-folder) 
