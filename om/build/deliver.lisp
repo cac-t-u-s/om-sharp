@@ -247,16 +247,17 @@
           ))
 
 
-(print "==============================")
-(print "CREATING APP")
-(print "==============================")
 
-(print "================================")
-(print "MOVING RESOURCES (macOS only)")
-(print "================================")
+
+
 
 
 (defun move-mac-resources ()
+
+  (print "================================")
+  (print "MOVING RESOURCES (macOS only)")
+  (print "================================")
+
   (let* ((app-contents-folder (make-pathname 
                                :directory (append 
                                            *om-directory-folders* 
@@ -297,6 +298,11 @@
                             (make-pathname :device (pathname-device app-contents-folder) 
                                            :directory (append (pathname-directory app-contents-folder) '("Init"))))
     ))
+
+
+(print "==============================")
+(print "CREATING APP")
+(print "==============================")
 
 ; (version-to-hex 6.020005)
 ; #x0006000200000005
@@ -345,7 +351,7 @@
                                               :version-string *version-string*
                                               :company-name "" :product-name "om7" :file-description "")
            #+mswindows :console #+mswindows :input
-           :quit-when-no-windows #+mswindows t #-mswindows nil
+           ; :quit-when-no-windows #+mswindows t #-mswindows nil
            #+(or cocoa win32) :packages-to-keep #+cocoa '(:objc)  #+mswindows '(:comm)
            #+mswindows :icon-file #+mswindows "./win/om.ico"
            )
