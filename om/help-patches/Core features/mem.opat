@@ -5,10 +5,10 @@
  (:doc "")
  (:info
   (:created "2018/04/04 15:15:06")
-  (:modified "2019/09/03 15:45:17"))
+  (:modified "2019/09/05 16:33:06"))
  (:window (:size (923 706)) (:position (697 84)))
  (:grid nil)
- (:lock nil)
+ (:lock t)
  (:boxes
   (:box
    (:reference om-random)
@@ -574,7 +574,7 @@ Right outlet = list of N previous values")
    (:orientation :vertical)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive t)))
-   (:value 61)
+   (:value 56)
    (:id 24))
   (:box
    (:reference cons)
@@ -597,36 +597,36 @@ Right outlet = list of N previous values")
    (:outputs (:output (:name "value") (:reactive t)))
    (:value
     (:list
-     62
-     68
-     69
-     71
-     72
-     76
-     77
-     80
+     55
+     54
+     52
+     49
+     46
+     45
+     40
+     39
+     44
+     45
+     47
+     48
+     51
+     53
+     57
+     63
+     64
+     70
+     73
+     79
      82
-     85
+     84
      86
      87
+     89
+     90
      88
-     89
-     90
-     95
-     99
-     100
-     98
-     97
-     96
-     95
-     94
-     93
-     90
-     89
-     90
-     91
-     93
-     94))
+     85
+     81
+     80))
    (:id 25))
   (:box
    (:reference mem)
@@ -719,7 +719,7 @@ Right outlet = list of N previous values")
    (:outputs
     (:output (:name "SELF") (:reactive nil))
     (:output (:name "X-POINTS") (:reactive nil))
-    (:output (:name "Y-POINTS") (:reactive t)))
+    (:output (:name "Y-POINTS") (:reactive nil)))
    (:window (:size (nil nil)) (:position (nil nil)))
    (:edition-params)
    (:value
@@ -766,40 +766,40 @@ Right outlet = list of N previous values")
          58000.0))
        (:y-points
         (:list
-         62.0
-         68.0
-         69.0
-         71.0
-         72.0
-         76.0
-         77.0
-         80.0
+         55.0
+         54.0
+         52.0
+         49.0
+         46.0
+         45.0
+         40.0
+         39.0
+         44.0
+         45.0
+         47.0
+         48.0
+         51.0
+         53.0
+         57.0
+         63.0
+         64.0
+         70.0
+         73.0
+         79.0
          82.0
-         85.0
+         84.0
          86.0
          87.0
+         89.0
+         90.0
          88.0
-         89.0
-         90.0
-         95.0
-         99.0
-         100.0
-         98.0
-         97.0
-         96.0
-         95.0
-         94.0
-         93.0
-         90.0
-         89.0
-         90.0
-         91.0
-         93.0
-         94.0))))
+         85.0
+         81.0
+         80.0))))
      (:add-slots
       ((:decimals 2)
        (:color (:color 0.0 0.0 0.0 1.0))
-       (:name "BPF")
+       (:name nil)
        (:action nil)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))))))
    (:id 28))
@@ -836,7 +836,7 @@ Right outlet = list of N previous values")
    (:inputs
     (:input (:type :optional) (:name "in") (:value nil) (:reactive t)))
    (:outputs (:output (:name "value") (:reactive t)))
-   (:value (:list 61 62 68 69 71 72 76 77 80 82 85 86 87 88 89))
+   (:value (:list 56 55 54 52 49 46 45 40 39 44 45 47 48 51 53 57))
    (:id 30))
   (:box
    (:reference mem)
@@ -929,7 +929,7 @@ Right outlet = list of N previous values")
    (:outputs
     (:output (:name "SELF") (:reactive nil))
     (:output (:name "X-POINTS") (:reactive nil))
-    (:output (:name "Y-POINTS") (:reactive t)))
+    (:output (:name "Y-POINTS") (:reactive nil)))
    (:window (:size (nil nil)) (:position (nil nil)))
    (:edition-params)
    (:value
@@ -937,7 +937,7 @@ Right outlet = list of N previous values")
      (:class bpf)
      (:slots
       ((:onset 0)
-       (:duration 28000.0)
+       (:duration 30000.0)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
        (:action nil)
        (:color (:color 0.0 0.0 0.0 1.0))
@@ -958,28 +958,30 @@ Right outlet = list of N previous values")
          22000.0
          24000.0
          26000.0
-         28000.0))
+         28000.0
+         30000.0))
        (:y-points
         (:list
-         61.0
-         62.0
-         68.0
-         69.0
-         71.0
-         72.0
-         76.0
-         77.0
-         80.0
-         82.0
-         85.0
-         86.0
-         87.0
-         88.0
-         89.0))))
+         56.0
+         55.0
+         54.0
+         52.0
+         49.0
+         46.0
+         45.0
+         40.0
+         39.0
+         44.0
+         45.0
+         47.0
+         48.0
+         51.0
+         53.0
+         57.0))))
      (:add-slots
       ((:decimals 2)
        (:color (:color 0.0 0.0 0.0 1.0))
-       (:name "BPF")
+       (:name nil)
        (:action nil)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))))))
    (:id 33))
@@ -1021,52 +1023,7 @@ Right outlet = list of N previous values")
      (:value nil)
      (:reactive nil)))
    (:outputs (:output (:name "out") (:reactive nil)))
-   (:id 35))
-  (:box
-   (:reference null)
-   (:type :value)
-   (:group-id nil)
-   (:name "value box")
-   (:x 244)
-   (:y 421)
-   (:w 32)
-   (:h 30)
-   (:color
-    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
-   (:border nil)
-   (:roundness nil)
-   (:text-font nil)
-   (:align nil)
-   (:lock nil)
-   (:inputs
-    (:input (:type :optional) (:name "in") (:value nil) (:reactive t)))
-   (:outputs (:output (:name "value") (:reactive t)))
-   (:value nil)
-   (:id 36))
-  (:box
-   (:reference print)
-   (:type :function)
-   (:group-id nil)
-   (:name "print")
-   (:x 263)
-   (:y 467)
-   (:w 62)
-   (:h 30)
-   (:color nil)
-   (:border nil)
-   (:roundness nil)
-   (:text-font nil)
-   (:align nil)
-   (:lock nil)
-   (:lambda nil)
-   (:inputs
-    (:input
-     (:type :standard)
-     (:name "SOMETHING")
-     (:value nil)
-     (:reactive t)))
-   (:outputs (:output (:name "out") (:reactive nil)))
-   (:id 37)))
+   (:id 35)))
  (:connections
   (:connection
    (:from (:box 0 :out 0))
@@ -1182,8 +1139,4 @@ Right outlet = list of N previous values")
   (:connection
    (:from (:box 32 :out 0))
    (:to (:box 31 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 36 :out 0))
-   (:to (:box 37 :in 0))
    (:attributes (:color nil :style nil :modif nil)))))
