@@ -139,7 +139,7 @@
              #'(lambda () (funcall (get-frame-action frame)))))
    (remove-if #'(lambda (date) (or (< date (car interval)) (> date (cadr interval)))) 
               (data-stream-get-frames object) 
-              :key 'date)))
+              :key #'onset)))
 
 ;;;======================================
 ;;; OMMETHOD FOR PATCHES

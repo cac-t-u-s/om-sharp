@@ -197,6 +197,6 @@
                                                     ;      (list "/control/a" (random 20)))
                                                     )))
                              ))
-        '< :key 'date)))
+        '< :key #'date)))
 
 

@@ -94,7 +94,7 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
 "))
 
 ;;; allow as additional slots
-(defmethod additional-class-attributes ((self chord)) '(date Lchan Lport))
+(defmethod additional-class-attributes ((self chord)) '(onset Lchan Lport))
 
 (defmethod Lmidic ((self chord))
   (loop for note in (notes self)

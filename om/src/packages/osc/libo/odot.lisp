@@ -117,8 +117,8 @@
       (odot::osc_bundle_s_getPtr (oa::om-pointer-ptr (bundle_s self)))))))
   
 
-(defmethod date ((self o.bundle)) (get-timetag self))
-(defmethod (setf date) (date (self o.bundle)) (update-bundle-pointer-timetag self date))
+(defmethod onset ((self o.bundle)) (get-timetag self))
+(defmethod (setf onset) (date (self o.bundle)) (update-bundle-pointer-timetag self date))
 
 (defun decode-atom-s-data (a)
   (case (code-char (odot::osc_atom_s_getTypetag a))

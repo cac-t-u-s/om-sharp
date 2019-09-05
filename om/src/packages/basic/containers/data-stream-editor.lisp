@@ -443,7 +443,6 @@
          (selected-objects (loop for pos in (selection self) collect 
                                  (nth pos (data-stream-get-frames stream)))))
     
-    ;; (data-stream-set-frames stream (sort (data-stream-get-frames stream) '< :key 'date))
     (time-sequence-reorder-timed-item-list stream)
     
     (setf (selection self)

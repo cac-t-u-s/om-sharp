@@ -160,11 +160,11 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
 ;;; in case there is just 1 matrix -- avoids using list
 (defmethod initialize-instance :after ((self sdifframe) &rest initargs)
    (setf (lmatrix self) (list! (lmatrix self)))
-   (setf (slot-value self 'date) (sec->ms (ftime self))))
+   (setf (slot-value self 'onset) (sec->ms (ftime self))))
 
-;;; the date from data-frame is computed from ftime
-(defmethod date ((self SDIFFrame)) (sec->ms (ftime self)))
-(defmethod (setf date) (date (self SDIFFrame)) 
+;;; the onset from data-frame/timed-object is computed from ftime
+(defmethod onset ((self SDIFFrame)) (sec->ms (ftime self)))
+(defmethod (setf onset) (date (self SDIFFrame)) 
   (call-next-method)
   (setf (ftime self) (ms->sec date)))
 
