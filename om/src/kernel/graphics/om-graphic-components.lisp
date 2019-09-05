@@ -220,9 +220,10 @@
     (om-with-fg-color (border self) 
       (om-draw-rect 0 0 (om-width self) (om-height self))))
   (om-with-fg-color (om-get-fg-color self) 
-    (om-with-font (om-def-font :font2)
+    (om-with-font 
+     (om-def-font :font2)
     ;(if (enabled self) (om-def-color :black) (om-def-color :gray))
-    (om-draw-string 0 14 (text self)))))
+     (om-draw-string 0 14 (text self) :wrap (om-width self)))))
 
 (defmethod om-view-click-handler ((self click-and-edit-text) pos)
   (declare (ignore pos))

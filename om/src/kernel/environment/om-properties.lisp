@@ -544,52 +544,57 @@
   
   (declare (ignore default))
 
-  (let ((textview (om-make-view 'click-and-edit-text 
-                                :enabled (get-property object prop-id) ;; it can happen that the value is NIL, e.g. in multiple-selection
-                                :text (if (get-property object prop-id)
-                                          (format nil "~A" (get-property object prop-id))
-                                        "   ...   ")
-                                :resizable nil
-                                :bg-color (om-def-color :window)
-                                :fg-color (if (get-property object prop-id) 
-                                              (if (probe-file (get-property object prop-id))
-                                                  (om-def-color :black) 
-                                                (om-def-color :red))
-                                            (om-def-color :gray))
-                                :border nil 
-                                :size (om-make-point (if (get-property object prop-id)
-                                                         (list :string (format nil "~A" (get-property object prop-id)))
-                                                       100)
-                                                     20)
-                                :font (om-def-font :font1)
-                                :after-fun #'(lambda (item)
-                                               (set-property object prop-id (text item))
-                                               (when update (update-after-prop-edit update object))
-                                               (om-set-fg-color 
-                                                item 
-                                                (if (probe-file (get-property object prop-id)) 
-                                                    (om-def-color :black) (om-def-color :red))))
-                                )))
+  (let* ((path (get-property object prop-id))
+         (textview (om-make-view 'click-and-edit-text 
+                                 :enabled (get-property object prop-id) ;; it can happen that the value is NIL, e.g. in multiple-selection
+                                 :text (if (get-property object prop-id)
+                                           (format nil "~A" path)
+                                         "   ...   ")
+                                 :resizable nil
+                                 :bg-color (om-def-color :window)
+                                 :fg-color (if path 
+                                               (if (probe-file path)
+                                                   (om-def-color :black) 
+                                                 (om-def-color :red))
+                                             (om-def-color :gray))
+                                 :border nil 
+                                 :font (om-def-font :font1)
+                                 :size (if path (multiple-value-bind (w h) 
+                                                    (om-string-size (format nil "~A" path) (om-def-font :font1))
+                                                  (om-make-point
+                                                   140
+                                                   (* h (1+ (ceiling w 140)))
+                                                   ))
+                                         (omp 120 20))
+                                 :after-fun #'(lambda (item)
+                                                (set-property object prop-id (text item))
+                                                (when update (update-after-prop-edit update object))
+                                                (om-set-fg-color 
+                                                 item 
+                                                 (if (probe-file (get-property object prop-id)) 
+                                                     (om-def-color :black) (om-def-color :red))))
+                                 ))
+         (button (om-make-graphic-object 'om-icon-button :size (omp 20 18) 
+                                         :icon :folder :icon-pushed :folder-pushed
+                                         :action #'(lambda (button) (declare (ignore button))
+                                                     (let ((file (om-choose-file-dialog :prompt "Select a new reference file"
+                                                                                        :types (doctype-info :om)
+                                                                                        :directory *last-open-dir*)))
+                                                       (when file
+                                                         (set-property object prop-id (namestring file))
+                                                         (when update (update-after-prop-edit update object))
+                                                         (setf (text textview) (get-property object prop-id))
+                                                         (om-set-fg-color 
+                                                          textview 
+                                                          (if (probe-file (get-property object prop-id)) 
+                                                              (om-def-color :black) (om-def-color :red)))
+                                                         (om-invalidate-view textview)
+                                                         )
+                                                       )))))
     (om-make-layout 'om-row-layout :subviews 
                     (list 
                      textview
-                     (om-make-graphic-object 'om-icon-button :size (omp 20 18) 
-                                             :icon :folder :icon-pushed :folder-pushed
-                                             :action #'(lambda (button) (declare (ignore button))
-                                                         (let ((file (om-choose-file-dialog :prompt "Select a new reference file"
-                                                                                            :types (doctype-info :om)
-                                                                                            :directory *last-open-dir*)))
-                                                           (when file
-                                                             (set-property object prop-id (namestring file))
-                                                             (when update (update-after-prop-edit update object))
-                                                             (setf (text textview) (get-property object prop-id))
-                                                             (om-set-fg-color 
-                                                              textview 
-                                                              (if (probe-file (get-property object prop-id)) 
-                                                                  (om-def-color :black) (om-def-color :red)))
-                                                             (om-invalidate-view textview)
-                                                             )
-                                                           )))
+                     button
                      ))
     ))
 
