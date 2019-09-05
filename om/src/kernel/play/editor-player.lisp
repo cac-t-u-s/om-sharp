@@ -368,7 +368,7 @@
 
 
 (defmethod update-view-from-ruler ((self x-ruler-view) (view x-cursor-graduated-view))
-  (om-update-transient-drawing self :x (time-to-pixel self (cursor-pos self)))
+  (om-update-transient-drawing view :x (time-to-pixel view (cursor-pos view)))
   (call-next-method))
 
 
