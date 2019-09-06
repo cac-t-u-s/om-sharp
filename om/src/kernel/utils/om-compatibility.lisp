@@ -508,17 +508,17 @@
          (type (type-of value)))
     
     (cond ((listp value)
-           ;;; lists => simple value boxes
+           ;;; lists => collection
            `(:box 
-             (:type :value)
-             (:reference list) 
-             (:value ,(omng-save value))
+             (:type :object)
+             (:reference collection) 
+             (:value (:object (:class collection) 
+                      (:slots ((:obj-list ,(omng-save value))))))
              (:name ,name)
              (:lock :locked)
              (:x ,(om-point-x position))
              (:y ,(om-point-y position))
-             (:w ,(om-point-x size))
-             (:h ,(om-point-y size)))
+             (:display :text))
            )
            
           (t ;;; other sort of objects => object box
@@ -535,7 +535,7 @@
                (:y ,(om-point-y position))
                (:lock :locked)
                (:showname t)
-               (:display :mini-view :hidden)
+               (:display :mini-view)
                )
              ))
     )
