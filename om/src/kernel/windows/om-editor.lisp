@@ -363,6 +363,7 @@
 (defclass OMEditorView (om-view)
   ((editor :accessor editor :initform nil :initarg :editor)))
 
+
 ;;;====================
 ;;; EDITOR WINDOW 
 ;;;====================
@@ -470,11 +471,24 @@
 ;;; DEFAULT INSPECTOR/EDITOR
 ;;;====================
 
+;;; for an object that is just a simple value...
+(defmethod get-properties-list ((self t))
+  `(("" (:value "Value" :text read-only))))
+
+(defmethod get-properties-list ((self list))
+  (list (cons "list elements" 
+              (loop for i from 0 to (min 100 (1- (length self)))
+                    collect (list (intern-k (format nil "elt~D" i))
+                                  (format nil "#~D" i) :text 
+                                  i)))))
+
+
 (defclass OMDefaultEditorView (OMEditorView) ())
 
 (defmethod set-contents ((self OMDefaultEditorView))
   (let* ((ed (editor self))
          (object (object-value ed)))
+
     (om-add-subviews 
      self 
      (om-make-layout 

@@ -80,15 +80,30 @@
   (if val-supplied-p
       (cond ((and accessor (slot-exists-p object accessor))
              (setf (slot-value object accessor) val))
-            ((fboundp accessor)
+            ((or (functionp accessor) 
+                 (and (symbolp accessor) (fboundp accessor)))
              (funcall accessor object val))
+            ((and (listp object) (numberp accessor))
+             (setf (nth accessor object) val))
             (t :invalid))
     (cond 
      ((and accessor (slot-exists-p object accessor))
       (slot-value object accessor))
-     ((fboundp accessor) ;; not sure if it applies to the right object !
+     ((or (functionp accessor) 
+          (and (symbolp accessor) (fboundp accessor)));; not sure if it applies to the right object !
       (funcall accessor object))
+     ((and (listp object) (numberp accessor))
+      (nth accessor object))
      (t :invalid))))
+
+
+;;; a special accessor for read-only properties...
+(defun read-only (obj &optional (val nil val-supplied-p))
+  (if val-supplied-p 
+      (om-beep-msg "Value ~A is read-only" obj)
+    obj))
+
+(slot-exists-p 4 #(lambda (x) x))
 
 (defmethod get-property (object prop-id &key (warn t)) 
   (let* ((prop (get-property-spec object prop-id))
@@ -132,7 +147,7 @@
   (declare (ignore default))
   
   (om-make-view 'click-and-edit-text 
-                ;:enabled (valid-property-p object prop-id)
+                :enabled (not (equal 'read-only (nth 3 (get-property-spec object prop-id))))
                 :text (format nil "~A" (get-property object prop-id))
                 :resizable :w
                 :bg-color (om-def-color :window)
