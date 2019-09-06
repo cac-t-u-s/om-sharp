@@ -24,6 +24,8 @@
 (compile&load (merge-pathnames "objects/midi-event" *load-pathname*))
 (compile&load (merge-pathnames "objects/midi-controllers" *load-pathname*))
 (compile&load (merge-pathnames "objects/piano-roll" *load-pathname*))
+(compile&load (merge-pathnames "compatibility" *load-pathname*))
+
 
 (omNG-make-package 
  "MIDI"
