@@ -27,6 +27,9 @@
 (defmethod update-arg-names ((reference (eql 'om-sample)))
   '(("sample-rate" "nbs-sr")))
 
+;;; => do it for other arithmetic functions...
+(defmethod update-arg-names ((reference (eql 'om*)))
+  '(("self" "arg1") ("num" "arg2")))
 
 ;;;================
 ;;; BPF

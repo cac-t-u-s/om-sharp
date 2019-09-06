@@ -1405,6 +1405,8 @@
 ;;; e.g.: (defmethod update-value ((self 'old-class)) (make-instance 'new-class)) 
 (defmethod update-value ((self t)) nil)
 
+;;; OM6 => OM7 compatibility favors name-semantics over order: inputs will be correctly imported (in particular, if they have a default value) and connected if they have the same name in OM6 and OM7. This permist same arguments to have a different position on the box. If they don't the following function allows to cover specific cases:
+
 ;;; When some box inputs have changed name 
 ;;; redefine with eql-specializers for specific functions of class name
 ;;; e.g. (defmethod update-arg-names ((reference (eql 'function-or-class))) '(("old-arg-name" "new-arg-name")))
