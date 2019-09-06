@@ -43,7 +43,8 @@
 (defmethod special-box-p ((name (eql 'mem))) t)
 
 (defclass OMMemory (OMPatchComponentWithMemory) 
-  ((timer-var :initform  nil :accessor timer-var)
+  ((size :initform 1 :accessor size)
+   (timer-var :initform  nil :accessor timer-var)
    (timetag :initform nil :accessor timetag)))
 
 (defclass OMMemoryBox (OMPatchComponentBox) ())
@@ -56,9 +57,21 @@
 (defmethod get-box-class ((self OMMemory)) 'OMMemoryBox)
 (defmethod box-symbol ((self OMMemory)) 'mem)
 
-
 (defmethod get-icon-id ((self OMMemoryBox)) :m-mem)
 (defmethod object-name-in-inspector ((self OMMemoryBox)) "memory/delay box")
+
+(defmethod box-draw ((self OMMemoryBox) frame)
+  (when (integerp (size (reference self)))
+    (let ((fill-ratio (/ (length (cadr (value self))) (max 1 (size (reference self))))))
+      (om-draw-rect (- (w frame) 8) (- (h frame) 5) 
+                    6
+                    (- (* (- (h frame) 10) fill-ratio))
+                    :fill t)
+      ))
+      
+    ;; (om-draw-string 10 20 (format nil "~A" (value self)))
+    )
+
 
 (defmethod omNG-make-special-box ((reference (eql 'mem)) pos &optional init-args)
   (let* ((name (car (list! init-args)))
@@ -95,13 +108,16 @@
           (size (omng-box-value (cadr (inputs self)))))
       
       (setf (ev-once-flag self) (get-ev-once-flag *ev-once-context*))
-         
+      
+      (setf (size (reference self)) size) ;;; this is just for display
+      
       (setf (value self)
-            
             (cond 
              ((integerp size)
-              (let ((new-memory (cons (car (value self)) 
-                                      (list! (cadr (value self))))))
+              (let ((new-memory (if (consp (value self)) ;; already something in value
+                                    (cons (car (value self)) 
+                                          (list! (cadr (value self))))
+                                  nil)))
                 (list inval 
                       ;;; first-n values of memory
                       (if (< (length new-memory) size) 

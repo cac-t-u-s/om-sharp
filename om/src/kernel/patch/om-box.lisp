@@ -157,7 +157,9 @@
   (current-box-value self))
 
 (defmethod initialize-box-value ((self OMBox) &optional value)
-  (setf (value self) nil))
+  (setf (value self) nil)
+  (when (frame self) 
+    (om-invalidate-view (frame self))))
 
 (defmethod set-value ((self OMBox) value)
   (setf (value self) value))
