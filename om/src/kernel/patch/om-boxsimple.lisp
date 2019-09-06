@@ -97,6 +97,7 @@
                    (handler-bind ((error #'(lambda (error) (declare (ignore error)) (om-beep) (om-abort)))) 
                      ;;(setf (name box) text)
                      (let ((val (ignore-errors (read-from-string text))))
+                       (store-current-state-for-undo (editor (container self)))
                        (set-value box (list (if (quoted-form-p val) (eval val) val)))
                        )))
           ))
@@ -106,6 +107,16 @@
     ;;; add the optional/keywords
     (setf (value newbox) (om-copy (value self)))
     newbox))
+
+
+(defmethod initialize-box-value ((self OMValueBox) &optional value) nil)
+
+(defmethod editable-on-click ((self OMValueBox)) nil)
+
+
+(defmethod get-object-slots-for-undo ((self OMValueBox)) 
+  (append (call-next-method) '(value)))
+
 
 
 ;;; BOX FRAME
