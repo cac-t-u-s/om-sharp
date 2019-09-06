@@ -209,8 +209,8 @@
                        ;;; therefore we support both pathnames "om-formatted", and raw pathnames and strings
                        (when (equal (car (pathname-directory path)) :relative)
                          (setf path (merge-pathnames path (mypathname lib))))
-             
-                       (compile&load (namestring path) t t "omfasl")))
+
+                       (compile&load path t t "omfasl")))
                  files)
            )
           ;;; set packages

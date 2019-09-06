@@ -32,35 +32,41 @@
        :directory (append (pathname-directory ref) (butlast decoded-path))
        :name (car (last decoded-path))))))
 
- 
+
 (defun compile&load (file &optional (verbose t) (force-compile nil) (compile-ext nil))
 
   (when (and compile-ext (not (find compile-ext sys:*binary-file-types* :test 'string-equal)))
     (push compile-ext sys:*binary-file-types*))
   
-  (let* ((lisp-file (truename (if (pathname-type file) file (concatenate 'string (namestring file) ".lisp"))))
+  ;;; not sure why: compile / load find the file vbetter if the type is NIL than :unspecific 
+  (when (equal :unspecific (pathname-type file))
+    (setf file (make-pathname :directory (pathname-directory file)
+                              :device (pathname-device file)
+                              :name (pathname-name file) 
+                              :type NIL)))
+
+  (let* ((lisp-file (truename (if (stringp (pathname-type file)) file (concatenate 'string (namestring file) ".lisp"))))
          (fasl-file (make-pathname :directory (pathname-directory lisp-file)
-                                               :device (pathname-device lisp-file)
-                                               :name (pathname-name lisp-file) 
-                                               :type (or compile-ext *compile-type*)))
+                                   :device (pathname-device lisp-file)
+                                   :name (pathname-name lisp-file) 
+                                   :type (or compile-ext *compile-type*)))
          (fasl-present (probe-file fasl-file))
          (fasl-outofdate (and fasl-present
                               (or (not (file-write-date lisp-file))
                                   (not (file-write-date fasl-file))
                                   (> (file-write-date lisp-file) (file-write-date fasl-file))))))
-    
+
     (when (and (fboundp 'compile-file) ;; == ;; (not (member :om-deliver *features*))
                (or force-compile (not fasl-present) fasl-outofdate))
-       
       
       (compile-file 
        file 
        :verbose 0
        :output-file (if compile-ext fasl-file nil))
+      
+      (setf fasl-outofdate nil))
 
-       (setf fasl-outofdate nil))
-
-     (if fasl-outofdate
+    (if fasl-outofdate
          
          (progn (print (format nil "WARNING: File ~A is older than the LISP source file. File ~A will be loaded instead."
                                fasl-file lisp-file))
@@ -69,13 +75,16 @@
        (catch 'faslerror
          (handler-bind ((conditions::fasl-error 
                          #'(lambda (c) 
+                             (declare (ignore c))
                              (when (and (fboundp 'compile-file) fasl-file)
                                (print (format nil "File ~s will be recompiled..." fasl-file))
                                (compile-file file :verbose verbose :output-file (if compile-ext fasl-file nil))
                                (load fasl-file :verbose verbose)
                                (throw 'faslerror t)
                                ))))
+           
            (load file :verbose verbose)
+
            )))))
 
 
