@@ -68,7 +68,6 @@
                     (- (* (- (h frame) 10) fill-ratio))
                     :fill t)
       ))
-      
     ;; (om-draw-string 10 20 (format nil "~A" (value self)))
     )
 
