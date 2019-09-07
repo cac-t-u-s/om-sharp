@@ -25,8 +25,6 @@
 (defmethod update-arg-names ((reference (eql 'chord-seq)))
   '(("legato" "llegato")))
 
-;;; Note/ToDo: CHORD-SEQ LEGATO IS NO LONGER % but a simple factor
-
 ;;; Redefinitions of OM6 load utilities
 (defun load-obj-list-from-save (list)
   (loop for item in list collect (eval item)))
@@ -41,6 +39,39 @@
 (defmethod set-object-analysis ((self t) analyse) )
 
 ;;; SCORE EDITOR PARAMS
+
+(defun load-score-edition-params (editparams)
+  (let ((staff-symb (cdr (find 'staff editparams :key #'car))))
+    (when staff-symb
+      `((:edition-params (:staff ,(intern-k (symbol-name staff-symb)))))
+      )))
+
+
+(defmethod om-load-editor-box1 (name (reference (eql 'note)) inputs position size value lock 
+                                     &optional fname editparams spict meditor pictlist show-name)
+  (declare (ignore fname meditor pictlist))
+  (append (call-next-method)
+          (load-score-edition-params editparams)))
+
+(defmethod om-load-editor-box1 (name (reference (eql 'chord)) inputs position size value lock 
+                                     &optional fname editparams spict meditor pictlist show-name)
+  (declare (ignore fname meditor pictlist))
+  (append (call-next-method)
+          (load-score-edition-params editparams)))
+
+(defmethod om-load-editor-box1 (name (reference (eql 'chord-seq)) inputs position size value lock 
+                                     &optional fname editparams spict meditor pictlist show-name)
+  (declare (ignore fname meditor pictlist))
+  (append (call-next-method)
+          (load-score-edition-params editparams)))
+
+(defmethod om-load-editor-box1 (name (reference (eql 'voice)) inputs position size value lock 
+                                     &optional fname editparams spict meditor pictlist show-name)
+  (declare (ignore fname meditor pictlist))
+  (append (call-next-method)
+          (load-score-edition-params editparams)))
+
+
 ;;; => hack / to(re)do when score editors are operational
 (defclass edition-values () 
   ((paper-size :accessor paper-size)
