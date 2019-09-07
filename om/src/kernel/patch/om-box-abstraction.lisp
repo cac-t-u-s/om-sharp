@@ -58,7 +58,7 @@
         (
          ,(if (is-persistant (reference self))
               '(:filename "File name" :path box-patch-name-access)
-            '(:name "Name" :text box-patch-name-access))
+            '(:name "Name" :string box-patch-name-access))
          ))
        ("Scheduling"
         ((:pre-delay "Pre-delay (ms)" :number pre-delay))))
