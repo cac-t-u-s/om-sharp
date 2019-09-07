@@ -472,7 +472,11 @@
 ;;;====================
 
 ;;; for an object that is just a simple value...
-(defmethod get-properties-list ((self t))
+(defmethod get-properties-list ((self number))
+  `(("" (:value "Value" :text read-only))))
+(defmethod get-properties-list ((self symbol))
+  `(("" (:value "Value" :text read-only))))
+(defmethod get-properties-list ((self string))
   `(("" (:value "Value" :text read-only))))
 
 (defmethod get-properties-list ((self list))
