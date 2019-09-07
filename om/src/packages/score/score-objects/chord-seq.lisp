@@ -68,7 +68,8 @@ CHORD-SEQ is defined with:
 - <loffset>: a list or list of lists of values (milliseconds) expressing note offsets for the notes inside each chord.
 - <lchan>: a list or list of lists of values (1-16) expressing MIDI channels for each chord or notes inside each chord.
 - <lport>: a list or list of lists of values expressing MIDI ports for each chord or notes inside each chord.
-- <llegato>: list of numbers > 0.0 (or NIL), indicating the duration of chords as a ratio of inter-onsets time intervals. When applied, the ldur and loffset inputs are ignored, and note durations are set with regard to the legato value.
+- <llegato>: list of float numbers > 0.0 (or NIL), indicating the duration of chords as a ratio of inter-onsets time intervals. When applied, the ldur and loffset inputs are ignored, and note durations are set with regard to the legato value. 
+Note: for compatibility, legato can also be specified as an integer [0-100], and is then considered a percentage value.
 
 All values (excepted lonsets and legato) are returned (in the box outputs) as list of lists (one value for each note, missing values computed from previous notes or chords).
 
@@ -144,6 +145,7 @@ Internally most of these values are just used to build a list of CHORD objects, 
             for legato = (or (pop legatos) legato) 
             do (setf (date chord) onset)
             do (when (and legato (> legato 0))
+                 (if (integerp legato) (setf legato (/ legato 100.0)))
                  (let ((dur (round (* (- next-ontset onset) legato))))
                    (loop for note in (notes chord) 
                          do (setf (offset note) 0 
