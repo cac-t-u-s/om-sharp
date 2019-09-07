@@ -38,6 +38,12 @@
 (defun simple-bpf-from-list (x-points y-points &optional (class 'bpf) (decimals 0))
   (make-instance class :x-points x-points :y-points y-points :decimals decimals))
 
+(defmethod (setf bpfcolor) ((c t) (self bpf))
+  (when c (setf (slot-value self 'color) (om-correct-color c))))
+
+(defmethod bpfcolor ((self bpf))
+  (color self))
+
 (defun 3Dc-from-list (xlist ylist zlist &optional (class '3DC) (decimals 0))
   (make-instance class :x-points xlist :y-points ylist :z-points zlist :decimals decimals))
 

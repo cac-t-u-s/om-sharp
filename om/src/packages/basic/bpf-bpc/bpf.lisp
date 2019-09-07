@@ -124,10 +124,6 @@
 
 ;;;===============================
 
-;;; COMPATIBILITY
-(defmethod (setf bpfcolor) ((c t) (self bpf))
-  (when c (setf (slot-value self 'color) (om-correct-color c))))
-
 (defmethod check-decimals ((self bpf))
   (unless (and (integerp (decimals self))
                (> (decimals self) 0) 
