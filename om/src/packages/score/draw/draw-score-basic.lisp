@@ -686,379 +686,380 @@
                          build-b-boxes)
   
   (declare (ignore w))
+  
+  (when (inside chord)
+    (om-with-translation x y 
 
-  (om-with-translation x y 
-
-    (let* ((head-symb (if (consp head) (car head) head))
-           (n-points (if (consp head) (cadr head) 0))
-           (head-extra-number (if (listp head-symb) (car head-symb))))
+      (let* ((head-symb (if (consp head) (car head) head))
+             (n-points (if (consp head) (cadr head) 0))
+             (head-extra-number (if (listp head-symb) (car head-symb))))
       
-    ;;; (print (list head head-symb)) 
-    ;;; TODO
-    ;;; if head-symb is a list => long figure and the value in (car head-symb) is the duration
+        ;;; (print (list head head-symb)) 
+        ;;; TODO
+        ;;; if head-symb is a list => long figure and the value in (car head-symb) is the duration
     
-    (multiple-value-bind (head-char head-name)
-        (note-head-char head-symb)
+        (multiple-value-bind (head-char head-name)
+            (note-head-char head-symb)
 
-      (let* ((unit (font-size-to-unit fontsize))
-             (x-pix (+ (* x-units unit) (funcall time-function x-ms)))
-             (notes (inside chord))
-             (shift (+ y-units (calculate-staff-line-shift staff)))
-             (staff-elems (staff-split staff))
-             (staff-lines (apply 'append (mapcar 'staff-lines staff-elems)))
-             (head-box (get-font-bbox head-name))
-             (head-w (- (nth 2 head-box) (nth 0 head-box)))    ;;; the width in units of a note-head
-             (head-h (- (nth 3 head-box) (nth 1 head-box)))    ;;; the height in units of a note-head
-             (head-w-pix (* head-w unit))    ;;; the width in pixels of a note-head
-             (acc-w (* (get-font-width "accidentalSharp") unit 1.5)) ;;; the width in pixels of an accident symbol
+          (let* ((unit (font-size-to-unit fontsize))
+                 (x-pix (+ (* x-units unit) (funcall time-function x-ms)))
+                 (notes (inside chord))
+                 (shift (+ y-units (calculate-staff-line-shift staff)))
+                 (staff-elems (staff-split staff))
+                 (staff-lines (apply 'append (mapcar 'staff-lines staff-elems)))
+                 (head-box (get-font-bbox head-name))
+                 (head-w (- (nth 2 head-box) (nth 0 head-box)))    ;;; the width in units of a note-head
+                 (head-h (- (nth 3 head-box) (nth 1 head-box)))    ;;; the height in units of a note-head
+                 (head-w-pix (* head-w unit))    ;;; the width in pixels of a note-head
+                 (acc-w (* (get-font-width "accidentalSharp") unit 1.5)) ;;; the width in pixels of an accident symbol
              
-             (stem-direction :up) 
-             cx1 cx2 cy1 cy2  ;;; chord bounding-box values (in pixels)
-         
-             (dur-max (apply #'max (mapcar 'dur notes)))
-             ;; (dur-factor (/ (- w 80) (* dur-max 2)))  ;;; we will multiply durations by this to display them on half-width of the view
-             (unique-channel (and (not (equal draw-chans :hidden)) (all-equal (mapcar 'chan notes)) (chan (car notes))))
-             (unique-vel (and draw-vels (all-equal (mapcar 'vel notes)) (vel (car notes))))
-             (unique-port (and draw-ports (all-equal (mapcar 'port notes)) (or (port (car notes)) :default))))
+                 (stem-direction :up) 
+                 cx1 cx2 cy1 cy2  ;;; chord bounding-box values (in pixels)
+             
+                 (dur-max (apply #'max (mapcar 'dur notes)))
+                 ;; (dur-factor (/ (- w 80) (* dur-max 2)))  ;;; we will multiply durations by this to display them on half-width of the view
+                 (unique-channel (and (not (equal draw-chans :hidden)) (all-equal (mapcar 'chan notes)) (chan (car notes))))
+                 (unique-vel (and draw-vels (all-equal (mapcar 'vel notes)) (vel (car notes))))
+                 (unique-port (and draw-ports (all-equal (mapcar 'port notes)) (or (port (car notes)) :default))))
            
-        (om-with-font 
-         (om-make-font *score-font* #+darwin fontsize #-darwin (* 3/4 fontsize))
+            (om-with-font 
+             (om-make-font *score-font* #+darwin fontsize #-darwin (* 3/4 fontsize))
                  
-         ;;; in case of a unique channel we set the color right here
-         (om-with-fg-color (if (equal selection t)
+             ;;; in case of a unique channel we set the color right here
+             (om-with-fg-color (if (equal selection t)
                                
-                               *score-selection-color*
+                                   *score-selection-color*
                                
-                             (and unique-channel
-                                  (member draw-chans '(:color :color-and-number))
-                                  (get-midi-channel-color unique-channel)))
+                                 (and unique-channel
+                                      (member draw-chans '(:color :color-and-number))
+                                      (get-midi-channel-color unique-channel)))
 
-           ;;; Global stuff here (not needed for the head loop)
-           (let* ((pitches (sort (mapcar 'midic notes) '<))
-                  (pmin (car pitches))
-                  (pmax (car (last pitches)))
-                  (l-min (pitch-to-line pmin scale))
-                  (l-max (pitch-to-line pmax scale))
-                  (y-min (line-to-ypos l-min shift unit))
-                  (y-max (line-to-ypos l-max shift unit))
-                  (stem? (and stem ;;; passed as argument 
-                              (not (or (listp head-symb) (member head-symb '(:head-1 :head-2 :head-4 :head-8)))))))
+               ;;; Global stuff here (not needed for the head loop)
+               (let* ((pitches (sort (mapcar 'midic notes) '<))
+                      (pmin (car pitches))
+                      (pmax (car (last pitches)))
+                      (l-min (pitch-to-line pmin scale))
+                      (l-max (pitch-to-line pmax scale))
+                      (y-min (line-to-ypos l-min shift unit))
+                      (y-max (line-to-ypos l-max shift unit))
+                      (stem? (and stem ;;; passed as argument 
+                                  (not (or (listp head-symb) (member head-symb '(:head-1 :head-2 :head-4 :head-8)))))))
              
-             ;;; STEM
-             (when stem?
+                 ;;; STEM
+                 (when stem?
                
-               ;;; determine direction (default is :up)
-               (setq stem-direction (if (numberp stem) ;;; in a group: stem is already decided
-                                        (if (> stem l-min) :up :down)  ;;; stem is higher than the min note of the chord: :down
-                                      (stem-direction chord staff)
-                                      ))
+                   ;;; determine direction (default is :up)
+                   (setq stem-direction (if (numberp stem) ;;; in a group: stem is already decided
+                                            (if (> stem l-min) :up :down)  ;;; stem is higher than the min note of the chord: :down
+                                          (stem-direction chord staff)
+                                          ))
                      
-               (let ((stem-size (* unit *stem-height*))
-                     (stemThickness (* *stemThickness* unit))
-                     (stemUpSE-x (* unit (car *noteheadBlack_StemUpSE*))) ;;; SE = anchor for stem-up
-                     (stemUpSE-y (* unit (cadr *noteheadBlack_StemUpSE*)))
-                     (stemDownNW-x (* unit (car *noteheadBlack_StemDownNW*))) ;;; NW = anchor for stem-down
-                     (stemDownNW-y (* unit (cadr *noteheadBlack_StemDownNW*)))
-                     (n-beams (car beams))
-                     (pos-in-group (cadr beams)))
+                   (let ((stem-size (* unit *stem-height*))
+                         (stemThickness (* *stemThickness* unit))
+                         (stemUpSE-x (* unit (car *noteheadBlack_StemUpSE*))) ;;; SE = anchor for stem-up
+                         (stemUpSE-y (* unit (cadr *noteheadBlack_StemUpSE*)))
+                         (stemDownNW-x (* unit (car *noteheadBlack_StemDownNW*))) ;;; NW = anchor for stem-down
+                         (stemDownNW-y (* unit (cadr *noteheadBlack_StemDownNW*)))
+                         (n-beams (car beams))
+                         (pos-in-group (cadr beams)))
                  
-                 (if (numberp stem) ;;; we are in a group and the max position is fixed (stem, in line-number)
+                     (if (numberp stem) ;;; we are in a group and the max position is fixed (stem, in line-number)
                      
-                     (let ((stem-pos (line-to-ypos stem shift unit)))
+                         (let ((stem-pos (line-to-ypos stem shift unit)))
                        
-                       (if (equal stem-direction :up)
+                           (if (equal stem-direction :up)
                          
-                           ;;; up
-                           (progn 
-                             (om-draw-line (+ x-pix stemUpSE-x) (- y-min stemUpSE-y)
-                                           (+ x-pix stemUpSE-x) stem-pos
-                                           :line stemThickness :end-style :projecting)
+                               ;;; up
+                               (progn 
+                                 (om-draw-line (+ x-pix stemUpSE-x) (- y-min stemUpSE-y)
+                                               (+ x-pix stemUpSE-x) stem-pos
+                                               :line stemThickness :end-style :projecting)
                              
-                             (when n-beams
-                               (if (zerop pos-in-group) ;; first elem
-                                   (draw-beams x-pix (+ x-pix head-w-pix) stem :up n-beams y-units staff fontsize)
-                                 (draw-beams (- x-pix head-w-pix) x-pix stem :up n-beams y-units staff fontsize)
-                                 ))
+                                 (when n-beams
+                                   (if (zerop pos-in-group) ;; first elem
+                                       (draw-beams x-pix (+ x-pix head-w-pix) stem :up n-beams y-units staff fontsize)
+                                     (draw-beams (- x-pix head-w-pix) x-pix stem :up n-beams y-units staff fontsize)
+                                     ))
                           
-                             (setf cy1 stem-pos))
+                                 (setf cy1 stem-pos))
 
                           
-                         ;;; down
-                         (progn
-                           (om-draw-line (+ x-pix stemDownNW-x) (- y-max stemDownNW-y)
-                                         (+ x-pix stemDownNW-x) stem-pos
-                                         :line stemThickness :end-style :projecting)
-                           (when n-beams
-                             (if (zerop pos-in-group) ;; first elem
-                                 (draw-beams x-pix (+ x-pix head-w-pix) stem :down n-beams y-units staff fontsize)
-                               (draw-beams (- x-pix head-w-pix) x-pix stem :down n-beams y-units staff fontsize)
-                               ))
+                             ;;; down
+                             (progn
+                               (om-draw-line (+ x-pix stemDownNW-x) (- y-max stemDownNW-y)
+                                             (+ x-pix stemDownNW-x) stem-pos
+                                             :line stemThickness :end-style :projecting)
+                               (when n-beams
+                                 (if (zerop pos-in-group) ;; first elem
+                                     (draw-beams x-pix (+ x-pix head-w-pix) stem :down n-beams y-units staff fontsize)
+                                   (draw-beams (- x-pix head-w-pix) x-pix stem :down n-beams y-units staff fontsize)
+                                   ))
                            
-                           (setf cy2 stem-pos))
-                         )
-                       )
+                               (setf cy2 stem-pos))
+                             )
+                           )
                  
-                   ;;; otherwise, this is a standalone chord with stem 
-                   (if (equal stem-direction :up)
+                       ;;; otherwise, this is a standalone chord with stem 
+                       (if (equal stem-direction :up)
                        
-                       ;;; stem up
-                       (let ((stem-x (+ x-pix stemUpSE-x)))
+                           ;;; stem up
+                           (let ((stem-x (+ x-pix stemUpSE-x)))
                             
-                         (om-draw-line stem-x (- y-min stemUpSE-y)
-                                       stem-x (- y-max stemUpSE-y stem-size)
-                                       :line stemThickness)
+                             (om-draw-line stem-x (- y-min stemUpSE-y)
+                                           stem-x (- y-max stemUpSE-y stem-size)
+                                           :line stemThickness)
                        
-                         ;; initial extesion for the chord bounding-box 
-                         (setf cy1 (- y-max stemUpSE-y stem-size))
+                             ;; initial extesion for the chord bounding-box 
+                             (setf cy1 (- y-max stemUpSE-y stem-size))
 
-                         (when n-beams
-                           (let ((flag-char (flag-char :up (list-max n-beams))))
-                             (om-draw-char stem-x (- y-max stemUpSE-y stem-size) flag-char)
-                             ))
+                             (when n-beams
+                               (let ((flag-char (flag-char :up (list-max n-beams))))
+                                 (om-draw-char stem-x (- y-max stemUpSE-y stem-size) flag-char)
+                                 ))
+                             )
+
+                         ;;; stem down
+                         (let ((stem-x (+ x-pix stemDownNW-x)))
+                           (om-draw-line stem-x (- y-max stemDownNW-y)
+                                         stem-x (- y-min stemDownNW-y (- stem-size))
+                                         :line stemThickness)
+                          
+                           ;; initial extesion for the chord bounding-box 
+                           (setf cy2 (- y-min stemDownNW-y (- stem-size))) 
+                          
+                           (when n-beams
+                             (let ((flag-char (flag-char :down (list-max n-beams))))
+                               (om-draw-char stem-x (- y-min stemDownNW-y (- stem-size)) flag-char)
+                               ))
+                           )
                          )
-
-                     ;;; stem down
-                     (let ((stem-x (+ x-pix stemDownNW-x)))
-                       (om-draw-line stem-x (- y-max stemDownNW-y)
-                                     stem-x (- y-min stemDownNW-y (- stem-size))
-                                     :line stemThickness)
-                          
-                       ;; initial extesion for the chord bounding-box 
-                       (setf cy2 (- y-min stemDownNW-y (- stem-size))) 
-                          
-                       (when n-beams
-                         (let ((flag-char (flag-char :down (list-max n-beams))))
-                           (om-draw-char stem-x (- y-min stemDownNW-y (- stem-size)) flag-char)
-                           ))
                        )
-                     )
-                   )
-                 ))
+                     ))
                
-             ;;; GLOBAL CHANNEL
-             (when (and (member draw-chans '(:number :color-and-number)) 
-                        unique-channel) ;;; if there's just one channel in the chord we'll display it here
-               (om-draw-string (+ x-pix (* head-w-pix 2)) (+ y-min (* unit .5)) (format nil "~D" unique-channel) 
-                               :font (om-def-font :font1 :size (round fontsize 2))))
+                 ;;; GLOBAL CHANNEL
+                 (when (and (member draw-chans '(:number :color-and-number)) 
+                            unique-channel) ;;; if there's just one channel in the chord we'll display it here
+                   (om-draw-string (+ x-pix (* head-w-pix 2)) (+ y-min (* unit .5)) (format nil "~D" unique-channel) 
+                                   :font (om-def-font :font1 :size (round fontsize 2))))
              
-             ;;; GLOBAL MIDI PORT
-             (when (and draw-ports unique-port) ;;; if there's just one port in the chord we'll display it here
-               (if (member draw-chans '(:number :color-and-number))
-                   (om-draw-string (+ x-pix (* head-w-pix 3)) (+ y-min (* unit 1.5)) (format nil "(~D)" unique-port)
-                                   :font (om-def-font :font1 :size (round fontsize 2.5)))
-                 (om-draw-string (+ x-pix (* head-w-pix 2)) (+ y-min unit) (format nil "(~D)" unique-port)
-                                 :font (om-def-font :font1 :size (round fontsize 2)))
-                 ))
+                 ;;; GLOBAL MIDI PORT
+                 (when (and draw-ports unique-port) ;;; if there's just one port in the chord we'll display it here
+                   (if (member draw-chans '(:number :color-and-number))
+                       (om-draw-string (+ x-pix (* head-w-pix 3)) (+ y-min (* unit 1.5)) (format nil "(~D)" unique-port)
+                                       :font (om-def-font :font1 :size (round fontsize 2.5)))
+                     (om-draw-string (+ x-pix (* head-w-pix 2)) (+ y-min unit) (format nil "(~D)" unique-port)
+                                     :font (om-def-font :font1 :size (round fontsize 2)))
+                     ))
              
-             ;;; GLOBAL VELOCITY VALUE OR SYMBOL
-             (when (and draw-vels unique-vel) ;;; if there's just one velocity in the chord we'll display it somewhere else
-               (case draw-vels
-                 (:value 
-                  (om-draw-string x-pix (+ y-min (* unit 4)) (format nil "~D" unique-vel) 
-                                  :font (om-def-font :font1 :size (round fontsize 2.5))))
-                 (:symbol 
-                  (om-draw-char x-pix (+ y-min (* unit 4)) (velocity-char unique-vel)))
-                 ))
+                 ;;; GLOBAL VELOCITY VALUE OR SYMBOL
+                 (when (and draw-vels unique-vel) ;;; if there's just one velocity in the chord we'll display it somewhere else
+                   (case draw-vels
+                     (:value 
+                      (om-draw-string x-pix (+ y-min (* unit 4)) (format nil "~D" unique-vel) 
+                                      :font (om-def-font :font1 :size (round fontsize 2.5))))
+                     (:symbol 
+                      (om-draw-char x-pix (+ y-min (* unit 4)) (velocity-char unique-vel)))
+                     ))
 
 
                    
-             (when (and draw-durs draw-dur-ruler)
+                 (when (and draw-durs draw-dur-ruler)
                
-               (let ((end-pix (+ (* x-units unit) (funcall time-function (+ x-ms dur-max)))))
-                 (om-draw-line x-pix (- h 50) end-pix (- h 50) :style '(2 2))
-                 (om-draw-line x-pix (- h 54) x-pix (- h 46))
-                 (om-draw-line end-pix (- h 54) 
-                               end-pix (- h 46))
-                 (om-draw-string (+ end-pix -20) (- h 55) 
-                                 (format nil "~D ms" dur-max) 
-                                 :font (om-def-font :font1))))
+                   (let ((end-pix (+ (* x-units unit) (funcall time-function (+ x-ms dur-max)))))
+                     (om-draw-line x-pix (- h 50) end-pix (- h 50) :style '(2 2))
+                     (om-draw-line x-pix (- h 54) x-pix (- h 46))
+                     (om-draw-line end-pix (- h 54) 
+                                   end-pix (- h 46))
+                     (om-draw-string (+ end-pix -20) (- h 55) 
+                                     (format nil "~D ms" dur-max) 
+                                     :font (om-def-font :font1))))
              
              ; draw symbolic dur (for debug)
              ;(om-draw-string x-pix (- h 55) (format nil "~D" (symbolic-dur chord)) :font (om-def-font :font1))
              ; draw absolute dur (for debug)
              ;(om-draw-string x-pix (- h 35) (format nil "~D" (ldur chord)) :font (om-def-font :font1))
              
-             ;;; for the note-heads loop
-             (let* ((accidental-columns nil)
-                    (head-columns nil)
-                    (leger-lines nil)
-                    (legerLineThickness (* *legerLineThickness* unit))
-                    (legerLineExtension (* *legerLineExtension* unit)))
+                 ;;; for the note-heads loop
+                 (let* ((accidental-columns nil)
+                        (head-columns nil)
+                        (leger-lines nil)
+                        (legerLineThickness (* *legerLineThickness* unit))
+                        (legerLineExtension (* *legerLineExtension* unit)))
                
-               ;; number for big durations
-               (when head-extra-number
-                 (let ((font (om-def-font :font1 :size (round fontsize 2.2))))
-                   (om-draw-string (+ x-pix (* head-w-pix .1)) 
-                                   (+ y-min (* unit 2)) (number-to-string head-extra-number)
-                                   :font font)
-                   ))
+                   ;; number for big durations
+                   (when head-extra-number
+                     (let ((font (om-def-font :font1 :size (round fontsize 2.2))))
+                       (om-draw-string (+ x-pix (* head-w-pix .1)) 
+                                       (+ y-min (* unit 2)) (number-to-string head-extra-number)
+                                       :font font)
+                       ))
                
             
                
-               (loop for n in (sort (copy-list notes) '< :key 'midic) do
+                   (loop for n in (sort (copy-list notes) '< :key 'midic) do
                  
-                     (let* ((line (pitch-to-line (midic n) scale))
-                            (line-y (line-to-ypos line shift unit))
-                            (head-col (position line head-columns 
-                                                :test #'(lambda (line col)
-                                                          ;;; there's no other note in this col at less than 1 line away
-                                                          (not (find line col :test #'(lambda (a b) (< (abs (- b a)) 1)))))))
-                            (head-x nil))
+                         (let* ((line (pitch-to-line (midic n) scale))
+                                (line-y (line-to-ypos line shift unit))
+                                (head-col (position line head-columns 
+                                                    :test #'(lambda (line col)
+                                                              ;;; there's no other note in this col at less than 1 line away
+                                                              (not (find line col :test #'(lambda (a b) (< (abs (- b a)) 1)))))))
+                                (head-x nil))
                  
-                       (if head-col 
-                           (push line (nth head-col head-columns))
-                         (setf head-col (length head-columns) ;; add a new column
-                               head-columns (append head-columns (list (list line)))))
+                           (if head-col 
+                               (push line (nth head-col head-columns))
+                             (setf head-col (length head-columns) ;; add a new column
+                                   head-columns (append head-columns (list (list line)))))
                        
-                       (setq head-x (+ x-pix (* head-col head-w unit)))
+                           (setq head-x (+ x-pix (* head-col head-w unit)))
 
-                       (let (;;; bounding-box values
-                             (nx1 head-x)
-                             (nx2 (+ head-x head-w-pix))
-                             (ny1 (line-to-ypos (+ line (* head-h .5)) shift unit))
-                             (ny2 (line-to-ypos (- line (* head-h .5)) shift unit))) ;;; lines are expressed bottom-up !!
+                           (let (;;; bounding-box values
+                                 (nx1 head-x)
+                                 (nx2 (+ head-x head-w-pix))
+                                 (ny1 (line-to-ypos (+ line (* head-h .5)) shift unit))
+                                 (ny2 (line-to-ypos (- line (* head-h .5)) shift unit))) ;;; lines are expressed bottom-up !!
                        
-                         ;;; bounding-box is in pixels
-                         ;;; update the chord bbox as well..
-                         (setf cx1 (if cx1 (min cx1 nx1) nx1)
-                               cx2 (if cx2 (max cx2 nx2) nx2)
-                               cy1 (if cy1 (min cy1 ny1) ny1)
-                               cy2 (if cy2 (max cy2 ny2) ny2))
+                             ;;; bounding-box is in pixels
+                             ;;; update the chord bbox as well..
+                             (setf cx1 (if cx1 (min cx1 nx1) nx1)
+                                   cx2 (if cx2 (max cx2 nx2) nx2)
+                                   cy1 (if cy1 (min cy1 ny1) ny1)
+                                   cy2 (if cy2 (max cy2 ny2) ny2))
                          
-                         (when build-b-boxes
-                           (setf (b-box n) (make-b-box :x1 nx1 :x2 nx2 :y1 ny1 :y2 ny2)))
+                             (when build-b-boxes
+                               (setf (b-box n) (make-b-box :x1 nx1 :x2 nx2 :y1 ny1 :y2 ny2)))
                          
 
-                         ;;; LEGER-LINES
-                         (let ((l-lines (head-leger-lines line staff-lines)))
-                           ;;; draw add leger-line(s) to the record if they are not already there 
-                           (loop for ll in l-lines 
-                                 unless (find ll leger-lines)
-                                 do (let ((ypos (line-to-ypos ll shift unit))) 
-                                      (om-draw-line (- x-pix legerLineExtension) ypos 
-                                                    (+ x-pix head-w-pix legerLineExtension) ypos
-                                                    :line legerLineThickness)
-                                      (push ll leger-lines))))
+                             ;;; LEGER-LINES
+                             (let ((l-lines (head-leger-lines line staff-lines)))
+                               ;;; draw add leger-line(s) to the record if they are not already there 
+                               (loop for ll in l-lines 
+                                     unless (find ll leger-lines)
+                                     do (let ((ypos (line-to-ypos ll shift unit))) 
+                                          (om-draw-line (- x-pix legerLineExtension) ypos 
+                                                        (+ x-pix head-w-pix legerLineExtension) ypos
+                                                        :line legerLineThickness)
+                                          (push ll leger-lines))))
 
-                         (om-with-fg-color 
+                             (om-with-fg-color 
                        
-                             (if (or (equal selection t)
-                                     (and (listp selection) (find n selection)))
+                                 (if (or (equal selection t)
+                                         (and (listp selection) (find n selection)))
                            
-                                 *score-selection-color*
+                                     *score-selection-color*
                          
-                               (cond ((member draw-chans '(:color :color-and-number))
-                                      (om-make-color-alpha 
-                                       (get-midi-channel-color (chan n))
-                                       (if (equal draw-vels :alpha) (/ (vel n) 127) 1)))
-                                     ((equal draw-vels :alpha) (om-make-color 0 0 0 (/ (vel n) 127)))
-                                     (t nil)))
+                                   (cond ((member draw-chans '(:color :color-and-number))
+                                          (om-make-color-alpha 
+                                           (get-midi-channel-color (chan n))
+                                           (if (equal draw-vels :alpha) (/ (vel n) 127) 1)))
+                                         ((equal draw-vels :alpha) (om-make-color 0 0 0 (/ (vel n) 127)))
+                                         (t nil)))
                            
-                           ;;; HEAD
-                           (om-draw-char head-x line-y head-char
-                                         :font (when (equal draw-vels :size)
-						 (om-make-font *score-font* (* #+darwin 1 #-darwin 3/4 (vel n) fontsize .02))))
+                               ;;; HEAD
+                               (om-draw-char head-x line-y head-char
+                                             :font (when (equal draw-vels :size)
+                                                     (om-make-font *score-font* (* #+darwin 1 #-darwin 3/4 (vel n) fontsize .02))))
                        
-                           ;;; DOTS
-                           (when (> n-points 0)
-                             (let ((p-y (+ line-y (* unit (if (zerop (rem line 1)) -0.45 0.05)))))
-                               (om-draw-char (+ head-x (* 1.5 head-w-pix)) p-y (dot-char))
-                               (when (= n-points 2)
-                                 (om-draw-char (+ head-x (* 2.5 head-w-pix)) p-y (dot-char))
-                                 )))
+                               ;;; DOTS
+                               (when (> n-points 0)
+                                 (let ((p-y (+ line-y (* unit (if (zerop (rem line 1)) -0.45 0.05)))))
+                                   (om-draw-char (+ head-x (* 1.5 head-w-pix)) p-y (dot-char))
+                                   (when (= n-points 2)
+                                     (om-draw-char (+ head-x (* 2.5 head-w-pix)) p-y (dot-char))
+                                     )))
                        
-                           ;;; ACCIDENT (if any)
-                           (let ((acc (pitch-to-acc (midic n) scale)))
-                             (when acc
-                               (let ((col (position (midic n) accidental-columns 
-                                                    :test #'(lambda (pitch col)
-                                                              ;;; there's no other note in this col at less than an octave
-                                                              (not (find pitch col :test #'(lambda (a b) (< (abs (- b a)) 1200))))))))
-                                 (if col 
-                                     (push (midic n) (nth col accidental-columns))
+                               ;;; ACCIDENT (if any)
+                               (let ((acc (pitch-to-acc (midic n) scale)))
+                                 (when acc
+                                   (let ((col (position (midic n) accidental-columns 
+                                                        :test #'(lambda (pitch col)
+                                                                  ;;; there's no other note in this col at less than an octave
+                                                                  (not (find pitch col :test #'(lambda (a b) (< (abs (- b a)) 1200))))))))
+                                     (if col 
+                                         (push (midic n) (nth col accidental-columns))
                           
-                                   (setf col (length accidental-columns) ;; add a new column
-                                         accidental-columns (append accidental-columns (list (list (midic n))))))
+                                       (setf col (length accidental-columns) ;; add a new column
+                                             accidental-columns (append accidental-columns (list (list (midic n))))))
                            
-                                 (om-draw-char (- x-pix (* (1+ col) acc-w)) line-y (accident-char acc))
-                                 )))
+                                     (om-draw-char (- x-pix (* (1+ col) acc-w)) line-y (accident-char acc))
+                                     )))
                      
-                           ;;; DURATION line (maybe)
-                           (when draw-durs
-                             (let ((end-pix (+ (* x-units unit) (funcall time-function (+ x-ms (dur n))))))
+                               ;;; DURATION line (maybe)
+                               (when draw-durs
+                                 (let ((end-pix (+ (* x-units unit) (funcall time-function (+ x-ms (dur n))))))
                                
-                               (om-with-fg-color
-                                   (if t ;(member draw-chans '(:color :color-and-number))
-                                       (om-make-color-alpha (get-midi-channel-color (chan n)) .5)
-                                     (om-make-color 0 0 0 .5))
+                                   (om-with-fg-color
+                                       (if t ;(member draw-chans '(:color :color-and-number))
+                                           (om-make-color-alpha (get-midi-channel-color (chan n)) .5)
+                                         (om-make-color 0 0 0 .5))
                                  
-                                 (om-draw-rect x-pix 
-                                               (- line-y (* unit .25))
-                                               (- end-pix x-pix) 
-                                               (* unit .5) 
-                                               :fill t))
-                               ))
+                                     (om-draw-rect x-pix 
+                                                   (- line-y (* unit .25))
+                                                   (- end-pix x-pix) 
+                                                   (* unit .5) 
+                                                   :fill t))
+                                   ))
 
-                           ;;; MIDI channel (maybe)
-                           ;;; if there's just one channel in the chord we'll display it somewhere else
-                           (when (and (member draw-chans '(:number :color-and-number)) 
-                                      (not unique-channel)) 
-                             (om-draw-string (+ x-pix (* head-w-pix 2)) (+ line-y (* unit .5)) (format nil "~D" (chan n)) 
-                                             :font (om-def-font :font1 :size (round fontsize 2)))
-                             )
-                 
-                           ;;; MIDI port (maybe)
-                           ;;; if there's just one port in the chord we'll display it somewhere else
-                           (when (and draw-ports (not unique-port)) 
-                             (om-draw-string (+ x-pix 
-                                                (if (member draw-chans '(:number :color-and-number)) (* head-w-pix 3.5) (* head-w-pix 2.5)))
-                                             (+ line-y unit) (format nil "(~D)" (port n)) 
-                                             :font (om-def-font :font1 :size (round fontsize 2.5)))
-                             )
-
-                           ;;; VELOCITY (maybe)
-                           ;;; if there's just one velocity in the chord we'll display it somewhere else
-                           (when (and draw-vels (not unique-vel)) 
-                             (case draw-vels
-                               (:value 
-                                (om-draw-string x-pix (+ line-y (* unit 2)) (format nil "~D" (vel n)) 
-                                                :font (om-def-font :font1 :size (round fontsize 2.5))))
-                               (:symbol 
-                                (om-draw-char x-pix (+ line-y (* unit 2)) (velocity-char (vel n))))
-                               ))
-                       
-                           ;;; TIES
-                           (when tied-to-ms 
-                             (let* ((x0 (+ (funcall time-function tied-to-ms) head-w-pix))
-                                    (tie-h (if (> (abs (/ (- x-pix x0) unit)) 5) unit (* unit .5))))
-                               
-                               (om-with-line-size (* *stemThickness* unit 1.8)
-                                 
-                                 (let ((tie-direction
-                                        (if (= (length pitches) 1) ;;; if only one note
-                                            (if (equal stem-direction :up) :down :up) ;;; opposed to beam
-                                          (if (>= (position (midic n) pitches :test '=) 
-                                                  (ceiling (length pitches) 2)) ;;; depends on position (rank) in the chord
-                                              :up :down))))
-                                   (if (equal tie-direction :up)
-                                       (om-draw-arc x0 (- ny1 tie-h) (- x-pix x0 (* .3 unit)) (* 2 tie-h) 0 pi)
-                                     (om-draw-arc x0 (- ny2 tie-h) (- x-pix x0 (* .3 unit)) (* 2 tie-h) 0 (- pi)))
-                                   )
+                               ;;; MIDI channel (maybe)
+                               ;;; if there's just one channel in the chord we'll display it somewhere else
+                               (when (and (member draw-chans '(:number :color-and-number)) 
+                                          (not unique-channel)) 
+                                 (om-draw-string (+ x-pix (* head-w-pix 2)) (+ line-y (* unit .5)) (format nil "~D" (chan n)) 
+                                                 :font (om-def-font :font1 :size (round fontsize 2)))
                                  )
+                 
+                               ;;; MIDI port (maybe)
+                               ;;; if there's just one port in the chord we'll display it somewhere else
+                               (when (and draw-ports (not unique-port)) 
+                                 (om-draw-string (+ x-pix 
+                                                    (if (member draw-chans '(:number :color-and-number)) (* head-w-pix 3.5) (* head-w-pix 2.5)))
+                                                 (+ line-y unit) (format nil "(~D)" (port n)) 
+                                                 :font (om-def-font :font1 :size (round fontsize 2.5)))
+                                 )
+
+                               ;;; VELOCITY (maybe)
+                               ;;; if there's just one velocity in the chord we'll display it somewhere else
+                               (when (and draw-vels (not unique-vel)) 
+                                 (case draw-vels
+                                   (:value 
+                                    (om-draw-string x-pix (+ line-y (* unit 2)) (format nil "~D" (vel n)) 
+                                                    :font (om-def-font :font1 :size (round fontsize 2.5))))
+                                   (:symbol 
+                                    (om-draw-char x-pix (+ line-y (* unit 2)) (velocity-char (vel n))))
+                                   ))
+                       
+                               ;;; TIES
+                               (when tied-to-ms 
+                                 (let* ((x0 (+ (funcall time-function tied-to-ms) head-w-pix))
+                                        (tie-h (if (> (abs (/ (- x-pix x0) unit)) 5) unit (* unit .5))))
+                               
+                                   (om-with-line-size (* *stemThickness* unit 1.8)
+                                 
+                                     (let ((tie-direction
+                                            (if (= (length pitches) 1) ;;; if only one note
+                                                (if (equal stem-direction :up) :down :up) ;;; opposed to beam
+                                              (if (>= (position (midic n) pitches :test '=) 
+                                                      (ceiling (length pitches) 2)) ;;; depends on position (rank) in the chord
+                                                  :up :down))))
+                                       (if (equal tie-direction :up)
+                                           (om-draw-arc x0 (- ny1 tie-h) (- x-pix x0 (* .3 unit)) (* 2 tie-h) 0 pi)
+                                         (om-draw-arc x0 (- ny2 tie-h) (- x-pix x0 (* .3 unit)) (* 2 tie-h) 0 (- pi)))
+                                       )
+                                     )
+                                   ))
                                ))
-                           ))
-                         )) ;;; END DO
-                     ) ;;; END NOTES LOOP
-               ) ;;; END OF THE NOTE-HEADS LET
+                           )) ;;; END DO
+                   ) ;;; END NOTES LOOP
+                 ) ;;; END OF THE NOTE-HEADS LET
              
-             ))
+               ))
     
-         ;;; return the bounding box (always)
-         (when t ;build-b-boxes 
-           (make-b-box :x1 cx1 :x2 cx2 :y1 cy1 :y2 cy2))
+            ;;; return the bounding box (always)
+            (when t ;build-b-boxes 
+              (make-b-box :x1 cx1 :x2 cx2 :y1 cy1 :y2 cy2))
          
-         )
-      ))))
+            )
+          )))))
 
 
 ;;;==========================================================

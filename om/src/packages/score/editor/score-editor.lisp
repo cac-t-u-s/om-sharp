@@ -125,12 +125,10 @@
      ;)
      
        (when (contents self)
-         
          (draw-score-object-in-editor-view editor self unit))
        
-       ;)
-    )
-  ))
+       )
+    ))
 
 
 

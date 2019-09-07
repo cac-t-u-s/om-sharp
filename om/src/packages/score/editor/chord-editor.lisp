@@ -124,8 +124,10 @@
 
                  :time-function #'(lambda (time) 
                                     (+ (/ (w view) 2) 
-                                       (* (/ (- (w view) 80) 2) 
-                                          (/ time (list-max (mapcar #'dur (notes chord))))))
+                                       (if (notes chord)
+                                           (* (/ (- (w view) 80) 2) 
+                                              (/ time (list-max (mapcar #'dur (notes chord)))))
+                                         0))
                                     )
                  :build-b-boxes t
                  ))
