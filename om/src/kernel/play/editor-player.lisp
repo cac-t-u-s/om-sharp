@@ -523,10 +523,9 @@
             (format nil "~2,'0d:~2,'0d:~2,'0d:~3,'0d" h m s ms)))))))
 
 
-; (om-make-font "Times" 13)
 (defmethod make-time-monitor ((editor play-editor-mixin) &key time color font format) 
   (setf (time-monitor editor)
-        (om-make-di 'om-multi-text :size (omp 100 17) :text (if time (time-display time format) "")
+        (om-make-di 'om-simple-text :size (omp 100 17) :text (if time (time-display time format) "")
                     :font (or font (om-def-font :font2)) :fg-color (or color (om-def-color :black)))))
       
 

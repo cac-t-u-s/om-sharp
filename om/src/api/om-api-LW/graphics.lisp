@@ -344,10 +344,8 @@
   (let ((def-face #+mswindows "Calibri"  #+linux "Liberation Sans" #+darwin "Calibri")
         (def-bold-face #+mswindows "Calibri"  #+linux "Liberation Sans" #+darwin "Calibri")
         (score-face "Times New Roman")
-        (sizes ;#+mswindows'(8 10 11 13 20) 
-               ;#-mswindows
-               #+darwin '(12 13 14 16 20)		    ;72 ppi
-               #-darwin '(9 10 11 12 15)			    ;96 ppi
+        (sizes #+darwin '(12 13 14 16 20)		    ;72 ppi
+               #-darwin '(9 10 11 12 15)		    ;96 ppi
 	       ))
     (let ((fa 
            (case f

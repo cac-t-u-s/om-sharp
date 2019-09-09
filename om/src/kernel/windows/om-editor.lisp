@@ -363,6 +363,9 @@
 (defclass OMEditorView (om-view)
   ((editor :accessor editor :initform nil :initarg :editor)))
 
+#+windows
+(defmethod om-view-resized :after ((self OMEditorView) size)
+  (om-invalidate-view self))
 
 ;;;====================
 ;;; EDITOR WINDOW 
