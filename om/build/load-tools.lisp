@@ -84,10 +84,12 @@
                                (print (format nil "File ~s will be recompiled..." fasl-file))
                                (compile-file file :verbose verbose :output-file fasl-target)
                                (load fasl-file :verbose verbose)
-                               ;(throw 'faslerror t)
+                               (throw 'faslerror t)
                                ))))
            
-           (load fasl-file :verbose verbose)
+           (if (probe-file fasl-file)
+             (load fasl-file :verbose verbose)
+             (error "Compilation error(s) in ~s" lisp-file))
 
            )))))
 
