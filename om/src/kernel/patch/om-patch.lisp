@@ -143,8 +143,6 @@
 
 (defmethod close-document ((patch OMPatch))
   
-  (close-internal-elements patch)
-    
   (unless 
       ;;; are there references to the same patch outside this patch
       (find-if-not
@@ -152,6 +150,9 @@
            (or (null (find-persistant-container b))
                (equal patch (find-persistant-container b))))
        (box-references-to patch))
+    
+    (close-internal-elements patch)
+
     ;;; if not, remove all box references (they are all inside) this patch
     (loop for refb in (box-references-to patch)
           do (release-reference patch refb))
