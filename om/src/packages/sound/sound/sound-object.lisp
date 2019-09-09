@@ -625,59 +625,6 @@ Press 'space' to play/stop the sound file.
 
 
 ;;;===========================
-;;; BOX
-;;;===========================
-
-;(defclass OMBoxSound (omboxeditcall) ())
-;(defmethod special-box-type ((self (eql 'sound))) 'OMBoxSound)
-
-(defmethod display-modes-for-object ((self sound))
-  '(:hidden :text :mini-view))
-
-(defmethod get-cache-display-for-text ((object sound) box)
-  (declare (ignore box))
-  (append (call-next-method) 
-          (list (list :buffer (buffer object)))))
-
-(defmethod draw-mini-view ((self sound) (box t) x y w h &optional time) 
-  (let ((pict (ensure-cache-display-draw box self)))
-    
-    (cond 
-     ((equal pict :error)
-      (om-with-fg-color (om-def-color :dark-red)
-        (om-with-font (om-def-font :font2b)
-                      (om-draw-string (+ x 10) (+ y 34) "ERROR LOADING SOUND FILE" :wrap (- (box-w box) 20)))
-        (when (file-pathname self)
-          (om-with-font (om-def-font :font1)
-                        (om-draw-string (+ x 10) (+ 34 20) (namestring (file-pathname self)) :wrap (- (box-w box) 20))))
-        ))
-     
-     (pict 
-      (om-draw-picture pict :x x :y (+ y 4) :w w :h (- h 8)))
-          
-     (t 
-      (om-draw-string (+ x 10) (+ y 34) "NO SOUND !" :color (om-def-color :white) :font (om-def-font :font2b)))
-     )
-    
-    (when (markers self)
-      (let* ((dur (if (plusp (get-obj-dur self)) 
-                      (get-obj-dur self)
-                    (+ (last-elem (markers self)) 
-                       (- (last-elem (markers self))
-                          (or (last-elem (butlast (markers self))) 0)))))
-             (fact (/ w dur)))
-        
-        (loop for mrk in (markers-time self) do
-              (om-with-fg-color (om-def-color :gray)
-                (om-draw-line (+ x (* mrk fact)) 8 (+ x (* mrk fact)) h
-                              :style '(2 2)
-                              ))
-              )))
-    ))
-
-
-
-;;;===========================
 ;;; OM METHODS 
 ;;;===========================
 
@@ -841,7 +788,7 @@ Press 'space' to play/stop the sound file.
                pixpoint pixpointprev)
       
         (om-record-pict array-size 1000
-
+          ;(om-draw-rect 0 0 array-size 1000 :fill t)
           (om-with-fg-color color
             (dotimes (c nch)
               (let ((ch-y (+ (* c channels-h) offset-y)))
@@ -884,6 +831,58 @@ Press 'space' to play/stop the sound file.
           :error
           )))))
             
+
+
+
+;;;===========================
+;;; BOX
+;;;===========================
+
+;(defclass OMBoxSound (omboxeditcall) ())
+;(defmethod special-box-type ((self (eql 'sound))) 'OMBoxSound)
+
+(defmethod display-modes-for-object ((self sound))
+  '(:hidden :text :mini-view))
+
+(defmethod get-cache-display-for-text ((object sound) box)
+  (declare (ignore box))
+  (append (call-next-method) 
+          (list (list :buffer (buffer object)))))
+
+(defmethod draw-mini-view ((self sound) (box t) x y w h &optional time) 
+  (let ((pict (ensure-cache-display-draw box self)))
+    (cond 
+     ((equal pict :error)
+      (om-with-fg-color (om-def-color :dark-red)
+        (om-with-font (om-def-font :font2b)
+                      (om-draw-string (+ x 10) (+ y 34) "ERROR LOADING SOUND FILE" :wrap (- (box-w box) 20)))
+        (when (file-pathname self)
+          (om-with-font (om-def-font :font1)
+                        (om-draw-string (+ x 10) (+ 34 20) (namestring (file-pathname self)) :wrap (- (box-w box) 20))))
+        ))
+     
+     (pict 
+      (om-draw-picture pict :x x :y (+ y 4) :w w :h (- h 8)))
+          
+     (t 
+      (om-draw-string (+ x 10) (+ y 34) "NO SOUND !" :color (om-def-color :white) :font (om-def-font :font2b)))
+     )
+    
+    (when (markers self)
+      (let* ((dur (if (plusp (get-obj-dur self)) 
+                      (get-obj-dur self)
+                    (+ (last-elem (markers self)) 
+                       (- (last-elem (markers self))
+                          (or (last-elem (butlast (markers self))) 0)))))
+             (fact (/ w dur)))
+        
+        (loop for mrk in (markers-time self) do
+              (om-with-fg-color (om-def-color :gray)
+                (om-draw-line (+ x (* mrk fact)) 8 (+ x (* mrk fact)) h
+                              :style '(2 2)
+                              ))
+              )))
+    ))
 
 
 ;;;====================
@@ -938,7 +937,8 @@ Press 'space' to play/stop the sound file.
         (pict (nth sound-id (cache-display-list editor))))
     (when (and pict (not (equal :error pict)))  
       (om-draw-picture pict 
-                       :w (w view) :h (h view) 
+                       :w (w view) :h (h view)
+                       :src-h (* (om-pict-height pict))
                        :src-x (* (om-pict-width pict) (/ from dur)) 
                        :src-w (* (om-pict-width pict) (/ (- to from) dur))))
     ))

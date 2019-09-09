@@ -1635,7 +1635,6 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
 
 
 (defmethod update-inspector-for-editor ((self patch-editor) &optional obj)
-
   (let ((obj-to-inspect 
          (or obj 
              (let ((selection (append (get-selected-boxes self)
@@ -1648,7 +1647,8 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
     (when (and inspector-view
                (or obj ;;; explicit request for this object
                    (not (equal (object inspector-view) obj-to-inspect))))
-      (set-inspector-contents (get-g-component self :inspector) obj-to-inspect))
+      (set-inspector-contents (get-g-component self :inspector) obj-to-inspect)
+      )
       
     ))
 

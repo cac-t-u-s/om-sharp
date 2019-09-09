@@ -314,8 +314,7 @@
                         :text real-text ; :bg-color (om-def-color :green)
                         :font (om-def-font :font1)
                         :size (om-make-point (list :string (format nil "~A" real-text))
-                                             (if (equal (pref-item-type pref-item) :title) 20 
-                                               (if (listp (pref-item-doc pref-item)) (* 20 (length (pref-item-doc pref-item))) 20))))
+                                             (if (listp (pref-item-doc pref-item)) (* 20 (length (pref-item-doc pref-item))) 20)))
                        ))))
     
     (if (and (equal (pref-item-type pref-item) :title) doc-text)
@@ -337,12 +336,13 @@
 (defun make-preference-panel (pref-module)
   (order-preference-module pref-module)
   (om-make-layout 'preference-pane
+                  #+windows :bg-color #+windows (om-make-color .95 .95 .95)
                   :name (pref-module-name pref-module)
                   :module-id (pref-module-id pref-module)
-                  ;:ratios '((1)(1))
                   :subviews (loop for pref in (pref-module-items pref-module)
                                   when (pref-item-visible pref)
-                                  collect (make-preference-view pref))))
+                                  collect (make-preference-view pref)))
+  )
 
 
 ;;;===========================================================================

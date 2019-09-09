@@ -668,7 +668,8 @@
     (setf (lock-state self) :locked)
     (contextual-update self (container self))
     (when (frame self)
-      (update-inspector-for-object self) ;; ? sure about this ?
+      ;(update-inspector-for-object self) ;; ? sure about this ? 
+      ; => removed: caused problems with BPF editor draw when inspector is open :(
       (reset-cache-display self)
       (om-invalidate-view (frame self)))
     )
