@@ -690,7 +690,7 @@
               (allow-text-input (object self))
             (when text 
               (let* ((container-view (om-view-container self)))
-                (edit-text-in-patch edittext self container-view action (omp x y) (omp w h))
+                (edit-text-in-patch edittext self container-view action (omp x y) (omp w h) :auto-resize t) 
                 t)))
         ))))
 
@@ -741,9 +741,9 @@
 
       t)
 
-(defun edit-text-in-patch (edittext frame container-view action pos size)
+(defun edit-text-in-patch (edittext frame container-view action pos size &key auto-resize multi-line)
   (let* ((box (object frame))
-         (textinput (om-make-di 'text-input-item
+         (textinput (om-make-di (if multi-line 'om-text-edit-view 'text-input-item)
                                :text edittext
                                :focus t
                                :fg-color (om-def-color :dark-gray)
@@ -751,35 +751,55 @@
                                               (let ((newtext (om-dialog-item-text item)))
                                                 (om-end-text-edit item)
                                                 (om-remove-subviews container-view item)
-                                                (when action
+                                                (when (and action (> (length newtext) 0))
                                                   (funcall action box newtext))
                                                 (om-set-focus container-view)
-                                                (let ((newsize (om-min-point (om-max-point (om-view-size frame)
-                                                                                           (default-size box))
-                                                                             (maximum-size box))))
-                                                       
-                                                              (om-set-view-size frame newsize) 
-                                                              (setf (box-w box) (om-point-x newsize)
-                                                                    (box-h box) (om-point-y newsize)))
-                                                     
-                                                (mapcar 'update-points (get-box-connections box))
-                                                (redraw-connections frame)
-                                                (om-invalidate-view frame)
-                                                (report-modifications (editor container-view))
-                                                ))
+                                                
+                                                (let ((newsize (if auto-resize
+                                                                   (om-min-point (om-max-point (om-view-size frame)
+                                                                                               (default-size box))
+                                                                                 (maximum-size box))
+                                                                 (om-max-point (om-view-size frame)
+                                                                               (minimum-size box))
+                                                                 )))
+                                                  
+                                                  (om-set-view-size frame newsize) 
+                                                  (setf (box-w box) (om-point-x newsize)
+                                                        (box-h box) (om-point-y newsize)))
+                                                
+                                                  (mapcar 'update-points (get-box-connections box))
+                                                  (redraw-connections frame)
+                                                  (om-invalidate-view frame)
+                                                  (report-modifications (editor container-view))
+                                                  ))
                                :begin-edit-action #'(lambda (item)
                                                       (om-set-fg-color item (om-make-color 0.4 0 0))
                                                       )
                                :edit-action #'(lambda (item)
-                                                (let ((textsize (length (om-dialog-item-text item))))
-                                                  (om-set-view-size item (om-make-point (list :character (+ 1 textsize)) (h item)))
-                                                  ))
+                                                (when multi-line
+                                                  ;;; the text is multi-line, but enter must still validate it
+                                                  (when (find #\Newline (om-dialog-item-text item))
+                                                    (om-set-dialog-item-text 
+                                                     item
+                                                     (substitute #\Space #\Newline (om-dialog-item-text item)))
+                                                    (om-dialog-item-action item)
+                                                    ))
+                                                (when auto-resize
+                                                  ;;; update the size of the box from teh newt text
+                                                  (let ((textsize (length (om-dialog-item-text item))))
+                                                    (om-set-view-size item (om-make-point (list :character (+ 1 textsize)) (h item)))
+                                                    )))
                                :font (om-def-font :font1)
-                               :size (om-point-mv size :y 20 :x -10)
-                               :position (om-point-mv (om-add-points (om-view-position frame) pos) :x -4 :y -5)
+                               ;;; probably need to adjust these x/y values for different platforms... :
+                               :size (if multi-line 
+                                         (om-point-mv size :y -8 :x 0)
+                                         (om-point-mv size :y 20 :x -10))
+                               :position (if multi-line 
+                                             (om-point-mv (om-add-points (om-view-position frame) pos) :x 4 :y 9)
+                                           (om-point-mv (om-add-points (om-view-position frame) pos) :x -4 :y -5))
                                )))
     (om-add-subviews container-view textinput)
-    (om-set-text-focus textinput t)))
+    (om-set-text-focus textinput (if multi-line nil t))))
     
 
 ;;;=============================

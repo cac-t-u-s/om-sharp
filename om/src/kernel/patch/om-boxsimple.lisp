@@ -118,8 +118,9 @@
   (append (call-next-method) '(value)))
 
 
-
+;;;========================
 ;;; BOX FRAME
+;;;========================
 
 (defclass OMValueBoxFrame (OMBoxFrame) ())
 
@@ -142,6 +143,7 @@
         (multiple-value-bind (edittext action)
             (allow-text-input (object self))
           (let* ((container-view (om-view-container self)))
-            (edit-text-in-patch edittext self container-view action (omp 0 0) (omp (w self) (h self)))
+            (edit-text-in-patch edittext self container-view action (omp 0 0) (omp (w self) (h self))
+                                :auto-resize nil :multi-line t)
             t)))))
 
