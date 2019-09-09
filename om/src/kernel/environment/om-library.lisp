@@ -203,14 +203,23 @@
           ;;; load sources
           (with-relative-ref-path 
            (mypathname lib)
-           (mapc #'(lambda (f)
+            
+            ;;; temp: avoid fasl conflicts for now
+            (cl-user::clean-sources (mypathname lib))
+            
+            (mapc #'(lambda (f)
                      (let ((path (omng-load f)))
                        
-                       ;;; therefore we support both pathnames "om-formatted", and raw pathnames and strings
+                       ;;; supports both pathnames "om-formatted", and raw pathnames and strings
                        (when (equal (car (pathname-directory path)) :relative)
-                         (setf path (merge-pathnames path (mypathname lib))))
-
-                       (compile&load path t t "omfasl")))
+                         ;;; merge-pathname is not safe here as it sets the pathname-type to :unspecific (breaks load/compile functions)
+                         (setf path (om-relative-path (cdr (pathname-directory path)) (pathname-name path) (mypathname lib)))
+                         )
+                       
+                       (if (string-equal (pathname-name path) "load") ; hack => document that !! 
+                           (load path)
+                         (compile&load path t t (om::om-relative-path '(".om7") nil path)))
+                       ))
                  files)
            )
           ;;; set packages

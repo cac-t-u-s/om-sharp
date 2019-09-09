@@ -13,7 +13,7 @@
 
 
 ;;; equivalent to LW'w CURRENT-PATHNAME, allowing other reference path like in om-relative-path
-(defun decode-local-path (path &optional (relative-path :current))
+(defun decode-local-path (path &optional relative-path)
   (labels ((string-until-char (string char)
              (let ((index (search char string)))
                (if index (values (subseq string 0 index) (subseq string (+ index 1)))
@@ -26,19 +26,19 @@
                    (when (first rep) (push (first rep) list))))
                (reverse list))))
     (let ((decoded-path (str2list-path path))
-          (ref *load-pathname*))
+          (ref (or relative-path *load-pathname*)))
       (make-pathname
        :host (pathname-host ref) :device (pathname-device ref) 
        :directory (append (pathname-directory ref) (butlast decoded-path))
        :name (car (last decoded-path))))))
 
 
-(defun compile&load (file &optional (verbose t) (force-compile nil) (compile-ext nil))
+(defun compile&load (file &optional (verbose t) (force-compile nil) (compile-to nil))
 
-  (when (and compile-ext (not (find compile-ext sys:*binary-file-types* :test 'string-equal)))
-    (push compile-ext sys:*binary-file-types*))
+  ;(when (and compile-ext (not (find compile-ext sys:*binary-file-types* :test 'string-equal)))
+  ;  (push compile-ext sys:*binary-file-types*))
   
-  ;;; not sure why: compile / load find the file vbetter if the type is NIL than :unspecific 
+  ;;; not sure why: compile / load find the file better if the type is NIL than :unspecific 
   (when (equal :unspecific (pathname-type file))
     (setf file (make-pathname :directory (pathname-directory file)
                               :device (pathname-device file)
@@ -46,10 +46,12 @@
                               :type NIL)))
 
   (let* ((lisp-file (truename (if (stringp (pathname-type file)) file (concatenate 'string (namestring file) ".lisp"))))
-         (fasl-file (make-pathname :directory (pathname-directory lisp-file)
-                                   :device (pathname-device lisp-file)
-                                   :name (pathname-name lisp-file) 
-                                   :type (or compile-ext *compile-type*)))
+         (fasl-target (if compile-to 
+                          (make-pathname :directory (pathname-directory compile-to)
+                                         :device (pathname-device compile-to)
+                                         :name (pathname-name file))
+                        file))
+         (fasl-file (compile-file-pathname lisp-file :output-file fasl-target))
          (fasl-present (probe-file fasl-file))
          (fasl-outofdate (and fasl-present
                               (or (not (file-write-date lisp-file))
@@ -58,11 +60,13 @@
 
     (when (and (fboundp 'compile-file) ;; == ;; (not (member :om-deliver *features*))
                (or force-compile (not fasl-present) fasl-outofdate))
-      
+           
+      (when fasl-target (ensure-directories-exist fasl-target))
+
       (compile-file 
        file 
        :verbose 0
-       :output-file (if compile-ext fasl-file nil))
+       :output-file fasl-target)
       
       (setf fasl-outofdate nil))
 
@@ -78,12 +82,12 @@
                              (declare (ignore c))
                              (when (and (fboundp 'compile-file) fasl-file)
                                (print (format nil "File ~s will be recompiled..." fasl-file))
-                               (compile-file file :verbose verbose :output-file (if compile-ext fasl-file nil))
+                               (compile-file file :verbose verbose :output-file fasl-target)
                                (load fasl-file :verbose verbose)
-                               (throw 'faslerror t)
+                               ;(throw 'faslerror t)
                                ))))
            
-           (load file :verbose verbose)
+           (load fasl-file :verbose verbose)
 
            )))))
 
@@ -122,7 +126,7 @@
               (if (and (system::directory-pathname-p file) (not (string-equal (car (last (pathname-directory file))) ".git")))
                   (clean-sources file)
                 (when (and (pathname-type file)
-                           (or (find (pathname-type file) '("64xfasl" "xfasl" "fasl" "DS_STORE" "nfasl" "ofasl" "ufasl" "lisp~") :test 'string-equal)
+                           (or (find (pathname-type file) '("64xfasl" "xfasl" "fasl" "DS_STORE" "nfasl" "ofasl" "ufasl" "omfasl" "lisp~") :test 'string-equal)
 			       (string= (pathname-type file) *compile-type*))) ; remove compiled files
                   (print (concatenate 'string "Deleting " (namestring file) " ..."))
                   (delete-file file)
