@@ -1109,9 +1109,7 @@
                                          )))
                   (store-current-state-for-undo editor)
                   (insert-point-at-pix editor obj position time-offset)
-                  (report-modifications editor)
-                  (om-invalidate-view self)
-                  (update-timeline-editor editor)
+                  
                   (om-init-temp-graphics-motion self position nil
                                                 :motion #'(lambda (view pos) 
                                                             (when (> (om-points-distance p0 pos) *add-point-distance-treshold*)
@@ -1124,7 +1122,13 @@
                                                              (time-sequence-update-internal-times obj)
                                                              (report-modifications editor)
                                                              (om-invalidate-view view)
-                                                             (update-timeline-editor editor))))))
+                                                             (update-timeline-editor editor)))
+                  
+                  (report-modifications editor)
+                  (om-invalidate-view self)
+                  (update-timeline-editor editor)
+                  
+                  )))
          )
         (:hand (let ((curr-pos position))
                  (om-init-temp-graphics-motion self position nil
