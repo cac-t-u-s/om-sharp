@@ -197,7 +197,7 @@
   
   (let ((patch (reference self)))
 
-    (unless (is-persistant patch) ;;; we don't know if persiste,nt patches are not used somewhere else...
+    (unless (is-persistant patch) ;;; we don't know if persistent patches are not used somewhere else...
         
         (close-internal-elements patch)
         (close-editor patch)
