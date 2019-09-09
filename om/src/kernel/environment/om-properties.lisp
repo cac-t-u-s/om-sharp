@@ -99,6 +99,7 @@
 
 ;;; a special accessor for read-only properties...
 (defun read-only (obj &optional (val nil val-supplied-p))
+  (declare (ignore val))
   (if val-supplied-p 
       (om-beep-msg "Value ~A is read-only" obj)
     obj))
