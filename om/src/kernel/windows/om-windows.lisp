@@ -55,8 +55,10 @@
 
 (defun default-edit-menu-items (self)
   (list (om-make-menu-comp 
-         (list (om-make-menu-item "Undo" #'(lambda () (funcall (undo-command self))) :key "z" :enabled #'(lambda () (and (undo-command self) t)))
-               (om-make-menu-item "Redo" #'(lambda () (funcall (redo-command self))) :key "Z" :enabled #'(lambda () (and (redo-command self) t)))))
+         (list (om-make-menu-item "Undo" #'(lambda () (when (undo-command self) (funcall (undo-command self))))
+                                  :key "z" :enabled #'(lambda () (and (undo-command self) t)))
+               (om-make-menu-item "Redo" #'(lambda () (when (redo-command self) (funcall (redo-command self))))
+                                  :key "Z" :enabled #'(lambda () (and (redo-command self) t)))))
         (om-make-menu-comp 
          (list (om-make-menu-item "Copy" #'(lambda () (funcall (copy-command self))) :key "c" :enabled #'(lambda () (and (copy-command self) t)))
                (om-make-menu-item "Cut" #'(lambda () (funcall (cut-command self))) :key "x" :enabled #'(lambda () (and (cut-command self) t)))
