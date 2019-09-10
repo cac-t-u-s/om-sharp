@@ -36,6 +36,7 @@
         "editor/chord-editor"
         "editor/chord-seq-editor"
         "editor/voice-editor"
+        "editor/multi-seq-editor"
         "editor/score-boxes"
 
         "functions/conversions"

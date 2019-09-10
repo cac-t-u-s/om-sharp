@@ -41,6 +41,20 @@
 
 (defvar *default-inter-staff* 8)
 
+
+(defmethod update-edit-params ((editor multi-seq-editor))
+  (let* ((n-voices (length (obj-list (object-value editor))))
+         (new-list (make-list n-voices))
+         (previous-y-list (list! (editor-get-edit-param editor :y-shift))))
+    
+    (loop for i from 0 to (1- n-voices)
+          do (setf (nth i new-list) (or (nth i previous-y-list)
+                                        *default-inter-staff*)))
+    
+    (editor-set-edit-param editor :y-shift new-list)
+    ))
+    
+
 (defmethod accum-y-shift-list ((editor multi-seq-editor))
   (let* ((y-shift (editor-get-edit-param editor :y-shift))
          (y-shift-list (list! y-shift))
@@ -57,6 +71,8 @@
     (reverse accum-y-list)
     ))
 
+(defmethod get-total-y-shift ((editor multi-seq-editor) voice-num)
+  (nth voice-num (accum-y-shift-list editor)))
 
 ;; returns the y1-y2 pairs for all staffs
 (defun make-staff-y-map (editor)
@@ -75,20 +91,23 @@
 (defclass poly-left-score-view (left-score-view) ())
 (defmethod left-score-view-class ((self multi-seq-editor)) 'poly-left-score-view)
 
-;;; !!!!
+
 (defmethod om-view-click-handler ((self poly-left-score-view) position)
   
   (let* ((editor (editor self))
          (staff-y-map (make-staff-y-map editor))
-         (n-voices (length staff-y-map))
          (selected-staff (position-if #'(lambda (range)
                                           (and (>= (om-point-y position) (car range))
                                                (<= (om-point-y position) (cadr range))))
                                       staff-y-map)))
     
+    ;;; in calse the y-shift / staff list are not up-to-date with the list of voices 
+    (update-edit-params editor)
+    
     (if selected-staff
         
-        (let* ((unit (font-size-to-unit (editor-get-edit-param editor :font-size))))
+        (let* ((unit (font-size-to-unit (editor-get-edit-param editor :font-size)))
+               (previous-y-list (editor-get-edit-param editor :y-shift)))
                
           (set-selection editor (nth selected-staff (obj-list (object-value editor))))
           
@@ -101,14 +120,10 @@
                                   (< (om-point-y pos) (- (h self) 10)))
                                   
                          (let ((y-diff-in-units (/ (- (om-point-y pos) (om-point-y position)) unit))
-                               (previous-y-list (list! (editor-get-edit-param editor :y-shift)))
-                               (new-list (make-list n-voices)))
-                           
-                           (loop for i from 0 to (1- n-voices)
-                                 do (setf (nth i new-list) (nth i previous-y-list)))
+                               (new-list (copy-list previous-y-list)))
                            
                            (setf (nth selected-staff new-list) 
-                                 (max 0 (+ (nth selected-staff new-list) y-diff-in-units)))
+                                 (max (round *default-inter-staff* 2) (+ (nth selected-staff new-list) y-diff-in-units)))
                            
                            (editor-set-edit-param editor :y-shift new-list)
                            (om-invalidate-view self)
@@ -129,41 +144,26 @@
 
 (defmethod draw-staff-in-editor-view ((editor multi-seq-editor) (self score-view))
   (let* ((fontsize (editor-get-edit-param editor :font-size))
-         (y-shift (editor-get-edit-param editor :y-shift))
-         (y-shift-list (list! y-shift))
          (staff (editor-get-edit-param editor :staff)))
     
-    (loop with tmp-y = 0 
-          for i from 0 to (1- (length (obj-list (object-value editor)))) 
+    (loop for shift in (accum-y-shift-list editor) 
           do 
-          (setf tmp-y (+ tmp-y (or (and (> (length y-shift-list) i)
-                                        (nth i y-shift-list))
-                                   *default-inter-staff*)))
           (draw-staff 0 0 
-                      tmp-y
+                      shift
                       (w self) (h self) 
                       fontsize 
                       staff
                       :margin-l (margin-l self) 
                       :margin-r (margin-r self)
                       :keys (keys self))
-          (setf tmp-y (+ tmp-y (- (staff-higher-line staff) (staff-lower-line staff))))
           )))
 
 
 (defmethod draw-sequence ((object multi-seq) editor view unit &optional (voice-num 0))
-  (let* ((y-shift (editor-get-edit-param editor :y-shift))
-         (y-shift-list (list! y-shift))
-         (staff (editor-get-edit-param editor :staff)))
-    (loop with tmp-y = 0  
-          for voice in (obj-list object) 
-          for i from 0 do 
-          (setf tmp-y (+ tmp-y (or (and (> (length y-shift-list) i)
-                                        (nth i y-shift-list))
-                                   *default-inter-staff*)))
-          (draw-sequence voice editor view unit tmp-y)
-          (setf tmp-y (+ tmp-y (- (staff-higher-line staff) (staff-lower-line staff))))
-    )))
+  (loop for voice in (obj-list object) 
+        for shift in (accum-y-shift-list editor) 
+        do (draw-sequence voice editor view unit shift)))
+
 
 ;;;=========================
 ;;; ACTIONS
@@ -186,8 +186,23 @@
 
 
 ;;; add chord/notes
-(defmethod get-chord-seq-at-pos ((self multi-seq-editor) position)
-  (object-value self))
+(defmethod get-voice-at-pos ((self multi-seq-editor) position)
+  (let* ((staff-y-map (make-staff-y-map self))
+         (y (om-point-y position))
+         (min-dist (min (abs (- y (car (car staff-y-map))))
+                        (abs (- y (cadr (car staff-y-map))))))
+         (pos 0))
+
+    (loop for staff-range in (cdr staff-y-map)
+          for p from 1
+          do (let ((dist (min (abs (- y (car staff-range)))
+                              (abs (- y (cadr staff-range))))))
+               (when (< dist min-dist)
+                 (setf pos p
+                       min-dist dist)))
+          )    
+    (values (nth pos (obj-list (object-value self))) pos)
+    ))
 
 
 

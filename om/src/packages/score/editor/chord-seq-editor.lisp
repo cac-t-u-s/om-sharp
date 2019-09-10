@@ -169,13 +169,11 @@
   )
 
 
-(defmethod get-chord-seq-at-pos ((self chord-seq-editor) position)
-  (object-value self))
 
 ;;; called at add-click
 (defmethod get-chord-from-editor-click ((self chord-seq-editor) position) 
  
-  (let ((time-seq (get-chord-seq-at-pos self position))
+  (let ((time-seq (get-voice-at-pos self position))
         (time-pos (pixel-to-time (get-g-component self :main-panel) (om-point-x position))))
     
     (or 

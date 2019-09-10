@@ -143,7 +143,7 @@
                    ;;; DRAW THIS MEASURE
                    (draw-measure m (tempo object) (object editor) view 
                                  :position i
-                                 :y-shift y-shift
+                                 :y-shift y-u
                                  :with-signature (not (equal (car (tree m)) prev-signature))
                                  :selection selection
                                  :staff staff
