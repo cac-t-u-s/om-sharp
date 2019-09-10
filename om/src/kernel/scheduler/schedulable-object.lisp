@@ -174,7 +174,8 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 
 ;;;SET AN OBJECT'S INTERVAL
 (defmethod set-object-interval ((self schedulable-object) interval)
-  (setf (interval self) (if (= (car interval) (cadr interval))
+  (setf (interval self) (if (or (null (cadr interval))
+                                (= (car interval) (cadr interval)))
                             (list (car interval) *positive-infinity*)
                           interval)))
 
