@@ -36,7 +36,7 @@
    (Loffset :initform 0 :initarg :Loffset :type list :documentation "offsets (ms): list or list of lists")
    (Lchan :initform 1 :initarg :Lchan :type list :documentation "MIDI channels (1-16): list or list of lists")
    (Lport :initform nil :initarg :Lport :type list :documentation "MIDI ports: list or list of lists")
-   (Llegato :accessor Llegato :initform nil :initarg :Llegato :documentation "relative chords duration (0.0-... or NIL)")   ;;; this one has no redefined accessor (do it?)
+   (Llegato :accessor Llegato :initform nil :initarg :Llegato :initarg :legato :documentation "relative chords duration (0.0-... or NIL)")   ;;; this one has no redefined accessor (do it?)
    )
   ;; (:default-initargs :default-frame-type 'chord)
   )

@@ -18,24 +18,25 @@
 
 (in-package :om)
 
-
 ;;;===================================================
-;;; SCORE IS A LIST OF PARALLEL VOICES 
-;;; Equivalent to former POLY / MULTI-SEQ + MIXED-TYPES
+;;; LIST OF PARALLEL VOICES 
+;;; POLY / MULTI-SEQ + MIXED-TYPES
 ;;;===================================================
 
 (defclass* poly (score-object collection) 
   ((obj-list :initarg :obj-list :initarg :voices
              :accessor obj-list :initform nil)))
 
-;;; deprecated
+(defmethod voices ((self poly)) (obj-list self))
+  
 (defclass* multi-seq (poly) 
   ((obj-list :initarg :obj-list :initarg :chord-seqs
              :accessor obj-list :initform nil)))
 
+(defmethod chord-seqs ((self poly)) (obj-list self))
+
 (defmethod voice-type ((self poly)) 'voice)
 (defmethod voice-type ((self multi-seq)) 'chord-seq)
-
 
 (defmethod inside ((self poly)) (obj-list self))
 
