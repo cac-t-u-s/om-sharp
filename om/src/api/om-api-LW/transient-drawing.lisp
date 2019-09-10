@@ -167,7 +167,7 @@
   
   (declare (ignore display-mode))
   
-  (om-stop-transient-drawing self)
+  (when (drawn-item self) (om-stop-transient-drawing self))
   (setf (drawn-item self)
         (make-instance 'capi::drawn-pinboard-object
                        :display-callback #'(lambda (pane obj x y w h)
@@ -184,10 +184,10 @@
 (defmethod om-stop-transient-drawing ((self om-transient-drawing-view))
   ;;;
   (ignore-errors
+    
     (om-stop-transient-drawing-process self)
-    ;;;
+    
     (when (drawn-item self)
-      
       (capi::apply-in-pane-process self 'capi:manipulate-pinboard self (drawn-item self) :delete)
       (om-invalidate-view self)
       (setf (drawn-item self) nil)

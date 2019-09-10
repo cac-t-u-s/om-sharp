@@ -377,19 +377,24 @@
 
 (defmethod om-draw-contents :after ((self x-cursor-graduated-view))
   (when (play-obj? (get-obj-to-play (editor (om-view-window self))))
-    (let ((i1 (time-to-pixel self (car (cursor-interval self))))
-          (i2 (time-to-pixel self (cadr (cursor-interval self)))))
-      (om-with-fg-color (cursor-interval-lines-color self) 
-        (om-with-line '(3 3) 
-          (om-with-line-size 1
-            (om-draw-line i1 0 i1 (h self))
-            (om-draw-line i2 0 i2 (h self)))))
-      (om-draw-rect i1 0 (- i2 i1) (h self) :fill t :color (cursor-interval-fill-color self))
-      (unless (equal (editor-play-state (editor self)) :play)
-        (draw-cursor-line self 
-                          (omp (time-to-pixel self (cursor-pos self)) 0)
-                          (omp 4 (h self))))
-      )))
+    (let ((t1 (car (cursor-interval self)))
+          (t2 (cadr (cursor-interval self))))
+      (unless (= t1 t2 0)
+        (let ((i1 (time-to-pixel self (car (cursor-interval self))))
+              (i2 (time-to-pixel self (cadr (cursor-interval self)))))
+          (om-with-fg-color (cursor-interval-lines-color self) 
+            (om-with-line '(3 3) 
+              (om-with-line-size 1
+                (om-draw-line i1 0 i1 (h self))
+                (om-draw-line i2 0 i2 (h self)))))
+          (om-draw-rect i1 0 (- i2 i1) (h self) :fill t :color (cursor-interval-fill-color self))
+          (unless t ; (equal (editor-play-state (editor self)) :play)
+            ;; => never do that, when play is stopped 
+            (draw-cursor-line self 
+                              (omp (time-to-pixel self (cursor-pos self)) 0)
+                              (omp 4 (h self)))
+            )
+          )))))
     
 ;;; return T if detected/did something
 (defmethod handle-selection-extent ((self x-cursor-graduated-view) position)
