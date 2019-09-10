@@ -51,7 +51,10 @@
 
 (defclass left-score-view (score-view) ())
 
+(defmethod left-score-view-class ((self chord-seq-editor)) 'left-score-view)
+
 (defmethod om-draw-contents ((self left-score-view))
+  
   (let* ((editor (editor self))
          (scrolled (> (x1 (get-g-component editor :main-panel)) 0))
          ;; (shift (* 2 (font-size-to-unit (editor-get-edit-param editor :font-size))))
@@ -59,17 +62,7 @@
          (font-size (editor-get-edit-param editor :font-size))
          (unit (font-size-to-unit font-size)))
     
-    ;(om-with-fg-color 
-    ;    (when (find (object-value editor) (selection editor)) *score-selection-color*)
-      
-      (draw-staff 0 0 
-                  y-shift
-                  (w self) (h self) 
-                  font-size
-                  (editor-get-edit-param editor :staff)
-                  :margin-l (margin-l self) :margin-r (margin-r self)
-                  :keys (keys self))
-    ;)
+    (draw-staff-in-editor-view editor self)
     
     (draw-tempo (object-value editor) (* 2 unit) y-shift font-size)
     
@@ -83,7 +76,7 @@
 
 
 (defmethod make-left-panel-for-object ((editor chord-seq-editor) (object score-object))
-  (om-make-view 'left-score-view :size (omp (* 2 (editor-get-edit-param editor :font-size)) nil)
+  (om-make-view (left-score-view-class editor) :size (omp (* 2 (editor-get-edit-param editor :font-size)) nil)
                 :direct-draw t 
                 :bg-color (om-def-color :white) 
                 :scrollbars nil
@@ -112,17 +105,18 @@
                        (declare (ignore view))
                        (when (and (> (om-point-y pos) 10)
                                   (< (om-point-y pos) (- (h self) 10)))
+                                  
                          (let ((y-diff-in-units (/ (- (om-point-y pos) (om-point-y position)) unit)))
-                           (editor-set-edit-param editor :y-shift (+ y-shift y-diff-in-units))
-                           (om-invalidate-view self)
-                           (om-invalidate-view (main-view editor)))
+                           
+                             (editor-set-edit-param editor :y-shift (max 0 (+ y-shift y-diff-in-units)))
+                             (om-invalidate-view self)
+                             (om-invalidate-view (main-view editor)))
                          ))))
       (set-selection editor nil))
     
     (om-invalidate-view self)
     (om-invalidate-view (main-view editor))
     ))
-
 
 
 ;;;=========================
@@ -139,7 +133,6 @@
 ;;; just like stream-panel (not like score-view)
 (defmethod om-view-zoom-handler ((self chord-seq-panel) position zoom)
   (zoom-rulers self :dx (- 1 zoom) :dy 0 :center position))
-
 
 
 ;;; leave some space (-200) for the first note...
@@ -175,10 +168,14 @@
       (call-next-method)) ;;; => score-view
   )
 
+
+(defmethod get-chord-seq-at-pos ((self chord-seq-editor) position)
+  (object-value self))
+
 ;;; called at add-click
 (defmethod get-chord-from-editor-click ((self chord-seq-editor) position) 
  
-  (let ((time-seq (object-value self))
+  (let ((time-seq (get-chord-seq-at-pos self position))
         (time-pos (pixel-to-time (get-g-component self :main-panel) (om-point-x position))))
     
     (or 
@@ -214,11 +211,10 @@
             (setf (midic n) (+ (midic n) (* dy 100))))))
   )
 
+
 (defmethod score-editor-change-selection-durs ((self chord-seq-editor) delta) 
-  
   (when (editor-get-edit-param self :duration-display)
     (let ((notes (loop for item in (selection self) append (get-notes item))))
-      
       (loop for n in notes
             do (setf (dur n) (max 0 (round (+ (dur n) delta)))))
       (time-sequence-update-obj-dur (object-value self))
@@ -230,9 +226,6 @@
  
 (defmethod editor-sort-frames ((self chord-seq-editor))
   (time-sequence-reorder-timed-item-list (object-value self)))
-
-
-
 
 
 
@@ -250,14 +243,15 @@
 
 
 ;;; redefined this for other objects
-(defmethod draw-sequence ((object chord-seq) editor view unit)
+(defmethod draw-sequence ((object chord-seq) editor view unit &optional (force-y-shift nil))
 
   (let ((font-size (editor-get-edit-param editor :font-size))
         (staff (editor-get-edit-param editor :staff))
         (chan (editor-get-edit-param editor :channel-display))
         (vel (editor-get-edit-param editor :velocity-display))
         (port (editor-get-edit-param editor :port-display))
-        (dur (editor-get-edit-param editor :duration-display)))
+        (dur (editor-get-edit-param editor :duration-display))
+        (y-u (or force-y-shift (editor-get-edit-param editor :y-shift))))
     
     ;;; NOTE: so far we don't build/update a bounding-box for the chord-seq itself (might be useful in POLY)..
     (loop for chord in (chords object) do
@@ -265,8 +259,7 @@
            (b-box chord)
            (draw-chord chord
                        (date chord)
-                       0  
-                       (editor-get-edit-param editor :y-shift)
+                       0 y-u
                        0 0
                        (w view) (h view) 
                        font-size 

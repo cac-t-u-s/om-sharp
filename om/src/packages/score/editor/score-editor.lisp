@@ -103,6 +103,17 @@
 ;;; DISPLAY
 ;;;========================
 
+;;; redefined for editors with several staves...
+(defmethod draw-staff-in-editor-view ((editor score-editor) (self score-view))
+  (draw-staff 0 0 
+              (editor-get-edit-param editor :y-shift)
+              (w self) (h self) 
+              (editor-get-edit-param editor :font-size) 
+              (editor-get-edit-param editor :staff)
+              :margin-l (margin-l self) 
+              :margin-r (margin-r self)
+              :keys (keys self))
+  )
 
 (defmethod om-draw-contents ((self score-view))
   
@@ -113,25 +124,14 @@
     (om-trap-errors 
      
      ;(om-with-fg-color (if (find obj (selection editor)) *score-selection-color*)  ; (om-make-color 0.0 0.2 0.2)
-       
-     (draw-staff 0 0 
-                 (editor-get-edit-param editor :y-shift)
-                 (w self) (h self) 
-                 (editor-get-edit-param editor :font-size) 
-                 (editor-get-edit-param editor :staff)
-                 :margin-l (margin-l self) 
-                 :margin-r (margin-r self)
-                 :keys (keys self))
+     (draw-staff-in-editor-view editor self)
      ;)
      
-       (when (contents self)
-         (draw-score-object-in-editor-view editor self unit))
-       
-       )
+     (when (contents self)
+       (draw-score-object-in-editor-view editor self unit))
+     
+     )
     ))
-
-
-
 
 ;;;============ 
 ;;; INTERACTION
@@ -228,7 +228,7 @@
   (let* ((editor (editor self))
          (obj (object-value editor))
          (staff (editor-get-edit-param editor :staff))
-         (y-shift (editor-get-edit-param editor :y-shift))
+         (y-shift (car (list! (editor-get-edit-param editor :y-shift))))
          (shift (+ (calculate-staff-line-shift staff) y-shift))
          (unit (font-size-to-unit (editor-get-edit-param editor :font-size)))
          (clicked-pos position)
@@ -301,8 +301,6 @@
                       :motion #'(lambda (view pos)
                                   (declare (ignore view))
                                   
-                                  (store-current-state-for-undo editor :action :move)
-                                  
                                   (let ((x-move (- (om-point-x pos) (om-point-x clicked-pos)))
                                         (y-move (- (om-point-y pos) (om-point-y clicked-pos))))
 
@@ -318,7 +316,8 @@
                                             (loop for c in (remove-duplicates 
                                                             (remove-if-not #'(lambda (obj) (typep obj 'chord))
                                                                            (selection editor)))
-                                                  do (item-set-time c (+ (item-get-time c) diff)))
+                                                  do (when (>= (+ (item-get-time c) diff) 0)
+                                                       (item-set-time c (+ (item-get-time c) diff))))
                                             (setf clicked-time new-time)
                                             (editor-invalidate-views editor)
                                             )

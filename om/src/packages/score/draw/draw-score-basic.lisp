@@ -247,6 +247,12 @@
     (:empty '(0))
     ))
 
+(defun staff-lower-line (staff)
+  (car (staff-lines (car (staff-split staff)))))
+
+(defun staff-higher-line (staff)
+  (last-elem (staff-lines (last-elem (staff-split staff)))))
+
 (defun head-leger-lines (head-line staff-lines)
   (cond ((>= head-line (1+ (car (last staff-lines)))) 
          (loop for i from (1+ (car (last staff-lines))) to head-line collect i))

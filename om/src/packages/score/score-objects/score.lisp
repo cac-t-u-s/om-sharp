@@ -50,3 +50,27 @@
               (objfromobjs obj (make-instance (voice-type target)))))
   target)
 
+;;;===================================================
+;;; PLAY
+;;;===================================================
+(defmethod play-obj? ((self poly)) t)
+
+(defmethod get-action-list-for-play ((object poly) interval &optional parent)
+  (loop for voice in (obj-list object)
+        append (get-action-list-for-play voice interval parent)))
+
+;;;===================================================
+;;; TIME-SEQUENCE METHODS APPLIED TO POLYPHONIES
+;;;===================================================
+
+(defmethod time-sequence-update-obj-dur ((self poly))
+  (loop for voice in (obj-list self) do
+        (time-sequence-update-obj-dur voice)))
+
+(defmethod time-sequence-reorder-timed-item-list ((self poly))
+  (loop for voice in (obj-list self) do
+        (time-sequence-reorder-timed-item-list voice)))
+
+(defmethod time-sequence-update-internal-times ((self poly) &optional (interpol-mode :constant-speed) (duration 10000) (modif-time nil))
+  (loop for voice in (obj-list self) do
+        (time-sequence-update-internal-times voice interpol-mode duration modif-time)))

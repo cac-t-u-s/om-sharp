@@ -326,8 +326,9 @@ Internally most of these values are just used to build a list of CHORD objects, 
              (setf (notes c) (remove item (notes c)))
              (when (null (notes c))
                (remove-from-obj self c))
-             (return))
+             (return t))
         ))
+
 
 ;;;======================================
 ;;; PLAY

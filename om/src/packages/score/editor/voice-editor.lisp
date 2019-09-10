@@ -116,14 +116,14 @@
 
 
 
-(defmethod draw-sequence ((object voice) editor view unit)
+(defmethod draw-sequence ((object voice) editor view unit &optional force-y-shift)
 
   ;;; NOTE: so far we don't build/update a bounding-box for the containers
   
   (let* ((font-size (editor-get-edit-param editor :font-size))
          (staff (editor-get-edit-param editor :staff))
          (h-stretch (editor-get-edit-param editor :h-stretch))
-         (y-shift (editor-get-edit-param editor :y-shift))
+         (y-u (or force-y-shift (editor-get-edit-param editor :y-shift)))
          (selection (selection editor)))
     
     (loop with on-screen = t
