@@ -121,6 +121,7 @@
 
 (defmethod* GetSDIFPartials ((self t) &optional (stream nil))
    :indoc '("an SDIF file")
+   :icon :sdif
    :doc "Return a list of partial structures from an sdif file (using 1TRC or 1MRK frames)
 
 <stream> selects a specific SDIF stream (usually corresponding to a channel in audio analysis files.
@@ -130,6 +131,7 @@
 
 (defmethod* GetSDIFChords ((self t) &optional (stream nil))
    :indoc '("an SDIF file")
+   :icon :sdif
    :doc "Returns a list of chords data from an sdif file (using 1MRK / 1TRC frames).
 
 Chords are formatted as (pitch [Hz]  onset [s]  duration [s]  velocity [lin]).
@@ -147,6 +149,7 @@ Chords are formatted as (pitch [Hz]  onset [s]  duration [s]  velocity [lin]).
    
 (defmethod* SDIF->chord-seq ((self t) &optional (stream nil))
    :indoc '("an SDIF file")
+   :icon :sdif
    :doc "Generates a CHORD-SEQ instance from the 1TRC or 1MRK frame data in <self>.
 
 Internally calls and formats data from GetSDIFChords.
@@ -278,28 +281,37 @@ Internally calls and formats data from GetSDIFChords.
 (defmethod* partials->sdif ((partials list) &key (outpath "partials.sdif") (frame-rate 0.01))
   :indoc '("a list of partials" "output pathname")
   :initvals '(nil "partials.sdif" 0.01)
+  :icon :sdif
   :doc "Saves the contents of <partials> as an SDIF file in <outpath>.
 
 Data is stored as a sequence of 1TRC frames containing 1TRC matrices.
 
 SDIF partials are resampled in synchronous frames at <frame-rate>
 "
-  (let ((out-path (cond ((pathnamep outpath) outpath)
+  (let ((out-path (handle-new-file-exists
+                   (cond ((pathnamep outpath) outpath)
                          ((stringp outpath) (outfile outpath))
-                         (t (om-choose-new-file-dialog)))))
+                         (t (om-choose-new-file-dialog))))))
     (when out-path
+      
       (let ((sdiffileptr (sdif::sdif-open-file out-path sdif::eWriteFile)))
+        
         (if sdiffileptr
-          (unwind-protect 
-              (progn (sdif::SdifFWriteGeneralHeader sdiffileptr)
-                (sdif-write (default-om-NVT) sdiffileptr)
-                (sdif::SdifFWriteAllASCIIChunks sdiffileptr)
-                (when partials
-                  (loop for frame in (make-1trc-frames-synchronous partials frame-rate)
-                        do (sdif-write frame sdiffileptr))))
-            (sdif::SDIFFClose sdiffileptr))
+
+            (unwind-protect 
+
+                (progn (sdif::SdifFWriteGeneralHeader sdiffileptr)
+                  (sdif-write (default-om-NVT) sdiffileptr)
+                  (sdif::SdifFWriteAllASCIIChunks sdiffileptr)
+                  (when partials
+                    (loop for frame in (make-1trc-frames-synchronous partials frame-rate)
+                          do (sdif-write frame sdiffileptr)
+                          ))
+                  (namestring out-path))
+              
+              (sdif::SDIFFClose sdiffileptr))
+
           (om-beep-msg "Could not open file for writing: ~A" out-path))
-        (probe-file out-path)
         ))))
 
 
@@ -326,7 +338,8 @@ SDIF partials are resampled in synchronous frames at <frame-rate>
     (let* (tmptime)
       (setf newendlist (loop while enddata do
                              (setf tmptime (car (car enddata)))
-                             collect (list tmptime (loop while (equal (car (car enddata)) tmptime) collect (second (pop enddata))))) 
+                             collect (list tmptime (loop while (equal (car (car enddata)) tmptime) 
+                                                         collect (second (pop enddata)))))
             ))
     (sort (append chord-data newendlist) '< :key 'car)
     ))
@@ -381,7 +394,7 @@ SDIF partials are resampled in synchronous frames at <frame-rate>
 
 
 (defmethod! chord-seq->sdif ((self chord-seq) &optional (outpath "cseq.sdif"))
-  :icon 264
+  :icon :sdif
   :indoc '("a CHORD-SEQ" "output pathname")
   :doc "Saves the contents of <self> (a CHORD-SEQ) as an SDIF file in <outpath>.
 
@@ -397,9 +410,12 @@ Data is stored as a sequence of 1MRK frames containing 1BEG and 1END matrices fo
             (unwind-protect 
                 (progn (sdif::SdifFWriteGeneralHeader sdiffileptr)
                   (sdif-write (default-om-NVT) sdiffileptr)
-                  (sdif-write-types sdiffileptr 
-                                    (list (make-instance 'sdiftype :struct 'F :signature "1MRK" 
-                                                         :description '(("1BEG" "begin markers") ("1TRC" "sinusoidal tracks") ("1END" "end markers")))))
+                  (sdif-write-types 
+                   sdiffileptr 
+                   (list (make-instance 'sdiftype :struct 'F :signature "1MRK" 
+                                        :description '(("1BEG" "begin markers") 
+                                                       ("1TRC" "sinusoidal tracks") 
+                                                       ("1END" "end markers")))))
                   (sdif::SdifFWriteAllASCIIChunks sdiffileptr)
                   
                   (let ((datalist (chordseq-to-datalist self)))

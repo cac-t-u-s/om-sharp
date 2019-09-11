@@ -49,23 +49,25 @@
                       (flat (mat-trans (mapcar 'array-field-data (data matrix)))))
                      (t (data matrix))))
          (data-ptr (om-alloc-memory (* data-type-size (fields matrix) (elts matrix)))))
+    
     (loop for val in data 
-          for i from 0 do
-          (om-write-ptr data-ptr (* i data-type-size) 'single-float (coerce val 'single-float)))
+          for i from 0
+          do (om-write-ptr data-ptr (* i data-type-size) 'single-float (coerce val 'single-float))
+          )
     (sdif::SdifFWriteMatrix file-ptr 
                             (sdif::SdifStringToSignature (matrixtype matrix))
                             data-type-size (elts matrix) (fields matrix) data-ptr)
     (om-free-memory data-ptr)
     ))
 
- 
-
 (defmethod sdif-write ((self sdifframe) file-ptr)
    (let ((framesize (sdif-size self)))
      (sdif::SdifFSetCurrFrameHeader file-ptr 
                                     (sdif::SdifStringToSignature (frametype self))
-                                    framesize (length (lmatrix self)) 
-                                    (streamID self) (coerce (ftime self) 'double-float))
+                                    framesize 
+                                    (length (lmatrix self))
+                                    (streamID self) 
+                                    (coerce (ftime self) 'double-float))
      (sdif::SdifFWriteFrameHeader file-ptr)
      (loop for item in (lmatrix self) do (sdif-write item file-ptr))
      ))

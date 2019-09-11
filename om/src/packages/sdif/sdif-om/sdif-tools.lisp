@@ -134,7 +134,7 @@ Other type of data can be extracted by setting the <stream>, <frame>, <matrix> a
 
 (defmethod* bpf->sdif ((self bpf) ftype mtype &key (scope 'time) (typedefs nil) (out-file "mybpf.sdif"))
   :icon :sdif
-  :initvals '(nil "1FQ0" "1FQ0" 'time nil nil "mybpf.sdif")
+  :initvals '(nil "1FQ0" "1FQ0" time nil nil "mybpf.sdif")
   :indoc '("a BPF" "frame type (string)" "matrix type (string)" "x = time or elements" "custom types declaration" "output file")
   :menuins '((3 (("Time" time) ("Elements" elts))))
   :doc "Saves the contents of <self> (a BPF) as an SDIF file in <outfile>.
@@ -146,18 +146,20 @@ If <outfile> is just a filename (not a pathname) the file is written in the defa
 
 <scope> allows to choose whether the x-dimension of the BPF should be considered as time (default) or as the elements in a single matrix.
 "
-   (let* ((out-path (or (and out-file (handle-new-file-exists out-file))
-                       (om-choose-new-file-dialog)))
+  (let* ((out-path (handle-new-file-exists
+                    (cond ((pathnamep out-file) out-file)
+                          ((stringp out-file) (outfile out-file))
+                          (t (om-choose-new-file-dialog)))))
           (outptr (and out-path (sdif::sdif-open-file out-path sdif::eWriteFile))))
      
-    (when outptr 
+    (if outptr 
         
       (unwind-protect 
           (let ()
             (sdif::SdifFWriteGeneralHeader outptr)
-            (sdif-write-nvt outptr `(("Author" ,(string+ "OM " *version-string*))))
+            (sdif-write (default-om-NVT) outptr)
             
-            (when typedefs (sdif-write-types file (list! typedefs)))
+            (when typedefs (sdif-write-types outptr (list! typedefs)))
             
             (sdif::SdifFWriteAllASCIIChunks outptr)
     
@@ -190,9 +192,11 @@ If <outfile> is just a filename (not a pathname) the file is written in the defa
 
             (namestring out-path))
             
-        ;;; cleanup
+        ; cleanup
         (sdif::sdiffclose outptr))
       
+      ; ... else
+      (om-beep-msg "Error at opening SDIF-file for output")
       )))
             
 
