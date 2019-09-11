@@ -114,6 +114,10 @@
         ))))
                               
 
+(defmethod build-object-time-space ((self t) tempo) 
+  (declare (ignore tempo))
+  nil)
+
 (defmethod build-object-time-space ((self voice) tempo)
   (declare (ignore tempo)) ;;; voice itself holds the tempo
   (loop with prev-signature = nil 
