@@ -102,7 +102,7 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF TYPES.
 
 (defclass* SDIFMatrix (2D-array)
    ((matrixtype :initform nil :initarg :matrixtype :accessor matrixtype :documentation "SDIF matrix type signature")
-    (elts :initform 1 :initarg :elts  :accessor elts :documentation "number of elements (a.k.a lines)")
+    ;(elts :initform 0 :initarg :elts  :accessor elts :documentation "number of elements (a.k.a lines)")
     ;(fields :initform nil :initarg :fields :accessor fields :documentation "Name of SDIF fields")
     (data :initform nil :initarg :data :accessor data :documentation "data matrix / list of lists : (field1 field2 ...)")
     )
