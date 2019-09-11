@@ -74,6 +74,8 @@
 ;;; voice on a box
 (defmethod miniview-time-to-pixel ((object voice) box (view omobjectboxframe) time)
   (miniview-time-to-pixel-rhythmic object box view time))
+(defmethod miniview-time-to-pixel ((object poly) box (view omobjectboxframe) time)
+  (miniview-time-to-pixel-rhythmic object box view time))
 
 
 ;;; an objects in the maquette tracks...
