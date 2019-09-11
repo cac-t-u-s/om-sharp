@@ -33,65 +33,98 @@
        :name (car (last decoded-path))))))
 
 
-(defun compile&load (file &optional (verbose t) (force-compile nil) (compile-to nil))
 
-  ;(when (and compile-ext (not (find compile-ext sys:*binary-file-types* :test 'string-equal)))
-  ;  (push compile-ext sys:*binary-file-types*))
+;;; This is how to use a new compiled-file extension (not used)
+;(when (and compile-ext (not (find compile-ext sys:*binary-file-types* :test 'string-equal)))
+;  (push compile-ext sys:*binary-file-types*))
+
+
+; WARNINGS
+; - <file> can be a .lisp or a pathname with no extension; 
+; - Not sure why, but compile/load don't find the file type is :unspecific 
+; they do if the type is NIL (load searches for "*fasl" then "lisp", compile-file seraches "lisp") 
+; - The Lisp function "merge-pathname" tends to generate pathnames with type = :unspecific 
+
+(defun compile&load (file &optional (verbose t) (force-compile nil) (compile-to nil))
   
-  ;;; not sure why: compile / load find the file better if the type is NIL than :unspecific 
+  ;;; Replace :unspecific pathname-type by NIL
   (when (equal :unspecific (pathname-type file))
     (setf file (make-pathname :directory (pathname-directory file)
                               :device (pathname-device file)
                               :name (pathname-name file) 
                               :type NIL)))
+  
 
-  (let* ((lisp-file (truename (if (stringp (pathname-type file)) file (concatenate 'string (namestring file) ".lisp"))))
+  (let* (;;; Resolve the name of the actual Lisp file
+         (lisp-file (truename (make-pathname :directory (pathname-directory file)
+                                             :device (pathname-device file)
+                                             :name (pathname-name file)
+                                             :type "lisp")))
+         ;;; Find out the target for compiled file (default = same as Lisp file)
          (fasl-target (if compile-to 
                           (make-pathname :directory (pathname-directory compile-to)
                                          :device (pathname-device compile-to)
                                          :name (pathname-name file))
-                        file))
-         (fasl-file (compile-file-pathname lisp-file :output-file fasl-target))
+                        (make-pathname :directory (pathname-directory file)
+                                       :device (pathname-device file)
+                                       :name (pathname-name file))))
+         ;;; Resolve the name of the compiled-file
+         (fasl-file (make-pathname :directory (pathname-directory fasl-target)
+                                   :device (pathname-device fasl-target)
+                                   :name (pathname-name fasl-target) 
+                                   :type *compile-type*))
+         ;;; Is there a compiled-file already ?
          (fasl-present (probe-file fasl-file))
+         ;;; ... and is it up-to-date ? (= more recent than the last modification of the Lisp file) 
          (fasl-outofdate (and fasl-present
                               (or (not (file-write-date lisp-file))
                                   (not (file-write-date fasl-file))
                                   (> (file-write-date lisp-file) (file-write-date fasl-file))))))
-
+    
+    
+    ; (print (format nil "File: ~s~%Lisp: ~s~%Fasl: ~s (~A-~A)" file lisp-file fasl-file fasl-present fasl-outofdate))
+    
+    ;;; COMPILE-FILE is not available in delivered applications
+    ;;; If it is and if required/necessary: compile the file
     (when (and (fboundp 'compile-file) ;; == ;; (not (member :om-deliver *features*))
-               (or force-compile (not fasl-present) fasl-outofdate))
-           
+               (or force-compile 
+                   (not fasl-present) 
+                   fasl-outofdate))
+      
       (when fasl-target (ensure-directories-exist fasl-target))
 
       (compile-file 
-       file 
+       lisp-file 
        :verbose 0
        :output-file fasl-target)
       
       (setf fasl-outofdate nil))
 
     (if fasl-outofdate
-         
-         (progn (print (format nil "WARNING: File ~A is older than the LISP source file. File ~A will be loaded instead."
-                               fasl-file lisp-file))
-           (load lisp-file :verbose verbose))
-
-       (catch 'faslerror
-         (handler-bind ((conditions::fasl-error 
-                         #'(lambda (c) 
-                             (declare (ignore c))
-                             (when (and (fboundp 'compile-file) fasl-file)
-                               (print (format nil "File ~s will be recompiled..." fasl-file))
-                               (compile-file file :verbose verbose :output-file fasl-target)
-                               (load fasl-file :verbose verbose)
-                               (throw 'faslerror t)
-                               ))))
-           
-           (if (probe-file fasl-file)
-             (load fasl-file :verbose verbose)
-             (error "Compilation error(s) in ~s" lisp-file))
-
-           )))))
+        ;;; If the fasl was here and is still out-of-date (couldn't be compiled) 
+        ;;; then load the Lisp file
+        (progn (print (format nil "WARNING: File ~A is older than the LISP source file.~%=> Loading ~A." fasl-file lisp-file))
+          (load lisp-file :verbose verbose))
+      
+      ;;; Otherwise, load the compiled file
+      ;;; The handler-bind gives us a chance to recompile, just in case the compilation contents was wrong despite the date
+      (catch 'faslerror
+        (handler-bind ((conditions::fasl-error 
+                        #'(lambda (c) 
+                            (declare (ignore c))
+                            (when (and (fboundp 'compile-file) fasl-file)
+                              (print (format nil "File ~s will be recompiled..." fasl-file))
+                              (compile-file file :verbose verbose :output-file fasl-target)
+                              (load fasl-file :verbose verbose)
+                              (throw 'faslerror t)
+                              ))))
+          
+          ;;; At this stage, load what we have !
+          (if (probe-file fasl-file)
+              (load fasl-file :verbose verbose)
+            (load lisp-file :verbose verbose))
+          
+          )))))
 
 
 ;;; TEMP -- BUG LISPWORKS

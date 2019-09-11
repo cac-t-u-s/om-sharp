@@ -205,7 +205,7 @@
            (mypathname lib)
             
             ;;; temp: avoid fasl conflicts for now
-            (cl-user::clean-sources (mypathname lib))
+            ;; (cl-user::clean-sources (mypathname lib))
             
             (mapc #'(lambda (f)
                      (let ((path (omng-load f)))
