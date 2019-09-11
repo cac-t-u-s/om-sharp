@@ -91,26 +91,27 @@
                
                  ;;; new point in the time-map
                  (push item merged-list)))
-    
-      (setf merged-list (reverse merged-list))
-    
-      (cons 
-     
-       (list (space-point-onset (car merged-list))
-             (+ (space-point-before (car merged-list))
-                (space-point-extra (car merged-list))))
       
-       (loop with curr-x = (+ (space-point-before (car merged-list))
-                              (space-point-extra (car merged-list)))
-             for rest on merged-list
-             while (cdr rest)
-             do (setf curr-x (+ curr-x 
-                                (space-point-after (car rest)) 
-                                (space-point-before (cadr rest))
-                                (space-point-extra (cadr rest))))
-             collect (list (space-point-onset (cadr rest)) curr-x))
-       )
-      )))
+      (when merged-list
+        (setf merged-list (reverse merged-list))
+    
+        (cons 
+     
+         (list (space-point-onset (car merged-list))
+               (+ (space-point-before (car merged-list))
+                  (space-point-extra (car merged-list))))
+      
+         (loop with curr-x = (+ (space-point-before (car merged-list))
+                                (space-point-extra (car merged-list)))
+               for rest on merged-list
+               while (cdr rest)
+               do (setf curr-x (+ curr-x 
+                                  (space-point-after (car rest)) 
+                                  (space-point-before (cadr rest))
+                                  (space-point-extra (cadr rest))))
+               collect (list (space-point-onset (cadr rest)) curr-x))
+         )
+        ))))
                               
 
 (defmethod build-object-time-space ((self voice) tempo)
@@ -187,9 +188,9 @@
 
 (defmethod build-object-time-space ((self r-rest) tempo)
    (let ((space (object-space-in-units self)))
-     (make-space-point :onset (beat-to-time (symbolic-date self) tempo)
+     (list (make-space-point :onset (beat-to-time (symbolic-date self) tempo)
                        :before (first space) :after (second space)
-                       :extra (or (third space) 0))))
+                       :extra (or (third space) 0)))))
 
 
 
