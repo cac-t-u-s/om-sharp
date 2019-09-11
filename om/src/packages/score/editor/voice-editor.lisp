@@ -31,11 +31,11 @@
 (defparameter *stretch-options*
   '(.25 .5 .75 1 1.5 2 4 :proportional))
 
-;;; redo time-map at editing the object
-(defmethod report-modifications ((self voice-editor))
-  (call-next-method)
-  (editor-set-edit-param self :time-map (build-time-map (object-value self))))
 
+;;; redo time-map at editing the object
+;;; => replace with report-modifications
+(defmethod score-editor-edit-callback ((editor voice-editor) (object t)) 
+  (editor-set-edit-param editor :time-map (build-time-map object)))
 
 
 (defmethod make-score-display-params-controls ((editor voice-editor)) 

@@ -20,12 +20,22 @@
 
 
 ;;;======================================================================== 
-;;; MULTI-SEQ EDITOR
+;;; MULTI-SEQ/POLY EDITOR
 ;;;========================================================================
 
-;;; The editor will inherit from dta-stream-editor, althouhg MULTI-SEQ in NOT a data-stream...
-(defclass multi-seq-editor (chord-seq-editor) ())
+(defclass poly-editor-mixin () ())
+
+;;; The editor will inherit from data-stream-editor, althouhg MULTI-SEQ in not a data-stream...
+(defclass multi-seq-editor (chord-seq-editor poly-editor-mixin) ())
 (defmethod get-editor-class ((self multi-seq)) 'multi-seq-editor)
+
+(defclass poly-editor (voice-editor poly-editor-mixin) ())
+(defmethod get-editor-class ((self poly)) 'poly-editor)
+
+
+;;;======================================================================== 
+;;; COMMON FEATURES
+;;;========================================================================
 
 (defmethod object-default-edition-params ((self multi-seq))
   (append (call-next-method)
@@ -42,7 +52,7 @@
 (defvar *default-inter-staff* 8)
 
 
-(defmethod update-edit-params ((editor multi-seq-editor))
+(defmethod update-edit-params ((editor poly-editor-mixin))
   (let* ((n-voices (length (obj-list (object-value editor))))
          (new-list (make-list n-voices))
          (previous-y-list (list! (editor-get-edit-param editor :y-shift))))
@@ -55,7 +65,7 @@
     ))
     
 
-(defmethod accum-y-shift-list ((editor multi-seq-editor))
+(defmethod accum-y-shift-list ((editor poly-editor-mixin))
   (let* ((y-shift (editor-get-edit-param editor :y-shift))
          (y-shift-list (list! y-shift))
          (staff (editor-get-edit-param editor :staff))
@@ -71,9 +81,6 @@
     (reverse accum-y-list)
     ))
 
-(defmethod get-total-y-shift ((editor multi-seq-editor) voice-num)
-  (nth voice-num (accum-y-shift-list editor)))
-
 ;; returns the y1-y2 pairs for all staffs
 (defun make-staff-y-map (editor)
   
@@ -84,13 +91,27 @@
         collect (staff-y-range staff ys unit))
   ))
 
+
+;;;---------------------------------------------
+;;; SCORE-EDITOR REDEFINITIONS
+(defmethod get-total-y-shift ((editor multi-seq-editor) voice-num)
+  (nth voice-num (accum-y-shift-list editor)))
+(defmethod get-total-y-shift ((editor poly-editor) voice-num)
+  (nth voice-num (accum-y-shift-list editor)))
+;;;---------------------------------------------
+
+
 ;;;=========================
 ;;; LEFT VIEW (KEYS etc.)
 ;;;=========================
 
 (defclass poly-left-score-view (left-score-view) ())
-(defmethod left-score-view-class ((self multi-seq-editor)) 'poly-left-score-view)
 
+;;;---------------------------------------------
+;;; SCORE-EDITOR REDEFINITIONS
+(defmethod left-score-view-class ((self multi-seq-editor)) 'poly-left-score-view)
+(defmethod left-score-view-class ((self poly-editor)) 'poly-left-score-view)
+;;;---------------------------------------------
 
 (defmethod om-view-click-handler ((self poly-left-score-view) position)
   
@@ -142,7 +163,7 @@
 ;;; DISPLAY
 ;;;=========================
 
-(defmethod draw-staff-in-editor-view ((editor multi-seq-editor) (self score-view))
+(defmethod poly-editor-draw-staff-in-editor-view ((editor poly-editor-mixin) (self score-view))
   (let* ((fontsize (editor-get-edit-param editor :font-size))
          (staff (editor-get-edit-param editor :staff)))
     
@@ -157,6 +178,15 @@
                       :margin-r (margin-r self)
                       :keys (keys self))
           )))
+
+;;;---------------------------------------------
+;;; SCORE-EDITOR REDEFINITIONS
+(defmethod draw-staff-in-editor-view ((editor multi-seq-editor) (self score-view))
+  (poly-editor-draw-staff-in-editor-view editor self))
+(defmethod draw-staff-in-editor-view ((editor poly-editor) (self score-view))
+  (poly-editor-draw-staff-in-editor-view editor self))
+;;;---------------------------------------------
+
 
 
 (defmethod draw-sequence ((object multi-seq) editor view unit &optional (voice-num 0))
@@ -186,7 +216,8 @@
 
 
 ;;; add chord/notes
-(defmethod get-voice-at-pos ((self multi-seq-editor) position)
+(defmethod poly-editor-get-voice-at-pos ((self poly-editor-mixin) position)
+
   (let* ((staff-y-map (make-staff-y-map self))
          (y (om-point-y position))
          (min-dist (min (abs (- y (car (car staff-y-map))))
@@ -204,5 +235,11 @@
     (values (nth pos (obj-list (object-value self))) pos)
     ))
 
-
+;;;---------------------------------------------
+;;; SCORE-EDITOR REDEFINITIONS
+(defmethod get-voice-at-pos ((self multi-seq-editor) position)
+  (poly-editor-get-voice-at-pos self position))
+(defmethod get-voice-at-pos ((self poly-editor) position)
+  (poly-editor-get-voice-at-pos self position))
+;;;---------------------------------------------
 
