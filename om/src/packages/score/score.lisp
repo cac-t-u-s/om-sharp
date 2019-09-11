@@ -26,7 +26,7 @@
         "score-objects/tree"
         "score-objects/ratios"
         "score-objects/voice"
-        "score-objects/score"
+        "score-objects/multiseq-poly"
 
         "draw/draw-score-basic"
         "draw/draw-score-rhythm"
@@ -36,7 +36,7 @@
         "editor/chord-editor"
         "editor/chord-seq-editor"
         "editor/voice-editor"
-        "editor/multi-seq-editor"
+        "editor/multiseq-poly-editor"
         "editor/score-boxes"
 
         "functions/conversions"
