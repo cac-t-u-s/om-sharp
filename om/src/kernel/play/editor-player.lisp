@@ -120,7 +120,7 @@
     (om-init-temp-graphics-motion 
      view pos nil
      :motion #'(lambda (view p2)
-                 (let ((t2 (round (pix-to-x view (om-point-x p2)))))
+                 (let ((t2 (round (pixel-to-time view (om-point-x p2)))))
                    (editor-set-interval self (list (min t1 t2) (max t1 t2)))))
      :release #'(lambda (view pos) 
                   (declare (ignore view pos))
@@ -131,7 +131,7 @@
   (om-init-temp-graphics-motion 
    view pos nil
    :motion #'(lambda (view p)
-               (let ((t1 (round (pix-to-x view (om-point-x p)))))
+               (let ((t1 (round (pixel-to-time view (om-point-x p)))))
                  (editor-set-interval self (list t1 (cadr (play-interval self))))))
    :release #'(lambda (view pos) 
                 (declare (ignore view pos))
@@ -144,7 +144,7 @@
   (om-init-temp-graphics-motion 
    view pos nil
    :motion #'(lambda (view p)
-               (let ((t2 (round (pix-to-x view (om-point-x p)))))
+               (let ((t2 (round (pixel-to-time view (om-point-x p)))))
                  (editor-set-interval self (list (car (play-interval self)) t2))))
    :release #'(lambda (view pos) 
                 (declare (ignore view pos))
@@ -154,7 +154,7 @@
    :min-move 4))
 
 (defmethod editor-fix-interval ((self play-editor-mixin) interval &key (high-bound nil))
-  (list (max 0 (car interval)) 
+  (list (if (car interval) (max 0 (car interval)) 0)
         (if high-bound
             (min (get-obj-dur (get-obj-to-play self)) (cadr interval))
           (cadr interval))))
@@ -389,7 +389,7 @@
                 (om-draw-line i1 0 i1 (h self))
                 (om-draw-line i2 0 i2 (h self)))))
           (om-draw-rect i1 0 (- i2 i1) (h self) :fill t :color (cursor-interval-fill-color self))
-          (unless t ; (equal (editor-play-state (editor self)) :play)
+          (unless t ;(equal (editor-play-state (editor self)) :play)
             ;; => never do that, when play is stopped 
             (draw-cursor-line self 
                               (omp (time-to-pixel self (cursor-pos self)) 0)
@@ -402,11 +402,11 @@
   (let ((tpl-editor (editor (om-view-window self)))
         (bx (time-to-pixel self (car (cursor-interval self))))
         (ex (time-to-pixel self (cadr (cursor-interval self)))))   
-    (cond ((om-point-in-line-p position (omp bx 0) (omp bx (h self)) 4)
-           (change-interval-begin tpl-editor self position)
-           t)
-          ((om-point-in-line-p position (omp ex 0) (omp ex (h self)) 4)
+    (cond ((om-point-in-line-p position (omp ex 0) (omp ex (h self)) 4)
            (change-interval-end tpl-editor self position)
+           t)
+          ((om-point-in-line-p position (omp bx 0) (omp bx (h self)) 4)
+           (change-interval-begin tpl-editor self position)
            t)
           (t 
            ;(set-cursor-time tpl-editor (pixel-to-time self (om-point-x position)))
@@ -423,7 +423,7 @@
 
 
 (defmethod om-view-doubleclick-handler ((self x-cursor-graduated-view) position)
-  (let ((time (pixel-to-time self (om-point-x position)))
+  (let ((time (max 0 (pixel-to-time self (om-point-x position))))
         (tpl-editor (editor self)) ;; we assume it is an OMEditorView...
         )
     (editor-set-interval tpl-editor (list time time))
