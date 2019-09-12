@@ -1191,7 +1191,7 @@
   (let* ((strUC (string-upcase str))
          (package (when (find #\: strUC) (string-until-char strUC ":"))))
     
-    (if package 
+    (if (> (length package) 0) ;; package is not NIL or ""
         
         (let ((sym-name (subseq strUC (1+ (position #\: strUC :from-end t)))))
           (find-symbol sym-name (intern-k package)))
@@ -1218,6 +1218,7 @@
 (defun decode-input-arguments (text)
   (om-read-list-from-string text))
 
+
 (defmethod new-box-in-patch-editor ((self patch-editor-view) str position)     
   
   (om-with-error-handle 
@@ -1231,8 +1232,6 @@
                               (search-known-symbol first-item)))
                (pos (omng-position self position))
                (newbox nil))
-          
-          ;(print (list str read-sym))
           
           (if read-sym ;;; the symbol is known
               
@@ -1279,7 +1278,7 @@
                       (and (symbolp read-2) (string-equal (package-name (symbol-package read-2)) "KEYWORD")))
                   
                   ;;; => make a value box
-                  (progn 
+                  (progn
                     (when (quoted-form-p read-2) (setf read-2 (eval read-2)))
                     (setf newbox (omNG-make-new-boxcall 'value pos read-2)))
                 
