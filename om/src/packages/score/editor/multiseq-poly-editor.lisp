@@ -217,24 +217,24 @@
 
 ;;; add chord/notes
 (defmethod poly-editor-get-voice-at-pos ((self poly-editor-mixin) position)
-
-  (let* ((staff-y-map (make-staff-y-map self))
-         (y (om-point-y position))
-         (min-dist (min (abs (- y (car (car staff-y-map))))
-                        (abs (- y (cadr (car staff-y-map))))))
+  (when (obj-list (object-value self))
+    (let* ((staff-y-map (make-staff-y-map self))
+           (y (om-point-y position))
+           (min-dist (min (abs (- y (car (car staff-y-map))))
+                          (abs (- y (cadr (car staff-y-map))))))
          (pos 0))
-
-    (loop for staff-range in (cdr staff-y-map)
-          for p from 1
-          do (let ((dist (min (abs (- y (car staff-range)))
+      
+      (loop for staff-range in (cdr staff-y-map)
+            for p from 1
+            do (let ((dist (min (abs (- y (car staff-range)))
                               (abs (- y (cadr staff-range))))))
-               (when (< dist min-dist)
+                 (when (< dist min-dist)
                  (setf pos p
                        min-dist dist)))
-          )    
-    (values (nth pos (obj-list (object-value self))) pos)
-    ))
-
+            )    
+      (values (nth pos (obj-list (object-value self))) pos)
+      )))
+  
 ;;;---------------------------------------------
 ;;; SCORE-EDITOR REDEFINITIONS
 (defmethod get-voice-at-pos ((self multi-seq-editor) position)

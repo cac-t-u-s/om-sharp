@@ -43,13 +43,6 @@
 
 (defmethod editor-with-timeline ((self chord-seq-editor)) nil)
 
-
-(defmethod score-editor-edit-callback ((editor chord-seq-editor) (object t)) nil)
-
-(defmethod report-modifications ((self chord-seq-editor))
-  (call-next-method)
-  (score-editor-edit-callback self (object-value self)))
-
 ;;;=========================
 ;;; LEFT-VIEW
 ;;;=========================
