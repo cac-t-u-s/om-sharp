@@ -56,9 +56,7 @@
 
 (defmethod play-box? ((self t)) nil)
 (defmethod play-box? ((self OMBoxEditCall)) t)
-(defmethod play-obj? ((self t)) nil)
-(defmethod get-obj-dur ((self t)) nil)
-(defmethod get-obj-dur ((self null)) nil)
+(defmethod get-obj-dur ((self t)) 0)
 
 (defmethod get-obj-dur ((self ombox)) 
   (get-obj-dur (get-obj-to-play self)))

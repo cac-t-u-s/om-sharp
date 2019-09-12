@@ -39,7 +39,7 @@
 
 (defmethod inside ((self multi-seq)) (obj-list self))
 (defmethod num-voices ((self multi-seq)) (length (obj-list self)))
-(defmethod get-obj-dur ((self multi-seq)) (apply 'max (mapcar 'get-obj-dur (obj-list self))))
+(defmethod get-obj-dur ((self multi-seq)) (apply 'max (cons 0 (mapcar 'get-obj-dur (obj-list self)))))
 
 (defmethod objfromobjs ((model multi-seq) (target multi-seq))
   (setf (obj-list target)
@@ -47,6 +47,17 @@
               (objfromobjs obj (make-instance (voice-type target)))))
   target)
 
+(defmethod initialize-instance ((self multi-seq) &rest args)
+  (call-next-method)
+  (setf (obj-list self)
+        (loop for v in (obj-list self) 
+              when (or 
+                    (subtypep (type-of v) 'chord-seq)
+                    (om-beep-msg "Removing voice of type ~A" (type-of v)))
+              collect v))
+  self)
+                 
+                          
 ;;;===================================================
 ;;; PLAY
 ;;;===================================================
