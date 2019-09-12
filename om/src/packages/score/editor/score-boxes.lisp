@@ -22,11 +22,6 @@
 (in-package :om)
 
 
-
-;;;============ 
-;;; BOX
-;;;============
-
 (defclass ScoreBox (OMBoxEditCall) 
   ((fontsize :accessor fontsize :initform 18)))
 
@@ -87,8 +82,6 @@
   (- (time-to-pixel view (+ (box-x box) time)) 
      (time-to-pixel view (box-x box))
      ))
-
-
 
 (defun score-mini-view-left-shift-in-units (box)
   (if (or (equal (get-edit-param box :staff) :line)
@@ -221,7 +214,7 @@
     (draw-staff x-pix y-pix shift-y w h font-size staff 
                 :margin-l 0 :margin-r 0 :keys (not in-sequencer?))
     
-    (draw-tempo self (+ x-pix 4) (+ shift-y 2.5) font-size) 
+    (draw-tempo self (+ x-pix 4) (+ y-pix (* unit (+ shift-y 2))) font-size)
 
     (loop with on-screen = t 
           with prev-signature = nil

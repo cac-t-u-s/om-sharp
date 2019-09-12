@@ -113,6 +113,10 @@
   )
 
 
+;;; redefined by VOICE/POLY
+(defmethod draw-tempo-in-editor-view ((editor score-editor) (self score-view)) nil)
+
+
 (defmethod om-draw-contents ((self score-view))
   
   (let* ((editor (editor self))

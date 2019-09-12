@@ -159,6 +159,8 @@
     ))
 
 
+  
+
 ;;;=========================
 ;;; DISPLAY
 ;;;=========================
@@ -185,14 +187,23 @@
   (poly-editor-draw-staff-in-editor-view editor self))
 (defmethod draw-staff-in-editor-view ((editor poly-editor) (self score-view))
   (poly-editor-draw-staff-in-editor-view editor self))
-;;;---------------------------------------------
 
 
+(defmethod draw-tempo-in-editor-view ((editor poly-editor) (self score-view))
+  (let* ((fontsize (editor-get-edit-param editor :font-size))
+         (unit (font-size-to-unit fontsize)))
+    
+    (loop for voice in (obj-list (object-value editor)) 
+          for shift in (accum-y-shift-list editor) 
+          do
+          (draw-tempo voice (* 2 unit) (* shift unit) fontsize))
+    ))
 
 (defmethod draw-sequence ((object multi-seq) editor view unit &optional (voice-num 0))
   (loop for voice in (obj-list object) 
         for shift in (accum-y-shift-list editor) 
         do (draw-sequence voice editor view unit shift)))
+;;;---------------------------------------------
 
 
 ;;;=========================

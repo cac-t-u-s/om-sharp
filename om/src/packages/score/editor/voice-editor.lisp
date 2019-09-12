@@ -131,6 +131,15 @@
 
 
 
+(defmethod draw-tempo-in-editor-view ((editor voice-editor) (self score-view))
+
+  (let* ((y-shift (editor-get-edit-param editor :y-shift))
+         (font-size (editor-get-edit-param editor :font-size))
+         (unit (font-size-to-unit font-size)))
+    
+   (draw-tempo (object-value editor) (* 2 unit) (* y-shift unit) font-size)
+   ))
+
 
 (defmethod draw-sequence ((object voice) editor view unit &optional force-y-shift)
 
