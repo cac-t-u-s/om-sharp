@@ -155,7 +155,6 @@
 (load-om-package "osc")
 (load-om-package "sound")
 (load-om-package "space")
-(load-om-package "interface")
 
 ;(cl-user::clean-sources)
 
