@@ -22,12 +22,12 @@
 (mapc #'(lambda (filename) 
           (compile&load (decode-local-path filename))) 
       
-      '("om-maquette"
+      '("maquette-object"
         "metronome"
-        "om-metric-ruler"
-        "om-maquette-editor"
-        "om-maquette-api"
-        "om-maquette-meta"
+        "metric-ruler"
+        "maquette-editor"
+        "maquette-api"
+        "maquette-meta"
         )
       )
 

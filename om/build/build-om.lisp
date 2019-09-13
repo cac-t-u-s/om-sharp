@@ -148,11 +148,11 @@
 
 (load-om-package "basic")
 (load-om-package "midi")
+(load-om-package "sound")
 (load-om-package "maquette")
 (load-om-package "score")
 (load-om-package "sdif")
 (load-om-package "osc")
-(load-om-package "sound")
 (load-om-package "space")
 
 ;(cl-user::clean-sources)
