@@ -19,11 +19,17 @@
 (in-package :om)                
 
 
-(compile&load (decode-local-path "om-maquette"))
-(compile&load (decode-local-path "om-maquette-editor"))
-(compile&load (decode-local-path "om-metric-ruler"))
-(compile&load (decode-local-path "om-maquette-api"))
-(compile&load (decode-local-path "om-maquette-meta"))
+(mapc #'(lambda (filename) 
+          (compile&load (decode-local-path filename))) 
+      
+      '("om-maquette"
+        "metronome"
+        "om-metric-ruler"
+        "om-maquette-editor"
+        "om-maquette-api"
+        "om-maquette-meta"
+        )
+      )
 
 
 (omNG-make-package "Maquette/Meta" 

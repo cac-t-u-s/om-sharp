@@ -24,9 +24,29 @@
 ;;;========================
 (defclass metric-ruler (time-ruler)
   ((point-list :initform nil :initarg :point-list :accessor point-list)
-   (tempo-automation :initform (make-instance 'tempo-automation) 
-                     :initarg tempo-automation :accessor tempo-automation)
+   (tempo :initform 60 :initarg :tempo :accessor tempo)
+   (tempo-automation :initform nil :initarg tempo-automation :accessor tempo-automation)
    (previous-span :initform '(0 0) :accessor previous-span)))
+
+
+(defun update-point-list (ruler)
+  (setf (point-list ruler) (get-beat-grid (tempo-automation ruler) (v1 ruler) (v2 ruler)
+                                          (get-display-beat-factor (tempo-automation ruler) (v1 ruler) (v2 ruler)))))
+
+
+(defmethod update-from-tempo ((self metric-ruler))
+  (setf (tempo-automation self) 
+        (make-instance 'tempo-automation
+                       :x-points '(0 1000)
+                       :y-points (list (tempo self) (tempo self))))
+  (update-point-list self))
+
+(defmethod initialize-instance ((self metric-ruler) &rest args)
+  (let ((inst (call-next-method)))
+    (unless (tempo-automation inst)
+      (update-from-tempo inst))
+    inst))
+
 
 (defmethod get-timed-objects-for-graduated-view ((self metric-ruler))
   ;returns a list of timed-object to retrieve their markers
@@ -41,12 +61,14 @@
 (defmethod clear-editor-selection ((self metric-ruler))
   nil)
 
+
+
+        
 (defun update-span (ruler)
   (let ((span (list (v1 ruler) (v2 ruler))))
     (when (not (equal span (previous-span ruler)))
-      (setf (point-list ruler) (get-beat-grid (tempo-automation ruler) (v1 ruler) (v2 ruler)
-                                              (get-display-beat-factor (tempo-automation ruler) (v1 ruler) (v2 ruler)))
-            (previous-span ruler) span))))
+      (update-point-list ruler)
+      (setf (previous-span ruler) span))))
 
 (defmethod set-ruler-range ((self metric-ruler) v1 v2)
   (update-span self)
