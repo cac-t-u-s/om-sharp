@@ -222,11 +222,11 @@
 
         (progn
           (player-continue-object (player self) (get-obj-to-play self) )
-          (when (and (metronome self) (metronome-on self)) 
+          (when (and (metronome self) (metronome-on self))
             (player-continue-object (player self) (metronome self))))
 
       (let ((interval (get-interval-to-play self)))
-        (when (and (metronome self) (metronome-on self)) 
+        (when (and (metronome self) (metronome-on self))
           (player-play-object (player self) (metronome self) nil :interval interval))
         (player-play-object (player self) (get-obj-to-play self) self :interval interval)
         (player-start (player self) :start-t (or (car interval) 0) :end-t (cadr interval)))
@@ -818,9 +818,9 @@
 
 
 
-;======================================================
-; METRONOME UTILS (NOT REALLY USED FOR THE MOMENT...)
-;======================================================
+;===============
+; METRONOME
+;===============
 
 (defclass metronome (schedulable-object)
   ((editor :initform nil :initarg :editor :accessor editor)
@@ -849,7 +849,6 @@
                           (mapcar 'om-midi::midi-send-evt (click self)))))
                (car time-interval) (cadr time-interval)
                :key 'car))
-
 
 (defmethod metronome-on ((self play-editor-mixin))
   (slot-value self 'metronome-on))
