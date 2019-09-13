@@ -48,8 +48,7 @@
 
 (defmethod initialize-instance :after ((self play-editor-mixin) &rest initargs)
   (setf (player self) (editor-make-player self))
-  (when (find-om-package "metronome")
-    (setf (metronome self) (make-instance 'metronome :editor self))))
+  (setf (metronome self) (make-instance 'metronome :editor self)))
 
 (defmethod editor-close ((self play-editor-mixin))
   (editor-stop self)
@@ -220,20 +219,25 @@
     (start-editor-callback self)
     
     (if (equal (player-get-object-state (player self) (get-obj-to-play self)) :pause)
+
         (progn
           (player-continue-object (player self) (get-obj-to-play self) )
-          (if (and (metronome self) (metronome-on self)) (player-continue-object (player self) (metronome self))))
+          (when (and (metronome self) (metronome-on self)) 
+            (player-continue-object (player self) (metronome self))))
+
       (let ((interval (get-interval-to-play self)))
-        (if (and (metronome self) (metronome-on self)) (player-play-object (player self) (metronome self) nil :interval interval))
+        (when (and (metronome self) (metronome-on self)) 
+          (player-play-object (player self) (metronome self) nil :interval interval))
         (player-play-object (player self) (get-obj-to-play self) self :interval interval)
-        (player-start (player self) :start-t (or (car interval) 0) :end-t (cadr interval))))))
+        (player-start (player self) :start-t (or (car interval) 0) :end-t (cadr interval)))
+      )))
 
 
 (defmethod editor-pause ((self play-editor-mixin))
   (when (play-button self) (button-unselect (play-button self)))
   (when (pause-button self) (button-select (pause-button self)))
-  (if (and (metronome self) (metronome-on self))
-      (player-pause-object (player self) (metronome self)))
+  (when (and (metronome self) (metronome-on self))
+    (player-pause-object (player self) (metronome self)))
   (player-pause-object (player self) (get-obj-to-play self)))
 
 
@@ -245,7 +249,8 @@
   (stop-editor-callback self)
 
   (player-stop-object (player self) (get-obj-to-play self))
-  (if (and (metronome self) (metronome-on self)) (player-stop-object (player self) (metronome self)))
+  (when (and (metronome self) (metronome-on self)) 
+    (player-stop-object (player self) (metronome self)))
   (let ((start-time (or (car (play-interval self)) (car (play-editor-default-interval self)))))
     (set-time-display self start-time)
     (mapcar #'(lambda (view) (update-cursor view start-time)) (cursor-panes self))))
@@ -565,10 +570,6 @@
 (defmethod pixel-to-time ((self time-ruler) x) 
    (round (pix-to-x self x)))
 
-;;;;;;;;;;;;;;;;;
-;;;;;DRAWING;;;;;
-;;;;;;;;;;;;;;;;;
-
 (defmethod unit-value-str ((self time-ruler) value &optional (unit-dur 0))
   (if (equal (unit self) :ms) (call-next-method)
     (if (> unit-dur 100) (format nil "~d" (round (/ value 1000.0)))
@@ -627,9 +628,9 @@
   (om-with-line '(2 2)
     (call-next-method)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;SNAP TO GRID FUNCITONNALITIES;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+; SNAP TO GRID FUNCITONNALITIES
 
 (defmethod snap-time-to-grid  ((ruler time-ruler) time &optional (snap-delta nil))
   ;returns a time value corresponding to the given time aligned on the grid with a delta (in ms) treshold.
@@ -816,9 +817,39 @@
       (om-set-view-cursor self (om-view-cursor self)))))
 
 
-;======================================
-; METRONOME UTILS (NOT REALLY USED..)
-;======================================
+
+;======================================================
+; METRONOME UTILS (NOT REALLY USED FOR THE MOMENT...)
+;======================================================
+
+(defclass metronome (schedulable-object)
+  ((editor :initform nil :initarg :editor :accessor editor)
+   (time-signature :initform '(4 4) :initarg :time-signature :accessor time-signature)
+   (click :initform '(nil nil) :initarg :click :accessor click)))
+
+(defmethod get-obj-dur ((self metronome)) *positive-infinity*)
+
+(defmethod initialize-instance :after ((self metronome) &rest initargs)
+  (setf (click self)
+        (list (om-midi:make-midi-evt 
+                               :type :keyOn
+                               :chan 10 :port 0
+                               :fields (list 32 127)) ;44
+              (om-midi:make-midi-evt 
+                               :type :keyOff
+                               :chan 10 :port 0
+                               :fields (list 32 127)))))
+
+(defmethod get-action-list-for-play ((self metronome) time-interval &optional parent)
+  (filter-list (loop for beat in (get-beat-grid (get-tempo-automation (editor self)) (car time-interval) (cadr time-interval))
+                     collect
+                     (list
+                      (car beat)
+                      #'(lambda ()
+                          (mapcar 'om-midi::midi-send-evt (click self)))))
+               (car time-interval) (cadr time-interval)
+               :key 'car))
+
 
 (defmethod metronome-on ((self play-editor-mixin))
   (slot-value self 'metronome-on))
@@ -840,7 +871,6 @@
   (when (get-g-component self :tempo-box)
     (om-set-dialog-item-text (cadr (om-subviews (get-g-component self :tempo-box))) 
                              (format nil "~$" new-tempo))))
-
 
 (defmethod time-signature ((self play-editor-mixin))
   (slot-value self 'time-signature))

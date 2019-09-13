@@ -31,32 +31,5 @@
 ;;;Metronome
 ;;===========================================================================
 ;;;Structure
-(defclass metronome (schedulable-object)
-  ((editor :initform nil :initarg :editor :accessor editor)
-   (time-signature :initform '(4 4) :initarg :time-signature :accessor time-signature)
-   (click :initform '(nil nil) :initarg :click :accessor click)))
 
-(defmethod initialize-instance :after ((self metronome) &rest initargs)
-  (setf (click self)
-        (list (om-midi:make-midi-evt 
-                               :type :keyOn
-                               :chan 10 :port 0
-                               :fields (list 32 127)) ;44
-              (om-midi:make-midi-evt 
-                               :type :keyOff
-                               :chan 10 :port 0
-                               :fields (list 32 127)))))
-
-(defmethod get-action-list-for-play ((self metronome) time-interval &optional parent)
-  (filter-list (loop for beat in (get-beat-grid (get-tempo-automation (editor self)) (car time-interval) (cadr time-interval))
-                     collect
-                     (list
-                      (car beat)
-                      #'(lambda ()
-                          (mapcar 'om-midi::midi-send-evt (click self)))))
-               (car time-interval) (cadr time-interval)
-               :key 'car))
-
-(defmethod get-obj-dur ((self metronome))
-  *positive-infinity*)
 
