@@ -88,6 +88,7 @@
 
 ;;; simpler: just on 1 line
 (defun format-message (message &optional (indent 0))
+  (declare (ignore indent))
   (format nil "~{~a~^ ~}" message))
 
 (defmethod format-argument (arg indent) 
@@ -109,12 +110,14 @@
   (let ((display-cache (ensure-cache-display-text box self)))
     (om-draw-rect x y w h :fill t :color (om-gray-color 0.48))
     (om-with-fg-color (om-def-color :white)
-    (om-with-font (om-def-font :font1)
-    ;;(flat (mapcar 'format-message (messages self))) 
-    (loop for msg in (cadr (cadr display-cache))
-          for yy = 20 then (+ yy 12) while (< yy h) do
-          (om-draw-string 6 yy (format nil "~{~a~^ ~}" msg))
-          )))))
+      (om-with-font 
+       (om-def-font :font1)
+       (loop for msg in (find-value-in-kv-list display-cache 'messages)
+             for yy = 20 then (+ yy 12) while (< yy h) do
+             (om-draw-string 6 yy (format nil "~{~a~^ ~}" msg))
+             )
+       ))
+    ))
 
 
 (defun find-osc-values (osc-bundle address)
@@ -155,33 +158,47 @@
 
 
 
-
 ;;;=========================================================
-;;; USED WHEN A BUNDLE IS INSPECTED IN THE INSPECTOR WINDOW
+;;; EDITOR
 ;;;=========================================================
 
-(defmethod get-properties-list ((self osc-bundle))
-  (list 
-   (cons "OSC BUNDLE" 
-                (loop for i = 0 then (+ i 1)
-                      for message in (messages self)
-                      collect
-                      (list (intern-k (format nil "osc-message-~D" i))
-                            (car message) :text 
-                            (intern (format nil "osc-bundle-message-accessor-~D" i))))
-                ))
-  )
+(defmethod object-has-editor ((self osc-bundle)) t)
+(defmethod get-editor-class ((self osc-bundle)) 'osc-editor)
 
+(defclass osc-editor (OMEditor) ())
+  
+(defmethod get-properties-list ((self osc-bundle)) nil)
 
-;;; very-dirty-trick
-(loop for i from 0 to 20 do
-  (eval `(defun ,(intern (format nil "osc-bundle-message-accessor-~D" i)) (bundle &optional (val nil val-supplied-p))
-           (if val-supplied-p 
-               (setf (nth ,i (messages bundle)) 
-                     (cons (car (nth ,i (messages bundle)))
-                           (list! val)))
-             (format nil "~{~a~^ ~}" (cdr (nth ,i (messages bundle))))))
-        ))
+(defun bundle-to-text (oscb)
+  (apply #'concatenate 
+         (cons 'string
+               (loop for msg in (messages oscb)
+                     collect (format nil "~{~a~^ ~}~%" msg)))))
+
+  
+(defmethod make-editor-window-contents ((self osc-editor))
+  (let ((oscb (object-value self)))
+    (om-make-layout
+     'om-simple-layout
+     :subviews (list 
+              (om-make-di 
+               'om-text-edit-view
+               :size (omp 200 200)
+               :text (bundle-to-text oscb) 
+               :edit-action #'(lambda (item)
+                                (let ((messages (remove nil
+                                                        (loop for line in (om-text-to-lines (om-dialog-item-text item))
+                                                              collect (om-read-list-from-string line)))))
+                                  (setf (messages oscb) messages)
+                                  (report-modifications self)))
+               )))
+    ))
+
+(defmethod update-to-editor ((self osc-editor) from)
+  (declare (ignore from))
+  (om-set-dialog-item-text (car (om-subviews (main-view self)))
+                           (bundle-to-text (object-value self))))
+  
 
 
 ;;;======================================

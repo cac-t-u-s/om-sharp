@@ -77,10 +77,6 @@
   (push :udp *features*))
 
 ;(setf *stdout* #.*standard-output*)
-(progn
-  (load (merge-pathnames "cl-osc/osc.asd" *externals-directory*))
-  (asdf:operate 'asdf:load-op 'osc)
-  (push :osc *features*))
 
 (load (merge-pathnames "XML/load-xml" *externals-directory*))
 
@@ -148,11 +144,11 @@
 
 (load-om-package "basic")
 (load-om-package "midi")
+(load-om-package "osc")
 (load-om-package "maquette")
 (load-om-package "score")
 (load-om-package "sound")
 (load-om-package "sdif")
-(load-om-package "osc")
 (load-om-package "space")
 
 ;(cl-user::clean-sources)

@@ -18,14 +18,16 @@
 
 (in-package :om)
 
-
 (require-om-package "basic")
+
+;;; CL-OSC
+(load (merge-pathnames "cl-osc/osc.asd" *load-pathname*))
+(asdf:operate 'asdf:load-op 'osc)
+(push :osc *features*)
 
 (compile&load (decode-local-path "osc-om/osc-struct"))
 (compile&load (decode-local-path "osc-om/osc-send-receive"))
 (compile&load (decode-local-path "osc-om/osc-route"))
-
-(load (decode-local-path "libo/load-libo.lisp"))
 
 (omNG-make-package 
  "OSC"
