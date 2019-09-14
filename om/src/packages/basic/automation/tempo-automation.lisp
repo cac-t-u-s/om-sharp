@@ -56,6 +56,18 @@
           (/ 1 (funcall fun (funcall xk *curve-N-factor*))))
        60000)))
 
+(defmethod get-beat-date ((self tempo-automation) beat)
+  (let ((points (point-list self))
+        (current-time 0))
+    (loop for i from 0 to (1- (length points))
+          do
+          (if (and (nth (1+ i) points) (< (start-date (nth (1+ i) points)) beat))
+              (incf current-time (beat-date (nth i points) self (start-date (nth (1+ i) points))))
+            (progn
+              (incf current-time (beat-date (nth i points) self beat))
+              (return))))
+    (round current-time)))
+
 (defmethod initialize-instance :after ((self tempo-automation) &rest args)
   (setf (point-list self) (loop for x in (or (getf args :x-points) '(0 2000))
                                 for y in (or (getf args :y-points) '(120 120))
@@ -65,20 +77,12 @@
                                                   :y y
                                                   :coeff coeff)))
   (loop for pt in (point-list self)
-        do
-        (setf (tp-fun pt) (get-function pt self)))
+        do (setf (tp-fun pt) (get-function pt self)))
   self)
 
-#|
-(defmethod initialize-instance ((self tempo-automation) &rest initargs)
-  ;;;TMP : CONSTANT
-  (setf (point-list self) (list (make-tempo-point :y 120 :x 0)
-                                (make-tempo-point :y 120 :x *positive-infinity*)))
-  (loop for pt in (point-list self)
-        do
-        (setf (tp-fun pt) (get-function pt self)))
-  self)
-|#
+;;; why not to do it like in BPF ?
+(defmethod (setf point-list) ((point-list t) (self tempo-automation))
+  (setf (slot-value self 'point-list) point-list))
 
 (defmethod tp-start-date ((self tempo-point) (obj tempo-automation))
   (get-beat-date obj (tp-x self)))
@@ -112,52 +116,15 @@
                     (log 0.5 (tp-coeff self))) (- (tp-end-value self obj) (tp-start-value self)))
            (tp-start-value self)))))
 
-(defmethod (setf point-list) ((point-list t) (self bpf))
-  (setf (slot-value self 'point-list) point-list))
 
+;;;============================================
+;;; called from outiside (maquette/ruler/etc.)
+;;;============================================
 
+(defmethod tempo-automation-get-beat-date ((self tempo-automation) beat)
+  (get-beat-date self beat))
 
-(defmethod get-function-auto ((self tempo-point) (auto tempo-automation))
-  (or (ap-fun self)
-      (let* ((next (nth (1+ (position self (point-list auto))) (point-list auto)))
-             (end-beat (if next (tp-start-beat next) *positive-infinity*)))
-        (if (= (tp-start-value self) (tp-end-value self auto))
-            (constantly (tp-start-value self))
-          #'(lambda (d)
-              (+ (* (expt (/ (- d (tp-start-beat self))
-                             (- end-beat (tp-start-beat self)))
-                          (log 0.5 (ap-coeff self))) (- (tp-end-value self auto) (tp-start-value self)))
-                 (ap-start-value self)))))))
-
-(defmethod max-tempo ((self tempo-automation))
-  (reduce 'max (point-list self) :key 'tp-start-value))
-  
-
-(defmethod set-nth-point-start-value ((self tempo-automation) n value)
-  ;(setf (tp-start-date (nth n (point-list self))) (get-beat-date self value))
-  (setf (tp-start-value (nth n (point-list self))) value))
-
-(defmethod get-beat-date ((self tempo-automation) beat)
-  (let ((points (point-list self))
-        (current-time 0))
-    (loop for i from 0 to (1- (length points))
-          do
-          (if (and (nth (1+ i) points) (< (start-date (nth (1+ i) points)) beat))
-              (incf current-time (beat-date (nth i points) self (start-date (nth (1+ i) points))))
-            (progn
-              (incf current-time (beat-date (nth i points) self beat))
-              (return))))
-    (round current-time)))
-
-(defmethod get-action-list-for-play ((self tempo-automation) time-interval &optional parent)
-  (loop for ti from (car time-interval) to (cadr time-interval)
-        by (rate-ms self)
-        collect
-        (list
-         ti
-         #'(lambda () (funcall (action self) (tempo-at-date self ti))))))
-
-(defmethod tempo-at-beat ((self tempo-automation) beat)
+(defmethod tempo-automation-tempo-at-beat ((self tempo-automation) beat)
   (let ((pt (find beat (point-list self) :test #'(lambda (x y)
                                                    (and (>= x (tp-start-beat y))
                                                         (< x (tp-end-beat y self)))))))
@@ -165,10 +132,12 @@
         (funcall (get-function pt self) beat)
       0)))
 
-(defmethod get-beat-grid ((self tempo-automation) tmin tmax &optional (beat-rate 1))
-  (let* ((pt-index (position tmin (point-list self) :test #'(lambda (x y)
-                                                              (and (>= tmin (get-beat-date self (start-date y)))
-                                                                   (< tmin (get-beat-date self (end-date y self)))))))
+
+(defmethod tempo-automation-get-beat-grid ((self tempo-automation) tmin tmax &optional (beat-rate 1))
+  (let* ((pt-index (position-if #'(lambda (x)
+                                    (and (>= tmin (get-beat-date self (start-date x)))
+                                         (< tmin (get-beat-date self (end-date x self)))))
+                                 (point-list self)))
          (grid '())
          (date 0))
     (when pt-index
@@ -201,7 +170,8 @@
                     (return)))))
       (reverse grid))))
 
-(defmethod get-display-beat-factor ((self tempo-automation) t1 t2)
+
+(defmethod tempo-automation-get-display-beat-factor ((self tempo-automation) t1 t2)
   (let ((factor (/ (- t2 t1) 
                           (/ 60000 
                              (/ (reduce '+ (point-list self) :key 'start-value) 
@@ -209,3 +179,37 @@
   (if (<= factor 10)
       (/ (expt 2 (round (log (/ factor 40)) 2)) 2)
     (expt 2 (round (log (1+ (/ factor 40)) 2))))))
+
+
+
+#|
+;;;============================================
+;;; never called anywhere
+;;;============================================
+
+(defmethod get-function-auto ((self tempo-point) (auto tempo-automation))
+  (or (ap-fun self)
+      (let* ((next (nth (1+ (position self (point-list auto))) (point-list auto)))
+             (end-beat (if next (tp-start-beat next) *positive-infinity*)))
+        (if (= (tp-start-value self) (tp-end-value self auto))
+            (constantly (tp-start-value self))
+          #'(lambda (d)
+              (+ (* (expt (/ (- d (tp-start-beat self))
+                             (- end-beat (tp-start-beat self)))
+                          (log 0.5 (ap-coeff self))) (- (tp-end-value self auto) (tp-start-value self)))
+                 (tp-start-value self)))))))
+
+
+(defmethod max-tempo ((self tempo-automation))
+  (reduce 'max (point-list self) :key 'tp-start-value))
+
+; (never!) called by player
+(defmethod get-action-list-for-play ((self tempo-automation) time-interval &optional parent)
+  (loop for ti from (car time-interval) to (cadr time-interval)
+        by (interpol self)
+        collect
+        (list
+         ti
+         #'(lambda () (funcall (action self) (tempo-at-date self ti))))))
+|#
+

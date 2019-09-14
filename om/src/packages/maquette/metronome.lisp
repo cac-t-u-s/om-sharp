@@ -38,8 +38,9 @@
 
 (defmethod get-action-list-for-play ((self metronome) time-interval &optional parent)
   (when (editor-get-tempo-automation (editor self))
-    (filter-list (loop for beat in (get-beat-grid (editor-get-tempo-automation (editor self))
-                                                  (car time-interval) (cadr time-interval))
+    (filter-list (loop for beat in (tempo-automation-get-beat-grid 
+                                    (editor-get-tempo-automation (editor self))
+                                    (car time-interval) (cadr time-interval))
                        collect
                        (list
                         (car beat)
@@ -91,6 +92,7 @@
 ;;;=======================================
 
 (defmethod player-play-object ((self scheduler) (object metronome) caller &key parent interval)
+  (declare (ignore parent interval))
   (when (metronome-on object)
     (call-next-method)))
 

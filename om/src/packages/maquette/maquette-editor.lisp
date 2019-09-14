@@ -1245,12 +1245,12 @@
 
     ;(let ((t-auto (editor-get-tempo-automation self)))
     ; (if (not (getf (beat-info self) :next-date))
-    ;    (setf (getf (beat-info self) :next-date) (get-beat-date t-auto (getf (beat-info self) :beat-count))))
+    ;    (setf (getf (beat-info self) :next-date) (tempo-automation-get-beat-date t-auto (getf (beat-info self) :beat-count))))
     ;  (loop while (>= time (getf (beat-info self) :next-date))
     ;        do
-    ;        (om-set-dialog-item-text (cadr (om-subviews (tempo-box self))) (format nil "~$" (tempo-at-beat t-auto (getf (beat-info self) :beat-count))))
+    ;        (om-set-dialog-item-text (cadr (om-subviews (tempo-box self))) (format nil "~$" (tempo-automation-tempo-at-beat t-auto (getf (beat-info self) :beat-count))))
     ;        (incf (getf (beat-info self) :beat-count) 0.1)
-    ;        (setf (getf (beat-info self) :next-date) (get-beat-date t-auto (getf (beat-info self) :beat-count))))
+    ;        (setf (getf (beat-info self) :next-date) (tempo-automation-get-beat-date t-auto (getf (beat-info self) :beat-count))))
   )
 
 (defmethod stop-editor-callback ((self maquette-editor))
@@ -1258,7 +1258,7 @@
         (getf (beat-info self) :next-date) nil)
   (when (get-g-component self :tempo-box) ;; see editor-play-mixin
     (set-value (cadr (om-subviews (get-g-component self :tempo-box))) 
-               (float (tempo-at-beat (editor-get-tempo-automation self) 0))))
+               (float (tempo-automation-tempo-at-beat (editor-get-tempo-automation self) 0))))
   (call-next-method))
 
 

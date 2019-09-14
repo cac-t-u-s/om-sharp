@@ -301,6 +301,7 @@
 
 ;to redefine by each subclass
 (defmethod get-timeline-foldable-views ((self omeditor) &key obj time-ruler)
+  (declare (ignore obj time-ruler))
   (list (om-make-view 'om-timeline-subview :bg-color (om-def-color :gold) :size (omp nil 40))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

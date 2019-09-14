@@ -22,7 +22,7 @@
 
 
 (defmethod* x->dx ((self list))
-  :initvals (list 0 1)
+  :initvals '(0 1)
   :indoc '("a list of numbers")
   :icon 'series
   :doc "Computes a list of intervals from a list of points.
@@ -36,7 +36,7 @@ Ex. (x->dx '(0 1000 1200 2000 5000)) => (1000 200 800 3000)
         collect (- y x)) )
 
 (defmethod* dx->x ((start number) (list list))
-  :initvals (list 0 (list 1 1))
+  :initvals '(0 (1 1))
   :indoc '("a number" "a list of numbers")
   :icon 'series
   :doc "Computes a list of points from a list of intervals and a initial point (<start>)
@@ -55,7 +55,7 @@ Ex. (dx->x 0 '(1000 200 800 3000)) => (0 1000 1200 2000 5000))
 
 
 (defmethod* arithm-ser ((begin number) (end number) (step number) &optional (nummax MOST-POSITIVE-FIXNUM))
-  :initvals (list 0 10 1 MOST-POSITIVE-FIXNUM)
+  :initvals `(0 10 1 ,MOST-POSITIVE-FIXNUM)
   :indoc '("begin" "end " "step" "nummax")
   :icon 'series
   :doc "Arithmetic series: returns a list of numbers from <begin> to <end> with increment of <step>. 
@@ -75,7 +75,7 @@ Ex. (arithm-ser 1 5 0.5) => (1 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0)"
 
 (defmethod* fibo-ser ((seed1 number) (seed2 number) (limit number)
                       &optional  (begin 0) (end MOST-POSITIVE-FIXNUM)) 
-  :initvals (list 0 1 10  0 MOST-POSITIVE-FIXNUM)
+  :initvals `(0 1 10  0 ,MOST-POSITIVE-FIXNUM)
   :indoc '("a number" "a number" "a number" "a number" "a number")
   :icon 'series
   :doc   "Fibonacci series: f(i) = f(i-1) + f(i-2)
@@ -265,7 +265,7 @@ Primes known to the system are the 1230 primes ranging from 1 to 9973."
                         (dist number)
                         (npart number)) 
   :indoc '("begin" "distortion" "number of elements (partials)")
-  :initvals (list 1 1 1)
+  :initvals '(1 1 1)
   :icon 'series
   :doc "Generates a list of <npart> partials from <begin> when partial n = <begin> * n^<dist>"
   (let ((L ()))

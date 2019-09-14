@@ -68,6 +68,7 @@
 
 ;;; text contents
 (defun load-buffer-textfile (listline class edmode &optional (evmode "text"))
+  (declare (ignore class edmode evmode))
   (omng-load 
    `(:object
      (:class textbuffer)
@@ -76,6 +77,7 @@
 ;;; linked to a file
 ;;; !! pathname can be relative ("infile/...")
 (defun load-textfile (pathname class edmode &optional (evmode "text"))
+  (declare (ignore class edmode evmode))
   (omng-load 
    `(:object
      (:class textbuffer)

@@ -51,8 +51,10 @@
 (defmethod display-modes-for-object ((self OMArray)) '(:hidden :text :mini-view))
 
 (defmethod draw-mini-view ((self OMArray) (box t) x y w h &optional time)
-  (let* ((display-cache (ensure-cache-display-draw box self))
-         (font (om-def-font :font1 :size 10))
+
+  (ensure-cache-display-draw box self) ;;; check if this is really needed...
+
+  (let* ((font (om-def-font :font1 :size 10))
          (n-lines (length (data self)))
          (inter-line 1)
          (v-margin 8)
@@ -124,8 +126,7 @@
                (loop for n from 1 to (1- (length field-data)) 
                      by step do
                      ;(if (> step 1) (setf n (min (1- (length field-data)) (+ n (om-random 0 step)))))
-                     (let* ((elt (nth n field-data))
-                            (xx (nth-x-pos n))
+                     (let* ((xx (nth-x-pos n))
                             (val (nth n field-data))
                             (yy (if (zerop y-values-range)
                                     mid-y 
@@ -150,14 +151,13 @@
 
            ;;; NaN
            ((< (length field-data) 200)
-            (loop for elt in field-data
-                  for n = 0 then (+ n 1) do
-                  (let* ((xx (nth-x-pos n))
-                         (val (nth n field-data))
-                         (yy (+ y (* h .5))))
-                    (draw-cross xx mid-y)  
-                    (draw-element-in-array-field val xx yy x-space h)
-                    )))
+            (dotimes (n (length field-data))
+              (let* ((xx (nth-x-pos n))
+                     (val (nth n field-data))
+                     (yy (+ y (* h .5))))
+                (draw-cross xx mid-y)  
+                (draw-element-in-array-field val xx yy x-space h)
+                )))
            
            (t
             (om-draw-string (- (* w 0.5) 40) mid-y "[...(list too long)...]")))
@@ -454,7 +454,10 @@ Data instanciation in a column is done according to the specified number of line
 
 (defmethod get-array-data-from-input ((input bpf) n type)
  (declare (ignore type)) 
- (multiple-value-bind (bpf xx yy) (om-sample input n) yy))
+ (multiple-value-bind (bpf xx yy) 
+     (om-sample input n)
+   (declare (ignore bpf xx))
+   yy))
 
 
 ;;;============================
@@ -600,7 +603,7 @@ Data instanciation in a column is done according to the specified number of line
    :indoc '("component values")
    :doc "Creates a new component filled with <vals>."
    :icon 'array-comp
-   (make-component :val-list vals))
+   (make-component :vals vals))
 
 
 (defmethod* get-comp ((self class-array) (n integer))

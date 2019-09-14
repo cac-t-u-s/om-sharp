@@ -30,9 +30,12 @@
 
 
 (defun update-point-list (ruler)
-  (setf (point-list ruler) (get-beat-grid (tempo-automation ruler) (v1 ruler) (v2 ruler)
-                                          (get-display-beat-factor (tempo-automation ruler) (v1 ruler) (v2 ruler)))))
-
+  (let ((ta (tempo-automation ruler)))
+    (setf (point-list ruler) 
+          (tempo-automation-get-beat-grid ta (v1 ruler) (v2 ruler)
+                                          (tempo-automation-get-display-beat-factor ta (v1 ruler) (v2 ruler)))
+          )
+    ))
 
 (defmethod update-from-tempo ((self metric-ruler))
   (setf (tempo-automation self) 

@@ -118,8 +118,8 @@
 ; => USE time-sequence-insert-timed-item-and-update
 (defmethod time-sequence-insert-timed-item ((self time-sequence) item &optional position)
   "Insert a timed-item into the item-list at pos position" 
-  (let ((list (time-sequence-get-timed-item-list self))
-        (p (or position (length list))))
+  (let* ((list (time-sequence-get-timed-item-list self))
+         (p (or position (length list))))
     
     (time-sequence-set-timed-item-list self 
                           (append (and list (first-n list p))

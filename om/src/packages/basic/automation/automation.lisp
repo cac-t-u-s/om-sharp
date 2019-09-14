@@ -122,6 +122,7 @@
 (defmethod fun ((self automation-point) (obj automation))
   (or (ap-fun self)
       (setf (ap-fun self) (get-function self obj))))
+
 (defmethod (setf fun) (f (self automation-point))
   (setf (ap-fun self) f))
 
@@ -149,7 +150,7 @@
 
 
 (defmethod set-bpf-points ((self automation) &key x y z time time-types)
-  
+  (declare (ignore z time time-types))
   (setf (point-list self)  (make-points-from-lists (or x (x-values-from-points self)) ;  (slot-value self 'x-points))
                                                    (or y (y-values-from-points self)) ;  (slot-value self 'y-points))
                                                    (decimals self)
@@ -187,7 +188,6 @@
 ;;;Draw
 (defmethod draw-mini-view ((self automation) (box t) x y w h &optional time)
   (let* ((points (point-list self))
-         (color (color box))
          (y (+ y 10))
          (h (- h 20))
          (npts 100)
@@ -213,9 +213,9 @@
                                     (+ oy (* fy (start-value pt)))
                                     3 :fill t)                    
                     (let (val lastti) 
-                      (loop for ti from (+ step (start-date pt)) to (end-date pt self)
+                      (loop with prevvi = (start-value pt)
+                            for ti from (+ step (start-date pt)) to (end-date pt self)
                             by step
-                            with prevvi = (start-value pt)
                             do
                             (om-draw-line (+ ox (* fx (- ti step))) 
                                           (+ oy (* fy prevvi))  

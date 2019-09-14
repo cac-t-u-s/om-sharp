@@ -37,9 +37,10 @@
 (defun om-make-bpfpoint (x y &optional type)
   (make-bpfpoint :x x :y y :type type))
 
+;;; necessary ?
 (defmethod make-load-form ((self bpfpoint) &optional env)
   (declare (ignore env))
-  `(make-bpfpoint :x ,(ompoint-x self) :y ,(ompoint-y self) :type ,(bpfpoint-type self)))
+  `(make-bpfpoint :x ,(oa::ompoint-x self) :y ,(oa::ompoint-y self) :type ,(bpfpoint-type self)))
 
 (defmethod om-copy ((self bpfpoint))
   (make-bpfpoint :x (bpfpoint-x self) :y (bpfpoint-y self) :type (bpfpoint-type self)))
@@ -272,7 +273,7 @@
 (defmethod homogenize-collection ((self bpf) list)
   (let* ((maxdecimals (loop for item in list maximize (decimals item))))
     ;;; newlist all at the same (max) precision
-    (loop for bpf in list do 
+    (loop for bpf in list 
           unless (= (decimals bpf) maxdecimals)
           do
           (change-precision bpf maxdecimals))
