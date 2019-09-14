@@ -175,6 +175,8 @@
 ;;; PLAYER CALLS
 ;;;=================================
 
+(defmethod play-obj? ((self t)) nil)
+
 (defmethod editor-play-state ((self play-editor-mixin))
   (player-get-object-state (player self) (get-obj-to-play self)))
 
