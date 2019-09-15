@@ -24,7 +24,10 @@
 ;;;======================================
 
 (defclass* midi-note (data-frame) 
-  (;; (date :accessor date :initarg :date :initform 0 :documentation "date of the note")
+  ((onset :accessor onset :initform 0 
+          :initarg :onset :initarg :date  ;;; two possible initargs (for compatibility)
+          :documentation "date/time of the object")
+
    (pitch :accessor pitch :initarg :pitch :initform 60 :documentation "pitch (MIDI)")
    (vel :accessor vel :initarg :vel :initform 100 :documentation "velocity (0-127)")
    (dur :accessor dur :initarg :dur :initform 500 :documentation "duration(ms)")
@@ -44,7 +47,7 @@
 (defmethod item-set-duration ((self midi-note) dur) (setf (dur self) dur))
 
 (defun make-midinote (&key (onset 0) (pitch 60) (vel 100) (dur 1000) (channel 1))
-  (make-instance 'midi-note :date onset :pitch pitch :vel vel :dur dur :channel channel))
+  (make-instance 'midi-note :onset onset :pitch pitch :vel vel :dur dur :channel channel))
 
 (defmethod data-frame-text-description ((self midi-note))
   (list (format nil "MIDI NOTE (channel ~A)" (channel self))

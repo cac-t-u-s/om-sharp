@@ -21,8 +21,7 @@
 ;;; DIFFERENT KIND OF DATA (FRAMES/BUNDLES)
 ;;;======================================
 (defclass* data-frame (timed-item timed-object)
-  (;; (date :accessor date :initarg :date :initform 0 :documentation "date/time of the frame")
-   (attributes :accessor attributes :initarg :attributes :initform nil :documentation "some additional attributes for drawing etc.")))
+  ((attributes :accessor attributes :initarg :attributes :initform nil :documentation "some additional attributes for drawing etc.")))
 
 ;;; COMPAT: REPLACE THE CALLS WITH ONSET
 (defmethod date ((self data-frame)) (onset self))
