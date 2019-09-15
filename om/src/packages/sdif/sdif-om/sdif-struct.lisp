@@ -163,7 +163,9 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
    (setf (slot-value self 'onset) (sec->ms (ftime self))))
 
 ;;; the onset from data-frame/timed-object is computed from ftime
-(defmethod onset ((self SDIFFrame)) (sec->ms (ftime self)))
+(defmethod onset ((self SDIFFrame)) 
+  (sec->ms (ftime self)))
+
 (defmethod (setf onset) (date (self SDIFFrame)) 
   (call-next-method)
   (setf (ftime self) (ms->sec date)))

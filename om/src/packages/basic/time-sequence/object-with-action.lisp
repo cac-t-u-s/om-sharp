@@ -41,7 +41,7 @@
         ((equal action :internal-lambda) 
          (setf (action self) action)
          ;;; here we can do nothing more but hope there is a good lambda in action-fun
-         (unless (functionp (action-fun self)) (om-beep-msg "Problem with internal lambda: Need to reload the action NEED TO RELOAD THE ACTION !!")))
+         (unless (functionp (action-fun self)) (om-beep-msg "Problem with internal lambda: NEED TO RELOAD THE ACTION !!")))
         (action (om-beep-msg "Unrecognized action: ~A" action))))
   
 (defmethod om-init-instance :around ((self object-with-action) &optional initargs)
