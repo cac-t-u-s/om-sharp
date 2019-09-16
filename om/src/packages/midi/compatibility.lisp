@@ -22,8 +22,4 @@
 (defmethod update-reference ((ref (eql 'midifile))) 'piano-roll)
 
 (defun load-midi (path)
-  (omng-load 
-   `(:object
-     (:class piano-roll)
-     (:slots ((:notes ,(omng-save (import-midi-notes path))))))))
-
+  (objfromobjs path (make-instance 'piano-roll)))
