@@ -189,9 +189,7 @@
 (defmethod om-motion-callback ((self om-interactive-object) x y modifiers)
   (set-meta-keys modifiers)
   (handle-tooltips-in-motion self (om-make-point x y))
-  ;(print "==============") (print self)
-  (apply-in-subview self 'internal-motion-callback (om-make-point x y))
-  )
+  (apply-in-subview self 'internal-motion-callback (om-make-point x y)))
 
 ;; CF. CURSOR.LISP
 (defmethod update-view-cursor ((self t) pos) nil)

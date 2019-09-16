@@ -317,11 +317,13 @@
 
 (defmethod om-click-motion-handler ((self OMBoxFrame) pos)
   (if *resize-handler*
-      (progn (resize-handle *resize-handler* (om-view-container self) self pos)
+      (progn 
+        (resize-handle *resize-handler* (om-view-container self) self pos)
         (mapcar 'update-points (get-box-connections (object self)))
-        (redraw-connections self))
-        ;;; drag and drop
-  (call-next-method)))
+        (redraw-connections self)
+        )
+    ;;; drag and drop
+    (call-next-method)))
 
 
 ;;;=============================
@@ -612,7 +614,8 @@
              (om-draw-string (max 2 x)
                              (+ y th)
                              text 
-                             :selected nil :wrap (- (w self) 10)
+                             :selected nil 
+                             :wrap (- (w self) 10)
                              ;:align (box-draw-text-align box) ;; handled by display-text-and-area
                              )
              ))))))
@@ -631,8 +634,7 @@
 
 (defmethod boxframe-draw-contents ((self OMBoxFrame) (box OMBoxCall))
   (call-next-method)
-  (draw-eval-buttons self box 0 4 0 (- (h self) 15))
-  )
+  (draw-eval-buttons self box 0 4 0 (- (h self) 15)))
 
 (defmethod draw-eval-buttons ((self OMFrame) (box OMBoxCall) x-lock y-lock x-lambda y-lambda)
   ;;; lambda button

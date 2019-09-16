@@ -326,6 +326,9 @@
 (defmethod om-click-motion-handler :after ((self om-graphic-object) pos)
   (handle-temp-graphics-motion self pos))
 
+;(defmethod om-click-motion-handler :after ((self om-graphic-object) pos) nil)
+
+
 (defmethod om-click-release-handler :after ((self om-graphic-object) pos)
   (handle-temp-graphics-release self pos))
 
