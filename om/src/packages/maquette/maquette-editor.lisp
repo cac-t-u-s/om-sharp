@@ -177,19 +177,23 @@
     (om-set-view-size frame 
                       (om-max-point
                        (om-make-point 10 20)
-                       (resize-frame-size self frame pp)))))
+                       (resize-frame-size self frame pp)))
+    ))
+
+(defmethod update-temporalbox ((self maquette-view) frame)
+  (let* ((box (object frame))
+         (x (x-to-pix self (box-x box)))
+         (y (y-to-pix self (box-y box)))
+         (w (if (scale-in-x-? box) (max 20 (omg-w self (box-w box))) (box-w box)))
+         (h (if (scale-in-y-? box) (max 24 (omg-h self (box-h box))) (box-h box))))
+    (om-set-view-position frame (om-point-set (om-view-position frame) :x x :y y))
+    (om-set-view-size frame (om-point-set (om-view-size frame) :x w :y h))
+    (redraw-connections frame)
+    ))
 
 (defmethod update-temporalboxes ((self maquette-view))
   (loop for sv in (get-boxframes self) do
-        (let* ((box (object sv))
-               (x (x-to-pix self (box-x box)))
-               (y (y-to-pix self (box-y box)))
-               (w (if (scale-in-x-? box) (max 20 (omg-w self (box-w box))) (box-w box)))
-               (h (if (scale-in-y-? box) (max 24 (omg-h self (box-h box))) (box-h box))))
-          (om-set-view-position sv (om-point-set (om-view-position sv) :x x :y y))
-          (om-set-view-size sv (om-point-set (om-view-size sv) :x w :y h))
-          (redraw-connections sv)
-          )))
+        (update-temporalbox self sv)))
 
 (defmethod update-view-from-ruler ((self x-ruler-view) (view maquette-view))
   (call-next-method)
@@ -417,6 +421,7 @@
         (let ((box (new-box-in-maq-editor editor (omp time 0) (num self))))
           (setf (frame box) self)
           (om-set-view-cursor self (om-get-cursor :h-size))
+          (set-box-duration box nil) ;;; will set a default duration
           (om-init-temp-graphics-motion 
            self position nil
            :motion #'(lambda (view pos)

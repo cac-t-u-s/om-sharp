@@ -32,7 +32,6 @@
     (lock (object ed))))
 
 
-
 (defclass patch-editor-window (OMEditorWindow) ())
 (defclass patch-editor-view (OMEditorView om-drop-view om-tt-view multi-view-editor-view) 
   ((dragged-views :initform nil :accessor dragged-views)))
@@ -84,6 +83,7 @@
     
     (let ((frame (make-frame-from-callobj box)))
       (omg-add-element view frame)
+      (contextual-update box (container box))
       (select-box box t)
       frame)
  
