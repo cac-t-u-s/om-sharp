@@ -732,8 +732,18 @@
 (defmethod make-new-box-with-instance ((instance standard-object) pos)
   (let ((box (omng-make-new-boxcall (class-of instance) pos instance)))
     (when box
-      (display box) :mini-view)
+      (setf (display box) :mini-view))
     box))
+
+
+(defmethod make-new-box-with-instance ((instance list) pos)
+  (let ((box (omng-make-new-boxcall (find-class 'collection) pos)))
+    (when box
+      (setf (obj-list (get-box-value box)) instance)
+      (setf (display box) :text)
+      )
+    box))
+
 
 (defmethod make-new-box-with-instance ((instance t) pos)
   (omng-make-new-boxcall 'value pos instance))
