@@ -96,7 +96,7 @@
                   (selection self))))
     
     (loop for n in notes
-          do (setf (dur n) (max 0 (round (+ (dur n) delta)))))
+          do (setf (dur n) (max (abs delta) (round (+ (dur n) delta)))))
     ))
 
 

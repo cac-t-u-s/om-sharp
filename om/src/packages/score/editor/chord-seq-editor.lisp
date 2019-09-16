@@ -73,7 +73,7 @@
   (om-make-view (left-score-view-class editor) :size (omp (* 2 (editor-get-edit-param editor :font-size)) nil)
                 :direct-draw t 
                 :bg-color (om-def-color :white) 
-                :scrollbars nil
+                :scrollbars t
                 :editor editor
                 :margin-l 1 :margin-r nil :keys t :contents nil
                 ))
@@ -208,7 +208,7 @@
   (when (editor-get-edit-param self :duration-display)
     (let ((notes (loop for item in (selection self) append (get-notes item))))
       (loop for n in notes
-            do (setf (dur n) (max 0 (round (+ (dur n) delta)))))
+            do (setf (dur n) (max (abs delta) (round (+ (dur n) delta)))))
       (time-sequence-update-obj-dur (object-value self))
       )))
 
