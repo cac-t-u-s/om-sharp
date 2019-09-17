@@ -40,6 +40,13 @@
   (setf (ctrlpatch self) patch)
   (setf (references-to (ctrlpatch self)) (list self)))
 
+
+(defparameter *maquette-help-text*
+  "This patch is a general controller for the maquette...
+
+Additional inputs/outputs are accesses on the maquette box.
+")
+
 (defmethod initialize-instance :after ((self OMMaquette) &rest args)
   ;;;--put this somewhere else ??
   (set-object-autostop self nil)
@@ -47,11 +54,16 @@
   (unless (ctrlpatch self)
     (let* ((patch (make-instance 'OMMaqControlPatch :name "Control Patch"))
            (inbox (omng-make-special-box 'mymaquette (omp 150 12)))
-           (comment (omng-make-new-comment "This patch is a general controller for the maquette..." (omp 10 40))))
+           (outbox (omng-make-special-box 'out (omp 150 200)))
+           (connection (omng-make-new-connection (car (outputs inbox)) (car (inputs outbox))))
+           (comment (omng-make-new-comment *maquette-help-text* (omp 10 40))))
       (setf (index (reference inbox)) 0
             (defval (reference inbox)) self)
       (omng-add-element patch inbox)
-      (omng-resize comment (omp 120 45))
+      (omng-add-element patch outbox)
+      (omng-connect connection)
+      (omng-add-element patch connection)
+      (omng-resize comment (omp 120 120))
       (omng-add-element patch comment)
       (set-control-patch self patch)
       ))
