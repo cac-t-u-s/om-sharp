@@ -261,8 +261,8 @@
                                 (sleep .5)
                                 (om-abort))))))
 
-    ;(print (list (lock-state self) (lambda-state self) (ev-once-flag self)))
-
+    ;(print (list self (lock-state self) (lambda-state self) (ev-once-flag self)))
+    
     (cond
      
      ((equal (lambda-state self) :reference) (box-reference-value self))
@@ -287,7 +287,6 @@
      (t 
       (setf (eval-flag self) t)
       (om-invalidate-view (frame self))
-      
       (let ((new-val 
              (cond ((equal (lambda-state self) :lambda) 
                     (multiple-value-list (box-lambda-value self)))
@@ -295,14 +294,15 @@
                    ;;; general case here:
                    (t (multiple-value-list (boxcall-value self)))
                    )))
-          (when (or (equal (lock-state self) :eval-once)
-                    (get-pref-value :general :auto-ev-once-mode))
-            ;;; first evaluation in this generation: set the value and flag
-            (setf (ev-once-flag self) (get-ev-once-flag *ev-once-context*)))
+        
+        (when (or (equal (lock-state self) :eval-once)
+                  (get-pref-value :general :auto-ev-once-mode))
+          ;;; first evaluation in this generation: set the value and flag
+          (setf (ev-once-flag self) (get-ev-once-flag *ev-once-context*)))
 
-          (set-value self new-val)
-          (setf (eval-flag self) nil)
-          (return-value self numout)))
+        (set-value self new-val)
+        (setf (eval-flag self) nil)
+        (return-value self numout)))
      )))
 
 
