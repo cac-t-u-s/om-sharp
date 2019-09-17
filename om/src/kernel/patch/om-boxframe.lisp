@@ -801,7 +801,13 @@
                                            (om-point-mv (om-add-points (om-view-position frame) pos) :x -4 :y -5))
                                )))
     (om-add-subviews container-view textinput)
-    (om-set-text-focus textinput (if multi-line nil t))))
+    ;;; if this is a multi-line, enter will erase the selected text and replace by a new line
+    (om-set-text-focus 
+     textinput 
+     (if (and multi-line (> (length (om-text-to-lines edittext)) 1)) 
+         nil
+       t))
+    ))
     
 
 ;;;=============================
