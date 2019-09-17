@@ -12,29 +12,21 @@
 ;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 ;
 ;============================================================================
-; File author: J. Bresson
+; File authors: J. Bresson
 ;============================================================================
 
+(in-package :om)
 
-(in-package :om)                
+(defclass OMBoxMaquette (OMBoxPatch) ())
 
+(defmethod special-box-p ((name (eql 'maquette))) t)
 
-(mapc #'(lambda (filename) 
-          (compile&load (decode-local-path filename))) 
-      
-      '("maquette-object"
-        "metronome"
-        "metric-ruler"
-        "maquette-editor"
-        "maquette-api"
-        "maquette-meta"
-        "maquette-box"
-        ))
+(defmethod get-box-class ((self OMMaquette)) 'OMBoxMaquette)
 
-
-(omNG-make-package "Maquette/Meta" 
-	:container-pack *om-package-tree*
-	:doc "Visual program / maquette manipulation"
-    :functions '(get-boxes m-add m-remove m-move m-objects m-flush)
-    :special-symbols '(mybox mymaquette)
-    )
+(defmethod omNG-make-special-box ((reference (eql 'maquette)) pos &optional init-args)
+  (omNG-make-new-boxcall 
+   (make-instance 'OMMaquetteInternal
+                  :name (if init-args (format nil "~A" (car (list! init-args))) "new-maquette"))
+   pos 
+   init-args ;; don't need to pass them in principle..
+   ))

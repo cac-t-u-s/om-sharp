@@ -33,11 +33,13 @@
   (:metaclass omstandardclass))
 
 (defclass OMMaquetteFile (OMPersistantObject OMMaquette) ()
+  (:default-initargs :icon :maq-file)
   (:metaclass omstandardclass))
 
 (add-om-doctype :maquette "omaq" "OM7 Maquette")
 
 (defclass OMMaquetteInternal (OMMaquette) ()
+  (:default-initargs :icon :maq)
   (:metaclass omstandardclass))
 
 ; (class-precedence-list (find-class 'ommaquettefile))
@@ -133,7 +135,7 @@
 ;;; NOT GOOD !!! NEED TO EVAL JUST TERMINAL BOXES  
 (defmethod eval-maquette ((maq OMMaquette))
   (loop for box in (get-all-boxes maq)
-        ;when (not (all-reactive-p box))
+        when (not (find-if #'connections (outputs box)))
         do
         (progn
           (eval-box box)
@@ -144,6 +146,7 @@
   (mapcar 'eval-box (get-boxes-of-type (ctrlpatch maq) 'omoutbox))
   
   (clear-ev-once maq)
+  (clear-ev-once (ctrlpatch maq))
   ;(compile-patch (ctrlpatch maq))
   ;(apply (intern (string (compiled-fun-name (ctrlpatch maq))) :om) `(,maq))
   )
