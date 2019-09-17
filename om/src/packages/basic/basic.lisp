@@ -29,7 +29,6 @@
         "functions/interpolations" 
         
         "time-sequence/object-with-action"
-
         "time-sequence/time-sequence"
         "time-sequence/timeline-editor"
 
@@ -43,19 +42,13 @@
         "text/textfile"
         
         "automation/automation"
-        "automation/automation-editor"
         "automation/tempo-automation"
+        "automation/automation-editor"
         
         "containers/2d-array"
+        
         "containers/data-stream"
         "containers/data-stream-editor"
-        
-;    "classes;splines"  
-;    "classes;array" 
-;    "classes;picture"    
-;    "classes;omgraphics"
-;    "functions;file"
-;    "classes;time-array" 
         
         "compatibility"
         "basic-pack"

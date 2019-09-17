@@ -76,8 +76,8 @@ POLY: each voice is concatenated, regardless of the global duration.
 
     (time-sequence-set-timed-item-list cs (append (get-chords s1) (get-chords s2)))
     (time-sequence-set-times cs (append (time-sequence-get-times s1)
-                                               (om+ (time-sequence-get-times s2) 
-                                                    (or s2-offset (object-dur s1)))))
+                                        (om+ (time-sequence-get-times s2)
+                                             (or s2-offset (object-dur s1)))))
     (time-sequence-update-obj-dur cs)
     cs))
 
@@ -195,6 +195,8 @@ when :
              collect (let ((c (om-copy chord)))
                        (setf (onset c) (- (onset chord) start))
                        c)))
+      
+      (time-sequence-update-obj-dur rep)
 
       rep)
     ))
@@ -208,4 +210,65 @@ when :
 ;--------------------
 ;  MASK
 ;--------------------
+
+
+
+
+
+
+
+;--------------------
+;  SPLIT
+;--------------------
+
+;;; by Gilbert Nouno
+(defmethod* split-voices ((self chord-seq) &optional (random nil))
+  :indoc '("a 'polyphonic' chord-seq" "random distribution strategy?")
+  :initvals '(nil nil)
+  :doc "Separates a CHORD-SEQ with overlapping notes into a list of monoponic CHORD-SEQs
+
+If <random> = T, voice distribution is chosen randomly. Otherwise the first available voice is selected."
+  :icon :score
+  
+  (let ((chords-lists nil))
+    
+    (loop for chord in (get-chords self)
+          for time in (lonset self)
+          for i = 0 then (1+ i) do
+          
+          (let ((position nil) 
+                (list-indices (arithm-ser 0 (1- (length chords-lists)) 1)))
+            (if random (setf list-indices (permut-random list-indices)))
+            (loop for n in list-indices
+                  while (not position) do 
+                  (let ((voice? (nth n chords-lists)))
+                    (when (> time (+ (car (car voice?)) (list-max (ldur (cadr (car voice?))))))
+                      (setf (nth n chords-lists) (cons (list time chord) (nth n chords-lists)))
+                      ;(setf voice? (cons (list time chord) voice?))
+                      (setf position t))))
+            
+            (unless position
+              (setf chords-lists
+                    (append chords-lists (list (list (list time chord))))))
+              
+            ))
+
+    ;;; chords-list =  
+    ;;; (((onset1 chord1) (onset2 chord2) ...)
+    ;;;  ((onset1 chord1) (onset2 chord2) ...)
+    ;;;  ...[n times]... )
+
+    (loop for list in chords-lists collect
+          (let ((chords (reverse (mapcar 'cadr list)))
+                (onsets (reverse (mapcar 'car list))))
+            (make-instance 'chord-seq
+                           :lonset onsets
+                           :lmidic (mapcar 'lmidic chords)
+                           :ldur (mapcar 'ldur chords)
+                           :lvel (mapcar 'lvel chords)
+                           :lchan (mapcar 'lchan chords))))
+    )
+ 
+)
+
 

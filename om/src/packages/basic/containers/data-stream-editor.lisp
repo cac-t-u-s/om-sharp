@@ -161,8 +161,6 @@
                                          )))
                      
     (set-g-component editor :x-ruler (make-time-ruler editor ed-dur))
-    
-    
     (set-g-component editor :main-panel (car (get-g-component editor :data-panel-list)))
     
     (when (timeline-editor editor)
@@ -332,25 +330,24 @@
 (defmethod draw ((frame data-frame) x y w h selected) nil)
 
 (defmethod draw-data-frame ((frame data-frame) editor i &optional (active t))
-  (let* ((panel (active-panel editor)))
-    (multiple-value-bind (x y w h)
-        (get-frame-area frame editor)
-      (om-with-fg-color (get-frame-color frame)
-        (or (draw frame x y w h (and active (find i (selection editor))))
-            (case (editor-get-edit-param editor :display-mode) 
-              (:bubbles
-               (om-draw-circle (+ x (round w 2)) (+ y (round h 2)) (round h 2) :fill t)
-               (when (and active (find i (selection editor)))
-                 (om-draw-circle (+ x (round w 2)) (+ y (round h 2)) (round h 2) :fill t
-                                 :color (om-make-color .5 .5 .5 .5)))
-               )
-              (otherwise 
-               (om-draw-rect x y w h :fill t)
-               (when (and active (find i (selection editor)))
-                 (om-draw-rect x y w h :fill t
-                               :color (om-make-color .5 .5 .5 .5))))
-              ))
-        ))))
+  (multiple-value-bind (x y w h)
+      (get-frame-area frame editor)
+    (om-with-fg-color (get-frame-color frame)
+      (or (draw frame x y w h (and active (find i (selection editor))))
+          (case (editor-get-edit-param editor :display-mode) 
+            (:bubbles
+             (om-draw-circle (+ x (round w 2)) (+ y (round h 2)) (round h 2) :fill t)
+             (when (and active (find i (selection editor)))
+               (om-draw-circle (+ x (round w 2)) (+ y (round h 2)) (round h 2) :fill t
+                               :color (om-make-color .5 .5 .5 .5)))
+             )
+            (otherwise 
+             (om-draw-rect x y w h :fill t)
+             (when (and active (find i (selection editor)))
+               (om-draw-rect x y w h :fill t
+                             :color (om-make-color .5 .5 .5 .5))))
+            ))
+      )))
 
 (defmethod frame-at-pos ((editor data-stream-editor) position)
   (let ((frames (data-stream-get-frames (object-value editor))))
@@ -417,6 +414,7 @@
   )
 
 (defmethod move-editor-selection ((self data-stream-editor) &key (dx 0) (dy 0))
+  (declare (ignore dy)) ;; in a basic data-frame -- subclasses can do it !
   (loop for fp in (selection self) do
         (let ((frame (nth fp (data-stream-get-frames (object-value self)))))
           ;(setf (date frame) (max 0 (+ (date frame) dx)))
@@ -424,6 +422,7 @@
           )))
 
 (defmethod resize-editor-selection ((self data-stream-editor) &key (dx 0) (dy 0))
+  (declare (ignore dy)) ;; in a basic data-frame -- subclasses can do it !
   (loop for fp in (selection self) do
         (let ((frame (nth fp (data-stream-get-frames (object-value self)))))
           (item-set-duration frame (max 0 (round (+ (item-get-duration frame) dx))))
@@ -530,12 +529,14 @@
                   (om-init-temp-graphics-motion 
                    self position nil
                    :motion #'(lambda (view pos)
+                               (declare (ignore view))
                                (let ((dx (dpix-to-dx self (- (om-point-x pos) (om-point-x p0)))))
                                  (when (> (- (om-point-x pos) (x-to-pix self (item-get-time selected-frame))) 10)
                                    (resize-editor-selection editor :dx (round dx))
                                    (setf p0 pos)
                                    (om-invalidate-view self))))
                    :release #'(lambda (view pos) 
+                                (declare (ignore view pos))
                                 (report-modifications editor) 
                                 (om-invalidate-view self))
                    :min-move 4)
@@ -544,6 +545,7 @@
                 (om-init-temp-graphics-motion 
                  self position nil
                  :motion #'(lambda (view pos)
+                             (declare (ignore view))
                              (let ((dx (dpix-to-dx self (- (om-point-x pos) (om-point-x p0))))
                                    (dy (dpix-to-dy self (- (om-point-y pos) (om-point-y p0)))))
                                (move-editor-selection editor :dx dx :dy dy)
@@ -553,6 +555,7 @@
                                (om-invalidate-view self)
                                ))
                  :release #'(lambda (view pos) 
+                              (declare (ignore view pos))
                               (editor-sort-frames editor)
                               (move-editor-selection editor :dy :round)
                               (time-sequence-reorder-timed-item-list (object-value editor))
@@ -569,6 +572,7 @@
              (om-make-graphic-object 'selection-rectangle :position position :size (om-make-point 4 4))
              :min-move 10
              :release #'(lambda (view position)
+                          (declare (ignore view))
                           (setf (selection editor) (frames-in-area editor p0 position))
                           (update-timeline-editor editor)
                           (om-invalidate-view self))
@@ -625,7 +629,6 @@
       )))
 
 
-
 ;;;==================================
 ;;; TURN PAGES / FOLLOW PLAY POSITION
 ;;;==================================
@@ -636,6 +639,7 @@
   (let* ((panel (get-g-component editor :main-panel))
          (x-ruler (get-g-component editor :x-ruler))
          (x-range (round (- (x2 panel) (x1 panel)))))
+    
     (cond ((> time (x2 panel))
            (set-ruler-range x-ruler (+ (v1 x-ruler) x-range) (+ (v2 x-ruler) x-range)))
           ((< time (x1 panel))
@@ -660,6 +664,9 @@
 
 
 (defmethod move-rulers ((self stream-panel) &key (dx 0) (dy 0))
+
+  (declare (ignore dy)) ;; no y-ruler
+ 
   (let* ((rx (get-g-component (editor self) :x-ruler))
          (dxx (* (/ dx (w rx)) (- (v2 rx) (v1 rx)))))
     (unless (or (and (plusp dxx) (vmin rx) (= (vmin rx) (v1 rx))) 
@@ -673,19 +680,18 @@
 ;;; no y-ruler : zoom just in x
 (defmethod zoom-rulers ((panel stream-panel) &key (dx 0.1) (dy 0.1) center)
   
+  (declare (ignore dy)) ;; no y-ruler
+
   (let ((x-ruler (get-g-component (editor panel) :x-ruler)))
     
     (when (and x-ruler (ruler-zoom-? x-ruler))
     
       (let* ((position (or center (omp (* (w panel) .5) (* (h panel) .5))))
              (x-pos (pix-to-x panel (om-point-x position)))
-             (y-pos (pix-to-y panel (om-point-y position)))
              (curr-w (- (x2 panel) (x1 panel)))
-             (curr-h (- (y2 panel) (y1 panel)))
              (new-w (round (* curr-w (1+ dx))))
-             (new-h (round (* curr-h (1+ dy))))
              (new-x1 (round (- x-pos (/ (* (- x-pos (x1 panel)) new-w) curr-w))))
-             (new-y1 (round (- y-pos (/ (* (- y-pos (y1 panel)) new-h) curr-h)))))
+             )
         
         (set-ruler-range x-ruler new-x1 (+ new-x1 new-w))
         

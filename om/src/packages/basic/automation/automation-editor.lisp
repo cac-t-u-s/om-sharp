@@ -104,6 +104,7 @@
         (om-init-temp-graphics-motion 
          self position nil
          :motion #'(lambda (view position)
+                     (declare (ignore view))
                      (let ((pos (position (pix-to-x self (om-point-x p0)) (point-list obj) :test '<= :key 'ap-x))
                            (val (float (/ (om-point-y position) (h self)))))
                        (when (and pos (> pos 0) (<= pos (length (point-list obj))))
@@ -133,15 +134,14 @@
    
 
 (defmethod editor-key-action ((editor automation-editor) key)
-  (let ((panel (get-g-component editor :main-panel)))
-    (case key
+  (case key
       (#\= (egalise-points editor)
            (editor-invalidate-views editor)
            (report-modifications editor))
       (#\b (lock-selection editor)
            (editor-invalidate-views editor)) 
       (otherwise (call-next-method))
-      )))
+      ))
 
 
 (defmethod draw-one-bpf ((obj automation) view editor foreground? &optional x1 x2 y1 y2) 

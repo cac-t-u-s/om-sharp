@@ -60,8 +60,8 @@
 (defmethod box-draw-font ((box OMComment)) 
   (if (font-? (text-font box))
       (let ((font (font-font (text-font box))))
-        #+macos font 
-        #-macos (om-make-font (om-font-face font) (* (om-font-size font) .75) :style (om-font-style font))
+        #+macosx font 
+        #-macosx (om-make-font (om-font-face font) (* (om-font-size font) .75) :style (om-font-style font))
         )
     (get-pref-value :appearance :comment-font)))
 

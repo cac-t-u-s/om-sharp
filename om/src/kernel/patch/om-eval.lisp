@@ -306,6 +306,10 @@
      )))
 
 
+;;; redundant / cleanup other calls to contextual updates ?
+;;(defmethod omNG-box-value :after ((self OMBoxPatch) &optional (numout 0))
+;;  (contextual-update self (container self)))
+
 (defmethod new-value-action ((self OMBoxCall)) nil)
  
 (defmethod return-value ((self OMBoxCall) &optional (numout 0))

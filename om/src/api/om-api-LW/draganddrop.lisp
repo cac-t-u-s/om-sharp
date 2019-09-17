@@ -198,14 +198,11 @@
         )
        ))
 
-(defmethod om-click-motion-handler :after ((self om-drag-view) pos)
+(defmethod om-click-motion-handler :after ((self om-drag-view) pos) 
   (setf (om-drag-view-cursor-pos self) (om-point-mv pos :y -1))
   (internal-drag-start self pos))
 
 ;(defmethod om-view-click-handler :after ((self om-drag-view) pos) nil)
-;  (setf (om-drag-view-cursor-pos self) (om-point-mv pos :y -1))
-;  (internal-drag-start self pos)
-;  )
 
 (defvar *last-pinboard-under-mouse* nil)
 

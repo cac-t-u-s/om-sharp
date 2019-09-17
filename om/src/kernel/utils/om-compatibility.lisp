@@ -412,19 +412,29 @@
                                     reference 
                                     (find-value-in-kv-list (cdr formatted-in) :name))))
                          
-                         (cond ((and (find-class reference nil)
-                                     (find name (mapcar #'symbol-name (additional-class-attributes val))
-                                           :test #'string-equal))  ;;; if the input has become a keywork input
-                                `(:input 
-                                  (:type :key) 
-                                  (:name ,name) 
-                                  (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
-                              
-                               (t `(:input 
-                                    (:type ,(find-value-in-kv-list (cdr formatted-in) :type))
-                                    (:name ,name) 
-                                    (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
-                               )))))
+                         (cond 
+                          
+                          ((and (find-class reference nil)
+                                (string-equal name "self")
+                                (box-def-self-in reference))  ;;; this box has a special defval for "self"
+                           `(:input 
+                             (:type :standard) 
+                             (:name ,name) 
+                             (:value ,(box-def-self-in reference))))
+                          
+                          ((and (find-class reference nil)
+                                (find name (mapcar #'symbol-name (additional-class-attributes val))
+                                      :test #'string-equal))  ;;; if the input has become a keywork input
+                           `(:input 
+                             (:type :key) 
+                             (:name ,name) 
+                             (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
+                          
+                          (t `(:input 
+                               (:type ,(find-value-in-kv-list (cdr formatted-in) :type))
+                               (:name ,name) 
+                               (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
+                          )))))
     
   ;;; when a class has changed into something else...
   (when (update-reference reference) 

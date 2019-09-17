@@ -22,11 +22,6 @@
 (in-package :om)
 
 
-
-;;;============ 
-;;; BOX
-;;;============
-
 (defclass ScoreBox (OMBoxEditCall) 
   ((fontsize :accessor fontsize :initform 18)))
 
@@ -67,15 +62,19 @@
     ))
 
 
-;;; all objects (except voice) on a box
+;;; all objects (except voice/poly) on a box
 (defmethod miniview-time-to-pixel ((object score-object) box (view omobjectboxframe) time) 
   (miniview-time-to-pixel-proportional object box view time))
 
 ;;; voice on a box
 (defmethod miniview-time-to-pixel ((object voice) box (view omobjectboxframe) time)
   (miniview-time-to-pixel-rhythmic object box view time))
+
 (defmethod miniview-time-to-pixel ((object poly) box (view omobjectboxframe) time)
   (miniview-time-to-pixel-rhythmic object box view time))
+
+(defmethod miniview-time-to-pixel ((object multi-seq) box (view omobjectboxframe) time)
+  (miniview-time-to-pixel-proportional object box view time))
 
 
 ;;; an objects in the maquette tracks...
@@ -83,9 +82,6 @@
   (- (time-to-pixel view (+ (box-x box) time)) 
      (time-to-pixel view (box-x box))
      ))
-
-
-
 
 (defun score-mini-view-left-shift-in-units (box)
   (if (or (equal (get-edit-param box :staff) :line)
@@ -192,7 +188,7 @@
                       y-pix 
                       w h
                       font-size :scale nil :staff staff
-                      :time-function #'(lambda (time) (miniview-time-to-pixel self box (frame box) time))
+                      :time-function #'(lambda (time) (miniview-time-to-pixel (get-box-value box) box (frame box) time))
                       )
           )))
 
@@ -218,7 +214,7 @@
     (draw-staff x-pix y-pix shift-y w h font-size staff 
                 :margin-l 0 :margin-r 0 :keys (not in-sequencer?))
     
-    (draw-tempo self (+ x-pix 4) (+ shift-y 2.5) font-size) 
+    (draw-tempo self (+ x-pix 4) (+ y-pix (* unit (+ shift-y 2))) font-size)
 
     (loop with on-screen = t 
           with prev-signature = nil
@@ -226,7 +222,9 @@
           for i from 1
           while on-screen
           do 
-          (setf on-screen (< (miniview-time-to-pixel self box frame (beat-to-time (symbolic-date m) (tempo self))) max-w))
+          (setf on-screen (< (miniview-time-to-pixel (get-box-value box) box frame 
+                                                     (beat-to-time (symbolic-date m) (tempo self)))
+                             max-w))
           ;;; we draw the measure if it begins on-screen...
           (when on-screen
             (draw-measure m (tempo self) box (frame box) 
@@ -237,8 +235,9 @@
                           :x-shift shift-x
                           :y-shift (+ shift-y y-u) 
                           :font-size font-size 
-                          :time-function #'(lambda (time) (miniview-time-to-pixel self box frame time))
+                          :time-function #'(lambda (time) (miniview-time-to-pixel (get-box-value box) box frame time))
                           ))
+          
           ;;; if the end is off-screen we notify it with a little gray area at the end
           (when (> (time-to-pixel frame (beat-to-time (+ (symbolic-date m) (symbolic-dur m)) (tempo self))) max-w)
             (om-draw-rect (- (w frame) 20) 0 20 (h frame) :fill t :color (om-make-color .8 .8 .8 .5))
@@ -251,8 +250,10 @@
 ;;;===========================
 ;;; POLY
 ;;;===========================
+
 (defmethod score-object-mini-view ((self multi-seq) box x-pix y-pix y-u w h)
-  (let ((voice-h (if (obj-list self) (/ h (num-voices self)) h)))
+  (let ((voice-h (if (obj-list self) (/ h (num-voices self)) h))
+        (max-dur (loop for o in (obj-list self) maximize (get-obj-dur o))))
     (loop for voice in (obj-list self)
           for i from 0 do
           (score-object-mini-view voice box x-pix (+ y-pix (* i voice-h)) 0 w voice-h))

@@ -124,7 +124,7 @@
 
 ;;; used for display etc.
 (defmethod get-obj-dur ((self collection))
-  (apply #'max (remove nil (mapcar #'get-obj-dur (obj-list self)))))
+  (apply #'max (or (remove nil (mapcar #'get-obj-dur (obj-list self))) '(0))))
 
 ;;;===========================
 ;;; EDITOR

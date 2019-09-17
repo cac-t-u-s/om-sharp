@@ -24,7 +24,10 @@
 ;;;======================================
 
 (defclass* midi-note (data-frame) 
-  (;; (date :accessor date :initarg :date :initform 0 :documentation "date of the note")
+  ((onset :accessor onset :initform 0 
+          :initarg :onset :initarg :date  ;;; two possible initargs (for compatibility)
+          :documentation "date/time of the object")
+
    (pitch :accessor pitch :initarg :pitch :initform 60 :documentation "pitch (MIDI)")
    (vel :accessor vel :initarg :vel :initform 100 :documentation "velocity (0-127)")
    (dur :accessor dur :initarg :dur :initform 500 :documentation "duration(ms)")
@@ -44,7 +47,7 @@
 (defmethod item-set-duration ((self midi-note) dur) (setf (dur self) dur))
 
 (defun make-midinote (&key (onset 0) (pitch 60) (vel 100) (dur 1000) (channel 1))
-  (make-instance 'midi-note :date onset :pitch pitch :vel vel :dur dur :channel channel))
+  (make-instance 'midi-note :onset onset :pitch pitch :vel vel :dur dur :channel channel))
 
 (defmethod data-frame-text-description ((self midi-note))
   (list (format nil "MIDI NOTE (channel ~A)" (channel self))
@@ -75,6 +78,7 @@
 (defun import-midi-events (&optional file)
   (multiple-value-bind (evt-lists ntracks unit format)
       (om-midi::midi-import file)
+    (declare (ignore ntracks format))
     (when evt-lists
       (midievents-to-milliseconds (sort (flat evt-lists) '< :key 'om-midi::midi-evt-date) unit))
       ))
@@ -119,7 +123,7 @@
   (let ((rep nil)
         (cur-tempo *midi-init-tempo*)
         (tempo-change-abst-time 0)
-        (tempo-change-log-time 0) date 
+        (tempo-change-log-time 0) 
         (initdate (om-midi::midi-evt-date (car evtseq))))
     
     (loop for event in evtseq do
@@ -195,20 +199,17 @@
   ((midi-notes :accessor midi-notes :initarg :midi-notes :initform '() :documentation "a list of midi-note"))
   (:default-initargs :default-frame-type 'midi-note))
 
-(defmethod (setf midi-notes) (notes (self piano-roll))
-  (setf (slot-value self 'midi-notes) (sort notes '< :key 'midinote-onset)))
-
 (defmethod data-stream-frames-slot ((self piano-roll)) 'midi-notes)
 
-;;; midi-notes is just a short-hand to the frame slot of data-stream
-(defmethod midi-notes ((self piano-roll)) (frames self))
-(defmethod (setf midi-notes) (notes (self piano-roll)) (setf (frames self) notes))
-(defmethod set-midi-notes ((self piano-roll) notes) (setf (midi-notes self) notes))
+(defmethod set-midi-notes ((self piano-roll) notes) 
+  (setf (midi-notes self) (sort notes '< :key 'midinote-onset)))
 
 (defmethod initialize-instance ((self piano-roll) &rest initargs)
   (call-next-method)
-  (setf (midi-notes self) (sort (slot-value self 'midi-notes) '< :key 'midinote-onset))
+  (set-midi-notes self (sort (slot-value self 'midi-notes) '< :key 'midinote-onset))
   self)
+
+(defmethod box-def-self-in ((self (eql 'piano-roll))) :choose-file)
 
 (defmethod initialize-instance :after ((self piano-roll) &rest initargs)
   (setf (autostop self) t) ;;; ??? what is this  
@@ -217,6 +218,18 @@
 ;;; redefined from time-sequence
 (defmethod time-sequence-default-duration ((self piano-roll)) 1000)
        
+
+(defmethod objFromObjs ((model pathname) (target piano-roll))
+  (set-midi-notes target (import-midi-notes model))
+  target)
+
+(defmethod objFromObjs ((model (eql :choose-file)) (target piano-roll))
+  (let ((file (om-choose-file-dialog :prompt "Choose a MIDI file..."
+                                     :types '("MIDI files" "*.mid;*.midi"))))
+    (if file (objFromObjs file target)
+      (om-abort))))
+
+
 ;;;======================================
 ;;; EDITOR
 ;;;======================================
@@ -282,7 +295,6 @@
 
 (defun draw-keyboard-octave (i x y w h &optional (alpha 1) (borders nil) (octaves nil))
   (let ((unit (/ h 12))
-        (white-h (/ h 7))
         (blackpos '(1 3 6 8 10))
         (whitepos '(0 1.5 3.5 5 6.5 8.5 10.5 12)))
     (loop for wk on whitepos when (cadr wk) do
@@ -376,7 +388,7 @@
            (when c 
              (loop for notep in (selection editor) do
                    (let ((note (nth notep (data-stream-get-frames pr))))
-                     (setf (channel (nth notep (data-stream-get-frames pr))) c)
+                     (setf (channel note) c)
                      )))
            ))
        (om-invalidate-view panel)
@@ -462,24 +474,7 @@
 
 
 
-;; not used (?)
-(defmethod tile-notes ((object piano-roll) (notes list) &key (preserve-overlap t))
-  (when notes
-    (with-schedulable-object (object)
-                             (if (midi-notes object)
-                                 (let* ((start-date (midinote-onset (car notes)))
-                                        (p (position start-date (midi-notes object) :test '<= :key 'car)))
-                                   (if p
-                                       (if (= p 0)
-                                           (setf (midi-notes object) notes)
-                                         (setf (nthcdr p (midi-notes object)) notes))
-                                     (nconc (midi-notes object) notes)))
-                               (setf (midi-notes object) notes)))
-    (om-invalidate-view object)))
-
-
-
-(defun gen-midi-notes (n &optional (tmax 10000) (channel 1))
+(defun gen-random-midi-notes (n &optional (tmax 10000) (channel 1))
   (loop for i from 0 to (1- n) collect
         (make-midinote :onset (om-random 0 tmax)
                        :pitch (om-random 50 90) 
@@ -487,6 +482,8 @@
                        :dur (om-random 200 500) 
                        :channel (or channel (om-random 1 16)))))
 
+
+#|
 (defun gentest ()
   (let* ((channel (om-random 1 2))
          (pitchlist (om+ 2 '(50 52 53 55 55 56 58 60))))
@@ -503,8 +500,22 @@
                            :vel (om-random 45 90)
                            :dur (om-random 800 1000) 
                            :channel 2)))))
+|#
 
 
-
-
-
+#|
+;; not used (?)
+(defmethod tile-notes ((object piano-roll) (notes list) &key (preserve-overlap t))
+  (when notes
+    (with-schedulable-object (object)
+                             (if (midi-notes object)
+                                 (let* ((start-date (midinote-onset (car notes)))
+                                        (p (position start-date (midi-notes object) :test '<= :key 'car)))
+                                   (if p
+                                       (if (= p 0)
+                                           (set-midi-notes object notes)
+                                         (setf (nthcdr p (midi-notes object)) notes))
+                                     (nconc (midi-notes object) notes)))
+                               (set-midi-notes object notes)))
+    (om-invalidate-view object)))
+|#

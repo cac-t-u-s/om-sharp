@@ -67,7 +67,7 @@
     
     ;; (om-print-format "Rebuild time-map for ~A" (list object))
   
-    (let* ((time-space (sort (build-object-time-space object nil) ;;; no tempo: this object miust be sufficiently high-level
+    (let* ((time-space (sort (build-object-time-space object nil) ;;; no tempo: this object must be either VOICE or POLY high-level
                              #'< :key #'space-point-onset))
            (merged-list ()))
 
@@ -94,8 +94,8 @@
       
       (when merged-list
         (setf merged-list (reverse merged-list))
-    
-        (cons 
+     
+         (cons 
      
          (list (space-point-onset (car merged-list))
                (+ (space-point-before (car merged-list))
@@ -110,8 +110,8 @@
                                   (space-point-before (cadr rest))
                                   (space-point-extra (cadr rest))))
                collect (list (space-point-onset (cadr rest)) curr-x))
-         )
-        ))))
+         ))
+        )))
                               
 
 (defmethod build-object-time-space ((self t) tempo) 
@@ -120,13 +120,20 @@
 
 (defmethod build-object-time-space ((self voice) tempo)
   (declare (ignore tempo)) ;;; voice itself holds the tempo
-  (loop with prev-signature = nil 
+  
+  (cons 
+   ;;; for the beginning of the score...
+   (make-space-point :onset -1000
+                     :before 0 :after 1
+                     :extra 0)
+    
+    (loop with prev-signature = nil 
         for m in (inside self)
         for position from 1
         append (build-measure-time-space m (tempo self) 
                                          position
                                          (not (equal (car (tree m)) prev-signature)))
-       do (setf prev-signature (car (tree m)))))
+        do (setf prev-signature (car (tree m))))))
 
 
 (defmethod build-object-time-space ((self poly) tempo)
@@ -140,8 +147,9 @@
   (cons 
    (make-space-point :onset  (beat-to-time (symbolic-date self) tempo)
                      :before 0 :after 0
-                     :extra (+ (if (= position 1) 0 6)
-                               (if with-signature 4 0)))
+                     :extra (+ (if (= position 1) 0 6) ;; no bar for first measure 
+                               (if with-signature 4 0) ;; space if signature
+                               ))
    (loop for sub in (inside self) append  
          (build-object-time-space sub tempo))
    ))
@@ -164,11 +172,17 @@
 
 
 ;;; TERMINAL OBJECTS IN TIME-SPACE (no deeper inside)
-
+;;; Units required (before after extra)
 (defmethod object-space-in-units ((self t)) '(0 0 0))
 
 (defmethod object-space-in-units ((self chord)) 
-  (list (+ 2 (* .5 (length (notes self)))) (+ (* .5 (length (notes self))) (* 10 (symbolic-dur self)))))
+  (list
+   ;;; space in units before:
+   (+ 2 (* .5 (length (notes self)))
+      (* .8 (count-if #'(lambda (n) (pitch-to-acc (midic n))) (notes self))))
+   ;;; space in units after:
+   (+ (* .5 (length (notes self))) 
+      (* 10 (symbolic-dur self)))))
 
 (defmethod object-space-in-units ((self continuation-chord)) 
   (object-space-in-units (previous-chord self)))
@@ -203,7 +217,16 @@
 (defmethod score-time-to-units (time-map time)
   
  (if time-map
-  
+     
+     (if (listp time)
+         
+         ;;; a convention when we're asking for the position of measure elements
+         (let* 
+             ((point-pos (position (car time) time-map :test #'= :key #'car))
+              (point (nth point-pos time-map))
+              (prev-point (nth (max 0 (1- point-pos)) time-map)))
+           (/ (+ (cadr prev-point) (cadr point)) 2.0))
+           
      (let* 
       ((prev-point-pos (or (position time time-map :test #'>= :key #'car :from-end t) 0))
        (prev-point (nth prev-point-pos time-map))
@@ -228,7 +251,7 @@
                 (* (- time (car prev-point)) 
                    (/ (- (cadr prev-point) (cadr prev-prev-point)) (- (car prev-point) (car prev-prev-point)))))
              )))
-       )
+       ))
    
    (progn 
      (om-print "Error in score display: no time-map!")

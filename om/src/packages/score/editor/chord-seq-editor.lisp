@@ -43,13 +43,6 @@
 
 (defmethod editor-with-timeline ((self chord-seq-editor)) nil)
 
-
-(defmethod score-editor-edit-callback ((editor chord-seq-editor) (object t)) nil)
-
-(defmethod report-modifications ((self chord-seq-editor))
-  (call-next-method)
-  (score-editor-edit-callback self (object-value self)))
-
 ;;;=========================
 ;;; LEFT-VIEW
 ;;;=========================
@@ -61,15 +54,11 @@
 (defmethod om-draw-contents ((self left-score-view))
   
   (let* ((editor (editor self))
-         (scrolled (> (x1 (get-g-component editor :main-panel)) 0))
-         ;; (shift (* 2 (font-size-to-unit (editor-get-edit-param editor :font-size))))
-         (y-shift (editor-get-edit-param editor :y-shift))
-         (font-size (editor-get-edit-param editor :font-size))
-         (unit (font-size-to-unit font-size)))
+         (scrolled (> (x1 (get-g-component editor :main-panel)) 0)))
     
     (draw-staff-in-editor-view editor self)
     
-    (draw-tempo (object-value editor) (* 2 unit) y-shift font-size)
+    (draw-tempo-in-editor-view editor self)
     
     (when scrolled 
       (om-draw-rect (- (w self) 20) 0 20 (h self)
@@ -84,7 +73,7 @@
   (om-make-view (left-score-view-class editor) :size (omp (* 2 (editor-get-edit-param editor :font-size)) nil)
                 :direct-draw t 
                 :bg-color (om-def-color :white) 
-                :scrollbars nil
+                :scrollbars t
                 :editor editor
                 :margin-l 1 :margin-r nil :keys t :contents nil
                 ))
@@ -219,7 +208,7 @@
   (when (editor-get-edit-param self :duration-display)
     (let ((notes (loop for item in (selection self) append (get-notes item))))
       (loop for n in notes
-            do (setf (dur n) (max 0 (round (+ (dur n) delta)))))
+            do (setf (dur n) (max (abs delta) (round (+ (dur n) delta)))))
       (time-sequence-update-obj-dur (object-value self))
       )))
 

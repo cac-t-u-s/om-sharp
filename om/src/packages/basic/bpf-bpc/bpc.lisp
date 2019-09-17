@@ -157,7 +157,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 
 ;;; NO X-SORT IN BPCS
 (defmethod set-bpf-points ((self bpc) &key x y z time time-types)
-  
+  (declare (ignore z))
   (setf (point-list self) (make-points-from-lists (or x (x-values-from-points self)) ;  (slot-value self 'x-points))
                                                   (or y (y-values-from-points self)) ;  (slot-value self 'y-points))
                                                   (decimals self)

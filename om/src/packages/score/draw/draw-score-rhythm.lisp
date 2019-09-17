@@ -29,19 +29,29 @@
                          time-function)
 
   (let* ((unit (font-size-to-unit font-size))
-         (extra-units-for-bar (if (= position 1) 0 4))
-         (extra-units-for-sig (if with-signature 6 0))
-         (extra-pixels (if (typep view 'sequencer-track-view) 0   ; :-s
+         
+         ; (extra-units-for-bar (if (= position 1) 0 4))
+         ; (extra-units-for-sig (if with-signature 6 0))
+         (extra-units-for-bar (if (numberp stretch) 0 12))
+         (extra-units-for-sig (if with-signature 0 0))
+         (extra-pixels (if (typep view 'sequencer-track-view) 0   ; in sequencer track we draw everything proportional :-s 
                          (* (+ extra-units-for-bar extra-units-for-sig)
-                            (if (numberp stretch) (* unit stretch) 
+                            ;;; the stretch factor:
+                            (if (numberp stretch) 
+                                ;;; rhythmic with stretch
+                                (* unit stretch) 
                               ;;; proportional:
                               (if (= position 1) (/ unit 1.5) 1)))))
          (bar-x-pix (- (+ (* x-shift unit) 
                           (funcall 
                            (or time-function #'(lambda (time) (time-to-pixel view time)))
-                           (beat-to-time (symbolic-date object) tempo)))
-                       extra-pixels
-                       )))
+                           (list ;; as a concvention we pass measure times as lists to 
+                                 ;; the time-function, so we can take adequate decisions to position bars etc.
+                            (beat-to-time (symbolic-date object) tempo)))
+                          )
+                       extra-pixels))
+         (sig-x-pix (+ bar-x-pix (* (if (= position 1) -4 2)
+                                    (if (numberp stretch) (* unit stretch) 1)))))
     
     (om-with-fg-color (when (find object selection) *score-selection-color*)
       
@@ -52,8 +62,7 @@
       
       (when with-signature
         (draw-time-signature (car (tree object)) 
-                             (+ bar-x-pix (* (if (= position 1) 1 (/ extra-units-for-sig 2))
-                                             (if (numberp stretch) (* unit stretch) 1)))
+                             sig-x-pix
                              y-shift font-size staff))
       )
 
@@ -77,8 +86,10 @@
     (when (typep view 'score-view)
       (let ((staff-y-minmax (staff-y-range staff y-shift unit)))
         (setf (b-box object) 
-              (make-b-box :x1 bar-x-pix 
-                          :x2 (+ bar-x-pix extra-pixels)
+              (make-b-box :x1 (min bar-x-pix sig-x-pix)
+                          :x2 (if with-signature 
+                                  (+ sig-x-pix (* 4 unit))
+                                (+ bar-x-pix (* 4 unit)))
                           :y1 (car staff-y-minmax)
                           :y2 (cadr staff-y-minmax)
                           ))

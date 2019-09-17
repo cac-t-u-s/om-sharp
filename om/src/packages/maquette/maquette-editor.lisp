@@ -92,8 +92,11 @@
 
 (defmethod get-range ((self maquette-editor)) (range (object self)))
 
-(defmethod get-tempo-automation ((self maquette-editor))
+(defmethod editor-get-tempo-automation ((self maquette-editor))
   (tempo-automation (get-g-component self :metric-ruler)))
+
+
+
 
 (defmethod cursor-panes ((self maquette-editor)) 
   (remove nil
@@ -174,19 +177,23 @@
     (om-set-view-size frame 
                       (om-max-point
                        (om-make-point 10 20)
-                       (resize-frame-size self frame pp)))))
+                       (resize-frame-size self frame pp)))
+    ))
+
+(defmethod update-temporalbox ((self maquette-view) frame)
+  (let* ((box (object frame))
+         (x (x-to-pix self (box-x box)))
+         (y (y-to-pix self (box-y box)))
+         (w (if (scale-in-x-? box) (max 20 (omg-w self (box-w box))) (box-w box)))
+         (h (if (scale-in-y-? box) (max 24 (omg-h self (box-h box))) (box-h box))))
+    (om-set-view-position frame (om-point-set (om-view-position frame) :x x :y y))
+    (om-set-view-size frame (om-point-set (om-view-size frame) :x w :y h))
+    (redraw-connections frame)
+    ))
 
 (defmethod update-temporalboxes ((self maquette-view))
   (loop for sv in (get-boxframes self) do
-        (let* ((box (object sv))
-               (x (x-to-pix self (box-x box)))
-               (y (y-to-pix self (box-y box)))
-               (w (if (scale-in-x-? box) (max 20 (omg-w self (box-w box))) (box-w box)))
-               (h (if (scale-in-y-? box) (max 24 (omg-h self (box-h box))) (box-h box))))
-          (om-set-view-position sv (om-point-set (om-view-position sv) :x x :y y))
-          (om-set-view-size sv (om-point-set (om-view-size sv) :x w :y h))
-          (redraw-connections sv)
-          )))
+        (update-temporalbox self sv)))
 
 (defmethod update-view-from-ruler ((self x-ruler-view) (view maquette-view))
   (call-next-method)
@@ -414,6 +421,7 @@
         (let ((box (new-box-in-maq-editor editor (omp time 0) (num self))))
           (setf (frame box) self)
           (om-set-view-cursor self (om-get-cursor :h-size))
+          (set-box-duration box nil) ;;; will set a default duration
           (om-init-temp-graphics-motion 
            self position nil
            :motion #'(lambda (view pos)
@@ -793,6 +801,7 @@
     (init-editor-window maq-editor)
     ))
 
+
 ;;;========================
 ;;; GENERAL CONSTRUCTOR
 ;;;========================
@@ -813,23 +822,24 @@
            :size (om-make-point nil 20)
            :bg-color +track-color-2+
            :subviews 
+           
            (list
               
             (om-make-layout
-             'om-row-layout :delta 30 :position (om-make-point (+ *track-control-w* 2) 2) :align :bottom
+             'om-row-layout :delta 30 
+             :position (om-make-point (+ *track-control-w* 2) 2) :align :top
              :ratios '(1 1 100 1 1 1)
              :subviews 
              (list
               
-              (om-make-layout
-               'om-row-layout 
-               :delta 5 
-               :position (om-make-point (+ *track-control-w* 2) 2)
-               :align :bottom
-               :size (om-make-point 90 15)
-               :subviews (list ;(play-editor-make-signature-box editor :bg-color +track-color-2+)
-                          (when (metronome editor) (play-editor-make-tempo-box editor :bg-color +track-color-2+))
-                          ))
+              (om-make-layout 
+               'om-simple-layout 
+               :align :top
+               :subviews (list (make-time-monitor editor 
+                                                  :font (om-def-font :font3b) 
+                                                  :color (om-def-color :white) 
+                                                  :time 0)))
+
               (om-make-layout
                'om-row-layout 
                :delta 5 
@@ -853,7 +863,7 @@
                            :lock-push nil :enabled (equal (view-mode editor) :tracks)
                            :action #'(lambda (b) 
                                        (unless (equal (view-mode editor) :maquette)
-                                         (button-isable b) (button-enable b2)
+                                         (button-disable b) (button-enable b2)
                                          (set-main-maquette-view editor :maquette)
                                          ))))
                  (setq b2 (om-make-graphic-object 
@@ -881,7 +891,7 @@
                                        )))
                  (setq b2 (om-make-graphic-object 
                            'om-icon-button :size (omp 16 16) 
-                           :icon :maqeval-black :icon-pushed :maqeval-gray
+                           :icon :eval-black :icon-pushed :eval-gray
                            :lock-push nil :enabled t
                            :action #'(lambda (b)
                                        (declare (ignore b))
@@ -895,13 +905,14 @@
                            :lock-push nil :enabled t
                            :action #'(lambda (b) 
                                        (declare (ignore b))
-                                       (when (om-y-or-n-dialog "Do you really want to remove all boxes in the maquette?")
+                                       (when (and (boxes (get-obj-to-play editor)) 
+                                                  (om-y-or-n-dialog "Do you really want to remove all boxes in the maquette?"))
                                          (m-flush (get-obj-to-play editor))
                                          (om-invalidate-view tracks-or-maq-view)
                                          ))))
                  (setq b4 (om-make-graphic-object 
                            'om-icon-button :size (omp 16 16) 
-                           :icon :icon-no-exec-black :icon-pushed :icon-no-exec-gray
+                           :icon :icon-mute-black :icon-pushed :icon-mute-gray
                            :lock-push t :enabled t
                            :action #'(lambda (b)
                                        (declare (ignore b))
@@ -909,9 +920,18 @@
                                                                 (setf (no-exec maquette) 
                                                                       (not (no-exec maquette)))))))
                  (list b1 b2 b3 b4)))
-              (om-make-layout 
-               'om-simple-layout :position (om-make-point 2 4)
-               :subviews (list (make-time-monitor editor :color (om-def-color :white) :format t)))
+              (om-make-layout
+               'om-row-layout 
+               :delta 5 
+               :position (om-make-point (+ *track-control-w* 2) 2)
+               :align :bottom
+               :size (om-make-point 90 15)
+               :subviews (when (metronome editor)
+                           (list ;(metronome-make-signature-box editor (metronome editor):bg-color +track-color-2+)
+                            (metronome-make-tempo-box editor (metronome editor) :bg-color +track-color-2+)
+                            ))
+               )
+              
               
               )))))
 
@@ -999,6 +1019,7 @@
                                        :x2 (or (getf (get-range maq-editor) :x2) 10000)
                                        :scrollbars nil :bg-color +track-color-1+))
          (metric-ruler (om-make-view 'metric-ruler 
+                                     :tempo (tempo (metronome maq-editor))
                                      :size (om-make-point 30 20)
                                      :scrollbars nil :bg-color +track-color-1+))
          (y-ruler (om-make-view 'y-ruler-view 
@@ -1076,6 +1097,7 @@
          (metric-ruler (om-make-view 'metric-ruler 
                                       :size (om-make-point 30 20)
                                       :scrollbars nil :bg-color +track-color-1+
+                                      :tempo (tempo (metronome maq-editor))
                                       :markers-p t)))  ;;; enable/disable markers here
 
     (set-g-component maq-editor :track-views track-views)
@@ -1156,9 +1178,22 @@
 ;;; PLAYER INTERFACE
 ;;;=====================
 (defmethod editor-make-player ((self maquette-editor))
-  (make-player :reactive-player
-               :run-callback 'play-editor-callback
-               :stop-callback 'stop-editor-callback))
+  ;;; create a metronome
+  (setf (metronome self) (make-instance 'metronome :editor self))
+  ;;; return the default player
+  (call-next-method))
+
+
+(defmethod update-to-editor ((self maquette-editor) (from metronome))
+  
+  (let ((m-ruler (get-g-component self :metric-ruler)))
+    (setf (tempo m-ruler) (tempo from))
+    (update-from-tempo m-ruler)
+    (om-invalidate-view m-ruler))
+     
+  (call-next-method))
+
+
 
 (defmethod editor-repeat ((self maquette-editor) t-or-nil)
   (if t-or-nil
@@ -1184,6 +1219,8 @@
   (call-next-method))
 
 
+
+
 ;;;========================
 ;;; PLAYER
 ;;;========================
@@ -1200,29 +1237,33 @@
 
   ;;; update range to play position ("turn pages")   
   (let* ((x-ruler (get-g-component self :abs-ruler))
+         (m-ruler (get-g-component self :metric-ruler))
          (x-range (round (- (v2 x-ruler) (v1 x-ruler)))))
     (cond ((> time (v2 x-ruler))
-           (set-ruler-range x-ruler (+ (v1 x-ruler) x-range) (+ (v2 x-ruler) x-range)))
+           (set-ruler-range x-ruler (+ (v1 x-ruler) x-range) (+ (v2 x-ruler) x-range))
+           (update-span m-ruler)
+           )
           ((< time (v1 x-ruler))
-           (set-ruler-range x-ruler time (+ time x-range)))
+           (set-ruler-range x-ruler time (+ time x-range))
+           (update-span m-ruler))
           (t nil)))
 
-    ;(let ((t-auto (get-tempo-automation self)))
+    ;(let ((t-auto (editor-get-tempo-automation self)))
     ; (if (not (getf (beat-info self) :next-date))
-    ;    (setf (getf (beat-info self) :next-date) (get-beat-date t-auto (getf (beat-info self) :beat-count))))
+    ;    (setf (getf (beat-info self) :next-date) (tempo-automation-get-beat-date t-auto (getf (beat-info self) :beat-count))))
     ;  (loop while (>= time (getf (beat-info self) :next-date))
     ;        do
-    ;        (om-set-dialog-item-text (cadr (om-subviews (tempo-box self))) (format nil "~$" (tempo-at-beat t-auto (getf (beat-info self) :beat-count))))
+    ;        (om-set-dialog-item-text (cadr (om-subviews (tempo-box self))) (format nil "~$" (tempo-automation-tempo-at-beat t-auto (getf (beat-info self) :beat-count))))
     ;        (incf (getf (beat-info self) :beat-count) 0.1)
-    ;        (setf (getf (beat-info self) :next-date) (get-beat-date t-auto (getf (beat-info self) :beat-count))))
+    ;        (setf (getf (beat-info self) :next-date) (tempo-automation-get-beat-date t-auto (getf (beat-info self) :beat-count))))
   )
 
 (defmethod stop-editor-callback ((self maquette-editor))
   (setf (getf (beat-info self) :beat-count) 0
         (getf (beat-info self) :next-date) nil)
   (when (get-g-component self :tempo-box) ;; see editor-play-mixin
-    (om-set-dialog-item-text (cadr (om-subviews (get-g-component self :tempo-box))) 
-                             (format nil "~$" (tempo-at-beat (get-tempo-automation self) 0))))
+    (set-value (cadr (om-subviews (get-g-component self :tempo-box))) 
+               (float (tempo-automation-tempo-at-beat (editor-get-tempo-automation self) 0))))
   (call-next-method))
 
 

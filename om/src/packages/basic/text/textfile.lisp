@@ -97,9 +97,9 @@ As output it returns the contents of the text buffer as a list formatted accordi
 
 ;;;===================================
 (defmethod om-init-instance ((self textbuffer) &optional initargs)
-  (let ((supplied-contents (find-value-in-kv-list initargs :contents))
-        (in-mode (find-value-in-kv-list initargs :input-mode)))
-    ;; in-mode exists only if the input is explicitely out... (not unsed anyway...)
+  (let ((supplied-contents (find-value-in-kv-list initargs :contents)))
+    ;; (in-mode (find-value-in-kv-list initargs :input-mode))
+    ;; in-mode would exist only if the input is explicitely out... (not unsed anyway...)
     (when supplied-contents 
       ;; we're evaluating the box
       (setf (contents self) (format-to-text-lines supplied-contents (input-mode self))))
@@ -150,7 +150,7 @@ As output it returns the contents of the text buffer as a list formatted accordi
         ))
         
 (defmethod draw-mini-view ((self textbuffer) (box TextBufferBox) x y w h &optional time)
-  (let ((display-cache (get-display-draw box))
+  (let (; (display-cache (get-display-draw box))
         (font (om-def-font :font1 :size 11)))
     (om-with-font 
      font 

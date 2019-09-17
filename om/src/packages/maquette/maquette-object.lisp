@@ -102,7 +102,8 @@
 (defmethod get-box-duration ((self OMBox)) (box-w self))
 (defmethod set-box-duration ((self OMBox) d) 
   (setf (box-w self) (or d *temporalbox-def-w*))
-  (when (get-box-value self) (set-object-interval (get-box-value self) (list 0 (box-w self))))
+  (when (get-box-value self) 
+    (set-object-interval (get-box-value self) (list 0 (box-w self))))
   (box-w self))
 
 (defmethod get-box-end-date ((self OMBox)) (+ (get-box-onset self) (get-box-duration self)))
@@ -111,15 +112,19 @@
 ;;; the box has changed, it must be updated (depending on its context)
 ;;; for convenience we do not allow the box being smaller than 100ms
 (defmethod contextual-update ((self OMBox) (container ommaquette))
-  (set-object-onset (get-box-value self) (box-x self))
-  (let ((duration (get-obj-dur (get-box-value self))))
-    (when duration 
-      ;;; (max 100 (or (get-obj-dur (get-box-value self)) *temporalbox-def-w*))
-      (set-box-duration self duration)))
-  (let ((view (get-view-from-mode (editor container))))
-    (if (listp view)
-        (om-invalidate-view (nth (1- (group-id self)) view))
-        (om-invalidate-view view))))
+  (let ((object (get-box-value self)))
+    (set-object-onset object (box-x self))
+    (let ((duration (and (play-obj? object) (get-obj-dur object))))
+      (when duration 
+        ;;; (max 100 (or (get-obj-dur (get-box-value self)) *temporalbox-def-w*))
+        (set-box-duration self duration)))
+    (let ((view (get-view-from-mode (editor container))))
+      (if (listp view) 
+          ;;; tracks mode 
+          (om-invalidate-view (nth (1- (group-id self)) view))
+        ;;; maquette mode
+        (update-temporalboxes view)
+        ))))
 
 ;;;=========================================
 ;;; EVALUATION
@@ -142,7 +147,6 @@
   ;(compile-patch (ctrlpatch maq))
   ;(apply (intern (string (compiled-fun-name (ctrlpatch maq))) :om) `(,maq))
   )
-
 
 ;;===========================================================================
 ;; Scheduling
@@ -266,10 +270,15 @@
 ;;;===============================
 
 ;(defmethod allowed-element ((self OMMaquette) (elem t)) (call-next-method))
-(defmethod allowed-element ((self OMMaquette) (elem timed-object)) t)
+(defmethod allowed-element ((self OMMaquette) (elem timed-object)) 
+  (plusp (get-obj-dur elem))) ;; no object that have no duration => must be put in containers
+
+(defmethod allowed-element ((self OMMaquette) (elem OMBoxEditCall)) 
+  (allowed-element self (get-box-value elem)))
 
 (defmethod omNG-add-element ((self OMMaquette) (elem OMBox))
-  (set-box-duration elem (or (get-obj-dur (get-box-value elem)) 
+  (set-box-duration elem (or (and (play-obj? (get-box-value elem))
+                                  (get-obj-dur (get-box-value elem)))
                              (box-w elem)))
   ;; (unless (group-id elem) (setf (group-id elem) 1))   
   (with-schedulable-object self (call-next-method)))

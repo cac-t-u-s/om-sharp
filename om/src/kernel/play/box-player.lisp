@@ -52,16 +52,17 @@
 
 ;;; when the value of a box is another box...
 (defmethod play-obj-from-value ((val ombox) box) 
-  (play-obj-from-value (car (value val)) val))
+  (unless (equal (car (value val)) box) ;;; can happen, with "MY-BOX" !
+    (play-obj-from-value (car (value val)) val)))
 
 (defmethod play-box? ((self t)) nil)
 (defmethod play-box? ((self OMBoxEditCall)) t)
-(defmethod play-obj? ((self t)) nil)
-(defmethod get-obj-dur ((self t)) nil)
-(defmethod get-obj-dur ((self null)) nil)
+(defmethod get-obj-dur ((self t)) 0)
 
 (defmethod get-obj-dur ((self ombox)) 
-  (get-obj-dur (get-obj-to-play self)))
+  (if (play-obj? (get-obj-to-play self))
+      (get-obj-dur (get-obj-to-play self))
+    0))
 
 (defmethod additional-player-params ((self omboxeditcall))
   (list :port (get-edit-param self :outport)
