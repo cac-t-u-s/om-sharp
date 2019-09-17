@@ -271,14 +271,22 @@
      app-libs-folder)
   
     (print (format nil "COPYING RESOURCES TO: ~A" app-resources-folder))
+
     (loop for item in (oa::om-directory (make-pathname :directory (append *om-directory-folders* '("resources"))) :files t :directories t) 
-          unless (string-equal "lib" (car (last (pathname-directory item)))) do
+          unless (string-equal "lib" (car (last (pathname-directory item)))) 
+          unless (string-equal "ttf" (string (pathname-type item)))
+          do
           (if (system::directory-pathname-p item)
-              (om::om-copy-directory item (make-pathname :device (pathname-device app-resources-folder) 
-                                                         :directory (append (pathname-directory app-resources-folder) (last (pathname-directory item)))))
+
+              (om::om-copy-directory 
+               item 
+               (make-pathname :device (pathname-device app-resources-folder) 
+                              :directory (append (pathname-directory app-resources-folder) (last (pathname-directory item)))))
+
             (om::om-copy-file item (make-pathname :device (pathname-device app-resources-folder) 
                                                   :directory (pathname-directory app-resources-folder)
-                                                  :name (pathname-name item) :type (pathname-type item)))))
+                                                  :name (pathname-name item) :type (pathname-type item)))
+            ))
     
     (om::om-copy-directory  (make-pathname :device (pathname-device app-resources-folder)
                                            :directory (append *om-directory-folders* '("help-patches")))
