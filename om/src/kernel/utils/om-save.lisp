@@ -340,6 +340,7 @@
          (omng-save (relative-pathname (mypathname self) ref-path))
        (omng-save (pathname (name self))))))
 
+
 (defmethod load-patch-contents ((patch OMPatch) data)
   (let ((*required-libs-in-current-patch* nil))
     
@@ -398,13 +399,6 @@
 
       patch)))
 
-
-;;; Handles libary-dependent boxes. See om-library.lisp.
-;(defmethod load-patch-contents :before ((patch OMPatch) data)
-;  (setf *required-libs-in-current-patch* nil))
-
-;(defmethod load-patch-contents :after ((patch OMPatch) data)
-;  (setf *required-libs-in-current-patch* nil))
 
 
 (defmethod om-load-from-id ((id (eql :patch)) data)
