@@ -246,13 +246,14 @@
                                                    (mapcar #'doctype-to-extension *om-doctypes*)
                                                    (doctype-to-ext-list :old)))))
             (loop for file in files 
-                  do (handler-bind ((error #'(lambda (e)
-                                               (om-message-dialog (format nil "An error occured at loading ~S: ~%~%~A" file e))
-                                               (abort)
-                                               )))
+                  do (catch :load-error
+                       (handler-bind ((error #'(lambda (e)
+                                                 (om-message-dialog (format nil "An error occured at loading ~S: ~%~%~A" file e))
+                                                 (throw :load-error nil)
+                                                 )))
                        
-                       (open-om-document file nil)))
-            )))))
+                         (open-om-document file nil)))
+                  ))))))
 
 
 
