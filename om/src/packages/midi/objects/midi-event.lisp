@@ -21,17 +21,19 @@
 ;;;============================
 ;;; MIDI-EVENT AS A DATA-FRAME (see data-stream container)
 ;;;============================
-(defclass* midi-event (data-frame)
+(defclass* midievent (data-frame)
   ((onset :accessor onset :initform 0 
-          :initarg :onset :initarg :date  ;;; two possible initargs (for compatibility)
+          :initarg :onset :initarg :date :initarg :ev-date ;;; different possible initargs (for compatibility)
           :documentation "date/time of the object")
    (ev-type :accessor ev-type :initarg :ev-type :initform nil :documentation "type of event")
    (ev-channel :accessor ev-channel :initarg :ev-channel :initform 1 :documentation "MIDI channel (1-16)")
-   (ev-value :accessor ev-value :initarg :ev-value :initform 0 :documentation "value(s)")
+   (ev-value :accessor ev-value 
+             :initarg :ev-value :initarg :ev-fields 
+             :initform 0 :documentation "value(s)")
    (midi-port :accessor midi-port :initarg :midi-port :initform 0 :documentation "Target MIDI port")))
 
 
-(defmethod get-frame-action ((self midi-event))
+(defmethod get-frame-action ((self midievent))
   #'(lambda () (om-midi::midi-send-evt 
                 (om-midi:make-midi-evt :type (ev-type self) 
                                        :chan (ev-channel self) 
@@ -39,7 +41,7 @@
                                        :port (midi-port self)))
       ))
 
-(defmethod data-frame-text-description ((self midi-event))
+(defmethod data-frame-text-description ((self midievent))
   (list "MIDI EVENT" (format nil "~A (~A): ~A" (ev-type self) (ev-channel self) (ev-value self))))
 
 
@@ -50,7 +52,7 @@
 ;======================================
 ; Test functions for MIDI events
 ;======================================
-(defmethod* test-date ((self midi-event) tmin tmax)
+(defmethod* test-date ((self midievent) tmin tmax)
   :initvals '(nil nil nil)
   :indoc '("a MIDI-event" "min date" "max date")
   :doc "Tests if <self> falls between <tmin> and <tmax>."
