@@ -146,7 +146,6 @@
 ;;; - by the editor-close callback
 ;;; - when the document is closed from the main session window
 (defmethod close-document ((patch OMPatch) &optional (force nil))
-  
   (let* ((outside-references (get-outside-references patch)));;; => references to the same patch outside this patch
           
     (when (or (null outside-references)
@@ -160,6 +159,7 @@
             do (release-reference patch refb))
       (delete-internal-elements patch) 
       ;; (setf (loaded? patch) nil)
+      (when force (unregister-document patch))
       )
     ))
 
