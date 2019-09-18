@@ -663,7 +663,7 @@
                         (omng-remove-element self c))
                     (get-box-connections box))
             (omng-remove-element self box)
-            (delete-box-frame box) ;;; removes the view
+            (delete-box-frame (frame box)) ;;; removes the view
             (omng-delete box) ;;; deals with contents/references
             )
         boxes))
