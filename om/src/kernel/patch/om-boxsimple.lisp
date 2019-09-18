@@ -137,6 +137,41 @@
               6 
               w h))))
 
+
+;;; drag-edit
+(defmethod om-view-click-handler ((self OMValueBoxFrame) position)
+         
+  (if (and (numberp (get-box-value (object self)))
+           (or (om-command-key-p)
+               (container-frames-locked (om-view-container self))))
+    
+        (let* ((box (object self))
+               (curr-val (get-box-value box))
+               (ndec (multiple-value-bind (i d)
+                         (string-until-char (format nil "~D" curr-val) ".")
+                       (length d)))
+               (fact (expt 10 ndec)))
+          
+          ;;; we use fact to perfom integer arithmetics and avoid floating point approximations
+
+          (store-current-state-for-undo (editor (container box)))
+          
+          (om-init-temp-graphics-motion self position nil 
+                                        :motion #'(lambda (view pos)
+                                                    (let ((diff (- (om-point-y position) (om-point-y pos))))
+                                                      (when (om-shift-key-p) (setf diff (* diff 10)))
+                                                      (setf curr-val (/ (+ (* curr-val fact) diff) fact))
+                                                      (setf position pos)
+                                                      (set-value box (list curr-val))
+                                                      (om-invalidate-view view)
+                                                      ))
+                                        )
+          )
+      
+      (call-next-method)))
+
+
+
 (defmethod om-view-doubleclick-handler ((self OMValueBoxFrame) position)
   (unless (edit-lock (editor (om-view-container self)))
     (or (apply-in-area self 'click-in-area position)
