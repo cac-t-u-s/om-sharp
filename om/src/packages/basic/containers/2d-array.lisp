@@ -467,7 +467,7 @@ Data instanciation in a column is done according to the specified number of line
 (defclass ClassArrayBox (OMBoxEditCall) 
   ((keywords :initform nil :accessor keywords :initarg :keywords)))
 
-(defmethod special-box-type ((self (eql 'class-array))) 'ClassArrayBox)
+(defmethod special-box-type ((class-name (eql 'class-array))) 'ClassArrayBox)
 
 (defmethod default-size ((self ClassArrayBox)) (om-make-point 100 100))
 

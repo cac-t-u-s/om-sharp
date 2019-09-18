@@ -137,7 +137,7 @@ As output it returns the contents of the text buffer as a list formatted accordi
 ;;;========================
 
 (defclass TextBufferBox (omboxeditcall) ())
-(defmethod special-box-type ((self (eql 'textbuffer))) 'TextBufferBox)
+(defmethod special-box-type ((class-name (eql 'textbuffer))) 'TextBufferBox)
 
 (defmethod display-modes-for-object ((self textbuffer)) '(:hidden :text :mini-view))
 
