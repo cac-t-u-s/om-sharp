@@ -44,7 +44,7 @@
  
 (defmethod update-from-reference  ((self t)) nil)
 
-(defmethod update-from-reference  ((self OMClass) &optional)
+(defmethod update-from-reference  ((self OMClass))
   "This method is called when you redifine <self> to update the attached objects."
   (mapc #'update-from-reference (class-direct-subclasses self))
   (mapc #'update-from-reference (references-to self)))
