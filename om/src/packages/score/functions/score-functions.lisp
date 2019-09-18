@@ -27,7 +27,7 @@
 ;  DURATION
 ;--------------------
 
-(defmethod! object-dur ((self score-object))
+(defmethod! object-dur ((self score-element))
   :initvals '(nil)
   :indoc '("a musical object")
   :outdoc '("duration (ms)") 
@@ -146,11 +146,11 @@ POLY: each voice is concatenated, regardless of the global duration.
   (make-instance 'poly :voices (mapcar #'concat (inside s1) (inside s2))))
 
 
-(defmethod* concat ((s1 score-object) (s2 null) &optional (s2-offset nil))
+(defmethod* concat ((s1 score-element) (s2 null) &optional (s2-offset nil))
   (declare (ignore s2 s2-offset))
   (clone s1))
 
-(defmethod* concat ((s1 null) (s2 score-object) &optional (s2-offset nil))
+(defmethod* concat ((s1 null) (s2 score-element) &optional (s2-offset nil))
   (declare (ignore s1))
   (concat (make-instance (type-of s2)) s2 s2-offset))
 

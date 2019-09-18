@@ -23,7 +23,7 @@
 ;;; POLY / MULTI-SEQ + MIXED-TYPES
 ;;;===================================================
 
-(defclass* multi-seq (score-object collection) 
+(defclass* multi-seq (score-element collection) 
   ((obj-list :initarg :obj-list :initarg :chord-seqs
              :accessor obj-list :initform nil)))
 

@@ -189,7 +189,7 @@
     (if (listp beams) (car beams) beams)))
   
 
-(defmethod beam-num ((self score-object) dur)
+(defmethod beam-num ((self score-element) dur)
   (get-number-of-beams dur))
 
 ;;; gets the minimum number of beams in a group

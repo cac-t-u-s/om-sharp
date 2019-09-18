@@ -24,7 +24,7 @@
 (defclass score-editor (OMEditor undoable-editor-mixin) ())
 
 ;;; these params are shared between the editor and the box
-(defmethod object-default-edition-params ((self score-object))
+(defmethod object-default-edition-params ((self score-element))
   '((:font-size 24)
     (:staff :g)
     (:duration-display nil)
@@ -165,7 +165,7 @@
             do (setf found (find-score-element-at-pos elem pos)))
       found)))
 
-(defmethod find-score-element-at-pos ((object score-object) pos)
+(defmethod find-score-element-at-pos ((object score-element) pos)
   
   (cond 
    ((null (b-box object)) ;;; the object itself has no bounding box (yet?) or, we have clicked outside
@@ -186,7 +186,7 @@
    ))
 
 
-(defmethod find-score-elements-in-area ((object score-object) x1 y1 x2 y2)
+(defmethod find-score-elements-in-area ((object score-element) x1 y1 x2 y2)
         
    (if (and (b-box object) 
             (bbox-in-rect (b-box object) x1 y1 x2 y2)) ;; the object has one, and it's inside 

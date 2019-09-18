@@ -28,7 +28,7 @@
 ;;; (almost) all slot accessors are redefined below in this file
 
 
-(defclass internal-chord-seq (score-object internal-data-stream)   
+(defclass internal-chord-seq (score-element internal-data-stream)   
   ((Lmidic :initform '((6000)) :initarg :Lmidic :type list :documentation "pitches (mc): list or list of lists")
    (Lonset :initform '(0 1000) :initarg :Lonset :type list :documentation "onsets (ms): list")
    (Ldur :initform '((1000)) :initarg :Ldur :type list :documentation "durations (ms): list or list of lists")
@@ -370,6 +370,6 @@ Internally most of these values are just used to build a list of CHORD objects, 
    '< :key 'car))
 
 
-(defmethod player-stop-object ((self scheduler) (object score-object))
+(defmethod player-stop-object ((self scheduler) (object score-element))
   (call-next-method)
   (om-midi::midi-stop))

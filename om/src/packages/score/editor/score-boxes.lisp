@@ -25,18 +25,18 @@
 (defclass ScoreBox (OMBoxEditCall) 
   ((fontsize :accessor fontsize :initform 18)))
 
-(defmethod special-box-type ((self (eql 'score-object))) 'ScoreBox)
+(defmethod special-box-type ((class-name (eql 'score-element))) 'ScoreBox)
 
-(defmethod display-modes-for-object ((self score-object))
+(defmethod display-modes-for-object ((self score-element))
   '(:mini-view :hidden :text))
 
-(defmethod additional-box-attributes ((self score-object)) 
+(defmethod additional-box-attributes ((self score-element)) 
   `((:font-size "a font size for score display" nil) 
     (:staff "default staff configuration" 
      ,(loop for s in *score-staff-options* collect (list (string-upcase s) s)))
     ))
 
-(defmethod miniview-time-to-pixel-proportional ((object score-object) box view time)
+(defmethod miniview-time-to-pixel-proportional ((object score-element) box view time)
 
   (let* ((fontsize (or (fontsize box) 24))
          (unit (font-size-to-unit fontsize))
@@ -50,7 +50,7 @@
      ;)
      ))
 
-(defmethod miniview-time-to-pixel-rhythmic ((object score-object) box view time)
+(defmethod miniview-time-to-pixel-rhythmic ((object score-element) box view time)
 
   (let* ((fontsize (or (fontsize box) 24))
          (unit (font-size-to-unit fontsize))
@@ -63,7 +63,7 @@
 
 
 ;;; all objects (except voice/poly) on a box
-(defmethod miniview-time-to-pixel ((object score-object) box (view omobjectboxframe) time) 
+(defmethod miniview-time-to-pixel ((object score-element) box (view omobjectboxframe) time) 
   (miniview-time-to-pixel-proportional object box view time))
 
 ;;; voice on a box
@@ -78,7 +78,7 @@
 
 
 ;;; an objects in the maquette tracks...
-(defmethod miniview-time-to-pixel ((object score-object) box (view sequencer-track-view) time)
+(defmethod miniview-time-to-pixel ((object score-element) box (view sequencer-track-view) time)
   (- (time-to-pixel view (+ (box-x box) time)) 
      (time-to-pixel view (box-x box))
      ))
@@ -89,7 +89,7 @@
       1 5))
 
 
-(defmethod draw-mini-view ((self score-object) (box ScoreBox) x y w h &optional time)
+(defmethod draw-mini-view ((self score-element) (box ScoreBox) x y w h &optional time)
 
   (om-draw-rect x y w h :fill t :color (om-def-color :white))
   
@@ -252,8 +252,7 @@
 ;;;===========================
 
 (defmethod score-object-mini-view ((self multi-seq) box x-pix y-pix y-u w h)
-  (let ((voice-h (if (obj-list self) (/ h (num-voices self)) h))
-        (max-dur (loop for o in (obj-list self) maximize (get-obj-dur o))))
+  (let ((voice-h (if (obj-list self) (/ h (num-voices self)) h)))
     (loop for voice in (obj-list self)
           for i from 0 do
           (score-object-mini-view voice box x-pix (+ y-pix (* i voice-h)) 0 w voice-h))

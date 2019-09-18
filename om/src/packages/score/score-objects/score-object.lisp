@@ -21,7 +21,7 @@
 ;(defclass container ()
 ;  ((inside :accessor inside :initarg :inside :initform nil :documentation "the contents of the container")))
 
-(defclass score-object (schedulable-object)
+(defclass score-element (schedulable-object)
   (
    ;;; symbolic date and symbolic-dur make sense only if the object is in a context with tempo
    (symbolic-date :accessor symbolic-date :initarg :symbolic-date :initform nil 
@@ -37,10 +37,10 @@
 
 ;;; this method to be defined according to the different objects' slot names etc.
 ;;; also allows compat with OM6 naming
-(defmethod inside ((self score-object)) nil)
+(defmethod inside ((self score-element)) nil)
 
 ;;; only poly has more than 1 voice
-(defmethod num-voices ((self score-object)) 1)
+(defmethod num-voices ((self score-element)) 1)
 
 (defstruct b-box (x1) (x2) (y1) (y2))
 (defmethod b-box-w (b) (- (b-box-x2 b) (b-box-x1 b)))
@@ -48,7 +48,7 @@
 
 
 
-(defmethod initialize-instance :after ((self score-object) &rest initargs)
+(defmethod initialize-instance :after ((self score-element) &rest initargs)
   (setf (autostop self) t) ;;; ??? why 
   )
 

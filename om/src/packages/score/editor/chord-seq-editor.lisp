@@ -35,7 +35,7 @@
 (defmethod editor-window-init-size ((self chord-seq-editor)) (om-make-point 650 300))
 
 ;;; this will just disable the display-mode menu 
-(defmethod frame-display-modes-for-object ((self data-stream-editor) (object score-object)) '(:chords))
+(defmethod frame-display-modes-for-object ((self data-stream-editor) (object score-element)) '(:chords))
 
 (defmethod object-default-edition-params ((self chord-seq))
   (append (call-next-method)
@@ -69,7 +69,7 @@
     ))
 
 
-(defmethod make-left-panel-for-object ((editor chord-seq-editor) (object score-object))
+(defmethod make-left-panel-for-object ((editor chord-seq-editor) (object score-element))
   (om-make-view (left-score-view-class editor) :size (omp (* 2 (editor-get-edit-param editor :font-size)) nil)
                 :direct-draw t 
                 :bg-color (om-def-color :white) 

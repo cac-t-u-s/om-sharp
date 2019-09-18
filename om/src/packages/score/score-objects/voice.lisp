@@ -54,7 +54,7 @@
 
 
 
-(defclass rhythmic-object (score-object) 
+(defclass rhythmic-object (score-element) 
   ((tree :initform '(1 (1 1 1 1)) :accessor tree :initarg :tree :type list :documentation "a rhythm tree")
    (inside :accessor inside :initform nil :documentation "internal hierarchical structure")))
 
@@ -64,7 +64,7 @@
 (defclass group (rhythmic-object) 
   ((numdenom :accessor numdenom :initarg :numdenom :initform nil)))
 
-(defclass continuation-chord (score-object)
+(defclass continuation-chord (score-element)
   ((previous-chord :accessor previous-chord :initarg :previous-chord 
                    :initform nil :documentation "the tied previous element")))
 
@@ -74,9 +74,9 @@
 (defmethod get-real-chord ((self chord)) self)
 
 
-(defclass r-rest (score-object) ())
+(defclass r-rest (score-element) ())
 
-(defclass grace-note (score-object) ())
+(defclass grace-note (score-element) ())
 
 
 (defmethod get-all-chords ((self rhythmic-object))

@@ -23,7 +23,7 @@
 ;;;=============
 
 ;;; some of the slots :initargs of INTERNAL-NOTE are hidden in the graphical interface
-(defclass internal-note (score-object)
+(defclass internal-note (score-element)
   ((midic :initform 6000 :accessor midic :initarg :midic :type number :documentation "pitch (midicents)")
    (vel :initform 80 :accessor vel :initarg :vel :type number :documentation "velocity (0-127)")
    (dur :initform 1000 :accessor dur :initarg :dur :type number :documentation "duration (ms)")
@@ -61,7 +61,7 @@ A simple NOTE defined with :
 ;;;=============
 
 ;;; some of the slots :initargs of INTERNAL-CHORD are hidden in the graphical interface
-(defclass internal-chord (data-frame score-object)  
+(defclass internal-chord (data-frame score-element)  
   ((Lmidic :initform '(6000) :initarg :Lmidic :type list :documentation "pitches (list of midicents)")
    (Lvel :initform '(80) :initarg :Lvel :type list :documentation "velocities (list of values 0-127)")
    (Loffset :initform '(0) :initarg :Loffset :type list :documentation "offsets (list of values in ms)")

@@ -664,7 +664,7 @@
 ;;;=======================
 
 ;;; just for debug
-(defmethod draw-b-box ((self score-object))
+(defmethod draw-b-box ((self score-element))
   (when (b-box self)
     (om-draw-rect (b-box-x1 (b-box self)) (b-box-y1 (b-box self))
                   (b-box-w (b-box self)) (b-box-h (b-box self))
