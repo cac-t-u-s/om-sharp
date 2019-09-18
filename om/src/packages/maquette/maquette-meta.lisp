@@ -33,12 +33,17 @@
 ;        (references-to self)))
 
 
-(defmethod find-persistant-container ((self OMMaqControlPatch))
-  (find-persistant-container (car (references-to self))))
-
 (defmethod set-control-patch ((self OMMaquette) (patch OMPatch))
   (setf (ctrlpatch self) patch)
   (setf (references-to (ctrlpatch self)) (list self)))
+
+
+(defmethod find-persistant-container ((self OMMaqControlPatch))
+  (find-persistant-container (car (references-to self))))
+
+(defmethod get-internal-elements ((self OMMaquette))
+  (append (call-next-method)
+          (get-internal-elements (ctrlpatch self))))
 
 
 (defparameter *maquette-help-text*
@@ -48,9 +53,9 @@ Additional inputs/outputs are accesses on the maquette box.
 ")
 
 (defmethod initialize-instance :after ((self OMMaquette) &rest args)
-  ;;;--put this somewhere else ??
+  ;;;-- put this somewhere else ??
   (set-object-autostop self nil)
-  ;;;------
+  
   (unless (ctrlpatch self)
     (let* ((patch (make-instance 'OMMaqControlPatch :name "Control Patch"))
            (inbox (omng-make-special-box 'mymaquette (omp 150 12)))
@@ -69,20 +74,27 @@ Additional inputs/outputs are accesses on the maquette box.
       ))
   self)
 
-(defmethod omng-delete ((self OMMaquette)) 
-  (omng-delete (ctrlpatch self))
-  (release-reference (ctrlpatch self) self)
-  (call-next-method))
 
-(defmethod close-internal-elements ((self OMMaquette))
-  (close-internal-elements (ctrlpatch self))
-  (call-next-method))
+
 
 ;;; FOR THE META INPUTS
 ;;; the references-to a control patch is just the maquette
 (defmethod maquette-container ((self OMMaqControlPatch)) (car (references-to self)))
 ;;; if there are several references (maquetteFile) we assume that the first in the list is the current caller
 (defmethod box-container ((self OMMaqControlPatch))  (car (references-to (car (references-to self)))))
+
+
+;;; called when some change is made in the maquette or in the control-patch
+(defmethod update-from-reference  ((self OMMaquette))
+  (loop for item in (references-to self) do (update-from-reference item)))
+  
+(defmethod get-inputs ((self OMMaquette))
+  (get-inputs (ctrlpatch self)))
+
+(defmethod get-outputs ((self OMMaquette))
+  (get-outputs (ctrlpatch self)))
+
+
 
 
 ;;;====================================

@@ -29,6 +29,7 @@
         "maquette-api"
         "maquette-meta"
         "maquette-box"
+        "maquette-compatibility"
         ))
 
 

@@ -30,3 +30,72 @@
    pos 
    init-args ;; don't need to pass them in principle..
    ))
+
+
+(defmethod next-optional-input ((self OMBoxMaquette))
+  (< (length (get-optional-inputs self)) 2))
+
+(defmethod more-optional-input ((self OMBoxMaquette) &key name (value nil val-supplied-p) doc reactive)
+  (declare (ignore name doc))
+   ;;; the first one is already here
+   (add-optional-input self :name (if (get-optional-inputs self) "objs" "time")
+                       :value (if val-supplied-p value nil) 
+                       :reactive reactive)
+   t)
+
+(defmethod create-box-inputs ((self OMBoxMaquette))
+  (append (call-next-method)
+          (get-optional-inputs self)))
+
+;;;=====================================
+;;; BOX DISPLAY
+;;;=====================================
+(defmethod display-modes-for-object ((self OMMaquette)) '(:hidden :mini-view :text))
+
+(defmethod draw-mini-view ((self OMMaquette) box x y w h &optional time)
+  
+  (let* ((boxes (remove-if #'(lambda (b) (not (group-id b))) (get-all-boxes self)))
+         (n-tracks (apply #'max (or (mapcar #'group-id boxes) '(1))))
+         (dur (get-obj-dur self))
+         (box-h (/ (- h 30) n-tracks)))
+    
+    (flet 
+        ((t-to-x (xpos) (round (* (/ xpos dur) w)))
+         (id-to-y (id) (+ 8 (* box-h (1- id)))))
+      
+      (loop for b in boxes 
+            do (om-draw-rect (+ x (t-to-x (box-x b)))
+                             (+ y (id-to-y (group-id b)))
+                             (t-to-x (box-w b))
+                             box-h
+                             :fill t
+                             :color (box-draw-color b))
+            (om-draw-rect (+ x (t-to-x (box-x b)))
+                          (+ y (id-to-y (group-id b)))
+                          (t-to-x (box-w b))
+                          box-h 
+                          :color (om-def-color :gray)
+                          :fill nil)
+            )
+      )))
+                             
+
+;;;=====================================
+;;; BOX DISPLAY
+;;;=====================================
+
+(defmethod omng-box-value :before ((self OMBoxMaquette) &optional numout)  
+  (eval-maquette (reference self) NIL) ;;; eval the boxes in tracks but not the control-patch
+  )
+
+(defmethod compile-patch ((self OMMaquette)) 
+  (setf (compiled? self) t)
+  (compile-patch (ctrlpatch self)))
+
+(defmethod compiled-fun-name ((self OMMaquette)) 
+  (compiled-fun-name (ctrlpatch self)))
+
+(defmethod compiled? ((self OMMaquette)) 
+  (compiled? (ctrlpatch self)))
+
+

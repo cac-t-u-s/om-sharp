@@ -54,6 +54,12 @@
   (make-instance 'OMMaquetteFile :name name))
 
 
+;; For conversions
+(defmethod internalized-type ((self OMMaquetteFile)) 'OMMaquetteInternal)
+(defmethod externalized-type ((self OMMaquette)) 'OMMaquetteFile)
+(defmethod externalized-icon ((self OMMaquette)) :maq-file)
+
+
 (defmethod type-check ((type (eql :maquette)) obj)
   (let ((maq (ensure-type obj 'OMMaquette)))
     (when maq
@@ -75,7 +81,15 @@
                 collect
                 box)))
 
-  
+
+(defmethod copy-contents ((from OMMaquette) (to OMMaquette))  
+  (let ((rep (call-next-method)))
+    (set-control-patch rep (om-copy (ctrlpatch from)))
+    (setf (range rep) (range from))
+    rep))
+
+
+
 ;;;===============================
 ;;; MAQUETTE CONTENTS (BOXES)
 ;;;===============================
@@ -133,7 +147,7 @@
 ;;;=========================================
 
 ;;; NOT GOOD !!! NEED TO EVAL JUST TERMINAL BOXES  
-(defmethod eval-maquette ((maq OMMaquette))
+(defmethod eval-maquette ((maq OMMaquette) &optional (with-control-patch t))
   (loop for box in (get-all-boxes maq)
         when (not (find-if #'connections (outputs box)))
         do
@@ -143,7 +157,8 @@
           (contextual-update box maq)
           ))
   ; (set-meta-inputs (ctrlpatch maq) (car (references-to maq)) maq)
-  (mapcar 'eval-box (get-boxes-of-type (ctrlpatch maq) 'omoutbox))
+  (when with-control-patch
+    (mapcar 'eval-box (get-boxes-of-type (ctrlpatch maq) 'omoutbox)))
   
   (clear-ev-once maq)
   (clear-ev-once (ctrlpatch maq))
@@ -280,6 +295,7 @@
   (allowed-element self (get-box-value elem)))
 
 (defmethod omNG-add-element ((self OMMaquette) (elem OMBox))
+  (print (list (get-box-value elem) (play-obj? (get-box-value elem)) (get-obj-dur (get-box-value elem))))
   (set-box-duration elem (or (and (play-obj? (get-box-value elem))
                                   (get-obj-dur (get-box-value elem)))
                              (box-w elem)))

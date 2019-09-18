@@ -34,6 +34,7 @@
   (let* ((previous-loading-document *current-loading-document*)
          (obj-type (cond ((string-equal (pathname-type path) "omp") 'OMPatchFile)
                          ((string-equal (pathname-type path) "oml") 'OMLispFunctionFile)
+                         ((string-equal (pathname-type path) "omm") 'OMMaquetteFile)
                          (t nil)))
          (object (when obj-type (make-instance obj-type :name (pathname-name path)))))
     

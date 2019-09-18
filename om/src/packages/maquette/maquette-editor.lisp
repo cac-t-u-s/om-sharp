@@ -118,7 +118,7 @@
 
 
 ;;; called from the tracks
-(defmethod new-box-in-maq-editor ((self maquette-editor) at &optional (track 0))
+(defmethod new-box-in-track-view ((self maquette-editor) at &optional (track 0))
   (let ((maq (object self))
         (new-box (omng-make-special-box 'patch at)))
     (set-box-duration new-box *temporalbox-def-w*)  
@@ -231,6 +231,11 @@
     (draw-grid-from-ruler view (get-g-component (editor view) :metric-ruler))
     (draw-grid-from-ruler view (get-g-component (editor view) :y-ruler))
     ))
+
+
+(defmethod allowed-element ((self OMMaquette) (elem OMInOutBox)) nil)
+
+
 
 ;;;========================
 ;;; TRACK-VIEW
@@ -418,7 +423,7 @@
             )
           ))
        ((om-add-key-down)
-        (let ((box (new-box-in-maq-editor editor (omp time 0) (num self))))
+        (let ((box (new-box-in-track-view editor (omp time 0) (num self))))
           (setf (frame box) self)
           (om-set-view-cursor self (om-get-cursor :h-size))
           (set-box-duration box nil) ;;; will set a default duration
@@ -767,6 +772,12 @@
 ;;; CONTROL PATCH
 ;;;========================
 
+(defmethod editor-close ((self maquette-editor))
+  (player-stop-object (player self) (metronome self))
+  (editor-close (editor (ctrlpatch (object self))))
+  (call-next-method))
+
+
 (defun make-control-patch-view (maq-editor)
   (let ((ctrlpatch (ctrlpatch (object maq-editor))))
     
@@ -795,7 +806,6 @@
 (defun show-hide-control-patch-editor (maq-editor show)
   
   (unless (equal (show-control-patch maq-editor) show)
-    
     (setf (show-control-patch maq-editor) show)
     (build-editor-window maq-editor)
     (init-editor-window maq-editor)
@@ -1214,9 +1224,7 @@
     (set-object-time object (max 0 (- (- time (mod time step)) step)))
     (set-object-time (metronome self) (max 0 (- (- time (mod time step)) step)))))
 
-(defmethod editor-close ((self maquette-editor))
-  (player-stop-object (player self) (metronome self))
-  (call-next-method))
+
 
 
 
@@ -1305,86 +1313,4 @@
                                                                 (om-point-x position) (om-point-y position)))))
       (call-next-method))))
 |#
-
-
-
-
-#|
-;;;;;;;;========================================
-;;;;;;;; TO EXTRACT CODE
-;;;;;;;;========================================
-
-(defmethod draw-maquette-mini-view ((object t) (box OMBox) x y w h &optional time)
-  (ensure-cache-display-draw box object)
-  (draw-mini-view object box x y w h time))
-
-(defmethod draw-mini-view ((self bpf) (box t) x y w h &optional time)
-  (let ((display-cache (get-display-draw box)))
-    (draw-bpf-points-in-rect (cadr display-cache)
-                             (color self) 
-                             (car display-cache)
-                             ;(+ x 7) (+ y 10) (- w 14) (- h 20)
-                             x (+ y 10) w (- h 20)
-                             )
-    t))
-
-(defun conversion-factor-and-offset (min max w delta)
-  (let* ((range (- max min))
-         (factor (if (zerop range) 1 (/ w range))))
-    (values factor (- delta (* min factor)))))
-
-(defun draw-bpf-points-in-rect (points color ranges x y w h)
-  (multiple-value-bind (fx ox) 
-      (conversion-factor-and-offset (car ranges) (cadr ranges) w x)
-    (multiple-value-bind (fy oy) 
-        ;;; Y ranges are reversed !! 
-        (conversion-factor-and-offset (cadddr ranges) (caddr ranges) h y)
-      (when points 
-        (om-with-fg-color (om-def-color :gray)
-        ;draw first point
-        (om-draw-circle (+ ox (* fx (car (car points))))
-                        (+ oy (* fy (cadr (car points))))
-                        3 :fill t)
-        (let ((lines (loop for pts on points
-                           while (cadr pts)
-                           append
-                           (let ((p1 (car pts))
-                                 (p2 (cadr pts)))
-                             (om-draw-circle (+ ox (* fx (car p2)))
-                                             (+ oy (* fy (cadr p2)))
-                                             3 :fill t)
-                             ;;; collect for lines 
-                             (om+ 0.5
-                                  (list (+ ox (* fx (car p1)))
-                                        (+ oy (* fy (cadr p1)))
-                                        (+ ox (* fx (car p2)))
-                                        (+ oy (* fy (cadr p2)))))
-                             ))))
-          (om-with-fg-color (or color (om-def-color :dark-gray))
-            (om-draw-lines lines))))))))
-
-(defmethod draw-temporal-box ((self omboxeditcall) view x y w h &optional (time 0))
-  (call-next-method)
-  (case (display self)  
-    (:mini-view (draw-maquette-mini-view (get-box-value self) self x y w h nil))
-    (:text (draw-mini-text (get-box-value self) self x y w h nil))
-    (:hidden  (om-with-font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))
-                          (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
-                            (om-draw-string (+ x 10) (max 22 (+ 6 (/ h 2))) 
-                                            (string-upcase (type-of (get-box-value self)))))))))
-
-
-(defmethod draw-temporal-box ((self OMBox) view x y w h &optional (time 0))
-  (when (color self)
-    (om-with-fg-color (om-make-color-alpha (color self) 0.9)
-      (om-draw-rect x y w h :fill t)))
-  (om-with-fg-color (om-def-color :white)
-    (om-draw-rect x y w h :fill nil))
-  (om-with-fg-color (om-def-color :white)
-    (om-draw-string (+ x 2) (+ y h -2) (number-to-string (get-box-onset self)))))
-;;;;;;;;========================================
-;;;;;;;;========================================
-;;;;;;;;========================================
-|#
-
 
