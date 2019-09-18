@@ -22,7 +22,10 @@
 (defmacro  om-load-maq2 (name boxes connections range markers &rest ignore)
   
   (declare (ignore ignore))
-  
+
+  (when boxes 
+    (om-beep-msg "WARNING: Maquette compatibility is not implemented yet!"))
+ 
   `(let ((name-loaded ,name)
          (boxes-loaded ,boxes)
          (connections-loaded ,connections))
@@ -41,6 +44,8 @@
 ;;; load the Maquette (internal)
 (defun om-load-maq-abs1 (name boxes connections range markers &rest ignore)
   (declare (ignore ignore))
+  (when boxes 
+    (om-beep-msg "WARNING: Maquette compatibility is not implemented yet!"))  
   `(:maquette
     (:name ,name) 
     (:boxes .,(loop for box-code in boxes collect (eval box-code)))
@@ -50,7 +55,7 @@
 
 
 
-;;; OMBoxMaquette
+;;; OMBoxMaquette: OK but the maquette contents is not loaded
 (defmethod om-load-boxcall ((self (eql 'maqabs)) name reference inputs position size value lock &rest rest)
 
   (declare (ignore value rest))
@@ -85,6 +90,7 @@
 
 
 #|
+;;; OM6 code:
 (defun om-load-tempobj1 (name inputs refer numouts posx sizex clorf value ignorepict 
                              sizey posy strechfact 
                              &optional (store nil) (params nil) (lock nil) pict (showpict nil) (mute nil) (pos-locked nil)
