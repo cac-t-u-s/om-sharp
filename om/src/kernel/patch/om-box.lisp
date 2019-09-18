@@ -291,14 +291,13 @@
 (defmethod default-size ((self OMBox)) (minimum-size self))
 (defmethod get-icon-id ((self t)) nil)
 
-(defmethod om-cleanup ((self OMBox))
-  (omng-delete self))
 
-(defmethod omng-delete ((box OMBox))
+(defmethod delete-box-frame ((box OMBox))
   (when (and (frame box) (om-view-container (frame box)))
     (om-remove-subviews (om-view-container (frame box)) (frame box)))
   (setf (frame box) nil)
-  (call-next-method))
+  t)
+
 
 (defmethod get-update-frame ((self OMBox)) (frame self))
 
@@ -330,8 +329,6 @@
 (defmethod editor-box-selection ((editor OMEditor) (box null))
   (unless (om-shift-key-p) (select-unselect-all editor nil)))
 
-(defmethod close-internal-element :after ((self OMBox)) 
-  (close-inspector-for-box self))
 
 ;;;===========================
 ;;; ALIGN TOOL: auto-set position

@@ -37,12 +37,14 @@
 (defmethod unregister-document ((self OMObject)) nil)
 
 (defmethod register-document ((self OMPersistantObject) &optional path)
-  (om-print-dbg "Registering document:  ~A (~A / ~A)" (list (name self) self (mypathname self)))
-  (push (make-doc-entry :doc self :file (and path (namestring path))) *open-documents*))
+  (unless (find-doc-entry self)
+    (om-print-dbg "Registering document:  ~A (~A / ~A)" (list (name self) self (mypathname self)))
+    (push (make-doc-entry :doc self :file (and path (namestring path))) *open-documents*)))
 
 (defmethod unregister-document ((self OMPersistantObject))
-  (om-print-dbg "Unregistering document: ~A (~A / ~A)" (list (name self) self (mypathname self))) 
-  (setf *open-documents* (remove self *open-documents* :key 'doc-entry-doc))
+  (when (find-doc-entry self)
+    (om-print-dbg "Unregistering document: ~A (~A / ~A)" (list (name self) self (mypathname self)))
+    (setf *open-documents* (remove self *open-documents* :key 'doc-entry-doc)))
   (when (and (null *open-documents*) *quit-at-last-doc*
              (member :om-deliver *features*))
     (om-quit)))
@@ -208,11 +210,13 @@
       (setf (icon patch) :patch-file)
       patch)))
 
-
 (defmethod type-check ((type t) obj) nil)
-    
+
+
 (defun load-doc-from-file (path type)
+  
   (om-print-format "Opening document: ~A" (list path))
+  
   (let ((doc-entry (find-doc-entry path)))
     (if doc-entry 
       
@@ -220,32 +224,31 @@
           (om-print-dbg "Document found in register: ~A" (list (doc-entry-doc doc-entry)))
           (doc-entry-doc doc-entry))
       
-     (let ((*package* (find-package :om)))
+      (let ((*package* (find-package :om)))
       
-       (with-relative-ref-path path
+        (with-relative-ref-path path
          
-         (let* ((file-contents (car (list-from-file path)))
-                (doc (omng-load (list (car file-contents)))) ;; load just the object type (no contents)
-                (object (type-check type doc))) ;; will change the class of object to persistant
+          (let* ((file-contents (car (list-from-file path)))
+                 (doc (omng-load (list (car file-contents)))) ;; load just the object type (no contents)
+                 (object (type-check type doc))) ;; will change the class of object to persistant
            
-           (if object
+            (if object
              
-               (progn 
-                 (setf (mypathname object) path
-                       (name object) (pathname-name path)
-                       (loaded? object) nil
-                       (saved? object) t)
-                 
-                 (register-document object path)
-                 (load-patch-contents object (cdr file-contents))
-                 )
+                (progn 
+                  (setf (mypathname object) path
+                        (name object) (pathname-name path)
+                        (loaded? object) nil
+                        (saved? object) t)
+                  
+                  (register-document object path)
+                  (load-patch-contents object (cdr file-contents)))
              
-             (om-beep-msg "Document ~s of type ~S could not be loaded." path type))
+              (om-beep-msg "Document ~s of type ~S could not be loaded." path type))
            
-           object)
-         )
-       )
-     )))
+            object)
+          )
+        )
+      )))
       
 
 (defun import-doc-from-previous-om (path)

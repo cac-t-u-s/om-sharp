@@ -215,6 +215,14 @@
   
   self)
 
+
+
+(defmethod restore-undoable-object-state ((self OMBoxAbstraction) (state list)) 
+  (let ((patch (reference self)))
+    (register-document patch) ;;; if needed..
+    (pushnew self (references-to patch)))
+  (call-next-method))
+
 (defmethod get-object-slots-for-undo ((self OMBox)) 
   (remove 'reference (call-next-method)))
 
@@ -224,6 +232,7 @@
 (defmethod get-undoable-object-state ((self OMPatch)) 
   `((boxes ,(get-undoable-object-state (boxes self)))
     (connections ,(save-connections-from-boxes (boxes self)))))
+
 
 
 (defmethod restore-undoable-object-state ((self OMPatch) (state list)) 
@@ -237,7 +246,6 @@
                 when (container ref-b)
                 collect (save-connections-from-boxes (boxes (container ref-b))))))
 
-    
     (loop for element in (append (boxes self) (connections self))
           do (omng-remove-element self element))
     ;;; => must be properly removed !!!

@@ -115,9 +115,7 @@
 (defgeneric omng-remove-element (container element))
 
 ;;; called when an object is deleted (cleanup, etc.)
-(defgeneric omng-delete (obj))
-
-(defmethod omng-delete ((obj t)) nil)
+(defmethod omng-delete ((obj t)) t)
 (defmethod omng-delete ((obj OMBasicObject)) (close-editor obj))
 (defmethod omng-delete ((obj OMFuncallableBasicObject)) (close-editor obj))
 
@@ -243,13 +241,9 @@
 
 (defmethod release-reference :around ((self OMPersistantObject) from)  
   (call-next-method)
-  (unless (references-to self)
+  (unless (or (get-outside-references self) 
+              (editor self))
     (unregister-document self)))
-
-(defmethod release-reference :around ((self OMProgrammingObject) from)  
-  (call-next-method)
-  (unless (references-to self)
-    (omng-delete self)))
 
 
 

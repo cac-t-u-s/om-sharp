@@ -71,8 +71,9 @@
                                   (saved? object) nil)
                             object)
                         
-                        ;;; remove references etc.
-                        (omng-delete *om-current-persistent*))
+                        ;;; need to close *om-current-persistent* to remove references etc. ? 
+                    
+                        )
                         
                     (unregister-document object))
                   
@@ -512,7 +513,7 @@
 
 (defun om-load-boxinstance (name instance inputs position &optional fname size) 
   
-  (declare (ignore inputs fname))
+  (declare (ignore inputs fname size))
   
   (let* ((value (instance instance))
          (type (type-of value)))

@@ -72,7 +72,8 @@
 (defmethod omng-remove-element ((self OMPatch) (elem OMBox))
   (when (equal (container elem) self)
     (setf (container elem) nil))
-  (setf (boxes self) (remove elem (boxes self) :test 'equal)))
+  (setf (boxes self) (remove elem (boxes self) :test 'equal))
+  (close-inspector-for-box elem))
 
 ;;;========================================
 ;;; LOADING...
@@ -109,7 +110,7 @@
 
 (defmethod load-contents ((self OMPatchFile)) 
   (if (mypathname self)
-      (let ((tmppatch (load-doc-from-file :patch (mypathname self))))
+      (let ((tmppatch (load-doc-from-file (mypathname self) :patch)))
         (copy-contents tmppatch self))
     (om-beep-msg "CAN NOT LOAD PATCH '~A'" (name self))))
 
@@ -118,21 +119,13 @@
 ;;; CLOSING / RELEASING REFERENCES...
 ;;;========================================
 
-(defmethod omng-delete ((self OMPatch)) 
-  (mapc #'omng-delete (boxes self))
-  (setf (boxes self) nil)
-  (setf (connections self) nil)
-  (setf (loaded? self) nil)
-  (call-next-method))
-
-
 (defmethod get-internal-elements ((self OMPatch))
   (append (boxes self) (connections self)))
 
-(defmethod close-internal-elements ((self OMPatch))
+(defmethod delete-internal-elements ((self OMPatch))
   (let ((not-closed-elements 
          (loop for element in (get-internal-elements self)
-               when (null (close-internal-element element))
+               when (null (omng-delete element))
                collect element
                )))
     
@@ -141,34 +134,34 @@
     t))
 
 
-(defmethod close-document ((patch OMPatch))
+;; returns references that are from outside the same patch (= non-recursive)
+(defmethod get-outside-references ((self OMPatch))
+  (loop for b in (box-references-to self)
+        unless (or (null (find-persistant-container b))
+                   (equal self (find-persistant-container b)))
+        collect b))
+
+
+;;; this is called: 
+;;; - by the editor-close callback
+;;; - when the document is closed from the main session window
+(defmethod close-document ((patch OMPatch) &optional (force nil))
   
-  (unless 
-      ;;; are there references to the same patch outside this patch
-      (find-if-not
-       #'(lambda (b) 
-           (or (null (find-persistant-container b))
-               (equal patch (find-persistant-container b))))
-       (box-references-to patch))
-    
-    (close-internal-elements patch)
-
-    ;;; if not, remove all box references (they are all inside) this patch
-    (loop for refb in (box-references-to patch)
-          do (release-reference patch refb))
-    )
-  )
-
-(defmethod close-internal-element ((self t)) t)
-
-;;; nothing to do
-(defmethod close-internal-element ((self OMBox)) t)
-
-(defmethod close-internal-element ((self ObjectWithEditor)) 
-  (close-editor self)
-  (call-next-method)
-  t)
-
+  (let* ((outside-references (get-outside-references patch)));;; => references to the same patch outside this patch
+          
+    (when (or (null outside-references)
+              (and force 
+                   (om-y-or-n-dialog 
+                    (format nil "The document ~A still has ~A external references. Delete anyway ?" 
+                            (name patch) (length outside-references)))))
+      
+      ;;; release all box references (they are all inside this patch anyway)
+      (loop for refb in (box-references-to patch)
+            do (release-reference patch refb))
+      (delete-internal-elements patch) 
+      ;; (setf (loaded? patch) nil)
+      )
+    ))
 
 
 
@@ -190,7 +183,8 @@
 
 (defmethod omng-remove-element ((self OMPatch) (elem OMConnection))
   (omng-unconnect elem)
-  (setf (connections self) (remove elem (connections self))))
+  (setf (connections self) (remove elem (connections self)))
+  (close-inspector-for-box elem))
 
 
 ;;;==========================================

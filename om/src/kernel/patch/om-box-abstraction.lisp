@@ -82,7 +82,8 @@
                             :reference reference)))
 
     (setf (box-x box) (om-point-x pos)
-          (box-y box) (om-point-y pos))
+          (box-y box) (om-point-y pos)
+          (box-h box) 60)
 
     (retain-reference reference box)
     box))
@@ -177,33 +178,36 @@
     containers))
 
 
-(defmethod omng-delete ((box OMBoxAbstraction))
-  
-  (let ((patch (reference box)))
-    
-    (when (find box (references-to patch)) ;;; avoid cyclic calls in case of recursive patches
-      (release-reference patch box)
-      (close-internal-element box))
-    
-    (call-next-method)))
-
-
 ;;;=======================
 ;;; THE FOLLOWING BEHAVIOURS DIFFER BETWEEN INTERNAL- AND FILE-ABSTRACTION
 ;;;=======================
   
-;;; called when the patch it is in is closed/deleted
-(defmethod close-internal-element ((self OMBoxAbstraction)) 
+;;; closes editor / removes view (may still exist in the undo stack)
+(defmethod omng-delete ((box OMBoxAbstraction))
   
-  (let ((patch (reference self)))
-
-    (unless (is-persistant patch) ;;; we don't know if persistent patches are not used somewhere else...
+  (let ((patch (reference box)))
+    
+    (when (find box (references-to patch))  
+      
+      (release-reference patch box)
+       
+      ;;; close/delete recursive only if this is an internal patch
+      ;;; OR a persistant patch that has no outside reference and no open editor
+      (unless (and (is-persistant patch)
+                   (or (get-outside-references patch)
+                       (editor patch)))
         
-        (close-internal-elements patch)
-        (close-editor patch)
-        (release-reference patch self)
+        ;;; same as closing the editor 
+        ;(loop for refb in (box-references-to patch)
+        ;    do (release-reference patch refb))
+    
+        (delete-internal-elements patch)
+        (unless (is-persistant patch) (close-editor patch)) ;; persistent patches may remain open
         )
-    t))
+      )
+    t
+    ))
+
 
 (defmethod allow-rename ((self OMBoxAbstraction)) 
   (not (is-persistant (reference self))))
@@ -278,10 +282,10 @@
       
       (:value 
        
-       (draw-mini-view (get-box-value self) 
-                       self 4 4 (- (w frame) 8) (- (h frame) 12) nil)
-       
-       (draw-mini-arrow 24 9 3 10 7 1))
+       (if (draw-mini-view (get-box-value self) self 4 4 (- (w frame) 8) (- (h frame) 12) nil)
+           (draw-mini-arrow 24 9 3 10 7 1)
+         (draw-values-as-text self 0 0) ;;; better than nothing...
+         ))
       
       (otherwise 
        (let ((label (string-upcase (get-object-type-name (reference self))))

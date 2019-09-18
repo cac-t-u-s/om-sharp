@@ -46,7 +46,7 @@
 
 (defmethod init-editor ((ed patch-editor))
   (let ((patch (object ed)))
-    (unless (loaded? patch)
+    (when (and (is-persistant patch) (not (loaded? patch)))
       (load-contents patch))
     (retain-reference patch ed)
     (call-next-method)))
@@ -75,18 +75,23 @@
 ;;; called when one box is added by a user action
 (defmethod add-box-in-patch-editor ((box OMBox) (view patch-editor-view))
   
-  (store-current-state-for-undo (editor view))
-  
-  (when (omNG-add-element (editor view) box)
+  (if (allowed-element (object (editor view)) box)
+
+      (progn 
+        (store-current-state-for-undo (editor view))
+        
+        (when (omNG-add-element (editor view) box)
+          
+          (set-default-size-in-editor box view)
+          
+          (let ((frame (make-frame-from-callobj box)))
+            (omg-add-element view frame)
+            (contextual-update box (container box))
+            (select-box box t)
+            frame)
+          ))
     
-    (set-default-size-in-editor box view)
-    
-    (let ((frame (make-frame-from-callobj box)))
-      (omg-add-element view frame)
-      (contextual-update box (container box))
-      (select-box box t)
-      frame)
- 
+    (om-beep-msg "Boxes of type ~A are not allowed in ~A." (type-of box) (type-of (editor view)))
     ))
 
 
@@ -152,7 +157,8 @@
 
 (defmethod om-draw-contents ((self lock-view-area))
   (om-draw-picture (if (lock (object (editor self))) :lock :unlock) 
-                   :x 0 :y 0 :w (om-width self) :h (om-height self)))
+                   :x 0 :y 0 :w 16 :h 16
+                   ))
 
 (defmethod om-view-click-handler ((self lock-view-area) position)
   (declare (ignore position))
@@ -268,7 +274,7 @@
                  (om-make-menu-item "Selection:" nil :enabled nil)
                                    
                  (om-make-menu-item 
-                  "Align [A]"
+                  "Align [SHIFT+A]"
                                     
                   #'(lambda () (store-current-state-for-undo self)
                       (align-selected-boxes self))
@@ -279,7 +285,7 @@
                   )
 
                  (om-make-menu-item 
-                  "Init size [i]"
+                  "Init size [I]"
                                                       
                   #'(lambda () (store-current-state-for-undo self)
                       (mapc 'initialize-size 
@@ -291,7 +297,7 @@
                   )
 
                  (om-make-menu-item 
-                  "Reinit content [I]"
+                  "Reinit content [SHIFT+I]"
                                                       
                   #'(lambda () (store-current-state-for-undo self)
                       (mapc 'initialize-size 
@@ -304,7 +310,7 @@
                   )
 
                  (om-make-menu-item 
-                  "Connect one [c]"
+                  "Connect one [C]"
                                                       
                   #'(lambda () (store-current-state-for-undo self)
                       (auto-connect-box (get-selected-boxes self) self (main-view self)))
@@ -314,7 +320,7 @@
                   )
 
                  (om-make-menu-item 
-                  "Connect sequence [C]"
+                  "Connect sequence [SHIFT+C]"
 
                   #'(lambda () (store-current-state-for-undo self)
                       (auto-connect-seq (get-selected-boxes self) self (main-view self)))
@@ -324,7 +330,7 @@
                   )
 
                  (om-make-menu-item 
-                  "Set Reactive [r]"
+                  "Set Reactive [R]"
 
                   #'(lambda () (store-current-state-for-undo self)
                       (mapc 'set-reactive-mode (or (get-selected-boxes self) 
@@ -336,7 +342,7 @@
                   )
 
                  (om-make-menu-item 
-                  "Internalize abstraction(s) [a]"
+                  "Internalize abstraction(s) [A]"
 
                   #'(lambda () (store-current-state-for-undo self)
                       (mapc 'internalize-abstraction (get-selected-boxes self)))
@@ -344,10 +350,9 @@
                   :enabled #'(lambda () (and (not (edit-lock self))
                                              (get-selected-boxes self)))
                   )
-
-
+                 
                  (om-make-menu-item 
-                  "Internalize abstraction(s) [a]"
+                  "Encapsulate selection [SHIFT+E]"
                                     
                   #'(lambda () 
                       (store-current-state-for-undo self)
@@ -358,18 +363,7 @@
                   )
 
                  (om-make-menu-item 
-                  "Encapsulate selection [E]"
-                                    
-                  #'(lambda () 
-                      (store-current-state-for-undo self)
-                      (encapsulate-patchboxes self (main-view self) (get-selected-boxes self)))
-                                                      
-                  :enabled #'(lambda () (and (not (edit-lock self))
-                                             (get-selected-boxes self)))
-                  )
-
-                 (om-make-menu-item 
-                  "Unencapsulate selection [U]"
+                  "Unencapsulate selection [SHIFT+U]"
                                     
                   #'(lambda () 
                       (store-current-state-for-undo self)
@@ -438,8 +432,8 @@
 (defmethod editor-close ((self patch-editor))
   (call-next-method)
   (let ((patch (object self)))
+    (release-reference patch self) 
     (close-document patch)
-    (release-reference patch self)
     ))
  
 
@@ -665,9 +659,12 @@
 
 (defmethod remove-boxes ((self patch-editor) boxes)
   (mapc #'(lambda (box) 
-            (mapcar #'(lambda (c) (omng-remove-element self c)) (get-box-connections box))
+            (mapcar #'(lambda (c) 
+                        (omng-remove-element self c))
+                    (get-box-connections box))
             (omng-remove-element self box)
-            (omng-delete box) ;;; will om-remove-subviews
+            (delete-box-frame box) ;;; removes the view
+            (omng-delete box) ;;; deals with contents/references
             )
         boxes))
 
@@ -1291,8 +1288,6 @@
        
           (if newbox
               (progn 
-            ;(when (and (allow-rename newbox) (car args)) ;; not sure this is needed anymore..
-            ;  (set-name newbox text))
                 (add-box-in-patch-editor newbox self))
             (om-print (format nil "Could not create a box from '~A'" first-item) "PATCH")
             )

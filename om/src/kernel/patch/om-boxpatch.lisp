@@ -60,7 +60,7 @@
 (defmethod display-modes-for-object ((self OMPatch)) '(:hidden :mini-view :value :text))
 (defmethod object-for-miniview ((self OMBoxPatch)) (reference self))
 
-
+;;; the value of the box is a Box...
 (defmethod draw-mini-view ((object OMBoxEditCall) (box OMBox) x y w h &optional time) 
   (om-draw-rect (+ x 2) (+ y 4) (- w 4) (- h 16) :fill t :color (om-def-color :white))
   ;(om-draw-rect (+ x 2) (+ y 4) (- w 4) (- h 16) :fill nil :color (om-def-color :dark-gray) :line 1.5)

@@ -623,9 +623,6 @@
 ;;; CONNECTION WITH THE INSPECTOR WINDOW
 ;;;=============================
 
-(defmethod close-internal-element :after ((self omconnection)) 
-  (close-inspector-for-box self))
-
 (defmethod set-reactive-mode :after ((self omconnection)) 
   (update-inspector-for-object self))
 

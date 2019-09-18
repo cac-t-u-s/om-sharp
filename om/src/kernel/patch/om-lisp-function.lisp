@@ -218,7 +218,7 @@
 (defmethod get-editor-class ((self OMLispFunction)) 'lisp-function-editor)
 
 ;;; nothing, e.g. to close when the editor is closed
-(defmethod close-internal-elements ((self OMLispFunction)) nil)
+(defmethod delete-internal-elements ((self OMLispFunction)) nil)
 
 ;;; maybe interesting to make this inherit from OMEditorWindow..
 

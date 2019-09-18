@@ -339,13 +339,13 @@
 
 (defun close-documents (list)
   (setf *save-apply-all* nil)
-  (loop for doc in  (om-get-selected-item list)
+  (loop for doc in (om-get-selected-item list)
         do (if (editor-window doc)
                (close-editor doc) ;;; will close-document as well
-             (close-document doc)))
+             (close-document doc t)))
   (setf *save-apply-all* nil))
 
-(defmethod close-document ((doc t)) nil)
+(defmethod close-document ((doc t) &optional force) nil)
 
 (defun save-documents (list)
   (let ((selected-docs (om-get-selected-item list))

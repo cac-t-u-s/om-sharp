@@ -184,7 +184,8 @@
   (call-next-method)
   (let ((class (find-class (reference box) nil)))
     (when (omclass-p class) 
-      (release-reference class box))))
+      (release-reference class box)))
+  t)
 
 
 ;;;===============================
@@ -343,7 +344,7 @@
   ((play-state :initform nil :accessor play-state))
   (:metaclass omstandardclass))
 
-(defmethod special-box-type ((self t)) nil)
+(defmethod special-box-type ((class-name t)) nil)
 
 (defmethod default-size ((self OMBoxEditCall)) (om-make-point 80 40))
 
@@ -383,11 +384,11 @@
   (call-next-method)
   (when (editor box) 
     (om-close-window (editor-window box))
-  (when (editor box) 
+    (when (editor box) 
     ;;; in principle the window-close callback will have closed the editor and set it to NIL
     ;;; but for instance not if the window is not an OM window (e.g. external app or library...)
-    (editor-close (editor box)))
-  ))
+    (editor-close (editor box))))
+  t)
 
 
 (defmethod get-input-def-value ((self OMBoxEditCall) name)
@@ -548,7 +549,7 @@
   t)
 
 ;;; to be redefined by objects if they have a specific miniview
-(defmethod draw-mini-view ((object t) (box OMBox) x y w h &optional time) nil)
+(defmethod draw-mini-view ((object t) (box OMBox) x y w h &optional time) nil) 
 
 ;; the bold text that is written on the object box
 (defmethod object-box-label ((object t)) (string-upcase (type-of object)))
