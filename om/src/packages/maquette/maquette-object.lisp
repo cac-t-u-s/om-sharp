@@ -134,13 +134,15 @@
       (when duration 
         ;;; (max 100 (or (get-obj-dur (get-box-value self)) *temporalbox-def-w*))
         (set-box-duration self duration)))
-    (let ((view (get-view-from-mode (editor container))))
-      (if (listp view) 
-          ;;; tracks mode 
-          (om-invalidate-view (nth (1- (group-id self)) view))
-        ;;; maquette mode
-        (update-temporalboxes view)
-        ))))
+    (when (editor container)
+      (let ((view (get-view-from-mode (editor container))))
+        (if (listp view) 
+            ;;; tracks mode 
+            (when (group-id self)
+              (om-invalidate-view (nth (1- (group-id self)) view)))
+          ;;; maquette mode
+          (update-temporalboxes view)
+          )))))
 
 ;;;=========================================
 ;;; EVALUATION
@@ -295,7 +297,6 @@
   (allowed-element self (get-box-value elem)))
 
 (defmethod omNG-add-element ((self OMMaquette) (elem OMBox))
-  (print (list (get-box-value elem) (play-obj? (get-box-value elem)) (get-obj-dur (get-box-value elem))))
   (set-box-duration elem (or (and (play-obj? (get-box-value elem))
                                   (get-obj-dur (get-box-value elem)))
                              (box-w elem)))

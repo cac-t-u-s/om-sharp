@@ -106,9 +106,11 @@
 
 (defmethod m-flush ((self ommaquette) &key (track nil))
   (loop for box in (if track (get-track-boxes self track) (get-all-boxes self))
-        do (omng-remove-element self box)))
-
-
+        do 
+        (omng-remove-element self box)
+        (delete-box-frame (frame box)) ;;; removes the view
+        (omng-delete box) ;;; deals with contents/references
+        ))
 
 (defmethod set-patch-inputs ((self OMPatchInternal) (defvals list))
   (loop for inp in (get-inputs self)
