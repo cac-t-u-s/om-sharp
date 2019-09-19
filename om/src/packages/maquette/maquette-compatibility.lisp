@@ -138,8 +138,34 @@
 
 
 ;;; META IN/OUTS: need some conversion
-(defun om-load-boxmaqselfin (name position  &optional fsize) )
-(defun om-load-boxselfin (name position  &optional fsize) )
+(defun om-load-boxselfin (name position  &optional fsize) 
+  (declare (ignore fsize name))
+  (om-print "Warning: 'self' input box converted to 'MYBOX': consider reconnect output using an 'OMBOX' SLOTS box."  
+            "Import/Compatibility")
+  `(:box
+    (:type :io)
+    (:reference (:in (:type omselfin) (:index 0) (:name "BOX")))
+    (:name "BOX")
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:outputs (:output (:name "out")))
+    ))
+
+
+(defun om-load-boxmaqselfin (name position  &optional fsize) 
+  (declare (ignore fsize))
+  (om-print "Warning: 'self-maquette' input box converted to 'MYMAQUETTE': consider reconect outputs using GET-OBJ-DUR / GET-ALL-BOXES / M-OBJECTS."  
+            "Import/Compatibility")
+  `(:box
+    (:type :io)
+    (:reference (:in (:type ommaqin) (:index 0) (:name "MAQUETTE")))
+    (:name "MAQUETTE")
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:outputs (:output (:name "out")))
+    )
+  )
+
 
 
 ;;; IN/OUT in the maquette: no more supported

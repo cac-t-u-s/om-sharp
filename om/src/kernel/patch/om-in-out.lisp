@@ -277,7 +277,7 @@
 ;;; if there are several references (OMPatchFile) 
 ;;; we assume that the first in the list is the current caller
 ;;; this is set by omng-box-value :before
-(defmethod box-container ((self OMPatch)) (car (references-to self)))
+(defmethod box-container ((self OMPatch)) (car (box-references-to self)))
 
 ;;; BOX VALUE
 (defmethod omNG-box-value ((self OMSelfInBox) &optional (numout 0)) 
