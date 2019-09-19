@@ -81,7 +81,6 @@
                 collect
                 box)))
 
-
 (defmethod copy-contents ((from OMMaquette) (to OMMaquette))  
   (let ((rep (call-next-method)))
     (set-control-patch rep (om-copy (ctrlpatch from)))

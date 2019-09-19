@@ -184,10 +184,10 @@
   (declare (ignore value rest))
   
   ;; reference contains the actual patch-code
-  (let ((type (if (equal (car reference) :textfun) :textfun :patch)))
+  ;; (let ((type (if (equal (car reference) :textfun) :textfun :patch)))
     
     `(:box 
-      (:type ,type)
+      (:type :abstraction)
       (:reference ,reference)   ;; contains the actual patch-code
       (:name ,name)
       (:x ,(om-point-x position))
@@ -201,7 +201,7 @@
       (:inputs .,(mapcar #'eval inputs))
       (:display :mini-view)
       )
-    ))
+    )
 
 
 ;======================================
@@ -315,6 +315,10 @@
 (defmethod om-load-boxcall ((class t) name reference inputs position size value lock &rest rest)
   (cond ((fboundp reference)
          (om-load-boxcall 'lispfun name reference inputs position size value lock))
+        ((and (function-changed-name reference) (fboundp (function-changed-name reference)))
+         (let ((new-reference (function-changed-name reference)))
+           (om-print-format "Function '~A' now replaced by '~A'" (list reference new-reference) "Import/Compatibility")
+           (om-load-boxcall 'lispfun (string new-reference) new-reference inputs position size value lock)))
         (t 
          ;; (om-print-format "Unknown function for box of type ~A: '~A'" (list class reference) "Import/Compatibility")
          ;; => will be signaled in om-load-from-id
@@ -364,12 +368,14 @@
                        ((find name (mapcar #'symbol-name (function-keyword-args reference)) :test #'string-equal)
                         `(:input (:type :key) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
                        ((and (find '&rest (function-arglist reference))
-                             (equal name (string (cadr (member '&rest (function-arglist reference))))))
+                             (string-equal name (string (cadr (member '&rest (function-arglist reference))))))
                         `(:input (:type :optional) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
                        (t (om-print-format "Unknown input for function '~A': ~A" (list reference name) "Import/Compatibility")
                           formatted-in))
                  ))))
-
+    
+    (print (list name new-inputs)) 
+    
     `(:box 
       (:type :function)
       (:reference ,reference)
@@ -703,7 +709,7 @@
 
 (defmethod om-load-boxwithed1  ((class t) name reference inputs position size value lock boxes connec numouts &optional fname pictlist) 
   `(:box 
-    (:type :patch)
+    (:type :abstraction)
     (:name ,name)
 
     (:reference 
@@ -1087,14 +1093,14 @@
     patch))
 
 
-
 ;======================================
 ; DI-BOXES 
 ;======================================
+;;; hacks: expressions contained in the OM6 patch format:
 (defmethod om-make-dialog-item ((type t) pos size text &rest args) nil)
 
 ;;; TEXT BOX
-
+;;; hacks: expressions contained in the OM6 patch format:
 (defmethod om-make-dialog-item ((type (eql 'text-box)) pos size text &rest args) text)
 
 (defmethod om-load-editor-box1 (name (reference (eql 'text-box))
@@ -1119,6 +1125,8 @@
 
 ;;; TEXT-VIEW
 ;;; => Convert to textbuffer
+
+;;; hacks: expressions contained in the OM6 patch format:
 (defmethod om-make-dialog-item ((type (eql 'text-view)) pos size text &rest args) (list text))
 (defmethod om-set-dialog-item-text ((dummy list) text) (setf (car dummy) text))
 
@@ -1151,6 +1159,7 @@
 
 ;;; SINGLE-ITEM-LIST / MULTI-ITEM-LIST
 
+;;; hacks: expressions contained in the OM6 patch format:
 (defmethod om-make-dialog-item ((type (eql 'single-item-list)) pos size text &rest args) 
   (mapcar #'list (getf args :range)))
 (defmethod om-make-dialog-item ((type (eql 'multi-item-list)) pos size text &rest args) 
@@ -1230,6 +1239,7 @@
 
 ;;; MENU
 
+;;; hacks: expressions contained in the OM6 patch format:
 (defmethod om-make-dialog-item ((type (eql 'pop-up-menu)) pos size text &rest args) 
   (mapcar #'list (getf args :range)))
 
@@ -1261,6 +1271,7 @@
 
 ;;; CHECK-BOX
 
+;;; hacks: expressions contained in the OM6 patch format:
 (defmethod om-make-dialog-item ((type (eql 'check-box)) pos size text &rest args) (list nil))
 (defmethod om-set-check-box ((self list) val) (setf (car self) val))
 
@@ -1298,47 +1309,6 @@
     (:w ,(om-point-x size))
     ))
 
-
-;======================================
-; old forms not supported: 
-;======================================
-; old-old: not exported by OM6
-;(defun om-load-ominstance1 (class name icon instance edparams &optional pictlist doc &rest rest) )
-;(defmethod om-load-boxcall ((self (eql 'editor)) name reference inputs position size value lock &rest rest) )
-;(defmethod om-load-boxcall ((self (eql 'slot)) name reference inputs position size value lock &rest rest) )
-;(defmethod om-load-boxcall ((self (eql 'comment)) name reference inputs position size value lock &rest rest) )
-;(defmethod om-load-boxcall ((self (eql 'mk-ins)) name reference inputs position size value lock &rest rest) )
-
-; No Visual OOP in OM7
-;(defun om-load-boxtypein (name type indice position docu keys defval &optional fname fsize) )
-;(defun om-load-initin  (name type indice posi self? class &optional fsize) )
-
-
-;============================================================================
-; MAQUETTE
-;============================================================================
-#|
-(defmethod om-load-boxcall ((self (eql 'maqabs)) name reference inputs position size value lock &rest rest) )
-(defun om-load-maq1 (name boxes connections range markers &rest ignore) )
-(defun om-load-maq2 (name boxes connections range markers &rest ignore) )
-(defun om-load-maq-abs1 (name boxes connections range markers) )
-(defun om-load-maq-boxin (name indice position docu &optional fname val fsize) )
-(defun om-load-maq-boxout (name indice position inputs &optional fname fsize) )
-(defun om-load-boxmaqselfin (name position  &optional fsize) )
-(defun om-load-temp-patch (name boxes connections &optional version) )
-(defun om-load-temp-patch1 (name boxes connections &optional version pictlist) )
-(defun om-load-tempobj1 (name inputs refer numouts posx sizex clorf value ignorepict) )
-(defun om-load-boxselfin (name position  &optional fsize) )
-(defun om-load-tempboxout (name position inputs &optional fname fsize) )
-|#
-
-;============================================================================
-; LISP-PATCH
-;============================================================================
-#|
-(defun om-load-lisp-patch (name version expression) )
-(defun om-load-lisp-abspatch (name version expression) )
-|#
 
 ;============================================================================
 ; DATA: specific conversions for object types
@@ -1381,14 +1351,14 @@
 ;;;============================================================================
 ;;; PICTURES
 ;;;============================================================================
-;;; TODO
+;;; TODO: not supported yet in OM7
 
 (defclass picture () ())
-(defun restore-pict-path (path) path)
-(defun om-get-picture (name location) nil)
 (defclass patch-picture () 
   ((pict-pos :accessor pict-pos :initarg :pict-pos)
    (pict-size :accessor pict-size :initarg :pict-size)))
+(defun restore-pict-path (path) path)
+(defun om-get-picture (name location) nil)
 
 #|
 
@@ -1401,12 +1371,9 @@
 ;;; THE "COMPATIBILITY API":
 ;============================================================================
 
-
-
 ;;; Also useful, from OM-LOAD-FROM-ID:
 ;;; The function FUNCTION-CHANGED-NAME allows to convert a box to a new one.
 ;;; (e.g. (defmethod function-changed-name ((reference (eql 'old-name))) 'new-name))
-
 
 ;;; When a reference has changed: 
 ;;; e.g.: (defmethod update-reference ((ref (eql 'old-class))) 'new-class) 
@@ -1426,56 +1393,18 @@
 
 
 
-#|
+;======================================
+; old forms not supported: 
+;======================================
+; old-old: not exported by OM6
+;(defun om-load-ominstance1 (class name icon instance edparams &optional pictlist doc &rest rest) )
+;(defmethod om-load-boxcall ((self (eql 'editor)) name reference inputs position size value lock &rest rest) )
+;(defmethod om-load-boxcall ((self (eql 'slot)) name reference inputs position size value lock &rest rest) )
+;(defmethod om-load-boxcall ((self (eql 'comment)) name reference inputs position size value lock &rest rest) )
+;(defmethod om-load-boxcall ((self (eql 'mk-ins)) name reference inputs position size value lock &rest rest) )
 
-;;; Main boxes
-x VALUE BOX
-x FUNCTION BOX
-x EDITOR BOX
-x COMMENTS
+; Visual-OOP specifics: not in OM7
+;(defun om-load-boxtypein (name type indice position docu keys defval &optional fname fsize) )
+;(defun om-load-initin  (name type indice posi self? class &optional fsize) )
 
-;;; Inputs/Connections
-x INPUT VALUES
-x KEYWORD INPUTS incl. stored value (ex. sort-list)
-x INPUTS WITH MENUINS eg. band-filter
-x OPTIONAL INPUTS 
-x REST INPUTS ex. list
-x CHANGE OPTIONAL => KEY   ex. FILE-CHOOSER
-x OBJECT NEW KEYWORDS ex. BPF decimals
-x CONNECTIONS incl color
 
-;;; State
-x LOCK/EV-ONCE
-x LAMBDA
-x REF MODE
-
-;;; Special boxes
-x SLOTS
-x REPEAT-N
-x LIST-ELEMENTS
-x SEQUENCE
-
-x INSTANCE BOXES
-
-;;; Abstractions
-x IN/OUTS
-x INTERNAL PATCH
-x LISP-FUNCTIONS
-x OMLOOP
-
-X DIALOG-ITEMS
-
-x PATCH WITH LIB FUNCTIONS
-
-x SDIFFILE
-x SOUND  !!! markers seconds vs. milliseconds
-x TEXTFILE
-
-X CLASS-ARRAY
-
-PICTURE
-GLOBAL PATCHES
-GLOBAL VARS
-MAQUETTE
-
-|#

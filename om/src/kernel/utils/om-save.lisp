@@ -534,8 +534,7 @@
 (defmethod box-type ((self OMBoxEditCall)) :object)
 (defmethod box-type ((self OMSlotsBox)) :slots)
 (defmethod box-type ((self OMInOutBox)) :io)
-(defmethod box-type ((self OMBoxPatch)) :patch)
-(defmethod box-type ((self OMBoxLisp)) :textfun)
+(defmethod box-type ((self OMBoxAbstraction)) :abstraction)
 (defmethod box-type ((self OMInterfaceBox)) :interface)
 (defmethod box-type ((self OMPatchComponentBox)) :special)
 
@@ -615,8 +614,8 @@
          
          (and (save-box-library self) `((:library ,(save-box-library self))))
          
-         `((:reference ,(save-box-reference self))
-           (:type ,(box-type self))
+         `((:type ,(box-type self))
+           (:reference ,(save-box-reference self))
            (:group-id ,(group-id self))
            (:name ,(name self))
            (:x ,(box-x self)) (:y ,(box-y self))
@@ -697,8 +696,9 @@
 
 (defmethod omNG-make-special-box ((symbol t) pos &optional args) nil)
 
+
 (defmethod om-load-from-id ((id (eql :box)) data)
-  ;; (print (list "load BOX" (find-value-in-kv-list data :type)))
+  ; (print (list "load BOX" (find-value-in-kv-list data :type)))
   (let* ((type (find-value-in-kv-list data :type))
          (reference (omng-load (find-value-in-kv-list data :reference)))
          (x (find-value-in-kv-list data :x))
@@ -730,13 +730,12 @@
                        ))
                    ))
                 
-                (:patch 
+                ((or :abstraction :patch :textfun)  
+                 ;;; :patch and :textfun are for compatibility: in principle all boxes are now saved with type :abstraction 
                  (let ((box (omng-make-new-boxcall (omng-load reference) pos)))
                    ;; sometimes (e.g. in maquettes) the patches save their value
                    (when box (setf (value box) (list val)))
                    box))
-                
-                (:textfun (omng-make-new-boxcall (omng-load reference) pos))
                 
                 (:io (omng-make-new-boxcall (omng-load reference) pos))
                 

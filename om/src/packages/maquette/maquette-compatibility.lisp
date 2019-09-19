@@ -55,38 +55,56 @@
 
 
 
-;;; OMBoxMaquette: OK but the maquette contents is not loaded
+;;; OMBoxMaquette
 (defmethod om-load-boxcall ((self (eql 'maqabs)) name reference inputs position size value lock &rest rest)
 
   (declare (ignore value rest))
   
-  ;; reference contains the actual patch-code
-  (let ((type (if (equal (car reference) :textfun) :textfun :patch)))
-    
-    `(:box 
-      (:type :special) ;; <=  ???
-      (:reference ,reference)   ;; contains the actual contents
-      (:name ,name)
-      (:x ,(om-point-x position))
-      (:y ,(om-point-y position))
-      (:w ,(and size (om-point-x size)))
-      (:h ,(if size (om-point-y size) 48))
-      (:lock ,(if lock (cond ((string-equal lock "x") :locked) 
-                             ((string-equal lock "&") :eval-once))))
-      (:lambda ,(if lock (cond ((string-equal lock "l") :lambda) 
-                               ((string-equal lock "o") :reference))))
-      (:inputs .,(mapcar #'eval inputs))
-      (:display :mini-view)
-      )
-    ))
+  `(:box 
+    (:type :abstraction)
+    (:reference ,reference)   ;; contains the actual contents
+    (:name ,name)
+    (:x ,(om-point-x position))
+    (:y ,(om-point-y position))
+    (:w ,(and size (om-point-x size)))
+    (:h ,(if size (om-point-y size) 48))
+    (:lock ,(if lock (cond ((string-equal lock "x") :locked) 
+                           ((string-equal lock "&") :eval-once))))
+    (:lambda ,(if lock (cond ((string-equal lock "l") :lambda) 
+                             ((string-equal lock "o") :reference))))
+    (:inputs .,(mapcar #'eval inputs))
+    (:display :mini-view)
+    )
+  )
 
-;;; => TODO !!!
+
+;;; TEMPOUT in patches = normal out
+(defun om-load-tempboxout (name position inputs &optional fname fsize)
+  (let ((newbox (make-new-temp-output  name (om-correct-point position))))
+    (setf (frame-name newbox) fname)
+    (setf (inputs newbox) (mapcar #'(lambda (input) (eval input)) inputs))
+    (set-box-to-inputs (inputs newbox) newbox)
+    (when fsize
+      (setf (frame-size newbox) (om-correct-point fsize)))
+    newbox))
+
+
+;;; => A BOX IN THE MAQUETTE
 (defun om-load-tempobj1 (name inputs refer numouts posx sizex clorf value ignorepict 
                               sizey posy strechfact 
                               &optional (store nil) (params nil) (lock nil) pict (showpict nil) (mute nil) (pos-locked nil)
                               (showname nil) (doc "") &rest rest)
   nil)
   
+
+;;; IN/OUT in the maquette: no more supported
+(defun om-load-maq-boxin (name indice position docu &optional fname val fsize) NIL)
+(defun om-load-maq-boxout (name indice position inputs &optional fname fsize) NIL)
+
+
+;;; META IN/OUTS: need some conversion work
+(defun om-load-boxmaqselfin (name position  &optional fsize) )
+(defun om-load-boxselfin (name position  &optional fsize) )
 
 
 #|
@@ -128,3 +146,14 @@
       (setf (edition-params newtempob) (corrige-edition-params (car (value newtempob)) params))
       newtempob)))
 |#
+
+
+;======================================
+; old forms not supported: 
+;======================================
+; old-old: not exported by OM6
+; (defun om-load-maq1 (name boxes connections range markers &rest ignore) )
+; (defun om-load-temp-patch (name boxes connections &optional version) )
+; (defun om-load-temp-patch1 (name boxes connections &optional version pictlist) )
+
+
