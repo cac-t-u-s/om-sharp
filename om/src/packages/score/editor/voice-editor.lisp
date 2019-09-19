@@ -63,6 +63,8 @@
                               :value (editor-get-edit-param editor :h-stretch)
                               :di-action #'(lambda (list) 
                                              (editor-set-edit-param editor :h-stretch (om-get-selected-item list))
+                                             (build-editor-window editor)
+                                             (init-editor-window editor) ;;; will change the ruler
                                              (editor-update-ruler editor)))
                   ))
                 
@@ -96,11 +98,13 @@
   (let ((ruler (get-g-component self :x-ruler)))
     (set-ruler-range ruler
                      (v1 ruler) 
-                     (v2 ruler))))
+                     (v2 ruler))
+    ))
 
 
 (defmethod make-time-ruler ((editor voice-editor) dur)
-  (om-make-view 'voice-ruler 
+  (om-make-view (if (numberp (editor-get-edit-param editor :h-stretch))
+                    'voice-ruler 'time-ruler)
                 :related-views (get-g-component editor :data-panel-list)
                 :size (omp nil 20) 
                 :bg-color (om-def-color :light-gray)
@@ -117,7 +121,8 @@
 
 (defmethod ruler-zoom-? ((self voice-ruler)) 
   ;;; if h-stretch is a number, we are not in proportional view
-  (not (numberp (editor-get-edit-param (editor (car (related-views self))) :h-stretch))))
+  ;;(not (numberp (editor-get-edit-param (editor (car (related-views self))) :h-stretch)))
+  nil)
 
 
 (defmethod move-editor-selection ((self voice-editor) &key (dx 0) (dy 0))
