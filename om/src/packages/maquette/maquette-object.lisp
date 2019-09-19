@@ -361,7 +361,7 @@
          (y (+ (getf (range maquette) :y1) 
                (if tracknum (* (- (n-tracks maquette) (1- tracknum)) trackw) (round yrange 2)))))
     (setf (box-y tb) y 
-          (box-h tb) (- (round yrange 10)))
+          (box-h tb) (round yrange 10))
   (omNG-add-element maquette tb)
   (om-invalidate-view (nth (1- tracknum) (get-g-component (editor maquette) :track-views)))))
 
