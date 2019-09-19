@@ -664,37 +664,15 @@
 
 
 (defmethod move-rulers ((self stream-panel) &key (dx 0) (dy 0))
-
   (declare (ignore dy)) ;; no y-ruler
- 
-  (let* ((rx (get-g-component (editor self) :x-ruler))
-         (dxx (* (/ dx (w rx)) (- (v2 rx) (v1 rx)))))
-    (unless (or (and (plusp dxx) (vmin rx) (= (vmin rx) (v1 rx))) 
-                (and (minusp dxx) (vmax rx) (= (vmax rx) (v2 rx))))
-      (set-ruler-range rx 
-                       (if (vmin rx) (max (vmin rx) (- (v1 rx) dxx)) (- (v1 rx) dxx))
-                       (if (vmax rx) (min (vmax rx) (- (v2 rx) dxx)) (- (v2 rx) dxx))))
-    ))
-
+  (shift-time-ruler (get-g-component (editor self) :x-ruler) dx))
 
 ;;; no y-ruler : zoom just in x
 (defmethod zoom-rulers ((panel stream-panel) &key (dx 0.1) (dy 0.1) center)
-  
   (declare (ignore dy)) ;; no y-ruler
-
   (let ((x-ruler (get-g-component (editor panel) :x-ruler)))
-    
     (when (and x-ruler (ruler-zoom-? x-ruler))
-    
-      (let* ((position (or center (omp (* (w panel) .5) (* (h panel) .5))))
-             (x-pos (pix-to-x panel (om-point-x position)))
-             (curr-w (- (x2 panel) (x1 panel)))
-             (new-w (round (* curr-w (1+ dx))))
-             (new-x1 (round (- x-pos (/ (* (- x-pos (x1 panel)) new-w) curr-w))))
-             )
-        
-        (set-ruler-range x-ruler new-x1 (+ new-x1 new-w))
-        
-        ))))
+      (zoom-time-ruler x-ruler dx center panel))))
+
 
 

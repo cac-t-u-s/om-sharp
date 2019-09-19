@@ -237,6 +237,12 @@
 (defmethod allowed-element ((self OMMaquette) (elem OMInOutBox)) nil)
 
 
+(defmethod om-view-pan-handler ((self maquette-view) position dx dy)
+  (shift-time-ruler (get-g-component (editor self) :abs-ruler) (* dx 10)))
+
+(defmethod om-view-zoom-handler ((self maquette-view) position zoom)
+  (zoom-time-ruler (get-g-component (editor self) :abs-ruler) (- 1 zoom) position self))
+
 
 ;;;========================
 ;;; TRACK-VIEW
@@ -331,6 +337,13 @@
   (call-next-method)
   (setf (getf (range (object (editor view))) :x1) (x1 self)
         (getf (range (object (editor view))) :x2) (x2 self)))
+
+
+(defmethod om-view-pan-handler ((self sequencer-track-view) position dx dy)
+  (shift-time-ruler (get-g-component (editor self) :abs-ruler) (* dx 10)))
+
+(defmethod om-view-zoom-handler ((self sequencer-track-view) position zoom)
+  (zoom-time-ruler (get-g-component (editor self) :abs-ruler) (- 1 zoom) position self))
 
 
 (defmethod om-view-click-handler ((self sequencer-track-view) position)
@@ -576,7 +589,7 @@
   (case (display self)  
     (:mini-view 
      (draw-maquette-mini-view (reference self) self (+ x 20) y (- w 40) h time))
-    (:text 
+    (:text ;; not called 
      (draw-values-as-text self x y))
     (:value 
      (let ((dur (or (get-obj-dur (get-box-value self)) (box-w self))))
@@ -587,12 +600,6 @@
                                     w)
                                   h time)
          (draw-mini-arrow (+ x 24) (+ y 9) 3 10 7 1)
-         ;;; arrow
-         ;(let ((ax (+ x 16)))
-         ;  (om-with-fg-color (om-make-color 1 1 1 0.7)
-         ;    (om-draw-rect (+ ax 10) 8 8 6 :fill t)
-         ;    (om-draw-polygon (list (+ ax 7) 13 (+ ax 21) 13 (+ ax 14) 19) :fill t)
-         ;    ))
          )))
     (:hidden  (om-with-font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))
                             (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)

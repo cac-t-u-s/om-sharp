@@ -233,10 +233,12 @@
 (defmethod ruler-zoom-? ((self ruler-view)) t)
 
 (defmethod om-view-click-handler ((self ruler-view) pos)
+  
   (let ((curr-pos pos)
         (vmin (or (vmin self) nil)) ; -1000000
         (vmax (or (vmax self) nil)) ; 1000000
         (r-size (ruler-size self)))
+    
     (om-init-temp-graphics-motion 
      self pos NIL
      
@@ -246,13 +248,15 @@
                         (dur (- (v2 self) (v1 self)))
                         (zoom (pix-diff-to-value self (- (zoom-value self position) (zoom-value self curr-pos))))
                         (shift (pix-diff-to-value self (- (shift-value self position) (shift-value self curr-pos)))))
-
+                   
                    (if (and (ruler-zoom-? self) (> (abs zoom) (abs shift)))
+                       
                        ;;; ZOOM
                        (let* ((newdur (+ dur (* zoom 0.01 dur)))
                               (v1 (max? vmin (- curr-v (/ (* (- curr-v (v1 self)) newdur) dur))))     
                               (v2 (min? vmax (+ v1 newdur))))
                          (set-ruler-range self v1 v2))
+                     
                      ;;; TRANSLATE
                      (let ((dt (* (/ shift r-size) dur)))
                        (unless (or (and (plusp shift) vmin (= vmin (v1 self))) 
@@ -264,7 +268,9 @@
      
      :release #'(lambda (view position) 
                   (declare (ignore view position))
-                  (update-views-from-ruler self)))))
+                  (update-views-from-ruler self))
+     )
+    ))
 
 
 ;;; !! reinit ranges apply on the editor attached to the first related-view

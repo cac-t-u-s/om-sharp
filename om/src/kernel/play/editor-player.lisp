@@ -692,6 +692,29 @@
     (+ dt offset)))
 
 
+
+;;; CALLED BY PAN/ZOOM GESTURES
+
+(defmethod shift-time-ruler ((self time-ruler) dx)
+  (let ((dxx (* (/ dx (w self)) (- (v2 self) (v1 self)))))
+    (unless (or (and (plusp dxx) (vmin self) (= (vmin self) (v1 self))) 
+                (and (minusp dxx) (vmax self) (= (vmax self) (v2 self))))
+      (set-ruler-range self 
+                       (if (vmin self) (max (vmin self) (- (v1 self) dxx)) (- (v1 self) dxx))
+                       (if (vmax self) (min (vmax self) (- (v2 self) dxx)) (- (v2 self) dxx))))
+    ))
+
+(defmethod zoom-time-ruler ((self time-ruler) dx center view)
+  (let* ((position (or center (omp (* (w view) .5) (* (h view) .5))))
+         (x-pos (pix-to-x view (om-point-x position)))
+         (curr-w (- (x2 view) (x1 view)))
+         (new-w (round (* curr-w (1+ dx))))
+         (new-x1 (round (- x-pos (/ (* (- x-pos (x1 view)) new-w) curr-w)))))
+    
+    (set-ruler-range self new-x1 (+ new-x1 new-w))
+    ))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;TIME MARKERS API
 ;;;;;;;;;;;;;;;;;;;;;;;
