@@ -1389,8 +1389,8 @@
      'om-column-layout :ratios '(nil 1 nil) :delta 10
      :subviews (list 
                 
-                (om-make-di 'om-multi-text :size (om-make-point nil 36) 
-                            :text "Add one or more output(s) (OUT) to get the corresponding Lisp code..."
+                (om-make-di 'om-multi-text :size (om-make-point nil 42) 
+                            :text "This is the Lisp code corresponding to the selected box evaluation, or to the whole patch evaluated at its output box(es):"
                             :fg-color (om-def-color :dark-gray)
                             :font (om-def-font :font1))
                 
@@ -1416,7 +1416,11 @@
            (wem (om-string-size "m" (om-get-font textpane))))
     (om-set-dialog-item-text 
      (get-g-component self :lisp-code)
-     (format-lisp-code-string (get-patch-lambda-expression (object self)) (round w wem)))
+     (format-lisp-code-string 
+      (if (= (length (get-selected-boxes self)) 1)
+          (gen-code (car (get-selected-boxes self)))
+        (get-patch-lambda-expression (object self)))
+      (round w wem)))
     )))
 
 ;;;======================================
@@ -1471,6 +1475,8 @@
 (defmethod select-all-command-for-view ((self patch-editor) (view om-lisp::om-listener-pane))
   (om-lisp::om-select-all-command view))
 
+
+
 ;;;======================================
 ;;; INSPECTOR
 ;;;======================================
@@ -1484,10 +1490,6 @@
   (let ((inspector-pane (om-make-view 'inspector-view :size (omp nil nil) :direct-draw nil)))
     
     (set-g-component editor :inspector inspector-pane)
-    
-    ;;; initialize with current selection 
-    ;; => wrong update frame (the window is not yet created)
-    ;; (update-inspector-for-editor editor)
     
     inspector-pane))
 
@@ -1503,8 +1505,18 @@
 ;;; redefined for connections
 (defmethod get-update-frame ((self t)) nil)
 
-(defmethod set-inspector-contents ((self inspector-view) object)
+
+(defparameter *patch-inspector-help-text* "
+This is a patch editor window.
   
+Double-click or type 'N' to enter a new box by its name. Use the down-arrow key to pop-up auto-completed names after typing the first characters.
+
+The function and class reference accessible from the \"Help\" menu, or the \"Class/Function Library\" tab in the Session Winows (CMD/Ctrl+SHIFT+W) can provide you a list of available predefined functions.
+") 
+
+
+(defmethod set-inspector-contents ((self inspector-view) object)
+
   (unless nil ;; (equal (object self) object)
 
     (setf (object self) object)
@@ -1519,7 +1531,7 @@
                 :subviews 
                 (append 
                  (cons 
-                  (om-make-di 'om-simple-text :size (om-make-point nil 20) 
+                  (om-make-di 'om-simple-text :size (om-make-point 200 20) 
                             ;:fg-color (om-def-color :dark-gray)
                               :text (object-name-in-inspector object)
                               :focus t  ;; prevents focus on other items :)
@@ -1592,7 +1604,7 @@
               'om-column-layout :align :bottom
               :subviews 
               (list 
-               (om-make-di 'om-simple-text :size (om-make-point 275 20) 
+               (om-make-di 'om-simple-text :size (om-make-point 200 20) 
                            :text "--"
                            :fg-color (om-def-color :dark-gray)
                            :focus t  ;; prevents focus on other items :)
@@ -1600,7 +1612,7 @@
              
                :separator
             
-               (om-make-di 'om-multi-text :size (om-make-point nil 160) ; (* 40 (length (string-lines-to-list doc))) 
+               (om-make-di 'om-multi-text :size (om-make-point nil nil) ; (* 40 (length (string-lines-to-list doc))) 
                            :text *patch-inspector-help-text*
                            :fg-color (om-def-color :dark-gray)
                            :font (om-def-font :font1))
@@ -1617,17 +1629,15 @@
     ))
 
 
-
-(defparameter *patch-inspector-help-text* "
-This is a patch editor window.
-  
-Double-click or type 'N' to enter a new box by its name. Use the down-arrow key to pop-up auto-completed names after typing the first characters.
-
-The function and class reference accessible from the \"Help\" menu, or the \"Class/Function Library\" tab in the Session Winows (CMD/Ctrl+SHIFT+W) can provide you a list of available predefined functions.
-") 
+;;; !! object and view can be lists !!
+(defmethod set-inspector-contents ((self inspector-view) (object cons))
+  (let ((virtual-obj (make-instance 'virtual-object-selection :objects object)))
+    (set-inspector-contents self virtual-obj)
+    ))
 
 
 
+;;; updates the inspector or the lisp code panel depending on the current selection
 (defmethod update-inspector-for-editor ((self patch-editor) &optional obj)
   (let ((obj-to-inspect 
          (or obj 
@@ -1635,17 +1645,25 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                                       (get-selected-connections self))))
                (if (= 1 (length selection)) 
                    (car selection) 
-                 selection))))
-        (inspector-view (get-g-component self :inspector)))
-    
-    (when (and inspector-view
-               (or obj ;;; explicit request for this object
-                   (not (equal (object inspector-view) obj-to-inspect))))
-      (set-inspector-contents (get-g-component self :inspector) obj-to-inspect)
-      )
+                 selection)))))
+    (cond 
+     
+     ((get-g-component self :inspector)
       
+      (when (or obj ;;; explicit request for this object
+                (not (equal (object (get-g-component self :inspector)) obj-to-inspect)))
+        (set-inspector-contents (get-g-component self :inspector) obj-to-inspect)
+        t))
+     
+     ;;; better than testing everywhere, just call it from here :)
+     ((get-g-component self :lisp-code)
+      (patch-editor-set-lisp-code self))
+     
+     (t nil))
     ))
 
+
+;;; force a specific object
 (defun update-inspector-for-object (obj)
   (let ((ed (editor (get-update-frame obj))))
     (when ed
@@ -1657,6 +1675,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
   (let ((ed (editor (get-update-frame box))))
     (when ed
       (update-inspector-for-editor ed nil))))
+
 
 (defmethod remove-selection :after ((self patch-editor))
   (let ((inspector (get-g-component self :inspector)))
@@ -1670,13 +1689,6 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
 
 
 
-;;; !! object and view can be lists !!
-(defmethod set-inspector-contents ((self inspector-view) (object cons))
-  (let ((virtual-obj (make-instance 'virtual-object-selection :objects object)))
-    (set-inspector-contents self virtual-obj)
-    ))
-
-
 ;;;======================================
 ;;; OPTIONAL SIDE PANEL (GENERAL)
 ;;;======================================
@@ -1687,9 +1699,11 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
     (build-editor-window self)
     (init-editor-window self)
     (when (equal (editor-window-config self) :inspector)
-      (update-inspector-for-editor self))
+      (or (update-inspector-for-editor self)
+          (set-inspector-contents (get-g-component self :inspector) nil))
+      )
     ))
-
+  
 (defmethod make-layout-items ((editor patch-editor))
     
   (om-make-layout 
