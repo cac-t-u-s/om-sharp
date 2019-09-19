@@ -167,14 +167,15 @@
   )
 
 
-
 ;;; IN/OUT in the maquette: no more supported
 (defun om-load-maq-boxin (name indice position docu &optional fname val fsize) 
   (declare (ignore name indice position docu fname val fsize))
+  (om-print "Warning: Inputs no more supported in the maquette. Use control-patch." "Import/Compatibility")
   NIL)
 
 (defun om-load-maq-boxout (name indice position inputs &optional fname fsize) 
   (declare (ignore name indice position inputs fname fsize))
+  (om-print "Warning: Outputs no more supported in the maquette. Use control-patch." "Import/Compatibility")
   NIL)
 
 
