@@ -68,6 +68,19 @@
     (om-add-subviews container frame)))
 
 
+(defmethod delete-box-frame ((frame t)) nil)
+
+(defmethod delete-box-frame ((frame OMBoxFrame))
+  ;;; here we ar lucky that om-view-container is NIL in a maquette-track-view
+  ;;; but this is dangerous and should be specialized in some way
+  (when (om-view-container frame)
+    (om-remove-subviews (om-view-container frame) frame))
+  
+  ;;; tell the box that it has no more frame!
+  (setf (frame (object frame)) nil)
+  t)
+
+
 ;;;================================
 ;;; I/O areas
 ;;;================================
