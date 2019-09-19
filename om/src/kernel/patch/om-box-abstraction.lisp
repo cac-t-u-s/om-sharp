@@ -277,15 +277,11 @@
       (:mini-view 
        (draw-mini-view (reference self) self 10 0 (- (w frame) 20) (h frame) nil))
       
-      (:text 
-       (draw-values-as-text self 0 0))
-      
       (:value 
-       
-       (if (draw-mini-view (get-box-value self) self 4 4 (- (w frame) 8) (- (h frame) 12) nil)
-           (draw-mini-arrow 24 9 3 10 7 1)
-         (draw-values-as-text self 0 0) ;;; better than nothing...
-         ))
+       ;(draw-mini-view (get-box-value self) self 4 4 (- (w frame) 8) (- (h frame) 12) nil)
+       ;(draw-mini-arrow 24 9 3 10 7 1)
+       (draw-values-as-text self 0 0)
+       )
       
       (otherwise 
        (let ((label (string-upcase (get-object-type-name (reference self))))

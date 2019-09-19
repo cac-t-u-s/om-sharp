@@ -30,6 +30,7 @@
     (reference :initform nil :initarg :reference :accessor reference)
     (group-id :initform nil :accessor group-id :initarg :group-id) ;; id used for grouping boxes (e.g. tracks in a sequencer)
     (value :initform nil :accessor value)   ;; value = a list of one or more value(s)
+    
     ;;; graphical attributes
     (frame :initform nil :accessor frame :documentation "the OMFrame representing to the box")
     (box-x :initform nil :accessor box-x :initarg :box-x)
@@ -38,7 +39,6 @@
     (box-h :initform nil :accessor box-h :initarg :box-h)
     (display :initform :hidden :accessor display :initarg :display)
     (selected :initform nil :accessor selected :initarg :selected)
-    (cache-display :initform nil :accessor cache-display)
     (border :initform nil :accessor border :initarg :border)
     (roundness :initform nil :accessor roundness :initarg :border)
     (color :initform nil :accessor color :initarg :color)
@@ -48,6 +48,9 @@
     (icon-pos :initform :left :accessor icon-pos :initarg :icon-pos)
     (show-name :initform t :accessor show-name :initarg :show-name)
     (show-markers :accessor show-markers :initform t)
+   
+    (cache-display :initform nil :accessor cache-display)
+   
     ;;; REACTIVE FLAGS
    (gen-lock :accessor gen-lock :initform nil) ;; this box is the event source and his evaluation is locked
    (gen-flag :accessor gen-flag :initform nil) ;; this box has already been valuated during this generation 

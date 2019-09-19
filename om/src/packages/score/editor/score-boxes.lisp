@@ -22,11 +22,18 @@
 (in-package :om)
 
 
-(defclass ScoreBox (OMBoxEditCall) 
+(defclass ScoreBoxEditCall (OMBoxEditCall) 
   ((fontsize :accessor fontsize :initform 18)))
 
-(defmethod special-box-type ((class-name (eql 'score-element))) 'ScoreBox)
+(defmethod special-box-type ((class-name (eql 'score-element))) 'ScoreBoxEditCall)
 
+(defmethod get-box-fontsize ((self ScoreBoxEditCall)) 
+  (or (fontsize self) 18))
+
+(defmethod set-box-fontsize ((self ScoreBoxEditCall) size) 
+  (setf (fontsize self) size))
+
+  
 (defmethod display-modes-for-object ((self score-element))
   '(:mini-view :hidden :text))
 
@@ -38,21 +45,18 @@
 
 (defmethod miniview-time-to-pixel-proportional ((object score-element) box view time)
 
-  (let* ((fontsize (or (fontsize box) 24))
+  (let* ((fontsize (get-box-fontsize box))
          (unit (font-size-to-unit fontsize))
          (shift-x-pix (* (score-mini-view-left-shift-in-units box) unit)))
-    ;(print (list "time" time))
-    ;(print 
-     (+ shift-x-pix ;; left margin
+    (+ shift-x-pix ;; left margin
         *miniview-x-margin*
         (* (- (w view) (* *miniview-x-margin* 2) shift-x-pix)   
            (/ time (if (plusp (get-obj-dur object)) (get-obj-dur object) 1000))))
-     ;)
-     ))
+    ))
 
 (defmethod miniview-time-to-pixel-rhythmic ((object score-element) box view time)
 
-  (let* ((fontsize (or (fontsize box) 24))
+  (let* ((fontsize (get-box-fontsize box))
          (unit (font-size-to-unit fontsize))
          (shift-x-pix (* (score-mini-view-left-shift-in-units box) unit))
          (time-map (get-edit-param box :time-map)))
@@ -63,25 +67,26 @@
 
 
 ;;; all objects (except voice/poly) on a box
-(defmethod miniview-time-to-pixel ((object score-element) box (view omobjectboxframe) time) 
+(defmethod miniview-time-to-pixel ((object score-element) box (view omboxframe) time) 
   (miniview-time-to-pixel-proportional object box view time))
 
 ;;; voice on a box
-(defmethod miniview-time-to-pixel ((object voice) box (view omobjectboxframe) time)
+(defmethod miniview-time-to-pixel ((object voice) box (view omboxframe) time)
   (miniview-time-to-pixel-rhythmic object box view time))
 
-(defmethod miniview-time-to-pixel ((object poly) box (view omobjectboxframe) time)
+(defmethod miniview-time-to-pixel ((object poly) box (view omboxframe) time)
   (miniview-time-to-pixel-rhythmic object box view time))
 
-(defmethod miniview-time-to-pixel ((object multi-seq) box (view omobjectboxframe) time)
+(defmethod miniview-time-to-pixel ((object multi-seq) box (view omboxframe) time)
   (miniview-time-to-pixel-proportional object box view time))
 
 
 ;;; an objects in the maquette tracks...
 (defmethod miniview-time-to-pixel ((object score-element) box (view sequencer-track-view) time)
-  (- (time-to-pixel view (+ (box-x box) time)) 
-     (time-to-pixel view (box-x box))
-     ))
+  (let ((tt (if (listp time) (car time) time))) ;;; can happen that time is a list (see draw-measure)
+    (- (time-to-pixel view (+ (box-x box) tt)) 
+       (time-to-pixel view (box-x box))
+       )))
 
 (defun score-mini-view-left-shift-in-units (box)
   (if (or (equal (get-edit-param box :staff) :line)
@@ -89,36 +94,58 @@
       1 5))
 
 
-(defmethod draw-mini-view ((self score-element) (box ScoreBox) x y w h &optional time)
+(defmethod compute-font-size ((self score-element) (box OMBox) h y)
+  
+  (let* ((font-size 18)
+         (unit (font-size-to-unit font-size))
+         (y-in-units (/ y unit)))
 
+    (when (> (num-voices self) 0)
+
+      (let* ((staff (get-edit-param box :staff))
+             (staff-lines (apply 'append (mapcar 'staff-lines (staff-split staff))))
+             (n-lines (+ (- (car (last staff-lines)) (car staff-lines)) 8)) ;;; range of the staff lines + 10-margin
+             (h-per-voice (/ h (num-voices self)))
+             (draw-box-h (* n-lines unit)))
+                  
+        (if (> draw-box-h h-per-voice)
+          ;;; there's no space: reduce font ?
+          (setf unit (- unit (/ (- draw-box-h h-per-voice) n-lines))
+                font-size (unit-to-font-size unit))
+           ;;; there's space: draw more in the middle
+           (setf y-in-units (+ y-in-units (/ (round (- h-per-voice draw-box-h) 2) unit))))
+        ))
+    
+    (values font-size y-in-units)))
+
+  
+  
+(defmethod draw-mini-view ((self score-element) (box OMBox) x y w h &optional time)
+  
   (om-draw-rect x y w h :fill t :color (om-def-color :white))
   
-  (when (> (num-voices self) 0)
-    (let ((staff (get-edit-param box :staff))
-          (h-per-voice (/ h (num-voices self))))
-    
-      (setf (fontsize box) 18)
-    
-      (let* ((staff-lines (apply 'append (mapcar 'staff-lines (staff-split staff))))
-             (unit (font-size-to-unit (fontsize box)))
-             (n-lines (+ (- (car (last staff-lines)) (car staff-lines)) 8)) ;;; range of the staff lines + 10-margin
-             (draw-box-h (* n-lines unit))
-             (y-in-units (/ y unit)))
-     
-        (if (< draw-box-h h-per-voice)
-            ;;; there's space: draw more in the middle
-            (setf y-in-units (+ y-in-units (/ (round (- h-per-voice draw-box-h) 2) unit)))
-          ;;; there's no space: reduce font ?
-          (progn 
-            (setf unit (- unit (/ (- draw-box-h h-per-voice) n-lines)))
-            (setf (fontsize box) (unit-to-font-size unit)))
-          )
-      
-        (om-with-fg-color (om-make-color 0.0 0.2 0.2)
-          (score-object-mini-view self box x y y-in-units w h)
-          )
-        ))))
+  (multiple-value-bind (fontsize y-u)
+      (compute-font-size self box h y)
 
+    (set-box-fontsize box fontsize)
+ 
+  (om-with-fg-color (om-make-color 0.0 0.2 0.2)
+    (score-object-mini-view self box x y y-u w h)
+    )
+  ))
+
+
+
+
+;;; Hacks for patch-boxes
+
+(defmethod get-edit-param ((self OMBoxAbstraction) param)
+  (case param
+    (:staff :g)
+    (otherwise nil)))
+
+(defmethod get-box-fontsize ((self OMBoxAbstraction)) 18)
+(defmethod set-box-fontsize ((self OMBoxAbstraction) size) nil)
 
 
 ;;;===========================
@@ -134,7 +161,7 @@
 (defmethod score-object-mini-view ((self note) box x-pix y-pix y-u w h)
   
   (let ((staff (get-edit-param box :staff))
-        (font-size (fontsize box))
+        (font-size (get-box-fontsize box))
         (in-sequencer? (typep (frame box) 'sequencer-track-view)))
     
     (draw-staff x-pix y-pix y-u w h font-size staff :margin-l 1 :margin-r 1 
@@ -157,13 +184,14 @@
 (defmethod score-object-mini-view ((self chord) box x-pix y-pix y-u w h)
   
   (let ((staff (get-edit-param box :staff))
-        (in-sequencer? (typep (frame box) 'sequencer-track-view)))
+        (in-sequencer? (typep (frame box) 'sequencer-track-view))
+        (font-size (get-box-fontsize box)))
     
-    (draw-staff x-pix y-pix y-u w h (fontsize box) staff :margin-l 1 :margin-r 1 
+    (draw-staff x-pix y-pix y-u w h font-size staff :margin-l 1 :margin-r 1 
                 :keys (not in-sequencer?))
 
     (when (notes self)
-      (draw-chord self 0 0 y-u x-pix y-pix w h (fontsize box) :scale nil :staff staff
+      (draw-chord self 0 0 y-u x-pix y-pix w h font-size :scale nil :staff staff
                   :time-function #'(lambda (time) (declare (ignore time)) (/ w 2))
                   ))
     ))
@@ -175,7 +203,7 @@
 (defmethod score-object-mini-view ((self chord-seq) box x-pix y-pix y-u w h)
   
   (let* ((staff (get-edit-param box :staff))
-         (font-size (fontsize box))
+         (font-size (get-box-fontsize box))
          (in-sequencer? (typep (frame box) 'sequencer-track-view)))
         
     (draw-staff x-pix y-pix y-u w h font-size staff :margin-l 0 :margin-r 0 :keys (not in-sequencer?))
@@ -200,7 +228,7 @@
 (defmethod score-object-mini-view ((self voice) box x-pix y-pix shift-y w h)
   
   (let* ((staff (get-edit-param box :staff))
-         (font-size (fontsize box))
+         (font-size (get-box-fontsize box))
          (unit (font-size-to-unit font-size))
          (x-u (/ x-pix unit))
          (y-u (/ y-pix unit))
