@@ -63,7 +63,7 @@ Ex. (omif (= 4 5) 'A)  ==>  NIL
 ;;; LOGICAL CONTROLS (AND/OR)
 ;;;------------------------
 
-(defmethod* OMOR  ((self t) &rest rest) :numouts 1 :initvals '(nil nil) :indoc '("something" "other things")
+(defmethod* OMOR  ((test t) &rest addtest) :numouts 1 :initvals '(nil nil) :indoc '("something" "other things")
    :doc "Logical OR:
 Yields the value T (true) if one at least among the values connected to it evaluates to T. 
 
@@ -71,10 +71,10 @@ Accepts as many optional inputs as needed.
 
 OMOR can be used to compose conditions as input to an OMIF" 
    :icon 'log-or
-   (eval `(or ,self ,.rest)))
+   (eval `(or ,test ,.addtest)))
 
 
-(defmethod* OMAND  ((self t) &rest rest) :numouts 1 :initvals '(nil nil) :indoc '("something" "other things")
+(defmethod* OMAND  ((test t) &rest addtest) :numouts 1 :initvals '(nil nil) :indoc '("something" "other things")
    :doc "Logical AND :
 Yields the value T (true) if all the values connected to it evaluates to T. 
 
@@ -82,7 +82,14 @@ Accepts as many optional inputs as needed.
 
 OMAND can be used to compose conditions as input to an OMIF"
    :icon 'log-and
-   (eval `(and ,self ,.rest)))
+   (eval `(and ,test ,.addtest)))
+
+
+;;; compatibility...
+(defmethod function-changed-name ((reference (eql 'conditional))) 'omor)
+(defmethod update-arg-names ((reference (eql 'omor))) '(("self" "test") ("rest" "addtest")))
+(defmethod update-arg-names ((reference (eql 'omand))) '(("self" "test") ("rest" "addtest")))
+
 
 (defclass OMAndBoxCall (OMGFBoxcall) ())
 (defmethod boxclass-from-function-name ((self (eql 'omand))) 'OMAndBoxCall)
