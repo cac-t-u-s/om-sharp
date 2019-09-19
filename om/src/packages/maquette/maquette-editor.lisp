@@ -165,12 +165,12 @@
 (defmethod omng-x ((container maquette-view) pix-x) (round (pix-to-x container pix-x)))
 (defmethod omng-y ((container maquette-view) pix-y) (pix-to-y container pix-y))
 (defmethod omng-w ((container maquette-view) pix-w) (dpix-to-dx container pix-w))
-(defmethod omng-h ((container maquette-view) pix-h) (- (dpix-to-dy container pix-h)))
+(defmethod omng-h ((container maquette-view) pix-h) (+ (dpix-to-dy container pix-h)))
 
 (defmethod omg-x ((container maquette-view) s-x) (x-to-pix container s-x))
 (defmethod omg-y ((container maquette-view) s-y) (y-to-pix container s-y))
 (defmethod omg-w ((container maquette-view) s-w) (dx-to-dpix container s-w))
-(defmethod omg-h ((container maquette-view) s-h) (dy-to-dpix container s-h))
+(defmethod omg-h ((container maquette-view) s-h) (- (dy-to-dpix container s-h)))  ;;; the ruler of the maquette is oriented bottom-up
 
 (defmethod resize-handle ((self resize-area) (container maquette-view) frame pos) 
   (let ((pp (om-add-points (p0 self) pos)))
