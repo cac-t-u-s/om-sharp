@@ -34,9 +34,15 @@
 
 
 (defmethod set-control-patch ((self OMMaquette) (patch OMPatch))
+  (change-class patch (find-class 'OMMaqControlPatch))
   (setf (ctrlpatch self) patch)
   (setf (references-to (ctrlpatch self)) (list self)))
 
+
+(defmethod maquette-reference ((self t)) nil)
+
+(defmethod maquette-reference ((self OMMaqControlPatch))
+  (car (references-to self))) ;;; in principle this is the only one !
 
 (defmethod find-persistant-container ((self OMMaqControlPatch))
   (find-persistant-container (car (references-to self))))
@@ -128,7 +134,7 @@ Additional inputs/outputs are accesses on the maquette box.
 (defmethod maquette-container ((self OMBox)) (maquette-container (container self)))
 (defmethod maquette-container ((self OMMaquette)) self)
 ;;; by convention the first of the references-to is the one that is being evaluated
-(defmethod maquette-container ((self OMPatch)) (maquette-container (car (references-to self))))
+(defmethod maquette-container ((self OMPatch)) (maquette-reference self))
 
 
 ;;; BOX VALUE
