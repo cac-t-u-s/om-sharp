@@ -374,8 +374,6 @@
                           formatted-in))
                  ))))
     
-    (print (list name new-inputs)) 
-    
     `(:box 
       (:type :function)
       (:reference ,reference)
@@ -1249,7 +1247,13 @@
   (declare (ignore name lock reference fname editparams meditor pictlist))
   
   (let* ((items-list value)
-         (items (mapcar #'car items-list))
+         (items (mapcar #'(lambda (item) 
+                            (if (stringp (car item))
+                                (let ((read-item (ignore-errors (read-from-string (car item)))))
+                                  (if (symbolp read-item) (car item) ;;; keep it as it was
+                                    read-item)) ;;; we read numbers, lists, etc...
+                              (car item)))
+                        items-list))
          (selection (position t items-list :key #'cadr)))
     
     `(:box 
