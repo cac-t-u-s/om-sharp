@@ -516,6 +516,10 @@
 
 (defclass omlistinstance (ominstance) ())
 
+
+(defun icon-from-lib (icon name) icon)
+
+
 (defun om-load-boxinstance (name instance inputs position &optional fname size) 
   
   (declare (ignore inputs fname size))
