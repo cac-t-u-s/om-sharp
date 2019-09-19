@@ -213,8 +213,8 @@
   (let ((boxes (boxes (object self))))
     (if boxes
         (set-ruler-range (get-g-component self :y-ruler) 
-                         (- (apply #'min (mapcar #'(lambda (b) (+ (box-y b) (if (scale-in-y-? b) (box-h b) -40))) boxes)) 10)
-                         (+ (apply #'max (mapcar #'(lambda (b) (- (box-y b) 0)) boxes)) 10))
+                         (- (apply #'min (mapcar #'(lambda (b) (- (box-y b) (if (scale-in-y-? b) (box-h b) 40))) boxes)) 10)
+                         (+ (apply #'max (mapcar #'(lambda (b) (box-y b)) boxes)) 10))
       (set-ruler-range (get-g-component self :y-ruler) -10 110)
       )))
 
