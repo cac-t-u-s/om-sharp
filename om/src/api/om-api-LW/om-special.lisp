@@ -43,8 +43,8 @@
 (defun om-special-lisp-form-p (symbol)
   (or 
    (lispworks::special-form-p symbol)
-   #+macos(and (fboundp symbol) ;;; what is this for... ?
-               (system:closurep (fdefinition symbol)))
+   #+macosx(and (fboundp symbol) ;;; what is this for... ?
+                (system:closurep (fdefinition symbol)))
    ))
 
 ;=======================

@@ -37,10 +37,10 @@
 (defun get-base-help-patches-folder () 
   (let* ((folder-name "help-patches/")
          (help-folder 
-          #+macos(if (oa::om-standalone-p) 
+          #+macosx(if (oa::om-standalone-p) 
                      (merge-pathnames folder-name (om-resources-folder))
                    (merge-pathnames folder-name (om-root-folder)))
-          #-macos (merge-pathnames folder-name (om-root-folder))
+          #-macosx(merge-pathnames folder-name (om-root-folder))
           ))
     help-folder))
 
