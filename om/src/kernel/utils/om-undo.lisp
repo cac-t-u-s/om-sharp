@@ -228,7 +228,7 @@
 
 
 ;;; PATCHES 
-;;; need special care because connectiosn are restored from the box list
+;;; need special care because connections are restored from the box list
 (defmethod get-undoable-object-state ((self OMPatch)) 
   `((boxes ,(get-undoable-object-state (boxes self)))
     (connections ,(save-connections-from-boxes (boxes self)))))

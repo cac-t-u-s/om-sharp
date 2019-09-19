@@ -32,7 +32,7 @@
 
 
 (defclass maquette-editor (multi-view-editor patch-editor play-editor-mixin)
-  ((view-mode :accessor view-mode :initarg :view-mode :initform :tracks)
+  ((view-mode :accessor view-mode :initarg :view-mode :initform :tracks)     ;;; :tracks or :maquette
    (show-control-patch :accessor show-control-patch :initarg :show-control-patch :initform nil)
    (snap-to-grid :accessor snap-to-grid :initarg :snap-to-grid :initform t)
    (beat-info :accessor beat-info :initarg :beat-info :initform (list :beat-count 0 :prevtime 0 :nexttime 1))))
@@ -119,6 +119,7 @@
 
 ;;; called from the tracks
 (defmethod new-box-in-track-view ((self maquette-editor) at &optional (track 0))
+  (store-current-state-for-undo self)
   (let ((maq (object self))
         (new-box (omng-make-special-box 'patch at)))
     (set-box-duration new-box *temporalbox-def-w*)  
@@ -356,34 +357,41 @@
           (if (and (resizable-box? selected-box) (scale-in-x-? selected-box)
                    (<= (om-point-x position) selected-end-time-x) (>= (om-point-x position) (- selected-end-time-x 5)))
               ;;; resize the box
-              (om-init-temp-graphics-motion 
-               self position nil
-               :motion #'(lambda (view pos)
-                           (declare (ignore view))
-                           (when (> (- (om-point-x pos) (x-to-pix self (get-box-onset selected-box))) 10)
-                             (if (scale-in-x-? selected-box)
-                                 (set-box-duration selected-box 
-                                                   (- (round (pix-to-x self (om-point-x pos)))
-                                                      (get-box-onset selected-box)))
-                               (setf (box-w selected-box) (- (om-point-x pos) (x-to-pix self (box-x selected-box)))))
-                             (om-invalidate-view self)))
-               :release #'(lambda (view pos) 
-                            (declare (ignore view pos))
-                            (report-modifications editor) 
-                            (om-invalidate-view self))
-               :min-move 4)
+              (progn 
+                (store-current-state-for-undo editor :action :resize :item selected-box)
+                (om-init-temp-graphics-motion 
+                 self position nil
+                 :motion #'(lambda (view pos)
+                             (declare (ignore view))
+                             (when (> (- (om-point-x pos) (x-to-pix self (get-box-onset selected-box))) 10)
+                             
+                               (if (scale-in-x-? selected-box)
+                                   (set-box-duration selected-box 
+                                                     (- (round (pix-to-x self (om-point-x pos)))
+                                                        (get-box-onset selected-box)))
+                                 (setf (box-w selected-box) (- (om-point-x pos) (x-to-pix self (box-x selected-box)))))
+                               (om-invalidate-view self)))
+                 :release #'(lambda (view pos) 
+                              (declare (ignore view pos))
+                              (report-modifications editor) 
+                              (om-invalidate-view self))
+                 :min-move 4)
+                )
             
             ;;; move the selection
             (let ((copy? (when (om-option-key-p) (mapcar 'om-copy (get-selected-boxes editor))))
                   (init-tracks (mapcar 'group-id (get-selected-boxes editor))))
               
               (when copy?
+                (store-current-state-for-undo editor)
                 (select-unselect-all editor nil)
                 (mapcar #'(lambda (b) 
                             (setf (group-id b) NIL)
                             (select-box b t))
                         copy?))
               
+              (store-current-state-for-undo editor :action :move :item selected-box)
+
               (om-init-temp-graphics-motion  
                self position nil
                :motion #'(lambda (view pos)
@@ -639,21 +647,25 @@
     (case key
       (:om-key-left
        (unless (edit-lock editor)
+         (store-current-state-for-undo editor :action :move :item (get-selected-boxes editor))
          (move-editor-selection editor :dx (- (get-units (get-g-component editor :metric-ruler) (if (om-shift-key-p) 100 10))))
          (om-invalidate-view (main-view editor))
          (report-modifications editor)))
       (:om-key-right
        (unless (edit-lock editor)
+         (store-current-state-for-undo editor :action :move :item (get-selected-boxes editor))
          (move-editor-selection editor :dx (get-units (get-g-component editor :metric-ruler) (if (om-shift-key-p) 100 10)))
          (om-invalidate-view (main-view editor))
          (report-modifications editor)))
       (:om-key-up 
        (unless (edit-lock editor)
+         (store-current-state-for-undo editor :action :move :item (get-selected-boxes editor))
          (move-editor-selection editor :dy (if (om-shift-key-p) 10 1))
          (om-invalidate-view (main-view editor))
          (report-modifications editor)))
       (:om-key-down 
        (unless (edit-lock editor)
+         (store-current-state-for-undo editor :action :move :item (get-selected-boxes editor))
          (move-editor-selection editor :dy (if (om-shift-key-p) -10 -1))
          (om-invalidate-view (main-view editor))
          (report-modifications editor)))
@@ -1283,6 +1295,43 @@
       (call-next-method))))
 
 
+;;;=======================================
+;;; UNDO / REDO INTERFACE
+;;;=======================================
+
+(defmethod update-after-state-change ((self maquette-editor))
+  
+  (let* ((maq (object self)))
+    
+    (when (equal (view-mode self) :maquette) 
+      
+      (let ((view (get-g-component self :maq-view)))
+        (om-remove-all-subviews view)
+        (put-patch-boxes-in-editor-view maq view)
+        (update-temporalboxes view)
+        ))
+    
+    (mapcar 'om-invalidate-view (get-g-component self :track-views))
+    ))
+
+
+;;; forward to control-patch editor if active/selected
+
+(defmethod undo-command ((self maquette-editor)) 
+  (let ((ed (editor (selected-view self))))
+    (if (or (null ed) (equal ed self))
+        (call-next-method)
+      (when (undo-stack ed) 
+        #'(lambda () (do-undo ed))))))
+
+
+(defmethod redo-command ((self maquette-editor)) 
+  (let ((ed (editor (selected-view self))))
+    (if (or (null ed) (equal ed self))
+        (call-next-method)
+      (when (redo-stack ed) 
+        #'(lambda () (do-redo ed))))))
+
 
 #|
 ;;; Future Box (Box maker selection rectangle)
@@ -1313,4 +1362,6 @@
                                                                 (om-point-x position) (om-point-y position)))))
       (call-next-method))))
 |#
+
+
 
