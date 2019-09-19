@@ -444,19 +444,41 @@
 
 
 (defmethod omng-save-relative ((self OMMaquetteFile) ref-path)  
-  `(:maquette-from-file ,(omng-save (relative-pathname (mypathname self) ref-path))))
+  `(:maquette-from-file 
+    ,(if (mypathname self)
+         (omng-save (relative-pathname (mypathname self) ref-path))
+       (omng-save (pathname (name self))))))
+
 
 (defmethod om-load-from-id ((id (eql :maquette-from-file)) data)
 
   (let* ((path (omng-load (car data)))
-         (checked-path (check-path-using-search-path path)))
+         (checked-path (and (pathname-directory path)  ;; normal case
+                            (check-path-using-search-path path)))
+
+         (maquette
     
-    (if checked-path
+          (if checked-path
         
-        (load-doc-from-file checked-path :maquette)
+              (load-doc-from-file checked-path :maquette)
+            
+            ;;; no pathname-directory can occur while loading old patch abstractions from OM6
+            ;;; in this case we look for a not-yet-save file with same name in registered documents
+            (let ((registered-entry (find (pathname-name path) *open-documents* :test 'string-equal :key #'(lambda (entry) (name (doc-entry-doc entry))))))
+              (when registered-entry
+                (doc-entry-doc registered-entry)))
+            )))
       
-      (om-beep-msg "FILE NOT FOUND: ~S !" path))
-    ))
+      (unless maquette
+        (om-beep-msg "MAQUETTE NOT FOUND: ~S !" path)
+        (setf maquette (make-instance'OMMaquetteFile :name (pathname-name path)))
+        (setf (mypathname maquette) path))
+      
+      maquette))
+
+
+
+
 
 ;(let ((data (cdr (car (list-from-file "/Users/bresson/Desktop/test.omp")))))
   ;(find-values-in-prop-list data :info)

@@ -19,13 +19,10 @@
 
 
 ;;; load the Maquette (file)
-(defmacro  om-load-maq2 (name boxes connections range markers &rest ignore)
+(defmacro om-load-maq2 (name boxes connections range markers &rest ignore)
   
-  (declare (ignore ignore))
-
-  (when boxes 
-    (om-beep-msg "WARNING: Maquette compatibility is not implemented yet!"))
- 
+  (declare (ignore range markers ignore))
+  
   `(let ((name-loaded ,name)
          (boxes-loaded ,boxes)
          (connections-loaded ,connections))
@@ -43,9 +40,7 @@
 
 ;;; load the Maquette (internal)
 (defun om-load-maq-abs1 (name boxes connections range markers &rest ignore)
-  (declare (ignore ignore))
-  (when boxes 
-    (om-beep-msg "WARNING: Maquette compatibility is not implemented yet!"))  
+  (declare (ignore range markers ignore))
   `(:maquette
     (:name ,name) 
     (:boxes .,(loop for box-code in boxes collect (eval box-code)))
@@ -54,8 +49,7 @@
   )
 
 
-
-;;; OMBoxMaquette
+;;; OMBoxMaquette (internal)
 (defmethod om-load-boxcall ((self (eql 'maqabs)) name reference inputs position size value lock &rest rest)
 
   (declare (ignore value rest))
@@ -78,15 +72,22 @@
   )
 
 
+;;; OMBoxMaquette (external)
+(defmethod om-load-boxcall ((self (eql 'maquette)) name reference inputs position size value lock &rest rest)
+  
+  (declare (ignore value rest))
+  
+  (let ((loaded-reference (load-om6-patch-from-relative-path reference)))
+    
+    (om-load-boxcall 'abstraction name loaded-reference inputs position size value lock)
+    
+    ))
+
+
+
 ;;; TEMPOUT in patches = normal out
 (defun om-load-tempboxout (name position inputs &optional fname fsize)
-  (let ((newbox (make-new-temp-output  name (om-correct-point position))))
-    (setf (frame-name newbox) fname)
-    (setf (inputs newbox) (mapcar #'(lambda (input) (eval input)) inputs))
-    (set-box-to-inputs (inputs newbox) newbox)
-    (when fsize
-      (setf (frame-size newbox) (om-correct-point fsize)))
-    newbox))
+  (om-load-boxout name 0 position inputs fname fsize))
 
 
 ;;; => A BOX IN THE MAQUETTE
@@ -94,58 +95,61 @@
                               sizey posy strechfact 
                               &optional (store nil) (params nil) (lock nil) pict (showpict nil) (mute nil) (pos-locked nil)
                               (showname nil) (doc "") &rest rest)
-  nil)
-  
+ 
+  (declare (ignore numouts ignorepict strechfact store params  pict showpict mute pos-locked doc rest))
 
-;;; IN/OUT in the maquette: no more supported
-(defun om-load-maq-boxin (name indice position docu &optional fname val fsize) NIL)
-(defun om-load-maq-boxout (name indice position inputs &optional fname fsize) NIL)
+  (multiple-value-bind (ref-type ref-val)
+ 
+      (case (first refer)
+        ;;; external abstractions
+        (patchb (values 'patch-box (cadr refer)))
+        (maq (values 'maquette (cadr refer)))
+        ;;; internal abstractions
+        (patch (values 'abstraction (cadr refer)))
+        ;;; a bug (?) in OM6: the value is quotes only fr internalm maquettes... => eval
+        (absmaq (values 'abstraction (eval (cadr refer))))  
+        (yourobj (values NIL (cadr refer))))
+    
+    (if ref-type  ;;; => abstraction box
+        
+        (print (append 
+         (om-load-boxcall ref-type name ref-val 
+                          inputs 
+                          (om-make-point posx posy)
+                          (om-make-point sizex sizey)
+                          value lock)
+         `((:color ,(omng-save clorf))
+           (:show-name ,showname)
+           (:group-id ,(om-random 1 4))))
+         )
+
+      (append 
+       (om-load-boxinstance name ref-val 
+                            inputs 
+                            (om-make-point posx posy))
+       `((:w ,sizex)
+         (:h ,sizey)
+         (:color ,(omng-save clorf))
+         (:group-id ,(om-random 1 4))
+         ))
+      
+      )
+    ))
 
 
-;;; META IN/OUTS: need some conversion work
+;;; META IN/OUTS: need some conversion
 (defun om-load-boxmaqselfin (name position  &optional fsize) )
 (defun om-load-boxselfin (name position  &optional fsize) )
 
 
-#|
-;;; OM6 code:
-(defun om-load-tempobj1 (name inputs refer numouts posx sizex clorf value ignorepict 
-                             sizey posy strechfact 
-                             &optional (store nil) (params nil) (lock nil) pict (showpict nil) (mute nil) (pos-locked nil)
-                             (showname nil) (doc "") &rest rest)
-  (let (reference newtempob maqpos)
-    (cond
-     ((equal (first refer) 'maq) 
-      (setf reference (mk-object-refer 'maquette (second refer))))
-     ((equal (first refer) 'patchb) 
-      (setf reference (mk-object-refer 'patch-box (second refer))))
-     (t (setf reference (eval (second refer)))))
-    (when reference
-      (setf maqpos (om-make-big-point posx posy))
-      (setf newtempob (omNG-make-tempobj reference maqpos name))   
-      (setf (numouts newtempob) numouts)
-      (setf (inputs newtempob) (mapcar #'(lambda (input) (eval input)) inputs))
-      (set-box-to-inputs (inputs newtempob) newtempob)
-      (setf (extend newtempob) sizex)
-      (setf (colorframe newtempob) (om-correct-color clorf))
-      (setf (free-store newtempob) store)
-      (when value
-        (setf (value newtempob) (list! value))
-        (if (maquette-p reference) (setf (value reference) (car (value newtempob)))))
-      (setf (slot-value newtempob 'strech-fact)  (or strechfact 1))
-      (setf (colorframe newtempob) (om-correct-color clorf))
-      (setf (slot-value newtempob 'sizey) sizey)
-      (setf (allow-lock newtempob) lock)
-      (setf (lock newtempob) pos-locked)
-      (setf (mute newtempob) mute)
-      (setf (showpict newtempob) showpict)
-      (setf (name newtempob) name)
-      (setf (doc newtempob) (str-with-nl doc))
-      (setf (show-name newtempob) showname)
-      (when pict (setf (pictu newtempob) pict))   ;;; .
-      (setf (edition-params newtempob) (corrige-edition-params (car (value newtempob)) params))
-      newtempob)))
-|#
+;;; IN/OUT in the maquette: no more supported
+(defun om-load-maq-boxin (name indice position docu &optional fname val fsize) 
+  (declare (ignore name indice position docu fname val fsize))
+  NIL)
+
+(defun om-load-maq-boxout (name indice position inputs &optional fname fsize) 
+  (declare (ignore name indice position inputs fname fsize))
+  NIL)
 
 
 ;======================================
