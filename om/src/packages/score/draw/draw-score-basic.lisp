@@ -1035,9 +1035,9 @@
                        
                                ;;; TIES
                                (when tied-to-ms 
-                                 (let* ((x0 (+ (funcall time-function tied-to-ms) head-w-pix))
+                                 (let* ((x0 (+ (* x-units unit) (funcall time-function tied-to-ms) head-w-pix (* .3 unit)))
                                         (tie-h (if (> (abs (/ (- x-pix x0) unit)) 5) unit (* unit .5))))
-                               
+                                   
                                    (om-with-line-size (* *stemThickness* unit 1.8)
                                  
                                      (let ((tie-direction
