@@ -5,8 +5,8 @@
  (:doc "")
  (:info
   (:created "2019/09/15 10:06:59")
-  (:modified "2019/09/20 0:39:26"))
- (:window (:size (1090 669)) (:position (494 302)))
+  (:modified "2019/09/20 10:43:12"))
+ (:window (:size (1090 669)) (:position (614 163)))
  (:grid nil)
  (:lock nil)
  (:boxes
@@ -623,7 +623,7 @@
        (:onset 0)
        (:duration 894)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
-       (:action :internal-lambda)
+       (:action nil)
        (:color nil)
        (:decimals 2)
        (:x-points
@@ -861,7 +861,7 @@
        (:decimals 2)
        (:color nil)
        (:name "BPC")
-       (:action :internal-lambda)
+       (:action nil)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))))))
    (:id 18))
   (:box
@@ -2401,15 +2401,15 @@
   (:comment
    (:x 269)
    (:y 30)
-   (:w 516)
-   (:h 30)
+   (:w 404)
+   (:h 25)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :italic)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :italic)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -2468,17 +2468,17 @@
    (:text "<: will output a list of OSC-BUNDLEs")
    (:id 27))
   (:comment
-   (:x 488)
-   (:y 104)
-   (:w 254)
-   (:h 113)
+   (:x 461)
+   (:y 81)
+   (:w 301)
+   (:h 96)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :italic)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :italic)))
      (:t-or-nil t)))
    (:align nil)
    (:text
