@@ -113,7 +113,9 @@
   (call-next-method)
   (let ((patch (object editor)))
     (put-patch-boxes-in-editor-view patch (main-view editor)) 
-    (update-inspector-for-editor editor)
+    (when (get-g-component editor :inspector)
+      (or (update-inspector-for-editor editor)
+          (set-inspector-contents (get-g-component editor :inspector) nil)))
     (add-lock-item editor (main-view editor))
     (update-window-name editor)
     ))
@@ -1656,13 +1658,12 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                    (car selection) 
                  selection)))))
     (cond 
-     
      ((get-g-component self :inspector)
-      
       (when (or obj ;;; explicit request for this object
                 (not (equal (object (get-g-component self :inspector)) obj-to-inspect)))
         (set-inspector-contents (get-g-component self :inspector) obj-to-inspect)
-        t))
+        t)
+      )
      
      ;;; better than testing everywhere, just call it from here :)
      ((get-g-component self :lisp-code)
@@ -1707,10 +1708,10 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
     (setf (editor-window-config self) mode)
     (build-editor-window self)
     (init-editor-window self)
-    (when (equal (editor-window-config self) :inspector)
-      (or (update-inspector-for-editor self)
-          (set-inspector-contents (get-g-component self :inspector) nil))
-      )
+    ;(when (equal (editor-window-config self) :inspector)
+    ;  (or (update-inspector-for-editor self)
+    ;      (set-inspector-contents (get-g-component self :inspector) nil))
+    ;  )
     ))
   
 (defmethod make-layout-items ((editor patch-editor))
