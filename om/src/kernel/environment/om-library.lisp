@@ -132,12 +132,14 @@
 ;;; called when the folder(s) change
 ;;; can not unload loaded libraries: won"t be updated (but silently)
 (defun update-registered-libraries ()
+  (declare (special *om-libs-root-package*))
   (setf (elements *om-libs-root-package*)
         (remove-if-not 'loaded? (elements *om-libs-root-package*)))
   (register-all-libraries nil))
 
 ;; called from the preferences
 (defun update-libraries-folder ()
+  (declare (special *om-main-window*))
   (update-registered-libraries)
   (when *om-main-window*
     (update-libraries-tab *om-main-window*)))

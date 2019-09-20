@@ -876,7 +876,7 @@
   (edit-lock (editor self)))
 
 (defmethod om-drag-start ((self OMBoxFrame) pos)
- 
+  (declare (special *resize-handler* *connection-handler*))
   (unless (or *resize-handler* *connection-handler* 
               (active-area-at-pos self pos)
               (om-command-key-p)

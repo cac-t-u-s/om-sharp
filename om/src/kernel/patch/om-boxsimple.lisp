@@ -86,6 +86,7 @@
 (defmethod minimum-size ((self OMValueBox))
   (multiple-value-bind (tw th)
       (om-string-size (print-value self) (box-draw-font self))
+    (declare (ignore tw))
     (om-make-point (max ; (+ tw 18)
                         (+ 20 (* (length (inputs self)) 10))
                         32)
@@ -149,6 +150,7 @@
                (curr-val (get-box-value box))
                (ndec (multiple-value-bind (i d)
                          (string-until-char (format nil "~D" curr-val) ".")
+                       (declare (ignore i))
                        (length d)))
                (fact (expt 10 ndec)))
           

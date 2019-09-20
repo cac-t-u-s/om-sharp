@@ -153,7 +153,7 @@
 
 
 (defun om-load-boxmaqselfin (name position  &optional fsize) 
-  (declare (ignore fsize))
+  (declare (ignore name fsize))
   (om-print "Warning: 'self-maquette' input box converted to 'MYMAQUETTE': consider reconect outputs using GET-OBJ-DUR / GET-ALL-BOXES / M-OBJECTS."  
             "Import/Compatibility")
   `(:box

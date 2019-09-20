@@ -79,7 +79,7 @@
                      
 
 (defun open-help-patch (path)
-  
+  (declare (special *om-main-window*))
   (om-print-format "Opening help-patch : ~A" (list (pathname-name path)) "HELP")
   
   (case (extension-to-doctype (pathname-type path))

@@ -172,6 +172,7 @@
     ))
 
 (defmethod eval-box ((self omboxeditcall))
+  (declare (special *general-player*))
   (om-ignore&print-error (player-stop-object *general-player* (car (value self))))
   (call-next-method))
 

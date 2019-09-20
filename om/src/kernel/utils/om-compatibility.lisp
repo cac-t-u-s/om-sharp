@@ -516,8 +516,8 @@
 
 (defclass omlistinstance (ominstance) ())
 
-
-(defun icon-from-lib (icon name) icon)
+;;; only ominstances / omclasses have this
+(defun icon-from-lib (icon name) (declare (ignore name)) icon)
 
 
 (defun om-load-boxinstance (name instance inputs position &optional fname size) 
