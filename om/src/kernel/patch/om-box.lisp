@@ -368,7 +368,7 @@
       (loop for box in other-boxes do
             (when (overlap self box)
               (move-box-to self (box-x self) 
-                           (if (< (box-y self) (box-y box)) 
+                           (if (<= (box-y self) (box-y box)) 
                                (- (box-y box) (box-h self) 2)
                              (+ (box-y2 box) 2)))
               )
