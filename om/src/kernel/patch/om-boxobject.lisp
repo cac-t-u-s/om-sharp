@@ -737,7 +737,7 @@
     box))
 
 
-(defmethod make-new-box-with-instance ((instance list) pos)
+(defmethod make-new-box-with-instance ((instance cons) pos)
   (let ((box (omng-make-new-boxcall (find-class 'collection) pos)))
     (when box
       (setf (obj-list (get-box-value box)) instance)
