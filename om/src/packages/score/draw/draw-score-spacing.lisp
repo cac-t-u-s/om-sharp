@@ -86,7 +86,11 @@
                          (max (space-point-after (car merged-list)) (space-point-after item))
 
                          (space-point-extra (car merged-list))  
-                         (+ (space-point-extra (car merged-list)) (space-point-extra item)))
+                         (max (space-point-extra (car merged-list)) (space-point-extra item))
+                         ;;; onlty one item at a time adds extra space, otherwise it increases, 
+                         ;;; e.g. when several voices have bars at the same time
+                         ; (+ (space-point-extra (car merged-list)) (space-point-extra item))
+                         )
 
                
                  ;;; new point in the time-map
