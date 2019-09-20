@@ -857,7 +857,7 @@
   `(:box
     (:type :special)
     (:reference accum)
-    (:name "accum (converted from min)")
+    (:name "accum")
     (:x ,(om-point-x position))
     (:y ,(om-point-y position))
     (:w ,(and size (om-point-x size)))
