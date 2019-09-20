@@ -1522,7 +1522,9 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
     (setf (object self) object)
     (om-remove-all-subviews self)        
 
-    (let ((inspector-layout
+    (let* ((def-w 200)
+           
+           (inspector-layout
          
            (if object
              
@@ -1531,7 +1533,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                 :subviews 
                 (append 
                  (cons 
-                  (om-make-di 'om-simple-text :size (om-make-point 200 20) 
+                  (om-make-di 'om-simple-text :size (om-make-point def-w 20) 
                             ;:fg-color (om-def-color :dark-gray)
                               :text (object-name-in-inspector object)
                               :focus t  ;; prevents focus on other items :)
@@ -1585,14 +1587,16 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                     
                     :separator 
                 
-                    (let ((doc (get-documentation object)))
+                    (let* ((doc (get-documentation object))
+                           (font (om-def-font :font1))
+                           (line-h (cadr (multiple-value-list (om-string-size "abc" font))))
+                           (n-lines (length (om-string-wrap doc def-w font))))
                       (om-make-di 'om-multi-text 
-                                  :size (om-make-point nil nil)
-                                  ;:size (om-make-point 100 (* 24 (length (string-lines-to-list doc))))
+                                  :size (om-make-point nil (* line-h (+ 2 n-lines)))
                                   :text (format nil "~%~A" doc)
                                   ;:scrollbars :v
                                   :fg-color (om-def-color :dark-gray)
-                                  :font (om-def-font :font1))
+                                  :font font)
                       )
                   
                     ))
@@ -1604,18 +1608,23 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
               'om-column-layout :align :bottom
               :subviews 
               (list 
-               (om-make-di 'om-simple-text :size (om-make-point 200 20) 
+               (om-make-di 'om-simple-text :size (om-make-point def-w 20) 
                            :text "--"
                            :fg-color (om-def-color :dark-gray)
                            :focus t  ;; prevents focus on other items :)
                            :font (om-def-font :font3))
              
                :separator
-            
-               (om-make-di 'om-multi-text :size (om-make-point nil nil) ; (* 40 (length (string-lines-to-list doc))) 
-                           :text *patch-inspector-help-text*
-                           :fg-color (om-def-color :dark-gray)
-                           :font (om-def-font :font1))
+               (let* ((doc *patch-inspector-help-text*)
+                      (font (om-def-font :font1))
+                      (line-h (cadr (multiple-value-list (om-string-size "abc" font))))
+                      (n-lines (length (om-string-wrap doc def-w font))))
+                 (om-make-di 'om-multi-text 
+                             :size (om-make-point def-w (* line-h (+ 2 n-lines))) 
+                             :text doc
+                             :fg-color (om-def-color :dark-gray)
+                             :font font)
+                 )
              
                )))
            ))
