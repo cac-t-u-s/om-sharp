@@ -225,7 +225,8 @@
 (defmethod om-clic-callback ((self om-interactive-object) x y modifiers)
   (om-with-error-handle 
     (set-meta-keys modifiers)
-    (when (and (< x (vw self)) (< y (vh self))) 
+    (when (and (< x (+ (vw self) (om-point-x (om-scroll-position self)))) 
+               (< y (+ (vh self) (om-point-y (om-scroll-position self))))) 
       ;;; for some reason on windows sometimes the click callback is called even
       ;;; from outside the panel (e.g. in another pane in teh same layout...)
       (apply-in-item-subview self 'om-view-click-handler (om-make-point x y))
