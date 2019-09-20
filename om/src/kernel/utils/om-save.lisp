@@ -780,8 +780,10 @@
                  (when prop (set-property box (car property) (omng-load prop)))))
       
       ;;; some properties (e.g. icon-pos) can modify the size of the box: better do it at the end
-      (when size (setf (box-w box) (om-point-x size)
-                       (box-h box) (om-point-y size)))
+      (when size 
+        (let ((corrected-size (om-max-point (minimum-size box) size)))
+          (setf (box-w box) (om-point-x corrected-size)
+                (box-h box) (om-point-y corrected-size))))
       )
     box))
 
