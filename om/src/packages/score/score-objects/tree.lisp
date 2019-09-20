@@ -113,7 +113,9 @@
              (list tree))))      
         )))
     
-    (mapcan #'normalize-recursive tree)
+    (list 
+     (car tree)
+     (mapcan #'normalize-recursive (cadr tree)))
     ))
 
 ;;;=============================================
@@ -282,9 +284,11 @@
 ;;;===================================================================
 ;;; called at voice intialization:
 (defun format-tree (tree) 
-  (add-ties-to-tree 
-   (resolve-singletons 
-    (list-first-layer tree))))
+  (list 
+   (car tree)
+   (add-ties-to-tree 
+    (resolve-singletons 
+     (list-first-layer (cadr tree))))))
 
 
 ;; fullratios are either ratios or lists (num denom)

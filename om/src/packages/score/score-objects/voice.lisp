@@ -28,7 +28,7 @@
 ;;; the chords in r-struct are simple references to the time-sequence items
 
 (defclass* voice (chord-seq)
-  ((tree :initform '(((4 4) (1 1 1 1))) :accessor tree :initarg :tree :type list 
+  ((tree :initform '(1 (((4 4) (1 1 1 1)))) :accessor tree :initarg :tree :type list 
          :documentation "a rhythm tree (list of measure-rythm-trees)")
    (Lmidic :initform '((6000)) :initarg :Lmidic :initarg :chords :type list 
            :documentation "pitches (mc)/chords: list or list of lists")
@@ -116,10 +116,17 @@
     ;;; probably a list of ratios
     (setf (tree self) (mktree (tree self) '(4 4))))
    
-  (when (atom (car (tree self)))
-    ;;; probably "old-formatted" RT, with "?" etc.
-    (setf (tree self) (cadr (tree self))))
-     
+  ;(when (atom (car (tree self)))
+  ;  ;;; probably "old-formatted" RT, with "?" etc.
+  ;  (setf (tree self) (cadr (tree self))))
+  (unless (numberp (car (tree self)))
+    (if (atom (car (tree self))) ;;; => probably "?"
+        (setf (tree self) (list (length (cadr (tree self)))
+                                (cadr (tree self))))
+      (setf (tree self) (list (length (tree self))
+                              (tree self)))))
+      
+    
   (setf (tree self) (format-tree (normalize-tree (tree self))))
   
   ;;; compat OM 6 (temp)
@@ -153,7 +160,7 @@
         (curr-last-chord last-chord))
     
     (setf (inside self)
-          (loop for m-tree in (tree self)
+          (loop for m-tree in (cadr (tree self))
                 collect (let* ((m-dur (decode-extent (car m-tree)))
                                (mesure (make-instance 'measure :tree m-tree
                                                       :symbolic-date curr-beat
