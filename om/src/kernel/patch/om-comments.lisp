@@ -28,7 +28,10 @@
 (add-preference :appearance :comment-bgcolor "Background color" :color-a (om-def-color :transparent))
 (add-preference :appearance :comment-border "Border" (make-number-in-range :min 0 :max 4 :decimals 1) 1)
 (add-preference :appearance :comment-roundness "Corner roundness" (make-number-in-range :min 0 :max 20) 0)
-(add-preference :appearance :comment-font "Font" :font (om-def-font :font1 :style '(:italic)))
+
+;;; for comments we specify directly a font size: the platform-specifics apply at drawing 
+(add-preference :appearance :comment-font "Font" :font (om-def-font :font1 :size 12))
+
 (add-preference :appearance :comment-align "Text align" '(:left :center :right) :left)
 
 
@@ -42,6 +45,11 @@
      (:text-font "Text font" :font-or-nil text-font (:appearance :comment-font))
      (:align "Text align" (:left :center :right :default) text-align (:appearance :comment-align))
      )))
+
+
+(defmethod object-name-in-inspector ((self OMComment)) "Comment")
+(defmethod get-documentation ((self OMComment))
+  "Comments are simple textual elements documenting OM patches.")
 
 (defmethod box-draw-color ((box OMComment)) 
   (if (and (color box) (color-? (color box)))
