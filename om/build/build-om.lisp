@@ -147,6 +147,7 @@
 (load-om-package "osc")
 (load-om-package "maquette")
 (load-om-package "score")
+(load-om-package "math")
 (load-om-package "sound")
 (load-om-package "sdif")
 (load-om-package "space")
