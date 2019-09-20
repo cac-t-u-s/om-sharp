@@ -1194,13 +1194,6 @@
 
 ;;; called at init: 
 (defmethod add-lock-item ((editor maquette-editor) view) nil)
-;  (om-add-subviews 
-;   (main-view (editor (ctrlpatch (object self)))) 
-;   (om-make-graphic-object 'lock-view-area 
-;                           :position (omp 0 0)
-;                           :size (omp 20 20)
-;                           :editor (editor view)))
-;  )
 
 
 ;;;=====================

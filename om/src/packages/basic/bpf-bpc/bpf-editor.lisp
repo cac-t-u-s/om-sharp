@@ -355,7 +355,6 @@
 ;;; called from the default-editor part
 ;;; update: I think this is never called: the arguments are (view object)
 (defmethod update-after-prop-edit ((view OMEditorWindow) (editor bpf-editor))
-  (print "===> update-after-prop-edit ((view OMEditorWindow) (editor bpf-editor))")
   (let ((value (object-value editor))
         (box (object editor)))
   (editor-invalidate-views editor)
