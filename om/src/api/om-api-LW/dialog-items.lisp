@@ -364,7 +364,8 @@
 ;=================
 
 (defclass om-multi-text (om-standard-dialog-item capi::display-pane) ()
-  (:default-initargs :visible-border nil
+  (:default-initargs 
+   :visible-border nil
    :accepts-focus-p nil
    :callback 'om-dialog-item-action))
 
