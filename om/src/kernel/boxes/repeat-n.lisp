@@ -28,6 +28,7 @@
   `(loop for ,(gensym) from 1 to ,count
          collect ,body))
 
+
 (defclass Repeater (OMPatchComponent) 
   ((n-iter :accessor n-iter :initform 0 :initarg :n-iter)
    (scope :accessor scope :initform :local :initarg :scope)))
@@ -77,15 +78,15 @@
    pos
    '(:icon-pos :left)))
 
-
 (defmethod create-box-inputs ((self OMRepeatNBoxCall)) 
   (list 
    (make-instance 
     'box-input :box self :value NIL
-    :name "program to repeat")
+    :name "self" 
+    :doc-string "program to repeat")
    (make-instance 
     'box-input :box self :value (n-iter (reference self))
-    :name "n")))
+    :name "num" :doc-string "number of times")))
 
 (defmethod create-box-outputs ((self OMRepeatNBoxCall)) 
   (list 
