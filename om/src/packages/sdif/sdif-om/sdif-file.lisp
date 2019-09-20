@@ -41,14 +41,9 @@ If not connected, the evaluation of the SDIFFILE box will open a file chooser di
 Lock the box ('b') to keep the current file.
 "))
 
-
-;;; compat om6/7
-(defmethod filepathname ((self sdiffile)) (file-pathname self))
-(defmethod streamsdesc ((self sdiffile)) (file-map self))
-
 (defmethod additional-slots-to-save ((self SDIFFile)) '(file-pathname file-map))
 (defmethod additional-slots-to-copy ((self SDIFFile)) '(file-pathname file-map))
- 
+
 
 ;;; INIT METHODS
 (defmethod box-def-self-in ((self (eql 'SDIFFile))) :choose-file)
