@@ -185,6 +185,8 @@
 (defmethod play-box-callback ((self t) time) nil)
 (defmethod stop-box-callback ((self t)) nil)
 
+(defmethod start-editor-callback ((self t)) nil)
+
 (defmethod start-editor-callback ((self play-editor-mixin))
   (when (pause-button self) (button-unselect (pause-button self)))
   (when (play-button self) (button-select (play-button self)))
@@ -195,6 +197,8 @@
   (set-time-display self time)
   (mapcar #'(lambda (view) (when view (update-cursor view time))) (cursor-panes self))
   (when (object self) (play-box-callback (object self) time)))
+
+(defmethod stop-editor-callback ((self t)) nil)
 
 (defmethod stop-editor-callback ((self play-editor-mixin)) 
   (when (play-button self) (button-unselect (play-button self)))

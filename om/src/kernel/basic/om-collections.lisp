@@ -56,6 +56,12 @@
 ;;; BOX
 ;;;===========================
 
+(defmethod object-default-edition-params ((self collection))
+  (append 
+   '((:show-all t))
+   (object-default-edition-params (car (obj-list self))))) 
+
+
 (defmethod special-box-p ((name (eql 'collection))) t)
 
 (defmethod omNG-make-special-box ((reference (eql 'collection)) pos &optional init-args)
@@ -115,6 +121,7 @@
             (draw-mini-view o box x yo w ho time))
       )))
 
+
 ;;; type is an object used for specialization
 (defmethod draw-mini-view ((self collection) (box t) x y w h &optional time)  
   (collection-draw-mini-view 
@@ -126,6 +133,15 @@
 (defmethod get-obj-dur ((self collection))
   (apply #'max (or (remove nil (mapcar #'get-obj-dur (obj-list self))) '(0))))
 
+(defmethod miniview-time-to-pixel ((object collection) box (view omboxframe) time) 
+  ;;; take the longer object as reference
+  (miniview-time-to-pixel 
+   (reduce #'(lambda (o1 o2) (if (>= (get-obj-dur o1) (get-obj-dur o2)) o1 o2))
+           (obj-list object))
+   box view time))
+
+
+
 ;;;===========================
 ;;; EDITOR
 ;;;===========================
@@ -134,9 +150,6 @@
   ((internal-editor :accessor internal-editor :initform nil)
    (current :accessor current :initform 0)))
  
-(defmethod object-default-edition-params ((self collection))
-  '((:show-all t)))
-
 (defmethod object-has-editor ((self collection)) t)
 (defmethod get-editor-class ((self collection)) 'collection-editor)
 

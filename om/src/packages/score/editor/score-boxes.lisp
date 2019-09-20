@@ -65,7 +65,6 @@
        (* unit (score-time-to-units time-map time)))
     ))
 
-
 ;;; all objects (except voice/poly) on a box
 (defmethod miniview-time-to-pixel ((object score-element) box (view omboxframe) time) 
   (miniview-time-to-pixel-proportional object box view time))
@@ -136,16 +135,27 @@
 
 
 
+;;; draw on a collection box...
+(defmethod collection-draw-mini-view ((type score-element) list box x y w h time)
+  (let ((voice-h (if list (/ h (length list)) h)))
+    (loop for voice in list
+          for i from 0
+          do (let ((yy (+ y 4 (* i voice-h))))
+               (om-draw-rect x yy w (- voice-h 2) :fill t :color (om-def-color :white))
+               (score-object-mini-view voice box x yy 0 w voice-h)
+               ))
+    ))
 
-;;; Hacks for patch-boxes
+
+;;; Hacks for patch-boxes / collection boxes etc.
 
 (defmethod get-edit-param ((self OMBoxAbstraction) param)
   (case param
     (:staff :g)
     (otherwise nil)))
 
-(defmethod get-box-fontsize ((self OMBoxAbstraction)) 18)
-(defmethod set-box-fontsize ((self OMBoxAbstraction) size) nil)
+(defmethod get-box-fontsize ((self OMBox)) 18)
+(defmethod set-box-fontsize ((self OMBox) size) nil)
 
 
 ;;;===========================
