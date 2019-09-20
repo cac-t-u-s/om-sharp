@@ -741,6 +741,7 @@
   (let ((box (omng-make-new-boxcall (find-class 'collection) pos)))
     (when box
       (setf (obj-list (get-box-value box)) instance)
+      (om-init-instance (get-box-value box))
       (setf (display box) :text)
       )
     box))
