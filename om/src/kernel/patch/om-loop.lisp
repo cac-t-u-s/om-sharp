@@ -103,7 +103,11 @@
 ;;; DIFFERENT KINDS OF ITERATOR BOXES
 ;;;------------------------------------
 
-(defclass OMLoopFor (OMPatchLoop) ())
+(defclass OMLoopFor (OMPatchLoop) ()
+  (:documentation "FOR ITERATOR FOR LOOPS.
+
+Can be connected to an ITERATE box to control the steps of the iteration (FOR I FROM <a> TO <b> BY <step>).")
+  )
 
 (defmethod special-box-p ((name (eql 'loop-for))) t)
 (defmethod box-symbol ((self OMLoopFor)) 'loop-for)
@@ -137,7 +141,10 @@
 ;;;------------------------------------
 
 (defclass OMLoopList (OMPatchLoop) 
-  ((looped-list :initform nil :accessor looped-list :initarg :looped-list)))
+  ((looped-list :initform nil :accessor looped-list :initarg :looped-list))
+  (:documentation "LIST ITERATOR FOR LOOPS.
+
+Can be connected to an ITERATE box to control the iteration (FOR ITEM IN <list> ...)."))
 
 (defmethod special-box-p ((name (eql 'loop-list))) t)
 (defmethod box-symbol ((self OMLoopList)) 'loop-list)
@@ -167,7 +174,10 @@
 ;;;------------------------------------
 
 (defclass OMLoopTail (OMPatchLoop) 
-  ((looped-list :initform nil :accessor looped-list :initarg :looped-list)))
+  ((looped-list :initform nil :accessor looped-list :initarg :looped-list))
+  (:documentation "LIST TAIL ITERATOR FOR LOOPS.
+
+Can be connected to an ITERATE box to control the iteration (FOR ITEM ON <list> ...)."))
 
 (defmethod special-box-p ((name (eql 'loop-tail))) t)
 (defmethod box-symbol ((self OMLoopTail)) 'loop-tail)
@@ -199,7 +209,10 @@
 ;;;------------------------------------
 
 (defclass OMLoopWhile (OMPatchLoop) 
-  ((loop-cond :initform nil :accessor loop-cond :initarg :loop-cond)))
+  ((loop-cond :initform nil :accessor loop-cond :initarg :loop-cond))
+  (:documentation "WHILE ITERATOR FOR LOOPS.
+
+Can be connected to an ITERATE box to control when the iteration should stop (WHILE <condition> DO ...)."))
 
 (defmethod special-box-p ((name (eql 'loop-while))) t)
 (defmethod box-symbol ((self OMLoopWhile)) 'loop-while)
@@ -236,7 +249,10 @@
 ;;; - evaluates all iterators
 
 (defclass OMPatchIterator (OMPatchComponent) 
-  ((n-iter :accessor n-iter :initform 0 :initarg :n-iter)))
+  ((n-iter :accessor n-iter :initform 0 :initarg :n-iter))
+  (:documentation "ITERATOR FOR LOOPS.
+
+Can be connected to other boxes (including iterator boxes: LOOP-LIST, LOOP-FOR, LOOP-WHILE...) to program an iterative process."))
 
 (defclass OMPatchIteratorBox (OMPatchComponentBox) ())
 

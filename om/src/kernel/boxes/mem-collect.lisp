@@ -232,7 +232,17 @@
 (defmethod special-item-reference-class ((item (eql 'collect))) 'OMCollect)
 
 (defclass OMCollect (OMPatchComponentWithMemory) ()
-  (:documentation "General collector"))
+  (:documentation "Collector box: collects data in an internal memory.
+
+Inputs:
+- Collected value
+- When t: trigger reactive notification.
+- Initial value.
+
+Outputs:
+- Collect from input 1 and return this value
+- Return current state of memory
+- Initialize memory with input 3."))
 
 (defclass OMCollectBox (OMPatchComponentBox) ())
 
@@ -387,7 +397,9 @@
 (defclass OMTimedCollect (OMCollect) 
   ((timer-var :initform  nil :accessor timer-var)
    (last-tt :initform nil :accessor last-tt)
-   (first-tt :initform nil :accessor first-tt)))
+   (first-tt :initform nil :accessor first-tt))
+  (:documentation "Timed-collector: collects data like COLLECT, by grouping it into chuncks using an internal timer and the value determined in <delay>."))
+
 
 (defclass OMTimedCollectBox (OMCollectBox) ())
 
@@ -569,7 +581,17 @@
 (defmethod special-item-reference-class ((item (eql 'accum))) 'OMAccum)
 
 (defclass OMAccum (OMCollect) ()
-  (:documentation "General accumulator for loops"))
+  (:documentation "General accumulator: ACCUM is a collector allowing you to specify the collection strategy (= how to combine new collected values with current state of the memory).
+
+Inputs:
+- Collected value
+- Accum function
+- Initial state
+
+Outputs:
+- Collect from input 1 and return this value
+- Return current state of memory
+- Initialize memory with input 3."))
 
 (defclass OMAccumBox (OMCollectBox) ())
 
