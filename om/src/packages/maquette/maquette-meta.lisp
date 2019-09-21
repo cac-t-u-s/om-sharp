@@ -130,6 +130,8 @@ Additional inputs/outputs are accesses on the maquette box.
   (setf (index elem) 0)
   (setf (defval elem) nil))
 
+(defmethod unregister-patch-io ((self OMPatch) (elem OMMaqIn)) nil)
+
 ;;; check the container: can be a patch, a controlpatch or a maquette
 (defmethod maquette-container ((self OMBox)) (maquette-container (container self)))
 (defmethod maquette-container ((self OMMaquette)) self)

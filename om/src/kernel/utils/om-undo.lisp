@@ -172,7 +172,7 @@
 ; (get-object-slots-for-undo (make-instance 'omboxabstraction))
 
 (defmethod get-undoable-object-state ((self standard-object)) 
-  ; (om-print-dbg "collecting state of ~A" (list self) "UNDO")
+  ;(om-print-dbg "collecting state of ~A" (list self) "UNDO")
   (loop for slot in (get-object-slots-for-undo self)
         collect (list slot (get-undoable-object-state (slot-value self slot)))))
 
@@ -202,6 +202,21 @@
         (mapcar 'save-state (outputs self))
         ))
 
+
+;;; the reference is shared by the different states of a soem undo-ed box
+(defmethod get-object-slots-for-undo ((self OMBox)) 
+  (remove 'reference (call-next-method)))
+
+(defmethod get-object-slots-for-undo ((self OMValueBox)) 
+  (append (call-next-method) '(value)))
+
+;;; need to keep track of in/out index
+(defmethod get-object-slots-for-undo ((self OMInOutBox)) 
+  (append (call-next-method) '(reference)))
+(defmethod get-object-slots-for-undo ((self OMPatchIO)) 
+  (append (call-next-method) '(index)))
+
+
 ;;; restore a new list, restore each object in it
 (defmethod restore-undoable-object-state ((self OMBox) (state list)) 
   
@@ -215,16 +230,12 @@
   
   self)
 
-
-
 (defmethod restore-undoable-object-state ((self OMBoxAbstraction) (state list)) 
   (let ((patch (reference self)))
     (register-document patch) ;;; if needed..
     (pushnew self (references-to patch)))
   (call-next-method))
 
-(defmethod get-object-slots-for-undo ((self OMBox)) 
-  (remove 'reference (call-next-method)))
 
 
 ;;; PATCHES 
@@ -266,7 +277,6 @@
             do (omng-add-element self c))
       )
     
-    
     ;;; restore the connections of referencing boxes
     (loop for ref-b in reference-boxes
           for c-list in reference-containers-connections
@@ -292,7 +302,9 @@
     (om-remove-all-subviews view)
     (put-patch-boxes-in-editor-view patch view)
     (add-lock-item self view)
+    (report-modifications self)
     (om-invalidate-view view)))
+
 
 (defmethod cleanup-undoable-object-elements ((self OMPatch) deleted-states stacked-states) 
   

@@ -272,6 +272,10 @@
   (setf (index elem) 0)
   (setf (defval elem) nil))
 
+;;; doesn't impact other inputs
+(defmethod unregister-patch-io ((self OMPatch) (elem OMSelfIn)) nil)
+
+
 (defmethod box-container ((self OMBox)) (box-container (container self)))
 
 ;;; if there are several references (OMPatchFile) 
