@@ -31,6 +31,8 @@
 (defmethod get-properties-list ((self OMInterfaceBox))
   (hide-property (call-next-method) '(:text-font :align :group-id)))
 
+(defmethod get-documentation ((self OMInterfaceBox)) (class-documentation (class-of self)))
+
 (defmethod create-box-outputs ((self OMInterfaceBox))
   (list (make-instance 'box-output :box self :name "value")))
 
@@ -563,7 +565,12 @@
 ;;;===============================================================
 (defclass SwitchBox (OMInterfaceBox) 
    ((selection :accessor selection :initarg :selection :initform nil)
-    (multiple-selection :accessor multiple-selection :initarg :multiple-selection :initform nil)))
+    (multiple-selection :accessor multiple-selection :initarg :multiple-selection :initform nil))
+   (:documentation "An interface utility to graphically select among different options to pass through.
+
+Click with CMD or when the patch is locked to change the selected input." 
+    ))
+
 
 (defmethod special-item-reference-class ((item (eql 'switch))) 'SwitchBox)
 (defmethod special-box-p ((self (eql 'switch))) t)
