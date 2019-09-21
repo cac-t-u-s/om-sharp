@@ -5,14 +5,14 @@
  (:doc "")
  (:info
   (:created "2017/03/04 10:19:32")
-  (:modified "2019/09/15 12:13:19"))
+  (:modified "2019/09/22 1:33:41"))
  (:window (:size (917 518)) (:position (605 185)))
  (:grid nil)
  (:lock nil)
  (:boxes
   (:box
-   (:reference piano-roll)
    (:type :object)
+   (:reference piano-roll)
    (:group-id nil)
    (:name nil)
    (:x 288)
@@ -9685,25 +9685,26 @@
             (:channel 10))))))))))
    (:id 0))
   (:box
+   (:type :abstraction)
    (:reference
     (:patch
      (:om-version 7.0)
      (:name "midinote")
      (:doc "")
      (:info (:created nil) (:modified nil))
-     (:window (:size (353 272)) (:position (144 621)))
+     (:window (:size (353 272)) (:position (1200 262)))
      (:grid nil)
      (:lock nil)
      (:boxes
       (:box
+       (:type :io)
        (:reference
         (:out (:type omout) (:name "out") (:index 1) (:doc "")))
-       (:type :io)
        (:group-id nil)
        (:name "out")
        (:x 81)
        (:y 169)
-       (:w 26)
+       (:w 40)
        (:h 42)
        (:color
         (:color-or-nil
@@ -9723,14 +9724,14 @@
        (:outputs)
        (:id 0))
       (:box
+       (:type :io)
        (:reference
         (:in (:type omin) (:index 1) (:name "in") (:doc "")))
-       (:type :io)
        (:group-id nil)
        (:name "in")
        (:x 65)
        (:y 43)
-       (:w 18)
+       (:w 40)
        (:h 42)
        (:color
         (:color-or-nil
@@ -9745,14 +9746,14 @@
        (:outputs (:output (:name "out") (:reactive nil)))
        (:id 1))
       (:box
-       (:reference midi-note)
        (:type :object)
+       (:reference midi-note)
        (:group-id nil)
        (:name nil)
        (:x 83)
        (:y 102)
-       (:w 80)
-       (:h 36)
+       (:w 126)
+       (:h 58)
        (:color (:color 0.9 0.9 0.9 1.0))
        (:border 1.5)
        (:roundness nil)
@@ -9820,8 +9821,8 @@
            (:channel 1)))))
        (:id 2))
       (:box
-       (:reference om-random)
        (:type :function)
+       (:reference om-random)
        (:group-id nil)
        (:name "om-random")
        (:x 171)
@@ -9849,8 +9850,8 @@
        (:outputs (:output (:name "out") (:reactive nil)))
        (:id 3))
       (:box
-       (:reference om-random)
        (:type :function)
+       (:reference om-random)
        (:group-id nil)
        (:name "om-random")
        (:x 114)
@@ -9896,7 +9897,6 @@
        (:from (:box 4 :out 0))
        (:to (:box 2 :in 2))
        (:attributes (:color nil :style nil :modif nil))))))
-   (:type :patch)
    (:group-id nil)
    (:name "midinote")
    (:x 318)
@@ -9922,8 +9922,8 @@
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 1))
   (:box
-   (:reference mapcar)
    (:type :function)
+   (:reference mapcar)
    (:group-id nil)
    (:name "mapcar")
    (:x 372)
@@ -9951,8 +9951,8 @@
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 2))
   (:box
-   (:reference arithm-ser)
    (:type :function)
+   (:reference arithm-ser)
    (:group-id nil)
    (:name "arithm-ser")
    (:x 417)
@@ -9985,8 +9985,8 @@
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 3))
   (:box
-   (:reference piano-roll)
    (:type :object)
+   (:reference piano-roll)
    (:group-id nil)
    (:name nil)
    (:x 26)
@@ -10515,8 +10515,8 @@
             (:channel 1))))))))))
    (:id 4))
   (:box
-   (:reference import-midi-notes)
    (:type :function)
+   (:reference import-midi-notes)
    (:group-id nil)
    (:name "import-midi-notes")
    (:x 642)
@@ -10539,8 +10539,8 @@
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 5))
   (:box
-   (:reference piano-roll)
    (:type :object)
+   (:reference piano-roll)
    (:group-id nil)
    (:name nil)
    (:x 519)
@@ -10602,8 +10602,8 @@
 or connect a MIDI file pathname to import-midi-notes")
    (:id 7))
   (:box
-   (:reference gen-random-midi-notes)
    (:type :function)
+   (:reference gen-random-midi-notes)
    (:group-id nil)
    (:name "gen-random-midi-notes")
    (:x 72)
@@ -10627,8 +10627,8 @@ or connect a MIDI file pathname to import-midi-notes")
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 8))
   (:box
-   (:reference fixnum)
    (:type :value)
+   (:reference fixnum)
    (:group-id nil)
    (:name "value box")
    (:x 169)
@@ -10647,8 +10647,8 @@ or connect a MIDI file pathname to import-midi-notes")
    (:value 5000)
    (:id 9))
   (:box
-   (:reference fixnum)
    (:type :value)
+   (:reference fixnum)
    (:group-id nil)
    (:name "value box")
    (:x 94)
@@ -10677,7 +10677,7 @@ or connect a MIDI file pathname to import-midi-notes")
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -10695,7 +10695,7 @@ It corresponds to (and extends) the MIDIFile object in OM6")
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 18.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "PIANO-ROLL")
