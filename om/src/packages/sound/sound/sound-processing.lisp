@@ -228,9 +228,9 @@
 
 <sample-rate> is the output sample rate in Hz. If NIL, the sample rate is used from OM 'Audio' preferences.
 "
-  (let ((sr (or sample-rate (get-pref-value :audio :samplerate)))
-        (nsmpl (round (* dur sr)))
-        (ch (if (< channels 1) 1 channels)))
+  (let* ((sr (or sample-rate (get-pref-value :audio :samplerate)))
+         (nsmpl (round (* dur sr)))
+         (ch (if (< channels 1) 1 channels)))
     (make-instance 'om-internal-sound 
                    :buffer (make-om-sound-buffer-GC :ptr (make-audio-buffer ch nsmpl :float) :nch ch)
                    :n-samples nsmpl
@@ -239,9 +239,9 @@
                    :smpl-type :float)))
 
 (defmethod* sound-silence ((dur integer) &optional (channels 1) sample-rate)
-  (let ((sr (or sample-rate (get-pref-value :audio :samplerate)))
-        (nsmpl (round (* dur (/ sr 1000.0))))
-        (ch (if (< channels 1) 1 channels)))
+  (let* ((sr (or sample-rate (get-pref-value :audio :samplerate)))
+         (nsmpl (round (* dur (/ sr 1000.0))))
+         (ch (if (< channels 1) 1 channels)))
     (make-instance 'om-internal-sound 
                    :buffer (make-om-sound-buffer-GC :ptr (make-audio-buffer ch nsmpl :float) :nch ch)
                    :n-samples nsmpl
