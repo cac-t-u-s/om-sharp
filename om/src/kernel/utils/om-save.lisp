@@ -750,6 +750,7 @@
                 (:interface 
                  (let ((box (omNG-make-special-box reference pos)))
                    (set-value box (list val))
+                   (restore-state box (omng-load (find-value-in-kv-list data :state)))
                    box))
                 
                 (:object 

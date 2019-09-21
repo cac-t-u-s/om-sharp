@@ -67,9 +67,14 @@
 ;(defmethod eval-box :before ((self OMInterfaceBox)) 
 ;  (apply-box-attributes self (eval-box-inputs self)))
 
+(defmethod get-state ((self OMInterfaceBox)) nil)
+(defmethod restore-state ((self OMInterfaceBox) state) nil)
+
 (defmethod omng-save ((self OMInterfaceBox))  
   (append (call-next-method)
-          (list (save-value self))))
+          (list (save-value self))
+          (when (get-state self) 
+            `((:state ,(omng-save (get-state self)))))))
 
 (defmethod additional-slots-to-copy ((from OMInterfaceBox)) '(value))
 
@@ -575,6 +580,12 @@ Click with CMD or when the patch is locked to change the selected input."
 (defmethod special-item-reference-class ((item (eql 'switch))) 'SwitchBox)
 (defmethod special-box-p ((self (eql 'switch))) t)
 
+
+(defmethod get-state ((self SwitchBox)) (selection self))
+(defmethod restore-state ((self SwitchBox) state) (setf (selection self) state))
+
+
+
 (defmethod omNG-make-special-box ((reference (eql 'switch)) pos &optional init-args)
   (let* ((box (make-instance 'SwitchBox
                              :name "switch"
@@ -605,7 +616,7 @@ Click with CMD or when the patch is locked to change the selected input."
 
 (defmethod get-properties-list ((self SwitchBox))
   (add-properties (call-next-method)
-                  "List selection display" 
+                  "Switch options" 
                   `((:multiple-selection "Multiple selection" :bool multiple-selection)
                     )))
 
