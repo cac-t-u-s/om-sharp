@@ -26,5 +26,6 @@
  :container-pack *om-package-tree*
  :doc "Mathematical tools / Set theory / ..."
  :classes '(n-cercle)
- :functions '(chord2c)
+ :functions '(chord2c c2chord c2chord-seq chord-seq2c c2rhythm rhythm2c
+              c-rotate c-complement c-inverse)
  :subpackages nil)

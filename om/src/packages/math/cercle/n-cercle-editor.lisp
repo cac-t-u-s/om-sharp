@@ -25,6 +25,17 @@
 
 (defclass CercleView (omeditorview) ())
 
+
+;;; UPDATE AFTER EVAL
+
+(defmethod update-to-editor ((self cercleeditor) (from OMBox))
+  (let ((obj (object-value self)))
+    (when (>= (front self) (length (puntos obj)))
+      (setf (front self) 0))
+    (om-invalidate-view (main-view self))))
+
+;;; BUILD
+
 (defmethod make-editor-window-contents ((self CercleEditor))
   (let* ((view (om-make-view 'cercleview
                              :editor self
@@ -79,7 +90,8 @@
     ))
     
         
-    
+;;; DRAW 
+
 (defmethod om-draw-contents ((self CercleView))
   
   (let* ((ed (editor self))
@@ -134,33 +146,7 @@
       )))
 
 
-(defmethod update-to-editor ((self cercleeditor) (from OMBox))
-  (let ((obj (object-value self)))
-    (when (>= (front self) (length (puntos obj)))
-      (setf (front self) 0))
-    (om-invalidate-view (main-view self))))
-      
-
-(defmethod editor-key-action ((self cercleeditor) key)
-     
-    (case key
-
-      (:om-key-tab 
-       (setf (front self) (mod (1+ (front self)) (length (puntos (object-value self)))))
-       (om-invalidate-view (main-view self)))
-
-      (#\r (rotate-front-list self 1)
-           (om-invalidate-view (main-view self)))
-      
-      (#\i (inverse-front-list self)
-           (om-invalidate-view (main-view self)))
-
-      (#\c (complement-front-list self)
-           (om-invalidate-view (main-view self)))
-
-    (otherwise (om-beep))
-    ))
-    
+;;; TRANSFORMATIONS
 
 (defmethod rotate-front-list ((self cercleeditor) n)
   (let ((obj (object-value self)))
@@ -187,10 +173,6 @@
                 collect item))
     (report-modifications self)))
 
-
-(defmethod om-view-click-handler ((self cercleview) position)
-  (when (om-add-key-down)
-    (add-remove-point-at self position)))
 
 
 (defmethod add-remove-point-at ((self cercleview) clic-pos)
@@ -222,5 +204,35 @@
       (om-invalidate-view self)
       )
     ))
+
+
+;;; USER ACTION CALLBACKS
+
+(defmethod editor-key-action ((self cercleeditor) key)
+     
+    (case key
+
+      (:om-key-tab 
+       (setf (front self) (mod (1+ (front self)) (length (puntos (object-value self)))))
+       (om-invalidate-view (main-view self)))
+
+      (#\r (rotate-front-list self 1)
+           (om-invalidate-view (main-view self)))
+      
+      (#\i (inverse-front-list self)
+           (om-invalidate-view (main-view self)))
+
+      (#\c (complement-front-list self)
+           (om-invalidate-view (main-view self)))
+
+    (otherwise (om-beep))
+    ))
+    
+
+(defmethod om-view-click-handler ((self cercleview) position)
+  (when (om-add-key-down)
+    (add-remove-point-at self position)))
+
+
 
 
