@@ -172,6 +172,10 @@ Use > and < to add/remove outputs.
   (values-list (make-list (length (outputs self)) 
                           :initial-element (omNG-box-value (car (inputs self))))))
 
+(defmethod gen-code-for-call ((self OMBoxHub) &optional args)
+  `(values-list 
+    (make-list ,(length (outputs self))
+               :initial-element ,(gen-code (car (inputs self))))))
 
 ;;;------------------------
 ;;; DEFAULT VALUE UTIL
