@@ -27,7 +27,7 @@
          when (menus-from-folder sub)
          collect (om-make-menu (car (last (pathname-directory sub)))
                                (menus-from-folder sub)))
-   (loop for item in (sort (om-directory folder :type '("opat")) #'string< :key #'pathname-name)
+   (loop for item in (sort (om-directory folder :type '("opat" "omaq")) #'string< :key #'pathname-name)
          collect  (let ((path item))           
                     (om-make-menu-item 
                      (pathname-name path)
