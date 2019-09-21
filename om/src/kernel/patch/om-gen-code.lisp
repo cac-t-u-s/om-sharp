@@ -269,7 +269,9 @@
            (when newvar?
              (push-let-statement `(,varname (multiple-value-list ,(gen-code-for-eval self nil))))
              )
-           `(nth ,numout ,varname))
+           (if numout ;;; in principle numout = NIL happens only when we generate the Lisp code for display
+               `(nth ,numout ,varname)
+             varname))
        (progn 
          (when newvar?
            (push-let-statement `(,varname ,(gen-code-for-eval self 0)))

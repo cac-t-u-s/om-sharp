@@ -1410,6 +1410,19 @@
     ))
 
 
+(defmethod get-box-lisp-code ((self OMBox))
+  (let ((code nil))
+    (push-let-context)
+    (setf code (gen-code self))
+    (setf code
+          (if (output-current-let-context)
+              `(let ,(output-current-let-context)
+                 ,code)
+            code))
+    (pop-let-context)
+    code))
+
+
 (defmethod patch-editor-set-lisp-code ((self patch-editor))
   (when (and (equal (editor-window-config self) :lisp-code)
              (get-g-component self :lisp-code)) ;; just in case..
@@ -1419,18 +1432,11 @@
     (om-set-dialog-item-text 
      (get-g-component self :lisp-code)
      (format-lisp-code-string 
-      
       (if (= (length (get-selected-boxes self)) 1)
-          
           ;;; code for 1 box
-          (let ((code nil))
-            (push-let-context)
-            (setf code (gen-code (car (get-selected-boxes self))))
-            (pop-let-context)
-            code)
+          (get-box-lisp-code (car (get-selected-boxes self)))
         ;;; code for patch
         (get-patch-lambda-expression (object self)))
-
       (round w wem)))
     )))
 
