@@ -1419,9 +1419,18 @@
     (om-set-dialog-item-text 
      (get-g-component self :lisp-code)
      (format-lisp-code-string 
+      
       (if (= (length (get-selected-boxes self)) 1)
-          (gen-code (car (get-selected-boxes self)))
+          
+          ;;; code for 1 box
+          (let ((code nil))
+            (push-let-context)
+            (setf code (gen-code (car (get-selected-boxes self))))
+            (pop-let-context)
+            code)
+        ;;; code for patch
         (get-patch-lambda-expression (object self)))
+
       (round w wem)))
     )))
 
