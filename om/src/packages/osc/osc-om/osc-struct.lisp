@@ -190,7 +190,12 @@
                :edit-action #'(lambda (item)
                                 (let ((messages (remove nil
                                                         (loop for line in (om-text-to-lines (om-dialog-item-text item))
-                                                              collect (om-read-list-from-string line)))))
+                                                              when (> (length (delete-spaces line)) 0)
+                                                              collect 
+                                                              (multiple-value-bind (address data)
+                                                                  (string-until-char (delete-spaces line) " ")
+                                                                (cons address
+                                                                      (om-read-list-from-string data)))))))
                                   (setf (messages oscb) messages)
                                   (report-modifications self)))
                )))
