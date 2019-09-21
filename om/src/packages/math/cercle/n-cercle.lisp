@@ -121,52 +121,46 @@ Note: N-CERCLE can also contain a set of chords/patterns: in this case, <puntos>
 ;FUNCTIONS
 ;=============================================
 (defmethod* c-rotate ((self n-cercle) n)
-  :initvals '(nil 2) :indoc '("n-cercle" "steps")
+  :initvals '(nil 1) :indoc '("n-cercle" "steps")
   :icon :cercle
   :doc "Generates a N-CERCLE by rotation of <self>." 
-  (let ((n (case approx (2 12) (4 24) (8 48) (otherwise 12)))
-        (div (case approx (2 100) (4 50) (8 25) (otherwise 100))))
-    
-    (make-instance 'n-cercle
-      :n (n self)
-      :puntos (loop for list in (puntos self)
-                    collect (sort 
-                             (loop for p in list collect (mod (+ p n) (n self)))
-                             '<))
-      )))
+  
+  (make-instance 'n-cercle
+                 :n (n self)
+                 :puntos (loop for list in (puntos self)
+                               collect (sort 
+                                        (loop for p in list collect (mod (+ p n) (n self)))
+                                        '<))
+                 ))
 
 
 (defmethod* c-complement ((self n-cercle))
-  :initvals '(nil 2) :indoc '("n-cercle")
+  :initvals '(nil) :indoc '("n-cercle")
   :icon :cercle
   :doc "Generates the complement of <self> (N-CERCLE)." 
-  (let ((n (case approx (2 12) (4 24) (8 48) (otherwise 12)))
-        (div (case approx (2 100) (4 50) (8 25) (otherwise 100))))
     
-    (make-instance 'n-cercle
-      :n (n self)
-      :puntos (loop for list in (puntos self)
-                    collect (loop for item from 0 to (- (n self) 1)
-                                  when (not (find item list
-                                                  :test #'(lambda (a b) (= (mod a (n obj)) (mod b (n obj))))))
-                                  collect item))
-      )))
+  (make-instance 'n-cercle
+                 :n (n self)
+                 :puntos (loop for list in (puntos self)
+                               collect (loop for item from 0 to (- (n self) 1)
+                                             when (not (find item list
+                                                             :test #'(lambda (a b) (= (mod a (n self)) (mod b (n self))))))
+                                             collect item))
+                 ))
 
 
 (defmethod* c-inverse ((self n-cercle))
   :initvals '(nil) :indoc '("n-cercle")
   :icon :cercle
   :doc "Generates the inverse of <self> (N-CERCLE)."
-  (let ((n (case approx (2 12) (4 24) (8 48) (otherwise 12)))
-        (div (case approx (2 100) (4 50) (8 25) (otherwise 100))))
-    
-    (make-instance 'n-cercle
-      :n (n self)
-      :puntos (loop for list in (puntos self)
-                    collect  (sort 
-                              (x->dx (reverse (dx->x 0 list)))
-                              '<))
-      )))
+  
+  (make-instance 'n-cercle
+                 :n (n self)
+                 :puntos (loop for list in (puntos self)
+                               collect  (sort 
+                                         (x->dx (reverse (dx->x 0 list)))
+                                         '<))
+                 ))
 
 
 ;=============================================
@@ -194,7 +188,7 @@ Note: N-CERCLE can also contain a set of chords/patterns: in this case, <puntos>
 
 ;;; use this for automatic conversion from CHORD to N-CERCLE
 (defmethod objfromobjs ((model chord) (target n-cercle))
-  (chord2c self 2))
+  (chord2c model 2))
 
 
 (defmethod* c2chord ((self n-cercle) index base approx)
