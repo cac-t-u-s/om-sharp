@@ -137,7 +137,9 @@
     (:box `,self)
  
     (otherwise 
-     (gen-code (nth numout (value self))))
+     (if numout 
+         (gen-code (nth numout (value self)))
+       (value self)))
     
     ))
 
@@ -377,7 +379,7 @@
           
         (let* ((input-names (gen-patch-input-names self))
                
-               ;;; as far as I can say OMPatchInitBox have no index... ?
+               ;;; OMPatchInitBox have no index... ?
                (init-boxes (sort-boxes (get-boxes-of-type self 'OMPatchInitBox)))
                (init-forms (loop for ib in init-boxes append (gen-code ib)))
                
