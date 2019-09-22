@@ -59,6 +59,7 @@
                 om-color-a
                 om-color-null-p
                 om-def-color
+                om-color-equal
 
                 om-make-font
                 om-font-p
@@ -68,6 +69,7 @@
                 om-font-style
                 om-def-font
                 om-font-lambda
+                om-font-equal
                 
                 om-string-size
                 om-string-wrap
@@ -250,6 +252,13 @@
 (defun om-color-null-p (color)
   (= (color::color-alpha (omcolor-c color)) 0))
 
+(defun om-color-equal (c1 c2)
+  (and (= (om-color-r c1) (om-color-r c2))
+       (= (om-color-g c1) (om-color-g c2))
+       (= (om-color-b c1) (om-color-b c2))
+       (= (om-color-a c1) (om-color-a c2))))
+
+
 (defun om-def-color (c)
   (case c
     (:light-gray (make-omcolor :c (color:make-rgb 0.9 0.9 0.9)))
@@ -315,6 +324,12 @@
          '(:bold))
         (t '(:plain))))
 
+
+(defun om-font-equal (f1 f2)
+  (and (string-equal (om-font-face f1) (om-font-face f2))
+       (= (om-font-size f2) (om-font-size f2))
+       (equal (om-font-style f1) (om-font-style f2))))
+          
 
 (defun om-string-size (str &optional font)
   ;(setf (capi::simple-pane-font *dummy-view*) (or font (om-def-font :font2)))

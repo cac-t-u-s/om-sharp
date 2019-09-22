@@ -508,8 +508,10 @@
                                      (get-property object prop-id)
                                      (font-? (get-property object prop-id)))
                         :focus nil :default nil
-                        :text (font-to-str (font-font current))
-			:size (om-make-point (om-string-size (font-to-str (font-font current))) #+cocoa 26 #-cocoa nil)
+                        :text (print (font-to-str (font-font current)))
+			:size (om-make-point (+ 40 (om-string-size (font-to-str (font-font current))
+                                                             (om-def-font :font1 :style (om-font-style (font-font current)))))
+                                             #+cocoa 26 #-cocoa nil)
 			:font (om-def-font :font1 :style (om-font-style (font-font current)))
                         :di-action #'(lambda (item)
                                        (let ((choice (om-choose-font-dialog 
@@ -777,18 +779,25 @@
                 ))
     (hide-properties one-list invalid-properties)))
 
+(defun prop-equal (v1 v2) 
+  (cond ((and (om-font-p v1) (om-font-p v1))
+         (om-font-equal v1 v2))
+        ((and (om-color-p v1) (om-color-p v1))
+         (om-color-equal v1 v2))
+        (t (equal v1 v2))))
+
 
 ;;; will return a value only if all the inspected objects have the same
 (defmethod get-property ((self virtual-object-selection) prop-id &key (warn t)) 
   
   (declare (ignore warn))
-  
   (let ((val (get-property (car (objects self)) prop-id)))
     (loop for o in (cdr (objects self))
           while val do
-          (unless (equal val (get-property o prop-id))
+          (unless (prop-equal val (get-property o prop-id))
             (setf val nil)))
     val))
+
 
 ;;; set the same value to all objects
 (defmethod set-property ((self virtual-object-selection) prop-id val)
