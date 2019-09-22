@@ -62,6 +62,7 @@
     (progn
       (multiple-value-bind (buffer format channels sr ss size)
           (audio-io::om-get-audio-buffer path *default-audio-type* nil)
+        (declare (ignore format ss))
         (make-player-from-buffer buffer size channels sr)))))
 
 (defmethod start-buffer-player ((self buffer-player) &key (start-frame 0))

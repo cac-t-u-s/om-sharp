@@ -558,6 +558,7 @@ Press 'space' to play/stop the sound file.
         (multiple-value-bind (buffer format channels sr ss size)
             
             (audio-io::om-get-audio-buffer (namestring path) *default-internal-sample-size* nil)
+          (declare (ignore format))
           
           (when buffer 
             (unwind-protect 
@@ -582,6 +583,8 @@ Press 'space' to play/stop the sound file.
 
       (multiple-value-bind (format channels sr ss size)
           (audio-io::om-get-sound-info (namestring path))
+        (declare (ignore format))
+        
         (setf (n-samples sound) size
               (n-channels sound) channels
               (sample-rate sound) sr
@@ -663,6 +666,8 @@ Press 'space' to play/stop the sound file.
   (if (probe-file sound)
       (multiple-value-bind (format channels sr ss size)
           (audio-io::om-get-sound-info sound)
+        (declare (ignore format channels ss))
+
         (if (and size sr (> sr 0)) (float (/ size sr)) 0))
     (progn (om-beep-msg "File not found: ~s" sound) 0)))
 
