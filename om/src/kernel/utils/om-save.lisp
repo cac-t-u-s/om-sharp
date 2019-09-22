@@ -420,7 +420,8 @@
                 
             ;;; no pathname-directory can occur while loading old patch abstractions from OM6
             ;;; in this case we look for a not-yet-save file with same name in registered documents
-            (let ((registered-entry (find (pathname-name path) *open-documents* :test 'string-equal :key #'(lambda (entry) (name (doc-entry-doc entry))))))
+            (let ((registered-entry (find (pathname-name path) *open-documents* 
+                                          :test 'string-equal :key #'(lambda (entry) (name (doc-entry-doc entry))))))
               (when registered-entry
                 (doc-entry-doc registered-entry)))
             )))

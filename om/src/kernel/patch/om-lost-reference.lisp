@@ -237,7 +237,9 @@
         (t (call-next-method))))
 
 (defmethod box-draw-color ((self OMBoxAbstraction)) 
-  (if (lost-reference? self) (om-make-color 1 0.6 0.5) (call-next-method)))
+  (if (lost-reference? self) 
+      (om-make-color 0.9 0.7 0.5) 
+  (call-next-method)))
 
 (defmethod draw-patch-icon :after ((self OMBoxAbstraction) &optional (offset-x 0) (offset-y 0))
   (when (lost-reference? self)
