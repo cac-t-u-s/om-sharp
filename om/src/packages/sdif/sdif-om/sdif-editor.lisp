@@ -188,8 +188,7 @@
                       (/ (- (w self) 20) (tmax self))
                     1))
            (c-min .7)
-           (c-fact (if (= 1 (length (data self))) c-min (/ c-min (length (data self)))))
-           (delta 0))
+           (c-fact (if (= 1 (length (data self))) c-min (/ c-min (length (data self))))))
       (when (= mi ma) (setf mi (- mi 10) ma (+ ma 10)))
       (loop for row in (reverse (data self))
             for i = 1 then (+ i 1) do

@@ -246,7 +246,7 @@ If <outfile> is just a filename (not a pathname) the file is written in the defa
             (sdif::SdifFWriteGeneralHeader outptr)
             (sdif-write-nvt outptr `(("Author" ,(string+ "OM " *version-string*))))
             
-            (when typedefs (sdif-write-types file (list! typedefs)))
+            (when typedefs (sdif-write-types outptr (list! typedefs)))
             
             (sdif::SdifFWriteAllASCIIChunks outptr)
     
