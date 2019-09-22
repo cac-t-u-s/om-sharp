@@ -1368,6 +1368,8 @@
 (defun restore-pict-path (path) path)
 (defun om-get-picture (name location) nil)
 
+(defun corrige (lis) lis)
+
 #|
 
 ;(let ((newpict (make-instance (quote patch-picture) :name "arrow_down_1" :source (quote user) :pict-pathname (restore-pict-path (restore-path nil)) :thepict (om-get-picture "arrow_down_1" (quote user)) :storemode :external :draw-params (quote (p 0 0 100 100)) :extraobjs nil))) (setf (pict-pos newpict) (om-make-point 619 173)) (setf (pict-size newpict) (om-make-point 50 112)) newpict)
