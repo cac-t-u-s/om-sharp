@@ -215,6 +215,8 @@
     (multiple-value-bind (xmi xma ymi yma zmi zma)
         ;; the data is scaled here. the grid must not
         (get-extents (data (object-value editor)))
+
+      (declare (ignore zmi zma))
     
       (set-x-grid editor (if (equal (editor-get-edit-param editor :x-grid) :auto)
                                 (list xmi xma)
@@ -266,7 +268,7 @@
 
 (defmethod update-lines ((ed 3D-viewer-editor)) 
   (let ((3D-view (get-g-component ed :3d-view)))
-    (loop for line in (get-transformed-data (object-value ed)) do
+    (loop for line in (get-transformed-data (object-value ed))
           for view-line in (om-get-gl-objects 3d-view) collect
           (setf (vertices-colors view-line)
                 (loop for p in (om-3Dobj-points line)
@@ -736,7 +738,6 @@
         (xmax (* 2.0 (ceiling x2 2)))
         (ymin (* 2.0 (floor y1 2)))
         (ymax (* 2.0 (ceiling y2 2))))
-        o
     (opengl:gl-line-width .5) 
     (opengl:gl-color4-f 0.9 0.9 0.9 0.9)
     (opengl:gl-begin opengl:*GL-LINES*)       

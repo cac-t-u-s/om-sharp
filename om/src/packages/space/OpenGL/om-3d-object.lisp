@@ -294,10 +294,12 @@
   )
 
 (defmethod om-draw-contents ((self 3D-cube))
+
   (let* ((vertices (om-get-gl-points self)))
-    (if (om-3Dobj-color self)
-        (let ((col (om-color-to-single-float-list (om-3Dobj-color self))))
-          (opengl:gl-color4-f (car col) (cadr col) (caddr col) (cadddr col)))) 
+    
+    (when (om-3Dobj-color self)
+      (let ((col (om-color-to-single-float-list (om-3Dobj-color self))))
+        (opengl:gl-color4-f (car col) (cadr col) (caddr col) (cadddr col)))) 
     
     (opengl:gl-shade-model opengl:*gl-flat*)
 

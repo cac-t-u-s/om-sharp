@@ -810,13 +810,11 @@
 
 
 (defmethod om-view-key-handler ((self 3DPanel) key)
-  (let* ((ed (editor self))
-         (3DV (object-value ed)))
-    (case key 
-      (:om-key-esc  
-       (om-init-3D-view self))
-      (otherwise (call-next-method)))
-    ))
+  (case key 
+    (:om-key-esc  
+     (om-init-3D-view self))
+    (otherwise (call-next-method)))
+  )
 
 ;;;===================
 ;;; OSC INPUT
@@ -827,7 +825,7 @@
     (setf (osc-manager editor) (make-instance 'osc-curvce-input-manager :editor editor)))
   (open-osc-manager (osc-manager editor)))
 
-(defmethod osc-manager-add-callback ((editor 3DC-editor))
+(defmethod osc-manager-add-callback ((editor 3DC-editor) point)
   (let ((obj (object-value editor)))
     (time-sequence-insert-timed-item-and-update obj point (length (point-list obj)))
     (report-modifications editor)
@@ -836,7 +834,7 @@
     (om-invalidate-view (3Dp editor))))
 
 (defmethod osc-manager-move-callback ((editor 3DC-editor))
-  (update-sub-editors self)
+  (update-sub-editors editor)
   (om-invalidate-view (3dp editor)))
 
 (defmethod osc-manager-clear-callback ((editor 3DC-editor))
