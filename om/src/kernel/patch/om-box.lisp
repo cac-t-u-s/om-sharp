@@ -365,14 +365,21 @@
           (smallest-dx nil) (smallest-dy nil))
       
       ;;; (try to) DE-OVERLAP
-      (loop for box in other-boxes do
-            (when (overlap self box)
-              (move-box-to self (box-x self) 
-                           (if (<= (box-y self) (box-y box)) 
-                               (- (box-y box) (box-h self) 2)
-                             (+ (box-y2 box) 2)))
-              )
-            )
+      (unless (subtypep (type-of self) 'OMComment) ;;; do not de-overlap comments...
+
+        (loop for box in (remove-if #'(lambda (b) (subtypep (type-of b) 'OMComment)) other-boxes) 
+              do
+              (when (overlap self box)
+                (if (or (<= (box-y self) (box-y box))
+                               (is-connected-up-to box self)) ;;; always move up if the boxes are connected
+
+                           ;;; move-up
+                           (move-box-to self (box-x self) 
+                                        (- (box-y box) (box-h self) 2))
+                         ;;; move down
+                         (move-box-to self (box-x self) 
+                                      (+ (box-y2 box) 2)))
+                )))
       
       ;;; find de smallest connection deviation
       (loop for inp in (inputs self) do
