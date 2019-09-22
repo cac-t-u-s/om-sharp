@@ -120,7 +120,7 @@ Note: N-CERCLE can also contain a set of chords/patterns: in this case, <puntos>
 ;=============================================
 ;FUNCTIONS
 ;=============================================
-(defmethod* c-rotate ((self n-cercle) n)
+(defmethod* nc-rotate ((self n-cercle) n)
   :initvals '(nil 1) :indoc '("n-cercle" "steps")
   :icon :cercle
   :doc "Generates a N-CERCLE by rotation of <self>." 
@@ -134,7 +134,7 @@ Note: N-CERCLE can also contain a set of chords/patterns: in this case, <puntos>
                  ))
 
 
-(defmethod* c-complement ((self n-cercle))
+(defmethod* nc-complement ((self n-cercle))
   :initvals '(nil) :indoc '("n-cercle")
   :icon :cercle
   :doc "Generates the complement of <self> (N-CERCLE)." 
@@ -149,7 +149,7 @@ Note: N-CERCLE can also contain a set of chords/patterns: in this case, <puntos>
                  ))
 
 
-(defmethod* c-inverse ((self n-cercle))
+(defmethod* nc-inverse ((self n-cercle))
   :initvals '(nil) :indoc '("n-cercle")
   :icon :cercle
   :doc "Generates the inverse of <self> (N-CERCLE)."

@@ -27,5 +27,5 @@
  :doc "Mathematical tools / Set theory / ..."
  :classes '(n-cercle)
  :functions '(chord2c c2chord c2chord-seq chord-seq2c c2rhythm rhythm2c
-              c-rotate c-complement c-inverse)
+              nc-rotate nc-complement nc-inverse)
  :subpackages nil)
