@@ -93,7 +93,7 @@
   ((default-frame-type :accessor default-frame-type :initarg :default-frame-type :initform 'act-bundle)
    (frames :initarg :frames :initform nil :documentation "a list of timed data chunks")
    )
-  (:documentation "A general container to organize data in time.")
+  (:documentation "A general container to organize data in time."))
 
 
 ;;; called after initialize-instance in OM-context
