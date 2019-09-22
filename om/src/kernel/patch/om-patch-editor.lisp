@@ -159,7 +159,7 @@
 
 (defmethod om-draw-contents ((self lock-view-area))
   (om-draw-picture (if (lock (object (editor self))) :lock :unlock) 
-                   :x 0 :y 0 :w 16 :h 16
+                   :x 0 :y 0 :w 20 :h 20
                    ))
 
 (defmethod om-view-click-handler ((self lock-view-area) position)
@@ -180,8 +180,6 @@
 ;;;==========================
 ;;; MENU
 ;;;==========================
-
-
 
 (defmethod om-menu-items ((self patch-editor))
   (remove nil
