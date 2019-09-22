@@ -213,18 +213,20 @@
   (declare (special *om-current-persistent* *current-loading-document*))
   
   (let* ((name (car (last path-list)))
+         
          ;;; try to locate the container-patch's OM6 workspace 
          (workspace-root 
           (when (find "elements" (pathname-directory *current-loading-document*) :test 'string-equal)
             (om-make-pathname :directory 
                               (subseq (pathname-directory *current-loading-document*) 0 
                                       (position "elements" (pathname-directory *current-loading-document*) :test 'string-equal)))))
-         ;;; try to guess the abstraction absolute path 
+         
+         ;;; try to determine the original abstraction folder 
          (doc-path-folder (when workspace-root
                             (om-make-pathname :directory 
                                               (append (pathname-directory workspace-root) (butlast path-list)))))
+         
          ;;; determine the actual abstraction file
-         ;;; (or ask user to locate it)
          (doc-path (or (and doc-path-folder 
                             (find name (om-directory doc-path-folder :type (doctype-to-ext-list :old)) 
                                   :key 'pathname-name :test 'string-equal))
@@ -234,48 +236,73 @@
                                                 :type (doctype-to-ext-list :old)) 
                              :key 'pathname-name :test 'string-equal)
                        
-                       ;;; ask user ?
-                       (and (om-y-or-n-dialog (format nil "Can you locate the original OM6 abstraction ~s ?~%(Not found in ~s)" 
-                                                      name 
-                                                      (reduce #'(lambda (s1 s2) (concatenate 'string s1 "/" s2)) (butlast (cdr path-list)))))
-                            (om-choose-file-dialog 
-                             :prompt (format nil "Please: locate OM6 abstraction ~s." name) 
-                             :directory *current-loading-document* :types (doctype-info :old))))))
+                       )))
     
-    
-
+    ;;; => found the patch
     (if (and doc-path (probe-file doc-path)) 
          
-     ;;; if the main form is a om-load-patch1, the returned form will be a patch
-     (let* ((expected-type (cond ((string-equal (pathname-type doc-path) "omp") "Patch")
-                                 ((string-equal (pathname-type doc-path) "oml") "LispFun")
-                                 ((string-equal (pathname-type doc-path) "omm") "Maquette")))
+        ;;; if the main form is a om-load-patch1, the returned form will be a patch
+        (let* ((expected-type (cond ((string-equal (pathname-type doc-path) "omp") "Patch")
+                                    ((string-equal (pathname-type doc-path) "oml") "LispFun")
+                                    ((string-equal (pathname-type doc-path) "omm") "Maquette")))
+               
+               ;;; check if there is a registered open document with same name that is _not yet saved_
+               ;;; this happens in recursive patches or patches with several references to the same abstraction
+               (registered-entry (find-if #'(lambda (entry) 
+                                              (and (string-equal (name (doc-entry-doc entry)) name)
+                                                   (string-equal (get-object-type-name (doc-entry-doc entry)) expected-type)
+                                                   (null (doc-entry-file entry))))
+                                          *open-documents*))
             
-            ;;; check if there is a registered open document with same name that is _not yet saved_
-            ;;; this happens in recursive patches or patches with several references to the same abstraction
-            (registered-entry (find-if #'(lambda (entry) 
-                                           (and (string-equal (name (doc-entry-doc entry)) name)
-                                                (string-equal (get-object-type-name (doc-entry-doc entry)) expected-type)
-                                                (null (doc-entry-file entry))))
-                                       *open-documents*))
-            (new-patch (if registered-entry ;; the doc was already loaded
-                           (doc-entry-doc registered-entry)
-                         (load-om6-file doc-path))))
-       
-       ;;; when no pathname the file will be searched for in the doc manager
-       (omng-save-relative new-patch *current-loading-document*))
+               (new-patch (if registered-entry ;; the doc was already loaded (or considered so!)
+                              (doc-entry-doc registered-entry)
+                            (load-om6-file doc-path))))
+              
+          ;;; return this: 
+          (omng-save-relative new-patch *current-loading-document*))
 
       
-      (progn ;;; not found 
-        (om-print-format "Abstraction box: ~s was not imported." (list name) "Import/Compatibility")
-        ;;; will appear as "not found patch box"
-        `(:patch-from-file
-          (:pathname
-           (:directory ,(cons :relative (butlast path-list))
-           (:name ,name)
-           )))
+      ;;; => patch not found
+      ;;; search more broadly in non-saved registered documents (if it was previously open manually)
+      (let ((registered-entry (find-if #'(lambda (entry) 
+                                           (and (string-equal (name (doc-entry-doc entry)) name)
+                                                (null (doc-entry-file entry))))
+                                       *open-documents*)))
+        
+        (if registered-entry ;; the doc was already loaded (or considered so!)
+            
+            (let ((new-patch (doc-entry-doc registered-entry)))
+              ;;; return this:
+              (omng-save-relative new-patch *current-loading-document*))
+          
+          ;;; no way to find anything: ask user
+          (let ((user-located (and (om-y-or-n-dialog (format nil "Can you locate the original OM6 abstraction ~s ?~%(Not found in ~s)" 
+                                                             name 
+                                                             (reduce #'(lambda (s1 s2) (concatenate 'string s1 "/" s2))
+                                                                     (butlast (cdr path-list)))))
+                                   (om-choose-file-dialog 
+                                    :prompt (format nil "Please: locate OM6 abstraction ~s." name) 
+                                    :directory *current-loading-document* :types (doctype-info :old)))))
+            
+            (if user-located
+                
+                ;;; got a patch
+                (let ((new-patch (load-om6-file user-located)))
+                  ;;; return this:
+                  (omng-save-relative new-patch *current-loading-document*))
+              
+              ;;; not found at all
+              (progn 
+                (om-print-format "Abstraction box: ~s was not imported." (list name) "Import/Compatibility")
+                ;;; will appear as "not found patch box"
+                `(:patch-from-file
+                  (:pathname
+                   (:directory ,(cons :relative (butlast path-list)))
+                   (:name ,name)))
+                )
+              )
+            ))
         ))
-    
     ))
   
 
