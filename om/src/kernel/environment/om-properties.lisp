@@ -780,9 +780,9 @@
     (hide-properties one-list invalid-properties)))
 
 (defun prop-equal (v1 v2) 
-  (cond ((and (om-font-p v1) (om-font-p v1))
+  (cond ((and (om-font-p v1) (om-font-p v2))
          (om-font-equal v1 v2))
-        ((and (om-color-p v1) (om-color-p v1))
+        ((and (om-color-p v1) (om-color-p v2))
          (om-color-equal v1 v2))
         (t (equal v1 v2))))
 
