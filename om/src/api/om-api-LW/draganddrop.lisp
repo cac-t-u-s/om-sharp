@@ -198,9 +198,22 @@
         )
        ))
 
+
+(defvar *drag-start-handler* nil)
+(defun handle-drag-start (pos)
+  (setf *drag-start-handler* pos))
+
+(defmethod om-view-click-handler :before ((view om-drag-view) pos)
+  (handle-drag-start pos))
+
 (defmethod om-click-motion-handler :after ((self om-drag-view) pos) 
-  (setf (om-drag-view-cursor-pos self) (om-point-mv pos :y -1))
-  (internal-drag-start self pos))
+  (let ((min-move 2))
+    (when (or (null *drag-start-handler*)
+              (>= (abs (- (om-point-x pos) (om-point-x *drag-start-handler*))) min-move)
+              (>= (abs (- (om-point-y pos) (om-point-y *drag-start-handler*))) min-move))    
+      (setf (om-drag-view-cursor-pos self) (om-point-mv pos :y -1))
+      (internal-drag-start self pos)
+      )))
 
 ;(defmethod om-view-click-handler :after ((self om-drag-view) pos) nil)
 
