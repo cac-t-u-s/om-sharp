@@ -504,8 +504,8 @@
     (draw-bpf-points-in-rect (cadr display-cache)
                              (color self) 
                              (append x-range y-range)
-                             ;(+ x 7) (+ y 10) (- w 14) (- h 20)
-                             x (+ y 10) w (- h 20)
+                             (+ x 2) (+ y 10) (- w 4) (- h 20)
+                             ;x (+ y 10) w (- h 20)
                              (get-edit-param box :draw-style))
 
     (om-with-font (om-def-font :font1 :size 8)
