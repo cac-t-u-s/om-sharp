@@ -1607,7 +1607,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                            (line-h (cadr (multiple-value-list (om-string-size "abc" font))))
                            (n-lines (length (om-string-wrap doc def-w font))))
                       (om-make-di 'om-multi-text 
-                                  :size (om-make-point nil (* line-h (+ 2 n-lines)))
+                                  :size (om-make-point nil (min 100 (* line-h (+ 2 n-lines))))
                                   :text (format nil "~%~A" doc)
                                   ;:scrollbars :v
                                   :fg-color (om-def-color :dark-gray)
