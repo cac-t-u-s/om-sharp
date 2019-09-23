@@ -800,7 +800,7 @@
                                                     (om-dialog-item-action item)
                                                     ))
                                                 (when auto-resize
-                                                  ;;; update the size of the box from teh newt text
+                                                  ;;; update the size of the box from the new text
                                                   (let ((textsize (length (om-dialog-item-text item))))
                                                     (om-set-view-size item (om-make-point (list :character (+ 1 textsize)) (h item)))
                                                     )))

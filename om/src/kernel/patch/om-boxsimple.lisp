@@ -128,7 +128,7 @@
     (multiple-value-bind (w h) (om-string-size (print-value (object self)) font)
       (values (print-value (object self)) 
               (case (box-draw-text-align (object self))
-                    (:center (round (- (/ (w self) 2) (/ w 2))))
+                    (:center (max 6 (round (- (/ (w self) 2) (/ w 2)))))
                     (:right (- (w self) w 8))
                     (otherwise 6))
               6 
@@ -177,6 +177,9 @@
             (allow-text-input (object self))
           (let* ((container-view (om-view-container self)))
             (edit-text-in-patch edittext self container-view action (omp 0 0) (omp (w self) (h self))
-                                :auto-resize nil :multi-line t)
+                                :multi-line t
+                                ;;; set in auto-resize mode only when the box is single-line
+                                :auto-resize (<= (om-height self) (om-point-y (minimum-size (object self))))
+                                )
             t)))))
 
