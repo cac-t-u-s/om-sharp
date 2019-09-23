@@ -1,0 +1,562 @@
+
+(:patch
+ (:om-version 0.03)
+ (:name "01-sdif-info")
+ (:doc "")
+ (:info
+  (:created "2019/09/23 11:21:48")
+  (:modified "2019/09/23 12:11:51"))
+ (:window (:size (838 583)) (:position (450 254)))
+ (:grid nil)
+ (:lock nil)
+ (:boxes
+  (:comment
+   (:x 362)
+   (:y 257)
+   (:w 91)
+   (:h 32)
+   (:fgcolor (:color 61/255 20/51 74/255 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :bold)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text "SDIF NVTs")
+   (:id 0))
+  (:box
+   (:type :object)
+   (:reference sdifnvt)
+   (:group-id nil)
+   (:name "SDIFNVT")
+   (:x 286)
+   (:y 464)
+   (:w 110)
+   (:h 61)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "SDIFNVT")
+   (:display :text)
+   (:showname t)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "NV-PAIRS")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "TABLENAME")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "ID") (:value 0) (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "NV-PAIRS") (:reactive nil))
+    (:output (:name "TABLENAME") (:reactive nil))
+    (:output (:name "ID") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class sdifnvt)
+     (:slots ((:nv-pairs nil) (:tablename nil) (:id 0)))))
+   (:id 1))
+  (:box
+   (:type :function)
+   (:reference first)
+   (:group-id nil)
+   (:name "first")
+   (:x 276)
+   (:y 423)
+   (:w 57)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "LIST")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 2))
+  (:box
+   (:type :value)
+   (:reference simple-base-string)
+   (:group-id nil)
+   (:name "aux 2")
+   (:x 431)
+   (:y 346)
+   (:w 80)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value "WrittenBy")
+   (:id 3))
+  (:box
+   (:type :function)
+   (:reference find-in-nvtlist)
+   (:group-id nil)
+   (:name "find-in-nvtlist")
+   (:x 360)
+   (:y 423)
+   (:w 103)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "NVTLIST")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "ENTRY")
+     (:value "")
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 4))
+  (:box
+   (:type :function)
+   (:reference getnvtlist)
+   (:group-id nil)
+   (:name "getnvtlist")
+   (:x 312)
+   (:y 346)
+   (:w 84)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 5))
+  (:comment
+   (:x 360)
+   (:y 282)
+   (:w 224)
+   (:h 58)
+   (:fgcolor (:color 61/255 20/51 74/255 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text
+    "The name/value tables (or NVTs) are tables containing textual info in the header of the SDIF files")
+   (:id 6))
+  (:comment
+   (:x 28)
+   (:y 328)
+   (:w 232)
+   (:h 59)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text
+    "SDIF to text conversion (if no patrhname is given for the text file, the SDIF file name will be used + .txt)")
+   (:id 7))
+  (:box
+   (:type :object)
+   (:reference textbuffer)
+   (:group-id nil)
+   (:name "TEXTFILE")
+   (:x 101)
+   (:y 231)
+   (:w 118)
+   (:h 84)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "TEXTFILE")
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CONTENTS")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "CONTENTS") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params (:output-mode :list))
+   (:value
+    (:object
+     (:class textbuffer)
+     (:slots
+      ((:contents
+        (:list
+         "SDIF"
+         ""
+         "1TYP"
+         "{"
+         "  1MTD	XTRD	{transient_values}"
+         "  1MTD	XTSG	{time_signature}"
+         "  1MTD	XBEA	{tempo_info}"
+         "  1MTD	XASD	{spectral_distance}"
+         "  1FTD	1MRK"
+         "	{"
+         "	  XTRD	transient_values;"
+         "	  XASD	spectral_distance;"
+         "	  XTSG	time_signature;"
+         "	  XBEA	tempo_info;"
+         "	}"
+         "}"
+         ""
+         ""
+         "SDFC"
+         ""
+         "1MRK	1	0	0.986837"
+         "  XASD	0x0004	1	2"
+         "	0.99723	1"
+         ""
+         "1MRK	1	0	1.19001"
+         "  XASD	0x0004	1	2"
+         "	0.922628	1"
+         ""
+         "1MRK	1	0	1.24806"
+         "  XASD	0x0004	1	2"
+         "	0.846028	1"
+         ""
+         "1MRK	1	0	4.72525"
+         "  XASD	0x0004	1	2"
+         "	0.625684	1"
+         ""
+         "1MRK	1	0	7.59291"
+         "  XASD	0x0004	1	2"
+         "	0.818244	1"
+         ""
+         "1MRK	1	0	16.2133"
+         "  XASD	0x0004	1	2"
+         "	0.750299	1"
+         ""
+         "1MRK	1	0	19.8414"
+         "  XASD	0x0004	1	2"
+         "	0.584685	1"
+         ""
+         "1MRK	1	0	23.783"
+         "  XASD	0x0004	1	2"
+         "	0.665845	1"
+         ""
+         "ENDC"
+         "ENDF"))))
+     (:add-slots ((:input-mode :lines-cols)))))
+   (:id 8))
+  (:comment
+   (:x 597)
+   (:y 218)
+   (:w 116)
+   (:h 62)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text "Returns matrix or frame type description info")
+   (:id 9))
+  (:box
+   (:type :value)
+   (:reference simple-base-string)
+   (:group-id nil)
+   (:name "aux")
+   (:x 631)
+   (:y 147)
+   (:w 54)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value "1TRC")
+   (:id 10))
+  (:box
+   (:type :function)
+   (:reference sdiftypedescription)
+   (:group-id nil)
+   (:name "sdiftypedescription")
+   (:x 597)
+   (:y 184)
+   (:w 132)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "SIGNATURE")
+     (:value "1TYP")
+     (:reactive nil))
+    (:input
+     (:type :optional)
+     (:name "type")
+     (:value m)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 11))
+  (:box
+   (:type :function)
+   (:reference sdif->text)
+   (:group-id nil)
+   (:name "sdif->text")
+   (:x 119)
+   (:y 184)
+   (:w 84)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 12))
+  (:comment
+   (:x 157)
+   (:y 17)
+   (:w 423)
+   (:h 37)
+   (:fgcolor (:color 0.19215687 0.2627451 0.42352942 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Calibri") (:size 18.0D0) (:style :bold)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text "Accessing info and data from SDIF files (I)")
+   (:id 13))
+  (:comment
+   (:x 21)
+   (:y 109)
+   (:w 115)
+   (:h 56)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text "List SDIF streams (frames,matrices) in the file.")
+   (:id 14))
+  (:box
+   (:type :object)
+   (:reference sdiffile)
+   (:group-id nil)
+   (:name "SDIFFILE")
+   (:x 157)
+   (:y 84)
+   (:w 174)
+   (:h 61)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "SDIFFILE")
+   (:display :text)
+   (:showname t)
+   (:group-id nil)
+   (:lock :locked)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value :choose-file)
+     (:reactive nil)))
+   (:outputs (:output (:name "SELF") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class sdiffile)
+     (:slots nil)
+     (:add-slots
+      ((:file-pathname
+        (:pathname
+         (:directory
+          (:absolute
+           "Users"
+           "bresson"
+           "_SHARED-FILES"
+           "IN-FILES"
+           "SDIF"))
+         (:device :unspecific)
+         (:host nil)
+         (:name "SpectralDiffMarkers.mrk")
+         (:type "sdif")))
+       (:file-map
+        (:list
+         (:fstream-desc
+          (:id 0)
+          (:fsig "1MRK")
+          (:tmin 0.9868367314338684D0)
+          (:tmax 23.78302764892578D0)
+          (:nf 8)
+          (:matrices
+           (:list
+            (:mstream-desc
+             (:msig "XASD")
+             (:fields ("spectral_distance"))
+             (:rmax 1)
+             (:tmin 0.9868367314338684D0)
+             (:tmax 23.78302764892578D0)
+             (:nf 8)))))))))))
+   (:id 15))
+  (:box
+   (:type :function)
+   (:reference sdifinfo)
+   (:group-id nil)
+   (:name "sdifinfo")
+   (:x 21)
+   (:y 184)
+   (:w 74)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 16)))
+ (:connections
+  (:connection
+   (:from (:box 2 :out 0))
+   (:to (:box 1 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 3 :out 0))
+   (:to (:box 4 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 5 :out 0))
+   (:to (:box 2 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 5 :out 0))
+   (:to (:box 4 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 10 :out 0))
+   (:to (:box 11 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 12 :out 0))
+   (:to (:box 8 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 15 :out 0))
+   (:to (:box 5 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 15 :out 0))
+   (:to (:box 11 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 15 :out 0))
+   (:to (:box 12 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 15 :out 0))
+   (:to (:box 16 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))))
