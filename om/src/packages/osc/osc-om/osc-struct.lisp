@@ -52,15 +52,25 @@
         do (setf (car msg) (string-downcase (format nil "~A" (car msg)))))
   )
 
+;;; DATA-STREAM METHODS
+
 (defmethod data-size ((self osc-bundle))
   (length (flat (messages self))))
-
-(defmethod* osc-send ((self osc-bundle) host port)
-  (osc-send (messages self) host port))
 
 (defmethod get-frame-action ((self osc-bundle))
   #'(lambda () (osc-send self "localhost" 3000)))
 
+;;;=========================================================
+;;; SEND
+;;;=========================================================
+
+(defmethod* osc-send ((self osc-bundle) host port)
+  (osc-send (messages self) host port))
+
+
+;;;=========================================================
+;;; UTILITIES AND R/W ACCESSORS
+;;;=========================================================
 
 (defmethod osc-msg (address data)
   (cons (if (stringp address) address (format nil "~A" address))
@@ -69,6 +79,34 @@
 (defmethod osc-msg (address (data textbuffer))
   (osc-msg address (textbuffer-read data :text)))
 
+
+(defmethod* osc-set ((self osc-bundle) address value)
+  (let* ((copy (om-copy self))
+         (mess (find address (messages copy) :key 'car :test 'string-equal)))
+    (if mess 
+        (setf (cdr mess) (list! value))
+      (setf (messages copy) (append (messages copy) (list (cons address (list! value))))))
+    copy))
+    
+(defmethod* osc-delete ((self osc-bundle) address)
+  (let ((copy (om-copy self)))
+    (setf (messages copy) (remove address (messages copy) :key 'car :test 'string-equal))
+    copy))
+
+(defmethod* osc-get ((self osc-bundle) address)
+  (let* ((mess (find address (messages self) :key 'car :test 'string-equal)))
+    (when mess (cdr mess))))
+
+
+(defmethod* osc-timetag ((self osc-bundle) time)
+  (let ((copy (om-copy self)))
+    (setf (onset copy) time)
+    copy))
+
+
+;;;=========================================================
+;;; BOX/DISPLAY
+;;;=========================================================
 
 ;(defun format-message (message &optional (indent 0))
 ;  (if (stringp (car message))
@@ -125,7 +163,6 @@
 (defun find-osc-values (osc-bundle address)
   (cdr (find address (messages osc-bundle) :test 'string-equal :key 'car)))
 
-
 (defmethod compute-frame-color ((self osc-bundle) editor) 
   (declare (ignore editor))
   (let ((colorvals (find-osc-values self "/color")))
@@ -140,23 +177,6 @@
   (declare (ignore editor))
   (or (car (find-osc-values self "/size")) (call-next-method)))
 
-
-(defmethod* osc-set ((self osc-bundle) address value)
-  (let* ((copy (om-copy self))
-         (mess (find address (messages copy) :key 'car :test 'string-equal)))
-    (if mess 
-        (setf (cdr mess) (list! value))
-      (setf (messages copy) (append (messages copy) (list (cons address (list! value))))))
-    copy))
-    
-(defmethod* osc-delete ((self osc-bundle) address)
-  (let* ((copy (om-copy self)))
-    (setf (messages copy) (remove address (messages copy) :key 'car :test 'string-equal))
-    copy))
-
-(defmethod* osc-get ((self osc-bundle) address)
-  (let* ((mess (find address (messages self) :key 'car :test 'string-equal)))
-    (when mess (cdr mess))))
 
 
 
