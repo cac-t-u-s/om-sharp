@@ -338,11 +338,16 @@ Lock the box ('b') to keep the current file.
       )))
 
 
+;;;===================================
+;;; BASIC INFO ACCESSORS
+;;;===================================
+
 (defmethod* SDIFInfo ((self sdifFile) &optional (print t))
    :doc "Prints/returns information about the SDIF data in <self>.
 Returns an advanced stream description with every FrameType-MatrixType pair in the file.
 "
    :indoc '("SDIF file")
+   :initvals '(nil t) 
    :icon :sdif
    (let ((rep-list nil))
      (when print 
@@ -367,6 +372,8 @@ Returns an advanced stream description with every FrameType-MatrixType pair in t
      (om-print-format "----------------------------------------------------------~%"))
    rep-list
    ))
+
+
 
 
 ;;;===================================
@@ -533,7 +540,8 @@ Name/Value tables are formatted as SDIFNVT objects.
   (get-sdif-data (namestring self) streamNum frameT matT colNum rmin rmax tmin tmax :with-data with-data))
 
 (defmethod get-sdif-data ((self SDIFFIle) streamNum frameT matT colNum rmin rmax tmin tmax &key (with-data t))
-  (get-sdif-data (file-pathname self) streamNum frameT matT colNum rmin rmax tmin tmax :with-data with-data))
+  (when (file-pathname self)
+    (get-sdif-data (file-pathname self) streamNum frameT matT colNum rmin rmax tmin tmax :with-data with-data)))
 
 (defmethod get-sdif-data ((self string) streamNum frameT matT colNum rmin rmax tmin tmax &key (with-data t))
   (cond ((or (and rmin rmax (> rmin rmax)) (and tmin tmax (> tmin tmax))) 
@@ -678,7 +686,8 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF.
   (get-sdif-times (namestring self) streamNum frameT matT tmin tmax))
 
 (defmethod get-sdif-times ((self SDIFFIle) streamNum frameT matT tmin tmax)
-  (get-sdif-times (file-pathname self) streamNum frameT matT tmin tmax))
+  (when (file-pathname self)
+    (get-sdif-times (file-pathname self) streamNum frameT matT tmin tmax)))
 
 (defmethod get-sdif-times ((self string) streamNum frameT matT tmin tmax)
 

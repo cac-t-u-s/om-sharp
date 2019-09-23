@@ -172,7 +172,7 @@ Internally calls and formats data from GetSDIFChords.
              ;;; else create new chord
              (push (list (second note) (list (first note)) (list (third note)) (list (fourth note)))
                    chords)))
-     (setf cseqdata (mat-trans chords))
+     (setf cseqdata (mat-trans (reverse chords)))
      (make-instance 'chord-seq
                     :lonset (om-round (om* (first cseqdata) 1000))
                     :lmidic (om-round (f->mc (second cseqdata)))

@@ -186,6 +186,7 @@
     (setf (open? self) nil)))
 
 
+
 (defmethod* open-SDIF-stream (path &key (direction :io))
   :initvals '(nil :io :supersede)
   :indoc '("a valid pathname" "stream direction (read/write)" "behaviour if the file exists")
@@ -198,13 +199,17 @@ Open FILE-STREAMs are automatically closed when they are not used anymore by the
 " 
   (let ((SDIFF (sdif::sdif-open-file path
                                      (case direction
-                                       (:input 'sdif::eReadFile)
-                                       (:output 'sdif::eWriteFile)
-                                       (otherwise 'sdif::eReadWriteFile)))))
+                                       (:input sdif::eReadFile)
+                                       (:output sdif::eWriteFile)
+                                       (otherwise sdif::eReadWriteFile)))))
+    
+    (unless SDIFF
+      (om-beep-msg "ERROR SDIF stream could not be open in mode ~D: ~A" direction path))
+    
     (make-instance 'sdif-fstream 
                    :fs SDIFF
                    :fpath path
-                   :open? t)
+                   :open? (if SDIFF t nil))
     ))
 
 
@@ -219,14 +224,20 @@ This is a compulsory operation before to start writing SDIF frames in the file.
 
 <types>, <nvts> and <sids> are SDIF types, name/value tables to declare and write in the file header.
 " 
-  (sdif::SdifFWriteGeneralHeader (fs fstream))
-  (loop for NVT in (cons (default-om-NVT) (list! nvts))
-        do (sdif-write NVT (fs fstream)))
-  (when types (sdif-write-types (fs fstream) (list! types)))
-  (when sids 
-     (loop for SID in sids do
-           (apply #'sdif-write-IDS (cons (fs fstream) SID))))
-  (sdif::SdifFWriteAllASCIIChunks (fs fstream)))
+  (if (fs fstream)
+      (progn
+        (sdif::SdifFWriteGeneralHeader (fs fstream))
+        (loop for NVT in (cons (default-om-NVT) (list! nvts))
+              do (sdif-write NVT (fs fstream)))
+        (when types (sdif-write-types (fs fstream) (list! types)))
+        (when sids 
+          (loop for SID in sids do
+                (apply #'sdif-write-IDS (cons (fs fstream) SID))))
+        (sdif::SdifFWriteAllASCIIChunks (fs fstream)))
+    (progn 
+      (om-beep-msg "ERROR No valid open SDIF file stream!!")
+      (abort))
+    ))
 
 
 

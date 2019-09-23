@@ -235,14 +235,17 @@ If <outfile> is just a filename (not a pathname) the file is written in the defa
 
 "
   
-  (let* ((out-path (or (and out-file (handle-new-file-exists out-file))
-                       (om-choose-new-file-dialog)))
-          (outptr (and out-path (sdif::sdif-open-file out-path sdif::eWriteFile))))
-     
+  (let* ((out-path (handle-new-file-exists
+                    (cond ((pathnamep out-file) out-file)
+                          ((stringp out-file) (outfile out-file))
+                          (t (om-choose-new-file-dialog)))))
+         (outptr (and out-path (sdif::sdif-open-file out-path sdif::eWriteFile))))
+    
     (when outptr 
         
       (unwind-protect 
           (let ()
+            
             (sdif::SdifFWriteGeneralHeader outptr)
             (sdif-write-nvt outptr `(("Author" ,(string+ "OM " *version-string*))))
             
