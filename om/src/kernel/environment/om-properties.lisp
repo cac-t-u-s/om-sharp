@@ -508,7 +508,7 @@
                                      (get-property object prop-id)
                                      (font-? (get-property object prop-id)))
                         :focus nil :default nil
-                        :text (print (font-to-str (font-font current)))
+                        :text (font-to-str (font-font current))
 			:size (om-make-point (+ 40 (om-string-size (font-to-str (font-font current))
                                                              (om-def-font :font1 :style (om-font-style (font-font current)))))
                                              #+cocoa 26 #-cocoa nil)
