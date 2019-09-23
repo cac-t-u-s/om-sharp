@@ -24,7 +24,7 @@
 (add-preference :general :print-system-output "Print System Outputs" :bool t "Redirect command-line system outputs to the OM Listener")
 
 (defmethod* om-shell ((command-line string) &key (open-shell-window nil))
-  :icon 'om-shell
+  :icon 'shell
   :indoc '("a system command line")
   :initvals '("")
   :doc "Sends <command-line> (a string) to the system. 
