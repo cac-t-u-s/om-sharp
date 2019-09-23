@@ -65,8 +65,10 @@
 
 (defmethod play-editor-callback ((self 3dc-editor) time)
   (om-invalidate-view (3dp self))
-  (om-invalidate-view (get-g-component (top-bpc-editor self) :main-panel))
-  (om-invalidate-view (get-g-component (front-bpc-editor self) :main-panel))
+  (when (top-bpc-editor self)
+    (om-invalidate-view (get-g-component (top-bpc-editor self) :main-panel)))
+  (when (front-bpc-editor self)
+    (om-invalidate-view (get-g-component (front-bpc-editor self) :main-panel)))
   (call-next-method))
 
 (defmethod cursor-panes ((self 3dc-editor))
@@ -725,7 +727,7 @@
         (let ((point (time-sequence-get-active-timed-item-at obj time)))
           (when point
             ; (opengl:gl-color4-f 0.9 0.3 0.1 1.0)
-            (let ((c (color obj)))
+            (let ((c (or (color obj) (om-make-color .9 .3 .1))))
               (opengl:gl-color3-f (coerce (om-color-r c) 'single-float) 
                                   (coerce (om-color-g c) 'single-float) 
                                   (coerce (om-color-b c) 'single-float)))
