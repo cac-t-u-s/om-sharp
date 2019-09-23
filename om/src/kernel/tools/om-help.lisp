@@ -89,6 +89,7 @@
     (otherwise ;;; need to perform specific actions to abvoid opening it as a normal patch...
      (let ((doc (open-om-document path nil)))
        (setf (mypathname doc) nil)
+       (setf (saved? doc) t)
        (update-document-path doc)  ;; for the document manager
        (update-window-name (editor doc))
        (when *om-main-window* (update-elements-tab *om-main-window*))

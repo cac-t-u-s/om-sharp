@@ -174,11 +174,12 @@
   (call-next-method))
 
 (defmethod update-from-editor ((self OMProgrammingObject)  &key (value-changed t) (reactive t))
-  (loop for ref in (box-references-to self)
-        do (update-from-editor ref :value-changed value-changed :reactive reactive))
-  (touch self)
+  (when value-changed
+    (loop for ref in (box-references-to self)
+          do (update-from-editor ref :value-changed value-changed :reactive reactive))
+    (touch self))
   (call-next-method))
-
+  
 ;(defmethod update-from-editor ((self OMPersistantObject))
 ;  (touch self)
 ;  (call-next-method))
