@@ -125,6 +125,11 @@
   (release-sound-buffer self))
  
 
+;;; mostly for compatibility...
+(defmethod get-om-sound-data ((self sound))  
+  (buffer self))
+
+
 (defclass* sound (om-internal-sound data-stream named-object)
   ((markers :initform nil :documentation "a list of markers (ms)")  ;; :accessor markers ;; => accessor is redefined below
    (file-pathname  :initform nil :documentation "a pathname")      ;; :accessor file-pathname ;; => accessor is redefined below
@@ -140,7 +145,8 @@ If it is unlocked and unconnected, evaluating the box will open a file chooser d
 The other inputs/outputs :
 - <gain> = a gain applied to the audio buffer for playback. If a list is supplied, it will be considered as a set of gains to apply to the different channels of the sound.
 - <markers> = a list of markers (time in milliseconds). The markers can also be added/moved/removed from the sound editor.
-- <access-from-file> = if this parameter is non-NIL, then this sound will work without an internal audio buffer,that is, referring to a file on disk.
+- <access-from-file> = if this parameter is non-NIL, then this sound will work without an internal audio buffer, that is, referring to a file on disk.
+
 Press 'space' to play/stop the sound file.
 "))
 
@@ -627,6 +633,7 @@ Press 'space' to play/stop the sound file.
     ))
 
 
+
 ;;;===========================
 ;;; OM METHODS 
 ;;;===========================
@@ -636,7 +643,7 @@ Press 'space' to play/stop the sound file.
   :initvals '(nil 1000 1)
   :indoc '("a sound object" "number of points" "channel number")
   :doc "Reurns <num> sampled points from the audio waveform of channel <channel> in <self>."
-  :icon 221
+  :icon 'sound
   (with-audio-buffer (b self)
     (let ((numdat (n-samples self))
           (numchan (n-channels self))
@@ -650,7 +657,7 @@ Press 'space' to play/stop the sound file.
 
 
 (defmethod* sound-dur ((sound sound))
-  :icon 221
+  :icon 'sound
   :initvals '(nil)
   :indoc '("a sound object or file pathname")
   :doc "Returns the duration of <sound> in seconds."
@@ -675,7 +682,7 @@ Press 'space' to play/stop the sound file.
   :initvals '(nil)
   :indoc '("a sound object or file pathname")
   :doc "Returns the duration of <sound> in milliseconds."
-  :icon 221
+  :icon 'sound
   (round (* 1000 (sound-dur sound))))
 
 
