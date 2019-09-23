@@ -126,7 +126,7 @@
  
 
 ;;; mostly for compatibility...
-(defmethod get-om-sound-data ((self sound))  
+(defmethod get-om-sound-data ((self om-internal-sound))  
   (buffer self))
 
 
