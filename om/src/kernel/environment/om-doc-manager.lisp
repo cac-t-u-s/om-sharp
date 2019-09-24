@@ -269,12 +269,20 @@
           obj)
         ))))
 
+
+
 (defmethod prepare-save-as ((self OMPersistantObject))
   (let ((path (om-choose-new-file-dialog :prompt (om-str :save-as) 
                                          :name (name self)
                                          :directory (or *last-open-dir* (om-user-home))
                                          :types (doctype-info (object-doctype self)))))
     (when path 
+
+      ;; add default pathname-type if not specified
+      (unless (pathname-type path)
+      	(let ((type (doctype-to-extension (object-doctype self))))
+      	  (setf path (merge-pathnames (make-pathname :type type) path))))
+
       (setf *last-open-dir* (om-make-pathname :directory path))
       (if (find-doc-entry path)
           (progn (om-message-dialog 
