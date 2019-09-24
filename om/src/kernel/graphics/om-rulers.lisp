@@ -112,6 +112,9 @@
 (defmethod update-view-from-ruler ((self ruler-view) (view om-view))
   (om-invalidate-view view))
 
+;;; redraw upon resize
+(defmethod om-view-resized :after ((self ruler-view) size)
+  (om-invalidate-view self))
 
 (defmethod update-view-from-ruler ((self x-ruler-view) (view x-graduated-view))
   (setf (x1 view) (v1 self) (x2 view) (v2 self))
