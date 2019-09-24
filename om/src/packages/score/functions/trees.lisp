@@ -156,7 +156,7 @@ An inconsistent index (> than the length of <figures>) will produce a rest.
   
   :initvals '((? (((4 4) (1 (1 (1 2.0 1.0 1)) 1 1)) ((4 4) (1 (1 (1 2 1 1)) -1 1)))))
   :indoc '("a rhythm tree")
-  :icon 254
+  :icon :tree
   :doc "
 Collects every pulses (expressed durations, including tied notes) from <tree>. 
 "
@@ -180,7 +180,7 @@ Collects every pulses (expressed durations, including tied notes) from <tree>.
 (defmethod! n-pulses ((tree t))
   :initvals '((? (((4 4) (1 (1 (1 2 1 1)) 1 1)) ((4 4) (1 (1 (1 2 1 1)) -1 1))))) 
   :indoc '("a rhythm tree")
-  :icon 225
+  :icon :tree
   :doc "
 Returns the numbre of pulses in <tree>.
 "
