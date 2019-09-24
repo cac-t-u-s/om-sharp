@@ -52,7 +52,7 @@ echo "=> PACKED IN BUILD FOLDER!"
 create_simple_dmg()
 {
 echo "***************************************************"
-echo "Preparing DMG distribution for $APP_FOLDER"
+echo "Preparing DMG distribution for $APP_NAME"
 echo "***************************************************"
 
 	DMG_NAME="$APP_NAME"-"$OM_VERSION"-macOS
