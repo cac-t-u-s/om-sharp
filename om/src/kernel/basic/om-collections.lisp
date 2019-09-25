@@ -440,10 +440,10 @@
 ;;; DISPATCH ACTIONS...
 ;;;=========================
 (defmethod editor-key-action ((editor collection-editor) key)
-  (cond ((and (om-action-key-down) (equal key :om-key-left))
+  (cond ((and (om-command-key-down) (equal key :om-key-left))
          (set-current-previous editor)
          (update-collection-editor editor))
-        ((and (om-action-key-down) (equal key :om-key-right))
+        ((and (om-command-key-down) (equal key :om-key-right))
          (set-current-next editor)
          (update-collection-editor editor))
         (t (editor-key-action (internal-editor editor) key))

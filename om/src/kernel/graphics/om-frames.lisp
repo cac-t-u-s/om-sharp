@@ -124,7 +124,7 @@ Frames can be simple frames (icons, boxes, etc.) or container frames (patch edit
 (defmethod om-view-mouse-enter-handler ((self OMFrame))
   ;(om-print-dbg "ENTER ~A" (list self))
   (let ((helptext (get-help self)))
-    (when (and helptext (om-action-key-down))
+    (when (and helptext (om-command-key-p))
       (om-show-tooltip (om-view-container self) helptext nil))))
 
 (defmethod om-view-mouse-leave-handler ((self OMFrame))

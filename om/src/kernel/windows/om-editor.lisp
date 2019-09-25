@@ -352,11 +352,10 @@
 
 (defun om-add-key-down ()
   (om-command-key-p))
-;;  #-macosx(om-control-key-p))
 
 (defun om-action-key-down ()
   #+macosx(om-command-key-p)
-  #-macosx(om-control-key-p))
+  #-macosx(and (om-shift-key-p) (om-command-key-p)))
 
 ;;;====================
 ;;; EDITOR VIEW 

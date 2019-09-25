@@ -288,7 +288,7 @@
 
 (defmethod map-mouse-increment ((self numbox))
   (cond ((om-shift-key-p) 10)
-        ((om-action-key-down) 100)
+        ((om-command-key-p) 100)
         (t 1)))
 
 (defmethod om-view-click-handler  ((self numbox) where)
@@ -324,18 +324,14 @@
         ))))
 
 
-(defun screen-coordinates (point view)
-  ;; does not work :(
-  ;(let ((win (om-view-window view)))
-  ;  (om-add-points (om-view-position win) point))
+(defun mouse-screen-coordinates ()
   (om-subtract-points 
    (om-mouse-position nil)
-   (omp 20 20))
-  )
+   (omp 20 20)))
 
 (defmethod om-view-doubleclick-handler  ((self numbox) where)
   (when (db-click self)
-    (let ((pos (screen-coordinates where self)))
+    (let ((pos (mouse-screen-coordinates)))
       (open-mini-edit pos (get-value self) 
                       #'(lambda (tf)
                           (let ((val (read-from-string (om-dialog-item-text tf) nil)))

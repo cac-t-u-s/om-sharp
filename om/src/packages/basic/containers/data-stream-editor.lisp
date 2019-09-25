@@ -467,7 +467,7 @@
         (let ((frames (data-stream-get-frames (object-value editor)))
               (fp (frame-at-pos editor position)))
           (when fp
-            (if (om-action-key-down)
+            (if (om-command-key-down)
                 ;;; show tooltip for the frame under the  mouse cursor
                 (om-show-tooltip self (data-frame-text-description (nth fp frames)) 
                                  (omp (- (om-point-x position) 60) 20)

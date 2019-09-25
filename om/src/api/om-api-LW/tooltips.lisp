@@ -51,7 +51,7 @@
 (defmethod handle-tooltips-in-motion ((self t) position) nil)
 
 (defmethod handle-tooltips-in-motion ((self om-view) position)
-  (when (om-action-key-down)
+  (when (om-command-key-p)
     (let ((po (capi::pinboard-object-at-position self (om-point-x position) (om-point-y position))))
       (if po
           (let ((text (and 
