@@ -42,7 +42,9 @@
                           (mapcar #'(lambda (file) 
                                       (om-make-menu-item (namestring file) #'(lambda () (open-om-document file))))
                                   *om-recent-files*)))
-        (om-make-menu-item "Open Folder..." #'(lambda () (funcall (open-folder-command self))) :enabled (and (open-command self) t))
+        (om-make-menu-item "Open Folder..." #'(lambda () (funcall (open-folder-command self))) 
+                           :key "O"
+                           :enabled (and (open-command self) t))
         (om-make-menu-comp 
          (list (om-make-menu-item "Save" #'(lambda () (funcall (save-command self))) :key "s" :enabled (and (save-command self) t))
                (om-make-menu-item (save-as-menu-name self) 
@@ -242,6 +244,7 @@
   #'(lambda ()
       (let ((folder (om-choose-directory-dialog :directory (or *last-open-dir* (om-user-home)))))
         (when folder
+          (setf *last-open-dir* folder)
           (let ((files (om-directory folder :type (append 
                                                    (mapcar #'doctype-to-extension *om-doctypes*)
                                                    (doctype-to-ext-list :old)))))
