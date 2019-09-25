@@ -113,6 +113,7 @@
   (om-invalidate-view view))
 
 ;;; redraw upon resize
+#-macosx
 (defmethod om-view-resized :after ((self ruler-view) size)
   (om-invalidate-view self))
 
