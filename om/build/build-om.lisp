@@ -24,7 +24,7 @@
 (defparameter *app-name* "om7-beta")
 
 (defparameter *version-major* 0) ;;; => 7!
-(defparameter *version-minor* 3) 
+(defparameter *version-minor* 4) 
 (defparameter *version-patch* 0)
 (defparameter *version-update* 0)
 
