@@ -37,6 +37,7 @@
    (snap-to-grid :accessor snap-to-grid :initarg :snap-to-grid :initform t)
    (beat-info :accessor beat-info :initarg :beat-info :initform (list :beat-count 0 :prevtime 0 :nexttime 1))))
 
+
 (defmethod om-menu-items ((self maquette-editor))
   (remove nil (list 
    (main-app-menu-item)
@@ -257,6 +258,11 @@
 
 (defclass sequencer-track-control (om-view)
   ((num :initarg :num :initform 0 :accessor num)))
+
+;;; redraw upon resize
+#-macosx
+(defmethod om-view-resized :after ((self sequencer-track-view) size)
+  (om-invalidate-view self))
 
 (defmethod om-draw-contents ((self sequencer-track-control))
   (om-with-font 
