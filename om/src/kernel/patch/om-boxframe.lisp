@@ -828,7 +828,7 @@
 ;;;=============================
 
 (defmethod click-in-area ((self output-area) boxframe)
-  (if (om-action-key-down) 
+  (if (om-command-key-p) 
       (progn (output-eval-command self) t)
     (start-connection boxframe self)))
 
