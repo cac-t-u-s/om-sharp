@@ -310,7 +310,7 @@
 (defmethod om-view-cursor ((self bpf-bpc-panel))
   (let ((editor (or (editor self) (editor (om-view-window self)))))
     (case (edit-mode editor)
-      (:pen (if (om-command-key-p) nil (om-get-cursor :pen)))
+      (:pen (if (om-add-key-down) nil (om-get-cursor :pen)))
       (:hand (om-get-cursor :hand))
       ;(:zoomin (om-get-cursor :loupe))
       (otherwise (if (om-add-key-down) (om-get-cursor :add) nil)))))
@@ -1080,7 +1080,7 @@
                       )))
                ))
         (:pen
-         (cond ((om-command-key-p)
+         (cond ((om-add-key-down)
                 (om-init-temp-graphics-motion 
                  self position 
                  (om-make-graphic-object 'selection-rectangle :position position :size (om-make-point 4 4))

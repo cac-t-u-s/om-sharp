@@ -287,8 +287,8 @@
  (om-set-fg-color self (if (enabled self) (om-def-color :black) (om-def-color :gray))))
 
 (defmethod map-mouse-increment ((self numbox))
-  (cond ((om-shift-key-p) 10) 
-        ((om-command-key-p) 100)
+  (cond ((om-shift-key-p) 10)
+        ((om-action-key-down) 100)
         (t 1)))
 
 (defmethod om-view-click-handler  ((self numbox) where)

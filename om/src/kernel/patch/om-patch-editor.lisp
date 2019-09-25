@@ -879,7 +879,8 @@
   (declare (special *resize-handler* *connection-handler*))
   (unless (or *resize-handler* *connection-handler* 
               (active-area-at-pos self pos)
-              (om-command-key-p)
+              (and (om-action-key-down)
+		   (om-shift-key-p))
               (container-frames-locked (om-view-container self)))
     (let ((pv (om-view-container self)))
       (om-set-focus pv) ;; will close the temporary text-edit field if any
