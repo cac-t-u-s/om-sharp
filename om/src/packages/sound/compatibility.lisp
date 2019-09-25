@@ -17,7 +17,13 @@
 
 ;;; LOAD OBJECTS AND CODE FROM OM6
 
+(in-package :om)
 
 (defmethod update-arg-names ((reference (eql 'synthesize)))
   '(("elements" "obj")))
+
+;; :-(
+(defclass audio-mix-console () 
+  ((channels-ctrl :accessor channels-ctrl)
+   (nbtracks :initarg :nbtracks)))
 
