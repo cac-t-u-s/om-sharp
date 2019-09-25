@@ -818,14 +818,14 @@
            (om-invalidate-view self))
 
       (:om-key-right 
-       (if (om-command-key-down) (call-next-method) ;; will go next in a collection editor
+       (if (om-command-key-p) (call-next-method) ;; will go next in a collection editor
          (let ((new-x (* (round (* (+ (nth 0 (center 3DV)) (max 0.1 (/ 1 (scaler-x 3DV)))) 10)) 0.1)))
            (setf (nth 0 (center 3DV)) new-x)
            (set-rotation-param-from-editor ed 'center (center 3DV))
            (set-value (get-g-component ed :center-x-numbox) new-x)
            (om-invalidate-view self))))
       (:om-key-left 
-       (if (om-command-key-down) (call-next-method) ;; will go previous in a collection editor
+       (if (om-command-key-p) (call-next-method) ;; will go previous in a collection editor
          (let ((new-x (* (round (* (- (nth 0 (center 3DV)) (max 0.1 (/ 1 (scaler-x 3DV)))) 10)) 0.1)))
            (setf (nth 0 (center 3DV)) new-x)
            (set-rotation-param-from-editor ed 'center (center 3DV))

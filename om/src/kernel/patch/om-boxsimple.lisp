@@ -160,6 +160,7 @@
                                                     (let ((diff-y (- (om-point-y position) (om-point-y pos)))
 							  (diff-x (- init-pos-x (om-point-x pos))))
                                                       #+macosx (when (om-shift-key-p) (setf diff-y (* diff-y 10)))
+						      (print diff-x)
 						      (setf curr-val (/ (+ (* curr-val fact) diff-y) fact))
                                                       (setf position pos)
                                                       (set-value box (list curr-val))
