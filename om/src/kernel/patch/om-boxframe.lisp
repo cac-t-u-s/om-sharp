@@ -719,7 +719,7 @@
     
     (if (and (selected (object self)) 
              (editable-on-click (object self))
-             (not (om-command-key-p)) (not (om-shift-key-p)))
+             (not (om-add-key-down)) (not (om-shift-key-p)))
         (edit-text-area self position))
     
     (or 
@@ -828,7 +828,7 @@
 ;;;=============================
 
 (defmethod click-in-area ((self output-area) boxframe)
-  (if (om-command-key-p) 
+  (if (om-action-key-down) 
       (progn (output-eval-command self) t)
     (start-connection boxframe self)))
 

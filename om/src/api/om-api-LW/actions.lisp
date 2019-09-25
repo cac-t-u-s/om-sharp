@@ -45,7 +45,7 @@
           om-shift-key-p
           om-control-key-p
           om-command-key-p
-          om-option-key-p
+	  om-option-key-p
           
           om-mouse-position
 

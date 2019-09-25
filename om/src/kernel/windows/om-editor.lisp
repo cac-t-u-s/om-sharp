@@ -354,6 +354,10 @@
   (om-command-key-p))
 ;;  #-macosx(om-control-key-p))
 
+(defun om-action-key-down ()
+  #+macosx(om-command-key-p)
+  #-macosx(om-control-key-p))
+
 ;;;====================
 ;;; EDITOR VIEW 
 ;;; the main-view of the editor should be an editor view (?)

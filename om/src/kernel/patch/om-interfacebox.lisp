@@ -160,7 +160,7 @@
       )))
    
 (defmethod interfacebox-action ((self CheckBoxBox) frame pos)
-   (when (or (om-command-key-p)
+   (when (or (and (om-shift-key-p) (om-action-key-down))
              (container-frames-locked (om-view-container frame)))
      (set-value self (list (not (get-box-value self))))
      (when (reactive (car (outputs self))) (self-notify self))
@@ -273,7 +273,7 @@
     
 (defmethod interfacebox-action ((self SliderBox) frame pos)
 
-  (when (or (om-command-key-p)
+  (when (or (and (om-shift-key-p) (om-action-key-down))
             (container-frames-locked (om-view-container frame)))
 
     (flet ((slider-action (view pos)
@@ -341,7 +341,7 @@
  
 
 (defmethod interfacebox-action ((self ButtonBox) frame pos)
-  (when  (or (om-command-key-p)
+  (when  (or (and (om-shift-key-p) (om-action-key-down))
              (and (om-view-container frame) 
                   ;;; for some reason sometimes (e.g. while opening the inspector) the container becomes temporarily nil..
                   (container-frames-locked (om-view-container frame))))
@@ -646,7 +646,7 @@ Click with CMD or when the patch is locked to change the selected input."
      
 (defmethod interfacebox-action ((self SwitchBox) frame pos)
   
-  (when (or (om-command-key-p)
+  (when (or (and (om-shift-key-p) (om-action-key-down))
             (container-frames-locked (om-view-container frame)))
     
     (let* ((border 4)
