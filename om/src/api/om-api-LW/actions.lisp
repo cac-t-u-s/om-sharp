@@ -377,26 +377,27 @@
     (otherwise '(nil nil nil))))
 
 (defvar *om-shift-key-p* nil)
-(defvar *om-control-key-p*  nil)
+;(defvar *om-control-key-p*  nil)
 (defvar *om-command-key-p*  nil)
 (defvar *om-option-key-p*  nil)
 
 ;;; LIST = SHIFT - CMD - ALT
 (defun set-meta-keys (list)
   (setf *om-shift-key-p* (first list))
-  (setf #+macosx *om-command-key-p* #-macosx *om-control-key-p*  (second list))
+  ;(setf #+macosx *om-command-key-p* #-macosx *om-control-key-p*  (second list))
+  (setf *om-command-key-p* (second list))
   (setf *om-option-key-p* (third list)))
 
 (defun release-meta-keys ()
   (setf *om-shift-key-p* nil)
   (setf *om-command-key-p*  nil)
+  ;(setf *om-control-key-p* nil)
   (setf *om-option-key-p*  nil))
 
 (defun om-shift-key-p () *om-shift-key-p* )
 (defun om-command-key-p () *om-command-key-p*)
 (defun om-option-key-p ()  *om-option-key-p*)
-
-(defun om-control-key-p () *om-control-key-p*)
+; (defun om-control-key-p () *om-control-key-p*)
 
 (defmethod om-char-spec-callback ((self om-interactive-object) x y spec)
   ;(print (list "char spec" self x y spec))

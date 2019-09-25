@@ -350,10 +350,9 @@
   (editor-key-action self key))
 
 
-
 (defun om-add-key-down ()
-  #+macosx(om-command-key-p)
-  #-macosx(om-control-key-p))
+  (om-command-key-p))
+;;  #-macosx(om-control-key-p))
 
 ;;;====================
 ;;; EDITOR VIEW 
