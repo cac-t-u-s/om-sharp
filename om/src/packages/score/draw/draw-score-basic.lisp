@@ -116,6 +116,7 @@
     (:g- (values (code-char #xE052) "gClef8vb"))
     (:f (values (code-char #xE062) "fClef"))
     (:f- (values (code-char #xE062) "fClef"))
+    (:line (values (code-char #xE069) "unpitchedPercussionClef1"))
     (otherwise nil)
     ))
 
