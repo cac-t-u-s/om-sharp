@@ -153,19 +153,21 @@ Floating values are allowed for <approx>.
     (:q "+" +50) (:qs "#+" +150) (:-q "_" -50) (:f-q "b-" -150)
     (:s "d" +100)))
 
-
-(defun mc->n1 (midic &optional (ascii-note-scale *ascii-note-C-scale*))
+(defun mc->n1 (midic &optional (ascii-note-scale *ascii-note-C-scale*) (middle-C 3))
   "Converts <midic> to a string representing a symbolic ascii note."
   (let ((dmidic (/ 1200 (length ascii-note-scale))) note)
     (multiple-value-bind (midic/50 cents) (round midic dmidic)
       (multiple-value-bind (oct+2 midic<1200) (floor (* midic/50 dmidic) 1200)
         (setq note (nth (/ midic<1200 dmidic) ascii-note-scale))
         (format nil "~A~A~A~A~A"
-                (car note) (or (cadr (find (cdr note) *ascii-note-alterations* :key 'car)) "")
-                (- oct+2 2) (if (> cents 0) "+" "") (if (zerop cents) "" cents) )))))
+                (car note)
+		(or (cadr (find (cdr note) *ascii-note-alterations* :key 'car)) "")
+                (- oct+2 (- 5 middle-C))
+		(if (> cents 0) "+" "")
+		(if (zerop cents) "" cents) )))))
 
 
-(defun n->mc1 (str &optional (ascii-note-scale *ascii-note-C-scale*))
+(defun n->mc1 (str &optional (ascii-note-scale *ascii-note-C-scale*) (middle-C 3))
   "Converts a string representing a symbolic ascii note to a midic."
   (setq str (string str))
   (let ((note (some #'(lambda (note)
@@ -187,7 +189,7 @@ Floating values are allowed for <approx>.
       (incf index (length (second alt))))
     ;; octave
     (multiple-value-bind (oct i) (parse-integer str :start index :junk-allowed t)
-      (incf midic (* (+ oct 2) 1200))
+      (incf midic (* (+ oct (- 5 middle-C)) 1200))
       (setq index i))
     (unless (= index (length str))
       (incf midic (parse-integer str :start index)))
@@ -266,42 +268,44 @@ major third down 6m-1, returns -400 in midicents ."
   (deep-mapcar #'symb->int #'symb->int1 symb))
 
 
-(defmethod* mc->n ((midicents list))
-  :initvals '((6000)) 
-  :indoc '("pitch or pitch list (midicents)")
+(defmethod* mc->n ((midicents list) &optional (middle-C 3))
+  :initvals '((6000) 3) 
+  :indoc '("pitch or pitch list (midicents)" "octave of middle C")
   :icon 'conversion
   :doc  "
 Converts <midics> to symbolic (ASCII) note names. 
 
 Symbolic note names follow standard notation with middle c (midicent 6000) being C3. 
+Middle c (midicent 6000) being octave 3 by default, can be set to another octave by the optional input.
 Semitones are labeled with a '#' or a 'b.'  
 Quartertone flats are labeled with a '_', and quartertone sharps with a '+' (ex. C3 a quartertone sharp (midi-cent 6050), would be labeled 'C+3'. 
 Gradations smaller than a quartertone are expressed as the closest  quartertone + or - the remaining cent value (ex. midi-cent 8176 would be expressed as Bb4-24).
 "
- 
-  (deep-mapcar 'mc->n 'mc->n1 midicents))
+  (deep-mapcar 'mc->n #'(lambda (mc) (mc->n1 mc *ascii-note-C-scale* middle-C)) midicents))
 
-(defmethod* mc->n ((midic number))
-  (mc->n1 midic))
+(defmethod* mc->n ((midic number) &optional (middle-C 3))
+  (mc->n1 midic *ascii-note-C-scale* middle-C))
 
-(defmethod* n->mc ((strs list))
-  :initvals '(("C3")) 
-  :indoc '("note name or list of note names")
+(defmethod* n->mc ((strs list) &optional (middle-C 3))
+  :initvals '(("C3") 3) 
+  :indoc '("note name or list of note names" "octave of middle C")
   :icon 'conversion
   :doc "
 Converts <strs> to pitch values in midicents. 
 
 Symbolic note names follow standard notation with middle c (midicent 6000) being C3. 
+Middle c (midicent 6000) being octave 3 by default, can be set to another octave by the optional input.
 Semitones are labeled with a '#' or a 'b.'  
 Quartertone flats are labeled with a '_', and quartertone sharps with a '+' (ex. C3 a quartertone sharp (midi-cent 6050), would be labeled 'C+3'. 
 Gradations smaller than a quartertone are expressed as the closest  quartertone + or - the remaining cent value (ex. midi-cent 8176 would be expressed as Bb4-24).
 " 
-  (deep-mapcar 'n->mc 'n->mc1 strs))
+  (deep-mapcar 'n->mc #'(lambda (n) (n->mc1 n *ascii-note-C-scale* middle-C)) strs))
 
-(defmethod* n->mc ((strs string))
-  (car (n->mc (list strs))))
+(defmethod* n->mc ((strs string) &optional (middle-C 3))
+  (car (n->mc (list strs) middle-C)))
 
-
+(defmethod* n->mc ((symb symbol) &optional (middle-C 3))
+  (n->mc (string symb) middle-C))
 
 ;;;=======================================
 ;;; TEMPO
