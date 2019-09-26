@@ -149,8 +149,10 @@ Floating values are allowed for <approx>.
     ("si") ("si" . :q)))
 
 (defvar *ascii-note-alterations* 
-  '((:s "#" +100) (:f "b" -100)
-    (:q "+" +50) (:qs "#+" +150) (:-q "_" -50) (:f-q "b-" -150)
+  ;; taking care to order alterations by length of their string
+  '((:qs "#+" +150) (:f-q "b-" -150)			    
+    (:q "+" +50) (:-q "_" -50) 
+    (:s "#" +100) (:f "b" -100)
     (:s "d" +100)))
 
 (defun mc->n1 (midic &optional (ascii-note-scale *ascii-note-C-scale*) (middle-C 3))
