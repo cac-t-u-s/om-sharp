@@ -149,7 +149,6 @@
                        (declare (ignore i))
                        (length d)))
                (fact (expt 10 ndec))
-	       (init-pos-x (om-point-x position))
 	       )
           
           ;;; we use fact to perfom integer arithmetics and avoid floating point approximations
@@ -157,17 +156,13 @@
           (store-current-state-for-undo (editor (container box)))
           (om-init-temp-graphics-motion self position nil 
                                         :motion #'(lambda (view pos)
-                                                    (let ((diff-y (- (om-point-y position) (om-point-y pos)))
-							  (diff-x (- init-pos-x (om-point-x pos))))
+                                                    (let ((diff-y (- (om-point-y position) (om-point-y pos))))
                                                       #+macosx (when (om-shift-key-p) (setf diff-y (* diff-y 10)))
-						      ;; (print diff-x)
 						      (setf curr-val (/ (+ (* curr-val fact) diff-y) fact))
                                                       (setf position pos)
                                                       (set-value box (list curr-val))
                                                       (om-invalidate-view view)
-                                                      ))
-                                        )
-          )
+                                                      ))))
       
       (call-next-method)))
 
