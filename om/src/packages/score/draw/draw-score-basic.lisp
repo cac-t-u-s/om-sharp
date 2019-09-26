@@ -113,6 +113,7 @@
   (case staff
     (:g (values (code-char #xE050) "gClef"))
     (:g+ (values (code-char #xE050) "gClef"))
+    (:g- (values (code-char #xE052) "gClef8vb"))
     (:f (values (code-char #xE062) "fClef"))
     (:f- (values (code-char #xE062) "fClef"))
     (otherwise nil)
@@ -214,7 +215,7 @@
 ;;; STAVES
 ;;;===============
 
-(defparameter *score-staff-options* '(:g :f :gf :gg :ff :ggf :gff :ggff :line :empty))
+(defparameter *score-staff-options* '(:g :f :g- :gf :gg :ff :ggf :gff :ggff :line :empty))
 
 (defparameter *score-fontsize-options*
   #+darwin '(8 12 16 20 24 28 32 36 40 44 48 52 56 60 64 68 72 76 80 84 88 92 96)
@@ -224,6 +225,7 @@
   (case staff-symbol
     (:g '(:g))
     (:f '(:f))
+    (:g- '(:g-))
     (:f- '(:f-))
     (:g+ '(:g+))
     (:gg '(:g :g+))
@@ -241,6 +243,7 @@
   (case staff
     (:g+ '(8 9 10 11 12))
     (:g '(1 2 3 4 5))
+    (:g- '(-2.5 -1.5 -0.5 0.5 1.5))
     (:f '(-5 -4 -3 -2 -1))
     (:f- '(-12 -11 -10 -9 -8))
     (:line '(0))
@@ -255,18 +258,19 @@
 
 (defun head-leger-lines (head-line staff-lines)
   (cond ((>= head-line (1+ (car (last staff-lines)))) 
-         (loop for i from (1+ (car (last staff-lines))) to head-line collect i))
-        ((<= head-line (1- (car staff-lines))) 
-         (loop for i = (1- (car staff-lines)) then (- i 1) while (>= i head-line) collect i))
-        ((and (<= head-line 7) (>= head-line 6)) '(6 7))
-        ((= head-line 0) '(0))
-        ((and (<= head-line -6) (>= head-line -7)) '(-6 -7))
-        (t nil)))
+	 (loop for i from (1+ (car (last staff-lines))) to head-line collect i))
+	((<= head-line (1- (car staff-lines))) 
+	 (loop for i = (1- (car staff-lines)) then (- i 1) while (>= i head-line) collect i))
+	((and (<= head-line 7) (>= head-line 6)) '(6 7))
+	;;((= head-line 0) '(0))	; this 'hardwiring' of leger lines breaks logic
+	((and (<= head-line -6) (>= head-line -7)) '(-6 -7))
+	(t nil)))
           
 (defun staff-key-line (staff)
   (case staff
     (:g 2)
     (:g+ 9)
+    (:g- -1.5)
     (:f -2)
     (:f- -9)
     (:line 0)
@@ -277,6 +281,7 @@
   (case staff
     (:g '(6400 7700))
     (:g+ '(8800 10100))
+    (:g- '(5200 6500))
     (:f '(4300 5700))
     (:f- '(1900 3300))
     (:line '(6000 6000))
