@@ -202,7 +202,8 @@
 (defmethod data-stream-frames-slot ((self piano-roll)) 'midi-notes)
 
 (defmethod set-midi-notes ((self piano-roll) notes) 
-  (setf (midi-notes self) (sort notes '< :key 'midinote-onset)))
+  (setf (midi-notes self) (sort notes '< :key 'midinote-onset))
+  (time-sequence-update-obj-dur self))
 
 (defmethod initialize-instance ((self piano-roll) &rest initargs)
   (call-next-method)
