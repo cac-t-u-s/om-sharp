@@ -36,6 +36,10 @@
 (defclass patch-editor-view (OMEditorView om-drop-view om-tt-view multi-view-editor-view) 
   ((dragged-views :initform nil :accessor dragged-views)))
 
+;; (defmethod om-window-resized ((self patch-editor-window) size)
+;;   (when (editor-window-config (editor self))
+;;     (om-invalidate-view (print (car (om-subviews self))))))
+
 (defmethod editor-window-class ((self patch-editor)) 'patch-editor-window)
 (defmethod editor-view-class ((self patch-editor)) 'patch-editor-view)
 (defmethod editor-view-bg-color ((self patch-editor)) (om-def-color :white))
