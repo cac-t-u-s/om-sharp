@@ -373,7 +373,7 @@
 
 (defun velocity-char (val)
   (dynamics-char 
-   (nth (position val '(20 40 55 60 85 100 115 127) :test '<)
+   (nth (position val '(20 40 55 60 85 100 115 127) :test '<=)
         '(:ppp :pp :p :mp :mf :f :ff :fff))))
 
 
