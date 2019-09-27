@@ -438,7 +438,7 @@
                                      &optional fname editparams spict meditor pictlist show-name)
   (declare (ignore fname editparams meditor pictlist))
   
-  (let* ((val (or value (and (find-class reference nil) (make-instance reference))))
+  (let* ((ref-val (or value (and (find-class reference nil) (make-instance reference))))
          (inputs (loop for formatted-in in (mapcar #'eval inputs) collect
                        ;;; correct the type and eventually the name of box inputs
                        (let ((name (check-arg-for-new-name 
@@ -456,7 +456,7 @@
                              (:value ,(box-def-self-in reference))))
                           
                           ((and (find-class reference nil)
-                                (find name (mapcar #'symbol-name (additional-class-attributes val))
+                                (find name (mapcar #'symbol-name (additional-class-attributes ref-val))
                                       :test #'string-equal))  ;;; if the input has become a keywork input
                            `(:input 
                              (:type :key) 
@@ -1419,7 +1419,7 @@
 ;;; When the class exists (might have been redefined just for enabling import) 
 ;;; and needs to be converted to something else
 ;;; e.g.: (defmethod update-value ((self 'old-class)) (make-instance 'new-class)) 
-(defmethod update-value ((self t)) nil)
+(defmethod update-value ((self t)) self)
 
 ;;; OM6 => OM7 compatibility favors name-semantics over order: inputs will be correctly imported (in particular, if they have a default value) and connected if they have the same name in OM6 and OM7. This permist same arguments to have a different position on the box. If they don't the following function allows to cover specific cases:
 
