@@ -88,8 +88,7 @@
        )))
 
 (defun score-mini-view-left-shift-in-units (box)
-  (if (or (equal (get-edit-param box :staff) :line)
-          (equal (get-edit-param box :staff) :empty))
+  (if (equal (get-edit-param box :staff) :empty)
       1 5))
 
 
