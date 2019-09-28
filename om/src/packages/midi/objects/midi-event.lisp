@@ -147,7 +147,7 @@
 ;======================================
 
 ;;; converts a list of MIDI-EVT struct to MIDIEVENTS instance
-(defmethod* get-midievents ((evtlist list) &optional test)
+(defmethod* get-midievents ((self list) &optional test)
   (remove nil
           (loop for event in evtlist collect 
                 (let ((om-event

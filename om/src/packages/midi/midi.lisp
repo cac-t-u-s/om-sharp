@@ -26,6 +26,8 @@
 (compile&load (merge-pathnames "objects/midi-event" *load-pathname*))
 (compile&load (merge-pathnames "objects/midi-controllers" *load-pathname*))
 (compile&load (merge-pathnames "objects/midi-track" *load-pathname*))
+(compile&load (merge-pathnames "objects/midi-mix" *load-pathname*))
+(compile&load (merge-pathnames "tools/midi-extract" *load-pathname*))
 (compile&load (merge-pathnames "compatibility" *load-pathname*))
 
 
@@ -39,7 +41,7 @@
  (list (omNG-make-package 
         "Import/Convert"
         :doc "MIDI import and conversion utilities"
-        :functions '(import-midi-notes import-midi-file get-midievents))
+        :functions '(import-midi-notes import-midi-file get-midievents mf-info get-midi-notes))
        (omNG-make-package 
         "Filters"
         :doc "Tools to filter/process"
