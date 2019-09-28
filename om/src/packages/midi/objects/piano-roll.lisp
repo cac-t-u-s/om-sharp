@@ -326,6 +326,9 @@
                  (pitch-min self) (pitch-max self)
                  1 nil t))
 
+#-macosx
+(defmethod om-view-resized :after ((self keyboard-view) size)
+  (om-invalidate-view self))
 
 (defmethod draw-background ((editor piano-roll-editor) (view stream-panel))
   (when (om-add-key-down)
