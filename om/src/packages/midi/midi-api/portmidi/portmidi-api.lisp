@@ -248,19 +248,26 @@ Works like `make-message` but combines `upper` and `lower` to the status byte."
     (when type-ref (apply 'make-message* (list type-ref channel v1 v2)))))
 
 
+(defun send-bytes (bytes port)
+  (let ((out (get-output-stream-from-port port)))
+    (if out
+        (and bytes (pm::pm-write-short out 0 bytes))
+      (print (format nil "PortMIDI ERROR: port ~A is not connected. Check MIDI preferences to connect MIDI devices ?" port))
+      )))
+
+
+(defun portmidi-send-bytes (datalist port)
+  (send-bytes (apply 'make-message datalist)
+              port))
+
 (defun portmidi-send-evt (evt)
   (when (midi-evt-port evt)
-    (let ((out (get-output-stream-from-port (midi-evt-port evt)))
-          (bytes (make-midi-bytes (midi-evt-type evt) 
+    (let ((bytes (make-midi-bytes (midi-evt-type evt) 
                                   (1- (midi-evt-chan evt)) 
                                   (midi-evt-fields evt))))
-    ;(print (midi-evt-type evt))
-      (if (and out bytes)
-          (pm::pm-write-short out 0 bytes)
-        (unless out
-          (print (format nil "PortMIDI ERROR: port ~A is not connected. Check MIDI preferences to connect MIDI devices ?" (midi-evt-port evt))) nil)
-      ))))
-
+      (when bytes 
+        (send-bytes bytes (midi-evt-port evt)))
+      )))
 
 
 ;;;========================================

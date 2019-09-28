@@ -100,9 +100,8 @@
 
 (defmethod initialize-instance ((self midi-track) &rest initargs)
   (call-next-method)
-  (data-stream-set-frames self (sort (slot-value self 'midi-events) '< :key 'onset))
+  (data-stream-set-frames self (midievents-to-midinotes (slot-value self 'midi-events) :collect-other-events t))
   self)
-
 
 (defmethod initialize-instance :after ((self midi-track) &rest initargs)
   (setf (autostop self) t) ;;; ??? what is this  
@@ -132,7 +131,7 @@
     (let ((pos (position-if #'match notelist :from-end t)))
       (if pos
           (setf (dur (nth pos notelist)) (- date (* -1 (midinote-dur (nth pos notelist)))))
-        (om-print-format "Warning: this MIDI sequence has orphan KeyOff messages in channel ~D: ~D (t=~Dms)." chan pitch date))
+        (om-print-format "Warning: this MIDI sequence has orphan KeyOff messages in channel ~D: ~D (t=~Dms)." (list chan pitch date)))
       )))
 
 
@@ -228,22 +227,22 @@
                         
                         (if (equal (ev-type n) :note)
                             
-                            (list  (make-instance 'MIDIEvent 
-                                                  :onset (midinote-onset n)
-                                                  :ev-type :keyon 
-                                                  :ev-chan (midinote-channel n)
-                                                  :ev-value (list (midinote-pitch n) (midinote-vel n)) 
-                                                  :ev-port (midinote-port n) 
-                                                  :ev-track 0)
-                                   (make-instance 'MIDIEvent 
-                                                  :onset (midinote-end n)
-                                                  :ev-type :keyoff 
-                                                  :ev-chan (midinote-channel n)
-                                                  :ev-value (list (midinote-pitch n) 0) 
-                                                  :ev-port (midinote-port n) 
-                                                  :ev-track 0))
-                        ;;; normal event
-                        (list (om-copy n))))
+                            (list  (make-MIDIEvent 
+                                    :ev-date (midinote-onset n)
+                                    :ev-type :keyon 
+                                    :ev-chan (midinote-channel n)
+                                    :ev-value (list (midinote-pitch n) (midinote-vel n)) 
+                                    :ev-port (midinote-port n) 
+                                    :ev-track 0)
+                                   (make-MIDIEvent 
+                                    :ev-date (midinote-end n)
+                                    :ev-type :keyoff 
+                                    :ev-chan (midinote-channel n)
+                                    :ev-value (list (midinote-pitch n) 0) 
+                                    :ev-port (midinote-port n) 
+                                    :ev-track 0))
+                          ;;; normal event
+                          (list (om-copy n))))
                   )
           #'< :key #'onset)))
     (if test 
@@ -437,39 +436,42 @@
 ;;; PLAY
 ;;;======================================
 
-
 (defmethod get-action-list-for-play ((object midi-track) interval &optional parent)
   (sort 
-   (loop for evt in (remove-if #'(lambda (event) (or (< (item-end-time event) (car interval))
-                                                     (>= (item-get-time event) (cadr interval))))
-                               (midi-events object))
+   (loop for evt in (midi-events object)
+         when (and (>= (onset evt) (car interval))
+                   (< (+ (onset evt) (get-obj-dur evt))))
          append 
          (case (ev-type evt)
            
            (:note 
             
-            (list 
-             
-             (list (midinote-onset evt)
-                   #'(lambda (note) 
-                       (om-midi::midi-send-evt 
-                        (om-midi:make-midi-evt 
-                         :type :keyOn
-                         :chan (or (midinote-channel note) 1) 
-                         :port (or (midinote-port note) (get-pref-value :midi :out-port))
-                         :fields (list (midinote-pitch note) (midinote-vel note)))))
-                   (list evt))
-                        
-             (list (min (midinote-end evt) (cadr interval))
-                   #'(lambda (note) (om-midi::midi-send-evt 
-                                     (om-midi:make-midi-evt 
-                                      :type :keyOff
-                                      :chan (or (midinote-channel note) 1) 
-                                      :port (or (midinote-port note) (get-pref-value :midi :out-port))
-                                      :fields (list (midinote-pitch note) 0))))
-                   (list evt))
-             ))
-                      
+            (remove nil
+                    (list 
+                     (if (in-interval (midinote-onset evt) interval :exclude-high-bound t) 
+                                  
+                         (list (midinote-onset evt)
+                               #'(lambda (note) 
+                                   (om-midi::midi-send-evt 
+                                    (om-midi:make-midi-evt 
+                                     :type :keyOn
+                                     :chan (or (midinote-channel note) 1) 
+                                     :port (or (midinote-port note) (get-pref-value :midi :out-port))
+                                     :fields (list (midinote-pitch note) (midinote-vel note)))))
+                               (list evt)))
+
+                     (if (in-interval (midinote-end evt) interval :exclude-high-bound t)
+                                
+                         (list (midinote-end evt)
+                               #'(lambda (note) (om-midi::midi-send-evt 
+                                                 (om-midi:make-midi-evt 
+                                                  :type :keyOff
+                                                  :chan (or (midinote-channel note) 1) 
+                                                  :port (or (midinote-port note) (get-pref-value :midi :out-port))
+                                                  :fields (list (midinote-pitch note) 0))))
+                               (list evt)))
+                     )))
+            
            (otherwise 
             (list 
              (list (onset evt)

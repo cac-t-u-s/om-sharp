@@ -61,6 +61,16 @@
 			     ("Specific" :Specific)
                              ))
 
+
+
+(defmethod* midi-type (evt)
+  :initvals '(nil)
+  :indoc '("click to select a type of event")
+  :menuins (list (list 0 *midi-event-types*))
+  :doc "Outputs the event-type identifier for OM MIDIEVENT."
+  :icon :midi
+  evt)
+
 ;;;============================
 ;;; MIDI-EVENT AS A DATA-FRAME (see data-stream container)
 ;;; A high-lev / graphical class in OM, representing a MIDI event from the MIDI-API
@@ -68,29 +78,68 @@
 
 (defclass* midievent (data-frame)
   ((onset :accessor onset :initform 0 
-          :initarg :onset :initarg :date :initarg :ev-date ;;; different possible initargs (for compatibility)
+          ; :initarg :onset :initarg :date :initarg :ev-date ;;; different possible initargs (for compatibility)
           :documentation "date/time of the object")
    (ev-type :accessor ev-type :initarg :ev-type :initform :keyon :documentation "type of event")
    (ev-chan :accessor ev-chan :initarg :ev-chan :initform 1 :documentation "MIDI channel (1-16)")
-   (ev-track :accessor ev-track :initarg :ev-track :initform 0 :documentation "Track of the MIDI evevnt")
+   (ev-port :accessor ev-port :initarg :ev-port :initform 0 :documentation "Target MIDI port")
    (ev-value :accessor ev-value 
              :initarg :ev-value :initarg :ev-fields 
              :initform 0 :documentation "value(s)")
-   (ev-port :accessor ev-port :initarg :ev-port :initform 0 :documentation "Target MIDI port")))
+   (ev-track :accessor ev-track :initform 0 :documentation "Track of the MIDI evevnt")
+   ))
 
+(defmethod additional-class-attributes ((sekf midievent)) '(ev-track))
 
-(defmethod get-frame-action ((self midievent))
-  #'(lambda () (om-midi::midi-send-evt 
-                (om-midi:make-midi-evt 
-                 :type (ev-type self) 
-                 :chan (ev-chan self) 
-                 :fields (ev-value self)
-                 :port (or (ev-port self) (get-pref-value :midi :out-port))
-                 ))
-      ))
+(defun make-midievent (&key ev-date ev-type ev-chan ev-port ev-value ev-track)
+  (let ((evt (make-instance 'MIDIEvent 
+                            :onset ev-date
+                            :ev-type ev-type 
+                            :ev-chan ev-chan
+                            :ev-value ev-value 
+                            :ev-port ev-port)))
+    (when ev-track (setf (ev-track evt) ev-track))
+    evt))
 
 (defmethod data-frame-text-description ((self midievent))
   (list "MIDI EVENT" (format nil "~A (~A): ~A" (ev-type self) (ev-chan self) (ev-value self))))
+
+(defmethod evt-to-string ((self MidiEvent))
+  (format nil "MIDIEVENT:: @~D ~A chan ~D track ~D port ~D: ~D" 
+          (onset self) (ev-type self) (ev-chan self) (ev-track self) (ev-port self) (ev-value self)))
+
+
+;;; play in a DATA-STREAM
+(defmethod get-frame-action ((self midievent))
+  #'(lambda () 
+      (om-midi::midi-send-evt 
+       (om-midi:make-midi-evt 
+        :type (ev-type self) 
+        :chan (ev-chan self) 
+        :fields (list! (ev-value self))
+        :port (or (ev-port self) (get-pref-value :midi :out-port))
+        ))
+      ))
+
+;;; PLAY BY ITSELF IN A MAQUETTE...
+;;; Interval is the interval INSIDE THE OBJECT
+(defmethod get-action-list-for-play ((self midievent) interval &optional parent)
+  (when (in-interval 0 interval :exclude-high-bound t) 
+    (list 
+     (list 0
+           #'(lambda (e) 
+               (om-midi::midi-send-evt 
+                (om-midi:make-midi-evt 
+                 :type (ev-type e)
+                 :chan (or (ev-chan e) 1) 
+                 :port (or (ev-port e) (get-pref-value :midi :out-port))
+                 :fields (list! (ev-value e))
+                 ))
+               )
+           (list self))
+     )))
+
+ 
 
 
 ;======================================
@@ -103,13 +152,12 @@
           (loop for event in evtlist collect 
                 (let ((om-event
                        (cond ((om-midi::midi-evt-p event)
-                              (make-instance 'MIDIEvent 
-                                             :onset (om-midi::midi-evt-date event)
-                                             :ev-type (om-midi::midi-evt-type event) 
-                                             :ev-chan (om-midi::midi-evt-chan event)
-                                             :ev-value (om-midi:midi-evt-fields event) 
-                                             :ev-port (om-midi:midi-evt-port event) 
-                                             :ev-track (om-midi:midi-evt-ref event)))
+                              (make-midievent :ev-date (om-midi::midi-evt-date event)
+                                              :ev-type (om-midi::midi-evt-type event) 
+                                              :ev-chan (om-midi::midi-evt-chan event)
+                                              :ev-value (om-midi:midi-evt-fields event) 
+                                              :ev-port (om-midi:midi-evt-port event) 
+                                              :ev-track (om-midi:midi-evt-ref event)))
                              ((typep event 'MIDIEvent)
                               (om-copy event))
                              (t (om-beep-msg "ERROR Unknown event: ~A" event)))))
@@ -160,12 +208,12 @@
   :menuins (list (list 1 *midi-event-types*))
   :doc "Tests if <self> is of type <type>.
 
-(see function MS-EVENT for a list of valid MIDI event types)
+ (see function MS-EVENT for a list of valid MIDI event types)
 "
   :icon :midi-filter 
   (or (not type)
       (if (symbolp type)
-          (= (ev-type self) type)
+          (equal (ev-type self) type)
         (member (ev-type self) (list! type)))))
 
 

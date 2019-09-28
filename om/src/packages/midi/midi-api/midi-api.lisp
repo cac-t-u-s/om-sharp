@@ -74,6 +74,13 @@
     (pushnew (list (om-midi::midi-evt-port evt) (car (om-midi::midi-evt-fields evt))) (nth (1- (om-midi::midi-evt-chan evt)) *key-ons*) :test 'equal)))
  
   (portmidi-send-evt evt))
+
+
+
+;;; exported call
+(defun midi-send-bytes (datalist port)
+  (portmidi-send-bytes datalist port))
+
   
 ;(defmethod midi-start () 
 ;  (portmidi-start))
