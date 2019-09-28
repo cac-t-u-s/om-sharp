@@ -58,7 +58,7 @@
 (defmethod editor-window-init-size ((self data-stream-editor)) (om-make-point 650 200))
 
 ;; lesser value and greater values in the ruler (bottom to top)
-(defmethod y-range-for-object ((self internal-data-stream)) '(-100 100))
+(defmethod y-range-for-object ((self internal-data-stream)) '(0 100))
 
 (defmethod frame-display-modes-for-object ((self data-stream-editor) (object t)) '(:blocks :bubbles))
 
@@ -285,6 +285,11 @@
 (defmethod play-editor-get-ruler-views ((self data-stream-editor))
   (get-g-component self :x-ruler))
 
+
+;; lesser value and greater values in the ruler (bottom to top)
+(defmethod y-range-for-object ((self internal-data-stream)) '(0 100))
+
+
 ;;;===========================================
 ;;; FRAMES DRAW & SELECTION
 ;;;===========================================
@@ -299,9 +304,10 @@
       (setf (getf (attributes self) :color) (om-random-color 0.4))))
  
 ;; random !
+;; compare values to y-range-for-object
 (defmethod get-frame-posy ((self data-frame)) 
   (or (getf (attributes self) :posy)
-      (setf (getf (attributes self) :posy) (om-random 0 90))))
+      (setf (getf (attributes self) :posy) (om-random 30 90))))
 
 ;; arbitrary !
 (defmethod get-frame-sizey ((self data-frame)) 
@@ -589,9 +595,7 @@
        (when (selection editor)
          (store-current-state-for-undo editor)
          (loop for pos in (sort (selection editor) '>) do 
-               ;; (data-stream-set-frames stream (remove (nth pos (frames stream)) (frames stream)))
-               (remove-nth-timed-point-from-time-sequence stream pos)
-               )
+               (remove-nth-timed-point-from-time-sequence stream pos))
          (setf (selection editor) nil)
          (om-invalidate-view panel)
          (update-timeline-editor editor)
