@@ -42,6 +42,7 @@
         :om-midi)
 
 (defvar om-midi::*libportmidi* nil)
+
 (defun load-midi-lib ()
   (setf om-midi::*libportmidi*
         (om-fi::om-load-foreign-library  
@@ -51,6 +52,7 @@
                       (:default "libportmidi")))
            (:linux (:or "libportmidi.so" ,(om-fi::om-foreign-library-pathname "libportmidi.so")))
 	   ((:default "libportmidi"))))))
+
 (om-fi::add-foreign-loader 'load-midi-lib)
 (om::add-om-init-fun 'om-midi::om-start-portmidi)
 
@@ -70,8 +72,9 @@
                   :test 'equal)))
    ((equal (om-midi::midi-evt-type evt) :keyOn)
     (pushnew (list (om-midi::midi-evt-port evt) (car (om-midi::midi-evt-fields evt))) (nth (1- (om-midi::midi-evt-chan evt)) *key-ons*) :test 'equal)))
+ 
   (portmidi-send-evt evt))
-
+  
 ;(defmethod midi-start () 
 ;  (portmidi-start))
 
@@ -84,6 +87,7 @@
                                                     :fields (list (cadr note) 0))
                              )))
   (setf *key-ons* (make-list 16)))
+
 
 ;;; A IS BEFORE B IF...
 (defun midi-evt-< (a b)

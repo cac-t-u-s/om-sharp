@@ -379,7 +379,6 @@
 	(progn (print (format nil "(cl-midi) message-type ~A isn't supported yet" type))
 	       NIL))))
 
-;; TODO: don't need sorting here anymore?
 
 (defun tracks2seq (tracks)
   (sort (loop for track in tracks
@@ -387,13 +386,16 @@
               (loop for msg in track collect (make-event-from-message msg ref)))
         #'midi-evt-<))
 
-;;; THE FUNCTION CALLED BY OM
+
+;;; FUNCTION CALLED BY OM
+;;; Returns a flat list of midi-evt with :ref = track num
 (defun cl-midi-load-file (pathname)
   (let ((f (midi:read-midi-file pathname)))
     (values (tracks2seq (midi:midifile-tracks f))
             (length (midi:midifile-tracks f))
             (midi:midifile-division f)
             (midi:midifile-format f))))
+
 
 (defun seq2tracks (seq)
   (let ((tracks nil))
@@ -409,10 +411,12 @@
     (mapcar 'cadr (sort tracks '< :key 'car))))
 
 
-
+;;; FUNCTION CALLED BY OM
+;;; Saves a flat list of midi-evt where :ref = track num
 (defun cl-midi-save-file (seq filename fileformat clicks)
   (let ((mf (make-instance 'midi:midifile :format fileformat :division clicks)))
     (setf (slot-value mf 'midi::tracks) (seq2tracks seq))
     #+lispworks(sys::ENSURE-DIRECTORIES-EXIST filename :verbose t) ;;; !!! LW specific
     (midi:write-midi-file mf filename)
     filename))
+
