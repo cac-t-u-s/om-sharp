@@ -48,6 +48,9 @@
     )
   )
 
+; (:input (:type :standard) (:name "time") (:value 1000)) 
+(defun convert-maq-input (input) 
+  `(:input (:type :optional) ,(cddr input)))
 
 ;;; OMBoxMaquette (internal)
 (defmethod om-load-boxcall ((self (eql 'maqabs)) name reference inputs position size value lock &rest rest)
@@ -66,7 +69,7 @@
                            ((string-equal lock "&") :eval-once))))
     (:lambda ,(if lock (cond ((string-equal lock "l") :lambda) 
                              ((string-equal lock "o") :reference))))
-    (:inputs .,(mapcar #'eval inputs))
+    (:inputs .,(mapcar #'(lambda (i) (convert-maq-input (eval i))) inputs))
     (:display :mini-view)
     )
   )
