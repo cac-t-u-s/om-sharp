@@ -57,9 +57,6 @@
 
 (defmethod editor-window-init-size ((self data-stream-editor)) (om-make-point 650 200))
 
-;; lesser value and greater values in the ruler (bottom to top)
-(defmethod y-range-for-object ((self internal-data-stream)) '(0 100))
-
 (defmethod frame-display-modes-for-object ((self data-stream-editor) (object t)) '(:blocks :bubbles))
 
 (defmethod make-editor-controls ((editor data-stream-editor))
