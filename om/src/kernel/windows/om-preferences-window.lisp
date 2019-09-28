@@ -183,7 +183,7 @@
   (let ((y 18))
     (om-make-view 
      'om-view 
-     :size (omp 80 (* 2 y)) :resizable nil
+     :size (omp 80 y) :resizable nil
      :subviews (list 
 		(om-make-graphic-object
 		 'numbox 
