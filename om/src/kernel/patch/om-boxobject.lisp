@@ -287,7 +287,9 @@
 (defun make-value-from-model (type model initargs)
 
   (let* ((target (make-instance type))
-         (rep (objFromObjs model target))
+         (rep (if (equal (type-of model) (type-of target))
+                  (om-copy model)
+                (objFromObjs model target)))
          (class-slots-names (mapcar 'slot-name (class-instance-slots (find-class type))))
          (set-slot-args (loop for initarg in initargs 
                               when (find (symbol-name (car initarg)) class-slots-names :key 'symbol-name :test 'string-equal)
