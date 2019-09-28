@@ -163,18 +163,15 @@
 (defun find-osc-values (osc-bundle address)
   (cdr (find address (messages osc-bundle) :test 'string-equal :key 'car)))
 
-(defmethod compute-frame-color ((self osc-bundle) editor) 
-  (declare (ignore editor))
+(defmethod get-frame-color ((self osc-bundle)) 
   (let ((colorvals (find-osc-values self "/color")))
     (if colorvals (apply 'om-make-color colorvals)
       (call-next-method))))
 
-(defmethod compute-frame-posy ((self osc-bundle) editor) 
-  (declare (ignore editor))
+(defmethod get-frame-posy ((self osc-bundle)) 
   (or (car (find-osc-values self "/y")) (call-next-method)))
 
-(defmethod compute-frame-sizey ((self osc-bundle) editor) 
-  (declare (ignore editor))
+(defmethod get-frame-sizey ((self osc-bundle)) 
   (or (car (find-osc-values self "/size")) (call-next-method)))
 
 
@@ -215,7 +212,8 @@
                                                               (multiple-value-bind (address data)
                                                                   (string-until-char (delete-spaces line) " ")
                                                                 (cons address
-                                                                      (om-read-list-from-string data)))))))
+                                                                      (when data 
+                                                                        (om-read-list-from-string data))))))))
                                   (setf (messages oscb) messages)
                                   (report-modifications self)))
                )))
