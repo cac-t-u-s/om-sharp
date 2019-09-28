@@ -19,7 +19,9 @@
 
 (in-package :om)
 
-(defmethod update-reference ((ref (eql 'midifile))) 'piano-roll)
+(defmethod update-reference ((ref (eql 'midifile))) 'midi-track)
 
 (defun load-midi (path)
-  (objfromobjs path (make-instance 'piano-roll)))
+  (make-instance 'midi-track 
+                 :midi-events (import-midi-notes path)))
+

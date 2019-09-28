@@ -21,9 +21,10 @@
 
 (compile&load (merge-pathnames "midi-api/midi-api" *load-pathname*))
 (compile&load (merge-pathnames "midi-setup" *load-pathname*))
+(compile&load (merge-pathnames "tools/midi-import" *load-pathname*))
 (compile&load (merge-pathnames "objects/midi-event" *load-pathname*))
 (compile&load (merge-pathnames "objects/midi-controllers" *load-pathname*))
-(compile&load (merge-pathnames "objects/piano-roll" *load-pathname*))
+(compile&load (merge-pathnames "objects/midi-track" *load-pathname*))
 (compile&load (merge-pathnames "compatibility" *load-pathname*))
 
 
@@ -31,7 +32,7 @@
  "MIDI"
  :container-pack *om-package-tree*
  :doc "MIDI tools and objects"
- :classes '(piano-roll midi-note midievent)
- :functions '(import-midi-notes)
+ :classes '(midi-track midi-note midievent)
+ :functions '(import-midi-notes import-midi-file)
  :subpackages nil)
  
