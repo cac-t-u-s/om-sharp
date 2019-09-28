@@ -283,7 +283,7 @@
                     ))
 
                  ((null in) ;;; two boxes are here but no nth input 
-                  (let ((temp-in (gen-temp-nth-input box-to (getf b2 :in))))
+                  (let ((temp-in (and (getf b2 :in) (gen-temp-nth-input box-to (getf b2 :in)))))
                     (if temp-in 
                         (progn 
                           (om-print-dbg "Creating temporary input ~D for ~A: ~A." (list (getf b2 :in) (name box-to) temp-in) "Import Warning")
