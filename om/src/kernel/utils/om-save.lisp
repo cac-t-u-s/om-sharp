@@ -735,7 +735,10 @@
                  ;;; :patch and :textfun are for compatibility: in principle all boxes are now saved with type :abstraction 
                  (let ((box (omng-make-new-boxcall (omng-load reference) pos)))
                    ;; sometimes (e.g. in maquettes) the patches save their value
-                   (when box (setf (value box) (list val)))
+                   (when box 
+                     (setf (value box) (list val))
+                     (setf name (name (reference box))) ;;; we forget about the saved box name... 
+                     )
                    box))
                 
                 (:io (omng-make-new-boxcall (omng-load reference) pos))
@@ -772,7 +775,6 @@
       
       (load-box-attributes box data)
 
-      (when name (set-name box name))
       (when inputs (restore-inputs box inputs))
       (when outputs (restore-outputs box outputs))
       (when group-id (setf (group-id box) group-id))
@@ -780,7 +782,10 @@
       (loop for property in (get-flat-properties-list box)
             do (let ((prop (find-value-in-kv-list data (car property))))
                  (when prop (set-property box (car property) (omng-load prop)))))
-      
+     
+      ;;; overwrites the one in properties
+      (when name (set-name box name))
+     
       ;;; some properties (e.g. icon-pos) can modify the size of the box: better do it at the end
       (when size 
         (let ((corrected-size (om-max-point (minimum-size box) size)))
