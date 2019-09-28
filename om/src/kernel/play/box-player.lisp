@@ -162,8 +162,9 @@
               play-boxes)
       ;;; start all
       (mapc #'(lambda (box) 
-                (player-play-object *general-player* (get-obj-to-play box) box)
-                (box-player-start box)
+                (when (play-obj? (get-obj-to-play box))
+                  (player-play-object *general-player* (get-obj-to-play box) box)
+                  (box-player-start box))
                 )
             play-boxes))))
 
