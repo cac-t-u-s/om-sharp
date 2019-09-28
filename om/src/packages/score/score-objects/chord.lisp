@@ -54,7 +54,7 @@ A simple NOTE defined with :
 ;;; allow as additional slot
 (defmethod additional-class-attributes ((self note)) '(port))
 
-
+(defmethod get-obj-dur ((self note)) (dur self))
 
 ;;;=============
 ;;; CHORD
@@ -193,23 +193,30 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
 
 
 (defmethod do-initialize ((self chord) &key LMidic LVel Loffset LDur LChan LPort)
-  (setf (notes self)
-        (loop while Lmidic 
-              for midic = (or (pop Lmidic) midic)
-              for vel = (or (pop Lvel) vel)
-              for offset = (or (pop Loffset) offset)
-              for dur = (or (pop Ldur) dur)
-              for chan = (or (pop Lchan) chan)
-              for port = (or (pop Lport) port)  
-              collect (make-instance 'note 
-                                     :midic (round midic) 
-                                     :vel (round vel) 
-                                     :dur (round dur) 
-                                     :offset (round offset) 
-                                     :chan chan
-                                     :port port 
-                                     )))
-  self)
+  (let ((lmidic (list! lmidic))
+        (lvel (list! lvel))
+        (loffset (list! loffset))
+        (ldur (list! ldur))
+        (lchan (list! lchan))
+        (lport (list! lport)))
+        
+    (setf (notes self)
+          (loop while Lmidic 
+                for midic = (or (pop Lmidic) midic)
+                for vel = (or (pop Lvel) vel)
+                for offset = (or (pop Loffset) offset)
+                for dur = (or (pop Ldur) dur)
+                for chan = (or (pop Lchan) chan)
+                for port = (or (pop Lport) port)  
+                collect (make-instance 'note 
+                                       :midic (round midic) 
+                                       :vel (round vel) 
+                                       :dur (round dur) 
+                                       :offset (round offset) 
+                                       :chan chan
+                                       :port port 
+                                       )))
+    self))
 
 
 (defmethod objfromobjs ((model note) (target Chord)) 
@@ -256,35 +263,41 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
 ;;; PLAY
 ;;;======================================
 
+(defmethod play-obj? ((self chord)) t)
+(defmethod play-obj? ((self note)) t)
+
+
 (defmethod get-action-list-for-play ((c chord) interval &optional parent)
-  (loop for n in (notes c) append
-        (remove nil 
-                (list 
-                 (if (in-interval (offset n) interval :exclude-high-bound t) 
-                                  
-                     (list (offset n)
-                                        
-                           #'(lambda (note) (om-midi::midi-send-evt 
-                                             (om-midi:make-midi-evt 
-                                              :type :keyOn
-                                              :chan (or (chan note) 1) :port 0
-                                              :fields (list (round (midic note) 100) (vel note)))))
-                           (list n)))
+  (print interval)
+   (remove 
+    nil 
+    (loop for n in (notes c) append
+          (get-action-list-for-play n interval parent))))
 
-                 (if (in-interval (+ (offset n) (dur n)) interval :exclude-high-bound t)
-                                
-                     (list (+ (offset n) (dur n))
-                                      
-                           #'(lambda (note) (om-midi::midi-send-evt 
-                                             (om-midi:make-midi-evt 
-                                              :type :keyOff
-                                              :chan (or (chan note) 1) :port 0
-                                              :fields (list (round (midic note) 100) 0))))
-                           (list n)))
-                      
-                 )))
-  )
-
+(defmethod get-action-list-for-play ((n note) interval &optional parent)
+  (remove 
+   nil
+   (list 
+    (when (in-interval (offset n) interval :exclude-high-bound t) 
+      (list (offset n)
+            #'(lambda (note) (om-midi::midi-send-evt 
+                              (om-midi:make-midi-evt 
+                               :type :keyOn
+                               :chan (or (chan note) 1) :port 0
+                               :fields (list (round (midic note) 100) (vel note)))))
+            (list n)))
+      
+    (when (in-interval (+ (offset n) (dur n)) interval :exclude-high-bound t) 
+     
+   
+      (list (+ (offset n) (dur n))
+            #'(lambda (note) (om-midi::midi-send-evt 
+                              (om-midi:make-midi-evt 
+                               :type :keyOff
+                               :chan (or (chan note) 1) :port 0
+                               :fields (list (round (midic note) 100) 0))))
+            (list n)))
+    )))
 
 
 
