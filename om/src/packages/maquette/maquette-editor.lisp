@@ -867,12 +867,12 @@
              :subviews 
              (list
               
-              (om-make-layout 
+              (om-make-layout
                'om-simple-layout 
                :align :top
                :subviews (list (make-time-monitor editor 
                                                   :font (om-def-font :font3b) 
-                                                  :background +track-color-2+
+                                                  #-macosx :background #-macosx +track-color-2+
                                                   :color (om-def-color :white) 
                                                   :time 0)))
 
