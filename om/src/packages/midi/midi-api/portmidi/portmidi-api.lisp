@@ -195,12 +195,16 @@ Works like `make-message` but combines `upper` and `lower` to the status byte."
     (:ProgChange #b1100)
     (:ChanPress #b1101)
     (:PitchBend #b1110)
+
+    ;;; mode messages have same status bytes as CtrlChange
+    (:ResetAllControllers #b1011)
+    (:AllNotesOff #b1011)
     ))
 
 (defvar *midi-meta-types*
   '(:TimeSign :SeqNum :Textual :Copyright :SeqName
     :InstrName :Lyric :Marker :CuePoint :ChanPrefi
-    :EndTrack :Tempo :SMPTEOffset :TimeSign :KeySign
+    :EndTrack :Tempo :SMPTEOffset :KeySign
     :Specific))
 
 
