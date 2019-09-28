@@ -43,9 +43,9 @@
                        :reactive reactive)
    t)
 
-(defmethod create-box-inputs ((self OMBoxMaquette))
-  (append (call-next-method)
-          (get-optional-inputs self)))
+;(defmethod create-box-inputs ((self OMBoxMaquette))
+;  (append (call-next-method)
+;          (get-optional-inputs self)))
 
 ;;;=====================================
 ;;; BOX DISPLAY
@@ -131,7 +131,7 @@
                           (box-h newbox) (- facty)
                           (group-id newbox) (mod i 4))
                      
-                    (setf (display newbox) :mini-view)
+                    (setf (display newbox) (or (find :mini-view (display-modes-for-object (get-box-value newbox))) :text))
                     (omNG-add-element maquette newbox)
                     
                     ))
@@ -139,8 +139,8 @@
         
         ;;; the duration of the patch boxes is not computed yet at this point....
         (setf (range maquette)
-              (print (list :x1 0 :x2 (or (get-obj-dur maquette) 4000)
-                    :y1 -10 :y2 110)))
+              (list :x1 0 :x2 (or (get-obj-dur maquette) 4000)
+                    :y1 -10 :y2 110))
         t
         ))))
 
