@@ -106,7 +106,8 @@
 (defmethod get-box-onset ((self OMBox)) (box-x self))
 (defmethod set-box-onset ((self OMBox) o) 
   (setf (box-x self) o)
-  (when (get-box-value self) (set-object-onset (get-box-value self) o)))
+  (when (get-box-value self) 
+    (set-object-onset (get-box-value self) o)))
 
 ;(defmethod get-box-onset ((self omboxpatch)) (box-x self))
 ;(defmethod set-box-onset ((self omboxpatch) o) 
