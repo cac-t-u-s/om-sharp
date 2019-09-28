@@ -172,7 +172,7 @@
                           mesure)))
     
     ;;; cut the end of the chords list
-    (time-sequence-set-timed-item-list self (first-n (chords self) (1+ curr-n-chord)))
+    (data-stream-set-frames self (first-n (chords self) (1+ curr-n-chord)))
 
     (values curr-n-chord curr-last-chord)))
 

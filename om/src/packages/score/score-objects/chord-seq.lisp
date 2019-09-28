@@ -152,7 +152,7 @@ Internally most of these values are just used to build a list of CHORD objects, 
                                   (dur note) dur))))
             )
               
-      (time-sequence-set-timed-item-list self chord-list)
+      (data-stream-set-frames self chord-list)
               
       self)))
 

@@ -70,15 +70,15 @@
 (defmethod data-stream-get-frames ((self internal-data-stream)) (frames self))
 (defmethod data-stream-set-frames ((self internal-data-stream) frames) 
   (setf (frames self) frames)
-  (time-sequence-update-internal-times self))
+  (time-sequence-update-internal-times self)
+  (time-sequence-update-obj-dur self))
 
-;;; TIME-SEQUENCE API
-(defmethod time-sequence-get-timed-item-list ((self internal-data-stream)) (data-stream-get-frames self))
+;;; TIME-SEQUENCE API (called by timeline editor etc.)
+(defmethod time-sequence-get-timed-item-list ((self internal-data-stream)) 
+  (data-stream-get-frames self))
 
 (defmethod time-sequence-set-timed-item-list ((self internal-data-stream) list) 
-  (data-stream-set-frames self list)
-  (call-next-method) ;;; will update the duration
-  )
+  (data-stream-set-frames self list))
 
 (defmethod time-sequence-make-timed-item-at ((self internal-data-stream) at)
   (make-instance (default-frame-type self) :onset at))
@@ -159,7 +159,7 @@
    frame)
 
 (defmethod* clear-data-stream ((self internal-data-stream))
- (time-sequence-set-timed-item-list self nil))
+  (data-stream-set-frames self nil))
 
 (defmethod* clear-data-stream ((self t))
  (om-beep-msg "ERROR: ~A is not a valid DATA-STREAM" self))

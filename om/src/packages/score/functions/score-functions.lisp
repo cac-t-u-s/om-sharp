@@ -72,13 +72,17 @@ MULTI-SEQ: global concatenation takes into account the duration of the object.
 POLY: each voice is concatenated, regardless of the global duration.
 "
   
-  (let ((cs (make-instance 'chord-seq)))
+  (let ((cs (make-instance 'chord-seq))
+        (new-chords (append (get-chords s1) (get-chords s2))))
+    
+    (loop for c in new-chords 
+          for time in (append (time-sequence-get-times s1)
+                              (om+ (time-sequence-get-times s2)
+                                   (or s2-offset (object-dur s1))))
+          do
+          (item-set-time c time))
 
-    (time-sequence-set-timed-item-list cs (append (get-chords s1) (get-chords s2)))
-    (time-sequence-set-times cs (append (time-sequence-get-times s1)
-                                        (om+ (time-sequence-get-times s2)
-                                             (or s2-offset (object-dur s1)))))
-    (time-sequence-update-obj-dur cs)
+    (data-stream-set-frames cs new-chords) 
     cs))
 
 ;;; TODO: concatenate the tempo list (see below)
