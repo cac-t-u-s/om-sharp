@@ -269,16 +269,36 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
 
 (defmethod get-action-list-for-play ((c chord) interval &optional parent)
   (print interval)
-   (remove 
-    nil 
-    (loop for n in (notes c) append
-          (get-action-list-for-play n interval parent))))
+  (remove 
+   nil 
+   (loop for n in (notes c) append
+         (list 
+          (when (in-interval (offset n) interval :exclude-high-bound t) 
+            (list (offset n)
+                  #'(lambda (note) (om-midi::midi-send-evt 
+                                    (om-midi:make-midi-evt 
+                                     :type :keyOn
+                                     :chan (or (chan note) 1) :port 0
+                                     :fields (list (round (midic note) 100) (vel note)))))
+                  (list n)))
+      
+          (when (in-interval (+ (offset n) (dur n)) interval :exclude-high-bound t) 
+     
+   
+            (list (+ (offset n) (dur n))
+                  #'(lambda (note) (om-midi::midi-send-evt 
+                                    (om-midi:make-midi-evt 
+                                     :type :keyOff
+                                     :chan (or (chan note) 1) :port 0
+                                     :fields (list (round (midic note) 100) 0))))
+                  (list n)))
+          ))))
 
 (defmethod get-action-list-for-play ((n note) interval &optional parent)
   (remove 
    nil
    (list 
-    (when (in-interval (offset n) interval :exclude-high-bound t) 
+    (when (in-interval 0 interval :exclude-high-bound t) 
       (list (offset n)
             #'(lambda (note) (om-midi::midi-send-evt 
                               (om-midi:make-midi-evt 
@@ -287,7 +307,7 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
                                :fields (list (round (midic note) 100) (vel note)))))
             (list n)))
       
-    (when (in-interval (+ (offset n) (dur n)) interval :exclude-high-bound t) 
+    (when (in-interval (dur n) interval :exclude-high-bound t) 
      
    
       (list (+ (offset n) (dur n))
