@@ -34,7 +34,16 @@
 (add-preference-module :midi "MIDI")
 
 (add-preference-section :midi "In/Out Ports")
+
 (add-preference :midi :ports "Configuration" :action 'midi-setup)
+
+(add-preference :midi :out-port "Default output port" (make-number-in-range :min 0 :max 99 :decimals 0) 
+                0 ;; default value
+                "Used for sending MIDI events/notes when port = NIL")
+(add-preference :midi :in-port "Default input port" (make-number-in-range :min 0 :max 99 :decimals 0) 
+                0 ;; default value
+                "Used for default MIDI inputs")
+
 
 (add-preference-section :midi "Channel colors")
 
