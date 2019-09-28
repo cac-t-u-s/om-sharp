@@ -32,7 +32,7 @@
    (selection :accessor selection :initform nil)))
 
 
-;;; redefinition of teh window slot accessor 
+;;; redefinition of the window slot accessor 
 (defmethod window ((self OMEditor))
   (or (slot-value self 'window)
       (and (container-editor self) 
