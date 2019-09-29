@@ -21,13 +21,14 @@
 
 (compile&load (merge-pathnames "midi-api/midi-api" *load-pathname*))
 (compile&load (merge-pathnames "midi-setup" *load-pathname*))
-(compile&load (merge-pathnames "tools/midi-import" *load-pathname*))
 (compile&load (merge-pathnames "tools/midi-values" *load-pathname*))
+(compile&load (merge-pathnames "tools/midi-import" *load-pathname*))
 (compile&load (merge-pathnames "objects/midi-event" *load-pathname*))
 (compile&load (merge-pathnames "objects/midi-controllers" *load-pathname*))
 (compile&load (merge-pathnames "objects/midi-track" *load-pathname*))
 (compile&load (merge-pathnames "objects/midi-mix" *load-pathname*))
 (compile&load (merge-pathnames "tools/midi-extract" *load-pathname*))
+(compile&load (merge-pathnames "tools/midi-out" *load-pathname*))
 (compile&load (merge-pathnames "compatibility" *load-pathname*))
 
 

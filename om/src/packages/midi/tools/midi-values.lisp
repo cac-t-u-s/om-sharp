@@ -25,6 +25,7 @@
 (defun number-to-name (num table)
   (or (car (find num table :key 'cadr :test '=)) "Undefined"))
 
+
 ;======================
 ; LSB/MSP UTILS 
 ;======================
@@ -58,6 +59,32 @@
 (defun 7b-to-14b (v)
   (* v 128))
 ;(round (* (/ pb 127) 16383)))
+
+
+;======================
+; PITCHBEND/WHEEL
+;======================
+
+(defmethod* mc-to-pitchwheel ((midic number) &optional (pw-range 200))
+  (cond ((zerop midic) 8192)
+        ((minusp midic) (round (+ 8192 (* (/ midic pw-range) 8192))))
+        (t (floor (+ 8192 (* (/ midic pw-range) 8191))))))
+
+; (mc-to-pitchwheel 50)
+
+(defmethod* mc-to-pitchwheel ((midic list) &optional (pw-range 200))
+  (mapcar #'(lambda (n) (mc-to-pitchwheel n pw-range)) midic))
+
+
+;;; pb = (0-127) 
+;;; total range = +/- 200 midicents
+(defun pitchbend-to-mc (pb)
+  (- (round (* pb 400) 127) 200))
+  
+;;; pw = (0-16383) 
+;;; total range = +/- 200 midicents
+(defun pitchwheel-to-mc (pw)
+  (- (round (* pw 400) 16383) 200))
 
 
 ;======================

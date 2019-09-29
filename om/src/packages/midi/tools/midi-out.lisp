@@ -22,15 +22,6 @@
 ; PITCHBEND & PITCHWHEEL
 ;===================
 
-(defmethod* mc-to-pitchwheel ((midic number) &optional (pw-range 200))
-  (cond ((zerop midic) 8192)
-        ((minusp midic) (round (+ 8192 (* (/ midic pw-range) 8192))))
-        (t (floor (+ 8192 (* (/ midic pw-range) 8191))))))
-; (mc-to-pitchwheel 50)
-
-(defmethod* mc-to-pitchwheel ((midic list) &optional (pw-range 200))
-  (mapcar #'(lambda (n) (mc-to-pitchwheel n pw-range)) midic))
-
 
 (defmethod* pitchwheel ((val number) (chans number) &optional port)
    :icon :midi-out
@@ -40,7 +31,7 @@
 
 <values> and <chans> can be single numbers or lists. 
 
-The range of pitch wheel is between 0 and 16383 (inclusive).  8192 means no bend.
+The range of pitch wheel is between 0 and 16383 (inclusive).  8192 (default) means no bend.
 "
    (unless port (setf port (get-pref-value :midi :out-port)))
    (setf port (list! port))
@@ -71,12 +62,12 @@ The range of pitch wheel is between 0 and 16383 (inclusive).  8192 means no bend
 (defmethod* pitchbend ((val number) (chan number) &optional port)
    :icon :midi-out
    :indoc '("pitch bend value(s)" "MIDI channel(s) (1-16)" "output port number")
-   :initvals '(0 1 nil)
+   :initvals '(64 1 nil)
    :doc "Sends one or more MIDI pitch bend message(s) of <vals> in the MIDI channel(s) <chans>.  
 
 <values> and <chans> can be single numbers or lists. 
 
-The range of pitch bend is between 0 and 127. 64 means no bend.
+The range of pitch bend is between 0 and 127. 64 (default) means no bend.
 "
    (unless port (setf port (get-pref-value :midi :out-port)))
    (setf port (list! port))
@@ -96,15 +87,6 @@ The range of pitch bend is between 0 and 127. 64 means no bend.
          for item1 in vals do
          (pitchbend item1 item port)))
 
-;;; pb = (0-127) 
-;;; total range = +/- 200 midicents
-(defun pitchbend-to-mc (pb)
-  (- (round (* pb 400) 127) 200))
-  
-;;; pb = (0-16383) 
-;;; total range = +/- 200 midicents
-(defun pitchwheel-to-mc (pw)
-  (- (round (* pw 400) 16383) 200))
 
 
 ;===================

@@ -116,8 +116,8 @@
        (om-midi:make-midi-evt 
         :type (ev-type self) 
         :chan (ev-chan self) 
-        :fields (list! (ev-value self))
         :port (or (ev-port self) (get-pref-value :midi :out-port))
+        :fields (list! (ev-value self))
         ))
       ))
 
@@ -149,7 +149,7 @@
 ;;; converts a list of MIDI-EVT struct to MIDIEVENTS instance
 (defmethod* get-midievents ((self list) &optional test)
   (remove nil
-          (loop for event in evtlist collect 
+          (loop for event in self collect 
                 (let ((om-event
                        (cond ((om-midi::midi-evt-p event)
                               (make-midievent :ev-date (om-midi::midi-evt-date event)
