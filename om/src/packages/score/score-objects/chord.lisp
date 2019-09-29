@@ -268,7 +268,6 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
 
 
 (defmethod get-action-list-for-play ((c chord) interval &optional parent)
-  (print interval)
   (remove 
    nil 
    (loop for n in (notes c) append
