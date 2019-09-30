@@ -107,14 +107,18 @@ If <color> is :random, will choose a random color. It can also be a color symbol
     (make-instance (type-of self) 
                    :x-points (mapcar 'car reduced-points)
                    :y-points (mapcar 'cadr reduced-points)
-                   :decimals (decimals self))))
+                   :decimals (decimals self)
+                   :action (action self)
+                   )))
 
 (defmethod* reduce-n-points ((self bpf) n &optional (precision 10) (verbose nil))
   (let ((reduced-points (reduce-n-points (point-pairs self) n precision verbose)))
     (make-instance (type-of self) 
                    :x-points (mapcar 'car reduced-points)
                    :y-points (mapcar 'cadr reduced-points)
-                   :decimals (decimals self))))
+                   :decimals (decimals self)
+                   :action (action self)
+                   )))
 
 
 ;;;=========================================== 
@@ -138,16 +142,19 @@ If <color> is :random, will choose a random color. It can also be a color symbol
                                 ((= nbs-sr 1) 
                                  (list (+ x0 (/ (- x1 x0) 2.0))))
                                 (t (om-beep-msg "Number of sample must be > 0 !!!")))
-                        (arithm-ser x0 x1 nbs-sr))))
+                        (arithm-ser x0 x1 nbs-sr)))
+               (rep (om-copy self)))
           
-          (values (and xlist ylist (make-instance (type-of self) :x-points xlist :y-points ylist 
-                                                  :decimals (or dec (decimals self))))
+          (when dec (setf (decimals rep) dec))
+          (when (and xlist ylist)
+            (set-bpf-points rep :x xlist :y ylist))
+
+          (values (and xlist ylist rep)
                   xlist
                   (if dec (om-round ylist dec) ylist))
           )
-      (values 
-       (make-instance (type-of self) :x-points nil :y-points nil :decimals (or dec (decimals self)))
-       nil nil)))
+      (values (om-copy self) nil nil)
+      ))
 
 
 (defmethod* om-sample ((self BPC) (nbs-sr number) &optional xmin xmax dec)
@@ -198,11 +205,15 @@ If <color> is :random, will choose a random color. It can also be a color symbol
      
        )
    
-   (setq xylist (mat-trans samples))
-   (values (make-instance (type-of self) :x-points (car xylist) :y-points (cadr xylist) :decimals (or dec (decimals self)))
-           (car xylist) 
-           (cadr xylist))     ;;;npts-per-seg
-   ))
+   (let ((rep (om-copy self)))
+     (when dec (setf (decimals rep) dec))
+     (setq xylist (mat-trans samples))
+     (set-bpf-points rep :x (car xylist) :y (cadr xylist))
+     
+     (values rep
+             (car xylist) 
+             (cadr xylist))     ;;;npts-per-seg
+     )))
           
 ;(defmethod* om-sample ((self bpf-lib) (nbs-sr number) &optional xmin xmax dec)
 ;   :numouts 3
@@ -257,10 +268,12 @@ Note that splines are supposed to be computed from BPFs with reltively few contr
          (N (- (length points) 1))
          (knots (SplineKnots N degree))
          (splc (SplineCurve2D points N knots degree resolution))
-         (xylist (mat-trans splc)))
-    (values (make-instance (class-of self) 
-                           :x-points (car xylist) :y-points (cadr xylist)
-                           :decimals (decimals self))
+         (xylist (mat-trans splc))
+         (rep (om-copy self)))
+    
+    (set-bpf-points rep :x (car xylist) :y (cadr xylist))
+    
+    (values rep
             (car xylist)
             (cadr xylist)
             )))
@@ -350,12 +363,13 @@ Outputs
  (let* ((xp (x-points self))
         (yp (y-points self))
         (xlist (if (or x1 x2) (om-scale xp (or x1 (car xp)) (or x2 (last-elem xp))) xp))
-        (ylist (if (or y1 y2) (om-scale yp (or y1 (car yp)) (or y2 (last-elem yp))) yp)))
-   (om-init-instance
-    (make-instance (class-of self) :x-points xlist :y-points ylist 
-                   :decimals (decimals self)
-                   :action (action self) :color (color self)))))
+        (ylist (if (or y1 y2) (om-scale yp (or y1 (car yp)) (or y2 (last-elem yp))) yp))
+        (rep (om-copy self)))
 
+   (set-bpf-points rep  :x xlist :y ylist)
+   
+   (om-init-instance rep)
+   ))
 
 
 (defmethod! bpf-offset ((self bpf) offset)

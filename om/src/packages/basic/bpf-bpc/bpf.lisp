@@ -70,7 +70,7 @@
 (defclass* BPF (internalbpf time-sequence)
    ((x-points :initform '(0 2000) :initarg :x-points :documentation "X coordinates (list)")
     (y-points :initform '(0 100) :initarg :y-points :documentation "Y coordinates (list)")
-    (gain :initform 1.0 :accessor gain :documentation "A gain factor for Y values"))
+    (gain :initform 1 :accessor gain :documentation "A gain factor for Y values"))
    (:icon 'bpf)
    (:documentation "BREAK-POINTS FUNCTION: a 2D function defined as y=f(x) by a list of [x,y] coordinates (<x-points> / <y-points>).
 
