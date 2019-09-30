@@ -583,7 +583,8 @@
   ; (om-draw-string (+ x 14) (+ y 14) (draw-type-of-object object)))
   (om-with-font 
    (om-def-font :font1 :size 10)
-   (loop for i = (+ y 20) then (+ i 10) 
+   (om-draw-string (+ x 20) (+ y 15) (string-upcase (type-of object)))
+   (loop for i = (+ y 25) then (+ i 10) 
          for sl in (ensure-cache-display-text box object)
          while (< i (- h 6)) do
          (let ((str (format nil "~A: ~A" (car sl) (cadr sl))))
