@@ -83,42 +83,42 @@
     :ev-type :ProgChange
     :ev-chan (midichannel self)
     :ev-port (midiport self)
-    :ev-value (program self))
+    :ev-values (list (program self)))
         
    (make-midievent
     :ev-date 0
     :ev-type :CtrlChange
     :ev-chan (midichannel self)
     :ev-port (midiport self)
-    :ev-value (list 7 (vol-ctrl self)))
+    :ev-values (list 7 (vol-ctrl self)))
         
    (make-midievent
     :ev-date 0
     :ev-type :CtrlChange
     :ev-chan (midichannel self)
     :ev-port (midiport self)
-    :ev-value (list 10 (pan-ctrl self)))
+    :ev-values (list 10 (pan-ctrl self)))
         
    (make-midievent
     :ev-date 0
     :ev-type :PitchBend
     :ev-chan (midichannel self)
     :ev-port (midiport self)
-    :ev-value (val2lsbmsb (pitch-ctrl self)))
+    :ev-values (val2lsbmsb (pitch-ctrl self)))
         
    (make-midievent
     :ev-date 0
     :ev-type :CtrlChange
     :ev-chan (midichannel self)
     :ev-port (midiport self)
-    :ev-value (list (control1-num self) (control1-val self)))
+    :ev-values (list (control1-num self) (control1-val self)))
         
    (make-midievent
     :ev-date 0
     :ev-type :CtrlChange
     :ev-chan (midichannel self)
     :ev-port (midiport self)
-    :ev-value (list (control2-num self) (control2-val self)))
+    :ev-values (list (control2-num self) (control2-val self)))
    ))
 
 

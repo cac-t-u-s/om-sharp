@@ -61,7 +61,7 @@
 
 (defmethod initialize-instance ((self midi-note) &rest args)
   (call-next-method)
-  (setf (ev-value self) (list (pitch self) (vel self))))
+  (setf (ev-values self) (list (pitch self) (vel self))))
 
 (defmethod data-frame-text-description ((self midi-note))
   (list (format nil "MIDI NOTE (channel ~A)" (ev-chan self))
@@ -117,10 +117,10 @@
 ;;;===================================
 
 (defmethod midi-key-evt-pitch ((evt MIDIEvent))
-  (car (ev-value evt)))
+  (car (ev-values evt)))
 
 (defmethod midi-key-evt-vel ((evt MIDIEvent))
-  (cadr (ev-value evt)))
+  (cadr (ev-values evt)))
 
 (defun close-note-on (notelist chan pitch date) 
   (flet ((match (x) (and (equal (midinote-pitch x) pitch) 
@@ -231,14 +231,14 @@
                                     :ev-date (midinote-onset n)
                                     :ev-type :keyon 
                                     :ev-chan (midinote-channel n)
-                                    :ev-value (list (midinote-pitch n) (midinote-vel n)) 
+                                    :ev-values (list (midinote-pitch n) (midinote-vel n)) 
                                     :ev-port (midinote-port n) 
                                     :ev-track 0)
                                    (make-MIDIEvent 
                                     :ev-date (midinote-end n)
                                     :ev-type :keyoff 
                                     :ev-chan (midinote-channel n)
-                                    :ev-value (list (midinote-pitch n) 0) 
+                                    :ev-values (list (midinote-pitch n) 0) 
                                     :ev-port (midinote-port n) 
                                     :ev-track 0))
                           ;;; normal event
@@ -482,7 +482,7 @@
                          :type (ev-type e)
                          :chan (or (ev-chan e) 1) 
                          :port (or (ev-port e) (get-pref-value :midi :out-port))
-                         :fields (ev-value e))))
+                         :fields (ev-values e))))
                    (list evt)))
             )))
    '< :key 'car))

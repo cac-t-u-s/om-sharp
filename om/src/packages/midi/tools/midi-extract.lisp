@@ -48,7 +48,7 @@
                                   (loop for evt in (midi-events self) 
                                         when (equal :note (ev-type evt))
                                         collect (or (ev-track evt) 0))))
-                             :initial-element (list nil))))
+                             :initial-element nil)))
       (loop for evt in (midi-events self) 
             when (equal :note (ev-type evt))
             do (let ((track (or (ev-track evt) 0)))
@@ -81,7 +81,7 @@ Note values are lists of (pitch date dur vel chan).
 
 
 ;=================
-; MIDI LYRICS / TEXT
+; LYRICS / TEXT
 ;=================
 
 (defun isTextual (type)
@@ -94,21 +94,7 @@ Note values are lists of (pitch date dur vel chan).
                :CuePoint)
         :test 'equal))
 
-;=== converts to string the slot "fields" of a textual MidiEvent
-
-(defmethod! convert-textinfo ((self MidiEvent))
-    :indoc '("a MIDIEvent or list of MIDIEvents")
-    :icon :midi-filter
-    :doc "
-Returns the MIDIEvent or list after converting to string the data (ev-field) of all textual events (e.g. types 'textual', 'copyright', 'lyrics', 'instrname', etc.)
-"
-    (let ((newEvt (om-copy self)))
-    (if (istextual (ev-type self))
-      (setf (ev-value newEvt) (list2string (ev-fields self))))
-  newEvt))
-
-
-;=== Converts an integer (ascii codes) list into a string
+; Converts an integer (ascii codes) list into a string
 (defun list2string (list)
   (let ((rep ""))
     (loop for item in list do
@@ -117,20 +103,27 @@ Returns the MIDIEvent or list after converting to string the data (ev-field) of 
     rep))
 
 
-;=== converts to string the slot "fields" of textual events from a MidiEvent list
-(defmethod! me-textinfo ((self list))
-  (let ((rep nil))
-    (loop for event in self do
-          (if (midievent-p event)
-            (progn
-              ;(me-textinfo event)
-              (push (me-textinfo event) rep)
-              ))) 
-    (reverse rep)))
+; converts to string the slot "fields" of a textual MidiEvent
+(defmethod* convert-textinfo ((self MidiEvent))
+    :indoc '("a MIDIEvent or list of MIDIEvents")
+    :icon :midi-filter
+    :doc "
+Returns the MIDIEvent or list after converting to string the data (ev-field) of all textual events (e.g. types 'textual', 'copyright', 'lyrics', 'instrname', etc.)
+"
+    (let ((newEvt (om-copy self)))
+      (when (istextual (ev-type self))
+        (setf (ev-values newEvt) (list2string (ev-values self))))
+      newEvt))
+
+(defmethod* convert-textinfo ((self list))
+  (mapcar #'convert-textinfo self))
 
 
+; compat
+(defmethod me-textinfo ((self t)) (convert-textinfo self))
 
-(defmethod! get-mf-lyrics ((self midi-track))
+
+(defmethod* get-mf-lyrics ((self midi-track))
   :initvals '(nil) 
   :indoc '("a MIDI file or sequence") 
   :numouts 2
@@ -139,9 +132,36 @@ Returns the MIDIEvent or list after converting to string the data (ev-field) of 
 The second output returns the corresponding dates"
   :icon :write
   (let ((rep
-         (mat-trans (loop for evt in (fileseq self)  
-                          when (equal (om-midi::midi-evt-type evt) :Lyric)
-                          collect (list (if (stringp (car (om-midi::midi-evt-fields evt))) (om-midi::midi-evt-fields evt) (list2string (om-midi::midi-evt-fields evt)))
-                                        (om-midi::midi-evt-date evt)))
+         (mat-trans (loop for evt in (midi-events self)  
+                          when (equal (ev-type evt) :Lyric)
+                          collect (list (if (stringp (car (list! (ev-values evt))))
+                                            (ev-values evt) 
+                                          (list2string (ev-values evt)))
+                                        (onset evt)))
                     )))
     (values (car rep) (cadr rep))))
+
+
+;=================
+; TEMPO
+;=================
+
+(defmethod! get-tempomap ((self midi-track))
+  :initvals '(nil) 
+  :indoc '("a MIDI-TRACK") 
+  :icon :midi
+  :numouts 2
+  :doc "Extracts the list of tempo and time-signature events from <self>."
+  :outdoc '("list of tempo events" "list of time-signature events")
+  (let ((tempoEvents (get-midievents self #'(lambda (x) (or (test-midi-type x :tempo) (test-midi-type x :timeSign)))))
+        (tempoList nil) (timeSignList nil))
+    (loop for event in tempoEvents do
+          (cond
+           ((equal (ev-type event) :Tempo)
+            (push (list (onset event) (first (ev-values event))) tempoList))
+           ((equal (ev-type event) :TimeSign)
+            (push (list (onset event) (ev-values event)) timeSignList))
+           (t nil)))
+    (values (reverse tempoList) (reverse timesignList))
+    ))
+

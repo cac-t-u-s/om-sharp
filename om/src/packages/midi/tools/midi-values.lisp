@@ -158,7 +158,7 @@
 
 
 
-(defmethod* control-change (ctrl)
+(defmethod* midi-control-change (ctrl)
   :initvals '(nil)
   :indoc '("control name")
   :menuins `((0 ,*midi-controllers*))

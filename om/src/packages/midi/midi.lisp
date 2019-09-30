@@ -24,8 +24,8 @@
 (compile&load (merge-pathnames "tools/midi-values" *load-pathname*))
 (compile&load (merge-pathnames "tools/midi-import" *load-pathname*))
 (compile&load (merge-pathnames "objects/midi-event" *load-pathname*))
-(compile&load (merge-pathnames "objects/midi-controllers" *load-pathname*))
 (compile&load (merge-pathnames "objects/midi-track" *load-pathname*))
+(compile&load (merge-pathnames "objects/midi-controllers" *load-pathname*))
 (compile&load (merge-pathnames "objects/midi-mix" *load-pathname*))
 (compile&load (merge-pathnames "tools/midi-extract" *load-pathname*))
 (compile&load (merge-pathnames "tools/midi-out" *load-pathname*))
@@ -50,7 +50,7 @@
        (omNG-make-package 
         "Utils"
         :doc "Other MIDI utilities"
-        :functions '(midi-type control-change gm-program gm-drumnote mc-to-pitchwheel))
+        :functions '(midi-type midi-control-change gm-program gm-drumnote mc-to-pitchwheel))
        (omNG-make-package 
         "Out"
         :doc "Send MIDI events out"
