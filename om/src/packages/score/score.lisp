@@ -27,7 +27,7 @@
         "score-objects/ratios"
         "score-objects/voice"
         "score-objects/multiseq-poly"
-
+       
         "draw/draw-score-basic"
         "draw/draw-score-rhythm"
         "draw/draw-score-spacing"
@@ -44,6 +44,7 @@
         "functions/trees"
         "functions/quantify"
 
+        "import-export/midi"
         "import-export/musicxml"
         "compatibility"
         ))
