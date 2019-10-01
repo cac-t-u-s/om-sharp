@@ -36,6 +36,7 @@
  optional <tracknum> (a number in 0-15) allows to choose a single track."
   :icon :midi
   (if tracknum
+      
       (loop for evt in (midi-events self) 
             when (and (equal :note (ev-type evt))
                       (and (numberp (ev-track evt)) (= tracknum (ev-track evt))))
@@ -44,6 +45,7 @@
                           (midinote-dur evt)
                           (midinote-vel evt)
                           (midinote-channel evt)))
+    
     (let ((tracks (make-list (1+ (list-max
                                   (loop for evt in (midi-events self) 
                                         when (equal :note (ev-type evt))
@@ -64,19 +66,43 @@
       tracks)
   ))
            
-;;; same
-(defmethod* get-midi-notes ((self midi-track))
+;;; same with MIDI-NOTEs
+(defmethod* get-midi-notes ((self midi-track) &optional (tracknum nil))
   :initvals '(nil) 
   :indoc '("a MIDI file or sequence") 
   :icon :midi
-  :doc "Extracts and returns the notes from <self>.
-
-The result is a list of lists where each first level list represents a MIDI track and contains a list of note values.
-Note values are lists of (pitch date dur vel chan).
-
-"
+  :doc "Extracts and returns the MIDI-NOTEs from <self>."
   :icon :midi
-  (mf-info self))
+  (if tracknum
+      
+      (loop for evt in (midi-events self) 
+            when (and (equal :note (ev-type evt))
+                      (and (numberp (ev-track evt)) (= tracknum (ev-track evt))))
+            collect (make-midinote :onset (midinote-onset evt)
+                                   :pitch (midinote-pitch evt)
+                                   :vel (midinote-vel evt)
+                                   :dur (midinote-dur evt)
+                                   :chan (midinote-channel evt)))
+    
+    (let ((tracks (make-list (1+ (list-max
+                                  (loop for evt in (midi-events self) 
+                                        when (equal :note (ev-type evt))
+                                        collect (or (ev-track evt) 0))))
+                             :initial-element nil)))
+      (loop for evt in (midi-events self) 
+            when (equal :note (ev-type evt))
+            do (let ((track (or (ev-track evt) 0)))
+                 (setf (nth track tracks) 
+                       (append (nth track tracks)
+                               (list (make-midinote :onset (midinote-onset evt)
+                                                    :pitch (midinote-pitch evt)
+                                                    :vel (midinote-vel evt)
+                                                    :dur (midinote-dur evt)
+                                                    :chan (midinote-channel evt))
+                                     )))
+                 ))
+      tracks)
+    ))
 
 
 
