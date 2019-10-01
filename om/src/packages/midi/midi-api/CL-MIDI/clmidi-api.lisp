@@ -57,10 +57,8 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
 ;;;  START OF MESSAGE TYPES
 ;;;
-
 ;; voice messages
 (defconstant +note-off-opcode+		#x80)
 (defconstant +note-on-opcode+		#x90)
@@ -71,30 +69,15 @@
 (defconstant +pitch-bend-opcode+	#xE0)
 
 ;; mode messages
-
-(defconstant +reset-all-controllers-message-opcode+ #xB0)
-(defconstant +all-notes-off-message-opcode+ #xB0)
+(defconstant +mode-messages-opcode+ #xB0)
 
 ;; meta messages, all have status-byte=#xFF
-
-(defconstant +midi-port-opcode+		#xFF)
-(defconstant +end-of-track-opcode+	#xFF)
-
-(defconstant +tempo-opcode+		#xFF)
-(defconstant +time-signature-opcode+	#xFF)
-(defconstant +key-signature-opcode+	#xFF)
-
-(defconstant +copyright-opcode+		#xFF)
-(defconstant +sequence/track-name-opcode+ #xFF)
-(defconstant +instrument-opcode+	#xFF)
-(defconstant +lyric-opcode+		#xFF)
-(defconstant +marker-opcode+		#xFF)
-(defconstant +cue-point-opcode+		#xFF)
+(defconstant +meta-messages-opcode+	#xFF)
 
 
-
-
-;; VOICE MESSAGES
+;;;============================
+;;; VOICE MESSAGES
+;;;============================
 
 (defmethod midi-channel ((event t)) nil)
 (defmethod midi-channel ((event midi::channel-message))
@@ -108,7 +91,7 @@
 (defmethod midi-message-channel ((msg t)) -1)
 
 ;;; Accessors to define for the different types of MIDI messages
-(defmethod midi-message-type ((msg t)) (intern (concatenate 'string "clmidi-api: unknown + " (string (type-of msg)))))
+(defmethod midi-message-type ((msg t)) (intern (concatenate 'string "unknown/" (string (type-of msg)))))
 (defmethod midi-message-fields ((msg t)) nil)
 
 ;; NOTE OFF
@@ -149,16 +132,22 @@
 (defun make-note-on-message (time key vel chan)
   (make-instance 'midi:note-on-message :key key :time time :velocity vel :status (logior +note-on-opcode+ chan)))
 
-;; PROGRAM CHANGE
 
-(defmethod midi-message-type ((msg midi:program-change-message)) :ProgChange)
+;; POLY-KEY PRESSURE
 
-(defmethod midi-message-fields ((msg midi:program-change-message)) (list (midi::message-program msg)))
+(defmethod midi-message-type ((msg midi::polyphonic-key-pressure-message)) :KeyPress)
 
-(defevt2msg (event2program-change-message :ProgChange)
-  (make-instance 'midi:program-change-message
-		 :time (midi-evt-date ev) :program (first (midi-evt-fields ev))
-		 :status (logior +program-change-opcode+ (1- (midi-evt-chan ev)))))
+(defmethod midi-message-fields ((msg midi::polyphonic-key-pressure-message))
+  (list (slot-value msg 'midi::key) (slot-value msg 'midi::pressure)))
+
+(defevt2msg (event2keypress :KeyPress)
+  (let ((msg (make-instance 'midi:note-on-message
+                            :time (midi-evt-date ev)
+                            :status (logior +note-on-opcode+ (1- (midi-evt-chan ev))))))
+    (setf (slot-value msg 'midi::key) (car (midi-evt-fields ev)))
+    (setf (slot-value msg 'midi::pressure) (cadr (midi-evt-fields ev)))
+    msg))
+
 
 ;; CONTROL CHANGE
 
@@ -175,6 +164,34 @@
 		   :time (midi-evt-date ev) :controller controller :value value
 		   :status (logior +control-change-opcode+ (1- (midi-evt-chan ev))))))
 
+
+;; PROGRAM CHANGE
+
+(defmethod midi-message-type ((msg midi:program-change-message)) :ProgChange)
+
+(defmethod midi-message-fields ((msg midi:program-change-message)) (list (midi::message-program msg)))
+
+(defevt2msg (event2program-change-message :ProgChange)
+  (make-instance 'midi:program-change-message
+		 :time (midi-evt-date ev) :program (first (midi-evt-fields ev))
+		 :status (logior +program-change-opcode+ (1- (midi-evt-chan ev)))))
+
+
+;; CHANNEL PRESSURE
+
+(defmethod midi-message-type ((msg midi::channel-pressure-message)) :ChanPress)
+
+(defmethod midi-message-fields ((msg midi::channel-pressure-message))
+  (list (slot-value msg 'midi::pressure)))
+
+(defevt2msg (event2chanpress :ChanPress)
+  (let ((msg (make-instance 'midi:note-on-message
+                            :time (midi-evt-date ev)
+                            :status (logior +note-on-opcode+ (1- (midi-evt-chan ev))))))
+    (setf (slot-value msg 'midi::pressure) (car (midi-evt-fields ev)))
+    msg))
+
+
 ;; PITCH BEND
 
 (defmethod midi-message-type ((msg midi::pitch-bend-message)) :PitchBend)
@@ -188,62 +205,207 @@
 		   :time (midi-evt-date ev) :value (first (midi-evt-fields ev))
 		   :status (logior +pitch-bend-opcode+ (1- (midi-evt-chan ev))))))
 
-;; TEXT MESSAGES
+
+;;;============================
+;;; MODE MESSAGES
+;;;============================
+
+(defmethod midi-message-fields ((msg midi::mode-message))
+  (list (slot-value msg 'midi::channel)))
+
+;; :ResetAllControllers
+(defmethod midi-message-type ((msg midi::reset-all-controllers-message)) :ResetAllControllers)
+
+(defevt2msg (event2reset-all-controllers-message :ResetAllControllers)
+  (make-instance 'midi::reset-all-controllers-message
+		 :time (midi-evt-date ev)
+		 :status (logior +mode-messages-opcode+ (1- (midi-evt-chan ev)))))
+
+;; :AllNotesOff
+
+(defmethod midi-message-type ((msg midi::all-notes-off-message)) :AllNotesOff)
+
+(defevt2msg (event2all-notes-off-message :AllNotesOff)
+  (make-instance 'midi::all-notes-off-message
+		 :time (midi-evt-date ev)
+		 :status (logior +mode-messages-opcode+ (1- (midi-evt-chan ev)))))
+
+
+;;;============================
+;;; META MESSAGES
+;;;============================
+
+;;; for all text messages :
+;;; read fileds as a list with a string inside
+(defmethod midi-message-fields ((msg midi::text-message)) 
+  ;; (map 'list #'char-code (slot-value msg 'midi::text))  ;; restore the list of ASCII.. ?
+  (list (slot-value msg 'midi::text))
+  )
+
+(defun midi-fields-to-string (fields)
+  (if (stringp (car fields)) (car fields)
+    (map 'string #'code-char fields)))
+
+
+;; SEQUENCE NUMBER
+
+(defmethod midi-message-type ((msg midi::sequence-number-message)) :SeqNum)
+
+(defmethod midi-message-fields ((msg midi::sequence-number-message)) 
+  (list (slot-value msg 'midi::sequence)))
+
+(defevt2msg (event2seqnum :SeqNum)
+  (let ((msg (make-instance 'midi::sequence-number-message
+                            :time (midi-evt-date ev)
+                            :status +meta-messages-opcode+)))
+    (setf (slot-value msg 'midi::sequence) (car (midi-evt-fields ev)))
+    ))
+  
+;; TEXT
 
 (defmethod midi-message-type ((msg midi::general-text-message)) :Textual)
-(defmethod midi-message-type ((msg midi:sequence/track-name-message)) :SeqName)
-(defmethod midi-message-type ((msg midi::instrument-message)) :InstrName)
-(defmethod midi-message-type ((msg midi::lyric-message)) :Lyric)
-(defmethod midi-message-type ((msg midi::marker-message)) :Marker)
-(defmethod midi-message-type ((msg midi::cue-point-message)) :CuePoint)
-(defmethod midi-message-type ((msg midi::copyright-message)) :CopyRight)
 
-;;; Superclass for all text messages
-(defmethod midi-message-fields ((msg midi::text-message))
-  (map 'list #'char-code (slot-value msg 'midi::text)))  ;; restore the list of ASCII.. ?
+(defevt2msg (event2text :Textual)
+  (let ((time (midi-evt-date ev))
+	(value (midi-fields-to-string (midi-evt-fields ev))))
+    (let ((inst (make-instance 'midi::general-text-message :time time :status +meta-messages-opcode+)))
+      (setf (slot-value inst 'midi::text) value)
+      inst)))
+
+;;; COPYRIGHT
+
+(defmethod midi-message-type ((msg midi::copyright-message)) :CopyRight)
 
 (defevt2msg (event2copyright :CopyRight)
   (let ((time (midi-evt-date ev))
-	(value (first (midi-evt-fields ev))))
+	(value (midi-fields-to-string (midi-evt-fields ev))))
     (let ((inst (make-instance 'midi::copyright-message :time time
-			       :status +copyright-opcode+)))
+			       :status +meta-messages-opcode+)))
       (setf (slot-value inst 'midi::text) value)
       inst)))
+
+;;; TRACK NAME
+
+(defmethod midi-message-type ((msg midi:sequence/track-name-message)) :SeqName)
 
 (defevt2msg (event2seqname :SeqName)
   (let ((time (midi-evt-date ev))
-	(value (first (midi-evt-fields ev))))
-    (let ((inst (make-instance 'midi::sequence/track-name-message :time time :status +sequence/track-name-opcode+)))
+	(value (midi-fields-to-string (midi-evt-fields ev))))
+    (let ((inst (make-instance 'midi::sequence/track-name-message :time time :status +meta-messages-opcode+)))
       (setf (slot-value inst 'midi::text) value)
       inst)))
+
+;;; INSTR NAME
+
+(defmethod midi-message-type ((msg midi::instrument-message)) :InstrName)
+
 
 (defevt2msg (event2instrument :InstrName)
   (let ((time (midi-evt-date ev))
-	(value (first (midi-evt-fields ev))))
-    (let ((inst (make-instance 'midi::instrument-message :time time :status +instrument-opcode+)))
+	(value (midi-fields-to-string (midi-evt-fields ev))))
+    (let ((inst (make-instance 'midi::instrument-message :time time :status +meta-messages-opcode+)))
       (setf (slot-value inst 'midi::text) value)
       inst)))
+
+
+;;; LYRICS
+
+(defmethod midi-message-type ((msg midi::lyric-message)) :Lyric)
 
 (defevt2msg (event2lyric :Lyric)
   (let ((time (midi-evt-date ev))
-	(value (first (midi-evt-fields ev))))
-    (let ((inst (make-instance 'midi::lyric-message :time time :status +lyric-opcode+)))
+	(value (midi-fields-to-string (midi-evt-fields ev))))
+    (let ((inst (make-instance 'midi::lyric-message :time time :status +meta-messages-opcode+)))
       (setf (slot-value inst 'midi::text) value)
       inst)))
+
+;;; MARKER
+
+(defmethod midi-message-type ((msg midi::marker-message)) :Marker)
+
 
 (defevt2msg (event2marker :Marker)
   (let ((time (midi-evt-date ev))
-	(value (first (midi-evt-fields ev))))
-    (let ((inst (make-instance 'midi::marker-message :time time :status +marker-opcode+)))
+	(value (midi-fields-to-string (midi-evt-fields ev))))
+    (let ((inst (make-instance 'midi::marker-message :time time :status +meta-messages-opcode+)))
       (setf (slot-value inst 'midi::text) value)
       inst)))
 
+;;; CUE MARKER
+
+(defmethod midi-message-type ((msg midi::cue-point-message)) :CuePoint)
+
 (defevt2msg (event2cue-point :CuePoint)
   (let ((time (midi-evt-date ev))
-	(value (first (midi-evt-fields ev))))
-    (let ((inst (make-instance 'midi::cue-point-message :time time :status +cue-point-opcode+)))
+	(value (midi-fields-to-string (midi-evt-fields ev))))
+    (let ((inst (make-instance 'midi::cue-point-message :time time :status +meta-messages-opcode+)))
       (setf (slot-value inst 'midi::text) value)
       inst)))
+
+
+;;; PROGRAM NAME
+
+(defmethod midi-message-type ((msg midi::program-name-message)) :ProgName)
+
+(defevt2msg (event2progname :ProgName)
+  (let ((time (midi-evt-date ev))
+	(value (midi-fields-to-string (midi-evt-fields ev))))
+    (let ((inst (make-instance 'midi::program-name-message :time time :status +meta-messages-opcode+)))
+      (setf (slot-value inst 'midi::text) value)
+      inst)))
+
+
+;;; DEVICE NAME
+
+(defmethod midi-message-type ((msg midi::device-name-message)) :DeviceName)
+
+(defevt2msg (event2devicename :DeviceName)
+  (let ((time (midi-evt-date ev))
+	(value (midi-fields-to-string (midi-evt-fields ev))))
+    (let ((inst (make-instance 'midi::device-name-message :time time :status +meta-messages-opcode+)))
+      (setf (slot-value inst 'midi::text) value)
+      inst)))
+
+
+;; CHANNEL PREFIX PORT
+
+(defmethod midi-message-type ((msg midi::channel-prefix-message)) :ChannelPrefix)
+
+(defmethod midi-message-fields ((msg midi::channel-prefix-message))
+  (list (slot-value msg 'midi::channel)))
+
+(defevt2msg (event2channel-prefix-msg :MidiPortMsg)
+  (let ((inst (make-instance 'midi::channel-prefix-message :time (midi-evt-date ev)
+			     :status +meta-messages-opcode+)))
+    (setf (slot-value inst 'midi::channel) (car (midi-evt-fields ev)))
+    inst))
+
+
+;; MIDI PORT
+
+(defmethod midi-message-type ((msg midi::midi-port-message)) :MidiPortMsg)
+
+(defmethod midi-message-fields ((msg midi::midi-port-message))
+  (list (slot-value msg 'midi::port)))
+
+(defevt2msg (event2midi-port-msg :MidiPortMsg)
+  (let ((inst (make-instance 'midi::midi-port-message :time (midi-evt-date ev)
+			     :status +meta-messages-opcode+)))
+    (setf (slot-value inst 'midi::port) (car (midi-evt-fields ev)))
+    inst))
+
+;; END OF TRACK
+
+(defmethod midi-message-type ((msg midi::end-of-track-message)) :EndOfTrackMsg)
+
+(defevt2msg (event2end-of-track-msg :EndOfTrackMsg)
+  (let ((inst (make-instance 'midi::end-of-track-message
+			     :time (midi-evt-date ev)
+			     :status +meta-messages-opcode+)))
+    (setf (slot-value inst 'midi::status) (midi-evt-fields ev))
+    inst))
+
+
 
 ;; TEMPO
 
@@ -254,7 +416,12 @@
 (defevt2msg (event2tempo :Tempo)
   (make-instance 'midi:tempo-message
 		 :time (midi-evt-date ev) :tempo (first (midi-evt-fields ev))
-		 :status +tempo-opcode+))
+		 :status +meta-messages-opcode+))
+
+
+
+;; SMPTE OFFSET 
+;; => todo: midi:smpte-offset-message
 
 
 ;; TIME SIGNATURE
@@ -270,7 +437,7 @@
 (defevt2msg (event2time-signature :TimeSign)
   (let ((inst (make-instance 'midi::time-signature-message
 			     :time (midi-evt-date ev)
-			     :status +time-signature-opcode+))
+			     :status +meta-messages-opcode+))
 	(data (midi-evt-fields ev)))
     (setf (slot-value inst 'midi::nn) (first data)
 	  (slot-value inst 'midi::dd) (second data)
@@ -289,76 +456,23 @@
 (defevt2msg (event2key-signature :KeySign)
   (let ((inst (make-instance 'midi::key-signature-message
 			     :time (midi-evt-date ev)
-			     :status +key-signature-opcode+)))
+			     :status +meta-messages-opcode+)))
     (setf (slot-value inst 'midi::sf) (first (midi-evt-fields ev))
 	  (slot-value inst 'midi::mi) (second (midi-evt-fields ev)))
     inst))
 
-;;
-;; MIDI PORT MESSAGE
-;;
-(defmethod midi-message-type ((msg midi::midi-port-message)) :MidiPortMsg)
-
-(defmethod midi-message-fields ((msg midi::midi-port-message))
-  (list (slot-value msg 'midi::port)))
-
-(defevt2msg (event2midi-port-msg :MidiPortMsg)
-  (let ((inst (make-instance 'midi::midi-port-message :time (midi-evt-date ev)
-			     :status +midi-port-opcode+)))
-    (setf (slot-value inst 'midi::port) (midi-evt-fields ev))
-    inst))
-
-;;; SUPERCLASS FOR ALL MODE MESSAGES
-
-(defmethod midi-message-fields ((msg midi::mode-message))
-  (list (slot-value msg 'midi::channel)))
-;;
-;; EndOfTrack
-;;
-(defmethod midi-message-type ((msg midi::end-of-track-message)) :EndOfTrackMsg)
-
-(defevt2msg (event2end-of-track-msg :EndOfTrackMsg)
-  (let ((inst (make-instance 'midi::end-of-track-message
-			     :time (midi-evt-date ev)
-			     :status +end-of-track-opcode+)))
-    (setf (slot-value inst 'midi::status) (midi-evt-fields ev))
-    inst))
-
-;; :ResetAllControllers
-(defmethod midi-message-type ((msg midi::reset-all-controllers-message)) :ResetAllControllers)
-
-(defevt2msg (event2reset-all-controllers-message :ResetAllControllers)
-  (make-instance 'midi::reset-all-controllers-message
-		 :time (midi-evt-date ev)
-		 :status (logior +reset-all-controllers-message-opcode+ (1- (midi-evt-chan ev)))))
-
-;; :AllNotesOff
-
-(defmethod midi-message-type ((msg midi::all-notes-off-message)) :AllNotesOff)
-
-(defevt2msg (event2all-notes-off-message :AllNotesOff)
-  (make-instance 'midi::all-notes-off-message
-		 :time (midi-evt-date ev)
-		 :status (logior +all-notes-off-message-opcode+ (1- (midi-evt-chan ev)))))
 
 
-;; ABSTRACTED MESSAGES
+;; SPECIFIC/PROPRIETARY EVENT 
+;; => todo : midi::proprietary-event
 
-(defun event2note-on-off (ev)
-  (let ((k (first (midi-evt-fields ev)))
-	(v (second (midi-evt-fields ev)))
-	(onset (midi-evt-date ev))
-	(dur (third (midi-evt-fields ev)))
-	(chan (1- (midi-evt-chan ev))))
-    (let ((on (make-note-on-message onset k v chan))
-	  (off (make-note-off-message (+ onset dur) k 0 chan)))
-      (list on off))))
 
-;;;
-;;;
-;;;  END OF MESSAGE TYPES
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+
+;;;============================
+;;; READ/WRITE
+;;;============================
 
 
 ;; takes instances of the various midi:*message classes, returning a list of midi-evt
@@ -387,6 +501,21 @@
         #'midi-evt-<))
 
 
+(defun seq2tracks (seq)
+  (let ((tracks nil))
+    (loop for ev in seq
+          for msg = (make-messages-from-event ev)
+          do (let* ((tracknum (or (midi-evt-ref ev) 0))
+                    (trackpos (position tracknum tracks :key 'car :test '=)))
+               (if trackpos
+                   (setf (nth trackpos tracks)
+                         (list tracknum
+                               (append (cadr (nth trackpos tracks)) (if (listp msg) msg (list msg)))))
+                 (push (list tracknum (if (listp msg) msg (list msg))) tracks))))
+    (mapcar 'cadr (sort tracks '< :key 'car))))
+
+
+
 ;;; FUNCTION CALLED BY OM
 ;;; Returns a flat list of midi-evt with :ref = track num
 (defun cl-midi-load-file (pathname)
@@ -396,21 +525,6 @@
             (midi:midifile-division f)
             (midi:midifile-format f))))
 
-
-(defun seq2tracks (seq)
-  (let ((tracks nil))
-    (loop for ev in seq
-       for msg = (make-messages-from-event ev)
-       do (let* ((tracknum (or (midi-evt-ref ev) 0))
-		 (trackpos (position tracknum tracks :key 'car :test '=)))
-	    (if trackpos
-		(setf (nth trackpos tracks)
-		      (list tracknum
-			    (append (cadr (nth trackpos tracks)) (if (listp msg) msg (list msg)))))
-		(push (list tracknum (if (listp msg) msg (list msg))) tracks))))
-    (mapcar 'cadr (sort tracks '< :key 'car))))
-
-
 ;;; FUNCTION CALLED BY OM
 ;;; Saves a flat list of midi-evt where :ref = track num
 (defun cl-midi-save-file (seq filename fileformat clicks)
@@ -419,4 +533,5 @@
     #+lispworks(sys::ENSURE-DIRECTORIES-EXIST filename :verbose t) ;;; !!! LW specific
     (midi:write-midi-file mf filename)
     filename))
+
 

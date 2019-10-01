@@ -202,9 +202,23 @@ Works like `make-message` but combines `upper` and `lower` to the status byte."
     ))
 
 (defvar *midi-meta-types*
-  '(:TimeSign :SeqNum :Textual :Copyright :SeqName
-    :InstrName :Lyric :Marker :CuePoint :ChanPrefi
-    :EndTrack :Tempo :SMPTEOffset :KeySign
+  '(:SeqNum 
+    :Textual 
+    :Copyright 
+    :SeqName
+    :InstrName 
+    :Lyric 
+    :Marker 
+    :CuePoint 
+    :ProgName
+    :DeviceName
+    :ChannelPrefix 
+    :MidiPortMsg
+    :EndTrack 
+    :Tempo 
+    :SMPTEOffset 
+    :TimeSign 
+    :KeySign
     :Specific))
 
 
