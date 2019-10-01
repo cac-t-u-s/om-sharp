@@ -271,7 +271,7 @@ box."
     (unless (zerop *unquantized-notes*)
       (if result
           (om-print-format
-                  "Warning: with the given constraints, ~D notes are lost while quantizing ~%"
+                  "Warning: with the given constraints, ~D notes are lost while quantizing."
                   (list *unquantized-notes*)
                   "OMQUANTIFY")
         (om-print "Cannot quantize with the given constraints" "OMQUANTIFY"))
