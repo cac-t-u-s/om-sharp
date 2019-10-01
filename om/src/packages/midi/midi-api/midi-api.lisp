@@ -38,6 +38,10 @@
           midi-evt-fields
           copy-midi-evt
           midi-evt-<
+          midi-send-evt
+          midi-send-bytes
+          midi-import
+          midi-export
           )
         :om-midi)
 
@@ -123,6 +127,12 @@
           (print (format nil "File not found: ~s" (namestring file))) 
           nil)))))
 
+
+(defun midi-export (evtlist &optional filename (format 1) (clicks 1000))
+  (let ((file (or filename (om-api:om-choose-new-file-dialog :types '("MIDI file" "*.mid;*.midi")))))
+    (when file 
+      (cl-midi-save-file evtlist filename format clicks)
+      file)))
 
 
 

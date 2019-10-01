@@ -452,7 +452,7 @@
                      (if (in-interval (midinote-onset evt) interval :exclude-high-bound t) 
                                   
                          (list (midinote-onset evt)
-                               #'(lambda (note) 
+                               #'(lambda (note)
                                    (om-midi::midi-send-evt 
                                     (om-midi:make-midi-evt 
                                      :type :keyOn
@@ -476,13 +476,7 @@
            (otherwise 
             (list 
              (list (onset evt)
-                   #'(lambda (e) 
-                       (om-midi::midi-send-evt 
-                        (om-midi:make-midi-evt 
-                         :type (ev-type e)
-                         :chan (or (ev-chan e) 1) 
-                         :port (or (ev-port e) (get-pref-value :midi :out-port))
-                         :fields (ev-values e))))
+                   #'(lambda (e) (send-midievent e))
                    (list evt)))
             )))
    '< :key 'car))

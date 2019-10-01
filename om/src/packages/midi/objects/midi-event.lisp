@@ -124,7 +124,9 @@
     :type (ev-type self) 
     :chan (ev-chan self) 
     :port (or (ev-port self) (get-pref-value :midi :out-port))
-    :fields (ev-values self)
+    :fields (if (istextual (ev-type self)) 
+                (map 'list #'char-code (car (ev-values self)))
+              (ev-values self))
     )))
 
 ;;; play in a DATA-STREAM
@@ -147,26 +149,85 @@
 ; MIDI-IMPORT
 ;======================================
 
-;;; converts a list of MIDI-EVT struct to MIDIEVENTS instance
+(defmethod* get-midievents ((self t) &optional test) 
+  :indoc '("something")
+  :doc "Converts anything into a list of MIDIEVENTs"
+  :icon :midi-filter
+  nil)
+
 (defmethod* get-midievents ((self list) &optional test)
-  (remove nil
-          (loop for event in self collect 
-                (let ((om-event
-                       (cond ((om-midi::midi-evt-p event)
-                              (make-midievent :ev-date (om-midi::midi-evt-date event)
-                                              :ev-type (om-midi::midi-evt-type event) 
-                                              :ev-chan (om-midi::midi-evt-chan event)
-                                              :ev-values (om-midi:midi-evt-fields event) 
-                                              :ev-port (om-midi:midi-evt-port event) 
-                                              :ev-track (om-midi:midi-evt-ref event)))
-                             ((typep event 'MIDIEvent)
-                              (om-copy event))
-                             (t (om-beep-msg "ERROR Unknown event: ~A" event)))))
-                  (when (and om-event 
-                             (or (null test) 
-                                 (funcall test om-event)))
-                    om-event)))
-          ))
+  (remove 
+   nil
+   (loop for elt in self append 
+         (get-midievents elt test))))
+
+(defmethod* get-midievents ((self om-midi::midi-evt) &optional test)
+  (let ((evt (make-midievent :ev-date (om-midi::midi-evt-date self)
+                             :ev-type (om-midi::midi-evt-type self) 
+                             :ev-chan (om-midi::midi-evt-chan self)
+                             :ev-values (om-midi:midi-evt-fields self) 
+                             :ev-port (om-midi:midi-evt-port self) 
+                             :ev-track (om-midi:midi-evt-ref self))))
+    (when (or (null test) 
+              (funcall test evt))
+      (list evt))))
+
+
+(defmethod* get-midievents ((self midievent) &optional test)
+  (when (or (null test) 
+            (funcall test self))
+    (list (om-copy self))))
+
+
+
+;======================================
+; MIDI-EXPORT
+;======================================
+
+(defmethod export-midi ((self midievent))
+  (om-midi:make-midi-evt :date (onset self)
+                         :type (ev-type self)
+                         :chan (ev-chan self)
+                         :port (ev-port self)
+                         :ref (ev-track self)
+                         :fields (ev-values self)
+                         ))
+
+
+;for now, settle on regime for auto-tuning
+(defun setup-retune-messages (approx)
+  (declare (ignore approx))  
+  (loop for chan from 1 to 4
+        for pb from 8192 by 1024
+        collect (om-midi::make-midi-evt
+                 :type :PitchBend
+                 :date 0
+                 :chan chan
+                 :fields (list pb))))
+
+
+(defmethod* save-as-midi ((object t) filename &key (approx 2) (format nil) retune-channels) 
+  :initvals '(nil nil 2 nil nil)
+  :icon :midi-export
+  :doc "Saves <object> as a MIDI file.
+
+- <filename> defines the target pathname. If not specified, will be asked through a file choose dialog.
+- <approx> specifies the tone division (2, 4 or 8).
+- <format> allows to choose the MIDIFile format (0 or 1)
+- <retune-channels> (t or nil) send pitchbend message per channel to fit setting for approx
+
+For POLY objects: If all voice have same tempo, this tempo is saved in MidiFile. Otherwise all voices are saved at tempo 60."
+  
+  (let ((evtlist (loop for ev in (get-midievents object) collect (export-midi ev))))
+    
+    (when retune-channels
+      (setf evtlist (append (setup-retune-messages approx) evtlist)))
+            
+    (export-midi-file evtlist 
+                      filename
+                      :format format)
+    ))
+ 
 
 ;======================================
 ; Test functions for MIDI events
