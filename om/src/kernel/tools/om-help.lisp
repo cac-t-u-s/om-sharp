@@ -71,9 +71,13 @@
 (defun get-symbol-help-patch (symb)
   (let* ((from-lib (or (and (omclass-p symb) (library (find-class symb)))
                        (and (omgenericfunction-p symb) (library (fdefinition symb)))))
-         (file-list (if from-lib 
-                        (get-lib-help-patches-foler from-lib)
-                      (get-base-help-patches-folder))))
+         (file-list (om-directory 
+                     (if from-lib 
+                         (get-lib-help-patches-foler from-lib)
+                       (get-base-help-patches-folder))
+                     :recursive t
+                     :type '("opat")
+                     )))
     (find (symbol-reference-patch-name symb)
           file-list :key 'pathname-name :test 'string-equal)))
                      
