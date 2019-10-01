@@ -113,11 +113,11 @@ Internally most of these values are just used to build a list of CHORD objects, 
             
             ;;; special cases.. 
             ((list-subtypep Lmidic '(chord)) ;;; this is probably a mistake but we can deal with it
-             (om-print "chord-seq <lmidic> slot initialized with a list of chords." "Warning")
+             ;(om-print "<lmidic> slot initialized with a list of chords." "Warning")
              (om-copy Lmidic))
             
             ((list-subtypep LMidic '(note))
-             (om-print "chord-seq <lmidic> slot initialized with a list of notes." "Warning")
+             ;(om-print "<lmidic> slot initialized with a list of notes." "Warning")
              (mapcar #'(lambda (n) (ObjfromObjs n (make-instance 'chord))) Lmidic))
 
             (t
