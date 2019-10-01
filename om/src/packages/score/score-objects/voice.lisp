@@ -41,12 +41,14 @@
 (defmethod objFromObjs ((model chord-seq) (target voice))
   (make-instance 'voice
                  :tree (omquantify model 60 '(4 4) 8)
-                 :lmidic (lmidic model) 
+                 :lmidic (get-chords model) 
                  :tempo 60))
 
+
 ;;; catch-up with default behaviour
-(defmethod objFromObjs ((model voice) (target voice))
-  (clone-object model target))
+;;; => in principle this is by default for exact same type
+;(defmethod objFromObjs ((model voice) (target voice))
+;  (clone-object model target))
 
 
 (defmethod objFromObjs ((model voice) (target chord-seq))
