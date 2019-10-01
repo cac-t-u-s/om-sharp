@@ -16,18 +16,22 @@
 ;============================================================================
 
 
-
 (in-package :om)
 
+;;;========================
+;;; MIDI TO SCORE OBJECTS
+;;;========================
 
-(defmethod objfromobjs ((model midi-track) (target chord-seq))
+
+(defmethod midinotes-to-chords ((notes list))
+  
   (let ((chords nil))
     
-    (loop for note in (sort (flat (get-midi-notes model)) #'< :key #'midinote-onset)
+    (loop for note in (sort notes #'< :key #'midinote-onset)
           do
           (if (and (car chords)
-                     (= (midinote-onset note) (onset (car chords))))
-
+                   (= (midinote-onset note) (onset (car chords))))
+              
               ;;; add a note to the last chord
               (setf (notes (car chords))
                     (append (notes (car chords))
@@ -37,19 +41,27 @@
                                                  :chan (midinote-channel note)
                                                  :port (midinote-port note))
                                   )))
-              ;;; new chord
-              (push (make-instance 'chord 
-                                   :onset (midinote-onset note)
+            ;;; new chord
+            (push (make-instance 'chord 
+                                 :onset (midinote-onset note)
                                    :lmidic (list (* (midinote-pitch note) 100))
                                    :ldur (list (midinote-dur note))
                                    :lvel (list (midinote-vel note))
                                    :lchan (list (midinote-channel note))
                                    :lport (list (midinote-port note)))
-                    chords)))
+                  chords)))
     
-    (data-stream-set-frames target (reverse chords))
+    (reverse chords)
+    ))
     
-    target))
+
+(defmethod objfromobjs ((model midi-track) (target chord-seq))
+    
+  (data-stream-set-frames 
+   target 
+   (midinotes-to-chords (flat (get-midi-notes model))))
+  
+  target)
 
 
 (defmethod objfromobjs ((model midi-track) (target voice))
@@ -60,4 +72,38 @@
                    :lmidic (get-chords cseq) 
                    :tempo tempo)))
 
+
+
+(defmethod objfromobjs ((model midi-track) (target multi-seq))
+  (let ((voices 
+         (loop for track in (remove nil (get-midi-notes model))
+               collect 
+               (let ((cseq (make-instance 'chord-seq)))
+                 (data-stream-set-frames cseq track)
+                 cseq)
+               )))
+    (setf (obj-list target) voices)
+    target))
+
+
+
+(defmethod objfromobjs ((model midi-track) (target poly))
+  (let ((voices 
+         (loop for track in (remove nil (get-midi-notes model))
+               collect 
+               (let ((cseq (make-instance 'chord-seq))
+                     (tempo 60)) ;;; get it from the MIDI-TRACK ??
+                 (data-stream-set-frames cseq track)
+                 (make-instance 'voice
+                                :tree (omquantify cseq tempo '(4 4) 8)
+                                :lmidic (get-chords cseq) 
+                                :tempo tempo))
+               )))
+    (setf (obj-list target) voices)
+    target))
+
+
+;;;========================
+;;; SCORE OBJECTS TO MIDI
+;;;========================
 
