@@ -64,6 +64,7 @@
   target)
 
 
+
 (defmethod objfromobjs ((model midi-track) (target voice))
   (let ((cseq (objfromobjs model (make-instance 'chord-seq)))
         (tempo (or (tempo target) 60)))  ;;; get it from the MIDI-TRACK ??
@@ -79,7 +80,7 @@
          (loop for track in (remove nil (get-midi-notes model))
                collect 
                (let ((cseq (make-instance 'chord-seq)))
-                 (data-stream-set-frames cseq track)
+                 (data-stream-set-frames cseq (midinotes-to-chords track))
                  cseq)
                )))
     (setf (obj-list target) voices)
@@ -93,7 +94,7 @@
                collect 
                (let ((cseq (make-instance 'chord-seq))
                      (tempo 60)) ;;; get it from the MIDI-TRACK ??
-                 (data-stream-set-frames cseq track)
+                 (data-stream-set-frames cseq (midinotes-to-chords track))
                  (make-instance 'voice
                                 :tree (omquantify cseq tempo '(4 4) 8)
                                 :lmidic (get-chords cseq) 
@@ -107,3 +108,143 @@
 ;;; SCORE OBJECTS TO MIDI
 ;;;========================
 
+(defmethod get-midievents ((self note) &optional test)
+  (get-midievents 
+   (list (make-instance 'MidiEvent   
+                        :onset (offset self)
+                        :ev-type :KeyOn
+                        :ev-port (port self)
+                        :ev-chan (chan self)
+                        :ev-values (list (round (/ (midic self) 100)) (vel self)))
+        (make-instance 'MidiEvent   
+                       :onset (+ (offset self) (dur self))
+                       :ev-type :KeyOff
+                       :ev-port (port self)
+                       :ev-chan (chan self)
+                       :ev-fields (list (round (/ (midic self) 100)) 0))
+        )
+   test))
+
+(defmethod get-midievents ((self chord) &optional test)
+  (loop for n in (notes self)
+        append 
+        (let ((evts (get-midievents n test)))
+          (loop for evt in evts do
+                (setf (onset evt) (+ (onset evt) (onset self))))
+          evts)
+        ))
+
+(defmethod get-midievents ((self chord-seq) &optional test)
+  (loop for c in (chords self) append 
+        (let ((evts (get-midievents c)))
+          ;;; do the test here: don't pass it inside to the chord/notes (because of the onset-test)
+          (if test
+              (remove-if-not test evts)
+            evts))
+        ))
+
+
+;;; also works for POLY
+(defmethod get-midievents ((self multi-seq) &optional test)
+  
+  (let ((evtlist 
+         (loop for voice in (obj-list self) 
+               for i from 1 append
+               (let ((voice-evts (get-midievents voice)))
+                 (loop for evt in voice-evts do
+                       (setf (ev-track evt) i))
+                 voice-evts))))
+
+    ;;; do the test here: don't pass it inside to the voice (because of the track-test)
+    (get-midievents (sort evtlist #'< :key #'onset) test)
+    ))
+
+
+
+(defmethod tempo-a-la-noire ((self number)) self)
+(defmethod tempo-a-la-noire ((tempo list)) (* (second tempo) (/ (first tempo) 1/4)))
+
+(defmethod get-midievents ((self voice) &optional test)
+  (let ((evtlist 
+         (sort 
+          (cons 
+           
+           (make-midievent 'MidiEvent   
+                           :ev-type :Tempo
+                           :ev-date 0
+                           :ev-ref 0 
+                           :ev-port 0
+                           :ev-chan 1
+                           :ev-fields (list (tempo-a-la-noire (tempo self))))
+           
+           (append 
+            
+            ;;; => change the timing (insert-tempo-info)
+            (loop for c in (chords self) append (get-midievents c))
+            
+            (loop for m in (inside self) collect
+                  (make-midievent   
+                   :ev-type :TimeSign 
+                   :ev-date (beat-to-time (symbolic-date m) (tempo self))
+                   :ev-ref 0 
+                   :ev-port 0
+                   :ev-chan 1
+                   :ev-fields (list (first (first (tree self)))
+                                    (round (log (second (first (tree self))) 2))
+                                    24 
+                                    8 
+                                    )))
+            ))
+          #'< :key #'onset)))
+    
+    (if test
+        (remove-if-not test evtlist)
+      evtlist)
+    ))
+
+
+
+;;;========================
+;;; DIRECT CONVERSION SELF=>SELF
+;;;========================
+
+(defmethod objfromobjs ((model score-element) (target midi-track)) 
+  (data-stream-set-frames target (midievents-to-midinotes (get-midievents model)))
+  target)
+ 
+
+
+
+;;;========================
+;;; SCORE OBJECTS TO MIDI
+;;;========================
+
+
+#|
+
+;=== Tests if all voices of a ply object have the same tempo
+;=== returns the tempo in case true and nil if not
+(defmethod poly-same-tempo ((self poly))
+  (let* ((alltempo (loop for voiceItem in (inside self) collect (tempo voiceItem)))
+         (currtempo (car (first alltempo))))
+    
+    (loop for item in alltempo 
+          while currtempo do
+          
+          (if (or (cadr item) ;; tempo changes in a voice
+                  (not (= (/ (cadr (car item)) (car (car item)))
+                          (/ (cadr currtempo) (car currtempo)))))
+              (setf currtempo nil) 
+            (setf currtempo (car item))))
+    (list currtempo nil)))
+
+(defmethod object-midi-tempo ((self t)) nil)
+
+(defmethod object-midi-tempo ((self voice)) 
+  (tempo-a-la-noire (car (tempo self))))
+
+(defmethod object-midi-tempo ((self poly)) 
+  (let ((tempo (poly-same-tempo self)))
+    (if tempo (tempo-a-la-noire (car tempo)) nil)))
+
+|#
