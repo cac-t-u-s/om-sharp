@@ -18,8 +18,6 @@
 
 (in-package :om)
 
-
-
 ; OM MIDI tempo
 ; 1000000 microseconds / beat
 ; i.e. tempo = 60
@@ -76,8 +74,8 @@
 
 
 
-
 ;;; RETURNS A SORTED LIST OF CL-MIDI's MIDI-EVT structs
+;;; Deletes tempo events and converts all dates to milliseconds
 (defun import-midi-file (&optional file)
   (multiple-value-bind (evt-list ntracks unit format)
       (om-midi::midi-import file)
@@ -88,12 +86,11 @@
 
 
 
-
 ;=== KEY FUNCTION : to upgrade when voice accept tempo map... 
 ; Converts a sequence in tempo 60 into other tempo
 ; Returns a new seq
 (defun insert-tempo-info (seq tempo) 
-  (let ((tempoFactor (/ (bpm2mstempo tempo) *midi-init-tempo*)))
+  (let ((tempoFactor (/ (bpm2mstempo 60) *midi-init-tempo*)))
     (cons (om-midi::make-midi-evt :type :Tempo :date 0 :ref 0 :fields (list (bpm2mstempo tempo)))
           (loop for event in seq collect
                 (let ((newevent (om-midi::copy-midi-evt event)))
@@ -103,16 +100,61 @@
                   newevent))
           )))
 
-;= Saves sequence with tempo 60
+;= Saves sequence with tempo 60 if no tempo is given
 ;= modif  --->  clicks = 1000 so that 1 click = 1ms at tempo 60
-
 (defun export-midi-file (list file &key tempo format) 
   (let ((seq (sort list 'om-midi::midi-evt-<)))
     (when seq
-      
       (if tempo
+          ;;; add a tempo event and convert milliseconds
           (setf seq (insert-tempo-info seq tempo))
+        ;;; insert a 60 bpm tempo event and times remain in milliseconds
         (push (om-midi::make-midi-evt :type :Tempo :date 0 :fields (list *midi-init-tempo*)) seq))
 	  
       (om-midi::midi-export seq file (or format 1) 1000)
       )))
+
+
+
+
+
+;;;==================================
+;;; MAIN 
+;;;==================================
+
+;for now, settle on regime for auto-tuning
+(defun setup-retune-messages (approx)
+  (declare (ignore approx))  
+  (loop for chan from 1 to 4
+        for pb from 8192 by 1024
+        collect (om-midi::make-midi-evt
+                 :type :PitchBend
+                 :date 0
+                 :chan chan
+                 :fields (list pb))))
+
+
+(defmethod* save-as-midi ((object t) filename &key (approx 2) (format nil) retune-channels) 
+  :initvals '(nil nil 2 nil nil)
+  :icon :midi-export
+  :doc "Saves <object> as a MIDI file.
+
+- <filename> defines the target pathname. If not specified, will be asked through a file choose dialog.
+- <approx> specifies the tone division (2, 4 or 8).
+- <format> allows to choose the MIDIFile format (0 or 1)
+- <retune-channels> (t or nil) send pitchbend message per channel to fit setting for approx
+
+For POLY objects: If all voice have same tempo, this tempo is saved in MidiFile. Otherwise all voices are saved at tempo 60."
+  
+  (let ((evtlist (loop for ev in (get-midievents object) collect (export-midi ev))))
+    
+    (when retune-channels
+      (setf evtlist (append (setup-retune-messages approx) evtlist)))
+            
+    (export-midi-file evtlist 
+                      filename
+                      :tempo 60 
+                      :format format)
+    ))
+
+

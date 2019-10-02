@@ -195,42 +195,6 @@
                          :fields (ev-values self)
                          ))
 
-
-;for now, settle on regime for auto-tuning
-(defun setup-retune-messages (approx)
-  (declare (ignore approx))  
-  (loop for chan from 1 to 4
-        for pb from 8192 by 1024
-        collect (om-midi::make-midi-evt
-                 :type :PitchBend
-                 :date 0
-                 :chan chan
-                 :fields (list pb))))
-
-
-(defmethod* save-as-midi ((object t) filename &key (approx 2) (format nil) retune-channels) 
-  :initvals '(nil nil 2 nil nil)
-  :icon :midi-export
-  :doc "Saves <object> as a MIDI file.
-
-- <filename> defines the target pathname. If not specified, will be asked through a file choose dialog.
-- <approx> specifies the tone division (2, 4 or 8).
-- <format> allows to choose the MIDIFile format (0 or 1)
-- <retune-channels> (t or nil) send pitchbend message per channel to fit setting for approx
-
-For POLY objects: If all voice have same tempo, this tempo is saved in MidiFile. Otherwise all voices are saved at tempo 60."
-  
-  (let ((evtlist (loop for ev in (get-midievents object) collect (export-midi ev))))
-    
-    (when retune-channels
-      (setf evtlist (append (setup-retune-messages approx) evtlist)))
-            
-    (export-midi-file evtlist 
-                      filename
-                      :format format)
-    ))
- 
-
 ;======================================
 ; Test functions for MIDI events
 ;======================================

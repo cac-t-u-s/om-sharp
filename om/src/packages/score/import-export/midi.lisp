@@ -144,7 +144,7 @@
         ))
 
 
-;;; also works for POLY
+
 (defmethod get-midievents ((self multi-seq) &optional test)
   
   (let ((evtlist 
@@ -169,28 +169,27 @@
          (sort 
           (cons 
            
-           (make-midievent 'MidiEvent   
-                           :ev-type :Tempo
-                           :ev-date 0
-                           :ev-ref 0 
-                           :ev-port 0
-                           :ev-chan 1
-                           :ev-fields (list (tempo-a-la-noire (tempo self))))
+           (make-midievent    
+            :ev-type :Tempo
+            :ev-date 0
+            :ev-track 0 
+            :ev-port 0
+            :ev-chan 1
+            :ev-values (list (tempo-a-la-noire (tempo self))))
            
            (append 
             
-            ;;; => change the timing (insert-tempo-info)
             (loop for c in (chords self) append (get-midievents c))
             
             (loop for m in (inside self) collect
                   (make-midievent   
                    :ev-type :TimeSign 
                    :ev-date (beat-to-time (symbolic-date m) (tempo self))
-                   :ev-ref 0 
+                   :ev-track 0 
                    :ev-port 0
                    :ev-chan 1
-                   :ev-fields (list (first (first (tree self)))
-                                    (round (log (second (first (tree self))) 2))
+                   :ev-values (list (first (first (tree m)))
+                                    (round (log (second (first (tree m))) 2))
                                     24 
                                     8 
                                     )))
@@ -204,6 +203,41 @@
 
 
 
+;;; not yet supported
+(defmethod has-tempo-change ((self voice)) nil)
+
+
+(defmethod get-midievents ((self poly) &optional test)
+  (let* ((tempo (tempo-a-la-noire (tempo (car (obj-list self)))))
+         (evtlist 
+          (loop for voice in (obj-list self) 
+                for i from 1 
+                do (if (and tempo 
+                            (or (has-tempo-change voice)
+                                (not (= (tempo-a-la-noire (tempo voice)) tempo))))
+                       (setf tempo nil))
+                append
+                (let ((voice-evts (cdr (get-midievents voice)))) ;;; do not take the voice tempo event
+                  (loop for evt in voice-evts do
+                        (setf (ev-track evt) i))
+                  voice-evts)))) 
+    
+    ;;; 1 global tempo event
+    (setf evtlist 
+          (cons (make-midievent    
+                 :ev-type :Tempo
+                 :ev-date 0
+                 :ev-track 0 
+                 :ev-port 0
+                 :ev-chan 1
+                 :ev-values (list (or tempo 60)))
+                evtlist))
+    
+    ;;; do the test here: don't pass it inside to the voice (because of the track-test)
+    (get-midievents (sort evtlist #'< :key #'onset) test)
+    ))
+
+
 ;;;========================
 ;;; DIRECT CONVERSION SELF=>SELF
 ;;;========================
@@ -214,37 +248,3 @@
  
 
 
-
-;;;========================
-;;; SCORE OBJECTS TO MIDI
-;;;========================
-
-
-#|
-
-;=== Tests if all voices of a ply object have the same tempo
-;=== returns the tempo in case true and nil if not
-(defmethod poly-same-tempo ((self poly))
-  (let* ((alltempo (loop for voiceItem in (inside self) collect (tempo voiceItem)))
-         (currtempo (car (first alltempo))))
-    
-    (loop for item in alltempo 
-          while currtempo do
-          
-          (if (or (cadr item) ;; tempo changes in a voice
-                  (not (= (/ (cadr (car item)) (car (car item)))
-                          (/ (cadr currtempo) (car currtempo)))))
-              (setf currtempo nil) 
-            (setf currtempo (car item))))
-    (list currtempo nil)))
-
-(defmethod object-midi-tempo ((self t)) nil)
-
-(defmethod object-midi-tempo ((self voice)) 
-  (tempo-a-la-noire (car (tempo self))))
-
-(defmethod object-midi-tempo ((self poly)) 
-  (let ((tempo (poly-same-tempo self)))
-    (if tempo (tempo-a-la-noire (car tempo)) nil)))
-
-|#
