@@ -392,7 +392,8 @@
    (selection :accessor selection :initarg :selection :initform nil)
    (multiple-selection :accessor multiple-selection :initarg :multiple-selection :initform nil)
    (cell-height :accessor cell-height :initarg :cell-height :initform 12)
-   (cell-font :accessor cell-font :initarg :cell-height :initform (om-def-font :font1))))
+   (cell-font :accessor cell-font :initarg :cell-height :initform (om-def-font :font1))
+   (output-mode :accessor output-mode :initarg :output-mode :initform :value)))
  
 
 (defmethod special-box-p ((self (eql 'list-selection))) t)
@@ -410,7 +411,31 @@
                   `((:multiple-selection "Multiple selection" :bool multiple-selection)
                     (:cell-height "Cell size (px)" :number cell-height)
                     (:cell-font "Cell font" :font cell-font)
+                    (:output-mode "Output mode" (:value :index) output-mode-accessor)
                     )))
+
+
+
+(defmethod update-value-from-selection ((self ListSelectionBox))
+  (set-value self 
+             (if (multiple-selection self)
+                 
+                 (if (equal (output-mode self) :value)
+                     (list (posn-match (items self) (selection self)))
+                   (list (selection self)))
+               
+               (if (equal (output-mode self) :value)
+                     (and (selection self)
+                          (list (nth (car (selection self)) (items self))))
+                 (list (car (selection self)))
+                 )
+               )))
+
+(defmethod output-mode-accessor ((self ListSelectionBox) &optional value)
+  (when value 
+    (setf (output-mode self) value)
+    (update-value-from-selection self))
+  (output-mode self))
 
 (defmethod apply-box-attributes ((self ListSelectionBox) attributes) 
   (when attributes 
@@ -452,7 +477,7 @@
            (om-draw-string 5 (+ yy (cell-height self)) (format nil "~A" (nth i (items self)))
                            :color (if (member i (selection self)) (om-def-color :white) (om-def-color :black)))
            )))
-        
+   
 
 (defmethod interfacebox-action ((self ListSelectionBox) frame pos)
   (let* ((y (- (om-point-y pos) 4))
@@ -470,12 +495,7 @@
                 (sort (cons n (selection self)) '<)
               (list n))))
     
-    (set-value self 
-               (if (multiple-selection self)
-                   (list (posn-match (items self) (selection self)))
-                 (and (selection self)
-                      (list (nth (car (selection self)) (items self)))))
-               )
+    (update-value-from-selection self)
 
     (when (reactive (car (outputs self))) (self-notify self))
     (om-invalidate-view frame)
