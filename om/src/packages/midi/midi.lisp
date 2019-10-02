@@ -40,9 +40,9 @@
  :functions nil
  :subpackages 
  (list (omNG-make-package 
-        "Import/Convert"
+        "Import/Export/Conversions"
         :doc "MIDI import and conversion utilities"
-        :functions '(import-midi-notes import-midi-file get-midievents mf-info get-midi-notes))
+        :functions '(import-midi-notes import-midi-file get-midievents mf-info save-as-midi))
        (omNG-make-package 
         "Filters"
         :doc "Tools to filter/process"
