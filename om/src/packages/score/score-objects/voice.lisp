@@ -142,6 +142,11 @@
   self)
 
 
+(defmethod om-init-instance ((self voice) &optional args)
+  (let ((tempo (find-value-in-kv-list args :tempo)))
+    (when tempo (set-timing-from-tempo (chords self) tempo))
+    self))
+
 (defun beat-to-time (beat tempo)
   (let ((whole-dur (* 4 (/ 60000 tempo))))
     (round (* beat whole-dur))))
