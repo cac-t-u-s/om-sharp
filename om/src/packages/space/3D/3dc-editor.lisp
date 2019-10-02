@@ -561,69 +561,70 @@
 ;;;==========================
 
 (defmethod editor-key-action ((editor 3DC-editor) key)
-  (let* ((top-editor (top-bpc-editor editor))
-         (top-panel (get-g-component top-editor :main-panel))
-         (front-editor (front-bpc-editor editor))
-         (front-panel (get-g-component front-editor :main-panel))
-         (selected-editor (and (selected-view editor) (editor (selected-view editor))))
-         (3dpanel (3dp editor)))
-    (case key
-      (#\- (zoom-rulers top-panel :dx -0.1 :dy -0.1)
-           (zoom-rulers front-panel :dx -0.1 :dy -0.1)
-           (zoom-view 3dpanel 0.8))
-      (#\+ (zoom-rulers top-panel :dx 0.1 :dy 0.1)
-           (zoom-rulers front-panel :dx 0.1 :dy 0.1)
-           (zoom-view 3dpanel 1.2))
-      (:om-key-delete 
-       (delete-editor-selection editor)
-       (report-modifications top-editor) ;; why ?
-       (update-editor-3d-object editor)
-       (update-sub-editors editor))
-      (:om-key-esc 
-       (set-selection editor nil)
-       (call-next-method) ;;; will also reset the cursor interval
-       (update-editor-3d-object editor)
-       (update-sub-editors editor))
-      ;;; we use the internal editors to make the moves because they have ruler hints
-      (:om-key-left
-       (let* ((ed (or selected-editor top-editor))
-              (panel (get-g-component ed :main-panel)))
-         (move-editor-selection ed :dx (/ (- (get-units (x-ruler panel) (if (om-shift-key-p) 400 40))) (scale-fact panel)))
-         (time-sequence-update-internal-times (object-value editor))
-         (report-modifications top-editor)
-         ))
-      (:om-key-right
-       (let* ((ed (or selected-editor top-editor))
-              (panel (get-g-component ed :main-panel)))
-         (move-editor-selection ed :dx (/ (get-units (x-ruler panel) (if (om-shift-key-p) 400 40)) (scale-fact panel))) 
-         (time-sequence-update-internal-times (object-value editor))
-         (report-modifications top-editor)))
-      (:om-key-up
-       (let* ((ed (or selected-editor top-editor))
-              (panel (get-g-component ed :main-panel)))
-         (move-editor-selection ed :dy (/ (get-units (y-ruler panel) (if (om-shift-key-p) 400 40)) (scale-fact panel)))
-         (time-sequence-update-internal-times (object-value editor))
-         (report-modifications ed)))
-      (:om-key-down
-       (let* ((ed (or selected-editor top-editor))
-              (panel (get-g-component ed :main-panel)))
-         (move-editor-selection ed :dy (/ (- (get-units (y-ruler panel) (if (om-shift-key-p) 400 40))) (scale-fact panel)))
-         (time-sequence-update-internal-times (object-value editor))
-         (report-modifications ed)))
-      (:om-key-pageup
-       (move-editor-selection front-editor :dy (/ (get-units (y-ruler front-panel) (if (om-shift-key-p) 400 40)) (scale-fact front-panel)))
-       (time-sequence-update-internal-times (object-value editor))
-       (report-modifications front-editor))
-      (:om-key-pagedown
-       (move-editor-selection front-editor :dy (/ (- (get-units (y-ruler front-panel) (if (om-shift-key-p) 400 40))) (scale-fact front-panel)))
-       (time-sequence-update-internal-times (object-value editor))
-       (report-modifications front-editor))
-      (#\Space
-       (editor-stop editor)
-       (player-play-object *general-player* (get-obj-to-play editor) editor))
-      (otherwise (editor-key-action (top-bpc-editor editor) key)
-                 (editor-key-action (front-bpc-editor editor) key))
-      )))
+  (let ((top-editor (top-bpc-editor editor))
+        (front-editor (front-bpc-editor editor)))
+    (when (and top-editor front-editor)
+      (let ((top-panel (get-g-component top-editor :main-panel))
+            (front-panel (get-g-component front-editor :main-panel))
+            (selected-editor (and (selected-view editor) (editor (selected-view editor))))
+            (3dpanel (3dp editor)))
+        (case key
+          (#\- (zoom-rulers top-panel :dx -0.1 :dy -0.1)
+               (zoom-rulers front-panel :dx -0.1 :dy -0.1)
+               (zoom-view 3dpanel 0.8))
+          (#\+ (zoom-rulers top-panel :dx 0.1 :dy 0.1)
+               (zoom-rulers front-panel :dx 0.1 :dy 0.1)
+               (zoom-view 3dpanel 1.2))
+          (:om-key-delete 
+           (delete-editor-selection editor)
+           (report-modifications top-editor) ;; why ?
+           (update-editor-3d-object editor)
+           (update-sub-editors editor))
+          (:om-key-esc 
+           (set-selection editor nil)
+           (call-next-method) ;;; will also reset the cursor interval
+           (update-editor-3d-object editor)
+           (update-sub-editors editor))
+          ;;; we use the internal editors to make the moves because they have ruler hints
+          (:om-key-left
+           (let* ((ed (or selected-editor top-editor))
+                  (panel (get-g-component ed :main-panel)))
+             (move-editor-selection ed :dx (/ (- (get-units (x-ruler panel) (if (om-shift-key-p) 400 40))) (scale-fact panel)))
+             (time-sequence-update-internal-times (object-value editor))
+             (report-modifications top-editor)
+             ))
+          (:om-key-right
+           (let* ((ed (or selected-editor top-editor))
+                  (panel (get-g-component ed :main-panel)))
+             (move-editor-selection ed :dx (/ (get-units (x-ruler panel) (if (om-shift-key-p) 400 40)) (scale-fact panel))) 
+             (time-sequence-update-internal-times (object-value editor))
+             (report-modifications top-editor)))
+          (:om-key-up
+           (let* ((ed (or selected-editor top-editor))
+                  (panel (get-g-component ed :main-panel)))
+             (move-editor-selection ed :dy (/ (get-units (y-ruler panel) (if (om-shift-key-p) 400 40)) (scale-fact panel)))
+             (time-sequence-update-internal-times (object-value editor))
+             (report-modifications ed)))
+          (:om-key-down
+           (let* ((ed (or selected-editor top-editor))
+                  (panel (get-g-component ed :main-panel)))
+             (move-editor-selection ed :dy (/ (- (get-units (y-ruler panel) (if (om-shift-key-p) 400 40))) (scale-fact panel)))
+             (time-sequence-update-internal-times (object-value editor))
+             (report-modifications ed)))
+          (:om-key-pageup
+           (move-editor-selection front-editor :dy (/ (get-units (y-ruler front-panel) (if (om-shift-key-p) 400 40)) (scale-fact front-panel)))
+           (time-sequence-update-internal-times (object-value editor))
+           (report-modifications front-editor))
+          (:om-key-pagedown
+           (move-editor-selection front-editor :dy (/ (- (get-units (y-ruler front-panel) (if (om-shift-key-p) 400 40))) (scale-fact front-panel)))
+           (time-sequence-update-internal-times (object-value editor))
+           (report-modifications front-editor))
+          (#\Space
+           (editor-stop editor)
+           (player-play-object *general-player* (get-obj-to-play editor) editor))
+          (otherwise (editor-key-action (top-bpc-editor editor) key)
+                     (editor-key-action (front-bpc-editor editor) key))
+          )))))
 
 
 ;;;==========================
