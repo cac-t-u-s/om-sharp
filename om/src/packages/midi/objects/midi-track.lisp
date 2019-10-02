@@ -449,7 +449,8 @@
             
             (remove nil
                     (list 
-                     (if (in-interval (midinote-onset evt) interval :exclude-high-bound t) 
+                     
+                     ;(when (in-interval (midinote-onset evt) interval :exclude-high-bound t) 
                                   
                          (list (midinote-onset evt)
                                #'(lambda (note)
@@ -459,9 +460,9 @@
                                      :chan (or (midinote-channel note) 1) 
                                      :port (or (midinote-port note) (get-pref-value :midi :out-port))
                                      :fields (list (midinote-pitch note) (midinote-vel note)))))
-                               (list evt)))
+                               (list evt))
 
-                     (if (in-interval (midinote-end evt) interval :exclude-high-bound t)
+                     ;(when (in-interval (midinote-end evt) interval :exclude-high-bound t)
                                 
                          (list (midinote-end evt)
                                #'(lambda (note) (om-midi::midi-send-evt 
@@ -470,7 +471,7 @@
                                                   :chan (or (midinote-channel note) 1) 
                                                   :port (or (midinote-port note) (get-pref-value :midi :out-port))
                                                   :fields (list (midinote-pitch note) 0))))
-                               (list evt)))
+                               (list evt))
                      )))
             
            (otherwise 
