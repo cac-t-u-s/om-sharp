@@ -819,8 +819,8 @@ Press 'space' to play/stop the sound file.
         )))
     ))
 
-(defmethod get-cache-display-for-draw ((self sound) box)
-  (declare (ignore box))
+
+(defun get-pict-from-sound (self)
   (when (and (n-samples self) (> (n-samples self) 0) (n-channels self)
              (or (buffer self) (file-pathname self)))
     (let* ((window 128)
@@ -842,6 +842,11 @@ Press 'space' to play/stop the sound file.
              (om-make-color 0.41 0.54 0.67)))
           :error
           )))))
+
+
+(defmethod get-cache-display-for-draw ((self sound) box)
+  (declare (ignore box))
+  (get-pict-from-sound self))
             
 
 
@@ -867,10 +872,10 @@ Press 'space' to play/stop the sound file.
      ((equal pict :error)
       (om-with-fg-color (om-def-color :dark-red)
         (om-with-font (om-def-font :font2b)
-                      (om-draw-string (+ x 10) (+ y 34) "ERROR LOADING SOUND FILE" :wrap (- (box-w box) 20)))
+                      (om-draw-string (+ x 10) (+ y 34) "ERROR LOADING SOUND FILE" :wrap (- w 20)))
         (when (file-pathname self)
           (om-with-font (om-def-font :font1)
-                        (om-draw-string (+ x 10) (+ 34 20) (namestring (file-pathname self)) :wrap (- (box-w box) 20))))
+                        (om-draw-string (+ x 10) (+ 34 20) (namestring (file-pathname self)) :wrap (- w 20))))
         ))
      
      (pict 

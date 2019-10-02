@@ -63,6 +63,12 @@
 
 
 (defmethod special-box-p ((name (eql 'collection))) t)
+(defmethod special-box-type ((class-name (eql 'collection))) 'CollectionBox)
+
+
+(defclass CollectionBox (OMBoxEditCall) 
+  ((multi-cache-display :accessor multi-cache-display :initform nil)))
+
 
 (defmethod omNG-make-special-box ((reference (eql 'collection)) pos &optional init-args)
   (let ((type (and init-args (find-class (car init-args) nil)))
@@ -103,27 +109,54 @@
         for i = 0 then (1+ i) 
         collect (list (format nil "[~D]" i) obj)))
 
+
+;;; CollectionBox has a little hack on cache-display, 
+;;; allowing to store a different cache for each object
+
+;;; CAN BE REDEFINED FOR SPECIFIC OBJECTS:
 ;;; type is an object used for specialization
-(defmethod collection-cache-display ((type t) list) nil)
+(defmethod get-collection-cache-display ((type t) list box) 
+  (loop for o in list collect (list o (get-cache-display-for-draw o box))))
+
 
 (defmethod get-cache-display-for-draw ((object collection) box) 
   (declare (ignore box))
-  (collection-cache-display (car (obj-list object)) (obj-list object)))
+  (unless (multi-cache-display box)
+    (setf (multi-cache-display box)
+          (get-collection-cache-display (car (obj-list object)) (obj-list object) box)))
+  nil)
+
+(defmethod reset-cache-display ((self CollectionBox))
+  (setf (multi-cache-display self) nil))
+
+(defmethod ensure-cache-display-draw ((box CollectionBox) object)
+  (if (typep object 'collection)
+      (call-next-method)
+    (progn 
+      (unless (cache-display box) (setf (cache-display box) (make-cache-display)))
+      (unless (cache-display-draw (cache-display box))
+        ;;; this is just an access in memory: no need to redo the cache
+        (setf (cache-display-draw (cache-display box))
+              (cadr (find object (multi-cache-display box) :key #'car))))
+      (cache-display-draw (cache-display box)))))
+
 
 ;;; type is an object used for specialization
+;;; otherwise, calls draw-mini-view for every object
 (defmethod collection-draw-mini-view ((type t) list box x y w h time)
   (when list
     (let ((ho (/ h (length list))))
       (loop for o in list
             for yo = y then (+ yo ho) do 
-            (reset-cache-display box)
-            (ensure-cache-display-draw box o)
+            (setf (cache-display box) nil)
             (draw-mini-view o box x yo w ho time))
       )))
 
 
+
 ;;; type is an object used for specialization
 (defmethod draw-mini-view ((self collection) (box t) x y w h &optional time)  
+  (ensure-cache-display-draw box self)
   (collection-draw-mini-view 
    (car (obj-list self)) 
    (obj-list self) 

@@ -637,11 +637,11 @@
 ;;; FOR DRAW ON COLLECTION BOXES
 ;;;=============================
 
-(defmethod collection-cache-display ((type BPF) list)
+(defmethod get-collection-cache-display ((type BPF) list box)
+  (declare (ignore box))
   (if (list-subtypep list 'BPF) ;;; works only is all objects are BPFs
       (list (nice-bpf-range list))
     (call-next-method)))
-
 
 (defmethod collection-draw-mini-view ((type BPF) list box x y w h time)
    (if (list-subtypep list 'BPF) ;;; works only is all objects are BPFs
