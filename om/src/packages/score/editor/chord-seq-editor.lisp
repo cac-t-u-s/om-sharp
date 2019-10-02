@@ -68,14 +68,22 @@
 
     ))
 
+(defmethod scrollbar-for-object ((self t)) nil)
 
 (defmethod make-left-panel-for-object ((editor chord-seq-editor) (object score-element))
   (om-make-view (left-score-view-class editor) :size (omp (* 2 (editor-get-edit-param editor :font-size)) nil)
                 :direct-draw t 
                 :bg-color (om-def-color :white) 
                 :editor editor
+                :scrollbars (scrollbar-for-object object)
                 :margin-l 1 :margin-r nil :keys t :contents nil
                 ))
+
+(defmethod om-view-scrolled ((self left-score-view) pos)
+  (om-set-scroll-position 
+   (get-g-component (editor self) :main-panel) 
+   (omp 0 (cadr pos))))
+
 
 
 (defmethod om-view-click-handler ((self left-score-view) position)

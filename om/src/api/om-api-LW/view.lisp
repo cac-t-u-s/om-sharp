@@ -144,8 +144,8 @@
                               ;:automatic-resize '(:width-ratio 0.5 :aspect-ratio 0.6)
                               :accepts-focus-p enable
                               :pane-can-scroll nil
-                              :horizontal-scroll (or (equal scrollbars t) (equal scrollbars :h))
-                              :vertical-scroll (or (equal scrollbars t) (equal scrollbars :v))
+                              :horizontal-scroll (when (or (equal scrollbars t) (equal scrollbars :h)) scrollbars)
+                              :vertical-scroll (when (or (equal scrollbars t) (equal scrollbars :v)) scrollbars)
                               :allow-other-keys t)))
 
     ;:x x :y y ;; for pinboard-objects

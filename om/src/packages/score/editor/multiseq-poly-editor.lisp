@@ -101,6 +101,26 @@
 ;;;---------------------------------------------
 
 
+(defmethod scrollbar-for-object ((self multi-seq)) :v)
+
+(defmethod init-editor-window :after ((self poly-editor-mixin))
+  (let* ((fontsize (editor-get-edit-param self :font-size))
+         (unit (font-size-to-unit fontsize))
+         (score-view (get-g-component self :main-panel))
+         (shift (car (last (accum-y-shift-list self)))))
+    (when shift
+      
+      (oa::om-set-interior-size score-view 
+                                (omp (om-point-x (om-view-size score-view))
+                                     (round (* shift unit))))
+      
+      (oa::om-set-interior-size (left-view score-view)
+                                (omp (om-point-x (om-view-size score-view))
+                                     (round (* shift unit))))
+      
+      )))
+                                                 
+
 ;;;=========================
 ;;; LEFT VIEW (KEYS etc.)
 ;;;=========================

@@ -150,10 +150,12 @@
                       (loop for d-s in object-s 
                             for i = 0 then (+ i 1) collect
                            (om-make-view (editor-view-class editor) :stream-id i
-                                         :editor editor :size (omp 50 60) 
+                                         :editor editor 
+                                         :size (omp 50 nil) 
                                          :direct-draw t 
                                          :bg-color (om-def-color :white) 
-                                         :scrollbars nil
+                                         ;; internal vertical scroller
+                                         :scrollbars :v
                                          :left-view (make-left-panel-for-object editor d-s)
                                          )))
                      
@@ -173,7 +175,8 @@
                 ;;; first group with the 'main' editor:
                 (om-make-layout
                  'om-simple-layout
-                 :scrollbars :v
+                 ;;; if this is a multi-object editor with 3+ objects, add vertical scroller
+                 :scrollbars (if (> (length (get-g-component editor :data-panel-list)) 2) :v nil)
                  :subviews
                  (list 
                   (om-make-layout 
@@ -182,7 +185,7 @@
                    :ratios `((nil 100) 
                              ,(append '(0.01) 
                                       (make-list n-objs :initial-element (/ 0.98 n-objs))
-                                      '(0.01)))
+                                     '(0.01)))
                    :subviews 
                    (append (list nil (make-control-bar editor))
                            (loop for view in (get-g-component editor :data-panel-list)
@@ -203,6 +206,10 @@
                                                      (make-timeline-check-box editor))))
                 ))
     ))
+
+
+(defmethod om-view-scrolled ((self stream-panel) pos)
+  (om-set-scroll-position (left-view self) (omp 0 (cadr pos))))
 
 
 ;===== MultiDisplay API

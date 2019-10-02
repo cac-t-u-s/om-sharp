@@ -39,6 +39,7 @@
           om-view-size
           om-view-position
           om-set-view-size
+          om-set-interior-size
           om-set-view-position
           om-change-view-position
           om-set-bg-color
@@ -191,11 +192,22 @@
                               #'(lambda ()                                  
                                   (setf (capi::pinboard-pane-size self) 
                                         (values (om-point-x size-point) (om-point-y size-point)))
-                                  ;; #+win32(setf (pinboard-pane-size (main-pinboard-object self)) (values (om-point-x size-point) (om-point-y size-point)))
+                                  ;; #+win32(setf (pinboard-pane-size (main-pinboard-object self)) 
+                                  ;;              (values (om-point-x size-point) (om-point-y size-point)))
                                   ))
   ; (set-hint-table self (list :default-width (om-point-x size-point) :default-height (om-point-y size-point))))
   (setf (vw self) (om-point-x size-point))
   (setf (vh self) (om-point-y size-point)))
+
+
+(defmethod om-set-interior-size ((self om-graphic-object) size-point) 
+  (capi:apply-in-pane-process self 
+                              #'(lambda ()      
+                                  (capi::set-hint-table self 
+                                                        `(:internal-min-width ,(om-point-x size-point) 
+                                                          :internal-min-height ,(om-point-y size-point)))
+                                  ))
+  )
 
 (defmethod om-view-size ((self om-graphic-object)) 
   (if (capi::interface-visible-p self)
@@ -316,5 +328,5 @@
 
 ;;; TESTER AVEC capi:activate-pane
 
-
 (defmethod om-get-name ((self om-graphic-object)) (capi::capi-object-name self))
+
