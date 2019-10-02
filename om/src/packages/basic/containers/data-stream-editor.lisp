@@ -171,19 +171,25 @@
      :ratios '(96 2 2)
      :subviews (list 
                 ;;; first group with the 'main' editor:
-                (om-make-layout 
-                 'om-grid-layout 
-                 :delta 0
-                 :ratios `((nil 100) 
-                           ,(append '(0.01) 
-                                    (make-list n-objs :initial-element (/ 0.98 n-objs))
-                                    '(0.01)))
-                 :subviews 
-                 (append (list nil (make-control-bar editor))
-                         (loop for view in (get-g-component editor :data-panel-list)
-                               append (list (left-view view) view))
-                         (list nil (get-g-component editor :x-ruler)))
-                 )
+                (om-make-layout
+                 'om-simple-layout
+                 :scrollbars :v
+                 :subviews
+                 (list 
+                  (om-make-layout 
+                   'om-grid-layout 
+                   :delta 0
+                   :ratios `((nil 100) 
+                             ,(append '(0.01) 
+                                      (make-list n-objs :initial-element (/ 0.98 n-objs))
+                                      '(0.01)))
+                   :subviews 
+                   (append (list nil (make-control-bar editor))
+                           (loop for view in (get-g-component editor :data-panel-list)
+                                 append (list (left-view view) view))
+                           (list nil (get-g-component editor :x-ruler)))
+                   )
+                  ))
 
                 ;;; the timeline editor:
                 (when (timeline-editor editor)
