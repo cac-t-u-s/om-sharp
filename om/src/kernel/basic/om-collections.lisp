@@ -66,9 +66,10 @@
 (defmethod special-box-type ((class-name (eql 'collection))) 'CollectionBox)
 
 
-(defclass CollectionBox (OMBoxEditCall) 
+(defclass MultiCacheBoxEditCall (OMBoxEditCall)
   ((multi-cache-display :accessor multi-cache-display :initform nil)))
 
+(defclass CollectionBox (MultiCacheBoxEditCall) ())
 
 (defmethod omNG-make-special-box ((reference (eql 'collection)) pos &optional init-args)
   (let ((type (and init-args (find-class (car init-args) nil)))

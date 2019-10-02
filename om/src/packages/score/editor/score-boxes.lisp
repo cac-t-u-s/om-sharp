@@ -21,8 +21,9 @@
 
 (in-package :om)
 
-
-(defclass ScoreBoxEditCall (OMBoxEditCall) 
+;; we need MultiCacheBoxEditCall as some score-object (POLY/MULTI-SEQ) 
+;; are subclasses of COLLECTION
+(defclass ScoreBoxEditCall (MultiCacheBoxEditCall) 
   ((fontsize :accessor fontsize :initform 18)))
 
 (defmethod special-box-type ((class-name (eql 'score-element))) 'ScoreBoxEditCall)
