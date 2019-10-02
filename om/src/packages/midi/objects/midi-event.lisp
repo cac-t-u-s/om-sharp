@@ -116,6 +116,8 @@
   (format nil "MIDIEVENT:: @~D ~A chan ~D track ~D port ~D: ~D" 
           (onset self) (ev-type self) (ev-chan self) (ev-track self) (ev-port self) (ev-values self)))
 
+(defmethod evt-to-string ((self list))
+  (mapcar #'evt-to-string self))
 
 
 (defmethod send-midievent ((self midievent))
