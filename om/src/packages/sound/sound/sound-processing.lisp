@@ -513,14 +513,16 @@
 
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-MIX///////////////
-(defmethod* sound-mix ((s1 om-internal-sound) (s2 om-internal-sound) &optional (method 0))
+(defmethod* sound-mix ((s1 om-internal-sound) (s2 om-internal-sound) &key (s1-offset 0) (s2-offset 0) (method 0))
   :icon 'sound-mix
   :initvals '(nil nil 0)
-  :menuins '((2 (("Sum" 0)
+  :menuins '((4 (("Sum" 0)
                  ("Sum / Average" 1)
                  ("Sum / Hard Limiting" 2))))
   :indoc '("an om-internal-sound" "an om-internal-sound" "a mixing method")
-  :doc "Generates a mix of <s1> and <s2>."
+  :doc "Generates a mix of <s1> and <s2>.
+
+<s1-offset> and <s2-offset> are temporal offsets in seconds (float) or milliseconds (int)."
             
   (cond ((or (null (oa::om-pointer-ptr (buffer s1))) (null (oa::om-pointer-ptr (buffer s2))))
          (om-beep-msg "Error : buffer(s) not initialized."))
@@ -532,7 +534,9 @@
                 (nch (n-channels s1))
                 (size1 (n-samples s1))
                 (size2 (n-samples s2))
-                (final-size (max size1 size2))
+                (offset1 (round (* (if (integerp s1-offset) (* s1-offset 0.001) s1-offset) (sample-rate s1))))
+                (offset2 (round (* (if (integerp s2-offset) (* s2-offset 0.001) s2-offset) (sample-rate s2))))
+                (final-size (max (+ size1 offset1) (+ size2 offset2)))
                 (final-buffer (make-audio-buffer nch final-size type1))
                 (res 0.0))
 
@@ -540,19 +544,44 @@
                   (dotimes (i final-size)
                     (dotimes (n nch)
                       (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type1)
-                            (+ (if (< i size1) (fli:dereference (fli:dereference ptr1 :index n :type :pointer) :index i :type type1) 0.0) 
-                               (if (< i size2) (fli:dereference (fli:dereference ptr2 :index n :type :pointer) :index i :type type2) 0.0))))))
+                            (+ (if (< i offset1) 0.0
+                                 (if (< i (+ offset1 size1)) 
+                                     (fli:dereference (fli:dereference ptr1 :index n :type :pointer) :index (- i offset1) :type type1) 
+                                   0.0)) 
+                               (if (< i offset2) 0.0
+                                 (if (< i (+ offset2 size2)) 
+                                     (fli:dereference (fli:dereference ptr2 :index n :type :pointer) :index (- i offset2) :type type2) 
+                                   0.0))
+                               ))
+                      )))
                  ((= method 1)
                   (dotimes (i final-size)
                     (dotimes (n nch)
                       (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type1)
-                            (/ (+ (if (< i size1) (fli:dereference (fli:dereference ptr1 :index n :type :pointer) :index i :type type1) 0.0) 
-                                  (if (< i size2) (fli:dereference (fli:dereference ptr2 :index n :type :pointer) :index i :type type2) 0.0)) 2)))))
+                            (/ 
+                             (+ (if (< i offset1) 0.0
+                                 (if (< i (+ offset1 size1)) 
+                                     (fli:dereference (fli:dereference ptr1 :index n :type :pointer) :index (- i offset1) :type type1) 
+                                   0.0)) 
+                               (if (< i offset2) 0.0
+                                 (if (< i (+ offset2 size2)) 
+                                     (fli:dereference (fli:dereference ptr2 :index n :type :pointer) :index (- i offset2) :type type2) 
+                                   0.0))
+                               )
+                             2)))))
                  ((= method 2) 
                   (dotimes (i final-size)
                     (dotimes (n nch)
-                      (setf res (+ (if (< i size1) (fli:dereference (fli:dereference ptr1 :index n :type :pointer) :index i :type type1) 0.0) 
-                                   (if (< i size2) (fli:dereference (fli:dereference ptr2 :index n :type :pointer) :index i :type type2) 0.0)))
+                      (setf res 
+                            (+ (if (< i offset1) 0.0
+                                 (if (< i (+ offset1 size1)) 
+                                     (fli:dereference (fli:dereference ptr1 :index n :type :pointer) :index (- i offset1) :type type1) 
+                                   0.0)) 
+                               (if (< i offset2) 0.0
+                                 (if (< i (+ offset2 size2)) 
+                                     (fli:dereference (fli:dereference ptr2 :index n :type :pointer) :index (- i offset2) :type type2) 
+                                   0.0))
+                               ))
                       (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type1)
                             (cond ((< res -1) -1.0)
                                   ((> res 1) 1.0)
