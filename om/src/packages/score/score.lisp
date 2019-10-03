@@ -55,7 +55,7 @@
  "Score"
  :container-pack *om-package-tree*
  :doc "Score tools and objects"
- :classes '(note chord chord-seq voice poly)
+ :classes '(note chord chord-seq voice multi-seq poly)
  :functions nil
  :subpackages  (list (omNG-make-package 
                       "Score Manipulations"

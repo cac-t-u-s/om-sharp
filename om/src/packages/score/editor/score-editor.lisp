@@ -36,6 +36,10 @@
     (:y-shift 4)))
 
 
+;;; Note: y-shift is a value or a list containing the space (in units) above the staff. (see get-total-y-shift)
+;;; It is useful to control the spacing between lines (by mouse/key actions) but needs to be maintained up-to-date 
+;;; when voices are added/removed etc. 
+
 ;;; only chord-seq-editor allows to edit time
 (defmethod edit-time-? ((self score-editor)) nil)
 
@@ -396,6 +400,8 @@
 (defmethod score-editor-delete ((self score-editor) element) nil) 
 (defmethod score-editor-change-selection-durs ((self score-editor) delta) nil)
 
+(defmethod score-editor-handle-voice-selection ((self score-editor) direction) nil)
+(defmethod score-editor-update-params-before-remove ((self score-editor) removed) nil)
 
 (defmethod editor-key-action ((editor score-editor) key)
   
@@ -423,12 +429,14 @@
     
     (:om-key-up
      (store-current-state-for-undo editor)
+     (score-editor-handle-voice-selection editor -1)
      (move-editor-selection editor :dy (if (om-shift-key-p) 12 1))
      (editor-invalidate-views editor)
      (report-modifications editor))
 
     (:om-key-down
      (store-current-state-for-undo editor)
+     (score-editor-handle-voice-selection editor 1)
      (move-editor-selection editor :dy (if (om-shift-key-p) -12 -1))
      (editor-invalidate-views editor)
      (report-modifications editor))
@@ -437,7 +445,9 @@
      (when (selection editor)
        (store-current-state-for-undo editor)
        (loop for element in (selection editor) do 
-             (score-editor-delete editor element))
+             (score-editor-update-params-before-remove editor element)
+             (score-editor-delete editor element)
+             )
        (setf (selection editor) nil)
        (editor-invalidate-views editor)
        (report-modifications editor)))
@@ -458,6 +468,11 @@
     (when (get-g-component self :font-size-box)
       (om-set-selected-item (get-g-component self :font-size-box) v))))
 
+
+;;; required for after some changes or edit-param modifs
+;;; (add/remove voice, change staff, etc..)  
+;;; redefined in multi-editors
+(defmethod set-interior-size-from-contents ((self score-editor)) nil)
 
 (defmethod make-score-display-params-controls ((editor score-editor)) 
   
@@ -487,6 +502,7 @@
                               :value (editor-get-edit-param editor :staff)
                               :di-action #'(lambda (list) 
                                              (editor-set-edit-param editor :staff (om-get-selected-item list))
+                                             (set-interior-size-from-contents editor)
                                              (report-modifications editor) ;; to update the box drisplay as well...
                                              ))
                   ))

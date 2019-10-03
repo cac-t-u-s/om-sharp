@@ -26,10 +26,10 @@
 (defclass poly-editor-mixin () ())
 
 ;;; The editor will inherit from data-stream-editor, althouhg MULTI-SEQ in not a data-stream...
-(defclass multi-seq-editor (chord-seq-editor poly-editor-mixin) ())
+(defclass multi-seq-editor (poly-editor-mixin chord-seq-editor) ())
 (defmethod get-editor-class ((self multi-seq)) 'multi-seq-editor)
 
-(defclass poly-editor (voice-editor poly-editor-mixin) ())
+(defclass poly-editor (poly-editor-mixin voice-editor) ())
 (defmethod get-editor-class ((self poly)) 'poly-editor)
 
 
@@ -103,11 +103,13 @@
 
 (defmethod scrollbar-for-object ((self multi-seq)) :v)
 
-(defmethod init-editor-window :after ((self poly-editor-mixin))
+
+(defmethod set-interior-size-from-contents ((self poly-editor-mixin))
   (let* ((fontsize (editor-get-edit-param self :font-size))
          (unit (font-size-to-unit fontsize))
          (score-view (get-g-component self :main-panel))
          (shift (car (last (accum-y-shift-list self)))))
+
     (when shift
       
       (oa::om-set-interior-size score-view 
@@ -119,6 +121,9 @@
                                      (round (* shift unit))))
       
       )))
+
+(defmethod init-editor-window :after ((self poly-editor-mixin))
+  (set-interior-size-from-contents self))
                                                  
 
 ;;;=========================
@@ -126,6 +131,20 @@
 ;;;=========================
 
 (defclass poly-left-score-view (left-score-view) ())
+
+(defmethod initialize-instance ((self poly-left-score-view) &rest args)
+  (call-next-method)
+  (om-add-subviews 
+   self 
+   (om-make-graphic-object 'om-icon-button 
+                           :position (omp 4 4)
+                           :size (omp 12 12)
+                           :icon :edit+ :icon-pushed :edit+-pushed 
+                           :action #'(lambda (item)
+                                       (declare (ignore item))
+                                       (poly-editor-add-voice (editor self)))
+                           ))
+  )
 
 ;;;---------------------------------------------
 ;;; SCORE-EDITOR REDEFINITIONS
@@ -158,7 +177,7 @@
                        (declare (ignore view))
                        
                        (when (and (> (om-point-y pos) 10)
-                                  (< (om-point-y pos) (- (h self) 10)))
+                                  (< (om-point-y pos) (+ (om-v-scroll-position self) (h self) -10)))
                                   
                          (let ((y-diff-in-units (/ (- (om-point-y pos) (om-point-y position)) unit))
                                (new-list (copy-list previous-y-list)))
@@ -189,17 +208,22 @@
   (let* ((fontsize (editor-get-edit-param editor :font-size))
          (staff (editor-get-edit-param editor :staff)))
     
+   
     (loop for shift in (accum-y-shift-list editor) 
+          for i from 0
           do 
-          (draw-staff 0 0 
-                      shift
-                      (w self) (h self) 
-                      fontsize 
-                      staff
-                      :margin-l (margin-l self) 
-                      :margin-r (margin-r self)
-                      :keys (keys self))
-          )))
+          (om-with-fg-color (when (find (nth i (obj-list (object-value editor)))
+                                        (selection editor))
+                              (om-def-color :selection))
+              (draw-staff 0 0 
+                          shift
+                          (w self) (h self) 
+                          fontsize 
+                          staff
+                          :margin-l (margin-l self) 
+                          :margin-r (margin-r self)
+                          :keys (keys self))
+              ))))
 
 ;;;---------------------------------------------
 ;;; SCORE-EDITOR REDEFINITIONS
@@ -245,6 +269,69 @@
   (loop for cseq in (obj-list self)
         while (not (remove-from-obj cseq item))))
 
+(defmethod remove-from-obj ((self multi-seq) (item chord-seq))
+  (setf (obj-list self) (remove item (obj-list self))))
+
+
+(defmethod score-editor-handle-voice-selection ((self poly-editor-mixin) direction) 
+  
+  (if (om-option-key-p)
+      
+      ;;; change order: put selected voice(s) above the previous one
+      (let ((obj (object-value self))
+            (selected-voices  (loop for item in (selection self) 
+                                    when (subtypep (type-of item) 'chord-seq)
+                                    collect item)))
+        (when selected-voices
+          
+          (let ((posi (position (car selected-voices) (obj-list obj))))
+            
+            (when posi
+              ;;; the group of selected voices will move to posi+1 or posi-1
+              (loop for voice in selected-voices do
+                    (score-editor-update-params-before-remove self voice)
+                    (remove-from-obj obj voice))
+              
+              (let ((newpos (max 0 
+                                 (min (length (obj-list obj))
+                                      (+ posi direction)))))
+
+                (setf (obj-list obj)
+                      (flat (insert-in-list (obj-list obj) selected-voices newpos)))
+            
+                (editor-set-edit-param self :y-shift
+                                       (flat 
+                                        (insert-in-list (editor-get-edit-param self :y-shift)
+                                                        (make-list (length selected-voices)
+                                                                   :initial-element *default-inter-staff*)
+                                                        newpos)))
+            
+                )))))
+
+    ;;; change shift for selected voices
+    (loop for obj in (selection self) do
+          (when (subtypep (type-of obj) 'chord-seq)
+            (let ((pos (position obj (obj-list (object-value self)))))
+              (when pos 
+                (let ((curr (nth pos (editor-get-edit-param self :y-shift))))
+                  (editor-set-edit-param self :y-shift
+                                         (subs-posn (editor-get-edit-param self :y-shift)
+                                                    pos
+                                                    (max 2 (+ curr direction)))))
+                ))))
+    ))
+      
+
+
+
+(defmethod score-editor-update-params-before-remove ((self poly-editor-mixin) removed) 
+  (let ((pos (position removed (obj-list (object-value self)))))
+    (when pos 
+      (editor-set-edit-param self :y-shift
+                             (remove-nth pos (editor-get-edit-param self :y-shift)))
+      )
+    (set-interior-size-from-contents self)
+    ))
 
 ;;; add chord/notes
 (defmethod poly-editor-get-voice-at-pos ((self poly-editor-mixin) position)
@@ -266,6 +353,17 @@
       (values (nth pos (obj-list (object-value self))) pos)
       )))
   
+
+
+(defmethod poly-editor-add-voice ((self poly-editor-mixin))
+  (let ((obj (object-value self)))
+    (setf (obj-list obj)
+          (append (obj-list obj)
+                  (list (make-instance (voice-type obj)))))
+    (editor-invalidate-views self)
+    (report-modifications self)
+    (set-interior-size-from-contents self)))
+
 ;;;---------------------------------------------
 ;;; SCORE-EDITOR REDEFINITIONS
 (defmethod get-voice-at-pos ((self multi-seq-editor) position)
