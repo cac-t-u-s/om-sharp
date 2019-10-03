@@ -212,6 +212,19 @@
          collect (find-score-elements-in-area elem x1 y1 x2 y2))))
 
 
+;;; note: same with _all_ (not only top-level) could be useful for groups... ?
+
+(defmethod get-tpl-elements-of-type ((self score-element) type)
+  
+  (if (find (type-of self) (list! type))
+      
+      (list self)
+    
+    (loop for element in (inside self) append 
+          (get-tpl-elements-of-type element type))
+    ))
+
+
 ;;;======================
 ;;; MOUSE ACTIONS
 ;;;======================
@@ -376,7 +389,8 @@
                                       (x2 (max (om-point-x position) (om-point-x end-pos)))
                                       (y1 (min (om-point-y position) (om-point-y end-pos)))
                                       (y2 (max (om-point-y position) (om-point-y end-pos))))
-                                  (set-selection editor (find-score-elements-in-area obj x1 y1 x2 y2))                         
+                                  
+                                  (set-selection editor (find-score-elements-in-area (object-value editor) x1 y1 x2 y2))                         
                                   (om-invalidate-view view)
                                   ))
                    )
@@ -456,6 +470,16 @@
      (call-next-method))
     ))
 
+
+;;;====================== 
+;;; MENUS
+;;;======================
+
+(defmethod select-all-command ((self score-editor))
+  #'(lambda () 
+      (set-selection self (get-tpl-elements-of-type (object-value self) '(chord r-rest)))                         
+      (editor-invalidate-views self)
+      ))
 
 
 ;;;====================== 
