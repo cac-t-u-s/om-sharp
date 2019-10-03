@@ -192,9 +192,21 @@
   (apply #'concatenate 
          (cons 'string
                (loop for msg in (messages oscb)
-                     collect (format nil "~{~a~^ ~}~%" msg)))))
+                     append 
+                     (list (message-to-text msg) (string #\Newline))))))
 
-  
+(defun message-to-text (msg)
+  (apply #'concatenate 
+         (cons 'string 
+               (append (list (car msg) " ")
+                       (loop for arg in (cdr msg)
+                             collect (if (stringp arg) 
+                                         (format nil "~s " arg)
+                                       (format nil "~a " arg)))
+                       )
+               )))
+                                     
+             
 (defmethod make-editor-window-contents ((self osc-editor))
   (let ((oscb (object-value self)))
     (om-make-layout
