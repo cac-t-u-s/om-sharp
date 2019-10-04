@@ -172,8 +172,11 @@
               (oa::om-run-process 
                "open doc"
                #'(lambda ()
-                   (sleep 1) ;; leave time to load libs etc.
-                   (om::open-doc-from-file (om::extension-to-doctype type) filename))
+                   (loop while (not om::*om-initialized*)) ;; leave time to load libs etc.
+                   (om::record-recent-file filename)
+                   (capi:execute-with-interface
+                    om::*om-main-window*
+                    #'om::open-doc-from-file (om::extension-to-doctype type) filename))
                ))
              ((string-equal "lisp" type)
               (om::om-open-new-text-editor filename))

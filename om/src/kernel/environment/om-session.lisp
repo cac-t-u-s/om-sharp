@@ -210,6 +210,8 @@
 
 ; (start-openmusic)
 
+(defvar *om-initialized* nil)
+
 (defun start-openmusic ()
   (push :om *features*)
   (oa::om-api-init)
@@ -262,7 +264,7 @@
   (show-main-om-window :front-tab :listener)
   (capi:execute-with-interface *om-main-window* 'eval '(in-package :om))
   (om-print-format *om-startup-string*)
-  
+  (setf *om-initialized* t)
   )
 
 
