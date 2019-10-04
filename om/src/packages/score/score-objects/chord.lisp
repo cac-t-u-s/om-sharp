@@ -25,7 +25,7 @@
 ;;; some of the slots :initargs of INTERNAL-NOTE are hidden in the graphical interface
 (defclass internal-note (score-element)
   ((midic :initform 6000 :accessor midic :initarg :midic :type number :documentation "pitch (midicents)")
-   (vel :initform 80 :accessor vel :initarg :vel :type number :documentation "velocity (0-127)")
+   (vel :initform 100 :accessor vel :initarg :vel :type number :documentation "velocity (0-127)")
    (dur :initform 1000 :accessor dur :initarg :dur :type number :documentation "duration (ms)")
    (chan :initform 1 :accessor chan :initarg :chan :type integer :documentation "MIDI channel (1-16)")
    (port :initform nil :accessor port :initarg :port)
@@ -36,7 +36,7 @@
 ;;; redefines only visible :initargs
 (defclass* note (internal-note)
   ((midic :initform 6000 :accessor midic :initarg :midic :type number :documentation "pitch (midicents)")
-   (vel :initform 80 :accessor vel :initarg :vel :type number :documentation "velocity (0-127)")
+   (vel :initform 100 :accessor vel :initarg :vel :type number :documentation "velocity (0-127)")
    (dur :initform 1000 :accessor dur :initarg :dur :type number :documentation "duration (ms)")
    (chan :initform 1 :accessor chan :initarg :chan :type integer :documentation "MIDI channel (1-16)")
    )
