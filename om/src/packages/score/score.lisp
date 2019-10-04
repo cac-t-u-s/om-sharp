@@ -32,6 +32,7 @@
         "draw/draw-score-rhythm"
         "draw/draw-score-spacing"
 
+        "editor/scales"
         "editor/score-editor"
         "editor/chord-editor"
         "editor/chord-seq-editor"
