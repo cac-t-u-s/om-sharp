@@ -53,7 +53,7 @@
 ;;; when the value of a box is another box...
 (defmethod play-obj-from-value ((val ombox) box) 
   (unless (equal (car (value val)) box) ;;; can happen, with "MY-BOX" !
-    (play-obj-from-value (car (value val)) val)))
+    (play-obj-from-value (car (value val)) box)))
 
 (defmethod play-box? ((self t)) nil)
 (defmethod play-box? ((self OMBoxEditCall)) t)
