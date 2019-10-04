@@ -66,6 +66,8 @@
 
 (defparameter *key-ons* (make-list 16))
 
+
+;;; input: channels = [1-16]
 (defun midi-send-evt (evt) 
   (cond 
    ((or (equal (om-midi::midi-evt-type evt) :keyOff)
@@ -89,7 +91,7 @@
 ;(defmethod midi-start () 
 ;  (portmidi-start))
 
-(defmethod midi-stop () 
+(defmethod midi-all-keys-off () 
   ;(portmidi-stop)
   (loop for ch in *key-ons* for c = 1 then (+ c 1) do
         (loop for note in ch do

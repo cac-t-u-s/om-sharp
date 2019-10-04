@@ -483,10 +483,10 @@
    '< :key 'car))
 
 
-;;; not good (stops _all_ MIDI)
+
 (defmethod player-stop-object ((self scheduler) (object midi-track))
   (call-next-method)
-  (om-midi::midi-stop))
+  (om-midi::midi-all-keys-off))
 
 ;;;======================================
 ;;; DRAW
