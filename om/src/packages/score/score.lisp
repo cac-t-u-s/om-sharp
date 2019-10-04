@@ -39,6 +39,7 @@
         "editor/voice-editor"
         "editor/multiseq-poly-editor"
         "editor/score-boxes"
+        "editor/play"
 
         "functions/conversions"
         "functions/score-functions"

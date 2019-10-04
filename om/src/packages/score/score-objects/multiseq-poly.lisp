@@ -59,15 +59,6 @@
                  
                           
 ;;;===================================================
-;;; PLAY
-;;;===================================================
-(defmethod play-obj? ((self multi-seq)) t)
-
-(defmethod get-action-list-for-play ((object multi-seq) interval &optional parent)
-  (loop for voice in (obj-list object)
-        append (get-action-list-for-play voice interval parent)))
-
-;;;===================================================
 ;;; TIME-SEQUENCE METHODS APPLIED TO POLYPHONIES
 ;;;===================================================
 
