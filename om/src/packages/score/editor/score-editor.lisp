@@ -27,7 +27,7 @@
 (defmethod object-default-edition-params ((self score-element))
   '((:font-size 24)
     (:staff :g)
-    (:scale :scale-1/4)
+    (:scale :scale-1/2)
     (:duration-display nil)
     (:velocity-display :hidden)
     (:channel-display :hidden)
@@ -633,3 +633,4 @@
                 port-item
                 ))
     ))
+
