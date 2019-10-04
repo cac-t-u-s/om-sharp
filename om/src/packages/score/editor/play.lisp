@@ -34,34 +34,45 @@
 
 
 (defmethod get-action-list-for-play ((c chord) interval &optional parent)
-  (remove 
-   nil 
-   (loop for n in (notes c) append
-         (let ((channel (or (chan n) 1)))
-           (list 
-            (when (in-interval (offset n) interval :exclude-high-bound t) 
-              (list (offset n)
-                    #'(lambda (note) (om-midi::midi-send-evt 
-                                      (om-midi:make-midi-evt 
-                                       :type :keyOn
-                                       :chan channel :port 0
-                                       :fields (list (truncate (midic note) 100) (vel note)))))
-                    (list n)))
+  (let ((chan-shift (and (get-pref-value :midi :auto-bend)
+                         (micro-channel-on (pitch-approx c)))))
+    (remove 
+     nil 
+     (loop for n in (notes c) append
+           (let ((channel (+ (or (chan n) 1) 
+                             (if chan-shift (micro-channel (midic n) (pitch-approx c)) 0))))
+                           
+             (list 
+              (when (in-interval (offset n) interval :exclude-high-bound t) 
+                (list (offset n)
+                      #'(lambda (note) (om-midi::midi-send-evt 
+                                        (om-midi:make-midi-evt 
+                                         :type :keyOn
+                                         :chan channel :port 0
+                                         :fields (list (truncate (midic note) 100) (vel note)))))
+                      (list n)))
       
-            (when (in-interval (+ (offset n) (dur n)) interval :exclude-high-bound t) 
+              (when (in-interval (+ (offset n) (dur n)) interval :exclude-high-bound t) 
      
    
-              (list (+ (offset n) (dur n))
-                    #'(lambda (note) (om-midi::midi-send-evt 
-                                      (om-midi:make-midi-evt 
-                                       :type :keyOff
-                                       :chan channel :port 0
-                                       :fields (list (truncate (midic note) 100) 0))))
-                    (list n)))
-            )))))
+                (list (+ (offset n) (dur n))
+                      #'(lambda (note) (om-midi::midi-send-evt 
+                                        (om-midi:make-midi-evt 
+                                         :type :keyOff
+                                         :chan channel :port 0
+                                         :fields (list (truncate (midic note) 100) 0))))
+                      (list n)))
+              ))
+           ))
+    ))
 
+ 
 (defmethod get-action-list-for-play ((n note) interval &optional parent)
-  (let ((channel (or (chan n) 1)))
+  (let ((channel (+ (or (chan n) 1)
+                    (if (and (get-pref-value :midi :auto-bend)
+                             (micro-channel-on (pitch-approx n)))
+                        (micro-channel (midic n) (pitch-approx n))
+                      0))))
     (remove 
      nil
      (list 
@@ -89,41 +100,46 @@
 
 
 (defmethod get-action-list-for-play ((object chord-seq) interval &optional parent)
-  (sort 
-   (loop for c in (remove-if #'(lambda (chord) (or (< (+ (date chord) (get-obj-dur chord)) (car interval))
-                                                   (> (date chord) (cadr interval))))
-                             (chords object))
-    
-         append 
-         (loop for n in (notes c) append
-               (let ((channel (or (chan n) 1)))
-                 (remove nil 
-                         (list 
-                          (if (in-interval (+ (date c) (offset n)) interval :exclude-high-bound t) 
-                                  
-                              (list (+ (date c) (offset n))
-                                        
-                                    #'(lambda (note) (om-midi::midi-send-evt 
-                                                      (om-midi:make-midi-evt 
-                                                       :type :keyOn
-                                                       :chan channel :port 0
-                                                       :fields (list (truncate (midic note) 100) (vel note)))))
-                                    (list n)))
+  (let ((chan-shift (and (get-pref-value :midi :auto-bend)
+                         (micro-channel-on (pitch-approx object)))))
 
-                          (if (in-interval (+ (date c) (offset n) (dur n)) interval :exclude-high-bound t)
+    (sort 
+     (loop for c in (remove-if #'(lambda (chord) (or (< (+ (date chord) (get-obj-dur chord)) (car interval))
+                                                     (> (date chord) (cadr interval))))
+                               (chords object))
+    
+           append 
+           (loop for n in (notes c) append
+                 (let ((channel (+ (or (chan n) 1) 
+                                   (if chan-shift (micro-channel (midic n) (pitch-approx object)) 0))))
+                   (remove nil 
+                           (list 
+                            (if (in-interval (+ (date c) (offset n)) interval :exclude-high-bound t) 
+                                  
+                                (list (+ (date c) (offset n))
+                                        
+                                      #'(lambda (note) (om-midi::midi-send-evt 
+                                                        (om-midi:make-midi-evt 
+                                                         :type :keyOn
+                                                         :chan channel :port 0
+                                                         :fields (list (truncate (midic note) 100) (vel note)))))
+                                      (list n)))
+
+                            (if (in-interval (+ (date c) (offset n) (dur n)) interval :exclude-high-bound t)
                                 
-                              (list (+ (date c) (offset n) (dur n))
+                                (list (+ (date c) (offset n) (dur n))
                                       
-                                    #'(lambda (note) (om-midi::midi-send-evt 
-                                                      (om-midi:make-midi-evt 
-                                                       :type :keyOff
-                                                       :chan channel :port 0
-                                                       :fields (list (truncate (midic note) 100) 0))))
-                                    (list n)))
+                                      #'(lambda (note) (om-midi::midi-send-evt 
+                                                        (om-midi:make-midi-evt 
+                                                         :type :keyOff
+                                                         :chan channel :port 0
+                                                         :fields (list (truncate (midic note) 100) 0))))
+                                      (list n)))
                       
-                          ))))
-         )
-   '< :key 'car))
+                            ))))
+           )
+     '< :key 'car)
+    ))
 
 
 
@@ -140,8 +156,10 @@
 ;;; MICROTONES
 ;;;===================================================
 
+(add-preference-section :midi "Score")
 (add-preference :midi :auto-bend "Auto microtone bend" :bool t 
-                "Applies 1/8th pitch-bend to MIDI channels 1-4 during playback of score-objects")
+                '("Applies 1/8th pitch-bend to MIDI channels 1-4 during playback of score-objects"
+                  "and shift MIDI channels of micro-tonal note when scale is 1/4 or 1/8th tone."))
 
 ;;; split note on channels in case of microtonal setup (4 or 8)
 ;;; tone = 0, 1/8 = 1, 1/4 = 2, 3/8 = 3
