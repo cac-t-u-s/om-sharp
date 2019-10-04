@@ -36,7 +36,7 @@
  "MIDI"
  :container-pack *om-package-tree*
  :doc "MIDI tools and objects"
- :classes '(midi-track midi-note midievent)
+ :classes '(midi-track midi-note midievent midi-mix-console)
  :functions nil
  :subpackages 
  (list (omNG-make-package 
