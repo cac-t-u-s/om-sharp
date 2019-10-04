@@ -37,7 +37,7 @@
   (remove 
    nil 
    (loop for n in (notes c) append
-         (let ((channel (or (chan note) 1)))
+         (let ((channel (or (chan n) 1)))
            (list 
             (when (in-interval (offset n) interval :exclude-high-bound t) 
               (list (offset n)
@@ -61,7 +61,7 @@
             )))))
 
 (defmethod get-action-list-for-play ((n note) interval &optional parent)
-  (let ((channel (or (chan note) 1)))
+  (let ((channel (or (chan n) 1)))
     (remove 
      nil
      (list 
@@ -96,7 +96,7 @@
     
          append 
          (loop for n in (notes c) append
-               (let ((channel (or (chan note) 1)))
+               (let ((channel (or (chan n) 1)))
                  (remove nil 
                          (list 
                           (if (in-interval (+ (date c) (offset n)) interval :exclude-high-bound t) 
@@ -168,11 +168,11 @@
 
 (defun micro-bend (&optional port)
   (loop for pb-evt in (micro-bend-messages port)
-        do (print pb-evt) (om-midi:midi-send-evt pb-evt)))
+        do (om-midi:midi-send-evt pb-evt)))
 
 (defun micro-reset (&optional port)
   (loop for pb-evt in (micro-reset-messages port)
-        do (print pb-evt) (om-midi:midi-send-evt pb-evt)))
+        do (om-midi:midi-send-evt pb-evt)))
 
 
 
@@ -215,7 +215,9 @@
   (declare (ignore parent interval))
   
   (let ((approx (/ 200 (step-from-scale (editor-get-edit-param caller :scale)))))
-    (when (micro-channel-on approx) 
+    (when (and (get-pref-value :midi :auto-bend)
+               (micro-channel-on approx))
+      (setf (pitch-approx object) approx)
       (loop for p in (collec-ports-from-object object) do (micro-bend p))))
   
   (call-next-method))
@@ -226,8 +228,11 @@
   (declare (ignore parent interval))
   
   (let ((approx (/ 200 (step-from-scale (get-edit-param caller :scale)))))
-    (when (get-pref-value :midi :auto-bend) approx) 
-      (loop for p in (collec-ports-from-object object) do (micro-bend p))))
+    (when (and (get-pref-value :midi :auto-bend)
+               (micro-channel-on approx))
+      (setf (pitch-approx object) approx)
+      (loop for p in (collec-ports-from-object object) do (micro-bend p))
+      ))
   
   (call-next-method))
 

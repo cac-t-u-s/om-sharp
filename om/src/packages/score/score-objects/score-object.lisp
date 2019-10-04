@@ -31,6 +31,10 @@
    (symbolic-dur-extent :accessor symbolic-dur-extent :initarg :symbolic-dur-extent :initform 0 
                         :documentation "an extension of the duration (used for tied chords)")
    
+   ;;; approximation of pitch (in division f a tone) used essentially for MIDI playback
+   ;;; is modified by modification of the scale parameter
+   (pitch-approx :accessor pitch-approx :initform 2) 
+
    ;;; bounding-box is a cached graphic information for score display 
    (b-box :accessor b-box :initform nil) 
    ))
