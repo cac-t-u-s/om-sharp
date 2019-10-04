@@ -233,10 +233,10 @@
   (declare (ignore parent interval))
   
   (let ((approx (/ 200 (step-from-scale (editor-get-edit-param caller :scale)))))
-    (when (and (get-pref-value :midi :auto-bend)
-               (micro-channel-on approx))
-      (setf (pitch-approx object) approx)
-      (loop for p in (collec-ports-from-object object) do (micro-bend p))))
+   (setf (pitch-approx object) approx)
+   (when (and (get-pref-value :midi :auto-bend)
+              (micro-channel-on approx))
+     (loop for p in (collec-ports-from-object object) do (micro-bend p))))
   
   (call-next-method))
 
@@ -246,13 +246,35 @@
   (declare (ignore parent interval))
   
   (let ((approx (/ 200 (step-from-scale (get-edit-param caller :scale)))))
+    (setf (pitch-approx object) approx)
     (when (and (get-pref-value :midi :auto-bend)
                (micro-channel-on approx))
-      (setf (pitch-approx object) approx)
       (loop for p in (collec-ports-from-object object) do (micro-bend p))
       ))
   
   (call-next-method))
+
+    
+(defmethod player-play-object :before ((self scheduler) (object ommaquette) caller &key parent interval)
+  ;;;Ajouter ici la task begin : (mp:mailbox-send (taskqueue *engine*) *taskbegin*)
+  (declare (ignore parent interval))
+  
+  (let ((micro-play-ports nil))
+    
+    (loop for box in (get-boxes-of-type object 'ScoreBoxEditCall)
+          do 
+          (let ((approx (/ 200 (step-from-scale (get-edit-param box :scale))))
+                (object (car (value box))))
+             
+            (setf (pitch-approx object) approx)
+            
+            (when (and (get-pref-value :midi :auto-bend) (micro-channel-on approx))
+               (setf micro-play-ports
+                     (append micro-play-ports (collec-ports-from-object object))))))
+    
+    (loop for p in (remove-duplicates micro-play-ports)
+          do (micro-bend p))
+    ))
 
 
 (defmethod player-stop-object ((self scheduler) (object score-element))
