@@ -27,6 +27,7 @@
 (defmethod object-default-edition-params ((self score-element))
   '((:font-size 24)
     (:staff :g)
+    (:scale :scale-1/4)
     (:duration-display nil)
     (:velocity-display :hidden)
     (:channel-display :hidden)
@@ -254,6 +255,7 @@
   
   (let* ((editor (editor self))
          (staff (editor-get-edit-param editor :staff))
+         (scale (get-the-scale (editor-get-edit-param editor :scale)))
          (unit (font-size-to-unit (editor-get-edit-param editor :font-size))))
     
     (multiple-value-bind (obj pos)
@@ -264,7 +266,7 @@
         (let* ((shift (+ (calculate-staff-line-shift staff) (get-total-y-shift editor pos)))
                (clicked-pos position)
                (click-y-in-units (- shift (/ (om-point-y position) unit)))
-               (clicked-pitch (line-to-pitch click-y-in-units)) ;;; <= scale here ??? )
+               (clicked-pitch (line-to-pitch click-y-in-units scale)) ;;; <= scale here ??? )
                (clicked-time (pixel-to-time self (om-point-x position))))
     
           (cond 
@@ -300,7 +302,7 @@
                    :motion #'(lambda (view pos)
                                (declare (ignore view))
                                (let* ((new-y-in-units (- shift (/ (om-point-y pos) unit)))
-                                      (new-pitch (line-to-pitch new-y-in-units))
+                                      (new-pitch (line-to-pitch new-y-in-units scale))
                                       (diff (- new-pitch clicked-pitch)))
                                  (unless (zerop diff)
                                    (store-current-state-for-undo editor :action :move :item (selection editor))
@@ -357,7 +359,7 @@
                                            )
 
                                        (let* ((new-y-in-units (- shift (/ (om-point-y pos) unit)))
-                                              (new-pitch (line-to-pitch new-y-in-units))
+                                              (new-pitch (line-to-pitch new-y-in-units scale))
                                               (diff (- new-pitch clicked-pitch)))
                                          (unless (zerop diff)
                                            (setf modif t)
@@ -500,108 +502,134 @@
 
 (defmethod make-score-display-params-controls ((editor score-editor)) 
   
-  (om-make-layout 
-   'om-row-layout 
-   :align :center ; :size (omp 100 100)
-           ;:ratios '(1 1 nil) 
-   :subviews
-   (list 
+  (let ((title (om-make-di 'om-simple-text :text "Display params" 
+                           :size (omp 120 22) ;; :bg-color (om-def-color :red)
+                           :font (om-def-font :font2b)))
+        
+        (size-item
+         (om-make-layout 
+          'om-row-layout
+          :subviews (list 
+                     (om-make-di 'om-simple-text :text "size:" 
+                                 :font (om-def-font :font1)
+                                 :size (omp 30 20))
+                
+                     (set-g-component 
+                      editor :font-size-box
+                      (om-make-di 'om-popup-list :items *score-fontsize-options* 
+                                  :size (omp 60 24) :font (om-def-font :font1)
+                                  :value (editor-get-edit-param editor :font-size)
+                                  :di-action #'(lambda (list) 
+                                                 (set-font-size editor (om-get-selected-item list))
+                                                 ))
+                      )
+
+                     
+                     )))
+        (staff-item
+         (om-make-layout 
+          'om-row-layout 
+          :subviews (list 
+                     (om-make-di 'om-simple-text :text "staff:" 
+                                 :size (omp 35 20) 
+                                 :font (om-def-font :font1))
+                     (om-make-di 'om-popup-list :items *score-staff-options* 
+                                 :size (omp 90 24) :font (om-def-font :font1)
+                                 :value (editor-get-edit-param editor :staff)
+                                 :di-action #'(lambda (list) 
+                                                (editor-set-edit-param editor :staff (om-get-selected-item list))
+                                                (set-interior-size-from-contents editor)
+                                                (report-modifications editor) ;; update the box display
+                                                )))))
+
+        (scale-item 
+         (om-make-layout 
+          'om-row-layout
+          :subviews (list 
+                     (om-make-di 'om-simple-text :text "scale:" 
+                                 :size (omp 35 20) 
+                                 :font (om-def-font :font1))
+                     (om-make-di 'om-popup-list :items (mapcar #'car *all-scales*) 
+                                 :size (omp 90 24) :font (om-def-font :font1)
+                                 :value (editor-get-edit-param editor :scale)
+                                 :di-action #'(lambda (list) 
+                                                (editor-set-edit-param editor :scale (om-get-selected-item list))
+                                                (report-modifications editor) ;; update the box display
+                                                )))))
+
+        
+
+        (velocity-item 
+         (om-make-layout 
+          'om-row-layout
+          :subviews (list 
+                     (om-make-di 'om-simple-text :text "velocity" 
+                                 :size (omp 50 20) 
+                                 :font (om-def-font :font1))
+                     (om-make-di 'om-popup-list :items '(:hidden :value :symbol :size :alpha) 
+                                 :size (omp 80 24) :font (om-def-font :font1)
+                                 :value (editor-get-edit-param editor :velocity-display)
+                                 :di-action #'(lambda (list) 
+                                                (editor-set-edit-param editor :velocity-display (om-get-selected-item list))))
+                     )))
+
+        (duration-item 
+         (om-make-layout 
+          'om-row-layout
+          :subviews (list 
+                     (om-make-di 'om-simple-text :text "durations" 
+                                 :size (omp 50 20) 
+                                 :font (om-def-font :font1))
+                     (om-make-di 'om-check-box :text "" :font (om-def-font :font1)
+                                 :size (omp 68 20) 
+                                 :checked-p (editor-get-edit-param editor :duration-display)
+                                 :di-action #'(lambda (item) 
+                                                (editor-set-edit-param editor :duration-display (om-checked-p item))))
+                     )))
+
+        (channel-item 
+         (om-make-layout 
+          'om-row-layout
+          :subviews (list 
+                     (om-make-di 'om-simple-text :text "MIDI channel" 
+                                 :size (omp 68 20) 
+                                 :font (om-def-font :font1))
+                     (om-make-di 'om-popup-list :items '(:hidden :number :color :color-and-number) 
+                                 :size (omp 80 24) :font (om-def-font :font1)
+                                 :value (editor-get-edit-param editor :channel-display)
+                                 :di-action #'(lambda (list) 
+                                                (editor-set-edit-param editor :channel-display (om-get-selected-item list))))
+                     )))
+        
+        (port-item 
+         (om-make-layout 
+          'om-row-layout
+          :subviews (list 
+                     (om-make-di 'om-simple-text :text "MIDI port" 
+                                 :size (omp 68 20) 
+                                 :font (om-def-font :font1))
+                     (om-make-di 'om-check-box :text "" :font (om-def-font :font1)
+                                 :size (omp 68 20) 
+                                 :checked-p (editor-get-edit-param editor :port-display)
+                                 :di-action #'(lambda (item) 
+                                                (editor-set-edit-param editor :port-display (om-checked-p item)))))))
+        ;;; end LET declarations
+        )
+         
     (om-make-layout 
-     'om-column-layout
+     'om-grid-layout
+     ;:align :center 
+     :dimensions '(4 2) 
+     :delta '(10 0)
      :subviews (list 
-                        
-                (om-make-di 'om-simple-text :text "Display params" 
-                            :size (omp 140 22) ;; :bg-color (om-def-color :red)
-                            :font (om-def-font :font2b))
-
-                (om-make-layout 
-                 'om-row-layout :align :center
-                 :subviews 
-                 (list 
-                  (om-make-di 'om-simple-text :text "staff:" 
-                              :size (omp 60 20) 
-                              :font (om-def-font :font1))
-                  (om-make-di 'om-popup-list :items *score-staff-options* 
-                              :size (omp 60 24) :font (om-def-font :font1)
-                              :value (editor-get-edit-param editor :staff)
-                              :di-action #'(lambda (list) 
-                                             (editor-set-edit-param editor :staff (om-get-selected-item list))
-                                             (set-interior-size-from-contents editor)
-                                             (report-modifications editor) ;; to update the box drisplay as well...
-                                             ))
-                  ))
-                             
-                (om-make-layout 
-                 'om-row-layout :align :center
-                 :subviews
-                 (list 
-                  (om-make-di 'om-simple-text :text "font-size:" 
-                              :font (om-def-font :font1)
-                              :size (omp 60 20))
-
-                  (set-g-component editor :font-size-box
-                                   (om-make-di 'om-popup-list :items *score-fontsize-options* 
-                                               :size (omp 60 24) :font (om-def-font :font1)
-                                               :value (editor-get-edit-param editor :font-size)
-                                               :di-action #'(lambda (list) 
-                                                              (set-font-size editor (om-get-selected-item list))
-                                                              )))
-                  ))
+                title 
+                staff-item
+                velocity-item
+                channel-item
+                
+                size-item
+                scale-item
+                duration-item
+                port-item
                 ))
-
-
-    (om-make-layout 
-     'om-column-layout
-     :subviews (list 
-                        
-                nil
-
-                (om-make-layout 
-                 'om-row-layout :align :center
-                 :subviews 
-                 (list 
-                  (om-make-di 'om-simple-text :text "velocity:" 
-                              :size (omp 50 20) 
-                              :font (om-def-font :font1))
-                  (om-make-di 'om-popup-list :items '(:hidden :value :symbol :size :alpha) 
-                              :size (omp 80 24) :font (om-def-font :font1)
-                              :value (editor-get-edit-param editor :velocity-display)
-                              :di-action #'(lambda (list) 
-                                             (editor-set-edit-param editor :velocity-display (om-get-selected-item list))))
-                  ))
-                        
-                (om-make-di 'om-check-box :text "duration" :font (om-def-font :font1)
-                            :size (omp 68 20) 
-                            :checked-p (editor-get-edit-param editor :duration-display)
-                            :di-action #'(lambda (item) 
-                                           (editor-set-edit-param editor :duration-display (om-checked-p item))))
-                        
-                ))
-    (om-make-layout 
-     'om-column-layout
-     :subviews (list 
-
-                nil
-                        
-                (om-make-layout 
-                 'om-row-layout :align :center
-                 :subviews 
-                 (list 
-                  (om-make-di 'om-simple-text :text "MIDI channel:" 
-                              :size (omp 68 20) 
-                              :font (om-def-font :font1))
-                  (om-make-di 'om-popup-list :items '(:hidden :number :color :color-and-number) 
-                              :size (omp 80 24) :font (om-def-font :font1)
-                              :value (editor-get-edit-param editor :channel-display)
-                              :di-action #'(lambda (list) 
-                                             (editor-set-edit-param editor :channel-display (om-get-selected-item list))))
-                  ))
-                        
-                (om-make-di 'om-check-box :text "MIDI port" :font (om-def-font :font1)
-                            :size (omp 68 20) 
-                            :checked-p (editor-get-edit-param editor :port-display)
-                            :di-action #'(lambda (item) 
-                                           (editor-set-edit-param editor :port-display (om-checked-p item))))
-                ))
-    )
-   ))
+    ))

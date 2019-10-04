@@ -205,9 +205,10 @@
           do (item-set-time item (max 0 (round (+ (item-get-time item) dx))))))
 
   (unless (zerop dy)
-    (let ((notes (loop for item in (selection self) append (get-notes item))))
+    (let ((step (or (step-from-scale (editor-get-edit-param self :scale)) 100))
+          (notes (loop for item in (selection self) append (get-notes item))))
       (loop for n in notes do
-            (setf (midic n) (+ (midic n) (* dy 100))))))
+            (setf (midic n) (+ (midic n) (* dy step))))))
   )
 
 
@@ -246,6 +247,7 @@
 
   (let ((font-size (editor-get-edit-param editor :font-size))
         (staff (editor-get-edit-param editor :staff))
+        (scale (editor-get-edit-param editor :scale))
         (chan (editor-get-edit-param editor :channel-display))
         (vel (editor-get-edit-param editor :velocity-display))
         (port (editor-get-edit-param editor :port-display))
@@ -262,7 +264,7 @@
                        0 0
                        (w view) (h view) 
                        font-size 
-                       :staff staff
+                       :staff staff :scale scale
                        :draw-chans chan
                        :draw-vels vel
                        :draw-ports port

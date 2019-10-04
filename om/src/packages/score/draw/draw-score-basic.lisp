@@ -99,14 +99,19 @@
 
 (defun accident-char (acc)
   (case acc
-    (:sharp (values (code-char #xE262) "accidentalSharp"))
     (:flat (values (code-char #xE260) "accidentalFlat"))
     (:natural (values (code-char #xE261) "accidentalNatural"))
+    (:sharp (values (code-char #xE262) "accidentalSharp"))
     (:db-sharp (values (code-char #xE263) "accidentalDoubleSharp"))
-    (:quarter-tone-sharp (values (code-char #xE282) "accidentalQuarterToneSharpStein"))
-    (:quarter-tone-flat (values (code-char #xE280) "accidentalQuarterToneFlatStein"))
-    (:3quarter-tone-sharp (values (code-char #xE283) "accidentalThreeQuarterTonesSharpStein"))
-    (:3quarter-tone-flat (values (code-char #xE281) "accidentalThreeQuarterTonesFlatZimmermann"))
+    (:1/4-flat (values (code-char #xE280) "accidentalQuarterToneFlatStein"))
+    (:3/4-flat (values (code-char #xE281) "accidentalThreeQuarterTonesFlatZimmermann"))
+    (:1/4-sharp (values (code-char #xE282) "accidentalQuarterToneSharpStein"))
+    (:3/4-sharp (values (code-char #xE283) "accidentalThreeQuarterTonesSharpStein"))
+    (:1/8-sharp (values (code-char #xE27A) "accidentalArrowUp"))
+    (:3/8-sharp (values (code-char #xE299) "accidentalHalfSharpArrowUp"))
+    (:5/8-sharp (values (code-char #xE274) "accidentalThreeQuarterTonesSharpArrowUp"))
+    (:7/8-sharp (values (code-char #xE29B) "accidentalOneAndAHalfSharpsArrowUp"))
+    
     (otherwise nil)))
 
 (defun staff-key-char (staff)
@@ -304,21 +309,6 @@
 ;;;==================
 ;;; SCALES
 ;;;==================            
-; (degree line accidental)
-(defparameter *default-scale* 
-  '((0 0 nil)
-    (100 0 :sharp) 
-    (200 0.5 nil)
-    (300 0.5 :sharp)
-    (400 1 nil)
-    (500 1.5 nil)
-    (600 1.5 :sharp)
-    (700 2 nil)
-    (800 2 :sharp)
-    (900 2.5 nil)
-    (1000 2.5 :sharp)
-    (1100 3 nil)))
-
 
 (defun pitch-to-line (pitch &optional scale)
   (multiple-value-bind (octave interval) (floor pitch 1200) 
@@ -686,7 +676,7 @@
                          fontsize 
                          &key
                          (head :head-1/4)
-                         (scale *default-scale*)
+                         (scale :scale-1/2)
                          (staff :gf)
                          (stem t) ;; stem can be T or a position (in line or score units) 
                          (beams '(nil 0)) ;; (beams position-in-group)
@@ -703,7 +693,8 @@
 
       (let* ((head-symb (if (consp head) (car head) head))
              (n-points (if (consp head) (cadr head) 0))
-             (head-extra-number (if (listp head-symb) (car head-symb))))
+             (head-extra-number (if (listp head-symb) (car head-symb)))
+             (scale (get-the-scale scale)))
       
         ;;; (print (list head head-symb)) 
         ;;; TODO

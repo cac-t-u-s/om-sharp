@@ -171,6 +171,7 @@
 (defmethod score-object-mini-view ((self note) box x-pix y-pix y-u w h)
   
   (let ((staff (get-edit-param box :staff))
+        (scale (get-edit-param box :scale))
         (font-size (get-box-fontsize box))
         (in-sequencer? (typep (frame box) 'sequencer-track-view)))
     
@@ -181,7 +182,7 @@
                 0 
                 0 y-u 0 y-pix w h 
                 font-size 
-                :scale nil :staff staff
+                :scale scale :staff staff
                 :stem NIL
                 :time-function #'(lambda (time) (declare (ignore time)) (/ w 2))
                 )
@@ -194,6 +195,7 @@
 (defmethod score-object-mini-view ((self chord) box x-pix y-pix y-u w h)
   
   (let ((staff (get-edit-param box :staff))
+        (scale (get-edit-param box :scale))
         (in-sequencer? (typep (frame box) 'sequencer-track-view))
         (font-size (get-box-fontsize box)))
     
@@ -201,7 +203,8 @@
                 :keys (not in-sequencer?))
 
     (when (notes self)
-      (draw-chord self 0 0 y-u x-pix y-pix w h font-size :scale nil :staff staff
+      (draw-chord self 0 0 y-u x-pix y-pix w h font-size 
+                  :scale scale :staff staff
                   :time-function #'(lambda (time) (declare (ignore time)) (/ w 2))
                   ))
     ))
@@ -213,6 +216,7 @@
 (defmethod score-object-mini-view ((self chord-seq) box x-pix y-pix y-u w h)
   
   (let* ((staff (get-edit-param box :staff))
+         (scale (get-edit-param box :scale))
          (font-size (get-box-fontsize box))
          (in-sequencer? (typep (frame box) 'sequencer-track-view)))
         
@@ -225,7 +229,7 @@
                       x-pix 
                       y-pix 
                       w h
-                      font-size :scale nil :staff staff
+                      font-size :scale scale :staff staff
                       :time-function #'(lambda (time) (miniview-time-to-pixel (get-box-value box) box (frame box) time))
                       )
           )))

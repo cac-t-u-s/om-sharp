@@ -442,6 +442,7 @@
          (s-dur (symbolic-dur object))
          
          (staff (get-edit-param param-obj :staff))
+         (scale (get-edit-param param-obj :scale))
          (chan (get-edit-param param-obj :channel-display))
          (vel (get-edit-param param-obj :velocity-display))
          (port (get-edit-param param-obj :port-display))
@@ -477,7 +478,7 @@
                        :head (multiple-value-list (note-head-and-points graphic-dur))
                        :stem (or (= level 1) beam-start-line)  ;; (car beam-info) is the beam-line 
                        :beams (list beams-to-draw position)
-                       :staff staff
+                       :staff staff :scale scale
                        :draw-chans chan
                        :draw-vels vel
                        :draw-ports port
@@ -509,6 +510,7 @@
 
   (let* ((begin (beat-to-time (symbolic-date object) tempo))
          (staff (get-edit-param param-obj :staff))
+         (scale (get-edit-param param-obj :scale))
          
          (s-dur (symbolic-dur object))
          
@@ -542,7 +544,7 @@
                        :head (multiple-value-list (note-head-and-points graphic-dur))
                        :stem (or (= level 1) beam-start-line) 
                        :beams (list beams-to-draw position)
-                       :staff staff
+                       :staff staff :scale scale
                        :selection (if (find object selection) T selection)
                        :tied-to-ms (beat-to-time (symbolic-date (previous-chord object)) tempo)
                        :time-function (or time-function #'(lambda (time) (time-to-pixel view time)))

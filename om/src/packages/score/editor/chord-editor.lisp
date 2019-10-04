@@ -79,13 +79,14 @@
   (declare (ignore dx))
 
   (let* ((chord (object-value self))
+         (step (or (step-from-scale (editor-get-edit-param self :scale)) 100))
          (notes (if (find chord (selection self))
                     (notes chord)
                   (selection self))))
 
     (unless (zerop dy)
       (loop for n in notes do
-            (setf (midic n) (+ (midic n) (* dy 100)))))
+            (setf (midic n) (+ (midic n) (* dy step)))))
     ))
 
 
@@ -114,6 +115,7 @@
                  (w view) (h view) 
                  (editor-get-edit-param editor :font-size) 
                  :staff (editor-get-edit-param editor :staff)
+                 :scale (editor-get-edit-param editor :scale)
                  :draw-chans (editor-get-edit-param editor :channel-display)
                  :draw-vels (editor-get-edit-param editor :velocity-display)
                  :draw-ports (editor-get-edit-param editor :port-display)
