@@ -253,39 +253,44 @@
          (in-sequencer? (typep frame 'sequencer-track-view))
          )
     
-    (draw-staff x-pix y-pix shift-y w h font-size staff 
-                :margin-l 0 :margin-r 0 :keys (not in-sequencer?))
+    (if (> h 5)
+        (progn 
+          (draw-staff x-pix y-pix shift-y w h font-size staff 
+                      :margin-l 0 :margin-r 0 :keys (not in-sequencer?))
     
-    (draw-tempo self (+ x-pix 4) (+ y-pix (* unit (+ shift-y 2))) font-size)
+          (draw-tempo self (+ x-pix 4) (+ y-pix (* unit (+ shift-y 2))) font-size)
 
-    (loop with on-screen = t 
-          with prev-signature = nil
-          for m in (inside self)
-          for i from 1
-          while on-screen
-          do 
-          (setf on-screen (< (miniview-time-to-pixel (get-box-value box) box frame 
-                                                     (beat-to-time (symbolic-date m) (tempo self)))
-                             max-w))
-          ;;; we draw the measure if it begins on-screen...
-          (when on-screen
-            (draw-measure m (tempo self) box (frame box) 
-                          :position i
-                          :with-signature (and (not in-sequencer?)
-                                               (not (equal (car (tree m)) prev-signature)))
-                          :staff staff
-                          :x-shift shift-x
-                          :y-shift (+ shift-y y-u) 
-                          :font-size font-size 
-                          :time-function #'(lambda (time) (miniview-time-to-pixel (get-box-value box) box frame time))
-                          ))
+          (loop with on-screen = t 
+                with prev-signature = nil
+                for m in (inside self)
+                for i from 1
+                while on-screen
+                do 
+                (setf on-screen (< (miniview-time-to-pixel (get-box-value box) box frame 
+                                                           (beat-to-time (symbolic-date m) (tempo self)))
+                                   max-w))
+                ;;; we draw the measure if it begins on-screen...
+                (when on-screen
+                  (draw-measure m (tempo self) box (frame box) 
+                                :position i
+                                :with-signature (and (not in-sequencer?)
+                                                     (not (equal (car (tree m)) prev-signature)))
+                                :staff staff
+                                :x-shift shift-x
+                                :y-shift (+ shift-y y-u) 
+                                :font-size font-size 
+                                :time-function #'(lambda (time) (miniview-time-to-pixel (get-box-value box) box frame time))
+                                ))
           
-          ;;; if the end is off-screen we notify it with a little gray area at the end
-          (when (> (time-to-pixel frame (beat-to-time (+ (symbolic-date m) (symbolic-dur m)) (tempo self))) max-w)
-            (om-draw-rect (- (w frame) 20) 0 20 (h frame) :fill t :color (om-make-color .8 .8 .8 .5))
-            (om-draw-string (- (w frame) 16) (- (h frame) 12) "..."))
-          (setf prev-signature (car (tree m)))
-          )
+                ;;; if the end is off-screen we notify it with a little gray area at the end
+                (when (and (equal self (car (value box)))
+                           (> (time-to-pixel frame (beat-to-time (+ (symbolic-date m) (symbolic-dur m)) (tempo self))) max-w))
+                  (om-draw-rect (- (w frame) 20) 0 20 (h frame) :fill t :color (om-make-color .8 .8 .8 .5))
+                  (om-draw-string (- (w frame) 16) (- (h frame) 12) "..."))
+                (setf prev-signature (car (tree m)))
+                ))
+    
+      (om-draw-line x-pix y-pix (+ w x-pix) y-pix :style '(1 2)))
     ))
 
 
