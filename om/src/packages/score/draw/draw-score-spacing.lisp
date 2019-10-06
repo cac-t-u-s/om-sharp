@@ -252,6 +252,10 @@
                (/ (- (cadr next-point) (cadr prev-point)) (- (car next-point) (car prev-point)))))
          )
         
+        ((= prev-point-pos 0)  ;; only 1 point
+         (cadr prev-point)
+         )
+        
         (t ;;; we are after the last: extrapolate from last
            (let ((prev-prev-point (nth (1- prev-point-pos) time-map)))
              (+ (cadr prev-point)
@@ -289,6 +293,10 @@
                (/ (- (car next-point) (car prev-point)) (- (cadr next-point) (cadr prev-point)))))
          )
         
+        ((= prev-point-pos 0)  ;; only 1 point
+         (car prev-point)
+         )
+
         (t ;;; we are after the last: extrapolate from last
            (let ((prev-prev-point (nth (1- prev-point-pos) time-map)))
              (+ (car prev-point)
