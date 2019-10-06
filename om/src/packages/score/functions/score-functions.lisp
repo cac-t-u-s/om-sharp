@@ -27,7 +27,7 @@
 ;  DURATION
 ;--------------------
 
-(defmethod! object-dur ((self score-element))
+(defmethod* object-dur ((self score-element))
   :initvals '(nil)
   :indoc '("a musical object")
   :outdoc '("duration (ms)") 
@@ -53,6 +53,13 @@ Returned chords are copies of original internal chords. Time information (onset)
 (defmethod* get-chords ((self poly))
   (loop for voice in (obj-list self) collect (get-chords voice)))
   
+
+(defmethod* get-chords ((self t)) nil)
+(defmethod* get-chords ((self chord)) (list self))
+
+(defmethod* get-chords ((self rhythmic-object))
+  (loop for elt in (inside self) append (get-chords elt)))
+
 
 ;--------------------
 ;  CONCAT
@@ -82,7 +89,7 @@ POLY: each voice is concatenated, regardless of the global duration.
           do
           (item-set-time c time))
 
-    (data-stream-set-frames cs new-chords) 
+    (set-chords cs new-chords) 
     cs))
 
 ;;; TODO: concatenate the tempo list (see below)
@@ -93,7 +100,10 @@ POLY: each voice is concatenated, regardless of the global duration.
   
   (make-instance 'voice
                  :chords (append (get-chords s1) (get-chords s2))
-                 :tree (append (tree s1) (tree s2)))
+                 :tree (let ((measures (append (second (tree s1)) (second (tree s2)))))
+                         (list (length measures) measures))
+                 :tempo (tempo s1)
+                 )
   ;;; (setf (tempo rep) (concat-tempi s1 s2))
   )
 
@@ -158,8 +168,7 @@ POLY: each voice is concatenated, regardless of the global duration.
   (declare (ignore s1))
   (concat (make-instance (type-of s2)) s2 s2-offset))
 
-
-
+    
 
 ;--------------------
 ;  MERGE
@@ -172,8 +181,7 @@ POLY: each voice is concatenated, regardless of the global duration.
 ;  SELECT
 ;--------------------
 
-
-(defmethod* select ((self chord-seq) (start number) (end number))
+(defmethod* select ((self chord-seq) (start number) end)
   :initvals '(nil 0 1000) 
   :indoc '("a sequence" "an integer" "an integer")
   :doc "
@@ -181,8 +189,12 @@ Extracts a subseqence :
 
 when :
 <self> is a chord-seq, <start> and <end> are absolute positions in ms, result is a chord-seq.
-<self> is a voice, <start> and <end> are measure numbers, result is a voice.
+<self> is a voice, <start> and <end> are measure numbers, result is a voice (<end> excluded)
 <self> is a multi-seq, <start> and <end> are absolute positions in ms, result is a multi-seq.
+<self> is a poly, <start> and <end> are measure number selected in each voice (<end> excluded)
+
+if <end> is NIL, the selection runs until th end.
+
 "
   (if (or (< start 0)
           (>= start end))
@@ -191,7 +203,7 @@ when :
      
     (let ((rep (make-instance (type-of self))))
       
-      (data-stream-set-frames 
+      (set-chords 
        rep 
        (loop for chord in (data-stream-get-frames self)
              when (and (>= (item-get-time chord) start)
@@ -205,10 +217,70 @@ when :
       rep)
     ))
 
-(defmethod* select ((self multi-seq) (start number) (end number))
-   (make-instance 'multi-seq
-                  :obj-list (loop for cs in (obj-list self)
-                                  collect (select cs start end))))
+;;; voice = in measure
+(defmethod* select ((self voice) (start number) end)
+  (when (and end (> end (length (inside self))))
+    (om-beep-msg "Warning: end-of selection out of range in SELECT")
+    (setf end nil))
+  (make-instance 'voice
+                  :chords (loop for m in (subseq (inside self) start end) append (get-chords m)) 
+                  :tree (let ((measures (subseq (second (tree self)) start end)))
+                          (list (length measures) measures))))
+
+
+;;; poly/multi-seq
+(defmethod* select ((self multi-seq) (start number) end)
+  (make-instance (type-of self)
+                 :obj-list (loop for v in (obj-list self)
+                                 collect (select v start end))))
+
+
+;--------------------
+;  INSERT
+;--------------------
+
+(defmethod* insert ((v1 voice) (v2 voice) position)
+  (let* ((pos (or position (length (inside v1))))
+         (before (select v1 0 pos))
+         (after (select v1 pos nil)))
+    
+    (make-instance 'voice
+                   :chords (append (get-chords before) (get-chords v2) (get-chords after))
+                   :tree (let ((measures (append (second (tree before))
+                                                 (second (tree v2))
+                                                 (second (tree after))
+                                                 )))
+                           (list (length measures) measures))
+                   )
+    ))
+
+
+;;; destructive version, with measures
+(defmethod* insert-in-voice ((v1 voice) (m list) position)
+  (let* ((pos (or position (length (inside v1))))
+         (before (select v1 0 pos))
+         (after (select v1 pos nil)))
+    
+    (let ((new-chords (print (append (get-chords before) 
+                                     (apply #'append (mapcar #'get-chords m))
+                                     (get-chords after))))
+          
+          (new-tree (let ((measures (append (second (tree before))
+                                            (mapcar #'tree m)
+                                            (second (tree after))
+                                            )))
+                      (list (length measures) measures))))
+    
+      (setf (tree v1) (format-tree (normalize-tree new-tree)))
+      (set-chords v1 new-chords)
+      (build-rhythm-structure v1 new-chords -1)
+      (set-timing-from-tempo new-chords (tempo v1))
+      
+      )))
+    
+
+(defmethod* insert-in-voice ((v1 voice) (m measure) position)
+  (insert-in-voice v1 (list m) position))
 
 
 ;--------------------

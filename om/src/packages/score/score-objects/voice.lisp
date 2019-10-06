@@ -179,7 +179,7 @@
                           mesure)))
     
     ;;; cut the end of the chords list
-    (data-stream-set-frames self (first-n (chords self) (1+ curr-n-chord)))
+    (set-chords self (first-n (chords self) (1+ curr-n-chord)))
 
     (values curr-n-chord curr-last-chord)))
 

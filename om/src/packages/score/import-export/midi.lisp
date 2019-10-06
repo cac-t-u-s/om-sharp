@@ -57,7 +57,7 @@
 
 (defmethod objfromobjs ((model midi-track) (target chord-seq))
     
-  (data-stream-set-frames 
+  (set-chords 
    target 
    (midinotes-to-chords (flat (get-midi-notes model))))
   
@@ -80,7 +80,7 @@
          (loop for track in (remove nil (get-midi-notes model))
                collect 
                (let ((cseq (make-instance 'chord-seq)))
-                 (data-stream-set-frames cseq (midinotes-to-chords track))
+                 (set-chords cseq (midinotes-to-chords track))
                  cseq)
                )))
     (setf (obj-list target) voices)
@@ -94,7 +94,7 @@
                collect 
                (let ((cseq (make-instance 'chord-seq))
                      (tempo 60)) ;;; get it from the MIDI-TRACK ??
-                 (data-stream-set-frames cseq (midinotes-to-chords track))
+                 (set-chords cseq (midinotes-to-chords track))
                  (make-instance 'voice
                                 :tree (omquantify cseq tempo '(4 4) 8)
                                 :lmidic (get-chords cseq) 
@@ -243,7 +243,7 @@
 ;;;========================
 
 (defmethod objfromobjs ((model score-element) (target midi-track)) 
-  (data-stream-set-frames target (midievents-to-midinotes (get-midievents model)))
+  (set-chords target (midievents-to-midinotes (get-midievents model)))
   target)
  
 
