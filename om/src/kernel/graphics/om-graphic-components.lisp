@@ -245,6 +245,7 @@
    (decimals :initform 0 :initarg :decimals :accessor decimals)
    (enabled :initform t :initarg :enabled :accessor enabled)
    (db-click :initform nil :initarg :db-click :accessor db-click)
+   (allow-nil :initform nil :initarg :allow-nil :accessor allow-nil)
    (change-fun :initform nil :initarg :change-fun :accessor change-fun)
    (after-fun :initform nil :initarg :after-fun :accessor after-fun))
   (:default-initargs :border t))
@@ -294,7 +295,8 @@
 (defmethod om-view-click-handler  ((self numbox) where)
   (when (enabled self)
     (let ((start-y (om-point-y where))
-          (start-v (value self)))
+          (start-v (or (value self)
+                       (and (numberp (allow-nil self)) (allow-nil self)))))
       (when start-v
         (om-init-temp-graphics-motion self where NIL
                                       :motion #'(lambda (view position)
@@ -310,6 +312,9 @@
                                                     ;;; in principle that's ok now...
                                                     (when (and (or (null (min-val self)) (>= new-val (min-val self)))
                                                                (or (null (max-val self)) (<= new-val (max-val self))))
+                                                      (when (and (numberp (allow-nil self))
+                                                                 (= new-val (allow-nil self)))
+                                                        (setf new-val nil))
                                                       (setf (value self) new-val)
                                                       (om-set-text self (format () " ~D" (get-value self)))
                                                       (om-invalidate-view self)
@@ -330,14 +335,16 @@
    (omp 20 20)))
 
 (defmethod om-view-doubleclick-handler  ((self numbox) where)
-  (when (db-click self)
+  (when (and (enabled self) (db-click self))
     (let ((pos (mouse-screen-coordinates)))
       (open-mini-edit pos (get-value self) 
                       #'(lambda (tf)
                           (let ((val (read-from-string (om-dialog-item-text tf) nil)))
-                            (if (and (numberp val)
-                                     (or (null (max-val self)) (<= val (/ (max-val self) (expt 10 (decimals self)))))
-                                     (or (null (min-val self)) (>= val (/ (min-val self) (expt 10 (decimals self))))))
+                            (if (or 
+                                 (and (numberp val)
+                                      (or (null (max-val self)) (<= val (/ (max-val self) (expt 10 (decimals self)))))
+                                      (or (null (min-val self)) (>= val (/ (min-val self) (expt 10 (decimals self))))))
+                                 (and (allow-nil self) (null val)))
                                 (progn (set-value self val)
                                   (when (after-fun self) (funcall (after-fun self) self)))
                               (om-beep)))))

@@ -137,12 +137,13 @@
 
 
 ;;; redo time-map at editing the object
-;;; => replace with report-modifications
 (defmethod report-modifications ((self voice-editor))
   (call-next-method)
   (editor-set-edit-param self :time-map (build-time-map (object-value self)))
   (editor-update-ruler self))
 
+
+(defmethod note-dur-edit-allowed ((self voice-editor)) nil)
 
 ;;; voice editor has a different ruler
 (defclass voice-ruler (time-ruler) ())
