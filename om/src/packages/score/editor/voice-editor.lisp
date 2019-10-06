@@ -75,6 +75,67 @@
              
 
 
+;;; no cut from voice
+(defmethod cut-command ((self voice-editor)) 
+  #'(lambda () (om-beep)))
+  
+
+;;; probably useful in other places...
+
+
+;;; todo: 
+(defmethod score-editor-paste ((self voice-editor) elements)
+
+  (let* ((view (get-g-component self :main-panel))
+         (paste-pos (get-paste-position view))
+         (target-voice (cond ((typep (car (selection self)) 'voice)
+                              (car (selection self)))
+                             ((typep (car (selection self)) 'measure)
+                              (find-if #'(lambda (v) (find (car (selection self)) (inside v)))
+                                       (get-all-voices self)))
+                             (t 
+                              (get-voice-at-pos self (or paste-pos (omp 0 0)))))))
+    
+    (cond 
+     ;;; all selection are measures
+     ((list-subtypep elements 'measure)
+      ;;; insert measures before selected measure (if any) or at the end
+      (let* (
+             (mesure (find 'measure (selection self) :key #'type-of))
+             (pos-in-voice (if mesure (position mesure (inside target-voice))
+                             (length (inside target-voice)))))
+           
+        (store-current-state-for-undo self)
+        (insert-in-voice target-voice (mapcar #'om-copy elements) pos-in-voice)
+        (report-modifications self)
+        ))
+          
+     ;; otherwise collect all chords and apply to selection in voice
+     (t
+      (let ((copied-chords (sort (loop for item in elements append (get-tpl-elements-of-type item 'chord)) #'< :key #'onset))
+            (target-chords (if (selection self) 
+                               (sort (loop for item in (selection self) append (get-tpl-elements-of-type item 'chord)) #'< :key #'onset)
+                             (get-tpl-elements-of-type target-voice 'chord))))
+        
+        (store-current-state-for-undo self)
+        
+        (loop for c in copied-chords
+              for target in target-chords do 
+              (do-initialize  target 
+                             :lmidic (lmidic c)
+                             :lvel (lvel c)
+                             :lchan (lchan c)
+                             :lport (lport c)
+                             ;;; dur/offset are kept from original chord
+                             :ldur (ldur target)
+                             :loffset (loffset target)
+                             )
+              )
+        (report-modifications self)
+        t))
+     )))
+
+
 ;;; redo time-map at editing the object
 ;;; => replace with report-modifications
 (defmethod report-modifications ((self voice-editor))

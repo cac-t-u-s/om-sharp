@@ -21,7 +21,8 @@
 ;;; SCORE EDITORS (GENERAL/SHARED FEATURES)
 ;;;===========================================
 
-(defclass score-editor (OMEditor undoable-editor-mixin) ())
+(defclass score-editor (OMEditor undoable-editor-mixin) 
+  ((editor-window-config :accessor editor-window-config :initarg :editor-window-config :initform nil)))
 
 ;;; these params are shared between the editor and the box
 (defmethod object-default-edition-params ((self score-element))
@@ -171,8 +172,8 @@
       found)))
 
 (defmethod find-score-element-at-pos ((object score-element) pos)
-  
   (cond 
+   
    ((null (b-box object)) ;;; the object itself has no bounding box (yet?) or, we have clicked outside
     (let ((found nil))
       (loop for elem in (inside object) ;; check its children..
@@ -225,6 +226,8 @@
           (get-tpl-elements-of-type element type))
     ))
 
+(defmethod get-tpl-elements-of-type ((self t) type) nil)
+
 
 ;;;======================
 ;;; MOUSE ACTIONS
@@ -245,6 +248,8 @@
 ;;; redefined with objects of several voices...
 (defmethod get-voice-at-pos ((self score-editor) position)
   (values (object-value self) 0))
+(defmethod get-all-voices ((self score-editor))
+  (list (object-value self)))
 
 ;;; redefined with objects of several voices...
 (defmethod get-total-y-shift ((editor score-editor) voice-num)
@@ -254,14 +259,17 @@
 (defmethod om-view-click-handler ((self score-view) position)
   
   (let* ((editor (editor self))
+         (obj (object-value editor))
          (staff (editor-get-edit-param editor :staff))
          (scale (get-the-scale (editor-get-edit-param editor :scale)))
          (unit (font-size-to-unit (editor-get-edit-param editor :font-size))))
     
-    (multiple-value-bind (obj pos)
+    (set-paste-position position self) ;;; for copy/paste
+ 
+    (multiple-value-bind (voice pos)
         (get-voice-at-pos editor position)
 
-      (when obj
+      (when voice
       
         (let* ((shift (+ (calculate-staff-line-shift staff) (get-total-y-shift editor pos)))
                (clicked-pos position)
@@ -288,7 +296,7 @@
                               '< :key 'midic))
              
                   ;;; some updates of the time-sequence required here
-                  (score-object-update obj)
+                  (score-object-update voice)
                   (report-modifications editor)
                   (editor-invalidate-views editor)
              
@@ -320,7 +328,6 @@
           
            ;; select
            (t (let ((selection (find-score-element-at-pos obj position)))
-               
                 (set-selection editor selection)
                 (editor-invalidate-views editor)
                
@@ -349,7 +356,7 @@
                                              (store-current-state-for-undo editor :action :move :item (selection editor))
                                              ;;; remove-duplicates: continuation chords refer to existing notes !
                                              (loop for c in (remove-duplicates 
-                                                             (remove-if-not #'(lambda (obj) (typep obj 'chord))
+                                                             (remove-if-not #'(lambda (elt) (typep elt 'chord))
                                                                             (selection editor)))
                                                    do (when (>= (+ (item-get-time c) diff) 0)
                                                         (item-set-time c (+ (item-get-time c) diff))))
@@ -376,7 +383,7 @@
                        :release #'(lambda (view pos) 
                                     (declare (ignore view pos))
                                     (when modif
-                                      (score-object-update obj)
+                                      (score-object-update voice)
                                       (reset-undoable-editor-action editor)
                                       (report-modifications editor)))
                        ))
@@ -392,7 +399,7 @@
                                       (y1 (min (om-point-y position) (om-point-y end-pos)))
                                       (y2 (max (om-point-y position) (om-point-y end-pos))))
                                   
-                                  (set-selection editor (find-score-elements-in-area (object-value editor) x1 y1 x2 y2))                         
+                                  (set-selection editor (find-score-elements-in-area obj x1 y1 x2 y2))                         
                                   (om-invalidate-view view)
                                   ))
                    )
@@ -458,20 +465,24 @@
      (report-modifications editor))
 
     (:om-key-delete
-     (when (selection editor)
-       (store-current-state-for-undo editor)
-       (loop for element in (selection editor) do 
-             (score-editor-update-params-before-remove editor element)
-             (score-editor-delete editor element)
-             )
-       (setf (selection editor) nil)
-       (editor-invalidate-views editor)
-       (report-modifications editor)))
+     (delete-selection editor))
    
     (otherwise 
      (call-next-method))
     ))
 
+
+;;; also called bu cut-command:
+(defmethod delete-selection ((editor score-editor))
+  (when (selection editor)
+    (store-current-state-for-undo editor)
+    (loop for element in (selection editor) do 
+          (score-editor-update-params-before-remove editor element)
+          (score-editor-delete editor element)
+          )
+    (setf (selection editor) nil)
+    (editor-invalidate-views editor)
+    (report-modifications editor)))
 
 ;;;====================== 
 ;;; MENUS
@@ -634,3 +645,75 @@
                 ))
     ))
 
+
+
+(defmethod score-editor-set-window-config ((self score-editor) mode)
+  (unless (equal (editor-window-config self) mode)
+    (setf (editor-window-config self) mode)
+    (build-editor-window self)
+    (init-editor-window self)
+    ))
+
+;;;====================== 
+;;; MENUS
+;;;======================
+
+(defun score-edit-menu-items (self)
+  (list (om-make-menu-comp 
+         (list (om-make-menu-item "Undo" #'(lambda () (when (undo-command self) (funcall (undo-command self))))
+                                  :key "z" :enabled #'(lambda () (and (undo-command self) t)))
+               (om-make-menu-item "Redo" #'(lambda () (when (redo-command self) (funcall (redo-command self))))
+                                  :key "Z" :enabled #'(lambda () (and (redo-command self) t)))))
+        (om-make-menu-comp 
+         (list (om-make-menu-item "Copy" #'(lambda () (funcall (copy-command self))) :key "c" :enabled #'(lambda () (and (copy-command self) t)))
+               (om-make-menu-item "Cut" #'(lambda () (funcall (cut-command self))) :key "x" :enabled #'(lambda () (and (cut-command self) t)))
+               (om-make-menu-item "Paste"#'(lambda () (funcall (paste-command self))) :key "v" :enabled #'(lambda () (and (paste-command self) t)))
+               (om-make-menu-item "Delete" #'(lambda () (funcall (clear-command self))) :enabled (and (clear-command self) t))))
+        (om-make-menu-comp 
+         (list (om-make-menu-item "Select All" #'(lambda () (funcall (select-all-command self))) :key "a" :enabled #'(lambda () (and (select-all-command self) t)))))
+        (om-make-menu-item 
+                        "Show Inspector" 
+                        #'(lambda () (score-editor-set-window-config 
+                                      self 
+                                      (if (equal (editor-window-config self) :inspector) nil :inspector))) 
+                        :selected #'(lambda () (equal (editor-window-config self) :inspector))
+                        :key "i" 
+                        )
+        ))
+
+(defmethod om-menu-items ((self score-editor))
+  (remove nil
+          (list 
+           (main-app-menu-item)
+           (om-make-menu "File" (default-file-menu-items self))
+           (om-make-menu "Edit" (score-edit-menu-items self))
+           (om-make-menu "Windows" (default-windows-menu-items self))
+           (om-make-menu "Help" (default-help-menu-items self))
+           )))
+
+
+;;;====================== 
+;;; MENUS
+;;;======================
+
+(defmethod copy-command ((self score-editor))
+  (when (selection self) 
+    #'(lambda () 
+        (set-om-clipboard (mapcar #'om-copy (selection self))))))
+
+(defmethod cut-command ((self score-editor))
+  (when (selection self) 
+    #'(lambda () 
+        (set-om-clipboard (mapcar #'om-copy (selection self)))
+        (delete-selection self))))
+
+
+(defmethod paste-command ((self score-editor))
+  (when (get-om-clipboard)
+    #'(lambda () 
+        (score-editor-paste self (get-om-clipboard))
+        (editor-invalidate-views self)
+        )))
+
+;;; different behaviours for the different editors...
+(defmethod score-editor-paste ((self t) elements) nil)

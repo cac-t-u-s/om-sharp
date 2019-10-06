@@ -354,15 +354,15 @@
       )))
   
 
-
-(defmethod poly-editor-add-voice ((self poly-editor-mixin))
-  (let ((obj (object-value self)))
-    (setf (obj-list obj)
-          (append (obj-list obj)
-                  (list (make-instance (voice-type obj)))))
+;;; voice can also be a list
+(defmethod poly-editor-add-voice ((self poly-editor-mixin) &optional voice)
+  (let* ((obj (object-value self))
+         (new-voice (or voice (make-instance (voice-type obj)))))
+    (store-current-state-for-undo self)
+    (setf (obj-list obj) (append (obj-list obj) (list! new-voice))))
     (editor-invalidate-views self)
     (report-modifications self)
-    (set-interior-size-from-contents self)))
+    (set-interior-size-from-contents self))
 
 ;;;---------------------------------------------
 ;;; SCORE-EDITOR REDEFINITIONS
@@ -370,5 +370,20 @@
   (poly-editor-get-voice-at-pos self position))
 (defmethod get-voice-at-pos ((self poly-editor) position)
   (poly-editor-get-voice-at-pos self position))
+
+(defmethod get-all-voices ((self multi-seq-editor))
+  (obj-list (object-value self)))
+(defmethod get-all-voices ((self poly-editor))
+  (obj-list (object-value self)))
 ;;;---------------------------------------------
+
+
+;;; add voices
+(defmethod score-editor-paste ((self poly-editor-mixin) elements)
+
+  (if (list-subtypep elements (voice-type (object-value self)))
+      ;;; add voice(s)
+      (poly-editor-add-voice self (mapcar #'om-copy elements))
+    ;;; add chords
+    (call-next-method)))
 

@@ -229,6 +229,42 @@
 
 
 
+;;; paste command
+;;; also works for multi-seq
+(defmethod score-editor-paste ((self chord-seq-editor) elements)
+ 
+  (let ((chords (mapcar #'om-copy 
+                        (sort 
+                         (loop for item in elements append (get-tpl-elements-of-type item '(chord)))
+                         #'< :key #'onset)))
+        (view (get-g-component self :main-panel)))
+    
+    (if chords
+        
+      (let* ((t0 (onset (car chords)))
+             (paste-pos (get-paste-position view))
+             (p0 (if paste-pos
+                     (pixel-to-time view (om-point-x paste-pos))
+                   (+ t0 200)))
+             (cs (get-voice-at-pos self (or paste-pos (omp 0 0)))))
+        
+        (loop for c in chords do 
+              (item-set-time c (+ p0 (- (item-get-time c) t0))))
+
+        (set-paste-position (omp (time-to-pixel view (+ p0 200))
+                                 (if paste-pos (om-point-y paste-pos) 0))
+                            view)
+        
+        (store-current-state-for-undo self)
+        (set-chords cs (sort (append (chords cs) chords) #'< :key #'onset))
+        (report-modifications self)
+        t)
+      
+      (om-beep))
+    ))
+
+
+
 ;;;=========================
 ;;; DISPLAY
 ;;;=========================
