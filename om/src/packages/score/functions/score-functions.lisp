@@ -260,9 +260,9 @@ if <end> is NIL, the selection runs until th end.
          (before (select v1 0 pos))
          (after (select v1 pos nil)))
     
-    (let ((new-chords (print (append (get-chords before) 
-                                     (apply #'append (mapcar #'get-chords m))
-                                     (get-chords after))))
+    (let ((new-chords (append (get-chords before) 
+                              (apply #'append (mapcar #'get-chords m))
+                              (get-chords after)))
           
           (new-tree (let ((measures (append (second (tree before))
                                             (mapcar #'tree m)
