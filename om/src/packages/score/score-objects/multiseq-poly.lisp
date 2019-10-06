@@ -47,10 +47,17 @@
               (objfromobjs obj (make-instance (voice-type target)))))
   target)
 
+;;; will also work with voice/poly
+(defmethod objfromobjs ((model chord-seq) (target multi-seq))
+  (setf (obj-list target)
+        (list
+         (objfromobjs model (make-instance (voice-type target)))))
+  target)
+
 (defmethod initialize-instance ((self multi-seq) &rest args)
   (call-next-method)
   (setf (obj-list self)
-        (loop for v in (obj-list self) 
+        (loop for v in (list! (obj-list self))
               when (or 
                     (subtypep (type-of v) 'chord-seq)
                     (om-beep-msg "Removing voice of type ~A" (type-of v)))

@@ -60,6 +60,9 @@
   ((tree :initform '(1 (1 1 1 1)) :accessor tree :initarg :tree :type list :documentation "a rhythm tree")
    (inside :accessor inside :initform nil :documentation "internal hierarchical structure")))
 
+(defmethod additional-slots-to-copy ((self rhythmic-object))
+  (append (call-next-method) '(inside)))
+
 ;;; some additional classes to build a rhythmic structure
 (defclass measure (rhythmic-object) ())
 

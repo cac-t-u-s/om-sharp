@@ -49,14 +49,13 @@ Returned chords are copies of original internal chords. Time information (onset)
    (loop for chord in (chords self) collect
          (om-copy chord)))
 
-
-(defmethod* get-chords ((self poly))
-  (loop for voice in (obj-list self) collect (get-chords voice)))
-  
+(defmethod* get-chords ((self chord)) (list (om-copy self)))
 
 (defmethod* get-chords ((self t)) nil)
-(defmethod* get-chords ((self chord)) (list self))
 
+(defmethod* get-chords ((self multi-seq))
+  (loop for voice in (obj-list self) collect (get-chords voice)))
+  
 (defmethod* get-chords ((self rhythmic-object))
   (loop for elt in (inside self) append (get-chords elt)))
 
