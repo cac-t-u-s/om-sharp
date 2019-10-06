@@ -158,6 +158,9 @@
 (defmethod set-box-fontsize ((self OMBox) size) nil)
 
 
+;;; what do we do with other objects ?
+(defmethod score-object-mini-view ((self t) box x-pix y-pix y-u w h) t)
+
 ;;;===========================
 ;;; NOTE
 ;;;===========================

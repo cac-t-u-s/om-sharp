@@ -717,3 +717,58 @@
 
 ;;; different behaviours for the different editors...
 (defmethod score-editor-paste ((self t) elements) nil)
+
+
+;;; PASTE FROM SCORE IN PATCH
+
+(defmethod paste-command-for-view :around ((editor patch-editor) (view patch-editor-view))
+
+  (let ((clipboard (get-om-clipboard)))
+    
+    (if (find-if #'(lambda (elt) (subtypep (type-of elt) 'score-element)) clipboard)
+        
+        (let ((object 
+               (cond 
+         
+                ((list-subtypep clipboard 'measure)
+                 ;;; make a voice boix with selected measures
+                 (let ((obj (make-instance 'voice :tree nil)))
+                   (insert-in-voice obj (reverse clipboard) 0)
+                   obj))
+                
+                ((= 1 (length clipboard))
+                 ;;; make a box with the only object in the clipboard
+                 (om-copy (car clipboard)))
+                         
+                ((list-subtypep clipboard 'voice)
+                 ;;; make a multi-seq with the objects in the clipboard
+                 (make-instance 'poly :obj-list (mapcar #'om-copy clipboard)))
+                
+                ((list-subtypep clipboard 'chord-seq)
+                 ;;; make a multi-seq with the objects in the clipboard
+                 (make-instance 'multi-seq :obj-list (mapcar #'om-copy clipboard)))
+                
+                (t 
+                 ;;; make a chord-seq from chords
+                 (let ((chords (sort (loop for item in clipboard append (get-chords item)) #'< :key #'onset)))
+                   (when chords
+                     (let ((t0 (onset (car chords))))
+                       (loop for c in chords do 
+                             (item-set-time c (- (item-get-time c) t0)))
+                       (let ((obj (make-instance 'chord-seq)))
+                         (set-chords obj chords)
+                         obj)))))
+                )))
+
+          (if object
+              
+              (let ((paste-pos (or (get-paste-position view)
+                                   (om-make-point (round (w view) 2) (- (h view) 60)))))
+                (output-value-as-new-box object view paste-pos)
+                (set-paste-position (om-add-points paste-pos (omp 20 20)) view))
+            
+            (om-beep))
+          )
+
+      (call-next-method))
+    ))
