@@ -37,13 +37,8 @@
 ;;; COMMON FEATURES
 ;;;========================================================================
 
-(defmethod object-default-edition-params ((self multi-seq))
-  (append (call-next-method)
-          '((:grid nil))))
-
 ;;; From DATA-STREAM-EDITOR...
 (defmethod y-range-for-object ((self multi-seq)) '(-100 100))   ;;; not used anyway
-
 
 ;;;=========================
 ;;; Multi-STAFF
