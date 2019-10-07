@@ -267,8 +267,8 @@
 
 
 (defmethod om-select-window ((self capi::interface))
-  #+cocoa(capi::raise-interface self)
-  #-cocoa(capi::find-interface (type-of self) :name (capi::capi-object-name self))
+  #-linux(capi::raise-interface self))
+  #+linux(capi::find-interface (type-of self) :name (capi::capi-object-name self))
   self)
 
 (defmethod om-hide-window ((self om-abstract-window))
