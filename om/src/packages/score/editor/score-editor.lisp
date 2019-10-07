@@ -426,6 +426,7 @@
 (defmethod score-editor-handle-voice-selection ((self score-editor) direction) nil)
 (defmethod score-editor-update-params-before-remove ((self score-editor) removed) nil)
 
+
 (defmethod editor-key-action ((editor score-editor) key)
   
   (case key
@@ -484,16 +485,6 @@
     (editor-invalidate-views editor)
     (report-modifications editor)))
 
-;;;====================== 
-;;; MENUS
-;;;======================
-
-(defmethod select-all-command ((self score-editor))
-  #'(lambda () 
-      (set-selection self (get-tpl-elements-of-type (object-value self) '(chord r-rest)))                         
-      (editor-invalidate-views self)
-      ))
-
 
 ;;;====================== 
 ;;; CONTROL PANEL
@@ -514,7 +505,7 @@
 (defmethod make-score-display-params-controls ((editor score-editor)) 
   
   (let ((title (om-make-di 'om-simple-text :text "Display params" 
-                           :size (omp 120 22) ;; :bg-color (om-def-color :red)
+                           :size (omp 100 22) ;; :bg-color (om-def-color :red)
                            :font (om-def-font :font2b)))
         
         (size-item
@@ -528,7 +519,7 @@
                      (set-g-component 
                       editor :font-size-box
                       (om-make-di 'om-popup-list :items *score-fontsize-options* 
-                                  :size (omp 60 24) :font (om-def-font :font1)
+                                  :size (omp 55 24) :font (om-def-font :font1)
                                   :value (editor-get-edit-param editor :font-size)
                                   :di-action #'(lambda (list) 
                                                  (set-font-size editor (om-get-selected-item list))
@@ -545,7 +536,7 @@
                                  :size (omp 35 20) 
                                  :font (om-def-font :font1))
                      (om-make-di 'om-popup-list :items *score-staff-options* 
-                                 :size (omp 90 24) :font (om-def-font :font1)
+                                 :size (omp 80 24) :font (om-def-font :font1)
                                  :value (editor-get-edit-param editor :staff)
                                  :di-action #'(lambda (list) 
                                                 (editor-set-edit-param editor :staff (om-get-selected-item list))
@@ -561,7 +552,7 @@
                                  :size (omp 35 20) 
                                  :font (om-def-font :font1))
                      (om-make-di 'om-popup-list :items (mapcar #'car *all-scales*) 
-                                 :size (omp 90 24) :font (om-def-font :font1)
+                                 :size (omp 80 24) :font (om-def-font :font1)
                                  :value (editor-get-edit-param editor :scale)
                                  :di-action #'(lambda (list) 
                                                 (editor-set-edit-param editor :scale (om-get-selected-item list))
@@ -578,7 +569,7 @@
                                  :size (omp 50 20) 
                                  :font (om-def-font :font1))
                      (om-make-di 'om-popup-list :items '(:hidden :value :symbol :size :alpha) 
-                                 :size (omp 80 24) :font (om-def-font :font1)
+                                 :size (omp 70 24) :font (om-def-font :font1)
                                  :value (editor-get-edit-param editor :velocity-display)
                                  :di-action #'(lambda (list) 
                                                 (editor-set-edit-param editor :velocity-display (om-get-selected-item list))))
@@ -606,7 +597,7 @@
                                  :size (omp 68 20) 
                                  :font (om-def-font :font1))
                      (om-make-di 'om-popup-list :items '(:hidden :number :color :color-and-number) 
-                                 :size (omp 80 24) :font (om-def-font :font1)
+                                 :size (omp 70 24) :font (om-def-font :font1)
                                  :value (editor-get-edit-param editor :channel-display)
                                  :di-action #'(lambda (list) 
                                                 (editor-set-edit-param editor :channel-display (om-get-selected-item list))))
@@ -671,7 +662,13 @@
                (om-make-menu-item "Paste"#'(lambda () (funcall (paste-command self))) :key "v" :enabled #'(lambda () (and (paste-command self) t)))
                (om-make-menu-item "Delete" #'(lambda () (funcall (clear-command self))) :enabled (and (clear-command self) t))))
         (om-make-menu-comp 
-         (list (om-make-menu-item "Select All" #'(lambda () (funcall (select-all-command self))) :key "a" :enabled #'(lambda () (and (select-all-command self) t)))))
+         (list (om-make-menu-item "Select All" #'(lambda () (funcall (select-all-command self))) 
+                                  :key "a" :enabled #'(lambda () (and (select-all-command self) t)))))
+
+        (om-make-menu-comp 
+         (list (om-make-menu-item "Align Chords [Shift+A]" #'(lambda () (funcall (align-command self))) 
+                                  :enabled #'(lambda () (and (align-command self) t)))))
+
         (om-make-menu-item 
                         "Show Inspector" 
                         #'(lambda () (score-editor-set-window-config 
@@ -693,10 +690,19 @@
            )))
 
 
+
+(defmethod select-all-command ((self score-editor))
+  #'(lambda () 
+      (set-selection self (get-tpl-elements-of-type (object-value self) '(chord r-rest)))                         
+      (editor-invalidate-views self)
+      ))
+
+
 (defmethod copy-command ((self score-editor))
   (when (selection self) 
     #'(lambda () 
         (set-om-clipboard (mapcar #'om-copy (selection self))))))
+
 
 (defmethod cut-command ((self score-editor))
   (when (selection self) 
@@ -711,6 +717,7 @@
         (score-editor-paste self (get-om-clipboard))
         (editor-invalidate-views self)
         )))
+
 
 ;;; different behaviours for the different editors...
 (defmethod score-editor-paste ((self t) elements) nil)
@@ -772,6 +779,9 @@
 
 
 
+;;; only works in chord-seq-editor
+(defmethod align-command ((self score-editor)) nil)
+
 ;;;=====================================
 ;;; INSPECTOR / EDIT VALUES IN SCORE
 ;;;=====================================
@@ -794,7 +804,6 @@
                                         :separator
                                         inspector-panel
                                         ))
-
         )
     
     (call-next-method)))

@@ -39,7 +39,7 @@
 
 (defmethod object-default-edition-params ((self chord-seq))
   (append (call-next-method)
-          '((:grid nil))))
+          '((:grid nil) (:grid-step 1000))))
 
 (defmethod editor-with-timeline ((self chord-seq-editor)) nil)
 
@@ -124,8 +124,62 @@
 ;;; EDITOR
 ;;;=========================
 
+
+;;; add a "grid" option
 (defmethod make-editor-controls ((editor chord-seq-editor))
-  (make-score-display-params-controls editor))
+  
+  (let* ((grid-label (om-make-di 'om-simple-text :text "Grid" 
+                                 :font (om-def-font :font1)
+                                 :size (omp 30 18)))
+        
+         (grid-numbox (om-make-graphic-object 
+                       'numbox 
+                       :position (omp 0 0)
+                       :value (editor-get-edit-param editor :grid-step)
+                       :enabled (editor-get-edit-param editor :grid)
+                       :bg-color (om-def-color :white)
+                       :db-click t
+                       :decimals 0
+                       :size (om-make-point 40 18) 
+                       :font (om-def-font :font1)
+                       :min-val 10 
+                       :max-val 10000
+                       :after-fun #'(lambda (item)
+                                      (editor-set-edit-param editor :grid-step (value item))
+                                      (editor-invalidate-views editor))))
+        
+         (grid-checkbox 
+          (om-make-di 'om-check-box 
+                      :checked-p (editor-get-edit-param editor :grid)
+                      :text ""
+                      :size (om-make-point 16 18)
+                      :di-action #'(lambda (item)
+                                     (enable-numbox grid-numbox (om-checked-p item))
+                                     (editor-set-edit-param editor :grid (om-checked-p item))
+                                     (editor-invalidate-views editor)
+                                     )))
+         )
+        
+    (om-make-layout 'om-row-layout
+                    :subviews 
+                    (list (make-score-display-params-controls editor)
+                          :separator
+                          (om-make-layout 'om-row-layout
+                                          :align :bottom
+                                          :subviews (list grid-label grid-checkbox 
+                                                          (om-make-layout 
+                                                           'om-simple-layout 
+                                                           :align :bottom
+                                                           ;:size (omp 50 20)
+                                                           :subviews
+                                                           (list grid-numbox)))
+                                          :delta nil)
+                          nil
+                          ))
+    ))
+                  
+
+
 
 (defmethod update-view-from-ruler ((self x-ruler-view) (view chord-seq-panel))
   (call-next-method)
@@ -169,6 +223,12 @@
       (call-next-method)) ;;; => score-view
   )
 
+
+(defmethod editor-key-action ((editor chord-seq-editor) key)
+    (case key
+      (#\A (align-chords-in-editor editor))
+      (otherwise (call-next-method)) ;;; => score-editor
+      ))
 
 
 ;;; called at add-click
@@ -264,6 +324,22 @@
     ))
 
 
+(defmethod align-chords-in-editor ((self chord-seq-editor))
+  (when (selection self)
+    (store-current-state-for-undo self)
+    (align-chords-in-sequence 
+     (object-value self)
+     (editor-get-edit-param self :grid-step)
+     (selection self))
+    (report-modifications self)
+    (editor-invalidate-views self)
+    ))
+  
+(defmethod align-command ((self chord-seq-editor))
+  (when (selection self) 
+    #'(lambda () 
+        (align-chords-in-editor self))
+    ))
 
 ;;;=========================
 ;;; DISPLAY
@@ -290,6 +366,17 @@
         (dur (editor-get-edit-param editor :duration-display))
         (y-u (or force-y-shift (editor-get-edit-param editor :y-shift))))
     
+    ;;; DRAW GRID
+    (when (editor-get-edit-param editor :grid)
+      (let ((grid-step (or (editor-get-edit-param editor :grid-step) 100))) ;; just in case..
+        (loop for x from (* (ceiling (x1 view) grid-step) grid-step)
+              to (* (floor (x2 view) grid-step) grid-step)
+              by grid-step 
+              do (let ((x-pix (time-to-pixel view x)))
+                   (om-draw-line x-pix 0 x-pix (h view) :color (om-def-color :gray) :style '(2 2))
+                   )
+        )))
+       
     ;;; NOTE: so far we don't build/update a bounding-box for the chord-seq itself (might be useful in POLY)..
     (loop for chord in (chords object) do
           (setf 
