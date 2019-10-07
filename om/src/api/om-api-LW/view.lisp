@@ -203,7 +203,14 @@
 (defmethod om-view-resized ((self om-view) size) (declare (ignore self size)) nil)
 
 (defmethod om-scroll-callback ((self om-view) dir op val &key interactive)
-  (when interactive (om-view-scrolled self val)))
+  (when interactive (om-view-scrolled 
+                     self 
+                     (case dir 
+                       (:vertical (list 0 val))
+                       (:horizontal (list val 0))
+                       (:pan val)))
+    ))
+      
 
 (defmethod om-view-scrolled ((self om-view) xy) (declare (ignore self xy)) nil)
 
