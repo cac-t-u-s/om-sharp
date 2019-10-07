@@ -267,7 +267,7 @@
 
 
 (defmethod om-select-window ((self capi::interface))
-  #-linux(capi::raise-interface self))
+  #-linux(capi::raise-interface self)
   #+linux(capi::find-interface (type-of self) :name (capi::capi-object-name self))
   self)
 
