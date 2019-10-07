@@ -60,6 +60,55 @@ Returned chords are copies of original internal chords. Time information (onset)
   (loop for elt in (inside self) append (get-chords elt)))
 
 
+
+;--------------------
+;  ALIGN-CHORDS
+;--------------------
+
+
+(defmethod group-chords ((self chord-seq))
+  (let ((new-chords (list (car (chords self)))))
+    (loop for c in (cdr (chords self))
+          do (if (equal (onset c) (onset (car new-chords)))
+                 (setf (notes (car new-chords))
+                       (append (notes (car new-chords)) (notes c)))
+               (push c new-chords)))
+    (set-chords self (reverse new-chords))))
+
+;;; destructive version: align in the sequence
+;;; when slection : align only the chords in selection
+(defmethod align-chords-in-sequence ((self chord-seq) (unit number) &optional selection)
+  
+  (when (> unit 0)
+    (loop for c in (or selection (chords self)) do
+          (setf (onset c) (* unit (round (onset c) unit)))))
+
+  (group-chords self)
+  
+  self)
+
+;;; OM-patch version: creates a new object
+(defmethod* align-chords ((self chord-seq) (unit number))
+  :initvals (list nil 100)
+  :indoc '("a chord-seq" "an integer")
+  :icon :score 
+  :doc "
+Aligns chords on a grid of <unit> (ms) and groups notes falling in a same interval.
+"
+  (let ((cseq (om-copy self)))
+    (align-chords-in-sequence cseq unit)
+    cseq))
+
+(defmethod* align-chords ((self multi-seq) (unit number))
+  (make-instance 
+   'multi-seq
+   :obj-list (loop for cs in (obj-list self) collect (align-chords cs unit))))
+
+
+(defmethod* align-chords ((self voice) (unit number)) nil)
+
+
+
 ;--------------------
 ;  CONCAT
 ;--------------------
@@ -174,6 +223,32 @@ POLY: each voice is concatenated, regardless of the global duration.
 ;--------------------
 
 
+(defmethod* merger ((s1 chord-seq) (s2 chord-seq))
+  :initvals '(nil nil) 
+  :icon :score 
+  :indoc '("sequence" "sequence")
+  :doc "Merges to objects to a single object of the same type"
+  
+  (let ((new-cs (make-instance 'chord-seq)))
+    
+    (set-chords new-cs (sort (append (get-chords s1) (get-chords s2)) #'< :key #'onset))
+    
+    (align-chords-in-sequence new-cs 0)
+    
+    new-cs))
+
+
+(defmethod* merger ((c1 chord) (c2 chord))
+  
+  (let ((new-chord (make-instance 'chord)))
+
+    (setf (notes new-chord)
+          (sort (mapcar #'om-copy (append (notes c1) (notes c2))) #'< :key #'midic))
+    
+    new-chord))
+
+
+;;; TODO: VERSION FOR VOICE
 
 
 ;--------------------
@@ -239,6 +314,10 @@ if <end> is NIL, the selection runs until th end.
 ;--------------------
 
 (defmethod* insert ((v1 voice) (v2 voice) position)
+  :indoc '("voice" "voice" "position (voice num)")
+  :initvals '(nil nil 0)
+  :doc "Inserts the measures of <v2> in <v1> at <position> (position in measures)."
+  :icon :score
   (let* ((pos (or position (length (inside v1))))
          (before (select v1 0 pos))
          (after (select v1 pos nil)))
@@ -254,8 +333,9 @@ if <end> is NIL, the selection runs until th end.
     ))
 
 
+
 ;;; destructive version, with measures
-(defmethod* insert-in-voice ((self voice) (m list) position)
+(defmethod insert-in-voice ((self voice) (m list) position)
   (let* ((pos (or position (length (inside self))))
          (before (select self 0 pos))
          (after (select self pos nil)))
@@ -278,16 +358,6 @@ if <end> is NIL, the selection runs until th end.
 
 (defmethod* insert-in-voice ((v1 voice) (m measure) position)
   (insert-in-voice v1 (list m) position))
-
-
-;--------------------
-;  MASK
-;--------------------
-
-
-
-
-
 
 
 ;--------------------
