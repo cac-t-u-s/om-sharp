@@ -96,8 +96,8 @@
   (loop for ch in *key-ons* for c = 1 then (+ c 1) do
         (loop for note in ch do
               (midi-send-evt (om-midi::make-midi-evt :type :keyOff
-                                                    :chan c :date 0 :ref 0 :port (car note)
-                                                    :fields (list (cadr note) 0))
+                                                     :chan c :date 0 :ref 0 :port (car note)
+                                                     :fields (list (cadr note) 0))
                              )))
   (setf *key-ons* (make-list 16)))
 
