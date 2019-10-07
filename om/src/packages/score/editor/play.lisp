@@ -114,8 +114,10 @@
                                    (if chan-shift (micro-channel (midic n) (pitch-approx object)) 0))))
                    (remove nil 
                            (list 
-                            (if (in-interval (+ (date c) (offset n)) interval :exclude-high-bound t) 
-                                  
+                            (if (or (in-interval (+ (date c) (offset n)) interval :exclude-high-bound t) 
+                                    (minusp (offset n)) ;;; pre-schedule it !
+                                    )
+
                                 (list (+ (date c) (offset n))
                                         
                                       #'(lambda (note) (om-midi::midi-send-evt 
