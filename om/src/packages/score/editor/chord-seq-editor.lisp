@@ -86,9 +86,14 @@
                 ))
 
 (defmethod om-view-scrolled ((self left-score-view) pos)
+  ;;; for some reason the initerior size initialization doesn't work on windows...
+  #+windows(set-interior-size-from-contents (editor self))
+  
   (om-set-scroll-position 
    (get-g-component (editor self) :main-panel) 
-   (omp 0 (cadr pos))))
+   (omp 0 (cadr pos)))
+  
+  )
 
 
 

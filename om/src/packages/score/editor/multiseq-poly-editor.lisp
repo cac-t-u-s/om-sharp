@@ -112,7 +112,7 @@
 
     (when shift
       
-      (oa::om-set-interior-size score-view 
+      (oa::om-set-interior-size score-view
                                 (omp (om-point-x (om-view-size score-view))
                                      (round (* shift unit))))
       
@@ -151,6 +151,12 @@
 (defmethod left-score-view-class ((self multi-seq-editor)) 'poly-left-score-view)
 (defmethod left-score-view-class ((self poly-editor)) 'poly-left-score-view)
 ;;;---------------------------------------------
+
+;;; hack / for some reason the initerior size initialization doesn't work on windows...
+#+windows
+(defmethod om-set-scroll-position :before ((self poly-left-score-view) pos)
+  (set-interior-size-from-contents (editor self)))
+
 
 (defmethod om-view-click-handler ((self poly-left-score-view) position)
   
