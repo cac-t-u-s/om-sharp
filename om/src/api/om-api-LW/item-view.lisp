@@ -302,7 +302,7 @@
 (defmethod om-draw-contents ((self om-item-text))
   (when (border self) 
     (om-draw-rect 0 0 (vw self) (vh self) :color (om-def-color :gray)))
-  (gp:draw-x-y-adjusted-string *curstream* (text self) 0 0 :y-adjust :top))
+  (gp:draw-x-y-adjusted-string *curstream* (text self) 0 -2 :y-adjust :top))
 
 ;(defmethod capi:draw-pinboard-object (pinboard (text om-item-text) &key)
 ;  (capi:with-geometry text
