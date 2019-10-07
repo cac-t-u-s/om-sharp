@@ -502,120 +502,115 @@
 ;;; redefined in multi-editors
 (defmethod set-interior-size-from-contents ((self score-editor)) nil)
 
-(defmethod make-score-display-params-controls ((editor score-editor)) 
+(defmethod make-score-display-params-controls ((editor score-editor))
   
-  (let ((title (om-make-di 'om-simple-text :text "Display params" 
-                           :size (omp 100 22) ;; :bg-color (om-def-color :red)
-                           :font (om-def-font :font2b)))
+  (let* ((title (om-make-di 'om-simple-text :text "Editor params" 
+                            :size (omp 100 22) ;; :bg-color (om-def-color :red)
+                            :font (om-def-font :font2b)))
         
-        (size-item
-         (om-make-layout 
-          'om-row-layout
-          :subviews (list 
-                     (om-make-di 'om-simple-text :text "size:" 
-                                 :font (om-def-font :font1)
-                                 :size (omp 30 20))
+         (size-item
+          (om-make-layout 
+           'om-row-layout
+           :subviews (list 
+                      (om-make-di 'om-simple-text :text "size" 
+                                  :font (om-def-font :font1)
+                                  :size (omp 30 20))
                 
-                     (set-g-component 
-                      editor :font-size-box
-                      (om-make-di 'om-popup-list :items *score-fontsize-options* 
-                                  :size (omp 55 24) :font (om-def-font :font1)
-                                  :value (editor-get-edit-param editor :font-size)
+                      (set-g-component 
+                       editor :font-size-box
+                       (om-make-di 'om-popup-list :items *score-fontsize-options* 
+                                   :size (omp 55 24) :font (om-def-font :font1)
+                                   :value (editor-get-edit-param editor :font-size)
+                                   :di-action #'(lambda (list) 
+                                                  (set-font-size editor (om-get-selected-item list))
+                                                  ))
+                       )
+                      )))
+        
+         (staff-item
+          (om-make-layout 
+           'om-row-layout 
+           :subviews (list 
+                      (om-make-di 'om-simple-text :text "staff" 
+                                  :size (omp 35 20) 
+                                  :font (om-def-font :font1))
+                      (om-make-di 'om-popup-list :items *score-staff-options* 
+                                  :size (omp 80 24) :font (om-def-font :font1)
+                                  :value (editor-get-edit-param editor :staff)
                                   :di-action #'(lambda (list) 
-                                                 (set-font-size editor (om-get-selected-item list))
-                                                 ))
-                      )
-                     )))
+                                                 (editor-set-edit-param editor :staff (om-get-selected-item list))
+                                                 (set-interior-size-from-contents editor)
+                                                 (report-modifications editor) ;; update the box display
+                                                 )))))
+
+         (scale-item 
+          (om-make-layout 
+           'om-row-layout
+           :subviews (list 
+                      (om-make-di 'om-simple-text :text "scale" 
+                                  :size (omp 35 20) 
+                                  :font (om-def-font :font1))
+                      (om-make-di 'om-popup-list :items (mapcar #'car *all-scales*) 
+                                  :size (omp 80 24) :font (om-def-font :font1)
+                                  :value (editor-get-edit-param editor :scale)
+                                  :di-action #'(lambda (list) 
+                                                 (editor-set-edit-param editor :scale (om-get-selected-item list))
+                                                 (report-modifications editor) ;; update the box display
+                                                 )))))
         
-        (staff-item
-         (om-make-layout 
-          'om-row-layout 
-          :subviews (list 
-                     (om-make-di 'om-simple-text :text "staff:" 
-                                 :size (omp 35 20) 
-                                 :font (om-def-font :font1))
-                     (om-make-di 'om-popup-list :items *score-staff-options* 
-                                 :size (omp 80 24) :font (om-def-font :font1)
-                                 :value (editor-get-edit-param editor :staff)
-                                 :di-action #'(lambda (list) 
-                                                (editor-set-edit-param editor :staff (om-get-selected-item list))
-                                                (set-interior-size-from-contents editor)
-                                                (report-modifications editor) ;; update the box display
-                                                )))))
-
-        (scale-item 
-         (om-make-layout 
-          'om-row-layout
-          :subviews (list 
-                     (om-make-di 'om-simple-text :text "scale:" 
-                                 :size (omp 35 20) 
-                                 :font (om-def-font :font1))
-                     (om-make-di 'om-popup-list :items (mapcar #'car *all-scales*) 
-                                 :size (omp 80 24) :font (om-def-font :font1)
-                                 :value (editor-get-edit-param editor :scale)
-                                 :di-action #'(lambda (list) 
-                                                (editor-set-edit-param editor :scale (om-get-selected-item list))
-                                                (report-modifications editor) ;; update the box display
-                                                )))))
-
+         (duration-item 
+          (om-make-layout 
+           'om-row-layout
+           :subviews (list 
+                      (om-make-di 'om-simple-text :text "durations" 
+                                  :size (omp 50 18) 
+                                  :font (om-def-font :font1))
+                      (om-make-di 'om-check-box :text "" :font (om-def-font :font1)
+                                  :size (omp 68 20) 
+                                  :checked-p (editor-get-edit-param editor :duration-display)
+                                  :di-action #'(lambda (item) 
+                                                 (editor-set-edit-param editor :duration-display (om-checked-p item))))
+                      )))
         
+         (grid-numbox 
+          (om-make-graphic-object 
+           'numbox 
+           :position (omp 0 0)
+           :value (editor-get-edit-param editor :grid-step)
+           :enabled (editor-get-edit-param editor :grid)
+           :bg-color (om-def-color :white)
+           :db-click t
+           :decimals 0
+           :size (om-make-point 40 16) 
+           :font (om-def-font :font1)
+           :min-val 10 
+           :max-val 10000
+           :after-fun #'(lambda (item)
+                          (editor-set-edit-param editor :grid-step (value item))
+                          (editor-invalidate-views editor))))
+         (grid-item
+          (om-make-layout 
+           'om-row-layout
+           :delta nil
+           :subviews (list (om-make-di 'om-simple-text :text "grid" 
+                                       :font (om-def-font :font1)
+                                       :size (omp 50 18))
+                           (om-make-di 'om-check-box 
+                                       :checked-p (editor-get-edit-param editor :grid)
+                                       :text ""
+                                       :size (om-make-point 16 18)
+                                       :di-action #'(lambda (item)
+                                                      (enable-numbox grid-numbox (om-checked-p item))
+                                                      (editor-set-edit-param editor :grid (om-checked-p item))
+                                                      (editor-invalidate-views editor)
+                                                      ))
+                           (om-make-layout 'om-simple-layout 
+                                           :align :bottom
+                                           :subviews (list grid-numbox)))
+           ))
 
-        (velocity-item 
-         (om-make-layout 
-          'om-row-layout
-          :subviews (list 
-                     (om-make-di 'om-simple-text :text "velocity" 
-                                 :size (omp 50 20) 
-                                 :font (om-def-font :font1))
-                     (om-make-di 'om-popup-list :items '(:hidden :value :symbol :size :alpha) 
-                                 :size (omp 70 24) :font (om-def-font :font1)
-                                 :value (editor-get-edit-param editor :velocity-display)
-                                 :di-action #'(lambda (list) 
-                                                (editor-set-edit-param editor :velocity-display (om-get-selected-item list))))
-                     )))
-
-        (duration-item 
-         (om-make-layout 
-          'om-row-layout
-          :subviews (list 
-                     (om-make-di 'om-simple-text :text "durations" 
-                                 :size (omp 50 20) 
-                                 :font (om-def-font :font1))
-                     (om-make-di 'om-check-box :text "" :font (om-def-font :font1)
-                                 :size (omp 68 20) 
-                                 :checked-p (editor-get-edit-param editor :duration-display)
-                                 :di-action #'(lambda (item) 
-                                                (editor-set-edit-param editor :duration-display (om-checked-p item))))
-                     )))
-
-        (channel-item 
-         (om-make-layout 
-          'om-row-layout
-          :subviews (list 
-                     (om-make-di 'om-simple-text :text "MIDI channel" 
-                                 :size (omp 68 20) 
-                                 :font (om-def-font :font1))
-                     (om-make-di 'om-popup-list :items '(:hidden :number :color :color-and-number) 
-                                 :size (omp 70 24) :font (om-def-font :font1)
-                                 :value (editor-get-edit-param editor :channel-display)
-                                 :di-action #'(lambda (list) 
-                                                (editor-set-edit-param editor :channel-display (om-get-selected-item list))))
-                     )))
-        
-        (port-item 
-         (om-make-layout 
-          'om-row-layout
-          :subviews (list 
-                     (om-make-di 'om-simple-text :text "MIDI port" 
-                                 :size (omp 68 20) 
-                                 :font (om-def-font :font1))
-                     (om-make-di 'om-check-box :text "" :font (om-def-font :font1)
-                                 :size (omp 68 20) 
-                                 :checked-p (editor-get-edit-param editor :port-display)
-                                 :di-action #'(lambda (item) 
-                                                (editor-set-edit-param editor :port-display (om-checked-p item)))))))
-        ;;; end LET declarations
-        )
+         ;;; end LET declarations
+         )
     
     ;;; all in a simple layout fixes refresh/redisplay
     ;;; problems on windows...
@@ -624,20 +619,16 @@
      :subviews (list
                 (om-make-layout 
                  'om-grid-layout
-     ;:align :center 
-                 :dimensions '(4 2) 
+                 :dimensions '(3 2) 
                  :delta '(10 0)
                  :subviews (list 
                             title 
+                            scale-item
+                            duration-item
+                            size-item
                             staff-item
-                            velocity-item
-                            channel-item
-                            
-                size-item
-                scale-item
-                duration-item
-                port-item
-                ))
+                            grid-item
+                            ))
                 ))
     ))
 
@@ -842,310 +833,411 @@
   (setf (object self) object)
   (om-remove-all-subviews self)        
   
-  (let* ((ed (editor self))
+  (let* ((editor (editor self))
          (notes (loop for elt in object append (get-tpl-elements-of-type elt 'note)))
          (measures (loop for elt in object append (get-tpl-elements-of-type elt 'measure)))
          (voices (loop for elt in object append (get-tpl-elements-of-type elt 'voice)))
-  
+         (numbox-h 16) (text-h 18)
+
+         (close-button 
+          ;;; "close" button at the top-right...
+          (om-make-layout
+           'om-row-layout
+           :ratios '(100 1)
+           :subviews 
+           (list nil 
+                 (om-make-graphic-object 
+                  'om-icon-button :icon :xx :icon-pushed :xx-pushed
+                  :size (omp 12 12)
+                  :action #'(lambda (b) 
+                              (declare (ignore b))
+                                        (score-editor-set-window-config editor nil))
+                  )
+                 )))
+         
          (notes-layout
-          
-          (if notes
+          (om-make-layout 
+           'om-column-layout
+           :subviews
+           (list 
+            (om-make-di 'om-simple-text :size (om-make-point 120 20) 
+                        :text "Selected note(s)"
+                        :font (om-def-font :font1b))
+            (if notes
               
-              (om-make-layout
-               'om-grid-layout
-               :dimensions '(2 6)
-               :subviews 
-               (list 
+                (om-make-layout
+                 'om-grid-layout
+                 :dimensions '(2 6)
+                 :delta '(4 0)
+                 :subviews 
+                 (list 
                  
-                (om-make-di 'om-simple-text :size (om-make-point 50 20) 
-                            :text "midic"
-                            :font (om-def-font :font1))
+                  (om-make-di 'om-simple-text :size (om-make-point 50 text-h) 
+                              :text "midic"
+                              :font (om-def-font :font1))
 
-                (om-make-graphic-object 'numbox
-                                        :size (omp 40 18)
-                                        :bg-color (om-def-color :white)
-                                        :fg-color (if (all-equal (mapcar #'midic notes)) (om-def-color :black) (om-def-color :gray))
-                                        :db-click t
-                                        :min-val 0 :max-val 20000
-                                        :value (slot-value (car notes) 'midic)
-                                        :after-fun #'(lambda (item)
-                                                       (store-current-state-for-undo ed)
-                                                       (loop for n in notes do
-                                                             (setf (slot-value n 'midic) (value item)))
-                                                       (report-modifications ed))
-                                        )
+                  (om-make-graphic-object 
+                   'numbox
+                   :size (omp 40 numbox-h)
+                   :bg-color (om-def-color :white)
+                   :fg-color (if (all-equal (mapcar #'midic notes)) (om-def-color :black) (om-def-color :gray))
+                   :db-click t
+                   :min-val 0 :max-val 20000
+                   :value (slot-value (car notes) 'midic)
+                   :after-fun #'(lambda (item)
+                                  (store-current-state-for-undo editor)
+                                  (loop for n in notes do
+                                        (setf (slot-value n 'midic) (value item)))
+                                  (update-from-editor (object editor))
+                                  (editor-invalidate-views editor))
+                   )
                       
-                (om-make-di 'om-simple-text :size (om-make-point 50 20) 
-                            :text "vel"
-                            :font (om-def-font :font1))
+                  (om-make-di 'om-simple-text :size (om-make-point 50 text-h) 
+                              :text "vel"
+                              :font (om-def-font :font1))
 
-                (om-make-graphic-object 'numbox
-                                        :size (omp 40 18)
-                                        :bg-color (om-def-color :white)
-                                        :fg-color (if (all-equal (mapcar #'vel notes)) (om-def-color :black) (om-def-color :gray))
-                                        :db-click t
-                                        :min-val 0 :max-val 127
-                                        :value (slot-value (car notes) 'vel)
-                                        :after-fun #'(lambda (item)
-                                                       (store-current-state-for-undo ed)
-                                                       (loop for n in notes do
-                                                             (setf (slot-value n 'vel) (value item)))
-                                                       (report-modifications ed))
-                                        )
+                  (om-make-graphic-object 
+                   'numbox
+                   :size (omp 40 numbox-h)
+                   :bg-color (om-def-color :white)
+                   :fg-color (if (all-equal (mapcar #'vel notes)) (om-def-color :black) (om-def-color :gray))
+                   :db-click t
+                   :min-val 0 :max-val 127
+                   :value (slot-value (car notes) 'vel)
+                   :after-fun #'(lambda (item)
+                                  (store-current-state-for-undo editor)
+                                  (loop for n in notes do
+                                        (setf (slot-value n 'vel) (value item)))
+                                  (update-from-editor (object editor))
+                                  (editor-invalidate-views editor))
+                   )
 
-                (om-make-di 'om-simple-text :size (om-make-point 50 20) 
-                            :text "dur"
-                            :font (om-def-font :font1))
+                  (om-make-di 'om-simple-text :size (om-make-point 50 text-h) 
+                              :text "dur"
+                              :font (om-def-font :font1))
 
-                (om-make-graphic-object 'numbox
-                                        :size (omp 40 18)
-                                        :bg-color (om-def-color :white)
-                                        :db-click t
-                                        :enabled (note-dur-edit-allowed ed)
-                                        :fg-color (if (and (all-equal (mapcar #'dur notes))
-                                                           (note-dur-edit-allowed ed))
-                                                      (om-def-color :black) (om-def-color :gray))
-                                        :min-val 0 :max-val 10000
-                                        :value (slot-value (car notes) 'dur)
-                                        :after-fun #'(lambda (item)
-                                                       (store-current-state-for-undo ed)
-                                                       (loop for n in notes do
-                                                             (setf (slot-value n 'dur) (value item)))
-                                                       (report-modifications ed))
-                                        )
+                  (om-make-graphic-object 
+                   'numbox
+                   :size (omp 40 numbox-h)
+                   :bg-color (om-def-color :white)
+                   :db-click t
+                   :enabled (note-dur-edit-allowed editor)
+                   :fg-color (if (and (all-equal (mapcar #'dur notes))
+                                      (note-dur-edit-allowed editor))
+                                 (om-def-color :black) (om-def-color :gray))
+                   :min-val 0 :max-val 10000
+                   :value (slot-value (car notes) 'dur)
+                   :after-fun #'(lambda (item)
+                                  (store-current-state-for-undo editor)
+                                  (loop for n in notes do
+                                        (setf (slot-value n 'dur) (value item)))
+                                  (update-from-editor (object editor))
+                                  (editor-invalidate-views editor))
+                   )
 
-                (om-make-di 'om-simple-text :size (om-make-point 50 20) 
-                            :text "offset"
-                            :font (om-def-font :font1))
+                  (om-make-di 'om-simple-text :size (om-make-point 50 text-h) 
+                              :text "offset"
+                              :font (om-def-font :font1))
 
-                (om-make-graphic-object 'numbox
-                                        :size (omp 40 18)
-                                        :bg-color (om-def-color :white)
-                                        :enabled (note-dur-edit-allowed ed)
-                                        :fg-color (if (and (all-equal (mapcar #'dur notes))
-                                                           (note-dur-edit-allowed ed))
-                                                      (om-def-color :black) (om-def-color :gray))
-                                        :db-click t
-                                        :min-val -20000 :max-val 20000
-                                        :value (slot-value (car notes) 'offset)
-                                        :after-fun #'(lambda (item)
-                                                       (store-current-state-for-undo ed)
-                                                       (loop for n in notes do
-                                                             (setf (slot-value n 'offset) (value item)))
-                                                       (report-modifications ed))
-                                        )
+                  (om-make-graphic-object 
+                   'numbox
+                   :size (omp 40 numbox-h)
+                   :bg-color (om-def-color :white)
+                   :enabled (note-dur-edit-allowed editor)
+                   :fg-color (if (and (all-equal (mapcar #'dur notes))
+                                      (note-dur-edit-allowed editor))
+                                 (om-def-color :black) (om-def-color :gray))
+                   :db-click t
+                   :min-val -20000 :max-val 20000
+                   :value (slot-value (car notes) 'offset)
+                   :after-fun #'(lambda (item)
+                                  (store-current-state-for-undo editor)
+                                  (loop for n in notes do
+                                        (setf (slot-value n 'offset) (value item)))
+                                  (update-from-editor (object editor))
+                                  (editor-invalidate-views editor))
+                   )
 
                 
-                (om-make-di 'om-simple-text :size (om-make-point 50 20) 
-                            :text "chan"
-                            :font (om-def-font :font1))
+                  (om-make-di 'om-simple-text :size (om-make-point 50 text-h) 
+                              :text "chan"
+                              :font (om-def-font :font1))
 
-                (om-make-graphic-object 'numbox
-                                        :size (omp 40 18)
-                                        :bg-color (om-def-color :white)
-                                        :fg-color (if (all-equal (mapcar #'chan notes)) (om-def-color :black) (om-def-color :gray))
-                                        :db-click t
-                                        :min-val 1 :max-val 16
-                                        :value (slot-value (car notes) 'chan)
-                                        :after-fun #'(lambda (item)
-                                                       (store-current-state-for-undo ed)
-                                                       (loop for n in notes do
-                                                             (setf (slot-value n 'chan) (value item)))
-                                                       (report-modifications ed))
-                                        )
+                  (om-make-graphic-object 
+                   'numbox
+                   :size (omp 40 numbox-h)
+                   :bg-color (om-def-color :white)
+                   :fg-color (if (all-equal (mapcar #'chan notes)) (om-def-color :black) (om-def-color :gray))
+                   :db-click t
+                   :min-val 1 :max-val 16
+                   :value (slot-value (car notes) 'chan)
+                   :after-fun #'(lambda (item)
+                                  (store-current-state-for-undo editor)
+                                  (loop for n in notes do
+                                        (setf (slot-value n 'chan) (value item)))
+                                  (update-from-editor (object editor))
+                                  (editor-invalidate-views editor))
+                   )
 
-                (om-make-di 'om-simple-text :size (om-make-point 50 20) 
-                            :text "port"
-                            :font (om-def-font :font1))
+                  (om-make-di 'om-simple-text :size (om-make-point 50 text-h) 
+                              :text "port"
+                              :font (om-def-font :font1))
 
-                (om-make-graphic-object 'numbox
-                                        :size (omp 40 18)
-                                        :bg-color (om-def-color :white)
-                                        :fg-color (if (all-equal (mapcar #'port notes)) (om-def-color :black) (om-def-color :gray))
-                                        :db-click t 
-                                        :allow-nil -1
-                                        :min-val -1 :max-val 1000
-                                        :value (slot-value (car notes) 'port)
-                                        :after-fun #'(lambda (item)
-                                                       (store-current-state-for-undo ed)
-                                                       (loop for n in notes do
-                                                             (setf (slot-value n 'port) (value item)))
-                                                       (report-modifications ed))
-                                        )
-
-                ))
+                  (om-make-graphic-object 
+                   'numbox
+                   :size (omp 40 numbox-h)
+                   :bg-color (om-def-color :white)
+                   :fg-color (if (all-equal (mapcar #'port notes)) (om-def-color :black) (om-def-color :gray))
+                   :db-click t 
+                   :allow-nil -1
+                   :min-val -1 :max-val 1000
+                   :value (slot-value (car notes) 'port)
+                   :after-fun #'(lambda (item)
+                                  (store-current-state-for-undo editor)
+                                  (loop for n in notes do
+                                        (setf (slot-value n 'port) (value item)))
+                                  (update-from-editor (object editor))
+                                  (editor-invalidate-views editor))
+                   )
+                  ))
                   
-            ;;; else: no object
-            (om-make-di 'om-simple-text :size (om-make-point 100 20) 
-                        :text "--"
-                        :fg-color (om-def-color :dark-gray)
-                        :focus t  ;; prevents focus on other items :)
-                        :font (om-def-font :font3)))
+              ;;; else (no notes)
+              (om-make-di 'om-simple-text :size (om-make-point 100 text-h) 
+                          :text "--"
+                          :fg-color (om-def-color :dark-gray)
+                          :focus t  ;; prevents focus on other items :)
+                          :font (om-def-font :font3)))
+            ))
           )
 
          (measures-layout 
           (when measures
             (om-make-layout
              'om-column-layout
-             :subviews (list 
-                        (om-make-di 'om-simple-text :size (om-make-point 120 20) 
-                                    :text "selected measures(s)"
-                                    :font (om-def-font :font1b))
-
-                        
-                        (om-make-layout
-                         'om-row-layout
-                         :subviews (list
-                                    (om-make-di 'om-simple-text :size (om-make-point 80 20) 
-                                                :text "time signature:"
-                                                :font (om-def-font :font1))
-                                    
-                                    (om-make-graphic-object 'numbox
-                                                            :size (omp 25 18)
-                                                            :bg-color (om-def-color :white)
-                                                            :fg-color (if (all-equal (mapcar #'(lambda (m) (car (car (tree m)))) measures))
-                                                                          (om-def-color :black) (om-def-color :gray))
-                                                            :db-click t 
-                                                            :min-val 1 :max-val 120
-                                                            :value (car (car (tree (car measures))))
-                                                            :after-fun #'(lambda (item)
-                                                                           (let ((temp-selection nil))
+             :subviews 
+             (list 
+              (om-make-di 'om-simple-text :size (om-make-point 120 20) 
+                          :text "Selected measures(s)"
+                          :font (om-def-font :font1b))
+             
+              (om-make-layout
+               'om-row-layout
+               :subviews 
+               (list
+                (om-make-di 'om-simple-text :size (om-make-point 80 text-h) 
+                            :text "time signature:"
+                            :font (om-def-font :font1))
+               
+                (om-make-graphic-object 
+                 'numbox
+                 :size (omp 25 numbox-h)
+                 :bg-color (om-def-color :white)
+                 :fg-color (if (all-equal (mapcar #'(lambda (m) (car (car (tree m)))) measures))
+                               (om-def-color :black) (om-def-color :gray))
+                 :db-click t 
+                 :min-val 1 :max-val 120
+                 :value (car (car (tree (car measures))))
+                 :after-fun #'(lambda (item)
+                                (let ((temp-selection nil))
                                                                              
-                                                                             (store-current-state-for-undo ed)
+                                  (store-current-state-for-undo editor)
                                                                              
-                                                                             (loop for m in measures do 
-                                                                                   (let ((container-voice (find-if 
-                                                                                                           #'(lambda (v) (find m (inside v)))
-                                                                                                           (get-all-voices ed))))
-                                                                                     (when container-voice
-                                                                                       (let ((pos (position m (inside container-voice)))
-                                                                                             (new-tree (list (list (value item) (cadr (car (tree m))))
-                                                                                                             (cadr (tree m)))))
-                                                                                         (push (list container-voice pos) temp-selection)
-                                                                                         (setf (nth pos (cadr (tree container-voice))) new-tree)
-                                                                                         ))))
+                                  (loop for m in measures do 
+                                        (let ((container-voice (find-if 
+                                                                #'(lambda (v) (find m (inside v)))
+                                                                (get-all-voices editor))))
+                                          (when container-voice
+                                            (let ((pos (position m (inside container-voice)))
+                                                  (new-tree (list (list (value item) (cadr (car (tree m))))
+                                                                  (cadr (tree m)))))
+                                              (push (list container-voice pos) temp-selection)
+                                              (setf (nth pos (cadr (tree container-voice))) new-tree)
+                                              ))))
                                                                            
-                                                                             (loop for v in (remove-duplicates (mapcar #'car temp-selection)) do
-                                                                                   (build-voice-from-tree v))
+                                  (loop for v in (remove-duplicates (mapcar #'car temp-selection)) do
+                                        (build-voice-from-tree v))
                                                                              
-                                                                           ;;; restore selected measures (they have be rebuilt)
-                                                                           (setf (selection ed)
-                                                                                 (loop for elt in temp-selection collect (nth (cadr elt) (inside (car elt)))))
+                                  ;;; restore selected measures (they have be rebuilt)
+                                  (setf (selection editor)
+                                        (loop for elt in temp-selection collect (nth (cadr elt) (inside (car elt)))))
                                                                            
-                                                                           (report-modifications ed)))
-                                                            )
+                                  (update-from-editor (object editor))
+                                  (editor-invalidate-views editor)))
+                 )
 
-                                    (om-make-graphic-object 'numbox
-                                                            :size (omp 25 18)
-                                                            :bg-color (om-def-color :white)
-                                                            :fg-color (if (all-equal (mapcar #'(lambda (m) (cadr (car (tree m)))) measures))
-                                                                          (om-def-color :black) (om-def-color :gray))
-                                                            :db-click t 
-                                                            :min-val 1 :max-val 120
-                                                            :value (cadr (car (tree (car measures))))
-                                                            :after-fun #'(lambda (item)
-                                                                           (let ((temp-selection nil))
+                (om-make-graphic-object 
+                 'numbox
+                 :size (omp 25 numbox-h)
+                 :bg-color (om-def-color :white)
+                 :fg-color (if (all-equal (mapcar #'(lambda (m) (cadr (car (tree m)))) measures))
+                               (om-def-color :black) (om-def-color :gray))
+                 :db-click t 
+                 :min-val 1 :max-val 120
+                 :value (cadr (car (tree (car measures))))
+                 :after-fun #'(lambda (item)
+                                (let ((temp-selection nil))
                                                                            
-                                                                             (store-current-state-for-undo ed)
-                                                                             (loop for m in measures do 
-                                                                                   (let ((container-voice (find-if 
-                                                                                                           #'(lambda (v) (find m (inside v)))
-                                                                                                           (get-all-voices ed))))
-                                                                                     (when container-voice
-                                                                                       (let ((pos (position m (inside container-voice)))
-                                                                                             (new-tree (list (list (car (car (tree m))) (value item))
-                                                                                                             (cadr (tree m)))))
-                                                                                         (push (list container-voice pos) temp-selection)
-                                                                                         (setf (nth pos (cadr (tree container-voice))) new-tree)
-                                                                                         ))))
+                                  (store-current-state-for-undo editor)
 
-                                                                             (loop for v in (remove-duplicates (mapcar #'car temp-selection)) do
-                                                                                   (build-voice-from-tree v))
+                                  (loop for m in measures do 
+                                        (let ((container-voice (find-if 
+                                                                #'(lambda (v) (find m (inside v)))
+                                                                (get-all-voices editor))))
+                                          (when container-voice
+                                            (let ((pos (position m (inside container-voice)))
+                                                  (new-tree (list (list (car (car (tree m))) (value item))
+                                                                  (cadr (tree m)))))
+                                              (push (list container-voice pos) temp-selection)
+                                              (setf (nth pos (cadr (tree container-voice))) new-tree)
+                                              ))))
+
+                                  (loop for v in (remove-duplicates (mapcar #'car temp-selection)) do
+                                        (build-voice-from-tree v))
                                                                                    
-                                                                             ;;; restore selected measures (they have be rebuilt)
-                                                                             (setf (selection ed)
-                                                                                   (loop for elt in temp-selection collect (nth (cadr elt) (inside (car elt)))))
+                                  ;;; restore selected measures (they have be rebuilt)
+                                  (setf (selection editor)
+                                        (loop for elt in temp-selection collect (nth (cadr elt) (inside (car elt)))))
                                                                            
-                                                                             (report-modifications ed)))
-                                                            )
-                                    ))
-                        ))
-            ))
+                                  (update-from-editor (object editor))
+                                  (editor-invalidate-views editor)))
+                 )
+                ))
+              )))
+          )
          
          (voices-layout 
           (when voices
             (om-make-layout
              'om-column-layout
-             :subviews (list 
-                        (om-make-di 'om-simple-text :size (om-make-point 120 20) 
-                                    :text "selected voice(s)"
+             :subviews 
+             (list 
+              (om-make-di 'om-simple-text :size (om-make-point 120 20) 
+                                    :text "Selected voice(s)"
                                     :font (om-def-font :font1b))
-
-                        
-                        (om-make-layout
-                         'om-row-layout
-                         :subviews (list
-                                    (om-make-di 'om-simple-text :size (om-make-point 80 20) 
-                                                :text "tempo:"
-                                                :font (om-def-font :font1))
+              
+              (om-make-layout
+               'om-row-layout
+               :subviews 
+               (list
+                (om-make-di 'om-simple-text :size (om-make-point 80 text-h) 
+                            :text "tempo:"
+                            :font (om-def-font :font1))
                                     
-                                    (om-make-graphic-object 'numbox
-                                                            :size (omp 30 18)
-                                                            :bg-color (om-def-color :white)
-                                                            :fg-color (if (all-equal (mapcar #'tempo voices))
-                                                                          (om-def-color :black) (om-def-color :gray))
-                                                            :db-click t 
-                                                            :min-val 1 :max-val 600
-                                                            :value (tempo (car voices))
-                                                            :after-fun #'(lambda (item)
-                                                                           (store-current-state-for-undo ed)
-                                                                           (loop for v in voices do
-                                                                                 (setf (tempo v) (value item))
-                                                                                 (set-timing-from-tempo (chords v) (tempo v))
-                                                                                 )
-                                                                           (report-modifications ed))
-                                                            )
-                                    ))))))
+                (om-make-graphic-object 
+                 'numbox
+                 :size (omp 30 numbox-h)
+                 :bg-color (om-def-color :white)
+                 :fg-color (if (all-equal (mapcar #'tempo voices))
+                               (om-def-color :black) (om-def-color :gray))
+                 :db-click t 
+                 :min-val 1 :max-val 600
+                 :value (tempo (car voices))
+                 :after-fun #'(lambda (item)
+                                (store-current-state-for-undo editor)
+                                (loop for v in voices do
+                                      (setf (tempo v) (value item))
+                                      (set-timing-from-tempo (chords v) (tempo v))
+                                      )
+                                (update-from-editor (object editor))
+                                (editor-invalidate-views editor))
+                 )
+                )))
+             )))
+
+
+         (display-params-layout 
+          (om-make-layout
+           'om-column-layout
+           :delta 1
+           :subviews 
+           (list 
+            (om-make-di 'om-simple-text :size (om-make-point 120 20) 
+                        :text "Display params"
+                        :font (om-def-font :font1b))
+            
+            (om-make-layout 
+             'om-row-layout
+             :subviews 
+             (list
+              (om-make-di 'om-simple-text :text "offsets" 
+                          :font (om-def-font :font1)
+                          :size (omp 68 text-h))
+              
+              (om-make-di 'om-popup-list :items '(:hidden :shift :small-notes) 
+                          :size (omp 70 22) :font (om-def-font :font1)
+                          :value (editor-get-edit-param editor :offsets)
+                          :di-action #'(lambda (list) 
+                                         (editor-set-edit-param editor :offsets (om-get-selected-item list)))
+                          )
+              ))
+         
+            (om-make-layout 
+             'om-row-layout
+             :subviews 
+             (list 
+              (om-make-di 'om-simple-text :text "velocity" 
+                          :size (omp 68 text-h) 
+                          :font (om-def-font :font1))
+              (om-make-di 'om-popup-list :items '(:hidden :value :symbol :size :alpha) 
+                          :size (omp 70 22) :font (om-def-font :font1)
+                          :value (editor-get-edit-param editor :velocity-display)
+                          :di-action #'(lambda (list) 
+                                         (editor-set-edit-param editor :velocity-display (om-get-selected-item list))))
+              ))
+            
+            (om-make-layout 
+             'om-row-layout
+             :subviews 
+             (list 
+              (om-make-di 'om-simple-text :text "MIDI channel" 
+                          :size (omp 68 text-h) 
+                          :font (om-def-font :font1))
+              (om-make-di 'om-popup-list :items '(:hidden :number :color :color-and-number) 
+                          :size (omp 70 22) :font (om-def-font :font1)
+                          :value (editor-get-edit-param editor :channel-display)
+                          :di-action #'(lambda (list) 
+                                         (editor-set-edit-param editor :channel-display (om-get-selected-item list))))
+              ))
+
+            (om-make-layout 
+             'om-row-layout
+             :subviews 
+             (list 
+              (om-make-di 'om-simple-text :text "MIDI port" 
+                          :size (omp 68 text-h) 
+                          :font (om-def-font :font1))
+              (om-make-di 'om-check-box :text "" :font (om-def-font :font1)
+                          :size (omp 70 20) 
+                          :checked-p (editor-get-edit-param editor :port-display)
+                          :di-action #'(lambda (item) 
+                                         (editor-set-edit-param editor :port-display (om-checked-p item))))))
+
+            
+            )))
+         
+         ;;; end LET
          )
     
     
-    (om-add-subviews 
-     self 
-     (om-make-layout 
-      'om-simple-layout 
-      :subviews (list 
-                 (om-make-layout
-                  'om-column-layout
-                  :subviews 
-                  (remove 
-                   nil
-                   (list 
-                    ;;; "close" button at the top-right...
-                    (om-make-layout
-                     'om-row-layout
-                     :ratios '(100 1)
-                     :subviews (list nil 
-                                     (om-make-graphic-object 
-                                      'om-icon-button :icon :xx :icon-pushed :xx-pushed
-                                      :size (omp 12 12)
-                                      :action #'(lambda (b) 
-                                                  (declare (ignore b))
-                                                  (score-editor-set-window-config ed nil))
-                                      )))
-
-                    (om-make-di 'om-simple-text :size (om-make-point 120 20) 
-                                :text "selected note(s)"
-                                :font (om-def-font :font1b))
-                                      
-                    notes-layout
-
-                    measures-layout
-
-                    voices-layout
-                    ))))))
+    (om-add-subviews self 
+                     (om-make-layout 
+                      'om-simple-layout 
+                      :subviews (list 
+                                 (om-make-layout
+                                  'om-column-layout
+                                  :subviews 
+                                  (remove 
+                                   nil
+                                   (list 
+                                    close-button
+                                    notes-layout
+                                    measures-layout
+                                    voices-layout
+                                    display-params-layout
+                                    ))))))
   
-      (when ed (om-update-layout (window ed)))
+    (when editor (om-update-layout (window editor)))
   
-      ))
+    ))
 
 
