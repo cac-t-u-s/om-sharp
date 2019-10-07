@@ -1166,7 +1166,7 @@
                           :font (om-def-font :font1)
                           :size (omp 68 text-h))
               
-              (om-make-di 'om-popup-list :items '(:hidden :shift :small-notes) 
+              (om-make-di 'om-popup-list :items '(:hidden :shift :sep-notes) 
                           :size (omp 70 22) :font (om-def-font :font1)
                           :value (editor-get-edit-param editor :offsets)
                           :di-action #'(lambda (list) 
