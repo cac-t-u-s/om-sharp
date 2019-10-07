@@ -330,7 +330,8 @@
     (align-chords-in-sequence 
      (object-value self)
      (editor-get-edit-param self :grid-step)
-     (selection self))
+     (get-tpl-elements-of-type (selection self) 'chord)
+     )
     (report-modifications self)
     (editor-invalidate-views self)
     ))
