@@ -92,7 +92,7 @@ Returned chords are copies of original internal chords. Time information (onset)
   
   (loop for seq in (obj-list self) do
         
-        (if (print selection)
+        (if selection
             ;;; select chords from this voice
             (let ((chords-in-voice (remove-if #'(lambda (chord) (not (find chord (chords seq)))) selection)))
               (when chords-in-voice
