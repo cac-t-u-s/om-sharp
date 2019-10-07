@@ -356,7 +356,7 @@ if <end> is NIL, the selection runs until th end.
       )))
     
 
-(defmethod* insert-in-voice ((v1 voice) (m measure) position)
+(defmethod insert-in-voice ((v1 voice) (m measure) position)
   (insert-in-voice v1 (list m) position))
 
 
