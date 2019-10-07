@@ -432,8 +432,14 @@
         (setf (window-size obj) size)
         (when (om-initialized-p self) ;;; avoids to do this during init calls
           (update-from-editor obj :value-changed nil :reactive nil))
-        ))))
-  
+        )
+      (editor-resized ed)
+      )))
+
+
+;;; editors can use this to refresh subviews etc. (?)
+(defmethod editor-resized ((self omeditor)) nil)
+
 (defmethod om-window-moved ((self OMEditorWindow) pos)
   (let ((ed (editor self)))
     (when ed ;;; sometimes the editor is not yet set (e.g. textbuffer editor)
