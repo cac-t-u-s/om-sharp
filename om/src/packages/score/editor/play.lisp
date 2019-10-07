@@ -32,39 +32,46 @@
 ;;; PLAY-ACTIONS
 ;;;===================================================
 
-
+;;; from a chord-editor (or a maquette...)
+;;; !! negative offsets shift the chord
 (defmethod get-action-list-for-play ((c chord) interval &optional parent)
+
   (let ((chan-shift (and (get-pref-value :midi :auto-bend)
                          (micro-channel-on (pitch-approx c)))))
-    (remove 
-     nil 
-     (loop for n in (notes c) append
-           (let ((channel (+ (or (chan n) 1) 
-                             (if chan-shift (micro-channel (midic n) (pitch-approx c)) 0))))
-                           
-             (list 
-              (when (in-interval (offset n) interval :exclude-high-bound t) 
-                (list (offset n)
-                      #'(lambda (note) (om-midi::midi-send-evt 
-                                        (om-midi:make-midi-evt 
-                                         :type :keyOn
-                                         :chan channel :port 0
-                                         :fields (list (truncate (midic note) 100) (vel note)))))
-                      (list n)))
+    
+    (let ((negative-offset (max 0 (- (loop for n in (notes c) minimize (offset n))))))
       
-              (when (in-interval (+ (offset n) (dur n)) interval :exclude-high-bound t) 
+      (remove 
+       nil 
+       (loop for n in (notes c) append
+             (let ((channel (+ (or (chan n) 1) 
+                               (if chan-shift (micro-channel (midic n) (pitch-approx c)) 0))))
+                           
+               (list 
+                (when (in-interval (+ (offset n) negative-offset) interval :exclude-high-bound t)
+                       
+
+                  (list (+ (offset n) negative-offset)
+                        #'(lambda (note) (om-midi::midi-send-evt 
+                                          (om-midi:make-midi-evt 
+                                           :type :keyOn
+                                           :chan channel :port 0
+                                           :fields (list (truncate (midic note) 100) (vel note)))))
+                        (list n)))
+      
+                (when (in-interval (+ (offset n) (dur n) negative-offset) interval :exclude-high-bound t) 
      
    
-                (list (+ (offset n) (dur n))
-                      #'(lambda (note) (om-midi::midi-send-evt 
-                                        (om-midi:make-midi-evt 
-                                         :type :keyOff
-                                         :chan channel :port 0
-                                         :fields (list (truncate (midic note) 100) 0))))
-                      (list n)))
-              ))
-           ))
-    ))
+                  (list (+ (offset n) (dur n) negative-offset)
+                        #'(lambda (note) (om-midi::midi-send-evt 
+                                          (om-midi:make-midi-evt 
+                                           :type :keyOff
+                                           :chan channel :port 0
+                                           :fields (list (truncate (midic note) 100) 0))))
+                        (list n)))
+                ))
+             ))
+      )))
 
  
 (defmethod get-action-list-for-play ((n note) interval &optional parent)
@@ -233,7 +240,7 @@
 (defmethod player-play-object ((self scheduler) (object score-element) (caller score-editor) &key parent interval)
   
   (declare (ignore parent interval))
-  
+
   (let ((approx (/ 200 (step-from-scale (editor-get-edit-param caller :scale)))))
    (setf (pitch-approx object) approx)
    (when (and (get-pref-value :midi :auto-bend)
