@@ -203,11 +203,16 @@
 (defmethod om-view-resized ((self om-view) size) (declare (ignore self size)) nil)
 
 (defmethod om-scroll-callback ((self om-view) dir op val &key interactive)
+  ;(print (list self dir op val))
   (when interactive (om-view-scrolled 
                      self 
                      (case dir 
-                       (:vertical (list 0 val))
-                       (:horizontal (list val 0))
+                       (:vertical (list 0 (if (equal op :step)
+                                              (om-v-scroll-position self)
+                                              val)))
+                       (:horizontal (list (if (equal op :step)
+                                              (om-h-scroll-position self)
+                                              val) 0))
                        (:pan val)))
     ))
       
