@@ -39,13 +39,15 @@
 
 (defmethod object-default-edition-params ((self chord-seq))
   (append (call-next-method)
-          '((:grid nil) (:grid-step 1000))))
+          '((:grid nil) (:grid-step 1000)
+            (:offsets :sep-notes))))
 
 (defmethod object-default-edition-params ((self multi-seq))
   (append (call-next-method)
-          '((:grid nil) (:grid-step 1000))))
+          '((:grid nil) (:grid-step 1000)
+            (:offsets :small-notes))))
 
-
+;;; offset can be :shift, :small-notes, or :hidden
 
 (defmethod editor-with-timeline ((self chord-seq-editor)) nil)
 
@@ -136,60 +138,9 @@
 ;;;=========================
 
 
-;;; add a "grid" option
+;;; add a "grid" and an offset-display option
 (defmethod make-editor-controls ((editor chord-seq-editor))
-  
-  (let* ((grid-label (om-make-di 'om-simple-text :text "Grid" 
-                                 :font (om-def-font :font1)
-                                 :size (omp 30 18)))
-        
-         (grid-numbox (om-make-graphic-object 
-                       'numbox 
-                       :position (omp 0 0)
-                       :value (editor-get-edit-param editor :grid-step)
-                       :enabled (editor-get-edit-param editor :grid)
-                       :bg-color (om-def-color :white)
-                       :db-click t
-                       :decimals 0
-                       :size (om-make-point 40 18) 
-                       :font (om-def-font :font1)
-                       :min-val 10 
-                       :max-val 10000
-                       :after-fun #'(lambda (item)
-                                      (editor-set-edit-param editor :grid-step (value item))
-                                      (editor-invalidate-views editor))))
-        
-         (grid-checkbox 
-          (om-make-di 'om-check-box 
-                      :checked-p (editor-get-edit-param editor :grid)
-                      :text ""
-                      :size (om-make-point 16 18)
-                      :di-action #'(lambda (item)
-                                     (enable-numbox grid-numbox (om-checked-p item))
-                                     (editor-set-edit-param editor :grid (om-checked-p item))
-                                     (editor-invalidate-views editor)
-                                     )))
-         )
-        
-    (om-make-layout 'om-row-layout
-                    :subviews 
-                    (list (make-score-display-params-controls editor)
-                          :separator
-                          (om-make-layout 'om-row-layout
-                                          :align :bottom
-                                          :subviews (list grid-label grid-checkbox 
-                                                          (om-make-layout 
-                                                           'om-simple-layout 
-                                                           :align :bottom
-                                                           ;:size (omp 50 20)
-                                                           :subviews
-                                                           (list grid-numbox)))
-                                          :delta nil)
-                          nil
-                          ))
-    ))
-                  
-
+  (make-score-display-params-controls editor))
 
 
 (defmethod update-view-from-ruler ((self x-ruler-view) (view chord-seq-panel))
@@ -378,6 +329,7 @@
         (vel (editor-get-edit-param editor :velocity-display))
         (port (editor-get-edit-param editor :port-display))
         (dur (editor-get-edit-param editor :duration-display))
+        (offsets (editor-get-edit-param editor :offsets))
         (y-u (or force-y-shift (editor-get-edit-param editor :y-shift))))
     
     ;;; DRAW GRID
@@ -409,6 +361,7 @@
                        :selection (if (find chord (selection editor)) T 
                                     (selection editor))
                        :time-function #'(lambda (time) (time-to-pixel view time))
+                       :offsets offsets
                        :build-b-boxes t
                        ))
           ;(draw-b-box chord)

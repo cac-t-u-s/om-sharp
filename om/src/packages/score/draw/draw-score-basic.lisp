@@ -683,6 +683,7 @@
                          draw-chans draw-ports draw-vels draw-durs draw-dur-ruler
                          selection
                          tied-to-ms
+                         offsets
                          (time-function #'identity)
                          build-b-boxes)
   
@@ -906,14 +907,26 @@
                                                     :test #'(lambda (line col)
                                                               ;;; there's no other note in this col at less than 1 line away
                                                               (not (find line col :test #'(lambda (a b) (< (abs (- b a)) 1)))))))
-                                (head-x nil))
+                                (display-offset (and (not (zerop (offset n))) offsets (not (equal offsets :hidden))))
+                                (head-x nil)
+                                (note-font (cond 
+                                            ((equal draw-vels :size)
+                                             (om-make-font *score-font* (* #+darwin 1 #-darwin 3/4 (vel n) fontsize .02)))
+                                            ((and display-offset (equal offsets :sep-notes))
+                                             (om-make-font *score-font* (* fontsize .7)))
+                                            (t nil))))
                  
                            (if head-col 
                                (push line (nth head-col head-columns))
                              (setf head-col (length head-columns) ;; add a new column
                                    head-columns (append head-columns (list (list line)))))
                        
-                           (setq head-x (+ x-pix (* head-col head-w unit)))
+                           (setq head-x 
+                                 (if display-offset
+                                     ;;; specific offset:
+                                     (+ (* x-units unit) (funcall time-function (+ x-ms (offset n))))
+                                   ;;; x-pix from head-col
+                                   (+ x-pix (* head-col head-w unit))))
 
                            (let (;;; bounding-box values
                                  (nx1 head-x)
@@ -958,9 +971,12 @@
                                          (t nil)))
                            
                                ;;; HEAD
-                               (om-draw-char head-x line-y head-char
-                                             :font (when (equal draw-vels :size)
-                                                     (om-make-font *score-font* (* #+darwin 1 #-darwin 3/4 (vel n) fontsize .02))))
+                               (let ((note-head (if (and display-offset (equal offsets :sep-notes))
+                                                    (tempo-note 1/4)
+                                                  head-char)))
+                                 
+                                 (om-draw-char head-x line-y note-head :font note-font)
+                                 )
                        
                                ;;; DOTS
                                (when (> n-points 0)
@@ -983,7 +999,12 @@
                                        (setf col (length accidental-columns) ;; add a new column
                                              accidental-columns (append accidental-columns (list (list (midic n))))))
                            
-                                     (om-draw-char (- x-pix (* (1+ col) acc-w)) line-y (accident-char acc))
+                                     (om-draw-char (if display-offset 
+                                                       (- head-x acc-w) 
+                                                     (- x-pix (* (1+ col) acc-w)))
+                                                   line-y 
+                                                   (accident-char acc)
+                                                   :font note-font)
                                      )))
                      
                                ;;; DURATION line (maybe)
@@ -995,7 +1016,7 @@
                                            (om-make-color-alpha (get-midi-channel-color (chan n)) .5)
                                          (om-make-color 0 0 0 .5))
                                  
-                                     (om-draw-rect x-pix 
+                                     (om-draw-rect (if display-offset head-x x-pix) 
                                                    (- line-y (* unit .25))
                                                    (- end-pix x-pix) 
                                                    (* unit .5) 
