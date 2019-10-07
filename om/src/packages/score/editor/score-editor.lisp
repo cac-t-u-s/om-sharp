@@ -525,9 +525,8 @@
                                                  (set-font-size editor (om-get-selected-item list))
                                                  ))
                       )
-
-                     
                      )))
+        
         (staff-item
          (om-make-layout 
           'om-row-layout 
@@ -617,22 +616,28 @@
                                                 (editor-set-edit-param editor :port-display (om-checked-p item)))))))
         ;;; end LET declarations
         )
-         
+    
+    ;;; all in a simple layout fixes refresh/redisplay
+    ;;; problems on windows...
     (om-make-layout 
-     'om-grid-layout
+     'om-simple-layout 
+     :subviews (list
+                (om-make-layout 
+                 'om-grid-layout
      ;:align :center 
-     :dimensions '(4 2) 
-     :delta '(10 0)
-     :subviews (list 
-                title 
-                staff-item
-                velocity-item
-                channel-item
-                
+                 :dimensions '(4 2) 
+                 :delta '(10 0)
+                 :subviews (list 
+                            title 
+                            staff-item
+                            velocity-item
+                            channel-item
+                            
                 size-item
                 scale-item
                 duration-item
                 port-item
+                ))
                 ))
     ))
 
@@ -1104,38 +1109,43 @@
          )
     
     
-    (om-add-subviews self (om-make-layout
-                           'om-column-layout
-                           :subviews (remove 
-                                      nil
-                                      (list 
-                                       ;;; "close" button at the top-right...
-                                      (om-make-layout
-                                       'om-row-layout
-                                       :ratios '(100 1)
-                                       :subviews (list nil 
-                                                       (om-make-graphic-object 
-                                                        'om-icon-button :icon :xx :icon-pushed :xx-pushed
-                                                        :size (omp 12 12)
-                                                        :action #'(lambda (b) 
-                                                                    (declare (ignore b))
-                                                                    (score-editor-set-window-config ed nil))
-                                                        )))
+    (om-add-subviews 
+     self 
+     (om-make-layout 
+      'om-simple-layout 
+      :subviews (list 
+                 (om-make-layout
+                  'om-column-layout
+                  :subviews 
+                  (remove 
+                   nil
+                   (list 
+                    ;;; "close" button at the top-right...
+                    (om-make-layout
+                     'om-row-layout
+                     :ratios '(100 1)
+                     :subviews (list nil 
+                                     (om-make-graphic-object 
+                                      'om-icon-button :icon :xx :icon-pushed :xx-pushed
+                                      :size (omp 12 12)
+                                      :action #'(lambda (b) 
+                                                  (declare (ignore b))
+                                                  (score-editor-set-window-config ed nil))
+                                      )))
 
-
-                                      (om-make-di 'om-simple-text :size (om-make-point 120 20) 
-                                                  :text "selected note(s)"
-                                                  :font (om-def-font :font1b))
+                    (om-make-di 'om-simple-text :size (om-make-point 120 20) 
+                                :text "selected note(s)"
+                                :font (om-def-font :font1b))
                                       
-                                      notes-layout
+                    notes-layout
 
-                                      measures-layout
+                    measures-layout
 
-                                      voices-layout
-                                      ))))
+                    voices-layout
+                    ))))))
   
-    (when ed (om-update-layout (window ed)))
+      (when ed (om-update-layout (window ed)))
   
-    ))
+      ))
 
 
