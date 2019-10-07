@@ -833,7 +833,7 @@
 
 
 ;;; forbidden in voicee/poly editors
-(defmethod note-dur-edit-allowed ((self score-editor)) nil)
+(defmethod note-dur-edit-allowed ((self score-editor)) t)
 
 
 ;;; in principle elt is always a list (the editor selection)
