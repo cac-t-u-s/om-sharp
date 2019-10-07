@@ -1012,10 +1012,8 @@
                                                                                          ))))
                                                                            
                                                                              (loop for v in (remove-duplicates (mapcar #'car temp-selection)) do
-                                                                                   ;;; make a function to factorize that:
-                                                                                   (build-rhythm-structure v (chords v) -1)
-                                                                                   (set-timing-from-tempo (chords v) (tempo v)))
-                                                                           
+                                                                                   (build-voice-from-tree v))
+                                                                             
                                                                            ;;; restore selected measures (they have be rebuilt)
                                                                            (setf (selection ed)
                                                                                  (loop for elt in temp-selection collect (nth (cadr elt) (inside (car elt)))))
@@ -1048,10 +1046,8 @@
                                                                                          ))))
 
                                                                              (loop for v in (remove-duplicates (mapcar #'car temp-selection)) do
-                                                                                   ;;; make a function to factorize that:
-                                                                                   (build-rhythm-structure v (chords v) -1)
-                                                                                   (set-timing-from-tempo (chords v) (tempo v)))
-                                                                           
+                                                                                   (build-voice-from-tree v))
+                                                                                   
                                                                              ;;; restore selected measures (they have be rebuilt)
                                                                              (setf (selection ed)
                                                                                    (loop for elt in temp-selection collect (nth (cadr elt) (inside (car elt)))))

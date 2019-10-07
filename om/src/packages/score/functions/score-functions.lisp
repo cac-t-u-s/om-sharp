@@ -255,10 +255,10 @@ if <end> is NIL, the selection runs until th end.
 
 
 ;;; destructive version, with measures
-(defmethod* insert-in-voice ((v1 voice) (m list) position)
-  (let* ((pos (or position (length (inside v1))))
-         (before (select v1 0 pos))
-         (after (select v1 pos nil)))
+(defmethod* insert-in-voice ((self voice) (m list) position)
+  (let* ((pos (or position (length (inside self))))
+         (before (select self 0 pos))
+         (after (select self pos nil)))
     
     (let ((new-chords (append (get-chords before) 
                               (apply #'append (mapcar #'get-chords m))
@@ -270,11 +270,9 @@ if <end> is NIL, the selection runs until th end.
                                             )))
                       (list (length measures) measures))))
     
-      (setf (tree v1) (format-tree (normalize-tree new-tree)))
-      (set-chords v1 new-chords)
-      (build-rhythm-structure v1 new-chords -1)
-      (set-timing-from-tempo new-chords (tempo v1))
-      
+      (setf (tree self) (format-tree (normalize-tree new-tree)))
+      (set-chords self new-chords)
+      (build-voice-from-tree self)
       )))
     
 

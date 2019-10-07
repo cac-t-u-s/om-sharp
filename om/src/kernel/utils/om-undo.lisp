@@ -172,7 +172,7 @@
 ; (get-object-slots-for-undo (make-instance 'omboxabstraction))
 
 (defmethod get-undoable-object-state ((self standard-object)) 
-  ;(om-print-dbg "collecting state of ~A" (list self) "UNDO")
+  ; (om-print-dbg "collecting state of ~A" (list self) "UNDO")
   (loop for slot in (get-object-slots-for-undo self)
         collect (list slot (get-undoable-object-state (slot-value self slot)))))
 
@@ -184,16 +184,33 @@
                                                 (cadr (find slot state :key 'car)))))
   self)
 
+
+
 ;;; LISTS
-(defmethod get-undoable-object-state ((self list)) 
-  (loop for item in self
-        collect (list item (get-undoable-object-state item))))
+(defmethod get-undoable-object-state ((self list))
+  
+  (if (typep (car self) '(or symbol string number)) 
+
+      ;;; allows to just copy "simple" value lists
+      (om-copy self)
+
+    ;;; handles list of standard objects
+    (loop for item in self
+          collect (list item (get-undoable-object-state item)))))
 
 ;;; restore a new list, restore each object in it
 (defmethod restore-undoable-object-state ((self list) (state list)) 
-  (loop for item in state 
+
+  (if (typep (car self) '(or symbol string number)) 
+
+       ;;; "simple" value lists
+       (om-copy state)
+    
+    ;;; handles list of standard objects
+    (loop for item in state 
         do (restore-undoable-object-state (car item) (cadr item))
         collect (car item)))
+  )
 
 ;;; BOX
 (defmethod get-undoable-object-state ((self OMBox)) 

@@ -38,6 +38,15 @@
 
 (defmethod additional-class-attributes ((self voice)) '(lvel loffset lchan lport))
 
+(defmethod get-object-slots-for-undo ((self voice)) 
+  (append (call-next-method) '(tree tempo)))
+
+(defmethod restore-undoable-object-state ((self voice) (state list)) 
+  (call-next-method)
+  (build-voice-from-tree self)
+  self)
+
+
 (defmethod objFromObjs ((model chord-seq) (target voice))
   (make-instance 'voice
                  :tree (omquantify model 60 '(4 4) 8)
@@ -138,11 +147,14 @@
   (when (listp (tempo self))  ;; e.g. ((1/4 60) ...)
     (setf (tempo self) (cadr (car (tempo self)))))
 
-  (build-rhythm-structure self (chords self) -1)
-
-  (set-timing-from-tempo (chords self) (tempo self))
+  (build-voice-from-tree self)
 
   self)
+
+
+(defmethod build-voice-from-tree ((self voice))
+  (build-rhythm-structure self (chords self) -1)
+  (set-timing-from-tempo (chords self) (tempo self)))
 
 
 (defmethod om-init-instance ((self voice) &optional args)
