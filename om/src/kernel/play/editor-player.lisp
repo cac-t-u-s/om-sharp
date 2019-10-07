@@ -288,7 +288,7 @@
   (mapcar 'stop-cursor (cursor-panes self)))
 
 (defmethod editor-key-action :around ((self play-editor-mixin) key) 
-  (case key  
+  (case key
     (#\Space (editor-play/pause self) t)
     (#\p (editor-play/pause self) t)
     (#\s (editor-stop self) t)    

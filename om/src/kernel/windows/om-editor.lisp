@@ -201,6 +201,7 @@
 (defmethod editor-get-edit-param ((self OMEditor) param)
   (get-edit-param (object self) param))
 
+
 ;;;====================
 ;;; EDITOR
 ;;;====================

@@ -566,7 +566,7 @@
                                   :size (omp 50 18) 
                                   :font (om-def-font :font1))
                       (om-make-di 'om-check-box :text "" :font (om-def-font :font1)
-                                  :size (omp 68 20) 
+                                  :size (omp 20 20) 
                                   :checked-p (editor-get-edit-param editor :duration-display)
                                   :di-action #'(lambda (item) 
                                                  (editor-set-edit-param editor :duration-display (om-checked-p item))))
@@ -588,6 +588,7 @@
            :after-fun #'(lambda (item)
                           (editor-set-edit-param editor :grid-step (value item))
                           (editor-invalidate-views editor))))
+         
          (grid-item
           (om-make-layout 
            'om-row-layout
@@ -627,7 +628,9 @@
                             duration-item
                             size-item
                             staff-item
-                            grid-item
+                            (when (find :grid (object-default-edition-params (object-value editor)) :key #'car)
+                              ;;; not all objects have a grid...
+                              grid-item)
                             ))
                 ))
     ))
