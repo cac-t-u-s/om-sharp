@@ -41,6 +41,12 @@
   (append (call-next-method)
           '((:grid nil) (:grid-step 1000))))
 
+(defmethod object-default-edition-params ((self multi-seq))
+  (append (call-next-method)
+          '((:grid nil) (:grid-step 1000))))
+
+
+
 (defmethod editor-with-timeline ((self chord-seq-editor)) nil)
 
 ;;;=========================
@@ -327,13 +333,15 @@
 (defmethod align-chords-in-editor ((self chord-seq-editor))
   (when (selection self)
     (store-current-state-for-undo self)
-    (align-chords-in-sequence 
-     (object-value self)
-     (editor-get-edit-param self :grid-step)
-     (get-tpl-elements-of-type (selection self) 'chord)
-     )
-    (report-modifications self)
-    (editor-invalidate-views self)
+    (let ((selected-chords 
+           (loop for elt in (selection self) 
+                 append (get-tpl-elements-of-type elt 'chord))))
+      (align-chords-in-sequence 
+       (object-value self)
+       (or (editor-get-edit-param self :grid-step) 100)
+       selected-chords)
+      (report-modifications self)
+      (editor-invalidate-views self))
     ))
   
 (defmethod align-command ((self chord-seq-editor))
