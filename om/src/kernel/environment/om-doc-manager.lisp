@@ -241,7 +241,9 @@
                         (saved? object) t)
                   
                   (register-document object path)
-                  (load-patch-contents object (cdr file-contents)))
+                  (load-patch-contents object (cdr file-contents))
+                  (update-document-path object) ;;; just to update create/modif info display
+                  )
              
               (om-beep-msg "Document ~s of type ~S could not be loaded." path type))
            
