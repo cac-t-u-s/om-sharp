@@ -30,9 +30,9 @@
 
 (defparameter *om-version* 
   (+ *version-major* 
-     (* *version-minor* .01) 
-     (* *version-patch* .0001) 
-     (* *version-update* .000001)))
+     (/ *version-minor* 100.0) 
+     (/ *version-patch* 10000.0) 
+     (/ *version-update* 1000000.0)))
 
 (defparameter *version-string* 
   (concatenate 'string (format nil "~d.~d" *version-major* *version-minor*)
