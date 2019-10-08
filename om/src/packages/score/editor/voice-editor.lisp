@@ -80,10 +80,6 @@
   #'(lambda () (om-beep)))
   
 
-;;; probably useful in other places...
-
-
-;;; todo: 
 (defmethod score-editor-paste ((self voice-editor) elements)
 
   (let* ((view (get-g-component self :main-panel))
@@ -164,6 +160,8 @@
                      (v2 ruler))
     ))
 
+(defmethod init-editor-window :after ((self voice-editor))
+  (editor-update-ruler self))
 
 (defmethod make-time-ruler ((editor voice-editor) dur)
   (om-make-view (if (numberp (editor-get-edit-param editor :h-stretch))
@@ -175,7 +173,7 @@
                 :x1 (data-stream-get-x-ruler-vmin editor) 
                 :x2 dur))
 
-     
+    
 (defmethod time-to-pixel ((self voice-ruler) time) 
   (time-to-pixel (car (related-views self)) time))
 
