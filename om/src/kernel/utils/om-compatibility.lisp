@@ -547,14 +547,32 @@
 (defun icon-from-lib (icon name) (declare (ignore name)) icon)
 
 
+(defun get-inst-from-globals (name) 
+  (make-instance 'OMGlobalVar :name name))
+
+
 (defun om-load-boxinstance (name instance inputs position &optional fname size) 
   
   (declare (ignore inputs fname size))
   
-  (let* ((value (instance instance))
-         (type (type-of value)))
     
-    (cond ((listp value)
+  (if (typep instance 'OMGlobalVar)
+      
+      ;;; global var
+      `(:box 
+        (:type :special)
+        (:reference global)
+        (:value nil)
+        (:name ,name)
+        (:x ,(om-point-x position))
+        (:y ,(om-point-y position))
+        )
+
+     (let* ((value (instance instance))
+            (type (type-of value)))
+       
+       ;;; instance
+       (if (listp value)
            ;;; lists => collection
            `(:box 
              (:type :object)
@@ -566,25 +584,24 @@
              (:x ,(om-point-x position))
              (:y ,(om-point-y position))
              (:display :text))
-           )
+         
+         (let () ;;; other sort of objects => object box
+           (when (update-reference type) 
+             (setf type (update-reference type))
+             (setf value (update-value value)))
            
-          (t ;;; other sort of objects => object box
-             (when (update-reference type) 
-               (setf type (update-reference type))
-               (setf value (update-value value)))
-             
-             `(:box
-               (:type :object)
-               (:reference ,type)
-               (:name ,name)
-               (:value ,value)
-               (:x ,(om-point-x position))
-               (:y ,(om-point-y position))
-               (:lock :locked)
-               (:showname t)
-               (:display :mini-view)
-               )
-             ))
+           `(:box
+             (:type :object)
+             (:reference ,type)
+             (:name ,name)
+             (:value ,value)
+             (:x ,(om-point-x position))
+             (:y ,(om-point-y position))
+             (:lock :locked)
+             (:showname t)
+             (:display :mini-view)
+             )
+        )))
     )
   )
 
