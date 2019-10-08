@@ -21,46 +21,29 @@
 (in-package :om)
 
 ;;; OMGlobalVar is actually not really used: 
-;;; the name of the box is the same and refeers to a Lisp global. 
+;;; the name of the OMGlobalBox refers to a Lisp global. 
 (defclass OMGlobalVar (OMPatchComponent) ())
-
-(defmethod initialize-instance :after ((self OMGlobalVar) &rest args)
-  (when (name self)
-    (let ((sym (intern (string-upcase (name self)))))
-      (unless (boundp sym)
-        (om-print-format "Defining global variable: ~A" (list sym))
-        (eval `(defvar ,sym nil))
-        ))))
-
-
-(defmethod set-name ((self OMGlobalVar) new-name)
-  (call-next-method)
-  (let ((sym (intern (string-upcase (name self)))))
-   (unless (boundp sym)
-     (om-print-format "Defining global variable: ~A" (list sym))
-     (eval (print `(defvar ,sym nil)))
-     )))
-
-
 (defclass OMGlobalBox (OMPatchComponentBox) ())
 
 (defmethod special-box-p ((ref (eql 'global))) t) 
 (defmethod get-box-class ((ref OMGlobalVar)) 'OMGlobalBox)
 (defmethod box-symbol ((self OMGlobalVar)) 'global)
+(defmethod object-box-label ((self OMGlobalVar)) (string+ "GLOBAL " (name self)))
 
-(defmethod object-box-label ((self OMGlobalVar)) (string+ "VAR " (name self)))
+
+(defmethod omNG-make-special-box ((reference (eql 'global)) pos &optional init-args)
+  (let* ((name (car (list! init-args)))
+         (var (make-instance 'OMGlobalVar :name (if name (string name)))))
+    (omNG-make-new-boxcall var pos)))
+
 
 (defmethod box-draw ((self OMGlobalBox) frame)
   (om-with-clip-rect frame 0 0 (- (w frame) 4) (- (h frame) 8)
     (draw-label self (reference self))))
 
-
 (defmethod create-box-outputs ((self OMGlobalBox)) 
   (list 
-   (make-instance 
-    'box-output :box self :value NIL
-    :name "value")))
-
+   (make-instance 'box-output :box self :value nil :name "value")))
 
 (defmethod next-optional-input ((self OMGlobalBox)) 
   (zerop (length (inputs self))))
@@ -68,15 +51,10 @@
 (defmethod more-optional-input ((self OMGlobalBox) &key name value doc reactive)
   (declare (ignore name doc))
   (add-optional-input self :name "value"
-                      :value value 
-                      :reactive reactive)
+                      :value value :reactive reactive)
   t)
 
 (defmethod allow-rename ((self OMGlobalBox)) t)
-
-(defmethod set-name ((self OMGlobalBox) new-name)
-  (call-next-method)
-  (set-name (reference self) new-name))
 
 (defmethod allow-text-input ((self OMGlobalBox)) 
   (unless (is-persistant (reference self))
@@ -87,26 +65,65 @@
                 ))))
 
 
-(defmethod omNG-make-special-box ((reference (eql 'global)) pos &optional init-args)
-  (let* ((name (car (list! init-args)))
-         (var (make-instance 'OMGlobalVar :name (if name (string name)))))
-    (omNG-make-new-boxcall var pos)))
+;;;========================
+;;; GLOBAL VAR BEHAVIOUR
+;;;========================
+
+(defmethod initialize-instance :after ((self OMGlobalBox) &rest args)
+  (when (name self)
+    (let ((sym (intern (string-upcase (name self)))))
+      (unless (boundp sym)
+        (om-print-format "Defining global variable: ~A" (list sym))
+        (eval `(defvar ,sym (car (value self))))
+        ))))
+
+(defmethod set-name :after ((self OMGlobalBox) new-name)
+  (let ((sym (intern (string-upcase (name self)))))
+   (unless (boundp sym)
+     (om-print-format "Defining global variable: ~A" (list sym))
+     (eval `(defvar ,sym ,(car (value self))))
+     )))
+
+(defmethod set-value :after ((self OMGlobalBox) new-val)
+  (when (name self) ;;; not always the case at this moment (e.g. at loading the box) 
+    (let ((sym (intern (string-upcase (name self)))))
+      (eval `(setf ,sym ,(car new-val)))
+      )))
 
 
+(defmethod read-value ((self OMGlobalBox))
+  (let ((sym (intern (string-upcase (name self)))))
+    (setf (value self) (list (eval sym)))
+    (car (value self))))
 
+(defmethod omng-save ((self OMGlobalBox))  
+  (read-value self)
+  (append (call-next-method)
+          (list (save-value self))))
+    
 
 (defmethod boxcall-value ((self OMGlobalBox)) 
   
+  (when (and (car (inputs self)) (connections (car (inputs self))))
+    (let ((val (omNG-box-value (car (inputs self)))))
+      (set-value self (list val))
+      ))
+
+  (read-value self))
+
+
+(defmethod gen-code-for-call ((self OMGlobalBox) &optional args)
+  
   (let ((sym (intern (string-upcase (name self)))))
     
-    ;;; set-value of the global variable if the input is connected
-    (when (and (car (inputs self)) (connections (car (inputs self))))
-      (let ((val (omNG-box-value (car (inputs self)))))
-        ;;; actually in principle,  (name (reference self)) = (name self) 
-        (eval `(setf ,sym ,val))
-        ))
-  
-    (eval sym)))
+    (if (and (car (inputs self)) (connections (car (inputs self))))
+        
+        `(setf ,sym ,(gen-code (car (inputs self))))
+
+      sym)
+    ))
     
+
+
     
     
