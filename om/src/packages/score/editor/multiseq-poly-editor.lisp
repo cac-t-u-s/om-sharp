@@ -247,7 +247,7 @@
 (defmethod draw-sequence ((object multi-seq) editor view unit &optional (voice-num 0))
   (loop for voice in (obj-list object) 
         for shift in (accum-y-shift-list editor) 
-        do (draw-sequence voice editor view unit shift)))
+        do (draw-sequence  voice editor view unit shift)))
 ;;;---------------------------------------------
 
 

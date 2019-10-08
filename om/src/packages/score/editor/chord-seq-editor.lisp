@@ -316,8 +316,24 @@
   (let ((obj (if (multi-display-p editor)
                  (nth (stream-id view) (multi-obj-list editor))
                (object-value editor))))
+    
+    ;;; grid
+    (when (editor-get-edit-param editor :grid)
+      (draw-grid-on-score-editor editor view))
+    
     (draw-sequence obj editor view unit)))
 
+
+
+(defmethod draw-grid-on-score-editor ((editor chord-seq-editor) view) 
+  (let ((grid-step (or (editor-get-edit-param editor :grid-step) 100))) ;; just in case..
+    (loop for x from (* (ceiling (x1 view) grid-step) grid-step)
+          to (* (floor (x2 view) grid-step) grid-step)
+          by grid-step 
+          do (let ((x-pix (time-to-pixel view x)))
+               (om-draw-line x-pix 0 x-pix (h view) :color (om-def-color :gray) :style '(2 2))
+               )
+          )))
 
 ;;; redefined this for other objects
 (defmethod draw-sequence ((object chord-seq) editor view unit &optional (force-y-shift nil))
@@ -331,17 +347,6 @@
         (dur (editor-get-edit-param editor :duration-display))
         (offsets (editor-get-edit-param editor :offsets))
         (y-u (or force-y-shift (editor-get-edit-param editor :y-shift))))
-    
-    ;;; DRAW GRID
-    (when (editor-get-edit-param editor :grid)
-      (let ((grid-step (or (editor-get-edit-param editor :grid-step) 100))) ;; just in case..
-        (loop for x from (* (ceiling (x1 view) grid-step) grid-step)
-              to (* (floor (x2 view) grid-step) grid-step)
-              by grid-step 
-              do (let ((x-pix (time-to-pixel view x)))
-                   (om-draw-line x-pix 0 x-pix (h view) :color (om-def-color :gray) :style '(2 2))
-                   )
-        )))
        
     ;;; NOTE: so far we don't build/update a bounding-box for the chord-seq itself (might be useful in POLY)..
     (loop for chord in (chords object) do
