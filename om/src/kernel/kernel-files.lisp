@@ -100,6 +100,7 @@
         "boxes/system-boxes"
         "boxes/repeat-n"
         "boxes/mem-collect"  
+        "boxes/global"  
         "boxes/init-do"  
         "boxes/send-receive-route"  
         

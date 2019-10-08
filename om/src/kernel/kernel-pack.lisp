@@ -32,7 +32,7 @@
                          (omNG-make-package "Control" 
                                             :doc "Special boxes implementing control operators, argumenta passing and memory"
                                             :functions '(seq hub split omif omand omor)
-                                            :special-symbols '(in out repeat-n init-do mem collect timed-collect)
+                                            :special-symbols '(in out repeat-n init-do mem global collect timed-collect)
                                             )
                          (omNG-make-package "Loop" 
                                             :doc "Special boxes for visual loop implementation"
