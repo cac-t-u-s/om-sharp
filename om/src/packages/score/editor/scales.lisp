@@ -128,5 +128,12 @@
     (- (first (second scale)) (first (first scale)))))
 
 
+;;; a utility for user-code to add new scales in OM score editors:
+(defun add-scale (name scale)
+  (let ((existing-scale (find name *all-scales* :key #'car)))
+    (if existing-scale 
+        (setf (cadr existing-scale) scale)
+      (pushr (list name scale) *all-scales*)
+      )))
 
 
