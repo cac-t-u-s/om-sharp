@@ -115,6 +115,7 @@
     
     snd))
 
+
 (defmethod release-sound-buffer ((self om-internal-sound)) 
   (when (buffer self) 
     (oa::om-release (buffer self))
@@ -175,6 +176,31 @@ Press 'space' to play/stop the sound file.
     (if (stringp (pathname-type (file-pathname self)))
         (string+ (pathname-name (file-pathname self)) "." (pathname-type (file-pathname self)))
       (pathname-name (file-pathname self))))) 
+
+
+;;; specialized to save sound pathname relative
+;;; + prevent saving unnecessary slots
+(defmethod omng-save ((self sound))
+  `(:object
+    (:class ,(type-of self))
+    (:slots
+     ((:onset 0)
+      (:duration ,(get-obj-dur self))
+      (:n-samples ,(n-samples self))
+      (:n-channels ,(n-channels self))
+      (:sample-rate ,(sample-rate self))
+      (:smpl-type ,(smpl-type self))
+      (:sample-size ,(sample-size self))))
+    (:add-slots
+     ((:markers ,(omng-save (markers self)))
+      (:gain ,(gain self))
+      (:access-from-file ,(access-from-file self))
+      (:file-pathname ,(and (file-pathname self) 
+                            (omng-save (relative-pathname 
+                                        (file-pathname self)
+                                        *relative-path-reference*))))
+      ))
+    ))
 
 
 ;;;===========================
@@ -375,7 +401,8 @@ Press 'space' to play/stop the sound file.
 
 (defmethod objFromObjs ((model (eql :choose-file)) (target sound))
   (let ((file (om-choose-file-dialog :prompt "Choose an audio file AIFF/WAV..."
-                                     :types '("AIFF files" "*.aiff;*.aif" "WAV files" "*.wav;*.wave"))))
+                                     :types '("Audio files" "*.aiff;*.aif;*.wav" 
+                                              "AIFF files" "*.aiff;*.aif" "WAV files" "*.wav"))))
     (if file (objFromObjs file target)
       (om-abort))))
 

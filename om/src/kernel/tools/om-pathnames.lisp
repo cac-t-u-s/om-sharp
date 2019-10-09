@@ -117,24 +117,7 @@
 ;(setf p3 #P"/Users/bresson/WORKSPACES/infiles/test.aif")
 ;(relative-pathname p3 p1)
 
-(defun relative-pathname (path refpath)
-  (let ((dirlist '(:relative))
-        (refrest (cdr (pathname-directory refpath)))
-        (dirrest (cdr (pathname-directory path))))
-    (loop for path-dir in (cdr (pathname-directory path))
-          for ref-dir in (cdr (pathname-directory refpath)) 
-          while (string-equal path-dir ref-dir) do
-          (setf refrest (cdr refrest)
-                dirrest (cdr dirrest)))
 
-    (dotimes (i (length refrest))
-      (setf dirlist (append dirlist (list ".."))))
-
-    (loop for item in dirrest do
-          (setf dirlist (append dirlist (list item))))
-    (make-pathname :device (pathname-device refpath) :host (pathname-host refpath)
-     :directory dirlist :name (pathname-name path) :type (pathname-type path))
-    ))
 
 
 (defvar *relative-path-reference* nil)
@@ -150,6 +133,32 @@
  (let ((relative-path-reference "/Users/bresson/WORKSPACES/mk-examples.omp"))
   (restore-path "../test/ist/ooo.omp" relative-path-reference))
 |#
+
+(defun relative-pathname (path &optional refpath)
+  (let ((dirlist '(:relative))
+        (dirrest (cdr (pathname-directory path))))
+
+    (when refpath
+      (let ((refrest (cdr (pathname-directory refpath))))
+        
+        (loop for path-dir in (cdr (pathname-directory path))
+              for ref-dir in (cdr (pathname-directory refpath)) 
+              while (string-equal path-dir ref-dir) do
+              (setf refrest (cdr refrest)
+                    dirrest (cdr dirrest)))
+
+        (dotimes (i (length refrest))
+          (setf dirlist (append dirlist (list "..")))))
+      )
+
+    (loop for item in dirrest do
+          (setf dirlist (append dirlist (list item))))
+    
+    (make-pathname :device (pathname-device (or refpath path)) :host (pathname-host (or refpath path))
+                   :directory dirlist :name (pathname-name path) :type (pathname-type path))
+    ))
+
+
 
 ;;; seems like 'merge-pathnames' does pretty much the same job
 (defmethod restore-path ((self pathname) &optional refpath)

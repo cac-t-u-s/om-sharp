@@ -319,9 +319,10 @@
                                                    (type-of err) (format nil "~A" err) (mypathname self)))
                         (close out))))
 
-          (let ((*package* (find-package :om))
-                (patch-contents (save-patch-contents self)))
-            (pprint patch-contents out))))
+          (let ((*package* (find-package :om)))
+            (with-relative-ref-path (mypathname self)
+              (pprint (save-patch-contents self) out)))
+          ))
       
       (when (probe-file tempfile)
         (rename-file tempfile (mypathname self))

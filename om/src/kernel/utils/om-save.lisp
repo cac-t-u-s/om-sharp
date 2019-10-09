@@ -107,26 +107,33 @@
 
 ;;; objects copy/save only the slot with initargs and additional class attributes
 (defmethod omng-save ((self standard-object))  ; OMObject
-  (append 
-   `(:object
-     (:class ,(omng-save (type-of self)))
-     (:slots ,(loop for slot in (class-slots (class-of self))
-                    when (slot-definition-initargs slot)
-                    collect (list (car (slot-definition-initargs slot))
-                                  (omng-save 
-                                   (if (fboundp (slot-definition-name slot))
-                                       (funcall (slot-definition-name slot) self)
-                                     (slot-value self (slot-definition-name slot)))
-                                   )))))
-   (when (additional-slots-to-save self)
-     `((:add-slots ,(loop for add-slot in (additional-slots-to-save self)
+
+  ;;; all slots with :initarg are saved (even indirect)
+  (let* ((main-slots (loop for slot in (class-slots (class-of self))
+                           when (slot-definition-initargs slot)
+                          collect (list (car (slot-definition-initargs slot))
+                                        (omng-save 
+                                         (if (fboundp (slot-definition-name slot))
+                                             (funcall (slot-definition-name slot) self)
+                                           (slot-value self (slot-definition-name slot)))
+                                         ))))
+
+         (add-slots (loop for add-slot in (additional-slots-to-save self)
+                          unless (find (intern-k add-slot) main-slots :key #'car)
                           collect (list (intern-k add-slot) 
                                         (omng-save 
                                          ;(slot-value self add-slot)
                                          ;;; in _some cases_ the accessor is defined and not the slot...
                                          (funcall add-slot self)
                                          )))))
-     )))
+
+    (append 
+     `(:object
+       (:class ,(omng-save (type-of self)))
+       (:slots ,main-slots))    
+     (when add-slots
+       `((:add-slots ,add-slots))
+       ))))
 
 
 (defmethod om-load-from-id ((id (eql :object)) data)
@@ -140,6 +147,7 @@
                                            (om-beep-msg "LOAD: Slot '~A' not found in class ~A !!" (car slot) (string-upcase class-name))))
                                      (find-value-in-kv-list data :slots))))
               (more-slots (mapcar #'(lambda (slot)
+                                      (print (car slot))
                                       (list (car slot) (omng-load (cadr slot))))
                                   (find-value-in-kv-list data :add-slots))))
     
@@ -182,11 +190,14 @@
                                  :type (find-value-in-kv-list data :type))))
     
     (if (equal (car dir) :relative)
-        ; (restore-path path *relative-path-reference*)
-        (merge-pathnames path *relative-path-reference*)
+        (restore-path path *relative-path-reference*)
+        ;(merge-pathnames path *relative-path-reference*)
       
       path)))
    
+; (restore-path #P"../a/b/f.wav" #P"/Users/me/Desktop/patch.opat")
+; (merge-pathnames #P"../a/b/f.wav" #P"/Users/me/Desktop/patch.opat")
+; => restore-path works better...
 
 (defmethod omng-save ((self gp::font-description))  
   `(:font 
