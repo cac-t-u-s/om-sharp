@@ -116,6 +116,10 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
   (loop for note in (notes self)
         collect (offset note)))
 
+(defmethod Lport ((self chord))
+  (loop for note in (notes self)
+        collect (port note)))
+
 
 (defmethod (setf Lmidic) ((Lmidic list) (self chord))
   (do-initialize self 
@@ -161,6 +165,15 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
                  :LDur ldur
                  :LChan (lchan self)
                  :LPort (lport self)))
+
+(defmethod (setf Lport) ((Lport list) (self chord))
+  (do-initialize self 
+                 :LMidic (Lmidic self) 
+                 :LVel  (lvel self) 
+                 :LOffset (loffset self)
+                 :LDur (ldur self)
+                 :LChan (lchan self)
+                 :LPort Lport))
 
 
 ;;  (NoteType 'note))
