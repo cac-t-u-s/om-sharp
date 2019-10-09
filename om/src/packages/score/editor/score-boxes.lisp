@@ -28,6 +28,13 @@
 
 (defmethod special-box-type ((class-name (eql 'score-element))) 'ScoreBoxEditCall)
 
+(defmethod default-size ((self ScoreBoxEditCall)) 
+  (score-object-default-box-size (get-box-value self)))
+
+(defmethod score-object-default-box-size ((self t)) (omp 80 50))
+(defmethod score-object-default-box-size ((self chord)) (omp 60 80))
+(defmethod score-object-default-box-size ((self note)) (omp 40 80))
+
 (defmethod get-box-fontsize ((self ScoreBoxEditCall)) 
   (or (fontsize self) 18))
 
