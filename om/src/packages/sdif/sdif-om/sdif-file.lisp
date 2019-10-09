@@ -45,6 +45,21 @@ Lock the box ('b') to keep the current file.
 (defmethod additional-slots-to-copy ((self SDIFFile)) '(file-pathname file-map))
 
 
+;;; specialized to save SDIFFile pathname relative
+;;; + prevent saving unnecessary slots
+(defmethod omng-save ((self SDIFFile))
+  `(:object
+    (:class ,(type-of self))
+    (:add-slots
+     ((:file-map ,(omng-save (file-map self)))
+      (:file-pathname ,(and (file-pathname self) 
+                            (omng-save (relative-pathname 
+                                        (file-pathname self)
+                                        *relative-path-reference*))))
+      ))
+    ))
+
+
 ;;; INIT METHODS
 (defmethod box-def-self-in ((self (eql 'SDIFFile))) :choose-file)
 
