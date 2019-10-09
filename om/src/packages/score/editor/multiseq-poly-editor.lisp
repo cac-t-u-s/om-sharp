@@ -96,8 +96,8 @@
 ;;;---------------------------------------------
 
 
-(defmethod scrollbar-for-object ((self multi-seq)) :v)
-
+(defmethod editor-scroll-v ((self multi-seq-editor)) :v)
+(defmethod editor-scroll-v ((self poly-editor)) :v)
 
 (defmethod set-interior-size-from-contents ((self poly-editor-mixin))
   (let* ((fontsize (editor-get-edit-param self :font-size))

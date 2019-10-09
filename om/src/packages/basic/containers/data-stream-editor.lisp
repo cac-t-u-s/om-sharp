@@ -134,6 +134,9 @@
                 :x2 dur)
   )
 
+
+(defmethod editor-scroll-v ((self data-stream-editor)) nil)
+
 (defmethod make-editor-window-contents ((editor data-stream-editor))
   
   (let* ((data-stream (object-value editor))
@@ -155,7 +158,7 @@
                                          :direct-draw t 
                                          :bg-color (om-def-color :white) 
                                          ;; internal vertical scroller
-                                         :scrollbars :v
+                                         :scrollbars (editor-scroll-v editor)
                                          :left-view (make-left-panel-for-object editor d-s)
                                          )))
                      
@@ -352,11 +355,17 @@
       (or (draw frame x y w h (and active (find i (selection editor))))
           (case (editor-get-edit-param editor :display-mode) 
             (:bubbles
-             (om-draw-circle (+ x (round w 2)) (+ y (round h 2)) (round h 2) :fill t)
+             ;(om-draw-rect x y w h :fill nil)
+             (let ((r (abs (min w h))))
+               (om-draw-circle (+ x (round r 2))
+                               (- y (round r 2))
+                             (round r 2) :fill t)
              (when (and active (find i (selection editor)))
-               (om-draw-circle (+ x (round w 2)) (+ y (round h 2)) (round h 2) :fill t
+               (om-draw-circle (+ x (round r 2))  
+                               (- y (round r 2))
+                               (round r 2) :fill t
                                :color (om-make-color .5 .5 .5 .5)))
-             )
+             ))
             (otherwise 
              (om-draw-rect x y w h :fill t)
              (when (and active (find i (selection editor)))
@@ -572,10 +581,16 @@
                                ))
                  :release #'(lambda (view pos) 
                               (declare (ignore view pos))
-                              (editor-sort-frames editor)
-                              (move-editor-selection editor :dy :round)
-                              (time-sequence-reorder-timed-item-list (object-value editor))
-                              (update-timeline-editor editor)
+                              (let ((selected-frames (posn-match (data-stream-get-frames (object-value editor)) (selection editor))))
+                                (editor-sort-frames editor)
+                                (move-editor-selection editor :dy :round)
+                                (time-sequence-reorder-timed-item-list (object-value editor))
+                                (update-timeline-editor editor)
+                                ;;; reset the selection:
+                                (set-selection editor 
+                                               (loop for f in selected-frames collect
+                                                     (position f (data-stream-get-frames (object-value editor)))))
+                                )
                               (report-modifications editor) 
                               (om-invalidate-view self))
                  :min-move 4)
