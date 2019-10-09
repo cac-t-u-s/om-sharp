@@ -348,7 +348,7 @@
 
 (defmethod special-box-type ((class-name t)) nil)
 
-(defmethod default-size ((self OMBoxEditCall)) (om-make-point 80 40))
+(defmethod default-size ((self OMBoxEditCall)) (om-make-point 80 50))
 
 (defmethod maximum-size ((self OMBoxEditCall)) nil)
 (defmethod minimum-size ((self OMBoxEditCall)) 
