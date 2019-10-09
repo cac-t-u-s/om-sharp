@@ -68,7 +68,7 @@
 
 
 ;;;====================================================
-;;; the 'flag' view is a utility view that tdisplays the box being evaluated
+;;; the 'flag' view is a utility view that displays the box being evaluated
 ;;; and/or the box where an error occured, etc...
 ;;;====================================================
 
@@ -78,6 +78,9 @@
 
 (defmethod om-draw-contents ((self eval-flag-view))
   (om-draw-rounded-rect 0 0 (w self) (h self) :fill t :round 4))
+
+(defmethod om-view-click-handler ((self eval-flag-view) position)
+  (remove-flag-view self))
 
 (defun make-flag-view (box &optional color)
   (let ((v (om-make-view 'eval-flag-view :size (omp (+ (box-w box) 8) (box-h box))
