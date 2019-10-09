@@ -74,8 +74,8 @@
     (om-make-layout 
      'om-row-layout 
      :subviews (list 
-                (om-make-di 'om-simple-text :text "Chord mode" 
-                            :size (omp 70 20)
+                (om-make-di 'om-simple-text :text "play-mode" 
+                            :size (omp 60 20)
                             :font (om-def-font :font1))
                 (om-make-di 'om-popup-list :items '(:chord :arp-up :arp-down :arp-order) 
                             :size (omp 80 24) :font (om-def-font :font1)
@@ -160,14 +160,16 @@
                               (selection editor))
                  :offsets (editor-get-edit-param editor :offsets)
                  :time-function #'(lambda (time) 
-                                    (+ (/ (w view) 2) 
-                                       (if (notes chord)
-                                           (* (/ (- (w view) 80) 2) 
-                                              (/ time (list-max (mapcar 
-                                                                 #'(lambda (n) (+ (dur n) (offset n)))
-                                                                 (notes chord)))))
-                                         0))
-                                    )
+                                     (if (notes chord)
+                                         (let ((dur-max (loop for n in (notes chord)
+                                                              maximize (+ (dur n) (offset n)))))
+                                           (+ (/ (w view) 2) 
+                                              (* (/ (- (w view) 80) 2) 
+                                                 (/ time dur-max)))
+                                           )
+                                       ;;; no contents anyway...
+                                       (/ (w view) 2)
+                                       ))
                  :build-b-boxes t
                  ))
     
