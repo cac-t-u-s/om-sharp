@@ -55,7 +55,7 @@
                         #'(lambda (note) (om-midi::midi-send-evt 
                                           (om-midi:make-midi-evt 
                                            :type :keyOn
-                                           :chan channel :port 0
+                                           :chan channel :port (or (port note) (get-pref-value :midi :out-port))
                                            :fields (list (truncate (midic note) 100) (vel note)))))
                         (list n)))
       
@@ -66,7 +66,7 @@
                         #'(lambda (note) (om-midi::midi-send-evt 
                                           (om-midi:make-midi-evt 
                                            :type :keyOff
-                                           :chan channel :port 0
+                                           :chan channel :port (or (port note) (get-pref-value :midi :out-port))
                                            :fields (list (truncate (midic note) 100) 0))))
                         (list n)))
                 ))
@@ -88,7 +88,7 @@
               #'(lambda (note) (om-midi::midi-send-evt 
                                 (om-midi:make-midi-evt 
                                  :type :keyOn
-                                 :chan channel :port 0
+                                 :chan channel :port (or (port note) (get-pref-value :midi :out-port))
                                  :fields (list (truncate (midic note) 100) (vel note)))))
               (list n)))
       
@@ -99,7 +99,7 @@
               #'(lambda (note) (om-midi::midi-send-evt 
                                 (om-midi:make-midi-evt 
                                  :type :keyOff
-                                 :chan channel :port 0
+                                 :chan channel :port (or (port note) (get-pref-value :midi :out-port))
                                  :fields (list (truncate (midic note) 100) 0))))
               (list n)))
       ))))
@@ -130,7 +130,7 @@
                                       #'(lambda (note) (om-midi::midi-send-evt 
                                                         (om-midi:make-midi-evt 
                                                          :type :keyOn
-                                                         :chan channel :port 0
+                                                         :chan channel :port (or (port note) (get-pref-value :midi :out-port))
                                                          :fields (list (truncate (midic note) 100) (vel note)))))
                                       (list n)))
 
@@ -141,7 +141,7 @@
                                       #'(lambda (note) (om-midi::midi-send-evt 
                                                         (om-midi:make-midi-evt 
                                                          :type :keyOff
-                                                         :chan channel :port 0
+                                                         :chan channel :port (or (port note) (get-pref-value :midi :out-port))
                                                          :fields (list (truncate (midic note) 100) 0))))
                                       (list n)))
                       
