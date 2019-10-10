@@ -174,15 +174,18 @@
 ;;; tone = 0, 1/8 = 1, 1/4 = 2, 3/8 = 3
 ;;; default bend channel 1 = 0, channel 2 = 25 mc, channel 3 = 50 mc, channel 4 = 75mc
 
+(defparameter *micro-channel-approx* 8)
+
 (defun micro-bend-messages (&optional port)
-  (loop for chan from 1 to 4
-        for pb from 8192 by 1024
+  (loop for chan from 1 to (/ *micro-channel-approx* 2)
+        for pb from 8192 by (/ 8192 *micro-channel-approx*) ;;; 8192 = 1 tone pitch-bend
         collect (om-midi::make-midi-evt
                  :type :PitchBend
                  :date 0
                  :chan chan
                  :port (or port (get-pref-value :midi :out-port))
                  :fields (val2lsbmsb pb))))
+
 
 (defun micro-reset-messages (&optional port)
   (loop for chan from 1 to 4
@@ -205,7 +208,6 @@
 
 ;; t / nil / list of approx where it must be applied
 (defparameter *micro-channel-mode-on* '(4 8))
-(defparameter *micro-channel-approx* 8)
 
 (defun micro-channel-on (approx)
   (and 
@@ -217,10 +219,10 @@
 ; channel offset from midic 
 (defun micro-channel (midic &optional approx)
   (if (micro-channel-on approx)
-      (let ((mod (/ 200 (or *micro-channel-approx* approx))))
-        (round (approx-m (mod midic 100) mod) mod))
+      (let ((scale-mod (/ 200 approx))  ;;; *-mod = 25 or 50
+            (channels-mod (/ 200 *micro-channel-approx*)))
+        (round (* (floor (mod midic 100) scale-mod) scale-mod) channels-mod))
     0))
-
 
 (defmethod collec-ports-from-object ((self t))
   (remove-duplicates (mapcar #'port (get-notes self))))
