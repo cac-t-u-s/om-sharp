@@ -49,6 +49,8 @@
   `((:font-size "a font size for score display" nil) 
     (:staff "default staff configuration" 
      ,(loop for s in *score-staff-options* collect (list (string-upcase s) s)))
+    (:scale "default scale" 
+     ,(loop for s in *all-scales* collect (list (string (car s)) (car s))))
     ))
 
 (defmethod miniview-time-to-pixel-proportional ((object score-element) box view time)
@@ -176,6 +178,8 @@
 (defmethod additional-box-attributes ((self note)) 
   `((:staff "default staff configuration" 
      ,(loop for s in *score-staff-options* collect (list (string-upcase s) s)))
+    (:scale "default scale" 
+     ,(loop for s in *all-scales* collect (list (string (car s)) (car s))))
     ))
 
 (defmethod score-object-mini-view ((self note) box x-pix y-pix y-u w h)
