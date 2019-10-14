@@ -109,7 +109,7 @@
 
 (defmethod box-draw ((self OMInOutBox) frame)
   (let* ((size (om-make-point 20 16))
-         (pos (if (equal (icon-pos self) :left)
+         (pos (if (equal (box-draw-icon-pos self) :left)
                   (om-make-point 0 (- (h frame) 24))
                 (om-make-point (round (- (w frame) (om-point-x size)) 2) 8))))
     
@@ -125,7 +125,8 @@
     
     (om-with-fg-color (om-def-color :white)
       (om-with-font (om-def-font :font1b)
-                    (om-draw-string (- (+ (om-point-x pos) (/ (om-point-x size) 2)) 4) (if (equal (icon-pos self) :left) 14 18) 
+                    (om-draw-string (- (+ (om-point-x pos) (/ (om-point-x size) 2)) 4) 
+                                    (if (equal (box-draw-icon-pos self) :left) 14 18) 
                                     (number-to-string (index (reference self))))
                     ))
     t))

@@ -525,7 +525,7 @@
         (multiple-value-bind (w h) (om-string-size text font)
           
           (let* ((icon-size (get-icon-size (object self)))
-                 (shift (if (and (equal :left (icon-pos (object self)))
+                 (shift (if (and (equal (box-draw-icon-pos (object self)) :left)
                                  (< (h self) (+ icon-size h 12)))
                             (+ icon-size 2) 0)))
             
@@ -599,12 +599,12 @@
       ;;; icon
       (or (box-draw box self)
           (if (icon-id self)
-              (case (icon-pos box)
+              (case (box-draw-icon-pos box)
                 (:left (om-draw-picture (icon-id self) :x 2 :y 6 ; (- (h self) icon-size io-hspace) 
                                        ; :w icon-size :h icon-size
                                         :w (- (h self) 12) :h (- (h self) 12)
                                         ))
-                (:top (let ((w2 icon-size))  ; (min (w self) (- (h self) icon-size (* io-hspace 2)))))
+                (:top (let ((w2 (min (w self) (- (h self) icon-size (* io-hspace 2)))))
                         (om-draw-picture (icon-id self) 
                                          :x (/ (- (w self) w2) 2) 
                                          :y 7 :w w2 :h w2)))
