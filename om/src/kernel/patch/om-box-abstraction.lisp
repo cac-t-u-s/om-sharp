@@ -27,8 +27,12 @@
 (defmethod box-patch-name-access ((box OMBoxAbstraction) &optional (name nil name-provided-p))
   (if name-provided-p 
       ;;; SET
-      (if (is-persistant (reference box))
-          (let ((newpatch (and (probe-file name)
+      (let ((patch (container box)))
+        
+        (when (editor patch) (store-current-state-for-undo (editor patch)))
+        
+        (if (is-persistant (reference box))
+            (let ((newpatch (and (probe-file name)
                                (load-doc-from-file name :patch))))
             (if newpatch
                 (let ((oldpatch (reference box)))
@@ -41,11 +45,16 @@
                (om-message-dialog "this file is not a valid patch !")
                (update-inspector-for-object box))))
         (set-name (reference box) name))
+        )
     ;;; GET
     (if (is-persistant (reference box))
         (mypathname (reference box))
       (name (reference box)))))
 
+
+;;; Note :file-name will be stored and saved as a property of teh file. 
+;;; This is a redundant information with the box reference's "mypathname"
+;;; (but also an absoute path, while the reference will be saved relative)
 (defmethod get-properties-list ((self OMBoxAbstraction))
   
   (add-properties-list 
@@ -57,7 +66,7 @@
        ("Abstraction"
         (
          ,(if (is-persistant (reference self))
-              '(:filename "File name" :path box-patch-name-access)
+              '(:filename "File name" :path box-patch-name-access)   
             '(:name "Name" :string box-patch-name-access))
          ))
        ("Scheduling"

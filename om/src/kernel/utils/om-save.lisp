@@ -634,10 +634,19 @@
            (:w ,(box-w self)) (:h ,(box-h self)))
   
          (remove nil (mapcar #'(lambda (prop)
-                                 (when (slot-exists-p self (nth 3 prop))
-                                   (list (car prop) (omng-save (slot-value self (nth 3 prop))))))
+                                 (when (and 
+                                        ;;; the slot/accessor exists
+                                        (or (slot-exists-p self (nth 3 prop))
+                                            (fboundp (nth 3 prop))) ;;; e.g. when specific a accessor is defined
+                                        ; avoid redundant storage if these attribuets are also declared as (editable) properties
+                                        (not (find (car prop) '(:group-id :name ::x :y :w :h))) 
+                                        )
+                                   (list (car prop) (omng-save (if (slot-exists-p self (nth 3 prop))
+                                                                   (slot-value self (nth 3 prop))
+                                                                 (funcall (nth 3 prop) self)
+                                                                 )))))
                              (get-flat-properties-list self)))
-         
+                 
          `((:inputs ,.(mapcar #'(lambda (i) (save-state i)) (inputs self))))
          
          (when (save-outputs? self)
