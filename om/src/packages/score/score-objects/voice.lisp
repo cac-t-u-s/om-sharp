@@ -92,8 +92,13 @@
 
 (defclass grace-note (score-element) ())
 
-
+;;; gets chords in the rhythmic structure
+;;; !! different from GET-CHORDS
 (defmethod get-all-chords ((self rhythmic-object))
+  (loop for obj in (inside self) append 
+        (get-all-chords obj)))
+
+(defmethod get-all-chords ((self voice)) 
   (loop for obj in (inside self) append 
         (get-all-chords obj)))
 
@@ -139,18 +144,18 @@
                                 (cadr (tree self))))
       (setf (tree self) (list (length (tree self))
                               (tree self)))))
-      
-    
-  (setf (tree self) (format-tree (normalize-tree (tree self))))
-  
+
   ;;; compat OM 6 (temp)
   (when (listp (tempo self))  ;; e.g. ((1/4 60) ...)
     (setf (tempo self) (cadr (car (tempo self)))))
-
-  (build-voice-from-tree self)
-
+  
+  (set-tree self (slot-value self 'tree))
+  
   self)
 
+(defmethod set-tree ((self voice) (tree list))
+  (setf (slot-value self 'tree) (format-tree (normalize-tree tree)))
+  (build-voice-from-tree self))
 
 (defmethod build-voice-from-tree ((self voice))
   (build-rhythm-structure self (chords self) -1)
@@ -323,8 +328,6 @@
     (values curr-n-chord curr-last-chord)))
 
 
-
-
 ;;;===============================================
 ;;; UTILS FOR "NUMDENOM" COMPUTATION
 ;;; direct from OM6
@@ -420,10 +423,41 @@
 
 
 
+;;;===============================================
+;;; BUILD TREE FREOM MEASURE
+;;;===============================================
+
+(defmethod build-tree ((self voice) dur)
+
+  (declare (ignore dur))
+
+  (list (length (inside self))
+        (loop for m in (inside self)
+              collect (build-tree m (car (tree m))))
+        ))
+
+(defmethod build-tree ((self rhythmic-object) dur)
+  
+  (list dur
+        
+        (let* ((proportions (mapcar #'symbolic-dur (inside self)))
+               (pgcd (reduce #'pgcd proportions))
+               (simple-propotions (om/ proportions pgcd)))
+
+          (loop for element in (inside self)
+                for d in simple-propotions
+                collect (build-tree element d))
+          )
+        ))
+
+(defmethod build-tree ((self chord) dur) dur)
+(defmethod build-tree ((self continuation-chord) dur) (float dur))
+(defmethod build-tree ((self r-rest) dur) (- dur))
+ 
 
 ;;;===============================================
 ;;; FOR VOICE IT IS IMPORTANT TO KEEP A REFERENCE TO THE SAME CHORDS AS THEY ARE 
-;;; CONTAINED IN BOTH THE TIME-SEQUENCE, AND THERHYTMIC STRUCTURE
+;;; CONTAINED IN BOTH THE TIME-SEQUENCE, AND THE RHYTMIC STRUCTURE
 ;;;===============================================
 ;;; continue if the lists are exhausted ??
 
@@ -457,20 +491,44 @@
         do (setf (lport c) ports)
         ))
 
+(defmethod (setf tree) ((tree list) (self voice))
+  (set-tree self tree)
+  )
+
 
 ;;;======================================
 ;;; EDITION
 ;;;======================================
 
-;;; todo: turn to silence, i.e. start editing rhythm...
-(defmethod remove-from-obj ((self voice) (item chord)) nil)
 
-(defmethod remove-from-obj ((self voice) (item note))
-  (loop for c in (chords self)
-        do (when (find item (notes c))
-             (when (> (length (notes c)) 1) ;;; temp
-               (setf (notes c) (remove item (notes c))))
-             (return))
-        ))
+;;; todo: turn to silence, i.e. start editing rhythm...
+(defmethod remove-from-obj ((self voice) (item chord)) 
+  
+  ;;; turn all continuation chords into rests
+  (let ((same-cont-chords nil))
+    (loop for c in (print (get-all-chords self))
+          when (typep c 'continuation-chord)
+          do 
+          (when (or (equal (previous-chord c) item)
+                    (find (previous-chord c) same-cont-chords))
+            (push c same-cont-chords)))
+    
+    
+    (loop for c in same-cont-chords
+          do (change-class (print c) 'r-rest)))
+  
+  ;;; change the chord itself into a rest
+  (change-class item 'r-rest)
+  
+  ;;; compute new tree
+  (let ((new-tree (build-tree self nil)))
+    ;;; remove the chord
+    (time-sequence-remove-timed-item self item)
+    ;;; rebuild the structure
+    (set-tree self new-tree)
+    ))
+
+
+
 
 

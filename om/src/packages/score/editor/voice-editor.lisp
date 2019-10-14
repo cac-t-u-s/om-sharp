@@ -186,16 +186,82 @@
   nil)
 
 
+
+;;;======================
+;;; ACTIONS
+;;;======================
+
+
+;;; MOVE / CHANGE DURS:
+
 (defmethod move-editor-selection ((self voice-editor) &key (dx 0) (dy 0))
   (declare (ignore dx))
   (call-next-method self :dx 0 :dy dy))
 
 (defmethod score-editor-change-selection-durs ((self voice-editor) delta) nil)
 
-;;; TODO: do something with rhythms ?
-(defmethod score-editor-delete ((self voice-editor) element) (call-next-method))
+;;; TAB NAVIGATION:
+
+(defmethod next-element-in-editor ((editor voice-editor) (element rhythmic-object))
+  (car (inside element)))
+
+(defmethod next-element-in-editor ((editor voice-editor) (element score-element))
+  (let* ((seq (object-value editor))
+         (pos (position element (get-all-chords seq))))
+    (or (nth (1+ pos) (get-all-chords seq))
+        (car (get-all-chords seq)))))
 
 
+;;; TURN REST INTO A CHORD:
+
+;;; return a new chord if the clicked object is a rest
+(defmethod get-chord-from-editor-click ((self voice-editor) position) 
+  
+  (let ((chord (call-next-method)))
+    
+    (when (typep chord 'r-rest)
+      
+      (let* ((voice (get-voice-at-pos self position))
+             (time-pos (beat-to-time (symbolic-date chord) (tempo voice))))
+        
+        ;; make a real chord
+        (change-class chord 'chord)
+        (setf (onset chord) time-pos)
+        (setf (notes chord) nil)
+        
+        ;;; insert in teh actual sequence
+        (time-sequence-insert-timed-item-and-update voice chord (find-position-at-time voice time-pos))
+        
+        ;;; compute new tree / rebuild the structure
+        (set-tree voice (build-tree voice nil))
+        ))
+
+    chord))
+
+
+(defmethod editor-key-action ((editor voice-editor) key)
+  (cond         
+   ; tie/untie
+   ((equal key #\=) )
+   
+   ; group
+   ((equal key #\+) )
+   
+   ; break
+   ((equal key #\-) )
+   
+   ; subdivise
+   ((member key '(#\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9))
+    (let ((num (read-from-string (string key))))
+      ))
+    
+   ; otherwise
+   (t (call-next-method)) ;;; => score-editor
+   ))
+
+;;;======================
+;;; DRAW SPECIFICS
+;;;======================
 
 (defmethod draw-tempo-in-editor-view ((editor voice-editor) (self score-view))
 
