@@ -314,7 +314,7 @@
 ;;;====================================
 ;;; LIST OF CHOICES
 ;;;====================================
-
+;;; if the list contains :default, that leaves the possibility to check/unceck and activate or not the menu
 (defmethod make-prop-item ((type cons) prop-id object &key default update)
   (let ((popup (om-make-di 'om-popup-list 
                            :items (remove :default type) 

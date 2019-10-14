@@ -67,6 +67,7 @@
 (add-preference :appearance :box-roundness "Corner roundness" (make-number-in-range :min 0 :max 20) 2)
 (add-preference :appearance :box-font "Text font" :font (om-def-font :font1))
 (add-preference :appearance :box-align "Text align" '(:left :center :right) :center)
+(add-preference :appearance :box-icon "Icon position" '(:left :top :noicon) :left)
 
 
 ;;;=============================
@@ -94,16 +95,15 @@
 ;;; id text type slot-name
 (defmethod get-properties-list ((self OMBox))
   `(("Appearance" ;;; category
-               ;(:icon "Icon position" (:left :top :noicon) icon-pos)
-               (:color "Color" :color-or-nil color (:appearance :box-color))
-               (:border "Border" ,(make-number-or-nil :min 0 :max 4 :decimals 1) border (:appearance :box-border))
-               (:roundness "Corner" ,(make-number-or-nil :min 0 :max 20) roundness (:appearance :box-roundness))
-               (:text-font "Text font" :font-or-nil text-font (:appearance :box-font)) 
-               (:align "Text align" (:left :center :right :default) text-align (:appearance :box-align))
-               )
+     (:color "Color" :color-or-nil color (:appearance :box-color))
+     (:border "Border" ,(make-number-or-nil :min 0 :max 4 :decimals 1) border (:appearance :box-border))
+     (:roundness "Corner" ,(make-number-or-nil :min 0 :max 20) roundness (:appearance :box-roundness))
+     (:text-font "Text font" :font-or-nil text-font (:appearance :box-font)) 
+     (:align "Text align" (:left :center :right :default) text-align (:appearance :box-align))
+     )
     ("Structure" ;;; category
-               (:group-id "Group/Track" (:none 1 2 3 4 5 6 7 8) group-id)
-               )))
+     (:group-id "Group/Track" (:none 1 2 3 4 5 6 7 8) group-id)
+     )))
 
 (defmethod box-draw-color ((box OMBox)) 
   (if (color-? (color box))
@@ -133,6 +133,11 @@
   (if (number-? (roundness box))
       (number-number (roundness box))
     (get-pref-value :appearance :box-roundness)))
+
+
+(defmethod box-draw-icon-pos ((box OMBox)) 
+  (or (icon-pos box)
+      (get-pref-value :appearance :box-icon)))
 
 
 (defmethod update-container-groups ((self t)) self)
@@ -259,7 +264,7 @@
 
 
 ;;; e.g. in sequencer-track-view
-(defmethod reset-frame-size ((frame t)) nil)
+(defmethod reset-frame-size ((frameig t)) nil)
 (defmethod redraw-connections ((self t)) nil)
 
 (defmethod initialize-size ((self OMBox))
@@ -274,18 +279,18 @@
   (multiple-value-bind (w h) 
       (om-string-size (name self) (box-draw-font self))
     (om-make-point (+ 10 
-                      (max (+ 8 w (if (equal (icon-pos self) :left) 20 0))
+                      (max (+ 8 w (if (equal (box-draw-icon-pos self) :left) 20 0))
                          22
                          (* (length (inputs self)) 10)
                          (* (box-n-outs self) 10)))
-                   (+ h 16 (if (equal (icon-pos self) :top) 20 0))
+                   (+ h 16 (if (equal (box-draw-icon-pos self) :top) 20 0))
                  )))
 
 (defmethod maximum-size ((self OMBox))
    (multiple-value-bind (w h) 
        (om-string-size (name self) (box-draw-font self))  
      (declare (ignore w))
-     (if (equal (icon-pos self) :left)
+     (if (equal (box-draw-icon-pos self) :left)
          (om-make-point 500 
                         (max (+ (get-icon-size self) 8) (+ h 16)))
        (om-make-point 500 200))))

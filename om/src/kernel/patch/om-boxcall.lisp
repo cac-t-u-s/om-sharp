@@ -296,9 +296,11 @@ All boxes which their reference is a OM generic function are instances of this c
 (defmethod scale-in-y-? ((self OMFunBoxCall)) nil)
 
 (defmethod get-properties-list ((self OMFunBoxCall))
-  (hide-properties 
-   (call-next-method) 
-   '(:group-id)))
+  (add-properties  
+   (hide-properties (call-next-method) '(:group-id))
+   "Appearance"
+   '((:icon "Icon position" (:left :top :noicon :default) icon-pos (:appearance :box-icon)))
+   ))
 
 
 (defmethod draw-name-as-icon ((box OMFunBoxCall) frame)
