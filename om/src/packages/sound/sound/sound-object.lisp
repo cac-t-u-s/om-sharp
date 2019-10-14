@@ -897,19 +897,19 @@ Press 'space' to play/stop the sound file.
   (let ((pict (ensure-cache-display-draw box self)))
     (cond 
      ((equal pict :error)
-      (om-with-fg-color (om-def-color :dark-red)
-        (om-with-font (om-def-font :font2b)
-                      (om-draw-string (+ x 10) (+ y 34) "ERROR LOADING SOUND FILE" :wrap (- w 20)))
+      (om-with-fg-color (om-make-color .8 .4 .4)
+        (om-with-font (om-def-font :font1b)
+                      (om-draw-string (+ x 6) (+ y 12) "File not loaded:" :wrap (- w 20)))
         (when (file-pathname self)
-          (om-with-font (om-def-font :font1)
-                        (om-draw-string (+ x 10) (+ 34 20) (namestring (file-pathname self)) :wrap (- w 20))))
+          (om-with-font (om-def-font :font1 :size 10)
+                        (om-draw-string (+ x 6) (+ y 24) (namestring (file-pathname self)) :wrap (- w 20))))
         ))
      
      (pict 
       (om-draw-picture pict :x x :y (+ y 4) :w w :h (- h 8)))
           
      (t 
-      (om-draw-string (+ x 10) (+ y 34) "NO SOUND !" :color (om-def-color :white) :font (om-def-font :font2b)))
+      (om-draw-string (+ x 6) (+ y 12) "NO SOUND" :color (om-def-color :white) :font (om-def-font :font1b)))
      )
     
     (when (markers self)
