@@ -147,7 +147,7 @@
                                            (om-beep-msg "LOAD: Slot '~A' not found in class ~A !!" (car slot) (string-upcase class-name))))
                                      (find-value-in-kv-list data :slots))))
               (more-slots (mapcar #'(lambda (slot)
-                                      (print (car slot))
+                                      (car slot)
                                       (list (car slot) (omng-load (cadr slot))))
                                   (find-value-in-kv-list data :add-slots))))
     
