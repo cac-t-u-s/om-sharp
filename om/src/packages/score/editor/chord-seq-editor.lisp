@@ -186,6 +186,31 @@
   )
 
 
+;;; in data-stream-editor the selection is an index to elements in the frame sequence
+;;; here in chord-seq editor the selection s a score-element
+(defmethod first-element-in-editor ((editor chord-seq-editor)) 
+  (car (chords (object-value editor))))
+
+;;; called by the "tab" action
+(defmethod next-element-in-editor ((editor chord-seq-editor) (element t))
+  (first-element-in-editor editor))
+
+(defmethod next-element-in-editor ((editor chord-seq-editor) (element chord))
+  (let* ((seq (object-value editor))
+         (pos (position element (chords seq))))
+    (or (nth (1+ pos) (chords seq))
+        (car (chords seq)))))
+
+(defmethod next-element-in-editor ((editor chord-seq-editor) (element note))
+  (let* ((seq (object-value editor))
+         (chord (find-if #'(lambda (c) (find element (notes c))) (chords seq))))
+    (when chord
+      (let ((pos (position element (notes chord))))
+        (or (nth (1+ pos) (notes chord))
+            (car (notes chord)))))))
+
+
+
 (defmethod editor-key-action ((editor chord-seq-editor) key)
     (case key
       (#\A (align-chords-in-editor editor))
@@ -202,7 +227,7 @@
     (or 
      ;;; there's a selected chord near the click
      (find-if #'(lambda (element)
-                  (and (typep element 'chord)
+                  (and (typep element '(or chord r-rest))
                        (b-box element)
                        (>= (om-point-x position) (b-box-x1 (b-box element)))
                        (<= (om-point-x position) (b-box-x2 (b-box element)))))

@@ -255,6 +255,34 @@
 ;;; ACTIONS
 ;;;=========================
 
+(defmethod first-element-in-editor ((editor poly-editor-mixin)) 
+  (car (chords (car (obj-list (object-value editor))))))
+
+
+(defmethod next-element-in-editor ((editor poly-editor-mixin) (element chord-seq))
+  (let* ((obj (object-value editor))
+         (pos (position element (obj-list obj))))
+    (or (nth (1+ pos) (obj-list obj))
+        (car (obj-list obj)))))
+
+(defmethod next-element-in-editor ((editor poly-editor-mixin) (element chord))
+  (let* ((seq (find-if #'(lambda (v) (find element (chords v))) (obj-list (object-value editor))))
+         (pos (position element (chords seq))))
+    (or (nth (1+ pos) (chords seq))
+        (car (chords seq)))))
+
+(defmethod next-element-in-editor ((editor poly-editor-mixin) (element note))
+  (let* ((seq (find-if #'(lambda (v) (find-if #'(lambda (c) (find element (notes c))) (chords v))) 
+                       (obj-list (object-value editor))))
+         (chord (find-if #'(lambda (c) (find element (notes c))) (chords seq))))
+    (when chord
+      (let ((pos (position element (notes chord))))
+        (or (nth (1+ pos) (notes chord))
+            (car (notes chord)))))))
+
+
+
+
 ;;; remove chord
 (defmethod remove-from-obj ((self multi-seq) (item chord))
   (let ((cseq (find-if #'(lambda (cseq)

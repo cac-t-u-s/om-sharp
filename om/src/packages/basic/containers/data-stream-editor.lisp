@@ -281,6 +281,7 @@
 
 (defmethod editor-invalidate-views ((self data-stream-editor))
   (call-next-method)
+  (mapc 'om-invalidate-view (get-g-component self :data-panel-list))
   (when (timeline-editor self)
     (editor-invalidate-views (timeline-editor self))))
 
@@ -648,15 +649,26 @@
        (update-timeline-editor editor)
        (report-modifications editor))
       (:om-key-tab
-       (when (data-stream-get-frames stream)
-         (setf (selection editor) 
-               (if (selection editor) 
-                   (list (mod (1+ (car (selection editor))) (length (data-stream-get-frames stream))))
-                 '(0)))
-         (om-invalidate-view panel)))
+       (setf (selection editor) 
+             (if (selection editor) 
+                 (list (next-element-in-editor editor (car (selection editor))))
+               (list (first-element-in-editor editor))))
+       (editor-invalidate-views editor))
       (otherwise (call-next-method))
       )))
 
+
+;;; in data-strea-editor the selection is an index to elements in the frame sequence
+;;; this is not necessarilythe case of editor subclasses
+(defmethod first-element-in-editor ((editor data-stream-editor))
+  (and (data-stream-get-frames (object-value editor)) 0))
+
+(defmethod next-element-in-editor ((editor data-stream-editor) (element number))
+  (let ((seq (object-value editor)))
+    (and (data-stream-get-frames seq)
+         (mod (1+ element) (length (data-stream-get-frames seq))))))
+
+(defmethod next-element-in-editor ((editor data-stream-editor) (element t)) nil)
 
 ;;;==================================
 ;;; TURN PAGES / FOLLOW PLAY POSITION
