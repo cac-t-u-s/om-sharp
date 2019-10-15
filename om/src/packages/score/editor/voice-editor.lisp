@@ -217,25 +217,53 @@
 ;;; return a new chord if the clicked object is a rest
 (defmethod get-chord-from-editor-click ((self voice-editor) position) 
   
-  (let ((chord (call-next-method)))
+  (let ((chord (call-next-method))
+        (voice (get-voice-at-pos self position)))
     
-    (when (typep chord 'r-rest)
+    (if chord 
+        
+        (when (typep chord 'r-rest)
       
-      (let* ((voice (get-voice-at-pos self position))
-             (time-pos (beat-to-time (symbolic-date chord) (tempo voice))))
+          (let* ((time-pos (beat-to-time (symbolic-date chord) (tempo voice))))
         
-        ;; make a real chord
-        (change-class chord 'chord)
-        (setf (onset chord) time-pos)
-        (setf (notes chord) nil)
+            ;; make a real chord
+            (change-class chord 'chord)
+            (setf (onset chord) time-pos)
+            (setf (notes chord) nil)
         
-        ;; insert in teh actual sequence
-        (time-sequence-insert-timed-item-and-update voice chord (find-position-at-time voice time-pos))
+            ;; insert in teh actual sequence
+            (time-sequence-insert-timed-item-and-update voice chord (find-position-at-time voice time-pos))
         
-        ;; compute new tree / rebuild the structure
-        (set-tree voice (build-tree voice nil))
-        ))
+            ;; compute new tree / rebuild the structure
+            (set-tree voice (build-tree voice nil))
+            ))
+      
+      ;;; little hacked hooked-in here: add a measure 
+      (let ((time-pos (pixel-to-time (get-g-component self :main-panel) (om-point-x position)))
+            (click-on-measure 
+             (find-if #'(lambda (element)
+                          (and (typep element 'measure)
+                               (b-box element)
+                               (>= (om-point-x position) (b-box-x1 (b-box element)))
+                               (<= (om-point-x position) (b-box-x2 (b-box element)))))
+                      (inside voice))))
+        
+        (let ((pos (cond (click-on-measure (position click-on-measure (inside voice)))
+                         ((>= time-pos (get-obj-dur voice)) (length (inside voice)))  ;;; click at the end of the voice: add measure at the end
+                         (t nil))))
+          (when pos
 
+            (let ((m (make-instance 'measure :tree '((4 4) (-1))
+                                    :symbolic-dur 1
+                                    :symbolic-date 0
+                                    )))
+              (setf (inside m) (list (make-instance 'r-rest :symbolic-dur 1 :symbolic-date 0)))
+              (insert-in-voice voice m pos) 
+              (report-modifications self)
+              ))
+          )
+        )
+      )
     chord))
 
 
