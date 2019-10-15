@@ -11,9 +11,9 @@ PREFIX		= /usr
 # DESTDIR for local builds, ie. by rpmbuild etc.
 
 bindir		= $(DESTDIR)$(PREFIX)/bin
-libdir		= $(DESTDIR)$(PREFIX)/lib64/openmusic
+libdir		= $(DESTDIR)$(PREFIX)/lib64/openmusic7
 datadir		= $(DESTDIR)$(PREFIX)/share
-omfontsdir	= $(DESTDIR)$(PREFIX)/share/fonts/omfonts
+omfontsdir	= $(DESTDIR)$(PREFIX)/share/fonts/omfonts7
 omroot		= $(datadir)/$(APPNAME)
 ICONDIR		= $(datadir)/icons/hicolor/64x64/apps
 
@@ -24,7 +24,7 @@ thisdir		= $(dir $(thisfile))
 builddir	= $(shell cd $(dir $(thisfile)) && cd $(path_to_omroot) && pwd)
 
 BUILDROOT	= $(builddir)
-APPNAME		= openmusic
+APPNAME		= openmusic7
 INSTALLRES	= $(BUILDROOT)/build/linux
 
 app_name_version = om7-beta
@@ -33,7 +33,7 @@ faslname	= 64ufasl
 rubbish		= *.$(faslname)
 
 # rsyncflags	= -v -rlt -z
-rsyncflags	= -v -rlt -z -C --include '*.so'
+rsyncflags	= -v -rlt -O -z -C --include '*.so'
 exclude_fasl	= --include 'dspec-database.$(faslname)' --exclude '$(rubbish)'
 exclude_mac	= --exclude 'build/mac/' --exclude '*.finderinfo'
 exclude_win	= --exclude 'build/win/'
@@ -71,7 +71,7 @@ install: $(BUILDROOT)/$(releaseappname)
 	mkdir -p $(datadir)/applications/
 	cd $(INSTALLRES) && $(INSTALL_PROGRAM) -D -m 0644 OM7.desktop $(datadir)/applications/
 	mkdir -p $(ICONDIR)
-	cd $(BUILDROOT)/resources/ && $(INSTALL_PROGRAM) -D -m 0644 om.png $(ICONDIR)
+	cd $(BUILDROOT)/resources/ && $(INSTALL_PROGRAM) -D -m 0644 om7.png $(ICONDIR)
 	mkdir -p $(omfontsdir)/
 	cd $(BUILDROOT)/resources/fonts && rsync $(rsyncflags) *.otf $(omfontsdir)
 
@@ -80,7 +80,7 @@ uninstall:
 	rm -f $(bindir)/$(APPNAME)
 	rm -f $(bindir)/$(releaseappname)
 	rm -f $(datadir)/applications/OM7.desktop
-	rm -f $(ICONDIR)/om.png
+	rm -f $(ICONDIR)/om7.png
 	rm -rf $(omfontsdir)
 	rm -rf $(libdir)
 
