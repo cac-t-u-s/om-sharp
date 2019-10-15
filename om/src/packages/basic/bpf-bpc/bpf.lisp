@@ -646,7 +646,7 @@
 (defmethod collection-draw-mini-view ((type BPF) list box x y w h time)
    (if (list-subtypep list 'BPF) ;;; works only is all objects are BPFs
       
-       (let* ((display-cache (get-display-draw box))
+       (let* ((display-cache (get-collection-cache-display (car list) list box))
               (ranges (car display-cache)))
 
          (loop for o in list do 
