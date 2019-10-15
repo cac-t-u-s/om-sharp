@@ -75,7 +75,7 @@
       (make-pathname
        :host (pathname-host (oa::om-lisp-image))
        :device (pathname-device (oa::om-lisp-image)) 
-       :directory (append (butlast (pathname-directory (oa::om-lisp-image))) '("share" "openmusic" "resources")))
+       :directory (append (butlast (pathname-directory (oa::om-lisp-image))) '("share" "openmusic7" "resources")))
       (make-pathname
        :host (pathname-host (oa::om-root-folder))
        :device (pathname-device (oa::om-root-folder)) 
