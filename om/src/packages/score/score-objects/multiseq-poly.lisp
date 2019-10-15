@@ -63,7 +63,10 @@
                     (om-beep-msg "Removing voice of type ~A" (type-of v)))
               collect v))
   self)
-                 
+           
+
+(defmethod get-voices ((self multi-seq)) (obj-list self))
+(defmethod get-voices ((self chord-seq)) (list self))
                           
 ;;;===================================================
 ;;; TIME-SEQUENCE METHODS APPLIED TO POLYPHONIES

@@ -19,6 +19,23 @@
 (in-package :om)
 
 
+(defclass rhythmic-object (score-element) 
+  ((tree :initform '(1 (1 1 1 1)) :accessor tree :initarg :tree :type list :documentation "a rhythm tree")
+   (inside :accessor inside :initform nil :documentation "internal hierarchical structure")))
+
+(defmethod additional-slots-to-copy ((self rhythmic-object))
+  (append (call-next-method) '(inside)))
+
+(defmethod deep-search ((self rhythmic-object) obj)
+  (if (find obj (inside self)) t
+      (let ((found-inside nil))
+        (loop for sub in (inside self)
+              while (not found-inside)
+              do (setf found-inside (deep-search sub obj)))
+        found-inside)))
+
+(defmethod deep-search ((self t) obj) nil)
+  
 ;;;===================================================
 ;;; VOICE IS A CHORD-SEQ WHOSE STRUCTURE AND TIMING IS RULED BY A TREE
 ;;;===================================================
@@ -27,7 +44,7 @@
 ;;; r-struct is a hierarchical structure of containers (measures/groups) whose leaves are either chords or rests
 ;;; the chords in r-struct are simple references to the time-sequence items
 
-(defclass* voice (chord-seq)
+(defclass* voice (chord-seq rhythmic-object)
   ((tree :initform '(1 (((4 4) (1 1 1 1)))) :accessor tree :initarg :tree :type list 
          :documentation "a rhythm tree (list of measure-rythm-trees)")
    (Lmidic :initform '((6000)) :initarg :Lmidic :initarg :chords :type list 
@@ -64,15 +81,7 @@
   (clone-object model target))
 
 
-
-(defclass rhythmic-object (score-element) 
-  ((tree :initform '(1 (1 1 1 1)) :accessor tree :initarg :tree :type list :documentation "a rhythm tree")
-   (inside :accessor inside :initform nil :documentation "internal hierarchical structure")))
-
-(defmethod additional-slots-to-copy ((self rhythmic-object))
-  (append (call-next-method) '(inside)))
-
-;;; some additional classes to build a rhythmic structure
+;;; SOME ADDITIONAL CLASSES TO BUILD RHYTHMIC STRUCTURES:
 (defclass measure (rhythmic-object) ())
 
 (defclass group (rhythmic-object) 
@@ -87,10 +96,10 @@
 
 (defmethod get-real-chord ((self chord)) self)
 
-
 (defclass r-rest (score-element) ())
 
 (defclass grace-note (score-element) ())
+
 
 ;;; gets chords in the rhythmic structure
 ;;; !! different from GET-CHORDS
@@ -98,9 +107,6 @@
   (loop for obj in (inside self) append 
         (get-all-chords obj)))
 
-(defmethod get-all-chords ((self voice)) 
-  (loop for obj in (inside self) append 
-        (get-all-chords obj)))
 
 (defmethod get-all-chords ((self chord)) (list self))
 (defmethod get-all-chords ((self continuation-chord)) (list self))
@@ -212,7 +218,7 @@
 (defmethod tree-extent ((tree number)) 
   (decode-extent tree))
 
-
+;;; measure or group
 (defmethod build-rhythm-structure ((self rhythmic-object) chords n &key last-chord)
 
   (let ((total-dur (apply '+ (mapcar 'tree-extent (cadr (tree self))))) ;;; sum of subdivisions
@@ -285,7 +291,7 @@
                                   (>= curr-n-chord 0)) ;;; just to prevent error when a continuation chord has no previous chord
                              (let* ((real-chord (nth curr-n-chord chords))
                                     (cont-chord (make-instance 'continuation-chord)))
-                        
+                               
                                (setf 
                                 ;;; extends the duration of the main chord
                                 (symbolic-dur-extent real-chord) (+ (symbolic-dur-extent real-chord) sub-dur) 
@@ -312,7 +318,9 @@
                                    (pushr real-chord chords))
 
                                  (setf (symbolic-date real-chord) curr-beat
-                                       (symbolic-dur real-chord) sub-dur)
+                                       (symbolic-dur real-chord) sub-dur
+                                       (symbolic-dur-extent real-chord) 0   ;;; could have been cloned from previous
+                                       )
                                  
                                  (setq curr-last-chord real-chord)
                                  real-chord))
@@ -500,8 +508,8 @@
 ;;; EDITION
 ;;;======================================
 
+;;; REMOVE A CHORD / REPLACE WITH A REST
 
-;;; todo: turn to silence, i.e. start editing rhythm...
 (defmethod remove-from-obj ((self voice) (item chord)) 
   
   ;;; turn all continuation chords into rests
@@ -529,6 +537,286 @@
     ))
 
 
+;;; SUBSTITUTIONS
+
+(defmethod replace-in-obj ((self score-element) (old t) (new t)) nil)
+
+;;; replace an element
+(defmethod replace-in-obj ((self rhythmic-object) (old score-element) (new score-element))
+  (let ((pos (position old (inside self))))
+    (if pos 
+        (setf (nth pos (inside self)) new)
+      (loop for sub in (inside self) do
+            (replace-in-obj sub old new))
+      )))
 
 
+;;; replace a list by a single element (=grouping)
+(defmethod replace-in-obj ((self rhythmic-object) (old list) (new score-element))
+  (let ((pos (search old (inside self))))
+    (if pos 
+        
+        (setf (inside self) 
+              (append (subseq (inside self) 0 pos)
+                      (list new)
+                      (subseq (inside self) (+ pos (length old)))))
+
+      (loop for sub in (inside self) do
+            (replace-in-obj sub old new))
+      )))
+
+;;; replace a single element by a list (=ungrouping)
+(defmethod replace-in-obj ((self rhythmic-object) (old score-element) (new list))
+  (let ((pos (position old (inside self))))
+    (if pos 
+        
+        (setf (inside self) 
+              (append (subseq (inside self) 0 pos)
+                      new
+                      (subseq (inside self) (1+ pos))))
+
+      (loop for sub in (inside self) do
+            (replace-in-obj sub old new))
+      )))
+
+
+;;; replace a list by a list (=useful?)
+(defmethod replace-in-obj ((self rhythmic-object) (old list) (new list))
+  (let ((pos (search old (inside self))))
+    (if pos 
+        
+        (setf (inside self) 
+              (append (subseq (inside self) 0 pos)
+                      new
+                      (subseq (inside self) (+ pos (length old)))))
+
+      (loop for sub in (inside self) do
+            (replace-in-obj sub old new))
+      )))
+
+
+
+
+;;; TIE/UNTIE
+
+;;; converts chord into continuation-chord
+(defmethod tie-chord ((self voice) (c chord) &optional rebuild)
+  
+  (let ((pos (position c (chords self))))
+    
+    (if (= pos 0) ;; can not be tied to previous
+        
+        c
+      
+      (let ((new-c (make-instance 'continuation-chord :previous-chord (nth (1- pos) (chords self)))))
+        
+        (setf (symbolic-date new-c) (symbolic-date c) 
+              (symbolic-dur new-c) (symbolic-dur c))
+      
+        (replace-in-obj self c new-c)
+        
+        ; remove the chord (it's not a "real" chord anymore)
+        (time-sequence-remove-timed-item self c)
+
+        ; rebuild the structure
+        (when rebuild 
+          (set-tree self (build-tree self nil)))
+        
+        ;;; we are not able to return new-c as the rhytm-structure has been re-build anyway
+        (unless rebuild new-c))
+      )))
+
+
+;;; converts continuation-chord into chord
+(defmethod untie-chord ((self voice) (c continuation-chord) &optional rebuild)
+  
+  (let* ((ref-chord (get-real-chord c))
+         (time-pos (beat-to-time (symbolic-date c) (tempo self)))
+         (new-c (clone-object ref-chord)))
+    
+    (setf (onset new-c) time-pos
+          (symbolic-date new-c) (symbolic-date c) 
+          (symbolic-dur new-c) (symbolic-dur c)) 
+    
+    (replace-in-obj self c new-c)
+    
+    ; creates anew "real" chord in teh sequence
+    (time-sequence-insert-timed-item-and-update self new-c (find-position-at-time self time-pos))
+
+    ;;; rebuild the structure
+    (when rebuild 
+      (set-tree self (build-tree self nil)))
+    
+    new-c))
+
+
+;;; does a list of ties/unties 
+(defmethod tie-untie ((self voice) (clist list))
+  
+  (let* ((cont-chords (remove-if-not #'(lambda (c) (typep c 'continuation-chord)) clist))
+         (chords (remove-if-not #'(lambda (c) (typep c 'chord)) clist)))
+
+    (loop for cc in cont-chords do
+          (untie-chord self cc nil))
+    (loop for c in chords do
+          (tie-chord self c nil))
+
+    ;;; rebuild the structure
+    (set-tree self (build-tree self nil))
+    
+    nil))
+
+
+
+;;; GROUP
+
+(defmethod group-objects ((self t) (in-voice voice)) nil)
+
+(defmethod group-objects ((self rhythmic-object) (in-voice voice)) 
+
+  (let* ((chords (get-tpl-elements-of-type self 'chord))
+         (cont-chords (get-tpl-elements-of-type self 'continuation-chord))
+         (new-obj (if chords (make-instance 'chord)
+                    (if cont-chords (make-instance 'cont-chords :previous-chord (previous-chord (car cont-chords)))
+                      (make-instance 'r-rest)))))
+    
+    (when chords 
+      (setf (notes new-obj) (remove-duplicates (get-notes chords) :key #'midic))
+      (loop for c in chords do
+            (time-sequence-remove-timed-item in-voice c)))
+    
+    (setf (symbolic-date new-obj) (symbolic-date self)
+          (symbolic-dur new-obj) (symbolic-dur self))
+    
+    (when (typep new-obj 'chord)
+      (time-sequence-insert-timed-item-and-update 
+       in-voice new-obj 
+       (find-position-at-time in-voice (beat-to-time (symbolic-date new-obj) (tempo in-voice)))))
+    
+    new-obj))
+
+
+(defmethod group-objects ((self list) (in-voice voice)) 
+
+  (let* ((chords (loop for obj in self append (get-tpl-elements-of-type obj 'chord)))
+         (cont-chords (get-tpl-elements-of-type self 'continuation-chord))
+         (new-obj (if chords (make-instance 'chord)
+                    (if cont-chords (make-instance 'cont-chords :previous-chord (previous-chord (car cont-chords)))
+                      (make-instance 'r-rest)))))
+    (when chords 
+      (setf (notes new-obj) (remove-duplicates (get-notes chords) :key #'midic))
+      (loop for c in chords do
+            (time-sequence-remove-timed-item in-voice c)))
+    
+    (setf (symbolic-date new-obj) (list-min (mapcar #'symbolic-date self))
+          (symbolic-dur new-obj) (apply #'+ (mapcar #'symbolic-dur self)))
+    
+    (when (typep new-obj 'chord)
+      (time-sequence-insert-timed-item-and-update 
+       in-voice new-obj 
+       (find-position-at-time in-voice (beat-to-time (symbolic-date new-obj) (tempo in-voice)))))
+    
+    new-obj))
+
+
+(defmethod group-voice-elements ((self t) (clist list) (tpl-sequence voice)) nil)
+
+(defmethod group-voice-elements ((self rhythmic-object) (clist list) (tpl-sequence voice))
+  
+  (setf clist (sort clist #'< :key #'symbolic-date))
+  
+  ;(print (list "GROUPING IN" self))
+  
+  ;; else: check inside
+  (let* ((sublist (intersection clist (inside self)))
+         (pos (and sublist (search sublist (inside self)))))
+    
+    (if pos  ;;; same sequence in same order exists inside: a sequence of succesive elements
+        
+        ;;; make a new object with sub-list
+        (let ((grouped (group-objects sublist tpl-sequence)))
+          ;(print (list "list to group:" sublist "=>" grouped))
+          ;;; substitute the object
+          (replace-in-obj self sublist grouped))
+      
+      ;;; go one by one
+      (loop for element in (inside self) do
+            
+            (if (and sublist (find element sublist))
+                
+                ;;; group the element
+                (let ((grouped (group-objects element tpl-sequence)))
+                  ;(print (list "element to group:" element "=>" grouped))
+                  (when grouped
+                    (replace-in-obj self element grouped)))
+              
+              ;;; check for groups inside 
+              (group-voice-elements element clist tpl-sequence)
+              ))
+      ))
+  )
+  
+  
+(defmethod group ((self voice) (clist list))
+  (group-voice-elements self clist self)
+  ;;; rebuild the structure
+  (set-tree self (build-tree self nil)))
+
+
+;;; SUBDIVIDE
+
+(defmethod subdivide-in-voice ((self chord) (n integer) (in-voice voice))
+  
+  (let* ((new-dur (/ (symbolic-dur self) n))
+         (t0 (symbolic-date self))
+         (new-chords (loop for i from 0 to (1- n) collect
+                           (let ((c (clone-object self)))
+                             (setf (symbolic-date c) (+ t0 (* i new-dur))
+                                   (symbolic-dur c) new-dur)
+                             c)))
+         (new-group (make-instance 'group :symbolic-date t0
+                                   :symbolic-dur (symbolic-dur self))))
+      
+      (setf (inside new-group) new-chords)
+      
+      (replace-in-obj in-voice self new-group)
+      
+      (time-sequence-remove-timed-item in-voice self)
+      
+      (loop for c in new-chords do
+            (time-sequence-insert-timed-item-and-update 
+             in-voice c 
+             (find-position-at-time in-voice (beat-to-time (symbolic-date c) (tempo in-voice)))))
+      ))
+    
+                           
+(defmethod subdivide ((self voice) (clist list) (n integer))
+
+  (let ((elements (loop for obj in clist append (get-tpl-elements-of-type obj 'chord))))
+    
+    (loop for elt in elements do
+          (subdivide-in-voice elt n self))
+    
+    (set-tree self (build-tree self nil))))
+
+
+;;; BREAK
+
+(defmethod break-group-in-voice ((self group) (in-voice voice))
+  ;(loop for elt in (inside self) do
+  ;      (setf (symbolic-dur elt) (* (symbolic-dur self) (symbolic-dur elt))))  
+  (replace-in-obj in-voice self (inside self))
+  )
+
+(defmethod break-groups ((self voice) (glist list))
+  
+  (loop for group in glist do
+        (break-group-in-voice group self))
+  
+  ;;; rebuild the structure
+  (set-tree self (build-tree self nil)))
+
+
+
+    
 
