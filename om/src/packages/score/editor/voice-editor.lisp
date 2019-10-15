@@ -229,30 +229,98 @@
         (setf (onset chord) time-pos)
         (setf (notes chord) nil)
         
-        ;;; insert in teh actual sequence
+        ;; insert in teh actual sequence
         (time-sequence-insert-timed-item-and-update voice chord (find-position-at-time voice time-pos))
         
-        ;;; compute new tree / rebuild the structure
+        ;; compute new tree / rebuild the structure
         (set-tree voice (build-tree voice nil))
         ))
 
     chord))
 
 
+(defmethod tie-untie-selection ((editor voice-editor))
+  (let ((selected-chords (loop for elt in (selection editor) append 
+                               (get-tpl-elements-of-type elt '(chord continuation-chord)))))
+    (when selected-chords
+      (store-current-state-for-undo editor)
+  
+      (loop for v in (get-voices (object-value editor)) do
+            (let ((selected-chords-in-v (remove-if-not #'(lambda (c) (find c (get-all-chords v))) selected-chords)))
+              (when selected-chords-in-v
+                (tie-untie v selected-chords-in-v))))
+        
+      (set-selection editor nil)
+        
+      (report-modifications editor))))
+
+
+(defmethod group-selection ((editor voice-editor))
+  (let ((selected-chords (loop for elt in (selection editor) append 
+                               (get-tpl-elements-of-type elt '(chord continuation-chord r-rest)))))
+    (when selected-chords
+      (store-current-state-for-undo editor)
+  
+      (loop for v in (get-voices (object-value editor)) do
+            (let ((selected-chords-in-v (remove-if-not #'(lambda (c) (find c (get-all-chords v))) selected-chords)))
+              (when selected-chords-in-v
+                (group v selected-chords-in-v))))
+        
+      (set-selection editor nil)
+        
+      (report-modifications editor))))
+
+
+(defmethod subdivide-selection ((editor voice-editor) n)
+  (let ((selected-chords (loop for elt in (selection editor) append 
+                               (get-tpl-elements-of-type elt '(chord continuation-chord r-rest)))))
+    (when selected-chords
+      (store-current-state-for-undo editor)
+  
+      (loop for v in (get-voices (object-value editor)) do
+            (let ((selected-chords-in-v (remove-if-not #'(lambda (c) (find c (get-all-chords v))) selected-chords)))
+              (when selected-chords-in-v
+                (subdivide v selected-chords-in-v n))))
+        
+      (set-selection editor nil)
+        
+      (report-modifications editor))))
+
+
+(defmethod break-selection ((editor voice-editor))
+  (let ((selected-groups (loop for elt in (selection editor) append 
+                               (get-tpl-elements-of-type elt '(group)))))
+    (when selected-groups
+      (store-current-state-for-undo editor)
+  
+      (loop for v in (get-voices (object-value editor)) do
+            (let ((selected-groups-in-v (remove-if-not #'(lambda (g) (deep-search v g)) selected-groups)))
+              (when selected-groups-in-v
+                (break-groups v selected-groups-in-v))))
+        
+      (set-selection editor nil)
+        
+      (report-modifications editor))))
+
+
 (defmethod editor-key-action ((editor voice-editor) key)
   (cond         
    ; tie/untie
-   ((equal key #\=) )
+   ((equal key #\=) 
+    (tie-untie-selection editor))
    
    ; group
-   ((equal key #\+) )
+   ((equal key #\+) 
+    (group-selection editor))
    
    ; break
-   ((equal key #\-) )
+   ((equal key #\-) 
+    (break-selection editor))
    
    ; subdivise
    ((member key '(#\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9))
     (let ((num (read-from-string (string key))))
+      (subdivide-selection editor num)
       ))
     
    ; otherwise
@@ -282,6 +350,10 @@
          (h-stretch (editor-get-edit-param editor :h-stretch))
          (y-u (or force-y-shift (editor-get-edit-param editor :y-shift)))
          (selection (selection editor)))
+    
+    (when (listp staff)
+      (setf staff (or (nth (position object (get-voices (object-value editor))) staff)
+                      (car staff))))
     
     (loop with on-screen = t
           with prev-signature = nil
