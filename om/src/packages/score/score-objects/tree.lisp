@@ -124,7 +124,6 @@
 ;;; TOP-LEVEL RULES MARKED WITH ->
 ;;;=============================================
 
-;;;===================================================================
 ;Check the syntax of the tree and computes the value of '? if there is in the tree
 (defun subtree-extent (subtree) ;verifier qui l'appele
   (cond ((listp subtree) (fullratio (first subtree)))
@@ -145,7 +144,8 @@
             solved)))
    ))
 
-;;;===================================================================
+
+;;;===============================================
 ; If only one element
 ;'((4 4) ((1 (1 1 1)))) = T
 (defun measure-single? (mes)
@@ -155,7 +155,6 @@
 ;'((4 4) (5)) = T
 (defun measure-super-single? (mes)
   (and (measure-single? mes) (numberp (caadr mes))))
-
 
 (defun replace-num-in-tree (old new)
   (cond
@@ -168,46 +167,52 @@
    ((= (length list) 1)
     (let ((elem (first list)))
       (if (numberp elem)
-        (if reduction (list (replace-num-in-tree elem reduction)) list)
+          (if reduction 
+              (list (replace-num-in-tree elem reduction))
+            list)
+        
         (if reduction 
+            
+            (if (= (length (second elem)) 1)
+                (rw-singleton (second elem) reduction)
+              (list (list reduction (rw-singleton (second elem)))))
+          
           (if (= (length (second elem)) 1)
-            (rw-singleton (second elem) reduction)
-            (list (list reduction (rw-singleton (second elem)))))
-          (if (= (length (second elem)) 1)
-            (rw-singleton (second elem) (car elem))
-            (list (list (first elem) (rw-singleton (second elem)))))))))
+              (rw-singleton (second elem) (car elem))
+            (list (list (first elem) (rw-singleton (second elem)))))
+          ))))
    (t
     (loop for item in list append
           (if (numberp item) 
             (rw-singleton (list item))
             (if (= (length (second item)) 1)
-              (list (list (first item) (rw-singleton (second item) (first item))))
+              (rw-singleton (second item) (first item)) ;;; reduction is HERE
               (list (list (first item) (rw-singleton (second item))))))))))
 
 ; ->
 (defun resolve-singletons (tree)
-   (let* ((measures tree))
+  (let* ((measures tree))
      ; (list (car tree)
-           (mapcar #'(lambda (mes)  ;pour chaque measure
-                       (let ((sign (first mes))
-                             (slist (second mes)))
-                         (cond
-                          ((measure-super-single? mes) ;un mesure de la forme ((4//4 (n))) avec n n number
-                           (list sign (list (replace-num-in-tree (first slist) (first sign)))))
-                          ((measure-single? mes) ;un mesure de la forme ((4//4 (g))) ou g es un grupo, donc une liste
-                           (let ((group (first slist))) ;grupo es un RT
-                             (if (= (length (second group)) 1)
-                               (list sign (rw-singleton (second group) (caar mes)))
-                               (list sign (list (list (first sign)
-                                                      (rw-singleton (second group))))))))
-                          (t ;un mesure de la forme ((4//4 (r1 r2 ...rn))) ou r es un grupo ou un number
-                           (list sign (rw-singleton (second mes)))))))
-                   measures)
+    (mapcar #'(lambda (mes)  ;pour chaque measure
+                (let ((sign (first mes))
+                      (slist (second mes)))
+                  (cond
+                   ((measure-super-single? mes) ; un mesure de la forme ((4//4 (n))) avec n n number
+                    (list sign (list (replace-num-in-tree (first slist) (first sign)))))
+                   ((measure-single? mes) ;un mesure de la forme ((4//4 (g))) ou g est un groupe, donc une liste
+                    (let ((group (first slist)))
+                      (if (= (length (second group)) 1)
+                          (list sign (rw-singleton (second group) (caar mes)))
+                        (list sign (list (list (first sign)
+                                               (rw-singleton (second group))))))))
+                   (t ;un mesure de la forme ((4//4 (r1 r2 ...rn))) ou r est un groupe ou un number
+                    (list sign (rw-singleton (second mes)))))))
+            measures)
            ;)
-   ))
+    ))
 
 
-;;;===================================================================
+;;;==============================================
 ;;; returns top-level subdivision of the measure
 ;'((4 4) (3 (1 (1 1 1)) -5)) = '(3 1 5)
 (defun measure-repartition (mes)
