@@ -287,23 +287,29 @@
 
 
 
-;;; remove chord
+;;; REMOVE METHODS
 (defmethod remove-from-obj ((self multi-seq) (item chord))
   (let ((cseq (find-if #'(lambda (cseq)
                            (find item (data-stream-get-frames cseq)))
                        (obj-list self) 
                        )))
     (when cseq
-      (time-sequence-remove-timed-item cseq item))
+      (remove-from-obj cseq item))
     ))
 
-;;; remove note
 (defmethod remove-from-obj ((self multi-seq) (item note))
   (loop for cseq in (obj-list self)
         while (not (remove-from-obj cseq item))))
 
 (defmethod remove-from-obj ((self multi-seq) (item chord-seq))
   (setf (obj-list self) (remove item (obj-list self))))
+
+(defmethod remove-from-obj ((self poly) (item measure))
+  (let ((voice (find-if #'(lambda (v) (find item (inside v))) (obj-list self))))
+    (when voice
+      (remove-from-obj voice item))
+    ))
+
 
 
 (defmethod score-editor-handle-voice-selection ((self poly-editor-mixin) direction) 
