@@ -660,10 +660,14 @@
                (om-make-menu-item "Redo" #'(lambda () (when (redo-command self) (funcall (redo-command self))))
                                   :key "Z" :enabled #'(lambda () (and (redo-command self) t)))))
         (om-make-menu-comp 
-         (list (om-make-menu-item "Copy" #'(lambda () (funcall (copy-command self))) :key "c" :enabled #'(lambda () (and (copy-command self) t)))
-               (om-make-menu-item "Cut" #'(lambda () (funcall (cut-command self))) :key "x" :enabled #'(lambda () (and (cut-command self) t)))
-               (om-make-menu-item "Paste"#'(lambda () (funcall (paste-command self))) :key "v" :enabled #'(lambda () (and (paste-command self) t)))
-               (om-make-menu-item "Delete" #'(lambda () (funcall (clear-command self))) :enabled (and (clear-command self) t))))
+         (list (om-make-menu-item "Copy" #'(lambda () (funcall (copy-command self))) 
+                                  :key "c" :enabled #'(lambda () (and (copy-command self) t)))
+               (om-make-menu-item "Cut" #'(lambda () (funcall (cut-command self))) 
+                                  :key "x" :enabled #'(lambda () (and (cut-command self) t)))
+               (om-make-menu-item "Paste"#'(lambda () (funcall (paste-command self))) 
+                                  :key "v" :enabled #'(lambda () (and (paste-command self) t)))
+               (om-make-menu-item "Delete" #'(lambda () (funcall (clear-command self))) 
+                                  :enabled (and (clear-command self) t))))
         (om-make-menu-comp 
          (list (om-make-menu-item "Select All" #'(lambda () (funcall (select-all-command self))) 
                                   :key "a" :enabled #'(lambda () (and (select-all-command self) t)))))

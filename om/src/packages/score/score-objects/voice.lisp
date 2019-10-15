@@ -82,7 +82,8 @@
 
 
 ;;; SOME ADDITIONAL CLASSES TO BUILD RHYTHMIC STRUCTURES:
-(defclass measure (rhythmic-object) ())
+(defclass measure (rhythmic-object) ()
+  (:default-initargs :tree '((4 4) (-1))))
 
 (defclass group (rhythmic-object) 
   ((numdenom :accessor numdenom :initarg :numdenom :initform nil)))
@@ -449,7 +450,7 @@
   (list dur
         
         (let* ((proportions (mapcar #'symbolic-dur (inside self)))
-               (pgcd (reduce #'pgcd proportions))
+               (pgcd (reduce #'pgcd (cons 1 proportions)))
                (simple-propotions (om/ proportions pgcd)))
 
           (loop for element in (inside self)
@@ -834,8 +835,8 @@
          (t0 (symbolic-date self))
          (new-rests (loop for i from 0 to (1- n) collect
                            (let ((r (clone-object self)))
-                             (setf (symbolic-date c) (+ t0 (* i new-dur))
-                                   (symbolic-dur c) new-dur)
+                             (setf (symbolic-date r) (+ t0 (* i new-dur))
+                                   (symbolic-dur r) new-dur)
                              r))))
     
     (replace-in-obj in-voice self new-rests)
