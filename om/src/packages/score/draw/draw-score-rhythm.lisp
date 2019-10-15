@@ -234,9 +234,9 @@
 
 ;;; beam-info : beam-pos (line) , beam-direction (:up/:down) , beams-already-drawn (list of indices)
 (defmethod draw-rhytmic-element ((object group) tempo param-obj view 
-                               &key font-size (x-shift 0) (y-shift 0) (level 1) 
-                               position beam-info beat-unit rest-line
-                               selection time-function)
+                                 &key font-size (x-shift 0) (y-shift 0) (level 1) 
+                                 position beam-info beat-unit rest-line
+                                 selection time-function)
   
   (declare (ignore position))
   
@@ -264,131 +264,147 @@
                      ))
          (pix-end (+ x-shift-pix
                      ;; (time-to-pixel view (beat-to-time (symbolic-date (car (last chords))) tempo))
-                      (funcall (or time-function #'(lambda (time) (time-to-pixel view time)))
-                               (beat-to-time (symbolic-date (car (last chords))) tempo))
-                      ))
+                     (funcall (or time-function #'(lambda (time) (time-to-pixel view time)))
+                              (beat-to-time (symbolic-date (car (last chords))) tempo))
+                     ))
          
          (n-beams (beam-num object (* (symbolic-dur object) beat-unit)))
          (group-beams (arithm-ser 1 n-beams 1))
          
          )
     
+    (om-with-fg-color (if (find object selection) *score-selection-color* nil)
+                               
+                                     
     ;(print (list group-beams beams-from-parent))
     ;(draw-group-rect object view tempo level)
-    (when (list-subtypep (inside object) 'group) 
-      ;;; here we allow subgroups to get grouped individiually
-      ;;; ..but is that always correct ?
-      (setf group-beams (list (car group-beams))))
+      (when (list-subtypep (inside object) 'group) 
+        ;;; here we allow subgroups to get grouped individiually
+        ;;; ..but is that always correct ?
+        (setf group-beams (list (car group-beams))))
       
-    ;;; local variables for the loop
-    (let ((beams-drawn-in-sub-group nil))
+      ;;; local variables for the loop
+      (let ((beams-drawn-in-sub-group nil))
     
-      ;; the first group catching a beam information transfers to all descendants  
-      (loop with sub-group-beams = 0
-            for element in (inside object)
-            for i from 0 do
+        ;; the first group catching a beam information transfers to all descendants  
+        (loop with sub-group-beams = 0
+              for element in (inside object)
+              for i from 0 do
                         
-            ;;; here we hanlde "virtual sub-group" displayed as tied beams
-            ;;; when a sucession of atomic elements in a same group have the same beaming
-            (unless (typep element 'group)
+              ;;; here we hanlde "virtual sub-group" displayed as tied beams
+              ;;; when a sucession of atomic elements in a same group have the same beaming
+              (unless (typep element 'group)
 
-              (let*  ((graphic-dur (* (symbolic-dur element) group-ratio beat-unit))
-                      (n-beams-in-current (beam-num element graphic-dur))
-                      (prev (previous-in-list (inside object) element nil))
-                      (next (next-in-list (inside object) element nil))
-                      (n-beams-in-previous (and prev (beam-num prev (* (symbolic-dur prev) group-ratio beat-unit))))
-                      (n-beams-in-next (and next (beam-num next (* (symbolic-dur next) group-ratio beat-unit)))))
+                (let*  ((graphic-dur (* (symbolic-dur element) group-ratio beat-unit))
+                        (n-beams-in-current (beam-num element graphic-dur))
+                        (prev (previous-in-list (inside object) element nil))
+                        (next (next-in-list (inside object) element nil))
+                        (n-beams-in-previous (and prev (beam-num prev (* (symbolic-dur prev) group-ratio beat-unit))))
+                        (n-beams-in-next (and next (beam-num next (* (symbolic-dur next) group-ratio beat-unit)))))
                 
                 ;(print (list element n-beams-in-current n-beams-in-previous n-beams-in-next n-beams))
                 
-                (when  (> n-beams-in-current sub-group-beams) 
-                  ;;; first of a new "sub-group" (same number of sub-beams) 
-                  ;;; will draw additional single-beams on the right if any
+                  (when  (> n-beams-in-current sub-group-beams) 
+                    ;;; first of a new "sub-group" (same number of sub-beams) 
+                    ;;; will draw additional single-beams on the right if any
                   
-                  (setq sub-group-beams n-beams-in-current)
+                    (setq sub-group-beams n-beams-in-current)
                   
-                  ;;; if there's more beams on the right than on the left, individual beam will be towards right 
-                  ;;; => to do so, position in group is artificially reset to 0
-                  (when (and prev next 
-                             (not (typep next 'group)) ;; also if this one is the last of its group
-                             (> n-beams-in-next n-beams-in-previous))
-                    (setq i 0))
-                  )
+                    ;;; if there's more beams on the right than on the left, individual beam will be towards right 
+                    ;;; => to do so, position in group is artificially reset to 0
+                    (when (and prev next 
+                               (not (typep next 'group)) ;; also if this one is the last of its group
+                               (> n-beams-in-next n-beams-in-previous))
+                      (setq i 0))
+                    )
                  
                 
-                (when (> n-beams-in-current n-beams) ;;; more beams than the current "real" container group
+                  (when (> n-beams-in-current n-beams) ;;; more beams than the current "real" container group
                   
-                  (if (= i 0) ;;; this is the 1st element
+                    (if (= i 0) ;;; this is the 1st element
                       
-                      (setq beams-drawn-in-sub-group (arithm-ser 1 (min n-beams-in-current (or n-beams-in-next 0)) 1))
+                        (setq beams-drawn-in-sub-group (arithm-ser 1 (min n-beams-in-current (or n-beams-in-next 0)) 1))
                     
-                    (progn
-                      (setq beams-drawn-in-sub-group (arithm-ser 1 (min n-beams-in-current (or n-beams-in-previous 0)) 1))
-                      ;;; draw beams between i and (i-1) and update the beaming count for sub-elements
-                      (draw-beams (+ x-shift-pix 
-                                     ;;(time-to-pixel view (beat-to-time (symbolic-date prev) tempo))
-                                     (funcall (or time-function #'(lambda (time) (time-to-pixel view time)))
-                                              (beat-to-time (symbolic-date prev) tempo))
-                                     )
-                                  (+ x-shift-pix 
-                                     ;; (time-to-pixel view (beat-to-time (symbolic-date element) tempo))
-                                     (funcall (or time-function #'(lambda (time) (time-to-pixel view time)))
-                                              (beat-to-time (symbolic-date element) tempo))
-                                     )
-                                  (beam-info-line beam-pos-and-dir)  ;; the beam init line
-                                  (beam-info-direction beam-pos-and-dir) ;; the beam direction
-                                  beams-drawn-in-sub-group  ;; the beam numbers 
-                                  y-shift staff font-size)
-                      ))
-                  )
-                ))
+                      (progn
+                        (setq beams-drawn-in-sub-group (arithm-ser 1 (min n-beams-in-current (or n-beams-in-previous 0)) 1))
+                        ;;; draw beams between i and (i-1) and update the beaming count for sub-elements
+                        (draw-beams (+ x-shift-pix 
+                                       ;;(time-to-pixel view (beat-to-time (symbolic-date prev) tempo))
+                                       (funcall (or time-function #'(lambda (time) (time-to-pixel view time)))
+                                                (beat-to-time (symbolic-date prev) tempo))
+                                       )
+                                    (+ x-shift-pix 
+                                       ;; (time-to-pixel view (beat-to-time (symbolic-date element) tempo))
+                                       (funcall (or time-function #'(lambda (time) (time-to-pixel view time)))
+                                                (beat-to-time (symbolic-date element) tempo))
+                                       )
+                                    (beam-info-line beam-pos-and-dir)  ;; the beam init line
+                                    (beam-info-direction beam-pos-and-dir) ;; the beam direction
+                                    beams-drawn-in-sub-group  ;; the beam numbers 
+                                    y-shift staff font-size)
+                        ))
+                    )
+                  ))
             
-            (draw-rhytmic-element element tempo param-obj view 
-                                :x-shift x-shift
-                                :y-shift y-shift
-                                :font-size font-size
-                                :level (1+ level) 
-                                :beam-info (when beam-pos-and-dir 
-                                             ;;; send the beams already drawn in 3rd position
+              (draw-rhytmic-element element tempo param-obj view 
+                                    :x-shift x-shift
+                                    :y-shift y-shift
+                                    :font-size font-size
+                                    :level (1+ level) 
+                                    :beam-info (when beam-pos-and-dir 
+                                                 ;;; send the beams already drawn in 3rd position
                                              ; passing '(0) at min will force the stem height of sub-chords 
                                              ; even if there is no beams
-                                             (setf (beam-info-beams beam-pos-and-dir)
-                                                   (append (or group-beams '(0)) beams-drawn-in-sub-group))
-                                             beam-pos-and-dir)
+                                                 (setf (beam-info-beams beam-pos-and-dir)
+                                                       (append (or group-beams '(0)) beams-drawn-in-sub-group))
+                                                 beam-pos-and-dir)
                                               
-                                :position i
-                                :beat-unit (* beat-unit group-ratio)
-                                :rest-line (or rest-line (let ((mean-pitch (get-mean-pitch object)))
-                                                           (when mean-pitch (pitch-to-line mean-pitch))))
-                                ;;; the higher-level group will determine the y-position for all rests
-                                :selection selection
-                                :time-function time-function
-                                )
-            ))
+                                    :position i
+                                    :beat-unit (* beat-unit group-ratio)
+                                    :rest-line (or rest-line (let ((mean-pitch (get-mean-pitch object)))
+                                                               (when mean-pitch (pitch-to-line mean-pitch))))
+                                    ;;; the higher-level group will determine the y-position for all rests
+                                    :selection selection
+                                    :time-function time-function
+                                    )
+              ))
     
     
-    ;;; sub-groups or chords wont have to draw these beams
-    (draw-beams pix-beg pix-end
-                (beam-info-line beam-pos-and-dir)  ;; the beam init line
-                (beam-info-direction beam-pos-and-dir) ;; the beam direction
-                (set-difference group-beams beams-from-parent)   ;; the beam numbers 
-                y-shift staff font-size)
+      ;;; sub-groups or chords wont have to draw these beams
+      (draw-beams pix-beg pix-end
+                  (beam-info-line beam-pos-and-dir)  ;; the beam init line
+                  (beam-info-direction beam-pos-and-dir) ;; the beam direction
+                  (set-difference group-beams beams-from-parent)   ;; the beam numbers 
+                  y-shift staff font-size)
    
-    ;;; subdivision line and numbers 
-    (when (numdenom object)
-      (let* ((numdenom-level (calcule-chiff-level object)))
-        ;;; chiflevel tells us how much above or below the beam this should be placed
-        ;; (print (list object chiflevel (numdenom object)))
-        (draw-group-div (numdenom object)
-                        numdenom-level
-                        pix-beg pix-end
-                        (beam-info-line beam-pos-and-dir)  ;; the beam init line
-                        (beam-info-direction beam-pos-and-dir) ;; the beam direction
-                        y-shift staff font-size)
-        ))
-    )
-  )
+      ;;; subdivision line and numbers 
+      (when (numdenom object)
+        (let* ((numdenom-level (calcule-chiff-level object)))
+          ;;; chiflevel tells us how much above or below the beam this should be placed
+          ;; (print (list object chiflevel (numdenom object)))
+          (draw-group-div (numdenom object)
+                          numdenom-level
+                          pix-beg pix-end
+                          (beam-info-line beam-pos-and-dir)  ;; the beam init line
+                          (beam-info-direction beam-pos-and-dir) ;; the beam direction
+                          y-shift staff font-size)
+          ))
+    
+      (when (typep view 'score-view)
+    
+        (loop for sub in (inside object) 
+              minimize (b-box-x1 (b-box sub)) into x1
+              maximize (b-box-x2 (b-box sub)) into x2
+              minimize (b-box-y1 (b-box sub)) into y1
+              maximize (b-box-y2 (b-box sub)) into y2
+              finally 
+              (setf (b-box object) 
+                    (make-b-box :x1 x1 :x2 x2 :y1 y1 :y2 y2)))
 
+        ; (draw-b-box object)
+        )
+      )
+    ))
 
 
 #|
@@ -532,8 +548,6 @@
          (create-bboxes (typep view 'score-view))
          )
     
-    ;(print (list "cont-chord" (symbolic-dur object) beams-to-draw))
-
     (let ((bbox? 
            (draw-chord (get-real-chord object)
                        begin

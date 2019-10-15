@@ -398,7 +398,7 @@
 (defun draw-staff (x y y-u w h fontsize staff &key (margin-l 0) (margin-r 0) (keys t))
   
   (declare (ignore h))
-
+  
   (unless (equal staff :empty)
     (let* ((staff-elems (staff-split staff))
            (unit (font-size-to-unit fontsize)) 
@@ -688,7 +688,7 @@
                          build-b-boxes)
   
   (declare (ignore w))
-  
+ 
   (when (inside chord)
     (om-with-translation x y 
 
