@@ -360,7 +360,7 @@
                )
           )))
 
-;;; redefined this for other objects
+;;; redefined for other objects
 (defmethod draw-sequence ((object chord-seq) editor view unit &optional (force-y-shift nil))
 
   (let ((font-size (editor-get-edit-param editor :font-size))
@@ -373,6 +373,10 @@
         (offsets (editor-get-edit-param editor :offsets))
         (y-u (or force-y-shift (editor-get-edit-param editor :y-shift))))
        
+    (when (listp staff)
+      (setf staff (or (nth (position object (get-voices (object-value editor))) staff)
+                      (car staff))))
+    
     ;;; NOTE: so far we don't build/update a bounding-box for the chord-seq itself (might be useful in POLY)..
     (loop for chord in (chords object) do
           (setf 
