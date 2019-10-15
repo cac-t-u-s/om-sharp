@@ -110,15 +110,17 @@
 
     (when (> (num-voices self) 0)
 
-      (let* ((staff (get-edit-param box :staff))
-             (staff-lines (apply 'append (mapcar 'staff-lines (staff-split staff))))
-             (n-lines (+ (- (car (last staff-lines)) (car staff-lines)) 8)) ;;; range of the staff lines + 10-margin
+      (let* ((n-lines-max (+ (loop for staff in (list! (get-edit-param box :staff))
+                                   maximize 
+                                   (let ((staff-lines (apply 'append (mapcar 'staff-lines (staff-split staff)))))
+                                     (- (car (last staff-lines)) (car staff-lines))))  ;;; range of the staff lines 
+                             8)) ;; + margin
              (h-per-voice (/ h (num-voices self)))
-             (draw-box-h (* n-lines unit)))
+             (draw-box-h (* n-lines-max unit)))
                   
         (if (> draw-box-h h-per-voice)
           ;;; there's no space: reduce font ?
-          (setf unit (- unit (/ (- draw-box-h h-per-voice) n-lines))
+          (setf unit (- unit (/ (- draw-box-h h-per-voice) n-lines-max))
                 font-size (unit-to-font-size unit))
            ;;; there's space: draw more in the middle
            (setf y-in-units (+ y-in-units (/ (round (- h-per-voice draw-box-h) 2) unit))))
@@ -234,6 +236,10 @@
          (font-size (get-box-fontsize box))
          (in-sequencer? (typep (frame box) 'sequencer-track-view)))
         
+    (when (listp staff)
+      (setf staff (or (nth (position self (get-voices (get-box-value box))) staff)
+                      (car staff))))
+    
     (draw-staff x-pix y-pix y-u w h font-size staff :margin-l 0 :margin-r 0 :keys (not in-sequencer?))
 
     (loop for chord in (chords self) do

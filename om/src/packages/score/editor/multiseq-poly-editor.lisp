@@ -63,16 +63,17 @@
 (defmethod accum-y-shift-list ((editor poly-editor-mixin))
   (let* ((y-shift (editor-get-edit-param editor :y-shift))
          (y-shift-list (list! y-shift))
-         (staff (editor-get-edit-param editor :staff))
+         (ed-staff (editor-get-edit-param editor :staff))
          (accum-y-list ()))
     
     (loop with tmp-y = 0 
           for i from 0 to (1- (length (obj-list (object-value editor)))) 
           do 
-          (setf tmp-y (+ tmp-y (or (nth i y-shift-list) *default-inter-staff*)))
-          (push tmp-y accum-y-list) 
-          (setf tmp-y (+ tmp-y (- (staff-higher-line staff) (staff-lower-line staff))))
-          )
+          (let ((staff (if (listp ed-staff) (or (nth i ed-staff) (car ed-staff)) ed-staff)))
+            (setf tmp-y (+ tmp-y (or (nth i y-shift-list) *default-inter-staff*)))
+            (push tmp-y accum-y-list) 
+            (setf tmp-y (+ tmp-y (- (staff-higher-line staff) (staff-lower-line staff))))
+            ))
     (reverse accum-y-list)
     ))
 
@@ -80,10 +81,12 @@
 (defun make-staff-y-map (editor)
   
   (let* ((unit (font-size-to-unit (editor-get-edit-param editor :font-size)))
-         (staff (editor-get-edit-param editor :staff)))
+         (ed-staff (editor-get-edit-param editor :staff)))
   
   (loop for ys in (accum-y-shift-list editor)
-        collect (staff-y-range staff ys unit))
+        for i from 0
+        collect (let ((staff (if (listp ed-staff) (or (nth i ed-staff) (car ed-staff)) ed-staff)))
+                  (staff-y-range staff ys unit)))
   ))
 
 
@@ -207,15 +210,16 @@
 
 (defmethod poly-editor-draw-staff-in-editor-view ((editor poly-editor-mixin) (self score-view))
   (let* ((fontsize (editor-get-edit-param editor :font-size))
-         (staff (editor-get-edit-param editor :staff)))
+         (ed-staff (editor-get-edit-param editor :staff)))
     
-   
     (loop for shift in (accum-y-shift-list editor) 
           for i from 0
           do 
-          (om-with-fg-color (when (find (nth i (obj-list (object-value editor)))
-                                        (selection editor))
-                              (om-def-color :selection))
+          (let ((staff (if (listp ed-staff) (or (nth i ed-staff) (car ed-staff)) ed-staff)))
+            
+            (om-with-fg-color (when (find (nth i (obj-list (object-value editor)))
+                                          (selection editor))
+                                (om-def-color :selection))
               (draw-staff 0 0 
                           shift
                           (w self) (h self) 
@@ -224,7 +228,7 @@
                           :margin-l (margin-l self) 
                           :margin-r (margin-r self)
                           :keys (keys self))
-              ))))
+              )))))
 
 ;;;---------------------------------------------
 ;;; SCORE-EDITOR REDEFINITIONS
@@ -247,7 +251,7 @@
 (defmethod draw-sequence ((object multi-seq) editor view unit &optional (voice-num 0))
   (loop for voice in (obj-list object) 
         for shift in (accum-y-shift-list editor) 
-        do (draw-sequence  voice editor view unit shift)))
+        do (draw-sequence voice editor view unit shift)))
 ;;;---------------------------------------------
 
 
@@ -405,6 +409,25 @@
 (defmethod get-all-voices ((self poly-editor))
   (obj-list (object-value self)))
 ;;;---------------------------------------------
+
+
+;;; multi-staff: indicate selected-coice's staff in menu (if any) 
+(defmethod set-selection ((editor multi-seq-editor) (new-selection t))
+  
+  (call-next-method)
+  
+  (let ((selected-cseq (find 'chord-seq (selection editor) :key #'type-of :test #'subtypep)))
+    ;;; the first found :)
+    (when (and selected-cseq (get-g-component editor :staff-menu))
+      (let ((ed-staff (editor-get-edit-param editor :staff)))
+        (when (listp ed-staff)
+          (om-set-selected-item 
+           (get-g-component editor :staff-menu)
+           (or (nth (position selected-cseq (obj-list (object-value editor))) ed-staff)
+               (car ed-staff)))
+          ))))
+         
+  (update-score-inspector editor))
 
 
 ;;; add voices

@@ -260,7 +260,7 @@
   
   (let* ((editor (editor self))
          (obj (object-value editor))
-         (staff (editor-get-edit-param editor :staff))
+         (ed-staff (editor-get-edit-param editor :staff))
          (scale (get-the-scale (editor-get-edit-param editor :scale)))
          (unit (font-size-to-unit (editor-get-edit-param editor :font-size))))
     
@@ -271,12 +271,14 @@
 
       (when voice
       
-        (let* ((shift (+ (calculate-staff-line-shift staff) (get-total-y-shift editor pos)))
+        (let* ((pos (position voice (get-voices obj)))
+               (staff (if (listp ed-staff) (or (and pos (nth pos ed-staff)) (car ed-staff)) ed-staff))
+               (shift (+ (calculate-staff-line-shift staff) (get-total-y-shift editor pos)))
                (clicked-pos position)
                (click-y-in-units (- shift (/ (om-point-y position) unit)))
                (clicked-pitch (line-to-pitch click-y-in-units scale)) ;;; <= scale here ??? )
                (clicked-time (pixel-to-time self (om-point-x position))))
-    
+          
           (cond 
            ((om-add-key-down)  ;;; add a note
             (store-current-state-for-undo editor)
@@ -534,14 +536,16 @@
                       (om-make-di 'om-simple-text :text "staff" 
                                   :size (omp 35 20) 
                                   :font (om-def-font :font1))
-                      (om-make-di 'om-popup-list :items *score-staff-options* 
-                                  :size (omp 80 24) :font (om-def-font :font1)
-                                  :value (editor-get-edit-param editor :staff)
-                                  :di-action #'(lambda (list) 
-                                                 (editor-set-edit-param editor :staff (om-get-selected-item list))
-                                                 (set-interior-size-from-contents editor)
-                                                 (report-modifications editor) ;; update the box display
-                                                 )))))
+                      (set-g-component 
+                       editor :staff-menu  ;; we need to change it sometimes...
+                       (om-make-di 'om-popup-list :items *score-staff-options* 
+                                   :size (omp 80 24) :font (om-def-font :font1)
+                                   :value (editor-get-edit-param editor :staff)
+                                   :di-action #'(lambda (list) 
+                                                  (editor-set-edit-param editor :staff (om-get-selected-item list))
+                                                  (set-interior-size-from-contents editor)
+                                                  (report-modifications editor) ;; update the box display
+                                                  ))))))
 
          (scale-item 
           (om-make-layout 
