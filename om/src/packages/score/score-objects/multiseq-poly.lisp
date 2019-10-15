@@ -63,7 +63,7 @@
                     (om-beep-msg "Removing voice of type ~A" (type-of v)))
               collect v))
   self)
-           
+
 
 (defmethod get-voices ((self multi-seq)) (obj-list self))
 (defmethod get-voices ((self chord-seq)) (list self))
@@ -80,6 +80,7 @@
   (loop for voice in (obj-list self) do
         (time-sequence-reorder-timed-item-list voice)))
 
-(defmethod time-sequence-update-internal-times ((self multi-seq) &optional (interpol-mode :constant-speed) (duration 10000) (modif-time nil))
+(defmethod time-sequence-update-internal-times ((self multi-seq) &optional (interpol-mode :constant-speed) 
+                                                (duration 10000) (modif-time nil))
   (loop for voice in (obj-list self) do
         (time-sequence-update-internal-times voice interpol-mode duration modif-time)))

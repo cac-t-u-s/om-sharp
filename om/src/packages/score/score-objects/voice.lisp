@@ -514,7 +514,7 @@
   
   ;;; turn all continuation chords into rests
   (let ((same-cont-chords nil))
-    (loop for c in (print (get-all-chords self))
+    (loop for c in (get-all-chords self)
           when (typep c 'continuation-chord)
           do 
           (when (or (equal (previous-chord c) item)
@@ -535,6 +535,44 @@
     ;;; rebuild the structure
     (set-tree self new-tree)
     ))
+
+
+(defmethod remove-from-obj ((self voice) (item group)) 
+  
+  ;;; turn all continuation chords into rests
+  (let ((subst-rest (make-instance 'r-rest 
+                                   :symbolic-dur (symbolic-dur item)
+                                   :symbolic-date (symbolic-date item)
+                                   )))
+    
+    (loop for c in (get-tpl-elements-of-type item 'chord)
+          do ;;; untied continuation chords and remove the chord
+          (let ((cont-c (find c (get-tpl-elements-of-type self 'continuation-chord) :key #'previous-chord)))
+            (when cont-c (untie-chord self cont-c))            
+            (time-sequence-remove-timed-item self c)
+            ))
+    
+    (replace-in-obj self item subst-rest)
+    (set-tree self (build-tree self nil))
+    ))
+
+
+(defmethod remove-from-obj ((self voice) (item measure)) 
+  
+  (loop for c in (get-tpl-elements-of-type item 'chord)
+        do ;;; untied continuation chords and remove the chord
+        (let ((cont-c (find c (get-tpl-elements-of-type self 'continuation-chord) :key #'previous-chord)))
+          (when cont-c (untie-chord self cont-c))
+          (time-sequence-remove-timed-item self c)
+          ))
+  
+  (setf (inside self) (remove item (inside self)))    
+  (set-tree self (build-tree self nil))
+  )
+
+
+
+
 
 
 ;;; SUBSTITUTIONS
@@ -699,9 +737,9 @@
 (defmethod group-objects ((self list) (in-voice voice)) 
 
   (let* ((chords (loop for obj in self append (get-tpl-elements-of-type obj 'chord)))
-         (cont-chords (get-tpl-elements-of-type self 'continuation-chord))
+         (cont-chords (loop for obj in self append (get-tpl-elements-of-type obj 'continuation-chord)))
          (new-obj (if chords (make-instance 'chord)
-                    (if cont-chords (make-instance 'cont-chords :previous-chord (previous-chord (car cont-chords)))
+                    (if cont-chords (make-instance 'continuation-chord :previous-chord (previous-chord (car cont-chords)))
                       (make-instance 'r-rest)))))
     (when chords 
       (setf (notes new-obj) (remove-duplicates (get-notes chords) :key #'midic))
@@ -789,10 +827,42 @@
              (find-position-at-time in-voice (beat-to-time (symbolic-date c) (tempo in-voice)))))
       ))
     
+
+(defmethod subdivide-in-voice ((self r-rest) (n integer) (in-voice voice))
+  
+  (let* ((new-dur (/ (symbolic-dur self) n))
+         (t0 (symbolic-date self))
+         (new-rests (loop for i from 0 to (1- n) collect
+                           (let ((r (clone-object self)))
+                             (setf (symbolic-date c) (+ t0 (* i new-dur))
+                                   (symbolic-dur c) new-dur)
+                             r))))
+    
+    (replace-in-obj in-voice self new-rests)
+      
+    ))
+    
+
+(defmethod subdivide-in-voice ((self continuation-chord) (n integer) (in-voice voice))
+  
+  (let* ((new-dur (/ (symbolic-dur self) n))
+         (t0 (symbolic-date self))
+         (new-c-chords (loop for i from 0 to (1- n) collect
+                           (let ((cc (clone-object self)))
+                             (setf (symbolic-date cc) (+ t0 (* i new-dur))
+                                   (symbolic-dur cc) new-dur)
+                             cc))))
+    
+    (replace-in-obj in-voice self new-c-chords)
+      
+    ))
+
+
                            
 (defmethod subdivide ((self voice) (clist list) (n integer))
 
-  (let ((elements (loop for obj in clist append (get-tpl-elements-of-type obj 'chord))))
+  (let ((elements (loop for obj in clist 
+                        append (get-tpl-elements-of-type obj '(chord continuation-chord r-rest)))))
     
     (loop for elt in elements do
           (subdivide-in-voice elt n self))
