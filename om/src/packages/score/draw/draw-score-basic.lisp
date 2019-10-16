@@ -263,14 +263,15 @@
   (last-elem (staff-lines (last-elem (staff-split staff)))))
 
 (defun head-leger-lines (head-line staff-lines)
-  (cond ((>= head-line (1+ (car (last staff-lines)))) 
-	 (loop for i from (1+ (car (last staff-lines))) to head-line collect i))
-	((<= head-line (1- (car staff-lines))) 
-	 (loop for i = (1- (car staff-lines)) then (- i 1) while (>= i head-line) collect i))
-	((and (<= head-line 7) (>= head-line 6)) '(6 7))
-	;;((= head-line 0) '(0))	; this 'hardwiring' of leger lines breaks logic
-	((and (<= head-line -6) (>= head-line -7)) '(-6 -7))
-	(t nil)))
+  (when (> (length staff-lines) 1) ;;; don't do it for empty or "line" staffs
+    (cond ((>= head-line (1+ (car (last staff-lines)))) 
+           (loop for i from (1+ (car (last staff-lines))) to head-line collect i))
+          ((<= head-line (1- (car staff-lines))) 
+           (loop for i = (1- (car staff-lines)) then (- i 1) while (>= i head-line) collect i))
+          ((and (<= head-line 7) (>= head-line 6)) '(6 7))
+          ((= head-line 0) '(0))
+          ((and (<= head-line -6) (>= head-line -7)) '(-6 -7))
+          (t nil))))
           
 (defun staff-key-line (staff)
   (case staff
