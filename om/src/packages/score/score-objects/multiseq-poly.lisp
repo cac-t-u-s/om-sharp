@@ -67,6 +67,7 @@
 
 (defmethod get-voices ((self multi-seq)) (obj-list self))
 (defmethod get-voices ((self chord-seq)) (list self))
+(defmethod get-voices ((self t)) nil) ;;; e.g. for a chord
                           
 ;;;===================================================
 ;;; TIME-SEQUENCE METHODS APPLIED TO POLYPHONIES
