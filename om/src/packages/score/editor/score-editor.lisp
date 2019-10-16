@@ -271,7 +271,7 @@
 
       (when voice
       
-        (let* ((pos (position voice (get-voices obj)))
+        (let* ((pos (and (get-voices obj) (position voice (get-voices obj))))
                (staff (if (listp ed-staff) (or (and pos (nth pos ed-staff)) (car ed-staff)) ed-staff))
                (shift (+ (calculate-staff-line-shift staff) (get-total-y-shift editor pos)))
                (clicked-pos position)
