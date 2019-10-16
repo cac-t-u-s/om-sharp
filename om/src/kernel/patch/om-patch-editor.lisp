@@ -640,6 +640,8 @@
         (#\v (eval-command panel selected-boxes))
 
         (#\w (om-debug))
+        
+        (#\h (funcall (help-command editor)))
 
         (otherwise nil))
       )))
@@ -649,6 +651,31 @@
 ;; redefine to do something :)
 (defun om-debug () (om-beep))
 ;(defun om-debug () (format *standard-output* "~%===================================") (pprint *open-documents*))
+
+
+(defmethod editor-help-list ((self patch-editor)) 
+  '(("N" "if no box selected: create a new box (enter name in text-field)")
+    ("N" "if selected box(es): show/hide name")
+    ("C" "create a new comment (enter name in text-field)")
+    ("P" "create a new abstraction box (enter name/pathname of an existing patch)")
+    ("V" "evaluate selected box(es)")
+    ("B" "lock/unlock selected box(es)")
+    ("L" "set/remove lambda mode for selected box(es)")
+    ("1" "set/remove ev-once mode for selected box(es)")
+    ("R" "set/remove reactive mode for selected box(es)")
+    ("M" "change display mode on selected box(es)")
+    ("shift+A" "align selected box(es)")
+    ("I" "reinit selected box(es) size")
+    ("shift+I" "reinit selected box(es) value")
+    ("shift+E" "encapsulate selected boxes in an internal patch")
+    ("shift+U" "decapsulate internal patch")
+    ("A" "internalize external patch")
+    ("C" "connect selected boxes (horizontal)")
+    ("shift+C" "connect selected boxes (vertical)")
+    ("Space" "play/stop selected (playable) box(es)")
+    ("H" "print this help")
+    ))
+
 
 ;;;=============================
 ;;; BASIC ACTIONS

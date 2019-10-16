@@ -556,6 +556,28 @@
 |#
 
 
+;;;=================================
+;;; HELP WINDOW
+;;;=================================
+
+
+(defmethod editor-help-list ((self omeditor)) nil)
+
+(defmethod help-command ((self omeditor)) 
+  (when (editor-help-list self)
+    #'(lambda ()
+        (om-print-format "~%~%----------------------------------")
+        (om-print-format "HELP FOR ~S:" (list (type-of self)))
+        (om-print-format "~a v.~a" (list *app-name* *version-string*))  
+        (om-print-format "----------------------------------")
+        (loop for elt in (editor-help-list self) do
+              (om-print-format ". ~A = ~a" (list (car elt) (cadr elt))))
+        (om-print-format "----------------------------------~%~%")
+        
+        )))
+
+
+
 
 
 
