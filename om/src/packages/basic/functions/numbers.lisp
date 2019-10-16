@@ -77,7 +77,7 @@ Returns T if the test is verified and NIL if not."
 
 
 (defun mulalea (n percent)
-  (* n (+ 1  (om-random  (- percent) (float percent)) )))
+  (* n (+ 1 (om-random (- percent) (float percent)))))
 
 
 (defmethod  tree-min ((self list) &optional (min MOST-POSITIVE-LONG-FLOAT))
@@ -567,8 +567,9 @@ Ex. (om-mean '(1 2 3 4) '(3 2 1 1))  => 2.0
 
 
 (defmethod* perturbation ((self number) (percent number))
-  :initvals '(1 0) :indoc '("number or list"  "number or list") :icon :alea
-  :doc "Applies to <self> a random deviation bounded by the <percent> parameter, a value in [0 1]. 
+  :initvals '(1 0.0) 
+  :indoc '("number or list"  "number or list") :icon :alea
+  :doc "Applies to <self> a random deviation bounded by the <percent> parameter, a value in [0.0 1.0]. 
 <self> and <percent> can be numbers or lists."
   (mulalea self percent))
 
