@@ -184,8 +184,10 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
   (unless (listp (slot-value self 'Lmidic))
     (om-print "CHORD object initialized with single value for pitch-list (converting to list)." "Warning")
     (setf (slot-value self 'Lmidic) (list (slot-value self 'Lmidic))))
+  
+  ;;; don't do-initialize if initargs was :notes
+  (when (intersection initargs '(:LMidic :LVel :Loffset :LDur :LChan :LPort))
     
-  (when initargs
     (do-initialize self 
                    :Lmidic (slot-value self 'Lmidic) 
                    :Lvel (slot-value self 'Lvel)
@@ -206,31 +208,31 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
 
 
 (defmethod do-initialize ((self chord) &key LMidic LVel Loffset LDur LChan LPort)
+  
   (let ((lmidic (list! lmidic))
         (lvel (list! lvel))
         (loffset (list! loffset))
         (ldur (list! ldur))
         (lchan (list! lchan))
         (lport (list! lport)))
-        
-    (setf (notes self)
-          (loop while Lmidic 
-                for midic = (or (pop Lmidic) midic)
-                for vel = (or (pop Lvel) vel)
-                for offset = (or (pop Loffset) offset)
-                for dur = (or (pop Ldur) dur)
-                for chan = (or (pop Lchan) chan)
-                for port = (or (pop Lport) port)  
-                collect (make-instance 'note 
-                                       :midic (round midic) 
-                                       :vel (round vel) 
-                                       :dur (round dur) 
-                                       :offset (round offset) 
-                                       :chan chan
-                                       :port port 
-                                       )))
-    self))
-
+    
+      (setf (notes self)
+            (loop while Lmidic 
+                  for midic = (or (pop Lmidic) midic)
+                  for vel = (or (pop Lvel) vel)
+                  for offset = (or (pop Loffset) offset)
+                  for dur = (or (pop Ldur) dur)
+                  for chan = (or (pop Lchan) chan)
+                  for port = (or (pop Lport) port)  
+                  collect (make-instance 'note 
+                                         :midic (round midic) 
+                                         :vel (round vel) 
+                                         :dur (round dur) 
+                                         :offset (round offset) 
+                                         :chan chan
+                                         :port port 
+                                         )))
+      self))
 
 (defmethod objfromobjs ((model note) (target Chord)) 
   (objfromobjs (list model) target))
