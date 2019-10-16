@@ -113,6 +113,11 @@
 (defun default-help-menu-items (self)
   (list
    
+   (om-make-menu-item 
+       "Print editor help... [H]" 
+       #'(lambda () (funcall (help-command self))) 
+       :enabled (and (help-command self) t))
+   
    (om-make-menu-comp  
     (list 
      
@@ -133,7 +138,7 @@
       :key "E")
      
      (om-make-menu-item  
-      "Function/Class Reference" 
+      "Function/Class reference" 
       #'(lambda () 
           (let ((symbols (get-selection-for-menu self)))
             (if symbols 
@@ -156,14 +161,9 @@
    
     (om-make-menu-comp  
      (list 
-      ;(om-make-menu-item 
-      ; "Editor Help..." 
-      ; #'(lambda () (funcall (help-command self))) 
-      ; :key "H" :enabled (and (help-command self) t))
-        
       (om-make-menu-item 
-       "Online Resources" 
-       #'(lambda () (om-open-in-browser "https://openmusic-project.github.io/")) 
+       "Online resources" 
+       #'(lambda () (om-open-in-browser "https://openmusic-project.github.io/om7/")) 
        :enabled t)
       ))
 
