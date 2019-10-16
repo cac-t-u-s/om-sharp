@@ -269,7 +269,8 @@
           ((<= head-line (1- (car staff-lines))) 
            (loop for i = (1- (car staff-lines)) then (- i 1) while (>= i head-line) collect i))
           ((and (<= head-line 7) (>= head-line 6)) '(6 7))
-          ((= head-line 0) '(0))
+          ((and (= head-line 0) (<= (- (car (last staff-lines)) (car staff-lines)) 5)) nil)
+	  ((= head-line 0) '(0))
           ((and (<= head-line -6) (>= head-line -7)) '(-6 -7))
           (t nil))))
           
