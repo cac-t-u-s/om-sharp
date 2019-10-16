@@ -26,7 +26,7 @@
 (add-preference-section :appearance "Comments" "Default values for comments with unspecified or disabled attributes")
 (add-preference :appearance :comment-fgcolor "Text color" :color (om-def-color :black))
 (add-preference :appearance :comment-bgcolor "Background color" :color-a (om-def-color :transparent))
-(add-preference :appearance :comment-border "Border" (make-number-in-range :min 0 :max 4 :decimals 1) 1)
+(add-preference :appearance :comment-border "Border" (make-number-in-range :min 0 :max 4 :decimals 1) 0)
 (add-preference :appearance :comment-roundness "Corner roundness" (make-number-in-range :min 0 :max 20) 0)
 
 ;;; for comments we specify directly a font size: the platform-specifics apply at drawing 
@@ -62,8 +62,8 @@
     (get-pref-value :appearance :comment-fgcolor)))
 
 (defmethod box-draw-text-align ((box OMComment)) 
-  (or (text-align box))
-      (get-pref-value :appearance :comment-align))
+  (or (text-align box)
+      (get-pref-value :appearance :comment-align)))
 
 (defmethod box-draw-font ((box OMComment)) 
   (if (font-? (text-font box))
