@@ -288,6 +288,10 @@
     ))
 
 
+(defmethod player-pause-object ((self scheduler) (object score-element))
+  (om-midi::midi-all-keys-off)
+  (call-next-method))
+
 (defmethod player-stop-object ((self scheduler) (object score-element))
   (om-midi::midi-all-keys-off)
   (when *micro-channel-mode-on*
