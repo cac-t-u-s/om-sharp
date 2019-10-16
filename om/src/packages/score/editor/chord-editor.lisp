@@ -82,7 +82,8 @@
                             :value (editor-get-edit-param editor :chord-mode)
                             :di-action #'(lambda (list) 
                                            (editor-set-edit-param editor :chord-mode (om-get-selected-item list))
-                                           ;;; update / redisplay something ?? 
+                                           (update-arp-chord editor)
+                                           (editor-invalidate-views editor)
                                            ))))
     nil
     )))
@@ -99,7 +100,17 @@
 ;;; called at add-click
 (defmethod get-chord-from-editor-click ((self chord-editor) position) 
   (declare (ignore position))
-  (object-value self))
+  (if (in-arp-mode self)
+      (om-beep-msg "Chord-editor can not be edited in 'arp' modes")
+    (object-value self)))
+
+
+(defmethod editor-key-action ((self chord-editor) key)
+  (if (and (in-arp-mode self)
+           (not (member key '(#\Space)))) ;; afew keys are authorized
+      (om-beep-msg "Chord-editor can not be edited in 'arp' modes")
+    (call-next-method)))
+      
 
 
 (defmethod score-editor-delete ((self chord-editor) element) 
@@ -139,6 +150,38 @@
 ;;; SPECIAL/SIMPLE CASE FOR CHORD-EDITOR
 (defmethod draw-score-object-in-editor-view ((editor chord-editor) view unit)
 
+  (if (and (in-arp-mode editor)
+           (temp-arp-chord editor))
+
+      ;;; draw the arp-chard (actually it's a simple chord-seq)
+      (loop for chord in (chords (temp-arp-chord editor)) do
+          (setf 
+           (b-box chord)
+           (draw-chord chord
+                       (date chord)
+                       0 (editor-get-edit-param editor :y-shift)
+                       0 0
+                       (w view) (h view) 
+                       (editor-get-edit-param editor :font-size) 
+                       :staff (editor-get-edit-param editor :staff) 
+                       :staff (editor-get-edit-param editor :staff)
+                       :scale (editor-get-edit-param editor :scale)
+                       :draw-chans (editor-get-edit-param editor :channel-display)
+                       :draw-vels (editor-get-edit-param editor :velocity-display)
+                       :draw-ports (editor-get-edit-param editor :port-display)
+                       :draw-durs (editor-get-edit-param editor :duration-display)
+                       :selection (if (find chord (selection editor)) T 
+                                    (selection editor))
+                       :time-function #'(lambda (time) 
+                                          (let ((dur-max (get-obj-dur (temp-arp-chord editor))))
+                                            (+ 100
+                                               (* (- (w view) 150) 
+                                                  (/ time dur-max)))
+                                            ))
+                       :build-b-boxes t
+                       ))
+          )
+
   (let ((chord (object-value editor)))
     
     (setf 
@@ -163,7 +206,7 @@
                                      (if (notes chord)
                                          (let ((dur-max (loop for n in (notes chord)
                                                               maximize (+ (dur n) (offset n)))))
-                                           (+ (/ (w view) 2) 
+                                           (+ (/ (w view) 2)
                                               (* (/ (- (w view) 80) 2) 
                                                  (/ time dur-max)))
                                            )
@@ -174,12 +217,25 @@
                  ))
     
     ; (draw-b-box chord)
-    ))
+    )
+  ))
 
 
 ;;;====================================
 ;;; PLAY
 ;;;====================================
+
+(defmethod update-arp-chord ((self chord-editor))
+  (setf (temp-arp-chord self)
+        (make-arp-chord (object-value self) (editor-get-edit-param self :chord-mode))))
+  
+
+(defmethod in-arp-mode ((self chord-editor)) 
+  (find (editor-get-edit-param self :chord-mode) '(:arp-order :arp-up :arp-down)))
+
+
+(defmethod init-editor :after ((self chord-editor))
+  (update-arp-chord self))
 
 (defun make-arp-chord (chord mode)
   (case mode
@@ -204,24 +260,17 @@
     (t chord)
     ))
 
-
-
 (defmethod get-obj-to-play ((self chord-editor)) 
   (or (temp-arp-chord self) (object-value self)))
 
 (defmethod start-editor-callback ((self chord-editor))
-  (let ((chord (object-value self)))
-    (setf (temp-arp-chord self)
-          (make-arp-chord chord (editor-get-edit-param self :chord-mode)))
-    (call-next-method)))
-
+  (update-arp-chord self)
+  (call-next-method))
 
 (defmethod editor-pause ((self chord-editor))
   (editor-stop self))
 
-
-
-;;; from box
+;;; play from box
 (defmethod play-obj-from-value ((val chord) box) 
   (make-arp-chord val (get-edit-param box :chord-mode)))
 
