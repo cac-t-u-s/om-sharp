@@ -181,37 +181,47 @@
 ;;; PLAY
 ;;;====================================
 
+(defun make-arp-chord (chord mode)
+  (case mode
+    (:arp-order
+     (make-instance 'chord-seq 
+                    :lmidic (lmidic chord) 
+                    :lchan (lchan chord) :lport (lport chord)
+                    :lvel (lvel chord)
+                    :lonset '(0 200) :ldur 200))
+    (:arp-up
+     (make-instance 'chord-seq 
+                    :lmidic (sort (lmidic chord) #'<)
+                    :lchan (lchan chord) :lport (lport chord)
+                    :lvel (lvel chord)
+                    :lonset '(0 200) :ldur 200))
+    (:arp-down
+     (make-instance 'chord-seq 
+                    :lmidic (sort (lmidic chord) #'>) 
+                    :lchan (lchan chord) :lport (lport chord)
+                    :lvel (lvel chord)
+                    :lonset '(0 200) :ldur 200))
+    (t chord)
+    ))
+
+
+
 (defmethod get-obj-to-play ((self chord-editor)) 
   (or (temp-arp-chord self) (object-value self)))
 
 (defmethod start-editor-callback ((self chord-editor))
   (let ((chord (object-value self)))
     (setf (temp-arp-chord self)
-          (case (editor-get-edit-param self :chord-mode)
-            (:arp-order
-             (make-instance 'chord-seq 
-                            :lmidic (lmidic chord) 
-                            :lchan (lchan chord) :lport (lport chord)
-                            :lvel (lvel chord)
-                            :lonset '(0 200) :ldur 200))
-            (:arp-up
-             (make-instance 'chord-seq 
-                            :lmidic (sort (lmidic chord) #'<)
-                            :lchan (lchan chord) :lport (lport chord)
-                            :lvel (lvel chord)
-                            :lonset '(0 200) :ldur 200))
-            (:arp-down
-             (make-instance 'chord-seq 
-                            :lmidic (sort (lmidic chord) #'>) 
-                            :lchan (lchan chord) :lport (lport chord)
-                            :lvel (lvel chord)
-                            :lonset '(0 200) :ldur 200))
-            (t chord)
-            )))
-  (call-next-method))
+          (make-arp-chord chord (editor-get-edit-param self :chord-mode)))
+    (call-next-method)))
 
 
 (defmethod editor-pause ((self chord-editor))
   (editor-stop self))
 
+
+
+;;; from box
+(defmethod play-obj-from-value ((val chord) box) 
+  (make-arp-chord val (get-edit-param box :chord-mode)))
 
