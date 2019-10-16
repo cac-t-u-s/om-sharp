@@ -5,18 +5,18 @@
  (:doc "")
  (:info
   (:created "2017/03/05 16:40:15")
-  (:modified "2019/08/14 7:22:19"))
- (:window (:size (589 513)) (:position (685 199)))
+  (:modified "2019/10/16 12:15:53"))
+ (:window (:size (1045 693)) (:position (514 143)))
  (:grid nil)
  (:lock nil)
  (:boxes
   (:box
-   (:reference bpc)
    (:type :object)
+   (:reference bpc)
    (:group-id nil)
    (:name "c1")
-   (:x 110)
-   (:y 103)
+   (:x 583)
+   (:y 246)
    (:w 127)
    (:h 104)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -24,11 +24,9 @@
    (:roundness nil)
    (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
    (:align :center)
-   (:name "c1")
    (:display :mini-view)
    (:showname t)
    (:show-markers t)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -447,148 +445,15 @@
          -0.22
          -0.28
          -0.18))))
-     (:add-slots
-      ((:times
-        (:list
-         0
-         64
-         82
-         99
-         116
-         133
-         151
-         167
-         185
-         202
-         220
-         237
-         254
-         271
-         289
-         306
-         323
-         340
-         357
-         375
-         392
-         413
-         427
-         444
-         461
-         478
-         496
-         513
-         531
-         565
-         582
-         599
-         616
-         634
-         651
-         668
-         685
-         703
-         720
-         738
-         755
-         772
-         789
-         807
-         825
-         843
-         859
-         877
-         894
-         911
-         1411
-         1442
-         1489
-         1497
-         1514
-         1523
-         1539
-         1546
-         1556
-         1573
-         1578
-         1589
-         1594
-         1605
-         1610
-         1623
-         1626
-         1640
-         1642
-         1656
-         1658
-         1672
-         1674
-         1689
-         1690
-         1705
-         1706
-         1722
-         1739
-         1756
-         1771
-         1771
-         1779
-         1789
-         1795
-         1805
-         1811
-         1822
-         1827
-         1839
-         1843
-         1856
-         1860
-         1871
-         1876
-         1890
-         1892
-         1906
-         1908
-         1922
-         1924
-         1940
-         1956
-         1973
-         1989
-         2006
-         2022
-         2029
-         2038
-         2045
-         2056
-         2061
-         2073
-         2078
-         2118
-         2134
-         2158
-         2185
-         2193
-         2208
-         2208
-         2224
-         2240
-         2257
-         2274
-         2296))
-       (:decimals 2)
-       (:color nil)
-       (:name "BPC")
-       (:action nil)
-       (:interpol nil)))))
+     (:add-slots ((:name "BPC")))))
    (:id 0))
   (:box
-   (:reference bpc)
    (:type :object)
+   (:reference bpc)
    (:group-id nil)
    (:name "c2")
-   (:x 246)
-   (:y 104)
+   (:x 719)
+   (:y 247)
    (:w 127)
    (:h 104)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -596,11 +461,9 @@
    (:roundness nil)
    (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
    (:align :center)
-   (:name "c2")
    (:display :mini-view)
    (:showname t)
    (:show-markers t)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -845,90 +708,15 @@
          -0.93
          -0.93
          -0.93))))
-     (:add-slots
-      ((:times
-        (:list
-         0
-         82
-         99
-         116
-         133
-         150
-         168
-         185
-         202
-         220
-         237
-         254
-         272
-         306
-         357
-         374
-         392
-         409
-         428
-         444
-         461
-         479
-         497
-         514
-         531
-         548
-         565
-         600
-         685
-         702
-         720
-         737
-         755
-         772
-         794
-         811
-         824
-         840
-         859
-         876
-         893
-         910
-         928
-         962
-         979
-         996
-         1014
-         1031
-         1048
-         1064
-         1082
-         1099
-         1117
-         1134
-         1151
-         1168
-         1186
-         1203
-         1220
-         1254
-         1307
-         1324
-         1345
-         1359
-         1376
-         1393
-         1410
-         1428))
-       (:decimals 2)
-       (:color nil)
-       (:name "BPC")
-       (:action nil)
-       (:interpol nil)))))
+     (:add-slots ((:name "BPC")))))
    (:id 1))
   (:box
-   (:reference bpf-interpol)
    (:type :function)
+   (:reference bpf-interpol)
    (:group-id nil)
    (:name "bpf-interpol")
-   (:x 212)
-   (:y 241)
+   (:x 685)
+   (:y 384)
    (:w 103)
    (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -936,6 +724,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align :left)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -960,12 +749,12 @@
     (:output (:name "out2") (:reactive nil)))
    (:id 2))
   (:box
-   (:reference slider)
    (:type :interface)
+   (:reference slider)
    (:group-id nil)
    (:name "slider")
-   (:x 389)
-   (:y 76)
+   (:x 862)
+   (:y 219)
    (:w 42)
    (:h 107)
    (:color
@@ -975,18 +764,19 @@
    (:min-value 0)
    (:max-value 100)
    (:increment 1)
+   (:decimals 0)
    (:orientation :vertical)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive t)))
    (:value 43)
    (:id 3))
   (:box
-   (:reference collection)
    (:type :object)
+   (:reference collection)
    (:group-id nil)
    (:name "...")
-   (:x 132)
-   (:y 305)
+   (:x 605)
+   (:y 448)
    (:w 188)
    (:h 144)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -994,10 +784,8 @@
    (:roundness nil)
    (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
    (:align :center)
-   (:name "...")
    (:display :mini-view)
    (:showname nil)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1099,7 +887,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -1241,83 +1029,7 @@
               0.09
               0.09
               0.09))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -1395,7 +1107,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -1537,83 +1249,7 @@
               0.07
               0.07
               0.07))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -1691,7 +1327,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -1833,83 +1469,7 @@
               0.04
               0.04
               0.04))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -1987,7 +1547,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -2129,83 +1689,7 @@
               0.02
               0.02
               0.02))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -2283,7 +1767,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -2425,83 +1909,7 @@
               -0.01
               -0.01
               -0.01))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -2579,7 +1987,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -2721,83 +2129,7 @@
               -0.03
               -0.03
               -0.03))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -2875,7 +2207,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -3017,83 +2349,7 @@
               -0.06
               -0.06
               -0.06))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -3171,7 +2427,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -3313,83 +2569,7 @@
               -0.08
               -0.08
               -0.08))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -3467,7 +2647,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -3609,83 +2789,7 @@
               -0.1
               -0.1
               -0.1))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -3763,7 +2867,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -3905,83 +3009,7 @@
               -0.13
               -0.13
               -0.13))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -4059,7 +3087,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -4201,83 +3229,7 @@
               -0.15
               -0.15
               -0.15))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -4355,7 +3307,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -4497,83 +3449,7 @@
               -0.18
               -0.18
               -0.18))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -4651,7 +3527,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -4793,83 +3669,7 @@
               -0.2
               -0.2
               -0.2))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -4947,7 +3747,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -5089,83 +3889,7 @@
               -0.23
               -0.23
               -0.23))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -5243,7 +3967,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -5385,83 +4109,7 @@
               -0.25
               -0.25
               -0.25))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -5539,7 +4187,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -5681,83 +4329,7 @@
               -0.27
               -0.27
               -0.27))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -5835,7 +4407,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -5977,83 +4549,7 @@
               -0.3
               -0.3
               -0.3))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -6131,7 +4627,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -6273,83 +4769,7 @@
               -0.32
               -0.32
               -0.32))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -6427,7 +4847,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -6569,83 +4989,7 @@
               -0.35
               -0.35
               -0.35))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -6723,7 +5067,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -6865,83 +5209,7 @@
               -0.37
               -0.37
               -0.37))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -7019,7 +5287,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -7161,83 +5429,7 @@
               -0.4
               -0.4
               -0.4))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -7315,7 +5507,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -7457,83 +5649,7 @@
               -0.42
               -0.42
               -0.42))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -7611,7 +5727,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -7753,83 +5869,7 @@
               -0.44
               -0.44
               -0.44))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -7907,7 +5947,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -8049,83 +6089,7 @@
               -0.47
               -0.47
               -0.47))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -8203,7 +6167,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -8345,83 +6309,7 @@
               -0.49
               -0.49
               -0.49))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -8499,7 +6387,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -8641,83 +6529,7 @@
               -0.52
               -0.52
               -0.52))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -8795,7 +6607,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -8937,83 +6749,7 @@
               -0.54
               -0.54
               -0.54))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -9091,7 +6827,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -9233,83 +6969,7 @@
               -0.57
               -0.57
               -0.57))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -9387,7 +7047,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -9529,83 +7189,7 @@
               -0.59
               -0.59
               -0.59))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -9683,7 +7267,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -9825,83 +7409,7 @@
               -0.61
               -0.61
               -0.61))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -9979,7 +7487,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -10121,83 +7629,7 @@
               -0.64
               -0.64
               -0.64))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -10275,7 +7707,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -10417,83 +7849,7 @@
               -0.66
               -0.66
               -0.66))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -10571,7 +7927,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -10713,83 +8069,7 @@
               -0.69
               -0.69
               -0.69))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -10867,7 +8147,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -11009,83 +8289,7 @@
               -0.71
               -0.71
               -0.71))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -11163,7 +8367,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -11305,83 +8509,7 @@
               -0.74
               -0.74
               -0.74))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -11459,7 +8587,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -11601,83 +8729,7 @@
               -0.76
               -0.76
               -0.76))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -11755,7 +8807,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -11897,83 +8949,7 @@
               -0.78
               -0.78
               -0.78))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -12051,7 +9027,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -12193,83 +9169,7 @@
               -0.81
               -0.81
               -0.81))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -12347,7 +9247,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -12489,83 +9389,7 @@
               -0.83
               -0.83
               -0.83))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -12643,7 +9467,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -12785,83 +9609,7 @@
               -0.86
               -0.86
               -0.86))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -12939,7 +9687,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -13081,83 +9829,7 @@
               -0.88
               -0.88
               -0.88))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -13235,7 +9907,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -13377,83 +10049,7 @@
               -0.91
               -0.91
               -0.91))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpc)
           (:slots
@@ -13531,7 +10127,7 @@
             (:duration 10000.0)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
             (:action nil)
-            (:color (:color 0.3 0.3 0.3 1.0))
+            (:color (:color 0.0 0.0 0.0 1.0))
             (:decimals 2)
             (:x-points
              (:list
@@ -13673,87 +10269,11 @@
               -0.93
               -0.93
               -0.93))))
-          (:add-slots
-           ((:times
-             (:list
-              0.0
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              10000.0))
-            (:decimals 2)
-            (:color (:color 0.3 0.3 0.3 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))))))))
+          (:add-slots ((:name nil))))))))))
    (:id 4))
   (:comment
-   (:x 323)
-   (:y 406)
+   (:x 796)
+   (:y 549)
    (:w 75)
    (:h 36)
    (:fgcolor (:color 0.0 0.0 0.0 1.0))
@@ -13765,8 +10285,8 @@
    (:text "COLLECTION of 3DCs")
    (:id 5))
   (:comment
-   (:x 439)
-   (:y 187)
+   (:x 912)
+   (:y 330)
    (:w 75)
    (:h 36)
    (:fgcolor (:color 0.0 0.0 0.0 1.0))
@@ -13778,12 +10298,12 @@
    (:text "interpolation steps")
    (:id 6))
   (:box
-   (:reference fixnum)
    (:type :value)
+   (:reference fixnum)
    (:group-id nil)
    (:name "value box")
-   (:x 399)
-   (:y 189)
+   (:x 872)
+   (:y 332)
    (:w 32)
    (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -13798,8 +10318,8 @@
    (:value 43)
    (:id 7))
   (:comment
-   (:x 109)
-   (:y 26)
+   (:x 114)
+   (:y 9)
    (:w 155)
    (:h 25)
    (:fgcolor nil)
@@ -13812,7 +10332,468 @@
      (:t-or-nil t)))
    (:align nil)
    (:text "Reactive connections (R)")
-   (:id 8)))
+   (:id 8))
+  (:comment
+   (:x 114)
+   (:y 34)
+   (:w 548)
+   (:h 36)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:text
+    "A box that has a reactive output sends a change-notification when its value changes.
+A box that has an incoming reactive connection or a reactive input re-evaluates when a notification reaches it.")
+   (:id 9))
+  (:comment
+   (:x 20)
+   (:y 93)
+   (:w 354)
+   (:h 185)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:text
+    "Trigger notifications by:
+- Evaluating boxes
+- Editing values in editors
+- Editing simple/nmber box values
+- Activating interface boxes (slider, buttons, lists...)
+- Receiving MIDI/OSC
+- Ect.
+
+Notes: 
+- 'Inteface' boxes are activated by CMD+click, or by a simple click when the patch is locked (see icon at the top-left corner of the wiondow)
+- 'Number' boxes and NOTE editors also behave like interface boxes and can be 'click-and-dragged' just like slider.")
+   (:id 10))
+  (:box
+   (:type :object)
+   (:reference note)
+   (:group-id nil)
+   (:name "NOTE")
+   (:x 131)
+   (:y 345)
+   (:w 80)
+   (:h 80)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :mini-view)
+   (:showname nil)
+   (:show-markers t)
+   (:lock :locked)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "MIDIC")
+     (:value 6000)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "VEL")
+     (:value 80)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "DUR")
+     (:value 1000)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CHAN")
+     (:value 1)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "MIDIC") (:reactive t))
+    (:output (:name "VEL") (:reactive nil))
+    (:output (:name "DUR") (:reactive nil))
+    (:output (:name "CHAN") (:reactive nil)))
+   (:window (:size nil) (:position nil))
+   (:edition-params (:staff :g))
+   (:value
+    (:object
+     (:class note)
+     (:slots
+      ((:symbolic-date nil)
+       (:symbolic-dur nil)
+       (:symbolic-dur-extent 0)
+       (:midic 6400)
+       (:vel 80)
+       (:dur 1000)
+       (:chan 1)
+       (:port nil)
+       (:offset 0)))))
+   (:id 11))
+  (:box
+   (:type :function)
+   (:reference arithm-ser)
+   (:group-id nil)
+   (:name "arithm-ser")
+   (:x 199)
+   (:y 471)
+   (:w 102)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input (:type :standard) (:name "BEGIN") (:value 0) (:reactive t))
+    (:input (:type :standard) (:name "END") (:value 10) (:reactive t))
+    (:input
+     (:type :standard)
+     (:name "STEP")
+     (:value 1)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive t)))
+   (:id 12))
+  (:box
+   (:type :object)
+   (:reference note)
+   (:group-id nil)
+   (:name "NOTE")
+   (:x 222)
+   (:y 345)
+   (:w 80)
+   (:h 80)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :mini-view)
+   (:showname nil)
+   (:show-markers t)
+   (:lock :locked)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "MIDIC")
+     (:value 6000)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "VEL")
+     (:value 80)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "DUR")
+     (:value 1000)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CHAN")
+     (:value 1)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "MIDIC") (:reactive t))
+    (:output (:name "VEL") (:reactive nil))
+    (:output (:name "DUR") (:reactive nil))
+    (:output (:name "CHAN") (:reactive nil)))
+   (:window (:size nil) (:position nil))
+   (:edition-params (:staff :g))
+   (:value
+    (:object
+     (:class note)
+     (:slots
+      ((:symbolic-date nil)
+       (:symbolic-dur nil)
+       (:symbolic-dur-extent 0)
+       (:midic 8600)
+       (:vel 80)
+       (:dur 1000)
+       (:chan 1)
+       (:port nil)
+       (:offset 0)))))
+   (:id 13))
+  (:box
+   (:type :object)
+   (:reference chord-seq)
+   (:group-id nil)
+   (:name nil)
+   (:x 113)
+   (:y 537)
+   (:w 262)
+   (:h 84)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :mini-view)
+   (:showname nil)
+   (:show-markers t)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "LMIDIC")
+     (:value (:list (:list 6000)))
+     (:reactive t))
+    (:input
+     (:type :standard)
+     (:name "LONSET")
+     (:value (:list 0 300))
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "LDUR")
+     (:value (:list (:list 1000)))
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "LVEL")
+     (:value 100)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "LMIDIC") (:reactive nil))
+    (:output (:name "LONSET") (:reactive nil))
+    (:output (:name "LDUR") (:reactive nil))
+    (:output (:name "LVEL") (:reactive nil)))
+   (:window (:size nil) (:position nil))
+   (:edition-params)
+   (:value
+    (:object
+     (:class chord-seq)
+     (:slots
+      ((:onset 0)
+       (:duration 7600)
+       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:symbolic-date nil)
+       (:symbolic-dur nil)
+       (:symbolic-dur-extent 0)
+       (:lmidic
+        (:list
+         (:list 6400)
+         (:list 6500)
+         (:list 6600)
+         (:list 6700)
+         (:list 6800)
+         (:list 6900)
+         (:list 7000)
+         (:list 7100)
+         (:list 7200)
+         (:list 7300)
+         (:list 7400)
+         (:list 7500)
+         (:list 7600)
+         (:list 7700)
+         (:list 7800)
+         (:list 7900)
+         (:list 8000)
+         (:list 8100)
+         (:list 8200)
+         (:list 8300)
+         (:list 8400)
+         (:list 8500)
+         (:list 8600)))
+       (:lonset
+        (:list
+         0
+         300
+         600
+         900
+         1200
+         1500
+         1800
+         2100
+         2400
+         2700
+         3000
+         3300
+         3600
+         3900
+         4200
+         4500
+         4800
+         5100
+         5400
+         5700
+         6000
+         6300
+         6600
+         7600))
+       (:ldur
+        (:list
+         (:list 1000)
+         (:list 1000)
+         (:list 1000)
+         (:list 1000)
+         (:list 1000)
+         (:list 1000)
+         (:list 1000)
+         (:list 1000)
+         (:list 1000)
+         (:list 1000)
+         (:list 1000)
+         (:list 1000)
+         (:list 1000)
+         (:list 1000)
+         (:list 1000)
+         (:list 1000)
+         (:list 1000)
+         (:list 1000)
+         (:list 1000)
+         (:list 1000)
+         (:list 1000)
+         (:list 1000)
+         (:list 1000)))
+       (:lvel
+        (:list
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)))
+       (:loffset
+        (:list
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)))
+       (:lchan
+        (:list
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)))
+       (:lport
+        (:list
+         (:list nil)
+         (:list nil)
+         (:list nil)
+         (:list nil)
+         (:list nil)
+         (:list nil)
+         (:list nil)
+         (:list nil)
+         (:list nil)
+         (:list nil)
+         (:list nil)
+         (:list nil)
+         (:list nil)
+         (:list nil)
+         (:list nil)
+         (:list nil)
+         (:list nil)
+         (:list nil)
+         (:list nil)
+         (:list nil)
+         (:list nil)
+         (:list nil)
+         (:list nil)))
+       (:llegato nil)))))
+   (:id 14))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "value box")
+   (:x 270)
+   (:y 433)
+   (:w 36)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 100)
+   (:id 15)))
  (:connections
   (:connection
    (:from (:box 0 :out 0))
@@ -13838,4 +10819,20 @@
    (:from (:box 7 :out 0))
    (:to (:box 2 :in 2))
    (:attributes
-    (:color (:color 0.3 0.3 0.3 1.0) :style :line :modif nil)))))
+    (:color (:color 0.3 0.3 0.3 1.0) :style :line :modif nil)))
+  (:connection
+   (:from (:box 11 :out 1))
+   (:to (:box 12 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 12 :out 0))
+   (:to (:box 14 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 13 :out 1))
+   (:to (:box 12 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 15 :out 0))
+   (:to (:box 12 :in 2))
+   (:attributes (:color nil :style nil :modif nil)))))

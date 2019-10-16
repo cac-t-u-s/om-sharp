@@ -713,12 +713,13 @@
 (defmethod editable-on-click ((self t)) t)
 
 (defmethod om-view-click-handler ((self OMBoxFrame) position)
+  
   (when (clickable-box self)
     
     ;;; if we're in multiple selection (SHIFT) or if the box is already selected: do not unselect all
     
-    (if (and (selected (object self)) 
-             (editable-on-click (object self))
+    (if (and (editable-on-click (object self)) ;; hooked by scoreboxes !
+             (selected (object self)) 
              (not (om-add-key-down)) (not (om-shift-key-p)))
         (edit-text-area self position))
     

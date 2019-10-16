@@ -32,8 +32,8 @@
   (score-object-default-box-size (get-box-value self)))
 
 (defmethod score-object-default-box-size ((self t)) (omp 80 50))
-(defmethod score-object-default-box-size ((self chord)) (omp 60 80))
-(defmethod score-object-default-box-size ((self note)) (omp 60 80))
+(defmethod score-object-default-box-size ((self chord)) (omp 80 80))
+(defmethod score-object-default-box-size ((self note)) (omp 80 80))
 
 (defmethod get-box-fontsize ((self ScoreBoxEditCall)) 
   (or (fontsize self) 18))
@@ -196,14 +196,65 @@
 
     (draw-chord self
                 0 
-                0 y-u 0 y-pix w h 
+                2 y-u 
+                0 y-pix w h 
                 font-size 
                 :scale scale :staff staff
                 :stem NIL
                 :time-function #'(lambda (time) (declare (ignore time)) (/ w 2))
                 )
     ))
+
+
+;;; super-hack to edit the note as a slider
+(defmethod editable-on-click ((self ScoreBoxEditCall)) 
+  (special-box-click-action (get-box-value self) self)
+  nil)
+
+(defmethod special-box-click-action ((self t) box) nil)
+
+(defmethod special-box-click-action ((self note) box) 
   
+  (let* ((frame (frame box))
+         (h (- (h frame) (* 2 *miniview-y-margin*)))
+         (position (om-mouse-position frame))
+         (y-position (- (om-point-y position) *miniview-y-margin*)))
+    
+    (when (or (om-action-key-down)
+              (and (om-view-container frame) 
+                   (container-frames-locked (om-view-container frame))))
+      
+      (multiple-value-bind (fontsize y-u)
+          (compute-font-size self box h *miniview-y-margin*)
+      
+        (let* (; (fontsize (get-box-fontsize box))
+             (unit (font-size-to-unit fontsize))
+             (staff (get-edit-param box :staff))
+             (scale (get-the-scale (get-edit-param box :scale)))
+             (shift (+ (calculate-staff-line-shift staff) y-u))
+             (click-y-in-units (- shift (/ y-position unit)))
+             (clicked-pitch (line-to-pitch click-y-in-units scale)))
+
+          (setf (midic self) clicked-pitch)
+          
+          (om-init-temp-graphics-motion 
+           frame position nil 
+           :motion #'(lambda (view pos)
+                       (let* ((y-position (- (om-point-y pos) *miniview-y-margin*))
+                              (click-y-in-units (- shift (/ y-position unit)))
+                              (clicked-pitch (line-to-pitch click-y-in-units scale)))
+                         (unless (equal clicked-pitch (midic self))
+                           (setf (midic self) clicked-pitch)
+                           (self-notify box)
+                           (om-invalidate-view view)
+                     ))))
+          
+          (self-notify box)
+          (update-after-eval box)
+          
+          )))))
+
+
 ;;;===========================
 ;;; CHORD
 ;;;===========================
