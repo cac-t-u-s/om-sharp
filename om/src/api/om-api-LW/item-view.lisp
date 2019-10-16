@@ -34,7 +34,8 @@
 (in-package :oa)
 
 ;;; no subview
-;;; optimized display
+;;; optimized display 
+;;; => requires being on a view for better drawing/focus !
 (defclass om-item-view (om-graphic-object om-interactive-object capi::pinboard-object)   ;; capi::drawn-pinboard-object
   ((item-container :initarg :item-container :accessor item-container :initform nil)
    (item-x  :initarg :item-x :accessor item-x :initform 0)
