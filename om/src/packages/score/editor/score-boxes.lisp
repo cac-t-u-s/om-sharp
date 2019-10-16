@@ -33,7 +33,7 @@
 
 (defmethod score-object-default-box-size ((self t)) (omp 80 50))
 (defmethod score-object-default-box-size ((self chord)) (omp 60 80))
-(defmethod score-object-default-box-size ((self note)) (omp 40 80))
+(defmethod score-object-default-box-size ((self note)) (omp 60 80))
 
 (defmethod get-box-fontsize ((self ScoreBoxEditCall)) 
   (or (fontsize self) 18))
@@ -194,7 +194,7 @@
     (draw-staff x-pix y-pix y-u w h font-size staff :margin-l 1 :margin-r 1 
                 :keys (not in-sequencer?))
 
-    (draw-chord (make-instance 'chord :notes (list self)) 
+    (draw-chord self
                 0 
                 0 y-u 0 y-pix w h 
                 font-size 
@@ -204,7 +204,6 @@
                 )
     ))
   
-
 ;;;===========================
 ;;; CHORD
 ;;;===========================
