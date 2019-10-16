@@ -111,8 +111,12 @@
                          (micro-channel-on (pitch-approx object)))))
 
     (sort 
-     (loop for c in (remove-if #'(lambda (chord) (or (< (+ (date chord) (get-obj-dur chord)) (car interval))
-                                                     (> (date chord) (cadr interval))))
+     (loop for c in (remove-if #'(lambda (chord) 
+                                   (let ((t1 (+ (date chord) (list-min (loffset chord))))
+                                         (t2 (+ (date chord) (loop for n in (notes chord) maximize (+ (offset n) (dur n))))))
+                                     (or (< t2 (car interval))
+                                         (> t1 (cadr interval)))
+                                     ))
                                (chords object))
     
            append 
@@ -122,7 +126,7 @@
                    (remove nil 
                            (list 
                             (if (or (in-interval (+ (date c) (offset n)) interval :exclude-high-bound t) 
-                                    (minusp (offset n)) ;;; pre-schedule it !
+                                    ;; (minusp (offset n)) ;;; pre-schedule it ?
                                     )
 
                                 (list (+ (date c) (offset n))
