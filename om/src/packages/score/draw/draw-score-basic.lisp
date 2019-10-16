@@ -648,6 +648,7 @@
 ;;; STEM
 ;;;========================
 
+;;; also works if chord is a 'note'
 (defun stem-direction (chord staff)
   (let* ((pitches (sort (mapcar 'midic (get-notes chord)) '<))
          (pmin (car pitches))
@@ -668,6 +669,8 @@
                   :style '(2 2)))
   (b-box self))
     
+
+;;; also works if chord is just a 'note':
 
 (defun draw-chord (chord x-ms ; x in ms
                          x-units ; a global x-shift in units
@@ -690,7 +693,7 @@
   
   (declare (ignore w))
  
-  (when (inside chord)
+  (when (get-notes chord)
     (om-with-translation x y 
 
       (let* ((head-symb (if (consp head) (car head) head))
@@ -707,7 +710,7 @@
 
           (let* ((unit (font-size-to-unit fontsize))
                  (x-pix (+ (* x-units unit) (funcall time-function x-ms)))
-                 (notes (inside chord))
+                 (notes (get-notes chord))
                  (shift (+ y-units (calculate-staff-line-shift staff)))
                  (staff-elems (staff-split staff))
                  (staff-lines (apply 'append (mapcar 'staff-lines staff-elems)))
