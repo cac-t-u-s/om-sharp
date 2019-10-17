@@ -28,6 +28,11 @@
         "score-objects/voice"
         "score-objects/multiseq-poly"
        
+        "functions/conversions"
+        "functions/score-functions"
+        "functions/trees"
+        "functions/quantify"
+
         "draw/draw-score-basic"
         "draw/draw-score-rhythm"
         "draw/draw-score-spacing"
@@ -41,17 +46,13 @@
         "editor/score-boxes"
         "editor/play"
 
-        "functions/conversions"
-        "functions/score-functions"
-        "functions/trees"
-        "functions/quantify"
-
         "import-export/midi"
         "import-export/musicxml"
         "compatibility"
         ))
 
 
+(add-preference-module :score "Score")
 
 (omNG-make-package 
  "Score"
