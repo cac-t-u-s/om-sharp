@@ -69,20 +69,21 @@ Floating values are allowed for <approx>.
 (defvar *diapason-midic* 6900)
 
 ;; ---- midicent -> frequency
-(defmethod* mc->f  ((midicents number))
+(defmethod* mc->f  ((midicents number) &optional (concert-pitch *diapason-freq*))
   :numouts 1 
-  :initvals '(6000) 
-  :indoc '("pitch or pitch list (midicents)")
+  :initvals (list 6000 *diapason-freq*)
+  :indoc '("pitch or pitch list (midicents)" "frequency (Hz)")
   :icon 'conversion
   :doc "
 Converts a (list of) midicent pitch(es) <midicents> to frequencies (Hz).
-"
-  (* *diapason-freq*
-     (expt 2.0 (/ (- midicents *diapason-midic*) 1200.0)) ))
 
-(defmethod* mc->f  ((midics? list))
+<concert-pitch> is the reference Hz value to use in the conversion."
+  (* concert-pitch
+     (expt 2.0 (/ (- midicents *diapason-midic*) 1200.0))))
+
+(defmethod* mc->f  ((midics? list) &optional concert-pitch)
   (loop for item in midics?
-        collect (mc->f item)))
+        collect (mc->f item concert-pitch)))
 
 ;; ---- frequency -> midicent
 
@@ -90,14 +91,14 @@ Converts a (list of) midicent pitch(es) <midicents> to frequencies (Hz).
 
 (defun abs-f1 (freq) (max *lowest-freq* (abs freq)))
 
-(defun f->mf (freq)
-  (+ (* (log (abs-f1 (/ freq *diapason-freq*))) #.(/ 1200 (log 2.0)))
+(defun f->mf (freq &optional (concert-pitch *diapason-freq*))
+  (+ (* (log (abs-f1 (/ freq concert-pitch))) #.(/ 1200 (log 2.0)))
      *diapason-midic*))
 
-(defmethod* f->mc  ((freq number) &optional (approx 100) (ref-midic 0))
+(defmethod* f->mc  ((freq number) &optional (approx 100) (ref-midic 0) (concert-pitch *diapason-freq*))
   :numouts 1 
-  :initvals '(440 100 0) 
-  :indoc '("frequency (Hz)" "approximation")
+  :initvals (list 440 100 0 *diapason-freq*)
+  :indoc '("frequency (Hz)" "approximation" "midicenct (int)" "frequency (Hz)")
   :icon 'conversion
   :doc "Converts a frequency or list of frequencies to midicents.
 
@@ -108,12 +109,13 @@ Approximation:
 - <approx> = 8 eight tones
 Floating values are allowed for <approx>.
 
-<ref-midic> is a midicent that is subtracted from <midic> before computation: the computation can then be carried on an interval rather than an absolute pitch."
-  (approx-m (f->mf freq) approx ref-midic))
+<ref-midic> is a midicent that is subtracted from <midic> before computation: the computation can then be carried on an interval rather than an absolute pitch.
+<concert-pitch> is the reference Hz value to use in the conversion."
+  (approx-m (f->mf freq concert-pitch) approx ref-midic))
 
-(defmethod* f->mc  ((freq list) &optional (approx 100) (ref-midic 0))
+(defmethod* f->mc  ((freq list) &optional (approx 100) (ref-midic 0) concert-pitch)
   (loop for item in freq
-        collect (f->mc item approx ref-midic)))
+        collect (f->mc item approx ref-midic concert-pitch)))
 
 
 ;==================================
