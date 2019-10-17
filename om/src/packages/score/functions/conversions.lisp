@@ -18,10 +18,11 @@
 
 (in-package :om)
 
+(add-preference :score :diapason "Diapason" :number 440.0 "The reference A3 used for pitch-frequency conversions")
+
 ;==================================
 ;UTIL
 ;==================================
-
 
 (defun deep-mapcar (fun fun1 list? &rest args)
   "Mapcars <fun> or applies <fun1> to <list?> <args> whether <list?> is a list or not."
@@ -65,21 +66,21 @@ Floating values are allowed for <approx>.
 ;MIDIC conversions
 ;==================================
 
-(defvar *diapason-freq* 440.0)
 (defvar *diapason-midic* 6900)
 
 ;; ---- midicent -> frequency
-(defmethod* mc->f  ((midicents number) &optional (concert-pitch *diapason-freq*))
+(defmethod* mc->f  ((midicents number) &optional concert-pitch)
   :numouts 1 
-  :initvals (list 6000 *diapason-freq*)
+  :initvals (list 6000 nil)
   :indoc '("pitch or pitch list (midicents)" "frequency (Hz)")
   :icon 'conversion
   :doc "
 Converts a (list of) midicent pitch(es) <midicents> to frequencies (Hz).
 
 <concert-pitch> is the reference Hz value to use in the conversion."
-  (* concert-pitch
-     (expt 2.0 (/ (- midicents *diapason-midic*) 1200.0))))
+  (let ((ref-pitch (or concert-pitch (get-pref-value :score :diapason))))
+    (* ref-pitch
+       (expt 2.0 (/ (- midicents *diapason-midic*) 1200.0)))))
 
 (defmethod* mc->f  ((midics? list) &optional concert-pitch)
   (loop for item in midics?
@@ -91,13 +92,16 @@ Converts a (list of) midicent pitch(es) <midicents> to frequencies (Hz).
 
 (defun abs-f1 (freq) (max *lowest-freq* (abs freq)))
 
-(defun f->mf (freq &optional (concert-pitch *diapason-freq*))
-  (+ (* (log (abs-f1 (/ freq concert-pitch))) #.(/ 1200 (log 2.0)))
-     *diapason-midic*))
+(defun f->mf (freq &optional concert-pitch)
 
-(defmethod* f->mc  ((freq number) &optional (approx 100) (ref-midic 0) (concert-pitch *diapason-freq*))
+  (let ((ref-pitch (or concert-pitch (get-pref-value :score :diapason))))
+
+    (+ (* (log (abs-f1 (/ freq ref-pitch))) #.(/ 1200 (log 2.0)))
+       *diapason-midic*)))
+
+(defmethod* f->mc  ((freq number) &optional (approx 100) (ref-midic 0) concert-pitch)
   :numouts 1 
-  :initvals (list 440 100 0 *diapason-freq*)
+  :initvals (list 440 100 0 nil)
   :indoc '("frequency (Hz)" "approximation" "midicenct (int)" "frequency (Hz)")
   :icon 'conversion
   :doc "Converts a frequency or list of frequencies to midicents.
@@ -110,7 +114,7 @@ Approximation:
 Floating values are allowed for <approx>.
 
 <ref-midic> is a midicent that is subtracted from <midic> before computation: the computation can then be carried on an interval rather than an absolute pitch.
-<concert-pitch> is the reference Hz value to use in the conversion."
+<concert-pitch> is the reference Hz value to use in the conversion. If unspecified, will use the value set in the Score preferences."
   (approx-m (f->mf freq concert-pitch) approx ref-midic))
 
 (defmethod* f->mc  ((freq list) &optional (approx 100) (ref-midic 0) concert-pitch)

@@ -169,8 +169,7 @@
 ;;; MICROTONES
 ;;;===================================================
 
-(add-preference-section :midi "Score")
-(add-preference :midi :auto-bend "Auto microtone bend" :bool t 
+(add-preference :score :auto-bend "Auto microtone bend" :bool t 
                 '("Applies 1/8th pitch-bend to MIDI channels 1-4 during playback of score-objects"
                   "and shift MIDI channels of micro-tonal note when scale is 1/4 or 1/8th tone."))
 
