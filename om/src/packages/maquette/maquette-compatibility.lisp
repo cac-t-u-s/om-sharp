@@ -31,11 +31,17 @@
      (omng-load
       `(:maquette
         (:name ,name-loaded)
-        (:boxes .,(loop for box-code in boxes-loaded collect (eval box-code)))
+        (:boxes .,(remove 'temp-marker 
+                          (loop for box-code in boxes-loaded collect (eval box-code))
+                          :key #'type-of))
         (:connections .,(loop for c in connections-loaded collect (format-imported-connection c)))
         )
       )
      ))
+
+
+(defclass temp-marker () ())
+(defun (setf doc) (doc self) nil)
 
 
 ;;; load the Maquette (internal)
@@ -180,6 +186,8 @@
   (declare (ignore name indice position inputs fname fsize))
   (om-print "Warning: Outputs no more supported in the maquette. Use control-patch." "Import/Compatibility")
   NIL)
+
+
 
 
 ;======================================
