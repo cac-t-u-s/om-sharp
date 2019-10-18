@@ -1446,6 +1446,18 @@
 (defmethod update-arg-names ((ref t)) nil)
 
 
+;======================================
+; compat earlier versions (OM4.x !)
+;======================================
+
+(defun om-load-patch (name boxes connections &rest ignore)
+  (om-load-patch1 name boxes connections))
+
+(defmethod om-point-x ((point number))
+  (- point (ash (ash point -16) 16)))
+
+(defmethod om-point-y ((point number))
+  (ash point -16))
 
 ;======================================
 ; old forms not supported: 
