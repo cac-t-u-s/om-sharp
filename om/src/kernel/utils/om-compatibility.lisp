@@ -405,7 +405,7 @@
                              (string-equal name (string (cadr (member '&rest (function-arglist reference))))))
                         `(:input (:type :optional) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
                        (t (om-print-format "Unknown input for function '~A': ~A" (list reference name) "Import/Compatibility")
-                          (print formatted-in)))
+                          formatted-in))
                  ))))
     
     `(:box 
