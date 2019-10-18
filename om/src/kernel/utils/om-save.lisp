@@ -655,13 +655,15 @@
 
 (defmethod restore-inputs ((self OMBox) inputs)
   (ignore-errors 
-    (loop for input-desc in inputs do
+    (loop for input-desc in inputs 
+          for i from 0 do
           (let ((type (find-value-in-kv-list (cdr input-desc) :type))
                 (name (find-value-in-kv-list (cdr input-desc) :name))
                 (val (find-value-in-kv-list (cdr input-desc) :value))
                 (reac (find-value-in-kv-list (cdr input-desc) :reactive)))
             (case type
-              (:standard (let ((in (find name (inputs self) :test 'string-equal :key 'name)))
+              (:standard (let ((in (or (find name (inputs self) :test 'string-equal :key 'name)
+                                       (nth i (inputs self)))))
                            (if in 
                                (setf (value in) (omng-load val) (reactive in) reac)
                              (om-print-dbg "input ~s not found on box ~A" (list name (name self)) "restore-inputs"))
