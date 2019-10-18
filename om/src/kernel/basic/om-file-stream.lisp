@@ -47,8 +47,15 @@
   )
 
 ;;; COMPAT WITH OM6 FILE-BOX: STREAM FILE ACCESS (R/W)
-(defmethod streamfile (path)
-  (open-file-stream path))
+(defmethod streamfile (path) 
+  (om-beep-msg "WARNING: STREAMFILE IS NOW DEPRECATED. SEE 'OPEN-FILE-STREAM' / 'CLOSE-FILE-STREAM'.")
+  (fs (open-file-stream path)))
+
+(defmethod (setf filetype) (type box) nil)
+(defmethod (setf direction) (type box) nil)
+(defmethod (setf if-ex) (type box) nil)
+
+
 
 (defmethod* close-file-stream ((self fstream)) 
   :indoc '("a valid pathname" "stream direction (read/write)" "behaviour if the file exists")
