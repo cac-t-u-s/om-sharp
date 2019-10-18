@@ -365,11 +365,17 @@
   (find name '("add-input") :test 'string-equal))
 
 (defun check-arg-for-new-name (reference name)
-  (or (cadr (find name (update-arg-names reference) :key #'car :test #'string-equal))
-      (and (is-om6-rest-arg name) 
-           (fboundp reference)
-           (string (cadr (member '&rest (function-arglist reference))))) ;;; the last element in lambda-list is the name of the &rest arg
-      name)) 
+  (or 
+   (cadr (find name (update-arg-names reference) :key #'car :test #'string-equal))
+   
+   (when (and (is-om6-rest-arg name) 
+              (fboundp reference))
+     (let ((rest-arglist (member '&rest (function-arglist reference))))
+       ;;; the last element in lambda-list is the name of the &rest arg
+       (when rest-arglist 
+         (string (cadr rest-arglist))))) 
+   
+   name))
 
 
 (defmethod (setf frame-position) (pos box) pos)
@@ -378,6 +384,7 @@
 ;======================================
 ; FUNCTION BOXES
 ;======================================
+
 
 (defmethod om-load-boxcall ((self (eql 'lispfun)) name reference inputs position size value lock &rest rest) 
 
@@ -398,7 +405,7 @@
                              (string-equal name (string (cadr (member '&rest (function-arglist reference))))))
                         `(:input (:type :optional) (:name ,name) (:value ,(find-value-in-kv-list (cdr formatted-in) :value))))
                        (t (om-print-format "Unknown input for function '~A': ~A" (list reference name) "Import/Compatibility")
-                          formatted-in))
+                          (print formatted-in)))
                  ))))
     
     `(:box 
