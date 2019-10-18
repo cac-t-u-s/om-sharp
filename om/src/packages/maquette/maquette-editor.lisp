@@ -245,6 +245,21 @@
   (zoom-time-ruler (get-g-component (editor self) :abs-ruler) (- 1 zoom) position self))
 
 
+
+(defmethod om-view-doubleclick-handler ((self maquette-view) position)
+  (if (om-add-key-down) 
+      ;;; add new box etc.
+      (call-next-method)
+    ;;; set play cursor pos
+    (let* ((editor (editor self))
+           (time (pix-to-x self (om-point-x position))))
+      
+      (when (om-get-clipboard) (set-paste-position position self))
+      (editor-set-interval editor (list time time))
+      (set-object-time (get-obj-to-play editor) time))
+    ))
+
+
 ;;;========================
 ;;; TRACK-VIEW
 ;;;========================
