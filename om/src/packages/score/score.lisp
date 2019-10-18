@@ -17,6 +17,8 @@
 
 (in-package :om)
 
+(add-preference-module :score "Score")
+
 (mapc #'(lambda (filename) 
           (compile&load (decode-local-path filename))) 
       
@@ -50,9 +52,6 @@
         "import-export/musicxml"
         "compatibility"
         ))
-
-
-(add-preference-module :score "Score")
 
 (omNG-make-package 
  "Score"
