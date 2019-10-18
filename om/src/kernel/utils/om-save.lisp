@@ -663,11 +663,17 @@
                 (reac (find-value-in-kv-list (cdr input-desc) :reactive)))
             (case type
               (:standard (let ((in (or (find name (inputs self) :test 'string-equal :key 'name)
-                                       (nth i (inputs self)))))
+                                       (nth i (inputs self))))) ;;; the name was not found, but it may have changed... ?
                            (if in 
                                (setf (value in) (omng-load val) (reactive in) reac)
-                             (om-print-dbg "input ~s not found on box ~A" (list name (name self)) "restore-inputs"))
-                           ))
+                             (progn 
+                               (om-print-dbg "input ~s not found on box ~A" (list name (name self)) "restore-inputs")
+                               ;;; beta: at impoprting old patches it is possible that an optional be unrecognized 
+                               ;;; (because the name has changed)
+                               ;;; in this case it is passed as a :standard input : we can try to pop-it out
+                               (more-optional-input self :name name :value (omng-load val) :reactive reac)
+                               )
+                           )))
               (:optional (more-optional-input self :name name :value (omng-load val) :reactive reac))
               (:key (more-keyword-input self :key name :value (omng-load val) :reactive reac))
               )))))
