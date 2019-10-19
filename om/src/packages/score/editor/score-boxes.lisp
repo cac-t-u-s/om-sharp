@@ -81,10 +81,14 @@
 
 ;;; voice on a box
 (defmethod miniview-time-to-pixel ((object voice) box (view omboxframe) time)
-  (miniview-time-to-pixel-rhythmic object box view time))
+  (if (equal (display box) :mini-view)
+      (miniview-time-to-pixel-rhythmic object box view time)
+    (miniview-time-to-pixel-proportional object box view time)))
 
 (defmethod miniview-time-to-pixel ((object poly) box (view omboxframe) time)
-  (miniview-time-to-pixel-rhythmic object box view time))
+  (if (equal (display box) :mini-view)
+      (miniview-time-to-pixel-rhythmic object box view time)
+    (miniview-time-to-pixel-proportional object box view time)))
 
 (defmethod miniview-time-to-pixel ((object multi-seq) box (view omboxframe) time)
   (miniview-time-to-pixel-proportional object box view time))
