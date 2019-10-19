@@ -123,17 +123,39 @@
   (update-lisp-fun self))
 
 (defmethod omng-save-relative ((self OMLispFunctionFile) ref-path)  
-  `(:textfun-from-file ,(omng-save (relative-pathname (mypathname self) ref-path))))
+  `(:textfun-from-file 
+    ,(if (mypathname self)
+         (omng-save (relative-pathname (mypathname self) ref-path))
+       (omng-save (pathname (name self))))))
+
+
 
 (defmethod om-load-from-id ((id (eql :textfun-from-file)) data)
   
   (let* ((path (omng-load (car data)))
-         (checked-path (check-path-using-search-path path)))
+         (checked-path (and (pathname-directory path)  ;; normal case
+                            (check-path-using-search-path path)))
+         (lispfun 
+          
+          (if checked-path
+              
+              (load-doc-from-file checked-path :textfun)
+                
+            ;;; no pathname-directory can occur while loading old patch abstractions from OM6
+            ;;; in this case we look for a not-yet-save file with same name in registered documents
+            (let ((registered-entry (find (pathname-name path) *open-documents* 
+                                          :test 'string-equal :key #'(lambda (entry) (name (doc-entry-doc entry))))))
+              (when registered-entry
+                (doc-entry-doc registered-entry)))
+            )))
+
+    (unless lispfun
+      (om-beep-msg "LISP-FUN FILE NOT FOUND: ~S !" path)
+      (setf lispfun (make-instance 'OMLispFunctionFile :name (pathname-name path)))
+      (setf (mypathname lispfun) path))
     
-    (if checked-path  
-        (load-doc-from-file checked-path :textfun)
-      (om-beep-msg "FILE NOT FOUND: ~S !" path))
-    ))
+    lispfun))
+
 
 
 ;;;===================

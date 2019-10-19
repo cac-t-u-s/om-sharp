@@ -215,6 +215,7 @@
 
 
 
+
 ;;;=======================================
 ;;; DEPENDENCY MANAGEMENT
 ;;;=======================================
@@ -234,6 +235,13 @@
     (when one-box-ref
       (find-persistant-container one-box-ref))))
 
+;; returns references that are from outside the same patch (= non-recursive)
+(defmethod get-outside-references ((self OMProgrammingObject))
+  (loop for b in (box-references-to self)
+        unless (or (null (find-persistant-container b))
+                   (equal self (find-persistant-container b)))
+        collect b))
+
 (defmethod box-references-to ((self OMProgrammingObject))
   (remove-if 
    #'(lambda (ref)
@@ -246,6 +254,27 @@
               (editor self))
     (unregister-document self)))
 
+
+;;; this is called: 
+;;; - by the editor-close callback
+;;; - when the document is closed from the main session window
+(defmethod close-document ((patch OMProgrammingObject) &optional (force nil))
+  (let* ((outside-references (get-outside-references patch)));;; => references to the same patch outside this patch
+          
+    (when (or (null outside-references)
+              (and force 
+                   (om-y-or-n-dialog 
+                    (format nil "The document ~A still has ~A external references. Delete anyway ?" 
+                            (name patch) (length outside-references)))))
+      
+      ;;; release all box references (they are all inside this patch anyway)
+      (loop for refb in (box-references-to patch)
+            do (release-reference patch refb))
+      (delete-internal-elements patch) 
+      ;; (setf (loaded? patch) nil)
+      (when force (unregister-document patch))
+      )
+    ))
 
 
 
