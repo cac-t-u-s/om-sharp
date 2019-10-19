@@ -229,7 +229,8 @@
              ((point-pos (or (position (car time) time-map :test #'= :key #'car)
                              (progn
                                (om-print-dbg "Error in score construction: measure doesn't start on a beat-time (t=~A)" (list (car time)))
-                               (position (car time) time-map :test #'<= :key #'car))))
+                               (or (position (car time) time-map :test #'<= :key #'car)
+                                   (1- (length time-map))))))
               (point (nth point-pos time-map))
               (prev-point (nth (max 0 (1- point-pos)) time-map)))
            (/ (+ (cadr prev-point) (cadr point)) 2.0))
