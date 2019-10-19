@@ -142,6 +142,10 @@
     ;;; probably a list of ratios
     (setf (tree self) (mktree (tree self) '(4 4))))
    
+  ;;; compat OM 6 (temp)
+  (when (listp (tempo self))  ;; e.g. ((1/4 60) ...)
+    (setf (tempo self) (cadr (car (tempo self)))))
+  
   ;(when (atom (car (tree self)))
   ;  ;;; probably "old-formatted" RT, with "?" etc.
   ;  (setf (tree self) (cadr (tree self))))
@@ -152,9 +156,7 @@
       (setf (tree self) (list (length (tree self))
                               (tree self)))))
 
-  ;;; compat OM 6 (temp)
-  (when (listp (tempo self))  ;; e.g. ((1/4 60) ...)
-    (setf (tempo self) (cadr (car (tempo self)))))
+
   
   (set-tree self (slot-value self 'tree))
   
