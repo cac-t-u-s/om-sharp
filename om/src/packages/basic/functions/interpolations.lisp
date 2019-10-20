@@ -173,7 +173,7 @@ The resulting function can be connected for example to SAMPLEFUN."
 (defmethod* y-transfer ((self list) (y0 number) &optional (dec nil))
   :initvals (list nil 10  0)
   :indoc '("list of points, BPF or BPC"  "Y value"  "number of decimals")
-  :icon :y-transfer
+  :icon :bpf-y-transfer
   :doc "Returns a list of interpolated X values corresponding to a list of points ((x1 y1) (x2 y2) ...), or a BPF/BPC (<self>) and a Y position <y0>. 
 
 Optional <dec> is the number of decimals in the result."
@@ -190,7 +190,7 @@ Optional <dec> is the number of decimals in the result."
 
 
 (defmethod* x-transfer ((self list) (x-val number) &optional (dec nil))    
-  :icon :y-transfer
+  :icon :bpf-x-transfer
   :indoc '("a list or BPF" "X value" "number of decimals")
   :initvals '(((0 0) (100 100)) 50 nil)
   :doc "Returns the interpolated Y value(s) in a BPF or a list ((x1 y1) (x2 y2) ...) corresponding to an X value or a list of X values (<x-val>).
