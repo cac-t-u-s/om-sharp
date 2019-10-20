@@ -332,6 +332,45 @@
     ))
 
 ;;;=========================
+;;; IMPORT/EXPORT
+;;;=========================
+
+(defmethod import-menus ((self chord-seq-editor)) 
+  (list 
+   (om-make-menu-item "MIDI" #'(lambda () (editor-import-midi self)))
+   (om-make-menu-item "MusicXML" #'(lambda () (editor-import-musicxml self)))
+   ))
+
+(defmethod export-menus ((self chord-seq-editor)) 
+  (list 
+   (om-make-menu-item "MIDI" #'(lambda () (editor-export-midi self)))
+   (om-make-menu-item "MusicXML" #'(lambda () (editor-export-musicxml self)))
+   ))
+
+
+(defmethod editor-import-midi ((self chord-seq-editor))
+  (objfromobjs
+   (import-midi) ;; => MIDI-TRACK
+   (object-value self))
+  (report-modifications self)
+  (editor-invalidate-views self))
+
+(defmethod editor-import-musicxml ((self chord-seq-editor))
+  (objfromobjs
+   (import-musicxml) ;; => MIDI-TRACK
+   (object-value self))
+  (report-modifications self)
+  (editor-invalidate-views self))
+
+(defmethod editor-export-midi ((self chord-seq-editor))
+  (save-as-midi (object-value self)))
+
+(defmethod editor-export-musicxml ((self chord-seq-editor))
+  (export-musicxml (object-value self)))
+
+
+
+;;;=========================
 ;;; DISPLAY
 ;;;=========================
 

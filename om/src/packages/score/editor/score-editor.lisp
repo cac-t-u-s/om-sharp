@@ -686,11 +686,23 @@
                         )
         ))
 
+
+(defmethod import-menus ((self score-editor)) nil)
+(defmethod export-menus ((self score-editor)) nil)
+
+(defmethod import-export-menu-items ((self score-editor))
+  (list 
+   (om-make-menu-comp 
+    (list (om-make-menu "Import..." (import-menus self) :enabled (import-menus self))
+          (om-make-menu "Export..." (export-menus self) :enabled (export-menus self)))
+    )))
+  
+
 (defmethod om-menu-items ((self score-editor))
   (remove nil
           (list 
            (main-app-menu-item)
-           (om-make-menu "File" (default-file-menu-items self))
+           (om-make-menu "File" (append (default-file-menu-items self) (import-export-menu-items self)))
            (om-make-menu "Edit" (score-edit-menu-items self))
            (om-make-menu "Windows" (default-windows-menu-items self))
            (om-make-menu "Help" (default-help-menu-items self))
@@ -785,9 +797,9 @@
     ))
 
 
-
 ;;; only works in chord-seq-editor
 (defmethod align-command ((self score-editor)) nil)
+
 
 ;;;=====================================
 ;;; INSPECTOR / EDIT VALUES IN SCORE
