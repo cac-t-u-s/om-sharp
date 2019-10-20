@@ -835,6 +835,10 @@
 
 (defvar *connection-handler* nil)
 
+(defmethod om-view-click-handler :around ((self patch-editor-view) position)
+  (setf *connection-handler* nil) ;; in case a connection operation has aborted 
+  (call-next-method))
+
 (defmethod start-connection ((self omboxframe) oa &optional after-fun)
   (unless (edit-lock (editor (om-view-container self)))
     (let* ((patchpanel (om-view-container self))
