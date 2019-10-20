@@ -33,11 +33,6 @@
   #-xml(om-beep-msg "No support for XML"))
 
 
-(defun xml-import-warning (str)
-  (om-print str "MusicXML Import ::")
-  (pushr str *import-error*)
-  nil)
-
 (defun xml-equal (a b)
   (and (symbolp a) (symbolp b)
        (string-equal (symbol-name a) (symbol-name b))))
@@ -83,6 +78,11 @@
 ;;;=========================
 
 (defparameter *import-error* nil)
+
+(defun xml-import-warning (str)
+  (om-print str "MusicXML Import ::")
+  (pushr str *import-error*)
+  nil)
 
 (defmethod* import-musicxml (&optional path)
   :icon :import-xml
