@@ -100,7 +100,7 @@
      rep))
      
 
-; (om-choose-new-file-dialog :prompt "escoja" :types '("MIDI Files" "*.mid; *.midi" "SND Files" "*.wav;*.aiff"))
+; (om-choose-new-file-dialog :prompt "escoja" :types '("MIDI Files" "*.mid;*.midi" "SND Files" "*.wav;*.aiff"))
 
 
 ;;; CHOOSE A DIRECTORY

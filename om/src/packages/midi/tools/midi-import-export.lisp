@@ -23,6 +23,7 @@
 ; i.e. tempo = 60
 (defvar *midi-init-tempo* 1000000)   
 
+
 ;;; from OM6
 (defun logical-time (abstract-time cur-tempo tempo-change-abst-time tempo-change-log-time unit/sec)
   (+ tempo-change-log-time
@@ -37,6 +38,10 @@
 (defun bpm2mstempo (bpm)
   (round (* (/ 60 bpm) *midi-init-tempo*)))
 
+
+;;;==================================
+;;; IMPORT
+;;;==================================
 
 (defun midievents-to-milliseconds (evtseq units/sec)
 
@@ -73,10 +78,9 @@
     (reverse rep)))
 
 
-
 ;;; RETURNS A SORTED LIST OF CL-MIDI's MIDI-EVT structs
 ;;; Deletes tempo events and converts all dates to milliseconds
-(defun import-midi-file (&optional file)
+(defun import-midi-events (&optional file)
   (multiple-value-bind (evt-list ntracks unit format)
       (om-midi::midi-import file)
     (declare (ignore ntracks format))
@@ -86,7 +90,26 @@
 
 
 
-;=== KEY FUNCTION : to upgrade when voice accept tempo map... 
+;;; MAIN: GENERATES A MIDI-TRACK
+
+(defmethod* import-midi (&optional file) 
+  :initvals '(nil)
+  :icon :midi-import
+  :doc "Returns a MIDI-TRACK from imported data in <filename>"
+  (if file 
+      (when (probe-file (pathname file))
+        (objFromObjs (pathname file) (make-instance 'midi-track)))
+    (let ((path (om-choose-file-dialog :types '("MIDI Files" "*.mid;*.midi"))))
+      (when path 
+        (import-midi path)))
+    ))
+   
+
+;;;==================================
+;;; EXPORT
+;;;==================================
+
+; KEY FUNCTION : to upgrade when voice accept tempo map... 
 ; Converts a sequence in tempo 60 into other tempo
 ; Returns a new seq
 (defun insert-tempo-info (seq tempo) 
@@ -115,12 +138,7 @@
       )))
 
 
-
-
-
-;;;==================================
 ;;; MAIN 
-;;;==================================
 
 (defmethod* save-as-midi ((object t) filename &key (format nil) retune-channels) 
   :initvals '(nil nil 2 nil nil)

@@ -18,10 +18,10 @@
 
 (in-package :om)
 
+
 ;;;========================
 ;;; MIDI TO SCORE OBJECTS
 ;;;========================
-
 
 (defmethod midinotes-to-chords ((notes list))
   
@@ -54,6 +54,10 @@
     (reverse chords)
     ))
     
+
+;;;================================
+;;; DIRECT CONVERSIONS SELF=>SELF
+;;;================================
 
 (defmethod objfromobjs ((model midi-track) (target chord-seq))
     
@@ -104,9 +108,12 @@
     target))
 
 
+
 ;;;========================
 ;;; SCORE OBJECTS TO MIDI
 ;;;========================
+
+;;; get-midievents is the function called by SAVE-AS-MIDI
 
 (defmethod get-midievents ((self note) &optional test)
   (get-midievents 
@@ -238,9 +245,9 @@
     ))
 
 
-;;;========================
+;;;================================
 ;;; DIRECT CONVERSION SELF=>SELF
-;;;========================
+;;;================================
 
 (defmethod objfromobjs ((model score-element) (target midi-track)) 
   (set-chords target (midievents-to-midinotes (get-midievents model)))
