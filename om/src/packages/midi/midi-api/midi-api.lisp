@@ -133,7 +133,7 @@
 (defun midi-export (evtlist &optional filename (format 1) (clicks 1000))
   (let ((file (or filename (om-api:om-choose-new-file-dialog :types '("MIDI file" "*.mid;*.midi")))))
     (when file 
-      (cl-midi-save-file evtlist filename format clicks)
+      (cl-midi-save-file evtlist file format clicks)
       file)))
 
 

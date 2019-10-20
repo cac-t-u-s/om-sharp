@@ -363,7 +363,7 @@
   (editor-invalidate-views self))
 
 (defmethod editor-export-midi ((self chord-seq-editor))
-  (save-as-midi (object-value self)))
+  (save-as-midi (object-value self) nil))
 
 (defmethod editor-export-musicxml ((self chord-seq-editor))
   (export-musicxml (object-value self)))
