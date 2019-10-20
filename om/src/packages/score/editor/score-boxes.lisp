@@ -144,8 +144,8 @@
     (set-box-fontsize box fontsize)
  
   (om-with-fg-color (om-make-color 0.0 0.2 0.2)
-    (score-object-mini-view self box x y y-u w h)
-    )
+    (score-object-mini-view self box x y y-u w h))
+  
   ))
 
 
@@ -357,7 +357,7 @@
                                 ))
           
                 ;;; if the end is off-screen we notify it with a little gray area at the end
-                (when (and (equal self (car (value box)))
+                (when (and (equal self (car (value box)))  ;; don't do it on poly boxes
                            (> (time-to-pixel frame (beat-to-time (+ (symbolic-date m) (symbolic-dur m)) (tempo self))) max-w))
                   (om-draw-rect (- (w frame) 20) 0 20 (h frame) :fill t :color (om-make-color .8 .8 .8 .5))
                   (om-draw-string (- (w frame) 16) (- (h frame) 12) "..."))
@@ -378,5 +378,13 @@
           for i from 0 do
           (score-object-mini-view voice box x-pix (+ y-pix (* i voice-h)) 0 w voice-h))
     ))
+
+
+(defmethod score-object-mini-view ((self poly) box x-pix y-pix y-u w h)
+  (call-next-method) 
+  (let ((frame (frame box)))
+    (when (> (time-to-pixel frame (get-obj-dur self)) (w frame))
+      (om-draw-rect (- (w frame) 20) 0 20 (h frame) :fill t :color (om-make-color .8 .8 .8 .5))
+      (om-draw-string (- (w frame) 16) (- (h frame) 12) "..."))))
 
 
