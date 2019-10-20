@@ -37,6 +37,7 @@
    (Lchan :initform 1 :initarg :Lchan :type list :documentation "MIDI channels (1-16): list or list of lists")
    (Lport :initform nil :initarg :Lport :type list :documentation "MIDI ports: list or list of lists")
    (Llegato :accessor Llegato :initform nil :initarg :Llegato :initarg :legato :documentation "relative chords duration (0.0-... or NIL)")   ;;; this one has no redefined accessor (do it?)
+   (name :accessor name :initform nil :initarg :name :documentation "the name of this voice")
    )
   ;; (:default-initargs :default-frame-type 'chord)
   )
