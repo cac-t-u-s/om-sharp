@@ -42,7 +42,7 @@
  (list (omNG-make-package 
         "Import/Export/Conversions"
         :doc "MIDI import and conversion utilities"
-        :functions '(import-midi-notes import-midi-file get-midievents mf-info save-as-midi))
+        :functions '(import-midi get-midievents mf-info save-as-midi))
        (omNG-make-package 
         "Filters"
         :doc "Tools to filter/process"

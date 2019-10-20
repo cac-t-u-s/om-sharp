@@ -48,6 +48,7 @@
 (defun midinote-dur (midinote) (dur midinote))
 (defun midinote-channel (midinote) (ev-chan midinote))
 (defun midinote-port (midinote) (ev-port midinote))
+(defun midinote-track (midinote) (ev-track midinote))
 (defun midinote-end (midinote) (+ (midinote-onset midinote) (midinote-dur midinote)))
 
 
@@ -56,8 +57,10 @@
 (defmethod item-set-duration ((self midi-note) dur) (setf (dur self) dur))
 
 
-(defun make-midinote (&key (onset 0) (pitch 60) (vel 100) (dur 1000) (chan 1) (port 0))
-  (make-instance 'midi-note :onset onset :pitch pitch :vel vel :dur dur :ev-chan chan :ev-port port))
+(defun make-midinote (&key (onset 0) (pitch 60) (vel 100) (dur 1000) (chan 1) (port 0) (track 0))
+  (let ((n (make-instance 'midi-note :onset onset :pitch pitch :vel vel :dur dur :ev-chan chan :ev-port port)))
+    (when track (setf (ev-track n) track))
+    n))
 
 (defmethod initialize-instance ((self midi-note) &rest args)
   (call-next-method)
@@ -158,6 +161,7 @@
                                     :vel (midi-key-evt-vel event) 
                                     :chan (ev-chan event)
                                     :port (ev-port event)
+                                    :track (ev-track event)
                                     )
                      ; (ev-track event)    ;;; not used
                      notelist))
@@ -184,7 +188,8 @@
 
 (defun import-midi-notes (&optional file)
   (midievents-to-midinotes 
-   (get-midievents (import-midi-file file))  ;; #'(lambda (evt) (test-midi-type evt '(:keyon :keyoff))))
+   (get-midievents 
+    (import-midi-events file))  ;; #'(lambda (evt) (test-midi-type evt '(:keyon :keyoff))))
    :collect-other-events t))
 
 
@@ -233,14 +238,14 @@
                                     :ev-chan (midinote-channel n)
                                     :ev-values (list (midinote-pitch n) (midinote-vel n)) 
                                     :ev-port (midinote-port n) 
-                                    :ev-track 0)
+                                    :ev-track (midinote-track n))
                                    (make-MIDIEvent 
                                     :ev-date (midinote-end n)
                                     :ev-type :keyoff 
                                     :ev-chan (midinote-channel n)
                                     :ev-values (list (midinote-pitch n) 0) 
                                     :ev-port (midinote-port n) 
-                                    :ev-track 0))
+                                    :ev-track (midinote-track n)))
                           ;;; normal event
                           (list (om-copy n))))
                   )
