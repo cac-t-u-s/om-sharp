@@ -49,7 +49,7 @@
         "editor/play"
 
         "import-export/midi"
-        "import-export/musicxml"
+        "import-export/musicxml-import"
         "compatibility"
         ))
 
