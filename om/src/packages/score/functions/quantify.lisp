@@ -138,9 +138,7 @@ at the beat level. Here is an example:
   (let ((rep (quant-edit (om/ durs 10) tempi measures 
                          (if (numberp max/) (list (list max/)) max/)
                          forbid (or offset 0) 1)))
-    (korrected-kant (reducetree rep))
-    ))
-
+    (mktree (tree2ratio (reducetree rep)) measures)))
 
 
 (defmethod* omquantify ((self chord-seq) (tempi t) (measures list) (max/ t)
