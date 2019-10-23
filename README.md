@@ -1,25 +1,16 @@
-# om7-beta 
+
 ## Visual Programming | Computer-Aided Music Compositon
 
-om7-beta is a new implementation of [OpenMusic](http://repmus.ircam.fr/openmusic/) (OM), a visual programming language based on [Common Lisp](http://www.gigamonkeys.com/book/introduction-why-lisp.html), dedicated to computer-assisted music composition.
 
-OM visual programs are created by assembling and connecting icons representing Lisp functions and data structures, built-in control structures (e.g. loops), and other program constructs. The visual language can therefore be used for general-purpose programming, and reuse any existing Common Lisp code. At a more specialized level, a set of in-built tools and external libraries make it a powerful environment for music composition. Various classes implementing musical structures are provided, associated with graphical editors including common music notation, MIDI, OSC, 2D/3D curves, and audio buffers.
+**om7-beta** is a new implementation of [OpenMusic](http://repmus.ircam.fr/openmusic/) (OM), a visual programming language based on [Common Lisp](http://www.gigamonkeys.com/book/introduction-why-lisp.html), dedicated to computer-assisted music composition.
 
-<br><br>
-<center>
-<img src="./docs/images/scores.png" width="53%" align="top">
-<!--<img src="./images/reactive.png" width="15%" align="top">-->
-<img src="./docs/images/mak-tracks.png" width="40%" align="">
+<img src="./docs/images/scores.png" width="50%" align="right">
 
-<!--
-<img src="./images/data-stream.png" width="40%" align="middle">
-<img src="./images/spat-scene.png" width="50%" align="middle">
--->
-</center>
+Visual programs are created by assembling and connecting icons representing Lisp functions and data structures, built-in control structures (e.g. loops), and other program constructs. The visual language can therefore be used for general-purpose programming, and reuse any existing Common Lisp code. At a more specialized level, a set of in-built tools and external libraries make it a powerful environment for music composition. Various classes implementing musical structures are provided, associated with graphical editors including common music notation, MIDI, OSC, 2D/3D curves, and audio buffers.
 
 ------
 
-J. Bresson (2013-2019) IRCAM / UMR STMS
+J. Bresson et al. (2013-2019) IRCAM / UMR STMS
 
 ------
 
@@ -68,12 +59,7 @@ Do not hestitate to report any problems in porting or converting libraries or pa
 
 ### Documentation
 
-     
-- [OM7 Documentation pages]
-
-------
-      
-**Note:** om7-beta [documentation](./pages/index) is still at its very early stages. The [OM6 User Documentation](http://support.ircam.fr/docs/om/om6-manual/) can be useful to find out about the basics of OM visual programming workflow.    
+om7-beta [documentation](./docs/pages/index.md) is still at its very early stages. The [OM6 User Documentation](http://support.ircam.fr/docs/om/om6-manual/) can be useful to find out about the basics of OM visual programming workflow.    
 
 --- See also this <a href="https://hal.archives-ouvertes.fr/hal-01567619" target="_blank">ICMC'17 paper</a> for a quick overview.
 
@@ -101,7 +87,7 @@ While the sources are available under the GPL license, the application is develo
 
 In order to contribute to the code without a LispWorks license, one must therefore work both with the source package _and_ an [up-to-date reseased version on the distributed executable](https://github.com/openmusic-project/om7/releases) (which includes a Lisp interpreter).
 
-<center><img src="https://openmusic-project.github.io/om7/images/lisp.jpg" width="100pix" margin="10px"></center>
+<center><img src="./docs/images/lisp.jpg" width="100pix" margin="10px"></center>
 
 
 
