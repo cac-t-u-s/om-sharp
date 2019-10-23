@@ -59,7 +59,7 @@ Do not hestitate to report any problems in porting or converting libraries or pa
 
 ### Documentation
 
-om7-beta [documentation](./pages/index) is still at its very early stages. The [OM6 User Documentation](http://support.ircam.fr/docs/om/om6-manual/) can be useful to find out about the basics of OM visual programming workflow.    
+om7-beta [documentation](./docs/pages/index.md) is still at its very early stages. The [OM6 User Documentation](http://support.ircam.fr/docs/om/om6-manual/) can be useful to find out about the basics of OM visual programming workflow.    
 
 --- See also this <a href="https://hal.archives-ouvertes.fr/hal-01567619" target="_blank">ICMC'17 paper</a> for a quick overview.
 
