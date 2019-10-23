@@ -87,7 +87,7 @@ While the sources are available under the GPL license, the application is develo
 
 In order to contribute to the code without a LispWorks license, one must therefore work both with the source package _and_ an [up-to-date reseased version on the distributed executable](https://github.com/openmusic-project/om7/releases) (which includes a Lisp interpreter).
 
-<center><img src="https://openmusic-project.github.io/om7/images/lisp.jpg" width="100pix" margin="10px"></center>
+<center><img src="/docs/images/lisp.jpg" width="100pix" margin="10px"></center>
 
 
 
