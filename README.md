@@ -10,10 +10,6 @@ Visual programs are created by assembling and connecting icons representing Lisp
 
 ------
 
-J. Bresson et al. (2013-2019) IRCAM / UMR STMS
-
-------
-
 ### Download
 
 Download om7-beta for macOS, Windows and Linux here:     
