@@ -36,6 +36,10 @@
 
 (defmethod deep-search ((self t) obj) nil)
   
+(defmethod (setf inside) ((newlist list) (self score-element))
+  (loop for elt in newlist do (setf (parent elt) self))
+  (setf (slot-value self 'inside) newlist))
+
 ;;;===================================================
 ;;; VOICE IS A CHORD-SEQ WHOSE STRUCTURE AND TIMING IS RULED BY A TREE
 ;;;===================================================
@@ -200,7 +204,8 @@
                 collect (let* ((m-dur (decode-extent (car m-tree)))
                                (mesure (make-instance 'measure :tree m-tree
                                                       :symbolic-date curr-beat
-                                                      :symbolic-dur m-dur)))
+                                                      :symbolic-dur m-dur
+                                                      )))
                           (setq curr-beat (+ curr-beat m-dur))
                           (multiple-value-setq
                               (curr-n-chord curr-last-chord)
@@ -244,7 +249,8 @@
                            (tree (list sub-dur (simplify-subtrees (cadr subtree))))
                            (group (make-instance 'group :tree tree
                                                  :symbolic-date curr-beat
-                                                 :symbolic-dur sub-dur)))
+                                                 :symbolic-dur sub-dur
+                                                 )))
                       
                       ;;; set the "numdenom" indicator
                       ;;; direct from OM6: probably possible to simplify
@@ -287,11 +293,13 @@
                             ((minusp subtree)  
                              (make-instance 'r-rest
                                             :symbolic-date curr-beat
-                                            :symbolic-dur sub-dur))
+                                            :symbolic-dur sub-dur
+                                            ))
                           
                             ;;; CONTINUATION CHORD
                             ((and (floatp subtree) ;;; keep current-chord in chord-list (important: same reference!)
                                   (>= curr-n-chord 0)) ;;; just to prevent error when a continuation chord has no previous chord
+                             
                              (let* ((real-chord (nth curr-n-chord chords))
                                     (cont-chord (make-instance 'continuation-chord)))
                                
@@ -584,12 +592,15 @@
 
 ;;; replace an element
 (defmethod replace-in-obj ((self rhythmic-object) (old score-element) (new score-element))
-  (let ((pos (position old (inside self))))
-    (if pos 
-        (setf (nth pos (inside self)) new)
-      (loop for sub in (inside self) do
-            (replace-in-obj sub old new))
-      )))
+  
+  (if (find old (inside self)) 
+      
+      (setf (inside self) 
+            (substitute new old (inside self)))
+    
+    (loop for sub in (inside self) do
+          (replace-in-obj sub old new))
+    ))
 
 
 ;;; replace a list by a single element (=grouping)
@@ -649,7 +660,9 @@
         
         c
       
-      (let ((new-c (make-instance 'continuation-chord :previous-chord (nth (1- pos) (chords self)))))
+      (let ((new-c (make-instance 'continuation-chord 
+                                  :previous-chord (nth (1- pos) (chords self))
+                                  )))
         
         (setf (symbolic-date new-c) (symbolic-date c) 
               (symbolic-dur new-c) (symbolic-dur c))

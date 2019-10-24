@@ -78,6 +78,11 @@
                       "Utils"
                       :doc "Unit conversion utilities etc."
                       :functions '(approx-m mc->f f->mc mc->n n->mc int->symb symb->int beats->ms)
+                      :subpackages nil)
+                     (omNG-make-package 
+                      "Import/Export"
+                      :doc "Import and export utilities"
+                      :functions '(import-musicxml import-midi save-as-midi)  ;; export-musicxml
                       :subpackages nil)))
 
 
