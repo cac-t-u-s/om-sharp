@@ -41,6 +41,9 @@
 (defmethod num-voices ((self multi-seq)) (length (obj-list self)))
 (defmethod get-obj-dur ((self multi-seq)) (apply 'max (cons 0 (mapcar 'get-obj-dur (obj-list self)))))
 
+(defmethod initialize-instance :after ((self multi-seq) &rest args)
+  (setf (obj-type self) (voice-type self)))
+
 (defmethod objfromobjs ((model multi-seq) (target multi-seq))
   (setf (obj-list target)
         (loop for obj in (obj-list model) collect

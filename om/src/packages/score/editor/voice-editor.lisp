@@ -133,6 +133,7 @@
 
 
 ;;; redo time-map at editing the object
+;;; the object must have been drawn
 (defmethod report-modifications ((self voice-editor))
   (call-next-method)
   (editor-set-edit-param self :time-map (build-time-map (object-value self)))
@@ -161,6 +162,7 @@
     ))
 
 (defmethod init-editor-window :after ((self voice-editor))
+  (editor-set-edit-param self :time-map (build-time-map (object-value self)))
   (editor-update-ruler self))
 
 (defmethod make-time-ruler ((editor voice-editor) dur)
