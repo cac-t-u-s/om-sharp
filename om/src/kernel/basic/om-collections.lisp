@@ -113,13 +113,9 @@
 
 ;;; CollectionBox has a little hack on cache-display, 
 ;;; allowing to store a different cache for each object
+;;; The multi-cache display is a list of list (object cache)
 
-;;; CAN BE REDEFINED FOR SPECIFIC OBJECTS:
-;;; type is an object used for specialization
-(defmethod get-collection-cache-display ((type t) list box) 
-  (loop for o in list collect (list o (get-cache-display-for-draw o box))))
-
-
+;;; collection boxes create "multi-cache" by calling get-collection-cache-display on internbal objects
 (defmethod get-cache-display-for-draw ((object collection) box) 
   (declare (ignore box))
   (unless (multi-cache-display box)
@@ -127,18 +123,29 @@
           (get-collection-cache-display (car (obj-list object)) (obj-list object) box)))
   nil)
 
+;;; CAN BE REDEFINED FOR SPECIFIC OBJECTS:
+;;; type is an object used for specialization
+(defmethod get-collection-cache-display ((type t) list box) 
+  (loop for o in list collect (list o (get-cache-display-for-draw o box))))
+
 (defmethod reset-cache-display ((self CollectionBox))
   (setf (multi-cache-display self) nil))
 
 (defmethod ensure-cache-display-draw ((box CollectionBox) object)
+  
   (if (typep object 'collection)
-      (call-next-method)
+
+      (call-next-method) ;;; will enevntually store some cache
+    
+    ;;; called on elements of the collection:
     (progn 
       (unless (cache-display box) (setf (cache-display box) (make-cache-display)))
       (unless (cache-display-draw (cache-display box))
         ;;; this is just an access in memory: no need to redo the cache
+        ;;; set the general cache to the item in the multi-cache
         (setf (cache-display-draw (cache-display box))
               (cadr (find object (multi-cache-display box) :key #'car))))
+      
       (cache-display-draw (cache-display box)))))
 
 
@@ -154,8 +161,6 @@
       )))
 
 
-
-;;; type is an object used for specialization
 (defmethod draw-mini-view ((self collection) (box t) x y w h &optional time)  
   (ensure-cache-display-draw box self)
   (collection-draw-mini-view 

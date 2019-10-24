@@ -45,7 +45,10 @@
      
 ;;; at creating the display-cache (e.g. when the object is reevaluated)
 (defmethod get-cache-display-for-draw  ((object voice) (box OMBoxEditCall))
-  (set-edit-param box :time-map (build-time-map object))
+  (when (equal object (get-box-value box))
+    ;;; ... don't do if the object of the box is for instance a poly 
+    ;;; otherwise the wrong time-map will be applied to the poly
+    (set-edit-param box :time-map (build-time-map object))) 
   (call-next-method)
   t)
 
@@ -62,6 +65,8 @@
 
 ;;; Main function to build time-map
 (defmethod build-time-map (object)
+  
+  ;; (print (list "build time-map for" object))
 
   (when (is-rhythmic object)
     
@@ -220,55 +225,57 @@
 ;;; returns the position ins score units of a give time
 (defmethod score-time-to-units (time-map time)
   
- (if time-map
+  (unless time-map (setf time-map '((0 0))))
+  
+  (if time-map
      
-     (if (listp time)
+      (if (listp time)
          
-         ;;; a convention when we're asking for the position of measure elements
-         (let* 
-             ((point-pos (or (position (car time) time-map :test #'= :key #'car)
-                             (progn
-                               (om-print-dbg "Error in score construction: measure doesn't start on a beat-time (t=~A)" (list (car time)))
-                               (or (position (car time) time-map :test #'<= :key #'car)
-                                   (1- (length time-map))))))
-              (point (nth point-pos time-map))
-              (prev-point (nth (max 0 (1- point-pos)) time-map)))
-           (/ (+ (cadr prev-point) (cadr point)) 2.0))
+          ;;; a convention when we're asking for the position of measure elements
+          (let* 
+              ((point-pos (or (position (car time) time-map :test #'= :key #'car)
+                              (progn
+                                (om-print-dbg "Error in score construction: measure doesn't start on a beat-time (t=~A)" (list (car time)))
+                                (or (position (car time) time-map :test #'<= :key #'car)
+                                    (1- (length time-map))))))
+               (point (nth point-pos time-map))
+               (prev-point (nth (max 0 (1- point-pos)) time-map)))
+            (/ (+ (cadr prev-point) (cadr point)) 2.0))
            
-     (let* 
-      ((prev-point-pos (or (position time time-map :test #'>= :key #'car :from-end t) 0))
-       (prev-point (nth prev-point-pos time-map))
-       (next-point (nth (1+ prev-point-pos) time-map)))
+        (let* 
+            ((prev-point-pos (or (position time time-map :test #'>= :key #'car :from-end t) 0))
+             (prev-point (nth prev-point-pos time-map))
+             (next-point (nth (1+ prev-point-pos) time-map)))
          
-       (cond 
+          (cond 
         
-        (;;; the point was in the list
-         (= time (car prev-point)) 
-         (cadr prev-point))
+           (;;; the point was in the list
+            (= time (car prev-point)) 
+            (cadr prev-point))
         
-        (;;; interpolate between prev and next
-         next-point 
-         (+ (cadr prev-point)
-            (* (- time (car prev-point)) 
-               (/ (- (cadr next-point) (cadr prev-point)) (- (car next-point) (car prev-point)))))
-         )
+           (;;; interpolate between prev and next
+            next-point 
+            (+ (cadr prev-point)
+               (* (- time (car prev-point)) 
+                  (/ (- (cadr next-point) (cadr prev-point)) (- (car next-point) (car prev-point)))))
+            )
         
-        ((= prev-point-pos 0)  ;; only 1 point
-         (cadr prev-point)
-         )
+           ((= prev-point-pos 0)  ;; only 1 point
+            (cadr prev-point)
+            )
         
-        (t ;;; we are after the last: extrapolate from last
-           (let ((prev-prev-point (nth (1- prev-point-pos) time-map)))
-             (+ (cadr prev-point)
-                (* (- time (car prev-point)) 
-                   (/ (- (cadr prev-point) (cadr prev-prev-point)) (- (car prev-point) (car prev-prev-point)))))
-             )))
-       ))
+           (t ;;; we are after the last: extrapolate from last
+              (let ((prev-prev-point (nth (1- prev-point-pos) time-map)))
+                (+ (cadr prev-point)
+                   (* (- time (car prev-point)) 
+                      (/ (- (cadr prev-point) (cadr prev-prev-point)) (- (car prev-point) (car prev-prev-point)))))
+                )))
+          ))
    
-   (progn 
-     (om-print "Error in score display: no time-map!")
-     0))
- )
+    (progn 
+      (om-print "Error in score display: no time-map!")
+      0))
+  )
 
 
 
