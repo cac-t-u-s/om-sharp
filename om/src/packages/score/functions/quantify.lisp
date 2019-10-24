@@ -138,7 +138,7 @@ at the beat level. Here is an example:
   (let ((rep (quant-edit (om/ durs 10) tempi measures 
                          (if (numberp max/) (list (list max/)) max/)
                          forbid (or offset 0) 1)))
-    (mktree (tree2ratio (reducetree rep)) measures)))
+    (korrected-kant (reducetree rep))))
 
 
 (defmethod* omquantify ((self chord-seq) (tempi t) (measures list) (max/ t)
@@ -182,11 +182,24 @@ at the beat level. Here is an example:
   (coerce (/ 24000 tempo unit) 'double-float))
 
 ; corrected by gas (2001)
+#|
 (defun make-a-measure (voice-ms tempo sign-denom)
   (declare (ignore tempo))
   (list (list (reduce '+ voice-ms :key #'(lambda (x) (if (numberp x) (round (abs x)) 1)))
               sign-denom)
      voice-ms))
+|#
+
+
+(defun make-a-measure (voice-ms tempo sign-denom measure-duration)
+  (declare (ignore tempo))
+  (list (read-from-string (format nil "~A//~A" measure-duration sign-denom))
+	(let* ((beatsum (reduce '+ voice-ms
+				:key #'(lambda (x) (if (numberp x) (round (abs x)) 1))))
+	       (diff (- (- measure-duration beatsum))))
+	  (if (< beatsum measure-duration)
+	      (append voice-ms (list diff))
+	      voice-ms))))
 
 
 (defun set-error (to from) (setf *accum-error* (- to from  *iota*)))
@@ -229,6 +242,7 @@ box."
          (deftempo (car (last tempos)))
          (atimes (dx->x 0.0 positive-durs)) (c-time 0)
          result slur-fl current-tempo current-unit
+	 current-measure-dur
          (max-list (and max/ (if (or (null (first max/)) (consp (first max/))) max/ (list max/))))
          (max-preci (and *distance-weight* (if (or (null (first *distance-weight*)) (consp (first *distance-weight*)))
                                              *distance-weight* (list *distance-weight*))))
@@ -247,9 +261,13 @@ box."
       (multiple-value-bind (beats times slur? current-time)
                            (get-rhythms atimes :tempo (setq current-tempo (or (pop tempos) deftempo))
                                         :sign (if (car measures)
-                                                (cons (first (car measures))
-                                                      (setq current-unit (second (pop measures))))
-                                                (progn (setq current-unit (cdr def-measure)) def-measure))
+
+						  ;; need current-measure-dur in call to make-a-measure below
+						  (let ((this-measure (pop measures)))
+						    (cons (setq current-measure-dur (first this-measure))
+							  (setq current-unit (second this-measure))))
+						  
+                                                  (progn (setq current-unit (cdr def-measure)) def-measure))
                                         :start-time c-time :forbid (or (nth (incf measure-number) forbids) def-forbid)
                                         :old-slur? slur-fl)
         
@@ -260,7 +278,12 @@ box."
                                (put-in-silences beats durs old-silence)
             (setq old-silence new-silence)
             (when beats-with-silences
-              (push (make-a-measure beats-with-silences current-tempo current-unit) result)       
+
+              ;; add current-measure-dur to ensure complete final measure
+		(push (make-a-measure beats-with-silences current-tempo current-unit current-measure-dur)
+		      result)       
+		;;(push (make-a-measure beats-with-silences current-tempo current-unit) result)       
+
               (setq durs (nthcdr modifs durs))))
           (setq atimes nil)))
       
