@@ -644,10 +644,13 @@
 (defmethod score-editor-set-window-config ((self score-editor) mode)
   (unless (equal (editor-window-config self) mode)
     (setf (editor-window-config self) mode)
-    (build-editor-window self)
-    (init-editor-window self)
-    (update-score-inspector self t)
-    ))
+    (let ((x1 (v1 (get-g-component self :x-ruler)))
+          (x2 (v2 (get-g-component self :x-ruler))))
+      (build-editor-window self)
+      (init-editor-window self)
+      (set-ruler-range (get-g-component self :x-ruler) x1 x2)
+      (update-score-inspector self t)
+      )))
 
 ;;;====================== 
 ;;; MENUS
