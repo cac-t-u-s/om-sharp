@@ -287,6 +287,7 @@
   
   (let* ((staff (get-edit-param box :staff))
          (scale (get-edit-param box :scale))
+         (offsets (get-edit-param box :offsets))
          (font-size (get-box-fontsize box))
          (in-sequencer? (typep (frame box) 'sequencer-track-view)))
         
@@ -305,6 +306,7 @@
                       w h
                       font-size :scale scale :staff staff
                       :time-function #'(lambda (time) (miniview-time-to-pixel (get-box-value box) box (frame box) time))
+                      :offsets offsets
                       )
           )))
 
