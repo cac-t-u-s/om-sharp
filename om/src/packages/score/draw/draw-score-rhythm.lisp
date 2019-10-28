@@ -463,7 +463,7 @@
          (vel (get-edit-param param-obj :velocity-display))
          (port (get-edit-param param-obj :port-display))
          (dur (get-edit-param param-obj :duration-display))
-         
+         (offsets (get-edit-param param-obj :offsets))
          ;; (parent-nd (nth 3 beam-info))
          ;; (parent-ratio (if parent-nd (/ (car parent-nd) (cadr parent-nd)) 1))
          (graphic-dur (* s-dur beat-unit))
@@ -499,6 +499,7 @@
                        :draw-vels vel
                        :draw-ports port
                        :draw-durs dur
+                       :offsets offsets
                        :selection (if (find object selection) T selection)
                        :time-function (or time-function #'(lambda (time) (time-to-pixel view time)))
                        :build-b-boxes create-bboxes

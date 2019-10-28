@@ -233,119 +233,164 @@
         (curr-beat (symbolic-date self))
         (s-dur (symbolic-dur self))
         (curr-n-chord n)
-        (curr-last-chord last-chord))
+        (curr-last-chord nil)
+        (grace-note-offset 100)
+        (current-grace-notes 0))
     
     ;(print (list "build" self (symbolic-dur self)))
 
     (setf (inside self) 
           
-          (loop for subtree in (cadr (tree self))
-                collect 
-
-                (if (listp subtree) 
-                    ;;; SUBGROUP
-                    (let* ((relative-dur (/ (car subtree) total-dur))
-                           (sub-dur (* s-dur relative-dur))
-                           (tree (list sub-dur (simplify-subtrees (cadr subtree))))
-                           (group (make-instance 'group :tree tree
-                                                 :symbolic-date curr-beat
-                                                 :symbolic-dur sub-dur
-                                                 )))
+          ;;; with grace notes (subtree = 0) we can collect a NIL
+          (remove 
+           nil
+           (loop for subtree in (cadr (tree self))
+                 collect 
+                 (if (listp subtree) 
+                     ;;; SUBGROUP
+                     (let* ((relative-dur (/ (car subtree) total-dur))
+                            (sub-dur (* s-dur relative-dur))
+                            (tree (list sub-dur (simplify-subtrees (cadr subtree))))
+                            (group (make-instance 'group :tree tree
+                                                  :symbolic-date curr-beat
+                                                  :symbolic-dur sub-dur
+                                                  )))
                       
-                      ;;; set the "numdenom" indicator
-                      ;;; direct from OM6: probably possible to simplify
-                      ;(print (list "group:" subtree "=>" (tree group) (symbolic-dur group)))
+                       ;;; set the "numdenom" indicator
+                       ;;; direct from OM6: probably possible to simplify
+                              ; (print (list "group:" subtree "=>" (tree group) (symbolic-dur group)))
 
-                      (let* ((group-ratio (get-group-ratio (tree group)))
-                             (group-s-dur (symbolic-dur group))
-                             (num (or group-ratio group-s-dur))
-                             (dur-for-denom (if (= group-s-dur s-dur)
-                                                group-s-dur
-                                              (/ group-s-dur s-dur)))
-                             (denom (find-denom num dur-for-denom)))
+                       (let* ((group-ratio (get-group-ratio (tree group)))
+                              (group-s-dur (symbolic-dur group))
+                              (num (or group-ratio group-s-dur))
+                              (dur-for-denom (if (= group-s-dur s-dur)
+                                                 group-s-dur
+                                               (/ group-s-dur s-dur)))
+                              (denom (find-denom num dur-for-denom)))
                         
-                        (when (listp denom) 
-                          (setq num (car denom))
-                          (setq denom (second denom)))
+                         (when (listp denom) 
+                           (setq num (car denom))
+                           (setq denom (second denom)))
                         
-                        (setf (numdenom group) (cond
-                                                ((not group-ratio) nil)
-                                                ((= (/ num denom) 1) nil)
-                                                (t (reduce-num-den num denom))))
-                        )
+                         (setf (numdenom group) (cond
+                                                 ((not group-ratio) nil)
+                                                 ((= (/ num denom) 1) nil)
+                                                 (t (reduce-num-den num denom))))
+                         )
                         
-                      (setq curr-beat (+ curr-beat sub-dur))
+                       (setq curr-beat (+ curr-beat sub-dur))
                       
-                      (multiple-value-setq
-                          (curr-n-chord curr-last-chord)
-                          (build-rhythm-structure group chords curr-n-chord :last-chord curr-last-chord))
+                       (multiple-value-setq
+                           (curr-n-chord curr-last-chord)
+                           (build-rhythm-structure group chords curr-n-chord :last-chord (or curr-last-chord last-chord)))
 
-                      group)
+                       group)
                   
-                  ;;; ATOM (leaf)
-                  (let ((sub-dur (* (symbolic-dur self) (/ (decode-extent subtree) total-dur))))
+                   ;;; ATOM (leaf)
+                   ;;; subtree is a NUMBER
+                   (let ((sub-dur (* (symbolic-dur self) (/ (decode-extent subtree) total-dur))))
                     
                     ; (print (list "CHORD" curr-n-chord subtree))
                     
-                    (let ((object
-                           (cond 
-                            ;;; REST
-                            ((minusp subtree)  
-                             (make-instance 'r-rest
-                                            :symbolic-date curr-beat
-                                            :symbolic-dur sub-dur
-                                            ))
+                     (let ((object
+                            (cond 
+                             ;;; REST
+                             ((minusp subtree)  
+                              (make-instance 'r-rest
+                                             :symbolic-date curr-beat
+                                             :symbolic-dur sub-dur
+                                             ))
                           
-                            ;;; CONTINUATION CHORD
-                            ((and (floatp subtree) ;;; keep current-chord in chord-list (important: same reference!)
-                                  (>= curr-n-chord 0)) ;;; just to prevent error when a continuation chord has no previous chord
+                             ;;; CONTINUATION CHORD
+                             ((and (floatp subtree) ;;; keep current-chord in chord-list (important: same reference!)
+                                   (>= curr-n-chord 0)) ;;; just to prevent error when a continuation chord has no previous chord
                              
-                             (let* ((real-chord (nth curr-n-chord chords))
-                                    (cont-chord (make-instance 'continuation-chord)))
+                              (let* ((real-chord (nth curr-n-chord chords))
+                                     (cont-chord (make-instance 'continuation-chord)))
                                
-                               (setf 
-                                ;;; extends the duration of the main chord
-                                (symbolic-dur-extent real-chord) (+ (symbolic-dur-extent real-chord) sub-dur) 
+                                (setf 
+                                 ;;; extends the duration of the main chord
+                                 (symbolic-dur-extent real-chord) (+ (symbolic-dur-extent real-chord) sub-dur) 
                                 
-                                (previous-chord cont-chord) curr-last-chord
-                                (symbolic-date cont-chord) curr-beat
-                                (symbolic-dur cont-chord) sub-dur)
+                                 (previous-chord cont-chord) (or curr-last-chord last-chord)
+                                 (symbolic-date cont-chord) curr-beat
+                                 (symbolic-dur cont-chord) sub-dur)
                                
-                               (setq curr-last-chord cont-chord)
-                               cont-chord))
+                                (setq curr-last-chord cont-chord)
+                                cont-chord))
+
+                             ;;; GRACE-NOTE 
+                             ((zerop subtree)
+                              ;;; grace note works only if hey are less than the number of notes in the chord +1 !
+                              
+                              (if curr-last-chord ;;; previous chord in this group 
+                                
+                                  ;;; post-grace notes: add them to this chord
+                                  (loop with first-n = nil 
+                                        for n in (reverse (notes curr-last-chord))
+                                        while (not first-n) 
+                                        do (if (plusp (offset n)) ;; there's alraedy an offset
+                                               (setf (offset n) (+ (offset n) grace-note-offset))
+                                             (progn 
+                                               (when (minusp (offset n))
+                                                 ;;; this was already a grace note !!
+                                                 (om-beep-msg "Warning: too many (post) grace notes for chord!"))
+                                               (setf (offset n) grace-note-offset)
+                                               (setf first-n t)))
+                                        finally (unless first-n
+                                                  (om-beep-msg "Warning: too many grace notes for chord!")))
+                                
+                                ;;; pre-grace notes: store them until we get the chord 
+                                (setf current-grace-notes (1+ current-grace-notes))
+                                )
+                                NIL ;;; don't collect a grace-note
+                                )
                      
-                            ;;; CHORD
-                            (t ;;; get the next in chord list
+                             ;;; CHORD
+                             (t ;;; get the next in chord list
                                
-                               (when (and (floatp subtree) (< curr-n-chord 0))
-                                 (om-print "Tied chord has no previous chord. Will be converted to a normal chord." "Warning"))
+                                (when (and (floatp subtree) (< curr-n-chord 0))
+                                  (om-print "Tied chord has no previous chord. Will be converted to a normal chord." "Warning"))
                                
-                               (setq curr-n-chord (1+ curr-n-chord))
+                                (setq curr-n-chord (1+ curr-n-chord))
                         
-                               (let ((real-chord (nth curr-n-chord chords)))
+                                (let ((real-chord (nth curr-n-chord chords)))
 
-                                 (unless real-chord ;;; chord-list exhausted: repeat the last one as needed to finish the tree
-                                   (setq real-chord (or (clone (car (last chords))) (make-instance 'chord :lmidic '(6000))))
-                                   (pushr real-chord chords))
+                                  (unless real-chord ;;; chord-list exhausted: repeat the last one as needed to finish the tree
+                                    (setq real-chord (or (clone (car (last chords))) (make-instance 'chord :lmidic '(6000))))
+                                    (setf (loffset real-chord) (list 0))
+                                    (pushr real-chord chords))
 
-                                 (setf (symbolic-date real-chord) curr-beat
-                                       (symbolic-dur real-chord) sub-dur
-                                       (symbolic-dur-extent real-chord) 0   ;;; could have been cloned from previous
-                                       )
+                                  (setf (symbolic-date real-chord) curr-beat
+                                        (symbolic-dur real-chord) sub-dur
+                                        (symbolic-dur-extent real-chord) 0   ;;; could have been cloned from previous
+                                        )
+
+                                  ;;; add the "pre" grace-notes
+                                  (when (plusp current-grace-notes) 
+                                    (when (>= current-grace-notes (length (notes real-chord)))
+                                      (om-beep-msg "Warning: too many (pre) grace notes for chord!"))
+                                    (loop for n in (notes real-chord) 
+                                          for i = current-grace-notes then (- i 1) while (> i 0) do
+                                          (setf (offset n) (- (* i grace-note-offset)))))
+                                  
                                  
-                                 (setq curr-last-chord real-chord)
-                                 real-chord))
-                            )))
+                                  (setq curr-last-chord real-chord)
+                                  real-chord))
+                             )))
                       
-                      ;;; udate curr-beat for the general loop
-                      (setq curr-beat (+ curr-beat sub-dur))
+                       ;;; udate curr-beat for the general loop
+                       (setq curr-beat (+ curr-beat sub-dur))
                       
-                      object)
-                    ))
-                ))
+                       object)
+                     ))
+                 ))
+          )
     
-    (values curr-n-chord curr-last-chord)))
+  (values curr-n-chord (or curr-last-chord last-chord))
+  ))
 
+(loop for i = 1 then (- i 1) while (> i 0) do (print i))
 
 ;;;===============================================
 ;;; UTILS FOR "NUMDENOM" COMPUTATION

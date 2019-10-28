@@ -207,9 +207,9 @@
     ))
 
 (defun tempo-note (fig)
-  (declare (ignore fig))
-  ;;; for now we support only this one..
-  (values (code-char #xE1D5) "noteQuarterUp"))
+  (case fig
+    (1/8 (values (code-char #xE1D7) "noteEighthUp")) ;; <= verify this
+    (otherwise (values (code-char #xE1D5) "noteQuarterUp"))))
 
 ; alternate:
 ; (values (code-char #xE1FC) "textAugmentationDot")
@@ -743,7 +743,10 @@
                                       (get-midi-channel-color unique-channel)))
 
                ;;; Global stuff here (not needed for the head loop)
-               (let* ((pitches (sort (mapcar 'midic notes) '<))
+               (let* ((chord-notes (if (and (equal offsets :sep-notes) (find 0 notes :key #'offset))
+                                       (remove-if-not #'zerop notes :key #'offset)
+                                     notes))
+                      (pitches (sort (mapcar 'midic chord-notes) '<))
                       (pmin (car pitches))
                       (pmax (car (last pitches)))
                       (l-min (pitch-to-line pmin scale))
@@ -977,7 +980,7 @@
                            
                                ;;; HEAD
                                (let ((note-head (if (and display-offset (equal offsets :sep-notes))
-                                                    (tempo-note 1/4)
+                                                    (tempo-note 1/8)
                                                   head-char)))
                                  
                                  (om-draw-char head-x line-y note-head :font note-font)
@@ -1005,7 +1008,7 @@
                                              accidental-columns (append accidental-columns (list (list (midic n))))))
                            
                                      (om-draw-char (if display-offset 
-                                                       (- head-x acc-w) 
+                                                       (- head-x (* acc-w (if (equal offsets :sep-notes) .7 1))) 
                                                      (- x-pix (* (1+ col) acc-w)))
                                                    line-y 
                                                    (accident-char acc)

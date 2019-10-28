@@ -185,13 +185,15 @@
 (defmethod object-space-in-units ((self t)) '(0 0 0))
 
 (defmethod object-space-in-units ((self chord)) 
-  (list
-   ;;; space in units before:
-   (+ 2 (* .5 (length (notes self)))
-      (* .8 (count-if #'(lambda (n) (pitch-to-acc (midic n))) (notes self))))
-   ;;; space in units after:
-   (+ (* .5 (length (notes self))) 
-      (* 10 (symbolic-dur self)))))
+  (let ((notes (notes self)))
+    (list
+     ;;; space in units before:
+     (+ 2 (* .5 (length (notes self)))
+        ;;; number of notes with accident
+        (* .8 (count-if #'(lambda (n) (pitch-to-acc (midic n))) notes)))
+     ;;; space in units after:
+     (+ (* .5 (length notes)) 
+        (* 10 (symbolic-dur self))))))
 
 (defmethod object-space-in-units ((self continuation-chord)) 
   (object-space-in-units (previous-chord self)))
@@ -200,10 +202,11 @@
   (list 2 (+ 1 (* 10 (symbolic-dur self)))))
 
 (defmethod build-object-time-space ((self chord) tempo)
-  (let ((space (object-space-in-units self)))
-    (list (make-space-point :onset  (beat-to-time (symbolic-date self) tempo)
-                            :before (first space) :after (second space)
-                            :extra (or (third space) 0)))
+  (let ((space (object-space-in-units self))
+        (time (beat-to-time (symbolic-date self) tempo)))
+    (list (make-space-point :onset time
+                              :before (first space) :after (second space)
+                              :extra (or (third space) 0)))
     ))
 
 (defmethod build-object-time-space ((self continuation-chord) tempo)
