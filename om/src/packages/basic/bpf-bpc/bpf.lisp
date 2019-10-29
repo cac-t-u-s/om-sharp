@@ -531,9 +531,12 @@
     (multiple-value-bind (fy oy) 
         ;;; Y ranges are reversed !! 
         (conversion-factor-and-offset (cadddr ranges) (caddr ranges) h y)
-  
+      
       (when points 
-          
+        
+        (flet ((px (p) (if (om-point-p p) (om-point-x p) (car p)))
+               (py (p) (if (om-point-p p) (om-point-y p) (cadr p))))
+               
           (cond 
            
            ((equal style :points-only)
@@ -541,8 +544,8 @@
             (om-with-fg-color (om-def-color :dark-gray)
         
               (loop for pt in points do
-                    (om-draw-circle (+ ox (* fx (car pt)))
-                                    (+ oy (* fy (cadr pt)))
+                    (om-draw-circle (+ ox (* fx (px pt)))
+                                    (+ oy (* fy (py pt)))
                                     3 :fill t))
               ))
                  
@@ -555,10 +558,10 @@
                                (let ((p1 (car pts))
                                      (p2 (cadr pts)))
                                  (om+ 0.5
-                                      (list (+ ox (* fx (car p1)))
-                                            (+ oy (* fy (cadr p1)))
-                                            (+ ox (* fx (car p2)))
-                                            (+ oy (* fy (cadr p2)))))
+                                      (list (+ ox (* fx (px p1)))
+                                            (+ oy (* fy (py p1)))
+                                            (+ ox (* fx (px p2)))
+                                            (+ oy (* fy (py p2)))))
                                  ))))
               (om-with-fg-color (or color (om-def-color :dark-gray))
                 (om-draw-lines lines))
@@ -570,23 +573,23 @@
             (om-with-fg-color (om-def-color :gray)
   
               ; first point
-              (om-draw-circle (+ ox (* fx (car (car points))))
-                              (+ oy (* fy (cadr (car points))))
+              (om-draw-circle (+ ox (* fx (px (car points))))
+                              (+ oy (* fy (py (car points))))
                               3 :fill t)
               (let ((lines (loop for pts on points
                                  while (cadr pts)
                                  append
                                  (let ((p1 (car pts))
                                        (p2 (cadr pts)))
-                                   (om-draw-circle (+ ox (* fx (car p2)))
-                                                   (+ oy (* fy (cadr p2)))
+                                   (om-draw-circle (+ ox (* fx (px p2)))
+                                                   (+ oy (* fy (py p2)))
                                                    3 :fill t)
                                    ;;; collect for lines 
                                    (om+ 0.5
-                                        (list (+ ox (* fx (car p1)))
-                                              (+ oy (* fy (cadr p1)))
-                                              (+ ox (* fx (car p2)))
-                                              (+ oy (* fy (cadr p2)))))
+                                        (list (+ ox (* fx (px p1)))
+                                              (+ oy (* fy (py p1)))
+                                              (+ ox (* fx (px p2)))
+                                              (+ oy (* fy (py p2)))))
                                    ))))
                 (om-with-fg-color (or color (om-def-color :dark-gray))
                   (om-draw-lines lines))
@@ -598,11 +601,11 @@
             (loop for i from 0 to (1- (length points))
                   do 
                   (let* ((p (nth i points))
-                         (x (+ ox (* fx (car p))))
+                         (x (+ ox (* fx (px p))))
                          (prev-p (if (plusp i) (nth (1- i) points)))
                          (next-p (nth (1+ i) points))
-                         (prev-px (if prev-p (+ ox (* fx (car prev-p)))))
-                         (next-px (if next-p (+ ox (* fx (car next-p)))))
+                         (prev-px (if prev-p (+ ox (* fx (px prev-p)))))
+                         (next-px (if next-p (+ ox (* fx (px next-p)))))
                          
                          (x1 (if prev-px 
                                  (/ (+ x prev-px) 2)
@@ -616,12 +619,12 @@
                                    (+ x (- x prev-px))
                                  (+ x 1)))))
                          
-                    (om-draw-rect x1 oy (- x2 x1) (* fy (cadr p))
+                    (om-draw-rect x1 oy (- x2 x1) (* fy (py p))
                                   :fill nil)
-                    (om-draw-rect x1 oy (- x2 x1) (* fy (cadr p)) 
+                    (om-draw-rect x1 oy (- x2 x1) (* fy (py p)) 
                                   :fill t :color (om-def-color :gray))
                     
-                    (om-draw-string (- x 4) (- oy 4) (format nil "~D" (cadr p)) 
+                    (om-draw-string (- x 4) (- oy 4) (format nil "~D" (py p)) 
                                     :font (om-def-font :font1 :size 9)
                                     :color (om-def-color :white))
                     ))
@@ -629,7 +632,7 @@
             )
           
            ))
-        
+        )
         )))
 
 
@@ -637,26 +640,35 @@
 ;;; FOR DRAW ON COLLECTION BOXES
 ;;;=============================
 
-(defmethod get-collection-cache-display ((type BPF) list box)
-  (declare (ignore box))
-  (if (list-subtypep list 'BPF) ;;; works only is all objects are BPFs
-      (list (nice-bpf-range list))
-    (call-next-method)))
-
 (defmethod collection-draw-mini-view ((type BPF) list box x y w h time)
+  
    (if (list-subtypep list 'BPF) ;;; works only is all objects are BPFs
-      
-       (let* ((display-cache (get-collection-cache-display (car list) list box))
-              (ranges (car display-cache)))
-
-         (loop for o in list do 
-               (draw-bpf-points-in-rect
-                (point-pairs o)
-                (color o) 
-                ranges
-                x (+ y 10) w (- h 20)
-                :lines-only)
-               )
+       
+       ;;; with BPFs we wan to gather info (ranges) from all different caches of teh collection-box multi-cache list 
+       (multiple-value-bind (ranges bpf-points-list)
+           (loop with temp-cache = nil
+                 for o in list 
+                 do (setf (cache-display box) nil)
+                 do (setf temp-cache (ensure-cache-display-draw box o))
+                 collect (cadr temp-cache) into bpf-points-list
+                 minimize (first (car temp-cache)) into x1
+                 maximize (second (car temp-cache)) into x2
+                 minimize (third (car temp-cache)) into y1
+                 maximize (fourth (car temp-cache)) into y2
+                 finally (return (values (list x1 x2 y1 y2) bpf-points-list)))
+         
+         (let* ((n-bpfs (length list))
+                (max-n 40) ;;; LIMIT TO .... ?
+                (step (max 1 (floor n-bpfs max-n))))
+           (loop for i from 0 to (1- n-bpfs) by step
+                 do (draw-bpf-points-in-rect
+                     (nth i bpf-points-list)
+                     (color (nth i list))
+                     ranges
+                     x (+ y 10) w (- h 20)
+                     :lines-only)
+                 ))
+         
          (om-with-font (om-def-font :font1 :size 8)
                        (om-draw-string (+ x 10) (+ y (- h 4)) (number-to-string (nth 0 ranges)))
                        (om-draw-string (+ x (- w (om-string-size (number-to-string (nth 1 ranges)) (om-def-font :font1 :size 8)) 4))
@@ -664,7 +676,8 @@
                                        (number-to-string (nth 1 ranges)))
                        (om-draw-string x (+ y (- h 14)) (number-to-string (nth 2 ranges)))
                        (om-draw-string x (+ y 10) (number-to-string (nth 3 ranges)))
-                       ))
+                       )
+         )
      
        (call-next-method))
    )
