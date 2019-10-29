@@ -129,13 +129,14 @@
   (loop for o in list collect (list o (get-cache-display-for-draw o box))))
 
 (defmethod reset-cache-display ((self CollectionBox))
-  (setf (multi-cache-display self) nil))
+  (setf (multi-cache-display self) nil)
+  (call-next-method)) 
 
 (defmethod ensure-cache-display-draw ((box CollectionBox) object)
   
   (if (typep object 'collection)
 
-      (call-next-method) ;;; will enevntually store some cache
+      (call-next-method) ;;; will eventually store some cache
     
     ;;; called on elements of the collection:
     (progn 
