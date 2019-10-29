@@ -130,6 +130,13 @@
         ((floatp subtree) (round (abs subtree)))
         ((or (lw::ratiop subtree)(integerp subtree))  (abs subtree)) ))
 
+(defun symbol->ratio (symbol)
+  "expects symbols like |4//4| and returns a list (4 4)"
+  (let ((string (copy-seq (symbol-name symbol))))
+    (loop for i from 0 to (1- (length string))
+       when (char= (elt string i) #\/) do (setf (elt string i) '#\Space))
+    (read-from-string (format nil "(~A)" string))))
+
 (defun resolve-? (list)
   (cond 
    ((numberp list) list)
@@ -142,6 +149,10 @@
       (list (reduce #'(lambda (x y) (+  (abs x) (subtree-extent y))) 
                     solved :initial-value 0)
             solved)))
+   ((symbolp (first list))				    ; ie: |4//4|
+    (if (listp (second list)) 
+        (list (symbol->ratio (first list)) (mapcar #'resolve-? (second list)))
+	(error (format nil "Invalid Rhythm Tree : ~A" list))))
    ))
 
 
