@@ -254,7 +254,14 @@ box."
          *global-grace-notes* old-silence (*max-division* max/))
     (reset-error)
     
-    (do ()  ((null (cdr atimes)))      ; dx->x above adds an extra item at the end...
+    (do ()
+
+	;;make new measures while:
+	;;((or (null atimes) (>= c-time total-dur)))
+	((or (null atimes) (>= c-time (last-elem atimes))))
+      
+	;;((null (cdr atimes)))				    ;dx->x above adds extra item
+
       (setf *max-division* (or (nth (+ 1 measure-number) max-list) def-max))
       (setf *distance-weight* (or (nth (+ 1 measure-number) max-preci) def-preci))
 
