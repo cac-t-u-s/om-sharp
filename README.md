@@ -12,8 +12,7 @@ Visual programs are created by assembling and connecting icons representing Lisp
 
 ### Download
 
-Download om7-beta for macOS, Windows and Linux here:     
-
+Download for macOS, Windows, and Linux here:     
 
 [https://github.com/openmusic-project/om7/releases/latest](https://github.com/openmusic-project/om7/releases/latest)
 
@@ -24,7 +23,7 @@ Download om7-beta for macOS, Windows and Linux here:
 
 om7-beta includes a brand-new generation of tools and features in your favorite computer-assisted composition environment:
 
-- New **[patching interfaces and environment](pages/ptch)** with easier box inspection / display control / automatic alignment / connections / etc.
+- New **[patching interfaces and environment](pages/patch)** with easier box inspection / display control / automatic alignment / connections / etc.
 - **No workspace** to set-up: open your documents and simply organize them in your usual file-system. 
 - Interactive visualization of **Lisp code** corresponding to visual programs.
 - A native implementation of the **[reactive mode](pages/reactive)** for visual program execution.
@@ -55,7 +54,7 @@ Do not hestitate to report any problems in porting or converting libraries or pa
 
 ### Documentation
 
-om7-beta [documentation](./docs/pages/index.md) is still at its very early stages. The [OM6 User Documentation](http://support.ircam.fr/docs/om/om6-manual/) can be useful to find out about the basics of OM visual programming workflow.    
+User [documentation](./docs/pages/index.md) is in progress. In the meantime, the [OM6 User Documentation](http://support.ircam.fr/docs/om/om6-manual/) can be useful to find out about the basics of OM visual programming workflow.    
 
 --- See also this <a href="https://hal.archives-ouvertes.fr/hal-01567619" target="_blank">ICMC'17 paper</a> for a quick overview.
 
@@ -162,7 +161,7 @@ See related papers below:
 ------
 ### Highlights / contributors / timeline of the project
 
-The om7 project was initiated by @j-bresson in 2013. Most of the code was rewritten, but a significant part of it is largely inspired or borrowed from the OM [original sources](https://github.com/openmusic-project/OM6/) and features, including the direct or indirect contributions of its authors and contributors (@CarlosAgon, @assayag, and others).
+This project was initiated by @j-bresson in 2013. Most of the code was rewritten, but a significant part of it is largely inspired or borrowed from the OM [original sources](https://github.com/openmusic-project/OM6/) and features, including the direct or indirect contributions of its authors and contributors (@CarlosAgon, @assayag, and others).
 
 The initial objective of the project was to redesign the environment and experiment new visual Lisp programming features.
 Important developments have been carried out during the [EFFICACe](http://repmus.ircam.fr/efficace/) research project conducted at IRCAM (2013-2017), which aimed at exploring relationships between calculation, time and interactions in computer-assisted music composition processes, focusing on specific topics such as dynamic temporal structures or the control, visualization and interactive execution of sound synthesis and spatialization processes. 
@@ -171,7 +170,7 @@ A new generation of tools and editors for the representation and manipulation of
 
 The [reactive model](https://hal.archives-ouvertes.fr/hal-00959312) recently introduced in OpenMusic has been integrated as a native feature and works seamlessly in the visual programming environment.
 @jeremie-gracia created a framework for timeline-based control of musical object, and new tools for the representation adn interaction with spatial audio scenes (om-spat).
-@dimitribouche developed a dynamic scheduling architecture that was implemented and integrated as the main core for musical rendering and computation in OM7, as well as new interfaces for temporal representation and organization of compositional processes (a new design of the OpenMusic _maquette_).
+@dimitribouche developed a dynamic scheduling architecture that was implemented and integrated as the main core for musical rendering and computation, as well as new interfaces for temporal representation and organization of compositional processes (a new design of the OpenMusic _maquette_).
 
 om7-beta is now compatible with the main OM6 features, libraries and objects, and embeds an automatic translation system for loading/converting OM6 patches.    
 
