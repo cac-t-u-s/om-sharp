@@ -36,7 +36,7 @@
 ;;; !! negative offsets shift the chord
 (defmethod get-action-list-for-play ((c chord) interval &optional parent)
 
-  (let ((chan-shift (and (get-pref-value :midi :auto-bend)
+  (let ((chan-shift (and (get-pref-value :score :auto-bend)
                          (micro-channel-on (pitch-approx c)))))
     
     (let ((negative-offset (max 0 (- (loop for n in (notes c) minimize (offset n))))))
@@ -76,7 +76,7 @@
  
 (defmethod get-action-list-for-play ((n note) interval &optional parent)
   (let ((channel (+ (or (chan n) 1)
-                    (if (and (get-pref-value :midi :auto-bend)
+                    (if (and (get-pref-value :score :auto-bend)
                              (micro-channel-on (pitch-approx n)))
                         (micro-channel (midic n) (pitch-approx n))
                       0))))
@@ -107,7 +107,7 @@
 
 
 (defmethod get-action-list-for-play ((object chord-seq) interval &optional parent)
-  (let ((chan-shift (and (get-pref-value :midi :auto-bend)
+  (let ((chan-shift (and (get-pref-value :score :auto-bend)
                          (micro-channel-on (pitch-approx object)))))
 
     (sort 
@@ -248,7 +248,7 @@
 
   (let ((approx (/ 200 (step-from-scale (editor-get-edit-param caller :scale)))))
    (setf (pitch-approx object) approx)
-   (when (and (get-pref-value :midi :auto-bend)
+   (when (and (get-pref-value :score :auto-bend)
               (micro-channel-on approx))
      (loop for p in (collec-ports-from-object object) do (micro-bend p))))
   
@@ -261,7 +261,7 @@
   
   (let ((approx (/ 200 (step-from-scale (get-edit-param caller :scale)))))
     (setf (pitch-approx object) approx)
-    (when (and (get-pref-value :midi :auto-bend)
+    (when (and (get-pref-value :score :auto-bend)
                (micro-channel-on approx))
       (loop for p in (collec-ports-from-object object) do (micro-bend p))
       ))
@@ -282,7 +282,7 @@
              
             (setf (pitch-approx object) approx)
             
-            (when (and (get-pref-value :midi :auto-bend) (micro-channel-on approx))
+            (when (and (get-pref-value :score :auto-bend) (micro-channel-on approx))
                (setf micro-play-ports
                      (append micro-play-ports (collec-ports-from-object object))))))
     
