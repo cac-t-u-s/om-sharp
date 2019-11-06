@@ -38,9 +38,8 @@
   (setf (ctrlpatch self) patch)
   (setf (references-to (ctrlpatch self)) (list self)))
 
-
+;;; not used... (?)
 (defmethod maquette-reference ((self t)) nil)
-
 (defmethod maquette-reference ((self OMMaqControlPatch))
   (car (references-to self))) ;;; in principle this is the only one !
 
@@ -80,14 +79,6 @@ Additional inputs/outputs are accesses on the maquette box.
       ))
   self)
 
-
-
-
-;;; FOR THE META INPUTS
-;;; the references-to a control patch is just the maquette
-(defmethod maquette-container ((self OMMaqControlPatch)) (car (references-to self)))
-;;; if there are several references (maquetteFile) we assume that the first in the list is the current caller
-(defmethod box-container ((self OMMaqControlPatch))  (car (references-to (car (references-to self)))))
 
 
 ;;; called when some change is made in the maquette or in the control-patch
@@ -132,11 +123,17 @@ Additional inputs/outputs are accesses on the maquette box.
 
 (defmethod unregister-patch-io ((self OMPatch) (elem OMMaqIn)) nil)
 
+
+;;; FOR THE META INPUTS
+;;; if there are several references (maquetteFile) we assume that the first in the list is the current caller
+(defmethod box-container ((self OMMaqControlPatch))  (car (references-to (car (references-to self)))))
+
 ;;; check the container: can be a patch, a controlpatch or a maquette
 (defmethod maquette-container ((self OMBox)) (maquette-container (container self)))
+;;; the references-to a control patch is just the maquette
+(defmethod maquette-container ((self OMMaqControlPatch)) (car (references-to self)))
 (defmethod maquette-container ((self OMMaquette)) self)
-;;; by convention the first of the references-to is the one that is being evaluated
-(defmethod maquette-container ((self OMPatch)) (maquette-reference self))
+(defmethod maquette-container ((self OMPatch)) (maquette-container (car (box-references-to self))))
 
 
 ;;; BOX VALUE
