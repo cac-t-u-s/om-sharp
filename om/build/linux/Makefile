@@ -98,3 +98,7 @@ tardist:
 	   --exclude=om7/om/resources/lib/mac \
 	   --exclude=om7/om/resources/lib/win* \
 	   om7
+
+preparerpm:
+	cd $(dir $(BUILDROOT))../ && \
+	mv om7.tar.bz2 ~/rpmbuild/SOURCES
