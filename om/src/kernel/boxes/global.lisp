@@ -15,7 +15,7 @@
 ; File author: J. Bresson
 ;============================================================================
 
-;;; A simplified version of teh "global variable" system
+;;; A simplified version of the "global variable" system
 ;;; Global variables are identified by a unique symbol/name (just like in Lisp!) 
 
 (in-package :om)
@@ -33,7 +33,7 @@
 
 (defmethod omNG-make-special-box ((reference (eql 'global)) pos &optional init-args)
   (let* ((name (car (list! init-args)))
-         (var (make-instance 'OMGlobalVar :name (if name (string name)))))
+         (var (make-instance 'OMGlobalVar :name (if name (string name) (string (gensym "VAR"))))))
     (omNG-make-new-boxcall var pos)))
 
 
@@ -74,7 +74,7 @@
     (let ((sym (intern (string-upcase (name self)))))
       (unless (boundp sym)
         (om-print-format "Defining global variable: ~A" (list sym))
-        (eval `(defvar ,sym (car (value self))))
+        (eval `(defvar ,sym ,(car (value self))))
         ))))
 
 (defmethod set-name :after ((self OMGlobalBox) new-name)
