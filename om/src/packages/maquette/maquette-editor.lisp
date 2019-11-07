@@ -808,6 +808,15 @@
       (update-inspector-for-editor (editor (selected-view self)) obj)
     (call-next-method)))
 
+(defmethod default-editor-help-text ((self maquette-editor)) 
+  "
+This is a maquette editor window.
+
+Switch between the 'tracks' and the classic 'maquette' view with the icons of the toolbar at the top.   
+Open the 'control patch' with the other icon of the toolbar. 
+CMD-click to add boxes. Play contents, etc.
+")
+
 ;;;========================
 ;;; CONTROL PATCH
 ;;;========================
@@ -1045,6 +1054,11 @@
                                                       (declare (ignore b))
                                                       (patch-editor-set-window-config editor nil))
                                           )
+                                         
+                                         (om-make-di 'om-simple-text :size (omp 230 18)
+                                                   :font (om-def-font :font2b) :text "info and properties"
+                                                   :fg-color (om-def-color :dark-gray))
+                                         :separator
                                          inspector-pane))))
                 ))
     ))

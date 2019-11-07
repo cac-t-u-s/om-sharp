@@ -1552,13 +1552,14 @@
 (defmethod get-update-frame ((self t)) nil)
 
 
-(defparameter *patch-inspector-help-text* "
+(defmethod default-editor-help-text ((self patch-editor)) 
+  "
 This is a patch editor window.
   
 Double-click or type 'N' to enter a new box by its name. Use the down-arrow key to pop-up auto-completed names after typing the first characters.
 
 The function and class reference accessible from the \"Help\" menu, or the \"Class/Function Library\" tab in the Session Winows (CMD/Ctrl+SHIFT+W) can provide you a list of available predefined functions.
-") 
+")
 
 
 (defmethod set-inspector-contents ((self inspector-view) object)
@@ -1583,7 +1584,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                             ;:fg-color (om-def-color :dark-gray)
                               :text (object-name-in-inspector object)
                               :focus t  ;; prevents focus on other items :)
-                              :font (om-def-font :font3))
+                              :font (om-def-font :font2b))
                   
                   (when t ;object 
                     (list 
@@ -1661,7 +1662,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                            :font (om-def-font :font3))
              
                :separator
-               (let* ((doc *patch-inspector-help-text*)
+               (let* ((doc (default-editor-help-text (editor self)))
                       (font (om-def-font :font1))
                       (line-h (cadr (multiple-value-list (om-string-size "abc" font))))
                       (n-lines (length (om-string-wrap doc def-w font))))
