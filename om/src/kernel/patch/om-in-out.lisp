@@ -289,7 +289,7 @@
   (set-value self (list (box-container self)))
   (return-value self numout))
 
-(defmethod gen-code ((self OMSelfInBox) &optional numout)
+(defmethod gen-code ((self OMSelfInBox) &optional (numout 0))
   (set-value self (list (box-container self)))
   (nth numout (value self)))
 

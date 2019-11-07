@@ -141,7 +141,7 @@ Additional inputs/outputs are accesses on the maquette box.
   (set-value self (list (maquette-container self)))
   (return-value self numout))
 
-(defmethod gen-code ((self OMMaqInBox) &optional numout)
+(defmethod gen-code ((self OMMaqInBox) &optional (numout 0))
   (set-value self (list (maquette-container self)))
   (nth numout (value self)))
 
