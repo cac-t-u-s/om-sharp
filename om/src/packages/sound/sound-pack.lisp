@@ -34,7 +34,7 @@
                                   sound-fade sound-loop sound-reverse sound-cut
                                   sound-mix sound-seq
                                   sound-normalize sound-vol 
-                                  sound-mono-to-stereo sound-stereo-to-mono sound-stereo-pan
+                                  sound-mono-to-stereo sound-to-mono sound-stereo-pan
                                   sound-merge sound-split sound-resample 
                                   ))
                     (omNG-make-package 

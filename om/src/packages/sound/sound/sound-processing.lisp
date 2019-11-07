@@ -31,7 +31,7 @@
 ;   - sound-vol
 ;   - sound-normalize
 ;   - sound-mono-to-stereo
-;   - sound-stereo-to-mono
+;   - sound-to-mono
 ;   - sound-stereo-pan
 ;   - sound-resample
 ;   - sound-seq
@@ -437,35 +437,39 @@
          (om-beep-msg (format nil "Error : trying to stereo-ize a sound with ~A channels. Needs 1. Output is the original input." (n-channels s)))
          s)))
 
-;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-STEREO-TO-MONO///
-(defmethod* sound-stereo-to-mono ((s om-internal-sound))
-  :icon 'sound-stereo-to-mono
+
+
+;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-TO-MONO///
+(defmethod* sound-to-mono ((s om-internal-sound))
+  :icon 'sound-to-mono
   :initvals '(nil)
   :indoc '("a sound")
-  "Mono-ize a stereo sound."
-  (cond ((null (oa::om-pointer-ptr (buffer s)))
-         (om-beep-msg "Error: null sound buffer"))
-        ((= (n-channels s) 2)
-         (let* ((ptr (oa::om-pointer-ptr (buffer s)))
-                (type (smpl-type s))
-                (final-buffer (make-audio-buffer (n-channels s) (n-samples s) type))    
-                (x 0.0))
+  "Mono-ize a sound."
+  
+  (if (null (oa::om-pointer-ptr (buffer s)))
+      (om-beep-msg "Error: null sound buffer")
+    
+    (let* ((ptr (oa::om-pointer-ptr (buffer s)))
+           (type (smpl-type s))
+           (final-buffer (make-audio-buffer 1 (n-samples s) type)) 
+           (nch (n-channels s)))
+      
+      (dotimes (i (n-samples s))
+        
+        (setf (fli:dereference (fli:dereference final-buffer :index 0 :type :pointer) :index i :type type) 
 
-           (dotimes (i (n-samples s))
-             (setf x (/ (+ (fli:dereference (fli:dereference ptr :index 0 :type :pointer) :index i :type type)
-                           (fli:dereference (fli:dereference ptr :index 1 :type :pointer) :index i :type type)) 
-                        2.0))
-             (setf (fli:dereference (fli:dereference final-buffer :index 0 :type :pointer) :index i :type type) x))
+              (/ (loop for c from 0 to (1- nch) 
+                       sum (fli:dereference (fli:dereference ptr :index c :type :pointer) :index i :type type))
+                 (float nch))
+              ))
 
-           (make-instance 'sound 
-                          :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch (n-channels s))
-                          :n-samples (n-samples s)
-                          :n-channels 1
-                          :sample-rate (sample-rate s)
-                          :smpl-type type)))
-        (t
-         (om-beep-msg (format nil "Error : trying to mono-ize a sound with ~A channels. Needs 2. Output is the original input." (n-channels s)))
-         s)))
+      (make-instance 'sound 
+                     :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch 1)
+                     :n-samples (n-samples s)
+                     :n-channels 1
+                     :sample-rate (sample-rate s)
+                     :smpl-type type))
+    ))
 
 
 ;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-PAN//////////////
