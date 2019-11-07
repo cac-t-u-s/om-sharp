@@ -345,8 +345,10 @@
             (when (selected tb)
               (om-with-fg-color (om-make-color-alpha (om-def-color :black) 0.5)
                 (om-draw-rect x1 0 (- x2 x1) (h self) :fill t)))
-          (if (and (<= x1 xmax) (> x2 x))
-              (draw-temporal-box tb self x1 0 (- x2 x1) (h self) (- (pix-to-x self x) (get-box-onset tb))))))   
+
+            (unless (frame tb) (setf (frame tb) self))
+            (if (and (<= x1 xmax) (> x2 x))
+                (draw-temporal-box tb self x1 0 (- x2 x1) (h self) (- (pix-to-x self x) (get-box-onset tb))))))   
     ))
 
 
@@ -966,7 +968,7 @@ CMD-click to add boxes. Play contents, etc.
                            :action #'(lambda (b) 
                                        (declare (ignore b))
                                        (when (and (boxes (get-obj-to-play editor)) 
-                                                  (om-y-or-n-dialog "Do you really want to remove all boxes in the maquette?"))
+                                                  (om-y-or-n-dialog "This will remove all boxes in the maquette."))
                                          (m-flush (get-obj-to-play editor))
                                          (om-invalidate-view tracks-or-maq-view)
                                          ))))

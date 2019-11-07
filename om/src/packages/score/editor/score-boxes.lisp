@@ -98,8 +98,8 @@
 (defmethod miniview-time-to-pixel ((object score-element) box (view sequencer-track-view) time)
   (let ((tt (if (listp time) (car time) time))) ;;; can happen that time is a list (see draw-measure)
     (- (time-to-pixel view (+ (box-x box) tt)) 
-       (time-to-pixel view (box-x box))
-       )))
+       (time-to-pixel view (box-x box)))
+    ))
 
 (defun score-mini-view-left-shift-in-units (box)
   (if (equal (get-edit-param box :staff) :empty)
@@ -308,7 +308,8 @@
                       :time-function #'(lambda (time) (miniview-time-to-pixel (get-box-value box) box (frame box) time))
                       :offsets offsets
                       )
-          )))
+          )
+    ))
 
 
 ;;;===========================
