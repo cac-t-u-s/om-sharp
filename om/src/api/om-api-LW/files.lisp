@@ -143,10 +143,11 @@
     (declare (ignore file))))
 
 (defun om-create-directory (pathname &key (replace-if-exists nil))
-  (when (and (probe-file pathname) replace-if-exists)
-    (om-delete-directory pathname))
-  (lw::ENSURE-DIRECTORIES-EXIST pathname)
-  pathname)
+  (let ((p (pathname pathname)))
+    (when (and (probe-file p) replace-if-exists)
+      (om-delete-directory p))
+    (lw::ENSURE-DIRECTORIES-EXIST p)
+    p))
 
 (defun om-copy-file (sourcepath targetpath &key (replace-if-exists t))
   (handler-bind 
@@ -169,7 +170,7 @@
 
 (defun om-delete-directory (path)
   (if (system::directory-pathname-p path)
-      (let ((directories (om-directory  path :directories t :files t)))     
+      (let ((directories (om-directory path :directories t :files t)))     
         (loop for item in directories do
               (om-delete-directory item))
         (delete-directory path :no-error)
