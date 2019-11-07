@@ -250,7 +250,7 @@
 ;;;================================
 
 (defmethod objfromobjs ((model score-element) (target midi-track)) 
-  (set-chords target (midievents-to-midinotes (get-midievents model)))
+  (data-stream-set-frames target (midievents-to-midinotes (get-midievents model)))
   target)
  
 
