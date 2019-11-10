@@ -108,6 +108,7 @@ _– Unzip the libraries in a folder and specify this folder in the om7 Preferen
   <li> <a href="https://github.com/openmusic-project/Alea" target="_blank">Alea</a></li>
   <li> <a href="https://github.com/openmusic-project/Esquisse" target="_blank">Esquisse</a></li>
   <li> <a href="https://github.com/openmusic-project/Profile" target="_blank">Profile</a></li>
+  <li> <a href="https://github.com/openmusic-project/LZ" target="_blank">LZ</a></li>
   <li> <a href="https://github.com/openmusic-project/Filters" target="_blank">Filters</a></li>
   <li> <a href="https://github.com/openmusic-project/Combine" target="_blank">Combine</a></li>
   <li> <a href="https://github.com/openmusic-project/Mathtools" target="_blank">Mathtools</a></li>
