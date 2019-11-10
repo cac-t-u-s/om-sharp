@@ -199,13 +199,15 @@
 
 
 ;;; :choose-file ?
-(defmethod box-def-self-in ((self (eql 'midi-track))) :choose-file)
+(defmethod box-def-self-in ((self (eql 'midi-track))) nil)
 
-(defmethod objFromObjs ((model (eql :choose-file)) (target midi-track))
+(defmethod objFromObjs ((model (eql (or :file :choose-file))) (target midi-track))
   (let ((file (om-choose-file-dialog :prompt "Choose a MIDI file..."
                                      :types '("MIDI files" "*.mid;*.midi"))))
-    (if file (objFromObjs file target)
+    (if file 
+        (objFromObjs file target)
       (om-abort))))
+
 
 
 ;;; DATA-STREAM=>MIDI-TRACK
