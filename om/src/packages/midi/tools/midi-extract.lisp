@@ -63,7 +63,7 @@
                                            (midinote-channel evt))
                                      )))
                  ))
-      tracks)
+      (remove nil tracks))
   ))
            
 ;;; same with MIDI-NOTEs
