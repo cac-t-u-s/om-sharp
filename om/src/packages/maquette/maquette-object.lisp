@@ -186,11 +186,12 @@
   (loop for box in (get-all-boxes self :sorted t)
         append
         (let ((b box))
-          (if (and (all-reactive-p box)
+          (if (and (find-if 'reactive (outputs self))
                    (or (not interval)
                        (and interval
                             (in-interval (- (get-box-onset box) (pre-delay box)) interval :exclude-high-bound t)))
-                   (not (ready b)))
+                   ;; (not (ready b))
+                   )
               (progn
                 (setf (ready b) t)
                 (list (list (- (get-box-onset box) (pre-delay box))
@@ -208,7 +209,7 @@
    (if (not (no-exec self))
        (loop for box in (get-all-boxes self :sorted t)
              when (box-cross-interval box time-interval)
-             when (not (and (all-reactive-p box) (not (ready box))))
+             ;; when (not (and (all-reactive-p box) (not (ready box)))) ;;; it it's a reactive box it must be "ready" (= computed)
              when (group-id box) ;;; only boxes in tracks are played
              append
              (let ((interval-in-object (list
