@@ -199,7 +199,7 @@
 
 
 ;;; :choose-file ?
-(defmethod box-def-self-in ((self (eql 'midi-track))) NIL)
+(defmethod box-def-self-in ((self (eql 'midi-track))) :choose-file)
 
 (defmethod objFromObjs ((model (eql :choose-file)) (target midi-track))
   (let ((file (om-choose-file-dialog :prompt "Choose a MIDI file..."
