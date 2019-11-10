@@ -172,6 +172,9 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 (defmethod unloop-object ((self schedulable-object)) 
   (setf (looper self) nil))
 
+(defmethod is-looping ((self schedulable-object)) 
+  (looper self))
+
 ;;;SET AN OBJECT'S INTERVAL
 (defmethod set-object-interval ((self schedulable-object) interval)
   (setf (interval self) (if (or (null (cadr interval))
