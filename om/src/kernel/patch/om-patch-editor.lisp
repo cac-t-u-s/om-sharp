@@ -393,7 +393,14 @@
    (om-make-menu-item "External abstraction (p)" #'(lambda () (set-add-item-on-patch "import")))
    (om-make-menu-item "Comment (c)" #'(lambda () (set-add-item-on-patch "comment")))
    (om-make-menu-comp 
-    (loop for pack in (elements *om-package-tree*) collect (make-package-menu pack)))))
+    (loop for pack in (elements *om-package-tree*) collect (make-package-menu pack)))
+   (om-make-menu-comp
+    #'(lambda (ed) 
+        (declare (ignore ed))
+        (loop for libname in (all-om-libraries t) 
+              collect (make-package-menu (find-library libname)))
+        ))
+   ))
 
 
 
