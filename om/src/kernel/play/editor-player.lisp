@@ -157,14 +157,20 @@
 
 (defmethod editor-set-interval ((self t) interval) nil)
 
+(defmethod update-cursor-pane-intervals ((self play-editor-mixin))
+  (let ((inter (play-interval self)))
+    (when inter 
+      (mapcar #'(lambda (p) 
+                  (setf (cursor-interval p) inter)
+                  (om-invalidate-view p))
+              (cursor-panes self)))))
+  
 (defmethod editor-set-interval ((self play-editor-mixin) interval)
   (let ((inter (editor-fix-interval self interval)))
     (setf (play-interval self) inter)
     (set-object-interval (get-obj-to-play self) inter)
-    (mapcar #'(lambda (p) 
-                (setf (cursor-interval p) inter)
-                (om-invalidate-view p))
-            (cursor-panes self))))
+    (update-cursor-pane-intervals self)
+    ))
 
 (defmethod set-cursor-time ((self play-editor-mixin) time)
   (mapcar #'(lambda (pane) (update-cursor pane time)) (cursor-panes self))
@@ -384,7 +390,8 @@
    (round (pix-to-x self x)))
 
 (defmethod om-draw-contents :after ((self x-cursor-graduated-view))
-  (when (play-obj? (get-obj-to-play (editor (om-view-window self))))
+  (when (and (play-obj? (get-obj-to-play (editor (om-view-window self))))
+             (cursor-interval self))
     (let ((t1 (car (cursor-interval self)))
           (t2 (cadr (cursor-interval self))))
       (unless (= t1 t2 0)

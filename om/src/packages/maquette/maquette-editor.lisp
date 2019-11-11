@@ -75,6 +75,9 @@
 (defmethod get-editor-class ((self OMMaquette)) 'maquette-editor)
 (defmethod get-obj-to-play ((self maquette-editor)) (object self))
 
+(defmethod is-playing ((self maquette-editor))
+  (equal (player-get-object-state (player self) (get-obj-to-play self)) :play))
+
 (defmethod get-editor-view-for-action ((self maquette-editor))
   (if (equal (view-mode self) :maquette)
       (get-g-component self :maq-view)
@@ -95,8 +98,6 @@
 
 (defmethod editor-get-tempo-automation ((self maquette-editor))
   (tempo-automation (get-g-component self :metric-ruler)))
-
-
 
 
 (defmethod cursor-panes ((self maquette-editor)) 
@@ -260,6 +261,16 @@
     ))
 
 
+
+;;; SNAP INTERVAL IF ALT/OPTION KEY IS DOWN
+(defmethod editor-set-interval ((self maquette-editor) interval) 
+  (when (om-option-key-p)
+    (setf interval (list (snap-time-to-grid (get-g-component self :metric-ruler) (car interval))
+                         (snap-time-to-grid (get-g-component self :metric-ruler) (cadr interval)))))
+  (call-next-method self interval))  
+  
+                         
+
 ;;;========================
 ;;; TRACK-VIEW
 ;;;========================
@@ -347,8 +358,9 @@
                 (om-draw-rect x1 0 (- x2 x1) (h self) :fill t)))
 
             (unless (frame tb) (setf (frame tb) self))
-            (if (and (<= x1 xmax) (> x2 x))
-                (draw-temporal-box tb self x1 0 (- x2 x1) (h self) (- (pix-to-x self x) (get-box-onset tb))))))   
+            (when (and (<= x1 xmax) (> x2 x))
+              (draw-temporal-box tb self x1 0 (- x2 x1) (h self) (- (pix-to-x self x) (get-box-onset tb)))
+              )))   
     ))
 
 
@@ -867,6 +879,12 @@ CMD-click to add boxes. Play contents, etc.
 ;;; GENERAL CONSTRUCTOR
 ;;;========================
 
+(defmethod build-editor-window :before ((editor maquette-editor))
+  (mapc #'stop-cursor (cursor-panes editor)))
+
+(defmethod init-editor :after ((editor maquette-editor))
+  (setf (play-interval editor) (interval (get-obj-to-play editor))))
+
 (defmethod make-editor-window-contents ((editor maquette-editor))
   (let* ((maquette (get-obj-to-play editor))
          
@@ -1026,6 +1044,10 @@ CMD-click to add boxes. Play contents, etc.
         
     (om-add-subviews (get-g-component editor :main-maq-view) tracks-or-maq-view)
     
+    (update-cursor-pane-intervals editor)
+    (when (is-playing editor) 
+      (mapcar #'start-cursor (cursor-panes editor)))
+
     (om-make-layout 
      'om-row-layout :delta 2 :ratios (append 
                                       (when (show-control-patch editor) '(40 nil)) 
@@ -1066,16 +1088,19 @@ CMD-click to add boxes. Play contents, etc.
     ))
 
 
-
 (defun set-main-maquette-view (editor mode)
   (setf (view-mode editor) mode)
   (om-remove-all-subviews (get-g-component editor :main-maq-view))
+  (mapcar #'stop-cursor (cursor-panes editor))
   (om-add-subviews 
    (get-g-component editor :main-maq-view)
    (if (equal mode :maquette)
        (make-maquette-view editor)
      (make-tracks-view editor)))
   ;;; needs to be done once the views are in place...
+  (update-cursor-pane-intervals editor)
+  (when (is-playing editor)
+    (mapcar #'start-cursor (cursor-panes editor)))
   (mapc 'update-connections (boxes (object editor))))
 
 
@@ -1322,6 +1347,7 @@ CMD-click to add boxes. Play contents, etc.
   (when (get-g-component self :tempo-box) ;; see editor-play-mixin
     (set-value (cadr (om-subviews (get-g-component self :tempo-box))) 
                (float (tempo-automation-tempo-at-beat (editor-get-tempo-automation self) 0))))
+  (reset-boxes (object self))
   (call-next-method))
 
 

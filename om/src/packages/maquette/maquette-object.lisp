@@ -186,30 +186,41 @@
   (loop for box in (get-all-boxes self :sorted t)
         append
         (let ((b box))
-          (if (and (find-if 'reactive (outputs self))
-                   (or (not interval)
-                       (and interval
-                            (in-interval (- (get-box-onset box) (pre-delay box)) interval :exclude-high-bound t)))
-                   ;; (not (ready b))
-                   )
-              (progn
-                (setf (ready b) t)
-                (list (list (- (get-box-onset box) (pre-delay box))
-                            (get-box-onset box)
-                            #'(lambda ()
-                                (with-schedulable-object self
-                                                         (eval-box b))
-                                (clear-ev-once b)
-                                (reset-cache-display b)
-                                (set-display b :value)
-                                (contextual-update b self)))))))))
+          (when (and (find-if 'reactive (outputs box))
+                     (or (not interval)
+                         (in-interval (- (get-box-onset box) (pre-delay box)) interval :exclude-high-bound t))
+                     (not (print (ready b))) ;; avoids computing it several times 
+                     )
+            (setf (ready b) t)
+            (list (list (- (get-box-onset box) (pre-delay box))
+                        (get-box-onset box)
+                        #'(lambda ()
+                            ;; (with-schedulable-object self (eval-box b))
+                            ;; with-schedulable-object has undesired effects when used in a loop 
+                            (eval-box b)
+                            (clear-ev-once b)
+                            (reset-cache-display b)
+                            (set-display b :value)
+                            (contextual-update b self)
+                            )))
+          ))))
+
+(defmethod reset-boxes ((self OMMaquette))
+  (loop for tb in (get-all-boxes self)
+        do (setf (ready tb) nil)))
+
+;;; from scheduler functions
+(defmethod reset-I :before ((self OMMaquette) &optional date)
+  (reset-boxes self))
+ 
 
 (defmethod get-action-list-for-play ((self OMMaquette) time-interval &optional parent)
   (sort 
    (if (not (no-exec self))
        (loop for box in (get-all-boxes self :sorted t)
              when (box-cross-interval box time-interval)
-             ;; when (not (and (all-reactive-p box) (not (ready box)))) ;;; it it's a reactive box it must be "ready" (= computed)
+             ;; it it's a reactive box it must be "ready" (= computed)
+             ;; when (not (and (find-if 'reactive (outputs box)) (not (ready box)))) 
              when (group-id box) ;;; only boxes in tracks are played
              append
              (let ((interval-in-object (list
@@ -427,15 +438,21 @@
   (append
    (call-next-method self t)
    `((:range ,(range self))
-     (:control-patch ,(omng-save (ctrlpatch self))))))
+     (:control-patch ,(omng-save (ctrlpatch self)))
+     (:loop-interval ,(interval self))
+     (:loop-on ,(looper self)))))
 
 
 (defmethod load-patch-contents ((patch OMMaquette) data)
   (let ((maquette (call-next-method))
         (patch (find-value-in-kv-list data :control-patch))
-        (range (find-value-in-kv-list data :range)))
+        (range (find-value-in-kv-list data :range))
+        (interval (find-value-in-kv-list data :loop-interval))
+        (loop-on (find-value-in-kv-list data :loop-on)))
     (when patch (set-control-patch maquette (omng-load patch)))
     (when range (setf (range maquette) range))
+    (when interval (setf (interval maquette) interval))
+    (setf (looper maquette) loop-on)
     maquette))
       
 (defmethod om-load-from-id ((id (eql :maquette)) data)
