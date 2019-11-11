@@ -116,13 +116,22 @@
 
 
 (defmethod om-update-layout ((self om-column-layout))
-  (setf (capi::layout-ratios self) (capi::layout-ratios self)))
+  (capi:apply-in-pane-process 
+   self 
+   #'(lambda ()
+       (setf (capi::layout-ratios self) (capi::layout-ratios self)))))
+
 (defmethod om-update-layout ((self om-row-layout))
-  (setf (capi::layout-ratios self) (capi::layout-ratios self)))
+  (capi:apply-in-pane-process 
+   self 
+   #'(lambda () (setf (capi::layout-ratios self) (capi::layout-ratios self)))))
 
 (defmethod om-update-layout ((self om-grid-layout))
-  (setf (capi::layout-x-ratios self) (capi::layout-y-ratios self)
-        (capi::layout-y-ratios self) (capi::layout-y-ratios self)))
+  (capi:apply-in-pane-process 
+   self 
+   #'(lambda ()
+       (setf (capi::layout-x-ratios self) (capi::layout-y-ratios self)
+             (capi::layout-y-ratios self) (capi::layout-y-ratios self)))))
 
 (defmethod om-update-layout ((self om-abstract-window))
   (mapc 'om-update-layout (om-subviews self)))

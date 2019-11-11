@@ -185,14 +185,18 @@
   (setf (vh self) (om-point-y size-point))
   ;(gp::with-graphics-mask ((item-container self) (list (vx self) (vy self) (vw self) (vh self)))
   ;(om-with-redisplay-area ((om-get-view self) (vx self) (vy self) (vw self) (vh self))
-  (setf (capi::pinboard-pane-size self) (values (om-point-x size-point) (om-point-y size-point)))
-  (capi::set-hint-table self (list :visible-min-width (vw self) :visible-min-height (vh self)
-                                   :visible-max-width t :visible-max-height t))
-  ;;    )
-  ;(when (item-container self)
-  ;  (capi:remove-capi-object-property (item-container self) 'capi::prev-width-height))
-  )
-
+  (capi:apply-in-pane-process 
+   (item-container self)
+   #'(lambda ()
+       (setf (capi::pinboard-pane-size self) (values (om-point-x size-point) (om-point-y size-point)))
+       (capi::set-hint-table self (list :visible-min-width (vw self) :visible-min-height (vh self)
+                                        :visible-max-width t :visible-max-height t))
+       )
+   ;;    )
+   ;(when (item-container self)
+   ;  (capi:remove-capi-object-property (item-container self) 'capi::prev-width-height))
+   ))
+  
   
 (defmethod om-view-size ((self om-item-view))
   (om-make-point (vw self) (vh self)))
@@ -203,17 +207,27 @@
  
 (defmethod om-set-bg-color ((self om-item-view) color)
   (let ((col (when color (omcolor-c color))))
-    (setf (capi::pinboard-object-graphics-arg self :background) (if (equal col :transparent) nil col))
-    (capi:redraw-pinboard-object self)))
+    (capi:apply-in-pane-process 
+     (item-container self)
+     #'(lambda ()
+         (setf (capi::pinboard-object-graphics-arg self :background) (if (equal col :transparent) nil col))
+         (capi:redraw-pinboard-object self)
+         ))
+    ))
       
 (defmethod om-get-bg-color ((self om-item-view))
   (make-omcolor :c (capi::pinboard-object-graphics-arg self :background)))
 
 (defmethod om-set-fg-color ((self om-item-view) color)
   (let ((col (when color (omcolor-c color))))
-    (setf (capi::pinboard-object-graphics-arg self :foreground) col)
-    (capi:redraw-pinboard-object self)))
-      
+    (capi:apply-in-pane-process 
+     (item-container self)
+     #'(lambda ()
+         (setf (capi::pinboard-object-graphics-arg self :foreground) col)
+         (capi:redraw-pinboard-object self)
+         ))
+    ))
+
 (defmethod om-get-fg-color ((self om-item-view))
   (make-omcolor :c (capi::pinboard-object-graphics-arg self :foreground)))
 
