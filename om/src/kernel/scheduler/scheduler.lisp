@@ -126,8 +126,7 @@
   (mp:ensure-process-mailbox)
   (loop
    (setf (state self) :idle)
-   (let ((task (mp:mailbox-read (mp:process-mailbox
-                                 (process self))
+   (let ((task (mp:mailbox-read (mp:process-mailbox (process self)) ;;; make sure (process self) is non-NIL.. ?
                                 "Waiting for scheduling request")))
      (setf (state self) :busy)
      (om-ignore&print-error (funcall task)))))
