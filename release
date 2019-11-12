@@ -16,13 +16,14 @@ APP_NAME="om7-beta"
 deliver_app()
 {
 echo "***************************************************"
-echo "COMPILING STANDALONE EXE"
+echo "COMPILING STANDALONE IMAGE"
 echo "***************************************************"
 
 	rm -rf ./om/*.app/
 	/Applications/LispWorks\ $LWVERSION\ \($LWARCH\)/LispWorks\ \($LWARCH\).app/Contents/MacOS/$LWEXEC -build ./om/build/deliver.lisp
 	# update version
 	OM_VERSION=$(<"VERSION") 
+	echo "=> IMAGE DONE!"
 }
 
 
@@ -67,24 +68,33 @@ echo "***************************************************"
 	hdiutil create -fs HFS+ -volname $DMG_NAME -srcfolder _DMG "$DMG_NAME".dmg
 	rm -rf _DMG
 	cd ..
+	echo "=> DMG DONE!"
 }
 
 zip_release()
 {
+	echo "***************************************************"
+	echo "Preparing ZIP distribution for $APP_NAME"
+	echo "***************************************************"	
 	ZIP_NAME="$APP_NAME"-"$OM_VERSION"
 	cd $BUILD_FOLDER
 	rm -f "$ZIP_NAME".zip
 	rm -rf "$APP_NAME"
 	mkdir "$APP_NAME"
 	cp -R "$APP_NAME".app "$APP_NAME"/
-	zip -r "$ZIP_NAME".zip "$APP_NAME"  
+	zip -r -q -dg "$ZIP_NAME".zip "$APP_NAME"  
 	rm -rf "$APP_NAME"
 	cd ..
+	echo "=> ZIP DONE"
 }
 
 sign_release()
 {
+	echo "***************************************************"
+	echo "Code Signature (calling external script)"
+	echo "***************************************************"
 	./codesign-om7
+	echo "=> CODE SIGNATURE: DONE"
 }
 
 change_permission()

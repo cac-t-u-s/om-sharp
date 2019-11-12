@@ -302,7 +302,8 @@
                                            :directory (append (pathname-directory app-resources-folder) '("src"))))
     
     (clean-sources (make-pathname :device (pathname-device app-resources-folder) 
-                                  :directory (append (pathname-directory app-resources-folder) '("src"))))
+                                  :directory (append (pathname-directory app-resources-folder) '("src")))
+                   NIL)
     
     (om::om-copy-directory  (make-pathname :device (pathname-device app-resources-folder)
                                            :directory (append *om-directory-folders* '("init")))
@@ -350,7 +351,6 @@
            :keep-debug-mode t
            :keep-load-function t
            :keep-pretty-printer t
-           
            ;#+win32 :editor-style #+win32 :pc
            ;:keep-complex-numbers nil
            ;:keep-conditions :all
