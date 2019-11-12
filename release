@@ -93,7 +93,7 @@ sign_release()
 	echo "***************************************************"
 	echo "Code Signature (calling external script)"
 	echo "***************************************************"
-	./codesign-om7
+	./codesign
 	echo "=> CODE SIGNATURE: DONE"
 }
 

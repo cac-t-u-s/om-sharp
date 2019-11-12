@@ -32,7 +32,7 @@ Thumbs.db
 om/resources/reference-pages/
 
 BUILD/**/*
-codesign-om7
+codesign
 VERSION
 
 *.sublime-*
