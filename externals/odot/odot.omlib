@@ -1,0 +1,39 @@
+;============================================================================
+; odot
+;============================================================================
+;
+;   This program is free software. For information on usage 
+;   and redistribution, see the "LICENSE" file in this distribution.
+;
+;   This program is distributed in the hope that it will be useful,
+;   but WITHOUT ANY WARRANTY; without even the implied warranty of
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;
+;============================================================================
+; J. Bresson, J. MacCallum (2016-2019)
+;============================================================================
+
+(:om-lib
+ 
+ (:version 1.0)
+
+ (:doc "An implementation fo the odot OSC toolkit in OM7 (using CNMAT's libo)")
+
+ (:author "J. Bresson, J. MacCallum, IRCAM / CNMAT")
+
+;;; SOURCE FILES TO LOAD
+(:source-files
+ "sources/load" 
+ "sources/libo" 
+ "sources/networking-utils"
+ "sources/odot-bundle"
+ "sources/odot-expressions"
+ )
+
+;;; SYMBOLS VISIBLE AND ACCESSIBLE THROUGH THE OM PACKAGE TREE
+(:symbols
+ (:classes o.bundle)
+ )
+)
+
+
