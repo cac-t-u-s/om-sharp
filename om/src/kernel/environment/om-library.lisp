@@ -220,7 +220,7 @@
                        
                        (if (string-equal (pathname-name path) "load") ; hack => document that !! 
                            (load path)
-                         (compile&load path t t (om::om-relative-path '(".om7") nil path)))
+                         (compile&load path t t (om::om-relative-path '(".om#") nil path)))
                        ))
                  files)
            )
