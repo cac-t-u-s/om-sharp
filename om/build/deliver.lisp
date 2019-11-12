@@ -6,6 +6,11 @@
 
 #+mswindows(require "ole")
 
+;;; used by the "Shell" window (= useful?)
+;;; see also *modules* for more modules...
+(require "shell-buffer")
+(require "subproc")
+
 (print "==============================")
 (print "LOADING SOURCES")
 (print "==============================")
