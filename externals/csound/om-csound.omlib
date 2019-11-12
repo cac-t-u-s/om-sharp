@@ -1,0 +1,19 @@
+
+;;;===================================================
+;;;
+;;; om-csound 
+;;; A basic connection from OM7 to Csound
+;;; Jean Bresson
+;;;
+;;;===================================================
+
+(:om-lib
+ (:version 1.1)
+ (:source-files 
+  (:pathname (:directory (:relative)) (:name "csound-synth"))
+  )
+ (:symbols 
+  (:functions "csound-synth" "csd-synth"))
+ (:author "J. Bresson (2018)")
+ (:doc "A simple lib to connect Csound in OM7")
+ )

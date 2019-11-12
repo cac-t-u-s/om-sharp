@@ -1,0 +1,682 @@
+
+(:patch
+ (:om-version 1.0E-4)
+ (:name "csound-synth")
+ (:doc "")
+ (:info
+  (:created "2017/09/15 12:22:34")
+  (:modified "2019/08/02 2:02:35"))
+ (:window (:size (1161 735)) (:position (488 82)))
+ (:grid nil)
+ (:lock nil)
+ (:boxes
+  (:box
+   (:library "om-csound")
+   (:reference csound-synth)
+   (:type :function)
+   (:group-id nil)
+   (:name "csound-synth")
+   (:x 76)
+   (:y 511)
+   (:w 237)
+   (:h 30)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border 1.5)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :left)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "ORC")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "SCO")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :key) (:name "format") (:value nil) (:reactive nil))
+    (:input (:type :key) (:name "out") (:value nil) (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 0))
+  (:box
+   (:reference simple-base-string)
+   (:type :value)
+   (:group-id nil)
+   (:name "value box")
+   (:x 193)
+   (:y 480)
+   (:w 47)
+   (:h 30)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border 1.5)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :left)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value "wav")
+   (:id 1))
+  (:box
+   (:reference textbuffer)
+   (:type :object)
+   (:group-id nil)
+   (:name nil)
+   (:x 30)
+   (:y 100)
+   (:w 314)
+   (:h 289)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border 1.5)
+   (:roundness nil)
+   (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
+   (:align :center)
+   (:name nil)
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock :locked)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CONTENTS")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "CONTENTS") (:reactive nil)))
+   (:window (:size (500 500)) (:position (889 155)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class textbuffer)
+     (:slots
+      ((:contents
+        (:list
+         "; HEADER "
+         "sr = 44100"
+         "kr = 44100"
+         "ksmps = 1"
+         "nchnls = 1"
+         ""
+         "; GLOBAL VARIABLES"
+         "0dbfs   = 8388607 ; 24 bits"
+         ""
+         "instr 1"
+         ""
+         "idur		= p3"
+         "idurosc		= 1/idur"
+         "iamp 		= (p4 > 0.0 ? (p4*0.001*0dbfs) : (ampdbfs(p4)))"
+         "ifq		= p5"
+         "iaenv		= p6"
+         "iaudiofun	= 1"
+         ""
+         "a2    poscil  iamp, idurosc, iaenv"
+         "a1    poscil  a2, ifq, iaudiofun"
+         "out     a1"
+         ""
+         "endin"
+         ""))))
+     (:add-slots ((:input-mode :lines-cols)))))
+   (:id 2))
+  (:box
+   (:reference textbuffer)
+   (:type :object)
+   (:group-id nil)
+   (:name nil)
+   (:x 369)
+   (:y 190)
+   (:w 301)
+   (:h 113)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border 1.5)
+   (:roundness nil)
+   (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
+   (:align :center)
+   (:name nil)
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock :locked)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CONTENTS")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "CONTENTS") (:reactive nil)))
+   (:window (:size (708 672)) (:position (173 161)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class textbuffer)
+     (:slots
+      ((:contents
+        (:list
+         "; audio wave"
+         "f1  0  65537  10  10"
+         ""
+         ";------ Lines for event n. 1 --------"
+         "f 1000 0 4097 7  0.0000 2048.0  100.0 2048.0 0.0000"
+         "i1 0.000 1.000 -6.000 440.000 1000.000 "
+         ""))))
+     (:add-slots ((:input-mode :lines-cols)))))
+   (:id 3))
+  (:box
+   (:reference symbol)
+   (:type :value)
+   (:group-id nil)
+   (:name "value box")
+   (:x 358)
+   (:y 428)
+   (:w 32)
+   (:h 30)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border 1.5)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :left)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value :rt)
+   (:id 4))
+  (:box
+   (:reference sound)
+   (:type :object)
+   (:group-id nil)
+   (:name nil)
+   (:x 26)
+   (:y 605)
+   (:w 329)
+   (:h 81)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border 1.5)
+   (:roundness nil)
+   (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
+   (:align :center)
+   (:name nil)
+   (:display :mini-view)
+   (:showname t)
+   (:show-markers t)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value :choose-file)
+     (:reactive nil)))
+   (:outputs (:output (:name "SELF") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class sound)
+     (:slots
+      ((:onset 0)
+       (:duration 0)
+       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:default-frame-type marker-frame)
+       (:frames nil)
+       (:buffer nil)
+       (:n-samples nil)
+       (:n-channels nil)
+       (:sample-rate nil)
+       (:smpl-type :float)
+       (:sample-size 16)))
+     (:add-slots
+      ((:markers nil)
+       (:file-pathname nil)
+       (:sample-rate nil)
+       (:n-channels nil)
+       (:n-samples nil)
+       (:gain 1.0)
+       (:access-from-file nil)))))
+   (:id 5))
+  (:comment
+   (:x 372)
+   (:y 149)
+   (:w 225)
+   (:h 38)
+   (:fgcolor (:color-or-nil (:color nil) (:t-or-nil nil)))
+   (:bgcolor nil)
+   (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Calibri") (:size 13) (:style :italic)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text
+    "<sco>: a CSOUND SCORE
+(textbuffer, list of lines or file pathname)")
+   (:id 6))
+  (:comment
+   (:x 179)
+   (:y 423)
+   (:w 142)
+   (:h 54)
+   (:fgcolor (:color-or-nil (:color nil) (:t-or-nil nil)))
+   (:bgcolor nil)
+   (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Calibri") (:size 13) (:style :italic)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text
+    "<format>: \"wav\", \"aiff\", etc. (as supported by libsndfile)")
+   (:id 7))
+  (:box
+   (:reference outfile)
+   (:type :function)
+   (:group-id nil)
+   (:name "outfile")
+   (:x 364)
+   (:y 461)
+   (:w 72)
+   (:h 30)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border 1.5)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :left)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "NAME")
+     (:value "test")
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 8))
+  (:box
+   (:reference simple-base-string)
+   (:type :value)
+   (:group-id nil)
+   (:name "value box")
+   (:x 391)
+   (:y 427)
+   (:w 46)
+   (:h 30)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border 1.5)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :left)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value "test")
+   (:id 9))
+  (:comment
+   (:x 333)
+   (:y 510)
+   (:w 367)
+   (:h 68)
+   (:fgcolor (:color-or-nil (:color nil) (:t-or-nil nil)))
+   (:bgcolor nil)
+   (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Calibri") (:size 13) (:style :italic)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text
+    "<out>: a pathname, or
+- a name (string) => stored in the default output folder
+- NIL => same name as the score, stored in the default output folder
+- :rt => no file, real-time output to DAC ")
+   (:id 10))
+  (:comment
+   (:x 31)
+   (:y 51)
+   (:w 179)
+   (:h 38)
+   (:fgcolor (:color-or-nil (:color nil) (:t-or-nil nil)))
+   (:bgcolor nil)
+   (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Calibri") (:size 13) (:style :italic)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text
+    "<orc>: a CSOUND ORCHESTRA
+(textbuffer or file pathname)")
+   (:id 11))
+  (:comment
+   (:x 405)
+   (:y 16)
+   (:w 271)
+   (:h 38)
+   (:fgcolor (:color-or-nil (:color nil) (:t-or-nil nil)))
+   (:bgcolor nil)
+   (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Calibri") (:size 13) (:style :bold)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text
+    "Csound synthesis: CSOUND-SYNTH / CSD-SYNTH
+[www.csounds.com]")
+   (:id 12))
+  (:box
+   (:reference textbuffer)
+   (:type :object)
+   (:group-id nil)
+   (:name nil)
+   (:x 779)
+   (:y 163)
+   (:w 314)
+   (:h 289)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border 1.5)
+   (:roundness nil)
+   (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
+   (:align :center)
+   (:name nil)
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock :locked)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CONTENTS")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "CONTENTS") (:reactive nil)))
+   (:window (:size (500 500)) (:position (557 181)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class textbuffer)
+     (:slots
+      ((:contents
+        (:list
+         "<CsoundSynthesizer>"
+         "<CsOptions>"
+         "-f -m7 -A -N -g -b8192 -B8192 --format=aiff "
+         "</CsOptions>"
+         "<CsInstruments>"
+         "; CSOUND ORCHESTRA GENERATED BY OMCHROMA"
+         "; 2019/07/02 1:25:03"
+         ""
+         "; == ORC HEADER: =="
+         ""
+         "sr = 44100"
+         "kr = 44100"
+         "ksmps = 1"
+         "nchnls = 1"
+         ""
+         "; GLOBAL VARIABLES"
+         ""
+         "0dbfs   = 8388607 ; 24 bits"
+         ""
+         ""
+         ""
+         "; == INSTRUMENTS: =="
+         ""
+         ";===================="
+         "instr 1"
+         ""
+         "idur		= p3"
+         "idurosc		= 1/idur"
+         "iamp 		= (p4 > 0.0 ? (p4*0.001*0dbfs) : (ampdbfs(p4)))"
+         "ifq		= p5"
+         "iaenv		= p6"
+         "iaudiofun	= 1"
+         ""
+         "a2    poscil  iamp, idurosc, iaenv"
+         "a1    poscil  a2, ifq, iaudiofun"
+         "out     a1"
+         "endin"
+         ""
+         "</CsInstruments>"
+         "<CsScore>"
+         "; CSOUND SCORE GENERATED BY OMCHROMA"
+         "; 2019/07/02 1:25:03"
+         ""
+         "; Score header defined in orchestra:"
+         "; - from add-1:"
+         "f1  0  65537  10  10"
+         ""
+         "; global tables:"
+         ""
+         ";------ EVENT 1 ------"
+         ";------ local tables in array ------"
+         "f 1000 0 4097 7  0.00000 2048.00000 100.00000 2048.00000 0.00000"
+         "f 1001 0 4097 7  0.00000 2048.00000 100.00000 2048.00000 0.00000"
+         "f 1002 0 4097 7  0.00000 2048.00000 100.00000 2048.00000 0.00000"
+         "f 1003 0 4097 7  0.00000 2048.00000 100.00000 2048.00000 0.00000"
+         "f 1004 0 4097 7  0.00000 2048.00000 100.00000 2048.00000 0.00000"
+         ""
+         ";------ lines for event ------"
+         "i1 0.0000 1 -6.0000 220 1000 "
+         "i1 1.0000 1 -6.0000 440 1001 "
+         "i1 2.0000 1 -6.0000 660 1002 "
+         "i1 3.0000 1 -6.0000 880 1003 "
+         "i1 4.0000 1 -6.0000 1100 1004 "
+         "</CsScore>"
+         "</CsoundSynthesizer>"
+         ""))))
+     (:add-slots ((:input-mode :lines-cols)))))
+   (:id 13))
+  (:box
+   (:reference csd-synth)
+   (:type :function)
+   (:group-id nil)
+   (:name "csd-synth")
+   (:x 836)
+   (:y 520)
+   (:w 84)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "CSD")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :key) (:name "out") (:value nil) (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 14))
+  (:box
+   (:reference outfile)
+   (:type :function)
+   (:group-id nil)
+   (:name "outfile")
+   (:x 935)
+   (:y 508)
+   (:w 72)
+   (:h 30)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border 1.5)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :left)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "NAME")
+     (:value "test")
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 15))
+  (:box
+   (:reference simple-base-string)
+   (:type :value)
+   (:group-id nil)
+   (:name "value box")
+   (:x 938)
+   (:y 474)
+   (:w 85)
+   (:h 30)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border 1.5)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :left)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value "test-csd.aiff")
+   (:id 16))
+  (:comment
+   (:x 781)
+   (:y 134)
+   (:w 140)
+   (:h 23)
+   (:fgcolor (:color-or-nil (:color nil) (:t-or-nil nil)))
+   (:bgcolor nil)
+   (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Calibri") (:size 13) (:style :italic)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text "... or a Csound \"CSD\" file")
+   (:id 17))
+  (:box
+   (:reference sound)
+   (:type :object)
+   (:group-id nil)
+   (:name nil)
+   (:x 782)
+   (:y 575)
+   (:w 294)
+   (:h 68)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border 1.5)
+   (:roundness nil)
+   (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
+   (:align :center)
+   (:name nil)
+   (:display :mini-view)
+   (:showname t)
+   (:show-markers t)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value :choose-file)
+     (:reactive nil)))
+   (:outputs (:output (:name "SELF") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class sound)
+     (:slots
+      ((:onset 0)
+       (:duration 0)
+       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:default-frame-type marker-frame)
+       (:frames nil)
+       (:buffer nil)
+       (:n-samples nil)
+       (:n-channels nil)
+       (:sample-rate nil)
+       (:smpl-type :float)
+       (:sample-size 16)))
+     (:add-slots
+      ((:markers nil)
+       (:file-pathname nil)
+       (:sample-rate nil)
+       (:n-channels nil)
+       (:n-samples nil)
+       (:gain 1.0)
+       (:access-from-file nil)))))
+   (:id 18)))
+ (:connections
+  (:connection
+   (:from (:box 0 :out 0))
+   (:to (:box 5 :in 0))
+   (:attributes
+    (:color (:color 0.3 0.3 0.3 1.0) :style nil :modif nil)))
+  (:connection
+   (:from (:box 1 :out 0))
+   (:to (:box 0 :in 2))
+   (:attributes
+    (:color (:color 0.3 0.3 0.3 1.0) :style nil :modif nil)))
+  (:connection
+   (:from (:box 2 :out 0))
+   (:to (:box 0 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 3 :out 0))
+   (:to (:box 0 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 8 :out 0))
+   (:to (:box 0 :in 3))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 9 :out 0))
+   (:to (:box 8 :in 0))
+   (:attributes
+    (:color (:color 0.3 0.3 0.3 1.0) :style nil :modif nil)))
+  (:connection
+   (:from (:box 13 :out 0))
+   (:to (:box 14 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 14 :out 0))
+   (:to (:box 18 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 15 :out 0))
+   (:to (:box 14 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 16 :out 0))
+   (:to (:box 15 :in 0))
+   (:attributes
+    (:color (:color 0.3 0.3 0.3 1.0) :style nil :modif nil)))))
