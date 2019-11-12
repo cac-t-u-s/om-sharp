@@ -1,0 +1,2859 @@
+
+(:patch
+ (:om-version 0.03)
+ (:name "04-tc+ttl")
+ (:doc "")
+ (:info
+  (:created "2019/09/22 22:59:46")
+  (:modified "2019/09/22 23:04:11"))
+ (:window (:size (1517 689)) (:position (43 23)))
+ (:grid nil)
+ (:lock nil)
+ (:boxes
+  (:box
+   (:type :object)
+   (:reference multi-seq)
+   (:group-id nil)
+   (:name "MULTI-SEQ1")
+   (:x 1295)
+   (:y 343)
+   (:w 164)
+   (:h 224)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "MULTI-SEQ1")
+   (:display :mini-view)
+   (:showname nil)
+   (:show-markers t)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "OBJ-LIST")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "OBJ-LIST") (:reactive nil)))
+   (:window (:size nil) (:position nil))
+   (:edition-params)
+   (:value
+    (:object
+     (:class multi-seq)
+     (:slots
+      ((:obj-list
+        (:list
+         (:object
+          (:class chord-seq)
+          (:slots
+           ((:onset 0)
+            (:duration 17500)
+            (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+            (:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:lmidic
+             (:list
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)))
+            (:lonset
+             (:list
+              0
+              500
+              2000
+              2500
+              4000
+              4500
+              6000
+              6500
+              8000
+              8500
+              10000
+              10500
+              12000
+              12500
+              14000
+              14500
+              16000
+              16500
+              17500))
+            (:ldur
+             (:list
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)))
+            (:lvel
+             (:list
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)))
+            (:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)))
+            (:lport
+             (:list
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil))
+            (:llegato nil)))
+          (:add-slots
+           ((:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)))
+            (:lport
+             (:list
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil))
+            (:llegato nil))))
+         (:object
+          (:class chord-seq)
+          (:slots
+           ((:onset 0)
+            (:duration 17750)
+            (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+            (:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:lmidic
+             (:list
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)))
+            (:lonset
+             (:list
+              250
+              750
+              2250
+              2750
+              4250
+              4750
+              6250
+              6750
+              8250
+              8750
+              10250
+              10750
+              12250
+              12750
+              14250
+              14750
+              16250
+              16750
+              17750))
+            (:ldur
+             (:list
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)))
+            (:lvel
+             (:list
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)))
+            (:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)))
+            (:lport
+             (:list
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil))
+            (:llegato nil)))
+          (:add-slots
+           ((:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)))
+            (:lport
+             (:list
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil))
+            (:llegato nil))))
+         (:object
+          (:class chord-seq)
+          (:slots
+           ((:onset 0)
+            (:duration 18500)
+            (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+            (:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:lmidic
+             (:list
+              (:list 6300)
+              (:list 6300)
+              (:list 6300)
+              (:list 6300)
+              (:list 6300)
+              (:list 6300)
+              (:list 6300)
+              (:list 6300)
+              (:list 6300)
+              (:list 6300)
+              (:list 6300)
+              (:list 6300)
+              (:list 6300)
+              (:list 6300)
+              (:list 6300)
+              (:list 6300)
+              (:list 6300)
+              (:list 6300)))
+            (:lonset
+             (:list
+              1000
+              1500
+              3000
+              3500
+              5000
+              5500
+              7000
+              7500
+              9000
+              9500
+              11000
+              11500
+              13000
+              13500
+              15000
+              15500
+              17000
+              17500
+              18500))
+            (:ldur
+             (:list
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)))
+            (:lvel
+             (:list
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)))
+            (:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)))
+            (:lport
+             (:list
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil))
+            (:llegato nil)))
+          (:add-slots
+           ((:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)))
+            (:lport
+             (:list
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil))
+            (:llegato nil))))
+         (:object
+          (:class chord-seq)
+          (:slots
+           ((:onset 0)
+            (:duration 18750)
+            (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+            (:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:lmidic
+             (:list
+              (:list 6400)
+              (:list 6400)
+              (:list 6400)
+              (:list 6400)
+              (:list 6400)
+              (:list 6400)
+              (:list 6400)
+              (:list 6400)
+              (:list 6400)
+              (:list 6400)
+              (:list 6400)
+              (:list 6400)
+              (:list 6400)
+              (:list 6400)
+              (:list 6400)
+              (:list 6400)
+              (:list 6400)
+              (:list 6400)))
+            (:lonset
+             (:list
+              1250
+              1750
+              3250
+              3750
+              5250
+              5750
+              7250
+              7750
+              9250
+              9750
+              11250
+              11750
+              13250
+              13750
+              15250
+              15750
+              17250
+              17750
+              18750))
+            (:ldur
+             (:list
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)))
+            (:lvel
+             (:list
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)))
+            (:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)))
+            (:lport
+             (:list
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil))
+            (:llegato nil)))
+          (:add-slots
+           ((:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)))
+            (:lport
+             (:list
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil))
+            (:llegato nil))))))
+       (:symbolic-date nil)
+       (:symbolic-dur nil)
+       (:symbolic-dur-extent 0)))))
+   (:id 0))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference n-structure)
+   (:group-id nil)
+   (:name "n-structure")
+   (:x 1343)
+   (:y 240)
+   (:w 93)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "L")
+     (:value (:list 5 7 9))
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 24) (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 1))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference n-structure)
+   (:group-id nil)
+   (:name "n-structure")
+   (:x 1246)
+   (:y 240)
+   (:w 93)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "L")
+     (:value (:list 5 7 9))
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 24) (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 2))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference canons)
+   (:group-id nil)
+   (:name "canons")
+   (:x 1278)
+   (:y 285)
+   (:w 72)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input (:type :standard) (:name "R") (:value nil) (:reactive nil))
+    (:input (:type :standard) (:name "S") (:value nil) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "TIMES")
+     (:value 3)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 3))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference transp-comb)
+   (:group-id nil)
+   (:name "transp-comb")
+   (:x 1024)
+   (:y 207)
+   (:w 100)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input (:type :standard) (:name "A") (:value nil) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "TID")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 24) (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 4))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference transp-comb)
+   (:group-id nil)
+   (:name "transp-comb")
+   (:x 1139)
+   (:y 207)
+   (:w 100)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input (:type :standard) (:name "A") (:value nil) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "TID")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 24) (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 5))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference transp-comb)
+   (:group-id nil)
+   (:name "transp-comb")
+   (:x 731)
+   (:y 278)
+   (:w 100)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input (:type :standard) (:name "A") (:value nil) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "TID")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 12) (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 6))
+  (:box
+   (:type :object)
+   (:reference multi-seq)
+   (:group-id nil)
+   (:name "MULTI-SEQ")
+   (:x 30)
+   (:y 367)
+   (:w 164)
+   (:h 118)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "MULTI-SEQ")
+   (:display :mini-view)
+   (:showname nil)
+   (:show-markers t)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "OBJ-LIST")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "OBJ-LIST") (:reactive nil)))
+   (:window (:size nil) (:position nil))
+   (:edition-params)
+   (:value
+    (:object
+     (:class multi-seq)
+     (:slots
+      ((:obj-list
+        (:list
+         (:object
+          (:class chord-seq)
+          (:slots
+           ((:onset 0)
+            (:duration 9000)
+            (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+            (:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:lmidic
+             (:list
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)))
+            (:lonset
+             (:list
+              0
+              250
+              500
+              1500
+              1750
+              2000
+              3000
+              3250
+              3500
+              4500
+              4750
+              5000
+              6000
+              6250
+              6500
+              7500
+              7750
+              8000
+              9000))
+            (:ldur
+             (:list
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)))
+            (:lvel
+             (:list
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)))
+            (:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)))
+            (:lport
+             (:list
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil))
+            (:llegato nil)))
+          (:add-slots
+           ((:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)))
+            (:lport
+             (:list
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil))
+            (:llegato nil))))
+         (:object
+          (:class chord-seq)
+          (:slots
+           ((:onset 0)
+            (:duration 9750)
+            (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+            (:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:lmidic
+             (:list
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)))
+            (:lonset
+             (:list
+              750
+              1000
+              1250
+              2250
+              2500
+              2750
+              3750
+              4000
+              4250
+              5250
+              5500
+              5750
+              6750
+              7000
+              7250
+              8250
+              8500
+              8750
+              9750))
+            (:ldur
+             (:list
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)))
+            (:lvel
+             (:list
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)))
+            (:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)))
+            (:lport
+             (:list
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil))
+            (:llegato nil)))
+          (:add-slots
+           ((:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)))
+            (:lport
+             (:list
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil
+              nil))
+            (:llegato nil))))))
+       (:symbolic-date nil)
+       (:symbolic-dur nil)
+       (:symbolic-dur-extent 0)))))
+   (:id 7))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference n-structure)
+   (:group-id nil)
+   (:name "n-structure")
+   (:x 87)
+   (:y 269)
+   (:w 93)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "L")
+     (:value (:list 5 7 9))
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 12) (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 8))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference n-structure)
+   (:group-id nil)
+   (:name "n-structure")
+   (:x 8)
+   (:y 231)
+   (:w 93)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "L")
+     (:value (:list 5 7 9))
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 12) (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 9))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference canons)
+   (:group-id nil)
+   (:name "canons")
+   (:x 40)
+   (:y 317)
+   (:w 72)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input (:type :standard) (:name "R") (:value nil) (:reactive nil))
+    (:input (:type :standard) (:name "S") (:value nil) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "TIMES")
+     (:value 3)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 10))
+  (:box
+   (:type :object)
+   (:reference n-cercle)
+   (:group-id nil)
+   (:name "N-CERCLE4")
+   (:x 209)
+   (:y 369)
+   (:w 112)
+   (:h 114)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "N-CERCLE4")
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 12) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "PUNTOS")
+     (:value (:list 0 5 7))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "N") (:reactive nil))
+    (:output (:name "PUNTOS") (:reactive nil)))
+   (:window (:size nil) (:position nil))
+   (:edition-params)
+   (:value
+    (:object
+     (:class n-cercle)
+     (:slots
+      ((:n 12)
+       (:puntos (:list (:list 0 1 2 6 7 8) (:list 3 4 5 9 10 11)))))))
+   (:id 11))
+  (:box
+   (:type :value)
+   (:reference cons)
+   (:group-id nil)
+   (:name "aux3")
+   (:x 216)
+   (:y 134)
+   (:w 48)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value (:list 0 3))
+   (:id 12))
+  (:box
+   (:type :value)
+   (:reference cons)
+   (:group-id nil)
+   (:name "aux")
+   (:x 10)
+   (:y 134)
+   (:w 91)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value (:list 0 1 2 6 7 8))
+   (:id 13))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference transp-comb)
+   (:group-id nil)
+   (:name "transp-comb")
+   (:x 170)
+   (:y 234)
+   (:w 100)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input (:type :standard) (:name "A") (:value nil) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "TID")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 12) (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 14))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference transp-comb)
+   (:group-id nil)
+   (:name "transp-comb")
+   (:x 526)
+   (:y 254)
+   (:w 100)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input (:type :standard) (:name "A") (:value nil) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "TID")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 12) (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 15))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference transp-comb)
+   (:group-id nil)
+   (:name "transp-comb")
+   (:x 865)
+   (:y 278)
+   (:w 100)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input (:type :standard) (:name "A") (:value nil) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "TID")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 12) (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 16))
+  (:box
+   (:type :object)
+   (:reference multi-seq)
+   (:group-id nil)
+   (:name "MULTI-SEQ")
+   (:x 393)
+   (:y 372)
+   (:w 164)
+   (:h 224)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "MULTI-SEQ")
+   (:display :mini-view)
+   (:showname nil)
+   (:show-markers t)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "OBJ-LIST")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "OBJ-LIST") (:reactive nil)))
+   (:window (:size nil) (:position nil))
+   (:edition-params)
+   (:value
+    (:object
+     (:class multi-seq)
+     (:slots
+      ((:obj-list
+        (:list
+         (:object
+          (:class chord-seq)
+          (:slots
+           ((:onset 0)
+            (:duration 7750)
+            (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+            (:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:lmidic
+             (:list
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)
+              (:list 6100)))
+            (:lonset (:list 0 750 3000 3750 6000 6750 7750))
+            (:ldur
+             (:list
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)))
+            (:lvel
+             (:list
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)))
+            (:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)))
+            (:lport (:list nil nil nil nil nil nil))
+            (:llegato nil)))
+          (:add-slots
+           ((:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)
+              (:list 1)))
+            (:lport (:list nil nil nil nil nil nil))
+            (:llegato nil))))
+         (:object
+          (:class chord-seq)
+          (:slots
+           ((:onset 0)
+            (:duration 8000)
+            (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+            (:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:lmidic
+             (:list
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)
+              (:list 6200)))
+            (:lonset (:list 250 1000 3250 4000 6250 7000 8000))
+            (:ldur
+             (:list
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)))
+            (:lvel
+             (:list
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)))
+            (:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)))
+            (:lport (:list nil nil nil nil nil nil))
+            (:llegato nil)))
+          (:add-slots
+           ((:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)
+              (:list 2)))
+            (:lport (:list nil nil nil nil nil nil))
+            (:llegato nil))))
+         (:object
+          (:class chord-seq)
+          (:slots
+           ((:onset 0)
+            (:duration 8250)
+            (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+            (:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:lmidic
+             (:list
+              (:list 6300)
+              (:list 6300)
+              (:list 6300)
+              (:list 6300)
+              (:list 6300)
+              (:list 6300)))
+            (:lonset (:list 500 1250 3500 4250 6500 7250 8250))
+            (:ldur
+             (:list
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)))
+            (:lvel
+             (:list
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)))
+            (:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)))
+            (:lport (:list nil nil nil nil nil nil))
+            (:llegato nil)))
+          (:add-slots
+           ((:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)
+              (:list 3)))
+            (:lport (:list nil nil nil nil nil nil))
+            (:llegato nil))))
+         (:object
+          (:class chord-seq)
+          (:slots
+           ((:onset 0)
+            (:duration 9250)
+            (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+            (:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:lmidic
+             (:list
+              (:list 6400)
+              (:list 6400)
+              (:list 6400)
+              (:list 6400)
+              (:list 6400)
+              (:list 6400)))
+            (:lonset (:list 1500 2250 4500 5250 7500 8250 9250))
+            (:ldur
+             (:list
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)))
+            (:lvel
+             (:list
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)))
+            (:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)))
+            (:lport (:list nil nil nil nil nil nil))
+            (:llegato nil)))
+          (:add-slots
+           ((:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)
+              (:list 4)))
+            (:lport (:list nil nil nil nil nil nil))
+            (:llegato nil))))
+         (:object
+          (:class chord-seq)
+          (:slots
+           ((:onset 0)
+            (:duration 9500)
+            (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+            (:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:lmidic
+             (:list
+              (:list 6500)
+              (:list 6500)
+              (:list 6500)
+              (:list 6500)
+              (:list 6500)
+              (:list 6500)))
+            (:lonset (:list 1750 2500 4750 5500 7750 8500 9500))
+            (:ldur
+             (:list
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)))
+            (:lvel
+             (:list
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)))
+            (:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 5)
+              (:list 5)
+              (:list 5)
+              (:list 5)
+              (:list 5)
+              (:list 5)))
+            (:lport (:list nil nil nil nil nil nil))
+            (:llegato nil)))
+          (:add-slots
+           ((:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 5)
+              (:list 5)
+              (:list 5)
+              (:list 5)
+              (:list 5)
+              (:list 5)))
+            (:lport (:list nil nil nil nil nil nil))
+            (:llegato nil))))
+         (:object
+          (:class chord-seq)
+          (:slots
+           ((:onset 0)
+            (:duration 9750)
+            (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+            (:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:lmidic
+             (:list
+              (:list 6600)
+              (:list 6600)
+              (:list 6600)
+              (:list 6600)
+              (:list 6600)
+              (:list 6600)))
+            (:lonset (:list 2000 2750 5000 5750 8000 8750 9750))
+            (:ldur
+             (:list
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)
+              (:list 1000)))
+            (:lvel
+             (:list
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)
+              (:list 100)))
+            (:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 6)
+              (:list 6)
+              (:list 6)
+              (:list 6)
+              (:list 6)
+              (:list 6)))
+            (:lport (:list nil nil nil nil nil nil))
+            (:llegato nil)))
+          (:add-slots
+           ((:loffset
+             (:list
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)
+              (:list 0)))
+            (:lchan
+             (:list
+              (:list 6)
+              (:list 6)
+              (:list 6)
+              (:list 6)
+              (:list 6)
+              (:list 6)))
+            (:lport (:list nil nil nil nil nil nil))
+            (:llegato nil))))))
+       (:symbolic-date nil)
+       (:symbolic-dur nil)
+       (:symbolic-dur-extent 0)))))
+   (:id 17))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference n-structure)
+   (:group-id nil)
+   (:name "n-structure")
+   (:x 443)
+   (:y 222)
+   (:w 93)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "L")
+     (:value (:list 5 7 9))
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 12) (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 18))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference n-structure)
+   (:group-id nil)
+   (:name "n-structure")
+   (:x 371)
+   (:y 190)
+   (:w 93)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "L")
+     (:value (:list 5 7 9))
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 12) (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 19))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference canons)
+   (:group-id nil)
+   (:name "canons")
+   (:x 403)
+   (:y 280)
+   (:w 72)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input (:type :standard) (:name "R") (:value nil) (:reactive nil))
+    (:input (:type :standard) (:name "S") (:value nil) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "TIMES")
+     (:value 3)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 20))
+  (:box
+   (:type :object)
+   (:reference n-cercle)
+   (:group-id nil)
+   (:name "N-CERCLE4")
+   (:x 1023)
+   (:y 408)
+   (:w 114)
+   (:h 132)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "N-CERCLE4")
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 24) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "PUNTOS")
+     (:value (:list 0 5 7))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "N") (:reactive nil))
+    (:output (:name "PUNTOS") (:reactive nil)))
+   (:window (:size nil) (:position nil))
+   (:edition-params)
+   (:value
+    (:object
+     (:class n-cercle)
+     (:slots
+      ((:n 24)
+       (:puntos
+        (:list
+         (:list 0 2 8 10 16 18)
+         (:list 1 3 9 11 17 19)
+         (:list 4 6 12 14 20 22)
+         (:list 5 7 13 15 21 23)))))))
+   (:id 21))
+  (:box
+   (:type :object)
+   (:reference n-cercle)
+   (:group-id nil)
+   (:name "N-CERCLE4")
+   (:x 1154)
+   (:y 406)
+   (:w 119)
+   (:h 137)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "N-CERCLE4")
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 24) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "PUNTOS")
+     (:value (:list 0 5 7))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "N") (:reactive nil))
+    (:output (:name "PUNTOS") (:reactive nil)))
+   (:window (:size nil) (:position nil))
+   (:edition-params)
+   (:value
+    (:object
+     (:class n-cercle)
+     (:slots
+      ((:n 24)
+       (:puntos
+        (:list
+         (:list 0 1 4 5)
+         (:list 2 3 6 7)
+         (:list 8 9 12 13)
+         (:list 10 11 14 15)
+         (:list 16 17 20 21)
+         (:list 18 19 22 23)))))))
+   (:id 22))
+  (:box
+   (:type :value)
+   (:reference cons)
+   (:group-id nil)
+   (:name "aux3")
+   (:x 1212)
+   (:y 151)
+   (:w 70)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value (:list 0 1 4 5))
+   (:id 23))
+  (:box
+   (:type :value)
+   (:reference cons)
+   (:group-id nil)
+   (:name "aux")
+   (:x 1065)
+   (:y 134)
+   (:w 112)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value (:list 0 2 8 10 16 18))
+   (:id 24))
+  (:box
+   (:type :value)
+   (:reference cons)
+   (:group-id nil)
+   (:name "aux")
+   (:x 735)
+   (:y 196)
+   (:w 91)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value (:list 0 1 4 5 8 9))
+   (:id 25))
+  (:box
+   (:type :value)
+   (:reference cons)
+   (:group-id nil)
+   (:name "aux3")
+   (:x 891)
+   (:y 216)
+   (:w 48)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value (:list 0 6))
+   (:id 26))
+  (:box
+   (:type :object)
+   (:reference n-cercle)
+   (:group-id nil)
+   (:name "N-CERCLE4")
+   (:x 854)
+   (:y 343)
+   (:w 117)
+   (:h 132)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "N-CERCLE4")
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 12) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "PUNTOS")
+     (:value (:list 0 5 7))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "N") (:reactive nil))
+    (:output (:name "PUNTOS") (:reactive nil)))
+   (:window (:size nil) (:position nil))
+   (:edition-params)
+   (:value
+    (:object
+     (:class n-cercle)
+     (:slots
+      ((:n 12)
+       (:puntos
+        (:list
+         (:list 0 6)
+         (:list 1 7)
+         (:list 4 10)
+         (:list 5 11)
+         (:list 8 2)
+         (:list 9 3)))))))
+   (:id 27))
+  (:box
+   (:type :object)
+   (:reference n-cercle)
+   (:group-id nil)
+   (:name "N-CERCLE4")
+   (:x 718)
+   (:y 343)
+   (:w 114)
+   (:h 132)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "N-CERCLE4")
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 12) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "PUNTOS")
+     (:value (:list 0 5 7))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "N") (:reactive nil))
+    (:output (:name "PUNTOS") (:reactive nil)))
+   (:window (:size nil) (:position nil))
+   (:edition-params)
+   (:value
+    (:object
+     (:class n-cercle)
+     (:slots
+      ((:n 12)
+       (:puntos (:list (:list 0 1 4 5 8 9) (:list 6 7 10 11 2 3)))))))
+   (:id 28))
+  (:box
+   (:type :object)
+   (:reference n-cercle)
+   (:group-id nil)
+   (:name "N-CERCLE4")
+   (:x 566)
+   (:y 371)
+   (:w 119)
+   (:h 137)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "N-CERCLE4")
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 12) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "PUNTOS")
+     (:value (:list 0 5 7))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "N") (:reactive nil))
+    (:output (:name "PUNTOS") (:reactive nil)))
+   (:window (:size nil) (:position nil))
+   (:edition-params)
+   (:value
+    (:object
+     (:class n-cercle)
+     (:slots
+      ((:n 12)
+       (:puntos
+        (:list
+         (:list 0 3)
+         (:list 1 4)
+         (:list 2 5)
+         (:list 6 9)
+         (:list 7 10)
+         (:list 8 11)))))))
+   (:id 29))
+  (:box
+   (:type :value)
+   (:reference cons)
+   (:group-id nil)
+   (:name "aux3")
+   (:x 602)
+   (:y 125)
+   (:w 48)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value (:list 0 3))
+   (:id 30))
+  (:box
+   (:type :value)
+   (:reference cons)
+   (:group-id nil)
+   (:name "aux")
+   (:x 423)
+   (:y 124)
+   (:w 91)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value (:list 0 1 2 6 7 8))
+   (:id 31))
+  (:comment
+   (:x 84)
+   (:y 4)
+   (:w 1186)
+   (:h 51)
+   (:fgcolor (:color 10/51 52/255 199/255 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font (:face "Geneva") (:size 36) (:style :plain)))
+   (:align nil)
+   (:text
+    "Transposition limited modes, partitioning and tiling canons")
+   (:id 32)))
+ (:connections
+  (:connection
+   (:from (:box 1 :out 0))
+   (:to (:box 3 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 2 :out 0))
+   (:to (:box 3 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 3 :out 0))
+   (:to (:box 0 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 4 :out 0))
+   (:to (:box 21 :in 2))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 5 :out 0))
+   (:to (:box 22 :in 2))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 6 :out 0))
+   (:to (:box 28 :in 2))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 8 :out 0))
+   (:to (:box 10 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 9 :out 0))
+   (:to (:box 10 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 10 :out 0))
+   (:to (:box 7 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 12 :out 0))
+   (:to (:box 8 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 12 :out 0))
+   (:to (:box 14 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 13 :out 0))
+   (:to (:box 9 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 13 :out 0))
+   (:to (:box 14 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 14 :out 0))
+   (:to (:box 11 :in 2))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 15 :out 0))
+   (:to (:box 29 :in 2))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 16 :out 0))
+   (:to (:box 27 :in 2))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 18 :out 0))
+   (:to (:box 20 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 19 :out 0))
+   (:to (:box 20 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 20 :out 0))
+   (:to (:box 17 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 23 :out 0))
+   (:to (:box 1 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 23 :out 0))
+   (:to (:box 4 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 23 :out 0))
+   (:to (:box 5 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 24 :out 0))
+   (:to (:box 2 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 24 :out 0))
+   (:to (:box 4 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 24 :out 0))
+   (:to (:box 5 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 25 :out 0))
+   (:to (:box 6 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 25 :out 0))
+   (:to (:box 16 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 26 :out 0))
+   (:to (:box 6 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 26 :out 0))
+   (:to (:box 16 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 30 :out 0))
+   (:to (:box 15 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 30 :out 0))
+   (:to (:box 19 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 31 :out 0))
+   (:to (:box 15 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 31 :out 0))
+   (:to (:box 18 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))))

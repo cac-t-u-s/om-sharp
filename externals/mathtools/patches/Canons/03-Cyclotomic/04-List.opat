@@ -1,0 +1,263 @@
+
+(:patch
+ (:om-version 0.03)
+ (:name "04-List")
+ (:doc "")
+ (:info
+  (:created "2019/09/23 0:01:37")
+  (:modified "2019/09/23 0:05:41"))
+ (:window (:size (914 569)) (:position (190 161)))
+ (:grid nil)
+ (:lock nil)
+ (:boxes
+  (:box
+   (:type :object)
+   (:reference textbuffer)
+   (:group-id nil)
+   (:name "TEXTFILE")
+   (:x 512)
+   (:y 185)
+   (:w 223)
+   (:h 322)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "TEXTFILE")
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock :locked)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CONTENTS")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :key)
+     (:name "output-mode")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "CONTENTS") (:reactive nil))
+    (:output (:name "output-mode") (:reactive nil)))
+   (:window (:size nil) (:position nil))
+   (:edition-params (:output-mode nil))
+   (:value
+    (:object
+     (:class textbuffer)
+     (:slots
+      ((:contents
+        (:list
+         ";=============PERIOD 4============"
+         "'(4"
+         "(((1 1 1 1) nil (2 4)))"
+         "(((1 1) (1 0 1) (2)))"
+         "(((1 0 1) (1 1) (4)))"
+         ")"
+         ";=============PERIOD 6============"
+         "'(6"
+         "(((1 1) (1 0 1 0 1) (2)))"
+         "(((1 1 1) (1 0 0 1) (3)))"
+         "(((1 0 0 1) (1 1 1) (2 6)))"
+         "(((1 0 1 0 1) (1 1) (3 6)))"
+         ")"
+         ";=============PERIOD 8============"
+         "'(8"
+         "(((1 1 1 1 1 1 1 1) nil (2 4 8)))"
+         "(((1 1) (1 0 1 0 1 0 1) (2)))"
+         "(((1 0 1) (1 1 0 0 1 1) (4)))"
+         "(((1 0 0 0 1) (1 1 1 1) (8)))"
+         "(((1 1 1 1) (1 0 0 0 1) (2 4)))"
+         "(((1 1 0 0 1 1) (1 0 1) (2 8)))"
+         "(((1 0 1 0 1 0 1) (1 1) (4 8)))"
+         ")"
+         ";=============PERIOD 9============"
+         "'(9"
+         "(((1 1 1 1 1 1 1 1 1) nil (3 9)))"
+         "(((1 1 1) (1 0 0 1 0 0 1) (3)))"
+         "(((1 0 0 1 0 0 1) (1 1 1) (9)))"
+         ")"
+         ";=============PERIOD 10============"
+         "'(10"
+         "(((1 1) (1 0 1 0 1 0 1 0 1) (2)))"
+         "(((1 1 1 1 1) (1 0 0 0 0 1) (5)))"
+         "(((1 0 0 0 0 1) (1 1 1 1 1) (2 10)))"
+         "(((1 0 1 0 1 0 1 0 1) (1 1) (5 10)))"
+         ")"
+         ";=============PERIOD 12============"
+         "'(12"
+         "(((1 1) (1 0 1 0 1 0 1 0 1 0 1) (2)))"
+         "(((1 1 1) (1 0 0 1 0 0 1 0 0 1) (3)))"
+         "(((1 0 1) (1 1 0 0 1 1 0 0 1 1) (4)))"
+         "(((1 1 1 1) (1 0 0 0 1 0 0 0 1) (2 4)))"
+         "(((1 0 0 1) (1 1 1 0 0 0 1 1 1) (2 6)))"
+         "(((1 0 1 0 1) (1 1 0 0 0 0 1 1) (3 6)))"
+         "(((1 0 0 0 0 0 1) (1 1 1 1 1 1) (4 12)))"
+         "(((1 0 1 1 0 1) (1 1 0 -1 0 1 1) (2 4 6)))"
+         "(((1 1 0 0 0 0 1 1) (1 0 1 0 1) (2 4 12)))"
+         "(((1 0 0 0 1 0 0 0 1) (1 1 1 1) (3 6 12)))"
+         "(((1 0 0 1 0 0 1 0 0 1) (1 1 1) (2 4 6 12)))"
+         ")"
+         ";=============PERIOD 14============"
+         "'(14"
+         "(((1 1) (1 0 1 0 1 0 1 0 1 0 1 0 1) (2)))"
+         "(((1 1 1 1 1 1 1) (1 0 0 0 0 0 0 1) (7)))"
+         "(((1 0 0 0 0 0 0 1) (1 1 1 1 1 1 1) (2 14)))"
+         "(((1 0 1 0 1 0 1 0 1 0 1 0 1) (1 1) (7 14)))"
+         ")"
+         ";=============PERIOD 15============"
+         "'(15"
+         "(((1 1 1) (1 0 0 1 0 0 1 0 0 1 0 0 1) (3)))"
+         "(((1 1 1 1 1) (1 0 0 0 0 1 0 0 0 0 1) (5)))"
+         "(((1 0 0 0 0 1 0 0 0 0 1) (1 1 1 1 1) (3 15)))"
+         "(((1 0 0 1 0 0 1 0 0 1 0 0 1) (1 1 1) (5 15)))"
+         ")"
+         ";=============PERIOD 16============"
+         "'(16"
+         "(((1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1) nil (2 4 8 16)))"
+         "(((1 1) (1 0 1 0 1 0 1 0 1 0 1 0 1 0 1) (2)))"
+         "(((1 0 1) (1 1 0 0 1 1 0 0 1 1 0 0 1 1) (4)))"
+         "(((1 0 0 0 1) (1 1 1 1 0 0 0 0 1 1 1 1) (8)))"
+         "(((1 0 0 0 0 0 0 0 1) (1 1 1 1 1 1 1 1) (16)))"
+         "(((1 1 1 1) (1 0 0 0 1 0 0 0 1 0 0 0 1) (2 4)))"
+         "(((1 1 0 0 1 1) (1 0 1 0 0 0 0 0 1 0 1) (2 8)))"
+         "(((1 1 0 0 0 0 0 0 1 1) (1 0 1 0 1 0 1) (2 16)))"
+         "(((1 0 1 0 1 0 1) (1 1 0 0 0 0 0 0 1 1) (4 8)))"
+         "(((1 0 1 0 0 0 0 0 1 0 1) (1 1 0 0 1 1) (4 16)))"
+         "(((1 0 0 0 1 0 0 0 1 0 0 0 1) (1 1 1 1) (8 16)))"
+         "(((1 1 1 1 1 1 1 1) (1 0 0 0 0 0 0 0 1) (2 4 8)))"
+         "(((1 1 1 1 0 0 0 0 1 1 1 1) (1 0 0 0 1) (2 4 16)))"
+         "(((1 1 0 0 1 1 0 0 1 1 0 0 1 1) (1 0 1) (2 8 16)))"
+         "(((1 0 1 0 1 0 1 0 1 0 1 0 1 0 1) (1 1) (4 8 16)))"
+         ")"
+         ";=============PERIOD 18============"
+         "'(18"
+         "(((1 1) (1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1) (2)))"
+         "(((1 1 1) (1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1) (3)))"
+         "(((1 0 0 1 0 0 1) (1 1 1 0 0 0 0 0 0 1 1 1) (9)))"
+         "(((1 0 0 1) (1 1 1 0 0 0 1 1 1 0 0 0 1 1 1) (2 6)))"
+         "(((1 0 1 0 1) (1 1 0 0 0 0 1 1 0 0 0 0 1 1) (3 6)))"
+         "(((1 1 1 1 1 1 1 1 1) (1 0 0 0 0 0 0 0 0 1) (3 9)))"
+         "(((1 0 0 0 0 0 1 0 0 0 0 0 1) (1 1 1 1 1 1) (9 18)))"
+         "(((1 0 0 0 0 0 0 0 0 1) (1 1 1 1 1 1 1 1 1) (2 6 18)))"
+         "(((1 0 1 1 1 1 1 1 1 0 1) (1 1 0 -1 -1 0 1 1) (3 6 9)))"
+         "(((1 1 1 0 0 0 1 1 1 0 0 0 1 1 1) (1 0 0 1) (3 9 18)))"
+         "(((1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1) (1 1) (3 6 9 18)))"
+         ")"))))
+     (:add-slots ((:input-mode :lines-cols)))))
+   (:id 0))
+  (:comment
+   (:x 308)
+   (:y 56)
+   (:w 346)
+   (:h 38)
+   (:fgcolor (:color 16/17 41/255 94/255 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font (:face "Geneva") (:size 24) (:style :plain)))
+   (:align nil)
+   (:text "(through the CV-conditions)")
+   (:id 1))
+  (:comment
+   (:x 60)
+   (:y 3)
+   (:w 727)
+   (:h 53)
+   (:fgcolor (:color 16/17 41/255 94/255 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font (:face "Geneva") (:size 36) (:style :plain)))
+   (:align nil)
+   (:text "Complete list of cyclotomic tiling canons")
+   (:id 2))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "aux1")
+   (:x 246)
+   (:y 195)
+   (:w 32)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 18)
+   (:id 3))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "aux")
+   (:x 98)
+   (:y 193)
+   (:w 32)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 4)
+   (:id 4))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference make-canon-file)
+   (:group-id nil)
+   (:name "make-canon-file")
+   (:x 141)
+   (:y 294)
+   (:w 117)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "LOW")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "HIGH")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 5)))
+ (:connections
+  (:connection
+   (:from (:box 3 :out 0))
+   (:to (:box 5 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 4 :out 0))
+   (:to (:box 5 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))))

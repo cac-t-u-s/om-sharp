@@ -1,0 +1,75 @@
+
+(:om-lib
+ 
+ (:version 2.0)
+
+ (:doc "Mathematical tools for music representation and analysis in OM.")
+
+ (:author "C. Agon, M. Andreatta et al.")
+
+;;; SOURCE FILES TO LOAD
+(:source-files
+  "sources/sieves/cribles"
+  "sources/screamer/package"
+  "sources/screamer/screamer"                   
+  "sources/groups/tools"
+  "sources/groups/zn/scream-groups"
+  "sources/groups/zn/orbites"
+  "sources/groups/zn/tl-zn"
+  "sources/groups/dn/pcs"
+  "sources/groups/dn/pcs-update"
+  "sources/groups/dn/ominterface"
+  "sources/sequences/lewin1"
+  "sources/sequences/suites"                   
+  "sources/canons/vuza/canons"
+  "sources/canons/noll/augcanons"
+  "sources/canons/amiot/cylocanons"
+ )
+
+;;; SYMBOLS VISIBLE AND ACCESSIBLE THROUGH THE OM PACKAGE TREE
+(:symbols
+ (:packages
+  
+  (:package 
+    (:name "Sieves")
+    (:classes crible)
+    (:functions c-union c-intersection c-complement revel-crible))
+  
+  (:package 
+    (:name "Groups")
+    (:functions mod+ mod- mod* n-scale n-structure get-min-period get-subsets)
+    (:packages 
+      (:package 
+        (:name "Zn")
+        (:functions card orbites famille transp transp-comb TL-ZN get-tid))
+      (:package 
+        (:name "Dn")
+        (:functions inv dn-orbites pc-set dn-card n-ord p-form comp sub-power 
+                    sub-p-form sub-rel sub-complex ))
+      (:package 
+        (:name "Aff")
+        (:functions allclasses ifunc inj inj-transp))
+        ))
+  
+  (:package 
+    (:name "Sequences")
+    (:functions diff-in-list suite-reductible suite-reproductible suite-decomposition growing-by-add))
+  
+  (:package 
+    (:name "Canons")
+    (:packages 
+      (:package 
+        (:name "Vuza")
+        (:functions canon-n decompo infocanons patterns canons))
+      (:package 
+        (:name "Augmented")
+        (:functions signatures ag-canoninfo allcanons-aff augmented-canon))
+      (:package 
+        (:name "Cyclotomic")
+        (:functions cyclo bonpolynome? poly2canon poly-mult mult-mult out-rythm get-canon-n  cm-conditions t2? t1?))
+        ))
+   
+  ))
+) 
+
+

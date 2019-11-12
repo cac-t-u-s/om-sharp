@@ -1,0 +1,4580 @@
+
+(:patch
+ (:om-version 0.03)
+ (:name "04-sievenomos")
+ (:doc "")
+ (:info
+  (:created "2019/09/22 2:27:01")
+  (:modified "2019/09/22 9:36:46"))
+ (:window (:size (1114 755)) (:position (367 129)))
+ (:grid nil)
+ (:lock nil)
+ (:boxes
+  (:comment
+   (:x 696)
+   (:y 489)
+   (:w 349)
+   (:h 30)
+   (:fgcolor (:color 191/255 8/51 2/51 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font (:face "Geneva") (:size 18) (:style :plain)))
+   (:align nil)
+   (:text "The sieve L(11,13) of Nomos Alpha")
+   (:id 0))
+  (:box
+   (:type :object)
+   (:reference voice)
+   (:group-id nil)
+   (:name "VOICE")
+   (:x 191)
+   (:y 585)
+   (:w 338)
+   (:h 95)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "VOICE")
+   (:display :mini-view)
+   (:showname nil)
+   (:show-markers t)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "TREE")
+     (:value (:list ? (:list (:list |4//4| (:list 1 1 1 1)))))
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "LMIDIC")
+     (:value (:list (:list 6000)))
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "TEMPO")
+     (:value 60)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "TREE") (:reactive nil))
+    (:output (:name "LMIDIC") (:reactive nil))
+    (:output (:name "TEMPO") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params
+    (:time-map
+     (:list
+      (:list -1000 0)
+      (:list 0 7.5)
+      (:list 125 10.8125)
+      (:list 250 14.125)
+      (:list 750 18.375)
+      (:list 1125 22.3125)
+      (:list 1625 26.5625)
+      (:list 1750 29.875)
+      (:list 2250 34.125)
+      (:list 2375 38.375)
+      (:list 2750 42.3125)
+      (:list 3000 45.9375)
+      (:list 3250 49.5625)
+      (:list 3375 52.875)
+      (:list 3875 57.125)
+      (:list 4000 61.375)
+      (:list 4375 65.3125)
+      (:list 4875 69.5625)
+      (:list 5000 72.875)
+      (:list 5500 77.125)
+      (:list 5625 81.375)
+      (:list 6500 86.5625)
+      (:list 6625 89.875)
+      (:list 7125 94.125)
+      (:list 7250 98.375)
+      (:list 7625 102.3125)
+      (:list 8125 106.5625)
+      (:list 8250 109.875)
+      (:list 8750 114.125)
+      (:list 8875 118.375)
+      (:list 9750 123.5625)
+      (:list 9875 126.875)
+      (:list 10375 131.125)
+      (:list 10500 135.375)
+      (:list 10875 139.3125)
+      (:list 11250 143.25)
+      (:list 11375 146.5625)
+      (:list 11500 149.875)
+      (:list 12000 154.125)
+      (:list 12125 158.375)
+      (:list 12500 162.3125)
+      (:list 12625 165.625)
+      (:list 13000 169.5625)
+      (:list 13125 172.875)
+      (:list 13625 177.125)
+      (:list 13750 181.375)
+      (:list 14000 185.0)
+      (:list 14125 188.3125)
+      (:list 14625 192.5625)
+      (:list 14750 195.875)
+      (:list 15250 200.125)
+      (:list 15375 204.375)
+      (:list 15750 208.3125)
+      (:list 16250 212.5625)
+      (:list 16375 215.875)
+      (:list 16750 219.8125)
+      (:list 17000 223.4375)
+      (:list 17375 227.375)
+      (:list 17875 237.625)
+      (:list 18000 240.9375)
+      (:list 18125 244.25)
+      (:list 18625 248.5)
+      (:list 19000 252.4375)
+      (:list 19500 256.6875)
+      (:list 19625 260.0)
+      (:list 20125 264.25)
+      (:list 20250 268.5)
+      (:list 20625 272.4375)
+      (:list 20875 276.0625)
+      (:list 21125 279.6875)
+      (:list 21250 283.0)
+      (:list 21750 287.25)
+      (:list 21875 291.5)
+      (:list 22250 295.4375)
+      (:list 22750 299.6875)
+      (:list 22875 303.0)
+      (:list 23375 307.25)
+      (:list 23500 311.5)
+      (:list 24375 316.6875)
+      (:list 24500 320.0)
+      (:list 25000 324.25)
+      (:list 25125 328.5)
+      (:list 25500 332.4375)
+      (:list 26000 336.6875)
+      (:list 26125 340.0)
+      (:list 26625 344.25)
+      (:list 26750 348.5)
+      (:list 27625 353.6875)
+      (:list 27750 357.0)
+      (:list 28250 361.25)
+      (:list 28375 365.5)
+      (:list 28750 369.4375)
+      (:list 29125 373.375)
+      (:list 29250 376.6875)
+      (:list 29375 380.0)
+      (:list 29875 384.25)
+      (:list 30000 388.5)
+      (:list 30375 392.4375)
+      (:list 30500 395.75)
+      (:list 30875 399.6875)
+      (:list 31000 403.0)
+      (:list 31500 407.25)
+      (:list 31625 411.5)
+      (:list 31875 415.125)
+      (:list 32000 418.4375)
+      (:list 32500 422.6875)
+      (:list 32625 426.0)
+      (:list 33125 430.25)
+      (:list 33250 434.5)
+      (:list 33625 438.4375)
+      (:list 34125 442.6875)
+      (:list 34250 446.0)
+      (:list 34625 449.9375)
+      (:list 34875 453.5625)
+      (:list 35250 457.5)
+      (:list 35750 467.75)
+      (:list 35875 471.0625)
+      (:list 36000 474.375)
+      (:list 36500 478.625)
+      (:list 36875 482.5625)
+      (:list 37375 486.8125)
+      (:list 37500 490.125)
+      (:list 38000 494.375)
+      (:list 38125 498.625)
+      (:list 38500 502.5625)
+      (:list 38750 506.1875)
+      (:list 39000 509.8125)
+      (:list 39125 513.125)
+      (:list 39625 517.375)
+      (:list 39750 521.625)
+      (:list 40125 525.5625)
+      (:list 40625 529.8125)
+      (:list 40750 533.125)
+      (:list 41250 537.375)
+      (:list 41375 541.625)
+      (:list 42250 546.8125)
+      (:list 42375 550.125)
+      (:list 42875 554.375)
+      (:list 43000 558.625)
+      (:list 43375 562.5625)
+      (:list 43875 566.8125)
+      (:list 44000 570.125)
+      (:list 44500 574.375)
+      (:list 44625 578.625)
+      (:list 45500 583.8125)
+      (:list 45625 587.125)
+      (:list 46125 591.375)
+      (:list 46250 595.625)
+      (:list 46625 599.5625)
+      (:list 47000 603.5)
+      (:list 47125 606.8125)
+      (:list 47250 610.125)
+      (:list 47750 614.375)
+      (:list 47875 618.625)
+      (:list 48250 622.5625)
+      (:list 48375 625.875)
+      (:list 48750 629.8125)
+      (:list 48875 633.125)
+      (:list 49375 637.375)
+      (:list 49500 641.625)
+      (:list 49750 645.25)
+      (:list 49875 648.5625)
+      (:list 50375 652.8125)
+      (:list 50500 656.125)
+      (:list 51000 660.375)
+      (:list 51125 664.625)
+      (:list 51500 668.5625)
+      (:list 52000 672.8125)
+      (:list 52125 676.125)
+      (:list 52500 680.0625)
+      (:list 52750 683.6875)
+      (:list 53125 687.625)
+      (:list 53625 691.875)))
+    (:staff :g))
+   (:value
+    (:object
+     (:class voice)
+     (:slots
+      ((:onset 0)
+       (:duration 53624)
+       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:symbolic-date nil)
+       (:symbolic-dur nil)
+       (:symbolic-dur-extent 0)
+       (:lmidic
+        (:list
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)
+         (:list 6000)))
+       (:lonset
+        (:list
+         0
+         125
+         250
+         750
+         1125
+         1625
+         1750
+         2375
+         2750
+         3000
+         3250
+         3375
+         4000
+         4375
+         4875
+         5000
+         5625
+         6500
+         6625
+         7250
+         7625
+         8125
+         8250
+         8875
+         9750
+         9875
+         10500
+         10875
+         11250
+         11375
+         11500
+         12125
+         12500
+         12625
+         13000
+         13125
+         13750
+         14000
+         14125
+         14625
+         14750
+         15375
+         15750
+         16250
+         16375
+         16750
+         17000
+         17375
+         17875
+         17875
+         18000
+         18125
+         18625
+         19000
+         19500
+         19625
+         20250
+         20625
+         20875
+         21125
+         21250
+         21875
+         22250
+         22750
+         22875
+         23500
+         24375
+         24500
+         25125
+         25500
+         26000
+         26125
+         26750
+         27625
+         27750
+         28375
+         28750
+         29125
+         29250
+         29375
+         30000
+         30375
+         30500
+         30875
+         31000
+         31625
+         31875
+         32000
+         32500
+         32625
+         33250
+         33625
+         34125
+         34250
+         34625
+         34875
+         35250
+         35750
+         35750
+         35875
+         36000
+         36500
+         36875
+         37375
+         37500
+         38125
+         38500
+         38750
+         39000
+         39125
+         39750
+         40125
+         40625
+         40750
+         41375
+         42250
+         42375
+         43000
+         43375
+         43875
+         44000
+         44625
+         45500
+         45625
+         46250
+         46625
+         47000
+         47125
+         47250
+         47875
+         48250
+         48375
+         48750
+         48875
+         49500
+         49750
+         49875
+         50375
+         50500
+         51125
+         51500
+         52000
+         52125
+         52500
+         52750
+         53125
+         53625
+         53625))
+       (:ldur
+        (:list
+         (:list 124)
+         (:list 124)
+         (:list 499)
+         (:list 374)
+         (:list 499)
+         (:list 124)
+         (:list 624)
+         (:list 374)
+         (:list 249)
+         (:list 249)
+         (:list 124)
+         (:list 624)
+         (:list 374)
+         (:list 499)
+         (:list 124)
+         (:list 624)
+         (:list 874)
+         (:list 124)
+         (:list 624)
+         (:list 374)
+         (:list 499)
+         (:list 124)
+         (:list 624)
+         (:list 874)
+         (:list 124)
+         (:list 624)
+         (:list 374)
+         (:list 374)
+         (:list 124)
+         (:list 124)
+         (:list 624)
+         (:list 374)
+         (:list 124)
+         (:list 374)
+         (:list 124)
+         (:list 624)
+         (:list 249)
+         (:list 124)
+         (:list 499)
+         (:list 124)
+         (:list 624)
+         (:list 374)
+         (:list 499)
+         (:list 124)
+         (:list 374)
+         (:list 249)
+         (:list 374)
+         (:list 499)
+         (:list -1)
+         (:list 124)
+         (:list 124)
+         (:list 499)
+         (:list 374)
+         (:list 499)
+         (:list 124)
+         (:list 624)
+         (:list 374)
+         (:list 249)
+         (:list 249)
+         (:list 124)
+         (:list 624)
+         (:list 374)
+         (:list 499)
+         (:list 124)
+         (:list 624)
+         (:list 874)
+         (:list 124)
+         (:list 624)
+         (:list 374)
+         (:list 499)
+         (:list 124)
+         (:list 624)
+         (:list 874)
+         (:list 124)
+         (:list 624)
+         (:list 374)
+         (:list 374)
+         (:list 124)
+         (:list 124)
+         (:list 624)
+         (:list 374)
+         (:list 124)
+         (:list 374)
+         (:list 124)
+         (:list 624)
+         (:list 249)
+         (:list 124)
+         (:list 499)
+         (:list 124)
+         (:list 624)
+         (:list 374)
+         (:list 499)
+         (:list 124)
+         (:list 374)
+         (:list 249)
+         (:list 374)
+         (:list 499)
+         (:list -1)
+         (:list 124)
+         (:list 124)
+         (:list 499)
+         (:list 374)
+         (:list 499)
+         (:list 124)
+         (:list 624)
+         (:list 374)
+         (:list 249)
+         (:list 249)
+         (:list 124)
+         (:list 624)
+         (:list 374)
+         (:list 499)
+         (:list 124)
+         (:list 624)
+         (:list 874)
+         (:list 124)
+         (:list 624)
+         (:list 374)
+         (:list 499)
+         (:list 124)
+         (:list 624)
+         (:list 874)
+         (:list 124)
+         (:list 624)
+         (:list 374)
+         (:list 374)
+         (:list 124)
+         (:list 124)
+         (:list 624)
+         (:list 374)
+         (:list 124)
+         (:list 374)
+         (:list 124)
+         (:list 624)
+         (:list 249)
+         (:list 124)
+         (:list 499)
+         (:list 124)
+         (:list 624)
+         (:list 374)
+         (:list 499)
+         (:list 124)
+         (:list 374)
+         (:list 249)
+         (:list 374)
+         (:list 499)
+         (:list -1)))
+       (:lvel
+        (:list
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)))
+       (:loffset
+        (:list
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)))
+       (:lchan
+        (:list
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)))
+       (:lport
+        (:list
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil))
+       (:llegato nil)
+       (:tree
+        (:list
+         3
+         (:list
+          (:list
+           (:list 143 32)
+           (:list
+            1
+            1
+            4
+            3
+            4
+            1
+            4
+            1.0
+            3
+            2
+            2
+            1
+            4
+            1.0
+            3
+            4
+            1
+            4
+            1.0
+            7
+            1
+            4
+            1.0
+            3
+            4
+            1
+            4
+            1.0
+            7
+            1
+            4
+            1.0
+            3
+            3
+            1
+            1
+            4
+            1.0
+            3
+            1
+            3
+            1
+            4
+            1.0
+            2
+            1
+            4
+            1
+            4
+            1.0
+            3
+            4
+            1
+            3
+            2
+            3
+            4
+            0))
+          (:list
+           (:list 143 32)
+           (:list
+            1
+            1
+            4
+            3
+            4
+            1
+            4
+            1.0
+            3
+            2
+            2
+            1
+            4
+            1.0
+            3
+            4
+            1
+            4
+            1.0
+            7
+            1
+            4
+            1.0
+            3
+            4
+            1
+            4
+            1.0
+            7
+            1
+            4
+            1.0
+            3
+            3
+            1
+            1
+            4
+            1.0
+            3
+            1
+            3
+            1
+            4
+            1.0
+            2
+            1
+            4
+            1
+            4
+            1.0
+            3
+            4
+            1
+            3
+            2
+            3
+            4
+            0))
+          (:list
+           (:list 143 32)
+           (:list
+            1
+            1
+            4
+            3
+            4
+            1
+            4
+            1.0
+            3
+            2
+            2
+            1
+            4
+            1.0
+            3
+            4
+            1
+            4
+            1.0
+            7
+            1
+            4
+            1.0
+            3
+            4
+            1
+            4
+            1.0
+            7
+            1
+            4
+            1.0
+            3
+            3
+            1
+            1
+            4
+            1.0
+            3
+            1
+            3
+            1
+            4
+            1.0
+            2
+            1
+            4
+            1
+            4
+            1.0
+            3
+            4
+            1
+            3
+            2
+            3
+            4
+            0)))))
+       (:tempo 60)))
+     (:add-slots
+      ((:lvel
+        (:list
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)
+         (:list 100)))
+       (:loffset
+        (:list
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)
+         (:list 0)))
+       (:lchan
+        (:list
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)
+         (:list 1)))
+       (:lport
+        (:list
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil
+         nil))))))
+   (:id 1))
+  (:box
+   (:type :function)
+   (:reference c2rhythm)
+   (:group-id nil)
+   (:name "c2rhythm")
+   (:x 310)
+   (:y 521)
+   (:w 85)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "INDEX")
+     (:value 0)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "SIGNATURE")
+     (:value (:list 143 32))
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "TIMES")
+     (:value 3)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 2))
+  (:comment
+   (:x 22)
+   (:y 700)
+   (:w 876)
+   (:h 33)
+   (:fgcolor (:color 122/255 8/85 1/17 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font (:face "Geneva") (:size 18) (:style :plain)))
+   (:align nil)
+   (:text
+    "1 1 4 3 4 1 5 3 2 2 1 5 3 4 1 5 7 1 5 3 4 1 5 7 1 5 3 3 1 1 5 3 1 3 1 5 2 1 4 1 5 3 4 1 3 2 3 4 ")
+   (:id 3))
+  (:box
+   (:type :function)
+   (:reference first)
+   (:group-id nil)
+   (:name "first")
+   (:x 516)
+   (:y 541)
+   (:w 57)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "LIST")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 4))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "aux")
+   (:x 657)
+   (:y 541)
+   (:w 36)
+   (:h 30)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 143)
+   (:id 5))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference n-structure)
+   (:group-id nil)
+   (:name "n-structure")
+   (:x 608)
+   (:y 585)
+   (:w 93)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "L")
+     (:value (:list 5 7 9))
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 12) (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 6))
+  (:comment
+   (:x 510)
+   (:y 0)
+   (:w 579)
+   (:h 54)
+   (:fgcolor (:color 191/255 8/51 2/51 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font (:face "Geneva") (:size 36) (:style :plain)))
+   (:align nil)
+   (:text "Sieves and non-octaviant scales")
+   (:id 7))
+  (:box
+   (:type :object)
+   (:reference chord)
+   (:group-id nil)
+   (:name "CHORD")
+   (:x 22)
+   (:y 585)
+   (:w 123)
+   (:h 113)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "CHORD")
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "LMIDIC")
+     (:value (:list 6000))
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "LVEL")
+     (:value (:list 100))
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "LOFFSET")
+     (:value (:list 0))
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "LDUR")
+     (:value (:list 1000))
+     (:reactive nil))
+    (:input
+     (:type :key)
+     (:name "lchan")
+     (:value (:list 1))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "LMIDIC") (:reactive nil))
+    (:output (:name "LVEL") (:reactive nil))
+    (:output (:name "LOFFSET") (:reactive nil))
+    (:output (:name "LDUR") (:reactive nil))
+    (:output (:name "lchan") (:reactive nil)))
+   (:window (:size (500 500)) (:position (253 253)))
+   (:edition-params (:staff :ggf))
+   (:value
+    (:object
+     (:class chord)
+     (:slots
+      ((:symbolic-date nil)
+       (:symbolic-dur nil)
+       (:symbolic-dur-extent 0)
+       (:onset 0)
+       (:item-time nil)
+       (:item-internal-time nil)
+       (:item-type nil)
+       (:attributes nil)
+       (:lmidic
+        (:list
+         6000
+         6050
+         6100
+         6300
+         6450
+         6650
+         6700
+         6950
+         7100
+         7200
+         7300
+         7350
+         7600
+         7750
+         7950
+         8000
+         8250
+         8600
+         8650
+         8900
+         9050
+         9250
+         9300
+         9550
+         9900
+         9950
+         10200
+         10350
+         10500
+         10550
+         10600
+         10850
+         11000
+         11050
+         11200
+         11250
+         11500
+         11600
+         11650
+         11850
+         11900
+         12150
+         12300
+         12500
+         12550
+         12700
+         12800
+         12950
+         13150))
+       (:lvel
+        (:list
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80
+         80))
+       (:loffset
+        (:list
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0
+         0))
+       (:ldur
+        (:list
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000
+         1000))
+       (:lchan
+        (:list
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1))
+       (:lport nil)
+       (:notes
+        (:list
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 6000)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 6050)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 6100)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 6300)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 6450)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 6650)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 6700)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 6950)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 7100)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 7200)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 7300)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 7350)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 7600)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 7750)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 7950)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 8000)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 8250)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 8600)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 8650)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 8900)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 9050)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 9250)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 9300)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 9550)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 9900)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 9950)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 10200)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 10350)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 10500)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 10550)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 10600)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 10850)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 11000)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 11050)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 11200)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 11250)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 11500)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 11600)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 11650)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 11850)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 11900)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 12150)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 12300)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 12500)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 12550)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 12700)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 12800)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 12950)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))
+         (:object
+          (:class note)
+          (:slots
+           ((:symbolic-date nil)
+            (:symbolic-dur nil)
+            (:symbolic-dur-extent 0)
+            (:midic 13150)
+            (:vel 80)
+            (:dur 1000)
+            (:chan 1)
+            (:port nil)
+            (:offset 0)))
+          (:add-slots ((:port nil))))))))
+     (:add-slots
+      ((:onset 0)
+       (:lchan
+        (:list
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1
+         1))
+       (:lport nil)))))
+   (:id 8))
+  (:box
+   (:type :function)
+   (:reference c2chord)
+   (:group-id nil)
+   (:name "c2chord")
+   (:x 191)
+   (:y 521)
+   (:w 77)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "INDEX")
+     (:value 0)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "BASE")
+     (:value 6000)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "APPROX")
+     (:value 50)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 9))
+  (:box
+   (:type :object)
+   (:reference n-cercle)
+   (:group-id nil)
+   (:name "N-CERCLE")
+   (:x 34)
+   (:y 477)
+   (:w 92)
+   (:h 86)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "N-CERCLE")
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock :locked)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 143) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "PUNTOS")
+     (:value (:list 0 5 7))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "N") (:reactive nil))
+    (:output (:name "PUNTOS") (:reactive nil)))
+   (:window (:size (556 487)) (:position (274 276)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class n-cercle)
+     (:slots
+      ((:n 143)
+       (:puntos
+        (:list
+         (:list
+          0
+          1
+          6
+          13
+          14
+          19
+          26
+          27
+          32
+          39
+          40
+          45
+          52
+          53
+          58
+          65
+          66
+          71
+          78
+          79
+          84
+          91
+          92
+          97
+          104
+          105
+          110
+          117
+          118
+          123
+          130
+          131
+          136
+          143)))))))
+   (:id 10))
+  (:comment
+   (:x 384)
+   (:y 105)
+   (:w 57)
+   (:h 29)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font (:face "Geneva") (:size 18) (:style :plain)))
+   (:align nil)
+   (:text "13-9")
+   (:id 11))
+  (:comment
+   (:x 510)
+   (:y 46)
+   (:w 57)
+   (:h 29)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font (:face "Geneva") (:size 18) (:style :plain)))
+   (:align nil)
+   (:text "11-8")
+   (:id 12))
+  (:comment
+   (:x 460)
+   (:y 77)
+   (:w 57)
+   (:h 29)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font (:face "Geneva") (:size 18) (:style :plain)))
+   (:align nil)
+   (:text "11-4")
+   (:id 13))
+  (:comment
+   (:x 148)
+   (:y 328)
+   (:w 57)
+   (:h 29)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font (:face "Geneva") (:size 18) (:style :plain)))
+   (:align nil)
+   (:text "13-6")
+   (:id 14))
+  (:comment
+   (:x 78)
+   (:y 328)
+   (:w 57)
+   (:h 29)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font (:face "Geneva") (:size 18) (:style :plain)))
+   (:align nil)
+   (:text "13-1")
+   (:id 15))
+  (:comment
+   (:x 5)
+   (:y 328)
+   (:w 57)
+   (:h 29)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font (:face "Geneva") (:size 18) (:style :plain)))
+   (:align nil)
+   (:text "13-0")
+   (:id 16))
+  (:comment
+   (:x 203)
+   (:y 141)
+   (:w 57)
+   (:h 29)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font (:face "Geneva") (:size 18) (:style :plain)))
+   (:align nil)
+   (:text "11-2")
+   (:id 17))
+  (:comment
+   (:x 334)
+   (:y 30)
+   (:w 57)
+   (:h 29)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font (:face "Geneva") (:size 18) (:style :plain)))
+   (:align nil)
+   (:text "13-9")
+   (:id 18))
+  (:comment
+   (:x 260)
+   (:y 30)
+   (:w 57)
+   (:h 29)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font (:face "Geneva") (:size 18) (:style :plain)))
+   (:align nil)
+   (:text "13-7")
+   (:id 19))
+  (:comment
+   (:x 188)
+   (:y 1)
+   (:w 57)
+   (:h 29)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font (:face "Geneva") (:size 18) (:style :plain)))
+   (:align nil)
+   (:text "13-5")
+   (:id 20))
+  (:comment
+   (:x 86)
+   (:y 1)
+   (:w 57)
+   (:h 29)
+   (:fgcolor (:color 0 0 0 1.0))
+   (:bgcolor nil)
+   (:border 0)
+   (:roundness nil)
+   (:text-font (:font (:face "Geneva") (:size 18) (:style :plain)))
+   (:align nil)
+   (:text "13-3")
+   (:id 21))
+  (:box
+   (:type :object)
+   (:reference n-cercle)
+   (:group-id nil)
+   (:name "N-CERCLE")
+   (:x 437)
+   (:y 436)
+   (:w 92)
+   (:h 86)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "N-CERCLE")
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock :locked)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 143) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "PUNTOS")
+     (:value (:list 0 5 7))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "N") (:reactive nil))
+    (:output (:name "PUNTOS") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class n-cercle)
+     (:slots
+      ((:n 143)
+       (:puntos
+        (:list
+         (:list
+          0
+          1
+          2
+          6
+          9
+          13
+          14
+          19
+          22
+          24
+          26
+          27
+          32
+          35
+          39
+          40
+          45
+          52
+          53
+          58
+          61
+          65
+          66
+          71
+          78
+          79
+          84
+          87
+          90
+          91
+          92
+          97
+          100
+          101
+          104
+          105
+          110
+          112
+          113
+          117
+          118
+          123
+          126
+          130
+          131
+          134
+          136
+          139
+          143)))))))
+   (:id 22))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference c-union)
+   (:group-id nil)
+   (:name "c-union")
+   (:x 261)
+   (:y 436)
+   (:w 134)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CRIBLE")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :optional)
+     (:name "rest")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 23))
+  (:box
+   (:type :object)
+   (:reference n-cercle)
+   (:group-id nil)
+   (:name "N-CERCLE")
+   (:x 384)
+   (:y 239)
+   (:w 92)
+   (:h 86)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "N-CERCLE")
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock :locked)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 143) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "PUNTOS")
+     (:value (:list 0 5 7))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "N") (:reactive nil))
+    (:output (:name "PUNTOS") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class n-cercle)
+     (:slots
+      ((:n 143)
+       (:puntos (:list (:list 9 22 35 61 87 100 113 126 139)))))))
+   (:id 24))
+  (:box
+   (:library "Mathtools")
+   (:type :object)
+   (:reference crible)
+   (:group-id nil)
+   (:name "CRIBLE")
+   (:x 384)
+   (:y 157)
+   (:w 70)
+   (:h 40)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "CRIBLE")
+   (:display :hidden)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CR-EXP")
+     (:value (:list 13 9 143))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "CR-EXP") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object (:class crible) (:slots ((:cr-exp (:list 13 9 143))))))
+   (:id 25))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference c-intersection)
+   (:group-id nil)
+   (:name "c-intersection")
+   (:x 437)
+   (:y 327)
+   (:w 105)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CRIBLE")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 26))
+  (:box
+   (:type :object)
+   (:reference n-cercle)
+   (:group-id nil)
+   (:name "N-CERCLE")
+   (:x 278)
+   (:y 271)
+   (:w 92)
+   (:h 86)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "N-CERCLE")
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 143) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "PUNTOS")
+     (:value (:list 0 5 7))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "N") (:reactive nil))
+    (:output (:name "PUNTOS") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class n-cercle)
+     (:slots
+      ((:n 143)
+       (:puntos (:list (:list 2 13 24 79 90 101 112 123 134)))))))
+   (:id 27))
+  (:box
+   (:type :object)
+   (:reference n-cercle)
+   (:group-id nil)
+   (:name "N-CERCLE")
+   (:x 278)
+   (:y 141)
+   (:w 92)
+   (:h 86)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "N-CERCLE")
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock :locked)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 143) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "PUNTOS")
+     (:value (:list 0 5 7))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "N") (:reactive nil))
+    (:output (:name "PUNTOS") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class n-cercle)
+     (:slots
+      ((:n 143)
+       (:puntos
+        (:list (:list 2 13 24 35 46 57 68 79 90 101 112 123 134)))))))
+   (:id 28))
+  (:box
+   (:library "Mathtools")
+   (:type :object)
+   (:reference crible)
+   (:group-id nil)
+   (:name "CRIBLE")
+   (:x 203)
+   (:y 185)
+   (:w 70)
+   (:h 42)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "CRIBLE")
+   (:display :hidden)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CR-EXP")
+     (:value (:list 11 2 143))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "CR-EXP") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object (:class crible) (:slots ((:cr-exp (:list 11 2 143))))))
+   (:id 29))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference c-intersection)
+   (:group-id nil)
+   (:name "c-intersection")
+   (:x 191)
+   (:y 465)
+   (:w 105)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CRIBLE")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 30))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference c-union)
+   (:group-id nil)
+   (:name "c-union")
+   (:x 34)
+   (:y 436)
+   (:w 134)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CRIBLE")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :optional)
+     (:name "rest")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 31))
+  (:box
+   (:library "Mathtools")
+   (:type :object)
+   (:reference crible)
+   (:group-id nil)
+   (:name "CRIBLE")
+   (:x 148)
+   (:y 358)
+   (:w 70)
+   (:h 43)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "CRIBLE")
+   (:display :hidden)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CR-EXP")
+     (:value (:list 13 6 143))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "CR-EXP") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object (:class crible) (:slots ((:cr-exp (:list 13 6 143))))))
+   (:id 32))
+  (:box
+   (:library "Mathtools")
+   (:type :object)
+   (:reference crible)
+   (:group-id nil)
+   (:name "CRIBLE")
+   (:x 76)
+   (:y 358)
+   (:w 70)
+   (:h 45)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "CRIBLE")
+   (:display :hidden)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CR-EXP")
+     (:value (:list 13 1 143))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "CR-EXP") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object (:class crible) (:slots ((:cr-exp (:list 13 1 143))))))
+   (:id 33))
+  (:box
+   (:library "Mathtools")
+   (:type :object)
+   (:reference crible)
+   (:group-id nil)
+   (:name "CRIBLE")
+   (:x 5)
+   (:y 358)
+   (:w 70)
+   (:h 42)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "CRIBLE")
+   (:display :hidden)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CR-EXP")
+     (:value (:list 13 0 143))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "CR-EXP") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object (:class crible) (:slots ((:cr-exp (:list 13 0 143))))))
+   (:id 34))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference c-complement)
+   (:group-id nil)
+   (:name "c-complement")
+   (:x 510)
+   (:y 239)
+   (:w 109)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 35))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference c-union)
+   (:group-id nil)
+   (:name "c-union")
+   (:x 460)
+   (:y 197)
+   (:w 107)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CRIBLE")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 36))
+  (:box
+   (:library "Mathtools")
+   (:type :object)
+   (:reference crible)
+   (:group-id nil)
+   (:name "CRIBLE")
+   (:x 510)
+   (:y 153)
+   (:w 70)
+   (:h 44)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "CRIBLE")
+   (:display :hidden)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CR-EXP")
+     (:value (:list 11 8 143))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "CR-EXP") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object (:class crible) (:slots ((:cr-exp (:list 11 8 143))))))
+   (:id 37))
+  (:box
+   (:library "Mathtools")
+   (:type :object)
+   (:reference crible)
+   (:group-id nil)
+   (:name "CRIBLE")
+   (:x 467)
+   (:y 105)
+   (:w 70)
+   (:h 44)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "CRIBLE")
+   (:display :hidden)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CR-EXP")
+     (:value (:list 11 4 143))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "CR-EXP") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object (:class crible) (:slots ((:cr-exp (:list 11 4 143))))))
+   (:id 38))
+  (:box
+   (:library "Mathtools")
+   (:type :object)
+   (:reference crible)
+   (:group-id nil)
+   (:name "CRIBLE")
+   (:x 321)
+   (:y 66)
+   (:w 70)
+   (:h 40)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "CRIBLE")
+   (:display :hidden)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CR-EXP")
+     (:value (:list 13 9 143))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "CR-EXP") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object (:class crible) (:slots ((:cr-exp (:list 13 9 143))))))
+   (:id 39))
+  (:box
+   (:library "Mathtools")
+   (:type :object)
+   (:reference crible)
+   (:group-id nil)
+   (:name "CRIBLE")
+   (:x 247)
+   (:y 66)
+   (:w 70)
+   (:h 40)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "CRIBLE")
+   (:display :hidden)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CR-EXP")
+     (:value (:list 13 7 143))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "CR-EXP") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object (:class crible) (:slots ((:cr-exp (:list 13 7 143))))))
+   (:id 40))
+  (:box
+   (:library "Mathtools")
+   (:type :object)
+   (:reference crible)
+   (:group-id nil)
+   (:name "CRIBLE")
+   (:x 175)
+   (:y 46)
+   (:w 70)
+   (:h 43)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "CRIBLE")
+   (:display :hidden)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CR-EXP")
+     (:value (:list 13 5 143))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "CR-EXP") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object (:class crible) (:slots ((:cr-exp (:list 13 5 143))))))
+   (:id 41))
+  (:box
+   (:type :object)
+   (:reference n-cercle)
+   (:group-id nil)
+   (:name "N-CERCLE")
+   (:x 86)
+   (:y 30)
+   (:w 79)
+   (:h 80)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "N-CERCLE")
+   (:display :mini-view)
+   (:showname nil)
+   (:group-id nil)
+   (:lock :locked)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :standard) (:name "N") (:value 143) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "PUNTOS")
+     (:value (:list 0 5 7))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "N") (:reactive nil))
+    (:output (:name "PUNTOS") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class n-cercle)
+     (:slots
+      ((:n 143)
+       (:puntos (:list (:list 3 16 29 42 55 68 81 94 107 120 133)))))))
+   (:id 42))
+  (:box
+   (:library "Mathtools")
+   (:type :object)
+   (:reference crible)
+   (:group-id nil)
+   (:name "CRIBLE")
+   (:x 10)
+   (:y 42)
+   (:w 70)
+   (:h 47)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:name "CRIBLE")
+   (:display :hidden)
+   (:showname nil)
+   (:group-id nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CR-EXP")
+     (:value (:list 13 3 143))
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "CR-EXP") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object (:class crible) (:slots ((:cr-exp (:list 13 3 143))))))
+   (:id 43))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference c-union)
+   (:group-id nil)
+   (:name "c-union")
+   (:x 39)
+   (:y 141)
+   (:w 105)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CRIBLE")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :optional)
+     (:name "rest")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :optional)
+     (:name "rest")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 44))
+  (:box
+   (:library "Mathtools")
+   (:type :function)
+   (:reference c-complement)
+   (:group-id nil)
+   (:name "c-complement")
+   (:x 78)
+   (:y 222)
+   (:w 109)
+   (:h 30)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 45)))
+ (:connections
+  (:connection
+   (:from (:box 2 :out 0))
+   (:to (:box 1 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 4 :out 0))
+   (:to (:box 6 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 5 :out 0))
+   (:to (:box 6 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 9 :out 0))
+   (:to (:box 8 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 22 :out 0))
+   (:to (:box 2 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 22 :out 0))
+   (:to (:box 9 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 22 :out 2))
+   (:to (:box 4 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 25 :out 0))
+   (:to (:box 26 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 26 :out 0))
+   (:to (:box 23 :in 2))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 29 :out 0))
+   (:to (:box 30 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 30 :out 0))
+   (:to (:box 23 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 31 :out 0))
+   (:to (:box 23 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 32 :out 0))
+   (:to (:box 31 :in 2))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 33 :out 0))
+   (:to (:box 31 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 34 :out 0))
+   (:to (:box 31 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 35 :out 0))
+   (:to (:box 26 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 36 :out 0))
+   (:to (:box 35 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 37 :out 0))
+   (:to (:box 36 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 38 :out 0))
+   (:to (:box 36 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 39 :out 0))
+   (:to (:box 44 :in 3))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 40 :out 0))
+   (:to (:box 44 :in 2))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 41 :out 0))
+   (:to (:box 44 :in 1))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 43 :out 0))
+   (:to (:box 44 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 44 :out 0))
+   (:to (:box 45 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))
+  (:connection
+   (:from (:box 45 :out 0))
+   (:to (:box 30 :in 0))
+   (:attributes (:color nil :style nil :modif nil)))))
