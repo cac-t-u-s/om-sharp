@@ -56,10 +56,9 @@
 (defmethod b-box-h (b) (- (b-box-y2 b) (b-box-y1 b)))
 
 
-
-(defmethod initialize-instance :after ((self score-element) &rest initargs)
-  (setf (autostop self) t) ;;; ??? why 
-  )
+;;; autostop already defaults to T
+;(defmethod initialize-instance :after ((self score-element) &rest initargs)
+;  (setf (autostop self) t))  
 
 
 

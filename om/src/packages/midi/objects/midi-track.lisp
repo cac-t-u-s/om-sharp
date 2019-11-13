@@ -106,9 +106,10 @@
   (data-stream-set-frames self (midievents-to-midinotes (slot-value self 'midi-events) :collect-other-events t))
   self)
 
-(defmethod initialize-instance :after ((self midi-track) &rest initargs)
-  (setf (autostop self) t) ;;; ??? what is this  
-  )
+
+;;; autostop already defaults to T
+;(defmethod initialize-instance :after ((self midi-track) &rest initargs)
+;  (setf (autostop self) t))
 
 ;;; redefined from time-sequence
 (defmethod time-sequence-default-duration ((self midi-track)) 1000)

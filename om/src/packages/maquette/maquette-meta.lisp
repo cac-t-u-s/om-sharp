@@ -58,8 +58,9 @@ Additional inputs/outputs are accesses on the maquette box.
 ")
 
 (defmethod initialize-instance :after ((self OMMaquette) &rest args)
-  ;;;-- put this somewhere else ??
-  (set-object-autostop self nil)
+  
+  ;;; put this somewhere else ??
+  (set-object-autostop self nil) ;; the maquette doesn't auto-stop when its duration is passed
   
   (unless (ctrlpatch self)
     (let* ((patch (make-instance 'OMMaqControlPatch :name "Control Patch"))
