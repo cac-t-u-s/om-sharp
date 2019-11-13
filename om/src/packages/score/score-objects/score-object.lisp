@@ -37,6 +37,8 @@
    ;;; approximation of pitch (in division f a tone) used essentially for MIDI playback
    ;;; is modified by modification of the scale parameter
    (pitch-approx :accessor pitch-approx :initform 2) 
+   
+   (extras :initform nil :accessor extras :type list :documentation "some 'extra' score-elements attached to this element")
 
    ;;; bounding-box is a cached graphic information for score display 
    (b-box :accessor b-box :initform nil) 
