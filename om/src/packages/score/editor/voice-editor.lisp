@@ -357,6 +357,12 @@
    (t (call-next-method)) ;;; => score-editor
    ))
 
+
+;;; disabled from chord-seq editor:
+(defmethod stems-on-off ((self voice-editor)) nil)
+(defmethod align-chords-in-editor ((self voice-editor)) nil)
+
+
 ;;;======================
 ;;; DRAW SPECIFICS
 ;;;======================

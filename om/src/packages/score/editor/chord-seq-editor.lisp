@@ -40,11 +40,13 @@
 (defmethod object-default-edition-params ((self chord-seq))
   (append (call-next-method)
           '((:grid nil) (:grid-step 1000)
+            (:stems t)
             (:offsets :sep-notes))))
 
 (defmethod object-default-edition-params ((self multi-seq))
   (append (call-next-method)
           '((:grid nil) (:grid-step 1000)
+            (:stems t)
             (:offsets :small-notes))))
 
 ;;; offset can be :shift, :small-notes, or :hidden
@@ -210,12 +212,20 @@
             (car (notes chord)))))))
 
 
+(defmethod stems-on-off ((self chord-seq-editor))
+  (editor-set-edit-param self :stems (not (editor-get-edit-param self :stems)))
+  (editor-invalidate-views self))
+
 
 (defmethod editor-key-action ((editor chord-seq-editor) key)
-    (case key
-      (#\A (align-chords-in-editor editor))
-      (otherwise (call-next-method)) ;;; => score-editor
-      ))
+  (case key
+    
+    (#\A (align-chords-in-editor editor))
+    
+    (#\S (stems-on-off editor))
+    
+    (otherwise (call-next-method)) ;;; => score-editor
+    ))
 
 
 ;;; called at add-click
@@ -409,6 +419,7 @@
         (vel (editor-get-edit-param editor :velocity-display))
         (port (editor-get-edit-param editor :port-display))
         (dur (editor-get-edit-param editor :duration-display))
+        (stems (editor-get-edit-param editor :stems))
         (offsets (editor-get-edit-param editor :offsets))
         (y-u (or force-y-shift (editor-get-edit-param editor :y-shift))))
        
@@ -431,6 +442,7 @@
                        :draw-vels vel
                        :draw-ports port
                        :draw-durs dur
+                       :stem stems
                        :selection (if (find chord (selection editor)) T 
                                     (selection editor))
                        :time-function #'(lambda (time) (time-to-pixel view time))
