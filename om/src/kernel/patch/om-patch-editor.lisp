@@ -22,7 +22,8 @@
 ;;;=============================
 
 (defclass patch-editor (OMDocumentEditor undoable-editor-mixin) 
-  ((editor-window-config :accessor editor-window-config :initarg :editor-window-config :initform nil)))
+  ((editor-window-config :accessor editor-window-config :initarg :editor-window-config :initform nil)
+   (text-editor :accessor text-editor :initform nil)))
 
 (defmethod object-has-editor ((self OMPatch)) t)
 (defmethod get-editor-class ((self OMPatch)) 'patch-editor)
@@ -196,7 +197,7 @@
                (list (om-make-menu-item 
                       "Open as Text..."
                       #'(lambda () 
-                          (om-lisp::om-open-text-editor :contents (pathname (mypathname (object self))) :lisp t))
+                          (patch-editor-open-text-editor self))
                       :enabled #'(lambda ()
                                    (and (is-persistant (object self))
                                         (mypathname (object self))))))))
@@ -1889,6 +1890,42 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
               patch-view)
       )
     ))
+
+
+
+;;;======================================
+;;; OPEN-AS-TEXT
+;;;======================================
+
+(defclass patch-text-editor (om-lisp::om-text-editor-window) 
+  ((editor :accessor editor :initform nil)))
+
+(defmethod om-window-close-event ((self patch-text-editor))
+  ;(print "close")
+  (when (editor self)
+    (setf (text-editor (editor self)) nil))
+  (call-next-method))
+
+(defmethod patch-editor-open-text-editor ((self patch-editor))
+  (if (print (text-editor self))
+      
+      (om-close-window (text-editor self))
+    
+    (let ((te (om-lisp::om-open-text-editor 
+               :class 'patch-text-editor 
+               :contents (pathname (mypathname (object self))) :lisp t)))
+      (setf (editor te) self)
+      (setf (text-editor self) te)
+      te)))
+
+;;; update the patch when the text editor is saved
+(defmethod om-lisp::save-text-file :after ((self patch-text-editor))
+  (when (editor self)
+    (funcall (revert-command (editor self)) (editor self))))
+  
+
+;;; update text editor when the patch is saved
+
 
 
 
