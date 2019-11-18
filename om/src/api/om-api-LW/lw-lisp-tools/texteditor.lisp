@@ -147,7 +147,11 @@
                          (concatenate 'string (pathname-name path) "." (pathname-type path))
                        (pathname-name path))
                      " [ "
-                     (namestring (make-pathname :directory (pathname-directory path)))
+                     (namestring (make-pathname 
+                                  :directory (pathname-directory path)
+                                  :device (pathname-device path)
+                                  :host (pathname-host path)
+                                  ))
                      " ]")
       "Untitled [...]"))
 
