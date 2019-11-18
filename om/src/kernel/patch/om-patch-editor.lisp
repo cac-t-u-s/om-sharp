@@ -1897,31 +1897,36 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
 ;;; OPEN-AS-TEXT
 ;;;======================================
 
-(defclass patch-text-editor (om-lisp::om-text-editor-window) 
+(defclass patch-text-editor-window (om-lisp::om-text-editor-window) 
   ((editor :accessor editor :initform nil)))
 
-(defmethod om-window-close-event ((self patch-text-editor))
-  ;(print "close")
+(defmethod om-lisp::om-text-editor-destroy-callback ((self patch-text-editor-window))
   (when (editor self)
     (setf (text-editor (editor self)) nil))
   (call-next-method))
 
 (defmethod patch-editor-open-text-editor ((self patch-editor))
-  (if (print (text-editor self))
+  (if (text-editor self)
       
-      (om-close-window (text-editor self))
+      (om-select-window (text-editor self))
     
     (let ((te (om-lisp::om-open-text-editor 
-               :class 'patch-text-editor 
+               :class 'patch-text-editor-window 
                :contents (pathname (mypathname (object self))) :lisp t)))
       (setf (editor te) self)
       (setf (text-editor self) te)
       te)))
 
 ;;; update the patch when the text editor is saved
-(defmethod om-lisp::save-text-file :after ((self patch-text-editor))
+(defmethod om-lisp::save-text-file :after ((self patch-text-editor-window))
   (when (editor self)
-    (funcall (revert-command (editor self)) (editor self))))
+    (let ((patch (object (editor self))))
+      (funcall (revert-command (editor self)))
+      (let ((doc-entry (find-doc-entry (om-lisp::file self))))
+        ;; the editor has changed !
+        (print (list doc-entry (doc-entry-doc doc-entry) (editor (doc-entry-doc doc-entry))))
+        (setf (text-editor (editor (doc-entry-doc doc-entry))) self)
+        ))))
   
 
 ;;; update text editor when the patch is saved
