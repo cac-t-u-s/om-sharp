@@ -22,8 +22,7 @@
 ;;;=============================
 
 (defclass patch-editor (OMDocumentEditor undoable-editor-mixin) 
-  ((editor-window-config :accessor editor-window-config :initarg :editor-window-config :initform nil)
-   (text-editor :accessor text-editor :initform nil)))
+  ((editor-window-config :accessor editor-window-config :initarg :editor-window-config :initform nil)))
 
 (defmethod object-has-editor ((self OMPatch)) t)
 (defmethod get-editor-class ((self OMPatch)) 'patch-editor)
@@ -1897,42 +1896,42 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
 ;;; OPEN-AS-TEXT
 ;;;======================================
 
-(defclass patch-text-editor-window (om-lisp::om-text-editor-window) 
-  ((editor :accessor editor :initform nil)))
+(defclass patch-text-editor-window (om-lisp::om-text-editor-window) ())
 
+(defun find-patch-text-editor-for-file (path)
+  (find path (om-get-all-windows 'patch-text-editor-window)
+        :key 'om-lisp::file :test #'equal))
+
+(defun find-patch-editor-for-file (path)
+  (let ((de (find-doc-entry path)))
+    (when de 
+      (editor (doc-entry-doc de)))))
+      
 (defmethod om-lisp::om-text-editor-destroy-callback ((self patch-text-editor-window))
-  (when (editor self)
-    (setf (text-editor (editor self)) nil))
+  
   (call-next-method))
 
 (defmethod patch-editor-open-text-editor ((self patch-editor))
-  (if (text-editor self)
-      
-      (om-select-window (text-editor self))
-    
-    (let ((te (om-lisp::om-open-text-editor 
-               :class 'patch-text-editor-window 
-               :contents (pathname (mypathname (object self))) :lisp t)))
-      (setf (editor te) self)
-      (setf (text-editor self) te)
-      te)))
+  (let* ((path (pathname (mypathname (object self))))
+         (win (find-patch-text-editor-for-file path)))
+    (if win
+        (om-select-window win)
+      (om-lisp::om-open-text-editor 
+       :class 'patch-text-editor-window 
+       :contents path :lisp t))))
 
 ;;; update the patch when the text editor is saved
 (defmethod om-lisp::save-text-file :after ((self patch-text-editor-window))
-  (when (editor self)
-    (let ((patch (object (editor self))))
-      (funcall (revert-command (editor self)))
-      (let ((doc-entry (find-doc-entry (om-lisp::file self))))
-        ;; the editor has changed !
-        (print (list doc-entry (doc-entry-doc doc-entry) (editor (doc-entry-doc doc-entry))))
-        (setf (text-editor (editor (doc-entry-doc doc-entry))) self)
-        ))))
-  
+  (let ((patch-ed (find-patch-editor-for-file (om-lisp::file self))))
+    (when patch-ed
+      (funcall (revert-command patch-ed)))))  
 
 ;;; update text editor when the patch is saved
-
-
-
+(defmethod save-document :after ((self OMPatch))
+  (let ((text-win (find-patch-text-editor-for-file (pathname (mypathname self)))))
+    (when text-win 
+      (om-lisp::revert-text-file text-win))
+    ))
 
 
 
