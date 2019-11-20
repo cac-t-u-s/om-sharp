@@ -33,7 +33,7 @@ In order to contribute to the code without a LispWorks license, one must therefo
 
 ------
 
-### More info and ressources
+### More info, documentation and ressources
 
 Project pages under construction:    
 [https://openmusic-project.github.io/om7-beta/](https://openmusic-project.github.io/om7-beta/)
