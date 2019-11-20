@@ -51,6 +51,18 @@ A simple NOTE defined with :
 ")
   )
 
+
+(defmethod initialize-instance ((self note) &rest args)
+  (when (or (consp (getf args :midic))
+            (consp (getf args :vel))
+            (consp (getf args :dur))
+            (consp (getf args :chan))
+            (consp (getf args :port)))
+    (error "NOTE attributes can not be lists!"))
+  (call-next-method))
+            
+            
+
 ;;; allow as additional slot
 (defmethod additional-class-attributes ((self note)) '(port))
 
