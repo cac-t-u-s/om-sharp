@@ -93,7 +93,7 @@ See http://sdif.sourceforge.net/ for more inforamtion about SDIF TYPES.
                  :tablename "FileInfo"
                  :ID 0
                  :NV-pairs (list 
-                            (list "Author" (string+ "OM " *version-string*))
+                            (list "Author" (string+ *app-name* " " *version-string*))
                             (list "Date" (om-get-date)))))
 
 ;;;=========================

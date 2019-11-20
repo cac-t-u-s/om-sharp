@@ -56,7 +56,7 @@
 ;;;=================================
 ;;; DEFAULT PLAYER
 ;;; (simple loop on a list of events)
-;;; This player is actually not used anymore in OM7
+;;; This player is actually not used anymore
 ;;;=================================
 (defclass omplayer () 
   ((state :accessor state :initform :stop)    ; :play :pause :stop :record

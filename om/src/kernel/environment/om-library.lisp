@@ -187,7 +187,7 @@
 
         (om-print-format "~%~%Loading library: ~A..." (list lib-file))
         (let* ((*current-lib* lib)
-               (file-contents (list-from-file lib-file))  ;; "/Users/bresson/SRC/OM7/OM7/LIBRARIES/om-supervp/om-supervp.omlib"
+               (file-contents (list-from-file lib-file)) 
                (lib-data (find-values-in-prop-list file-contents :om-lib))
                (version (find-value-in-kv-list lib-data :version))
                (author (find-value-in-kv-list lib-data :author))
@@ -256,7 +256,7 @@
 
 ;;; can be called from another library, etc.
 (defun require-library (name)
-  (om-print-format "Requiring library: ~A" (list name) "OM")
+  (om-print-format "Requiring library: ~A" (list name) "OM#")
   (let ((required-lib (find-library name)))
     (if required-lib
         (unless (loaded? required-lib)

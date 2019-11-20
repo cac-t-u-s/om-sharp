@@ -47,12 +47,12 @@
 
 ;;; if the om-sound-buffer is created like this, it will be garbaged automatically 
 (defun make-om-sound-buffer-GC (&key ptr (count 1) (nch 1))
-  (om-print-dbg "Initializing audio buffer (~A channels)..." (list nch) "OM")
+  (om-print-dbg "Initializing audio buffer (~A channels)..." (list nch))
   (om-create-with-gc (make-om-sound-buffer :ptr ptr :count count :nch nch)))
 
 ;;; this is the garbage action
 (defmethod om-cleanup ((self om-sound-buffer))
-  (om-print-dbg "Free Audio buffer: ~A" (list self) "OM")
+  (om-print-dbg "Free Audio buffer: ~A" (list self))
   (when (and (oa::om-pointer-ptr self) (not (om-null-pointer-p (oa::om-pointer-ptr self))))
     (audio-io::om-free-audio-buffer (oa::om-pointer-ptr self) (om-sound-buffer-nch self))))
 
@@ -105,7 +105,7 @@
     (when (buffer self)
       (let ((new-ptr (make-audio-buffer (n-channels self) (n-samples self)))
             (self-ptr (oa::om-pointer-ptr (buffer self))))
-        (om-print-dbg "Copying sound buffer (~D x ~D channels)..." (list (n-samples self) (n-channels self)) "OM")
+        (om-print-dbg "Copying sound buffer (~D x ~D channels)..." (list (n-samples self) (n-channels self)))
         (dotimes (ch (n-channels self))
           (dotimes (smp (n-samples self))
             (setf (cffi::mem-aref (cffi::mem-aref new-ptr :pointer ch) :float smp)
@@ -432,16 +432,14 @@ Press 'space' to play/stop the sound file.
   (if (and (file-pathname self) (access-from-file self))
       (progn 
         (om-print-dbg "Initializing FILE player for sound ~A (~D channels)"
-                         (list self (n-channels self))
-                         "OM")
+                         (list self (n-channels self)))
         (setf (buffer-player self) (make-player-from-file (namestring (file-pathname self)))))
 
     (when (buffer self) ;;; in principle at that point there should be a buffer..
       (if (and (n-samples self) (n-channels self) (sample-rate self))
           (progn
             (om-print-dbg "Initializing BUFFER player for sound ~A (~D channels)"
-                             (list self (n-channels self))
-                             "OM")
+                             (list self (n-channels self)))
             (setf (buffer-player self) (make-player-from-buffer 
                                         (oa::om-pointer-ptr (buffer self)) 
                                         (n-samples self) (n-channels self) (sample-rate self))))
@@ -571,7 +569,7 @@ Press 'space' to play/stop the sound file.
                 (,buffer-name (or tmp-buffer (buffer snd))))
            (unwind-protect
                (progn 
-                 (unless ,buffer-name (om-print-format "Warning: no sound buffer allocated for ~A" (list (file-pathname snd)) "OM"))
+                 (unless ,buffer-name (om-print-format "Warning: no sound buffer allocated for ~A" (list (file-pathname snd))))
                  ,@body)
              (when tmp-buffer (oa::om-release tmp-buffer))
              ))
@@ -587,7 +585,7 @@ Press 'space' to play/stop the sound file.
   
   (if (probe-file path)
       (progn 
-        (om-print-dbg "Loading sound from: ~s" (list path) "OM")
+        (om-print-dbg "Loading sound from: ~s" (list path))
         (multiple-value-bind (buffer format channels sr ss size)
             
             (audio-io::om-get-audio-buffer (namestring path) *default-internal-sample-size* nil)

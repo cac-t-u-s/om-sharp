@@ -36,7 +36,7 @@
   (:default-initargs :icon :maq-file)
   (:metaclass omstandardclass))
 
-(add-om-doctype :maquette "omaq" "OM7 Maquette")
+(add-om-doctype :maquette "omaq" "Maquette")
 
 (defclass OMMaquetteInternal (OMMaquette) ()
   (:default-initargs :icon :maq)

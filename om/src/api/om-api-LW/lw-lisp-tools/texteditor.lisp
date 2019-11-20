@@ -821,7 +821,7 @@
              :callback #'(lambda () 
                            (let ((win (capi::locate-interface 'om-listener)))
                              (if win (capi::raise-interface win)
-                               (om-make-listener :title "OM Listener" 
+                               (om-make-listener :title "Listener" 
                                                  :initial-lambda #'(lambda () (in-package :om))
                                                  :height 200)))))
              (make-instance 

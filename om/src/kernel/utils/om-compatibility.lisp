@@ -87,7 +87,7 @@
 
 
 ;============================================================================
-; CONVERT ALL OM6 FUNCTIONS TO OM7 CALLS...
+; CONVERT ALL OM6-SAVE FUNCTIONS...
 ;============================================================================
 
 ;======================================
@@ -758,7 +758,7 @@
 ;======================================
 
 ;;; This was used to save OMLoops
-;;; In om7 OMloop is just an normal patch
+;;; OMloop is now just a normal patch
 
 (defmethod om-load-boxwithed1  ((class t) name reference inputs position size value lock boxes connec numouts &optional fname pictlist) 
   `(:box 
@@ -1410,7 +1410,7 @@
 ;;;============================================================================
 ;;; PICTURES
 ;;;============================================================================
-;;; TODO: not supported yet in OM7
+;;; TODO: not supported yet
 
 (defclass picture () ())
 (defclass patch-picture () 
@@ -1445,7 +1445,7 @@
 ;;; e.g.: (defmethod update-value ((self 'old-class)) (make-instance 'new-class)) 
 (defmethod update-value ((self t)) self)
 
-;;; OM6 => OM7 compatibility favors name-semantics over order: inputs will be correctly imported (in particular, if they have a default value) and connected if they have the same name in OM6 and OM7. This permist same arguments to have a different position on the box. If they don't the following function allows to cover specific cases:
+;;; This compatibility system favors name-semantics over order: inputs will be correctly imported (in particular, if they have a default value) and connected if they have the same name in OM6. This permist same arguments to have a different position on the box. If they don't the following function allows to cover specific cases:
 
 ;;; When some box inputs have changed name 
 ;;; redefine with eql-specializers for specific functions of class name
@@ -1476,7 +1476,7 @@
 ;(defmethod om-load-boxcall ((self (eql 'comment)) name reference inputs position size value lock &rest rest) )
 ;(defmethod om-load-boxcall ((self (eql 'mk-ins)) name reference inputs position size value lock &rest rest) )
 
-; Visual-OOP specifics: not in OM7
+; Visual-OOP specifics: not supported
 ;(defun om-load-boxtypein (name type indice position docu keys defval &optional fname fsize) )
 ;(defun om-load-initin  (name type indice posi self? class &optional fsize) )
 

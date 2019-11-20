@@ -25,7 +25,7 @@
 ;; Revision: 2 2015/10/05 J. Bresson
 
 
-;; Adaptation om7-beta IN PROGRESS !! 2019/10 J. Bresson
+;; Adaptation from OM6 IN PROGRESS !! 2019/10 J. Bresson
 
 
 (in-package :om)

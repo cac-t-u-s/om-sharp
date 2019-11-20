@@ -96,7 +96,7 @@
   (:default-initargs :icon :lisp-f-file) 
   (:metaclass omstandardclass))
 
-(add-om-doctype :textfun "olsp" "OM7 Text (Lisp) Function")
+(add-om-doctype :textfun "olsp" "Text (Lisp) Function")
 
 (defmethod object-doctype ((self OMLispFunction)) :textfun)
 
@@ -251,7 +251,7 @@
   (format nil "~A  [internal Lisp function]" (name self)))
 
 (defmethod om-lisp::type-filter-for-text-editor ((self lisp-function-editor-window)) 
-  '("OM Lisp function" "*.olsp"))
+  '("Lisp function" "*.olsp"))
 
 ;;; this will disable the default save/persistent behaviours of the text editor
 ;;; these will be handled by OM following the model of OMPatch

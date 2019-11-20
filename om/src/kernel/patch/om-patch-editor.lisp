@@ -1282,7 +1282,7 @@
                     (om-beep-msg  (string+ "Special Lisp form '" str "' can not be created as an OM box!")))
            
                    ((macro-function read-sym)
-                    (om-beep-msg  (string+ "OM does not accept macro functions: " str "")))
+                    (om-beep-msg  (string+ "macro functions not supported: " str "")))
                
                    ((equal read-sym t)
                     (omNG-make-new-boxcall 'value pos T))
@@ -1907,10 +1907,6 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
     (when de 
       (editor (doc-entry-doc de)))))
       
-(defmethod om-lisp::om-text-editor-destroy-callback ((self patch-text-editor-window))
-  
-  (call-next-method))
-
 (defmethod patch-editor-open-text-editor ((self patch-editor))
   (let* ((path (pathname (mypathname (object self))))
          (win (find-patch-text-editor-for-file path)))

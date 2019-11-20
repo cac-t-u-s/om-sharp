@@ -438,7 +438,7 @@
   
   (let* ((winparent (or owner (capi:convert-to-screen)))
          (winname (or name title (string (gensym))))
-         (wintitle (or title name "OM Window"))
+         (wintitle (or title name ""))
          (w (and size (om-point-x size)))
          (h (and size (om-point-y size)))
          (x (and position (if (equal position :centered) (round (- (* (capi::screen-width winparent) 0.5) (* (or w 0) 0.5))) (om-point-x position))))

@@ -138,7 +138,7 @@
       :key "E")
      
      (om-make-menu-item  
-      "Function/Class reference" 
+      "Function & Class Reference" 
       #'(lambda () 
           (let ((symbols (get-selection-for-menu self)))
             (if symbols 
@@ -147,7 +147,7 @@
       :key "d")
      
      (om-make-menu-item  
-      "Box Help" 
+      "Box Help ¨Patch..." 
       #'(lambda () 
           (let ((help-patches (remove nil (mapcar #'get-symbol-help-patch (get-selection-for-menu self)))))
             (if help-patches 
@@ -162,8 +162,8 @@
     (om-make-menu-comp  
      (list 
       (om-make-menu-item 
-       "Online resources" 
-       #'(lambda () (om-open-in-browser "https://openmusic-project.github.io/om7/")) 
+       "Online Documentation" 
+       #'(lambda () (om-open-in-browser "https://openmusic-project.github.io/om-sharp/pages/index")) 
        :enabled t)
       ))
 
@@ -194,9 +194,9 @@
 
 (defun main-app-menu-item ()
   #-cocoa(when (om-standalone-p) 
-           (om-make-menu (string+ "OM " *version-string*)
+           (om-make-menu (string+ *app-name* " " *version-string*)
                          (list (om-make-menu-comp 
-                                (list (om-make-menu-item "About OM..." 'show-about-win)
+                                (list (om-make-menu-item (string+ "About " *app-name* "...") 'show-about-win)
                                       (om-make-menu-item "Preferences" 'show-preferences-win)))
                                (om-make-menu-item "Quit" 'om-quit)))))
 

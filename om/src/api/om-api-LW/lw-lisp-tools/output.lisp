@@ -59,7 +59,7 @@
    (capi::execute-with-interface *out-window* #'(lambda () 
                                                   (display *out-window*)
                                                   (when windowtitle (setf (capi::interface-title *out-window*) windowtitle))
-                                                  (capi::find-interface 'output-win :name "OM Doc Window")))
+                                                  (capi::find-interface 'output-win)))
    )
 
 (defun om-show-output-lines (lines &optional windowtitle)

@@ -90,10 +90,10 @@
      
                
 (defvar *doctypes*
-  '((:patch "opat" "OM7 Patch")
+  '((:patch "opat" "Patch")
     (:lisp ("lisp" "lsp") "Lisp File")
     (:text "txt" "Text File")
-    (:om ("opat") "OM7 Documents")))
+    (:om ("opat") "OM# Documents")))
 
 (defvar *om-doctypes* '(:patch))
 
@@ -158,7 +158,7 @@
 ;    (capi::with-dialog-results (file ok-p)
 ;        (capi::prompt-for-file (string+ (om-str :open) "...")
 ;                               :pathname (or *last-open-dir* (om-user-home))
-;                               :filters (list "OM Patch" "*.omp") :filter "*.omp")
+;                               :filters (list "Patch" "*.omp") :filter "*.omp")
 ;      (when file
 ;        (open-document-from-file file)))))
         

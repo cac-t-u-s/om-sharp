@@ -301,7 +301,7 @@ Data instanciation in a column is done according to the specified number of line
 
 
 #|
-;;; OM7 - TO BUILD A CH-FOF (or other class-array) in Lisp, use :
+;;; TO BUILD A CH-FOF (or other class-array) in Lisp, use :
 (defun test () 
   (om-init-instance (make-instance 'om::class-array :elts 4) '((:freq (440 880 1200)) (:bw (59 70 90 80))))
   )

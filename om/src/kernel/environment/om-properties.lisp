@@ -110,7 +110,7 @@
   (let* ((prop (get-property-spec object prop-id))
          (val (access-value object (nth 3 prop))))
     (if (and (equal val :invalid) warn)
-        (om-print (format nil "No accessor for property ~A in object ~A" prop-id object) "OM PROPERTIES"))
+        (om-print (format nil "No accessor for property ~A in object ~A" prop-id object) "PROPERTIES"))
     val))
 
 (defmethod set-property (object prop-id val)

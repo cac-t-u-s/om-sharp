@@ -42,7 +42,7 @@ For easier browsing it is recommended that a package do not contain at the same 
 ;;; used when the package corresponds to a 'real' folder, e.g. for external libraries
 (defclass OMPersistantPackage (OMAbstractPackage OMPersistantFolder) ())
 
-(defvar *om-package-tree* (make-instance 'OMPackage :name "OM Root Package") "The package of all OM predefined functions and classes")
+(defvar *om-package-tree* (make-instance 'OMPackage :name "Root Package") "The package of all predefined functions and classes")
 
 
 (defmethod subpackages ((self OMAbstractPackage)) (elements self))

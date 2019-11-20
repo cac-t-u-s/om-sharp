@@ -18,7 +18,7 @@
 ;=================================================================
 ; ENCAPSULATION
 ; Patch encapsulation / de-encapsulation by Geof Holbrook in OM 6
-; Adaptation OM7 J. Bresson - 2016
+; Adaptation J. Bresson - 2016
 ;=================================================================
 
 (in-package :om)

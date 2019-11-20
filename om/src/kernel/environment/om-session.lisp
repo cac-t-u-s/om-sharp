@@ -44,7 +44,7 @@
 ;(defvar *om-preferences* nil)
 
 (defun om-preference-file ()
-  (merge-pathnames "om7/preferences.om" (om-user-pref-folder)))
+  (merge-pathnames "om#/preferences.om#" (om-user-pref-folder)))
 
 ;(WITH-OPEN-FILE (out "/Users/bresson/Desktop/test.txt" :direction :output 
 ;                         :if-does-not-exist :create :if-exists :supersede) 

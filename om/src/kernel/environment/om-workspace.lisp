@@ -14,7 +14,7 @@
 ;============================================================================
 ; File author: J. Bresson
 ;============================================================================
-; WORKSPACE (NOT USED IN OM7!)
+; WORKSPACE (NOT USED)
 ;=========================================================================
 
 (in-package :om)
@@ -22,7 +22,7 @@
 (defvar *current-workspace* nil "The WorkSpace used in the current session.")
 
 (defclass OMWorkSpace (OMPersistantFolder) 
-  ((om-package :initform nil :accessor om-packages :documentation "OM in-built package containing functions and classes")
+  ((om-package :initform nil :accessor om-packages :documentation "In-built package containing functions and classes")
    (user-package :initform nil :accessor user-packages :documentation "User package containing user-defined functions and classes")
    (lib-package :initform nil :accessor lib-package :documentation "Package containing all registered libraries")
    (globals-package :initform nil :accessor globals-package :documentation "Special package containing all global variables")
@@ -157,7 +157,7 @@ A workspace contains all the elements of an OM session (documents, pointer to li
         (if (pathnamep ws) ws (choose-user-ws-folder))
         ))
      ((equal 'existing choix)
-      (let ((ws (om-choose-file-dialog :prompt "Please select an existing workspace project" :directory search-folder :types '("OM Workspace" "*.omws"))))
+      (let ((ws (om-choose-file-dialog :prompt "Please select an existing workspace project" :directory search-folder :types '("Workspace" "*.omws"))))
         (if (and (pathnamep ws) 
                  (or (check-ws-folder ws) 
                      (om-y-or-n-dialog (format nil "Are you sure this is a valid OM workspace folder?~%~% The selected workspace file and location do not look like a standard workspace.~%~% Click 'Yes' to start anyway, or 'No' to choose another workspace."))))

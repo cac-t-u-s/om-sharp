@@ -50,7 +50,7 @@
                        val)))
         
               (sdif::SdifFWriteGeneralHeader outptr)
-              (sdif-write-nvt outptr `(("Author" ,(string+ "OM " *version-string*))))
+              (sdif-write-nvt outptr `(("Author" ,(string+  *app-name* " " *version-string*))))
               (sdif-write-types-string outptr "{1MTD 1GB4 {frequency, amplitude} 1FTD XFFT {1GB4  fftata;}}")
               (sdif::SdifFWriteAllASCIIChunks outptr)
           
@@ -90,7 +90,7 @@
       (unwind-protect 
           (let ()
             (sdif::SdifFWriteGeneralHeader outptr)
-            (sdif-write-nvt outptr `(("Author" ,(string+ "OM " *version-string*))))
+            (sdif-write-nvt outptr `(("Author" ,(string+  *app-name* " " *version-string*))))
             (sdif-write-types-string outptr "{1MTD 1GB1 {amplitude} 1FTD XFFT {1GB1  fftata;}}")
             (sdif::SdifFWriteAllASCIIChunks outptr)
           
@@ -247,7 +247,7 @@ If <outfile> is just a filename (not a pathname) the file is written in the defa
           (let ()
             
             (sdif::SdifFWriteGeneralHeader outptr)
-            (sdif-write-nvt outptr `(("Author" ,(string+ "OM " *version-string*))))
+            (sdif-write-nvt outptr `(("Author" ,(string+  *app-name* " " *version-string*))))
             
             (when typedefs (sdif-write-types outptr (list! typedefs)))
             

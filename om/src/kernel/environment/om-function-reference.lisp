@@ -190,7 +190,7 @@
     ))
 
 (defparameter *om-ref-text*
-  "This is the reference documentation for the main functions and classes in om7.")
+  "This is the reference documentation for the main functions and classes.")
 
 (defun gen-om-reference ()
   (gen-reference (gen-package-entries *om-package-tree*)
@@ -315,7 +315,8 @@ TH {
 (defun credits-line ()
   (concatenate 'string 
                "<center><font size=-2>" 
-               "Auto doc generation by OM7 "
+               "Auto doc generation by " 
+               *app-name*
                *version-string* 
                " - " 
                (om-get-date)  
