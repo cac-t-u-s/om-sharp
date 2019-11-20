@@ -106,8 +106,7 @@
     
 ;;; applies the current prefs
 (defun apply-audio-device-config ()
-  (om-print "=============================================" "AUDIO")
-  (om-print (format nil "Setting audio out on ~s with ~D channels at ~D Hz." 
+  (om-print (format nil "[out] ~s, ~D channels / ~D Hz." 
                     (get-pref-value :audio :output)
                     (get-pref-value :audio :out-channels)
                     (get-pref-value :audio :samplerate))
