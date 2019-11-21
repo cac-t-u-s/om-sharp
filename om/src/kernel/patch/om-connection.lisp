@@ -207,16 +207,19 @@
         (loop for out-c in (get-out-connections box)
               for c = 0 then (+ c 1)
               when (find (box (to out-c)) box-list)
-              collect (list :connection
-                            (list :from (list :box b 
-                                              :out (position (from out-c) (outputs box)))) ;; (box out) 
-                            (list :to (list :box (position (box (to out-c)) box-list) 
-                                            :in (position (to out-c) (inputs (box (to out-c)))))) ;;; (box in)
-                            ;;; nil ;;; points
-                            (list :attributes (list :color (omng-save (color out-c))
-                                                    :style (style out-c)
-                                                    :modif (modif out-c)))
-                            ))))
+              collect (append 
+                       `(:connection
+                         (:from (:box ,b :out ,(position (from out-c) (outputs box)))) ;; (box out) 
+                         (:to (:box ,(position (box (to out-c)) box-list) 
+                               :in ,(position (to out-c) (inputs (box (to out-c)))))) ;;; (box in)
+                         )
+                       (when (or (color out-c) (style out-c) (modif out-c))
+                         `((:attributes (:color ,(omng-save (color out-c))
+                                         :style ,(style out-c)
+                                         :modif ,(modif out-c)))
+                           ))
+                       )
+              )))
 
 
 ;;; SOME BOXES MAY GENERATE THE IN/OUTPUTS ON REQUEST
