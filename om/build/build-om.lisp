@@ -53,6 +53,9 @@
 ;;;; LOAD OM-API
 ;;;=======================================
 
+
+(load (merge-pathnames "src/api/om-lisp-LW/load-om-lisp.lisp" *om-root-directory*))
+
 (load (merge-pathnames "src/api/om-api-LW/om-api.lisp" *om-root-directory*))
 
 (load (merge-pathnames "src/api/foreign-interface/foreign-interface" *om-root-directory*))
@@ -105,6 +108,11 @@
         :om)
 
 (load (merge-pathnames "src/kernel/kernel-files.lisp" cl-user::*om-root-directory*))
+
+(editor:setup-indent "defclass*" 2 2 4)
+(editor:setup-indent "defclass!" 2 2 4)
+(editor:setup-indent "defmethod*" 0 2 4)
+(editor:setup-indent "defmethod!" 0 2 4)
 
 (push :om7 *features*)
 

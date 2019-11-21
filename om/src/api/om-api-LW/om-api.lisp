@@ -24,9 +24,6 @@
 
 (in-package :cl-user)
 
-(load (make-pathname :directory (append (pathname-directory (truename *load-pathname*)) 
-                                        '("lw-lisp-tools"))
-                     :name "load-lw-lisp-tools" :type "lisp"))
 
 (defpackage "OM-API"
   (:nicknames "OA")
