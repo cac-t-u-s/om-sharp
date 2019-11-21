@@ -88,7 +88,7 @@ Internally most of these values are just used to build a list of CHORD objects, 
 (defmethod inside ((self chord-seq)) (chords self))
 
 
-(defmethod additional-class-attributes ((self chord-seq)) '(Loffset Lchan Lport Llegato))
+(defmethod additional-class-attributes ((self chord-seq)) '(Loffset Lchan Lport Llegato extras))
 
 ;; (defmethod data-stream-frames-slot ((self chord-seq)) 'inside)
 
@@ -176,6 +176,7 @@ Internally most of these values are just used to build a list of CHORD objects, 
                    :Lport (slot-value self 'Lport) 
                    :Llegato (slot-value self 'Llegato) 
                    ))
+  
    (setf (slot-value self 'Lmidic) nil  (slot-value self 'Lvel) nil 
          (slot-value self 'Loffset) nil  (slot-value self 'Ldur) nil
          (slot-value self 'Lonset) nil (slot-value self 'Lchan) nil

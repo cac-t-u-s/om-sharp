@@ -106,7 +106,7 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
 "))
 
 ;;; allow as additional slots
-(defmethod additional-class-attributes ((self chord)) '(onset Lchan Lport))
+(defmethod additional-class-attributes ((self chord)) '(onset Lchan Lport extras))
 
 (defmethod Lmidic ((self chord))
   (loop for note in (notes self)
@@ -208,7 +208,7 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
                    :Lchan (slot-value self 'Lchan)
                    :Lport (slot-value self 'Lport)
                    ))
-
+  
   ;;; better to remove these values... ? 
   (setf (slot-value self 'Lmidic) nil 
         (slot-value self 'Lvel) nil 
@@ -216,6 +216,7 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
         (slot-value self 'Ldur) nil 
         (slot-value self 'Lchan) nil
         (slot-value self 'Lport) nil)
+
   self)
 
 

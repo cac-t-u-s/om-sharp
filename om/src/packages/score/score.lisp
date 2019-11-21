@@ -29,6 +29,7 @@
         "score-objects/ratios"
         "score-objects/voice"
         "score-objects/multiseq-poly"
+        "score-objects/extras"
        
         "functions/conversions"
         "functions/score-functions"
@@ -73,6 +74,12 @@
                                           reducetree tietree filtertree reversetree rotatetree
                                           remove-rests subst-rhythm invert-rhythm
                                           omquantify)
+                      :subpackages nil)
+                     (omNG-make-package 
+                      "Extras"
+                      :doc "Extra elements attached to chords in score editors."
+                      :functions '(add-extras remove-extras get-extras)
+                      :classes '(score-marker head-extra vel-extra text-extra symb-extra)
                       :subpackages nil)
                      (omNG-make-package 
                       "Utils"
