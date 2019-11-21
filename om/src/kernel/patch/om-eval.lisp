@@ -176,7 +176,11 @@
 
 (defmethod eval-box ((self omboxeditcall))
   (declare (special *general-player*))
-  (om-ignore&print-error (player-stop-object *general-player* (car (value self))))
+  (let ((val (get-box-value self)))
+    (when (and (play-obj? val)
+               (not (equal :stop (player-get-object-state *general-player* val))))
+      (om-print-format "Stopping playback on: ~A" (list val))
+      (om-ignore&print-error (player-stop-object *general-player* val))))
   (call-next-method))
 
 (defmethod eval-box-output ((self ombox) n) 
