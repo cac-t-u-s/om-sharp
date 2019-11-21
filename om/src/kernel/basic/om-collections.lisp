@@ -102,7 +102,7 @@
            ))
 
 
-(defmethod display-modes-for-object ((self collection)) '(:hidden :text :mini-view))
+(defmethod display-modes-for-object ((self collection)) '(:mini-view :text :hidden))
 
 (defmethod get-cache-display-for-text ((self collection) box)
   (declare (ignore box))

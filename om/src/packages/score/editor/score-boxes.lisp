@@ -43,7 +43,7 @@
 
   
 (defmethod display-modes-for-object ((self score-element))
-  '(:mini-view :hidden :text))
+  '(:mini-view :text :hidden))
 
 (defmethod additional-box-attributes ((self score-element)) 
   `((:font-size "a font size for score display" nil) 

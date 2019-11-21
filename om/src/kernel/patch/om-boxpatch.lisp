@@ -57,7 +57,7 @@
 ;;; when the value is a box:
 ;;;========================
 
-(defmethod display-modes-for-object ((self OMPatch)) '(:hidden :mini-view :value))
+(defmethod display-modes-for-object ((self OMPatch)) '(:mini-view :hidden :value))
 (defmethod object-for-miniview ((self OMBoxPatch)) (reference self))
 
 ;;; the value of the box is a Box...

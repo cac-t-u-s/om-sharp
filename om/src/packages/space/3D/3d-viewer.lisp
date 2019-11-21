@@ -680,7 +680,7 @@
 ;;;========================
 
 (defmethod display-modes-for-object ((self 3D-viewer))
-  '(:hidden :text :mini-view))
+  '(:mini-view :text :hidden))
 
 
 (defmethod get-cache-display-for-draw ((self 3D-viewer) box)

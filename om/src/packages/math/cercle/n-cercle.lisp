@@ -58,7 +58,7 @@ Note: N-CERCLE can also contain a set of chords/patterns: in this case, <puntos>
 ;;;=============================
 
 (defmethod display-modes-for-object ((self n-cercle))
-  '(:hidden :text :mini-view))
+  '(:mini-view :text :hidden))
 
 (defun polar2car (angle radius)
   (list (round (* radius (cos angle))) (round (* radius (sin angle)))))

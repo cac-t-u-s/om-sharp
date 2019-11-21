@@ -30,7 +30,7 @@
   (tick-n :initform 0 :accessor tick-n :documentation "Internal tick-n if no action is provided")))
 
 (defmethod display-modes-for-object ((self clock))
-  '(:hidden :text :mini-view))
+  '(:mini-view :text :hidden))
 
 ;;; Accessor redefinition so the action output is accessible
 (defmethod action ((self clock))

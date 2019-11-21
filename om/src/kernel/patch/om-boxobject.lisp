@@ -469,8 +469,7 @@
                        '((:show-markers "Show markers" :bool show-markers)))))))
 
 
-(defmethod display-modes-for-object ((self t)) '(:hidden :text))
-
+(defmethod display-modes-for-object ((self t)) '(:text :hidden))
 
 (defmethod set-display ((self OMBox) val)
   (setf (display self) val)
@@ -516,6 +515,7 @@
     ;;; if init-args is not a string, it is considered a value for init...
     ;;; should actually test that this is an instance of reference
     (initialize-box-value box (if (not (stringp init-args)) init-args))
+    (setf (display box) (car (display-modes-for-object (get-box-value box))))
     box))
 
 

@@ -144,7 +144,7 @@
   )
 
 (defmethod display-modes-for-object ((self osc-bundle))
-  '(:hidden :text :mini-view))
+  '(:mini-view :text :hidden))
 
 (defmethod draw-mini-view ((self osc-bundle) (box t) x y w h &optional time)
   (let ((display-cache (ensure-cache-display-text box self)))

@@ -48,7 +48,7 @@
 (defmethod get-col ((self OMArray) col &key (warn-if-not-found t))
   (get-field self col :warn-if-not-found warn-if-not-found))
 
-(defmethod display-modes-for-object ((self OMArray)) '(:hidden :text :mini-view))
+(defmethod display-modes-for-object ((self OMArray)) '(:mini-view :text :hidden))
 
 (defmethod draw-mini-view ((self OMArray) (box t) x y w h &optional time)
 

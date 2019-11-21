@@ -884,7 +884,7 @@ Press 'space' to play/stop the sound file.
 ;(defmethod special-box-type ((self (eql 'sound))) 'OMBoxSound)
 
 (defmethod display-modes-for-object ((self sound))
-  '(:hidden :text :mini-view))
+  '(:mini-view :text :hidden))
 
 (defmethod get-cache-display-for-text ((object sound) box)
   (declare (ignore box))

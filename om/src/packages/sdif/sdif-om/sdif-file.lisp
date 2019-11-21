@@ -104,7 +104,7 @@ Lock the box ('b') to keep the current file.
    (objfromobjs (sdif->text self) target))
 
 ;;; DISPLAY BOX
-(defmethod display-modes-for-object ((self sdiffile)) '(:hidden :text :mini-view))
+(defmethod display-modes-for-object ((self sdiffile)) '(:mini-view :text :hidden))
 
 (defmethod get-cache-display-for-text ((self sdiffile) box)
   (declare (ignore box))

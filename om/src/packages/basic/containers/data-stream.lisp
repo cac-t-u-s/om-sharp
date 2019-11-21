@@ -113,7 +113,7 @@
 
 
 (defmethod display-modes-for-object ((self data-stream))
-  '(:hidden :text :mini-view))
+  '(:mini-view :text :hidden))
 
 (defmethod draw-mini-view ((self data-stream) (box t) x y w h &optional time)
   (let ((display-cache (get-display-draw box)))

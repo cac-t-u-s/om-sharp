@@ -50,7 +50,7 @@
 ;;;=====================================
 ;;; BOX DISPLAY
 ;;;=====================================
-(defmethod display-modes-for-object ((self OMMaquette)) '(:hidden :mini-view :text))
+(defmethod display-modes-for-object ((self OMMaquette)) '(:mini-view :text :hidden))
 
 (defmethod draw-mini-view ((self OMMaquette) box x y w h &optional time)
   

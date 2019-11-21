@@ -500,7 +500,7 @@
 ;;; DRAW
 ;;;======================================
 (defmethod display-modes-for-object ((self midi-track))
-  '(:hidden :text :mini-view))
+  '(:mini-view :text :hidden))
 
 ;; (defmethod get-cache-display-for-draw ((self midi-track) box) (list 30 100)) 
 
