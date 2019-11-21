@@ -97,9 +97,8 @@
 
 (defmacro om-ignore&print-error (&rest body)
   `(multiple-value-bind (a b) 
-       (ignore-errors
-         ,@body)
-     (if b (print (format nil "Error: ~A" b)))
+       (ignore-errors ,@body)
+     (when b (print (format nil "Error: ~A" b)))
      a))
 
 (defun om-error-handler (&rest l)
