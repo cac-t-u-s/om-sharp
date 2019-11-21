@@ -846,8 +846,10 @@
     (when edwin-info
       (let ((wsize (find-value-in-kv-list edwin-info :size))
             (wpos (find-value-in-kv-list edwin-info :position)))
-        (setf (window-pos box) (omp (car wpos) (cadr wpos))
-              (window-size box) (omp (car wsize) (cadr wsize)))))
+        (when wpos (setf (window-pos box) (omp (car wpos) (cadr wpos))))
+        (when wsize (setf (window-size box) (omp (car wsize) (cadr wsize))))
+        ))
+    
     (when ed-params 
       (setf (edition-params box) 
             (mapcar #'(lambda (p)
