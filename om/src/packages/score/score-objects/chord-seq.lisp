@@ -95,15 +95,16 @@ Internally most of these values are just used to build a list of CHORD objects, 
 ;;; redefined from time-sequence
 (defmethod time-sequence-default-duration ((self chord-seq)) 1000)
 
+(defmethod save-slot-value ((self chord-seq) slot-name val)
+  (if (and (member slot-name '(lmidic lvel ldur lchan lport loffset llegato extras))
+           (all-equal val))
+      (omng-save (car val))
+    (call-next-method)))
 
 
 (defmethod do-initialize ((self chord-seq) &key Lmidic Lvel Loffset Ldur Lonset Lchan Lport Llegato)
   
-  (let ((defdelay (if (>= (length Lonset) 2)
-                      (- (car (last Lonset)) (car (last Lonset 2)))
-                    1000)) ;;; the default delay between two chords if not specified otherwise
-        (defstart (or (pop Lonset) 0))
-        
+  (let ((onsets (copy-list (butlast Lonset)))
         (midics (list! Lmidic))
         (vels (list! Lvel))
         (durs (list! Ldur))
@@ -125,13 +126,14 @@ Internally most of these values are just used to build a list of CHORD objects, 
              (mapcar #'(lambda (n) (ObjfromObjs n (make-instance 'chord))) Lmidic))
 
             (t
-             (loop while (or midics vels durs offsets ports)
+             (loop while (or onsets midics vels durs offsets ports)
                    for midic = (or (pop midics) midic)
                    for vel = (or (pop vels) vel)
                    for dur = (or (pop durs) dur)
                    for offset = (or (pop offsets) offset)
                    for chan = (or (pop chans) chan)
                    for port = (or (pop ports) port) 
+                   for onset = (or (pop onsets) onset) 
                    collect (make-instance 
                             'chord 
                             :Lmidic (list! midic) 
@@ -143,7 +145,11 @@ Internally most of these values are just used to build a list of CHORD objects, 
                             )))
              ))) ;;; end chord-list definition
       
-      (loop for chord in chord-list
+      (loop with defdelay = (if (>= (length Lonset) 2)
+                                (- (car (last Lonset)) (car (last Lonset 2)))
+                             1000) ;;; the default delay between two chords if not specified otherwise
+            with defstart = (or (pop Lonset) 0)
+            for chord in chord-list
             for onset = defstart then (or (pop Lonset)  (+ onset defdelay))
             for next-ontset = (or (first Lonset) (+ onset defdelay))
             for legato = (or (pop legatos) legato) 
