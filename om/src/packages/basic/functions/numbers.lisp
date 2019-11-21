@@ -502,7 +502,7 @@ Ex. (list-max '(2 4 1 3))  => 4"
 ; ALL-EQUAL TEST
 ;===========================
 
-(defmethod* all-equal ((list list) &optional (test 'equal))
+(defmethod* all-equal ((list list) &optional (test #'equal))
   :initvals '(nil equal) :indoc '("a list" "a binary test function") 
   :doc "Tests if all elements of <list> are equal (using <test>).
 Returns the value if this is true.
