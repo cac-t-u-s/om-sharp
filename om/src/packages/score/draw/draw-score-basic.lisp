@@ -138,6 +138,34 @@
     (:fff (values (code-char #xE530) "dynamicFFF"))    
     (otherwise nil)))
 
+(defparameter *smufl-note-heads* 
+  '(("noteheadHalf" #xE0A3)
+    ("noteheadBlack" #xE0A4)
+    ("noteheadXBlack" #xE0A9)
+    ("noteheadCircleX" #xE0B3)
+    ("noteheadSquareWhite" #xE0B8)
+    ("noteheadSquareWhite" #xE0B9)
+    ("noteheadTriangleUpWhite" #xE0BD)
+    ("noteheadTriangleUpBlack" #xE0BE)
+    ("noteheadDiamondBlackWide" #xE0DC)
+    ("noteheadDiamondWhiteWide" #xE0DE)))
+
+(defmethod* notehead-char-codes (char)
+  :icon :score
+  :initvals '(#xE0A3)
+  :doc "Some SMuFL note heads char-codes.
+
+See more in https://www.smufl.org/version/latest/range/noteheads/
+"
+  :menuins (list (list 0 *smufl-note-heads*))
+  char)
+
+(defun char-code-to-head-char (code)
+  (values 
+   (code-char code) 
+   (car (find code *smufl-note-heads* :key #'cadr))
+   ))
+
 (defun note-head-char (symbol)
   (case symbol
     (:head-1/4 (values (code-char #xE0A4) "noteheadBlack"))
@@ -148,10 +176,13 @@
     (:head-4 (values (code-char #xE937) "mensuralNoteheadLongaWhite"))
     (:head-8 (values (code-char #xE933) "mensuralNoteheadMaximaWhite"))
     
-    (otherwise (if (consp symbol) ;;; super-longa
-                   (note-head-char :head-8)
-                 (note-head-char :head-1/4)))
+    (otherwise (cond ((consp symbol) ;;; super-longa
+                      (note-head-char :head-8))
+                     ((numberp symbol)
+                      (char-code-to-head-char symbol))
+                     (t (note-head-char :head-1/4))))
     ))
+
 
 (defun flag-char (orientation n)
   (if (equal orientation :up)
@@ -697,7 +728,9 @@
   (when (get-notes chord)
     (om-with-translation x y 
 
-      (let* ((head-symb (if (consp head) (car head) head))
+      (let* ((head-symb (let ((extra-head (find 'head-extra (extras chord) :key #'type-of))) 
+                          (if extra-head (head-char extra-head)
+                            (if (consp head) (car head) head))))
              (n-points (if (consp head) (cadr head) 0))
              (head-extra-number (if (listp head-symb) (car head-symb)))
              (scale (get-the-scale scale)))
