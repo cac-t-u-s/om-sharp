@@ -105,19 +105,33 @@
 (defmethod additional-slots-to-save ((self t)) 
   (additional-class-attributes self))
 
+(defmethod excluded-slots-from-save ((self t)) nil)
+
+(defmethod condition-for-save-slot ((from t) slot) 
+  (and (or (slot-definition-initargs slot)
+           (member (slot-definition-name slot) (additional-slots-to-copy from)))
+       (not (member (slot-definition-name slot) (excluded-slots-from-copy from)))
+       ))
+
+(defmethod save-slot-value ((self standard-object) slot-name val)
+  (omng-save val))
+  
 ;;; objects copy/save only the slot with initargs and additional class attributes
 (defmethod omng-save ((self standard-object))  ; OMObject
 
   ;;; all slots with :initarg are saved (even indirect)
   (let* ((main-slots (loop for slot in (class-slots (class-of self))
-                           when (slot-definition-initargs slot)
-                          collect (list (car (slot-definition-initargs slot))
-                                        (omng-save 
-                                         (if (fboundp (slot-definition-name slot))
-                                             (funcall (slot-definition-name slot) self)
-                                           (slot-value self (slot-definition-name slot)))
-                                         ))))
-
+                           when  (and (slot-definition-initargs slot)
+                                      (not (member (slot-definition-name slot) (excluded-slots-from-save self))))
+                           collect (list (car (slot-definition-initargs slot))
+                                         (let ((slot-name (slot-definition-name slot)))
+                                           (save-slot-value self slot-name
+                                                            (if (fboundp slot-name)
+                                                                (funcall slot-name self)
+                                                              (slot-value self slot-name))
+                                                            ))
+                                         )))
+         
          (add-slots (loop for add-slot in (additional-slots-to-save self)
                           unless (find (intern-k add-slot) main-slots :key #'car)
                           collect (list (intern-k add-slot) 
