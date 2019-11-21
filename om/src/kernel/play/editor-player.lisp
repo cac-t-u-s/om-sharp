@@ -256,13 +256,18 @@
 (defmethod editor-stop ((self play-editor-mixin))
 
   (stop-editor-callback self)
-
-  (player-stop-object (player self) (get-obj-to-play self))
-  (when (metronome self) 
+  
+  (when (not (equal :stop (player-get-object-state (player self) (get-obj-to-play self))))
+    (player-stop-object (player self) (get-obj-to-play self)))
+  
+  (when (and (metronome self)
+             (not (equal :stop (player-get-object-state (player self) (metronome self)))))
     (player-stop-object (player self) (metronome self)))
+  
   (let ((start-time (or (car (play-interval self)) (car (play-editor-default-interval self)))))
     (set-time-display self start-time)
-    (mapcar #'(lambda (view) (update-cursor view start-time)) (cursor-panes self))))
+    (mapcar #'(lambda (view) (update-cursor view start-time)) (cursor-panes self)))
+  )
 
 (defmethod editor-play/stop ((self play-editor-mixin))
   (if (not (eq (player-get-object-state (player self) (get-obj-to-play self)) :stop))
