@@ -49,7 +49,8 @@
 (defmethod apply-box-attributes ((self OMInterfaceBox) attributes) 
   (loop for attr on attributes by 'cddr do
         (apply-one-box-attribute self (car attr) (cadr attr)))
-  (update-inspector-for-object self)
+  (when (selected self) 
+    (update-inspector-for-object self))
   )
 
 (defmethod omNG-box-value ((self OMInterfaceBox) &optional (numout 0)) 
@@ -58,7 +59,7 @@
   (capi:apply-in-pane-process 
    (om-view-container (frame self)) 
    'apply-box-attributes self (eval-box-inputs self))
-  
+
   (current-box-value self numout))
 
 (defmethod gen-code ((self OMInterfaceBox) &optional (numout 0))
