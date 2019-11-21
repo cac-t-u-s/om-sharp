@@ -108,6 +108,9 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
 ;;; allow as additional slots
 (defmethod additional-class-attributes ((self chord)) '(onset Lchan Lport extras))
 
+(defmethod excluded-slots-from-save ((self chord)) '(notes)) ;;; or just remove its :initarg ?
+
+
 (defmethod Lmidic ((self chord))
   (loop for note in (notes self)
         collect (midic note)))
