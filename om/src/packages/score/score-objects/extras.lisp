@@ -21,34 +21,33 @@
   ()
   (:documentation "Superclass for score extras: elements attached to chord modifying/completing their representation in score editors."))
 
-(defclass score-marker (score-extra) 
+(defclass* score-marker (score-extra) 
   ((data :initarg :data :accessor data :initform nil :type t :documentation "some data or label attached to the marker"))
   (:documentation "A score extra marking a segment or cue point in the score"))
 
-(defclass vel-extra (score-extra) 
+(defclass* vel-extra (score-extra) 
   ((x :initarg :x :accessor x :initform 0 :type number :documentation "horizontal shift in score units wrt. default position")
    (y :initarg :y :accessor y :initform 0 :type number :documentation "vertical shift in score units wrt. default position"))
   (:documentation "A score extra forcing the explicit display of velocity in score editors"))  
    
-(defclass head-extra (score-extra) 
+(defclass* head-extra (score-extra) 
   ((head-char :initarg :head-char :accessor head-char :initform nil :documentation "SMuFL char code for the note head symbol"))
   (:documentation "A score extra changing the note head"))
 
-(defclass text-extra (score-extra) 
+(defclass* text-extra (score-extra) 
   ((x :initarg :x :accessor x :initform 0 :type number :documentation "horizontal shift in score units wrt. default position")
    (y :initarg :y :accessor y :initform 0 :type number :documentation "vertical shift in score units wrt. default position")
    (text :initarg :text :accessor text :initform "text" :type string :documentation "the text")
    (font :initarg :font :accessor font :initform nil :documentation "the text font"))
   (:documentation "A score extra attaching a text label"))
 
-(defclass symb-extra (score-extra) 
+(defclass* symb-extra (score-extra) 
   ((x :initarg :x :accessor x :initform 0 :documentation "horizontal shift in score units wrt. default position")
    (y :initarg :y :accessor y :initform 0 :documentation "vertical shift in score units wrt. default position")
    (symb-char :initarg :symb-char :accessor symb-char :initform nil :documentation "SMuFL char code for the score symbol"))
   (:documentation "A score extra attaching a score symbol"))
 
-
-
+  
 ;;;=================================
 ;;; EXTRA(S) IN SCORE OBJECTS
 ;;;=================================
@@ -61,11 +60,15 @@
   (setf (extras self) (list! (extras self))))
 
 (defmethod initialize-instance :after ((self chord-seq) &rest initargs)
-  (when (extras self) 
-    (loop for extra in (extras self) 
-          for chord in (chords self)
-          do (add-extras chord extra nil)))
-  (setf (slot-value self 'extras) nil))
+  (let ((extras (slot-value self 'extras)))
+    (when extras 
+      (if (listp extras)
+          (loop for extra in extras 
+                for chord in (chords self)
+                do (add-extras chord extra nil))
+        (add-extras self extras nil))
+      (setf (slot-value self 'extras) nil)
+      )))
 
 (defmethod (setf extras) ((extras list) (self chord-seq))
   (loop for extra in extras 
@@ -151,13 +154,6 @@ If <self> is a polyphony (MULTI-SEQ or POLY):
 
 ;== CHORD-SEQ / VOICE:
 
-; POSITION = NIL
-(defmethod* add-extras ((self chord-seq) extras (position null) &optional newobj)
-  (let ((rep (if newobj (om-copy self) self)))
-    (loop for chord in (chords rep) do
-          (add-extras chord (om-copy extras) nil))
-    rep))
-
 ; POSITION = NUMBER
 (defmethod* add-extras ((self chord-seq) extras (position number) &optional newobj)
   
@@ -184,7 +180,12 @@ If <self> is a polyphony (MULTI-SEQ or POLY):
           (add-extras rep (om-copy extras) p))
     rep))
 
-
+; POSITION = NIL
+(defmethod* add-extras ((self chord-seq) extras (position null) &optional newobj)
+  (let ((rep (if newobj (om-copy self) self)))
+    (loop for chord in (chords rep) do
+          (add-extras chord (print (om-copy extras)) nil))
+    rep))
 
 ;== MULTI-SEQ / POLY
 
@@ -238,12 +239,18 @@ If <self> is a polyphony (MULTI-SEQ or POLY):
 (defmethod* get-extras ((self chord) extra-type)
   :icon :score
   :initvals '(nil nil) 
+  :menuins '((1 (("all" nil) 
+                 ("head" head-extra)
+                 ("vel" vel-extra)
+                 ("text" text-extra)
+                 ("symbol" symb-extra)
+                 ("marker" score-marker))))            
   :indoc '("a chord or musical object" "specific type(s) of score-extra") 
   :doc "Returns 'score-extras' from a chord or a musical object."
   
   (if extra-type 
-      (remove-if 
-       #(lambda (e) (find (type-of e) (list! extra-type) :test #'subtypep))
+      (remove-if-not 
+       #'(lambda (e) (find (type-of e) (list! extra-type) :test #'subtypep))
        (extras self))
     (extras self)))
 
@@ -263,12 +270,23 @@ If <self> is a polyphony (MULTI-SEQ or POLY):
 (defmethod* remove-extras ((self chord) extra-type &optional newobj)
   :icon :score
   :initvals '(nil nil nil) 
+  :menuins '((1 (("all" nil) 
+                 ("head" head-extra)
+                 ("vel" vel-extra)
+                 ("text" text-extra)
+                 ("symbol" symb-extra)
+                 ("marker" score-marker))))            
   :indoc '("a chord or musical object" "specific type(s) of score-extra" "return new object") 
   :doc "Removes 'score-extras' from a chord or a musical object."
-  
+   
   (let ((rep (if newobj (om-copy self) self)))
       
-    (setf (extras rep) (get-extras rep extra-type))
+    (setf (extras rep) 
+          (if extra-type 
+              (remove-if 
+               #'(lambda (e) (find (type-of e) (list! extra-type) :test #'subtypep))
+               (extras self))
+            nil))
     
     rep))
 
@@ -277,24 +295,22 @@ If <self> is a polyphony (MULTI-SEQ or POLY):
 
     (let ((rep (if newobj (om-copy self) self)))
       
-      (loop for chord in (chords self) do 
+      (loop for chord in (chords rep) do 
             (remove-extras chord extra-type))
-
+      
       rep))
 
 (defmethod* remove-extras ((self multi-seq) extra-type &optional newobj)
 
     (let ((rep (if newobj (om-copy self) self)))
       
-      (loop for v in (inside self) do 
+      (loop for v in (inside rep) do 
             (remove-extras v extra-type))
 
       rep))
 
 
-; TODO:
-; DISPLAY IN THE SCORE
-; ATTACH/REMOVE INSIDE SCORE EDITOR
+; TODO: ATTACH/REMOVE/EDIT INSIDE SCORE EDITOR
 
 
 
