@@ -579,10 +579,18 @@
     
     
     (loop for c in same-cont-chords
-          do (change-class (print c) 'r-rest)))
+          do (let ((rest (clone-object c (make-instance 'r-rest))))
+               (setf (inside (parent c))
+                     (substitute rest c (inside (parent c))))
+               ))
+    )
   
   ;;; change the chord itself into a rest
-  (change-class item 'r-rest)
+  ;; (change-class item 'r-rest)
+  (setf (inside (parent item))
+        (substitute (clone-object item (make-instance 'r-rest)) 
+                    item
+                    (inside (parent item))))
   
   ;;; compute new tree
   (let ((new-tree (build-tree self nil)))
