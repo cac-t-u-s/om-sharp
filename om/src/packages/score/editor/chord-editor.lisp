@@ -107,7 +107,7 @@
 
 (defmethod editor-key-action ((self chord-editor) key)
   (if (and (in-arp-mode self)
-           (not (member key '(#\Space)))) ;; afew keys are authorized
+           (not (member key '(#\Space)))) ;; a few keys are authorized
       (om-beep-msg "Chord-editor can not be edited in 'arp' modes")
     (call-next-method)))
       
