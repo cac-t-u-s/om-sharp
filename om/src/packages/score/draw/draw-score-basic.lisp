@@ -760,7 +760,7 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
                  (dur-max (apply #'max (mapcar 'dur notes)))
                  ;; (dur-factor (/ (- w 80) (* dur-max 2)))  ;;; we will multiply durations by this to display them on half-width of the view
                  (unique-channel (and (not (equal draw-chans :hidden)) (all-equal (mapcar 'chan notes)) (chan (car notes))))
-                 (unique-vel (and draw-vels (all-equal (mapcar 'vel notes)) (vel (car notes))))
+                 (unique-vel (and (all-equal (mapcar 'vel notes)) (vel (car notes))))
                  (unique-port (and draw-ports (all-equal (mapcar 'port notes)) (or (port (car notes)) :default))))
            
             (om-with-font 
@@ -896,16 +896,19 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
                      ))
              
                  ;;; GLOBAL VELOCITY VALUE OR SYMBOL
-                 (when (and draw-vels unique-vel) ;;; if there's just one velocity in the chord we'll display it somewhere else
-                   (case draw-vels
-                     (:value 
-                      (om-draw-string x-pix (+ y-min (* unit 4)) (format nil "~D" unique-vel) 
-                                      :font (om-def-font :font1 :size (round fontsize 2.5))))
-                     (:symbol 
-                      (om-draw-char x-pix (+ y-min (* unit 4)) (velocity-char unique-vel)))
-                     ))
-
-
+                 (let ((vel-extra (find 'vel-extra (extras chord) :key #'type-of)))
+                   (when (or (and draw-vels unique-vel) ;;; if there's just one velocity in the chord we'll display it somewhere else
+                             vel-extra)   ;;; ... or if there is a vel-extra
+                     (let ((vel-x-pix (+ x-pix (if vel-extra (* (dx vel-extra) unit) 0)))
+                           (vel-y-pix (+ y-min (* unit 4) (if vel-extra (* (dy vel-extra) unit) 0))))
+                       
+                       (cond ((or vel-extra (equal :symbol draw-vels))
+                              (om-draw-char vel-x-pix vel-y-pix (velocity-char unique-vel)))
+                             ((equal :value draw-vels) 
+                              (om-draw-string vel-x-pix vel-y-pix (format nil "~D" unique-vel) 
+                                              :font (om-def-font :font1 :size (round fontsize 2.5))))
+                             ))))
+                 
                    
                  (when (and draw-durs draw-dur-ruler)
                
@@ -1114,8 +1117,37 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
                                ))
                            )) ;;; END DO
                    ) ;;; END NOTES LOOP
-                 ) ;;; END OF THE NOTE-HEADS LET
-             
+                 
+                 ;;; DRAW EXTRAS
+                 (when (extras chord)
+                   
+                   (loop for e in (get-extras chord 'text-extra)
+                         do (om-with-font 
+                             (om-def-font :font1 :face (font e) :size (/ fontsize 2))
+                             (om-draw-string (+ x-pix (* (dx e) unit)) 
+                                             (+ y-min (* unit (+ 4 (dy e)))) 
+                                             (text e)))
+                         )
+                   
+                   (loop for e in (get-extras chord 'symb-extra)
+                         do (om-draw-char (+ x-pix (* (dx e) unit)) 
+                                          (+ y-min (* unit (+ 4 (dy e)))) 
+                                          (code-char (symb-char e)))
+                         )
+                   
+                   (loop for e in (get-extras chord 'score-marker)
+                         do (om-with-fg-color (om-def-color :steelblue)
+                              (om-draw-line x-pix 0 x-pix h :line (/ fontsize 20))
+                              (when (data e)
+                                (om-draw-string (+ x-pix unit) 
+                                                (- h 20)
+                                                (format nil "~A" (data e))
+                                                :font (om-def-font :font1 :size (/ fontsize 2))))
+                              ))
+                   )
+                 
+               ) ;;; END OF THE NOTE-HEADS LET
+               
                ))
     
             ;;; return the bounding box (always)
@@ -1126,6 +1158,7 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
           )))))
 
 
+  
 ;;;==========================================================
 ;;; RESTS
 
