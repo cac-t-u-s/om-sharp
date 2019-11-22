@@ -177,11 +177,12 @@
         collect (list slot (get-undoable-object-state (slot-value self slot)))))
 
 (defmethod restore-undoable-object-state ((self standard-object) (state list)) 
-  ; (om-print-dbg "restoring state of ~A" (list self) "UNDO")
+  ;(om-print-dbg "---> restoring state of ~A" (list self) "UNDO")
   (loop for slot in (get-object-slots-for-undo self)
-        do (setf (slot-value self slot) 
+        do (setf (slot-value self slot)
                  (restore-undoable-object-state (slot-value self slot)
                                                 (cadr (find slot state :key 'car)))))
+  ;(om-print-dbg "<--- ~A" (list self) "UNDO")
   self)
 
 
@@ -201,7 +202,7 @@
 ;;; restore a new list, restore each object in it
 (defmethod restore-undoable-object-state ((self list) (state list)) 
 
-  (if (typep (car self) '(or symbol string number)) 
+  (if (typep (car state) '(or symbol string number))
 
        ;;; "simple" value lists
        (om-copy state)
