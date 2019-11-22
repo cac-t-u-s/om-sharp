@@ -21,33 +21,33 @@
   ()
   (:documentation "Superclass for score extras: elements attached to chord modifying/completing their representation in score editors."))
 
-(defclass* score-marker (score-extra) 
-  ((data :initarg :data :accessor data :initform nil :type t :documentation "some data or label attached to the marker"))
-  (:documentation "A score extra marking a segment or cue point in the score"))
-
-(defclass* vel-extra (score-extra) 
-  ((x :initarg :x :accessor x :initform 0 :type number :documentation "horizontal shift in score units wrt. default position")
-   (y :initarg :y :accessor y :initform 0 :type number :documentation "vertical shift in score units wrt. default position"))
-  (:documentation "A score extra forcing the explicit display of velocity in score editors"))  
-   
 (defclass* head-extra (score-extra) 
   ((head-char :initarg :head-char :accessor head-char :initform nil :documentation "SMuFL char code for the note head symbol"))
   (:documentation "A score extra changing the note head"))
 
+(defclass* vel-extra (score-extra) 
+  ((dx :initarg :dx :accessor dx :initform 0 :type number :documentation "horizontal shift in score units wrt. default position")
+   (dy :initarg :dy :accessor dy :initform 0 :type number :documentation "vertical shift in score units wrt. default position"))
+  (:documentation "A score extra forcing the explicit display of velocity in score editors"))
+
 (defclass* text-extra (score-extra) 
-  ((x :initarg :x :accessor x :initform 0 :type number :documentation "horizontal shift in score units wrt. default position")
-   (y :initarg :y :accessor y :initform 0 :type number :documentation "vertical shift in score units wrt. default position")
+  ((dx :initarg :dx :accessor dx :initform 0 :type number :documentation "horizontal shift in score units wrt. default position")
+   (dy :initarg :dy :accessor dy :initform 0 :type number :documentation "vertical shift in score units wrt. default position")
    (text :initarg :text :accessor text :initform "text" :type string :documentation "the text")
    (font :initarg :font :accessor font :initform nil :documentation "the text font"))
   (:documentation "A score extra attaching a text label"))
 
 (defclass* symb-extra (score-extra) 
-  ((x :initarg :x :accessor x :initform 0 :documentation "horizontal shift in score units wrt. default position")
-   (y :initarg :y :accessor y :initform 0 :documentation "vertical shift in score units wrt. default position")
+  ((dx :initarg :dx :accessor dx :initform 0 :documentation "horizontal shift in score units wrt. default position")
+   (dy :initarg :dy :accessor dy :initform 0 :documentation "vertical shift in score units wrt. default position")
    (symb-char :initarg :symb-char :accessor symb-char :initform nil :documentation "SMuFL char code for the score symbol"))
   (:documentation "A score extra attaching a score symbol"))
 
-  
+(defclass* score-marker (score-extra) 
+  ((data :initarg :data :accessor data :initform nil :type t :documentation "some data or label attached to the marker"))
+  (:documentation "A score extra marking a segment or cue point in the score"))
+
+
 ;;;=================================
 ;;; EXTRA(S) IN SCORE OBJECTS
 ;;;=================================
