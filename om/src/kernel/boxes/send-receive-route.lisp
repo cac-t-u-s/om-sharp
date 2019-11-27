@@ -46,6 +46,10 @@
   :doc "Receives data sent through SEND with the <targetname> label."
   t)
 
+;;; for compat when loading old patches
+(defmethod function-changed-name ((reference (eql 'om-receive))) 'receive)
+(defmethod function-changed-name ((reference (eql 'om-send))) 'send)
+
 (defclass ReactiveReceiveBox (OMGFBoxCall) ())
 
 (defmethod boxclass-from-function-name ((self (eql 'receive))) 'ReactiveReceiveBox)
