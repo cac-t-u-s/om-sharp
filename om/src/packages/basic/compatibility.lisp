@@ -68,7 +68,7 @@
 (defmethod update-value ((self bpf-lib))
   (make-instance 'collection :obj-list (bpf-list self)))
 
-
+(defmethod update-reference ((ref (eql '3D-trajectory))) '3DC)
 
 ;;;===================
 ;;; TEXTFILE/TEXTBUFER
