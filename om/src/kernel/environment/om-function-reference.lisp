@@ -223,6 +223,7 @@
         (om-beep-msg "No reference page found for '~A'" symbol))
       )))
 
+
 ; (gen-om-reference)
 
 ;;;======================================
@@ -230,98 +231,58 @@
 ;;;======================================
 
 (defparameter *om-ref-css* 
-      "<STYLE TYPE=\"text/css\"><!--  
+  "<STYLE TYPE=\"text/css\"><!--  
 
-body, html {
-
- background-color: #EFEFEF;
-font-family: \"Calibri\";
-font-size: 14;
-color : #222222;
-
-  padding: 0px;
-  margin: 0px;
-  border: 0px none;
-  width: 100%;
-  height: 100%;
+body, p, td, li {
+  background-color: #fff;
+  font-family: \"Calibri\";
+  font-size: 14;
+  color : #222222;
 }
-
 
 A:link {text-decoration: underline; color : 333366;}
-A:visited {text-decoration: underline; color : 333366;}
-A:active {text-decoration: underline; color:333366;}
-A:hover {text-decoration: underline; color: 333366;}
 
-A:link.dark {text-decoration: underline; color: FFFFFF;}
-A:visited.dark {text-decoration: underline; color: FFFFFF;}
-A:active.dark {text-decoration: underline; color: FFFFFF;}
-A:hover.dark {text-decoration: underline; color: FFFFFF;}
-
-H1 {
- font-size: 22;
- font-weight: bold
- text-align: left;
-}
-	
-H2 {
- color : #333333;
- font-size: 20;
- font-weight: bold;
+h2 {
+  margin-bottom: 0px;
 }
 
-H3 {
- color : #444444;
- font-size: 16;
- font-weight: bold;
+p {
+  margin-top: 0px;
 }
 
-H4 {
- color : #000000;
- font-size: 15;
- font-weight: bold;
+hr {
+  border: .4px dashed;
 }
 
-table {
- display: table;
- border-spacing: 0px;
- background-color: #EFEFEF;
+table, td {
+  border: 0px;
+  background-color: #ddd;
 }
 
-P,UL,LI,TD {	
- font-size: 15;
- text-indent: 0cm;
- text-align: justify;
+.frame {
+  width: 80%;
+  max-width: 600px;
+  margin-left: 10%;
 }
 
-TH {	
- font-size: 15;
- text-indent: 0cm;
- text-align: justify;
- background-color: #2F2F2F; 
- color: #FFFFFF;
+.main {
+  border: 1px solid;
+  padding: 20px;
+  background-color: #ddd;
 }
 
-.dark { 
-  background-color: #2F2F2F; 
-  color: #FFFFFF;
-}
 
-.right {text-align: right ;}
-.center {text-align: center ;}
-.top {text-align: top ;}
-
-   --></style>")
+ --></style>")
 
 (defun credits-line ()
   (concatenate 'string 
-               "<center><font size=-2>" 
+               "<br><center><font size=-2>" 
                "Auto doc generation by " 
                *app-name*
                *version-string* 
                " - " 
                (om-get-date)  
                "</font></center>"))
-
 
 ; (gen-om-reference)
 
@@ -331,7 +292,7 @@ TH {
   (om-create-directory dir)
   
   (let* ((data (cdr package-entries))
-         (title (or title (format nil "~A v~A" *app-name* *version-string*)))
+         (title (or title (format nil "~A ~A" *app-name* *version-string*)))
          (indexpath (om-make-pathname :directory dir :name "index" :type "html"))
          (alphaindexpath (om-make-pathname :directory dir :name "ind-alpha" :type "html"))
          (allsymbols (remove nil 
@@ -358,43 +319,32 @@ TH {
       (write-line "</head>" index)
       
       (write-line "<body>" index)
-      (write-line "<table width=100% cellpadding=20>" index)
+      
+      (write-line "<div class=\"frame\">" index)
       
       ;;; TITLE BAR
-      (write-line  "<tr>" index)
-
-      (write-line "<th width=10%>&nbsp;</th>" index)
-
-      (write-line "<th>" index)
-      (write-line (concatenate 'string "<H1><font size=+3>" title "</font> <br>Reference pages</H1>") index)
-      (write-line "<p style=\"text-align: right;\">Main Index | <a class=\"dark\" href=ind-alpha.html>Alphabetical Index</a></p>" index)
-      (write-line "</th>" index)
+      (write-line "<div class=\"header\">" index)
+      (write-line (concatenate 'string "<H1>" title " reference pages</H1>") index)
+      (write-line "<b>Main Index | <a href=ind-alpha.html>Alphabetical Index</a></b>" index)
+      (write-line "</div>" index)
+      (write-line "<br><hr>" index)
       
-      (write-line "<th width=10%>&nbsp;</th>" index)
-      (write-line "</tr>" index)
-            
-      (write-line "<tr>" index)
-
-      (write-line "<td width=10%>&nbsp;</td>" index)
-
-      (write-line "<td>" index)
-
       ;;; CENTER
       (when maintext
         (loop for par in (list! maintext) do
               (write-line "<p>" index)
               (write-line par index)
               (write-line "</p>" index)))
-      
-      
+           
       ;;; PACKAGE LIST
       (when (find-value-in-kv-list data :sections)
         (write-line "<p>Packages covered: " index)
+        (write-line "<ul>" index)
         (loop for pack in (find-value-in-kv-list data :sections) do
               (let ((name (find-value-in-kv-list (cdr pack) :name)))
                 (when (and name (not (string-equal name "")))
-                  (write-line (concatenate 'string "<b><a href=#" (string name) ">" (string-upcase (string name)) "</a></b> ") index))))
-        )
+                  (write-line (concatenate 'string "<li><b><a href=#" (string name) ">" (string-upcase (string name)) "</a></b></li>") index))))
+        (write-line "</ul></p>" index))
       
       ;;; MAIN CONTENTS
 
@@ -413,14 +363,16 @@ TH {
               
               (write-line "<hr>" index)
               (when name
-                (write-line (concatenate 'string "<a name=" (string name) ">" "<h2>" (string-upcase (string name)) "</h2></a>") index))
+                (write-line (concatenate 'string "<a name=" (string name) ">" "<h2>" (string name) "</h2></a>") index))
               (when doc
                 (write-line (concatenate 'string "<p>" doc "</p>") index))
              
               ;;; items in section (not in a sub-group)
+              (write-line "<ul>" index)
               (loop for item in (find-value-in-kv-list (cdr section) :entries) do
-                    (write-line (concatenate 'string "<a href=" (special-path-check (string-downcase (string item))) ".html>" 
-                                             (special-html-check (string item)) "</a> ") index))
+                    (write-line (concatenate 'string "<li><a href=" (special-path-check (string-downcase (string item))) ".html>" 
+                                             (special-html-check (string item)) "</a></li>") index))
+              (write-line "</ul>" index)
               
               (loop for group in (find-value-in-kv-list (cdr section) :groups) do
                     
@@ -431,20 +383,19 @@ TH {
                       (when d
                         (write-line (concatenate 'string "<p>" (string d) "</p>") index))
                       
+                      (write-line "<ul>" index)
                       (loop for item in (find-value-in-kv-list (cdr group) :entries) do
-                            (write-line (concatenate 'string "<a href=" (special-path-check (string-downcase (string item))) ".html>" 
-                                                     (special-html-check (string item)) "</a> ") index))
+                            (write-line (concatenate 'string "<li><a href=" (special-path-check (string-downcase (string item))) ".html>" 
+                                                     (special-html-check (string item)) "</a></li>") index))
+                      (write-line "</ul>" index)
                       ))
               ))
 
       (write-line "<br><br>" index)
       (write-line (concatenate 'string "<center>" (credits-line) "</center>") index)
       
-      (write-line "</td>" index)
-
-      (write-line "<td width=10%>&nbsp;</td>" index)
-      (write-line "</td></tr></table>" index)
-
+      (write-line "</div>" index)
+    
       (write-line "</body></html>" index))
 
     (with-open-file (index alphaindexpath :direction :output)
@@ -455,34 +406,28 @@ TH {
       (write-line "</head>" index)
       
       (write-line "<body>" index)
-      (write-line "<table width=100% cellpadding=20>" index)
-      
-      ;;; TITLE BAR
-      (write-line  "<tr>" index)
-      (write-line "<th width=10%>&nbsp;</th>" index)  
-      (write-line "<th>" index)
-      (write-line (concatenate 'string "<H1><font size=+3>" title "</font> <br>Reference pages</H1>") index)
-      (write-line "<p style=\"text-align: right;\"><a class=\"dark\" href=index.html>Main Index</a> | Alphabetical Index</p>" index)
-      (write-line "</th>" index)
-      (write-line "<th width=10%>&nbsp;</th>" index)  
-      (write-line "</tr>" index)
+
+      (write-line "<div class=\"frame\">" index)
 
       
-      (write-line "<tr>" index)
-      (write-line "<td width=10%>&nbsp;</td>" index)
-      (write-line "<td>" index)
+      ;;; TITLE BAR
+      (write-line "<div class=\"header\">" index)
+      (write-line (concatenate 'string "<H1>" title " reference pages</H1>") index)
+      (write-line "<b><a href=index.html>Main Index</a> | Alphabetical Index</b>" index)
+      (write-line "</div>" index)
+      (write-line "<br><hr>" index)
       
-      (mapcar #'(lambda (item) (write-line (concatenate 'string "<a href=" (special-path-check
-                                                                               (string-downcase (string item))) ".html>" 
-                                                        (string item) "</a><br>") index))
+      (mapcar #'(lambda (item) 
+                  (write-line 
+                   (concatenate 'string "<a href=" (special-path-check
+                                                    (string-downcase (string item))) ".html>" 
+                                (string item) "</a><br>")
+                   index))
               (sort allsymbols 'string<))
       
       (write-line (concatenate 'string "<center>" (credits-line) "</center>") index)
 
-      (write-line "</td>" index)
-
-      (write-line "<td width=10%>&nbsp;</td>" index)
-      (write-line "</tr></table>" index)
+      (write-line "</div>" index)
 
       (write-line "</body></html>" index))
 
@@ -491,7 +436,9 @@ TH {
        
     indexpath))
 
+
 ; (gen-om-reference)
+
 
 (defun make-ref-page (symbol dir &optional title)
   (let* ((title (or title ""))
@@ -517,160 +464,139 @@ TH {
       (write-line "</head>" index)
       
       (write-line "<body>" index)
-
-      (write-line "<table align=center width=100% cellpadding=20>" index)
+      
+      (write-line "<div class=\"frame\">" index)
       
       ;;; TITLE BAR
-      (write-line  "<tr>" index)
-      (write-line "<th width=10%>&nbsp;</th>" index)
-
-      (write-line "<th>" index)
-      (write-line (concatenate 'string "<H1><font size=+3>" title "</font> <br>Reference pages</H1>") index)
-      (write-line "<p style=\"text-align: right;\"><a class=\"dark\" href=index.html>Main Index</a> | <a class=\"dark\" href=ind-alpha.html>Alphabetical Index</a></p>" index)
-      (write-line "</th>" index)
-      (write-line "<th width=10%>&nbsp;</th>" index)
-
-      (write-line  "</tr>" index)
+      (write-line "<div class=\"header\">" index)
       
-      (write-line "<tr>" index)
-      (write-line "<td width=10%>&nbsp;</td>" index)
-
-      (write-line "<td>" index)
+      (write-line (concatenate 'string "<H1>" title " reference pages</H1>") index)
+      (write-line "<b><a href=index.html>Main Index</a> | <a href=ind-alpha.html>Alphabetical Index</a></b>" index)
+      
+      (write-line "<br><br>" index)
+      (write-line "</div>" index)
+       
 
       ;;; EMBEDDED TABLE AT CENTER
-      (write-line "<table width=100%><tr>" index)
-
-      ;;; HEADING SECTION
-           (write-line "<tr>" index)
-           (write-line "<td>" index)
-    
-           (write-line (concatenate 'string "<h2>" (special-html-check (string symbol)) "</h2>") index)
-           (unless (null doc)
-             (write-line (concatenate 'string "<font size=-1>[" (string (nth 1 doc)) "]" "</font>") index))
-           (write-line "</td>" index)
+      (write-line "<div class=\"main\">" index)
       
-           ;;; ICON
-           (write-line "<td width=60 align=right>" index)    
-           (let ((iconfile 
-                  (when (or (and (string-equal (nth 1 doc) "CLASS") 
-                                 (omclass-p object))
-                            (and (string-equal (nth 1 doc) "GENERIC-FUNCTION") 
-                                 (omgenericfunction-p object)))
-                    (if (icon object) 
-                        (if (library object)
-                            (om-relative-path '("icons") (format nil "~A.png" (icon object)) (lib-resources-folder (find-library (library object))))
-                          (om-relative-path '("icons" "boxes") (format nil "~A.png" (icon object)) (om-resources-folder)))))))
-             (if (file-exist-p iconfile)
-                 (setf iconfile (namestring iconfile))
-               (setf iconfile "./logo.png"))
-             (write-line (concatenate 'string "<p class=right><img src=" iconfile " width=60></p>") index)
-             )
-           (write-line "</td>" index)
-           (write-line "</tr>" index)
-
-           ;;; MAIN BODY
-           (write-line "<tr><td colspan=2><br><br>" index)
-           
-           (if (null doc)
-               
-               (write-line "<p>No documentation</p>" index)
-               
-             (progn
-               (cond ;;; FUNTION ARGUMENTS
-                     ((or (string-equal (nth 1 doc) "FUNCTION")
-                          (string-equal (nth 1 doc) "GENERIC-FUNCTION"))
-                      (write-line "<font color=882222><b>ARGUMENTS:</b></font>" index)
-                      (if (null (nth 2 doc))
-                          (write-line "None<br>" index)
-                        (progn
-                          (write-line "<table width=100%>" index)
-                          (loop for arg in (nth 2 doc) 
-                                for i = 0 then (+ i 1) do
-                                (write-line "<tr>" index)
-                                (if (and (not (consp arg)) (equal #\& (elt (string arg) 0)))
-                                    (progn 
-                                      (write-line "<td>" index)
-                                      (write-line (concatenate 'string "<i><b>" (string-downcase (string arg))"</b></i>") index)
-                                      (write-line "</td>" index)
-                                      (write-line "<td colspan=3>&nbsp;</td></tr>" index)
-                                      (setf i (- i 1)))
-                                  (let ((argname (if (consp arg) (car arg) arg)))
-                                    (write-line "<td width=40>&nbsp;</td>" index) 
-                                    (write-line "<td>" index)
-                                    (write-line (concatenate 'string "- <font color=333366><b>" (format nil "~s" (intern (string-upcase argname))) "</b></font>") index)
-                                    (write-line "</td>" index)
-                                    ;; doc and defaults
-                                    (if (subtypep (class-of (fdefinition symbol)) 'OMGenericFunction)
+      ;;; ICON
+      (let ((iconfile 
+             (when (or (and (string-equal (nth 1 doc) "CLASS") 
+                            (omclass-p object))
+                       (and (string-equal (nth 1 doc) "GENERIC-FUNCTION") 
+                            (omgenericfunction-p object)))
+               (if (icon object) 
+                   (if (library object)
+                       (om-relative-path '("icons") (format nil "~A.png" (icon object)) 
+                                         (lib-resources-folder (find-library (library object))))
+                     (om-relative-path '("icons" "boxes") (format nil "~A.png" (icon object)) (om-resources-folder)))))))
+        (when (file-exist-p iconfile)
+          (write-line (concatenate 'string "<img src=" (namestring iconfile) " align=\"right\" width=60>") index)
+          ))
+      
+      ;;; NAME
+      (write-line (concatenate 'string "<h2>" (special-html-check (string symbol)) "</h2>") index)
+      
+      (unless (null doc)
+        (write-line (concatenate 'string "<font size=-1>[" (string (nth 1 doc)) "]" "</font>") index))
+      
+      
+      ;;; MAIN BODY
+      
+      (if (null doc)
+          (write-line "No documentation" index)
+        
+        (progn
+          (cond ;;; FUNTION ARGUMENTS
+                ((or (string-equal (nth 1 doc) "FUNCTION")
+                     (string-equal (nth 1 doc) "GENERIC-FUNCTION"))
+                 (write-line "<h3>Function arguments:</h3>" index)
+                 (if (null (nth 2 doc))
+                     (write-line "None<br>" index)
+                   (progn
+                     (write-line "<table width=100%>" index)
+                     (loop for arg in (nth 2 doc) 
+                           for i = 0 then (+ i 1) do
+                           (write-line "<tr>" index)
+                           (if (and (not (consp arg)) (equal #\& (elt (string arg) 0)))
+                               (progn 
+                                 (write-line "<td>" index)
+                                 (write-line (concatenate 'string "<i><b>" (string-downcase (string arg))"</b></i>") index)
+                                 (write-line "</td>" index)
+                                 (write-line "<td colspan=3>&nbsp;</td></tr>" index)
+                                 (setf i (- i 1)))
+                                  
+                             (let ((argname (if (consp arg) (car arg) arg)))
+                               (write-line "<td width=40>&nbsp;</td>" index) 
+                               (write-line "<td>" index)
+                               (write-line (concatenate 'string "- <font color=333366><b>" 
+                                                        (string-upcase (format nil "~S" (intern (string-upcase argname))))
+                                                        "</b></font>") index)
+                               (write-line "</td>" index)
+                               ;; doc and defaults
+                               (if (subtypep (class-of (fdefinition symbol)) 'OMGenericFunction)
                                  ; OM FUN
-                                        (let ((indoc (nth i (inputs-doc (fdefinition symbol))))
-                                              (defval (nth i (inputs-default (fdefinition symbol)))))
-                                          (if indoc
-                                              (write-line (concatenate 'string "<td>" (special-html-check indoc) "</td>") index)
-                                            (write-line "<td>&nbsp;</td>" index))
-                                          (write-line (concatenate 'string "<td>[default = " (format nil "~s" defval) "]</td>") index)
-                                          )
-                                      (progn
-                                        (write-line "<td width=20%>&nbsp;</td>" index)
-                                        (if (consp arg)
-                                            (write-line (concatenate 'string "<td>[default = " (format nil "~s" (cadr arg)) "]</td>") index)
-                                          (write-line "<td>&nbsp;</td>" index))
-                                        )
-                                      )
-                                    (write-line "</tr>" index)
-                                    ))
-                                (write-line "<tr>" index))
-                          (write-line "</table>" index)
-                          )))
-                
-                     ;;; CLASS SLOTS
-                     ((or (string-equal (nth 1 doc) "CLASS")
-                          (string-equal (nth 1 doc) "INTERFACE BOX"))
-                      (write-line "<font color=882222><b>SLOTS:</b></font><br><br>" index)
-                      (if (null (nth 2 doc))
-                          (write-line "None<br><br>" index)
-                        (progn
-                          (write-line "<table width=100% border=0>" index)
-                          (loop for slot in (nth 2 doc) do
-                                (write-line "<tr>" index)
-                                (cond ((not (consp slot))
-                                       (write-line "<tr><td colspan=3>&nbsp;</td></tr><td colspan=3>" index)
-                                       (write-line (concatenate 'string "<i><b>" slot "</b></i>") index)
-                                       (write-line "</td>" index))
-                                      (t (write-line (concatenate 'string "<td > - <font color=333366><b>" (string-upcase (string (car slot))) "</b></font></td>") index)
-                                         (write-line (concatenate 'string "<td>" (if (nth 2 slot) (special-html-check (nth 2 slot)) "") "</td>") index)
-                                         (write-line (concatenate 'string "<td>" (format nil "[default = ~A]" (nth 1 slot)) "</td>") index)
-                                         ))
-                                (write-line "</tr>" index)
-                                )
-                          (write-line "</table>" index))
-                        ))
+                                   (let ((indoc (nth i (inputs-doc (fdefinition symbol))))
+                                         (defval (nth i (inputs-default (fdefinition symbol)))))
+                                     (if indoc
+                                         (write-line (concatenate 'string "<td>" (special-html-check indoc) "</td>") index)
+                                       (write-line "<td>&nbsp;</td>" index))
+                                     (write-line (concatenate 'string "<td>[default = " (format nil "~s" defval) "]</td>") index)
+                                     )
+                                 (progn
+                                   (write-line "<td width=20%>&nbsp;</td>" index)
+                                   (if (consp arg)
+                                       (write-line (concatenate 'string "<td>[default = " (format nil "~s" (cadr arg)) "]</td>") index)
+                                     (write-line "<td>&nbsp;</td>" index))
+                                   )
+                                 )
+                               (write-line "</tr>" index)
+                               ))
+                           (write-line "<tr>" index))
+                     (write-line "</table>" index)
                      )))
-           (write-line "</td>" index)
-           (write-line "</tr>" index)
-
-           ;;; DESCRIPTION
-           (when doc
-             (write-line "<tr><td colspan=2><br><br>" index)
-             (write-line "<font color=882222><b>Description:</b></font>" index)
-             (write-line "<p>" index)
-             (loop for str in (om-text-to-lines (nth 3 doc)) do
-                   (write-line (concatenate 'string "" (special-html-check str) "<br>") index))
-             (write-line "</p></td></tr>" index)
-             )
-           
-           (write-line "<td class=center colspan=2><br><br><br>" index)
-           (write-line (credits-line) index)
+                
+                ;;; CLASS SLOTS
+                ((or (string-equal (nth 1 doc) "CLASS")
+                     (string-equal (nth 1 doc) "INTERFACE BOX"))
+                 (write-line "<h3>Class slots/attributes:</h3>" index)
+                 (if (null (nth 2 doc))
+                     (write-line "<p>None</p>" index)
+                   (progn
+                     (write-line "<table width=100% border=0>" index)
+                     (loop for slot in (nth 2 doc) do
+                           (write-line "<tr>" index)
+                           (cond ((not (consp slot))
+                                  (write-line "<tr><td colspan=3>&nbsp;</td></tr><td colspan=3>" index)
+                                  (write-line (concatenate 'string "<i><b>" slot "</b></i>") index)
+                                  (write-line "</td>" index))
+                                 (t (write-line (concatenate 'string "<td > - <font color=333366><b>" (string-upcase (string (car slot))) "</b></font></td>") index)
+                                    (write-line (concatenate 'string "<td>" (if (nth 2 slot) (special-html-check (nth 2 slot)) "") "</td>") index)
+                                    (write-line (concatenate 'string "<td>" (format nil "[default = ~A]" (nth 1 slot)) "</td>") index)
+                                    ))
+                           (write-line "</tr>" index)
+                           )
+                     (write-line "</table>" index))
+                   ))
+                )))
       
-      (write-line "</td></tr></table>" index)
-      (write-line "</td>" index)
+      ;;; DESCRIPTION
+      (when (nth 3 doc)
+        (write-line "<h3>Description:</h3>" index)
+        (loop for str in (om-text-to-lines (nth 3 doc)) do
+              (write-line (concatenate 'string "" (special-html-check str) "<br>") index))
+        )
       
-      (write-line "<td width=10%>&nbsp;</td>" index)
-      (write-line "</tr>" index)
-      (write-line "</table>" index)
-
+      (write-line "</div>" index)
+      
+      (write-line (credits-line) index)
+      
+      (write-line "</div>" index)
 
       (write-line "</body></html>" index))
     pagepath))
+
 
 ; (gen-om-reference)
 
