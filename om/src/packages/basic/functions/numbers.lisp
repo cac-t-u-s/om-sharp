@@ -307,7 +307,8 @@ Ex. (om-log '(3 4))  => (1.0986123 1.3862944)
 ;===========================
 
 (defmethod* om-round ((n number) &optional (decimals 0) (divisor 1))
-  :initvals '(1 0 1) :indoc '("number or list" "number of decimals" "divisor")
+  :initvals '(1 0 1) 
+  :indoc '("number or list" "number of decimals" "divisor")
   :doc "Rounds a number or a list of numbers with a given number of decimals (default = 0, i.e. returns integer values) and a divisor.
 
 This function can be applied to numbers or lists.
