@@ -38,5 +38,6 @@ Project pages under construction:
 
 ### Credits
 
-© J. Bresson et al. 2013-2019.     
-This project inherits and borrowed significant pieces of the code and features from the [OpenMusic](https://github.com/openmusic-project/openmusic/) project (by C. Agon, G. Assayag, J. Bresson and others, IRCAM STMS lab). Other contributions and developments : D. Bouche, J. Garcia, A. Vinjar.
+Design and development: IRCAM STMS lab / Music Representations team. 
+J. Bresson, with contributions by D. Bouche, J. Garcia, A. Vinjar.
+This project inherits and borrows code and features from the [OpenMusic](https://github.com/openmusic-project/openmusic/) project (by C. Agon, G. Assayag, J. Bresson and others, IRCAM STMS lab). 
