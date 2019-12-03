@@ -37,7 +37,9 @@
 (defmethod omng-load ((self t)) self)
 
 (defmethod omng-save ((self list)) 
-  (cons :list (mapcar 'omng-save self)))
+  (if (consp (cdr self))
+      (cons :list (mapcar 'omng-save self))
+      (list :cons (cons (omng-save (car self)) (omng-save (cdr self))))))
 
 (defmethod omng-save ((self null)) 'NIL)
 (defmethod omng-save ((self number)) self)
@@ -76,6 +78,10 @@
 
 (defmethod om-load-from-id ((id (eql :list)) data)
   (mapcar 'omng-load data))
+
+(defmethod om-load-from-id ((id (eql :cons)) data)
+  (cons (omng-load (caar data))
+	(omng-load (cdar data))))
 
 ;;;===================================
 ;;; SAVE/LOAD METHODS FOR STANDARD AND OM OBJECTS

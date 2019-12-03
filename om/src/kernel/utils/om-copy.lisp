@@ -20,6 +20,9 @@
 (defmethod om-copy ((self list))
   (mapcar 'om-copy self))
 
+(defmethod om-copy ((self cons))
+  (cons (om-copy (car self)) (om-copy (cdr self))))
+
 (defmethod om-copy ((self hash-table))
   (let ((hashtable (make-hash-table))
         keylist vallist)
