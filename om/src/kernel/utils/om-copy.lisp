@@ -17,9 +17,6 @@
 
 (in-package :om)
 
-(defmethod om-copy ((self list))
-  (mapcar 'om-copy self))
-
 (defmethod om-copy ((self cons))
   (cons (om-copy (car self)) (om-copy (cdr self))))
 
