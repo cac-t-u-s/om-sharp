@@ -21,10 +21,10 @@
 ;;; APP/VERSION DATA
 ;;;=======================================
 
-(defparameter *app-name* "OM#")
+(defparameter *app-name* "om#")
 
 (defparameter *version-major* 0) ;;; => 7!
-(defparameter *version-minor* 6) 
+(defparameter *version-minor* 7) 
 (defparameter *version-patch* 0)
 (defparameter *version-update* 0)
 
