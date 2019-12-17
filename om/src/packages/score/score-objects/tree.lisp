@@ -2,7 +2,7 @@
 ;============================================================================
 ; om#: visual programming language for computer-aided music composition
 ; J. Bresson et al., IRCAM (2013-2019)
-; - based on OpenMusic (c) IRCAM / G. Assayag, C. Agon, J. Bresson
+; Based on OpenMusic (c) IRCAM / G. Assayag, C. Agon, J. Bresson
 ;============================================================================
 ;
 ;   This program is free software. For information on usage 
