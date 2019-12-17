@@ -21,7 +21,7 @@
 (print "APPLICATION SETUP")
 (print "==============================")
 
-(defparameter *app-name+version* "oM#")
+(defparameter *app-name+version* "om#")
 
 (defparameter *om-directory-folders* (butlast (pathname-directory (current-pathname))))
 
@@ -46,7 +46,7 @@
    (application-menu
       *app-name+version*
       ((:component
-        (("About OM"
+        (("About..."
           :callback 'om::show-about-win
           :callback-type :none)))
        (:component
@@ -213,7 +213,7 @@
   )
 
 (list (merge-pathnames 
-       #+macosx(concatenate 'string "OM.app/Contents/Resources/dspec-database." (oa::om-compiled-type))
+       #+macosx(concatenate 'string *app-name+version* ".app/Contents/Resources/dspec-database." (oa::om-compiled-type))
        om-api::*om-root*))
 
 ;;;==========================
@@ -335,7 +335,7 @@
                                                                `("TextFun" ("olsp") ,(om::om-relative-path '("mac") "lsp-icon.icns"))
                                                                `("om Library" ("omlib") ,(om::om-relative-path '("mac") "omlib.icns")))
                                                            :application-icns (om::om-relative-path '("mac") "om.icns")
-                                         :identifier "fr.ircam.repmus.om7"
+                                         :identifier "fr.cactus.om-sharp"
                                          :version *version-string*
                                          ))
        #+mswindows
@@ -361,11 +361,11 @@
            ;:keep-conditions :all
            ;:keep-xref-info t   ;; ??
            ;:editor-style :default
-           :startup-bitmap-file NIL ;; *startup-bmp*  ;; removed because of a delivery bug with menus in OM 7         
+           :startup-bitmap-file NIL ;; *startup-bmp*  ;; removed because of a delivery bug with menus        
            #+mswindows :keep-gc-cursor #+mswindows nil
            #+mswindows :versioninfo #+mswindows (list :binary-version (read-from-string (version-to-hex *om-version*))
                                               :version-string *version-string*
-                                              :company-name "" :product-name "om7" :file-description "")
+                                              :company-name "" :product-name "om-ssharp" :file-description "")
            #+mswindows :console #+mswindows :input
            ; :quit-when-no-windows #+mswindows t #-mswindows nil
            #+(or cocoa win32) :packages-to-keep #+cocoa '(:objc)  #+mswindows '(:comm)
@@ -375,12 +375,3 @@
 
 
 ;  :editor-commands-to-keep :all-groups
-;========================
-
-;;; MAC :
-; /Applications/LispWorks\ 5.1/LispWorks.app/Contents/MacOS/lispworks-5-1-0-macos-universal -build deliver.lisp
-; (save-universal-from-script "../../image/macos-i/OM 6.0" "deliver.lisp")
-
-
-;;; WIN :
-; lispworks-5-1-0-x86-win32.exe -build deliver.lisp

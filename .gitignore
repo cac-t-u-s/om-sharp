@@ -1,27 +1,17 @@
 # Compiled source #
 ###################
-*.*xfasl
-*.*ofasl
-*.*nfasl
-*.*ufasl
-
-*.lisp~
-*.lisp#
-*.or~
+*.*fasl
 *~
-
-*.omp~
+*.lisp#
 
 om/*.app/**/*
-om7/**/*
+om#/**/*
 *.zip
-
 *.exe
 
 # OS generated files #
 ######################
 .DS_Store
-.DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
@@ -31,7 +21,8 @@ Thumbs.db
 **/reference-pages/
 
 BUILD/**/*
-codesign
+codesign.sh
+notarize.sh
 VERSION
 
 *.sublime-*

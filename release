@@ -11,97 +11,117 @@ LWEXEC=lispworks-7-1-0-amd64-darwin
 OM_VERSION=$(<"VERSION") 
 BUILD_FOLDER="BUILD"
 APP_NAME="om#"
+DMG_NAME="$APP_NAME"-"$OM_VERSION"-macOS.dmg
+ZIP_NAME="$APP_NAME"-"$OM_VERSION".zip
+	
+CYAN='\033[0;36m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+GREEN='\033[92m'
+NC='\033[0m' # No Color
 
 
 deliver_app()
 {
-echo "***************************************************"
-echo "COMPILING STANDALONE IMAGE"
-echo "***************************************************"
+echo -e "${CYAN}***************************************************${NC}"
+echo -e "${CYAN}COMPILING STANDALONE IMAGE${NC}"
+echo -e "${CYAN}***************************************************${NC}"
 
 	rm -rf ./om/*.app/
 	/Applications/LispWorks\ $LWVERSION\ \($LWARCH\)/LispWorks\ \($LWARCH\).app/Contents/MacOS/$LWEXEC -build ./om/build/deliver.lisp
 	# update version
 	OM_VERSION=$(<"VERSION") 
-	echo "=> IMAGE DONE!"
+echo -e "${GREEN}=> IMAGE DONE!${NC}"
 }
 
 
 # deliver_app MUST have been called before..
 pack_app()
 {
-echo "***************************************************"
-echo "Packing $BUILD_FOLDER/$APP_NAME.app"
-echo "***************************************************"
+echo -e "${CYAN}***************************************************${NC}"
+echo -e "${CYAN}Packing $BUILD_FOLDER/$APP_NAME.app${NC}"
+echo -e "${CYAN}***************************************************${NC}"
 
 	rm -Rf $BUILD_FOLDER
 	mkdir $BUILD_FOLDER
 	cp -R om/"$APP_NAME".app $BUILD_FOLDER
 
-echo "=> Setting fonts...."	
+echo -e "${CYAN}=> Setting fonts....${NC}"	
 #   cp om/resources/fonts/* "$BUILD_FOLDER"/"$APP_NAME".app/Contents/Resources/fonts/
    	 	   
    cp "$BUILD_FOLDER"/"$APP_NAME".app/Contents/Info.plist .	   
    defaults write $(pwd)/Info.plist ATSApplicationFontsPath -string "fonts/"
    mv ./Info.plist "$BUILD_FOLDER"/"$APP_NAME".app/Contents/Info.plist
 
-echo "=> PACKED IN BUILD FOLDER!"
+echo -e "${GREEN}=> PACKED IN BUILD FOLDER!${NC}"
 }
 
 
 # pack_app MUST have been called before..
 create_simple_dmg()
 {
-echo "***************************************************"
-echo "Preparing DMG distribution for $APP_NAME"
-echo "***************************************************"
+echo -e "${CYAN}***************************************************${NC}"
+echo -e "${CYAN}Preparing DMG distribution for $APP_NAME${NC}"
+echo -e "${CYAN}***************************************************${NC}"
 
-	DMG_NAME="$APP_NAME"-"$OM_VERSION"-macOS
 	cd $BUILD_FOLDER
-	rm -f "$DMG_NAME".dmg	
+	rm -f "$DMG_NAME"	
 	rm -rf _DMG
 	mkdir _DMG
 	cp -R "$APP_NAME".app _DMG/
 	#cp "README.txt" "$BUILD_FOLDER"/_DMG/
 	#ln -s /Applications/ _DMG/Applications
 	
-	hdiutil create -fs HFS+ -volname $DMG_NAME -srcfolder _DMG "$DMG_NAME".dmg
+	hdiutil create -fs HFS+ -volname $DMG_NAME -srcfolder _DMG "$DMG_NAME"
 	rm -rf _DMG
 	cd ..
-	echo "=> DMG DONE!"
+echo -e "${GREEN}=> DMG DONE: $DMG_NAME ${NC}"
 }
 
 zip_release()
 {
-	echo "***************************************************"
-	echo "Preparing ZIP distribution for $APP_NAME"
-	echo "***************************************************"	
-	ZIP_NAME="$APP_NAME"-"$OM_VERSION"
+echo -e "${CYAN}***************************************************${NC}"
+echo -e "${CYAN}Preparing ZIP distribution for $APP_NAME${NC}"
+echo -e "${CYAN}***************************************************${NC}"	
 	cd $BUILD_FOLDER
-	rm -f "$ZIP_NAME".zip
+	rm -f "$ZIP_NAME"
 	rm -rf "$APP_NAME"
 	mkdir "$APP_NAME"
 	cp -R "$APP_NAME".app "$APP_NAME"/
-	zip -r -q -dg "$ZIP_NAME".zip "$APP_NAME"  
+	zip -r -q -dg "$ZIP_NAME" "$APP_NAME"  
 	rm -rf "$APP_NAME"
 	cd ..
-	echo "=> ZIP DONE"
+echo -e "${GREEN}=> ZIP DONE: $ZIP_NAME {NC}"
 }
 
 sign_release()
 {
-	echo "***************************************************"
-	echo "Code Signature (calling external script)"
-	echo "***************************************************"
-	./codesign
-	echo "=> CODE SIGNATURE: DONE"
+echo -e "${CYAN}***************************************************${NC}"
+echo -e "${CYAN}Code Signature (calling external script)${NC}"
+echo -e "${CYAN}***************************************************${NC}"
+	
+	./codesign.sh "$BUILD_FOLDER"/"$APP_NAME".app
+
+echo -e "${GREEN}=> CODE SIGNATURE: DONE${NC}"
+}
+
+notarize_dmg()
+{
+echo -e "${CYAN}***************************************************${NC}"
+echo -e "${CYAN}Notarization (calling external script)${NC}"
+echo -e "${CYAN}***************************************************${NC}"
+	
+	./notarize.sh "$BUILD_FOLDER"/"$DMG_NAME"
+
+echo -e "${GREEN}=> CODE SIGNATURE: DONE${NC}"
 }
 
 change_permission()
 {
-    # this function change the permission for a given folder
-    # $1 : the folder
-    echo "Setting permissions for $1"
+# this function change the permission for a given folder
+# $1 : the folder
+echo -e "${CYAN}Setting permissions for $1${NC}"
+
     sudo chown -R root "$1"
     sudo chgrp -R admin "$1"
     sudo chmod -R o+rx "$1"
@@ -118,6 +138,7 @@ elif	[ "$1" = "-dp" ];	then	deliver_app; pack_app
 elif	[ "$1" = "-dmg" ];	then	create_simple_dmg
 elif	[ "$1" = "-zip" ];	then	zip_release
 elif	[ "$1" = "-sign" ];	then	sign_release	
+elif	[ "$1" = "-notarize" ];	then	notarize_dmg	
 elif	[ "$1" = "-dpd" ];	then	deliver_app; pack_app; sign_release;create_simple_dmg
 elif	[ "$1" = "-dpz" ];	then	deliver_app; pack_app; sign_release; zip_release
 elif	[ "$1" = "-all" ];	then	deliver_app; pack_app; sign_release; zip_release; create_simple_dmg
