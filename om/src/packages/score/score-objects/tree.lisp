@@ -1,8 +1,8 @@
 
 ;============================================================================
-; om7: visual programming language for computer-aided music composition
-; Copyright (c) 2013-2017 J. Bresson et al., IRCAM.
-; - based on OpenMusic (c) IRCAM 1997-2017 by G. Assayag, C. Agon, J. Bresson
+; om#: visual programming language for computer-aided music composition
+; J. Bresson et al., IRCAM (2013-2019)
+; - based on OpenMusic (c) IRCAM / G. Assayag, C. Agon, J. Bresson
 ;============================================================================
 ;
 ;   This program is free software. For information on usage 
