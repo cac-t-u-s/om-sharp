@@ -899,8 +899,8 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
                  (let ((vel-extra (find 'vel-extra (extras chord) :key #'type-of)))
                    (when (or (and draw-vels unique-vel) ;;; if there's just one velocity in the chord we'll display it somewhere else
                              vel-extra)   ;;; ... or if there is a vel-extra
-                     (let ((vel-x-pix (+ x-pix (if vel-extra (* (dx vel-extra) unit) 0)))
-                           (vel-y-pix (+ y-min (* unit 4) (if vel-extra (* (dy vel-extra) unit) 0))))
+                     (let ((vel-x-pix (+ x-pix (if vel-extra (* (or (dx vel-extra) 0) unit) 0)))
+                           (vel-y-pix (+ y-min (* unit 4) (if vel-extra (* (or (dy vel-extra) 0) unit) 0))))
                        
                        (cond ((or vel-extra (equal :symbol draw-vels))
                               (om-draw-char vel-x-pix vel-y-pix (velocity-char unique-vel)))
@@ -1124,14 +1124,14 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
                    (loop for e in (get-extras chord 'text-extra)
                          do (om-with-font 
                              (om-def-font :font1 :face (font e) :size (/ fontsize 2))
-                             (om-draw-string (+ x-pix (* (dx e) unit)) 
-                                             (+ y-min (* unit (+ 4 (dy e)))) 
+                             (om-draw-string (+ x-pix (* (or (dx e) 0) unit)) 
+                                             (+ y-min (* unit (+ 4 (or (dy e) 0)))) 
                                              (text e)))
                          )
                    
                    (loop for e in (get-extras chord 'symb-extra)
-                         do (om-draw-char (+ x-pix (* (dx e) unit)) 
-                                          (+ y-min (* unit (+ 4 (dy e)))) 
+                         do (om-draw-char (+ x-pix (*(or (dx e) 0) unit)) 
+                                          (+ y-min (* unit (+ 4 (or (dy e) 0)))) 
                                           (code-char (symb-char e)))
                          )
                    

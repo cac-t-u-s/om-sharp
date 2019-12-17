@@ -59,21 +59,21 @@
 (defmethod initialize-instance :after ((self chord) &rest initargs)
   (setf (extras self) (list! (extras self))))
 
-(defmethod initialize-instance :after ((self chord-seq) &rest initargs)
+(defmethod om-init-instance :after ((self chord-seq) &optional initargs) 
   (let ((extras (slot-value self 'extras)))
     (when extras 
       (if (listp extras)
           (loop for extra in extras 
                 for chord in (chords self)
-                do (add-extras chord extra nil))
-        (add-extras self extras nil))
+                do (add-extras chord extra nil nil))
+        (add-extras self extras nil nil))
       (setf (slot-value self 'extras) nil)
       )))
 
 (defmethod (setf extras) ((extras list) (self chord-seq))
   (loop for extra in extras 
         for chord in (chords self)
-        do (add-extras chord extra nil))
+        do (add-extras chord extra nil nil))
   nil)
 
 (defmethod extras ((self chord-seq)) 
@@ -84,9 +84,9 @@
 ;;; ATTACH EXTRA(S) TO SCORE OBJECTS
 ;;;=================================
 
-(defmethod* add-extras ((self chord) extras position &optional newobj)
+(defmethod* add-extras ((self chord) extras position &optional (newobj t))
   :icon :score
-  :initvals '(nil nil nil nil) 
+  :initvals '(nil nil nil t) 
   :indoc '("a chord or musical object" "a score-extra or list of score-extras" "a position in the object" "return new object") 
   :doc "Adds 'score-extras' to a chord or a musical object.
 
@@ -97,8 +97,8 @@ Score-extras can be objects of the following types:
 - symb-extra (attaching a score symbol)
 - score-marker (attaching a marker)
 
-If <newobj> is T, a new object is returned.
-If <newobj> is NIL (default), the modifications apply to the input object.
+If <newobj> is T (default), a new object is returned.
+If <newobj> is NIL, the modifications apply to the input object.
 
 
 If <self> is a CHORD:
@@ -155,49 +155,49 @@ If <self> is a polyphony (MULTI-SEQ or POLY):
 ;== CHORD-SEQ / VOICE:
 
 ; POSITION = NUMBER
-(defmethod* add-extras ((self chord-seq) extras (position number) &optional newobj)
+(defmethod* add-extras ((self chord-seq) extras (position number) &optional (newobj t))
   
   (let* ((rep (if newobj (om-copy self) self))
          (chord (nth position (chords rep))))
     
     (when chord
-      (add-extras chord extras nil))
+      (add-extras chord extras nil nil))
     
     rep))
   
 ; POSITION = NON-NULL LIST / EXTRAS = LIST
-(defmethod* add-extras ((self chord-seq) (extras list) (position cons) &optional newobj)
+(defmethod* add-extras ((self chord-seq) (extras list) (position cons) &optional (newobj t))
    (let ((rep (if newobj (om-copy self) self)))
      (loop for p in position 
            for extra in extras do
-           (add-extras rep extra p))
+           (add-extras rep extra p nil))
      rep))
 
 ; POSITION = NON-NULL LIST / EXTRAS = SINGLE ELEMENT
-(defmethod* add-extras ((self chord-seq) (extras score-extra) (position cons) &optional newobj)
+(defmethod* add-extras ((self chord-seq) (extras score-extra) (position cons) &optional (newobj t))
   (let ((rep (if newobj (om-copy self) self)))
     (loop for p in position do
-          (add-extras rep (om-copy extras) p))
+          (add-extras rep (om-copy extras) p nil))
     rep))
 
 ; POSITION = NIL
-(defmethod* add-extras ((self chord-seq) extras (position null) &optional newobj)
+(defmethod* add-extras ((self chord-seq) extras (position null) &optional (newobj t))
   (let ((rep (if newobj (om-copy self) self)))
     (loop for chord in (chords rep) do
-          (add-extras chord (print (om-copy extras)) nil))
+          (add-extras chord (om-copy extras) nil nil))
     rep))
 
 ;== MULTI-SEQ / POLY
 
 ; POSITION = NIL
-(defmethod* add-extras ((self multi-seq) extras (position null) &optional newobj)
+(defmethod* add-extras ((self multi-seq) extras (position null) &optional (newobj t))
   (let ((rep (if newobj (om-copy self) self)))
     (loop for v in (inside rep) do
-          (add-extras v extras nil))
+          (add-extras v extras nil nil))
     rep))
 
 ; POSITION = NON-NULL LIST
-(defmethod* add-extras ((self multi-seq) (extras list) (position cons) &optional newobj)
+(defmethod* add-extras ((self multi-seq) extras (position cons) &optional (newobj t))
 
   (let ((rep (if newobj (om-copy self) self)))
     
@@ -209,7 +209,7 @@ If <self> is a polyphony (MULTI-SEQ or POLY):
         (om-print "Warning: position list in get-extra should not be of size >2 (voice-num / chord-num)"))
       (let ((voice (nth (car position) (inside rep))))
         (when voice 
-          (add-extras voice extras (cadr position)))))
+          (add-extras voice extras (cadr position) nil))))
      
      ;;; list of chords targeted
      ((every #'consp position)
@@ -218,11 +218,11 @@ If <self> is a polyphony (MULTI-SEQ or POLY):
           ;;; loop though position and extra lists
           (loop for pos in position 
                 for extra in extras do
-                (add-extras rep extra pos))
+                (add-extras rep extra pos nil))
         
         ;;; all same extra
         (loop for pos in position do
-              (add-extras rep extras position))
+              (add-extras rep extras pos nil))
         ))
      
      (t (om-print "Error unsupported position list in ADD-EXTRAS:")
