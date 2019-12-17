@@ -140,7 +140,7 @@
    val)
 |#
 
-;;; extend to OM Box ? (e.g. Interface boxes)
+;;; extend to all boxes ? (e.g. Interface boxes)
 (defmethod omNG-box-value :around ((self OMBox) &optional (numout 0))
   #+debug-mode
   (with-coloured-box self *eval-color* *box-color-time*

@@ -39,7 +39,7 @@
 )
 
 (defclass OMStandardClass (OMClass)  ()
-   (:documentation "This is the current OM metaclass, you can sub-class it and use the new class as current metaclass.
+   (:documentation "This is the current main metaclass, you can sub-class it and use the new class as current metaclass.
 This class is an OMClass (unlike OMClass itself!).")
    (:metaclass OMClass))
 
@@ -60,7 +60,7 @@ This class is an OMClass (unlike OMClass itself!).")
     (outputs-doc :initform nil :accessor outputs-doc)
     (inputs-menus :initform nil :accessor inputs-menus))
   (:default-initargs :protected-p t)
-  (:documentation "The generic function meta-object in OM.")
+  (:documentation "The generic function meta-object.")
   (:metaclass  funcallable-standard-class)
   )
 
@@ -75,7 +75,7 @@ This class is an OMClass (unlike OMClass itself!).")
     (graph-fun :initform nil :accessor graph-fun)
     (compiled? :initform t :accessor compiled?)
     (class-method-p :initform nil :accessor class-method-p))
-   (:documentation "The class of the OM method metaobject.")
+   (:documentation "The class of the method metaobject.")
    (:default-initargs :protected-p t)
    (:metaclass omstandardclass))
 

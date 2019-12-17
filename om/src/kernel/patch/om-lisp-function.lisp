@@ -254,7 +254,7 @@
   '("Lisp function" "*.olsp"))
 
 ;;; this will disable the default save/persistent behaviours of the text editor
-;;; these will be handled by OM following the model of OMPatch
+;;; these will be handled following the model of OMPatch
 (defmethod om-lisp::save-operation-enabled ((self lisp-function-editor-window)) nil)
 
 (defmethod open-editor-window ((self lisp-function-editor))

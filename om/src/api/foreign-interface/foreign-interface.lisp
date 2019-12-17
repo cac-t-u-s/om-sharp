@@ -46,7 +46,7 @@
     (if index (values (subseq string 0 index) (subseq string (+ index 1)))
         (values string nil))))
 
-;;; changes the pathname to match with OM's default foreign lib pathname
+;;; changes the pathname to match with the default foreign lib pathname
 (defun om-foreign-library-pathname (lib)
   (let ((libraries-directory (om-foreign-libraries-directory)))
     (if (and libraries-directory (probe-file libraries-directory))

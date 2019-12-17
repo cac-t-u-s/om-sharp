@@ -86,7 +86,7 @@
    (om-make-pathname :directory (mypathname self) :name (name self) :type "omlib"))
        
 
-;;; adds the library to the OM package tree
+;;; adds the library to the main package tree
 ;;; does not load the lib yet
 (defun register-new-library (name path &optional (warn-if-exists t))
   (let ((samelib (find-library name)))
@@ -119,7 +119,7 @@
   (loop for path in (om-directory folder :directories t :files nil)
         do (let ((lib-name? (string-until-space (car (last (pathname-directory path))))))
              (if (probe-file (om-make-pathname :directory path :name lib-name? :type "omlib"))
-                 ;;; this is an OM library!
+                 ;;; this is a library!
                  (register-new-library lib-name? path warn-if-exists)
                
                (if recursive 
@@ -181,7 +181,7 @@
                                                                (name lib) (format nil "~A" c)))
                                     (when 
                                         (om-y-or-n-dialog (format nil 
-                                                                  "Try to delete compiled Lisp files (.*fasl) ?~%~%Deleting these files might be necessary in case they were created by a previous version of Lisp or OM."))
+                                                                  "Try to delete compiled Lisp files (.*fasl) ?~%~%Deleting these files might be necessary in case they were created by a previous version of the compiler."))
                                       (common-lisp-user::clean-sources (mypathname lib)))
                                     (abort c)))))
 

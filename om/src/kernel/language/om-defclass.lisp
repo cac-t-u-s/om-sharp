@@ -16,7 +16,7 @@
 ;============================================================================
 
 ;=========================================================================
-; OM Class definition
+; Class definition
 ;=========================================================================
 
 (in-package :om)
@@ -26,9 +26,9 @@
 
 
 ;;--------------------------------------------------
-;; OM Class definition : DEFCLASS* 
+;; Class definition : DEFCLASS* 
 ;;--------------------------------------------------
-; defclass* uses standard defclass, but set automaticly the metaclass to the OM meta-class.
+; defclass* uses standard defclass, but set automaticly the metaclass to the OMClass meta-class.
 ; this macro fill the omslot of the class object i.e. icon, name.
 ; if the option :update is set to T the macro update all objects (classes, frames, etc.) attached to the class."
 (defun parse-defclass-options (args)

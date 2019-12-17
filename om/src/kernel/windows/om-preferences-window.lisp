@@ -400,12 +400,11 @@
 
 
 
-;;; CONNECTION WITH OM
 (defun find-preferences-window ()
   (car (om-get-all-windows 'preferences-window)))
 
 
-;;;; CALLED FROM THE OM MENU
+;;;; CALLED FROM THE MENU
 (defun show-preferences-win ()
    (let ((win (find-preferences-window)))
      (if win 

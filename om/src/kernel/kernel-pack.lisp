@@ -16,14 +16,14 @@
 ;============================================================================
 
 ;=========================================================================
-; OM kernel class/function package setup
+; kernel class/function package setup
 ;=========================================================================
 
 (in-package :om)
 
 (let ((kernelpack (omNG-make-package "Kernel"
                    :container-pack *om-package-tree*
-                   :doc "The OM kernel package contains the building blocks and basic tools for creating visual programs in OM"
+                   :doc "The kernel package contains the building blocks and basic tools for creating visual programs"
                    :subpackages 
                    (list (omNG-make-package "Lisp" 
                                             :doc "Basic functions defined in the Lisp programming language"
@@ -51,7 +51,7 @@
                                             :functions '(send receive route)
                                             )
                          (omNG-make-package "Interactive boxes"
-                                            :doc "This package contains special interface boxes and widgets to use in OM patches (sliders, buttons, etc.)"
+                                            :doc "This package contains special interface boxes and widgets to use in patches (sliders, buttons, etc.)"
                                             :special-symbols '(button slider check-box switch list-selection list-menu)
                                             )
                          ))))

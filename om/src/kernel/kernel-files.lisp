@@ -25,12 +25,12 @@
       (pushnew func-name *init-func-list*)))
 
 (defun om-init-funcall ()
-  ;(om-print-dbg "START OM INIT CALLS")
+  ;(om-print-dbg "START INIT CALLS")
   (mapc #'(lambda (x) 
             (om-print-dbg (string x)) 
             (funcall x))
         (reverse *init-func-list*))
-  ;(om-print-dbg "END OM INIT CALLS")
+  ;(om-print-dbg "END INIT CALLS")
   )
 
 

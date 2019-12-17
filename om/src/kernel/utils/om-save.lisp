@@ -84,7 +84,7 @@
 	(omng-load (cdar data))))
 
 ;;;===================================
-;;; SAVE/LOAD METHODS FOR STANDARD AND OM OBJECTS
+;;; SAVE/LOAD METHODS FOR OBJECTS
 ;;;===================================
 
 #|
@@ -323,7 +323,7 @@
 
 ;;;===================================
 ;;; SAVE/LOAD METHODS FOR
-;;; SPECIAL OM OBJECTS
+;;; SPECIAL OBJECTS
 ;;;===================================
 
 (defmethod save-patch-contents ((self OMProgrammingObject) &optional (box-values nil))

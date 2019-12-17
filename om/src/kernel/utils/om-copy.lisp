@@ -116,7 +116,7 @@
 
 
 ;;============================================================================
-;; VERY BASIC CLIPBOARD (INTERNAL FOR OM OBJECTS)
+;; VERY BASIC CLIPBOARD (INTERNAL FOR OBJECTS)
 ;;============================================================================
 (defparameter *om-clipboard* nil)
 (defparameter *om-clip-pos* nil)

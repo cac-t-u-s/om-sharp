@@ -16,7 +16,7 @@
 ;============================================================================
 
 ;;===========================================================================
-;  Clock: an OM object used just like a clock in musical sequences
+;  Clock: an object used just like a clock in musical sequences
 ;;===========================================================================
 
 (in-package :om)

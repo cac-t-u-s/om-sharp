@@ -63,7 +63,7 @@
   :indoc '("OSC message" "IP address" "port number")
   :doc "Sends the given and OSC message (<bundle>) port <port> of <host>.
 
-An OSC message consists of a string (URL-style symbolic naming) followed by numerical parameters. Its is formatted as a list in OM.
+An OSC message consists of a string (URL-style symbolic naming) followed by numerical parameters. Its is formatted as a list.
 See http://opensoundcontrol.org/introduction-osc
 
 <bundle> can also contain a list of messages (list of lists) to be sent simultaneously.

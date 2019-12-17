@@ -17,10 +17,10 @@
 
 (in-package :om)
 
-;;; for the OM Objects with name
+;;; for the objects with name
 (defclass named-object ()
   ((name :initform nil :accessor name :type string))
-  (:documentation "Superclass for all OpenMusic Objects"))
+  (:documentation "Superclass for all objects"))
 
 (defmethod set-name ((self named-object) text)  (setf (name self) text))
 (defmethod get-name ((self named-object)) (name self))
@@ -76,7 +76,7 @@
    (references-to :initform nil :accessor references-to :documentation "mutable list containing the existing objects containing or referring to this object")
    ;(infowin :initform nil :accessor infowin :documentation "reference to the info window currently open for the object (if any)")
    )
-  (:documentation "Superclass for OM metaobjects, like patches, classes, generic functions..."))
+  (:documentation "Superclass for metaobjects, like patches, classes, generic functions..."))
 
 (defmethod release-reference ((self t) pointer) nil)
 
@@ -105,7 +105,7 @@
 
 
 ;===========================
-; BASIC OM PROTOCOL FUNCTIONS
+; BASIC PROTOCOL FUNCTIONS
 ;===========================
 ;;; add something somewhere
 (defgeneric omng-add-element (container element))
@@ -127,7 +127,7 @@
   ((compiled-fun-name :initform nil :accessor compiled-fun-name)
    (compiled? :initform nil  :accessor compiled?)
    (doc :initform "" :accessor doc :documentation "documentation")
-   (omversion :initform *om-version* :accessor omversion :documentation "version of OM (last saved)")
+   (omversion :initform *om-version* :accessor omversion :documentation "last-saved version")
    (create-info :initform '(nil nil) :accessor create-info :documentation "information about creation and last modification of the document (text)")
    (loaded? :initform t :accessor loaded? :documentation "is this document loaded?")
    (dependencies :initform nil :accessor dependencies :documentation "a list of subpatches"))
@@ -207,7 +207,7 @@
 (defclass OMFolder (OMBasicObject) 
    ((elements :initform nil :accessor elements :documentation "folders contained in the workspace"))
    ;(presentation :initform 1 :initarg :presentation :accessor presentation :documentation "presentation mode: 1=list, 0=icons"))
-   (:documentation "The class of the OM folders"))
+   (:documentation "The class of the folders"))
 
 (defclass OMPersistantFolder (OMFolder OMPersistantObject) ()
   (:documentation "Superclass of persistant objects that are saved as folders."))

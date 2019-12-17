@@ -28,8 +28,7 @@
    (globals-package :initform nil :accessor globals-package :documentation "Special package containing all global variables")
    (ws-window :initform nil :accessor ws-window :documentation "The main workspace window")
    (preferences :initform nil :accessor preferences :documentation "All preferences associated to this workspace"))
-  (:documentation "The class of the OM workspace.
-A workspace contains all the elements of an OM session (documents, pointer to libraries, preferences, etc.)"))
+  (:documentation "A workspace contains all the elements of a session (documents, pointer to libraries, preferences, etc.)"))
 
 ;;; NOT USED
 ; At the difference of OMPersistantFolder the WS elements are not in the foler pathname, but in "pathname/elements/"
@@ -92,7 +91,7 @@ A workspace contains all the elements of an OM session (documents, pointer to li
 
 ; (start-workspace)
 
-;;; CALLED AT OM STARTUP: 
+;;; CALLED AT STARTUP: 
 ;;; SELECT AND LOAD A WORKSPACE SESSION
 (defun start-workspace ()
   (let ((initpath (catch :cancel (choose-user-ws-folder))))
@@ -110,7 +109,7 @@ A workspace contains all the elements of an OM session (documents, pointer to li
                (start-from-ws-file initpath)
              ;;; An error occured somewhere: Restart
              (progn 
-               (om-message-dialog (str-check "Please start again from an OM workspace file (.omws)"))
+               (om-message-dialog (str-check "Please start again from a workspace file (.omws)"))
                (start-workspace))
              ))
 
@@ -160,7 +159,7 @@ A workspace contains all the elements of an OM session (documents, pointer to li
       (let ((ws (om-choose-file-dialog :prompt "Please select an existing workspace project" :directory search-folder :types '("Workspace" "*.omws"))))
         (if (and (pathnamep ws) 
                  (or (check-ws-folder ws) 
-                     (om-y-or-n-dialog (format nil "Are you sure this is a valid OM workspace folder?~%~% The selected workspace file and location do not look like a standard workspace.~%~% Click 'Yes' to start anyway, or 'No' to choose another workspace."))))
+                     (om-y-or-n-dialog (format nil "Are you sure this is a valid workspace folder?~%~% The selected workspace file and location do not look like a standard workspace.~%~% Click 'Yes' to start anyway, or 'No' to choose another workspace."))))
                  ws (choose-user-ws-folder))
         ))
      ((equal 'previous choix) prev)

@@ -16,7 +16,7 @@
 ;============================================================================
 
 ;===========================================================================
-; Mid-level interface between LW OpenGL and OM 
+; Mid-level interface with LW OpenGL 
 ; Adapted from the OpenGL example in LispWorks distribution
 ;;===========================================================================
 

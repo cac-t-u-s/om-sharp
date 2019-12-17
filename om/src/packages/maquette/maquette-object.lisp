@@ -22,7 +22,7 @@
 (in-package :om)
 
 ;;===========================================================================
-;;;OMMaquette = OM Sequencer
+;; OMMaquette = Sequencer
 ;;===========================================================================
 ;; Structure
 (defclass OMMaquette (OMPatch schedulable-object timed-object) 

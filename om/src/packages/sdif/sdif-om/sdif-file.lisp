@@ -80,7 +80,7 @@ Lock the box ('b') to keep the current file.
 
 
 ;;; Calls to the SDIF library must be all in the same thread 
-;;; => We do it in the OM patch evaluation thread 
+;;; => We do it in the patch evaluation thread 
 (defun eval-sdif-expression (function)
   (om-lisp::om-eval-on-process function))
 

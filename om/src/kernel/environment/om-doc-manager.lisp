@@ -376,7 +376,7 @@
    ))
 
 
-;;; Called when OM quits
+;;; Called when application quits
 (defun check-om-docs-before-close ()
   (setf *save-apply-all* nil)
   (let ((ok t))

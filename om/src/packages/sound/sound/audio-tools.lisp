@@ -124,7 +124,7 @@ If either <amp2> or <d> is NIL, generates a simple envelope with attack and rele
   :numouts 1
   :doc "Converts <samples> to a time (or duration) in seconds depending on <samplerate>.
 
-If <samplerate> is NIL, the OM default sample rate is used to calculate the time."
+If <samplerate> is NIL, the default sample rate is used to calculate the time."
   (float (/ samples (or samplerate (get-pref-value :audio :samplerate)))))
 
 (defmethod* samples->sec ((samples list) samplerate)
@@ -137,7 +137,7 @@ If <samplerate> is NIL, the OM default sample rate is used to calculate the time
   :numouts 1
   :doc "Converts <secs> to a number of samples depending on <samplerate>.
 
-If <samplerate> is NIL, the OM default sample rate is used to calculate the samples."
+If <samplerate> is NIL, the default sample rate is used to calculate the samples."
   (round (* secs (or samplerate (get-pref-value :audio :samplerate)))))
 
 (defmethod* sec->samples ((secs list) (samplerate number)) 
@@ -152,7 +152,7 @@ If <samplerate> is NIL, the OM default sample rate is used to calculate the samp
   :numouts 1
   :doc "Converts <samples> to a time (or duration) in milliseconds depending on <samplerate>.
 
-If <samplerate> is NIL, the OM default sample rate is used to calculate the time."
+If <samplerate> is NIL, the default sample rate is used to calculate the time."
   (* (/ samples (or samplerate (get-pref-value :audio :samplerate))) 1000.0))
 
 (defmethod* samples->ms ((samples list) samplerate)
@@ -165,7 +165,7 @@ If <samplerate> is NIL, the OM default sample rate is used to calculate the time
   :numouts 1
   :doc "Converts <ms> to a number of samples depending on <samplerate>.
 
-If <samplerate> is NIL, the OM default sample rate is used to calculate the samples."
+If <samplerate> is NIL, the default sample rate is used to calculate the samples."
   (round (* ms (or samplerate (get-pref-value :audio :samplerate)) 0.001)))
 
 (defmethod* ms->samples ((ms list) (samplerate number)) 

@@ -54,7 +54,7 @@ It can be accessed (get/set) using the methods get-slot / set-slot or using the 
 <object> must be an object instance (e.g. the first output of a factory box). 
 <slot> is the name of an existing slot of the corresponding class's slots. 
 
-Warning : It is advised not to use GET-SLOT with some predefined OM object, which have particular internal slots value management.
+Warning : It is advised not to use GET-SLOT with some in-built objects, which have particular internal slots value management.
 In this case, prefer the get/set slots mechanism provided by the SLOTS boxes (shift+drag an object or factory box, type '<class-name> slots')."
    (if (slot-exists-p object slot)
      (slot-value object (intern-pack (string slot) (symbol-package (type-of object))))
@@ -75,7 +75,7 @@ In this case, prefer the get/set slots mechanism provided by the SLOTS boxes (sh
 
 Returns the modified object <object>.
 
-Warning : It is advised not to use GET-SLOT with predefined OM object, which have particular internal slots value management.
+Warning : It is advised not to use GET-SLOT with predefined objects, which have particular internal slots value management.
 Use rather the get/set slots mechanism provided by the SLOTS boxes (shift+drag an object or factory box).
 "
    (if (slot-exists-p object slot)

@@ -660,7 +660,7 @@ Press 'space' to play/stop the sound file.
 
 
 ;;;===========================
-;;; OM METHODS 
+;;; METHODS 
 ;;;===========================
 
 

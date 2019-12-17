@@ -1279,7 +1279,7 @@
                     (omNG-make-special-box read-sym pos args))
                    
                    ((om-special-lisp-form-p read-sym)
-                    (om-beep-msg  (string+ "Special Lisp form '" str "' can not be created as an OM box!")))
+                    (om-beep-msg  (string+ "Special Lisp form '" str "' can not be created as a box!")))
            
                    ((macro-function read-sym)
                     (om-beep-msg  (string+ "macro functions not supported: " str "")))

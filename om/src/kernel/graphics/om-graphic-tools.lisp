@@ -235,7 +235,7 @@
 
 
 ;;;===================
-;;; OM cursors 
+;;; Cursors 
 ;;;===================
 
 (defun init-om-cursors ()

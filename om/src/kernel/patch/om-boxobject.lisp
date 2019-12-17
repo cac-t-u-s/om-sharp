@@ -232,7 +232,7 @@
   (mapcar #'(lambda (item) (set-slot-val value (car item) (cadr item))) args))
 
 ;;; This is redefined by the graphical initialization
-;;; method of visual OM classes
+;;; method of visual classes
 (defmethod v-oop-init ((self t) &rest args) args)
 
 ;;; called after slots are set (including in OM)
@@ -388,7 +388,7 @@
     (om-close-window (editor-window box))
     (when (editor box) 
     ;;; in principle the window-close callback will have closed the editor and set it to NIL
-    ;;; but for instance not if the window is not an OM window (e.g. external app or library...)
+    ;;; but for instance not if the window is not a special om# window (e.g. external app or library...)
     (editor-close (editor box))))
   t)
 

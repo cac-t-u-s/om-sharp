@@ -60,11 +60,11 @@
   :icon :folder
   :indoc '("file name" "directories" "type extension")
   :initvals '("" nil nil)
-  :doc "Returns a file pathname corresponding to <name> in the default OM IN FILES directory.
+  :doc "Returns a file pathname corresponding to <name> in the default IN-FILES directory.
 
-The IN FILES directory can be set in the OM Preferences. It is used as a default location to read files in OM.
+The IN FILES directory can be set in the Preferences. It is used as a default location to read files.
 
-<subdirs> is a list of strings corresponding to IN FILES subdirectories.
+<subdirs> is a list of strings corresponding to IN-FILES subdirectories.
 <type> is a type extension to append to the filename. If not specified, the type of <name> is used.
 
 Ex. (infile \"myfile.midi\") ==> #P\"/Users/bresson/om-infiles/myfile.midi\"
@@ -85,11 +85,11 @@ Ex. (infile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/b
   :icon :folder
   :indoc '("file name" "directories" "type extension")
   :initvals '("" nil nil)
-  :doc "Returns a file pathname corresponding to <name> in the default OM OUT FILES directory.
+  :doc "Returns a file pathname corresponding to <name> in the default OUT-FILES directory.
 
-The OUT FILES directory can be set in the OM Preferences. It is used as a default location to write files in OM.
+The OUT FILES directory can be set in the Preferences. It is used as a default location to write files.
 
-<subdirs> is a list of strings corresponding to INFILES subdirectories.
+<subdirs> is a list of strings corresponding to OUT-FILES subdirectories.
 <type> is a type extension to append to the filename. If not specified, the type of <name> is used.
 
 Ex. (outfile \"myfile.midi\") ==> #P\"/Users/bresson/om-outfiles/myfile.midi\"
@@ -110,11 +110,11 @@ Ex. (outfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/
   :icon :folder
   :indoc '("file name" "directories" "type extension")
   :initvals '("" nil nil)
-  :doc "Returns a file pathname corresponding to <name> in the default OM TMP FILES directory.
+  :doc "Returns a file pathname corresponding to <name> in the default TMP-FILES directory.
 
-The TMP FILES directory can be set in the OM Preferences. It is used as a default location to write temporary files in OM.
+The TMP FILES directory can be set in the Preferences. It is used as a default location to write temporary files.
 
-<subdirs> is a list of strings corresponding to TMP FILES subdirectories.
+<subdirs> is a list of strings corresponding to TMP-FILES subdirectories.
 <type> is a type extension to append to the filename. If not specified, the type of <name> is used.
 
 Ex. (tmpfile \"myfile.midi\") ==> #P\"/Users/bresson/om-tmpfiles/myfile.midi\"

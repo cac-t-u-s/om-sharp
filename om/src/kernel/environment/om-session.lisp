@@ -15,17 +15,9 @@
 ; File author: J. Bresson
 ;============================================================================
 
-;;;===========================
-;;; A PACKAGE FOR OM USER
-;;;===========================
-
-(defpackage "OM-USER"
-    (:use "COMMON-LISP" "CL-USER" "OM")
-    (:import-from "OM"))
-
 
 ;;;===========================
-;;; OM SESSION: STARTUP/QUIT
+;;; SESSION: STARTUP/QUIT
 ;;;===========================
 
 (in-package :om)
@@ -38,7 +30,7 @@
 
 
 ;;;======================================
-;;; OM GENERAL PREFERENCES
+;;; GENERAL PREFERENCES
 ;;;======================================
 
 ;(defvar *om-preferences* nil)
@@ -91,7 +83,7 @@
                        (list-from-file path))))
     (find-values-in-prop-list pref-list key)))
     
-;;; read and loads the main OM prefs for a session
+;;; read and loads the main prefs for a session
 (defmethod load-om-preferences ()
   (let* ((path (om-preference-file))
          (pr-list (and (file-exist-p path)
@@ -189,7 +181,7 @@
 
 
 ;;;======================================
-;;; START OM WITHOUT WORKSPACE
+;;; START WITHOUT WORKSPACE
 ;;;======================================
 
 (defun start-without-ws-file () 
@@ -246,7 +238,7 @@
   
   (om-lisp::om-init-output-stream)
   
-  ;;; read the general OM prefs
+  ;;; read the general prefs
   (load-om-preferences)
 
   (when (find-om-package :midi) (midi-apply-ports-settings))
@@ -268,9 +260,9 @@
   )
 
 
-;;;=================
-;;; WS STARTUP DIALOG
-;;;=================
+;;;==============================
+;;; WS STARTUP DIALOG (not used)
+;;;==============================
 
 ; (ws-dialog)
 
@@ -297,7 +289,7 @@
                      (om-make-di 'om-multi-text 
                                  :position (om-make-point 25 (+ y 25)) 
                                  :size (om-make-point 350 40)
-                                 :text (format nil "The workspace allows to manage your data and preferences and to store/retrieve your OM sessions.")
+                                 :text (format nil "The workspace allows to manage your data and preferences and to store/retrieve your sessions.")
                                  :fg-color (om-def-color :dark-gray)
                                  :bg-color (om-def-color :white)
                                  :font smallfont))

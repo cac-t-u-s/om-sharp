@@ -96,7 +96,7 @@
 
 
 
-;;; called from OM / user
+;;; called from the system / user
 (defun box-player-start (box)
   (when box
     (start-box-callback box)
@@ -123,7 +123,7 @@
 
 
 
-;;; called from OM action
+;;; called from an action
 (defmethod play-boxes ((boxlist list))
   (let ((list2play (remove-if-not 'play-box? boxlist)))
     (mapcar #'(lambda (box)

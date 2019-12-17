@@ -204,7 +204,7 @@
   (call-next-method)
   
   (setf (data self) (list! (data self)))
-  ;;; fields and elts are not necessary set (especially if called from an OM patch)
+  ;;; fields and elts are not necessary set (especially if called from a patch)
   ;;; fields is reset in any case to match with the data
   (setf (fields self) (length (data self)))   ;; (get-array-data self)
 
@@ -533,7 +533,7 @@ Data instanciation in a column is done according to the specified number of line
         (get-field (get-box-value box) field-name)))))
 
 
-;;; redefinition from OM methods
+;;; redefinition from main methods
 (defmethod get-slot-val ((self class-array) slot-name)
   (or (get-field self (string slot-name) :warn-if-not-found nil)
       (call-next-method)))

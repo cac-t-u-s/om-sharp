@@ -419,7 +419,7 @@
 (defmethod get-icon ((self symbol)) :icon-special)
 
 (defparameter *packages-tab-text* "
-The list on the left show the packages inbuilt in the OM environment.
+The list on the left show the packages inbuilt in the environment.
 
 Each packages contain classes (object constructors), functions, and/or special boxes.
 
@@ -505,9 +505,9 @@ Double click on one of these items and add it by just clicking in an patch windo
 
 
 (defparameter *libs-tab-text* "
-The list on the left show all libraries found in OM libraries search paths.
+The list on the left show all libraries found in the libraries search paths.
 
-- Double click on a library icon to load it in OM.
+- Double click on a library icon to load it.
 - Double click on an internal item's icon (of a loaded library) and add it by just clicking in an patch window.
 ")
 

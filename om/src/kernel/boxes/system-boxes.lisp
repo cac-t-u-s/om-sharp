@@ -21,7 +21,7 @@
 
 (in-package :om)
 
-(add-preference :general :print-system-output "Print System Outputs" :bool t "Redirect command-line system outputs to the OM Listener")
+(add-preference :general :print-system-output "Print System Outputs" :bool t "Redirect command-line system outputs to the Listener")
 
 (defmethod* om-shell ((command-line string) &key (open-shell-window nil))
   :icon 'shell
@@ -29,7 +29,7 @@
   :initvals '("")
   :doc "Sends <command-line> (a string) to the system. 
 
-If <open-shell-window> the command will be executed in a special OM shell window. Otherwise the output is printed in the Listener window."
+If <open-shell-window> the command will be executed in a special shell window. Otherwise the output is printed in the Listener window."
   (if open-shell-window
       (progn 
         (om-lisp::om-open-shell)

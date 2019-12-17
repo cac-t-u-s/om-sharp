@@ -27,8 +27,7 @@
    (lambda-state :initform nil :accessor lambda-state :initarg :lambda-state)  ;;; can be (nil :lambda :reference :box)
    (ev-once-flag :accessor ev-once-flag :initform nil)
    (eval-flag :accessor eval-flag :initform nil))
-  (:documentation "This is the class for boxes which can be evaluated.
-All boxes which their reference is a OM generic function are instances of this class.")
+  (:documentation "This is the class for boxes which can be evaluated.")
   (:metaclass omstandardclass))
 
 

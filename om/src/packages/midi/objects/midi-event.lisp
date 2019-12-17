@@ -67,13 +67,13 @@
   :initvals '(nil)
   :indoc '("click to select a type of event")
   :menuins (list (list 0 *midi-event-types*))
-  :doc "Outputs the event-type identifier for OM MIDIEVENT."
+  :doc "Outputs the event-type identifier for MIDIEVENT."
   :icon :midi
   evt)
 
 ;;;============================
 ;;; MIDI-EVENT AS A DATA-FRAME (see data-stream container)
-;;; A high-lev / graphical class in OM, representing a MIDI event from the MIDI-API
+;;; A high-lev / graphical class, representing a MIDI event from the MIDI-API
 ;;;============================
 
 (defclass* midievent (data-frame)

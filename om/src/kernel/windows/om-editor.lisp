@@ -82,7 +82,7 @@
 
 
 ;;;=============================
-;;; Superclass for OM root editors (patch, maquette, Lispfile, etc.)
+;;; Superclass for main editors (patch, maquette, Lispfile, etc.)
 (defclass OMDocumentEditor (OMEditor) ())
 
 (defmethod save-command ((self OMDocumentEditor))
@@ -340,7 +340,7 @@
     (om-beep-msg (format nil "Elements of type ~A can not be removed from ~A" (type-of elem) (type-of (object self))))
     ))
 
-;;; GENERAL COMMANDS FOR ALL OM WINDOWS
+;;; GENERAL COMMANDS FOR ALL WINDOWS
 (defmethod close-command ((self OMEditor))
   #'(lambda () (om-close-window (window self))))
 

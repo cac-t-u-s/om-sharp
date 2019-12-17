@@ -226,7 +226,7 @@
 
 <channels> is the number of channel of generated audio sound.
 
-<sample-rate> is the output sample rate in Hz. If NIL, the sample rate is used from OM 'Audio' preferences.
+<sample-rate> is the output sample rate in Hz. If NIL, the sample rate is used from the 'Audio' preferences.
 "
   (let* ((sr (or sample-rate (get-pref-value :audio :samplerate)))
          (nsmpl (round (* dur sr)))

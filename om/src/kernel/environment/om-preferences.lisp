@@ -63,7 +63,7 @@
 (defun display-om-preferences (&optional module-name)
   (let ((prefs-to-display (if module-name (list (find-pref-module module-name)) *user-preferences*)))
     (om-print "============================")
-    (om-print "CURRENT OM PREFERENCES:")
+    (om-print "CURRENT PREFERENCES:")
     (om-print "============================")
     (loop for module in prefs-to-display do
           (om-print (format nil "MODULE: ~A" (pref-module-name module)))
@@ -215,7 +215,7 @@
 
 (defun load-saved-prefs (saved-prefs)
   (loop for saved-module in saved-prefs do
-        ;;; find  the corresponding pref module in OM prefs
+        ;;; find the corresponding pref module in preferences
         (let* ((module-id (car saved-module))
                (real-module (find-pref-module module-id)))
           (when real-module

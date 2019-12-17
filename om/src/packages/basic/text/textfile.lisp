@@ -181,7 +181,7 @@ As output it returns the contents of the text buffer as a list formatted accordi
 
 
 ;;;========================
-;;; UTILS / OM FUNCTIONS
+;;; UTILS / FUNCTIONS
 ;;;========================
 
 (defmethod* textbuffer-eval ((self textbuffer))

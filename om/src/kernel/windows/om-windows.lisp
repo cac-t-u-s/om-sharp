@@ -359,7 +359,7 @@
 
 
 ;=======================
-; Print OM messages
+; Print messages
 ;=======================
  
 (defun om-beep-msg (format-string &rest args)

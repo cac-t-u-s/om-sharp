@@ -21,7 +21,7 @@
 
 (in-package :om)
 
-;;; Registers all images in a folder OM resources/icon
+;;; Registers all images in the folder resources/icon
 ;;; ALL IDENTIFIERS ARE KEYWORD SYMBOLS
 (defun register-images (folder)
   (mapc #'(lambda (file)

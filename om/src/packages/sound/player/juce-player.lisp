@@ -16,7 +16,7 @@
 ;============================================================================
 
 ;;;===========================================
-;;; IMPLEMENTATION OF AN AUDIO PLAYER FOR OM 
+;;; IMPLEMENTATION OF AN AUDIO PLAYER 
 ;;; USING THE LAS ARCHITECTURE JUCE LIB
 ;;;===========================================
 

@@ -18,7 +18,7 @@
 
 (in-package :om)
 
-; OM MIDI tempo
+; MIDI tempo
 ; 1000000 microseconds / beat
 ; i.e. tempo = 60
 (defvar *midi-init-tempo* 1000000)   

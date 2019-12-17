@@ -536,7 +536,7 @@ table, td {
                                (write-line "</td>" index)
                                ;; doc and defaults
                                (if (subtypep (class-of (fdefinition symbol)) 'OMGenericFunction)
-                                 ; OM FUN
+                                   
                                    (let ((indoc (nth i (inputs-doc (fdefinition symbol))))
                                          (defval (nth i (inputs-default (fdefinition symbol)))))
                                      (if indoc

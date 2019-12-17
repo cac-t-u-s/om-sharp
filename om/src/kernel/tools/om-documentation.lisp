@@ -81,7 +81,7 @@ Ex. (list 1 2 'a 7) ==> (1 2 a 7)
 
 
 LIST also exists as a type specifier (or class).
-The type specifier is mainly used in OM to set types in other class slots or method arguments.
+The type specifier is mainly used to set types in other class slots or method arguments.
 ")
 
 (setf (documentation 'remove 'function) 
@@ -157,12 +157,12 @@ T can be used as a type specifier in class slots or method arguments in order to
 (setf (system::class-documentation (find-class 'integer))
       "Integer number.
 
-This class is mainly used in OM to set types in other class slots or method arguments.")
+This class is mainly used to set types in other class slots or method arguments.")
 
 (setf (system::class-documentation (find-class 'number))
       "Any type of number.
 
-This class is mainly used in OM to set types in other class slots or method arguments.")
+This class is mainly used to set types in other class slots or method arguments.")
 
 
 (setf (documentation 'float 'function)
@@ -173,7 +173,7 @@ Ex. (float 4)  =>  4.0
 Ex. (flat 1/2) =>  0.5
 
 FLOAT also exists as a type specifier (or class).
-The type specifier is mainly used in OM to set types in other class slots or method arguments.")
+The type specifier is mainly used to set types in other class slots or method arguments.")
 
 (setf (documentation 'rational 'function)
       "Rational number (P/Q).
@@ -181,7 +181,7 @@ The type specifier is mainly used in OM to set types in other class slots or met
 RATIONAL exists in Lisp as a functions, which converts its input (a real number) to a rational number.
 
 It also exists as a type specifier (or class).
-The type specifier is mainly used in OM to set types in other class slots or method arguments.")
+The type specifier is mainly used to set types in other class slots or method arguments.")
 
 (setf (documentation 'string 'function)
       "Vector of characters.
@@ -190,7 +190,7 @@ STRING exists in Lisp as a functions, which converts its input (another string, 
 Ex. (string 'hello) => \"hello\"
 
 It also exists as a type specifier (or class).
-The type specifier is mainly used in OM to set types in other class slots or method arguments.
+The type specifier is mainly used to set types in other class slots or method arguments.
 
 Strings are represented as characters between double-quotes (\"\").
 
@@ -207,4 +207,4 @@ Ex. (null NIL) => T
 Ex. (null '()) => T
 Ex. (null '(5 6 7)) => NIL
 
-NULL is also the name of a class (the 'class of NIL'), and can be used in OM to specialize method arguments.")
+NULL is also the name of a class (the 'class of NIL'), and can be used to specialize method arguments.")

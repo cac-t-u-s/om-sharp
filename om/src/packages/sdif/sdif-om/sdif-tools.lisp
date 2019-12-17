@@ -142,7 +142,7 @@ Other type of data can be extracted by setting the <stream>, <frame>, <matrix> a
 <ftype> and <mtype> allow to determine the SDIF type to enclose the data in (default = 1FQ0, i.e. fundamental frequency).
 If these types are not standard, they must be declared and given as a list of SDIFType objects in <typedefs>
 
-If <outfile> is just a filename (not a pathname) the file is written in the default OM 'out-files' folder.
+If <outfile> is just a filename (not a pathname) the file is written in the default 'out-files' folder.
 
 <scope> allows to choose whether the x-dimension of the BPF should be considered as time (default) or as the elements in a single matrix.
 "
@@ -231,7 +231,7 @@ Other more specific type of data can be extracted by setting the <stream>, <fram
 <ftype> allows to determine the SDIF frame type to use (default = 1MRK, the standard SDIF type for time markers).
 If this type is not standard, it must be declared and given as an SDIFType object in <typedefs>
 
-If <outfile> is just a filename (not a pathname) the file is written in the default OM 'out-files' folder.
+If <outfile> is just a filename (not a pathname) the file is written in the default 'out-files' folder.
 
 "
   

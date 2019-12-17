@@ -139,7 +139,7 @@ Frames can be simple frames (icons, boxes, etc.) or container frames (patch edit
 ;;; OMFrame subclasses
 ;;;=================================
 
-;;; OMSimpleFrame and OMCompoundFrame are identical in OM 
+;;; OMSimpleFrame and OMCompoundFrame are identical 
 ;;; but they are implemented differently in the underlying API
 (defclass OMSimpleFrame (OMFrame om-item-view om-drag-view) ())
 (defclass OMCompoundFrame (OMFrame om-internal-view) ())

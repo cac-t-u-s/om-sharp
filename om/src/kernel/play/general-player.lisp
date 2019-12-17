@@ -18,7 +18,7 @@
 (in-package :om)
 
 ;;;=================================
-;;; OM PLAYER
+;;; MAIN PLAYER
 ;;;=================================
 ;;; METHODS TO REDEFINE
 
@@ -255,7 +255,7 @@
                  at))
 
 ;;; PLAY (NOW)
-;;; IF THE RENDERER RELIES ON OM PLAYER SCHEDULING, THIS IS THE ONLY METHOD TO IMPLEMENT
+;;; IF THE RENDERER RELIES ON THE PLAYER SCHEDULING, THIS IS THE ONLY METHOD TO IMPLEMENT
 (defmethod player-play-object ((engine t) object &key interval params)
   (declare (ignore interval))
   ;(print (format nil "~A : play ~A - ~A" engine object interval))
