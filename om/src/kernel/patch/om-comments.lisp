@@ -49,7 +49,7 @@
 
 (defmethod object-name-in-inspector ((self OMComment)) "Comment")
 (defmethod get-documentation ((self OMComment))
-  "Comments are simple textual elements documenting OM patches.")
+  "Comments are simple textual elements documenting patches.")
 
 (defmethod box-draw-color ((box OMComment)) 
   (if (and (color box) (color-? (color box)))

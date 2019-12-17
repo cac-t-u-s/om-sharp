@@ -21,7 +21,7 @@
 (print "APPLICATION SETUP")
 (print "==============================")
 
-(defparameter *app-name+version* "om7-beta")
+(defparameter *app-name+version* "oM#")
 
 (defparameter *om-directory-folders* (butlast (pathname-directory (current-pathname))))
 

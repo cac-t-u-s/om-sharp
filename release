@@ -10,7 +10,7 @@ LWEXEC=lispworks-7-1-0-amd64-darwin
 
 OM_VERSION=$(<"VERSION") 
 BUILD_FOLDER="BUILD"
-APP_NAME="om7-beta"
+APP_NAME="oM#"
 
 
 deliver_app()
