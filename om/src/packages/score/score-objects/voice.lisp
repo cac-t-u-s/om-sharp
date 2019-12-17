@@ -57,7 +57,7 @@
    (inside :accessor inside :initform nil :documentation "internal hierarchical structure")
    ))
 
-(defmethod additional-class-attributes ((self voice)) '(lvel loffset lchan lport))
+(defmethod additional-class-attributes ((self voice)) '(lvel loffset lchan lport extras))
 
 (defmethod get-object-slots-for-undo ((self voice)) 
   (append (call-next-method) '(tree tempo)))
