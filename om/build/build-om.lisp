@@ -21,7 +21,7 @@
 ;;; APP/VERSION DATA
 ;;;=======================================
 
-(defparameter *app-name* "om#")
+(defparameter *app-name* "om-sharp")
 
 (defparameter *version-major* 0) ;;; => 7!
 (defparameter *version-minor* 7) 

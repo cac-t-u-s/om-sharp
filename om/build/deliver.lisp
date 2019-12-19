@@ -21,13 +21,15 @@
 (print "APPLICATION SETUP")
 (print "==============================")
 
-(defparameter *app-name+version* "om#")
+(defparameter *full-app-name* om::*app-name*)
 
 (defparameter *om-directory-folders* (butlast (pathname-directory (current-pathname))))
 
 (let ((version-str (concatenate 'string (format nil "~d.~d" *version-major* *version-minor*)
                                 (if (and *version-patch* (plusp *version-patch*)) (format nil ".~d" *version-patch*) ""))))
   
+  ;(setf *full-app-name* (concatenate 'string om::*app-name* " " version-str))
+
   (with-open-file (f (make-pathname :directory (butlast (pathname-directory (current-pathname)) 2)
                                     :name "VERSION")
                      :direction :output
@@ -44,7 +46,7 @@
 (capi:define-interface om-application (capi::cocoa-default-application-interface) ()
   (:menus
    (application-menu
-      *app-name+version*
+      *full-app-name*
       ((:component
         (("About..."
           :callback 'om::show-about-win
@@ -133,7 +135,7 @@
    )
   (:menu-bar application-menu file-menu windows-menu)
   (:default-initargs
-   :title *app-name+version*
+   :title *full-app-name*
    :application-menu 'application-menu
 
    ;:confirm-destroy-function 'quit-callback
@@ -204,7 +206,7 @@
   (om::om-root-init) 
   (setf dspec::*active-finders* (append dspec::*active-finders*
                                         (list (merge-pathnames 
-                                               #+macosx(concatenate 'string *app-name+version* ".app/Contents/Resources/dspec-database." (oa::om-compiled-type))
+                                               #+macosx(concatenate 'string *full-app-name* ".app/Contents/Resources/dspec-database." (oa::om-compiled-type))
                                                #-macosx(concatenate 'string "resources/dspec-database." (oa::om-compiled-type))
                                                om-api::*om-root*))))
   #+cocoa(setf system::*stack-overflow-behaviour* nil)
@@ -213,7 +215,7 @@
   )
 
 (list (merge-pathnames 
-       #+macosx(concatenate 'string *app-name+version* ".app/Contents/Resources/dspec-database." (oa::om-compiled-type))
+       #+macosx(concatenate 'string *full-app-name* ".app/Contents/Resources/dspec-database." (oa::om-compiled-type))
        om-api::*om-root*))
 
 ;;;==========================
@@ -269,7 +271,7 @@
   (let* ((app-contents-folder (make-pathname 
                                :directory (append 
                                            *om-directory-folders* 
-                                           (list (concatenate 'string *app-name+version* ".app") "Contents"))))
+                                           (list (concatenate 'string *full-app-name* ".app") "Contents"))))
          (app-libs-folder (merge-pathnames (make-pathname :directory '(:relative "Frameworks")) app-contents-folder))
          (app-resources-folder (merge-pathnames (make-pathname :directory '(:relative "Resources")) app-contents-folder)))
   
@@ -329,21 +331,21 @@
        (when (save-argument-real-p)
          (compile-file-if-needed (sys:example-file  "configuration/macos-application-bundle") :load t)
          (create-macos-application-bundle (make-pathname :directory (butlast (pathname-directory (current-pathname)))
-                                                        :name *app-name+version*)
-                                         :document-types (list `("Patch" ("opat") ,(om::om-relative-path '("mac") "pat-icon.icns"))
-                                                               `("Maquette" ("omaq") ,(om::om-relative-path '("mac") "maq-icon.icns"))
-                                                               `("TextFun" ("olsp") ,(om::om-relative-path '("mac") "lsp-icon.icns"))
+                                                        :name *full-app-name*)
+                                         :document-types (list `("Patch" ("opat") ,(om::om-relative-path '("mac") "opat.icns"))
+                                                               `("Maquette" ("omaq") ,(om::om-relative-path '("mac") "omaq.icns"))
+                                                               ;`("TextFun" ("olsp") ,(om::om-relative-path '("mac") "lsp-icon.icns"))
                                                                `("om Library" ("omlib") ,(om::om-relative-path '("mac") "omlib.icns")))
-                                                           :application-icns (om::om-relative-path '("mac") "om.icns")
+                                                           :application-icns (om::om-relative-path '("mac") "om-sharp.icns")
                                          :identifier "fr.cactus.om-sharp"
                                          :version *version-string*
                                          ))
        #+mswindows
        (make-pathname :directory (butlast (pathname-directory (current-pathname)))
-                      :name *app-name+version* :type "exe")
+                      :name *full-app-name* :type "exe")
        #+linux
        (make-pathname :directory (butlast (pathname-directory (current-pathname)))
-                      :name *app-name+version*)))
+                      :name *full-app-name*)))
   
   #+macosx(move-mac-resources)
 
@@ -365,11 +367,11 @@
            #+mswindows :keep-gc-cursor #+mswindows nil
            #+mswindows :versioninfo #+mswindows (list :binary-version (read-from-string (version-to-hex *om-version*))
                                               :version-string *version-string*
-                                              :company-name "" :product-name "om-ssharp" :file-description "")
+                                              :company-name "" :product-name "om-sharp" :file-description "")
            #+mswindows :console #+mswindows :input
            ; :quit-when-no-windows #+mswindows t #-mswindows nil
            #+(or cocoa win32) :packages-to-keep #+cocoa '(:objc)  #+mswindows '(:comm)
-           #+mswindows :icon-file #+mswindows "./win/om.ico"
+           #+mswindows :icon-file #+mswindows "./win/om-sharp.ico"
            )
   )
 

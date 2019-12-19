@@ -10,7 +10,7 @@ LWEXEC=lispworks-7-1-0-amd64-darwin
 
 OM_VERSION=$(<"VERSION") 
 BUILD_FOLDER="BUILD"
-APP_NAME="om#"
+APP_NAME="om-sharp"
 DMG_NAME="$APP_NAME"-"$OM_VERSION"-macOS.dmg
 ZIP_NAME="$APP_NAME"-"$OM_VERSION".zip
 	
@@ -91,7 +91,7 @@ echo -e "${CYAN}***************************************************${NC}"
 	zip -r -q -dg "$ZIP_NAME" "$APP_NAME"  
 	rm -rf "$APP_NAME"
 	cd ..
-echo -e "${GREEN}=> ZIP DONE: $ZIP_NAME {NC}"
+echo -e "${GREEN}=> ZIP DONE: $ZIP_NAME ${NC}"
 }
 
 sign_release()
