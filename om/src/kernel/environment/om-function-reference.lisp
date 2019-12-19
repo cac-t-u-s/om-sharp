@@ -256,7 +256,7 @@ hr {
 
 table, td {
   border: 0px;
-  background-color: #ddd;
+  background-color: #f0f0f0;
 }
 
 .frame {
@@ -268,7 +268,7 @@ table, td {
 .main {
   border: 1px solid;
   padding: 20px;
-  background-color: #ddd;
+  background-color: #e5e5e5;
 }
 
 
