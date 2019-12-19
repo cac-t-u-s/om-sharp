@@ -163,7 +163,7 @@
      (list 
       (om-make-menu-item 
        "Online Documentation" 
-       #'(lambda () (om-open-in-browser "https://openmusic-project.github.io/om-sharp/pages/index")) 
+       #'(lambda () (om-open-in-browser "https://cac-t-u-s.github.io/om-sharp/pages/index")) 
        :enabled t)
       ))
 
