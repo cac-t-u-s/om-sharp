@@ -74,7 +74,7 @@
         :callback #'(setf capi:top-level-interface-display-state)
         :callback-type :data-interface)
        (:component
-        (("Quit OM"
+        (("Quit"
           :accelerator "accelerator-q"
           :callback #'(lambda (interface)
                         (capi:destroy interface))
