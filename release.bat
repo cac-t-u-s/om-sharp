@@ -7,14 +7,14 @@ cd ..\..
 rmdir BUILD
 mkdir BUILD
 
-xcopy om BUILD\om7-beta\ /E /y
+xcopy om BUILD\om-sharp\ /E /y
 
-del /S BUILD\om7-beta\*.ofasl
-del /S BUILD\om7-beta\*.*~
-del /S BUILD\om7-beta\resources\fonts\*.otf
+del /S BUILD\om-sharp\*.*~
+del /S BUILD\om-sharp\resources\fonts\*.otf
+del /S BUILD\om-sharp\*.ofasl
 
-copy "om\resources\lib\win32\libportmidi.dll" BUILD\om7-beta\
-copy "om\resources\lib\win32\libsndfile-1.dll" BUILD\om7-beta\
-copy "om\resources\lib\win32\libsamplerate-0.dll" BUILD\om7-beta\
-copy "om\resources\lib\win32\OMAudioLib.dll" BUILD\om7-beta\
-copy "om\resources\lib\win32\libsdif.dll" BUILD\om7-beta\
+copy "om\resources\lib\win32\libportmidi.dll" BUILD\om-sharp\
+copy "om\resources\lib\win32\libsndfile-1.dll" BUILD\om-sharp\
+copy "om\resources\lib\win32\libsamplerate-0.dll" BUILD\om-sharp\
+copy "om\resources\lib\win32\OMAudioLib.dll" BUILD\om-sharp\
+copy "om\resources\lib\win32\libsdif.dll" BUILD\om-sharp\
