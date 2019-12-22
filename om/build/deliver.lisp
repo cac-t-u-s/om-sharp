@@ -63,7 +63,7 @@
         ;; attach the standard Services menu.
        ; :name :application-services)
        (:component
-        (("Hide OM"
+        (("Hide OM#"
           :accelerator "accelerator-h"
           :callback-data :hidden)
          ("Hide Others"
