@@ -278,7 +278,7 @@ table, td {
   (concatenate 'string 
                "<br><center><font size=-2>" 
                "Auto doc generation by " 
-               *app-name*
+               *app-name* " " 
                *version-string* 
                " - " 
                (om-get-date)  
@@ -304,7 +304,7 @@ table, td {
                                                  (find-value-in-kv-list (cdr group) :entries)))))))
          )
 
-    (let ((logopict (or logofile (om-make-pathname :directory (om-resources-folder) :name "om" :type "png"))))
+    (let ((logopict (or logofile (om-make-pathname :directory (om-resources-folder) :name "om-sharp" :type "png"))))
       (when (probe-file logopict)
         (om-copy-file logopict
                       (make-pathname :directory (pathname-directory dir) :name "logo" :type "png"))))
