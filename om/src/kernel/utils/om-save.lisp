@@ -37,9 +37,9 @@
 (defmethod omng-load ((self t)) self)
 
 (defmethod omng-save ((self list)) 
-  (if (consp (cdr self))
+  (if (listp (cdr self))
       (cons :list (mapcar 'omng-save self))
-      (list :cons (cons (omng-save (car self)) (omng-save (cdr self))))))
+    (list :cons (cons (omng-save (car self)) (omng-save (cdr self))))))
 
 (defmethod omng-save ((self null)) 'NIL)
 (defmethod omng-save ((self number)) self)
