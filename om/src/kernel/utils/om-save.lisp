@@ -328,12 +328,13 @@
 
 (defmethod save-patch-contents ((self OMProgrammingObject) &optional (box-values nil))
   `(,(object-doctype self)
-    (:om-version ,(omversion self))
     (:name ,(name self))
     (:doc ,(doc self))
     (:info 
-     (:created ,(car (create-info self)))
-     (:modified ,(cadr (create-info self))))
+     (:created ,(nth 0 (create-info self)))
+     (:modified ,(nth 1 (create-info self)))
+     (:by ,(nth 2 (create-info self)))
+     (:version ,(nth 3 (create-info self))))
     (:window 
      (:size ,(when (window-size self)
                (list (om-point-x (window-size self)) (om-point-y (window-size self)))))  
@@ -383,9 +384,11 @@
       (unless (name patch) (setf (name patch) name))
 
       (setf (create-info patch) (list (find-value-in-kv-list info :created)
-                                      (find-value-in-kv-list info :modified))
+                                      (find-value-in-kv-list info :modified)
+                                      (find-value-in-kv-list info :by)
+                                      (find-value-in-kv-list info :version))
             (doc patch) (find-value-in-kv-list data :doc)
-            (omversion patch) (find-value-in-kv-list data :om-version))
+            )
       
       (when win
         (let ((pos (find-value-in-kv-list win :position))
@@ -495,9 +498,12 @@
     (setf 
      (text fun) (omng-load (find-value-in-kv-list data :text))
      (create-info fun) (list (find-value-in-kv-list info :created)
-                             (find-value-in-kv-list info :modified))
+                             (find-value-in-kv-list info :modified)
+                             (find-value-in-kv-list info :by)
+                             (find-value-in-kv-list info :version)
+                             )
      (doc fun) (find-value-in-kv-list data :doc)
-     (omversion fun) (find-value-in-kv-list data :om-version))
+     )
     
     (when win
       (let ((pos (find-value-in-kv-list win :position))

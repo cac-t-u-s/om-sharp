@@ -28,7 +28,7 @@
 (defparameter *version-patch* 0)
 (defparameter *version-update* 0)
 
-(defparameter *om-version* 
+(defparameter *version* 
   (+ *version-major* 
      (/ *version-minor* 100.0) 
      (/ *version-patch* 10000.0) 
@@ -45,7 +45,7 @@
 (defparameter *release-author* "jean bresson")
 
 
-(export '(*app-name* *om-version* *version-string* *release-language* *release-date* *release-author*) :cl-user)
+(export '(*app-name* *version* *version-string* *release-language* *release-date* *release-author*) :cl-user)
 
 (defparameter *om-root-directory* (make-pathname :directory (butlast (pathname-directory *load-pathname*))))
 

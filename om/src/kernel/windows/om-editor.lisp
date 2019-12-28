@@ -119,7 +119,7 @@
         #'(lambda ()
             (change-class doc (externalized-type doc) 
                           :icon (externalized-icon doc))
-            (setf (create-info doc) (list (om-get-date) (om-get-date)))
+            (setf (create-info doc) (list (om-get-date) (om-get-date) *app-name* *version*))
             (register-document doc)
             (save-document doc)   ;; set name is done here in save-document
             (funcall (revert-command self)) ;; to update menus etc.

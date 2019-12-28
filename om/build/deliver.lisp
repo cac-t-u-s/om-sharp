@@ -365,7 +365,7 @@
            ;:editor-style :default
            :startup-bitmap-file NIL ;; *startup-bmp*  ;; removed because of a delivery bug with menus        
            #+mswindows :keep-gc-cursor #+mswindows nil
-           #+mswindows :versioninfo #+mswindows (list :binary-version (read-from-string (version-to-hex *om-version*))
+           #+mswindows :versioninfo #+mswindows (list :binary-version (read-from-string (version-to-hex *version*))
                                               :version-string *version-string*
                                               :company-name "" :product-name "om-sharp" :file-description "")
            #+mswindows :console #+mswindows :input

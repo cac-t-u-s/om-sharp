@@ -173,7 +173,7 @@
   (WITH-OPEN-FILE (out (om-make-pathname :directory dirpath :name  (name-of-directory dirpath) :type "omws")
                        :direction :output 
                        :if-does-not-exist :create :if-exists :supersede) 
-    (print `(:info (:om-version ,*om-version* :saved ,(om-get-date))) out)))
+    (print `(:info (:saved ,(om-get-date) :version ,*version*)) out)))
 
 
 (defun create-new-workspace (path)
@@ -239,7 +239,7 @@
         (with-open-file (out pathtemp :direction :output 
                              :if-does-not-exist :create :if-exists :supersede)
           (let ((*print-pretty* t))
-            (print `(:info (:om-version ,*om-version*) (:saved ,(om-get-date))) out)
+            (print `(:info (:saved ,(om-get-date)) (:version ,*version*)) out)
             (print `(:user-preferences 
                      .,(mapcar #'(lambda (item) 
                                    (save-pref-module (car item)))

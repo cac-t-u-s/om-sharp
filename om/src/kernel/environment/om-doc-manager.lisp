@@ -56,7 +56,8 @@
       (om-beep-msg "Problem: patch ~A was not registered!" self))))
 
 (defmethod update-create-info ((self OMPersistantObject))
-  (setf (cadr (create-info self)) (om-get-date)))
+  (setf (cdr (create-info self)) 
+        (list (om-get-date) *app-name* *version*)))
 
 
 (defun print-documents ()
@@ -145,8 +146,7 @@
 ;;; called by the interface menus and commands ("New")
 (defun open-new-document (&optional (type :patch)) 
   (let ((newobj (make-new-om-doc type (om-str :untitled))))
-    (setf (omversion newobj) *om-version*)
-    (setf (create-info newobj) (list (om-get-date) (om-get-date)))
+    (setf (create-info newobj) (list (om-get-date) (om-get-date) *app-name* *version*))
     (setf (saved? newobj) t)
     (register-document newobj)
     (open-editor newobj)

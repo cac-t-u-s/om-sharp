@@ -22,26 +22,12 @@
 
 (in-package :om)
 
-
-;(defparameter *om-version* *version*)
-;(defparameter *version-string* *version-str*)
-;(setf *om-version* *version*)
-;(setf *version-string* *version-str*)
-
-
 ;;;======================================
 ;;; GENERAL PREFERENCES
 ;;;======================================
 
-;(defvar *om-preferences* nil)
-
 (defun om-preference-file ()
   (merge-pathnames "om#/preferences.om#" (om-user-pref-folder)))
-
-;(WITH-OPEN-FILE (out "/Users/bresson/Desktop/test.txt" :direction :output 
-;                         :if-does-not-exist :create :if-exists :supersede) 
-;      (format out "~A~%" (list :om-version (+ 2 3))))
-;     (prin1 `(:om-version ,(+ 3 3)) out))
 
 
 (defvar *last-open-ws* nil)
@@ -59,9 +45,9 @@
                          :if-does-not-exist :create 
                          :if-exists :supersede) 
       (let ((*print-pretty* t))
-        (pprint `(:info (:om-version ,*om-version*) (:saved ,(om-get-date))) out)
-        (pprint `(:previous-ws  ,(omng-save *last-open-ws*)) out)
-        (pprint `(:recent-files  ,(omng-save (mapcar 'namestring *om-recent-files*))) out)
+        (pprint `(:info (:saved ,(om-get-date)) (:version ,*version*)) out)
+        (pprint `(:previous-ws ,(omng-save *last-open-ws*)) out)
+        (pprint `(:recent-files ,(omng-save (mapcar 'namestring *om-recent-files*))) out)
         ;;; if there is a workspace the preferences will be stored in that workspace
         (unless *current-workspace*
           (pprint `(:user-preferences

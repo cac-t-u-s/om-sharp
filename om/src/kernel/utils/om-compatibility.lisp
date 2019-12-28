@@ -66,8 +66,7 @@
                           (progn 
                             (copy-contents *om-current-persistent* object)
                             
-                            (setf (omversion object) *om-version*
-                                  (create-info object) (list (om-get-date) (om-get-date))
+                            (setf (create-info object) (list (om-get-date) (om-get-date) *app-name* *version*)
                                   (window-size object) (eval (nth 4 metadata))
                                   (saved? object) nil)
                             object)
@@ -166,8 +165,11 @@
 
 ;;; internal Lisp fun
 (defun om-load-lisp-abspatch (name version expression)
+  (declare (ignore version))
   `(:textfun
-    (:om-version ,version)
+    (:info 
+     (:by "OM")
+     (:version ,version))
     (:name ,name)
     (:text
      (:list .,(string-to-list expression "$")))
