@@ -8,9 +8,9 @@ PREFIX		= /usr
 # DESTDIR for local builds, ie. by rpmbuild etc.
 
 bindir		= $(DESTDIR)$(PREFIX)/bin
-libdir		= $(DESTDIR)$(PREFIX)/lib64/openmusic7
+libdir		= $(DESTDIR)$(PREFIX)/lib64/om-sharp
 datadir		= $(DESTDIR)$(PREFIX)/share
-omfontsdir	= $(DESTDIR)$(PREFIX)/share/fonts/omfonts7
+omfontsdir	= $(DESTDIR)$(PREFIX)/share/fonts/om-sharp-fonts
 omroot		= $(datadir)/$(APPNAME)
 ICONDIR		= $(datadir)/icons/hicolor/64x64/apps
 
@@ -22,10 +22,10 @@ thisdir		= $(dir $(thisfile))
 builddir	= $(shell cd $(dir $(thisfile)) && cd $(path_to_omroot) && pwd)
 
 BUILDROOT	= $(builddir)
-APPNAME		= openmusic7
+APPNAME		= om-sharp
 INSTALLRES	= $(BUILDROOT)/build/linux
 
-app_name_version = om7-beta
+app_name_version = om-sharp
 
 faslname	= 64ufasl
 rubbish		= *.$(faslname)
@@ -37,7 +37,7 @@ exclude_mac	= --exclude 'build/mac/' --exclude '*.finderinfo'
 exclude_win	= --exclude 'build/win/'
 exclude_libs	= --exclude 'resources/lib/'
 
-checkname	= $(shell ls $(BUILDROOT) | grep "om7_")
+checkname	= $(shell ls $(BUILDROOT) | grep "om-sharp_")
 ifdef $(checkname)
 releaseappname	= $(checkname)
 else
@@ -54,9 +54,9 @@ install:
 	cd $(BUILDROOT)/resources/lib/linux && rsync $(rsyncflags) . $(libdir)
 	cd $(BUILDROOT) && $(INSTALL_PROGRAM) -D -m 0755 $(releaseappname) $(bindir)/$(releaseappname)
 	mkdir -p $(datadir)/applications/
-	cd $(INSTALLRES) && $(INSTALL_PROGRAM) -D -m 0644 OM7.desktop $(datadir)/applications/
+	cd $(INSTALLRES) && $(INSTALL_PROGRAM) -D -m 0644 OM-sharp.desktop $(datadir)/applications/
 	mkdir -p $(ICONDIR)
-	cd $(BUILDROOT)/resources/ && $(INSTALL_PROGRAM) -D -m 0644 om7.png $(ICONDIR)
+	cd $(BUILDROOT)/resources/ && $(INSTALL_PROGRAM) -D -m 0644 om-sharp.png $(ICONDIR)
 	mkdir -p $(omfontsdir)/
 	cd $(BUILDROOT)/resources/fonts && rsync $(rsyncflags) *.otf $(omfontsdir)
 
@@ -64,8 +64,8 @@ uninstall:
 	rm -rf $(omroot)
 	rm -f $(bindir)/$(APPNAME)
 	rm -f $(bindir)/$(releaseappname)
-	rm -f $(datadir)/applications/OM7.desktop
-	rm -f $(ICONDIR)/om7.png
+	rm -f $(datadir)/applications/OM-sharp.desktop
+	rm -f $(ICONDIR)/om-sharp.png
 	rm -rf $(omfontsdir)
 	rm -rf $(libdir)
 

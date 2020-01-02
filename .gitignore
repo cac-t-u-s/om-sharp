@@ -31,4 +31,5 @@ Gemfile.lock
 **/_site/**
 /om/om7-alpha
 /om/om7-beta
+/om/om-sharp
 **/docs/_temp/**

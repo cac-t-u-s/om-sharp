@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=OM Sharp
+GenericName=OM Sharp
+GenericName=Open Music graphical composition environment
+Exec=om-sharp
+Icon=om-sharp
+Type=Application
+Terminal=false
+Categories=Application;Development;Artistic;Science;Music;Multimedia;Audio;X-Jack;Midi;X-MIDI;
+MimeType=text/x-omp;
