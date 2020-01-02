@@ -247,7 +247,8 @@
           (setf *last-open-dir* folder)
           (let ((files (om-directory folder :type (append 
                                                    (mapcar #'doctype-to-extension *om-doctypes*)
-                                                   (doctype-to-ext-list :old)))))
+                                                   (doctype-to-ext-list :old))
+                                     :recursive t)))
             (loop for file in files 
                   do (catch :load-error
                        (handler-bind ((error #'(lambda (e)
