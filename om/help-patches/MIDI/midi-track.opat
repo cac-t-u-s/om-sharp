@@ -1,11 +1,12 @@
 
 (:patch
- (:om-version 7.0)
  (:name "midi-track")
  (:doc "")
  (:info
   (:created "2017/03/04 10:19:32")
-  (:modified "2019/11/10 14:24:22"))
+  (:modified "2020/01/02 8:46:29")
+  (:by "om-sharp")
+  (:version 1.0))
  (:window (:size (1187 790)) (:position (253 23)))
  (:grid nil)
  (:lock nil)
@@ -14,10 +15,9 @@
    (:type :abstraction)
    (:reference
     (:patch
-     (:om-version 7.0)
      (:name "midinote")
      (:doc "")
-     (:info (:created nil) (:modified nil))
+     (:info (:created nil) (:modified nil) (:by nil) (:version nil))
      (:window (:size (353 272)) (:position (1087 262)))
      (:grid nil)
      (:lock nil)
@@ -225,14 +225,8 @@
        (:to (:box 0 :in 0))
        (:attributes
         (:color (:color 0.3 0.3 0.3 1.0) :style nil :modif nil)))
-      (:connection
-       (:from (:box 3 :out 0))
-       (:to (:box 2 :in 5))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 4 :out 0))
-       (:to (:box 2 :in 2))
-       (:attributes (:color nil :style nil :modif nil))))))
+      (:connection (:from (:box 3 :out 0)) (:to (:box 2 :in 5)))
+      (:connection (:from (:box 4 :out 0)) (:to (:box 2 :in 2))))))
    (:group-id nil)
    (:name "midinote")
    (:x 367)
@@ -107857,6 +107851,7 @@ It corresponds to (and extends) the MIDIFile object in OM6")
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
+       (:extras nil)
        (:lmidic
         (:list
          (:list 6800 5300 6200 5600)
@@ -121528,95 +121523,26 @@ It corresponds to (and extends) the MIDIFile object in OM6")
           (:add-slots ((:ev-track 1))))))))))
    (:id 32)))
  (:connections
-  (:connection
-   (:from (:box 0 :out 0))
-   (:to (:box 1 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 1 :out 0))
-   (:to (:box 11 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 2 :out 0))
-   (:to (:box 1 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 4 :out 0))
-   (:to (:box 12 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 5 :out 0))
-   (:to (:box 4 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 6 :out 0))
-   (:to (:box 4 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 10 :out 0))
-   (:to (:box 9 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 13 :out 0))
-   (:to (:box 18 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 14 :out 0))
-   (:to (:box 13 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 15 :out 0))
-   (:to (:box 13 :in 2))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 16 :out 0))
-   (:to (:box 15 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 17 :out 0))
-   (:to (:box 15 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 18 :out 0))
-   (:to (:box 25 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 19 :out 0))
-   (:to (:box 18 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 20 :out 0))
-   (:to (:box 25 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 21 :out 0))
-   (:to (:box 20 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 22 :out 0))
-   (:to (:box 23 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 23 :out 0))
-   (:to (:box 20 :in 4))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 24 :out 0))
-   (:to (:box 23 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 25 :out 0))
-   (:to (:box 26 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 28 :out 0))
-   (:to (:box 27 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 30 :out 0))
-   (:to (:box 29 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 31 :out 0))
-   (:to (:box 32 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))))
+  (:connection (:from (:box 0 :out 0)) (:to (:box 1 :in 0)))
+  (:connection (:from (:box 1 :out 0)) (:to (:box 11 :in 1)))
+  (:connection (:from (:box 2 :out 0)) (:to (:box 1 :in 1)))
+  (:connection (:from (:box 4 :out 0)) (:to (:box 12 :in 1)))
+  (:connection (:from (:box 5 :out 0)) (:to (:box 4 :in 1)))
+  (:connection (:from (:box 6 :out 0)) (:to (:box 4 :in 0)))
+  (:connection (:from (:box 10 :out 0)) (:to (:box 9 :in 0)))
+  (:connection (:from (:box 13 :out 0)) (:to (:box 18 :in 0)))
+  (:connection (:from (:box 14 :out 0)) (:to (:box 13 :in 1)))
+  (:connection (:from (:box 15 :out 0)) (:to (:box 13 :in 2)))
+  (:connection (:from (:box 16 :out 0)) (:to (:box 15 :in 0)))
+  (:connection (:from (:box 17 :out 0)) (:to (:box 15 :in 1)))
+  (:connection (:from (:box 18 :out 0)) (:to (:box 25 :in 1)))
+  (:connection (:from (:box 19 :out 0)) (:to (:box 18 :in 1)))
+  (:connection (:from (:box 20 :out 0)) (:to (:box 25 :in 0)))
+  (:connection (:from (:box 21 :out 0)) (:to (:box 20 :in 1)))
+  (:connection (:from (:box 22 :out 0)) (:to (:box 23 :in 0)))
+  (:connection (:from (:box 23 :out 0)) (:to (:box 20 :in 4)))
+  (:connection (:from (:box 24 :out 0)) (:to (:box 23 :in 1)))
+  (:connection (:from (:box 25 :out 0)) (:to (:box 26 :in 1)))
+  (:connection (:from (:box 28 :out 0)) (:to (:box 27 :in 0)))
+  (:connection (:from (:box 30 :out 0)) (:to (:box 29 :in 0)))
+  (:connection (:from (:box 31 :out 0)) (:to (:box 32 :in 0)))))

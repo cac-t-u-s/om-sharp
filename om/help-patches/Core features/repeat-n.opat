@@ -1,18 +1,19 @@
 
 (:patch
- (:om-version 2.1E-5)
  (:name "repeat-n")
  (:doc "")
  (:info
   (:created "2018/03/26 17:22:20")
-  (:modified "2019/08/14 7:42:36"))
+  (:modified "2020/01/02 8:45:59")
+  (:by "om-sharp")
+  (:version 1.0))
  (:window (:size (1065 559)) (:position (304 376)))
  (:grid nil)
  (:lock nil)
  (:boxes
   (:box
-   (:reference (:out (:type omout) (:name "out") (:index 1) (:doc "")))
    (:type :io)
+   (:reference (:out (:type omout) (:name "out") (:index 1) (:doc "")))
    (:group-id nil)
    (:name "out")
    (:x 497)
@@ -35,8 +36,8 @@
    (:outputs)
    (:id 0))
   (:box
-   (:reference fixnum)
    (:type :value)
+   (:reference fixnum)
    (:group-id nil)
    (:name "value box")
    (:x 498)
@@ -55,8 +56,8 @@
    (:value 0)
    (:id 1))
   (:box
-   (:reference fixnum)
    (:type :value)
+   (:reference fixnum)
    (:group-id nil)
    (:name "value box")
    (:x 539)
@@ -75,8 +76,8 @@
    (:value 190)
    (:id 2))
   (:box
-   (:reference list)
    (:type :function)
+   (:reference list)
    (:group-id nil)
    (:name "list")
    (:x 487)
@@ -88,6 +89,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -101,8 +103,8 @@
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 3))
   (:box
-   (:reference om-random)
    (:type :function)
+   (:reference om-random)
    (:group-id nil)
    (:name "om-random")
    (:x 487)
@@ -114,6 +116,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock :eval-once)
    (:lambda nil)
    (:inputs
@@ -126,8 +129,8 @@
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 4))
   (:box
-   (:reference list)
    (:type :function)
+   (:reference list)
    (:group-id nil)
    (:name "list")
    (:x 566)
@@ -139,6 +142,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -151,16 +155,8 @@
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 5))
   (:box
-   (:reference
-    (:object
-     (:class repeater)
-     (:slots
-      ((:name "repeat-n")
-       (:protected-p nil)
-       (:icon nil)
-       (:n-iter 3)
-       (:scope :local)))))
    (:type :special)
+   (:reference repeat-n)
    (:group-id nil)
    (:name "repeat-n")
    (:x 571)
@@ -178,10 +174,10 @@
    (:inputs
     (:input
      (:type :standard)
-     (:name "program to repeat")
+     (:name "self")
      (:value nil)
      (:reactive nil))
-    (:input (:type :standard) (:name "n") (:value 0) (:reactive nil))
+    (:input (:type :standard) (:name "num") (:value 0) (:reactive nil))
     (:input
      (:type :optional)
      (:name "scope")
@@ -190,8 +186,8 @@
    (:outputs (:output (:name "collected results") (:reactive nil)))
    (:id 6))
   (:box
-   (:reference fixnum)
    (:type :value)
+   (:reference fixnum)
    (:group-id nil)
    (:name "value box")
    (:x 621)
@@ -226,8 +222,8 @@
    (:text "REPEAT-N : repeats evaluation N times / collect results")
    (:id 8))
   (:box
-   (:reference fixnum)
    (:type :value)
+   (:reference fixnum)
    (:group-id nil)
    (:name "value box")
    (:x 168)
@@ -246,8 +242,8 @@
    (:value 0)
    (:id 9))
   (:box
-   (:reference fixnum)
    (:type :value)
+   (:reference fixnum)
    (:group-id nil)
    (:name "value box")
    (:x 209)
@@ -266,8 +262,8 @@
    (:value 190)
    (:id 10))
   (:box
-   (:reference om-random)
    (:type :function)
+   (:reference om-random)
    (:group-id nil)
    (:name "om-random")
    (:x 157)
@@ -279,6 +275,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -291,8 +288,8 @@
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 11))
   (:box
-   (:reference list)
    (:type :function)
+   (:reference list)
    (:group-id nil)
    (:name "list")
    (:x 185)
@@ -304,6 +301,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -316,16 +314,8 @@
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 12))
   (:box
-   (:reference
-    (:object
-     (:class repeater)
-     (:slots
-      ((:name "repeat-n")
-       (:protected-p nil)
-       (:icon nil)
-       (:n-iter 3)
-       (:scope :local)))))
    (:type :special)
+   (:reference repeat-n)
    (:group-id nil)
    (:name "repeat-n")
    (:x 184)
@@ -343,15 +333,19 @@
    (:inputs
     (:input
      (:type :standard)
-     (:name "program to repeat")
+     (:name "self")
      (:value nil)
      (:reactive nil))
-    (:input (:type :standard) (:name "n") (:value 0) (:reactive nil)))
+    (:input
+     (:type :standard)
+     (:name "num")
+     (:value 0)
+     (:reactive nil)))
    (:outputs (:output (:name "collected results") (:reactive nil)))
    (:id 13))
   (:box
-   (:reference fixnum)
    (:type :value)
+   (:reference fixnum)
    (:group-id nil)
    (:name "value box")
    (:x 240)
@@ -403,8 +397,8 @@ Note: see also the \"Auto eval-once\" option in Preferences.")
    (:text "<= switch :local / :global here")
    (:id 16))
   (:box
-   (:reference cons)
    (:type :value)
+   (:reference cons)
    (:group-id nil)
    (:name "value box")
    (:x 152)
@@ -438,10 +432,7 @@ Note: see also the \"Auto eval-once\" option in Preferences.")
    (:to (:box 4 :in 1))
    (:attributes
     (:color (:color 0.2 0.4 0.5 1.0) :style nil :modif nil)))
-  (:connection
-   (:from (:box 3 :out 0))
-   (:to (:box 0 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
+  (:connection (:from (:box 3 :out 0)) (:to (:box 0 :in 0)))
   (:connection
    (:from (:box 4 :out 0))
    (:to (:box 3 :in 0))
@@ -452,27 +443,15 @@ Note: see also the \"Auto eval-once\" option in Preferences.")
    (:to (:box 3 :in 2))
    (:attributes
     (:color (:color 0.2 0.4 0.5 1.0) :style nil :modif nil)))
-  (:connection
-   (:from (:box 4 :out 0))
-   (:to (:box 5 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 4 :out 0))
-   (:to (:box 5 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 5 :out 0))
-   (:to (:box 6 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
+  (:connection (:from (:box 4 :out 0)) (:to (:box 5 :in 0)))
+  (:connection (:from (:box 4 :out 0)) (:to (:box 5 :in 1)))
+  (:connection (:from (:box 5 :out 0)) (:to (:box 6 :in 0)))
   (:connection
    (:from (:box 6 :out 0))
    (:to (:box 3 :in 1))
    (:attributes
     (:color (:color 0.2 0.4 0.5 1.0) :style nil :modif nil)))
-  (:connection
-   (:from (:box 7 :out 0))
-   (:to (:box 6 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
+  (:connection (:from (:box 7 :out 0)) (:to (:box 6 :in 1)))
   (:connection
    (:from (:box 9 :out 0))
    (:to (:box 11 :in 0))
@@ -483,23 +462,8 @@ Note: see also the \"Auto eval-once\" option in Preferences.")
    (:to (:box 11 :in 1))
    (:attributes
     (:color (:color 0.2 0.4 0.5 1.0) :style nil :modif nil)))
-  (:connection
-   (:from (:box 11 :out 0))
-   (:to (:box 12 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 11 :out 0))
-   (:to (:box 12 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 12 :out 0))
-   (:to (:box 13 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 13 :out 0))
-   (:to (:box 17 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 14 :out 0))
-   (:to (:box 13 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))))
+  (:connection (:from (:box 11 :out 0)) (:to (:box 12 :in 0)))
+  (:connection (:from (:box 11 :out 0)) (:to (:box 12 :in 1)))
+  (:connection (:from (:box 12 :out 0)) (:to (:box 13 :in 0)))
+  (:connection (:from (:box 13 :out 0)) (:to (:box 17 :in 0)))
+  (:connection (:from (:box 14 :out 0)) (:to (:box 13 :in 1)))))

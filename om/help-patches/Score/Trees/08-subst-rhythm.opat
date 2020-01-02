@@ -1,12 +1,13 @@
 
 (:patch
- (:om-version 0.03)
  (:name "08-subst-rhythm")
  (:doc "")
  (:info
   (:created "2019/09/24 1:37:54")
-  (:modified "2019/09/24 1:45:00"))
- (:window (:size (1001 762)) (:position (316 299)))
+  (:modified "2020/01/02 8:47:47")
+  (:by "om-sharp")
+  (:version 1.0))
+ (:window (:size (1001 762)) (:position (316 266)))
  (:grid nil)
  (:lock nil)
  (:boxes
@@ -143,6 +144,7 @@ substitutes elements in tree")
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -182,6 +184,7 @@ substitutes elements in tree")
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -221,6 +224,7 @@ substitutes elements in tree")
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -260,6 +264,7 @@ substitutes elements in tree")
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -496,11 +501,9 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "VOICE")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -554,37 +557,11 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
       ((:onset 0)
        (:duration 3999)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:name "VOICE")
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
-       (:lmidic
-        (:list
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)))
-       (:lonset (:list 800 1120 1280 1440 3200 4000))
-       (:ldur
-        (:list
-         (:list 319)
-         (:list 159)
-         (:list 159)
-         (:list 159)
-         (:list 799)))
-       (:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list (:list 0) (:list 0) (:list 0) (:list 0) (:list 0)))
-       (:lchan
-        (:list (:list 1) (:list 1) (:list 1) (:list 1) (:list 1)))
-       (:lport (:list nil nil nil nil nil))
-       (:llegato nil)
+       (:extras nil)
        (:tree
         (:list
          1
@@ -593,20 +570,21 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
            (:list 4 4)
            (:list
             (:list 4 (:list -1 (:list 1 (:list 2 1 1 1)) -2 1)))))))
-       (:tempo 60)))
-     (:add-slots
-      ((:lvel
+       (:lmidic (:list 6000))
+       (:lonset (:list 800 1120 1280 1440 3200 4000))
+       (:ldur
         (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list (:list 0) (:list 0) (:list 0) (:list 0) (:list 0)))
-       (:lchan
-        (:list (:list 1) (:list 1) (:list 1) (:list 1) (:list 1)))
-       (:lport (:list nil nil nil nil nil))))))
+         (:list 319)
+         (:list 159)
+         (:list 159)
+         (:list 159)
+         (:list 799)))
+       (:lvel (:list 100))
+       (:loffset (:list 0))
+       (:lchan (:list 1))
+       (:lport (:list nil))
+       (:llegato nil)
+       (:tempo 60)))))
    (:id 24))
   (:box
    (:type :object)
@@ -622,11 +600,9 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "VOICE")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -680,17 +656,19 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
       ((:onset 0)
        (:duration 3999)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:name "VOICE")
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
-       (:lmidic
+       (:extras nil)
+       (:tree
         (:list
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)))
+         1
+         (:list
+          (:list
+           (:list 4 4)
+           (:list 1 (:list 1 (:list 1 -2 1 1)) 1 1)))))
+       (:lmidic (:list 6000))
        (:lonset (:list 0 1000 1600 1800 2000 3000 4000))
        (:ldur
         (:list
@@ -700,66 +678,12 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
          (:list 199)
          (:list 999)
          (:list 999)))
-       (:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport (:list nil nil nil nil nil nil))
+       (:lvel (:list 100))
+       (:loffset (:list 0))
+       (:lchan (:list 1))
+       (:lport (:list nil))
        (:llegato nil)
-       (:tree
-        (:list
-         1
-         (:list
-          (:list
-           (:list 4 4)
-           (:list 1 (:list 1 (:list 1 -2 1 1)) 1 1)))))
-       (:tempo 60)))
-     (:add-slots
-      ((:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport (:list nil nil nil nil nil nil))))))
+       (:tempo 60)))))
    (:id 25))
   (:box
    (:type :object)
@@ -775,11 +699,9 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "VOICE")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -837,25 +759,34 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
      (:class voice)
      (:slots
       ((:onset 0)
-       (:duration 4039)
+       (:duration 3999)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:name "VOICE")
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
-       (:lmidic
+       (:extras nil)
+       (:tree
         (:list
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)))
+         1
+         (:list
+          (:list
+           (:list 4 4)
+           (:list
+            (:list
+             4
+             (:list
+              (:list 1 (:list 1 1 1))
+              (:list
+               1
+               (:list
+                (:list 1 (:list 1 7))
+                (:list 2 (:list 1 2))
+                (:list 1 (:list 3 2))
+                (:list 1 (:list 4 1.0))))
+              1
+              1)))))))
+       (:lmidic (:list 6000))
        (:lonset
         (:list
          0
@@ -883,118 +814,14 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
          (:list 119)
          (:list 79)
          (:list 199)
-         (:list 1039)
-         (:list 1039)))
-       (:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport (:list nil nil nil nil nil nil nil nil nil nil nil nil))
+         (:list 999)
+         (:list 999)))
+       (:lvel (:list 100))
+       (:loffset (:list 0))
+       (:lchan (:list 1))
+       (:lport (:list nil))
        (:llegato nil)
-       (:tree
-        (:list
-         1
-         (:list
-          (:list
-           (:list 4 4)
-           (:list
-            (:list
-             4
-             (:list
-              (:list 1 (:list 1 1 1))
-              (:list
-               1
-               (:list
-                (:list 1 (:list 1 7))
-                (:list 2 (:list 1 2))
-                (:list 1 (:list 3 2))
-                (:list 1 (:list 4 1.0))))
-              1
-              1)))))))
-       (:tempo 60)))
-     (:add-slots
-      ((:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport
-        (:list nil nil nil nil nil nil nil nil nil nil nil nil))))))
+       (:tempo 60)))))
    (:id 26))
   (:box
    (:type :value)
@@ -1030,11 +857,9 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "VOICE")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -1088,17 +913,19 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
       ((:onset 0)
        (:duration 3999)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:name "VOICE")
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
-       (:lmidic
+       (:extras nil)
+       (:tree
         (:list
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)))
+         1
+         (:list
+          (:list
+           (:list 4 4)
+           (:list 1 (:list 1 (:list 1 -2 1 1)) 1 1)))))
+       (:lmidic (:list 6000))
        (:lonset (:list 0 1000 1600 1800 2000 3000 4000))
        (:ldur
         (:list
@@ -1108,66 +935,12 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
          (:list 199)
          (:list 999)
          (:list 999)))
-       (:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport (:list nil nil nil nil nil nil))
+       (:lvel (:list 100))
+       (:loffset (:list 0))
+       (:lchan (:list 1))
+       (:lport (:list nil))
        (:llegato nil)
-       (:tree
-        (:list
-         1
-         (:list
-          (:list
-           (:list 4 4)
-           (:list 1 (:list 1 (:list 1 -2 1 1)) 1 1)))))
-       (:tempo 60)))
-     (:add-slots
-      ((:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport (:list nil nil nil nil nil nil))))))
+       (:tempo 60)))))
    (:id 28))
   (:box
    (:type :object)
@@ -1183,11 +956,9 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "VOICE")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -1241,17 +1012,19 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
       ((:onset 0)
        (:duration 3999)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:name "VOICE")
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
-       (:lmidic
+       (:extras nil)
+       (:tree
         (:list
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)))
+         1
+         (:list
+          (:list
+           (:list 4 4)
+           (:list 1 (:list 1 (:list 1 -2 1 1)) 1 1)))))
+       (:lmidic (:list 6000))
        (:lonset (:list 0 1000 1600 1800 2000 3000 4000))
        (:ldur
         (:list
@@ -1261,66 +1034,12 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
          (:list 199)
          (:list 999)
          (:list 999)))
-       (:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport (:list nil nil nil nil nil nil))
+       (:lvel (:list 100))
+       (:loffset (:list 0))
+       (:lchan (:list 1))
+       (:lport (:list nil))
        (:llegato nil)
-       (:tree
-        (:list
-         1
-         (:list
-          (:list
-           (:list 4 4)
-           (:list 1 (:list 1 (:list 1 -2 1 1)) 1 1)))))
-       (:tempo 60)))
-     (:add-slots
-      ((:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport (:list nil nil nil nil nil nil))))))
+       (:tempo 60)))))
    (:id 29))
   (:box
    (:type :object)
@@ -1336,11 +1055,9 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "VOICE")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1407,29 +1124,38 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
      (:class voice)
      (:slots
       ((:onset 0)
-       (:duration 8132)
+       (:duration 7999)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:name "VOICE")
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
-       (:lmidic
+       (:extras nil)
+       (:tree
         (:list
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)))
+         2
+         (:list
+          (:list
+           (:list 4 4)
+           (:list
+            (:list
+             4
+             (:list
+              2
+              (:list 1 (:list 1 -2 1 1))
+              (:list 1 (:list 1 -1 1))
+              (:list 1 (:list 3 2))))))
+          (:list
+           (:list 4 4)
+           (:list
+            (:list
+             4
+             (:list
+              1
+              (:list 1 (:list 1 (:list 2 (:list 1.0 1 -1)) 1 1))
+              -1
+              (:list 1 (:list 1 1 -2 1)))))))))
+       (:lmidic (:list 6000))
        (:lonset
         (:list
          0
@@ -1461,183 +1187,18 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
          (:list 319)
          (:list 999)
          (:list 332)
-         (:list 266)
-         (:list 332)
-         (:list 332)
-         (:list 332)
-         (:list 332)
-         (:list 332)))
-       (:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport
-        (:list
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil))
+         (:list 133)
+         (:list 199)
+         (:list 199)
+         (:list 199)
+         (:list 199)
+         (:list 199)))
+       (:lvel (:list 100))
+       (:loffset (:list 0))
+       (:lchan (:list 1))
+       (:lport (:list nil))
        (:llegato nil)
-       (:tree
-        (:list
-         2
-         (:list
-          (:list
-           (:list 4 4)
-           (:list
-            (:list
-             4
-             (:list
-              2
-              (:list 1 (:list 1 -2 1 1))
-              (:list 1 (:list 1 -1 1))
-              (:list 1 (:list 3 2))))))
-          (:list
-           (:list 4 4)
-           (:list
-            (:list
-             4
-             (:list
-              1
-              (:list 1 (:list 1 (:list 2 (:list 1.0 1 -1)) 1 1))
-              -1
-              (:list 1 (:list 1 1 -2 1)))))))))
-       (:tempo 60)))
-     (:add-slots
-      ((:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport
-        (:list
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil))))))
+       (:tempo 60)))))
    (:id 30))
   (:box
    (:type :object)
@@ -1653,11 +1214,9 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "VOICE")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -1718,23 +1277,20 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
       ((:onset 0)
        (:duration 7999)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:name "VOICE")
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
-       (:lmidic
+       (:extras nil)
+       (:tree
         (:list
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)))
+         2
+         (:list
+          (:list (:list 4 4) (:list 1 (:list 1 (:list 1 -2 1 1)) 1 1))
+          (:list
+           (:list 4 4)
+           (:list 1 (:list 1 (:list 1 2 1 1)) -1 1)))))
+       (:lmidic (:list 6000))
        (:lonset
         (:list
          0
@@ -1764,104 +1320,12 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
          (:list 199)
          (:list 199)
          (:list 999)))
-       (:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport (:list nil nil nil nil nil nil nil nil nil nil nil nil))
+       (:lvel (:list 100))
+       (:loffset (:list 0))
+       (:lchan (:list 1))
+       (:lport (:list nil))
        (:llegato nil)
-       (:tree
-        (:list
-         2
-         (:list
-          (:list (:list 4 4) (:list 1 (:list 1 (:list 1 -2 1 1)) 1 1))
-          (:list
-           (:list 4 4)
-           (:list 1 (:list 1 (:list 1 2 1 1)) -1 1)))))
-       (:tempo 60)))
-     (:add-slots
-      ((:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport
-        (:list nil nil nil nil nil nil nil nil nil nil nil nil))))))
+       (:tempo 60)))))
    (:id 31))
   (:box
    (:type :object)
@@ -1877,11 +1341,9 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "VOICE")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1938,80 +1400,13 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
      (:class voice)
      (:slots
       ((:onset 0)
-       (:duration 4066)
+       (:duration 3999)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:name "VOICE")
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
-       (:lmidic
-        (:list
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)))
-       (:lonset
-        (:list 0 333 667 1000 1467 1511 1600 1640 1667 2000 3000 4000))
-       (:ldur
-        (:list
-         (:list 332)
-         (:list 333)
-         (:list 332)
-         (:list 466)
-         (:list 43)
-         (:list 88)
-         (:list 39)
-         (:list 26)
-         (:list 332)
-         (:list 1066)
-         (:list 1066)))
-       (:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport (:list nil nil nil nil nil nil nil nil nil nil nil))
-       (:llegato nil)
+       (:extras nil)
        (:tree
         (:list
          1
@@ -2033,48 +1428,28 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
                 1.0))
               1
               1)))))))
-       (:tempo 60)))
-     (:add-slots
-      ((:lvel
+       (:lmidic (:list 6000))
+       (:lonset
+        (:list 0 333 667 1000 1467 1511 1600 1640 1667 2000 3000 4000))
+       (:ldur
         (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport (:list nil nil nil nil nil nil nil nil nil nil nil))))))
+         (:list 332)
+         (:list 333)
+         (:list 332)
+         (:list 466)
+         (:list 43)
+         (:list 88)
+         (:list 39)
+         (:list 26)
+         (:list 332)
+         (:list 999)
+         (:list 999)))
+       (:lvel (:list 100))
+       (:loffset (:list 0))
+       (:lchan (:list 1))
+       (:lport (:list nil))
+       (:llegato nil)
+       (:tempo 60)))))
    (:id 32))
   (:box
    (:type :value)
@@ -2117,67 +1492,19 @@ creating groups . For example a list (1 1 1) substituting 2 will yield (2 (1 1 1
    (:value (:list (:list 1 1 1) 7 (:list 1 2) (:list 3 2) 5))
    (:id 34)))
  (:connections
-  (:connection
-   (:from (:box 9 :out 0))
-   (:to (:box 30 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 10 :out 0))
-   (:to (:box 26 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 11 :out 0))
-   (:to (:box 32 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 12 :out 0))
-   (:to (:box 24 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 19 :out 0))
-   (:to (:box 9 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 20 :out 0))
-   (:to (:box 9 :in 2))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 21 :out 0))
-   (:to (:box 12 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 22 :out 0))
-   (:to (:box 12 :in 2))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 23 :out 0))
-   (:to (:box 10 :in 2))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 25 :out 1))
-   (:to (:box 12 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 27 :out 0))
-   (:to (:box 10 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 28 :out 1))
-   (:to (:box 10 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 29 :out 1))
-   (:to (:box 11 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 31 :out 1))
-   (:to (:box 9 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 33 :out 0))
-   (:to (:box 11 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 34 :out 0))
-   (:to (:box 11 :in 2))
-   (:attributes (:color nil :style nil :modif nil)))))
+  (:connection (:from (:box 9 :out 0)) (:to (:box 30 :in 1)))
+  (:connection (:from (:box 10 :out 0)) (:to (:box 26 :in 1)))
+  (:connection (:from (:box 11 :out 0)) (:to (:box 32 :in 1)))
+  (:connection (:from (:box 12 :out 0)) (:to (:box 24 :in 1)))
+  (:connection (:from (:box 19 :out 0)) (:to (:box 9 :in 1)))
+  (:connection (:from (:box 20 :out 0)) (:to (:box 9 :in 2)))
+  (:connection (:from (:box 21 :out 0)) (:to (:box 12 :in 1)))
+  (:connection (:from (:box 22 :out 0)) (:to (:box 12 :in 2)))
+  (:connection (:from (:box 23 :out 0)) (:to (:box 10 :in 2)))
+  (:connection (:from (:box 25 :out 1)) (:to (:box 12 :in 0)))
+  (:connection (:from (:box 27 :out 0)) (:to (:box 10 :in 1)))
+  (:connection (:from (:box 28 :out 1)) (:to (:box 10 :in 0)))
+  (:connection (:from (:box 29 :out 1)) (:to (:box 11 :in 0)))
+  (:connection (:from (:box 31 :out 1)) (:to (:box 9 :in 0)))
+  (:connection (:from (:box 33 :out 0)) (:to (:box 11 :in 1)))
+  (:connection (:from (:box 34 :out 0)) (:to (:box 11 :in 2)))))

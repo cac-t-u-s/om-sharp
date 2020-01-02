@@ -1,11 +1,12 @@
 
 (:patch
- (:om-version 0.04)
  (:name "midi-filters")
  (:doc "")
  (:info
   (:created "2019/09/28 21:56:52")
-  (:modified "2019/09/30 14:57:47"))
+  (:modified "2020/01/02 8:46:30")
+  (:by "om-sharp")
+  (:version 1.0))
  (:window (:size (1247 767)) (:position (200 236)))
  (:grid nil)
  (:lock nil)
@@ -24,6 +25,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -50,7 +52,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -70,10 +72,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "TEXTFILE")
    (:display :mini-view)
    (:showname nil)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -831,7 +831,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -849,7 +849,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -886,7 +886,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -908,6 +908,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -937,11 +938,9 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "tunesia-short.mid")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -42906,7 +42905,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -42923,7 +42922,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 18.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "MidiEvent Filters ")
@@ -42942,6 +42941,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda :lambda)
    (:inputs
@@ -42971,11 +42971,9 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name nil)
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -54701,6 +54699,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda :lambda)
    (:inputs
@@ -54715,10 +54714,9 @@
    (:type :abstraction)
    (:reference
     (:patch
-     (:om-version 0.04)
      (:name "more-complex-test-func")
      (:doc "")
-     (:info (:created nil) (:modified nil))
+     (:info (:created nil) (:modified nil) (:by nil) (:version nil))
      (:window (:size (709 444)) (:position (378 391)))
      (:grid nil)
      (:lock nil)
@@ -54807,6 +54805,7 @@ AND
        (:roundness nil)
        (:text-font nil)
        (:align nil)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -54858,6 +54857,7 @@ AND
        (:roundness nil)
        (:text-font nil)
        (:align nil)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -54887,6 +54887,7 @@ AND
        (:roundness nil)
        (:text-font nil)
        (:align nil)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -54911,6 +54912,7 @@ AND
        (:roundness nil)
        (:text-font nil)
        (:align nil)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -54940,7 +54942,6 @@ AND
        (:roundness nil)
        (:text-font nil)
        (:align :left)
-       (:group-id nil)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -55016,6 +55017,7 @@ AND
        (:roundness nil)
        (:text-font nil)
        (:align nil)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -55045,6 +55047,7 @@ AND
        (:roundness nil)
        (:text-font nil)
        (:align nil)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -55061,50 +55064,17 @@ AND
        (:outputs (:output (:name "out") (:reactive nil)))
        (:id 12)))
      (:connections
-      (:connection
-       (:from (:box 0 :out 0))
-       (:to (:box 8 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 0 :out 0))
-       (:to (:box 12 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 0 :out 0))
-       (:to (:box 11 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 3 :out 0))
-       (:to (:box 1 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 4 :out 0))
-       (:to (:box 5 :in 1))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 5 :out 0))
-       (:to (:box 3 :in 1))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 6 :out 0))
-       (:to (:box 5 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 7 :out 0))
-       (:to (:box 3 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 8 :out 4))
-       (:to (:box 6 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 11 :out 0))
-       (:to (:box 7 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 12 :out 0))
-       (:to (:box 7 :in 1))
-       (:attributes (:color nil :style nil :modif nil))))))
+      (:connection (:from (:box 0 :out 0)) (:to (:box 8 :in 0)))
+      (:connection (:from (:box 0 :out 0)) (:to (:box 12 :in 0)))
+      (:connection (:from (:box 0 :out 0)) (:to (:box 11 :in 0)))
+      (:connection (:from (:box 3 :out 0)) (:to (:box 1 :in 0)))
+      (:connection (:from (:box 4 :out 0)) (:to (:box 5 :in 1)))
+      (:connection (:from (:box 5 :out 0)) (:to (:box 3 :in 1)))
+      (:connection (:from (:box 6 :out 0)) (:to (:box 5 :in 0)))
+      (:connection (:from (:box 7 :out 0)) (:to (:box 3 :in 0)))
+      (:connection (:from (:box 8 :out 4)) (:to (:box 6 :in 0)))
+      (:connection (:from (:box 11 :out 0)) (:to (:box 7 :in 0)))
+      (:connection (:from (:box 12 :out 0)) (:to (:box 7 :in 1))))))
    (:group-id nil)
    (:name "more-complex-test-func")
    (:x 503)
@@ -55117,7 +55087,6 @@ AND
    (:text-font nil)
    (:align :center)
    (:display :mini-view)
-   (:group-id nil)
    (:lock nil)
    (:lambda :lambda)
    (:pre-delay 0)
@@ -55130,31 +55099,10 @@ AND
    (:outputs (:output (:name "output") (:reactive nil)))
    (:id 14)))
  (:connections
-  (:connection
-   (:from (:box 0 :out 0))
-   (:to (:box 2 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 5 :out 0))
-   (:to (:box 11 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 7 :out 0))
-   (:to (:box 0 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 7 :out 0))
-   (:to (:box 12 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 8 :out 0))
-   (:to (:box 7 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 11 :out 0))
-   (:to (:box 7 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 13 :out 0))
-   (:to (:box 0 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))))
+  (:connection (:from (:box 0 :out 0)) (:to (:box 2 :in 1)))
+  (:connection (:from (:box 5 :out 0)) (:to (:box 11 :in 1)))
+  (:connection (:from (:box 7 :out 0)) (:to (:box 0 :in 1)))
+  (:connection (:from (:box 7 :out 0)) (:to (:box 12 :in 1)))
+  (:connection (:from (:box 8 :out 0)) (:to (:box 7 :in 0)))
+  (:connection (:from (:box 11 :out 0)) (:to (:box 7 :in 1)))
+  (:connection (:from (:box 13 :out 0)) (:to (:box 0 :in 0)))))

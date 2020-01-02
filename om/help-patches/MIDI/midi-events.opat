@@ -1,12 +1,13 @@
 
 (:patch
- (:om-version 0.04)
  (:name "midi-events")
  (:doc "")
  (:info
   (:created "2019/09/28 15:18:28")
-  (:modified "2019/09/30 15:09:37"))
- (:window (:size (1239 907)) (:position (579 132)))
+  (:modified "2020/01/02 8:46:27")
+  (:by "om-sharp")
+  (:version 1.0))
+ (:window (:size (1239 907)) (:position (441 121)))
  (:grid nil)
  (:lock nil)
  (:boxes
@@ -24,10 +25,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "MIDIEVENT 2")
    (:display :text)
    (:showname nil)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -93,10 +92,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "MIDIEVENT 2")
    (:display :text)
    (:showname nil)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -152,10 +149,9 @@
    (:type :abstraction)
    (:reference
     (:maquette
-     (:om-version 0.04)
      (:name "maquette")
      (:doc "")
-     (:info (:created nil) (:modified nil))
+     (:info (:created nil) (:modified nil) (:by nil) (:version nil))
      (:window (:size (1175 586)) (:position (88 126)))
      (:grid nil)
      (:lock nil)
@@ -174,11 +170,9 @@
        (:roundness nil)
        (:text-font nil)
        (:align :center)
-       (:name nil)
        (:display :mini-view)
        (:showname nil)
        (:show-markers t)
-       (:group-id 1)
        (:lock :locked)
        (:lambda nil)
        (:inputs
@@ -222,9 +216,11 @@
           ((:onset 100)
            (:duration 10000)
            (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+           (:name "CHORD-SEQ")
            (:symbolic-date nil)
            (:symbolic-dur nil)
            (:symbolic-dur-extent 0)
+           (:extras nil)
            (:lmidic
             (:list
              (:list 6000)
@@ -250,82 +246,11 @@
              8000
              9000
              10000))
-           (:ldur
-            (:list
-             (:list 1000)
-             (:list 1000)
-             (:list 1000)
-             (:list 1000)
-             (:list 1000)
-             (:list 1000)
-             (:list 1000)
-             (:list 1000)
-             (:list 1000)
-             (:list 1000)))
-           (:lvel
-            (:list
-             (:list 90)
-             (:list 90)
-             (:list 90)
-             (:list 90)
-             (:list 90)
-             (:list 90)
-             (:list 90)
-             (:list 90)
-             (:list 90)
-             (:list 90)))
-           (:loffset
-            (:list
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)))
-           (:lchan
-            (:list
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)))
-           (:lport (:list nil nil nil nil nil nil nil nil nil nil))
-           (:llegato nil)))
-         (:add-slots
-          ((:loffset
-            (:list
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)))
-           (:lchan
-            (:list
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)))
-           (:lport (:list nil nil nil nil nil nil nil nil nil nil))
+           (:ldur (:list 1000))
+           (:lvel (:list 90))
+           (:loffset (:list 0))
+           (:lchan (:list 1))
+           (:lport (:list nil))
            (:llegato nil)))))
        (:value
         (:object
@@ -334,9 +259,11 @@
           ((:onset 100)
            (:duration 10000)
            (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+           (:name "CHORD-SEQ")
            (:symbolic-date nil)
            (:symbolic-dur nil)
            (:symbolic-dur-extent 0)
+           (:extras nil)
            (:lmidic
             (:list
              (:list 6000)
@@ -362,82 +289,11 @@
              8000
              9000
              10000))
-           (:ldur
-            (:list
-             (:list 1000)
-             (:list 1000)
-             (:list 1000)
-             (:list 1000)
-             (:list 1000)
-             (:list 1000)
-             (:list 1000)
-             (:list 1000)
-             (:list 1000)
-             (:list 1000)))
-           (:lvel
-            (:list
-             (:list 90)
-             (:list 90)
-             (:list 90)
-             (:list 90)
-             (:list 90)
-             (:list 90)
-             (:list 90)
-             (:list 90)
-             (:list 90)
-             (:list 90)))
-           (:loffset
-            (:list
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)))
-           (:lchan
-            (:list
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)))
-           (:lport (:list nil nil nil nil nil nil nil nil nil nil))
-           (:llegato nil)))
-         (:add-slots
-          ((:loffset
-            (:list
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)
-             (:list 0)))
-           (:lchan
-            (:list
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)
-             (:list 1)))
-           (:lport (:list nil nil nil nil nil nil nil nil nil nil))
+           (:ldur (:list 1000))
+           (:lvel (:list 90))
+           (:loffset (:list 0))
+           (:lchan (:list 1))
+           (:lport (:list nil))
            (:llegato nil)))))
        (:id 0))
       (:box
@@ -454,10 +310,8 @@
        (:roundness nil)
        (:text-font nil)
        (:align :center)
-       (:name nil)
        (:display :text)
        (:showname nil)
-       (:group-id 2)
        (:lock :locked)
        (:lambda nil)
        (:inputs
@@ -537,10 +391,8 @@
        (:roundness nil)
        (:text-font nil)
        (:align :center)
-       (:name nil)
        (:display :text)
        (:showname nil)
-       (:group-id 3)
        (:lock :locked)
        (:lambda nil)
        (:inputs
@@ -610,10 +462,9 @@
      (:range (:x1 0 :x2 10100 :y1 -10 :y2 110))
      (:control-patch
       (:patch
-       (:om-version 0.04)
        (:name "Control Patch")
        (:doc "")
-       (:info (:created nil) (:modified nil))
+       (:info (:created nil) (:modified nil) (:by nil) (:version nil))
        (:window (:size nil) (:position nil))
        (:grid nil)
        (:lock nil)
@@ -689,14 +540,10 @@ Additional inputs/outputs are accesses on the maquette box.
 ")
          (:id 2)))
        (:connections
-        (:connection
-         (:from (:box 0 :out 0))
-         (:to (:box 1 :in 0))
-         (:attributes (:color nil :style nil :modif nil)))
-        (:connection
-         (:from (:box 0 :out 0))
-         (:to (:box 1 :in 0))
-         (:attributes (:color nil :style nil :modif nil))))))))
+        (:connection (:from (:box 0 :out 0)) (:to (:box 1 :in 0)))
+        (:connection (:from (:box 0 :out 0)) (:to (:box 1 :in 0))))))
+     (:loop-interval nil)
+     (:loop-on nil)))
    (:group-id nil)
    (:name "maquette")
    (:x 459)
@@ -709,7 +556,6 @@ Additional inputs/outputs are accesses on the maquette box.
    (:text-font nil)
    (:align :center)
    (:display :mini-view)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:pre-delay 0)
@@ -740,6 +586,7 @@ Additional inputs/outputs are accesses on the maquette box.
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -764,6 +611,7 @@ Additional inputs/outputs are accesses on the maquette box.
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -788,6 +636,7 @@ Additional inputs/outputs are accesses on the maquette box.
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -809,7 +658,7 @@ Additional inputs/outputs are accesses on the maquette box.
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 13.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 13) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -849,6 +698,7 @@ Additional inputs/outputs are accesses on the maquette box.
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -875,11 +725,9 @@ Additional inputs/outputs are accesses on the maquette box.
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "CHORD-SEQ")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -937,9 +785,11 @@ Additional inputs/outputs are accesses on the maquette box.
       ((:onset 100)
        (:duration 10000)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:name "CHORD-SEQ")
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
+       (:extras nil)
        (:lmidic
         (:list
          (:list 6000)
@@ -954,82 +804,11 @@ Additional inputs/outputs are accesses on the maquette box.
          (:list 7500)))
        (:lonset
         (:list 0 1000 2000 3000 4000 5000 6000 7000 8000 9000 10000))
-       (:ldur
-        (:list
-         (:list 1000)
-         (:list 1000)
-         (:list 1000)
-         (:list 1000)
-         (:list 1000)
-         (:list 1000)
-         (:list 1000)
-         (:list 1000)
-         (:list 1000)
-         (:list 1000)))
-       (:lvel
-        (:list
-         (:list 90)
-         (:list 90)
-         (:list 90)
-         (:list 90)
-         (:list 90)
-         (:list 90)
-         (:list 90)
-         (:list 90)
-         (:list 90)
-         (:list 90)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport (:list nil nil nil nil nil nil nil nil nil nil))
-       (:llegato nil)))
-     (:add-slots
-      ((:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport (:list nil nil nil nil nil nil nil nil nil nil))
+       (:ldur (:list 1000))
+       (:lvel (:list 90))
+       (:loffset (:list 0))
+       (:lchan (:list 1))
+       (:lport (:list nil))
        (:llegato nil)))))
    (:id 9))
   (:comment
@@ -1043,7 +822,7 @@ Additional inputs/outputs are accesses on the maquette box.
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 13.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 13) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -1061,7 +840,7 @@ Change program of a channel while playing a maquette ")
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 13.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 13) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "Construct a MidiEvent object :")
@@ -1077,7 +856,7 @@ Change program of a channel while playing a maquette ")
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 13.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 13) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text "A Chord-seq and two program change events -->")
@@ -1093,7 +872,7 @@ Change program of a channel while playing a maquette ")
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 13.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 13) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -1111,7 +890,7 @@ MidiEvent must be evaluated before sending.")
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 13.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 13) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -1141,7 +920,7 @@ MidiEvent must be evaluated before sending.")
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 13.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 13) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -1202,6 +981,7 @@ MidiEvent must be evaluated before sending.")
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1233,7 +1013,7 @@ MidiEvent must be evaluated before sending.")
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 13.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 13) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text "Change PitchBend for a channel")
@@ -1292,6 +1072,7 @@ MidiEvent must be evaluated before sending.")
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1318,7 +1099,7 @@ MidiEvent must be evaluated before sending.")
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 13.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 13) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text "Change volume for a channel")
@@ -1377,6 +1158,7 @@ MidiEvent must be evaluated before sending.")
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1403,7 +1185,7 @@ MidiEvent must be evaluated before sending.")
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 13.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 13) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text "Change Midi program (instrument) for a channel")
@@ -1442,6 +1224,7 @@ MidiEvent must be evaluated before sending.")
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1468,7 +1251,7 @@ MidiEvent must be evaluated before sending.")
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 13.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 13) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -1485,7 +1268,7 @@ MidiEvent must be evaluated before sending.")
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 18.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "Using MIDI events")
@@ -1504,6 +1287,7 @@ MidiEvent must be evaluated before sending.")
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1588,11 +1372,9 @@ MidiEvent must be evaluated before sending.")
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name nil)
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1636,13 +1418,13 @@ MidiEvent must be evaluated before sending.")
       ((:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
+       (:extras nil)
        (:midic 6000)
        (:vel 80)
        (:dur 1000)
        (:chan 1)
        (:port nil)
-       (:offset 0)))
-     (:add-slots ((:port nil)))))
+       (:offset 0)))))
    (:id 37))
   (:comment
    (:x 723)
@@ -1655,7 +1437,7 @@ MidiEvent must be evaluated before sending.")
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 13.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 13) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -1676,6 +1458,7 @@ MidiEvent must be evaluated before sending.")
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1687,87 +1470,24 @@ MidiEvent must be evaluated before sending.")
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 39)))
  (:connections
-  (:connection
-   (:from (:box 0 :out 0))
-   (:to (:box 8 :in 2))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 1 :out 0))
-   (:to (:box 8 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 3 :out 0))
-   (:to (:box 30 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 4 :out 0))
-   (:to (:box 0 :in 4))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 5 :out 0))
-   (:to (:box 1 :in 4))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 7 :out 0))
-   (:to (:box 2 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 8 :out 0))
-   (:to (:box 2 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 9 :out 0))
-   (:to (:box 8 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 17 :out 0))
-   (:to (:box 19 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 18 :out 0))
-   (:to (:box 19 :in 2))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 21 :out 0))
-   (:to (:box 23 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 22 :out 0))
-   (:to (:box 23 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 25 :out 0))
-   (:to (:box 27 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 26 :out 0))
-   (:to (:box 27 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 29 :out 0))
-   (:to (:box 30 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 33 :out 0))
-   (:to (:box 0 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 33 :out 0))
-   (:to (:box 1 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 34 :out 0))
-   (:to (:box 4 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 35 :out 0))
-   (:to (:box 5 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 36 :out 0))
-   (:to (:box 37 :in 4))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 39 :out 0))
-   (:to (:box 19 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))))
+  (:connection (:from (:box 0 :out 0)) (:to (:box 8 :in 2)))
+  (:connection (:from (:box 1 :out 0)) (:to (:box 8 :in 1)))
+  (:connection (:from (:box 3 :out 0)) (:to (:box 30 :in 0)))
+  (:connection (:from (:box 4 :out 0)) (:to (:box 0 :in 4)))
+  (:connection (:from (:box 5 :out 0)) (:to (:box 1 :in 4)))
+  (:connection (:from (:box 7 :out 0)) (:to (:box 2 :in 0)))
+  (:connection (:from (:box 8 :out 0)) (:to (:box 2 :in 1)))
+  (:connection (:from (:box 9 :out 0)) (:to (:box 8 :in 0)))
+  (:connection (:from (:box 17 :out 0)) (:to (:box 19 :in 1)))
+  (:connection (:from (:box 18 :out 0)) (:to (:box 19 :in 2)))
+  (:connection (:from (:box 21 :out 0)) (:to (:box 23 :in 0)))
+  (:connection (:from (:box 22 :out 0)) (:to (:box 23 :in 1)))
+  (:connection (:from (:box 25 :out 0)) (:to (:box 27 :in 0)))
+  (:connection (:from (:box 26 :out 0)) (:to (:box 27 :in 1)))
+  (:connection (:from (:box 29 :out 0)) (:to (:box 30 :in 1)))
+  (:connection (:from (:box 33 :out 0)) (:to (:box 0 :in 1)))
+  (:connection (:from (:box 33 :out 0)) (:to (:box 1 :in 1)))
+  (:connection (:from (:box 34 :out 0)) (:to (:box 4 :in 0)))
+  (:connection (:from (:box 35 :out 0)) (:to (:box 5 :in 0)))
+  (:connection (:from (:box 36 :out 0)) (:to (:box 37 :in 4)))
+  (:connection (:from (:box 39 :out 0)) (:to (:box 19 :in 0)))))

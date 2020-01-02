@@ -1,11 +1,12 @@
 
 (:patch
- (:om-version 0.03)
  (:name "04-sdif-classes")
  (:doc "")
  (:info
   (:created "2019/09/23 11:58:39")
-  (:modified "2019/09/23 12:10:02"))
+  (:modified "2020/01/02 8:48:15")
+  (:by "om-sharp")
+  (:version 1.0))
  (:window (:size (1174 666)) (:position (429 91)))
  (:grid nil)
  (:lock nil)
@@ -38,7 +39,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 18.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "SDIFFRAME")
@@ -57,10 +58,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "SDIFFRAME")
    (:display :text)
    (:showname nil)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -122,7 +121,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 18.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "SDIFMATRIX")
@@ -138,7 +137,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 18.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "SDIFTYPE")
@@ -155,7 +154,7 @@
    (:text-font
     (:font-or-nil
      (:font
-      (:font (:face "Calibri") (:size 12.0D0) (:style :bold :italic)))
+      (:font (:face "Calibri") (:size 12) (:style :bold :italic)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -231,7 +230,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 24.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 24) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "SDIF Classes")
@@ -250,10 +249,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "SDIFTYPE")
    (:display :text)
    (:showname nil)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -326,10 +323,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "SDIFTYPE")
    (:display :text)
    (:showname nil)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -383,10 +378,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "SDIFMATRIX1")
    (:display :mini-view)
    (:showname nil)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -427,8 +420,7 @@
          (:list 1.0 2.0 4.0 9.0 7.0)
          (:list 2.0 4.0 9.0 7.0 8.0)
          (:list 1.0 2.0 7.0 12.0 15)))
-       (:matrixtype "XMAT")))
-     (:add-slots ((:field-names (:list "f1" "f2" "f3"))))))
+       (:matrixtype "XMAT")))))
    (:id 14))
   (:box
    (:type :value)
@@ -615,43 +607,13 @@
      (:list 1.0 2.0 7.0 12.0 15)))
    (:id 23)))
  (:connections
-  (:connection
-   (:from (:box 12 :out 0))
-   (:to (:box 14 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 15 :out 0))
-   (:to (:box 14 :in 3))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 16 :out 0))
-   (:to (:box 11 :in 3))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 17 :out 0))
-   (:to (:box 11 :in 2))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 18 :out 0))
-   (:to (:box 11 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 19 :out 0))
-   (:to (:box 13 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 20 :out 0))
-   (:to (:box 13 :in 2))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 21 :out 0))
-   (:to (:box 13 :in 3))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 22 :out 0))
-   (:to (:box 2 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 23 :out 0))
-   (:to (:box 14 :in 2))
-   (:attributes (:color nil :style nil :modif nil)))))
+  (:connection (:from (:box 12 :out 0)) (:to (:box 14 :in 1)))
+  (:connection (:from (:box 15 :out 0)) (:to (:box 14 :in 3)))
+  (:connection (:from (:box 16 :out 0)) (:to (:box 11 :in 3)))
+  (:connection (:from (:box 17 :out 0)) (:to (:box 11 :in 2)))
+  (:connection (:from (:box 18 :out 0)) (:to (:box 11 :in 1)))
+  (:connection (:from (:box 19 :out 0)) (:to (:box 13 :in 1)))
+  (:connection (:from (:box 20 :out 0)) (:to (:box 13 :in 2)))
+  (:connection (:from (:box 21 :out 0)) (:to (:box 13 :in 3)))
+  (:connection (:from (:box 22 :out 0)) (:to (:box 2 :in 1)))
+  (:connection (:from (:box 23 :out 0)) (:to (:box 14 :in 2)))))

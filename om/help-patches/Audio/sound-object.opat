@@ -1,12 +1,13 @@
 
 (:patch
- (:om-version 0.03)
  (:name "sound-object")
  (:doc "")
  (:info
   (:created "2019/09/23 9:03:37")
-  (:modified "2019/09/23 10:44:30"))
- (:window (:size (1101 673)) (:position (740 209)))
+  (:modified "2020/01/02 8:45:59")
+  (:by "om-sharp")
+  (:version 1.0))
+ (:window (:size (1101 673)) (:position (579 209)))
  (:grid nil)
  (:lock nil)
  (:boxes
@@ -24,11 +25,9 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name nil)
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -46,10 +45,6 @@
      (:slots
       ((:onset 0)
        (:duration 0)
-       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
-       (:default-frame-type marker-frame)
-       (:frames nil)
-       (:buffer nil)
        (:n-samples nil)
        (:n-channels nil)
        (:sample-rate nil)
@@ -57,12 +52,9 @@
        (:sample-size 16)))
      (:add-slots
       ((:markers nil)
-       (:file-pathname nil)
-       (:sample-rate nil)
-       (:n-channels nil)
-       (:n-samples nil)
        (:gain 1.0)
-       (:access-from-file nil)))))
+       (:access-from-file nil)
+       (:file-pathname nil)))))
    (:id 0))
   (:comment
    (:x 141)
@@ -75,7 +67,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 18.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "The SOUND box")
@@ -91,7 +83,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -112,6 +104,7 @@ They can be set at the same time as the sound initialization.")
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -129,7 +122,7 @@ They can be set at the same time as the sound initialization.")
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -153,11 +146,9 @@ Note: Lock teh box (b) after the sound is loaded, in order to prevent releasing 
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name nil)
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -182,10 +173,6 @@ Note: Lock teh box (b) after the sound is loaded, in order to prevent releasing 
      (:slots
       ((:onset 0)
        (:duration 0)
-       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
-       (:default-frame-type marker-frame)
-       (:frames nil)
-       (:buffer nil)
        (:n-samples nil)
        (:n-channels nil)
        (:sample-rate nil)
@@ -193,12 +180,9 @@ Note: Lock teh box (b) after the sound is loaded, in order to prevent releasing 
        (:sample-size 16)))
      (:add-slots
       ((:markers nil)
-       (:file-pathname nil)
-       (:sample-rate nil)
-       (:n-channels nil)
-       (:n-samples nil)
        (:gain 1.0)
-       (:access-from-file nil)))))
+       (:access-from-file nil)
+       (:file-pathname nil)))))
    (:id 5))
   (:box
    (:type :value)
@@ -231,7 +215,7 @@ Note: Lock teh box (b) after the sound is loaded, in order to prevent releasing 
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -254,11 +238,9 @@ This option saves memory resources but requires more access in case of manipulat
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name nil)
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -283,10 +265,6 @@ This option saves memory resources but requires more access in case of manipulat
      (:slots
       ((:onset 0)
        (:duration 0)
-       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
-       (:default-frame-type marker-frame)
-       (:frames nil)
-       (:buffer nil)
        (:n-samples nil)
        (:n-channels nil)
        (:sample-rate nil)
@@ -294,12 +272,9 @@ This option saves memory resources but requires more access in case of manipulat
        (:sample-size 16)))
      (:add-slots
       ((:markers nil)
-       (:file-pathname nil)
-       (:sample-rate nil)
-       (:n-channels nil)
-       (:n-samples nil)
        (:gain 1.0)
-       (:access-from-file nil)))))
+       (:access-from-file nil)
+       (:file-pathname nil)))))
    (:id 8))
   (:box
    (:type :function)
@@ -315,6 +290,7 @@ This option saves memory resources but requires more access in case of manipulat
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -356,7 +332,7 @@ This option saves memory resources but requires more access in case of manipulat
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -364,27 +340,9 @@ This option saves memory resources but requires more access in case of manipulat
 (Note: markers can also be added (alt+click), edited, and removed from inside the sound editor)")
    (:id 11)))
  (:connections
-  (:connection
-   (:from (:box 0 :out 0))
-   (:to (:box 5 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 3 :out 0))
-   (:to (:box 0 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 5 :out 0))
-   (:to (:box 8 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 6 :out 0))
-   (:to (:box 5 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 9 :out 0))
-   (:to (:box 8 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 10 :out 0))
-   (:to (:box 9 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))))
+  (:connection (:from (:box 0 :out 0)) (:to (:box 5 :in 0)))
+  (:connection (:from (:box 3 :out 0)) (:to (:box 0 :in 0)))
+  (:connection (:from (:box 5 :out 0)) (:to (:box 8 :in 0)))
+  (:connection (:from (:box 6 :out 0)) (:to (:box 5 :in 1)))
+  (:connection (:from (:box 9 :out 0)) (:to (:box 8 :in 1)))
+  (:connection (:from (:box 10 :out 0)) (:to (:box 9 :in 0)))))

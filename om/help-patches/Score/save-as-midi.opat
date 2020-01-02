@@ -1,11 +1,12 @@
 
 (:patch
- (:om-version 0.04)
  (:name "save-as-midi")
  (:doc "")
  (:info
   (:created "2019/10/02 9:18:51")
-  (:modified "2019/10/02 12:10:47"))
+  (:modified "2020/01/02 8:47:47")
+  (:by "om-sharp")
+  (:version 1.0))
  (:window (:size (1038 586)) (:position (294 23)))
  (:grid nil)
  (:lock nil)
@@ -24,10 +25,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "MIDI-MIX-CONSOLE")
    (:display :hidden)
    (:showname nil)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -84,6 +83,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -108,6 +108,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -137,11 +138,9 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "out.mid")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -9083,6 +9082,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -9108,11 +9108,9 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "MULTI-SEQ")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -9143,9 +9141,11 @@
            ((:onset 0)
             (:duration 10219)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+            (:name nil)
             (:symbolic-date nil)
             (:symbolic-dur nil)
             (:symbolic-dur-extent 0)
+            (:extras nil)
             (:lmidic
              (:list
               (:list 5700)
@@ -9347,138 +9347,37 @@
               (:list 4)))
             (:lport
              (:list
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil))
-            (:llegato nil)))
-          (:add-slots
-           ((:loffset
-             (:list
-              (:list 0)
-              (:list 0)
-              (:list 87 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 19 0)
-              (:list 0)
-              (:list 0)
-              (:list 94 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 76 0)
-              (:list 65 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)))
-            (:lchan
-             (:list
-              (:list 4)
-              (:list 4)
-              (:list 4 4)
-              (:list 4)
-              (:list 4)
-              (:list 4)
-              (:list 4)
-              (:list 4)
-              (:list 4)
-              (:list 4)
-              (:list 4)
-              (:list 4)
-              (:list 4)
-              (:list 4)
-              (:list 4)
-              (:list 4 4)
-              (:list 4)
-              (:list 4)
-              (:list 4 4)
-              (:list 4)
-              (:list 4)
-              (:list 4)
-              (:list 4)
-              (:list 4)
-              (:list 4)
-              (:list 4)
-              (:list 4 4)
-              (:list 4 4)
-              (:list 4)
-              (:list 4)
-              (:list 4)))
-            (:lport
-             (:list
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil))
+              (:list nil)
+              (:list nil)
+              (:list nil nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)
+              (:list nil nil)
+              (:list nil)
+              (:list nil)
+              (:list nil nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)
+              (:list nil nil)
+              (:list nil nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)))
             (:llegato nil))))
          (:object
           (:class chord-seq)
@@ -9486,9 +9385,11 @@
            ((:onset 0)
             (:duration 9122)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+            (:name nil)
             (:symbolic-date nil)
             (:symbolic-dur nil)
             (:symbolic-dur-extent 0)
+            (:extras nil)
             (:lmidic
              (:list
               (:list 3500 4200)
@@ -9678,130 +9579,35 @@
               (:list 10 10 10)))
             (:lport
              (:list
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil))
-            (:llegato nil)))
-          (:add-slots
-           ((:loffset
-             (:list
-              (:list 0 0)
-              (:list 0 0)
-              (:list 86 86 0)
-              (:list 0 0)
-              (:list 87 87 0)
-              (:list 0 0)
-              (:list 89 89 0)
-              (:list 0 0)
-              (:list 89 89 0)
-              (:list 0 0)
-              (:list 87 87 0)
-              (:list 0 0)
-              (:list 86 0)
-              (:list 0 0)
-              (:list 92 92 0)
-              (:list 0 0)
-              (:list 92 92 0)
-              (:list 0 0)
-              (:list 89 89 0)
-              (:list 0 0)
-              (:list 89 89 0)
-              (:list 0 0)
-              (:list 87 87 0)
-              (:list 0 0)
-              (:list 86 86 0)
-              (:list 0 0)
-              (:list 89 89 0)
-              (:list 0 0)
-              (:list 90 90 0)))
-            (:lchan
-             (:list
-              (:list 10 10)
-              (:list 10 10)
-              (:list 10 10 10)
-              (:list 10 10)
-              (:list 10 10 10)
-              (:list 10 10)
-              (:list 10 10 10)
-              (:list 10 10)
-              (:list 10 10 10)
-              (:list 10 10)
-              (:list 10 10 10)
-              (:list 10 10)
-              (:list 10 10)
-              (:list 10 10)
-              (:list 10 10 10)
-              (:list 10 10)
-              (:list 10 10 10)
-              (:list 10 10)
-              (:list 10 10 10)
-              (:list 10 10)
-              (:list 10 10 10)
-              (:list 10 10)
-              (:list 10 10 10)
-              (:list 10 10)
-              (:list 10 10 10)
-              (:list 10 10)
-              (:list 10 10 10)
-              (:list 10 10)
-              (:list 10 10 10)))
-            (:lport
-             (:list
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil))
+              (:list nil nil)
+              (:list nil nil)
+              (:list nil nil nil)
+              (:list nil nil)
+              (:list nil nil nil)
+              (:list nil nil)
+              (:list nil nil nil)
+              (:list nil nil)
+              (:list nil nil nil)
+              (:list nil nil)
+              (:list nil nil nil)
+              (:list nil nil)
+              (:list nil nil)
+              (:list nil nil)
+              (:list nil nil nil)
+              (:list nil nil)
+              (:list nil nil nil)
+              (:list nil nil)
+              (:list nil nil nil)
+              (:list nil nil)
+              (:list nil nil nil)
+              (:list nil nil)
+              (:list nil nil nil)
+              (:list nil nil)
+              (:list nil nil nil)
+              (:list nil nil)
+              (:list nil nil nil)
+              (:list nil nil)
+              (:list nil nil nil)))
             (:llegato nil))))
          (:object
           (:class chord-seq)
@@ -9809,9 +9615,11 @@
            ((:onset 0)
             (:duration 9544)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+            (:name nil)
             (:symbolic-date nil)
             (:symbolic-dur nil)
             (:symbolic-dur-extent 0)
+            (:extras nil)
             (:lmidic
              (:list
               (:list 4900 5500)
@@ -9941,200 +9749,9 @@
               (:list 49 41)
               (:list 55 64)
               (:list 49 41)))
-            (:loffset
-             (:list
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)))
-            (:lchan
-             (:list
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)))
-            (:lport
-             (:list
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil))
-            (:llegato nil)))
-          (:add-slots
-           ((:loffset
-             (:list
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)
-              (:list 0 0)))
-            (:lchan
-             (:list
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)
-              (:list 7 7)))
-            (:lport
-             (:list
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil))
+            (:loffset (:list 0 0))
+            (:lchan (:list 7 7))
+            (:lport (:list nil nil))
             (:llegato nil))))
          (:object
           (:class chord-seq)
@@ -10142,9 +9759,11 @@
            ((:onset 0)
             (:duration 9811)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+            (:name nil)
             (:symbolic-date nil)
             (:symbolic-dur nil)
             (:symbolic-dur-extent 0)
+            (:extras nil)
             (:lmidic
              (:list
               (:list 3900)
@@ -10274,90 +9893,25 @@
               (:list 2)))
             (:lport
              (:list
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil))
-            (:llegato nil)))
-          (:add-slots
-           ((:loffset
-             (:list
-              (:list 0)
-              (:list 0)
-              (:list 87 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 92 0)
-              (:list 92 0)
-              (:list 0)
-              (:list 0)
-              (:list 86 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)))
-            (:lchan
-             (:list
-              (:list 2)
-              (:list 2)
-              (:list 2 2)
-              (:list 2)
-              (:list 2)
-              (:list 2)
-              (:list 2)
-              (:list 2 2)
-              (:list 2 2)
-              (:list 2)
-              (:list 2)
-              (:list 2 2)
-              (:list 2)
-              (:list 2)
-              (:list 2)
-              (:list 2)
-              (:list 2)
-              (:list 2)
-              (:list 2)))
-            (:lport
-             (:list
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil))
+              (:list nil)
+              (:list nil)
+              (:list nil nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)
+              (:list nil nil)
+              (:list nil nil)
+              (:list nil)
+              (:list nil)
+              (:list nil nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)
+              (:list nil)))
             (:llegato nil))))
          (:object
           (:class chord-seq)
@@ -10365,9 +9919,11 @@
            ((:onset 0)
             (:duration 9500)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+            (:name nil)
             (:symbolic-date nil)
             (:symbolic-dur nil)
             (:symbolic-dur-extent 0)
+            (:extras nil)
             (:lmidic
              (:list
               (:list 6700 7000 6600 6500)
@@ -10515,102 +10071,28 @@
               (:list 3 3 3 3 3)))
             (:lport
              (:list
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil))
-            (:llegato nil)))
-          (:add-slots
-           ((:loffset
-             (:list
-              (:list 59 5 5 0)
-              (:list 0)
-              (:list 0)
-              (:list 100 0)
-              (:list 91 89 86 86 83 0)
-              (:list 0)
-              (:list 16 11 11 8 0)
-              (:list 5 5 0)
-              (:list 0)
-              (:list 59 5 5 0)
-              (:list 0)
-              (:list 2 0)
-              (:list 25 19 14 11 11 0)
-              (:list 16 16 11 8 6 0)
-              (:list 13 2 2 0 0 0)
-              (:list 0)
-              (:list 0)
-              (:list 0 0)
-              (:list 2 0)
-              (:list 25 19 14 11 11 0)
-              (:list 84 8 5 3 3 0)
-              (:list 16 10 10 8 0)))
-            (:lchan
-             (:list
-              (:list 3 3 3 3)
-              (:list 3)
-              (:list 3)
-              (:list 3 3)
-              (:list 3 3 3 3 3 3)
-              (:list 3)
-              (:list 3 3 3 3 3)
-              (:list 3 3 3)
-              (:list 3)
-              (:list 3 3 3 3)
-              (:list 3)
-              (:list 3 3)
-              (:list 3 3 3 3 3 3)
-              (:list 3 3 3 3 3 3)
-              (:list 3 3 3 3 3 3)
-              (:list 3)
-              (:list 3)
-              (:list 3 3)
-              (:list 3 3)
-              (:list 3 3 3 3 3 3)
-              (:list 3 3 3 3 3 3)
-              (:list 3 3 3 3 3)))
-            (:lport
-             (:list
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil))
+              (:list nil nil nil nil)
+              (:list nil)
+              (:list nil)
+              (:list nil nil)
+              (:list nil nil nil nil nil nil)
+              (:list nil)
+              (:list nil nil nil nil nil)
+              (:list nil nil nil)
+              (:list nil)
+              (:list nil nil nil nil)
+              (:list nil)
+              (:list nil nil)
+              (:list nil nil nil nil nil nil)
+              (:list nil nil nil nil nil nil)
+              (:list nil nil nil nil nil nil)
+              (:list nil)
+              (:list nil)
+              (:list nil nil)
+              (:list nil nil)
+              (:list nil nil nil nil nil nil)
+              (:list nil nil nil nil nil nil)
+              (:list nil nil nil nil nil)))
             (:llegato nil))))
          (:object
           (:class chord-seq)
@@ -10618,9 +10100,11 @@
            ((:onset 0)
             (:duration 8503)
             (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+            (:name nil)
             (:symbolic-date nil)
             (:symbolic-dur nil)
             (:symbolic-dur-extent 0)
+            (:extras nil)
             (:lmidic
              (:list
               (:list 6100)
@@ -10694,120 +10178,14 @@
               (:list 34)
               (:list 65)
               (:list 99)))
-            (:loffset
-             (:list
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)))
-            (:lchan
-             (:list
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)))
-            (:lport
-             (:list
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil))
-            (:llegato nil)))
-          (:add-slots
-           ((:loffset
-             (:list
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)
-              (:list 0)))
-            (:lchan
-             (:list
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)
-              (:list 5)))
-            (:lport
-             (:list
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil
-              nil))
+            (:loffset (:list 0))
+            (:lchan (:list 5))
+            (:lport (:list nil))
             (:llegato nil))))))
        (:symbolic-date nil)
        (:symbolic-dur nil)
-       (:symbolic-dur-extent 0)))))
+       (:symbolic-dur-extent 0)
+       (:extras nil)))))
    (:id 6))
   (:box
    (:type :object)
@@ -10823,11 +10201,9 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "out.mid")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -19769,6 +19145,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -19793,6 +19170,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -19817,10 +19195,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name nil)
    (:display :mini-view)
    (:showname nil)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -20523,7 +19899,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 18.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "CONVERT/EXPORT SCORE-OBJECTS TO MIDI")
@@ -20542,11 +19918,9 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "out.mid")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -32023,47 +31397,14 @@
    (:text "... reload in a MIDI-TRACK !")
    (:id 17)))
  (:connections
-  (:connection
-   (:from (:box 0 :out 0))
-   (:to (:box 5 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 1 :out 0))
-   (:to (:box 2 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 2 :out 0))
-   (:to (:box 3 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 3 :out 0))
-   (:to (:box 4 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 5 :out 0))
-   (:to (:box 8 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 6 :out 0))
-   (:to (:box 5 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 6 :out 0))
-   (:to (:box 7 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 6 :out 0))
-   (:to (:box 3 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 8 :out 0))
-   (:to (:box 9 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 8 :out 0))
-   (:to (:box 13 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 9 :out 0))
-   (:to (:box 10 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))))
+  (:connection (:from (:box 0 :out 0)) (:to (:box 5 :in 0)))
+  (:connection (:from (:box 1 :out 0)) (:to (:box 2 :in 0)))
+  (:connection (:from (:box 2 :out 0)) (:to (:box 3 :in 1)))
+  (:connection (:from (:box 3 :out 0)) (:to (:box 4 :in 0)))
+  (:connection (:from (:box 5 :out 0)) (:to (:box 8 :in 0)))
+  (:connection (:from (:box 6 :out 0)) (:to (:box 5 :in 1)))
+  (:connection (:from (:box 6 :out 0)) (:to (:box 7 :in 0)))
+  (:connection (:from (:box 6 :out 0)) (:to (:box 3 :in 0)))
+  (:connection (:from (:box 8 :out 0)) (:to (:box 9 :in 0)))
+  (:connection (:from (:box 8 :out 0)) (:to (:box 13 :in 1)))
+  (:connection (:from (:box 9 :out 0)) (:to (:box 10 :in 1)))))

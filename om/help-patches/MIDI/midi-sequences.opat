@@ -1,12 +1,13 @@
 
 (:patch
- (:om-version 0.04)
  (:name "midi-sequences")
  (:doc "")
  (:info
   (:created "2019/09/28 23:12:24")
-  (:modified "2019/09/30 14:59:12"))
- (:window (:size (1058 820)) (:position (480 434)))
+  (:modified "2020/01/02 8:46:29")
+  (:by "om-sharp")
+  (:version 1.0))
+ (:window (:size (1058 820)) (:position (480 208)))
  (:grid nil)
  (:lock nil)
  (:boxes
@@ -24,10 +25,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "MIDI-MIX-CONSOLE")
    (:display :hidden)
    (:showname nil)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -61,7 +60,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 13.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 13) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text "Settings for the MIDI channels")
@@ -80,6 +79,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -101,7 +101,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 13.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 13) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text "All in channel 1")
@@ -120,11 +120,9 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "EVENTMIDI-SEQ1")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -21176,11 +21174,9 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "EVENTMIDI-SEQ2")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -35501,7 +35497,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 13.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 13) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text "Final sequence -->")
@@ -35520,11 +35516,9 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "EVENTMIDI-SEQ2")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -73350,6 +73344,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -73384,6 +73379,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -73405,7 +73401,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 13.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 13) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text "All together creating a single list of MidiEvents :")
@@ -73421,7 +73417,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 13.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 13) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -73431,10 +73427,9 @@
    (:type :abstraction)
    (:reference
     (:patch
-     (:om-version 0.04)
-     (:name "select drum and bass")
+     (:name "mypatch1")
      (:doc "")
-     (:info (:created nil) (:modified nil))
+     (:info (:created nil) (:modified nil) (:by nil) (:version nil))
      (:window (:size (424 380)) (:position (168 138)))
      (:grid nil)
      (:lock nil)
@@ -73519,6 +73514,7 @@
        (:roundness nil)
        (:text-font nil)
        (:align nil)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -73592,6 +73588,7 @@
        (:roundness nil)
        (:text-font nil)
        (:align nil)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -73621,6 +73618,7 @@
        (:roundness nil)
        (:text-font nil)
        (:align nil)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -73637,36 +73635,15 @@
        (:outputs (:output (:name "out") (:reactive nil)))
        (:id 7)))
      (:connections
-      (:connection
-       (:from (:box 0 :out 0))
-       (:to (:box 6 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 0 :out 0))
-       (:to (:box 7 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 3 :out 0))
-       (:to (:box 1 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 4 :out 0))
-       (:to (:box 7 :in 1))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 5 :out 0))
-       (:to (:box 6 :in 1))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 6 :out 0))
-       (:to (:box 3 :in 1))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 7 :out 0))
-       (:to (:box 3 :in 0))
-       (:attributes (:color nil :style nil :modif nil))))))
+      (:connection (:from (:box 0 :out 0)) (:to (:box 6 :in 0)))
+      (:connection (:from (:box 0 :out 0)) (:to (:box 7 :in 0)))
+      (:connection (:from (:box 3 :out 0)) (:to (:box 1 :in 0)))
+      (:connection (:from (:box 4 :out 0)) (:to (:box 7 :in 1)))
+      (:connection (:from (:box 5 :out 0)) (:to (:box 6 :in 1)))
+      (:connection (:from (:box 6 :out 0)) (:to (:box 3 :in 1)))
+      (:connection (:from (:box 7 :out 0)) (:to (:box 3 :in 0))))))
    (:group-id nil)
-   (:name "mypatch1")
+   (:name "select drum and bass")
    (:x 210)
    (:y 276)
    (:w 141)
@@ -73677,7 +73654,6 @@
    (:text-font nil)
    (:align :center)
    (:display :mini-view)
-   (:group-id nil)
    (:lock nil)
    (:lambda :lambda)
    (:pre-delay 0)
@@ -73703,6 +73679,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -73729,7 +73706,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 13.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 13) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text "MidiSequence without drum, bass and sax channels ")
@@ -73748,11 +73725,9 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "EVENTMIDI-SEQ1")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -94794,10 +94769,9 @@
    (:type :abstraction)
    (:reference
     (:patch
-     (:om-version 0.04)
-     (:name "delete some channels")
+     (:name "mypatch")
      (:doc "")
-     (:info (:created nil) (:modified nil))
+     (:info (:created nil) (:modified nil) (:by nil) (:version nil))
      (:window (:size (776 412)) (:position (126 92)))
      (:grid nil)
      (:lock nil)
@@ -94891,6 +94865,7 @@
        (:roundness nil)
        (:text-font nil)
        (:align nil)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -94937,6 +94912,7 @@ A the same time we delete all ProgramChange Events from the sequence")
        (:roundness nil)
        (:text-font nil)
        (:align nil)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -94971,6 +94947,7 @@ A the same time we delete all ProgramChange Events from the sequence")
        (:roundness nil)
        (:text-font nil)
        (:align nil)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -95017,6 +94994,7 @@ A the same time we delete all ProgramChange Events from the sequence")
        (:roundness nil)
        (:text-font nil)
        (:align nil)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -95046,6 +95024,7 @@ A the same time we delete all ProgramChange Events from the sequence")
        (:roundness nil)
        (:text-font nil)
        (:align nil)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -95062,48 +95041,18 @@ A the same time we delete all ProgramChange Events from the sequence")
        (:outputs (:output (:name "out") (:reactive nil)))
        (:id 9)))
      (:connections
-      (:connection
-       (:from (:box 1 :out 0))
-       (:to (:box 3 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 1 :out 0))
-       (:to (:box 8 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 1 :out 0))
-       (:to (:box 9 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 2 :out 0))
-       (:to (:box 3 :in 1))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 3 :out 0))
-       (:to (:box 5 :in 2))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 5 :out 0))
-       (:to (:box 6 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 6 :out 0))
-       (:to (:box 0 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 7 :out 0))
-       (:to (:box 8 :in 1))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 8 :out 0))
-       (:to (:box 5 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 9 :out 0))
-       (:to (:box 5 :in 1))
-       (:attributes (:color nil :style nil :modif nil))))))
+      (:connection (:from (:box 1 :out 0)) (:to (:box 3 :in 0)))
+      (:connection (:from (:box 1 :out 0)) (:to (:box 8 :in 0)))
+      (:connection (:from (:box 1 :out 0)) (:to (:box 9 :in 0)))
+      (:connection (:from (:box 2 :out 0)) (:to (:box 3 :in 1)))
+      (:connection (:from (:box 3 :out 0)) (:to (:box 5 :in 2)))
+      (:connection (:from (:box 5 :out 0)) (:to (:box 6 :in 0)))
+      (:connection (:from (:box 6 :out 0)) (:to (:box 0 :in 0)))
+      (:connection (:from (:box 7 :out 0)) (:to (:box 8 :in 1)))
+      (:connection (:from (:box 8 :out 0)) (:to (:box 5 :in 0)))
+      (:connection (:from (:box 9 :out 0)) (:to (:box 5 :in 1))))))
    (:group-id nil)
-   (:name "mypatch")
+   (:name "delete some channels")
    (:x 458)
    (:y 226)
    (:w 144)
@@ -95114,7 +95063,6 @@ A the same time we delete all ProgramChange Events from the sequence")
    (:text-font nil)
    (:align :center)
    (:display :mini-view)
-   (:group-id nil)
    (:lock nil)
    (:lambda :lambda)
    (:pre-delay 0)
@@ -95140,6 +95088,7 @@ A the same time we delete all ProgramChange Events from the sequence")
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -95166,7 +95115,7 @@ A the same time we delete all ProgramChange Events from the sequence")
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 13.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 13) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text "Extract filtered tracks:")
@@ -95182,7 +95131,7 @@ A the same time we delete all ProgramChange Events from the sequence")
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 18.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "PROCESSING MIDI-TRACKs")
@@ -95191,10 +95140,9 @@ A the same time we delete all ProgramChange Events from the sequence")
    (:type :abstraction)
    (:reference
     (:patch
-     (:om-version 0.04)
      (:name "set-ch-1")
      (:doc "")
-     (:info (:created nil) (:modified nil))
+     (:info (:created nil) (:modified nil) (:by nil) (:version nil))
      (:window (:size (302 278)) (:position (211 184)))
      (:grid nil)
      (:lock nil)
@@ -95284,7 +95232,6 @@ A the same time we delete all ProgramChange Events from the sequence")
        (:roundness nil)
        (:text-font nil)
        (:align :left)
-       (:group-id nil)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -95334,6 +95281,7 @@ A the same time we delete all ProgramChange Events from the sequence")
        (:roundness nil)
        (:text-font nil)
        (:align nil)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -95345,22 +95293,10 @@ A the same time we delete all ProgramChange Events from the sequence")
        (:outputs (:output (:name "out") (:reactive nil)))
        (:id 4)))
      (:connections
-      (:connection
-       (:from (:box 0 :out 0))
-       (:to (:box 4 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 2 :out 0))
-       (:to (:box 3 :in 2))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 3 :out 0))
-       (:to (:box 1 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 4 :out 0))
-       (:to (:box 3 :in 0))
-       (:attributes (:color nil :style nil :modif nil))))))
+      (:connection (:from (:box 0 :out 0)) (:to (:box 4 :in 0)))
+      (:connection (:from (:box 2 :out 0)) (:to (:box 3 :in 2)))
+      (:connection (:from (:box 3 :out 0)) (:to (:box 1 :in 0)))
+      (:connection (:from (:box 4 :out 0)) (:to (:box 3 :in 0))))))
    (:group-id nil)
    (:name "set-ch-1")
    (:x 531)
@@ -95373,7 +95309,6 @@ A the same time we delete all ProgramChange Events from the sequence")
    (:text-font nil)
    (:align :center)
    (:display :hidden)
-   (:group-id nil)
    (:lock nil)
    (:lambda :lambda)
    (:pre-delay 0)
@@ -95404,6 +95339,7 @@ A the same time we delete all ProgramChange Events from the sequence")
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -95453,11 +95389,9 @@ A the same time we delete all ProgramChange Events from the sequence")
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "tunesia-short.mid")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -137412,67 +137346,19 @@ A the same time we delete all ProgramChange Events from the sequence")
           (:add-slots ((:ev-track 0))))))))))
    (:id 23)))
  (:connections
-  (:connection
-   (:from (:box 0 :out 0))
-   (:to (:box 2 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 2 :out 0))
-   (:to (:box 8 :in 2))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 4 :out 0))
-   (:to (:box 9 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 8 :out 0))
-   (:to (:box 7 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 9 :out 0))
-   (:to (:box 8 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 12 :out 0))
-   (:to (:box 13 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 13 :out 0))
-   (:to (:box 8 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 13 :out 0))
-   (:to (:box 5 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 15 :out 1))
-   (:to (:box 21 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 16 :out 0))
-   (:to (:box 17 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 17 :out 0))
-   (:to (:box 15 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 20 :out 0))
-   (:to (:box 21 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 21 :out 0))
-   (:to (:box 4 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 22 :out 0))
-   (:to (:box 20 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 23 :out 0))
-   (:to (:box 17 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 23 :out 0))
-   (:to (:box 13 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))))
+  (:connection (:from (:box 0 :out 0)) (:to (:box 2 :in 0)))
+  (:connection (:from (:box 2 :out 0)) (:to (:box 8 :in 2)))
+  (:connection (:from (:box 4 :out 0)) (:to (:box 9 :in 0)))
+  (:connection (:from (:box 8 :out 0)) (:to (:box 7 :in 1)))
+  (:connection (:from (:box 9 :out 0)) (:to (:box 8 :in 1)))
+  (:connection (:from (:box 12 :out 0)) (:to (:box 13 :in 1)))
+  (:connection (:from (:box 13 :out 0)) (:to (:box 8 :in 0)))
+  (:connection (:from (:box 13 :out 0)) (:to (:box 5 :in 1)))
+  (:connection (:from (:box 15 :out 1)) (:to (:box 21 :in 1)))
+  (:connection (:from (:box 16 :out 0)) (:to (:box 17 :in 1)))
+  (:connection (:from (:box 17 :out 0)) (:to (:box 15 :in 1)))
+  (:connection (:from (:box 20 :out 0)) (:to (:box 21 :in 0)))
+  (:connection (:from (:box 21 :out 0)) (:to (:box 4 :in 1)))
+  (:connection (:from (:box 22 :out 0)) (:to (:box 20 :in 1)))
+  (:connection (:from (:box 23 :out 0)) (:to (:box 17 :in 0)))
+  (:connection (:from (:box 23 :out 0)) (:to (:box 13 :in 0)))))

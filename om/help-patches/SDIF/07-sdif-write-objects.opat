@@ -1,11 +1,12 @@
 
 (:patch
- (:om-version 0.03)
  (:name "07-sdif-write-objects")
  (:doc "")
  (:info
   (:created "2019/09/23 15:05:09")
-  (:modified "2019/09/23 15:11:51"))
+  (:modified "2020/01/02 8:48:15")
+  (:by "om-sharp")
+  (:version 1.0))
  (:window (:size (779 780)) (:position (544 158)))
  (:grid nil)
  (:lock nil)
@@ -24,10 +25,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "")
    (:display :mini-view)
    (:showname nil)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -42,16 +41,8 @@
    (:value
     (:object
      (:class sdiffile)
-     (:slots nil)
      (:add-slots
-      ((:file-pathname
-        (:pathname
-         (:directory (:absolute "Users" "bresson" "OM" "out-files"))
-         (:device :unspecific)
-         (:host :unspecific)
-         (:name "cseq")
-         (:type "sdif")))
-       (:file-map
+      ((:file-map
         (:list
          (:fstream-desc
           (:id 0)
@@ -81,7 +72,15 @@
              (:rmax 1)
              (:tmin 1.0D0)
              (:tmax 8.0D0)
-             (:nf 14)))))))))))
+             (:nf 14)))))))
+       (:file-pathname
+        (:pathname
+         (:directory
+          (:relative :up :up :up :up :up :up "OM" "out-files"))
+         (:device :unspecific)
+         (:host :unspecific)
+         (:name "cseq")
+         (:type "sdif")))))))
    (:id 0))
   (:box
    (:type :object)
@@ -97,11 +96,9 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "CHORD-SEQ")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -159,9 +156,11 @@
       ((:onset 0)
        (:duration 8000)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:name "CHORD-SEQ")
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
+       (:extras nil)
        (:lmidic
         (:list
          (:list 6000)
@@ -195,136 +194,11 @@
          6500
          7000
          8000))
-       (:ldur
-        (:list
-         (:list 1000)
-         (:list 1000)
-         (:list 1000)
-         (:list 1000)
-         (:list 1000)
-         (:list 1000)
-         (:list 1000)
-         (:list 1000)
-         (:list 1000)
-         (:list 1000)
-         (:list 1000)
-         (:list 1000)
-         (:list 1000)
-         (:list 1000)))
-       (:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport
-        (:list
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil))
-       (:llegato nil)))
-     (:add-slots
-      ((:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport
-        (:list
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil))
+       (:ldur (:list 1000))
+       (:lvel (:list 100))
+       (:loffset (:list 0))
+       (:lchan (:list 1))
+       (:lport (:list nil))
        (:llegato nil)))))
    (:id 1))
   (:box
@@ -341,10 +215,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "")
    (:display :mini-view)
    (:showname t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -359,16 +231,8 @@
    (:value
     (:object
      (:class sdiffile)
-     (:slots nil)
      (:add-slots
-      ((:file-pathname
-        (:pathname
-         (:directory (:absolute "Users" "bresson" "OM" "out-files"))
-         (:device nil)
-         (:host nil)
-         (:name "markers")
-         (:type "sdif")))
-       (:file-map
+      ((:file-map
         (:list
          (:fstream-desc
           (:id 0)
@@ -376,7 +240,15 @@
           (:tmin 0.0D0)
           (:tmax 6.0D0)
           (:nf 5)
-          (:matrices nil))))))))
+          (:matrices nil))))
+       (:file-pathname
+        (:pathname
+         (:directory
+          (:relative :up :up :up :up :up :up "OM" "out-files"))
+         (:device :unspecific)
+         (:host :unspecific)
+         (:name "markers")
+         (:type "sdif")))))))
    (:id 2))
   (:box
    (:type :value)
@@ -412,6 +284,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -433,10 +306,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "SDIFTYPE")
    (:display :text)
    (:showname nil)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -489,10 +360,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "SDIFTYPE")
    (:display :text)
    (:showname nil)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -585,6 +454,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -630,6 +500,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -674,10 +545,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "")
    (:display :mini-view)
    (:showname t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -692,16 +561,8 @@
    (:value
     (:object
      (:class sdiffile)
-     (:slots nil)
      (:add-slots
-      ((:file-pathname
-        (:pathname
-         (:directory (:absolute "Users" "bresson" "OM" "out-files"))
-         (:device nil)
-         (:host nil)
-         (:name "bpf2")
-         (:type "sdif")))
-       (:file-map
+      ((:file-map
         (:list
          (:fstream-desc
           (:id 0)
@@ -717,7 +578,15 @@
              (:rmax 1)
              (:tmin 42.53499984741211D0)
              (:tmax 4237.46484375D0)
-             (:nf 126)))))))))))
+             (:nf 126)))))))
+       (:file-pathname
+        (:pathname
+         (:directory
+          (:relative :up :up :up :up :up :up "OM" "out-files"))
+         (:device :unspecific)
+         (:host :unspecific)
+         (:name "bpf2")
+         (:type "sdif")))))))
    (:id 12))
   (:comment
    (:x 110)
@@ -730,7 +599,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text "... or define your own")
@@ -746,7 +615,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text "Use predefined types...")
@@ -765,10 +634,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "")
    (:display :mini-view)
    (:showname nil)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -783,16 +650,8 @@
    (:value
     (:object
      (:class sdiffile)
-     (:slots nil)
      (:add-slots
-      ((:file-pathname
-        (:pathname
-         (:directory (:absolute "Users" "bresson" "OM" "out-files"))
-         (:device nil)
-         (:host nil)
-         (:name "mybpf")
-         (:type "sdif")))
-       (:file-map
+      ((:file-map
         (:list
          (:fstream-desc
           (:id 0)
@@ -808,7 +667,15 @@
              (:rmax 1)
              (:tmin 42.53499984741211D0)
              (:tmax 4237.46484375D0)
-             (:nf 126)))))))))))
+             (:nf 126)))))))
+       (:file-pathname
+        (:pathname
+         (:directory
+          (:relative :up :up :up :up :up :up "OM" "out-files"))
+         (:device :unspecific)
+         (:host :unspecific)
+         (:name "mybpf")
+         (:type "sdif")))))))
    (:id 15))
   (:box
    (:type :value)
@@ -844,6 +711,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -868,11 +736,9 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "BPF")
    (:display :mini-view)
    (:showname t)
    (:show-markers t)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -1169,12 +1035,7 @@
          7.754
          6.159
          4.565))))
-     (:add-slots
-      ((:decimals 3)
-       (:color (:color 0 0 0 1.0))
-       (:name nil)
-       (:action nil)
-       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))))))
+     (:add-slots ((:name "BPF")))))
    (:id 18))
   (:box
    (:type :function)
@@ -1190,6 +1051,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1214,6 +1076,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1243,6 +1106,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1280,7 +1144,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -1297,7 +1161,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 18.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "Write an SDIF File from OM Objects")
@@ -1323,79 +1187,22 @@
    (:value "1FQ0")
    (:id 24)))
  (:connections
-  (:connection
-   (:from (:box 1 :out 0))
-   (:to (:box 19 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 3 :out 0))
-   (:to (:box 20 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 4 :out 0))
-   (:to (:box 9 :in 4))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 5 :out 0))
-   (:to (:box 4 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 6 :out 0))
-   (:to (:box 4 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 7 :out 0))
-   (:to (:box 9 :in 2))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 8 :out 0))
-   (:to (:box 9 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 9 :out 0))
-   (:to (:box 12 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 10 :out 0))
-   (:to (:box 9 :in 5))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 11 :out 0))
-   (:to (:box 10 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 16 :out 0))
-   (:to (:box 17 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 17 :out 0))
-   (:to (:box 21 :in 4))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 18 :out 0))
-   (:to (:box 9 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 18 :out 0))
-   (:to (:box 21 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 19 :out 0))
-   (:to (:box 0 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 20 :out 0))
-   (:to (:box 2 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 21 :out 0))
-   (:to (:box 15 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 24 :out 0))
-   (:to (:box 21 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 24 :out 0))
-   (:to (:box 21 :in 2))
-   (:attributes (:color nil :style nil :modif nil)))))
+  (:connection (:from (:box 1 :out 0)) (:to (:box 19 :in 0)))
+  (:connection (:from (:box 3 :out 0)) (:to (:box 20 :in 0)))
+  (:connection (:from (:box 4 :out 0)) (:to (:box 9 :in 4)))
+  (:connection (:from (:box 5 :out 0)) (:to (:box 4 :in 1)))
+  (:connection (:from (:box 6 :out 0)) (:to (:box 4 :in 0)))
+  (:connection (:from (:box 7 :out 0)) (:to (:box 9 :in 2)))
+  (:connection (:from (:box 8 :out 0)) (:to (:box 9 :in 1)))
+  (:connection (:from (:box 9 :out 0)) (:to (:box 12 :in 0)))
+  (:connection (:from (:box 10 :out 0)) (:to (:box 9 :in 5)))
+  (:connection (:from (:box 11 :out 0)) (:to (:box 10 :in 0)))
+  (:connection (:from (:box 16 :out 0)) (:to (:box 17 :in 0)))
+  (:connection (:from (:box 17 :out 0)) (:to (:box 21 :in 4)))
+  (:connection (:from (:box 18 :out 0)) (:to (:box 9 :in 0)))
+  (:connection (:from (:box 18 :out 0)) (:to (:box 21 :in 0)))
+  (:connection (:from (:box 19 :out 0)) (:to (:box 0 :in 0)))
+  (:connection (:from (:box 20 :out 0)) (:to (:box 2 :in 0)))
+  (:connection (:from (:box 21 :out 0)) (:to (:box 15 :in 0)))
+  (:connection (:from (:box 24 :out 0)) (:to (:box 21 :in 1)))
+  (:connection (:from (:box 24 :out 0)) (:to (:box 21 :in 2)))))

@@ -1,11 +1,12 @@
 
 (:patch
- (:om-version 0.03)
  (:name "02-sdif-read")
  (:doc "")
  (:info
   (:created "2019/09/23 11:38:06")
-  (:modified "2019/09/23 12:12:12"))
+  (:modified "2020/01/02 8:48:15")
+  (:by "om-sharp")
+  (:version 1.0))
  (:window (:size (951 573)) (:position (403 181)))
  (:grid nil)
  (:lock nil)
@@ -57,6 +58,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -253,10 +255,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "SDIFFILE")
    (:display :text)
    (:showname nil)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -271,17 +271,15 @@
    (:value
     (:object
      (:class sdiffile)
-     (:slots nil)
-     (:add-slots ((:file-pathname nil) (:file-map nil)))))
+     (:add-slots ((:file-map nil) (:file-pathname nil)))))
    (:id 11))
   (:box
    (:type :abstraction)
    (:reference
     (:patch
-     (:om-version 0.03)
      (:name "OMLOOP")
      (:doc "")
-     (:info (:created nil) (:modified nil))
+     (:info (:created nil) (:modified nil) (:by nil) (:version nil))
      (:window (:size (389 399)) (:position (295 276)))
      (:grid nil)
      (:lock nil)
@@ -414,11 +412,9 @@
        (:roundness nil)
        (:text-font nil)
        (:align :center)
-       (:name "BPF")
        (:display :hidden)
        (:showname nil)
        (:show-markers t)
-       (:group-id nil)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -461,13 +457,7 @@
            (:decimals 0)
            (:x-points (:list 0 100))
            (:y-points (:list 0 100))))
-         (:add-slots
-          ((:decimals 0)
-           (:color (:color 0 0 0 1.0))
-           (:name "BPF")
-           (:action nil)
-           (:interpol
-            (:number-or-nil (:number 50) (:t-or-nil nil)))))))
+         (:add-slots ((:name "BPF")))))
        (:id 4))
       (:box
        (:type :special)
@@ -522,30 +512,12 @@
        (:outputs (:output (:name "i") (:reactive nil)))
        (:id 6)))
      (:connections
-      (:connection
-       (:from (:box 0 :out 0))
-       (:to (:box 6 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 2 :out 0))
-       (:to (:box 4 :in 3))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 3 :out 0))
-       (:to (:box 5 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 3 :out 1))
-       (:to (:box 1 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 4 :out 0))
-       (:to (:box 3 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 6 :out 0))
-       (:to (:box 4 :in 2))
-       (:attributes (:color nil :style nil :modif nil))))))
+      (:connection (:from (:box 0 :out 0)) (:to (:box 6 :in 0)))
+      (:connection (:from (:box 2 :out 0)) (:to (:box 4 :in 3)))
+      (:connection (:from (:box 3 :out 0)) (:to (:box 5 :in 0)))
+      (:connection (:from (:box 3 :out 1)) (:to (:box 1 :in 0)))
+      (:connection (:from (:box 4 :out 0)) (:to (:box 3 :in 0)))
+      (:connection (:from (:box 6 :out 0)) (:to (:box 4 :in 2))))))
    (:group-id nil)
    (:name "OMLOOP")
    (:x 140)
@@ -558,7 +530,6 @@
    (:text-font nil)
    (:align :center)
    (:display :mini-view)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:pre-delay 0)
@@ -584,10 +555,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "BPF-LIB")
    (:display :mini-view)
    (:showname nil)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -707,13 +676,7 @@
               3.0E-4
               0.0
               0.0))))
-          (:add-slots
-           ((:decimals 4)
-            (:color (:color 0.0 0.0 0.0 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpf)
           (:slots
@@ -811,13 +774,7 @@
               3.0E-4
               4.0E-4
               0.0))))
-          (:add-slots
-           ((:decimals 4)
-            (:color (:color 0.0 0.0 0.0 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpf)
           (:slots
@@ -921,13 +878,7 @@
               0.0
               0.0
               0.0))))
-          (:add-slots
-           ((:decimals 4)
-            (:color (:color 0.0 0.0 0.0 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpf)
           (:slots
@@ -1031,13 +982,7 @@
               5.0E-4
               0.0011
               3.0E-4))))
-          (:add-slots
-           ((:decimals 4)
-            (:color (:color 0.0 0.0 0.0 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpf)
           (:slots
@@ -1143,13 +1088,7 @@
               0.0021
               6.0E-4
               0.0))))
-          (:add-slots
-           ((:decimals 4)
-            (:color (:color 0.0 0.0 0.0 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpf)
           (:slots
@@ -1161,13 +1100,7 @@
             (:decimals 4)
             (:x-points (:list 0.0 10.0 20.0))
             (:y-points (:list 0.0 0.0 0.0))))
-          (:add-slots
-           ((:decimals 4)
-            (:color (:color 0.0 0.0 0.0 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpf)
           (:slots
@@ -1179,13 +1112,7 @@
             (:decimals 4)
             (:x-points (:list 0.0 10.0 20.0))
             (:y-points (:list 0.0012 0.0028 3.0E-4))))
-          (:add-slots
-           ((:decimals 4)
-            (:color (:color 0.0 0.0 0.0 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpf)
           (:slots
@@ -1197,13 +1124,7 @@
             (:decimals 4)
             (:x-points (:list 0.0 10.0 20.0 30.0 40.0 50.0))
             (:y-points (:list 0.0025 0.0056 6.0E-4 0.0 0.0 0.0))))
-          (:add-slots
-           ((:decimals 4)
-            (:color (:color 0.0 0.0 0.0 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpf)
           (:slots
@@ -1217,13 +1138,7 @@
              (:list 0.0 10.0 20.0 30.0 40.0 50.0 60.0 70.0 80.0))
             (:y-points
              (:list 3.0E-4 3.0E-4 3.0E-4 0.0 0.0 0.0 3.0E-4 0.0 0.0))))
-          (:add-slots
-           ((:decimals 4)
-            (:color (:color 0.0 0.0 0.0 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))
+          (:add-slots ((:name nil))))
          (:object
           (:class bpf)
           (:slots
@@ -1247,13 +1162,7 @@
               7.0E-4
               3.0E-4
               3.0E-4))))
-          (:add-slots
-           ((:decimals 4)
-            (:color (:color 0.0 0.0 0.0 1.0))
-            (:name nil)
-            (:action nil)
-            (:interpol
-             (:number-or-nil (:number 50) (:t-or-nil nil))))))))))))
+          (:add-slots ((:name nil))))))))))
    (:id 13))
   (:box
    (:type :value)
@@ -1309,6 +1218,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1462,59 +1372,17 @@
    (:value 50)
    (:id 21)))
  (:connections
-  (:connection
-   (:from (:box 6 :out 0))
-   (:to (:box 2 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 7 :out 0))
-   (:to (:box 2 :in 2))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 7 :out 0))
-   (:to (:box 2 :in 3))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 11 :out 0))
-   (:to (:box 16 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 12 :out 0))
-   (:to (:box 13 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 14 :out 0))
-   (:to (:box 16 :in 8))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 15 :out 0))
-   (:to (:box 16 :in 7))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 16 :out 0))
-   (:to (:box 12 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 17 :out 0))
-   (:to (:box 16 :in 2))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 17 :out 0))
-   (:to (:box 16 :in 3))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 18 :out 0))
-   (:to (:box 16 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 19 :out 0))
-   (:to (:box 16 :in 4))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 20 :out 0))
-   (:to (:box 16 :in 5))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 21 :out 0))
-   (:to (:box 16 :in 6))
-   (:attributes (:color nil :style nil :modif nil)))))
+  (:connection (:from (:box 6 :out 0)) (:to (:box 2 :in 1)))
+  (:connection (:from (:box 7 :out 0)) (:to (:box 2 :in 2)))
+  (:connection (:from (:box 7 :out 0)) (:to (:box 2 :in 3)))
+  (:connection (:from (:box 11 :out 0)) (:to (:box 16 :in 0)))
+  (:connection (:from (:box 12 :out 0)) (:to (:box 13 :in 1)))
+  (:connection (:from (:box 14 :out 0)) (:to (:box 16 :in 8)))
+  (:connection (:from (:box 15 :out 0)) (:to (:box 16 :in 7)))
+  (:connection (:from (:box 16 :out 0)) (:to (:box 12 :in 0)))
+  (:connection (:from (:box 17 :out 0)) (:to (:box 16 :in 2)))
+  (:connection (:from (:box 17 :out 0)) (:to (:box 16 :in 3)))
+  (:connection (:from (:box 18 :out 0)) (:to (:box 16 :in 1)))
+  (:connection (:from (:box 19 :out 0)) (:to (:box 16 :in 4)))
+  (:connection (:from (:box 20 :out 0)) (:to (:box 16 :in 5)))
+  (:connection (:from (:box 21 :out 0)) (:to (:box 16 :in 6)))))

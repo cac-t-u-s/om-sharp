@@ -1,11 +1,12 @@
 
 (:patch
- (:om-version 0.03)
  (:name "sound-processing")
  (:doc "")
  (:info
   (:created "2019/09/23 9:01:30")
-  (:modified "2019/12/01 22:20:57"))
+  (:modified "2020/01/02 8:45:59")
+  (:by "om-sharp")
+  (:version 1.0))
  (:window (:size (1245 728)) (:position (386 221)))
  (:grid nil)
  (:lock nil)

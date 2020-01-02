@@ -1,18 +1,19 @@
 
 (:patch
- (:om-version 0.0112)
  (:name "file-stream")
  (:doc "")
  (:info
   (:created "2019/09/02 0:40:04")
-  (:modified "2019/09/02 9:59:30"))
+  (:modified "2020/01/02 8:45:59")
+  (:by "om-sharp")
+  (:version 1.0))
  (:window (:size (737 454)) (:position (714 48)))
  (:grid nil)
  (:lock nil)
  (:boxes
   (:box
-   (:reference open-file-stream)
    (:type :function)
+   (:reference open-file-stream)
    (:group-id nil)
    (:name "open-file-stream")
    (:x 101)
@@ -24,6 +25,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -35,8 +37,8 @@
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 0))
   (:box
-   (:reference simple-base-string)
    (:type :value)
+   (:reference simple-base-string)
    (:group-id nil)
    (:name "value box")
    (:x 70)
@@ -55,20 +57,20 @@
    (:value "Users/bresson/Desktop/test.txt")
    (:id 1))
   (:box
+   (:type :abstraction)
    (:reference
     (:patch
-     (:om-version 0.0112)
      (:name "write-loop")
      (:doc "")
-     (:info (:created nil) (:modified nil))
+     (:info (:created nil) (:modified nil) (:by nil) (:version nil))
      (:window (:size (361 415)) (:position (104 92)))
      (:grid nil)
      (:lock nil)
      (:boxes
       (:box
+       (:type :io)
        (:reference
         (:in (:type omin) (:index 1) (:name "in") (:doc "")))
-       (:type :io)
        (:group-id nil)
        (:name "in")
        (:x 121)
@@ -88,8 +90,8 @@
        (:outputs (:output (:name "out") (:reactive nil)))
        (:id 0))
       (:box
-       (:reference (:in (:type omin) (:index 2) (:name "n") (:doc "")))
        (:type :io)
+       (:reference (:in (:type omin) (:index 2) (:name "n") (:doc "")))
        (:group-id nil)
        (:name "n")
        (:x 236)
@@ -109,9 +111,9 @@
        (:outputs (:output (:name "out") (:reactive nil)))
        (:id 1))
       (:box
+       (:type :io)
        (:reference
         (:out (:type omout) (:name "out") (:index 1) (:doc "")))
-       (:type :io)
        (:group-id nil)
        (:name "out")
        (:x 70)
@@ -136,8 +138,8 @@
        (:outputs)
        (:id 2))
       (:box
-       (:reference iterate)
        (:type :special)
+       (:reference iterate)
        (:group-id nil)
        (:name "iterate")
        (:x 89)
@@ -162,8 +164,8 @@
        (:outputs)
        (:id 3))
       (:box
-       (:reference loop-for)
        (:type :special)
+       (:reference loop-for)
        (:group-id nil)
        (:name "for")
        (:x 236)
@@ -193,8 +195,8 @@
        (:outputs (:output (:name "i") (:reactive nil)))
        (:id 4))
       (:box
-       (:reference file-write-line)
        (:type :function)
+       (:reference file-write-line)
        (:group-id nil)
        (:name "file-write-line")
        (:x 65)
@@ -206,6 +208,7 @@
        (:roundness nil)
        (:text-font nil)
        (:align nil)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -222,8 +225,8 @@
        (:outputs (:output (:name "out") (:reactive nil)))
        (:id 5))
       (:box
-       (:reference format)
        (:type :function)
+       (:reference format)
        (:group-id nil)
        (:name "format")
        (:x 166)
@@ -235,6 +238,7 @@
        (:roundness nil)
        (:text-font nil)
        (:align nil)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -256,8 +260,8 @@
        (:outputs (:output (:name "out") (:reactive nil)))
        (:id 6))
       (:box
-       (:reference simple-base-string)
        (:type :value)
+       (:reference simple-base-string)
        (:group-id nil)
        (:name "value box")
        (:x 155)
@@ -278,35 +282,13 @@
        (:value "line ~D")
        (:id 7)))
      (:connections
-      (:connection
-       (:from (:box 0 :out 0))
-       (:to (:box 5 :in 1))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 0 :out 0))
-       (:to (:box 2 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 1 :out 0))
-       (:to (:box 4 :in 1))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 4 :out 0))
-       (:to (:box 6 :in 2))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 5 :out 0))
-       (:to (:box 3 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 6 :out 0))
-       (:to (:box 5 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 7 :out 0))
-       (:to (:box 6 :in 1))
-       (:attributes (:color nil :style nil :modif nil))))))
-   (:type :patch)
+      (:connection (:from (:box 0 :out 0)) (:to (:box 5 :in 1)))
+      (:connection (:from (:box 0 :out 0)) (:to (:box 2 :in 0)))
+      (:connection (:from (:box 1 :out 0)) (:to (:box 4 :in 1)))
+      (:connection (:from (:box 4 :out 0)) (:to (:box 6 :in 2)))
+      (:connection (:from (:box 5 :out 0)) (:to (:box 3 :in 0)))
+      (:connection (:from (:box 6 :out 0)) (:to (:box 5 :in 0)))
+      (:connection (:from (:box 7 :out 0)) (:to (:box 6 :in 1))))))
    (:group-id nil)
    (:name "write-loop")
    (:x 184)
@@ -319,7 +301,6 @@
    (:text-font nil)
    (:align :center)
    (:display :mini-view)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:pre-delay 0)
@@ -337,8 +318,8 @@
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 2))
   (:box
-   (:reference close-file-stream)
    (:type :function)
+   (:reference close-file-stream)
    (:group-id nil)
    (:name "close-file-stream")
    (:x 145)
@@ -350,6 +331,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -361,8 +343,8 @@
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 3))
   (:box
-   (:reference fixnum)
    (:type :value)
+   (:reference fixnum)
    (:group-id nil)
    (:name "value box")
    (:x 256)
@@ -381,8 +363,8 @@
    (:value 20)
    (:id 4))
   (:box
-   (:reference textbuffer)
    (:type :object)
+   (:reference textbuffer)
    (:group-id nil)
    (:name nil)
    (:x 175)
@@ -394,10 +376,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name nil)
    (:display :mini-view)
    (:showname nil)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -496,23 +476,8 @@
     "Open FILE-STREAMs are automatically closed when they are not used anymore by the Common Lisp garbage collection system, however, it is recommended to close them explicitely as soon as they are not needed in order to limit the number of streams open.")
    (:id 8)))
  (:connections
-  (:connection
-   (:from (:box 0 :out 0))
-   (:to (:box 2 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 1 :out 0))
-   (:to (:box 0 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 2 :out 0))
-   (:to (:box 3 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 3 :out 0))
-   (:to (:box 5 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 4 :out 0))
-   (:to (:box 2 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))))
+  (:connection (:from (:box 0 :out 0)) (:to (:box 2 :in 0)))
+  (:connection (:from (:box 1 :out 0)) (:to (:box 0 :in 0)))
+  (:connection (:from (:box 2 :out 0)) (:to (:box 3 :in 0)))
+  (:connection (:from (:box 3 :out 0)) (:to (:box 5 :in 0)))
+  (:connection (:from (:box 4 :out 0)) (:to (:box 2 :in 1)))))

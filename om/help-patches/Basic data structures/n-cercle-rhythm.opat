@@ -1,11 +1,12 @@
 
 (:patch
- (:om-version 0.03)
  (:name "n-cercle-rhythm")
  (:doc "")
  (:info
   (:created "2019/09/20 22:08:12")
-  (:modified "2019/09/20 22:27:23"))
+  (:modified "2020/01/02 8:45:59")
+  (:by "om-sharp")
+  (:version 1.0))
  (:window (:size (1089 636)) (:position (413 180)))
  (:grid nil)
  (:lock nil)
@@ -24,10 +25,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "N-CERCLE1")
    (:display :mini-view)
    (:showname nil)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -115,6 +114,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -280,10 +280,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "N-CERCLE2")
    (:display :mini-view)
    (:showname nil)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -323,11 +321,9 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "VOICE")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -375,17 +371,19 @@
       ((:onset 0)
        (:duration 4499)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:name "VOICE")
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
-       (:lmidic
+       (:extras nil)
+       (:tree
         (:list
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)))
+         3
+         (:list
+          (:list (:list 3 8) (:list 2 1))
+          (:list (:list 3 8) (:list 2 1))
+          (:list (:list 3 8) (:list 2 1)))))
+       (:lmidic (:list 6000))
        (:lonset (:list 0 1000 1500 2500 3000 4000 4500))
        (:ldur
         (:list
@@ -395,66 +393,12 @@
          (:list 499)
          (:list 999)
          (:list 499)))
-       (:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport (:list nil nil nil nil nil nil))
+       (:lvel (:list 100))
+       (:loffset (:list 0))
+       (:lchan (:list 1))
+       (:lport (:list nil))
        (:llegato nil)
-       (:tree
-        (:list
-         3
-         (:list
-          (:list (:list 3 8) (:list 2 1))
-          (:list (:list 3 8) (:list 2 1))
-          (:list (:list 3 8) (:list 2 1)))))
-       (:tempo 60)))
-     (:add-slots
-      ((:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport (:list nil nil nil nil nil nil))))))
+       (:tempo 60)))))
    (:id 11))
   (:box
    (:type :function)
@@ -470,6 +414,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -529,10 +474,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "N-CERCLE2")
    (:display :mini-view)
    (:showname nil)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -572,11 +515,9 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "VOICE")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -642,35 +583,19 @@
       ((:onset 0)
        (:duration 17999)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:name "VOICE")
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
-       (:lmidic
+       (:extras nil)
+       (:tree
         (:list
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)))
+         9/2
+         (:list
+          (:list (:list 12 8) (:list 2 1 2 1 2 1 2 1))
+          (:list (:list 12 8) (:list 2 1 2 1 2 1 2 1))
+          (:list (:list 12 8) (:list 2 1 2 1 2 1 2 1)))))
+       (:lmidic (:list 6000))
        (:lonset
         (:list
          0
@@ -724,224 +649,12 @@
          (:list 499)
          (:list 999)
          (:list 499)))
-       (:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport
-        (:list
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil))
+       (:lvel (:list 100))
+       (:loffset (:list 0))
+       (:lchan (:list 1))
+       (:lport (:list nil))
        (:llegato nil)
-       (:tree
-        (:list
-         9/2
-         (:list
-          (:list (:list 12 8) (:list 2 1 2 1 2 1 2 1))
-          (:list (:list 12 8) (:list 2 1 2 1 2 1 2 1))
-          (:list (:list 12 8) (:list 2 1 2 1 2 1 2 1)))))
-       (:tempo 60)))
-     (:add-slots
-      ((:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport
-        (:list
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil))))))
+       (:tempo 60)))))
    (:id 15))
   (:box
    (:type :function)
@@ -957,6 +670,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -982,11 +696,9 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "VOICE")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1052,35 +764,19 @@
       ((:onset 0)
        (:duration 17999)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:name "VOICE")
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
-       (:lmidic
+       (:extras nil)
+       (:tree
         (:list
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)))
+         3
+         (:list
+          (:list (:list 12 8) (:list 2 1 2 1 2 1 2 1))
+          (:list (:list 12 8) (:list 2 1 2 1 2 1 2 1))
+          (:list (:list 12 8) (:list 2 1 2 1 2 1 2 1)))))
+       (:lmidic (:list 6000))
        (:lonset
         (:list
          0
@@ -1134,224 +830,12 @@
          (:list 499)
          (:list 999)
          (:list 499)))
-       (:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport
-        (:list
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil))
+       (:lvel (:list 100))
+       (:loffset (:list 0))
+       (:lchan (:list 1))
+       (:lport (:list nil))
        (:llegato nil)
-       (:tree
-        (:list
-         3
-         (:list
-          (:list (:list 12 8) (:list 2 1 2 1 2 1 2 1))
-          (:list (:list 12 8) (:list 2 1 2 1 2 1 2 1))
-          (:list (:list 12 8) (:list 2 1 2 1 2 1 2 1)))))
-       (:tempo 60)))
-     (:add-slots
-      ((:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport
-        (:list
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil))))))
+       (:tempo 60)))))
    (:id 17))
   (:box
    (:type :function)
@@ -1367,6 +851,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1406,10 +891,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "N-CERCLE1")
    (:display :mini-view)
    (:showname nil)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1497,10 +980,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "N-CERCLE")
    (:display :mini-view)
    (:showname nil)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1555,7 +1036,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 12.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 12) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -1565,79 +1046,22 @@
 <puntos> is a list of points in this space.")
    (:id 23)))
  (:connections
-  (:connection
-   (:from (:box 1 :out 0))
-   (:to (:box 2 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 2 :out 0))
-   (:to (:box 0 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 3 :out 0))
-   (:to (:box 16 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 4 :out 0))
-   (:to (:box 18 :in 3))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 5 :out 0))
-   (:to (:box 18 :in 2))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 6 :out 0))
-   (:to (:box 18 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 7 :out 0))
-   (:to (:box 12 :in 3))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 8 :out 0))
-   (:to (:box 12 :in 2))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 9 :out 0))
-   (:to (:box 12 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 10 :out 0))
-   (:to (:box 12 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 12 :out 0))
-   (:to (:box 11 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 13 :out 0))
-   (:to (:box 14 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 15 :out 0))
-   (:to (:box 2 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 15 :out 0))
-   (:to (:box 16 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 16 :out 0))
-   (:to (:box 19 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 18 :out 0))
-   (:to (:box 17 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 20 :out 0))
-   (:to (:box 14 :in 2))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 20 :out 0))
-   (:to (:box 21 :in 2))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 21 :out 0))
-   (:to (:box 18 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))))
+  (:connection (:from (:box 1 :out 0)) (:to (:box 2 :in 1)))
+  (:connection (:from (:box 2 :out 0)) (:to (:box 0 :in 0)))
+  (:connection (:from (:box 3 :out 0)) (:to (:box 16 :in 1)))
+  (:connection (:from (:box 4 :out 0)) (:to (:box 18 :in 3)))
+  (:connection (:from (:box 5 :out 0)) (:to (:box 18 :in 2)))
+  (:connection (:from (:box 6 :out 0)) (:to (:box 18 :in 1)))
+  (:connection (:from (:box 7 :out 0)) (:to (:box 12 :in 3)))
+  (:connection (:from (:box 8 :out 0)) (:to (:box 12 :in 2)))
+  (:connection (:from (:box 9 :out 0)) (:to (:box 12 :in 1)))
+  (:connection (:from (:box 10 :out 0)) (:to (:box 12 :in 0)))
+  (:connection (:from (:box 12 :out 0)) (:to (:box 11 :in 0)))
+  (:connection (:from (:box 13 :out 0)) (:to (:box 14 :in 1)))
+  (:connection (:from (:box 15 :out 0)) (:to (:box 2 :in 0)))
+  (:connection (:from (:box 15 :out 0)) (:to (:box 16 :in 0)))
+  (:connection (:from (:box 16 :out 0)) (:to (:box 19 :in 0)))
+  (:connection (:from (:box 18 :out 0)) (:to (:box 17 :in 0)))
+  (:connection (:from (:box 20 :out 0)) (:to (:box 14 :in 2)))
+  (:connection (:from (:box 20 :out 0)) (:to (:box 21 :in 2)))
+  (:connection (:from (:box 21 :out 0)) (:to (:box 18 :in 0)))))

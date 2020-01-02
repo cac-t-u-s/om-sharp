@@ -1,12 +1,13 @@
 
 (:patch
- (:om-version 0.06)
  (:name "extras")
  (:doc "")
  (:info
   (:created "2019/11/21 13:13:50")
-  (:modified "2019/12/17 23:52:27"))
- (:window (:size (1383 952)) (:position (621 444)))
+  (:modified "2020/01/02 8:47:47")
+  (:by "om-sharp")
+  (:version 1.0))
+ (:window (:size (1383 952)) (:position (297 76)))
  (:grid nil)
  (:lock nil)
  (:boxes
@@ -635,7 +636,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 18.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "EXTRAS")
@@ -651,7 +652,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 12.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 12) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -865,7 +866,7 @@ See: https://w3c.github.io/smufl/")
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 12.0D0) (:style :italic)))
+     (:font (:font (:face "Calibri") (:size 12) (:style :italic)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -982,7 +983,7 @@ See: https://w3c.github.io/smufl/")
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 12.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 12) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "Also works for POLY / MULTI-SEQ:")
@@ -1286,7 +1287,7 @@ See: https://w3c.github.io/smufl/")
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 12.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 12) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -1303,7 +1304,7 @@ See: https://w3c.github.io/smufl/")
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 12.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 12) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text

@@ -1,11 +1,12 @@
 
 (:patch
- (:om-version 0.03)
  (:name "01-sdif-info")
  (:doc "")
  (:info
   (:created "2019/09/23 11:21:48")
-  (:modified "2019/09/23 12:11:51"))
+  (:modified "2020/01/02 8:48:15")
+  (:by "om-sharp")
+  (:version 1.0))
  (:window (:size (838 583)) (:position (450 254)))
  (:grid nil)
  (:lock nil)
@@ -21,7 +22,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "SDIF NVTs")
@@ -40,10 +41,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "SDIFNVT")
    (:display :text)
    (:showname t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -89,6 +88,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -133,6 +133,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -162,6 +163,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -183,7 +185,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -200,7 +202,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -220,10 +222,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "TEXTFILE")
    (:display :mini-view)
    (:showname nil)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -315,7 +315,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text "Returns matrix or frame type description info")
@@ -354,6 +354,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -388,6 +389,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -409,7 +411,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 18.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "Accessing info and data from SDIF files (I)")
@@ -425,7 +427,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text "List SDIF streams (frames,matrices) in the file.")
@@ -444,10 +446,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "SDIFFILE")
    (:display :text)
    (:showname t)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -462,22 +462,8 @@
    (:value
     (:object
      (:class sdiffile)
-     (:slots nil)
      (:add-slots
-      ((:file-pathname
-        (:pathname
-         (:directory
-          (:absolute
-           "Users"
-           "bresson"
-           "_SHARED-FILES"
-           "IN-FILES"
-           "SDIF"))
-         (:device :unspecific)
-         (:host nil)
-         (:name "SpectralDiffMarkers.mrk")
-         (:type "sdif")))
-       (:file-map
+      ((:file-map
         (:list
          (:fstream-desc
           (:id 0)
@@ -493,7 +479,24 @@
              (:rmax 1)
              (:tmin 0.9868367314338684D0)
              (:tmax 23.78302764892578D0)
-             (:nf 8)))))))))))
+             (:nf 8)))))))
+       (:file-pathname
+        (:pathname
+         (:directory
+          (:relative
+           :up
+           :up
+           :up
+           :up
+           :up
+           :up
+           "_SHARED-FILES"
+           "IN-FILES"
+           "SDIF"))
+         (:device :unspecific)
+         (:host :unspecific)
+         (:name "SpectralDiffMarkers.mrk")
+         (:type "sdif")))))))
    (:id 15))
   (:box
    (:type :function)
@@ -509,6 +512,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -520,43 +524,13 @@
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 16)))
  (:connections
-  (:connection
-   (:from (:box 2 :out 0))
-   (:to (:box 1 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 3 :out 0))
-   (:to (:box 4 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 5 :out 0))
-   (:to (:box 2 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 5 :out 0))
-   (:to (:box 4 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 10 :out 0))
-   (:to (:box 11 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 12 :out 0))
-   (:to (:box 8 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 15 :out 0))
-   (:to (:box 5 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 15 :out 0))
-   (:to (:box 11 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 15 :out 0))
-   (:to (:box 12 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 15 :out 0))
-   (:to (:box 16 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))))
+  (:connection (:from (:box 2 :out 0)) (:to (:box 1 :in 0)))
+  (:connection (:from (:box 3 :out 0)) (:to (:box 4 :in 1)))
+  (:connection (:from (:box 5 :out 0)) (:to (:box 2 :in 0)))
+  (:connection (:from (:box 5 :out 0)) (:to (:box 4 :in 0)))
+  (:connection (:from (:box 10 :out 0)) (:to (:box 11 :in 1)))
+  (:connection (:from (:box 12 :out 0)) (:to (:box 8 :in 0)))
+  (:connection (:from (:box 15 :out 0)) (:to (:box 5 :in 0)))
+  (:connection (:from (:box 15 :out 0)) (:to (:box 11 :in 0)))
+  (:connection (:from (:box 15 :out 0)) (:to (:box 12 :in 0)))
+  (:connection (:from (:box 15 :out 0)) (:to (:box 16 :in 0)))))

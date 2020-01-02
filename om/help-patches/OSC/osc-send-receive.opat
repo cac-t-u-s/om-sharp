@@ -1,18 +1,19 @@
 
 (:patch
- (:om-version 7.0)
  (:name "osc-send-receive")
  (:doc "")
  (:info
   (:created "2017/03/05 16:40:15")
-  (:modified "2019/09/15 10:09:36"))
- (:window (:size (1256 575)) (:position (690 183)))
+  (:modified "2020/01/02 8:48:00")
+  (:by "om-sharp")
+  (:version 1.0))
+ (:window (:size (1256 575)) (:position (424 183)))
  (:grid nil)
  (:lock nil)
  (:boxes
   (:box
-   (:reference bpc)
    (:type :object)
+   (:reference bpc)
    (:group-id nil)
    (:name "c1")
    (:x 463)
@@ -24,11 +25,9 @@
    (:roundness nil)
    (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
    (:align :center)
-   (:name "c1")
    (:display :mini-view)
    (:showname t)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -447,144 +446,11 @@
          -0.22
          -0.28
          -0.18))))
-     (:add-slots
-      ((:times
-        (:list
-         0
-         64
-         82
-         99
-         116
-         133
-         151
-         167
-         185
-         202
-         220
-         237
-         254
-         271
-         289
-         306
-         323
-         340
-         357
-         375
-         392
-         413
-         427
-         444
-         461
-         478
-         496
-         513
-         531
-         565
-         582
-         599
-         616
-         634
-         651
-         668
-         685
-         703
-         720
-         738
-         755
-         772
-         789
-         807
-         825
-         843
-         859
-         877
-         894
-         911
-         1411
-         1442
-         1489
-         1497
-         1514
-         1523
-         1539
-         1546
-         1556
-         1573
-         1578
-         1589
-         1594
-         1605
-         1610
-         1623
-         1626
-         1640
-         1642
-         1656
-         1658
-         1672
-         1674
-         1689
-         1690
-         1705
-         1706
-         1722
-         1739
-         1756
-         1771
-         1771
-         1779
-         1789
-         1795
-         1805
-         1811
-         1822
-         1827
-         1839
-         1843
-         1856
-         1860
-         1871
-         1876
-         1890
-         1892
-         1906
-         1908
-         1922
-         1924
-         1940
-         1956
-         1973
-         1989
-         2006
-         2022
-         2029
-         2038
-         2045
-         2056
-         2061
-         2073
-         2078
-         2118
-         2134
-         2158
-         2185
-         2193
-         2208
-         2208
-         2224
-         2240
-         2257
-         2274
-         2296))
-       (:decimals 2)
-       (:color nil)
-       (:name "BPC")
-       (:action nil)
-       (:interpol nil)))))
+     (:add-slots ((:name "BPC")))))
    (:id 0))
   (:box
-   (:reference bpc)
    (:type :object)
+   (:reference bpc)
    (:group-id nil)
    (:name "c2")
    (:x 599)
@@ -596,11 +462,9 @@
    (:roundness nil)
    (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
    (:align :center)
-   (:name "c2")
    (:display :mini-view)
    (:showname t)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -845,86 +709,11 @@
          -0.93
          -0.93
          -0.93))))
-     (:add-slots
-      ((:times
-        (:list
-         0
-         82
-         99
-         116
-         133
-         150
-         168
-         185
-         202
-         220
-         237
-         254
-         272
-         306
-         357
-         374
-         392
-         409
-         428
-         444
-         461
-         479
-         497
-         514
-         531
-         548
-         565
-         600
-         685
-         702
-         720
-         737
-         755
-         772
-         794
-         811
-         824
-         840
-         859
-         876
-         893
-         910
-         928
-         962
-         979
-         996
-         1014
-         1031
-         1048
-         1064
-         1082
-         1099
-         1117
-         1134
-         1151
-         1168
-         1186
-         1203
-         1220
-         1254
-         1307
-         1324
-         1345
-         1359
-         1376
-         1393
-         1410
-         1428))
-       (:decimals 2)
-       (:color nil)
-       (:name "BPC")
-       (:action nil)
-       (:interpol nil)))))
+     (:add-slots ((:name "BPC")))))
    (:id 1))
   (:box
-   (:reference simple-base-string)
    (:type :value)
+   (:reference simple-base-string)
    (:group-id 0)
    (:name "vb")
    (:x 634)
@@ -942,8 +731,8 @@
    (:value "/source2/traj")
    (:id 2))
   (:box
-   (:reference simple-base-string)
    (:type :value)
+   (:reference simple-base-string)
    (:group-id 0)
    (:name "vb")
    (:x 516.0D0)
@@ -961,8 +750,8 @@
    (:value "/source1/traj")
    (:id 3))
   (:box
-   (:reference route-osc)
    (:type :function)
+   (:reference route-osc)
    (:group-id 0)
    (:name "route-osc")
    (:x 466.0D0)
@@ -974,6 +763,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align :left)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -998,8 +788,8 @@
     (:output (:name "osc-paths2") (:reactive t)))
    (:id 4))
   (:box
-   (:reference fixnum)
    (:type :value)
+   (:reference fixnum)
    (:group-id 0)
    (:name "vb")
    (:x 459.0D0)
@@ -1017,8 +807,8 @@
    (:value 8085)
    (:id 5))
   (:box
-   (:reference osc-receive)
    (:type :function)
+   (:reference osc-receive)
    (:group-id 0)
    (:name "osc-receive")
    (:x 456.0D0)
@@ -1030,6 +820,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align :left)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1046,25 +837,25 @@
    (:outputs (:output (:name "out") (:reactive t)))
    (:id 6))
   (:box
+   (:type :abstraction)
    (:reference
     (:patch
-     (:om-version 7.0)
      (:name "mk-traj-1")
      (:doc "")
-     (:info (:created nil) (:modified nil))
+     (:info (:created nil) (:modified nil) (:by nil) (:version nil))
      (:window (:size (270 295)) (:position (247 126)))
      (:grid nil)
      (:lock nil)
      (:boxes
       (:box
+       (:type :io)
        (:reference
         (:in (:type omin) (:index 1) (:name "input 1") (:doc "")))
-       (:type :io)
        (:group-id nil)
        (:name "input 1")
        (:x 27.0D0)
        (:y 47)
-       (:w 47)
+       (:w 59)
        (:h 42)
        (:color
         (:color-or-nil
@@ -1079,14 +870,14 @@
        (:outputs (:output (:name "out") (:reactive nil)))
        (:id 0))
       (:box
+       (:type :io)
        (:reference
         (:out (:type omout) (:name "output 1") (:index 1) (:doc "")))
-       (:type :io)
        (:group-id nil)
        (:name "output 1")
        (:x 50.0D0)
        (:y 153)
-       (:w 55)
+       (:w 68)
        (:h 42)
        (:color
         (:color-or-nil
@@ -1106,8 +897,8 @@
        (:outputs)
        (:id 1))
       (:box
-       (:reference symbol)
        (:type :value)
+       (:reference symbol)
        (:group-id 0)
        (:name "vb")
        (:x 121.385986328125D0)
@@ -1125,14 +916,14 @@
        (:value circular)
        (:id 2))
       (:box
-       (:reference fixnum)
        (:type :value)
+       (:reference fixnum)
        (:group-id 0)
        (:name "vb")
        (:x 82.646240234375D0)
        (:y 65)
        (:w 35.84375D0)
-       (:h 28)
+       (:h 30)
        (:color (:color 0.9 0.9 0.9 1.0))
        (:border 1.5)
        (:roundness nil)
@@ -1144,8 +935,8 @@
        (:value 4)
        (:id 3))
       (:box
-       (:reference group-list)
        (:type :function)
+       (:reference group-list)
        (:group-id 0)
        (:name "group-list")
        (:x 50.0D0)
@@ -1157,6 +948,7 @@
        (:roundness nil)
        (:text-font nil)
        (:align :left)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -1203,7 +995,6 @@
          :curved
          :modif
          nil))))))
-   (:type :patch)
    (:group-id nil)
    (:name "mk-traj-1")
    (:x 440)
@@ -1216,7 +1007,6 @@
    (:text-font nil)
    (:align :center)
    (:display :hidden)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:pre-delay 0)
@@ -1229,25 +1019,25 @@
    (:outputs (:output (:name "output 1") (:reactive t)))
    (:id 7))
   (:box
+   (:type :abstraction)
    (:reference
     (:patch
-     (:om-version 7.0)
      (:name "mk-traj-2")
      (:doc "")
-     (:info (:created nil) (:modified nil))
+     (:info (:created nil) (:modified nil) (:by nil) (:version nil))
      (:window (:size (271.841064453125D0 295)) (:position nil))
      (:grid nil)
      (:lock nil)
      (:boxes
       (:box
+       (:type :io)
        (:reference
         (:in (:type omin) (:index 1) (:name "input 1") (:doc "")))
-       (:type :io)
        (:group-id nil)
        (:name "input 1")
        (:x 50.0D0)
        (:y 50)
-       (:w 47)
+       (:w 59)
        (:h 42)
        (:color
         (:color-or-nil
@@ -1262,14 +1052,14 @@
        (:outputs (:output (:name "out") (:reactive nil)))
        (:id 0))
       (:box
+       (:type :io)
        (:reference
         (:out (:type omout) (:name "output 1") (:index 1) (:doc "")))
-       (:type :io)
        (:group-id nil)
        (:name "output 1")
        (:x 50.0D0)
        (:y 153)
-       (:w 55)
+       (:w 68)
        (:h 42)
        (:color
         (:color-or-nil
@@ -1289,14 +1079,14 @@
        (:outputs)
        (:id 1))
       (:box
-       (:reference symbol)
        (:type :value)
+       (:reference symbol)
        (:group-id 0)
        (:name "vb")
        (:x 123.385986328125D0)
        (:y 64)
        (:w 48.455078125D0)
-       (:h 28)
+       (:h 30)
        (:color (:color 0.9 0.9 0.9 1.0))
        (:border 1.5)
        (:roundness nil)
@@ -1308,14 +1098,14 @@
        (:value circular)
        (:id 2))
       (:box
-       (:reference fixnum)
        (:type :value)
+       (:reference fixnum)
        (:group-id 0)
        (:name "vb")
        (:x 82.646240234375D0)
        (:y 65)
        (:w 35.84375D0)
-       (:h 28)
+       (:h 30)
        (:color (:color 0.9 0.9 0.9 1.0))
        (:border 1.5)
        (:roundness nil)
@@ -1327,19 +1117,20 @@
        (:value 4)
        (:id 3))
       (:box
-       (:reference group-list)
        (:type :function)
+       (:reference group-list)
        (:group-id 0)
        (:name "group-list")
        (:x 50.0D0)
        (:y 100)
        (:w 91.13623046875D0)
-       (:h 28)
+       (:h 30)
        (:color (:color 0.9 0.9 0.9 1.0))
        (:border 1.5)
        (:roundness nil)
        (:text-font nil)
        (:align :left)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -1381,7 +1172,6 @@
          :curved
          :modif
          nil))))))
-   (:type :patch)
    (:group-id nil)
    (:name "mk-traj-2")
    (:x 576)
@@ -1394,7 +1184,6 @@
    (:text-font nil)
    (:align :center)
    (:display :hidden)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:pre-delay 0)
@@ -1421,8 +1210,8 @@
     "Activate / deactivate with 'R' to start/stop the OSC-REVEIVE process")
    (:id 9))
   (:box
-   (:reference osc-send)
    (:type :function)
+   (:reference osc-send)
    (:group-id nil)
    (:name "osc-send")
    (:x 44)
@@ -1434,6 +1223,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1455,8 +1245,8 @@
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 10))
   (:box
-   (:reference cons)
    (:type :value)
+   (:reference cons)
    (:group-id nil)
    (:name "value box")
    (:x 27)
@@ -1475,8 +1265,8 @@
    (:value (:list "/test" 0))
    (:id 11))
   (:box
-   (:reference fixnum)
    (:type :value)
+   (:reference fixnum)
    (:group-id nil)
    (:name "value box")
    (:x 117)
@@ -1518,7 +1308,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 24.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 24) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "OSC send")
@@ -1534,7 +1324,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 24.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 24) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "OSC receive / route")
@@ -1599,11 +1389,5 @@
    (:to (:box 1 :in 0))
    (:attributes
     (:color (:color 0.2 0.4 0.5 1.0) :style :curved :modif nil)))
-  (:connection
-   (:from (:box 11 :out 0))
-   (:to (:box 10 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 12 :out 0))
-   (:to (:box 10 :in 2))
-   (:attributes (:color nil :style nil :modif nil)))))
+  (:connection (:from (:box 11 :out 0)) (:to (:box 10 :in 0)))
+  (:connection (:from (:box 12 :out 0)) (:to (:box 10 :in 2)))))

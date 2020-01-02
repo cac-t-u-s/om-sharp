@@ -1,11 +1,12 @@
 
 (:patch
- (:om-version 0.03)
  (:name "loop-chords")
  (:doc "")
  (:info
   (:created "2019/09/21 22:06:00")
-  (:modified "2019/09/21 22:38:10"))
+  (:modified "2020/01/02 8:45:59")
+  (:by "om-sharp")
+  (:version 1.0))
  (:window (:size (994 548)) (:position (306 247)))
  (:grid nil)
  (:lock nil)
@@ -14,10 +15,9 @@
    (:type :abstraction)
    (:reference
     (:patch
-     (:om-version 0.03)
      (:name "make-chords-loop")
      (:doc "")
-     (:info (:created nil) (:modified nil))
+     (:info (:created nil) (:modified nil) (:by nil) (:version nil))
      (:window (:size (283 399)) (:position (647 245)))
      (:grid nil)
      (:lock nil)
@@ -85,6 +85,7 @@
        (:roundness nil)
        (:text-font nil)
        (:align nil)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -214,30 +215,12 @@
        (:value (:list 0 500 1200))
        (:id 6)))
      (:connections
-      (:connection
-       (:from (:box 0 :out 0))
-       (:to (:box 5 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 2 :out 0))
-       (:to (:box 4 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 4 :out 0))
-       (:to (:box 3 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 4 :out 1))
-       (:to (:box 1 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 5 :out 0))
-       (:to (:box 2 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 6 :out 0))
-       (:to (:box 2 :in 1))
-       (:attributes (:color nil :style nil :modif nil))))))
+      (:connection (:from (:box 0 :out 0)) (:to (:box 5 :in 0)))
+      (:connection (:from (:box 2 :out 0)) (:to (:box 4 :in 0)))
+      (:connection (:from (:box 4 :out 0)) (:to (:box 3 :in 0)))
+      (:connection (:from (:box 4 :out 1)) (:to (:box 1 :in 0)))
+      (:connection (:from (:box 5 :out 0)) (:to (:box 2 :in 0)))
+      (:connection (:from (:box 6 :out 0)) (:to (:box 2 :in 1))))))
    (:group-id nil)
    (:name "make-chords-loop")
    (:x 164)
@@ -250,7 +233,6 @@
    (:text-font nil)
    (:align :center)
    (:display :mini-view)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:pre-delay 0)
@@ -276,11 +258,9 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name nil)
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -324,9 +304,11 @@
       ((:onset 0)
        (:duration 1611)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:name "CHORD-SEQ")
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
+       (:extras nil)
        (:lmidic
         (:list
          (:list 6000)
@@ -337,15 +319,7 @@
          (:list 7900)
          (:list 7900)))
        (:lonset (:list 0 170 378 552 767 1032 1411 1611))
-       (:ldur
-        (:list
-         (:list 200)
-         (:list 200)
-         (:list 200)
-         (:list 200)
-         (:list 200)
-         (:list 200)
-         (:list 200)))
+       (:ldur (:list 200))
        (:lvel
         (:list
          (:list 100)
@@ -355,46 +329,9 @@
          (:list 80)
          (:list 80)
          (:list 80)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport (:list nil nil nil nil nil nil nil))
-       (:llegato nil)))
-     (:add-slots
-      ((:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport (:list nil nil nil nil nil nil nil))
+       (:loffset (:list 0))
+       (:lchan (:list 1))
+       (:lport (:list nil))
        (:llegato nil)))))
    (:id 1))
   (:box
@@ -411,11 +348,9 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name nil)
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -459,9 +394,11 @@
       ((:onset 0)
        (:duration 1611)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:name "CHORD-SEQ")
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
+       (:extras nil)
        (:lmidic
         (:list
          (:list 6000 6500 7200)
@@ -472,15 +409,7 @@
          (:list 7900 8400 9100)
          (:list 7900 8400 9100)))
        (:lonset (:list 0 170 378 552 767 1032 1411 1611))
-       (:ldur
-        (:list
-         (:list 200 200 200)
-         (:list 200 200 200)
-         (:list 200 200 200)
-         (:list 200 200 200)
-         (:list 200 200 200)
-         (:list 200 200 200)
-         (:list 200 200 200)))
+       (:ldur (:list 200 200 200))
        (:lvel
         (:list
          (:list 100 100 100)
@@ -490,46 +419,9 @@
          (:list 80 80 80)
          (:list 80 80 80)
          (:list 80 80 80)))
-       (:loffset
-        (:list
-         (:list 0 0 0)
-         (:list 0 0 0)
-         (:list 0 0 0)
-         (:list 0 0 0)
-         (:list 0 0 0)
-         (:list 0 0 0)
-         (:list 0 0 0)))
-       (:lchan
-        (:list
-         (:list 1 1 1)
-         (:list 1 1 1)
-         (:list 1 1 1)
-         (:list 1 1 1)
-         (:list 1 1 1)
-         (:list 1 1 1)
-         (:list 1 1 1)))
-       (:lport (:list nil nil nil nil nil nil nil))
-       (:llegato nil)))
-     (:add-slots
-      ((:loffset
-        (:list
-         (:list 0 0 0)
-         (:list 0 0 0)
-         (:list 0 0 0)
-         (:list 0 0 0)
-         (:list 0 0 0)
-         (:list 0 0 0)
-         (:list 0 0 0)))
-       (:lchan
-        (:list
-         (:list 1 1 1)
-         (:list 1 1 1)
-         (:list 1 1 1)
-         (:list 1 1 1)
-         (:list 1 1 1)
-         (:list 1 1 1)
-         (:list 1 1 1)))
-       (:lport (:list nil nil nil nil nil nil nil))
+       (:loffset (:list 0 0 0))
+       (:lchan (:list 1 1 1))
+       (:lport (:list nil nil nil))
        (:llegato nil)))))
    (:id 2))
   (:comment
@@ -549,10 +441,9 @@
    (:type :abstraction)
    (:reference
     (:patch
-     (:om-version 0.03)
      (:name "make-one-chord")
      (:doc "")
-     (:info (:created nil) (:modified nil))
+     (:info (:created nil) (:modified nil) (:by nil) (:version nil))
      (:window (:size (362 340)) (:position (190 184)))
      (:grid nil)
      (:lock nil)
@@ -642,6 +533,7 @@
        (:roundness nil)
        (:text-font nil)
        (:align nil)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -703,6 +595,7 @@
        (:roundness nil)
        (:text-font nil)
        (:align nil)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -732,6 +625,7 @@
        (:roundness nil)
        (:text-font nil)
        (:align nil)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -814,42 +708,15 @@
        (:value 24)
        (:id 9)))
      (:connections
-      (:connection
-       (:from (:box 0 :out 0))
-       (:to (:box 3 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 2 :out 0))
-       (:to (:box 4 :in 1))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 3 :out 0))
-       (:to (:box 1 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 4 :out 0))
-       (:to (:box 3 :in 1))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 5 :out 0))
-       (:to (:box 6 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 6 :out 0))
-       (:to (:box 4 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 7 :out 0))
-       (:to (:box 6 :in 1))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 8 :out 0))
-       (:to (:box 5 :in 0))
-       (:attributes (:color nil :style nil :modif nil)))
-      (:connection
-       (:from (:box 9 :out 0))
-       (:to (:box 5 :in 1))
-       (:attributes (:color nil :style nil :modif nil))))))
+      (:connection (:from (:box 0 :out 0)) (:to (:box 3 :in 0)))
+      (:connection (:from (:box 2 :out 0)) (:to (:box 4 :in 1)))
+      (:connection (:from (:box 3 :out 0)) (:to (:box 1 :in 0)))
+      (:connection (:from (:box 4 :out 0)) (:to (:box 3 :in 1)))
+      (:connection (:from (:box 5 :out 0)) (:to (:box 6 :in 0)))
+      (:connection (:from (:box 6 :out 0)) (:to (:box 4 :in 0)))
+      (:connection (:from (:box 7 :out 0)) (:to (:box 6 :in 1)))
+      (:connection (:from (:box 8 :out 0)) (:to (:box 5 :in 0)))
+      (:connection (:from (:box 9 :out 0)) (:to (:box 5 :in 1))))))
    (:group-id nil)
    (:name "make-one-chord")
    (:x 529)
@@ -862,7 +729,6 @@
    (:text-font nil)
    (:align :center)
    (:display :mini-view)
-   (:group-id nil)
    (:lock nil)
    (:lambda :lambda)
    (:pre-delay 0)
@@ -893,6 +759,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -922,11 +789,9 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name nil)
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -970,9 +835,11 @@
       ((:onset 0)
        (:duration 1611)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:name "CHORD-SEQ")
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
+       (:extras nil)
        (:lmidic
         (:list
          (:list 7200)
@@ -1019,28 +886,15 @@
          (:list 1 1 1 1)
          (:list 1 1 1)
          (:list 1)))
-       (:lport (:list nil nil nil nil nil nil nil))
-       (:llegato nil)))
-     (:add-slots
-      ((:loffset
+       (:lport
         (:list
-         (:list 0)
-         (:list 0 0)
-         (:list 0 0 0 0)
-         (:list 0 0 0 0 0)
-         (:list 0 0 0 0)
-         (:list 0 0 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1 1)
-         (:list 1 1 1 1)
-         (:list 1 1 1 1 1)
-         (:list 1 1 1 1)
-         (:list 1 1 1)
-         (:list 1)))
-       (:lport (:list nil nil nil nil nil nil nil))
+         (:list nil)
+         (:list nil nil)
+         (:list nil nil nil nil)
+         (:list nil nil nil nil nil)
+         (:list nil nil nil nil)
+         (:list nil nil nil)
+         (:list nil)))
        (:llegato nil)))))
    (:id 6))
   (:box
@@ -1057,6 +911,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1068,34 +923,13 @@
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 7)))
  (:connections
-  (:connection
-   (:from (:box 0 :out 0))
-   (:to (:box 2 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 1 :out 0))
-   (:to (:box 2 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 1 :out 0))
-   (:to (:box 6 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 1 :out 1))
-   (:to (:box 7 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 4 :out 0))
-   (:to (:box 5 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 5 :out 0))
-   (:to (:box 6 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 7 :out 0))
-   (:to (:box 0 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
+  (:connection (:from (:box 0 :out 0)) (:to (:box 2 :in 1)))
+  (:connection (:from (:box 1 :out 0)) (:to (:box 2 :in 0)))
+  (:connection (:from (:box 1 :out 0)) (:to (:box 6 :in 0)))
+  (:connection (:from (:box 1 :out 1)) (:to (:box 7 :in 0)))
+  (:connection (:from (:box 4 :out 0)) (:to (:box 5 :in 0)))
+  (:connection (:from (:box 5 :out 0)) (:to (:box 6 :in 1)))
+  (:connection (:from (:box 7 :out 0)) (:to (:box 0 :in 0)))
   (:connection
    (:from (:box 7 :out 0))
    (:to (:box 5 :in 1))

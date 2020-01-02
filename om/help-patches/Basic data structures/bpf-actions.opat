@@ -1,11 +1,12 @@
 
 (:patch
- (:om-version 7.0)
  (:name "bpf-actions")
  (:doc "")
  (:info
   (:created "2017/02/03 15:58:24")
-  (:modified "2019/09/22 1:30:27"))
+  (:modified "2020/01/02 8:45:59")
+  (:by "om-sharp")
+  (:version 1.0))
  (:window (:size (860 637)) (:position (616 72)))
  (:grid nil)
  (:lock nil)
@@ -24,11 +25,9 @@
    (:roundness nil)
    (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
    (:align :center)
-   (:name "BPF")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id 0)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -71,12 +70,7 @@
        (:decimals 2)
        (:x-points (:list 0.0 1000.0 2000.0))
        (:y-points (:list 0.0 600.0 0.0))))
-     (:add-slots
-      ((:decimals 2)
-       (:color (:color 0.0 0.0 0.0 1.0))
-       (:name "BPF")
-       (:action nil)
-       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))))))
+     (:add-slots ((:name "BPF")))))
    (:id 0))
   (:box
    (:type :value)
@@ -130,6 +124,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align :left)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -181,11 +176,9 @@
    (:roundness nil)
    (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
    (:align :center)
-   (:name "BPF")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id 0)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -630,12 +623,7 @@
          12.06
          6.03
          0.0))))
-     (:add-slots
-      ((:decimals 2)
-       (:color (:color 0.0 0.0 0.0 1.0))
-       (:name "BPF")
-       (:action :internal-lambda)
-       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))))))
+     (:add-slots ((:name "BPF")))))
    (:id 5))
   (:comment
    (:x 370.0D0)
@@ -648,7 +636,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -672,6 +660,7 @@ You can also set yur own action as a lambad function or patch :")
    (:roundness nil)
    (:text-font nil)
    (:align :left)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -696,6 +685,7 @@ You can also set yur own action as a lambad function or patch :")
    (:roundness nil)
    (:text-font nil)
    (:align :left)
+   (:icon :left)
    (:lock nil)
    (:lambda :lambda)
    (:inputs
@@ -720,11 +710,9 @@ You can also set yur own action as a lambad function or patch :")
    (:roundness nil)
    (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
    (:align :center)
-   (:name "BPC")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -944,79 +932,15 @@ You can also set yur own action as a lambad function or patch :")
          -0.38
          -0.42
          -0.51))))
-     (:add-slots
-      ((:times
-        (:list
-         0.0
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         10000.0))
-       (:decimals 2)
-       (:color nil)
-       (:name "BPC")
-       (:action :internal-lambda)
-       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))))))
+     (:add-slots ((:name "BPC")))))
    (:id 9))
   (:box
    (:type :abstraction)
    (:reference
     (:patch
-     (:om-version 7.0)
      (:name "my-action")
      (:doc "")
-     (:info (:created nil) (:modified nil))
+     (:info (:created nil) (:modified nil) (:by nil) (:version nil))
      (:window (:size (227 274)) (:position (273 322)))
      (:grid nil)
      (:lock nil)
@@ -1084,6 +1008,7 @@ You can also set yur own action as a lambad function or patch :")
        (:roundness nil)
        (:text-font nil)
        (:align :left)
+       (:icon :left)
        (:lock nil)
        (:lambda nil)
        (:inputs
@@ -1117,7 +1042,6 @@ You can also set yur own action as a lambad function or patch :")
    (:text-font nil)
    (:align :center)
    (:display :hidden)
-   (:group-id 0)
    (:lock nil)
    (:lambda :lambda)
    (:pre-delay 0)
@@ -1143,11 +1067,9 @@ You can also set yur own action as a lambad function or patch :")
    (:roundness nil)
    (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
    (:align :center)
-   (:name nil)
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -1356,74 +1278,11 @@ You can also set yur own action as a lambad function or patch :")
          -0.38
          -0.42
          -0.51))))
-     (:add-slots
-      ((:times
-        (:list
-         0
-         114
-         131
-         148
-         165
-         183
-         200
-         219
-         252
-         286
-         337
-         355
-         372
-         388
-         406
-         423
-         440
-         457
-         475
-         508
-         543
-         560
-         577
-         594
-         612
-         628
-         646
-         663
-         680
-         697
-         715
-         732
-         749
-         768
-         801
-         818
-         836
-         852
-         868
-         886
-         903
-         920
-         938
-         972
-         989
-         1007
-         1024
-         1042
-         1059
-         1076
-         1093
-         1111
-         1130
-         1145
-         1164
-         1180))
-       (:decimals 2)
-       (:color nil)
-       (:name "BPC")
-       (:action nil)
-       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))))))
+     (:add-slots ((:name "BPC")))))
    (:id 11))
   (:box
    (:type :value)
-   (:reference tpoint)
+   (:reference (:symbol "OMPOINT" "OM-API"))
    (:group-id nil)
    (:name "value box")
    (:x 367)
@@ -1468,10 +1327,7 @@ You can also set yur own action as a lambad function or patch :")
    (:to (:box 3 :in 1))
    (:attributes
     (:color (:color 0.3 0.3 0.3 1.0) :style nil :modif nil)))
-  (:connection
-   (:from (:box 7 :out 0))
-   (:to (:box 12 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
+  (:connection (:from (:box 7 :out 0)) (:to (:box 12 :in 0)))
   (:connection
    (:from (:box 8 :out 0))
    (:to (:box 5 :in 3))

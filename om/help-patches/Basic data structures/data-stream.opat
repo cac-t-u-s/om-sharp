@@ -1,11 +1,12 @@
 
 (:patch
- (:om-version 7.0)
  (:name "data-stream")
  (:doc "")
  (:info
   (:created "2017/02/05 14:08:32")
-  (:modified "2019/09/28 14:35:35"))
+  (:modified "2020/01/02 8:45:59")
+  (:by "om-sharp")
+  (:version 1.0))
  (:window (:size (500 644)) (:position (729 201)))
  (:grid nil)
  (:lock nil)
@@ -24,11 +25,9 @@
    (:roundness nil)
    (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
    (:align :center)
-   (:name "DATA-STREAM")
    (:display :mini-view)
    (:showname t)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -638,10 +637,8 @@
    (:roundness nil)
    (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
    (:align :center)
-   (:name "OSC-BUNDLE")
    (:display :mini-view)
    (:showname nil)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -714,6 +711,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align :left)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -767,6 +765,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align :left)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -796,6 +795,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align :left)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -849,6 +849,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align :left)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -921,6 +922,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -950,6 +952,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -962,14 +965,8 @@
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 12)))
  (:connections
-  (:connection
-   (:from (:box 1 :out 0))
-   (:to (:box 11 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 2 :out 0))
-   (:to (:box 9 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
+  (:connection (:from (:box 1 :out 0)) (:to (:box 11 :in 0)))
+  (:connection (:from (:box 2 :out 0)) (:to (:box 9 :in 1)))
   (:connection
    (:from (:box 3 :out 0))
    (:to (:box 6 :in 0))
@@ -985,10 +982,7 @@
    (:to (:box 3 :in 2))
    (:attributes
     (:color (:color 0.3 0.3 0.3 1.0) :style nil :modif nil)))
-  (:connection
-   (:from (:box 6 :out 0))
-   (:to (:box 9 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
+  (:connection (:from (:box 6 :out 0)) (:to (:box 9 :in 0)))
   (:connection
    (:from (:box 7 :out 0))
    (:to (:box 6 :in 1))
@@ -999,15 +993,6 @@
    (:to (:box 6 :in 2))
    (:attributes
     (:color (:color 0.3 0.3 0.3 1.0) :style nil :modif nil)))
-  (:connection
-   (:from (:box 9 :out 0))
-   (:to (:box 0 :in 2))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 11 :out 0))
-   (:to (:box 3 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 12 :out 0))
-   (:to (:box 11 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))))
+  (:connection (:from (:box 9 :out 0)) (:to (:box 0 :in 2)))
+  (:connection (:from (:box 11 :out 0)) (:to (:box 3 :in 0)))
+  (:connection (:from (:box 12 :out 0)) (:to (:box 11 :in 1)))))

@@ -1,11 +1,12 @@
 
 (:patch
- (:om-version 0.03)
  (:name "00-sdif-intro")
  (:doc "")
  (:info
   (:created "2019/09/23 11:18:05")
-  (:modified "2019/09/23 12:09:03"))
+  (:modified "2020/01/02 8:48:15")
+  (:by "om-sharp")
+  (:version 1.0))
  (:window (:size (1007 742)) (:position (136 41)))
  (:grid nil)
  (:lock nil)
@@ -21,7 +22,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -43,10 +44,8 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "SDIFFILE")
    (:display :hidden)
    (:showname t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -61,8 +60,7 @@
    (:value
     (:object
      (:class sdiffile)
-     (:slots nil)
-     (:add-slots ((:file-pathname nil) (:file-map nil)))))
+     (:add-slots ((:file-map nil) (:file-pathname nil)))))
    (:id 1))
   (:comment
    (:x 355)
@@ -75,7 +73,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -116,6 +114,7 @@ If no pathname is connected, a file chooser dialog should allow you to select an
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -140,10 +139,8 @@ If no pathname is connected, a file chooser dialog should allow you to select an
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "file01.sdif")
    (:display :hidden)
    (:showname t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -158,8 +155,7 @@ If no pathname is connected, a file chooser dialog should allow you to select an
    (:value
     (:object
      (:class sdiffile)
-     (:slots nil)
-     (:add-slots ((:file-pathname nil) (:file-map nil)))))
+     (:add-slots ((:file-map nil) (:file-pathname nil)))))
    (:id 5))
   (:comment
    (:x 28)
@@ -172,7 +168,7 @@ If no pathname is connected, a file chooser dialog should allow you to select an
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 18.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "The SDIFFILE box:")
@@ -196,7 +192,7 @@ If no pathname is connected, a file chooser dialog should allow you to select an
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -225,7 +221,7 @@ See also the SDIF page in the OM user mnual :
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -244,7 +240,7 @@ The tools in the SDIF package will help you to extract and convert the SDIF data
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 18.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 18) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text "Sound Description Interchange Format")
@@ -260,17 +256,11 @@ The tools in the SDIF package will help you to extract and convert the SDIF data
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 36.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 36) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "SDIF ")
    (:id 10)))
  (:connections
-  (:connection
-   (:from (:box 3 :out 0))
-   (:to (:box 4 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 4 :out 0))
-   (:to (:box 5 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))))
+  (:connection (:from (:box 3 :out 0)) (:to (:box 4 :in 0)))
+  (:connection (:from (:box 4 :out 0)) (:to (:box 5 :in 0)))))

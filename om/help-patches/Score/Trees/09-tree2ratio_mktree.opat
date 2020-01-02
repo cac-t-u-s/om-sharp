@@ -1,12 +1,13 @@
 
 (:patch
- (:om-version 0.03)
  (:name "09-tree2ratio_mktree")
  (:doc "")
  (:info
   (:created "2019/09/24 1:37:55")
-  (:modified "2019/09/24 1:46:02"))
- (:window (:size (695 696)) (:position (400 391)))
+  (:modified "2020/01/02 8:47:47")
+  (:by "om-sharp")
+  (:version 1.0))
+ (:window (:size (695 696)) (:position (400 332)))
  (:grid nil)
  (:lock nil)
  (:boxes
@@ -59,6 +60,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -88,11 +90,9 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "VOICE")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -183,38 +183,38 @@
       ((:onset 0)
        (:duration 4249)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:name "VOICE")
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
-       (:lmidic
+       (:extras nil)
+       (:tree
         (:list
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)))
+         6
+         (:list
+          (:list
+           (:list 2 8)
+           (:list (:list 1 (:list 1 1)) (:list 1 (:list 1 1 1))))
+          (:list
+           (:list 2 8)
+           (:list
+            (:list 1 (:list 3 3 2))
+            (:list 1 (:list 4.0 1.0 12 3.0 16 4))))
+          (:list
+           (:list 3 8)
+           (:list
+            (:list 1 (:list 3.0 4 3))
+            (:list 1 (:list 6.0 24 24 1.0 4 1.0))
+            (:list 1 (:list 4.0 4 1.0 3))))
+          (:list
+           (:list 4 8)
+           (:list
+            (:list 1 (:list 2.0 4 1.0 4 1.0))
+            (:list 1 (:list 1 1 1 1 1 1 1 -7))
+            -2))
+          (:list (:list 5 8) (:list -4 -1))
+          (:list (:list 1 8) (:list -1)))))
+       (:lmidic (:list 6000))
        (:lonset
         (:list
          0
@@ -274,267 +274,12 @@
          (:list 35)
          (:list 34)
          (:list 35)))
-       (:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport
-        (:list
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil))
+       (:lvel (:list 100))
+       (:loffset (:list 0))
+       (:lchan (:list 1))
+       (:lport (:list nil))
        (:llegato nil)
-       (:tree
-        (:list
-         6
-         (:list
-          (:list
-           (:list 2 8)
-           (:list (:list 1 (:list 1 1)) (:list 1 (:list 1 1 1))))
-          (:list
-           (:list 2 8)
-           (:list
-            (:list 1 (:list 3 3 2))
-            (:list 1 (:list 4.0 1.0 12 3.0 16 4))))
-          (:list
-           (:list 3 8)
-           (:list
-            (:list 1 (:list 3.0 4 3))
-            (:list 1 (:list 6.0 24 24 1.0 4 1.0))
-            (:list 1 (:list 4.0 4 1.0 3))))
-          (:list
-           (:list 4 8)
-           (:list
-            (:list 1 (:list 2.0 4 1.0 4 1.0))
-            (:list 1 (:list 1 1 1 1 1 1 1 -7))
-            -2))
-          (:list (:list 5 8) (:list -4 -1))
-          (:list (:list 1 8) (:list -1)))))
-       (:tempo 60)))
-     (:add-slots
-      ((:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport
-        (:list
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil))))))
+       (:tempo 60)))))
    (:id 3))
   (:box
    (:type :object)
@@ -550,11 +295,9 @@
    (:roundness nil)
    (:text-font nil)
    (:align :center)
-   (:name "VOICE")
    (:display :mini-view)
    (:showname nil)
    (:show-markers t)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -628,38 +371,24 @@
       ((:onset 0)
        (:duration 8499)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:name "VOICE")
        (:symbolic-date nil)
        (:symbolic-dur nil)
        (:symbolic-dur-extent 0)
-       (:lmidic
+       (:extras nil)
+       (:tree
         (:list
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)
-         (:list 6000)))
+         17/8
+         (:list
+          (:list (:list 2 8) (:list (:list 2 (:list 1 1))))
+          (:list (:list 2 8) (:list (:list 2 (:list 1 1 1))))
+          (:list (:list 3 8) (:list (:list 3 (:list 1 1 1 1))))
+          (:list (:list 4 8) (:list (:list 4 (:list 1 1 1 1 1))))
+          (:list (:list 5 8) (:list (:list 5 (:list 1 1 1 1 1 1))))
+          (:list
+           (:list 1 8)
+           (:list (:list 1 (:list 1 1 1 1 1 1 1)))))))
+       (:lmidic (:list 6000))
        (:lonset
         (:list
          0
@@ -719,253 +448,12 @@
          (:list 70)
          (:list 71)
          (:list 70)))
-       (:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport
-        (:list
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil))
+       (:lvel (:list 100))
+       (:loffset (:list 0))
+       (:lchan (:list 1))
+       (:lport (:list nil))
        (:llegato nil)
-       (:tree
-        (:list
-         17/8
-         (:list
-          (:list (:list 2 8) (:list (:list 2 (:list 1 1))))
-          (:list (:list 2 8) (:list (:list 2 (:list 1 1 1))))
-          (:list (:list 3 8) (:list (:list 3 (:list 1 1 1 1))))
-          (:list (:list 4 8) (:list (:list 4 (:list 1 1 1 1 1))))
-          (:list (:list 5 8) (:list (:list 5 (:list 1 1 1 1 1 1))))
-          (:list
-           (:list 1 8)
-           (:list (:list 1 (:list 1 1 1 1 1 1 1)))))))
-       (:tempo 60)))
-     (:add-slots
-      ((:lvel
-        (:list
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)
-         (:list 100)))
-       (:loffset
-        (:list
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)
-         (:list 0)))
-       (:lchan
-        (:list
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)
-         (:list 1)))
-       (:lport
-        (:list
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil
-         nil))))))
+       (:tempo 60)))))
    (:id 4))
   (:box
    (:type :function)
@@ -981,6 +469,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1033,6 +522,7 @@ Returns a list of measures contained in <tree>")
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1062,6 +552,7 @@ Returns a list of measures contained in <tree>")
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -1073,31 +564,10 @@ Returns a list of measures contained in <tree>")
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 8)))
  (:connections
-  (:connection
-   (:from (:box 1 :out 0))
-   (:to (:box 2 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 2 :out 0))
-   (:to (:box 7 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 4 :out 1))
-   (:to (:box 5 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 4 :out 1))
-   (:to (:box 8 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 5 :out 0))
-   (:to (:box 7 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 7 :out 0))
-   (:to (:box 3 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 8 :out 0))
-   (:to (:box 2 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))))
+  (:connection (:from (:box 1 :out 0)) (:to (:box 2 :in 0)))
+  (:connection (:from (:box 2 :out 0)) (:to (:box 7 :in 0)))
+  (:connection (:from (:box 4 :out 1)) (:to (:box 5 :in 0)))
+  (:connection (:from (:box 4 :out 1)) (:to (:box 8 :in 0)))
+  (:connection (:from (:box 5 :out 0)) (:to (:box 7 :in 1)))
+  (:connection (:from (:box 7 :out 0)) (:to (:box 3 :in 1)))
+  (:connection (:from (:box 8 :out 0)) (:to (:box 2 :in 1)))))
