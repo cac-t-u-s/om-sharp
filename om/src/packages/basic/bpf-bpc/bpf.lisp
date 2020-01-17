@@ -425,7 +425,7 @@
 ;BOX
 ;=======================================
 (defmethod display-modes-for-object ((self bpf))
-  '(:mini-view :text :mini-view))
+  '(:mini-view :text :hidden))
 
 ;-------------------get the min  max points in x and y axis------------------------------
 ;;; using reduce 'mix/max is fatser when interpreted but not when compiled
