@@ -114,80 +114,74 @@
   (list
    
    (om-make-menu-item 
-       "Print editor help... [H]" 
-       #'(lambda () (funcall (help-command self))) 
-       :enabled (and (help-command self) t))
+    "Online Documentation" 
+    #'(lambda () (om-open-in-browser "https://cac-t-u-s.github.io/om-sharp/pages/index")) 
+    :enabled t)
+    
    
-   (om-make-menu-comp  
-    (list 
-     
-     (om-make-menu-item  
-      "Find source..." 
-      #'(lambda () 
-          (let ((symbols (get-selection-for-menu self)))
-            (if symbols
+   (om-make-menu-item 
+    "Print editor help... [H]" 
+    #'(lambda () (funcall (help-command self))) 
+    :enabled (and (help-command self) t))
+   
+   (om-make-menu-item  
+    "Function & Class Reference" 
+    #'(lambda () 
+        (let ((symbols (get-selection-for-menu self)))
+          (if symbols 
+              (loop for ref in symbols do (show-reference-page ref))
+            (om-open-in-browser (namestring (get-om-reference-pages-index))))))
+    :key "d")
+   
+   (om-make-menu-item  
+    "Find source..." 
+    #'(lambda () 
+        (let ((symbols (get-selection-for-menu self)))
+          (if symbols
 
-                (loop for ref in symbols do (om-lisp::om-edit-definition ref))
+              (loop for ref in symbols do (om-lisp::om-edit-definition ref))
               
-              (let ((str (om-get-user-string "Enter a Lisp function or class name to search.")))
-                (when str 
-                  (let ((symbol (read-from-string str)))
-                    (om-lisp::om-edit-definition symbol))))
-              )
-            ))
-      :key "E")
+            (let ((str (om-get-user-string "Enter a Lisp function or class name to search.")))
+              (when str 
+                (let ((symbol (read-from-string str)))
+                  (om-lisp::om-edit-definition symbol))))
+            )
+          ))
+    :key "E")
      
-     (om-make-menu-item  
-      "Function & Class Reference" 
-      #'(lambda () 
-          (let ((symbols (get-selection-for-menu self)))
-            (if symbols 
-                (loop for ref in symbols do (show-reference-page ref))
-              (om-open-in-browser (namestring (get-om-reference-pages-index))))))
-      :key "d")
-     
-     (om-make-menu-item  
-      "Box Help ¨Patch..." 
-      #'(lambda () 
-          (let ((help-patches (remove nil (mapcar #'get-symbol-help-patch (get-selection-for-menu self)))))
-            (if help-patches 
+   (om-make-menu-item  
+    "Box Help Patch..." 
+    #'(lambda () 
+        (let ((help-patches (remove nil (mapcar #'get-symbol-help-patch (get-selection-for-menu self)))))
+          (if help-patches 
               (loop for patch in help-patches do 
                     (open-help-patch patch))
-              (om-beep))
-            ))
-      :enabled #'(lambda () (get-selection-for-menu self))
-      :key "H")
-     ))
-   
-    (om-make-menu-comp  
-     (list 
-      (om-make-menu-item 
-       "Online Documentation" 
-       #'(lambda () (om-open-in-browser "https://cac-t-u-s.github.io/om-sharp/pages/index")) 
-       :enabled t)
-      ))
-
-    (om-make-menu-comp  
-     #'(lambda (win) 
-         (declare (ignore win))
-         (list 
-          (om-make-menu
-           "Help patches..." 
-           (append 
-            (make-base-help-menu-items)  
-            (list 
-             (om-make-menu-comp 
-              #'(lambda (win) 
-                  (declare (ignore win))
-                  (cons 
-                   (om-make-menu-item "Libraries:" nil :enabled nil)
-                   (loop for lib in (all-om-libraries) 
-                         when (get-lib-help-patches-foler lib)
-                         collect (make-lib-help-menu lib))
-                   ))
-              ))
-            )))))
-    ))
+            (om-beep))
+          ))
+    :enabled #'(lambda () (get-selection-for-menu self))
+    :key "H")
+    
+   (om-make-menu-comp  
+    #'(lambda (win) 
+        (declare (ignore win))
+        (list 
+         (om-make-menu
+          "Help patches..." 
+          (append 
+           (make-base-help-menu-items)  
+           (list 
+            (om-make-menu-comp 
+             #'(lambda (win) 
+                 (declare (ignore win))
+                 (cons 
+                  (om-make-menu-item "Libraries:" nil :enabled nil)
+                  (loop for lib in (all-om-libraries) 
+                        when (get-lib-help-patches-foler lib)
+                        collect (make-lib-help-menu lib))
+                  ))
+             ))
+           )))))
+   ))
 
 
 
