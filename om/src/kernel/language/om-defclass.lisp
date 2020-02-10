@@ -28,19 +28,20 @@
 ;;--------------------------------------------------
 ;; Class definition : DEFCLASS* 
 ;;--------------------------------------------------
-; defclass* uses standard defclass, but set automaticly the metaclass to the OMClass meta-class.
-; this macro fill the omslot of the class object i.e. icon, name.
+; defclass* uses standard defclass, but set automatically the metaclass to the OMClass meta-class.
+; this macro fills the omslot of the class object i.e. icon, name.
 ; if the option :update is set to T the macro update all objects (classes, frames, etc.) attached to the class."
-(defun parse-defclass-options (args)
-   (let* (icon metaclass doc newargs update?)
-     (loop while args do
+;;--------------------------------------------------
+
+(defun parse-defclass-options (options)
+   (let* (icon metaclass doc other-options)
+     (loop while options do
            (cond
-            ((equal (caar args) :icon)            (setf icon (second (pop args))))
-            ((equal (caar args) :documentation)   (setf doc (second (pop args))))
-            ((equal (caar args) :metaclass)       (setf metaclass (second (pop args))))
-            ((equal (caar args) :update)          (setf update? (second (pop args))))
-            (t (push (pop args) newargs ))))
-     (values newargs icon metaclass doc update?)))
+            ((equal (caar options) :icon)            (setf icon (second (pop options))))
+            ((equal (caar options) :documentation)   (setf doc (second (pop options))))
+            ((equal (caar options) :metaclass)       (setf metaclass (second (pop options))))
+            (t (push (pop options) other-options))))
+     (values other-options icon metaclass doc)))
  
 (defmethod update-from-reference  ((self t)) nil)
 
@@ -53,18 +54,13 @@
 ;;; :icon :documentation :metaclass :update 
 (defmacro defclass* (name superclasses slots &rest class-options)
  
-  (multiple-value-bind (new-options icon metaclass doc update?)
+  (multiple-value-bind (other-options icon metaclass doc update?)
       (parse-defclass-options class-options)
-    
-    (declare (ignore update?))
-    
-    (unless metaclass (setf metaclass *def-metaclass-class*))
-    (unless doc (setf doc ""))
-    
+        
     `(let ((new-class (defclass ,name ,superclasses ,slots 
-                        (:metaclass ,metaclass)
-                        (:documentation ,doc)
-                        ,.new-options)))
+                        (:metaclass ,(or metaclass *def-metaclass-class*))
+                        (:documentation ,(or doc ""))
+                        ,.other-options)))
        
        (setf (name new-class) (string ',name))
        (setf (icon new-class) (or ,icon 'icon-class))
