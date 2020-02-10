@@ -1924,10 +1924,11 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
 
 ;;; update text editor when the patch is saved
 (defmethod save-document :after ((self OMPatch))
-  (let ((text-win (find-patch-text-editor-for-file (pathname (mypathname self)))))
-    (when text-win 
-      (om-lisp::revert-text-file text-win))
-    ))
+  (when (mypathname self)
+    (let ((text-win (find-patch-text-editor-for-file (pathname (mypathname self)))))
+      (when text-win 
+        (om-lisp::revert-text-file text-win))
+      )))
 
 
 
