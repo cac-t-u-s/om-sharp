@@ -70,8 +70,10 @@ Lock the box ('b') to keep the current file.
       (om-abort))))
 
 (defmethod objfromobjs ((model pathname) (target SDIFFile))
-  (when (and (probe-file model)
-             (sdif::sdif-check-file model))
+  (when (and (or (probe-file model)
+                 (om-beep-msg "File note found: ~A" model))
+             (or (sdif::sdif-check-file model)
+                 (om-beep-msg "Invalid SDIF file: ~A" model)))
     (setf (file-pathname target) model) 
     target))
 
