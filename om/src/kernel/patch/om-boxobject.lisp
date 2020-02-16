@@ -301,7 +301,7 @@
           (om-init-instance rep (or initargs '(nil)))
           ;;; we want to pass a non-nil ['(NIL) and not NIL] value in order to signal evaluation mode to om-init-instance
           )
-      (progn (om-beep-msg "Can not create a ~A from ~A" type model)
+      (progn (om-beep-msg "Error creating a ~A from ~A" type model)
         (om-abort)))
     ))
 
