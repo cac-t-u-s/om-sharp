@@ -335,7 +335,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 (defmethod (setf computation-plan) (new-plan (self schedulable-object))
   (setf (getf (scheduler-data self) :computation-plan) new-plan))
 
-;;;IntÈgration travail Samuel
+;;;Int√©gration travail Samuel
 (defmethod actionlist ((self schedulable-object))
   (getf (scheduler-data self) :actionlist))
 (defmethod (setf actionlist) (actionlist (self schedulable-object))
@@ -359,7 +359,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 ;(t1 (om-get-internal-time)) ;;start date of scheduling operation
 ;         t2 ;;end date of scheduling operation
 ;         dt ;;duration of the scheduling operation
-;;;SCHEDULE : produit le prochain plan pour un objet et le met ‡ la suite
+;;;SCHEDULE : produit le prochain plan pour un objet et le met √† la suite
 (defmethod schedule ((sched scheduler) (obj schedulable-object))
   (mp:process-send (process sched)
                    #'(lambda ()
@@ -422,8 +422,8 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 
 ;;;fait avancer les intervalles dans l'objet.
 ;;;renvoie le prochain intervalle dans lequel scheduler.
-;;;renvoie (t1 t2+1 :stop) quand arrivÈ au bout (si looper activÈ, renvoie :loop et repart du dÈpart)
-;;;attention : get-obj-dur doit exister pour l'objet (> 0 sinon dÈmarre jamais)
+;;;renvoie (t1 t2+1 :stop) quand arriv√© au bout (si looper activ√©, renvoie :loop et repart du d√©part)
+;;;attention : get-obj-dur doit exister pour l'objet (> 0 sinon d√©marre jamais)
 (defmethod get-next-I ((self schedulable-object))
   (let* ((tmax (if (cadr (interval self))
                    (if (= (cadr (interval self)) *positive-infinity*)

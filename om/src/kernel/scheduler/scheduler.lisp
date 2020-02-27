@@ -121,7 +121,7 @@
       (mp:process-kill (process self))))
 
 ;=================================================================================
-;;;reçoit des demandes de schedule dans sa mailbox et les traite
+;;;reÃ§oit des demandes de schedule dans sa mailbox et les traite
 (defmethod scheduler-function ((self scheduler))
   (mp:ensure-process-mailbox)
   (loop

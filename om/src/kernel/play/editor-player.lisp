@@ -66,7 +66,7 @@
 (defmethod get-play-duration ((self play-editor-mixin)) 
   (+ (get-obj-dur (get-obj-to-play self)) 100))  ;;; = 0 if obj = NIL
 
-;; priorité sur le mode
+;; prioritÃ© sur le mode
 ; (equal (cursor-mode selection-pane) :interval)
 (defmethod play-selection-first ((self t)) t)
 

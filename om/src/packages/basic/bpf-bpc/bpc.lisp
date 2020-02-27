@@ -314,7 +314,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 ;;;=========================================
 ;;; METHODS CALLED FROM OUTSIDE
 ;;;=========================================
-;TODO SOlution Miracle de Dimitri qui marche pas (parce que t'es nul Jérém)
+;TODO SOlution Miracle de Dimitri qui marche pas (parce que t'es nul JÃ©rÃ©m)
 ;(defmethod (setf interpol-time) (new-val (self BPC))
 ;  (setf (slot-value self 'interpol-time) new-val)
 ;  (setf (time-window self) new-val))

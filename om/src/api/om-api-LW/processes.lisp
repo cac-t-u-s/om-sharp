@@ -225,7 +225,7 @@
   (system::call-system (format nil "open ~s" (namestring path)) :wait nil)
   (namestring path))
 
-;;; marche pour un process créé avec la fonction om-run-program ou om-run-application
+;;; marche pour un process crÃ©Ã© avec la fonction om-run-program ou om-run-application
 (defun om-select-program (id)
   (system::call-system (concatenate 'string "open " (namestring id))))
 

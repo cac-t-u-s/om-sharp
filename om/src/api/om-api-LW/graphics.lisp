@@ -342,7 +342,7 @@
     (values 0 0)))
 
 ; (om-string-size "W" (om-def-font :font2))
-; (om-string-wrap "dfghjklmùlkjhgf gfhjlkhg" 10 (om-def-font :font2))
+; (om-string-wrap "dfghjklmÃ¹lkjhgf gfhjlkhg" 10 (om-def-font :font2))
 
 (defun om-string-wrap (str width font)
   (declare (special *curstream* *dummy-view*))

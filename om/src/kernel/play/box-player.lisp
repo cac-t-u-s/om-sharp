@@ -135,7 +135,7 @@
             list2play)
     (when *play-boxes*
       ;(player-set-time-interval *general-player* 0 (+ now (loop for box in list2play maximize (get-obj-dur (get-obj-to-play box)))))
-      ;;; ça fait rien (avec p-obj-player)
+      ;;; Ã§a fait rien (avec p-obj-player)
       (player-start *general-player*)
       )))
 
