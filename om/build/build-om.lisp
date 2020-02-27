@@ -49,6 +49,24 @@
 
 (defparameter *om-root-directory* (make-pathname :directory (butlast (pathname-directory *load-pathname*))))
 
+;;;========================================
+;;; FILE I/O ENCODING, USE UTF-8 AS DEFAULT
+;;;========================================
+
+(defun utf-8-file-encoding (pathname ef-spec buffer length)
+  (declare (ignore pathname buffer length))
+  (system:merge-ef-specs ef-spec :utf-8))
+
+(setq system:*file-encoding-detection-algorithm*
+      (substitute 'utf-8-file-encoding
+                  'system:locale-file-encoding
+                  system:*file-encoding-detection-algorithm*))
+
+(setq system:*file-encoding-detection-algorithm*
+      '(utf-8-file-encoding))
+
+(lw::set-default-character-element-type 'cl:character)
+
 ;;;=======================================
 ;;;; LOAD OM-API
 ;;;=======================================
