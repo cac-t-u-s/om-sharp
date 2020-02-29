@@ -303,7 +303,7 @@
                         NIL))
                     ))
 
-                 (t ;;; no way (this case should never happen...°
+                 (t ;;; no way (this case should never happen...)
                     (om-print-format "Connection could not be restored from ~A (~D) to ~A (~D)" 
                                      (list (name box-from) (getf b1 :out)
                                            (name box-to) (getf b2 :in))
