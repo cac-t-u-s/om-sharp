@@ -24,10 +24,7 @@
   :indoc '("the list" "test" "key")
   :doc "Sorts a list. 
 
-(Deprecated - Use sort-list instead)
-
-<test> is a binary function or function name indicating how to compare elements.
-<key> is a function or function name that will be applied to elements before the test.
+(Deprecated - Use sort-list)
 "
   (sort-list lst :test test :key key))
 
@@ -36,7 +33,7 @@
   :initvals '(nil < nil nil)
   :menuins '((3 (("Yes" t) ("No" nil))))
   :indoc '("a list" "test function" "test key" "recursive sort")
-  :doc "Sorts a list. 
+  :doc "Returns a sorted version of <lst>. 
 <test> is a binary function or function name indicating how to compare elements.
 <key> is a function or function name that will be applied to elements before the test.
 
