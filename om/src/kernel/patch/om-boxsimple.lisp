@@ -162,7 +162,11 @@
                                                       (setf position pos)
                                                       (set-value box (list curr-val))
                                                       (om-invalidate-view view)
-                                                      ))))
+                                                      ))
+                                        :release #'(lambda (view pos)
+                                                     (declare (ignore view pos))
+                                                     (report-modifications (editor (container box))))
+                                        ))
       
       (call-next-method)))
 
