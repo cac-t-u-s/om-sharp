@@ -649,6 +649,9 @@
         (#\w (om-debug))
         
         (#\h (funcall (help-command editor)))
+        
+        (#\d (when selected-boxes
+               (mapcar #'print-help-for-box selected-boxes)))
 
         (otherwise nil))
       )))
@@ -730,7 +733,8 @@
           (mapc 'align-box selected-boxes))
       (om-beep))
     ))
-    
+
+
 ;;;=============================
 ;;; MAKE BOXES
 ;;;=============================
@@ -1557,6 +1561,21 @@
 
 ;;; redefined for connections
 (defmethod get-update-frame ((self t)) nil)
+
+
+(defmethod print-help-for-box ((box t)) nil)
+
+(defmethod print-help-for-box ((box omfunboxcall))
+  (om-print-format 
+   "~%----------------------------------------------------~%~A~%~A~%----------------------------------------------------~%" 
+   (list (string-upcase (name box)) 
+         (or (get-documentation box) "(no documentation)"))))
+    
+(defmethod print-help-for-box ((box omboxeditcall))
+  (om-print-format 
+   "~%----------------------------------------------------~%~A~%~A~%----------------------------------------------------~%" 
+   (list (string-upcase (reference box)) 
+         (or (get-documentation box) "(no documentation)"))))
 
 
 (defmethod default-editor-help-text ((self patch-editor)) 
