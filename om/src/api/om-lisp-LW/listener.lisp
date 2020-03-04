@@ -344,11 +344,10 @@
   (let ((buffer (editor-pane-buffer self)))
     (editor::use-buffer buffer
       (editor::with-point ((p (editor::buffer-point buffer)))
-        (call-editor self (list 'editor::beginning-of-buffer-cancelling-selection-command buffer))
-        #+cocoa(call-editor self (list 'editor::end-of-buffer-extending-selection-command buffer))
-        #-cocoa(call-editor self (list 'editor::end-of-buffer-modifying-selection-command buffer))
-        ))
-    ))
+	(call-editor self (list 'editor:beginning-of-buffer-command))
+	(call-editor self (list 'editor:set-mark-command))
+	(call-editor self (list 'editor:end-of-buffer-command))))))
+
 
 (defun listener-select-all (listenerwin)
   (let ((pane (find-capi-pane-with-focus (pane-layout listenerwin))))
