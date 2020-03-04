@@ -128,12 +128,13 @@
                          (t #'(lambda (item) (declare (ignore item)) nil)))))
     (make-instance 'om-menu-item
                    :title title 
-                   :accelerator (if key (concatenate 'string 
-                                                     (cond ((equal key-mod :default)
-                                                            "accelerator-")
-                                                           (key-mod (concatenate 'string key-mod "-"))
-                                                           (t ""))
-                                                     key)
+                   :accelerator (if (and enabled key)
+				    (concatenate 'string 
+						 (cond ((equal key-mod :default)
+							"accelerator-")
+						       (key-mod (concatenate 'string key-mod "-"))
+						       (t ""))
+						 key)
                                   nil)
                    :enabled-function enablefun
                    :callback-type :none
