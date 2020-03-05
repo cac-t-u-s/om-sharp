@@ -528,10 +528,7 @@
   (with-slots (ep) self
     (let ((buffer (capi::editor-pane-buffer ep)))
       (editor::use-buffer buffer
-        (editor::with-point ((p (editor::buffer-point buffer)))
-          (call-editor ep (list 'editor:beginning-of-buffer-command))
-	  (call-editor ep (list 'editor:set-mark-command))
-	  (call-editor ep (list 'editor:end-of-buffer-command)))))))
+        (call-editor ep (list 'editor:mark-whole-buffer-command))))))
 
 ;;; Utile pour la suite...
 ;;;
