@@ -344,9 +344,7 @@
   (let ((buffer (editor-pane-buffer self)))
     (editor::use-buffer buffer
       (editor::with-point ((p (editor::buffer-point buffer)))
-	(call-editor self (list 'editor:beginning-of-buffer-command))
-	(call-editor self (list 'editor:set-mark-command))
-	(call-editor self (list 'editor:end-of-buffer-command))))))
+	(call-editor self (list 'editor:mark-whole-buffer-command))))))
 
 
 (defun listener-select-all (listenerwin)
