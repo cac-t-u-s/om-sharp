@@ -66,6 +66,7 @@
         "environment/om-workspace" 
         "environment/om-function-reference"
 	"environment/om-swank"
+	"environment/om-tty-listener"
         
         "windows/om-windows"
         "windows/om-main-window"
