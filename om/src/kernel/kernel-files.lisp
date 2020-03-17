@@ -64,7 +64,8 @@
         "environment/om-package"
         "environment/om-library"
         "environment/om-workspace" 
-        "environment/om-function-reference" 
+        "environment/om-function-reference"
+	"environment/om-swank"
         
         "windows/om-windows"
         "windows/om-main-window"
