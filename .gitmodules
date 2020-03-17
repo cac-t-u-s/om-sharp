@@ -1,0 +1,3 @@
+[submodule "om/src/api/om-slime/slime"]
+	path = om/src/api/om-slime/slime
+	url = https://github.com/cac-t-u-s/slime.git
