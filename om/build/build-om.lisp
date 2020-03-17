@@ -78,6 +78,8 @@
 
 (load (merge-pathnames "src/api/foreign-interface/foreign-interface" *om-root-directory*))
 
+(load (merge-pathnames "src/api/om-slime/om-slime.lisp" *om-root-directory*))
+
 ;;;=======================================
 ;;;; LOAD EXTERNAL LISP TOOLS
 ;;;=======================================
