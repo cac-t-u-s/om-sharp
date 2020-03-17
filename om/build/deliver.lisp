@@ -204,19 +204,17 @@
   (push :om-deliver *features*)
   #+cocoa(default-interface)
   (om::om-root-init) 
-  (setf dspec::*active-finders* (append dspec::*active-finders*
-                                        (list (merge-pathnames 
-                                               #+macosx(concatenate 'string *full-app-name* ".app/Contents/Resources/dspec-database." (oa::om-compiled-type))
-                                               #-macosx(concatenate 'string "resources/dspec-database." (oa::om-compiled-type))
-                                               om-api::*om-root*))))
+  (setf dspec::*active-finders* 
+        (append dspec::*active-finders*
+                (list (merge-pathnames
+                       #+macosx (concatenate 'string *full-app-name* ".app/Contents/Resources/dspec-database." (oa::om-compiled-type))
+                       #-macosx (concatenate 'string "resources/dspec-database." (oa::om-compiled-type))
+                       om-api::*om-root*
+                       ))))
   #+cocoa(setf system::*stack-overflow-behaviour* nil)
   (setq om::*om-debug* nil) ;; will disable debug print messages
   (om::start-openmusic)
   )
-
-(list (merge-pathnames 
-       #+macosx(concatenate 'string *full-app-name* ".app/Contents/Resources/dspec-database." (oa::om-compiled-type))
-       om-api::*om-root*))
 
 ;;;==========================
 ;;; SOURCE DEFINITIONS
