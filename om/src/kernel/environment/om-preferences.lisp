@@ -239,11 +239,6 @@
 (add-preference-module :general "General") 
 (add-preference :general :user-name "User name" :string "user")
 
-;;; special case: sets a behavior from the OM-API
-;(defmethod set-pref-in-module :after ((module (eql :general)) (key (:eql :listener-on-top)) val) (setf om-lisp::*listener-on-top* val))
-;;; not anymore (initarg in the constructor)
-
-
 
 
 
