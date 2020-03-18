@@ -239,6 +239,32 @@
 (add-preference-module :general "General") 
 (add-preference :general :user-name "User name" :string "user")
 
+;;; special case: sets a behavior from the OM-API
+;(defmethod set-pref-in-module :after ((module (eql :general)) (key (:eql :listener-on-top)) val) (setf om-lisp::*listener-on-top* val))
+;;; not anymore (initarg in the constructor)
+(add-preference-section 
+ :general "Patch Execution" 
+ nil
+ '(:catch-errors 
+   :debug 
+   :auto-ev-once-mode
+   ))
+
+(add-preference-section 
+ :general "Lisp REPL" 
+ nil 
+ '(:listener-on-top 
+   :listener-input 
+   :listener-font 
+   :textedit-font 
+   :print-system-output 
+   :om-swank-server 
+   :listener-in-tty
+   ))
+
+
+
+
 
 
 
