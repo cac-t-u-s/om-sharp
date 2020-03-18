@@ -300,7 +300,7 @@
                                 :text (pref-item-name pref-item) 
                                 :font (if (equal (pref-item-type pref-item) :title) (om-def-font :font3b) (om-def-font :font2))
                                 :size (om-make-point 180 ;(list :string (format nil "  ~A  " (pref-item-name pref-item))) 
-                                                     20)))
+                                                     (if (equal (pref-item-type pref-item) :title) 25 20))))
          (g-item (make-preference-item (pref-item-type pref-item) pref-item))
          
          (doc-text (when (pref-item-doc pref-item)
