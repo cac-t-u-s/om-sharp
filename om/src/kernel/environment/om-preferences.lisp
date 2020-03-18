@@ -69,7 +69,7 @@
           (om-print (format nil "MODULE: ~A" (pref-module-name module)))
           (loop for prefitem in (pref-module-items module) 
                 unless (equal (pref-item-type prefitem) :title) do 
-                (om-print (format nil "    ~A = ~A ~A" (pref-item-name prefitem) (pref-item-value prefitem) 
+                (om-print (format nil "    ~A = ~A ~A" (pref-item-id prefitem) (pref-item-value prefitem) 
                                   (if (pref-item-visible prefitem) "" "[hidden]"))))
           (om-print "============================"))
     ))
