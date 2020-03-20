@@ -390,7 +390,6 @@
   (values curr-n-chord (or curr-last-chord last-chord))
   ))
 
-(loop for i = 1 then (- i 1) while (> i 0) do (print i))
 
 ;;;===============================================
 ;;; UTILS FOR "NUMDENOM" COMPUTATION
