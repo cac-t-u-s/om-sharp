@@ -391,8 +391,8 @@ Outputs:
 ;;; also return times for the different chuncks
 ;;;------------------------------------------------------------------------------------------
 
-(defmethod special-box-p ((name (eql 'timed-collect))) t)
-(defmethod special-item-reference-class ((item (eql 'timed-collect))) 'OMTimedCollect)
+(defmethod special-box-p ((name (eql 'tcollect))) t)
+(defmethod special-item-reference-class ((item (eql 'tcollect))) 'OMTimedCollect)
 
 (defclass OMTimedCollect (OMCollect) 
   ((timer-var :initform  nil :accessor timer-var)
@@ -409,16 +409,16 @@ Outputs:
 
 
 (defmethod get-box-class ((self OMTimedCollect)) 'OMTimedCollectBox)
-(defmethod box-symbol ((self OMTimedCollect)) 'timed-collect)
+(defmethod box-symbol ((self OMTimedCollect)) 'tcollect)
 
 (defmethod get-icon-id ((self OMTimedCollectBox)) :m-mem)
-(defmethod object-name-in-inspector ((self OMTimedCollectBox)) "timed-collector box")
+(defmethod object-name-in-inspector ((self OMTimedCollectBox)) "timed collector box")
 
 
-(defmethod omNG-make-special-box ((reference (eql 'timed-collect)) pos &optional init-args)
+(defmethod omNG-make-special-box ((reference (eql 'tcollect)) pos &optional init-args)
   (let ((name (car (list! init-args))))
     (omNG-make-new-boxcall 
-     (make-instance 'OMTimedCollect :name (if name (string name) "timed-collect"))
+     (make-instance 'OMTimedCollect :name (if name (string name) "tcollect"))
      pos)))
 
 
