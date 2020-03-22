@@ -55,22 +55,7 @@
                                             :special-symbols '(button slider check-box switch list-selection list-menu)
                                             )
                          ))))
-  ;(add-ref-section (gen-ref-entries kernelpack))
   )
-
-
-
-;(defvar *filebox-package* (omNG-protect-object (omNG-make-new-package "File Box")))
-;(AddGenFun2Pack '(file-box file-write-line file-write file-read-line file-eof-p) *filebox-package*)
-;(AddPackage2Pack *filebox-package* *fileutils-package*)
-
-;(defvar *system-package* (omNG-protect-object (omNG-make-new-package "System")))
-;(AddGenFun2Pack '(om-shell) *system-package*)
-
-;;; DI BOXES
-;(defvar *di-package*  (omNG-protect-object (omNG-make-new-package "Interface Boxes")))
-;(AddClass2Pack '(text-box text-view button check-box 
-;                          slider single-item-list multi-item-list pop-up-menu) *di-package*)
 
 
 
