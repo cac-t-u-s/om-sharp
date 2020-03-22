@@ -31,8 +31,8 @@
                                                                list remove cons append apply funcall mapcar mapcan))
                          (omNG-make-package "Control" 
                                             :doc "Special boxes implementing control operators, argument passing and memory"
-                                            :functions '(seq hub split omif)
-                                            :special-symbols '(in out and or repeat-n mem global)
+                                            :functions '(seq hub split)
+                                            :special-symbols '(in out if and or repeat-n mem global)
                                             )
                          (omNG-make-package "Loop" 
                                             :doc "Special boxes for visual loop implementation"

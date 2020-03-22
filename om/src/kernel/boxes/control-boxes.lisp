@@ -22,29 +22,24 @@
 
 (in-package :om)
 
+; The functions IF, AND, OR in this file are special function that are presented 
+; in the packages as special-boxes. 
+
 ;;;------------------------
 ;;; IF
 ;;;------------------------
 
-(defmethod* OMIF ((test t) (action t) &optional else) 
-   :numouts 1 
-   :initvals '(nil nil nil) 
-   :indoc '("IF" "THEN" "ELSE")
-   :doc "IF <test> THEN <action> ELSE <else>.
+(defclass OMIFBoxCall (OMFunBoxcall) ())
 
-If the evaluation of <test> is not NIL, evaluates <action>. 
-Otherwise evaluates <else> (when supplied) or returns NIL.
+(defmethod special-box-p ((name (eql 'if))) t)
+(defmethod get-box-class ((self (eql 'if))) 'OMIFBoxCall)
+(defmethod get-icon-id ((self OMIFBoxCall)) :cond)
+(defmethod box-type ((self OMIFBoxCall)) :special)
 
-Ex. (omif (= 4 4) 'A 'B)  ==>  'A
-Ex. (omif (= 4 5) 'A 'B)  ==>  'B
-Ex. (omif (= 4 5) 'A)  ==>  NIL
+(defmethod omNG-make-special-box ((reference (eql 'if)) pos &optional (init-args nil args-supplied-p))
+  (omNG-make-new-boxcall reference pos init-args))
 
-" 
-   :icon 'cond
-   (if test action else))
-
-(defclass OMIFBoxCall (OMGFBoxcall) ())
-(defmethod boxclass-from-function-name ((self (eql 'omif))) 'OMIFBoxCall)
+(defmethod create-box-inputs ((self OMIFBoxCall)) (call-next-method))
 
 (defmethod boxcall-value ((self OMIFBoxCall)) 
   (let ((test (omNG-box-value (first (inputs self)))))
@@ -57,6 +52,10 @@ Ex. (omif (= 4 5) 'A)  ==>  NIL
     `(if ,(gen-code (first (inputs self)))
          ,(gen-code (second (inputs self)))
        ,(gen-code (third (inputs self))))))
+
+
+;;; compatibility...
+(defmethod function-changed-name ((reference (eql 'omif))) 'if)
 
 
 ;;;------------------------
