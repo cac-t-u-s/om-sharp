@@ -318,8 +318,11 @@
 (defclass OMLispFBoxcall (OMFunBoxcall) ()
   (:metaclass omstandardclass))
 
-(defmethod get-box-class ((self function)) 'OMLispFBoxcall)
+(defmethod get-box-class ((self t)) nil)
 
+(defmethod get-box-class ((self function)) 
+  (or (get-box-class (function-name self)) 'OMLispFBoxcall))
+  
 (defmethod get-object-type-name ((self OMLispFBoxcall)) "Standard Lisp Function")
 
 (defmethod get-icon-id ((self OMLispFBoxcall)) nil) ;; lisp
