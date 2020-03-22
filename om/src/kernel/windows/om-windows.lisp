@@ -120,7 +120,7 @@
     
    
    (om-make-menu-item 
-    "Print editor help... [H]" 
+    "Print Editor Help [H]" 
     #'(lambda () (funcall (help-command self))) 
     :enabled (and (help-command self) t))
    
@@ -131,7 +131,7 @@
     )
 
    (om-make-menu-item  
-    "Function & Class Reference" 
+    "Function / Class Reference" 
     #'(lambda () 
         (let ((symbols (get-selection-for-menu self)))
           (if symbols 
@@ -140,7 +140,7 @@
     :key "d")
    
    (om-make-menu-item  
-    "Find source..." 
+    "Find Source..." 
     #'(lambda () 
         (let ((symbols (get-selection-for-menu self)))
           (if symbols
@@ -172,7 +172,7 @@
         (declare (ignore win))
         (list 
          (om-make-menu
-          "Help patches..." 
+          "Help Patches..." 
           (append 
            (make-base-help-menu-items)  
            (list 
