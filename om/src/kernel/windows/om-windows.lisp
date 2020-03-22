@@ -124,6 +124,12 @@
     #'(lambda () (funcall (help-command self))) 
     :enabled (and (help-command self) t))
    
+   (om-make-menu-item 
+    "Print Documentation [D]" 
+    #'(lambda () (funcall (help-command self))) 
+    :enabled #'(lambda () (get-selection-for-menu self))
+    )
+
    (om-make-menu-item  
     "Function & Class Reference" 
     #'(lambda () 
