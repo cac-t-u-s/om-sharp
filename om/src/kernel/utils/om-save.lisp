@@ -773,7 +773,7 @@
                 
                 (:function 
                  (if (fboundp reference) 
-                     (omng-make-new-boxcall (fdefinition reference) pos)
+                     (omng-make-new-boxcall reference pos)
                    
                    (let ((new-name (function-changed-name reference)))
                      (if (and new-name (fboundp new-name))

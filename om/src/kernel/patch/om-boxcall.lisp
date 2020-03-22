@@ -62,7 +62,6 @@
              (:reactive "Reactive (r)" :bool reactive)))))
                   
 
-
 (defmethod set-property ((object OMBoxCall) (prop-id (eql :lambda)) val)
   (set-lambda object val))
 
@@ -210,10 +209,13 @@
 (defclass OMFunBoxcall (OMBoxcall) ()
   (:metaclass omstandardclass))
 
-(defmethod omNG-make-new-boxcall ((reference function) pos &optional (init-args nil args-supplied-p))
-  (let* ((box (make-instance (get-box-class reference)
-                             :name (string-downcase (function-name reference))
-                             :reference (function-name reference)))
+(defmethod omNG-make-new-funboxcall ((reference symbol) pos &optional (init-args nil args-supplied-p))
+  (let* ((box (make-instance (or 
+                              (get-box-class reference) ;; symbol name takes precedence
+                              (get-box-class (fdefinition reference)))
+                              
+                             :name (string-downcase reference)
+                             :reference reference))
          (size (minimum-size box)))
     (setf (box-x box) (om-point-x pos)
           (box-y box) (om-point-y pos)
@@ -221,6 +223,20 @@
           (box-h box) (om-point-y size))
     (when args-supplied-p (add-args-to-box box init-args))
     box))
+
+(defmethod omNG-make-new-boxcall ((reference symbol) pos &optional (init-args nil args-supplied-p))
+  (if (fboundp reference)
+      (if args-supplied-p 
+          (omNG-make-new-funboxcall reference pos init-args)
+        (omNG-make-new-funboxcall reference pos))
+    (call-next-method)))
+
+(defmethod omNG-make-new-boxcall ((reference function) pos &optional (init-args nil args-supplied-p))
+  (let* ((symbol (function-name reference)))
+    (if args-supplied-p 
+        (omNG-make-new-funboxcall symbol pos init-args)
+      (omNG-make-new-funboxcall symbol pos))
+    ))
 
 (defmethod box-n-outs ((self OMFunBoxcall)) 1)
 
