@@ -61,7 +61,7 @@
 (defmethod om-draw-picture ((pict-id t) &key (x 0) (y 0) w h (src-x 0) (src-y 0) src-w src-h)
   (when pict-id
     (handler-bind ((error #'(lambda (e) 
-                              (print (format nil "~A: ~A" (type-of e) e))
+                              (print (format nil "!!! ~A: ~A" (string-upcase (type-of e)) e))
                               (abort))))
       (let* ((port *curstream*)
              (image (ignore-errors (gp::load-image port pict-id))))
@@ -76,7 +76,7 @@
 
 (defmethod om-draw-picture ((pict-id gp::image) &key (x 0) (y 0) w h (src-x 0) (src-y 0) src-w src-h)
   (handler-bind ((error #'(lambda (e) 
-                            (print (format nil "~A: ~A" (type-of e) e))
+                            (print (format nil "!!! ~A: ~A" (string-upcase (type-of e)) e))
                             (abort))))
     (let* ((port *curstream*))
         (gp::draw-image port pict-id x y
