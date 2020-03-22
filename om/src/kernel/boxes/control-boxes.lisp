@@ -63,38 +63,27 @@ Ex. (omif (= 4 5) 'A)  ==>  NIL
 ;;; LOGICAL CONTROLS (AND/OR)
 ;;;------------------------
 
-(defmethod* OMOR  ((test t) &rest addtest) :numouts 1 :initvals '(nil nil) :indoc '("something" "other things")
-   :doc "Logical OR:
-Yields the value T (true) if one at least among the values connected to it evaluates to T. 
 
-Accepts as many optional inputs as needed.
+(defclass OMAndBoxCall (OMFunBoxcall) ())
+(defmethod get-box-class ((self (eql 'and))) 'OMAndBoxCall)
 
-OMOR can be used to compose conditions as input to an OMIF" 
-   :icon 'log-or
-   (eval `(or ,test ,.addtest)))
+(defclass OMOrBoxCall (OMFunBoxcall) ())
+(defmethod get-box-class ((self (eql 'or))) 'OMOrBoxCall)
 
+(defmethod special-box-p ((name (eql 'and))) t)
+(defmethod special-box-p ((name (eql 'or))) t)
 
-(defmethod* OMAND  ((test t) &rest addtest) :numouts 1 :initvals '(nil nil) :indoc '("something" "other things")
-   :doc "Logical AND :
-Yields the value T (true) if all the values connected to it evaluates to T. 
+(defmethod get-icon-id ((self OMAndBoxCall)) :and)
+(defmethod get-icon-id ((self OMOrBoxCall)) :or)
 
-Accepts as many optional inputs as needed.
+(defmethod box-type ((self OMAndBoxCall)) :special)
+(defmethod box-type ((self OMOrBoxCall)) :special)
 
-OMAND can be used to compose conditions as input to an OMIF"
-   :icon 'log-and
-   (eval `(and ,test ,.addtest)))
+(defmethod omNG-make-special-box ((reference (eql 'and)) pos &optional init-args)
+  (omNG-make-new-boxcall reference pos init-args))
 
-
-;;; compatibility...
-(defmethod function-changed-name ((reference (eql 'conditional))) 'omor)
-(defmethod update-arg-names ((reference (eql 'omor))) '(("self" "test") ("rest" "addtest")))
-(defmethod update-arg-names ((reference (eql 'omand))) '(("self" "test") ("rest" "addtest")))
-
-
-(defclass OMAndBoxCall (OMGFBoxcall) ())
-(defmethod boxclass-from-function-name ((self (eql 'omand))) 'OMAndBoxCall)
-(defclass OMOrBoxCall (OMGFBoxcall) ())
-(defmethod boxclass-from-function-name ((self (eql 'omor))) 'OMOrBoxCall)
+(defmethod omNG-make-special-box ((reference (eql 'or)) pos &optional init-args)
+  (omNG-make-new-boxcall reference pos init-args))
 
 (defmethod boxcall-value ((self OMAndBoxCall)) 
   (let ((rep t))
@@ -117,3 +106,11 @@ OMAND can be used to compose conditions as input to an OMIF"
 (defmethod gen-code-for-call ((self OMOrBoxCall) &optional args)
   (let ((arguments (or args (gen-code-inputs self))))
     `(or ,.arguments)))
+
+
+;;; compatibility...
+(defmethod function-changed-name ((reference (eql 'omand))) 'and)
+(defmethod function-changed-name ((reference (eql 'omor))) 'or)
+(defmethod function-changed-name ((reference (eql 'conditional))) 'or)
+
+
