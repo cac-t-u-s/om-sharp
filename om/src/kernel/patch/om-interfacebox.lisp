@@ -689,7 +689,9 @@ Click with CMD or when the patch is locked to change the selected input."
                     (sort (cons sel (selection self)) '<)
                   (list sel))))
     
-        (when (reactive (car (outputs self))) (self-notify self))
+        (when (reactive (car (outputs self))) 
+          (self-notify self t t)) ;;; evaluate
+
         (om-invalidate-view frame)
         (when (container self)
           (report-modifications (editor (container self))))
