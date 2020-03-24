@@ -24,7 +24,7 @@
 (defclass* store (named-object)
    ((value :initform nil :initarg :value :accessor value :documentation "the value of the variable"))
    (:icon :store)
-   (:documentation "A general storage class used to simulate variables in teh visual language. Can be associated to global variables.
+   (:documentation "A general storage class used to simulate variables. Can be associated to global variables.
 
 The slot <value> can contain any kind of data, including instances of other classes. 
 It can be accessed (get/set) using the methods get-slot / set-slot or using the SLOTS box (type 'store slots'). ")
