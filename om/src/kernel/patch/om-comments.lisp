@@ -47,7 +47,7 @@
      )))
 
 
-(defmethod object-name-in-inspector ((self OMComment)) "Comment")
+(defmethod object-name-in-inspector ((self OMComment)) "COMMENT")
 (defmethod get-documentation ((self OMComment))
   "Comments are simple textual elements documenting patches.")
 

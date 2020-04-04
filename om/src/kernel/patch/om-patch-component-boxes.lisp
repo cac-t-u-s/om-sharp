@@ -58,7 +58,9 @@
                   "Appearance" 
                   '((:icon "Icon position" (:left :top) icon-pos))))
 
-(defmethod object-name-in-inspector ((self OMPatchComponentBox)) (format nil "~A box" (type-of (reference self))))
+(defmethod object-name-in-inspector ((self OMPatchComponentBox)) 
+  (string+ (string-upcase (type-of (reference self)))
+           " box"))
 
 (defmethod valid-property-p ((self OMPatchComponentBox) (prop-id (eql :lock))) nil)
 (defmethod valid-property-p ((self OMPatchComponentBox) (prop-id (eql :lambda))) nil)

@@ -1551,7 +1551,7 @@
     inspector-pane))
 
 
-(defmethod object-name-in-inspector ((self OMObject)) (name self))
+(defmethod object-name-in-inspector ((self OMObject)) (string-upcase (name self)))
 (defmethod object-name-in-inspector ((self t)) "-")
 
 (defmethod get-documentation ((self t)) "...")

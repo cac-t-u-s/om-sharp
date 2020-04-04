@@ -751,7 +751,7 @@
 (defclass virtual-object-selection () 
   ((objects :initarg :objects :initform nil :accessor objects)))
    
-(defmethod object-name-in-inspector ((self virtual-object-selection)) "multiple selection")
+(defmethod object-name-in-inspector ((self virtual-object-selection)) "Multiple Selection")
 
 (defmethod get-update-frame ((self virtual-object-selection)) self)
 

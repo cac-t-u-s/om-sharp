@@ -90,7 +90,9 @@
 ; PROPERTIES
 ;;;=============================
 
-(defmethod object-name-in-inspector ((self OMBox)) (format nil "~A box" (reference self)))
+(defmethod object-name-in-inspector ((self OMBox)) 
+  (string+ (string-upcase (format nil "~A" (reference self)))
+           " box"))
 
 ;;; id text type slot-name
 (defmethod get-properties-list ((self OMBox))

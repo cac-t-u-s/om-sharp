@@ -36,7 +36,7 @@
 
 (defmethod get-icon-id ((self OMPatchInitBox)) :m-play)
 
-(defmethod object-name-in-inspector ((self OMPatchInitBox)) "init call box")
+(defmethod object-name-in-inspector ((self OMPatchInitBox)) "INIT CALL box")
 
 (defmethod omNG-make-special-box ((reference (eql 'init-do)) pos &optional init-args)
   (let ((name (car (list! init-args))))

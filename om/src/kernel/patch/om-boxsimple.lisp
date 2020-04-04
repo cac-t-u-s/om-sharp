@@ -63,7 +63,7 @@
 (defmethod print-value ((self OMValueBox)) 
   (format nil "~s" (car (value self))))
 
-(defmethod object-name-in-inspector ((self OMValueBox)) "value box")
+(defmethod object-name-in-inspector ((self OMValueBox)) "Value box")
 
 (defmethod get-documentation ((self OMValueBox)) 
   (format 

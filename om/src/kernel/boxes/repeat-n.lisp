@@ -38,7 +38,7 @@
 (defmethod special-box-p ((name (eql 'repeat-n))) t)
 (defmethod get-box-class ((self Repeater)) 'OMRepeatNBoxCall)
 (defmethod get-icon-id ((self OMRepeatNBoxCall)) :repeat)
-(defmethod object-name-in-inspector ((self OMRepeatNBoxCall)) "repeat-n box")
+(defmethod object-name-in-inspector ((self OMRepeatNBoxCall)) "REPEAT-N box")
 
 ;;; returns the default value
 (defmethod next-optional-input ((self OMRepeatNBoxCall)) 

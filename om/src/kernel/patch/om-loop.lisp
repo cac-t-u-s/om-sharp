@@ -265,7 +265,7 @@ Can be connected to other boxes (including iterator boxes: LOOP-LIST, LOOP-FOR, 
 
 (defmethod get-icon-id ((self OMPatchIteratorBox)) :m-loop)
 
-(defmethod object-name-in-inspector ((self OMPatchIteratorBox)) "iterator box")
+(defmethod object-name-in-inspector ((self OMPatchIteratorBox)) "ITERATOR box")
 
 (defmethod omNG-make-special-box ((reference (eql 'iterate)) pos &optional init-args)
   (let ((name (car (list! init-args))))

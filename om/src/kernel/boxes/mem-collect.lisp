@@ -58,7 +58,7 @@
 (defmethod box-symbol ((self OMMemory)) 'mem)
 
 (defmethod get-icon-id ((self OMMemoryBox)) :m-mem)
-(defmethod object-name-in-inspector ((self OMMemoryBox)) "memory/delay box")
+(defmethod object-name-in-inspector ((self OMMemoryBox)) "MEMORY/DELAY box")
 
 (defmethod box-draw ((self OMMemoryBox) frame)
   (when (integerp (size (reference self)))
@@ -250,7 +250,7 @@ Outputs:
 (defmethod box-symbol ((self OMCollect)) 'collect)
 
 (defmethod get-icon-id ((self OMCollectBox)) :m-mem)
-(defmethod object-name-in-inspector ((self OMCollectBox)) "collector box")
+(defmethod object-name-in-inspector ((self OMCollectBox)) "COLLECTOR box")
 
 (defmethod omNG-make-special-box ((reference (eql 'collect)) pos &optional init-args)
   (let ((name (car (list! init-args))))
@@ -412,7 +412,7 @@ Outputs:
 (defmethod box-symbol ((self OMTimedCollect)) 'tcollect)
 
 (defmethod get-icon-id ((self OMTimedCollectBox)) :m-mem)
-(defmethod object-name-in-inspector ((self OMTimedCollectBox)) "timed collector box")
+(defmethod object-name-in-inspector ((self OMTimedCollectBox)) "TIMED COLLECTOR box")
 
 
 (defmethod omNG-make-special-box ((reference (eql 'tcollect)) pos &optional init-args)
@@ -598,7 +598,7 @@ Outputs:
 (defmethod get-box-class ((self OMAccum)) 'OMAccumBox)
 (defmethod box-symbol ((self OMAccum)) 'accum)
 
-(defmethod object-name-in-inspector ((self OMAccumBox)) "accumulator box")
+(defmethod object-name-in-inspector ((self OMAccumBox)) "ACCUMULATOR box")
 
 (defmethod omNG-make-special-box ((reference (eql 'accum)) pos &optional init-args)
   (let ((name (car (list! init-args))))
