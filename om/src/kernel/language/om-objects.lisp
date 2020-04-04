@@ -55,7 +55,7 @@
 
 ;;; careful: some objects shall better not be renamed (functions, classes...)
 (defmethod set-name ((self OMFuncallableObject) text)  (setf (name self) text))
-(defmethod get-name ((self OMFuncallableObject)) (name self))
+(defmethod get-name ((self OMFuncallableObject)) (string-downcase (name self)))
 
 ;;; SUPECLASS FOR BOX, CONNECTIONS ETC.
 (defclass OMVPObject (OMObject) ())
