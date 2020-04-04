@@ -104,8 +104,7 @@ Internally most of these values are just used to build a list of CHORD objects, 
 
 (defmethod do-initialize ((self chord-seq) &key Lmidic Lvel Loffset Ldur Lonset Lchan Lport Llegato)
   
-  (let ((onsets (copy-list (butlast Lonset)))
-        (midics (list! Lmidic))
+  (let ((midics (list! Lmidic))
         (vels (list! Lvel))
         (durs (list! Ldur))
         (offsets (list! Loffset))
@@ -126,14 +125,13 @@ Internally most of these values are just used to build a list of CHORD objects, 
              (mapcar #'(lambda (n) (ObjfromObjs n (make-instance 'chord))) Lmidic))
 
             (t
-             (loop while (or onsets midics vels durs offsets ports)
+             (loop while (or midics vels durs offsets ports)
                    for midic = (or (pop midics) midic)
                    for vel = (or (pop vels) vel)
                    for dur = (or (pop durs) dur)
                    for offset = (or (pop offsets) offset)
                    for chan = (or (pop chans) chan)
                    for port = (or (pop ports) port) 
-                   for onset = (or (pop onsets) onset) 
                    collect (make-instance 
                             'chord 
                             :Lmidic (list! midic) 
@@ -145,26 +143,34 @@ Internally most of these values are just used to build a list of CHORD objects, 
                             )))
              ))) ;;; end chord-list definition
       
-      (loop with defdelay = (if (>= (length Lonset) 2)
-                                (- (car (last Lonset)) (car (last Lonset 2)))
-                             1000) ;;; the default delay between two chords if not specified otherwise
-            with defstart = (or (pop Lonset) 0)
-            for chord in chord-list
-            for onset = defstart then (or (pop Lonset)  (+ onset defdelay))
-            for next-ontset = (or (first Lonset) (+ onset defdelay))
-            for legato = (or (pop legatos) legato) 
-            do (setf (date chord) onset)
-            do (when (and legato (> legato 0))
-                 (if (integerp legato) (setf legato (/ legato 100.0)))
-                 (let ((dur (round (* (- next-ontset onset) legato))))
-                   (loop for note in (notes chord) 
-                         do (setf (offset note) 0 
-                                  (dur note) dur))))
-            )
-              
-      (set-chords self chord-list)
-              
-      self)))
+      
+      (let* ((sorted-list (sort (mat-trans (list (copy-list (first-n Lonset (length chord-list)))
+                                                 (first-n chord-list (length Lonset))))
+                                #'< :key 'car))
+             (unsorted-chords (nthcdr (length Lonset)  chord-list))
+             (sorted-chords (append (mapcar #'second sorted-list) unsorted-chords))
+             (sorted-onsets (mapcar #'first sorted-list)))
+
+        (loop with defdelay = (if (>= (length sorted-onsets) 2)
+                                  (- (car (last sorted-onsets)) (car (last sorted-onsets 2)))
+                                1000) ;;; the default delay between two chords if not specified otherwise
+              with defstart = (or (pop sorted-onsets) 0)
+              for chord in sorted-chords
+                  for onset = defstart then (or (pop sorted-onsets)  (+ onset defdelay))
+                  for next-ontset = (or (first sorted-onsets) (+ onset defdelay))
+                  for legato = (or (pop legatos) legato) 
+                  do (setf (date chord) onset)
+                  do (when (and legato (> legato 0))
+                       (if (integerp legato) (setf legato (/ legato 100.0)))
+                       (let ((dur (round (* (- next-ontset onset) legato))))
+                         (loop for note in (notes chord) 
+                               do (setf (offset note) 0 
+                                        (dur note) dur))))
+                  )
+        
+      (set-chords self sorted-chords)
+      
+      self))))
 
 
 (defmethod initialize-instance ((self chord-seq) &rest initargs)
