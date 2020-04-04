@@ -234,6 +234,8 @@
 (defmethod get-object-slots-for-undo ((self OMPatchIO)) 
   (append (call-next-method) '(index)))
 
+(defmethod get-object-slots-for-undo ((self OMInterfaceBox)) 
+  (append (call-next-method) '(value)))
 
 ;;; restore a new list, restore each object in it
 (defmethod restore-undoable-object-state ((self OMBox) (state list)) 

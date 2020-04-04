@@ -163,6 +163,9 @@
 (defmethod interfacebox-action ((self CheckBoxBox) frame pos)
    (when (or (om-action-key-down)
              (container-frames-locked (om-view-container frame)))
+     
+     (store-current-state-for-undo (editor (container self)))
+
      (set-value self (list (not (get-box-value self))))
      (when (reactive (car (outputs self))) (self-notify self))
      (om-invalidate-view frame)))
@@ -285,6 +288,8 @@
                      (om-invalidate-view view)
                      ))))
       
+      (store-current-state-for-undo (editor (container self)))
+
       ;;; action for the click
       (slider-action frame pos)
       ;;; more if drag
@@ -487,20 +492,22 @@
                (< (om-point-x pos) (- (w frame) 10))
                (< n (length (items self))))
 
-    (if (member n (selection self))
-
-        (setf (selection self) (remove n (selection self)))
+      (store-current-state-for-undo (editor (container self)))
       
-      (setf (selection self) 
-            (if (multiple-selection self)
-                (sort (cons n (selection self)) '<)
-              (list n))))
-    
-    (update-value-from-selection self)
-
-    (when (reactive (car (outputs self))) (self-notify self))
-    (om-invalidate-view frame)
-    )))
+      (if (member n (selection self))
+          
+          (setf (selection self) (remove n (selection self)))
+        
+        (setf (selection self) 
+              (if (multiple-selection self)
+                  (sort (cons n (selection self)) '<)
+                (list n))))
+      
+      (update-value-from-selection self)
+      
+      (when (reactive (car (outputs self))) (self-notify self))
+      (om-invalidate-view frame)
+      )))
 
 
 
@@ -572,6 +579,7 @@
                                (om-make-menu-item 
                                 (format nil "~A" item)
                                 #'(lambda () 
+                                    (store-current-state-for-undo (editor (container self)))
                                     (setf (selection self) sel)
                                     (set-value self (list val))
                                     (when (reactive (car (outputs self))) (self-notify self))
@@ -679,6 +687,8 @@ Click with CMD or when the patch is locked to change the selected input."
       (when (and (> (om-point-y pos) (+ 4 border))
                  (< (om-point-y pos) cell-h)
                  (< sel n))
+        
+        (store-current-state-for-undo (editor (container self)))
 
         (if (member sel (selection self))
           
