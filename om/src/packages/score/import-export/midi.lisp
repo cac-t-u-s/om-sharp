@@ -63,7 +63,7 @@
     
   (set-chords 
    target 
-   (midinotes-to-chords (flat (get-midi-notes model))))
+   (midinotes-to-chords (flat (remove nil (get-midi-notes model)))))
   
   target)
 
