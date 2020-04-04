@@ -530,7 +530,7 @@
     newbox))
 
 (defmethod after-copy-action ((self OMBoxEditCall)) 
-  (unless (find 'connections (inputs self))
+  (unless (find-if #'connections (inputs self))
     (set-lock-state self :locked)))
 
 (defmethod om-view-doubleclick-handler ((self OMObjectBoxFrame) pos) 
