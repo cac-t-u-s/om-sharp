@@ -24,7 +24,7 @@
 ;; we need MultiCacheBoxEditCall as some score-object (POLY/MULTI-SEQ) 
 ;; are subclasses of COLLECTION
 (defclass ScoreBoxEditCall (MultiCacheBoxEditCall) 
-  ((fontsize :accessor fontsize :initform 18)))
+  ((fontsize :accessor fontsize)))
 
 (defmethod special-box-type ((class-name (eql 'score-element))) 'ScoreBoxEditCall)
 
@@ -35,8 +35,12 @@
 (defmethod score-object-default-box-size ((self chord)) (omp 80 80))
 (defmethod score-object-default-box-size ((self note)) (omp 80 80))
 
+(add-preference-section :appearance "Score Boxes")
+(add-preference :appearance :score-font "Score font size" '(10 12 14 16 18 20 24 28 32) 18)
+
 (defmethod get-box-fontsize ((self ScoreBoxEditCall)) 
-  (or (fontsize self) 18))
+  (or (fontsize self) 
+      (get-pref-value :appearance :score-font)))
 
 (defmethod set-box-fontsize ((self ScoreBoxEditCall) size) 
   (setf (fontsize self) size))
@@ -108,7 +112,7 @@
 
 (defmethod compute-font-size ((self score-element) (box OMBox) h y)
   
-  (let* ((font-size 18)
+  (let* ((font-size (get-pref-value :appearance :score-font))
          (unit (font-size-to-unit font-size))
          (y-in-units (/ y unit)))
 
@@ -169,7 +173,7 @@
     (:staff :g)
     (otherwise nil)))
 
-(defmethod get-box-fontsize ((self OMBox)) 18)
+(defmethod get-box-fontsize ((self OMBox)) (get-pref-value :appearance :score-font))
 (defmethod set-box-fontsize ((self OMBox) size) nil)
 
 
