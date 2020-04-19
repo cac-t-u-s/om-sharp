@@ -26,7 +26,7 @@
 ;;; 
 
 (add-preference :general :om-swank-server "Start Swank server" :bool t
-		"Enable Swank server (in Emacs: 'M-x slime-connect RET RET')"
+		"Enable Emacs/Slime communication (in Emacs: 'M-x slime-connect RET RET')"
 		'start-swank-server)
 
 (defun start-swank-server ()    ;hook called after om# init
