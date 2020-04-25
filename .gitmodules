@@ -1,4 +1,4 @@
 [submodule "om/src/api/om-slime/slime"]
-	path = om/src/lisp-externals/slime
+	path = src/lisp-externals/slime
 	url = https://github.com/cac-t-u-s/slime.git
 	ignore = dirty
