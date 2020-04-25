@@ -78,7 +78,6 @@
 
 (load (merge-pathnames "src/api/foreign-interface/foreign-interface" *om-root-directory*))
 
-(load (merge-pathnames "src/api/om-slime/om-slime.lisp" *om-root-directory*))
 
 ;;;=======================================
 ;;;; LOAD EXTERNAL LISP TOOLS
@@ -89,6 +88,12 @@
 ;;; required to load some of the other libs
 ;(load (merge-pathnames "asdf/asdf" *externals-directory*))
 (require :asdf)
+
+
+(load (merge-pathnames "slime/swank-loader.lisp" *externals-directory*))
+(setq swank-loader::*fasl-directory* (merge-pathnames "slime/fasl/" *externals-directory*))
+(swank-loader:init :setup nil :load-contribs t)
+
 
 (load (merge-pathnames "ieee-floats/ieee-floats" *externals-directory*))
 
