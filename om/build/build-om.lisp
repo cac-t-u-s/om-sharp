@@ -104,8 +104,6 @@
   (asdf:operate 'asdf:load-op 'lispworks-udp)
   (push :udp *features*))
 
-;(setf *stdout* #.*standard-output*)
-
 (load (merge-pathnames "XML/load-xml" *externals-directory*))
 
 (progn 
@@ -185,30 +183,9 @@
 (load-om-package "sdif")
 (load-om-package "space")
 
-;(cl-user::clean-sources)
-
 
 (defun cl-user::start-openmusic () (om::start-openmusic))
 
-;; (gen-lib-reference (find-library "OM-Chant"))
-;;; avant de faire un package :
-;; (om::load-all-om-libs)
 
-;;; (start-openmusic)
-;;; (om::show-workspace-win)
-;;; (om::gen-om-reference)
-
-;;; WINDOWS :
-;;; INSTALL OM FONTS IN C:/WINDOWS/Fonts/
-;;; LIBS in C:/WINDOWS/   :
-;;   mshare32.dll player32.dll msmmsystem.dll msmmsystem.ini midishare.ini
-;;   libaudiostream.dll libsndfile.dll
-;;   sdif.dll
-
-;;; MAC :
-;;; INSTALL OM FONTS IN /Library/Fonts/
-;;; Run MidiShare installer
-;;; LIBS in /Library/Frameworks   :
-;;; LibAudioStream.frameworks SDIF.framework
 
 
