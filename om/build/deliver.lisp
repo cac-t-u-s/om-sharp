@@ -15,7 +15,7 @@
 (print "LOADING SOURCES")
 (print "==============================")
 
-(load (current-pathname "build-om"))
+(load (current-pathname "build"))
 
 (print "==============================")
 (print "APPLICATION SETUP")
