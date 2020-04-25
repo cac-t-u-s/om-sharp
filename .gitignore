@@ -20,7 +20,7 @@ Thumbs.db
 
 **/reference-pages/
 
-BUILD/**/*
+_BUILD/**/*
 codesign.sh
 notarize.sh
 VERSION

@@ -4,20 +4,20 @@ cd om\build\
 
 cd ..\..
 
-rmdir BUILD
-mkdir BUILD
+rmdir _BUILD
+mkdir _BUILD
 
-xcopy om BUILD\om-sharp\ /E /y
+xcopy om _BUILD\om-sharp\ /E /y
 
-del /S BUILD\om-sharp\*.*~
-del /S BUILD\om-sharp\resources\fonts\*.otf
-del /S BUILD\om-sharp\*.ofasl
-del /F/Q/S BUILD\om-sharp\resources\lib\*.* > NUL
-rmdir /Q/S BUILD\om-sharp\resources\lib\
+del /S _BUILD\om-sharp\*.*~
+del /S _BUILD\om-sharp\resources\fonts\*.otf
+del /S _BUILD\om-sharp\*.ofasl
+del /F/Q/S _BUILD\om-sharp\resources\lib\*.* > NUL
+rmdir /Q/S _BUILD\om-sharp\resources\lib\
 
-copy "om\resources\lib\win32\libportmidi.dll" BUILD\om-sharp\
-copy "om\resources\lib\win32\libsndfile-1.dll" BUILD\om-sharp\
-copy "om\resources\lib\win32\libsamplerate-0.dll" BUILD\om-sharp\
-copy "om\resources\lib\win32\OMAudioLib.dll" BUILD\om-sharp\
-copy "om\resources\lib\win32\libsdif.dll" BUILD\om-sharp\
+copy "om\resources\lib\win32\libportmidi.dll" _BUILD\om-sharp\
+copy "om\resources\lib\win32\libsndfile-1.dll" _BUILD\om-sharp\
+copy "om\resources\lib\win32\libsamplerate-0.dll" _BUILD\om-sharp\
+copy "om\resources\lib\win32\OMAudioLib.dll" _BUILD\om-sharp\
+copy "om\resources\lib\win32\libsdif.dll" _BUILD\om-sharp\
 
