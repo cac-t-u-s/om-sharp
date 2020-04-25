@@ -741,13 +741,20 @@
 
 
 (defmethod make-new-box-with-instance ((instance cons) pos)
-  (let ((box (omng-make-new-boxcall (find-class 'collection) pos)))
-    (when box
-      (setf (obj-list (get-box-value box)) instance)
-      (om-init-instance (get-box-value box))
-      (setf (display box) :text)
-      )
-    box))
+
+  (if (and
+       (list-subtypep instance 'standard-object)
+       (list-typep instance (type-of (car instance))))
+
+      (let ((box (omng-make-new-boxcall (find-class 'collection) pos)))
+        (when box
+          (setf (obj-list (get-box-value box)) instance)
+          (om-init-instance (get-box-value box))
+          (setf (display box) :text)
+          )
+        box)
+
+    (call-next-method)))
 
 
 (defmethod make-new-box-with-instance ((instance t) pos)
