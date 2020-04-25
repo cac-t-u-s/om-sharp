@@ -144,7 +144,8 @@ at the beat level. Here is an example:
 (defmethod* omquantify ((self chord-seq) (tempi t) (measures list) (max/ t)
                         &optional forbid offset precis)
   (omquantify ; (true-durations self)
-   (x->dx (lonset self))
+   (x->dx (remove-duplicates ;; two onsets at the same time will create a null duration 
+           (lonset self)))
    tempi measures max/ forbid offset precis))
 
 
