@@ -25,6 +25,9 @@
 ;;; pipes).  Default port - 4005 - is used here:
 ;;; 
 
+(in-package :om)
+
+
 (add-preference :general :om-swank-server "Start Swank server" :bool t
 		"Enable Emacs/Slime communication (in Emacs: 'M-x slime-connect RET RET')"
 		'start-swank-server)
