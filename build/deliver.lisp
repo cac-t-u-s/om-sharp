@@ -30,7 +30,7 @@
   
   ;(setf *full-app-name* (concatenate 'string om::*app-name* " " version-str))
 
-  (with-open-file (f (make-pathname :directory (butlast (pathname-directory (current-pathname)) 2)
+  (with-open-file (f (make-pathname :directory (butlast (pathname-directory (current-pathname)))
                                     :name "VERSION")
                      :direction :output
                      :if-exists :supersede)

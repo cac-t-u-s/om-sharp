@@ -27,8 +27,8 @@ echo -e "${CYAN}***************************************************${NC}"
 echo -e "${CYAN}COMPILING STANDALONE IMAGE${NC}"
 echo -e "${CYAN}***************************************************${NC}"
 
-	rm -rf ./om/*.app/
-	/Applications/LispWorks\ $LWVERSION\ \($LWARCH\)/LispWorks\ \($LWARCH\).app/Contents/MacOS/$LWEXEC -build ./om/build/deliver.lisp
+	rm -rf ./*.app/
+	/Applications/LispWorks\ $LWVERSION\ \($LWARCH\)/LispWorks\ \($LWARCH\).app/Contents/MacOS/$LWEXEC -build ./build/deliver.lisp
 	# update version
 	OM_VERSION=$(<"VERSION") 
 echo -e "${GREEN}=> IMAGE DONE!${NC}"
@@ -44,7 +44,7 @@ echo -e "${CYAN}***************************************************${NC}"
 
 	rm -Rf $BUILD_FOLDER
 	mkdir $BUILD_FOLDER
-	cp -R om/"$APP_NAME".app $BUILD_FOLDER
+	cp -R "$APP_NAME".app $BUILD_FOLDER
 
 echo -e "${CYAN}=> Setting fonts....${NC}"	
 #   cp om/resources/fonts/* "$BUILD_FOLDER"/"$APP_NAME".app/Contents/Resources/fonts/
