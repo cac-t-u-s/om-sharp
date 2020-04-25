@@ -15,6 +15,8 @@
 ; File author: A. Vinjar
 ;============================================================================
 
+(in-package :om)
+
 ;; Communication with OM through *terminal-io*
 ;; 
 ;; listener I/O in tty
@@ -27,7 +29,7 @@
   (if (or force (get-pref-value :general :listener-in-tty))
       (lispworks:start-tty-listener)
       (progn
-	(format *terminal-io* "...quitting TTY Listener, bye...~%")
+	(format *terminal-io* "Quitting TTY Listener~%")
 	(mp:process-terminate (mp:get-process "TTY Listener")))))
 
 (add-om-init-fun 'start-stop-tty-listener)
