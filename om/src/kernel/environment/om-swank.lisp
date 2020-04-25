@@ -28,13 +28,27 @@
 (in-package :om)
 
 
-(add-preference :general :om-swank-server "Start Swank server" :bool t
+(add-preference :general :om-swank-server "Start Swank server" :bool nil
 		"Enable Emacs/Slime communication (in Emacs: 'M-x slime-connect RET RET')"
-		'start-swank-server)
+		'update-swank-server)
 
-(defun start-swank-server ()    ;hook called after om# init
-  (when (get-pref-value :general :om-swank-server)
-    (swank::init)
-    (swank:create-server)))
+(defvar *swank-server-port* nil)
 
-(add-om-init-fun 'start-swank-server)
+(defun update-swank-server ()
+  (if (get-pref-value :general :om-swank-server)
+    (setf *swank-server-port* 
+          (swank:create-server))
+    (swank::stop-server *swank-server-port*)
+    ))
+
+
+(defun init-swank-server ()
+
+  (swank::init)
+
+  (when (get-pref-value :general :om-swank-server)  
+    (setf *swank-server-port* 
+          (swank:create-server)))
+  )
+
+(add-om-init-fun 'init-swank-server)
