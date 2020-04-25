@@ -137,7 +137,7 @@
 (editor:setup-indent "defmethod*" 0 2 4)
 (editor:setup-indent "defmethod!" 0 2 4)
 
-(push :om7 *features*)
+(push :om-sharp *features*)
 
 ;;; used for source tracking
 ;;; updated in delivered init call
