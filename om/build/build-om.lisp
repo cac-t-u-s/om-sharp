@@ -85,10 +85,7 @@
 
 (defparameter *externals-directory* (merge-pathnames "src/lisp-externals/" *om-root-directory*))
 
-;;; required to load some of the other libs
-;(load (merge-pathnames "asdf/asdf" *externals-directory*))
 (require :asdf)
-
 
 (load (merge-pathnames "slime/swank-loader.lisp" *externals-directory*))
 (setq swank-loader::*fasl-directory* (merge-pathnames "slime/fasl/" *externals-directory*))
