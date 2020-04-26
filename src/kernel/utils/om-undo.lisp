@@ -187,7 +187,7 @@
 
 
 
-;;; LISTS
+;;; LISTS / CONS
 (defmethod get-undoable-object-state ((self list))
   
   (if (typep (car self) '(or symbol string number)) 
@@ -196,8 +196,10 @@
       (om-copy self)
 
     ;;; handles list of standard objects
-    (loop for item in self
-          collect (list item (get-undoable-object-state item)))))
+    (cons (list (car self) (get-undoable-object-state (car self)))
+          (get-undoable-object-state (cdr self)))
+    ))
+
 
 ;;; restore a new list, restore each object in it
 (defmethod restore-undoable-object-state ((self list) (state list)) 
@@ -208,10 +210,12 @@
        (om-copy state)
     
     ;;; handles list of standard objects
-    (loop for item in state 
-        do (restore-undoable-object-state (car item) (cadr item))
-        collect (car item)))
-  )
+    (cons (progn 
+            (restore-undoable-object-state (car (car state)) (cadr (car state)))
+            (car (car state)))
+          (restore-undoable-object-state (cdr self) (cdr state)))
+    ))
+ 
 
 ;;; BOX
 (defmethod get-undoable-object-state ((self OMBox)) 
