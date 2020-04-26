@@ -351,6 +351,11 @@
              (and (om-view-container frame) 
                   ;;; for some reason sometimes (e.g. while opening the inspector) the container becomes temporarily nil..
                   (container-frames-locked (om-view-container frame))))
+
+     (let ((val-input (find "send-value" (inputs self) :key 'name :test 'string-equal)))
+       (when val-input
+         (setf (send-value self) (omng-box-value val-input))))
+      
     (set-value self (list (send-value self)))
     (om-invalidate-view frame)
     (when (reactive (car (outputs self))) (self-notify self))
