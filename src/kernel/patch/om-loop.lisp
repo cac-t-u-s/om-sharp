@@ -114,7 +114,7 @@ Can be connected to an ITERATE box to control the steps of the iteration (FOR I 
 
 (defmethod omNG-make-special-box ((reference (eql 'loop-for)) pos &optional init-args)
   (omNG-make-new-boxcall 
-   (make-instance 'OMLoopFor :name "for")
+   (make-instance 'OMLoopFor :name "loop-for")
    pos init-args))
 
 (defmethod gen-iteration-code ((self OMLoopFor) &optional inputs) 
@@ -151,7 +151,7 @@ Can be connected to an ITERATE box to control the iteration (FOR ITEM IN <list> 
 
 (defmethod omNG-make-special-box ((reference (eql 'loop-list)) pos &optional init-args)
   (omNG-make-new-boxcall 
-   (make-instance 'OMLoopList :name "list-loop")
+   (make-instance 'OMLoopList :name "loop-list")
    pos init-args))
 
 (defmethod gen-iteration-code ((self OMLoopList) &optional inputs) 
@@ -184,7 +184,7 @@ Can be connected to an ITERATE box to control the iteration (FOR ITEM ON <list> 
 
 (defmethod omNG-make-special-box ((reference (eql 'loop-tail)) pos &optional init-args)
   (omNG-make-new-boxcall 
-   (make-instance 'OMLoopTail :name "tail-loop")
+   (make-instance 'OMLoopTail :name "loop-tail")
    pos init-args))
 
 (defmethod gen-iteration-code ((self OMLoopTail) &optional inputs) 
@@ -219,7 +219,7 @@ Can be connected to an ITERATE box to control when the iteration should stop (WH
 
 (defmethod omNG-make-special-box ((reference (eql 'loop-while)) pos &optional init-args)
   (omNG-make-new-boxcall 
-   (make-instance 'OMLoopWhile :name "while")
+   (make-instance 'OMLoopWhile :name "loop-while")
    pos init-args))
 
 ;;; loopwhiel goes after other iterators declarations
