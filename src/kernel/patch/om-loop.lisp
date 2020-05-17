@@ -222,7 +222,7 @@ Can be connected to an ITERATE box to control when the iteration should stop (WH
    (make-instance 'OMLoopWhile :name "loop-while")
    pos init-args))
 
-;;; loopwhiel goes after other iterators declarations
+;;; while goes after other iterators declarations
 (defmethod index ((self OMLoopWhile)) 1)
 
 (defmethod gen-iteration-code ((self OMLoopWhile) &optional inputs)
@@ -316,8 +316,14 @@ Can be connected to other boxes (including iterator boxes: LOOP-LIST, LOOP-FOR, 
           (setf (n-iter (reference self)) 0)
           (setf *ev-once-context* self)
           (push-let-context)
-          (let* ((iterators-code (apply 'append (mapcar 'gen-loop-code-for-eval loopboxes)))
-                 (update-iterators-value-code (apply 'append (mapcar #'(lambda (b) (gen-loop-iterator-update-code (reference b))) loopboxes)))
+          (let* ((iterators-code 
+                  (apply 'append 
+                         (mapcar 'gen-loop-code-for-eval loopboxes)))
+                 (update-iterators-value-code 
+                  (apply 'append 
+                         (mapcar #'(lambda (b) 
+                                     (gen-loop-iterator-update-code (reference b))) 
+                                 loopboxes)))
                  (loop-code 
                   `(loop 
                     ,.iterators-code
