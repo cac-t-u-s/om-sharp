@@ -73,7 +73,10 @@
   :icon :midi
   :doc "Extracts and returns the MIDI-NOTEs from <self>."
   :icon :midi
-  (if tracknum
+  
+  (when (midi-events self)
+    
+    (if tracknum
       
       (loop for evt in (midi-events self) 
             when (and (equal :note (ev-type evt))
@@ -84,10 +87,11 @@
                                    :dur (midinote-dur evt)
                                    :chan (midinote-channel evt)))
     
-    (let ((tracks (make-list (1+ (list-max
-                                  (loop for evt in (midi-events self) 
-                                        when (equal :note (ev-type evt))
-                                        collect (or (ev-track evt) 0))))
+    (let ((tracks (make-list (1+ (or (list-max
+                                      (loop for evt in (midi-events self) 
+                                            when (equal :note (ev-type evt))
+                                            collect (or (ev-track evt) 0)))
+                                     0))
                              :initial-element nil)))
       (loop for evt in (midi-events self) 
             when (equal :note (ev-type evt))
@@ -102,7 +106,7 @@
                                      )))
                  ))
       tracks)
-    ))
+    )))
 
 
 
