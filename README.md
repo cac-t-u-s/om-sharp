@@ -21,11 +21,14 @@ At a more specialized level, built-in tools and libraries make it a powerful env
 
 ### Contributing
 
-This is a free software distributed under the GPLv3 license. 
+OM# is a free software distributed under the GPLv3 license. 
 
 As a Common Lisp program, OM# can be considered just as an extension of Lisp including the specific built-in features of the application.
-The application is developed with the latest [LispWorks](http://www.lispworks.com/) compiler (7.1.2), which provides multi-platform support and graphical/GUI toolkits in Common Lisp. While free (limited) edition of LispWorks 6 is available on the LispWorks website, unfortunately no such edition of LispWorks v7.x exists at the moment.
-In order to contribute to the code without a LispWorks license, one must therefore work both with the source package _and_ an [up-to-date released version on the distributed executable](https://github.com/cac-t-u-s/om-sharp/releases/latest) (which includes a Lisp interpreter).
+The application is developed with the latest [LispWorks](http://www.lispworks.com/) compiler (7.1.2), which provides multi-platform support and graphical/GUI toolkits in Common Lisp. 
+A limited "Personnal" edition of LispWorks 7 is now available: its limited heap size requires compiling sources in several successive runs, and it is not possible to create new OM# executables with it, however, it allows to load and run/use/edit the program from the sources.
+
+Alternatively, the OM# executable also includes a Lisp interpreter which can load and evaluate modifications and extensiuons of the program sources.
+
 
 ------
 
