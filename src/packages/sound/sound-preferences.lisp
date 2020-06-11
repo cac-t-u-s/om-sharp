@@ -22,7 +22,7 @@
 
 (in-package :om)
 
-(add-preference :audio :format "Default format" '(:aiff :wav) :aiff
+(add-preference :audio :format "Default format" '(:aiff :wav) #+macosx :aiff #-macosx :wav
                 "Applies as default choice for audio synthesis functions")
 
 (add-preference :audio :normalize "Normalization" :bool t
