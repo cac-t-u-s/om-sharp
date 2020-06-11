@@ -318,10 +318,6 @@
 ;;;=============================================
 (defclass om-window (om-abstract-window) ())
 
-(defmethod correct-win-h ((win om-window))
-  ;#+win32(om-set-view-size win (om-add-points (om-view-size win) (om-make-point 0 20)))
- t)
-
 
 ;;;====================
 ;;; DIALOG
@@ -382,23 +378,17 @@
     (call-next-method)))
 |#
 
-(defmethod correct-win-h ((win om-windoid)) nil)
-
 ;;;====================
 ;;; NO BORDER
 ;;;====================
 (defclass om-no-border-win (om-window) ())
 
 (defmethod om-fullscreen-window ((self om-no-border-win)) (call-next-method))
-(defmethod correct-win-h ((win om-no-border-win)) nil)
-
 
 
 ;;;================================
 ;;; MAKE WINDOW
 ;;;================================
-
-(defmethod correct-win-h ((win t)) nil)
 
 (defmethod internal-display ((self t))
   (capi::display self))
@@ -488,8 +478,6 @@
     
          (when subviews (setf (capi::layout-description (capi::pane-layout win)) subviews))
      
-         (correct-win-h win)
-
          (unless (window-dialog-p win)
            (internal-display win))
 
