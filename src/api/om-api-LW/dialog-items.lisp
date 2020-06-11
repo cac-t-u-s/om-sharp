@@ -26,9 +26,7 @@
 ;=========================================================================
 
 (in-package :om-api)
-;;;========
-;;; export :
-;;;========
+
 (export '(
           om-make-di
           om-dialog-item-action
@@ -89,11 +87,10 @@
           om-multicol-item-list
           ) :om-api)
 
+
 ;;;=====================
 ;;;ABSTRACT
 ;;;=====================
-
-
 
 (defclass om-standard-dialog-item (om-graphic-object) 
   ((di-action :accessor di-action :initform nil :initarg :di-action :documentation "the main dialog-item action"))
@@ -102,6 +99,7 @@
    :callback-type :item 
    :scroll-if-not-visible-p nil
    ))
+
 
 ;;;==========
 ;;; GENERAL API CALLS
@@ -117,17 +115,6 @@
 ;;;==========
 ;;; ACTION
 ;;;==========
-
-#|
-;;; => put this in teh callbacks directly ?
-(defmacro om-dialog-item-act (var &body body)
-  `#'(lambda (,var) 
-       (handler-bind 
-           ((error #'(lambda (err)
-                       (capi::display-message "An error of type ~a occurred: ~a" (type-of err) (format nil "~A" err))
-                       (abort err))))
-         ,@body)))
-|#
 
 (defmethod om-dialog-item-action ((self om-standard-dialog-item))  
   (when (di-action self)
@@ -151,11 +138,6 @@
 
 (defmethod om-set-dialog-item-text ((self om-standard-dialog-item) text)
   (setf (capi::item-text self) text))
-
-
-;(defmethod om-create-callback ((self om-standard-dialog-item))
-;  (capi::set-hint-table self (list :default-x (vx self) :default-y (vy self) 
-;                             :default-width (vw self) :defalut-height (vh self))))
 
 (defmethod om-view-position ((self om-standard-dialog-item)) 
    (if  (capi::interface-visible-p self) 
@@ -195,7 +177,6 @@
                                (setf (capi::pinboard-pane-size self) (values (om-point-x size-point) (om-point-y size-point))))
                              (setf (capi::pinboard-pane-position self) (values (vx self) (vy self)))
                              ))
-    ;(om-set-view-position self (om-make-point (vx self) (vy self)))
     )
   (di-after-settings self))
 
@@ -223,8 +204,7 @@
                           (direction :horizontal) (value 0)
                           di-action edit-action begin-edit-action completion resizable
                           &allow-other-keys)
-  (let* (;(wi (or (and size (om-point-x size)) 20)) 
-         (wi (if size (om-point-x size) 20)) 
+  (let* ((wi (if size (om-point-x size) 20)) 
          (hi (if size (om-point-y size) 16))
          (shift #+macosx -5 #-macosx 0)
          (x (and position (+ (om-point-x position) shift)))
@@ -283,7 +263,6 @@
                            
                               :visible-border t
 
-                              
                               ;;; only for text-edit
                               :allows-newline-p nil
                               
@@ -294,7 +273,6 @@
                                                                       (progn (capi::beep-pane) :destroy))))
                               
                               :allow-other-keys t
-                              
                               )
                         ;;; other attributes/keywords of the dialog-items
                         other-attributes
@@ -310,12 +288,12 @@
           (om-set-bg-color di (or bg-color (special-bg di))))
     
         (when position 
-          (setf (vx di) x ; (om-point-x position)
-                (vy di) y ; (om-point-y position)
+          (setf (vx di) x
+                (vy di) y
                 ))
         (when size 
-          (setf (vw di) w ; (om-point-x size) 
-                (vh di) h ;(om-point-y size)
+          (setf (vw di) w 
+                (vh di) h
                 ))
     
         (when container (om-add-subviews container di))
@@ -342,14 +320,9 @@
 
 
 
-
-    
-
 ;=============================
 ; SIMPLE TEXT
 ;=============================
-
-; (capi::contain (make-instance 'capi::title-pane :text "hello" :visible-border :outline))
 
 (defclass om-simple-text (om-standard-dialog-item capi::title-pane) ())
 
@@ -393,8 +366,6 @@
 (defclass om-custom-edit-text (om-standard-dialog-item capi::title-pane) 
   ((cursor-pos :accessor cursor-pos :initform nil)))
 
-;;; todo
-;;; problem: completion
 
 ;=============================
 ; TEXT EDIT SYSTEM
@@ -486,14 +457,6 @@
   ;(capi::set-clipboard self (om-dialog-item-text self))
   (capi::text-input-pane-copy self))
 
-;(defmethod om-paste-command ((self om-editable-text))
-;  (let ((pos (capi::text-input-pane-selection self))
-;        (pasted (length (capi::clipboard self))))
-;    (if (capi::text-input-allows-newline-p self)
-;        (capi::text-input-pane-paste self)      
-;     (om-set-dialog-item-text self (remove #\Newline (capi::clipboard self))))
-;    (capi::set-text-input-pane-selection self (+ pos pasted) (+ pos pasted))))
-
 (defmethod om-paste-command ((self om-editable-text))
   (let ((pos (capi::text-input-pane-selection self))
         (txt (capi::clipboard self)))
@@ -532,6 +495,7 @@
 
 ;=================
 ; EDIT MULTI-LINES
+;=================
 
 (defclass om-text-edit-view (om-editable-text capi::multi-line-text-input-pane) ()
   (:default-initargs 
@@ -605,6 +569,7 @@
 
 
 ;--------om-item-list abstract
+
 (defclass om-item-list (om-standard-dialog-item capi::list-panel) ()
   (:default-initargs 
    :callback-type '(:collection)
@@ -774,11 +739,6 @@
   (when (di-action self)
     (funcall (di-action self) self)))
 
-;(defmethod set-dialog-item-action-function ((self om-popup-list) f)
-;  (when f
-;    (loop for item in (menu-items self) do
-;          (set-menu-item-action-function item #'(lambda () (funcall f self))))))
-
 (defmethod om-get-item-list ((self om-popup-list)) 
   (vector-col-to-list (capi::collection-items self)))
 
@@ -791,7 +751,7 @@
 (defmethod om-dialog-item-enabled ((self om-popup-list))
   (capi::option-pane-enabled self))
 
-;;; !!!!
+;;; !!!
 (defmethod om-get-selected-item ((self om-popup-list))
   (nth (capi::choice-selection self) (om-get-item-list self)))
 

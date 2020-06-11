@@ -65,12 +65,6 @@
 ;;; EQUIVALENT SIMPLE-PANE IN LISPWORK/CAPI
 ;;; manages general callbacks and behaviors
 
-;;; GTK+ Compatibility
-;;; used to instanciate om-graphic-object subclasses
-;(defmacro omg-defclass  (Name Superclass Slots &rest Class-Options)
-;  `(defclass ,name ,superclass ,slots ,.class-options))
-
-
 (defclass om-graphic-object () 
   ((vcontainer :initform nil :initarg :vcontainer :accessor vcontainer)
    (vsubviews :initform nil :initarg :vsubviews :accessor vsubviews)
@@ -84,7 +78,7 @@
    ))
  
 
-;;; different pour om-window
+;;; different for om-window
 (defmethod om-get-view ((self t)) self)
 (defmethod om-get-view ((self om-graphic-object)) self)
   
@@ -94,9 +88,7 @@
 (defmethod container-skip-layout ((self t)) self)
 
 (defmethod om-view-container ((self om-graphic-object))
- (container-skip-layout (vcontainer self))
- ;(container-skip-layout (or (vcontainer self) (capi::element-parent self)))
- )
+ (container-skip-layout (vcontainer self)))
 
 
 (defmethod rec-top-level ((self t))
@@ -111,12 +103,9 @@
 (defmethod om-view-window ((self om-graphic-object))
   (let ((rep (capi::top-level-interface self)))
     (or rep (rec-top-level self))
-    ;(while (null rep) (setf rep (capi::top-level-interface self)))
-    ;rep
     ))
 
 (defmethod om-initialized-p ((self om-graphic-object)) (initialized-p self))
-
 
 
 ;;;======================
@@ -124,7 +113,7 @@
 ;;;======================
 
 (defun maybe-call-update (graphic-obj)
-  (when (and (initialized-p graphic-obj) (not (locked graphic-obj))) ;; (interface-visible-p graphic-obj)
+  (when (and (initialized-p graphic-obj) (not (locked graphic-obj)))
     (update-for-subviews-changes graphic-obj t)
     ))
   
@@ -160,12 +149,9 @@
                                                         (maybe-call-update self))))
 
 
-
-
 (defmethod internal-remove-subview ((self om-graphic-object) (subview om-graphic-object))
   (setf (vcontainer subview) nil)
   (setf (vsubviews self) (remove subview (vsubviews self))))
-
 
 
 ;;;======================
@@ -220,17 +206,17 @@
 (defmethod om-width ((item om-graphic-object)) (om-point-x (om-view-size item)))
 (defmethod om-height ((item om-graphic-object)) (om-point-y (om-view-size item)))
 
+
 ;;;======================
 ;;; TOOLS
 ;;;======================
+
 (defmethod om-view-contains-point-p ((view t) point) nil)
 (defmethod om-view-contains-point-p ((view om-graphic-object) point)
   (let* ((x (om-point-x point))
          (y (om-point-y point))
          (vsize (om-view-size view))
          (vpos (or (om-view-position view) (om-make-point 0 0)))
-         ;(rx  (+ (om-point-x vpos) (om-h-scroll-position view)))
-         ;(ry  (+ (om-point-y vpos) (om-v-scroll-position view)))
          )
     (and (om-point-x vpos) (om-point-y vpos)
          (om-point-x vsize) (om-point-y vsize)
@@ -286,9 +272,6 @@
   (let ((col (when color (omcolor-c color))))
     #-cocoa 
     (if (and col (equal col :transparent) (om-view-container self))
-        ;;; (omcolor-c (om-get-bg-color (om-view-container self)))
-        ;;; (setf col (omcolor-c (om-get-bg-color (om-view-container self))))
-        ;;; nil ;;; do nothing...?
       (capi::simple-pane-background (om-get-view self) NIL)
       (setf (capi::simple-pane-background (om-get-view self)) col))
     #+cocoa
@@ -325,8 +308,6 @@
 
 (defmethod om-set-focus ((self om-graphic-object))
   (capi::set-pane-focus self))
-
-;;; TESTER AVEC capi:activate-pane
 
 (defmethod om-get-name ((self om-graphic-object)) (capi::capi-object-name self))
 

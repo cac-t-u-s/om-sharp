@@ -105,7 +105,6 @@
   (let ((err (car l))
         (backtrace (with-output-to-string (stream)
                     (dbg:output-backtrace t stream))))
-   ;(print (car l)) (terpri) (print backtrace)
    (capi::display-message "ERROR: ~A~%" err)
    (setf om-lisp::*error-backtrace* (print (format nil "ERROR: ~A~%~%~A" err backtrace)))
    (abort)))
@@ -120,9 +119,7 @@
         ,@forms)))
 
 (defun set-om-debugger ()
-  ; (when (member :om-deliver *features*)
-  (setq *debugger-hook* 'om-error-handler)
-  )
+  (setq *debugger-hook* 'om-error-handler))
 
 (define-action "When starting image" "Init debug/backtrace tool" 'set-om-debugger)
 

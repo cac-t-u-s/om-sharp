@@ -90,12 +90,8 @@
    :destroy-callback 'om-destroy-callback
    ))
 
-;;; appelé à la création de la fenetre
-;;; (pas a l'apparition)
+
 (defmethod om-create-callback ((self om-abstract-window))
-  ;; (set-hint-table self (list :default-x (vx self) :default-y (vy self) :default-width (vw self) :default-height (vh self)))
-  ;; (loop for item in (vsubviews self) do
-  ;;      (om-add-subviews thewin item))
   (setf (initialized-p self) t)
   t)
 
@@ -162,13 +158,11 @@
         (he (om-point-y size-point)))
     (capi::execute-with-interface self 
                             #'(lambda (w h)
-                                ;(print (list w h))
                                 (unless (resizable self)
                                   (set-not-resizable self :w w :h h))
                                 (when (capi::interface-visible-p self)
                                   (capi::set-top-level-interface-geometry 
                                    self :width w :height h
-                                   ;:x (vx self) :y (vy self)    ;; ?
                                    ))
                                 (setf (vw self) w (vh self) h)
                                 (om-window-resized self size-point)
@@ -178,12 +172,10 @@
 
 
 (defmethod om-interior-size ((self om-abstract-window))
- ;(print (capi::interface-geometry self))
   #+win32(if (capi::interface-visible-p (capi::pane-layout self))
              (multiple-value-bind (w h) (capi::pinboard-pane-size (capi::pane-layout self))
                (om-make-point w h))
            (om-view-size self))
-  ;;;(om-subtract-points (om-view-size self) (om-make-point 30 30))
   #-win32(om-view-size self)
   )
 
@@ -232,16 +224,8 @@
         ))))
 
 (defmethod om-fullscreen-window ((self om-abstract-window))
-  ;;; pour l'instant, maximize... à faire en fullscreen
   (setf (fullscreen self) t)
-  ;(execute-with-interface self 
-  ;                        'set-top-level-interface-geometry 
-  ;                        self 
-  ;                        :width (capi::screen-width (capi:convert-to-screen self))
-  ;                        :height (capi::screen-height (capi:convert-to-screen self))
-  ;                        :x 0 :y 0)
   (om-set-view-position self (om-make-point 0 0))
-
   (om-set-view-size self (om-make-point (capi::screen-width (capi:convert-to-screen self)) 
                                        (- (capi::screen-height (capi:convert-to-screen self)) 20)))
   )
@@ -250,12 +234,11 @@
   (om-make-point (capi::screen-width (capi:convert-to-screen nil))
                  (capi::screen-height (capi:convert-to-screen nil))))
 
-;; test, parfois collect-interfaces plante...
 (defun om-front-window () 
-  #+(or darwin macos macosx)
+  #+cocoa
   (capi:screen-active-interface (capi:convert-to-screen))
-  #-(or darwin macos macosx)
-  ; --> ça plante (parfois)
+  #-cocoa
+  ; crashes sometimes :(
   (car (capi::collect-interfaces 'om-abstract-window :screen :any :sort-by :visible))
 )
 
@@ -290,7 +273,6 @@
                                 #'(lambda (x) (capi::display x))
                                 self))
 
-;;; Explicit call to close window
 (defmethod om-close-window ((win t))
   (when win (capi:apply-in-pane-process win 'capi:quit-interface win)))
 
@@ -301,12 +283,8 @@
   (and (initialized-p window) 
        (not (equal (capi::interface-created-state window) :destroyed))))
 
-;;; Called by CAPI when activating the window
 (defmethod om-activate-callback ((self om-abstract-window) activatep)
-  ;(print (multiple-value-list (get-constraints self)))
-  (when t ; activatep
-    (om-window-activate self activatep)
-    ))
+  (om-window-activate self activatep))
 
 ;;; OM event handler
 (defmethod om-window-activate ((self om-abstract-window) &optional (activatep t)) t)
@@ -337,11 +315,6 @@
     (capi::display self))
   self)
 
-;(defmethod make-window-layout ((self om-dialog) &optional color)
-;  (make-instance 'window-layout :internal-border nil :visible-border nil :accepts-focus-p nil
-;                 #+cocoa :background #+cocoa :transparent
-;                 ))
-
 (defun om-modal-dialog (dialog &optional (owner nil))
   ;(update-for-subviews-changes dialog t)
   (capi::display-dialog dialog :owner (or owner (capi:convert-to-screen)) ; (om-front-window)
@@ -365,18 +338,6 @@
   ;#+win32(capi::display self :process nil)
   (capi::display self))
 
-
-;(defmethod make-window-layout ((self om-windoid) &optional color)
-;  (make-instance 'window-layout :internal-border nil :visible-border nil 
-;                 :background :transparent))
-
-#|
-(defmethod om-set-view-size ((self om-windoid) size-point) 
-  (let ((w (om-point-x size-point))
-        (h (om-point-y size-point)))
-    ;(set-not-resizable self :w w :h h)
-    (call-next-method)))
-|#
 
 ;;;====================
 ;;; NO BORDER
@@ -412,8 +373,6 @@
    ((subtypep class 'om-dialog) '(:no-geometry-animation))
    ))
 
-;(defclass om-default-view-layout (om-view) ()
-;  (:default-initargs :background :transparent))
 
 (defun om-make-window (class &rest attributes 
 			  &key position size
@@ -470,12 +429,6 @@
                  win-layout))
          (when bg-color (setf (capi::simple-pane-background (capi::pane-layout win)) (omcolor-c bg-color)))
      
-     ;(when (setf layout (make-window-layout thewin ,bg-color))
-     ;  #+cocoa(if (drawable-layout layout) (setf (capi::output-pane-display-callback layout) 'om-draw-contents-callback))
-     ;  (setf (capi::pane-layout thewin) layout)
-     ;  )
-     ;(when subviews (mapc (lambda (sv) (om-add-subviews thewin sv)) subviews))
-    
          (when subviews (setf (capi::layout-description (capi::pane-layout win)) subviews))
      
          (unless (window-dialog-p win)

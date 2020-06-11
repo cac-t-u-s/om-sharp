@@ -215,8 +215,6 @@
       (internal-drag-start self pos)
       )))
 
-;(defmethod om-view-click-handler :after ((self om-drag-view) pos) nil)
-
 (defvar *last-pinboard-under-mouse* nil)
 
 (defun om-drop-callback (self drop-object stage)
@@ -254,7 +252,6 @@
                (om-drag-leave-view *last-pinboard-under-mouse*))
              (om-drag-enter-view dropview)
              (setf *last-pinboard-under-mouse* dropview))
-            ;(print (capi:drop-object-provides-format drop-object :om-object))
            (set-effect-for-operation drop-object)
            
            #+mswindows
@@ -268,7 +265,6 @@
        (multiple-value-bind (x y) (capi::current-pointer-position :relative-to self :pane-relative-p t)
          (let ((dropview (or (capi::pinboard-object-at-position self x y) self))
                )
-           ;(print dropview)
            (setf *last-pinboard-under-mouse* nil)
            (if (or 
                 (and (capi:drop-object-provides-format drop-object :filename-list)

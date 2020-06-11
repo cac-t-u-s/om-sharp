@@ -27,9 +27,6 @@
 
 (in-package :om-api)
 
-;;;===================
-;;; export :
-;;;===================
 (export '(
           om-run-process
           om-kill-process
@@ -157,7 +154,6 @@
 
 (defparameter *use-eval-process* t)
 
-;;; use a separate thread to eval with OM-EVAL-ENQUEUE
 (defun om-use-eval-process (mode)
   (setq *use-eval-process* mode))
 
@@ -196,15 +192,8 @@
         #+win32(sys:call-system str :wait t)
         ))))
 
-;(sys::change-directory  (om-make-pathname :directory om::*om-midi-settings-app-path*))
-;(hcl::get-working-directory)
 
-; (sys:run-shell-command (format nil "~s" (namestring om::*om-midi-settings-app-path*)))
-;(system::call-system (format nil "~s" (namestring om::*om-midi-settings-app-path*)) :wait t)
-
-
-;;; doit retourner un ID !!
-;;; path = un exe ou bien un .app dont on vet executer l'exe
+;;; path = exe or .app
 (defun om-run-program (path &optional afterfun)
   (let ((pathstr (namestring path)))
     (when (equal (elt pathstr (- (length pathstr) 1)) #\/)
@@ -221,11 +210,13 @@
                                      (when afterfun (funcall afterfun))))
         (namestring path)))
 
+
 (defun om-run-application (path)
   (system::call-system (format nil "open ~s" (namestring path)) :wait nil)
   (namestring path))
 
-;;; marche pour un process créé avec la fonction om-run-program ou om-run-application
+
+;;; for a process created with om-run-program or om-run-application
 (defun om-select-program (id)
   (system::call-system (concatenate 'string "open " (namestring id))))
 

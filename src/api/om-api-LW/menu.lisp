@@ -62,29 +62,6 @@
 ;;; Inherits: title - accelerator
 (defclass om-menu-item (capi::menu-item) ())
 
-#|
-(defmethod menu-item-title ((self om-menu)) (capi::menu-title self))
-(defmethod menu-item-title ((self om-menu-group)) "")
-(defmethod menu-item-title ((self om-menu-item)) (capi::item-title menuitem))
-
-
-(defmethod om-find-menu-item ((menu om-menu) item)
-  (let ((founditem nil))
-    (loop for mitem in (capi::menu-items menu) while (not founditem) do
-          (setf founditem (om-find-menu-item mitem item)))))
-
-(defmethod om-find-menu-item ((menu om-menu-group) item)
-  (let ((founditem nil))
-    (loop for mitem in (capi::collection-items menu) while (not founditem) do
-          (setf founditem (om-find-menu-item mitem item)))))
-
-(defmethod om-find-menu-item ((menu om-menu-item) (item string))
-  (string-equal (capi::menu-item-title menu) item))
-
-(defmethod om-find-menu-item ((menu om-menu-item) (item om-menu-item))
-  (equal menu item))
-|#
-
 ;;;Creates a new menu with the given <title> and the list of <menus>.
 (defun om-make-menu (title items &key (enabled t))
   (let ((enablefun (cond ((functionp enabled) #'(lambda (item) (declare (ignore item)) (funcall enabled)))
@@ -97,23 +74,6 @@
                  :items (list (om-make-menu-comp items :selection t))
                  :enabled-function enablefun
                  )))
-
-;(capi:contain 
-; (make-instance 'capi::menu :items 
-;                (list (make-instance 'capi:menu-component 
-;                                     :interaction :none
-;                                     :callback-type :item
-;                                     :items (list 
-;                                             (make-instance 'capi::menu-item :title "A"
-;                                                            :enabled-function #'(lambda (x) t)
-;                                                            :selected-function #'(lambda (x) nil))
-;                                             (make-instance 'capi::menu-item :title "B"
-;                                                            :enabled-function #'(lambda (x) t)
-;                                                            :selected-function #'(lambda (x) nil))
-;                                             (make-instance 'capi::menu-item :title "C" 
-;                                                            :enabled-function #'(lambda (x) nil)
-;                                                            :selected-function #'(lambda (x) t)))))))
-
                      
 ;Creates a new leaf menu with the given <title> and <action>.
 (defun om-make-menu-item (title action &key (key nil) (key-mod :default) (enabled t) selected )
@@ -156,18 +116,6 @@
                  :interaction :none))
 
 
-#|
-(defun om-select-menu-item (menu item)
-  (let ((select-item (om-find-menu-item menu item)))
-    (when select-item
-      (setf (capi::item-selected select-item) t))))
-
-(defun om-enable-menu-item (menu-item enabled?)
-  (setf (enabled menu-item)  enabled?))
-|#
-
-
-
 ;;;;===================
 ;;;; POP UP / CONTEXT MENU
 ;;;;===================
@@ -207,12 +155,12 @@
       (setf *menu-context-open* nil))
     ))
 
-;;; pour un objet graphique
+
 (defmethod om-popup-menu-context ((self om-graphic-object) &optional container-view)
   (let ((themenu (capi::make-menu-for-pane self (om-get-menu-context self))))
     (om-open-pop-up-menu themenu self)))
 
-;;; pour un objet non graphique
+
 (defmethod om-popup-menu-context ((self t) &optional container-view)
   (let ((themenu (capi::make-menu-for-pane (om-get-menu-context self) self))
         (container (if container-view container-view self)))
@@ -224,28 +172,6 @@
 ;;; Explicit call for open
 ;;;=========================
 
-;;; class
-; (defclass om-pop-up-menu (om-standard-dialog-item capi::menu) ())
-
 (defun om-open-pop-up-menu (themenu self)
   (capi::display-popup-menu themenu :owner self))
-
-;(defun om-create-menu (class itemlist)
-;  (make-instance class :items (list-to-menu itemlist)))
-
-;(let* ((pane (make-instance 'capi::simple-pane))
-;       (menu (capi::make-menu-for-pane 
-;              pane                                       
-;              (list (make-instance 'capi::menu-item :title "test"
-;                                   :callback-type :none :font (om-make-font "Arial" 8)
-;                                   :callback #'(lambda () (print "hello")))))))
-;  (capi::contain pane)
-;  (setf (capi::menu-item-font menu) (om-make-font "Arial" 8))
-;  (capi::display-popup-menu menu :owner pane)  
-;  )
-
-
-
-
-
 

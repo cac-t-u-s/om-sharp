@@ -44,7 +44,7 @@
            
           om-shift-key-p
           om-command-key-p
-	  om-option-key-p
+	        om-option-key-p
           
           om-mouse-position
 
@@ -168,7 +168,7 @@
     ;(print (list "subviews of" self))
     (loop for item in (om-subviews self)
           while (equal clicked self) do
-          (when (and item (om-view-contains-point-p item position)) ;; (om-convert-coordinates position self (vcontainer item))))
+          (when (and item (om-view-contains-point-p item position))
             (setf clicked (apply-in-subview item function (om-add-points 
                                                            (om-convert-coordinates position self item)
                                                            (om-scroll-position item))))))
@@ -176,9 +176,6 @@
       (setf clicked (apply-in-item-subview self function position)))
     clicked))
 
-
-
-; (om-convert-coordinates position self item)
 
 ;;;=================
 ;;; MOTION & CURSOR
@@ -286,8 +283,6 @@
   (unless (equal *clicked-view* :abort)
     (if *clicked-view*
         (om-click-motion-handler *clicked-view* (om-convert-coordinates (om-make-point x y) self *clicked-view*))
-      ; ?!! verifier si tout va bien...
-      ;(apply-in-item-subview *clicked-view* 'om-click-motion-handler (om-convert-coordinates (om-make-point x y) self *clicked-view*))
       (apply-in-item-subview self 'om-click-motion-handler (om-make-point x y))))
   )
    
@@ -395,7 +390,6 @@
 (defun om-option-key-p ()  *om-option-key-p*)
 
 (defmethod om-char-spec-callback ((self om-interactive-object) x y spec)
-  ;(print (list "char spec" self x y spec))
   (let ((data (sys:gesture-spec-data spec))
         (modifiers (sys:gesture-spec-modifiers spec)))
      (set-meta-keys (get-om-spec-modifiers modifiers))
@@ -410,7 +404,6 @@
 ;;; by default the key actions are transferred to the window
 ;;; but any active view can redefine the method
 (defmethod om-view-key-handler ((self om-graphic-object) key)
-  ;(print (list "gc" self key)) 
   (om-view-key-handler (om-view-window self) key))
 
 

@@ -37,9 +37,6 @@
           ) :om-api)
 
 
-       
-;------
-
 (defvar *scheduler-timer* nil)
 
 (defun scheduler-fun () t)

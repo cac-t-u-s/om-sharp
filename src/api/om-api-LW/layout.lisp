@@ -89,7 +89,7 @@
                                  (make-xy-args class :uniform-size-p nil)
                                  (when ratios (make-xy-args class :ratios ratios))
                                  (when delta (make-xy-args class :gap delta))
-                                 (when align (make-xy-args class :adjust align))  ;;; APPARENTLY ADJUST DOES NOT WORK.... I think it should not be x and y specific (cf example en bas)
+                                 (when align (make-xy-args class :adjust align))  ;;; APPARENTLY ADJUST DOES NOT WORK...
                                  (when dimensions 
                                    (list :columns (if (listp dimensions) (car dimensions) dimensions)
                                          :rows (if (listp dimensions) (cadr dimensions) dimensions)))
@@ -232,40 +232,16 @@
    self
    #'(lambda () (capi::append-items self subviews))))
 
+
 ;;;================================
 ;;; LAYOUT HANDLES SUBVIEWS
 ;;;================================
-
-;(defmethod interface-display :after ((self om-abstract-window)) 
-;  (update-for-subviews-changes self t))
-
-;(defmethod update-for-subviews-changes ((self om-abstract-window) &optional (recursive nil))
-;  (capi::execute-with-interface self (lambda () (set-layout (pane-layout self))))
-;  (when recursive (mapc #'(lambda (view) (if (om-view-p view) (update-for-subviews-changes view t))) (vsubviews self)))
-;  (when (pane-layout self) (mapc 'update-po-position (item-subviews (pane-layout self))))
-;  )
-
-; temp 
-;(defmethod item-subviews ((self t)) nil)
-
-;(defmethod internal-add-subview ((self om-abstract-window) (subview om-graphic-object))
-;  (setf (vcontainer subview) (pane-layout self))
-;  (setf (vsubviews (pane-layout self)) (append (vsubviews (pane-layout self)) (list subview))))
-
-
-;(defmethod internal-remove-subview ((self om-abstract-window) (subview om-graphic-object))
-;  (setf (vcontainer subview) nil)
-;  (setf (vsubviews (pane-layout self)) (remove subview (vsubviews (pane-layout self))))
-  ; (setf (element-parent subview) nil)
-;  )
 
 (defmethod om-subviews ((self om-abstract-window)) 
     (om-subviews (capi::pane-layout self)))
 
 (defmethod om-add-subviews ((self om-abstract-window) &rest subviews)
-  (apply 'om-add-subviews (cons (capi::pane-layout self) subviews))
-  ;(setf (capi::layout-description (capi::pane-layout self)) subviews)
-  )
+  (apply 'om-add-subviews (cons (capi::pane-layout self) subviews)))
 
 (defmethod om-remove-subviews ((self om-abstract-window) &rest subviews)
   (apply 'om-remove-subviews (cons (capi::pane-layout self) subviews)))

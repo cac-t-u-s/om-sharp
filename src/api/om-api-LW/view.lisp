@@ -114,10 +114,6 @@
                          (item-subviews view)))))
   )
 
-;(apply-in-pane-process view 'capi::set-hint-table view '(:internal-min-width 10))
-
- 
-
 
 (defmethod set-layout ((view t)) nil)
 

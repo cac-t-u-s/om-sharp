@@ -51,7 +51,7 @@
   (om-print-document self))
 
 
-;print the window in one page IL FAUT ALIGNER A LA TAILLE DU PATCH ET NON DE LA FENETRE
+;print the window in one page
 (defun om-print-one-page (self) 
   (let ((image (gp::make-image-from-port (om-get-view self) 0 0 (- (om-width self) 15) (- (om-height self) 15))))
     (when image

@@ -160,8 +160,6 @@
                 :y (* (om-point-y point) fact)))
 
 (defmethod om-point-mv ((point ompoint) &key x y)
-  ;(make-ompoint :x (if x (+ (ompoint-x point) x) (ompoint-x point))
-  ;              :y (if y (+ (ompoint-y point) y) (ompoint-y point)))
   (if x (setf (ompoint-x point) (+ (ompoint-x point) x)))
   (if y (setf (ompoint-y point) (+ (ompoint-y point) y)))
   point)
@@ -217,8 +215,6 @@
 
 (defstruct omcolor
   (c (color:make-rgb 0 0 0)))
-;;; modifs dans graphics.lisp, windows.lisp, dialog-items.lisp
-;;; user-interface.lisp; movable-object.lisp
 
 (defun om-make-color (r g b &optional a)
   (make-omcolor :c (color:make-rgb r g b a)))
@@ -233,7 +229,6 @@
   (declare (ignore env))
   `(make-omcolor :c ,(omcolor-c self)))
 
-;(defmethod om-color-p ((self t)) (color::color-spec-p self))
 (defmethod om-color-p ((self t)) nil)
 (defmethod om-color-p ((self omcolor)) t)
 
@@ -302,7 +297,6 @@
    :charset :ansi 
    :devicep nil 
    :type :truetype 
-   ;:w-family :swiss
    ))
 
 (defun om-font-face (font) 
@@ -332,7 +326,6 @@
           
 
 (defun om-string-size (str &optional font)
-  ;(setf (capi::simple-pane-font *dummy-view*) (or font (om-def-font :font2)))
   (if str 
       (multiple-value-bind (left top right bottom)
           (gp::get-string-extent   
@@ -342,7 +335,7 @@
     (values 0 0)))
 
 ; (om-string-size "W" (om-def-font :font2))
-; (om-string-wrap "dfghjklmùlkjhgf gfhjlkhg" 10 (om-def-font :font2))
+; (om-string-wrap "azertyuiop qsdfghjklm wxcvbn" 10 (om-def-font :font2))
 
 (defun om-string-wrap (str width font)
   (declare (special *curstream* *dummy-view*))
@@ -392,6 +385,3 @@
           (om-make-font "Times" (or size 12))))
           
 ;;; #+win32 (gp::font-description capi-win32-lib::*win32-default-gui-font*))
-
-;(defun om-make-font-object (font)
-;  (gp::find-best-font oa::*dummy-view* font))

@@ -75,7 +75,6 @@
 (defmethod om-item-view-p ((self t)) nil)
 (defmethod om-item-view-p ((self om-item-view)) t)
 
-;(defmethod capi::pane-has-focus-p ((self om-item-view)) nil)
 
 (defmethod update-for-subviews-changes ((self om-item-view) &optional (recursive nil)) 
   (when (and (item-container self) (initialized-p (item-container self)))
@@ -157,7 +156,6 @@
   (setf (vx self) (om-point-x pos-point)
         (vy self) (om-point-y pos-point))  
   (update-po-position self)
-  ;(when (item-container self) (om-invalidate-view (item-container self)))
   )
 
 (defmethod om-view-position ((self om-item-view))
@@ -183,8 +181,7 @@
   ;(capi::resize-pinboard-object self :width (om-point-x size-point) :height (om-point-y size-point))
   (setf (vw self) (om-point-x size-point))
   (setf (vh self) (om-point-y size-point))
-  ;(gp::with-graphics-mask ((item-container self) (list (vx self) (vy self) (vw self) (vh self)))
-  ;(om-with-redisplay-area ((om-get-view self) (vx self) (vy self) (vw self) (vh self))
+  
   (capi:apply-in-pane-process 
    (item-container self)
    #'(lambda ()
@@ -251,12 +248,6 @@
   (call-next-method)
   (capi::apply-in-pane-process pane 'draw-item-view pane self))
 
-;(defmethod item-draw-callback (pane (obj om-item-view) x y w h) 
-;  (om-draw-contents obj))
-;(defun item-draw-callback (pane item x y w h) 
-;  ;(print (list "draw" pane item)) 
-;  (draw-item-view pane item))
-
 (defun draw-item-view (pane po)
    (let ((old-stream *curstream*))
      (setf *curstream* pane)
@@ -310,9 +301,6 @@
    (fg :accessor fg :initarg :fg :initform nil)
    (border :accessor border :initarg :border :initform nil)
    ))
-
-;(defmethod initialize-instance :after ((self om-item-text) &rest args)
-;  (print self) (print args)(print (getf args :border))(print (border self)))
 
 (defmethod om-draw-contents ((self om-item-text))
   (when (border self) 

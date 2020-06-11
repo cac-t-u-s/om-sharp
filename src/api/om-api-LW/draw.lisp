@@ -142,7 +142,6 @@
       ;(om-draw-contents self)
       
     (mapcar #'(lambda (po) 
-                ;(print (list po x y w h))
                 (when (capi::pinboard-object-overlap-p po x y (+ x w) (+ y h))
                   (capi::draw-pinboard-object (om-get-view self) po
                                               :x (item-x po) :y (item-y po) :width (vw po) :height (vh po))
@@ -377,9 +376,6 @@
 
 (defun om-draw-circle (x y r &key fill color) 
   (gp::draw-circle *curstream* x y r :filled fill :foreground (get-real-color color)))
-
-;(mapc #'(lambda (x) (list (car x) (cadr x))) '((1 2 3) (4 5 6) (7 8 9)))
-;(apply 'append '((1 2 3) (4 5 6) (7 8 9)))
 
 (defun om-draw-polygon (points &key fill)  
   (gp:draw-polygon *curstream* 

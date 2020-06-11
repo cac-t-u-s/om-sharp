@@ -56,16 +56,11 @@
  #-cocoa nil
  #+cocoa (capi::convert-to-screen))
 
-;;; ASK USER FOR STRING
-;(om-get-user-string "dame" :initial-string "yo")
 (defun om-get-user-string (prompt &key (initial-string "")) 
   (capi::prompt-for-string prompt :initial-value initial-string
                            :pane-args `(:visible-min-width ,(max 300 (om-string-size initial-string)))
                            :accept-null-string t))
      
-     
-;;; CHOOSE A FILE
-;(om-choose-file-dialog :prompt "escoja" :types '("All" "*.*"))
 
 ;;; prompt does not work (macOS 10.14) ?
 (defun om-choose-file-dialog (&key (prompt "Choose a File") (directory nil) (types nil))
@@ -76,20 +71,17 @@
     rep))
       
 
-
-;(export 'om-with-file-dialog-process :om-api)
-
 ;(defmacro om-with-file-dialog-process ((file &key (prompt "Choose a File") (directory nil) (button-string "OK") (types nil))
 ;                                       &body body)
 ;  `(capi:with-dialog-results (,file ok-p)
 ;      (capi::prompt-for-file ,prompt ;:filters ',types :filter (if ',types (cadr ',types)) 
 ;                             :owner ,(def-dialog-owner)
 ;                             :pathname ,(or directory *last-directory*))
-     ;(when ,file
-     ;  (setf *last-directory* (make-pathname :directory (pathname-directory ,file))))
+;      (when ,file
+;       (setf *last-directory* (make-pathname :directory (pathname-directory ,file))))
 ;     ,@body))
 
-;;; CHOOSE A NEW FILE
+
 (defun om-choose-new-file-dialog (&key (prompt "Choose a new file") (directory nil) (name "") (types nil))
   (let* ((dir (or directory *last-directory*))
          (rep (capi::prompt-for-file prompt :filters types :filter (if types (cadr types)) :owner (def-dialog-owner) 
@@ -100,21 +92,13 @@
      rep))
      
 
-; (om-choose-new-file-dialog :prompt "escoja" :types '("MIDI Files" "*.mid;*.midi" "SND Files" "*.wav;*.aiff"))
-
-
-;;; CHOOSE A DIRECTORY
 (defun om-choose-directory-dialog (&key (prompt "Choose a directory") (directory nil))
   (let ((rep (capi::prompt-for-directory prompt :owner (def-dialog-owner) :pathname (or directory *last-directory*))))
     (when rep 
       (setf *last-directory* (make-pathname :directory (pathname-directory rep))))
     rep))
 
-;; (prompt-for-file "HEllo" :filter nil :filters nil :pathname (make-pathname :directory oa::*api-directory*) :operation :save)
-;; (setf ppp (om-choose-new-directory-dialog :directory (make-pathname :directory oa::*api-directory*)))
 
-
-;;; CHOOSE A NEW DIRECTORY
 (defun om-choose-new-directory-dialog (&key (prompt "Choose location and name for the new directory") (directory nil) (defname nil))
   (let* ((dir (or directory *last-directory*))
          (def (if dir 
@@ -129,7 +113,6 @@
       )))
 
 
-;;; YES OR NO DIALOG
 (defun om-y-or-n-dialog (message &key (default-button nil))
   (capi::prompt-for-confirmation message :default-button (if (equal default-button :yes) :ok nil)))
 
@@ -224,19 +207,16 @@
 
 ; (om-choose-color-dialog)
 
-;;;MESSAGE
+
 (defun om-message-dialog (message) 
   (capi::display-message message))
 
-;;; SYSTEM BEEP
 (defun om-beep ()
   (capi::beep-pane nil))
 
 (defun om-choose-font-dialog (&key (font (om-def-font :font2)))
   (let ((font (capi::prompt-for-font "Choose a font" :font font :owner nil)))
     (and font (gp::font-description font))))
-
-; (om-choose-font-dialog)
 
 
 
