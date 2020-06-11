@@ -55,7 +55,7 @@ all:	compile
 help:
 	@echo BUILDROOT:	$(BUILDROOT)
 	@echo releaseappname:	$(releaseappname)
-	@echo targets: install, uninstall, all '(=default)', help
+	@echo targets: '(default=compile, all), compile, all (=compile), install, uninstall, clean, tardist, preparerpm, help'
 
 compile: 
 	cd $(BUILDROOT)
@@ -89,16 +89,15 @@ clean:
 	rm -f $(BUILDROOT)/$(releaseappname)
 
 tardist: all
-	cd $(dir $(BUILDROOT))../ && \
+	cd $(BUILDROOT)/../ && \
 	tar cvjf om-sharp.tar.bz2 \
-	   --exclude=.git \
-	   --exclude=.gitignore \
-	   --exclude=om-sharp/om/build/mac \
-	   --exclude=om-sharp/om/build/win* \
-	   --exclude=om-sharp/om/resources/lib/mac \
-	   --exclude=om-sharp/om/resources/lib/win* \
-	   om-sharp
+	   --exclude=.git* \
+	   --exclude=om-sharp/build/mac \
+	   --exclude=om-sharp/build/win* \
+	   --exclude=om-sharp/resources/lib/mac \
+	   --exclude=om-sharp/resources/lib/win* \
+	   ./om-sharp
 
 preparerpm: tardist
-	cd $(dir $(BUILDROOT))../ && \
+	cd $(BUILDROOT)/../ && \
 	mv om-sharp.tar.bz2 ~/rpmbuild/SOURCES
