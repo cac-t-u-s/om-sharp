@@ -8,6 +8,8 @@
 *.zip
 *.exe
 
+om-sharp
+
 # OS generated files #
 ######################
 .DS_Store
