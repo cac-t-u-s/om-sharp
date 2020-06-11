@@ -197,7 +197,7 @@
            (om-make-menu (string+ *app-name* " " *version-string*)
                          (list (om-make-menu-comp 
                                 (list (om-make-menu-item (string+ "About " *app-name* "...") 'show-about-win)
-                                      (om-make-menu-item "Preferences" 'show-preferences-win)))
+                                      (om-make-menu-item "Preferences" 'show-preferences-win :key ",")))
                                (om-make-menu-item "Quit" 'om-quit)))))
 
 ;;; self = the OMEditor or anything (e.g. om-listener, etc.)
