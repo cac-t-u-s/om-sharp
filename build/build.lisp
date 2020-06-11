@@ -88,7 +88,10 @@
 
 (require :asdf)
 
-(load (merge-pathnames "slime/swank-loader.lisp" *externals-directory*))
+(let ((slime/swank-loader (merge-pathnames "slime/swank-loader.lisp" *externals-directory*)))
+  (if (probe-file slime/swank-loader)
+      (load slime/swank-loader)
+      (error "~S not found.  You probably forgot to 'git submodule init' && 'git submodule update'" slime/swank-loader)))
 (setq swank-loader::*fasl-directory* (merge-pathnames "slime/fasl/" *externals-directory*))
 (swank-loader:init :setup nil :load-contribs t)
 
