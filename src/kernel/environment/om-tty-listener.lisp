@@ -25,12 +25,19 @@
 		"Start (Stop) a listener in the startup shell"
 		'start-stop-tty-listener)
 
+(defvar *tty-listener-running* nil)
+
 (defun start-stop-tty-listener (&optional force)
   (if (or force (get-pref-value :general :listener-in-tty))
-      (lispworks:start-tty-listener)
       (progn
-	(format *terminal-io* "Quitting TTY Listener~%")
-	(mp:process-terminate (mp:get-process "TTY Listener")))))
+	(and (not *tty-listener-running*)
+	     (format *terminal-io* "~&Starting TTY Listener"))
+	(lispworks:start-tty-listener)
+	(setf *tty-listener-running* t))
+      (progn
+	(and *tty-listener-running*
+	     (format *terminal-io* "~&Quitting TTY Listener"))
+	(mp:process-terminate (mp:get-process "TTY Listener"))
+	(setf *tty-listener-running* nil))))
 
 (add-om-init-fun 'start-stop-tty-listener)
-
