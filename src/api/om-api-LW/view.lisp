@@ -40,9 +40,8 @@
           om-find-view-containing-point
           om-convert-coordinates
           om-view-origin
-          om-get-subview-with-focus
-          om-create-vertical-spacer
-          om-create-horizontal-spacer) :om-api)
+          om-get-subview-with-focus) 
+    :om-api)
 
 (in-package :oa)
 
@@ -219,11 +218,4 @@
 
 (defmethod om-view-scrolled ((self om-view) xy) (declare (ignore self xy)) nil)
 
-;;;;;;;;;;;UTILS;;;;;;;;;;;;;;;;
-
-(defmethod om-create-vertical-spacer (pixels)
-  (om-make-view 'om-view :size (omp nil pixels)))
-
-(defmethod om-create-horizontal-spacer (pixels)
-  (om-make-view 'om-view :size (omp pixels nil)))
 
