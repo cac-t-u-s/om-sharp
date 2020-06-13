@@ -18,7 +18,6 @@
 
 ;;;===========================
 ;;; Parameter modulation effects
-;;; J. Bresson, M. Stroppa, 2010
 ;;;===========================
 
 (in-package :om)
@@ -113,12 +112,12 @@ Notes:
                    :decimals dec)))
 
 
-
             
 (defclass! jitter-effect (processing-function) 
   ((freq :accessor freq :initarg :freq :initform 20)
    (amp :accessor amp :initarg :amp :initform 1.0))
   (:icon :effect-jit))
+
 
 (defmethod! jitter (freqs amps)
    :initvals '(20 1.0)
@@ -129,6 +128,7 @@ Notes:
 
 <freqs> and <amps> can be single values or lists of values."
    (make-instance 'jitter-effect :freq freqs :amp amps))
+
 
 (defmethod generate-function-bpfs ((fun jitter-effect) begin end resolution)
   ;; ignore resolution
@@ -144,21 +144,24 @@ Notes:
                                              (om-random (- amp) amp)))
                            :decimals 6)))))
 
+
 (defclass! vibrato-effect (processing-function) 
   ((freq :accessor freq :initarg :freq :initform 6.0)
    (amp :accessor amp :initarg :amp :initform 0.06)
    (ph :accessor ph :initarg :ph :initform 0.0))
   (:icon :effect-vib))
 
+
 (defmethod! vibrato (freqs amps &optional (ph 0.0))
    :initvals '(6.0 0.06 0.0)
    :indoc '("vibrato frequency(-ies)" "vibrato amplitude(s)" "initial phase [rad]")
    :outdoc '("vibrato effect")
    :icon :effect-vib
-   :doc "Generates a VIBRATO effect (sinusoïdal modulation) to be connected to PARAM-PROCESS in order to modulate an input value.
+   :doc "Generates a VIBRATO effect (sinusoidal modulation) to be connected to PARAM-PROCESS in order to modulate an input value.
 
 <freqs> and <amps> can be single values or lists of values, <ph> is the initial phase."
    (make-instance 'vibrato-effect :freq freqs :amp amps :ph ph))
+
 
 (defmethod generate-function-bpfs ((fun vibrato-effect) begin end resolution)
   (let* ((freqs (list! (freq fun)))
@@ -199,11 +202,5 @@ Notes:
                                                         (sin (+ p (* 2 pi x (car (list! f-vals))))))
                                                       ))
                            :decimals 6)))))
-
-
-
-
-
-
 
 

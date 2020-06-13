@@ -215,11 +215,6 @@ If <color> is :random, will choose a random color. It can also be a color symbol
              (cadr xylist))     ;;;npts-per-seg
      )))
           
-;(defmethod* om-sample ((self bpf-lib) (nbs-sr number) &optional xmin xmax dec)
-;   :numouts 3
-;   (values-list (mat-trans
-;                 (mapcar #'(lambda (bpf) (multiple-value-list (om-sample bpf nbs-sr xmin xmax dec))) (bpf-list self)))))  
-
 
 ;;;=========================================== 
 ;;; OM-SAMPLE FOR BPF
@@ -437,8 +432,3 @@ Outputs
                                 (mapcar 'cadr (append seg1 segx seg2)) 
                                 (max (decimals bpf1) (decimals bpf2)))
                    )))
-
-
-
-
-

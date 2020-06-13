@@ -18,9 +18,6 @@
 (in-package :om)
 
 
-;------------------------------------------------------------------------
-
-
 (defmethod* x->dx ((self list))
   :initvals '(0 1)
   :indoc '("a list of numbers")
@@ -50,9 +47,9 @@ Ex. (dx->x 0 '(1000 200 800 3000)) => (0 1000 1200 2000 5000))
                     collect (+ start thesum)) ))
 
 
-;-------ARITH-SERIE---------
-
-
+;===========================
+; ARITHMETIC SERIES
+;===========================
 
 (defmethod* arithm-ser ((begin number) (end number) (step number) &optional (nummax MOST-POSITIVE-FIXNUM))
   :initvals `(0 10 1 ,MOST-POSITIVE-FIXNUM)
@@ -71,7 +68,9 @@ Ex. (arithm-ser 1 5 0.5) => (1 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0)"
           collect i)))
 
 
-;-------FIBO-SERIE---------
+;===========================
+; FIBONACCI SERIES
+;===========================
 
 (defmethod* fibo-ser ((seed1 number) (seed2 number) (limit number)
                       &optional  (begin 0) (end MOST-POSITIVE-FIXNUM)) 
@@ -107,7 +106,9 @@ Ex. (fibo-ser 1 3 10) => (1 3 4 7)
         ))))
 
 
-;-------GEOMETRIC-SERIE---------
+;===========================
+; GEOMETRIC SERIES
+;===========================
 
 (defmethod* geometric-ser ((seed number) (factor number) (limit number)
                            &optional (nummax (expt 2 32)) (begin 0) (end (expt 2 32)))
@@ -130,7 +131,11 @@ Ex. (geometric-ser 2 3 60) => (2 6 18 54)
       (when (> index end) (return (nreverse res)))
       (unless (< index begin) (push accum res)))))
 
-;-------PRIME?---------
+
+;===========================
+; PRIME NUMBERS
+;===========================
+
 (defvar *prime-numbers*)
 
 (setf *prime-numbers*
@@ -210,7 +215,9 @@ Ex. (prime? 56) => NIL
   (and (test-prime n (coerce *prime-numbers* 'list)) t))
 
 
-;-------PRIME-SER---------
+;===========================
+; PRIME SERIES
+;===========================
 
 (defun gen-prime (pmax maxnum)
   (let ((prime-list (list 2 )) (last))
@@ -232,7 +239,10 @@ Ex. (prime? 56) => NIL
 The optional parametre <numelem> limits the number of elements." 
   (coerce (gen-prime max numelem) 'list))
 
-;-------PRIME-FACTORS---------
+
+;===========================
+; PRIME FACTORS
+;===========================
 
 (defun prime-facts (x)
   (let ((ip 1) (r) (n 0))
@@ -258,8 +268,10 @@ The optional parametre <numelem> limits the number of elements."
 Primes known to the system are the 1230 primes ranging from 1 to 9973."
   (prime-facts number))
 
-;---------------
+
+;===========================
 ; INHARMONIC SERIES
+;===========================
 
 (defmethod* inharm-ser ((begin number)
                         (dist number)
@@ -272,5 +284,3 @@ Primes known to the system are the 1230 primes ranging from 1 to 9973."
     (dotimes (n npart (reverse L))
       (push (* begin (expt (1+ n) dist)) L))))
 
-
-  

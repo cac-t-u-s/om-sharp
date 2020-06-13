@@ -23,7 +23,6 @@
 (defparameter *timeline-item-height* (* *timeline-view-height* 0.7))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; TIMELINE EDITOR
 ;;; IS GENERALLY ATTACHED TO ANOTHER EDITOR
 
@@ -82,7 +81,7 @@
 
 
 ; used to update selection and value in the timeline editor
-; !! work only if the editor has a slot 'timeline-editor !!
+; !! works only if the editor has a slot 'timeline-editor !!
 (defmethod update-timeline-editor ((self OMeditor)) 
   (when (and (timeline-editor self) (window self))
     (update-to-editor (timeline-editor self) self)
@@ -103,7 +102,6 @@
   (om-invalidate-view (get-g-component self :main-panel)))
 
 
-;;;;;;;; PIVOTS TEMPORELS;;;;;;;;;;;;
 (defmethod snap-all-points-to-grid ((self timeline-editor) id &optional (snap-delta nil))
   (let* ((obj (editor-get-time-sequence self id)))
     (loop for point in (time-sequence-get-timed-item-list obj)
@@ -138,6 +136,8 @@
 
 ;;;==========================
 ;;; selection
+;;;==========================
+
 (defmethod select-timeline ((self om-timeline-view) t-or-nil)
   (setf (selected-p self) t-or-nil)
   (when (> (length (timeline-views (editor self))) 1)
@@ -160,9 +160,8 @@
         (select-timeline 
          tlv
          (if (find i list-of-i :test '=) t nil))))
+
 ;;;==========================
-
-
 
 (defmethod update-view-from-ruler ((rv x-ruler-view) (view om-timeline-view))
   (setf (x1 view) (/ (v1 rv) (expt 10 (decimals rv))) 
@@ -304,8 +303,9 @@
   (declare (ignore obj time-ruler))
   (list (om-make-view 'om-timeline-subview :bg-color (om-def-color :gold) :size (omp nil 40))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;; DRAWING
+;;;==========================
+;;; Drawing
+;;;==========================
 
 (defmethod draw-timeline-background ((self OMEditor) view id) nil)
 
@@ -382,9 +382,9 @@
       (om-draw-circle cx cy (if selected-p (1+ radius) radius) :fill (if time t nil)))))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; TIME MARKERS RELATED METHODS ;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;==========================
+;;; Time-marker methods
+;;;==========================
 
 ;TIME MARKERS : method to redefine by subclasses
 (defmethod get-timed-objects-for-graduated-view ((self om-timeline-view))
@@ -409,9 +409,9 @@
   (set-selection self nil)
   (set-selected-timelines self nil))
   
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;; EVENTS RELATED METHODS ;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;==========================
+;;; Events methods
+;;;==========================
 
 (defmethod timed-item-index-at-time ((self timeline-editor) (panel om-timeline-view) time)
   (let* ((obj (editor-get-time-sequence self (id panel)))
@@ -512,10 +512,9 @@
                      ))))))
 
 
-
-;;;;;;;;;;;;;;;;;;;;;
-;;;;;; EVENTS  ;;;;;;
-;;;;;;;;;;;;;;;;;;;;;
+;;;==========================
+;;; Events
+;;;==========================
 
 (defmethod alllow-insert-point-from-timeline ((self OMEditor)) t)
 
@@ -554,10 +553,6 @@
     (set-time-display timeline-editor (if point (item-get-time point) time))
     point))
 
-;(defmethod om-view-mouse-motion-handler ((self om-timeline-view) position)
-;  (let ((editor (editor self))
-;        (time (pix-to-x self (om-point-x position))))
-;    (set-time-display editor time)))
 
 (defmethod editor-key-action ((editor timeline-editor) key)
   (case key
@@ -602,7 +597,3 @@
 
 (defmethod editor-set-interval ((self timeline-editor) interval)
   (editor-set-interval (container-editor self) interval))
-
-
-
-

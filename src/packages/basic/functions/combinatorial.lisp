@@ -17,7 +17,7 @@
 
 (in-package :om)
 
-;-------SORT---------
+
 ;;; compat
 (defmethod* sort. ((lst list)  &optional (test '<) (key nil))
   :initvals '(nil < nil)
@@ -56,7 +56,6 @@ Ex. (sort-list '((7 8 9 1) (5 2 4 3)) :test '< :rec t) => ((1 7 8 9) (2 3 4 5))
  
   ))
 
-;-------CIRCULAR PERMUTATION---------
 
 (defmethod permut-circn ((list list) &optional (nth 1))
   (when list
@@ -66,6 +65,7 @@ Ex. (sort-list '((7 8 9 1) (5 2 4 3)) :test '< :rec t) => ((1 7 8 9) (2 3 4 5))
           (prog1
             (cdr (nconc (setq n-1thcdr (nthcdr (1- nth) list)) list))
             (rplacd n-1thcdr ()))))))
+
 
 (defmethod* rotate ((list list) &optional (nth 1))
   :initvals '(nil 1)
@@ -77,7 +77,6 @@ Ex. (rotate '(a b c d e) 3) => (d e a b c)"
   :icon 'combinatory
   (permut-circn (copy-list list) nth))
 
-;-------NTH-RANDOM---------
 
 (defmethod* nth-random ((list list))
   :initvals '(nil)
@@ -86,7 +85,6 @@ Ex. (rotate '(a b c d e) 3) => (d e a b c)"
   :icon 'combinatory
   (nth (om-random-value (length list)) list))
 
-;-------PERMUT-RANDOM---------
 
 (defmethod npermut-random ((list list))
   "destructive random permutation of <list>."
@@ -112,9 +110,6 @@ Ex. (permut-random '(1 2 3 4 5)) => (4 5 2 3 1)"
       (npermut-random (copy-list list))))
 
 
-
-;-------MAT-TRANS---------
-
 (defmethod* posn-order ((list list) (test symbol))
   :initvals '(nil '<)
   :indoc '("a list" "test function")
@@ -131,7 +126,6 @@ Ex. (posn-order '(4 5 6 7 8) '>) => (4 3 2 1 0)
 (defmethod* posn-order ((list list)  (test function))
   (do-posn-order list test))
 
-
 (defun do-posn-order (list test)
   (let* ((thelist (sort-list list :test test))  rep)
     (mapc #'(lambda (x)
@@ -142,7 +136,6 @@ Ex. (posn-order '(4 5 6 7 8) '>) => (4 3 2 1 0)
                 (setf rep (cons repons rep)))) list)
     (reverse rep)))
 
-;-------PERMUTATIONS---------
 
 (defmethod* permutations ((bag list))
   :initvals '(nil ) 

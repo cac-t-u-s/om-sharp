@@ -60,7 +60,6 @@ Returns T if the test is verified and NIL if not."
   (/= num1 num2))
 
 
-
 ;===========================
 ; Tools
 ;===========================
@@ -152,6 +151,7 @@ Ex. (om* '(1 2) '(3 4))  => (3 8)
 (defmethod* om* ((arg1 list) (arg2 list))
   (mapcar #'(lambda (input1 input2)
               (om* input1 input2)) arg1 arg2))
+
 
 ;===========================
 ; SQUARE
@@ -302,6 +302,7 @@ Ex. (om-log '(3 4))  => (1.0986123 1.3862944)
   (mapcar #'(lambda (input)
               (om-log input base)) n))
 
+
 ;===========================
 ; ROUNDING
 ;===========================
@@ -325,6 +326,7 @@ Ex. (om-round '(4.308 5.167 6.809) 1 2)  => (2.2 2.6 3.4)
 (defmethod* om-round ((n list) &optional (decimals 0) (divisor 1))
   (mapcar #'(lambda (input)
               (om-round input decimals divisor)) n))
+
 
 ;===========================
 ; EUCLIDIAN DIVISION (WITH REST)
@@ -375,7 +377,6 @@ Ex. (om// '(5.5 6) '(2 3))  =>  (2 2) , (1.5 0)
     (mapcar #'(lambda (input1 input2)
                 (multiple-value-list (om// input1 input2)))
             n divisor))))
-
 
 
 ;===========================
@@ -453,7 +454,6 @@ Ex. (list-min '(2 3 1 4))  => 1"
       (list-min2 (first l) (min minimum (list-min2 (rest l) minimum))))))
 
 
-
 (defmethod* om-max ((a number) (b number)) 
   :initvals '(1 1) :indoc '("number or list" "number or list")
   :doc "Maximum of two numbers.
@@ -520,14 +520,14 @@ Ex. (all-equal '(8 8 7 8) '=) => NIL"
 
 
 ;===========================
-; INCREMENT (incf
+; INCREMENT (incf)
 ;===========================
+
 (defmethod* om-1+ (a &optional (test t))
   :initvals '(0 t)
   :indoc '("a value" "something or nil")
   :doc "increments <a> if <test> is non-NIL"
   (if test (1+ a) a))
-
 
 
 ;===========================
@@ -619,9 +619,8 @@ Ex. (om-scale '(0 2 5) 0 100)  => (0 40 100)
 (defmethod* om-scale ((self null) (minout number) (maxout number) &optional (minin 0) (maxin 0)) nil)
 
 ;------------------------------------------------------------------------
-;;
-;;this comes directly from PW. makes some functions generic
-;;
+; this comes directly from PW. makes some functions generic
+;
 (defmethod less-tree-mapcar ((fun function) (arg1 number) (arg2 number) &optional deep)
   (funcall fun (list arg1)
            (if deep arg2 (list arg2))))
@@ -716,7 +715,6 @@ Ex. (factorize 100) => ((2 2) (5 2))     [100 = 2^2 * 5^2]"
   (mat-trans (mapcar #'(lambda (item1 item2) (interpolation item1 item2 samples curve))
           begin end)))
           
-
 
 ;==============================
 ; GREATEST COMMON DIVISOR

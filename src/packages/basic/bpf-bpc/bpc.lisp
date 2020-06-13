@@ -22,8 +22,7 @@
 ;;; TIMED POINT
 ;;;========================================
 
-;In timed point we have a defined time slot, an internal time for editor's given time if not defined and type
-;TimeTypes can be :
+; TimeTypes can be :
 ; nil : not defined
 ; t :defined
 ; :master --> Master point for interpolations
@@ -205,15 +204,11 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 ;;; TIME-SEQUENCE METHODS
 ;;;=========================================
 
-
-;(defmethod get-all-times ((self BPC)) (time-sequence-get-internal-times self))
-
 (defmethod get-obj-dur ((self BPC)) 
   (if (point-list self) (tpoint-internal-time (car (last (point-list self)))) 0))
 
 (defmethod time-sequence-make-timed-item-at ((self bpc) at)
   (make-default-tpoint-at-time self at))
-
 
 
 ;;; Create a new point that preserves the motion of the object
@@ -248,9 +243,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
     (values (make-instance (type-of self) :x-points nil :y-points nil :decimals (decimals self)) nil nil)))
 
 
-
-
-;-------------------get the min  max points in x and y axis------------------------------
+;;; Get the min  max points in x and y axis
 ;;; using reduce 'mix/max is fatser when interpreted but not when compiled
 (defmethod nice-bpf-range ((self bpc))
   (multiple-value-bind (x1 x2 y1 y2 t1 t2)
@@ -265,6 +258,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
     ; (if (< (- x2 x1) 10) (list (- x1 5) (+ x2 5)) (list x1 x2))
     ; (if (< (- y2 y1) 10) (list (- y1 5) (+ y2 5)) (list y1 y2)))
     ))
+
 
 ;;; to be redefined by objects if they have a specific miniview for the maquette
 (defmethod draw-maquette-mini-view ((self bpc) (box t) x y w h &optional time) 
@@ -293,6 +287,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
                              )
     t))
 
+
 ;;;============================
 ;;; PLAYER
 ;;;============================
@@ -314,10 +309,6 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 ;;;=========================================
 ;;; METHODS CALLED FROM OUTSIDE
 ;;;=========================================
-;TODO SOlution Miracle de Dimitri qui marche pas (parce que t'es nul Jérém)
-;(defmethod (setf interpol-time) (new-val (self BPC))
-;  (setf (slot-value self 'interpol-time) new-val)
-;  (setf (time-window self) new-val))
 
 (defmethod arguments-for-action ((fun (eql 'send-xy-as-osc)))
   '((:string address "/point/xy")

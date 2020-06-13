@@ -18,9 +18,8 @@
 
 (in-package :om)
 
-;-------UNION---------
 
-(defun noRep-union (lists oper test key)
+(defun norep-union (lists oper test key)
   (let ((the-union (list! (car lists))))
   (dolist (one-in (cdr lists))
       (setq the-union (funcall oper the-union (list!  one-in)  :test test :key key)))
@@ -41,7 +40,6 @@ Ex. (x-union '(1 2 3 4 5) '(4 5 6 7 8)) => (8 7 6 1 2 3 4 5)
   :icon 191
   (noRep-union  (list* l1? l2? (and lists (list! lists))) 'union test key))
 
-;-------INTERSECTION---------
 
 (defmethod* x-intersect ((l1? list) (l2? list)
                          &optional (test 'equal) (key 'identity)
@@ -57,9 +55,8 @@ Ex. (x-intersect '(1 2 3 4 5) '(4 5 6 7 8)) => (4 5)"
   :icon 191
   (nreverse (noRep-union (list* l1? l2? (and list (list! list))) 'intersection test key)))
 
-;-------XOR---------
 
-(defmethod* x-Xor ((l1? list) (l2? list)
+(defmethod* x-xor ((l1? list) (l2? list)
                    &optional (test 'equal) (key 'identity)
                    &rest list) 
   :initvals '(nil nil equal identity)
@@ -76,9 +73,6 @@ Ex. (x-xor '(1 2 3 4 5) '(4 5 6 7 8)) => (1 2 3 6 7 8)"
 
 (x-xor '(1 2 3 4 5) '(4 5 6 7 8))
 
-;-------XDIFF---------
-
-
 
 (defmethod* x-diff ((l1? list) (l2? list)
                     &optional (test 'equal) (key 'identity)
@@ -94,7 +88,6 @@ Ex. (x-diff '(1 2 3 4 5) '(4 5 6 7 8)) => (1 2 3)"
   :icon 191
   (nreverse (noRep-union (list* l1? l2? (and list (list! list))) 'set-difference test key)))
 
-;------INCLUDED?------
 
 (defmethod* included? ((lst1 list) (lst2 list) &optional (test 'equal))
   :initvals '(nil nil equal)

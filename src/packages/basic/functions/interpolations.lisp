@@ -21,9 +21,9 @@
 
 (in-package :om)
 
-
-;;;==================================
+;;;==========================
 ;;; ditance between points
+;;;==========================
 
 (defun pts-distance (x1 y1 x2 y2)
   (sqrt (+ (expt (- y2 y1) 2) (expt (- x2 x1) 2))))
@@ -37,6 +37,7 @@
 
 ;;;==========================
 ;;; FUNCTION GENERATOR
+;;;==========================
 
 (defun linear (x0 y0 x1 y1) 
   (if (= x0 x1) ;;; cas particulier.. a refaire, pour l'instant y = 1 is x = x0 et 0 sinon..
@@ -59,6 +60,7 @@ The resulting function can be connected for example to SAMPLEFUN."
 
 ;;;==========================
 ;;; INTERPOLATION
+;;;==========================
 
 (defun x-around (x paires)
   "trouve les paires en dessous et au dessus de x"
@@ -76,7 +78,6 @@ The resulting function can be connected for example to SAMPLEFUN."
 
 ;(x-around 70 '((0 0) (41 3) (50 6) (69 5) (100 8)))
  
-; changé des > / < pour >= / <= ..
 (defun y-around (y paires)
   "trouve les paires en dessous et au dessus de y"
   (let ((lst '()))
@@ -87,6 +88,7 @@ The resulting function can be connected for example to SAMPLEFUN."
                  (and (>= (second i) y) (<= (second r) y)))
            (push (list i r) lst)))
    (reverse lst)))
+
 ;(y-around 5.5 '((0 0) (41 3) (50 6) (69 5) (100 8)))
 
 
@@ -169,6 +171,7 @@ The resulting function can be connected for example to SAMPLEFUN."
 
 ;;==================================
 ;; x/y transfer tools
+;;;==========================
 
 (defmethod* y-transfer ((self list) (y0 number) &optional (dec nil))
   :initvals (list nil 10  0)
@@ -209,9 +212,9 @@ Optional <dec> is the number of decimals in the result."
   (mapcar #'(lambda (x) (x-transfer self x dec)) x-val))
 
 
-
 ;;;==========================
 ;;; GENERAL SAMPLE FUNCTION
+;;;==========================
 
 (defmethod* om-sample ((self t) (nbs-sr number) &optional xmin xmax dec)
       :initvals '(nil 1 nil nil nil)
@@ -278,8 +281,10 @@ If <nbs-sr> is an float (e.g. 0.5, 1.0...) it is interpreted as the sample rate 
    
 
 ;;;====================================
-;;; Interpole avec profil
+;;; Interpole with profile
 ;;; (todo: merge with "interpolation")
+;;;====================================
+
 (defmethod* interpole-points ((v1 t) (v2 t) (nbsteps integer) &optional profil)
   :indoc '("value 1" "value 2" "number or intermediate steps" "interpolation profile")
   :doc "Interpolates <nbsteps> values between <v1> and <v2> following a profile.
@@ -299,6 +304,7 @@ If <nbs-sr> is an float (e.g. 0.5, 1.0...) it is interpreted as the sample rate 
 ;;;====================================
 ;;; Function reduction tools
 ;;; from S. Lemouton's code for Chroma
+;;;====================================
 
 (defmethod* reduce-points ((points list) &optional (approx 0.02))
   :indoc '("a list of (x y) points or a BPF" "a number between 0.0 and 1.0")

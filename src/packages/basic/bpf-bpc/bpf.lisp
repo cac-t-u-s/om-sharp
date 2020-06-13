@@ -175,8 +175,6 @@
 
 (defmethod set-bpf-points ((self bpf) &key x y z time)
   (declare (ignore time z))
-  ;(print "----------------------------------------")
-  ;(print (list "X" x (x-values-from-points self) (decimals self)))
   (setf (point-list self) (sort 
                            (make-points-from-lists (or x (x-values-from-points self)) ;  (slot-value self 'x-points))
                                                    (or y (y-values-from-points self)) ;  (slot-value self 'y-points))
@@ -186,8 +184,6 @@
   ;;; maybe check here if there is not duplicate X points and send a warning...
   (setf (slot-value self 'x-points) NIL) 
   (setf (slot-value self 'y-points) NIL))
-
-
 
 
 (defmethod (setf x-points) ((x-points t) (self bpf))
@@ -288,15 +284,15 @@
   (loop for p in (point-list self) do 
         (om-point-set p :x (funcall tf (om-point-x p)) :y (funcall tf (om-point-y p))))))
 
-;--- insert a point at the right position (x ordered) returns the position ---
-
+;=============================
+; Insert a point at the right position (x ordered) returns the position
+;==============================
+ 
 (defmethod adapt-point ((self bpf) point)
   (om-point-set point 
                 :x (funcall (truncate-function (decimals self)) (om-point-x point)) 
                 :y (funcall (truncate-function (decimals self)) (om-point-y point)))
   point)
-
-
 
 ;;; MUST RETURN THE POSITION
 (defmethod insert-point ((self bpf) point &optional position)
@@ -323,7 +319,10 @@
     (or pos (1- (length new-point-list)))))
 
 
-;-------------------delete a point------------------------------
+;=============================
+; Delete a point
+;=============================
+
 (defmethod remove-point ((self bpf) point)
   (setf (point-list self) 
         (remove point (point-list self) :test 'om-points-equal-p)))
@@ -333,7 +332,9 @@
         (append (subseq (point-list self) 0 n) 
                 (subseq (point-list self) (1+ n)))))
 
-;-------------------move the point in x and y------------------------------
+;=============================
+; Move the point in x and y
+;=============================
 
 (defmethod possible-move ((self bpf) points x-key deltax y-key deltay)
   (let ((point-before (find (om-point-x (car points)) (point-list self)
@@ -375,11 +376,11 @@
     point))
 
 
-
 ;=======================================
 ;ACCESSORS
 ;=======================================
-;-------------------get the x values of prev et next points of point------------------------------
+
+; Get the x values of prev et next points of point
 (defmethod give-prev+next-x ((self bpf) point)
   (let ((pos (position point (point-list self) :test #'eql)))
     (when pos
@@ -387,8 +388,7 @@
             (nth (1+ pos) (point-list self))))))
 
 
-; (position 1.2 '(1 2 3 4) :test '<)
-;-------------------get the prev and next points for a point not in the bpf------------------------------
+; Get the prev and next points for a point not in the bpf
 (defmethod give-closest-points ((self bpf) point)
   (let ((pos (position (om-point-x point) (point-list self) :test '< :key 'om-point-x)))
     (cond ((zerop pos) 
@@ -399,21 +399,20 @@
            (append (last (point-list self)) '(nil))))
     ))
 
-;-------------------get the points that fall in the interval (x1 x2) ------------------------------
+; Get the points that fall in the interval (x1 x2)
 (defmethod give-points-in-x-range ((self bpf) x1 x2)
   (loop for x in (point-list self) 
         while (<= (om-point-x x) x2)  ;;; because points are ordered
         when (>= (om-point-x x) x1)
         collect x))
   
-;-------------------get the points that fall in the interval (y1 y2) ------------------------------
+; Get the points that fall in the interval (y1 y2)
 (defmethod give-points-in-y-range ((self bpf) y1 y2)
   (loop for point in (point-list self)
         when (and (>= y2 (om-point-y point)) (<= y1 (om-point-y point)))
         collect point))
 
-;-------------------get the points that fall in the given rect (tl br) ------------------------------
-
+; Get the points that fall in the given rect (tl br)
 (defmethod give-points-in-rect ((self bpf) tl br)
   (let* ((x (om-point-x tl)) (y (om-point-y tl))
          (w (- (om-point-x br) x)) (h (- (om-point-y br) y)))
@@ -427,8 +426,9 @@
 (defmethod display-modes-for-object ((self bpf))
   '(:mini-view :text :hidden))
 
-;-------------------get the min  max points in x and y axis------------------------------
-;;; using reduce 'mix/max is fatser when interpreted but not when compiled
+
+; Get the min - max points in x and y axis
+; using reduce 'mix/max is fatser when interpreted but not when compiled
 (defmethod nice-bpf-range ((self bpf))
   (multiple-value-bind (x1 x2 y1 y2)
       (loop for x in (x-values-from-points self) 
@@ -461,36 +461,6 @@
      (point-pairs (om-sample self 500))
      )
    ))
-
-#|
-;;; take the min-max on successive windows
-;;; MARCHE PAS: A REFAIRE
-(defmethod min-max-points (points n)
-  (let* ((tab (make-list (* 2 n)))
-         (x1 (car (car points)))
-         (x2 (car (car (last points))))
-         (cells-x (loop for x from x1 to x2 by (round (- x2 x1) n) collect x))) 
-    (loop for p in points do
-          (let ((cell (position (car p) cells-x :test '<)))
-            (when cell 
-              (let ((pp (* 2 cell)))
-                (if (or (null (nth pp tab)) (< (cadr p) (nth pp tab)))
-                    (setf (nth pp tab) (cadr p)))
-                (if (or (null (nth (1+ pp) tab)) (> (cadr p) (nth (1+ pp) tab)))
-                    (setf (nth (1+ pp) tab) (cadr p))))
-              )))
-    (remove nil tab)))
-|#  
-        
-;  (let* ((winsize (/ (length points) w )))
-;    (loop for i from 0 to (- w 1)
-;          for j = pix0 then (+ j 1) do
-;          (let* ((minmax (get-minmax points i winsize))
-;                 (min (point-to-pixel-with-sizes ranges (om-make-big-point 0 (car minmax)) w h))
-;                 (max (point-to-pixel-with-sizes ranges (om-make-big-point 0 (second minmax)) w h)))
-;            (om-draw-line j (+ piy0 (om-point-y min)) j (+ piy0 (om-point-y max)))))))
-
-
 
 
 ;;; to be redefined by objects if they have a specific miniview
@@ -565,8 +535,7 @@
                                  ))))
               (om-with-fg-color (or color (om-def-color :dark-gray))
                 (om-draw-lines lines))
-              ))
-                
+              ))          
                 
            ((equal style :draw-all)
             
@@ -597,7 +566,6 @@
            
            ((equal style :histogram)
             
-
             (loop for i from 0 to (1- (length points))
                   do 
                   (let* ((p (nth i points))
@@ -628,9 +596,7 @@
                                     :font (om-def-font :font1 :size 9)
                                     :color (om-def-color :white))
                     ))
-            
             )
-          
            ))
         )
         )))

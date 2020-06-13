@@ -80,8 +80,6 @@ Ex. (x-append '(1 2 3) 4 '(5 6 7)) => (1 2 3 4 5 6 7)
 (defmethod* x-append ((l1? t) (l2? t) &rest lst?)
   (apply 'append (list l1?) (list l2?) (mapcar #'list! lst?)))
 
-;-----------FLAT
-
 
 (defun rev-flat (lst)  
   (let ((l ()))
@@ -90,7 +88,6 @@ Ex. (x-append '(1 2 3) 4 '(5 6 7)) => (1 2 3 4 5 6 7)
               (push (pop lst) l)
             (setq l (nconc (rev-flat (pop lst)) l))))
     l))
-
 
 (defun lo-flat (list) 
   (cond ((atom list) list)
@@ -115,7 +112,6 @@ Ex. (x-append '(1 2 3) 4 '(5 6 7)) => (1 2 3 4 5 6 7)
           (setf rep (flat-one rep)))
     rep))
 
-
 (defmethod* flat ((lst list) &optional (level nil)) 
   :initvals '(nil nil) 
   :indoc '("a list" "level of parenthesis")
@@ -134,7 +130,6 @@ Ex. (flat '((a b) c ((d e) f)) 1)  =>  (a b c (d e) f)    [1 level of parenthesi
     (n-flat-one lst level))
    (t lst)))
 
-;-----------CREATE-LIST
 
 (defmethod* create-list ((count integer) (elem t))
   :initvals '(10 nil) 
@@ -145,7 +140,6 @@ Ex. (flat '((a b) c ((d e) f)) 1)  =>  (a b c (d e) f)    [1 level of parenthesi
 Ex. (create-list 4 'a)  =>  (a a a a)"
   (make-list count :initial-element elem))
 
-;-----------MATRIX TRANSPOSITION
 
 (defmethod* mat-trans ((matrix list))
   :initvals '(nil)
@@ -162,7 +156,6 @@ Ex. (mat-tran '((1 2 3) (a b c) (4 5 6))  =>  ((1 a 4) (2 b 5) (3 c 6))"
          (push (mapcar #'(lambda (list) (nth i list)) matrix) result))
     (nreverse result)))
 
-;----------------EXPAND LIST
 
 (defvar *valid-expand-chars* '(#\* #\_))
 
@@ -170,7 +163,6 @@ Ex. (mat-tran '((1 2 3) (a b c) (4 5 6))  =>  ((1 a 4) (2 b 5) (3 c 6))"
   (let (res)
     (dolist (ch chars res)
       (if (setq res (member ch list :test #'char=)) (return res)))))
-
 
 (defmethod* expand-lst ((list list))
   :icon 'list 
@@ -235,10 +227,6 @@ Ex. (2* (a z 2* (4 12) (1_5 )) 0_16s2)  =>  (a z 4 12 4 12 (1 2 3 4 5) a z 4 12 
          (apply #'append (nreverse result)))))
 
 
-
-;;;-----------------GROUP-LIST
-
-
 (defmethod* group-list ((list list) (segmentation list) mode)
    :icon 'list 
    :initvals '((1 2 3 4) (1 3) linear)
@@ -272,8 +260,6 @@ Ex. (group-list '(1 2 3 4) '(1 2 3) 'circular)  => ((1) (2 3) (4 1 2))
   (group-list list (make-list (ceiling (length list) segmentation) :initial-element segmentation) 'linear))
 
 
-
-;;;;-----------------Remove-dup
 (defmethod* remove-dup ((list list) (test symbol) (depth integer))
   :icon 'list 
   :initvals (list '(1 2 3 4) 'eq 1)
@@ -286,16 +272,13 @@ Ex. (remove-dup '((1 2) (3 2 2) 4) '= 2) => ((1 2) (3 2) 4)
 "
   (remove-dup list (symbol-function test) depth))
 
-
 (defmethod* remove-dup ((list list) (test function) (depth integer))
   (if (<= depth 1)
     (remove-duplicates list :test test)
     (mapcar #'(lambda (x) (remove-dup x test (1- depth))) list)))
 
-
 (defmethod* remove-dup ((list t) (test t) (depth integer)) list)
 
-;;;-----------------LIST-MODULO
 
 (defmethod* list-modulo ((list list) (ncol integer))
   :initvals '(nil 2) 
@@ -320,7 +303,7 @@ Ex. (list-modulo '(1 2 3 4 5 6 7 8 9) 3)  => ((1 4 7) (2 5 8) (3 6 9))
           (push (remove nil (nreverse (svref vector i))) res))
     (nreverse res)))
 
-;;;-----------------INTERLOCK
+
 (defmethod* interlock ((lis1 list) (lis2 list) (plc1 list))
    :initvals '((0 1 2 3) (a b) (1 3))
    :indoc '("a list" "a list" "a list of indexes")
@@ -336,7 +319,6 @@ Ex. (interlock '(0 1 2 3 ) '(a b) '(1 3))  =>  (0 a 1 2 b 3)"
                 (incf pointeur)))
        (push (nth n lis1) aux))))
 
-;;;-----------------SUBS-POSN
 
 (defmethod* subs-posn ((lis1 list) posn val)
    :initvals '((0 1 2 3)  (1 3) (a b))
@@ -354,17 +336,6 @@ Ex. (subs-posn '(0 1 2 3) '(1 3) '(a b))  => (0 a 2 b)
     copy))
 
 
-;;; old
-;;(setf posn (sort posn '<))
-;;   (loop for elt in lis1
-;;         for counter from 0
-;;         if (and posn (= counter (first posn))) collect (pop val) and do 
-;;         (pop posn) else collect elt)
-
-
-
-
-;------------------------------------------------------------------------
 (defmethod* reduce-tree ((self t) (function symbol) &optional (accum nil))
   :initvals (list '(10 10) '+ nil)
   :icon 'list
@@ -398,10 +369,6 @@ If <accum> is nil, figures out what the neutral can be (works for +,*,min,max)."
     (t 0)))
 
 
-
-;------------------------------------------------------------------------
-;by M. Malt
-
 (defmethod* rang-p ((liste list) (elem number) &optional (test 'eq) (key nil)) 
   :initvals '((6000) 2)
   :indoc '("a list"  "element to look for" "test function" "key function")
@@ -428,11 +395,6 @@ Ex. (rang-p '(0 1 2 3 4 3 2) 3 '<)  =>  (0 1 2 6)    [elements at positions 0, 1
             liste)
     (reverse aux)))
 
-
-;------------------------------------------------------------------------
-; more list operators
-
-; list-explode list-filter table-filter band-filter range-filter posn-match
 
 (defmethod* list-explode ((list list) (nlists integer))
   :initvals '((1 2 3 4 5 6) 2)
@@ -478,6 +440,7 @@ Ex. (list-explode '(1 2 3 4 5 6 7 8 9) 12)  => ((1) (2) (3) (4) (5) (6) (7) (8) 
                                                                          nlists (length res)))))
                                 (rest res))))
               (t (nreverse res))))))
+
 
 (defmethod* list-filter ((test symbol) (list list) (mode symbol))
   :initvals '(numberp (1 2 3) pass)
@@ -623,8 +586,9 @@ Ex. (posn-match '(10 20 30 40 50 60 70 80 90) '(3*(0) 3_6)) => (10 10 10 40 50 6
         collect sublist))
 
 
-;;;;;;;;;;;;;;;;;;;;;;
-;;; UTILS;;;;;;;;;;;;;
+;===========================
+; Utils
+;===========================
 
 ;find all positions of an element in a list
 (defun om-all-positions (a L)
