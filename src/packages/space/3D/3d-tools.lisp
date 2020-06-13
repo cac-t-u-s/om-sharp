@@ -268,7 +268,6 @@ Returns 2 values (numbers, lists or bpfs) for 'x' and 'y'."
               )
 
 
-
 ;;; XYZ -> AED ************
 
 (defmethod* xyz->aed ((x number) (y number) (z number))

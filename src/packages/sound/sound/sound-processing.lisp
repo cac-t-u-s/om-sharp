@@ -23,25 +23,8 @@
 ;======================================================
 ; D. Bouche 2013
 ;======================================================
-; List of available methods :
-;   - sound-silence
-;   - sound-mix         
-;   - sound-fade
-;   - sound-cut
-;   - sound-vol
-;   - sound-normalize
-;   - sound-mono-to-stereo
-;   - sound-to-mono
-;   - sound-stereo-pan
-;   - sound-resample
-;   - sound-seq
-;   - sound-loop
-;   - sound reverse
-;   
-;======================================================
 
 
-;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SAVE-SOUND///////////////
 (defmethod* save-sound ((self om-internal-sound) filename &key format resolution)
             :icon 'save-sound
             :initvals '(nil nil :aiff)
@@ -74,15 +57,7 @@
               (probe-file (namestring file)))))
 
 
-;(defmethod! save-sound ((self sound) filename &optional (format 'aiff))
-;  (save-sound (get-om-internal-sound self) filename format))
 
-;(defmethod* objfromobjs ((self om-internal-sound) (type sound))
-;  (let ((snd (save-sound self nil)))
-;    (when snd (load-sound-file snd))))
-
-
-;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-RESAMPLE//////////
 (defmethod* sound-resample ((s om-internal-sound) sample-rate &optional (resample-method 0))
   :icon 'sound-resample
   :initvals '(nil 44100 0)
@@ -133,7 +108,6 @@
           s)))
 
 
-;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-NORMALIZE/////////
 (defmethod* sound-normalize ((s om-internal-sound) &key (level 0) (method :peak))
   :icon 'sound-normalize
   :initvals '(nil 0 :peak)
@@ -215,8 +189,6 @@
         ))))
 
 
-
-;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-SILENCE///////////
 (defmethod* sound-silence ((dur float) &optional (channels 1) sample-rate)
   :icon 'sound-silence
   :initvals (list 1.0 1 nil)
@@ -249,7 +221,8 @@
                    :sample-rate sr
                    :smpl-type :float)))
 
-;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-FADE//////////////
+
+
 (defmethod* sound-fade ((s om-internal-sound) (in float) (out float))
   :icon 'sound-fade
   :initvals '(nil 0.1 0.1)
@@ -297,7 +270,7 @@
   (sound-fade s (ms->sec in) (ms->sec out)))
 
 
-;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-LOOP//////////////
+
 (defmethod* sound-loop ((s om-internal-sound) n)
   :icon 'sound-loop
   :initvals '(nil 3)
@@ -321,7 +294,8 @@
                      :sample-rate (sample-rate s)
                      :smpl-type (smpl-type s)))))
 
-;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-CUT///////////////
+
+
 (defmethod* sound-cut ((s om-internal-sound) (beg float) (end float))
   :icon 'sound-cut
   :initvals '(nil 0.0 1.0)
@@ -357,7 +331,7 @@
   (sound-cut s (ms->sec beg) (ms->sec end)))
 
 
-;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-VOL///////////////
+
 (defmethod* sound-vol ((s om-internal-sound) gain &optional (in 1) (out 1))
   :icon 'sound-vol
   :initvals '(nil 1.0 1 1)
@@ -399,7 +373,7 @@
                      :smpl-type type))))
 
 
-;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-MONO-TO-STEREO///
+
 (defmethod* sound-mono-to-stereo ((s om-internal-sound) &optional (pan 0))
   :icon 'sound-mono-to-stereo
   :initvals '(nil 0)
@@ -439,7 +413,6 @@
 
 
 
-;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-TO-MONO///
 (defmethod* sound-to-mono ((s om-internal-sound))
   :icon 'sound-to-mono
   :initvals '(nil)
@@ -472,7 +445,7 @@
     ))
 
 
-;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-PAN//////////////
+
 (defmethod* sound-stereo-pan ((s om-internal-sound) left right)
   :icon 'sound-stereo-pan
   :initvals '(nil -100 100)
@@ -516,7 +489,7 @@
         ))
 
 
-;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-MIX///////////////
+
 (defmethod* sound-mix ((s1 om-internal-sound) (s2 om-internal-sound) &key (s1-offset 0) (s2-offset 0) (method 0))
   :icon 'sound-mix
   :initvals '(nil nil 0)
@@ -602,7 +575,7 @@
          s1)))
 
 
-;//////////////////////////////////////////////////////////////////////////////////////////////////
+
 (defmethod* sound-merge ((sound-list list))
   :icon 'sound-mix
   :initvals '(nil)
@@ -664,7 +637,6 @@
 
 
 
-;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-SEQ///////////////
 (defmethod* sound-seq ((s1 om-internal-sound) (s2 om-internal-sound) &optional (crossfade 0))
   :icon 'sound-seq
   :initvals '(nil nil 0)
@@ -713,7 +685,8 @@
                       (n-channels s1) (sample-rate s1) (n-channels s2) (sample-rate s2))
          s1)))
 
-;//////////////////////////////////////////////////////////////////////////////////////////////////OM-SOUND-REVERSE///////////////
+
+
 (defmethod* sound-reverse ((s om-internal-sound))
   :icon 'sound-reverse
   :initvals '(nil -100 100)

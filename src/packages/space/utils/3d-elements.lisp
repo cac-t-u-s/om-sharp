@@ -18,7 +18,7 @@
 
 (in-package :om)
 
-;;;=============================================================
+
 (defclass speaker (background-element) 
   ((pos :accessor pos :initarg :pos :initform nil)
    (size :accessor size :initarg :size :initform 1)))
@@ -63,6 +63,7 @@
   
 
 ;;;=============================================================
+
 (defclass project-room (background-element) 
   ((center :accessor center :initarg :center :initform (make-3dpoint :x 0 :y 0 :z 0))
    (width :accessor width :initarg :width :initform 1)

@@ -73,7 +73,7 @@
   (z 0.0d0 :type double-float))
 
 
-;;; ------------------------------------------------------------
+;;; --------------------------------
 ;;; Geometry Utilities
 
 (defun vector-difference (v1 v2 res)
@@ -119,7 +119,7 @@
     res))
 
 
-;;;=============================
+;;; ------------------------------------------------------------
 ;;; TEXT
 
 (defun set-up-gl-fonts (pane obj)
@@ -486,7 +486,7 @@
   (let ((factor (/ (xyz-y (eye (camera viewer))) 1500)))
     (translate (icotransform viewer) :dx (* dx factor) :dz (* dy factor))))
 
-;;; camera in canvas à la place de interface
+;;; camera in canvas instead of interface
 (defun opengl-resize-canvas (canvas x y width height)
   (when #+Win32 (win32:is-window-visible (win32:pane-hwnd (capi-internals:representation canvas)))
     #-Win32 T

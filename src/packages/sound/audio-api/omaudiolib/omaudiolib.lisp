@@ -121,7 +121,7 @@
   (loop for i from 0 to (1- (juce::getavailablebuffersizescount player))
         collect (juce::getnthavailablebuffersize player i)))
 
-;;; probleme abvec les caractères accentués !!
+;;; !!! special characters
 (defun setdevices (player input-device-name inch output-device-name outch sample-rate buffer-size)
   (let* ((driver (getCurrentDeviceType player))
          (in-n (or (position input-device-name 

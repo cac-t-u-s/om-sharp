@@ -19,9 +19,7 @@
 
 (declaim (optimize (speed 3) (safety 0) (debug 1)))
 
-;;;=========================================================
-;;; BUFFER PLAYER (Here using LAS)
-;;;=========================================================
+
 (defstruct (buffer-player
             (:conc-name bp-))
   (pointer nil)
@@ -94,7 +92,3 @@
 
 (defmethod get-buffer-player-frame ((self buffer-player))
   (juce::getAudioSourcePos (bp-pointer self)))
-
-;(defmethod restore-buffer-player-pointer ((self buffer-player))
-;  ;(print "setpos error: restoring buffer-player")
-;  (setf (bp-pointer self) (las::makebuffersound (bp-buffer self) (bp-size self) (bp-channels self))))

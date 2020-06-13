@@ -1016,7 +1016,6 @@ Press 'space' to play/stop the sound file.
 
 
 
-
 #|
 
 (defmethod om-draw-waveform ((self soundPanel))
@@ -1090,11 +1089,9 @@ Press 'space' to play/stop the sound file.
   (cffi:with-foreign-object (sfinfo '(:struct |libsndfile|::sf_info))
     ;;;Initialisation du descripteur
     (setf (cffi:foreign-slot-value sfinfo '(:struct |libsndfile|::sf_info) 'sf::format) 0)
-    (let* (;;;Remplissage du descripteur et affectation aux variables temporaires
-           (sndfile-handle (sf::sf_open path sf::SFM_READ sfinfo))
+    (let* ((sndfile-handle (sf::sf_open path sf::SFM_READ sfinfo))
            (size (fli::dereference (cffi:foreign-slot-pointer sfinfo '(:struct |libsndfile|::sf_info) 'sf::frames) :type :int :index #+powerpc 1 #-powerpc 0))
            (channels (fli::dereference (cffi:foreign-slot-pointer sfinfo '(:struct |libsndfile|::sf_info) 'sf::channels) :type :int :index #+powerpc 1 #-powerpc 0))
-           ;;;Variables liées au calcul de waveform
            (buffer-size (* window channels))
            (buffer (fli::allocate-foreign-object :type :float :nelems buffer-size))   ;Fenêtrage du son
            ;(MaxArray (make-array (list channels (ceiling size window)) :element-type 'single-float :initial-element 0.0))   ;Tableau pour stocker les max
@@ -1114,6 +1111,10 @@ Press 'space' to play/stop the sound file.
       (sf::sf_close sndfile-handle))))
 
 
+;(ratio (round (om-sound-n-samples self) 2000)))) for variable ratio. 2000 +/- screen size
+; ok for small files, not good for big ones
+
+
 ;;; not used for the moment
 (defmethod build-display-array-dynamic ((self sound))
   (let* ((ratio 128)
@@ -1121,8 +1122,6 @@ Press 'space' to play/stop the sound file.
          (channels (om-sound-n-channels self))
          ;(array-width (ceiling size ratio))
          )
-;(ratio (round (om-sound-n-samples self) 2000)))) pour un ratio variable. 2000 car nbpix d'un écran environ
-;Bien pour les petits fichiers mais mauvais dès que trop grand car bascule trop vite sur la lecture fichier
     (setf (display-ratio self) ratio
           (display-builder self) (om-run-process 
                                   "DisplayArrayBuilder" 
@@ -1144,8 +1143,6 @@ Press 'space' to play/stop the sound file.
         (channels (om-sound-n-channels self)))
     (when (and format channels)
       (let ((array-width (ceiling (om-sound-n-samples self) winsize)))
-;(ratio (round (om-sound-n-samples self) 2000)))) pour un ratio variable. 2000 car nbpix d'un écran environ
-;Bien pour les petits fichiers mais mauvais dès que trop grand car bascule trop vite sur la lecture fichier
         (setf (display-ratio self) winsize)
       ;"DisplayArrayBuilder" 
         (funcall 
@@ -1250,6 +1247,4 @@ Press 'space' to play/stop the sound file.
 
 
 |#
-
-
 

@@ -15,10 +15,7 @@
 ; File author: J. Bresson
 ;============================================================================
 
-
 (in-package :om)
-
-
 
 
 (defmethod* adsr (amp1 amp2 a d s r &optional (decimals 3))
@@ -172,11 +169,9 @@ If <samplerate> is NIL, the default sample rate is used to calculate the samples
   (mapcar #'(lambda (input) (ms->samples input samplerate)) ms))
            
 
-
 ;;;========================
 ;;; MISC. UTILS
 ;;;========================
-
 
 (defun clip (val &optional (min 0.0) (max 1.0))
 " If val is below min, return min,

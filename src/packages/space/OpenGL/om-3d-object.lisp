@@ -28,7 +28,7 @@
    (glvertexes :accessor glvertexes :initarg :glvertexes :initform nil))
   (:default-initargs :use-display-list nil))
 
-;;; for 3D objects we decide to copy only the initargs (as for omobjects)
+; for 3D objects we copy only the initargs (as for omobjects)
 (defmethod condition-for-copy-slot ((from om-3D-object) (to t) slot)
   (and (call-next-method) (slot-definition-initargs slot)))
 
@@ -50,7 +50,7 @@
   (activate-anti-aliasing-parameters)
   (om-draw-contents self))
 
-  ;anti aliasing things. Warning: if depth enable it may not work...
+; anti aliasing things. Warning: if depth enable it may not work...
 (defun activate-anti-aliasing-parameters ()
   (opengl:gl-enable opengl:*gl-blend*)
   (opengl:gl-enable opengl:*gl-line-smooth*)
@@ -75,7 +75,7 @@
   (setf (glvertexes self) (points2vertex (points self))))
 
 
-;naive implementation
+; naive implementation
 (defmethod om-append-3Dobj-point ((self om-3D-object) point)
   (setf (points self) (append (points self) point))
   (setf (glvertexes self) (points2vertex (points self))))
@@ -401,7 +401,7 @@
               (setf rgb (om-color-to-single-float-list rgb))
               (draw-gl-point x y z rgb alpha (* 3.0 (line-width self)))
               ))))
-    ;restore gl params
+  ;restore gl params
   (restore-om-gl-colors-and-attributes)
   )
 
