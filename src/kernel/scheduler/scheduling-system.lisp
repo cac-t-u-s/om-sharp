@@ -73,6 +73,7 @@
 ;;===========================================================================
 ;;;Links to previous architecture
 ;;===========================================================================
+
 (defmethod player-play-object ((self scheduler) (object schedulable-object) caller &key parent interval)
   (play-schedulable-object object self :interval interval :caller caller :parent parent))
 
@@ -90,5 +91,5 @@
 
 (defmethod player-get-object-time ((self scheduler) (object schedulable-object))
   (get-obj-time object))
-;;===========================================================================
+
 ;;===========================================================================

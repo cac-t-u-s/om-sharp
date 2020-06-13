@@ -40,7 +40,10 @@
   (timeout 1)
   (:documentation "Component to produce plans (schedule) on demand for objects in the register."))
 
-;===================================================================Getters & Setters
+;===================================================================
+; Getters & Setters
+;===================================================================
+
 (defmethod state ((self scheduler))
   (scheduler-state self))
 (defmethod (setf state) (new-state (self scheduler))
@@ -102,11 +105,12 @@
   (scheduler-timeout self))
 (defmethod (setf timeout) (new-timeout (self scheduler))
   (setf (scheduler-timeout self) new-timeout))
+
+
+;=================================================================================
+; API
 ;====================================================================================
 
-
-
-;=================================================================================API
 (defun build-scheduler (&key run-callback stop-callback)
   (let ((scheduler (make-scheduler :run-callback run-callback 
                                    :stop-callback stop-callback)))
@@ -120,8 +124,8 @@
   (if (mp:process-alive-p (process self))
       (mp:process-kill (process self))))
 
-;=================================================================================
-;;;reçoit des demandes de schedule dans sa mailbox et les traite
+
+; receives and processes scheduling requests
 (defmethod scheduler-function ((self scheduler))
   (mp:ensure-process-mailbox)
   (loop

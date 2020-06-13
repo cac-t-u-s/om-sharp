@@ -137,10 +137,8 @@
 
 ;;; CALLED TO START PLAYER
 (defmethod player-start ((player omplayer) &key (start-t 0) (end-t 3600000))
-  ;(let ((start-t (or (car (play-interval player)) 0))
-  ;      (end-t (or (cadr (play-interval player )) 3600000)))
+
   (cond ((equal (state player) :play)
-         ;;; prolonge la durée de vie du player
          (setf (stop-time player) (max (stop-time player) (or end-t 0))))
         
         (t 

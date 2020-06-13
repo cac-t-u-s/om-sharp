@@ -25,7 +25,10 @@
    (workers :initform nil :initarg :workers :accessor workers)
    (state :initform :stop :accessor state)))
 
-;============================================API
+;============================================
+; API
+;============================================
+
 (defmethod build-thread-pool (nbthread)
   (setq *threadpool* (make-instance 'thread-pool))
   (setf (workers *threadpool*) 
@@ -54,6 +57,7 @@
   (task-number-left *threadpool*))
 
 ;=============================================
+
 (defmethod thread-function ((self thread-pool))
   (mp:ensure-process-mailbox)
   (loop

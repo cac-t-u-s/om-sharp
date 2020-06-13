@@ -26,7 +26,10 @@
   (precision 50 :type integer)
   (:documentation "Component to send back timing informations to playing objects regitered in the corresponding scheduler."))
 
-;===================================================================Getters & Setters
+;===================================================================
+; Getters & Setters
+;===================================================================
+
 (defmethod state ((self graphics-handler))
   (graphics-handler-state self))
 (defmethod (setf state) (new-state (self graphics-handler))
@@ -46,9 +49,10 @@
   (graphics-handler-precision self))
 (defmethod (setf precision) (precision (self graphics-handler))
   (setf (graphics-handler-precision self) precision))
-;====================================================================================
 
-;=================================================================================API
+;=================================================================================
+; API
+;=================================================================================
 (defun build-graphics-handler (scheduler &key (precision 50))
   (let ((graphics (make-graphics-handler :scheduler scheduler
                                          :precision precision)))
@@ -58,7 +62,8 @@
                                                       graphics))
     graphics))
 
-;====================================================================================
+;==================================================================================
+
 (defmethod graphics-function ((self graphics-handler))
   (let ((sched (scheduler self)))
     (loop

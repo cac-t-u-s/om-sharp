@@ -19,12 +19,15 @@
 ;;===========================================================================
 ;  Schedulable Object
 ;;===========================================================================
+
 (declaim (optimize (speed 3) (safety 0) (debug 1)))
 
 (in-package :om)
+
 ;;===========================================================================
 ;;;Schedulable-Object = Object to be played by a Dynamic-Scheduler
 ;;===========================================================================
+
 ;;;Structure
 (defclass schedulable-object ()
   ((scheduler-settings :initform (list :autostop t) :accessor scheduler-settings :type (or null cons))
@@ -55,12 +58,11 @@ The output has to be:
 If the use of a macro is not convenient, you can simple call (notify-scheduler object) each time you think rescheduling might be useful."))
 
 ;;===========================================================================
+;; API 
 ;;===========================================================================
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;API;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;===========================================================================
-;;===========================================================================
-;;;TO REDEFINE FOR YOUR SUBCLASS
-;;;It should return a list of lists containing a date, a function and its arguments
+
+;; TO REDEFINE FOR YOUR SUBCLASS
+;; It should return a list of lists containing a date, a function and its arguments
 (defmethod get-action-list-for-play ((self schedulable-object) time-interval &optional parent)
   (append
    (if (not (or (eq (state self) :play) (play-planned? self)))
@@ -111,18 +113,18 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
              (player-stop-object *scheduler* self))
          nil)))))
 
-;;;TO REDEFINE FOR YOUR SUBCLASS
-;;;It should return a list of lists containing a date when a computation can start, its deadline, a function and its arguments
+;; TO REDEFINE FOR YOUR SUBCLASS
+;; It should return a list of lists containing a date when a computation can start, its deadline, a function and its arguments
 (defmethod get-computation-list-for-play ((self schedulable-object) &optional time-interval)
   nil)
 
-;;;TO REDEFINE FOR YOUR SUBCLASS
-;;;It should return an absolute duration
+;; TO REDEFINE FOR YOUR SUBCLASS
+;; It should return an absolute duration
 (defmethod get-obj-dur ((self schedulable-object)) *positive-infinity*)
 
 
-;;;TO USE TO EDIT DATA SLOTS OF YOUR OBJECT USED BY GET-ACTION-LIST-FOR-PLAY
-;;;;;;(if not used, concurrent play and edit of the object is not ensured to be safe)
+;; TO USE TO EDIT DATA SLOTS OF YOUR OBJECT USED BY GET-ACTION-LIST-FOR-PLAY
+;; (if not used, concurrent play and edit of the object is not ensured to be safe)
 (defmacro with-schedulable-object (object &rest body)
   `(let (res)
      (setq res (progn ,@body))
@@ -131,20 +133,20 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
        (reschedule ,object *scheduler* (get-obj-time ,object)))
      res))
 
-;;;ALTERNATIVE TO THE MACRO ABOVE
-;;;;(notifies the scheduler of potentially needed replanning)
+;; ALTERNATIVE TO THE MACRO ABOVE
+;; (notifies the scheduler of potentially needed replanning)
 (defmethod notify-scheduler ((object schedulable-object))
   (when (and (eq (state object) :play) (> (time-window object) *Lmin*))
     (setf (time-window object) *Lmin*)
     (reschedule object *scheduler* (get-obj-time object))))
 
-;;;TO SET IF THE OBJECT HAS TO AUTOMATICALLY STOP WHEN GET-OBJ-DUR IS REACHED BY THE SCHEDULER
-;;;;;;(t by default, set to nil is useful for objects that are filled while being played)
+;; TO SET IF THE OBJECT HAS TO AUTOMATICALLY STOP WHEN GET-OBJ-DUR IS REACHED BY THE SCHEDULER
+;; (t by default, set to nil is useful for objects that are filled while being played)
 (defmethod set-object-autostop ((self schedulable-object) t-or-nil)
   (setf (autostop self) t-or-nil))
 
-;;;SET THE OBJECT TIME WHILE PLAYING
-;;;;;;Sets the time and replans from this date
+;; SET THE OBJECT TIME WHILE PLAYING
+;; Sets the time and replans from this date
 (defmethod set-object-time ((self schedulable-object) time)
   (setf (ref-time self) (- (om-get-internal-time) time))
   (if (eq (state self) :play)
@@ -153,29 +155,29 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 (defmethod set-object-time ((self t) time)
   nil)
 
-;;;CALLBACK USED WHEN THE SYSTEM SWITCHES THE OBJECT TIME AUTOMATICALLY
-;;;;;;Happens when the object loops.
+;; CALLBACK USED WHEN THE SYSTEM SWITCHES THE OBJECT TIME AUTOMATICALLY
+;; Happens when the object loops.
 (defmethod set-time-callback ((self schedulable-object) time)
   nil)
 
-;;;SET THE OBJECT SCHEDULER TIME WINDOW
+;; SET THE OBJECT SCHEDULER TIME WINDOW
 (defmethod set-object-time-window ((self schedulable-object) window)
   (setf (user-time-window self) window)) ;(max window *Lmin*)
 
-;;;LOOPS AN OBJECT
-;;;;;The object will loop at the end of its interval of at its end (if it exists)
+;; LOOPS AN OBJECT
+;; The object will loop at the end of its interval of at its end (if it exists)
 (defmethod loop-object ((self schedulable-object))
   (setf (looper self) t))
 
-;;;UNLOOPS AN OBJECT
-;;;;;The object will not loop
+;; UNLOOPS AN OBJECT
+;; The object will not loop
 (defmethod unloop-object ((self schedulable-object)) 
   (setf (looper self) nil))
 
 (defmethod is-looping ((self schedulable-object)) 
   (looper self))
 
-;;;SET AN OBJECT'S INTERVAL
+;; SET AN OBJECT'S INTERVAL
 (defmethod set-object-interval ((self schedulable-object) interval)
   (setf (interval self) (if (or (null (cadr interval))
                                 (= (car interval) (cadr interval)))
@@ -186,14 +188,14 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
   interval)
 
 
-;;;GET AN OBJECT'S STATE
+;; GET AN OBJECT'S STATE
 (defmethod get-object-state ((self schedulable-object))
   (state self))
 (defmethod get-object-state ((self t))
   nil)
 
-;;;AUGMENTED TRANSPORT
-;;;;;;Automatically play/continue or pause object according to its current state
+;; AUGMENTED TRANSPORT
+;; Automatically play/continue or pause object according to its current state
 (defmethod player-play/pause-object ((self scheduler) (object schedulable-object) caller &key parent (at 0) interval params)
   (declare (ignore at params parent))
   (if (eq (state object) :pause)
@@ -206,8 +208,8 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
   (declare (ignore self object caller parent at interval params))
   nil)
 
-;;;AUGMENTED TRANSPORT
-;;;;;;Automatically play or stop object according to its current state
+;; AUGMENTED TRANSPORT
+;; Automatically play or stop object according to its current state
 (defmethod player-play/stop-object ((self scheduler) (object schedulable-object) caller &key parent (at 0) interval params)
   (declare (ignore at params parent))
   (if (or (not (state object)) (eq (state object) :stop))
@@ -220,20 +222,11 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
   (declare (ignore self object caller parent at interval params))
   nil)
 
-;;===========================================================================
-;;===========================================================================
-;;===========================================================================
-;;===========================================================================
-
-
-
 
 ;;===========================================================================
+;; GETTERS & SETTERS
 ;;===========================================================================
-;;;;;;;;;;;;;;;;;;;;;;;;GETTERS & SETTERS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;===========================================================================
-;;===========================================================================
-;;;;;;Settings
+
 (defmethod looper ((self schedulable-object))
   (getf (scheduler-settings self) :looper))
 (defmethod (setf looper) (t-or-nil (self schedulable-object))
@@ -254,7 +247,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 (defmethod (setf user-time-window) (new-window (self schedulable-object))
   (setf (getf (scheduler-settings self) :user-time-window) new-window))
 
-;;;;;State
+;; State
 (defmethod state ((self schedulable-object))
   (getf (scheduler-info self) :state))
 (defmethod (setf state) (new-state (self schedulable-object))
@@ -279,7 +272,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
   (if (and (auto-adapt-time-window self) (not (user-time-window self))) 
       (setf (time-window self) (min *Lmax* (* 2 (time-window self))))))
 
-;;;;;Data
+;; Data
 (defmethod destroy-data ((self schedulable-object))
   (setf (scheduler-data self) (list :plan-lock (plan-lock self)
                                     :task-plan-lock (task-plan-lock self)))
@@ -335,7 +328,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 (defmethod (setf computation-plan) (new-plan (self schedulable-object))
   (setf (getf (scheduler-data self) :computation-plan) new-plan))
 
-;;;Intégration travail Samuel
+
 (defmethod actionlist ((self schedulable-object))
   (getf (scheduler-data self) :actionlist))
 (defmethod (setf actionlist) (actionlist (self schedulable-object))
@@ -345,51 +338,48 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
   (getf (scheduler-data self) :last-action-pos))
 (defmethod (setf last-action-pos) (new-pos (self schedulable-object))
   (setf (getf (scheduler-data self) :last-action-pos) new-pos))
-;;===========================================================================
-;;===========================================================================
-;;===========================================================================
-;;===========================================================================
-
 
 
 ;;===========================================================================
-;;;Plan related methods
+;; Plan related methods
 ;;===========================================================================
-;;;PENSER A l'ADAPTATION DE LA TIME-WINDOW EN FONCTION DE LA DUREE DU SCHEDULE
+
+;; !! TIME-WINDOW must be adapted depending on the scheduling duration 
 ;(t1 (om-get-internal-time)) ;;start date of scheduling operation
 ;         t2 ;;end date of scheduling operation
 ;         dt ;;duration of the scheduling operation
-;;;SCHEDULE : produit le prochain plan pour un objet et le met à la suite
+
+;; SCHEDULE : produces the next plan for an object
 (defmethod schedule ((sched scheduler) (obj schedulable-object))
   (mp:process-send (process sched)
                    #'(lambda ()
                        (let ((I (get-next-I obj))
                              (start-t (or (car (interval obj)) 0))
                              bundles actlist)
-                         ;;;Get actions as raw data
+                         ;; Get actions as raw data
                          (om-with-timeout (timeout sched)
                                           #'(lambda () 
                                               (print (format nil "Schedule operation timed out (> ~As) : ~A stopped" (timeout sched) obj))
                                               (stop-schedulable-object obj sched))
                                           #'(lambda () (setq bundles (get-action-list-for-play obj (subseq I 0 2)))))
 
-                         ;;;Wrap actions in the appropriate data structure
+                         ;; Wrap actions in the appropriate data structure
                          (setq actlist (loop for bundle in bundles
                                              collect
                                              (act-alloc :timestamp (car bundle)
                                                         :fun (cadr bundle)
                                                         :data (caddr bundle))))
                          
-                         ;;;Update the scheduler next action date (used in timer execution mode only)
+                         ;; Update the scheduler next action date (used in timer execution mode only)
                          (if (car actlist)
                              (setf (next-date sched) (min (next-date sched) (act-timestamp (car actlist)))))
-                         ;;;Add new actions to the object plan 
+                         ;; Add new actions to the object plan 
                          (mp:with-lock ((plan-lock obj))
                            (setf (plan obj)
                                  (sort (append (plan obj)
                                                (if (nth 2 I)
                                                    (if (eq (nth 2 I) :loop)
-                                                       ;;;If the object has to loop, reset its time at the end
+                                                       ;; If the object has to loop, reset its time at the end
                                                        (append actlist
                                                                (list (act-alloc :timestamp (1- (cadr I))
                                                                                 :fun #'(lambda () 
@@ -402,7 +392,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
                                                                                          (interleave-tasks obj (list start-t
                                                                                                                      (+ start-t (time-window obj))))
                                                                                          (funcall 'set-time-callback obj (car (interval obj)))))))
-                                                     ;;;If the object has to stop, stop the object at the end of interval
+                                                     ;; If the object has to stop, stop the object at the end of interval
                                                      (append actlist
                                                              (list (act-alloc :timestamp (1- (cadr I))
                                                                               :fun #'(lambda ()
@@ -411,7 +401,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
                                                                                                 (1- (cadr I)))
                                                                                        (player-stop-object sched obj)
                                                                                        )))))
-                                                 ;;;If the object continues, keep scheduling
+                                                 ;; If the object continues, keep scheduling
                                                  (append (list (act-alloc :timestamp (car I)
                                                                           :fun #'(lambda ()  
                                                                                    (schedule sched obj)
@@ -420,10 +410,11 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
                                                          actlist)))
                                        '< :key 'act-timestamp)))))))
 
-;;;fait avancer les intervalles dans l'objet.
-;;;renvoie le prochain intervalle dans lequel scheduler.
-;;;renvoie (t1 t2+1 :stop) quand arrivé au bout (si looper activé, renvoie :loop et repart du départ)
-;;;attention : get-obj-dur doit exister pour l'objet (> 0 sinon démarre jamais)
+
+;; move forward the intervals in the object.
+;; returns the next interval to schedule 
+;; returns (t1 t2+1 :stop) when reaches the end (if looper is on, returns :loop and restarts from the beginning)
+;; !!! get-obj-dur must be defined for the object (and > 0, otherwise will never start)
 (defmethod get-next-I ((self schedulable-object))
   (let* ((tmax (if (cadr (interval self))
                    (if (= (cadr (interval self)) *positive-infinity*)
@@ -436,7 +427,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
                    *positive-infinity*)))
          (t1 (current-local-time self))
          (t2 (min (+ t1 (time-window self)) (or tmax *positive-infinity*))))
-    (if (= t2 tmax) ;;;l'intervalle produit touche le bout de l'objet/intervalle
+    (if (= t2 tmax) ;; the interval touches the end of the object/interval
         (if (looper self)
             (progn 
               (reset-I self)
@@ -451,8 +442,8 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
   (setf (current-local-time self) (or date (car (interval self)) 0)
         (time-window self) (or (user-time-window self) *Lmin*)))
 
-;;;RESCHEDULING OF AN OBJECT
-;;;;;From 'time if provided, instantaneous otherwise
+;; RESCHEDULING OF AN OBJECT
+;; From 'time if provided, instantaneous otherwise
 (defmethod reschedule ((self schedulable-object) (sched scheduler) &optional time (preserve t))
   (let ((switch-date (if time (+ time *Lmin*) 
                        (get-obj-time self))))
@@ -503,27 +494,25 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
                                            (apply fun data)
                                          (funcall fun)))))))
 
-;;===========================================================================
-;;===========================================================================
-
 
 ;;===========================================================================
 ;;;Object informations & Scheduler redefinitions
 ;;===========================================================================
-;;;SETS THE ID OF AN OBJECT
+
+;; SETS THE ID OF AN OBJECT
 ;(defmethod set-schedulable-object-id ((self schedulable-object) (number integer))
 ;  (loop for char across (number-to-string number) do
 ;        (vector-push-extend char (identifier self)))
 ;  (vector-push-extend #\. (identifier self)))
 
-;;;GET THE OBJECT TIME
+;; GET THE OBJECT TIME
 (defmethod get-obj-time ((self schedulable-object) &key internal-time)
   (cond ((eq (state self) :pause)
          (pause-time self))
         ((eq (state self) :stop) 0) 
         (t (- (or internal-time (om-get-internal-time)) (ref-time self)))))
 
-;;;inlined version
+;; inlined version
 (declaim (inline %get-obj-time))
 (defun %get-obj-time (obj)
   (cond ((eq (state obj) :pause)
@@ -531,25 +520,24 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
         ((eq (state obj) :stop) 0) 
         (t (- (om-get-internal-time) (ref-time obj)))))
 
-;;;GET THE TIMESTAMP OF AN OBJECT
+;; GET THE TIMESTAMP OF AN OBJECT
 (defmethod item-timestamp ((self schedulable-object))
   0)
 
-;;;PLAY AN OBJECT
+;; PLAY AN OBJECT
 (defmethod play-item ((self schedulable-object) (sched scheduler) &key caller parent)
   (declare (ignore parent))
   (player-play-object sched self caller))
-;;===========================================================================
-;;===========================================================================
 
 
 ;;===========================================================================
 ;;;Player methods
 ;;===========================================================================
-;;;PLAYS AN OBJECT
-;;;;;internal-time can be used to fix the start reference time (for sync between multiple objects)
-;;;;;interval sets the playing interval of the object
-;;;;;caller is the object to receive graphic updates
+
+;; PLAYS AN OBJECT
+;; internal-time can be used to fix the start reference time (for sync between multiple objects)
+;; interval sets the playing interval of the object
+;; caller is the object to receive graphic updates
 (defmethod play-schedulable-object ((self schedulable-object) (sched scheduler) 
                                     &key internal-time interval parent caller)
   (when (or (eq (state self) :stop)
@@ -603,8 +591,8 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
   (declare (ignore self sched internal-time interval parent caller))
   nil)
 
-;;;PAUSES AN OBJECT
-;;;;;internal-time can be used to fix the pause reference time (for sync between multiple objects)
+;; PAUSES AN OBJECT
+;; internal-time can be used to fix the pause reference time (for sync between multiple objects)
 (defmethod pause-schedulable-object ((self schedulable-object) (sched scheduler) &key internal-time)
   (when (eq (state self) :play)
     (let ((internal-time (or internal-time (om-get-internal-time))))
@@ -619,8 +607,8 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
   (declare (ignore self sched internal-time))
   nil)
 
-;;;CONTINUES AN OBJECT
-;;;;;internal-time can be used to fix the start reference time (for sync between multiple objects)
+;; CONTINUES AN OBJECT
+;; internal-time can be used to fix the start reference time (for sync between multiple objects)
 (defmethod continue-schedulable-object ((self schedulable-object) (sched scheduler) &key internal-time)
   (when (eq (state self) :pause)
     (let ((internal-time (or internal-time (om-get-internal-time))))
@@ -635,7 +623,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
   (declare (ignore self sched internal-time))
   nil)
 
-;;;STOPS AN OBJECT
+;; STOPS AN OBJECT
 (defmethod stop-schedulable-object ((self t) (sched scheduler))
   (declare (ignore self sched))
   nil)
@@ -659,5 +647,4 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 
 (defmethod get-caller ((self schedulable-object) (sched scheduler)) 
   (cadr (find self (register sched) :key 'car)))
-;;===========================================================================
-;;===========================================================================
+

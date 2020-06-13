@@ -94,8 +94,6 @@
       (om-invalidate-view (frame self))))
 
 
-
-
 ;;; called from the system / user
 (defun box-player-start (box)
   (when box
@@ -121,8 +119,6 @@
 
 
 
-
-
 ;;; called from an action
 (defmethod play-boxes ((boxlist list))
   (let ((list2play (remove-if-not 'play-box? boxlist)))
@@ -134,8 +130,6 @@
                   ))
             list2play)
     (when *play-boxes*
-      ;(player-set-time-interval *general-player* 0 (+ now (loop for box in list2play maximize (get-obj-dur (get-obj-to-play box)))))
-      ;;; ça fait rien (avec p-obj-player)
       (player-start *general-player*)
       )))
 

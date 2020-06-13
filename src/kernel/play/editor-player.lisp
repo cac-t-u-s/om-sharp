@@ -51,7 +51,8 @@
   (editor-stop self)
   (call-next-method))
 
-;;; A REDEFINIR PAR LES SOUS-CLASSES
+
+;;; TO BE OVERRIDEN BY SUBCLASSES
 (defmethod cursor-panes ((self play-editor-mixin)) nil)
 
 
@@ -66,8 +67,6 @@
 (defmethod get-play-duration ((self play-editor-mixin)) 
   (+ (get-obj-dur (get-obj-to-play self)) 100))  ;;; = 0 if obj = NIL
 
-;; priorité sur le mode
-; (equal (cursor-mode selection-pane) :interval)
 (defmethod play-selection-first ((self t)) t)
 
 (defmethod additional-player-params ((self t)) nil)
@@ -81,8 +80,6 @@
   (let ((play-obj (get-obj-to-play self))) 
     (list 0 
           (+ (or (get-obj-dur play-obj) 0) (default-editor-min-x-range self)))))
-
-;;; (list (vmin self) (or (vmax self) (default-editor-min-x-range self)))
 
 
 (defmethod reinit-x-ranges ((self play-editor-mixin))

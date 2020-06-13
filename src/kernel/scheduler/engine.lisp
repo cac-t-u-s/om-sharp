@@ -14,6 +14,7 @@
 ;============================================================================
 ; File author: D. Bouche
 ;============================================================================
+
 (in-package :om)
 
 (defvar *engine* nil)
@@ -26,7 +27,10 @@
   (behavior :EDF :type symbol)
   (:documentation "Component to perform non-zero time computations"))
 
-;===================================================================Getters & Setters
+;===================================================================
+; Getters & Setters
+;===================================================================
+
 (defmethod state ((self engine))
   (engine-state self))
 (defmethod (setf state) (new-state (self engine))
@@ -60,7 +64,6 @@
      (mp:mailbox-send (taskqueue *engine*) (lambda () ,@body))
      (poke-thread-pool *engine*)))
 
-;reflechir
 (defmacro compute2 (obj clef time-type &body body)
 `(let (res)
   (if (eq ,time-type 'ms)   
@@ -93,3 +96,4 @@
 ;                                                           (/ (- (act-timestamp (first (task-plan self))) (om-get-internal-time))
 ;                                                              1000.0)) 'alarm self)
 ;     (mp:process-wait-with-timeout "Sleeping" 0.001))))
+

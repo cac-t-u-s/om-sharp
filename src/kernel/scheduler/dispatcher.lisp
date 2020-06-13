@@ -21,18 +21,22 @@
 
 (declaim (optimize (speed 3) (safety 0) (debug 1)))
 
-;================================================================Dispatcher structure
+;================================================================
+; Dispatcher structure
+;================================================================
+
 (defstruct (dispatcher)
   (state :stop :type symbol) ;Current state
   (process nil :type (or mp:process null)) ;Reference to the main process
   (precision 1 :type integer) ;Best possible time accuracy in dispatching actions (in ms)
   (scheduler nil :type scheduler) ;Reference to the linked scheduler (to access object register etc.)
   (:documentation "Component to dispatch actions from a scheduler register on due time."))
-;====================================================================================
 
 
+;===================================================================
+; Getters & Setters
+;===================================================================
 
-;===================================================================Getters & Setters
 (defmethod state ((self dispatcher))
   (dispatcher-state self))
 (defmethod (setf state) (new-state (self dispatcher))
@@ -52,11 +56,12 @@
   (dispatcher-scheduler self))
 (defmethod (setf scheduler) (scheduler (self dispatcher))
   (setf (dispatcher-scheduler self) scheduler))
-;====================================================================================
 
 
+;=================================================================================
+; API
+;=================================================================================
 
-;=================================================================================API
 (defun build-dispatcher (scheduler &key (precision 1))
   (let ((dispatcher (make-dispatcher :precision (max 1 (round precision))
                                      :scheduler scheduler)))
@@ -71,6 +76,7 @@
       (mp:process-kill (process self))))
 
 ;====================================================================================
+
 (declaim (inline play-object-action))
 (defmethod play-object-action ((disp dispatcher) obj action)
   (let ((sched (scheduler disp)))
@@ -104,7 +110,6 @@
 
 
 
-
 (defmethod dispatch-actions-with-timer ((self dispatcher))
   (let ((sched (scheduler self))
         (anticipation 10)
@@ -124,6 +129,7 @@
                     (mp:process-wait-with-timeout "Sleeping" 0.001))
               (mp:with-lock ((plan-lock (car next-trigger)))
                 (%play-action (pop (plan (car next-trigger))))))))))))
+
 
 ;(progn (restart-scheduling-system) (init-om-player))
 ;(get-next-trigger *scheduler*) (plan (caar (register *scheduler*)))
