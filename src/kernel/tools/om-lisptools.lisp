@@ -137,6 +137,19 @@
   (and (funcall (if exclude-low-bound '> '>=) n (car interval)) 
        (funcall (if exclude-high-bound '< '<=) n (cadr interval))))
 
+
+(defun closest-match (value list &key (key #'identity))
+  (let ((rep (car list))
+        (min (abs (- value (funcall key (car list))))))
+    (loop for elt in (cdr list) 
+          do
+          (let ((diff (abs (- value (funcall key elt)))))
+            (when (< diff min)
+              (setf min diff
+                    rep elt))))
+    rep))
+
+
 ;=================
 ;safe random
 (defun om-random-value (num)
