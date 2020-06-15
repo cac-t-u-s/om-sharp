@@ -344,18 +344,35 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
 ;;;==================            
 
 (defun pitch-to-line (pitch &optional scale)
-  (multiple-value-bind (octave interval) (floor pitch 1200) 
-    ;;; line 0 is at 5th octave
-    ;;; 1 octave is 3.5 lines
-    (+ (* 3.5 (- octave 5))
-       (nth 1 (find interval (or scale *default-scale*) 
-                    :key 'car :test '>= :from-end t)))
-    ))
+
+  (multiple-value-bind (octave interval) (floor pitch 1200)
+
+    (let* ((scale 
+            (append 
+             (or scale *default-scale*)
+             `((1200 3.5 nil))) ;; in cas ewe are actually closer to the next octave
+            )
+           (scale-step (closest-match interval scale :key #'car ))) 
+
+      ;;; line 0 is at 5th octave
+      ;;; 1 octave is 3.5 lines
+      (+ (* 3.5 (- octave 5))
+         (nth 1 scale-step)
+       )
+    )))
+
 
 (defun pitch-to-acc (pitch &optional scale)
-  (nth 2 (find (mod pitch 1200) 
-               (or scale *default-scale*) 
-               :key 'car :test '>= :from-end t)))
+  (multiple-value-bind (octave interval) (round pitch 1200)   
+    (declare (ignore octave))
+    (let* ((scale 
+            (append 
+             (or scale *default-scale*)
+             `((1200 3.5 nil))) ;; in cas ewe are actually closer to the next octave
+            )
+           (scale-step (closest-match interval scale :key #'car )))
+
+      (nth 2 scale-step))))
 
 
 ;;; (lines are also the score "unit")
