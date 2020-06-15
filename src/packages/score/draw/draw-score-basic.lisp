@@ -354,11 +354,15 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
             )
            (scale-step (closest-match interval scale :key #'car ))) 
 
-      ;;; line 0 is at 5th octave
-      ;;; 1 octave is 3.5 lines
-      (+ (* 3.5 (- octave 5))
-         (nth 1 scale-step)
-       )
+      (values 
+       ;;; line 0 is at 5th octave
+       ;;; 1 octave is 3.5 lines
+       (+ (* 3.5 (- octave 5))
+          (nth 1 scale-step)
+          )
+
+       ;;; returns the accidental as second value
+       (nth 2 scale-step))
     )))
 
 
