@@ -186,11 +186,11 @@
           "===========================~%~A v~D~%r. ~A~%==========================="
           *app-name* *version-string* *release-date*))
 
-; (start-openmusic)
+; (start-omsharp)
 
 (defvar *om-initialized* nil)
 
-(defun start-openmusic ()
+(defun start-omsharp ()
   (push :om *features*)
   (oa::om-api-init)
   (om-fi::om-load-foreign-libs

@@ -213,7 +213,7 @@
                        ))))
   #+cocoa(setf system::*stack-overflow-behaviour* nil)
   (setq om::*om-debug* nil) ;; will disable debug print messages
-  (om::start-openmusic)
+  (om::start-omsharp)
   )
 
 ;;;==========================

@@ -8,7 +8,7 @@
 ;;;=======================
 ;;; RUN:
 ;;;=======================
-;;; (om::start-openmusic)
+;;; (om::start-omsharp)
 ;;;=======================
 
 (in-package "CL-USER")
@@ -185,7 +185,7 @@
 (load-om-package "space")
 
 
-(defun cl-user::start-openmusic () (om::start-openmusic))
+(defun cl-user::start-omsharp () (om::start-omsharp))
 
 
 
