@@ -194,10 +194,6 @@
 (defun default-interface ()
   (capi:set-application-interface (make-instance 'om-application)))
 
-; now we declare this in start-openmusic
-;#+cocoa
-;(defun quit-callback (interface) (om::quit-om-callback))
-
 
 ;;; DELIVER
 (defun init-om-standalone ()
@@ -215,6 +211,7 @@
   (setq om::*om-debug* nil) ;; will disable debug print messages
   (om::start-omsharp)
   )
+
 
 ;;;==========================
 ;;; SOURCE DEFINITIONS
