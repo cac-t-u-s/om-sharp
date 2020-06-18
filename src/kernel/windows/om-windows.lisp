@@ -385,8 +385,28 @@
 ;;;===============================
 ;;; ABOUT
 ;;;===============================
-                                
-(defun show-about-win () nil)
+              
+(defclass om-about-window (om-windoid) ())
+
+(defun show-about-win () 
+  (let ((about-win
+         (car (om-get-all-windows 'om-about-window))))
+    (if about-win
+        (om-show-window about-win)
+     (om-make-window 
+      'om-about-window
+      :subviews 
+      (list (om-make-di 'om-multi-text 
+                        :text (format nil 
+                                      "~A v~D~%r. ~A"
+                                      *app-name* *version-string* *release-date*)
+                        :size (omp 200 40)
+                        ))
+      :close-callback #'(lambda (win) (setf *about-window* nil))
+      ))
+    ))
+
+; (show-about-win)
 
 ;;;===============================
 ;;; PREFERENCES
