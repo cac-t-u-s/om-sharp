@@ -82,6 +82,7 @@
    (unless (boundp sym)
      (om-print-format "Defining global variable: ~A" (list sym))
      (eval `(defvar ,sym ,(car (value self))))
+     (set-name (reference self) new-name)
      )))
 
 (defmethod set-value :after ((self OMGlobalBox) new-val)
