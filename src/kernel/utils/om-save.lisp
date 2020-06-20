@@ -778,7 +778,7 @@
                    (let ((new-name (function-changed-name reference)))
                      (if (and new-name (fboundp new-name))
                          (progn (setf name (string new-name))
-                           (omng-make-new-boxcall (fdefinition new-name) pos))
+                           (omng-make-new-boxcall new-name pos))
                        (progn
                          (om-beep-msg "unknown function: ~A" reference)
                          (omng-make-lost-fun-box reference pos))
