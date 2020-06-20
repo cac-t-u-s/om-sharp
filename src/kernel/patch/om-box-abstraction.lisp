@@ -23,33 +23,51 @@
   (:default-initargs :text-align :center :icon-pos :left)
   (:metaclass omstandardclass))
 
+
 ;;; a tricky accessor for patch names :)
 (defmethod box-patch-name-access ((box OMBoxAbstraction) &optional (name nil name-provided-p))
-  (if name-provided-p 
+  (if name-provided-p
       ;;; SET
-      (let ((patch (container box)))
+      (if (is-persistant (reference box))
+          
+          ;;; Global abstraction:
+          ;;; don't do it if it doesn't change!
+          ;;; this can break the recursive-patch loading system
+          ;;; by updating the patch reference
+          (when (not (pathname-match-p (mypathname (reference box))
+                                       (pathname name))) 
+            
+            (print (mypathname (reference box)))
+            (print (pathname name))
+            
+            (let ((patch (container box)))
+                
+              (when (editor patch) (store-current-state-for-undo (editor patch)))
+              
+              (let ((newpatch (and (probe-file name)
+                                    (load-doc-from-file name :patch))))
+                (if newpatch
+                     (let ((oldpatch (reference box)))
+                       (release-reference oldpatch box)
+                       (setf (reference box) newpatch)
+                       (retain-reference newpatch box)
+                       (update-from-reference box)
+                       )
+                  (progn 
+                    (om-message-dialog "this file is not a valid patch !")
+                    (update-inspector-for-object box))))))
         
-        (when (editor patch) (store-current-state-for-undo (editor patch)))
-        
-        (if (is-persistant (reference box))
-            (let ((newpatch (and (probe-file name)
-                               (load-doc-from-file name :patch))))
-            (if newpatch
-                (let ((oldpatch (reference box)))
-                  (release-reference oldpatch box)
-                  (setf (reference box) newpatch)
-                  (retain-reference newpatch box)
-                  (update-from-reference box)
-                  )
-             (progn 
-               (om-message-dialog "this file is not a valid patch !")
-               (update-inspector-for-object box))))
-        (set-name (reference box) name))
+        ;;; Internal abstraction
+        (let ((patch (container box)))
+          (when (editor patch) (store-current-state-for-undo (editor patch)))
+          (set-name (reference box) name))
         )
+  
     ;;; GET
     (if (is-persistant (reference box))
         (mypathname (reference box))
-      (name (reference box)))))
+      (name (reference box)))
+    ))
 
 
 ;;; Note :file-name will be stored and saved as a property of teh file. 
