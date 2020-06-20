@@ -4,10 +4,10 @@
  (:doc "")
  (:info
   (:created "2018/01/18 11:54:31")
-  (:modified "2020/01/02 8:45:59")
+  (:modified "2020/06/20 23:39:57")
   (:by "om-sharp")
   (:version 1.0))
- (:window (:size (884 408)) (:position (226 440)))
+ (:window (:size (884 408)) (:position (182 206)))
  (:grid nil)
  (:lock nil)
  (:boxes
@@ -87,7 +87,6 @@
        "SRC"
        "cac-t-u-s"
        "om-sharp"
-       "om"
        "help-patches"
        "Core features"))
      (:device :unspecific)
@@ -104,10 +103,10 @@
    (:outputs (:output (:name "out") (:reactive nil)))
    (:id 2))
   (:box
-   (:type :function)
-   (:reference omif)
+   (:type :special)
+   (:reference if)
    (:group-id nil)
-   (:name "omif")
+   (:name "IF")
    (:x 178)
    (:y 262)
    (:w 102)
@@ -128,7 +127,7 @@
      (:reactive nil))
     (:input
      (:type :standard)
-     (:name "ACTION")
+     (:name "THEN")
      (:value nil)
      (:reactive nil))
     (:input
@@ -301,7 +300,6 @@
        "SRC"
        "cac-t-u-s"
        "om-sharp"
-       "om"
        "help-patches"
        "Core features"))
      (:device :unspecific)
