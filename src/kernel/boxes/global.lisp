@@ -28,7 +28,6 @@
 (defmethod special-box-p ((ref (eql 'global))) t) 
 (defmethod get-box-class ((ref OMGlobalVar)) 'OMGlobalBox)
 (defmethod box-symbol ((self OMGlobalVar)) 'global)
-(defmethod object-box-label ((self OMGlobalVar)) (string+ "GLOBAL " (name self)))
 
 
 (defmethod omNG-make-special-box ((reference (eql 'global)) pos &optional init-args)
