@@ -27,3 +27,4 @@ notarize.sh
 VERSION
 
 *.sublime-*
+.vscode
