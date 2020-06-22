@@ -47,7 +47,7 @@
     (text-align :initform nil :accessor text-align :initarg :text-align)
     (icon-pos :initform :left :accessor icon-pos :initarg :icon-pos)
     (show-name :initform t :accessor show-name :initarg :show-name)
-    (show-markers :accessor show-markers :initform t)
+    (show-markers :initform t :accessor show-markers :initarg :show-markers)
    
     (cache-display :initform nil :accessor cache-display)
    
