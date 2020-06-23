@@ -305,13 +305,13 @@
                                       (list
                                        nil
                                        (om-make-di 'om-button :text "Save selection" 
-                                                   :size (omp 100 32) :font (om-def-font :font1)
+                                                   :size (omp 125 32) :font (om-def-font :font1)
                                                    :di-action #'(lambda (b) 
                                                                   (declare (ignore b))
                                                                   (save-documents doc-list)
                                                                   ))
                                        (om-make-di 'om-button :text "Close selection" 
-                                                   :size (omp 100 32) :font (om-def-font :font1)
+                                                   :size (omp 125 32) :font (om-def-font :font1)
                                                    :di-action #'(lambda (b) 
                                                                   (declare (ignore b))
                                                                   (close-documents doc-list)
