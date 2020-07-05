@@ -1378,9 +1378,9 @@
                        (pathname-name local-restored-path)
                        (om-make-pathname :directory local-restored-path)))
         ))
-    
-    (unless (probe-file doc-path)
       
+    (unless (and doc-path (probe-file doc-path))
+
       ;;; try with the search folder
       (let ((search-matches (remove nil 
                                     (loop for type in abs-types collect
