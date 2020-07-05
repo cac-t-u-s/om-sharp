@@ -406,30 +406,24 @@
 ;;; TIME MARKERS METHODS
 ;;;=========================================
 
-;;;TIME MARKERS TO REDEFINE FOR YOUR SUBCLASS
-(defmethod get-time-markers ((self ommaquette))
-  "returns a list of time markers"
-  (flat (loop for box in (boxes self)
-              collect
-              (get-time-markers box))))
+;;; note: this is not used as long as maquette are 
+;;; not embedded other maquettes
 
-;;;TIME MARKERS TO REDEFINE FOR YOUR SUBCLASS
-(defmethod get-elements-for-marker ((self ommaquette) marker)
-  "returns a list of elements matching the marker if not elements, it retuns "
+(defmethod get-time-markers ((self OMMaquette))
+  (loop for box in (boxes self)
+        append (get-time-markers box)))
+
+(defmethod get-elements-for-marker ((self OMMaquette) marker)
   (loop for box in (boxes self) 
         collect
         (list box (get-elements-for-marker box marker))))
 
-;;;TIME MARKERS TO REDEFINE FOR YOUR SUBCLASS
-(defmethod translate-elements-from-time-marker ((self ommaquette) elems dt)
-  "translates elements from a time marker with dt"
+(defmethod translate-elements-from-time-marker ((self OMMaquette) elems dt)
   (loop for elem in elems
-        do
-        (when (not (member nil (cdr elem)))
-          (temporal-translate-points (car elem) (cdr elem) dt))))
+        do (when (not (member nil (cdr elem)))
+             (temporal-translate-points (car elem) (cdr elem) dt))))
 
   
-
 ;;;=================================
 ;;; PERSISTENCE / OM-SAVE
 ;;;=================================

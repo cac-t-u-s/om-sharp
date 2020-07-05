@@ -51,22 +51,12 @@
     inst))
 
 
-(defmethod get-timed-objects-for-graduated-view ((self metric-ruler))
-  ;returns a list of timed-object to retrieve their markers
-  nil)
-
-;TIME MARKERS method to redefine by subclasses
-(defmethod select-elements-at-time ((self metric-ruler) marker-time)
-  ;selects the elements with same time than the marker-time
-  nil)
-
-;TIME MARKERS
-(defmethod clear-editor-selection ((self metric-ruler))
-  nil)
+;;; Time markers API (not implemented)
+(defmethod get-timed-objects-for-graduated-view ((self metric-ruler)) nil)
+(defmethod select-elements-at-time ((self metric-ruler) marker-time) nil)
+(defmethod clear-editor-selection ((self metric-ruler)) nil)
 
 
-
-        
 (defun update-span (ruler)
   (let ((span (list (v1 ruler) (v2 ruler))))
     (when (not (equal span (previous-span ruler)))

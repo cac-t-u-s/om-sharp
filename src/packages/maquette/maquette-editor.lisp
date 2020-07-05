@@ -769,25 +769,17 @@
     (call-next-method)))
 
 ;;;========================
-;;; TIME MARKERS
+;;; TIME MARKERS API
 ;;;========================
 
-;TIME MARKERS : method to redefine by subclasses
-;(defmethod get-timed-objects-for-graduated-view ((self sequencer-track-view))
-;  "returns a list of timed-object to retrieve their markers"
-;  (mapcar 'get-box-value (nth (num self) (tracks (get-obj-to-play (editor self))))))
-
 (defmethod get-timed-objects-for-graduated-view ((self sequencer-track-view))
-  "returns a list of timed-object to retrieve their markers"
   (get-track-boxes (get-obj-to-play (editor self)) (num self)))
 
-;TIME MARKERS method to redefine by subclasses
 (defmethod select-elements-at-time ((self sequencer-track-view) marker-time)
-  "selects the elements with same time than the marker-time"
-   (let* ((editor (editor (om-view-window self)))
-          (box (box-at-pos editor marker-time (num self))))
-     (when box (select-box box t))
-     (update-to-editor editor self)))
+  (let* ((editor (editor (om-view-window self)))
+         (box (box-at-pos editor marker-time (num self))))
+    (when box (select-box box t))
+    (update-to-editor editor self)))
 
 ;;==============================
 ;; MARKER API SPECIAL MAQUETTE
@@ -802,12 +794,10 @@
     (contextual-update self (container self))))
 
 (defmethod get-elements-for-marker ((self OMBox) marker)
-  "returns a list of elements matching the marker"
   (when (get-box-value self)
     (get-elements-for-marker (get-box-value self) marker)))
 
 (defmethod get-time-markers ((self OMBox))
-  "returns a list of time markers"
   (when (and (get-box-value self) (show-markers self))
     (get-time-markers (get-box-value self))))
 
