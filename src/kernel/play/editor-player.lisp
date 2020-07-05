@@ -743,26 +743,19 @@
 ;TO USE MARQUERS : 
 ;1) Have a child class of timed-objects and overload the get-time-markers method
 ;2) Have a child class of x-graduated view and overload the following methods
-;    - get-timed-objects-for-graduated-view
-;    - select-elements-at-time
-;    - get-editor-for-graduated-view
-;    - translate-editor-selection
 
-;TIME MARKERS : method to redefine by subclasses
 (defmethod get-timed-objects-for-graduated-view ((self x-graduated-view))
-  "returns a list of timed-object to retrieve their markers"
+  "returns a list of timed-object containing markers"
   nil)
 
-;TIME MARKERS method to redefine by subclasses
 (defmethod select-elements-at-time ((self x-cursor-graduated-view) marker-time)
   "selects the elements with same time than the marker-time"
   nil)
 
-;Enventually redefine this one
-(defmethod clear-editor-selection ((self omeditor))
+;;; optional
+(defmethod clear-editor-selection ((self OMEditor))
   (set-selection self nil))
 
-;Enventually redefine this one
 (defmethod get-editor-for-graduated-view ((self x-graduated-view))
   "returns the editor handling the graduated view/selection and translation for timed-objects"
   (editor self))
@@ -770,6 +763,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;ACTIONS ands Utilities
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defmethod get-related-views-editors ((self time-ruler))
+  (remove-duplicates (remove nil (loop for rv in (related-views self) collect (get-editor-for-graduated-view rv)))))
 
 (defmethod select-elements-from-marker ((self time-ruler) marker-time)
   (loop for ed in (get-related-views-editors self) do
@@ -790,8 +786,6 @@
                                         (get-time-markers timed-obj))
                                       )))) '<))
   
-(defmethod get-related-views-editors ((self time-ruler))
-  (remove-duplicates (remove nil (loop for rv in (related-views self) collect (get-editor-for-graduated-view rv)))))
 
 (defmethod find-marker-at-time ((self time-ruler) time)
   ;gets the first marker for each related views that is close of 5pix to the position of the mouse.
@@ -801,37 +795,38 @@
           return marker-time
           )))
 
+
 (defmethod translate-from-marker-action ((self time-ruler) marker position)
-   (let* ((ref-time (pix-to-x self (om-point-x position)))
-          (objs (remove nil (flat (loop for rv in (related-views self)
-                                        collect
-                                        (get-timed-objects-for-graduated-view rv)))))
-          (obj-elem-list (loop for obj in objs collect
-                               (list obj (get-elements-for-marker 
-                                          obj  
-                                          (if (onset-p self) (om- marker (get-onset obj)) marker))))))
-     (om-init-temp-graphics-motion 
-      self position nil 
-      :min-move 4
-      :motion #'(lambda (view pos)
-                  (let* ((tmp_time (pixel-to-time view (om-point-x pos)))
-                         (dt (round (- tmp_time ref-time)))
-                         (new-dt (if (snap-to-grid self) (adapt-dt-for-grid-and-markers self marker dt) dt)))
-                    (when (not (zerop new-dt))
-                      (loop for item in obj-elem-list do
-                            (let ((obj (car item))
-                                  (elem (cadr item)))
-                              (translate-elements-from-time-marker obj elem new-dt)))
-                      (loop for ed in (get-related-views-editors self)
-                            do (update-to-editor ed self))
-                      (setf (selected-time-markers self) 
-                            (replace-in-list (selected-time-markers self) 
-                                             (+ marker new-dt) 
-                                             (position marker (selected-time-markers self))))
-                      (setf marker (+ marker new-dt))
-                      (setf ref-time (+ ref-time new-dt))
-                      (mapcar 'om-invalidate-view (related-views self)) 
-                      (om-invalidate-view self)))))))
+  (let* ((ref-time (pix-to-x self (om-point-x position)))
+         (objs (remove nil (flat (loop for rv in (related-views self)
+                                       collect
+                                       (get-timed-objects-for-graduated-view rv)))))
+         (obj-elem-list (loop for obj in objs collect
+                              (list obj (get-elements-for-marker
+                                         obj  
+                                         (if (onset-p self) (om- marker (get-onset obj)) marker))))))
+    (om-init-temp-graphics-motion 
+     self position nil 
+     :min-move 4
+     :motion #'(lambda (view pos)
+                 (let* ((tmp_time (pixel-to-time view (om-point-x pos)))
+                        (dt (round (- tmp_time ref-time)))
+                        (new-dt (if (snap-to-grid self) (adapt-dt-for-grid-and-markers self marker dt) dt)))
+                   (when (not (zerop new-dt))
+                     (loop for item in obj-elem-list do
+                           (let ((obj (car item))
+                                 (elem (cadr item)))
+                             (translate-elements-from-time-marker obj elem new-dt)))
+                     (loop for ed in (get-related-views-editors self)
+                           do (update-to-editor ed self))
+                     (setf (selected-time-markers self) 
+                           (replace-in-list (selected-time-markers self) 
+                                            (+ marker new-dt) 
+                                            (position marker (selected-time-markers self))))
+                     (setf marker (+ marker new-dt))
+                     (setf ref-time (+ ref-time new-dt))
+                     (mapcar 'om-invalidate-view (related-views self)) 
+                     (om-invalidate-view self)))))))
 
 ;=========
 ;EVENTS

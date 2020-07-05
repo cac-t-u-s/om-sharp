@@ -384,14 +384,12 @@
 
 ;;;==========================
 ;;; Time-marker methods
+;;; to redefine by subclasses
 ;;;==========================
 
-;TIME MARKERS : method to redefine by subclasses
 (defmethod get-timed-objects-for-graduated-view ((self om-timeline-view))
-  ;returns a list of timed-object to retrieve their markers
   (list (editor-get-time-sequence (container-editor (editor self)) (id self))))
 
-;TIME MARKERS method to redefine by subclasses
 (defmethod select-elements-at-time ((self om-timeline-view) marker-time)
   ;selects the elements with same time than the marker-time
   (let* ((editor (editor self))
@@ -404,7 +402,6 @@
           )))
     (update-to-editor editor self)))
 
-;TIME MARKERS
 (defmethod clear-editor-selection ((self timeline-editor))
   (set-selection self nil)
   (set-selected-timelines self nil))

@@ -500,7 +500,7 @@
 (defmethod temporal-translate-points ((self time-sequence) points dt)
   ;if only one point and master then translate as master point
   (if (and (eql (length points) 1) (eql (item-get-type (car points)) :master))
-      (time-stretch-from-master-point self (car points)  dt)
+      (time-stretch-from-master-point self (car points) dt)
      ;otherwise translate normally if possible
     (when (possible-time-translation self points dt)
       (loop for point in points do
@@ -668,22 +668,16 @@
 ;;; TIME MARKERS METHODS
 ;;;=========================================
 
-;;;TIME MARKERS TO REDEFINE FOR YOUR SUBCLASS
 (defmethod get-time-markers ((self time-sequence))
-  "returns a list of time markers"
-  (append (list 0 ) (get-all-master-points-times self)))
+  (cons 0 (get-all-master-points-times self)))
 
-;;;TIME MARKERS TO REDEFINE FOR YOUR SUBCLASS
 (defmethod get-elements-for-marker ((self time-sequence) marker)
-  "returns a list of elements matching the marker"
   (list (point-exists-at-time self marker)))
 
-;;;TIME MARKERS TO REDEFINE FOR YOUR SUBCLASS
 ;;; jb: not sure it is ever needed to redefine it
 (defmethod translate-elements-from-time-marker ((self time-sequence) elems dt)
-  "translates elements from a time marker with dt"
   (when (not (member nil elems))
-      (temporal-translate-points self elems dt)))
+    (temporal-translate-points self elems dt)))
 
 ;;;=========================================
 ;;; LENGTH AND SPEED METHODS
