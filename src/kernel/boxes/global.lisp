@@ -78,21 +78,21 @@
     (let ((sym (intern (string-upcase (name self)))))
       (unless (boundp sym)
         (om-print-format "Defining global variable: ~A" (list sym))
-        (eval `(defvar ,sym ,(car (value self))))
+        (eval `(defvar ,sym ',(car (value self))))
         ))))
 
 (defmethod set-name :after ((self OMGlobalBox) new-name)
   (let ((sym (intern (string-upcase (name self)))))
    (unless (boundp sym)
      (om-print-format "Defining global variable: ~A" (list sym))
-     (eval `(defvar ,sym ,(car (value self))))
+     (eval `(defvar ,sym ',(car (value self))))
      (set-name (reference self) new-name)
      )))
 
 (defmethod set-value :after ((self OMGlobalBox) new-val)
   (when (name self) ;;; not always the case at this moment (e.g. at loading the box) 
     (let ((sym (intern (string-upcase (name self)))))
-      (eval `(setf ,sym ,(car new-val)))
+      (eval `(setf ,sym ',(car new-val)))
       )))
 
 
