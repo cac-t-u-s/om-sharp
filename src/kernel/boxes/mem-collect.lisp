@@ -96,48 +96,37 @@
     'box-output :box self :value NIL
     :name "previous value(s)")))
 
-
-;;; ALWAYS IN "EV-ONCE" MODE
-
 (defmethod omNG-box-value ((self OMMemoryBox) &optional (numout 0))
-  
-  (unless (equal (ev-once-flag self) (get-ev-once-flag *ev-once-context*))
-    
-    (let ((inval (omng-box-value (car (inputs self))))
-          (size (omng-box-value (cadr (inputs self)))))
-      
+  (when (= numout 0) ;only update values if the first output is evaluated.
+
+    ;always in ev-once mode
+    (unless (equal (ev-once-flag self) (get-ev-once-flag *ev-once-context*))
       (setf (ev-once-flag self) (get-ev-once-flag *ev-once-context*))
+
+      (let ((inval (omng-box-value (car (inputs self))))
+            (size (omng-box-value (cadr (inputs self)))))
+        
+        (setf (size (reference self)) size) ;;; this is just for display
       
-      (setf (size (reference self)) size) ;;; this is just for display
-      
-      (setf (value self)
-            (cond 
-             ((integerp size)
-              (let ((new-memory (if (consp (value self)) ;; already something in value
-                                    (cons (car (value self)) 
-                                          (list! (cadr (value self))))
-                                  nil)))
-                (list inval 
-                      ;;; first-n values of memory
-                      (if (< (length new-memory) size) 
-                          new-memory
-                        (subseq new-memory 0 size)))))
-                 
-             ((floatp size)
+        (setf (value self)
               (list inval
-                    ;;; values received since last time-window started
-                    (if (or (null (timetag (reference self)))  ;;; fresh memory
-                            (> (om-get-internal-time) (+ (* size 1000) (timetag (reference self))))) ;;; time out
-                        (progn 
-                          (setf (timetag (reference self)) (om-get-internal-time))
-                          (list inval))
-                      (cons inval 
-                            (list! (cadr (value self)))))
-                    ))
+                    (cond 
+                     ((integerp size)
+                    ;list! covers the case where size was nil on the previous evaluation
+                      (first-n (cons inval (list! (cadr (value self)))) size))
+                 
+                     ((floatp size)
+                      ;;; values received since last time-window started
+                      (if (or (null (timetag (reference self)))  ;;; fresh memory
+                              (> (om-get-internal-time) (+ (* size 1000) (timetag (reference self))))) ;;; time out
+                          (progn 
+                            (setf (timetag (reference self)) (om-get-internal-time))
+                            (list inval))
+                        (cons inval 
+                              (list! (cadr (value self)))))
+                      )
                 
-             (t (list inval (car (value self))))))
-      )
-    )
+                     (t inval)))))))
 
   (return-value self numout))
 
