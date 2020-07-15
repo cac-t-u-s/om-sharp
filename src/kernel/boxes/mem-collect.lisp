@@ -131,6 +131,28 @@
   (return-value self numout))
 
 
+; adapted from get-listeners 
+; (could also have a "listener" be a 3-element list that includes numout, that would save a bit of duplication)
+(defmethod get-connected-reactive-numouts ((self OMBox))
+  (remove-duplicates 
+   (loop for o in (outputs self) 
+         for numout from 0
+         when (reactive o)
+         append (loop for c in (connections o)
+                      when (input-will-react (to c))
+                      collect numout)
+         )))
+
+(defmethod OMR-Notify ((self OMMemoryBox) &optional input-name)
+  (unless (push-tag self)
+    (setf (push-tag self) t)
+    (let* ((listeners (get-listeners self))
+           (already-updates-memory (and (member 0 (get-connected-reactive-numouts self)) t)))
+      (unless already-updates-memory
+        (omNG-box-value self))
+      (loop for listener in listeners do (omr-notify (car listener) (cadr listener)))
+      )))
+
 #|
 (defmethod gen-code  ((self OMMemoryBox) &optional (numout 0))
   
