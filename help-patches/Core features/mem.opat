@@ -4,10 +4,10 @@
  (:doc "")
  (:info
   (:created "2018/04/04 15:15:06")
-  (:modified "2020/08/02 15:48:42")
+  (:modified "2020/07/14 23:19:47")
   (:by "om-sharp")
   (:version 1.0))
- (:window (:size (923 706)) (:position (359 86)))
+ (:window (:size (1058 828)) (:position (1801 -610)))
  (:grid nil)
  (:lock nil)
  (:boxes
@@ -16,10 +16,10 @@
    (:reference om-random)
    (:group-id nil)
    (:name "om-random")
-   (:x 58)
-   (:y 72)
-   (:w 103)
-   (:h 29)
+   (:x 54)
+   (:y 61)
+   (:w 104)
+   (:h 34)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -42,10 +42,10 @@
    (:reference fixnum)
    (:group-id nil)
    (:name "value box")
-   (:x 99)
-   (:y 203)
-   (:w 32)
-   (:h 30)
+   (:x 76)
+   (:y 224)
+   (:w 43)
+   (:h 40)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -60,17 +60,17 @@
      (:value nil)
      (:reactive nil)))
    (:outputs (:output (:name "value") (:reactive nil)))
-   (:value 97)
+   (:value 68)
    (:id 1))
   (:box
    (:type :value)
    (:reference fixnum)
    (:group-id nil)
    (:name "value box")
-   (:x 156)
-   (:y 198)
-   (:w 32)
-   (:h 30)
+   (:x 139)
+   (:y 208)
+   (:w 57)
+   (:h 36)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -85,43 +85,17 @@
      (:value nil)
      (:reactive nil)))
    (:outputs (:output (:name "value") (:reactive nil)))
-   (:value 57)
+   (:value 78)
    (:id 2))
-  (:box
-   (:type :function)
-   (:reference list)
-   (:group-id nil)
-   (:name "list")
-   (:x 81)
-   (:y 240)
-   (:w 116)
-   (:h 29)
-   (:color nil)
-   (:border nil)
-   (:roundness nil)
-   (:text-font nil)
-   (:align nil)
-   (:icon :left)
-   (:lock nil)
-   (:lambda nil)
-   (:inputs
-    (:input (:type :optional) (:name "x") (:value nil) (:reactive nil))
-    (:input
-     (:type :optional)
-     (:name "x")
-     (:value nil)
-     (:reactive nil)))
-   (:outputs (:output (:name "out") (:reactive nil)))
-   (:id 3))
   (:box
    (:type :function)
    (:reference om-random)
    (:group-id nil)
    (:name "om-random")
-   (:x 34)
+   (:x 38)
    (:y 439)
-   (:w 103)
-   (:h 29)
+   (:w 104)
+   (:h 34)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -138,16 +112,16 @@
      (:value 100)
      (:reactive nil)))
    (:outputs (:output (:name "out") (:reactive t)))
-   (:id 4))
+   (:id 3))
   (:box
    (:type :value)
    (:reference fixnum)
    (:group-id nil)
    (:name "value box")
    (:x 123)
-   (:y 476)
+   (:y 475)
    (:w 32)
-   (:h 30)
+   (:h 34)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -158,16 +132,16 @@
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 4)
-   (:id 5))
+   (:id 4))
   (:box
    (:type :value)
    (:reference fixnum)
    (:group-id nil)
    (:name "value box")
-   (:x 75)
-   (:y 572)
+   (:x 56)
+   (:y 573)
    (:w 32)
-   (:h 30)
+   (:h 34)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -178,17 +152,17 @@
    (:inputs
     (:input (:type :optional) (:name "in") (:value nil) (:reactive t)))
    (:outputs (:output (:name "value") (:reactive nil)))
-   (:value 32)
-   (:id 6))
+   (:value 54)
+   (:id 5))
   (:box
    (:type :value)
    (:reference cons)
    (:group-id nil)
    (:name "value box")
-   (:x 123)
+   (:x 107)
    (:y 572)
    (:w 109)
-   (:h 32)
+   (:h 34)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -199,13 +173,13 @@
    (:inputs
     (:input (:type :optional) (:name "in") (:value nil) (:reactive t)))
    (:outputs (:output (:name "value") (:reactive nil)))
-   (:value (:list 95 35 98 97))
-   (:id 7))
+   (:value (:list 54 82 94 72))
+   (:id 6))
   (:comment
-   (:x 58)
+   (:x 59)
    (:y 8)
-   (:w 388)
-   (:h 41)
+   (:w 375)
+   (:h 39)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
@@ -217,7 +191,7 @@
    (:align nil)
    (:text
     "MEM: a box with \"memory\" which keeps track of results from previous evaluations")
-   (:id 8))
+   (:id 7))
   (:box
    (:type :value)
    (:reference fixnum)
@@ -226,7 +200,7 @@
    (:x 99)
    (:y 108)
    (:w 32)
-   (:h 30)
+   (:h 34)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -241,13 +215,13 @@
      (:value nil)
      (:reactive nil)))
    (:outputs (:output (:name "value") (:reactive nil)))
-   (:value 97)
-   (:id 9))
+   (:value 68)
+   (:id 8))
   (:comment
-   (:x 66)
-   (:y 289)
-   (:w 181)
-   (:h 38)
+   (:x 37)
+   (:y 326)
+   (:w 223)
+   (:h 50)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -255,18 +229,18 @@
    (:text-font nil)
    (:align nil)
    (:text
-    "Left outlet = current value
+    "Left outlet = get new value
 Right outlet = previous value")
-   (:id 10))
+   (:id 9))
   (:box
    (:type :function)
    (:reference om-random)
    (:group-id nil)
    (:name "om-random")
-   (:x 285)
+   (:x 289)
    (:y 70)
-   (:w 103)
-   (:h 29)
+   (:w 104)
+   (:h 34)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -283,16 +257,16 @@ Right outlet = previous value")
      (:value 100)
      (:reactive nil)))
    (:outputs (:output (:name "out") (:reactive nil)))
-   (:id 11))
+   (:id 10))
   (:box
    (:type :value)
    (:reference fixnum)
    (:group-id nil)
    (:name "value box")
-   (:x 306)
-   (:y 196)
+   (:x 304)
+   (:y 210)
    (:w 32)
-   (:h 29)
+   (:h 34)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -307,17 +281,17 @@ Right outlet = previous value")
      (:value nil)
      (:reactive nil)))
    (:outputs (:output (:name "value") (:reactive nil)))
-   (:value 95)
-   (:id 12))
+   (:value 12)
+   (:id 11))
   (:box
    (:type :value)
    (:reference cons)
    (:group-id nil)
    (:name "value box")
-   (:x 351)
-   (:y 195)
-   (:w 74)
-   (:h 29)
+   (:x 361)
+   (:y 212)
+   (:w 119)
+   (:h 34)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -332,17 +306,17 @@ Right outlet = previous value")
      (:value nil)
      (:reactive nil)))
    (:outputs (:output (:name "value") (:reactive nil)))
-   (:value (:list 59 0 81))
-   (:id 13))
+   (:value (:list 12 15 43 72))
+   (:id 12))
   (:box
    (:type :function)
    (:reference list)
    (:group-id nil)
    (:name "list")
-   (:x 308)
-   (:y 238)
+   (:x 314)
+   (:y 267)
    (:w 116)
-   (:h 29)
+   (:h 34)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -359,16 +333,16 @@ Right outlet = previous value")
      (:value nil)
      (:reactive nil)))
    (:outputs (:output (:name "out") (:reactive nil)))
-   (:id 14))
+   (:id 13))
   (:box
    (:type :value)
    (:reference fixnum)
    (:group-id nil)
    (:name "value box")
    (:x 326)
-   (:y 105)
+   (:y 106)
    (:w 32)
-   (:h 30)
+   (:h 34)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -383,13 +357,13 @@ Right outlet = previous value")
      (:value nil)
      (:reactive nil)))
    (:outputs (:output (:name "value") (:reactive nil)))
-   (:value 95)
-   (:id 15))
+   (:value 12)
+   (:id 14))
   (:comment
-   (:x 308)
-   (:y 289)
-   (:w 237)
-   (:h 38)
+   (:x 299)
+   (:y 308)
+   (:w 263)
+   (:h 50)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -397,14 +371,14 @@ Right outlet = previous value")
    (:text-font nil)
    (:align nil)
    (:text
-    "Left outlet = current value
+    "Left outlet = get new value
 Right outlet = list of N previous values")
-   (:id 16))
+   (:id 15))
   (:comment
    (:x 428)
-   (:y 112)
-   (:w 154)
-   (:h 70)
+   (:y 118)
+   (:w 244)
+   (:h 65)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -413,16 +387,16 @@ Right outlet = list of N previous values")
    (:align nil)
    (:text
     "Right inlet = size of the memory. If non-NIL, the memory will be  list of <n> previous values.")
-   (:id 17))
+   (:id 16))
   (:box
    (:type :value)
    (:reference fixnum)
    (:group-id nil)
    (:name "value box")
-   (:x 386)
+   (:x 379)
    (:y 105)
    (:w 32)
-   (:h 30)
+   (:h 34)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -432,8 +406,8 @@ Right outlet = list of N previous values")
    (:lock nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
-   (:value 3)
-   (:id 18))
+   (:value 4)
+   (:id 17))
   (:box
    (:type :value)
    (:reference fixnum)
@@ -442,7 +416,7 @@ Right outlet = list of N previous values")
    (:x 75)
    (:y 476)
    (:w 32)
-   (:h 30)
+   (:h 34)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -453,13 +427,13 @@ Right outlet = list of N previous values")
    (:inputs
     (:input (:type :optional) (:name "in") (:value nil) (:reactive t)))
    (:outputs (:output (:name "value") (:reactive t)))
-   (:value 32)
-   (:id 19))
+   (:value 54)
+   (:id 18))
   (:comment
-   (:x 13)
-   (:y 391)
-   (:w 206)
-   (:h 40)
+   (:x 12)
+   (:y 389)
+   (:w 303)
+   (:h 47)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -468,16 +442,16 @@ Right outlet = list of N previous values")
    (:align nil)
    (:text
     "... also works in reactive mode: evaluate the 'om-random' box")
-   (:id 20))
+   (:id 19))
   (:box
    (:type :interface)
    (:reference slider)
    (:group-id nil)
    (:name "slider")
-   (:x 420)
-   (:y 365)
-   (:w 37)
-   (:h 70)
+   (:x 4915/12)
+   (:y 749/2)
+   (:w 40)
+   (:h 88)
    (:color nil)
    (:border (:number-or-nil (:number 1.5) (:t-or-nil t)))
    (:roundness (:number-or-nil (:number 6) (:t-or-nil t)))
@@ -488,17 +462,17 @@ Right outlet = list of N previous values")
    (:orientation :vertical)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive t)))
-   (:value 57)
-   (:id 21))
+   (:value 45)
+   (:id 20))
   (:box
    (:type :value)
    (:reference cons)
    (:group-id nil)
    (:name "value box")
-   (:x 389)
-   (:y 528)
-   (:w 186)
-   (:h 57)
+   (:x 466)
+   (:y 567)
+   (:w 149)
+   (:h 67)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -511,65 +485,44 @@ Right outlet = list of N previous values")
    (:outputs (:output (:name "value") (:reactive t)))
    (:value
     (:list
-     57
-     56
+     45
+     48
+     49
      54
-     46
-     50
-     51
-     61
-     63
-     70
-     71
-     73
-     59
      56
-     34
+     57
+     62
+     66
+     74
+     79
+     80
+     77
+     76
+     74
+     70
+     66
+     62
+     56
+     55
+     52
      36
-     43
-     44
-     46
-     61
-     64
-     71
-     69
-     67
-     61
-     30
-     29
-     11
-     20
-     21
-     34
-     36))
-   (:id 22))
-  (:box
-   (:type :value)
-   (:reference fixnum)
-   (:group-id nil)
-   (:name "value box")
-   (:x 473)
-   (:y 405)
-   (:w 32)
-   (:h 30)
-   (:color
-    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
-   (:border nil)
-   (:roundness nil)
-   (:text-font nil)
-   (:align nil)
-   (:lock nil)
-   (:inputs)
-   (:outputs (:output (:name "value") (:reactive nil)))
-   (:value 30)
-   (:id 23))
+     35
+     36
+     39
+     40
+     38
+     37
+     38
+     39
+     41))
+   (:id 21))
   (:box
    (:type :object)
    (:reference bpf)
    (:group-id nil)
    (:name nil)
-   (:x 294)
-   (:y 1185/2)
+   (:x 3895/12)
+   (:y 1357/2)
    (:w 239)
    (:h 72)
    (:color nil)
@@ -609,7 +562,7 @@ Right outlet = list of N previous values")
      (:class bpf)
      (:slots
       ((:onset 0)
-       (:duration 60000.0)
+       (:duration 58000.0)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
        (:action nil)
        (:color (:color 0.0 0.0 0.0 1.0))
@@ -645,48 +598,46 @@ Right outlet = list of N previous values")
          52000.0
          54000.0
          56000.0
-         58000.0
-         60000.0))
+         58000.0))
        (:y-points
         (:list
-         57.0
-         56.0
+         45.0
+         48.0
+         49.0
          54.0
-         46.0
-         50.0
-         51.0
-         61.0
-         63.0
-         70.0
-         71.0
-         73.0
-         59.0
          56.0
-         34.0
+         57.0
+         62.0
+         66.0
+         74.0
+         79.0
+         80.0
+         77.0
+         76.0
+         74.0
+         70.0
+         66.0
+         62.0
+         56.0
+         55.0
+         52.0
          36.0
-         43.0
-         44.0
-         46.0
-         61.0
-         64.0
-         71.0
-         69.0
-         67.0
-         61.0
-         30.0
-         29.0
-         11.0
-         20.0
-         21.0
-         34.0
-         36.0))))
+         35.0
+         36.0
+         39.0
+         40.0
+         38.0
+         37.0
+         38.0
+         39.0
+         41.0))))
      (:add-slots ((:name nil)))))
-   (:id 24))
+   (:id 22))
   (:comment
-   (:x 711)
-   (:y 359)
-   (:w 133)
-   (:h 48)
+   (:x 596)
+   (:y 373)
+   (:w 448)
+   (:h 40)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -695,16 +646,16 @@ Right outlet = list of N previous values")
    (:align nil)
    (:text
     "if size is a float, then it represents a TIME WINDOW (in seconds)")
-   (:id 25))
+   (:id 23))
   (:box
    (:type :value)
    (:reference cons)
    (:group-id nil)
    (:name "value box")
-   (:x 704)
-   (:y 538)
+   (:x 813)
+   (:y 582)
    (:w 149)
-   (:h 51)
+   (:h 67)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -715,17 +666,39 @@ Right outlet = list of N previous values")
    (:inputs
     (:input (:type :optional) (:name "in") (:value nil) (:reactive t)))
    (:outputs (:output (:name "value") (:reactive t)))
-   (:value (:list 57 57 56 54 46 50 51))
-   (:id 26))
+   (:value
+    (:list
+     45
+     48
+     49
+     54
+     56
+     57
+     62
+     66
+     74
+     79
+     80
+     77
+     76
+     74
+     70
+     66
+     62
+     56
+     55
+     52
+     36))
+   (:id 24))
   (:box
    (:type :value)
    (:reference single-float)
    (:group-id nil)
    (:name "value box")
-   (:x 759)
-   (:y 408)
+   (:x 816)
+   (:y 440)
    (:w 33)
-   (:h 30)
+   (:h 34)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -736,14 +709,14 @@ Right outlet = list of N previous values")
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 1.0)
-   (:id 27))
+   (:id 25))
   (:box
    (:type :object)
    (:reference bpf)
    (:group-id nil)
    (:name nil)
-   (:x 590)
-   (:y 1185/2)
+   (:x 7831/12)
+   (:y 1361/2)
    (:w 239)
    (:h 72)
    (:color nil)
@@ -783,21 +756,64 @@ Right outlet = list of N previous values")
      (:class bpf)
      (:slots
       ((:onset 0)
-       (:duration 12000.0)
+       (:duration 40000.0)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
        (:action nil)
        (:color (:color 0.0 0.0 0.0 1.0))
        (:decimals 2)
        (:x-points
-        (:list 0.0 2000.0 4000.0 6000.0 8000.0 10000.0 12000.0))
-       (:y-points (:list 57.0 57.0 56.0 54.0 46.0 50.0 51.0))))
+        (:list
+         0.0
+         2000.0
+         4000.0
+         6000.0
+         8000.0
+         10000.0
+         12000.0
+         14000.0
+         16000.0
+         18000.0
+         20000.0
+         22000.0
+         24000.0
+         26000.0
+         28000.0
+         30000.0
+         32000.0
+         34000.0
+         36000.0
+         38000.0
+         40000.0))
+       (:y-points
+        (:list
+         45.0
+         48.0
+         49.0
+         54.0
+         56.0
+         57.0
+         62.0
+         66.0
+         74.0
+         79.0
+         80.0
+         77.0
+         76.0
+         74.0
+         70.0
+         66.0
+         62.0
+         56.0
+         55.0
+         52.0
+         36.0))))
      (:add-slots ((:name nil)))))
-   (:id 28))
+   (:id 26))
   (:comment
-   (:x 592)
-   (:y 26)
-   (:w 243)
-   (:h 54)
+   (:x 601)
+   (:y 19)
+   (:w 410)
+   (:h 48)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -805,17 +821,74 @@ Right outlet = list of N previous values")
    (:text-font nil)
    (:align nil)
    (:text
-    "See also: COLLECT/ACCUM -- some variants of MEM allowing to conrol the memory initialization and state.")
+    "See also: COLLECT -- a variant of MEM allowing to conrol the memory initialization and state.")
+   (:id 27))
+  (:box
+   (:type :function)
+   (:reference list)
+   (:group-id nil)
+   (:name "list")
+   (:x 84)
+   (:y 617)
+   (:w 54)
+   (:h 34)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input (:type :optional) (:name "x") (:value nil) (:reactive nil))
+    (:input
+     (:type :optional)
+     (:name "x")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 28))
+  (:box
+   (:type :special)
+   (:reference mem)
+   (:group-id nil)
+   (:name "mem")
+   (:x 106)
+   (:y 152)
+   (:w 51)
+   (:h 42)
+   (:color
+    (:color-or-nil (:color (:color 0.82 0.7 0.7 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:icon :top)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "data to record in memory")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "size of memory")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "current value") (:reactive nil))
+    (:output (:name "previous value(s)") (:reactive nil)))
    (:id 29))
   (:box
    (:type :function)
    (:reference list)
    (:group-id nil)
    (:name "list")
-   (:x 72)
-   (:y 617)
-   (:w 54)
-   (:h 29)
+   (:x 98)
+   (:y 292)
+   (:w 90)
+   (:h 34)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -838,8 +911,8 @@ Right outlet = list of N previous values")
    (:reference mem)
    (:group-id nil)
    (:name "mem")
-   (:x 95)
-   (:y 149)
+   (:x 337)
+   (:y 153)
    (:w 51)
    (:h 42)
    (:color
@@ -869,39 +942,8 @@ Right outlet = list of N previous values")
    (:reference mem)
    (:group-id nil)
    (:name "mem")
-   (:x 322)
-   (:y 144)
-   (:w 51)
-   (:h 42)
-   (:color
-    (:color-or-nil (:color (:color 0.82 0.7 0.7 1.0)) (:t-or-nil t)))
-   (:border nil)
-   (:roundness nil)
-   (:text-font nil)
-   (:align :center)
-   (:icon :top)
-   (:inputs
-    (:input
-     (:type :standard)
-     (:name "data to record in memory")
-     (:value nil)
-     (:reactive nil))
-    (:input
-     (:type :standard)
-     (:name "size of memory")
-     (:value nil)
-     (:reactive nil)))
-   (:outputs
-    (:output (:name "current value") (:reactive nil))
-    (:output (:name "previous value(s)") (:reactive nil)))
-   (:id 32))
-  (:box
-   (:type :special)
-   (:reference mem)
-   (:group-id nil)
-   (:name "mem")
-   (:x 71)
-   (:y 516)
+   (:x 79)
+   (:y 520)
    (:w 51)
    (:h 42)
    (:color
@@ -921,7 +963,38 @@ Right outlet = list of N previous values")
      (:type :standard)
      (:name "size of memory")
      (:value nil)
-     (:reactive nil)))
+     (:reactive t)))
+   (:outputs
+    (:output (:name "current value") (:reactive t))
+    (:output (:name "previous value(s)") (:reactive t)))
+   (:id 32))
+  (:box
+   (:type :special)
+   (:reference mem)
+   (:group-id nil)
+   (:name "mem")
+   (:x 738)
+   (:y 507)
+   (:w 80)
+   (:h 42)
+   (:color
+    (:color-or-nil (:color (:color 0.82 0.7 0.7 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:icon :top)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "data to record in memory")
+     (:value nil)
+     (:reactive t))
+    (:input
+     (:type :standard)
+     (:name "size of memory")
+     (:value nil)
+     (:reactive t)))
    (:outputs
     (:output (:name "current value") (:reactive t))
     (:output (:name "previous value(s)") (:reactive t)))
@@ -931,8 +1004,8 @@ Right outlet = list of N previous values")
    (:reference mem)
    (:group-id nil)
    (:name "mem")
-   (:x 453)
-   (:y 449)
+   (:x 424)
+   (:y 519)
    (:w 51)
    (:h 42)
    (:color
@@ -952,137 +1025,60 @@ Right outlet = list of N previous values")
      (:type :standard)
      (:name "size of memory")
      (:value nil)
-     (:reactive nil)))
+     (:reactive t)))
    (:outputs
     (:output (:name "current value") (:reactive t))
     (:output (:name "previous value(s)") (:reactive t)))
    (:id 34))
   (:box
-   (:type :function)
-   (:reference cons)
+   (:type :value)
+   (:reference fixnum)
    (:group-id nil)
-   (:name "cons")
-   (:x 450)
-   (:y 497)
-   (:w 63)
-   (:h 29)
-   (:color nil)
-   (:border nil)
-   (:roundness nil)
-   (:text-font nil)
-   (:align nil)
-   (:icon :left)
-   (:lock nil)
-   (:lambda nil)
-   (:inputs
-    (:input (:type :standard) (:name "CAR") (:value nil) (:reactive t))
-    (:input
-     (:type :standard)
-     (:name "CDR")
-     (:value nil)
-     (:reactive t)))
-   (:outputs (:output (:name "out") (:reactive t)))
-   (:id 35))
-  (:box
-   (:type :special)
-   (:reference mem)
-   (:group-id nil)
-   (:name "mem")
-   (:x 676)
-   (:y 447)
-   (:w 51)
-   (:h 42)
+   (:name "value box")
+   (:x 478)
+   (:y 429)
+   (:w 49)
+   (:h 44)
    (:color
-    (:color-or-nil (:color (:color 0.82 0.7 0.7 1.0)) (:t-or-nil t)))
-   (:border nil)
-   (:roundness nil)
-   (:text-font nil)
-   (:align :center)
-   (:icon :top)
-   (:inputs
-    (:input
-     (:type :standard)
-     (:name "data to record in memory")
-     (:value nil)
-     (:reactive t))
-    (:input
-     (:type :standard)
-     (:name "size of memory")
-     (:value nil)
-     (:reactive nil)))
-   (:outputs
-    (:output (:name "current value") (:reactive t))
-    (:output (:name "previous value(s)") (:reactive t)))
-   (:id 36))
-  (:box
-   (:type :function)
-   (:reference cons)
-   (:group-id nil)
-   (:name "cons")
-   (:x 673)
-   (:y 496)
-   (:w 63)
-   (:h 29)
-   (:color nil)
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
    (:roundness nil)
    (:text-font nil)
    (:align nil)
-   (:icon :left)
    (:lock nil)
-   (:lambda nil)
-   (:inputs
-    (:input (:type :standard) (:name "CAR") (:value nil) (:reactive t))
-    (:input
-     (:type :standard)
-     (:name "CDR")
-     (:value nil)
-     (:reactive t)))
-   (:outputs (:output (:name "out") (:reactive t)))
-   (:id 37))
-  (:comment
-   (:x 464)
-   (:y 366)
-   (:w 80)
-   (:h 23)
-   (:fgcolor nil)
-   (:bgcolor nil)
-   (:border nil)
-   (:roundness nil)
-   (:text-font nil)
-   (:align nil)
-   (:text "<= SLIDER")
-   (:id 38)))
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 30)
+   (:id 35)))
  (:connections
-  (:connection (:from (:box 0 :out 0)) (:to (:box 9 :in 0)))
-  (:connection (:from (:box 1 :out 0)) (:to (:box 3 :in 0)))
-  (:connection (:from (:box 2 :out 0)) (:to (:box 3 :in 1)))
-  (:connection (:from (:box 4 :out 0)) (:to (:box 19 :in 0)))
-  (:connection (:from (:box 5 :out 0)) (:to (:box 33 :in 1)))
-  (:connection (:from (:box 6 :out 0)) (:to (:box 30 :in 0)))
-  (:connection (:from (:box 7 :out 0)) (:to (:box 30 :in 1)))
-  (:connection (:from (:box 9 :out 0)) (:to (:box 31 :in 0)))
-  (:connection (:from (:box 11 :out 0)) (:to (:box 15 :in 0)))
-  (:connection (:from (:box 12 :out 0)) (:to (:box 14 :in 0)))
-  (:connection (:from (:box 13 :out 0)) (:to (:box 14 :in 1)))
-  (:connection (:from (:box 15 :out 0)) (:to (:box 32 :in 0)))
-  (:connection (:from (:box 18 :out 0)) (:to (:box 32 :in 1)))
-  (:connection (:from (:box 19 :out 0)) (:to (:box 33 :in 0)))
-  (:connection (:from (:box 21 :out 0)) (:to (:box 34 :in 0)))
-  (:connection (:from (:box 21 :out 0)) (:to (:box 36 :in 0)))
-  (:connection (:from (:box 22 :out 0)) (:to (:box 24 :in 2)))
-  (:connection (:from (:box 23 :out 0)) (:to (:box 34 :in 1)))
-  (:connection (:from (:box 26 :out 0)) (:to (:box 28 :in 2)))
-  (:connection (:from (:box 27 :out 0)) (:to (:box 36 :in 1)))
-  (:connection (:from (:box 31 :out 0)) (:to (:box 1 :in 0)))
-  (:connection (:from (:box 31 :out 1)) (:to (:box 2 :in 0)))
-  (:connection (:from (:box 32 :out 0)) (:to (:box 12 :in 0)))
-  (:connection (:from (:box 32 :out 1)) (:to (:box 13 :in 0)))
-  (:connection (:from (:box 33 :out 0)) (:to (:box 6 :in 0)))
-  (:connection (:from (:box 33 :out 1)) (:to (:box 7 :in 0)))
-  (:connection (:from (:box 34 :out 0)) (:to (:box 35 :in 0)))
-  (:connection (:from (:box 34 :out 1)) (:to (:box 35 :in 1)))
-  (:connection (:from (:box 35 :out 0)) (:to (:box 22 :in 0)))
-  (:connection (:from (:box 36 :out 0)) (:to (:box 37 :in 0)))
-  (:connection (:from (:box 36 :out 1)) (:to (:box 37 :in 1)))
-  (:connection (:from (:box 37 :out 0)) (:to (:box 26 :in 0)))))
+  (:connection (:from (:box 0 :out 0)) (:to (:box 8 :in 0)))
+  (:connection (:from (:box 1 :out 0)) (:to (:box 30 :in 1)))
+  (:connection (:from (:box 2 :out 0)) (:to (:box 30 :in 0)))
+  (:connection (:from (:box 3 :out 0)) (:to (:box 18 :in 0)))
+  (:connection (:from (:box 4 :out 0)) (:to (:box 32 :in 1)))
+  (:connection (:from (:box 5 :out 0)) (:to (:box 28 :in 0)))
+  (:connection (:from (:box 6 :out 0)) (:to (:box 28 :in 1)))
+  (:connection (:from (:box 8 :out 0)) (:to (:box 29 :in 0)))
+  (:connection (:from (:box 10 :out 0)) (:to (:box 14 :in 0)))
+  (:connection (:from (:box 11 :out 0)) (:to (:box 13 :in 0)))
+  (:connection (:from (:box 12 :out 0)) (:to (:box 13 :in 1)))
+  (:connection (:from (:box 14 :out 0)) (:to (:box 31 :in 0)))
+  (:connection (:from (:box 17 :out 0)) (:to (:box 31 :in 1)))
+  (:connection (:from (:box 18 :out 0)) (:to (:box 32 :in 0)))
+  (:connection
+   (:from (:box 20 :out 0))
+   (:to (:box 33 :in 0))
+   (:attributes (:color nil :style nil :modif (0 14/109))))
+  (:connection (:from (:box 20 :out 0)) (:to (:box 34 :in 0)))
+  (:connection (:from (:box 21 :out 0)) (:to (:box 22 :in 2)))
+  (:connection (:from (:box 24 :out 0)) (:to (:box 26 :in 2)))
+  (:connection (:from (:box 25 :out 0)) (:to (:box 33 :in 1)))
+  (:connection (:from (:box 29 :out 0)) (:to (:box 1 :in 0)))
+  (:connection (:from (:box 29 :out 1)) (:to (:box 2 :in 0)))
+  (:connection (:from (:box 31 :out 0)) (:to (:box 11 :in 0)))
+  (:connection (:from (:box 31 :out 1)) (:to (:box 12 :in 0)))
+  (:connection (:from (:box 32 :out 0)) (:to (:box 5 :in 0)))
+  (:connection (:from (:box 32 :out 1)) (:to (:box 6 :in 0)))
+  (:connection (:from (:box 33 :out 1)) (:to (:box 24 :in 0)))
+  (:connection (:from (:box 34 :out 1)) (:to (:box 21 :in 0)))
+  (:connection (:from (:box 35 :out 0)) (:to (:box 34 :in 1)))))
