@@ -41,7 +41,7 @@
 
 
 (defclass temp-marker () ())
-(defun (setf doc) (doc self) nil)
+(defmethod (setf doc) (doc self) nil)
 
 
 ;;; load the Maquette (internal)
