@@ -1069,6 +1069,15 @@ CMD-click to add boxes. Play contents, etc.
     ))
 
 
+(defmethod editor-invalidate-views ((editor maquette-editor))
+  (mapc #'om-invalidate-view 
+        (list 
+         (get-g-component editor :main-maq-view)
+         (get-g-component editor :ctrl-view)
+         (get-g-component editor :bottom-view)
+         )))
+
+
 (defun set-main-maquette-view (editor mode)
   (setf (view-mode editor) mode)
   (om-remove-all-subviews (get-g-component editor :main-maq-view))
