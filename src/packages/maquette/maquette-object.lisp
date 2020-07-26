@@ -205,9 +205,14 @@
                             )))
           ))))
 
+
+(defmethod reset-box ((self OMBox)) nil)
+(defmethod reset-box ((self OMBoxAbstraction)) (setf (ready self) nil))
+
 (defmethod reset-boxes ((self OMMaquette))
   (loop for tb in (get-all-boxes self)
-        do (setf (ready tb) nil)))
+        do (reset-box tb)))
+
 
 ;;; from scheduler functions
 (defmethod reset-I :before ((self OMMaquette) &optional date)
