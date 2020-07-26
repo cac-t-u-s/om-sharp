@@ -103,7 +103,7 @@
      (:text-font "Text font" :font-or-nil text-font (:appearance :box-font)) 
      (:align "Text align" (:left :center :right :default) text-align (:appearance :box-align))
      )
-    ("Structure" ;;; category
+    ("Sequencer" ;;; category
      (:group-id "Group/Track" (:none 1 2 3 4 5 6 7 8) group-id)
      )))
 
