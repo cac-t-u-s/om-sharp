@@ -665,6 +665,27 @@
                                             (string-upcase (type-of (get-box-value self)))))))))
 
 
+
+(defmethod draw-temporal-box-name ((self OMBox) view x y w h)
+
+  (let ((name (and (show-name self) 
+                   (or (name self) (default-name (get-box-value self)))))
+        (font (box-draw-font self)))
+
+    (when name
+      (om-with-clip-rect view x y w h
+        (multiple-value-bind (tw th) (om-string-size name font)
+          (declare (ignore th))
+          (om-with-fg-color (box-draw-text-color self)
+            (om-with-font 
+             font
+             (om-draw-string (- (+ x w) tw 4) (- (+ y h) 4)
+                             name 
+                             :selected nil 
+                             :wrap (- w 10)
+                             )
+             )))))))
+
 ;;; !! this is a special case : the frame of the object must change
 ;;; + the 'update' reference of the inspector window (= self) becomes the wrong one
 ;;; 1 solution = re-create the inspector if track is changed
