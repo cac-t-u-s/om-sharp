@@ -760,7 +760,7 @@
   (setf (onset self) (max 0 (+ (onset self) dt))))
 
 
-(defmethod get-timed-objects-for-graduated-view ((self x-graduated-view))
+(defmethod get-timed-objects-with-markers ((self x-graduated-view))
   "returns a list of timed-object containing markers"
   nil)
 
@@ -795,7 +795,7 @@
 (defmethod get-all-time-markers ((self time-ruler))
   (sort (remove nil (flat (loop for view in (related-views self)
                                 collect
-                                (loop for timed-obj in (get-timed-objects-for-graduated-view view)
+                                (loop for timed-obj in (get-timed-objects-with-markers view)
                                       when (and timed-obj (play-obj? timed-obj)) collect
                                       (if (markers-count-object-onset-p self)
                                           (om+ (get-time-markers timed-obj) (get-onset timed-obj))
@@ -816,7 +816,7 @@
   (let* ((ref-time (pix-to-x self (om-point-x position)))
          (objs (remove nil (flat (loop for rv in (related-views self)
                                        collect
-                                       (get-timed-objects-for-graduated-view rv)))))
+                                       (get-timed-objects-with-markers rv)))))
          (obj-elem-list (loop for obj in objs collect
                               (list obj (get-elements-for-marker
                                          obj  

@@ -388,7 +388,7 @@
 ;;; to redefine by subclasses
 ;;;==========================
 
-(defmethod get-timed-objects-for-graduated-view ((self om-timeline-view))
+(defmethod get-timed-objects-with-markers ((self om-timeline-view))
   (list (editor-get-time-sequence (container-editor (editor self)) (id self))))
 
 (defmethod select-elements-at-time ((self om-timeline-view) marker-time)

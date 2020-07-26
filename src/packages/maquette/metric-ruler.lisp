@@ -52,7 +52,7 @@
 
 
 ;;; Time markers API (not implemented)
-(defmethod get-timed-objects-for-graduated-view ((self metric-ruler)) nil)
+(defmethod get-timed-objects-with-markers ((self metric-ruler)) nil)
 (defmethod select-elements-at-time ((self metric-ruler) marker-time) nil)
 (defmethod clear-editor-selection ((self metric-ruler)) nil)
 
