@@ -165,15 +165,16 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
   (let ((times (or time (time-values-from-points self))))
     (when times
       (loop for p in (point-list self)
-            for time in times do (setf (tpoint-time p) time)))
-    (when time-types
-      (loop for p in (point-list self)
-            for type in time-types do (om-point-set p :type type)))
+            for time in times do (setf (tpoint-time p) time))))
+    
+  (when time-types
+    (loop for p in (point-list self)
+          for type in time-types do (om-point-set p :type type)))
 
-    (setf (slot-value self 'x-points) NIL)
-    (setf (slot-value self 'y-points) NIL)
-    (setf (slot-value self 'times) NIL)
-    (setf (slot-value self 'time-types) NIL)))
+  (setf (slot-value self 'x-points) NIL)
+  (setf (slot-value self 'y-points) NIL)
+  (setf (slot-value self 'times) NIL)
+  (setf (slot-value self 'time-types) NIL))
 
 
 ;;; In BPC all moves are possible
