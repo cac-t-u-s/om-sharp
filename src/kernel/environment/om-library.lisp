@@ -179,10 +179,6 @@
                                 (progn 
                                     (om-message-dialog (format nil "Error while loading the library ~A:~%~s" 
                                                                (name lib) (format nil "~A" c)))
-                                    (when 
-                                        (om-y-or-n-dialog (format nil 
-                                                                  "Try to delete compiled Lisp files (.*fasl) ?~%~%Deleting these files might be necessary in case they were created by a previous version of the compiler."))
-                                      (common-lisp-user::clean-sources (mypathname lib)))
                                     (abort c)))))
 
         (om-print-format "~%~%Loading library: ~A..." (list lib-file))
