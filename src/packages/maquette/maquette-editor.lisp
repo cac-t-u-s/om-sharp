@@ -617,7 +617,8 @@
     (om-draw-rect x y w h :fill nil))
   (om-with-fg-color (om-def-color :white)
     (om-draw-string (+ x 2) (+ y h -2) (number-to-string (get-box-onset self)))))
-    
+
+
 (defmethod draw-temporal-box ((self OMBoxPatch) view x y w h &optional (time 0))
   (call-next-method)
 
@@ -644,7 +645,8 @@
   
   (draw-patch-icon self x y)
   (draw-eval-buttons view self x y x 12)
-
+  (draw-temporal-box-name self view x y w h)
+  
   (when (find-if 'reactive (outputs self))
     (om-draw-rect x y w h :line 2 :color (om-def-color :dark-red))) 
   
@@ -654,6 +656,7 @@
         (om-draw-dashed-line x (/ h 2) 
                              (- x (dx-to-dpix view (pre-delay self))) (/ h 2)))))
 
+
 (defmethod draw-temporal-box ((self omboxeditcall) view x y w h &optional (time 0))
   (call-next-method)
   (case (display self)  
@@ -662,8 +665,8 @@
     (:hidden  (om-with-font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))
                           (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)
                             (om-draw-string (+ x 10) (max 22 (+ 6 (/ h 2))) 
-                                            (string-upcase (type-of (get-box-value self)))))))))
-
+                                            (string-upcase (type-of (get-box-value self))))))))
+  (draw-temporal-box-name self view x y w h))
 
 
 (defmethod draw-temporal-box-name ((self OMBox) view x y w h)
