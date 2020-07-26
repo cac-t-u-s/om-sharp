@@ -262,6 +262,17 @@
 (defmethod time-sequence-make-timed-item-at ((self bpf) at)
   (om-make-bpfpoint at (x-transfer self at (decimals self))))
 
+
+;;; redefine this to be a little bit safer wrt floating point errors
+;;; (since BPF can have sub-millisecond time-point values...) 
+(defmethod point-exists-at-time ((self bpf) time)
+  (let* ((fact (expt 10 (decimals self)))
+         (rounded-time (round (* time fact))))
+    (loop for point in (time-sequence-get-timed-item-list self)
+          when (and (= (round (* (item-get-internal-time point) fact)) rounded-time))
+          return point)))
+
+
 ;=======================================
 ;WHEN IN A COLLECTION...
 ;=======================================
