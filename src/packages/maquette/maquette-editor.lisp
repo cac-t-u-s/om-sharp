@@ -792,7 +792,10 @@
     (with-schedulable-object (container self)
                              (translate-elements-from-time-marker (get-obj-to-play self) elems dt))
     (reset-cache-display self)
-    (contextual-update self (container self))))
+    (contextual-update self (container self))
+    (when (editor self)
+      (update-to-editor (editor self) self))
+    ))
 
 ;;;========================
 ;;; INSPECTOR IN MAQUETTE...
