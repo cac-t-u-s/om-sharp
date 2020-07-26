@@ -813,14 +813,22 @@
 
 
 (defmethod translate-from-marker-action ((self time-ruler) marker position)
+
   (let* ((ref-time (pix-to-x self (om-point-x position)))
          (objs (remove nil (flat (loop for rv in (related-views self)
                                        collect
                                        (get-timed-objects-with-markers rv)))))
-         (obj-elem-list (loop for obj in objs collect
-                              (list obj (get-elements-for-marker
-                                         obj  
-                                         (if (markers-count-object-onset-p self) (om- marker (get-onset obj)) marker))))))
+         (obj-elem-list 
+          (remove nil
+                  (loop for obj in objs collect
+                        (let ((matching-elements 
+                               (get-elements-for-marker
+                                obj  
+                                (if (markers-count-object-onset-p self) 
+                                    (om- marker (get-onset obj)) marker))))
+                          (when matching-elements
+                            (list obj matching-elements)))))))
+
     (om-init-temp-graphics-motion 
      self position nil 
      :min-move 4
