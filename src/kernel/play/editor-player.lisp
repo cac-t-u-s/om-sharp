@@ -796,7 +796,7 @@
   (sort (remove nil (flat (loop for view in (related-views self)
                                 collect
                                 (loop for timed-obj in (get-timed-objects-with-markers view)
-                                      when (and timed-obj (play-obj? timed-obj)) collect
+                                      collect
                                       (if (markers-count-object-onset-p self)
                                           (om+ (get-time-markers timed-obj) (get-onset timed-obj))
                                         (get-time-markers timed-obj))
