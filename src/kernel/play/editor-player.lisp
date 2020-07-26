@@ -744,6 +744,20 @@
 ;1) Have a child class of timed-objects and overload the get-time-markers method
 ;2) Have a child class of x-graduated view and overload the following methods
 
+(defmethod get-time-markers ((self t)) 
+  "returns the list of time markers in an object"
+  nil)
+
+(defmethod get-elements-for-marker ((self timed-object) marker)
+  "returns a list of one or more elements in the object that correspond to the marker"
+  nil)
+
+(defmethod translate-elements-from-time-marker ((self timed-object) elems dt)
+  "translates elements from a time marker with dt"
+  (declare (ignore elems))
+  (setf (onset self) (max 0 (+ (onset self) dt))))
+
+
 (defmethod get-timed-objects-for-graduated-view ((self x-graduated-view))
   "returns a list of timed-object containing markers"
   nil)
