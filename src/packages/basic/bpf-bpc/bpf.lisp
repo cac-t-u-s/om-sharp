@@ -84,6 +84,9 @@
   
 (defmethod additional-class-attributes ((self BPF)) '(decimals color name action interpol))
 
+(defmethod additional-slots-to-copy ((self BPF)) 
+  (append (call-next-method) '(time-types)))
+
 ;;; decimals will be set because it is initarg
 (defmethod initialize-instance ((self bpf) &rest args) 
   (call-next-method)
@@ -173,7 +176,7 @@
 ;    (mapcar #'(lambda (p) (list (/ (om-point-x p) fact) (/ (om-point-y p) fact))) (point-list self)))
 ;  ))
 
-(defmethod set-bpf-points ((self bpf) &key x y z time)
+(defmethod set-bpf-points ((self bpf) &key x y z time time-types)
   (declare (ignore time z))
   (setf (point-list self) (sort 
                            (make-points-from-lists (or x (x-values-from-points self)) ;  (slot-value self 'x-points))
@@ -181,7 +184,12 @@
                                                    (decimals self)
                                                    'om-make-bpfpoint)
                            '< :key 'om-point-x))
-  ;;; maybe check here if there is not duplicate X points and send a warning...
+  ;;; todo?: check here if there is not duplicate X points and send a warning...
+
+  (when time-types
+    (loop for p in (point-list self)
+          for type in time-types do (om-point-set p :type type)))
+    
   (setf (slot-value self 'x-points) NIL) 
   (setf (slot-value self 'y-points) NIL))
 
@@ -200,7 +208,9 @@
 (defmethod init-bpf-points  ((self bpf))
   (set-bpf-points self
                   :x (slot-value self 'x-points)
-                  :y (slot-value self 'y-points)))
+                  :y (slot-value self 'y-points)
+                  :time-types (slot-value self 'time-types))
+  )
 
 (defmethod change-precision ((self bpf) decimals)
   (setf (decimals self) decimals)
