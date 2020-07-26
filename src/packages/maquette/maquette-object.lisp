@@ -432,6 +432,13 @@
              (temporal-translate-points (car elem) (cdr elem) dt))))
 
   
+(defmethod set-property ((self OMBox) (prop-id (eql :show-markers)) val)
+  (call-next-method)
+  ;;; in order to update the rulers
+  (when (editor (container self))
+    (editor-invalidate-views (editor (container self)))))
+
+
 ;;;=================================
 ;;; PERSISTENCE / OM-SAVE
 ;;;=================================
