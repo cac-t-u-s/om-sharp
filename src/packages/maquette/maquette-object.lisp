@@ -413,10 +413,18 @@
   (loop for box in (boxes self)
         append (get-time-markers box)))
 
+(defmethod get-time-markers ((self OMBox))
+  (when (and (get-box-value self) (show-markers self))
+    (get-time-markers (get-box-value self))))
+
 (defmethod get-elements-for-marker ((self OMMaquette) marker)
   (loop for box in (boxes self) 
         collect
         (list box (get-elements-for-marker box marker))))
+
+(defmethod get-elements-for-marker ((self OMBox) marker)
+  (when (get-box-value self)
+    (get-elements-for-marker (get-box-value self) marker)))
 
 (defmethod translate-elements-from-time-marker ((self OMMaquette) elems dt)
   (loop for elem in elems
