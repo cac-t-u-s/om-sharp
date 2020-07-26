@@ -450,7 +450,7 @@
         maximize (fourth range) into y2
         finally (return (list x1 x2 y1 y2))))
 
-;;; redefined by objects if they have a specific draw/cache strategy
+
 (defmethod get-cache-display-for-draw ((self bpf) box) 
   (list 
    (nice-bpf-range self)
@@ -463,7 +463,6 @@
    ))
 
 
-;;; to be redefined by objects if they have a specific miniview
 (defmethod draw-mini-view ((self bpf) (box t) x y w h &optional time)
   (let* ((display-cache (ensure-cache-display-draw box self))
          (ranges (car display-cache))
