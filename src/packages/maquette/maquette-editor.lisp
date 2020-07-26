@@ -773,7 +773,8 @@
 ;;;========================
 
 (defmethod get-timed-objects-for-graduated-view ((self sequencer-track-view))
-  (get-track-boxes (get-obj-to-play (editor self)) (num self)))
+  (remove-if-not #'show-markers 
+                 (get-track-boxes (get-obj-to-play (editor self)) (num self))))
 
 (defmethod select-elements-at-time ((self sequencer-track-view) marker-time)
   (let* ((editor (editor (om-view-window self)))
