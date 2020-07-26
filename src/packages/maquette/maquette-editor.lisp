@@ -772,7 +772,7 @@
 ;;; TIME MARKERS API
 ;;;========================
 
-(defmethod get-timed-objects-for-graduated-view ((self sequencer-track-view))
+(defmethod get-timed-objects-with-markers ((self sequencer-track-view))
   (remove-if-not #'show-markers 
                  (get-track-boxes (get-obj-to-play (editor self)) (num self))))
 
