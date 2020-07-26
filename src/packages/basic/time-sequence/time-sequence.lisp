@@ -60,7 +60,7 @@
 ; - Interpolate output values if interpol is on ?
 
 (defclass time-sequence (timed-object)
-  ((time-types :initform nil :accessor time-types) ; :initarg :time-types) ;; this slot shall probably disappear..
+  ((time-types :initform nil :accessor time-types)
    (duration :initform 0 :accessor duration :initarg :duration)
    (interpol :initform nil :accessor interpol :initarg :interpol)))
 
@@ -217,7 +217,7 @@
 
 
 (defmethod update-time-types-from-tpoint-list ((self time-sequence))
-  (setf (time-types self) 
+  (setf (time-types self)
         (loop for item in (time-sequence-get-timed-item-list self) 
               collect (item-get-type item))))
 
