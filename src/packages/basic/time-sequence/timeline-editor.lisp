@@ -228,7 +228,8 @@
          (main-panel (get-g-component self :main-panel))
          (time-ruler (om-make-view 'time-ruler  :size (omp nil 20) 
                                    :unit :ms :bg-color (om-def-color :white) :bottom-p nil 
-                                   :snap-to-grid (snap-to-grid self) :onset-p nil))
+                                   :snap-to-grid (snap-to-grid self) 
+                                   :markers-count-object-onset-p nil))
          (timeline-views nil)
          (left-item-w 0)
          (foldable-containers nil))

@@ -579,7 +579,9 @@
   ((unit :accessor unit :initform :ms :initarg :unit)
    (bottom-p :accessor bottom-p :initform t :initarg :bottom-p) ;bottom-p indicates if the arrow need to be on the top or the bottom (default is on the top)
    (markers-p :accessor markers-p :initform t :initarg :markers-p) ;use or not markers
-   (onset-p :accessor onset-p :initform t :initarg :onset-p) ;use or not onset for markers (maquette vs timeline)
+   (markers-count-object-onset-p 
+    :accessor markers-count-object-onset-p :initform t :initarg :markers-count-object-onset-p
+    :documentation "if T, markers will consider the objet onset for placement (e.g. in maquette)")
    (snap-to-grid :accessor snap-to-grid :initform t :initarg :snap-to-grid)
    (selected-time-markers :accessor selected-time-markers :initform nil)) 
   (:default-initargs :vmin 0))
@@ -795,7 +797,7 @@
                                 collect
                                 (loop for timed-obj in (get-timed-objects-for-graduated-view view)
                                       when (and timed-obj (play-obj? timed-obj)) collect
-                                      (if (onset-p self)
+                                      (if (markers-count-object-onset-p self)
                                           (om+ (get-time-markers timed-obj) (get-onset timed-obj))
                                         (get-time-markers timed-obj))
                                       )))) '<))
@@ -818,7 +820,7 @@
          (obj-elem-list (loop for obj in objs collect
                               (list obj (get-elements-for-marker
                                          obj  
-                                         (if (onset-p self) (om- marker (get-onset obj)) marker))))))
+                                         (if (markers-count-object-onset-p self) (om- marker (get-onset obj)) marker))))))
     (om-init-temp-graphics-motion 
      self position nil 
      :min-move 4
