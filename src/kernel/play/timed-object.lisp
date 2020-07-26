@@ -28,25 +28,6 @@
 ;;; redefine for subclasses
 (defmethod get-obj-dur ((self timed-object)) 1)
 
-;;; some objects just have no time markers ?
-(defmethod get-time-markers ((self t)) nil)
-
-;;;TIME MARKERS TO REDEFINE FOR YOUR SUBCLASS
-(defmethod get-time-markers ((self timed-object))
-  "returns a list of time markers"
-  (list 0))
-
-
-;;;TIME MARKERS TO REDEFINE FOR YOUR SUBCLASS
-(defmethod get-elements-for-marker ((self timed-object) marker)
-  "returns a list of elements matching the marker"
-  (list nil))
-
-;;;TIME MARKERS TO REDEFINE FOR YOUR SUBCLASS
-(defmethod translate-elements-from-time-marker ((self timed-object) elems dt)
-  "translates elements from a time marker with dt"
-  (setf (onset self) (max 0 (+ (onset self) dt))))
-
 (defmethod set-object-onset ((self timed-object) onset)
   (setf (onset self) onset))
 
