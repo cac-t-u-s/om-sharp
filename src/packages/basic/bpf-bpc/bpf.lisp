@@ -488,6 +488,28 @@
     
     t))
 
+
+(defmethod draw-maquette-mini-view ((self bpf) (box t) x y w h &optional time)
+  (let* ((display-cache (ensure-cache-display-draw box self))
+         (ranges (car display-cache))
+         (x-range (list 0 (nth 1 ranges)))
+         (y-range (list (or (get-edit-param box :display-min) (nth 2 ranges))
+                        (or (get-edit-param box :display-max) (nth 3 ranges)))))
+    
+    (draw-bpf-points-in-rect (cadr display-cache)
+                             (color self) 
+                             (append x-range y-range)
+                             (+ x 2) (+ y 10) (- w 4) (- h 20)
+                             (get-edit-param box :draw-style))
+
+    (om-with-fg-color (om-def-color :gray)
+      (om-with-font (om-def-font :font1 :size 8)
+                    (om-draw-string x (+ y (- h 14)) (number-to-string (nth 0 y-range)))
+                    (om-draw-string x (+ y 10) (number-to-string (nth 1 y-range)))
+                    ))
+    t))
+
+
 (defun conversion-factor-and-offset (min max w delta)
   (let* ((range (- max min))
          (factor (if (zerop range) 1 (/ w range))))
