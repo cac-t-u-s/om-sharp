@@ -459,14 +459,24 @@
 (defmethod editor-ed-params-properties ((self t)) nil)
 
 (defmethod get-properties-list ((self OMBoxEditCall))
-  (let ((properties (call-next-method)))  ;; (append (hide-property (call-next-method) '(:icon :align)))))
-    (add-properties properties "Appearance" 
-                    (append 
-                     `((:name "Name" :string name)
-                       (:display "View (m)" ,(display-modes-for-object (car (value self))) display)
-                       (:showname "Show name (n)" :bool show-name))
-                     (when (play-obj? (car (value self)))
-                       '((:show-markers "Show markers" :bool show-markers)))))))
+  
+  (let ((properties (add-properties 
+                     (call-next-method) 
+                     "Appearance" 
+                     (append 
+                      `((:name "Name" :string name)
+                        (:display "View (m)" ,(display-modes-for-object (get-box-value self)) display)
+                        (:showname "Show name (n)" :bool show-name))
+                      ))))
+                     
+    (if (play-obj? (get-box-value self))
+        (add-properties 
+         properties 
+         "Sequencer" 
+         '((:show-markers "Show markers" :bool show-markers)))
+      properties)
+      
+    ))
 
 
 (defmethod display-modes-for-object ((self t)) '(:text :hidden))
