@@ -793,16 +793,6 @@
     (reset-cache-display self)
     (contextual-update self (container self))))
 
-(defmethod get-elements-for-marker ((self OMBox) marker)
-  (when (get-box-value self)
-    (get-elements-for-marker (get-box-value self) marker)))
-
-(defmethod get-time-markers ((self OMBox))
-  (when (and (get-box-value self) (show-markers self))
-    (get-time-markers (get-box-value self))))
-
-
-
 ;;;========================
 ;;; INSPECTOR IN MAQUETTE...
 ;;;========================
