@@ -654,7 +654,7 @@ Outputs:
     ;;; output ; does nothing to the memory
     (1 (car (value self)))
     ;;; init
-    (2 nil)
+    (2 (car (value self)))
     ))
 
 
