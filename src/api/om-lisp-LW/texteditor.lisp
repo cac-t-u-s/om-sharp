@@ -65,7 +65,7 @@
 
 (defparameter *text-editor-font* 
   #+linux(gp::make-font-description :family "Liberation Mono" :size 11)
-  #-linux(gp::make-font-description :family "Consolas" :size 11))
+  #-linux(gp::make-font-description :family "Monaco" :size 11))
 
 
 (defclass om-text-editor-window (capi::interface)

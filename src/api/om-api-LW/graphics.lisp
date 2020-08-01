@@ -349,10 +349,10 @@
 
 
 (defun om-def-font (f &key face size style)
-  (let ((def-face #+mswindows "Calibri"  #+linux "Liberation Sans" #+darwin "Calibri")
-        (def-bold-face #+mswindows "Calibri"  #+linux "Liberation Sans" #+darwin "Calibri")
+  (let ((def-face #+mswindows "Calibri"  #+linux "Liberation Sans" #+darwin "Lucida Grande")
+        (def-bold-face #+mswindows "Calibri"  #+linux "Liberation Sans" #+darwin "Lucida Grande")
         (score-face "Times New Roman")
-        (sizes #+darwin '(12 13 14 16 20)		    ;72 ppi
+        (sizes #+darwin '(11 12 14 16 20)		    ;72 ppi
                #-darwin '(9 10 11 12 15)		    ;96 ppi
 	       ))
     (let ((fa 
@@ -366,7 +366,7 @@
              (:font3b (om-make-font def-bold-face (nth 2 sizes) :style '(:bold)))
              (:font4b (om-make-font def-bold-face (nth 3 sizes) :style '(:bold)))
              (:gui 
-              #+darwin (om-make-font "LucidaGrande" 13)
+              #+darwin (om-make-font "Lucida Grande" 13)
 	      #+linux (om-make-font "Bistream Vera Sans" 10) 
               #-(or darwin linux) (om-make-font def-face (nth 0 sizes)))
              (:score (om-make-font score-face 10))

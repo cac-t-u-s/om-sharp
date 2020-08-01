@@ -47,7 +47,7 @@
 
 (defparameter *default-listener-font* 
   #+linux(gp::make-font-description :family "Liberation Mono" :size 11)
-  #-linux(gp::make-font-description :family "Consolas" :size 11))
+  #-linux(gp::make-font-description :family "Monaco" :size 12))
 
 
 (defun om-init-output-stream ()
