@@ -640,7 +640,7 @@ Outputs:
       (2 (let ((initval (omng-box-value (nth 2 (inputs self)))))
            (setf (car (value self)) 
                  (if (equal initval t) NIL
-                   (list! (om-copy initval))))))
+                   (om-copy initval)))))
       )
     )
   
