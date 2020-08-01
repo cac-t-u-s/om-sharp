@@ -48,6 +48,7 @@
     )
   
   (loop for msg in (messages self) 
+        when msg
         unless (stringp (car msg))
         do (setf (car msg) (string-downcase (format nil "~A" (car msg)))))
   )
