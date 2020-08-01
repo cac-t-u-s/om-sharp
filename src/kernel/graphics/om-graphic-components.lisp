@@ -219,8 +219,8 @@
   (when (border self) 
     (om-with-fg-color (border self) 
       (om-draw-rect 0 0 (om-width self) (om-height self))))
-  (om-with-fg-color (om-get-fg-color self) 
-    ;(if (enabled self) (om-def-color :black) (om-def-color :gray))
+  (om-with-fg-color  
+      (if (enabled self) (om-get-fg-color self) (om-def-color :gray))
     (om-draw-string 0 14 (text self) :wrap (om-width self))))
 
 (defmethod om-view-click-handler ((self click-and-edit-text) pos)
