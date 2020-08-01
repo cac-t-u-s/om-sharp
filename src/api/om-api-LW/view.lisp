@@ -127,14 +127,17 @@
 
 (defun om-make-view (class &rest attributes
                      &key position size (resizable t)
-                     owner subviews name bg-color fg-color scrollbars (enable t)
+                     owner subviews name 
+                     bg-color fg-color font 
+                     scrollbars 
+                     (enable t)
                      (direct-draw t)  ;;; DIRECT-DRAW NIL ALLOWS TO DRAW PINBOARDS
                      &allow-other-keys)
   (let  ((x (and position (om-point-x position)))
          (y (and position (om-point-y position)))
          (w (and size (om-point-x size)))
          (h (and size (om-point-y size)))
-         (initargs-list (list :name name :font (om-def-font :font1)
+         (initargs-list (list :name name :font (or font (om-def-font :font1))
                               :vcontainer owner
                               ;:automatic-resize '(:width-ratio 0.5 :aspect-ratio 0.6)
                               :accepts-focus-p enable
