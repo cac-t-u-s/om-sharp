@@ -579,6 +579,7 @@
                                              (om-def-color :gray))
                                  :border nil 
                                  :font (om-def-font :font1)
+                                 :wrap-lines t
                                  :size (if path (multiple-value-bind (w h) 
                                                     (om-string-size (format nil "~A" path) (om-def-font :font1))
                                                   (om-make-point

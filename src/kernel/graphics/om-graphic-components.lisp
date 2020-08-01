@@ -212,7 +212,8 @@
   ((text :accessor text :initform "" :initarg :text)
    (after-fun :accessor after-fun :initform nil :initarg :after-fun)
    (enabled :accessor enabled :initform t :initarg :enabled)
-   (border :accessor border :initform t :initarg :border))
+   (border :accessor border :initform t :initarg :border)
+   (wrap-lines :accessor wrap-lines :initform nil :initarg :wrap-lines))
   (:default-initargs :resize-callback nil))
 
 (defmethod om-draw-contents ((self click-and-edit-text))
@@ -221,7 +222,8 @@
       (om-draw-rect 0 0 (om-width self) (om-height self))))
   (om-with-fg-color  
       (if (enabled self) (om-get-fg-color self) (om-def-color :gray))
-    (om-draw-string 0 14 (text self) :wrap (om-width self))))
+    (om-draw-string 0 14 (text self) 
+                    :wrap (if (wrap-lines self) (om-width self) nil))))
 
 (defmethod om-view-click-handler ((self click-and-edit-text) pos)
   (declare (ignore pos))
