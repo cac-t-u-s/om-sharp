@@ -339,9 +339,12 @@
                   #+windows :bg-color #+windows (om-make-color .95 .95 .95)
                   :name (pref-module-name pref-module)
                   :module-id (pref-module-id pref-module)
-                  :subviews (loop for pref in (pref-module-items pref-module)
-                                  when (pref-item-visible pref)
-                                  collect (make-preference-view pref)))
+                  :subviews (cons 
+                             (om-make-di 'om-simple-text :size (omp nil 10))
+                             (loop for pref in (pref-module-items pref-module)
+                                   when (pref-item-visible pref)
+                                   collect (make-preference-view pref)))
+                  )
   )
 
 
