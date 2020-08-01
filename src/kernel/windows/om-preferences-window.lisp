@@ -298,7 +298,7 @@
 
   (let* ((main-text (om-make-di 'om-simple-text 
                                 :text (pref-item-name pref-item) 
-                                :font (if (equal (pref-item-type pref-item) :title) (om-def-font :font3b) (om-def-font :font2))
+                                :font (if (equal (pref-item-type pref-item) :title) (om-def-font :font2b) (om-def-font :font1))
                                 :size (om-make-point 180 ;(list :string (format nil "  ~A  " (pref-item-name pref-item))) 
                                                      (if (equal (pref-item-type pref-item) :title) 25 20))))
          (g-item (make-preference-item (pref-item-type pref-item) pref-item))
