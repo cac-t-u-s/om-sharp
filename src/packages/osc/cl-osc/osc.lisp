@@ -73,7 +73,7 @@
   (cat '(35 98 117 110 100 108 101 0)	; #bundle
        (if timetag
            (encode-timetag timetag)
-           (encode-timetag :now))
+         (encode-timetag :now))
        (if (listp (car data))
 	   (apply #'cat (mapcar #'encode-bundle-elt data))
 	 (encode-bundle-elt data))))
@@ -160,17 +160,18 @@
 	      (i 16)
 	      (bundle-length (length data)))
 	  (loop while (< i bundle-length)
-	     do (let ((mark (+ i 4))
-		      (size (decode-int32
-			     (subseq data i (+ i 4)))))
-		  (if (eq size 0)
-		      (setf bundle-length 0)
-		      (push (decode-bundle
-			     (subseq data mark (+ mark size)))
-			    contents))
-		  (incf i (+ 4 size))))
+                do (let ((mark (+ i 4))
+                         (size (decode-int32
+                                (subseq data i (+ i 4)))))
+                     (if (or (eq size 0)
+                             (> (+ mark size) bundle-length))
+                         (setf bundle-length 0)
+                       (push (decode-bundle
+                              (subseq data mark (+ mark size)))
+                             contents))
+                     (incf i (+ 4 size))))
 	  (push timetag contents))
-	(decode-message data))))
+      (decode-message data))))
      
 (defun decode-message (message)
   "reduces an osc message to an (address . data) pair. .." 
@@ -178,8 +179,8 @@
   (let ((x (position (char-code #\,) message)))
     (if (eq x NIL)
         (format t "message contains no data.. ")
-	(cons (decode-address (subseq message 0 x))
-	      (decode-taged-data (subseq message x))))))
+      (cons (decode-address (subseq message 0 x))
+            (decode-taged-data (subseq message x))))))
 
 
 ;;; JBJMC201309
