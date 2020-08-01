@@ -1607,7 +1607,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                 (append 
                  (cons 
                   (om-make-di 'om-simple-text :size (om-make-point def-w 20) 
-                            ;:fg-color (om-def-color :dark-gray)
+                              :fg-color (om-def-color :dark-gray)
                               :text (object-name-in-inspector object)
                               :focus t  ;; prevents focus on other items :)
                               :font (om-def-font :font2b))
@@ -1629,6 +1629,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                                  (list  ;     (car category)  ; (list (car category) (om-def-font :font1b))  ; :right-extend          
                                   (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)
                                   (om-make-di 'om-simple-text :text (car category) :font (om-def-font :font2b)
+                                              :fg-color (om-def-color :dark-gray)
                                               :size (om-make-point (+ 10 (om-string-size (car category) (om-def-font :font2b))) 20)
                                               )
                                   )
