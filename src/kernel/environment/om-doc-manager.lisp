@@ -412,8 +412,7 @@
                               :title ""))
          (box (om-make-di 'om-check-box
                           :size (om-make-point 200 y-grid)
-                          :text (om-str :apply-all)
-                          :font (om-def-font :gui))))
+                          :text (om-str :apply-all))))
     
     (om-add-subviews 
      win
