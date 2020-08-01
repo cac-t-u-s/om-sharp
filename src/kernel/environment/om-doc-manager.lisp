@@ -384,20 +384,20 @@
           while ok do
           (unless (and *save-apply-all* (equal *save-apply-all* :no)) 
             (let ((doc (doc-entry-doc doc-entry)))
-            (when (null (saved? doc))
-              (let ((win (editor-window doc)))
-                (when win (om-select-window win))
-                (when (or (and *save-apply-all* (equal *save-apply-all* :yes))
-                          (let ((rep (om-save-y-n-cancel-dialog (name doc))))
-                            (if rep 
-                                (when (cadr rep)
-                                  (setf *save-apply-all* (if (car rep) :yes :no)))
-                              (setf ok nil))
-                            (car rep)))
-                  (or (prog1 (save-document doc)
-                        (and win (om-set-window-title win (window-name-from-object doc))))
-                      (setf ok nil)))))
-            )
+              (when (null (saved? doc))
+                (let ((win (editor-window doc)))
+                  (when win (om-select-window win))
+                  (when (or (and *save-apply-all* (equal *save-apply-all* :yes))
+                            (let ((rep (om-save-y-n-cancel-dialog (name doc))))
+                              (if rep 
+                                  (when (cadr rep)
+                                    (setf *save-apply-all* (if (car rep) :yes :no)))
+                                (setf ok nil))
+                              (car rep)))
+                    (or (prog1 (save-document doc)
+                          (and win (om-set-window-title win (window-name-from-object doc))))
+                        (setf ok nil)))))
+              )
             ))
     ok))
 
@@ -406,6 +406,7 @@
 ; (om-save-y-n-cancel-dialog "Test")
 
 (defun om-save-y-n-cancel-dialog (name)
+
   (let* ((y-grid 24)
          (win (om-make-window 'om-dialog :position :centered 
                               :resizable t :maximize nil :minimize nil :owner nil
