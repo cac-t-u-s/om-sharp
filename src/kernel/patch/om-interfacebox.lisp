@@ -528,6 +528,7 @@
 (defclass ListMenuBox (OMInterfaceBox)
   ((items :accessor items :initarg :items :initform nil)
    (selection :accessor selection :initarg :selection :initform 0)
+   (output-mode :accessor output-mode :initarg :output-mode :initform :value)
    (font :accessor font :initarg :font :initform (om-def-font :font1b))))
  
 
@@ -545,7 +546,23 @@
   (add-properties (call-next-method)
                   "Menu selection display" 
                   `((:font "Font" :font font)
+                    (:output-mode "Output mode" (:value :index) output-mode-accessor)
                     )))
+
+(defmethod output-mode-accessor ((self ListMenuBox) &optional value)
+  (when value 
+    (setf (output-mode self) value)
+    (update-value-from-selection self))
+  (output-mode self))
+
+
+(defmethod update-value-from-selection ((self ListMenuBox))
+  (set-value self 
+             (if (equal (output-mode self) :value)
+                 (and (selection self)
+                      (list (nth (selection self) (items self))))
+               (list (selection self))
+               )))                                   
 
 
 (defmethod apply-box-attributes ((self ListMenuBox) attributes) 
@@ -591,14 +608,13 @@
     (let ((menu (om-make-menu "list items"                            
                (loop for item in (items self)
                      for i from 0
-                     collect (let ((sel i)
-                                   (val item))
+                     collect (let ((sel i))
                                (om-make-menu-item 
                                 (format nil "~A" item)
                                 #'(lambda () 
                                     (store-current-state-for-undo (editor (container self)))
                                     (setf (selection self) sel)
-                                    (set-value self (list val))
+                                    (update-value-from-selection self)
                                     (when (reactive (car (outputs self))) (self-notify self))
                                     (om-invalidate-view frame))
                                 :selected (= i (selection self))
