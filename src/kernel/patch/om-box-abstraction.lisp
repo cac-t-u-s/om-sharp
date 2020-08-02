@@ -37,9 +37,6 @@
           (when (not (pathname-match-p (mypathname (reference box))
                                        (pathname name))) 
             
-            (print (mypathname (reference box)))
-            (print (pathname name))
-            
             (let ((patch (container box)))
                 
               (when (editor patch) (store-current-state-for-undo (editor patch)))
