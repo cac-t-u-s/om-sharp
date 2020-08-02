@@ -300,7 +300,8 @@
                                 :text (pref-item-name pref-item) 
                                 :font (if (equal (pref-item-type pref-item) :title) (om-def-font :font2b) (om-def-font :font1))
                                 :size (om-make-point 180 ;(list :string (format nil "  ~A  " (pref-item-name pref-item))) 
-                                                     (if (equal (pref-item-type pref-item) :title) 25 20))))
+                                                     (if (equal (pref-item-type pref-item) :title) 18 14))))
+
          (g-item (make-preference-item (pref-item-type pref-item) pref-item))
          
          (doc-text (when (pref-item-doc pref-item)
@@ -311,10 +312,10 @@
                                         (pref-item-doc pref-item))))
                        (om-make-di 
                         'om-simple-text 
-                        :text real-text ; :bg-color (om-def-color :green)
+                        :text real-text
                         :font (om-def-font :font1)
                         :size (om-make-point (list :string (format nil "~A" real-text))
-                                             (if (listp (pref-item-doc pref-item)) (* 20 (length (pref-item-doc pref-item))) 20)))
+                                             (* 14 (length (list! (pref-item-doc pref-item))))))
                        ))))
     
     (if (and (equal (pref-item-type pref-item) :title) doc-text)
@@ -322,7 +323,7 @@
          'om-column-layout :name (pref-item-id pref-item) :align :left
          :subviews (list main-text doc-text))
       (om-make-layout 
-       'om-row-layout :name (pref-item-id pref-item) 
+       'om-row-layout :name (pref-item-id pref-item) :align :center
        :subviews (list main-text g-item doc-text))
       )
     ))
