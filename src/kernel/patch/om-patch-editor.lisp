@@ -1606,7 +1606,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                 :subviews 
                 (append 
                  (cons 
-                  (om-make-di 'om-simple-text :size (om-make-point def-w 20) 
+                  (om-make-di 'om-simple-text :size (om-make-point nil 20) 
                               :fg-color (om-def-color :dark-gray)
                               :text (object-name-in-inspector object)
                               :focus t  ;; prevents focus on other items :)
