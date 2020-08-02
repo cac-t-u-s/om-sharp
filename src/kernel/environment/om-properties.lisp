@@ -602,9 +602,9 @@
                                                                                         :types (doctype-info :om)
                                                                                         :directory *last-open-dir*)))
                                                        (when file
-                                                         (set-property object prop-id (namestring file))
+                                                         (set-property object prop-id file)
                                                          (when update (update-after-prop-edit update object))
-                                                         (setf (text textview) (get-property object prop-id))
+                                                         (setf (text textview) (namestring (get-property object prop-id)))
                                                          (om-set-fg-color 
                                                           textview 
                                                           (if (probe-file (get-property object prop-id)) 
