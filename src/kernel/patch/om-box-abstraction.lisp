@@ -54,7 +54,7 @@
                        (update-from-reference box)
                        )
                   (progn 
-                    (om-message-dialog "this file is not a valid patch !")
+                    (om-message-dialog (format nil "A document could not be loaded from ~S" name))
                     (update-inspector-for-object box))))))
         
         ;;; Internal abstraction
