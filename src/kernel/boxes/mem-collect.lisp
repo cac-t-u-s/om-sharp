@@ -591,7 +591,9 @@ Inputs:
 Outputs:
 - Collect from input 1 and return this value
 - Return current state of memory
-- Initialize memory with input 3."))
+- Initialize memory with input 3.
+
+The default value for the accumulation function simply substitutes the current memory with the incoming value."))
 
 (defclass OMAccumBox (OMCollectBox) ())
 
@@ -607,13 +609,19 @@ Outputs:
      pos)))
 
 
+;;; a default accumulation function
+(defun substitute-value (old new) 
+  (declare (ignore old)) 
+  new)
+
+
 (defmethod create-box-inputs ((self OMAccumBox)) 
   (list 
    (make-instance 
     'box-input :box self :value NIL
     :name "data-in" :doc-string "(acumulated in memory)")
    (make-instance 
-    'box-input :box self :value NIL
+    'box-input :box self :value 'substitute-value
     :name "accum-function" :doc-string "accumulation function (a function of 2 arguments)")
    (make-instance 
     'box-input :box self :value NIL
@@ -631,7 +639,7 @@ Outputs:
     (case numout
       ;;; ACCUM ;;; this is the only difference with collect
       (0 (let ((inval (omng-box-value (nth 0 (inputs self))))
-               (accum-fun (omng-box-value (nth 1 (inputs self)))))
+               (accum-fun (or (omng-box-value (nth 1 (inputs self))) #'substitute-value)))
            (setf (car (value self)) (funcall accum-fun (car (value self)) inval))
            ))
       ;;; output ; does nothing to the memory
