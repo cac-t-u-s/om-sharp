@@ -441,8 +441,8 @@
                    (list (selection self)))
                
                (if (equal (output-mode self) :value)
-                     (and (selection self)
-                          (list (nth (car (selection self)) (items self))))
+                   (and (selection self)
+                        (list (nth (car (selection self)) (items self))))
                  (list (car (selection self)))
                  )
                )))
