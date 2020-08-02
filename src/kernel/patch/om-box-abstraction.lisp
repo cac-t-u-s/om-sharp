@@ -91,6 +91,16 @@
         ((:pre-delay "Pre-delay (ms)" :number pre-delay))))
    ))
 
+
+;;; filename is redudant with the filename of the box reference
+;;; it is also likely to become wrong if the reference moves
+;;; the attribute is mostly useful as a proxy to change the linked reference 
+;;; from the inspector UI 
+(defmethod excluded-properties-from-save ((self OMBoxAbstraction)) 
+  (append (call-next-method) 
+          '(:filename)))
+
+
 (defmethod object-name-in-inspector ((self OMBoxAbstraction)) 
   (format nil "~A box" (get-object-type-name (reference self))))
 
