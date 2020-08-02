@@ -32,9 +32,19 @@
 
 (defmethod get-icon-id ((self LostReferenceBox)) :dead)
 (defmethod object-name-in-inspector ((self LostReferenceBox)) 
-  (format nil "Missing reference box [~A ~A]" 
-          (reference-type self)
-          (lost-reference self)))
+  (format nil "Dead box [~A]" 
+          (string-upcase (lost-reference self))))
+  
+(defmethod get-documentation ((self LostReferenceBox))
+  (format 
+   nil 
+   "The reference of this box is unknown: ~A ~A.
+ 
+It was probably defined in some external file or library that is currently not loaded.
+"
+   (reference-type self)
+   (string-upcase (lost-reference self))))
+
 
 ;; hacks the accessors
 (defmethod box-draw-color ((self LostReferenceBox)) (om-make-color .9 0.8 0.7))
