@@ -527,7 +527,8 @@
 
 (defclass ListMenuBox (OMInterfaceBox)
   ((items :accessor items :initarg :items :initform nil)
-   (selection :accessor selection :initarg :selection :initform 0)))
+   (selection :accessor selection :initarg :selection :initform 0)
+   (font :accessor font :initarg :font :initform (om-def-font :font1b))))
  
 
 (defmethod special-box-p ((self (eql 'list-menu))) t)
@@ -539,6 +540,12 @@
 
 (defmethod get-all-keywords ((self ListMenuBox))
   '((:items)))
+
+(defmethod get-properties-list ((self ListMenuBox))
+  (add-properties (call-next-method)
+                  "Menu selection display" 
+                  `((:font "Font" :font font)
+                    )))
 
 
 (defmethod apply-box-attributes ((self ListMenuBox) attributes) 
@@ -571,7 +578,7 @@
 (defmethod draw-interface-component ((self ListMenuBox) x y w h) 
   (om-draw-rect x y 24 h :color (om-def-color :gray) :fill t)
   (om-with-font 
-   (om-def-font :font1b)
+   (or (font self) (om-def-font :font1b))
    (om-draw-string (+ x 30) (+ y 14) 
                    (format nil "~A"
                            (nth (selection self) (items self))))))
