@@ -723,7 +723,10 @@
     (:reference repeat-n)
     (:x ,(om-point-x position))
     (:y ,(om-point-y position))
-    (:inputs .,(mapcar #'eval inputs))
+    ,(cons :inputs 
+           (append 
+            (mapcar #'eval inputs)
+            '((:input (:type :optional) (:name "scope") (:value :global)))))
     (:lock ,(when lock (cond ((string-equal lock "x") :locked)
                              ((string-equal lock "&") :eval-once))))
     ))
