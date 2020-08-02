@@ -408,7 +408,7 @@
    (selection :accessor selection :initarg :selection :initform nil)
    (multiple-selection :accessor multiple-selection :initarg :multiple-selection :initform nil)
    (cell-height :accessor cell-height :initarg :cell-height :initform 12)
-   (cell-font :accessor cell-font :initarg :cell-height :initform (om-def-font :font1))
+   (cell-font :accessor cell-font :initarg :cell-font :initform (om-def-font :font1))
    (output-mode :accessor output-mode :initarg :output-mode :initform :value)))
  
 
