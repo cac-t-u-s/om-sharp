@@ -288,7 +288,7 @@
       (setf *last-open-dir* (om-make-pathname :directory path))
       (if (find-doc-entry path)
           (progn (om-message-dialog 
-           (format nil "An open document named ~S already exist in this folder.~%Please choose another name or location." 
+           (format nil "An open document named ~S already exists in this folder.~%Please choose another name or location." 
                    (pathname-name path)))
             (prepare-save-as self))
         (progn 
