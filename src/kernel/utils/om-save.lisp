@@ -646,6 +646,9 @@
 (defmethod save-state ((o box-output)) 
   `(:output (:name ,(name o)) (:reactive ,(reactive o))))
 
+
+(defmethod excluded-properties-from-save ((self OMBox)) nil)
+
 (defmethod omng-save ((self OMBox))  
   (cons :box
         (append 
@@ -665,7 +668,8 @@
                                         (or (slot-exists-p self (nth 3 prop))
                                             (fboundp (nth 3 prop))) ;;; e.g. when specific a accessor is defined
                                         ; avoid redundant storage if these attribuets are also declared as (editable) properties
-                                        (not (find (car prop) '(:group-id :name ::x :y :w :h))) 
+                                        (not (find (car prop) '(:group-id :name ::x :y :w :h)))
+                                        (not (find (car prop) (excluded-properties-from-save self)))
                                         )
                                    (list (car prop) (omng-save (if (slot-exists-p self (nth 3 prop))
                                                                    (slot-value self (nth 3 prop))
