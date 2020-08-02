@@ -303,7 +303,8 @@
 
 (defclass ButtonBox (OMInterfaceBox)
   ((send-value :accessor send-value :initarg :send-value :initform t)
-   (text :accessor text :initarg :text :initform "")))
+   (text :accessor text :initarg :text :initform "")
+   (pushed :accessor pushed :initform nil)))
 
 (defmethod special-box-p ((self (eql 'button))) t)
 (defmethod special-item-reference-class ((item (eql 'button))) 'ButtonBox)
@@ -329,10 +330,10 @@
     box))
 
 (defmethod draw-interface-component ((self ButtonBox) x y w h) 
-  (let ((textcolor (if (car (value self)) 
+  (let ((textcolor (if (pushed self) 
                        (om-def-color :light-gray) 
                      (om-def-color :dark-gray))))
-    (when (car (value self))
+    (when (pushed self)
       (om-draw-rounded-rect x y w h :fill t :round (box-draw-roundness self) :color (om-def-color :gray)))
     (when (text self)
       (let ((font (om-def-font :font1b)))
@@ -356,14 +357,18 @@
        (when val-input
          (setf (send-value self) (omng-box-value val-input))))
       
+    (setf (pushed self) t)
     (set-value self (list (send-value self)))
     (om-invalidate-view frame)
+    
     (when (reactive (car (outputs self))) (self-notify self))
+    
     (om-init-temp-graphics-motion 
      frame pos nil :min-move nil
      :release #'(lambda (view pos)
                   (declare (ignore view pos))
                   (set-value self nil)
+                  (setf (pushed self) nil)
                   (om-invalidate-view frame)
                   ))))
 
