@@ -26,30 +26,30 @@
 
 ;;; a tricky accessor for patch names :)
 (defmethod box-patch-name-access ((box OMBoxAbstraction) &optional (name nil name-provided-p))
+
   (if name-provided-p
       ;;; SET
       (if (is-persistant (reference box))
-          
-          ;;; Global abstraction:
-          ;;; don't do it if it doesn't change!
-          ;;; this can break the recursive-patch loading system
+
+          ;;; don't do it if the path doesn't change!
+          ;;; it could break the recursive-patch loading system
           ;;; by updating the patch reference
           (when (not (pathname-match-p (mypathname (reference box))
-                                       (pathname name))) 
+                                       (pathname name)))
             
             (let ((patch (container box)))
-                
+              
               (when (editor patch) (store-current-state-for-undo (editor patch)))
               
               (let ((newpatch (and (probe-file name)
-                                    (load-doc-from-file name :patch))))
+                                   (load-doc-from-file name :patch))))
                 (if newpatch
-                     (let ((oldpatch (reference box)))
-                       (release-reference oldpatch box)
-                       (setf (reference box) newpatch)
-                       (retain-reference newpatch box)
-                       (update-from-reference box)
-                       )
+                    (let ((oldpatch (reference box)))
+                      (release-reference oldpatch box)
+                      (setf (reference box) newpatch)
+                      (retain-reference newpatch box)
+                      (update-from-reference box)
+                      )
                   (progn 
                     (om-message-dialog (format nil "A document could not be loaded from ~S" name))
                     (update-inspector-for-object box))))))
@@ -59,7 +59,7 @@
           (when (editor patch) (store-current-state-for-undo (editor patch)))
           (set-name (reference box) name))
         )
-  
+    
     ;;; GET
     (if (is-persistant (reference box))
         (mypathname (reference box))
