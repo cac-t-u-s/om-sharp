@@ -4,7 +4,7 @@
  (:doc "")
  (:info
   (:created "2018/01/18 11:54:31")
-  (:modified "2020/06/20 23:39:57")
+  (:modified "2020/08/02 17:28:38")
   (:by "om-sharp")
   (:version 1.0))
  (:window (:size (884 408)) (:position (182 206)))
@@ -18,7 +18,7 @@
    (:name "out")
    (:x 204)
    (:y 293)
-   (:w 40)
+   (:w 41)
    (:h 42)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 0.0)) (:t-or-nil t)))
@@ -41,7 +41,7 @@
    (:group-id nil)
    (:name "n")
    (:x 204)
-   (:y 83)
+   (:y 73)
    (:w 40)
    (:h 42)
    (:color
@@ -66,9 +66,9 @@
       (:type "opat"))))
    (:group-id nil)
    (:name "factorial")
-   (:x 298)
-   (:y 169)
-   (:w 79)
+   (:x 299)
+   (:y 161)
+   (:w 82)
    (:h 52)
    (:color nil)
    (:border nil)
@@ -78,21 +78,6 @@
    (:display :hidden)
    (:lock nil)
    (:lambda nil)
-   (:filename
-    (:pathname
-     (:directory
-      (:absolute
-       "Users"
-       "bresson"
-       "SRC"
-       "cac-t-u-s"
-       "om-sharp"
-       "help-patches"
-       "Core features"))
-     (:device :unspecific)
-     (:host :unspecific)
-     (:name "factorial")
-     (:type "opat")))
    (:pre-delay 0)
    (:inputs
     (:input
@@ -110,7 +95,7 @@
    (:x 178)
    (:y 262)
    (:w 102)
-   (:h 30)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -142,10 +127,10 @@
    (:reference om=)
    (:group-id nil)
    (:name "om=")
-   (:x 128)
-   (:y 210)
-   (:w 62)
-   (:h 30)
+   (:x 129)
+   (:y 227)
+   (:w 64)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -172,7 +157,7 @@
    (:reference fixnum)
    (:group-id nil)
    (:name "value box")
-   (:x 156)
+   (:x 159)
    (:y 182)
    (:w 32)
    (:h 30)
@@ -195,7 +180,7 @@
    (:x 270)
    (:y 227)
    (:w 60)
-   (:h 30)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -223,9 +208,9 @@
    (:group-id nil)
    (:name "1-")
    (:x 314)
-   (:y 138)
-   (:w 49)
-   (:h 30)
+   (:y 130)
+   (:w 51)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -249,8 +234,8 @@
    (:name "print")
    (:x 115)
    (:y 148)
-   (:w 62)
-   (:h 30)
+   (:w 64)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -291,21 +276,6 @@
    (:display :mini-view)
    (:lock nil)
    (:lambda nil)
-   (:filename
-    (:pathname
-     (:directory
-      (:absolute
-       "Users"
-       "bresson"
-       "SRC"
-       "cac-t-u-s"
-       "om-sharp"
-       "help-patches"
-       "Core features"))
-     (:device :unspecific)
-     (:host :unspecific)
-     (:name "factorial")
-     (:type "opat")))
    (:pre-delay 0)
    (:inputs
     (:input (:type :standard) (:name "n") (:value 5) (:reactive nil)))
@@ -332,10 +302,10 @@
    (:value 4)
    (:id 10))
   (:comment
-   (:x 653)
+   (:x 657)
    (:y 84)
-   (:w 85)
-   (:h 22)
+   (:w 104)
+   (:h 23)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border nil)
@@ -363,7 +333,7 @@
   (:comment
    (:x 393)
    (:y 190)
-   (:w 123)
+   (:w 143)
    (:h 23)
    (:fgcolor nil)
    (:bgcolor nil)
