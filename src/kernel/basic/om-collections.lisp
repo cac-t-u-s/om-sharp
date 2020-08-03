@@ -304,7 +304,9 @@
                    'om-icon-button 
                    :size (omp 16 16)
                    :icon :+ :icon-pushed :+-pushed :icon-disabled :+-disabled
-                   :lock-push nil :enabled (obj-type (get-value-for-editor (object editor)))
+                   :lock-push nil 
+                   :enabled (and (obj-type (get-value-for-editor (object editor)))
+                                 (subtypep (obj-type (get-value-for-editor (object editor))) 'standard-object))
                    :action #'(lambda (b)
                                (declare (ignore b))
                                (add-new-object editor)
