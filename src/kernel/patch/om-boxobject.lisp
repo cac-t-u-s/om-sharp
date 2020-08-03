@@ -588,20 +588,30 @@
 
 
 (defmethod draw-mini-text ((object t) (box OMBox) x y w h &optional time)
-  ;(om-with-font 
-  ; (om-def-font :font1b :size 10)
-  ; (om-draw-string (+ x 14) (+ y 14) (draw-type-of-object object)))
+  
+  
+  (let ((type-str (string-upcase (type-of object)))
+        (type-font (om-def-font :font1b :size 10)))
+ 
+    (om-draw-string (+ x (- w (om-string-size type-str type-font) 12)) 
+                    (+ y 18) 
+                    type-str 
+                    :font (om-def-font :font1b :size 10)
+                    :color (om-def-color :gray)))
+
   (om-with-font 
    (om-def-font :font1 :size 10)
-   (om-draw-string (+ x 20) (+ y 15) (string-upcase (type-of object)))
-   (loop for i = (+ y 25) then (+ i 10) 
+   
+   (loop for i = (+ y 30) then (+ i 10) 
          for sl in (ensure-cache-display-text box object)
          while (< i (- h 6)) do
          (let ((str (format nil "~A: ~A" (car sl) (cadr sl))))
            (if (> (om-string-size str (om-def-font :font1 :size 8)) (- w 10))
                (om-draw-string (+ x 4) i (concatenate 'string (subseq str 0 (min (length str) (1- (round w 5)))) "..."))
              (om-draw-string (+ x 4) i str))
-         ))))
+           ))
+   )
+  )
 
 (defmethod draw-type-of-object ((object t))
   (string-upcase (type-of object)))
