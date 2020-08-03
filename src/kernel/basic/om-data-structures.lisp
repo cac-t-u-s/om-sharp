@@ -56,7 +56,8 @@ It can be accessed (get/set) using the methods get-slot / set-slot or using the 
 
 
 ;;;====================
-;;; SET/GET SLOTS VALUES
+;;; SET/GET SLOTS VALUES 
+;;; [DEPRECATED]
 ;;;====================
 
 ;;;; Alternatively we could use set-slot-val to call standard accessors here...

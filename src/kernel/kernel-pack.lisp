@@ -40,7 +40,7 @@
                                             )
                          (omNG-make-package "Data" 
                                             :doc "Objects and data management in visual programs"
-                                            :functions '(clone get-slot set-slot test-type save-as-text)
+                                            :functions '(clone test-type save-as-text)
                                             :classes '(store collection))
                          (omNG-make-package "Files" 
                                             :doc "File I/O management and utilities"
