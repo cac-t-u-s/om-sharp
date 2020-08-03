@@ -30,6 +30,20 @@ The slot <value> can contain any kind of data, including instances of other clas
 It can be accessed (get/set) using the methods get-slot / set-slot or using the SLOTS box (type 'store slots'). ")
    )
 
+
+(defmethod get-cache-display-for-text ((self store) box)
+  (declare (ignore box))
+  (if (listp (value self))
+      
+      (if (null (value self))
+          '(("" "[empty]"))
+        (loop for obj in (value self) 
+              for i = 0 then (1+ i) 
+              collect (list (format nil "[~D]" i) obj)))
+
+    `(("" ,(value self)))
+    ))
+
 ;;;====================
 ;;; COPY
 ;;;====================
