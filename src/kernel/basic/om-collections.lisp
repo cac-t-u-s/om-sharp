@@ -261,6 +261,7 @@
 
 
 (defmethod make-editor-window-contents ((editor collection-editor))
+ 
   (let* ((collection (get-value-for-editor (object editor)))
          (text (format-current-text editor))
          (current-text (om-make-graphic-object 
@@ -269,7 +270,7 @@
                         :text text :font (om-def-font :font2b)))
          (prev-button (om-make-graphic-object 
                        'om-icon-button 
-                       :size (omp 16 16)
+                       :size (omp 16 16) :position (omp 0 0)
                        :icon :l-arrow :icon-pushed :l-arrow-pushed :icon-disabled :l-arrow-disabled
                        :lock-push nil :enabled (> (length (obj-list collection)) 1)
                        :action #'(lambda (b)
@@ -278,7 +279,7 @@
                                    )))
          (next-button (om-make-graphic-object 
                        'om-icon-button 
-                       :size (omp 16 16)
+                       :size (omp 16 16) :position (omp 0 0)
                        :icon :r-arrow :icon-pushed :r-arrow-pushed :icon-disabled :r-arrow-disabled
                        :lock-push nil :enabled (> (length (obj-list collection)) 1)
                        :action #'(lambda (b)
@@ -287,7 +288,7 @@
                                    )))
          (-button (om-make-graphic-object 
                    'om-icon-button 
-                   :size (omp 16 16)
+                   :size (omp 16 16) :position (omp 0 0)
                    :icon :- :icon-pushed :--pushed :icon-disabled :--disabled
                    :lock-push nil :enabled (obj-list collection)
                    :action #'(lambda (b)
@@ -302,7 +303,7 @@
                    ))
          (+button (om-make-graphic-object 
                    'om-icon-button 
-                   :size (omp 16 16)
+                   :size (omp 16 16) :position (omp 0 0)
                    :icon :+ :icon-pushed :+-pushed :icon-disabled :+-disabled
                    :lock-push nil 
                    :enabled (and (obj-type (get-value-for-editor (object editor)))
@@ -316,8 +317,20 @@
                                    (button-enable prev-button) (button-enable next-button)))
                                (update-multi-display editor (editor-get-edit-param editor :show-all))
                                )))
+         (showall-check 
+          (when (handle-multi-display (internal-editor editor))
+            (om-make-di 
+             'om-check-box 
+             :text " Show All" :size (omp 80 16) :font (om-def-font :font2)
+             :checked-p (editor-get-edit-param editor :show-all) :focus nil :default nil
+             :di-action #'(lambda (item) 
+                            (editor-set-edit-param editor :show-all (om-checked-p item))
+                            (update-multi-display editor (om-checked-p item)))
+             )))
          )
+    
     (set-g-component editor :current-text current-text)
+    
     (om-make-layout 
      'om-column-layout 
      :ratios '(1 99)
@@ -325,29 +338,30 @@
      (list 
       (om-make-layout 
        'om-row-layout 
-       :subviews 
-       (list (om-make-layout 
-              'om-row-layout :delta 0 :align :bottom
-              :subviews
-              (list prev-button next-button 
-                    (om-make-graphic-object 'om-item-view :size (omp 20 20))
-                    (when (handle-multi-display (internal-editor editor))
-                      (om-make-di 
-                       'om-check-box 
-                       :text " Show All" :size (omp 80 16) :font (om-def-font :font2)
-                       :checked-p (editor-get-edit-param editor :show-all) :focus nil :default nil
-                       :di-action #'(lambda (item) 
-                                      (editor-set-edit-param editor :show-all (om-checked-p item))
-                                      (update-multi-display editor (om-checked-p item)))
-                       ))
-                    nil
-                    current-text))
-             nil
-             (om-make-layout 
-              'om-row-layout :delta 0 
-              :subviews 
-              (list +button -button))
-             ))
+       :delta 0 
+       :ratios '(1 1 1 10 1 10 1)
+       :align :top
+       :subviews
+       (list 
+        (om-make-layout 
+         'om-row-layout :delta 0 
+         :subviews 
+         (list (om-make-view 'om-view :size (omp 16 16) :subviews (list prev-button))
+               (om-make-view 'om-view :size (omp 16 16) :subviews (list next-button)))
+         )
+        (om-make-graphic-object 'om-item-view :size (omp 20 20))
+        showall-check
+        nil
+        current-text
+        nil
+        (om-make-layout 
+         'om-row-layout :delta 0 
+         :subviews 
+         (list (om-make-view 'om-view :size (omp 16 16) :subviews (list +button))
+               (om-make-view 'om-view :size (omp 16 16) :subviews (list -button))
+               ))
+        ))
+      
       (if (object-value (internal-editor editor))
           (setf (main-view (internal-editor editor)) 
                 (make-editor-window-contents (internal-editor editor))))
