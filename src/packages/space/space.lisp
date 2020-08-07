@@ -42,6 +42,10 @@
 (omNG-make-package 
  "3D"
  :container-pack (get-subpackage *om-package-tree* "Basic Tools")
- :doc "Spatialization tools"
  :classes '(3DC 3D-viewer)
  :functions '())
+
+(omNG-make-package 
+ "Conversions"
+ :container-pack (get-subpackage *om-package-tree* "Basic Tools")
+ ::functions '(car->pol pol->car xy->ad ad->xy xyz->aed aed->xyz))
