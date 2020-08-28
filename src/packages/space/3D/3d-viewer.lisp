@@ -269,8 +269,9 @@
 (defmethod update-lines ((ed 3D-viewer-editor)) 
   (let ((3D-view (get-g-component ed :3d-view)))
     (loop for line in (get-transformed-data (object-value ed))
-          for view-line in (om-get-gl-objects 3d-view) collect
-          (setf (vertices-colors view-line)
+          for 3dobj in (om-get-gl-objects 3d-view) 
+          when (slot-exists-p 3dobj 'vertices-colors)
+          do (setf (vertices-colors 3dobj)
                 (loop for p in (om-3Dobj-points line)
                       collect  (if (and (editor-get-edit-param ed :filter-off-grid) (x-grid ed) (y-grid ed)
                                         (or (< (car p) (car (x-grid ed)))
