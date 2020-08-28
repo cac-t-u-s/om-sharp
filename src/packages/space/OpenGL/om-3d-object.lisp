@@ -311,7 +311,7 @@
               (opengl:gl-begin opengl:*GL-QUADS*)
               (loop for p in f do
                 ;(apply 'opengl:gl-normal3-i n)
-                    (opengl:gl-vertex4-dv (aref (om-get-gl-points self) (1- p)))
+                    (opengl:gl-vertex4-dv (aref vertices (1- p)))
                     ;(apply 'opengl:gl-normal3-i n)
                     )
               (opengl:gl-end)))
@@ -321,7 +321,7 @@
     (loop for f in (faces self) do
           (opengl:gl-begin opengl:*GL-LINE-LOOP*)
           (loop for p in f do
-                (opengl:gl-vertex4-dv (aref (om-get-gl-points self) (1- p))))
+                (opengl:gl-vertex4-dv (aref vertices (1- p))))
           (opengl:gl-end))
     ))
     
