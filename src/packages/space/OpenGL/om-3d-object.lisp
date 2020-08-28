@@ -339,6 +339,16 @@
     (om-set-3Dobj-points self (list (center self)))
     ))
 
+(defmethod get-extents ((self 3D-sphere))
+  (when (and (center self) (radius self))
+    (values 
+     (- (nth 0 (center self)) (radius self))
+     (+ (nth 0 (center self)) (radius self))
+     (- (nth 1 (center self)) (radius self))
+     (+ (nth 1 (center self)) (radius self))
+     (- (nth 2 (center self)) (radius self))
+     (+ (nth 2 (center self)) (radius self)))
+    ))
 
 (defmethod om-draw-contents ((self 3D-sphere))
   (if (om-3Dobj-color self)
