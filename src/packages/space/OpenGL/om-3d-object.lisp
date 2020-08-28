@@ -254,6 +254,7 @@
 (defclass 3D-cube (om-3D-object) 
   ((center :accessor center :initarg :center :initform nil)
    (size :accessor size :initarg :size :initform nil)
+   (color :accessor color :initarg :color :initform nil)
    (filled :accessor filled :initarg :filled :initform t )
    (faces :accessor faces :initform '((1 2 3 4)
                                       (1 4 8 5)
@@ -331,7 +332,8 @@
 ;;;======================
 (defclass 3D-sphere (om-3D-object) 
   ((center :accessor center :initarg :center :initform '(0 0 0))
-   (radius :accessor radius :initarg :radius :initform 1.0)))
+   (radius :accessor radius :initarg :radius :initform 1.0)
+   (color :accessor color :initarg :color :initform nil)))
 
 
 (defmethod initialize-instance :after ((self 3D-sphere) &rest initargs)
