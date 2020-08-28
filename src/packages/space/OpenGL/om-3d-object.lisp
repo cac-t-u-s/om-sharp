@@ -330,8 +330,8 @@
 ;;; SPHERE
 ;;;======================
 (defclass 3D-sphere (om-3D-object) 
-  ((center :accessor center :initarg :center :initform nil)
-   (radius :accessor radius :initarg :radius :initform nil)))
+  ((center :accessor center :initarg :center :initform '(0 0 0))
+   (radius :accessor radius :initarg :radius :initform 1.0)))
 
 
 (defmethod initialize-instance :after ((self 3D-sphere) &rest initargs)
