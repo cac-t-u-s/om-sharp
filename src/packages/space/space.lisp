@@ -42,7 +42,7 @@
 (omNG-make-package 
  "3D"
  :container-pack (get-subpackage *om-package-tree* "Basic Tools")
- :classes '(3DC 3D-viewer)
+ :classes '(3DC 3D-model)
  :functions '())
 
 (omNG-make-package 

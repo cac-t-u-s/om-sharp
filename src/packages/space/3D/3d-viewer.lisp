@@ -18,7 +18,7 @@
 
 (in-package :om)
 
-(defclass* 3D-viewer ()
+(defclass* 3d-model ()
   ((data :initarg :data :accessor data :initform nil 
          :documentation "a list of 3D-object (3D-lines, etc..)")
    (scaler-x :accessor scaler-x :initform 1 :documentation "a scaler for the viewer's 'x' axis")
@@ -32,7 +32,7 @@
    ))
 
 #|
-(defmethod get-properties-list ((self 3D-viewer))
+(defmethod get-properties-list ((self 3d-model))
   '((""
      (:scaler-x "x scale factor" :number scaler-x (.001 1000.0 1))
      (:scaler-y "y scale factor" :number scaler-y (.001 1000.0 1))
@@ -46,14 +46,14 @@
 |#
 
   
-(defmethod additional-box-attributes ((self 3D-viewer)) 
+(defmethod additional-box-attributes ((self 3d-model)) 
   '((:x-grid "the x-range of the grid displayed in the viewer" nil)
     (:y-grid "the y-range of the grid displayed in the viewer" nil)))
 
-(defmethod additional-class-attributes ((self 3D-viewer)) 
+(defmethod additional-class-attributes ((self 3d-model)) 
   '(scaler-x scaler-y scaler-z center rotation-x rotation-y rotation-z))
 
-(defmethod om-init-instance ((self 3D-viewer) &optional initargs)
+(defmethod om-init-instance ((self 3d-model) &optional initargs)
   (let ((c (find-value-in-kv-list initargs :center)))
     (when c (setf (center self) (copy-list c)))
     (when(data self)
@@ -73,10 +73,10 @@
     self))
       
 ;;; called from the editor only
-(defmethod init-state ((3DV 3D-viewer))
-  (setf (rotation-x 3DV) 0
-        (rotation-y 3DV) 0
-        (rotation-z 3DV) 0))
+(defmethod init-state ((3dm 3d-model))
+  (setf (rotation-x 3dm) 0
+        (rotation-y 3dm) 0
+        (rotation-z 3dm) 0))
 
 ;;; destructive
 ;;; does not modify interal glpoints
@@ -95,7 +95,7 @@
   self)
 
 
-(defmethod get-transformed-data ((self 3D-viewer))  
+(defmethod get-transformed-data ((self 3d-model))  
 
   (loop for obj in (data self) collect    
         
@@ -188,10 +188,10 @@
 ;;; EDITOR
 ;;;=======================================
 
-(defmethod object-has-editor ((self 3D-viewer)) t)
-(defmethod get-editor-class ((self 3D-viewer)) '3D-viewer-editor)
+(defmethod object-has-editor ((self 3d-model)) t)
+(defmethod get-editor-class ((self 3d-model)) '3d-model-editor)
 
-(defmethod object-default-edition-params ((self 3D-viewer))
+(defmethod object-default-edition-params ((self 3d-model))
   `((:x-grid :auto)
     (:y-grid :auto)
     (:shift-x-edit-mode :z)
@@ -203,14 +203,14 @@
     (:3D-bg-color ,(om-make-color .1 .2 .2))
     ))
 
-(defclass 3d-viewer-editor (OMEditor) 
+(defclass 3d-model-editor (OMEditor) 
   ((x-grid :accessor x-grid :initform nil) ;; x-grid and y-grid can be the same as the editor's edit param, or they can be computed automatically
    (y-grid :accessor y-grid :initform nil)))
 
-(defclass 3D-viewer-view (OMEditorView om-opengl-view) 
+(defclass 3d-model-view (OMEditorView om-opengl-view) 
   ((viewpoint :accessor viewpoint :initform '(0.0d0 0.0d0 0.0d0) :documentation "x-y-z axis rotation angles")))
 
-(defmethod init-grid ((editor 3d-viewer-editor))
+(defmethod init-grid ((editor 3d-model-editor))
   (when (data (object-value editor))
     (multiple-value-bind (xmi xma ymi yma zmi zma)
         ;; the data is scaled here. the grid must not
@@ -231,7 +231,7 @@
     (editor-set-edit-param editor :y-grid (y-grid editor))
     ))
 
-(defmethod set-x-grid ((editor 3d-viewer-editor) values)
+(defmethod set-x-grid ((editor 3d-model-editor) values)
 
   (setf (x-grid editor) values)
   
@@ -249,7 +249,7 @@
   
   values)
 
-(defmethod set-y-grid ((editor 3d-viewer-editor) values)
+(defmethod set-y-grid ((editor 3d-model-editor) values)
   (setf (y-grid editor) values)
   
   (when (get-g-component editor :y-grid-min-numbox)
@@ -266,7 +266,7 @@
   
   values)
 
-(defmethod update-lines ((ed 3D-viewer-editor)) 
+(defmethod update-lines ((ed 3d-model-editor)) 
   (let ((3D-view (get-g-component ed :3d-view)))
     (loop for line in (get-transformed-data (object-value ed))
           for 3dobj in (om-get-gl-objects 3d-view) 
@@ -284,7 +284,7 @@
     ))
 
 
-(defmethod update-g-components ((ed 3D-viewer-editor))
+(defmethod update-g-components ((ed 3d-model-editor))
   (let ((3DV (object-value ed)))
     (set-value (get-g-component ed :center-x-numbox) (car (center 3DV)))
     (set-value (get-g-component ed :center-y-numbox) (cadr (center 3DV)))
@@ -297,14 +297,14 @@
     ))
 
 
-(defmethod set-rotation-param-from-editor ((editor 3d-viewer-editor) object-slot value)
+(defmethod set-rotation-param-from-editor ((editor 3d-model-editor) object-slot value)
   (setf (slot-value (object-value editor) object-slot) value)
   (update-from-editor (object editor) :reactive nil)
   (when (editor-get-edit-param editor :filter-off-grid)
     (update-lines editor)))
 
     
-(defmethod set-3D-viewer-controls-from-object ((editor 3d-viewer-editor))
+(defmethod set-3d-model-controls-from-object ((editor 3d-model-editor))
   
   (let ((obj (object-value editor)))
     
@@ -320,7 +320,7 @@
 
     ))
 
-(defmethod set-bg-color ((editor 3d-viewer-editor))
+(defmethod set-bg-color ((editor 3d-model-editor))
   (let ((new-color (om-choose-color-dialog :color (editor-get-edit-param editor :3D-bg-color)
                                            :owner (window editor))))
     (when new-color
@@ -330,7 +330,7 @@
       )))
                                                   
 
-(defmethod make-editor-window-contents ((editor 3d-viewer-editor))
+(defmethod make-editor-window-contents ((editor 3d-model-editor))
   (let ((obj (object-value editor)))
     
     (set-g-component editor :center-x-numbox
@@ -613,7 +613,7 @@
            ))
 
       (set-g-component editor :3D-view 
-                       (om-make-view '3D-viewer-view
+                       (om-make-view '3d-model-view
                                      :editor editor
                                      :bg-color (editor-get-edit-param editor :3D-bg-color)))
      
@@ -633,7 +633,7 @@
 
 
 
-(defmethod update-3D-contents ((editor 3d-viewer-editor))
+(defmethod update-3D-contents ((editor 3d-model-editor))
   (let ((obj (object-value editor))
         (3D-view (get-g-component editor :3D-view)))
     ;;; works better if the objects are set after everything is on-screen
@@ -649,7 +649,7 @@
      (init-grid editor) 
     ))
 
-(defmethod init-editor-window ((editor 3d-viewer-editor))
+(defmethod init-editor-window ((editor 3d-model-editor))
   (call-next-method)
   (let ((3D-view (get-g-component editor :3D-view)))
     (update-3D-contents editor)
@@ -657,18 +657,18 @@
     (om-invalidate-view 3D-view)))
 
    
-(defmethod update-to-editor ((editor 3d-viewer-editor) (from OMBox))
+(defmethod update-to-editor ((editor 3d-model-editor) (from OMBox))
   (when (window editor)
-    (set-3D-viewer-controls-from-object editor)
+    (set-3d-model-controls-from-object editor)
     (let ((3D-view (get-g-component editor :3D-view)))
       (update-3D-contents editor)
       (gl-user::clear-gl-display-list 3D-view)
       (om-invalidate-view 3D-view)
       )))
 
-(defmethod update-to-editor ((editor 3d-viewer-editor) (from t))
+(defmethod update-to-editor ((editor 3d-model-editor) (from t))
   (when (window editor)
-    (set-3D-viewer-controls-from-object editor)
+    (set-3d-model-controls-from-object editor)
     (let ((3D-view (get-g-component editor :3D-view)))
       (update-3D-contents editor)
       (gl-user::clear-gl-display-list 3D-view)
@@ -680,18 +680,18 @@
 ;;; BOX
 ;;;========================
 
-(defmethod display-modes-for-object ((self 3D-viewer))
+(defmethod display-modes-for-object ((self 3d-model))
   '(:mini-view :text :hidden))
 
 
-(defmethod get-cache-display-for-draw ((self 3D-viewer) box)
+(defmethod get-cache-display-for-draw ((self 3d-model) box)
   (declare (ignore box))
   (when (data self)
     (multiple-value-bind (xmi xma ymi yma zmi zma) 
         (get-extents (data self))
       (list (list xmi xma ymi yma zmi zma)))))
 
-(defmethod draw-mini-view ((self 3D-viewer) (box t) x y w h &optional time)
+(defmethod draw-mini-view ((self 3d-model) (box t) x y w h &optional time)
   (when(data self)
     (let ((ranges (car (get-display-draw box))))
     (multiple-value-bind (fx ox) 
@@ -752,7 +752,7 @@
     ))
 
 
-(defmethod om-draw-contents ((self 3d-viewer-view))
+(defmethod om-draw-contents ((self 3d-model-view))
 
   (let* ((ed (editor self))
          (3DV (object-value ed)))
@@ -791,7 +791,7 @@
 
     ))
 
-(defmethod om-adapt-camera-to-object ((self 3d-viewer-view))
+(defmethod om-adapt-camera-to-object ((self 3d-model-view))
   (when (om-get-gl-objects self)
     (multiple-value-bind (xmi xma ymi yma zmi zma)
       (get-extents (om-get-gl-objects self))
@@ -807,7 +807,7 @@
     (setf (gl-user::far (gl-user::projection (gl-user::camera self))) far-z)))))
 
 
-(defmethod om-view-key-handler ((self 3d-viewer-view) key) 
+(defmethod om-view-key-handler ((self 3d-model-view) key) 
   (let* ((ed (editor self))
          (3DV (object-value ed)))
     (case key
@@ -875,7 +875,7 @@
 
 
 
-(defmethod gl-user::opengl-viewer-motion-click ((self 3d-viewer-view) x y) 
+(defmethod gl-user::opengl-viewer-motion-click ((self 3d-model-view) x y) 
   (let ((last (gl-user::lastxy self)))
     (when last
       (setf (car (viewpoint self)) (mod (+ (car (viewpoint self)) (- x (car last))) 3600))
@@ -887,7 +887,7 @@
       (setf (gl-user::lastxy self) (cons x y)))))
 
 
-(defmethod gl-user::opengl-viewer-motion-shift-click ((self 3d-viewer-view) x y) 
+(defmethod gl-user::opengl-viewer-motion-shift-click ((self 3d-model-view) x y) 
   (let* ((last (gl-user::lastxy self))
         (ed (editor self))
         (3DV (object-value ed))
@@ -915,7 +915,7 @@
    (setf (gl-user::lastxy self) (cons x y))))
 
 
-(defmethod gl-user::opengl-viewer-motion-alt-click ((self 3d-viewer-view) x y) 
+(defmethod gl-user::opengl-viewer-motion-alt-click ((self 3d-model-view) x y) 
   (let* ((last (gl-user::lastxy self))
          (ed (editor self))
          (3DV (object-value ed))
