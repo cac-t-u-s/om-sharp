@@ -331,7 +331,7 @@
 ;;;======================
 (defclass 3D-sphere (om-3D-object) 
   ((center :accessor center :initarg :center :initform nil)
-   (size :accessor size :initarg :size :initform nil)))
+   (radius :accessor radius :initarg :radius :initform nil)))
 
 
 (defmethod initialize-instance :after ((self 3D-sphere) &rest initargs)
@@ -345,7 +345,7 @@
       (let ((col (om-color-to-single-float-list (om-3Dobj-color self))))
         (opengl:gl-color4-f (car col) (cadr col) (caddr col) (cadddr col))))
   (opengl:gl-shade-model opengl:*gl-smooth*)
-  (draw-sphere (center self) (/ (size self) 2.0)))
+  (draw-sphere (center self) (radius self)))
 
 ;;;======================
 ;;; 3D-curve
