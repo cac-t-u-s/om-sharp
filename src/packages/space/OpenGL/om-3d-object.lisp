@@ -157,8 +157,8 @@
   (opengl:gl-end))
 
 
-(defun draw-sphere (position size)
-  (let* ((hs (coerce (/ size 2) 'double-float))
+(defun draw-sphere (position radius)
+  (let* ((r (coerce radius 'double-float))
          (x (float (car position)))
          (y (float (cadr position)))
          (z (float (caddr position)))
@@ -166,7 +166,7 @@
     (opengl:gl-push-matrix) 
     (opengl:gl-translatef x y z)
     (opengl:glu-quadric-draw-style glu-quad GLU_FILL)
-    (opengl:glu-sphere glu-quad hs 20 20)
+    (opengl:glu-sphere glu-quad r 20 20)
     (opengl:gl-pop-matrix)
     ))
 
@@ -345,7 +345,7 @@
       (let ((col (om-color-to-single-float-list (om-3Dobj-color self))))
         (opengl:gl-color4-f (car col) (cadr col) (caddr col) (cadddr col))))
   (opengl:gl-shade-model opengl:*gl-smooth*)
-  (draw-sphere (center self) (size self)))
+  (draw-sphere (center self) (/ (size self) 2.0)))
 
 ;;;======================
 ;;; 3D-curve

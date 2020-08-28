@@ -718,7 +718,7 @@
         (opengl:gl-color4-f 1.0 0.1 0.1 1.0)
       (opengl:gl-color4-f 0.1 1.0 0.1 1.0))
     (draw-sphere (cursor-position (osc-manager self)) 
-                 (* (editor-get-edit-param self :line-width) 0.04))
+                 (* (editor-get-edit-param self :line-width) 0.02))
     (restore-om-gl-colors-and-attributes)))
 
 
@@ -732,7 +732,7 @@
               (opengl:gl-color3-f (coerce (om-color-r c) 'single-float) 
                                   (coerce (om-color-g c) 'single-float) 
                                   (coerce (om-color-b c) 'single-float)))
-            (draw-sphere (point-to-list point) (* (editor-get-edit-param self :line-width) 0.06))
+            (draw-sphere (point-to-list point) (* (editor-get-edit-param self :line-width) 0.03))
             )))
   (restore-om-gl-colors-and-attributes))
  
