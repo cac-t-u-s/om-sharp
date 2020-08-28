@@ -35,7 +35,7 @@
 (compile&load (om-relative-path '("utils") "osc-manager"))
 
 ;;; Require OpenGL interface
-(compile&load (om-relative-path '("3D") "3d-viewer"))
+(compile&load (om-relative-path '("3D") "3d-model"))
 (compile&load (om-relative-path '("3D") "3dc-editor"))
 
 
