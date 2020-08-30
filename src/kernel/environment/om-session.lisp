@@ -65,14 +65,14 @@
 ;;; reads one preference in the preference file
 (defmethod read-om-preference (key)
   (let* ((path (om-preference-file))
-         (pref-list (and (file-exist-p path)
+         (pref-list (and (file-exists-p path)
                        (list-from-file path))))
     (find-values-in-prop-list pref-list key)))
     
 ;;; read and loads the main prefs for a session
 (defmethod load-om-preferences ()
   (let* ((path (om-preference-file))
-         (pr-list (and (file-exist-p path)
+         (pr-list (and (file-exists-p path)
                        (list-from-file path))))
     
     (setq *om-recent-files* (omng-load (find-value-in-kv-list pr-list :recent-files)))

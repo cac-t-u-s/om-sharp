@@ -1399,7 +1399,7 @@
 ;;; SDIFFILE
 (defmethod load-sdif-file ((path pathname))
   (let ((sdiff (make-instance 'SDIFFILE))
-        (filepath (or (file-exist-p path)
+        (filepath (or (file-exists-p path)
                       (search-for-resource path))))
     (setf (file-pathname sdiff) filepath)
     (om-init-instance sdiff)))
@@ -1407,7 +1407,7 @@
 ;;; SOUND
 (defun load-sound (path &optional track vol pan)
   (declare (ignore track vol pan))
-  (let ((filepath (or (file-exist-p path)
+  (let ((filepath (or (file-exists-p path)
                       (search-for-resource path))))
     (get-sound filepath)))
 

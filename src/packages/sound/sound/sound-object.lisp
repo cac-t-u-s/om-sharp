@@ -455,7 +455,7 @@ Press 'space' to play/stop the sound file.
   (if (access-from-file self)
         
       (if (and (valid-pathname-p (file-pathname self)) 
-               (file-exist-p (file-pathname self)))
+               (file-exists-p (file-pathname self)))
             
           ;; We want to keep working with this file (and no buffer)
           (if (buffer self)

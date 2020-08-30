@@ -491,7 +491,7 @@ table, td {
                        (om-relative-path '("icons") (format nil "~A.png" (icon object)) 
                                          (lib-resources-folder (find-library (library object))))
                      (om-relative-path '("icons" "boxes") (format nil "~A.png" (icon object)) (om-resources-folder)))))))
-        (when (file-exist-p iconfile)
+        (when (file-exists-p iconfile)
           (write-line (concatenate 'string "<img src=" (namestring iconfile) " align=\"right\" width=60>") index)
           ))
       

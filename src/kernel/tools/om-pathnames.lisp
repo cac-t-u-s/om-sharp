@@ -22,7 +22,7 @@
 (in-package :om)
 
 ;;; check file exist + path = non-nil
-(defun file-exist-p (path)
+(defun file-exists-p (path)
   (and path (probe-file path)))
 
 (defun valid-pathname-p (path)
@@ -30,7 +30,7 @@
 
 ;;; test if pathname is has extension <type>
 (defun file-type-p (path type)
-  (and (file-exist-p path)
+  (and (file-exists-p path)
        (pathname-type path) (stringp (pathname-type path))
        (string-equal (pathname-type path) type)))
 
