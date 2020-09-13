@@ -38,8 +38,13 @@
 ;;; READ...
 ;;;============================================
 
-;;; GetSDIFFrames will handle the dispatch wrt. type of self
-(defmethod chord-seq-raw-data ((self t) &optional (stream nil))
+(defmethod* GetSDIFPartials ((self t) &optional (stream nil))
+  :indoc '("an SDIF file")
+  :icon :sdif
+  :doc "Return a list of partial structures from an sdif file (using 1TRC or 1MRK frames)
+
+<stream> selects a specific SDIF stream (usually corresponding to a channel in audio analysis files.
+"
   (let ((frames (GetSDIFFrames self :sid stream))
         (mrk-partials (make-hash-table))
         (trc-partials (make-hash-table))
@@ -119,14 +124,17 @@
     ))
 
 
-(defmethod* GetSDIFPartials ((self t) &optional (stream nil))
-   :indoc '("an SDIF file")
-   :icon :sdif
-   :doc "Return a list of partial structures from an sdif file (using 1TRC or 1MRK frames)
-
-<stream> selects a specific SDIF stream (usually corresponding to a channel in audio analysis files.
-"
-   (chord-seq-raw-data self stream))
+;;; GetSDIFFrames will handle the dispatch wrt. type of self
+(defmethod chord-seq-raw-data ((self t) &optional (stream nil))
+  (loop for partial in (GetSDIFPartials self stream)
+        collect (remove nil ;;; in case there is no phase
+                        (list 
+                         (partial-t-list partial)
+                         (partial-f-list partial)
+                         (partial-a-list partial)
+                         (partial-ph-list partial)
+                         ))))
+                         
 
 
 (defmethod* GetSDIFChords ((self t) &optional (stream nil))
@@ -144,7 +152,7 @@ Chords are formatted as (pitch [Hz]  onset [s]  duration [s]  velocity [lin]).
                  (list (om-mean (partial-f-list p)) 
                        t1 (- t2 t1)
                        (om-mean (partial-a-list p)))))
-           (chord-seq-raw-data self stream)))
+           (GetSDIFPartials self stream)))
                    
    
 (defmethod* SDIF->chord-seq ((self t) &optional (stream nil))
