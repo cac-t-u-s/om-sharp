@@ -57,6 +57,9 @@
   (let ((c (find-value-in-kv-list initargs :center)))
     (when c (setf (center self) (copy-list c)))
     (when (data self)
+      
+      (setf (data self) (format-3D-objects (data self)))
+      
       (multiple-value-bind (xmi xma ymi yma zmi zma)
           (get-extents (data self))
         (let ((scaled-ref 100))
@@ -72,6 +75,24 @@
           )))
     self))
       
+
+(defun format-3D-objects (list)
+  (remove nil
+          (loop for item in list collect 
+                (cond 
+                 ((subtypep (type-of item) 'om-3d-object) item)
+                 ((and (consp item) (list-subtypep item 'cons))
+                  (make-instance '3D-lines 
+                                 :points (loop for p in item
+                                               collect (list 
+                                                        (coerce (nth 0 p) 'single-float)
+                                                        (coerce (nth 1 p) 'single-float)
+                                                        (coerce (nth 2 p) 'single-float)))
+                                 :color (om-random-color)))
+                 (t (om-beep-msg "Wrong object for 3D-model: ~A" (type-of item))))
+                )))
+
+
 ;;; called from the editor only
 (defmethod init-state ((3dm 3d-model))
   (setf (rotation-x 3dm) 0
