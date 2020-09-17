@@ -405,7 +405,7 @@
                                       *app-name* *version-string* *release-date*)
                         :size (omp 200 40)
                         ))
-      :close-callback #'(lambda (win) (setf *about-window* nil))
+      :close-callback #'(lambda (win) (declare (ignore win)) nil)
       ))
     ))
 
