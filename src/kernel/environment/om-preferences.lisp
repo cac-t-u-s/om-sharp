@@ -150,6 +150,7 @@
           )
     ))
 
+
 ;;;======================================================
 ;;; GET THE PREFERENCE VALUES
 (defun get-pref-in-module (module pref-id)
@@ -171,7 +172,6 @@
         when (or (not pref-module-id) (equal pref-module-id (pref-module-id module)))
         do (loop for pref in (pref-module-items module) do
                  (put-default-value pref t))))
-
 
 
 ;;;======================================================  
@@ -256,12 +256,14 @@
  '(:listener-on-top 
    :listener-input 
    :listener-font 
-   :textedit-font 
    :print-system-output 
    :om-swank-server 
    :listener-in-tty
    ))
 
+(add-preference-section 
+ :general "Programming" nil
+ '(:textedit-font :user-code))
 
 
 

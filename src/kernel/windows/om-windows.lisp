@@ -322,10 +322,8 @@
        ))))
 
       
-
-;(add-preference-section :appearance "Lisp")
 (add-preference :general :listener-font "Listener font" :font om-lisp::*default-listener-font* nil 'set-listener-font)
-(add-preference :general :textedit-font "Text editors font" :font om-lisp::*text-editor-font* nil 'set-text-editor-font)
+
 
 (defun set-listener-font ()
   (om-lisp::om-set-listener-font (get-pref-value :general :listener-font)))
@@ -357,6 +355,8 @@
 
 (defun show-shell () (om-lisp::om-open-shell)) 
 
+
+(add-preference :general :textedit-font "Text editors font" :font om-lisp::*text-editor-font* nil 'set-text-editor-font)
 
 (add-preference :general :user-code "User code folder" :folder nil
                 '("A folder containing Lisp files loaded at startup." "Restart OM# to reload full contents."))
