@@ -358,6 +358,9 @@
 (defun show-shell () (om-lisp::om-open-shell)) 
 
 
+(add-preference :general :user-code "User code folder" :folder nil
+                '("A folder containing Lisp files loaded at startup." "Restart OM# to reload full contents."))
+
 
 ;=======================
 ; Print messages

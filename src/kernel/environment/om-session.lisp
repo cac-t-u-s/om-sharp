@@ -125,6 +125,23 @@
         ))))
 
 
+(defun load-code-in-folder (folder &optional (recursive t))
+  (let ((*load-verbose* t))
+    (mapc #'(lambda (file)
+              (if (and recursive (om-directory-pathname-p file))
+                  (load-code-in-folder file recursive)
+                (load file :verbose t :print t)
+                ))
+          (sort (om-directory folder :type (list "lisp" (om-compiled-type)) :files t :directories t)
+                'string< :key 'pathname-name))
+    ))
+
+(defun load-user-code ()
+  (let ((user-code-folder (get-pref-value :general :user-code)))
+    (when (and user-code-folder (probe-file user-code-folder))
+      (load-code-in-folder user-code-folder))))
+
+; (load-user-code)
 
 ;;;======================================
 ;;; OM-RELATED STARTUP FUNCTIONS
@@ -242,6 +259,9 @@
   (show-main-om-window :front-tab :listener)
   (capi:execute-with-interface *om-main-window* 'eval '(in-package :om))
   (om-print-format *om-startup-string*)
+
+  (load-user-code)
+
   (setf *om-initialized* t)
   )
 
