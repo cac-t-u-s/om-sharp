@@ -334,6 +334,16 @@
                   )
 
                  (om-make-menu-item 
+                  "Create List [SHIFT+L]"
+
+                  #'(lambda () (store-current-state-for-undo self)
+                      (list-boxes self (main-view self) (get-selected-boxes self)))
+                                                      
+                  :enabled #'(lambda () (and (not (edit-lock self))
+                                             (get-selected-boxes self)))
+                  )
+
+                 (om-make-menu-item 
                   "Set Reactive [R]"
 
                   #'(lambda () (store-current-state-for-undo self)
@@ -643,6 +653,9 @@
                (store-current-state-for-undo editor)
                (unencapsulate-patchboxes editor panel selected-boxes)))
 
+        (#\L (unless (edit-lock editor) 
+               (store-current-state-for-undo editor)
+               (list-boxes editor panel selected-boxes)))
 
         (#\v (eval-command panel selected-boxes))
 
@@ -682,6 +695,7 @@
     ("A" "Internalize external patch")
     ("C" "Connect selected boxes (horizontal)")
     ("SHIFT + C" "Connect selected boxes (vertical)")
+    ("SHIFT + L" "Create a LIST box connected to the selected box(es)")
     ("Space" "Play/stop selected (playable) box(es)")
     ("H" "Print this help")
     ))
@@ -734,6 +748,27 @@
       (om-beep))
     ))
 
+
+(defmethod list-boxes ((editor patch-editor) view boxes)
+  (let ((connectable-boxes (remove-if 
+                            #'(lambda (box) 
+                                (< (length (outputs box)) 1))
+                            boxes)))
+    (when connectable-boxes
+      (let* ((pos (loop for b in connectable-boxes
+                        sum (box-x b) into sumx
+                        maximize (+ (box-y b) (box-h b)) into maxy
+                        finally return (om-make-point (floor sumx (length connectable-boxes)) (+ maxy 28))))
+             (box (omNG-make-new-boxcall (fdefinition 'list) pos (make-list (length connectable-boxes)))))
+    
+        (setf (name box) "list") 
+
+        (add-box-in-patch-editor box view)
+
+        (auto-connect-box (cons box connectable-boxes) editor view)
+        (align-selected-boxes editor)
+
+        ))))
 
 ;;;=============================
 ;;; MAKE BOXES
