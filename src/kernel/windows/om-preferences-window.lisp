@@ -34,7 +34,8 @@
                   :resizable :w
                   :bg-color (om-def-color :white)
                   :border nil
-                  :size (om-make-point (list :string (format nil "  ~A  " curr-value)) 20)
+                  :size (om-make-point (om-string-size (format nil "  ~A  " curr-value) (om-def-font :font2)) 
+                                       20)
                   :font (om-def-font :font2)
                   :after-fun #'(lambda (item)
                                  (setf (pref-item-value pref-item) (text item))
@@ -49,7 +50,8 @@
                   :resizable :w
                   :bg-color (om-def-color :white)
                   :border nil
-                  :size (om-make-point (list :string (format nil "  ~A  " curr-value)) 20)
+                  :size (om-make-point (om-string-size (format nil "  ~A  " curr-value) (om-def-font :font2)) 
+                                       20)
                   :font (om-def-font :font2)
                   :after-fun #'(lambda (item)
                                  (let ((val (om-read-list-from-string (text item))))
@@ -127,7 +129,7 @@
                                 :bg-color (om-def-color :white)
                                 :fg-color (if (probe-file curr-value) (om-def-color :black) (om-def-color :red))
                                 :border nil
-                                :size (omp (list :string (format nil "  ~A  " curr-value)) 20)
+                                :size (omp (om-string-size (format nil " ~A " curr-value) font) 20)
                                 :font font
                                 :after-fun #'(lambda (item)
                                                 (setf (pref-item-value pref-item) (pathname (text item)))
@@ -170,7 +172,7 @@
               :items type
               :resizable :w
               :value (pref-item-value pref-item)
-              :size (om-make-point (list :string (format nil "~A" (pref-item-value pref-item))) 22)
+              :size (om-make-point (om-string-size (format nil " ~A " (pref-item-value pref-item)) (om-def-font :font1)) 22)
               :font (om-def-font :font1)
               :di-action #'(lambda (item)
                              (setf (pref-item-value pref-item) (om-get-selected-item item))
@@ -214,7 +216,9 @@
                 :resizable :w
                 :focus nil :default nil
                 :text (font-to-str (pref-item-value pref-item))
-                :size (om-make-point (list :string (font-to-str (pref-item-value pref-item))) #-linux 26 #+linux 20)
+                :size (om-make-point 
+                       (om-string-size (font-to-str (pref-item-value pref-item)) (om-def-font :font1))
+                       #-linux 26 #+linux 20)
                 :font (om-def-font :font1)
                 :di-action #'(lambda (item)
                                (let ((choice (om-choose-font-dialog :font (pref-item-value pref-item))))
@@ -250,7 +254,7 @@
                 :resizable :w
                 :focus nil :default nil
                 :text buttonstr
-                :size (om-make-point (list :string buttonstr) 26)
+                :size (om-make-point (om-string-size buttonstr (om-def-font :font1)) 26)
                 :font (om-def-font :font1)
                 :di-action #'(lambda (item) 
                                (declare (ignore item)) 
@@ -284,7 +288,7 @@
                         'om-simple-text 
                         :text real-text
                         :font (om-def-font :font1)
-                        :size (om-make-point (list :string (format nil "~A" real-text))
+                        :size (om-make-point (om-string-size (format nil "~A" real-text) (om-def-font :font1))
                                              (* 14 (length (list! (pref-item-doc pref-item))))))
                        ))))
     

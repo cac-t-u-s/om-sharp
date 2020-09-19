@@ -467,21 +467,22 @@
                            (format nil "[~{~S~^ ~}]" (om-font-style font)) ""))
              "-")))
 
-    (om-make-di 'om-button 
-                :resizable nil
-                :focus nil :default nil
-                :text (font-to-str (get-property object prop-id))
-                :size (om-make-point (list :string (font-to-str (get-property object prop-id))) 26)
-                :font (om-def-font :font1 :style (and (get-property object prop-id) 
-                                                      (om-font-style (get-property object prop-id))))
-                :di-action #'(lambda (item)
-                               (let ((choice (om-choose-font-dialog :font (or (get-property object prop-id)
-                                                                              (and update (om-get-font update))))))
-                                 (when choice
-				   (om-set-dialog-item-text item (font-to-str choice))
-                                   (om-set-font item (om-def-font :font1 :style (om-font-style choice)))
-                                   (set-property object prop-id choice)
-                                   (when update (update-after-prop-edit update object))))))))
+    (let ((font (om-def-font :font1 :style (and (get-property object prop-id) 
+                                                (om-font-style (get-property object prop-id))))))
+      (om-make-di 'om-button 
+                  :resizable nil
+                  :focus nil :default nil
+                  :text (font-to-str (get-property object prop-id))
+                  :size (om-make-point (om-string-size (font-to-str (get-property object prop-id)) font) 26)
+                  :font font
+                  :di-action #'(lambda (item)
+                                 (let ((choice (om-choose-font-dialog :font (or (get-property object prop-id)
+                                                                                (and update (om-get-font update))))))
+                                   (when choice
+                                     (om-set-dialog-item-text item (font-to-str choice))
+                                     (om-set-font item (om-def-font :font1 :style (om-font-style choice)))
+                                     (set-property object prop-id choice)
+                                     (when update (update-after-prop-edit update object)))))))))
   
 
 (defmethod make-prop-item ((type (eql :font-or-nil)) prop-id object &key default update)
@@ -711,7 +712,7 @@
                                 :items print-action-list 
                                 :resizable nil
                                 :value (if (equal other-name :?) curr-fun-name (format nil "other: ~A" other-name))
-                                :size (om-make-point (list :string (format nil "~A   " curr-fun-name)) 22)
+                                :size (om-make-point (om-string-size (format nil "~A   " curr-fun-name) (om-def-font :font1)) 22)
                                 :font (om-def-font :font1)
                                 :di-action #'(lambda (list)
                                                (let* ((fun-i (om-get-selected-item-index list))

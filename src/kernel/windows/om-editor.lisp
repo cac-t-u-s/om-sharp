@@ -514,7 +514,7 @@
                       append (append 
                               (list 
                                (om-make-di 'om-simple-text :text (car category) :font (om-def-font :font2b)
-                                           :size (om-make-point (list :string (car category)) 20) 
+                                           :size (apply #'om-make-point (multiple-value-list (om-string-size (car category) (om-def-font :font2b))))
                                            :position (om-make-point 0 6))
                                )
                               (loop for prop in (cdr category) append
