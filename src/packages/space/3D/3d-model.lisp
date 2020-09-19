@@ -720,16 +720,18 @@
         (multiple-value-bind (fy oy)
             ;;; Y ranges are reversed !! 
             (conversion-factor-and-offset (cadddr ranges) (caddr ranges) h y)
-
-          (om-with-font (om-def-font :font1 :size 8)
-            (om-draw-string (+ x 10) (+ y (- h 4)) (number-to-string (nth 0 ranges)))
-            (om-draw-string (+ x (- w (om-string-size (number-to-string (nth 1 ranges))
-                                                      (om-def-font :font1 :size 8)) 4))
-                            (+ y (- h 4)) 
-                            (number-to-string (/ (nth 1 ranges) (scaler-x self))))
-            (om-draw-string x (+ y (- h 14)) (number-to-string (nth 2 ranges)))
-            (om-draw-string x (+ y 10) (number-to-string (nth 3 ranges))))
-
+          
+          (let ((font (om-def-font :font1 :size 8)))
+            (om-with-font 
+             font
+             (om-draw-string (+ x 10) (+ y (- h 4)) (number-to-string (nth 0 ranges)))
+             (om-draw-string (+ x (- w (om-string-size (number-to-string (nth 1 ranges))
+                                                       font) 4))
+                             (+ y (- h 4)) 
+                             (number-to-string (/ (nth 1 ranges) (scaler-x self))))
+             (om-draw-string x (+ y (- h 14)) (number-to-string (nth 2 ranges)))
+             (om-draw-string x (+ y 10) (number-to-string (nth 3 ranges)))))
+            
       (loop for line in (data self) do
             (when (points line) 
               (let ((lines (loop for pts on (points line)

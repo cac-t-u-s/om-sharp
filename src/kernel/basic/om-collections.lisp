@@ -264,10 +264,11 @@
  
   (let* ((collection (get-value-for-editor (object editor)))
          (text (format-current-text editor))
-         (current-text (om-make-graphic-object 
-                        'om-item-text
-                        :size (omp (om-string-size text (om-def-font :font3b)) 16) 
-                        :text text :font (om-def-font :font2b)))
+         (current-text (let ((font (om-def-font :font2b)))
+                         (om-make-graphic-object 
+                          'om-item-text
+                          :size (omp (om-string-size text font) 16) 
+                          :text text :font font)))
          (prev-button (om-make-graphic-object 
                        'om-icon-button 
                        :size (omp 16 16) :position (omp 0 0)

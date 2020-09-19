@@ -28,15 +28,16 @@
 
 ;;; general case = text box
 (defmethod make-preference-item (type pref-item)
-  (let* ((curr-value (pref-item-value pref-item)))
+  (let* ((curr-value (pref-item-value pref-item))
+         (font (om-def-font :font2)))
     (om-make-view 'click-and-edit-text 
                   :text (format nil " ~A" curr-value)
                   :resizable :w
                   :bg-color (om-def-color :white)
                   :border nil
-                  :size (om-make-point (om-string-size (format nil "  ~A  " curr-value) (om-def-font :font2)) 
+                  :size (om-make-point (om-string-size (format nil "  ~A  " curr-value) font) 
                                        20)
-                  :font (om-def-font :font2)
+                  :font font
                   :after-fun #'(lambda (item)
                                  (setf (pref-item-value pref-item) (text item))
                                  (maybe-apply-pref-item-after-fun pref-item)
@@ -44,15 +45,16 @@
 
 
 (defmethod make-preference-item ((type (eql :list)) pref-item)
-  (let* ((curr-value (pref-item-value pref-item)))
+  (let* ((curr-value (pref-item-value pref-item))
+         (font (om-def-font :font2)))
     (om-make-view 'click-and-edit-text 
                   :text (format nil " ~{~A ~}" curr-value)
                   :resizable :w
                   :bg-color (om-def-color :white)
                   :border nil
-                  :size (om-make-point (om-string-size (format nil "  ~A  " curr-value) (om-def-font :font2)) 
+                  :size (om-make-point (om-string-size (format nil "  ~A  " curr-value) font) 
                                        20)
-                  :font (om-def-font :font2)
+                  :font font
                   :after-fun #'(lambda (item)
                                  (let ((val (om-read-list-from-string (text item))))
                                    (if (listp val)
@@ -168,16 +170,18 @@
 
 
 (defmethod make-preference-item ((type cons) pref-item)
-  (om-make-di 'om-popup-list 
-              :items type
-              :resizable :w
-              :value (pref-item-value pref-item)
-              :size (om-make-point (om-string-size (format nil " ~A " (pref-item-value pref-item)) (om-def-font :font1)) 22)
-              :font (om-def-font :font1)
-              :di-action #'(lambda (item)
-                             (setf (pref-item-value pref-item) (om-get-selected-item item))
-                             (maybe-apply-pref-item-after-fun pref-item)
-                             ))) 
+  (let ((font (om-def-font :font1)))
+    (om-make-di 'om-popup-list 
+                :items type
+                :resizable :w
+                :value (pref-item-value pref-item)
+                :size (om-make-point (om-string-size (format nil " ~A " (pref-item-value pref-item)) font) 22)
+                :font font
+                :di-action #'(lambda (item)
+                               (setf (pref-item-value pref-item) (om-get-selected-item item))
+                               (maybe-apply-pref-item-after-fun pref-item)
+                               ))
+    ))
 
 
 (defmethod make-preference-item ((type number-in-range) pref-item)
@@ -212,20 +216,22 @@
                (format nil " ~A ~Dpt ~A" (om-font-face font) (round (om-font-size font)) 
                        (if (om-font-style font) (format nil "[~{~S~^ ~}]" (om-font-style font)) ""))
              "-")))
-    (om-make-di 'om-button 
-                :resizable :w
-                :focus nil :default nil
-                :text (font-to-str (pref-item-value pref-item))
-                :size (om-make-point 
-                       (om-string-size (font-to-str (pref-item-value pref-item)) (om-def-font :font1))
-                       #-linux 26 #+linux 20)
-                :font (om-def-font :font1)
-                :di-action #'(lambda (item)
-                               (let ((choice (om-choose-font-dialog :font (pref-item-value pref-item))))
-                                 (when choice
-				   (om-set-dialog-item-text item (font-to-str choice))
-                                   (setf (pref-item-value pref-item) choice)
-                                   (maybe-apply-pref-item-after-fun pref-item)))))))
+    (let ((font (om-def-font :font1)))
+      (om-make-di 'om-button 
+                  :resizable :w
+                  :focus nil :default nil
+                  :text (font-to-str (pref-item-value pref-item))
+                  :size (om-make-point 
+                         (om-string-size (font-to-str (pref-item-value pref-item)) font)
+                         #-linux 26 #+linux 20)
+                  :font font
+                  :di-action #'(lambda (item)
+                                 (let ((choice (om-choose-font-dialog :font (pref-item-value pref-item))))
+                                   (when choice
+                                     (om-set-dialog-item-text item (font-to-str choice))
+                                     (setf (pref-item-value pref-item) choice)
+                                     (maybe-apply-pref-item-after-fun pref-item)))))
+      )))
 
 (defmethod make-preference-item ((type (eql :color)) pref-item)
   (om-make-view 'color-view 
@@ -249,13 +255,14 @@
 
 
 (defmethod make-preference-item ((type (eql :action)) pref-item)
-  (let ((buttonstr "Open")) 
+  (let ((buttonstr "Open")
+        (font (om-def-font :font1)))
     (om-make-di 'om-button 
                 :resizable :w
                 :focus nil :default nil
                 :text buttonstr
-                :size (om-make-point (om-string-size buttonstr (om-def-font :font1)) 26)
-                :font (om-def-font :font1)
+                :size (om-make-point (om-string-size buttonstr font) 26)
+                :font font
                 :di-action #'(lambda (item) 
                                (declare (ignore item)) 
                                (funcall (pref-item-defval pref-item))))))
@@ -277,6 +284,8 @@
                                                      (if (equal (pref-item-type pref-item) :title) 18 14))))
 
          (g-item (make-preference-item (pref-item-type pref-item) pref-item))
+         
+         (font (om-def-font :font1))
 
          (doc-text (when (pref-item-doc pref-item)
                      (let ((real-text (if (listp (pref-item-doc pref-item))
@@ -287,8 +296,8 @@
                        (om-make-di 
                         'om-simple-text 
                         :text real-text
-                        :font (om-def-font :font1)
-                        :size (om-make-point (om-string-size (format nil "~A" real-text) (om-def-font :font1))
+                        :font font
+                        :size (om-make-point (om-string-size (format nil "~A" real-text) font)
                                              (* 14 (length (list! (pref-item-doc pref-item))))))
                        ))))
     

@@ -1632,10 +1632,11 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                                 (append 
                                  (list  ;     (car category)  ; (list (car category) (om-def-font :font1b))  ; :right-extend          
                                   (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)
-                                  (om-make-di 'om-simple-text :text (car category) :font (om-def-font :font2b)
-                                              :fg-color (om-def-color :dark-gray)
-                                              :size (om-make-point (+ 10 (om-string-size (car category) (om-def-font :font2b))) 20)
-                                              )
+                                  (let ((font (om-def-font :font2b)))
+                                    (om-make-di 'om-simple-text :text (car category) :font font
+                                                :fg-color (om-def-color :dark-gray)
+                                                :size (om-make-point (+ 10 (om-string-size (car category) font)) 20)
+                                                ))
                                   )
                                  (loop for prop in (cdr category) append
                                        (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font (om-def-font :font1)

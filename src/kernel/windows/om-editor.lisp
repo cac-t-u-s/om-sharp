@@ -513,9 +513,10 @@
       :subviews (loop for category in (get-properties-list object)
                       append (append 
                               (list 
-                               (om-make-di 'om-simple-text :text (car category) :font (om-def-font :font2b)
-                                           :size (apply #'om-make-point (multiple-value-list (om-string-size (car category) (om-def-font :font2b))))
-                                           :position (om-make-point 0 6))
+                               (let ((font (om-def-font :font2b)))
+                                 (om-make-di 'om-simple-text :text (car category) :font font
+                                             :size (apply #'om-make-point (multiple-value-list (om-string-size (car category) font)))
+                                             :position (om-make-point 0 6)))
                                )
                               (loop for prop in (cdr category) append
                                     (list (om-make-di 'om-simple-text :text (nth 1 prop) :font (om-def-font :font1b)

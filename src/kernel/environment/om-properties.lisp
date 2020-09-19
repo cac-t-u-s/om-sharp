@@ -318,7 +318,8 @@
 ;;;====================================
 ;;; if the list contains :default, that leaves the possibility to check/unceck and activate or not the menu
 (defmethod make-prop-item ((type cons) prop-id object &key default update)
-  (let ((popup (om-make-di 'om-popup-list 
+  (let* ((font (om-def-font :font1))
+         (popup (om-make-di 'om-popup-list 
                            :items (remove :default type) 
                            :resizable nil
                            :enabled (and (valid-property-p object prop-id) 
@@ -327,9 +328,9 @@
                                       (get-default-value default))
                            :size (om-make-point
                                   (+ #+cocoa 40 #-cocoa 30
-				     (list-max (mapcar #'(lambda (x) (om-string-size (format nil "~A" x) (om-def-font :font1))) type)))
+				     (list-max (mapcar #'(lambda (x) (om-string-size (format nil "~A" x) font)) type)))
                                   22)
-                           :font (om-def-font :font1)
+                           :font font
                            :di-action #'(lambda (item)
                                           (set-property object prop-id (om-get-selected-item item))
                                           (when update (update-after-prop-edit update object))
@@ -503,6 +504,7 @@
                          (if (font-? (get-property object prop-id)) 
                              (font-font (get-property object prop-id))
                            (get-default-value def))))
+           (font (om-def-font :font1 :style (om-font-style (font-font current))))
            fontbutton checkbox)
 
       (setf fontbutton
@@ -514,10 +516,9 @@
                                      (font-? (get-property object prop-id)))
                         :focus nil :default nil
                         :text (font-to-str (font-font current))
-			:size (om-make-point (+ 40 (om-string-size (font-to-str (font-font current))
-                                                             (om-def-font :font1 :style (om-font-style (font-font current)))))
+			:size (om-make-point (+ 40 (om-string-size (font-to-str (font-font current)) font))
                                              #+cocoa 26 #-cocoa nil)
-			:font (om-def-font :font1 :style (om-font-style (font-font current)))
+			:font font
                         :di-action #'(lambda (item)
                                        (let ((choice (om-choose-font-dialog 
                                                       :font (or (font-font (get-property object prop-id))
@@ -568,6 +569,7 @@
   (declare (ignore default))
 
   (let* ((path (get-property object prop-id))
+         (font (om-def-font :font1))
          (textview (om-make-view 'click-and-edit-text 
                                  :enabled (get-property object prop-id) ;; it can happen that the value is NIL, e.g. in multiple-selection
                                  :text (if (get-property object prop-id)
@@ -581,10 +583,10 @@
                                                  (om-def-color :red))
                                              (om-def-color :gray))
                                  :border nil 
-                                 :font (om-def-font :font1)
+                                 :font font
                                  :wrap-lines t
                                  :size (if path (multiple-value-bind (w h) 
-                                                    (om-string-size (format nil "~A" path) (om-def-font :font1))
+                                                    (om-string-size (format nil "~A" path) font)
                                                   (om-make-point
                                                    140
                                                    (* h (1+ (ceiling w 140)))
@@ -705,9 +707,10 @@
            (def-action-list (get-def-action-list object))
            (print-action-list (append '(nil) def-action-list (list (format nil "other: ~A" other-name))))
            (layout (om-make-layout 'om-row-layout :delta nil))
+           (font (om-def-font :font1))
            (b (om-make-di 'om-button 
                           :resizable nil :focus nil :default nil
-                          :text "..." :size (om-make-point 40 24) :font (om-def-font :font1)
+                          :text "..." :size (om-make-point 40 24) :font font
                           :di-action #'(lambda (b) 
                                          (declare (ignore b)) 
                                          (action-set-params object))))
@@ -715,8 +718,8 @@
                                 :items print-action-list 
                                 :resizable nil
                                 :value (if (equal other-name :?) curr-fun-name (format nil "other: ~A" other-name))
-                                :size (om-make-point (om-string-size (format nil "~A   " curr-fun-name) (om-def-font :font1)) 22)
-                                :font (om-def-font :font1)
+                                :size (om-make-point (om-string-size (format nil "~A   " curr-fun-name) font) 22)
+                                :font font
                                 :di-action #'(lambda (list)
                                                (let* ((fun-i (om-get-selected-item-index list))
                                                       (fun 

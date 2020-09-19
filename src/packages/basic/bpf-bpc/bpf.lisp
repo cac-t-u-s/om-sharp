@@ -489,7 +489,8 @@
          (ranges (car display-cache))
          (x-range (list (nth 0 ranges) (nth 1 ranges)))
          (y-range (list (or (get-edit-param box :display-min) (nth 2 ranges))
-                        (or (get-edit-param box :display-max) (nth 3 ranges)))))
+                        (or (get-edit-param box :display-max) (nth 3 ranges))))
+         (font (om-def-font :font1 :size 8)))
     
     (draw-bpf-points-in-rect (cadr display-cache)
                              (color self) 
@@ -498,9 +499,9 @@
                              ;x (+ y 10) w (- h 20)
                              (get-edit-param box :draw-style))
 
-    (om-with-font (om-def-font :font1 :size 8)
+    (om-with-font font
                         (om-draw-string (+ x 10) (+ y (- h 4)) (number-to-string (nth 0 x-range)))
-                        (om-draw-string (+ x (- w (om-string-size (number-to-string (nth 1 x-range)) (om-def-font :font1 :size 8)) 4))
+                        (om-draw-string (+ x (- w (om-string-size (number-to-string (nth 1 x-range)) font) 4))
                                         (+ y (- h 4)) 
                                         (number-to-string (nth 1 ranges)))
                         (om-draw-string x (+ y (- h 14)) (number-to-string (nth 0 y-range)))
@@ -668,6 +669,7 @@
          (let* ((n-bpfs (length list))
                 (max-n 40) ;;; LIMIT TO .... ?
                 (step (max 1 (floor n-bpfs max-n))))
+
            (loop for i from 0 to (1- n-bpfs) by step
                  do (draw-bpf-points-in-rect
                      (nth i bpf-points-list)
@@ -677,17 +679,19 @@
                      :lines-only)
                  ))
          
-         (om-with-font (om-def-font :font1 :size 8)
-                       (om-draw-string (+ x 10) (+ y (- h 4)) (number-to-string (nth 0 ranges)))
-                       (om-draw-string (+ x (- w (om-string-size (number-to-string (nth 1 ranges)) (om-def-font :font1 :size 8)) 4))
-                                       (+ y (- h 4)) 
-                                       (number-to-string (nth 1 ranges)))
-                       (om-draw-string x (+ y (- h 14)) (number-to-string (nth 2 ranges)))
-                       (om-draw-string x (+ y 10) (number-to-string (nth 3 ranges)))
-                       )
+         (let ((font (om-def-font :font1 :size 8)))
+           (om-with-font font
+                         (om-draw-string (+ x 10) (+ y (- h 4)) (number-to-string (nth 0 ranges)))
+                         (om-draw-string (+ x (- w (om-string-size (number-to-string (nth 1 ranges)) font) 4))
+                                         (+ y (- h 4)) 
+                                         (number-to-string (nth 1 ranges)))
+                         (om-draw-string x (+ y (- h 14)) (number-to-string (nth 2 ranges)))
+                         (om-draw-string x (+ y 10) (number-to-string (nth 3 ranges)))
+                         )
+           )
          )
      
-       (call-next-method))
+     (call-next-method))
    )
 
 
