@@ -286,7 +286,7 @@
 (defmethod om-lisp::om-listener-window-menus ((self om-lisp::om-listener))
   (om-menu-items self))
 
-(add-preference :general :listener-on-top "Keep Listener in Front" :bool nil "Does not apply to the current Listener window" 'restart-listener)
+(add-preference :general :listener-on-top "Keep Listener in Front" :bool nil nil 'restart-listener)
 (add-preference :general :listener-input "Enable Listener Input" :bool nil "Allows you to type Lisp commands in the Listener window" 'restart-listener)
 
 (defun restart-listener ()
