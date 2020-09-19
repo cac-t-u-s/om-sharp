@@ -48,9 +48,12 @@
 (add-preference :files :file-exists-ation "If Output File Exists..." '(replace auto-rename) 'replace)
 
 (add-preference-section :files "Search path" 
-                        '("= where to find embedded patch abstractions when loading patches." "Empty/NIL means pathname search is relative to the top-level patch."))
+                        '("Search paths are used to find embedded sub-patches / abstractions when loading patches." "Empty/NIL means that the search is only relative to the top-level patch."))
 (add-preference :files :search-path "Main search folder" :folder nil)
-(add-preference :files :search-path-rec "Recursive" :bool t "(= also search in sub-folders)")
+(add-preference :files :search-path-2 "Search folder #2" :folder nil)
+(add-preference :files :search-path-3 "Search folder #3" :folder nil)
+(add-preference :files :search-path-4 "Search folder #4" :folder nil)
+(add-preference :files :search-path-rec "Recursive" :bool t "(search in sub-folders)")
 
 
 ;;;===================================
@@ -155,21 +158,30 @@ Ex. (tmpfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/
 ;;;===================================
 ;;; SEARCH PATH
 ;;;===================================
+(defun search-in-search-path (path folder)
+  (and folder 
+       (find-file-in-folder (pathname-name path) folder 
+                            :type (pathname-type path) 
+                            :recursive (get-pref-value :files :search-path-rec) 
+                            :return-all t)))
+
 (defun check-path-using-search-path (path)
       
   (or (probe-file path)
   
-      (when (get-pref-value :files :search-path)
+      (let ((found-matches (append 
+                            (search-in-search-path path (get-pref-value :files :search-path))
+                            (search-in-search-path path (get-pref-value :files :search-path-2))
+                            (search-in-search-path path (get-pref-value :files :search-path-3))
+                            (search-in-search-path path (get-pref-value :files :search-path-4))
+                            )))
+          
+        (when (> (length found-matches) 1)
+          (om-beep-msg "Warning: several candidates were found in the search path folder for file ~A.~A !!" (pathname-name path) (pathname-type path)))
         
-        (let ((found-matches (find-file-in-folder (pathname-name path) (get-pref-value :files :search-path) 
-                                                  :type (pathname-type path) :recursive (get-pref-value :files :search-path-rec) :return-all t)))
-          
-          (when (> (length found-matches) 1)
-            (om-beep-msg "Warning: several candidates were found in the search path folder for file ~A.~A !!" (pathname-name path) (pathname-type path)))
-          
-          (car found-matches)
-          ))
-      ))
+        (car found-matches)
+        ))
+  )
 
 ;;;===================================
 ;;; HANDLE FILE EXIST

@@ -1106,15 +1106,20 @@
     ;:destroy
     ))
 
+(defun list-search-path-contents (path)
+  (and path
+       (om-directory path
+                     :files t :directories nil
+                     :type (mapcar #'doctype-to-extension *om-doctypes*)
+                     :recursive (get-pref-value :files :search-path-rec))))
+
 (defun patch-name-completion (patch string)
   (if (and *om-box-name-completion* (>= (length string) 1))
       (let* ((searchpath-strings (mapcar 'pathname-name 
-                                (and (get-pref-value :files :search-path)
-                                     (om-directory (get-pref-value :files :search-path)
-                                                   :files t :directories nil
-                                                   :type (mapcar #'doctype-to-extension *om-doctypes*)
-                                                   :recursive (get-pref-value :files :search-path-rec)))))
-             
+                                         (append (list-search-path-contents (get-pref-value :files :search-path))
+                                                 (list-search-path-contents (get-pref-value :files :search-path-2))
+                                                 (list-search-path-contents (get-pref-value :files :search-path-3))
+                                                 (list-search-path-contents (get-pref-value :files :search-path-4)))))             
              (localpath-strings 
               (when (mypathname patch)
                 (let* ((currentpathbase (namestring (om-make-pathname :directory string)))
@@ -1134,8 +1139,7 @@
         
         )
     ))
-        
-    
+
 
 ;(search "om-" "OM-SCALE" :test 'string-equal)
 ;(defmethod activate-completion ((self text-input-item))
