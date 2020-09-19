@@ -334,13 +334,13 @@
         (values (round (- right left)) (- bottom top)))
     (values 0 0)))
 
-; (om-string-size "W" (om-def-font :font2))
+; (om-string-size "--" (om-def-font :font2))
 ; (om-string-wrap "azertyuiop qsdfghjklm wxcvbn" 10 (om-def-font :font2))
 
 (defun om-string-wrap (str width font)
   (declare (special *curstream* *dummy-view*))
   (let* ((view (or *curstream* *dummy-view*))
-         (w (max width  (om-string-size "W" font))))
+         (w (max width (om-string-size "--" font))))
   (capi::wrap-text-for-pane 
    view str 
    :visible-width w

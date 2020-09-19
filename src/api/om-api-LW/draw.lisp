@@ -232,26 +232,32 @@
        
 
 (defun om-draw-string (x y str &key selected wrap font align color)
- 
-  (if (and wrap (> wrap 10))
-      
-      (let ((real-font (if font 
-                           (gp::find-best-font *curstream* font)
-                         (gp::get-port-font *curstream*))))
+  
+  (if wrap
+
+      (let* ((real-font (if font 
+                            (gp::find-best-font *curstream* font)
+                          (gp::get-port-font *curstream*)))
         
+             (wrap-w (max wrap 
+                          (multiple-value-bind (left top right bottom)
+                              (gp::get-string-extent *curstream* "--" real-font)
+                            (- right left)))))
+
         (multiple-value-bind (left top right bottom)
             (gp::get-string-extent *curstream* str real-font)
           
           (declare (ignore left right))
           (let ((text-list (or (ignore-errors 
                                  (capi::wrap-text-for-pane *curstream* str ;; (substitute #\Space #\Tab str) 
-                                                           :visible-width wrap
+                                                           :visible-width wrap-w
                                                            :font real-font
                                                            ))
                                (list str)))
                 (text-h (- bottom top)))
-            
+
             (loop for line in text-list for yy = y then (+ yy text-h) do
+
                   (let ((xx (if align 
                                 (multiple-value-bind (left top right bottom)
                                     (gp::get-string-extent *curstream* line real-font)
@@ -259,10 +265,11 @@
                                   (declare (ignore top bottom))
                                   
                                   (let ((line-w (- right left)))
-                                    (cond ((equal align :right) (+ x wrap (- line-w)))
-                                          ((equal align :center) (+ x (round wrap 2) (- (round line-w 2))))
+                                    (cond ((equal align :right) (+ x wrap-w (- line-w)))
+                                          ((equal align :center) (+ x (round wrap-w 2) (- (round line-w 2))))
                                           (t x))))
                               x)))
+                    
                     (apply 'gp:draw-string  
                            (append 
                             (list *curstream* line xx yy :text-mode :default)

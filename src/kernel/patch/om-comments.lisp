@@ -214,7 +214,7 @@
                (om-draw-string 4 ; (max 2 x)
                                h ;(+ y (om-font-size (or font (om-get-font self)))) 
                                text :selected nil 
-                               :wrap (max 10 (- (w self) 8))
+                               :wrap (- (w self) 8)
                                :align (box-draw-text-align box))
              )))))
       
