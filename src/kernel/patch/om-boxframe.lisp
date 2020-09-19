@@ -977,7 +977,7 @@
 ;;; AUTO CONNECT
 ;;;=============================
 ;;; Several boxes are selected: the lower box's inputs are connected
-;;; with the ouher boxes' outputs
+;;; with the other boxes' outputs
 (defun auto-connect-box (list-of-boxes editor view)
   (when list-of-boxes
     (let* ((y-sorted (sort list-of-boxes '> :key 'box-y))
