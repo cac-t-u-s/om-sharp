@@ -281,4 +281,22 @@
        (om-set-text-focus textinput t))))
 
 
-    
+(defmethod fit-comment-size ((box OMComment) size &optional fit)
+  (let* ((font (box-draw-font box))
+         (contrained-width (max (om-point-x (minimum-size box)) (om-point-x size))))
+    (om-make-point 
+     contrained-width
+     (max (if fit 0 (om-point-y size))
+          (* (+ (length (om-string-wrap (value box) (- contrained-width 8) font))
+                .5)
+             (cadr (multiple-value-list (om-string-size "Dummy" font))))))
+    ))
+
+(defmethod resize-frame-size ((self resize-area) (frame CommentFrame) size) 
+  (fit-comment-size (object frame) (call-next-method) nil))
+
+(defmethod resize-frame-size ((self h-resize-area) (frame CommentFrame) size) 
+  (fit-comment-size (object frame) (call-next-method) t))
+
+(defmethod resize-frame-size ((self v-resize-area) (frame CommentFrame) size)
+  (fit-comment-size (object frame) (call-next-method) nil))
