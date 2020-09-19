@@ -165,7 +165,6 @@
 
 ;;; internal Lisp fun
 (defun om-load-lisp-abspatch (name version expression)
-  (declare (ignore version))
   `(:textfun
     (:info 
      (:by "OM")
