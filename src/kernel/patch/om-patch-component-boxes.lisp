@@ -67,7 +67,7 @@
 
 (defmethod minimum-size ((self OMPatchComponentBox))
   (om-make-point (max 40
-                      (+ 22 (om-string-size (name self) (font-font (text-font self)))
+                      (+ 22 (om-string-size (name self) (box-draw-font self))
                          (if (equal (box-draw-icon-pos self) :left) 22 0))
                       (+ 20 (* (length (inputs self)) 10)))
                  (+ (if (equal (box-draw-icon-pos self) :top) 14 0) 28)))

@@ -58,7 +58,7 @@
 
 (defun om-get-user-string (prompt &key (initial-string "")) 
   (capi::prompt-for-string prompt :initial-value initial-string
-                           :pane-args `(:visible-min-width ,(max 300 (om-string-size initial-string)))
+                           :pane-args `(:visible-min-width ,(max 300 (om-string-size initial-string (gp:font-description (capi::simple-pane-font *dummy-view*)))))
                            :accept-null-string t))
      
 

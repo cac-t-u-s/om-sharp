@@ -146,22 +146,25 @@
 (defmethod make-prop-item (type prop-id object &key default update)
   
   (declare (ignore default))
-  
-  (om-make-view 'click-and-edit-text 
-                :enabled (not (equal 'read-only (nth 3 (get-property-spec object prop-id))))
-                :text (format nil "~A" (get-property object prop-id))
-                :resizable :w
-                :bg-color (om-def-color :window)
-                :border nil
-                :size (om-make-point (om-string-size (format nil "~A" (get-property object prop-id)))
-                                     20)
-                :font (om-def-font :font1)
-                :after-fun #'(lambda (item)
-                               (set-property object prop-id 
-                                             (if (string-equal (text item) "") nil
-                                               (read-from-string (text item))))
-                               (when update (update-after-prop-edit update object))
-                               )))
+
+  (let ((font (om-def-font :font1)))
+
+    (om-make-view 'click-and-edit-text 
+                  :enabled (not (equal 'read-only (nth 3 (get-property-spec object prop-id))))
+                  :text (format nil "~A" (get-property object prop-id))
+                  :resizable :w
+                  :bg-color (om-def-color :window)
+                  :border nil
+                  :size (om-make-point (om-string-size (format nil "~A" (get-property object prop-id)) font)
+                                       20)
+                  :font font
+                  :after-fun #'(lambda (item)
+                                 (set-property object prop-id 
+                                               (if (string-equal (text item) "") nil
+                                                 (read-from-string (text item))))
+                                 (when update (update-after-prop-edit update object))
+                                 ))
+    ))
 
 ;;;====================================
 ;;; STRINGS

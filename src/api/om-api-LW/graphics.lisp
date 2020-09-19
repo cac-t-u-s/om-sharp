@@ -325,12 +325,12 @@
        (equal (om-font-style f1) (om-font-style f2))))
           
 
-(defun om-string-size (str &optional font)
+(defun om-string-size (str font)
   (if str 
       (multiple-value-bind (left top right bottom)
           (gp::get-string-extent   
            *dummy-view* str
-           (gp::find-best-font *dummy-view* (or font (om-def-font :font2))))
+           (gp::find-best-font *dummy-view* font))
         (values (round (- right left)) (- bottom top)))
     (values 0 0)))
 

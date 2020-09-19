@@ -333,7 +333,7 @@
         ;draw scale
         (om-with-fg-color (om-get-darker-color color 0.7)
           (om-draw-line x1 y x2 y)
-          (om-draw-string (- x2  (+ (om-string-size name) 1)) (- y 1) name))
+          (om-draw-string (- x2  (+ (om-string-size name (om-get-font self)) 1)) (- y 1) name))
         ;draw children (maybe in the other order to have the correct display)
         (let ((prev-point nil))
           (loop for p in (time-sequence-get-timed-item-list obj)
