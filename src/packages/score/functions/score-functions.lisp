@@ -315,9 +315,10 @@ if <end> is NIL, the selection runs until th end.
     (om-beep-msg "Warning: end-of selection out of range in SELECT")
     (setf end nil))
   (make-instance 'voice
-                  :chords (loop for m in (subseq (inside self) start end) append (get-chords m)) 
-                  :tree (let ((measures (subseq (second (tree self)) start end)))
-                          (list (length measures) measures))))
+                 :tempo (tempo self)
+                 :chords (loop for m in (subseq (inside self) start end) append (get-chords m)) 
+                 :tree (let ((measures (subseq (second (tree self)) start end)))
+                         (list (length measures) measures))))
 
 
 ;;; poly/multi-seq
