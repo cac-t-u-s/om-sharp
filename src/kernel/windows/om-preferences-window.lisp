@@ -257,7 +257,6 @@
                                (funcall (pref-item-defval pref-item))))))
 
 
-
 ;;;===========================================================================
 ;;; THE VIEW OF ONE PREFERENCE
 
@@ -274,7 +273,7 @@
                                                      (if (equal (pref-item-type pref-item) :title) 18 14))))
 
          (g-item (make-preference-item (pref-item-type pref-item) pref-item))
-         
+
          (doc-text (when (pref-item-doc pref-item)
                      (let ((real-text (if (listp (pref-item-doc pref-item))
                                           (reduce 

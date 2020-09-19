@@ -466,6 +466,7 @@
                        (if nil ;(om-font-style font) 
                            (format nil "[~{~S~^ ~}]" (om-font-style font)) ""))
              "-")))
+
     (om-make-di 'om-button 
                 :resizable nil
                 :focus nil :default nil
@@ -481,7 +482,7 @@
                                    (om-set-font item (om-def-font :font1 :style (om-font-style choice)))
                                    (set-property object prop-id choice)
                                    (when update (update-after-prop-edit update object))))))))
-
+  
 
 (defmethod make-prop-item ((type (eql :font-or-nil)) prop-id object &key default update)
   
@@ -593,6 +594,7 @@
                                                  (if (probe-file (get-property object prop-id)) 
                                                      (om-def-color :black) (om-def-color :red))))
                                  ))
+
          (button (om-make-graphic-object 'om-icon-button :size (omp 20 18) 
                                          :icon :folder :icon-pushed :folder-pushed
                                          :action #'(lambda (button) (declare (ignore button))
@@ -679,8 +681,7 @@
   
   (declare (ignore default))
 
-  (labels (
-           (object-action-other-name (ob)
+  (labels ((object-action-other-name (ob)
              (let* ((curr-fun (get-property ob prop-id))
                     (curr-fun-name (if (consp curr-fun) (car curr-fun) curr-fun)))
                (if (and curr-fun (not (find curr-fun-name (get-def-action-list ob)))) curr-fun-name :?)))
@@ -724,7 +725,9 @@
                                                                (om-set-selected-item-index list (1+ (length def-action-list)))
                                                                (ignore-errors (read-from-string user-fun))))
                                                          (nth fun-i print-action-list))))
+
                                                  (om-remove-subviews layout b)
+
                                                  (when (arguments-for-action fun)
                                                    (om-add-subviews layout b))
                                            
