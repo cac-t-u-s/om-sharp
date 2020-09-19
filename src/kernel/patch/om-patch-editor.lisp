@@ -1392,7 +1392,7 @@
         ;(print search-matches)
         (setf doc-path (car search-matches))))
 
-    (if doc-path
+    (if (and doc-path (valid-file-pathname-p doc-path))
         (let ((obj (load-doc-from-file doc-path (extension-to-doctype (pathname-type doc-path)))))
           (when obj
             (omNG-make-new-boxcall obj position)

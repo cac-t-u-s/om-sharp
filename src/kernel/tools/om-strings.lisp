@@ -100,13 +100,15 @@
 ;=======================
 
 (defun list-from-file (pathname)
-  (let ((rep-list nil))
-    (with-open-file (in pathname :direction :input :if-does-not-exist nil)
-      (let ((line (read in nil :eof)))
-        (loop while (and line (not (equal line :eof))) do 
-              (setf rep-list (append rep-list (list line))
-                    line (read in nil :eof)))))
-    rep-list))
+  (let ((path (probe-file pathname)))
+    (when (and path (valid-file-pathname-p path))
+      (let ((rep-list nil))
+        (with-open-file (in path :direction :input :if-does-not-exist nil)
+          (let ((line (read in nil :eof)))
+            (loop while (and line (not (equal line :eof))) do 
+                  (setf rep-list (append rep-list (list line))
+                        line (read in nil :eof)))))
+        rep-list))))
 
 (defun lines-from-file (pathname)
   (with-open-file (in pathname :direction :input :if-does-not-exist nil)
