@@ -129,17 +129,6 @@
 ; cross-platform / encoding tools
 ;=======================
 
-(defun str-check (string)
-  (let ((pos nil))
-    (loop for char-switch in (get-switch-chars) do
-          (loop while (setf pos (position (code-char (car char-switch)) string)) do
-                (replace string (string (code-char (cadr char-switch))) :start1 pos)))
-    ;; unknown chars... a chercher
-    (loop for ch in *unknown-chars* do
-          (loop while (setf pos (position ch string)) do   
-                (replace string "?" :start1 pos)))
-    string))
-
 ;; multiple tabs
 ;(setf string (remove-duplicates string :test #'(lambda (x y) (equal x #\Tab))))
 
@@ -174,6 +163,19 @@
 (defvar *unknown-chars* '(#\U+0080 #\U+0081 #\U+0082 #\U+0083 #\U+0084 #\U+0085 #\U+0086 #\U+0088 #\U+0089 #\U+008A 
                                    #\U+008C #\U+008D #\U+008E #\U+008F #\U+0090 #\U+0091 #\U+0093 #\U+0094 #\U+0095 
                                    #\U+0096 #\U+0097 #\U+0098 #\U+0099 #\U+009A #\U+009B #\U+009C #\U+009D #\U+009E #\U+009F))
+
+
+(defun str-check (string)
+  (let ((pos nil))
+    (loop for char-switch in (get-switch-chars) do
+          (loop while (setf pos (position (code-char (car char-switch)) string)) do
+                (replace string (string (code-char (cadr char-switch))) :start1 pos)))
+    ;; unknown chars... a chercher
+    (loop for ch in *unknown-chars* do
+          (loop while (setf pos (position ch string)) do   
+                (replace string "?" :start1 pos)))
+    string))
+
 
 ; (string #\U+0097)
 ; (code-char 135)
