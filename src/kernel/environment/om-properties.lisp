@@ -152,9 +152,8 @@
                 :text (format nil "~A" (get-property object prop-id))
                 :resizable :w
                 :bg-color (om-def-color :window)
-                :border nil ;(om-def-color :gray)
-                :size (om-make-point ;; (list :string (format nil "~A" (get-property object prop-id)))
-                                     (om-string-size (format nil "~A" (get-property object prop-id)))
+                :border nil
+                :size (om-make-point (om-string-size (format nil "~A" (get-property object prop-id)))
                                      20)
                 :font (om-def-font :font1)
                 :after-fun #'(lambda (item)
@@ -323,7 +322,7 @@
                                         (if default (get-property object prop-id) t))
                            :value (or (get-property object prop-id)
                                       (get-default-value default))
-                           :size (om-make-point ;(list :string (format nil "~A" (get-property object prop-id))) 
+                           :size (om-make-point
                                   (+ #+cocoa 40 #-cocoa 30
 				     (list-max (mapcar #'(lambda (x) (om-string-size (format nil "~A" x) (om-def-font :font1))) type)))
                                   22)
@@ -469,7 +468,6 @@
              "-")))
     (om-make-di 'om-button 
                 :resizable nil
-                ;:enabled (valid-property-p object prop-id)
                 :focus nil :default nil
                 :text (font-to-str (get-property object prop-id))
                 :size (om-make-point (list :string (font-to-str (get-property object prop-id))) 26)
@@ -728,10 +726,6 @@
                                                          (nth fun-i print-action-list))))
                                                  (om-remove-subviews layout b)
                                                  (when (arguments-for-action fun)
-                                             ;(om-set-dialog-item-action-function 
-                                             ; b #'(lambda (b) (declare (ignore b))
-                                             ;       (let ((args (get-arguments-dialog (arguments-for-action fun))))
-                                             ;         (when args (setf fun (cons fun args))))))
                                                    (om-add-subviews layout b))
                                            
                                                  (set-property object prop-id fun))

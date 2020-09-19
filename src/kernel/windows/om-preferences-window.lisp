@@ -32,7 +32,7 @@
     (om-make-view 'click-and-edit-text 
                   :text (format nil " ~A" curr-value)
                   :resizable :w
-                  :bg-color (om-def-color :white) ; (om-def-color :window)
+                  :bg-color (om-def-color :white)
                   :border nil
                   :size (om-make-point (list :string (format nil "  ~A  " curr-value)) 20)
                   :font (om-def-font :font2)
@@ -47,7 +47,7 @@
     (om-make-view 'click-and-edit-text 
                   :text (format nil " ~{~A ~}" curr-value)
                   :resizable :w
-                  :bg-color (om-def-color :white) ; (om-def-color :window)
+                  :bg-color (om-def-color :white)
                   :border nil
                   :size (om-make-point (list :string (format nil "  ~A  " curr-value)) 20)
                   :font (om-def-font :font2)
@@ -167,7 +167,6 @@
 
 (defmethod make-preference-item ((type cons) pref-item)
   (om-make-di 'om-popup-list 
-              ;:enabled (valid-property-p object prop-id)
               :items type
               :resizable :w
               :value (pref-item-value pref-item)
@@ -213,7 +212,6 @@
              "-")))
     (om-make-di 'om-button 
                 :resizable :w
-                ;:enabled (valid-property-p object prop-id)
                 :focus nil :default nil
                 :text (font-to-str (pref-item-value pref-item))
                 :size (om-make-point (list :string (font-to-str (pref-item-value pref-item))) #-linux 26 #+linux 20)
@@ -266,40 +264,13 @@
 (defmethod make-preference-item ((type (eql :title)) pref-item) 
   (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t))
 
-#|
-(defun make-preference-view (pref-item)
-  (let* ((main-text (om-make-di 'om-simple-text 
-                                :text (pref-item-name pref-item) 
-                                :font (if (equal (pref-item-type pref-item) :title) (om-def-font :font3b) (om-def-font :font2))
-                                :size (om-make-point 160 ;(list :string (format nil "  ~A  " (pref-item-name pref-item))) 
-                                                     20)))
-         (main-row 
-          (om-make-layout 'om-row-layout :name (pref-item-id pref-item)
-                          :subviews (list
-                                     (if (pref-item-doc pref-item)
-                                         (om-make-layout 
-                                          'om-column-layout :name (pref-item-id pref-item)
-                                          :subviews 
-                                          (list 
-                                           main-text 
-                                           (om-make-di 
-                                            'om-simple-text 
-                                            :text (string+ "" (pref-item-doc pref-item)) 
-                                            :font (om-def-font :font1)
-                                            :size (om-make-point (list :string (format nil "  ~A  " (pref-item-doc pref-item))) 20))))
-                                       main-text)
-                                     
-                                    (make-preference-item (pref-item-type pref-item) pref-item))))) 
-      main-row))
-|#
-
 
 (defun make-preference-view (pref-item)
 
   (let* ((main-text (om-make-di 'om-simple-text 
                                 :text (pref-item-name pref-item) 
                                 :font (if (equal (pref-item-type pref-item) :title) (om-def-font :font2b) (om-def-font :font1))
-                                :size (om-make-point 180 ;(list :string (format nil "  ~A  " (pref-item-name pref-item))) 
+                                :size (om-make-point 180 
                                                      (if (equal (pref-item-type pref-item) :title) 18 14))))
 
          (g-item (make-preference-item (pref-item-type pref-item) pref-item))

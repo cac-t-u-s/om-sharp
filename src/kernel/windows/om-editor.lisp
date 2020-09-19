@@ -512,16 +512,14 @@
       :delta 0
       :subviews (loop for category in (get-properties-list object)
                       append (append 
-                              (list  ;     (car category)  ; (list (car category) (om-def-font :font1b)) 
-                               ;(om-make-di 'om-simple-text :size (om-make-point 20 26) :text "" :focus t)
+                              (list 
                                (om-make-di 'om-simple-text :text (car category) :font (om-def-font :font2b)
                                            :size (om-make-point (list :string (car category)) 20) 
                                            :position (om-make-point 0 6))
                                )
                               (loop for prop in (cdr category) append
                                     (list (om-make-di 'om-simple-text :text (nth 1 prop) :font (om-def-font :font1b)
-                                                      :size (om-make-point 120 18)) ; :position (om-make-point 10 16))
-                                                                                       ; (nth 1 prop) ; (list (nth 1 prop) (om-def-font :font1))  
+                                                      :size (om-make-point 120 18)) 
                                           (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop) :update self)
                                           (om-make-di 'om-simple-text :size (om-make-point 20 4) :text "" :focus t)))))))))
 
