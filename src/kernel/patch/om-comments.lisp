@@ -136,16 +136,16 @@
 (defmethod get-box-frame-class ((self OMComment)) 'CommentFrame)
 
 (defmethod make-frame-from-callobj ((self OMComment))
-  (let ((view (om-make-graphic-object 'CommentFrame 
-                :position (omp (box-x self) (box-y self))
-                :size (omp (box-w self) (box-h self))
-                :help "comment"
-                :font (font-font (text-font self))
-                :object self)))
+  (let ((view (om-make-graphic-object 
+               'CommentFrame 
+               :position (omp (box-x self) (box-y self))
+               :size (omp (box-w self) (box-h self))
+               :help "comment"
+               :font (font-font (text-font self))
+               :object self)))
     (setf (frame self) view)
     (set-frame-areas view)
     view))
-
 
 (defmethod clickable-box ((self CommentFrame)) 
   (let ((container-view (om-view-container self)))
@@ -170,6 +170,7 @@
       (values (value (object self)) 3 8 w (* h (length lines)))
       ))
   )
+
 
 (defmethod boxframe-draw-contents ((self CommentFrame) (box OMComment))
   (let ((color (box-draw-color box))
