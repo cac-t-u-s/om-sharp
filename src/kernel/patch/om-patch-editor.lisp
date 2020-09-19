@@ -909,6 +909,7 @@
   (call-next-method)
   (patch-editor-set-lisp-code self))
 
+
 ;;;=============================
 ;;; DRAG BOXES
 ;;;=============================
@@ -1083,6 +1084,7 @@
     (when newbox
       (add-box-in-patch-editor newbox self)
       )))
+
 
 ;;;=============================
 ;;; TEXT COMPLETION
@@ -1406,10 +1408,6 @@
     ))
   
 
-
-
-
-
 ;;;============================================================================
 ;;; SIDE PANEL
 ;;;============================================================================
@@ -1724,7 +1722,6 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
     ))
 
 
-
 ;;; updates the inspector or the lisp code panel depending on the current selection
 (defmethod update-inspector-for-editor ((self patch-editor) &optional obj)
   (let ((obj-to-inspect 
@@ -1775,7 +1772,6 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
     (update-inspector-for-editor self nil))))
 
 
-
 ;;;======================================
 ;;; OPTIONAL SIDE PANEL (GENERAL)
 ;;;======================================
@@ -1790,7 +1786,8 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
     ;      (set-inspector-contents (get-g-component self :inspector) nil))
     ;  )
     ))
-  
+
+
 (defmethod make-layout-items ((editor patch-editor))
     
   (om-make-layout 
