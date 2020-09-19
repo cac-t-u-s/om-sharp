@@ -897,12 +897,19 @@
          (size (and (or w h) (omp w h)))
          (text (omng-load (find-value-in-kv-list data :text)))
          (comment (omng-make-new-comment text pos)))
+    
     (when comment
-      (when size (setf (box-w comment) (om-point-x size) (box-h comment) (om-point-y size)))
+      (when size 
+        (setf (box-w comment) (om-point-x size) (box-h comment) (om-point-y size)))
+            
       (loop for property in (get-flat-properties-list comment)
             do (let ((prop (find-value-in-kv-list data (car property))))
                  (when prop (set-property comment (car property) (omng-load prop)))))
+      
+      (let ((fit-size (fit-comment-size comment (omp (box-w comment) (box-w comment)) t)))
+        (setf (box-w comment) (om-point-x fit-size) (box-h comment) (om-point-y fit-size)))
       )
+
     comment))
 
 
