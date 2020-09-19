@@ -66,7 +66,13 @@
           (compile-if-needed-and-load 
            (make-pathname :directory *lw-lisp-tools-directory* :name filename))
           (terpri)) 
-      '("eval-process" "text-buffer" "find-definition" "editor-find-dialogs" "output" "text-editor" "listener"))
+      '("eval-process" 
+        "text-buffer" 
+        "find-definition" 
+        "editor-find-dialogs" 
+        "output" "text-editor"
+        "listener" 
+        "lisp-format"))
 
 
 
