@@ -97,18 +97,45 @@ The <test> can be a simple value (equality test) or a function (lambda) of 1 arg
 
 If the box output connections are reactive, reactive notifications will be send for non-NIL outputs.
 
+The inputs left with :default will output value only if none other tests succeeded.
+
 The first output always outputs <input>.
 "   
-  (values-list (copy-list (cons input 
-                                (mapcar 
-                                 #'(lambda (route-item) 
-                                      (when (test-match input route-item) input))
-                                 test)))))
+  (let* ((match nil)
+         (outputs (loop for route-item in test 
+                        collect
+                        (if (equal route-item :default) :default
+                          (let ((test-result (test-match input route-item)))
+                            (when test-result
+                              (setf match t)
+                              input))))))
+    
+    ;;; fill in the ":default" items
+    (setf outputs
+          (loop for out in outputs 
+                collect (if (equal out :default)
+                            (if match nil input) 
+                          out)))
+  
+    (values-list (copy-list (cons input outputs)))
+    ))
+
 
 (defclass ReactiveRouteBox (RouteBox) 
   ((routed-o :initform nil :accessor routed-o)))
 
 (defmethod boxclass-from-function-name ((self (eql 'route))) 'ReactiveRouteBox)
+
+(defmethod more-optional-input ((self ReactiveRouteBox) &key name (value nil val-supplied-p) doc reactive)
+
+  (declare (ignore name doc))
+
+  (unless nil ; (inputs self)
+    (add-optional-input 
+     self :name "test" 
+     :value (if val-supplied-p value :default) 
+     :doc "test-value or function" :reactive reactive)
+    t))
 
 ;;; (does nothing if there is no memory)
 (defmethod boxcall-value ((self ReactiveRouteBox))
