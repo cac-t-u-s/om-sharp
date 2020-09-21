@@ -129,13 +129,11 @@
         (append (inputs self) (outputs self))))
 
 (defmethod set-reactive-mode ((box OMBox)) 
-  (if (or (inputs box) (outputs box))
-      (progn 
-        (set-reactive box (not (all-reactive-p box)))
-        (update-after-change-mode box)
-        (update-frame-connections-display (frame box)))
-    (om-beep-msg "Boxes must have inputs or outputs to be set reactive")))
-
+  (when (or (inputs box) (outputs box))
+    (set-reactive box (not (all-reactive-p box)))
+    (update-after-change-mode box)
+    (update-frame-connections-display (frame box)))
+  )
 
 ;--------------------------------------
 ; DEFAULT OUTPUTS
