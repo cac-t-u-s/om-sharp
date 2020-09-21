@@ -71,7 +71,10 @@
 
 (defun find-receive-boxes (target)
   (let ((boxes (find-boxes 'receive)))
-    (remove-if-not #'(lambda (b) (equal (value (nth 0 (inputs b))) target)) boxes)))
+    (remove-if-not 
+     #'(lambda (b)
+         (equal (omng-box-value (nth 0 (inputs b))) target))
+     boxes)))
 
 
 ;;;=====================================
