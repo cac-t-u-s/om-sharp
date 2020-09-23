@@ -794,6 +794,7 @@
                             mp (om-make-point (round (w self) 2) (round (h self) 2))))
     ))
 
+(defmethod make-new-comment ((self t)) nil)
 
 ;;;==========================
 ;;; SELECTION
