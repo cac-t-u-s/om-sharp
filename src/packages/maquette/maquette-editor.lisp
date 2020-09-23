@@ -246,7 +246,6 @@
   (zoom-time-ruler (get-g-component (editor self) :abs-ruler) (- 1 zoom) position self))
 
 
-
 (defmethod om-view-doubleclick-handler ((self maquette-view) position)
   (if (om-add-key-down) 
       ;;; add new box etc.
@@ -261,15 +260,14 @@
     ))
 
 
-
 ;;; SNAP INTERVAL IF ALT/OPTION KEY IS DOWN
 (defmethod editor-set-interval ((self maquette-editor) interval) 
   (when (om-option-key-p)
     (setf interval (list (snap-time-to-grid (get-g-component self :metric-ruler) (car interval))
                          (snap-time-to-grid (get-g-component self :metric-ruler) (cadr interval)))))
   (call-next-method self interval))  
-  
-                         
+
+
 
 ;;;========================
 ;;; TRACK-VIEW
@@ -362,7 +360,6 @@
               (draw-temporal-box tb self x1 0 (- x2 x1) (h self) (- (pix-to-x self x) (get-box-onset tb)))
               )))   
     ))
-
 
 
 (defmethod resizable-box? ((self OMBox)) t)
@@ -589,6 +586,7 @@
               (update-to-editor editor view)
               (set-om-clipboard (list (mapcar 'om-copy boxes) connections))
               )))))
+
 
 ;;;===============================
 ;;; DISPLAY BOXES IN MAQUETTE TRACKS
