@@ -313,6 +313,9 @@
 (defmethod allowed-element ((self OMMaquette) (elem OMBoxEditCall)) 
   (allowed-element self (get-box-value elem)))
 
+(defmethod allowed-element ((self OMMaquette) (elem OMComment)) nil)
+
+
 (defmethod omNG-add-element ((self OMMaquette) (elem OMBox))
   (set-box-duration elem (or (and (play-obj? (get-box-value elem))
                                   (get-obj-dur (get-box-value elem)))
