@@ -989,22 +989,20 @@
                                      (mapcar #'(lambda (b) (car (outputs b))) x-sorted))))
            (patch (object editor)))
       (when x-sorted ;; more than 1 box in the game
-      (loop for i in (inputs lower-box)
-            for o in sorted-outputs
-            ;while sorted-outputs
-            do      
-            (let* (;(o (pop sorted-outputs))
-                   (new-connection (omng-make-new-connection o i)))
-              (when new-connection
-                (loop for c in (connections i) do (omng-remove-element patch c))
-                (omng-add-element patch new-connection)
-                (add-connection-in-view view new-connection)
-                )))
+        (loop for i in (inputs lower-box)
+              for o in sorted-outputs
+              do      
+              (let* ((new-connection (omng-make-new-connection o i)))
+                (when new-connection
+                  (loop for c in (connections i) do (omng-remove-element patch c))
+                  (omng-add-element patch new-connection)
+                  (add-connection-in-view view new-connection)
+                  )))
       
-      (mapc #'(lambda (box) (redraw-connections (frame box))) list-of-boxes)
-      (report-modifications editor)
-      (om-invalidate-view view)))
-      t))
+        (mapc #'(lambda (box) (redraw-connections (frame box))) list-of-boxes)
+        (report-modifications editor)
+        (om-invalidate-view view)))
+    t))
 
 ;;; Auto connects vertically (first in/outs) 
 (defun auto-connect-seq (list-of-boxes editor view)
