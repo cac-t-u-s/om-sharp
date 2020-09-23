@@ -276,6 +276,10 @@
                                                 (om-remove-subviews container-view item)
                                                 (set-value box newtext)
                                                 (om-set-focus container-view)
+                                                
+                                                (let ((new-size (fit-comment-size box (omp (box-w box) (box-h box)) t)))
+                                                  (omng-resize box new-size)
+                                                  (reset-frame-size self))
                                                 ))
                                    :font (font-font (text-font box))
                                    :size (om-add-points (omp (box-w box) (box-h box)) (omp 4 4))
@@ -306,3 +310,9 @@
 
 (defmethod resize-frame-size ((self v-resize-area) (frame CommentFrame) size)
   (fit-comment-size (object frame) (call-next-method) nil))
+
+
+(defmethod fit-box-and-frame :after ((box OMComment) (frame CommentFrame))
+  (let ((new-size (fit-comment-size box (omp (box-w box) (box-h box)) t)))
+    (omng-resize box new-size)
+    (reset-frame-size frame)))
