@@ -625,7 +625,7 @@
                (store-current-state-for-undo editor)
                (auto-connect-seq selected-boxes editor panel)))
         
-                (#\r (unless (edit-lock editor) 
+        (#\r (unless (edit-lock editor) 
                (store-current-state-for-undo editor)
                (mapc 'set-reactive-mode (or selected-boxes selected-connections))))
         
