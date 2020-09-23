@@ -767,6 +767,10 @@
       )))
 
 
+;;; not supported for now...
+(defmethod align-selected-boxes ((editor maquette-editor)) nil)
+  
+
 (defmethod select-unselect-all ((self maquette-editor) val)
   (if (and (selected-view self)
            (not (equal self (editor (selected-view self)))))
