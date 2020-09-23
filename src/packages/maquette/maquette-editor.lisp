@@ -1406,6 +1406,7 @@ CMD-click to add boxes. Play contents, etc.
         (om-remove-all-subviews view)
         (put-patch-boxes-in-editor-view maq view)
         (update-temporalboxes view)
+        (om-invalidate-view view)
         ))
     
     (mapcar 'om-invalidate-view (get-g-component self :track-views))
