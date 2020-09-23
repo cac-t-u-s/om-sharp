@@ -978,9 +978,12 @@
 ;;;=============================
 ;;; Several boxes are selected: the lower box's inputs are connected
 ;;; with the other boxes' outputs
+
+(defmethod is-lower (y1 y2 (editor patch-editor)) (> y1 y2))
+
 (defun auto-connect-box (list-of-boxes editor view)
   (when list-of-boxes
-    (let* ((y-sorted (sort list-of-boxes '> :key 'box-y))
+    (let* ((y-sorted (sort list-of-boxes #'(lambda (y1 y2) (is-lower y1 y2 editor)) :key 'box-y))
            (x-sorted (sort (cdr y-sorted) '< :key 'box-x))
            (lower-box (car y-sorted))
            ;(sorted-outputs (apply 'append (mapcar #'(lambda (frame) (outputs (object frame))) x-sorted)))
@@ -1007,7 +1010,7 @@
 ;;; Auto connects vertically (first in/outs) 
 (defun auto-connect-seq (list-of-boxes editor view)
   (when list-of-boxes
-    (let* ((y-sorted (sort list-of-boxes '> :key 'box-y))
+    (let* ((y-sorted (sort list-of-boxes #'(lambda (y1 y2) (is-lower y1 y2 editor)) :key 'box-y))
            (patch (object editor)))
       (loop for rest on y-sorted
             while (cadr rest) do      

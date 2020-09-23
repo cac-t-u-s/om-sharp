@@ -268,6 +268,9 @@
   (call-next-method self interval))  
 
 
+;;; used for auto-connecting boxes    
+(defmethod is-lower (y1 y2 (editor maquette-editor)) (< y1 y2))
+
 
 ;;;========================
 ;;; TRACK-VIEW
