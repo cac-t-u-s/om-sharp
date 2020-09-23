@@ -24,7 +24,7 @@
 (defun address-match (address route-path) 
     (string-equal address route-path))
 
-(defmethod* route-osc ((message list) &rest osc-paths)
+(defmethod* osc-route ((message list) &rest osc-paths)
   :icon 'osc
   (values-list (copy-list (cons message 
                                 (mapcar 
@@ -37,5 +37,12 @@
                                                          (when (address-match (car message) route-path) (cdr message))
                                                        ))
                                  osc-paths)))))
+
+(defmethod boxclass-from-function-name ((self (eql 'osc-route))) 'ReactiveRouteBox)
+
+
+;;; DEPRECATED / RENAMED. KEPT FOR COMPATIBILITY
+(defmethod route-osc ((message list) &rest osc-paths)
+  (apply 'osc-route (cons message osc-paths)))
 
 (defmethod boxclass-from-function-name ((self (eql 'route-osc))) 'ReactiveRouteBox)
