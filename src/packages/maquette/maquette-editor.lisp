@@ -745,6 +745,17 @@
            (om-invalidate-view (window editor))
            (clear-ev-once (object editor))
            (report-modifications editor))
+      
+      (#\c
+       ;;; don't allow inserting comments, nor connecting in tracks view
+       (when (and (get-selected-boxes editor) 
+                  (equal :maquette (view-mode editor))) 
+         (call-next-method)))
+      
+      (#\C
+       ;;; don't allow connecting in tracks view
+       (when (equal :maquette (view-mode editor)) 
+         (call-next-method)))
 
       (#\r (unless (edit-lock editor)
              (loop for tb in (get-selected-boxes editor) do (set-reactive-mode tb))
