@@ -91,6 +91,7 @@
                 "enter your comment here...")))
     (omNG-make-new-comment text pos)))
 
+(defparameter *comment-box-margin* 4)
 
 (defmethod omNG-make-new-comment (text pos)
   (let* ((comment-lines (om-text-to-lines text))
@@ -101,7 +102,8 @@
       (let ((newcomment (make-instance 'OMComment 
                                        :icon-pos nil 
                                        :box-x (om-point-x pos) :box-y (om-point-y pos)
-                                       :box-w (+ 8 w) :box-h (+ 12 (* h (length comment-lines)))
+                                       :box-w (+ w (* 2 *comment-box-margin*) 1) 
+                                       :box-h (+ (* h (length comment-lines)) (* 2 *comment-box-margin*))
                                      )))
       (setf (value newcomment) text)
       newcomment))))
@@ -111,7 +113,8 @@
          (longest-line (reduce #'(lambda (s1 s2) (if (> (length s1) (length s2)) s1 s2)) comment-lines)))
     (multiple-value-bind (w h)
         (om-string-size longest-line (box-draw-font self))
-      (omp (+ 12 w) (+ 8 (* h (length comment-lines)))))))
+      (omp (+ w (* 2 *comment-box-margin*)) 
+           (+ (* h (length comment-lines)) (* 2 *comment-box-margin*))))))
 
 (defmethod maximum-size ((self OMComment)) nil)
 
@@ -167,7 +170,8 @@
     (multiple-value-bind (w h) (om-string-size (car lines) font)
       (loop for l in (cdr lines) do (setf w (max w (om-string-size l font))))
       
-      (values (value (object self)) 3 8 w (* h (length lines)))
+      (values (value (object self)) *comment-box-margin* *comment-box-margin* 
+              w (* h (length lines)))
       ))
   )
 
@@ -211,10 +215,10 @@
             (om-with-fg-color (box-draw-text-color box)
               (om-with-font
                font
-               (om-draw-string 4 ; (max 2 x)
-                               h ;(+ y (om-font-size (or font (om-get-font self)))) 
+               (om-draw-string *comment-box-margin*
+                               h
                                text :selected nil 
-                               :wrap (- (w self) 8)
+                               :wrap (- (w self) (* *comment-box-margin* 2))
                                :align (box-draw-text-align box))
              )))))
       
@@ -287,10 +291,12 @@
     (om-make-point 
      contrained-width
      (max (if fit 0 (om-point-y size))
-          (* (+ (length (om-string-wrap (value box) (- contrained-width 8) font))
-                .5)
-             (cadr (multiple-value-list (om-string-size "Dummy" font))))))
-    ))
+          (+ 
+           (* (length (om-string-wrap (value box) (- contrained-width (* *comment-box-margin* 2)) font))
+              (cadr (multiple-value-list (om-string-size "Dummy" font))))
+           (* *comment-box-margin* 2)
+           ))
+     )))
 
 (defmethod resize-frame-size ((self resize-area) (frame CommentFrame) size) 
   (fit-comment-size (object frame) (call-next-method) nil))
