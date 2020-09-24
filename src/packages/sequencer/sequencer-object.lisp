@@ -57,11 +57,11 @@
 
 
 (defmethod type-check ((type (eql :sequencer)) obj)
-  (let ((maq (ensure-type obj 'OMSequencer)))
-    (when maq
-      (change-class maq 'OMSequencerFile)
-      (setf (icon maq) :sequencer-file))
-    maq))
+  (let ((seq (ensure-type obj 'OMSequencer)))
+    (when seq
+      (change-class seq 'OMSequencerFile)
+      (setf (icon seq) :sequencer-file))
+    seq))
 
 (defmethod unregister-document ((self OMSequencer))
   (player-stop-object *general-player* self)
@@ -145,23 +145,23 @@
 ;;;=========================================
 
 ;;; NOT GOOD !!! NEED TO EVAL JUST TERMINAL BOXES  
-(defmethod eval-sequencer ((maq OMSequencer) &optional (with-control-patch t))
-  (loop for box in (get-all-boxes maq)
+(defmethod eval-sequencer ((seq OMSequencer) &optional (with-control-patch t))
+  (loop for box in (get-all-boxes seq)
         when (not (find-if #'connections (outputs box)))
         do
         (progn
           (eval-box box)
           (reset-cache-display box)
-          (contextual-update box maq)
+          (contextual-update box seq)
           ))
-  ; (set-meta-inputs (ctrlpatch maq) (car (references-to maq)) maq)
+  ; (set-meta-inputs (ctrlpatch seq) (car (references-to seq)) seq)
   (when with-control-patch
-    (mapcar 'eval-box (get-boxes-of-type (ctrlpatch maq) 'omoutbox)))
+    (mapcar 'eval-box (get-boxes-of-type (ctrlpatch seq) 'omoutbox)))
   
-  (clear-ev-once maq)
-  (clear-ev-once (ctrlpatch maq))
-  ;(compile-patch (ctrlpatch maq))
-  ;(apply (intern (string (compiled-fun-name (ctrlpatch maq))) :om) `(,maq))
+  (clear-ev-once seq)
+  (clear-ev-once (ctrlpatch seq))
+  ;(compile-patch (ctrlpatch seq))
+  ;(apply (intern (string (compiled-fun-name (ctrlpatch seq))) :om) `(,seq))
   )
 
 ;;===========================================================================
@@ -255,14 +255,14 @@
 
 #|
 (with-schedulable-object 
-   maq
+   seq
    ;;;Move the object
    (setf (onset tb) (max (+ (onset tb) dx) 0))
-   (if (box-being-rendered? maq tb)
+   (if (box-being-rendered? seq tb)
        ;;;If the object was and is still being rendered, just set its time
-       (set-object-time (object-from-box tb) (- (get-obj-time maq) (onset tb)))
+       (set-object-time (object-from-box tb) (- (get-obj-time seq) (onset tb)))
      ;;;If the object was being rendered and is not anymore, stop- it
-     (player-stop-object (player (editor maq)) (object-from-box tb))))
+     (player-stop-object (player (editor seq)) (object-from-box tb))))
 |#
 
 (defmethod player-play-object ((self scheduler) (object OMSequencer) caller &key parent interval)
@@ -321,24 +321,24 @@
   (with-schedulable-object self (call-next-method)))
 
 ;; evaluate the patch before ?
-(defmethod omNG-add-element ((maq OMSequencer) (tb OMBoxPatch))
+(defmethod omNG-add-element ((seq OMSequencer) (tb OMBoxPatch))
   ;(omng-box-value tb 0)
   (call-next-method))
 
-(defmethod omNG-add-element ((maq OMSequencer) (tb OMBoxEditCall))
+(defmethod omNG-add-element ((seq OMSequencer) (tb OMBoxEditCall))
   (setf (lock-state tb) :locked)
   (call-next-method))
 
-(defmethod omng-remove-element ((maq OMSequencer) (tb OMBox))
+(defmethod omng-remove-element ((seq OMSequencer) (tb OMBox))
   ;;;If the box is under the sequencer cursor (that is being rendered), stop it.
   ;;;Note : useful only for objects triggered by the sequencer (hierarchical).
-  (if (box-being-rendered? maq tb) (player-stop-object *general-player* (get-box-value tb)))
+  (if (box-being-rendered? seq tb) (player-stop-object *general-player* (get-box-value tb)))
   ;;;Perform the remove operation asking the scheduler for a replan.
-  (with-schedulable-object maq (call-next-method)))
+  (with-schedulable-object seq (call-next-method)))
 
-(defmethod move-box-in-sequencer ((maq OMSequencer) (tb OMBox) &key (dx 0) (dy 0))
+(defmethod move-box-in-sequencer ((seq OMSequencer) (tb OMBox) &key (dx 0) (dy 0))
   (with-schedulable-object
-   maq 
+   seq 
    ;;; this is +/- like move-box (with set-box-onset)
    (set-box-onset tb (max (+ (get-box-onset tb) dx) 0))
    (setf (box-y tb) (+ (box-y tb) dy))
@@ -352,7 +352,7 @@
    
    ;;; specific
    (if (and (get-box-value tb) (eq (get-object-state (get-box-value tb)) :play))
-       (let ((ti (get-obj-time maq)))
+       (let ((ti (get-obj-time seq)))
          (if (in-interval ti (list (get-box-onset tb) (get-box-end-date tb)))
              (set-object-time (get-box-value tb) (- ti (get-box-onset tb)))
            (player-stop-object *general-player* (get-box-value tb)))))
@@ -372,16 +372,16 @@
 (defmethod get-track-objects ((self OMSequencer) tracknum  &key (sorted nil))
   (mapcar 'get-box-value (get-track-boxes self tracknum :sorted sorted)))
 
-(defmethod add-box-in-track ((maquette OMSequencer) (tb OMBox) tracknum)
+(defmethod add-box-in-track ((seq OMSequencer) (tb OMBox) tracknum)
   (setf (group-id tb) tracknum)
-  (let* ((yrange (- (getf (range maquette) :y2) (getf (range maquette) :y1)))
-         (trackw (round yrange (n-tracks maquette)))
-         (y (+ (getf (range maquette) :y1) 
-               (if tracknum (* (- (n-tracks maquette) (1- tracknum)) trackw) (round yrange 2)))))
+  (let* ((yrange (- (getf (range seq) :y2) (getf (range seq) :y1)))
+         (trackw (round yrange (n-tracks seq)))
+         (y (+ (getf (range seq) :y1) 
+               (if tracknum (* (- (n-tracks seq) (1- tracknum)) trackw) (round yrange 2)))))
     (setf (box-y tb) y 
           (box-h tb) (round yrange 10))
-  (omNG-add-element maquette tb)
-  (om-invalidate-view (nth (1- tracknum) (get-g-component (editor maquette) :track-views)))))
+  (omNG-add-element seq tb)
+  (om-invalidate-view (nth (1- tracknum) (get-g-component (editor seq) :track-views)))))
 
 
 (defmethod set-track-gain ((self OMSequencer) tracknum gain)
@@ -451,21 +451,21 @@
 
 
 (defmethod load-patch-contents ((patch OMSequencer) data)
-  (let ((maquette (call-next-method))
+  (let ((seq (call-next-method))
         (patch (find-value-in-kv-list data :control-patch))
         (range (find-value-in-kv-list data :range))
         (interval (find-value-in-kv-list data :loop-interval))
         (loop-on (find-value-in-kv-list data :loop-on)))
-    (when patch (set-control-patch maquette (omng-load patch)))
-    (when range (setf (range maquette) range))
-    (when interval (setf (interval maquette) interval))
-    (setf (looper maquette) loop-on)
-    maquette))
+    (when patch (set-control-patch seq (omng-load patch)))
+    (when range (setf (range seq) range))
+    (when interval (setf (interval seq) interval))
+    (setf (looper seq) loop-on)
+    seq))
       
 (defmethod om-load-from-id ((id (eql :sequencer)) data)
-  (let ((maq (make-instance 'OMSequencerInternal :name (find-value-in-kv-list data :name))))
-    (load-patch-contents maq data)
-    maq))
+  (let ((seq (make-instance 'OMSequencerInternal :name (find-value-in-kv-list data :name))))
+    (load-patch-contents seq data)
+    seq))
 
 
 
@@ -482,7 +482,7 @@
          (checked-path (and (pathname-directory path)  ;; normal case
                             (check-path-using-search-path path)))
 
-         (maquette
+         (seq
     
           (if checked-path
         
@@ -495,9 +495,9 @@
                 (doc-entry-doc registered-entry)))
             )))
       
-      (unless maquette
+      (unless seq
         (om-beep-msg "SEQUENCER FILE NOT FOUND: ~S !" path)
-        (setf maquette (make-instance'OMSequencerFile :name (pathname-name path)))
-        (setf (mypathname maquette) path))
+        (setf seq (make-instance'OMSequencerFile :name (pathname-name path)))
+        (setf (mypathname seq) path))
       
-      maquette))
+      sequencers))

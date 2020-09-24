@@ -112,8 +112,8 @@
         (move-box-in-sequencer (object self) tb :dx dx :dy dy)))
 
 (defmethod box-at-pos ((editor sequencer-editor) time &optional track)
-  (let* ((maquette (object editor)))
-    (find time (if track (get-track-boxes maquette track) (get-all-boxes maquette))
+  (let* ((seq (object editor)))
+    (find time (if track (get-track-boxes seq track) (get-all-boxes seq))
           :test #'(lambda (tt tb)
                     (and (> tt (get-box-onset tb)) 
                          (< tt (get-box-end-date tb)))))))
@@ -122,10 +122,10 @@
 ;;; called from the tracks
 (defmethod new-box-in-track-view ((self sequencer-editor) at &optional (track 0))
   (store-current-state-for-undo self)
-  (let ((maq (object self))
+  (let ((seq (object self))
         (new-box (omng-make-special-box 'patch at)))
     (set-box-duration new-box *temporalbox-def-w*)  
-    (add-box-in-track maq new-box track)  
+    (add-box-in-track seq new-box track)  
     new-box))
 
 ;;;; !!!!!
@@ -302,11 +302,11 @@
 #|
 (defmethod om-draw-contents ((self sequencer-track-view))
   (let* ((editor (editor (om-view-window self)))
-         (maquette (object editor)))
+         (seq (object editor)))
     (when (get-g-component editor :metric-ruler) ;; just in case
      (om-with-fg-color (om-gray-color 0 0.1)
        (draw-grid-from-ruler self (get-g-component editor :metric-ruler))))
-    (loop for tb in (get-track-boxes maquette (num self)) 
+    (loop for tb in (get-track-boxes seq (num self)) 
           when (and (> (+ (get-box-onset tb) (get-box-duration tb)) (x1 self))
                     (< (get-box-onset tb) (x2 self)))
           do
@@ -314,7 +314,7 @@
                 (x2 (if (scale-in-x-? tb) 
                                (x-to-pix self (get-box-end-date tb))
                              (box-w tb))))
-            (draw-temporal-box tb self x1 0 (- x2 x1) (h self) (- (get-obj-time maquette) (get-box-onset tb)))
+            (draw-temporal-box tb self x1 0 (- x2 x1) (h self) (- (get-obj-time seq) (get-box-onset tb)))
             (when (selected tb)
               (om-with-fg-color (om-make-color-alpha (om-def-color :gray) 0.5)
                 (om-draw-rect x1 0 (- x2 x1) (h self) :fill t)))))))
@@ -322,7 +322,7 @@
 
 (defmethod om-draw-contents-area ((self sequencer-track-view) x y w h)
   (let* ((editor (editor (om-view-window self)))
-         (maquette (object editor))
+         (seq (object editor))
          (xmax (+ x w))
          (t1 (pixel-to-time self x))
          (t2 (pixel-to-time self xmax))
@@ -349,7 +349,7 @@
     (call-next-method)
     
     ;;;CONTENT
-    (loop for tb in (get-track-boxes maquette (num self))
+    (loop for tb in (get-track-boxes seq (num self))
           do
           (let ((x1 (x-to-pix self (get-box-onset tb)))
                 (x2 (if (scale-in-x-? tb) 
@@ -711,7 +711,7 @@
 ;;;========================
 
 (defmethod editor-key-action ((editor sequencer-editor) key)
-  (let ((maquette (object editor)))
+  (let ((seq (object editor)))
     (case key
       (:om-key-left
        (unless (edit-lock editor)
@@ -741,11 +741,11 @@
       (:om-key-esc
        (select-unselect-all editor nil))
 
-      (#\v (with-schedulable-object maquette
+      (#\v (with-schedulable-object seq
                                     (loop for tb in (get-selected-boxes editor) do 
                                           (eval-box tb)
                                           (reset-cache-display tb)
-                                          (contextual-update tb maquette)))
+                                          (contextual-update tb seq)))
            (om-invalidate-view (window editor))
            (clear-ev-once (object editor))
            (report-modifications editor))
@@ -911,7 +911,7 @@ CMD-click to add boxes. Play contents, etc.
   (setf (play-interval editor) (interval (get-obj-to-play editor))))
 
 (defmethod make-editor-window-contents ((editor sequencer-editor))
-  (let* ((maquette (get-obj-to-play editor))
+  (let* ((seq (get-obj-to-play editor))
          
          (tracks-or-maq-view 
           (if (equal (view-mode editor) :maquette)
@@ -1000,8 +1000,8 @@ CMD-click to add boxes. Play contents, etc.
                            :lock-push nil :enabled t
                            :action #'(lambda (b)
                                        (declare (ignore b))
-                                       (let ((maq (get-obj-to-play editor)))
-                                         (eval-sequencer maq)
+                                       (let ((seq (get-obj-to-play editor)))
+                                         (eval-sequencer seq)
                                          (om-invalidate-view tracks-or-maq-view)
                                          ))))
                  (setq b3 (om-make-graphic-object 
@@ -1021,9 +1021,9 @@ CMD-click to add boxes. Play contents, etc.
                            :lock-push t :enabled t
                            :action #'(lambda (b)
                                        (declare (ignore b))
-                                       (with-schedulable-object maquette
-                                                                (setf (no-exec maquette) 
-                                                                      (not (no-exec maquette)))))))
+                                       (with-schedulable-object seq
+                                                                (setf (no-exec seq) 
+                                                                      (not (no-exec seq)))))))
                  (list b1 b2 b3 b4)))
               (om-make-layout
                'om-row-layout 
@@ -1281,12 +1281,12 @@ CMD-click to add boxes. Play contents, etc.
 
 
 ;;; when a box changes track
-(defmethod update-container-groups ((maquette OMSequencer)) 
-  (when (and (editor maquette) 
-             (equal (view-mode (editor maquette)) :tracks)
-             (not (= (n-tracks (editor maquette)) (n-track-views (editor maquette)))))
+(defmethod update-container-groups ((seq OMSequencer)) 
+  (when (and (editor seq) 
+             (equal (view-mode (editor seq)) :tracks)
+             (not (= (n-tracks (editor seq)) (n-track-views (editor seq)))))
     ;;; will update the number of tracks
-    (set-main-view (editor maquette) :tracks)))
+    (set-main-view (editor seq) :tracks)))
 
 
 ;;; called at init: 
@@ -1399,13 +1399,13 @@ CMD-click to add boxes. Play contents, etc.
 
 (defmethod update-after-state-change ((self sequencer-editor))
   
-  (let* ((maq (object self)))
+  (let* ((seq (object self)))
     
     (when (equal (view-mode self) :maquette) 
       
       (let ((view (get-g-component self :maq-view)))
         (om-remove-all-subviews view)
-        (put-patch-boxes-in-editor-view maq view)
+        (put-patch-boxes-in-editor-view seq view)
         (update-temporalboxes view)
         (om-invalidate-view view)
         ))
