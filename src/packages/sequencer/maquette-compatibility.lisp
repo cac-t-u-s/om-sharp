@@ -115,7 +115,7 @@
         (maq (values 'maquette (cadr refer)))
         ;;; internal abstractions
         (patch (values 'abstraction (cadr refer)))
-        ;;; a bug (?) in OM6: the value is quotes only fr internalm maquettes... => eval
+        ;;; a bug (?) in OM6: the value is quoted only for internal maquettes... => eval
         (absmaq (values 'abstraction (eval (cadr refer))))  
         (yourobj (values NIL (cadr refer))))
     
