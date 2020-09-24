@@ -1010,7 +1010,7 @@ CMD-click to add boxes. Play contents, etc.
                            :action #'(lambda (b) 
                                        (declare (ignore b))
                                        (when (and (boxes (get-obj-to-play editor)) 
-                                                  (om-y-or-n-dialog "This will remove all boxes in the maquette."))
+                                                  (om-y-or-n-dialog "This will remove all boxes in the sequencer."))
                                          (m-flush (get-obj-to-play editor))
                                          (om-invalidate-view tracks-or-maq-view)
                                          ))))
