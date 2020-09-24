@@ -17,11 +17,11 @@
 
 (in-package :om)
 
-(defclass OMBoxMaquette (OMBoxPatch) ())
+(defclass OMBoxSequencer (OMBoxPatch) ())
 
 (defmethod special-box-p ((name (eql 'maquette))) t)
 
-(defmethod get-box-class ((self OMSequencer)) 'OMBoxMaquette)
+(defmethod get-box-class ((self OMSequencer)) 'OMBoxSequencer)
 
 (defmethod omNG-make-special-box ((reference (eql 'maquette)) pos &optional init-args)
   (omNG-make-new-boxcall 
@@ -32,10 +32,10 @@
    ))
 
 
-(defmethod next-optional-input ((self OMBoxMaquette))
+(defmethod next-optional-input ((self OMBoxSequencer))
   (< (length (get-optional-inputs self)) 2))
 
-(defmethod more-optional-input ((self OMBoxMaquette) &key name (value nil val-supplied-p) doc reactive)
+(defmethod more-optional-input ((self OMBoxSequencer) &key name (value nil val-supplied-p) doc reactive)
   (declare (ignore name doc))
    ;;; the first one is already here
    (add-optional-input self :name (if (get-optional-inputs self) "objs" "time")
@@ -91,7 +91,7 @@
     (t (- (car (last tlist 1)) (car (last tlist 2))))))
 
 
-(defmethod put-boxes-in-maquette ((self OMBoxMaquette))
+(defmethod put-boxes-in-maquette ((self OMBoxSequencer))
   
   (let* ((tlist-in (find "time" (get-optional-inputs self) :key #'name :test #'string-equal))
          (tlist (and tlist-in (omng-box-value tlist-in)))
@@ -145,7 +145,7 @@
         ))))
 
 
-(defmethod omng-box-value :before ((self OMBoxMaquette) &optional numout)  
+(defmethod omng-box-value :before ((self OMBoxSequencer) &optional numout)  
   (unless
       (or (equal (lock-state self) :locked)
           (and (or (equal (lock-state self) :eval-once)
@@ -157,7 +157,7 @@
     ))
 
 
-(defmethod eval-box-inputs ((self OMBoxMaquette))
+(defmethod eval-box-inputs ((self OMBoxSequencer))
   (loop for input in (get-standard-inputs self)
         collect (omNG-box-value input)))
 
