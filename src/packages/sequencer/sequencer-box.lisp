@@ -26,7 +26,7 @@
 (defmethod omNG-make-special-box ((reference (eql 'maquette)) pos &optional init-args)
   (omNG-make-new-boxcall 
    (make-instance 'OMMaquetteInternal
-                  :name (if init-args (format nil "~A" (car (list! init-args))) "new-maquette"))
+                  :name (if init-args (format nil "~A" (car (list! init-args))) "new-sequencer"))
    pos 
    init-args ;; don't need to pass them in principle..
    ))

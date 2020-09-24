@@ -149,7 +149,7 @@
    (:type :abstraction)
    (:reference
     (:sequencer
-     (:name "maquette")
+     (:name "sequence")
      (:doc "")
      (:info (:created nil) (:modified nil) (:by nil) (:version nil))
      (:window (:size (1175 586)) (:position (88 126)))
@@ -545,7 +545,7 @@ Additional inputs/outputs are accesses on the maquette box.
      (:loop-interval nil)
      (:loop-on nil)))
    (:group-id nil)
-   (:name "maquette")
+   (:name "sequence")
    (:x 459)
    (:y 644)
    (:w 119)
@@ -662,7 +662,7 @@ Additional inputs/outputs are accesses on the maquette box.
      (:t-or-nil t)))
    (:align nil)
    (:text
-    "The MidiEvents are put in the maquette with other objects (double-click on \"maquette\" to see the result)")
+    "The MidiEvents are put in the sequencer with other objects (double-click on \"sequence\" to see the result)")
    (:id 6))
   (:box
    (:type :value)
