@@ -118,7 +118,7 @@
                                        collect elt))
         ((equal filter :sequencers) (loop for elt in elements 
                                        when (and (mypathname elt)
-                                                 (string-equal (pathname-type (mypathname elt)) "omaq"))
+                                                 (string-equal (pathname-type (mypathname elt)) "oseq"))
                                        collect elt))))
 
 

@@ -36,7 +36,7 @@
   (:default-initargs :icon :sequencer-file)
   (:metaclass omstandardclass))
 
-(add-om-doctype :sequencer "omaq" "Maquette")
+(add-om-doctype :sequencer "oseq" "Maquette")
 
 (defclass OMMaquetteInternal (OMMaquette) ()
   (:default-initargs :icon :sequencer)
