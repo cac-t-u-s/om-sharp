@@ -121,7 +121,7 @@
     
     (if ref-type  ;;; => abstraction box
         
-        (print (append 
+      (append 
          (om-load-boxcall ref-type name ref-val 
                           inputs 
                           (om-make-point posx posy)
@@ -130,7 +130,6 @@
          `((:color ,(omng-save clorf))
            (:show-name ,showname)
            (:group-id ,(om-random 1 4))))
-         )
 
       (append 
        (om-load-boxinstance name ref-val 
