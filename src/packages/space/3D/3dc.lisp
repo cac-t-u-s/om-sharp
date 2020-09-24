@@ -351,7 +351,7 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
     ))
 
 ;;; to be redefined by objects if they have a specific miniview for the maquette
-(defmethod draw-maquette-mini-view ((self 3dc) (box t) x y w h &optional time) 
+(defmethod draw-sequencer-mini-view ((self 3dc) (box t) x y w h &optional time) 
   (let* ((x-col (om-def-color :red))
          (y-col (om-def-color :green))
          (z-col (om-def-color :blue))

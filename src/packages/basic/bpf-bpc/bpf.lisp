@@ -511,7 +511,7 @@
     t))
 
 
-(defmethod draw-maquette-mini-view ((self bpf) (box t) x y w h &optional time)
+(defmethod draw-sequencer-mini-view ((self bpf) (box t) x y w h &optional time)
   (let* ((display-cache (ensure-cache-display-draw box self))
          (ranges (car display-cache))
          (x-range (list 0 (nth 1 ranges)))

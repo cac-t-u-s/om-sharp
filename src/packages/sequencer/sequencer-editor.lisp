@@ -596,13 +596,13 @@
 ;;;==============================-
 
 ;;; to be redefined by objects if they have a specific miniview for the maquette
-(defmethod draw-maquette-mini-view ((object t) (box OMBox) x y w h &optional time)
+(defmethod draw-sequencer-mini-view ((object t) (box OMBox) x y w h &optional time)
   (ensure-cache-display-draw box object)
   (draw-mini-view object box x y w h time))
 
-(defmethod draw-maquette-mini-view ((object OMBoxEditCall) (box OMBox) x y w h &optional time)
+(defmethod draw-sequencer-mini-view ((object OMBoxEditCall) (box OMBox) x y w h &optional time)
   (om-draw-rect (+ x 2) (+ y 4) (- w 4) (- h 16) :fill t :color (om-def-color :white))
-  (draw-maquette-mini-view (get-box-value object) box (+ x 8) (+ y 4) (- w 12) (- h 16) nil))
+  (draw-sequencer-mini-view (get-box-value object) box (+ x 8) (+ y 4) (- w 12) (- h 16) nil))
 
 
 (defmethod draw-temporal-box ((self OMBox) view x y w h &optional (time 0))
@@ -625,13 +625,13 @@
 
   (case (display self)  
     (:mini-view 
-     (draw-maquette-mini-view (reference self) self (+ x 20) y (- w 40) h time))
+     (draw-sequencer-mini-view (reference self) self (+ x 20) y (- w 40) h time))
     (:text ;; not called 
      (draw-values-as-text self x y))
     (:value 
      (let ((dur (or (get-obj-dur (get-box-value self)) (box-w self))))
        (om-with-clip-rect view x y w h
-         (draw-maquette-mini-view (get-box-value self) self x y 
+         (draw-sequencer-mini-view (get-box-value self) self x y 
                                   (if (get-box-value self)
                                       (dx-to-dpix view dur)
                                     w)
@@ -661,7 +661,7 @@
 (defmethod draw-temporal-box ((self omboxeditcall) view x y w h &optional (time 0))
   (call-next-method)
   (case (display self)  
-    (:mini-view (draw-maquette-mini-view (get-box-value self) self x y w h time))
+    (:mini-view (draw-sequencer-mini-view (get-box-value self) self x y w h time))
     (:text (draw-mini-text (get-box-value self) self x y w h nil))
     (:hidden  (om-with-font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))
                           (om-with-fg-color (om-make-color 0.6 0.6 0.6 0.5)

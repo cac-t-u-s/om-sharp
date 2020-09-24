@@ -262,7 +262,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 
 
 ;;; to be redefined by objects if they have a specific miniview for the maquette
-(defmethod draw-maquette-mini-view ((self bpc) (box t) x y w h &optional time) 
+(defmethod draw-sequencer-mini-view ((self bpc) (box t) x y w h &optional time) 
   (let* ((x-col (om-def-color :red))
          (y-col (om-def-color :green))
          (ranges (nice-bpf-range self))
