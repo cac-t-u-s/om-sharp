@@ -21,11 +21,11 @@
 
 (defmethod special-box-p ((name (eql 'maquette))) t)
 
-(defmethod get-box-class ((self OMMaquette)) 'OMBoxMaquette)
+(defmethod get-box-class ((self OMSequencer)) 'OMBoxMaquette)
 
 (defmethod omNG-make-special-box ((reference (eql 'maquette)) pos &optional init-args)
   (omNG-make-new-boxcall 
-   (make-instance 'OMMaquetteInternal
+   (make-instance 'OMSequencerInternal
                   :name (if init-args (format nil "~A" (car (list! init-args))) "new-sequencer"))
    pos 
    init-args ;; don't need to pass them in principle..
@@ -50,9 +50,9 @@
 ;;;=====================================
 ;;; BOX DISPLAY
 ;;;=====================================
-(defmethod display-modes-for-object ((self OMMaquette)) '(:mini-view :text :hidden))
+(defmethod display-modes-for-object ((self OMSequencer)) '(:mini-view :text :hidden))
 
-(defmethod draw-mini-view ((self OMMaquette) box x y w h &optional time)
+(defmethod draw-mini-view ((self OMSequencer) box x y w h &optional time)
   
   (let* ((boxes (remove-if #'(lambda (b) (not (group-id b))) (get-all-boxes self)))
          (n-tracks (apply #'max (or (mapcar #'group-id boxes) '(1))))
@@ -162,14 +162,14 @@
         collect (omNG-box-value input)))
 
 
-(defmethod compile-patch ((self OMMaquette)) 
+(defmethod compile-patch ((self OMSequencer)) 
   (setf (compiled? self) t)
   (compile-patch (ctrlpatch self)))
 
-(defmethod compiled-fun-name ((self OMMaquette)) 
+(defmethod compiled-fun-name ((self OMSequencer)) 
   (compiled-fun-name (ctrlpatch self)))
 
-(defmethod compiled? ((self OMMaquette)) 
+(defmethod compiled? ((self OMSequencer)) 
   (compiled? (ctrlpatch self)))
 
 

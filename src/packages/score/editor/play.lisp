@@ -269,7 +269,7 @@
   (call-next-method))
 
     
-(defmethod player-play-object :before ((self scheduler) (object ommaquette) caller &key parent interval)
+(defmethod player-play-object :before ((self scheduler) (object OMSequencer) caller &key parent interval)
   ;;;Ajouter ici la task begin : (mp:mailbox-send (taskqueue *engine*) *taskbegin*)
   (declare (ignore parent interval))
   

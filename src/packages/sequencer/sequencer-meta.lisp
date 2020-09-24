@@ -33,7 +33,7 @@
 ;        (references-to self)))
 
 
-(defmethod set-control-patch ((self OMMaquette) (patch OMPatch))
+(defmethod set-control-patch ((self OMSequencer) (patch OMPatch))
   (change-class patch (find-class 'OMMaqControlPatch))
   (setf (ctrlpatch self) patch)
   (setf (references-to (ctrlpatch self)) (list self)))
@@ -46,7 +46,7 @@
 (defmethod find-persistant-container ((self OMMaqControlPatch))
   (find-persistant-container (car (references-to self))))
 
-(defmethod get-internal-elements ((self OMMaquette))
+(defmethod get-internal-elements ((self OMSequencer))
   (append (call-next-method)
           (get-internal-elements (ctrlpatch self))))
 
@@ -57,7 +57,7 @@
 Additional inputs/outputs are accesses on the maquette box.
 ")
 
-(defmethod initialize-instance :after ((self OMMaquette) &rest args)
+(defmethod initialize-instance :after ((self OMSequencer) &rest args)
   
   ;;; put this somewhere else ??
   (set-object-autostop self nil) ;; the maquette doesn't auto-stop when its duration is passed
@@ -83,13 +83,13 @@ Additional inputs/outputs are accesses on the maquette box.
 
 
 ;;; called when some change is made in the maquette or in the control-patch
-(defmethod update-from-reference  ((self OMMaquette))
+(defmethod update-from-reference  ((self OMSequencer))
   (loop for item in (references-to self) do (update-from-reference item)))
   
-(defmethod get-inputs ((self OMMaquette))
+(defmethod get-inputs ((self OMSequencer))
   (get-inputs (ctrlpatch self)))
 
-(defmethod get-outputs ((self OMMaquette))
+(defmethod get-outputs ((self OMSequencer))
   (get-outputs (ctrlpatch self)))
 
 
@@ -133,7 +133,7 @@ Additional inputs/outputs are accesses on the maquette box.
 (defmethod maquette-container ((self OMBox)) (maquette-container (container self)))
 ;;; the references-to a control patch is just the maquette
 (defmethod maquette-container ((self OMMaqControlPatch)) (car (references-to self)))
-(defmethod maquette-container ((self OMMaquette)) self)
+(defmethod maquette-container ((self OMSequencer)) self)
 (defmethod maquette-container ((self OMPatch)) (maquette-container (car (box-references-to self))))
 (defmethod maquette-container ((self t)) nil)
 
@@ -173,7 +173,7 @@ Additional inputs/outputs are accesses on the maquette box.
   (call-next-method)
   ;;; For OMPatchInternal the only references-to is the box
   ;;; => just check if it is in a maquette...
-  (when (subtypep (type-of (container (car (references-to self)))) 'OMMaquette)
+  (when (subtypep (type-of (container (car (references-to self)))) 'OMSequencer)
     (setf (defval elem) (container (car (references-to self))))))
 
 (defmethod register-patch-io ((self OMPatchFile) (elem OMMaqIn))
@@ -181,7 +181,7 @@ Additional inputs/outputs are accesses on the maquette box.
   ;;; For OMPatchFile the only references-to can be multiples !
   ;;; In this case, it will be set only before eval
   (if (and (= 1 (length (references-to self)))
-           (subtypep (type-of (container (car (references-to self)))) 'OMMaquette))
+           (subtypep (type-of (container (car (references-to self)))) 'OMSequencer))
       (setf (defval elem) (container (car (references-to self))))))
 |#
 

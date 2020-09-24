@@ -72,7 +72,7 @@
 ;;; => requires a check in the report-modification process ! 
 (defmethod container-editor ((self sequencer-editor)) self)
 
-(defmethod get-editor-class ((self OMMaquette)) 'sequencer-editor)
+(defmethod get-editor-class ((self OMSequencer)) 'sequencer-editor)
 (defmethod get-obj-to-play ((self sequencer-editor)) (object self))
 
 (defmethod is-playing ((self sequencer-editor))
@@ -236,7 +236,7 @@
     ))
 
 
-(defmethod allowed-element ((self OMMaquette) (elem OMInOutBox)) nil)
+(defmethod allowed-element ((self OMSequencer) (elem OMInOutBox)) nil)
 
 
 (defmethod om-view-pan-handler ((self maquette-view) position dx dy)
@@ -1280,7 +1280,7 @@ CMD-click to add boxes. Play contents, etc.
 
 
 ;;; when a box changes track
-(defmethod update-container-groups ((maquette OMMaquette)) 
+(defmethod update-container-groups ((maquette OMSequencer)) 
   (when (and (editor maquette) 
              (equal (view-mode (editor maquette)) :tracks)
              (not (= (n-tracks (editor maquette)) (n-track-views (editor maquette)))))
