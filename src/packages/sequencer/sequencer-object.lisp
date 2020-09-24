@@ -399,7 +399,7 @@
         do (set-object-gain obj gain)))
 
 (defmethod set-object-gain ((self t) gain)
-  (print (format nil "No redefinition of set-object-gain found for ~A" (type-of self))))
+  (format nil "No redefinition of set-object-gain found for ~A" (type-of self)))
 
 (defmethod set-track-pan ((self OMSequencer) tracknum pan)
   (loop for obj in (get-track-objects self tracknum)
