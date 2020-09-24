@@ -51,10 +51,10 @@
           (get-internal-elements (ctrlpatch self))))
 
 
-(defparameter *maquette-help-text*
-  "This patch is a general controller for the maquette...
+(defparameter *control-patch-help-comment*
+  "This patch is a general controller for the sequencer...
 
-Additional inputs/outputs are accesses on the maquette box.
+Additional inputs/outputs are accesses on the sequencer box.
 ")
 
 (defmethod initialize-instance :after ((self OMSequencer) &rest args)
@@ -67,7 +67,7 @@ Additional inputs/outputs are accesses on the maquette box.
            (inbox (omng-make-special-box 'mysequence (omp 150 12)))
            (outbox (omng-make-special-box 'out (omp 150 200)))
            (connection (omng-make-new-connection (car (outputs inbox)) (car (inputs outbox))))
-           (comment (omng-make-new-comment *maquette-help-text* (omp 10 40))))
+           (comment (omng-make-new-comment *control-patch-help-comment* (omp 10 40))))
       (setf (index (reference inbox)) 0
             (defval (reference inbox)) self)
       (omng-add-element patch inbox)
