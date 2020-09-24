@@ -25,25 +25,25 @@
 ;;;==========================
 ;;; THE CONTROL PATCH
 ;;;==========================
-(defclass OMMaqControlPatch (OMPatchInternal) ())
+(defclass OMControlPatch (OMPatchInternal) ())
 
 ;;; in principle there is only 1 reference (the maquette)
-;(defmethod update-from-editor ((self OMMaqControlPatch))
+;(defmethod update-from-editor ((self OMControlPatch))
 ;  (mapc #'(lambda (ref) (report-modifications (editor ref)))
 ;        (references-to self)))
 
 
 (defmethod set-control-patch ((self OMSequencer) (patch OMPatch))
-  (change-class patch (find-class 'OMMaqControlPatch))
+  (change-class patch (find-class 'OMControlPatch))
   (setf (ctrlpatch self) patch)
   (setf (references-to (ctrlpatch self)) (list self)))
 
 ;;; not used... (?)
 (defmethod maquette-reference ((self t)) nil)
-(defmethod maquette-reference ((self OMMaqControlPatch))
+(defmethod maquette-reference ((self OMControlPatch))
   (car (references-to self))) ;;; in principle this is the only one !
 
-(defmethod find-persistant-container ((self OMMaqControlPatch))
+(defmethod find-persistant-container ((self OMControlPatch))
   (find-persistant-container (car (references-to self))))
 
 (defmethod get-internal-elements ((self OMSequencer))
@@ -63,7 +63,7 @@ Additional inputs/outputs are accesses on the maquette box.
   (set-object-autostop self nil) ;; the maquette doesn't auto-stop when its duration is passed
   
   (unless (ctrlpatch self)
-    (let* ((patch (make-instance 'OMMaqControlPatch :name "Control Patch"))
+    (let* ((patch (make-instance 'OMControlPatch :name "Control Patch"))
            (inbox (omng-make-special-box 'mysequence (omp 150 12)))
            (outbox (omng-make-special-box 'out (omp 150 200)))
            (connection (omng-make-new-connection (car (outputs inbox)) (car (inputs outbox))))
@@ -127,12 +127,12 @@ Additional inputs/outputs are accesses on the maquette box.
 
 ;;; FOR THE META INPUTS
 ;;; if there are several references (maquetteFile) we assume that the first in the list is the current caller
-(defmethod box-container ((self OMMaqControlPatch))  (car (references-to (car (references-to self)))))
+(defmethod box-container ((self OMControlPatch))  (car (references-to (car (references-to self)))))
 
 ;;; check the container: can be a patch, a controlpatch or a maquette
 (defmethod maquette-container ((self OMBox)) (maquette-container (container self)))
 ;;; the references-to a control patch is just the maquette
-(defmethod maquette-container ((self OMMaqControlPatch)) (car (references-to self)))
+(defmethod maquette-container ((self OMControlPatch)) (car (references-to self)))
 (defmethod maquette-container ((self OMSequencer)) self)
 (defmethod maquette-container ((self OMPatch)) (maquette-container (car (box-references-to self))))
 (defmethod maquette-container ((self t)) nil)
@@ -164,9 +164,9 @@ Additional inputs/outputs are accesses on the maquette box.
 ;;; note : maybe this is all not useful and I should set the meta just at eval
 
 ;;; TRY TO SET THE DEFVAL AS THE CONTAINER MAQUETTE
-(defmethod register-patch-io ((self OMMaqControlPatch) (elem OMMaqIn))
+(defmethod register-patch-io ((self OMControlPatch) (elem OMMaqIn))
   (call-next-method)
-  ;;; For OMMaqControlPatch the only references-to is the maquette
+  ;;; For OMControlPatch the only references-to is the maquette
   (setf (defval elem) (car (references-to self))))
 
 (defmethod register-patch-io ((self OMPatchInternal) (elem OMMaqIn))
