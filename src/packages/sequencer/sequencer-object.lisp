@@ -386,13 +386,6 @@
   (omNG-add-element maquette tb)
   (om-invalidate-view (nth (1- tracknum) (get-g-component (editor maquette) :track-views)))))
 
-#| 
-(with-schedulable-object 
-   maquette
-   (when (< tracknum (length (tracks maquette)))
-     (setf (nth tracknum (tracks maq))
-           (sort (cons tb (nth tracknum (tracks maquette))) '< :key 'onset))))
-|#
 
 (defmethod set-track-gain ((self OMSequencer) tracknum gain)
   (loop for obj in (get-track-objects self tracknum)
@@ -511,16 +504,3 @@
         (setf (mypathname maquette) path))
       
       maquette))
-
-
-
-
-
-;(let ((data (cdr (car (list-from-file "/Users/bresson/Desktop/test.omp")))))
-  ;(find-values-in-prop-list data :info)
- ; (mapcar #'omng-load (find-values-in-prop-list data :boxes))
-;  (find-values-in-prop-list data :boxes)
-;  )
-;(omng-load '(:box (:reference pprint) (:position (:point 260 242)) (:size (:point 63 28)) (:icon :left) (:color nil) (:border t) (:font nil) (:align :left) (:lock nil) (:lambda nil) (:reactive nil) (:inputs (:standard "OBJECT" nil))))
-
-
