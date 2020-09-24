@@ -292,7 +292,7 @@
   
   ;;; update the context (in case of embedded editors) 
   (when (and (container-editor self)
-             (not (equal self (container-editor self)))) ;;; the maquette-editor is its own container... :(
+             (not (equal self (container-editor self)))) ;;; the sequencer-editor is its own container... :(
     (update-to-editor (container-editor self) self)
     (report-modifications (container-editor self)))
 

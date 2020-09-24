@@ -31,14 +31,14 @@
 (defparameter +font-color+ (om-gray-color 1))
 
 
-(defclass maquette-editor (multi-view-editor patch-editor play-editor-mixin)
+(defclass sequencer-editor (multi-view-editor patch-editor play-editor-mixin)
   ((view-mode :accessor view-mode :initarg :view-mode :initform :tracks)     ;;; :tracks or :maquette
    (show-control-patch :accessor show-control-patch :initarg :show-control-patch :initform nil)
    (snap-to-grid :accessor snap-to-grid :initarg :snap-to-grid :initform t)
    (beat-info :accessor beat-info :initarg :beat-info :initform (list :beat-count 0 :prevtime 0 :nexttime 1))))
 
 
-(defmethod om-menu-items ((self maquette-editor))
+(defmethod om-menu-items ((self sequencer-editor))
   (remove nil (list 
    (main-app-menu-item)
    (om-make-menu "File" (default-file-menu-items self))
@@ -67,51 +67,51 @@
    (om-make-menu "Help" (default-help-menu-items self))
    )))
 
-;;; maquette-editor is its own container
+;;; sequencer-editor is its own container
 ;;; this is needed by the multi-editor click-system 
 ;;; => requires a check in the report-modification process ! 
-(defmethod container-editor ((self maquette-editor)) self)
+(defmethod container-editor ((self sequencer-editor)) self)
 
-(defmethod get-editor-class ((self OMMaquette)) 'maquette-editor)
-(defmethod get-obj-to-play ((self maquette-editor)) (object self))
+(defmethod get-editor-class ((self OMMaquette)) 'sequencer-editor)
+(defmethod get-obj-to-play ((self sequencer-editor)) (object self))
 
-(defmethod is-playing ((self maquette-editor))
+(defmethod is-playing ((self sequencer-editor))
   (equal (player-get-object-state (player self) (get-obj-to-play self)) :play))
 
-(defmethod get-editor-view-for-action ((self maquette-editor))
+(defmethod get-editor-view-for-action ((self sequencer-editor))
   (if (equal (view-mode self) :maquette)
       (get-g-component self :maq-view)
     (selected-view self))) ;; selected = the last clicked track
 
-(defmethod get-view-from-mode ((self maquette-editor))
+(defmethod get-view-from-mode ((self sequencer-editor))
   (if (equal (view-mode self) :maquette)
       (get-g-component self :maq-view)
     (get-g-component self :track-views)))
 
-(defmethod n-tracks ((self maquette-editor)) 
+(defmethod n-tracks ((self sequencer-editor)) 
   (max 4
        (or (and (boxes (object self))
                 (list-max (remove-if-not #'numberp (mapcar 'group-id (get-all-boxes (object self))))))
            0 )))
 
-(defmethod get-range ((self maquette-editor)) (range (object self)))
+(defmethod get-range ((self sequencer-editor)) (range (object self)))
 
-(defmethod editor-get-tempo-automation ((self maquette-editor))
+(defmethod editor-get-tempo-automation ((self sequencer-editor))
   (tempo-automation (get-g-component self :metric-ruler)))
 
 
-(defmethod cursor-panes ((self maquette-editor)) 
+(defmethod cursor-panes ((self sequencer-editor)) 
   (remove nil
           (append (list (get-g-component self :maq-view)
                         (get-g-component self :metric-ruler)
                         (get-g-component self :abs-ruler))
                   (get-g-component self :track-views))))
 
-(defmethod move-editor-selection ((self maquette-editor) &key (dx 0) (dy 0))
+(defmethod move-editor-selection ((self sequencer-editor) &key (dx 0) (dy 0))
   (loop for tb in (get-selected-boxes self) do
         (move-box-in-maquette (object self) tb :dx dx :dy dy)))
 
-(defmethod box-at-pos ((editor maquette-editor) time &optional track)
+(defmethod box-at-pos ((editor sequencer-editor) time &optional track)
   (let* ((maquette (object editor)))
     (find time (if track (get-track-boxes maquette track) (get-all-boxes maquette))
           :test #'(lambda (tt tb)
@@ -120,7 +120,7 @@
 
 
 ;;; called from the tracks
-(defmethod new-box-in-track-view ((self maquette-editor) at &optional (track 0))
+(defmethod new-box-in-track-view ((self sequencer-editor) at &optional (track 0))
   (store-current-state-for-undo self)
   (let ((maq (object self))
         (new-box (omng-make-special-box 'patch at)))
@@ -139,21 +139,21 @@
 ;;; EDITOR WINDOW
 ;;;========================
 
-(defclass maquette-editor-window (OMEditorWindow) ())
-(defmethod editor-window-class ((self maquette-editor)) 'maquette-editor-window)
+(defclass sequencer-editor-window (OMEditorWindow) ())
+(defmethod editor-window-class ((self sequencer-editor)) 'sequencer-editor-window)
 
 
-(defmethod update-to-editor ((self maquette-editor) (from t))
+(defmethod update-to-editor ((self sequencer-editor) (from t))
   (om-invalidate-view (window self)))
 
-(defmethod report-modifications ((self maquette-editor))
+(defmethod report-modifications ((self sequencer-editor))
   (call-next-method)
   (om-invalidate-view (window self)))
 
-(defmethod editor-window-init-size ((self maquette-editor)) (om-make-point 800 500))
+(defmethod editor-window-init-size ((self sequencer-editor)) (om-make-point 800 500))
 
 ;;; redefined from patch editor
-;(defmethod init-window ((win maquette-editor-window) editor)
+;(defmethod init-window ((win sequencer-editor-window) editor)
 ;  (call-next-method)
 ;  (update-window-name editor)
 ;  win)
@@ -212,7 +212,7 @@
   (call-next-method)
   (update-temporalboxes view))
 
-(defmethod reinit-y-ranges ((self maquette-editor))
+(defmethod reinit-y-ranges ((self sequencer-editor))
   (let ((boxes (boxes (object self))))
     (if boxes
         (set-ruler-range (get-g-component self :y-ruler) 
@@ -221,7 +221,7 @@
       (set-ruler-range (get-g-component self :y-ruler) -10 110)
       )))
 
-(defmethod reinit-y-ranges-from-ruler ((self maquette-editor) ruler) 
+(defmethod reinit-y-ranges-from-ruler ((self sequencer-editor) ruler) 
   (reinit-y-ranges self))
 
 (defmethod om-view-resized :after ((view maquette-view) new-size)
@@ -261,7 +261,7 @@
 
 
 ;;; SNAP INTERVAL IF ALT/OPTION KEY IS DOWN
-(defmethod editor-set-interval ((self maquette-editor) interval) 
+(defmethod editor-set-interval ((self sequencer-editor) interval) 
   (when (om-option-key-p)
     (setf interval (list (snap-time-to-grid (get-g-component self :metric-ruler) (car interval))
                          (snap-time-to-grid (get-g-component self :metric-ruler) (cadr interval)))))
@@ -269,7 +269,7 @@
 
 
 ;;; used for auto-connecting boxes    
-(defmethod is-lower (y1 y2 (editor maquette-editor)) (< y1 y2))
+(defmethod is-lower (y1 y2 (editor sequencer-editor)) (< y1 y2))
 
 
 ;;;========================
@@ -566,7 +566,7 @@
          t))))
 
 
-(defmethod paste-command-for-view ((editor maquette-editor) (view sequencer-track-view))
+(defmethod paste-command-for-view ((editor sequencer-editor) (view sequencer-track-view))
   (unless (edit-lock editor)
     (let* ((boxes (car (get-om-clipboard)))
            (connections (cadr (get-om-clipboard)))
@@ -709,7 +709,7 @@
 ;;; KEYBOARD ACTIONS
 ;;;========================
 
-(defmethod editor-key-action ((editor maquette-editor) key)
+(defmethod editor-key-action ((editor sequencer-editor) key)
   (let ((maquette (object editor)))
     (case key
       (:om-key-left
@@ -771,10 +771,10 @@
 
 
 ;;; not supported for now...
-(defmethod align-selected-boxes ((editor maquette-editor)) nil)
+(defmethod align-selected-boxes ((editor sequencer-editor)) nil)
   
 
-(defmethod select-unselect-all ((self maquette-editor) val)
+(defmethod select-unselect-all ((self sequencer-editor) val)
   (if (and (selected-view self)
            (not (equal self (editor (selected-view self)))))
       (select-unselect-all (editor (selected-view self)) val)
@@ -784,25 +784,25 @@
           (om-invalidate-view (main-view self)))
       (call-next-method))))
 
-(defmethod remove-selection ((self maquette-editor))
+(defmethod remove-selection ((self sequencer-editor))
   (if (and (selected-view self)
            (not (equal self (editor (selected-view self)))))
       (remove-selection (editor (selected-view self)))
     (call-next-method)))
 
-(defmethod copy-command-for-view ((editor maquette-editor) (view t))
+(defmethod copy-command-for-view ((editor sequencer-editor) (view t))
   (if (and (selected-view editor)
            (not (equal editor (editor (selected-view editor)))))
       (copy-command-for-view (editor (selected-view editor)) view)
     (call-next-method)))
 
-(defmethod cut-command-for-view ((editor maquette-editor) (view t))
+(defmethod cut-command-for-view ((editor sequencer-editor) (view t))
   (if (and (selected-view editor)
            (not (equal editor (editor (selected-view editor)))))
       (cut-command-for-view (editor (selected-view editor)) view)
     (call-next-method)))
 
-(defmethod paste-command-for-view ((editor maquette-editor) (view patch-editor-view))
+(defmethod paste-command-for-view ((editor sequencer-editor) (view patch-editor-view))
   (if (and (selected-view editor)
            (not (equal editor (editor (selected-view editor)))))
       (paste-command-for-view (editor (selected-view editor)) view)
@@ -841,12 +841,12 @@
 ;;; INSPECTOR IN MAQUETTE...
 ;;;========================
 
-(defmethod update-inspector-for-editor ((self maquette-editor) &optional obj)
+(defmethod update-inspector-for-editor ((self sequencer-editor) &optional obj)
   (if (and (selected-view self) (not (equal self (editor (selected-view self)))))
       (update-inspector-for-editor (editor (selected-view self)) obj)
     (call-next-method)))
 
-(defmethod default-editor-help-text ((self maquette-editor)) 
+(defmethod default-editor-help-text ((self sequencer-editor)) 
   "
 This is a maquette editor window.
 
@@ -859,7 +859,7 @@ CMD-click to add boxes. Play contents, etc.
 ;;; CONTROL PATCH
 ;;;========================
 
-(defmethod editor-close ((self maquette-editor))
+(defmethod editor-close ((self sequencer-editor))
   (player-stop-object (player self) (metronome self))
   (editor-close (editor (ctrlpatch (object self))))
   (call-next-method))
@@ -903,13 +903,13 @@ CMD-click to add boxes. Play contents, etc.
 ;;; GENERAL CONSTRUCTOR
 ;;;========================
 
-(defmethod build-editor-window :before ((editor maquette-editor))
+(defmethod build-editor-window :before ((editor sequencer-editor))
   (mapc #'stop-cursor (cursor-panes editor)))
 
-(defmethod init-editor :after ((editor maquette-editor))
+(defmethod init-editor :after ((editor sequencer-editor))
   (setf (play-interval editor) (interval (get-obj-to-play editor))))
 
-(defmethod make-editor-window-contents ((editor maquette-editor))
+(defmethod make-editor-window-contents ((editor sequencer-editor))
   (let* ((maquette (get-obj-to-play editor))
          
          (tracks-or-maq-view 
@@ -1112,7 +1112,7 @@ CMD-click to add boxes. Play contents, etc.
     ))
 
 
-(defmethod editor-invalidate-views ((editor maquette-editor))
+(defmethod editor-invalidate-views ((editor sequencer-editor))
   (mapc #'om-invalidate-view 
         (list 
          (get-g-component editor :main-maq-view)
@@ -1194,7 +1194,7 @@ CMD-click to add boxes. Play contents, etc.
     layout
     ))
 
-(defmethod play-editor-get-ruler-views ((self maquette-editor)) 
+(defmethod play-editor-get-ruler-views ((self sequencer-editor)) 
   (list (get-g-component self :abs-ruler)
         (get-g-component self :metric-ruler)))
 
@@ -1205,8 +1205,8 @@ CMD-click to add boxes. Play contents, etc.
    :size (om-make-point *track-control-w* *track-h*)
    :bg-color (nth (mod n 2) (list +track-color-1+ +track-color-2+))))
 
-(defun n-track-views (maquette-editor)
-  (length (get-g-component maquette-editor :track-views)))
+(defun n-track-views (sequencer-editor)
+  (length (get-g-component sequencer-editor :track-views)))
 
 (defun make-tracks-view (maq-editor)
 
@@ -1289,20 +1289,20 @@ CMD-click to add boxes. Play contents, etc.
 
 
 ;;; called at init: 
-(defmethod add-lock-item ((editor maquette-editor) view) nil)
+(defmethod add-lock-item ((editor sequencer-editor) view) nil)
 
 
 ;;;=====================
 ;;; PLAYER INTERFACE
 ;;;=====================
-(defmethod editor-make-player ((self maquette-editor))
+(defmethod editor-make-player ((self sequencer-editor))
   ;;; create a metronome
   (setf (metronome self) (make-instance 'metronome :editor self))
   ;;; return the default player
   (call-next-method))
 
 
-(defmethod update-to-editor ((self maquette-editor) (from metronome))
+(defmethod update-to-editor ((self sequencer-editor) (from metronome))
   
   (let ((m-ruler (get-g-component self :metric-ruler)))
     (setf (tempo m-ruler) (tempo from))
@@ -1313,19 +1313,19 @@ CMD-click to add boxes. Play contents, etc.
 
 
 
-(defmethod editor-repeat ((self maquette-editor) t-or-nil)
+(defmethod editor-repeat ((self sequencer-editor) t-or-nil)
   (if t-or-nil
       (loop-object (get-obj-to-play self))
     (unloop-object (get-obj-to-play self))))
 
-(defmethod editor-next-step ((self maquette-editor))
+(defmethod editor-next-step ((self sequencer-editor))
   (let* ((object (get-obj-to-play self))
          (step (get-units (cadr (cursor-panes self))))
          (time (get-obj-time object)))
     (set-object-time object (+ step (- time (mod time step))))
     (set-object-time (metronome self) (+ step (- time (mod time step))))))
 
-(defmethod editor-previous-step ((self maquette-editor))
+(defmethod editor-previous-step ((self sequencer-editor))
   (let* ((object (get-obj-to-play self))
          (step (get-units (cadr (cursor-panes self))))
          (time (get-obj-time object)))
@@ -1341,7 +1341,7 @@ CMD-click to add boxes. Play contents, etc.
 ;;; PLAYER
 ;;;========================
 
-(defmethod play-editor-callback ((self maquette-editor) time)
+(defmethod play-editor-callback ((self sequencer-editor) time)
   
   (set-time-display self time)
   
@@ -1374,7 +1374,7 @@ CMD-click to add boxes. Play contents, etc.
     ;        (setf (getf (beat-info self) :next-date) (tempo-automation-get-beat-date t-auto (getf (beat-info self) :beat-count))))
   )
 
-(defmethod stop-editor-callback ((self maquette-editor))
+(defmethod stop-editor-callback ((self sequencer-editor))
   (setf (getf (beat-info self) :beat-count) 0
         (getf (beat-info self) :next-date) nil)
   (when (get-g-component self :tempo-box) ;; see editor-play-mixin
@@ -1384,7 +1384,7 @@ CMD-click to add boxes. Play contents, etc.
   (call-next-method))
 
 
-(defmethod get-interval-to-play ((self maquette-editor))
+(defmethod get-interval-to-play ((self sequencer-editor))
   (let ((sb (get-selected-boxes self)))
     (if sb
         (list (reduce 'min sb :key 'get-box-onset)
@@ -1396,7 +1396,7 @@ CMD-click to add boxes. Play contents, etc.
 ;;; UNDO / REDO INTERFACE
 ;;;=======================================
 
-(defmethod update-after-state-change ((self maquette-editor))
+(defmethod update-after-state-change ((self sequencer-editor))
   
   (let* ((maq (object self)))
     
@@ -1415,7 +1415,7 @@ CMD-click to add boxes. Play contents, etc.
 
 ;;; forward to control-patch editor if active/selected
 
-(defmethod undo-command ((self maquette-editor)) 
+(defmethod undo-command ((self sequencer-editor)) 
   (let ((ed (editor (selected-view self))))
     (if (or (null ed) (equal ed self))
         (call-next-method)
@@ -1423,7 +1423,7 @@ CMD-click to add boxes. Play contents, etc.
         #'(lambda () (do-undo ed))))))
 
 
-(defmethod redo-command ((self maquette-editor)) 
+(defmethod redo-command ((self sequencer-editor)) 
   (let ((ed (editor (selected-view self))))
     (if (or (null ed) (equal ed self))
         (call-next-method)

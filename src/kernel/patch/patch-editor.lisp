@@ -56,7 +56,7 @@
     (call-next-method)))
  
 ;;; the default location of the editor view
-;;; can change, e.g. for a maquette-editor
+;;; can change, e.g. for a sequencer-editor
 (defmethod get-editor-view-for-action ((self patch-editor)) (main-view self))
 
 ;; will fall here for a maquette editor (main-view is not a patch-editor-view)
