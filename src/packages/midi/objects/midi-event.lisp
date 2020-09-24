@@ -136,7 +136,7 @@
   #'(lambda () (send-midievent self)))
 
 
-;;; PLAY BY ITSELF IN A MAQUETTE...
+;;; PLAY BY ITSELF IN A SEQUENCER...
 ;;; Interval is the interval INSIDE THE OBJECT
 (defmethod get-action-list-for-play ((self midievent) interval &optional parent)
   (when (in-interval 0 interval :exclude-high-bound t) 

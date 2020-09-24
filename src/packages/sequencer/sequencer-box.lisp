@@ -43,9 +43,6 @@
                        :reactive reactive)
    t)
 
-;(defmethod create-box-inputs ((self OMBoxMaquette))
-;  (append (call-next-method)
-;          (get-optional-inputs self)))
 
 ;;;=====================================
 ;;; BOX DISPLAY
@@ -153,7 +150,9 @@
                (equal (ev-once-flag self) (get-ev-once-flag *ev-once-context*))))
 
     (put-boxes-in-maquette self)
-    (eval-maquette (reference self) NIL) ;;; eval the boxes in tracks but not the control-patch
+
+    ;; eval the boxes in tracks but not the control-patch:
+    (eval-maquette (reference self) NIL)
     ))
 
 

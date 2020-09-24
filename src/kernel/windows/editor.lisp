@@ -37,7 +37,7 @@
   (or (slot-value self 'window)
       (and (container-editor self) 
            (not (equal self (container-editor self))) 
-           ;;; in the maquette editor, the editor is its own container..
+           ;;; in the sequencer editor, the editor is its own container..
            (window (container-editor self)))))
 
 
@@ -82,7 +82,7 @@
 
 
 ;;;=============================
-;;; Superclass for main editors (patch, maquette, Lispfile, etc.)
+;;; Superclass for main editors (patch, sequencer, Lispfile, etc.)
 (defclass OMDocumentEditor (OMEditor) ())
 
 (defmethod save-command ((self OMDocumentEditor))

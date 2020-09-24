@@ -32,7 +32,7 @@
 ;;; PLAY-ACTIONS
 ;;;===================================================
 
-;;; from a chord-editor (or a maquette...)
+;;; from a chord-editor (or a sequencer...)
 ;;; !! negative offsets shift the chord
 (defmethod get-action-list-for-play ((c chord) interval &optional parent)
 

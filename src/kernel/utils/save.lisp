@@ -343,7 +343,7 @@
     ))
 
 ;;;=============
-; PATCH / MAQUETTE
+; PATCH / SEQUENCER
 ;;;=============
 
 (defmethod save-patch-contents ((self OMPatch) &optional (box-values nil))
@@ -721,14 +721,14 @@
 (defmethod save-value ((self OMBox))
   `(:value ,(omng-save (car (value self)))))
 
-;;; called for instance in the maquette
+;;; called for instance in the sequencer
 (defmethod omng-save-with-value ((self OMBox)) 
   (append (omng-save self)
           (unless (lambda-state self)
             (list (save-value self)))))
 
 ;;; OMBoxEditCall always save the value
-;;; + it is a subclass of objectWithEditor (save the editor size and pos)
+;;; + it is a subclass of ObjectWithEditor (save the editor size and pos)
 (defmethod omng-save ((self OMBoxEditCall))  
   (append (call-next-method)
           (append 
@@ -792,7 +792,7 @@
                 ((or :abstraction :patch :textfun)  
                  ;;; :patch and :textfun are for compatibility: in principle all boxes are now saved with type :abstraction 
                  (let ((box (omng-make-new-boxcall (omng-load reference) pos)))
-                   ;; sometimes (e.g. in maquettes) the patches save their value
+                   ;; sometimes (e.g. in sequencers) the patches save their value
                    (when box 
                      (setf (value box) (list val))
                      (setf name (name (reference box))) ;;; we forget about the saved box name... 
