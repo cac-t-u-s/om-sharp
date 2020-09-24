@@ -135,6 +135,7 @@ Additional inputs/outputs are accesses on the maquette box.
 (defmethod maquette-container ((self OMMaqControlPatch)) (car (references-to self)))
 (defmethod maquette-container ((self OMMaquette)) self)
 (defmethod maquette-container ((self OMPatch)) (maquette-container (car (box-references-to self))))
+(defmethod maquette-container ((self t)) nil)
 
 
 ;;; BOX VALUE
