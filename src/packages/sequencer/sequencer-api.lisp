@@ -24,8 +24,8 @@
 ;;;=========================================
 (defmethod* m-play ((self ommaquette) &optional trigger)
    :initvals '(nil nil)
-   :indoc '("maquette" "anything")
-   :doc "Play maquette"
+   :indoc '("sequencer" "anything")
+   :doc "Play sequencer"
    :icon 'm-play
    (declare (ignore trigger))
    (if (eq (state self) :pause)
@@ -34,32 +34,32 @@
 
 (defmethod* m-pause ((self ommaquette) &optional trigger)
    :initvals '(nil nil)
-   :indoc '("maquette" "anything")
-   :doc "Pause maquette"
+   :indoc '("sequencer" "anything")
+   :doc "Pause sequencer"
    :icon 'm-pause
    (declare (ignore trigger))
    (player-pause-object (player (editor self)) self))
 
 (defmethod* m-stop ((self ommaquette) &optional trigger)
    :initvals '(nil nil)
-   :indoc '("maquette" "anything")
-   :doc "Stop maquette"
+   :indoc '("sequencer" "anything")
+   :doc "Stop sequencer"
    :icon 'm-stop
    (declare (ignore trigger))
    (player-stop-object (player (editor self)) self))
 
 (defmethod* m-loop ((self ommaquette) t1 t2 &optional trigger)
    :initvals '(nil nil nil nil)
-   :indoc '("maquette" "start-time (nil or ms)" "end-time (nil or ms)" "anything")
-   :doc "Loop maquette"
+   :indoc '("sequencer" "start-time (nil or ms)" "end-time (nil or ms)" "anything")
+   :doc "Loop sequencer"
    :icon 'm-loop
    (declare (ignore trigger))
    (editor-set-interval (editor self) `(,t1 ,t2)) )
 
 (defmethod* m-set-time ((self OMMaquette) time &optional trigger)
    :initvals '(nil nil nil)
-   :indoc '("maquette" "time (ms)" "anything")
-   :doc "Set maquette time"
+   :indoc '("sequencer" "time (ms)" "anything")
+   :doc "Set sequencer time"
    :icon 'm-set-time
    (declare (ignore trigger))
    (if (integerp time)
@@ -67,16 +67,16 @@
 
 (defmethod* m-without-exec ((self OMMaquette) &optional trigger)
    :initvals '(nil nil)
-   :indoc '("maquette" "anything")
-   :doc "Mute maquette actions (computations only)"
+   :indoc '("sequencer" "anything")
+   :doc "Mute sequencer actions (computations only)"
    :icon 'm-without-exec
    (declare (ignore trigger))
     (with-schedulable-object self (setf (no-exec self) t)))
 
 (defmethod* m-with-exec ((self OMMaquette) &optional trigger)
    :initvals '(nil nil)
-   :indoc '("maquette" "anything")
-   :doc "Mute maquette actions (computations only)"
+   :indoc '("sequencer" "anything")
+   :doc "Mute sequencer actions (computations only)"
    :icon 'm-with-exec
    (declare (ignore trigger))
    (with-schedulable-object self (setf (no-exec self) nil)))
