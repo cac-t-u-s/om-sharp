@@ -96,33 +96,33 @@ Additional inputs/outputs are accesses on the maquette box.
 
 
 ;;;====================================
-;;; Maquette accessor for control patch or temporal boxes
+;;; Sequencer accessor for control patch or temporal boxes
 ;;;====================================
 
-(defclass OMMaqIn (OMIn) ())
-(defclass OMMaqInBox (OMInBox) ())
-(defmethod io-box-icon-color ((self OMMaqInBox)) (om-make-color 0.6 0.2 0.2))
+(defclass OMSequenceIn (OMIn) ())
+(defclass OMSequenceInBox (OMInBox) ())
+(defmethod io-box-icon-color ((self OMSequenceInBox)) (om-make-color 0.6 0.2 0.2))
 
-(defmethod next-optional-input ((self OMMaqInBox)) nil)
+(defmethod next-optional-input ((self OMSequenceInBox)) nil)
 
 (defmethod special-box-p ((name (eql 'mysequence))) t)
-(defmethod get-box-class ((self OMMaqIn)) 'OMMaqInBox)
-(defmethod box-symbol ((self OMMaqIn)) 'mysequence)
+(defmethod get-box-class ((self OMSequenceIn)) 'OMSequenceInBox)
+(defmethod box-symbol ((self OMSequenceIn)) 'mysequence)
 
 
-(defmethod related-patchbox-slot ((self OMMaqInBox)) nil)
-(defmethod allow-text-input ((self OMMaqInBox)) nil)
+(defmethod related-patchbox-slot ((self OMSequenceInBox)) nil)
+(defmethod allow-text-input ((self OMSequenceInBox)) nil)
 
 (defmethod omNG-make-special-box ((reference (eql 'mysequence)) pos &optional init-args)
   (omNG-make-new-boxcall 
-   (make-instance 'OMMaqIn :name "CONTAINER-SEQUENCE")
+   (make-instance 'OMSequenceIn :name "CONTAINER-SEQUENCE")
    pos init-args))
 
-(defmethod register-patch-io ((self OMPatch) (elem OMMaqIn))
+(defmethod register-patch-io ((self OMPatch) (elem OMSequenceIn))
   (setf (index elem) 0)
   (setf (defval elem) nil))
 
-(defmethod unregister-patch-io ((self OMPatch) (elem OMMaqIn)) nil)
+(defmethod unregister-patch-io ((self OMPatch) (elem OMSequenceIn)) nil)
 
 
 ;;; FOR THE META INPUTS
@@ -139,19 +139,19 @@ Additional inputs/outputs are accesses on the maquette box.
 
 
 ;;; BOX VALUE
-(defmethod omNG-box-value ((self OMMaqInBox) &optional (numout 0)) 
+(defmethod omNG-box-value ((self OMSequenceInBox) &optional (numout 0)) 
   (set-value self (list (maquette-container self)))
   (return-value self numout))
 
-(defmethod gen-code ((self OMMaqInBox) &optional (numout 0))
+(defmethod gen-code ((self OMSequenceInBox) &optional (numout 0))
   (set-value self (list (maquette-container self)))
   (nth numout (value self)))
 
-(defmethod current-box-value ((self OMMaqInBox) &optional (numout nil))
+(defmethod current-box-value ((self OMSequenceInBox) &optional (numout nil))
   (if numout (return-value self numout) (value self)))
 
 
-(defmethod omng-save ((self OMMaqIn))
+(defmethod omng-save ((self OMSequenceIn))
   `(:in
     (:type ,(type-of self)) 
     (:index ,(index self))
@@ -163,20 +163,20 @@ Additional inputs/outputs are accesses on the maquette box.
 #|
 ;;; note : maybe this is all not useful and I should set the meta just at eval
 
-;;; TRY TO SET THE DEFVAL AS THE CONTAINER MAQUETTE
-(defmethod register-patch-io ((self OMControlPatch) (elem OMMaqIn))
+;;; TRY TO SET THE DEFVAL AS THE CONTAINER SEQUENCER
+(defmethod register-patch-io ((self OMControlPatch) (elem OMSequenceIn))
   (call-next-method)
   ;;; For OMControlPatch the only references-to is the maquette
   (setf (defval elem) (car (references-to self))))
 
-(defmethod register-patch-io ((self OMPatchInternal) (elem OMMaqIn))
+(defmethod register-patch-io ((self OMPatchInternal) (elem OMSequenceIn))
   (call-next-method)
   ;;; For OMPatchInternal the only references-to is the box
   ;;; => just check if it is in a maquette...
   (when (subtypep (type-of (container (car (references-to self)))) 'OMSequencer)
     (setf (defval elem) (container (car (references-to self))))))
 
-(defmethod register-patch-io ((self OMPatchFile) (elem OMMaqIn))
+(defmethod register-patch-io ((self OMPatchFile) (elem OMSequenceIn))
   (call-next-method)
   ;;; For OMPatchFile the only references-to can be multiples !
   ;;; In this case, it will be set only before eval

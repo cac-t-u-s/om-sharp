@@ -167,7 +167,7 @@
             "Import/Compatibility")
   `(:box
     (:type :io)
-    (:reference (:in (:type ommaqin) (:index 0) (:name "CONTAINER-SEQUENCE")))
+    (:reference (:in (:type omsequencein) (:index 0) (:name "CONTAINER-SEQUENCE")))
     (:name "CONTAINER-SEQUENCE")
     (:x ,(om-point-x position))
     (:y ,(om-point-y position))

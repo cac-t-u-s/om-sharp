@@ -473,7 +473,7 @@
          (:type :io)
          (:reference
           (:in
-           (:type ommaqin)
+           (:type omsequencein)
            (:index 0)
            (:name "CONTAINER-SEQUENCE")
            (:doc "")))
