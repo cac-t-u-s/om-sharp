@@ -14,7 +14,7 @@
 ;============================================================================
 ; File author: D. Bouche
 ;============================================================================
-; MAQUETTE EDIT API
+; SEQUENCER EDIT API
 ;=========================================================================
 
 (in-package :om)
@@ -81,8 +81,7 @@
    (declare (ignore trigger))
    (with-schedulable-object self (setf (no-exec self) nil)))
 
-
-
+;;;=========================================
 
 (defmethod m-add ((self ommaquette) (object t) &key (time 0) (track 1) (pre-delay 0) trigger)
   (declare (ignore trigger))
@@ -139,8 +138,6 @@
     (set-display b :mini-view)
     (if (add-box-in-track self b track) t)))
 
-
-
 (defmethod remove-object ((self ommaquette) object &key multiple-instances trigger)
   (declare (ignore trigger))
   (let ((box (find object (boxes self) :key 'get-box-value)))
@@ -172,34 +169,18 @@
           (setf (group-id box) track)))))
 
 
-;;;=========================================
-;;;TODO
-;;;=========================================
-
-
-(defmethod connect-objects-in-maquette ((self ommaquette) object1 object2 out1 in2 &key (trigger nil))
-  (declare (ignore trigger))
-  nil)
-
-(defmethod disconnect-objects-in-maquette ((self ommaquette) object1 object2 out1 in2 &key (trigger nil))
-  (declare (ignore trigger))
-  nil)
-
-
 ;;;=================ALEX
 
 (defun freq-cycle (freqlist address port counter)
   (osc-send (list address (print (nth (mod counter (length freqlist)) freqlist))) "127.0.0.1" port))
 
-(defmethod flush-maquette-track ((self ommaquette) tracknum)
+(defmethod flush-sequencer-track ((self ommaquette) tracknum)
   (loop for box in (get-track-boxes self tracknum)
         do
         (omng-remove-element self box))
   (build-editor-window (editor self)))
 
-(defmethod flush-maquette ((self ommaquette))
+(defmethod flush-sequencer ((self ommaquette))
   (loop for box in (get-all-boxes self)
         do
         (omng-remove-element self box)))
-  
-
