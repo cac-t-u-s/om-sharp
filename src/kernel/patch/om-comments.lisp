@@ -113,7 +113,7 @@
          (longest-line (reduce #'(lambda (s1 s2) (if (> (length s1) (length s2)) s1 s2)) comment-lines)))
     (multiple-value-bind (w h)
         (om-string-size longest-line (box-draw-font self))
-      (omp (+ w (* 2 *comment-box-margin*)) 
+      (omp (+ w (* 2 *comment-box-margin*) 1) 
            (+ (* h (length comment-lines)) (* 2 *comment-box-margin*))))))
 
 (defmethod maximum-size ((self OMComment)) nil)
