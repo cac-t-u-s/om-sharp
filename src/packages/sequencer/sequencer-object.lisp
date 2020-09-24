@@ -480,13 +480,13 @@
 
 
 (defmethod omng-save-relative ((self OMMaquetteFile) ref-path)  
-  `(:maquette-from-file 
+  `(:sequencer-from-file 
     ,(if (mypathname self)
          (omng-save (relative-pathname (mypathname self) ref-path))
        (omng-save (pathname (name self))))))
 
 
-(defmethod om-load-from-id ((id (eql :maquette-from-file)) data)
+(defmethod om-load-from-id ((id (eql :sequencer-from-file)) data)
 
   (let* ((path (omng-load (car data)))
          (checked-path (and (pathname-directory path)  ;; normal case
