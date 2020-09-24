@@ -968,7 +968,7 @@ CMD-click to add boxes. Play contents, etc.
                            :action #'(lambda (b) 
                                        (unless (equal (view-mode editor) :maquette)
                                          (button-disable b) (button-enable b2)
-                                         (set-main-maquette-view editor :maquette)
+                                         (set-main-view editor :maquette)
                                          ))))
                  (setq b2 (om-make-graphic-object 
                            'om-icon-button :size (omp 16 16) 
@@ -977,7 +977,7 @@ CMD-click to add boxes. Play contents, etc.
                            :action #'(lambda (b) 
                                        (unless (equal (view-mode editor) :tracks)
                                          (button-disable b) (button-enable b1)
-                                         (set-main-maquette-view editor :tracks)
+                                         (set-main-view editor :tracks)
                                          ))))
                  (list b1 b2)))
                                                         
@@ -1121,7 +1121,7 @@ CMD-click to add boxes. Play contents, etc.
          )))
 
 
-(defun set-main-maquette-view (editor mode)
+(defun set-main-view (editor mode)
   (setf (view-mode editor) mode)
   (om-remove-all-subviews (get-g-component editor :main-maq-view))
   (mapcar #'stop-cursor (cursor-panes editor))
@@ -1285,7 +1285,7 @@ CMD-click to add boxes. Play contents, etc.
              (equal (view-mode (editor maquette)) :tracks)
              (not (= (n-tracks (editor maquette)) (n-track-views (editor maquette)))))
     ;;; will update the number of tracks
-    (set-main-maquette-view (editor maquette) :tracks)))
+    (set-main-view (editor maquette) :tracks)))
 
 
 ;;; called at init: 
