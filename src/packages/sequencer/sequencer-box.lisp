@@ -96,14 +96,14 @@
          (objs (and objs-in (omng-box-value objs-in))))
     
     (when objs
-      (let* ((maquette (reference self))
+      (let* ((seq (reference self))
              (timelist (if (listp tlist) tlist (list 0 tlist)))
              (objlist (list! objs))
              (deftime (default-delta timelist))
              (facty (round 100 (length objlist))))
         
-        (m-flush maquette)
-        (close-editor maquette)
+        (m-flush seq)
+        (close-editor seq)
                 
         (loop with old-time = 0 
               for item in objlist 
@@ -129,14 +129,14 @@
                           (group-id newbox) (mod i 4))
                      
                     (setf (display newbox) (or (find :mini-view (display-modes-for-object (get-box-value newbox))) :text))
-                    (omNG-add-element maquette newbox)
+                    (omNG-add-element seq newbox)
                     
                     ))
                 (setf old-time x)))
         
         ;;; the duration of the patch boxes is not computed yet at this point....
-        (setf (range maquette)
-              (list :x1 0 :x2 (or (get-obj-dur maquette) 4000)
+        (setf (range seq)
+              (list :x1 0 :x2 (or (get-obj-dur seq) 4000)
                     :y1 -10 :y2 110))
         t
         ))))
