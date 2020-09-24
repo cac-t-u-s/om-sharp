@@ -163,12 +163,12 @@
 
 (defun om-load-boxmaqselfin (name position  &optional fsize) 
   (declare (ignore name fsize))
-  (om-print "Warning: 'self-maquette' input box converted to 'MYMAQUETTE': consider reconect outputs using GET-OBJ-DUR / GET-ALL-BOXES / M-OBJECTS."  
+  (om-print "Warning: 'self-maquette' input box converted to 'mysequence': consider reconect outputs using GET-OBJ-DUR / GET-ALL-BOXES / M-OBJECTS."  
             "Import/Compatibility")
   `(:box
     (:type :io)
-    (:reference (:in (:type ommaqin) (:index 0) (:name "MAQUETTE")))
-    (:name "MAQUETTE")
+    (:reference (:in (:type ommaqin) (:index 0) (:name "CONTAINER-SEQUENCE")))
+    (:name "CONTAINER-SEQUENCE")
     (:x ,(om-point-x position))
     (:y ,(om-point-y position))
     (:outputs (:output (:name "out")))

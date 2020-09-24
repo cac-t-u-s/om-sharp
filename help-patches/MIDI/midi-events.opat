@@ -149,7 +149,7 @@
    (:type :abstraction)
    (:reference
     (:sequencer
-     (:name "sequence")
+     (:name "sequencer")
      (:doc "")
      (:info (:created nil) (:modified nil) (:by nil) (:version nil))
      (:window (:size (1175 586)) (:position (88 126)))
@@ -475,10 +475,10 @@
           (:in
            (:type ommaqin)
            (:index 0)
-           (:name "MAQUETTE")
+           (:name "CONTAINER-SEQUENCE")
            (:doc "")))
          (:group-id nil)
-         (:name "MAQUETTE")
+         (:name "CONTAINER-SEQUENCE")
          (:x 150)
          (:y 12)
          (:w 83)
@@ -534,9 +534,9 @@
          (:text-font nil)
          (:align nil)
          (:text
-          "This patch is a general controller for the maquette...
+          "This patch is a general controller for the sequencer...
 
-Additional inputs/outputs are accesses on the maquette box.
+Additional inputs/outputs are accesses on the sequencer box.
 ")
          (:id 2)))
        (:connections
@@ -827,7 +827,7 @@ Additional inputs/outputs are accesses on the maquette box.
    (:align nil)
    (:text
     "Example :
-Change program of a channel while playing a maquette ")
+Change program of a channel while playing a sequencer")
    (:id 10))
   (:comment
    (:x 39)

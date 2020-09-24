@@ -64,7 +64,7 @@ Additional inputs/outputs are accesses on the maquette box.
   
   (unless (ctrlpatch self)
     (let* ((patch (make-instance 'OMMaqControlPatch :name "Control Patch"))
-           (inbox (omng-make-special-box 'mymaquette (omp 150 12)))
+           (inbox (omng-make-special-box 'mysequence (omp 150 12)))
            (outbox (omng-make-special-box 'out (omp 150 200)))
            (connection (omng-make-new-connection (car (outputs inbox)) (car (inputs outbox))))
            (comment (omng-make-new-comment *maquette-help-text* (omp 10 40))))
@@ -105,17 +105,17 @@ Additional inputs/outputs are accesses on the maquette box.
 
 (defmethod next-optional-input ((self OMMaqInBox)) nil)
 
-(defmethod special-box-p ((name (eql 'mymaquette))) t)
+(defmethod special-box-p ((name (eql 'mysequence))) t)
 (defmethod get-box-class ((self OMMaqIn)) 'OMMaqInBox)
-(defmethod box-symbol ((self OMMaqIn)) 'mymaquette)
+(defmethod box-symbol ((self OMMaqIn)) 'mysequence)
 
 
 (defmethod related-patchbox-slot ((self OMMaqInBox)) nil)
 (defmethod allow-text-input ((self OMMaqInBox)) nil)
 
-(defmethod omNG-make-special-box ((reference (eql 'mymaquette)) pos &optional init-args)
+(defmethod omNG-make-special-box ((reference (eql 'mysequence)) pos &optional init-args)
   (omNG-make-new-boxcall 
-   (make-instance 'OMMaqIn :name "MAQUETTE")
+   (make-instance 'OMMaqIn :name "CONTAINER-SEQUENCE")
    pos init-args))
 
 (defmethod register-patch-io ((self OMPatch) (elem OMMaqIn))
