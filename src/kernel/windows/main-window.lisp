@@ -116,7 +116,7 @@
                                        when (and (mypathname elt)
                                                  (string-equal (pathname-type (mypathname elt)) "opat"))
                                        collect elt))
-        ((equal filter :maquettes) (loop for elt in elements 
+        ((equal filter :sequencers) (loop for elt in elements 
                                        when (and (mypathname elt)
                                                  (string-equal (pathname-type (mypathname elt)) "omaq"))
                                        collect elt))))
@@ -203,7 +203,7 @@
                                                  :font font
                                                  :size (om-make-point 30 20))
                                      (om-make-di 'om-popup-list
-                                                 :items '(:all :patches :maquettes)
+                                                 :items '(:all :patches :sequencers)
                                                  :font font
                                                  :value (elements-view-filter ed)
                                                  :size (om-make-point 100 24)
