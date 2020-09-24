@@ -109,7 +109,7 @@
 
 (defmethod move-editor-selection ((self sequencer-editor) &key (dx 0) (dy 0))
   (loop for tb in (get-selected-boxes self) do
-        (move-box-in-maquette (object self) tb :dx dx :dy dy)))
+        (move-box-in-sequencer (object self) tb :dx dx :dy dy)))
 
 (defmethod box-at-pos ((editor sequencer-editor) time &optional track)
   (let* ((maquette (object editor)))
@@ -1001,7 +1001,7 @@ CMD-click to add boxes. Play contents, etc.
                            :action #'(lambda (b)
                                        (declare (ignore b))
                                        (let ((maq (get-obj-to-play editor)))
-                                         (eval-maquette maq)
+                                         (eval-sequencer maq)
                                          (om-invalidate-view tracks-or-maq-view)
                                          ))))
                  (setq b3 (om-make-graphic-object 
