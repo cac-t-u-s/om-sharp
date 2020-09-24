@@ -33,9 +33,9 @@
         ))
 
 
-(omNG-make-package "Maquette/Meta" 
+(omNG-make-package "Sequencer/Meta" 
 	:container-pack *om-package-tree*
-	:doc "Visual program / maquette manipulation"
+	:doc "Visual program / sequencer manipulation"
     :functions '(get-boxes m-add m-remove m-move m-objects m-flush)
     :special-symbols '(mybox mymaquette)
     )
