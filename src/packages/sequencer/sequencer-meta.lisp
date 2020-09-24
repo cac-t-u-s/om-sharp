@@ -130,21 +130,21 @@ Additional inputs/outputs are accesses on the maquette box.
 (defmethod box-container ((self OMControlPatch))  (car (references-to (car (references-to self)))))
 
 ;;; check the container: can be a patch, a controlpatch or a maquette
-(defmethod maquette-container ((self OMBox)) (maquette-container (container self)))
+(defmethod sequencer-container ((self OMBox)) (sequencer-container (container self)))
 ;;; the references-to a control patch is just the maquette
-(defmethod maquette-container ((self OMControlPatch)) (car (references-to self)))
-(defmethod maquette-container ((self OMSequencer)) self)
-(defmethod maquette-container ((self OMPatch)) (maquette-container (car (box-references-to self))))
-(defmethod maquette-container ((self t)) nil)
+(defmethod sequencer-container ((self OMControlPatch)) (car (references-to self)))
+(defmethod sequencer-container ((self OMSequencer)) self)
+(defmethod sequencer-container ((self OMPatch)) (sequencer-container (car (box-references-to self))))
+(defmethod sequencer-container ((self t)) nil)
 
 
 ;;; BOX VALUE
 (defmethod omNG-box-value ((self OMSequenceInBox) &optional (numout 0)) 
-  (set-value self (list (maquette-container self)))
+  (set-value self (list (sequencer-container self)))
   (return-value self numout))
 
 (defmethod gen-code ((self OMSequenceInBox) &optional (numout 0))
-  (set-value self (list (maquette-container self)))
+  (set-value self (list (sequencer-container self)))
   (nth numout (value self)))
 
 (defmethod current-box-value ((self OMSequenceInBox) &optional (numout nil))
