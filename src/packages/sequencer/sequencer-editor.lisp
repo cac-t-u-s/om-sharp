@@ -866,14 +866,14 @@ CMD-click to add boxes. Play contents, etc.
   (call-next-method))
 
 
-(defun make-control-patch-view (maq-editor)
-  (let ((ctrlpatch (ctrlpatch (object maq-editor))))
+(defun make-control-patch-view (sequencer-editor)
+  (let ((ctrlpatch (ctrlpatch (object sequencer-editor))))
     
     (unless (editor ctrlpatch)
       (setf (editor ctrlpatch)
             (make-instance 'patch-editor 
                            :object ctrlpatch
-                           :container-editor maq-editor)))
+                           :container-editor sequencer-editor)))
     
     (let ((pl (om-make-layout 'om-simple-layout))
           (pv (cadr (multiple-value-list (make-editor-window-contents (editor ctrlpatch))))))
@@ -885,18 +885,18 @@ CMD-click to add boxes. Play contents, etc.
             
       ;;; so that the inspector calls are passed through
       (set-g-component (editor ctrlpatch) :inspector
-                       (get-g-component maq-editor :inspector))
+                       (get-g-component sequencer-editor :inspector))
 
-      (update-inspector-for-editor maq-editor)
+      (update-inspector-for-editor sequencer-editor)
       
       pl)))
   
-(defun show-hide-control-patch-editor (maq-editor show)
+(defun show-hide-control-patch-editor (sequencer-editor show)
   
-  (unless (equal (show-control-patch maq-editor) show)
-    (setf (show-control-patch maq-editor) show)
-    (build-editor-window maq-editor)
-    (init-editor-window maq-editor)
+  (unless (equal (show-control-patch sequencer-editor) show)
+    (setf (show-control-patch sequencer-editor) show)
+    (build-editor-window sequencer-editor)
+    (init-editor-window sequencer-editor)
     ))
 
 
@@ -1055,7 +1055,7 @@ CMD-click to add boxes. Play contents, etc.
          
     (set-g-component editor :bottom-view bottom-view)
     (set-g-component editor :ctrl-view ctrl-view)
-    (set-g-component editor :main-maq-view (om-make-layout 'om-simple-layout))
+    (set-g-component editor :main-sequencer-view (om-make-layout 'om-simple-layout))
     
 
     ;;; the inspector must be created first because  
@@ -1067,7 +1067,7 @@ CMD-click to add boxes. Play contents, etc.
     (when (show-control-patch editor) 
       (set-g-component editor :left-view (make-control-patch-view editor)))
         
-    (om-add-subviews (get-g-component editor :main-maq-view) tracks-or-maq-view)
+    (om-add-subviews (get-g-component editor :main-sequencer-view) tracks-or-maq-view)
     
     (update-cursor-pane-intervals editor)
     (when (is-playing editor) 
@@ -1088,7 +1088,7 @@ CMD-click to add boxes. Play contents, etc.
                        'om-column-layout :delta nil :ratios '(nil 100 nil 1)
                        :subviews (list 
                                   (get-g-component editor :ctrl-view)
-                                  (get-g-component editor :main-maq-view) 
+                                  (get-g-component editor :main-sequencer-view) 
                                   :divider 
                                   (get-g-component editor :bottom-view))))
                 ;;; RIGHT (INSPECTOR)
@@ -1116,7 +1116,7 @@ CMD-click to add boxes. Play contents, etc.
 (defmethod editor-invalidate-views ((editor sequencer-editor))
   (mapc #'om-invalidate-view 
         (list 
-         (get-g-component editor :main-maq-view)
+         (get-g-component editor :main-sequencer-view)
          (get-g-component editor :ctrl-view)
          (get-g-component editor :bottom-view)
          )))
@@ -1124,10 +1124,10 @@ CMD-click to add boxes. Play contents, etc.
 
 (defun set-main-view (editor mode)
   (setf (view-mode editor) mode)
-  (om-remove-all-subviews (get-g-component editor :main-maq-view))
+  (om-remove-all-subviews (get-g-component editor :main-sequencer-view))
   (mapcar #'stop-cursor (cursor-panes editor))
   (om-add-subviews 
-   (get-g-component editor :main-maq-view)
+   (get-g-component editor :main-sequencer-view)
    (if (equal mode :maquette)
        (make-maquette-view editor)
      (make-tracks-view editor)))
@@ -1138,28 +1138,28 @@ CMD-click to add boxes. Play contents, etc.
   (mapc 'update-connections (boxes (object editor))))
 
 
-(defun make-maquette-view (maq-editor)
+(defun make-maquette-view (sequencer-editor)
   (let* ((ruler-maquette (om-make-view 'time-ruler 
                                        :size (om-make-point 30 20)
-                                       :x1 (or (getf (get-range maq-editor) :x1) 10000)
-                                       :x2 (or (getf (get-range maq-editor) :x2) 10000)
+                                       :x1 (or (getf (get-range sequencer-editor) :x1) 10000)
+                                       :x2 (or (getf (get-range sequencer-editor) :x2) 10000)
                                        :scrollbars nil :bg-color +track-color-1+))
          (metric-ruler (om-make-view 'metric-ruler 
-                                     :tempo (tempo (metronome maq-editor))
+                                     :tempo (tempo (metronome sequencer-editor))
                                      :size (om-make-point 30 20)
                                      :scrollbars nil :bg-color +track-color-1+))
          (y-ruler (om-make-view 'y-ruler-view 
-                                 :y1 (or (getf (get-range maq-editor) :y1) 100)
-                                 :y2 (or (getf (get-range maq-editor) :y2) 0)
+                                 :y1 (or (getf (get-range sequencer-editor) :y1) 100)
+                                 :y2 (or (getf (get-range sequencer-editor) :y2) 0)
                                  :size (om-make-point 30 20)
                                  :scrollbars nil :bg-color +track-color-1+))
-         (maq-view (om-make-view 'maquette-view :editor maq-editor :scrollbars nil :bg-color +track-color-1+))
+         (maq-view (om-make-view 'maquette-view :editor sequencer-editor :scrollbars nil :bg-color +track-color-1+))
          layout)
-    (set-g-component maq-editor :track-views nil)
-    (set-g-component maq-editor :maq-view maq-view)
-    (set-g-component maq-editor :metric-ruler metric-ruler)
-    (set-g-component maq-editor :y-ruler y-ruler)
-    (set-g-component maq-editor :abs-ruler ruler-maquette)
+    (set-g-component sequencer-editor :track-views nil)
+    (set-g-component sequencer-editor :maq-view maq-view)
+    (set-g-component sequencer-editor :metric-ruler metric-ruler)
+    (set-g-component sequencer-editor :y-ruler y-ruler)
+    (set-g-component sequencer-editor :abs-ruler ruler-maquette)
     
     (attach-view-to-ruler ruler-maquette metric-ruler)
     (attach-view-to-ruler metric-ruler ruler-maquette)
@@ -1179,7 +1179,7 @@ CMD-click to add boxes. Play contents, etc.
                    (om-make-graphic-object 
                     'lock-view-area 
                     :size (omp *track-control-w* 18)
-                    :editor maq-editor)
+                    :editor sequencer-editor)
                    
                    metric-ruler
                    y-ruler ; (om-make-view 'om-view :bg-color +track-color-1+)
@@ -1191,7 +1191,7 @@ CMD-click to add boxes. Play contents, etc.
                                :fg-color (om-def-color :black)
                                :bg-color +track-color-2+)
                    ruler-maquette)))
-    (put-patch-boxes-in-editor-view (object maq-editor) maq-view)
+    (put-patch-boxes-in-editor-view (object sequencer-editor) maq-view)
     layout
     ))
 
@@ -1209,27 +1209,27 @@ CMD-click to add boxes. Play contents, etc.
 (defun n-track-views (sequencer-editor)
   (length (get-g-component sequencer-editor :track-views)))
 
-(defun make-tracks-view (maq-editor)
+(defun make-tracks-view (sequencer-editor)
 
   (let* ((ruler-tracks (om-make-view 'time-ruler :size (om-make-point 30 20) 
-                                     :x1 (or (getf (get-range maq-editor) :x1) 0) 
-                                     :x2 (or (getf (get-range maq-editor) :x2) 10000)
+                                     :x1 (or (getf (get-range sequencer-editor) :x1) 0) 
+                                     :x2 (or (getf (get-range sequencer-editor) :x2) 10000)
                                      :scrollbars nil :bg-color +track-color-1+
                                      :bottom-p nil :markers-p t))
-         (track-views (loop for n from 1 to (n-tracks maq-editor) collect
+         (track-views (loop for n from 1 to (n-tracks sequencer-editor) collect
                             (om-make-view 'sequencer-track-view :num n :size (omp nil *track-h*)
-                                          :scrollbars nil :editor maq-editor
+                                          :scrollbars nil :editor sequencer-editor
                                           :bg-color (nth (mod n 2) (list +track-color-1+ +track-color-2+)))))
          (metric-ruler (om-make-view 'metric-ruler 
                                       :size (om-make-point 30 20)
                                       :scrollbars nil :bg-color +track-color-1+
-                                      :tempo (tempo (metronome maq-editor))
+                                      :tempo (tempo (metronome sequencer-editor))
                                       :markers-p t)))  ;;; enable/disable markers here
 
-    (set-g-component maq-editor :track-views track-views)
-    (set-g-component maq-editor :maq-view nil)
-    (set-g-component maq-editor :metric-ruler metric-ruler)
-    (set-g-component maq-editor :abs-ruler ruler-tracks)
+    (set-g-component sequencer-editor :track-views track-views)
+    (set-g-component sequencer-editor :maq-view nil)
+    (set-g-component sequencer-editor :metric-ruler metric-ruler)
+    (set-g-component sequencer-editor :abs-ruler ruler-tracks)
     (attach-view-to-ruler ruler-tracks metric-ruler)
     (attach-view-to-ruler metric-ruler ruler-tracks)
     (mapcar #'(lambda (v) (attach-view-to-ruler ruler-tracks v)) track-views)
@@ -1239,7 +1239,7 @@ CMD-click to add boxes. Play contents, etc.
     
     ;;; set the track view as 'frame' for each box
     (loop for track-view in track-views do 
-          (loop for box in (get-track-boxes (object maq-editor) (num track-view)) do
+          (loop for box in (get-track-boxes (object sequencer-editor) (num track-view)) do
                 (setf (frame box) track-view)))
     
     (om-make-layout 
@@ -1253,7 +1253,7 @@ CMD-click to add boxes. Play contents, etc.
                             (om-make-graphic-object 
                              'lock-view-area 
                              :size (omp *track-control-w* 18)
-                             :editor maq-editor)
+                             :editor sequencer-editor)
 
                             metric-ruler))
                 ;;; allows to scroll he sub-layout
@@ -1263,11 +1263,11 @@ CMD-click to add boxes. Play contents, etc.
                   (om-make-layout 
                    'om-column-layout :delta 2 :scrollbars :v
                    :subviews
-                   (loop for n from 1 to (n-tracks maq-editor) collect 
+                   (loop for n from 1 to (n-tracks sequencer-editor) collect 
                          (om-make-layout 
                           'om-row-layout :delta 2 :ratios '(1 99)
                           :subviews (list 
-                                     (make-track-control n maq-editor)
+                                     (make-track-control n sequencer-editor)
                                      (nth (1- n) track-views)))))))
                 (om-make-layout 
                  'om-row-layout :delta 2 :ratios '(1 99)
