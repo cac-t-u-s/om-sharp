@@ -19,11 +19,11 @@
 
 (defclass OMBoxSequencer (OMBoxPatch) ())
 
-(defmethod special-box-p ((name (eql 'maquette))) t)
+(defmethod special-box-p ((name (eql 'sequencer))) t)
 
 (defmethod get-box-class ((self OMSequencer)) 'OMBoxSequencer)
 
-(defmethod omNG-make-special-box ((reference (eql 'maquette)) pos &optional init-args)
+(defmethod omNG-make-special-box ((reference (eql 'sequencer)) pos &optional init-args)
   (omNG-make-new-boxcall 
    (make-instance 'OMSequencerInternal
                   :name (if init-args (format nil "~A" (car (list! init-args))) "new-sequencer"))
