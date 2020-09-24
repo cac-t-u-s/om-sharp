@@ -29,7 +29,7 @@
      
      ;;; only top-level patch acually load their contents:
      (omng-load
-      `(:maquette
+      `(:sequencer
         (:name ,name-loaded)
         (:boxes .,(remove 'temp-marker 
                           (loop for box-code in boxes-loaded collect (eval box-code))
@@ -47,7 +47,7 @@
 ;;; load the Maquette (internal)
 (defun om-load-maq-abs1 (name boxes connections range markers &rest ignore)
   (declare (ignore range markers ignore))
-  `(:maquette
+  `(:sequencer
     (:name ,name) 
     (:boxes .,(loop for box-code in boxes collect (eval box-code)))
     (:connections .,(loop for c in connections collect (format-imported-connection c)))

@@ -148,7 +148,7 @@
   (:box
    (:type :abstraction)
    (:reference
-    (:maquette
+    (:sequencer
      (:name "maquette")
      (:doc "")
      (:info (:created nil) (:modified nil) (:by nil) (:version nil))

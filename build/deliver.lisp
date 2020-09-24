@@ -97,7 +97,7 @@
         (("New Patch" 
           :callback #'(lambda () (om::open-new-document :patch)) :callback-type :none :accelerator "accelerator-n")
          ("New Maquette" 
-          :callback #'(lambda () (om::open-new-document :maquette)) :callback-type :none)
+          :callback #'(lambda () (om::open-new-document :sequencer)) :callback-type :none)
          ("New Lisp function" 
           :callback #'(lambda () (om::open-new-document :lispfun)) :callback-type :none)
          ))

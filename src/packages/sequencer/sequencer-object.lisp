@@ -36,7 +36,7 @@
   (:default-initargs :icon :maq-file)
   (:metaclass omstandardclass))
 
-(add-om-doctype :maquette "omaq" "Maquette")
+(add-om-doctype :sequencer "omaq" "Maquette")
 
 (defclass OMMaquetteInternal (OMMaquette) ()
   (:default-initargs :icon :maq)
@@ -48,9 +48,9 @@
 ;;;===========================
 
 (defmethod get-object-type-name ((self OMMaquette)) "Maquette")
-(defmethod object-doctype ((self OMMaquette)) :maquette)
+(defmethod object-doctype ((self OMMaquette)) :sequencer)
 
-(defmethod make-new-om-doc ((type (eql :maquette)) name)
+(defmethod make-new-om-doc ((type (eql :sequencer)) name)
   (make-instance 'OMMaquetteFile :name name))
 
 
@@ -60,7 +60,7 @@
 (defmethod externalized-icon ((self OMMaquette)) :maq-file)
 
 
-(defmethod type-check ((type (eql :maquette)) obj)
+(defmethod type-check ((type (eql :sequencer)) obj)
   (let ((maq (ensure-type obj 'OMMaquette)))
     (when maq
       (change-class maq 'OMMaquetteFile)
@@ -472,7 +472,7 @@
     (setf (looper maquette) loop-on)
     maquette))
       
-(defmethod om-load-from-id ((id (eql :maquette)) data)
+(defmethod om-load-from-id ((id (eql :sequencer)) data)
   (let ((maq (make-instance 'OMMaquetteInternal :name (find-value-in-kv-list data :name))))
     (load-patch-contents maq data)
     maq))
@@ -496,7 +496,7 @@
     
           (if checked-path
         
-              (load-doc-from-file checked-path :maquette)
+              (load-doc-from-file checked-path :sequencer)
             
             ;;; no pathname-directory can occur while loading old patch abstractions from OM6
             ;;; in this case we look for a not-yet-save file with same name in registered documents

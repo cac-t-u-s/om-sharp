@@ -14,7 +14,7 @@
   (:box
    (:type :abstraction)
    (:reference
-    (:maquette
+    (:sequencer
      (:name "mymaquette")
      (:doc "")
      (:info (:created nil) (:modified nil) (:by nil) (:version nil))
