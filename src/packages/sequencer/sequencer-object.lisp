@@ -36,7 +36,7 @@
   (:default-initargs :icon :sequencer-file)
   (:metaclass omstandardclass))
 
-(add-om-doctype :sequencer "oseq" "Maquette")
+(add-om-doctype :sequencer "oseq" "Sequencer")
 
 (defclass OMSequencerInternal (OMSequencer) ()
   (:default-initargs :icon :sequencer)
@@ -47,7 +47,7 @@
 
 ;;;===========================
 
-(defmethod get-object-type-name ((self OMSequencer)) "Maquette")
+(defmethod get-object-type-name ((self OMSequencer)) "Sequencer")
 (defmethod object-doctype ((self OMSequencer)) :sequencer)
 
 (defmethod make-new-om-doc ((type (eql :sequencer)) name)
