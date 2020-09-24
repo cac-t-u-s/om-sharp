@@ -848,7 +848,7 @@
 
 (defmethod default-editor-help-text ((self sequencer-editor)) 
   "
-This is a maquette editor window.
+This is a sequencer editor window.
 
 Switch between the 'tracks' and the classic 'maquette' view with the icons of the toolbar at the top.   
 Open the 'control patch' with the other icon of the toolbar. 
