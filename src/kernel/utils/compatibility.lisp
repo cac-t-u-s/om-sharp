@@ -245,7 +245,7 @@
         ;;; if the main form is a om-load-patch1, the returned form will be a patch
         (let* ((expected-type (cond ((string-equal (pathname-type doc-path) "omp") "Patch")
                                     ((string-equal (pathname-type doc-path) "oml") "LispFun")
-                                    ((string-equal (pathname-type doc-path) "omm") "Maquette")))
+                                    ((string-equal (pathname-type doc-path) "omm") "Sequencer")))
                
                ;;; check if there is a registered open document with same name that is _not yet saved_
                ;;; this happens in recursive patches or patches with several references to the same abstraction

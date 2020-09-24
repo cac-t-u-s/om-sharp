@@ -96,7 +96,7 @@
       ((:component  
         (("New Patch" 
           :callback #'(lambda () (om::open-new-document :patch)) :callback-type :none :accelerator "accelerator-n")
-         ("New Maquette" 
+         ("New Sequencer" 
           :callback #'(lambda () (om::open-new-document :sequencer)) :callback-type :none)
          ("New Lisp function" 
           :callback #'(lambda () (om::open-new-document :lispfun)) :callback-type :none)
@@ -328,7 +328,7 @@
          (create-macos-application-bundle (make-pathname :directory (butlast (pathname-directory (current-pathname)))
                                                         :name *full-app-name*)
                                          :document-types (list `("Patch" ("opat") ,(om::om-relative-path '("mac") "opat.icns"))
-                                                               `("Maquette" ("oseq") ,(om::om-relative-path '("mac") "oseq.icns"))
+                                                               `("Sequencer" ("oseq") ,(om::om-relative-path '("mac") "oseq.icns"))
                                                                ;`("TextFun" ("olsp") ,(om::om-relative-path '("mac") "lsp-icon.icns"))
                                                                `("om Library" ("omlib") ,(om::om-relative-path '("mac") "omlib.icns")))
                                                            :application-icns (om::om-relative-path '("mac") "om-sharp.icns")

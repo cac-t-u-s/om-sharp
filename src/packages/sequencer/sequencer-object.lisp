@@ -506,7 +506,7 @@
             )))
       
       (unless maquette
-        (om-beep-msg "MAQUETTE NOT FOUND: ~S !" path)
+        (om-beep-msg "SEQUENCER FILE NOT FOUND: ~S !" path)
         (setf maquette (make-instance'OMMaquetteFile :name (pathname-name path)))
         (setf (mypathname maquette) path))
       
