@@ -1306,7 +1306,7 @@
   
     (when (and (stringp str) (> (length str) 0))
       (multiple-value-bind (first-item other-items) 
-          (string-until-char str " ")
+          (string-until-char (delete-spaces str) " ")
     
         (let* ((*package* (find-package :om))
                (read-sym (and (not (equal #\( (elt first-item 0)))
