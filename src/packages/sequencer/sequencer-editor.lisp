@@ -17,7 +17,7 @@
 
 
 ;=========================================================================
-; MAQUETTE WINDOW
+; SEQUENCER EDITOR WINDOW
 ;=========================================================================
 
 
@@ -160,7 +160,7 @@
 
 
 ;;;========================
-;;; MAQUETTE-VIEW
+;;; MAQUETTE-VIEW (OM STYLE)
 ;;;========================
 
 (defclass maquette-view (patch-editor-view x-cursor-graduated-view y-graduated-view om-drop-view) ())
@@ -173,7 +173,8 @@
 (defmethod omg-x ((container maquette-view) s-x) (x-to-pix container s-x))
 (defmethod omg-y ((container maquette-view) s-y) (y-to-pix container s-y))
 (defmethod omg-w ((container maquette-view) s-w) (dx-to-dpix container s-w))
-(defmethod omg-h ((container maquette-view) s-h) (- (dy-to-dpix container s-h)))  ;;; the ruler of the maquette is oriented bottom-up
+;;; the ruler of the maquette-view is oriented bottom-up:
+(defmethod omg-h ((container maquette-view) s-h) (- (dy-to-dpix container s-h)))  
 
 (defmethod resize-handle ((self resize-area) (container maquette-view) frame pos) 
   (let ((pp (om-add-points (p0 self) pos)))
@@ -592,10 +593,10 @@
 
 
 ;;;===============================
-;;; DISPLAY BOXES IN MAQUETTE TRACKS
+;;; DISPLAY BOXES IN SEQUENCER TRACKS
 ;;;==============================-
 
-;;; to be redefined by objects if they have a specific miniview for the maquette
+;;; to be redefined by objects if they have a specific miniview for the sequencer
 (defmethod draw-sequencer-mini-view ((object t) (box OMBox) x y w h &optional time)
   (ensure-cache-display-draw box object)
   (draw-mini-view object box x y w h time))
@@ -823,7 +824,7 @@
     (update-to-editor editor self)))
 
 ;;==============================
-;; MARKER API SPECIAL MAQUETTE
+;; MARKER API SPECIAL SEQUENCER
 ;;==============================
 
 (defmethod translate-elements-from-time-marker ((self OMBox) elems dt)
@@ -838,7 +839,7 @@
     ))
 
 ;;;========================
-;;; INSPECTOR IN MAQUETTE...
+;;; INSPECTOR IN SEQUENCER...
 ;;;========================
 
 (defmethod update-inspector-for-editor ((self sequencer-editor) &optional obj)

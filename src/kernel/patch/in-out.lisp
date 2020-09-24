@@ -41,7 +41,7 @@
          nil 
          (loop for box in (boxes self) 
                when (equal (type-of (reference box)) 'OMIn) 
-               ;; here we do not include the special inputs (mybox, mymaquete etc.)
+               ;; here we do not include the special inputs (mybox, mysequence etc.)
                collect (reference box)))
          '< :key #'(lambda (i) (or (index i) 0))))
 

@@ -118,7 +118,7 @@
 
 
 ;;;============================================
-;;; called from outside (maquette/ruler/etc.)
+;;; called from outside (sequencer/ruler/etc.)
 ;;;============================================
 
 (defmethod tempo-automation-get-beat-date ((self tempo-automation) beat)

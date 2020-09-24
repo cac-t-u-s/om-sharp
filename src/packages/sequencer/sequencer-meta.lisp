@@ -16,7 +16,7 @@
 ;============================================================================
 
 ;=========================================================================
-; MAQUETTE CONTROL PATCH
+; SEQUENCER CONTROL PATCH
 ;=========================================================================
 
 (in-package :om)
@@ -27,7 +27,7 @@
 ;;;==========================
 (defclass OMControlPatch (OMPatchInternal) ())
 
-;;; in principle there is only 1 reference (the maquette)
+;;; in principle there is only 1 reference (the sequencer)
 ;(defmethod update-from-editor ((self OMControlPatch))
 ;  (mapc #'(lambda (ref) (report-modifications (editor ref)))
 ;        (references-to self)))
@@ -60,7 +60,8 @@ Additional inputs/outputs are accesses on the sequencer box.
 (defmethod initialize-instance :after ((self OMSequencer) &rest args)
   
   ;;; put this somewhere else ??
-  (set-object-autostop self nil) ;; the maquette doesn't auto-stop when its duration is passed
+  ;; the sequencer doesn't auto-stop when its duration is passed
+  (set-object-autostop self nil) 
   
   (unless (ctrlpatch self)
     (let* ((patch (make-instance 'OMControlPatch :name "Control Patch"))
@@ -82,7 +83,7 @@ Additional inputs/outputs are accesses on the sequencer box.
 
 
 
-;;; called when some change is made in the maquette or in the control-patch
+;;; called when some change is made in the sequencer or in the control-patch
 (defmethod update-from-reference  ((self OMSequencer))
   (loop for item in (references-to self) do (update-from-reference item)))
   
@@ -126,12 +127,12 @@ Additional inputs/outputs are accesses on the sequencer box.
 
 
 ;;; FOR THE META INPUTS
-;;; if there are several references (maquetteFile) we assume that the first in the list is the current caller
+;;; if there are several references (OMSequencerFile) we assume that the first in the list is the current caller
 (defmethod box-container ((self OMControlPatch))  (car (references-to (car (references-to self)))))
 
-;;; check the container: can be a patch, a controlpatch or a maquette
+;;; check the container: can be a patch, a controlpatch or a sequencer
 (defmethod sequencer-container ((self OMBox)) (sequencer-container (container self)))
-;;; the references-to a control patch is just the maquette
+;;; the references-to a control patch is just the sequencer
 (defmethod sequencer-container ((self OMControlPatch)) (car (references-to self)))
 (defmethod sequencer-container ((self OMSequencer)) self)
 (defmethod sequencer-container ((self OMPatch)) (sequencer-container (car (box-references-to self))))
@@ -166,13 +167,13 @@ Additional inputs/outputs are accesses on the sequencer box.
 ;;; TRY TO SET THE DEFVAL AS THE CONTAINER SEQUENCER
 (defmethod register-patch-io ((self OMControlPatch) (elem OMSequenceIn))
   (call-next-method)
-  ;;; For OMControlPatch the only references-to is the maquette
+  ;;; For OMControlPatch the only references-to is the sequencer
   (setf (defval elem) (car (references-to self))))
 
 (defmethod register-patch-io ((self OMPatchInternal) (elem OMSequenceIn))
   (call-next-method)
   ;;; For OMPatchInternal the only references-to is the box
-  ;;; => just check if it is in a maquette...
+  ;;; => just check if it is in a sequencer...
   (when (subtypep (type-of (container (car (references-to self)))) 'OMSequencer)
     (setf (defval elem) (container (car (references-to self))))))
 

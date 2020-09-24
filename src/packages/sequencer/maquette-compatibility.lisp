@@ -18,7 +18,7 @@
 (in-package :om)
 
 
-;;; load the Maquette (file)
+;;; load the Maquette / Converts to Sequencer (file)
 (defmacro om-load-maq2 (name boxes connections range markers &rest ignore)
   
   (declare (ignore range markers ignore))
@@ -44,7 +44,7 @@
 (defmethod (setf doc) (doc self) nil)
 
 
-;;; load the Maquette (internal)
+;;; load the Maquette (internal) / Convert to Sequencer
 (defun om-load-maq-abs1 (name boxes connections range markers &rest ignore)
   (declare (ignore range markers ignore))
   `(:sequencer
@@ -58,7 +58,7 @@
 (defun convert-maq-input (input) 
   `(:input (:type :optional) ,(cddr input)))
 
-;;; OMBoxMaquette (internal)
+;;; Maquette (internal)
 (defmethod om-load-boxcall ((self (eql 'maqabs)) name reference inputs position size value lock &rest rest)
 
   (declare (ignore value rest))
@@ -81,7 +81,7 @@
   )
 
 
-;;; OMBoxMaquette (external)
+;;; Maquette (external)
 (defmethod om-load-boxcall ((self (eql 'maquette)) name reference inputs position size value lock &rest rest)
   
   (declare (ignore value rest))
@@ -91,7 +91,6 @@
     (om-load-boxcall 'abstraction name loaded-reference inputs position size value lock)
     
     ))
-
 
 
 ;;; TEMPOUT in patches = normal out

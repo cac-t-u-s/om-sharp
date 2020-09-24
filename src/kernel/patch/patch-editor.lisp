@@ -28,7 +28,8 @@
 (defmethod get-editor-class ((self OMPatch)) 'patch-editor)
 
 (defmethod edit-lock ((self patch-editor))
-  (let ((ed (or (container-editor self) self))) ;; in case its an internal patch (e.g. in the maquette)
+  ;; in case its an internal patch (e.g. in the sequencer)
+  (let ((ed (or (container-editor self) self)))
     (lock (object ed))))
 
 
@@ -59,7 +60,7 @@
 ;;; can change, e.g. for a sequencer-editor
 (defmethod get-editor-view-for-action ((self patch-editor)) (main-view self))
 
-;; will fall here for a maquette editor (main-view is not a patch-editor-view)
+;; will fall here for a sequencer-editor (main-view is not a patch-editor-view)
 (defmethod put-patch-boxes-in-editor-view ((self OMPatch) (view t)) nil)
  
 
@@ -1032,7 +1033,7 @@
           (loop for dview in (dragged-views patchview) 
                 for pos in newpositions do
                 (let* ((box (object dview))
-                       ;;; in case of maquette container
+                       ;;; in case of sequencer container
                        (box-beg-position (omng-position self pos)))
                   
                   (if (equal effect :copy)

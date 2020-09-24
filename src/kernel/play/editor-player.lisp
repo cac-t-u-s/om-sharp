@@ -581,7 +581,7 @@
    (markers-p :accessor markers-p :initform t :initarg :markers-p) ;use or not markers
    (markers-count-object-onset-p 
     :accessor markers-count-object-onset-p :initform t :initarg :markers-count-object-onset-p
-    :documentation "if T, markers will consider the objet onset for placement (e.g. in maquette)")
+    :documentation "if T, markers will consider the objet onset for placement (e.g. in a sequencer)")
    (snap-to-grid :accessor snap-to-grid :initform t :initarg :snap-to-grid)
    (selected-time-markers :accessor selected-time-markers :initform nil)) 
   (:default-initargs :vmin 0))

@@ -16,15 +16,11 @@
 ;============================================================================
 
 ;=========================================================================
-; MAQUETTE 2.0 !
+; OMSequencer = MAQUETTE 2.0 !
 ;=========================================================================
 
 (in-package :om)
 
-;;===========================================================================
-;; OMSequencer = Sequencer
-;;===========================================================================
-;; Structure
 (defclass OMSequencer (OMPatch schedulable-object timed-object) 
   ((ctrlpatch :accessor ctrlpatch :initform nil :initarg :ctrlpatch)
    (range :accessor range :initform '(:x1 0 :x2 20000 :y1 0 :y2 100) :initarg :range)
@@ -90,7 +86,7 @@
 
 
 ;;;===============================
-;;; MAQUETTE CONTENTS (BOXES)
+;;; SEQUENCER CONTENTS (BOXES)
 ;;;===============================
 
 (defmethod get-obj-dur ((self OMSequencer))
@@ -275,24 +271,24 @@
   (call-next-method))
 
 (defmethod player-pause-object ((self scheduler) (object OMSequencer))
-  ;;;Pause all boxes under the maquette cursor (that is being rendered).
-  ;;;Note : useful only for objects triggered by the maquette (hierarchical).
+  ;;;Pause all boxes under the sequencer cursor (that is being rendered).
+  ;;;Note : useful only for objects triggered by the sequencer (hierarchical).
   ;(loop for box in (get-all-boxes object)
   ;      when (box-being-rendered? object box) 
   ;      do (player-pause-object self (get-box-value box)))
   (call-next-method))
 
 (defmethod player-continue-object ((self scheduler) (object OMSequencer))
-  ;;;Continue all boxes under the maquette cursor (that is being rendered).
-  ;;;Note : useful only for objects triggered by the maquette (hierarchical).
+  ;;;Continue all boxes under the sequencer cursor (that is being rendered).
+  ;;;Note : useful only for objects triggered by the sequencer (hierarchical).
   ;(loop for box in (get-all-boxes object)
   ;      when (box-being-rendered? object box) 
   ;      do (player-continue-object self (get-box-value box)))
   (call-next-method))
 
 (defmethod player-stop-object ((self scheduler) (object OMSequencer))
-  ;;;Stop all boxes under the maquette cursor (that is being rendered).
-  ;;;Note : useful only for objects triggered by the maquette (hierarchical).
+  ;;;Stop all boxes under the sequencer cursor (that is being rendered).
+  ;;;Note : useful only for objects triggered by the sequencer (hierarchical).
   (loop for box in (get-all-boxes object)
         do 
         (player-stop-object self (get-box-value box)))
@@ -303,10 +299,11 @@
 
 
 ;;;===============================
-;;; MODIFY/UPDATE MAQUETTE CONTENTS 
+;;; MODIFY/UPDATE SEQUENCER CONTENTS 
 ;;;===============================
 
 ;(defmethod allowed-element ((self OMSequencer) (elem t)) (call-next-method))
+
 (defmethod allowed-element ((self OMSequencer) (elem timed-object)) 
   (plusp (get-obj-dur elem))) ;; no object that have no duration => must be put in containers
 
@@ -333,8 +330,8 @@
   (call-next-method))
 
 (defmethod omng-remove-element ((maq OMSequencer) (tb OMBox))
-  ;;;If the box is under the maquette cursor (that is being rendered), stop it.
-  ;;;Note : useful only for objects triggered by the maquette (hierarchical).
+  ;;;If the box is under the sequencer cursor (that is being rendered), stop it.
+  ;;;Note : useful only for objects triggered by the sequencer (hierarchical).
   (if (box-being-rendered? maq tb) (player-stop-object *general-player* (get-box-value tb)))
   ;;;Perform the remove operation asking the scheduler for a replan.
   (with-schedulable-object maq (call-next-method)))
@@ -353,7 +350,7 @@
    
    (update-connections tb)
    
-   ;;; maquette-specific
+   ;;; specific
    (if (and (get-box-value tb) (eq (get-object-state (get-box-value tb)) :play))
        (let ((ti (get-obj-time maq)))
          (if (in-interval ti (list (get-box-onset tb) (get-box-end-date tb)))
@@ -407,8 +404,8 @@
 ;;; TIME MARKERS METHODS
 ;;;=========================================
 
-;;; note: this is not used as long as maquette are 
-;;; not embedded other maquettes
+;;; Note: this is not used as long as sequencers are 
+;;; not embedded in other sequencers
 
 (defmethod get-time-markers ((self OMSequencer))
   (loop for box in (boxes self)

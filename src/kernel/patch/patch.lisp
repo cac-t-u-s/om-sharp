@@ -137,7 +137,7 @@
 
 
 ;;;========================================
-;;; CAN BE CALLED FROM OMPATCHES / MAQUETTE
+;;; CAN BE CALLED FROM OMPATCHES / SEQUENCER
 ;;;========================================
 
 (defmethod* get-box-by-name ((self OMPatch) (name string))
@@ -184,7 +184,7 @@
 ;  (touch self))
 
 ;;;==========================================
-;;; META: TOOLS FOR MAQUETTE ETC.
+;;; META: TOOLS FOR SEQUENCER ETC.
 ;;;==========================================
 
 (defmethod* get-boxes ((self OMPatch))

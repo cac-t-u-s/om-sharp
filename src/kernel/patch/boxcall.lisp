@@ -304,7 +304,7 @@
                   :pick #'(lambda (f) (list 0 0 12 (- (h f) 16))))
    ))
 
-;;; Does the box scale if placed in a timed view (e.g. a maquette)
+;;; Does the box scale if placed in a timed view (e.g. a sequencer track)
 (defmethod scale-in-x-? ((self OMFunBoxCall)) nil)
 (defmethod scale-in-y-? ((self OMFunBoxCall)) nil)
 

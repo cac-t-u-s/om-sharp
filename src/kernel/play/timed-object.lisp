@@ -16,7 +16,7 @@
 ;============================================================================
 
 
-;This class facillitates time manipulations in Maquette and the use of time markers with time rulers.
+; This class facillitates time manipulations in Sequencer and the use of time markers with time rulers.
 
 (in-package :om)
 
