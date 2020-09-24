@@ -39,8 +39,8 @@
   (setf (references-to (ctrlpatch self)) (list self)))
 
 ;;; not used... (?)
-(defmethod maquette-reference ((self t)) nil)
-(defmethod maquette-reference ((self OMControlPatch))
+(defmethod sequencer-reference ((self t)) nil)
+(defmethod sequencer-reference ((self OMControlPatch))
   (car (references-to self))) ;;; in principle this is the only one !
 
 (defmethod find-persistant-container ((self OMControlPatch))
