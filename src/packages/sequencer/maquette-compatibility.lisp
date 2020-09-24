@@ -178,12 +178,12 @@
 ;;; IN/OUT in the maquette: no more supported
 (defun om-load-maq-boxin (name indice position docu &optional fname val fsize) 
   (declare (ignore name indice position docu fname val fsize))
-  (om-print "Warning: Inputs no more supported in the maquette. Use control-patch." "Import/Compatibility")
+  (om-print "Warning: Maquette inputs no more supported in the sequencer. Use the control-patch." "Import/Compatibility")
   NIL)
 
 (defun om-load-maq-boxout (name indice position inputs &optional fname fsize) 
   (declare (ignore name indice position inputs fname fsize))
-  (om-print "Warning: Outputs no more supported in the maquette. Use control-patch." "Import/Compatibility")
+  (om-print "Warning: Maquette outputs no more supported in the sequencer. Use control-patch." "Import/Compatibility")
   NIL)
 
 
