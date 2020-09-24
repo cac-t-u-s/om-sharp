@@ -33,13 +33,13 @@
   (:metaclass omstandardclass))
 
 (defclass OMMaquetteFile (OMPersistantObject OMMaquette) ()
-  (:default-initargs :icon :maq-file)
+  (:default-initargs :icon :sequencer-file)
   (:metaclass omstandardclass))
 
 (add-om-doctype :sequencer "omaq" "Maquette")
 
 (defclass OMMaquetteInternal (OMMaquette) ()
-  (:default-initargs :icon :maq)
+  (:default-initargs :icon :sequencer)
   (:metaclass omstandardclass))
 
 ; (class-precedence-list (find-class 'ommaquettefile))
@@ -57,14 +57,14 @@
 ;; For conversions
 (defmethod internalized-type ((self OMMaquetteFile)) 'OMMaquetteInternal)
 (defmethod externalized-type ((self OMMaquette)) 'OMMaquetteFile)
-(defmethod externalized-icon ((self OMMaquette)) :maq-file)
+(defmethod externalized-icon ((self OMMaquette)) :sequencer-file)
 
 
 (defmethod type-check ((type (eql :sequencer)) obj)
   (let ((maq (ensure-type obj 'OMMaquette)))
     (when maq
       (change-class maq 'OMMaquetteFile)
-      (setf (icon maq) :maq-file))
+      (setf (icon maq) :sequencer-file))
     maq))
 
 (defmethod unregister-document ((self OMMaquette))
