@@ -145,7 +145,7 @@
 ;;;=========================================
 
 ;;; NOT GOOD !!! NEED TO EVAL JUST TERMINAL BOXES  
-(defmethod eval-maquette ((maq OMSequencer) &optional (with-control-patch t))
+(defmethod eval-sequencer ((maq OMSequencer) &optional (with-control-patch t))
   (loop for box in (get-all-boxes maq)
         when (not (find-if #'connections (outputs box)))
         do
@@ -336,7 +336,7 @@
   ;;;Perform the remove operation asking the scheduler for a replan.
   (with-schedulable-object maq (call-next-method)))
 
-(defmethod move-box-in-maquette ((maq OMSequencer) (tb OMBox) &key (dx 0) (dy 0))
+(defmethod move-box-in-sequencer ((maq OMSequencer) (tb OMBox) &key (dx 0) (dy 0))
   (with-schedulable-object
    maq 
    ;;; this is +/- like move-box (with set-box-onset)

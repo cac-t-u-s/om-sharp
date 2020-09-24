@@ -88,7 +88,7 @@
     (t (- (car (last tlist 1)) (car (last tlist 2))))))
 
 
-(defmethod put-boxes-in-maquette ((self OMBoxSequencer))
+(defmethod put-boxes-in-sequencer ((self OMBoxSequencer))
   
   (let* ((tlist-in (find "time" (get-optional-inputs self) :key #'name :test #'string-equal))
          (tlist (and tlist-in (omng-box-value tlist-in)))
@@ -149,10 +149,10 @@
                    (get-pref-value :general :auto-ev-once-mode))
                (equal (ev-once-flag self) (get-ev-once-flag *ev-once-context*))))
 
-    (put-boxes-in-maquette self)
+    (put-boxes-in-sequencer self)
 
     ;; eval the boxes in tracks but not the control-patch:
-    (eval-maquette (reference self) NIL)
+    (eval-sequencer (reference self) NIL)
     ))
 
 
