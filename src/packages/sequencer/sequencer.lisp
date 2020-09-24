@@ -22,13 +22,13 @@
 (mapc #'(lambda (filename) 
           (compile&load (decode-local-path filename))) 
       
-      '("maquette-object"
+      '("sequencer-object"
         "metronome"
         "metric-ruler"
-        "maquette-editor"
-        "maquette-api"
-        "maquette-meta"
-        "maquette-box"
+        "sequencer-editor"
+        "sequencer-api"
+        "sequencer-meta"
+        "sequencer-box"
         "maquette-compatibility"
         ))
 
