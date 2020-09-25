@@ -177,7 +177,7 @@
 (load-om-package "basic")
 (load-om-package "midi")
 (load-om-package "osc")
-(load-om-package "maquette")
+(load-om-package "sequencer")
 (load-om-package "score")
 (load-om-package "math")
 (load-om-package "sound")

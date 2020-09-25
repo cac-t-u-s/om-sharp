@@ -1,7 +1,7 @@
 ;============================================================================
-; om#: visual programming language for computer-aided music composition
-; J. Bresson et al., IRCAM (2013-2019)
-; Based on OpenMusic (c) IRCAM / G. Assayag, C. Agon, J. Bresson
+; om#: visual programming language for computer-assisted music composition
+; J. Bresson et al. (2013-2020)
+; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
 ;   This program is free software. For information on usage 
@@ -511,7 +511,7 @@
     t))
 
 
-(defmethod draw-maquette-mini-view ((self bpf) (box t) x y w h &optional time)
+(defmethod draw-sequencer-mini-view ((self bpf) (box t) x y w h &optional time)
   (let* ((display-cache (ensure-cache-display-draw box self))
          (ranges (car display-cache))
          (x-range (list 0 (nth 1 ranges)))

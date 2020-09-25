@@ -1,7 +1,7 @@
 ;============================================================================
-; om#: visual programming language for computer-aided music composition
-; J. Bresson et al., IRCAM (2013-2019)
-; Based on OpenMusic (c) IRCAM / G. Assayag, C. Agon, J. Bresson
+; om#: visual programming language for computer-assisted music composition
+; J. Bresson et al. (2013-2020)
+; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
 ;   This program is free software. For information on usage 
@@ -98,7 +98,7 @@
   (miniview-time-to-pixel-proportional object box view time))
 
 
-;;; an objects in the maquette tracks...
+;;; an objects in the sequencer tracks...
 (defmethod miniview-time-to-pixel ((object score-element) box (view sequencer-track-view) time)
   (let ((tt (if (listp time) (car time) time))) ;;; can happen that time is a list (see draw-measure)
     (- (time-to-pixel view (+ (box-x box) tt)) 

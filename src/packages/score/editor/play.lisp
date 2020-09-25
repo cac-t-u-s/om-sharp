@@ -1,7 +1,7 @@
 ;============================================================================
-; om#: visual programming language for computer-aided music composition
-; J. Bresson et al., IRCAM (2013-2019)
-; Based on OpenMusic (c) IRCAM / G. Assayag, C. Agon, J. Bresson
+; om#: visual programming language for computer-assisted music composition
+; J. Bresson et al. (2013-2020)
+; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
 ;   This program is free software. For information on usage 
@@ -32,7 +32,7 @@
 ;;; PLAY-ACTIONS
 ;;;===================================================
 
-;;; from a chord-editor (or a maquette...)
+;;; from a chord-editor (or a sequencer...)
 ;;; !! negative offsets shift the chord
 (defmethod get-action-list-for-play ((c chord) interval &optional parent)
 
@@ -269,7 +269,7 @@
   (call-next-method))
 
     
-(defmethod player-play-object :before ((self scheduler) (object ommaquette) caller &key parent interval)
+(defmethod player-play-object :before ((self scheduler) (object OMSequencer) caller &key parent interval)
   ;;;Ajouter ici la task begin : (mp:mailbox-send (taskqueue *engine*) *taskbegin*)
   (declare (ignore parent interval))
   

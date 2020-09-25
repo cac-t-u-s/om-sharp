@@ -1,7 +1,7 @@
 ;============================================================================
-; om#: visual programming language for computer-aided music composition
-; J. Bresson et al., IRCAM (2013-2019)
-; Based on OpenMusic (c) IRCAM / G. Assayag, C. Agon, J. Bresson
+; om#: visual programming language for computer-assisted music composition
+; J. Bresson et al. (2013-2020)
+; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
 ;   This program is free software. For information on usage 
@@ -350,8 +350,8 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
     ; (if (< (- y2 y1) 10) (list (- y1 5) (+ y2 5)) (list y1 y2)))
     ))
 
-;;; to be redefined by objects if they have a specific miniview for the maquette
-(defmethod draw-maquette-mini-view ((self 3dc) (box t) x y w h &optional time) 
+;;; to be redefined by objects if they have a specific miniview for the sequencer
+(defmethod draw-sequencer-mini-view ((self 3dc) (box t) x y w h &optional time) 
   (let* ((x-col (om-def-color :red))
          (y-col (om-def-color :green))
          (z-col (om-def-color :blue))

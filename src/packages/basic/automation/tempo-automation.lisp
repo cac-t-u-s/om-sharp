@@ -1,7 +1,7 @@
 ;============================================================================
-; om#: visual programming language for computer-aided music composition
-; J. Bresson et al., IRCAM (2013-2019)
-; Based on OpenMusic (c) IRCAM / G. Assayag, C. Agon, J. Bresson
+; om#: visual programming language for computer-assisted music composition
+; J. Bresson et al. (2013-2020)
+; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
 ;   This program is free software. For information on usage 
@@ -118,7 +118,7 @@
 
 
 ;;;============================================
-;;; called from outiside (maquette/ruler/etc.)
+;;; called from outside (sequencer/ruler/etc.)
 ;;;============================================
 
 (defmethod tempo-automation-get-beat-date ((self tempo-automation) beat)

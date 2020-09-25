@@ -4,18 +4,18 @@
  (:doc "")
  (:info
   (:created "2019/09/30 10:18:03")
-  (:modified "2020/01/02 8:46:27")
+  (:modified "2020/09/24 21:09:13")
   (:by "om-sharp")
   (:version 1.0))
- (:window (:size (977 624)) (:position (308 145)))
+ (:window (:size (941 633)) (:position (347 186)))
  (:grid nil)
  (:lock nil)
  (:boxes
   (:box
    (:type :abstraction)
    (:reference
-    (:maquette
-     (:name "mymaquette")
+    (:sequencer
+     (:name "sequencer")
      (:doc "")
      (:info (:created nil) (:modified nil) (:by nil) (:version nil))
      (:window (:size (800 500)) (:position (189 184)))
@@ -349,7 +349,7 @@
        (:name nil)
        (:x 0)
        (:y 99)
-       (:w 11000)
+       (:w 1000)
        (:h 40)
        (:color nil)
        (:border nil)
@@ -400,7 +400,7 @@
          (:class chord-seq)
          (:slots
           ((:onset 0)
-           (:duration 11000)
+           (:duration 1000)
            (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
            (:name "CHORD-SEQ")
            (:symbolic-date nil)
@@ -408,20 +408,7 @@
            (:symbolic-dur-extent 0)
            (:extras nil)
            (:lmidic (:list 6000))
-           (:lonset
-            (:list
-             0
-             1000
-             2000
-             3000
-             4000
-             5000
-             6000
-             7000
-             8000
-             9000
-             10000
-             11000))
+           (:lonset (:list 0 1000))
            (:ldur (:list 1000))
            (:lvel (:list 100))
            (:loffset (:list 0))
@@ -433,7 +420,7 @@
          (:class chord-seq)
          (:slots
           ((:onset 0)
-           (:duration 11000)
+           (:duration 1000)
            (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
            (:name "CHORD-SEQ")
            (:symbolic-date nil)
@@ -441,20 +428,7 @@
            (:symbolic-dur-extent 0)
            (:extras nil)
            (:lmidic (:list 6000))
-           (:lonset
-            (:list
-             0
-             1000
-             2000
-             3000
-             4000
-             5000
-             6000
-             7000
-             8000
-             9000
-             10000
-             11000))
+           (:lonset (:list 0 1000))
            (:ldur (:list 1000))
            (:lvel (:list 100))
            (:loffset (:list 0))
@@ -477,15 +451,15 @@
          (:type :io)
          (:reference
           (:in
-           (:type ommaqin)
+           (:type omsequencein)
            (:index 0)
-           (:name "MAQUETTE")
+           (:name "CONTAINER-SEQUENCE")
            (:doc "")))
          (:group-id nil)
-         (:name "MAQUETTE")
+         (:name "CONTAINER-SEQUENCE")
          (:x 150)
          (:y 12)
-         (:w 83)
+         (:w 147)
          (:h 42)
          (:color
           (:color-or-nil
@@ -530,7 +504,7 @@
          (:x 10)
          (:y 40)
          (:w 120)
-         (:h 120)
+         (:h 158)
          (:fgcolor nil)
          (:bgcolor nil)
          (:border nil)
@@ -538,9 +512,9 @@
          (:text-font nil)
          (:align nil)
          (:text
-          "This patch is a general controller for the maquette...
+          "This patch is a general controller for the sequencer...
 
-Additional inputs/outputs are accesses on the maquette box.
+Additional inputs/outputs are accesses on the sequencer box.
 ")
          (:id 2)))
        (:connections
@@ -549,7 +523,7 @@ Additional inputs/outputs are accesses on the maquette box.
      (:loop-interval nil)
      (:loop-on nil)))
    (:group-id nil)
-   (:name "mymaquette")
+   (:name "sequencer")
    (:x 328)
    (:y 507)
    (:w 141)
@@ -581,10 +555,10 @@ Additional inputs/outputs are accesses on the maquette box.
    (:reference om-sample)
    (:group-id nil)
    (:name "om-sample")
-   (:x 73)
-   (:y 317)
-   (:w 93)
-   (:h 30)
+   (:x 68)
+   (:y 316)
+   (:w 100)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -615,7 +589,7 @@ Additional inputs/outputs are accesses on the maquette box.
    (:group-id nil)
    (:name "MIDI-MIX-CONSOLE")
    (:x 368)
-   (:y 324)
+   (:y 316)
    (:w 111)
    (:h 83)
    (:color nil)
@@ -648,21 +622,18 @@ Additional inputs/outputs are accesses on the maquette box.
      (:add-slots ((:midiport nil)))))
    (:id 2))
   (:comment
-   (:x 365)
-   (:y 252)
-   (:w 117)
-   (:h 67)
+   (:x 368)
+   (:y 253)
+   (:w 219)
+   (:h 43)
    (:fgcolor (:color 0 0 0 1.0))
    (:bgcolor nil)
    (:border 0)
    (:roundness nil)
-   (:text-font (:font (:face "Geneva") (:size 10) (:style :plain)))
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:text
-    "The midi-mix-console
-can be used to set
-local/initial MIDI
-settings")
+    "The midi-mix-console can be used to set local/initial MIDI settings")
    (:id 3))
   (:box
    (:type :function)
@@ -672,7 +643,7 @@ settings")
    (:x 397)
    (:y 462)
    (:w 64)
-   (:h 30)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -697,7 +668,7 @@ settings")
    (:group-id nil)
    (:name "aux6")
    (:x 117)
-   (:y 287)
+   (:y 266)
    (:w 32)
    (:h 30)
    (:color
@@ -717,7 +688,7 @@ settings")
    (:group-id nil)
    (:name "aux5")
    (:x 573)
-   (:y 308)
+   (:y 316)
    (:w 33)
    (:h 32)
    (:color
@@ -804,7 +775,7 @@ settings")
      (:class chord-seq)
      (:slots
       ((:onset 0)
-       (:duration 11000)
+       (:duration 1000)
        (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
        (:name "CHORD-SEQ")
        (:symbolic-date nil)
@@ -812,20 +783,7 @@ settings")
        (:symbolic-dur-extent 0)
        (:extras nil)
        (:lmidic (:list 6000))
-       (:lonset
-        (:list
-         0
-         1000
-         2000
-         3000
-         4000
-         5000
-         6000
-         7000
-         8000
-         9000
-         10000
-         11000))
+       (:lonset (:list 0 1000))
        (:ldur (:list 1000))
        (:lvel (:list 100))
        (:loffset (:list 0))
@@ -834,22 +792,22 @@ settings")
        (:llegato nil)))))
    (:id 7))
   (:comment
-   (:x 74)
-   (:y 500)
-   (:w 137)
-   (:h 22)
+   (:x 69)
+   (:y 495)
+   (:w 154)
+   (:h 23)
    (:fgcolor (:color 23/51 16/255 16/255 1.0))
    (:bgcolor nil)
    (:border 0)
    (:roundness nil)
-   (:text-font (:font (:face "Geneva") (:size 10) (:style :plain)))
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
-   (:text "Ex : PitchBend Controller :")
+   (:text "Ex : PitchBend Controller")
    (:id 8))
   (:comment
-   (:x 47)
+   (:x 45)
    (:y 17)
-   (:w 225)
+   (:w 221)
    (:h 30)
    (:fgcolor (:color 0 0 0 1.0))
    (:bgcolor nil)
@@ -926,16 +884,13 @@ settings")
   (:comment
    (:x 45)
    (:y 51)
-   (:w 859)
-   (:h 27)
+   (:w 735)
+   (:h 23)
    (:fgcolor (:color 0 0 0 1.0))
    (:bgcolor nil)
    (:border 0)
    (:roundness nil)
-   (:text-font
-    (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14) (:style :plain)))
-     (:t-or-nil t)))
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:text
     "In OM7 MIDI continuous controllers can be manipulated as simple BPFs, setting the adequate :action to send MIDI messages.")
@@ -1007,7 +962,7 @@ settings")
        (:name "pitchbend")
        (:x 87)
        (:y 119)
-       (:w 87)
+       (:w 91)
        (:h 30)
        (:color nil)
        (:border nil)
@@ -1059,7 +1014,7 @@ settings")
        (:name "cadr")
        (:x 61)
        (:y 75)
-       (:w 59)
+       (:w 61)
        (:h 30)
        (:color nil)
        (:border nil)
@@ -1084,9 +1039,9 @@ settings")
       (:connection (:from (:box 4 :out 0)) (:to (:box 2 :in 0))))))
    (:group-id nil)
    (:name "send-pitchbend")
-   (:x 201)
+   (:x 215)
    (:y 316)
-   (:w 114)
+   (:w 123)
    (:h 53)
    (:color nil)
    (:border nil)
@@ -1271,15 +1226,15 @@ settings")
      (:add-slots ((:name "BPF")))))
    (:id 13))
   (:comment
-   (:x 519)
-   (:y 126)
-   (:w 192)
-   (:h 67)
+   (:x 446)
+   (:y 124)
+   (:w 232)
+   (:h 68)
    (:fgcolor (:color 0 0 0 1.0))
    (:bgcolor nil)
    (:border 0)
    (:roundness nil)
-   (:text-font (:font (:face "Geneva") (:size 10) (:style :plain)))
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:text
     "One of the default actions in the BPF editor is 'midi-controller' : it allows to automatically set the action to a MIDI continuous controller")
@@ -1289,10 +1244,10 @@ settings")
    (:reference midi-control-change)
    (:group-id nil)
    (:name "midi-control-change")
-   (:x 736)
+   (:x 729)
    (:y 163)
-   (:w 137)
-   (:h 30)
+   (:w 150)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -1315,7 +1270,7 @@ settings")
    (:group-id nil)
    (:name "value box")
    (:x 778)
-   (:y 205)
+   (:y 202)
    (:w 51)
    (:h 30)
    (:color
@@ -1331,15 +1286,15 @@ settings")
    (:value 11)
    (:id 16))
   (:comment
-   (:x 668)
-   (:y 210)
-   (:w 106)
-   (:h 22)
+   (:x 689)
+   (:y 202)
+   (:w 69)
+   (:h 38)
    (:fgcolor (:color 0 0 0 1.0))
    (:bgcolor nil)
    (:border 0)
    (:roundness nil)
-   (:text-font (:font (:face "Geneva") (:size 10) (:style :plain)))
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:text "controller number:")
    (:id 17))
@@ -1349,9 +1304,9 @@ settings")
    (:group-id nil)
    (:name "bpf-scale")
    (:x 162)
-   (:y 266)
+   (:y 267)
    (:w 112)
-   (:h 30)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -1438,7 +1393,7 @@ settings")
    (:group-id nil)
    (:name "value box")
    (:x 215)
-   (:y 235)
+   (:y 241)
    (:w 32)
    (:h 30)
    (:color
@@ -1478,7 +1433,7 @@ settings")
    (:group-id nil)
    (:name "value box")
    (:x 148)
-   (:y 346)
+   (:y 339)
    (:w 32)
    (:h 30)
    (:color
