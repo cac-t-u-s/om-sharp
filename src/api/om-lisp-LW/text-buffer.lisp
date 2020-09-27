@@ -147,7 +147,7 @@
         ;(when pos (editor::character-offset p pos))
         (when pos (editor::move-point-to-offset p pos))
         (let ((rep (editor::next-newline p)))
-          (print (list "NEXT NEWLINE AT" (editor::find-point-offset buffer p) "-->" rep))
+          ;; (print (list "NEXT NEWLINE AT" (editor::find-point-offset buffer p) "-->" rep))
           rep
         ))))
 
