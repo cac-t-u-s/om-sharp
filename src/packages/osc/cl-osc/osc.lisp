@@ -2,33 +2,33 @@
 ;;;
 ;;; an implementation of the OSC (Open Sound Control) protocol
 ;;;
-;;; copyright (C) 2004 FoAM vzw. 
+;;; copyright (C) 2004 FoAM vzw.
 ;;;
 ;;; You are granted the rights to distribute and use this software
-;;; under the terms of the Lisp Lesser GNU Public License, known 
-;;; as the LLGPL. The LLGPL consists of a preamble and the LGPL. 
+;;; under the terms of the Lisp Lesser GNU Public License, known
+;;; as the LLGPL. The LLGPL consists of a preamble and the LGPL.
 ;;; Where these conflict, the preamble takes precedence. The LLGPL
-;;; is available online at http://opensource.franz.com/preamble.html 
+;;; is available online at http://opensource.franz.com/preamble.html
 ;;; and is distributed with this code (see: LICENCE and LGPL files)
 ;;;
-;;; authors 
+;;; authors
 ;;;
 ;;;  nik gaffney <nik@f0.am>
 ;;;
 ;;; requirements
 ;;;
 ;;;  dependent on sbcl, cmucl or openmcl for float encoding, other suggestions
-;;;  welcome. 
+;;;  welcome.
 ;;;
 ;;; commentary
 ;;;
 ;;;  this is a partial implementation of the OSC protocol which is used
 ;;;  for communication mostly amongst music programs and their attatched
-;;;  musicians. eg. sc3, max/pd, reaktor/traktorska etc+. more details 
-;;;  of the protocol can be found at the open sound control pages -=> 
+;;;  musicians. eg. sc3, max/pd, reaktor/traktorska etc+. more details
+;;;  of the protocol can be found at the open sound control pages -=>
 ;;;                     http://www.cnmat.berkeley.edu/OpenSoundControl/
-;;; 
-;;;   - doesnt send nested bundles or timetags later than 'now' 
+;;;
+;;;   - doesnt send nested bundles or timetags later than 'now'
 ;;;   - malformed input -> exception
 ;;;   - int32 en/de-coding based on code (c) Walter C. Pelissero
 ;;;   - unknown types are sent as 'blobs' which may or may not be an issue
@@ -49,16 +49,16 @@
   (:use :cl)
   (:documentation "OSC aka the 'open sound control' protocol")
   (:export :encode-message
-	   :encode-bundle
-	   :decode-message
-	   :decode-bundle))
+   :encode-bundle
+   :decode-message
+   :decode-bundle))
 
 (in-package :osc)
- 
+
 ;(declaim (optimize (speed 3) (safety 1) (debug 3)))
 
 ;;;;;; ;    ;;    ;     ; ;     ; ; ;         ;
-;; 
+;;
 ;;   eNcoding OSC messages
 ;;
 ;;;; ;;  ;;   ; ; ;;           ;      ;  ;                  ;
@@ -70,27 +70,27 @@
   "will encode an osc message, or list of messages as a bundle
    with an optional timetag (symbol or 64bit int).
    doesnt handle nested bundles"
-  (cat '(35 98 117 110 100 108 101 0)	; #bundle
+  (cat '(35 98 117 110 100 108 101 0) ; #bundle
        (if timetag
            (encode-timetag timetag)
          (encode-timetag :now))
        (if (listp (car data))
-	   (apply #'cat (mapcar #'encode-bundle-elt data))
-	 (encode-bundle-elt data))))
+           (apply #'cat (mapcar #'encode-bundle-elt data))
+         (encode-bundle-elt data))))
 
 (defun encode-bundle-elt (data)
   (let ((message (apply #'encode-message data)))
-    (cat (encode-int32 (length message)) message)))      
+    (cat (encode-int32 (length message)) message)))
 
 (defun encode-message (address &rest data)
   "encodes an osc message with the given address and data."
   (concatenate '(vector (unsigned-byte 8))
-	       (encode-address (force-string address))   ;;; JBJMC201309
-	       (encode-typetags data)
-	       (encode-data data)))
+               (encode-address (force-string address))   ;;; JBJMC201309
+               (encode-typetags data)
+               (encode-data data)))
 
 (defun encode-address (address)
-  (cat (map 'vector #'char-code address) 
+  (cat (map 'vector #'char-code address)
        (string-padding address)))
 
 
@@ -100,53 +100,53 @@
   non-std extensions include ,{h|t|d|S|c|r|m|T|F|N|I|[|]}
                              see the spec for more details. ..
 
-  NOTE: currently handles the following tags 
+  NOTE: currently handles the following tags
    i => #(105) => int32
    f => #(102) => float
-   s => #(115) => string 
+   s => #(115) => string
    b => #(98)  => blob
-  and considers non int/float/string data to be a blob." 
+  and considers non int/float/string data to be a blob."
 
-  (let ((lump (make-array 0 :adjustable t 
-			  :fill-pointer t)))
+  (let ((lump (make-array 0 :adjustable t
+                          :fill-pointer t)))
     (macrolet ((write-to-vector (char)
                  `(vector-push-extend
                    (char-code ,char) lump)))
       (write-to-vector #\,)
-      (dolist (x data) 
+      (dolist (x data)
         (typecase x
           (integer (write-to-vector #\i))
           (float (write-to-vector #\f))
           (simple-string (write-to-vector #\s))
-          (symbol 
+          (symbol
            (if (or (null x) (equal x t))
                (write-to-vector #\i) ;;; will be considered as (int 0/1)
              (write-to-vector #\s)))  ;;; JBJMC201309: symbols = string
-	  (t (write-to-vector #\b)))))
+          (t (write-to-vector #\b)))))
     (cat lump
          (pad (padding-length (length lump))))))
 
-     	  
+
 (defun encode-data (data)
   "encodes data in a format suitable for an OSC message"
   (let ((lump (make-array 0 :adjustable t :fill-pointer t)))
     (macrolet ((enc (f)
                  `(setf lump (cat lump (,f x)))))
-      (dolist (x data) 
+      (dolist (x data)
         (typecase x
-          (integer (enc encode-int32)) 
-          (float (enc encode-float32)) 
+          (integer (enc encode-int32))
+          (float (enc encode-float32))
           (simple-string (enc encode-string))
-          (symbol 
+          (symbol
            (cond ((null x) (setf lump (cat lump (encode-int32 0))))
                  ((equal x t) (setf lump (cat lump (encode-int32 1))))
                  (t (setf lump (cat lump (encode-string (force-string x)))))  ;;; JBJMC201309
                  ))
           (t (enc encode-blob))))
       lump)))
-       
+
 ;;;;;; ;    ;;    ;     ; ;     ; ; ;         ;
-;; 
+;;
 ;;    decoding OSC messages
 ;;
 ;;; ;;    ;;     ; ;     ;      ;      ; ;
@@ -155,11 +155,11 @@
   "decodes an osc bundle into a list of decoded-messages, which has
    an osc-timetagas its first element"
   (let ((contents '()))
-    (if (equalp 35 (elt data 0))	; a bundle begins with '#'
-	(let ((timetag (subseq data 8 16)) 
-	      (i 16)
-	      (bundle-length (length data)))
-	  (loop while (< i bundle-length)
+    (if (equalp 35 (elt data 0)) ; a bundle begins with '#'
+        (let ((timetag (subseq data 8 16))
+              (i 16)
+              (bundle-length (length data)))
+          (loop while (< i bundle-length)
                 do (let ((mark (+ i 4))
                          (size (decode-int32
                                 (subseq data i (+ i 4)))))
@@ -170,11 +170,11 @@
                               (subseq data mark (+ mark size)))
                              contents))
                      (incf i (+ 4 size))))
-	  (push timetag contents))
+          (push timetag contents))
       (decode-message data))))
-     
+
 (defun decode-message (message)
-  "reduces an osc message to an (address . data) pair. .." 
+  "reduces an osc message to an (address . data) pair. .."
   (declare (type (vector *) message))
   (let ((x (position (char-code #\,) message)))
     (if (eq x NIL)
@@ -192,14 +192,14 @@
 
 
 (defun decode-address (address)
-  (coerce (map 'vector #'code-char 
-	       (delete 0 address))
-	  'string))
+  (coerce (map 'vector #'code-char
+               (delete 0 address))
+          'string))
 
-;;; 
+;;;
 (defun decode-taged-data (data)
   "decodes data encoded with typetags...
-  NOTE: currently handles the following tags 
+  NOTE: currently handles the following tags
    i => #(105) => int32
    f => #(102) => float
    s => #(115) => string
@@ -207,48 +207,48 @@
    d => #(100) => double"
 
   (let ((div (position 0 data)))
-    (let ((tags (subseq data 1 div)) 
-	  (acc (subseq data (padded-length div)))
-	  (result '()))
+    (let ((tags (subseq data 1 div))
+          (acc (subseq data (padded-length div)))
+          (result '()))
       (map 'vector
-	   #'(lambda (x)
-	       (cond
-		((eq x (char-code #\i)) 
-		 (push (decode-int32 (subseq acc 0 4)) 
-		       result)
-		 (setf acc (subseq acc 4)))
-		((eq x (char-code #\f))
-		 (push (decode-float32 (subseq acc 0 4)) 
-		       result)
-		 (setf acc (subseq acc 4)))
+           #'(lambda (x)
+               (cond
+                ((eq x (char-code #\i))
+                 (push (decode-int32 (subseq acc 0 4))
+                       result)
+                 (setf acc (subseq acc 4)))
+                ((eq x (char-code #\f))
+                 (push (decode-float32 (subseq acc 0 4))
+                       result)
+                 (setf acc (subseq acc 4)))
                 ;;; NEW
                 ((eq x (char-code #\d))
-		 (push (ieee-floats::decode-float64 (decode-uint64 (subseq acc 0 8)))
-		       result)
-		 (setf acc (subseq acc 8)))
+                 (push (ieee-floats::decode-float64 (decode-uint64 (subseq acc 0 8)))
+                       result)
+                 (setf acc (subseq acc 8)))
                 ((eq x (char-code #\t))
-		 (push (decode-uint64 (subseq acc 0 8))
-		       result)
-		 (setf acc (subseq acc 8)))
+                 (push (decode-uint64 (subseq acc 0 8))
+                       result)
+                 (setf acc (subseq acc 8)))
                 ;;; ===
-		((eq x (char-code #\s))
-		 (let ((pointer (padded-length (position 0 acc))))
-		   (push (decode-string 
-			  (subseq acc 0 pointer))
-			 result)
-		   (setf acc (subseq acc pointer))))
-		((eq x (char-code #\b)) 
-		 (let* ((size (decode-int32 (subseq acc 0 4)))
+                ((eq x (char-code #\s))
+                 (let ((pointer (padded-length (position 0 acc))))
+                   (push (decode-string
+                          (subseq acc 0 pointer))
+                         result)
+                   (setf acc (subseq acc pointer))))
+                ((eq x (char-code #\b))
+                 (let* ((size (decode-int32 (subseq acc 0 4)))
                         (end (padded-length (+ 4 size))))
-                   (push (decode-blob (subseq acc 0 end)) 
+                   (push (decode-blob (subseq acc 0 end))
                          result)
                    (setf acc (subseq acc end))))
-		(t (error "unrecognised typetag"))))
-	   tags)
+                (t (error "unrecognised typetag"))))
+           tags)
       (nreverse result))))
 
 ;;;;;; ;; ;; ; ; ;  ;  ; ;;     ;
-;;	
+;;
 ;; timetags
 ;;
 ;; - timetags can be encoded using a value, or the :now and :time keywords. the
@@ -263,31 +263,31 @@
 ;; - see this c.l.l thread to sync universal-time and internal-time
 ;;   http://groups.google.com/group/comp.lang.lisp/browse_thread/thread/c207fef63a78d720/adc7442d2e4de5a0?lnk=gst&q=internal-real-time-sync&rnum=1#adc7442d2e4de5a0
 ;;
-;;;; ;; ; ; 
+;;;; ;; ; ;
 
 (defconstant +unix-epoch+ (encode-universal-time 0 0 0 1 1 1970 0))
 
 (defun encode-timetag (utime &optional subseconds)
   "encodes an osc timetag from a universal-time and 32bit 'sub-second' part.
-   for an 'instantaneous' timetag use (encode-timetag :now) 
+   for an 'instantaneous' timetag use (encode-timetag :now)
    for a timetag with the current time use (encode-timetag :time)"
   (cond
-    ;; a 1bit timetag will be interpreted as 'imediately' 
-    ((equalp utime :now)
-     #(0 0 0 0 0 0 0 1)) 
-    ;; converts seconds since 19000101 to seconds since 19700101
-    ;; note: fractions of a second is accurate, but not syncronised.
-    ((equalp utime :time)
-     (cat (encode-int32 (- (get-universal-time) +unix-epoch+))
-          (encode-int32 
-           (round (* internal-time-units-per-second
-                     (second (multiple-value-list  
-                              (floor (/ (get-internal-real-time) 
-                                        internal-time-units-per-second)))))))))
-    ((integerp utime)
-     (cat (encode-int32 (+ utime +unix-epoch+))
-          (encode-int32 subseconds)))
-    (t (error "the time or subsecond given is not an integer"))))
+   ;; a 1bit timetag will be interpreted as 'imediately'
+   ((equalp utime :now)
+    #(0 0 0 0 0 0 0 1))
+   ;; converts seconds since 19000101 to seconds since 19700101
+   ;; note: fractions of a second is accurate, but not syncronised.
+   ((equalp utime :time)
+    (cat (encode-int32 (- (get-universal-time) +unix-epoch+))
+         (encode-int32
+          (round (* internal-time-units-per-second
+                    (second (multiple-value-list
+                             (floor (/ (get-internal-real-time)
+                                       internal-time-units-per-second)))))))))
+   ((integerp utime)
+    (cat (encode-int32 (+ utime +unix-epoch+))
+         (encode-int32 subseconds)))
+   (t (error "the time or subsecond given is not an integer"))))
 
 (defun decode-timetag (timetag)
   "decomposes a timetag into unix-time and a subsecond,. . ."
@@ -303,7 +303,7 @@
 ;;; ;; ;   ;  ;
 
 ;; floats are encoded using implementation specific 'internals' which is not
-;; particulaly portable, but 'works for now'. 
+;; particulaly portable, but 'works for now'.
 
 ;;; JBJMC201309
 (defun single-float-bits (x)
@@ -311,86 +311,86 @@
   (assert (= (float-radix x) 2))
   (if (zerop x)
       (if (eql x 0.0f0) 0 #x-80000000)
-      (multiple-value-bind (lisp-significand lisp-exponent lisp-sign)
-          (integer-decode-float x)
-        (assert (plusp lisp-significand))
-        ;; Calculate IEEE-style fields from Common-Lisp-style fields.
-        ;;
-        ;; KLUDGE: This code was written from my foggy memory of what IEEE
-        ;; format looks like, augmented by some experiments with
-        ;; the existing implementation of SINGLE-FLOAT-BITS, and what
-        ;; I found floating around on the net at
-        ;;   <http://www.scri.fsu.edu/~jac/MAD3401/Backgrnd/ieee.html>,
-        ;;   <http://rodin.cs.uh.edu/~johnson2/ieee.html>,
-        ;; and
-        ;;   <http://www.ttu.ee/sidu/cas/IEEE_Floating.htm>.
-        ;; And beyond the probable sheer flakiness of the code, all the bare
-        ;; numbers floating around here are sort of ugly, too. -- WHN 19990711
-        (let* ((significand lisp-significand)
-               (exponent (+ lisp-exponent 23 127))
-               (unsigned-result
-                (if (plusp exponent)    ; if not obviously denormalized
-                    (do ()
-                        (nil)
-                      (cond (;; special termination case, denormalized
+    (multiple-value-bind (lisp-significand lisp-exponent lisp-sign)
+        (integer-decode-float x)
+      (assert (plusp lisp-significand))
+      ;; Calculate IEEE-style fields from Common-Lisp-style fields.
+      ;;
+      ;; KLUDGE: This code was written from my foggy memory of what IEEE
+      ;; format looks like, augmented by some experiments with
+      ;; the existing implementation of SINGLE-FLOAT-BITS, and what
+      ;; I found floating around on the net at
+      ;;   <http://www.scri.fsu.edu/~jac/MAD3401/Backgrnd/ieee.html>,
+      ;;   <http://rodin.cs.uh.edu/~johnson2/ieee.html>,
+      ;; and
+      ;;   <http://www.ttu.ee/sidu/cas/IEEE_Floating.htm>.
+      ;; And beyond the probable sheer flakiness of the code, all the bare
+      ;; numbers floating around here are sort of ugly, too. -- WHN 19990711
+      (let* ((significand lisp-significand)
+             (exponent (+ lisp-exponent 23 127))
+             (unsigned-result
+              (if (plusp exponent)    ; if not obviously denormalized
+                  (do ()
+                      (nil)
+                    (cond (;; special termination case, denormalized
                              ;; float number
-                             (zerop exponent)
-                             ;; Denormalized numbers have exponent one
-                             ;; greater than the exponent field.
-                             (return (ash significand -1)))
-                            (;; ordinary termination case
-                             (>= significand (expt 2 23))
-                             (assert (< 0 significand (expt 2 24)))
-                             ;; Exponent 0 is reserved for
-                             ;; denormalized numbers, and 255 is
-                             ;; reserved for specials like NaN.
-                             (assert (< 0 exponent 255))
-                             (return (logior (ash exponent 23)
-                                             (logand significand
-                                                     (1- (ash 1 23))))))
+                           (zerop exponent)
+                           ;; Denormalized numbers have exponent one
+                           ;; greater than the exponent field.
+                           (return (ash significand -1)))
+                          (;; ordinary termination case
+                           (>= significand (expt 2 23))
+                           (assert (< 0 significand (expt 2 24)))
+                           ;; Exponent 0 is reserved for
+                           ;; denormalized numbers, and 255 is
+                           ;; reserved for specials like NaN.
+                           (assert (< 0 exponent 255))
+                           (return (logior (ash exponent 23)
+                                           (logand significand
+                                                   (1- (ash 1 23))))))
 
-                            (t
-                             ;; Shift as necessary to set bit 24 of
-                             ;; significand.
-                             (setf significand (ash significand 1)
-                                   exponent (1- exponent)))))
-                    (do ()
-                        ((zerop exponent)
-                         ;; Denormalized numbers have exponent one
-                         ;; greater than the exponent field.
-                         (ash significand -1))
-                      (unless (zerop (logand significand 1))
-                        (warn "denormalized SINGLE-FLOAT-BITS ~S losing bits"
-                              x))
-                      (setf significand (ash significand -1)
-                            exponent (1+ exponent))))))
-          (ecase lisp-sign
-            (1 unsigned-result)
-            (-1 (logior unsigned-result (- (expt 2 31)))))))))
+                          (t
+                           ;; Shift as necessary to set bit 24 of
+                           ;; significand.
+                           (setf significand (ash significand 1)
+                                 exponent (1- exponent)))))
+                (do ()
+                    ((zerop exponent)
+                     ;; Denormalized numbers have exponent one
+                     ;; greater than the exponent field.
+                     (ash significand -1))
+                  (unless (zerop (logand significand 1))
+                    (warn "denormalized SINGLE-FLOAT-BITS ~S losing bits"
+                          x))
+                  (setf significand (ash significand -1)
+                        exponent (1+ exponent))))))
+        (ecase lisp-sign
+          (1 unsigned-result)
+          (-1 (logior unsigned-result (- (expt 2 31)))))))))
 
-;;; JBJMC201309 
+;;; JBJMC201309
 (defun kludge-opaque-expt (x y)
   (expt x y))
 
 ;;; JBJMC201309
 (defun make-single-float (bits)
   (cond
-    ;; IEEE float special cases
-    ((zerop bits) 0.0)
-    ((= bits #x-80000000) -0.0)
-    (t (let* ((sign (ecase (ldb (byte 1 31) bits)
-                      (0  1.0)
-                      (1 -1.0)))
-              (iexpt (ldb (byte 8 23) bits))
-              (expt (if (zerop iexpt) ; denormalized
-                        -126
-                        (- iexpt 127)))
-              (mant (* (logior (ldb (byte 23 0) bits)
-                               (if (zerop iexpt)
-                                   0
-                                   (ash 1 23)))
-                       (expt 0.5 23))))
-         (* sign (kludge-opaque-expt 2.0 expt) mant)))))
+   ;; IEEE float special cases
+   ((zerop bits) 0.0)
+   ((= bits #x-80000000) -0.0)
+   (t (let* ((sign (ecase (ldb (byte 1 31) bits)
+                     (0  1.0)
+                     (1 -1.0)))
+             (iexpt (ldb (byte 8 23) bits))
+             (expt (if (zerop iexpt) ; denormalized
+                       -126
+                     (- iexpt 127)))
+             (mant (* (logior (ldb (byte 23 0) bits)
+                              (if (zerop iexpt)
+                                  0
+                                (ash 1 23)))
+                      (expt 0.5 23))))
+        (* sign (kludge-opaque-expt 2.0 expt) mant)))))
 
 (defun encode-float32 (f)
   "encode an ieee754 float as a 4 byte vector. currently sbcl/cmucl specifc"
@@ -398,7 +398,7 @@
   #+cmucl (encode-int32 (kernel:single-float-bits f))
   #+openmcl (encode-int32 (CCL::SINGLE-FLOAT-BITS f))
   #+allegro (encode-int32 (multiple-value-bind (x y) (excl:single-float-to-shorts f)
-			    (+ (ash x 16) y)))
+                            (+ (ash x 16) y)))
   #+lispworks (encode-int32 (single-float-bits f))
   #-(or sbcl cmucl openmcl allegro lispworks) (error "cant encode floats using this implementation"))
 
@@ -408,55 +408,55 @@
   #+cmucl (kernel:make-single-float (decode-int32 s))
   #+openmcl (CCL::HOST-SINGLE-FLOAT-FROM-UNSIGNED-BYTE-32 (decode-uint32 s))
   #+allegro (excl:shorts-to-single-float (ldb (byte 16 16) (decode-int32 s))
-				    (ldb (byte 16 0) (decode-int32 s)))
+                                         (ldb (byte 16 0) (decode-int32 s)))
   #+lispworks (make-single-float (decode-int32 s))
   #-(or sbcl cmucl openmcl allegro lispworks) (error "cant decode floats using this implementation"))
 
 (defun decode-int32 (s)
   "4 byte -> 32 bit int -> two's compliment (in network byte order)"
   (let ((i (+ (ash (elt s 0) 24)
-	      (ash (elt s 1) 16)
-	      (ash (elt s 2) 8)
-	      (elt s 3))))
+              (ash (elt s 1) 16)
+              (ash (elt s 2) 8)
+              (elt s 3))))
     (if (>= i #x7fffffff)
         (- 0 (- #x100000000 i))
-	i)))
+      i)))
 
 (defun decode-uint32 (s)
   "4 byte -> 32 bit unsigned int"
   (let ((i (+ (ash (elt s 0) 24)
-	      (ash (elt s 1) 16)
-	      (ash (elt s 2) 8)
-	      (elt s 3))))
+              (ash (elt s 1) 16)
+              (ash (elt s 2) 8)
+              (elt s 3))))
     i))
 
 (defun decode-uint64 (s)
   "4 byte -> 32 bit unsigned int"
   (let ((i (+ (ash (elt s 0) 56)
-	      (ash (elt s 1) 48)
-	      (ash (elt s 2) 40)
-	      (ash (elt s 3) 32)
-	      (ash (elt s 4) 24)
-	      (ash (elt s 5) 16)
-	      (ash (elt s 6) 8)
-	      (elt s 7))))
+              (ash (elt s 1) 48)
+              (ash (elt s 2) 40)
+              (ash (elt s 3) 32)
+              (ash (elt s 4) 24)
+              (ash (elt s 5) 16)
+              (ash (elt s 6) 8)
+              (elt s 7))))
     i))
 
 (defun encode-int32 (i)
   "convert an integer into a sequence of 4 bytes in network byte order."
   (declare (type integer i))
-  (let ((buf (make-sequence 
-	      '(vector (unsigned-byte 8)) 4)))
+  (let ((buf (make-sequence
+              '(vector (unsigned-byte 8)) 4)))
     (macrolet ((set-byte (n)
-		 `(setf (elt buf ,n)
-			(logand #xff (ash i ,(* 8 (- n 3)))))))
+                 `(setf (elt buf ,n)
+                        (logand #xff (ash i ,(* 8 (- n 3)))))))
       (set-byte 0)
       (set-byte 1)
       (set-byte 2)
       (set-byte 3))
     buf))
 
-;; osc-strings are unsigned bytes, padded to a 4 byte boundary 
+;; osc-strings are unsigned bytes, padded to a 4 byte boundary
 
 (defun decode-string (data)
   "converts a binary vector to a string and removes trailing #\nul characters"
@@ -464,7 +464,7 @@
 
 (defun encode-string (string)
   "encodes a string as a vector of character-codes, padded to 4 byte boundary"
-  (cat (map 'vector #'char-code string) 
+  (cat (map 'vector #'char-code string)
        (string-padding string)))
 
 ;; blobs are binary data, consisting of a length (int32) and bytes which are
@@ -473,14 +473,14 @@
 (defun decode-blob (blob)
   "decode a blob as a vector of unsigned bytes."
   (let ((size (decode-int32
-	       (subseq blob 0 4))))
-    (subseq blob 4 (+ 4 size)))) 
+               (subseq blob 0 4))))
+    (subseq blob 4 (+ 4 size))))
 
 (defun encode-blob (blob)
   "encodes a blob from a given vector"
   (let ((bl (length blob)))
     (cat (encode-int32 bl) blob
-	 (pad (padding-length bl)))))      
+         (pad (padding-length bl)))))
 
 ;; utility functions for osc-string/padding slonking
 
@@ -499,7 +499,7 @@
 
 (defun string-padding (string)
   "returns the padding required for a given osc string"
-  (declare (type simple-string string)) 
+  (declare (type simple-string string))
   (pad (padding-length (length string))))
 
 (defun pad (n)

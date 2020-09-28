@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -22,7 +22,7 @@
 (in-package :om)
 
 ;;;;======================================
-;;;; Graphic components utilities 
+;;;; Graphic components utilities
 ;;;; muste be called on graphic objects only (window, view,dialog-item,...)
 ;;;;======================================
 (defmethod x   ((self t)) (om-point-x (om-view-position self)))
@@ -44,7 +44,7 @@
     (print point)))
 
 (defun dot-prod-2D (p1 p2) (+ (* (om-point-x p1) (om-point-x p2)) (* (om-point-y p1) (om-point-y p2))))
-(defun norm-2D (p)  (sqrt (dot-prod-2D p p))) 
+(defun norm-2D (p)  (sqrt (dot-prod-2D p p)))
 (defun dist2D (p1 p2) (norm-2D (om-subtract-points p1 p2)))
 
 (defun dist-to-line (pt lp1 lp2)
@@ -57,7 +57,7 @@
           (if (<= c2 c1)
               (dist2D pt lp2)
             (let* ((b (/ c1 c2))
-                   (pb  (om-add-points lp1 (om-make-point (round (* b (om-point-x v))) 
+                   (pb  (om-add-points lp1 (om-make-point (round (* b (om-point-x v)))
                                                           (round (* b (om-point-y v)))))))
               (dist2D pt pb))))))))
 
@@ -71,7 +71,7 @@
   (let ((x1 (if (plusp rw) rx (+ rx rw)))
         (x2 (if (plusp rw) (+ rx rw) rx))
         (y1 (if (plusp rh) ry (+ ry rh)))
-        (y2 (if (plusp rh) (+ ry rh) ry)))        
+        (y2 (if (plusp rh) (+ ry rh) ry)))
     (and (>= (om-point-x point) x1)
          (<= (om-point-x point) x2)
          (>= (om-point-y point) y1)
@@ -92,14 +92,14 @@
           (t2y (min r1y2 r2y2)))
       (if (or (< t2x tx) (< t2y ty))
           NIL
-	(list tx ty (- t2x tx) (- t2y ty))))))
+        (list tx ty (- t2x tx) (- t2y ty))))))
 
 ;;;===================
 ;;; COLORS
 ;;;===================
 
 (defconstant *golden_ratio_conjugate* 0.618033988749895)
- 
+
 (defun make-color (spec)
   (cond ((consp spec)
          (apply 'om-make-color spec))
@@ -146,7 +146,7 @@
          (p (* vv (- 1 ss)))
          (q (* vv (- 1 (* f ss))))
          (tt (* vv (- 1 (* (- 1 f) ss)))))
-    (case (mod i 6) 
+    (case (mod i 6)
       (0 (values vv tt p))
       (1 (values q vv p))
       (2 (values p vv tt))
@@ -162,15 +162,15 @@
 
 (defun om-interpole-colors (begin end steps)
   (if (< steps 2)
-    (list begin end)
-  (let* ((difR (/ (- (om-color-r end) (om-color-r begin)) steps))
-         (difG (/ (- (om-color-g end) (om-color-g begin)) steps))
-         (difB (/ (- (om-color-b end) (om-color-b begin)) steps)))
-    (loop for i from 0 to (- steps 1)
-          collect (om-make-color
-                   (float (+ (* i difR) (om-color-r begin)))
-                   (float (+ (* i difG) (om-color-g begin)))
-                   (float (+ (* i difB) (om-color-b begin))))))))
+      (list begin end)
+    (let* ((difR (/ (- (om-color-r end) (om-color-r begin)) steps))
+           (difG (/ (- (om-color-g end) (om-color-g begin)) steps))
+           (difB (/ (- (om-color-b end) (om-color-b begin)) steps)))
+      (loop for i from 0 to (- steps 1)
+            collect (om-make-color
+                     (float (+ (* i difR) (om-color-r begin)))
+                     (float (+ (* i difG) (om-color-g begin)))
+                     (float (+ (* i difB) (om-color-b begin))))))))
 
 (defun om-random-color (&optional (alpha 1.0))
   (om-make-color (om-random 0.0 1.0) (om-random 0.0 1.0) (om-random 0.0 1.0) alpha))
@@ -219,23 +219,23 @@
 
 (defun om-get-darker-color (col factor)
   (let* ((r (om-color-r col))
-        (g (om-color-g col))
-        (b (om-color-b col))
-        (hsv (rgb2hsv (list r g b)))
-        (new_v (max 0.0 (- (nth 2 hsv) factor))))
-     (om-make-color-hsv (nth 0 hsv) (nth 1 hsv) new_v)))
+         (g (om-color-g col))
+         (b (om-color-b col))
+         (hsv (rgb2hsv (list r g b)))
+         (new_v (max 0.0 (- (nth 2 hsv) factor))))
+    (om-make-color-hsv (nth 0 hsv) (nth 1 hsv) new_v)))
 
 (defun om-get-lighter-color (col factor)
   (let* ((r (om-color-r col))
-        (g (om-color-g col))
-        (b (om-color-b col))
-        (hsv (rgb2hsv (list r g b)))
-        (new_v (min 1.0 (+ (nth 2 hsv) factor))))
+         (g (om-color-g col))
+         (b (om-color-b col))
+         (hsv (rgb2hsv (list r g b)))
+         (new_v (min 1.0 (+ (nth 2 hsv) factor))))
     (om-make-color-hsv (nth 0 hsv) (nth 1 hsv) new_v)))
 
 
 ;;;===================
-;;; Cursors 
+;;; Cursors
 ;;;===================
 
 (defun init-om-cursors ()
@@ -243,7 +243,7 @@
     (flet ((cursor-file (name) (merge-pathnames name cursor-folder)))
       (om-add-cursor :wait #+cocoa (cursor-file "wait-cursor") #-cocoa :busy (om-make-point 8 8))
       (om-add-cursor :arrow nil)
-      (om-add-cursor :h-size #+cocoa (cursor-file "h-resize-cursor") #-cocoa  :h-double-arrow (om-make-point 8 8))  
+      (om-add-cursor :h-size #+cocoa (cursor-file "h-resize-cursor") #-cocoa  :h-double-arrow (om-make-point 8 8))
       (om-add-cursor :v-size #+cocoa (cursor-file "v-resize-cursor") #-cocoa  :v-double-arrow (om-make-point 8 8))
       (om-add-cursor :resize #+cocoa (cursor-file "resize-cursor") #-cocoa :bottom-right-corner (om-make-point 8 8))
       (om-add-cursor :i-beam :i-beam)
@@ -304,7 +304,7 @@
           ;(om-draw-line x-mid (- y2 10) x2 (- y2 10))
           ;(om-draw-line x2 (- y2 10) x2 y2)
           ;))
-        )))))
+          )))))
 
 
 
@@ -322,12 +322,12 @@
 
 ;; This returns the point "output" on the spline curve.
 ;; The parameter "v" indicates the position, it ranges from 0 to n-t+2
-;; u = int*, n = int, tt = int, v = double, control = XYZ*, output = XYZ*   
+;; u = int*, n = int, tt = int, v = double, control = XYZ*, output = XYZ*
 (defun SplinePoint (u n tt v control)
   (let ((b 0)
         (outp (list 0 0 0)))
     (loop for k = 0 then (+ k 1)
-          while (<= k n) do 
+          while (<= k n) do
           (setf b (SplineBlend k tt u v))
           (setf (nth 0 outp) (+ (nth 0 outp) (* (nth 0 (nth k control)) b)))
           (setf (nth 1 outp) (+ (nth 1 outp) (* (nth 1 (nth k control)) b)))
@@ -339,7 +339,7 @@
   (let ((b 0)
         (outp (list 0 0)))
     (loop for k = 0 then (+ k 1)
-          while (<= k n) do 
+          while (<= k n) do
           (setf b (SplineBlend k tt u v))
           (setf (nth 0 outp) (+ (nth 0 outp) (* (nth 0 (nth k control)) b)))
           (setf (nth 1 outp) (+ (nth 1 outp) (* (nth 1 (nth k control)) b)))
@@ -354,16 +354,16 @@
   (let ((value 0))
     (setf value
           (if (= tt 1)
-            (if (and (<= (nth k u) v) (< v (nth (+ k 1) u)))
-              1 0)
-          
+              (if (and (<= (nth k u) v) (< v (nth (+ k 1) u)))
+                  1 0)
+
             (if (and (= (nth (+ k tt -1) u) (nth k u)) (= (nth (+ k tt) u) (nth (+ k 1) u)))
-              0 
+                0
               (if (= (nth (+ k tt -1) u) (nth k u))
-                (* (/ (- (nth (+ tt k) u) v) (- (nth (+ tt k) u) (nth (+ k 1) u))) (SplineBlend (+ k 1) (- tt 1) u v))
+                  (* (/ (- (nth (+ tt k) u) v) (- (nth (+ tt k) u) (nth (+ k 1) u))) (SplineBlend (+ k 1) (- tt 1) u v))
                 (if (= (nth (+ tt k) u) (nth (+ k 1) u))
-                  (* (/ (- v (nth k u)) (- (nth (+ k tt -1) u) (nth k u))) (SplineBlend k (- tt 1) u v))
-                  (+ (* (/ (- v (nth k u)) (- (nth (+ tt k -1) u) (nth k u))) (SplineBlend k (- tt 1) u v))  
+                    (* (/ (- v (nth k u)) (- (nth (+ k tt -1) u) (nth k u))) (SplineBlend k (- tt 1) u v))
+                  (+ (* (/ (- v (nth k u)) (- (nth (+ tt k -1) u) (nth k u))) (SplineBlend k (- tt 1) u v))
                      (* (/ (- (nth (+ k tt) u) v) (- (nth (+ k tt) u) (nth (+ k 1) u)))  (SplineBlend (+ k 1) (- tt 1) u v)))
                   )))))
     value))
@@ -376,17 +376,17 @@
 ;; the vicinity of the control point being modified.
 ;; u = int*, n = int, tt = int
 (defun SplineKnots (n tt)
-  (let ((u (make-sequence 'list (+ n tt 1)))) 
+  (let ((u (make-sequence 'list (+ n tt 1))))
     (loop for j = 0 then (+ j 1)
           while (<= j (+ n tt)) do
           (if (< j tt)
-            (setf (nth j u) 0)
+              (setf (nth j u) 0)
             (if (<= j n)
-           (setf (nth j u) (+ j (- tt) 1))
-           (if (> j n)
-             (setf (nth j u) (+ n (- tt) 2)))))
+                (setf (nth j u) (+ j (- tt) 1))
+              (if (> j n)
+                  (setf (nth j u) (+ n (- tt) 2)))))
           )
-    u))	
+    u))
 
 
 

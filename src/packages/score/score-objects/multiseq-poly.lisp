@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -19,15 +19,15 @@
 (in-package :om)
 
 ;;;===================================================
-;;; SUPERIMPOSITION OF VOICES 
+;;; SUPERIMPOSITION OF VOICES
 ;;; POLY / MULTI-SEQ + MIXED-TYPES
 ;;;===================================================
 
-(defclass* multi-seq (score-element collection) 
+(defclass* multi-seq (score-element collection)
   ((obj-list :initarg :obj-list :initarg :chord-seqs
              :accessor obj-list :initform nil)))
 
-(defclass* poly  (multi-seq) 
+(defclass* poly  (multi-seq)
   ((obj-list :initarg :obj-list :initarg :voices
              :accessor obj-list :initform nil)))
 
@@ -61,7 +61,7 @@
   (call-next-method)
   (setf (obj-list self)
         (loop for v in (list! (obj-list self))
-              when (or 
+              when (or
                     (subtypep (type-of v) 'chord-seq)
                     (om-beep-msg "Removing voice of type ~A" (type-of v)))
               collect v))
@@ -71,7 +71,7 @@
 (defmethod get-voices ((self multi-seq)) (obj-list self))
 (defmethod get-voices ((self chord-seq)) (list self))
 (defmethod get-voices ((self t)) nil) ;;; e.g. for a chord
-                          
+
 ;;;===================================================
 ;;; TIME-SEQUENCE METHODS APPLIED TO POLYPHONIES
 ;;;===================================================
@@ -84,7 +84,7 @@
   (loop for voice in (obj-list self) do
         (time-sequence-reorder-timed-item-list voice)))
 
-(defmethod time-sequence-update-internal-times ((self multi-seq) &optional (interpol-mode :constant-speed) 
+(defmethod time-sequence-update-internal-times ((self multi-seq) &optional (interpol-mode :constant-speed)
                                                 (duration 10000) (modif-time nil))
   (loop for voice in (obj-list self) do
         (time-sequence-update-internal-times voice interpol-mode duration modif-time)))

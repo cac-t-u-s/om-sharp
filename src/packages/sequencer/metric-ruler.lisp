@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: D. Bouche
@@ -31,14 +31,14 @@
 
 (defun update-point-list (ruler)
   (let ((ta (tempo-automation ruler)))
-    (setf (point-list ruler) 
+    (setf (point-list ruler)
           (tempo-automation-get-beat-grid ta (v1 ruler) (v2 ruler)
                                           (tempo-automation-get-display-beat-factor ta (v1 ruler) (v2 ruler)))
           )
     ))
 
 (defmethod update-from-tempo ((self metric-ruler))
-  (setf (tempo-automation self) 
+  (setf (tempo-automation self)
         (make-instance 'tempo-automation
                        :x-points '(0 1000)
                        :y-points (list (tempo self) (tempo self))))
@@ -129,13 +129,13 @@
             (om-with-fg-color (om-make-color 0.9 0.7 0 (if (find marker (selected-time-markers ruler)) 1 0.45))
               (om-draw-line pos 0 pos (h ruler))
               (if (bottom-p ruler)
-                  (om-draw-polygon (list (omp (- pos 4) 0) 
+                  (om-draw-polygon (list (omp (- pos 4) 0)
                                          (omp (- pos 4) (- (h ruler) 5))
                                          (omp pos (h ruler))
                                          (omp (+ pos 4) (- (h ruler) 5))
-                                         (omp (+ pos 4) 0) ) 
+                                         (omp (+ pos 4) 0) )
                                    :fill t)
-                (om-draw-polygon (list (omp (- pos 4) (h ruler)) 
+                (om-draw-polygon (list (omp (- pos 4) (h ruler))
                                        (omp (- pos 4) 5)
                                        (omp pos 0)
                                        (omp (+ pos 4) 5)
@@ -146,15 +146,15 @@
   ;    (if (bottom-p ruler)
   ;        (om-draw-polygon (list (omp (- pos 5) (- (h ruler) 5))
   ;                               (omp (+ pos 5) (- (h ruler) 5))
-  ;                               (omp pos (h ruler))) 
+  ;                               (omp pos (h ruler)))
   ;                         :fill t)
   ;      (om-draw-polygon (list (omp (- pos 5)  5)
   ;                             (omp (+ pos 5) 5)
-  ;                             (omp pos  0)) 
+  ;                             (omp pos  0))
   ;                       :fill t))))
   )
 
-(defmethod draw-grid-from-ruler ((self om-view) (ruler metric-ruler)) 
+(defmethod draw-grid-from-ruler ((self om-view) (ruler metric-ruler))
   (when (markers-p ruler)
     (loop for marker in (get-all-time-markers ruler)
           do (let ((pos (time-to-pixel ruler marker)))

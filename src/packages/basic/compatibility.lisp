@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -77,7 +77,7 @@
 ;;; text contents
 (defun load-buffer-textfile (listline class edmode &optional (evmode "text"))
   (declare (ignore class edmode evmode))
-  (omng-load 
+  (omng-load
    `(:object
      (:class textbuffer)
      (:slots ((:contents ,(omng-save listline)))))))
@@ -86,14 +86,14 @@
 ;;; !! pathname can be relative ("infile/...")
 (defun load-textfile (pathname class edmode &optional (evmode "text"))
   (declare (ignore class edmode evmode))
-  (omng-load 
+  (omng-load
    `(:object
      (:class textbuffer)
      (:slots ((:contents ,(omng-save (lines-from-file pathname))))))))
 
 
-(defmethod om-load-editor-box1 (name (reference (eql 'textfile)) 
-                                     inputs position size value lock 
+(defmethod om-load-editor-box1 (name (reference (eql 'textfile))
+                                     inputs position size value lock
                                      &optional fname editparams spict meditor pictlist show-name)
   (declare (ignore reference fname editparams meditor pictlist))
 
@@ -117,7 +117,7 @@
       (:showname ,show-name)
       (:display ,(if spict :mini-view :hidden))
       (:edition-params (:output-mode ,eval-mode))
-      (:inputs 
+      (:inputs
        (:input (:type :standard) (:name "self") (:value nil))
        (:input (:type :standard) (:name "contents") (:value nil))
        (:input (:type :key) (:name "output-mode") (:value ,eval-mode))
@@ -140,17 +140,17 @@
 
 (defun get-init-slots-of-class (class)
   (mapcar #'(lambda (slot)
-              (list (slot-definition-name slot) (slot-definition-type slot))) 
+              (list (slot-definition-name slot) (slot-definition-type slot)))
           (class-slots (find-class class))))
 
 (defmethod (setf lcontrols) (val obj) nil)
 
 
 (defmethod (setf data) (data (array class-array))
-  
+
   ;; init-array-from-csound-instr
   (om-init-instance array)
- 
+
   ;(cons array
   ;             (loop for field in (cr::cs-description-params (cr::cs-instr array))
   ;                   for field-data in data collect
@@ -160,7 +160,7 @@
         (if (every #'array-field-p data) data
           (loop for array-field in (data array)
                 for field-data in data collect
-                (make-array-field :name (array-field-name array-field) 
+                (make-array-field :name (array-field-name array-field)
                                   :decimals (array-field-decimals array-field)
                                   :default (array-field-default array-field)
                                   :type (array-field-type array-field)
@@ -171,8 +171,8 @@
 
 
 
-       
-     
- 
-     
-  
+
+
+
+
+

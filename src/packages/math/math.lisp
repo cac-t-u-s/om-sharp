@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -21,11 +21,11 @@
 (load (merge-pathnames "cercle/n-cercle-editor" *load-pathname*))
 
 
-(omNG-make-package 
+(omNG-make-package
  "Math"
  :container-pack *om-package-tree*
  :doc "Mathematical tools / Set theory / ..."
  :classes '(n-cercle)
  :functions '(chord2c c2chord c2chord-seq chord-seq2c c2rhythm rhythm2c
-              nc-rotate nc-complement nc-inverse)
+                      nc-rotate nc-complement nc-inverse)
  :subpackages nil)

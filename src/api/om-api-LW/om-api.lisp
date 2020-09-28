@@ -1,5 +1,5 @@
 ;=========================================================================
-; OM API 
+; OM API
 ; Multiplatform API for OpenMusic
 ; LispWorks Implementation
 ;=========================================================================
@@ -37,22 +37,22 @@
 
 (export '(om-api-init om-api-exit) :om-api)
 
-;;; API INIT 
+;;; API INIT
 (defparameter *api-init-list* nil)
 
 (defun om-api-add-init-fun (fun-name)
-   (unless (member fun-name *api-init-list* :test 'equal)
-        (push fun-name *api-init-list*)))
+  (unless (member fun-name *api-init-list* :test 'equal)
+    (push fun-name *api-init-list*)))
 
 (defun om-api-init ()
   (print "== START OM-API INIT CALLS ==")
   (mapc #'(lambda (fun) (print fun) (funcall fun)) (reverse *api-init-list*))
   (print "== END OM-API INIT CALLS =="))
 
-;;; API CLEANUP 
+;;; API CLEANUP
 (defparameter *api-cleanup-list* nil)
 
-(defun om-add-cleanup-fun (fun-name &optional last?)  
+(defun om-add-cleanup-fun (fun-name &optional last?)
   (unless (member fun-name *api-cleanup-list* :test 'equal)
     (if last?
         (push fun-name  *api-cleanup-list*)
@@ -87,12 +87,12 @@
                    "user-interface"
                    "draganddrop"
                    "tooltips"
-                   "libraries"    
-                   "om-special"  
+                   "libraries"
+                   "om-special"
                    )
                  ))
 
-  (mapc #'(lambda (filename) 
+  (mapc #'(lambda (filename)
             (cl-user::compile&load (make-pathname :directory *api-directory* :name filename))
             (terpri))
         api-files)

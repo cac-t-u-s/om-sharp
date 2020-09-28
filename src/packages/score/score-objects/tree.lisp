@@ -5,12 +5,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -42,10 +42,10 @@
 (defun decode-extent (dur)
   (cond ((listp dur) ;;; e.g. '(4 4)
          (/ (first dur) (second dur)))
-        ((floatp dur) 
+        ((floatp dur)
          (round (abs dur)))
-        (t ;;; hopefully this is a number 
-         (abs dur))
+        (t ;;; hopefully this is a number
+           (abs dur))
         ))
 
 
@@ -76,44 +76,44 @@
 
 ;;; simplify complex subdivisions into tied/simpler ones
 (defun normalize-tree (tree)
-   
-  (labels 
-    ((normalize-recursive (tree)
-       
-       (cond 
-        
-        ;;; normalize recursively (the subdiv-part)
-        ((listp tree)
-         (list (list (car tree) (mapcan #'normalize-recursive (cadr tree)))))
-        
-        ((numberp tree) ;;; a leaf
-         
-         (let ((converted-extent (convert-extent (abs (round tree))))) ;;; (1) convert to positive integer just to call convert-extent
-           
-           (if (listp converted-extent) ;;; the leaf was converted
-               (progn 
-                 
-                 (if (plusp tree) 
-                     ;;; abs did not apply in (1)
-                     (progn 
-                       ;;; tie the second pulse to the first pulse
-                       (setf (second converted-extent) (float (second converted-extent)))
-                       
-                       (when (floatp tree) 
-                         ;;; the first pulse was already a tie
-                         (setf (first converted-extent) (float (first converted-extent)))))
-                   
-                   ;;; else: (1) abs did invert the sign: restore it
-                   (setf (first converted-extent) (- (first converted-extent)) 
-                         (second converted-extent) (- (second converted-extent))))
-                 
-                 converted-extent)
-             
-             ;;; nothing changes
-             (list tree))))      
-        )))
-    
-    (list 
+
+  (labels
+      ((normalize-recursive (tree)
+
+         (cond
+
+          ;;; normalize recursively (the subdiv-part)
+          ((listp tree)
+           (list (list (car tree) (mapcan #'normalize-recursive (cadr tree)))))
+
+          ((numberp tree) ;;; a leaf
+
+           (let ((converted-extent (convert-extent (abs (round tree))))) ;;; (1) convert to positive integer just to call convert-extent
+
+             (if (listp converted-extent) ;;; the leaf was converted
+                 (progn
+
+                   (if (plusp tree)
+                       ;;; abs did not apply in (1)
+                       (progn
+                         ;;; tie the second pulse to the first pulse
+                         (setf (second converted-extent) (float (second converted-extent)))
+
+                         (when (floatp tree)
+                           ;;; the first pulse was already a tie
+                           (setf (first converted-extent) (float (first converted-extent)))))
+
+                     ;;; else: (1) abs did invert the sign: restore it
+                     (setf (first converted-extent) (- (first converted-extent))
+                           (second converted-extent) (- (second converted-extent))))
+
+                   converted-extent)
+
+               ;;; nothing changes
+               (list tree))))
+          )))
+
+    (list
      (car tree)
      (mapcan #'normalize-recursive (cadr tree)))
     ))
@@ -134,25 +134,25 @@
   "expects symbols like |4//4| and returns a list (4 4)"
   (let ((string (copy-seq (symbol-name symbol))))
     (loop for i from 0 to (1- (length string))
-       when (char= (elt string i) #\/) do (setf (elt string i) '#\Space))
+          when (char= (elt string i) #\/) do (setf (elt string i) '#\Space))
     (read-from-string (format nil "(~A)" string))))
 
 (defun resolve-? (list)
-  (cond 
+  (cond
    ((numberp list) list)
    ((or (numberp (first list)) (listp (first list)))
-    (if (listp (second list)) 
+    (if (listp (second list))
         (list (first list) (mapcar #'resolve-? (second list)))
       (error (format nil "Invalid Rhythm Tree : ~A" list))))
    ((and (symbolp (first list)) (equal (symbol-name (first list)) "?"))
     (let ((solved (mapcar #'resolve-? (second list))))
-      (list (reduce #'(lambda (x y) (+  (abs x) (subtree-extent y))) 
+      (list (reduce #'(lambda (x y) (+  (abs x) (subtree-extent y)))
                     solved :initial-value 0)
             solved)))
-   ((symbolp (first list))				    ; ie: |4//4|
-    (if (listp (second list)) 
+   ((symbolp (first list))        ; ie: |4//4|
+    (if (listp (second list))
         (list (symbol->ratio (first list)) (mapcar #'resolve-? (second list)))
-	(error (format nil "Invalid Rhythm Tree : ~A" list))))
+      (error (format nil "Invalid Rhythm Tree : ~A" list))))
    ))
 
 
@@ -178,26 +178,26 @@
    ((= (length list) 1)
     (let ((elem (first list)))
       (if (numberp elem)
-          (if reduction 
+          (if reduction
               (list (replace-num-in-tree elem reduction))
             list)
-        
-        (if reduction 
-            
+
+        (if reduction
+
             (if (= (length (second elem)) 1)
                 (rw-singleton (second elem) reduction)
               (list (list reduction (rw-singleton (second elem)))))
-          
+
           (if (= (length (second elem)) 1)
               (rw-singleton (second elem) (car elem))
             (list (list (first elem) (rw-singleton (second elem)))))
           ))))
    (t
     (loop for item in list append
-          (if (numberp item) 
-            (rw-singleton (list item))
+          (if (numberp item)
+              (rw-singleton (list item))
             (if (= (length (second item)) 1)
-              (rw-singleton (second item) (first item)) ;;; reduction is HERE
+                (rw-singleton (second item) (first item)) ;;; reduction is HERE
               (list (list (first item) (rw-singleton (second item))))))))))
 
 ; ->
@@ -227,31 +227,31 @@
 ;;; returns top-level subdivision of the measure
 ;'((4 4) (3 (1 (1 1 1)) -5)) = '(3 1 5)
 (defun measure-repartition (mes)
-   (loop for item in (cadr mes)
-         collect (floor (if (numberp item) (abs item)
-                          (abs (car item))))))
+  (loop for item in (cadr mes)
+        collect (floor (if (numberp item) (abs item)
+                         (abs (car item))))))
 
 (defun modulo3-p (n)
   (or (zerop ( mod n 3)) (= n 1)))
 
 ; ->
 (defun list-first-layer (tree)
-  
-  (loop for measure-tree in tree collect 
-        
-        (if (measure-single? measure-tree) 
-      
-            measure-tree 
-    
+
+  (loop for measure-tree in tree collect
+
+        (if (measure-single? measure-tree)
+
+            measure-tree
+
           (let* ((signature (car measure-tree))
                  (subdivs (apply '+ (measure-repartition measure-tree)))
                  (ratio1 (/ subdivs (car signature))))
             (cond
              ((and (integerp ratio1) (power-of-two-p ratio1)) measure-tree)
-             ((and (power-of-two-p subdivs) 
+             ((and (power-of-two-p subdivs)
                    (or (power-of-two-p (car signature))
                        (and (integerp ratio1) (modulo3-p (car signature))))) measure-tree)
-             ((not (integerp (/ (car signature) subdivs))) 
+             ((not (integerp (/ (car signature) subdivs)))
               (list signature (list (list (car signature) (cadr measure-tree)))))
              ((and (= (numerator ratio1) 1) (not (power-of-two-p (denominator ratio1))) measure-tree)
               (list signature (list (list (car signature) (cadr measure-tree)))))
@@ -266,8 +266,8 @@
 
 (defun only-one-point (n)
   (cond
-   ((floatp n) (mapcar 'float (only-one-point (round n))))  
-   (t                              
+   ((floatp n) (mapcar 'float (only-one-point (round n))))
+   (t
     (if (member n '(0 1 2 3 4 6 8 12 16 32)) ;only for optimization
         (list n)
       (let ((bef (bin-value-below n)))
@@ -288,22 +288,22 @@
 
 ; ->
 (defun add-ties-to-tree (tree)
-   (let* ((measures tree))
+  (let* ((measures tree))
      ;(list (car tree)
-     (mapcar #'(lambda (mes)
-                 (list (first mes) (mapcan #'add-measure-ties (second mes))))
-             measures)
+    (mapcar #'(lambda (mes)
+                (list (first mes) (mapcan #'add-measure-ties (second mes))))
+            measures)
      ;)
-   ))
+    ))
 
 
 ;;;===================================================================
 ;;; called at voice intialization:
-(defun format-tree (tree) 
-  (list 
+(defun format-tree (tree)
+  (list
    (car tree)
-   (add-ties-to-tree 
-    (resolve-singletons 
+   (add-ties-to-tree
+    (resolve-singletons
      (list-first-layer (cadr tree))))))
 
 
@@ -321,12 +321,12 @@
 (defmethod fnumerator ((self list)) (first self))
 
 (defun simplify-subtrees (subtrees)
-  
+
   (let ((lcm (abs (reduce #'lcm subtrees :key #'(lambda (x) (fdenominator (if (listp x) (first x) x))))))
         (gcd (abs (reduce #'gcd subtrees :key #'(lambda (x) (fnumerator (if (listp x) (first x) x)))))))
-    
-    (mapcar #'(lambda (x) 
-                (if (listp x) 
+
+    (mapcar #'(lambda (x)
+                (if (listp x)
                     (list (* (fullratio (first x)) (/ lcm gcd)) (second x))
                   (let ((div (*  (fullratio x) (/ lcm gcd))))
                     (if (floatp x) (float div) div))

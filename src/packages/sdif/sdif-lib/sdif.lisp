@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -134,12 +134,12 @@
 ;;;============================================
 ;;; CREATE SDIF
 
-(defcfun  ("SdifFSetCurrFrameHeader" SdifFSetCurrFrameHeader) :pointer 
+(defcfun  ("SdifFSetCurrFrameHeader" SdifFSetCurrFrameHeader) :pointer
   (SdifF :pointer) (Signature :pointer) (Size :unsigned-int)
   (NbMatrix :unsigned-int) (NumID :unsigned-int) (Time :double))
 
-(defcfun  ("SdifFSetCurrMatrixHeader" SdifFSetCurrMatrixHeader) :pointer 
-          (SdifF :pointer) (Signature :pointer) (DataType :unsigned-int) (NbRow :unsigned-int))
+(defcfun  ("SdifFSetCurrMatrixHeader" SdifFSetCurrMatrixHeader) :pointer
+  (SdifF :pointer) (Signature :pointer) (DataType :unsigned-int) (NbRow :unsigned-int))
 
 (defcfun  ("SdifFSetCurrOneRow" SdifFSetCurrOneRow) :pointer (SdifF :pointer) (values :pointer))
 
@@ -156,7 +156,7 @@
 
 (defcfun  ("SdifUpdateChunkSize" SdifUpdateChunkSize) :void (sdifF :pointer) (chunk-size :unsigned-int))
 
-(defcfun  ("SdifUpdateFrameHeader" SdifUpdateFrameHeader) :int (sdifF :pointer)  (chunksize :unsigned-int) (nummat :int)) 
+(defcfun  ("SdifUpdateFrameHeader" SdifUpdateFrameHeader) :int (sdifF :pointer)  (chunksize :unsigned-int) (nummat :int))
 
 (defcfun  ("SdifFWriteMatrixHeader" SdifFWriteMatrixHeader) :unsigned-int  (SdifF :pointer))
 
@@ -164,9 +164,9 @@
 
 (defcfun  ("SdifFWriteMatrixData" SdifFWriteMatrixData) :unsigned-int  (SdifF :pointer) (data :pointer))
 
-(defcfun  ("SdifFWriteMatrix" SdifFWriteMatrix) :unsigned-int 
-          (SdifF :pointer) (Signature :pointer) (DataType :unsigned-int)
-          (NbRow :unsigned-int) (NbCol :unsigned-int) (data :pointer))
+(defcfun  ("SdifFWriteMatrix" SdifFWriteMatrix) :unsigned-int
+  (SdifF :pointer) (Signature :pointer) (DataType :unsigned-int)
+  (NbRow :unsigned-int) (NbCol :unsigned-int) (data :pointer))
 
 (defcfun  ("SdifFWritePadding" SdifFWritePadding) :unsigned-int  (sdifF :pointer) (padding :unsigned-int))
 
@@ -175,12 +175,12 @@
 ;;;=================================
 ;;; ID TABLE
 
-(defcfun  ("SdifStreamIDTablePutSID" SdifStreamIDTablePutSIDSTR) :pointer 
-          (SDITable :pointer) (NumID :unsigned-int) (Source sdif-name) (TreeWay sdif-name))
+(defcfun  ("SdifStreamIDTablePutSID" SdifStreamIDTablePutSIDSTR) :pointer
+  (SDITable :pointer) (NumID :unsigned-int) (Source sdif-name) (TreeWay sdif-name))
 (defun SdifStreamIDTablePutSID (table id name tree)
   (with-foreign-string (strname name)
-       (with-foreign-string (strtree tree)
-         (SdifStreamIDTablePutSIDSTR table id strname strtree))))
+    (with-foreign-string (strtree tree)
+      (SdifStreamIDTablePutSIDSTR table id strname strtree))))
 
 (defcfun ("SdifFStreamIDTable" SdifFStreamIDTable) :pointer (file :pointer))
 
@@ -213,12 +213,12 @@
 
 (defcfun  ("SdifNameValuesLSetCurrNVT" SdifNameValuesLSetCurrNVT) :pointer  (NVL :pointer) (numNVT :unsigned-int))
 
-(defcfun  ("SdifNameValuesLPutCurrNVT" SdifNameValuesLPutCurrNVTSTR)  :pointer  
-          (SdifNameValuesLT :pointer) (name sdif-name) (value sdif-name))
+(defcfun  ("SdifNameValuesLPutCurrNVT" SdifNameValuesLPutCurrNVTSTR)  :pointer
+  (SdifNameValuesLT :pointer) (name sdif-name) (value sdif-name))
 (defun SdifNameValuesLPutCurrNVT (table name value)
-   (with-foreign-string (strname name)
-     (with-foreign-string  (strvalue value)
-       (sdif::SdifNameValuesLPutCurrNVTSTR table strname strvalue))))
+  (with-foreign-string (strname name)
+    (with-foreign-string  (strvalue value)
+      (sdif::SdifNameValuesLPutCurrNVTSTR table strname strvalue))))
 
 (defcfun  ("SdifNameValueTableGetStreamID" SdifNameValueTableGetStreamID) :int (NVT :pointer))
 
@@ -264,7 +264,7 @@
 (defcfun  ("SdifTestFrameType" SdifTestFrameType) :pointer (sdifF :pointer) (signature :pointer))
 
 (defcfun  ("SdifMatrixTypeGetColumnName" SdifMatrixTypeGetColumnNameSTR) :pointer (MatrixType :pointer) (num :int))
-(defun SdifMatrixTypeGetColumnName (mtype num) 
+(defun SdifMatrixTypeGetColumnName (mtype num)
   (foreign-string-to-lisp (sdif::SdifMatrixTypeGetColumnNameSTR mtype num)))
 
 (defcfun  ("SdifMatrixTypeGetNbColumns" SdifMatrixTypeGetNbColumns) :int (MatrixType :pointer))
@@ -290,7 +290,7 @@
 (defcfun ("SdifStringGetC" SdifStringGetC) :int (str :pointer))
 
 (defcfun ("SdifFGetAllTypefromSdifString" SdifFGetAllTypefromSdifString) :unsigned-int (file :pointer) (str :pointer))
-  
+
 ;;;=================================
 ;;; LIST
 

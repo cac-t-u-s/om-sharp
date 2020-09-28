@@ -1,5 +1,5 @@
 ;=========================================================================
-; LW Lisp Tools 
+; LW Lisp Tools
 ; Lisp programming tools for LispWorks delivered applications
 ;=========================================================================
 ;
@@ -27,22 +27,22 @@
 (defvar *om-eval-process* nil)
 
 (defun om-work-function ()
- 
+
   #+cocoa(objc:make-autorelease-pool)
   (mp:ensure-process-mailbox)
- 
- ;; This should really have an error handler.
- (loop (let ((event (mp:process-read-event (mp:process-event-queue
-                                              (mp:get-current-process))
-                                             "waiting for events")))
-         (cond
-          ((functionp event)
-           (funcall event))
+
+  ;; This should really have an error handler.
+  (loop (let ((event (mp:process-read-event (mp:process-event-queue
+                                             (mp:get-current-process))
+                                            "waiting for events")))
+          (cond
+           ((functionp event)
+            (funcall event))
           ;((consp event)
           ; (apply (car event) (cdr event)))
-          (t
-           (eval event)
-           )))))
+           (t
+            (eval event)
+            )))))
 
 
 (defparameter *eval-process-name* "OM EVAL PROCESS")
@@ -55,8 +55,8 @@
 
 (defun om-eval-on-process (expression)
   (init-om-eval-process)
-  (mp:ensure-process-mailbox *om-eval-process*)  
-  (mp:process-send 
+  (mp:ensure-process-mailbox *om-eval-process*)
+  (mp:process-send
    *om-eval-process*
    expression
    ;(if (functionp expression) expression

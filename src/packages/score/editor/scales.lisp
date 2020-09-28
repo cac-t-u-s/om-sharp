@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -19,9 +19,9 @@
 
 
 ; (degree line accidental)
-(defparameter *default-scale* 
+(defparameter *default-scale*
   '((0 0 nil)
-    (100 0 :sharp) 
+    (100 0 :sharp)
     (200 0.5 nil)
     (300 0.5 :sharp)
     (400 1 nil)
@@ -34,11 +34,11 @@
     (1100 3 nil)))
 
 
-(defparameter *1/4-scale* 
+(defparameter *1/4-scale*
   '((0 0 nil)
     (50 0 :1/4-sharp)
-    (100 0 :sharp) 
-    (150 0 :3/4-sharp) 
+    (100 0 :sharp)
+    (150 0 :3/4-sharp)
     (200 0.5 nil)
     (250 0.5 :1/4-sharp)
     (300 0.5 :sharp)
@@ -62,15 +62,15 @@
     ))
 
 
-(defparameter *1/8-scale* 
+(defparameter *1/8-scale*
   '((0 0 nil)
     (25 0 :1/8-sharp)
     (50 0 :1/4-sharp)
     (75 0 :3/8-sharp)
-    (100 0 :sharp) 
-    (125 0 :5/8-sharp) 
-    (150 0 :3/4-sharp) 
-    (175 0 :7/8-sharp) 
+    (100 0 :sharp)
+    (125 0 :5/8-sharp)
+    (150 0 :3/4-sharp)
+    (175 0 :7/8-sharp)
     (200 0.5 nil)
     (225 0.5 :1/8-sharp)
     (250 0.5 :1/4-sharp)
@@ -122,8 +122,8 @@
 (defun get-the-scale (symb)
   (or (cadr (find symb *all-scales* :key #'car))
       *default-scale*))
-    
-(defun step-from-scale (symb) 
+
+(defun step-from-scale (symb)
   (let ((scale (get-the-scale symb)))
     (- (first (second scale)) (first (first scale)))))
 
@@ -131,7 +131,7 @@
 ;;; a utility for user-code to add new scales in score editors:
 (defun add-scale (name scale)
   (let ((existing-scale (find name *all-scales* :key #'car)))
-    (if existing-scale 
+    (if existing-scale
         (setf (cadr existing-scale) scale)
       (pushr (list name scale) *all-scales*)
       )))

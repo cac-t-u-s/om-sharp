@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -38,10 +38,10 @@
 
 (defun process-osc-bundle (bundle patch)
   (let ((tt nil))
-    (if (or (and (arrayp (car bundle)) (not (stringp (car bundle)))) 
+    (if (or (and (arrayp (car bundle)) (not (stringp (car bundle))))
             (consp (car bundle)))
         ;;; LOOKS LIKE OSC...
-        (loop for item in bundle 
+        (loop for item in bundle
               unless (and (arrayp item) (not (stringp item)) (setf tt item)) ;;; THIS IS THE TIME TAG
               collect
               (if (and (consp item) (consp (car item))) ;;; THE FIRST ELEMENT OF THE MESSAGE IS ANOTHER MESSAGE
@@ -78,11 +78,11 @@ Note: default host 127.0.0.1 is the 'localhost', i.e. the message is send to the
   :indoc '("port number" "incoming message processing patch" "an IP address")
   :initvals '(3000 nil nil)
   :doc "A local OSC server.
- 
+
 Right-click and select the appropriate option to turn on/off.
 When the server is on, OSC-RECEIVE waits for OSC messages on port <port> and calls <msg-processing> with the decoded message as parameter.
 
-<msg-processing> must be a patch in mode 'lambda' with 1 input corresponding to an OSC message. 
+<msg-processing> must be a patch in mode 'lambda' with 1 input corresponding to an OSC message.
 This patch should handle and process the incoming messages.
 
 By default the server listen to ANY addresses (localhost and IP address). Set <host> to listen only to the messages sent from the network to the speficic address.
@@ -106,13 +106,13 @@ By default the server listen to ANY addresses (localhost and IP address). Set <h
         (host (caddr args)))
     (if (and port (numberp port))
         (let ((s (om-start-udp-server port host
-                                   #'(lambda (msg) 
-                                       (let* ((message (osc-decode msg)))
+                                      #'(lambda (msg)
+                                          (let* ((message (osc-decode msg)))
                                          ;(print (format nil "OSC RECEIVE [~A:~D]= ~A" host port message))
-                                         (let ((delivered (process-osc-bundle message fun)))
-                                           (set-delivered-value box (reverse delivered)))
-                                         )
-                                       nil))))
+                                            (let ((delivered (process-osc-bundle message fun)))
+                                              (set-delivered-value box (reverse delivered)))
+                                            )
+                                          nil))))
           (when s (om-print (format nil "OSC-RECEIVE START on port ~D" port)) s)
           )
       (om-beep-msg (format nil "Error - bad port number for OSC-RECEIVE: ~A" port)))))

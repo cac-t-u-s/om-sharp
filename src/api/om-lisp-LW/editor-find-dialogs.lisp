@@ -1,5 +1,5 @@
 ;;===========================================================================
-; LW Lisp Tools 
+; LW Lisp Tools
 ; Lisp programming tools for LispWorks delivered applications
 ;;===========================================================================
 ;
@@ -117,7 +117,7 @@
                                direction
                                data
                                #'(lambda ()
-                                   (execute-with-interface 
+                                   (execute-with-interface
                                     self
                                     #'(lambda ()
                                         (display-message-for-pane self "No more ~S" find-text))))))))))))
@@ -199,14 +199,14 @@
 
 (defun find-in-file (interface)
   (display-anvita-dialog interface 'find-dialog
-                          :find-replace-actions '(:find-next :cancel)
-                          :find-replace-actions-adjust :center
-                          :find-items *find-strings*))
+                         :find-replace-actions '(:find-next :cancel)
+                         :find-replace-actions-adjust :center
+                         :find-items *find-strings*))
 
 (defun replace-in-file (interface)
   (display-anvita-dialog interface 'find-replace-dialog
-                          :find-replace-actions '(:find-next :replace :replace-all :cancel)
-                          :find-replace-actions-adjust :center
-                          :find-items *find-strings*
-                          :replace-items *replace-strings*))
+                         :find-replace-actions '(:find-next :replace :replace-all :cancel)
+                         :find-replace-actions-adjust :center
+                         :find-items *find-strings*
+                         :replace-items *replace-strings*))
 

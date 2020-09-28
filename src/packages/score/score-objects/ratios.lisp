@@ -4,15 +4,15 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
-; File author: J. Bresson 
+; File author: J. Bresson
 ; Code from K.Haddad, O. Sandred and others
 ;============================================================================
 
@@ -34,7 +34,7 @@
 
 (defun mesure-ratios (list)
   (let ((div (round (loop for elt in list sum (abs (if (listp elt) (car elt) elt))))))
-    (flat (loop for elt in list 
+    (flat (loop for elt in list
                 collect (if (listp elt)
                             (om* (/ (round (car elt)) div) (mesure-ratios (cadr elt)))
                           (/ (round elt) div)))
@@ -56,25 +56,25 @@
   :indoc '("a rythm tree")
   :icon 'tree
   :doc "
-Converts <tree> into a list of ratio where 
+Converts <tree> into a list of ratio where
 1/4 is a quarter note, 1/8 is an eight note etc.
 "
   (let* ((res ())
          (tree-formatted (if (listp (car tree))
                              (list (length tree) tree)
-                             tree))
+                           tree))
          (pulses (flat (get-pulses tree-formatted)))
          (ratios (flat (tree-to-ratios tree-formatted))))
-    
+
     (loop for p in pulses
           do (if (floatp p)
-                 (progn 
+                 (progn
                    (setf (car res) (+ (car res) (car ratios)))
                    (pop ratios))
-               (progn 
+               (progn
                  (push (car ratios) res)
                  (pop ratios))))
-    
+
     (reverse res)))
 
 
@@ -99,15 +99,15 @@ Converts <tree> into a list of ratio where
 ;;;-----------------------
 
 (defun build-local-times (global-onsets global-start)
-       (mapcar #'(lambda (onset) (if (> onset 0)
-                                   (- onset (1- global-start))
-                                   (+ onset (1- global-start))))
-               global-onsets))
+  (mapcar #'(lambda (onset) (if (> onset 0)
+                                (- onset (1- global-start))
+                              (+ onset (1- global-start))))
+          global-onsets))
 
 ;;;-----------------------
 
 (defun make-proportional-cell (dur-list)
-  (mapcar 
+  (mapcar
    #'(lambda (dur) (* dur (apply 'lcm (mapcar 'denominator dur-list))))
    dur-list))
 
@@ -193,12 +193,12 @@ Converts <tree> into a list of ratio where
         tree)
     (if (not local-onset) (setf local-onset (list (1+ beat-length))))
     (if (= (car (last local-onset)) (- -1 beat-length))
-      (setf local-onset (append (butlast local-onset) (list (1+ beat-length)))))
+        (setf local-onset (append (butlast local-onset) (list (1+ beat-length)))))
     (if (/= (car (last local-onset)) (1+ beat-length))
-      (setf local-onset (append local-onset (list (1+ beat-length)))))
+        (setf local-onset (append local-onset (list (1+ beat-length)))))
     (setf tree (better-predefined-subdiv? (make-sub-tree local-onset)))
     (if (= (length (cadr tree)) 1)
-      (caadr tree)
+        (caadr tree)
       tree)))
 
 
@@ -214,14 +214,14 @@ Converts <tree> into a list of ratio where
                                            (and (typep (nth beat-nr measure-tree) 'integer)
                                                 (> (nth beat-nr measure-tree) 0)))
                                  do (progn (decf value (truncate (abs (nth beat-nr measure-tree))))
-                                           (incf beat-nr)))
+                                      (incf beat-nr)))
                            value))
                         ((and (typep (nth beat-nr measure-tree) 'number))
                          (let ((value (nth beat-nr measure-tree)))
                            (incf beat-nr)
                            (loop until (not (typep (nth beat-nr measure-tree) 'float))
                                  do (progn (incf value (truncate (nth beat-nr measure-tree)))
-                                           (incf beat-nr)))
+                                      (incf beat-nr)))
                            value))
                         (t (incf beat-nr)
                            (nth (1- beat-nr) measure-tree))))
@@ -241,14 +241,14 @@ Converts <tree> into a list of ratio where
                                     (/= (abs (first these-events)) (nth beat-nr beatlist))
                                     (get-onsettime-before (nth beat-nr beatlist) local-onset)
                                     (> 0 (get-onsettime-before (nth beat-nr beatlist) local-onset)))
-                             (setf these-events (append (list (- 0 (nth beat-nr beatlist)))
-                                                        these-events))) 
+                               (setf these-events (append (list (- 0 (nth beat-nr beatlist)))
+                                                          these-events)))
                            ;check if tied pause within subtree - if yes: give startpoint as pause
                            (if (and (not these-events)
                                     (get-onsettime-before (nth beat-nr beatlist) local-onset)
                                     (> 0 (get-onsettime-before (nth beat-nr beatlist) local-onset)))
-                             (setf these-events (list (- 0 (nth beat-nr beatlist)))))
-                           
+                               (setf these-events (list (- 0 (nth beat-nr beatlist)))))
+
                            (create-beat these-events (nth beat-nr beatlist) beat-length)))
            no-of-beats))
     (list (list no-of-beats (/ 1 beat-length)) tree)))
@@ -275,14 +275,14 @@ Converts <tree> into a list of ratio where
                     (if (and this-seq
                              (/= (abs (first this-seq)) (nth measure measure-start-points))
                              (> 0 (get-onsettime-before (nth measure measure-start-points) abs-rhythms)))
-                      (setf this-seq (append (list (- 0 (nth measure measure-start-points)))
-                                             this-seq)))
-                    (if (and (not this-seq) 
+                        (setf this-seq (append (list (- 0 (nth measure measure-start-points)))
+                                               this-seq)))
+                    (if (and (not this-seq)
                              (> 0 (get-onsettime-before (nth measure measure-start-points) abs-rhythms)))
-                      (setf this-seq (list (- 0 (nth measure measure-start-points)))))
+                        (setf this-seq (list (- 0 (nth measure measure-start-points)))))
                     (setf local-onset (build-local-times this-seq (nth measure measure-start-points)))
-                    
-                    (build-one-measure local-onset 
+
+                    (build-one-measure local-onset
                                        (car this-timesign)
                                        (/ 1 (cadr this-timesign)))))))
 
@@ -293,7 +293,7 @@ Converts <tree> into a list of ratio where
 
 ;;;-----------------------
 
-(defmethod! mktree ((rhythm list) (timesigns list)) 
+(defmethod! mktree ((rhythm list) (timesigns list))
   :initvals '((1/4 1/4 1/4 1/4) (4 4))
   :indoc '("list of integer ratios" "list of time signatures")
   :doc "
@@ -307,13 +307,13 @@ by the 'rhythm' length.
 The output rhythm tree is intended for the <tree> input of a 'voice' factory box.
 "
   :icon 'tree
-  
+
   (if (typep (car timesigns) 'list)
       (simple->tree rhythm timesigns)
     (let* ((nbmesreal (* (/ (loop for item in rhythm sum (abs item))
                             (car timesigns))
                          (cadr timesigns)))
            (nbmes (if (integerp nbmesreal) nbmesreal (1+ (truncate nbmesreal)))))
-        (simple->tree rhythm (make-list nbmes :initial-element timesigns)))
-  ))
+      (simple->tree rhythm (make-list nbmes :initial-element timesigns)))
+    ))
 

@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -31,7 +31,7 @@
 ;;; Allows to use :name
 (defmacro om-make-instance (class &rest initargs)
   "Special make-instance - class must be an OMObject."
-  (if (getf initargs :name) 
+  (if (getf initargs :name)
       (let* ((pos (position :name initargs))
              (name (nth (1+ pos) initargs))
              (other-args (append (subseq initargs 0 pos) (subseq initargs (+ pos 2)))))
@@ -49,7 +49,7 @@
 
 ;; SPECIALIZED FOR FUNCALLABLE OBJECTS
 ;; WHICH DO NOT ALLOW OMOBJECT INHERITANCE
-(defclass OMFuncallableObject (standard-generic-function) 
+(defclass OMFuncallableObject (standard-generic-function)
   ((name :initform nil :initarg :name :accessor name))
   (:metaclass clos::funcallable-standard-class))
 
@@ -61,7 +61,7 @@
 (defclass OMVPObject (OMObject) ())
 
 ;;; AN OBJECT WITH AN EDITOR
-(defclass ObjectWithEditor () 
+(defclass ObjectWithEditor ()
   ((editor :initform nil :accessor editor)
    (window-pos :initform nil :accessor window-pos)
    (window-size :initform nil :accessor window-size)))
@@ -69,9 +69,9 @@
 ;===========================
 ; OMBASICOBJECTS = OBJECTS FROM THE VISUAL LANGUAGE
 ;===========================
-(defclass OMBasicObject (OMObject ObjectWithEditor) 
+(defclass OMBasicObject (OMObject ObjectWithEditor)
   ((name :initform nil :accessor name :initarg :name :type string)  ;; name is redefined with :initarg
-   (protected-p :initform nil :initarg :protected-p :accessor protected-p :documentation "determines if the object is protected (i.e. modifyable by the user) or not") 
+   (protected-p :initform nil :initarg :protected-p :accessor protected-p :documentation "determines if the object is protected (i.e. modifyable by the user) or not")
    (icon :initform nil :initarg :icon :accessor icon)
    (references-to :initform nil :accessor references-to :documentation "mutable list containing the existing objects containing or referring to this object")
    ;(infowin :initform nil :accessor infowin :documentation "reference to the info window currently open for the object (if any)")
@@ -80,10 +80,10 @@
 
 (defmethod release-reference ((self t) pointer) nil)
 
-(defmethod release-reference ((self OMBasicObject) pointer)  
+(defmethod release-reference ((self OMBasicObject) pointer)
   (setf (references-to self) (remove pointer (references-to self))))
 
-(defmethod retain-reference ((self OMBasicObject) pointer)  
+(defmethod retain-reference ((self OMBasicObject) pointer)
   (setf (references-to self) (cons pointer (references-to self))))
 
 
@@ -143,13 +143,13 @@
   (call-next-method)
   (when (editor self) (update-window-name (editor self)))
   (loop for box in (box-references-to self) ;; in principle there is only one at this stage
-        do 
+        do
         (set-name box (name self))
         (when (frame box) (om-invalidate-view (frame box)))))
 
 (defmethod compile-if-needed ((self OMProgrammingObject))
   ; (print (list "COMPILE" (name self) (compiled? self)))
-  (unless (compiled? self) 
+  (unless (compiled? self)
     (compile-patch self)))
 
 (defmethod touch ((self t)) nil)
@@ -163,7 +163,7 @@
 ;;; PERSISTANT
 ;;;=======================================
 
-(defclass OMPersistantObject () 
+(defclass OMPersistantObject ()
   ((mypathname :initform nil :initarg :mypathname :accessor mypathname :documentation "associated file pathname")
    (saved? :initform nil :accessor saved? :documentation "as the object been modified without saving?"))
   (:documentation "Mixin class for perstistant objects. Persistants object are the subset of the metaobjects which are stored as files or folders."))
@@ -178,16 +178,16 @@
           do (update-from-editor ref :value-changed value-changed :reactive reactive))
     (touch self))
   (call-next-method))
-  
+
 ;(defmethod update-from-editor ((self OMPersistantObject))
 ;  (touch self)
 ;  (call-next-method))
 
 (defmethod window-name-from-object ((self OMPersistantObject))
-  (if (mypathname self) 
+  (if (mypathname self)
       (if (probe-file (mypathname self))
           ;;; normal case
-          (format nil "~A~A  [~A]" 
+          (format nil "~A~A  [~A]"
                   (if (saved? self) "" "*") (name self)
                   (namestring (om-make-pathname :directory (mypathname self))))
         ;;; problem : the patch is open but the file is missing
@@ -203,10 +203,10 @@
 ;;; FOLDERS (not used for the moment...)
 ;;;=======================================
 
-(defclass OMFolder (OMBasicObject) 
-   ((elements :initform nil :accessor elements :documentation "folders contained in the workspace"))
+(defclass OMFolder (OMBasicObject)
+  ((elements :initform nil :accessor elements :documentation "folders contained in the workspace"))
    ;(presentation :initform 1 :initarg :presentation :accessor presentation :documentation "presentation mode: 1=list, 0=icons"))
-   (:documentation "The class of the folders"))
+  (:documentation "The class of the folders"))
 
 (defclass OMPersistantFolder (OMFolder OMPersistantObject) ()
   (:documentation "Superclass of persistant objects that are saved as folders."))
@@ -229,7 +229,7 @@
 ;;; in principle all references have the same container
 ;;; This method is also specialized for OMBox
 (defmethod find-persistant-container ((self OMProgrammingObject))
-  (let ((one-box-ref (find-if #'(lambda (b) (subtypep (type-of b) 'OMBox)) 
+  (let ((one-box-ref (find-if #'(lambda (b) (subtypep (type-of b) 'OMBox))
                               (references-to self))))
     (when one-box-ref
       (find-persistant-container one-box-ref))))
@@ -242,34 +242,34 @@
         collect b))
 
 (defmethod box-references-to ((self OMProgrammingObject))
-  (remove-if 
+  (remove-if
    #'(lambda (ref)
        (not (subtypep (type-of ref) 'OMBox)))
    (references-to self)))
 
-(defmethod release-reference :around ((self OMPersistantObject) from)  
+(defmethod release-reference :around ((self OMPersistantObject) from)
   (call-next-method)
-  (unless (or (get-outside-references self) 
+  (unless (or (get-outside-references self)
               (editor self))
     (unregister-document self)))
 
 
-;;; this is called: 
+;;; this is called:
 ;;; - by the editor-close callback
 ;;; - when the document is closed from the main session window
 (defmethod close-document ((patch OMProgrammingObject) &optional (force nil))
   (let* ((outside-references (get-outside-references patch)));;; => references to the same patch outside this patch
-          
+
     (when (or (null outside-references)
-              (and force 
-                   (om-y-or-n-dialog 
-                    (format nil "The document ~A still has ~A external references. Delete anyway ?" 
+              (and force
+                   (om-y-or-n-dialog
+                    (format nil "The document ~A still has ~A external references. Delete anyway ?"
                             (name patch) (length outside-references)))))
-      
+
       ;;; release all box references (they are all inside this patch anyway)
       (loop for refb in (box-references-to patch)
             do (release-reference patch refb))
-      (delete-internal-elements patch) 
+      (delete-internal-elements patch)
       ;; (setf (loaded? patch) nil)
       (when force (unregister-document patch))
       )

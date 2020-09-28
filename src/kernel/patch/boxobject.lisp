@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -30,7 +30,7 @@
 ;;===========================================
 ;  ABSTRACT SUPERCLASS
 ;;===========================================
-;;; for boxeditcall ans slotsbox 
+;;; for boxeditcall ans slotsbox
 (defclass OMBoxRelatedWClass (OMBoxCall) ()
   (:documentation "Boxes with a class as reference")
   (:metaclass omstandardclass))
@@ -44,47 +44,47 @@
 
 (defmethod box-def-self-in ((self t)) NIL)
 
-(defmethod create-box-inputs ((self OMBoxRelatedWClass)) 
+(defmethod create-box-inputs ((self OMBoxRelatedWClass))
   (let ((class (find-class (reference self) nil)))
-    (when class 
-      (cons 
-       (make-instance 'box-input 
-                                 :name "SELF" 
-                                 :box self :reference :self
-                                 :value (box-def-self-in (reference self))
-                                 :doc-string "Connect here to create a new instance by copy")
-       (mapcar #'(lambda (slot) 
-                  (make-instance 'box-input 
-                                 :name (string (slot-name slot)) :reference (slot-name slot) 
-                                 :box self
-                                 :value (valued-val (slot-initform slot))
-                                 :doc-string (apply 'concatenate (cons 'string 
-                                                                       (append 
-                                                                        (unless (equal t (slot-type slot)) (list "[" (string-downcase (slot-type slot)) "] "))
-                                                                        (list (slot-doc slot)))
+    (when class
+      (cons
+       (make-instance 'box-input
+                      :name "SELF"
+                      :box self :reference :self
+                      :value (box-def-self-in (reference self))
+                      :doc-string "Connect here to create a new instance by copy")
+       (mapcar #'(lambda (slot)
+                   (make-instance 'box-input
+                                  :name (string (slot-name slot)) :reference (slot-name slot)
+                                  :box self
+                                  :value (valued-val (slot-initform slot))
+                                  :doc-string (apply 'concatenate (cons 'string
+                                                                        (append
+                                                                         (unless (equal t (slot-type slot)) (list "[" (string-downcase (slot-type slot)) "] "))
+                                                                         (list (slot-doc slot)))
                                                                         )
-                                                                       )))
-              (remove-if-not 'slot-initargs (class-direct-instance-slots class)))   ;;; direct ?
+                                                     )))
+               (remove-if-not 'slot-initargs (class-direct-instance-slots class)))   ;;; direct ?
        )
       )))
 
 
 (defmethod create-box-outputs ((self OMBoxRelatedWClass))
   (let ((class (find-class (reference self) nil)))
-    (when class 
-      (cons 
-       (make-instance 'box-output 
-                                 :name "SELF" :reference :self
-                                 :box self
-                                 :doc-string (format nil "Instance of class ~A" (class-name class)))
-       (mapcar #'(lambda (slot) 
-                   (make-instance 'box-output 
-                                  :name (string (slot-name slot)) 
+    (when class
+      (cons
+       (make-instance 'box-output
+                      :name "SELF" :reference :self
+                      :box self
+                      :doc-string (format nil "Instance of class ~A" (class-name class)))
+       (mapcar #'(lambda (slot)
+                   (make-instance 'box-output
+                                  :name (string (slot-name slot))
                                   :reference (slot-name slot)
                                   :box self
                                   :doc-string  (or (slot-doc slot) nil)))
                (remove-if-not 'slot-initargs (class-direct-instance-slots class)))    ;;; direct ?
-      ))))
+       ))))
 
 
 ;;; ADDITIONAL CLASS AND BOX/EDITOR ATTRIBUTES CAN BE ADDED AS OPTIONAL/KEYWORDS
@@ -93,8 +93,8 @@
 
 (defmethod allow-more-optionals ((self OMBoxRelatedWClass)) t)
 
-;;; box attributes can be just a name, or 
-;;; (name doc menu) 
+;;; box attributes can be just a name, or
+;;; (name doc menu)
 (defmethod additional-box-attributes ((self t)) nil)
 (defmethod box-attributes-names ((attributes list))
   (mapcar #'(lambda (attr) (if (listp attr) (car attr) attr)) attributes))
@@ -118,7 +118,7 @@
         (name (symbol-name symbol-base)))
     (if (find name name-list :test 'string-equal)
         (let ()
-          (loop while (find name name-list :test 'string-equal) 
+          (loop while (find name name-list :test 'string-equal)
                 for i = 2 then (+ i 1) do
                 (setf name (string+ (symbol-name symbol-base) "_" (number-to-string i))))
           (intern name pack))
@@ -129,14 +129,14 @@
 
   (let ((keywordlist (apply 'append (get-all-keywords self)))
         (usedkeywords (mapcar #'(lambda (in) (name in)) (get-keyword-inputs self))))
-    
+
     (if keywordlist
-        
+
         (or (find-if-not #'(lambda (elt) (member elt usedkeywords :test 'string-equal)) keywordlist :key 'string)
             (and (find (box-free-keyword-name self) keywordlist)
                  (make-unique-name (box-free-keyword-name self) usedkeywords))
             (values nil "All keywords are already used.."))
-      
+
       (values nil (string+ "No keyword for box '" (name self) "'.")))
     ))
 
@@ -144,19 +144,19 @@
 (defmethod add-keyword-input ((self OMBoxRelatedWClass) &key key value doc reactive)
 
   (declare (ignore value doc reactive))
-  
+
   (call-next-method)
   (let ((name (string-downcase key)))
     (set-box-outputs self (append (outputs self)
-                                 (list (make-instance 
-                                        'box-keyword-output 
-                                        :name name
-                                        :box self
-                                        :doc-string (get-input-doc self name)))))
+                                  (list (make-instance
+                                         'box-keyword-output
+                                         :name name
+                                         :box self
+                                         :doc-string (get-input-doc self name)))))
     ))
 
 
-(defmethod update-output-from-new-in ((box OMBoxRelatedWClass) name in) 
+(defmethod update-output-from-new-in ((box OMBoxRelatedWClass) name in)
   (let ((out (find name (outputs box) :key 'name :test 'string-equal)))
     (when out
       (setf (name out) (name in)
@@ -170,10 +170,10 @@
 
 
 ;;;===============================
-;;; RELATION TO REFERENCE CLASS 
+;;; RELATION TO REFERENCE CLASS
 ;;; (WHEN THE CLASS IS AN OMCLASS)
 ;;;===============================
-(defmethod om-copy ((self OMBoxRelatedWClass)) 
+(defmethod om-copy ((self OMBoxRelatedWClass))
   (let* ((newbox (call-next-method))
          (class (find-class (reference newbox) nil)))
     (when (omclass-p class)
@@ -183,7 +183,7 @@
 (defmethod omng-delete ((box OMBoxRelatedWClass))
   (call-next-method)
   (let ((class (find-class (reference box) nil)))
-    (when (omclass-p class) 
+    (when (omclass-p class)
       (release-reference class box)))
   t)
 
@@ -209,7 +209,7 @@
   (eval `(setf (,slot-name ,obj) ',value)))
 
 (defmethod set-slot-val (obj (slot-name string) value)
-  (let ((slot (find slot-name (class-slots (class-of obj)) 
+  (let ((slot (find slot-name (class-slots (class-of obj))
                     :key #'(lambda (slot) (string (slot-name slot)))
                     :test 'string-equal)))
     (when slot
@@ -222,13 +222,13 @@
   (eval `(,slot-name ,obj)))
 
 (defmethod get-slot-val (obj (slot-name string))
-  (let ((slot (find slot-name (class-slots (class-of obj)) 
+  (let ((slot (find slot-name (class-slots (class-of obj))
                     :key #'(lambda (slot) (string (slot-name slot)))
                     :test 'string-equal)))
     (when slot
       (get-slot-val obj (slot-name slot)))))
 
-(defun set-value-slots (value args) 
+(defun set-value-slots (value args)
   (mapcar #'(lambda (item) (set-slot-val value (car item) (cadr item))) args))
 
 ;;; This is redefined by the graphical initialization
@@ -236,7 +236,7 @@
 (defmethod v-oop-init ((self t) &rest args) args)
 
 ;;; called after slots are set (including in OM)
-;;; or when a new slot is set (e.g. slot box, property, etc.) 
+;;; or when a new slot is set (e.g. slot box, property, etc.)
 ;;; <initargs> = NIL for save/load/copy OR in the init value of a box
 ;;; <initargs> = all initargs in MAKE-VALUE / list incl. connected initargs MAKE-VALUE-FROM-MODEL
 ;;; ////// <initargs> = only the specific initarg e.g. in set-property ///// NOT ANYMORE !!
@@ -244,18 +244,18 @@
 
 
 (defmethod update-after-eval ((self OMBoxRelatedWClass)) nil)
-  
+
 (defmethod get-connected-args ((self OMBoxRelatedWClass) &optional (accessor #'omng-box-value))
-  (remove nil 
-          (mapcar #'(lambda (input) 
-                      (when (connections input) 
-                        (list (intern-k (name input)) 
+  (remove nil
+          (mapcar #'(lambda (input)
+                      (when (connections input)
+                        (list (intern-k (name input))
                               (funcall accessor input))))
                   (cdr (inputs self)))))
 
 (defmethod get-all-args ((self OMBoxRelatedWClass) &optional (accessor #'omng-box-value))
-  (mapcar #'(lambda (input) 
-              (list (intern-k (name input)) 
+  (mapcar #'(lambda (input)
+              (list (intern-k (name input))
                     (funcall accessor input)))
           (cdr (inputs self))))
 
@@ -268,12 +268,12 @@
          ;;; the regular class initargs
          (supplied-initargs (remove-if #'(lambda (item) (not (find item class-initargs :test 'find))) initargs :key 'car))
          ;;; not initargs but valid slots
-         (supplied-other-args (loop for arg in initargs 
+         (supplied-other-args (loop for arg in initargs
                                     when (and (find (symbol-name (car arg)) class-slots-names :key 'symbol-name :test 'string-equal)
                                               (not (member (car arg) supplied-initargs :key 'car)))
                                     collect (list (symbol-name (car arg)) (cadr arg)))))
-    
-    (om-init-instance 
+
+    (om-init-instance
      (let ((obj (apply 'make-instance (cons classname (reduce 'append supplied-initargs)))))
        (set-value-slots obj supplied-other-args)
        obj)
@@ -281,8 +281,8 @@
     ))
 
 
-;;; SPECIAL FOR BOXEDITCALL: 
-;;; If the first input is connected the value is built by copying a prototype instance (<model>) 
+;;; SPECIAL FOR BOXEDITCALL:
+;;; If the first input is connected the value is built by copying a prototype instance (<model>)
 ;;; <args> are only the connected input values
 (defun make-value-from-model (type model initargs)
 
@@ -291,12 +291,12 @@
                   (om-copy model)
                 (objFromObjs model target)))
          (class-slots-names (mapcar 'slot-name (class-instance-slots (find-class type))))
-         (set-slot-args (loop for initarg in initargs 
+         (set-slot-args (loop for initarg in initargs
                               when (find (symbol-name (car initarg)) class-slots-names :key 'symbol-name :test 'string-equal)
-                              collect (list (symbol-name (car initarg)) (cadr initarg))))) 
- 
+                              collect (list (symbol-name (car initarg)) (cadr initarg)))))
+
     (if rep
-        (progn 
+        (progn
           (set-value-slots rep set-slot-args)
           (om-init-instance rep (or initargs '(nil)))
           ;;; we want to pass a non-nil ['(NIL) and not NIL] value in order to signal evaluation mode to om-init-instance
@@ -306,7 +306,7 @@
     ))
 
 
-  
+
 (defmethod prepare-obj-for-request ((object t) (box OMBoxRelatedWClass)) object)
 
 
@@ -314,23 +314,23 @@
 ;;; IN PRINCIPLE THE CASE LAMBDA NEVER HAPPENS
 (defmethod rep-editor ((box OMBoxRelatedWClass) num)
   (if (= num 0) (car (value box))
-    (cond 
+    (cond
      ;;; GENERAL CASE
      ((null (lambda-state box))
       (let* ((obj (prepare-obj-for-request (get-box-value box) box))
-             (slot (name (nth num (outputs box))))) 
-        (cond ((find slot (class-instance-slots (find-class (type-of obj))) 
-                     :test 'string-equal 
+             (slot (name (nth num (outputs box)))))
+        (cond ((find slot (class-instance-slots (find-class (type-of obj)))
+                     :test 'string-equal
                      :key #'(lambda (slot) (symbol-name (slot-name slot))))
                (get-slot-val (car (value box)) slot))
               ((find (intern-k slot) (additional-box-attributes-names box))
                (get-edit-param box (intern-k slot)))
               (t nil))))
-     ;;; LAMBDA 
+     ;;; LAMBDA
      ((equal (lambda-state box) :lambda)
       (let ((new-arg-list (function-arg-list (car (value box)))))
         ; (loop for n from 1 to (length (function-lambda-list (car (value box)))) collect (gensym))))
-        (eval `#'(lambda ,new-arg-list 
+        (eval `#'(lambda ,new-arg-list
                    (let ((value (funcall ,(car (value box)) ,.new-arg-list)))
                      (get-slot-val value ,(name (nth num (outputs box)))))))))
      ;;; OTHER CASES
@@ -342,7 +342,7 @@
 ;; THE MAIN OBJECT BOX (FACTORY)
 ;;===========================================
 
-(defclass OMBoxEditCall (OMBoxRelatedWClass ObjectWithEditor object-with-edit-params) 
+(defclass OMBoxEditCall (OMBoxRelatedWClass ObjectWithEditor object-with-edit-params)
   ((play-state :initform nil :accessor play-state))
   (:metaclass omstandardclass))
 
@@ -351,28 +351,28 @@
 (defmethod default-size ((self OMBoxEditCall)) (om-make-point 80 50))
 
 (defmethod maximum-size ((self OMBoxEditCall)) nil)
-(defmethod minimum-size ((self OMBoxEditCall)) 
-  (om-make-point (+ 10 
+(defmethod minimum-size ((self OMBoxEditCall))
+  (om-make-point (+ 10
                     (max 60
                          (* (length (inputs self)) 10)
                          (* (box-n-outs self) 10)))
                  40))
 
-(defmethod get-box-class ((self standard-class)) 
+(defmethod get-box-class ((self standard-class))
   (let ((classes (clos::class-precedence-list self)))
-    (or 
-     (loop for c in classes 
+    (or
+     (loop for c in classes
            when (special-box-type (class-name c))
            return (special-box-type (class-name c)))
      'OMBoxEditCall)))
 
-(defmethod window-title-for-object ((self t)) 
+(defmethod window-title-for-object ((self t))
   (get-object-type-name self))
 
-(defmethod get-window-title ((self OMBoxEditCall)) 
+(defmethod get-window-title ((self OMBoxEditCall))
   (window-title-for-object (car (value self))))
 
-(defmethod def-reactive ((self OMBoxEditCall) key) 
+(defmethod def-reactive ((self OMBoxEditCall) key)
   (if (find key (additional-box-attributes-names self)) T NIL))
 
 ;;; NOT ! called when properties are changed in the inspector
@@ -384,27 +384,27 @@
 
 (defmethod omng-delete ((box OMBoxEditCall))
   (call-next-method)
-  (when (editor box) 
+  (when (editor box)
     (om-close-window (editor-window box))
-    (when (editor box) 
-    ;;; in principle the window-close callback will have closed the editor and set it to NIL
-    ;;; but for instance not if the window is not a special om# window (e.g. external app or library...)
-    (editor-close (editor box))))
+    (when (editor box)
+      ;;; in principle the window-close callback will have closed the editor and set it to NIL
+      ;;; but for instance not if the window is not a special om# window (e.g. external app or library...)
+      (editor-close (editor box))))
   t)
 
 
 (defmethod get-input-def-value ((self OMBoxEditCall) name)
   (let ((slot (find name (class-instance-slots (find-class (reference self) nil)) :key 'slot-name)))
-    (if slot 
+    (if slot
         (eval (slot-initform slot))
-      ;;; maybe it's the edit-params.. ? 
+      ;;; maybe it's the edit-params.. ?
       (get-default-edit-param self name))))
 
 (defmethod get-input-doc ((self OMBoxEditCall) name)
   (let ((slot (find (intern name (symbol-package (reference self)))
                     (class-instance-slots (find-class (reference self) nil)) :key 'slot-name)))
     (if slot (slot-doc slot)
-      ;;; maybe it's the edit-params.. ? 
+      ;;; maybe it's the edit-params.. ?
       (let* ((val (or (and (null (lambda-state self)) (car (value self)))
                       (make-instance (reference self))))
              (pos (position (intern-k name) (additional-box-attributes val) :key 'car)))
@@ -448,7 +448,7 @@
 ;;;=============================
 ;;; FRAME
 ;;;=============================
-(defclass OMObjectBoxFrame (OMBoxFrame) 
+(defclass OMObjectBoxFrame (OMBoxFrame)
   ((box-play-time :initform nil :accessor box-play-time)))
 
 (defmethod get-box-frame-class ((self OMBoxEditCall)) 'OMObjectBoxFrame)
@@ -459,23 +459,23 @@
 (defmethod editor-ed-params-properties ((self t)) nil)
 
 (defmethod get-properties-list ((self OMBoxEditCall))
-  
-  (let ((properties (add-properties 
-                     (call-next-method) 
-                     "Appearance" 
-                     (append 
+
+  (let ((properties (add-properties
+                     (call-next-method)
+                     "Appearance"
+                     (append
                       `((:name "Name" :string name)
                         (:display "View (m)" ,(display-modes-for-object (get-box-value self)) display)
                         (:showname "Show name (n)" :bool show-name))
                       ))))
-                     
+
     (if (play-obj? (get-box-value self))
-        (add-properties 
-         properties 
-         "Sequencer" 
+        (add-properties
+         properties
+         "Sequencer"
          '((:show-markers "Show markers" :bool show-markers)))
       properties)
-      
+
     ))
 
 
@@ -486,7 +486,7 @@
   (update-inspector-for-object self)
   (when (frame self) (om-invalidate-view (frame self))))
 
-(defmethod change-display ((self OMBox)) 
+(defmethod change-display ((self OMBox))
   (when (visible-property (get-properties-list self) :display)
     (let ((next-mode (next-in-list (display-modes-for-object (car (value self)))
                                    (display self))))
@@ -502,7 +502,7 @@
     (set-name val (string-upcase (reference self)))
     (setf (value self) (list val))
     (reset-cache-display self)
-    (when (frame self) 
+    (when (frame self)
       (om-invalidate-view (frame self)))
     (when (editor self)
       (update-to-editor (editor self) self))))
@@ -510,8 +510,8 @@
 
 (defmethod omNG-make-new-boxcall ((reference standard-class) pos &optional init-args)
   (let* ((box (make-instance (get-box-class reference)
-                             ;;; when typed from the pach editor, the passed ibit-args is just a name (string) 
-                             :name (if (stringp init-args) init-args nil)  ; (format nil "~A" init-args) 
+                             ;;; when typed from the pach editor, the passed ibit-args is just a name (string)
+                             :name (if (stringp init-args) init-args nil)  ; (format nil "~A" init-args)
                              :reference (class-name reference)
                              :icon-pos :noicon :show-name nil
                              :display :mini-view
@@ -534,19 +534,19 @@
     (retain-reference reference box)
     box))
 
-(defmethod om-copy ((self OMBoxEditCall)) 
+(defmethod om-copy ((self OMBoxEditCall))
   (let ((newbox (call-next-method)))
     (setf (value newbox) (om-copy (value self)))
     newbox))
 
-(defmethod after-copy-action ((self OMBoxEditCall)) 
+(defmethod after-copy-action ((self OMBoxEditCall))
   (unless (find-if #'connections (inputs self))
     (set-lock-state self :locked)))
 
-(defmethod om-view-doubleclick-handler ((self OMObjectBoxFrame) pos) 
+(defmethod om-view-doubleclick-handler ((self OMObjectBoxFrame) pos)
   (or (apply-in-area self 'click-in-area pos)
       (open-editor (object self))))
-    
+
 (defmethod update-after-prop-edit ((self OMBoxFrame) (object OMBoxEditCall))
   (call-next-method)
   (when (editor object) (update-to-editor (editor object) object)))
@@ -557,11 +557,11 @@
 ;;;=======================
 
 (defmethod box-draw ((self OMBoxEditCall) (frame OMBoxFrame))
-  (draw-value-in-frame (get-box-value self) frame) 
+  (draw-value-in-frame (get-box-value self) frame)
   t)
 
 ;;; to be redefined by objects if they have a specific miniview
-(defmethod draw-mini-view ((object t) (box OMBox) x y w h &optional time) nil) 
+(defmethod draw-mini-view ((object t) (box OMBox) x y w h &optional time) nil)
 
 ;; the bold text that is written on the object box
 (defmethod object-box-label ((object t)) (string-upcase (type-of object)))
@@ -569,8 +569,8 @@
 
 (defmethod draw-label ((box OMBox) object &key color)
   (let ((frame (frame box))
-        (str (if (eval-flag box) 
-                 ".oO__.." 
+        (str (if (eval-flag box)
+                 ".oO__.."
                (object-box-label object)))
         (font (om-def-font :font1 :face "arial" :size 18 :style '(:bold))))
     (multiple-value-bind (sw sh) (om-string-size str font)
@@ -578,7 +578,7 @@
       (let* ((lines (om-string-wrap str (- (w frame) 18) font))
              (y0 (max 24 (- (+ 6 (/ (h frame) 2))
                             (round (* (1- (length lines)) sh) 2)))))
-        (om-with-font font 
+        (om-with-font font
                       (om-with-fg-color (or color (om-make-color 0.6 0.6 0.6 0.5))
                         (loop for line in lines for y = y0 then (+ y sh) do
                               (om-draw-string 10 y line)
@@ -588,21 +588,21 @@
 
 
 (defmethod draw-mini-text ((object t) (box OMBox) x y w h &optional time)
-  
-  
+
+
   (let ((type-str (string-upcase (type-of object)))
         (type-font (om-def-font :font1b :size 10)))
- 
-    (om-draw-string (+ x (- w (om-string-size type-str type-font) 12)) 
-                    (+ y 18) 
-                    type-str 
+
+    (om-draw-string (+ x (- w (om-string-size type-str type-font) 12))
+                    (+ y 18)
+                    type-str
                     :font (om-def-font :font1b :size 10)
                     :color (om-def-color :gray)))
 
-  (om-with-font 
+  (om-with-font
    (om-def-font :font1 :size 10)
-   
-   (loop for i = (+ y 30) then (+ i 10) 
+
+   (loop for i = (+ y 30) then (+ i 10)
          for sl in (ensure-cache-display-text box object)
          while (< i (- h 6)) do
          (let ((str (format nil "~A: ~A" (car sl) (cadr sl))))
@@ -619,27 +619,27 @@
 (defparameter *miniview-x-margin* 4)
 (defparameter *miniview-y-margin* 4)
 
-(defmethod draw-value-in-frame ((object t) (frame OMObjectBoxFrame)) 
+(defmethod draw-value-in-frame ((object t) (frame OMObjectBoxFrame))
   (let ((box (object frame)))
     (case (display box)
-      (:text 
+      (:text
        (draw-label box object :color (om-make-color 0.6 0.6 0.6 0.2))
        (draw-mini-text object box 0 0 (w frame) (h frame) (box-play-time frame)))
-      (:mini-view 
-       (om-with-clip-rect frame 
-           *miniview-x-margin* *miniview-y-margin* 
+      (:mini-view
+       (om-with-clip-rect frame
+           *miniview-x-margin* *miniview-y-margin*
            (- (w frame) (* 2 *miniview-x-margin*)) (- (h frame) (* 2 *miniview-y-margin*))
          (draw-label box object :color (om-make-color 0.6 0.6 0.6 0.2))
          (ensure-cache-display-draw box object)
-         (draw-mini-view object box 
-                         *miniview-x-margin* *miniview-y-margin* 
-                         (- (w frame) (* 2 *miniview-x-margin*)) (- (h frame) (* 2 *miniview-y-margin*)) 
+         (draw-mini-view object box
+                         *miniview-x-margin* *miniview-y-margin*
+                         (- (w frame) (* 2 *miniview-x-margin*)) (- (h frame) (* 2 *miniview-y-margin*))
                          (box-play-time frame))
          ))
-      (:hidden 
+      (:hidden
        (om-with-clip-rect frame  0 *miniview-y-margin* (w frame) (- (h frame) (* 2 *miniview-y-margin*))
          (draw-label box object)))
-      (otherwise nil) 
+      (otherwise nil)
       )
 
     (when (play-state box)
@@ -647,11 +647,11 @@
     ))
 
 
-(defmethod time-to-pixel ((self omobjectboxframe) x) 
+(defmethod time-to-pixel ((self omobjectboxframe) x)
   (miniview-time-to-pixel (get-box-value (object self)) (object self) self x))
 
-(defmethod miniview-time-to-pixel (object box view time) 
-  (* (w view) 
+(defmethod miniview-time-to-pixel (object box view time)
+  (* (w view)
      (/ time (if (plusp (get-obj-dur object)) (get-obj-dur object) 1000))))
 
 (defmethod draw-cursor-on-box (object frame time)
@@ -661,8 +661,8 @@
         ; (print (list "cursor" time x))
         (om-draw-polygon (list (- x 5) 4 x 9 (+ x 5) 4) :fill t)
         (om-with-line '(2 2)
-        (om-draw-line x 4 x (- (h frame) 6))
-        )))
+          (om-draw-line x 4 x (- (h frame) 6))
+          )))
     t))
 
 ;;; specific update depending on context
@@ -670,29 +670,29 @@
 
 
 (defmethod update-after-eval ((self OMBoxEditCall))
-  (when (frame self) 
+  (when (frame self)
     (reset-cache-display self)
     (let ((val (car (value self))))
-     ;;; if the object has a name, the box takes the object name
-     ;;; if not, the object takes the box name...
-     (if (get-name val)
-         (setf (name self) (get-name val))
-       (set-name val (name self))))
+      ;;; if the object has a name, the box takes the object name
+      ;;; if not, the object takes the box name...
+      (if (get-name val)
+          (setf (name self) (get-name val))
+        (set-name val (name self))))
     (om-invalidate-view (frame self)))
   (contextual-update self (container self))
-  (when (editor self) 
+  (when (editor self)
     (update-to-editor (editor self) self)))
 
 
 (defmethod update-from-editor ((self OMBoxEditCall) &key (value-changed t) (reactive t))
-  
+
   (declare (ignore reactive)) ;;; reactive is handled in a :around method
-  
-  (when value-changed 
+
+  (when value-changed
     (setf (lock-state self) :locked)
     (contextual-update self (container self))
     (when (frame self)
-      ;(update-inspector-for-object self) ;; ? sure about this ? 
+      ;(update-inspector-for-object self) ;; ? sure about this ?
       ; => removed: caused problems with BPF editor draw when inspector is open :(
       (reset-cache-display self)
       (om-invalidate-view (frame self)))
@@ -720,12 +720,12 @@
 
 (defmethod make-slots-boxcall ((reference standard-class) pos)
   (let* ((box (make-instance 'OMSlotsBox
-                            :name (string+ (string-upcase (class-name reference)) " SLOTS")
-                            :reference (class-name reference)
-                            :icon-pos :left
+                             :name (string+ (string-upcase (class-name reference)) " SLOTS")
+                             :reference (class-name reference)
+                             :icon-pos :left
                             ;:text-font (om-def-font :font1 :style '(:italic))
-                            :color (om-make-color 0.9 0.88 0.81)
-                            :text-align :left))
+                             :color (om-make-color 0.9 0.88 0.81)
+                             :text-align :left))
          (size (default-size box)))
     (setf (box-x box) (om-point-x pos)
           (box-y box) (om-point-y pos)

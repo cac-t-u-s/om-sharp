@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -20,7 +20,7 @@
 (pushnew :portmidi *features*)
 
 (defun om-start-portmidi ()
-  (when om-midi::*libportmidi* 
+  (when om-midi::*libportmidi*
     (pm::pm-initialize))
   om-midi::*libportmidi*)
 
@@ -35,7 +35,7 @@
   (let ((v (gensym)))
     `(let ((,v ,form))
        (if (not (= ,v pm::pmNoError))
-	   (if (= ,v pm::pmHostError)
+           (if (= ,v pm::pmHostError)
                (error "Host error is: ~a" (pm::pm-get-host-error-text))
              (error (pm::pm-get-error-text ,v))
              )))))
@@ -74,7 +74,7 @@
 
 (defun list-devices ()
   (loop for i below (pm::pm-count-devices)
-     collect (describe-device i)))
+        collect (describe-device i)))
 
 ; (list-devices)
 
@@ -93,7 +93,7 @@
   ;                            (print "PortMidi: Could not open MIDI device!!!")
   ;                            (abort))))
   ;    (setf *midi-out-stream* (pm::pm-open-output 0 buffersize 0))))
-  
+
 
 (defun portmidi-stop ()
   ;(pm::pm-close *midi-out-stream*)
@@ -107,18 +107,18 @@
   (portmidi-close-all-midi-ports)
   (om-stop-portmidi)
   (pm::pm-initialize)
-  (when print 
+  (when print
     (om-lisp::om-print "initialized" "MIDI")
     (let ((devices (list-devices)))
-      (if devices 
-          (om-lisp::om-print-format "Devices detected:~%~{     ~A~^~%~}" 
-                                    (list 
-                                     (mapcar #'(lambda (device) (format nil "[~A] ~A" 
+      (if devices
+          (om-lisp::om-print-format "Devices detected:~%~{     ~A~^~%~}"
+                                    (list
+                                     (mapcar #'(lambda (device) (format nil "[~A] ~A"
                                                                         (cond ((and (nth 6 device) (nth 8 device)) "in-out")
                                                                               ((nth 6 device) "in")
                                                                               ((nth 8 device) "out")
                                                                               (t "-"))
-                                                                        (nth 4 device) 
+                                                                        (nth 4 device)
                                                                         ))
                                              devices))
                                     "MIDI")
@@ -145,10 +145,10 @@
   "=> an integer representing a MIDI message
 Combines the integers `status`, `data1` and `data2` to a MIDI message."
   (let ((d2 (boole boole-and (ash data2 16) #xFF0000))
-	(d1 (boole boole-and (ash data1 8) #xFF00))
-	(st (boole boole-and status #xFF)))
+        (d1 (boole boole-and (ash data1 8) #xFF00))
+        (st (boole boole-and status #xFF)))
     (boole boole-ior d2
-	   (boole boole-ior d1 st))))
+           (boole boole-ior d1 st))))
 
 (defun message-status (msg)
   "=> the status byte of the MIDI message `msg` as an integer"
@@ -166,13 +166,13 @@ Combines the integers `status`, `data1` and `data2` to a MIDI message."
   "=> a MIDI message as an integer
 Works like `make-message` but combines `upper` and `lower` to the status byte."
   (let ((status (boole boole-ior
-		       (boole boole-and (ash upper 4) #xF0)
-		       (boole boole-and lower #xF))))
+                       (boole boole-and (ash upper 4) #xF0)
+                       (boole boole-and lower #xF))))
     (make-message status data1 data2)))
 
-;; ex. Note-ON on channel 
+;; ex. Note-ON on channel
 ;; (make-message* 9 0 60 100)
-;; ex. Note-OFF on channel 
+;; ex. Note-OFF on channel
 ;; (make-message* 8 channel note velocity)
 
 ;; (message-status 14208)
@@ -202,22 +202,22 @@ Works like `make-message` but combines `upper` and `lower` to the status byte."
     ))
 
 (defvar *midi-meta-types*
-  '(:SeqNum 
-    :Textual 
-    :Copyright 
+  '(:SeqNum
+    :Textual
+    :Copyright
     :SeqName
-    :InstrName 
-    :Lyric 
-    :Marker 
-    :CuePoint 
+    :InstrName
+    :Lyric
+    :Marker
+    :CuePoint
     :ProgName
     :DeviceName
-    :ChannelPrefix 
+    :ChannelPrefix
     :MidiPortMsg
-    :EndTrack 
-    :Tempo 
-    :SMPTEOffset 
-    :TimeSign 
+    :EndTrack
+    :Tempo
+    :SMPTEOffset
+    :TimeSign
     :KeySign
     :Specific))
 
@@ -246,9 +246,9 @@ Works like `make-message` but combines `upper` and `lower` to the status byte."
 
 (defun PMEventBufferMap (fn buf end &optional port)
   (loop for i below end
-     for e = (pm::pm-EventBufferElt buf i)
-     do (funcall fn (portmidi-make-midi-evt (pm::Event.message e) port) (pm::Event.timestamp e)))
- (values))
+        for e = (pm::pm-EventBufferElt buf i)
+        do (funcall fn (portmidi-make-midi-evt (pm::Event.message e) port) (pm::Event.timestamp e)))
+  (values))
 
 
 
@@ -276,10 +276,10 @@ Works like `make-message` but combines `upper` and `lower` to the status byte."
 
 (defun portmidi-send-evt (evt)
   (when (midi-evt-port evt)
-    (let ((bytes (make-midi-bytes (midi-evt-type evt) 
-                                  (1- (midi-evt-chan evt)) 
+    (let ((bytes (make-midi-bytes (midi-evt-type evt)
+                                  (1- (midi-evt-chan evt))
                                   (midi-evt-fields evt))))
-      (when bytes 
+      (when bytes
         (send-bytes bytes (midi-evt-port evt)))
       )))
 
@@ -289,11 +289,11 @@ Works like `make-message` but combines `upper` and `lower` to the status byte."
 ;;;========================================
 ;;;; FROM Taube's CFFI bindings
 
-(defun portmidi-Read (stream *evbuf len) 
+(defun portmidi-Read (stream *evbuf len)
   (let ((res (pm::pm-read stream *evbuf len)))
     (if (< res 0)
         (error (pm::pm-get-error-text res))
-        res)))
+      res)))
 
 ;;; check if there is something in stream
 (defun portmidi-Poll (stream)
@@ -303,7 +303,7 @@ Works like `make-message` but combines `upper` and `lower` to the status byte."
           (t (error (pm::pm-get-error-text res))))))
 
 (defstruct midi-in-process (process) (buffer))
- 
+
 #|
 (defun midi-in-loop (stream buff size &optional (fun #'identity) (port nil))
   (handler-bind ((error #'(lambda (err)
@@ -312,14 +312,14 @@ Works like `make-message` but combines `upper` and `lower` to the status byte."
                             (pm::pm-EventBufferFree buff)
                             (mp:process-kill mp::*current-process*)
                             )))
-    (let ((out? (get-output-stream-from-port port)))                       
+    (let ((out? (get-output-stream-from-port port)))
       (loop do
             (if (portmidi-poll stream)
                 (let ((n (portmidi-read stream buff size)))
                   (unless (= n 0)
                     (PMEventBufferMap fun buff n port)
                     (when out?
-                      (PMEventBufferMap 
+                      (PMEventBufferMap
                        #'(lambda (message time) (portmidi-send-evt message))
                        buff n port))
                     )
@@ -328,31 +328,31 @@ Works like `make-message` but combines `upper` and `lower` to the status byte."
 
 
 (defun midi-in-loop (stream buff size &optional (fun #'identity) (port nil))
-  (UNWIND-PROTECT 
-      
-      (let ((out? (get-output-stream-from-port port)))                       
+  (UNWIND-PROTECT
+
+      (let ((out? (get-output-stream-from-port port)))
         (loop do
               (if (portmidi-poll stream)
                   (let ((n (portmidi-read stream buff size)))
                     (unless (= n 0)
                       (PMEventBufferMap fun buff n port)
                       (when out?
-                        (PMEventBufferMap 
+                        (PMEventBufferMap
                          #'(lambda (message time) (portmidi-send-evt message))
                          buff n port))
                       )
                     (sleep 0.001)))))
-    
+
     (PROGN
       (pm::pm-EventBufferFree buff)
       (mp:process-kill mp::*current-process*)
       )
-    
+
     ))
 
 
 ; (get-input-stream-from-port 0)
-(defun portmidi-in-start (portnum function &optional (buffersize 32) redirect-to-port) 
+(defun portmidi-in-start (portnum function &optional (buffersize 32) redirect-to-port)
   (multiple-value-bind (in name) (get-input-stream-from-port portnum)
     (if (null in) (progn (print (format nil "PortMidi ERROR: INPUT port ~A is not connected" portnum)) nil)
       (let* ((midibuffer (pm::pm-EventBufferNew buffersize))
@@ -363,14 +363,14 @@ Works like `make-message` but combines `upper` and `lower` to the status byte."
         midiprocess))))
 
 (defun portmidi-in-stop (midiprocess)
-  (when midiprocess 
+  (when midiprocess
     (mp:process-kill (midi-in-process-process midiprocess))
-    (prog1 
+    (prog1
         (pm::pm-EventBufferFree (midi-in-process-buffer midiprocess))
       ;; (when wait
       (mp:process-wait "Wait until MIDI IN process be killed"
                        #'(lambda () (not (mp:process-alive-p (midi-in-process-process midiprocess))))))
-    
+
     ))
 
 
@@ -407,8 +407,8 @@ Works like `make-message` but combines `upper` and `lower` to the status byte."
 (defparameter midi-buffer (pm::pm-EventBufferNew 32))
 (defparameter num (portmidi-Read indev midi-buffer 32))
 
-(PMEventBufferMap 
- (lambda (a b) 
+(PMEventBufferMap
+ (lambda (a b)
    (print (list "time" b))
    (print (list (message-status a) (message-data1 a) (message-data2 a)))
    (print "====="))
@@ -426,7 +426,7 @@ Works like `make-message` but combines `upper` and `lower` to the status byte."
   (let ((n (pm:Read indev buff 1)))
     (cond ((= n 1)
            (PMEventBufferMap
-                (lambda (a b) 
+                (lambda (a b)
                    b (pm a) (terpri)
                    (setf pitch (pm:Message.data1 a)))
                 buff n)))))
@@ -436,8 +436,8 @@ Works like `make-message` but combines `upper` and `lower` to the status byte."
 ; (defun get-input-stream-from-port (n) (values *in* "Oxygen 25"))
 
 (defparameter *test-midi-in*
-  (portmidi-in-start 0  
-                 (lambda (message time) 
+  (portmidi-in-start 0
+                 (lambda (message time)
                    ;(print (list "time" time))
                    (print message)
                    ;(portmidi-send-evt message)

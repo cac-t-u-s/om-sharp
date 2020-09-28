@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -17,7 +17,7 @@
 
 ;===============================================================================
 ; SPECIAL BOXES
-; BUT STILL 'FUNCTIONS' 
+; BUT STILL 'FUNCTIONS'
 ;===============================================================================
 
 
@@ -30,19 +30,19 @@
 
 ;;; !! todo check in/outs with undo
 
-(defmethod* seq  ((op t) &rest op+) :numouts 1 
-   :initvals '(nil) :indoc '("something to do" "something else to do")
-   :icon :seq
-   :doc "Evaluates sequentially a series of values, functions or subpatches.
+(defmethod* seq  ((op t) &rest op+) :numouts 1
+  :initvals '(nil) :indoc '("something to do" "something else to do")
+  :icon :seq
+  :doc "Evaluates sequentially a series of values, functions or subpatches.
 
-Accepts many optional inputs as needed. 
+Accepts many optional inputs as needed.
 
 The outputs correspond to each of the inputs. To get the result of the nth item connected to the sequence box after the sequential evaluation, evaluate or connect the nth output (all the inputs will be evaluated anyway).
 
 Mind using this box in 'eval-once' mode when connected to several other boxes."
 
-   (values-list (cons op op+)))
-   
+  (values-list (cons op op+)))
+
 (defclass OMBoxSeqCall (OMGFBoxcall) ())
 
 (defmethod boxclass-from-function-name ((self (eql 'seq))) 'OMBoxSeqCall)
@@ -56,9 +56,9 @@ Mind using this box in 'eval-once' mode when connected to several other boxes."
 (defmethod add-optional-input ((self OMBoxSeqCall) &key name value doc reactive)
   (declare (ignore value doc reactive))
   (call-next-method)
-  (set-box-outputs self  
+  (set-box-outputs self
                    (append (outputs self)
-                           (list (make-instance 'box-optional-output 
+                           (list (make-instance 'box-optional-output
                                                 :name (format nil "~A~D" name (length (outputs self)))
                                                 :box self
                                                 :doc-string (get-input-doc self name)))))
@@ -76,11 +76,11 @@ Mind using this box in 'eval-once' mode when connected to several other boxes."
 
 (defmethod function-changed-name ((reference (eql 'list-elements))) 'split)
 
-(defmethod* split ((list list) &rest add-output)  
-  :initvals '(nil) 
+(defmethod* split ((list list) &rest add-output)
+  :initvals '(nil)
   :indoc '("a list")
-  :doc 
-"Returns the elements of the list on different ouputs (up to 50 elements).
+  :doc
+  "Returns the elements of the list on different ouputs (up to 50 elements).
 
 Use > and < to add/remove outputs.
 
@@ -105,19 +105,19 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
 (defmethod more-optional-input ((self OMBoxSplit) &key name value doc reactive)
   ;;; no checks
   (declare (ignore name value doc reactive))
-  (add-optional-input self) 
-  t) 
+  (add-optional-input self)
+  t)
 
 (defmethod add-optional-input ((self OMBoxSplit) &key name value doc reactive)
   (declare (ignore name value doc reactive))
-  (set-box-outputs 
-   self 
+  (set-box-outputs
+   self
    (append (outputs self)
-           (list (make-instance 'box-optional-output 
-                                :name (format nil "out~D" (length (outputs self))) 
+           (list (make-instance 'box-optional-output
+                                :name (format nil "out~D" (length (outputs self)))
                                 :box self))
            ))
-  
+
   (update-inspector-for-object self)
   t)
 
@@ -133,10 +133,10 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
 (defmethod restore-outputs ((self OMBoxSplit) outputs)
   (when (outputs self)
     (setf (outputs self) (list (car (outputs self)))))
-  (dotimes (o (length (cdr outputs))) 
+  (dotimes (o (length (cdr outputs)))
     (add-optional-input self))
   (call-next-method))
- 
+
 (defmethod add-args-to-box ((box OMBoxSplit) args)
   (let ((n (if (numberp (car args)) (car args) 2)))
     (dotimes (i (- n (length (outputs box))))
@@ -151,11 +151,11 @@ It is advised to use this box in mode 'eval once' in order to avoid useless comp
 ;;; todo: allow several inputs, too => all return the same
 
 ;; It is advised to use this box in mode 'eval once' in order to avoid useless computations.
-(defmethod* hub (value &rest add-output)  
-  :initvals '(nil) 
+(defmethod* hub (value &rest add-output)
+  :initvals '(nil)
   :indoc '("anthing")
-  :doc 
-"The same value to all its outputs.
+  :doc
+  "The same value to all its outputs.
 
 Use > and < to add/remove outputs.
 
@@ -169,11 +169,11 @@ Use > and < to add/remove outputs.
 (defmethod boxclass-from-function-name ((self (eql 'hub))) 'OMBoxHub)
 
 (defmethod boxcall-value ((self OMBoxHub))
-  (values-list (make-list (length (outputs self)) 
+  (values-list (make-list (length (outputs self))
                           :initial-element (omNG-box-value (car (inputs self))))))
 
 (defmethod gen-code-for-call ((self OMBoxHub) &optional args)
-  `(values-list 
+  `(values-list
     (make-list ,(length (outputs self))
                :initial-element ,(gen-code (car (inputs self))))))
 
@@ -186,18 +186,18 @@ Use > and < to add/remove outputs.
   :outdoc '("the input data or the default value")
   :icon nil
   (or in value))
-           
-(defclass OMDefBoxCall (OMGFBoxcall) 
+
+(defclass OMDefBoxCall (OMGFBoxcall)
   ((def-value :initform nil :accessor def-value)))
 
 (defmethod boxclass-from-function-name ((self (eql 'default))) 'OMDefBoxCall)
 
-(defmethod boxcall-value ((self OMDefBoxCall)) 
+(defmethod boxcall-value ((self OMDefBoxCall))
   (setf (def-value self) (omNG-box-value (first (inputs self))))
   (call-next-method))
 
 (defmethod box-draw ((self OMDefBoxCall) (frame OMBoxFrame))
-  (om-with-font 
+  (om-with-font
    (om-def-font :font1b)
    (om-draw-string 65 18 (format nil "~A" (or (def-value self) "?")))))
 

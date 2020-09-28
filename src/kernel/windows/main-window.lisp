@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -24,7 +24,7 @@
 (defparameter *om-main-window* nil)
 
 
-(defclass om-main-window (om-window)  
+(defclass om-main-window (om-window)
   ((elements-view :accessor elements-view :initform nil)
    (package-view :accessor package-view :initform nil)
    (libs-view :accessor libs-view :initform nil)
@@ -49,26 +49,26 @@
             (libs-view win) (make-libs-tab)
             (listener-view win) (make-listener-tab))
       (om-set-menu-bar win (om-menu-items win))
-      (om-add-subviews win (setf (main-layout win) 
+      (om-add-subviews win (setf (main-layout win)
                                  (om-make-layout 'om-tab-layout
-                                                 :subviews (list (elements-view win) 
-                                                                 (package-view win) 
+                                                 :subviews (list (elements-view win)
+                                                                 (package-view win)
                                                                  (libs-view win)
                                                                  (listener-view win)))))
-      
+
       (case front-tab
         (:listener (om-set-current-view (main-layout win) (listener-view win)))
         (:documents (om-set-current-view (main-layout win) (elements-view win))))
-      
+
       (setf *om-main-window* win)
       (om-show-window win))))
 
 #+windows
-(defmethod om-window-check-before-close ((self om-main-window)) 
+(defmethod om-window-check-before-close ((self om-main-window))
   (om-y-or-n-dialog "Quit OM#?"))
 
 #+windows
-(defmethod om-window-close-event :after ((self om-main-window)) 
+(defmethod om-window-close-event :after ((self om-main-window))
   (om-quit))
 
 
@@ -79,31 +79,31 @@
 (defmethod select-all-command ((self om-main-window))
   (cond ((equal (om-get-current-view (main-layout self))
                 (elements-view self))
-         #'(lambda () 
+         #'(lambda ()
              (select-all-documents self)))
         ((equal (om-get-current-view (main-layout self))
                 (listener-view self))
-         #'(lambda () 
+         #'(lambda ()
              (listener-view-select-all self)))
         (t nil)))
-  
+
 ;;; copy-paste works only in the Listener view
 (defmethod copy-command ((self om-main-window))
   (when (equal (om-get-current-view (main-layout self))
                (listener-view self))
-    #'(lambda () 
+    #'(lambda ()
         (listener-view-copy self))))
 
 (defmethod cut-command ((self om-main-window))
   (when (equal (om-get-current-view (main-layout self))
                (listener-view self))
-    #'(lambda () 
+    #'(lambda ()
         (listener-view-cut self))))
 
 (defmethod paste-command ((self om-main-window))
   (when (equal (om-get-current-view (main-layout self))
                (listener-view self))
-    #'(lambda () 
+    #'(lambda ()
         (listener-view-paste self))))
 
 ;;;===========================================
@@ -112,18 +112,18 @@
 
 (defun filter-ws-elements (elements filter)
   (cond ((equal filter :all) elements)
-        ((equal filter :patches) (loop for elt in elements 
+        ((equal filter :patches) (loop for elt in elements
                                        when (and (mypathname elt)
                                                  (string-equal (pathname-type (mypathname elt)) "opat"))
                                        collect elt))
-        ((equal filter :sequencers) (loop for elt in elements 
-                                       when (and (mypathname elt)
-                                                 (string-equal (pathname-type (mypathname elt)) "oseq"))
-                                       collect elt))))
+        ((equal filter :sequencers) (loop for elt in elements
+                                          when (and (mypathname elt)
+                                                    (string-equal (pathname-type (mypathname elt)) "oseq"))
+                                          collect elt))))
 
 
 (defun gen-columns-list (names)
-  (mapcar 
+  (mapcar
    #'(lambda (name)
        (case name
          (:name '(:title "filename" :adjust :left :visible-min-width 200))
@@ -132,8 +132,8 @@
          ))
    names))
 
-(defun gen-column-elements (element display-params &optional editor)  
-  (mapcar #'(lambda (item) 
+(defun gen-column-elements (element display-params &optional editor)
+  (mapcar #'(lambda (item)
               (cond ((equal item :name) (print-element-in-list element editor))
                     ((equal item :type) (string-downcase (get-object-type-name element)))
                     ((equal item :date) (cadr (create-info element)))))
@@ -141,18 +141,18 @@
 
 
 (defun print-element-in-list (element editor)
-  (if editor 
+  (if editor
       (cond ((equal (elements-view-mode editor) :abs-path)
-             (if (mypathname element) 
+             (if (mypathname element)
                  (namestring (mypathname element))
-           (string+ (name element) " (no attached file)")))
+               (string+ (name element) " (no attached file)")))
             ((equal (elements-view-mode editor) :rel-path)
-             (if (mypathname element) 
+             (if (mypathname element)
                  (namestring (relative-pathname (mypathname element) (mypathname (object editor))))
                (string+ (name element) " (no attached file)")))
             (t (name element))
             )
-    (if (mypathname element) 
+    (if (mypathname element)
         (namestring (mypathname element))
       (string+ (name element) " (no attached file)"))
     ))
@@ -163,7 +163,7 @@
       ;;; WORKSPACE VIEW
       (let* ((ed (editor *current-workspace*))
              (ws *current-workspace*)
-             (display (list :name 
+             (display (list :name
                             (and (get-pref-value :workspace :show-types) :type)
                             (and (get-pref-value :workspace :show-dates) :date)))
              (font (om-def-font :font1)))
@@ -171,12 +171,12 @@
                                          :columns (gen-columns-list display)
                                          :items (filter-ws-elements (elements ws) (elements-view-filter ed))
                                          :column-function #'(lambda (item) (gen-column-elements item display))
-                                         :fg-color #'(lambda (item) 
+                                         :fg-color #'(lambda (item)
                                                        (if (and (mypathname item) (probe-file (mypathname item)))
                                                            (om-def-color :black) (om-make-color 0.8 0.2 0.2)))
                                          :font (om-def-font :mono)
                                          :alternating-background t
-                                         :sort-styles 
+                                         :sort-styles
                                          (list (list :name
                                                      (list :sort #'(lambda (x y) (string-greaterp (name x) (name y)))
                                                            :reverse  #'(lambda (x y)  (string-lessp (name x) (name y)))))
@@ -192,78 +192,78 @@
                                                )
                                          )))
 
-          
-        (om-make-layout 
-         'om-column-layout :name "Documents"
-         :subviews (list 
-                    elements-list
-                    (om-make-layout 
-                     'om-row-layout
-                     :subviews (list (om-make-di 'om-simple-text :text "view"
-                                                 :font font
-                                                 :size (om-make-point 30 20))
-                                     (om-make-di 'om-popup-list
-                                                 :items '(:all :patches :sequencers)
-                                                 :font font
-                                                 :value (elements-view-filter ed)
-                                                 :size (om-make-point 100 24)
-                                                 :di-action #'(lambda (item) 
-                                                                (setf (elements-view-filter ed) 
-                                                                      (om-get-selected-item item))
-                                                                (om-set-item-list 
-                                                                 elements-list
-                                                                 (filter-ws-elements (elements ws) (elements-view-filter ed)))
-                                                                ))
-                                     nil
-                                     (om-make-di 'om-simple-text :text "sort"
-                                                 :font font
-                                                 :size (om-make-point 30 20))
-                                     (om-make-di 'om-popup-list
-                                                 :items '(:name :path :type :date-modified)
-                                                 :value (elements-view-sort ed)
-                                                 :font font
-                                                 :size (om-make-point 100 24)
-                                                 :di-action #'(lambda (item) 
-                                                                (setf (elements-view-sort ed) 
-                                                                      (om-get-selected-item item))
-                                                                (om-sort-list-by elements-list (om-get-selected-item item))
-                                                                ))
-                                     nil
-                                     (om-make-di 'om-simple-text :text "show"
-                                                 :font font
-                                                 :size (om-make-point 40 20)
-                                                 )
-                                     (om-make-di 'om-popup-list 
-                                                 :size (om-make-point 100 24)
-                                                 :font font
-                                                 :value (elements-view-mode ed)
-                                                 :items '(:name :abs-path :rel-path)
-                                                 :di-action #'(lambda (item) 
-                                                                (setf (elements-view-mode ed) 
-                                                                      (om-get-selected-item item))
-                                                                (om-invalidate-view elements-list)
-                                                                )
-                                                 )
-                                     (om-make-di 
-                                      'om-button :text ".." :font font
-                                      :size (om-make-point 40 24) 
-                                      :di-action #'(lambda (button) (declare (ignore button)) nil)
-                                      ))
-                     :ratios '(nil nil 2 1 1 1 1 1)
-                     )
-                                    
-                    )
+
+          (om-make-layout
+           'om-column-layout :name "Documents"
+           :subviews (list
+                      elements-list
+                      (om-make-layout
+                       'om-row-layout
+                       :subviews (list (om-make-di 'om-simple-text :text "view"
+                                                   :font font
+                                                   :size (om-make-point 30 20))
+                                       (om-make-di 'om-popup-list
+                                                   :items '(:all :patches :sequencers)
+                                                   :font font
+                                                   :value (elements-view-filter ed)
+                                                   :size (om-make-point 100 24)
+                                                   :di-action #'(lambda (item)
+                                                                  (setf (elements-view-filter ed)
+                                                                        (om-get-selected-item item))
+                                                                  (om-set-item-list
+                                                                   elements-list
+                                                                   (filter-ws-elements (elements ws) (elements-view-filter ed)))
+                                                                  ))
+                                       nil
+                                       (om-make-di 'om-simple-text :text "sort"
+                                                   :font font
+                                                   :size (om-make-point 30 20))
+                                       (om-make-di 'om-popup-list
+                                                   :items '(:name :path :type :date-modified)
+                                                   :value (elements-view-sort ed)
+                                                   :font font
+                                                   :size (om-make-point 100 24)
+                                                   :di-action #'(lambda (item)
+                                                                  (setf (elements-view-sort ed)
+                                                                        (om-get-selected-item item))
+                                                                  (om-sort-list-by elements-list (om-get-selected-item item))
+                                                                  ))
+                                       nil
+                                       (om-make-di 'om-simple-text :text "show"
+                                                   :font font
+                                                   :size (om-make-point 40 20)
+                                                   )
+                                       (om-make-di 'om-popup-list
+                                                   :size (om-make-point 100 24)
+                                                   :font font
+                                                   :value (elements-view-mode ed)
+                                                   :items '(:name :abs-path :rel-path)
+                                                   :di-action #'(lambda (item)
+                                                                  (setf (elements-view-mode ed)
+                                                                        (om-get-selected-item item))
+                                                                  (om-invalidate-view elements-list)
+                                                                  )
+                                                   )
+                                       (om-make-di
+                                        'om-button :text ".." :font font
+                                        :size (om-make-point 40 24)
+                                        :di-action #'(lambda (button) (declare (ignore button)) nil)
+                                        ))
+                       :ratios '(nil nil 2 1 1 1 1 1)
+                       )
+
+                      )
          ;:ratios '(nil nil)
-         )))
-    
+           )))
+
     ;;; FILE VIEW
-    (let ((doc-list 
-           (om-make-di 
+    (let ((doc-list
+           (om-make-di
             'om-multicol-item-list
             :columns (gen-columns-list '(:name :type :date))
             :items (mapcar 'doc-entry-doc *open-documents*)
             :column-function #'(lambda (item) (gen-column-elements item '(:name :type :date)))
-            :fg-color #'(lambda (item) 
+            :fg-color #'(lambda (item)
                           (if (and (mypathname item) (probe-file (mypathname item)))
                               (om-def-color :black) (om-make-color 0.8 0.2 0.2)))
             :font (om-def-font :mono)
@@ -272,7 +272,7 @@
             :auto-reset-column-widths t
             :action-callback #'dbclicked-item-in-list
             :size (omp nil nil)
-                     ;:sort-styles 
+                     ;:sort-styles
                      ;(list (list :name
                      ;            (list :sort #'(lambda (x y) (string-greaterp (name x) (name y)))
                      ;                  :reverse  #'(lambda (x y)  (string-lessp (name x) (name y)))))
@@ -287,13 +287,13 @@
                      ;                  :reverse  #'(lambda (x y) (string-lessp (cadr (create-info x)) (cadr (create-info y))))))
                      ;      )
             )))
-      
-      (om-make-layout 
-           'om-column-layout :name "Documents" :align :center ; :ratios '(1 nil nil)
-           :subviews (list 
-                      doc-list
-                     
-                    ;(om-make-di 'om-multi-text :enabled nil :size (om-make-point 300 20) 
+
+      (om-make-layout
+       'om-column-layout :name "Documents" :align :center ; :ratios '(1 nil nil)
+       :subviews (list
+                  doc-list
+
+                    ;(om-make-di 'om-multi-text :enabled nil :size (om-make-point 300 20)
                     ;            :font (om-def-font :font2)
                     ;            :fg-color (om-def-color :gray)
                     ;            :text "No Workspace has been created for this session")
@@ -301,23 +301,23 @@
                     ;            :font (om-def-font :font2)
                     ;            :text "Create One?")
 
-                      (om-make-layout 'om-row-layout :subviews
-                                      (list
-                                       nil
-                                       (om-make-di 'om-button :text "Save selection" 
-                                                   :size (omp 125 32) :font (om-def-font :font1)
-                                                   :di-action #'(lambda (b) 
-                                                                  (declare (ignore b))
-                                                                  (save-documents doc-list)
-                                                                  ))
-                                       (om-make-di 'om-button :text "Close selection" 
-                                                   :size (omp 125 32) :font (om-def-font :font1)
-                                                   :di-action #'(lambda (b) 
-                                                                  (declare (ignore b))
-                                                                  (close-documents doc-list)
-                                                                  ))))
-                    
-                      ))
+                  (om-make-layout 'om-row-layout :subviews
+                                  (list
+                                   nil
+                                   (om-make-di 'om-button :text "Save selection"
+                                               :size (omp 125 32) :font (om-def-font :font1)
+                                               :di-action #'(lambda (b)
+                                                              (declare (ignore b))
+                                                              (save-documents doc-list)
+                                                              ))
+                                   (om-make-di 'om-button :text "Close selection"
+                                               :size (omp 125 32) :font (om-def-font :font1)
+                                               :di-action #'(lambda (b)
+                                                              (declare (ignore b))
+                                                              (close-documents doc-list)
+                                                              ))))
+
+                  ))
       )
     ))
 
@@ -353,14 +353,14 @@
     (when (and (> (length selected-docs) 1)
                (find-if #'(lambda (doc) (null (mypathname doc))) selected-docs))
       (let ((action (om-y-or-n-dialog (format nil "Some documents in the list have no attached file yet ! ~%~% Select a common destination folder (Yes) or cancel (No)."))))
-        (if action 
+        (if action
             (let ((folder (om-choose-directory-dialog)))
               (if folder
-                (loop for doc in selected-docs 
-                      when (null (mypathname doc))
-                      do (setf (mypathname doc) (om-make-pathname :directory folder
-                                                                  :name (name doc)
-                                                                  :type (doctype-to-extension (object-doctype doc)))))
+                  (loop for doc in selected-docs
+                        when (null (mypathname doc))
+                        do (setf (mypathname doc) (om-make-pathname :directory folder
+                                                                    :name (name doc)
+                                                                    :type (doctype-to-extension (object-doctype doc)))))
                 (setf abort t)))
           (setf abort t))))
     (unless abort
@@ -386,11 +386,11 @@
 ;;;; A FAIRE : drag file from/to finder
 ;(defun import-dragged-file (pane filename pos)
 ;  (let ((dirname (make-pathname :directory (append (pathname-directory filename) (list (pathname-name filename))))))
-;    (cond ((or (string-equal "omp" (pathname-type filename)) 
+;    (cond ((or (string-equal "omp" (pathname-type filename))
 ;               (string-equal "omm" (pathname-type filename))
 ;               (string-equal "she" (pathname-type filename)))
 ;           (import-file-to-ws pane filename pos))
-;          ((or 
+;          ((or
 ;            (directoryp filename)
 ;            (and (directoryp dirname) (probe-file dirname)))
 ;          (make-new-folder pane dirname pos))
@@ -427,7 +427,7 @@ Double click on one of these items and add it by just clicking in an patch windo
 ")
 
 (defun make-om-package-tab ()
-  (let ((pack-tree-view (om-make-tree-view (subpackages *om-package-tree*) 
+  (let ((pack-tree-view (om-make-tree-view (subpackages *om-package-tree*)
                                            :size (omp 160 20)
                                            :expand-item 'get-sub-items
                                            :print-item 'get-name
@@ -436,15 +436,15 @@ Double click on one of these items and add it by just clicking in an patch windo
                                            :item-icon #'(lambda (item) (get-icon item))
                                            :icons (list :icon-pack :icon-fun :icon-genfun :icon-class :icon-special)
                                            ))
-        (side-panel (om-make-di 'om-multi-text 
+        (side-panel (om-make-di 'om-multi-text
                                 :size (om-make-point nil nil)
                                 :font (om-def-font :font1)
                                 :fg-color (om-def-color :dark-gray)
                                 :text *packages-tab-text*)))
-    (om-make-layout 
+    (om-make-layout
      'om-row-layout :name "Packages Library"
-     :subviews (list pack-tree-view 
-                     :divider 
+     :subviews (list pack-tree-view
+                     :divider
                      side-panel)
      )))
 
@@ -456,47 +456,47 @@ Double click on one of these items and add it by just clicking in an patch windo
 
 ;;; !!! This should also work on the libraries tab below
 
-(defmethod om-selected-item-from-tree-view ((self function) (window om-main-window)) 
+(defmethod om-selected-item-from-tree-view ((self function) (window om-main-window))
   (show-doc-on-main-window (function-name self) window))
 
-(defmethod om-selected-item-from-tree-view ((self standard-class) (window om-main-window)) 
+(defmethod om-selected-item-from-tree-view ((self standard-class) (window om-main-window))
   (show-doc-on-main-window (class-name self) window))
 
-(defmethod om-selected-item-from-tree-view ((self symbol) (window om-main-window)) 
+(defmethod om-selected-item-from-tree-view ((self symbol) (window om-main-window))
   (show-doc-on-main-window self window))
- 
+
 
 (defmethod show-doc-on-main-window ((self symbol) (window om-main-window))
   (let ((doc-info (get-documentation-info self))
         (view (om-get-current-view (main-layout window))))
     (when (or (equal view (libs-view window))
               (equal view (package-view window))))
-      (let ((info-text (nth 2 (om-subviews view))))
-        (om-set-fg-color info-text (om-def-color :dark-gray))
-        (om-set-dialog-item-text 
-         info-text 
-         (if doc-info 
-             (format nil "~%~A (~A)~%~%~A" 
-                     (string-upcase (nth 0 doc-info))
-                     (string-downcase (nth 1 doc-info))
-                     (or (nth 3 doc-info) "-"))
-           (format nil "~%~A (no documentation)" (string-upcase self)))
-         )
-        )))
+    (let ((info-text (nth 2 (om-subviews view))))
+      (om-set-fg-color info-text (om-def-color :dark-gray))
+      (om-set-dialog-item-text
+       info-text
+       (if doc-info
+           (format nil "~%~A (~A)~%~%~A"
+                   (string-upcase (nth 0 doc-info))
+                   (string-downcase (nth 1 doc-info))
+                   (or (nth 3 doc-info) "-"))
+         (format nil "~%~A (no documentation)" (string-upcase self)))
+       )
+      )))
 
 
-(defmethod om-selected-item-from-tree-view ((self OMPackage) (window om-main-window)) 
+(defmethod om-selected-item-from-tree-view ((self OMPackage) (window om-main-window))
   (let ((view (om-get-current-view (main-layout window))))
     (when (or (equal view (libs-view window))
               (equal view (package-view window))))
-      (let ((info-text (nth 2 (om-subviews view))))
-        (om-set-fg-color info-text (om-def-color :black))
-        (om-set-dialog-item-text 
-         info-text 
-         (format nil "~%Package: ~A~%~%~A" 
-                 (string-upcase (name self)) (or (doc self) "-"))
-         )
-        )))
+    (let ((info-text (nth 2 (om-subviews view))))
+      (om-set-fg-color info-text (om-def-color :black))
+      (om-set-dialog-item-text
+       info-text
+       (format nil "~%Package: ~A~%~%~A"
+               (string-upcase (name self)) (or (doc self) "-"))
+       )
+      )))
 
 
 ;;;===========================================
@@ -513,46 +513,46 @@ The list on the left show all libraries found in the libraries search paths.
 
 
 (defun make-libs-tab ()
-  (let ((libs-tree-view (om-make-tree-view (subpackages *om-libs-root-package*) 
-                                             :size (omp 120 20)
-                                             :expand-item 'get-sub-items
-                                             :print-item 'get-name
-                                             :font (om-def-font :font1)
-                                             :bg-color (om-def-color :light-gray)
-                                             :item-icon #'(lambda (item) (get-icon item))
-                                             :icons (list :icon-pack :icon-fun :icon-genfun :icon-class :icon-lib-loaded :icon-lib)
-                                             ))
-          (side-panel 
-           (om-make-di 
-            'om-multi-text 
-            :size (om-make-point nil nil)
-            :font (om-def-font :font1) 
-            :fg-color (om-def-color :dark-gray)
-            :text *libs-tab-text*)))
-          
-      (om-make-layout 
-       'om-row-layout :name "External Libraries"
-       :subviews (list 
-                  (om-make-layout 
-                   'om-column-layout  :align :right
-                   :subviews (list libs-tree-view
-                                   (om-make-di 'om-button :size (om-make-point nil 24)
-                                               :font (om-def-font :font2) 
-                                               :text "Refresh list"
-                                               :di-action #'(lambda (b) 
-                                                              (declare (ignore b))
-                                                              (update-registered-libraries)
-                                                              (update-libraries-tab *om-main-window*)))))
-                  :divider 
-                  side-panel))
-      ))
+  (let ((libs-tree-view (om-make-tree-view (subpackages *om-libs-root-package*)
+                                           :size (omp 120 20)
+                                           :expand-item 'get-sub-items
+                                           :print-item 'get-name
+                                           :font (om-def-font :font1)
+                                           :bg-color (om-def-color :light-gray)
+                                           :item-icon #'(lambda (item) (get-icon item))
+                                           :icons (list :icon-pack :icon-fun :icon-genfun :icon-class :icon-lib-loaded :icon-lib)
+                                           ))
+        (side-panel
+         (om-make-di
+          'om-multi-text
+          :size (om-make-point nil nil)
+          :font (om-def-font :font1)
+          :fg-color (om-def-color :dark-gray)
+          :text *libs-tab-text*)))
+
+    (om-make-layout
+     'om-row-layout :name "External Libraries"
+     :subviews (list
+                (om-make-layout
+                 'om-column-layout  :align :right
+                 :subviews (list libs-tree-view
+                                 (om-make-di 'om-button :size (om-make-point nil 24)
+                                             :font (om-def-font :font2)
+                                             :text "Refresh list"
+                                             :di-action #'(lambda (b)
+                                                            (declare (ignore b))
+                                                            (update-registered-libraries)
+                                                            (update-libraries-tab *om-main-window*)))))
+                :divider
+                side-panel))
+    ))
 
 
 (defmethod update-libraries-tab ((window om-main-window))
   (om-substitute-subviews (main-layout window) (libs-view window) (setf (libs-view window) (make-libs-tab)))
   (om-set-current-view (main-layout window) (libs-view window)))
 
-(defmethod om-double-clicked-item-from-tree-view ((self OMLib) (window om-main-window)) 
+(defmethod om-double-clicked-item-from-tree-view ((self OMLib) (window om-main-window))
   (when (or (not (loaded? self))
             (om-y-or-n-dialog (format nil "The library '~A' is already loaded. Reload it ?" (name self))))
     (load-om-library self)
@@ -560,22 +560,22 @@ The list on the left show all libraries found in the libraries search paths.
 
     ))
 
-(defmethod om-selected-item-from-tree-view ((self OMLib) (window om-main-window)) 
+(defmethod om-selected-item-from-tree-view ((self OMLib) (window om-main-window))
   (let* ((view (libs-view window))
          (info-text (nth 2 (om-subviews view))))
     (om-set-fg-color info-text (om-def-color :black))
-    (om-set-dialog-item-text 
-     info-text 
-     (format nil 
-             "~%~A~%Version: ~A~%~%Location: ~A~%~%Author(s):~%~A~%~%Description:~%~A" 
+    (om-set-dialog-item-text
+     info-text
+     (format nil
+             "~%~A~%Version: ~A~%~%Location: ~A~%~%Author(s):~%~A~%~%Description:~%~A"
              (string-upcase (name self))
              (or (version self) "-")
-             (mypathname self) 
+             (mypathname self)
              (or (author self) "Unknown")
              (or (doc self) "-"))
      )
     ))
-    
+
 
 (defvar *add-item-on-patch* nil)
 
@@ -592,7 +592,7 @@ The list on the left show all libraries found in the libraries search paths.
 
 (defmethod om-view-cursor :around ((self t))
   (if *add-item-on-patch*
-      (om-get-cursor :add) 
+      (om-get-cursor :add)
     (call-next-method)))
 
 (defmethod om-view-key-handler :around ((self om-graphic-object) key)
@@ -608,28 +608,28 @@ The list on the left show all libraries found in the libraries search paths.
 
 
 
-(defmethod om-double-clicked-item-from-tree-view ((self function) (window om-main-window)) 
+(defmethod om-double-clicked-item-from-tree-view ((self function) (window om-main-window))
   (set-add-item-on-patch (function-name self)))
-(defmethod om-double-clicked-item-from-tree-view ((self standard-class) (window om-main-window)) 
+(defmethod om-double-clicked-item-from-tree-view ((self standard-class) (window om-main-window))
   (set-add-item-on-patch (class-name self)))
-(defmethod om-double-clicked-item-from-tree-view ((self symbol) (window om-main-window)) 
+(defmethod om-double-clicked-item-from-tree-view ((self symbol) (window om-main-window))
   (set-add-item-on-patch self))
 
 
 
 ;;; UNSELECT
-(defmethod om-selected-item-from-tree-view ((self null) (window om-main-window)) 
+(defmethod om-selected-item-from-tree-view ((self null) (window om-main-window))
   (let ((view (om-get-current-view (main-layout window))))
-    (cond 
+    (cond
      ((equal view (libs-view window))
       (let ((info-text (nth 2 (om-subviews view))))
         (om-set-fg-color info-text (om-def-color :dark-gray))
-        (om-set-dialog-item-text info-text *libs-tab-text*))) 
+        (om-set-dialog-item-text info-text *libs-tab-text*)))
 
      ((equal view (package-view window))
       (let ((info-text (nth 2 (om-subviews view))))
         (om-set-fg-color info-text (om-def-color :dark-gray))
-        (om-set-dialog-item-text info-text *packages-tab-text*))) 
+        (om-set-dialog-item-text info-text *packages-tab-text*)))
      (t nil))))
 
 
@@ -639,29 +639,29 @@ The list on the left show all libraries found in the libraries search paths.
 ;;;===========================================
 
 (defun make-listener-tab ()
-  
+
   (let ((listener-pane (om-lisp::om-make-listener-output-pane (get-pref-value :general :listener-font))))
-    
-    (om-make-layout 
+
+    (om-make-layout
      'om-column-layout  :name "Listener"
      :ratios '(1 nil) :delta 0
-     :subviews (list 
-                
+     :subviews (list
+
                 ;; main pane
                 listener-pane
-                
+
                 (om-make-layout 'om-row-layout :subviews
                                 (list
-                                 (om-make-di 'om-button :text "Open as separate window" 
+                                 (om-make-di 'om-button :text "Open as separate window"
                                              :size (omp 180 32) :font (om-def-font :font1)
-                                             :di-action #'(lambda (b) 
+                                             :di-action #'(lambda (b)
                                                             (declare (ignore b))
                                                             (show-listener-win)
                                                             ))
                                  nil
-                                 (om-make-di 'om-button :text "x" 
+                                 (om-make-di 'om-button :text "x"
                                              :size (omp 40 32) :font (om-def-font :font1)
-                                             :di-action #'(lambda (b) 
+                                             :di-action #'(lambda (b)
                                                             (declare (ignore b))
                                                             (om-lisp::om-clear-listener-output-pane listener-pane)
                                                             ))))
@@ -693,6 +693,6 @@ The list on the left show all libraries found in the libraries search paths.
   (when (and *om-main-window*
              (equal (om-get-current-view (main-layout *om-main-window*)) (listener-view *om-main-window*)))
     (let ((listener-pane (car (om-subviews (listener-view *om-main-window*)))))
-      (when listener-pane 
+      (when listener-pane
         (om-lisp::om-prompt-on-echo-area listener-pane message)))))
 

@@ -1,5 +1,5 @@
 ;=========================================================================
-; OM API 
+; OM API
 ; Multiplatform API for OpenMusic
 ; LispWorks Implementation
 ;=========================================================================
@@ -38,7 +38,7 @@
           om-tt-view
           om-show-tooltip
           om-hide-tooltip
-                ) :om-api)
+          ) :om-api)
 
 ;======================
 (in-package :oa)
@@ -54,7 +54,7 @@
   (when (om-command-key-p)
     (let ((po (capi::pinboard-object-at-position self (om-point-x position) (om-point-y position))))
       (if po
-          (let ((text (and 
+          (let ((text (and
                        (help-string po)
                        (not (string-equal (help-string po) ""))
                      ;(reduce #'(lambda (val segment) (concatenate 'string val segment (string #\Newline)))
@@ -65,7 +65,7 @@
             (when text
               (capi:display-tooltip self
                                     :x (+ (om-point-x (om-view-position po)) 10)
-                                    :y (- (om-point-y (om-view-position po)) 10) 
+                                    :y (- (om-point-y (om-view-position po)) 10)
                                     :text text)
               ))
       (capi:display-tooltip self)))))
@@ -74,20 +74,20 @@
 (defmethod om-show-tooltip ((self om-graphic-object) &optional (remove nil) (short nil))
   (when (om-get-view self)
     (internal-show-tooltip self remove short)))
-                     
+
 
 (defmethod internal-show-tooltip ((self om-graphic-object) &optional (remove nil) (short nil))
-  (if (and 
-       (help-string self) 
+  (if (and
+       (help-string self)
        (not (string-equal (help-string self) ""))
        t)
       (let ((text (reduce #'(lambda (val segment) (concatenate 'string val segment (string #\Newline)))
                           (oa::text-wrap-pix (help-string self) (om-def-font :font1) 200)
                           :initial-value "")))
-        (if short 
+        (if short
             (setf text (string-downcase (read-from-string text)))
           (setf text (subseq text 0 (- (length text) 1))))
-        (multiple-value-bind (x y) (capi::current-pointer-position :relative-to (om-get-view self))     
+        (multiple-value-bind (x y) (capi::current-pointer-position :relative-to (om-get-view self))
           (capi:display-tooltip (om-get-view self) :x x :y (- y 20) :text text)
           #+cocoa(sleep (if remove 0.05 0.1))
           ))
@@ -98,7 +98,7 @@
 ;; protect, e.g. om-tab-layout
 (defmethod om-hide-tooltip ((self t)) nil)
 
-(defmethod om-hide-tooltip ((self capi::output-pane)) 
+(defmethod om-hide-tooltip ((self capi::output-pane))
   (when (om-get-view self)
     (capi:display-tooltip (om-get-view self))))
 
@@ -132,12 +132,12 @@
 
 (defvar *tt-process* nil)
 (defparameter *tt-font* (om-def-font :font1b :size 10)) ; :face "Calibri")))
-  
+
 ;;; call by OM-API motion handler
 (defmethod handle-tooltips-in-motion ((self t) position) nil)
 
 ;;; a mixing superclass for views that can display tooltips
-(defclass om-tt-view (om-transient-drawing-view)  
+(defclass om-tt-view (om-transient-drawing-view)
   ((tt :accessor tt :initform nil)
    (ttx :accessor ttx :initform 0)
    (tty :accessor tty :initform 0)
@@ -156,53 +156,53 @@
     (om-with-fg-color (om-make-color 1 1 1)
       (om-with-font *tt-font*
                     (if (listp (tt view))
-                        (loop for line in (tt view) 
-                              for n = (+ (tty view) 12) then (+ n 12) 
+                        (loop for line in (tt view)
+                              for n = (+ (tty view) 12) then (+ n 12)
                               do
                               (om-draw-string (+ (ttx view) 5) n line))
                       (om-draw-string (+ (ttx view) 5) (+ (tty view) 12) (tt view))
                       )
                     ))
     ))
-    
+
 (defmethod om-show-tooltip ((view om-tt-view) text &optional pos (delay 0.3))
-  
-  (when *tt-process* (om-kill-process *tt-process*)) 
-  
+
+  (when *tt-process* (om-kill-process *tt-process*))
+
   (let ((pp (or pos (om-add-points (om-mouse-position view) (om-make-point 0 -25)))))
-    
+
     (setf *tt-process*
-        (om-run-process 
-         "tooltip"
-         #'(lambda () 
-             (sleep delay)
-             (setf (tt view) text
-                   (ttx view) (om-point-x pp)
-                   (tty view) (om-point-y pp)
-                   (ttw view) (+ 20 (if (listp text)
-                                        (loop for line in text maximize (om-string-size line *tt-font*))
-                                      (om-string-size text *tt-font*)))
-                   (tth view) (+ 6 (* 12 (if (listp text) (length text) 1)))
-                   )
-             (capi::apply-in-pane-process 
-              view 
-              #'(lambda () 
-                  (om-start-transient-drawing view 
-                                              #'(lambda (view position size) 
-                                                  (declare (ignore position size))
-                                                  (tooltip-draw view))
-                                              pp (omp (ttw view) (tth view)))))
-             
+          (om-run-process
+           "tooltip"
+           #'(lambda ()
+               (sleep delay)
+               (setf (tt view) text
+                     (ttx view) (om-point-x pp)
+                     (tty view) (om-point-y pp)
+                     (ttw view) (+ 20 (if (listp text)
+                                          (loop for line in text maximize (om-string-size line *tt-font*))
+                                        (om-string-size text *tt-font*)))
+                     (tth view) (+ 6 (* 12 (if (listp text) (length text) 1)))
+                     )
+               (capi::apply-in-pane-process
+                view
+                #'(lambda ()
+                    (om-start-transient-drawing view
+                                                #'(lambda (view position size)
+                                                    (declare (ignore position size))
+                                                    (tooltip-draw view))
+                                                pp (omp (ttw view) (tth view)))))
+
              ;(capi::apply-in-pane-process view 'om-invalidate-view 'tooltip-draw view)
-             )))
+               )))
     ))
-          
+
 (defmethod om-hide-tooltip ((view om-tt-view))
   (when (and view (tt view))
     (om-invalidate-area view (ttx view) (tty view) (+ (ttx view) (ttw view)) (+ (tty view) (tth view)))
     (setf (tt view) nil))
   (om-stop-transient-drawing view)
-  (when *tt-process* 
+  (when *tt-process*
     (om-kill-process *tt-process*)
     (setf *tt-process* nil)))
 

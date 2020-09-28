@@ -4,24 +4,24 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
 ;============================================================================
 
 (in-package :om)
-  
+
 ;;;==========================================
 ;;; PATCH OBJECT (VISUAL PROGRAM)
 ;;;==========================================
 
-(defclass OMPatch (OMProgrammingObject)         
+(defclass OMPatch (OMProgrammingObject)
   (; main contents
    (boxes :initform nil :initarg :boxes)
    (connections :initform nil :accessor connections)
@@ -50,12 +50,12 @@
   (:metaclass omstandardclass))
 
 (defclass OMPatchFile (OMPersistantObject OMPatch) ()
-  (:default-initargs :icon :patch-file) 
+  (:default-initargs :icon :patch-file)
   (:metaclass omstandardclass))
 
 (defmethod object-doctype ((self OMPatch)) :patch)
 (defmethod get-object-type-name ((self OMPatch)) "Patch")
-  
+
 (defmethod allowed-element ((self OMPatch) (elem OMBox)) t)
 (defmethod allowed-element ((self OMPatch) (elem OMConnection)) t)
 
@@ -87,20 +87,20 @@
 (defun sort-boxes (boxes)
   (sort boxes '< :key #'(lambda (b) (index (reference b)))))
 
-(defmethod copy-contents ((from OMPatch) (to OMPatch))  
+(defmethod copy-contents ((from OMPatch) (to OMPatch))
   (let* ((sorted-boxes (sort-boxes (boxes from)))
          (connections (save-connections-from-boxes sorted-boxes))
          (boxes (mapcar 'om-copy sorted-boxes)))
 
-    (mapc #'(lambda (b) 
+    (mapc #'(lambda (b)
               (omng-add-element to b)) boxes)
-    
+
     (mapc #'(lambda (c) (omng-add-element to c))
           (restore-connections-to-boxes connections (boxes to)))
-    
+
     to))
 
-(defmethod om-copy ((self OMPatch))  
+(defmethod om-copy ((self OMPatch))
   (let* ((new-patch (make-instance (type-of self) :name (name self))))
     (copy-contents self new-patch)
     new-patch))
@@ -108,7 +108,7 @@
 (defmethod get-boxes-of-type ((self OMPatch) type)
   (loop for b in (boxes self) when (subtypep (type-of b) type) collect b))
 
-(defmethod load-contents ((self OMPatchFile)) 
+(defmethod load-contents ((self OMPatchFile))
   (if (mypathname self)
       (let ((tmppatch (load-doc-from-file (mypathname self) :patch)))
         (copy-contents tmppatch self))
@@ -123,12 +123,12 @@
   (append (boxes self) (connections self)))
 
 (defmethod delete-internal-elements ((self OMPatch))
-  (let ((not-closed-elements 
+  (let ((not-closed-elements
          (loop for element in (get-internal-elements self)
                when (null (omng-delete element))
                collect element
                )))
-    
+
     (when not-closed-elements
       (om-print (format nil "~%The following elements were not closed:~{~%~A~}~%------" not-closed-elements) "ERROR"))
     t))
@@ -141,7 +141,7 @@
 ;;;========================================
 
 (defmethod* get-box-by-name ((self OMPatch) (name string))
-   (find name (boxes self) :key 'name :test 'string-equal))
+  (find name (boxes self) :key 'name :test 'string-equal))
 
 
 ;;;=============================
@@ -179,7 +179,7 @@
 ;(defmethod update-from-editor ((self OMPatchInternal))
 ;  (mapcar 'update-from-editor (references-to self)))
 
-;(defmethod update-from-editor ((self OMPatchFile)) 
+;(defmethod update-from-editor ((self OMPatchFile))
 ;  (mapcar 'update-from-editor (references-to self))
 ;  (touch self))
 

@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -24,37 +24,37 @@
 (defmethod object-has-editor ((self SDIFFile)) t)
 (defmethod get-editor-class ((self SDIFFile)) 'sdiffile-editor)
 
-(defmethod window-title-for-object ((self SDIFFile)) 
-  (string+ "SDIF File - " 
+(defmethod window-title-for-object ((self SDIFFile))
+  (string+ "SDIF File - "
            (if (file-pathname self)
                (namestring (file-pathname self))
              "No file attached")))
-  
+
 (defmethod make-editor-window-contents ((editor sdiffile-editor))
-  
+
   (set-g-component editor :filemap-layout (om-make-layout 'om-column-layout))
   (set-g-component editor :matrix-text (om-make-di 'om-simple-text :size (omp nil 22) :font (om-def-font :font1)))
   (set-g-component editor :field-plot (om-make-view 'field-plot-view :editor editor :bg-color (om-def-color :white)))
 
-  (set-g-component editor :matrix-field-menu (om-make-di 
+  (set-g-component editor :matrix-field-menu (om-make-di
                                               'om-popup-list :size (omp nil 22) :font (om-def-font :font1)
-                                              :di-action #'(lambda (item) 
+                                              :di-action #'(lambda (item)
                                                              (when (selection editor)
-                                                               (update-plot-data (get-g-component editor :field-plot) 
-                                                                                 (f-desc (selection editor)) 
-                                                                                 (m-desc (selection editor)) 
+                                                               (update-plot-data (get-g-component editor :field-plot)
+                                                                                 (f-desc (selection editor))
+                                                                                 (m-desc (selection editor))
                                                                                  (om-get-selected-item-index item))
-                                                             ))))
-  
-  (om-make-layout 'om-row-layout :ratios '(1 nil 1) 
-                  :subviews 
+                                                               ))))
+
+  (om-make-layout 'om-row-layout :ratios '(1 nil 1)
+                  :subviews
                   (list (get-g-component editor :filemap-layout)
                         :divider
                         (om-make-layout 'om-column-layout :ratios '(1 100)
-                                        :subviews (list 
-                                                   (om-make-layout 'om-row-layout 
-                                                                   :subviews 
-                                                                   (list 
+                                        :subviews (list
+                                                   (om-make-layout 'om-row-layout
+                                                                   :subviews
+                                                                   (list
                                                                     (get-g-component editor :matrix-text)
                                                                     (get-g-component editor :matrix-field-menu)))
                                                    (get-g-component editor :field-plot))
@@ -65,26 +65,26 @@
 
 (defmethod update-to-editor ((editor sdiffile-editor) (from t))
   (call-next-method)
-  (init-editor-window editor)) 
+  (init-editor-window editor))
 
 ;;;==========================================================
 ;;; DISPLAY / SELECT MATRIX STREAMS
 ;;;==========================================================
 
-(defclass sdifmat-stream-view (OMEditorView) 
+(defclass sdifmat-stream-view (OMEditorView)
   ((f-desc :initform nil :initarg :f-desc :accessor f-desc)
    (m-desc :initform nil :initarg :m-desc :accessor m-desc)))
 
 
 (defmethod om-draw-contents ((self sdifmat-stream-view))
-  
+
   (let ((selected (equal (selection (editor self)) self)))
-    
+
     (om-draw-rect 3 0 (- (w self) 6) (- (h self) 3) :fill t
-                  :color (if selected 
-                             (om-make-color .6 .64 .64) 
+                  :color (if selected
+                             (om-make-color .6 .64 .64)
                            (om-def-color :light-gray)))
-    
+
     (om-with-fg-color (if selected (om-def-color :white) (om-def-color :dark-gray))
       (om-with-font (om-def-font :font1)
                     (om-draw-string 6 12 (format nil "Matrix: ~A" (mstream-desc-msig (m-desc self))))
@@ -102,48 +102,48 @@
       )))
 
 (defmethod update-selected-contents ((editor sdiffile-editor) f-desc m-desc)
-  
-  (om-set-dialog-item-text 
+
+  (om-set-dialog-item-text
    (get-g-component editor :matrix-text)
-   (if m-desc 
+   (if m-desc
        (format nil "Matrix: ~A" (mstream-desc-msig m-desc))
      "Select a matrix stream on the left pane..."))
-  
-  (om-set-item-list 
+
+  (om-set-item-list
    (get-g-component editor :matrix-field-menu)
-   (if m-desc 
+   (if m-desc
        (mstream-desc-fields m-desc)
      nil))
 
   (update-plot-data (get-g-component editor :field-plot) f-desc m-desc 0)
-  
+
   )
 
 (defmethod init-editor-window ((editor sdiffile-editor))
-  
+
   (let ((sdiffile (object-value editor))
         (map-layout (get-g-component editor :filemap-layout)))
-        
+
     (om-remove-all-subviews map-layout)
-    
-    (apply 'om-add-subviews 
+
+    (apply 'om-add-subviews
            (cons map-layout
-                 (cons (om-make-di 
+                 (cons (om-make-di
                         'om-simple-text :size (omp nil 16)
                         :font (om-def-font :font1) :fg-color (om-def-color :dark-gray)
-                        :text (format nil "File: ~A" (file-pathname sdiffile))) 
+                        :text (format nil "File: ~A" (file-pathname sdiffile)))
                        (loop for stream-desc in (file-map sdiffile) collect
-                             (om-make-layout 
+                             (om-make-layout
                               'om-simple-layout :size (omp nil nil) :bg-color (om-def-color :gray) :delta 10
-                              :subviews (list 
-                                         (om-make-layout 
+                              :subviews (list
+                                         (om-make-layout
                                           'om-column-layout :delta 0
-                                          :subviews 
-                                          (cons 
-                                           (om-make-di 
+                                          :subviews
+                                          (cons
+                                           (om-make-di
                                             'om-simple-text :size (omp nil 16)
                                             :font (om-def-font :font1) :fg-color (om-def-color :white)
-                                            :text (format nil "Stream ~D: ~A [~D frames from ~f to ~fs]" 
+                                            :text (format nil "Stream ~D: ~A [~D frames from ~f to ~fs]"
                                                           (fstream-desc-id stream-desc) (fstream-desc-fsig stream-desc)
                                                           (fstream-desc-nf stream-desc) (fstream-desc-tmin stream-desc) (fstream-desc-tmax stream-desc)))
                                            (if (fstream-desc-matrices stream-desc)
@@ -152,8 +152,8 @@
                                                                    :m-desc mat-desc :f-desc stream-desc
                                                                    :size (omp nil nil) :bg-color (om-def-color :gray))
                                                      )
-                                             (list 
-                                              (om-make-di 
+                                             (list
+                                              (om-make-di
                                                'om-simple-text :size (omp nil nil)
                                                :font (om-def-font :font1) :fg-color (om-def-color :white)
                                                :text "[no matrices inside]"))
@@ -161,9 +161,9 @@
                                            )))
                               )
                              ))))
-    
+
     (update-selected-contents editor nil nil)
-    
+
     ))
 
 
@@ -171,7 +171,7 @@
 ;;; PLOTS NUMERIC DATA
 ;;;==========================================================
 
-(defclass field-plot-view (OMEditorView) 
+(defclass field-plot-view (OMEditorView)
   ((data :initform nil :initarg :data :accessor data)
    (vmin :accessor vmin :initarg :vmin :initform nil)
    (vmax :accessor vmax :initarg :vmax :initform nil)
@@ -194,7 +194,7 @@
             for i = 1 then (+ i 1) do
             (let ((c (- c-min (* i c-fact))))
               (om-with-fg-color (om-make-color c c c)
-                (if (= 1 (length row)) 
+                (if (= 1 (length row))
                     (om-draw-string 20 (+ 20 (* i 20)) (format nil "~f" (cadr (car row))))
                   (loop for v on row
                         when (cdr v) do
@@ -209,17 +209,17 @@
 
 
 (defmethod update-plot-data ((self field-plot-view) f-desc m-desc field-num)
-  
+
   ;;; will do this in the main OM-EVAL thread where all SDIF happens
-  (eval-sdif-expression 
-   
+  (eval-sdif-expression
+
    #'(lambda ()
 
        (let ((ed (editor self)))
-                              
+
          (if (and f-desc m-desc field-num)
-                                  
-             (multiple-value-bind (sdifdata sdiftimes) 
+
+             (multiple-value-bind (sdifdata sdiftimes)
                  (getsdifdata (object-value ed)
                               (fstream-desc-id f-desc)
                               (fstream-desc-fsig f-desc)
@@ -228,13 +228,13 @@
                (setf (vmin self) (list-min (flat sdifdata)))
                (setf (vmax self) (list-max (flat sdifdata)))
                (setf (tmax self) (car (last sdiftimes)))
-          
-               (setf (data self) 
+
+               (setf (data self)
                      ;;; TAKES ONLY the FIRST 100 ROWS
                      (loop for r from 0 to (min 100 (1- (mstream-desc-rmax m-desc))) collect
                            (loop for timetag in sdiftimes
-                                 for data in sdifdata 
-                                 when (nth r data) collect 
+                                 for data in sdifdata
+                                 when (nth r data) collect
                                  (list timetag (nth r data)))
                            ))
                )
@@ -242,7 +242,7 @@
          (om-invalidate-view self)
          ))
    ))
-  
+
 
 
 

@@ -1,5 +1,5 @@
 ;=========================================================================
-; OM-API 
+; OM-API
 ; Multiplatform API for OpenMusic
 ; LispWorks Implementation
 ;=========================================================================
@@ -37,15 +37,15 @@
           om-reset-mouse-motion
           om-view-pan-handler
           om-view-zoom-handler
-          
+
           om-init-motion
           om-click-motion-handler
           om-click-release-handler
-           
+
           om-shift-key-p
           om-command-key-p
-	        om-option-key-p
-          
+          om-option-key-p
+
           om-mouse-position
 
           ) :om-api)
@@ -59,7 +59,7 @@
 (defparameter +2nd-press-callback+ #+win32 'om-double-clic-callback #-win32 'om-multiple-clic-callback)
 
 (defclass om-interactive-object () ()
-  (:default-initargs 
+  (:default-initargs
    :input-model  `(
                    ;;; CALLBACKS ARGUMENTS = (SHIF CMD OPTION)
                    ((:button-1 :motion :shift ,+control-button+ :meta)  om-clic-motion-callback (t t t))
@@ -70,7 +70,7 @@
                    ((:button-1 :motion ,+control-button+)  om-clic-motion-callback (nil t nil))
                    ((:button-1 :motion :meta)  om-clic-motion-callback (nil nil t))
                    ((:button-1 :motion)  om-clic-motion-callback (nil nil nil))
-                   
+
                    ((:button-1 :press :shift ,+control-button+ :meta) om-clic-callback (t t t))
                    ((:button-1 :press :shift ,+control-button+) om-clic-callback (t t nil))
                    ((:button-1 :press :shift :meta) om-clic-callback (t  nil t))
@@ -79,12 +79,12 @@
                    ((:button-1 :press ,+control-button+) om-clic-callback (nil t nil))
                    ((:button-1 :press :meta) om-clic-callback (nil nil t))
                    ((:button-1 :press) om-clic-callback (nil nil nil))
-                               
+
                    ((:motion :shift ,+control-button+) om-motion-callback (t t nil))
                    ((:motion :shift) om-motion-callback (t nil nil))
                    ((:motion ,+control-button+) om-motion-callback (nil t nil))
                    (:motion om-motion-callback (nil nil nil))
-                   
+
                    ((:button-1 :release :shift ,+control-button+ :meta)  om-clic-release-callback (t t t))
                    ((:button-1 :release :shift ,+control-button+)  om-clic-release-callback (t t nil))
                    ((:button-1 :release :shift :meta)  om-clic-release-callback (t nil t))
@@ -93,7 +93,7 @@
                    ((:button-1 :release ,+control-button+)  om-clic-release-callback (nil t nil))
                    ((:button-1 :release :meta)  om-clic-release-callback (nil nil t))
                    ((:button-1 :release)  om-clic-release-callback (nil nil nil))
-                  
+
                    ((:button-1 ,+2nd-press+ :shift ,+control-button+ :meta) ,+2nd-press-callback+ (t t t))
                    ((:button-1 ,+2nd-press+ :shift ,+control-button+) ,+2nd-press-callback+ (t t nil))
                    ((:button-1 ,+2nd-press+ :shift :meta) ,+2nd-press-callback+ (t nil t))
@@ -102,16 +102,16 @@
                    ((:button-1 ,+2nd-press+ ,+control-button+) ,+2nd-press-callback+ (nil t nil))
                    ((:button-1 ,+2nd-press+ :meta) ,+2nd-press-callback+ (nil nil t))
                    ((:button-1 ,+2nd-press+) ,+2nd-press-callback+ (nil nil nil))
-                  
+
                   ;(:post-menu om-context-menu-callback)
                    ((:button-3 :press) om-context-menu-callback)
                    ((:button-3 :release) om-right-clic-callback (nil nil nil))
                    ((:button-3 :second-press) om-right-clic-callback (nil nil nil))
-                   
+
                    #-linux((:touch :pan) om-pan-callback)
                    #-linux((:touch :zoom) om-zoom-callback)
 
-                   
+
                    (:gesture-spec om-char-spec-callback)
                    ;; (:character om-char-callback (nil nil nil))
                    )
@@ -138,7 +138,7 @@
 ;;;===============
 
 (defun internal-mouse-position (view)
-  (or (ignore-errors 
+  (or (ignore-errors
         (multiple-value-bind (x y)
             (if view (capi::current-pointer-position :relative-to view :pane-relative-p t)
               (capi::current-pointer-position))
@@ -169,7 +169,7 @@
     (loop for item in (om-subviews self)
           while (equal clicked self) do
           (when (and item (om-view-contains-point-p item position))
-            (setf clicked (apply-in-subview item function (om-add-points 
+            (setf clicked (apply-in-subview item function (om-add-points
                                                            (om-convert-coordinates position self item)
                                                            (om-scroll-position item))))))
     (when (or (null clicked) (equal clicked self))
@@ -214,15 +214,15 @@
 
 
 ;;;=============
-;;; CLIC 
+;;; CLIC
 ;;;=============
 (defvar *clicked-view* nil)
 
 (defmethod om-clic-callback ((self om-interactive-object) x y modifiers)
-  (om-with-error-handle 
+  (om-with-error-handle
     (set-meta-keys modifiers)
-    (when (and (< x (+ (vw self) (om-point-x (om-scroll-position self)))) 
-               (< y (+ (vh self) (om-point-y (om-scroll-position self))))) 
+    (when (and (< x (+ (vw self) (om-point-x (om-scroll-position self))))
+               (< y (+ (vh self) (om-point-y (om-scroll-position self)))))
       ;;; for some reason on windows sometimes the click callback is called even
       ;;; from outside the panel (e.g. in another pane in teh same layout...)
       (apply-in-item-subview self 'om-view-click-handler (om-make-point x y))
@@ -232,13 +232,13 @@
 (defmethod om-view-click-handler :before ((self om-interactive-object) position)
   (setf *clicked-view* self))
 
-(defmethod om-right-clic-callback ((self om-interactive-object) x y modifiers) 
-  (om-with-error-handle 
+(defmethod om-right-clic-callback ((self om-interactive-object) x y modifiers)
+  (om-with-error-handle
     (set-meta-keys modifiers)
     (apply-in-item-subview self 'om-view-right-click-handler (om-make-point x y))))
 
 (defmethod om-view-right-click-handler ((self om-interactive-object) position) nil)
-(defmethod om-view-right-click-handler :before ((self om-interactive-object) position) 
+(defmethod om-view-right-click-handler :before ((self om-interactive-object) position)
   (setf *clicked-view* self))
 
 
@@ -247,14 +247,14 @@
 ;;;==============
 (defmethod om-clic-release-callback ((self om-interactive-object) x y modifiers)
   (set-meta-keys modifiers)
-  (unless (equal *clicked-view* :abort) 
+  (unless (equal *clicked-view* :abort)
     (if *clicked-view*
         (om-click-release-handler *clicked-view* (om-convert-coordinates (om-make-point x y) self *clicked-view*))
       (apply-in-item-subview self 'om-click-release-handler (om-make-point x y)))))
 
-(defmethod om-click-release-handler ((self om-interactive-object) pos) nil) 
+(defmethod om-click-release-handler ((self om-interactive-object) pos) nil)
 
-(defmethod om-click-release-handler :before ((self om-interactive-object) position) 
+(defmethod om-click-release-handler :before ((self om-interactive-object) position)
   (setf *clicked-view* nil))
 
 ;;;=================
@@ -285,7 +285,7 @@
         (om-click-motion-handler *clicked-view* (om-convert-coordinates (om-make-point x y) self *clicked-view*))
       (apply-in-item-subview self 'om-click-motion-handler (om-make-point x y))))
   )
-   
+
 (defmethod om-click-motion-handler (self pos) t)
 
 ;;;=================
@@ -295,7 +295,7 @@
 (defmethod om-zoom-callback ((self om-interactive-object) x y zoom-factor)
   (om-view-zoom-handler self (om-make-point x y) zoom-factor))
 
-(defmethod om-pan-callback ((self om-interactive-object) x y delta-x delta-y) 
+(defmethod om-pan-callback ((self om-interactive-object) x y delta-x delta-y)
   (om-view-pan-handler self (om-make-point x y) delta-x delta-y))
 
 ;;; need to set *clicked-view* ??
@@ -306,7 +306,7 @@
 ;;;=====================
 ;;; KEYBOARD
 ;;;=====================
-        
+
 ;;; CHAR-CALLBACK: NOT USED
 (defun get-om-character (c)
   (case (char-code c)
@@ -329,13 +329,13 @@
 ;; never used
 (defmethod om-char-callback ((self om-interactive-object) x y c modifiers)
   (set-meta-keys modifiers)
-  (om-with-error-handle 
+  (om-with-error-handle
     (om-view-key-handler self (get-om-character c)))
   (release-meta-keys))
 
 
 ;;;=====================
-;;; DECODE CHAR-SPEC 
+;;; DECODE CHAR-SPEC
 ;;;=====================
 (defun get-om-spec-character (c)
   (cond ((integerp c) (get-om-character (code-char c)))
@@ -347,7 +347,7 @@
         ((equal :prior c) :om-key-pageup)
         ((equal :end c) :om-key-end)
         ((equal :home c) :om-key-home)
-        ((equal :kp-enter c) :om-key-enter)   
+        ((equal :kp-enter c) :om-key-enter)
         (t nil)))
 
 (defun get-om-spec-modifiers (mod)
@@ -392,13 +392,13 @@
 (defmethod om-char-spec-callback ((self om-interactive-object) x y spec)
   (let ((data (sys:gesture-spec-data spec))
         (modifiers (sys:gesture-spec-modifiers spec)))
-     (set-meta-keys (get-om-spec-modifiers modifiers))
-     (om-view-key-handler self (get-om-spec-character data))
-     (release-meta-keys)
-     t))
+    (set-meta-keys (get-om-spec-modifiers modifiers))
+    (om-view-key-handler self (get-om-spec-character data))
+    (release-meta-keys)
+    t))
 
 ;;; Exported callback
-(defmethod om-view-key-handler ((self t) key) 
+(defmethod om-view-key-handler ((self t) key)
   (declare (ignore key)) nil)
 
 ;;; by default the key actions are transferred to the window

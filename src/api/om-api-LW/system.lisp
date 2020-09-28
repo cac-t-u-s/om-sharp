@@ -1,5 +1,5 @@
 ;=========================================================================
-; OM API 
+; OM API
 ; Multiplatform API for OpenMusic
 ; LispWorks Implementation
 ;=========================================================================
@@ -36,17 +36,17 @@
           om-gc
           om-get-user-name
           om-get-date
-          om-error-handle-funcall 
-          om-with-error-handle 
-          om-trap-errors 
-          om-with-redefinitions 
+          om-error-handle-funcall
+          om-with-error-handle
+          om-trap-errors
+          om-with-redefinitions
           om-ignore&print-error
-          om-set-clipboard om-get-clipboard  
+          om-set-clipboard om-get-clipboard
           om-open-in-browser
           ) :om-api)
 
 
-(defparameter *lw-version* 
+(defparameter *lw-version*
   (read-from-string (subseq (lisp-implementation-version) 0 1)))
 
 (defun om-standalone-p ()
@@ -71,7 +71,7 @@
 ;(hcl::current-stack-length)
 ;(hcl:extend-current-stack 50)
 
-(defun om-gc () 
+(defun om-gc ()
   (system::gc-all))
 
 ;;;====================
@@ -79,7 +79,7 @@
 ;;;====================
 
 (defun om-error-handle-funcall (func)
-  (handler-bind 
+  (handler-bind
       ((error #'(lambda (err)
                   (capi::display-message "An error of type ~a occurred: ~%\"~a\"" (type-of err) (format nil "~A" err))
                   (abort err))))
@@ -87,12 +87,12 @@
 
 (defmacro om-with-error-handle (&body body)
   `(if (om-standalone-p)
-      (handler-bind 
+       (handler-bind
            ((error #'(lambda (err)
                        (capi::display-message "An error of type ~a occurred: ~%\"~a\"" (type-of err) (format nil "~A" err))
                        (abort err))))
          ,@body)
-    (progn ,@body)))
+     (progn ,@body)))
 
 
 
@@ -100,7 +100,7 @@
   `(let ((lispworks::*HANDLE-WARN-ON-REDEFINITION* nil)) ,@body))
 
 (defmacro om-ignore&print-error (&rest body)
-  `(multiple-value-bind (a b) 
+  `(multiple-value-bind (a b)
        (ignore-errors ,@body)
      (when b (print (format nil "Error: ~A" b)))
      a))
@@ -108,19 +108,19 @@
 (defun om-error-handler (&rest l)
   (let ((err (car l))
         (backtrace (with-output-to-string (stream)
-                    (dbg:output-backtrace t stream))))
-   (capi::display-message "ERROR: ~A~%" err)
-   (setf om-lisp::*error-backtrace* (print (format nil "ERROR: ~A~%~%~A" err backtrace)))
-   (abort)))
+                     (dbg:output-backtrace t stream))))
+    (capi::display-message "ERROR: ~A~%" err)
+    (setf om-lisp::*error-backtrace* (print (format nil "ERROR: ~A~%~%~A" err backtrace)))
+    (abort)))
 
 (defun om-trap-error-handler (condition)
-   (format *error-output* "ERROR: ~A~&" condition)
-   (throw 'trap-errors nil))
+  (format *error-output* "ERROR: ~A~&" condition)
+  (throw 'trap-errors nil))
 
 (defmacro om-trap-errors (&rest forms)
-   `(catch 'trap-errors
-      (handler-bind ((error #'om-trap-error-handler))
-        ,@forms)))
+  `(catch 'trap-errors
+     (handler-bind ((error #'om-trap-error-handler))
+       ,@forms)))
 
 (defun set-om-debugger ()
   (setq *debugger-hook* 'om-error-handler))
@@ -151,8 +151,8 @@
 ;;; not working very well so far...
 
  (defun test-http ()
-   (with-open-stream (http (comm:open-tcp-stream 
-                            "www.lispworks.com" 
+   (with-open-stream (http (comm:open-tcp-stream
+                            "www.lispworks.com"
                          ;""https://github.com/openmusic-project/OM6/blob/master/README.md""
                             80
                             :errorp t))

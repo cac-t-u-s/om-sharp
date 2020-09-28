@@ -1,5 +1,5 @@
 ;=========================================================================
-; OM API 
+; OM API
 ; Multiplatform API for OpenMusic
 ; LispWorks Implementation
 ;=========================================================================
@@ -32,12 +32,12 @@
           om-dialog-item-action
           om-dialog-item-action-function
           om-set-dialog-item-action-function
-                
+
           om-dialog-item-text
           om-set-dialog-item-text
           om-enable-dialog-item
           om-dialog-item-enabled
-                
+
           om-simple-text
           om-multi-text
           om-custom-edit-text
@@ -54,14 +54,14 @@
           om-text-edit-view
           om-scroll-text-edit-view
           om-make-edit-view
-                
+
           om-button
           om-check-box
           om-radio-button
-                
+
           om-checked-p
           om-set-check-box
-                
+
           om-single-item-list
           om-multi-item-list
           om-popup-list
@@ -73,7 +73,7 @@
           om-unselect-item-index
           om-get-selected-item
           om-set-selected-item
-                
+
           om-slider
           om-slider-value
           om-slider-increment
@@ -92,11 +92,11 @@
 ;;;ABSTRACT
 ;;;=====================
 
-(defclass om-standard-dialog-item (om-graphic-object) 
+(defclass om-standard-dialog-item (om-graphic-object)
   ((di-action :accessor di-action :initform nil :initarg :di-action :documentation "the main dialog-item action"))
-  (:default-initargs 
+  (:default-initargs
    :visible-border :default
-   :callback-type :item 
+   :callback-type :item
    :scroll-if-not-visible-p nil
    ))
 
@@ -116,15 +116,15 @@
 ;;; ACTION
 ;;;==========
 
-(defmethod om-dialog-item-action ((self om-standard-dialog-item))  
+(defmethod om-dialog-item-action ((self om-standard-dialog-item))
   (when (di-action self)
     (funcall (di-action self) self)))
 
 (defmethod om-set-dialog-item-action-function ((self om-standard-dialog-item) action)
-   (setf (di-action self) action))
+  (setf (di-action self) action))
 
 (defmethod om-dialog-item-action-function ((self om-standard-dialog-item))
-   (di-action self))
+  (di-action self))
 
 (defmethod om-enable-dialog-item ((self t) t-or-nil) nil)
 (defmethod om-dialog-item-enabled ((self t)) t)
@@ -139,44 +139,44 @@
 (defmethod om-set-dialog-item-text ((self om-standard-dialog-item) text)
   (setf (capi::item-text self) text))
 
-(defmethod om-view-position ((self om-standard-dialog-item)) 
-   (if  (capi::interface-visible-p self) 
-       (let ((point (multiple-value-list (capi::pinboard-pane-position self))))
-         (om-make-point (first point) (second point)))
-     (om-make-point (vx self) (vy self))))
+(defmethod om-view-position ((self om-standard-dialog-item))
+  (if  (capi::interface-visible-p self)
+      (let ((point (multiple-value-list (capi::pinboard-pane-position self))))
+        (om-make-point (first point) (second point)))
+    (om-make-point (vx self) (vy self))))
 
-(defmethod om-set-view-position ((self om-standard-dialog-item) pos-point) 
-  (capi::apply-in-pane-process self 
-                         (lambda () 
-                           (setf (capi::pinboard-pane-position self) 
-                                 (values (om-point-x pos-point) (om-point-y pos-point)))
-                           ))
-  (setf (vx self) (om-point-x pos-point) 
+(defmethod om-set-view-position ((self om-standard-dialog-item) pos-point)
+  (capi::apply-in-pane-process self
+                               (lambda ()
+                                 (setf (capi::pinboard-pane-position self)
+                                       (values (om-point-x pos-point) (om-point-y pos-point)))
+                                 ))
+  (setf (vx self) (om-point-x pos-point)
         (vy self) (om-point-y pos-point)))
 
 (defmethod om-view-size ((self om-standard-dialog-item))
-  (if  (capi::interface-visible-p self) 
+  (if  (capi::interface-visible-p self)
       (let ((point (multiple-value-list (capi::pinboard-pane-size self))))
         (om-make-point (first point) (second point)))
     (om-make-point (vw self) (vh self))))
 
 (defmethod om-set-view-size ((self om-standard-dialog-item) size-point)
-  (setf (vw self) (om-point-x size-point) 
+  (setf (vw self) (om-point-x size-point)
         (vh self) (om-point-y size-point))
   (when (capi::interface-visible-p self)
-    (capi::apply-in-pane-process self 
-                           (lambda () 
-                             (capi::set-hint-table self (list :default-width (om-point-x size-point) :defalut-height (om-point-y size-point)
-                                                        :visible-min-width (om-point-x size-point) :visible-min-height (om-point-y size-point)
+    (capi::apply-in-pane-process self
+                                 (lambda ()
+                                   (capi::set-hint-table self (list :default-width (om-point-x size-point) :defalut-height (om-point-y size-point)
+                                                                    :visible-min-width (om-point-x size-point) :visible-min-height (om-point-y size-point)
                                                         ;:internal-min-width (om-point-x size-point) :internal-min-height (om-point-y size-point)
                                                         ;:internal-max-width (om-point-x size-point) :internal-max-height (om-point-y size-point)
-                                                        :visible-max-width (om-point-x size-point) :visible-max-height (om-point-y size-point)
-                                                        ))
-                             (when (and (numberp (om-point-x size-point))
-                                        (numberp (om-point-y size-point)))
-                               (setf (capi::pinboard-pane-size self) (values (om-point-x size-point) (om-point-y size-point))))
-                             (setf (capi::pinboard-pane-position self) (values (vx self) (vy self)))
-                             ))
+                                                                    :visible-max-width (om-point-x size-point) :visible-max-height (om-point-y size-point)
+                                                                    ))
+                                   (when (and (numberp (om-point-x size-point))
+                                              (numberp (om-point-y size-point)))
+                                     (setf (capi::pinboard-pane-size self) (values (om-point-x size-point) (om-point-y size-point))))
+                                   (setf (capi::pinboard-pane-position self) (values (vx self) (vy self)))
+                                   ))
     )
   (di-after-settings self))
 
@@ -187,7 +187,7 @@
 
 (defun dialog-item-scrollbar-h (scroll)
   (or (equal scroll :h) (equal scroll t)))
- 
+
 (defun dialog-item-scrollbar-v (scroll)
   (or (equal scroll :v) (equal scroll t)))
 
@@ -204,14 +204,14 @@
                           (direction :horizontal) (value 0)
                           di-action edit-action begin-edit-action completion resizable
                           &allow-other-keys)
-  (let* ((wi (if size (om-point-x size) 20)) 
+  (let* ((wi (if size (om-point-x size) 20))
          (hi (if size (om-point-y size) 16))
          (shift #+macosx -5 #-macosx 0)
          (x (and position (+ (om-point-x position) shift)))
          (y (and position (+ (om-point-y position) shift))))
-    (multiple-value-bind (w h) (adjust-size class wi hi) 
-      (let ((di (apply 'make-instance 
-                       (append 
+    (multiple-value-bind (w h) (adjust-size class wi hi)
+      (let ((di (apply 'make-instance
+                       (append
                         (list class
                            ;:x x :y y
                               :default-x x :default-y y
@@ -222,21 +222,21 @@
                               :visible-max-width (if (or (equal resizable t) (equal resizable :w)) nil w)
                            ;:internal-min-width w
                            ;:internal-max-width w
-                           
+
                               :external-min-height h
-                              :visible-min-height h                       
+                              :visible-min-height h
                               :visible-max-height (if (or (equal resizable t) (equal resizable :h)) nil h)
                            ;:internal-min-height h
                            ;:internal-max-height (print h)
-                                                  
+
                               :text text
                               :font font
                               :enabled enabled
-                              
-                              :di-action di-action 
-                              :edit-action edit-action 
+
+                              :di-action di-action
+                              :edit-action edit-action
                               :begin-edit-action begin-edit-action
-                              
+
                               :background (or (and (om-color-p bg-color) (omcolor-c bg-color)) #+cocoa :transparent #-cocoa :background)
                               :foreground (and (om-color-p fg-color) (omcolor-c fg-color))
                               :color-function (when (or (functionp fg-color)
@@ -250,7 +250,7 @@
                               :default-p default
                               :cancel-p cancel
                               :items items
-                              :start (or (first range) 0) 
+                              :start (or (first range) 0)
                               :end (or (second range) 100)
                               :orientation direction
                               :start-point :default
@@ -260,62 +260,62 @@
                               :accepts-focus-p enabled
                               :horizontal-scroll (dialog-item-scrollbar-h scrollbars)
                               :vertical-scroll (dialog-item-scrollbar-v scrollbars)
-                           
+
                               :visible-border t
 
                               ;;; only for text-edit
                               :allows-newline-p nil
-                              
-                              :in-place-completion-function (when completion 
-                                                              #'(lambda (item str) 
+
+                              :in-place-completion-function (when completion
+                                                              #'(lambda (item str)
                                                                   (declare (ignore item))
                                                                   (or (funcall completion str)
                                                                       (progn (capi::beep-pane) :destroy))))
-                              
+
                               :allow-other-keys t
                               )
                         ;;; other attributes/keywords of the dialog-items
                         other-attributes
                         ))))
-    
-        (when print 
+
+        (when print
           (setf (capi::collection-print-function di) print))
-    
+
         (when selection
           (om-set-selected-item di selection))
-    
+
         (when (or bg-color (special-bg di))
           (om-set-bg-color di (or bg-color (special-bg di))))
-    
-        (when position 
+
+        (when position
           (setf (vx di) x
                 (vy di) y
                 ))
-        (when size 
-          (setf (vw di) w 
+        (when size
+          (setf (vw di) w
                 (vh di) h
                 ))
-    
+
         (when container (om-add-subviews container di))
-    
+
         (when font (om-set-font di font))
-   
+
         (di-after-settings di)
-    
+
         (if focus (capi::set-pane-focus di))
 
         (when completion (om-complete-text di))
-    
+
         di))))
 
 
 (defun adjust-size (class w h)
   #+linux (values (or (and (numberp w) (round w 3/4)) w)
-		  (or (and (numberp h) (round h 3/4)) h))
+                  (or (and (numberp h) (round h 3/4)) h))
   #-linux (if (subtypep class 'om-editable-text)
-	      #+windows (values (- w 10) (- h 10))
-	      #-windows (values w h)
-	      (values w h))
+              #+windows (values (- w 10) (- h 10))
+            #-windows (values w h)
+            (values w h))
   )
 
 
@@ -330,20 +330,20 @@
   (setf (capi::title-pane-text self) text))
 
 (defmethod om-dialog-item-text ((self om-simple-text))
- (capi::title-pane-text self))
+  (capi::title-pane-text self))
 
 ;=================
 ; TEXT MULTI-LINES
 ;=================
 
 (defclass om-multi-text (om-standard-dialog-item capi::display-pane) ()
-  (:default-initargs 
+  (:default-initargs
    :visible-border nil
    :accepts-focus-p nil
    :callback 'om-dialog-item-action))
 
 (defmethod om-dialog-item-text ((self om-multi-text))
- (capi::display-pane-text self))
+  (capi::display-pane-text self))
 
 (defmethod om-set-dialog-item-text ((self om-multi-text) text)
   (capi:apply-in-pane-process self #'(setf capi:display-pane-text) text self))
@@ -351,7 +351,7 @@
 (defmethod om-enable-dialog-item ((self om-multi-text) t-or-nil)
   (setf (capi::simple-pane-enabled self) t-or-nil))
 
-(defmethod om-dialog-item-enabled ((self om-multi-text)) 
+(defmethod om-dialog-item-enabled ((self om-multi-text))
   (capi::simple-pane-enabled self))
 
 (defmethod om-copy-command ((self om-multi-text))
@@ -363,7 +363,7 @@
 ;=============================
 
 ;; cursor = nil (no edit), int (pos in text) or list (b e) for selection.
-(defclass om-custom-edit-text (om-standard-dialog-item capi::title-pane) 
+(defclass om-custom-edit-text (om-standard-dialog-item capi::title-pane)
   ((cursor-pos :accessor cursor-pos :initform nil)))
 
 
@@ -371,28 +371,28 @@
 ; TEXT EDIT SYSTEM
 ;=============================
 
-(defclass om-editable-text (om-standard-dialog-item capi::text-input-pane) 
+(defclass om-editable-text (om-standard-dialog-item capi::text-input-pane)
   ((begin-edit-action :accessor begin-edit-action :initarg :begin-edit-action :initform nil :documentation "called when the text edit starts")
    (edit-action :accessor edit-action :initarg :edit-action :initform nil :documentation "called when the text is edited"))
   (:default-initargs
    :visible-border #+windows t #-windows nil
-   :navigation-callback 'text-edit-special-action 
-   :callback 'text-edit-validate-action 
+   :navigation-callback 'text-edit-special-action
+   :callback 'text-edit-validate-action
    :change-callback 'text-edit-changed-action ; :change-callback-type '(:element :data)
    :editing-callback 'text-edited-action   ;;; EDITING START-STOP
    ))
 
 
-(defmethod om-text-edit-begin-action ((self om-editable-text)) 
+(defmethod om-text-edit-begin-action ((self om-editable-text))
   (when (begin-edit-action self)
     (funcall (begin-edit-action self) self)))
 
-(defmethod om-text-edit-action ((self om-editable-text)) 
+(defmethod om-text-edit-action ((self om-editable-text))
   (if (edit-action self)
-    (funcall (edit-action self) self)))
+      (funcall (edit-action self) self)))
 
-;;; prevents further action calls 
-(defmethod om-end-text-edit ((self om-editable-text)) 
+;;; prevents further action calls
+(defmethod om-end-text-edit ((self om-editable-text))
   (setf (edit-action self) nil
         (di-action self) nil))
 
@@ -405,10 +405,10 @@
 (defun text-edit-validate-action (self)
   (om-dialog-item-action self))
 
-;;; :tab-forward :tab-backward :return 
+;;; :tab-forward :tab-backward :return
 ;;; :shift-return :enter :shift-enter
 (defun text-edit-special-action (self action)
-  (cond ((equal action :enter) 
+  (cond ((equal action :enter)
          (om-dialog-item-action self))
         ((equal action :return) (if (capi::text-input-allows-newline-p self)
                                     (let ((rec (capi::clipboard self)))
@@ -417,16 +417,16 @@
                                       (capi::set-clipboard self rec))
                                   (om-dialog-item-action self)
                                   ))
-        ((equal action :tab-forward) 
+        ((equal action :tab-forward)
          (om-view-key-handler self :om-key-tab))
         ))
 
 (defun text-edited-action (self action)
-  (case action 
+  (case action
     (:start (om-text-edit-begin-action self))
     (:end (om-dialog-item-action self))
     ))
- 
+
 (defun text-edit-changed-action (text self win position)
   (declare (ignore text win position))
   (om-text-edit-action self)
@@ -436,21 +436,21 @@
 
 
 (defmethod om-dialog-item-text ((self om-editable-text))
- (capi::text-input-pane-text self))
+  (capi::text-input-pane-text self))
 
 (defmethod om-set-dialog-item-text ((self om-editable-text) text)
-  (capi::apply-in-pane-process 
+  (capi::apply-in-pane-process
    self
-   #'(lambda () 
+   #'(lambda ()
        (setf (capi::text-input-pane-text self) text)
        ;(setf (capi:text-input-pane-caret-position self)
        ;      (length (capi:text-input-pane-text self)))
-   )))
+       )))
 
 (defmethod om-enable-dialog-item ((self om-editable-text) t-or-nil)
   (setf (capi::text-input-pane-enabled self) t-or-nil))
 
-(defmethod om-dialog-item-enabled ((self om-editable-text)) 
+(defmethod om-dialog-item-enabled ((self om-editable-text))
   (capi::text-input-pane-enabled self))
 
 (defmethod om-copy-command ((self om-editable-text))
@@ -460,7 +460,7 @@
 (defmethod om-paste-command ((self om-editable-text))
   (let ((pos (capi::text-input-pane-selection self))
         (txt (capi::clipboard self)))
-    (unless (capi::text-input-allows-newline-p self)   
+    (unless (capi::text-input-allows-newline-p self)
       (capi::set-clipboard self (substitute #\Space #\Newline txt)))
     (capi::text-input-pane-paste self)
     (capi::set-clipboard self txt)
@@ -480,7 +480,7 @@
     (capi::set-text-input-pane-selection self 0 0)))
 
 (defmethod om-set-text-completion ((self om-editable-text) completion-fun)
-  (capi::apply-in-pane-process 
+  (capi::apply-in-pane-process
    self
    #'(lambda () (setf (capi::text-input-pane-completion-function self) completion-fun)
        (capi::text-input-pane-complete-text self)
@@ -488,7 +488,7 @@
 
 (defmethod om-complete-text ((self om-editable-text))
   (when (capi::text-input-pane-completion-function self)
-    (capi::apply-in-pane-process 
+    (capi::apply-in-pane-process
      self
      #'capi::text-input-pane-in-place-complete self)))
 
@@ -498,11 +498,11 @@
 ;=================
 
 (defclass om-text-edit-view (om-editable-text capi::multi-line-text-input-pane) ()
-  (:default-initargs 
+  (:default-initargs
    :external-min-height nil
    :external-max-height nil))
 
-;(defmethod di-set-focus ((self om-text-edit-view)) 
+;(defmethod di-set-focus ((self om-text-edit-view))
 ;  (capi::set-pane-focus self)
 ;  (capi::set-text-input-pane-selection self 0 (length (capi::text-input-pane-text self))))
 
@@ -517,7 +517,7 @@
 ;;; these will apply to all the following subclasses of capi::button
 (defmethod om-enable-dialog-item ((self capi::button) t-or-nil)
   (setf (capi::button-enabled self) t-or-nil))
-(defmethod om-dialog-item-enabled ((self capi::button)) 
+(defmethod om-dialog-item-enabled ((self capi::button))
   (capi::button-enabled self))
 
 
@@ -529,7 +529,7 @@
 ;===============
 
 (defclass om-check-box (om-standard-dialog-item capi::check-button) ()
-  (:default-initargs 
+  (:default-initargs
    #+win32 :accepts-focus-p #+win32 nil
    :selection-callback 'om-dialog-item-action
    :retract-callback  'om-dialog-item-action))
@@ -537,21 +537,21 @@
 (defmethod om-checked-p ((self om-check-box)) (capi::button-selected self))
 
 (defmethod om-set-check-box  ((self om-check-box) check?)
-  (capi:apply-in-pane-process 
-   self 
+  (capi:apply-in-pane-process
+   self
    #'(lambda () (setf (capi::button-selected self) check?))))
 
 
 ;--------om-radio-button
 
-(defclass om-radio-button (om-standard-dialog-item capi::radio-button) 
+(defclass om-radio-button (om-standard-dialog-item capi::radio-button)
   ((button-group :initarg :button-group :initform nil :accessor button-group))
   (:default-initargs :callback 'om-dialog-item-action))
 
 (defmethod om-radio-button-p ((self om-radio-button))  t)
 (defmethod om-radio-button-p ((self t))  nil)
 
-(defmethod om-dialog-item-action ((self om-radio-button))  
+(defmethod om-dialog-item-action ((self om-radio-button))
   (let ((container (capi::element-parent self)))
     (when container
       (let ((elems (capi::pane-children container)))
@@ -559,7 +559,7 @@
               (when (and (om-radio-button-p item) (not (equal item self))
                          (equal (button-group item) (button-group self)))
                 (om-set-check-box item nil)))))
-  (call-next-method)))
+    (call-next-method)))
 
 (defmethod om-checked-p ((self om-radio-button)) (capi::button-selected self))
 
@@ -571,7 +571,7 @@
 ;--------om-item-list abstract
 
 (defclass om-item-list (om-standard-dialog-item capi::list-panel) ()
-  (:default-initargs 
+  (:default-initargs
    :callback-type '(:collection)
    :selection-callback 'om-dialog-item-action
    :action-callback 'double-click-on-list
@@ -582,7 +582,7 @@
 
 (defclass om-list-item (capi::item) ())
 
-(defmethod di-after-settings ((self om-item-list)) 
+(defmethod di-after-settings ((self om-item-list))
   (if (remove nil (map 'list 'stringp (capi::collection-items self)))
       (setf (capi::collection-test-function self) 'string-equal)
     (setf (capi::collection-test-function self) 'equal)
@@ -608,8 +608,8 @@
 (defmethod double-click-on-list ((self om-item-list)) nil)
 
 (defun convert-sort-styles (styles)
-  (loop for style in styles collect 
-        (capi:make-sorting-description 
+  (loop for style in styles collect
+        (capi:make-sorting-description
          :type (car style)
          :sort (nth (1+ (position :sort (cadr style))) (cadr style))
          :reverse-sort (nth (1+ (position :reverse (cadr style))) (cadr style)))))
@@ -620,12 +620,12 @@
         (capi::sort-object-items-by self (capi::collection-items self))))
 
 (defmethod om-invalidate-view ((self om-item-list))
-  ;(capi:map-collection-items self 
+  ;(capi:map-collection-items self
   (map nil #'(lambda (item)
                (capi::redisplay-collection-item self item))
        (capi::collection-items self)))
-  
-;--------om-single-item-list  
+
+;--------om-single-item-list
 
 (defclass om-single-item-list (om-item-list) ()
   (:default-initargs :interaction :single-selection
@@ -637,26 +637,26 @@
     ))
 
 (defmethod om-select-item-index ((self om-single-item-list) i)
- (setf (capi::choice-selection self) i))
+  (setf (capi::choice-selection self) i))
 
 (defmethod om-unselect-item-index ((self om-single-item-list) i)
   (when (and (capi::choice-selection self) (= (capi::choice-selection self) i))
     (setf (capi::choice-selection self) nil)))
 
-(defmethod om-get-selected-item ((self om-single-item-list)) 
+(defmethod om-get-selected-item ((self om-single-item-list))
   (capi::choice-selected-item self))
 
-(defmethod om-set-selected-item ((self om-single-item-list) item) 
+(defmethod om-set-selected-item ((self om-single-item-list) item)
   (setf (capi::choice-selected-item self) item))
 
-(defmethod om-dialog-item-action ((self om-single-item-list)) 
+(defmethod om-dialog-item-action ((self om-single-item-list))
   (call-next-method))
 
 
 ;--------om-multi-item-list
- 
+
 (defclass om-multi-item-list (om-item-list) ()
- (:default-initargs 
+  (:default-initargs
    :interaction  #+win32 :multiple-selection #-win32 :extended-selection
    :right-click-selection-behavior :clicked/restore/restore
    :extend-callback 'om-dialog-item-action
@@ -669,10 +669,10 @@
 (defmethod om-unselect-item-index ((self om-multi-item-list) i)
   (setf (capi::choice-selection self) (remove i (capi::choice-selection self))))
 
-(defmethod om-get-selected-item ((self om-multi-item-list)) 
+(defmethod om-get-selected-item ((self om-multi-item-list))
   (capi::choice-selected-items self))
 
-(defmethod om-set-selected-item ((self om-multi-item-list) items) 
+(defmethod om-set-selected-item ((self om-multi-item-list) items)
   (setf (capi::choice-selected-items self) (if (listp items) items (list items))))
 
 
@@ -680,7 +680,7 @@
 ;--------multi-column-list
 
 (defclass om-multicol-item-list (om-multi-item-list capi::multi-column-list-panel) ()
-  (:default-initargs 
+  (:default-initargs
    :callback-type '(:collection)
    :selection-callback 'om-dialog-item-action
    :action-callback 'double-click-on-list
@@ -691,14 +691,14 @@
    :test-function 'string-equal))
 
 
-;--------om-slider 
+;--------om-slider
 
-(defclass om-slider (om-standard-dialog-item capi::slider) 
+(defclass om-slider (om-standard-dialog-item capi::slider)
   ((increment :initarg :increment :initform 1 :accessor increment))
-  (:default-initargs 
+  (:default-initargs
    :callback 'om-slider-item-action
    :show-value-p t))
- 
+
 (defmethod om-slider-value ((self om-slider))
   (* (round (capi::range-slug-start self) (increment self)) (increment self)))
 
@@ -706,7 +706,7 @@
   (increment self))
 
 (defmethod om-set-slider-value ((self om-slider) value)
-   (setf (capi::range-slug-start self) value))
+  (setf (capi::range-slug-start self) value))
 
 (defmethod om-slider-item-action ((self om-standard-dialog-item) value type)
   (when (di-action self)
@@ -720,26 +720,26 @@
 
 ;--------om-popup-list
 
-(defclass om-popup-list (om-standard-dialog-item capi::option-pane) 
+(defclass om-popup-list (om-standard-dialog-item capi::option-pane)
   ((value :initform nil :initarg :value :accessor value))
-  (:default-initargs 
+  (:default-initargs
    :callback-type '(:collection)
    :selection-callback 'om-dialog-item-action
    :test-function 'equal
-   :separator-item "-"))   
+   :separator-item "-"))
 
 (defmethod initialize-instance :after ((self om-popup-list) &rest l)
   (when (value self)
-    (let ((pos (position (value self) (vector-col-to-list (capi::collection-items self )) 
+    (let ((pos (position (value self) (vector-col-to-list (capi::collection-items self ))
                          :test (if (stringp (value self)) 'string-equal 'equal))))
       (when pos
         (setf (capi::choice-selection self) pos)))))
 
-(defmethod om-dialog-item-action ((self om-popup-list))  
+(defmethod om-dialog-item-action ((self om-popup-list))
   (when (di-action self)
     (funcall (di-action self) self)))
 
-(defmethod om-get-item-list ((self om-popup-list)) 
+(defmethod om-get-item-list ((self om-popup-list))
   (vector-col-to-list (capi::collection-items self)))
 
 (defmethod om-set-item-list ((self om-popup-list) names)
@@ -766,7 +766,7 @@
     (when pos (setf (capi::choice-selection self) pos))))
 
 (defmethod om-select-item-index ((self om-popup-list) index)
- (setf (capi::choice-selection self) index))
- 
+  (setf (capi::choice-selection self) index))
+
 
 

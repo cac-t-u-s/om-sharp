@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: D. Bouche
@@ -65,14 +65,14 @@
      (poke-thread-pool *engine*)))
 
 (defmacro compute2 (obj clef time-type &body body)
-`(let (res)
-  (if (eq ,time-type 'ms)   
-      (setq res (mesure-time-in-body-milli-sec ,obj ,clef ,@body)))    
+  `(let (res)
+     (if (eq ,time-type 'ms)
+         (setq res (mesure-time-in-body-milli-sec ,obj ,clef ,@body)))
 ;   (if (eq ,time-type 'us)
 ;       (setq res (mesure-time-in-body-micro-sec ,obj ,clef ,@body)))
-;    (if (eq ,time-type 'ns)  
+;    (if (eq ,time-type 'ns)
 ;       (setq res (mesure-time-in-body-nano-sec ,obj ,clef ,@body)))
-    res))
+     res))
 
 (defmethod engine-function ((self engine))
   (mp:ensure-process-mailbox)
@@ -83,9 +83,9 @@
                                  (process self))
                                 "Waiting for computation request")))
      (when task
-         (setf (state self) :busy)
-         (om-ignore&print-error (funcall task))))))
-   
+       (setf (state self) :busy)
+       (om-ignore&print-error (funcall task))))))
+
 ;   (loop while (and (task-plan self)
 ;                    (<= (act-timestamp (first (task-plan self))) (om-get-internal-time)))
 ;         do

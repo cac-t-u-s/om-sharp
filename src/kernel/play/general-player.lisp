@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -58,7 +58,7 @@
 ;;; (simple loop on a list of events)
 ;;; This player is actually not used anymore
 ;;;=================================
-(defclass omplayer () 
+(defclass omplayer ()
   ((state :accessor state :initform :stop)    ; :play :pause :stop :record
    (loop-play :accessor loop-play :initform nil)
    (start-time :accessor start-time :initform 0)
@@ -96,7 +96,7 @@
 
 (defmethod make-player ((id t) &key run-callback stop-callback (callback-tick 0.05) time-window)
   (declare (ignore time-window))
-  (make-instance 'omplayer 
+  (make-instance 'omplayer
                  :callback-fun run-callback
                  :callback-tick callback-tick
                  :stop-fun stop-callback))
@@ -118,14 +118,14 @@
 (defmethod player-set-time-interval ((player omplayer) from to)
   (setf (play-interval player) (list from to)))
 
-(defmethod player-idle-p ((self omplayer)) 
+(defmethod player-idle-p ((self omplayer))
   (not (member (state self) '(:play :record))))
 
 (defmethod player-schedule-tasks ((player omplayer) object tasklist)
   (loop for task in tasklist do (schedule-task player (cadr task) (car task))))
 
 ;;; CALLED WHEN THE PLAYER HAS TO PLAY SEVERAL THINGS OR PREPARE THEM IN ADVANCE
-(defmethod player-play-object ((player omplayer) obj caller &key parent interval) 
+(defmethod player-play-object ((player omplayer) obj caller &key parent interval)
   (declare (ignore parent))
   (setf (caller player) caller)
   (player-schedule-tasks player obj (get-action-list-for-play obj interval)))
@@ -140,41 +140,41 @@
 
   (cond ((equal (state player) :play)
          (setf (stop-time player) (max (stop-time player) (or end-t 0))))
-        
-        (t 
+
+        (t
          (when end-t (setf (stop-time player) end-t))
          (when (callback-process player)
            (om-kill-process (callback-process player)))
          (when (scheduling-process player)
            (om-kill-process (scheduling-process player)))
-  
+
          (setf (scheduling-process player)
                (om-run-process "player scheduling"
+                               #'(lambda ()
+                                   (loop
+                                    (loop while (and (events player) (>= (player-get-time player) (car (car (events player))))) do
+                                          (funcall (cdr (pop (events player)))))
+                                    (when (and (stop-time player) (> (player-get-time player) (stop-time player)))
+                                      (if (loop-play player) (player-loop player) (player-stop player)))
+                                    (sleep (scheduler-tick player))
+                                    ))
+                               :priority 80000000))
+
+         (when (callback-fun player)
+           (setf (callback-process player)
+                 (om-run-process "player caller callback"
                                  #'(lambda ()
                                      (loop
-                                      (loop while (and (events player) (>= (player-get-time player) (car (car (events player))))) do
-                                            (funcall (cdr (pop (events player)))))
-                                      (when (and (stop-time player) (> (player-get-time player) (stop-time player)))
-                                        (if (loop-play player) (player-loop player) (player-stop player)))
-                                      (sleep (scheduler-tick player))
+                                      (funcall (callback-fun player) (caller player) (player-get-time player))
+                                      (sleep (callback-tick player))
                                       ))
-                                 :priority 80000000))
-           
-         (when (callback-fun player)
-             (setf (callback-process player)
-                   (om-run-process "player caller callback"
-                                   #'(lambda ()
-                                       (loop 
-                                        (funcall (callback-fun player) (caller player) (player-get-time player))
-                                        (sleep (callback-tick player))
-                                        ))
-                                   :priority 10)
-                   ))
-         
+                                 :priority 10)
+                 ))
+
          (setf (state player) :play
                (start-time player) start-t
                (ref-clock-time player) (clock-time))
-           
+
            ;(om-delayed-funcall stop-time #'player-stop player obj)
          )
         ))
@@ -223,8 +223,8 @@
 ;;; CALLED TO START RECORD WITH PLAYER
 (defmethod player-start-record ((player omplayer))
   (if (equal (state player) :stop)
-    (progn
-      (setf (state player) :record))
+      (progn
+        (setf (state player) :record))
     (om-beep)))
 
 ;;; CALLED TO STOP RECORD WITH PLAYER
@@ -247,8 +247,8 @@
 ;;; SPECIFIES SOMETHING TO BE PLAYED ATHER A GIVEN DELAY (<at>) PAST THE CALL TO PLAYER-START
 ;;; THE DEFAULT BEHAVIOUR IS TO SCHEDULE 'player-play-object' AT DELAY
 (defmethod prepare-to-play ((engine t) (player omplayer) object at interval params)
-  (schedule-task player 
-                 #'(lambda () 
+  (schedule-task player
+                 #'(lambda ()
                      (player-play-object engine object :interval interval :params params))
                  at))
 
@@ -298,7 +298,7 @@
 (defmethod player-record-stop ((engine t))
   ;(print (format nil "~A : record stop" engine))
   nil)
-  
+
 |#
 
 

@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -18,7 +18,7 @@
 (in-package :om)
 
 ;;;=========
-; USER FILES 
+; USER FILES
 ;;;=========
 
 (defun default-folder (name &optional reference-path)
@@ -47,7 +47,7 @@
 (add-preference :files :delete-tmp-files "Auto-cleanup temporary files" :bool nil)
 (add-preference :files :file-exists-ation "If Output File Exists..." '(replace auto-rename) 'replace)
 
-(add-preference-section :files "Search path" 
+(add-preference-section :files "Search path"
                         '("Search paths are used to find embedded sub-patches / abstractions when loading patches." "Empty/NIL means that the search is only relative to the top-level patch."))
 (add-preference :files :search-path "Main search folder" :folder nil)
 (add-preference :files :search-path-2 "Search folder #2" :folder nil)
@@ -77,7 +77,7 @@ Ex. (infile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/b
                                        (list! subdirs))
                     :host (and (get-pref-value :files :in-file) (pathname-host (get-pref-value :files :in-file)))
                     :name (pathname-name name) :type (or type (pathname-type name))))
-  
+
 (defmethod* infile ((name null) &key (subdirs nil) (type nil))
   (declare (ignore type))
   (om-make-pathname :directory (append (pathname-directory (get-pref-value :files :in-file)) (list! subdirs))
@@ -99,8 +99,8 @@ Ex. (outfile \"myfile.midi\") ==> #P\"/Users/bresson/om-outfiles/myfile.midi\"
 Ex. (outfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/bresson/om-outfiles/folder1/folder2/myfile.midi\"
 "
   (om-make-pathname :directory (append (pathname-directory (get-pref-value :files :out-file)) (list! subdirs))
-                 :host (pathname-host (get-pref-value :files :out-file))
-                 :name (pathname-name name) :type (or type (pathname-type name))))
+                    :host (pathname-host (get-pref-value :files :out-file))
+                    :name (pathname-name name) :type (or type (pathname-type name))))
 
 (defmethod* outfile ((name null) &key (subdirs nil) (type nil))
   (declare (ignore type))
@@ -123,7 +123,7 @@ The TMP FILES directory can be set in the Preferences. It is used as a default l
 Ex. (tmpfile \"myfile.midi\") ==> #P\"/Users/bresson/om-tmpfiles/myfile.midi\"
 Ex. (tmpfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/bresson/om-tmpfiles/folder1/folder2/myfile.midi\"
 "
-  (om-make-pathname :directory (append (pathname-directory (get-pref-value :files :tmp-file)) (list! subdirs)) 
+  (om-make-pathname :directory (append (pathname-directory (get-pref-value :files :tmp-file)) (list! subdirs))
                     :host (pathname-host (get-pref-value :files :tmp-file))
                     :name (pathname-name name) :type (or type (pathname-type name))))
 
@@ -146,8 +146,8 @@ Ex. (tmpfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/
   (when *tmpparfiles*
     (om-print "Removing files:")
     (loop for file in *tmpparfiles* do (when (and file (probe-file file))
-                                       (om-print (format nil "   ~s" file))
-                                       (om-delete-file file)))
+                                         (om-print (format nil "   ~s" file))
+                                         (om-delete-file file)))
     (setf *tmpparfiles* nil)))
 
 (defun maybe-clean-tmp-files ()
@@ -159,26 +159,26 @@ Ex. (tmpfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/
 ;;; SEARCH PATH
 ;;;===================================
 (defun search-in-search-path (path folder)
-  (and folder 
-       (find-file-in-folder (pathname-name path) folder 
-                            :type (pathname-type path) 
-                            :recursive (get-pref-value :files :search-path-rec) 
+  (and folder
+       (find-file-in-folder (pathname-name path) folder
+                            :type (pathname-type path)
+                            :recursive (get-pref-value :files :search-path-rec)
                             :return-all t)))
 
 (defun check-path-using-search-path (path)
-      
+
   (or (probe-file path)
-  
-      (let ((found-matches (append 
+
+      (let ((found-matches (append
                             (search-in-search-path path (get-pref-value :files :search-path))
                             (search-in-search-path path (get-pref-value :files :search-path-2))
                             (search-in-search-path path (get-pref-value :files :search-path-3))
                             (search-in-search-path path (get-pref-value :files :search-path-4))
                             )))
-          
+
         (when (> (length found-matches) 1)
           (om-beep-msg "Warning: several candidates were found in the search path folder for file ~A.~A !!" (pathname-name path) (pathname-type path)))
-        
+
         (car found-matches)
         ))
   )
@@ -233,8 +233,8 @@ Ex. (tmpfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/
   :icon :folder
   :initvals '(file existing desktop nil)
   :indoc '("file or directory" "new or existing" "pathname" "prompt for the dialog")
-  :menuins '((0 (("file" file) ("directory" directory))) 
-             (1 (("new" new) ("existing" existing))) 
+  :menuins '((0 (("file" file) ("directory" directory)))
+             (1 (("new" new) ("existing" existing)))
              (2 (("home" home) ("desktop" desktop) ("other" nil))))
   :doc "Pops up a file or directory chooser dialog.
 
@@ -245,7 +245,7 @@ Ex. (tmpfile \"myfile.midi\" :subdirs '(\"folder1\" \"folder2\") ==> #P\"/Users/
 
 Returns the selected pathname or NIL if cancelled."
 
-  (let ((initfolder 
+  (let ((initfolder
          (cond ((equal initial-folder 'home) (om-user-home))
                ((equal initial-folder 'desktop) (om-make-pathname :directory (append (pathname-directory (om-user-home)) '("Desktop"))))
                (t (if (equal mode 'new) *last-saved-dir* *last-loaded-dir*))))
@@ -260,7 +260,7 @@ Returns the selected pathname or NIL if cancelled."
                 ((and (equal type 'directory) (equal mode 'new))
                  (om-choose-new-directory-dialog :prompt message :directory initfolder)))
           )
-    (if rep 
+    (if rep
         (setf *last-loaded-dir* (om-make-pathname :directory rep))
       (om-abort))
     rep))

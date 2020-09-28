@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; Author: D. Bouche
@@ -30,10 +30,10 @@
             ; (lambda (a stream)
             ;   (print-unreadable-object (a stream :type t :identity t)
             ;     (princ `(:value ,(ap-y a) :at ,(ap-x a) :ms) stream))))
-            (:conc-name ap-))
+                             (:conc-name ap-))
   (coeff 0.5)
   (fun nil)
-  (lock nil)) 
+  (lock nil))
 
 (defmethod item-get-time ((self automation-point)) (om-point-x self))
 (defmethod item-set-time ((self automation-point) time) (setf (ap-x self) time))
@@ -85,7 +85,7 @@
 
 ;;;Property list (like bpf but hidden interpolation)
 (defmethod get-properties-list ((self automation))
-  (hide-properties 
+  (hide-properties
    (call-next-method)
    '(:interpol)))
 
@@ -155,17 +155,17 @@
                                                    (or y (y-values-from-points self)) ;  (slot-value self 'y-points))
                                                    (decimals self)
                                                    'om-make-automationpoint))
-  
+
   ;;; verify this c-cpoints slot management...
   (loop for coeff in (slot-value self 'c-points)
         for pt in (point-list self)
         do (setf (ap-coeff pt) coeff))
-  
+
   (setf (slot-value self 'x-points) NIL)
   (setf (slot-value self 'y-points) NIL))
 
 (defmethod om-point-mv ((point automation-point) &key x y)
-  (if (and x (not (ap-lock point))) 
+  (if (and x (not (ap-lock point)))
       (setf (ap-x point) (+ (ap-x point) x)))
   (if y (setf (ap-y point) (+ (ap-y point) y)))
   point)
@@ -173,8 +173,8 @@
 ;;;Refresh points functions (useful?)
 (defmethod refresh-automation-points ((self automation))
   (loop for pt in (point-list self)
-          do
-          (setf (ap-fun pt) (get-function pt self))))
+        do
+        (setf (ap-fun pt) (get-function pt self))))
 
 ;;;Get next point
 (defmethod next-point ((self automation) (pt automation-point))
@@ -200,32 +200,32 @@
                          (reduce #'max points :key 'start-value)))
       (when (= (car ranges) (cadr ranges) (setf (cadr ranges) (+ (cadr ranges) 1000))))
       (setq step (/ (- (cadr ranges) (car ranges)) npts))
-      (multiple-value-bind (fx ox) 
+      (multiple-value-bind (fx ox)
           (conversion-factor-and-offset (car ranges) (cadr ranges) w x)
-        (multiple-value-bind (fy oy) 
-            ;;; Y ranges are reversed !! 
+        (multiple-value-bind (fy oy)
+            ;;; Y ranges are reversed !!
             (conversion-factor-and-offset (cadddr ranges) (caddr ranges) h y)
           (om-with-fg-color (om-def-color :gray)
             (loop for pt in points
-                  do 
+                  do
                   (progn
                     (om-draw-circle (+ ox (* fx (start-date pt)))
                                     (+ oy (* fy (start-value pt)))
-                                    3 :fill t)                    
-                    (let (val lastti) 
+                                    3 :fill t)
+                    (let (val lastti)
                       (loop with prevvi = (start-value pt)
                             for ti from (+ step (start-date pt)) to (end-date pt self)
                             by step
                             do
-                            (om-draw-line (+ ox (* fx (- ti step))) 
-                                          (+ oy (* fy prevvi))  
+                            (om-draw-line (+ ox (* fx (- ti step)))
+                                          (+ oy (* fy prevvi))
                                           (+ ox (* fx ti))
                                           (+ oy (* fy (setq val (funcall (fun pt self) ti)))))
                             (setq prevvi val
                                   lastti ti))
                       (if (and lastti val)
-                          (om-draw-line (+ ox (* fx lastti)) 
-                                        (+ oy (* fy val))  
+                          (om-draw-line (+ ox (* fx lastti))
+                                        (+ oy (* fy val))
                                         (+ ox (* fx (end-date pt self)))
                                         (+ oy (* fy (end-value pt self))))))
                     ))))))))

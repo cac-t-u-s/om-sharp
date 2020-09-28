@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -32,11 +32,11 @@
    (selection :accessor selection :initform nil)))
 
 
-;;; redefinition of the window slot accessor 
+;;; redefinition of the window slot accessor
 (defmethod window ((self OMEditor))
   (or (slot-value self 'window)
-      (and (container-editor self) 
-           (not (equal self (container-editor self))) 
+      (and (container-editor self)
+           (not (equal self (container-editor self)))
            ;;; in the sequencer editor, the editor is its own container..
            (window (container-editor self)))))
 
@@ -45,7 +45,7 @@
 ;;; EDIT-PARAMS
 ;;;=============================
 
-(defclass object-with-edit-params () 
+(defclass object-with-edit-params ()
   ((edition-params :initform nil :accessor edition-params :initarg :edition-params)))
 
 (defmethod get-edit-param ((self object-with-edit-params) param)
@@ -61,7 +61,7 @@
 
 
 
-;;; this is useful to open the editor of something that is not necessarily in a box 
+;;; this is useful to open the editor of something that is not necessarily in a box
 ;;; serves as the 'object' of the editor
 (defclass OMAbstractContainer (ObjectWithEditor object-with-edit-params)
   ((contents :initarg :contents :initform nil :accessor contents)))
@@ -73,7 +73,7 @@
 (defmethod get-value-for-editor ((self OMAbstractContainer)) (contents self))
 
 (defmethod object-value ((self OMEditor))
-  (cond 
+  (cond
    ((object self) (get-value-for-editor (object self)))
    ((container-editor self) (object-value (container-editor self)))
    (t nil)
@@ -86,38 +86,38 @@
 (defclass OMDocumentEditor (OMEditor) ())
 
 (defmethod save-command ((self OMDocumentEditor))
-  #'(lambda () 
-      (let ((doc-to-save (if (is-persistant (object self)) 
-                               (object self)
-                             (find-persistant-container (object self)))))
+  #'(lambda ()
+      (let ((doc-to-save (if (is-persistant (object self))
+                             (object self)
+                           (find-persistant-container (object self)))))
         (if doc-to-save
-            (progn 
-                (save-document doc-to-save)
-                (update-window-name (editor doc-to-save)))
-            (om-beep-msg "No container document to save !!!"))
-          )))
+            (progn
+              (save-document doc-to-save)
+              (update-window-name (editor doc-to-save)))
+          (om-beep-msg "No container document to save !!!"))
+        )))
 
-(defmethod save-as-menu-name ((self OMDocumentEditor)) 
+(defmethod save-as-menu-name ((self OMDocumentEditor))
   (if (is-persistant (object self)) "Save as..." "Externalize..."))
 
 (defmethod externalized-type ((self t)) nil)
 
 (defmethod save-as-command ((self OMDocumentEditor))
- (let ((doc (object self)))
-   (if (is-persistant doc)
-      ;;; rename/resave the doc
-      #'(lambda ()
-          (let ((sg-pathname (mypathname doc)))
-            (setf (mypathname doc) nil)
-            (if (save-document doc)   ;; set name is done here in save-document
-                (update-window-name self)
-              (setf (mypathname doc) sg-pathname)))
-          )
-      
+  (let ((doc (object self)))
+    (if (is-persistant doc)
+        ;;; rename/resave the doc
+        #'(lambda ()
+            (let ((sg-pathname (mypathname doc)))
+              (setf (mypathname doc) nil)
+              (if (save-document doc)   ;; set name is done here in save-document
+                  (update-window-name self)
+                (setf (mypathname doc) sg-pathname)))
+            )
+
       ;;; create a persistant patch if the type exists
       (when (externalized-type doc)
         #'(lambda ()
-            (change-class doc (externalized-type doc) 
+            (change-class doc (externalized-type doc)
                           :icon (externalized-icon doc))
             (setf (create-info doc) (list (om-get-date) (om-get-date) *app-name* *version*))
             (register-document doc)
@@ -128,7 +128,7 @@
 
 (defmethod revert-command ((self OMDocumentEditor))
   (and (is-persistant (object self)) (mypathname (object self))
-       #'(lambda () 
+       #'(lambda ()
            (with-no-check (om-close-window (window self)))
            (open-doc-from-file (object-doctype (object self)) (mypathname (object self)))
            )))
@@ -137,7 +137,7 @@
 
 ;;;=============================
 
-(defclass OMEditorWindow (om-window) 
+(defclass OMEditorWindow (om-window)
   ((editor :initarg :editor :initform nil :accessor editor)
    (side-panel :initarg :side-panel :initform nil :accessor side-panel)))
 
@@ -171,7 +171,7 @@
 
 ;;; Close the editor for the object
 (defmethod close-editor ((self ObjectWithEditor))
-  (when (editor-window self) 
+  (when (editor-window self)
     (om-close-window (editor-window self))) ;;; will call "close-editor" from the callback
   t)
 
@@ -184,11 +184,11 @@
 ;;; <value-changed> specifies if the object value has changed, typically to decide wether or not to invalidate display, lock the box, etc.
 ;;; you don't wan to set it true, for instance, if this is just a graphical update (e.g. window size)
 ;;; <reactive> specifies if this change should be a candidate for triggering reactive updates
-;;; you don't want to set it true, e.g. with changes that happen too frequently (e.g. results of move-drag actions).  
-(defmethod update-from-editor ((self ObjectWithEditor) &key (value-changed t) (reactive t)) 
+;;; you don't want to set it true, e.g. with changes that happen too frequently (e.g. results of move-drag actions).
+(defmethod update-from-editor ((self ObjectWithEditor) &key (value-changed t) (reactive t))
   (declare (ignore value-changed reactive)) nil)
 
-(defmethod update-from-editor ((self t) &key (value-changed t) (reactive t)) 
+(defmethod update-from-editor ((self t) &key (value-changed t) (reactive t))
   (declare (ignore value-changed reactive)) nil)
 
 
@@ -239,11 +239,11 @@
     (let* ((size (or (window-size (object self))
                      (editor-window-init-size self)))
            (win (om-make-window (editor-window-class self)
-                                :editor self 
+                                :editor self
                                 :size size
                                 :position (window-pos (object self))
                                 :title (editor-window-title self)
-                                :win-layout 'om-simple-layout 
+                                :win-layout 'om-simple-layout
                                 :border 0
                                 :menu-items (om-menu-items self))))
       ;;; something strange going on during window creation, resize happening
@@ -257,7 +257,7 @@
         (om-set-focus (get-g-component self :main-panel)))
       )))
 
-;;; the g-component p-list allows to store and access 
+;;; the g-component p-list allows to store and access
 ;;; views and dialog items related to the editor
 (defmethod set-g-component ((self OMEditor) name comp)
   (setf (getf (g-components self) name) comp))
@@ -267,14 +267,14 @@
 
 ;;; callback called when anything closes the window
 ;;; called by the close-window event
-(defmethod editor-close ((self t)) nil) 
+(defmethod editor-close ((self t)) nil)
 
-(defmethod editor-close ((self OMEditor)) 
+(defmethod editor-close ((self OMEditor))
   (call-next-method)
   (setf (editor (object self)) nil))
 
 ;;; callback called when the window is brought to front or back
-(defmethod editor-activate ((self OMEditor) t-or-nil) 
+(defmethod editor-activate ((self OMEditor) t-or-nil)
   (if t-or-nil (update-inspector-for-editor self)
     ;;; (release-inspector self) ;; can remove this
     ))
@@ -286,28 +286,28 @@
 (defmethod report-modifications ((self null)) t)
 
 (defmethod report-modifications ((self OMEditor))
-  
+
   ;;; update the object
   (update-from-editor (object self))
-  
-  ;;; update the context (in case of embedded editors) 
+
+  ;;; update the context (in case of embedded editors)
   (when (and (container-editor self)
              (not (equal self (container-editor self)))) ;;; the sequencer-editor is its own container... :(
     (update-to-editor (container-editor self) self)
     (report-modifications (container-editor self)))
 
-  (when (related-editors self) 
+  (when (related-editors self)
     (loop for ed in (related-editors self) do
           (update-to-editor ed self)))
   ;;; window title
   (update-window-name self))
 
 ;;; called by the object to notify a change to the editor
-(defmethod update-to-editor ((self OMEditor) (from t)) 
+(defmethod update-to-editor ((self OMEditor) (from t))
   ;(print (list "update" self "from" from))
   (update-window-name self))
 
-(defmethod update-default-view ((self OMEditor)) 
+(defmethod update-default-view ((self OMEditor))
   (when (get-g-component self :default-view)
     (update-view-contents (get-g-component self :default-view))))
 
@@ -330,7 +330,7 @@
         t)
     (om-beep-msg (format nil "Elements of type ~A not allowed in ~A" (type-of elem) (type-of (object self))))
     ))
-      
+
 (defmethod omNG-remove-element ((self OMEditor) elem)
   (if (allow-remove (object self) elem)
       (progn
@@ -359,7 +359,7 @@
   #-macosx(and (om-shift-key-p) (om-command-key-p)))
 
 ;;;====================
-;;; EDITOR VIEW 
+;;; EDITOR VIEW
 ;;; the main-view of the editor should be an editor view (?)
 ;;;====================
 
@@ -371,12 +371,12 @@
   (om-invalidate-view self))
 
 ;;;====================
-;;; EDITOR WINDOW 
+;;; EDITOR WINDOW
 ;;;====================
 
 (defmethod build-editor-window ((editor OMEditor))
   (let ((win (window editor)))
-    (when win 
+    (when win
       (om-remove-all-subviews win)
       (multiple-value-bind (contents main)
           (make-editor-window-contents editor)
@@ -394,8 +394,8 @@
 ;;; can be called in redefinitions of make-editor-window-contents
 (defmethod make-default-editor-view ((editor OMEditor))
   (when (with-default-components editor)
-    (apply 'om-make-view 
-           (append (list 
+    (apply 'om-make-view
+           (append (list
                     (editor-view-class editor)
                     :direct-draw (editor-view-drawable editor)
                     :editor editor
@@ -404,7 +404,7 @@
            )))
 
 ;;; not very clean...
-;(defmethod build-editor-window :after (editor) 
+;(defmethod build-editor-window :after (editor)
 ;  (when (main-view editor)
 ;    (om-view-resized (main-view editor) (om-view-size (main-view editor)))))
 
@@ -417,8 +417,8 @@
   (setf (window (editor self)) nil)
   (setf (g-components (editor self)) nil))
 
-(defmethod om-window-check-before-close ((self OMEditorWindow)) 
-  ;(print (list "close" self)) 
+(defmethod om-window-check-before-close ((self OMEditorWindow))
+  ;(print (list "close" self))
   (and (ask-save-before-close (object (editor self)))
        (call-next-method)))
 
@@ -459,13 +459,13 @@
   (cond ((and (om-shift-key-p) new-selection)
          (if (find new-selection (selection editor))
              (setf (selection editor) (remove new-selection (selection editor)))
-           (progn 
+           (progn
              (setf (selection editor) (cons new-selection (selection editor)))
              )))
-        (t 
-         (unless (find new-selection (selection editor)) 
+        (t
+         (unless (find new-selection (selection editor))
            (setf (selection editor) (and new-selection (list new-selection))))))
-  (when (container-editor editor) 
+  (when (container-editor editor)
     (update-to-editor (container-editor editor) editor)
     ))
 
@@ -492,10 +492,10 @@
   `(("" (:value "Value" :text read-only))))
 
 (defmethod get-properties-list ((self list))
-  (list (cons "list elements" 
+  (list (cons "list elements"
               (loop for i from 0 to (min 100 (1- (length self)))
                     collect (list (intern-k (format nil "elt~D" i))
-                                  (format nil "#~D" i) :text 
+                                  (format nil "#~D" i) :text
                                   i)))))
 
 
@@ -505,14 +505,14 @@
   (let* ((ed (editor self))
          (object (object-value ed)))
 
-    (om-add-subviews 
-     self 
-     (om-make-layout 
+    (om-add-subviews
+     self
+     (om-make-layout
       'om-column-layout
       :delta 0
       :subviews (loop for category in (get-properties-list object)
-                      append (append 
-                              (list 
+                      append (append
+                              (list
                                (let ((font (om-def-font :font2b)))
                                  (om-make-di 'om-simple-text :text (car category) :font font
                                              :size (apply #'om-make-point (multiple-value-list (om-string-size (car category) font)))
@@ -520,7 +520,7 @@
                                )
                               (loop for prop in (cdr category) append
                                     (list (om-make-di 'om-simple-text :text (nth 1 prop) :font (om-def-font :font1b)
-                                                      :size (om-make-point 120 18)) 
+                                                      :size (om-make-point 120 18))
                                           (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop) :update self)
                                           (om-make-di 'om-simple-text :size (om-make-point 20 4) :text "" :focus t)))))))))
 
@@ -542,11 +542,11 @@
 
 
 #|
-(defclass test-class () 
+(defclass test-class ()
   ((a :initform nil :initarg :a :accessor a)
    (b :initform "qdfqsdf" :initarg :b :accessor b)
    (c :initform nil :initarg :c :accessor c)))
-   
+
 (defmethod get-properties-list ((self test-class))
   '(("class attibutes"
      (:a "Color" :color a)
@@ -562,17 +562,17 @@
 
 (defmethod editor-help-list ((self omeditor)) nil)
 
-(defmethod help-command ((self omeditor)) 
+(defmethod help-command ((self omeditor))
   (when (editor-help-list self)
     #'(lambda ()
         (om-print-format "~%~%----------------------------------")
         (om-print-format "HELP FOR ~S:" (list (type-of self)))
-        (om-print-format "~a v.~a" (list *app-name* *version-string*))  
+        (om-print-format "~a v.~a" (list *app-name* *version-string*))
         (om-print-format "----------------------------------")
         (loop for elt in (editor-help-list self) do
               (om-print-format ". ~A = ~a" (list (car elt) (cadr elt))))
         (om-print-format "----------------------------------~%~%")
-        
+
         )))
 
 

@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -19,7 +19,7 @@
 
 (defun midi-get-ports-settings ()
   (let ((newsetup (om-midi::portmidi-setup (get-pref-value :midi :ports))))
-    (when newsetup 
+    (when newsetup
       (set-pref :midi :ports newsetup)
       t)))
 
@@ -37,10 +37,10 @@
 
 (add-preference :midi :ports "Configuration" :action 'midi-setup)
 
-(add-preference :midi :out-port "Default output port" (make-number-in-range :min 0 :max 99 :decimals 0) 
+(add-preference :midi :out-port "Default output port" (make-number-in-range :min 0 :max 99 :decimals 0)
                 0 ;; default value
                 "Used for sending MIDI events/notes when port = NIL")
-(add-preference :midi :in-port "Default input port" (make-number-in-range :min 0 :max 99 :decimals 0) 
+(add-preference :midi :in-port "Default input port" (make-number-in-range :min 0 :max 99 :decimals 0)
                 0 ;; default value
                 "Used for default MIDI inputs")
 
@@ -66,13 +66,13 @@
   (add-preference :midi :midi-ch14-color "14" :color (om-def-color :lightpink4))
   (add-preference :midi :midi-ch15-color "15" :color (om-def-color :saddlebrown))
   (add-preference :midi :midi-ch16-color "16" :color (om-def-color :dark-gray))
-  
+
   )
 
 ;; (color::get-all-color-names)
 
 (defun get-midi-channel-color (n)
-  (case n  
+  (case n
     (1 (get-pref-value :midi :midi-ch1-color))
     (2 (get-pref-value :midi :midi-ch2-color))
     (3 (get-pref-value :midi :midi-ch3-color))

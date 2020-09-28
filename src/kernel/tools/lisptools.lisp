@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -25,7 +25,7 @@
 (defconstant *negative-infinity* most-negative-fixnum)
 
 ;;;===========================
-;;; LISTS 
+;;; LISTS
 ;;;===========================
 
 (defun list! (thing) (if (listp thing) thing (list thing)))
@@ -37,53 +37,53 @@
 (defun min? (a b) (if a (if b (min a b) a) b))
 
 (defun firstn (list  n )
-   (cond
-    ((< (length list)  n) list )
-    (t  (butlast  list (- (length list) n)))))
+  (cond
+   ((< (length list)  n) list )
+   (t  (butlast  list (- (length list) n)))))
 
 (defun replace-in-list (list elem pos)
-   (let* ((first-list (subseq list 0 pos))
-          (second-list (subseq list (+ pos 1))))
-     (append first-list (list elem) second-list)))
+  (let* ((first-list (subseq list 0 pos))
+         (second-list (subseq list (+ pos 1))))
+    (append first-list (list elem) second-list)))
 
 (defun insert-in-list (list elem pos)
   (if (> pos (- (length list) 1))
       (append list (list elem))
-    (append (subseq list 0 pos) 
-            (list elem) 
+    (append (subseq list 0 pos)
+            (list elem)
             (subseq list pos))))
 
 (defun erase-n (list pos)
-   (loop for item in list
-         for i = 0 then (+ i 1)
-         when (not (= i pos)) collect item))
+  (loop for item in list
+        for i = 0 then (+ i 1)
+        when (not (= i pos)) collect item))
 
 ;; pos = a list of indices
 (defun erase-nn (list pos)
-   (loop for item in list
-         for i = 0 then (+ i 1)
-         when (not (member i pos)) collect item))
-  
+  (loop for item in list
+        for i = 0 then (+ i 1)
+        when (not (member i pos)) collect item))
+
 (defun list-typep (list typeList)
-   "Checks if every elt in 'list' belongs to one of the types in 'typelist'"
+  "Checks if every elt in 'list' belongs to one of the types in 'typelist'"
   (every #'(lambda (elt) (some #'(lambda (type) (equal (type-of elt) type)) (list! typelist))) list))
 
 (defun list-subtypep (list typeList)
-   "Checks if every elt in 'list' belongs to one of the subtypes in 'typelist'"
-   (every #'(lambda (elt) (some #'(lambda (type) (subtypep (type-of elt) type)) (list! typelist))) list))
+  "Checks if every elt in 'list' belongs to one of the subtypes in 'typelist'"
+  (every #'(lambda (elt) (some #'(lambda (type) (subtypep (type-of elt) type)) (list! typelist))) list))
 
-(defun next-in-list (list item &optional (circular t)) 
+(defun next-in-list (list item &optional (circular t))
   (let* ((pos (position item list)))
-    (if circular 
+    (if circular
         (let ((newpos (if pos (mod (1+ pos) (length list)) 0)))
           (nth newpos list))
-      (when pos 
+      (when pos
         (nth (1+ pos) list))
       )))
 
-(defun previous-in-list (list item &optional (circular t)) 
+(defun previous-in-list (list item &optional (circular t))
   (let* ((pos (position item list)))
-    (if circular 
+    (if circular
         (let ((newpos (if pos (mod (1- pos) (length list)) 0)))
           (nth newpos list))
       (when (and pos (> pos 0))
@@ -102,12 +102,12 @@
 
 (defun quoted-form-p (form)
   (and (consp form)
-        (eq (%car form) 'quote)
-        (consp (%cdr form))
-        (null (%cdr (%cdr form)))))
+       (eq (%car form) 'quote)
+       (consp (%cdr form))
+       (null (%cdr (%cdr form)))))
 
 (defun lambda-expression-p (form)
-   (and (consp form)
+  (and (consp form)
        (eq (%car form) 'lambda)
        (consp (%cdr form))
        (listp (%cadr form))))
@@ -115,33 +115,33 @@
 ;push item in place but in the last position
 (defmacro pushr (item place)
   `(if ,place
-     (setf (cdr (last ,place)) (cons ,item nil))
+       (setf (cdr (last ,place)) (cons ,item nil))
      (setf ,place (list ,item))))
 
 (defmacro insert-in-order (object list &key (key #'identity) (test '<))
   `(let ((p (position (funcall ,key ,object) ,list :test ',test :key ,key)))
      (if (not p)
          (nconc ,list (list ,object))
-       (if (= p 0) 
+       (if (= p 0)
            (push ,object ,list)
          (push ,object (nthcdr p ,list))))
      ,list))
 
 (defmacro filter-list (list from to &key (key #'identity))
-  `(remove-if #'(lambda (element) 
-                 (or (< (funcall ,key element) ,from)
-                     (>= (funcall ,key element) ,to)))
-             ,list))
+  `(remove-if #'(lambda (element)
+                  (or (< (funcall ,key element) ,from)
+                      (>= (funcall ,key element) ,to)))
+              ,list))
 
 (defun in-interval (n interval &key exclude-low-bound exclude-high-bound)
-  (and (funcall (if exclude-low-bound '> '>=) n (car interval)) 
+  (and (funcall (if exclude-low-bound '> '>=) n (car interval))
        (funcall (if exclude-high-bound '< '<=) n (cadr interval))))
 
 
 (defun closest-match (value list &key (key #'identity))
   (let ((rep (car list))
         (min (abs (- value (funcall key (car list))))))
-    (loop for elt in (cdr list) 
+    (loop for elt in (cdr list)
           do
           (let ((diff (abs (- value (funcall key elt)))))
             (when (< diff min)
@@ -177,13 +177,13 @@
 
 ;; '(:key1 :val1 :key2 :val2 ...)
 (defun find-value-in-arg-list (list key)
-    (let ((pos (position key list :test 'equal)))
-      (and pos (nth (1+ pos) list))))
+  (let ((pos (position key list :test 'equal)))
+    (and pos (nth (1+ pos) list))))
 ;;; => GETF
 
 (defun set-value-in-arg-list (list key value)
   (let ((pos (position key list :test 'equal)))
-    (if pos 
+    (if pos
         (setf (nth (1+ pos) list) value)
       (setf list (append list (list key value))))
     ))
@@ -193,7 +193,7 @@
   (cadr (find key list :test 'equal :key 'car)))
 
 (defun set-value-in-kv-list (list key value)
-  (if list 
+  (if list
       (let ((kv (find key list :test 'equal :key 'car)))
         (if kv (setf (cadr kv) value)
           (push (list key value) list))
@@ -220,21 +220,21 @@
 (defun function-arg-list (fun)
   (remove-if #'(lambda (item) (member item lambda-list-keywords :test 'equal)) (function-arglist fun)))
 
-(defun function-main-args (fun) 
-  (loop for item in (function-arglist fun) 
-        while (not (member item lambda-list-keywords :test 'equal)) 
+(defun function-main-args (fun)
+  (loop for item in (function-arglist fun)
+        while (not (member item lambda-list-keywords :test 'equal))
         collect item))
 
 (defun function-n-args (fun)
   (length (function-main-args fun)))
 
-(defun function-optional-args (fun) 
+(defun function-optional-args (fun)
   (let ((al (function-arglist fun)))
     (when (find '&optional al)
       (subseq al (1+ (position '&optional al))
               (position (remove '&optional lambda-list-keywords) al :test #'(lambda (a b) (find b a)))))))
-  
-(defun function-keyword-args (fun) 
+
+(defun function-keyword-args (fun)
   (let ((al (function-arglist fun)))
     (when (find '&key al)
       (subseq al (1+ (position '&key al))
@@ -247,62 +247,62 @@
           (when (equal (pop args) '&key)
             (setf rep t)))
     (setf rep nil)
-    (loop for item in args 
+    (loop for item in args
           while (not (member item lambda-list-keywords :test 'equal)) do
           (push (if (listp item) (car item) item) rep))
     (reverse rep)))
 
 (defun get-optional-fun (fun)
- (let ((args (function-arglist fun))
-       rep)
-   (loop while (and args (not rep)) do
-         (when (equal (pop args) '&optional)
-           (setf rep t)))
-   (setf rep nil)
-   (loop for item in args
-         while (not (member item lambda-list-keywords :test 'equal)) do
-         (push (if (listp item) (car item) item) rep))
-   (reverse rep)))
+  (let ((args (function-arglist fun))
+        rep)
+    (loop while (and args (not rep)) do
+          (when (equal (pop args) '&optional)
+            (setf rep t)))
+    (setf rep nil)
+    (loop for item in args
+          while (not (member item lambda-list-keywords :test 'equal)) do
+          (push (if (listp item) (car item) item) rep))
+    (reverse rep)))
 
 
 (defun valued-val (val)
-   (if (or (symbolp val) 
-           (and (consp val) 
-                (or (not (symbolp (car val))) 
-                    (not (fboundp (car val))))))
-       val 
-     (eval val)))
+  (if (or (symbolp val)
+          (and (consp val)
+               (or (not (symbolp (car val)))
+                   (not (fboundp (car val))))))
+      val
+    (eval val)))
 
 ;=======================
 ; POSITION
 ;=======================
 
 (defun interval-intersec (int1 int2)
-   (when (and int2 int1)
-     (let ((x1 (max (car int1) (car int2)))
-           (x2 (min (cadr int1) (cadr int2))))
-       (if (<= x1 x2)
-         (list x1 x2)))))
+  (when (and int2 int1)
+    (let ((x1 (max (car int1) (car int2)))
+          (x2 (min (cadr int1) (cadr int2))))
+      (if (<= x1 x2)
+          (list x1 x2)))))
 
 ;; each rect = (left top right bottom)
 (defun rect-intersec (rect1 rect2)
   (let* ((tx (max (first rect1) (first rect2)))
-	 (ty (max (second rect1) (second rect2)))
-	 (t2x (min (third rect1) (third rect2)))
+         (ty (max (second rect1) (second rect2)))
+         (t2x (min (third rect1) (third rect2)))
          (t2y (min (fourth rect1)  (fourth rect2))))
     (if (or (< t2x tx) (< t2y ty))
-	nil
+        nil
       (list tx ty t2x t2y))))
 
 (defun point-in-interval-p (point interval)
-   (and (<= point (second interval))
-        (>= point (first interval))))
+  (and (<= point (second interval))
+       (>= point (first interval))))
 
 (defun point-in-rectangle-p (point left top right bottom)
-   (let ((x (om-point-x point))
-         (y (om-point-y point)))
-     (and (>= x left) (<= x right)
-          (>= y top) (<= y bottom))))
+  (let ((x (om-point-x point))
+        (y (om-point-y point)))
+    (and (>= x left) (<= x right)
+         (>= y top) (<= y bottom))))
 
 ;=======================
 ; MATH
@@ -320,7 +320,7 @@
 
 (defun average (xs weights?)
   (let ((num 0) (den 0) ampl)
-    (loop while xs do 
+    (loop while xs do
           (setq ampl (or (if (consp weights?) (pop weights?) 1) 1))
           (incf num (* ampl (pop xs)))
           (incf den ampl))
@@ -336,6 +336,6 @@
 
 (defun power-of-two-p (n)
   (or (= n 1) (= n 2)
-      (and (zerop (mod n 2)) 
+      (and (zerop (mod n 2))
            (power-of-two-p (/ n 2)))))
 

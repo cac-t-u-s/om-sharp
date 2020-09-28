@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -21,14 +21,14 @@
 
 (in-package :sdif)
 
-(export '(sdif-init 
+(export '(sdif-init
           sdif-init-cond
           sdif-kill
           sdif-check-file
           sdif-get-pos
           sdif-set-pos
           sdif-get-signature
-          sdif-calculate-padding          
+          sdif-calculate-padding
           )
         :sdif)
 
@@ -82,11 +82,11 @@
     t))
 
 (defun sdif-read-next-signature (sdiff)
-   (let ((temp-ptr (cffi::%foreign-alloc 4)))
+  (let ((temp-ptr (cffi::%foreign-alloc 4)))
      ; (cffi::mem-set 0 sdiff :long)
-     (unwind-protect 
-         (sdif::SdifFGetSignature sdiff temp-ptr))
-     (cffi::foreign-free temp-ptr)))
+    (unwind-protect
+        (sdif::SdifFGetSignature sdiff temp-ptr))
+    (cffi::foreign-free temp-ptr)))
 
 (defun sdif-check-signature (str)
   (and (not (string-equal "" str))
@@ -110,13 +110,13 @@
 #|
 (Sdif-Init "")
 (Sdif-Kill)
-(setf filepath (namestring (capi::prompt-for-file nil))) 
+(setf filepath (namestring (capi::prompt-for-file nil)))
 (setf filepath (namestring filepath))
 (setf sdiffile (Sdif-Open-file filepath :eReadFile))
 (sdif-close-file sdiffile)
 (sdif-check-file filepath)
 (sdif::sdifFreadgeneralheader sdiffile)
-(sdif::sdifFReadAllASCIIChunks sdiffile)  
+(sdif::sdifFReadAllASCIIChunks sdiffile)
 (sdif::sdifFReadFrameHeader sdiffile)
 (sdif::SdifFSkipFrameData sdiffile)
 (setf sign (sdif::SdifFCurrSignature sdiffile))
@@ -133,8 +133,8 @@
 (sdif::sdiffreadmatrixheader sdiffile)
 (sdif::sdiffcurrnbcol sdiffile)
 (sdif::sdiffcurrnbrow sdiffile)
-(sdif::sdiffskipmatrixdata sdiffile) 
-(sdif::sdiffgetsignature sdiffile bytesread) 
+(sdif::sdiffskipmatrixdata sdiffile)
+(sdif::sdiffgetsignature sdiffile bytesread)
 (sdif::sdiffgetpos sdiffile posptr)
 (sys::memref-int (ff::foreign-pointer-address posptr) 0 0 :unsigned-long)
 (defun signature (sdiff ptr)

@@ -7,8 +7,8 @@
 
 ; (test-play-sound)
 
-(defun add-sound-box (view soundfile pos) 
-  (let ((sound (om-init-instance (make-instance 'sound) 
+(defun add-sound-box (view soundfile pos)
+  (let ((sound (om-init-instance (make-instance 'sound)
                                  `((:file ,soundfile)
                                    (:access-from-file nil))))
         (box (omng-make-new-boxcall (find-class 'sound) pos)))
@@ -27,12 +27,12 @@
   (let* ((patch (open-new-document :patch))
          (patchview (main-view (editor patch)))
          (box1 (add-sound-box patchview *soundfile1* (omp 200 200)))
-         (box2 (add-sound-box patchview *soundfile2* (omp 300 200))))           
+         (box2 (add-sound-box patchview *soundfile2* (omp 300 200))))
     (sleep 0.5)
     (play-sound-box box1)
     (play-sound-box box2)
     ))
-   
+
 (defun test-om-spat ()
   (print "test-om-spat")
   (open-doc-from-file :patch "/Users/bresson/SRC/OM7/IRCAM-FORGE/om7-patches/om-spat/om-spat-spat-scene.opat"))

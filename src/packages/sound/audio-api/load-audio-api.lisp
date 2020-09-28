@@ -4,19 +4,19 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
 ;============================================================================
 
 ;;===========================================================================
-; AUDIO API 
+; AUDIO API
 ;;===========================================================================
 (in-package :cl-user)
 
@@ -29,13 +29,13 @@
 
 (defun load-audio-libs ()
 
-  (om-fi::om-load-foreign-library  
+  (om-fi::om-load-foreign-library
    "OMAudioLib"
    `((:macosx ,(om-fi::om-foreign-library-pathname "OMAudioLib.dylib"))
      (:windows ,(om-fi::om-foreign-library-pathname "OMAudioLib.dll"))
      (:linux ,(om-fi::om-foreign-library-pathname "OMAudioLib.so"))))
-  
-;  (om-fi::om-load-foreign-library 
+
+;  (om-fi::om-load-foreign-library
 ;   "LIBSNDFILE"
 ;   `((:macosx ,(om-fi::om-foreign-library-pathname "libsndfile.dylib"))
 ;     (:unix  (:default "libsndfile"))
@@ -43,7 +43,7 @@
 ;                (:default "libsndfile-1")))
 ;     (t (:default "libsndfile"))))
 
-  (om-fi::om-load-foreign-library 
+  (om-fi::om-load-foreign-library
    "LIBSAMPLERATE"
    `((:macosx ,(om-fi::om-foreign-library-pathname "libsamplerate.dylib"))
      (:unix (:default "libsamplerate"))

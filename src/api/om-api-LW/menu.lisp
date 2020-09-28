@@ -1,5 +1,5 @@
 ;=========================================================================
-; OM API 
+; OM API
 ; Multiplatform API for OpenMusic
 ; LispWorks Implementation
 ;=========================================================================
@@ -28,28 +28,28 @@
 (in-package :om-api)
 
 (export '(
-                om-make-menu
-                om-make-menu-comp
-                om-make-menu-item
-                om-set-menu-bar
-                om-get-menu-bar
-                
-                om-pop-up-menu
-                om-open-pop-up-menu
-                
-                om-get-menu-context
-                om-popup-menu-context
-                
-                ) :om-api)
+          om-make-menu
+          om-make-menu-comp
+          om-make-menu-item
+          om-set-menu-bar
+          om-get-menu-bar
+
+          om-pop-up-menu
+          om-open-pop-up-menu
+
+          om-get-menu-context
+          om-popup-menu-context
+
+          ) :om-api)
 
 
-(defun om-set-menu-bar (window menus) 
-  (capi::execute-with-interface 
+(defun om-set-menu-bar (window menus)
+  (capi::execute-with-interface
    window
    #'(lambda () (setf (capi::interface-menu-bar-items window) menus))
    ))
 
-(defun om-get-menu-bar (window) 
+(defun om-get-menu-bar (window)
   (capi::interface-menu-bar-items window))
 
 ;;; Inherits: title - items
@@ -68,13 +68,13 @@
                          ((and (symbolp enabled) (fboundp enabled)) #'(lambda (item) (declare (ignore item)) (funcall enabled)))
                          (enabled #'(lambda (item) (declare (ignore item)) t))
                          (t #'(lambda (item) (declare (ignore item)) nil)))))
-        (make-instance 'om-menu 
-                 :title title 
-                 :callback-type :none
-                 :items (list (om-make-menu-comp items :selection t))
-                 :enabled-function enablefun
-                 )))
-                     
+    (make-instance 'om-menu
+                   :title title
+                   :callback-type :none
+                   :items (list (om-make-menu-comp items :selection t))
+                   :enabled-function enablefun
+                   )))
+
 ;Creates a new leaf menu with the given <title> and <action>.
 (defun om-make-menu-item (title action &key (key nil) (key-mod :default) (enabled t) selected )
   ;(print (list enabled selected))
@@ -87,14 +87,14 @@
                          (selected #'(lambda (item) (declare (ignore item)) t))
                          (t #'(lambda (item) (declare (ignore item)) nil)))))
     (make-instance 'om-menu-item
-                   :title title 
+                   :title title
                    :accelerator (if (and enabled key)
-				    (concatenate 'string 
-						 (cond ((equal key-mod :default)
-							"accelerator-")
-						       (key-mod (concatenate 'string key-mod "-"))
-						       (t ""))
-						 key)
+                                    (concatenate 'string
+                                                 (cond ((equal key-mod :default)
+                                                        "accelerator-")
+                                                       (key-mod (concatenate 'string key-mod "-"))
+                                                       (t ""))
+                                                 key)
                                   nil)
                    :enabled-function enablefun
                    :callback-type :none
@@ -122,9 +122,9 @@
 
 (defun list-to-menu (menu)
   (if (listp menu)
-      (loop for elt in menu collect 
+      (loop for elt in menu collect
             (if (listp elt)
-                (make-instance 
+                (make-instance
                  'capi:menu-component
                  :items (list-to-menu elt)
                  :interaction :multiple-selection)
@@ -139,12 +139,12 @@
 (defvar *menu-context-open* nil)
 
 (defmethod om-context-menu-callback ((self om-graphic-object) x y)
-  
+
   ;;; cancel d&d init
   ;;; ;;; => why ? temporarily removed because it tended to raise other windows on right clicks..
   ;(let ((win (capi::top-level-interface self)))
   ;  (capi::find-interface (type-of win) :name (capi::capi-object-name win)))
-  
+
   (om-activate-callback self t)
 
   (let ((clicked (om-find-view-containing-point self (om-make-point x y))))

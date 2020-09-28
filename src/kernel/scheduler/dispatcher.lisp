@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: D. Bouche
@@ -93,7 +93,7 @@
         (tick (/ (precision self) 1000.0)))
     (loop
      ;;;When idle, garbage collector + stop
-     (when (scheduler-idle-p sched) 
+     (when (scheduler-idle-p sched)
        (%clean-action-garbage)
        (mp:process-stop (process self) "Idle"))
      ;;;Or look in the register who which objects need to play actions
@@ -116,7 +116,7 @@
         next-trigger)
     (loop
      (setq next-trigger (get-next-trigger sched))
-     (mp:process-wait-local-with-timeout "Sleeping" 
+     (mp:process-wait-local-with-timeout "Sleeping"
                                          (max 0.001 (/ (- (cadr next-trigger) (om-get-internal-time) anticipation) 1000.0))
                                          'alarm sched)
      (om-ignore&print-error
@@ -139,9 +139,9 @@
      ;(if (> (next-delay sched) 50)
      ;    (loop for object+caller in (register sched)
      ;          do
-     ;          (when (and 
+     ;          (when (and
      ;                 (= 0 (mod i 50))
-     ;                 (run-callback *graphics*) 
+     ;                 (run-callback *graphics*)
      ;                 (cadr object+caller)
      ;                 (eq (player-get-object-state sched (car object+caller)) :play))
      ;            (om-ignore&print-error

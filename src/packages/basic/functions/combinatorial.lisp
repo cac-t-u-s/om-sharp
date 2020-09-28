@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;;
 ;=========================================================================
 ; Authors: G. Assayag, C. Agon, J. Bresson (code from OM6)
@@ -22,18 +22,18 @@
 (defmethod* sort. ((lst list)  &optional (test '<) (key nil))
   :initvals '(nil < nil)
   :indoc '("the list" "test" "key")
-  :doc "Sorts a list. 
+  :doc "Sorts a list.
 
 (Deprecated - Use sort-list)
 "
   (sort-list lst :test test :key key))
 
- 
+
 (defmethod* sort-list ((lst list) &key (test '<) (key nil) (rec nil))
   :initvals '(nil < nil nil)
   :menuins '((3 (("Yes" t) ("No" nil))))
   :indoc '("a list" "test function" "test key" "recursive sort")
-  :doc "Returns a sorted version of <lst>. 
+  :doc "Returns a sorted version of <lst>.
 <test> is a binary function or function name indicating how to compare elements.
 <key> is a function or function name that will be applied to elements before the test.
 
@@ -50,11 +50,11 @@ Ex. (sort-list '((7 8 9 1) (5 2 4 3)) :test '< :rec t) => ((1 7 8 9) (2 3 4 5))
     (if rec
         (cond ((null lst) nil)
               ((atom (first lst)) (sort lst (or test #'<) :key key))
-              (t (cons (sort-list (first l) :test (or test #'<) :key key :rec rec) 
+              (t (cons (sort-list (first l) :test (or test #'<) :key key :rec rec)
                        (sort-list (rest l) :test (or test #'<) :key key :rec rec))))
       (sort l (or test #'<) :key key))
- 
-  ))
+
+    ))
 
 
 (defmethod permut-circn ((list list) &optional (nth 1))
@@ -62,9 +62,9 @@ Ex. (sort-list '((7 8 9 1) (5 2 4 3)) :test '< :rec t) => ((1 7 8 9) (2 3 4 5))
     (let ((length (length list)) n-1thcdr)
       (setq nth (mod nth length))
       (if (zerop nth) list
-          (prog1
+        (prog1
             (cdr (nconc (setq n-1thcdr (nthcdr (1- nth) list)) list))
-            (rplacd n-1thcdr ()))))))
+          (rplacd n-1thcdr ()))))))
 
 
 (defmethod* rotate ((list list) &optional (nth 1))
@@ -88,14 +88,14 @@ Ex. (rotate '(a b c d e) 3) => (d e a b c)"
 
 (defmethod npermut-random ((list list))
   "destructive random permutation of <list>."
-   (let ((result ()) 
-           (length (length list)) 
-           (list (copy-list list)))
+  (let ((result ())
+        (length (length list))
+        (list (copy-list list)))
     (nconc list list)
     (loop for i from 0 to length do
-              (setq list (nthcdr (om-random-value length) list)
-            result (rplacd (prog1 (cdr list) (rplacd list (cddr list))) result)
-            length (1- length)))
+          (setq list (nthcdr (om-random-value length) list)
+                result (rplacd (prog1 (cdr list) (rplacd list (cddr list))) result)
+                length (1- length)))
     result))
 
 
@@ -107,7 +107,7 @@ Ex. (rotate '(a b c d e) 3) => (d e a b c)"
 Ex. (permut-random '(1 2 3 4 5)) => (4 5 2 3 1)"
   :icon 'combinatory
   (if (or (null list) (= (length list) 1)) list
-      (npermut-random (copy-list list))))
+    (npermut-random (copy-list list))))
 
 
 (defmethod* posn-order ((list list) (test symbol))
@@ -138,15 +138,15 @@ Ex. (posn-order '(4 5 6 7 8) '>) => (4 3 2 1 0)
 
 
 (defmethod* permutations ((bag list))
-  :initvals '(nil ) 
+  :initvals '(nil )
   :indoc '("a list")
   :icon 'combinatory
   :doc "Return a list of all the permutations of <bag>.
 
 Ex. (permutations '(a b c)) => ((a b c) (a c b) (b a c) (b c a) (c a b) (c b a))"
-  
+
   (if (null bag)
-    '(())
+      '(())
     ;; Otherwise, take an element, e, out of the bag.
     ;; Generate all permutations of the remaining elements,
     ;; And add e to the front of each of these.
@@ -156,4 +156,4 @@ Ex. (permutations '(a b c)) => ((a b c) (a c b) (b a c) (b c a) (c a b) (c b a))
                         (permutations (remove e bag :count 1 :test #'eq))))
             bag)))
 
- 
+

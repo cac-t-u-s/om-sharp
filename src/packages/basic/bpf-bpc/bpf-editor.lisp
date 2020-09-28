@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -20,7 +20,7 @@
 ;distance treshold to add a new point in pen mode
 (defvar *add-point-distance-treshold* 5)
 
-(defclass bpf-editor (multi-display-editor-mixin OMEditor play-editor-mixin undoable-editor-mixin) 
+(defclass bpf-editor (multi-display-editor-mixin OMEditor play-editor-mixin undoable-editor-mixin)
   ((edit-mode :accessor edit-mode :initform :mouse)
    (decimals :accessor decimals :initform 0 :initarg :decimals)
    ;;; multi-view
@@ -33,7 +33,7 @@
    (timeline-editor :accessor timeline-editor :initform nil)
    ))
 
-;;; background elements are just visible in the BPF/BPC/3DC editors 
+;;; background elements are just visible in the BPF/BPC/3DC editors
 ;;; can be pictures, speakers, etc.
 (defclass background-element () ())
 (defmethod draw-background-element ((self background-element) view editor &optional x1 y1 x2 y2))
@@ -52,7 +52,7 @@
 (defun editor-point-set-x (editor point x) (funcall 'om-point-set point (x-axis-key editor) x))
 (defun editor-point-set-y (editor point y) (funcall 'om-point-set point (y-axis-key editor) y))
 
-(defmethod additional-box-attributes ((self bpf)) 
+(defmethod additional-box-attributes ((self bpf))
   '((:background "sets one or more background-element(s) (picture, etc.) in the editor" nil)
     (:display-min "sets a min y-value for display" nil)
     (:display-max "sets a max y-value for display" nil)))
@@ -74,7 +74,7 @@
 
 (defparameter +bpf-editor-modes+ '(:mouse :pen :hand)) ; :zoomin :zoomout))
 
-(defclass bpf-bpc-panel (OMEditorView multi-view-editor-view) 
+(defclass bpf-bpc-panel (OMEditorView multi-view-editor-view)
   ((scale-fact :accessor scale-fact :initarg :scale-fact :initform 1)
    (x-ruler :accessor x-ruler :initform nil)
    (y-ruler :accessor y-ruler :initform nil)
@@ -87,7 +87,7 @@
 (defmethod set-y-ruler-range ((self bpf-bpc-panel) y1 y2)
   (when (y-ruler self)
     (set-ruler-range (y-ruler self) y1 y2)))
-  
+
 (defclass bpf-panel (bpf-bpc-panel x-cursor-graduated-view y-graduated-view) ())
 
 (defmethod get-curve-panel-class ((self bpf-editor)) 'bpf-panel)
@@ -123,7 +123,7 @@
 ;;; play-editor-mixin methods
 ;;;==========================
 
-(defmethod cursor-panes ((self bpf-editor)) 
+(defmethod cursor-panes ((self bpf-editor))
   (cons (get-g-component self :main-panel)
         (if (timeline-editor self)
             (cursor-panes (timeline-editor self)))))
@@ -145,15 +145,15 @@
 ;;; SYSTEM CALLBACKS
 ;;;==========================
 
-(defmethod init-editor ((self bpf-editor)) 
+(defmethod init-editor ((self bpf-editor))
   (setf (decimals self) (decimals (object-value self)))
   (setf (timeline-editor self) (make-instance 'timeline-editor :object (object self) :container-editor self)))
 
-(defmethod init-editor ((self bpc-editor)) 
+(defmethod init-editor ((self bpc-editor))
   (call-next-method)
   (time-sequence-update-internal-times (object-value self) self))
 
-(defmethod make-timeline-left-item ((self bpf-editor) id) 
+(defmethod make-timeline-left-item ((self bpf-editor) id)
   (om-make-view 'om-view :size (omp 30 15)))
 
 (defmethod draw-modes-for-object ((self bpf-editor)) '(:draw-all :points-only :lines-only :histogram))
@@ -168,20 +168,20 @@
          (ry (om-make-view 'y-ruler-view :related-views (list panel) :size (omp 30 nil) :bg-color (om-def-color :white) :decimals (decimals editor)))
          (mousepos-txt (om-make-graphic-object 'om-item-text :size (omp 200 16)))
          ;(name-txt (om-make-graphic-object 'om-item-text :size (omp 60 16) :text (name object)))
-         
+
          (timeline-editor (timeline-editor editor))
          (timeline (om-make-layout 'om-row-layout))
          (top-area (om-make-layout 'om-row-layout ;:align :center
                                    :ratios '(nil nil 0.5 0.05 0.05)
                                    :subviews (list nil mousepos-txt ;; name-txt
-                                                   nil 
+                                                   nil
                                                    (make-time-monitor editor :time (if (action object) 0 nil))
-                                                   ;(om-make-layout 'om-column-layout :align :right :subviews (list 
-                                                   (and t ;(action object) 
-                                                        (om-make-layout 
+                                                   ;(om-make-layout 'om-column-layout :align :right :subviews (list
+                                                   (and t ;(action object)
+                                                        (om-make-layout
                                                          'om-row-layout ;:size (omp 60 20)
-                                                         :subviews (list (make-play-button editor :enable (action object)) 
-                                                                         (make-pause-button editor :enable (action object)) 
+                                                         :subviews (list (make-play-button editor :enable (action object))
+                                                                         (make-pause-button editor :enable (action object))
                                                                          (make-stop-button editor :enable (action object)))))
                                                    )))
          (bottom-area nil)
@@ -191,87 +191,87 @@
                                       :align :bottom
                                       :size (omp nil 40)
                                       :subviews
-                                      (list 
-                                       (om-make-di 'om-simple-text :text "Draw mode:" 
-                                                   :size (omp 68 20) 
+                                      (list
+                                       (om-make-di 'om-simple-text :text "Draw mode:"
+                                                   :size (omp 68 20)
                                                    :font (om-def-font :font1))
-                                       (om-make-di 'om-popup-list :items (draw-modes-for-object editor) 
+                                       (om-make-di 'om-popup-list :items (draw-modes-for-object editor)
                                                    :size (omp 80 24) :font (om-def-font :font1)
                                                    :value (editor-get-edit-param editor :draw-style)
-                                                   :di-action #'(lambda (list) 
+                                                   :di-action #'(lambda (list)
                                                                   (editor-set-edit-param editor :draw-style (om-get-selected-item list))))
                                        nil
                                        (om-make-di 'om-check-box :text "indices" :size (omp 60 24) :font (om-def-font :font1)
                                                    :checked-p (editor-get-edit-param editor :show-indices)
-                                                   :di-action #'(lambda (item) 
+                                                   :di-action #'(lambda (item)
                                                                   (editor-set-edit-param editor :show-indices (om-checked-p item))))
                                        (om-make-di 'om-check-box :text "times" :size (omp 60 24) :font (om-def-font :font1)
                                                    :checked-p (editor-get-edit-param editor :show-times)
-                                                   :di-action #'(lambda (item) 
+                                                   :di-action #'(lambda (item)
                                                                   (editor-set-edit-param editor :show-times (om-checked-p item))))
                                        (om-make-di 'om-check-box :text "grid" :size (omp 45 24) :font (om-def-font :font1)
                                                    :checked-p (editor-get-edit-param editor :grid)
-                                                   :di-action #'(lambda (item) 
+                                                   :di-action #'(lambda (item)
                                                                   (editor-set-edit-param editor :grid (om-checked-p item))))
-                                       
+
                                        ;;; this should be only for BPC
                                        ;;; (already set in 3DC as well)
-                                       ;(om-make-di 'om-simple-text :text "Offset:" 
-                                       ;            :size (omp 38 20) 
+                                       ;(om-make-di 'om-simple-text :text "Offset:"
+                                       ;            :size (omp 38 20)
                                        ;            :font (om-def-font :font1))
-                                       ;(om-make-graphic-object 'numbox 
+                                       ;(om-make-graphic-object 'numbox
                                        ;                        :value (if (eq (type-of editor) 'bpc-editor)
                                        ;                                   (gesture-interval-time editor)
                                        ;                                 500)
                                        ;                        :bg-color (om-def-color :white)
                                        ;                        :border t
-                                       ;                        :size (om-make-point 40 18) 
+                                       ;                        :size (om-make-point 40 18)
                                        ;                        :font (om-def-font :font1)
                                        ;                        :min-val 0
                                        ;                        :after-fun #'(lambda (item)
                                        ;                                       (setf (gesture-interval-time editor) (value item))
                                        ;                                       ))
-                                       
+
                                        (when timeline-editor
                                          (om-make-di 'om-check-box :text "timeline" :size (omp 120 24) :font (om-def-font :font1)
                                                      :checked-p (editor-get-edit-param editor :show-timeline)
-                                                     :di-action #'(lambda (item) 
+                                                     :di-action #'(lambda (item)
                                                                     (editor-set-edit-param editor :show-timeline (om-checked-p item))
                                                                     (clear-timeline timeline-editor)
                                                                     (om-invalidate-view timeline)
-                                                                    (when (om-checked-p item) 
+                                                                    (when (om-checked-p item)
                                                                       (make-timeline-view timeline-editor))
                                                                     (om-update-layout (main-view editor)))
                                                      ))
                                        nil
                                        )))
-    
+
     (set-g-component editor :x-ruler rx)
     (set-g-component editor :y-ruler ry)
     (set-g-component editor :mousepos-txt mousepos-txt)
     (set-g-component editor :main-panel panel)
-   
-    (setf (x-ruler panel) rx (y-ruler panel) ry)   
-   
+
+    (setf (x-ruler panel) rx (y-ruler panel) ry)
+
     ;timeline
     (when timeline-editor
       (set-g-component timeline-editor :main-panel timeline)
       (when (editor-get-edit-param editor :show-timeline)
         (make-timeline-view timeline-editor)))
-    
-    (om-make-layout 'om-row-layout :ratios '(9.9 0.1) 
-                    :subviews 
-                    (list 
-                     (om-make-layout 'om-column-layout 
+
+    (om-make-layout 'om-row-layout :ratios '(9.9 0.1)
+                    :subviews
+                    (list
+                     (om-make-layout 'om-column-layout
                                      :ratios '(0.96 nil 0.02)
-                                     :subviews 
-                                     (list 
+                                     :subviews
+                                     (list
                                       (om-make-layout 'om-grid-layout :align :right
                                                       :dimensions '(2 3)
                                                       :delta 2
                                                       :ratios '((0.01 0.99) (0.01 0.98 0.01))
-                                                      :subviews (list nil top-area 
-                                                                      ry panel 
+                                                      :subviews (list nil top-area
+                                                                      ry panel
                                                                       nil rx)
                                                       )
                                       (when timeline timeline)
@@ -280,20 +280,20 @@
     ))
 
 
-(defmethod initialize-instance :after ((self bpf-bpc-panel) &rest args) 
+(defmethod initialize-instance :after ((self bpf-bpc-panel) &rest args)
   (let* ((editor (editor self))
-         (mode-buttons 
-          (list 
-           (om-make-graphic-object 'om-icon-button :position (omp 10 5) :size (omp 20 20) 
-                                   :icon :mouse :icon-pushed :mouse-pushed 
+         (mode-buttons
+          (list
+           (om-make-graphic-object 'om-icon-button :position (omp 10 5) :size (omp 20 20)
+                                   :icon :mouse :icon-pushed :mouse-pushed
                                    :lock-push t :pushed (equal (edit-mode editor) :mouse) :id :mouse
                                    :action #'(lambda (b) (declare (ignore b)) (editor-set-edit-mode editor :mouse)))
-           (om-make-graphic-object 'om-icon-button :position (omp 30 5) :size (omp 20 20) 
-                                   :icon :pen :icon-pushed :pen-pushed 
+           (om-make-graphic-object 'om-icon-button :position (omp 30 5) :size (omp 20 20)
+                                   :icon :pen :icon-pushed :pen-pushed
                                    :lock-push t :pushed (equal (edit-mode editor) :pen) :id :pen
                                    :action #'(lambda (b) (declare (ignore b)) (editor-set-edit-mode editor :pen)))
-           (om-make-graphic-object 'om-icon-button :position (omp 50 5) :size (omp 20 20) 
-                                   :icon :hand :icon-pushed :hand-pushed 
+           (om-make-graphic-object 'om-icon-button :position (omp 50 5) :size (omp 20 20)
+                                   :icon :hand :icon-pushed :hand-pushed
                                    :lock-push t :pushed (equal (edit-mode editor) :hand) :id :hand
                                    :action #'(lambda (b) (declare (ignore b)) (editor-set-edit-mode editor :hand))))))
     (set-g-component editor :mode-buttons mode-buttons)
@@ -319,10 +319,10 @@
   (when (get-g-component self :x-ruler)
     (setf (decimals (get-g-component self :x-ruler)) val)
     (scale-ruler (get-g-component self :y-ruler) (expt 10 (- val (decimals self)))))
-  (when (get-g-component self :y-ruler)    
+  (when (get-g-component self :y-ruler)
     (setf (decimals (get-g-component self :y-ruler)) val)
     (scale-ruler (get-g-component self :x-ruler) (expt 10 (- val (decimals self)))))
-  (when (get-g-component self :main-panel) 
+  (when (get-g-component self :main-panel)
     (setf (scale-fact (get-g-component self :main-panel)) (expt 10 val)))
   (setf (decimals self) val))
 
@@ -330,9 +330,9 @@
 (defmethod update-to-editor ((editor bpf-editor) (from t))
   (call-next-method)
   (let ((object (object-value editor)))
-    
+
     (when (g-components editor)
-      (when object 
+      (when object
         (set-decimals-in-editor editor (decimals object))
         (enable-play-controls editor (action object)))
       (om-invalidate-view (get-g-component editor :main-panel))
@@ -347,7 +347,7 @@
   (report-modifications editor)
   )
 
-(defmethod update-to-editor ((self bpc-editor) (from t)) 
+(defmethod update-to-editor ((self bpc-editor) (from t))
   (call-next-method)
   (time-sequence-update-internal-times (object-value self)))
 
@@ -357,10 +357,10 @@
 (defmethod update-after-prop-edit ((view OMEditorWindow) (editor bpf-editor))
   (let ((value (object-value editor))
         (box (object editor)))
-  (editor-invalidate-views editor)
-  (when box (setf (name box) (name value)))
-  (enable-play-controls editor (action value))
-  (report-modifications editor)))
+    (editor-invalidate-views editor)
+    (when box (setf (name box) (name value)))
+    (enable-play-controls editor (action value))
+    (report-modifications editor)))
 
 (defmethod editor-invalidate-views ((self bpf-editor))
   (call-next-method)
@@ -383,34 +383,34 @@
 
 
 (defun draw-bpf-point (p editor &key index time selected)
-  
-  (cond 
+
+  (cond
    ((and time
          (equal (player-get-object-state (player editor) (object-value editor)) :play)
          (< (abs time) (player-get-object-time (player editor) (object-value editor)))
          )
     (om-with-fg-color (om-def-color :dark-red)
       (om-draw-circle (car p) (cadr p) 4 :fill t)))
-        
+
    (selected
     (om-with-fg-color (om-def-color :dark-red)
       (om-draw-circle (car p) (cadr p) 4 :fill t)))
-        
+
    ;;; draw normal except if lines only
    ((not (equal (editor-get-edit-param editor :draw-style) :lines-only))
     (om-draw-circle (car p) (cadr p) 3 :fill t))
    (t nil))
-    
+
 
   (when index
     (om-draw-string (car p) (+ (cadr p) 15) (number-to-string index)))
   (when (and time (editor-get-edit-param editor :show-times))
-    (om-with-fg-color (if (minusp time) (om-def-color :gray) (om-def-color :dark-blue) ) 
+    (om-with-fg-color (if (minusp time) (om-def-color :gray) (om-def-color :dark-blue) )
       (om-draw-string (car p) (- (cadr p) 15) (number-to-string (abs time) 0))))
   )
 
 (defun draw-interpol-point (p editor &key time)
-  (if (and time (equal (player-get-object-state (player editor) (object-value editor)) :play) 
+  (if (and time (equal (player-get-object-state (player editor) (object-value editor)) :play)
            (>= (player-get-object-time (player editor) (object-value editor)) time))
       (om-with-fg-color (om-def-color :dark-red)
         (om-draw-circle (car p) (cadr p) 1 :fill nil))
@@ -421,95 +421,95 @@
   (and (> (car pt) x1) (< (car pt) x2)
        (> (cadr pt) y1) (< (cadr pt) y2)))
 
-(defmethod draw-one-bpf ((bpf bpf) view editor foreground? &optional x1 x2 y1 y2) 
-  
-  (om-trap-errors 
-   
+(defmethod draw-one-bpf ((bpf bpf) view editor foreground? &optional x1 x2 y1 y2)
+
+  (om-trap-errors
+
    (let ((pts (point-list bpf)))
      (when pts
        (let ((first-pt (list (x-to-pix view (editor-point-x editor (car pts)))
                              (y-to-pix view (editor-point-y editor (car pts)))))
              (selection (and foreground? (selection editor)))
              (show-indice (editor-get-edit-param editor :show-indices)))
-        
-         (cond 
+
+         (cond
           ;;; draw only points
-          ((equal (editor-get-edit-param editor :draw-style) :points-only) 
-          
+          ((equal (editor-get-edit-param editor :draw-style) :points-only)
+
            (draw-bpf-point first-pt editor
                            :selected (and (consp selection) (find 0 selection))
                            :index (and foreground? show-indice 0)
                            :time (and foreground? (time-to-draw bpf editor (car pts) 0))) ;TODO Change drawing args here !
 
-           (loop for pt in (cdr pts) 
+           (loop for pt in (cdr pts)
                  for i = 1 then (1+ i) do
                  (let ((p (list (x-to-pix view (editor-point-x editor pt))
                                 (y-to-pix view (editor-point-y editor pt)))))
                    (when (point-visible-p p x1 x2 y1 y2)
                      (draw-bpf-point p editor
                                      :selected (and (consp selection) (find i selection))
-                                     :index (and foreground? show-indice i) 
+                                     :index (and foreground? show-indice i)
                                      :time (and foreground? (time-to-draw bpf editor pt i)))
                      ))))
-          
+
           ;;; histogram
-          ((equal (editor-get-edit-param editor :draw-style) :histogram) 
-          
+          ((equal (editor-get-edit-param editor :draw-style) :histogram)
+
            (let ((origin-y (y-to-pix view (editor-point-y editor (omp 0 0)))))
-            
+
              (loop for i from 0 to (1- (length pts))
-                   do 
+                   do
                    (let* ((pt (nth i pts))
                           (x (x-to-pix view (editor-point-x editor pt)))
                           (y (y-to-pix view (editor-point-y editor pt)))
                           (next-pt (nth (1+ i) pts))
                           (next-x (if next-pt (x-to-pix view (editor-point-x editor next-pt))
-                                    (if (plusp i) 
+                                    (if (plusp i)
                                         ;;; repeat last width
                                         (let ((prev-pt (nth (1- i) pts)))
                                           (+ x (- x (x-to-pix view (editor-point-x editor prev-pt)))))
                                       ;;; last case: only one point
                                       (+ x 100)))))
-                                         
+
                      (om-draw-rect x origin-y (- next-x x) (- y origin-y)
                                    :fill nil)
-                     (om-draw-rect x origin-y (- next-x x) (- y origin-y) 
+                     (om-draw-rect x origin-y (- next-x x) (- y origin-y)
                                    :fill t :color (om-def-color :gray))
-                    
+
                      (draw-bpf-point (list x y) editor
                                      :selected (and (consp selection) (find i selection))
-                                     :index (and foreground? show-indice i) 
+                                     :index (and foreground? show-indice i)
                                      :time (and foreground? (time-to-draw bpf editor pt i)))
 
-                     (om-draw-string (1+ x) (- origin-y 4) (format nil "~D" (om-point-y pt)) 
+                     (om-draw-string (1+ x) (- origin-y 4) (format nil "~D" (om-point-y pt))
                                      :font (om-def-font :font1 :size 9)
                                      :color (om-def-color :white))
                      ))
              ))
-              
+
           ;;; draw lines (with/without points)
-          (t 
+          (t
            (draw-bpf-point first-pt editor
                            :selected (and (consp selection) (find 0 selection))
                            :index (and foreground? show-indice 0)
                            :time (and foreground? (time-to-draw bpf editor (car pts) 0))) ;TODO Change drawing args here !
 
-           (let ((pt-list (loop for rest on pts 
-                                for i = 1 then (1+ i) 
+           (let ((pt-list (loop for rest on pts
+                                for i = 1 then (1+ i)
                                 while (cadr rest)
                                 append
                                 (let* ((p1 (car rest))
                                        (p2 (cadr rest))
-                                       (pp1 (list (x-to-pix view (editor-point-x editor p1)) 
+                                       (pp1 (list (x-to-pix view (editor-point-x editor p1))
                                                   (y-to-pix view (editor-point-y editor p1))))
-                                       (pp2 (list (x-to-pix view (editor-point-x editor p2)) 
+                                       (pp2 (list (x-to-pix view (editor-point-x editor p2))
                                                   (y-to-pix view (editor-point-y editor p2)))))
                                                ;(when ;(or (point-visible-p pp1 x xmax y ymax)
                                                      ;    (point-visible-p pp2 x xmax y ymax)
                                                      ;    (and (> x (car pp1)) (< x (car pp2))))
                                   (unless (or (and (< (car pp1) x1) (< (car pp2) x1))
                                               (and (> (car pp1) x2) (> (car pp2) x2)))
-                                   
+
                                     ;;; will not draw the point if line-only, except if selected etc.
                                     (draw-bpf-point pp2 editor
                                                     :selected (and (consp selection) (find i selection))
@@ -521,12 +521,12 @@
              (om-with-line-size (if (find T selection) 2 1)
                (om-draw-lines pt-list))
              )))
-        
+
          (when (number-? (interpol bpf))
            (let ((interpol-times (arithm-ser (get-first-time bpf) (get-obj-dur bpf) (number-number (interpol bpf)))))
              (loop for time in interpol-times
                    do (let ((new-p (time-sequence-make-timed-item-at bpf time)))
-                        (draw-interpol-point (list (x-to-pix view (editor-point-x editor new-p)) 
+                        (draw-interpol-point (list (x-to-pix view (editor-point-x editor new-p))
                                                    (y-to-pix view (editor-point-y editor new-p)))
                                              editor
                                              :time (and foreground? time))))))
@@ -537,14 +537,14 @@
 (defmethod om-draw-contents-area ((self bpf-bpc-panel) x y w h)
   (let* ((editor (editor self))
          (obj (object-value editor))
-         (xmax (+ x w)) 
+         (xmax (+ x w))
          (ymax (+ y h)))
-    
+
     (when obj
-    
-      (om-with-font 
-       (om-def-font :font1) 
-     
+
+      (om-with-font
+       (om-def-font :font1)
+
        ;;; GRID
        (when (editor-get-edit-param editor :grid)
          ;(om-with-line '(2 2)  ;; seems tpo cost a lot in drawing...
@@ -552,7 +552,7 @@
            (draw-grid-from-ruler self (x-ruler self))
            (draw-grid-from-ruler self (y-ruler self))
            ))
-     
+
        ;;; AXES
        (om-with-fg-color (om-def-color :gray)
          (let ((center (list (x-to-pix self 0) (y-to-pix self 0))))
@@ -561,29 +561,29 @@
            (when (and (> (car center) 0) (< (car center) (w self)))
              (om-draw-line (car center) 0 (car center) (h self)))
            ))
-     
-       (mapc #'(lambda (elt) (draw-background-element elt self editor x y xmax ymax)) 
+
+       (mapc #'(lambda (elt) (draw-background-element elt self editor x y xmax ymax))
              (list! (get-edit-param (object editor) :background)))
-                                                                 
+
        ;;; draw multi ?
        (when (multi-display-p editor)
          (loop for bg-bpf in (remove obj (multi-obj-list editor))
-               do (om-with-fg-color (om-make-color-alpha (or (color bg-bpf) (om-def-color :dark-gray)) 0.4) 
+               do (om-with-fg-color (om-make-color-alpha (or (color bg-bpf) (om-def-color :dark-gray)) 0.4)
                     (draw-one-bpf bg-bpf self editor nil x xmax y ymax))))
-                  
+
        (when (point-list obj)
-       
+
          (om-with-fg-color (if (find T (selection editor))
                                (om-def-color :dark-red)
-                             (or (color obj) 
+                             (or (color obj)
                                  (om-def-color :dark-gray)))
-                      
+
            (draw-one-bpf obj self editor t x xmax y ymax)
-                      
+
            ))
        ))
     ))
-      
+
 
 
 ;;;==========================
@@ -591,26 +591,26 @@
 ;;;==========================
 
 (defun bpf-edit-menu-items (self)
-  (list (om-make-menu-comp 
+  (list (om-make-menu-comp
          (list (om-make-menu-item "Undo" #'(lambda () (funcall (undo-command self))) :key "z" :enabled #'(lambda () (and (undo-command self) t)))
                (om-make-menu-item "Redo" #'(lambda () (funcall (redo-command self))) :key "Z" :enabled #'(lambda () (and (redo-command self) t)))))
-        (om-make-menu-comp 
-         (list 
-          (om-make-menu-item "Delete selection" #'(lambda () (funcall (clear-command self))) :enabled (and (clear-command self) t)))) 
-        (om-make-menu-comp 
+        (om-make-menu-comp
+         (list
+          (om-make-menu-item "Delete selection" #'(lambda () (funcall (clear-command self))) :enabled (and (clear-command self) t))))
+        (om-make-menu-comp
          (list (om-make-menu-item "Select All" #'(lambda () (funcall (select-all-command self))) :key "a" :enabled (and (select-all-command self) t))))
-        (om-make-menu-comp 
-         (list 
+        (om-make-menu-comp
+         (list
           (om-make-menu-item "Reverse Points" #'(lambda () (reverse-points self)) :key "r" )))
-        (om-make-menu-comp 
-         (list 
-          (om-make-menu-item "OSC Input Manager" #'(lambda () (funcall (open-osc-manager-command self))) 
+        (om-make-menu-comp
+         (list
+          (om-make-menu-item "OSC Input Manager" #'(lambda () (funcall (open-osc-manager-command self)))
                              :enabled (and (open-osc-manager-command self) t))))
         ))
 
 (defmethod om-menu-items ((self bpf-editor))
   (remove nil
-          (list 
+          (list
            (main-app-menu-item)
            (om-make-menu "File" (default-file-menu-items self))
            (om-make-menu "Edit" (bpf-edit-menu-items self))
@@ -619,7 +619,7 @@
            )))
 
 (defmethod select-all-command ((self bpf-editor))
-  #'(lambda () 
+  #'(lambda ()
       (setf (selection self) (list T))
       (update-timeline-editor self)
       (editor-invalidate-views self)
@@ -632,11 +632,11 @@
 ;;;==========================
 
 (defmethod editor-set-edit-mode ((self bpf-editor) mode)
-  (mapcar #'(lambda (b) 
+  (mapcar #'(lambda (b)
               (if (equal mode (id b)) (button-select b) (button-unselect b)))
           (get-g-component self :mode-buttons))
   (setf (edit-mode self) mode)
-  (om-set-view-cursor (get-g-component self :main-panel) 
+  (om-set-view-cursor (get-g-component self :main-panel)
                       (om-view-cursor (get-g-component self :main-panel))))
 
 ;;; depending on where is the panel...
@@ -660,7 +660,7 @@
   (let ((bpf (object-value self))
         (scaler (expt 10 (decimals self))))
     (when bpf
-      (let ((ranges (space-ranges (loop for x in (mapcar (x-axis-accessor self) (point-list bpf)) 
+      (let ((ranges (space-ranges (loop for x in (mapcar (x-axis-accessor self) (point-list bpf))
                                         for y in (mapcar (y-axis-accessor self) (point-list bpf))
                                         minimize x into x1 maximize x into x2
                                         minimize y into y1 maximize y into y2
@@ -672,13 +672,13 @@
     ))
 
 
-  
+
 (defmethod set-rulers-from-selection ((self bpf-editor) x1 x2 y1 y2)
   (let ((panel (get-g-component self :main-panel)))
-    (set-ruler-range (x-ruler panel) 
+    (set-ruler-range (x-ruler panel)
                      (pix-to-x panel x1)
                      (pix-to-x panel x2))
-    (set-ruler-range (y-ruler panel) 
+    (set-ruler-range (y-ruler panel)
                      (pix-to-y panel y1)
                      (pix-to-y panel y2))))
 
@@ -686,69 +686,69 @@
 (defmethod find-clicked-point-or-curve ((editor bpf-editor) (object bpf) position)
   (let ((points (point-list object))
         (panel (get-g-component editor :main-panel)))
-    (when points 
+    (when points
       (let* ((xx (pix-to-x panel (om-point-x position)))
              (pos (or (position xx points :key #'(lambda (p) (editor-point-x editor p)) :test '>= :from-end t) 0))
              (p1 (nth pos points))
              (p2 (when (< (1+ pos) (length points)) (nth (1+ pos) points)))
              (delta 4))
         (or (and p1 (om-point-in-rect-p position
-                                        (- (round (x-to-pix panel (editor-point-x editor p1))) delta) 
+                                        (- (round (x-to-pix panel (editor-point-x editor p1))) delta)
                                         (- (round (y-to-pix panel (editor-point-y editor p1))) delta)
                                         (* delta 2) (* delta 2))
                  pos)
-            (and p2 
-                 (om-point-in-rect-p position 
+            (and p2
+                 (om-point-in-rect-p position
                                      (- (x-to-pix panel (editor-point-x editor p2)) delta)
                                      (- (y-to-pix panel (editor-point-y editor p2)) delta)
                                      (* delta 2) (* delta 2))
                  (1+ pos))
             (and p1 p2 (not (find (editor-get-edit-param editor :draw-style) '(:points-only :histogram)))
-                 (om-point-in-line-p position 
+                 (om-point-in-line-p position
                                      (om-make-point (x-to-pix panel (editor-point-x editor p1))
                                                     (y-to-pix panel (editor-point-y editor p1)))
                                      (om-make-point (x-to-pix panel (editor-point-x editor p2))
-                                                    (y-to-pix panel (editor-point-y editor p2))) 
+                                                    (y-to-pix panel (editor-point-y editor p2)))
                                      delta)
                  t)
             )
         ))))
-        
+
 (defmethod find-clicked-point-or-curve ((editor bpc-editor) (object bpc) position)
   (let ((points (point-list object))
         (panel (get-g-component editor :main-panel)))
-    (when points 
+    (when points
       (let* ((delta 4) (rep nil))
-        (if (om-point-in-rect-p position 
-                                (- (x-to-pix panel (editor-point-x editor (car points))) delta) 
+        (if (om-point-in-rect-p position
+                                (- (x-to-pix panel (editor-point-x editor (car points))) delta)
                                 (- (y-to-pix panel (editor-point-y editor (car points))) delta)
                                 (* delta 2) (* delta 2))
             (setf rep 0)
-          
-          (loop for restpoints on points 
+
+          (loop for restpoints on points
                 for i = 1 then (1+ i)
                 while (and (cdr restpoints) (not rep))
                 do (let ((p (cadr restpoints)))
-                     (if (om-point-in-rect-p position 
-                                             (- (x-to-pix panel (editor-point-x editor p)) delta) 
+                     (if (om-point-in-rect-p position
+                                             (- (x-to-pix panel (editor-point-x editor p)) delta)
                                              (- (y-to-pix panel (editor-point-y editor p)) delta)
                                              (* delta 2) (* delta 2))
                          (setf rep i)
                        (if (not (equal (editor-get-edit-param editor :draw-style) :points-only))
-                           (setf rep (om-point-in-line-p position 
+                           (setf rep (om-point-in-line-p position
                                                          (om-make-point (x-to-pix panel (editor-point-x editor p))
                                                                         (y-to-pix panel (editor-point-y editor p)))
                                                          (om-make-point (x-to-pix panel (editor-point-x editor (car restpoints)))
-                                                                        (y-to-pix panel (editor-point-y editor (car restpoints)))) 
+                                                                        (y-to-pix panel (editor-point-y editor (car restpoints))))
                                                          delta)))
                        ))))
         rep))))
-        
+
 
 
 ;;; do nothing...
 (defmethod select-bpf ((editor bpf-editor) &optional n))
-      
+
 (defmethod points-in-area ((editor bpf-editor) p1 p2)
   (let* ((panel (get-g-component editor :main-panel))
          (x1 (pix-to-x panel (om-point-x p1)))
@@ -758,7 +758,7 @@
          (xmin (min x1 x2)) (xmax (max x1 x2))
          (ymin (min y1 y2)) (ymax (max y1 y2))
          (points (point-list (object-value editor))))
-    (loop for p in points 
+    (loop for p in points
           for i = 0 then (1+ i)
           when (and (>= (editor-point-x editor p) xmin)
                     (<= (editor-point-x editor p) xmax)
@@ -766,16 +766,16 @@
                     (<= (editor-point-y editor p) ymax))
           collect i)
     ))
-                    
+
 
 ;;;
 ;;; return the position of the inserted point
 (defmethod add-point-at-pix ((editor bpf-editor) (object bpf) position &optional (time nil))
   (let* ((panel (get-g-component editor :main-panel))
          (new-point (editor-make-point editor
-                                      (pix-to-x panel (om-point-x position))
-                                      (pix-to-y panel (om-point-y position)))))
-    
+                                       (pix-to-x panel (om-point-x position))
+                                       (pix-to-y panel (om-point-y position)))))
+
     (insert-point object new-point)))
 
 ;;; systematically at the end of the point list (e.g. called when drawing)
@@ -783,8 +783,8 @@
 (defmethod add-point-at-pix ((editor bpc-editor) (object bpc) position &optional (time nil))
   (let* ((panel (get-g-component editor :main-panel))
          (new-point (editor-make-point editor
-                                      (pix-to-x panel (om-point-x position))
-                                      (pix-to-y panel (om-point-y position)))))
+                                       (pix-to-x panel (om-point-x position))
+                                       (pix-to-y panel (om-point-y position)))))
     (when time
       (setf (tpoint-time new-point) time))
     (time-sequence-insert-timed-item-and-update object new-point)))
@@ -802,21 +802,21 @@
 ;;; => don't call this in 'draw' mode
 ;;; return the position of the inserted point
 (defmethod insert-point-at-pix ((editor bpf-editor) (object bpc) position &optional (time nil))
- 
+
   (let* ((panel (get-g-component editor :main-panel))
          (new-point (editor-make-point editor
                                        (pix-to-x panel (om-point-x position))
                                        (pix-to-y panel (om-point-y position))))
          (segment nil) (delta 4))
-    
-    (loop for restpoints on (point-list object) 
+
+    (loop for restpoints on (point-list object)
           for i = 1 then (1+ i)
           while (and (cdr restpoints) (not segment))
-          when (om-point-in-line-p position 
+          when (om-point-in-line-p position
                                    (om-make-point (x-to-pix panel (editor-point-x editor (car restpoints)))
                                                   (y-to-pix panel (editor-point-y editor (car restpoints))))
                                    (om-make-point (x-to-pix panel (editor-point-x editor (cadr restpoints)))
-                                                  (y-to-pix panel (editor-point-y editor (cadr restpoints)))) 
+                                                  (y-to-pix panel (editor-point-y editor (cadr restpoints))))
                                    delta)
           do (setf segment i))
     (when (and time (not segment))
@@ -831,15 +831,15 @@
              (loop for point in (point-list bpf) do
                    (editor-point-set-x self point (+ (editor-point-x self point) dx))
                    (editor-point-set-y self point (+ (editor-point-y self point) dy))))
-            (t 
+            (t
              (let ((points (loop for pos in (selection self) collect (nth pos (point-list bpf)))))
                (funcall 'move-points-in-bpf bpf points dx dy (x-axis-key self) (y-axis-key self))))
             ))))
 
 (defmethod delete-editor-selection ((self bpf-editor))
   (if (find T (selection self))
-      (setf (point-list (object-value self)) nil) 
-    (mapcar 
+      (setf (point-list (object-value self)) nil)
+    (mapcar
      #'(lambda (i) (remove-nth-point (object-value self) i))
      (sort (selection self) '>)
      ))
@@ -850,19 +850,19 @@
 (defmethod delete-editor-selection ((self bpc-editor))
   (if (find T (selection self))
       (setf (point-list (object-value self)) nil)
-    (mapcar 
-     #'(lambda (p) (remove-nth-timed-point-from-time-sequence (object-value self) p)) 
+    (mapcar
+     #'(lambda (p) (remove-nth-timed-point-from-time-sequence (object-value self) p))
      (sort (selection self) '>)))
   (setf (selection self) nil)
   (update-to-editor (timeline-editor self) self))
-  
+
 (defmethod round-point-values ((editor bpf-editor))
   (set-bpf-point-values (object-value editor)))
 
 
 (defmethod set-point-in-obj ((self bpf-editor) point values)
-  (set-point-in-bpf (object-value self) point 
-                    (car values) 
+  (set-point-in-bpf (object-value self) point
+                    (car values)
                     (cadr values))
   (setf (point-list (object-value self))
         (sort (point-list (object-value self)) '< :key 'om-point-x))
@@ -871,14 +871,14 @@
   (editor-invalidate-views self))
 
 (defmethod set-point-in-obj ((self bpc-editor) point values)
-  (set-point-in-bpc (object-value self) point 
-                    (car values) 
+  (set-point-in-bpc (object-value self) point
+                    (car values)
                     (cadr values)
                     (cadddr values))
   (setf (point-list (object-value self))
         (sort (point-list (object-value self)) '< :key 'tpoint-internal-time))
   (time-sequence-update-internal-times (object-value self))
-  
+
   (when (container-editor self)
     (update-to-editor (container-editor self) self))
   (editor-invalidate-views self))
@@ -892,7 +892,7 @@
 (defmethod open-point-editor ((self bpf-editor) p &key (z nil z-supplied-p) (time nil time-supplied-p))
   (let* ((x (om-point-x p)) (y (om-point-y p))
          xt yt zt tt cb ob win)
-    (let ((return-from-point-editor 
+    (let ((return-from-point-editor
            #'(lambda (item)
                (declare (ignore item))
                (set-point-in-obj self p
@@ -901,57 +901,57 @@
                                        (and zt (read-number (om-dialog-item-text zt)))
                                        (and tt (read-number (om-dialog-item-text tt)))))
                (close-point-editor self))))
-  
-      (setf xt (om-make-di 'om-editable-text :text (number-to-string x) 
+
+      (setf xt (om-make-di 'om-editable-text :text (number-to-string x)
                            :bg-color (om-def-color :white) :size (omp 80 32)) ; :di-action return-from-point-editor)
-            yt (om-make-di 'om-editable-text :text (number-to-string y) 
+            yt (om-make-di 'om-editable-text :text (number-to-string y)
                            :bg-color (om-def-color :white) :size (omp 80 32)) ; :di-action return-from-point-editor)
-            zt (when z-supplied-p 
-                 (om-make-di 'om-editable-text :text (number-to-string z) 
+            zt (when z-supplied-p
+                 (om-make-di 'om-editable-text :text (number-to-string z)
                              :bg-color (om-def-color :white) :size (omp 80 32))) ; :di-action return-from-point-editor))
-            tt (when time-supplied-p 
-                 (om-make-di 'om-editable-text :text (number-to-string time)  
+            tt (when time-supplied-p
+                 (om-make-di 'om-editable-text :text (number-to-string time)
                              :bg-color (om-def-color :white) :size (omp 80 32))) ; :di-action return-from-point-editor))
             cb (om-make-di 'om-button :text "Cancel" :size (omp 80 25)
                            :di-action #'(lambda (b) (declare (ignore b)) (close-point-editor self)))
             ob (om-make-di 'om-button :text "OK" :size (omp 80 25) :default t :focus t
                            :di-action return-from-point-editor))
-      
-      (setf win (om-make-window  
+
+      (setf win (om-make-window
                  'om-no-border-win :resizable nil
-               
+
                  :position (om-add-points (om-view-position (window self)) (om-mouse-position (window self)))
-                 :win-layout (om-make-layout 
+                 :win-layout (om-make-layout
                               'om-column-layout :ratios '(1 1 2) :align :left
-                              :subviews (list 
-                                         (om-make-layout 
+                              :subviews (list
+                                         (om-make-layout
                                           'om-row-layout :align :center
                                           :subviews (list (om-make-di 'om-simple-text :text "X") xt))
-                                         (om-make-layout 
+                                         (om-make-layout
                                           'om-row-layout :align :center
                                           :subviews (list (om-make-di 'om-simple-text :text "Y") yt))
-                                      
-                                         (when zt 
-                                           (om-make-layout 
+
+                                         (when zt
+                                           (om-make-layout
                                             'om-row-layout :align :center
                                             :subviews (list (om-make-di 'om-simple-text :text "Z") zt)))
-                                      
-                                         (when tt 
-                                           (om-make-layout 
+
+                                         (when tt
+                                           (om-make-layout
                                             'om-row-layout :align :center
                                             :subviews (list (om-make-di 'om-simple-text :text "Time" :size (omp 40 nil)) tt)))
 
-                                         (om-make-view 'om-view :size (omp nil 20))          
+                                         (om-make-view 'om-view :size (omp nil 20))
                                          (om-make-layout 'om-row-layout :subviews (list cb ob))
                                          )))))
-    (setf (point-editor self) win)       
+    (setf (point-editor self) win)
     (om-show-window win)))
-              
+
 (defmethod edit-editor-point ((self bpf-editor) i)
   (let ((p (nth i (point-list (object-value self)))))
     (close-point-editor self)
     (open-point-editor self p)))
-   
+
 (defmethod edit-editor-point ((self bpc-editor) i)
   (let* ((object (object-value self))
          (p (nth i (point-list object))))
@@ -978,7 +978,7 @@
 (defmethod om-view-doubleclick-handler ((self bpf-bpc-panel) position)
   (let ((editor (editor self)))
     (cond ((equal (edit-mode editor) :hand)
-           (reinit-ranges editor))      
+           (reinit-ranges editor))
           (t (let ((selection (find-clicked-point-or-curve editor (object-value editor) position)))
                (set-selection editor selection)
                (om-invalidate-view self)
@@ -1004,7 +1004,7 @@
          (t0 (get-internal-real-time))
          (obj (object-value editor)))
     (close-point-editor editor)
-    
+
     (when obj
       (case (edit-mode editor)
         (:mouse
@@ -1017,7 +1017,7 @@
                     (om-invalidate-view self)
                     (update-timeline-editor editor)
                     ;;; move the new point
-                    (om-init-temp-graphics-motion 
+                    (om-init-temp-graphics-motion
                      self position nil :min-move 10
                      :motion #'(lambda (view pos)
                                  (declare (ignore view))
@@ -1028,7 +1028,7 @@
                                    (setf p0 pos)
                                    (editor-invalidate-views editor)
                                    (position-display editor pos)))
-                     :release #'(lambda (view pos) 
+                     :release #'(lambda (view pos)
                                   (declare (ignore pos))
                                   (reset-undoable-editor-action editor)
                                   (round-point-values editor)
@@ -1045,7 +1045,7 @@
                     ;;; move the selection or select rectangle
                     (if selection
                         (let ()
-                          (om-init-temp-graphics-motion 
+                          (om-init-temp-graphics-motion
                            self position nil
                            :motion #'(lambda (view pos)
                                        (declare (ignore view))
@@ -1057,22 +1057,22 @@
                                          (position-display editor pos)
                                          (editor-invalidate-views editor)
                                          ))
-                           :release #'(lambda (view pos) 
+                           :release #'(lambda (view pos)
                                         (declare (ignore pos))
                                         (reset-undoable-editor-action editor)
-                                        (round-point-values editor) 
+                                        (round-point-values editor)
                                         (time-sequence-update-internal-times obj)
-                                        (report-modifications editor) 
+                                        (report-modifications editor)
                                         (om-invalidate-view view)
                                         (update-timeline-editor editor))
                            :min-move 4)
                           )
-                      (om-init-temp-graphics-motion 
-                       self position 
+                      (om-init-temp-graphics-motion
+                       self position
                        (om-make-graphic-object 'selection-rectangle :position position :size (om-make-point 4 4))
                        :min-move 10
                        :release #'(lambda (view position)
-                                    (set-selection editor (points-in-area editor p0 position))                         
+                                    (set-selection editor (points-in-area editor p0 position))
                                     (om-invalidate-view view)
                                     (update-timeline-editor editor)
                                     )
@@ -1081,8 +1081,8 @@
                ))
         (:pen
          (cond ((om-add-key-down)
-                (om-init-temp-graphics-motion 
-                 self position 
+                (om-init-temp-graphics-motion
+                 self position
                  (om-make-graphic-object 'selection-rectangle :position position :size (om-make-point 4 4))
                  :min-move 10
                  :release #'(lambda (view position)
@@ -1090,50 +1090,50 @@
                               (om-invalidate-view view)
                               (update-timeline-editor editor))
                  ))
-               (t 
+               (t
                 (set-selection editor nil)
                 (when (equal (class-of editor) 'bpc-editor)
                   (setf (gesture-time-ref editor) t0))
                 (let ((time-offset 0))
                   (when (and (bpc-p obj) (> (length (point-list obj)) 0))
                     ;find last time and add the default-offset
-                    (setf time-offset (+ (get-obj-dur obj) 
+                    (setf time-offset (+ (get-obj-dur obj)
                                          ;;; (gesture-interval-time editor)
                                          (let ((tlist (time-sequence-get-internal-times obj)))
                                            (cond ((> (length tlist) 1) (- (car (last tlist)) (car (last tlist 2))))
-                                                 ((= (length tlist) 1) (if (plusp (car tlist)) 
+                                                 ((= (length tlist) 1) (if (plusp (car tlist))
                                                                            (car tlist)
                                                                          (gesture-interval-time editor)))
                                                  (t 0)))
                                          )))
                   (store-current-state-for-undo editor)
                   (insert-point-at-pix editor obj position time-offset)
-                  
+
                   (om-init-temp-graphics-motion self position nil
-                                                :motion #'(lambda (view pos) 
+                                                :motion #'(lambda (view pos)
                                                             (when (> (om-points-distance p0 pos) *add-point-distance-treshold*)
                                                               (add-point-at-pix  editor obj pos (+ (- (get-internal-real-time) t0) time-offset))
                                                               (setf p0 pos)
                                                               (om-invalidate-view view)
                                                               ))
-                                                :release #'(lambda (view pos) 
+                                                :release #'(lambda (view pos)
                                                              (declare (ignore pos))
                                                              (time-sequence-update-internal-times obj)
                                                              (report-modifications editor)
                                                              (om-invalidate-view view)
                                                              (update-timeline-editor editor)))
-                  
+
                   (report-modifications editor)
                   (om-invalidate-view self)
                   (update-timeline-editor editor)
-                  
+
                   )))
          )
         (:hand (let ((curr-pos position))
                  (om-init-temp-graphics-motion self position nil
                                                :motion #'(lambda (view pos)
                                                            (declare (ignore view))
-                                                           (move-rulers self 
+                                                           (move-rulers self
                                                                         :dx (- (om-point-x pos) (om-point-x curr-pos))
                                                                         :dy (- (om-point-y pos) (om-point-y curr-pos)))
                                                            (setf curr-pos pos)
@@ -1155,14 +1155,14 @@
          (ry (y-ruler self))
          (dxx (* (/ dx (w rx)) (- (v2 rx) (v1 rx))))
          (dyy (* (/ dy (h ry)) (- (v2 ry) (v1 ry)))))
-    (unless (or (and (plusp dxx) (vmin rx) (= (vmin rx) (v1 rx))) 
+    (unless (or (and (plusp dxx) (vmin rx) (= (vmin rx) (v1 rx)))
                 (and (minusp dxx) (vmax rx) (= (vmax rx) (v2 rx))))
-      (set-ruler-range rx 
+      (set-ruler-range rx
                        (if (vmin rx) (max (vmin rx) (- (v1 rx) dxx)) (- (v1 rx) dxx))
                        (if (vmax rx) (min (vmax rx) (- (v2 rx) dxx)) (- (v2 rx) dxx))))
-    (unless (or (and (plusp dyy) (vmin ry) (= (vmin ry) (v1 ry))) 
+    (unless (or (and (plusp dyy) (vmin ry) (= (vmin ry) (v1 ry)))
                 (and (minusp dyy) (vmax ry) (= (vmax ry) (v2 ry))))
-      (set-ruler-range ry 
+      (set-ruler-range ry
                        (if (vmin ry) (max (vmin ry) (- (v1 ry) dyy)) (+ (v1 ry) dyy))
                        (if (vmax ry) (min (vmax ry) (- (v2 ry) dyy)) (+ (v2 ry) dyy))))
     ))
@@ -1177,7 +1177,7 @@
          (curr-h (- (y2 panel) (y1 panel)))
          (new-w (round (* curr-w (1+ dx))))
          (new-h (round (* curr-h (1+ dy))))
-      
+
          (new-x1 (round (- x-pos (/ (* (- x-pos (x1 panel)) new-w) curr-w))))
          (new-y1 (round (- y-pos (/ (* (- y-pos (y1 panel)) new-h) curr-h)))))
     (set-x-ruler-range panel new-x1 (+ new-x1 new-w))
@@ -1190,14 +1190,14 @@
     (case key
       (#\- (zoom-rulers panel :dx -0.1 :dy -0.1)) ;;; zoom out : the ruler gets bigger
       (#\+ (zoom-rulers panel :dx 0.1 :dy 0.1)) ;;; zoom in : the ruler gets smaller
-      (:om-key-delete 
+      (:om-key-delete
        (store-current-state-for-undo editor)
        (delete-editor-selection editor)
        (time-sequence-update-internal-times (object-value editor))
        (report-modifications editor)
        (editor-invalidate-views editor)
        )
-      (:om-key-esc 
+      (:om-key-esc
        (setf (selection editor) nil)
        (call-next-method) ;;; will also reset the cursor interval
        (editor-invalidate-views editor))
@@ -1239,9 +1239,9 @@
          (editor-key-action (timeline-editor editor) key)
          ))
       )))
-      
 
-     
+
+
 ;;; Timeline specific code
 
 (defmethod get-timeline-foldable-views ((self bpc-editor) &key obj time-ruler)
@@ -1260,7 +1260,7 @@
                                 :editor y-editor))
          (y-y-ruler (om-make-view 'y-ruler-view :related-views (list y-panel) :size (omp 30 nil) :bg-color (om-def-color :white) :decimals decimals))
          (y-mousepos-txt (om-make-graphic-object 'om-item-text :size (omp 120 15) :font (om-def-font :font1))))
-    
+
     (set-g-component x-editor :main-panel x-panel)
     ;(setf (grid x-editor) t)
     (set-g-component x-editor :mousepos-txt x-mousepos-txt)
@@ -1276,13 +1276,13 @@
    ; (reinit-ranges y-editor)
 
     (list
-     (om-make-layout 'om-column-layout 
+     (om-make-layout 'om-column-layout
                      :ratios '(0.01 1)
                      :subviews
                      (list
                       (om-make-layout 'om-row-layout :subviews (list x-label x-mousepos-txt) :align :bottom)
                       (om-make-layout 'om-row-layout :subviews (list x-y-ruler x-panel) :ratios '(0.001 1))))
-      (om-make-layout 'om-column-layout 
+     (om-make-layout 'om-column-layout
                      :ratios '(0.01 1)
                      :subviews
                      (list
@@ -1293,5 +1293,5 @@
 
 (defmethod get-color ((self bpf))
   (or (color self) (om-def-color :dark-gray)))
- 
+
 

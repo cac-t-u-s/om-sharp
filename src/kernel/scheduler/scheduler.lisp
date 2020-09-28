@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: D. Bouche
@@ -112,7 +112,7 @@
 ;====================================================================================
 
 (defun build-scheduler (&key run-callback stop-callback)
-  (let ((scheduler (make-scheduler :run-callback run-callback 
+  (let ((scheduler (make-scheduler :run-callback run-callback
                                    :stop-callback stop-callback)))
     (setf (process scheduler) (mp:process-run-function "OM-Scheduler"
                                                        nil
@@ -141,10 +141,10 @@
 
 (defmethod refresh-next-date ((self scheduler))
   (setf (next-date self)
-         (loop for obj in (register self)
-               if (plan (car obj))
-               minimize
-               (act-timestamp (car (plan (car obj)))))))
+        (loop for obj in (register self)
+              if (plan (car obj))
+              minimize
+              (act-timestamp (car (plan (car obj)))))))
 
 (defmethod get-next-trigger ((self scheduler))
   (let ((date *positive-infinity*)

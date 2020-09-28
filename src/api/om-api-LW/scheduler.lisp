@@ -1,5 +1,5 @@
 ;=========================================================================
-; OM API 
+; OM API
 ; Multiplatform API for OpenMusic
 ; LispWorks Implementation
 ;=========================================================================
@@ -62,7 +62,7 @@
 ;  (when *scheduler-timer*
 ;    (mp:unschedule-timer *scheduler-timer*)
 ;    (setf *scheduler-timer* nil)))
-  
+
 (defun om-delayed-funcall (time func &rest args)
   (when *scheduler-timer* (mp:unschedule-timer *scheduler-timer*))
   (flet ((scheduler-fun () (apply func args)))

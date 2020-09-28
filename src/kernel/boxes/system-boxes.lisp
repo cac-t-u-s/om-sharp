@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -27,11 +27,11 @@
   :icon 'shell
   :indoc '("a system command line")
   :initvals '("")
-  :doc "Sends <command-line> (a string) to the system. 
+  :doc "Sends <command-line> (a string) to the system.
 
 If <open-shell-window> the command will be executed in a special shell window. Otherwise the output is printed in the Listener window."
   (if open-shell-window
-      (progn 
+      (progn
         (om-lisp::om-open-shell)
         (om-lisp::om-send-command-to-shell command-line))
     (om-cmd-line command-line)))

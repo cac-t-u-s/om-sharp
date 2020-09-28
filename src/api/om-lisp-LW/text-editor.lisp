@@ -1,5 +1,5 @@
 ;;===========================================================================
-; LW Lisp Tools 
+; LW Lisp Tools
 ; Lisp programming tools for LispWorks delivered applications
 ;;===========================================================================
 ;
@@ -37,12 +37,12 @@
 
 (defun echo-string (interface string)
   (with-slots (ep) interface
-    (ignore-errors 
+    (ignore-errors
       (when (editor-window ep)
-        (editor:process-character 
-         (list 'editor:message string) 
+        (editor:process-character
+         (list 'editor:message string)
          (editor-window ep))))))
-  
+
 (defun report-file-operation (interface op file)
   (when op (echo-string interface (format nil "~A file ~A" op file))))
 
@@ -51,19 +51,19 @@
   (display-message "Failed to ~A file ~A" op file))
 
 (defmacro with-safe-file-operation (interface path present past &body forms)
- `(restart-case
-      (prog1 ,@forms (report-file-operation ,interface ,past ,path))
-    (abort ()
-      (report-failed-file-operation ,interface ,present ,path))))
+  `(restart-case
+       (prog1 ,@forms (report-file-operation ,interface ,past ,path))
+     (abort ()
+       (report-failed-file-operation ,interface ,present ,path))))
 
 ;;;==========================
-;;; MAIN CLASS 
+;;; MAIN CLASS
 ;;;==========================
 
 (defvar *om-text-editor-initial-xy* #(100 100))
 (defvar *om-text-editor-count* 0)
 
-(defparameter *text-editor-font* 
+(defparameter *text-editor-font*
   #+linux(gp::make-font-description :family "Liberation Mono" :size 11)
   #-linux(gp::make-font-description :family "Monaco" :size 11))
 
@@ -79,7 +79,7 @@
    ;:best-height 400 :best-width 500
    ;:external-min-width 150 :external-min-height 150
    :layout (make-instance 'capi:simple-layout)
-   ;:message-area t  
+   ;:message-area t
    ;:create-callback 'init-text-editor
    :destroy-callback 'destroy-text-editor
    :confirm-destroy-function 'check-close-buffer
@@ -110,7 +110,7 @@
 
 (defmethod text-edit-window-activate-callback (win activate-p)
   (when activate-p
-    (setf (capi::interface-menu-bar-items win) 
+    (setf (capi::interface-menu-bar-items win)
           (text-editor-window-menus win)))
   (om-text-editor-activate-callback win activate-p))
 
@@ -127,37 +127,37 @@
 (defmethod file-operations-enabled ((self t)) t)
 (defmethod file-operations-enabled ((self om-text-editor-window)) t)
 
-(defmethod save-operation-enabled ((self om-text-editor-window)) 
+(defmethod save-operation-enabled ((self om-text-editor-window))
   (or (buffer-modified-p self) (null (file self))))
 
 (defmethod capi:interface-display :after ((win om-text-editor-window))
-  (capi::execute-with-interface 
+  (capi::execute-with-interface
    win
    #'(lambda ()
-       (when (lisp? win) 
-         (call-editor (ep win) 
+       (when (lisp? win)
+         (call-editor (ep win)
                       (list 'editor:lisp-mode-command (capi::editor-pane-buffer (ep win))))
          (echo-string win "")))))
 
 
 (defun text-window-title-from-path (path)
-    (if path
-        (concatenate 'string 
-                     (if (pathname-type path) 
-                         (concatenate 'string (pathname-name path) "." (pathname-type path))
-                       (pathname-name path))
-                     " [ "
-                     (namestring (make-pathname 
-                                  :directory (pathname-directory path)
-                                  :device (pathname-device path)
-                                  :host (pathname-host path)
-                                  ))
-                     " ]")
-      "Untitled [...]"))
+  (if path
+      (concatenate 'string
+                   (if (pathname-type path)
+                       (concatenate 'string (pathname-name path) "." (pathname-type path))
+                     (pathname-name path))
+                   " [ "
+                   (namestring (make-pathname
+                                :directory (pathname-directory path)
+                                :device (pathname-device path)
+                                :host (pathname-host path)
+                                ))
+                   " ]")
+    "Untitled [...]"))
 
 
 (defmethod (setf file) :after (path (self om-text-editor-window))
-  (setf (capi::interface-title self) 
+  (setf (capi::interface-title self)
         (text-window-title-from-path path)))
 
 ;;; called when the text is edited
@@ -176,9 +176,9 @@
 
 (defun find-open-file (path)
   (find (namestring path) *editor-files-open*
-        :test 'string-equal 
+        :test 'string-equal
         :key #'(lambda (win)
-                 (namestring 
+                 (namestring
                   (or (and (ep win) (capi::editor-pane-buffer (ep win))
                            (editor::buffer-pathname (capi::editor-pane-buffer (ep win))))
                       "")))))
@@ -189,13 +189,13 @@
   (let* ((path (and (pathnamep contents) contents))
          (window (when path (find-open-file path)))
          (ed-font (or font *text-editor-font*)))
-    (if window 
+    (if window
         ;;; the file is already open ! (get the window)
-        (capi::find-interface (type-of window) :name (capi::capi-object-name window))      
+        (capi::find-interface (type-of window) :name (capi::capi-object-name window))
       (progn
-        (setf window (make-instance (or class 'om-text-editor-window) 
+        (setf window (make-instance (or class 'om-text-editor-window)
                                     :name (concatenate 'string "TextEditor_" (string (gensym)))
-                                    :best-x x :best-y y 
+                                    :best-x x :best-y y
                                     :best-width (or w 500) :best-height (or h 500)
                                     :title (or title (text-window-title-from-path path))
                                     :parent (capi:convert-to-screen)
@@ -209,14 +209,14 @@
         (let* ((buffer (if path (editor:find-file-buffer path) :temp))
                (text (cond ((consp contents)
                             (format nil "~{~a~^~%~}" contents))
-                           ((stringp contents) contents) 
+                           ((stringp contents) contents)
                            (contents (format nil "~a" contents))
                            (t "")))
-               (ep (make-instance 'capi::editor-pane :echo-area lisp 
-                                  :buffer buffer 
+               (ep (make-instance 'capi::editor-pane :echo-area lisp
+                                  :buffer buffer
                                   :text text
                                   ;; :destroy-callback #'(lambda (ep) (print (capi::editor-pane-buffer ep)))
-                                  :change-callback #'(lambda (pane point old-length new-length) 
+                                  :change-callback #'(lambda (pane point old-length new-length)
                                                        (declare (ignore pane point old-length new-length))
                                                        (om-text-editor-modified window))
                                   :font ed-font)))
@@ -236,7 +236,7 @@
 
 (defmethod om-set-text-editor-text ((self om-text-editor-window) (text list))
   (and (ep self) (capi::editor-pane-buffer (ep self)) text
-       (om-buffer-set (capi::editor-pane-buffer (ep self)) 
+       (om-buffer-set (capi::editor-pane-buffer (ep self))
                       (reduce #'(lambda (s1 s2) (concatenate 'string s1 (string #\Newline) s2)) text))
        ))
 
@@ -246,10 +246,10 @@
 ;;;========================
 ;;; applies to one specific window
 (defmethod change-text-edit-font ((self om-text-editor-window))
-   (with-slots (ep) self
-     (update-text-editor-font 
-      self 
-      (capi::prompt-for-font "" :font (capi::simple-pane-font ep)))))
+  (with-slots (ep) self
+    (update-text-editor-font
+     self
+     (capi::prompt-for-font "" :font (capi::simple-pane-font ep)))))
 
 (defmethod update-text-editor-font ((self om-text-editor-window) newfont)
   (with-slots (ep) self
@@ -260,7 +260,7 @@
   (setf *text-editor-font* newfont)
   (mapc #'(lambda (w) (update-text-editor-font w newfont))
         (capi::collect-interfaces 'om-text-editor-window)))
-  
+
 
 ;;;========================
 ;;; OPEN FILE
@@ -272,24 +272,24 @@
 (defun open-text-file ()
   (when-let (path (capi::prompt-for-file "Open File:" :owner (capi::convert-to-screen)
                                          :pathname *last-open-directory*
-                                         :if-does-not-exist :error :operation :open  
-                                         :filter "*.*" 
+                                         :if-does-not-exist :error :operation :open
+                                         :filter "*.*"
                                          :filters '("Lisp Files" "*.lisp" "Text files" "*.txt" "All Files" "*.*")))
     (setf *last-open-directory* (make-pathname :directory (pathname-directory path)))
     (om-open-text-editor :contents path :lisp (string-equal "lisp" (pathname-type path)))))
 
 (defmethod import-text-from-file ((self om-text-editor-window) &optional path)
   (with-slots (ep) self
-    (when-let* ((path (or path (prompt-for-file "Select File:" 
-                                                :if-does-not-exist :error 
+    (when-let* ((path (or path (prompt-for-file "Select File:"
+                                                :if-does-not-exist :error
                                                 :filter "*.*"
                                                 :filters '("Lisp Files" "*.lisp" "Text files" "*.txt" "All Files" "*.*"))))
                 (current (capi::editor-pane-buffer ep))
-                (newbuffer (with-safe-file-operation self path "open" nil 
+                (newbuffer (with-safe-file-operation self path "open" nil
                              (editor:find-file-buffer path)))
                 (newtext (editor::use-buffer newbuffer
-                           (editor:points-to-string 
-                            (editor:buffers-start newbuffer) 
+                           (editor:points-to-string
+                            (editor:buffers-start newbuffer)
                             (editor:buffers-end newbuffer)))))
       (editor::use-buffer current
         (editor::clear-buffer current)
@@ -311,9 +311,9 @@
                           ))
     ;(print string-to-search)
     (when edwin
-      (capi::execute-with-interface 
+      (capi::execute-with-interface
        edwin
-       #'(lambda () 
+       #'(lambda ()
            (with-slots (ep) edwin
              (let ((buffer (editor-pane-buffer ep)))
                (editor::use-buffer buffer
@@ -351,10 +351,10 @@
 ;            :cancel-button nil)
 ;         answer)
 ;    t))
-  
+
 ;;; SAVE-operations-enabled
 ;;; NEW STYLE : "SAVE BEFORE CLOSE?"
-;;; check if : Buffer modified 
+;;; check if : Buffer modified
 ;;; called by the destroy callback
 
 (defmethod om-text-editor-check-before-close  ((self om-text-editor-window)) t)
@@ -362,7 +362,7 @@
 ;;; used as callback of the capi::interface
 (defmethod check-close-buffer ((self om-text-editor-window))
   (and (om-text-editor-check-before-close self)
-       (if (and (om-lisp::buffer-modified-p self) 
+       (if (and (om-lisp::buffer-modified-p self)
                 (om-lisp::save-operation-enabled self))
            (multiple-value-bind (answer successp)
                (capi:prompt-for-confirmation
@@ -385,7 +385,7 @@
 (defun check-buffers-before-close ()
   (let ((editors (capi::collect-interfaces 'om-text-editor-window))
         (ok t))
-    (loop for ed in editors 
+    (loop for ed in editors
           while ok do
           (when (save-operation-enabled ed)
             (capi::find-interface (type-of ed) :name (capi::capi-object-name ed))
@@ -405,32 +405,32 @@
 
 ;;; what is is this for ? :-s
 (defun set-hfs-codes (path type creator)
- #+cocoa
- (objc:with-autorelease-pool ()
-   (labels ((transform-for-endianess (x)
-            (if (find :little-endian *features*)
-                (- 3 x)
-              x))
-          (code-for-string (str)
-            (if (>= (length str) 4)
-                (loop for i from 0 to 3
-                        sum
-                        (ash (char-code (aref str i)) (ash (transform-for-endianess i) 3)))
-              0))
-          (set-value-for-key (dict str key)
-            (objc:invoke dict "setValue:forKey:"
-                    (objc:invoke "NSNumber" "numberWithUnsignedInt:" (code-for-string str)) key)))
-     (let ((dict (objc:invoke "NSMutableDictionary" "dictionaryWithCapacity:" 2)))
-       (set-value-for-key dict type "NSFileHFSTypeCode")
-       (set-value-for-key dict creator "NSFileHFSCreatorCode")
-       (objc:invoke (objc:invoke "NSFileManager" "defaultManager") "changeFileAttributes:atPath:" dict (namestring path))
-       (objc:invoke-into 'string dict "description"))))
-)
+  #+cocoa
+  (objc:with-autorelease-pool ()
+    (labels ((transform-for-endianess (x)
+               (if (find :little-endian *features*)
+                   (- 3 x)
+                 x))
+             (code-for-string (str)
+               (if (>= (length str) 4)
+                   (loop for i from 0 to 3
+                         sum
+                         (ash (char-code (aref str i)) (ash (transform-for-endianess i) 3)))
+                 0))
+             (set-value-for-key (dict str key)
+               (objc:invoke dict "setValue:forKey:"
+                            (objc:invoke "NSNumber" "numberWithUnsignedInt:" (code-for-string str)) key)))
+      (let ((dict (objc:invoke "NSMutableDictionary" "dictionaryWithCapacity:" 2)))
+        (set-value-for-key dict type "NSFileHFSTypeCode")
+        (set-value-for-key dict creator "NSFileHFSCreatorCode")
+        (objc:invoke (objc:invoke "NSFileManager" "defaultManager") "changeFileAttributes:atPath:" dict (namestring path))
+        (objc:invoke-into 'string dict "description"))))
+  )
 
 (defun save-to-file (text path)
-    (with-open-file (ss path :direction :output :if-exists :supersede)
-      (write-string text ss))
-    (set-hfs-codes path *om-text-editor-type-code* *om-text-editor-creator-code*))
+  (with-open-file (ss path :direction :output :if-exists :supersede)
+    (write-string text ss))
+  (set-hfs-codes path *om-text-editor-type-code* *om-text-editor-creator-code*))
 
 (defmethod om-set-text-editor-file ((self om-text-editor-window) path)
   (setf (file self) path)
@@ -454,7 +454,7 @@
         ))))
 
 ;;; SAVE AS : the current buffer to a new file
-(defmethod type-filter-for-text-editor ((self om-text-editor-window)) 
+(defmethod type-filter-for-text-editor ((self om-text-editor-window))
   '("Lisp Files" "*.lisp" "Text files" "*.txt" "All Files" "*.*"))
 
 
@@ -462,11 +462,11 @@
   (with-slots (ep) self
     (let ((buffer (capi::editor-pane-buffer ep)))
       (when-let (path (prompt-for-file "Save file as:"
-                                   :pathname (file self)
-                                   :if-does-not-exist :ok
-                                   :filters (type-filter-for-text-editor self)
-                                   :if-exists :prompt
-                                   :operation :save))
+                                       :pathname (file self)
+                                       :if-does-not-exist :ok
+                                       :filters (type-filter-for-text-editor self)
+                                       :if-exists :prompt
+                                       :operation :save))
         (setf *last-open-directory* (make-pathname :directory (pathname-directory path)))
         (when-let (win (find-open-file path))
           (capi::destroy win))
@@ -476,22 +476,22 @@
         (setf (editor:buffer-major-mode (capi::editor-pane-buffer ep)) "Lisp")
         (om-set-text-editor-file self path)
         ))))
-       
+
 
 ;;; REVERT : put the file contents back in the editor
 (defmethod revert-text-file ((self om-text-editor-window))
   (if (file self)
-    (with-slots (ep) self
-      (let* ((current (capi::editor-pane-buffer ep))
-             (path (editor:buffer-pathname current)))
-        (with-safe-file-operation self path "revert" "Reverted"
-          (call-editor ep (list 'editor:revert-buffer-command nil current nil)))
-        ))
+      (with-slots (ep) self
+        (let* ((current (capi::editor-pane-buffer ep))
+               (path (editor:buffer-pathname current)))
+          (with-safe-file-operation self path "revert" "Reverted"
+            (call-editor ep (list 'editor:revert-buffer-command nil current nil)))
+          ))
     (error "No file is attached to this editor"))
   (update-window-title self))
 
 ;;;=====================
-;;; TEXT EDIT TOOLS 
+;;; TEXT EDIT TOOLS
 ;;;=====================
 
 (defmethod text-edit-copy ((self om-text-editor-window))
@@ -550,9 +550,9 @@
 (defvar *fasl-extension* (pathname-type (cl-user::compile-file-pathname "")))
 
 (defun prompt-for-lisp-file ()
-  (capi::prompt-for-file 
-   "Choose a Lisp file..." 
-   :filters (list "All files" "*.*" "Lisp File" "*.lisp" "Compiled Lisp File" 
+  (capi::prompt-for-file
+   "Choose a Lisp file..."
+   :filters (list "All files" "*.*" "Lisp File" "*.lisp" "Compiled Lisp File"
                   (concatenate 'string "*." *fasl-extension*))
    :pathname *last-open-directory*))
 
@@ -568,27 +568,27 @@
     ))
 
 (defun eval-string-on-process (forms-as-string)
- (let ((commands (concatenate 'string forms-as-string (format nil "~Ct" #\Newline))))
-   (loop while (> (length commands) 0)
-         do
-         (handler-case
-             (multiple-value-bind (form new-pos) (read-from-string commands)
-               (om-lisp::om-eval-on-process form)
-               (loop while (and (< new-pos (length commands)) (lw:whitespace-char-p (aref commands new-pos)))
-                     do
-                     (incf new-pos))
-               (setf commands (subseq commands new-pos)))
-           (t (condition) (progn (capi::display-message "error ~A" condition) (abort)))))))
+  (let ((commands (concatenate 'string forms-as-string (format nil "~Ct" #\Newline))))
+    (loop while (> (length commands) 0)
+          do
+          (handler-case
+              (multiple-value-bind (form new-pos) (read-from-string commands)
+                (om-lisp::om-eval-on-process form)
+                (loop while (and (< new-pos (length commands)) (lw:whitespace-char-p (aref commands new-pos)))
+                      do
+                      (incf new-pos))
+                (setf commands (subseq commands new-pos)))
+            (t (condition) (progn (capi::display-message "error ~A" condition) (abort)))))))
 
 
 (defmethod eval-lisp-region ((self om-text-editor-window))
- (with-slots (ep) self
-   (let* ((buffer (capi::editor-pane-buffer ep))
-          (command
-           (if (editor:variable-value "Highlight Active Region" :buffer buffer)
-               'editor::evaluate-region-command
-             'editor::evaluate-defun-command)))
-     (capi:call-editor ep (list command buffer)))))
+  (with-slots (ep) self
+    (let* ((buffer (capi::editor-pane-buffer ep))
+           (command
+            (if (editor:variable-value "Highlight Active Region" :buffer buffer)
+                'editor::evaluate-region-command
+              'editor::evaluate-defun-command)))
+      (capi:call-editor ep (list command buffer)))))
 
 
 (defmethod indent-lisp-buffer ((self om-text-editor-window))
@@ -605,7 +605,7 @@
   (capi::execute-with-interface self 'abort))
 
 (defmethod find-definition ((self om-text-editor-window))
- (with-slots (ep) self
+  (with-slots (ep) self
     (let ((buffer (capi::editor-pane-buffer ep))
           (symbol nil))
       (editor::use-buffer buffer
@@ -614,7 +614,7 @@
         (when symbol (om-lisp::om-edit-definition symbol))
         ))))
 
-; (editor::intern-symbol-from-string "aaa") 
+; (editor::intern-symbol-from-string "aaa")
 
 ;;; LOAD THE LISP FILE ATTACHED...
 (defmethod load-lisp-file ((self om-text-editor-window))
@@ -633,12 +633,12 @@
   (let ((filename (prompt-for-lisp-file)))
     (when filename
       (if (probe-file filename)
-          (progn 
+          (progn
             (load filename)
             (setf *last-open-directory* (make-pathname :directory (pathname-directory filename)))
             (echo-string self (concatenate 'string "File " (namestring filename) " loaded."))
             )
-        (progn 
+        (progn
           (beep-pane nil)
           (echo-string self (concatenate 'string "File " (namestring filename) " not found."))
           ))
@@ -651,65 +651,65 @@
 
 (defun disabled (window) (declare (ignore window)) nil)
 
-;;; text edit menubar 
-(defmethod text-editor-window-menus ((self om-text-editor-window)) 
-  (remove 
+;;; text edit menubar
+(defmethod text-editor-window-menus ((self om-text-editor-window))
+  (remove
    nil
-   (append 
-    (list 
-    (make-instance 
-     'capi::menu :title "File"
-     :items 
-     (list (make-instance 
-            'capi::menu-component 
-            :items (list 
-                    (make-instance 'capi::menu-item :title "New..."
-                                   :callback-type :none
-                                   :callback #'(lambda () (om-open-text-editor :lisp (lisp? self))) 
-                                   :accelerator #\n
-                                   :enabled-function 'file-operations-enabled)
-                    (make-instance 'capi::menu-item :title "Open..."
-                                   :callback-type :none
-                                   :callback 'open-text-file
-                                   :accelerator #\o
-                                   :enabled-function 'file-operations-enabled)))
-           (make-instance 
-            'capi::menu-component 
-            :items (list 
-                    (make-instance 'capi::menu-item :title "Import From..."
-                                   :callback-type :interface
-                                   :callback 'import-text-from-file)
-                    (make-instance 'capi::menu-item :title "Revert to Saved"
-                                   :callback-type :interface
-                                   :callback 'revert-text-file
-                                   :accelerator nil
-                                   :enabled-function #'(lambda (item) (file item)))))
-           (make-instance 
-            'capi::menu-component 
-            :items (list 
-                    (make-instance 'capi::menu-item :title "Save"
-                                   :callback-type :interface
-                                   :callback 'save-text-file
-                                   :accelerator #\s
-                                   :enabled-function 'save-operation-enabled)
-                    (make-instance 'capi::menu-item :title "Save As..."
-                                   :callback-type :interface
-                                   :callback 'save-as-text-file)))
-           (make-instance 'capi::menu-item :title "Close"
-                          :callback-type :interface
-                          :callback 'close-text-editor-window
-                          :accelerator #\w)
-                                       
-           ))
+   (append
+    (list
+     (make-instance
+      'capi::menu :title "File"
+      :items
+      (list (make-instance
+             'capi::menu-component
+             :items (list
+                     (make-instance 'capi::menu-item :title "New..."
+                                    :callback-type :none
+                                    :callback #'(lambda () (om-open-text-editor :lisp (lisp? self)))
+                                    :accelerator #\n
+                                    :enabled-function 'file-operations-enabled)
+                     (make-instance 'capi::menu-item :title "Open..."
+                                    :callback-type :none
+                                    :callback 'open-text-file
+                                    :accelerator #\o
+                                    :enabled-function 'file-operations-enabled)))
+            (make-instance
+             'capi::menu-component
+             :items (list
+                     (make-instance 'capi::menu-item :title "Import From..."
+                                    :callback-type :interface
+                                    :callback 'import-text-from-file)
+                     (make-instance 'capi::menu-item :title "Revert to Saved"
+                                    :callback-type :interface
+                                    :callback 'revert-text-file
+                                    :accelerator nil
+                                    :enabled-function #'(lambda (item) (file item)))))
+            (make-instance
+             'capi::menu-component
+             :items (list
+                     (make-instance 'capi::menu-item :title "Save"
+                                    :callback-type :interface
+                                    :callback 'save-text-file
+                                    :accelerator #\s
+                                    :enabled-function 'save-operation-enabled)
+                     (make-instance 'capi::menu-item :title "Save As..."
+                                    :callback-type :interface
+                                    :callback 'save-as-text-file)))
+            (make-instance 'capi::menu-item :title "Close"
+                           :callback-type :interface
+                           :callback 'close-text-editor-window
+                           :accelerator #\w)
+
+            ))
      (make-instance 'capi::menu :title "Edit"
-                    :items (list 
+                    :items (list
                             (make-instance 'capi::menu-item :title "Undo"
                                            :callback-type :interface
                                            :callback 'text-edit-undo
                                            :accelerator #\z)
-                            (make-instance 
-                             'capi::menu-component 
-                             :items (list 
+                            (make-instance
+                             'capi::menu-component
+                             :items (list
                                      (make-instance 'capi::menu-item :title "Cut"
                                                     :callback-type :interface
                                                     :callback 'text-edit-cut
@@ -722,20 +722,20 @@
                                                     :callback-type :interface
                                                     :callback 'text-edit-paste
                                                     :accelerator #\v)))
-                            (make-instance 'capi::menu-item :title "Select All" 
-                                           :callback 'text-select-all 
+                            (make-instance 'capi::menu-item :title "Select All"
+                                           :callback 'text-select-all
                                            :accelerator #\a
                                            :callback-type :interface)
-                            (make-instance 
-                             'capi::menu-component 
+                            (make-instance
+                             'capi::menu-component
                              :items (list (make-instance 'capi::menu-item :title "Text Font"
                                                          :callback-type :interface
                                                          :callback 'change-text-edit-font
                                                          :accelerator #\T)
                                           ))
-                            (make-instance 
-                             'capi::menu-component 
-                             :items (list 
+                            (make-instance
+                             'capi::menu-component
+                             :items (list
                                      (make-instance 'capi::menu-item :title "Find..."
                                                     :callback-type :interface
                                                     :callback 'find-in-file
@@ -745,17 +745,17 @@
                                                     :callback 'replace-in-file
                                                     :accelerator #\r)
                                      ))
-                            (make-instance 'capi::menu-item :title "Search..." 
-                                           :callback 'search-files 
+                            (make-instance 'capi::menu-item :title "Search..."
+                                           :callback 'search-files
                                            :accelerator nil
                                            :enabled-function 'disabled
                                            :callback-type :interface)))
      (if (lisp-operations-enabled self)
          (make-instance 'capi::menu :title "Lisp"
-                        :items (list 
-                                (make-instance 
-                                 'capi::menu-component 
-                                 :items (list 
+                        :items (list
+                                (make-instance
+                                 'capi::menu-component
+                                 :items (list
                                          (make-instance 'capi::menu-item :title "Eval All"
                                                         :callback-type :interface
                                                         :callback 'eval-lisp-buffer
@@ -788,10 +788,10 @@
                                                         :callback 'find-definition
                                                         :enabled-function 'lisp-operations-enabled
                                                         :accelerator #\.)))
-                                              
-                                (make-instance 
-                                 'capi::menu-component 
-                                 :items (list 
+
+                                (make-instance
+                                 'capi::menu-component
+                                 :items (list
                                          (make-instance 'capi::menu-item :title "Load File"
                                                         :callback-type :interface
                                                         :callback 'load-lisp-file
@@ -799,9 +799,9 @@
                                                         :accelerator nil)
                                          ))
                                 #|
-                          (make-instance 
-                           'capi::menu-component 
-                           :items (list 
+                          (make-instance
+                           'capi::menu-component
+                           :items (list
                                    (make-instance 'capi::menu-item :title "Abort"
                                                   :callback-type :interface
                                                   :callback 'text-edit-abort
@@ -821,36 +821,36 @@
 ;;; possibly redefined/extended by om-text-editor-window subclasses
 (defmethod class-specific-additional-menus ((self t)) nil)
 
-(defmethod class-specific-additional-menus ((self om-text-editor-window))  
-  (list 
-   (make-instance 
-    'capi::menu 
-    :title "Windows" 
+(defmethod class-specific-additional-menus ((self om-text-editor-window))
+  (list
+   (make-instance
+    'capi::menu
+    :title "Windows"
     :callback-type :none
     :items (list
-            (make-instance 
-             'capi::menu-item 
-             :title "Listener" 
+            (make-instance
+             'capi::menu-item
+             :title "Listener"
              :accelerator "accelerator-L"
              :setup-callback-argument :item
              :callback-type :none
-             :callback #'(lambda () 
+             :callback #'(lambda ()
                            (let ((win (capi::locate-interface 'om-listener)))
                              (if win (capi::raise-interface win)
-                               (om-make-listener :title "Listener" 
+                               (om-make-listener :title "Listener"
                                                  :initial-lambda #'(lambda () (in-package :om))
                                                  :height 200)))))
-             (make-instance 
+            (make-instance
              'capi:menu-component
-             :items (mapcar 
-                     #'(lambda (w) 
-                         (make-instance 
-                          'capi::menu-item 
+             :items (mapcar
+                     #'(lambda (w)
+                         (make-instance
+                          'capi::menu-item
                           :title (interface-title w)
                           :setup-callback-argument :item
                           :callback-type :none
-                          :callback #'(lambda () (capi::find-interface 
-                                                  (type-of w) 
+                          :callback #'(lambda () (capi::find-interface
+                                                  (type-of w)
                                                   :name (capi::capi-object-name w)))))
                      (capi::collect-interfaces 'om-text-editor-window))
              :callback-type :item
@@ -883,22 +883,22 @@
                   (when (editor:form-offset temp1 -1)
                     (ignore-errors
                       (let ((*package* (editor::buffer-package-to-use temp1)))
-                        (read-from-string 
+                        (read-from-string
                          (editor:points-to-string temp1 temp2))))))
               (editor:buffer-symbol-at-point (editor:current-buffer))))
          (window (editor:current-window))
          (function (find-function-for-arglist x)))
     (when (fboundp function)
-      (show-arglist function 
-                    (capi:top-level-interface 
-                     (editor:window-text-pane window)) 
+      (show-arglist function
+                    (capi:top-level-interface
+                     (editor:window-text-pane window))
                     window))))
 
 (defun show-arglist (function interface editor-window)
   (let ((lambdalist (function-lambda-list  function)))
-    (setq *arglist-timer* 
-          (mp:make-timer 'capi:execute-with-interface interface 
-                         'editor:process-character 
+    (setq *arglist-timer*
+          (mp:make-timer 'capi:execute-with-interface interface
+                         'editor:process-character
                          (list 'editor:message (format nil "ARGS: ~A" lambdalist))
                          editor-window))
     (mp:schedule-timer-relative *arglist-timer* *arglist-delay*)
@@ -914,10 +914,10 @@
                 ((quote function) (find-function-for-arglist (cdr x)))
                 (setf (and (= (length x) 2)
                            (symbolp (second x))
-                           x)))))))) 
+                           x))))))))
 
-(editor:bind-key "Insert Space and Show Arglist" #\Space :mode "Lisp") 
-(editor:bind-key "Insert Space and Show Arglist" #\Space :mode "Execute") 
+(editor:bind-key "Insert Space and Show Arglist" #\Space :mode "Lisp")
+(editor:bind-key "Insert Space and Show Arglist" #\Space :mode "Execute")
 
 
 

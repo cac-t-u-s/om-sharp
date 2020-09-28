@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson, D. Bouche
@@ -26,7 +26,7 @@
 
 (defun init-om-player ()
   (setf *general-player*
-        (make-player :reactive-player 
+        (make-player :reactive-player
                      :run-callback 'play-editor-callback
                      :callback-tick 50
                      :stop-callback 'stop-editor-callback)))
@@ -44,14 +44,14 @@
 (add-om-init-fun 'init-om-player)
 
 
-(defmethod get-obj-to-play ((self ombox)) 
+(defmethod get-obj-to-play ((self ombox))
   (play-obj-from-value (car (value self)) self))
 
 (defmethod play-obj-from-value (val box) val)
 
 
 ;;; when the value of a box is another box...
-(defmethod play-obj-from-value ((val ombox) box) 
+(defmethod play-obj-from-value ((val ombox) box)
   (unless (equal (car (value val)) box) ;;; can happen, with "MY-BOX" !
     (play-obj-from-value (car (value val)) box)))
 
@@ -59,7 +59,7 @@
 (defmethod play-box? ((self OMBoxEditCall)) t)
 (defmethod get-obj-dur ((self t)) 0)
 
-(defmethod get-obj-dur ((self ombox)) 
+(defmethod get-obj-dur ((self ombox))
   (if (play-obj? (get-obj-to-play self))
       (get-obj-dur (get-obj-to-play self))
     0))
@@ -84,14 +84,14 @@
 
 (defmethod start-box-callback ((self OMBox))
   (setf (play-state self) t)
-  (when (frame self) 
+  (when (frame self)
     (om-invalidate-view (frame self))))
 
 (defmethod stop-box-callback ((self OMBox))
   (setf (play-state self) nil)
-  (when (frame self) 
-      (set-box-play-time (frame self) 0)
-      (om-invalidate-view (frame self))))
+  (when (frame self)
+    (set-box-play-time (frame self) 0)
+    (om-invalidate-view (frame self))))
 
 
 ;;; called from the system / user
@@ -113,7 +113,7 @@
   (play-box-callback self time)
   (when (editor self) (play-editor-callback (editor self) time)))
 
-(defmethod stop-editor-callback ((self OMBox)) 
+(defmethod stop-editor-callback ((self OMBox))
   (box-player-stop self)
   (when (editor self) (stop-editor-callback (editor self))))
 
@@ -149,13 +149,13 @@
   (let ((play-boxes (remove-if-not 'play-box? boxlist)))
     (if (find-if 'play-state play-boxes)
         ;;; stop all
-        (mapc #'(lambda (box) 
+        (mapc #'(lambda (box)
                   (player-stop-object *general-player* (get-obj-to-play box))
                   (box-player-stop box)
                   )
               play-boxes)
       ;;; start all
-      (mapc #'(lambda (box) 
+      (mapc #'(lambda (box)
                 (when (play-obj? (get-obj-to-play box))
                   (player-play-object *general-player* (get-obj-to-play box) box)
                   (box-player-start box))

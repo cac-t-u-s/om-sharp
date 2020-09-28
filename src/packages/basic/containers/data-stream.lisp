@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -34,7 +34,7 @@
 (defmethod data-size ((self data-frame)) 1)
 (defmethod data-frame-text-description ((self data-frame)) '("DATA FRAME"))
 
-(defmethod get-frame-action ((self data-frame)) 
+(defmethod get-frame-action ((self data-frame))
   #'(lambda () (print "EMPTY ACTION")))
 
 (defmethod get-obj-dur ((self data-frame)) (item-get-duration self))
@@ -44,7 +44,7 @@
   (;; (date :accessor date :initarg :dateg :initform 0 :documentation "date/time of the frame")
    (actions :accessor actions :initarg :actions :initform nil)))
 
-(defmethod get-frame-action ((self act-bundle)) 
+(defmethod get-frame-action ((self act-bundle))
   #'(lambda () (mapcar 'funcall (actions self))))
 
 (defun make-act-bundle (date actions)
@@ -68,16 +68,16 @@
 (defmethod (setf frames) (frames (self internal-data-stream)) (setf (slot-value self (data-stream-frames-slot self)) frames))
 
 (defmethod data-stream-get-frames ((self internal-data-stream)) (frames self))
-(defmethod data-stream-set-frames ((self internal-data-stream) frames) 
+(defmethod data-stream-set-frames ((self internal-data-stream) frames)
   (setf (frames self) frames)
   (time-sequence-update-internal-times self)
   (time-sequence-update-obj-dur self))
 
 ;;; TIME-SEQUENCE API (called by timeline editor etc.)
-(defmethod time-sequence-get-timed-item-list ((self internal-data-stream)) 
+(defmethod time-sequence-get-timed-item-list ((self internal-data-stream))
   (data-stream-get-frames self))
 
-(defmethod time-sequence-set-timed-item-list ((self internal-data-stream) list) 
+(defmethod time-sequence-set-timed-item-list ((self internal-data-stream) list)
   (data-stream-set-frames self list))
 
 (defmethod time-sequence-make-timed-item-at ((self internal-data-stream) at)
@@ -97,18 +97,18 @@
 
 
 ;;; called after initialize-instance in OM-context
-(defmethod om-init-instance ((self data-stream) &optional initargs)  
+(defmethod om-init-instance ((self data-stream) &optional initargs)
 
   (let ((frames (find-value-in-kv-list initargs :frames)))
-    
-    (when frames 
+
+    (when frames
       (setf (default-frame-type self) (type-of (car frames)))
       ;;; => makes copies of the frames if provided as initargs
       (setf (frames self) (om-copy (frames self))))
-    
+
     (setf (frames self) (sort (remove nil (frames self)) '< :key 'item-get-time))
     (mapc #'(lambda (f) (setf (attributes f) nil)) frames))
-  
+
   (call-next-method))
 
 
@@ -121,8 +121,8 @@
       (multiple-value-bind (fx ox)
           (conversion-factor-and-offset 0 (get-obj-dur self) w x)
         (loop for frame in (data-stream-get-frames self) do
-              (om-draw-rect (+ ox (* fx (or (date frame) 0))) 
-                            y 4 h 
+              (om-draw-rect (+ ox (* fx (or (date frame) 0)))
+                            y 4 h
                             :fill t)
               )))))
 
@@ -133,41 +133,41 @@
 (defmethod play-obj? ((self internal-data-stream)) t)
 
 (defmethod get-action-list-for-play ((object internal-data-stream) interval &optional parent)
-  (mapcar 
-   #'(lambda (frame) 
+  (mapcar
+   #'(lambda (frame)
        (list (date frame)
              #'(lambda () (funcall (get-frame-action frame)))))
-   (remove-if #'(lambda (date) (or (< date (car interval)) (> date (cadr interval)))) 
-              (data-stream-get-frames object) 
+   (remove-if #'(lambda (date) (or (< date (car interval)) (> date (cadr interval))))
+              (data-stream-get-frames object)
               :key #'onset)))
 
 ;;;======================================
 ;;; OMMETHOD FOR PATCHES
 ;;;======================================
 
-(defmethod* add-frame-in-data-stream ((self internal-data-stream) frame) 
-   (time-sequence-insert-timed-item-and-update self frame)
-   frame)
+(defmethod* add-frame-in-data-stream ((self internal-data-stream) frame)
+  (time-sequence-insert-timed-item-and-update self frame)
+  frame)
 
-(defmethod* add-frame-in-data-stream ((self t) frame) 
+(defmethod* add-frame-in-data-stream ((self t) frame)
   (om-beep-msg "ERROR: ~A is not a valid DATA-STREAM" self))
 
 ;;; when editing in mode "box" => allows to update editor
-(defmethod* add-frame-in-data-stream ((self omboxeditcall) frame) 
-   (time-sequence-insert-timed-item-and-update (get-box-value self) frame)
-   (update-after-eval self)
-   frame)
+(defmethod* add-frame-in-data-stream ((self omboxeditcall) frame)
+  (time-sequence-insert-timed-item-and-update (get-box-value self) frame)
+  (update-after-eval self)
+  frame)
 
 (defmethod* clear-data-stream ((self internal-data-stream))
   (data-stream-set-frames self nil))
 
 (defmethod* clear-data-stream ((self t))
- (om-beep-msg "ERROR: ~A is not a valid DATA-STREAM" self))
+  (om-beep-msg "ERROR: ~A is not a valid DATA-STREAM" self))
 
 ;;; when editing in mode "box" => allows to update editor
-(defmethod* clear-data-stream ((self omboxeditcall)) 
-   (clear-data-stream (get-box-value self))
-   (update-after-eval self))
+(defmethod* clear-data-stream ((self omboxeditcall))
+  (clear-data-stream (get-box-value self))
+  (update-after-eval self))
 
 
 

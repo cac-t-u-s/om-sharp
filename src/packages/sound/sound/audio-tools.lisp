@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -19,22 +19,22 @@
 
 
 (defmethod* adsr (amp1 amp2 a d s r &optional (decimals 3))
-    :icon 110
-    :indoc '("max amplitude" "sustained amplitude" "attack time" "decay time" "sustain time" "release time" "BPF precision")
-    :initvals '(1 0.8 0.2 0.1 0.5 0.2 3)
-    :doc "Generates an ADSR BPF (Attack-Decay-Sustain-Release)
+  :icon 110
+  :indoc '("max amplitude" "sustained amplitude" "attack time" "decay time" "sustain time" "release time" "BPF precision")
+  :initvals '(1 0.8 0.2 0.1 0.5 0.2 3)
+  :doc "Generates an ADSR BPF (Attack-Decay-Sustain-Release)
 
 If either <amp2> or <d> is NIL, generates a simple envelope with attack and release time (no decay).
 "
-    (if (and amp2 d)        
-        (make-instance 'BPF 
-                       :x-points (list 0 a (+ a d) (+ a d s) (+ a d s r))
-                       :y-points (list 0 amp1 amp2 amp2 0)
-                       :decimals decimals)
-      (make-instance 'BPF 
-                     :x-points(list 0 a (+ a s) (+ a s r))
-                     :y-points (list 0 amp1 amp1 0)
-                     :decimals decimals)))
+  (if (and amp2 d)
+      (make-instance 'BPF
+                     :x-points (list 0 a (+ a d) (+ a d s) (+ a d s r))
+                     :y-points (list 0 amp1 amp2 amp2 0)
+                     :decimals decimals)
+    (make-instance 'BPF
+                   :x-points(list 0 a (+ a s) (+ a s r))
+                   :y-points (list 0 amp1 amp1 0)
+                   :decimals decimals)))
 
 
 ;;;========================
@@ -127,7 +127,7 @@ If <samplerate> is NIL, the default sample rate is used to calculate the time."
 (defmethod* samples->sec ((samples list) samplerate)
   (mapcar #'(lambda (input) (samples->sec input samplerate)) samples))
 
-(defmethod* sec->samples ((secs number) samplerate) 
+(defmethod* sec->samples ((secs number) samplerate)
   :icon 'conversion
   :initvals '(0 nil)
   :indoc '("duration (s)" "sample rate (Hz)")
@@ -137,7 +137,7 @@ If <samplerate> is NIL, the default sample rate is used to calculate the time."
 If <samplerate> is NIL, the default sample rate is used to calculate the samples."
   (round (* secs (or samplerate (get-pref-value :audio :samplerate)))))
 
-(defmethod* sec->samples ((secs list) (samplerate number)) 
+(defmethod* sec->samples ((secs list) (samplerate number))
   (mapcar #'(lambda (input) (sec->samples input samplerate)) secs))
 
 
@@ -155,7 +155,7 @@ If <samplerate> is NIL, the default sample rate is used to calculate the time."
 (defmethod* samples->ms ((samples list) samplerate)
   (mapcar #'(lambda (input) (samples->ms input samplerate)) samples))
 
-(defmethod* ms->samples ((ms number) samplerate) 
+(defmethod* ms->samples ((ms number) samplerate)
   :icon 'conversion
   :initvals '(0 nil)
   :indoc '("duration (ms)" "sample rate (Hz)")
@@ -165,19 +165,19 @@ If <samplerate> is NIL, the default sample rate is used to calculate the time."
 If <samplerate> is NIL, the default sample rate is used to calculate the samples."
   (round (* ms (or samplerate (get-pref-value :audio :samplerate)) 0.001)))
 
-(defmethod* ms->samples ((ms list) (samplerate number)) 
+(defmethod* ms->samples ((ms list) (samplerate number))
   (mapcar #'(lambda (input) (ms->samples input samplerate)) ms))
-           
+
 
 ;;;========================
 ;;; MISC. UTILS
 ;;;========================
 
 (defun clip (val &optional (min 0.0) (max 1.0))
-" If val is below min, return min,
+  " If val is below min, return min,
   if val is above max, return max,
   otherwise return val.
-" 
+"
   (let ((from min) (to max))
     (when (> min max) (setf from max) (setf to min))
     (cond

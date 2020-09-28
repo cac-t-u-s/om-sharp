@@ -1,5 +1,5 @@
 ;=========================================================================
-; OM API 
+; OM API
 ; Multiplatform API for OpenMusic
 ; LispWorks Implementation
 ;=========================================================================
@@ -22,7 +22,7 @@
 ;=========================================================================
 
 ;;===========================================================================
-; PREDEFINED DIALOGS AND MESSAGES 
+; PREDEFINED DIALOGS AND MESSAGES
 ;;===========================================================================
 
 
@@ -33,19 +33,19 @@
 ;;; export :
 ;;;==========
 (export '(
-                om-get-user-string
-                om-choose-directory-dialog
-                om-choose-new-directory-dialog
-                om-choose-file-dialog
-                om-choose-new-file-dialog
-                om-y-or-n-dialog
-                om-y-n-cancel-dialog
-                om-choose-color-dialog
-                om-pick-color-view
-                om-choose-font-dialog
-                om-message-dialog
-                om-beep
-                ) :om-api)
+          om-get-user-string
+          om-choose-directory-dialog
+          om-choose-new-directory-dialog
+          om-choose-file-dialog
+          om-choose-new-file-dialog
+          om-y-or-n-dialog
+          om-y-n-cancel-dialog
+          om-choose-color-dialog
+          om-pick-color-view
+          om-choose-font-dialog
+          om-message-dialog
+          om-beep
+          ) :om-api)
 
 
 ;;;==========
@@ -53,14 +53,14 @@
 (defvar *last-directory* nil)
 
 (defun def-dialog-owner ()
- #-cocoa nil
- #+cocoa (capi::convert-to-screen))
+  #-cocoa nil
+  #+cocoa (capi::convert-to-screen))
 
-(defun om-get-user-string (prompt &key (initial-string "")) 
+(defun om-get-user-string (prompt &key (initial-string ""))
   (capi::prompt-for-string prompt :initial-value initial-string
                            :pane-args `(:visible-min-width ,(max 300 (om-string-size initial-string (gp:font-description (capi::simple-pane-font *dummy-view*)))))
                            :accept-null-string t))
-     
+
 
 ;;; prompt does not work (macOS 10.14) ?
 (defun om-choose-file-dialog (&key (prompt "Choose a File") (directory nil) (types nil))
@@ -69,12 +69,12 @@
     (when rep
       (setf *last-directory* (make-pathname :directory (pathname-directory rep))))
     rep))
-      
+
 
 ;(defmacro om-with-file-dialog-process ((file &key (prompt "Choose a File") (directory nil) (button-string "OK") (types nil))
 ;                                       &body body)
 ;  `(capi:with-dialog-results (,file ok-p)
-;      (capi::prompt-for-file ,prompt ;:filters ',types :filter (if ',types (cadr ',types)) 
+;      (capi::prompt-for-file ,prompt ;:filters ',types :filter (if ',types (cadr ',types))
 ;                             :owner ,(def-dialog-owner)
 ;                             :pathname ,(or directory *last-directory*))
 ;      (when ,file
@@ -84,29 +84,29 @@
 
 (defun om-choose-new-file-dialog (&key (prompt "Choose a new file") (directory nil) (name "") (types nil))
   (let* ((dir (or directory *last-directory*))
-         (rep (capi::prompt-for-file prompt :filters types :filter (if types (cadr types)) :owner (def-dialog-owner) 
-                    :pathname (make-pathname :directory (when dir (pathname-directory dir)) :name name) 
-                    :operation :save)))
-     (when rep 
-       (setf *last-directory* (make-pathname :directory (pathname-directory rep))))
-     rep))
-     
+         (rep (capi::prompt-for-file prompt :filters types :filter (if types (cadr types)) :owner (def-dialog-owner)
+                                     :pathname (make-pathname :directory (when dir (pathname-directory dir)) :name name)
+                                     :operation :save)))
+    (when rep
+      (setf *last-directory* (make-pathname :directory (pathname-directory rep))))
+    rep))
+
 
 (defun om-choose-directory-dialog (&key (prompt "Choose a directory") (directory nil))
   (let ((rep (capi::prompt-for-directory prompt :owner (def-dialog-owner) :pathname (or directory *last-directory*))))
-    (when rep 
+    (when rep
       (setf *last-directory* (make-pathname :directory (pathname-directory rep))))
     rep))
 
 
 (defun om-choose-new-directory-dialog (&key (prompt "Choose location and name for the new directory") (directory nil) (defname nil))
   (let* ((dir (or directory *last-directory*))
-         (def (if dir 
-                 (make-pathname :directory (pathname-directory dir) :name defname)
-               defname))
-        (path (capi::prompt-for-file prompt :owner (def-dialog-owner)
-                               :filter nil :filters nil :pathname def
-                               :operation :save)))
+         (def (if dir
+                  (make-pathname :directory (pathname-directory dir) :name defname)
+                defname))
+         (path (capi::prompt-for-file prompt :owner (def-dialog-owner)
+                                      :filter nil :filters nil :pathname def
+                                      :operation :save)))
     (when path
       (setf *last-directory* (make-pathname :directory (pathname-directory path)))
       (make-pathname :device (pathname-device path) :directory (append (pathname-directory path) (list (pathname-name path))))
@@ -118,7 +118,7 @@
 
 (defun om-y-n-cancel-dialog (message &key (default-button nil))
   (multiple-value-bind (answer successp)
-      (capi:prompt-for-confirmation message :cancel-button t 
+      (capi:prompt-for-confirmation message :cancel-button t
                                     :default-button (if (equal default-button :yes) :ok nil))
     (if successp answer :cancel)))
 
@@ -141,7 +141,7 @@
   (om-set-bg-color self color)
   (setf (color self) color)
   (when (after-fun self) (funcall (after-fun self) self)))
-      
+
 (defmethod om-view-click-handler ((self om-pick-color-view) pos)
   (declare (ignore pos))
   (let ((color (make-omcolor :c (capi::prompt-for-color "Color Chooser" :color (omcolor-c (color self))))))
@@ -155,60 +155,60 @@
                               :win-layout 'om-row-layout))
          (col (or color (om-def-color :black)))
          (coloritem (om-make-view 'om-pick-color-view
-                                 :position (om-make-point 40 20)
-                                 :size (om-make-point 60 60)
-                                 :color col
-                                 :bg-color col)))
-    (om-add-subviews win 
-                     
+                                  :position (om-make-point 40 20)
+                                  :size (om-make-point 60 60)
+                                  :color col
+                                  :bg-color col)))
+    (om-add-subviews win
+
                      (if alpha
                          (om-make-layout 'om-row-layout
-                                         :subviews (list 
+                                         :subviews (list
                                                     coloritem
-                                                    (om-make-di 'om-slider 
+                                                    (om-make-di 'om-slider
                                                                 :direction :vertical ;; does not work... ?
                                                                 :range '(0 255)
                                                                 :value (round (* (om-color-a (color coloritem)) 255))
                                                                 :size (omp 30 nil)
-                                                                :di-action #'(lambda (item) 
-                                                                               (let ((newcolor (make-omcolor :c (color::color-with-alpha 
-                                                                                                                 (omcolor-c (color coloritem)) 
+                                                                :di-action #'(lambda (item)
+                                                                               (let ((newcolor (make-omcolor :c (color::color-with-alpha
+                                                                                                                 (omcolor-c (color coloritem))
                                                                                                                  (/ (om-slider-value item) 255.0)))))
                                                                                  (set-color coloritem newcolor)
                                                                                  ))
                                                                 )))
                        coloritem)
-                     
+
                      (om-make-layout 'om-column-layout
-                                     :subviews (list 
-                                             (om-make-di 'om-button :position (om-make-point 130 26) :size (om-make-point 80 24)
-                                                         :text "Cancel"
-                                                         :di-action #'(lambda (item) 
-                                                                        (declare (ignore item))
-                                                                        (om-return-from-modal-dialog win nil)))
-                                             (om-make-di 'om-button 
-                                                         :position (om-make-point 130 58) 
-                                                         :size (om-make-point 80 24)
-                                                         :text "OK"
-                                                         :focus t
-                                                         :default-button t
-                                                         :di-action #'(lambda (item) 
-                                                                        (declare (ignore item))
-                                                                        (om-return-from-modal-dialog win (color coloritem)))))
+                                     :subviews (list
+                                                (om-make-di 'om-button :position (om-make-point 130 26) :size (om-make-point 80 24)
+                                                            :text "Cancel"
+                                                            :di-action #'(lambda (item)
+                                                                           (declare (ignore item))
+                                                                           (om-return-from-modal-dialog win nil)))
+                                                (om-make-di 'om-button
+                                                            :position (om-make-point 130 58)
+                                                            :size (om-make-point 80 24)
+                                                            :text "OK"
+                                                            :focus t
+                                                            :default-button t
+                                                            :di-action #'(lambda (item)
+                                                                           (declare (ignore item))
+                                                                           (om-return-from-modal-dialog win (color coloritem)))))
                                      ))
     (om-modal-dialog win owner)))
-        
-#-cocoa             
-(defun om-choose-color-dialog (&key color alpha owner)        
+
+#-cocoa
+(defun om-choose-color-dialog (&key color alpha owner)
   (let ((rep (capi::prompt-for-color "Choose a color" :color (when color (omcolor-c color))
                                      :owner owner)))
-    (when rep 
+    (when rep
       (make-omcolor :c rep))))
 
 ; (om-choose-color-dialog)
 
 
-(defun om-message-dialog (message) 
+(defun om-message-dialog (message)
   (capi::display-message message))
 
 (defun om-beep ()

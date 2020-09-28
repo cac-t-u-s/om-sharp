@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -24,11 +24,11 @@
 ;;;======================================
 
 ;;; MIDI Note is a special kind of MIDI-Events representing two events (KeyOn/KeyOff)
-;;; The MIDI 'values' are also split in two different slots (pitch / vel) 
+;;; The MIDI 'values' are also split in two different slots (pitch / vel)
 ;;; <dur> determines the delay between the two events
 
-(defclass* midi-note (MIDIEvent) 
-  ((onset :accessor onset :initform 0 
+(defclass* midi-note (MIDIEvent)
+  ((onset :accessor onset :initform 0
           :initarg :onset :initarg :date  ;;; two possible initargs (for compatibility)
           :documentation "date/time of the object")
    ;;; Note-specific slots
@@ -38,9 +38,9 @@
    ;;; these two slots are repeated from MIDIEvent:
    (ev-chan :accessor ev-chan :initarg :ev-chan :initform 1 :documentation "MIDI channel (1-16)")
    (ev-port :accessor ev-port :initarg :ev-port :initform 0 :documentation "MIDI port (0-...)"))
- 
+
   (:default-initargs :ev-type :note)) ;; <= this is how we differenciate it from a "real" event
-           
+
 
 (defun midinote-onset (midinote) (onset midinote))
 (defun midinote-pitch (midinote) (pitch midinote))
@@ -72,19 +72,19 @@
 
 ;;; when midi-note is in a data-stream (= not good in principle)
 ;;; otherwise see get-action-list-for-play (midi-track)
-(defmethod get-frame-action ((note midi-note)) 
-  #'(lambda () 
-      (om-midi::midi-send-evt 
-       (om-midi:make-midi-evt 
+(defmethod get-frame-action ((note midi-note))
+  #'(lambda ()
+      (om-midi::midi-send-evt
+       (om-midi:make-midi-evt
         :type :keyOn
         :chan (or (midinote-channel note) 1) :port 0
         :fields (list (midinote-pitch note) (midinote-vel note))))
       (mp:schedule-timer-relative-milliseconds
-       (mp::make-timer #'(lambda ()                         
-                           (om-midi::midi-send-evt 
-                            (om-midi:make-midi-evt 
+       (mp::make-timer #'(lambda ()
+                           (om-midi::midi-send-evt
+                            (om-midi:make-midi-evt
                              :type :keyOff
-                             :chan (or (midinote-channel note) 1) 
+                             :chan (or (midinote-channel note) 1)
                              :port (or (midinote-port note) (get-pref-value :midi :out-port))
                              :fields (list (midinote-pitch note) 0)))))
        (midinote-dur note))))
@@ -113,7 +113,7 @@
 
 ;;; redefined from time-sequence
 (defmethod time-sequence-default-duration ((self midi-track)) 1000)
-       
+
 
 
 ;;;===================================
@@ -126,10 +126,10 @@
 (defmethod midi-key-evt-vel ((evt MIDIEvent))
   (cadr (ev-values evt)))
 
-(defun close-note-on (notelist chan pitch date) 
-  (flet ((match (x) (and (equal (midinote-pitch x) pitch) 
-                         (equal (midinote-channel x) chan) 
-                         (not (plusp (midinote-dur x))) ;;; note is still "open" 
+(defun close-note-on (notelist chan pitch date)
+  (flet ((match (x) (and (equal (midinote-pitch x) pitch)
+                         (equal (midinote-channel x) chan)
+                         (not (plusp (midinote-dur x))) ;;; note is still "open"
                          ;;; (equal (sixth x) track) (equal (seventh x) port) ;;; not used (yet)
                          )))
     (let ((pos (position-if #'match notelist :from-end t)))
@@ -144,22 +144,22 @@
 
   (let ((notelist nil)
         (other-events nil))
-        
+
     (loop for event in (sort evtlist #'< :key #'onset) do
-	  
-          (case (ev-type event)   
-            
-            (:KeyOn 
-             
+
+          (case (ev-type event)
+
+            (:KeyOn
+
              (if (= (midi-key-evt-vel event) 0) ;;; actually it's a KeyOff
-                 
+
                  (close-note-on notelist (ev-chan event) (midi-key-evt-pitch event) (onset event))
-               
+
                ;;; put a note on with duration open in the list
                (push (make-midinote :onset (onset event)
-                                    :pitch (midi-key-evt-pitch event) 
+                                    :pitch (midi-key-evt-pitch event)
                                     :dur (* -1 (onset event))
-                                    :vel (midi-key-evt-vel event) 
+                                    :vel (midi-key-evt-vel event)
                                     :chan (ev-chan event)
                                     :port (ev-port event)
                                     :track (ev-track event)
@@ -167,20 +167,20 @@
                      ; (ev-track event)    ;;; not used
                      notelist))
              )
-            
-            (:KeyOff (close-note-on notelist 
-                                    (ev-chan event) 
-                                    (midi-key-evt-pitch event) 
+
+            (:KeyOff (close-note-on notelist
+                                    (ev-chan event)
+                                    (midi-key-evt-pitch event)
                                     (onset event)))
 
-            (otherwise 
-             (when collect-other-events 
+            (otherwise
+             (when collect-other-events
                (push (om-copy event) other-events)
                ))
             )
           )
-    
-    (when (find-if 'minusp notelist :key 'midinote-dur) 
+
+    (when (find-if 'minusp notelist :key 'midinote-dur)
       (om-print (format nil "Warning: this MIDI sequence has unterminated notes!")))
 
     (sort (append (reverse notelist) (reverse other-events)) #'< :key #'onset)
@@ -188,8 +188,8 @@
 
 
 (defun import-midi-notes (&optional file)
-  (midievents-to-midinotes 
-   (get-midievents 
+  (midievents-to-midinotes
+   (get-midievents
     (import-midi-events file))  ;; #'(lambda (evt) (test-midi-type evt '(:keyon :keyoff))))
    :collect-other-events t))
 
@@ -205,7 +205,7 @@
 (defmethod objFromObjs ((model (eql (or :file :choose-file))) (target midi-track))
   (let ((file (om-choose-file-dialog :prompt "Choose a MIDI file..."
                                      :types '("MIDI files" "*.mid;*.midi"))))
-    (if file 
+    (if file
         (objFromObjs file target)
       (om-abort))))
 
@@ -215,7 +215,7 @@
 ;;; Converts KeyOn/KeyOff events to MIDI-NOTEs
 
 (defmethod objfromobjs ((model data-stream) (target midi-track))
-  (data-stream-set-frames 
+  (data-stream-set-frames
    target
    (midievents-to-midinotes (frames model) :collect-other-events t))
   target)
@@ -228,32 +228,32 @@
 
 
 (defmethod* get-midievents ((self midi-track) &optional test)
-  (let ((evtlist 
-         (sort 
+  (let ((evtlist
+         (sort
           (remove nil
-                  (loop for n in (midi-events self) append 
-                        
+                  (loop for n in (midi-events self) append
+
                         (if (equal (ev-type n) :note)
-                            
-                            (list  (make-MIDIEvent 
+
+                            (list  (make-MIDIEvent
                                     :ev-date (midinote-onset n)
-                                    :ev-type :keyon 
+                                    :ev-type :keyon
                                     :ev-chan (midinote-channel n)
-                                    :ev-values (list (midinote-pitch n) (midinote-vel n)) 
-                                    :ev-port (midinote-port n) 
+                                    :ev-values (list (midinote-pitch n) (midinote-vel n))
+                                    :ev-port (midinote-port n)
                                     :ev-track (midinote-track n))
-                                   (make-MIDIEvent 
+                                   (make-MIDIEvent
                                     :ev-date (midinote-end n)
-                                    :ev-type :keyoff 
+                                    :ev-type :keyoff
                                     :ev-chan (midinote-channel n)
-                                    :ev-values (list (midinote-pitch n) 0) 
-                                    :ev-port (midinote-port n) 
+                                    :ev-values (list (midinote-pitch n) 0)
+                                    :ev-port (midinote-port n)
                                     :ev-track (midinote-track n)))
                           ;;; normal event
                           (list (om-copy n))))
                   )
           #'< :key #'onset)))
-    (if test 
+    (if test
         (get-midievents evtlist test)
       evtlist)))
 
@@ -273,8 +273,8 @@
 (defmethod resizable-frame ((self midi-note)) t)
 (defmethod resizable-frame ((self midievent)) nil)
 
-(defmethod get-frame-color ((self midievent)) 
-  (if (ev-chan self) 
+(defmethod get-frame-color ((self midievent))
+  (if (ev-chan self)
       (get-midi-channel-color (ev-chan self))
     (om-make-color 0 0 0)))
 
@@ -301,9 +301,9 @@
   (loop for fp in (selection self) do
         (let ((frame (nth fp (data-stream-get-frames (object-value self)))))
           (when (equal (ev-type frame) :note)
-            (setf (pitch frame) 
+            (setf (pitch frame)
                   (min 95 (max 36
-                               (if (equal dy :round) 
+                               (if (equal dy :round)
                                    (round (pitch frame))
                                  (+ (pitch frame) dy))
                                )))
@@ -314,12 +314,12 @@
   (call-next-method))
 
 
-(defmethod finalize-data-frame ((frame midi-note) &rest args) 
+(defmethod finalize-data-frame ((frame midi-note) &rest args)
   (when (equal (ev-type frame) :note)
     (let ((posy (getf args :posy)))
-      (when posy 
+      (when posy
         (setf (pitch frame) (round posy))))))
-  
+
 
 ;;;==================
 ;; Keyborad on the left
@@ -333,7 +333,7 @@
   (om-make-view 'keyboard-view :size (omp 20 nil)))
 
 ;;; the small view at the left of teh timeline should be sized according to the editor's layout
-(defmethod make-timeline-left-item ((self midi-track-editor) id) 
+(defmethod make-timeline-left-item ((self midi-track-editor) id)
   (om-make-view 'om-view :size (omp 20 15)))
 
 (defun draw-keyboard-octave (i x y w h &optional (alpha 1) (borders nil) (octaves nil))
@@ -345,15 +345,15 @@
                  (y2 (- y (* (cadr wk) unit))))
             (om-draw-rect x y1 w (- y2 y1) :fill t :color (om-make-color 1 1 1 alpha))
             (when borders (om-draw-rect x y1 w (- y2 y1) :fill nil :color (om-make-color 0 0 0 alpha)))
-          ))
+            ))
     (om-with-fg-color (om-make-color 0.2 0.2 0.2)
-    (loop for bp in blackpos do 
-          (om-draw-rect x (- y (* unit bp)) (/ w 1.8) (- unit) :fill t :color (om-make-color 0 0 0 alpha)))
-    (when octaves
-      (om-with-font 
-       (om-def-font :font1 :size 7)
-       (om-draw-string (+ x (/ w 2))  (- y 2) (format nil "C~D" i))))
-    )))
+      (loop for bp in blackpos do
+            (om-draw-rect x (- y (* unit bp)) (/ w 1.8) (- unit) :fill t :color (om-make-color 0 0 0 alpha)))
+      (when octaves
+        (om-with-font
+         (om-def-font :font1 :size 7)
+         (om-draw-string (+ x (/ w 2))  (- y 2) (format nil "C~D" i))))
+      )))
 
 (defun draw-keyboard (x y w h pitch-min pitch-max &optional (alpha 1) borders octaves)
   (let* ((n-oct (round (- pitch-max pitch-min) 12))
@@ -362,9 +362,9 @@
           (draw-keyboard-octave (1+ i) x (- h (* i oct-h)) w oct-h alpha borders octaves)
           )
     ))
-       
+
 (defmethod om-draw-contents ((self keyboard-view))
-  (draw-keyboard 0 0 (om-width self) (om-height self) 
+  (draw-keyboard 0 0 (om-width self) (om-height self)
                  (pitch-min self) (pitch-max self)
                  1 nil t))
 
@@ -385,28 +385,28 @@
   (call-next-method))
 
 
-(defun select-channel-dialog (&key (default 1)) 
+(defun select-channel-dialog (&key (default 1))
   (let ((win (om-make-window 'om-dialog :title "MIDI channel"))
-        (list (om-make-di 'om-popup-list :size (omp 80 30) 
-                        :items '(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16)
-                        :value default)))
-    (om-add-subviews 
+        (list (om-make-di 'om-popup-list :size (omp 80 30)
+                          :items '(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16)
+                          :value default)))
+    (om-add-subviews
      win
-     (om-make-layout 
-      'om-column-layout :align :right 
-      :subviews 
+     (om-make-layout
+      'om-column-layout :align :right
+      :subviews
       (list (om-make-di 'om-simple-text :text "Select a MIDI channel for the note selection" :size (omp 260 20))
             list
-            (om-make-layout 
-             'om-row-layout 
-             :subviews (list 
+            (om-make-layout
+             'om-row-layout
+             :subviews (list
                         (om-make-di 'om-button :text "Cancel" :size (omp 80 30)
                                     :di-action #'(lambda (b) (declare (ignore b))
                                                    (om-return-from-modal-dialog win nil)))
                         (om-make-di 'om-button :text "OK" :size (omp 80 30)
                                     :di-action #'(lambda (b) (declare (ignore b))
-                                                   (om-return-from-modal-dialog 
-                                                    win 
+                                                   (om-return-from-modal-dialog
+                                                    win
                                                     (om-get-selected-item list)))))
              ))))
     (om-modal-dialog win)
@@ -425,10 +425,10 @@
        (move-editor-selection editor :dy (if (om-shift-key-p) -12 -1))
        (om-invalidate-view panel)
        (report-modifications editor))
-      (#\c 
+      (#\c
        (when (selection editor)
          (let ((c (select-channel-dialog :default (chan (nth (car (selection editor)) (data-stream-get-frames pr))))))
-           (when c 
+           (when c
              (loop for notep in (selection editor) do
                    (let ((note (nth notep (data-stream-get-frames pr))))
                      (setf (chan note) c)
@@ -436,7 +436,7 @@
            ))
        (om-invalidate-view panel)
        (report-modifications editor))
-      (otherwise 
+      (otherwise
        (call-next-method))
       )))
 
@@ -446,44 +446,44 @@
 ;;;======================================
 
 (defmethod get-action-list-for-play ((object midi-track) interval &optional parent)
-  (sort 
+  (sort
    (loop for evt in (midi-events object)
          when (and (>= (onset evt) (car interval))
                    (< (+ (onset evt) (get-obj-dur evt))))
-         append 
+         append
          (case (ev-type evt)
-           
-           (:note 
-            
+
+           (:note
+
             (remove nil
-                    (list 
-                     
-                     ;(when (in-interval (midinote-onset evt) interval :exclude-high-bound t) 
-                                  
-                         (list (midinote-onset evt)
-                               #'(lambda (note)
-                                   (om-midi::midi-send-evt 
-                                    (om-midi:make-midi-evt 
-                                     :type :keyOn
-                                     :chan (or (midinote-channel note) 1) 
-                                     :port (or (midinote-port note) (get-pref-value :midi :out-port))
-                                     :fields (list (midinote-pitch note) (midinote-vel note)))))
-                               (list evt))
+                    (list
+
+                     ;(when (in-interval (midinote-onset evt) interval :exclude-high-bound t)
+
+                     (list (midinote-onset evt)
+                           #'(lambda (note)
+                               (om-midi::midi-send-evt
+                                (om-midi:make-midi-evt
+                                 :type :keyOn
+                                 :chan (or (midinote-channel note) 1)
+                                 :port (or (midinote-port note) (get-pref-value :midi :out-port))
+                                 :fields (list (midinote-pitch note) (midinote-vel note)))))
+                           (list evt))
 
                      ;(when (in-interval (midinote-end evt) interval :exclude-high-bound t)
-                                
-                         (list (midinote-end evt)
-                               #'(lambda (note) (om-midi::midi-send-evt 
-                                                 (om-midi:make-midi-evt 
-                                                  :type :keyOff
-                                                  :chan (or (midinote-channel note) 1) 
-                                                  :port (or (midinote-port note) (get-pref-value :midi :out-port))
-                                                  :fields (list (midinote-pitch note) 0))))
-                               (list evt))
+
+                     (list (midinote-end evt)
+                           #'(lambda (note) (om-midi::midi-send-evt
+                                             (om-midi:make-midi-evt
+                                              :type :keyOff
+                                              :chan (or (midinote-channel note) 1)
+                                              :port (or (midinote-port note) (get-pref-value :midi :out-port))
+                                              :fields (list (midinote-pitch note) 0))))
+                           (list evt))
                      )))
-            
-           (otherwise 
-            (list 
+
+           (otherwise
+            (list
              (list (onset evt)
                    #'(lambda (e) (send-midievent e))
                    (list evt)))
@@ -502,13 +502,13 @@
 (defmethod display-modes-for-object ((self midi-track))
   '(:mini-view :text :hidden))
 
-;; (defmethod get-cache-display-for-draw ((self midi-track) box) (list 30 100)) 
+;; (defmethod get-cache-display-for-draw ((self midi-track) box) (list 30 100))
 
 (defmethod draw-mini-view ((self midi-track) (box t) x y w h &optional time)
-  
-  (multiple-value-bind (fx ox) 
+
+  (multiple-value-bind (fx ox)
       (conversion-factor-and-offset 0 (get-obj-dur (get-box-value box)) w x)
-    (multiple-value-bind (fy oy) 
+    (multiple-value-bind (fy oy)
         (conversion-factor-and-offset 96 36 (- h 20) (+ y 10))
       (om-with-line-size 2
         (loop for evt in (midi-events self) do
@@ -546,9 +546,9 @@
 (defun gen-random-midi-notes (n &optional (tmax 10000) (channel 1))
   (loop for i from 0 to (1- n) collect
         (make-midinote :onset (om-random 0 tmax)
-                       :pitch (om-random 50 90) 
+                       :pitch (om-random 50 90)
                        :vel 100
-                       :dur (om-random 200 500) 
+                       :dur (om-random 200 500)
                        :chan (or channel (om-random 1 16)))))
 
 

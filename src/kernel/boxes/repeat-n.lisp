@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -29,7 +29,7 @@
          collect ,body))
 
 
-(defclass Repeater (OMPatchComponent) 
+(defclass Repeater (OMPatchComponent)
   ((n-iter :accessor n-iter :initform 0 :initarg :n-iter)
    (scope :accessor scope :initform :local :initarg :scope)))
 
@@ -41,13 +41,13 @@
 (defmethod object-name-in-inspector ((self OMRepeatNBoxCall)) "REPEAT-N box")
 
 ;;; returns the default value
-(defmethod next-optional-input ((self OMRepeatNBoxCall)) 
+(defmethod next-optional-input ((self OMRepeatNBoxCall))
   (<= (length (inputs self)) 2))
 
 (defmethod more-optional-input ((self OMRepeatNBoxCall) &key name (value nil val-supplied-p) doc reactive)
   (declare (ignore name doc))
   (add-optional-input self :name "scope"
-                      :value (if val-supplied-p value :local) 
+                      :value (if val-supplied-p value :local)
                       :reactive reactive)
   t)
 
@@ -61,36 +61,36 @@
 ;;; as compared to other OMPatchComponentBox, REPEAT-N has a lock option
 (defmethod valid-property-p ((self OMRepeatNBoxCall) (prop-id (eql :lock))) t)
 (defmethod get-properties-list ((self OMRepeatNBoxCall))
-  (add-properties 
-   (call-next-method) 
-   "Execution" 
+  (add-properties
+   (call-next-method)
+   "Execution"
    `((:lock "Lock state (b/1)" ,(lock-modes-for-box self) lock-state))))
 
 
 (defmethod box-symbol ((self Repeater)) 'repeat-n)
 
 (defmethod omNG-make-special-box ((reference (eql 'repeat-n)) pos &optional init-args)
-  (omNG-make-new-boxcall 
-   (make-instance 'Repeater :name "repeat-n" 
-                  :n-iter (if (integerp (car init-args)) 
+  (omNG-make-new-boxcall
+   (make-instance 'Repeater :name "repeat-n"
+                  :n-iter (if (integerp (car init-args))
                               (car init-args)
                             0))
    pos
    '(:icon-pos :left)))
 
-(defmethod create-box-inputs ((self OMRepeatNBoxCall)) 
-  (list 
-   (make-instance 
+(defmethod create-box-inputs ((self OMRepeatNBoxCall))
+  (list
+   (make-instance
     'box-input :box self :value NIL
-    :name "self" 
+    :name "self"
     :doc-string "program to repeat")
-   (make-instance 
+   (make-instance
     'box-input :box self :value (n-iter (reference self))
     :name "num" :doc-string "number of times")))
 
-(defmethod create-box-outputs ((self OMRepeatNBoxCall)) 
-  (list 
-   (make-instance 
+(defmethod create-box-outputs ((self OMRepeatNBoxCall))
+  (list
+   (make-instance
     'box-output :box self :value NIL
     :name "collected results")))
 
@@ -100,24 +100,24 @@
 ;;; issue : should we set the ev-once context of a REPEAT-N or not ?
 ;;; there's two possibilities
 
-(defmethod boxcall-value ((self OMRepeatNBoxCall)) 
+(defmethod boxcall-value ((self OMRepeatNBoxCall))
   (let ((n (omNG-box-value (cadr (inputs self))))
-        (scope (if (third (inputs self)) 
+        (scope (if (third (inputs self))
                    (omNG-box-value (third (inputs self)))
                  (scope (reference self))))
         (old-context *ev-once-context*))
-    
-    (unwind-protect 
-      (progn
-        (setf (n-iter (reference self)) 0)
 
-        ;;; creates a new context:
-        (when (equal scope :local) (setf *ev-once-context* self))
+    (unwind-protect
+        (progn
+          (setf (n-iter (reference self)) 0)
 
-        (loop for i from 1 to n
-              do (setf (n-iter (reference self)) (1+ (n-iter (reference self))))
-              collect (omNG-box-value (car (inputs self))))
-        )
+          ;;; creates a new context:
+          (when (equal scope :local) (setf *ev-once-context* self))
+
+          (loop for i from 1 to n
+                do (setf (n-iter (reference self)) (1+ (n-iter (reference self))))
+                collect (omNG-box-value (car (inputs self))))
+          )
       ;;; restores previous context after iteration:
       (when (equal scope :local) (setf *ev-once-context* old-context))
       )
@@ -129,42 +129,42 @@
 ;;; update 25/03/2019: I think this is fixed now => otherwise try to single out an example
 
 (defmethod gen-code-for-call ((self OMRepeatNBoxCall) &optional args)
-  
-  (let ((scope (if (third (inputs self)) 
-                    (eval (gen-code (third (inputs self))))
-                  (scope (reference self)))))
+
+  (let ((scope (if (third (inputs self))
+                   (eval (gen-code (third (inputs self))))
+                 (scope (reference self)))))
 
     (if (equal scope :global)
 
         (let* ((body (gen-code (car (inputs self)))))
-          `(loop for i from 1 to ,(gen-code (cadr (inputs self))) 
-                 collect 
+          `(loop for i from 1 to ,(gen-code (cadr (inputs self)))
+                 collect
                  ;;; keep this for a new context at each iteration:
                      ; (let* ,(output-current-let-context) ,body)
-                     ;;; ... or use this for a global context:
-                     (progn ,body)
-                     )
+                 ;;; ... or use this for a global context:
+                 (progn ,body)
+                 )
           )
-      
+
       ;;; :local
       (progn
         ;;; a new context will be created at each iteration:
-        
+
         (let ((n (gen-code (cadr (inputs self)))))
-        
+
           (push-let-context)
-          
+
           (unwind-protect
-              
+
               (let* ((body (gen-code (car (inputs self)))))
-                `(loop for i from 1 to ,n 
-                       collect 
+                `(loop for i from 1 to ,n
+                       collect
                        ;;; new context at each iteration:
                        (let* ,(output-current-let-context) ,body)
                        ))
-          
+
             (pop-let-context)
-            
+
             ))
         ))
     ))
@@ -175,10 +175,10 @@
 ;;; (the following code should work though...)
 #|
 (defmethod box-lambda-value ((self OMRepeatNBoxCall))
-   (multiple-value-bind (new-symbs args) 
+   (multiple-value-bind (new-symbs args)
        (get-args-eval-curry self #'(lambda (input) `(omNG-box-value ,input)))
      (let ((arglist (apply 'append args)))  ;;; flat the arg-list (for keywords etc.)
-       (eval 
+       (eval
         `#'(lambda ,new-symbs
              (setf (n-iter ,(reference self)) 0)
              (setf *ev-once-context* ,self)
@@ -191,15 +191,15 @@
   (declare (ignore numout))
    (let ((oldletlist *let-list*))
      (setf *let-list* nil)
-  
-     (multiple-value-bind (new-symbs args) 
+
+     (multiple-value-bind (new-symbs args)
          (get-args-eval-curry self #'gen-code)
-       
+
        (let* ((body (caar args))
               (code `#'(lambda ,new-symbs
-                        (loop for i from 1 to ,(caadr args) 
+                        (loop for i from 1 to ,(caadr args)
                               collect (let* ,(reverse *let-list*) ,body)))))
-         
+
        (setf *let-list* oldletlist)
        code))
      ))

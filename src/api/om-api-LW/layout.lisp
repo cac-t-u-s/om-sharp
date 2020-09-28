@@ -1,5 +1,5 @@
 ;=========================================================================
-; OM API 
+; OM API
 ; Multiplatform API for OpenMusic
 ; LispWorks Implementation
 ;=========================================================================
@@ -26,10 +26,10 @@
           om-abstract-layout
           om-simple-layout
           om-column-layout
-          om-row-layout 
-          om-grid-layout 
+          om-row-layout
+          om-grid-layout
           om-draw-layout
-          om-make-layout 
+          om-make-layout
           om-get-current-view
           om-set-current-view
           om-tab-layout
@@ -41,8 +41,8 @@
 (in-package :oa)
 
 (defclass om-abstract-layout (om-graphic-object) ())
- 
-; 
+
+;
 (defclass om-simple-layout (om-abstract-layout om-interactive-object capi::simple-pinboard-layout) ()
   (:default-initargs :background #+cocoa :transparent #-cocoa :background))
 (defclass om-tab-layout (om-abstract-layout capi::tab-layout) ())
@@ -55,10 +55,10 @@
 ;;; the only case to handle with LW is the translation of (string font)
 (defun layout-view-process (item)
   (if (and (listp item) (stringp (car item)))
-      (list :title (car item) :title-font (cadr item) 
+      (list :title (car item) :title-font (cadr item)
             :title-args '(:visible-min-height 20))
     item))
-          
+
 (defun make-xy-args (class arg val)
   (if (subtypep class 'om-grid-layout)
       (let ((x-arg (intern (concatenate 'string "X-" (string-upcase arg)) :keyword))
@@ -83,7 +83,7 @@
                                :visible-child-function 'identity
                                :selected-item (nth selection subviews)
                                ))
-               (t (apply 'make-instance 
+               (t (apply 'make-instance
                          (append (list class :name name
                                        ;;:automatic-resize '(:width-ratio 1.0 :height-ratio 1.0)
                                        :description (mapcar 'layout-view-process subviews)
@@ -96,7 +96,7 @@
                                  (when ratios (make-xy-args class :ratios ratios))
                                  (when delta (make-xy-args class :gap delta))
                                  (when align (make-xy-args class :adjust align))  ;;; APPARENTLY ADJUST DOES NOT WORK...
-                                 (when dimensions 
+                                 (when dimensions
                                    (list :columns (if (listp dimensions) (car dimensions) dimensions)
                                          :rows (if (listp dimensions) (cadr dimensions) dimensions)))
                                  (when position (list :default-x (om-point-x position) :default-y (om-point-y position)))
@@ -122,19 +122,19 @@
 
 
 (defmethod om-update-layout ((self om-column-layout))
-  (capi:apply-in-pane-process 
-   self 
+  (capi:apply-in-pane-process
+   self
    #'(lambda ()
        (setf (capi::layout-ratios self) (capi::layout-ratios self)))))
 
 (defmethod om-update-layout ((self om-row-layout))
-  (capi:apply-in-pane-process 
-   self 
+  (capi:apply-in-pane-process
+   self
    #'(lambda () (setf (capi::layout-ratios self) (capi::layout-ratios self)))))
 
 (defmethod om-update-layout ((self om-grid-layout))
-  (capi:apply-in-pane-process 
-   self 
+  (capi:apply-in-pane-process
+   self
    #'(lambda ()
        (setf (capi::layout-x-ratios self) (capi::layout-y-ratios self)
              (capi::layout-y-ratios self) (capi::layout-y-ratios self)))))
@@ -147,7 +147,7 @@
 (defmethod om-view-parent ((self om-abstract-layout)) (capi::element-parent self))
 
 (defmethod om-add-subviews ((self om-abstract-layout) &rest subviews)
-  (capi::apply-in-pane-process 
+  (capi::apply-in-pane-process
    self
    #'(lambda (layout views)
        (setf (capi::layout-description layout)
@@ -159,25 +159,25 @@
    ))
 
 (defmethod om-remove-subviews ((self om-abstract-layout) &rest subviews)
-  (capi::apply-in-pane-process 
+  (capi::apply-in-pane-process
    self #'(lambda ()
             (let ((layout-desc (capi::layout-description self)))
               (loop for item in subviews do (setf layout-desc (remove item layout-desc :test 'equal)))
               (setf (capi::layout-description self) layout-desc)))
-     ))
+   ))
 
 ;need to remove the subviews from contained layout also.
 (defmethod om-remove-all-subviews ((self t)) nil)
 
 (defmethod om-remove-all-subviews ((self om-abstract-layout))
-  (capi::apply-in-pane-process 
+  (capi::apply-in-pane-process
    self #'(lambda ()
             (mapcar 'om-remove-all-subviews (capi::layout-description self))
             (om-set-layout-ratios self nil)
             (setf (capi::layout-description self) nil))))
 
 (defmethod om-substitute-subviews ((self om-abstract-layout) old new)
-  (capi::apply-in-pane-process 
+  (capi::apply-in-pane-process
    self #'(lambda ()
             (om-remove-all-subviews old)
             (setf (capi::layout-description self)
@@ -191,50 +191,50 @@
 ;;; SPECIAL FOR TAB-LAYOUT
 ;;;================================
 
-(defmethod om-get-current-view ((self om-tab-layout)) 
+(defmethod om-get-current-view ((self om-tab-layout))
   (capi::tab-layout-visible-child self))
 
-(defmethod om-set-current-view ((self om-tab-layout) view) 
+(defmethod om-set-current-view ((self om-tab-layout) view)
   (let ((num (capi::search-for-item self view)))
     (when num
       (setf (capi::choice-selection self) num))))
 
-(defmethod om-subviews ((self om-tab-layout)) 
+(defmethod om-subviews ((self om-tab-layout))
   (loop for i from 0 to (1- (length (capi::collection-items self))) collect
         (capi::get-collection-item self i)))
 
 (defmethod om-remove-subviews ((self om-tab-layout) &rest subviews)
-  (capi::apply-in-pane-process 
+  (capi::apply-in-pane-process
    self #'(lambda ()
             (setf (capi::collection-items self)
-                  (loop for i from 0 to (1- (length (capi::collection-items self))) 
+                  (loop for i from 0 to (1- (length (capi::collection-items self)))
                         unless (find (capi::get-collection-item self i) subviews)
                         collect (capi::get-collection-item self i)))
             )))
 
 (defmethod om-remove-all-subviews ((self om-tab-layout))
-  (capi::apply-in-pane-process 
+  (capi::apply-in-pane-process
    self #'(lambda ()
             (mapcar 'om-remove-all-subviews (capi::layout-description self))
-            (dotimes (i (length (capi::collection-items self))) 
+            (dotimes (i (length (capi::collection-items self)))
               (om-remove-all-subviews (capi::get-collection-item self i)))
             (setf (capi::layout-description self) nil)
             (setf (capi::collection-items self) nil)
             )))
 
 (defmethod om-substitute-subviews ((self om-tab-layout) old new)
-  (capi::apply-in-pane-process 
+  (capi::apply-in-pane-process
    self #'(lambda ()
             (om-remove-all-subviews old)
             (setf (capi::collection-items self)
-                  (loop for i from 0 to (1- (length (capi::collection-items self))) 
+                  (loop for i from 0 to (1- (length (capi::collection-items self)))
                         collect (if (equal (capi::get-collection-item self i) old) new
                                   (capi::get-collection-item self i)))
                   )
             )))
 
 (defmethod om-add-subviews ((self om-tab-layout) &rest subviews)
-  (capi::apply-in-pane-process 
+  (capi::apply-in-pane-process
    self
    #'(lambda () (capi::append-items self subviews))))
 
@@ -243,8 +243,8 @@
 ;;; LAYOUT HANDLES SUBVIEWS
 ;;;================================
 
-(defmethod om-subviews ((self om-abstract-window)) 
-    (om-subviews (capi::pane-layout self)))
+(defmethod om-subviews ((self om-abstract-window))
+  (om-subviews (capi::pane-layout self)))
 
 (defmethod om-add-subviews ((self om-abstract-window) &rest subviews)
   (apply 'om-add-subviews (cons (capi::pane-layout self) subviews)))

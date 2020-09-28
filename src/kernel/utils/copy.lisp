@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -39,8 +39,8 @@
   (om-make-point (om-point-x self) (om-point-y self)))
 
 (defmethod om-copy ((self oa::omcolor))
-  (om-make-color (om-color-r self) 
-                 (om-color-g self) 
+  (om-make-color (om-color-r self)
+                 (om-color-g self)
                  (om-color-b self)
                  (om-color-a self)
                  ))
@@ -53,17 +53,17 @@
 
 ;;; clone-object doesn't om-init the object
 ;;; om-copy does
-(defmethod om-copy ((self standard-object)) 
+(defmethod om-copy ((self standard-object))
   (om-init-instance (clone-object self)))
 
 (defmethod excluded-slots-from-copy ((from t)) nil)
 
-(defmethod additional-slots-to-copy ((from t)) 
+(defmethod additional-slots-to-copy ((from t))
   (additional-class-attributes from))
 
 ;;; the slot must exit in the target object
 ;;; .. and not be excluded!
-(defmethod condition-for-copy-slot ((from t) (to t) slot) 
+(defmethod condition-for-copy-slot ((from t) (to t) slot)
   (and (slot-exists-p to (slot-definition-name slot))
        (or (slot-definition-initargs slot)
            (member (slot-definition-name slot) (additional-slots-to-copy from)))
@@ -89,7 +89,7 @@
     (loop for slot in (class-instance-slots (class-of object))
           when (condition-for-copy-slot object new-object slot)
           do ; (om-print-format "SLOT ~A" (list (slot-definition-name slot)))
-          (setf (slot-value new-object (slot-definition-name slot)) 
+          (setf (slot-value new-object (slot-definition-name slot))
                 (om-copy (read-slot-value object slot))))
     (initialize-instance new-object)
     new-object))
@@ -99,7 +99,7 @@
 #|
 (defmethod clone-object ((object omobject) &optional clone)
   (let (initargs new-obj)
-    (setf initargs 
+    (setf initargs
           (loop for slot in (class-slots (class-of object))
                 when (and (slot-definition-initargs slot)
                           (or (not clone) (slot-exists-p clone (slot-definition-name slot))))
@@ -107,7 +107,7 @@
                              (om-copy (slot-value object (slot-definition-name slot)))
                              )))
     (setf new-obj (apply 'make-instance (cons (if clone (type-of clone) (type-of object)) initargs)))
-    (mapcar #'(lambda (att) 
+    (mapcar #'(lambda (att)
                 (when (and (slot-exists-p object att) (slot-exists-p new-obj att))
                   (setf (slot-value new-obj att) (slot-value object att))))
             (additional-class-attributes object))
@@ -126,10 +126,10 @@
 (defun set-om-clipboard (value) (setf *om-clipboard* value))
 (defun get-om-clipboard () *om-clipboard*)
 
-(defun set-paste-position (position &optional panel) 
+(defun set-paste-position (position &optional panel)
   (setf *om-clip-pos* (if position (list panel position) nil)))
 
-(defun get-paste-position (panel) 
+(defun get-paste-position (panel)
   (when (equal panel (car *om-clip-pos*))
     (cadr *om-clip-pos*)))
 

@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -44,14 +44,14 @@
   (let ((range (- (x2 self) (x1 self))))
     (unless (zerop range)
       (let ((factor (/ (w self) range)))
-        (setf (x-factor self) factor 
+        (setf (x-factor self) factor
               (x-shift self) (- (* (x1 self) factor)))))
     (call-next-method)))
 
 (defmethod set-shift-and-factor ((self y-graduated-view))
   (let* ((range (- (y1 self) (y2 self)))
          (factor (/ (h self) range)))
-    (setf (y-factor self) factor 
+    (setf (y-factor self) factor
           (y-shift self) (- (* (y2 self) factor))))
   (call-next-method))
 
@@ -122,7 +122,7 @@
   (set-shift-and-factor view)
   (call-next-method))
 
-(defmethod update-view-from-ruler ((self y-ruler-view) (view y-graduated-view)) 
+(defmethod update-view-from-ruler ((self y-ruler-view) (view y-graduated-view))
   (setf (y1 view) (v1 self) (y2 view) (v2 self))
   (set-shift-and-factor view)
   (call-next-method))
@@ -148,7 +148,7 @@
 (defmethod unit-value-str ((self ruler-view) value &optional (unit-dur 0))
   (declare (ignore unit-dur))
   (if (zerop (decimals self))
-     (format nil "~D" value)
+      (format nil "~D" value)
     (format nil (format nil "~~,~DF" (decimals self)) (/ value (expt 10 (decimals self))))))
 
 (defmethod set-ruler-range ((self ruler-view) v1 v2)
@@ -159,8 +159,8 @@
       (setf (v2 self) (min? (vmax self) v22))))
   (set-shift-and-factor self)
   (om-with-delayed-redraw self
-      (om-invalidate-view self)
-      (update-views-from-ruler self))
+    (om-invalidate-view self)
+    (update-views-from-ruler self))
   )
 
 
@@ -169,14 +169,14 @@
 
 ;; GET THE 'DUR' AND SIZE (pixels) of a unit
 ;; so that both maxsize and maxdur are not reached
-(defmethod get-units ((self ruler-view) &optional (maxsize 100)) 
+(defmethod get-units ((self ruler-view) &optional (maxsize 100))
   (let* ((rsize (ruler-size self))
          (dur (max 1 (abs (- (v2 self) (v1 self)))))
          (unit-dur (expt 10 (round (log dur 10))))
          (unit-size (/ (* rsize unit-dur) dur)))
     (when (and (equal maxsize 100) (< rsize 100))
       (setf maxsize 20))
-    (loop while (and (> unit-size maxsize)) do  
+    (loop while (and (> unit-size maxsize)) do
           (setf unit-dur (/ unit-dur 10)
                 unit-size (/ rsize (/ dur unit-dur))))
     (values unit-dur unit-size)))
@@ -195,14 +195,14 @@
           (let ((big-unit (* unit-dur 10)))
             (loop for vi from (* (floor (v1 self) big-unit) big-unit)
                   to (v2 self) by big-unit
-                  do 
+                  do
                   (let ((pixi (ruler-value-to-pix self vi)))
                     (draw-line-at self pixi 6)  ; (round rwidth 2.5)
                     (om-with-font (om-def-font :font1 :size 8)
                                   (draw-string-at self pixi (unit-value-str self vi unit-dur)))
                     ;draw detailed graduation
                     (when (> unit-size 4) ; (>= big-unit 10))
-                      (loop for vii from (+ vi unit-dur) 
+                      (loop for vii from (+ vi unit-dur)
                             to (- (+ vi big-unit) unit-dur) by unit-dur do
                             (let ((pixii (ruler-value-to-pix self vii)))
                               (draw-line-at self pixii 3)  ;(round rwidth 5)
@@ -237,40 +237,40 @@
 (defmethod ruler-zoom-? ((self ruler-view)) t)
 
 (defmethod om-view-click-handler ((self ruler-view) pos)
-  
+
   (let ((curr-pos pos)
         (vmin (or (vmin self) nil)) ; -1000000
         (vmax (or (vmax self) nil)) ; 1000000
         (r-size (ruler-size self)))
-    
-    (om-init-temp-graphics-motion 
+
+    (om-init-temp-graphics-motion
      self pos NIL
-     
+
      :motion #'(lambda (view position)
                  (declare (ignore view))
                  (let* ((curr-v (ruler-value-at-pos self position))
                         (dur (- (v2 self) (v1 self)))
                         (zoom (pix-diff-to-value self (- (zoom-value self position) (zoom-value self curr-pos))))
                         (shift (pix-diff-to-value self (- (shift-value self position) (shift-value self curr-pos)))))
-                   
+
                    (if (and (ruler-zoom-? self) (> (abs zoom) (abs shift)))
-                       
+
                        ;;; ZOOM
                        (let* ((newdur (+ dur (* zoom 0.01 dur)))
-                              (v1 (max? vmin (- curr-v (/ (* (- curr-v (v1 self)) newdur) dur))))     
+                              (v1 (max? vmin (- curr-v (/ (* (- curr-v (v1 self)) newdur) dur))))
                               (v2 (min? vmax (+ v1 newdur))))
                          (set-ruler-range self v1 v2))
-                     
+
                      ;;; TRANSLATE
                      (let ((dt (* (/ shift r-size) dur)))
-                       (unless (or (and (plusp shift) vmin (= vmin (v1 self))) 
+                       (unless (or (and (plusp shift) vmin (= vmin (v1 self)))
                                    (and (minusp shift) vmax (= vmax (v2 self))))
-                         (set-ruler-range self 
+                         (set-ruler-range self
                                           (max? vmin (- (v1 self) dt))
                                           (min? vmax (- (v2 self) dt))))))
                    (setf curr-pos position)))
-     
-     :release #'(lambda (view position) 
+
+     :release #'(lambda (view position)
                   (declare (ignore view position))
                   (update-views-from-ruler self))
      )

@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; Author: D. Bouche
@@ -62,9 +62,9 @@
               do
               (om-draw-line (- xr 4) (* y2 h) (+ xr 4) (* y2 h))
               (if (> y 0)
-              (om-with-font (om-def-font :font1 :size 8)
-                            (om-draw-string xc (+ (* y2 h) 2) 
-                                            (format nil "~1$" y)))))))))
+                  (om-with-font (om-def-font :font1 :size 8)
+                                (om-draw-string xc (+ (* y2 h) 2)
+                                                (format nil "~1$" y)))))))))
 
 (defmethod draw-grid-from-ruler ((self automation-panel) (ruler y-ruler-view))
   (let ((unit-dur (get-units ruler)))
@@ -82,9 +82,9 @@
   (if (eq (state (object-value (editor self))) :stop)
       (if (om-shift-key-p)
           (om-start-transient-drawing
-             self #'draw-coeff-ruler
-             position
-             (omp 0 2))
+           self #'draw-coeff-ruler
+           position
+           (omp 0 2))
         (om-stop-transient-drawing self)))
   ;(call-next-method)
   )
@@ -92,16 +92,16 @@
 ;;;Same as for bpf-panel with one more option:
 ;;;click when holding shift in mouse mode changes coeff (curve shape)
 (defmethod om-view-click-handler ((self automation-panel) position)
-  
+
   (if (and (equal (edit-mode (editor self)) :mouse)
            (om-shift-key-p))
-        
+
       (let* ((p0 position)
              (obj (object-value (editor self))))
-        
+
         (close-point-editor (editor self))
-        
-        (om-init-temp-graphics-motion 
+
+        (om-init-temp-graphics-motion
          self position nil
          :motion #'(lambda (view position)
                      (declare (ignore view))
@@ -113,88 +113,88 @@
                                ;(update-automation-data obj)
                          (om-invalidate-view self)))))
         )
-    
-      (call-next-method)))
-              
+
+    (call-next-method)))
+
 
 ;; makes everypoint equal to the predecessor
 (defun egalise-points (editor)
- (let* ((bpf (object-value editor))
-        (points (loop for pos in (selection editor) collect (nth pos (point-list bpf)))))
-   (loop for point in points 
-         when (prev-point bpf point) do
-         (om-point-set point :y (om-point-y (prev-point bpf point))))
-   ))
+  (let* ((bpf (object-value editor))
+         (points (loop for pos in (selection editor) collect (nth pos (point-list bpf)))))
+    (loop for point in points
+          when (prev-point bpf point) do
+          (om-point-set point :y (om-point-y (prev-point bpf point))))
+    ))
 
 (defun lock-selection (editor)
- (let* ((bpf (object-value editor))
-       (points (loop for pos in (selection editor) collect (nth pos (point-list bpf)))))
-   (loop for point in points do
-         (setf (ap-lock point) (not (ap-lock point))))))
-   
+  (let* ((bpf (object-value editor))
+         (points (loop for pos in (selection editor) collect (nth pos (point-list bpf)))))
+    (loop for point in points do
+          (setf (ap-lock point) (not (ap-lock point))))))
+
 
 (defmethod editor-key-action ((editor automation-editor) key)
   (case key
-      (#\= (egalise-points editor)
-           (editor-invalidate-views editor)
-           (report-modifications editor))
-      (#\b (lock-selection editor)
-           (editor-invalidate-views editor)) 
-      (otherwise (call-next-method))
-      ))
+    (#\= (egalise-points editor)
+         (editor-invalidate-views editor)
+         (report-modifications editor))
+    (#\b (lock-selection editor)
+         (editor-invalidate-views editor))
+    (otherwise (call-next-method))
+    ))
 
 
-(defmethod draw-one-bpf ((obj automation) view editor foreground? &optional x1 x2 y1 y2) 
+(defmethod draw-one-bpf ((obj automation) view editor foreground? &optional x1 x2 y1 y2)
 
   (let ((points (point-list obj))
         (selection (and foreground? (selection editor)))
         (show-indice (editor-get-edit-param editor :show-indices)))
 
     (when points
-      
+
       (let* ((t1 (/ (x1 view) (expt 10 (decimals obj))))
              (t2 (/ (x2 view) (expt 10 (decimals obj))))
              (p1 (max (1- (or (position t1 points :test '<= :key 'om-point-x) 0)) 0))
              (p2 (or (position t2 points :test '<= :key 'om-point-x)
                      (length points))))
-          ;;;loop through points (visibles + previous + next)
-          (loop for pt in (subseq points p1 p2)
-                for i = p1 then (1+ i)
-                do
-                  ;;;draw point if visible
-                  (when (in-interval (start-date pt) (list t1 t2))
-                    (let ((px (x-to-pix view (start-date pt)))
-                          (py (y-to-pix view (start-value pt))))
-                    
-                      (draw-bpf-point (list px py)
-                                      editor
-                                      :selected (and (consp selection) (find i selection))
-                                      :index (and foreground? show-indice i) 
-                                      :time (and foreground? (time-to-draw obj editor pt i)))
-                      
-                      (when (and (ap-lock pt) (equal :draw-all (editor-get-edit-param editor :draw-style)))
-                        (om-draw-circle px py 5 :fill nil)))
-                    )
-                  ;;;draw curves using 1000 lines by curve 
-                  ;;(should rely on coeff for each point)
-                  (if (= (ap-coeff pt) 0.5)
-                      (om-draw-line (x-to-pix view (start-date pt))
-                                    (y-to-pix view (start-value pt))
-                                    (x-to-pix view (end-date pt obj))
-                                    (y-to-pix view (end-value pt obj)))
-                    (let* ((step (max 0.01 (/ (- (end-date pt obj) (start-date pt)) 100)))
-                           (start-t (min (end-date pt obj) (max t1 (start-date pt))))
-                           (end-t (min (end-date pt obj) t2)))
-                      (loop for ti from start-t to end-t
-                            by step
-                            do
-                            (om-draw-line (x-to-pix view ti) 
-                                          (y-to-pix view (funcall (fun pt obj) ti))  
-                                          (x-to-pix view (min (end-date pt obj) (+ step ti)))
-                                          (y-to-pix view (funcall (fun pt obj) (min (end-date pt obj) (+ step ti)))))))
-                    )
-                  )
-          ))
+        ;;;loop through points (visibles + previous + next)
+        (loop for pt in (subseq points p1 p2)
+              for i = p1 then (1+ i)
+              do
+              ;;;draw point if visible
+              (when (in-interval (start-date pt) (list t1 t2))
+                (let ((px (x-to-pix view (start-date pt)))
+                      (py (y-to-pix view (start-value pt))))
+
+                  (draw-bpf-point (list px py)
+                                  editor
+                                  :selected (and (consp selection) (find i selection))
+                                  :index (and foreground? show-indice i)
+                                  :time (and foreground? (time-to-draw obj editor pt i)))
+
+                  (when (and (ap-lock pt) (equal :draw-all (editor-get-edit-param editor :draw-style)))
+                    (om-draw-circle px py 5 :fill nil)))
+                )
+              ;;;draw curves using 1000 lines by curve
+              ;;(should rely on coeff for each point)
+              (if (= (ap-coeff pt) 0.5)
+                  (om-draw-line (x-to-pix view (start-date pt))
+                                (y-to-pix view (start-value pt))
+                                (x-to-pix view (end-date pt obj))
+                                (y-to-pix view (end-value pt obj)))
+                (let* ((step (max 0.01 (/ (- (end-date pt obj) (start-date pt)) 100)))
+                       (start-t (min (end-date pt obj) (max t1 (start-date pt))))
+                       (end-t (min (end-date pt obj) t2)))
+                  (loop for ti from start-t to end-t
+                        by step
+                        do
+                        (om-draw-line (x-to-pix view ti)
+                                      (y-to-pix view (funcall (fun pt obj) ti))
+                                      (x-to-pix view (min (end-date pt obj) (+ step ti)))
+                                      (y-to-pix view (funcall (fun pt obj) (min (end-date pt obj) (+ step ti)))))))
+                )
+              )
+        ))
     ))
 
 

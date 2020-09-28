@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -32,30 +32,30 @@
 (compile&load (merge-pathnames "compatibility" *load-pathname*))
 
 
-(omNG-make-package 
+(omNG-make-package
  "MIDI"
  :container-pack *om-package-tree*
  :doc "MIDI tools and objects"
  :classes '(midi-track midi-note midievent midi-mix-console)
  :functions nil
- :subpackages 
- (list (omNG-make-package 
+ :subpackages
+ (list (omNG-make-package
         "Import/Export/Conversions"
         :doc "MIDI import and conversion utilities"
         :functions '(import-midi get-midievents mf-info save-as-midi))
-       (omNG-make-package 
+       (omNG-make-package
         "Filters"
         :doc "Tools to filter/process"
         :functions '(test-midi-type test-date test-midi-track test-midi-channel test-midi-port))
-       (omNG-make-package 
+       (omNG-make-package
         "Utils"
         :doc "Other MIDI utilities"
         :functions '(midi-type midi-control-change gm-program gm-drumnote mc-to-pitchwheel))
-       (omNG-make-package 
+       (omNG-make-package
         "Out"
         :doc "Send MIDI events out"
         :functions '(pgmout pitchbend pitchwheel ctrlchg volume midi-reset send-midi-note))
        ))
-       
 
- 
+
+

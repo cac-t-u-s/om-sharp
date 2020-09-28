@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File authors: J. Bresson, D. Bouche
@@ -21,7 +21,7 @@
 
 (in-package :om)
 
-(defclass OMSequencer (OMPatch schedulable-object timed-object) 
+(defclass OMSequencer (OMPatch schedulable-object timed-object)
   ((ctrlpatch :accessor ctrlpatch :initform nil :initarg :ctrlpatch)
    (range :accessor range :initform '(:x1 0 :x2 20000 :y1 0 :y2 100) :initarg :range)
    ;;;Scheduler slot (t to only compute)
@@ -77,7 +77,7 @@
                 collect
                 box)))
 
-(defmethod copy-contents ((from OMSequencer) (to OMSequencer))  
+(defmethod copy-contents ((from OMSequencer) (to OMSequencer))
   (let ((rep (call-next-method)))
     (set-control-patch rep (om-copy (ctrlpatch from)))
     (setf (range rep) (range from))
@@ -100,21 +100,21 @@
                                     (get-all-boxes self :sorted sorted))))
 
 (defmethod get-box-onset ((self OMBox)) (box-x self))
-(defmethod set-box-onset ((self OMBox) o) 
+(defmethod set-box-onset ((self OMBox) o)
   (setf (box-x self) o)
-  (when (get-box-value self) 
+  (when (get-box-value self)
     (set-object-onset (get-box-value self) o)))
 
 ;(defmethod get-box-onset ((self omboxpatch)) (box-x self))
-;(defmethod set-box-onset ((self omboxpatch) o) 
+;(defmethod set-box-onset ((self omboxpatch) o)
 ;  (setf (box-x self) o)
 ;  (when (get-box-value self) (set-object-onset (get-box-value self) o)))
 
 (defparameter *temporalbox-def-w* 1000)
 (defmethod get-box-duration ((self OMBox)) (box-w self))
-(defmethod set-box-duration ((self OMBox) d) 
+(defmethod set-box-duration ((self OMBox) d)
   (setf (box-w self) (or d *temporalbox-def-w*))
-  (when (get-box-value self) 
+  (when (get-box-value self)
     (set-object-interval (get-box-value self) (list 0 (box-w self))))
   (box-w self))
 
@@ -127,13 +127,13 @@
   (let ((object (get-box-value self)))
     (set-object-onset object (box-x self))
     (let ((duration (and (play-obj? object) (get-obj-dur object))))
-      (when duration 
+      (when duration
         ;;; (max 100 (or (get-obj-dur (get-box-value self)) *temporalbox-def-w*))
         (set-box-duration self duration)))
     (when (editor container)
       (let ((view (get-view-from-mode (editor container))))
-        (if (listp view) 
-            ;;; tracks mode 
+        (if (listp view)
+            ;;; tracks mode
             (when (group-id self)
               (om-invalidate-view (nth (1- (group-id self)) view)))
           ;;; maquette mode
@@ -144,7 +144,7 @@
 ;;; EVALUATION
 ;;;=========================================
 
-;;; NOT GOOD !!! NEED TO EVAL JUST TERMINAL BOXES  
+;;; NOT GOOD !!! NEED TO EVAL JUST TERMINAL BOXES
 (defmethod eval-sequencer ((seq OMSequencer) &optional (with-control-patch t))
   (loop for box in (get-all-boxes seq)
         when (not (find-if #'connections (outputs box)))
@@ -157,7 +157,7 @@
   ; (set-meta-inputs (ctrlpatch seq) (car (references-to seq)) seq)
   (when with-control-patch
     (mapcar 'eval-box (get-boxes-of-type (ctrlpatch seq) 'omoutbox)))
-  
+
   (clear-ev-once seq)
   (clear-ev-once (ctrlpatch seq))
   ;(compile-patch (ctrlpatch seq))
@@ -185,21 +185,21 @@
           (when (and (find-if 'reactive (outputs box))
                      (or (not interval)
                          (in-interval (- (get-box-onset box) (pre-delay box)) interval :exclude-high-bound t))
-                     (not (print (ready b))) ;; avoids computing it several times 
+                     (not (print (ready b))) ;; avoids computing it several times
                      )
             (setf (ready b) t)
             (list (list (- (get-box-onset box) (pre-delay box))
                         (get-box-onset box)
                         #'(lambda ()
                             ;; (with-schedulable-object self (eval-box b))
-                            ;; with-schedulable-object has undesired effects when used in a loop 
+                            ;; with-schedulable-object has undesired effects when used in a loop
                             (eval-box b)
                             (clear-ev-once b)
                             (reset-cache-display b)
                             (set-display b :value)
                             (contextual-update b self)
                             )))
-          ))))
+            ))))
 
 
 (defmethod reset-box ((self OMBox)) nil)
@@ -213,23 +213,23 @@
 ;;; from scheduler functions
 (defmethod reset-I :before ((self OMSequencer) &optional date)
   (reset-boxes self))
- 
+
 
 (defmethod get-action-list-for-play ((self OMSequencer) time-interval &optional parent)
-  (sort 
+  (sort
    (if (not (no-exec self))
        (loop for box in (get-all-boxes self :sorted t)
              when (box-cross-interval box time-interval)
              ;; it it's a reactive box it must be "ready" (= computed)
-             ;; when (not (and (find-if 'reactive (outputs box)) (not (ready box)))) 
+             ;; when (not (and (find-if 'reactive (outputs box)) (not (ready box))))
              when (group-id box) ;;; only boxes in tracks are played
              append
              (let ((interval-in-object (list
                                         (max (- (car time-interval) (get-box-onset box)) 0)
                                         (min (- (cadr time-interval) (get-box-onset box)) (get-box-duration box)))))
-               (mapcar 
+               (mapcar
                 #'(lambda (b) (incf (car b) (get-box-onset box)) b)
-                (get-action-list-for-play  
+                (get-action-list-for-play
                  (play-obj-from-value (get-box-value box) box)
                  interval-in-object self)))))
    '< :key 'car))
@@ -247,14 +247,14 @@
               (progn
                 (set-object-interval (get-box-value box) (list (- time (get-box-onset box)) (cadr interval)))
                 (if (in-interval time (list (get-box-onset box) (get-box-end-date box)))
-                    (progn 
+                    (progn
                       (set-object-time (get-box-value box) (- (car interval) (get-box-onset box)))
                       (set-time-callback (get-box-value box) (- time (get-box-onset box))))
                   (player-stop-object *general-player* (get-box-value box))))
             (player-stop-object *general-player* (get-box-value box))))))
 
 #|
-(with-schedulable-object 
+(with-schedulable-object
    seq
    ;;;Move the object
    (setf (onset tb) (max (+ (onset tb) dx) 0))
@@ -274,7 +274,7 @@
   ;;;Pause all boxes under the sequencer cursor (that is being rendered).
   ;;;Note : useful only for objects triggered by the sequencer (hierarchical).
   ;(loop for box in (get-all-boxes object)
-  ;      when (box-being-rendered? object box) 
+  ;      when (box-being-rendered? object box)
   ;      do (player-pause-object self (get-box-value box)))
   (call-next-method))
 
@@ -282,7 +282,7 @@
   ;;;Continue all boxes under the sequencer cursor (that is being rendered).
   ;;;Note : useful only for objects triggered by the sequencer (hierarchical).
   ;(loop for box in (get-all-boxes object)
-  ;      when (box-being-rendered? object box) 
+  ;      when (box-being-rendered? object box)
   ;      do (player-continue-object self (get-box-value box)))
   (call-next-method))
 
@@ -290,24 +290,24 @@
   ;;;Stop all boxes under the sequencer cursor (that is being rendered).
   ;;;Note : useful only for objects triggered by the sequencer (hierarchical).
   (loop for box in (get-all-boxes object)
-        do 
+        do
         (player-stop-object self (get-box-value box)))
 
   ;;;Ajouter ici la task end : (mp:mailbox-send (taskqueue *engine*) *taskend*)
-  
+
   (call-next-method))
 
 
 ;;;===============================
-;;; MODIFY/UPDATE SEQUENCER CONTENTS 
+;;; MODIFY/UPDATE SEQUENCER CONTENTS
 ;;;===============================
 
 ;(defmethod allowed-element ((self OMSequencer) (elem t)) (call-next-method))
 
-(defmethod allowed-element ((self OMSequencer) (elem timed-object)) 
+(defmethod allowed-element ((self OMSequencer) (elem timed-object))
   (plusp (get-obj-dur elem))) ;; no object that have no duration => must be put in containers
 
-(defmethod allowed-element ((self OMSequencer) (elem OMBoxEditCall)) 
+(defmethod allowed-element ((self OMSequencer) (elem OMBoxEditCall))
   (allowed-element self (get-box-value elem)))
 
 (defmethod allowed-element ((self OMSequencer) (elem OMComment)) nil)
@@ -317,7 +317,7 @@
   (set-box-duration elem (or (and (play-obj? (get-box-value elem))
                                   (get-obj-dur (get-box-value elem)))
                              (box-w elem)))
-  ;; (unless (group-id elem) (setf (group-id elem) 1))   
+  ;; (unless (group-id elem) (setf (group-id elem) 1))
   (with-schedulable-object self (call-next-method)))
 
 ;; evaluate the patch before ?
@@ -338,25 +338,25 @@
 
 (defmethod move-box-in-sequencer ((seq OMSequencer) (tb OMBox) &key (dx 0) (dy 0))
   (with-schedulable-object
-   seq 
+   seq
    ;;; this is +/- like move-box (with set-box-onset)
    (set-box-onset tb (max (+ (get-box-onset tb) dx) 0))
    (setf (box-y tb) (+ (box-y tb) dy))
-   
+
    (when (frame tb) (update-frame-to-box-position tb))
 
    (when (container tb)
      (report-modifications (editor (container tb))))
-   
+
    (update-connections tb)
-   
+
    ;;; specific
    (if (and (get-box-value tb) (eq (get-object-state (get-box-value tb)) :play))
        (let ((ti (get-obj-time seq)))
          (if (in-interval ti (list (get-box-onset tb) (get-box-end-date tb)))
              (set-object-time (get-box-value tb) (- ti (get-box-onset tb)))
            (player-stop-object *general-player* (get-box-value tb)))))
-   
+
    ))
 
 
@@ -365,7 +365,7 @@
 ;;;======================================
 
 (defmethod get-track-boxes ((self OMSequencer) tracknum &key (sorted nil))
-  (remove-if-not #'(lambda (id) (and (numberp id) (= id tracknum))) 
+  (remove-if-not #'(lambda (id) (and (numberp id) (= id tracknum)))
                  (get-all-boxes self :sorted sorted)
                  :key 'group-id))
 
@@ -376,12 +376,12 @@
   (setf (group-id tb) tracknum)
   (let* ((yrange (- (getf (range seq) :y2) (getf (range seq) :y1)))
          (trackw (round yrange (n-tracks seq)))
-         (y (+ (getf (range seq) :y1) 
+         (y (+ (getf (range seq) :y1)
                (if tracknum (* (- (n-tracks seq) (1- tracknum)) trackw) (round yrange 2)))))
-    (setf (box-y tb) y 
+    (setf (box-y tb) y
           (box-h tb) (round yrange 10))
-  (omNG-add-element seq tb)
-  (om-invalidate-view (nth (1- tracknum) (get-g-component (editor seq) :track-views)))))
+    (omNG-add-element seq tb)
+    (om-invalidate-view (nth (1- tracknum) (get-g-component (editor seq) :track-views)))))
 
 
 (defmethod set-track-gain ((self OMSequencer) tracknum gain)
@@ -404,7 +404,7 @@
 ;;; TIME MARKERS METHODS
 ;;;=========================================
 
-;;; Note: this is not used as long as sequencers are 
+;;; Note: this is not used as long as sequencers are
 ;;; not embedded in other sequencers
 
 (defmethod get-time-markers ((self OMSequencer))
@@ -416,7 +416,7 @@
     (get-time-markers (get-box-value self))))
 
 (defmethod get-elements-for-marker ((self OMSequencer) marker)
-  (loop for box in (boxes self) 
+  (loop for box in (boxes self)
         collect
         (list box (get-elements-for-marker box marker))))
 
@@ -429,7 +429,7 @@
         do (when (not (member nil (cdr elem)))
              (temporal-translate-points (car elem) (cdr elem) dt))))
 
-  
+
 (defmethod set-property ((self OMBox) (prop-id (eql :show-markers)) val)
   (call-next-method)
   ;;; in order to update the rulers
@@ -441,7 +441,7 @@
 ;;; PERSISTENCE / OM-SAVE
 ;;;=================================
 
-(defmethod save-patch-contents ((self OMSequencer) &optional (box-values nil)) 
+(defmethod save-patch-contents ((self OMSequencer) &optional (box-values nil))
   (append
    (call-next-method self t)
    `((:range ,(range self))
@@ -461,7 +461,7 @@
     (when interval (setf (interval seq) interval))
     (setf (looper seq) loop-on)
     seq))
-      
+
 (defmethod om-load-from-id ((id (eql :sequencer)) data)
   (let ((seq (make-instance 'OMSequencerInternal :name (find-value-in-kv-list data :name))))
     (load-patch-contents seq data)
@@ -469,8 +469,8 @@
 
 
 
-(defmethod omng-save-relative ((self OMSequencerFile) ref-path)  
-  `(:sequencer-from-file 
+(defmethod omng-save-relative ((self OMSequencerFile) ref-path)
+  `(:sequencer-from-file
     ,(if (mypathname self)
          (omng-save (relative-pathname (mypathname self) ref-path))
        (omng-save (pathname (name self))))))
@@ -483,21 +483,21 @@
                             (check-path-using-search-path path)))
 
          (seq
-    
+
           (if checked-path
-        
+
               (load-doc-from-file checked-path :sequencer)
-            
+
             ;;; no pathname-directory can occur while loading old patch abstractions from OM6
             ;;; in this case we look for a not-yet-save file with same name in registered documents
             (let ((registered-entry (find (pathname-name path) *open-documents* :test 'string-equal :key #'(lambda (entry) (name (doc-entry-doc entry))))))
               (when registered-entry
                 (doc-entry-doc registered-entry)))
             )))
-      
-      (unless seq
-        (om-beep-msg "SEQUENCER FILE NOT FOUND: ~S !" path)
-        (setf seq (make-instance'OMSequencerFile :name (pathname-name path)))
-        (setf (mypathname seq) path))
-      
-      sequencers))
+
+    (unless seq
+      (om-beep-msg "SEQUENCER FILE NOT FOUND: ~S !" path)
+      (setf seq (make-instance'OMSequencerFile :name (pathname-name path)))
+      (setf (mypathname seq) path))
+
+    sequencers))

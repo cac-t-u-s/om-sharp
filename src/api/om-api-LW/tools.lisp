@@ -1,5 +1,5 @@
 ;=========================================================================
-; OM API 
+; OM API
 ; Multiplatform API for OpenMusic
 ; LispWorks Implementation
 ;=========================================================================
@@ -60,7 +60,7 @@
 
 (defun function-arglist (fun)
   (let ((fsym (if (symbolp fun) fun (function-name fun)))
-        (fdef (if (symbolp fun) (fdefinition fun) fun))) 
+        (fdef (if (symbolp fun) (fdefinition fun) fun)))
     (cond ((clos::generic-function-p fdef)
            (hcl::method-lambda-list (car (hcl::generic-function-methods fdef))))
           ((macro-function fsym)
@@ -68,7 +68,7 @@
           (fsym (clos::extract-lambda-list-names-and-keys (function-lambda-list fsym)))
           (t (function-lambda-list fun)))
     ))
- 
+
 (defmethod function-name ((fun symbol)) fun)
 
 (defmethod function-name (fun)
@@ -123,17 +123,17 @@
   (remove :instance (class-slots class) :test 'equal :key 'slot-allocation))
 
 ;=================
-; Special LW compatibility 
+; Special LW compatibility
 
 (in-package :cl-user)
 
 (defun set-nthcdr (index list new-value)
   "If INDEX is 0, just return NEW-VALUE."
   (if (not (zerop index))
-    (rplacd (nthcdr (1- index) list)
-            new-value))
+      (rplacd (nthcdr (1- index) list)
+              new-value))
   new-value)
 
-(let ((lispworks::*HANDLE-WARN-ON-REDEFINITION* nil)) 
+(let ((lispworks::*HANDLE-WARN-ON-REDEFINITION* nil))
   (defsetf nthcdr set-nthcdr))
 

@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -39,13 +39,13 @@
 (compile&load (om-relative-path '("3D") "3dc-editor"))
 
 
-(omNG-make-package 
+(omNG-make-package
  "3D"
  :container-pack (get-subpackage *om-package-tree* "Basic Tools")
  :classes '(3DC 3D-model)
  :functions '())
 
-(omNG-make-package 
+(omNG-make-package
  "Conversions"
  :container-pack (get-subpackage *om-package-tree* "Basic Tools")
  ::functions '(car->pol pol->car xy->ad ad->xy xyz->aed aed->xyz))

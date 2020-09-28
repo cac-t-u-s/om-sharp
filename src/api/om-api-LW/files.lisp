@@ -1,5 +1,5 @@
 ;=========================================================================
-; OM API 
+; OM API
 ; Multiplatform API for OpenMusic
 ; LispWorks Implementation
 ;=========================================================================
@@ -33,22 +33,22 @@
           om-pathname-location
           om-directory-pathname-p
           om-directory
-          
+
           om-lisp-image
           om-user-home
           om-user-pref-folder
-         
+
           om-create-file
           om-create-directory
           om-copy-file
           om-copy-directory
           om-delete-file
           om-delete-directory
-          
+
           om-read-line
           om-clean-line
           om-stream-eof-p
-          
+
           ) :om-api)
 
 ;;;==================
@@ -58,8 +58,8 @@
 (defparameter *compiled-type* (pathname-type (cl-user::compile-file-pathname "")))
 
 ;;; NOT WORK IN STANDALONE !
-(defun om-compiled-type () 
-  (if (om-standalone-p) 
+(defun om-compiled-type ()
+  (if (om-standalone-p)
       *compiled-type*
     (pathname-type (cl-user::compile-file-pathname ""))))
 
@@ -83,16 +83,16 @@
 
   (when path
     (let ((rep (ignore-errors (directory (namestring path) :link-transparency resolve-aliases))))
-      (when rep 
+      (when rep
         (when (not files)
           (setf rep (remove-if-not 'om-directory-pathname-p rep)))
-      
+
         (when (not directories)
           (setf rep (remove-if 'om-directory-pathname-p rep)))
-      
+
         (when (not hidden-files)
-          (setf rep (remove-if #'(lambda (item) 
-                                   (or (and (om-directory-pathname-p item) 
+          (setf rep (remove-if #'(lambda (item)
+                                   (or (and (om-directory-pathname-p item)
                                             (string-equal (subseq (car (last (pathname-directory item))) 0 1) "."))
                                        (and (stringp (pathname-name item)) (> (length (pathname-name item)) 0)
                                             (string-equal (subseq (pathname-name item) 0 1) "."))))
@@ -102,17 +102,17 @@
           (cond ((stringp type)
                  (setf rep (loop for item in rep when (or (om-directory-pathname-p item) (string-equal (pathname-type item) type)) collect item)))
                 ((consp type)
-                 (setf rep (loop for item in rep when (or (om-directory-pathname-p item) 
+                 (setf rep (loop for item in rep when (or (om-directory-pathname-p item)
                                                           (member (pathname-type item) type :test 'string-equal)) collect item)))
                 (t nil)))
 
         (if recursive
-            (append rep 
+            (append rep
                     (loop for dir in (om-directory path :directories t :files nil
                                                    :resolve-aliases nil
                                                    :hidden-files hidden-files :recursive nil)
-                          append (om-directory dir :type type :directories directories :files files 
-                                               :resolve-aliases resolve-aliases :hidden-files hidden-files 
+                          append (om-directory dir :type type :directories directories :files files
+                                               :resolve-aliases resolve-aliases :hidden-files hidden-files
                                                :recursive t))
                     )
           rep)))))
@@ -122,17 +122,17 @@
 ;;;==================
 
 (defun om-lisp-image ()
-  (lw::lisp-image-name)) 
+  (lw::lisp-image-name))
 
 (defun om-user-home ()
- (USER-HOMEDIR-PATHNAME))
+  (USER-HOMEDIR-PATHNAME))
 
 (defun om-user-pref-folder ()
   (let* ((userhome (om-user-home)))
     (make-pathname
      :host (pathname-host userhome)
      :device (pathname-device userhome)
-     :directory 
+     :directory
      #+cocoa(append (pathname-directory userhome) (list "Library" "Preferences"))
      #+win32(append (pathname-directory userhome) (list "Application Data"))
      #+linux(append (pathname-directory userhome) (list ".local" "share"))
@@ -153,7 +153,7 @@
     p))
 
 (defun om-copy-file (sourcepath targetpath &key (replace-if-exists t))
-  (handler-bind 
+  (handler-bind
       ((error #'(lambda (err)
                   (capi::display-message "An error of type ~a occurred: ~a" (type-of err) (format nil "~A" err))
                   (abort err))))
@@ -161,10 +161,10 @@
       (delete-file targetpath))
     (system::copy-file sourcepath targetpath)
     targetpath))
-    
+
 
 (defun om-copy-directory (sourcedir targetpath)
-  (system::call-system (concatenate 'string "cp -R \"" (namestring sourcedir) "\" \"" 
+  (system::call-system (concatenate 'string "cp -R \"" (namestring sourcedir) "\" \""
                                     (namestring targetpath) "\"")))
 
 (defun om-delete-file (name)
@@ -173,7 +173,7 @@
 
 (defun om-delete-directory (path)
   (if (system::directory-pathname-p path)
-      (let ((directories (om-directory path :directories t :files t)))     
+      (let ((directories (om-directory path :directories t :files t)))
         (loop for item in directories do
               (om-delete-directory item))
         (delete-directory path :no-error)
@@ -188,8 +188,8 @@
 (defun om-read-line (file)
   (read-line file nil 'eof))
 
-; removes wrong characters at the end 
-(defun om-clean-line (line) 
+; removes wrong characters at the end
+(defun om-clean-line (line)
   (if (stringp line)
       (if (> (length line) 0)
           (let ((lastchar (elt line (- (length line) 1))))
@@ -199,7 +199,7 @@
               line))
         line)
     line))
-     
+
 (defun om-stream-eof-p (s)
   ;(stream::stream-check-eof-no-hang s)
   (let ((c (read-char s nil 'eof)))

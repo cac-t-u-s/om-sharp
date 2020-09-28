@@ -1,5 +1,5 @@
 ;=========================================================================
-; OM API 
+; OM API
 ; Multiplatform API for OpenMusic
 ; LispWorks Implementation
 ;=========================================================================
@@ -38,12 +38,12 @@
           om-pict-width
           om-pict-height
           om-draw-picture
-          
+
           om-picture-values
           om-picture-array
-         
+
           om-record-pict
-          
+
           ) :om-api)
 
 ;;;================
@@ -60,13 +60,13 @@
 ;;; pict is a picture identifier
 (defmethod om-draw-picture ((pict-id t) &key (x 0) (y 0) w h (src-x 0) (src-y 0) src-w src-h)
   (when pict-id
-    (handler-bind ((error #'(lambda (e) 
+    (handler-bind ((error #'(lambda (e)
                               (print (format nil "!!! ~A: ~A" (string-upcase (type-of e)) e))
                               (abort))))
       (let* ((port *curstream*)
              (image (ignore-errors (gp::load-image port pict-id))))
-        (when image 
-          (unwind-protect 
+        (when image
+          (unwind-protect
               (gp::draw-image port image x y
                               :to-width (or w (gp:image-width image)) :to-height (or h (gp:image-height image))
                               :from-x src-x :from-y src-y
@@ -75,15 +75,15 @@
             ))))))
 
 (defmethod om-draw-picture ((pict-id gp::image) &key (x 0) (y 0) w h (src-x 0) (src-y 0) src-w src-h)
-  (handler-bind ((error #'(lambda (e) 
+  (handler-bind ((error #'(lambda (e)
                             (print (format nil "!!! ~A: ~A" (string-upcase (type-of e)) e))
                             (abort))))
     (let* ((port *curstream*))
-        (gp::draw-image port pict-id x y
-                        :to-width (or w (gp:image-width pict-id)) :to-height (or h (gp:image-height pict-id))
-                        :from-width (or src-w (gp:image-width pict-id)) :from-height (or src-h (gp:image-height pict-id))
-                        :from-x src-x :from-y src-y
-                        ))))
+      (gp::draw-image port pict-id x y
+                      :to-width (or w (gp:image-width pict-id)) :to-height (or h (gp:image-height pict-id))
+                      :from-width (or src-w (gp:image-width pict-id)) :from-height (or src-h (gp:image-height pict-id))
+                      :from-x src-x :from-y src-y
+                      ))))
 
 (defmacro om-record-pict (w h &body body)
   (let ((portname (gensym))
@@ -106,7 +106,7 @@
            (ph (om-pict-height pict))
            (destw (if size (om-point-x size) pw))
            (desth (if size (om-point-y size) ph))
-           (port (gp::create-pixmap-port *dummy-view* (om-point-x size) (om-point-y size) 
+           (port (gp::create-pixmap-port *dummy-view* (om-point-x size) (om-point-y size)
                                          :background :white :clear t))
            (image (gp::load-image port pict)))
       (gp::draw-image *curstream* image (om-point-x pos) (om-point-y pos)
@@ -138,12 +138,12 @@
 (defun init-pictwin ()
   (setf *temp-pictlayout* (make-instance 'capi:pinboard-layout)
         *temp-pictwin* (capi:display (make-instance 'capi:interface
-                                           :display-state :hidden
-                                           :layout *temp-pictlayout*))))
+                                                    :display-state :hidden
+                                                    :layout *temp-pictlayout*))))
 
 
 (defun ensure-pict-win ()
-  (or (and *temp-pictwin* *temp-pictlayout*) 
+  (or (and *temp-pictwin* *temp-pictlayout*)
       (init-pictwin)))
 
 (defun clean-pict-win ()

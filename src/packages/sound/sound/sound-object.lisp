@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -26,11 +26,11 @@
 
 ;;; use as :ptr for OM-SOUND-BUFFER
 (defun make-audio-buffer (nch size &optional (type :float))
-  (fli::allocate-foreign-object 
+  (fli::allocate-foreign-object
    :nelems nch
-   :type :pointer 
-   :initial-contents (loop for c from 0 to (1- nch) 
-                           collect (fli::allocate-foreign-object 
+   :type :pointer
+   :initial-contents (loop for c from 0 to (1- nch)
+                           collect (fli::allocate-foreign-object
                                     :type type :nelems size
                                     :initial-element 0.0))))
 
@@ -45,7 +45,7 @@
 
 (defmethod om-pointer-release-function ((self om-sound-buffer)) 'om-cleanup)
 
-;;; if the om-sound-buffer is created like this, it will be garbaged automatically 
+;;; if the om-sound-buffer is created like this, it will be garbaged automatically
 (defun make-om-sound-buffer-GC (&key ptr (count 1) (nch 1))
   (om-print-dbg "Initializing audio buffer (~A channels)..." (list nch))
   (om-create-with-gc (make-om-sound-buffer :ptr ptr :count count :nch nch)))
@@ -61,14 +61,14 @@
   ;(om-print (format nil "Release audio buffer ~A in ~A" (oa::om-pointer-ptr ptr) ptr) "SOUND_DEBUG")
 ;  (when (<= (decf (oa::om-pointer-count ptr)) 0)
     ;(om-print (format nil "CAN FREE Audio buffer ~A in ~A !" (oa::om-pointer-ptr ptr) ptr) "SOUND_DEBUG")
-    ;(unless (om-null-pointer-p (oa::om-pointer-ptr ptr)) 
+    ;(unless (om-null-pointer-p (oa::om-pointer-ptr ptr))
     ;  (audio-io::om-free-audio-buffer (oa::om-pointer-ptr ptr) (om-sound-buffer-nch ptr)))
 ;    ))
 
 
 ;;; we never save it on disk
 (defmethod omng-save ((self om-sound-buffer)) nil)
-  
+
 ;;==============================
 ;; SOUND
 ;;==============================
@@ -85,12 +85,12 @@
    (buffer-player :accessor buffer-player :initform nil :documentation "pointer to a buffer player")))
 
 ;; om-internal-sound never explicitly frees its buffer but just releases it.
-;; => buffer must be created 'with-GC' 
+;; => buffer must be created 'with-GC'
 (defmethod om-cleanup ((self om-internal-sound))
   (om-print-dbg "SOUND cleanup: ~A (~A)" (list self (buffer self)))
   (when (buffer self) (oa::om-release (buffer self))))
 
-(defmethod additional-slots-to-copy ((from om-internal-sound)) 
+(defmethod additional-slots-to-copy ((from om-internal-sound))
   (append (call-next-method) '(mute)))
 
 (defmethod excluded-slots-from-copy ((from om-internal-sound))  '(buffer))
@@ -99,9 +99,9 @@
 
 ;;; CLONE A SOUND
 (defmethod clone-object ((self om-internal-sound) &optional clone)
- 
+
   (let ((snd (call-next-method)))
-    
+
     (when (buffer self)
       (let ((new-ptr (make-audio-buffer (n-channels self) (n-samples self)))
             (self-ptr (oa::om-pointer-ptr (buffer self))))
@@ -112,22 +112,22 @@
                   (cffi::mem-aref (cffi::mem-aref self-ptr :pointer ch) :float smp))))
         (setf (buffer snd) (make-om-sound-buffer-gc :ptr new-ptr :nch (n-channels self)))
         ))
-    
+
     snd))
 
 
-(defmethod release-sound-buffer ((self om-internal-sound)) 
-  (when (buffer self) 
+(defmethod release-sound-buffer ((self om-internal-sound))
+  (when (buffer self)
     (oa::om-release (buffer self))
     (setf (buffer self) nil)))
 
 ;;; called by the box at eval
-(defmethod release-previous-value ((self om-internal-sound)) 
+(defmethod release-previous-value ((self om-internal-sound))
   (release-sound-buffer self))
- 
+
 
 ;;; mostly for compatibility...
-(defmethod get-om-sound-data ((self om-internal-sound))  
+(defmethod get-om-sound-data ((self om-internal-sound))
   (buffer self))
 
 
@@ -154,13 +154,13 @@ Press 'space' to play/stop the sound file.
 ;(references-to (find-class 'sound))
 ;(setf (references-to (find-class 'sound)) nil)
 
-(defmethod additional-class-attributes ((self sound)) 
-  '(markers 
-    file-pathname 
-    sample-rate 
-    n-channels 
-    n-samples 
-    gain 
+(defmethod additional-class-attributes ((self sound))
+  '(markers
+    file-pathname
+    sample-rate
+    n-channels
+    n-samples
+    gain
     access-from-file))
 
 (defmethod play-obj? ((self sound)) t)
@@ -171,11 +171,11 @@ Press 'space' to play/stop the sound file.
 
 (defmethod box-def-self-in ((self (eql 'sound))) :choose-file)
 
-(defmethod default-name ((self sound)) 
+(defmethod default-name ((self sound))
   (when (file-pathname self)
     (if (stringp (pathname-type (file-pathname self)))
         (string+ (pathname-name (file-pathname self)) "." (pathname-type (file-pathname self)))
-      (pathname-name (file-pathname self))))) 
+      (pathname-name (file-pathname self)))))
 
 
 ;;; specialized to save sound pathname relative
@@ -195,8 +195,8 @@ Press 'space' to play/stop the sound file.
      ((:markers ,(omng-save (markers self)))
       (:gain ,(gain self))
       (:access-from-file ,(access-from-file self))
-      (:file-pathname ,(and (file-pathname self) 
-                            (omng-save (relative-pathname 
+      (:file-pathname ,(and (file-pathname self)
+                            (omng-save (relative-pathname
                                         (file-pathname self)
                                         *relative-path-reference*))))
       ))
@@ -217,18 +217,18 @@ Press 'space' to play/stop the sound file.
 (defmethod get-sound ((self sound)) self)
 (defmethod get-sound ((self t)) nil)
 
-(defmethod get-sound ((self om-internal-sound)) 
+(defmethod get-sound ((self om-internal-sound))
   (om-init-instance (clone-object self (make-instance 'sound)) nil))
 
 
 ;; `((:file-pathname ,self) (:access-from-file t))
-(defmethod get-sound ((self pathname)) 
-  (when (probe-file self) 
+(defmethod get-sound ((self pathname))
+  (when (probe-file self)
     (let ((snd (make-instance 'sound)))
       (setf (file-pathname snd) self)
       (om-init-instance snd)
       )))
- 
+
 (defmethod get-sound ((self string)) (get-sound (pathname self)))
 
 (defmethod get-sound-name ((self pathname)) (pathname-name self))
@@ -255,19 +255,19 @@ Press 'space' to play/stop the sound file.
   `(let ((,snd (make-instance 'sound :n-samples ,size :n-channels ,nch :sample-rate ,sr :smpl-type ,type
                               :buffer (make-om-sound-buffer-GC :ptr (make-audio-buffer ,nch ,size ,type) :nch ,nch))))
      ,@body
-     
+
      ,snd))
 
 (defmacro write-in-sound (snd chan pos value)
-  `(setf (fli:dereference 
-          (fli:dereference (oa::om-pointer-ptr (buffer ,snd)) :index ,chan :type :pointer) 
+  `(setf (fli:dereference
+          (fli:dereference (oa::om-pointer-ptr (buffer ,snd)) :index ,chan :type :pointer)
           :index ,pos :type (smpl-type ,snd))
          ,value)
   )
 
 (defmacro read-in-sound (snd chan pos)
-  `(fli:dereference 
-    (fli:dereference (oa::om-pointer-ptr (buffer ,snd)) :index ,chan :type :pointer) 
+  `(fli:dereference
+    (fli:dereference (oa::om-pointer-ptr (buffer ,snd)) :index ,chan :type :pointer)
     :index ,pos :type (smpl-type ,snd)))
 
 
@@ -281,19 +281,19 @@ Press 'space' to play/stop the sound file.
          (freqs (list! freq))
          (steps (loop for f in freqs collect (/ f sr)))
          (sampled-envelope (om-scale (nth 2 (multiple-value-list (om-sample envelope nbsamples))) 0.0 1.0)))
-    
+
     (with-sound-output (mysound :nch 2 :size nbsamples :sr 44100 :type :float)
-      
+
       (loop for x from 0 to (1- nbsamples)
             for y-list = (make-list (length steps) :initial-element 0) then (om+ y-list steps)
             for amp in sampled-envelope
             do
             (write-in-sound mysound 1 x
-                            (* gain amp 
+                            (* gain amp
                                (apply '+
                                       (loop for y in y-list collect
                                             (sin (* 2 (coerce pi 'single-float) (cadr (multiple-value-list (floor y))))))
-                               
+
                                       ))
                             )
             )
@@ -304,7 +304,7 @@ Press 'space' to play/stop the sound file.
 ;;; TIME MARKERS
 ;;;===========================
 
-(defclass marker-frame (data-frame) 
+(defclass marker-frame (data-frame)
   ((label :accessor label :initarg :label :initform nil)))
 
 (defmethod print-object ((self marker-frame) out)
@@ -329,7 +329,7 @@ Press 'space' to play/stop the sound file.
 
 
 
-(defmethod markers-time ((self sound)) 
+(defmethod markers-time ((self sound))
   (loop for frame in (data-stream-get-frames self)
         collect (date frame)))
 
@@ -340,9 +340,9 @@ Press 'space' to play/stop the sound file.
 
 ;;; for the user markers are just numbers
 ;;; (in fact they are data-frames)
-(defmethod markers ((self sound)) 
+(defmethod markers ((self sound))
   (loop for frame in (data-stream-get-frames self)
-        collect (if (label frame) 
+        collect (if (label frame)
                     (list (date frame) (label frame))
                   (date frame))
         ))
@@ -354,7 +354,7 @@ Press 'space' to play/stop the sound file.
     (om-print "Warning: float-formatted markers will be converted to milliseconds" "SOUND-BOX")
     (setf markers (sec->ms markers)))
 
-  (data-stream-set-frames 
+  (data-stream-set-frames
    self
    (loop for m in markers collect
          (cond ((numberp m)
@@ -375,7 +375,7 @@ Press 'space' to play/stop the sound file.
 ;; NOT USED FOR THE MOMENT
 (defmacro om-sound-protect (sound &body body)
   `(if (equal (loaded ,sound) :error)
-       (progn 
+       (progn
          (print (format nil "sound ~s is disabled because of previous errors" (namestring (filename ,sound))))
          nil)
      (or (ignore-errors ,@body)
@@ -401,7 +401,7 @@ Press 'space' to play/stop the sound file.
 
 (defmethod objFromObjs ((model (eql :choose-file)) (target sound))
   (let ((file (om-choose-file-dialog :prompt "Choose an audio file AIFF/WAV..."
-                                     :types '("Audio files" "*.aiff;*.aif;*.wav" 
+                                     :types '("Audio files" "*.aiff;*.aif;*.wav"
                                               "AIFF files" "*.aiff;*.aif" "WAV files" "*.wav"))))
     (if file (objFromObjs file target)
       (om-abort))))
@@ -427,21 +427,21 @@ Press 'space' to play/stop the sound file.
 (defmethod file-pathname ((self sound))
   (slot-value self 'file-pathname))
 
-(defmethod set-play-buffer ((self sound))  
-  
+(defmethod set-play-buffer ((self sound))
+
   (if (and (file-pathname self) (access-from-file self))
-      (progn 
+      (progn
         (om-print-dbg "Initializing FILE player for sound ~A (~D channels)"
-                         (list self (n-channels self)))
+                      (list self (n-channels self)))
         (setf (buffer-player self) (make-player-from-file (namestring (file-pathname self)))))
 
     (when (buffer self) ;;; in principle at that point there should be a buffer..
       (if (and (n-samples self) (n-channels self) (sample-rate self))
           (progn
             (om-print-dbg "Initializing BUFFER player for sound ~A (~D channels)"
-                             (list self (n-channels self)))
-            (setf (buffer-player self) (make-player-from-buffer 
-                                        (oa::om-pointer-ptr (buffer self)) 
+                          (list self (n-channels self)))
+            (setf (buffer-player self) (make-player-from-buffer
+                                        (oa::om-pointer-ptr (buffer self))
                                         (n-samples self) (n-channels self) (sample-rate self))))
         (om-beep-msg "Incomplete info in SOUND object. Could not instanciate the player !!")
         ))
@@ -449,33 +449,33 @@ Press 'space' to play/stop the sound file.
 
 
 (defmethod om-init-instance ((self sound) &optional initargs)
-  
+
   (call-next-method)
-  
+
   (if (access-from-file self)
-        
-      (if (and (valid-pathname-p (file-pathname self)) 
+
+      (if (and (valid-pathname-p (file-pathname self))
                (file-exists-p (file-pathname self)))
-            
+
           ;; We want to keep working with this file (and no buffer)
           (if (buffer self)
-                
+
               (release-sound-buffer self)
-              
+
             (set-sound-info self (file-pathname self)))
-   
+
         (om-beep-msg "Cannot use ACCESS-FROM-FILE without a valid file !!"))
-      
+
     ;;; else we set the buffer (if needed)
-    (when (and (file-pathname self) 
+    (when (and (file-pathname self)
                (not (buffer self)))
       (set-sound-data self (file-pathname self)))
-      
+
     )
-         
+
   ;;; SET A PLAYER IN ANY CASE !
   ; (set-play-buffer self)  ;; be lazy => do it later!
-  
+
   self)
 
 #|
@@ -494,11 +494,11 @@ Press 'space' to play/stop the sound file.
 ;;; - access-from-file = NIL => SET BUFFER
 
 
-(cond ((and FILE-IN 
-                (file-pathname self) 
+(cond ((and FILE-IN
+                (file-pathname self)
                 (string-equal (namestring (file-pathname self)) (namestring FILE-IN)))
            ;;; FILE-IN maches the current file
-           (if access-from-file 
+           (if access-from-file
                ;; We want to keep working with this file (and no buffer)
                (if (buffer self)
                    (release-sound-buffer self)
@@ -506,9 +506,9 @@ Press 'space' to play/stop the sound file.
              ;;; else we set the buffer (if needed)
              (unless (buffer self)
                (set-sound-data self FILE-IN))))
-         
+
           ((and FILE-IN (file-pathname self))
-           ;;; there was already a file but different 
+           ;;; there was already a file but different
            (om-copy-file (file-pathname self) FILE-IN)
            (setf (file-pathname self) FILE-IN)
            (if access-from-file
@@ -518,21 +518,21 @@ Press 'space' to play/stop the sound file.
                  (set-sound-info self FILE-IN))
              ;;; create new buffer
              (set-sound-data self FILE-IN)))
-         
+
           ((and FILE-IN (buffer self))
            ;;; There was no file in the sound but already a buffer
            (save-sound-data self FILE-IN)
            (setf (file-pathname self) FILE-IN)
            (if access-from-file
                (release-sound-buffer self)))
-         
-          (FILE-IN 
+
+          (FILE-IN
            ;;; there was nothing before...
            (if access-from-file
                (progn (setf (file-pathname self) FILE-IN)
                  (set-sound-info self FILE-IN))
              (set-sound-data self FILE-IN)))
-      
+
           ((file-pathname self)
            ;;; No FILE-IN given but a file was in
            (if access-from-file
@@ -542,7 +542,7 @@ Press 'space' to play/stop the sound file.
              (unless (buffer self) ;;; create the buffer if needed
                (set-sound-data self (file-pathname self)))))
 
-          (t 
+          (t
            ;;; there was no file and no in-file is given
            (if access-from-file
                (om-beep-msg "Cannot use ACCESS-FROM-FILE without a file !!"))
@@ -553,22 +553,22 @@ Press 'space' to play/stop the sound file.
 
 ;;; executes its body with buffer-name bound to a valid audio buffer
 ;;; this buffer can be found in sound or produced from the filename
-;;; in the second case, it is freed at the end 
-;;; sound must also have a valid n-samples and n-channels 
+;;; in the second case, it is freed at the end
+;;; sound must also have a valid n-samples and n-channels
 ;;; => do it without '-GC' ?
 (defmacro with-audio-buffer ((buffer-name sound) &body body)
   `(let ((snd (get-sound ,sound)))
      (if snd
-         (let* ((tmp-buffer (unless (buffer snd) 
-                              (when (and (valid-pathname-p (file-pathname snd)) 
+         (let* ((tmp-buffer (unless (buffer snd)
+                              (when (and (valid-pathname-p (file-pathname snd))
                                          (probe-file (file-pathname snd))
                                          (n-channels snd) (n-samples snd))
-                                (make-om-sound-buffer-GC 
+                                (make-om-sound-buffer-GC
                                  :count 1 :nch (n-channels snd)
                                  :ptr (audio-io::om-get-audio-buffer (namestring (file-pathname snd)) *default-internal-sample-size*)))))
                 (,buffer-name (or tmp-buffer (buffer snd))))
            (unwind-protect
-               (progn 
+               (progn
                  (unless ,buffer-name (om-print-format "Warning: no sound buffer allocated for ~A" (list (file-pathname snd))))
                  ,@body)
              (when tmp-buffer (oa::om-release tmp-buffer))
@@ -580,19 +580,19 @@ Press 'space' to play/stop the sound file.
 
 
 (defun set-sound-data (sound path)
-  
+
   (when (buffer sound) (oa::om-release (buffer sound)))
-  
+
   (if (probe-file path)
-      (progn 
+      (progn
         (om-print-dbg "Loading sound from: ~s" (list path))
         (multiple-value-bind (buffer format channels sr ss size)
-            
+
             (audio-io::om-get-audio-buffer (namestring path) *default-internal-sample-size* nil)
           (declare (ignore format))
-          
-          (when buffer 
-            (unwind-protect 
+
+          (when buffer
+            (unwind-protect
                 (progn
                   (setf (buffer sound) (make-om-sound-buffer-GC :ptr buffer :count 1 :nch channels)
                         (smpl-type sound) *default-internal-sample-size*
@@ -601,7 +601,7 @@ Press 'space' to play/stop the sound file.
                         (sample-rate sound) sr
                         (sample-size sound) ss)
                   sound)))))
-    (progn 
+    (progn
       (om-beep-msg "Unable to load soudn from: ~s" path)
       (setf (buffer sound) nil)
       nil)
@@ -609,19 +609,19 @@ Press 'space' to play/stop the sound file.
 
 
 (defun set-sound-info (sound path)
-  
+
   (if (probe-file path)
 
       (multiple-value-bind (format channels sr ss size)
           (audio-io::om-get-sound-info (namestring path))
         (declare (ignore format))
-        
+
         (setf (n-samples sound) size
               (n-channels sound) channels
               (sample-rate sound) sr
               (sample-size sound) ss)
         )
-    
+
     (om-beep-msg "Unable to load soudn from: ~s" path))
 
   sound)
@@ -647,9 +647,9 @@ Press 'space' to play/stop the sound file.
     (let* ((nch (n-channels sound))
            (nsmp (n-samples sound)))
       (om-print-format "Writing file to disk: ~S" (list path))
-      (audio-io::om-save-buffer-in-file (oa::om-pointer-ptr (buffer sound)) 
-                                        (namestring path) 
-                                        nsmp nch (sample-rate sound) 
+      (audio-io::om-save-buffer-in-file (oa::om-pointer-ptr (buffer sound))
+                                        (namestring path)
+                                        nsmp nch (sample-rate sound)
                                         (get-pref-value :audio :resolution)
                                         (get-pref-value :audio :format)
                                         )
@@ -660,7 +660,7 @@ Press 'space' to play/stop the sound file.
 
 
 ;;;===========================
-;;; METHODS 
+;;; METHODS
 ;;;===========================
 
 
@@ -673,7 +673,7 @@ Press 'space' to play/stop the sound file.
     (let ((numdat (n-samples self))
           (numchan (n-channels self))
           (ch (or channel 1)))
-      (if (or (> ch numchan) (> num numdat)) 
+      (if (or (> ch numchan) (> num numdat))
           (om-beep-msg "SOUND-POINTS: out-of-range input values !!")
         (let ((channel-ptr (om-read-ptr (om-sound-buffer-ptr b) (1- ch) :pointer)))
           (loop for i from 0 to numdat by (round numdat num) collect
@@ -719,32 +719,32 @@ Press 'space' to play/stop the sound file.
   (external-player-actions self time-interval parent))
 
 (defmethod player-play-object ((self scheduler) (object sound) caller &key parent interval)
-  
+
   (declare (ignore parent))
 
   (unless (buffer-player object) (set-play-buffer object))
-  
+
   (when (buffer-player object)
-    (start-buffer-player (buffer-player object) 
+    (start-buffer-player (buffer-player object)
                          :start-frame (if (car interval)
                                           (round (* (car interval) (/ (sample-rate object) 1000.0)))
                                         (or (car interval) 0))))
   (call-next-method))
 
 (defmethod player-stop-object ((self scheduler) (object sound))
-  (when (buffer-player object) 
+  (when (buffer-player object)
     (stop-buffer-player (buffer-player object)))
   (call-next-method))
 
 (defmethod player-pause-object ((self scheduler) (object sound))
-  (when (buffer-player object) 
+  (when (buffer-player object)
     (pause-buffer-player (buffer-player object)))
   (call-next-method))
 
 (defmethod player-continue-object ((self scheduler) (object sound))
-   (when (buffer-player object) 
-     (continue-buffer-player (buffer-player object)))
-   (call-next-method))
+  (when (buffer-player object)
+    (continue-buffer-player (buffer-player object)))
+  (call-next-method))
 
 (defmethod set-object-time ((self sound) time)
   (jump-to-time (buffer-player self) time)
@@ -774,18 +774,18 @@ Press 'space' to play/stop the sound file.
         (print "ERROR BUILDING DISPLAY ARRAY: NULL POINTER")
         ;(print (list window maxindx))
       (dotimes (array-frame array-size)
-          ;(print (list "::array-cell" array-frame)) 
+          ;(print (list "::array-cell" array-frame))
         (setq pos-in-buffer (floor (* sample-ratio array-frame)))
         (dotimes (chan n-channels)
             ;(print (list "::::ch" chan))
           (dotimes (i window)
               ;(print (list "POS IN SOUND" (+ (* pos-in-buffer n-channels) (+ chan (* n-channels i)))))
-            (setq maxi (max (abs 
+            (setq maxi (max (abs
                                ;(fli:dereference audio-ptr :type :float :index (min maxindx (+ (* pos-in-buffer n-channels) (+ chan (* n-channels i)))))
-                             (fli:dereference 
+                             (fli:dereference
                               (fli:dereference audio-ptr :type :pointer :index chan)
                               :type :float :index (min maxindx (+ pos-in-buffer i)))
-                            ) maxi)))
+                             ) maxi)))
           (setf (fli:dereference array-ptr :index (+ array-frame (* chan array-size))) maxi)
             ;(print (list "POS IN ARRAY" (+ array-frame (* chan array-size)) maxi))
           (setq maxi 0.0))))))
@@ -823,25 +823,25 @@ Press 'space' to play/stop the sound file.
         (let* ((channels-h (round pict-h nch))
                (offset-y (round channels-h 2))
                pixpoint pixpointprev)
-      
-        (om-record-pict array-size 1000
+
+          (om-record-pict array-size 1000
           ;(om-draw-rect 0 0 array-size 1000 :fill t)
-          (om-with-fg-color color
-            (dotimes (c nch)
-              (let ((ch-y (+ (* c channels-h) offset-y)))
-                (om-draw-line 0 ch-y array-size ch-y)
-                (setq pixpointprev (* offset-y (* 0.99 (aref array c 0))))
-                (loop for i from 1 to (1- array-size) do
-                      (setf pixpoint (* offset-y (* 0.99 (aref array c (min i (1- array-size))))))
-                      (unless (= pixpointprev pixpoint 0)
-                        (om-draw-polygon `(,(om-make-point (1- i) (+ ch-y pixpointprev))
-                                           ,(om-make-point i (+ ch-y pixpoint)) 
-                                           ,(om-make-point i (+ ch-y (- pixpoint))) 
-                                           ,(om-make-point (1- i) (+ ch-y (- pixpointprev))))
-                                         :fill t))
-                      (setq pixpointprev pixpoint))))
-            ))
-        )))
+            (om-with-fg-color color
+              (dotimes (c nch)
+                (let ((ch-y (+ (* c channels-h) offset-y)))
+                  (om-draw-line 0 ch-y array-size ch-y)
+                  (setq pixpointprev (* offset-y (* 0.99 (aref array c 0))))
+                  (loop for i from 1 to (1- array-size) do
+                        (setf pixpoint (* offset-y (* 0.99 (aref array c (min i (1- array-size))))))
+                        (unless (= pixpointprev pixpoint 0)
+                          (om-draw-polygon `(,(om-make-point (1- i) (+ ch-y pixpointprev))
+                                             ,(om-make-point i (+ ch-y pixpoint))
+                                             ,(om-make-point i (+ ch-y (- pixpoint)))
+                                             ,(om-make-point (1- i) (+ ch-y (- pixpointprev))))
+                                           :fill t))
+                        (setq pixpointprev pixpoint))))
+              ))
+          )))
     ))
 
 
@@ -851,20 +851,20 @@ Press 'space' to play/stop the sound file.
     (let* ((window 128)
            (pictsize 512)
            (array-size (floor (n-samples self) window))
-           (array (make-array (list (n-channels self) array-size) 
+           (array (make-array (list (n-channels self) array-size)
                               :element-type 'single-float :initial-element 0.0 :allocation :static))
            )
       (with-audio-buffer (b self)
         (if b
-          (let ()
-            (fli:with-dynamic-lisp-array-pointer 
-                (ptr array :type :float)
-              (fill-sound-display-array (om-sound-buffer-ptr b)
-                                        (n-samples self) ptr array-size (n-channels self)))
-            
-            (create-waveform-pict 
-             (resample-2D-array array 0 array-size (min array-size pictsize))
-             (om-make-color 0.41 0.54 0.67)))
+            (let ()
+              (fli:with-dynamic-lisp-array-pointer
+                  (ptr array :type :float)
+                (fill-sound-display-array (om-sound-buffer-ptr b)
+                                          (n-samples self) ptr array-size (n-channels self)))
+
+              (create-waveform-pict
+               (resample-2D-array array 0 array-size (min array-size pictsize))
+               (om-make-color 0.41 0.54 0.67)))
           :error
           )))))
 
@@ -872,7 +872,7 @@ Press 'space' to play/stop the sound file.
 (defmethod get-cache-display-for-draw ((self sound) box)
   (declare (ignore box))
   (get-pict-from-sound self))
-            
+
 
 
 
@@ -888,12 +888,12 @@ Press 'space' to play/stop the sound file.
 
 (defmethod get-cache-display-for-text ((object sound) box)
   (declare (ignore box))
-  (append (call-next-method) 
+  (append (call-next-method)
           (list (list :buffer (buffer object)))))
 
-(defmethod draw-mini-view ((self sound) (box t) x y w h &optional time) 
+(defmethod draw-mini-view ((self sound) (box t) x y w h &optional time)
   (let ((pict (ensure-cache-display-draw box self)))
-    (cond 
+    (cond
      ((equal pict :error)
       (om-with-fg-color (om-make-color .8 .4 .4)
         (om-with-font (om-def-font :font1b)
@@ -902,22 +902,22 @@ Press 'space' to play/stop the sound file.
           (om-with-font (om-def-font :font1 :size 10)
                         (om-draw-string (+ x 6) (+ y 24) (namestring (file-pathname self)) :wrap (- w 20))))
         ))
-     
-     (pict 
+
+     (pict
       (om-draw-picture pict :x x :y (+ y 4) :w w :h (- h 8)))
-          
-     (t 
+
+     (t
       (om-draw-string (+ x 6) (+ y 12) "NO SOUND" :color (om-def-color :white) :font (om-def-font :font1b)))
      )
-    
+
     (when (markers self)
-      (let* ((dur (if (plusp (get-obj-dur self)) 
+      (let* ((dur (if (plusp (get-obj-dur self))
                       (get-obj-dur self)
-                    (+ (last-elem (markers self)) 
+                    (+ (last-elem (markers self))
                        (- (last-elem (markers self))
                           (or (last-elem (butlast (markers self))) 0)))))
              (fact (/ w dur)))
-        
+
         (loop for mrk in (markers-time self) do
               (om-with-fg-color (om-def-color :gray)
                 (om-draw-line (+ x (* mrk fact)) 8 (+ x (* mrk fact)) h
@@ -931,15 +931,15 @@ Press 'space' to play/stop the sound file.
 ;;; EDITOR
 ;;;====================
 
-(defclass sound-editor (data-stream-editor) 
+(defclass sound-editor (data-stream-editor)
   ((cache-display-list :accessor cache-display-list :initform nil)))
 
 (defclass sound-panel (stream-panel) ())
 (defmethod get-editor-class ((self sound)) 'sound-editor)
 (defmethod editor-view-class ((self sound-editor)) 'sound-panel)
 
-(defmethod window-title-for-object ((self sound)) 
-  (string+ "SOUND - " 
+(defmethod window-title-for-object ((self sound))
+  (string+ "SOUND - "
            (if (file-pathname self)
                (namestring (file-pathname self))
              "Temp Buffer")))
@@ -952,7 +952,7 @@ Press 'space' to play/stop the sound file.
 (defmethod default-editor-min-x-range ((self sound-editor)) 0)
 
 (defmethod om-draw-contents ((self sound-panel))
-  (call-next-method)  
+  (call-next-method)
   (let* ((editor (editor self))
          (sound (if (multi-display-p editor)
                     (nth (stream-id self) (multi-obj-list editor))
@@ -971,25 +971,25 @@ Press 'space' to play/stop the sound file.
 
 (defun draw-sound-waveform (sound editor view from to &optional (sound-id 0))
   (unless (nth sound-id (cache-display-list editor))
-    (setf (cache-display-list editor) 
+    (setf (cache-display-list editor)
           (if (multi-display-p editor)
               (mapcar #'(lambda (o) (get-cache-display-for-draw o nil)) (multi-obj-list editor))
             (list (get-cache-display-for-draw (object-value editor) nil)))))
   (let ((dur (get-obj-dur sound))
         (pict (nth sound-id (cache-display-list editor))))
-    (when (and pict (not (equal :error pict)))  
-      (om-draw-picture pict 
+    (when (and pict (not (equal :error pict)))
+      (om-draw-picture pict
                        :w (w view) :h (h view)
                        :src-h (* (om-pict-height pict))
-                       :src-x (* (om-pict-width pict) (/ from dur)) 
+                       :src-x (* (om-pict-width pict) (/ from dur))
                        :src-w (* (om-pict-width pict) (/ (- to from) dur))))
     ))
 
 
 (defmethod update-to-editor ((editor sound-editor) (from t))
   (unless (or (equal from editor)
-              (and (multi-display-p editor) 
-                   (equal from (container-editor editor)))) 
+              (and (multi-display-p editor)
+                   (equal from (container-editor editor))))
     (setf (cache-display-list editor) nil))
   (call-next-method))
 
@@ -998,13 +998,13 @@ Press 'space' to play/stop the sound file.
   (let* ((panel (active-panel editor))
          (stream (object-value editor)))
     (case key
-      (#\l 
+      (#\l
        (when (selection editor)
          (let ((newlabel (om-get-user-string "enter a new label for selected markers"
                                              :initial-string (or (label (nth (car (selection editor)) (frames stream)))
                                                                  ""))))
            (when newlabel
-             (loop for pos in (selection editor) do 
+             (loop for pos in (selection editor) do
                    (setf (label (nth pos (frames stream))) newlabel))
              (om-invalidate-view panel)
              (report-modifications editor)
@@ -1042,7 +1042,7 @@ Press 'space' to play/stop the sound file.
         (om-with-fg-color nil *om-steel-blue-color*
           ;(when smplevel    ;;;Use this "when" only when HQ display is used below
           (om-with-fg-color nil (om-make-color-alpha 0.41 0.54 0.67 0.5) ;;;=*om-steel-blue-color* with 50% transparency
-            (dotimes (i nch)  
+            (dotimes (i nch)
               (om-draw-line pixmin (- (+ (* i channels-h) offset-y) 10) pixmax (- (+ (* i channels-h) offset-y) 10))));)
           (dotimes (c nch)
             (setq pixprev (round (* offset-y (* 0.99 (aref data c 0)))))
@@ -1123,13 +1123,13 @@ Press 'space' to play/stop the sound file.
          ;(array-width (ceiling size ratio))
          )
     (setf (display-ratio self) ratio
-          (display-builder self) (om-run-process 
-                                  "DisplayArrayBuilder" 
+          (display-builder self) (om-run-process
+                                  "DisplayArrayBuilder"
                                   #'(lambda (snd)
-                                      (setf (display-array snd) 
+                                      (setf (display-array snd)
                                             (make-array (list channels (ceiling size ratio))
                                                         :element-type 'single-float :initial-element 0.0 :allocation :static))
-                                      (fli:with-dynamic-lisp-array-pointer 
+                                      (fli:with-dynamic-lisp-array-pointer
                                           (ptr (display-array snd) :type :float)
                                         (om-fill-sound-display-array (namestring (filename snd)) ptr ratio))
                                       (sound-get-best-pict snd)
@@ -1144,13 +1144,13 @@ Press 'space' to play/stop the sound file.
     (when (and format channels)
       (let ((array-width (ceiling (om-sound-n-samples self) winsize)))
         (setf (display-ratio self) winsize)
-      ;"DisplayArrayBuilder" 
-        (funcall 
+      ;"DisplayArrayBuilder"
+        (funcall
          #'(lambda (snd)
-             (setf (display-array snd) 
+             (setf (display-array snd)
                    (make-array (list channels array-width)
                                :element-type 'single-float :initial-element 0.0 :allocation :static))
-             (fli:with-dynamic-lisp-array-pointer 
+             (fli:with-dynamic-lisp-array-pointer
                  (ptr (display-array snd) :type :float)
                (om-fill-sound-display-array format (namestring (filename snd)) ptr channels array-width winsize))
              (sound-get-best-pict snd)
@@ -1177,7 +1177,7 @@ Press 'space' to play/stop the sound file.
            (window-adaptive (round window))
            ;;;Variables calcul de waveform
            (buffer-size (* (ceiling window) channels))
-           (buffer (fli::allocate-foreign-object :type :float :nelems buffer-size))   
+           (buffer (fli::allocate-foreign-object :type :float :nelems buffer-size))
            (MaxArray (make-array (list channels (min nsmp-out size)) :element-type 'single-float :initial-element 0.0))   ;Tableau pour stocker les max
            (indxmax (1- (min nsmp-out size)))
            (frames-read 0)

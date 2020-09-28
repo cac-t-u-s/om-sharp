@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: D. Bouche
@@ -67,11 +67,11 @@
 (defmethod graphics-function ((self graphics-handler))
   (let ((sched (scheduler self)))
     (loop
-     (when (scheduler-idle-p sched) 
+     (when (scheduler-idle-p sched)
        (mp:process-stop (process self) "Idle"))
      (loop for object+caller in (register sched)
            do
-           (when (and (run-callback sched) 
+           (when (and (run-callback sched)
                       (cadr object+caller)
                       (eq (player-get-object-state sched (car object+caller)) :play))
              (om-ignore&print-error
