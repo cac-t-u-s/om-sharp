@@ -117,7 +117,7 @@
 
 
 ;;;=======================================
-;;;; OPENMUSIC
+;;;; LOAD THE SOURCES
 ;;;=======================================
 
 (defpackage :om-sharp
@@ -185,8 +185,37 @@
 (load-om-package "space")
 
 
+;;;=================================
+;;; Lisp formatting utils
+;;;=================================
+
+(defun lisp-format-folder (dir &key exclude-folders)
+
+  (loop for item in (oa::om-directory dir :directories t)
+        unless (equal item dir)
+        do (if (system::directory-pathname-p item)
+
+               (unless (member (car (last (pathname-directory item))) exclude-folders :test 'string-equal)
+                 (lisp-format-folder item :exclude-folders exclude-folders))
+             
+             (when (and (pathname-type item)
+                        (string= (pathname-type item) "lisp"))
+               (om-lisp::om-lisp-format-file item))
+             )
+        ))
+
+(defun format-sources ()
+  (lisp-format-folder 
+   (merge-pathnames "src/" cl-user::*om-root-directory*)
+   :exclude-folders '("_BUILD" "lisp-externals" "lw-opengl" "foreign-interface")))
+
+;=> Call this before comitting to the repository !
+;
+; (format-sources)
+;
+
+;;;=================================
+;;; Start
+;;;=================================
+
 (defun cl-user::start-omsharp () (om::start-omsharp))
-
-
-
-
