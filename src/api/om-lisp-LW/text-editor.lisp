@@ -590,6 +590,17 @@
              'editor::evaluate-defun-command)))
      (capi:call-editor ep (list command buffer)))))
 
+
+(defmethod indent-lisp-buffer ((self om-text-editor-window))
+  (with-slots (ep) self
+    (om-lisp-format-buffer (capi::editor-pane-buffer ep) :indent t :whitespaces nil)))
+
+
+(defmethod cleanup-lisp-buffer ((self om-text-editor-window))
+  (with-slots (ep) self
+    (om-lisp-format-buffer (capi::editor-pane-buffer ep) :indent nil :whitespaces t)))
+
+
 (defmethod text-edit-abort ((self om-text-editor-window))
   (capi::execute-with-interface self 'abort))
 
@@ -755,9 +766,23 @@
                                                         :callback 'eval-lisp-region
                                                         :enabled-function 'lisp-operations-enabled
                                                         :accelerator #\e)))
-                                (make-instance 
-                                 'capi::menu-component 
-                                 :items (list 
+                                (make-instance
+                                 'capi::menu-component
+                                 :items (list
+                                         (make-instance 'capi::menu-item :title "Indent All"
+                                                        :callback-type :interface
+                                                        :callback 'indent-lisp-buffer
+                                                        :enabled-function 'lisp-operations-enabled
+                                                        :accelerator #\i)
+                                         (make-instance 'capi::menu-item :title "Cleanup whitespaces"
+                                                        :callback-type :interface
+                                                        :callback 'cleanup-lisp-buffer
+                                                        :enabled-function 'lisp-operations-enabled
+                                                        :accelerator #\I)
+                                         ))
+                                (make-instance
+                                 'capi::menu-component
+                                 :items (list
                                          (make-instance 'capi::menu-item :title "Find Definition"
                                                         :callback-type :interface
                                                         :callback 'find-definition
