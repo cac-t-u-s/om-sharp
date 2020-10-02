@@ -420,6 +420,8 @@
 (defmethod special-item-reference-class ((item (eql 'list-selection))) 'ListSelectionBox)
 
 (defmethod default-size ((self ListSelectionBox)) (omp 60 60))
+(defmethod maximum-size ((self ListSelectionBox)) 
+  (omp nil (+ 8 (* (+ 2 (cell-height self)) (length (items self))))))
 
 (defmethod get-all-keywords ((self ListSelectionBox))
   '((:items)))
@@ -462,7 +464,14 @@
     (let ((newlist (getf attributes :items)))
       (unless (equal newlist (items self))
         (setf (selection self) nil)
-        (set-value self nil))))
+        (set-value self nil))
+      
+      (let ((min-size (+ 8 (* (+ 2 (cell-height self)) (length newlist)))))
+        (when (< (box-h self) min-size)
+          (omng-resize self (omp (box-w self) min-size))
+          (reset-frame-size (frame self)))
+        )
+      ))
   (call-next-method))
 
 
