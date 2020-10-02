@@ -50,16 +50,15 @@
   (loop for attr on attributes by 'cddr do
         (apply-one-box-attribute self (car attr) (cadr attr)))
   (when (selected self)
-    (update-inspector-for-object self))
+    ;;; move out from the eval process to do that
+    (capi:apply-in-pane-process
+     (om-view-container (frame self))
+     'update-inspector-for-object self)
+    )
   )
 
 (defmethod omNG-box-value ((self OMInterfaceBox) &optional (numout 0))
-
-  ;;; we move out of the eval process to do that!
-  (capi:apply-in-pane-process
-   (om-view-container (frame self))
-   'apply-box-attributes self (eval-box-inputs self))
-
+  (apply-box-attributes self (eval-box-inputs self))
   (current-box-value self numout))
 
 (defmethod gen-code ((self OMInterfaceBox) &optional (numout 0))
@@ -78,6 +77,11 @@
             `((:state ,(omng-save (get-state self)))))))
 
 (defmethod additional-slots-to-copy ((from OMInterfaceBox)) '(value))
+
+
+(defmethod get-input-def-value ((self OMInterfaceBox) name)
+  (when (slot-exists-p self (intern-om name))
+    (slot-value self (intern-om name))))
 
 
 ;;; FRAME
@@ -416,6 +420,8 @@
 (defmethod special-item-reference-class ((item (eql 'list-selection))) 'ListSelectionBox)
 
 (defmethod default-size ((self ListSelectionBox)) (omp 60 60))
+(defmethod maximum-size ((self ListSelectionBox)) 
+  (omp nil (+ 8 (* (+ 2 (cell-height self)) (length (items self))))))
 
 (defmethod get-all-keywords ((self ListSelectionBox))
   '((:items)))
@@ -425,11 +431,10 @@
   (add-properties (call-next-method)
                   "List selection display"
                   `((:multiple-selection "Multiple selection" :bool multiple-selection)
-                    (:cell-height "Cell size (px)" :number cell-height)
+                    (:cell-height "Cell size (px)" :number cell-height (2 40))
                     (:cell-font "Cell font" :font cell-font)
                     (:output-mode "Output mode" (:value :index) output-mode-accessor)
                     )))
-
 
 
 (defmethod update-value-from-selection ((self ListSelectionBox))
@@ -458,7 +463,14 @@
     (let ((newlist (getf attributes :items)))
       (unless (equal newlist (items self))
         (setf (selection self) nil)
-        (set-value self nil))))
+        (set-value self nil))
+      
+      (let ((min-size (+ 8 (* (+ 2 (cell-height self)) (length newlist)))))
+        (when (< (box-h self) min-size)
+          (omng-resize self (omp (box-w self) min-size))
+          (reset-frame-size (frame self)))
+        )
+      ))
   (call-next-method))
 
 
@@ -482,42 +494,59 @@
     box))
 
 (defmethod draw-interface-component ((self ListSelectionBox) x y w h)
-  (om-with-font (cell-font self)
-                (loop for i = 0 then (+ i 1)
-                      for yy = y then (+ yy (cell-height self))
-                      while (< (+ yy (cell-height self)) h)
-                      while (< i (length (items self)))
-                      do
-                      (when (member i (selection self))
-                        (om-draw-rect 5 (+ yy 2) (- w 10) (cell-height self) :fill t :color (om-def-color :dark-gray)))
-                      (om-draw-string 5 (+ yy (cell-height self)) (format nil "~A" (nth i (items self)))
-                                      :color (if (member i (selection self)) (om-def-color :white) (om-def-color :black)))
-                      )))
+  (om-with-clip-rect (frame self) x y w h
+    
+    (let* ((text-h (cadr (multiple-value-list (om-string-size "A" (cell-font self)))))
+           (text-pos (if (>= text-h (cell-height self)) (cell-height self) (* .5 (+ (cell-height self) text-h)))))
+        
+      (om-with-font 
+       (cell-font self)
+       (loop for i = 0 then (+ i 1)
+             for yy = y then (+ yy (cell-height self))
+             while (< yy h)
+             while (< i (length (items self)))
+             do
+             (when (member i (selection self))
+               (om-draw-rect 3 (+ yy 2) (- w 6) (cell-height self) :fill t :color (om-def-color :dark-gray)))
+             (om-draw-string 5 (+ yy text-pos) (format nil "~A" (nth i (items self)))
+                             :color (if (member i (selection self)) (om-def-color :white) (om-def-color :black)))
+             ))
+      )
+
+    (when (> (* (cell-height self) (length (items self))) h)
+      (om-draw-rect (- w 20) (- h 8) 16 10 :fill t :color (om-def-color :white))
+      (om-draw-string (- w 18) (- h 2) "...")
+      )
+    ))
 
 
 (defmethod interfacebox-action ((self ListSelectionBox) frame pos)
-  (let* ((y (- (om-point-y pos) 4))
-         (n (floor y (cell-height self))))
-    (when (and (> (om-point-x pos) 5)
-               (< (om-point-x pos) (- (w frame) 10))
-               (< n (length (items self))))
 
-      (store-current-state-for-undo (editor (container self)))
+  (when (or (om-action-key-down)
+            (container-frames-locked (om-view-container frame)))
 
-      (if (member n (selection self))
+    (let* ((y (- (om-point-y pos) 4))
+           (n (floor y (cell-height self))))
+      (when (and (> (om-point-x pos) 5)
+                 (< (om-point-x pos) (- (w frame) 10))
+                 (< n (length (items self))))
 
-          (setf (selection self) (remove n (selection self)))
+        (store-current-state-for-undo (editor (container self)))
 
-        (setf (selection self)
-              (if (multiple-selection self)
-                  (sort (cons n (selection self)) '<)
-                (list n))))
+        (if (member n (selection self))
 
-      (update-value-from-selection self)
+            (setf (selection self) (remove n (selection self)))
 
-      (when (reactive (car (outputs self))) (self-notify self))
-      (om-invalidate-view frame)
-      )))
+          (setf (selection self)
+                (if (multiple-selection self)
+                    (sort (cons n (selection self)) '<)
+                  (list n))))
+
+        (update-value-from-selection self)
+
+        (when (reactive (car (outputs self))) (self-notify self))
+        (om-invalidate-view frame)
+        ))))
 
 
 
@@ -594,37 +623,43 @@
 
 (defmethod draw-interface-component ((self ListMenuBox) x y w h)
   (om-draw-rect x y 24 h :color (om-def-color :gray) :fill t)
+  (let* ((font (or (font self) (om-def-font :font1b)))
+         (text-h (cadr (multiple-value-list (om-string-size "A" font))))
+         (text-y-pos (if (>= text-h h) h (* .5 (+ h text-h 1)))))
+   
   (om-with-font
-   (or (font self) (om-def-font :font1b))
-   (om-draw-string (+ x 30) (+ y 14)
+   font
+   (om-draw-string (+ x 30) text-y-pos
                    (format nil "~A"
-                           (nth (selection self) (items self))))))
+                           (nth (selection self) (items self))))
+   )))
 
 
 (defmethod interfacebox-action ((self ListMenuBox) frame pos)
 
-  (when (< (om-point-x pos) 30)
+  (when (or (om-action-key-down)
+            (container-frames-locked (om-view-container frame)))
 
-    (let ((menu (om-make-menu "list items"
-                              (loop for item in (items self)
-                                    for i from 0
-                                    collect (let ((sel i))
-                                              (om-make-menu-item
-                                               (format nil "~A" item)
-                                               #'(lambda ()
-                                                   (store-current-state-for-undo (editor (container self)))
-                                                   (setf (selection self) sel)
-                                                   (update-value-from-selection self)
-                                                   (when (reactive (car (outputs self))) (self-notify self))
-                                                   (om-invalidate-view frame))
-                                               :selected (= i (selection self))
-                                               ))))))
+    (when (< (om-point-x pos) 30)
 
-      (om-open-pop-up-menu menu (om-view-container frame))
+      (let ((menu (om-make-menu "list items"
+                                (loop for item in (items self)
+                                      for i from 0
+                                      collect (let ((sel i))
+                                                (om-make-menu-item
+                                                 (format nil "~A" item)
+                                                 #'(lambda ()
+                                                     (store-current-state-for-undo (editor (container self)))
+                                                     (setf (selection self) sel)
+                                                     (update-value-from-selection self)
+                                                     (when (reactive (car (outputs self))) (self-notify self))
+                                                     (om-invalidate-view frame))
+                                                 :selected (= i (selection self))
+                                                 ))))))
 
-      )))
+        (om-open-pop-up-menu menu (om-view-container frame))
 
-
+        ))))
 
 
 ;;;===============================================================
