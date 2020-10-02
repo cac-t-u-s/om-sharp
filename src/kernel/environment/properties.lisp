@@ -207,8 +207,8 @@
                             :border t
                             :db-click t
                             :decimals (or (caddr def) 0)
-                            :size (om-make-point 60 18)
-                            :font (om-def-font :font2)
+                            :size (om-make-point 60 16)
+                            :font (om-def-font :font1)
                             :min-val (or (car def) 0) :max-val (or (cadr def) 10000)
                             :after-fun #'(lambda (item)
                                            (set-property object prop-id (get-value item))
@@ -251,9 +251,9 @@
                                   :border t
                                   :db-click t
                                   :decimals (or (number-or-nil-decimals type) 0)
-                                  :size (om-make-point 60 18)
+                                  :size (om-make-point 60 16)
                                   :resizable nil
-                                  :font (om-def-font #-cocoa :font1 #+cocoa :font2)
+                                  :font (om-def-font :font1)
                                   :min-val (or (number-or-nil-min type) 0)
                                   :max-val (or (number-or-nil-max type) 10000)
                                   :after-fun #'(lambda (item)
@@ -306,7 +306,7 @@
               :checked-p (get-property object prop-id) ; (and (valid-property-p object prop-id) (get-property object prop-id))
               :text ""
               :resizable nil
-              :size (om-make-point nil 14)
+              :size (om-make-point nil 20)
               :font (om-def-font :font1)
               :di-action #'(lambda (item)
                              (set-property object prop-id (om-checked-p item))

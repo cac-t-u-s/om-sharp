@@ -1656,7 +1656,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                      (list
                       (om-make-layout
                        'om-grid-layout
-                       :delta '(10 0) :align nil
+                       :delta '(10 2) :align '(:left :center)
                        :subviews
 
                        (if (get-properties-list object)
@@ -1675,8 +1675,9 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                                    )
                                   (loop for prop in (cdr category) append
                                         (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font text-font
-                                                          :size (om-make-point (+ 4 (om-string-size (string (nth 1 prop)) text-font)) 20) 
-                                                          )
+                                                          :size (om-point-mv 
+                                                                 (apply #'om-make-point (multiple-value-list (om-string-size (string (nth 1 prop)) text-font)))
+                                                                 :x 2))
                                               (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop)
                                                               :update (get-update-frame object)
                                                               )
