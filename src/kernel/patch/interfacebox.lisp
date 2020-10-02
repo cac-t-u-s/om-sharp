@@ -623,11 +623,16 @@
 
 (defmethod draw-interface-component ((self ListMenuBox) x y w h)
   (om-draw-rect x y 24 h :color (om-def-color :gray) :fill t)
+  (let* ((font (or (font self) (om-def-font :font1b)))
+         (text-h (cadr (multiple-value-list (om-string-size "A" font))))
+         (text-y-pos (if (>= text-h h) h (* .5 (+ h text-h 1)))))
+   
   (om-with-font
-   (or (font self) (om-def-font :font1b))
-   (om-draw-string (+ x 30) (+ y 14)
+   font
+   (om-draw-string (+ x 30) text-y-pos
                    (format nil "~A"
-                           (nth (selection self) (items self))))))
+                           (nth (selection self) (items self))))
+   )))
 
 
 (defmethod interfacebox-action ((self ListMenuBox) frame pos)
