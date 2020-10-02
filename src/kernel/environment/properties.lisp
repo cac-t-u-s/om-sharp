@@ -175,7 +175,6 @@
   (declare (ignore default))
 
   (om-make-view 'click-and-edit-text
-                ;:enabled (valid-property-p object prop-id)
                 :text (if (get-property object prop-id) (format nil "~A" (get-property object prop-id)) "")
                 :resizable :w
                 :bg-color (om-def-color :window)
@@ -242,10 +241,6 @@
           (om-make-graphic-object 'numbox
                                   :value (or (number-number current-value)
                                              (get-default-value def))
-                                  ;(and (valid-property-p object prop-id)
-                                  ;  (if (number-? (get-property object prop-id))
-                                  ;      (number-number (get-property object prop-id))
-                                  ;    (get-default-value def)))
                                   :enabled (number-? current-value)
                                   :bg-color (om-def-color :white)
                                   :border t
@@ -261,8 +256,6 @@
                                                   object prop-id
                                                   (make-number-or-nil :number (get-value item)
                                                                       :t-or-nil t))
-                                                 ;(unless (om-checked-p checkbox)
-                                                 ;  (om-set-check-box checkbox t))
                                                  (when update (update-after-prop-edit update object))
                                                  )))
 
@@ -282,7 +275,6 @@
                                      (set-property
                                       object prop-id
                                       (make-number-or-nil
-                                       ; :number (if (om-checked-p item) (get-default-value default) nil)
                                        :number (get-value numbox)
                                        :t-or-nil (om-checked-p item)))
                                      (when update (update-after-prop-edit update object))
@@ -302,7 +294,6 @@
   (declare (ignore default))
 
   (om-make-di 'om-check-box
-              ;:enabled (valid-property-p object prop-id)
               :checked-p (get-property object prop-id) ; (and (valid-property-p object prop-id) (get-property object prop-id))
               :text ""
               :resizable nil
@@ -386,7 +377,7 @@
                 :size (om-make-point 60 16)
                 :resizable nil
                 :with-alpha (object-accept-transparency object)
-                :enabled t ; (get-property object prop-id)
+                :enabled t
                 :color (or (get-property object prop-id)
                            default
                            (om-def-color :gray))
@@ -438,7 +429,7 @@
                                       object prop-id
                                       (make-color-or-nil :color (if (om-checked-p item)
                                                                     (get-default-value default)
-                                                                  nil) ;(get-default-value def)
+                                                                  nil)
                                                          :t-or-nil (om-checked-p item)))
                                      (when update (update-after-prop-edit update object))
                                      )))
