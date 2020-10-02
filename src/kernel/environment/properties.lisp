@@ -90,7 +90,7 @@
      ((and accessor (slot-exists-p object accessor))
       (slot-value object accessor))
      ((or (functionp accessor)
-          (and (symbolp accessor) (fboundp accessor)));; not sure if it applies to the right object !
+          (and (symbolp accessor) (fboundp accessor))) ;; not sure if it applies to the right object !
       (funcall accessor object))
      ((and (listp object) (numberp accessor))
       (nth accessor object))

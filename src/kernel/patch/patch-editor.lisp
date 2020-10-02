@@ -1666,21 +1666,20 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                                  when (cdr category)
                                  append
                                  (append
-                                  (list  ;     (car category)  ; (list (car category) (om-def-font :font1b))  ; :right-extend
+                                  (list
                                    (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)
                                    (om-make-di 'om-simple-text :text (car category) :font title-font
-                                                 :fg-color (om-def-color :dark-gray)
-                                                 :size (om-make-point (+ 10 (om-string-size (car category) title-font)) 20)
-                                                 )
+                                               :fg-color (om-def-color :dark-gray)
+                                               :size (om-make-point (+ 10 (om-string-size (car category) title-font)) 20)
+                                               )
                                    )
                                   (loop for prop in (cdr category) append
                                         (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font text-font
-                                                          :size (om-point-mv 
+                                                          :size (om-point-mv
                                                                  (apply #'om-make-point (multiple-value-list (om-string-size (string (nth 1 prop)) text-font)))
                                                                  :x 2))
                                               (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop)
-                                                              :update (get-update-frame object)
-                                                              )
+                                                              :update (get-update-frame object))
                                               ))
 
                                   (list (om-make-di 'om-simple-text :size (om-make-point 20 6) :text "" :focus t)
