@@ -79,6 +79,11 @@
 (defmethod additional-slots-to-copy ((from OMInterfaceBox)) '(value))
 
 
+(defmethod get-input-def-value ((self OMInterfaceBox) name)
+  (when (slot-exists-p self (intern-om name))
+    (slot-value self (intern-om name))))
+
+
 ;;; FRAME
 (defclass InterfaceBoxFrame (OMBoxFrame) ())
 (defmethod get-box-frame-class ((self OMInterfaceBox)) 'InterfaceBoxFrame)
