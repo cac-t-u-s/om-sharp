@@ -500,28 +500,32 @@
 
 
 (defmethod interfacebox-action ((self ListSelectionBox) frame pos)
-  (let* ((y (- (om-point-y pos) 4))
-         (n (floor y (cell-height self))))
-    (when (and (> (om-point-x pos) 5)
-               (< (om-point-x pos) (- (w frame) 10))
-               (< n (length (items self))))
 
-      (store-current-state-for-undo (editor (container self)))
+  (when (or (om-action-key-down)
+            (container-frames-locked (om-view-container frame)))
 
-      (if (member n (selection self))
+    (let* ((y (- (om-point-y pos) 4))
+           (n (floor y (cell-height self))))
+      (when (and (> (om-point-x pos) 5)
+                 (< (om-point-x pos) (- (w frame) 10))
+                 (< n (length (items self))))
 
-          (setf (selection self) (remove n (selection self)))
+        (store-current-state-for-undo (editor (container self)))
 
-        (setf (selection self)
-              (if (multiple-selection self)
-                  (sort (cons n (selection self)) '<)
-                (list n))))
+        (if (member n (selection self))
 
-      (update-value-from-selection self)
+            (setf (selection self) (remove n (selection self)))
 
-      (when (reactive (car (outputs self))) (self-notify self))
-      (om-invalidate-view frame)
-      )))
+          (setf (selection self)
+                (if (multiple-selection self)
+                    (sort (cons n (selection self)) '<)
+                  (list n))))
+
+        (update-value-from-selection self)
+
+        (when (reactive (car (outputs self))) (self-notify self))
+        (om-invalidate-view frame)
+        ))))
 
 
 
