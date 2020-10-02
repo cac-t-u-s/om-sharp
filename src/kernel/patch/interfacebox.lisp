@@ -495,17 +495,25 @@
     box))
 
 (defmethod draw-interface-component ((self ListSelectionBox) x y w h)
-  (om-with-font (cell-font self)
-                (loop for i = 0 then (+ i 1)
-                      for yy = y then (+ yy (cell-height self))
-                      while (< (+ yy (cell-height self)) h)
-                      while (< i (length (items self)))
-                      do
-                      (when (member i (selection self))
-                        (om-draw-rect 5 (+ yy 2) (- w 10) (cell-height self) :fill t :color (om-def-color :dark-gray)))
-                      (om-draw-string 5 (+ yy (cell-height self)) (format nil "~A" (nth i (items self)))
-                                      :color (if (member i (selection self)) (om-def-color :white) (om-def-color :black)))
-                      )))
+  (om-with-clip-rect (frame self) x y w h
+    (om-with-font 
+     (cell-font self)
+     (loop for i = 0 then (+ i 1)
+           for yy = y then (+ yy (cell-height self))
+           while (< yy h)
+           while (< i (length (items self)))
+           do
+           (when (member i (selection self))
+             (om-draw-rect 5 (+ yy 2) (- w 10) (cell-height self) :fill t :color (om-def-color :dark-gray)))
+           (om-draw-string 5 (+ yy (cell-height self)) (format nil "~A" (nth i (items self)))
+                           :color (if (member i (selection self)) (om-def-color :white) (om-def-color :black)))
+           ))
+
+    (when (> (* (cell-height self) (length (items self))) h)
+      (om-draw-rect (- w 20) (- h 8) 16 10 :fill t :color (om-def-color :white))
+      (om-draw-string (- w 18) (- h 2) "...")
+      )
+    ))
 
 
 (defmethod interfacebox-action ((self ListSelectionBox) frame pos)
