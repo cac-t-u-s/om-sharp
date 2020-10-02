@@ -42,8 +42,8 @@
 (defmethod* save-as-text ((self t) &optional (path "data") (type "txt"))
   :icon 908
   :initvals '(nil "data")
-  :indoc '("data (list, BPF, or TextFile)" "a file location")
-  :doc "Saves the data from <self> as a text file in <path>."
+  :indoc '("data (list, BPF, or TextBuffer)" "a file location")
+  :doc "Saves the data from <self> as a text file in <path>." 
   (let ((file (cond
                ((null path) (om-choose-new-file-dialog :directory (def-save-directory) :types '("Text files" "*.txt" "All files" "*.*")))
                ((pathnamep path) path)
