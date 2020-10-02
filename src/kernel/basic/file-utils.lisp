@@ -45,7 +45,7 @@
 
 (add-preference-section :files "Misc.")
 (add-preference :files :delete-tmp-files "Auto-cleanup temporary files" :bool nil)
-(add-preference :files :file-exists-ation "If Output File Exists..." '(replace auto-rename) 'replace)
+(add-preference :files :file-exists-ation "If output file exists..." '(replace auto-rename) 'replace)
 
 (add-preference-section :files "Search path"
                         '("Search paths are used to find embedded sub-patches / abstractions when loading patches." "Empty/NIL means that the search is only relative to the top-level patch."))
