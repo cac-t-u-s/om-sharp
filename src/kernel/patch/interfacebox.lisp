@@ -50,16 +50,15 @@
   (loop for attr on attributes by 'cddr do
         (apply-one-box-attribute self (car attr) (cadr attr)))
   (when (selected self)
-    (update-inspector-for-object self))
+    ;;; move out from the eval process to do that
+    (capi:apply-in-pane-process
+     (om-view-container (frame self))
+     'update-inspector-for-object self)
+    )
   )
 
 (defmethod omNG-box-value ((self OMInterfaceBox) &optional (numout 0))
-
-  ;;; we move out of the eval process to do that!
-  (capi:apply-in-pane-process
-   (om-view-container (frame self))
-   'apply-box-attributes self (eval-box-inputs self))
-
+  (apply-box-attributes self (eval-box-inputs self))
   (current-box-value self numout))
 
 (defmethod gen-code ((self OMInterfaceBox) &optional (numout 0))
