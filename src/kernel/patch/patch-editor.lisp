@@ -1675,7 +1675,8 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                                    )
                                   (loop for prop in (cdr category) append
                                         (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font text-font
-                                                          :size (om-make-point 90 20) :position (om-make-point 10 16))
+                                                          :size (om-make-point (+ 4 (om-string-size (string (nth 1 prop)) text-font)) 20) 
+                                                          )
                                               (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop)
                                                               :update (get-update-frame object)
                                                               )
