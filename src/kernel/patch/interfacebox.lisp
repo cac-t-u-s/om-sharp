@@ -429,7 +429,7 @@
   (add-properties (call-next-method)
                   "List selection display"
                   `((:multiple-selection "Multiple selection" :bool multiple-selection)
-                    (:cell-height "Cell size (px)" :number cell-height)
+                    (:cell-height "Cell size (px)" :number cell-height (2 40))
                     (:cell-font "Cell font" :font cell-font)
                     (:output-mode "Output mode" (:value :index) output-mode-accessor)
                     )))
