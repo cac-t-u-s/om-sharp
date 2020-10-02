@@ -222,7 +222,8 @@
       (om-draw-rect 0 0 (om-width self) (om-height self))))
   (om-with-fg-color
       (if (enabled self) (om-get-fg-color self) (om-def-color :gray))
-    (om-draw-string 0 14 (text self)
+    (om-draw-string 0 (cadr (multiple-value-list (om-string-size (text self) (om-get-font self))))
+                    (text self)
                     :wrap (if (wrap-lines self) (om-width self) nil))))
 
 (defmethod om-view-click-handler ((self click-and-edit-text) pos)
