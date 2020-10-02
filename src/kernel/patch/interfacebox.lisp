@@ -611,28 +611,29 @@
 
 (defmethod interfacebox-action ((self ListMenuBox) frame pos)
 
-  (when (< (om-point-x pos) 30)
+  (when (or (om-action-key-down)
+            (container-frames-locked (om-view-container frame)))
 
-    (let ((menu (om-make-menu "list items"
-                              (loop for item in (items self)
-                                    for i from 0
-                                    collect (let ((sel i))
-                                              (om-make-menu-item
-                                               (format nil "~A" item)
-                                               #'(lambda ()
-                                                   (store-current-state-for-undo (editor (container self)))
-                                                   (setf (selection self) sel)
-                                                   (update-value-from-selection self)
-                                                   (when (reactive (car (outputs self))) (self-notify self))
-                                                   (om-invalidate-view frame))
-                                               :selected (= i (selection self))
-                                               ))))))
+    (when (< (om-point-x pos) 30)
 
-      (om-open-pop-up-menu menu (om-view-container frame))
+      (let ((menu (om-make-menu "list items"
+                                (loop for item in (items self)
+                                      for i from 0
+                                      collect (let ((sel i))
+                                                (om-make-menu-item
+                                                 (format nil "~A" item)
+                                                 #'(lambda ()
+                                                     (store-current-state-for-undo (editor (container self)))
+                                                     (setf (selection self) sel)
+                                                     (update-value-from-selection self)
+                                                     (when (reactive (car (outputs self))) (self-notify self))
+                                                     (om-invalidate-view frame))
+                                                 :selected (= i (selection self))
+                                                 ))))))
 
-      )))
+        (om-open-pop-up-menu menu (om-view-container frame))
 
-
+        ))))
 
 
 ;;;===============================================================
