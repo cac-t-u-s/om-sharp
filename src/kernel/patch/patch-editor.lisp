@@ -1635,7 +1635,8 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
     (om-remove-all-subviews self)
 
     (let* ((def-w 200)
-
+           (text-font (om-def-font :font1))
+           (title-font (om-def-font :font2b))
            (inspector-layout
 
             (if object
@@ -1649,7 +1650,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                                :fg-color (om-def-color :dark-gray)
                                :text (object-name-in-inspector object)
                                :focus t  ;; prevents focus on other items :)
-                               :font (om-def-font :font2b))
+                               :font title-font)
 
                    (when t ;object
                      (list
@@ -1667,14 +1668,13 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                                  (append
                                   (list  ;     (car category)  ; (list (car category) (om-def-font :font1b))  ; :right-extend
                                    (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t)
-                                   (let ((font (om-def-font :font2b)))
-                                     (om-make-di 'om-simple-text :text (car category) :font font
+                                   (om-make-di 'om-simple-text :text (car category) :font title-font
                                                  :fg-color (om-def-color :dark-gray)
-                                                 :size (om-make-point (+ 10 (om-string-size (car category) font)) 20)
-                                                 ))
+                                                 :size (om-make-point (+ 10 (om-string-size (car category) title-font)) 20)
+                                                 )
                                    )
                                   (loop for prop in (cdr category) append
-                                        (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font (om-def-font :font1)
+                                        (list (om-make-di 'om-simple-text :text (string (nth 1 prop)) :font text-font
                                                           :size (om-make-point 90 20) :position (om-make-point 10 16))
                                               (make-prop-item (nth 2 prop) (nth 0 prop) object :default (nth 4 prop)
                                                               :update (get-update-frame object)
@@ -1690,7 +1690,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                          (list
                           (om-make-di 'om-simple-text :size (om-make-point 100 20)
                                       :text "[no properties]"
-                                      :font (om-def-font :font1))
+                                      :font text-font)
                           nil))
 
 
@@ -1702,15 +1702,14 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                      :separator
 
                      (let* ((doc (get-documentation object))
-                            (font (om-def-font :font1))
-                            (line-h (cadr (multiple-value-list (om-string-size "abc" font))))
-                            (n-lines (length (om-string-wrap doc def-w font))))
+                            (line-h (cadr (multiple-value-list (om-string-size "abc" text-font))))
+                            (n-lines (length (om-string-wrap doc def-w text-font))))
                        (om-make-di 'om-multi-text
                                    :size (om-make-point nil (min 100 (* line-h (+ 2 n-lines))))
                                    :text (format nil "~%~A" doc)
                                   ;:scrollbars :v
                                    :fg-color (om-def-color :dark-gray)
-                                   :font font)
+                                   :font text-font)
                        )
 
                      ))
@@ -1730,14 +1729,13 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
 
                 :separator
                 (let* ((doc (default-editor-help-text (editor self)))
-                       (font (om-def-font :font1))
-                       (line-h (cadr (multiple-value-list (om-string-size "abc" font))))
-                       (n-lines (length (om-string-wrap doc def-w font))))
+                       (line-h (cadr (multiple-value-list (om-string-size "abc" text-font))))
+                       (n-lines (length (om-string-wrap doc def-w text-font))))
                   (om-make-di 'om-multi-text
                               :size (om-make-point def-w (* line-h (+ 2 n-lines)))
                               :text doc
                               :fg-color (om-def-color :dark-gray)
-                              :font font)
+                              :font text-font)
                   )
 
                 )))
