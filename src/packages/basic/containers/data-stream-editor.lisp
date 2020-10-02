@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -21,14 +21,14 @@
 ;;; EDITOR
 ;;;======================================
 
-(defclass data-stream-editor (OMEditor play-editor-mixin undoable-editor-mixin multi-display-editor-mixin) 
+(defclass data-stream-editor (OMEditor play-editor-mixin undoable-editor-mixin multi-display-editor-mixin)
   ((timeline-editor :accessor timeline-editor :initform nil)))
 
 (defmethod object-default-edition-params ((self data-stream))
   '((:display-mode :blocks)
     (:grid t)))
 
-(defclass stream-panel (x-cursor-graduated-view y-graduated-view OMEditorView om-tt-view) 
+(defclass stream-panel (x-cursor-graduated-view y-graduated-view OMEditorView om-tt-view)
   ((stream-id :accessor stream-id :initform 0 :initarg :stream-id)
    (left-view :accessor left-view :initform nil :initarg :left-view)))
 
@@ -43,10 +43,10 @@
 
 
 ;;; from play-editor-mixin
-(defmethod cursor-panes ((self data-stream-editor)) 
+(defmethod cursor-panes ((self data-stream-editor))
   ;(append (get-g-component self :data-panel-list)
   (cons (active-panel self)
-        (and (timeline-editor self) 
+        (and (timeline-editor self)
              (cursor-panes (timeline-editor self)))))
 
 (defmethod active-panel ((editor data-stream-editor))
@@ -64,8 +64,8 @@
     (when (> (length (frame-display-modes-for-object editor object)) 1)
       (om-make-di 'om-popup-list :size (omp 80 24) :font (om-def-font :font1)
                   :items (frame-display-modes-for-object editor object)
-                  :di-action #'(lambda (item) 
-                                 (editor-set-edit-param editor :display-mode (om-get-selected-item item)) 
+                  :di-action #'(lambda (item)
+                                 (editor-set-edit-param editor :display-mode (om-get-selected-item item))
                                  (mapc 'om-invalidate-view (get-g-component editor :data-panel-list)))
                   :value (editor-get-edit-param editor :display-mode)
                   ))))
@@ -76,7 +76,7 @@
   (om-make-di 'om-check-box :text "timeline" :size (omp 65 24) :font (om-def-font :font1)
               :checked-p (editor-get-edit-param editor :show-timeline)
               :enabled (timeline-editor editor)
-              :di-action #'(lambda (item) 
+              :di-action #'(lambda (item)
                              (let ((timeline-ed (timeline-editor editor)))
                                (editor-set-edit-param editor :show-timeline (om-checked-p item))
                                (clear-timeline timeline-ed)
@@ -85,33 +85,33 @@
               ))
 
 
-(defun make-control-bar (editor) 
+(defun make-control-bar (editor)
   (set-g-component editor :mousepos-txt (om-make-graphic-object 'om-item-text :size (omp 60 16)))
-  (om-make-layout 
+  (om-make-layout
    'om-row-layout
    :ratios '(0.05 1 0.005 0.005 0.005 0.005)
-   :subviews (list (get-g-component editor :mousepos-txt) 
-                   nil 
+   :subviews (list (get-g-component editor :mousepos-txt)
+                   nil
                    (make-time-monitor editor)
-                   (make-play-button editor :enable t) 
-                   (make-pause-button editor :enable t) 
+                   (make-play-button editor :enable t)
+                   (make-pause-button editor :enable t)
                    (make-stop-button editor :enable t))))
-  
+
 
 (defmethod init-editor ((editor data-stream-editor))
   (call-next-method)
   (when (editor-with-timeline editor)
-    (setf (timeline-editor editor) 
-          (make-instance 'timeline-editor 
-                         :object (object editor) 
+    (setf (timeline-editor editor)
+          (make-instance 'timeline-editor
+                         :object (object editor)
                          :container-editor editor))
     ))
 
-;;; sets the editor slightly longer that the actual object length  
+;;; sets the editor slightly longer that the actual object length
 (defmethod editor-view-after-init-space ((self t)) 1000)
 
 ;;; the small view at the left of teh timeline should be sized according to the editor's layout
-(defmethod make-timeline-left-item ((self data-stream-editor) id) 
+(defmethod make-timeline-left-item ((self data-stream-editor) id)
   (om-make-view 'om-view :size (omp 28 15)))
 
 (defmethod make-left-panel-for-object ((editor data-stream-editor) (object t))
@@ -125,12 +125,12 @@
 ;;; voice editor has a different ruler
 (defmethod make-time-ruler ((editor data-stream-editor) dur)
 
-  (om-make-view 'time-ruler 
+  (om-make-view 'time-ruler
                 :related-views (get-g-component editor :data-panel-list)
-                :size (omp nil 20) 
+                :size (omp nil 20)
                 :bg-color (om-def-color :white)
                 :vmin (data-stream-get-x-ruler-vmin editor)
-                :x1 (data-stream-get-x-ruler-vmin editor) 
+                :x1 (data-stream-get-x-ruler-vmin editor)
                 :x2 dur)
   )
 
@@ -138,58 +138,58 @@
 (defmethod editor-scroll-v ((self data-stream-editor)) nil)
 
 (defmethod make-editor-window-contents ((editor data-stream-editor))
-  
+
   (let* ((data-stream (object-value editor))
          (object-s (if (multi-display-p editor)
-                       (multi-obj-list editor) 
+                       (multi-obj-list editor)
                      (list data-stream)))
          (n-objs (length object-s))
          (max-dur (loop for obj in object-s maximize (or (get-obj-dur obj) 0)))
-         (ed-dur (if (zerop max-dur) 
-                     10000 
+         (ed-dur (if (zerop max-dur)
+                     10000
                    (+ max-dur (editor-view-after-init-space data-stream)))))
 
     (set-g-component editor :data-panel-list
-                      (loop for d-s in object-s 
-                            for i = 0 then (+ i 1) collect
+                     (loop for d-s in object-s
+                           for i = 0 then (+ i 1) collect
                            (om-make-view (editor-view-class editor) :stream-id i
-                                         :editor editor 
-                                         :size (omp 50 nil) 
-                                         :direct-draw t 
-                                         :bg-color (om-def-color :white) 
+                                         :editor editor
+                                         :size (omp 50 nil)
+                                         :direct-draw t
+                                         :bg-color (om-def-color :white)
                                          ;; internal vertical scroller
                                          :scrollbars (editor-scroll-v editor)
                                          :left-view (make-left-panel-for-object editor d-s)
                                          )))
-                     
+
     (set-g-component editor :x-ruler (make-time-ruler editor ed-dur))
     (set-g-component editor :main-panel (car (get-g-component editor :data-panel-list)))
-    
+
     (when (timeline-editor editor)
       (set-g-component (timeline-editor editor) :main-panel (om-make-layout 'om-row-layout))
 
       (when (editor-get-edit-param editor :show-timeline)
         (make-timeline-view (timeline-editor editor))))
-    
-    (om-make-layout 
-     'om-column-layout 
+
+    (om-make-layout
+     'om-column-layout
      :ratios '(96 2 2)
-     :subviews (list 
+     :subviews (list
                 ;;; first group with the 'main' editor:
                 (om-make-layout
                  'om-simple-layout
                  ;;; if this is a multi-object editor with 3+ objects, add vertical scroller
                  :scrollbars (if (> (length (get-g-component editor :data-panel-list)) 2) :v nil)
                  :subviews
-                 (list 
-                  (om-make-layout 
-                   'om-grid-layout 
+                 (list
+                  (om-make-layout
+                   'om-grid-layout
                    :delta 0
-                   :ratios `((nil 100) 
-                             ,(append '(0.01) 
+                   :ratios `((nil 100)
+                             ,(append '(0.01)
                                       (make-list n-objs :initial-element (/ 0.98 n-objs))
-                                     '(0.01)))
-                   :subviews 
+                                      '(0.01)))
+                   :subviews
                    (append (list nil (make-control-bar editor))
                            (loop for view in (get-g-component editor :data-panel-list)
                                  append (list (left-view view) view))
@@ -202,9 +202,9 @@
                   (get-g-component (timeline-editor editor) :main-panel))
 
                 ;;; the bottom control bar:
-                (om-make-layout 'om-row-layout 
-                                :size (omp nil 40) 
-                                :subviews (list (make-editor-controls editor) nil 
+                (om-make-layout 'om-row-layout
+                                :size (omp nil 40)
+                                :subviews (list (make-editor-controls editor) nil
                                                 (and (editor-with-timeline editor)
                                                      (make-timeline-check-box editor))))
                 ))
@@ -217,10 +217,10 @@
 
 ;===== MultiDisplay API
 
-(defmethod enable-multi-display ((editor data-stream-editor) obj-list) 
+(defmethod enable-multi-display ((editor data-stream-editor) obj-list)
   (call-next-method)
   (when (container-editor editor)
-    (om-substitute-subviews 
+    (om-substitute-subviews
      (main-view (container-editor editor))
      (main-view editor)
      (setf (main-view editor)
@@ -231,7 +231,7 @@
 (defmethod disable-multi-display ((editor data-stream-editor))
   (call-next-method)
   (when (container-editor editor)
-    (om-substitute-subviews 
+    (om-substitute-subviews
      (main-view (container-editor editor))
      (main-view editor)
      (setf (main-view editor)
@@ -255,24 +255,24 @@
 (defmethod update-to-editor ((editor data-stream-editor) (from ombox))
   (let* ((data-stream (object-value editor)))
     (when data-stream
-      (let ((new-max-dur (if (zerop (get-obj-dur data-stream)) 
-                             10000 
+      (let ((new-max-dur (if (zerop (get-obj-dur data-stream))
+                             10000
                            (+ (get-obj-dur data-stream) (editor-view-after-init-space data-stream)))))
-  
-    (when (get-g-component editor :x-ruler)
-      (setf (vmax (get-g-component editor :x-ruler)) new-max-dur)
-      (set-ruler-range 
-       (get-g-component editor :x-ruler) 
-       (v1 (get-g-component editor :x-ruler))
-       new-max-dur))
-    (mapc 'om-invalidate-view (get-g-component editor :data-panel-list))
 
-    (when (and (timeline-editor editor) 
-               (editor-get-edit-param editor :show-timeline))
-      (update-to-editor (timeline-editor editor) editor))
+        (when (get-g-component editor :x-ruler)
+          (setf (vmax (get-g-component editor :x-ruler)) new-max-dur)
+          (set-ruler-range
+           (get-g-component editor :x-ruler)
+           (v1 (get-g-component editor :x-ruler))
+           new-max-dur))
+        (mapc 'om-invalidate-view (get-g-component editor :data-panel-list))
 
-    (call-next-method)
-    ))))
+        (when (and (timeline-editor editor)
+                   (editor-get-edit-param editor :show-timeline))
+          (update-to-editor (timeline-editor editor) editor))
+
+        (call-next-method)
+        ))))
 
 (defmethod update-to-editor ((editor data-stream-editor) (from t))
   (call-next-method)
@@ -313,18 +313,18 @@
 (defmethod get-frame-graphic-duration ((self data-frame))
   (if (zerop (item-get-duration self)) 200 (item-get-duration self)))
 
-(defmethod get-frame-color ((self data-frame)) 
+(defmethod get-frame-color ((self data-frame))
   (or (getf (attributes self) :color)
       (setf (getf (attributes self) :color) (om-random-color 0.4))))
- 
+
 ;; random !
 ;; compare values to y-range-for-object
-(defmethod get-frame-posy ((self data-frame)) 
+(defmethod get-frame-posy ((self data-frame))
   (or (getf (attributes self) :posy)
       (setf (getf (attributes self) :posy) (om-random 30 90))))
 
 ;; arbitrary !
-(defmethod get-frame-sizey ((self data-frame)) 
+(defmethod get-frame-sizey ((self data-frame))
   (max 10 (* 1.2 (data-size self))))
 
 (defmethod finalize-data-frame ((f data-frame) &rest args) nil)
@@ -335,7 +335,7 @@
         (sizey (get-frame-sizey frame))
         (posy (get-frame-posy frame)))
     (case (editor-get-edit-param editor :display-mode)
-      (:bubbles (values 
+      (:bubbles (values
                  (- (x-to-pix panel (or (date frame) 0)) (dy-to-dpix panel (/ sizey 2)))
                  (- (h panel) (y-to-pix panel (- posy (/ sizey 2))))
                  (dy-to-dpix panel sizey)
@@ -345,7 +345,7 @@
                          (- (h panel) (y-to-pix panel posy))
                          (max 3 (dx-to-dpix panel (get-frame-graphic-duration frame)))
                          (max 3 (dy-to-dpix panel sizey))  ;; !! downwards
-                       )))))
+                         )))))
 
 (defmethod draw ((frame data-frame) x y w h selected) nil)
 
@@ -354,20 +354,20 @@
       (get-frame-area frame editor)
     (om-with-fg-color (get-frame-color frame)
       (or (draw frame x y w h (and active (find i (selection editor))))
-          (case (editor-get-edit-param editor :display-mode) 
+          (case (editor-get-edit-param editor :display-mode)
             (:bubbles
              ;(om-draw-rect x y w h :fill nil)
              (let ((r (abs (min w h))))
                (om-draw-circle (+ x (round r 2))
                                (- y (round r 2))
-                             (round r 2) :fill t)
-             (when (and active (find i (selection editor)))
-               (om-draw-circle (+ x (round r 2))  
-                               (- y (round r 2))
-                               (round r 2) :fill t
-                               :color (om-make-color .5 .5 .5 .5)))
-             ))
-            (otherwise 
+                               (round r 2) :fill t)
+               (when (and active (find i (selection editor)))
+                 (om-draw-circle (+ x (round r 2))
+                                 (- y (round r 2))
+                                 (round r 2) :fill t
+                                 :color (om-make-color .5 .5 .5 .5)))
+               ))
+            (otherwise
              (om-draw-rect x y w h :fill t)
              (when (and active (find i (selection editor)))
                (om-draw-rect x y w h :fill t
@@ -377,8 +377,8 @@
 
 (defmethod frame-at-pos ((editor data-stream-editor) position)
   (let ((frames (data-stream-get-frames (object-value editor))))
-    (when frames 
-      (position-if #'(lambda (f) 
+    (when frames
+      (position-if #'(lambda (f)
                        (multiple-value-bind (x y w h)
                            (get-frame-area f editor)
                          (om-point-in-rect-p position x y w h)))
@@ -386,11 +386,11 @@
 
 
 (defmethod frames-in-area ((editor data-stream-editor) p1 p2)
-  (loop for f in (data-stream-get-frames (object-value editor)) 
+  (loop for f in (data-stream-get-frames (object-value editor))
         for i = 0 then (1+ i)
         when (multiple-value-bind (x y w h)
                  (get-frame-area f editor)
-               (rect-intersection 
+               (rect-intersection
                 (om-point-x p1) (om-point-y p1) (om-point-x p2) (om-point-y p2)
                 x y (+ x w) (+ y h)))
         collect i))
@@ -409,15 +409,15 @@
          (active (if (multi-display-p editor)
                      (equal self (active-panel editor))
                    t)))
-    
+
     (when active (draw-background editor self))
-    
+
     (when (editor-get-edit-param editor :grid)
       (om-with-fg-color (om-def-color :light-gray)
         (om-with-line '(2 2)
           (draw-grid-from-ruler self (get-g-component editor :x-ruler)))))
-    
-    (when stream 
+
+    (when stream
       (om-with-fg-color (om-def-color :dark-gray)
         (loop for frame in (data-stream-get-frames stream)
               for i = 0 then (1+ i) do
@@ -428,7 +428,7 @@
 (defmethod om-draw-contents :after ((self stream-panel))
   (when (and (multi-display-p (editor self))
              (equal self (active-panel (editor self))))
-    (om-draw-rect 0 0 (w self) (h self) :fill nil 
+    (om-draw-rect 0 0 (w self) (h self) :fill nil
                   :line 4 :color (om-make-color .8 .4 .4))
     ))
 
@@ -465,15 +465,15 @@
 ;;; sort the frames and reset the selection indices correctly
 (defmethod editor-sort-frames ((self data-stream-editor))
   (let* ((stream (object-value self))
-         (selected-objects (loop for pos in (selection self) collect 
+         (selected-objects (loop for pos in (selection self) collect
                                  (nth pos (data-stream-get-frames stream)))))
-    
+
     (time-sequence-reorder-timed-item-list stream)
-    
+
     (setf (selection self)
-          (loop for selected in selected-objects 
+          (loop for selected in selected-objects
                 collect (position selected (data-stream-get-frames stream))))))
-     
+
 
 (defmethod resizable-frame ((self data-frame)) nil)
 
@@ -481,11 +481,11 @@
   (let ((editor (editor self)))
 
     (when (object-value editor)
-      
+
       ;;; show the mouse position on screen
       (position-display editor position)
-    
-      (unless (or (equal (editor-play-state editor) :play)  
+
+      (unless (or (equal (editor-play-state editor) :play)
                   (and (multi-display-p editor) (not (equal self (active-panel editor)))))
 
         (om-hide-tooltip self)
@@ -495,7 +495,7 @@
           (when fp
             (if (om-command-key-p)
                 ;;; show tooltip for the frame under the  mouse cursor
-                (om-show-tooltip self (data-frame-text-description (nth fp frames)) 
+                (om-show-tooltip self (data-frame-text-description (nth fp frames))
                                  (omp (- (om-point-x position) 60) 20)
                                  0)
 
@@ -513,7 +513,7 @@
 
 (defmethod om-view-click-handler :around ((self stream-panel) position)
   (let ((editor (editor self)))
-    (when (and (container-editor editor) 
+    (when (and (container-editor editor)
                (not (equal self (active-panel editor))))
       (set-current-nth (container-editor editor) (stream-id self)))
     (call-next-method)
@@ -521,22 +521,22 @@
 
 
 (defmethod om-view-click-handler ((self stream-panel) position)
-  
+
   (let ((editor (editor self)))
-    
+
     (unless (handle-selection-extent self position) ;; => play-editor-mixi handles cursor etc.
-    
+
       (when (object-value editor)
-    
+
         (let ((p0 position)
               (selection (frame-at-pos editor position)))
-    
+
           (set-selection editor selection)
           (update-timeline-editor editor)
           (om-invalidate-view self)
-    
-          (cond 
-     
+
+          (cond
+
            ((and (null selection) (om-add-key-down))
             (let ((frame (time-sequence-make-timed-item-at (object-value editor) (pixel-to-time self (om-point-x p0)))))
               (finalize-data-frame frame :posy (pix-to-y self (- (h self) (om-point-y p0))))
@@ -544,15 +544,15 @@
               (report-modifications editor)
               (update-timeline-editor editor)
               (om-invalidate-view self)))
-     
+
            (selection
             (let* ((selected-frame (nth selection (data-stream-get-frames (object-value editor))))
                    (selected-frame-end-t (time-to-pixel self (item-end-time selected-frame))))
-            
+
               ;;; resize the selected frame ?
               (if (and (resizable-frame selected-frame)
                        (<= (om-point-x position) selected-frame-end-t) (>= (om-point-x position) (- selected-frame-end-t 5)))
-                  (om-init-temp-graphics-motion 
+                  (om-init-temp-graphics-motion
                    self position nil
                    :motion #'(lambda (view pos)
                                (declare (ignore view))
@@ -561,14 +561,14 @@
                                    (resize-editor-selection editor :dx (round dx))
                                    (setf p0 pos)
                                    (om-invalidate-view self))))
-                   :release #'(lambda (view pos) 
+                   :release #'(lambda (view pos)
                                 (declare (ignore view pos))
-                                (report-modifications editor) 
+                                (report-modifications editor)
                                 (om-invalidate-view self))
                    :min-move 4)
-            
+
                 ;;; move the selection
-                (om-init-temp-graphics-motion 
+                (om-init-temp-graphics-motion
                  self position nil
                  :motion #'(lambda (view pos)
                              (declare (ignore view))
@@ -580,7 +580,7 @@
                                (update-timeline-editor editor)
                                (om-invalidate-view self)
                                ))
-                 :release #'(lambda (view pos) 
+                 :release #'(lambda (view pos)
                               (declare (ignore view pos))
                               (let ((selected-frames (posn-match (data-stream-get-frames (object-value editor)) (selection editor))))
                                 (editor-sort-frames editor)
@@ -588,19 +588,19 @@
                                 (time-sequence-reorder-timed-item-list (object-value editor))
                                 (update-timeline-editor editor)
                                 ;;; reset the selection:
-                                (set-selection editor 
+                                (set-selection editor
                                                (loop for f in selected-frames collect
                                                      (position f (data-stream-get-frames (object-value editor)))))
                                 )
-                              (report-modifications editor) 
+                              (report-modifications editor)
                               (om-invalidate-view self))
                  :min-move 4)
                 ))
             )
-           (t 
+           (t
             ;; no selection: start selection lasso
-            (om-init-temp-graphics-motion 
-             self position 
+            (om-init-temp-graphics-motion
+             self position
              (om-make-graphic-object 'selection-rectangle :position position :size (om-make-point 4 4))
              :min-move 10
              :release #'(lambda (view position)
@@ -617,17 +617,17 @@
   (let* ((panel (active-panel editor))
          (stream (object-value editor)))
     (case key
-      (:om-key-delete 
+      (:om-key-delete
        (when (selection editor)
          (store-current-state-for-undo editor)
-         (loop for pos in (sort (selection editor) '>) do 
+         (loop for pos in (sort (selection editor) '>) do
                (remove-nth-timed-point-from-time-sequence stream pos))
          (setf (selection editor) nil)
          (om-invalidate-view panel)
          (update-timeline-editor editor)
          ;; (time-sequence-update-obj-dur stream)
-         (report-modifications editor)))   
-      (:om-key-esc 
+         (report-modifications editor)))
+      (:om-key-esc
        ;; maybe not needed ? we already have the db-click on ruler for that...
        ;; (reinit-x-ranges editor)
        )
@@ -649,8 +649,8 @@
        (update-timeline-editor editor)
        (report-modifications editor))
       (:om-key-tab
-       (setf (selection editor) 
-             (if (selection editor) 
+       (setf (selection editor)
+             (if (selection editor)
                  (list (next-element-in-editor editor (car (selection editor))))
                (list (first-element-in-editor editor))))
        (editor-invalidate-views editor))
@@ -682,7 +682,7 @@
 
     (when (and panel x-ruler)
       (let ((x-range (round (- (x2 panel) (x1 panel)))))
-    
+
         (cond ((> time (x2 panel))
                (set-ruler-range x-ruler (+ (v1 x-ruler) x-range) (+ (v2 x-ruler) x-range)))
               ((< time (x1 panel))

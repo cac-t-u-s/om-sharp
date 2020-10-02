@@ -1,5 +1,5 @@
 ;=========================================================================
-; OM API 
+; OM API
 ; Multiplatform API for OpenMusic
 ; LispWorks Implementation
 ;=========================================================================
@@ -39,15 +39,15 @@
           om-fullscreen-window
           om-screen-size
           om-maximize-window
-   
+
           om-dialog
           om-textured-dialog
           om-modal-dialog
           om-return-from-modal-dialog
-          
+
           om-windoid
           om-no-border-win
-          
+
           om-window-check-before-close
           om-window-close-event
           om-close-window
@@ -62,7 +62,7 @@
           om-window-moved
           om-window-maximized
           om-minimum-size
-          
+
           om-remove-all-subviews
           om-substitute-subviews
 
@@ -77,7 +77,7 @@
 ;;; OM-ABSTRACT-WINDOW
 ;;; Superclass of all windows
 ;;;=============================================
-(defclass om-abstract-window (om-graphic-object capi::interface) 
+(defclass om-abstract-window (om-graphic-object capi::interface)
   ((resizable :initarg :resizable :initform t :accessor resizable)
    (fullscreen :initarg :fullscreen :initform nil :accessor fullscreen))
   (:default-initargs
@@ -122,19 +122,19 @@
 (defmethod om-set-window-title ((self om-abstract-window) (title string))
   (setf (capi::interface-title self) title))
 
-(defmethod om-view-position ((self om-abstract-window)) 
+(defmethod om-view-position ((self om-abstract-window))
   (if (capi::interface-visible-p self)
       (let ((point (capi::interface-geometry self)))
         (om-make-point (first point) (second point)))
     (om-make-point (vx self) (vy self))))
 
-(defmethod om-set-view-position ((self om-abstract-window) pos-point) 
+(defmethod om-set-view-position ((self om-abstract-window) pos-point)
   (when (capi::interface-visible-p self)
-      (capi::execute-with-interface self 
-                              'capi::set-top-level-interface-geometry 
-                              self 
-                              :x (om-point-x pos-point)
-                              :y (om-point-y pos-point)))
+    (capi::execute-with-interface self
+                                  'capi::set-top-level-interface-geometry
+                                  self
+                                  :x (om-point-x pos-point)
+                                  :y (om-point-y pos-point)))
   (setf (vx self) (om-point-x pos-point))
   (setf (vy self) (om-point-y pos-point)))
 
@@ -142,32 +142,32 @@
   (if (capi::interface-visible-p self)
       (let ((point (capi::interface-geometry self)))
         #+win32(om-make-point (- (third point) (car point)) (- (fourth point) (cadr point)))
-        #-win32(om-make-point (third point) (fourth point))  
+        #-win32(om-make-point (third point) (fourth point))
         )
     (om-make-point (vw self) (vh self))))
 
 (defun set-not-resizable (win &key (w nil w-supplied-p) (h nil h-supplied-p))
   (let ((width (if w-supplied-p (or w (om-point-x (om-view-size win)))))
         (height (if h-supplied-p (or h (om-point-y (om-view-size win))))))
-    (capi::set-hint-table win  (list :external-min-width width :external-max-width width 
-                               :external-min-height height :external-max-height height
-                               ))))
+    (capi::set-hint-table win  (list :external-min-width width :external-max-width width
+                                     :external-min-height height :external-max-height height
+                                     ))))
 
-(defmethod om-set-view-size ((self om-abstract-window) size-point) 
+(defmethod om-set-view-size ((self om-abstract-window) size-point)
   (let ((wi (om-point-x size-point))
         (he (om-point-y size-point)))
-    (capi::execute-with-interface self 
-                            #'(lambda (w h)
-                                (unless (resizable self)
-                                  (set-not-resizable self :w w :h h))
-                                (when (capi::interface-visible-p self)
-                                  (capi::set-top-level-interface-geometry 
-                                   self :width w :height h
-                                   ))
-                                (setf (vw self) w (vh self) h)
-                                (om-window-resized self size-point)
-                                )
-                            wi he)
+    (capi::execute-with-interface self
+                                  #'(lambda (w h)
+                                      (unless (resizable self)
+                                        (set-not-resizable self :w w :h h))
+                                      (when (capi::interface-visible-p self)
+                                        (capi::set-top-level-interface-geometry
+                                         self :width w :height h
+                                         ))
+                                      (setf (vw self) w (vh self) h)
+                                      (om-window-resized self size-point)
+                                      )
+                                  wi he)
     ))
 
 
@@ -184,11 +184,11 @@
   (om-set-view-size self size))
 
 (defmethod om-geometry-change-callback ((self om-abstract-window) x y w h)
-  
+
   (unless (and (vx self) (vy self) (= x (vx self)) (= y (vy self)))
     (om-window-moved self (om-make-point x y)))
-  
-  (unless (and (vw self) (vh self) (= w (vw self)) (= h (vh self)))  
+
+  (unless (and (vw self) (vh self) (= w (vw self)) (= h (vh self)))
     (om-window-resized self (om-make-point w h))
     #+windows(om-invalidate-view self)
     )
@@ -213,9 +213,9 @@
 (defmethod capi::calculate-constraints ((self om-abstract-window))
 
   (declare (special capi:%min-width% capi:%min-height%))
-  
+
   (call-next-method)
-  
+
   (let ((msize (om-minimum-size self)))
     (when msize
       (capi::with-geometry self
@@ -226,21 +226,21 @@
 (defmethod om-fullscreen-window ((self om-abstract-window))
   (setf (fullscreen self) t)
   (om-set-view-position self (om-make-point 0 0))
-  (om-set-view-size self (om-make-point (capi::screen-width (capi:convert-to-screen self)) 
-                                       (- (capi::screen-height (capi:convert-to-screen self)) 20)))
+  (om-set-view-size self (om-make-point (capi::screen-width (capi:convert-to-screen self))
+                                        (- (capi::screen-height (capi:convert-to-screen self)) 20)))
   )
 
 (defun om-screen-size ()
   (om-make-point (capi::screen-width (capi:convert-to-screen nil))
                  (capi::screen-height (capi:convert-to-screen nil))))
 
-(defun om-front-window () 
+(defun om-front-window ()
   #+cocoa
   (capi:screen-active-interface (capi:convert-to-screen))
   #-cocoa
   ; crashes sometimes :(
   (car (capi::collect-interfaces 'om-abstract-window :screen :any :sort-by :visible))
-)
+  )
 
 (defun om-get-all-windows (class)
   (capi::collect-interfaces class))
@@ -255,7 +255,7 @@
   self)
 
 (defmethod om-hide-window ((self om-abstract-window))
-  (capi::execute-with-interface self 
+  (capi::execute-with-interface self
                                 #'(lambda (x) (setf (capi::top-level-interface-display-state x) :hidden))
                                 self))
 
@@ -263,13 +263,13 @@
   (capi::interface-visible-p self))
 
 (defmethod om-show-window ((self t))
-  (capi::execute-with-interface self 
+  (capi::execute-with-interface self
                                 #'capi::show-interface
                                 self)
   self)
 
 (defmethod om-open-window ((self t))
-  (capi::execute-with-interface self 
+  (capi::execute-with-interface self
                                 #'(lambda (x) (capi::display x))
                                 self))
 
@@ -279,8 +279,8 @@
 
 (defmethod initialized-p ((self t)) t)
 
-(defun om-window-open-p (window) 
-  (and (initialized-p window) 
+(defun om-window-open-p (window)
+  (and (initialized-p window)
        (not (equal (capi::interface-created-state window) :destroyed))))
 
 (defmethod om-activate-callback ((self om-abstract-window) activatep)
@@ -288,7 +288,7 @@
 
 ;;; OM event handler
 (defmethod om-window-activate ((self om-abstract-window) &optional (activatep t)) t)
- 
+
 
 ;;;=============================================
 ;;; OM-WINDOW
@@ -310,7 +310,7 @@
 
 (defmethod om-select-window ((self om-dialog))
   (if (initialized-p self)
-    #+cocoa(capi::raise-interface self)
+      #+cocoa(capi::raise-interface self)
     #-cocoa(capi::find-interface (type-of self) :name (capi::capi-object-name self))
     (capi::display self))
   self)
@@ -320,7 +320,7 @@
   (capi::display-dialog dialog :owner (or owner (capi:convert-to-screen)) ; (om-front-window)
                         :position-relative-to (and owner :owner) :x (vx dialog) :y (vy dialog)))
 
-(defun om-return-from-modal-dialog (dialog val) 
+(defun om-return-from-modal-dialog (dialog val)
   (declare (ignore dialog))
   (capi::exit-dialog val))
 
@@ -328,7 +328,7 @@
 ;;; PALETTE
 ;;; Always on top, petite barre de titre
 ;;;====================
-(defclass om-windoid (om-window) 
+(defclass om-windoid (om-window)
   ((accept-key-evt :accessor accept-key-evt :initarg :accept-key-evt :initform nil))
   (:default-initargs :draw-with-buffer t)
   ; :window-styles '(:internal-borderless :always-on-top :borderless :shadowed))
@@ -353,20 +353,20 @@
 
 (defmethod internal-display ((self t))
   (capi::display self))
- 
+
 (defmethod window-dialog-p ((self t)) nil)
 
 ; :movable-by-window-background
 ; :borderless
-; :shadowed 
+; :shadowed
 (defmethod get-window-styles-from-class ((class t))
-  (cond 
-   ((subtypep class 'om-windoid) '(:always-on-top 
-                                   :toolbox 
+  (cond
+   ((subtypep class 'om-windoid) '(:always-on-top
+                                   :toolbox
                                    ;:textured-background  ;--> removed because it creates movable-by-bg
                                    :no-geometry-animation
                                    :ignores-keyboard-input
-                                   )) ;  
+                                   )) ;
    ((subtypep class 'om-no-border-win) '(:borderless :shadowed :always-on-top))
    ((subtypep class 'om-window) '(:motion-events-without-focus))
    ((subtypep class 'om-textured-dialog) '(:textured-background))
@@ -374,17 +374,17 @@
    ))
 
 
-(defun om-make-window (class &rest attributes 
-			  &key position size
-			  name title owner bg-color border menu-items
-                          win-layout
-			  (show t) subviews 
-                          (resizable t) (close t) (minimize t) (maximize t) 
-                          (topmost nil) (toolbox nil)
-			  &allow-other-keys)  
-  
+(defun om-make-window (class &rest attributes
+                             &key position size
+                             name title owner bg-color border menu-items
+                             win-layout
+                             (show t) subviews
+                             (resizable t) (close t) (minimize t) (maximize t)
+                             (topmost nil) (toolbox nil)
+                             &allow-other-keys)
+
   (declare (ignore close maximize)) ;;; enable these options someday :)
-  
+
   (let* ((winparent (or owner (capi:convert-to-screen)))
          (winname (or name title (string (gensym))))
          (wintitle (or title name ""))
@@ -392,7 +392,7 @@
          (h (and size (om-point-y size)))
          (x (and position (if (equal position :centered) (round (- (* (capi::screen-width winparent) 0.5) (* (or w 0) 0.5))) (om-point-x position))))
          (y (and position (if (equal position :centered) (round (- (* (capi::screen-height winparent) 0.5) (* (or h 0) 0.5))) (om-point-y position))))
-         (style (append (get-window-styles-from-class class) 
+         (style (append (get-window-styles-from-class class)
                         (when (not minimize) (list :never-iconic))
                         (when topmost (list :always-on-top))
                         (when toolbox (list :toolbox))
@@ -400,11 +400,11 @@
                               ;:internal-borderless
                               )))
          win)
-    
-    (setf win (apply 'make-instance 
+
+    (setf win (apply 'make-instance
                      (append (list class
                                    :title wintitle :name winname
-                                   :x x :y y 
+                                   :x x :y y
                                    :width w :height h
                                    :auto-menus nil
                                    :parent winparent
@@ -420,27 +420,27 @@
                              attributes
                              )))
 
-    (capi::execute-with-interface 
+    (capi::execute-with-interface
      win
      #'(lambda ()
-         (setf (capi::pane-layout win) 
+         (setf (capi::pane-layout win)
                (if (or (null win-layout) (symbolp win-layout))
                    (make-instance (or win-layout 'om-simple-layout) :internal-border nil :visible-border nil :accepts-focus-p nil)
                  win-layout))
          (when bg-color (setf (capi::simple-pane-background (capi::pane-layout win)) (omcolor-c bg-color)))
-     
+
          (when subviews (setf (capi::layout-description (capi::pane-layout win)) subviews))
-     
+
          (unless (window-dialog-p win)
            (internal-display win))
 
          (unless (equal resizable t) ; (and w h (or (not resizable) (window-dialog-p win)))
-           (apply 'set-not-resizable (append (list win) 
+           (apply 'set-not-resizable (append (list win)
                                              (unless (equal resizable :w) (list :w w))
                                              (unless (equal resizable :h) (list :h h))
                                              )))
          ))
-     
+
     win))
 
 

@@ -1,5 +1,5 @@
 ;=========================================================================
-; LW Lisp Tools 
+; LW Lisp Tools
 ; Lisp programming tools for LispWorks delivered applications
 ;=========================================================================
 ;
@@ -32,9 +32,9 @@
 ;;; export :
 ;;;===================
 (export '(om-init-output-stream
-          om-print 
+          om-print
           om-print-format
-          om-print-list) 
+          om-print-list)
         :om-lisp)
 
 ;;;=============================
@@ -45,7 +45,7 @@
 (defvar *om-stream* nil)
 (defparameter *om-prompt* "")
 
-(defparameter *default-listener-font* 
+(defparameter *default-listener-font*
   #+linux(gp::make-font-description :family "Liberation Mono" :size 11)
   #-linux(gp::make-font-description :family "Monaco" :size 12))
 
@@ -59,41 +59,41 @@
   (let ((lispworks::*HANDLE-WARN-ON-REDEFINITION* nil))
     (defun print (something &optional stream)
       (let ((output-stream (or stream *om-stream*)))
-        (progn 
+        (progn
           (write something :stream output-stream :escape t)
           (terpri output-stream)
           ;(write-char #\space output-stream)
           ;(format *om-stream* "~D ~D~%" *om-prompt* something)
           )
       ;(when om-lisp::*om-listener* (listener-end-of-buffer om-lisp::*om-listener*))
-      something
-      ))
+        something
+        ))
     ))
 
 ;;;=============================
 ;;; PRINT REDEFS AND UTILS
 ;;;=============================
 
-(defun om-print (obj &optional prompt)  
+(defun om-print (obj &optional prompt)
   (format *om-stream* "~&~A :: ~A~%" (or prompt "") obj)
   obj)
 
-(defun om-print-format (format-string &optional args prompt)  
-  (format 
-   *om-stream* 
-   (concatenate 'string 
+(defun om-print-format (format-string &optional args prompt)
+  (format
+   *om-stream*
+   (concatenate 'string
                 (if prompt (concatenate 'string prompt " :: ") "")
                 (apply 'format (append (list nil (concatenate 'string format-string "~%")) args)))
    ))
 
-(defun om-print-list (&rest elements)  
+(defun om-print-list (&rest elements)
   (om-print elements))
 
 ;;;=============================
 ;;; PRINT WINDOW
 ;;;=============================
 
-(defclass om-listener (capi::interface) 
+(defclass om-listener (capi::interface)
   ((ip :accessor ip :initarg :ip)
    (op :accessor op :initarg :op)))
 
@@ -104,9 +104,9 @@
 
 ;;; Embed Listener output panes in other windows:
 (defun om-make-listener-output-pane (&optional font)
-  (make-instance 'om-listener-out-pane 
-                 :stream *om-stream* 
-                 :echo-area t 
+  (make-instance 'om-listener-out-pane
+                 :stream *om-stream*
+                 :echo-area t
                  :font (or font *default-listener-font*)))
 
 (defun om-clear-listener-output-pane (pane)
@@ -115,77 +115,77 @@
 
 ;(om-make-listener :input t)
 ;(setf om-lisp::*om-listener* nil)
-(defun om-make-listener (&key title x y width height initial-lambda 
-                              initial-prompt 
-                              font 
+(defun om-make-listener (&key title x y width height initial-lambda
+                              initial-prompt
+                              font
                               (input nil) (on-top nil))
-  
+
   (or (and om-lisp::*om-listener* (capi::find-interface 'om-listener))
-      
+
       (let ((listener-font (or font *default-listener-font*)))
-        
-        (setf om-lisp::*om-listener* 
-              (let* ((in (when input (make-instance 
+
+        (setf om-lisp::*om-listener*
+              (let* ((in (when input (make-instance
                                       'om-listener-in-pane
                                       :echo-area t
                                       :font listener-font
-                                      :stream *om-stream* 
+                                      :stream *om-stream*
                                       :create-callback (if initial-lambda
-                                                           (lambda (window) 
-                                                             (declare (ignore window)) 
+                                                           (lambda (window)
+                                                             (declare (ignore window))
                                                              (capi:execute-with-interface *om-listener* initial-lambda))
                                                          (lambda (window)
                                                            (declare (ignore window))
                                                            (capi:execute-with-interface *om-listener* (lambda () (in-package :cl-user))))))))
-                     
+
                      (out (om-make-listener-output-pane font))
-                     
-                     (commands (make-instance 
-                                'capi:row-layout 
+
+                     (commands (make-instance
+                                'capi:row-layout
                                 :description (list (make-instance 'capi::button :text "x"
                                                                   :callback-type :none
-                                                                  :callback #'(lambda () 
+                                                                  :callback #'(lambda ()
                                                                                 (om-clear-listener-output-pane out))))
                                 :ratios '(nil)))
                      )
-                
-                (make-instance 
-                           'om-listener
-                           :layout (make-instance 'capi:column-layout 
-                                                  :description (if in (list in :divider out commands) (list out commands))
-                                                  :ratios (if in '(1 nil 5 nil) '(1 nil))
-                                                  :adjust :right)
-                           :window-styles (append (if on-top (list :always-on-top))
-                                                  (list :no-character-palette))  ;:toolbox :shadowless :textured-background
-                           :ip in :op out
-                           :title (or title (concatenate 'string "Listener - " (if in "[system int/out]" "[system out]")))
-                           :best-x (or x 100)
-                           :best-y (or y (round (- (capi::screen-height (capi:convert-to-screen)) 250)))
-                           :best-width (or width 420) :best-height (or height 200)
-                           :destroy-callback (lambda (window) 
-                                               (declare (ignore window)) 
-                                               (setf om-lisp::*om-listener* nil))
-                           :auto-menus nil
-                           ;:activate-callback (lambda (window activatep) 
+
+                (make-instance
+                 'om-listener
+                 :layout (make-instance 'capi:column-layout
+                                        :description (if in (list in :divider out commands) (list out commands))
+                                        :ratios (if in '(1 nil 5 nil) '(1 nil))
+                                        :adjust :right)
+                 :window-styles (append (if on-top (list :always-on-top))
+                                        (list :no-character-palette))  ;:toolbox :shadowless :textured-background
+                 :ip in :op out
+                 :title (or title (concatenate 'string "Listener - " (if in "[system int/out]" "[system out]")))
+                 :best-x (or x 100)
+                 :best-y (or y (round (- (capi::screen-height (capi:convert-to-screen)) 250)))
+                 :best-width (or width 420) :best-height (or height 200)
+                 :destroy-callback (lambda (window)
+                                     (declare (ignore window))
+                                     (setf om-lisp::*om-listener* nil))
+                 :auto-menus nil
+                           ;:activate-callback (lambda (window activatep)
                            ;                     (when activatep (setf (capi::interface-menu-bar-items window)
                            ;                                           (internal-window-class-menubar window))))
-                           )
+                 )
                 ))
-               
+
         (when initial-prompt
           (editor::clear-buffer (capi::editor-pane-buffer (op om-lisp::*om-listener*)))
-          (princ initial-prompt *om-stream*) 
+          (princ initial-prompt *om-stream*)
           (terpri *om-stream*))
-        
+
         (setf (capi::simple-pane-font (capi::editor-pane-echo-area (op om-lisp::*om-listener*))) listener-font)
-        
+
         (when (ip om-lisp::*om-listener*)
           (setf (capi::simple-pane-font (capi::editor-pane-echo-area (ip om-lisp::*om-listener*))) listener-font)
           (setf (capi::editor-pane-text  (capi::editor-pane-echo-area (ip om-lisp::*om-listener*))) ""))
-        
-        (capi::execute-with-interface 
+
+        (capi::execute-with-interface
          om-lisp::*om-listener*
-         #'(lambda (lw) 
+         #'(lambda (lw)
              (let ((def-menu (listener-default-window-menus lw)))
                (setf (capi::interface-menu-bar-items lw)
                      (if (om-listener-window-menus lw)
@@ -193,30 +193,30 @@
                                  (list (find "Lisp" def-menu :key 'capi::menu-title :test 'string-equal)))
                        def-menu))))
          om-lisp::*om-listener*)
-       
+
         (capi::display om-lisp::*om-listener*)
         )))
 
 
-;; to be redefined for custom-listener menus 
-(defmethod om-listener-window-menus ((self om-listener)) nil) 
+;; to be redefined for custom-listener menus
+(defmethod om-listener-window-menus ((self om-listener)) nil)
 
 ;; used if om-listener-window-menus is not redefined
 ;; the 'Lisp' part will be kept anyway
-(defmethod listener-default-window-menus ((self om-listener)) 
+(defmethod listener-default-window-menus ((self om-listener))
 
-  (append (list (make-instance 
+  (append (list (make-instance
                  'capi::menu :title "File"
-                 :items 
+                 :items
                  (append (list (make-instance 'capi::menu-item :title "Close Listener"
                                               :callback-type :interface
                                               :callback 'listener-close
                                               :accelerator #\w))
-                                     
+
                          (if (handler-case (find-class 'om-lisp::om-text-editor-window) (error () nil))
-                             (list (make-instance 
-                                    'capi::menu-component 
-                                    :items (list 
+                             (list (make-instance
+                                    'capi::menu-component
+                                    :items (list
                                             (make-instance 'capi::menu-item :title "New..."
                                                            :callback-type :interface
                                                            :callback 'listener-new-text-editor
@@ -229,10 +229,10 @@
                                                            :enabled-function 'file-operations-enabled)))))
                          ))
 
-                (make-instance 
+                (make-instance
                  'capi::menu :title "Edit"
-                 :items (list (make-instance 'capi::menu-component 
-                                             :items (list 
+                 :items (list (make-instance 'capi::menu-component
+                                             :items (list
                                                      (make-instance 'capi::menu-item :title "Cut"
                                                                     :callback-type :interface
                                                                     :callback 'listener-cut
@@ -245,27 +245,27 @@
                                                                     :callback-type :interface
                                                                     :callback 'listener-paste
                                                                     :accelerator #\v)))
-                              (make-instance 'capi::menu-component 
-                                             :items (list 
-                                                     (make-instance 'capi::menu-item :title "Select All" 
-                                                                    :callback 'listener-select-all 
+                              (make-instance 'capi::menu-component
+                                             :items (list
+                                                     (make-instance 'capi::menu-item :title "Select All"
+                                                                    :callback 'listener-select-all
                                                                     :accelerator #\a
                                                                     :callback-type :interface)
-                                                                               
+
                                                      ))
-                                            
-                              (make-instance 'capi::menu-item :title "Text Font" 
-                                             :callback 'choose-listener-font 
+
+                              (make-instance 'capi::menu-item :title "Text Font"
+                                             :callback 'choose-listener-font
                                              :accelerator nil
                                              :callback-type :interface)
-                                            
+
                               ))
 
-                (make-instance 
+                (make-instance
                  'capi::menu :title "Lisp"
-                 :items (list 
-                         (make-instance 'capi::menu-component 
-                                        :items (list 
+                 :items (list
+                         (make-instance 'capi::menu-component
+                                        :items (list
                                                 (make-instance 'capi::menu-item :title "Find Definition"
                                                                :callback-type :interface
                                                                :callback 'listener-find-definition
@@ -281,16 +281,16 @@
                                                                :callback 'listener-error-backtrace
                                                                :enabled-function 'backtrace-enabled
                                                                :accelerator #\B)))
-                                              
-                         (make-instance 'capi::menu-component 
-                                        :items (list 
+
+                         (make-instance 'capi::menu-component
+                                        :items (list
                                                 (make-instance 'capi::menu-item :title "Load File..."
                                                                :callback-type :interface
                                                                :callback 'load-a-lisp-file
                                                                :accelerator nil
                                                                :enabled-function 'file-operations-enabled)
                                                 ))
-                                              
+
                          )))
           ))
 
@@ -307,7 +307,7 @@
   (om-open-text-editor :lisp t))
 
 (defun find-capi-pane-with-focus (layout)
-  (capi:map-pane-descendant-children 
+  (capi:map-pane-descendant-children
    layout
    #'(lambda (p)
        (when (capi:pane-has-focus-p p)
@@ -344,7 +344,7 @@
   (let ((buffer (editor-pane-buffer self)))
     (editor::use-buffer buffer
       (editor::with-point ((p (editor::buffer-point buffer)))
-	(call-editor self (list 'editor:mark-whole-buffer-command))))))
+        (call-editor self (list 'editor:mark-whole-buffer-command))))))
 
 
 (defun listener-select-all (listenerwin)
@@ -356,12 +356,12 @@
   (let* ((pane (op listenerwin))
          (buffer (editor-pane-buffer pane)))
     (capi::apply-in-pane-process pane
-     #'(lambda (pa bu) 
-         (editor::use-buffer bu
-           (editor::with-point ((p (editor::buffer-point bu)))
-             (call-editor pa (list 'editor::end-of-buffer-command bu))
-             ))) 
-     pane buffer)))
+                                 #'(lambda (pa bu)
+                                     (editor::use-buffer bu
+                                       (editor::with-point ((p (editor::buffer-point bu)))
+                                         (call-editor pa (list 'editor::end-of-buffer-command bu))
+                                         )))
+                                 pane buffer)))
 
 
 
@@ -369,37 +369,37 @@
   (let ((filename (prompt-for-lisp-file)))
     (when filename
       (if (probe-file filename)
-          (progn 
+          (progn
             (setf *last-open-directory* (make-pathname :directory (pathname-directory filename)))
             (load filename)
             (print (concatenate 'string "File " (namestring filename) " loaded."))
             )
-        (progn 
+        (progn
           (beep-pane nil)
           (print (concatenate 'string "File " (namestring filename) " not found."))
           ))
       )))
 
 (defun listener-find-definition (listenerwin)
- (let* ((pane (find-capi-pane-with-focus (pane-layout listenerwin)))
-          (buffer (editor-pane-buffer pane))
-          (symbol nil))
-      (editor::use-buffer buffer
-        (setf symbol (editor::intern-symbol-from-string (editor::read-symbol-from-point :previous t :read-package-name t)))
-        (when symbol (om-lisp::om-edit-definition symbol))
-        )))
+  (let* ((pane (find-capi-pane-with-focus (pane-layout listenerwin)))
+         (buffer (editor-pane-buffer pane))
+         (symbol nil))
+    (editor::use-buffer buffer
+      (setf symbol (editor::intern-symbol-from-string (editor::read-symbol-from-point :previous t :read-package-name t)))
+      (when symbol (om-lisp::om-edit-definition symbol))
+      )))
 
 (defun om-prompt-on-echo-area (listener-pane message)
   (with-slots (editor-window) listener-pane
-    (capi::apply-in-pane-process 
-     listener-pane 
-     'editor:process-character    
+    (capi::apply-in-pane-process
+     listener-pane
+     'editor:process-character
      (list 'editor:message message)
      editor-window)))
 
 (defun om-listener-echo (str)
   (when om-lisp::*om-listener*
-    (capi:execute-with-interface 
+    (capi:execute-with-interface
      om-lisp::*om-listener*
      #'(lambda ()
          (with-slots (op) om-lisp::*om-listener*
@@ -424,11 +424,11 @@
 
 (defmethod update-listener-font ((self om-listener) new-font)
   (with-slots (ip op) self
-    (when ip 
+    (when ip
       (setf (capi::simple-pane-font ip) new-font)
       (when (capi::editor-pane-echo-area ip)
         (setf (capi::simple-pane-font (capi::editor-pane-echo-area ip)) new-font)))
-    (when op 
+    (when op
       (setf (capi::simple-pane-font op) new-font)
       (when (capi::editor-pane-echo-area op)
         (setf (capi::simple-pane-font (capi::editor-pane-echo-area op)) new-font)))
@@ -447,27 +447,27 @@
 
 (defparameter *error-backtrace* nil)
 
-(defun backtrace-enabled (window) 
+(defun backtrace-enabled (window)
   (declare (ignore window))
   *error-backtrace*)
 
-(defun listener-error-backtrace (window) 
+(defun listener-error-backtrace (window)
   (declare (ignore window))
   (om-show-error-backtrace))
 
 (defun om-show-error-backtrace ()
   (if *error-backtrace*
       (om-lisp::om-show-output-lines *error-backtrace* "Error Backtrace")
-      (progn 
-        (beep-pane)
-        (print "no backtrace recorded")
-        nil)))
+    (progn
+      (beep-pane)
+      (print "no backtrace recorded")
+      nil)))
 
 
 ;;;===========================
 ;;; SHELL
 ;;;===========================
- 
+
 ;;; A Shell in LW
 ;;; copied from the LW tutorials
 
@@ -483,14 +483,14 @@
         (capi::display
          (setf om-lisp::*om-shell*
                (make-instance 'om-shell-window :title "SHELL"
-                            :best-x x :best-y y
-                            :best-width (or w 360) :best-height (or h 200)
-                            :window-styles '(:no-character-palette)
-                            :destroy-callback (lambda (window) 
-                                                (declare (ignore window)) 
-                                                (setf om-lisp::*om-shell* nil))
-                            :layout (make-instance 'capi:simple-layout 
-                                                   :description  (list sp)))))
+                              :best-x x :best-y y
+                              :best-width (or w 360) :best-height (or h 200)
+                              :window-styles '(:no-character-palette)
+                              :destroy-callback (lambda (window)
+                                                  (declare (ignore window))
+                                                  (setf om-lisp::*om-shell* nil))
+                              :layout (make-instance 'capi:simple-layout
+                                                     :description  (list sp)))))
         )))
 
 ; This function emulates user input on pane :
@@ -500,7 +500,7 @@
 
 ; This function trampolines to send-keys-to-pane-aux on the right process:
 (defun send-keys-to-pane (pane string newline-p)
-  (capi:apply-in-pane-process pane 
+  (capi:apply-in-pane-process pane
                               'send-keys-to-pane-aux
                               pane string newline-p))
 

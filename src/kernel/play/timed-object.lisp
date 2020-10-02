@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File authors: J. Bresson, D. Bouche, J. Garcia
@@ -20,8 +20,8 @@
 
 (in-package :om)
 
-(defclass timed-object () 
-  ((onset :accessor onset :initform 0 
+(defclass timed-object ()
+  ((onset :accessor onset :initform 0
           :initarg :onset :initarg :date  ;;; two possible initargs (for compatibility)
           :documentation "date/time of the object")))
 
@@ -31,7 +31,7 @@
 (defmethod set-object-onset ((self timed-object) onset)
   (setf (onset self) onset))
 
-(defmethod set-object-onset ((self t) onset) 
+(defmethod set-object-onset ((self t) onset)
   ;(om-beep-msg "~A has no onset attribute !" (type-of self))
   onset)
 

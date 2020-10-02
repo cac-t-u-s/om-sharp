@@ -1,5 +1,5 @@
 ;=========================================================================
-; OM API 
+; OM API
 ; Multiplatform API for OpenMusic
 ; LispWorks Implementation
 ;=========================================================================
@@ -26,7 +26,7 @@
 
 (export '(om-make-tree-view
           om-double-clicked-item-from-tree-view
-          om-selected-item-from-tree-view) 
+          om-selected-item-from-tree-view)
         :om-api)
 
 ;;; the capi::extended-selection-tree-view may be better (?)
@@ -35,12 +35,12 @@
 
 (defun om-make-tree-view (base-items &key expand-item position size bg-color item-icon icons print-item font)
   (declare (ignore position)) ;;; for the moment (but in general this is positioned in a layout)
-  (let ((ilist (when icons 
+  (let ((ilist (when icons
                  (make-instance 'capi:image-list
                                 :image-sets icons
                                 :image-width 16
                                 :image-height 16))))
-    (make-instance 'om-item-tree 
+    (make-instance 'om-item-tree
                    :visible-min-width (and size (om-point-x size))
                    :visible-min-height (and size (om-point-y size))
                    :roots base-items
@@ -52,27 +52,27 @@
                  ;:image-width 16
                    :checkbox-status nil
                    :image-lists (list :normal ilist)
-                   :image-function 
-                   (cond 
-                    ((or (functionp item-icon) 
+                   :image-function
+                   (cond
+                    ((or (functionp item-icon)
                          (and (symbolp item-icon) (fboundp item-icon)))
-                     (if icons 
+                     (if icons
                          #'(lambda (item) (position (funcall item-icon item) icons))
                        item-icon))
-                     ((null item-icon) item-icon)
-                     (t #'(lambda (item) (declare (ignore item)) item-icon)))
+                    ((null item-icon) item-icon)
+                    (t #'(lambda (item) (declare (ignore item)) item-icon)))
                    :callback-type :interface-data
                    :print-function (or print-item #'(lambda (x) (format nil "~a"  x )))
                    :selection-callback #'tree-view-selected-function
                    :retract-callback #'tree-view-unselected-function
-                   :action-callback #'tree-view-action-function 
-                   
+                   :action-callback #'tree-view-action-function
+
                  ;:extend-callback #'(lambda (self item) (add-a-message self  "~&Extended item ~S" item))
                  ;:retract-callback  #'(lambda (self item) (add-a-message self "~&Retracted item ~S" item))
                  ;:delete-item-callback 'test-extend-tree-view-delete-callback
                  ;:pane-menu 'extend-tree-view-test-menu
-                   
-                   )))    
+
+                   )))
 
 (defmethod om-double-clicked-item-from-tree-view (item window) nil)
 
@@ -99,7 +99,7 @@
 ;;; The undocumented interface in 6.0 for :delete-item-callback
 ;;; changed in 6.1, and this code show a way of coding
 ;;; to cope with both interfaces. It works because the items
-;;; themselves are not never lists in this example. 
+;;; themselves are not never lists in this example.
 
 
 (defun add-a-message (interface format-string &rest args)
@@ -110,13 +110,13 @@
 
 (defun test-extend-tree-view-delete-callback (tree item)
   (if (listp item)   ;; true since 6.1, false until 6.0
-      (progn 
+      (progn
         (setq *extend-tree-view-test-deleted-items*
               (union *extend-tree-view-test-deleted-items* item))
         (capi:with-atomic-redisplay (tree)
           (dolist (i-item item)
             (capi:tree-view-update-item tree i-item t))))
-    (progn 
+    (progn
       (pushnew item *extend-tree-view-test-deleted-items*)
       (capi:tree-view-update-item tree item t))))
 

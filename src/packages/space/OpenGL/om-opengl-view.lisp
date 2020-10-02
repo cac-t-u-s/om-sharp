@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -36,13 +36,13 @@
 (defmethod initialize-instance :after ((self om-opengl-view) &key &allow-other-keys)
   (mapcar #'(lambda (o) (setf (gl-user::viewer o) self)) (gl-user::g-objects self))
   (when (om-get-bg-color self)
-    (setf (gl-user::bgcolor (gl-user::camera self)) 
+    (setf (gl-user::bgcolor (gl-user::camera self))
           (om-color-to-single-float-list (om-get-bg-color self))))
   )
 
 (defmethod om-set-bg-color ((self om-opengl-view) color)
   (call-next-method)
-  (setf (gl-user::bgcolor (gl-user::camera self)) 
+  (setf (gl-user::bgcolor (gl-user::camera self))
         (om-color-to-single-float-list (om-get-bg-color self))))
 
 (defmethod om-color-to-single-float-list (color)
@@ -69,7 +69,7 @@
   (call-next-method)
   (om-view-click-handler self (omp x y)))
 
-(defmethod gl-user::opengl-viewer-key-pressed ((self om-opengl-view) x y spec) 
+(defmethod gl-user::opengl-viewer-key-pressed ((self om-opengl-view) x y spec)
   (oa::om-char-spec-callback self x y spec))
 
 (defmethod gl-user::opengl-viewer-double-click ((self om-opengl-view) x y)
@@ -116,7 +116,7 @@
             (zma (or z2 defz2)))
         (let* ((dist-z (* 2.5d0 (max 1.0d0 (abs xmi) (abs xma) (abs ymi) (abs yma) (abs zmi) (abs zma))))
                (far-z (max 20.0d0 (* 5.0d0 dist-z))))
-          ; (om-print-dbg "dist: ~A - far: ~A" (list dist-z far-z) "OPENGL")  
+          ; (om-print-dbg "dist: ~A - far: ~A" (list dist-z far-z) "OPENGL")
           (setf (gl-user::eye (gl-user::camera self)) (gl-user::make-xyz :x 0.0D0 :y (- dist-z) :z 0.0d0))
           (setf (gl-user::far (gl-user::projection (gl-user::camera self))) far-z)
           ))

@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: M. Schumacher
@@ -37,8 +37,8 @@
   "Output is the shortest polar distance from the last value (in degrees)."
   (let ((loopres (loop for a in (om- (mapcar #'(lambda (value) (mod value 360))
                                              (om+ (x->dx degrees) 180)) 180)
-                       for b in (x->dx degrees) 
-                       collect 
+                       for b in (x->dx degrees)
+                       collect
                        (if (and (om= a -180) (om> b 0)) 180 a)
                        )))
     (om+ degrees (dx->x 0 (om- loopres (x->dx degrees))))))
@@ -52,14 +52,14 @@
   :indoc '("radius (magnitude)" "angle (phase)")
   :numouts 2
   :outdoc '("x" "y")
-  :doc "Conversion from polar (radius <r>, angle <a>) to cartesian (x, y) coordinates. 
+  :doc "Conversion from polar (radius <r>, angle <a>) to cartesian (x, y) coordinates.
 
 <r> and <a> can be numbers or lists."
   (values (* r (cos a)) (* r (sin a))))
 
 (defmethod* pol->car ((r list) (a list))
   (let ((tmplist (mat-trans (mapcar #'(lambda (rr aa) (multiple-value-list (pol->car rr aa))) r a))))
-    (values-list tmplist))) 
+    (values-list tmplist)))
 
 (defmethod* pol->car ((r list) (a number))
   (let ((tmplist (mat-trans (mapcar #'(lambda (rr) (multiple-value-list (pol->car rr a))) r))))
@@ -85,15 +85,15 @@
 
 (defmethod* car->pol ((x list) (y list))
   (let ((tmplist (mat-trans (mapcar #'(lambda (xx yy) (multiple-value-list (car->pol xx yy))) x y))))
-    (values-list tmplist)))     
+    (values-list tmplist)))
 
 (defmethod* car->pol ((x list) (y number))
   (let ((tmplist (mat-trans (mapcar #'(lambda (xx) (multiple-value-list (car->pol xx y))) x))))
-    (values-list tmplist)))     
+    (values-list tmplist)))
 
 (defmethod* car->pol ((x number) (y list))
   (let ((tmplist (mat-trans (mapcar #'(lambda (yy) (multiple-value-list (car->pol x yy))) y))))
-    (values-list tmplist)))     
+    (values-list tmplist)))
 
 
 ;;; RAD->DEG
@@ -109,7 +109,7 @@
   (* radians 57.29577951308232))
 
 (defmethod* rad->deg ((radians list))
-   (mapcar 'rad->deg radians))
+  (mapcar 'rad->deg radians))
 
 
 ;;; DEG->RAD
@@ -125,13 +125,13 @@
   (* degrees 0.017453292519943295))
 
 (defmethod* deg->rad ((degrees list))
-   (mapcar 'deg->rad degrees))
+  (mapcar 'deg->rad degrees))
 
 
 ;;; XY->AD
 
 (defmethod* xy->ad ((x number) (y number))
-  :icon :conversion  
+  :icon :conversion
   :initvals '(0 0)
   :indoc '("x" "y")
   :numouts 2
@@ -141,17 +141,17 @@
 <x> and <y> can be numbers, lists or bpfs.
 
 Returns 2 values (numbers, lists or bpfs) for 'azimuth' and 'distance'."
-  (multiple-value-bind (distance azimuth) (car->pol x y) 
+  (multiple-value-bind (distance azimuth) (car->pol x y)
     (values (- 90 (rad->deg azimuth))
             distance)
-    )) 
+    ))
 
 (defmethod* xy->ad ((x list) (y list))
-  (let ((result (mat-trans (loop 
+  (let ((result (mat-trans (loop
                             for x1 in x
                             for y1 in y collect
                             (multiple-value-list (xy->ad x1 y1))))))
-    (values (phase-unwrap (first result)) (second result)))) 
+    (values (phase-unwrap (first result)) (second result))))
 
 (defmethod* xy->ad ((x number) (y list))
   (xy->ad (make-list (length y) :initial-element x) y))
@@ -182,10 +182,10 @@ Returns 2 values (numbers, lists or bpfs) for 'azimuth' and 'distance'."
     (values a
             (make-instance 'bpf :x-points (x-points y) :y-points d :decimals (decimals y))))
   )
-            
+
 (defmethod* xy->ad ((x number) (y bpf))
   (multiple-value-bind (a d) (xy->ad x (y-points y))
-    (values a 
+    (values a
             (make-instance 'bpf :x-points (x-points y) :y-points d :decimals (decimals y))
             )))
 
@@ -198,7 +198,7 @@ Returns 2 values (numbers, lists or bpfs) for 'azimuth' and 'distance'."
 ;;; AD -> XY
 
 (defmethod* ad->xy ((a number) (d number))
-  :icon :conversion  
+  :icon :conversion
   :initvals '(0 0)
   :indoc '("azimuth" "distance")
   :numouts 2
@@ -214,15 +214,15 @@ Returns 2 values (numbers, lists or bpfs) for 'x' and 'y'."
 
 
 (defmethod* ad->xy ((a list) (d list))
-  (let ((result (mat-trans (loop 
+  (let ((result (mat-trans (loop
                             for a1 in a
                             for d1 in d collect
                             (multiple-value-list (ad->xy a1 d1))))))
-    (values-list result))) 
+    (values-list result)))
 
 (defmethod* ad->xy ((a bpf) (d bpf))
-  (multiple-value-bind (x y) (ad->xy (y-points a) (y-points d))    
-    (values 
+  (multiple-value-bind (x y) (ad->xy (y-points a) (y-points d))
+    (values
      (make-instance 'bpf :x-points (x-points a) :y-points x :decimals (decimals a))
      (make-instance 'bpf :x-points (x-points d) :y-points y :decimals (decimals d)))))
 
@@ -241,9 +241,9 @@ Returns 2 values (numbers, lists or bpfs) for 'x' and 'y'."
 (defmethod* ad->xy ((a list) (d bpf))
   (multiple-value-bind (x y) (ad->xy a (y-points d))
     (values x
-            (make-instance 'bpf :x-points (x-points d) :y-points y :decimals (decimals d)))) 
+            (make-instance 'bpf :x-points (x-points d) :y-points y :decimals (decimals d))))
   )
-            
+
 (defmethod* ad->xy ((a number) (d bpf))
   (multiple-value-bind (x y) (ad->xy a (y-points d))
     (values x
@@ -266,12 +266,12 @@ Returns 2 values (numbers, lists or bpfs) for 'x' and 'y'."
 ;;; XYZ->AED
 
 (defmethod* xyz->aed ((x number) (y number) (z number))
-  :icon :conversion  
+  :icon :conversion
   :initvals '(0 0 0)
   :indoc '("x" "y" "z")
   :numouts 3
   :outdoc '("azimuth" "elevation" "distance")
-  :doc "Converts 3D cartesian coordinates [x,y,z] to spherical coordinates [azimuth, elevation, distance]. Navigational coordinate systems (see www.spatdif.org). 
+  :doc "Converts 3D cartesian coordinates [x,y,z] to spherical coordinates [azimuth, elevation, distance]. Navigational coordinate systems (see www.spatdif.org).
 
 <x>, <y>, and <z> can be numbers or lists.
 
@@ -294,15 +294,15 @@ Returns 3 values (or lists) for 'azimuth', 'elevation' and 'distance'."
   (xyz->aed (make-list (length y) :initial-element x) y z))
 
 (defmethod* xyz->aed ((x list) (y list) (z list))
-  (let ((result (mat-trans (loop 
+  (let ((result (mat-trans (loop
                             for x1 in x
                             for y1 in y
                             for z1 in z collect
                             (multiple-value-list (xyz->aed x1 y1 z1))))))
-    (values (phase-unwrap (first result)) (phase-unwrap (second result)) (third result))))  
-    
+    (values (phase-unwrap (first result)) (phase-unwrap (second result)) (third result))))
+
 (defmethod* xyz->aed ((x list) (y list) (z number))
-  (xyz->aed x y (make-list (length x) :initial-element z)))    
+  (xyz->aed x y (make-list (length x) :initial-element z)))
 
 (defmethod* xyz->aed ((x list) (y number) (z list))
   (xyz->aed x (make-list (length x) :initial-element y) z))
@@ -314,52 +314,52 @@ Returns 3 values (or lists) for 'azimuth', 'elevation' and 'distance'."
 ;;; AED -> XYZ
 
 (defmethod* aed->xyz ((a number) (e number) (d number))
-            :icon :conversion  
-            :initvals '(0 0 0)
-            :indoc '("azimuth" "elevation" "distance")
-            :numouts 3
-            :outdoc '("x" "y" "z")
-            :doc "Converts 3D spherical coordinates [azimuth, elevation, distance] to cartesian coordinates [x,y,z]. Navigational coordinate systems (see www.spatdif.org).
+  :icon :conversion
+  :initvals '(0 0 0)
+  :indoc '("azimuth" "elevation" "distance")
+  :numouts 3
+  :outdoc '("x" "y" "z")
+  :doc "Converts 3D spherical coordinates [azimuth, elevation, distance] to cartesian coordinates [x,y,z]. Navigational coordinate systems (see www.spatdif.org).
 
 <a>, <e>, amd <d> can be numbers or lists.
 
 Returns 3 values (or lists) for 'x', 'y' and 'z'."
-     
-(values (* d (sin (deg->rad (- 90 e))) (sin (deg->rad a))) 
-        (* d (sin (deg->rad (- 90 e))) (cos (deg->rad a))) 
-        (* d (cos (deg->rad (- 90 e))))))
+
+  (values (* d (sin (deg->rad (- 90 e))) (sin (deg->rad a)))
+          (* d (sin (deg->rad (- 90 e))) (cos (deg->rad a)))
+          (* d (cos (deg->rad (- 90 e))))))
 
 (defmethod* aed->xyz ((a number) (e number) (d list))
-   (aed->xyz (make-list (length d) :initial-element a) (make-list (length d) :initial-element e) d)) 
+  (aed->xyz (make-list (length d) :initial-element a) (make-list (length d) :initial-element e) d))
 
 (defmethod* aed->xyz ((a number) (e list) (d number))
-   (aed->xyz (make-list (length e) :initial-element a) e (make-list (length a) :initial-element d))) 
+  (aed->xyz (make-list (length e) :initial-element a) e (make-list (length a) :initial-element d)))
 
 (defmethod* aed->xyz ((a number) (e list) (d list))
-   (aed->xyz (make-list (length e) :initial-element a) e d))
+  (aed->xyz (make-list (length e) :initial-element a) e d))
 
 (defmethod* aed->xyz ((a list) (e list) (d list))
-(let ((result (mat-trans (loop 
-                       for a1 in a
-                       for e1 in e
-                       for d1 in d collect
-                       (multiple-value-list (aed->xyz a1 e1 d1))))))
-    (values-list result))) 
+  (let ((result (mat-trans (loop
+                            for a1 in a
+                            for e1 in e
+                            for d1 in d collect
+                            (multiple-value-list (aed->xyz a1 e1 d1))))))
+    (values-list result)))
 
 (defmethod* aed->xyz ((a list) (e list) (d number))
-   (aed->xyz a e (make-list (length a) :initial-element d)))    
+  (aed->xyz a e (make-list (length a) :initial-element d)))
 
 (defmethod* aed->xyz ((a list) (e number) (d list))
-   (aed->xyz a (make-list (length a) :initial-element e) d))
+  (aed->xyz a (make-list (length a) :initial-element e) d))
 
 (defmethod* aed->xyz ((a list) (e number) (d number))
-   (aed->xyz a (make-list (length a) :initial-element e) (make-list (length a) :initial-element d))) 
+  (aed->xyz a (make-list (length a) :initial-element e) (make-list (length a) :initial-element d)))
 
 
 
 ;;; UTIL
 
 (defmethod* gen-circles (n r n-points)
-   :initvals '(1 10 200)
-   :numouts 2
-   (ad->xy (arithm-ser 0 (round (* n 360)) (/ (* n 360) n-points) n-points) r))
+  :initvals '(1 10 200)
+  :numouts 2
+  (ad->xy (arithm-ser 0 (round (* n 360)) (/ (* n 360) n-points) n-points) r))

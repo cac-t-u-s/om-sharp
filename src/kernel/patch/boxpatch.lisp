@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -29,10 +29,10 @@
 (defmethod get-box-class ((self OMPatch)) 'OMBoxPatch)
 
 (defmethod omNG-make-special-box ((reference (eql 'patch)) pos &optional init-args)
-  (omNG-make-new-boxcall 
+  (omNG-make-new-boxcall
    (make-instance 'OMPatchInternal
                   :name (if init-args (format nil "~A" (car (list! init-args))) "new-patch"))
-   pos 
+   pos
    init-args ;; don't need to pass them in principle..
    ))
 
@@ -47,7 +47,7 @@
 
 
 ;;; set the caller as the first reference so that the meta-inputs work
-(defmethod omng-box-value :before ((self OMBoxPatch) &optional numout)  
+(defmethod omng-box-value :before ((self OMBoxPatch) &optional numout)
   (setf (references-to (reference self))
         (cons self (remove self (references-to (reference self))))))
 
@@ -61,7 +61,7 @@
 (defmethod object-for-miniview ((self OMBoxPatch)) (reference self))
 
 ;;; the value of the box is a Box...
-(defmethod draw-mini-view ((object OMBoxEditCall) (box OMBox) x y w h &optional time) 
+(defmethod draw-mini-view ((object OMBoxEditCall) (box OMBox) x y w h &optional time)
   (om-draw-rect (+ x 2) (+ y 4) (- w 4) (- h 16) :fill t :color (om-def-color :white))
   ;(om-draw-rect (+ x 2) (+ y 4) (- w 4) (- h 16) :fill nil :color (om-def-color :dark-gray) :line 1.5)
   (draw-mini-view (get-box-value object) box (+ x 8) (+ y 4) (- w 12) (- h 16) nil))
@@ -89,7 +89,7 @@
   (call-next-method))
 
 (defmethod draw-mini-view ((self OMPatch) box x y w h &optional time)
-  (flet 
+  (flet
       ((pos-to-x (xpos) (+ x 15 (round (* xpos (- w 30)))))
        (pos-to-y (ypos) (+ y 12 (round (* ypos (- h 40))))))
     (ensure-cache-display-draw box self)
@@ -97,8 +97,8 @@
       (loop for b in (car (get-display-draw box)) do
             (if (equal :b (caddr b))
                 (om-draw-rect (- (pos-to-x (car b)) 8) (- (pos-to-y (cadr b)) 4) 16 8 :fill t)
-              (progn  
-                (om-with-fg-color (cond 
+              (progn
+                (om-with-fg-color (cond
                                    ((equal :in (caddr b)) (om-make-color 0.2 0.6 0.2))
                                    ((equal :out (caddr b)) (om-make-color 0.3 0.6 0.8))
                                    (t (om-def-color :gray)))
@@ -113,15 +113,15 @@
                      (to-x (pos-to-x (car to))) (to-y (pos-to-y (cadr to)))
                      (mid-x (+ from-x (round (- to-x from-x) 2)))
                      (mid-y (+ from-y (round (- to-y from-y) 2))))
-                         
+
                     ;(om-draw-line (pos-to-x (car from)) (pos-to-y (cadr from))
                     ;              (pos-to-x (car to)) (pos-to-y (cadr to)))
                 (if (>= to-y from-y)
-                    (progn 
+                    (progn
                       (om-draw-line from-x from-y from-x mid-y)
                       (om-draw-line from-x mid-y to-x mid-y)
                       (om-draw-line to-x mid-y to-x to-y))
-                  (progn 
+                  (progn
                     (om-draw-line from-x from-y mid-x from-y)
                     (om-draw-line mid-x from-y mid-x to-y)
                     (om-draw-line mid-x to-y to-x to-y)))
@@ -131,13 +131,13 @@
   (declare (ignore box))
   (let* ((patch self)
          (p-boxes (get-boxes-of-type patch 'OMBoxCall))
-         (bboxes (loop for b in p-boxes 
+         (bboxes (loop for b in p-boxes
                        collect (list (box-x b) (box-y b)
                                      (cond ((equal (type-of b) 'ominbox) :in)
                                            ((equal (type-of b) 'omoutbox) :out)
                                            ((equal (type-of b) 'omboxeditcall) :b)
                                            ))))
-         (cconecs (loop for c in (connections patch) collect 
+         (cconecs (loop for c in (connections patch) collect
                         (list (position (box (from c)) p-boxes)
                               (position (box (to c)) p-boxes)))))
     (when bboxes
@@ -145,8 +145,8 @@
              (xs (max 10 (- (apply #'max (mapcar 'car bboxes)) x0)))
              (y0 (apply #'min (mapcar 'cadr bboxes)))
              (ys (max 10 (- (apply #'max (mapcar 'cadr bboxes)) y0))))
-        (setf bboxes (loop for bb in bboxes 
-                           collect (list (float (/ (- (car bb) x0) xs)) (float (/ (- (cadr bb) y0) ys)) 
+        (setf bboxes (loop for bb in bboxes
+                           collect (list (float (/ (- (car bb) x0) xs)) (float (/ (- (cadr bb) y0) ys))
                                          (caddr bb))))
         (list bboxes cconecs))
       )))

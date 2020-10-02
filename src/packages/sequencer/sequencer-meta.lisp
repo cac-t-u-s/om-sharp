@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson, D. Bouche
@@ -58,11 +58,11 @@ Additional inputs/outputs are accesses on the sequencer box.
 ")
 
 (defmethod initialize-instance :after ((self OMSequencer) &rest args)
-  
+
   ;;; put this somewhere else ??
   ;; the sequencer doesn't auto-stop when its duration is passed
-  (set-object-autostop self nil) 
-  
+  (set-object-autostop self nil)
+
   (unless (ctrlpatch self)
     (let* ((patch (make-instance 'OMControlPatch :name "Control Patch"))
            (inbox (omng-make-special-box 'mysequence (omp 150 12)))
@@ -86,7 +86,7 @@ Additional inputs/outputs are accesses on the sequencer box.
 ;;; called when some change is made in the sequencer or in the control-patch
 (defmethod update-from-reference  ((self OMSequencer))
   (loop for item in (references-to self) do (update-from-reference item)))
-  
+
 (defmethod get-inputs ((self OMSequencer))
   (get-inputs (ctrlpatch self)))
 
@@ -115,7 +115,7 @@ Additional inputs/outputs are accesses on the sequencer box.
 (defmethod allow-text-input ((self OMSequenceInBox)) nil)
 
 (defmethod omNG-make-special-box ((reference (eql 'mysequence)) pos &optional init-args)
-  (omNG-make-new-boxcall 
+  (omNG-make-new-boxcall
    (make-instance 'OMSequenceIn :name "CONTAINER-SEQUENCE")
    pos init-args))
 
@@ -140,7 +140,7 @@ Additional inputs/outputs are accesses on the sequencer box.
 
 
 ;;; BOX VALUE
-(defmethod omNG-box-value ((self OMSequenceInBox) &optional (numout 0)) 
+(defmethod omNG-box-value ((self OMSequenceInBox) &optional (numout 0))
   (set-value self (list (sequencer-container self)))
   (return-value self numout))
 
@@ -154,7 +154,7 @@ Additional inputs/outputs are accesses on the sequencer box.
 
 (defmethod omng-save ((self OMSequenceIn))
   `(:in
-    (:type ,(type-of self)) 
+    (:type ,(type-of self))
     (:index ,(index self))
     (:name ,(name self))
     (:doc ,(doc self))))

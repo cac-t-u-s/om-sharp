@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -31,7 +31,7 @@
 (defmethod om-copy ((self 3dpoint))
   (make-3Dpoint :x (3Dpoint-x self) :y (3Dpoint-y self) :z (3Dpoint-z self) :time (3Dpoint-time self) :internal-time (3Dpoint-internal-time self) :type (3Dpoint-type self)))
 
-(defmethod omng-save ((self 3dpoint))  
+(defmethod omng-save ((self 3dpoint))
   `(:3Dpoint ,(om-point-x self) ,(om-point-y self) ,(om-point-z self)))
 
 (defmethod om-load-from-id ((id (eql :3Dpoint)) data)
@@ -62,33 +62,33 @@
 
 ;;; not necessarily at the same time !
 (defmethod om-points-at-same-position ((p1 3dpoint) (p2 3dpoint))
-   (and (= (3Dpoint-x p1) (3Dpoint-x p2))
+  (and (= (3Dpoint-x p1) (3Dpoint-x p2))
        (= (3Dpoint-y p1) (3Dpoint-y p2))
        (= (3Dpoint-z p1) (3Dpoint-z p2))))
 
 (defmethod om-add-points ((p1 3dpoint) p2)
-  (make-3dpoint :x (+ (3Dpoint-x p1) (om-point-x p2) 
-                      :y (+ (3Dpoint-y p1) (om-point-y p2)) 
+  (make-3dpoint :x (+ (3Dpoint-x p1) (om-point-x p2)
+                      :y (+ (3Dpoint-y p1) (om-point-y p2))
                       :z (+ (3Dpoint-z p1) (om-point-z p2)))))
 
 (defmethod om-add-points (p1 (p2 3dpoint))
-  (make-3dpoint :x (+ (om-point-x p1) (om-point-x p2) 
-                      :y (+ (om-point-y p1) (om-point-y p2)) 
+  (make-3dpoint :x (+ (om-point-x p1) (om-point-x p2)
+                      :y (+ (om-point-y p1) (om-point-y p2))
                       :z (+ (om-point-z p1) (om-point-z p2)))))
 
 (defmethod om-subtract-points ((p1 3dpoint) p2)
-  (make-3dpoint :x (- (om-point-x p1) (om-point-x p2) 
-                      :y (- (om-point-y p1) (om-point-y p2)) 
+  (make-3dpoint :x (- (om-point-x p1) (om-point-x p2)
+                      :y (- (om-point-y p1) (om-point-y p2))
                       :z (- (om-point-z p1) (om-point-z p2)))))
 
 (defmethod om-subtract-points (p1 (p2 3dpoint))
-  (make-3dpoint :x (- (om-point-x p1) (om-point-x p2) 
-                      :y (- (om-point-y p1) (om-point-y p2)) 
+  (make-3dpoint :x (- (om-point-x p1) (om-point-x p2)
+                      :y (- (om-point-y p1) (om-point-y p2))
                       :z (- (om-point-z p1) (om-point-z p2)))))
 
 (defmethod om-point-* ((point 3dpoint) fact)
-  (make-3dpoint :x (* (3Dpoint-x point) fact) 
-                :y (* (3Dpoint-y point) fact) 
+  (make-3dpoint :x (* (3Dpoint-x point) fact)
+                :y (* (3Dpoint-y point) fact)
                 :z (* (3Dpoint-z point) fact)))
 
 (defmethod om-points-distance ((p1 3Dpoint) (p2 3Dpoint))
@@ -97,29 +97,29 @@
            (expt (- (3Dpoint-z p2) (3Dpoint-z p1)) 2))))
 
 (defmethod om-point-mv ((point 3Dpoint) &key x y z time)
- (if x (setf (3Dpoint-x point) (+ (3Dpoint-x point) x)))
- (if y (setf (3Dpoint-y point) (+ (3Dpoint-y point) y)))
- (if z (setf (3Dpoint-z point) (+ (3Dpoint-z point) z)))
- (if time (progn
+  (if x (setf (3Dpoint-x point) (+ (3Dpoint-x point) x)))
+  (if y (setf (3Dpoint-y point) (+ (3Dpoint-y point) y)))
+  (if z (setf (3Dpoint-z point) (+ (3Dpoint-z point) z)))
+  (if time (progn
              (setf (tpoint-time point) (+ (tpoint-time point) time))
              (setf (tpoint-internal-time point) (tpoint-time point))))
- point)
+  point)
 
 
 (defclass* 3DC (BPC)
-           ((x-points :initform nil :initarg :x-points :documentation "X coordinates (list)")
-            (y-points :initform nil :initarg :y-points :documentation "Y coordinates (list)")
-            (z-points :initform nil :initarg :z-points :documentation "Z coordinates (list)"))
-           (:icon 500)
-           (:documentation 
-            "3D CURVE: a 3D function defined by a list of [x,y,z] coordinates.
+  ((x-points :initform nil :initarg :x-points :documentation "X coordinates (list)")
+   (y-points :initform nil :initarg :y-points :documentation "Y coordinates (list)")
+   (z-points :initform nil :initarg :z-points :documentation "Z coordinates (list)"))
+  (:icon 500)
+  (:documentation
+   "3D CURVE: a 3D function defined by a list of [x,y,z] coordinates.
 
 3DC objects are constructed from the list of X coordinates (<x-points>), the list of Y coordinates (<y-points>) and the list of Z coordinates (<z-points>).
 If <x-list>, <y-list> and <z-list> are not of the same length, the last coordinate (for y and z) or the last step (for x) is repeated in the shorter lists.
 
 <decimals> allows to specify the precision of the function (0 = integers, n > 0 = number of decimals)
 "
-            ))
+   ))
 
 ;;; REDEFS FOR Z
 
@@ -134,21 +134,21 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
   (let ((x (x-values-from-points self))
         (y (y-values-from-points self))
         (z (z-values-from-points self)))
-  (setf (slot-value self 'decimals) decimals)
-  (check-decimals self)
-  (set-bpf-points self :x x :y y :z z)
-  (time-sequence-update-internal-times self)
-  (decimals self)))
+    (setf (slot-value self 'decimals) decimals)
+    (check-decimals self)
+    (set-bpf-points self :x x :y y :z z)
+    (time-sequence-update-internal-times self)
+    (decimals self)))
 
 (defmethod adapt-point ((self 3DC) point)
-  (setf (3Dpoint-x point) (funcall (truncate-function (decimals self)) (3Dpoint-x point)) 
+  (setf (3Dpoint-x point) (funcall (truncate-function (decimals self)) (3Dpoint-x point))
         (3Dpoint-y point) (funcall (truncate-function (decimals self)) (3Dpoint-y point))
         (3Dpoint-z point) (funcall (truncate-function (decimals self)) (3Dpoint-z point)))
   point)
 
 (defmethod init-bpf-points ((self 3DC))
 
-  (set-bpf-points self 
+  (set-bpf-points self
                   :x (slot-value self 'x-points)
                   :y (slot-value self 'y-points)
                   :z (slot-value self 'z-points)
@@ -159,9 +159,9 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
 
 
 (defmethod set-bpf-points ((self 3DC) &key x y z time time-types)
-  
-  (setf (point-list self)  (make-3D-points-from-lists (or x (x-values-from-points self)) 
-                                                      (or y (y-values-from-points self)) 
+
+  (setf (point-list self)  (make-3D-points-from-lists (or x (x-values-from-points self))
+                                                      (or y (y-values-from-points self))
                                                       (or z (z-values-from-points self))
                                                       (decimals self)
                                                       'om-make-3dpoint))
@@ -175,7 +175,7 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
     (when time-types
       (loop for p in (point-list self)
             for type in time-types do (om-point-set p :type type)))
-    
+
     (setf (slot-value self 'x-points) NIL)
     (setf (slot-value self 'y-points) NIL)
     (setf (slot-value self 'z-points) NIL)
@@ -196,7 +196,7 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
                 for ypoin = (if listy (pop listy) 0) then (if listy (pop listy) defy)
                 for zpoin = (if listz (pop listz) 0) then (if listz (pop listz) defz)
                 while (or listy listx listz)
-                collect (funcall mkpoint xpoin ypoin zpoin) 
+                collect (funcall mkpoint xpoin ypoin zpoin)
                 into rep
                 finally (return (append rep (list (funcall mkpoint xpoin ypoin zpoin)))))
           )
@@ -214,7 +214,7 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
         (loop for ypoin = (if listy (pop listy) 0) then (if listy (pop listy) defy)
               for zpoin = (if listz (pop listz) 0) then (if listz (pop listz) defz)
               while (or listy listz)
-              collect (funcall mkpoint pointx ypoin zpoin) 
+              collect (funcall mkpoint pointx ypoin zpoin)
               into rep
               finally (return (append rep (list (funcall mkpoint pointx ypoin zpoin))))))
     (om-beep-msg "BUILD 3DC POINTS: Y/Z-coordinates are not (all) numbers!")
@@ -230,7 +230,7 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
         (loop for xpoin = (if listx (pop listx) 0) then (if listx (pop listx) defx)
               for zpoin = (if listz (pop listz) 0) then (if listz (pop listz) defz)
               while (or listx listz)
-              collect (funcall mkpoint xpoin pointy zpoin) 
+              collect (funcall mkpoint xpoin pointy zpoin)
               into rep
               finally (return (append rep (list (funcall mkpoint xpoin pointy zpoin))))))
     (om-beep-msg "BUILD 3DC POINTS: X/Z-coordinates are not (all) numbers!")
@@ -246,7 +246,7 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
         (loop for xpoin = (if listx (pop listx) 0) then (if listx (pop listx) defx)
               for ypoin = (if listy (pop listy) 0) then (if listy (pop listy) defy)
               while (or listx listy)
-              collect (funcall mkpoint xpoin ypoin pointz) 
+              collect (funcall mkpoint xpoin ypoin pointz)
               into rep
               finally (return (append rep (list (funcall mkpoint xpoin ypoin pointz))))))
     (om-beep-msg "BUILD 3DC POINTS: X/Z-coordinates are not (all) numbers!")
@@ -259,27 +259,27 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
       (let* ((tf (truncate-function decimals))
              (pointy (funcall tf pointy))
              (pointz (funcall tf pointz)))
-        (loop for xpoin in listx 
+        (loop for xpoin in listx
               collect (funcall mkpoint (funcall tf xpoin) pointy pointz)))
     (om-beep-msg "BUILD 3DC POINTS: X-coordinates are not (all) numbers!")
     ))
 
-(defmethod make-3D-points-from-lists ((pointx number) (listy list) (pointz number) &optional (decimals 0) (mkpoint 'om-make-3dpoint)) 
+(defmethod make-3D-points-from-lists ((pointx number) (listy list) (pointz number) &optional (decimals 0) (mkpoint 'om-make-3dpoint))
   (if (list-subtypep listy 'number)
       (let* ((tf (truncate-function decimals))
              (pointx (funcall tf pointx))
              (pointz (funcall tf pointz)))
-        (loop for ypoin in listy 
+        (loop for ypoin in listy
               collect (funcall mkpoint pointx (funcall tf ypoin) pointz)))
     (om-beep-msg "BUILD 3DC POINTS: Y-coordinates are not (all) numbers!")
     ))
 
-(defmethod make-3D-points-from-lists ((pointx number) (pointy number) (listz list) &optional (decimals 0) (mkpoint 'om-make-3dpoint)) 
+(defmethod make-3D-points-from-lists ((pointx number) (pointy number) (listz list) &optional (decimals 0) (mkpoint 'om-make-3dpoint))
   (if (list-subtypep listz 'number)
       (let* ((tf (truncate-function decimals))
              (pointx (funcall tf pointx))
              (pointy (funcall tf pointy)))
-        (loop for zpoin in listz 
+        (loop for zpoin in listz
               collect (funcall mkpoint pointx pointy (funcall tf zpoin))))
     (om-beep-msg "BUILD 3DC POINTS: Z-coordinates are not (all) numbers!")
     ))
@@ -293,7 +293,7 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
   (om-beep-msg "BUILD 3DC POINTS: Wrong coordinate lists!"))
 
 
-;;; need to convert the points between the different subtypes of BPF 
+;;; need to convert the points between the different subtypes of BPF
 (defmethod objfromobjs ((model bpf) (target bpf))
   (let ((rep (call-next-method)))
     (init-bpf-points rep)
@@ -307,7 +307,7 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
 (defmethod make-default-tpoint-at-time ((self 3dc) time)
 ;this methods create a new point that preserves the motion of the object
   (if (times self)
-      (let ((pos (or (position time (point-list self) :key 'tpoint-internal-time :test '<= ) 
+      (let ((pos (or (position time (point-list self) :key 'tpoint-internal-time :test '<= )
                      (length (point-list self))))
             (len (length (time-sequence-get-internal-times self))))
         ;if length is 1 or if the point is before the others or after use the same position than the before or after point
@@ -318,7 +318,7 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
           (let ((p1 (nth (1- pos) (point-list self)))
                 (p2 (nth pos (point-list self))))
             (calc-intermediate-point-at-time p1 p2 time))))
-    ;if no points, create a points a pos 
+    ;if no points, create a points a pos
     (om-make-3dpoint 0 0 0 time)))
 
 (defmethod calc-intermediate-point-at-time ((p1 3dpoint) (p2 3dpoint) time)
@@ -333,9 +333,9 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
 ;-------------------get the min  max points in x and y axis------------------------------
 ;;; using reduce 'mix/max is fatser when interpreted but not when compiled
 (defmethod nice-bpf-range ((self 3dc))
-  
+
   (multiple-value-bind (x1 x2 y1 y2 z1 z2 t1 t2)
-      (loop for x in (x-values-from-points self) 
+      (loop for x in (x-values-from-points self)
             for y in (y-values-from-points self)
             for z in (z-values-from-points self)
             for time in (time-sequence-get-internal-times self)
@@ -344,14 +344,14 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
             minimize z into z1 maximize z into z2
             minimize time into t1 maximize time into t2
             finally (return (values x1 x2 y1 y2 z1 z2 t1 t2)))
-    
+
     (append (list x1 x2) (list y1 y2) (list z1 z2) (list t1 t2))
     ; (if (< (- x2 x1) 10) (list (- x1 5) (+ x2 5)) (list x1 x2))
     ; (if (< (- y2 y1) 10) (list (- y1 5) (+ y2 5)) (list y1 y2)))
     ))
 
 ;;; to be redefined by objects if they have a specific miniview for the sequencer
-(defmethod draw-sequencer-mini-view ((self 3dc) (box t) x y w h &optional time) 
+(defmethod draw-sequencer-mini-view ((self 3dc) (box t) x y w h &optional time)
   (let* ((x-col (om-def-color :red))
          (y-col (om-def-color :green))
          (z-col (om-def-color :blue))
@@ -385,7 +385,7 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
                              z-t-ranges
                              ;(+ x 7) (+ y 10) (- w 14) (- h 20)
                              x (+ y 10) w (- h 20)
-                             ) 
+                             )
     t))
 
 
@@ -393,7 +393,7 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
 ;;; SPECIALIZATIONS
 ;;;============================
 
-(defmethod* point-pairs ((self 3dc)) 
+(defmethod* point-pairs ((self 3dc))
   :initvals '(nil)
   :indoc '("a 3dc")
   :doc "Retruns the list of points in <self> as a list ((x1 y1 z1 t1) (x2 y2 z2 t2) ...)"
@@ -407,9 +407,9 @@ If <x-list>, <y-list> and <z-list> are not of the same length, the last coordina
 
 ;;; called (for instance) in save-as-text
 (defmethod write-data ((self 3DC) out)
-  (loop for x in (x-points self) 
-        for y in (y-points self) 
-        for z in (z-points self) 
+  (loop for x in (x-points self)
+        for y in (y-points self)
+        for z in (z-points self)
         do
         (format out "~D ~D ~D~%" x y z)))
 

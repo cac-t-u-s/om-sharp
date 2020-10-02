@@ -1,5 +1,5 @@
 ;=========================================================================
-; OM API 
+; OM API
 ; Multiplatform API for OpenMusic
 ; LispWorks Implementation
 ;=========================================================================
@@ -70,11 +70,11 @@
 (defun om-read-ptr (ptr pos type)
   (fli:dereference ptr :type type :index pos))
 
-(defun om-null-pointer-p (ptr) 
+(defun om-null-pointer-p (ptr)
   ;(check-type ptr fli::pointer)
   (fli:null-pointer-p ptr))
 
-(defun om-pointer-equal (ptr1 ptr2) 
+(defun om-pointer-equal (ptr1 ptr2)
   ;(check-type ptr fli::pointer)
   (fli:pointer-eq ptr1 ptr2))
 
@@ -82,14 +82,14 @@
 
 ;; redefinitions using CFFI
 ;; previously cffi::%mem-set
-(defun om-write-ptr (ptr pos type value) 
+(defun om-write-ptr (ptr pos type value)
   (cffi::mem-set value ptr type pos))
 
 ;; previously cffi::%mem-ref
 ;; previously cffi::mem-ref
-(defun om-read-ptr (ptr pos type) 
+(defun om-read-ptr (ptr pos type)
   (cffi::mem-aref ptr type pos))
- 
+
 ;(setf aaa (om-make-pointer 5))
 ;(om-write-ptr aaa 1 :float 8.0)
 ;(om-read-ptr aaa 0 :float)
@@ -100,9 +100,9 @@
 ;;; A POINTER STRUCT WITH COUNTER
 ;;;========================
 
-(defstruct om-pointer 
-  (ptr) 
-  (size) 
+(defstruct om-pointer
+  (ptr)
+  (size)
   (count 0 :type integer))
 
 (defun om-pointer-get-ptr (om-pointer) (om-pointer-ptr om-pointer))
@@ -133,12 +133,12 @@
 
 ;;; FOR STRUCTS
 (defmacro om-create-with-gc (&body body)
-   `(let ((object ,@body))
+  `(let ((object ,@body))
       ;(print (list "FLAG CLEANUP FOR" object))
-      (hcl::flag-special-free-action object)
-      object))
+     (hcl::flag-special-free-action object)
+     object))
 
-(defmethod initialize-instance :before ((self om-cleanup-mixin) &rest args) 
+(defmethod initialize-instance :before ((self om-cleanup-mixin) &rest args)
   ;(print (list "FLAG CLEANUP FOR" self))
   (hcl::flag-special-free-action self))
 

@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -60,7 +60,7 @@
 (cffi:defcfun ("getDefaultBufferSize" getDefaultBufferSize) :int (player :pointer))
 (cffi:defcfun ("setBufferSize" setBufferSize) :int (player :pointer) (size :int))
 
-(cffi:defcfun ("setAudioDevice" setAudioDevice) :void 
+(cffi:defcfun ("setAudioDevice" setAudioDevice) :void
   (player :pointer) (output :int) (input :int)  (in-channels :int) (out-channels :int) (sr :int) (buffsize :int))
 
 
@@ -74,39 +74,39 @@
   (let ((n-types (juce::getDevicesTypeCount audiomanager)))
     (loop for type from 0 to (1- n-types) append
           (let ((type-name (juce::getDeviceTypeName audiomanager type)))
-            (loop for n from 0 to (1- (juce::getOutputDevicesCountForType audiomanager type)) 
-                    collect (juce::getNthOutputDeviceName audiomanager type n)
-                    )))))
+            (loop for n from 0 to (1- (juce::getOutputDevicesCountForType audiomanager type))
+                  collect (juce::getNthOutputDeviceName audiomanager type n)
+                  )))))
 
 (defun get-all-audio-input-devices (audiomanager)
   (let ((n-types (juce::getDevicesTypeCount audiomanager)))
     (loop for type from 0 to (1- n-types) append
           (let ((type-name (juce::getDeviceTypeName audiomanager type)))
-            (loop for n from 0 to (1- (juce::getInputDevicesCountForType audiomanager type)) 
-                    collect (juce::getNthInputDeviceName audiomanager type n)
-                    )))))
+            (loop for n from 0 to (1- (juce::getInputDevicesCountForType audiomanager type))
+                  collect (juce::getNthInputDeviceName audiomanager type n)
+                  )))))
 
 (defun audio-driver-output-devices (audiomanager driver)
   (let ((type-num (position driver (get-audio-drivers audiomanager) :test 'string-equal)))
     (if type-num
-        (loop for n from 0 to (1- (juce::getOutputDevicesCountForType audiomanager type-num)) 
+        (loop for n from 0 to (1- (juce::getOutputDevicesCountForType audiomanager type-num))
               collect (juce::getNthOutputDeviceName audiomanager type-num n))
       (error "Audio driver ~S not found." driver))))
 
 (defun audio-driver-input-devices (audiomanager driver)
   (let ((type-num (position driver (get-audio-drivers audiomanager) :test 'string-equal)))
     (if type-num
-        (loop for n from 0 to (1- (juce::getInputDevicesCountForType audiomanager type-num)) 
+        (loop for n from 0 to (1- (juce::getInputDevicesCountForType audiomanager type-num))
               collect (juce::getNthInputDeviceName audiomanager type-num n))
       (error "Audio driver ~S not found." driver))))
 
 (defun setoutputchannels (player activechannelslist)
   (let* ((l (length activechannelslist))
          (map (cffi:foreign-alloc :int :count l :initial-contents (mapcar '1- activechannelslist))))
-    (unwind-protect 
+    (unwind-protect
         (setoutputchannelsmapping player l map)
       (cffi-sys:foreign-free map))))
-      
+
 (defun getinputchannelslist (player)
   (or (loop for i from 1 to (juce::GetInputChannelsCount player) collect i) '(0)))
 
@@ -124,11 +124,11 @@
 ;;; !!! special characters
 (defun setdevices (player input-device-name inch output-device-name outch sample-rate buffer-size)
   (let* ((driver (getCurrentDeviceType player))
-         (in-n (or (position input-device-name 
-                             (audio-driver-output-devices player driver) 
+         (in-n (or (position input-device-name
+                             (audio-driver-output-devices player driver)
                              :test 'string-equal) 0))
-         (out-n (or (position output-device-name 
-                              (audio-driver-input-devices player driver) 
+         (out-n (or (position output-device-name
+                              (audio-driver-input-devices player driver)
                               :test 'string-equal) 0)))
     (juce::setaudiodevice player in-n out-n inch outch sample-rate buffer-size)))
 
@@ -169,8 +169,8 @@
 
 (cffi:defcfun ("makeAudioFileWriter" makeAudioFileWriter) :pointer (file :string) (format :int))
 (cffi:defcfun ("freeAudioFileWriter" freeAudioFileWriter) :void (handler :pointer))
-(cffi:defcfun ("writeSamplesToAudioFile" writeSamplesToAudioFile) 
-    :boolean 
+(cffi:defcfun ("writeSamplesToAudioFile" writeSamplesToAudioFile)
+    :boolean
   (handler :pointer) (buffer :pointer)
   (nch :int) (size :long-long) (sr :double) (resolution :int))
 
@@ -178,34 +178,34 @@
 
 (defun juce-get-sound-info (path)
   (let ((fileptr (juce::makeAudioFileReader path)))
-   (unless (fli:null-pointer-p fileptr)
-     (unwind-protect 
-         (let ((channels (juce::getAudioFileNumChannels fileptr))
-               (size (juce::getAudioFileNumSamples fileptr))
-               (sr (round (juce::getAudioFileSampleRate fileptr)))
-               (ss (juce::getAudioFileSampleSize fileptr))
-               (floats (juce::getAudioFileFloatFormat fileptr))
-               (format (juce::getAudioFileFormat fileptr)))
-           
-          (values format channels sr ss size floats)
-          )
-       (juce::freeAudioFileReader fileptr)))))
- 
-(defun juce-get-sound-buffer (path &optional (datatype :float))
-  (let ((fileptr (juce::makeAudioFileReader path)))
     (unless (fli:null-pointer-p fileptr)
-      (unwind-protect 
+      (unwind-protect
           (let ((channels (juce::getAudioFileNumChannels fileptr))
                 (size (juce::getAudioFileNumSamples fileptr))
                 (sr (round (juce::getAudioFileSampleRate fileptr)))
                 (ss (juce::getAudioFileSampleSize fileptr))
                 (floats (juce::getAudioFileFloatFormat fileptr))
                 (format (juce::getAudioFileFormat fileptr)))
-            (let ((buffer (fli:allocate-foreign-object 
-                           :type :pointer :nelems channels 
-                           :initial-contents (loop for c from 0 to (1- channels) collect 
-                                                   (fli::allocate-foreign-object 
-                                                    :type datatype 
+
+            (values format channels sr ss size floats)
+            )
+        (juce::freeAudioFileReader fileptr)))))
+
+(defun juce-get-sound-buffer (path &optional (datatype :float))
+  (let ((fileptr (juce::makeAudioFileReader path)))
+    (unless (fli:null-pointer-p fileptr)
+      (unwind-protect
+          (let ((channels (juce::getAudioFileNumChannels fileptr))
+                (size (juce::getAudioFileNumSamples fileptr))
+                (sr (round (juce::getAudioFileSampleRate fileptr)))
+                (ss (juce::getAudioFileSampleSize fileptr))
+                (floats (juce::getAudioFileFloatFormat fileptr))
+                (format (juce::getAudioFileFormat fileptr)))
+            (let ((buffer (fli:allocate-foreign-object
+                           :type :pointer :nelems channels
+                           :initial-contents (loop for c from 0 to (1- channels) collect
+                                                   (fli::allocate-foreign-object
+                                                    :type datatype
                                                     :nelems size)))))
               (juce::getAudioFileSamples fileptr buffer 0 size)
               (values buffer format channels sr ss size floats)
@@ -216,15 +216,15 @@
 ;;; format = :aiff, wav, :ogg, :flac ...
 (defun juce-save-sound-in-file (buffer filename size nch sr resolution format &optional (datatype :float))
   (let* ((format_code (case format
-                   (:wav 0)
-                   (:aiff 1)
-                   (otherwise 0)))
-                   
+                        (:wav 0)
+                        (:aiff 1)
+                        (otherwise 0)))
+
          (fileptr (juce::makeAudioFileWriter filename format_code)))
 
-    (unwind-protect 
+    (unwind-protect
         (juce::writeSamplesToAudioFile fileptr buffer nch size (coerce sr 'double-float) resolution)
-      
+
       (juce::freeAudioFileWriter fileptr))))
 
 

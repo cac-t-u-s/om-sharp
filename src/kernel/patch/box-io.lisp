@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -22,9 +22,9 @@
 ; INPUTS/OUTPUTS OF A BOX
 ;;;=============================
 
-;; reference can be an actual in/out box (e.g. in an abstraction box) 
+;; reference can be an actual in/out box (e.g. in an abstraction box)
 ;; or just a symbol (never used) corresponding to the name of the input
-(defclass OMBoxIO (OMVPObject) 
+(defclass OMBoxIO (OMVPObject)
   ((reference :initform nil :initarg :reference :accessor reference)
    (doc-string :initform nil :initarg :doc-string :accessor doc-string)
    (value :initform nil :initarg :value :accessor value)
@@ -44,20 +44,20 @@
                                :doc-string (doc-string self))))
 
     (setf (connections new-io)
-          (mapcar 
+          (mapcar
            #'(lambda (c) (adopt-connection new-io c))
            (connections self)))
 
     new-io))
-  
-  
+
+
 (defclass box-input (OMBoxIO) ())
 (defclass box-output (OMBoxIO) ())
 
 ;;; just for display in tooltips etc.
 (defmethod io-prefix ((self OMBoxIO)) "")
 
-(defmethod set-value ((self OMBoxIO) value) 
+(defmethod set-value ((self OMBoxIO) value)
   (setf (value self) value))
 
 ;;; the doc-string can be either hard-coded, or collected from the class/method definition
@@ -98,9 +98,9 @@
 (defmethod next-optional-input ((self OMBox)) nil)
 (defmethod more-optional-input ((self t) &key name value doc reactive) (declare (ignore name value doc reactive)) nil)
 
-(defmethod add-optional-input ((self OMBox) &key name value doc reactive) 
-  (set-box-inputs 
-   self 
+(defmethod add-optional-input ((self OMBox) &key name value doc reactive)
+  (set-box-inputs
+   self
    (append (inputs self)
            (list (make-instance 'box-optional-input
                                 :name (string-downcase name)
@@ -111,24 +111,24 @@
 
 
 (defmethod remove-one-optional-input ((self OMBox))
-   (let ((optionals (get-optional-inputs self)))
-     (when optionals 
-       (let ((last-in (car (last optionals))))
-         (mapcar #'(lambda (c) (omng-remove-element (container self) c)) (connections last-in))
-         (set-box-inputs self (remove last-in (inputs self) :test 'equal))
-         (do-delete-one-input-extra self)
-         t))))
+  (let ((optionals (get-optional-inputs self)))
+    (when optionals
+      (let ((last-in (car (last optionals))))
+        (mapcar #'(lambda (c) (omng-remove-element (container self) c)) (connections last-in))
+        (set-box-inputs self (remove last-in (inputs self) :test 'equal))
+        (do-delete-one-input-extra self)
+        t))))
 
 
 
 (defmethod get-all-keywords ((self t)) nil)
 
-(defmethod next-keyword-input ((self OMBox)) 
+(defmethod next-keyword-input ((self OMBox))
 
   (let ((keywordlist (apply 'append (get-all-keywords self)))
         (usedkeywords (mapcar #'(lambda (in) (intern-k (name in))) (get-keyword-inputs self))))
-    
-    (if keywordlist 
+
+    (if keywordlist
         (or (find-if-not #'(lambda (elt) (member elt usedkeywords)) keywordlist)
             (values nil "All keywords are already used.."))
       (values nil (string+ "No keyword for box '" (name self) "'.")))
@@ -140,54 +140,54 @@
 
 (defmethod def-reactive ((self OMBox) key) nil)
 
-(defmethod more-keyword-input ((self OMBox) &key key (value nil val-supplied-p) doc (reactive nil reactive-supplied-p)) 
+(defmethod more-keyword-input ((self OMBox) &key key (value nil val-supplied-p) doc (reactive nil reactive-supplied-p))
 
-  (multiple-value-bind (def-next err-message) 
+  (multiple-value-bind (def-next err-message)
 
       (next-keyword-input self)
 
     (if def-next ;;; a keyword exist/is available
-      (let ((keyname 
-             (if key ;;; a specific name is asked for
-                 (let ((keywordlist (mapcar 'intern-k (apply 'append (get-all-keywords self))))
-                       (usedkeywords (mapcar #'(lambda (in) (intern-k (name in))) (get-keyword-inputs self))))
-                   (and (or (find (intern-k key) keywordlist) 
-                            (find (intern-k (box-free-keyword-name self)) keywordlist)
-                            (om-beep-msg "Unknown keyword name in box ~A: ~A" (name self) key)
+        (let ((keyname
+               (if key ;;; a specific name is asked for
+                   (let ((keywordlist (mapcar 'intern-k (apply 'append (get-all-keywords self))))
+                         (usedkeywords (mapcar #'(lambda (in) (intern-k (name in))) (get-keyword-inputs self))))
+                     (and (or (find (intern-k key) keywordlist)
+                              (find (intern-k (box-free-keyword-name self)) keywordlist)
+                              (om-beep-msg "Unknown keyword name in box ~A: ~A" (name self) key)
                             ;(intern-k key) ; uncomment this if we want to return the keyword anyway...
-                            )
-                        (or (not (find (intern-k key) usedkeywords)) 
-                            (om-beep-msg "Keyword name already used in box ~A: ~A" (name self) key))
-                        (intern-k key))) ;;; key is ok
-               def-next)))
-        (when keyname
-          (add-keyword-input self :key keyname
-                             :value (if val-supplied-p value (get-input-def-value self keyname))
-                             :doc (or doc (get-input-doc self (string-downcase keyname)))
-                             :reactive (if reactive-supplied-p reactive (def-reactive self keyname)))
-          t))
+                              )
+                          (or (not (find (intern-k key) usedkeywords))
+                              (om-beep-msg "Keyword name already used in box ~A: ~A" (name self) key))
+                          (intern-k key))) ;;; key is ok
+                 def-next)))
+          (when keyname
+            (add-keyword-input self :key keyname
+                               :value (if val-supplied-p value (get-input-def-value self keyname))
+                               :doc (or doc (get-input-doc self (string-downcase keyname)))
+                               :reactive (if reactive-supplied-p reactive (def-reactive self keyname)))
+            t))
       (om-beep-msg err-message)
       )))
 
 (defmethod add-keyword-input ((self OMBox) &key key value doc reactive)
-    (set-box-inputs self (append (inputs self)
-                                (list (make-instance 'box-keyword-input
-                                                     :name (string-downcase key) ;; string-downcase
-                                                     :value value
-                                                     :box self
-                                                     :doc-string (or doc "keyword input")
-                                                     :reactive reactive
-                                                   )))))
+  (set-box-inputs self (append (inputs self)
+                               (list (make-instance 'box-keyword-input
+                                                    :name (string-downcase key) ;; string-downcase
+                                                    :value value
+                                                    :box self
+                                                    :doc-string (or doc "keyword input")
+                                                    :reactive reactive
+                                                    )))))
 
 (defmethod remove-one-keyword-input ((self OMBox))
   (let ((keywords (get-keyword-inputs self)))
     (when keywords
       (let ((last-in (car (last keywords))))
-        (mapcar #'(lambda (c) 
-                    (omng-remove-element (container self) c)) 
+        (mapcar #'(lambda (c)
+                    (omng-remove-element (container self) c))
                 (connections last-in))
         (set-box-inputs self (remove last-in (inputs self) :test 'equal))
-       t))))
+        t))))
 
 
 
@@ -197,9 +197,9 @@
 
 (defmethod change-keyword ((input box-keyword-input) key)
   (let ((old-name (name input))
-        (new-key (if (equal key (box-free-keyword-name (box input))) 
-                    (let ((new-name (om-get-user-string "type a new name" :initial-string (name input))))
-                      (and new-name (intern-k new-name)))
+        (new-key (if (equal key (box-free-keyword-name (box input)))
+                     (let ((new-name (om-get-user-string "type a new name" :initial-string (name input))))
+                       (and new-name (intern-k new-name)))
                    key)))
     (when new-key
       (setf (name input) (string-downcase new-key)
@@ -207,7 +207,7 @@
             (doc-string input) (get-input-doc (box input) (string-downcase new-key))
             (reactive input) (def-reactive (box input) new-key))
       (update-output-from-new-in (box input) old-name input)
-    )))
+      )))
 
 (defmethod update-output-from-new-in (box name in) nil)
 
@@ -216,33 +216,33 @@
   ;;; if boxes have common inputs (in principle, they do!) => copy the values
   (loop for in in (inputs self) do
         (let ((newin (find (name in) (inputs newbox) :key 'name :test 'string-equal)))
-          (when newin 
+          (when newin
             (setf (value newin) (om-copy (value in)))
             (setf (reactive newin) (reactive in)))
           ))
 
   (loop for out in (outputs self) do
         (let ((newout (find (name out) (outputs newbox) :key 'name :test 'string-equal)))
-          (when newout 
+          (when newout
             (setf (reactive newout) (reactive out)))
           ))
 
   ;;; add relevant optional and keyword inputs
-  (mapcar 
-     #'(lambda (in) 
-         (more-optional-input newbox :name (name in) :value (value in) :doc (doc-string in) :reactive (reactive in)))
-     (get-optional-inputs self))
+  (mapcar
+   #'(lambda (in)
+       (more-optional-input newbox :name (name in) :value (value in) :doc (doc-string in) :reactive (reactive in)))
+   (get-optional-inputs self))
 
-  (mapcar 
-   #'(lambda (in) 
+  (mapcar
+   #'(lambda (in)
        (more-keyword-input newbox :key (intern-k (name in)) :value (value in) :doc (doc-string in) :reactive (reactive in)))
    (get-keyword-inputs self))
   )
 
-(defmethod om-copy ((self OMBox)) 
+(defmethod om-copy ((self OMBox))
   (let ((newbox (call-next-method)))
     ;;; add the optional/keywords + copy input values
-    (smart-copy-additional-inputs self newbox) 
+    (smart-copy-additional-inputs self newbox)
     newbox))
 
 
@@ -268,7 +268,7 @@
 
 (defmethod keyword-input-- ((self OMBox))
   (remove-one-keyword-input self)
-  (when (frame self) 
+  (when (frame self)
     (set-frame-areas (frame self))
     (om-invalidate-view (om-view-container (frame self))) ;; in case there were connections...
     ))
@@ -293,9 +293,9 @@
 
 
 (defmethod remove-one-output ((self ombox) (output box-output))
-  (mapc #'(lambda (c) 
-            (omng-remove-element (container self) c)) 
+  (mapc #'(lambda (c)
+            (omng-remove-element (container self) c))
         (connections output))
   (set-box-outputs self (remove output (outputs self))))
-  
+
 

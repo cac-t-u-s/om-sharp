@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File authors: D. Bouche, J. Bresson
@@ -26,35 +26,35 @@
 
 
 (defmethod* save-sound ((self om-internal-sound) filename &key format resolution)
-            :icon 'save-sound
-            :initvals '(nil nil :aiff)
-            :indoc '("a sound or om-internal-sound buffer" "output file pathname" "audio format" "audio resolution (16, 24, 32)")
-            :menuins '((2 (("AIFF" :aiff) ("WAV" :wav) ("FLAC" :flac) ("OGG Vorbis" :ogg))) 
-                       (3 ((16 16) (24 24) (32 32))))
-            :doc "Saves a <self> (om-internal-sound buffer) as an audio file."
-            (if (null (oa::om-pointer-ptr (buffer self)))
-                (om-beep-msg "Error: null sound buffer")
-              (let* ((format (or format (get-pref-value :audio :format)))
-                     (file (or filename (om-choose-new-file-dialog :directory (def-save-directory) 
-                                                                   :prompt (om-str "Save as...")
-                                                                   :types (cond ((equal format :aiff) (list (format nil (om-str :file-format) "AIFF") "*.aiff;*.aif"))
-                                                                                ((equal format :wav) (list (format nil (om-str :file-format) "WAV") "*.wav"))
-                                                                                ((equal format :flac) (list (format nil (om-str :file-format) "FLAC") "*.flac"))
-                                                                                ((equal format :ogg) (list (format nil (om-str :file-format) "OGG Vorbis") "*.ogg"))
-                                                                                (t nil)))))
-                     )
-                
-              (when file
-                (setf *last-saved-dir* (make-pathname :directory (pathname-directory file)))
-                (audio-io::om-save-buffer-in-file (oa::om-pointer-ptr (buffer self)) 
-                                                  (namestring file) 
-                                                  (n-samples self) 
-                                                  (n-channels self) 
-                                                  (sample-rate self) 
-                                                  (or resolution (get-pref-value :audio :resolution))
-                                                  format))
-              
-              (probe-file (namestring file)))))
+  :icon 'save-sound
+  :initvals '(nil nil :aiff)
+  :indoc '("a sound or om-internal-sound buffer" "output file pathname" "audio format" "audio resolution (16, 24, 32)")
+  :menuins '((2 (("AIFF" :aiff) ("WAV" :wav) ("FLAC" :flac) ("OGG Vorbis" :ogg)))
+             (3 ((16 16) (24 24) (32 32))))
+  :doc "Saves a <self> (om-internal-sound buffer) as an audio file."
+  (if (null (oa::om-pointer-ptr (buffer self)))
+      (om-beep-msg "Error: null sound buffer")
+    (let* ((format (or format (get-pref-value :audio :format)))
+           (file (or filename (om-choose-new-file-dialog :directory (def-save-directory)
+                                                         :prompt (om-str "Save as...")
+                                                         :types (cond ((equal format :aiff) (list (format nil (om-str :file-format) "AIFF") "*.aiff;*.aif"))
+                                                                      ((equal format :wav) (list (format nil (om-str :file-format) "WAV") "*.wav"))
+                                                                      ((equal format :flac) (list (format nil (om-str :file-format) "FLAC") "*.flac"))
+                                                                      ((equal format :ogg) (list (format nil (om-str :file-format) "OGG Vorbis") "*.ogg"))
+                                                                      (t nil)))))
+           )
+
+      (when file
+        (setf *last-saved-dir* (make-pathname :directory (pathname-directory file)))
+        (audio-io::om-save-buffer-in-file (oa::om-pointer-ptr (buffer self))
+                                          (namestring file)
+                                          (n-samples self)
+                                          (n-channels self)
+                                          (sample-rate self)
+                                          (or resolution (get-pref-value :audio :resolution))
+                                          format))
+
+      (probe-file (namestring file)))))
 
 
 
@@ -81,13 +81,13 @@
                 (interleaved-out (om-alloc-memory (* out-size nch) :type (smpl-type s) :clear t))
                 (final-buffer (make-audio-buffer nch out-size (smpl-type s)))
                 s2)
-           
+
            (interleave-buffer buffer interleaved-in size nch)
            ;;; USE LIBSAMPLERATE
            ;;; (resample-method values correspond to libsamplerate options)
            (multiple-value-bind (success newsize-or-error)
                (lsr::resample-audio-buffer interleaved-in size nch interleaved-out out-size ratio resample-method)
-             
+
              (if success
                  (progn
                    (split-buffer interleaved-out final-buffer out-size nch)
@@ -103,9 +103,9 @@
            (om-free-memory interleaved-in)
            (om-free-memory interleaved-out)
            s2))
-         (t
-          (om-beep-msg "The sample-rate you supplied is invalid. It must be an integer, and the output-sr/input-sr ratio must be inside [1/256, 256] range. Output is the original input.")
-          s)))
+        (t
+         (om-beep-msg "The sample-rate you supplied is invalid. It must be an integer, and the output-sr/input-sr ratio must be inside [1/256, 256] range. Output is the original input.")
+         s)))
 
 
 (defmethod* sound-normalize ((s om-internal-sound) &key (level 0) (method :peak))
@@ -120,7 +120,7 @@
 <method> is a normalization method. Choose between Peak detection or Peak RMS detection."
 
   (with-audio-buffer (input-buffer s)
-    
+
     (if (null (oa::om-pointer-ptr input-buffer))
         (om-beep-msg "Error: null sound buffer")
 
@@ -131,19 +131,19 @@
              (normalize-level (if (plusp level) level (db->lin level)))
              (final-buffer (make-audio-buffer nch size type)))
 
-        (cond 
-         
+        (cond
+
          ((equal method :peak)
           (let ((gain 0.0)
                 (peak 0.0)
-                (x 0.0)) 
-            
+                (x 0.0))
+
             ; get peak
             (dotimes (i size)
               (dotimes (n nch)
                 (setq x (abs (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type)))
                 (if (> x peak) (setf peak x))))
-            
+
             (when (> peak 0)
               (setq gain (/ normalize-level peak))
               (dotimes (i size)
@@ -151,36 +151,36 @@
                   (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type)
                         (* gain (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type))))))))
 
-              ((equal method :peak-rms)
-               (let ((peak-rms 0.0)
-                     (tampon (list))
-                     (indx 0)
-                     (rms 0.0)
-                     (tampon-size 100)
-                     (x 0.0))
-                 
+         ((equal method :peak-rms)
+          (let ((peak-rms 0.0)
+                (tampon (list))
+                (indx 0)
+                (rms 0.0)
+                (tampon-size 100)
+                (x 0.0))
+
                  ; get peak-rms
-                 (loop while (< indx size) do
-                       (dotimes (i tampon-size)
-                         (dotimes (n nch)
-                           (push (fli:dereference (fli:dereference ptr :index n :type :pointer) :index indx :type type) tampon));)
-                         (incf indx))
-                       
-                       (when tampon
-                         (setq tampon (mapcar #'(lambda (x) (* x x)) tampon))
-                         (setq rms (sqrt (/ (reduce #'+ tampon) tampon-size)))
-                         (if (> rms peak-rms) (setf peak-rms rms))
-                         (setf tampon nil)))
-                 
-                 (dotimes (i size)
-                   (dotimes (n nch)
-                     (setq x (/ (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type) peak-rms))
-                     (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type)
-                           (cond ((< x -1) -1.0)
-                                 ((> x 1) 1.0)
-                                 (t x))))))))
-      
-        (make-instance 'sound 
+            (loop while (< indx size) do
+                  (dotimes (i tampon-size)
+                    (dotimes (n nch)
+                      (push (fli:dereference (fli:dereference ptr :index n :type :pointer) :index indx :type type) tampon));)
+                    (incf indx))
+
+                  (when tampon
+                    (setq tampon (mapcar #'(lambda (x) (* x x)) tampon))
+                    (setq rms (sqrt (/ (reduce #'+ tampon) tampon-size)))
+                    (if (> rms peak-rms) (setf peak-rms rms))
+                    (setf tampon nil)))
+
+            (dotimes (i size)
+              (dotimes (n nch)
+                (setq x (/ (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type) peak-rms))
+                (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type)
+                      (cond ((< x -1) -1.0)
+                            ((> x 1) 1.0)
+                            (t x))))))))
+
+        (make-instance 'sound
                        :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch nch)
                        :n-samples size
                        :n-channels nch
@@ -203,7 +203,7 @@
   (let* ((sr (or sample-rate (get-pref-value :audio :samplerate)))
          (nsmpl (round (* dur sr)))
          (ch (if (< channels 1) 1 channels)))
-    (make-instance 'om-internal-sound 
+    (make-instance 'om-internal-sound
                    :buffer (make-om-sound-buffer-GC :ptr (make-audio-buffer ch nsmpl :float) :nch ch)
                    :n-samples nsmpl
                    :n-channels ch
@@ -214,7 +214,7 @@
   (let* ((sr (or sample-rate (get-pref-value :audio :samplerate)))
          (nsmpl (round (* dur (/ sr 1000.0))))
          (ch (if (< channels 1) 1 channels)))
-    (make-instance 'om-internal-sound 
+    (make-instance 'om-internal-sound
                    :buffer (make-om-sound-buffer-GC :ptr (make-audio-buffer ch nsmpl :float) :nch ch)
                    :n-samples nsmpl
                    :n-channels ch
@@ -246,16 +246,16 @@
            (b2 (om-alloc-memory size2 :type (smpl-type s) :clear t))
            (out-buffer (make-audio-buffer nch size (smpl-type s)))
            s2)
-      (interleave-buffer (oa::om-pointer-ptr (buffer s)) b1 size nch)  
+      (interleave-buffer (oa::om-pointer-ptr (buffer s)) b1 size nch)
       (dotimes (i size2)
         (setf (fli:dereference b2 :index i)
-              (cond ((< i fade-in-frames) 
+              (cond ((< i fade-in-frames)
                      (* fade-in-factor i (fli:dereference b1 :index i)))
-                    ((> i fade-out-frames-start) 
+                    ((> i fade-out-frames-start)
                      (* (1+ (* fade-out-factor (- i (- size2 fade-out-frames)))) (fli:dereference b1 :index i)))
-                    (t (fli:dereference b1 :index i)))))         
-              
-      (setq s2 (make-instance 'sound 
+                    (t (fli:dereference b1 :index i)))))
+
+      (setq s2 (make-instance 'sound
                               :buffer (make-om-sound-buffer-GC :ptr (split-buffer b2 out-buffer size nch) :nch nch)
                               :n-samples size
                               :n-channels nch
@@ -286,8 +286,8 @@
         (dotimes (n nch)
           (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type (smpl-type s))
                 (fli:dereference (fli:dereference (oa::om-pointer-ptr (buffer s)) :index n :type :pointer) :index (mod i size) :type :float))))
-              
-      (make-instance 'sound 
+
+      (make-instance 'sound
                      :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch nch)
                      :n-samples (* n size)
                      :n-channels nch
@@ -311,15 +311,15 @@
            (nch (n-channels s))
            (sr (sample-rate s))
            (size (round (* (- end beg) sr)))
-           (start (round (* beg sr))) 
+           (start (round (* beg sr)))
            (final-buffer (make-audio-buffer nch size type)))
 
       (dotimes (i size)
         (dotimes (n nch)
           (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type)
                 (fli:dereference (fli:dereference init-buffer :index n :type :pointer) :index (+ start i) :type type))))
-                            
-      (make-instance 'sound 
+
+      (make-instance 'sound
                      :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch nch)
                      :n-samples size
                      :n-channels nch
@@ -336,7 +336,7 @@
   :icon 'sound-vol
   :initvals '(nil 1.0 1 1)
   :indoc '("a sound" "a gain value" "fade in duration" "fade out duration")
-  "Adds gain effect (volume) on <s>. 
+  "Adds gain effect (volume) on <s>.
 
 <gain> is a multiplicative factor to the sound sample values.
 <in> and <out> determine fade-in / fade-out periods for the gain effect. They can be in seconds (floats, e.g. 0.3) or milliseconds (integer, e.g. 300)."
@@ -362,10 +362,10 @@
           (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type)
                 (* (cond ((< i fade-in-frames) (1+ (* fade-in-factor i)))
                          ((>= i fade-out-frame-start) (+ gain (* fade-out-factor (- i (- size fade-out-frames)))))
-                         (t gain)) 
+                         (t gain))
                    (fli:dereference (fli:dereference ptr :index n :type :pointer) :index i :type type)))))
 
-      (make-instance 'sound 
+      (make-instance 'sound
                      :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch nch)
                      :n-samples size
                      :n-channels nch
@@ -381,7 +381,7 @@
   "Stereo-ize a mono sound with possible panoramic <s>.
 
 <pan> is a panoramic value between -100 (Left channel) and 100 (Right channel)."
-            
+
   (cond ((null (oa::om-pointer-ptr (buffer s)))
          (om-beep-msg "Error: null sound buffer"))
 
@@ -395,13 +395,13 @@
                 (Lgain (if (<= pan 0) 1 (- 1 pan)))
                 (Rgain (if (>= pan 0) 1 (+ 1 pan)))
                 (x 0.0))
-                      
+
            (dotimes (i size)
              (setf x (fli:dereference (fli:dereference ptr :index 0 :type :pointer) :index i :type type))
              (setf (fli:dereference (fli:dereference final-buffer :index 0 :type :pointer) :type type :index i) (* Lgain x)
                    (fli:dereference (fli:dereference final-buffer :index 1 :type :pointer) :type type :index i) (* Rgain x)))
-              
-           (make-instance 'sound 
+
+           (make-instance 'sound
                           :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch nch)
                           :n-samples size
                           :n-channels 2
@@ -418,25 +418,25 @@
   :initvals '(nil)
   :indoc '("a sound")
   "Mono-ize a sound."
-  
+
   (if (null (oa::om-pointer-ptr (buffer s)))
       (om-beep-msg "Error: null sound buffer")
-    
+
     (let* ((ptr (oa::om-pointer-ptr (buffer s)))
            (type (smpl-type s))
-           (final-buffer (make-audio-buffer 1 (n-samples s) type)) 
+           (final-buffer (make-audio-buffer 1 (n-samples s) type))
            (nch (n-channels s)))
-      
-      (dotimes (i (n-samples s))
-        
-        (setf (fli:dereference (fli:dereference final-buffer :index 0 :type :pointer) :index i :type type) 
 
-              (/ (loop for c from 0 to (1- nch) 
+      (dotimes (i (n-samples s))
+
+        (setf (fli:dereference (fli:dereference final-buffer :index 0 :type :pointer) :index i :type type)
+
+              (/ (loop for c from 0 to (1- nch)
                        sum (fli:dereference (fli:dereference ptr :index c :type :pointer) :index i :type type))
                  (float nch))
               ))
 
-      (make-instance 'sound 
+      (make-instance 'sound
                      :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch 1)
                      :n-samples (n-samples s)
                      :n-channels 1
@@ -476,8 +476,8 @@
                    xr (fli:dereference (fli:dereference ptr :index 1 :type :pointer) :index i :type type))
              (setf (fli:dereference (fli:dereference final-buffer :index 0 :type :pointer) :index i :type type) (+ (* leftLgain xl) (* rightLgain xr))
                    (fli:dereference (fli:dereference final-buffer :index 1 :type :pointer) :index i :type type) (+ (* leftRgain xl) (* rightRgain xr))))
-           
-           (make-instance 'sound 
+
+           (make-instance 'sound
                           :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch nch)
                           :n-samples size
                           :n-channels nch
@@ -500,7 +500,7 @@
   :doc "Generates a mix of <s1> and <s2>.
 
 <s1-offset> and <s2-offset> are temporal offsets in seconds (float) or milliseconds (int)."
-            
+
   (cond ((or (null (oa::om-pointer-ptr (buffer s1))) (null (oa::om-pointer-ptr (buffer s2))))
          (om-beep-msg "Error : buffer(s) not initialized."))
         ((and (= (n-channels s1) (n-channels s2)) (= (sample-rate s1) (sample-rate s2)))
@@ -522,12 +522,12 @@
                     (dotimes (n nch)
                       (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type1)
                             (+ (if (< i offset1) 0.0
-                                 (if (< i (+ offset1 size1)) 
-                                     (fli:dereference (fli:dereference ptr1 :index n :type :pointer) :index (- i offset1) :type type1) 
-                                   0.0)) 
+                                 (if (< i (+ offset1 size1))
+                                     (fli:dereference (fli:dereference ptr1 :index n :type :pointer) :index (- i offset1) :type type1)
+                                   0.0))
                                (if (< i offset2) 0.0
-                                 (if (< i (+ offset2 size2)) 
-                                     (fli:dereference (fli:dereference ptr2 :index n :type :pointer) :index (- i offset2) :type type2) 
+                                 (if (< i (+ offset2 size2))
+                                     (fli:dereference (fli:dereference ptr2 :index n :type :pointer) :index (- i offset2) :type type2)
                                    0.0))
                                ))
                       )))
@@ -535,28 +535,28 @@
                   (dotimes (i final-size)
                     (dotimes (n nch)
                       (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type1)
-                            (/ 
+                            (/
                              (+ (if (< i offset1) 0.0
-                                 (if (< i (+ offset1 size1)) 
-                                     (fli:dereference (fli:dereference ptr1 :index n :type :pointer) :index (- i offset1) :type type1) 
-                                   0.0)) 
-                               (if (< i offset2) 0.0
-                                 (if (< i (+ offset2 size2)) 
-                                     (fli:dereference (fli:dereference ptr2 :index n :type :pointer) :index (- i offset2) :type type2) 
-                                   0.0))
-                               )
+                                  (if (< i (+ offset1 size1))
+                                      (fli:dereference (fli:dereference ptr1 :index n :type :pointer) :index (- i offset1) :type type1)
+                                    0.0))
+                                (if (< i offset2) 0.0
+                                  (if (< i (+ offset2 size2))
+                                      (fli:dereference (fli:dereference ptr2 :index n :type :pointer) :index (- i offset2) :type type2)
+                                    0.0))
+                                )
                              2)))))
-                 ((= method 2) 
+                 ((= method 2)
                   (dotimes (i final-size)
                     (dotimes (n nch)
-                      (setf res 
+                      (setf res
                             (+ (if (< i offset1) 0.0
-                                 (if (< i (+ offset1 size1)) 
-                                     (fli:dereference (fli:dereference ptr1 :index n :type :pointer) :index (- i offset1) :type type1) 
-                                   0.0)) 
+                                 (if (< i (+ offset1 size1))
+                                     (fli:dereference (fli:dereference ptr1 :index n :type :pointer) :index (- i offset1) :type type1)
+                                   0.0))
                                (if (< i offset2) 0.0
-                                 (if (< i (+ offset2 size2)) 
-                                     (fli:dereference (fli:dereference ptr2 :index n :type :pointer) :index (- i offset2) :type type2) 
+                                 (if (< i (+ offset2 size2))
+                                     (fli:dereference (fli:dereference ptr2 :index n :type :pointer) :index (- i offset2) :type type2)
                                    0.0))
                                ))
                       (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type1)
@@ -564,12 +564,12 @@
                                   ((> res 1) 1.0)
                                   (t res)))))))
 
-                 (make-instance 'sound 
-                                :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch nch)
-                                :n-samples final-size
-                                :n-channels nch
-                                :sample-rate (sample-rate s1)
-                                :smpl-type type1)))
+           (make-instance 'sound
+                          :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch nch)
+                          :n-samples final-size
+                          :n-channels nch
+                          :sample-rate (sample-rate s1)
+                          :smpl-type type1)))
         (t
          (om-beep-msg "Error : trying to mix 2 sounds with different number of channels or different sample rate. Output is the input 1.")
          s1)))
@@ -581,7 +581,7 @@
   :initvals '(nil)
   :indoc '("a list of sounds")
   "Merges several sounds into a single multi-channel sound."
-            
+
   (let* ((sounds (mapcar 'get-sound sound-list))
          (type (smpl-type (car sounds)))
          (sr (sample-rate (car sounds)))
@@ -590,19 +590,19 @@
          (n-channels-out (apply '+ (mapcar 'n-channels sounds)))
          (final-buffer (make-audio-buffer n-channels-out n-samples-out type))
          (c 0))
-    
+
     (loop for snd in sounds do
           (with-audio-buffer (b snd)
             (dotimes (srcchan (n-channels snd))
               (let ((bptr (oa::om-pointer-ptr b)))
                 (dotimes (i (n-samples snd))
                   ;(print (list b c srcchan i))
-                  (setf (fli:dereference (fli:dereference final-buffer :index c :type :pointer) :type type :index i) 
+                  (setf (fli:dereference (fli:dereference final-buffer :index c :type :pointer) :type type :index i)
                         (fli:dereference (fli:dereference bptr :index srcchan :type :pointer) :type type :index i)))
                 (setf c (1+ c))))
             ))
-    
-    (make-instance 'sound 
+
+    (make-instance 'sound
                    :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch n-channels-out)
                    :n-samples n-samples-out
                    :n-channels n-channels-out
@@ -617,16 +617,16 @@
   :initvals '(nil)
   :indoc '("a (multichannel) sounds")
   "outputs a list of mono sounds from input channels"
-       
+
   (let ((type (smpl-type s)))
     (with-audio-buffer (b s)
       (let ((bptr (oa::om-pointer-ptr b)))
         (loop for c from 0 to (1- (n-channels s)) collect
-              (let ((new-buffer (make-audio-buffer 1 (n-samples s) type)))            
+              (let ((new-buffer (make-audio-buffer 1 (n-samples s) type)))
                 (dotimes (i (n-samples snd))
-                  (setf (fli:dereference (fli:dereference new-buffer :index 0 :type :pointer) :type type :index i) 
+                  (setf (fli:dereference (fli:dereference new-buffer :index 0 :type :pointer) :type type :index i)
                         (fli:dereference (fli:dereference bptr :index c :type :pointer) :type type :index i)))
-                (make-instance 'sound 
+                (make-instance 'sound
                                :buffer (make-om-sound-buffer-GC :ptr new-buffer :nch 1)
                                :n-samples (n-samples s)
                                :n-channels 1
@@ -641,7 +641,7 @@
   :icon 'sound-seq
   :initvals '(nil nil 0)
   :indoc '("a sound" "a sound" "cross-fading duration (ms)")
-  "Concatenates <s1> and <s2>. 
+  "Concatenates <s1> and <s2>.
 <crossfade> (duration in seconds/flots or milliseconds/int) determines a fade-in/fade out overlapping between the sounds."
   (cond ((or (null (oa::om-pointer-ptr (buffer s1))) (null (oa::om-pointer-ptr (buffer s2))))
          (om-beep-msg "Error : buffer(s) not initialized."))
@@ -660,21 +660,21 @@
                 (factor2 (/ 1.0 (max 1 smp-cross)))
                 (final-size (- (+ size1 size2) smp-cross))
                 (final-buffer (make-audio-buffer nch final-size type1)))
-           
+
            (dotimes (i final-size)
              (dotimes (n nch)
                (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type1)
-                     (cond ((< i (- size1 smp-cross)) 
+                     (cond ((< i (- size1 smp-cross))
                             (fli:dereference (fli:dereference ptr1 :index n :type :pointer) :index i :type type1))
-                           ((and (>= i (- size1 smp-cross)) (< i size1)) 
+                           ((and (>= i (- size1 smp-cross)) (< i size1))
                             (+ (* (1+ (* factor1 (- i (- size1 smp-cross))))
                                   (fli:dereference (fli:dereference ptr1 :index n :type :pointer) :index i :type type1))
-                               (* factor2 (- i (- size1 smp-cross)) 
+                               (* factor2 (- i (- size1 smp-cross))
                                   (fli:dereference (fli:dereference ptr2 :index n :type :pointer) :index (+ smp-cross (- i size1)) :type type2))))
-                           ((>= i size1) 
+                           ((>= i size1)
                             (fli:dereference (fli:dereference ptr2 :index n :type :pointer) :index (+ smp-cross (- i size1)) :type type2))))))
 
-           (make-instance 'sound 
+           (make-instance 'sound
                           :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch nch)
                           :n-samples final-size
                           :n-channels nch
@@ -704,9 +704,9 @@
 
            (dotimes (i size)
              (dotimes (n nch)
-               (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type) 
+               (setf (fli:dereference (fli:dereference final-buffer :index n :type :pointer) :index i :type type)
                      (fli:dereference (fli:dereference ptr :index n :type :pointer) :index (- size i) :type type))))
-           (make-instance 'sound 
+           (make-instance 'sound
                           :buffer (make-om-sound-buffer-GC :ptr final-buffer :nch nch)
                           :n-samples size
                           :n-channels nch

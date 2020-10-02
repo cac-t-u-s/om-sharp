@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -54,14 +54,14 @@
 (defmethod in-group? ((self r-rest)) (group-p (parent self)))
 (defmethod in-group? ((self t)) nil)
 
-(defmethod alone-in-group?  ((self score-element)) 
+(defmethod alone-in-group?  ((self score-element))
   (and (in-group? self)
        (= (length (inside (parent self))) 1)))
 
 
 (defmethod singelton-group? ((self group))
   (let* ((inside (inside self)))
-    (and (= (length inside) 1) 
+    (and (= (length inside) 1)
          (or (chord-p (car inside))
              (rest-p (car inside))))))
 
@@ -84,7 +84,7 @@
             (power-of-two-p durtot))
         (get-denom-bin num)) ;;;changed here from is-binaire? to powerof2?
        ((is-ternaire? durtot) (get-denom-ter num))
-       (t (get-denom-other durtot num))) 
+       (t (get-denom-other durtot num)))
     (list 1 1)
     ))
 
@@ -109,17 +109,17 @@
          (durtot (if (listp dur) (car dur) dur))
          (num (or (om::get-group-ratio self)  (om::extent self)))
          (denom (om::find-denom num durtot))
-         (unite (/ durtot (if (listp denom) (second denom) denom)))) 
+         (unite (/ durtot (if (listp denom) (second denom) denom))))
     (format nil "~A" (cadr (find unite *note-types* :key 'car)))
     ))
 
 
 (defmethod getratiogroup ((self om::group))
-  (if (singelton-group? self) (list 1 1) ;;; when a group is in fact a single note 
+  (if (singelton-group? self) (list 1 1) ;;; when a group is in fact a single note
     (let* ((allparents (reverse (cdr (getdemall self))))
            (dur (get-dur-group self))
            (num (om::get-group-ratio self))) ;;; check definition of get-group-ratio
-      (if (not allparents) 
+      (if (not allparents)
           (let* ((denom (findenom num dur)))
             (if (listp denom) denom
               (list num (findenom num dur)))) ;;; a voir !!!!!!!
@@ -127,11 +127,11 @@
                (ratios (loop for i in allparents
                              do (setf fact (* fact  (lst->ratio (getratiogroup i)))))) ;;; donne le facteur accumule des nested tup
                (denom (findenom num fact)))
-             
-          (if (listp denom) 
+
+          (if (listp denom)
               denom
             (list num denom)
-            )) 
+            ))
         ))))
 
 ;;;ici il fait la meme chose que getratiogroup averc les ratios...
@@ -140,7 +140,7 @@
   (let* ((allparents (reverse (cdr (getdemall self))))
          (dur (get-dur-group self))
          (num (om::get-group-ratio self)))
-    (if (not allparents) 
+    (if (not allparents)
         dur
       (let* ((fact (get-dur-group self))
              (ratios (loop for i in allparents
@@ -159,16 +159,16 @@
          (denom (second (getratiogroup buf)))
          (nums (list num))
          (denoms (list denom))
-         (index 0)) 
-    (loop 
-      while (group-p buf)
-      do (progn 
-           (incf index)
-           (setf buf (parent buf))
-           (push (car (getratiogroup buf)) nums)
-           (push (second (getratiogroup buf)) denoms)
-           (setf num (* num (car (getratiogroup buf))))
-           (setf denom (* denom (second (getratiogroup buf))))))
+         (index 0))
+    (loop
+     while (group-p buf)
+     do (progn
+          (incf index)
+          (setf buf (parent buf))
+          (push (car (getratiogroup buf)) nums)
+          (push (second (getratiogroup buf)) denoms)
+          (setf num (* num (car (getratiogroup buf))))
+          (setf denom (* denom (second (getratiogroup buf))))))
     (list index num denom (butlast (reverse nums)) (butlast (reverse denoms)))))
 
 
@@ -186,26 +186,26 @@
   (/ (getratiodur self) (second (getratiogroup self))))
 
 (defmethod getdemall ((self om::group))
-  "For nested tuplets. Returns all group-parents to a group including the group itself" 
+  "For nested tuplets. Returns all group-parents to a group including the group itself"
   (let* ((test self)
          (res (list self)))
-    (loop while test 
-          do (progn 
+    (loop while test
+          do (progn
                (push (parent test) res)
-               (if (measure-p (parent test)) 
+               (if (measure-p (parent test))
                    (setf test nil)
                  (setf test (parent test)))))
     (butlast (reverse res))))
 
 
 (defmethod get-dur-group ((self measure))
-"Returns the duration of measure * whole note"
+  "Returns the duration of measure * whole note"
   (let* ((ext (om::extent self))
          (qval (om::qvalue self)))
     (/ ext (* qval 4))))
 
 (defmethod get-dur-group ((self group))
-"Returns the duration of measure * whole note.
+  "Returns the duration of measure * whole note.
 durtot etant la duree du group parent"
   (let* ((ext (om::extent self))
          (qval (om::qvalue self)))
@@ -213,7 +213,7 @@ durtot etant la duree du group parent"
 
 
 (defun reduce-num-den-fig (list)
-  "Reduces binary ratios and fig dedoubles. C-a-d 
+  "Reduces binary ratios and fig dedoubles. C-a-d
 si on a (14 8 1/16) il retourne (7 4 1/8)"
   (if (= (car list) (second list)) list
     (let ((res list))
@@ -234,7 +234,7 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
   (let* ((rat (om::first-n (getratiogroup self) 2))
          (unit (getratiounite self))
          (reduce (reduce-num-den-fig (om::flat (list rat unit)))))
-    (list (car reduce) (second reduce) 
+    (list (car reduce) (second reduce)
           (format nil "~A" (cadr (find (third reduce) *note-types* :key 'car))))
     ))
 
@@ -250,12 +250,12 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
 
 
 (defun first-of-this-group (self grp)
-       (let ((frst (car (om::collect-chords grp))))
-         (equal self frst)))
+  (let ((frst (car (om::collect-chords grp))))
+    (equal self frst)))
 
 (defun last-of-this-group (self grp)
-       (let ((lst (car (reverse (om::collect-chords grp)))))
-         (equal self lst)))
+  (let ((lst (car (reverse (om::collect-chords grp)))))
+    (equal self lst)))
 
 (defun tied? (self)
   (or (and (not (cont-chord-p self))
@@ -271,28 +271,28 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
               (cont-chord-p (om::next-container self '(chord))))
          "<tie type=\"start\"/>")
         ((and (om::cont-chord-p self)
-             (not (om::cont-chord-p (om::next-container self '(chord)))))
-        "<tie type=\"stop\"/>")
+              (not (om::cont-chord-p (om::next-container self '(chord)))))
+         "<tie type=\"stop\"/>")
         ((and (om::cont-chord-p self)
               (om::cont-chord-p (om::next-container self '(chord))))
-        "<tie type=\"stop\"/><tie type=\"start\"/>")
-       (t nil))) ;;;;the nil thing is comin from here
+         "<tie type=\"stop\"/><tie type=\"start\"/>")
+        (t nil))) ;;;;the nil thing is comin from here
 
 (defun cons-xml-tied-notation (self)
   (cond ((and (not (om::cont-chord-p self))
               (om::cont-chord-p (om::next-container self '(om::chord))))
          "<tied type=\"start\"/>")
         ((and (om::cont-chord-p self)
-             (not (om::cont-chord-p (om::next-container self '(om::chord)))))
-        "<tied type=\"stop\"/>")
+              (not (om::cont-chord-p (om::next-container self '(om::chord)))))
+         "<tied type=\"stop\"/>")
         ((and (om::cont-chord-p self)
               (om::cont-chord-p (om::next-container self '(om::chord))))
-        "<tied type=\"stop\"/><tied type=\"start\"/>")
-       (t NIL))) ;;;;the nil thing is comin from here
+         "<tied type=\"stop\"/><tied type=\"start\"/>")
+        (t NIL))) ;;;;the nil thing is comin from here
 
 
 (defun cons-xml-tuplet-start (num denom notetype nbr)
-  (list 
+  (list
    (format nil "<tuplet bracket=\"yes\" number=\"~A\" placement=\"above\" type=\"start\">" nbr)
    (list "<tuplet-actual>"
          (list (format nil "<tuplet-number>~A</tuplet-number>" num)
@@ -324,67 +324,67 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
                    (norm-note (third lvl))
                    (indx (car lvl))
                    (numdeno (getallgroups self))
-                   (numdenom (remove nil 
+                   (numdenom (remove nil
                                      (loop for i in numdeno
                                            collect (if (not (= 1 (/ (car i) (second i)))) i )   ;;; PB if group (n n) !!!
                                            )))
                    (simpli (/ act-note norm-note)))
-               
+
               (if (not (= (/ act-note norm-note) 1))
-                  
-                  (cond 
+
+                  (cond
                    ((and (om::last-of-group? self) (om::first-of-group? self))
                     (when (accent? self) (list (cons-xml-articulation self))))
-             
+
                    ((and (om::first-of-group? self)  (not (om::last-of-group? self)))
-                    (remove nil 
-                            (append 
+                    (remove nil
+                            (append
                              (let ((obj self)
                                    (indx (+ (length numdenom) 1)))
-                               (remove nil (loop for i in (reverse numdenom)           
-                                                 append (progn 
+                               (remove nil (loop for i in (reverse numdenom)
+                                                 append (progn
                                                           (setf obj (om::parent obj))
                                                           (setf indx (- indx 1))
                                                           (when (first-of-this-group self obj)
                                                             (cons-xml-tuplet-start (car i) (second i) (third i) indx))))))
                              (list (cons-xml-tied-notation self)
                                    (when (accent? self) (cons-xml-articulation self))))))
-                   
+
                    ((and (om::last-of-group? self) (not (om::first-of-group? self)))
-                    (remove nil 
-                            (append 
+                    (remove nil
+                            (append
                              (let ((obj self)
                                    (indx (+ (length numdenom) 1)))
-                               (remove nil (loop for i in numdenom           
-                                                 append (progn 
+                               (remove nil (loop for i in numdenom
+                                                 append (progn
                                                           (setf obj (om::parent obj))
                                                           (setf indx (- indx 1))
                                                           (when (last-of-this-group self obj)
                                                             (cons-xml-tuplet-end indx))))))
                              (list (cons-xml-tied-notation self)
                                    (when (accent? self) (cons-xml-articulation self))))))
-                   
+
                    (t (when (accent? self) (list (cons-xml-articulation self))))
                    )
 
                 (when (or (tied? self) (accent? self))
-                  (remove nil 
-                          (list 
+                  (remove nil
+                          (list
                            (when (tied? self) (cons-xml-tied-notation self))
                            (when (accent? self) (cons-xml-articulation self)))))
                 ))
 
 
           (when (or (tied? self) (accent? self))
-            (remove nil 
-                    (list 
+            (remove nil
+                    (list
                      (when (tied? self) (cons-xml-tied-notation self))
                      (when (accent? self) (cons-xml-articulation self)))))
           )
-        
+
         ;;; VEL
         (cons-xml-velocity self)
-        
+
         "</notations>"
         ))
 
@@ -392,10 +392,10 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
 (defun get-parent-measure (self)
   "Donne la mesure liee a l'obj chord par exemple"
   (let ((obj (om::parent self)))
-  (loop 
-    while (not (om::measure-p obj))
-    do (setf obj (om::parent obj)))
-  obj))
+    (loop
+     while (not (om::measure-p obj))
+     do (setf obj (om::parent obj)))
+    obj))
 
 
 (defmethod donne-figure ((self om::chord))
@@ -408,14 +408,14 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
          (factor (/ (* 1/4 dur-obj-noire) real-beat-val))
          (stem (om::extent self))
          (obj self))
-    
-     (loop 
-      while (not (om::measure-p obj))
-      do (progn 
-           (setf stem (* stem (om::extent (om::parent obj))))
-           (setf obj (om::parent obj)))) 
-   (let ((numbeams  (om::get-number-of-beams (* symb-beat-val factor))))
-     (if (listp numbeams) (car numbeams) numbeams ))))
+
+    (loop
+     while (not (om::measure-p obj))
+     do (progn
+          (setf stem (* stem (om::extent (om::parent obj))))
+          (setf obj (om::parent obj))))
+    (let ((numbeams  (om::get-number-of-beams (* symb-beat-val factor))))
+      (if (listp numbeams) (car numbeams) numbeams ))))
 
 
 (defmethod donne-figure ((self om::r-rest))
@@ -428,14 +428,14 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
          (factor (/ (* 1/4 dur-obj-noire) real-beat-val))
          (stem (om::extent self))
          (obj self))
-    
-     (loop 
-      while (not (om::measure-p obj))
-      do (progn 
-           (setf stem (* stem (om::extent (om::parent obj))))
-           (setf obj (om::parent obj)))) 
-   (let ((numbeams  (om::get-number-of-beams (* symb-beat-val factor))))
-     (if (listp numbeams) (car numbeams) numbeams ))))
+
+    (loop
+     while (not (om::measure-p obj))
+     do (progn
+          (setf stem (* stem (om::extent (om::parent obj))))
+          (setf obj (om::parent obj))))
+    (let ((numbeams  (om::get-number-of-beams (* symb-beat-val factor))))
+      (if (listp numbeams) (car numbeams) numbeams ))))
 
 (defmethod donne-figure ((self t)) 0)
 
@@ -462,8 +462,8 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
                         (if (and (in-group? (nxt-cont self))
                                  (> beamprev 0) (> beamnext 0) (nxt-is-samegrp? self))
                             "<beam>continue</beam>" "<beam>end</beam>"))
-          
-                       (t NIL)) 
+
+                       (t NIL))
                  ))
     ))
 
@@ -487,26 +487,26 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
 
 (defparameter *kascii-note-C-scale*
   (mapc #'(lambda (x) (setf (car x) (string-upcase (string (car x)))))
-    '((c . :n) (c . :h) (c . :q) (c . :hq) (c . :s) (c . :hs) (c . :qs) (c . :hqs)
-      (d . :n) (d . :h) (d . :q) (d . :hq) (d . :s) (d . :hs) (d . :qs) (d . :hqs)
-      (e . :n) (e . :h) (e . :q) (e . :hq)
-      (f . :n) (f . :h) (f . :q) (f . :hq) (f . :s) (f . :hs) (f . :qs) (f . :hqs)
-      (g . :n) (g . :h) (g . :q) (g . :hq) (g . :s) (g . :hs) (g . :qs) (g . :hqs)
-      (a . :n) (a . :h) (a . :q) (a . :hq) (a . :s) (a . :hs) (a . :qs) (a . :hqs)
-      (b . :n) (b . :h) (b . :q) (b . :hq))))
+        '((c . :n) (c . :h) (c . :q) (c . :hq) (c . :s) (c . :hs) (c . :qs) (c . :hqs)
+          (d . :n) (d . :h) (d . :q) (d . :hq) (d . :s) (d . :hs) (d . :qs) (d . :hqs)
+          (e . :n) (e . :h) (e . :q) (e . :hq)
+          (f . :n) (f . :h) (f . :q) (f . :hq) (f . :s) (f . :hs) (f . :qs) (f . :hqs)
+          (g . :n) (g . :h) (g . :q) (g . :hq) (g . :s) (g . :hs) (g . :qs) (g . :hqs)
+          (a . :n) (a . :h) (a . :q) (a . :hq) (a . :s) (a . :hs) (a . :qs) (a . :hqs)
+          (b . :n) (b . :h) (b . :q) (b . :hq))))
 
 (defparameter *kascii-note-scales* (list *kascii-note-C-scale*))
 
 (defparameter *kascii-note-alterations*
-   '((:s 1 +100) (:f -1 -100)
-     (:q 0.5 +50) (:qs 1.5 +150) (:-q -0.5 -50) (:f-q -1.5 -150)
-     (:h 0.25 +25) (:hq 0.75 +75) (:hs 1.25 +125) (:hqs 1.75 +175) (:-h -0.25 -25) (:-hq -0.75 -75)(:-hs -1.25 -125)(:-hqs -1.75 -175)
-     (:n 0 0)))
+  '((:s 1 +100) (:f -1 -100)
+    (:q 0.5 +50) (:qs 1.5 +150) (:-q -0.5 -50) (:f-q -1.5 -150)
+    (:h 0.25 +25) (:hq 0.75 +75) (:hs 1.25 +125) (:hqs 1.75 +175) (:-h -0.25 -25) (:-hq -0.75 -75)(:-hs -1.25 -125)(:-hqs -1.75 -175)
+    (:n 0 0)))
 
 
 (defparameter *note-accidentals*
   '((0.25 natural-up)
-    (0.5 quarter-sharp) 
+    (0.5 quarter-sharp)
     (0.75 sharp-down)
     (1 sharp)
     (1.25 sharp-up)
@@ -519,7 +519,7 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
 (defun mc->xmlvalues (midic &optional (approx 2))
   "Converts <midic> to a string representing a symbolic ascii note."
   (let* ((kascii-note-scale (car *kascii-note-scales*))
-         (dmidic (/ 1200 (length kascii-note-scale))) 
+         (dmidic (/ 1200 (length kascii-note-scale)))
          (vals (multiple-value-list (round (om::approx-m midic approx) dmidic)))
          (midic/50 (car vals))
          (cents (cadr vals))
@@ -529,7 +529,7 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
          (note (nth (/ midic<1200 dmidic) kascii-note-scale))
          (alt (cdr note)))
     (list midic
-          (coerce (car note) 'character) 
+          (coerce (car note) 'character)
           (cadr (find alt *kascii-note-alterations* :key 'car))
           oct+2)))
 
@@ -540,7 +540,7 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
 
 ;;;--------<NOTE HEADS>--------
 (defun notetype (val)
-  (cond 
+  (cond
    ((>= val 2) 2)
    ((>= val 1/2) 1/2)
    ((>= val 1/4) 1/4)
@@ -575,7 +575,7 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
       (setf char (note-strict-lp (/ bef bas)))
       (setf points 2)))
 
-    (if (> val 1) 
+    (if (> val 1)
         (list (/ char 1) points)
       (list (/ 1 char) points))
     ))
@@ -586,9 +586,9 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
 
 ;;;-------<MISC>--------
 
-(defun cons-xml-text-extras (self) 
+(defun cons-xml-text-extras (self)
   (when (om::get-extras self "text")
-    (list "<lyric default-y=\"-80\" justify=\"left\" number=\"1\">" 
+    (list "<lyric default-y=\"-80\" justify=\"left\" number=\"1\">"
           (list  "<syllabic>single</syllabic>"
                  (format nil "<text>~A</text>" (om::thetext (car (om::get-extras self "text"))))
                  "<extend type=\"start\"/>")
@@ -597,7 +597,7 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
 
 (defmethod cons-xml-velocity ((self om::chord))
   (when (om::get-extras self "vel")
-    
+
     (let* ((ex (car (om::get-extras self "vel")))
            (schar (or (om::dynamics ex)
                       (om::get-dyn-from-vel (om::get-object-vel (om::object ex))))))
@@ -613,78 +613,78 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
 ;;;================
 
 ;;; new here in order to put the correct <duration> according to <divisions> of each measure.
-;;; for compatibility 
+;;; for compatibility
 
 ;(defmethod get-xml-duration ((self t))
 ;  (* (/ (om::extent self) 4) (/ 1 (om::qvalue self))))
 
 (defmethod get-xml-duration ((self t))
-  (* (mesure-divisions (get-parent-measure self)) 
+  (* (mesure-divisions (get-parent-measure self))
      (/ (om::extent self) (om::qvalue self))))
 
-  
+
 (defun cons-xml-time-modification (self)
   (if (and (in-group? self) (not (alone-in-group? self)))
       (let ((ratio (butlast (get-group-info (parent self)))))
         (list "<time-modification>"
-        (list (format nil "<actual-notes>~A</actual-notes>" (car ratio))
-              (format nil "<normal-notes>~A</normal-notes>" (cadr ratio)))
-        "</time-modification>"))
+              (list (format nil "<actual-notes>~A</actual-notes>" (car ratio))
+                    (format nil "<normal-notes>~A</normal-notes>" (cadr ratio)))
+              "</time-modification>"))
     NIL))
 
 (defmethod cons-xml-expr ((self om::chord) &key free key (approx 2) part)
-  (let* (;; (dur free) 
+  (let* (;; (dur free)
          (dur (if (listp free) (car free) free))
          (head-and-pts (get-head-and-points dur))
          (note-head (cadr (find (car head-and-pts) *note-types* :key 'car)))
          (nbpoints (cadr head-and-pts))
          (durtot (get-xml-duration self))  ;;; !!!!
          (inside (om::inside self)))
-    (loop for note in inside 
-           for i = 0 then (+ i 1) append 
-           (let* ((note-values (mc->xmlvalues (om::midic note) approx))
-                  (step (nth 1 note-values))
-                  (alteration (nth 2 note-values))
-                  (octave (nth 3 note-values)))
-                         
-             (list (format nil "<note dynamics=\"~D\">" (midi-vel-to-mxml-vel (om::vel note)))
-                   (unless (= i 0) "<chord/>") ;;; if this is not the first note in the chord
-                   (remove nil 
-                           (append 
-                            (list "<pitch>"
-                                  (remove nil 
-                                          (list (format nil "<step>~A</step>" step)
-                                                (when alteration (format nil "<alter>~A</alter>" alteration))
-                                                (format nil "<octave>~A</octave>" octave)))
-                                  "</pitch>"
-                                  (format nil "<duration>~A</duration>" durtot)
-                                  (cons-xml-tied self) ;;; ties (performance)
-                                  (let ((headstr (format nil "<type>~A</type>" note-head)))
-                                    (loop for i from 1 to nbpoints do (setf headstr (concatenate 'string headstr "<dot/>")))
-                                    headstr)
-                                  (when (find alteration *note-accidentals* :key 'car)  ;;; accidental (if any)
-                                    (format nil "<accidental>~A</accidental>" (cadr (find alteration *note-accidentals* :key 'car))))
-                                  (format nil "<instrument id=\"P~D-I~D\"/>" part (om::chan note))
-                                  )
-                            (cons-xml-time-modification self)
-                            (cons-xml-beam self)
-                            (cons-xml-groupnotation self)
-                            (when (= i 0) (cons-xml-text-extras self))
-                            ))
-                   "</note>")
-             ))))
+    (loop for note in inside
+          for i = 0 then (+ i 1) append
+          (let* ((note-values (mc->xmlvalues (om::midic note) approx))
+                 (step (nth 1 note-values))
+                 (alteration (nth 2 note-values))
+                 (octave (nth 3 note-values)))
 
-   
+            (list (format nil "<note dynamics=\"~D\">" (midi-vel-to-mxml-vel (om::vel note)))
+                  (unless (= i 0) "<chord/>") ;;; if this is not the first note in the chord
+                  (remove nil
+                          (append
+                           (list "<pitch>"
+                                 (remove nil
+                                         (list (format nil "<step>~A</step>" step)
+                                               (when alteration (format nil "<alter>~A</alter>" alteration))
+                                               (format nil "<octave>~A</octave>" octave)))
+                                 "</pitch>"
+                                 (format nil "<duration>~A</duration>" durtot)
+                                 (cons-xml-tied self) ;;; ties (performance)
+                                 (let ((headstr (format nil "<type>~A</type>" note-head)))
+                                   (loop for i from 1 to nbpoints do (setf headstr (concatenate 'string headstr "<dot/>")))
+                                   headstr)
+                                 (when (find alteration *note-accidentals* :key 'car)  ;;; accidental (if any)
+                                   (format nil "<accidental>~A</accidental>" (cadr (find alteration *note-accidentals* :key 'car))))
+                                 (format nil "<instrument id=\"P~D-I~D\"/>" part (om::chan note))
+                                 )
+                           (cons-xml-time-modification self)
+                           (cons-xml-beam self)
+                           (cons-xml-groupnotation self)
+                           (when (= i 0) (cons-xml-text-extras self))
+                           ))
+                  "</note>")
+            ))))
+
+
 (defmethod cons-xml-expr ((self om::r-rest) &key free key (approx 2) part)
   (let* ((dur (if (listp free) (car free) free))
          (head-and-pts (get-head-and-points dur))
          (note-head (cadr (find (car head-and-pts) *note-types* :key 'car)))
          (nbpoints (cadr head-and-pts))
          (durtot (get-xml-duration self)))
-    (list "<note>" 
+    (list "<note>"
           "<rest/>"
           (remove nil
-                  (list 
+                  (list
                    (format nil "<duration>~A</duration>" durtot)
                    (let ((headstr (format nil "<type>~A</type>" note-head)))
                      (loop for i from 1 to nbpoints do (setf headstr (concatenate 'string headstr "<dot/>")))
@@ -701,7 +701,7 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
 
 
 (defmethod cons-xml-expr ((self group) &key free key (approx 2) part)
-  
+
   (let* ((durtot free)
          (cpt (if (listp free) (cadr free) 0))
          (num (or (get-group-ratio self) (om::extent self)))
@@ -711,45 +711,45 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
          (unite (/ durtot denom)))
 
     (cond
-     
+
      ((not (get-group-ratio self))
-      
-      (loop for obj in (inside self) append 
+
+      (loop for obj in (inside self) append
             (let* (; (dur-obj (/ (/ (om::extent obj) (om::qvalue obj)) (/ (om::extent self) (om::qvalue self))))
                    (dur-obj (symbolic-dur self)))
-              
-              (cons-xml-expr obj 
-                             :free dur-obj ;; (* dur-obj durtot) 
+
+              (cons-xml-expr obj
+                             :free dur-obj ;; (* dur-obj durtot)
                              :approx approx :part part))))
-     
+
      ((= (/ num denom) 1)
-      
-      (loop for obj in (inside self) 
+
+      (loop for obj in (inside self)
             append
-            (let* ((operation (/ (/ (om::extent obj) (om::qvalue obj)) 
+            (let* ((operation (/ (/ (om::extent obj) (om::qvalue obj))
                                  (/ (om::extent self) (om::qvalue self))))
-                   (dur-obj (* num operation)))                     
+                   (dur-obj (* num operation)))
               (cons-xml-expr obj :free (* dur-obj unite) :approx approx :part part)))    ;;;; ACHTUNG !!
       )
-     
+
      (t
       (let ((depth 0) (rep nil))
         (loop for obj in (inside self) do
-              (setf rep (append rep 
-                                (let* ((operation (/ (/ (om::extent obj) (om::qvalue obj)) 
+              (setf rep (append rep
+                                (let* ((operation (/ (/ (om::extent obj) (om::qvalue obj))
                                                      (/ (om::extent self) (om::qvalue self))))
                                        (dur-obj (* num operation))
-                                       (tmp (multiple-value-list 
+                                       (tmp (multiple-value-list
                                              (cons-xml-expr obj :free (list (* dur-obj unite) cpt)
                                                             :approx approx :part part)))
                                        (exp (car tmp)))
-                                  
+
                                   (when (and (cadr tmp) (> (cadr tmp) depth))
                                     (setf depth (cadr tmp)))
                                   exp))))
         (values rep (+ depth 1))
         ))
-      
+
      )))
 
 
@@ -775,7 +775,7 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
 
 
 (defmethod cons-xml-expr ((self measure) &key free (key '(G 2)) (approx 2) part)
-  (let* ((mesnum free) 
+  (let* ((mesnum free)
          (inside (inside self))
          (tree (tree self))
          (signature (car tree))
@@ -804,8 +804,8 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
                   (loop for obj in inside ;for fig in (cadr (dursdivisions self))  ;;;;;transmetre les note-types
                         append
                         (let* (;; from OM6:
-                               ;; (dur-beats (/ (* 1/4 (/ (om::extent obj) (om::qvalue obj))) real-beat-val))  
-                               (dur-beats (symbolic-dur obj)) 
+                               ;; (dur-beats (/ (* 1/4 (/ (om::extent obj) (om::qvalue obj))) real-beat-val))
+                               (dur-beats (symbolic-dur obj))
                                )
                           (cons-xml-expr obj :free (* symb-beat-val dur-beats) :approx approx :part part) ;;; NOTE: KEY STOPS PROPAGATING HERE
                           )))
@@ -816,7 +816,7 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
 (defmethod cons-xml-expr ((self voice) &key free (key '(G 2)) (approx 2) part)
 
   (declare (ignore free))
-  
+
   (let ((voicenum part)
         (measures (inside self)))
     (list (format nil "<part id=\"P~D\">" voicenum)
@@ -827,7 +827,7 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
           "</part>")))
 
 
-(defun mxml-header () 
+(defun mxml-header ()
   (list "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
         "<!DOCTYPE score-partwise PUBLIC \"-//Recordare//DTD MusicXML 1.1 Partwise//EN\" \"http://www.musicxml.org/dtds/partwise.dtd\">"))
 
@@ -846,14 +846,14 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
                       "</encoding>")
                 "</identification>")
           (list "<part-list>"
-                (loop for v in voices 
+                (loop for v in voices
                       for voice-num = 1 then (+ voice-num 1)
-                      append 
+                      append
                       (let ((channels (get-midi-channels v)))
                         `(
                           ,(format nil "<score-part id=\"P~D\">" voice-num)
                           (,(format nil "<part-name>Part ~D</part-name>" voice-num))
-                          
+
                           ,(loop for ch in channels append
                                  `(
                                    ,(format nil "<score-instrument id=\"P~D-I~D\">" voice-num ch)
@@ -875,17 +875,17 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
           (if (= 1 (length key))
               ;;; SAME KEY FOR ALL VOICES
               (loop for v in voices
-                    for i = 1 then (+ i 1) 
-                    append 
+                    for i = 1 then (+ i 1)
+                    append
                     (cons-xml-expr v :part i :key (car key) :approx approx))
             ;;; EACH VOICE HAS A KEY
-            (loop for v in voices 
+            (loop for v in voices
                   for i = 1 then (+ i 1)
-                  for k in key 
+                  for k in key
                   append
                   (cons-xml-expr v :part i :key k :approx approx)))
           "</score-partwise>")))
-  
+
 
 ;;;===================================
 ;;; OM INTERFACE / API
@@ -893,26 +893,26 @@ si on a (14 8 1/16) il retourne (7 4 1/8)"
 
 (defun recursive-write-xml (stream text level)
   (if (listp text)
-      (loop for elt in text do 
+      (loop for elt in text do
             (recursive-write-xml stream elt (1+ level)))
     (format stream "~A~A~%" (string+ (make-sequence 'string level :initial-element #\Tab)) text)))
-    
+
 (defun write-xml-file (list path)
-  (WITH-OPEN-FILE (out path :direction :output 
+  (WITH-OPEN-FILE (out path :direction :output
                        :if-does-not-exist :create :if-exists :supersede)
     (loop for line in (mxml-header) do (format out "~A~%" line))
     (recursive-write-xml out list -1)))
 
-(defmethod xml-export ((self t) &key keys approx path name) 
+(defmethod xml-export ((self t) &key keys approx path name)
   (declare (ignore (keys approx path name)))
   nil)
 
-(defmethod xml-export ((self voice) &key keys approx path name) 
+(defmethod xml-export ((self voice) &key keys approx path name)
   (xml-export (make-instance 'poly :voices self) :keys keys :approx approx :path path :name name))
- 
-(defmethod xml-export ((self poly) &key keys approx path name) 
-  (let* ((pathname (or path (om-choose-new-file-dialog :directory (def-save-directory) 
-                                                       :name name 
+
+(defmethod xml-export ((self poly) &key keys approx path name)
+  (let* ((pathname (or path (om-choose-new-file-dialog :directory (def-save-directory)
+                                                       :name name
                                                        :prompt "New XML file"
                                                        :types '("XML Files" "*.xml")))))
     (when pathname
@@ -937,7 +937,7 @@ Exports <self> to MusicXML format.
 
 
 ;;;============================================
-;;; OTHER UTILS 
+;;; OTHER UTILS
 ;;;============================================
 
 (defmethod make-empty-voice ((signs list))

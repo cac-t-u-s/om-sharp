@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -44,8 +44,8 @@
 ;;; creates a pathname relative to the current file
 (defun om-relative-path (dirs file &optional (reference-path :current))
   (let ((ref (cond ((pathnamep reference-path) reference-path)
-                   ((symbolp reference-path) 
-                    (case reference-path 
+                   ((symbolp reference-path)
+                    (case reference-path
                       (:workspace (if *current-workspace* (mypathname *current-workspace*)))
                       (:om (om-root-folder))
                       (:current *load-pathname*)
@@ -54,14 +54,14 @@
                    )))
     (if ref
         (make-pathname
-         :host (pathname-host ref) :device (pathname-device ref) 
+         :host (pathname-host ref) :device (pathname-device ref)
          :directory (append (pathname-directory ref) dirs)
          :name file))))
 
 
 ;;; Check if a folder exist and create it if it does not
 (defun check-folder (path)
-  (unless (probe-file path) 
+  (unless (probe-file path)
     (om-create-directory path))
   path)
 
@@ -69,47 +69,47 @@
 ; (find-file-in-folder "Untitled" "/Users/bresson/Desktop/" :recursive t :return-all t)
 
 (defun find-file-in-folder (name folder &key type recursive return-all)
-  
-  (let ((search-folder (if (equal folder :local) 
+
+  (let ((search-folder (if (equal folder :local)
                            (om-make-pathname :directory *load-pathname*)
                          folder)))
-    
-    (if return-all 
-      
-        (loop for elt in (om-directory search-folder :files t :directories recursive) append 
-             
+
+    (if return-all
+
+        (loop for elt in (om-directory search-folder :files t :directories recursive) append
+
               (if (om-directory-pathname-p elt)
 
                   (find-file-in-folder name elt :type type :recursive recursive :return-all t)
-                
-                (when (and (pathname-name elt) 
+
+                (when (and (pathname-name elt)
                            (string-equal name (pathname-name elt))
                            (or (null type)
-                               (and (pathname-type elt) 
+                               (and (pathname-type elt)
                                     (string-equal type (pathname-type elt)))))
                   (list elt))))
-      
-      
+
+
       (let ((result nil))
-     
+
         ;;; we search files first (lower-level)
-        (loop for elt in (om-directory search-folder :files t :directories nil) 
+        (loop for elt in (om-directory search-folder :files t :directories nil)
               while (not result) do
-              (when (and (pathname-name elt) 
+              (when (and (pathname-name elt)
                          (string-equal name (pathname-name elt))
                          (or (null type)
-                             (and (pathname-type elt) 
+                             (and (pathname-type elt)
                                   (string-equal type (pathname-type elt)))))
                 (setf result elt)))
-     
+
         ;;; then we search subfolders (if recursive)
         (when (and (not result) recursive)
-          (loop for subfolder in (om-directory search-folder :files nil :directories t) 
+          (loop for subfolder in (om-directory search-folder :files nil :directories t)
                 while (not result) do
                 (setf result (find-file-in-folder name subfolder :type type :recursive t :return-all nil))))
-     
+
         result)
-   
+
       )))
 
 ;;;=========================
@@ -143,9 +143,9 @@
 
     (when refpath
       (let ((refrest (cdr (pathname-directory refpath))))
-        
+
         (loop for path-dir in (cdr (pathname-directory path))
-              for ref-dir in (cdr (pathname-directory refpath)) 
+              for ref-dir in (cdr (pathname-directory refpath))
               while (string-equal path-dir ref-dir) do
               (setf refrest (cdr refrest)
                     dirrest (cdr dirrest)))
@@ -156,7 +156,7 @@
 
     (loop for item in dirrest do
           (setf dirlist (append dirlist (list item))))
-    
+
     (make-pathname :device (pathname-device (or refpath path)) :host (pathname-host (or refpath path))
                    :directory dirlist :name (pathname-name path) :type (pathname-type path))
     ))
@@ -169,21 +169,21 @@
     (if refpath
         (cond ((and (equal :relative (car dir)) (cdr dir))
                (let ((updirs (or (position-if-not #'(lambda (item) (equal item :up)) (cdr dir)) 0)))
-                 (make-pathname 
+                 (make-pathname
                   :device (pathname-device refpath) :host (pathname-host refpath)
                   :directory (append (list (car (pathname-directory refpath)))
-                                     (butlast (cdr (pathname-directory refpath)) updirs) 
+                                     (butlast (cdr (pathname-directory refpath)) updirs)
                                      (nthcdr updirs (cdr dir)))
                   :name (pathname-name self) :type (pathname-type self))))
               ((equal :absolute (car dir)) self)
               ((or (null dir) (null (cdr dir)))
                ;; could not restore pathname
-               (make-pathname 
+               (make-pathname
                 :device (pathname-device refpath) :host (pathname-host refpath)
                 :directory (pathname-directory refpath)
                 :name (pathname-name self) :type (pathname-type self))))
       self)
-     ))
+    ))
 
 (defmethod restore-path ((self string) &optional refpath)
   (restore-path (pathname self) refpath))

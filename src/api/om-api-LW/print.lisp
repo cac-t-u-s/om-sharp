@@ -1,5 +1,5 @@
 ;=========================================================================
-; OM API 
+; OM API
 ; Multiplatform API for OpenMusic
 ; LispWorks Implementation
 ;=========================================================================
@@ -29,7 +29,7 @@
 (in-package :om-api)
 
 (export '(om-page-setup
-          om-print-window 
+          om-print-window
           om-print-one-page
           om-print-view
           om-compute-page-number
@@ -41,7 +41,7 @@
 (defvar *score-thickness* nil)
 (setf *score-thickness* 0.4)
 
-(defun om-draw-score-line (x1 y1 x2 y2)  
+(defun om-draw-score-line (x1 y1 x2 y2)
   (gp:draw-line *curstream* x1 y1 x2 y2  :thickness *score-thickness* ))
 
 (defun om-page-setup ()
@@ -52,7 +52,7 @@
 
 
 ;print the window in one page
-(defun om-print-one-page (self) 
+(defun om-print-one-page (self)
   (let ((image (gp::make-image-from-port (om-get-view self) 0 0 (- (om-width self) 15) (- (om-height self) 15))))
     (when image
       (let ((printer (capi:print-dialog :print-pages-p nil :print-copies-p t)))
@@ -60,38 +60,38 @@
           (let ((printer-metrics (get-printer-metrics printer))
                 (dpi-x (printer-metrics-dpi-x printer-metrics))
                 (dpi-y (printer-metrics-dpi-y printer-metrics)))
-        (when printer
-          (capi:with-print-job (printer-port :printer printer)
-            (multiple-value-bind
-                (page-width page-height)
-                (capi:get-page-area printer)
-              (let* ((drawing-width (- (om-width self) 15))
-                     (drawing-height  (- (om-height self) 15))
-                     (widen-p (> (/ page-width page-height)
-                                 (/ drawing-width drawing-height)))
-                     (page-transform-x 0)
-                     (page-transform-y 0)
-                     (page-transform-width (if widen-p
-                                               (* page-width
-                                                  (/ drawing-height page-height))
-                                             drawing-width))
-                     (page-transform-height (if widen-p
-                                                drawing-height
-                                              (* page-height
-                                                 (/ drawing-width page-width)))))
-                (capi:with-document-pages (page 1 1) ; all on one page
-                  (capi:with-page-transform (page-transform-x
-                                             page-transform-y
-                                             page-transform-width
-                                             page-transform-height)
-                    (draw-image printer-port image 0 0)))))))
-        )))
+            (when printer
+              (capi:with-print-job (printer-port :printer printer)
+                (multiple-value-bind
+                    (page-width page-height)
+                    (capi:get-page-area printer)
+                  (let* ((drawing-width (- (om-width self) 15))
+                         (drawing-height  (- (om-height self) 15))
+                         (widen-p (> (/ page-width page-height)
+                                     (/ drawing-width drawing-height)))
+                         (page-transform-x 0)
+                         (page-transform-y 0)
+                         (page-transform-width (if widen-p
+                                                   (* page-width
+                                                      (/ drawing-height page-height))
+                                                 drawing-width))
+                         (page-transform-height (if widen-p
+                                                    drawing-height
+                                                  (* page-height
+                                                     (/ drawing-width page-width)))))
+                    (capi:with-document-pages (page 1 1) ; all on one page
+                      (capi:with-page-transform (page-transform-x
+                                                 page-transform-y
+                                                 page-transform-width
+                                                 page-transform-height)
+                        (draw-image printer-port image 0 0)))))))
+            )))
       )))
 
 
 ;print in n pages
 (defvar *default-printer-port* nil)
-(defmethod om-print-document ((self om-graphic-object)) 
+(defmethod om-print-document ((self om-graphic-object))
   (let* ((printer (capi:print-dialog :print-pages-p nil
                                      :print-copies-p t))
          (printer-metrics (get-printer-metrics printer))
@@ -103,7 +103,7 @@
             (page-width page-height)
             (capi:get-page-area printer)
           (let* ((page-count (om-compute-page-number self (om-make-point page-width page-height))))
-            (capi:with-document-pages (page 1 page-count) 
+            (capi:with-document-pages (page 1 page-count)
               (let ((*default-printer-port* printer-port))
                 (om-print-view self (om-make-point page-width page-height) page page-count)))))))))
 
@@ -115,8 +115,8 @@
 (defmethod om-score-paper-size ()
   (let ((printer (current-printer)) rep)
     (multiple-value-bind
-            (page-width page-height)
-            (capi:get-page-area printer)
+        (page-width page-height)
+        (capi:get-page-area printer)
       (setf rep (om-make-point page-width page-height)))
     rep))
 
@@ -125,4 +125,4 @@
 
 
 
-    
+

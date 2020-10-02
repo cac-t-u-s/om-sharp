@@ -1,5 +1,5 @@
 ;=========================================================================
-; OM API 
+; OM API
 ; Multiplatform API for OpenMusic
 ; LispWorks Implementation
 ;=========================================================================
@@ -44,7 +44,7 @@
   (setf *om-cursor-folder* path))
 
 ;;; registers a new cursor
-;;; if cursor is a path or file name the cursor is not created yet 
+;;; if cursor is a path or file name the cursor is not created yet
 (defun om-add-cursor (id cursor &optional (click-pos (om-make-point 0 0)))
   (let ((p (position id *om-cursors* :key 'car))
         (curs (if (or (stringp cursor) (pathnamep cursor)) (list cursor click-pos) cursor)))
@@ -58,13 +58,13 @@
       (setf (cadr curs)
             (om-make-cursor (car (cadr curs)) (cadr (cadr curs)))))
     (cadr curs)))
-               
+
 ;;; Creates a system cursor from name
-;;; if name is a pathname, it must point to a valid cursor file 
-;;; (type can be omitted and will be replaced by the adequate type) 
+;;; if name is a pathname, it must point to a valid cursor file
+;;; (type can be omitted and will be replaced by the adequate type)
 ;;; if name is a string it must the name of a cursor file in *om-cursor-folder*
 (defun om-make-cursor (name &optional (click-pos (om-make-point 0 0)))
-  (let ((cursorpath (if (pathnamep name) 
+  (let ((cursorpath (if (pathnamep name)
                         (probe-file (if (pathname-type name) name
                                       (om-make-pathname :directory name :name (pathname-name name) :type *om-cursor-type*)))
                       (if (and (stringp name) *om-cursor-folder* (probe-file *om-cursor-folder*))
@@ -85,7 +85,7 @@
 ;;;================
 
 ;;; SETF (LW style)
-(defmethod om-set-view-cursor ((self om-graphic-object) cursor) 
+(defmethod om-set-view-cursor ((self om-graphic-object) cursor)
   (setf (capi::simple-pane-cursor (om-get-view self)) cursor))
 
 ;;; CALLBACK (MCL style)

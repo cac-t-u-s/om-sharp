@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -35,16 +35,16 @@
   (additional-box-attributes (car (obj-list self))))
 
 (defmethod homogenize-collection (model list) nil)
-                                        
+
 (defmethod om-init-instance ((self collection) &optional initargs)
   (setf (obj-list self)
-        (if (listp (obj-list self)) 
+        (if (listp (obj-list self))
             (om-copy (obj-list self))
           (list (om-copy (obj-list self)))))
   (when (obj-list self)
-     ;;; check if all items are of the same type
-     (if (list-typep (obj-list self) (type-of (car (obj-list self))))
-        (progn 
+    ;;; check if all items are of the same type
+    (if (list-typep (obj-list self) (type-of (car (obj-list self))))
+        (progn
           (setf (obj-type self) (type-of (car (obj-list self))))
           (homogenize-collection (car (obj-list self)) (obj-list self)))
       (progn
@@ -57,9 +57,9 @@
 ;;;===========================
 
 (defmethod object-default-edition-params ((self collection))
-  (append 
+  (append
    '((:show-all t))
-   (object-default-edition-params (car (obj-list self))))) 
+   (object-default-edition-params (car (obj-list self)))))
 
 
 (defmethod special-box-p ((name (eql 'collection))) t)
@@ -89,14 +89,14 @@
 (defmethod draw-type-of-object ((object collection))
   (string+ (string-upcase (type-of object)) " OF " (string-upcase (obj-type object))))
 
-(defmethod get-object-type-name ((object collection)) 
+(defmethod get-object-type-name ((object collection))
   (and (obj-type object)
-       (string+ "COLLECTION OF " (string-upcase (obj-type object)) 
+       (string+ "COLLECTION OF " (string-upcase (obj-type object))
                 "s (" (number-to-string (length (obj-list object))) ")")))
-  
+
 (defmethod object-box-label ((object collection))
   (string+ (string-upcase (type-of object)) " of "
-           (number-to-string (length (obj-list object))) " " 
+           (number-to-string (length (obj-list object))) " "
            (if (obj-type object) (string-upcase (obj-type object)) "?")
            (if (> (length (obj-list object)) 1) "s" "")
            ))
@@ -106,17 +106,17 @@
 
 (defmethod get-cache-display-for-text ((self collection) box)
   (declare (ignore box))
-  (loop for obj in (obj-list self) 
-        for i = 0 then (1+ i) 
+  (loop for obj in (obj-list self)
+        for i = 0 then (1+ i)
         collect (list (format nil "[~D]" i) obj)))
 
 
-;;; CollectionBox has a little hack on cache-display, 
+;;; CollectionBox has a little hack on cache-display,
 ;;; allowing to store a different cache for each object
 ;;; The multi-cache display is a list of list (object cache)
 
 ;;; collection boxes create "multi-cache" by calling get-collection-cache-display on internbal objects
-(defmethod get-cache-display-for-draw ((object collection) box) 
+(defmethod get-cache-display-for-draw ((object collection) box)
   (declare (ignore box))
   (unless (multi-cache-display box)
     (setf (multi-cache-display box)
@@ -125,28 +125,28 @@
 
 ;;; CAN BE REDEFINED FOR SPECIFIC OBJECTS:
 ;;; type is an object used for specialization
-(defmethod get-collection-cache-display ((type t) list box) 
+(defmethod get-collection-cache-display ((type t) list box)
   (loop for o in list collect (list o (get-cache-display-for-draw o box))))
 
 (defmethod reset-cache-display ((self CollectionBox))
   (setf (multi-cache-display self) nil)
-  (call-next-method)) 
+  (call-next-method))
 
 (defmethod ensure-cache-display-draw ((box CollectionBox) object)
-  
+
   (if (typep object 'collection)
 
       (call-next-method) ;;; will eventually store some cache
-    
+
     ;;; called on elements of the collection:
-    (progn 
+    (progn
       (unless (cache-display box) (setf (cache-display box) (make-cache-display)))
       (unless (cache-display-draw (cache-display box))
         ;;; this is just an access in memory: no need to redo the cache
         ;;; set the general cache to the item in the multi-cache
         (setf (cache-display-draw (cache-display box))
               (cadr (find object (multi-cache-display box) :key #'car))))
-      
+
       (cache-display-draw (cache-display box)))))
 
 
@@ -156,26 +156,26 @@
   (when list
     (let ((ho (/ h (length list))))
       (loop for o in list
-            for yo = y then (+ yo ho) do 
+            for yo = y then (+ yo ho) do
             (setf (cache-display box) nil)
             (draw-mini-view o box x yo w ho time))
       )))
 
 
-(defmethod draw-mini-view ((self collection) (box t) x y w h &optional time)  
+(defmethod draw-mini-view ((self collection) (box t) x y w h &optional time)
   (ensure-cache-display-draw box self)
-  (collection-draw-mini-view 
-   (car (obj-list self)) 
-   (obj-list self) 
+  (collection-draw-mini-view
+   (car (obj-list self))
+   (obj-list self)
    box x y w h time))
 
 ;;; used for display etc.
 (defmethod get-obj-dur ((self collection))
   (apply #'max (or (remove nil (mapcar #'get-obj-dur (obj-list self))) '(0))))
 
-(defmethod miniview-time-to-pixel ((object collection) box (view omboxframe) time) 
+(defmethod miniview-time-to-pixel ((object collection) box (view omboxframe) time)
   ;;; take the longer object as reference
-  (miniview-time-to-pixel 
+  (miniview-time-to-pixel
    (reduce #'(lambda (o1 o2) (if (>= (get-obj-dur o1) (get-obj-dur o2)) o1 o2))
            (obj-list object))
    box view time))
@@ -189,7 +189,7 @@
 (defclass collection-editor (OMEditor)
   ((internal-editor :accessor internal-editor :initform nil)
    (current :accessor current :initform 0)))
- 
+
 (defmethod object-has-editor ((self collection)) t)
 (defmethod get-editor-class ((self collection)) 'collection-editor)
 
@@ -201,7 +201,7 @@
 (defmethod editor-play-state ((self collection-editor))
   (editor-play-state (internal-editor self)))
 
-(defmethod editor-close ((self collection-editor)) 
+(defmethod editor-close ((self collection-editor))
   (editor-close (internal-editor self))
   (call-next-method))
 
@@ -216,8 +216,8 @@
 (defmethod handle-multi-display ((self multi-display-editor-mixin)) t)
 
 (defmethod enable-multi-display ((self t) obj-list) nil)
-(defmethod enable-multi-display ((self multi-display-editor-mixin) obj-list) 
-  (setf (multi-display-p self) t 
+(defmethod enable-multi-display ((self multi-display-editor-mixin) obj-list)
+  (setf (multi-display-p self) t
         (multi-obj-list self) obj-list))
 
 (defmethod disable-multi-display ((self t)) nil)
@@ -226,29 +226,29 @@
   (setf (multi-obj-list self)  nil))
 
 (defmethod update-multi-display ((editor collection-editor) t-or-nil)
-    
+
   (if t-or-nil
       (enable-multi-display (internal-editor editor) (obj-list (get-value-for-editor (object editor))))
     (disable-multi-display (internal-editor editor)))
-  
+
   (update-to-editor (internal-editor editor) editor)
   (editor-invalidate-views (internal-editor editor))
   )
 
 ;;;==================================
 
-(defmethod init-editor ((editor collection-editor)) 
+(defmethod init-editor ((editor collection-editor))
 
   (let* ((collection (get-value-for-editor (object editor)))
          (current-object (and (obj-type collection) (nth (current editor) (obj-list collection))))
          (abs-container (make-instance 'OMAbstractContainer :contents current-object)))
 
-    (setf (internal-editor editor) 
+    (setf (internal-editor editor)
           (make-instance (get-editor-class current-object)
-                         :container-editor editor 
+                         :container-editor editor
                          :object abs-container))
-    
-    (setf (edition-params abs-container) (edition-params (object editor))) 
+
+    (setf (edition-params abs-container) (edition-params (object editor)))
     ;;; will share the same list in principle
     (init-editor (internal-editor editor))
     ))
@@ -261,16 +261,16 @@
 
 
 (defmethod make-editor-window-contents ((editor collection-editor))
- 
+
   (let* ((collection (get-value-for-editor (object editor)))
          (text (format-current-text editor))
          (current-text (let ((font (om-def-font :font2b)))
-                         (om-make-graphic-object 
+                         (om-make-graphic-object
                           'om-item-text
-                          :size (omp (om-string-size text font) 16) 
+                          :size (omp (om-string-size text font) 16)
                           :text text :font font)))
-         (prev-button (om-make-graphic-object 
-                       'om-icon-button 
+         (prev-button (om-make-graphic-object
+                       'om-icon-button
                        :size (omp 16 16) :position (omp 0 0)
                        :icon :l-arrow :icon-pushed :l-arrow-pushed :icon-disabled :l-arrow-disabled
                        :lock-push nil :enabled (> (length (obj-list collection)) 1)
@@ -278,8 +278,8 @@
                                    (declare (ignore b))
                                    (set-current-previous editor)
                                    )))
-         (next-button (om-make-graphic-object 
-                       'om-icon-button 
+         (next-button (om-make-graphic-object
+                       'om-icon-button
                        :size (omp 16 16) :position (omp 0 0)
                        :icon :r-arrow :icon-pushed :r-arrow-pushed :icon-disabled :r-arrow-disabled
                        :lock-push nil :enabled (> (length (obj-list collection)) 1)
@@ -287,8 +287,8 @@
                                    (declare (ignore b))
                                    (set-current-next editor)
                                    )))
-         (-button (om-make-graphic-object 
-                   'om-icon-button 
+         (-button (om-make-graphic-object
+                   'om-icon-button
                    :size (omp 16 16) :position (omp 0 0)
                    :icon :- :icon-pushed :--pushed :icon-disabled :--disabled
                    :lock-push nil :enabled (obj-list collection)
@@ -302,11 +302,11 @@
                                    (button-disable prev-button) (button-disable next-button))
                                  ))
                    ))
-         (+button (om-make-graphic-object 
-                   'om-icon-button 
+         (+button (om-make-graphic-object
+                   'om-icon-button
                    :size (omp 16 16) :position (omp 0 0)
                    :icon :+ :icon-pushed :+-pushed :icon-disabled :+-disabled
-                   :lock-push nil 
+                   :lock-push nil
                    :enabled (and (obj-type (get-value-for-editor (object editor)))
                                  (subtypep (obj-type (get-value-for-editor (object editor))) 'standard-object))
                    :action #'(lambda (b)
@@ -318,35 +318,35 @@
                                    (button-enable prev-button) (button-enable next-button)))
                                (update-multi-display editor (editor-get-edit-param editor :show-all))
                                )))
-         (showall-check 
+         (showall-check
           (when (handle-multi-display (internal-editor editor))
-            (om-make-di 
-             'om-check-box 
+            (om-make-di
+             'om-check-box
              :text " Show All" :size (omp 80 16) :font (om-def-font :font2)
              :checked-p (editor-get-edit-param editor :show-all) :focus nil :default nil
-             :di-action #'(lambda (item) 
+             :di-action #'(lambda (item)
                             (editor-set-edit-param editor :show-all (om-checked-p item))
                             (update-multi-display editor (om-checked-p item)))
              )))
          )
-    
+
     (set-g-component editor :current-text current-text)
-    
-    (om-make-layout 
-     'om-column-layout 
+
+    (om-make-layout
+     'om-column-layout
      :ratios '(1 99)
-     :subviews 
-     (list 
-      (om-make-layout 
-       'om-row-layout 
-       :delta 0 
+     :subviews
+     (list
+      (om-make-layout
+       'om-row-layout
+       :delta 0
        :ratios '(1 1 1 10 1 10 1)
        :align :top
        :subviews
-       (list 
-        (om-make-layout 
-         'om-row-layout :delta 0 
-         :subviews 
+       (list
+        (om-make-layout
+         'om-row-layout :delta 0
+         :subviews
          (list (om-make-view 'om-view :size (omp 16 16) :subviews (list prev-button))
                (om-make-view 'om-view :size (omp 16 16) :subviews (list next-button)))
          )
@@ -355,25 +355,25 @@
         nil
         current-text
         nil
-        (om-make-layout 
-         'om-row-layout :delta 0 
-         :subviews 
+        (om-make-layout
+         'om-row-layout :delta 0
+         :subviews
          (list (om-make-view 'om-view :size (omp 16 16) :subviews (list +button))
                (om-make-view 'om-view :size (omp 16 16) :subviews (list -button))
                ))
         ))
-      
+
       (if (object-value (internal-editor editor))
-          (setf (main-view (internal-editor editor)) 
+          (setf (main-view (internal-editor editor))
                 (make-editor-window-contents (internal-editor editor))))
       ))
     ))
 
 
 (defmethod set-window-contents ((editor collection-editor))
-  (when (window editor) 
+  (when (window editor)
     (om-remove-subviews (window editor) (main-view editor))
-    (om-add-subviews (window editor) 
+    (om-add-subviews (window editor)
                      (setf (main-view editor)
                            (make-editor-window-contents editor)))
     ))
@@ -381,22 +381,22 @@
 
 ;;; when updated from the box (eval)
 (defmethod update-to-editor ((editor collection-editor) (from OMBox))
-  
+
   (let ((collection (get-value-for-editor (object editor))))
-    
+
     (when (not (equal (type-of (internal-editor editor))  ;;; the new object has not the same editor
                       (get-editor-class (nth (current editor) (obj-list collection)))))
-      
+
       ;;; need to close/reset the internal editor
       (editor-close (internal-editor editor))
       (init-editor editor)
       (setf (current editor) 0)
       (set-window-contents editor)
       ))
-  
+
   ;;; with reset the virtual object for internal-editor
   (update-collection-editor editor)
-  (set-current-text editor)  
+  (set-current-text editor)
   (update-to-editor (internal-editor editor) from)
   (update-multi-display editor (editor-get-edit-param editor :show-all))
   (call-next-method)
@@ -405,7 +405,7 @@
 (defmethod format-current-text ((editor collection-editor))
   (let ((collection (get-value-for-editor (object editor))))
     (if (obj-list collection)
-        (format nil "Current ~A: ~D/~D" ;; [~A] 
+        (format nil "Current ~A: ~D/~D" ;; [~A]
                 (string-upcase (obj-type collection))
                 (1+ (current editor)) (length (obj-list collection))
                 ;(name (nth (current editor) (obj-list collection)))
@@ -421,22 +421,22 @@
   (let ((text-component (get-g-component editor :current-text)))
     (when text-component
       (let ((text (format-current-text editor)))
-        (om-set-view-size text-component 
+        (om-set-view-size text-component
                           (omp (+ 20 (om-string-size text (om-get-font text-component))) 16))
         (om-set-text text-component text)))))
-      
+
 (defmethod update-collection-editor ((editor collection-editor))
   (set-current-text editor)
   (let ((internal-editor (internal-editor editor)))
     (editor-stop internal-editor)
     (setf (selection internal-editor) nil)
     (let ((abs-container (object internal-editor))) ;; in principle this is an OMAbstractContainer
-      (setf (contents abs-container) 
+      (setf (contents abs-container)
             (nth (current editor) (obj-list (get-value-for-editor (object editor))))))
     (update-default-view internal-editor)
-    (update-to-editor internal-editor editor) 
+    (update-to-editor internal-editor editor)
     (editor-invalidate-views internal-editor)))
-   
+
 
 (defmethod set-current-nth ((editor collection-editor) n)
   (let ((collection (get-value-for-editor (object editor))))
@@ -461,16 +461,16 @@
     ;;; update the obj-list
     (when (obj-list collection)
       (setf (obj-list collection) (remove (nth (current editor) (obj-list collection)) (obj-list collection)))
-      (setf (current editor) (max 0 (min (current editor) (1- (length (obj-list collection)))))))  
+      (setf (current editor) (max 0 (min (current editor) (1- (length (obj-list collection)))))))
     ;;; if no more objects...
     (if (null (obj-list collection))
-      (progn 
-        ;;; close the internal editor
-        (editor-close (internal-editor editor))
-        (setf (contents (object (internal-editor editor))) nil)
-        (init-editor editor) ;; need to init the editor (reset to an empty omeditor)
-        ;;; rest the (empty) window
-        (set-window-contents editor))
+        (progn
+          ;;; close the internal editor
+          (editor-close (internal-editor editor))
+          (setf (contents (object (internal-editor editor))) nil)
+          (init-editor editor) ;; need to init the editor (reset to an empty omeditor)
+          ;;; rest the (empty) window
+          (set-window-contents editor))
       ;;; othewise just update the editor
       (update-collection-editor editor))
     (report-modifications editor)
@@ -507,7 +507,7 @@
         ))
 
 (defmethod select-all-command ((self collection-editor))
-  #'(lambda () 
+  #'(lambda ()
       (when (and (internal-editor self) (select-all-command (internal-editor self)))
         (funcall (select-all-command (internal-editor self))))))
 

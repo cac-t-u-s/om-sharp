@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -47,25 +47,25 @@
       )))
 
 
-(defmethod om-load-editor-box1 (name (reference (eql 'note)) inputs position size value lock 
+(defmethod om-load-editor-box1 (name (reference (eql 'note)) inputs position size value lock
                                      &optional fname editparams spict meditor pictlist show-name)
   (declare (ignore fname meditor pictlist))
   (append (call-next-method)
           (load-score-edition-params editparams)))
 
-(defmethod om-load-editor-box1 (name (reference (eql 'chord)) inputs position size value lock 
+(defmethod om-load-editor-box1 (name (reference (eql 'chord)) inputs position size value lock
                                      &optional fname editparams spict meditor pictlist show-name)
   (declare (ignore fname meditor pictlist))
   (append (call-next-method)
           (load-score-edition-params editparams)))
 
-(defmethod om-load-editor-box1 (name (reference (eql 'chord-seq)) inputs position size value lock 
+(defmethod om-load-editor-box1 (name (reference (eql 'chord-seq)) inputs position size value lock
                                      &optional fname editparams spict meditor pictlist show-name)
   (declare (ignore fname meditor pictlist))
   (append (call-next-method)
           (load-score-edition-params editparams)))
 
-(defmethod om-load-editor-box1 (name (reference (eql 'voice)) inputs position size value lock 
+(defmethod om-load-editor-box1 (name (reference (eql 'voice)) inputs position size value lock
                                      &optional fname editparams spict meditor pictlist show-name)
   (declare (ignore fname meditor pictlist))
   (append (call-next-method)
@@ -73,7 +73,7 @@
 
 
 ;;; => hack / to(re)do when score editors are operational
-(defclass edition-values () 
+(defclass edition-values ()
   ((paper-size :accessor paper-size)
    (top-margin :accessor top-margin)
    (left-margin :accessor left-margin)
@@ -89,13 +89,13 @@
    (show-page? :accessor show-page?)
    (sheet-id :accessor sheet-id)
    (page-mode :accessor page-mode)))
-   
+
 
 ;;; SHEET
-(defclass sheet-track-obj () 
+(defclass sheet-track-obj ()
   ((end-t :accessor end-t)
    (obj-size :accessor obj-size)
    (obj-margin :accessor obj-margin)
-   (obj-staff :accessor obj-staff)  
+   (obj-staff :accessor obj-staff)
    ))
 

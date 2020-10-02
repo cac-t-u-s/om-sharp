@@ -1,5 +1,5 @@
 ;=========================================================================
-; OM API 
+; OM API
 ; Multiplatform API for OpenMusic
 ; LispWorks Implementation
 ;=========================================================================
@@ -46,11 +46,11 @@
           om-run-application
           om-run-program
           om-select-program
-          
+
           om-get-internal-time
 
           om-with-timeout
-          
+
           ) :om-api)
 
 ;;;===================================
@@ -83,7 +83,7 @@
 (defun om-resume-process (process)
   (if (and (eq (type-of process) 'mp::process)
            (mp:process-stopped-p process))
-    (mp:process-unstop process)))
+      (mp:process-unstop process)))
 
 (declaim (inline om-poke-process))
 (defun om-poke-process (process)
@@ -115,33 +115,33 @@
 (defun om-with-timeout (timeout timeout-function body-fn)
   (declare (dynamic-extent body-fn))
   (let ((process mp:*current-process*))
-    
+
     (labels ((timeout-throw ()
                (when (find-restart 'abort-execution)
                  (invoke-restart 'abort-execution)))
 
              (timeout-action ()
                (mp:process-interrupt process #'timeout-throw)))
-      
+
       (declare (dynamic-extent #'timeout-throw #'timeout-action))
 
       (let ((timer (mp:make-named-timer 'timer #'timeout-action)))
         (catch 'tag
           (unwind-protect
-              (restart-case 
+              (restart-case
                   (progn
                     (when timeout
                       (mp:schedule-timer-relative timer timeout))
                     (return-from om-with-timeout
                       (funcall body-fn)))
-                (continue-from-timeout () 
-                                       (throw 'tag 
-                                              (when timeout-function
-                                                (funcall timeout-function))))
-                (abort-execution () 
-                                 (throw 'tag
-                                        (when timeout-function
-                                          (funcall timeout-function)))))
+                (continue-from-timeout ()
+                  (throw 'tag
+                         (when timeout-function
+                           (funcall timeout-function))))
+                (abort-execution ()
+                  (throw 'tag
+                         (when timeout-function
+                           (funcall timeout-function)))))
             (mp:unschedule-timer timer)))))))
 
 
@@ -158,32 +158,32 @@
   (setq *use-eval-process* mode))
 
 
-(defun om-eval-enqueue (form &key eval-context-view post-action) 
-  
-  (let ((eval-fun 
-         #'(lambda () 
-             (if eval-context-view 
+(defun om-eval-enqueue (form &key eval-context-view post-action)
+
+  (let ((eval-fun
+         #'(lambda ()
+             (if eval-context-view
                  (om-eval-in-context form eval-context-view)
                (eval form))
              (when post-action (funcall post-action)))
          ))
-    
+
     (if *use-eval-process*
         (om-lisp::om-eval-on-process eval-fun)
       (funcall eval-fun)
-      
+
       )))
 
 
 ;;;===============================
 ;;; RUN/MANAGE EXTERNAL PROGRAMS
-;;;=============================== 
+;;;===============================
 
 (defun om-command-line (str &optional (redirect-output nil))
   (if #+macosx (pathnamep redirect-output) #-macosx NIL
       ;(let ((tempfile "~/om-log.txt"))
-      (sys:run-shell-command str :show-window t :wait t :output redirect-output :error-output redirect-output 
-                             :if-output-exists :append :if-error-output-exists :append)
+    (sys:run-shell-command str :show-window t :wait t :output redirect-output :error-output redirect-output
+                           :if-output-exists :append :if-error-output-exists :append)
        ;(om-lisp::om-open-text-editor :contents (pathname tempfile)))
     (progn
       (if redirect-output
@@ -199,16 +199,16 @@
     (when (equal (elt pathstr (- (length pathstr) 1)) #\/)
       (setf pathstr (subseq pathstr 0 (- (length pathstr) 1)))
       (let ((appname (pathname-name (pathname (subseq pathstr 0 (- (length pathstr) 1))))))
-        (setf pathstr (namestring (make-pathname :directory (append (pathname-directory path) 
+        (setf pathstr (namestring (make-pathname :directory (append (pathname-directory path)
                                                                     (list "Contents" "MacOS"))
                                                  :name appname)))))
-        (mp:process-run-function (namestring path) nil
-                                 #'(lambda ()
-                                     ;;; (sys::cd dir)
-                                     #-win32(system::run-shell-command pathstr :wait t)
-                                     #+win32(system::call-system (format nil "~s" (namestring pathstr)) :wait t)
-                                     (when afterfun (funcall afterfun))))
-        (namestring path)))
+    (mp:process-run-function (namestring path) nil
+                             #'(lambda ()
+                                 ;;; (sys::cd dir)
+                                 #-win32(system::run-shell-command pathstr :wait t)
+                                 #+win32(system::call-system (format nil "~s" (namestring pathstr)) :wait t)
+                                 (when afterfun (funcall afterfun))))
+    (namestring path)))
 
 
 (defun om-run-application (path)

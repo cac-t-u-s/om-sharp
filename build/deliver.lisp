@@ -27,7 +27,7 @@
 
 (let ((version-str (concatenate 'string (format nil "~d.~d" *version-major* *version-minor*)
                                 (if (and *version-patch* (plusp *version-patch*)) (format nil ".~d" *version-patch*) ""))))
-  
+
   ;(setf *full-app-name* (concatenate 'string om::*app-name* " " version-str))
 
   (with-open-file (f (make-pathname :directory (butlast (pathname-directory (current-pathname)))
@@ -46,92 +46,92 @@
 (capi:define-interface om-application (capi::cocoa-default-application-interface) ()
   (:menus
    (application-menu
-      *full-app-name*
-      ((:component
-        (("About..."
-          :callback 'om::show-about-win
-          :callback-type :none)))
-       (:component
-        (("Preferences..."
-          :callback 'om::show-preferences-win
-          :accelerator "accelerator-,"
-          :callback-type :none)))
+    *full-app-name*
+    ((:component
+      (("About..."
+        :callback 'om::show-about-win
+        :callback-type :none)))
+     (:component
+      (("Preferences..."
+        :callback 'om::show-preferences-win
+        :accelerator "accelerator-,"
+        :callback-type :none)))
 
        ;(:component
        ; ()
-        ;; This is a special named component where the CAPI will
-        ;; attach the standard Services menu.
+     ;; This is a special named component where the CAPI will
+     ;; attach the standard Services menu.
        ; :name :application-services)
-       (:component
-        (("Hide OM#"
-          :accelerator "accelerator-h"
-          :callback-data :hidden)
-         ("Hide Others"
-          :accelerator "accelerator-meta-h"
-          :callback-data :others-hidden)
-         ("Show All"
-          :callback-data :all-normal))
-        :callback #'(setf capi:top-level-interface-display-state)
-        :callback-type :data-interface)
-       (:component
-        (("Quit"
-          :accelerator "accelerator-q"
-          :callback #'(lambda (interface)
-                        (capi:destroy interface))
-          :callback-type :interface)))))
+     (:component
+      (("Hide OM#"
+        :accelerator "accelerator-h"
+        :callback-data :hidden)
+       ("Hide Others"
+        :accelerator "accelerator-meta-h"
+        :callback-data :others-hidden)
+       ("Show All"
+        :callback-data :all-normal))
+      :callback #'(setf capi:top-level-interface-display-state)
+      :callback-type :data-interface)
+     (:component
+      (("Quit"
+        :accelerator "accelerator-q"
+        :callback #'(lambda (interface)
+                      (capi:destroy interface))
+        :callback-type :interface)))))
 
-   (open-recent-menu 
-    "Open Recent..." 
+   (open-recent-menu
+    "Open Recent..."
     nil
-    :items-function #'(lambda (interface) 
+    :items-function #'(lambda (interface)
                         (mapcar #'(lambda (file)
                                     (make-instance 'capi::menu-item :title (namestring file)
                                                    :callback #'(lambda () (om::open-om-document file))
                                                    :callback-type :none))
                                 om::*om-recent-files*))
     )
-  
+
    (file-menu
-      "File"
-      ((:component  
-        (("New Patch" 
-          :callback #'(lambda () (om::open-new-document :patch)) :callback-type :none :accelerator "accelerator-n")
-         ("New Sequencer" 
-          :callback #'(lambda () (om::open-new-document :sequencer)) :callback-type :none)
-         ("New Lisp function" 
-          :callback #'(lambda () (om::open-new-document :lispfun)) :callback-type :none)
-         ))
-        
-        ("New Text/Lisp Buffer" 
-         :callback #'(lambda () (om-lisp::om-open-text-editor :lisp t)) :callback-type :none
-         :accelerator "accelerator-N")
-      
-        (:component 
-         (("Open..." 
-           :accelerator "accelerator-o"
-           :callback 'om::open-om-document
-           :callback-type :none)
-          
-          open-recent-menu
-          ))   
-        )
-      )
+    "File"
+    ((:component
+      (("New Patch"
+        :callback #'(lambda () (om::open-new-document :patch)) :callback-type :none :accelerator "accelerator-n")
+       ("New Sequencer"
+        :callback #'(lambda () (om::open-new-document :sequencer)) :callback-type :none)
+       ("New Lisp function"
+        :callback #'(lambda () (om::open-new-document :lispfun)) :callback-type :none)
+       ))
+
+     ("New Text/Lisp Buffer"
+      :callback #'(lambda () (om-lisp::om-open-text-editor :lisp t)) :callback-type :none
+      :accelerator "accelerator-N")
+
+     (:component
+      (("Open..."
+        :accelerator "accelerator-o"
+        :callback 'om::open-om-document
+        :callback-type :none)
+
+       open-recent-menu
+       ))
+     )
+    )
 
    (windows-menu
-      "Windows"
-      ((:component
-        (("Workspace/Library Window"
-          :callback 'om::show-main-om-window
-          :accelerator "accelerator-shift-w"
-          :callback-type :none)
-         ))
-       (:component
-        (("Lisp Listener"
-          :callback 'om::show-listener-win
-          :callback-type :none
-          :accelerator "accelerator-shift-l")
-         ))
+    "Windows"
+    ((:component
+      (("Workspace/Library Window"
+        :callback 'om::show-main-om-window
+        :accelerator "accelerator-shift-w"
+        :callback-type :none)
        ))
+     (:component
+      (("Lisp Listener"
+        :callback 'om::show-listener-win
+        :callback-type :none
+        :accelerator "accelerator-shift-l")
+       ))
+     ))
    )
   (:menu-bar application-menu file-menu windows-menu)
   (:default-initargs
@@ -176,7 +176,7 @@
      (let* ((filename (pathname (car args)))
             (type (pathname-type filename)))
        (cond ((find type '("opat" "oseq" "olsp") :test 'string-equal)
-              (oa::om-run-process 
+              (oa::om-run-process
                "open doc"
                #'(lambda ()
                    (loop while (not om::*om-initialized*)) ;; leave time to load libs etc.
@@ -199,8 +199,8 @@
 (defun init-om-standalone ()
   (push :om-deliver *features*)
   #+cocoa(default-interface)
-  (om::om-root-init) 
-  (setf dspec::*active-finders* 
+  (om::om-root-init)
+  (setf dspec::*active-finders*
         (append dspec::*active-finders*
                 (list (merge-pathnames
                        #+macosx (concatenate 'string *full-app-name* ".app/Contents/Resources/dspec-database." (oa::om-compiled-type))
@@ -263,53 +263,53 @@
   (print "MOVING RESOURCES (macOS only)")
   (print "================================")
 
-  (let* ((app-contents-folder (make-pathname 
-                               :directory (append 
-                                           *om-directory-folders* 
+  (let* ((app-contents-folder (make-pathname
+                               :directory (append
+                                           *om-directory-folders*
                                            (list (concatenate 'string *full-app-name* ".app") "Contents"))))
          (app-libs-folder (merge-pathnames (make-pathname :directory '(:relative "Frameworks")) app-contents-folder))
          (app-resources-folder (merge-pathnames (make-pathname :directory '(:relative "Resources")) app-contents-folder)))
-  
+
     (print (format nil "COPYING LIBRARIES TO: ~A" app-libs-folder))
-    (om::om-copy-directory 
+    (om::om-copy-directory
      (merge-pathnames "lib/mac/" (make-pathname :directory (append *om-directory-folders* '("resources"))))
      app-libs-folder)
-  
+
     (print (format nil "COPYING RESOURCES TO: ~A" app-resources-folder))
 
-    (loop for item in (oa::om-directory (make-pathname :directory (append *om-directory-folders* '("resources"))) :files t :directories t) 
-          unless (string-equal "lib" (car (last (pathname-directory item)))) 
+    (loop for item in (oa::om-directory (make-pathname :directory (append *om-directory-folders* '("resources"))) :files t :directories t)
+          unless (string-equal "lib" (car (last (pathname-directory item))))
           unless (string-equal "ttf" (string (pathname-type item)))
           do
           (if (system::directory-pathname-p item)
 
-              (om::om-copy-directory 
-               item 
-               (make-pathname :device (pathname-device app-resources-folder) 
+              (om::om-copy-directory
+               item
+               (make-pathname :device (pathname-device app-resources-folder)
                               :directory (append (pathname-directory app-resources-folder) (last (pathname-directory item)))))
 
-            (om::om-copy-file item (make-pathname :device (pathname-device app-resources-folder) 
+            (om::om-copy-file item (make-pathname :device (pathname-device app-resources-folder)
                                                   :directory (pathname-directory app-resources-folder)
                                                   :name (pathname-name item) :type (pathname-type item)))
             ))
-    
+
     (om::om-copy-directory  (make-pathname :device (pathname-device app-resources-folder)
                                            :directory (append *om-directory-folders* '("help-patches")))
-                            (make-pathname :device (pathname-device app-resources-folder) 
+                            (make-pathname :device (pathname-device app-resources-folder)
                                            :directory (append (pathname-directory app-resources-folder) '("help-patches"))))
 
     (om::om-copy-directory  (make-pathname :device (pathname-device app-resources-folder)
                                            :directory (append *om-directory-folders* '("src")))
-                            (make-pathname :device (pathname-device app-resources-folder) 
+                            (make-pathname :device (pathname-device app-resources-folder)
                                            :directory (append (pathname-directory app-resources-folder) '("src"))))
-    
-    (clean-sources (make-pathname :device (pathname-device app-resources-folder) 
+
+    (clean-sources (make-pathname :device (pathname-device app-resources-folder)
                                   :directory (append (pathname-directory app-resources-folder) '("src")))
                    NIL)
-    
+
     (om::om-copy-directory  (make-pathname :device (pathname-device app-resources-folder)
                                            :directory (append *om-directory-folders* '("init")))
-                            (make-pathname :device (pathname-device app-contents-folder) 
+                            (make-pathname :device (pathname-device app-contents-folder)
                                            :directory (append (pathname-directory app-contents-folder) '("Init"))))
     ))
 
@@ -321,33 +321,33 @@
 ; (version-to-hex 6.020005)
 ; #x0006000200000005
 
-(let ((application-pathname 
+(let ((application-pathname
        #+cocoa
        (when (save-argument-real-p)
          (compile-file-if-needed (sys:example-file  "configuration/macos-application-bundle") :load t)
          (create-macos-application-bundle (make-pathname :directory (butlast (pathname-directory (current-pathname)))
-                                                        :name *full-app-name*)
-                                         :document-types (list `("Patch" ("opat") ,(om::om-relative-path '("mac") "opat.icns"))
-                                                               `("Sequencer" ("oseq") ,(om::om-relative-path '("mac") "oseq.icns"))
+                                                         :name *full-app-name*)
+                                          :document-types (list `("Patch" ("opat") ,(om::om-relative-path '("mac") "opat.icns"))
+                                                                `("Sequencer" ("oseq") ,(om::om-relative-path '("mac") "oseq.icns"))
                                                                ;`("TextFun" ("olsp") ,(om::om-relative-path '("mac") "lsp-icon.icns"))
-                                                               `("om Library" ("omlib") ,(om::om-relative-path '("mac") "omlib.icns")))
-                                                           :application-icns (om::om-relative-path '("mac") "om-sharp.icns")
-                                         :identifier "fr.cactus.om-sharp"
-                                         :version *version-string*
-                                         ))
+                                                                `("om Library" ("omlib") ,(om::om-relative-path '("mac") "omlib.icns")))
+                                          :application-icns (om::om-relative-path '("mac") "om-sharp.icns")
+                                          :identifier "fr.cactus.om-sharp"
+                                          :version *version-string*
+                                          ))
        #+mswindows
        (make-pathname :directory (butlast (pathname-directory (current-pathname)))
                       :name *full-app-name* :type "exe")
        #+linux
        (make-pathname :directory (butlast (pathname-directory (current-pathname)))
                       :name *full-app-name*)))
-  
+
   #+macosx(move-mac-resources)
 
   (deliver 'init-om-standalone
            application-pathname
-           0 
-            #+macosx :split  #+macosx :resources
+           0
+           #+macosx :split  #+macosx :resources
            :interface :capi
            :keep-editor t
            :keep-debug-mode t
@@ -358,11 +358,11 @@
            ;:keep-conditions :all
            ;:keep-xref-info t   ;; ??
            ;:editor-style :default
-           :startup-bitmap-file NIL ;; *startup-bmp*  ;; removed because of a delivery bug with menus        
+           :startup-bitmap-file NIL ;; *startup-bmp*  ;; removed because of a delivery bug with menus
            #+mswindows :keep-gc-cursor #+mswindows nil
            #+mswindows :versioninfo #+mswindows (list :binary-version (read-from-string (version-to-hex *version*))
-                                              :version-string *version-string*
-                                              :company-name "" :product-name "om-sharp" :file-description "")
+                                                      :version-string *version-string*
+                                                      :company-name "" :product-name "om-sharp" :file-description "")
            #+mswindows :console #+mswindows :input
            ; :quit-when-no-windows #+mswindows t #-mswindows nil
            #+(or cocoa win32) :packages-to-keep #+cocoa '(:objc)  #+mswindows '(:comm)

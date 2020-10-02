@@ -1,5 +1,5 @@
 ;=========================================================================
-; LW Lisp Tools 
+; LW Lisp Tools
 ; Lisp programming tools for LispWorks delivered applications
 ;=========================================================================
 ;
@@ -22,7 +22,7 @@
 
 (in-package :om-lisp)
 
-(export 
+(export
  'om-show-output-lines
  :om-lisp)
 
@@ -32,38 +32,38 @@
 (defclass output-win (capi::interface) ())
 
 (defun show-output-window (&optional windowtitle)
-   (unless *out-window* 
-     (setf *out-window* (make-instance 'output-win 
-                                       :title ""
-                                       :best-width 500
-                                       :best-height 400
-                                       :layout
-                                       (make-instance 'simple-layout
-                                                      :description 
-                                                      (list (make-instance 'capi::collector-pane 
-                                                                           :buffer *out-buffer*
-                                                                           :font (gp::make-font-description :family "Verdana" :size 10)
-                                                                           :width 300
-                                                                           )))
-                                       :destroy-callback #'(lambda (window) 
-                                                             (declare (ignore window))
-                                                             (setf *out-window* nil))
-                                       :auto-menus nil
-                                       :menu-bar-items (list (make-instance 'capi::menu :title "File"
-                                                                     :items (list (make-instance 'capi::menu-item :title "Close"
-                                                                                                 :callback-type :interface
-                                                                                                 :callback 'quit-interface
-                                                                                                 :accelerator #\w))))
-                                       ))
-     )
-   (capi::execute-with-interface *out-window* #'(lambda () 
-                                                  (display *out-window*)
-                                                  (when windowtitle (setf (capi::interface-title *out-window*) windowtitle))
-                                                  (capi::find-interface 'output-win)))
-   )
+  (unless *out-window*
+    (setf *out-window* (make-instance 'output-win
+                                      :title ""
+                                      :best-width 500
+                                      :best-height 400
+                                      :layout
+                                      (make-instance 'simple-layout
+                                                     :description
+                                                     (list (make-instance 'capi::collector-pane
+                                                                          :buffer *out-buffer*
+                                                                          :font (gp::make-font-description :family "Verdana" :size 10)
+                                                                          :width 300
+                                                                          )))
+                                      :destroy-callback #'(lambda (window)
+                                                            (declare (ignore window))
+                                                            (setf *out-window* nil))
+                                      :auto-menus nil
+                                      :menu-bar-items (list (make-instance 'capi::menu :title "File"
+                                                                           :items (list (make-instance 'capi::menu-item :title "Close"
+                                                                                                       :callback-type :interface
+                                                                                                       :callback 'quit-interface
+                                                                                                       :accelerator #\w))))
+                                      ))
+    )
+  (capi::execute-with-interface *out-window* #'(lambda ()
+                                                 (display *out-window*)
+                                                 (when windowtitle (setf (capi::interface-title *out-window*) windowtitle))
+                                                 (capi::find-interface 'output-win)))
+  )
 
 (defun om-show-output-lines (lines &optional windowtitle)
-  (unless *out-buffer* 
+  (unless *out-buffer*
     (setf *out-buffer* (om-make-buffer)))
   (om-buffer-delete *out-buffer*)
   (if (consp lines)
@@ -76,4 +76,4 @@
 ;; (om-show-output-lines '("this is a test" "for the default output-text window"))
 
 
-  
+

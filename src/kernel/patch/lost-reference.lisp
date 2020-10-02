@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -21,25 +21,25 @@
 ; BOX FOR LOST FUNCTIONS
 ;-------------------------------------------
 ; THIS BOX IS CREATED IF THE BOX IS NOT FOUND
-; IN PRINCIPLE IT SHOULD NEVER BE SAVED BUT 
+; IN PRINCIPLE IT SHOULD NEVER BE SAVED BUT
 ; RE-SAVE THE ORIGINAL REFERENCE BOX
 
-(defclass LostReferenceBox (OMBoxCall) 
+(defclass LostReferenceBox (OMBoxCall)
   ((reference-type :accessor reference-type :initform nil :initarg :reference-type)
    (lost-reference :accessor lost-reference :initform nil :initarg :lost-reference))
   (:default-initargs :reference :missing-reference)
   (:metaclass omstandardclass))
 
 (defmethod get-icon-id ((self LostReferenceBox)) :dead)
-(defmethod object-name-in-inspector ((self LostReferenceBox)) 
-  (format nil "Dead box [~A]" 
+(defmethod object-name-in-inspector ((self LostReferenceBox))
+  (format nil "Dead box [~A]"
           (string-upcase (lost-reference self))))
-  
+
 (defmethod get-documentation ((self LostReferenceBox))
-  (format 
-   nil 
+  (format
+   nil
    "The reference of this box is unknown: ~A ~A.
- 
+
 It was probably defined in some external file or library that is currently not loaded.
 "
    (reference-type self)
@@ -54,7 +54,7 @@ It was probably defined in some external file or library that is currently not l
 (defmethod box-draw ((self LostReferenceBox) frame)
   (om-draw-picture :dead :x 2 :y 6 :w 18 :h 18)
   t)
-  
+
 
 ;; for object boxes
 (defmethod (setf window-pos) (pos (self LostReferenceBox)) nil)
@@ -70,26 +70,26 @@ It was probably defined in some external file or library that is currently not l
 (defmethod box-type ((self LostReferenceBox)) (reference-type self))
 
 ;;; EVAL/GEN-CODE
-(defmethod omNG-box-value ((self LostReferenceBox) &optional (numout 0)) 
-  (om-beep-msg "MISSING REFERENCE FOR BOX [~A ~A]" 
+(defmethod omNG-box-value ((self LostReferenceBox) &optional (numout 0))
+  (om-beep-msg "MISSING REFERENCE FOR BOX [~A ~A]"
                (reference-type self)
                (lost-reference self))
   (om-abort))
 
 (defmethod gen-code ((self LostReferenceBox) &optional numout)
-  (error (format nil "MISSING REFERENCE FOR BOX [~A ~A]" 
+  (error (format nil "MISSING REFERENCE FOR BOX [~A ~A]"
                  (reference-type self)
                  (lost-reference self))))
 
-;;; we have to expliciely copy the inputs and outputs 
+;;; we have to expliciely copy the inputs and outputs
 ;;; and not le the default mechanism work
 (defmethod update-from-reference ((self LostReferenceBox)) nil)
 (defmethod smart-copy-additional-inputs ((self LostReferenceBox) newbox) nil)
 
-(defmethod om-copy ((self LostReferenceBox)) 
+(defmethod om-copy ((self LostReferenceBox))
   (let ((newbox (call-next-method)))
     ;;; add the in/outs
-    (setf (inputs newbox) 
+    (setf (inputs newbox)
           (mapcar #'(lambda (i)
                       (make-instance (type-of i)
                                      :value (om-copy (value i))
@@ -98,8 +98,8 @@ It was probably defined in some external file or library that is currently not l
                                      :box newbox
                                      :doc-string (doc-string i)))
                   (inputs self)))
-    (setf (outputs newbox) 
-          (mapcar 
+    (setf (outputs newbox)
+          (mapcar
            #'(lambda (o)
                (make-instance (type-of o)
                               :value (om-copy (value o))
@@ -118,17 +118,17 @@ It was probably defined in some external file or library that is currently not l
               (val (find-value-in-kv-list (cdr input-desc) :value))
               (reac (find-value-in-kv-list (cdr input-desc) :reactive)))
           (case type
-            (:standard 
-             (setf (inputs box) 
-                   (append (inputs box) 
+            (:standard
+             (setf (inputs box)
+                   (append (inputs box)
                            (list (make-instance 'box-input :box box
                                                 :name name :reference (intern name)
                                                 :value (omng-load val) :reactive reac)))))
-            (:optional 
+            (:optional
              (add-optional-input box :name name
                                  :value (omng-load val)
                                  :reactive reac))
-            (:key 
+            (:key
              (add-keyword-input box :key name
                                 :value (omng-load val)
                                 :reactive reac))
@@ -153,13 +153,13 @@ It was probably defined in some external file or library that is currently not l
 
 ;;; called if the output is requested, e.g. at loading an old patch
 (defmethod get-nth-output ((self LostReferenceBox) n)
-  (or 
+  (or
    (nth n (outputs self))
    (progn
      (setf (outputs self) (append (outputs self)
-                                 (loop for i from (length (outputs self)) to n
-                                       collect (make-instance 'box-output :box self
-                                                              :reference i))))
+                                  (loop for i from (length (outputs self)) to n
+                                        collect (make-instance 'box-output :box self
+                                                               :reference i))))
      (nth n (outputs self)))
    ))
 
@@ -171,15 +171,15 @@ It was probably defined in some external file or library that is currently not l
   (let* ((box (make-instance 'LostReferenceBox
                              :lost-reference reference
                              :reference-type :function)))
-    
+
     (setf (name box) (string (lost-reference box)))
-    
+
     (let ((size (default-size box))) ;;; default size will depend on the name
       (setf (box-x box) (om-point-x pos)
             (box-y box) (om-point-y pos)
             (box-w box) (om-point-x size)
             (box-h box) (om-point-y size)))
-    
+
     box))
 
 
@@ -213,7 +213,7 @@ It was probably defined in some external file or library that is currently not l
 (fmakunbound 'testfun)
 
 ;;; test with class
-(defclass testclass () 
+(defclass testclass ()
   ((a :accessor a :initarg :a :initform nil)
    (b :accessor b :initarg :b :initform nil)))
 ;(make-instance 'testclass)
@@ -223,7 +223,7 @@ It was probably defined in some external file or library that is currently not l
 |#
 
 ;;;===============================
-;;; MISSING ABSTRACTIONS 
+;;; MISSING ABSTRACTIONS
 ;;;===============================
 ;;; For persistant abstraction boxes we play it differently:
 ;;; The box remaions but it highlighted until the refence is missing (i.e., file not found)
@@ -251,10 +251,10 @@ It was probably defined in some external file or library that is currently not l
          (om-make-color .8 0.3 0.3))
         (t (call-next-method))))
 
-(defmethod box-draw-color ((self OMBoxAbstraction)) 
-  (if (lost-reference? self) 
-      (om-make-color 0.9 0.7 0.5) 
-  (call-next-method)))
+(defmethod box-draw-color ((self OMBoxAbstraction))
+  (if (lost-reference? self)
+      (om-make-color 0.9 0.7 0.5)
+    (call-next-method)))
 
 (defmethod draw-patch-icon :after ((self OMBoxAbstraction) &optional (offset-x 0) (offset-y 0))
   (when (lost-reference? self)
@@ -266,10 +266,10 @@ It was probably defined in some external file or library that is currently not l
           (om-draw-line x1 y2 x2 y1)
           )))))
 
-(defmethod open-editor ((self OMBoxAbstraction)) 
-  (if (lost-reference? self) 
-      (progn 
-        (om-beep-msg "MISSING REFERENCE FOR BOX '~A'.~%[=> File '~s' not found]" 
+(defmethod open-editor ((self OMBoxAbstraction))
+  (if (lost-reference? self)
+      (progn
+        (om-beep-msg "MISSING REFERENCE FOR BOX '~A'.~%[=> File '~s' not found]"
                      (name self)
                      (mypathname (reference self)))
         (setf (loaded? (reference self)) nil) ;; is it not ?
@@ -278,14 +278,14 @@ It was probably defined in some external file or library that is currently not l
 
 (defmethod boxcall-function :before ((self OMBoxAbstraction))
   (when (lost-reference? self)
-    (om-beep-msg "MISSING REFERENCE FOR BOX '~A'.~%[=> File '~s' not found]" 
+    (om-beep-msg "MISSING REFERENCE FOR BOX '~A'.~%[=> File '~s' not found]"
                  (name self)
                  (mypathname (reference self)))
     (om-abort)))
 
 (defmethod gen-code :before ((self OMBoxAbstraction) &optional numout)
-   (when (lost-reference? self)
-    (om-beep-msg "MISSING REFERENCE FOR BOX '~A'.~%[=> File '~s' not found]" 
+  (when (lost-reference? self)
+    (om-beep-msg "MISSING REFERENCE FOR BOX '~A'.~%[=> File '~s' not found]"
                  (name self)
                  (mypathname (reference self)))
     (om-abort)))

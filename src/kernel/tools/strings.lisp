@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -26,37 +26,37 @@
 
 (defun om-read-list-from-string (string &optional (pos 0))
   (let ((str2 (delete-lisp-comments string)))
-    
+
     (block nil
-      (handler-bind ((error #'(lambda (e) (om-beep-msg "read error: ~A in ~s" (type-of e) str2) 
+      (handler-bind ((error #'(lambda (e) (om-beep-msg "read error: ~A in ~s" (type-of e) str2)
                                 (return nil))))
-        
-        (multiple-value-bind (val pos) 
+
+        (multiple-value-bind (val pos)
             (read-from-string str2 nil :eof :start pos)
-          
+
           (if (eql val :eof)
               nil
             (cons val (om-read-list-from-string str2 pos))))
         ))))
-  
+
 
 (defun om-text-to-lines (text)
-  (let ((p2 (position #\Newline text)) 
+  (let ((p2 (position #\Newline text))
         (rep nil))
-        (loop while p2 do
-              (push (subseq text 0 p2) rep)
-              (setf text (subseq text (+ p2 1)))
-              (setf p2 (position #\Newline text)))
-        (push text rep)
-        (reverse rep)))
+    (loop while p2 do
+          (push (subseq text 0 p2) rep)
+          (setf text (subseq text (+ p2 1)))
+          (setf p2 (position #\Newline text)))
+    (push text rep)
+    (reverse rep)))
 
 (defun string-until-char (string char)
   (let ((index (search char string)))
     (if index (values (subseq string 0 index) (subseq string (+ index 1)))
-        (values string nil))))
+      (values string nil))))
 
 (defun string-to-list (string &optional (separator " "))
-  (when string 
+  (when string
     (multiple-value-bind (token rest)
         (string-until-char string separator)
       (cons token (string-to-list rest separator)))))
@@ -70,9 +70,9 @@
     (format nil "~D" num)))
 
 (defun read-number (str)
-   (if (equal str "") nil
-     (let ((rep (read-from-string str)))
-       (if (numberp rep) rep nil))))
+  (if (equal str "") nil
+    (let ((rep (read-from-string str)))
+      (if (numberp rep) rep nil))))
 
 
 (defun string-to-number (string)
@@ -87,13 +87,13 @@
   (string-until-char string ";"))
 
 (defun delete-spaces (string)
-   (let ((pos (position-if #'(lambda (x) (and 
-                                          (not (equal x #\Linefeed))
-                                          (not (equal x #\Space))
-                                          (not (equal x #\Tab)))) string)))
-     (if pos
-       (subseq string pos)
-       "")))
+  (let ((pos (position-if #'(lambda (x) (and
+                                         (not (equal x #\Linefeed))
+                                         (not (equal x #\Space))
+                                         (not (equal x #\Tab)))) string)))
+    (if pos
+        (subseq string pos)
+      "")))
 
 ;=======================
 ; FILE READER
@@ -105,7 +105,7 @@
       (let ((rep-list nil))
         (with-open-file (in path :direction :input :if-does-not-exist nil)
           (let ((line (read in nil :eof)))
-            (loop while (and line (not (equal line :eof))) do 
+            (loop while (and line (not (equal line :eof))) do
                   (setf rep-list (append rep-list (list line))
                         line (read in nil :eof)))))
         rep-list))))
@@ -113,7 +113,7 @@
 (defun lines-from-file (pathname)
   (with-open-file (in pathname :direction :input :if-does-not-exist nil)
     (let ((line (read-line in nil :eof)))
-      (loop while (and line (not (equal line :eof))) 
+      (loop while (and line (not (equal line :eof)))
             collect line
             do (setf line (read-line in nil :eof))))))
 
@@ -160,8 +160,8 @@
     ))
 
 
-(defvar *unknown-chars* '(#\U+0080 #\U+0081 #\U+0082 #\U+0083 #\U+0084 #\U+0085 #\U+0086 #\U+0088 #\U+0089 #\U+008A 
-                                   #\U+008C #\U+008D #\U+008E #\U+008F #\U+0090 #\U+0091 #\U+0093 #\U+0094 #\U+0095 
+(defvar *unknown-chars* '(#\U+0080 #\U+0081 #\U+0082 #\U+0083 #\U+0084 #\U+0085 #\U+0086 #\U+0088 #\U+0089 #\U+008A
+                                   #\U+008C #\U+008D #\U+008E #\U+008F #\U+0090 #\U+0091 #\U+0093 #\U+0094 #\U+0095
                                    #\U+0096 #\U+0097 #\U+0098 #\U+0099 #\U+009A #\U+009B #\U+009C #\U+009D #\U+009E #\U+009F))
 
 
@@ -172,7 +172,7 @@
                 (replace string (string (code-char (cadr char-switch))) :start1 pos)))
     ;; unknown chars... a chercher
     (loop for ch in *unknown-chars* do
-          (loop while (setf pos (position ch string)) do   
+          (loop while (setf pos (position ch string)) do
                 (replace string "?" :start1 pos)))
     string))
 

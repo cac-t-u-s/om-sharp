@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -26,7 +26,7 @@
 
 
 ;;--------------------------------------------------
-;; Class definition : DEFCLASS* 
+;; Class definition : DEFCLASS*
 ;;--------------------------------------------------
 ; defclass* uses standard defclass, but set automatically the metaclass to the OMClass meta-class.
 ; this macro fills the omslot of the class object i.e. icon, name.
@@ -34,15 +34,15 @@
 ;;--------------------------------------------------
 
 (defun parse-defclass-options (options)
-   (let* (icon metaclass doc other-options)
-     (loop while options do
-           (cond
-            ((equal (caar options) :icon)            (setf icon (second (pop options))))
-            ((equal (caar options) :documentation)   (setf doc (second (pop options))))
-            ((equal (caar options) :metaclass)       (setf metaclass (second (pop options))))
-            (t (push (pop options) other-options))))
-     (values other-options icon metaclass doc)))
- 
+  (let* (icon metaclass doc other-options)
+    (loop while options do
+          (cond
+           ((equal (caar options) :icon)            (setf icon (second (pop options))))
+           ((equal (caar options) :documentation)   (setf doc (second (pop options))))
+           ((equal (caar options) :metaclass)       (setf metaclass (second (pop options))))
+           (t (push (pop options) other-options))))
+    (values other-options icon metaclass doc)))
+
 (defmethod update-from-reference  ((self t)) nil)
 
 (defmethod update-from-reference  ((self OMClass))
@@ -51,19 +51,19 @@
   (mapc #'update-from-reference (references-to self)))
 
 ;;; supported options are
-;;; :icon :documentation :metaclass :update 
+;;; :icon :documentation :metaclass :update
 (defmacro defclass* (name superclasses slots &rest class-options)
- 
+
   (multiple-value-bind (other-options icon metaclass doc update?)
       (parse-defclass-options class-options)
-        
-    `(let ((new-class (defclass ,name ,superclasses ,slots 
+
+    `(let ((new-class (defclass ,name ,superclasses ,slots
                         (:metaclass ,(or metaclass *def-metaclass-class*))
                         (:documentation ,(or doc ""))
                         ,.other-options)))
-       
+
        (setf (name new-class) (string ',name))
        (setf (icon new-class) (or ,icon 'icon-class))
        (update-from-reference new-class)
        new-class)
-     ))
+    ))

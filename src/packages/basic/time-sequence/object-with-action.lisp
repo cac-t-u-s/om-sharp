@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -30,7 +30,7 @@
          (setf (action self) :internal-lambda))
         ((ompatch-p action)
          (compile-patch action)
-         (setf (action-fun self) (intern-om (compiled-fun-name action)) 
+         (setf (action-fun self) (intern-om (compiled-fun-name action))
                (action self) action))
         ((consp action)
          (setf (action-fun self) #'(lambda (x) (apply (car action) (cons x (cdr action))))
@@ -38,15 +38,15 @@
         ((and (symbolp action) (fboundp action))
          (setf (action-fun self) action
                (action self) action))
-        ((equal action :internal-lambda) 
+        ((equal action :internal-lambda)
          (setf (action self) action)
          ;;; here we can do nothing more but hope there is a good lambda in action-fun
          (unless (functionp (action-fun self)) (om-beep-msg "Problem with internal lambda: NEED TO RELOAD THE ACTION !!")))
-        ((null action) 
+        ((null action)
          (setf (action-fun self) nil
                (action self) nil))
         (action (om-beep-msg "Unrecognized action: ~A" action))))
-  
+
 (defmethod om-init-instance :around ((self object-with-action) &optional initargs)
   (let* ((object (call-next-method))
          (action (or (find-value-in-kv-list initargs :action)

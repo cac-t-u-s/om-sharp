@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -21,60 +21,60 @@
 
 (in-package :om)
 
-(setf (documentation 'first 'function) 
+(setf (documentation 'first 'function)
       "Returns the 1st element in <list>.
 
 (Equivalent to Lisp CAR)
 
 Ex. (first '(1 2 3 4 5 6)) ==> 1")
 
-(setf (documentation 'second 'function) 
+(setf (documentation 'second 'function)
       "Returns the 2nd element in <list>.
 
 Ex. (second '(1 2 3 4 5 6)) ==> 2")
 
-(setf (documentation 'third 'function) 
+(setf (documentation 'third 'function)
       "Returns the 3rd element in <list>.
 
 Ex. (third '(1 2 3 4 5 6)) ==> 3")
 
-(setf (documentation 'nth 'function) 
+(setf (documentation 'nth 'function)
       "Returns the <n>th element in <list>.
 The count starts from 0, i.e. (nth 0 list) is the first element of the list.
 
 Ex. (nth 0 '(1 2 3 4 5 6)) ==> 1
 Ex. (nth 2 '(1 2 3 4 5 6)) ==> 3")
 
-(setf (documentation 'rest 'function) 
+(setf (documentation 'rest 'function)
       "Returns the tail of <list>, i.e. the same list without irts first element.
 
 (Equivalent to Lisp CDR)
 
 Ex. (rest '(1 2 3 4 5 6)) ==> (2 3 4 5 6)")
 
-(setf (documentation 'nthcdr 'function) 
+(setf (documentation 'nthcdr 'function)
       "Returns the tail of <list> that would be obtained by calling REST <n> times in succession, i.e. without its <n> first elements.
 
 Ex. (nthcdr 2 '(1 2 3 4 5 6)) ==> (3 4 5 6)")
 
-(setf (documentation 'butlast 'function) 
+(setf (documentation 'butlast 'function)
       "Returns a copy of <list> without its last element or without its last <n> elements if <n> is supplied.
 
 Ex. (butlast '(1 2 3 4 5 6)) ==> (1 2 3 4 5)
 Ex. (butlast '(1 2 3 4 5 6)) ==> (1 2 3)")
 
-(setf (documentation 'reverse 'function) 
+(setf (documentation 'reverse 'function)
       "Returns a new sequence or list of the same kind as <sequence>, containing the same elements but in reverse order.
 
 Ex. (reverse '(1 2 3 4 5 6)) ==> (6 5 4 3 2 1)")
 
-(setf (documentation 'length 'function) 
+(setf (documentation 'length 'function)
       "Returns the number of elements in <sequence> (a list, a string, ...)
 
 Ex. (length '(1 2 3 4 5 6)) ==> 6
 Ex. (length \"hello\") ==> 5")
 
-(setf (documentation 'list 'function) 
+(setf (documentation 'list 'function)
       "Returns a list containing the supplied objects (<args>).
 
 Ex. (list 1 2 'a 7) ==> (1 2 a 7)
@@ -84,7 +84,7 @@ LIST also exists as a type specifier (or class).
 The type specifier is mainly used to set types in other class slots or method arguments.
 ")
 
-(setf (documentation 'remove 'function) 
+(setf (documentation 'remove 'function)
       "Returns a new sequence that has the same elements as <sequence> except those that satisfy the test <test> with <item>.
 By default the test is 'eql so the items that are equal to <item> are removed.
 
@@ -102,7 +102,7 @@ Ex. (remove 5 '((b 2) (c 5) (d 6) (e 7) (f 5) (g 3))) :key 'second) ==> ((b 2) (
 
 
 (setf (documentation 'cons 'function)
-      "Creates a new CONS with <car> and <cdr>. 
+      "Creates a new CONS with <car> and <cdr>.
 A CONS is a basic compound data object having two components called the CAR and the CDR
 A LIST is recursively defined as a CONS which CDR is a list.
 
@@ -112,13 +112,13 @@ Ex. (cons 'a '(b c)) ==> (a b c)
 Ex. (cons 'a (cons 'b nil)) ==> (a b)")
 
 
-(setf (documentation 'append 'function) 
+(setf (documentation 'append 'function)
       "Returns a new list that is the concatenation of the <lists>.
 
 Ex. (append '(1 2 3) '(4 5)) ==> (1 2 3 4 5)")
 
-(setf (documentation 'apply 'function) 
-     "Applies <function> to the arguments in <arg>.
+(setf (documentation 'apply 'function)
+      "Applies <function> to the arguments in <arg>.
 
 <function> is a function or function name.
 <arg> is a list of arguments.
@@ -126,7 +126,7 @@ Ex. (append '(1 2 3) '(4 5)) ==> (1 2 3 4 5)")
 Ex. (apply '+ '(3 4)) ==> 7
 ")
 
-(setf (documentation 'funcall 'function) 
+(setf (documentation 'funcall 'function)
       "Applies <function> to <args>.
 
 <function> is a function or function name.
@@ -134,17 +134,17 @@ Ex. (apply '+ '(3 4)) ==> 7
 
 Ex. (funcall '+ 3 5) ==> 8")
 
-(setf (documentation 'mapcar 'function) 
-      "Operates on successive elements of <list> (and of the other lists of <more-lists>). 
+(setf (documentation 'mapcar 'function)
+      "Operates on successive elements of <list> (and of the other lists of <more-lists>).
 
-<function> can be a function or function name. It is applied to the first element of each list, then to the second element of each list, and so on. The iteration terminates when the list runs out, or when the shorter list runs out if various lists are supplied. Excess elements in other lists are ignored. 
+<function> can be a function or function name. It is applied to the first element of each list, then to the second element of each list, and so on. The iteration terminates when the list runs out, or when the shorter list runs out if various lists are supplied. Excess elements in other lists are ignored.
 
 The value returned is a list of the results of successive calls to <function>.")
 
-(setf (documentation 'mapcan 'function) 
-      "Operates on successive elements of <list> (and of the other lists of <more-lists>). 
+(setf (documentation 'mapcan 'function)
+      "Operates on successive elements of <list> (and of the other lists of <more-lists>).
 
-<function> can be a function or function name. It is applied to the first element of each list, then to the second element of each list, and so on. The iteration terminates when the list runs out, or when the shorter list runs out if various lists are supplied. Excess elements in other lists are ignored. 
+<function> can be a function or function name. It is applied to the first element of each list, then to the second element of each list, and so on. The iteration terminates when the list runs out, or when the shorter list runs out if various lists are supplied. Excess elements in other lists are ignored.
 
 The value returned is a the concatenation of the results of successive calls to <function>. <function> should therefore return lists.")
 

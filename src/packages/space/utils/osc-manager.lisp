@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Garcia
@@ -39,16 +39,16 @@
   (osc-manager-stop-receive self) ;; just in case
   (let ((port (port self)))
     (if (and port (numberp port))
-        (progn 
+        (progn
           (print (format nil "3DC-OSC-RECEIVE START on port ~D" port))
           (setf (active-p self) t)
           (setf (process self)
                 (om-start-udp-server port "localhost"
-                               #'(lambda (msg) 
-                                   (let* ((message (osc-decode msg)))
-                                     (osc-manager-process-message self message)
-                                     )
-                                   nil)))
+                                     #'(lambda (msg)
+                                         (let* ((message (osc-decode msg)))
+                                           (osc-manager-process-message self message)
+                                           )
+                                         nil)))
           (update-to-editor (editor self) self))
       (om-beep-msg (format nil "error - bad port number for OSC-RECEIVE: ~A" port))
       )))
@@ -57,79 +57,79 @@
   (when (process self)
     (om-stop-udp-server (process self))
     (om-print (format nil "RECEIVE STOP: ~A" (om-process-name (process self))) "UDP"))
-    (setf (process self) nil)
-    (setf (active-p self) nil)
-    (update-to-editor (editor self) self))
+  (setf (process self) nil)
+  (setf (active-p self) nil)
+  (update-to-editor (editor self) self))
 
 (defmethod open-osc-manager ((self osc-curvce-input-manager))
   (if (and (window self) (om-window-open-p (window self)))
       (om-select-window (window self))
     (setf (window self)
-          (om-make-window  
+          (om-make-window
            'om-window  :title "OSC manager"
            :size (om-make-point 300 nil)
-           :subviews 
-           (list  
-            (om-make-layout 
+           :subviews
+           (list
+            (om-make-layout
              'om-column-layout
              :subviews
-             (list 
-              (om-make-di 'om-simple-text :size (omp 400 80) 
+             (list
+              (om-make-di 'om-simple-text :size (omp 400 80)
                           :text (format nil "Send OSC Messages to edit 2D/3D objects:~%- /3dc/clear resets the current object.~%- /3dc/move x y z displays the current position.~%- /3dc/add x y z time appends a new point.")
                           )
               ;;; (if the distance with the previous one is lesser than the distance treshold)
-              (om-make-layout 
+              (om-make-layout
                'om-row-layout
                :subviews
-               (list 
-                (om-make-di 'om-simple-text 
-                            :text "OSC port:" 
-                            :size (omp 150 20) 
+               (list
+                (om-make-di 'om-simple-text
+                            :text "OSC port:"
+                            :size (omp 150 20)
                            ;:font (om-def-font :font1)
                             )
-                (om-make-graphic-object 'numbox 
+                (om-make-graphic-object 'numbox
                                         :value (port self) :size (omp 40 18)
                                         :bg-color (om-def-color :white)
                                         ;:font (om-def-font :font1)
-                                        :min-val 0 
-                                        :after-fun #'(lambda (numbox) 
+                                        :min-val 0
+                                        :after-fun #'(lambda (numbox)
                                                        (setf (port self) (value numbox))
                                                        (osc-manager-restart self)))
 
                 nil
-                (om-make-di 'om-check-box 
-                          :text "Start/Stop OSC" 
+                (om-make-di 'om-check-box
+                            :text "Start/Stop OSC"
                            ;:font (om-def-font :font1)
-                          :checked-p (active-p self)
-                          :size (omp 150 20)
-                          :di-action #'(lambda (item)
-                                         (if (om-checked-p item)
-                                             (osc-manager-start-receive self)
-                                           (osc-manager-stop-receive self)
-                                           )))
+                            :checked-p (active-p self)
+                            :size (omp 150 20)
+                            :di-action #'(lambda (item)
+                                           (if (om-checked-p item)
+                                               (osc-manager-start-receive self)
+                                             (osc-manager-stop-receive self)
+                                             )))
                 ))
-              
-              (om-make-layout 
+
+              (om-make-layout
                'om-row-layout
                :subviews
-               (list 
-                (om-make-di 'om-simple-text :text "Distance treshold:" 
+               (list
+                (om-make-di 'om-simple-text :text "Distance treshold:"
                             ;:font (om-def-font :font1)
                             :size (omp 150 30))
-                (om-make-graphic-object 'numbox 
-                                        :value (dist-threshold self) 
+                (om-make-graphic-object 'numbox
+                                        :value (dist-threshold self)
                                         :min-val 0.0 :size (omp 40 18)
                                         ;:font (om-def-font :font1)
                                         :bg-color (om-def-color :white)
-                                        :after-fun #'(lambda (numbox) 
+                                        :after-fun #'(lambda (numbox)
                                                        (setf (dist-threshold self) (value numbox)))))
                ))))
            ))))
-   
-  
-(defmethod close-osc-manager ((self osc-curvce-input-manager)) 
+
+
+(defmethod close-osc-manager ((self osc-curvce-input-manager))
   (osc-manager-stop-receive self)
-  (when (window self) 
+  (when (window self)
     (om-close-window (window self))
     (setf (window self) nil)))
 
@@ -148,13 +148,13 @@
       (setf (last-osc-point self) nil)
       (setf (osc-first-time self) nil)
       (osc-manager-clear-callback (editor self)))
-     ((string-equal address "/3dc/add") 
+     ((string-equal address "/3dc/add")
       (unless *3dc_osc_state* (setf *3dc_osc_state* t))
       (setf (cursor-status self) t)
       (setf (cursor-position self) content)
       (unless (osc-first-time self)
         (setf (osc-first-time self) (or (cadddr content) 0)))
-      (let ((point (make-3dpoint :x (car content) :y (cadr content) :z (caddr content) 
+      (let ((point (make-3dpoint :x (car content) :y (cadr content) :z (caddr content)
                                  :time (- (cadddr content) (osc-first-time self)))))
         (when (or (not (last-osc-point self))
                   (>= (om-points-distance (last-osc-point self) point) (dist-threshold self)))

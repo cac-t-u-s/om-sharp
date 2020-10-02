@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -23,7 +23,7 @@
 
 (defclass SynthesisEvt (schedulable-object) ())
 
-(defun filter-events (evt-list fun-s) 
+(defun filter-events (evt-list fun-s)
   (loop for item in evt-list
         when (let ((rep t))
                (loop for fun in (list! fun-s)
@@ -49,31 +49,31 @@
               (om-beep-msg "No synthesis method for events of type ~A" (type-of evt))))
           )
     rep))
-    
+
 
 ;;;==============================================
-;;; A generic synthesizer function 
+;;; A generic synthesizer function
 ;;; (calls appropriate specific method for the type of input)
 ;;;==============================================
 
 
-(defmethod* synthesize ((obj synthesisevt) 
-                        &key (name "my-synth") (run t) 
-                        format resolution 
-                        (normalize nil normalize-supplied-p) 
+(defmethod* synthesize ((obj synthesisevt)
+                        &key (name "my-synth") (run t)
+                        format resolution
+                        (normalize nil normalize-supplied-p)
                         inits tables filters
                         sr kr)
 
-  :indoc '("a synthesis even (or list)" "name of output file" "run synthesis or generate params?" 
+  :indoc '("a synthesis even (or list)" "name of output file" "run synthesis or generate params?"
            "audio output format" "filter function for synthesis events" "synth initializers" "wave/gen tables" "sample rate" "control rate")
   :initvals '(nil "my-synth" t "aiff")
-  
+
   (when (synthesize-method obj)
     (if (or (null filters)
             (filter-events (list obj) filters))
-        (funcall (synthesize-method obj) 
+        (funcall (synthesize-method obj)
                  obj
-                 :name name :run run 
+                 :name name :run run
                  :format (or format (get-pref-value :audio :format))
                  :resolution resolution
                  :normalize (if normalize-supplied-p normalize (get-pref-value :audio :normalize))
@@ -82,47 +82,47 @@
       (om-beep-msg "SYNTHESIZE: event did not pass filter(s) !"))
     ))
 
-(defmethod* synthesize ((obj list)                      
-                        &key (name "my-synth") (run t) 
-                        format resolution 
+(defmethod* synthesize ((obj list)
+                        &key (name "my-synth") (run t)
+                        format resolution
                         (normalize nil normalize-supplied-p)
                         inits tables filters
                         sr kr)
-  
+
   (let* ((evt-list (if filters (filter-events obj filters) obj))
          (grouped-list (collect-events-by-synth evt-list))
          (out-normalize (if normalize-supplied-p normalize (get-pref-value :audio :normalize))))
-    
+
     (when grouped-list
-      
-      (cond 
-       
+
+      (cond
+
        ((= 1 (length grouped-list)) ;; only one kind of synthesis (most frequent case...)
-        
-        (funcall (car (car grouped-list)) 
+
+        (funcall (car (car grouped-list))
                  (cadr (car grouped-list))
                  :name name :run run :format format
                  :inits inits :tables tables
-                 :resolution resolution 
-                 :normalize out-normalize 
+                 :resolution resolution
+                 :normalize out-normalize
                  :sr sr :kr kr))
-            
+
        (t (let ((rep-list (loop for elt in grouped-list  ;; several synthesis processes to mix
                                 for i = 1 then (+ i 1) collect
-                                (funcall (car elt) 
+                                (funcall (car elt)
                                          (cadr elt)
                                          :name (string+ name "-temp-" (number-to-string i)) :run run :format format
-                 :inits inits :tables tables
-                 :resolution resolution 
-                 :normalize out-normalize
-                 :sr sr :kr kr))))
+                                         :inits inits :tables tables
+                                         :resolution resolution
+                                         :normalize out-normalize
+                                         :sr sr :kr kr))))
             (if run
                 ;;; mix all results
-                (save-sound 
-                 (reduce 'sound-mix rep-list) 
+                (save-sound
+                 (reduce 'sound-mix rep-list)
                  (if (pathnamep name) name (outfile name :type format)))
-              
-                rep-list)))
+
+              rep-list)))
        )
       )))
 

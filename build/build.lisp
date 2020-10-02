@@ -24,17 +24,17 @@
 (defparameter *app-name* "om-sharp")
 
 (defparameter *version-major* 1)
-(defparameter *version-minor* 0) 
+(defparameter *version-minor* 0)
 (defparameter *version-patch* 0)
 (defparameter *version-update* 0)
 
-(defparameter *version* 
-  (+ *version-major* 
-     (/ *version-minor* 100.0) 
-     (/ *version-patch* 10000.0) 
+(defparameter *version*
+  (+ *version-major*
+     (/ *version-minor* 100.0)
+     (/ *version-patch* 10000.0)
      (/ *version-update* 1000000.0)))
 
-(defparameter *version-string* 
+(defparameter *version-string*
   (concatenate 'string (format nil "~d.~d" *version-major* *version-minor*)
                (if (and *version-patch* (plusp *version-patch*)) (format nil ".~d" *version-patch*) "")
                (if (and *version-update* (plusp *version-update*)) (format nil "-u~d" *version-update*) "")
@@ -91,7 +91,7 @@
 (let ((slime/swank-loader (merge-pathnames "slime/swank-loader.lisp" *externals-directory*)))
   (if (probe-file slime/swank-loader)
       (load slime/swank-loader)
-      (error "~S not found.  You probably forgot to 'git submodule init' && 'git submodule update'" slime/swank-loader)))
+    (error "~S not found.  You probably forgot to 'git submodule init' && 'git submodule update'" slime/swank-loader)))
 (setq swank-loader::*fasl-directory* (merge-pathnames "slime/fasl/" *externals-directory*))
 (swank-loader:init :setup nil :load-contribs t)
 
@@ -107,7 +107,7 @@
 
 (load (merge-pathnames "XML/load-xml" *externals-directory*))
 
-(progn 
+(progn
   (compile&load (merge-pathnames "Yason/package" *externals-directory*))
   (compile&load (merge-pathnames "Yason/parse" *externals-directory*)))
 
@@ -117,7 +117,7 @@
 
 
 ;;;=======================================
-;;;; OPENMUSIC
+;;;; LOAD THE SOURCES
 ;;;=======================================
 
 (defpackage :om-sharp
@@ -127,8 +127,8 @@
 
 (in-package :om)
 
-(import '(cl-user:compile&load 
-          cl-user::decode-local-path) 
+(import '(cl-user:compile&load
+          cl-user::decode-local-path)
         :om)
 
 (load (merge-pathnames "src/kernel/kernel-files.lisp" cl-user::*om-root-directory*))
@@ -149,15 +149,15 @@
 (defparameter *packages-folder* (merge-pathnames "src/packages/" cl-user::*om-root-directory*))
 
 (defun load-om-package (name)
-  (let ((packager-loader (make-pathname :directory (append (pathname-directory *packages-folder*) (list name)) 
+  (let ((packager-loader (make-pathname :directory (append (pathname-directory *packages-folder*) (list name))
                                         :name name :type "lisp")))
     (if (probe-file packager-loader)
-      (progn 
-        (print (format nil "LOADING PACKAGE: ~A" packager-loader))
-        (load packager-loader)
-        (push name *om-packages*)
-        name)
-      (progn 
+        (progn
+          (print (format nil "LOADING PACKAGE: ~A" packager-loader))
+          (load packager-loader)
+          (push name *om-packages*)
+          name)
+      (progn
         (print (format nil "PACKAGE LOADER NOT FOUND !!"))
         nil))
     ))
@@ -185,8 +185,37 @@
 (load-om-package "space")
 
 
+;;;=================================
+;;; Lisp formatting utils
+;;;=================================
+
+(defun lisp-format-folder (dir &key exclude-folders)
+
+  (loop for item in (oa::om-directory dir :directories t)
+        unless (equal item dir)
+        do (if (system::directory-pathname-p item)
+
+               (unless (member (car (last (pathname-directory item))) exclude-folders :test 'string-equal)
+                 (lisp-format-folder item :exclude-folders exclude-folders))
+             
+             (when (and (pathname-type item)
+                        (string= (pathname-type item) "lisp"))
+               (om-lisp::om-lisp-format-file item))
+             )
+        ))
+
+(defun format-sources ()
+  (lisp-format-folder 
+   (merge-pathnames "src/" cl-user::*om-root-directory*)
+   :exclude-folders '("_BUILD" "lisp-externals" "lw-opengl" "foreign-interface")))
+
+;=> Call this before comitting to the repository !
+;
+; (format-sources)
+;
+
+;;;=================================
+;;; Start
+;;;=================================
+
 (defun cl-user::start-omsharp () (om::start-omsharp))
-
-
-
-

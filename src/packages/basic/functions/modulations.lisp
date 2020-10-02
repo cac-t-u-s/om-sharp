@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson, Marco Stroppa
@@ -24,26 +24,26 @@
 
 
 (defun train (freqs dur)
- (let ((delta 0.01) ;    if freq<0.01, keep this freq to compute the increment
-       (t0 0) (rep (list 0.0))
-       (realdur (+ dur 0.0002))) ; to avoid roundup errors
-   (loop while (< t0 realdur) do
-         (let ((f0 (x-transfer freqs t0)))
-           (if (< f0 delta) (incf t0 (/ 1.0 delta))
-             (progn 
-               (incf t0 (/ 1 (float f0)))
-               (pushr t0 rep)))))
-   rep))
+  (let ((delta 0.01) ;    if freq<0.01, keep this freq to compute the increment
+        (t0 0) (rep (list 0.0))
+        (realdur (+ dur 0.0002))) ; to avoid roundup errors
+    (loop while (< t0 realdur) do
+          (let ((f0 (x-transfer freqs t0)))
+            (if (< f0 delta) (incf t0 (/ 1.0 delta))
+              (progn
+                (incf t0 (/ 1 (float f0)))
+                (pushr t0 rep)))))
+    rep))
 
 
 (defclass processing-function () ())
 
-(defmethod generate-function-bpfs (fun begin end resolution) 
+(defmethod generate-function-bpfs (fun begin end resolution)
   (om-beep-msg (string+ "Warning: unknown type of processing function: " fun)))
 
 (defmethod generate-function-bpfs ((fun bpf) begin end resolution) (list fun))
 
-(defmethod generate-function-bpfs ((fun list) begin end resolution) 
+(defmethod generate-function-bpfs ((fun list) begin end resolution)
   (loop for f in fun append (generate-function-bpfs f begin end resolution)))
 
 
@@ -77,7 +77,7 @@ Notes:
                     ((equal op 'm) #'*)
                     (t op))))
     (if (numberp initval)
-        (make-instance 'bpf 
+        (make-instance 'bpf
                        :x-points (mapcar 'car jit-points)
                        :y-points (mapcar #'(lambda (pt) (apply ope (list initval (cadr pt)))) jit-points)
                        :decimals dec)
@@ -86,7 +86,7 @@ Notes:
              (all-points jit-points)
              ; (if resolution (precise-arithm-ser begin end resolution) ...)
              (all-x-points (mapcar 'car all-points)))
-        (make-instance 'bpf 
+        (make-instance 'bpf
                        :x-points all-x-points
                        :y-points (loop for pt in all-points collect
                                        (let ((val (x-transfer init-points (car pt) dec)))
@@ -104,48 +104,48 @@ Notes:
 
 (defun merge-bpfs (bpf-list)
   (let* ((points (mapcar #'point-pairs bpf-list))
-        (xpts (sort (remove-duplicates (loop for bp in points append (car (mat-trans bp))) :test '=) '<))
-        (dec (list-max (mapcar 'decimals bpf-list))))
+         (xpts (sort (remove-duplicates (loop for bp in points append (car (mat-trans bp))) :test '=) '<))
+         (dec (list-max (mapcar 'decimals bpf-list))))
     (make-instance 'bpf :x-points xpts
-                   :y-points (loop for xpt in xpts collect 
+                   :y-points (loop for xpt in xpts collect
                                    (apply '+ (mapcar #'(lambda (bpfptlist) (x-transfer bpfptlist xpt dec)) points)))
                    :decimals dec)))
 
 
-            
-(defclass! jitter-effect (processing-function) 
+
+(defclass! jitter-effect (processing-function)
   ((freq :accessor freq :initarg :freq :initform 20)
    (amp :accessor amp :initarg :amp :initform 1.0))
   (:icon :effect-jit))
 
 
 (defmethod! jitter (freqs amps)
-   :initvals '(20 1.0)
-   :indoc '("jitter frequency(-ies)" "jitter amplitude(s)")
-   :outdoc '("jitter effect")
-   :icon :effect-jit
-   :doc "Generates a JITTER effect (aleatoric pertubation) to be connected to PARAM-PROCESS in order to modulate an input value.
+  :initvals '(20 1.0)
+  :indoc '("jitter frequency(-ies)" "jitter amplitude(s)")
+  :outdoc '("jitter effect")
+  :icon :effect-jit
+  :doc "Generates a JITTER effect (aleatoric pertubation) to be connected to PARAM-PROCESS in order to modulate an input value.
 
 <freqs> and <amps> can be single values or lists of values."
-   (make-instance 'jitter-effect :freq freqs :amp amps))
+  (make-instance 'jitter-effect :freq freqs :amp amps))
 
 
 (defmethod generate-function-bpfs ((fun jitter-effect) begin end resolution)
   ;; ignore resolution
   (let* ((freqs (list! (freq fun)))
          (amps (if (consp (amp fun)) (amp fun) (make-list (length freqs) :initial-element (amp fun)))))
-    (loop for f in freqs for a in amps collect 
+    (loop for f in freqs for a in amps collect
           (let ((x-list (if (bpf-p f)
-                            (om+ begin (train f (- end begin))) 
+                            (om+ begin (train f (- end begin)))
                           (precise-arithm-ser begin end (/ 1.0 f)))))
             (make-instance 'bpf :x-points x-list
-                           :y-points (loop for x in x-list collect 
+                           :y-points (loop for x in x-list collect
                                            (let ((amp (if (bpf-p a) (x-transfer a x) a)))
                                              (om-random (- amp) amp)))
                            :decimals 6)))))
 
 
-(defclass! vibrato-effect (processing-function) 
+(defclass! vibrato-effect (processing-function)
   ((freq :accessor freq :initarg :freq :initform 6.0)
    (amp :accessor amp :initarg :amp :initform 0.06)
    (ph :accessor ph :initarg :ph :initform 0.0))
@@ -153,14 +153,14 @@ Notes:
 
 
 (defmethod! vibrato (freqs amps &optional (ph 0.0))
-   :initvals '(6.0 0.06 0.0)
-   :indoc '("vibrato frequency(-ies)" "vibrato amplitude(s)" "initial phase [rad]")
-   :outdoc '("vibrato effect")
-   :icon :effect-vib
-   :doc "Generates a VIBRATO effect (sinusoidal modulation) to be connected to PARAM-PROCESS in order to modulate an input value.
+  :initvals '(6.0 0.06 0.0)
+  :indoc '("vibrato frequency(-ies)" "vibrato amplitude(s)" "initial phase [rad]")
+  :outdoc '("vibrato effect")
+  :icon :effect-vib
+  :doc "Generates a VIBRATO effect (sinusoidal modulation) to be connected to PARAM-PROCESS in order to modulate an input value.
 
 <freqs> and <amps> can be single values or lists of values, <ph> is the initial phase."
-   (make-instance 'vibrato-effect :freq freqs :amp amps :ph ph))
+  (make-instance 'vibrato-effect :freq freqs :amp amps :ph ph))
 
 
 (defmethod generate-function-bpfs ((fun vibrato-effect) begin end resolution)
@@ -168,35 +168,35 @@ Notes:
          (phase (if (consp (ph fun)) (ph fun) (make-list (length freqs) :initial-element (ph fun))))
          (amps (if (consp (amp fun)) (amp fun) (make-list (length freqs) :initial-element (amp fun))))
          (res (or resolution (om-beep-msg "Warning: no resolution specified for the vibrato. Default= 1 / (4 * f)"))))
-    (loop for f in freqs 
+    (loop for f in freqs
           for a in amps
-          for p in phase collect 
+          for p in phase collect
           (let* ((x-list (precise-arithm-ser begin end (or res (/ 1 (float (* 4 (if (bpf-p f) (list-max (y-points f)) f)))))))
-                 (f-vals (if (bpf-p f) 
-                            (let* ((fpts (point-pairs f))
-                                   (fx (om-scale (mapcar 'car fpts) begin end))
-                                   (fy (mapcar 'cadr fpts)))
-                              (x-transfer (mat-trans (list fx fy)) x-list))
+                 (f-vals (if (bpf-p f)
+                             (let* ((fpts (point-pairs f))
+                                    (fx (om-scale (mapcar 'car fpts) begin end))
+                                    (fy (mapcar 'cadr fpts)))
+                               (x-transfer (mat-trans (list fx fy)) x-list))
                            f))
                  (sin-vals (if (listp f-vals)
                                (let ((cycles-beg (train (mat-trans (list x-list f-vals)) (- end begin))))
                                  (loop for c on cycles-beg when (cadr c) append
                                        (let* ((t1 (car c))
-                                              (t2 (cadr c))          
+                                              (t2 (cadr c))
                                               (n (length (band-filter x-list (list (list t1 t2)) 'pass))))
                                          (nth 2 (multiple-value-list (om-sample #'(lambda (x) (sin (+ x p))) n 0 (* 2 pi) 3))))))))
-                           
-                 (a-vals (if (bpf-p a) 
+
+                 (a-vals (if (bpf-p a)
                              (let* ((apts (point-pairs a))
                                     (ax (om-scale (mapcar 'car apts) begin end))
                                     (ay (mapcar 'cadr apts)))
-                              (x-transfer (mat-trans (list ax ay)) x-list))
-                          a)))
+                               (x-transfer (mat-trans (list ax ay)) x-list))
+                           a)))
 
-            (make-instance 'bpf 
+            (make-instance 'bpf
                            :x-points x-list
-                           :y-points (loop for x in x-list 
-                                           for i = 0 then (+ i 1) 
+                           :y-points (loop for x in x-list
+                                           for i = 0 then (+ i 1)
                                            collect (* (if (listp a-vals) (nth i a-vals) a-vals)
                                                       (if sin-vals (nth i sin-vals)
                                                         (sin (+ p (* 2 pi x (car (list! f-vals))))))

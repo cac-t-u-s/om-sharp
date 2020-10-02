@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -33,11 +33,11 @@
   (and (call-next-method) (slot-definition-initargs slot)))
 
 (defun points2vertex (points)
-  (gl-user::make-object-vertexes 
+  (gl-user::make-object-vertexes
    (mapcar #'(lambda (p)
                (list
-                (coerce (car p) 'double-float) 
-                (coerce (cadr p) 'double-float) 
+                (coerce (car p) 'double-float)
+                (coerce (cadr p) 'double-float)
                 (coerce (caddr p) 'double-float)
                 1.0d0))
            points)))
@@ -59,7 +59,7 @@
   )
 
 (defmethod om-draw-contents ((self om-3D-object)) nil)
-           
+
 (defmethod om-get-gl-points ((self om-3D-object))
   (glvertexes self))
 
@@ -86,10 +86,10 @@
 (defmethod get-extents ((self om-3D-object))
   (when (om-3Dobj-points self)
     (let* ((x-y-z (mat-trans (om-3Dobj-points self)))
-           (xpts (nth 0 x-y-z)) 
+           (xpts (nth 0 x-y-z))
            (ypts (nth 1 x-y-z))
            (zpts (nth 2 x-y-z)))
-      (values 
+      (values
        (reduce 'min xpts)
        (reduce 'max xpts)
        (reduce 'min ypts)
@@ -109,22 +109,22 @@
               (push ymax ymaxs)
               (push zmin zmins)
               (push zmax zmaxs)))
-      (values 
+      (values
        (reduce 'min xmins)
        (reduce 'max xmaxs)
        (reduce 'min ymins)
        (reduce 'max ymaxs)
        (reduce 'min zmins)
        (reduce 'max zmaxs)))))
-            
-            
+
+
 ;;;;;;;;;;;;;LIST OF 3D OBJ;;;;;;;;;;;;;
 
 #|
 (defclass om-3D-object-list (gl-user::gl-object)
   ((objects :accessor objects :initarg :objects :initform nil)))
 
-(defmethod gl-user::draw ((self om-3D-object-list)) 
+(defmethod gl-user::draw ((self om-3D-object-list))
   (mapcar 'om-draw-contents (objects self)))
 
 (defmethod om-get-3D-objects ((self om-3D-object-list))
@@ -163,7 +163,7 @@
          (y (float (cadr position)))
          (z (float (caddr position)))
          (glu-quad (opengl:glu-new-quadric)))
-    (opengl:gl-push-matrix) 
+    (opengl:gl-push-matrix)
     (opengl:gl-translatef x y z)
     (opengl:glu-quadric-draw-style glu-quad GLU_FILL)
     (opengl:glu-sphere glu-quad r 20 20)
@@ -179,7 +179,7 @@
          (ry (cadr rotation_point))
          (rz (caddr rotation_point))
          (glu-quad (opengl:glu-new-quadric)))
-    (opengl:gl-push-matrix) 
+    (opengl:gl-push-matrix)
     (opengl:gl-translatef x y z)
     (opengl:gl-rotatef angle rx ry rz)
     (opengl:glu-quadric-draw-style glu-quad GLU_FILL)
@@ -192,7 +192,7 @@
          (x (car position))
          (y (cadr position))
          (z (caddr position))
-         (cube-points 
+         (cube-points
           (list (list (- x hs) (- y hs) (- z hs))
                 (list (+ x hs) (- y hs) (- z hs))
                 (list (+ x hs) (- y hs) (+ z hs))
@@ -204,13 +204,13 @@
     (if faces
         (opengl:gl-begin opengl:*GL-QUADS*)
       (opengl:gl-begin opengl:*GL-LINE-LOOP*))
-    (opengl:gl-normal3-i 0 1 0) 
-    (opengl:gl-vertex3-f (car (nth 0 cube-points)) (cadr (nth 0 cube-points)) (caddr (nth 0 cube-points))) 
+    (opengl:gl-normal3-i 0 1 0)
+    (opengl:gl-vertex3-f (car (nth 0 cube-points)) (cadr (nth 0 cube-points)) (caddr (nth 0 cube-points)))
     (opengl:gl-vertex3-f (car (nth 1 cube-points)) (cadr (nth 1 cube-points)) (caddr (nth 1 cube-points)))
     (opengl:gl-vertex3-f (car (nth 2 cube-points)) (cadr (nth 2 cube-points)) (caddr (nth 2 cube-points)))
     (opengl:gl-vertex3-f (car (nth 3 cube-points)) (cadr (nth 3 cube-points)) (caddr (nth 3 cube-points)))
     (opengl:gl-end)
-    
+
     (if faces
         (opengl:gl-begin opengl:*GL-QUADS*)
       (opengl:gl-begin opengl:*GL-LINE-LOOP*))
@@ -220,7 +220,7 @@
     (opengl:gl-vertex3-f (car (nth 5 cube-points)) (cadr (nth 5 cube-points)) (caddr (nth 5 cube-points)))
     (opengl:gl-vertex3-f (car (nth 4 cube-points)) (cadr (nth 4 cube-points)) (caddr (nth 4 cube-points)))
     (opengl:gl-end)
-    
+
     (if faces
         (opengl:gl-begin opengl:*GL-QUADS*)
       (opengl:gl-begin opengl:*GL-LINES*))
@@ -251,7 +251,7 @@
 ;;;======================
 
 
-(defclass 3D-cube (om-3D-object) 
+(defclass 3D-cube (om-3D-object)
   ((center :accessor center :initarg :center :initform nil)
    (size :accessor size :initarg :size :initform nil)
    (color :accessor color :initarg :color :initform nil)
@@ -289,7 +289,7 @@
            (p8 (list (- x hw) (+ y hd) (+ z hh))))
       (om-set-3Dobj-points self (list p1 p2 p3 p4 p5 p6 p7 p8))
       )))
-                  
+
 
 (defmethod make-cube-face ((self 3D-cube) i &optional (fill t))
   )
@@ -297,18 +297,18 @@
 (defmethod om-draw-contents ((self 3D-cube))
 
   (let* ((vertices (om-get-gl-points self)))
-    
+
     (when (om-3Dobj-color self)
       (let ((col (om-color-to-single-float-list (om-3Dobj-color self))))
-        (opengl:gl-color4-f (car col) (cadr col) (caddr col) (cadddr col)))) 
-    
+        (opengl:gl-color4-f (car col) (cadr col) (caddr col) (cadddr col))))
+
     (opengl:gl-shade-model opengl:*gl-flat*)
 
-    (when (filled self)     
+    (when (filled self)
       (loop for f in (faces self)
             for n in (normals self) do
             ;for i from 1 do
-            (progn  ;(find i '(1) :test '=) 
+            (progn  ;(find i '(1) :test '=)
               (opengl:gl-begin opengl:*GL-QUADS*)
               (loop for p in f do
                 ;(apply 'opengl:gl-normal3-i n)
@@ -325,25 +325,25 @@
                 (opengl:gl-vertex4-dv (aref vertices (1- p))))
           (opengl:gl-end))
     ))
-    
+
 
 ;;;======================
 ;;; SPHERE
 ;;;======================
-(defclass 3D-sphere (om-3D-object) 
+(defclass 3D-sphere (om-3D-object)
   ((center :accessor center :initarg :center :initform '(0 0 0))
    (radius :accessor radius :initarg :radius :initform 1.0)
    (color :accessor color :initarg :color :initform nil)))
 
 
 (defmethod initialize-instance :after ((self 3D-sphere) &rest initargs)
-  (when (center self) ;; temporary: the poinst are also used for calculating the bounding-box   
+  (when (center self) ;; temporary: the poinst are also used for calculating the bounding-box
     (om-set-3Dobj-points self (list (center self)))
     ))
 
 (defmethod get-extents ((self 3D-sphere))
   (when (and (center self) (radius self))
-    (values 
+    (values
      (- (nth 0 (center self)) (radius self))
      (+ (nth 0 (center self)) (radius self))
      (- (nth 1 (center self)) (radius self))
@@ -363,13 +363,13 @@
 ;;; 3D-curve
 ;;;======================
 
-(defclass 3d-lines (om-3d-object) 
+(defclass 3d-lines (om-3d-object)
   ((selected-points :accessor selected-points :initform nil)
    (draw-style :accessor draw-style :initarg :draw-style :initform :draw-all)
    (line-width :accessor line-width :initarg :line-width :initform *OM-GL-DEFAULT-LINEWIDTH*)
    (vertices-colors :accessor vertices-colors :initform nil)
    (vertices-colors-interpol :accessor vertices-colors-interpol :initform nil))
-   (:default-initargs :use-display-list T))
+  (:default-initargs :use-display-list T))
 
 
 
@@ -377,30 +377,30 @@
   (let* ((vertices (om-get-gl-points self))
          (size (- (length vertices) 1))
          (selection (selected-points self)))
-    
+
     (opengl:gl-enable opengl:*gl-light0*)
     (opengl:gl-line-width (float (line-width self)))
 
     ;draw the lines first
     (when (and (not (equal (draw-style self) :points-only)) (> size 0))
-      (if (vertices-colors-interpol self) 
-          (opengl:gl-shade-model opengl:*gl-smooth*) 
+      (if (vertices-colors-interpol self)
+          (opengl:gl-shade-model opengl:*gl-smooth*)
         (opengl:gl-shade-model opengl:*gl-flat*))
       (opengl:gl-begin opengl:*GL-LINE-STRIP*)
       (loop for i from 0 to size do
-            (let ((rgb (om-color-to-single-float-list 
+            (let ((rgb (om-color-to-single-float-list
                         (or (nth i (vertices-colors self))
-                            (om-3Dobj-color self) 
+                            (om-3Dobj-color self)
                             (om-def-color :white)))))
               (opengl:gl-color4-f (nth 0 rgb) (nth 1 rgb) (nth 2 rgb) 0.8)
               (opengl:gl-vertex4-dv (aref vertices i))))
-      (opengl:gl-end)    
+      (opengl:gl-end)
       )
 
     ;draw the sphere and the selection (as bigger opaque sphere)
     (when (not (equal (draw-style self) :lines-only))
       (loop for i from 0 to size do
-            (let* ((rgb (or (nth i (vertices-colors self)) (om-3Dobj-color self) 
+            (let* ((rgb (or (nth i (vertices-colors self)) (om-3Dobj-color self)
                             (om-def-color :white)))
                    (selected (or (equal '(t) selection) (find i selection)))
                    (alpha (if selected 1.0 0.7))
@@ -458,10 +458,10 @@
   (when (typep stream 'string)
     (setf stream (make-string-input-stream stream)))
   (loop with head
-	for c = (read-char stream nil nil)
-	if (or (not c) (char= c character) (char= c #\Newline))
-	  do (return (coerce (reverse head) 'string))
-	else
-	  do (push c head)))
+        for c = (read-char stream nil nil)
+        if (or (not c) (char= c character) (char= c #\Newline))
+        do (return (coerce (reverse head) 'string))
+        else
+        do (push c head)))
 
 

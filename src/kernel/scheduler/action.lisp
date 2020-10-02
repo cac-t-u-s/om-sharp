@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: D. Bouche
@@ -25,9 +25,9 @@
 
 ;;;This list is used to accumulate already trigerred actions
 ;;;It is intended to avoid automatic garbage collection while rendering objects
-;;;Its efficiency should be investigated  
+;;;Its efficiency should be investigated
 (defvar *action-garbage* '())
-  
+
 ;;===========================================================================
 ;;;Action
 ;;===========================================================================
@@ -63,14 +63,14 @@
   (defun act-alloc (&key (timestamp 0) (fun #'(lambda ())) data marker)
     (mp:with-lock (cache-lock)
       (when (null cache-list)
-	(setf cache-list (new-action-pool cache-size)
-	      cache-size (* 2 cache-size)))
+        (setf cache-list (new-action-pool cache-size)
+              cache-size (* 2 cache-size)))
       (let ((act (pop cache-list)))
-	(setf (act-timestamp act) timestamp
+        (setf (act-timestamp act) timestamp
               (act-fun act) fun
               (act-data act) (if (listp data) data (list data))
               (act-marker act) marker)
-	act)))
+        act)))
 
   (defmethod act-free ((self action))
     (mp:with-lock (cache-lock)

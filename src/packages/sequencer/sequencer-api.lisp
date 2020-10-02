@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: D. Bouche
@@ -23,63 +23,63 @@
 ;;; VISIBLE API
 ;;;=========================================
 (defmethod* m-play ((self OMSequencer) &optional trigger)
-   :initvals '(nil nil)
-   :indoc '("sequencer" "anything")
-   :doc "Play sequencer"
-   :icon 'm-play
-   (declare (ignore trigger))
-   (if (eq (state self) :pause)
-       (player-continue-object (player (editor self)) self)
-     (player-play-object (player (editor self)) self (editor self))))
+  :initvals '(nil nil)
+  :indoc '("sequencer" "anything")
+  :doc "Play sequencer"
+  :icon 'm-play
+  (declare (ignore trigger))
+  (if (eq (state self) :pause)
+      (player-continue-object (player (editor self)) self)
+    (player-play-object (player (editor self)) self (editor self))))
 
 (defmethod* m-pause ((self OMSequencer) &optional trigger)
-   :initvals '(nil nil)
-   :indoc '("sequencer" "anything")
-   :doc "Pause sequencer"
-   :icon 'm-pause
-   (declare (ignore trigger))
-   (player-pause-object (player (editor self)) self))
+  :initvals '(nil nil)
+  :indoc '("sequencer" "anything")
+  :doc "Pause sequencer"
+  :icon 'm-pause
+  (declare (ignore trigger))
+  (player-pause-object (player (editor self)) self))
 
 (defmethod* m-stop ((self OMSequencer) &optional trigger)
-   :initvals '(nil nil)
-   :indoc '("sequencer" "anything")
-   :doc "Stop sequencer"
-   :icon 'm-stop
-   (declare (ignore trigger))
-   (player-stop-object (player (editor self)) self))
+  :initvals '(nil nil)
+  :indoc '("sequencer" "anything")
+  :doc "Stop sequencer"
+  :icon 'm-stop
+  (declare (ignore trigger))
+  (player-stop-object (player (editor self)) self))
 
 (defmethod* m-loop ((self OMSequencer) t1 t2 &optional trigger)
-   :initvals '(nil nil nil nil)
-   :indoc '("sequencer" "start-time (nil or ms)" "end-time (nil or ms)" "anything")
-   :doc "Loop sequencer"
-   :icon 'm-loop
-   (declare (ignore trigger))
-   (editor-set-interval (editor self) `(,t1 ,t2)) )
+  :initvals '(nil nil nil nil)
+  :indoc '("sequencer" "start-time (nil or ms)" "end-time (nil or ms)" "anything")
+  :doc "Loop sequencer"
+  :icon 'm-loop
+  (declare (ignore trigger))
+  (editor-set-interval (editor self) `(,t1 ,t2)) )
 
 (defmethod* m-set-time ((self OMSequencer) time &optional trigger)
-   :initvals '(nil nil nil)
-   :indoc '("sequencer" "time (ms)" "anything")
-   :doc "Set sequencer time"
-   :icon 'm-set-time
-   (declare (ignore trigger))
-   (if (integerp time)
-       (set-object-time self (max 0 (round time)))))
+  :initvals '(nil nil nil)
+  :indoc '("sequencer" "time (ms)" "anything")
+  :doc "Set sequencer time"
+  :icon 'm-set-time
+  (declare (ignore trigger))
+  (if (integerp time)
+      (set-object-time self (max 0 (round time)))))
 
 (defmethod* m-without-exec ((self OMSequencer) &optional trigger)
-   :initvals '(nil nil)
-   :indoc '("sequencer" "anything")
-   :doc "Mute sequencer actions (computations only)"
-   :icon 'm-without-exec
-   (declare (ignore trigger))
-    (with-schedulable-object self (setf (no-exec self) t)))
+  :initvals '(nil nil)
+  :indoc '("sequencer" "anything")
+  :doc "Mute sequencer actions (computations only)"
+  :icon 'm-without-exec
+  (declare (ignore trigger))
+  (with-schedulable-object self (setf (no-exec self) t)))
 
 (defmethod* m-with-exec ((self OMSequencer) &optional trigger)
-   :initvals '(nil nil)
-   :indoc '("sequencer" "anything")
-   :doc "Mute sequencer actions (computations only)"
-   :icon 'm-with-exec
-   (declare (ignore trigger))
-   (with-schedulable-object self (setf (no-exec self) nil)))
+  :initvals '(nil nil)
+  :indoc '("sequencer" "anything")
+  :doc "Mute sequencer actions (computations only)"
+  :icon 'm-with-exec
+  (declare (ignore trigger))
+  (with-schedulable-object self (setf (no-exec self) nil)))
 
 ;;;=========================================
 
@@ -99,13 +99,13 @@
   (get-obj-time self))
 
 (defmethod m-objects ((self OMSequencer) &key (sorted t) (track nil))
-  (if track 
+  (if track
       (get-track-objects self track :sorted sorted)
     (get-all-objects self :sorted sorted)))
 
 (defmethod m-flush ((self OMSequencer) &key (track nil))
   (loop for box in (if track (get-track-boxes self track) (get-all-boxes self))
-        do 
+        do
         (omng-remove-element self box)
         (delete-box-frame (frame box)) ;;; removes the view
         (omng-delete box) ;;; deals with contents/references

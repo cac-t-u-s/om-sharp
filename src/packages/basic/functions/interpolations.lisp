@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;=========================================================================
 ; Authors: G. Assayag, C. Agon, J. Bresson (adapted from OM6)
@@ -29,7 +29,7 @@
   (sqrt (+ (expt (- y2 y1) 2) (expt (- x2 x1) 2))))
 
 (defmethod om-points-distance ((p1 list) (p2 list))
-  (sqrt (apply '+ (mapcar #'(lambda (coord) (expt (- (cadr coord) (car coord)) 2)) 
+  (sqrt (apply '+ (mapcar #'(lambda (coord) (expt (- (cadr coord) (car coord)) 2))
                           (mat-trans (list p1 p2))))))
 
 (defmethod om-points-distance ((p1 ompoint) (p2 ompoint))
@@ -39,17 +39,17 @@
 ;;; FUNCTION GENERATOR
 ;;;==========================
 
-(defun linear (x0 y0 x1 y1) 
+(defun linear (x0 y0 x1 y1)
   (if (= x0 x1) ;;; cas particulier.. a refaire, pour l'instant y = 1 is x = x0 et 0 sinon..
       (let* ((xx x0))
         (eval `(function
                 (lambda (x) (if (= x ,xx) 1 0)))))
-  (let* ((a (/ (- y1 y0) (- x1 x0)))
-         (b (- y1 (* x1 a))))
-    (eval `(function
-            (lambda (x) (+ ,b (* x ,a))))))))
+    (let* ((a (/ (- y1 y0) (- x1 x0)))
+           (b (- y1 (* x1 a))))
+      (eval `(function
+              (lambda (x) (+ ,b (* x ,a))))))))
 
-(defmethod* linear-fun ((x0 number) (y0 number) (x1 number) (y1 number)) 
+(defmethod* linear-fun ((x0 number) (y0 number) (x1 number) (y1 number))
   :initvals '(0 0 1 1)
   :indoc '("x0" "y0" "x1" "y1")
   :icon 236
@@ -66,28 +66,28 @@ The resulting function can be connected for example to SAMPLEFUN."
   "trouve les paires en dessous et au dessus de x"
   (let ((plus-grand (find x paires :test #'(lambda (x r) (<= x (first r))))))
     (if plus-grand
-        (let* ((rang (if (< (1- (first (rang-p paires plus-grand 'equalp))) 0) 
-                        0 
-                      (1- (first (rang-p paires plus-grand 'equalp)))))
-              (plus-petit (nth rang paires)))
-          (list 
+        (let* ((rang (if (< (1- (first (rang-p paires plus-grand 'equalp))) 0)
+                         0
+                       (1- (first (rang-p paires plus-grand 'equalp)))))
+               (plus-petit (nth rang paires)))
+          (list
            (if (< rang 0) plus-grand plus-petit)
            plus-grand))
       (let ((max (car (last paires))))
         (list max max)))))
 
 ;(x-around 70 '((0 0) (41 3) (50 6) (69 5) (100 8)))
- 
+
 (defun y-around (y paires)
   "trouve les paires en dessous et au dessus de y"
   (let ((lst '()))
-    (loop 
-      for i in paires
-      for r in (rest paires)
-      do (if (or (and (<= (second i) y) (>= (second r) y)) 
-                 (and (>= (second i) y) (<= (second r) y)))
-           (push (list i r) lst)))
-   (reverse lst)))
+    (loop
+     for i in paires
+     for r in (rest paires)
+     do (if (or (and (<= (second i) y) (>= (second r) y))
+                (and (>= (second i) y) (<= (second r) y)))
+            (push (list i r) lst)))
+    (reverse lst)))
 
 ;(y-around 5.5 '((0 0) (41 3) (50 6) (69 5) (100 8)))
 
@@ -100,11 +100,11 @@ The resulting function can be connected for example to SAMPLEFUN."
         y2|..................*
           |                  .
         y0|............X     .
-          |            .     . 
-        y1|......*     .     . 
-          |      .     .     . 
-          |      .     .     . 
-          |      .     .     .    
+          |            .     .
+        y1|......*     .     .
+          |      .     .     .
+          |      .     .     .
+          |      .     .     .
           |______._____._____.______>
                  x1    x     x2
 
@@ -118,7 +118,7 @@ The resulting function can be connected for example to SAMPLEFUN."
 
 (defun interpolate (list-x list-y step)
   (loop with x1
-        with y1 
+        with y1
         with x2 = (pop list-x)
         with y2 = (pop list-y)
         for pointer from (first list-x) by step
@@ -127,12 +127,12 @@ The resulting function can be connected for example to SAMPLEFUN."
         collect (linear-interpol x1 x2 y1 y2 pointer)))
 
 (defun interpole (list-x list-y x-min x-max nbsamples)
-  (if (= 1 nbsamples) 
+  (if (= 1 nbsamples)
       (list (x-transfer (mat-trans (list list-x list-y)) (+ x-min (/ (- x-max x-min) 2))))
     (let* ((step (/ (- x-max x-min) (1- (float nbsamples))))
            (last-point (car (last list-y)))
-           (series 
-            (loop with x = (pop list-x) and xx = (pop list-x) 
+           (series
+            (loop with x = (pop list-x) and xx = (pop list-x)
                   and y = (pop list-y) and yy = (pop list-y)
                   with x-index = x-min
                   with s-index = 0
@@ -141,7 +141,7 @@ The resulting function can be connected for example to SAMPLEFUN."
                   collect (linear-interpol x xx y yy x-index)
                   and do (setf x-index (+ x-min (* (incf s-index) step)))
                   else do (setf x xx xx (pop list-x) y yy yy (pop list-y)))))
-       
+
       (if (> (+ x-min (* step (1- nbsamples))) x-max)
           ;; this can happend because of floatig-point errors
           ;; (< (length series) nbsamples)  ;; equivalent
@@ -153,19 +153,19 @@ The resulting function can be connected for example to SAMPLEFUN."
 ;;; in om-sample for BPF
 ;;; it could be smart to put this directly into arithm-ser
 (defun sample-interval (x1 x2 nb-samples)
-  
-  (if (= x1 x2) 
+
+  (if (= x1 x2)
       (make-list nb-samples :initial-element x1)
-    
+
     (let* ((inter (/ (- x2 x1) (1- nb-samples)))
            (series (loop for i from x1 to x2 by inter collect i)))
-      (if (> (+ x1 (* inter (1- nb-samples))) x2) 
+      (if (> (+ x1 (* inter (1- nb-samples))) x2)
           ;; the loop has stopped before reaching x2
           ;; this can happend because of floatig-point errors
           ;; (< (length series) nb-samples)  ;; equivalent
           (append series (list x2))
         series))
-  ))
+    ))
 
 
 
@@ -177,7 +177,7 @@ The resulting function can be connected for example to SAMPLEFUN."
   :initvals (list nil 10  0)
   :indoc '("list of points, BPF or BPC"  "Y value"  "number of decimals")
   :icon :bpf-y-transfer
-  :doc "Returns a list of interpolated X values corresponding to a list of points ((x1 y1) (x2 y2) ...), or a BPF/BPC (<self>) and a Y position <y0>. 
+  :doc "Returns a list of interpolated X values corresponding to a list of points ((x1 y1) (x2 y2) ...), or a BPF/BPC (<self>) and a Y position <y0>.
 
 Optional <dec> is the number of decimals in the result."
 
@@ -192,23 +192,23 @@ Optional <dec> is the number of decimals in the result."
     (if dec (om-round xpts dec) xpts)))
 
 
-(defmethod* x-transfer ((self list) (x-val number) &optional (dec nil))    
+(defmethod* x-transfer ((self list) (x-val number) &optional (dec nil))
   :icon :bpf-x-transfer
   :indoc '("a list or BPF" "X value" "number of decimals")
   :initvals '(((0 0) (100 100)) 50 nil)
   :doc "Returns the interpolated Y value(s) in a BPF or a list ((x1 y1) (x2 y2) ...) corresponding to an X value or a list of X values (<x-val>).
 
 Optional <dec> is the number of decimals in the result."
-  (let* ((paires self) 
+  (let* ((paires self)
          (bornes (x-around x-val paires))
-         (ypts (linear-interpol (first (first bornes)) 
+         (ypts (linear-interpol (first (first bornes))
                                 (first (second bornes))
-                                (second (first bornes)) 
-                                (second (second bornes)) 
+                                (second (first bornes))
+                                (second (second bornes))
                                 x-val)))
     (if dec (om-round ypts dec) ypts)))
 
-(defmethod* x-transfer ((self list) (x-val list) &optional (dec nil))    
+(defmethod* x-transfer ((self list) (x-val list) &optional (dec nil))
   (mapcar #'(lambda (x) (x-transfer self x dec)) x-val))
 
 
@@ -217,12 +217,12 @@ Optional <dec> is the number of decimals in the result."
 ;;;==========================
 
 (defmethod* om-sample ((self t) (nbs-sr number) &optional xmin xmax dec)
-      :initvals '(nil 1 nil nil nil)
-      :indoc '("object to resample" "number of samples (int) or sample rate (float)" "" "" "decimals")
-      :icon 'bpf-sample
-      :numouts 3
-      :outdoc '("sampled object" "x-points" "y-points")
-      :doc "Resamples a function, a list, a BPF or a BPC object.
+  :initvals '(nil 1 nil nil nil)
+  :indoc '("object to resample" "number of samples (int) or sample rate (float)" "" "" "decimals")
+  :icon 'bpf-sample
+  :numouts 3
+  :outdoc '("sampled object" "x-points" "y-points")
+  :doc "Resamples a function, a list, a BPF or a BPC object.
 
 Returns :
  - The result as an object (BPF or BPC) (1st output)
@@ -234,51 +234,51 @@ If <nbs-sr> is an float (e.g. 0.5, 1.0...) it is interpreted as the sample rate 
 
 <xmin> and <xmax> allow to specify the x-range to resample.
 <dec> (decimals) is the precision of the result
-"   
-      nil)
+"
+  nil)
 
 (defmethod* om-sample ((self function) (nbs-sr number) &optional xmin xmax dec)
-   :numouts 3
-   (let* ((x0 (if xmin (float xmin) 0.0))
-          (x1 (if xmax (float xmax) 1.0))
-          (xlist (if (integerp nbs-sr)
-                     (arithm-ser x0 x1 (float (/ (- x1 x0) (max 1 nbs-sr))) nbs-sr)
-                   (arithm-ser x0 x1 nbs-sr)))
-          (ylist (mapcar self xlist)))
-     (values (make-instance 'bpf :x-points xlist :y-points ylist :decimals (or dec 4))
-             xlist
-             (if dec (om-round ylist dec) ylist)
-             )
-     ))
+  :numouts 3
+  (let* ((x0 (if xmin (float xmin) 0.0))
+         (x1 (if xmax (float xmax) 1.0))
+         (xlist (if (integerp nbs-sr)
+                    (arithm-ser x0 x1 (float (/ (- x1 x0) (max 1 nbs-sr))) nbs-sr)
+                  (arithm-ser x0 x1 nbs-sr)))
+         (ylist (mapcar self xlist)))
+    (values (make-instance 'bpf :x-points xlist :y-points ylist :decimals (or dec 4))
+            xlist
+            (if dec (om-round ylist dec) ylist)
+            )
+    ))
 
 
 (defmethod* om-sample ((self symbol) (nbs-sr number) &optional xmin xmax dec)
-   :numouts 3
-   (when (fboundp self)
-     (om-sample (symbol-function self) nbs-sr xmin xmax dec)))
+  :numouts 3
+  (when (fboundp self)
+    (om-sample (symbol-function self) nbs-sr xmin xmax dec)))
 
 
 (defmethod* om-sample ((self list) (nbs-sr number) &optional xmin xmax dec)
-   :numouts 3
-   (cond ((bpf-p (car self))
-          (values-list (mat-trans 
-                        (mapcar #'(lambda (bpf) (multiple-value-list (om-sample bpf nbs-sr xmin xmax dec))) self))))
-         ((numberp (car self))
-          (let* ((x0 (or xmin 0))
-                 (x1 (or xmax (1- (length self))))
-                 (lst (subseq self x0 (1+ x1)))
-                 (xpts (arithm-ser 0 (1- (length lst)) 1))
-                 (ylist (if (integerp nbs-sr) 
-                            (interpole xpts lst x0 x1 nbs-sr)
-                          (interpolate xpts lst nbs-sr)))
-                 (xlist (arithm-ser 0 (1- (length ylist)) 1)))
-            (values (make-instance 'bpf :x-points xlist :y-points ylist
-                                   :decimals (or dec 4))
-                    xlist
-                    (if dec (om-round ylist dec) ylist) 
-                    )))
-         (t nil)))
-   
+  :numouts 3
+  (cond ((bpf-p (car self))
+         (values-list (mat-trans
+                       (mapcar #'(lambda (bpf) (multiple-value-list (om-sample bpf nbs-sr xmin xmax dec))) self))))
+        ((numberp (car self))
+         (let* ((x0 (or xmin 0))
+                (x1 (or xmax (1- (length self))))
+                (lst (subseq self x0 (1+ x1)))
+                (xpts (arithm-ser 0 (1- (length lst)) 1))
+                (ylist (if (integerp nbs-sr)
+                           (interpole xpts lst x0 x1 nbs-sr)
+                         (interpolate xpts lst nbs-sr)))
+                (xlist (arithm-ser 0 (1- (length ylist)) 1)))
+           (values (make-instance 'bpf :x-points xlist :y-points ylist
+                                  :decimals (or dec 4))
+                   xlist
+                   (if dec (om-round ylist dec) ylist)
+                   )))
+        (t nil)))
+
 
 ;;;====================================
 ;;; Interpole with profile
@@ -313,23 +313,23 @@ If <nbs-sr> is an float (e.g. 0.5, 1.0...) it is interpreted as the sample rate 
   :doc "Reduces <points> by removing all points closer than [<approx> * the amplitude range of the function] to the corresponding interpolated values.
 
   <approx> = 1 means the maximum reduction (all intermediate points are removed)
-  <approx> = 0 means reduction without loss (only exact matching points are removed)"		
+  <approx> = 0 means reduction without loss (only exact matching points are removed)"
   (let* ((before (list (car points)))
-        (after (cdr points))
-        (ymin (cadr (car before))) (ymax (cadr (car before)))
-        (amplitude 0))
-    (loop for p in after do 
+         (after (cdr points))
+         (ymin (cadr (car before))) (ymax (cadr (car before)))
+         (amplitude 0))
+    (loop for p in after do
           (if (> (cadr p) ymax) (setf ymax (cadr p))
             (if (< (cadr p) ymin) (setf ymin (cadr p)))))
     (setf amplitude (- ymax ymin))
     (if (= 0. amplitude)
         (setf before (append before (last after)))
       (loop for listrest on after
-            while (cdr listrest) 
+            while (cdr listrest)
             do (let* ((x_val (caar listrest))
                       (y_val (cadar listrest))
-                      (interpolated-y (linear-interpol (car (car (last before))) (car (cadr listrest)) 
-                                                       (cadr (car (last before))) (cadr (cadr listrest)) 
+                      (interpolated-y (linear-interpol (car (car (last before))) (car (cadr listrest))
+                                                       (cadr (car (last before))) (cadr (cadr listrest))
                                                        x_val))
                       (error (/ (abs (- interpolated-y y_val)) amplitude)))
                  (if (> error approx)
@@ -356,10 +356,10 @@ If <nbs-sr> is an float (e.g. 0.5, 1.0...) it is interpreted as the sample rate 
           do (setf result (reduce-points points curr_factor))
           while (not (eq (length result) n))
           do  (if  (> (length result) n)
-                (setf min_factor curr_factor)
+                  (setf min_factor curr_factor)
                 (setf max_factor curr_factor))
           (setf curr_factor (/ (+ min_factor max_factor) 2)))
-    (if (and borneMax (not (eq (length result) n))) 
+    (if (and borneMax (not (eq (length result) n)))
         (setf result (reduce-points points max_factor)))
     (when verbose
       (om-print (format nil "reduce ~D -> ~D (approx. ~,2F %)"

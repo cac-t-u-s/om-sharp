@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -25,17 +25,17 @@
 ;;; returns the active inputs connected to the active outputs of self
 ;;; as a list of ((box input-name) ...)
 (defmethod get-listeners ((self OMBox))
-  (remove-duplicates 
+  (remove-duplicates
    (loop for o in (outputs self) when (reactive o)
-         append (loop for c in (connections o) 
+         append (loop for c in (connections o)
                       when (input-will-react (to c))
                       collect (list (box (to c)) (name (to c))))
          )))
-  
+
 (defmethod input-will-react ((self box-input))
   (and (reactive self)
        (not (equal (lock-state (box self)) :locked))))
-       
+
 ;;;==================
 ;;; NOTIFICATION
 ;;;==================
@@ -52,35 +52,35 @@
 
 ;;; SELF-NOTIFICATION (NOTIFIES AND REEVALUATES ON A NEW THREAD)
 (defmethod self-notify ((box OMBox) &optional (separate-thread t) (eval-box nil))
-  
+
   ;(print (list "SELF NOTIFY" (name box) (current-box-value box)))
-  
+
   (let ((listeners (get-listeners box)))
-    
+
     (when (or listeners eval-box)
-      
+
       (let* ((panel (and (frame box) (om-view-container (frame box))))
-         
-         (eval-form `(progn
-                      (setf *current-eval-panel* ,panel)
-                      (when ,eval-box (omng-box-value ,box)) ; => only when an input is modified
-                      (when ',listeners
-                        (setf (gen-lock ,box) t)
-                        (OMR-Notify ,box)
-                        (setf (gen-lock ,box) nil))
-                      (if ,panel (clear-ev-once ,panel))
-                      )))
-    
-    (if separate-thread 
-    
-        (progn 
-          (prompt-on-listeners "Processing event...")
-          (om-eval-enqueue eval-form 
-                           :post-action #'(lambda () (prompt-on-listeners "Ready."))))
-      
-      (eval eval-form))
-    
-    ))))
+
+             (eval-form `(progn
+                           (setf *current-eval-panel* ,panel)
+                           (when ,eval-box (omng-box-value ,box)) ; => only when an input is modified
+                           (when ',listeners
+                             (setf (gen-lock ,box) t)
+                             (OMR-Notify ,box)
+                             (setf (gen-lock ,box) nil))
+                           (if ,panel (clear-ev-once ,panel))
+                           )))
+
+        (if separate-thread
+
+            (progn
+              (prompt-on-listeners "Processing event...")
+              (om-eval-enqueue eval-form
+                               :post-action #'(lambda () (prompt-on-listeners "Ready."))))
+
+          (eval eval-form))
+
+        ))))
 
 (defmethod clear-ev-once :around ((self OMBox))
   (call-next-method)
@@ -109,19 +109,19 @@
 
 (defmacro with-coloured-box (box color time &body body)
   `(let ((init-color (color ,box)))
-     (unwind-protect 
-         (progn 
+     (unwind-protect
+         (progn
            (temp-box-color ,box ,color ,time)
-            ,@body
-            )
+           ,@body
+           )
        (temp-box-color ,box init-color ,time))))
- 
+
 
 #+debug-mode
 (defmethod OMR-Notify :around ((self OMBox) &optional input-name)
   (with-coloured-box self *notify-color* *box-color-time*
     (call-next-method)))
-  
+
 ;;;==================
 ;;; BOX-VALUE
 ;;;==================
@@ -129,7 +129,7 @@
 #|
  (let ((val (call-next-method)))
    (setf (gen-flag self) t)
-   (when (or 
+   (when (or
           (not (gen-flag self))
           (and (equal (lock-state self) :eval-once) (not (ev-once-flag self)))
           (equal (lock-state self) nil))
@@ -150,7 +150,7 @@
         (setf (gen-flag self) t)
         val))
     )
-  
+
   #-debug-mode
   (if (gen-lock self)
       (current-box-value self numout)
@@ -160,7 +160,7 @@
   )
 
 ;;;=========================
-;;; EVENTS 
+;;; EVENTS
 ;;;=========================
 
 ;;; when a box is evaluated (on request)
@@ -176,7 +176,7 @@
 ;;; when an input is edited
 (defmethod set-value ((self box-input) value)
   (call-next-method)
-  (when (reactive self) 
+  (when (reactive self)
     (self-notify (box self) t t)))
 
 ;;; when a value box is modified

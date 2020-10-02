@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -39,18 +39,18 @@
 (defparameter *pref-order* '(:general :appearance :files :score :conversion :midi :audio :libraries :externals))
 
 (defun sort-pref-items (list)
-  (sort list #'(lambda (elt1 elt2) 
+  (sort list #'(lambda (elt1 elt2)
                  (let ((p1 (position (pref-module-id elt1) *pref-order*))
                        (p2 (position (pref-module-id elt2) *pref-order*)))
                    (or (null p2) (and p1 p2 (<= p1 p2)))))))
 
 (defun find-pref-module (id &optional preferences-list)
-   (find id (or preferences-list *user-preferences*) :key 'pref-module-id))
+  (find id (or preferences-list *user-preferences*) :key 'pref-module-id))
 
 ;;; ADD A NEW MODULE WITH NAME
 (defun add-preference-module (id name)
   (let ((module (find-pref-module id)))
-    (cond (module 
+    (cond (module
            (om-beep-msg "Warning: Preference module ~A already exists!" id)
            (setf (pref-module-name module) name))
           ((find name *user-preferences* :key 'pref-module-id :test 'string-equal)
@@ -67,9 +67,9 @@
     (om-print "============================")
     (loop for module in prefs-to-display do
           (om-print (format nil "MODULE: ~A" (pref-module-name module)))
-          (loop for prefitem in (pref-module-items module) 
-                unless (equal (pref-item-type prefitem) :title) do 
-                (om-print (format nil "    ~A = ~A ~A" (pref-item-id prefitem) (pref-item-value prefitem) 
+          (loop for prefitem in (pref-module-items module)
+                unless (equal (pref-item-type prefitem) :title) do
+                (om-print (format nil "    ~A = ~A ~A" (pref-item-id prefitem) (pref-item-value prefitem)
                                   (if (pref-item-visible prefitem) "" "[hidden]"))))
           (om-print "============================"))
     ))
@@ -94,31 +94,31 @@
     (add-preference-module module-id (string module-id)))
   (let* ((module (find-pref-module module-id))
          (pref-item (find pref-id (pref-module-items module) :key 'pref-item-id)))
-    (if pref-item 
+    (if pref-item
         ;; the pref already exist (e.g. it was already loaded when this function s called):
         ;; we update its name, defval etc. but keep the value
         ;(om-print "Warning: A preference with the same ID '~A' already exists!" pref-id)
-        (setf (pref-item-name pref-item) name 
+        (setf (pref-item-name pref-item) name
               (pref-item-type pref-item) type
-              (pref-item-defval pref-item) defval 
+              (pref-item-defval pref-item) defval
               (pref-item-doc pref-item) doc
               (pref-item-after-fun pref-item) after-fun
               (pref-item-visible pref-item) t)
-      (let ((new-pref (make-pref-item :id pref-id :name name :type type 
+      (let ((new-pref (make-pref-item :id pref-id :name name :type type
                                       :defval defval :doc doc :after-fun after-fun
                                       :visible t)))
         (put-default-value new-pref)
         (setf (pref-module-items module) (append (pref-module-items module) (list new-pref))))
       )))
-   
+
 ;;; hack
 ;;; todo: check that this section does not already exist
-;;; it is useful to explicitely specify the sub-items of a section in order to ensure the display order 
+;;; it is useful to explicitely specify the sub-items of a section in order to ensure the display order
 ;;; in case things are loaded in a different order.
 (defun add-preference-section (module-id name &optional doc sub-items)
   (let* ((module (find-pref-module module-id))
-         (existing-item (find name (remove-if-not 
-                                    #'(lambda (item) (equal (pref-item-id item) :title)) 
+         (existing-item (find name (remove-if-not
+                                    #'(lambda (item) (equal (pref-item-id item) :title))
                                     (pref-module-items module))
                               :test 'string-equal :key 'pref-item-name)))
     (if existing-item
@@ -131,7 +131,7 @@
 
 ;;; will use the preference section's sub-items to sort
 (defun order-preference-module (module)
-  (let ((sections (loop for item in (pref-module-items module) 
+  (let ((sections (loop for item in (pref-module-items module)
                         when (equal (pref-item-type item) :title)
                         collect item)))
     ;;; reorder the list
@@ -140,7 +140,7 @@
             (loop for sub-item in (pref-item-value section)
                   for i from 1 do
                   (let ((sub (find sub-item (pref-module-items module) :key 'pref-item-id)))
-                    (when sub 
+                    (when sub
                       (setf (pref-module-items module) (remove sub (pref-module-items module)))
                       (setf pos (position section (pref-module-items module)))
                       (setf (pref-module-items module)
@@ -158,7 +158,7 @@
 
 (defun get-pref (module-name pref-key &optional preferences-list)
   (let ((module (find-pref-module module-name preferences-list)))
-    (when module 
+    (when module
       (get-pref-in-module module pref-key))))
 
 (defun get-pref-value (module-name pref-key &optional preferences-list)
@@ -174,7 +174,7 @@
                  (put-default-value pref t))))
 
 
-;;;======================================================  
+;;;======================================================
 ;;; SET THE PREFERENCE VALUES
 (defmethod set-pref-in-module (module key val)
   (let ((pref-item (get-pref-in-module module key)))
@@ -182,14 +182,14 @@
       ;;; the pref doesn't exist : we just add it silently as 'invisible'
       (setf (pref-module-items module)
             (append (pref-module-items module)
-                    (list (make-pref-item :id key :name (string key) :type NIL 
+                    (list (make-pref-item :id key :name (string key) :type NIL
                                           :defval val :value val
                                           :visible nil)))))
     )
   ;;; will be called also when loading the preferences (i.e. a lot of times!)
   (save-preferences)
   )
-      
+
 (defun set-pref (module-name key val &optional preferences-list)
   (set-pref-in-module (find-pref-module module-name preferences-list) key val))
 
@@ -203,7 +203,7 @@
 ; (save-preferences)
 (defun save-pref-module (module)
   (cons (pref-module-id module)
-        (loop for pref in (pref-module-items module) 
+        (loop for pref in (pref-module-items module)
               unless (equal :title (pref-item-type pref))  ; (or (equal :action (pref-item-type pref)))
               collect
               (list (pref-item-id pref) (omng-save (pref-item-value pref))))))
@@ -236,32 +236,32 @@
 ;;; DEFAULT MODULE
 ;;;====================================
 
-(add-preference-module :general "General") 
+(add-preference-module :general "General")
 (add-preference :general :user-name "User name" :string "user")
 
 ;;; special case: sets a behavior from the OM-API
 ;(defmethod set-pref-in-module :after ((module (eql :general)) (key (:eql :listener-on-top)) val) (setf om-lisp::*listener-on-top* val))
 ;;; not anymore (initarg in the constructor)
-(add-preference-section 
- :general "Patch Execution" 
+(add-preference-section
+ :general "Patch Execution"
  nil
- '(:catch-errors 
-   :debug 
+ '(:catch-errors
+   :debug
    :auto-ev-once-mode
    ))
 
-(add-preference-section 
- :general "Lisp REPL" 
- nil 
- '(:listener-on-top 
-   :listener-input 
-   :listener-font 
-   :print-system-output 
-   :om-swank-server 
+(add-preference-section
+ :general "Lisp REPL"
+ nil
+ '(:listener-on-top
+   :listener-input
+   :listener-font
+   :print-system-output
+   :om-swank-server
    :listener-in-tty
    ))
 
-(add-preference-section 
+(add-preference-section
  :general "Programming" nil
  '(:textedit-font :user-code))
 

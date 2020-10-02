@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -18,10 +18,10 @@
 (in-package :om)
 
 ;===========================
-; Simple horizontal bar 
+; Simple horizontal bar
 ;===========================
 
-(defclass bar-item (om-item-view) 
+(defclass bar-item (om-item-view)
   ((fg-color :accessor fg-color :initarg :fg-color :initform (om-def-color :black))
    (thick :accessor thick :initarg :thick :initform 1)))
 
@@ -36,14 +36,14 @@
 ;===========================
 
 (defclass picture-view (om-item-view)
-   ((pict :initform nil :initarg :pict :accessor pict)))
+  ((pict :initform nil :initarg :pict :accessor pict)))
 
 (defmethod om-draw-contents ((self picture-view))
-   (call-next-method)
-   (when (pict self)
-     (om-draw-picture self 
-                      (pict self) (om-make-point 0 0) 
-                      (om-make-point (w self) (h self)))))
+  (call-next-method)
+  (when (pict self)
+    (om-draw-picture self
+                     (pict self) (om-make-point 0 0)
+                     (om-make-point (w self) (h self)))))
 
 ;;;=====================
 ;;; 3D-border view
@@ -65,16 +65,16 @@
 
 (defun draw-3D-border (self x y xx yy)
   (om-with-fg-color self (c++ self)
-    (om-draw-line (+ x 1) y (- xx 1) y) 
+    (om-draw-line (+ x 1) y (- xx 1) y)
     (om-draw-line x (+ y 1) x (- yy 1)))
   (om-with-fg-color self (c+ self)
-    (om-draw-line (+ x 2) (+ y 1) (- xx 2) (+ y 1)) 
+    (om-draw-line (+ x 2) (+ y 1) (- xx 2) (+ y 1))
     (om-draw-line (+ x 1) (+ y 2) (+ x 1) (- yy 2)))
   (om-with-fg-color self (c-- self)
-    (om-draw-line (+ x 1) (- yy 1) (- xx 1) (- yy 1)) 
+    (om-draw-line (+ x 1) (- yy 1) (- xx 1) (- yy 1))
     (om-draw-line (- xx 1) (+ y 1) (- xx 1) (- yy 1)))
   (om-with-fg-color self (c- self)
-    (om-draw-line (+ x 2) (- yy 2) (- xx 2) (- yy 2)) 
+    (om-draw-line (+ x 2) (- yy 2) (- xx 2) (- yy 2))
     (om-draw-line (- xx 2) (+ y 2) (- xx 2) (- yy 2))))
 
 
@@ -82,7 +82,7 @@
 ;==========================================================
 ; custom button with pict in "resources/di/"
 ;==========================================================
- 
+
 ;(let ((win (om-make-window 'om-window))
 ;      (v (om-make-view 'om-view :size (om-make-point 500 500)))
 ;      (but (om-make-graphic-object 'om-icon-button :icon :but :icon-pushed :but-pushed :lock-push t)))
@@ -102,7 +102,7 @@
    (text :initform nil :accessor text :initarg :text)
    (fg-color :initform nil :accessor fg-color :initarg :fg-color)
    (font :initform nil :accessor font :initarg :font)))
-             
+
 (defmethod om-set-fg-color ((self om-icon-button) color)
   (setf (fg-color self) color)
   (om-invalidate-view self))
@@ -125,15 +125,15 @@
 
 (defmethod om-view-doubleclick-handler ((self om-icon-button) where)
   (om-view-click-handler self where))
- 
+
 (defmethod om-view-click-handler ((self om-icon-button) where)
-   "this function call the slot action of SELF with the parameter SELF"
-   (declare (ignore where))
-   (when (enabled self)
-     (if (lock-push self) 
-         (setf (pushed self) (not (pushed self)))
-       (setf (pushed self) t))
-     (om-invalidate-view self)))
+  "this function call the slot action of SELF with the parameter SELF"
+  (declare (ignore where))
+  (when (enabled self)
+    (if (lock-push self)
+        (setf (pushed self) (not (pushed self)))
+      (setf (pushed self) t))
+    (om-invalidate-view self)))
 
 (defmethod om-click-release-handler ((self om-icon-button) where)
   (when (and (enabled self) (action self))
@@ -143,22 +143,22 @@
   (om-invalidate-view self))
 
 (defmethod om-draw-contents ((self om-icon-button))
-   (call-next-method)
-   (let* ((icn (or (and (pushed self) (icon-pushed self))
-                   (and (not (enabled self)) (icon-disabled self))
-                   (icon self))))
-     (om-draw-picture icn :w (w self) :h (h self)))
-   (when (text self)
-     (let* ((ff (or (font self) (om-def-font :font1)))
-            (cc (or (fg-color self) (om-def-color :black)))
-            (wh (values-list (om-string-size (text self) ff)))
-            (yy (round (+ (- (cadr wh) (if (pushed self) 5 6)) (h self)) 2))
-            (xx (max 0 (- (round (w self) 2) (ceiling (car wh) 2)))))
-       (om-with-fg-color self cc
-         (om-with-font ff
-                       (om-draw-string xx yy (text self))))))
-   (when (and (lock-push self) (pushed self) (not (icon-pushed self)))
-     (om-draw-rect 0 0 (w self) (h self) :fill t :color (om-make-color-alpha (om-def-color :black) 0.5))))
+  (call-next-method)
+  (let* ((icn (or (and (pushed self) (icon-pushed self))
+                  (and (not (enabled self)) (icon-disabled self))
+                  (icon self))))
+    (om-draw-picture icn :w (w self) :h (h self)))
+  (when (text self)
+    (let* ((ff (or (font self) (om-def-font :font1)))
+           (cc (or (fg-color self) (om-def-color :black)))
+           (wh (values-list (om-string-size (text self) ff)))
+           (yy (round (+ (- (cadr wh) (if (pushed self) 5 6)) (h self)) 2))
+           (xx (max 0 (- (round (w self) 2) (ceiling (car wh) 2)))))
+      (om-with-fg-color self cc
+        (om-with-font ff
+                      (om-draw-string xx yy (text self))))))
+  (when (and (lock-push self) (pushed self) (not (icon-pushed self)))
+    (om-draw-rect 0 0 (w self) (h self) :fill t :color (om-make-color-alpha (om-def-color :black) 0.5))))
 
 
 ;==========================================================
@@ -174,23 +174,23 @@
 
 (defmethod om-draw-contents ((self color-view))
   (let ((c (or (color self) (om-def-color :gray))))
-  
+
     (unless (or (= (om-color-a c) 1) (= (om-color-a c) 0))
       (om-draw-rect 0 0 (om-width self) (om-height self) :color (om-make-color 1 1 1) :fill t))
-    (om-draw-rect 0 0 (om-width self) (om-height self) :color (or (color self) (om-def-color :gray)) 
+    (om-draw-rect 0 0 (om-width self) (om-height self) :color (or (color self) (om-def-color :gray))
                   :fill (color self))
-    
+
     (when (not (enabled self))
-      (om-draw-rect 0 0 (om-width self) (om-height self) 
-                    :color (om-make-color-alpha (om-def-color :white) 0.5) 
+      (om-draw-rect 0 0 (om-width self) (om-height self)
+                    :color (om-make-color-alpha (om-def-color :white) 0.5)
                     :fill t))
-  
+
     (when (= (om-color-a c) 0)
       (om-draw-line 0 0 (om-width self) (om-height self) :color (om-def-color :gray))
       (om-draw-line 0 (om-height self) (om-width self) 0 :color (om-def-color :gray)))
-    
+
     (when (border self)
-      (om-draw-rect 0 0 (om-width self) (om-height self) 
+      (om-draw-rect 0 0 (om-width self) (om-height self)
                     :color (om-def-color :gray)
                     :fill nil))
     ))
@@ -217,12 +217,12 @@
   (:default-initargs :resize-callback nil))
 
 (defmethod om-draw-contents ((self click-and-edit-text))
-  (when (border self) 
-    (om-with-fg-color (border self) 
+  (when (border self)
+    (om-with-fg-color (border self)
       (om-draw-rect 0 0 (om-width self) (om-height self))))
-  (om-with-fg-color  
+  (om-with-fg-color
       (if (enabled self) (om-get-fg-color self) (om-def-color :gray))
-    (om-draw-string 0 14 (text self) 
+    (om-draw-string 0 14 (text self)
                     :wrap (if (wrap-lines self) (om-width self) nil))))
 
 (defmethod om-view-click-handler ((self click-and-edit-text) pos)
@@ -252,7 +252,7 @@
 
 (defmethod om-view-cursor ((self numbox)) (om-get-cursor :v-size))
 
-(defmethod initialize-instance :after ((self numbox) &rest args) 
+(defmethod initialize-instance :after ((self numbox) &rest args)
   (let ((v (getf args :value)))
     (when v (set-value self v)))
   (set-min-max self :min (getf args :min-val) :max (getf args :max-val))
@@ -263,7 +263,7 @@
 (defmethod set-value ((self numbox) value)
   (setf (value self) (if (zerop (decimals self)) value
                        (round (* value (expt 10 (decimals self))))))
-  (om-set-text self 
+  (om-set-text self
                (if (zerop (decimals self))
                    (format () " ~D" value)
                  (format () " ~v$" (decimals self) value)
@@ -271,9 +271,9 @@
   (om-invalidate-view self))
 
 (defmethod set-min-max ((self numbox) &key min max)
-  (when min 
+  (when min
     (setf (min-val self) (round (* min (expt 10 (decimals self))))))
-  (when max 
+  (when max
     (setf (max-val self) (round (* max (expt 10 (decimals self))))))
   )
 
@@ -284,8 +284,8 @@
 
 
 (defmethod enable-numbox ((self numbox) t-or-nil)
- (setf (enabled self) t-or-nil)
- (om-set-fg-color self (if (enabled self) (om-def-color :black) (om-def-color :gray))))
+  (setf (enabled self) t-or-nil)
+  (om-set-fg-color self (if (enabled self) (om-def-color :black) (om-def-color :gray))))
 
 (defmethod map-mouse-increment ((self numbox))
   (cond ((om-shift-key-p) 10)
@@ -308,7 +308,7 @@
                                                       (setf new-val (min-val self)))
                                                     (when (and (max-val self) (> new-val (max-val self)))
                                                       (setf new-val (max-val self)))
-                                                    
+
                                                     ;;; in principle that's ok now...
                                                     (when (and (or (null (min-val self)) (>= new-val (min-val self)))
                                                                (or (null (max-val self)) (<= new-val (max-val self))))
@@ -318,11 +318,11 @@
                                                       (setf (value self) new-val)
                                                       (om-set-text self (format () " ~D" (get-value self)))
                                                       (om-invalidate-view self)
-                                                    
+
                                                       (when (and (change-fun self) (not (= (round new-val) start-v)))
                                                         (funcall (change-fun self) self)))))
-                                      
-                                      :release #'(lambda (view position) 
+
+                                      :release #'(lambda (view position)
                                                    (declare (ignore view position))
                                                    (when (after-fun self) (funcall (after-fun self) self)))
                                       )
@@ -330,17 +330,17 @@
 
 
 (defun mouse-screen-coordinates ()
-  (om-subtract-points 
+  (om-subtract-points
    (om-mouse-position nil)
    (omp 20 20)))
 
 (defmethod om-view-doubleclick-handler  ((self numbox) where)
   (when (and (enabled self) (db-click self))
     (let ((pos (mouse-screen-coordinates)))
-      (open-mini-edit pos (get-value self) 
+      (open-mini-edit pos (get-value self)
                       #'(lambda (tf)
                           (let ((val (read-from-string (om-dialog-item-text tf) nil)))
-                            (if (or 
+                            (if (or
                                  (and (numberp val)
                                       (or (null (max-val self)) (<= val (/ (max-val self) (expt 10 (decimals self)))))
                                       (or (null (min-val self)) (>= val (/ (min-val self) (expt 10 (decimals self))))))
@@ -348,11 +348,11 @@
                                 (progn (set-value self val)
                                   (when (after-fun self) (funcall (after-fun self) self)))
                               (om-beep)))))
-    )))
+      )))
 
 ;;;===============================================
-  
-(defclass mini-edit-window (om-no-border-win) 
+
+(defclass mini-edit-window (om-no-border-win)
   ((textfield :accessor textfield :initform nil)
    (action :accessor action :initform nil)))
 
@@ -365,19 +365,19 @@
 (defun open-mini-edit (position value action)
   (let ((text (format nil "~A" value))
         (font (om-def-font :font1)))
-    (multiple-value-bind (w h) 
+    (multiple-value-bind (w h)
         (om-string-size text font)
       (let* ((tf (om-make-di 'om-editable-text :text text :font font
-                             :bg-color (om-def-color :white) 
+                             :bg-color (om-def-color :white)
                              :size (omp (+ w 20) (+ h 20))
                              :di-action #'(lambda (item)
-                                           (let ((window (om-view-window item)))
-                                             (om-window-activate window nil)
-                                             ))
+                                            (let ((window (om-view-window item)))
+                                              (om-window-activate window nil)
+                                              ))
                              ))
-             (win (om-make-window 
+             (win (om-make-window
                    'mini-edit-window :position position
-                   :win-layout (om-make-layout 'om-simple-layout 
+                   :win-layout (om-make-layout 'om-simple-layout
                                                :subviews (list tf)))))
         (setf (textfield win) tf)
         (setf (action win) action)

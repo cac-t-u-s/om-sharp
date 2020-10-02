@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; OMQuantify
@@ -36,7 +36,7 @@
 ;(setf *read-default-float-format* 'double-float)
 ;(setf a (coerce (/ 9 3.0) 'double-float))
 ;(/ (/ 100 a) 1.0)
-  
+
 
 (defvar *min-percent* 0.6)
 (defvar *tempo-scalers* '(1 2 3 4 5 6 7 8))
@@ -52,8 +52,8 @@
 ;;quantizing parameters
 (defvar *unit-division-hierarchy*
   '(1 2 4 3 6 5 8 7 10 12 16 9 14 11 13 15 17 18 19 20 21 22 23 24 25 26 27
-    28 29 30 31 32
-    33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50))
+      28 29 30 31 32
+      33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50))
 (defvar *iota* 0.0001)
 (defvar *dist-iota* 0.03)
 (defvar *proportions-iota* 0.001)
@@ -88,7 +88,7 @@ measure, subdivisions by 5 and by 6 are forbidden, and in the second and fifth
 measure, subdivisions by 7 and by 4 are forbidden. As the third and fourth sub-
 lists are empty lists, there are no restrictions for these measures. A second
 level of sub-lists will permit to control subdivisions of beats.
-The list ( ((5 4) () (3 6) ())  (() () ( 8 7) ())  ( 3 2)  ()  )  
+The list ( ((5 4) () (3 6) ())  (() () ( 8 7) ())  ( 3 2)  ()  )
 indicates :
 
 first measure
@@ -135,7 +135,7 @@ at the beat level. Here is an example:
   ; (quant-edit durs tempi measures  (if (numberp max/) (list (list max/))
   ;                                     max/) forbid (or offset 0) 1)
   ;aaa 12-03-98 quantify in ms
-  (let ((rep (quant-edit (om/ durs 10) tempi measures 
+  (let ((rep (quant-edit (om/ durs 10) tempi measures
                          (if (numberp max/) (list (list max/)) max/)
                          forbid (or offset 0) 1)))
     (korrected-kant (reducetree rep))))
@@ -144,8 +144,8 @@ at the beat level. Here is an example:
 (defmethod* omquantify ((self chord-seq) (tempi t) (measures list) (max/ t)
                         &optional forbid offset precis)
   (omquantify ; (true-durations self)
-   (x->dx (remove-duplicates ;; two onsets at the same time will create a null duration 
-           (lonset self)))
+   (x->dx (remove-duplicates ;; two onsets at the same time will create a null duration
+                             (lonset self)))
    tempi measures max/ forbid offset precis))
 
 
@@ -156,7 +156,7 @@ at the beat level. Here is an example:
 ; the before last duration is mostly a rest followed by a continuation-chord
 ; this means that the continuation chord must be rest
 (defun correctdashit (list)
-  (loop for i in list collect 
+  (loop for i in list collect
         (if (minusp (first i))
             (loop for truc in i
                   collect (if (minusp truc)
@@ -165,7 +165,7 @@ at the beat level. Here is an example:
           i)))
 
 (defun korrected-kant (tree)
-  
+
   (let* ((liste (if (typep tree 'voice) (tree tree) (resolve-? tree)))
          (grp-pulse (group-pulses liste))
          (corrected (correctdashit grp-pulse))
@@ -175,7 +175,7 @@ at the beat level. Here is an example:
     (loop for objs in tree2objclean
           for i in (flat corrected)
           do (setf (treeobj-tvalue objs ) i))
-    
+
     (trans-obj tree2obj)))
 
 
@@ -195,12 +195,12 @@ at the beat level. Here is an example:
 (defun make-a-measure (voice-ms tempo sign-denom measure-duration)
   (declare (ignore tempo))
   (list (read-from-string (format nil "~A//~A" measure-duration sign-denom))
-	(let* ((beatsum (reduce '+ voice-ms
-				:key #'(lambda (x) (if (numberp x) (round (abs x)) 1))))
-	       (diff (- (- measure-duration beatsum))))
-	  (if (< beatsum measure-duration)
-	      (append voice-ms (list diff))
-	      voice-ms))))
+        (let* ((beatsum (reduce '+ voice-ms
+                                :key #'(lambda (x) (if (numberp x) (round (abs x)) 1))))
+               (diff (- (- measure-duration beatsum))))
+          (if (< beatsum measure-duration)
+              (append voice-ms (list diff))
+            voice-ms))))
 
 
 (defun set-error (to from) (setf *accum-error* (- to from  *iota*)))
@@ -215,7 +215,7 @@ at the beat level. Here is an example:
 ;TO set max to max - 1
 (defun reduit-max (form)
   (if (numberp form) (+ form 1)
-      (loop for item in form collect (reduit-max item))))
+    (loop for item in form collect (reduit-max item))))
 
 
 ;;; Main:
@@ -243,10 +243,10 @@ box."
          (deftempo (car (last tempos)))
          (atimes (dx->x 0.0 positive-durs)) (c-time 0)
          result slur-fl current-tempo current-unit
-	 current-measure-dur
+         current-measure-dur
          (max-list (and max/ (if (or (null (first max/)) (consp (first max/))) max/ (list max/))))
          (max-preci (and *distance-weight* (if (or (null (first *distance-weight*)) (consp (first *distance-weight*)))
-                                             *distance-weight* (list *distance-weight*))))
+                                               *distance-weight* (list *distance-weight*))))
          (forbids (and forbid (if (or (null (first forbid)) (consp (first forbid))) forbid (list forbid))))
          (*unquantized-notes* 0) (measure-number -1)
          (def-forbid (first (last forbids)))
@@ -254,65 +254,65 @@ box."
          (def-preci (first (last *distance-weight*)))
          *global-grace-notes* old-silence (*max-division* max/))
     (reset-error)
-    
+
     (do ()
 
-	;;make new measures while:
-	;;((or (null atimes) (>= c-time total-dur)))
-	((or (null atimes) (>= c-time (last-elem atimes))))
-      
-	;;((null (cdr atimes)))				    ;dx->x above adds extra item
+        ;;make new measures while:
+        ;;((or (null atimes) (>= c-time total-dur)))
+        ((or (null atimes) (>= c-time (last-elem atimes))))
+
+      ;;((null (cdr atimes)))        ;dx->x above adds extra item
 
       (setf *max-division* (or (nth (+ 1 measure-number) max-list) def-max))
       (setf *distance-weight* (or (nth (+ 1 measure-number) max-preci) def-preci))
 
       (multiple-value-bind (beats times slur? current-time)
-                           (get-rhythms atimes :tempo (setq current-tempo (or (pop tempos) deftempo))
-                                        :sign (if (car measures)
+          (get-rhythms atimes :tempo (setq current-tempo (or (pop tempos) deftempo))
+                       :sign (if (car measures)
 
-						  ;; need current-measure-dur in call to make-a-measure below
-						  (let ((this-measure (pop measures)))
-						    (cons (setq current-measure-dur (first this-measure))
-							  (setq current-unit (second this-measure))))
-						  
-                                                  (progn (setq current-unit (cdr def-measure)) def-measure))
-                                        :start-time c-time :forbid (or (nth (incf measure-number) forbids) def-forbid)
-                                        :old-slur? slur-fl)
-        
+                                 ;; need current-measure-dur in call to make-a-measure below
+                                 (let ((this-measure (pop measures)))
+                                   (cons (setq current-measure-dur (first this-measure))
+                                         (setq current-unit (second this-measure))))
+
+                               (progn (setq current-unit (cdr def-measure)) def-measure))
+                       :start-time c-time :forbid (or (nth (incf measure-number) forbids) def-forbid)
+                       :old-slur? slur-fl)
+
         (setq atimes times c-time current-time)
         (setq slur-fl slur?)
         (if beats
-          (multiple-value-bind (beats-with-silences modifs new-silence)
-                               (put-in-silences beats durs old-silence)
-            (setq old-silence new-silence)
-            (when beats-with-silences
+            (multiple-value-bind (beats-with-silences modifs new-silence)
+                (put-in-silences beats durs old-silence)
+              (setq old-silence new-silence)
+              (when beats-with-silences
 
-              ;; add current-measure-dur to ensure complete final measure
-		(push (make-a-measure beats-with-silences current-tempo current-unit current-measure-dur)
-		      result)       
-		;;(push (make-a-measure beats-with-silences current-tempo current-unit) result)       
+                ;; add current-measure-dur to ensure complete final measure
+                (push (make-a-measure beats-with-silences current-tempo current-unit current-measure-dur)
+                      result)
+                ;;(push (make-a-measure beats-with-silences current-tempo current-unit) result)
 
-              (setq durs (nthcdr modifs durs))))
+                (setq durs (nthcdr modifs durs))))
           (setq atimes nil)))
-      
+
       )
 
     (unless (zerop *unquantized-notes*)
       (if result
           (om-print-format
-                  "Warning: with the given constraints, ~D notes are lost while quantizing."
-                  (list *unquantized-notes*)
-                  "OMQUANTIFY")
+           "Warning: with the given constraints, ~D notes are lost while quantizing."
+           (list *unquantized-notes*)
+           "OMQUANTIFY")
         (om-print "Cannot quantize with the given constraints" "OMQUANTIFY"))
       (om-beep))
-    
+
     (setq result (nreverse result))
 
     ;;(unless (zerop *unquantized-notes*)
     ;; (and result (setf (pw::extra-measure-stuff (car result))
     ;;                   (set-grace-notes-pos *global-grace-notes* positive-durs))))
     ;;(make-instance 'pw::C-measure-line :measures result)
-    
+
     (list '?  result)))
 
 
@@ -330,7 +330,7 @@ box."
 
 (defun put-in-silences (beats durs &optional prev-silence)
   (if (every #'plusp durs)
-    (values beats 0 nil)
+      (values beats 0 nil)
     (let ((count 0) new-silence)
       (labels ((loop-beats (beat-tree)
                  (cond ((null beat-tree) beat-tree)
@@ -340,11 +340,11 @@ box."
                        ((not (integerp (car beat-tree)))
                         (if (or (and (not (zerop count)) (silence? durs (1- count)))
                                 (and (zerop count) prev-silence))
-                          (progn (setq prev-silence t new-silence t)
-                                 (cons (- (truncate (car beat-tree)))
-                                       (loop-beats (cdr beat-tree))))
+                            (progn (setq prev-silence t new-silence t)
+                              (cons (- (truncate (car beat-tree)))
+                                    (loop-beats (cdr beat-tree))))
                           (progn (setq prev-silence nil new-silence nil)
-                                 (cons (car beat-tree) (loop-beats (cdr beat-tree))))))
+                            (cons (car beat-tree) (loop-beats (cdr beat-tree))))))
                        ((silence? durs count)
                         (incf count) (setq new-silence t)
                         (cons (- (car beat-tree)) (loop-beats (cdr beat-tree))))
@@ -361,20 +361,20 @@ box."
                      ((consp (car beat-tree))
                       (setq new-beats (loop-beats (cadar beat-tree)))
                       (if (and (every 'numberp new-beats) (every 'minusp new-beats))
-                        (cons  (- (caar beat-tree)) (loop-beats (cdr  beat-tree)))
+                          (cons  (- (caar beat-tree)) (loop-beats (cdr  beat-tree)))
                         (cons  (list (caar beat-tree) new-beats)
                                (loop-beats (cdr beat-tree)))))
                      ((every 'numberp beat-tree)
                       (setq ok nil res nil)
                       (if (every 'minusp beat-tree)
-                        beat-tree
+                          beat-tree
                         (dolist (item beat-tree (nreverse (if res (push
                                                                    (apply '+ res) ok) ok)))
                           (if (minusp item)
-                            (push item res)
+                              (push item res)
                             (if res (progn (push (apply '+ res) ok) (push
                                                                      item ok) (setq res nil))
-                                (push item ok))))))
+                              (push item ok))))))
                      (t (cons (car beat-tree) (loop-beats (cdr beat-tree)))))))
       (loop-beats beats))))
 
@@ -390,13 +390,13 @@ box."
          (from-dur tmin) (to-dur  (+ beat-dur tmin))
          (measure-end (+ measure-dur start-time))
          (forbids (if (or (null (first forbid)) (consp (first forbid)))
-                    forbid (list forbid)))
+                      forbid (list forbid)))
          (max-list (if (or (null (first *max-division*)) (consp (first
                                                                  *max-division*)))
-                     *max-division* (list *max-division*)))
+                       *max-division* (list *max-division*)))
          (preci-list (if (or (null (first *distance-weight*)) (consp (first
                                                                       *distance-weight*)))
-                       *distance-weight* (list *distance-weight*)))
+                         *distance-weight* (list *distance-weight*)))
          (default-max (first (last max-list)))
          (default-preci (first (last preci-list)))
          (default-forbid (first (last forbids)))
@@ -414,18 +414,18 @@ box."
             atimes (nthcdr (length partition) atimes))
       (setq *forbidden-rythmic-divisions* (or (pop forbids) default-forbid))
       (multiple-value-bind (a-section slur? prev-slur)
-                           (get-optimal-time-section partition to-dur
-                                                     beat-dur from-dur old-slur?) ;;tmin?
+          (get-optimal-time-section partition to-dur
+                                    beat-dur from-dur old-slur?) ;;tmin?
         (if a-section
-          (let ((chosen-rythm (simplify (search-rythm a-section from-dur
-                                                      prev-slur))))  ;;tmin?
-            (if chosen-rythm
-              (progn (push chosen-rythm beat-rythm-forms)
-                     (setq tmin (car (last a-section))))
-              (progn (setq beat-rythm-forms nil atimes nil)
-                     (om-print "cannot quantize with the given constraints")
-                     (om-beep))
-              ))
+            (let ((chosen-rythm (simplify (search-rythm a-section from-dur
+                                                        prev-slur))))  ;;tmin?
+              (if chosen-rythm
+                  (progn (push chosen-rythm beat-rythm-forms)
+                    (setq tmin (car (last a-section))))
+                (progn (setq beat-rythm-forms nil atimes nil)
+                  (om-print "cannot quantize with the given constraints")
+                  (om-beep))
+                ))
           )
         (setq old-slur? slur?)
         (psetq to-dur (min (+ to-dur beat-dur) measure-end) from-dur to-dur))
@@ -439,19 +439,19 @@ box."
       )
 
     (when (not atimes)
-      (when old-slur? 
-        (last-division-is-silence beat-rythm-forms) 
+      (when old-slur?
+        (last-division-is-silence beat-rythm-forms)
         (setq old-slur? nil))
-      (do () ((not (>= (- measure-end to-dur) *minimum-quant-dur*))) 
+      (do () ((not (>= (- measure-end to-dur) *minimum-quant-dur*)))
         (push '(-1) beat-rythm-forms) (incf to-dur beat-dur)))
-    
-    (values 
+
+    (values
      (compound-beats (nreverse beat-rythm-forms))
-     atimes 
-     old-slur? 
-     to-dur 
+     atimes
+     old-slur?
+     to-dur
      beat-dur)
-))
+    ))
 
 (defun compound-beats (beat-list)
   (mapcar #'(lambda (beat) (if (null (cdr beat)) (car beat) (list 1 beat)))
@@ -476,9 +476,9 @@ box."
          (min-dur (/ (- (car (last atimes)) (first atimes)) (coerce (pulses-of quants) 'double-float)))
          (beats (and durs (remove 0
                                   (if slur?
-                                    (cons (float (round (pop durs) min-dur))
-                                          (mapcar #'(lambda (dur) (round
-                                                                   dur min-dur)) durs))
+                                      (cons (float (round (pop durs) min-dur))
+                                            (mapcar #'(lambda (dur) (round
+                                                                     dur min-dur)) durs))
                                     (mapcar #'(lambda (dur) (round dur
                                                                    min-dur)) durs)) :test #'=))))
     beats))
@@ -486,7 +486,7 @@ box."
 (defun form-atimes-list (times from to)
   (and times
        (if (= (first times) from)
-         (if (= (first (last times)) to) times (nconc times (list to)))
+           (if (= (first (last times)) to) times (nconc times (list to)))
          (cons from (if (= (first (last times)) to) times (nconc times
                                                                  (list to)))))))
 
@@ -529,21 +529,21 @@ becomes prev-slur in the next call)."
     (setq partition
           (and end-surplus
                (if (> end-surplus 1e-4) ; GA 21/10/94 (plusp end-surplus)
-                 (progn (reset-error) (setq slur? t) (nconc head (list to)))
+                   (progn (reset-error) (setq slur? t) (nconc head (list to)))
                  (if (> to last-list) (progn (set-error to last-list) head)
-                     head))))
+                   head))))
     (cond
      ((null partition)
       (if (and list (not atimes))
-        (progn
-          (mapcar #'(lambda (time) (keep-unquantized-statistics to
-                                                                time)) (butlast list 2))
-          (setq prev-slur nil)
-          (unless (or (= last-list to) (= last-list tmin) (not (rest
-                                                                list)))
-            (set-error to last-list))
-          (values (test-quantize-constraints (list tmin to) tmin
-                                             beat-dur prev-slur) t nil))
+          (progn
+            (mapcar #'(lambda (time) (keep-unquantized-statistics to
+                                                                  time)) (butlast list 2))
+            (setq prev-slur nil)
+            (unless (or (= last-list to) (= last-list tmin) (not (rest
+                                                                  list)))
+              (set-error to last-list))
+            (values (test-quantize-constraints (list tmin to) tmin
+                                               beat-dur prev-slur) t nil))
         (values (test-quantize-constraints (list tmin to) tmin beat-dur
                                            prev-slur) t prev-slur)))
      (t (setf (rest atimes) partition) (values atimes slur? prev-slur)))))
@@ -560,7 +560,7 @@ becomes prev-slur in the next call)."
       (unless (forbidden-structure (beat-structure current-atimes prev-slur
                                                    tmin (+ tmin beat-dur)))
         (return (if (plusp (deleted-of current-atimes))
-                  (less-bad-quanta (list current-atimes) list tmin beat-dur)
+                    (less-bad-quanta (list current-atimes) list tmin beat-dur)
                   current-atimes))
         ))))
 
@@ -570,8 +570,8 @@ becomes prev-slur in the next call)."
         (if (and (first *forbidden-rythmic-divisions*)
                  (symbolp (first *forbidden-rythmic-divisions*)) (string=
                                                                   (first *forbidden-rythmic-divisions*) '!))
-          (not (member division (rest *forbidden-rythmic-divisions*) :test
-                       #'=))
+            (not (member division (rest *forbidden-rythmic-divisions*) :test
+                         #'=))
           (member division *forbidden-rythmic-divisions* :test #'=)))))
 
 (defun get-nb-error (quant) (second (first quant)))
@@ -619,7 +619,7 @@ becomes prev-slur in the next call)."
                                                                       (- 1 *distance-weight*)))
                                            (* (get-distance item2)
                                               *distance-weight*) )
-                                      item1 item2)) option1 option2)))
+                                        item1 item2)) option1 option2)))
 
 
 (defun is-better (n-pulse1 n-pulse2)
@@ -629,7 +629,7 @@ becomes prev-slur in the next call)."
 (defun quant-test1 (quant1 quant2)
   (cond ((< (get-nb-error quant1) (get-nb-error quant2)) t)     ;;1
         ((> (get-nb-error quant1) (get-nb-error quant2)) nil)
-        
+
         ((and (is-better (get-nb-pulse quant1) (get-nb-pulse quant2))   ;;2
               (< (get-proportion-distance quant1) *dist-iota*)) t)
         ((< (get-proportion-distance quant1) (- (get-proportion-distance
@@ -665,13 +665,13 @@ becomes prev-slur in the next call)."
 
 (defun needed-pulses (nb-pulse-max attack-times tmin tmax)
   (if (not attack-times) '(1)
-      (let* ((minimum-pulses (minimum-pulses attack-times tmin tmax))
-             (pulses (arithm-ser minimum-pulses (1- nb-pulse-max) 1)))
-        (unless pulses (setf pulses (list (1- nb-pulse-max))))
-        (if nil ;; GA 10/10/94 (< (length pulses) *min-pulses*)
+    (let* ((minimum-pulses (minimum-pulses attack-times tmin tmax))
+           (pulses (arithm-ser minimum-pulses (1- nb-pulse-max) 1)))
+      (unless pulses (setf pulses (list (1- nb-pulse-max))))
+      (if nil ;; GA 10/10/94 (< (length pulses) *min-pulses*)
           (arithm-ser minimum-pulses (1- (max nb-pulse-max (* 2
                                                               minimum-pulses))) 1)
-          pulses))))
+        pulses))))
 
 (defun minimum-pulses (attack-times tmin tmax)
   (min *maximum-pulses*
@@ -715,7 +715,7 @@ becomes prev-slur in the next call)."
                                                 (x-append  var1
                                                            (create-list  (om-abs (om-
                                                                                   (max (length var1) (length var2))
-                                                                                  
+
                                                                                   (length var1))) 1)))))
                               (let (M)
                                 (mapcar #'(lambda (N)
@@ -726,7 +726,7 @@ becomes prev-slur in the next call)."
                                                 (x-append var2
                                                           (create-list (om-abs (om-
                                                                                 (max (length var1) (length var2))
-                                                                                
+
                                                                                 (length var2))) 1)))))))))
           3)))
 

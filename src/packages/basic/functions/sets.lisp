@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;=========================================================================
 ; Authors: G. Assayag, C. Agon, J. Bresson (code form OM6)
@@ -21,16 +21,16 @@
 
 (defun norep-union (lists oper test key)
   (let ((the-union (list! (car lists))))
-  (dolist (one-in (cdr lists))
+    (dolist (one-in (cdr lists))
       (setq the-union (funcall oper the-union (list!  one-in)  :test test :key key)))
-  the-union))
+    the-union))
 
-(defmethod* x-union ((l1? list) (l2? list) 
+(defmethod* x-union ((l1? list) (l2? list)
                      &optional (test 'equal) (key 'identity)
                      &rest lists)
   :initvals '(nil nil equal identity)
   :indoc '("a list" "a list" "test function" "test key" "more lists")
-  :doc "Merges lists (<l1?> and <l2?> and possibly more) into a single list with no repetitions. 
+  :doc "Merges lists (<l1?> and <l2?> and possibly more) into a single list with no repetitions.
 
 <test> is a function or function name for a binary comparison.
 <key> is a name or function name to apply to the elements before comparison.
@@ -58,7 +58,7 @@ Ex. (x-intersect '(1 2 3 4 5) '(4 5 6 7 8)) => (4 5)"
 
 (defmethod* x-xor ((l1? list) (l2? list)
                    &optional (test 'equal) (key 'identity)
-                   &rest list) 
+                   &rest list)
   :initvals '(nil nil equal identity)
   :indoc '("a list" "a list" "test function" "test key" "more lists")
   :doc "XOR's lists (<l1?> and <l2?> and possibly more) into a single list.

@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -24,24 +24,24 @@
 (defclass score-element (schedulable-object)
   (
    ;;; symbolic date and symbolic-dur make sense only if the object is in a context with tempo
-   (symbolic-date :accessor symbolic-date :initarg :symbolic-date :initform nil 
+   (symbolic-date :accessor symbolic-date :initarg :symbolic-date :initform nil
                   :documentation "date in symbolic musical time (ratio of beat)")
-   (symbolic-dur :accessor symbolic-dur :initarg :symbolic-dur :initform nil 
+   (symbolic-dur :accessor symbolic-dur :initarg :symbolic-dur :initform nil
                  :documentation "duration in symbolic musical time (ratio of beat)")
-   (symbolic-dur-extent :accessor symbolic-dur-extent :initarg :symbolic-dur-extent :initform 0 
+   (symbolic-dur-extent :accessor symbolic-dur-extent :initarg :symbolic-dur-extent :initform 0
                         :documentation "an extension of the duration (used for tied chords)")
-   
+
    ;;; parent is not :initarg so that it is not included in om-copy (cyclic references)
    (parent :accessor parent :initform nil :documentation "the container group, measure or voice of a score element")
 
    ;;; approximation of pitch (in division f a tone) used essentially for MIDI playback
    ;;; is modified by modification of the scale parameter
-   (pitch-approx :accessor pitch-approx :initform 2) 
-   
+   (pitch-approx :accessor pitch-approx :initform 2)
+
    (extras :initarg :extras :initform nil :accessor extras :type list :documentation "some 'extra' score-elements attached to this element")
 
-   ;;; bounding-box is a cached graphic information for score display 
-   (b-box :accessor b-box :initform nil) 
+   ;;; bounding-box is a cached graphic information for score display
+   (b-box :accessor b-box :initform nil)
    ))
 
 
@@ -59,7 +59,7 @@
 
 ;;; autostop already defaults to T
 ;(defmethod initialize-instance :after ((self score-element) &rest initargs)
-;  (setf (autostop self) t))  
+;  (setf (autostop self) t))
 
 
 

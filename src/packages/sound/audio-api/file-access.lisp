@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -70,7 +70,7 @@
 ; (if (> nch 1)
 ;     (fli:allocate-foreign-object :type :float :nelems (* nsmp nch))
 ;   (cffi::mem-aref (oa::om-pointer-ptr (buffer sound)) :pointer 0)))
-;(when (> nch 1) 
+;(when (> nch 1)
 ;  (interleave-buffer (oa::om-pointer-ptr (buffer sound)) itl-buffer nsmp nch))
 ;(when (> nch 1) (om-free-memory itl-buffer))
 
@@ -84,27 +84,27 @@
 ;; RETURNS buffer format n-channels sample-rate sample-size size skip
 (defun om-get-sound-buffer (path &optional (type :float) (interleaved nil))
   (when (probe-file path)
-    (if interleaved 
-    
+    (if interleaved
+
         (sf::sndfile-get-sound-buffer (convert-filename-encoding path) type)
 
       (multiple-value-bind (buffer format n-channels sample-rate sample-size size skip)
-        
+
           (sf::sndfile-get-sound-buffer (convert-filename-encoding path) type)
-      
+
         (if (= 1 n-channels)
-            
+
             (let ((buffer2 (fli::allocate-foreign-object :type :pointer)))
               (setf (fli:dereference buffer2) buffer)
               (values buffer2 format n-channels sample-rate sample-size size skip))
-        
-          (unwind-protect 
-                
-              (let ((buffer2 (fli::allocate-foreign-object 
+
+          (unwind-protect
+
+              (let ((buffer2 (fli::allocate-foreign-object
                               :type :pointer :nelems n-channels
-                              :initial-contents (loop for c from 0 to (1- n-channels) collect 
-                                                      (fli::allocate-foreign-object 
-                                                       :type type 
+                              :initial-contents (loop for c from 0 to (1- n-channels) collect
+                                                      (fli::allocate-foreign-object
+                                                       :type type
                                                        :nelems size)))))
                 (dotimes (i size)
                   (dotimes (c n-channels)
@@ -123,7 +123,7 @@
       (dotimes (ch nch)
         (setf (cffi::mem-aref interleaved :float (+ (* smp channels) ch))
               (cffi::mem-aref (cffi::mem-aref buffer :pointer ch) :float smp))))
-    (unwind-protect 
+    (unwind-protect
         (sf::sndfile-save-sound-in-file buffer filename size nch sr resolution format)
       (fli::free-foreign-object interleaved))
     ))

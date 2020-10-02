@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson, original code from OM6
@@ -26,11 +26,11 @@
 
 (defun deep-mapcar (fun fun1 list? &rest args)
   "Mapcars <fun> or applies <fun1> to <list?> <args> whether <list?> is a list or not."
-   (cond
-    ((null list?) ())
-    ((not (consp list?)) (apply fun1 list? args))
-    (t (cons (apply #'deep-mapcar fun fun1 (car list?) args)
-             (apply #'deep-mapcar fun fun1 (cdr list?) args)))))
+  (cond
+   ((null list?) ())
+   ((not (consp list?)) (apply fun1 list? args))
+   (t (cons (apply #'deep-mapcar fun fun1 (car list?) args)
+            (apply #'deep-mapcar fun fun1 (cdr list?) args)))))
 
 ;==================================
 ;APPROX_M
@@ -39,8 +39,8 @@
 (defparameter *global-midi-approx* 2)
 
 (defmethod* approx-m  ((midic t) approx &optional (ref-midic 0))
-  :numouts 1 
-  :initvals '(6000 2 0) 
+  :numouts 1
+  :initvals '(6000 2 0)
   :indoc '("pitch list (midicents)" "tone division")
   :icon 'conversion
   :doc "
@@ -53,12 +53,12 @@ Returns an approximation of <midic> (in midicents) to the nearest tempered divis
 Floating values are allowed for <approx>.
 <ref-midic> is a midicent that is subtracted from <midic> before computation: the computation can then be carried on an interval rather than an absolute pitch."
   (if (<= approx 0)
-    midic
+      midic
     (round (* (floor (+ (* (- midic ref-midic) approx) 100) 200) 200) approx)))
 
 (defmethod* approx-m  ((self list) approx &optional (ref-midic 0))
   (if (<= approx 0)
-    self
+      self
     (loop for item in self
           collect (approx-m item approx ref-midic))))
 
@@ -70,7 +70,7 @@ Floating values are allowed for <approx>.
 
 ;; ---- midicent -> frequency
 (defmethod* mc->f  ((midicents number) &optional concert-pitch)
-  :numouts 1 
+  :numouts 1
   :initvals (list 6000 nil)
   :indoc '("pitch or pitch list (midicents)" "frequency (Hz)")
   :icon 'conversion
@@ -100,7 +100,7 @@ Converts a (list of) midicent pitch(es) <midicents> to frequencies (Hz).
        *diapason-midic*)))
 
 (defmethod* f->mc  ((freq number) &optional (approx 100) (ref-midic 0) concert-pitch)
-  :numouts 1 
+  :numouts 1
   :initvals (list 440 100 0 nil)
   :indoc '("frequency (Hz)" "approximation" "midicenct (int)" "frequency (Hz)")
   :icon 'conversion
@@ -131,12 +131,12 @@ Floating values are allowed for <approx>.
 ;; ---- midic -> symbol
 ;; why ?
 ;(export '(*ascii-note-scales* *ascii-note-C-scale* *ascii-note-do-scale*))
- 
+
 ;;===========
 ;; The scales used by the functions mc->n and n->mc:
 ;;===========
 
-(defvar *ascii-note-C-scale* 
+(defvar *ascii-note-C-scale*
   '(("C") ("C" . :q) ("C" . :s) ("D" . :-q)
     ("D") ("D" . :q) ("E" . :f) ("E" . :-q)
     ("E") ("E" . :q)
@@ -154,10 +154,10 @@ Floating values are allowed for <approx>.
     ("la") ("la" . :q) ("si" . :f) ("si" . :-q)
     ("si") ("si" . :q)))
 
-(defvar *ascii-note-alterations* 
+(defvar *ascii-note-alterations*
   ;; taking care to order alterations by length of their string
-  '((:qs "#+" +150) (:f-q "b-" -150)			    
-    (:q "+" +50) (:-q "_" -50) 
+  '((:qs "#+" +150) (:f-q "b-" -150)
+    (:q "+" +50) (:-q "_" -50)
     (:s "#" +100) (:f "b" -100)
     (:s "d" +100)))
 
@@ -169,10 +169,10 @@ Floating values are allowed for <approx>.
         (setq note (nth (/ midic<1200 dmidic) ascii-note-scale))
         (format nil "~A~A~A~A~A"
                 (car note)
-		(or (cadr (find (cdr note) *ascii-note-alterations* :key 'car)) "")
+                (or (cadr (find (cdr note) *ascii-note-alterations* :key 'car)) "")
                 (- oct+2 (- 5 middle-C))
-		(if (> cents 0) "+" "")
-		(if (zerop cents) "" cents) )))))
+                (if (> cents 0) "+" "")
+                (if (zerop cents) "" cents) )))))
 
 
 (defun n->mc1 (str &optional (ascii-note-scale *ascii-note-C-scale*) (middle-C 3))
@@ -212,32 +212,32 @@ Floating values are allowed for <approx>.
     (let ((index (/ cents 100)))
       (unless (typep index 'fixnum) (error "Not yet implemented"))
       (if (zerop oct)
-        (nth index *ascii-intervals*)
+          (nth index *ascii-intervals*)
         (format () "~A~@D" (nth index *ascii-intervals*) oct)))))
 
-       
+
 (defmethod* int->symb ((ints list))
-  :initvals (list '(1 2)) 
+  :initvals (list '(1 2))
   :indoc '("ints")
   :icon 'conversion
-  :doc  "<int->symb> takes an interval expressed in midi-cents, and returns a 
+  :doc  "<int->symb> takes an interval expressed in midi-cents, and returns a
 symbolic interval name.
 Intervals are labeled as follows:
 
-	1 = unison		2m = minor second
-	2M = major second	3m = minor third
-	3M = major third	4 = perfect fourth	
-	4A = tritone		5 = perfect fifth	
-	6m = minor sixth	6M = major sixth	
-	7m = minor seventh	7M = major seventh
+ 1 = unison  2m = minor second
+ 2M = major second 3m = minor third
+ 3M = major third 4 = perfect fourth
+ 4A = tritone  5 = perfect fifth
+ 6m = minor sixth 6M = major sixth
+ 7m = minor seventh 7M = major seventh
 
-All intervals larger than an octave are expressed by adding or  subtracting an 
+All intervals larger than an octave are expressed by adding or  subtracting an
 octave displacement after the simple interval name;
- for example, a major tenth becomes 3M+1, etc.  Note: for the time being,  the 
+ for example, a major tenth becomes 3M+1, etc.  Note: for the time being,  the
 program has a strange way of expressing downward intervals:
  it labels the interval as its inversion, and then transposes downwards as
  necessary.  Thus, a major third down (-400 in midicents), returns 6m-1."
- 
+
   (deep-mapcar #'int->symb #'int->symb1 ints))
 
 
@@ -246,47 +246,47 @@ program has a strange way of expressing downward intervals:
          (neg-oct (member #\- int-str :test #'char=))
          (rest-oct (or (member #\+ int-str :test #'char=) neg-oct))
          (oct (if rest-oct
-                (read-from-string (coerce (cdr rest-oct) 'string))
+                  (read-from-string (coerce (cdr rest-oct) 'string))
                 0))
          (pclass (coerce (butlast int-str (length rest-oct)) 'string)))
     (* 100  (+ (position pclass *ascii-intervals* :test #'string=)
                (* 12 (if neg-oct (- oct) oct))))))
 
 (defmethod* symb->int ((symb list))
-  :initvals (list '(1 2)) 
+  :initvals (list '(1 2))
   :indoc '("ints")
   :icon 128
-  :doc  "symb->int takes a symbolic interval name  , and returns an interval 
+  :doc  "symb->int takes a symbolic interval name  , and returns an interval
 expressed in midi-cents. Intervals are labeled as follows:
 
-	1 = unison			2m = minor second
-	2M = major second	3m = minor third
-	3M = major third		4 = perfect fourth	
-	4A = tritone		5 = perfect fifth	
-	6m = minor sixth		6M = major sixth	
-	7m = minor seventh	7M = major seventh
+ 1 = unison   2m = minor second
+ 2M = major second 3m = minor third
+ 3M = major third  4 = perfect fourth
+ 4A = tritone  5 = perfect fifth
+ 6m = minor sixth  6M = major sixth
+ 7m = minor seventh 7M = major seventh
 
-All intervals larger than an octave are expressed by adding or subtracting an 
+All intervals larger than an octave are expressed by adding or subtracting an
 octave displacement after the simple interval name;
- for example, a major tenth becomes 3M+1, etc.  Note: for the time being,  
-Patchwork has a strange way of expressing downward intervals:  it labels the 
-interval as its inversion, and then transposes downwards as necessary. Thus, a 
+ for example, a major tenth becomes 3M+1, etc.  Note: for the time being,
+Patchwork has a strange way of expressing downward intervals:  it labels the
+interval as its inversion, and then transposes downwards as necessary. Thus, a
 major third down 6m-1, returns -400 in midicents ."
-  
+
   (deep-mapcar #'symb->int #'symb->int1 symb))
 
 
 (defmethod* mc->n ((midicents list) &optional (middle-C 3))
-  :initvals '((6000) 3) 
+  :initvals '((6000) 3)
   :indoc '("pitch or pitch list (midicents)" "octave of middle C")
   :icon 'conversion
   :doc  "
-Converts <midics> to symbolic (ASCII) note names. 
+Converts <midics> to symbolic (ASCII) note names.
 
-Symbolic note names follow standard notation with middle c (midicent 6000) being C3. 
+Symbolic note names follow standard notation with middle c (midicent 6000) being C3.
 Middle c (midicent 6000) being octave 3 by default, can be set to another octave by the optional input.
-Semitones are labeled with a '#' or a 'b.'  
-Quartertone flats are labeled with a '_', and quartertone sharps with a '+' (ex. C3 a quartertone sharp (midi-cent 6050), would be labeled 'C+3'. 
+Semitones are labeled with a '#' or a 'b.'
+Quartertone flats are labeled with a '_', and quartertone sharps with a '+' (ex. C3 a quartertone sharp (midi-cent 6050), would be labeled 'C+3'.
 Gradations smaller than a quartertone are expressed as the closest  quartertone + or - the remaining cent value (ex. midi-cent 8176 would be expressed as Bb4-24).
 "
   (deep-mapcar 'mc->n #'(lambda (mc) (mc->n1 mc *ascii-note-C-scale* middle-C)) midicents))
@@ -295,18 +295,18 @@ Gradations smaller than a quartertone are expressed as the closest  quartertone 
   (mc->n1 midic *ascii-note-C-scale* middle-C))
 
 (defmethod* n->mc ((strs list) &optional (middle-C 3))
-  :initvals '(("C3") 3) 
+  :initvals '(("C3") 3)
   :indoc '("note name or list of note names" "octave of middle C")
   :icon 'conversion
   :doc "
-Converts <strs> to pitch values in midicents. 
+Converts <strs> to pitch values in midicents.
 
-Symbolic note names follow standard notation with middle c (midicent 6000) being C3. 
+Symbolic note names follow standard notation with middle c (midicent 6000) being C3.
 Middle c (midicent 6000) being octave 3 by default, can be set to another octave by the optional input.
-Semitones are labeled with a '#' or a 'b.'  
-Quartertone flats are labeled with a '_', and quartertone sharps with a '+' (ex. C3 a quartertone sharp (midi-cent 6050), would be labeled 'C+3'. 
+Semitones are labeled with a '#' or a 'b.'
+Quartertone flats are labeled with a '_', and quartertone sharps with a '+' (ex. C3 a quartertone sharp (midi-cent 6050), would be labeled 'C+3'.
 Gradations smaller than a quartertone are expressed as the closest  quartertone + or - the remaining cent value (ex. midi-cent 8176 would be expressed as Bb4-24).
-" 
+"
   (deep-mapcar 'n->mc #'(lambda (n) (n->mc1 n *ascii-note-C-scale* middle-C)) strs))
 
 (defmethod* n->mc ((strs string) &optional (middle-C 3))
@@ -320,13 +320,13 @@ Gradations smaller than a quartertone are expressed as the closest  quartertone 
 ;;;=======================================
 
 (defmethod* beats->ms ((nb-beat number) (tempo number))
-  :initvals '(1 60) 
+  :initvals '(1 60)
   :indoc '("number of beats or beat division (ex. 1, 4, 1/8, ...)" "")
   :icon 'conversion
   :outdoc '("duration (ms)")
   :doc   "
-Converts a symbolic rhythmic beat division into the corresponding duration in milliseconds. 
-" 
+Converts a symbolic rhythmic beat division into the corresponding duration in milliseconds.
+"
   (let ((b-ms (* 1000.0 (/ 60 tempo))))
     (round (* nb-beat b-ms)))
   )

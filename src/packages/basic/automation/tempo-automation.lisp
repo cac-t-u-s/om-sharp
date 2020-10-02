@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; Author: D. Bouche
@@ -32,7 +32,7 @@
             (:conc-name tp-)))
 
 ;;===========================================================================
-;;;Tempo Automation = An automation for tempo 
+;;;Tempo Automation = An automation for tempo
 ;;===========================================================================
 ;;;Structure
 (defclass tempo-automation (automation)
@@ -137,7 +137,7 @@
   (let* ((pt-index (position-if #'(lambda (x)
                                     (and (>= tmin (get-beat-date self (start-date x)))
                                          (< tmin (get-beat-date self (end-date x self)))))
-                                 (point-list self)))
+                                (point-list self)))
          (grid '())
          (date 0))
     (when pt-index
@@ -149,7 +149,7 @@
                  (beat-dur (/ 60000 tp))
                  (bs (+ b1 (floor (- tmin t1) (/ 60000 tp))))
                  (be (+ b1 (ceiling (- tmax t1) (/ 60000 tp)))))
-            (loop for beat from (- bs (mod bs beat-rate)) to be 
+            (loop for beat from (- bs (mod bs beat-rate)) to be
                   by beat-rate
                   for n from 0
                   do
@@ -172,13 +172,13 @@
 
 
 (defmethod tempo-automation-get-display-beat-factor ((self tempo-automation) t1 t2)
-  (let ((factor (/ (- t2 t1) 
-                          (/ 60000 
-                             (/ (reduce '+ (point-list self) :key 'start-value) 
-                                (length (point-list self)))))))
-  (if (<= factor 10)
-      (/ (expt 2 (round (log (/ factor 40)) 2)) 2)
-    (expt 2 (round (log (1+ (/ factor 40)) 2))))))
+  (let ((factor (/ (- t2 t1)
+                   (/ 60000
+                      (/ (reduce '+ (point-list self) :key 'start-value)
+                         (length (point-list self)))))))
+    (if (<= factor 10)
+        (/ (expt 2 (round (log (/ factor 40)) 2)) 2)
+      (expt 2 (round (log (1+ (/ factor 40)) 2))))))
 
 
 

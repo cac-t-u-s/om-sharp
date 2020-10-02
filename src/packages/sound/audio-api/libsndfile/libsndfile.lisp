@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -46,7 +46,7 @@
 (defconstant SF_FORMAT_AVR #x120000)
 (defconstant SF_FORMAT_WAVEX #x130000)
 (defconstant SF_FORMAT_SD2 #x160000)
-(defconstant SF_FORMAT_FLAC #x170000) 
+(defconstant SF_FORMAT_FLAC #x170000)
 (defconstant SF_FORMAT_CAF #x180000)
 (defconstant SF_FORMAT_OGG #x200000)
 (defconstant SF_FORMAT_PCM_S8 #x0001)
@@ -143,17 +143,17 @@
 (defconstant  SF_COUNT_MAX #x7FFFFFFFFFFFFFFF)
 
 (defcstruct SF_INFO
-	(frames :double)
-	(samplerate :int)
-	(channels :int)
-	(format :int)
-	(sections :int)
-	(seekable :int))
+            (frames :double)
+            (samplerate :int)
+            (channels :int)
+            (format :int)
+            (sections :int)
+            (seekable :int))
 
 (defcstruct SF_FORMAT_INFO
-	(format :int)
-	(name :string)
-	(extension :string))
+            (format :int)
+            (name :string)
+            (extension :string))
 
 
 (defconstant SFD_DEFAULT_LEVEL 0)
@@ -163,13 +163,13 @@
 (defconstant SFD_TRIANGULAR_PDF 502)
 
 (defcstruct SF_DITHER_INFO
-	(type :int)
-	(level :double)
-	(name :string))
+            (type :int)
+            (level :double)
+            (name :string))
 
 (defcstruct SF_EMBED_FILE_INFO
-	(offset :double)
-	(length :double))
+            (offset :double)
+            (length :double))
 
 (defconstant SF_LOOP_NONE 800)
 (defconstant SF_LOOP_FORWARD 0)
@@ -177,198 +177,198 @@
 (defconstant SF_LOOP_ALTERNATING 0)
 
 (defcstruct SF_INSTRUMENT
-	(gain :int)
-	(basenote :char)
-	(detune :char)
-	(velocity_lo :char)
-	(velocity_hi :char)
-	(key_lo :char)
-	(key_hi :char)
-	(loop_count :int)
-	(loops :pointer))
+            (gain :int)
+            (basenote :char)
+            (detune :char)
+            (velocity_lo :char)
+            (velocity_hi :char)
+            (key_lo :char)
+            (key_hi :char)
+            (loop_count :int)
+            (loops :pointer))
 
 (defcstruct SF_INSTRUMENT_loops
-	(mode :int)
-	(start :unsigned-int)
-	(end :unsigned-int)
-	(count :unsigned-int))
+            (mode :int)
+            (start :unsigned-int)
+            (end :unsigned-int)
+            (count :unsigned-int))
 
 (defcstruct SF_LOOP_INFO
-	(time_sig_num :short)
-	(time_sig_den :short)
-	(loop_mode :int)
-	(num_beats :int)
-	(bpm :float)
-	(root_key :int)
-	(future :pointer))
+            (time_sig_num :short)
+            (time_sig_den :short)
+            (loop_mode :int)
+            (num_beats :int)
+            (bpm :float)
+            (root_key :int)
+            (future :pointer))
 
 (defcstruct SF_BROADCAST_INFO
-	(description :pointer)
-	(originator :pointer)
-	(originator_reference :pointer)
-	(origination_date :pointer)
-	(origination_time :pointer)
-	(time_reference_low :int)
-	(time_reference_high :int)
-	(version :short)
-	(umid :pointer)
-	(reserved :pointer)
-	(coding_history_size :unsigned-int)
-	(coding_history :pointer))
+            (description :pointer)
+            (originator :pointer)
+            (originator_reference :pointer)
+            (origination_date :pointer)
+            (origination_time :pointer)
+            (time_reference_low :int)
+            (time_reference_high :int)
+            (version :short)
+            (umid :pointer)
+            (reserved :pointer)
+            (coding_history_size :unsigned-int)
+            (coding_history :pointer))
 
 (defcstruct SF_VIRTUAL_IO
-	(get_filelen :pointer)
-	(seek :pointer)
-	(read :pointer)
-	(write :pointer)
-	(tell :pointer))
+            (get_filelen :pointer)
+            (seek :pointer)
+            (read :pointer)
+            (write :pointer)
+            (tell :pointer))
 
 (defcfun ("sf_open" sf_open) :pointer
-  (path :string)
-  (mode :int)
-  (sfinfo :pointer))
+         (path :string)
+         (mode :int)
+         (sfinfo :pointer))
 
 (defcfun ("sf_open_fd" sf_open_fd) :pointer
-  (fd :int)
-  (mode :int)
-  (sfinfo :pointer)
-  (close_desc :int))
+         (fd :int)
+         (mode :int)
+         (sfinfo :pointer)
+         (close_desc :int))
 
 (defcfun ("sf_open_virtual" sf_open_virtual) :pointer
-  (sfvirtual :pointer)
-  (mode :int)
-  (sfinfo :pointer)
-  (user_data :pointer))
+         (sfvirtual :pointer)
+         (mode :int)
+         (sfinfo :pointer)
+         (user_data :pointer))
 
 (defcfun ("sf_close" sf_close) :int
-  (sndfile :pointer))
+         (sndfile :pointer))
 
 (defcfun ("sf_error" sf_error) :int
-  (sndfile :pointer))
+         (sndfile :pointer))
 
 (defcfun ("sf_strerror" sf_strerror) :string
-  (sndfile :pointer))
+         (sndfile :pointer))
 
 (defcfun ("sf_error_number" sf_error_number) :string
-  (errnum :int))
+         (errnum :int))
 
 (defcfun ("sf_perror" sf_perror) :int
-  (sndfile :pointer))
+         (sndfile :pointer))
 
 (defcfun ("sf_error_str" sf_error_str) :int
-  (sndfile :pointer)
-  (str :string)
-  (len :pointer))
+         (sndfile :pointer)
+         (str :string)
+         (len :pointer))
 
 (defcfun ("sf_command" sf_command) :int
-  (sndfile :pointer)
-  (command :int)
-  (data :pointer)
-  (datasize :int))
+         (sndfile :pointer)
+         (command :int)
+         (data :pointer)
+         (datasize :int))
 
 (defcfun ("sf_format_check" sf_format_check) :int
-  (info :pointer))
+         (info :pointer))
 
 (defcfun ("sf_seek" sf_seek) :double
-  (sndfile :pointer)
-  (frames :long-long)
-  (whence :int))
+         (sndfile :pointer)
+         (frames :long-long)
+         (whence :int))
 
 (defcfun ("sf_set_string" sf_set_string) :int
-  (sndfile :pointer)
-  (str_type :int)
-  (str :string))
+         (sndfile :pointer)
+         (str_type :int)
+         (str :string))
 
 (defcfun ("sf_get_string" sf_get_string) :string
-  (sndfile :pointer)
-  (str_type :int))
+         (sndfile :pointer)
+         (str_type :int))
 
 (defcfun ("sf_write_sync" sf_write_sync) :void
-  (sndfile :pointer))
+         (sndfile :pointer))
 
 ;;;============
 (defcfun (sf-readf-float "sf_readf_float") :long-long
-  (sndfile :pointer)
-  (ptr :pointer)
-  (frames :long-long))
+         (sndfile :pointer)
+         (ptr :pointer)
+         (frames :long-long))
 
 (defcfun (sf-read-float "sf_read_float") :long-long
-  (sndfile :pointer)
-  (ptr :pointer)
-  (frames :long-long))
+         (sndfile :pointer)
+         (ptr :pointer)
+         (frames :long-long))
 
 (defcfun (sf-writef-float "sf_writef_float") :long-long
-  (sndfile :pointer)
-  (ptr :pointer)
-  (frames :long-long))
+         (sndfile :pointer)
+         (ptr :pointer)
+         (frames :long-long))
 
 (defcfun (sf-write-float "sf_write_float") :long-long
-  (sndfile :pointer)
-  (ptr :pointer)
-  (frames :long-long))
+         (sndfile :pointer)
+         (ptr :pointer)
+         (frames :long-long))
 
 (defcfun (sf-readf-int "sf_readf_int") :long-long
-  (sndfile :pointer)
-  (ptr :pointer)
-  (frames :long-long))
+         (sndfile :pointer)
+         (ptr :pointer)
+         (frames :long-long))
 
 (defcfun (sf-read-int "sf_read_int") :long-long
-  (sndfile :pointer)
-  (ptr :pointer)
-  (frames :long-long))
+         (sndfile :pointer)
+         (ptr :pointer)
+         (frames :long-long))
 
 (defcfun (sf-writef-int "sf_writef_int") :long-long
-  (sndfile :pointer)
-  (ptr :pointer)
-  (frames :long-long))
+         (sndfile :pointer)
+         (ptr :pointer)
+         (frames :long-long))
 
 (defcfun (sf-write-int "sf_write_int") :long-long
-  (sndfile :pointer)
-  (ptr :pointer)
-  (frames :long-long))
+         (sndfile :pointer)
+         (ptr :pointer)
+         (frames :long-long))
 
 (defcfun (sf-readf-short "sf_readf_short") :long-long
-  (sndfile :pointer)
-  (ptr :pointer)
-  (frames :long-long))
+         (sndfile :pointer)
+         (ptr :pointer)
+         (frames :long-long))
 
 (defcfun (sf-read-short "sf_read_short") :long-long
-  (sndfile :pointer)
-  (ptr :pointer)
-  (frames :long-long))
+         (sndfile :pointer)
+         (ptr :pointer)
+         (frames :long-long))
 
 (defcfun (sf-writef-short "sf_writef_short") :long-long
-  (sndfile :pointer)
-  (ptr :pointer)
-  (frames :long-long))
+         (sndfile :pointer)
+         (ptr :pointer)
+         (frames :long-long))
 
 (defcfun (sf-write-short "sf_write_short") :long-long
-  (sndfile :pointer)
-  (ptr :pointer)
-  (frames :long-long))
+         (sndfile :pointer)
+         (ptr :pointer)
+         (frames :long-long))
 
 
 ;;; test double ?
 
 (defcfun (sf-readf-double "sf_readf_double") :long-long
-  (sndfile :pointer)
-  (ptr :pointer)
-  (frames :long-long))
+         (sndfile :pointer)
+         (ptr :pointer)
+         (frames :long-long))
 
 (defcfun (sf-read-double "sf_read_double") :long-long
-  (sndfile :pointer)
-  (ptr :pointer)
-  (frames :long-long))
+         (sndfile :pointer)
+         (ptr :pointer)
+         (frames :long-long))
 
 (defcfun (sf-writef-double "sf_writef_double") :long-long
-  (sndfile :pointer)
-  (ptr :pointer)
-  (frames :long-long))
+         (sndfile :pointer)
+         (ptr :pointer)
+         (frames :long-long))
 
 (defcfun (sf-write-double "sf_write_double") :long-long
-  (sndfile :pointer)
-  (ptr :pointer)
-  (frames :long-long))
+         (sndfile :pointer)
+         (ptr :pointer)
+         (frames :long-long))
 
 
 ;#-linux

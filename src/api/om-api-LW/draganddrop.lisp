@@ -1,5 +1,5 @@
 ;=========================================================================
-; OM API 
+; OM API
 ; Multiplatform API for OpenMusic
 ; LispWorks Implementation
 ;=========================================================================
@@ -45,7 +45,7 @@
 ;;; DRAG/DROP VIEW
 ;;;==================
 
-(defclass om-drag-view () 
+(defclass om-drag-view ()
   ((cursor-pos :initform (om-make-point 0 0) :accessor om-drag-view-cursor-pos)))
 
 (defmethod om-drag-view-p ((self t)) nil)
@@ -56,7 +56,7 @@
 
 (defclass om-drop-view ()
   ((drag-image :initform nil :accessor drag-image))
-  (:default-initargs 
+  (:default-initargs
    :drop-callback 'om-drop-callback))
 
 (defmethod om-drop-view-p ((self t)) nil)
@@ -68,34 +68,34 @@
 (defmethod om-drag-area ((self om-drag-view))
   (let ((p1 (om-view-position self))
         (p2 (om-add-points (om-view-position self) (om-view-size self))))
-  (values (om-point-x p1)
-          (om-point-y p1)
-          (om-point-x p2)
-          (om-point-y p2)
-          )))
+    (values (om-point-x p1)
+            (om-point-y p1)
+            (om-point-x p2)
+            (om-point-y p2)
+            )))
 
 ;;;===========================================================
 ;;; DOES NOT WORK ON WINDOWS
 ;;;===========================================================
 
 (defmethod build-d&d-image ((dragged om-drag-view) pane)
-  (multiple-value-bind (x1 y1 x2 y2) 
+  (multiple-value-bind (x1 y1 x2 y2)
       (om-drag-area dragged)
-    (let ((pp (gp:create-pixmap-port pane 
+    (let ((pp (gp:create-pixmap-port pane
                                      (abs (round (- x2 x1)))
-                                     (abs (round (- y2 y1))) 
+                                     (abs (round (- y2 y1)))
                                      :background :transparent :clear t)))
       (unwind-protect
-          (progn 
-                (om-with-focused-view pp
-                  (om-draw-contents-for-drag dragged))
-                (values (gp:make-image-from-port pp) 
-                        (+ (- (om-point-x (om-view-position dragged)) (min x1 x2)) 
-                           (om-point-x (om-drag-view-cursor-pos dragged)))
-                        (+ (- (om-point-y (om-view-position dragged)) (min y1 y2))
-                           (om-point-y (om-drag-view-cursor-pos dragged)))
-                        ))
-        (progn 
+          (progn
+            (om-with-focused-view pp
+              (om-draw-contents-for-drag dragged))
+            (values (gp:make-image-from-port pp)
+                    (+ (- (om-point-x (om-view-position dragged)) (min x1 x2))
+                       (om-point-x (om-drag-view-cursor-pos dragged)))
+                    (+ (- (om-point-y (om-view-position dragged)) (min y1 y2))
+                       (om-point-y (om-drag-view-cursor-pos dragged)))
+                    ))
+        (progn
           (gp:destroy-pixmap-port pp)
           )))))
 
@@ -123,23 +123,23 @@
 
 #+mswindows
 (defmethod start-windows-d&d ((self om-drag-view) (pane om-drop-view) pos)
-  (when (drag-image pane) 
+  (when (drag-image pane)
     (om-remove-subviews pane (drag-image pane)))
   (multiple-value-bind (x1 y1 x2 y2) (om-drag-area self)
     (let ((topleft (om-make-point (min x1 x2) (min y1 y2))))
-  (setf (drag-image pane)
-        (om-make-graphic-object 'clone-view 
-                                :view self :clic-pos (om-add-points pos (om-subtract-points (om-view-position self)  topleft))
-                                :position topleft
-                                :size (om-make-point (- x2 x1) (- y2 y1))))
-  (om-add-subviews pane (drag-image pane)))))
+      (setf (drag-image pane)
+            (om-make-graphic-object 'clone-view
+                                    :view self :clic-pos (om-add-points pos (om-subtract-points (om-view-position self)  topleft))
+                                    :position topleft
+                                    :size (om-make-point (- x2 x1) (- y2 y1))))
+      (om-add-subviews pane (drag-image pane)))))
 
 #+mswindows
 (defmethod end-windows-d&d ((pane om-drop-view)) nil)
 
 #+mswindows
 (defmethod end-windows-d&d ((pane om-drop-view))
-  (when (drag-image pane) 
+  (when (drag-image pane)
     (om-remove-subviews pane (drag-image pane))))
 
 #+mswindows
@@ -160,9 +160,9 @@
 
 #+mswindows
 (defmethod om-click-release-handler :after ((self om-drop-view) pos)
-  (unwind-protect 
+  (unwind-protect
       (when (drag-image self)
-        (or (om-drag-receive self (view (drag-image self)) pos) 
+        (or (om-drag-receive self (view (drag-image self)) pos)
             (om-beep)))
      (when (drag-image self) (om-remove-subviews self (drag-image self)))
     (setf (drag-image self) nil)
@@ -170,28 +170,28 @@
 
 #+mswindows
 (defmethod om-click-motion-handler :after ((self om-drag-view) pos)
-  (om-click-motion-handler (om-view-container self) 
+  (om-click-motion-handler (om-view-container self)
                            (om-convert-coordinates pos self (om-view-container self))))
 
 #+mswindows
 (defmethod om-click-release-handler :after ((self om-drag-view) pos)
-  (om-click-release-handler (om-view-container self) 
+  (om-click-release-handler (om-view-container self)
                             (om-convert-coordinates (om-subtract-points pos (om-drag-view-cursor-pos self)) self (om-view-container self))))
 
 |#
 
 ;;;==============================================
-;;; END WINDOWS-SPECIFIC PART  
+;;; END WINDOWS-SPECIFIC PART
 ;;;==============================================
 
 
 
 (defun internal-drag-start (self pos)
   (and (om-drag-start self pos)
-       #+mswindows (oa::start-windows-d&d self (om-view-container self) pos) 
-       (capi:drag-pane-object  
+       #+mswindows (oa::start-windows-d&d self (om-view-container self) pos)
+       (capi:drag-pane-object
         (om-get-view self)  ; (capi::pane-layout (capi::top-level-interface self))
-        self 
+        self
         :plist (list :om-object self)
         :operations '(:move :copy)
         :image-function #'(lambda (pane) (build-d&d-image self pane))
@@ -206,11 +206,11 @@
 (defmethod om-view-click-handler :before ((view om-drag-view) pos)
   (handle-drag-start pos))
 
-(defmethod om-click-motion-handler :after ((self om-drag-view) pos) 
+(defmethod om-click-motion-handler :after ((self om-drag-view) pos)
   (let ((min-move 2))
     (when (or (null *drag-start-handler*)
               (>= (abs (- (om-point-x pos) (om-point-x *drag-start-handler*))) min-move)
-              (>= (abs (- (om-point-y pos) (om-point-y *drag-start-handler*))) min-move))    
+              (>= (abs (- (om-point-y pos) (om-point-y *drag-start-handler*))) min-move))
       (setf (om-drag-view-cursor-pos self) (om-point-mv pos :y -1))
       (internal-drag-start self pos)
       )))
@@ -229,7 +229,7 @@
        (capi:set-drop-object-supported-formats drop-object '(:string :value :om-object :filename-list)))
       (:enter
        (multiple-value-bind (x y) (capi::current-pointer-position :relative-to self :pane-relative-p t)
-         (let ((dropview (or (capi::pinboard-object-at-position self x y)  
+         (let ((dropview (or (capi::pinboard-object-at-position self x y)
                              self)))
            (set-effect-for-operation drop-object)
            (when (and *last-pinboard-under-mouse*
@@ -239,13 +239,13 @@
            (setf *last-pinboard-under-mouse* dropview))))
       (:leave
        (multiple-value-bind (x y) (capi::current-pointer-position :relative-to self :pane-relative-p t)
-         (let ((dropview (or (capi::pinboard-object-at-position self x y)  
+         (let ((dropview (or (capi::pinboard-object-at-position self x y)
                              self)))
            (set-effect-for-operation drop-object)
            (om-drag-leave-view dropview))))
-      (:drag        
+      (:drag
        (multiple-value-bind (x y) (capi::current-pointer-position :relative-to self :pane-relative-p t)
-         (let ((dropview (or (capi::pinboard-object-at-position self x y)  
+         (let ((dropview (or (capi::pinboard-object-at-position self x y)
                              self)))
            (when (and dropview (not (equal dropview *last-pinboard-under-mouse*)))
              (when *last-pinboard-under-mouse*
@@ -253,43 +253,43 @@
              (om-drag-enter-view dropview)
              (setf *last-pinboard-under-mouse* dropview))
            (set-effect-for-operation drop-object)
-           
+
            #+mswindows
-           (update-windows-d&d self 
+           (update-windows-d&d self
                                (multiple-value-bind (x y) (capi::current-pointer-position :relative-to self :pane-relative-p t)
-                                 (om-make-point x y))) 
-           
+                                 (om-make-point x y)))
+
            )))
       (:drop
-       #+mswindows (oa::end-windows-d&d self) 
+       #+mswindows (oa::end-windows-d&d self)
        (multiple-value-bind (x y) (capi::current-pointer-position :relative-to self :pane-relative-p t)
          (let ((dropview (or (capi::pinboard-object-at-position self x y) self))
                )
            (setf *last-pinboard-under-mouse* nil)
-           (if (or 
+           (if (or
                 (and (capi:drop-object-provides-format drop-object :filename-list)
-                     (om-import-files-in-app self (capi:drop-object-get-object drop-object self :filename-list) 
-                                             (om-make-point (capi::drop-object-pane-x drop-object) (capi::drop-object-pane-y drop-object)))) 
+                     (om-import-files-in-app self (capi:drop-object-get-object drop-object self :filename-list)
+                                             (om-make-point (capi::drop-object-pane-x drop-object) (capi::drop-object-pane-y drop-object))))
                 (and (capi:drop-object-provides-format drop-object :string)
                      (om-drag-string-in-app self (capi:drop-object-get-object drop-object self :string)
                                             (om-make-point (capi::drop-object-pane-x drop-object) (capi::drop-object-pane-y drop-object)))))
                (set-effect-for-operation drop-object)
              (let* ((dragged-view (capi:drop-object-get-object drop-object self :om-object)))
                (when dragged-view
-                 (let ((drop-position (om-make-point (- (capi::drop-object-pane-x drop-object) 
-                                              (om-point-x (om-drag-view-cursor-pos dragged-view)))
-                                           (- (capi::drop-object-pane-y drop-object)
-                                              1 ;;; VERY BIZARRE: OTHERWISE THERE IS ALWAYS A SHIFT OF 1 PIXEL....
-                                              (om-point-y (om-drag-view-cursor-pos dragged-view))))))
-               (set-effect-for-operation drop-object)
-               (unless (or (not dragged-view)
-                           (om-drag-receive
-                            dropview dragged-view
-                            drop-position
-                            (capi:drop-object-drop-effect drop-object)))
-                 (setf (capi:drop-object-drop-effect drop-object) nil))
-               )))))))
-          
+                 (let ((drop-position (om-make-point (- (capi::drop-object-pane-x drop-object)
+                                                        (om-point-x (om-drag-view-cursor-pos dragged-view)))
+                                                     (- (capi::drop-object-pane-y drop-object)
+                                                        1 ;;; VERY BIZARRE: OTHERWISE THERE IS ALWAYS A SHIFT OF 1 PIXEL....
+                                                        (om-point-y (om-drag-view-cursor-pos dragged-view))))))
+                   (set-effect-for-operation drop-object)
+                   (unless (or (not dragged-view)
+                               (om-drag-receive
+                                dropview dragged-view
+                                drop-position
+                                (capi:drop-object-drop-effect drop-object)))
+                     (setf (capi:drop-object-drop-effect drop-object) nil))
+                   )))))))
+
       )))
 
 

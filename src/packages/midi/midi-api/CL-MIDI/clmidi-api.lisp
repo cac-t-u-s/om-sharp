@@ -60,19 +60,19 @@
 ;;;  START OF MESSAGE TYPES
 ;;;
 ;; voice messages
-(defconstant +note-off-opcode+		#x80)
-(defconstant +note-on-opcode+		#x90)
-(defconstant +key-pressure-opcode+	#xA0)
-(defconstant +control-change-opcode+	#xB0)
-(defconstant +program-change-opcode+	#xC0)
-(defconstant +channel-pressure-opcode+	#xD0)
-(defconstant +pitch-bend-opcode+	#xE0)
+(defconstant +note-off-opcode+  #x80)
+(defconstant +note-on-opcode+  #x90)
+(defconstant +key-pressure-opcode+ #xA0)
+(defconstant +control-change-opcode+ #xB0)
+(defconstant +program-change-opcode+ #xC0)
+(defconstant +channel-pressure-opcode+ #xD0)
+(defconstant +pitch-bend-opcode+ #xE0)
 
 ;; mode messages
 (defconstant +mode-messages-opcode+ #xB0)
 
 ;; meta messages, all have status-byte=#xFF
-(defconstant +meta-messages-opcode+	#xFF)
+(defconstant +meta-messages-opcode+ #xFF)
 
 
 ;;;============================
@@ -103,12 +103,12 @@
 
 (defevt2msg (event2note-off :KeyOff)
   (let* ((fields (midi-evt-fields ev))
-	 (key (first fields))
-	 (vel (second fields))
-	 (chan (1- (midi-evt-chan ev))))		    ;TODO: find where this goes to 1-based offset
+         (key (first fields))
+         (vel (second fields))
+         (chan (1- (midi-evt-chan ev))))      ;TODO: find where this goes to 1-based offset
     (make-instance 'midi:note-off-message
-		   :time (midi-evt-date ev) :key key :velocity vel
-		   :status (logior +note-off-opcode+ chan))))
+                   :time (midi-evt-date ev) :key key :velocity vel
+                   :status (logior +note-off-opcode+ chan))))
 
 (defun make-note-off-message (time key vel chan)
   (make-instance 'midi:note-off-message :key key :time time :velocity vel :status (logior +note-off-opcode+ chan)))
@@ -122,12 +122,12 @@
 
 (defevt2msg (event2note-on :KeyOn)
   (let* ((fields (midi-evt-fields ev))
-	 (key (first fields))
-	 (vel (second fields))
-	 (chan (1- (midi-evt-chan ev))))
+         (key (first fields))
+         (vel (second fields))
+         (chan (1- (midi-evt-chan ev))))
     (make-instance 'midi:note-on-message
-		   :time (midi-evt-date ev) :key key :velocity vel
-		   :status (logior +note-on-opcode+ chan))))
+                   :time (midi-evt-date ev) :key key :velocity vel
+                   :status (logior +note-on-opcode+ chan))))
 
 (defun make-note-on-message (time key vel chan)
   (make-instance 'midi:note-on-message :key key :time time :velocity vel :status (logior +note-on-opcode+ chan)))
@@ -158,11 +158,11 @@
 
 (defevt2msg (event2control-change :CtrlChange)
   (let* ((fields (midi-evt-fields ev))
-	 (controller (first fields))
-	 (value (second (midi-evt-fields ev))))
+         (controller (first fields))
+         (value (second (midi-evt-fields ev))))
     (make-instance 'midi::control-change-message
-		   :time (midi-evt-date ev) :controller controller :value value
-		   :status (logior +control-change-opcode+ (1- (midi-evt-chan ev))))))
+                   :time (midi-evt-date ev) :controller controller :value value
+                   :status (logior +control-change-opcode+ (1- (midi-evt-chan ev))))))
 
 
 ;; PROGRAM CHANGE
@@ -173,8 +173,8 @@
 
 (defevt2msg (event2program-change-message :ProgChange)
   (make-instance 'midi:program-change-message
-		 :time (midi-evt-date ev) :program (first (midi-evt-fields ev))
-		 :status (logior +program-change-opcode+ (1- (midi-evt-chan ev)))))
+                 :time (midi-evt-date ev) :program (first (midi-evt-fields ev))
+                 :status (logior +program-change-opcode+ (1- (midi-evt-chan ev)))))
 
 
 ;; CHANNEL PRESSURE
@@ -202,8 +202,8 @@
 (defevt2msg (event2pitch-bend :PitchBend)
   (when (midi-evt-fields ev)
     (make-instance 'midi::pitch-bend-message
-		   :time (midi-evt-date ev) :value (first (midi-evt-fields ev))
-		   :status (logior +pitch-bend-opcode+ (1- (midi-evt-chan ev))))))
+                   :time (midi-evt-date ev) :value (first (midi-evt-fields ev))
+                   :status (logior +pitch-bend-opcode+ (1- (midi-evt-chan ev))))))
 
 
 ;;;============================
@@ -218,8 +218,8 @@
 
 (defevt2msg (event2reset-all-controllers-message :ResetAllControllers)
   (make-instance 'midi::reset-all-controllers-message
-		 :time (midi-evt-date ev)
-		 :status (logior +mode-messages-opcode+ (1- (midi-evt-chan ev)))))
+                 :time (midi-evt-date ev)
+                 :status (logior +mode-messages-opcode+ (1- (midi-evt-chan ev)))))
 
 ;; :AllNotesOff
 
@@ -227,8 +227,8 @@
 
 (defevt2msg (event2all-notes-off-message :AllNotesOff)
   (make-instance 'midi::all-notes-off-message
-		 :time (midi-evt-date ev)
-		 :status (logior +mode-messages-opcode+ (1- (midi-evt-chan ev)))))
+                 :time (midi-evt-date ev)
+                 :status (logior +mode-messages-opcode+ (1- (midi-evt-chan ev)))))
 
 
 ;;;============================
@@ -237,7 +237,7 @@
 
 ;;; for all text messages :
 ;;; read fileds as a list with a string inside
-(defmethod midi-message-fields ((msg midi::text-message)) 
+(defmethod midi-message-fields ((msg midi::text-message))
   ;; (map 'list #'char-code (slot-value msg 'midi::text))  ;; restore the list of ASCII.. ?
   (list (slot-value msg 'midi::text))
   )
@@ -251,7 +251,7 @@
 
 (defmethod midi-message-type ((msg midi::sequence-number-message)) :SeqNum)
 
-(defmethod midi-message-fields ((msg midi::sequence-number-message)) 
+(defmethod midi-message-fields ((msg midi::sequence-number-message))
   (list (slot-value msg 'midi::sequence)))
 
 (defevt2msg (event2seqnum :SeqNum)
@@ -260,14 +260,14 @@
                             :status +meta-messages-opcode+)))
     (setf (slot-value msg 'midi::sequence) (car (midi-evt-fields ev)))
     ))
-  
+
 ;; TEXT
 
 (defmethod midi-message-type ((msg midi::general-text-message)) :Textual)
 
 (defevt2msg (event2text :Textual)
   (let ((time (midi-evt-date ev))
-	(value (midi-fields-to-string (midi-evt-fields ev))))
+        (value (midi-fields-to-string (midi-evt-fields ev))))
     (let ((inst (make-instance 'midi::general-text-message :time time :status +meta-messages-opcode+)))
       (setf (slot-value inst 'midi::text) value)
       inst)))
@@ -278,9 +278,9 @@
 
 (defevt2msg (event2copyright :CopyRight)
   (let ((time (midi-evt-date ev))
-	(value (midi-fields-to-string (midi-evt-fields ev))))
+        (value (midi-fields-to-string (midi-evt-fields ev))))
     (let ((inst (make-instance 'midi::copyright-message :time time
-			       :status +meta-messages-opcode+)))
+                               :status +meta-messages-opcode+)))
       (setf (slot-value inst 'midi::text) value)
       inst)))
 
@@ -290,7 +290,7 @@
 
 (defevt2msg (event2seqname :SeqName)
   (let ((time (midi-evt-date ev))
-	(value (midi-fields-to-string (midi-evt-fields ev))))
+        (value (midi-fields-to-string (midi-evt-fields ev))))
     (let ((inst (make-instance 'midi::sequence/track-name-message :time time :status +meta-messages-opcode+)))
       (setf (slot-value inst 'midi::text) value)
       inst)))
@@ -302,7 +302,7 @@
 
 (defevt2msg (event2instrument :InstrName)
   (let ((time (midi-evt-date ev))
-	(value (midi-fields-to-string (midi-evt-fields ev))))
+        (value (midi-fields-to-string (midi-evt-fields ev))))
     (let ((inst (make-instance 'midi::instrument-message :time time :status +meta-messages-opcode+)))
       (setf (slot-value inst 'midi::text) value)
       inst)))
@@ -314,7 +314,7 @@
 
 (defevt2msg (event2lyric :Lyric)
   (let ((time (midi-evt-date ev))
-	(value (midi-fields-to-string (midi-evt-fields ev))))
+        (value (midi-fields-to-string (midi-evt-fields ev))))
     (let ((inst (make-instance 'midi::lyric-message :time time :status +meta-messages-opcode+)))
       (setf (slot-value inst 'midi::text) value)
       inst)))
@@ -326,7 +326,7 @@
 
 (defevt2msg (event2marker :Marker)
   (let ((time (midi-evt-date ev))
-	(value (midi-fields-to-string (midi-evt-fields ev))))
+        (value (midi-fields-to-string (midi-evt-fields ev))))
     (let ((inst (make-instance 'midi::marker-message :time time :status +meta-messages-opcode+)))
       (setf (slot-value inst 'midi::text) value)
       inst)))
@@ -337,7 +337,7 @@
 
 (defevt2msg (event2cue-point :CuePoint)
   (let ((time (midi-evt-date ev))
-	(value (midi-fields-to-string (midi-evt-fields ev))))
+        (value (midi-fields-to-string (midi-evt-fields ev))))
     (let ((inst (make-instance 'midi::cue-point-message :time time :status +meta-messages-opcode+)))
       (setf (slot-value inst 'midi::text) value)
       inst)))
@@ -349,7 +349,7 @@
 
 (defevt2msg (event2progname :ProgName)
   (let ((time (midi-evt-date ev))
-	(value (midi-fields-to-string (midi-evt-fields ev))))
+        (value (midi-fields-to-string (midi-evt-fields ev))))
     (let ((inst (make-instance 'midi::program-name-message :time time :status +meta-messages-opcode+)))
       (setf (slot-value inst 'midi::text) value)
       inst)))
@@ -361,7 +361,7 @@
 
 (defevt2msg (event2devicename :DeviceName)
   (let ((time (midi-evt-date ev))
-	(value (midi-fields-to-string (midi-evt-fields ev))))
+        (value (midi-fields-to-string (midi-evt-fields ev))))
     (let ((inst (make-instance 'midi::device-name-message :time time :status +meta-messages-opcode+)))
       (setf (slot-value inst 'midi::text) value)
       inst)))
@@ -376,7 +376,7 @@
 
 (defevt2msg (event2channel-prefix-msg :MidiPortMsg)
   (let ((inst (make-instance 'midi::channel-prefix-message :time (midi-evt-date ev)
-			     :status +meta-messages-opcode+)))
+                             :status +meta-messages-opcode+)))
     (setf (slot-value inst 'midi::channel) (car (midi-evt-fields ev)))
     inst))
 
@@ -390,7 +390,7 @@
 
 (defevt2msg (event2midi-port-msg :MidiPortMsg)
   (let ((inst (make-instance 'midi::midi-port-message :time (midi-evt-date ev)
-			     :status +meta-messages-opcode+)))
+                             :status +meta-messages-opcode+)))
     (setf (slot-value inst 'midi::port) (car (midi-evt-fields ev)))
     inst))
 
@@ -400,8 +400,8 @@
 
 (defevt2msg (event2end-of-track-msg :EndOfTrackMsg)
   (let ((inst (make-instance 'midi::end-of-track-message
-			     :time (midi-evt-date ev)
-			     :status +meta-messages-opcode+)))
+                             :time (midi-evt-date ev)
+                             :status +meta-messages-opcode+)))
     (setf (slot-value inst 'midi::status) (midi-evt-fields ev))
     inst))
 
@@ -415,12 +415,12 @@
 
 (defevt2msg (event2tempo :Tempo)
   (make-instance 'midi:tempo-message
-		 :time (midi-evt-date ev) :tempo (first (midi-evt-fields ev))
-		 :status +meta-messages-opcode+))
+                 :time (midi-evt-date ev) :tempo (first (midi-evt-fields ev))
+                 :status +meta-messages-opcode+))
 
 
 
-;; SMPTE OFFSET 
+;; SMPTE OFFSET
 ;; => todo: midi:smpte-offset-message
 
 
@@ -430,19 +430,19 @@
 
 (defmethod midi-message-fields ((msg midi::time-signature-message))
   (list (midi::message-numerator msg)
-        (midi::message-denominator msg)			    ;power of 2
-	(slot-value msg 'midi::cc)			    ;midi clocks pr. metronome click
-        (slot-value msg 'midi::bb)))			    ;n 32nd notes notated per quarter note
+        (midi::message-denominator msg)       ;power of 2
+        (slot-value msg 'midi::cc)       ;midi clocks pr. metronome click
+        (slot-value msg 'midi::bb)))       ;n 32nd notes notated per quarter note
 
 (defevt2msg (event2time-signature :TimeSign)
   (let ((inst (make-instance 'midi::time-signature-message
-			     :time (midi-evt-date ev)
-			     :status +meta-messages-opcode+))
-	(data (midi-evt-fields ev)))
+                             :time (midi-evt-date ev)
+                             :status +meta-messages-opcode+))
+        (data (midi-evt-fields ev)))
     (setf (slot-value inst 'midi::nn) (first data)
-	  (slot-value inst 'midi::dd) (second data)
-	  (slot-value inst 'midi::cc) (third data)
-	  (slot-value inst 'midi::bb) (fourth data))
+          (slot-value inst 'midi::dd) (second data)
+          (slot-value inst 'midi::cc) (third data)
+          (slot-value inst 'midi::bb) (fourth data))
     inst))
 
 ;; KEY SIGNATURE
@@ -455,15 +455,15 @@
 
 (defevt2msg (event2key-signature :KeySign)
   (let ((inst (make-instance 'midi::key-signature-message
-			     :time (midi-evt-date ev)
-			     :status +meta-messages-opcode+)))
+                             :time (midi-evt-date ev)
+                             :status +meta-messages-opcode+)))
     (setf (slot-value inst 'midi::sf) (first (midi-evt-fields ev))
-	  (slot-value inst 'midi::mi) (second (midi-evt-fields ev)))
+          (slot-value inst 'midi::mi) (second (midi-evt-fields ev)))
     inst))
 
 
 
-;; SPECIFIC/PROPRIETARY EVENT 
+;; SPECIFIC/PROPRIETARY EVENT
 ;; => todo : midi::proprietary-event
 
 
@@ -485,13 +485,13 @@
 
 (defun make-messages-from-event (ev)
   (let* ((type (midi-evt-type ev))
-	 (func (get-event-to-message-func type)))
+         (func (get-event-to-message-func type)))
     ;; (when (equal type :TimeSign)
     ;;   (print (list (midi-evt-fields ev) func)))
     (if func
-	(funcall func ev)
-	(progn (print (format nil "(cl-midi) message-type ~A isn't supported yet" type))
-	       NIL))))
+        (funcall func ev)
+      (progn (print (format nil "(cl-midi) message-type ~A isn't supported yet" type))
+        NIL))))
 
 
 (defun tracks2seq (tracks)

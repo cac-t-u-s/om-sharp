@@ -4,26 +4,26 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
 ;============================================================================
 
 ;;;===========================
-;;; OMPACKAGE IS A SPECIAL KIND OF FOLDER 
+;;; OMPACKAGE IS A SPECIAL KIND OF FOLDER
 ;;; WITH ABILITY TO MANAGE CLASS/METHOD DEFINITION AND ORGANIZATION
 ;;;===========================
 
 (in-package :om)
 
 ;;; OMPackage <elements> (inherited from OMFolder) are the subpackages
-(defclass OMAbstractPackage () 
+(defclass OMAbstractPackage ()
   ((doc :initform "" :accessor doc :documentation "documentation")
    (classes  :initform nil :accessor classes :documentation "a list of OMClasses")
    (functions  :initform nil :accessor functions :documentation "a list of OMGenericFunctions or standard Lisp functions")
@@ -69,13 +69,13 @@ For easier browsing it is recommended that a package do not contain at the same 
 
 ;;; Determines in <container> is a ancestor (container) of <self>
 (defmethod ancestor-p ((self OMAbstractPackage) (container OMAbstractPackage))
-  (or (eq self container) 
+  (or (eq self container)
       (let ((ancestor nil))
         (loop for pack in (subpackages self)
               while (not ancestor) do
               (setf ancestor (ancestor-p pack container)))
         ancestor)))
-    
+
 
 ;;; No function in this package and subpackages
 (defun empty-fun-p (pack)
@@ -113,7 +113,7 @@ For easier browsing it is recommended that a package do not contain at the same 
 (defmethod AddPackage2Pack ((new-package OMAbstractPackage) inPackage)
   (let ((existing-pack (find (name new-package) (subpackages inPackage) :test 'string-equal :key 'name)))
     (if existing-pack
-        (progn 
+        (progn
           (setf (functions existing-pack)
                 (append (functions existing-pack) (functions new-package))
                 (classes existing-pack)
@@ -124,7 +124,7 @@ For easier browsing it is recommended that a package do not contain at the same 
                 (append (elements existing-pack) (elements new-package))
                 )
           existing-pack)
-      (progn 
+      (progn
         (omNG-add-element inPackage new-package)
         new-package))))
 
@@ -135,11 +135,11 @@ For easier browsing it is recommended that a package do not contain at the same 
 
 ;;; Fill package tools : Classes
 (defmethod AddClass2Pack ((classname symbol) inPackage)
-    (if (find-class classname nil) 
-        (unless (find classname (classes inPackage) :test 'equal :key 'class-name)
-          (export-symbol-from-om classname)
-          (omNG-add-element inPackage (find-class classname)))
-      (om-beep-msg (format nil "Undefined class: ~A" classname))))
+  (if (find-class classname nil)
+      (unless (find classname (classes inPackage) :test 'equal :key 'class-name)
+        (export-symbol-from-om classname)
+        (omNG-add-element inPackage (find-class classname)))
+    (om-beep-msg (format nil "Undefined class: ~A" classname))))
 
 (defmethod AddClass2Pack ((classname string) inPackage)
   (AddClass2Pack (read-from-string classname) inPackage))
@@ -148,7 +148,7 @@ For easier browsing it is recommended that a package do not contain at the same 
   (mapc #'(lambda (class) (AddClass2Pack class inPackage)) classname))
 
 ;;; Fill package tools : Functions
-(defmethod AddFun2Pack ((funname symbol) inPackage) 
+(defmethod AddFun2Pack ((funname symbol) inPackage)
   (if (fboundp funname)
       (unless (find funname (functions inPackage) :test 'equal :test 'function-name)
         (if (subtypep (type-of (fdefinition funname)) 'omgenericfunction)
@@ -168,12 +168,12 @@ For easier browsing it is recommended that a package do not contain at the same 
     (export-symbol-from-om item)
     (omNG-add-element inPackage item)))
 
-;;; used to refer in function/class reference pages 
+;;; used to refer in function/class reference pages
 (defmethod special-item-reference-class ((item t)) nil)
 
 
 (defmethod AddFun2Pack ((funname list) inPackage)
-   (mapcar #'(lambda (fun) (AddFun2Pack fun inPackage)) funname))
+  (mapcar #'(lambda (fun) (AddFun2Pack fun inPackage)) funname))
 
 ; Creates a package tree form a list of strings (names) and symbols, with pack as root
 (defun omNG-make-package  (package-name &key doc container-pack subpackages functions classes special-symbols)
@@ -205,34 +205,34 @@ For easier browsing it is recommended that a package do not contain at the same 
 
 
 (defun make-package-menu (pack)
-  (om-make-menu 
+  (om-make-menu
    (name pack)
    (remove nil (list (when (functions pack)
-                       (om-make-menu-comp 
+                       (om-make-menu-comp
                         (cons (om-make-menu-item "Functions" nil :enabled nil)
                               (loop for f in (functions pack)
                                     collect (let ((fun f))
-                                              (om-make-menu-item 
-                                               (string (get-name fun)) 
+                                              (om-make-menu-item
+                                               (string (get-name fun))
                                                #'(lambda () (set-add-item-on-patch (get-name fun)))))))))
                      (when (classes pack)
-                       (om-make-menu-comp 
+                       (om-make-menu-comp
                         (cons (om-make-menu-item "Classes/Objects" nil :enabled nil)
                               (loop for c in (classes pack)
                                     collect (let ((class c))
-                                              (om-make-menu-item 
-                                               (string (get-name class)) 
+                                              (om-make-menu-item
+                                               (string (get-name class))
                                                #'(lambda () (set-add-item-on-patch (get-name class)))))))))
                      (when (special-items pack)
-                       (om-make-menu-comp 
+                       (om-make-menu-comp
                         (cons (om-make-menu-item "Special boxes" nil :enabled nil)
                               (loop for i in (special-items pack)
                                     collect (let ((item i))
-                                              (om-make-menu-item 
-                                               (string item) 
+                                              (om-make-menu-item
+                                               (string item)
                                                #'(lambda () (set-add-item-on-patch item))))))))
                      (when (elements pack)
-                       (om-make-menu-comp 
+                       (om-make-menu-comp
                         (loop for p in (elements pack)
                               collect (make-package-menu p))))
                      ))
@@ -244,10 +244,10 @@ For easier browsing it is recommended that a package do not contain at the same 
 (defun package-fun2menu (package &optional name action)
   (let ((subpack (copy-list (subpackages package))))
     (om-make-menu (or name "Functions")
-                  (list  
+                  (list
                    (mapcar #'(lambda (f) (om-make-menu-item (name f) #'(lambda () (funcall action f))))
                            (functions package))
-                   (remove nil 
+                   (remove nil
                            (loop for item in subpack collect
                                  (when (and (not (and (subtypep (type-of item) 'OMLib) (not (loaded? item))))
                                             (or (not (empty-fun-p item)) (equal item *package-user*)))
@@ -258,10 +258,10 @@ For easier browsing it is recommended that a package do not contain at the same 
 (defun package-classes2menu (package &optional name action)
   (let ((subpack (copy-list (subpackages package))))
     (om-make-menu (or name "Classes")
-                  (list  
+                  (list
                    (mapcar #'(lambda (c) (om-make-menu-item (name c) #'(lambda () (funcall action c))))
                            (classes package))
-                   (remove nil 
+                   (remove nil
                            (loop for item in subpack collect
                                  (when (and (not (and (subtypep (type-of item) 'OMLib) (not (loaded? item))))
                                             (or (not (empty-class-p item)) (equal item *package-user*)))

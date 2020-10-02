@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -21,15 +21,15 @@
 ;FRAMES
 ;===========================
 
-(defclass OMFrame (OMObject) 
-   ((object :initform nil :initarg :object :accessor object)
-    (state :initform nil :accessor state)
-    (areas :initform nil :initarg :areas :accessor areas)
-    (active-area :initform nil :initarg :active-area :accessor active-area)
-    )
-   (:documentation "This is the class of frames which visualize the OMBasicObjects. 
+(defclass OMFrame (OMObject)
+  ((object :initform nil :initarg :object :accessor object)
+   (state :initform nil :accessor state)
+   (areas :initform nil :initarg :areas :accessor areas)
+   (active-area :initform nil :initarg :active-area :accessor active-area)
+   )
+  (:documentation "This is the class of frames which visualize the OMBasicObjects.
 Frames can be simple frames (icons, boxes, etc.) or container frames (patch editor, folder editor, etc.)"
-    ))
+   ))
 
 (defmethod get-help ((self OMFrame)) nil)
 
@@ -59,7 +59,7 @@ Frames can be simple frames (icons, boxes, etc.) or container frames (patch edit
 
 (defmethod apply-in-area ((self OMFrame) function position)
   (let ((aa (active-area-at-pos self position)))
-    
+
     (when aa (unless (disabled-area aa) (funcall function aa self))
       ;;; the funcall must return T or the click will be reported to the frame
       )))
@@ -82,27 +82,27 @@ Frames can be simple frames (icons, boxes, etc.) or container frames (patch edit
          (>= y (+ (om-point-y p) (cadr pick)))
          (<= y (+ (om-point-y p) (cadddr pick)))
          self)))
-         
+
 ;;; by default frame areas are invisible
 (defmethod om-draw-area ((area frame-area)) nil)
 
 (defmethod area-tt-text ((self frame-area)) nil)
-(defmethod area-tt-pos ((self frame-area)) 
+(defmethod area-tt-pos ((self frame-area))
   (om-add-points
    (om-convert-coordinates (get-position self) (frame self) (om-view-container (frame self)))
    (om-make-point -20 (* -12 (1+ (length (list! (area-tt-text self))))))))
 
 
-(defmethod om-enter-area ((area frame-area)) 
+(defmethod om-enter-area ((area frame-area))
   (unless (disabled-area area)
-    (setf (active area) t) 
+    (setf (active area) t)
     (when (area-tt-text area)
-      (om-show-tooltip (om-view-container (frame area)) 
+      (om-show-tooltip (om-view-container (frame area))
                        (area-tt-text area)
                        (area-tt-pos area) 0.04))
     (om-invalidate-view (frame area))))
 
-(defmethod om-leave-area ((area frame-area)) 
+(defmethod om-leave-area ((area frame-area))
   (setf (active area) nil)
   (when (area-tt-text area)
     (om-hide-tooltip (om-view-container (frame area))))
@@ -117,7 +117,7 @@ Frames can be simple frames (icons, boxes, etc.) or container frames (patch edit
       (om-leave-area (active-area self))
       (om-set-view-cursor self (om-view-cursor self)))
     (if (and aa (not (equal aa (active-area self))))
-      (om-enter-area aa) 
+        (om-enter-area aa)
       (om-set-view-cursor self (om-view-cursor self)))
     (setf (active-area self) aa)))
 
@@ -133,20 +133,20 @@ Frames can be simple frames (icons, boxes, etc.) or container frames (patch edit
     (om-leave-area (active-area self))
     (setf (active-area self) nil))
   (om-hide-tooltip (om-view-container self)))
-                                                                  
+
 
 ;;;=================================
 ;;; OMFrame subclasses
 ;;;=================================
 
-;;; OMSimpleFrame and OMCompoundFrame are identical 
+;;; OMSimpleFrame and OMCompoundFrame are identical
 ;;; but they are implemented differently in the underlying API
 (defclass OMSimpleFrame (OMFrame om-item-view om-drag-view) ())
 (defclass OMCompoundFrame (OMFrame om-internal-view) ())
 
 
 (defclass OMContainerFrame (om-view OMFrame) ()
-   (:documentation "Container frames are frames which can containt OMSimpleFrames within.
-In general EditorFrames are instances of the class metaobj-panel, this class inherites from the 'View' class 
+  (:documentation "Container frames are frames which can containt OMSimpleFrames within.
+In general EditorFrames are instances of the class metaobj-panel, this class inherites from the 'View' class
 and the 'OMcontainerFrame' class.#enddoc#
 #seealso# (metaobj-panel) #seealso#"))

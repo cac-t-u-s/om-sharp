@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -27,30 +27,30 @@
 (defconstant formatAIFFfloat 3)
 
 (defun decode-format (sndfile-format)
- (let* ((format_list (map 'list #'digit-char-p (prin1-to-string (write-to-string sndfile-format :base 16))))
-        (ff (cond ((or (null (cadr format_list)) (null (cadddr (cddr format_list)))) nil)
-                  ((and (= 1 (cadr format_list)) (< (cadddr (cddr format_list)) 6)) 0)
-                  ((and (= 1 (cadr format_list)) (>= (cadddr (cddr format_list)) 6)) 1)
-                  ((and (= 2 (cadr format_list)) (< (cadddr (cddr format_list)) 6)) 2)
-                  ((and (= 2 (cadr format_list)) (>= (cadddr (cddr format_list)) 6)) 3)
-                  (t 0)))
-        (ss (cond ((null (cadddr (cddr format_list))) nil)
-                  ((= 1 (cadddr (cddr format_list))) 8)
-                  ((= 2 (cadddr (cddr format_list))) 16)
-                  ((= 3 (cadddr (cddr format_list))) 24)
-                  ((= 4 (cadddr (cddr format_list))) 32)
-                  ((= 5 (cadddr (cddr format_list))) 8)
-                  ((= 6 (cadddr (cddr format_list))) 32)
-                  (t 0)))
-        (name (case ff
-                (0 "Wav(int)")
-                (1 "Wav(float)")
-                (2 "AIFF(int)")
-                (3 "AIFF(float)")
-                (otherwise "Unknown")
-                )))
-   (values ff ss name)))
-  
+  (let* ((format_list (map 'list #'digit-char-p (prin1-to-string (write-to-string sndfile-format :base 16))))
+         (ff (cond ((or (null (cadr format_list)) (null (cadddr (cddr format_list)))) nil)
+                   ((and (= 1 (cadr format_list)) (< (cadddr (cddr format_list)) 6)) 0)
+                   ((and (= 1 (cadr format_list)) (>= (cadddr (cddr format_list)) 6)) 1)
+                   ((and (= 2 (cadr format_list)) (< (cadddr (cddr format_list)) 6)) 2)
+                   ((and (= 2 (cadr format_list)) (>= (cadddr (cddr format_list)) 6)) 3)
+                   (t 0)))
+         (ss (cond ((null (cadddr (cddr format_list))) nil)
+                   ((= 1 (cadddr (cddr format_list))) 8)
+                   ((= 2 (cadddr (cddr format_list))) 16)
+                   ((= 3 (cadddr (cddr format_list))) 24)
+                   ((= 4 (cadddr (cddr format_list))) 32)
+                   ((= 5 (cadddr (cddr format_list))) 8)
+                   ((= 6 (cadddr (cddr format_list))) 32)
+                   (t 0)))
+         (name (case ff
+                 (0 "Wav(int)")
+                 (1 "Wav(float)")
+                 (2 "AIFF(int)")
+                 (3 "AIFF(float)")
+                 (otherwise "Unknown")
+                 )))
+    (values ff ss name)))
+
 ;(cadddr (cddr (map 'list #'digit-char-p (prin1-to-string (write-to-string SF_FORMAT_WAV :base 16)))))
 ;(write-to-string 255 :base 16)
 ;(logior (ash sf::sf_format_aiff 1) (ash b 8) c)
@@ -72,7 +72,7 @@
            (skip (cffi:foreign-slot-value sfinfo '(:struct |libsndfile|::sf_info) 'sf::seekable)))
       (multiple-value-bind (ff ss nn)
           (decode-format format)
-        ;;;Detection format and Sample size : cf http://www.mega-nerd.com/libsndfile/api.html#open 
+        ;;;Detection format and Sample size : cf http://www.mega-nerd.com/libsndfile/api.html#open
         (sf::sf_close sndfile-handle) ; should return 0 on successful closure.
         (values nn channels sr ss size skip)))))
 
@@ -93,7 +93,7 @@
            (skip (cffi:foreign-slot-value sfinfo '(:struct |libsndfile|::sf_info) 'sf::seekable))
            (buffer-size (* size channels))
            (buffer (fli:allocate-foreign-object :type datatype :nelems buffer-size :fill 0))
-           (frames-read 
+           (frames-read
             (ignore-errors
               (case datatype
                 (:double (sf::sf-readf-double sndfile-handle buffer buffer-size))
@@ -107,22 +107,22 @@
         (values buffer nn channels sr ss size skip)))))
 
 
-;; WRITE 
+;; WRITE
 (defun sndfile-save-sound-in-file (buffer filename size nch sr resolution format &optional (datatype :float))
   (let* ((res (case resolution
-               (8 sf::sf_format_pcm_s8)
-               (16 sf::sf_format_pcm_16)
-               (24 sf::sf_format_pcm_24)
-               (32 sf::sf_format_pcm_32)              
-               (otherwise sf::sf_format_pcm_16)))
-        (format (logior (case format 
-                          (:aiff sf::sf_format_aiff)
-                          (:wav sf::sf_format_wav)
-                          (:ogg sf::sf_format_ogg)
-                          (:flac sf::sf_format_flac)
-                          (otherwise sf::sf_format_aiff))
-                        res)))
-        
+                (8 sf::sf_format_pcm_s8)
+                (16 sf::sf_format_pcm_16)
+                (24 sf::sf_format_pcm_24)
+                (32 sf::sf_format_pcm_32)
+                (otherwise sf::sf_format_pcm_16)))
+         (format (logior (case format
+                           (:aiff sf::sf_format_aiff)
+                           (:wav sf::sf_format_wav)
+                           (:ogg sf::sf_format_ogg)
+                           (:flac sf::sf_format_flac)
+                           (otherwise sf::sf_format_aiff))
+                         res)))
+
     (cffi:with-foreign-object (sfinfo '(:struct |libsndfile|::sf_info))
       (setf (cffi:foreign-slot-value sfinfo '(:struct |libsndfile|::sf_info) 'sf::samplerate) sr)
       (setf (cffi:foreign-slot-value sfinfo '(:struct |libsndfile|::sf_info) 'sf::channels) nch)
@@ -131,10 +131,10 @@
       (let ((sndfile-handle-out (sf::sf_open filename sf::SFM_WRITE sfinfo)))
             ;(datatype (fli::pointer-element-type buffer))  ;; not reliable all the time :(
         (if (cffi::null-pointer-p sndfile-handle-out)
-            
-            (print (format nil "error initializing pointer to write ~A. Probably no write access in ~A." 
-                           filename (make-pathname :directory (or (pathname-directory filename) '(:absolute)))))        
-          
+
+            (print (format nil "error initializing pointer to write ~A. Probably no write access in ~A."
+                           filename (make-pathname :directory (or (pathname-directory filename) '(:absolute)))))
+
           (case datatype
             (:float (sf::sf-write-float sndfile-handle-out buffer (* nch size)))
             (:int (sf::sf-write-int sndfile-handle-out buffer (* nch size)))

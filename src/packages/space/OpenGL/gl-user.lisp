@@ -4,19 +4,19 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
 ;============================================================================
 
 ;===========================================================================
-; Mid-level interface with LW OpenGL 
+; Mid-level interface with LW OpenGL
 ; Adapted from the OpenGL example in LispWorks distribution
 ;;===========================================================================
 
@@ -67,7 +67,7 @@
 ;;; XYZ coordinate
 ;;; ------------------------------
 
-(defstruct xyz 
+(defstruct xyz
   (x 0.0d0 :type double-float)
   (y 0.0d0 :type double-float)
   (z 0.0d0 :type double-float))
@@ -162,17 +162,17 @@
                                     x-rotation y-rotation z-rotation
                                     scale)
   (with-3d-text-state-saved
-    (opengl:gl-translated x-pos y-pos z-pos)
-    (opengl:gl-scaled scale scale scale)
-    (opengl:gl-rotated x-rotation 1.0d0 0.0d0 0.0d0)
-    (opengl:gl-rotated y-rotation 1.0d0 0.0d0 0.0d0)
-    (opengl:gl-rotated z-rotation 0.0d0 0.0d0 1.0d0)
-    ;; Draw the text.
-    (draw-3d-text obj text)))
+   (opengl:gl-translated x-pos y-pos z-pos)
+   (opengl:gl-scaled scale scale scale)
+   (opengl:gl-rotated x-rotation 1.0d0 0.0d0 0.0d0)
+   (opengl:gl-rotated y-rotation 1.0d0 0.0d0 0.0d0)
+   (opengl:gl-rotated z-rotation 0.0d0 0.0d0 1.0d0)
+   ;; Draw the text.
+   (draw-3d-text obj text)))
 
 ;;; ------------------------------------------------------------
 ;;; TEXTURE
-;;; 
+;;;
 
 (defvar *texture-color* nil)
 
@@ -215,7 +215,7 @@
 
 ;;; ------------------------------------------------------------
 ;;; Class object
-;;; 
+;;;
 ;;; This superclass just manages display lists for the subclasses.
 
 (defclass gl-object ()
@@ -236,14 +236,14 @@
         (progn
           (set-up-gl-fonts (viewer object) object)
           (let ((n (opengl:gl-gen-lists 1)))
-	    (if (plusp n)
+            (if (plusp n)
                 (progn
-	          (opengl:gl-new-list n opengl:*gl-compile-and-execute*)
+                  (opengl:gl-new-list n opengl:*gl-compile-and-execute*)
                   (call-next-method)
-	          (opengl:gl-end-list)
-	          (setf (display-list object) n))
-	      (progn 
-	        (format t "~%~s:No more display list indexes!" object)
+                  (opengl:gl-end-list)
+                  (setf (display-list object) n))
+              (progn
+                (format t "~%~s:No more display list indexes!" object)
                 (call-next-method))))))
     (call-next-method)))
 
@@ -276,7 +276,7 @@
    (double-buffered-p :initform t :initarg :double-buffered-p :accessor double-buffered-p)
    (lastxy :initform nil :initarg :lastxy :accessor lastxy)
    (camera :initform (make-camera :color '(0.9 0.9 0.9 1.0)) :initarg :camera :accessor camera))
-  (:default-initargs 
+  (:default-initargs
    :configuration
    #-linux (list :rgba t :depth t :double-buffered t :depth-buffer 64) ;depth buffer allows to have depth in 3D drawing
    #+linux (list :rgba t :depth nil :double-buffered t)
@@ -312,7 +312,7 @@
 
 ;;; ------------------------------------------------------------
 ;;; Class projection
-;;; 
+;;;
 ;;; A class which defines the fovy, aspect, near and far
 ;;; values for a call to glu-perspective to define the projection
 ;;; matrix.
@@ -324,10 +324,10 @@
 
 
 (defclass projection (gl-object)
-   ((fovy :initform *fovy* :initarg :fovy :accessor fovy)
-    (aspect :initform *aspect* :initarg :aspect :accessor aspect)
-    (near :initform *near* :initarg :near :accessor near)
-    (far :initform *far* :initarg :far :accessor far)))
+  ((fovy :initform *fovy* :initarg :fovy :accessor fovy)
+   (aspect :initform *aspect* :initarg :aspect :accessor aspect)
+   (near :initform *near* :initarg :near :accessor near)
+   (far :initform *far* :initarg :far :accessor far)))
 
 (defmethod draw ((projection projection))
   (opengl:glu-perspective (fovy projection) (aspect projection) (near projection) (far projection))
@@ -340,11 +340,11 @@
                  :aspect (or aspect *aspect*)
                  :near (or near *near*)
                  :far (or far *far*)))
-                                       
+
 
 ;;; ------------------------------------------------------------
 ;;; Class camera
-;;; 
+;;;
 ;;; Defines an eye point, a center point and an up vector.
 ;;; The draw method calls GLU-LOOK-AT to install the camera values.
 ;;; The up vector is set to y
@@ -372,8 +372,8 @@
    (bgcolor :initform nil
             :initarg :bgcolor
             :accessor bgcolor)
-   (position-transform :initform nil 
-                       :initarg :position-transform 
+   (position-transform :initform nil
+                       :initarg :position-transform
                        :accessor position-transform)
    ))
 
@@ -392,13 +392,13 @@
     (opengl:glu-look-at (xyz-x eye) (xyz-y eye) (xyz-z eye)
                         (xyz-x center) (xyz-y center) (xyz-z center)
                         (xyz-x up) (xyz-y up) (xyz-z up))
-    
-    
+
+
     ;;; move the viewpoint
     (opengl:gl-translated (xyz-x center) (xyz-y center) (xyz-z center))
     (opengl:gl-mult-matrixd (position-transform camera))
     (opengl:gl-translated (- (xyz-x center)) (- (xyz-y center)) (- (xyz-z center)))
-    
+
     ;(opengl:gl-enable opengl:*gl-lighting*) ;; can't get it to work correctly..
 
     (when (bgcolor camera)
@@ -410,7 +410,7 @@
 
 
 (defun make-camera (&key eye center up projection color)
-  
+
   (make-instance 'camera
                  :eye (copy-structure (or eye *eye*))
                  :center (copy-structure (or center *center*))
@@ -427,12 +427,12 @@
   (setf (position-transform camera) (make-gl-double-vector 16))
   (initialize-transform (position-transform camera))
   camera)
-  
+
 
 ;;; ------------------------------------------------------------
 ;;; The CAPI Interface
 ;;; ------------------------------------------------------------
-    
+
 (defun initialize-transform (transform)
   (opengl:gl-matrix-mode opengl:*gl-modelview*)
   (opengl:with-matrix-pushed
@@ -517,7 +517,7 @@
   (setf *material-specular* (gl-single-vector 0.1 0.1 0.1 1.0))  ;; (gl-single-vector 0.1 0.0 0.0 1.0)
   (setf *material-shininess* 25.0)  ;; 64.0
   (setf *material-emission* (gl-single-vector 0.0 0.0 0.0 1.0))  ;; (gl-single-vector 0.0 0.0 0.0 1.0)
-)
+  )
 
 (defun ensure-gl-vector (check)
   (unless check (set-lights-and-materials)))
@@ -550,51 +550,51 @@
 
 
 (defun opengl-redisplay-all (canvas)
-  
-  (ensure-gl-vector (and *material-specular* 
-                         *material-emission* 
-                         *light-model-ambient* 
-                         *light-position* 
-                         *light-ambient* 
-                         *light-diffuse* 
+
+  (ensure-gl-vector (and *material-specular*
+                         *material-emission*
+                         *light-model-ambient*
+                         *light-position*
+                         *light-ambient*
+                         *light-diffuse*
                          *light-specular*))
-  
+
   (opengl:with-matrix-pushed
-      
+
     (opengl:gl-mult-matrixd (light-transform canvas))
-      
+
     (opengl:gl-light-modelfv opengl:*gl-light-model-ambient* *light-model-ambient*)
     (opengl:gl-light-modelf opengl:*gl-light-model-local-viewer* 0.0)
     (opengl:gl-light-modelf opengl:*gl-light-model-two-side* 0.0)
-      
+
     (opengl:gl-enable opengl:*gl-light0*)
     (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-position* *light-position*)
     (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-ambient* *light-ambient*)
     (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-diffuse* *light-diffuse*)
     (opengl:gl-lightfv opengl:*gl-light0* opengl:*gl-specular* *light-specular*)
-  
+
     )
 
   (opengl:with-matrix-pushed
-    
+
     ;;(opengl:gl-shade-model opengl:*gl-smooth*)
-       
+
     ;material stuff
     (opengl:gl-cull-face opengl:*gl-back*)
     (opengl:gl-enable opengl:*gl-cull-face*)
-      
+
     (opengl:gl-enable opengl:*gl-color-material*)
     (opengl:gl-color-material opengl:*gl-front* opengl:*gl-ambient-and-diffuse*)
-      
+
     (opengl:gl-materialfv opengl:*gl-front* opengl:*gl-specular* *material-specular*)
     (opengl:gl-materialf opengl:*gl-front* opengl:*gl-shininess* *material-shininess*)
     (opengl:gl-materialfv opengl:*gl-front* opengl:*gl-emission* *material-emission*)
-    
+
     (opengl:gl-mult-matrixd (icotransform canvas))
     ;Draw the content of the pane ant the objects
     (draw-contents canvas)
-    
-    (opengl:with-matrix-pushed 
+
+    (opengl:with-matrix-pushed
       (opengl:gl-mult-matrixd (object-transform canvas))
       (mapc #'draw (g-objects canvas)))
     )
@@ -605,7 +605,7 @@
 
 
 ;;;===========================
-;;; ANAGLYPH MODE 
+;;; ANAGLYPH MODE
 ;;;===========================
 
 (defparameter *om-3d-anaglyph* nil)
@@ -626,14 +626,14 @@
          (projection (projection camera))
          (camera-left (make-camera :eye eye :center center :up up :color '(0.95 0.95 0.95 1.0) :projection projection))
          (camera-right (make-camera :eye eye :center center :up up :color '(0.95 0.95 0.95 1.0) :projection projection)))
-    
+
     (unless (position-transform camera-left)
       (setf (position-transform camera-left) (make-gl-double-vector 16))
       (initialize-transform (position-transform camera-left)))
     (unless (position-transform camera-right)
       (setf (position-transform camera-right) (make-gl-double-vector 16))
       (initialize-transform (position-transform camera-right)))
-    
+
     ;colors
     ;left = red
     ;right = blue
@@ -662,8 +662,8 @@
     (draw camera-right)
     ;apply transform and render canvas lights and objects
     (opengl-redisplay-all canvas)
+    )
   )
-)
 
 
 
@@ -676,22 +676,22 @@
   (opengl-viewer-click canvas x y))
 
 (defmethod opengl-viewer-motion-click (canvas x y)
-    (let ((last (lastxy canvas)))
-      (when last
-        (opengl:rendering-on (canvas)
-	  (polar-rotate-icosahedron canvas :dz (* 2 (- x (car last))) :dx (* 2 (- y (cdr last)))))
-        (opengl-redisplay-canvas canvas))
-      (setf (lastxy canvas) (cons x y))))
+  (let ((last (lastxy canvas)))
+    (when last
+      (opengl:rendering-on (canvas)
+        (polar-rotate-icosahedron canvas :dz (* 2 (- x (car last))) :dx (* 2 (- y (cdr last)))))
+      (opengl-redisplay-canvas canvas))
+    (setf (lastxy canvas) (cons x y))))
 
 (defmethod opengl-viewer-motion-shift-click (canvas x y)
-    (let ((last (lastxy canvas)))
-      (when last
-        (let ((eye (eye (camera canvas))))
-          (setf (xyz-y eye)
-                (min (- (xyz-y eye) (* (/ (- (cdr last) y) 20) (/ (xyz-y eye) 20))) -0.1d0))
-          )
-        (opengl-redisplay-canvas canvas))
-      (setf (lastxy canvas) (cons x y))))
+  (let ((last (lastxy canvas)))
+    (when last
+      (let ((eye (eye (camera canvas))))
+        (setf (xyz-y eye)
+              (min (- (xyz-y eye) (* (/ (- (cdr last) y) 20) (/ (xyz-y eye) 20))) -0.1d0))
+        )
+      (opengl-redisplay-canvas canvas))
+    (setf (lastxy canvas) (cons x y))))
 
 (defmethod opengl-viewer-motion-alt-click (canvas x y)
   (let ((last (lastxy canvas)))

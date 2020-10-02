@@ -1,5 +1,5 @@
 ;=========================================================================
-; OM API 
+; OM API
 ; Multiplatform API for OpenMusic
 ; LispWorks Implementation
 ;=========================================================================
@@ -40,8 +40,8 @@
           om-find-view-containing-point
           om-convert-coordinates
           om-view-origin
-          om-get-subview-with-focus) 
-    :om-api)
+          om-get-subview-with-focus)
+        :om-api)
 
 (in-package :oa)
 
@@ -55,17 +55,17 @@
    ;(main-pinboard-object :accessor main-pinboard-object :initarg :main-pinboard-object :initform nil)
    )
   (:default-initargs
-    :draw-with-buffer t
-    :highlight-style :standard
-    :scroll-if-not-visible-p nil
+   :draw-with-buffer t
+   :highlight-style :standard
+   :scroll-if-not-visible-p nil
     ;:fit-size-to-children t
-    :resize-callback 'om-resize-callback
-    :scroll-callback 'om-scroll-callback
-    :create-callback 'om-create-callback
-    :destroy-callback 'om-destroy-callback
-    #+macosx :background #+macosx :transparent
-    ;#+windows :draw-pinboard-objects #+windows  :once ;:local-buffer :buffer :once 
-    ))
+   :resize-callback 'om-resize-callback
+   :scroll-callback 'om-scroll-callback
+   :create-callback 'om-create-callback
+   :destroy-callback 'om-destroy-callback
+   #+macosx :background #+macosx :transparent
+    ;#+windows :draw-pinboard-objects #+windows  :once ;:local-buffer :buffer :once
+   ))
 
 (defmethod om-view-p ((self om-view)) t)
 (defmethod om-view-p ((self t)) nil)
@@ -108,9 +108,9 @@
 
 (defmethod set-layout ((view om-view))
   (setf (capi:layout-description view)
-        (remove-duplicates 
+        (remove-duplicates
          (remove nil ;(cons (main-pinboard-object view)
-                 (append (vsubviews view) 
+                 (append (vsubviews view)
                          (item-subviews view)))))
   )
 
@@ -118,21 +118,21 @@
 (defmethod set-layout ((view t)) nil)
 
 (defmethod update-for-subviews-changes ((self om-view) &optional (recursive nil))
-  (capi::apply-in-pane-process self (lambda () 
-                                (set-layout self)
-                                ;;(capi:remove-capi-object-property self 'capi::prev-width-height)
-                                ))
+  (capi::apply-in-pane-process self (lambda ()
+                                      (set-layout self)
+                                      ;;(capi:remove-capi-object-property self 'capi::prev-width-height)
+                                      ))
   (when recursive (mapc #'(lambda (view) (if (om-view-p view) (update-for-subviews-changes view t)))
                         (vsubviews self))))
 
 (defun om-make-view (class &rest attributes
-                     &key position size (resizable t)
-                     owner subviews name 
-                     bg-color fg-color font 
-                     scrollbars 
-                     (enable t)
-                     (direct-draw t)  ;;; DIRECT-DRAW NIL ALLOWS TO DRAW PINBOARDS
-                     &allow-other-keys)
+                           &key position size (resizable t)
+                           owner subviews name
+                           bg-color fg-color font
+                           scrollbars
+                           (enable t)
+                           (direct-draw t)  ;;; DIRECT-DRAW NIL ALLOWS TO DRAW PINBOARDS
+                           &allow-other-keys)
   (let  ((x (and position (om-point-x position)))
          (y (and position (om-point-y position)))
          (w (and size (om-point-x size)))
@@ -148,38 +148,38 @@
 
     ;:x x :y y ;; for pinboard-objects
     ;;; :focus-callback #'(lambda (a b) (print (list a b))))
-    (setf initargs-list (append initargs-list 
+    (setf initargs-list (append initargs-list
                                 (and x (list :default-x x :vx x))
                                 (and y (list :default-y y :vy y))
-                                (and w (list :width NIL 
-                                             :default-width w 
+                                (and w (list :width NIL
+                                             :default-width w
                                              :visible-min-width w
                                              :visible-max-width (if (or (equal resizable t) (equal resizable :w)) nil w)
-                                             :scroll-width w 
+                                             :scroll-width w
                                              :vw w
                                              ))
-                                (and h (list :height NIL 
-                                             :default-height h 
+                                (and h (list :height NIL
+                                             :default-height h
                                              :visible-min-height h
                                              :visible-max-height (if (or (equal resizable t) (equal resizable :h)) nil h)
                                              :scroll-height h
                                              :vh h))
                                 ))
-                                                        
-      (let ((view (apply 'make-instance (cons class (append initargs-list attributes)))))
-        
-        (when bg-color (om-set-bg-color view bg-color))
-        (when fg-color (om-set-fg-color view fg-color))
-        (when owner (om-add-subviews owner view))
-        (when subviews (mapc (lambda (sv) (om-add-subviews view sv)) (remove nil subviews)))
-     
+
+    (let ((view (apply 'make-instance (cons class (append initargs-list attributes)))))
+
+      (when bg-color (om-set-bg-color view bg-color))
+      (when fg-color (om-set-fg-color view fg-color))
+      (when owner (om-add-subviews owner view))
+      (when subviews (mapc (lambda (sv) (om-add-subviews view sv)) (remove nil subviews)))
+
      ;#mswindows(unless (or bg-color (simple-pane-background view)) (om-set-bg-color view (om-def-color :white)))
 
      ;#+win32(setf (main-pinboard-object view) (make-instance 'om-view-pinboard-object))
      ;#+win32(setf (capi::pinboard-pane-size (main-pinboard-object view)) (values w h))
      ; #+cocoa
-        
-        (when direct-draw (setf (capi::output-pane-display-callback view) 'om-draw-contents-callback))
+
+      (when direct-draw (setf (capi::output-pane-display-callback view) 'om-draw-contents-callback))
 
     ;(when (om-view-p view)
     ;  (setf (capi::simple-pane-scroll-callback view) 'scroll-update)
@@ -187,7 +187,7 @@
     ;                              (capi::set-horizontal-scroll-parameters view :min-range 0 :max-range 200)
     ;                              (capi::set-vertical-scroll-parameters view :min-range 0 :max-range 200)
     ;                              )))
-     view)))
+      view)))
 
 
 
@@ -202,18 +202,18 @@
 
 (defmethod om-scroll-callback ((self om-view) dir op val &key interactive)
   ;(print (list self dir op val))
-  (when interactive (om-view-scrolled 
-                     self 
-                     (case dir 
+  (when interactive (om-view-scrolled
+                     self
+                     (case dir
                        (:vertical (list 0 (if (equal op :step)
                                               (om-v-scroll-position self)
-                                              val)))
+                                            val)))
                        (:horizontal (list (if (equal op :step)
                                               (om-h-scroll-position self)
-                                              val) 0))
+                                            val) 0))
                        (:pan val)))
     ))
-      
+
 
 (defmethod om-view-scrolled ((self om-view) xy) (declare (ignore self xy)) nil)
 

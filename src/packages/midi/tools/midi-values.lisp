@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -27,10 +27,10 @@
 
 
 ;======================
-; LSB/MSP UTILS 
+; LSB/MSP UTILS
 ;======================
 
-;=== tests if a controller num corresponds 
+;=== tests if a controller num corresponds
 ;=== to LSB value of another one
 (defun lsb-controller (ctrlNum)
   (and (>= ctrlNum 32) (<= ctrlNum 63)))
@@ -76,12 +76,12 @@
   (mapcar #'(lambda (n) (mc-to-pitchwheel n pw-range)) midic))
 
 
-;;; pb = (0-127) 
+;;; pb = (0-127)
 ;;; total range = +/- 200 midicents
 (defun pitchbend-to-mc (pb)
   (- (round (* pb 400) 127) 200))
-  
-;;; pw = (0-16383) 
+
+;;; pw = (0-16383)
 ;;; total range = +/- 200 midicents
 (defun pitchwheel-to-mc (pw)
   (- (round (* pw 400) 16383) 200))
@@ -91,7 +91,7 @@
 ; CONTINUOUS CONTROLLERS
 ;======================
 
-(defvar *midi-controllers* 
+(defvar *midi-controllers*
   '(("BankSelect" 0)
     ("ModulationWheel" 1)
     ("BreathController" 2)
@@ -154,7 +154,7 @@
     ("Effects3Depth" 93)
     ("Effects4Depth" 94)
     ("Effects5Depth" 95)
-    ("DataIncrement" 96))) 
+    ("DataIncrement" 96)))
 
 
 
@@ -173,7 +173,7 @@
 
 
 ;==============================
-; GENERAL MIDI 
+; GENERAL MIDI
 ;==============================
 
 ;=== General MIDI programs with program numbers

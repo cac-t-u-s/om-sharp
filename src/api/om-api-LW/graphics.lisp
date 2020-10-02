@@ -1,5 +1,5 @@
 ;=========================================================================
-; OM API 
+; OM API
 ; Multiplatform API for OpenMusic
 ; LispWorks Implementation
 ;=========================================================================
@@ -22,7 +22,7 @@
 ;=========================================================================
 
 ;;===========================================================================
-; GRAPHIC STRUCTURES (points, colors, fonts) 
+; GRAPHIC STRUCTURES (points, colors, fonts)
 ;;===========================================================================
 
 (in-package :om-api)
@@ -31,54 +31,54 @@
 ;;; export :
 ;;;=========================
 (export '(
-                ompoint
-                om-make-point omp
-                om-point-p
-                om-points-equal-p
-                om-add-points
-                om-subtract-points
-                om-point-x
-                om-point-y
-                om-point-*
-                om-point-mv
-                om-point-set
-                om-point-set-values-from-point
-                om-max-point
-                om-min-point
-                om-borne-point
-                om-round-point
-                om-def-point
+          ompoint
+          om-make-point omp
+          om-point-p
+          om-points-equal-p
+          om-add-points
+          om-subtract-points
+          om-point-x
+          om-point-y
+          om-point-*
+          om-point-mv
+          om-point-set
+          om-point-set-values-from-point
+          om-max-point
+          om-min-point
+          om-borne-point
+          om-round-point
+          om-def-point
 
-                om-make-color
-                om-gray-color
-                om-make-color-alpha
-                om-color-p
-                om-color-r
-                om-color-g
-                om-color-b
-                om-color-a
-                om-color-null-p
-                om-def-color
-                om-color-equal
+          om-make-color
+          om-gray-color
+          om-make-color-alpha
+          om-color-p
+          om-color-r
+          om-color-g
+          om-color-b
+          om-color-a
+          om-color-null-p
+          om-def-color
+          om-color-equal
 
-                om-make-font
-                om-font-p
-                om-font-face
-                om-font-family
-                om-font-size
-                om-font-style
-                om-def-font
-                om-font-lambda
-                om-font-equal
-                
-                om-string-size
-                om-string-wrap
-                
-                om-correct-point
-                om-correct-font
-                om-correct-color
+          om-make-font
+          om-font-p
+          om-font-face
+          om-font-family
+          om-font-size
+          om-font-style
+          om-def-font
+          om-font-lambda
+          om-font-equal
 
-                ) :om-api)
+          om-string-size
+          om-string-wrap
+
+          om-correct-point
+          om-correct-font
+          om-correct-color
+
+          ) :om-api)
 
 
 ;;;=========================
@@ -90,7 +90,7 @@
 
 (defun init-dummy-view ()
   (let* ((pl (make-instance 'capi:pinboard-layout)))
-    (capi:display (make-instance 'capi:interface 
+    (capi:display (make-instance 'capi:interface
                                  :display-state :hidden
                                  :layout pl))
     (setf *dummy-view* pl)))
@@ -98,19 +98,19 @@
 (om-api-add-init-fun 'init-dummy-view)
 
 ;;;=========================
-;;; COMPATIBILITY 
+;;; COMPATIBILITY
 ;;;=========================
-(defun om-correct-color (color) 
+(defun om-correct-color (color)
   (if (om-color-p color) color (om-def-color :gray)))
 
-(defun om-correct-point (point) 
+(defun om-correct-point (point)
   (cond ((om-point-p point) point)
         ((null point) point)
         ((numberp point) (om-make-point (- point (ash (ash point -16) 16)) (ash point -16)))
         ((consp point) (om-make-point (car point) (cadr point)))
         (t nil)))
 
-(defun om-correct-font (font) 
+(defun om-correct-font (font)
   (if (om-font-p font) font (om-def-font :font1)))
 
 ;;;=========================
@@ -120,7 +120,7 @@
 (defstruct ompoint (x 0) (y 0))
 
 ;;; LW facilities are allowed (e.g. NIL, (:character 4), etc.)
-(defun om-make-point (x y) 
+(defun om-make-point (x y)
   (make-ompoint :x x :y y))
 
 (defmacro omp (x y) `(om-make-point ,x ,y))
@@ -146,13 +146,13 @@
                 :y (+ (ompoint-y point1) (ompoint-y point2))))
 
 (defmethod om-subtract-points (point1 point2)
-   (make-ompoint :x (- (ompoint-x point1) (ompoint-x point2))
-                 :y (- (ompoint-y point1) (ompoint-y point2))))
+  (make-ompoint :x (- (ompoint-x point1) (ompoint-x point2))
+                :y (- (ompoint-y point1) (ompoint-y point2))))
 
 (defmethod om-points-equal-p (point1 point2) nil)
 
 (defmethod om-points-equal-p ((point1 ompoint) (point2 ompoint))
-  (and (= (ompoint-x point1) (ompoint-x point2)) 
+  (and (= (ompoint-x point1) (ompoint-x point2))
        (= (ompoint-y point1) (ompoint-y point2))))
 
 (defmethod om-point-* ((point ompoint) fact)
@@ -239,10 +239,10 @@
   (color::color-green (omcolor-c color)))
 
 (defun om-color-b (color)
-   (color::color-blue (omcolor-c color)))
+  (color::color-blue (omcolor-c color)))
 
 (defun om-color-a (color)
-   (color::color-alpha (omcolor-c color)))
+  (color::color-alpha (omcolor-c color)))
 
 (defun om-color-null-p (color)
   (= (color::color-alpha (omcolor-c color)) 0))
@@ -264,15 +264,15 @@
     ;; (:window (make-omcolor :c (color::get-color-spec #+cocoa :transparent #-cocoa :gray90)))
     (:window (make-omcolor :c (color::get-color-spec #+cocoa :transparent #-cocoa :background)))
     (:selection (make-omcolor :c #+win32 (color::make-rgb 0.87058825 0.87058825 0.87058825 1)
-                               #-win32 (color::make-rgb 0.5 0.5 0.5 1)))
+                              #-win32 (color::make-rgb 0.5 0.5 0.5 1)))
     (:selection-inv (make-omcolor :c (color::make-rgb 0.9 0.9 0.9)))
     (:selection-a (make-omcolor :c (color::make-rgb 0.7 0.7 0.7 0.2)))
     (:toolbar-color (make-omcolor :c (color:make-rgb 0.85 0.85 0.85)))
     (:text-selection (let ((selectcolor (om-def-color :selection)))
                        (make-omcolor :c (color:make-rgb (/ (om-color-r selectcolor) 2)
-                                                                  (/ (om-color-g selectcolor) 2)
-                                                                  (/ (om-color-b selectcolor) 2)
-                                                                  0.7))))
+                                                        (/ (om-color-g selectcolor) 2)
+                                                        (/ (om-color-b selectcolor) 2)
+                                                        0.7))))
     ;;; supported symbols = :black :wite :red ... :transparent
     (otherwise (make-omcolor :c (color::get-color-spec c)))
     ))
@@ -285,34 +285,34 @@
 
 ;; &allow-other-keys is for compatibility with OM6 patches
 (defun om-make-font (face size &key (style nil) &allow-other-keys)
-  (gp::make-font-description 
+  (gp::make-font-description
    ;:name face   ; --> name is not portable for find-best-font process
    :family face
    :size (round size)
    :slant (if (member :italic style) :italic :roman)
    :weight (if (member :bold style) :bold :normal)
    :pitch :variable
-   :underline nil  
+   :underline nil
    :strikeout nil
-   :charset :ansi 
-   :devicep nil 
-   :type :truetype 
+   :charset :ansi
+   :devicep nil
+   :type :truetype
    ))
 
-(defun om-font-face (font) 
+(defun om-font-face (font)
   (gp::font-description-attribute-value font :family))
 
-(defun om-font-size (font) 
-   (gp::font-description-attribute-value font :size))
+(defun om-font-size (font)
+  (gp::font-description-attribute-value font :size))
 
-(defun om-font-family (font) 
+(defun om-font-family (font)
   (gp::font-description-attribute-value font :family))
 
-(defun om-font-style (font) 
+(defun om-font-style (font)
   (cond ((and (equal (gp::font-description-attribute-value font :weight) :bold)
               (equal (gp::font-description-attribute-value font :slant) :italic))
          '(:bold :italic))
-        ((equal (gp::font-description-attribute-value font :slant) :italic) 
+        ((equal (gp::font-description-attribute-value font :slant) :italic)
          '(:italic))
         ((equal (gp::font-description-attribute-value font :weight) :bold)
          '(:bold))
@@ -323,12 +323,12 @@
   (and (string-equal (om-font-face f1) (om-font-face f2))
        (= (om-font-size f2) (om-font-size f2))
        (equal (om-font-style f1) (om-font-style f2))))
-          
+
 
 (defun om-string-size (str font)
-  (if str 
+  (if str
       (multiple-value-bind (left top right bottom)
-          (gp::get-string-extent   
+          (gp::get-string-extent
            *dummy-view* str
            (gp::find-best-font *dummy-view* font))
         (values (round (- right left)) (- bottom top)))
@@ -341,21 +341,21 @@
   (declare (special *curstream* *dummy-view*))
   (let* ((view (or *curstream* *dummy-view*))
          (w (max width (om-string-size "--" font))))
-  (capi::wrap-text-for-pane 
-   view str 
-   :visible-width w
-   :font (gp::find-best-font view font)
-   )))
+    (capi::wrap-text-for-pane
+     view str
+     :visible-width w
+     :font (gp::find-best-font view font)
+     )))
 
 
 (defun om-def-font (f &key face size style)
   (let ((def-face #+mswindows "Calibri"  #+linux "Liberation Sans" #+darwin "Lucida Grande")
         (def-bold-face #+mswindows "Calibri"  #+linux "Liberation Sans" #+darwin "Lucida Grande")
         (score-face "Times New Roman")
-        (sizes #+darwin '(11 12 14 16 20)		    ;72 ppi
-               #-darwin '(9 10 11 12 15)		    ;96 ppi
-	       ))
-    (let ((fa 
+        (sizes #+darwin '(11 12 14 16 20)      ;72 ppi
+               #-darwin '(9 10 11 12 15)      ;96 ppi
+               ))
+    (let ((fa
            (case f
              (:font1 (om-make-font def-face (nth 0 sizes)))
              (:font2 (om-make-font def-face (nth 1 sizes)))
@@ -365,12 +365,12 @@
              (:font2b (om-make-font def-bold-face (nth 1 sizes) :style '(:bold)))
              (:font3b (om-make-font def-bold-face (nth 2 sizes) :style '(:bold)))
              (:font4b (om-make-font def-bold-face (nth 3 sizes) :style '(:bold)))
-             (:gui 
+             (:gui
               #+darwin (om-make-font "Lucida Grande" 13)
-	      #+linux (om-make-font "Bistream Vera Sans" 10) 
+              #+linux (om-make-font "Bistream Vera Sans" 10)
               #-(or darwin linux) (om-make-font def-face (nth 0 sizes)))
              (:score (om-make-font score-face 10))
-	     (:mono (om-make-font #-linux "Courier New" #+linux "Courier" #+darwin 12 #-darwin 10))
+             (:mono (om-make-font #-linux "Courier New" #+linux "Courier" #+darwin 12 #-darwin 10))
              (:lambda ) ; ... a font that contains the lambda character...
              (otherwise (om-make-font def-face (nth 0 sizes))))))
       (when face (setf fa (gp::augment-font-description fa :family face)))
@@ -383,5 +383,5 @@
 (defun om-font-lambda (&optional size)
   (values (code-char 955)
           (om-make-font "Times" (or size 12))))
-          
+
 ;;; #+win32 (gp::font-description capi-win32-lib::*win32-default-gui-font*))

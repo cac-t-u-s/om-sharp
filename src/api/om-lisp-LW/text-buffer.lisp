@@ -1,5 +1,5 @@
 ;=========================================================================
-; LW Lisp Tools 
+; LW Lisp Tools
 ; Lisp programming tools for LispWorks delivered applications
 ;=========================================================================
 ;
@@ -25,14 +25,14 @@
 
 (in-package :om-lisp)
 
-;;;================= 
-;;; TEXT BUFFER 
+;;;=================
+;;; TEXT BUFFER
 ;;;=================
 
 (defun om-make-buffer ()
   (editor::make-buffer (string (gensym)) :base-name "om-text-buffer-"
                        :temporary t))
-   
+
 ; PLUS UTILISE...
 ; En declarant les objets :
 ;    (hcl::flag-special-free-action b)
@@ -52,8 +52,8 @@
 
 (defun om-copy-buffer (buffer)
   (let ((newbuffer (om-make-buffer)))
-    (ignore-errors 
-      (editor::set-buffer-contents 
+    (ignore-errors
+      (editor::set-buffer-contents
        newbuffer
        (editor::points-to-string (editor::buffers-start buffer)
                                  (editor::buffers-end buffer))))
@@ -78,11 +78,11 @@
 
 (defun om-buffer-text (buffer)
   (editor::use-buffer buffer
-    (editor:points-to-string (editor:buffers-start buffer) 
+    (editor:points-to-string (editor:buffers-start buffer)
                              (editor:buffers-end buffer))))
 
-      
-(defun om-buffer-substring (buffer from &optional to)  
+
+(defun om-buffer-substring (buffer from &optional to)
   (editor::use-buffer buffer
     (editor::with-point ((p1 (editor:buffers-start buffer))
                          (p2 (if to (editor:buffers-start buffer)
@@ -114,41 +114,41 @@
       (setq numlines (editor::count-lines (editor::buffers-start buffer)
                                           (editor::buffers-end buffer)))
       (setq listlines (editor::list-lines (editor::buffers-start buffer) numlines))
-      (butlast listlines (- (length listlines) (1+ numlines))) 
+      (butlast listlines (- (length listlines) (1+ numlines)))
       )))
 
 
 (defun om-buffer-delete (buffer &optional start end)
-  (handler-bind ((error #'(lambda (c) 
-                               (print (format nil "Error while cleaning text buffer : ~%~A" c))
-                               (om-kill-buffer buffer)
-                               (om-make-buffer)
-                               )))
+  (handler-bind ((error #'(lambda (c)
+                            (print (format nil "Error while cleaning text buffer : ~%~A" c))
+                            (om-kill-buffer buffer)
+                            (om-make-buffer)
+                            )))
     (if start
         (editor::use-buffer buffer
-          (editor::with-point ((p1 (editor::buffers-start buffer)) 
+          (editor::with-point ((p1 (editor::buffers-start buffer))
                                (p2 (if end (editor::buffers-start buffer)
                                      (editor::buffers-end buffer))))
             (editor::character-offset p1 start)
             (when end (editor::character-offset p2 end))
-            (editor::delete-between-points p1 p2)           
+            (editor::delete-between-points p1 p2)
             ))
       (editor::clear-buffer buffer))))
-    
-(defun om-buffer-set (buffer text) 
+
+(defun om-buffer-set (buffer text)
   (om-buffer-delete buffer)
   (om-buffer-insert buffer text))
 
 ;;; position de la fin de la ligne courante (ou au point start)
 (defun om-buffer-line-end (buffer &optional pos)
   (editor::use-buffer buffer
-      (editor::with-point ((p (if pos (editor::buffers-start buffer)
-                                (editor:buffer-point buffer))))
+    (editor::with-point ((p (if pos (editor::buffers-start buffer)
+                              (editor:buffer-point buffer))))
         ;(when pos (editor::character-offset p pos))
-        (when pos (editor::move-point-to-offset p pos))
-        (let ((rep (editor::next-newline p)))
-          (print (list "NEXT NEWLINE AT" (editor::find-point-offset buffer p) "-->" rep))
-          rep
+      (when pos (editor::move-point-to-offset p pos))
+      (let ((rep (editor::next-newline p)))
+        ;; (print (list "NEXT NEWLINE AT" (editor::find-point-offset buffer p) "-->" rep))
+        rep
         ))))
 
 ;;; position du debut de la ligne courante (ou au point start)
@@ -166,15 +166,15 @@
 
 (defun om-buffer-skip-forward (buffer &optional start end)
   (editor::use-buffer buffer
-      (editor::with-point ((p (if start (editor::buffers-start buffer)
-                                (editor:buffer-point buffer)))
-                           (limit (if end (editor::buffers-start buffer)
-                                    (editor::buffers-end buffer))))
-        (when start (editor::character-offset p start))
-        (when end (editor::character-offset limit end))
-        (loop while (and (editor::blank-line-p p) (editor::point< p limit)) do
-                 (editor::move-point-to-offset p (editor::next-newline p)))
-        (editor::find-point-offset buffer p))))
+    (editor::with-point ((p (if start (editor::buffers-start buffer)
+                              (editor:buffer-point buffer)))
+                         (limit (if end (editor::buffers-start buffer)
+                                  (editor::buffers-end buffer))))
+      (when start (editor::character-offset p start))
+      (when end (editor::character-offset limit end))
+      (loop while (and (editor::blank-line-p p) (editor::point< p limit)) do
+            (editor::move-point-to-offset p (editor::next-newline p)))
+      (editor::find-point-offset buffer p))))
 
 
 (defun om-get-lisp-expression (buffer)
@@ -215,27 +215,27 @@
 ; (editor::list-lines point num) --> ?
 ; (editor::newline point &optional cound) --> ?
 ; (editor::start-line-p point) (editor::end-line-p point) --> T si debut ou fin de ligne
-; (editor::move-point-to-offset point offset) --> voir a la place de faire characte-offset, start-point, etc. 
- 
+; (editor::move-point-to-offset point offset) --> voir a la place de faire characte-offset, start-point, etc.
+
 ;;; ecrit le contenu d'un fichier dans le buffer
 (defun om-buffer-insert-file (buffer path &optional position)
   (let ((filebuf (editor::find-file-buffer path)))
     (if position
-        (editor::use-buffer buffer 
+        (editor::use-buffer buffer
           (editor::with-point ((p (editor:buffers-start buffer)))
             (editor::character-offset p position)
             (editor::insert-string p (editor::points-to-string (editor::buffers-start filebuf)
                                                                (editor::buffers-end filebuf)))))
-      (editor::set-buffer-contents buffer 
+      (editor::set-buffer-contents buffer
                                    (editor::points-to-string (editor::buffers-start filebuf)
                                                              (editor::buffers-end filebuf)))
       )
     (editor::kill-buffer-no-confirm filebuf)))
 
-;;; ecrit le contenu du buffer dans un fichier 
+;;; ecrit le contenu du buffer dans un fichier
 (defun om-buffer-write-file (buffer path &key (if-exists :supersede))
   (with-open-file (s path :direction :output :if-exists if-exists)
-    (write-string (editor::points-to-string 
-                   (editor::buffers-start buffer) 
-                   (editor::buffers-end buffer)) 
+    (write-string (editor::points-to-string
+                   (editor::buffers-start buffer)
+                   (editor::buffers-end buffer))
                   s)))

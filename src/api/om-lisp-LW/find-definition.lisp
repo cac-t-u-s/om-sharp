@@ -1,5 +1,5 @@
 ;=========================================================================
-; LW Lisp Tools 
+; LW Lisp Tools
 ; Lisp programming tools for LispWorks delivered applications
 ;=========================================================================
 ;
@@ -28,10 +28,10 @@
 (in-package :om-lisp)
 
 ;=======================
-; find and edit source code 
+; find and edit source code
 ;=======================
 
- 
+
 ; (when (setf layout (make-window-layout thewin ,bg-color)) (setf (pane-layout thewin) layout))
 
 
@@ -41,22 +41,22 @@
                              :title (concatenate 'string "Definitions of " (string-upcase (string symb)))
                              :name (gensym)
                              :width w :height h
-                             :window-styles nil 
+                             :window-styles nil
                              :auto-menus nil
                              :menu-bar-items (list (make-instance 'capi::menu :title "File"
-                                                                  :items 
+                                                                  :items
                                                                   (list (make-instance 'capi::menu-item :title "Close"
-                                                                                               :callback-type :interface
-                                                                                               :callback #'(lambda (win) (destroy win)) 
-                                                                                               :accelerator #\w))))
+                                                                                       :callback-type :interface
+                                                                                       :callback #'(lambda (win) (destroy win))
+                                                                                       :accelerator #\w))))
                              )))
-                                   
-    (set-hint-table win (list :external-min-width w :external-max-width w 
+
+    (set-hint-table win (list :external-min-width w :external-max-width w
                               :external-min-height h :external-max-height h))
-    (setf (pane-layout win) (make-instance 'pinboard-layout :internal-border nil :visible-border nil 
-                                              #+cocoa :background #+cocoa :transparent))
+    (setf (pane-layout win) (make-instance 'pinboard-layout :internal-border nil :visible-border nil
+                                           #+cocoa :background #+cocoa :transparent))
     (apply-in-pane-process (pane-layout win)
-                           (lambda (x) (setf (capi:layout-description (pane-layout x)) 
+                           (lambda (x) (setf (capi:layout-description (pane-layout x))
                                              (list
                                               (make-instance 'capi::list-panel
                                                              :x 10 :y 10
@@ -70,12 +70,12 @@
                                                                                   (let ((file (cadr (nth (capi::choice-selection list) deflist))))
                                                                                     (if (pathnamep file)
                                                                                         (if (probe-file file)
-                                                                                            (om-open-text-editor-at file 
-                                                                                                                        (car (nth (capi::choice-selection list) deflist)))
-                                                                 (progn (beep-pane nil) 
-                                                                   (print (format nil "File ~A not found" file))))
-                                                             (progn (beep-pane nil) (print (format nil "Unknown location for ~A definition.." symb)))
-                                                             )))
+                                                                                            (om-open-text-editor-at file
+                                                                                                                    (car (nth (capi::choice-selection list) deflist)))
+                                                                                          (progn (beep-pane nil)
+                                                                                            (print (format nil "File ~A not found" file))))
+                                                                                      (progn (beep-pane nil) (print (format nil "Unknown location for ~A definition.." symb)))
+                                                                                      )))
                                                              ))))
                            win)
     (capi::display win)))
@@ -86,13 +86,13 @@
 (defvar *recorded-src-root* nil)
 (defvar *new-src-root* nil)
 
-(defun om-set-source-tree-root-folder (path) 
+(defun om-set-source-tree-root-folder (path)
   (setq *new-src-root* path)
   (unless (member :om-deliver *features*)
     (setq *recorded-src-root* path)))
 
 
-(defun om-restore-source-path (path) 
+(defun om-restore-source-path (path)
   (let ((rec-root-dir (pathname-directory *recorded-src-root*))
         (path-dir (pathname-directory (translate-logical-pathname path))))   ; truename ?
     (if (and (>= (length path-dir) (length rec-root-dir))
@@ -121,13 +121,13 @@
 
 (defun om-edit-definition (symbol)
   (if (symbolp symbol)
-      (let ((definitions 
+      (let ((definitions
              ;(dspec:name-definition-locations dspec:*dspec-classes* symbol)
              (ignore-errors (dspec:find-name-locations dspec:*dspec-classes* symbol))))
         (if definitions
-            (progn   
+            (progn
               (setf definitions (restore-definitions-pathnames definitions))
-              (cond 
+              (cond
                ((null definitions)
                 (beep-pane nil)
                 (print (concatenate 'string "No definition found for " (string-upcase (string symbol)))))

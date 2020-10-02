@@ -4,26 +4,26 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
 ;============================================================================
 
 (in-package :om)
-  
+
 
 ;;;==================================
 ;;; VISUAL PROGRAMMIN WITH FILE I/O
 ;;; EQUIVALENT TO OM6's FILE-BOX (but much simpler!)
 ;;; ==================================
 
-(defclass fstream (om-cleanup-mixin) 
+(defclass fstream (om-cleanup-mixin)
   ((fpath :accessor fpath :initarg :fpath :initform nil)
    (fs :accessor fs :initarg :fs :initform nil)
    (open? :accessor open? :initarg :open? :initform nil)))
@@ -36,18 +36,18 @@
 (defmethod* open-file-stream (path &key (direction :io) (if-exists :supersede))
   :initvals '(nil :io :supersede)
   :indoc '("a valid pathname" "stream direction (read/write)" "behaviour if the file exists")
-  :menuins '((1 (("read" :input) ("write" :output) ("read/write" :io))) 
+  :menuins '((1 (("read" :input) ("write" :output) ("read/write" :io)))
              (2 (("rename" :rename) ("supersede" :supersede) ("overwrite" :overwrite) ("append" :append))))
   :icon :file
-  :doc "Opens a file stream where other functions can read and write" 
-  (make-instance 'fstream 
+  :doc "Opens a file stream where other functions can read and write"
+  (make-instance 'fstream
                  :fs (open path :direction direction :if-exists if-exists)
                  :fpath path
                  :open? t)
   )
 
 ;;; COMPAT WITH OM6 FILE-BOX: STREAM FILE ACCESS (R/W)
-(defmethod streamfile (path) 
+(defmethod streamfile (path)
   (om-beep-msg "WARNING: STREAMFILE IS NOW DEPRECATED. SEE 'OPEN-FILE-STREAM' / 'CLOSE-FILE-STREAM'.")
   (fs (open-file-stream path)))
 
@@ -57,13 +57,13 @@
 
 
 
-(defmethod* close-file-stream ((self fstream)) 
+(defmethod* close-file-stream ((self fstream))
   :indoc '("a valid pathname" "stream direction (read/write)" "behaviour if the file exists")
   :icon :file
-  :doc "Closes a file stream created by open-file-stream. 
+  :doc "Closes a file stream created by open-file-stream.
 Returns the file path.
 
-Open FILE-STREAMs are automatically closed when they are not used anymore by the Common Lisp garbage collection system, however, it is recommended to close them explicitely as soon as they are not needed in order to limit the number of streams open." 
+Open FILE-STREAMs are automatically closed when they are not used anymore by the Common Lisp garbage collection system, however, it is recommended to close them explicitely as soon as they are not needed in order to limit the number of streams open."
   (om-cleanup self)
   (fpath self))
 

@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: D. Bouche
@@ -31,7 +31,7 @@
 (defparameter SRC_ZERO_ORDER_HOLD 3)
 (defparameter SRC_LINEAR 4)
 
-(defcstruct SRC_DATA 
+(defcstruct SRC_DATA
   (data_in :pointer)
   (data_out :pointer)
   (input_frames :long)
@@ -41,17 +41,17 @@
   (end_of_input :int)
   (src_ratio :double))
 
-(defcstruct SRC_CB_DATA 
+(defcstruct SRC_CB_DATA
   (frames :long)
   (data_in :pointer))
 
-(defcfun (src-simple "src_simple") :int 
-         (src-data :pointer) 
-         (converter-type :int) 
-         (channels :int))
+(defcfun (src-simple "src_simple") :int
+  (src-data :pointer)
+  (converter-type :int)
+  (channels :int))
 
-(defcfun (src-strerror "src_strerror") :string 
-         (error :int))
+(defcfun (src-strerror "src_strerror") :string
+  (error :int))
 
 
 

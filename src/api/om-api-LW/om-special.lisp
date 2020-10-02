@@ -1,5 +1,5 @@
 ;=========================================================================
-; OM API 
+; OM API
 ; Multiplatform API for OpenMusic
 ; LispWorks Implementation
 ;=========================================================================
@@ -29,7 +29,7 @@
 (in-package :om-api)
 
 
-(export '( 
+(export '(
           om-special-lisp-form-p
           om-root-folder
           om-set-root-folder
@@ -41,7 +41,7 @@
 
 ;;; types of functions that are not accepted as OM boxes
 (defun om-special-lisp-form-p (symbol)
-  (or 
+  (or
    (lispworks::special-form-p symbol)
    #+macosx(and (fboundp symbol) ;;; what is this for... ?
                 (system:closurep (fdefinition symbol)))
@@ -55,35 +55,35 @@
 
 (defun om-root-folder () *om-root*)
 
-(defun om-set-root-folder (path) 
+(defun om-set-root-folder (path)
   (setf *om-root* path))
 
 
 (defun om-resources-folder ()
-  #+macosx 
-  (if (oa::om-standalone-p) 
+  #+macosx
+  (if (oa::om-standalone-p)
       (make-pathname
        :host (pathname-host (oa::om-lisp-image))
-       :device (pathname-device (oa::om-lisp-image)) 
+       :device (pathname-device (oa::om-lisp-image))
        :directory (append (butlast (pathname-directory (oa::om-lisp-image))) '("Resources")))
     (make-pathname
      :host (pathname-host (oa::om-root-folder))
-     :device (pathname-device (oa::om-root-folder)) 
+     :device (pathname-device (oa::om-root-folder))
      :directory (append (pathname-directory (oa::om-root-folder)) '("resources"))))
   #+linux
-  (if (oa::om-standalone-p) 
+  (if (oa::om-standalone-p)
       (make-pathname
        :host (pathname-host (oa::om-lisp-image))
-       :device (pathname-device (oa::om-lisp-image)) 
+       :device (pathname-device (oa::om-lisp-image))
        :directory (append (butlast (pathname-directory (oa::om-lisp-image))) '("share" "om-sharp" "resources")))
-      (make-pathname
-       :host (pathname-host (oa::om-root-folder))
-       :device (pathname-device (oa::om-root-folder)) 
-       :directory (append (pathname-directory (oa::om-root-folder)) '("resources"))))
-  #+win32 
+    (make-pathname
+     :host (pathname-host (oa::om-root-folder))
+     :device (pathname-device (oa::om-root-folder))
+     :directory (append (pathname-directory (oa::om-root-folder)) '("resources"))))
+  #+win32
   (make-pathname
    :host (pathname-host (oa::om-root-folder))
-   :device (pathname-device (oa::om-root-folder)) 
+   :device (pathname-device (oa::om-root-folder))
    :directory (append (pathname-directory (oa::om-root-folder)) '("resources")))
   )
 
@@ -99,7 +99,7 @@
 
 
 (defun decompose-object (obj)
-  (cond ((consp obj) 
+  (cond ((consp obj)
          (if (listp (cdr obj))
              (loop for item in obj
                    for i = 0 then (+ i 1)
@@ -112,8 +112,8 @@
          (loop for sl in (structure::structure-class-slot-names (find-class (type-of obj) nil))
                collect (list sl (slot-value obj sl))))
         ((and (find-class (type-of obj) nil) (hcl::class-slots (find-class (type-of obj))))
-         (loop for slot in (hcl::class-slots (find-class (type-of obj))) 
-               collect (list (hcl::slot-definition-name slot) 
+         (loop for slot in (hcl::class-slots (find-class (type-of obj)))
+               collect (list (hcl::slot-definition-name slot)
                              (if (hcl::slot-boundp obj (hcl::slot-definition-name slot))
                                  (slot-value obj (hcl::slot-definition-name slot))
                                :unbound))))
@@ -122,9 +122,9 @@
 
 (defun set-inspector-panel (item-list object)
   (setf (capi::collection-items item-list)
-        (loop for elt in (decompose-object object) 
-              collect (if (consp elt) 
-                          (concatenate 'string 
+        (loop for elt in (decompose-object object)
+              collect (if (consp elt)
+                          (concatenate 'string
                                        (string-upcase (format nil "~A" (car elt)))
                                        (format nil ":   ~A"  (cadr elt)))
                         (format nil "~A"  elt)))))
@@ -132,63 +132,63 @@
 
 
 (defun om-inspect (object &optional position)
-  
+
   (let* ((pos (or position (om-make-point 200 200)))
          (win (om-make-window 'inspect-dialog :size (omp 400 nil)
-                             :position pos :resizable t
-                             :win-layout 'om-row-layout
-                             :title (format nil "Inspecting ~A" object)
-                             :menu-items (list (om-make-menu 
-                                                "File" 
-                                                (list (om-make-menu-item 
-                                                       "Close inspectors" 
-                                                       #'(lambda () (mapc 'om-close-window (om-get-all-windows 'inspect-dialog))) 
-                                                       :key "w"))))
-                             )))
-    
+                              :position pos :resizable t
+                              :win-layout 'om-row-layout
+                              :title (format nil "Inspecting ~A" object)
+                              :menu-items (list (om-make-menu
+                                                 "File"
+                                                 (list (om-make-menu-item
+                                                        "Close inspectors"
+                                                        #'(lambda () (mapc 'om-close-window (om-get-all-windows 'inspect-dialog)))
+                                                        :key "w"))))
+                              )))
+
     (setf (list1 win) (om-make-di 'om-single-item-list
-                         :size (om-make-point nil 260)
-                         :focus nil
-                         :scrollbars :v
-                         :callback-type '(:collection)
-                         :test-function 'string-equal
-                         :range nil
-                         :action-callback #'(lambda (list)
-                                              (let ((sel (cadr (nth (capi::choice-selection list) 
-                                                                    (decompose-object object)))))
-                                                (when (consp (car (decompose-object sel)))
-                                                  (om-inspect sel (om-add-points (om-view-position win) (om-make-point 20 20))))
-                                                ))
-                         :selection-callback #'(lambda (list)
-                                                 (setf (selected win)
-                                                       (cadr (nth (capi::choice-selection list) 
-                                                                  (decompose-object object))))
-                                                 (set-inspector-panel (list2 win) (selected win)))
-                         ))
+                                  :size (om-make-point nil 260)
+                                  :focus nil
+                                  :scrollbars :v
+                                  :callback-type '(:collection)
+                                  :test-function 'string-equal
+                                  :range nil
+                                  :action-callback #'(lambda (list)
+                                                       (let ((sel (cadr (nth (capi::choice-selection list)
+                                                                             (decompose-object object)))))
+                                                         (when (consp (car (decompose-object sel)))
+                                                           (om-inspect sel (om-add-points (om-view-position win) (om-make-point 20 20))))
+                                                         ))
+                                  :selection-callback #'(lambda (list)
+                                                          (setf (selected win)
+                                                                (cadr (nth (capi::choice-selection list)
+                                                                           (decompose-object object))))
+                                                          (set-inspector-panel (list2 win) (selected win)))
+                                  ))
 
     (setf (list2 win) (om-make-di 'om-single-item-list
-                         :size (om-make-point nil 260)
-                         :focus nil
-                         :scrollbars :v
-                         :callback-type '(:collection)
-                         :test-function 'string-equal
-                         :range nil
-                         :action-callback #'(lambda (list)
-                                              (when (consp (nth (capi::choice-selection list) 
-                                                                (decompose-object (selected win))))
-                                                (let ((new (cadr (nth (capi::choice-selection list) 
-                                                                      (decompose-object (selected win))))))
-                                                  (when (consp (car (decompose-object new)))
-                                                    (om-inspect new (om-add-points (om-view-position win) (om-make-point 20 20)))))
-                                                ))
-                         
-                         ))
-    
+                                  :size (om-make-point nil 260)
+                                  :focus nil
+                                  :scrollbars :v
+                                  :callback-type '(:collection)
+                                  :test-function 'string-equal
+                                  :range nil
+                                  :action-callback #'(lambda (list)
+                                                       (when (consp (nth (capi::choice-selection list)
+                                                                         (decompose-object (selected win))))
+                                                         (let ((new (cadr (nth (capi::choice-selection list)
+                                                                               (decompose-object (selected win))))))
+                                                           (when (consp (car (decompose-object new)))
+                                                             (om-inspect new (om-add-points (om-view-position win) (om-make-point 20 20)))))
+                                                         ))
+
+                                  ))
+
     (set-inspector-panel (list1 win) object)
     (om-set-selected-item-index (list1 win) 0)
     (setf (selected win) (cadr (car (decompose-object object))))
     (set-inspector-panel (list2 win) (selected win))
-    
+
     (om-add-subviews win (list1 win) (list2 win))
     (om-select-window win)))
 

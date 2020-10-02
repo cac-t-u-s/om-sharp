@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -31,19 +31,19 @@
   (let* ((box (make-instance (get-box-class reference)
                              :name (name reference)
                              :reference reference
-                             :color (make-color-or-nil :color (get-patch-component-box-def-color reference) 
+                             :color (make-color-or-nil :color (get-patch-component-box-def-color reference)
                                                        :t-or-nil t)
                              :icon-pos (or (getf init-args :icon-pos) :top)
                              :text-align :center))
          (size (minimum-size box)))
-    
+
     (setf (box-x box) (om-point-x pos)
           (box-y box) (om-point-y pos)
           (box-w box) (om-point-x size)
           (box-h box) (om-point-y size))
     box))
 
-(defmethod save-box-reference ((self OMPatchComponentBox)) 
+(defmethod save-box-reference ((self OMPatchComponentBox))
   (box-symbol (reference self)))
 
 (defmethod get-patch-component-box-def-color ((self OMPatchComponent)) (om-make-color 0.82 0.85 0.7))
@@ -52,13 +52,13 @@
 (defmethod v-resizable ((self OMPatchComponentBox)) nil)
 
 (defmethod get-properties-list ((self OMPatchComponentBox))
-  (add-properties (hide-properties 
-                   (call-next-method) 
+  (add-properties (hide-properties
+                   (call-next-method)
                    '(:icon :lock :lambda :group-id))
-                  "Appearance" 
+                  "Appearance"
                   '((:icon "Icon position" (:left :top) icon-pos))))
 
-(defmethod object-name-in-inspector ((self OMPatchComponentBox)) 
+(defmethod object-name-in-inspector ((self OMPatchComponentBox))
   (string+ (string-upcase (type-of (reference self)))
            " box"))
 

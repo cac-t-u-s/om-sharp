@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: S. Bell-Bell
@@ -31,7 +31,7 @@
 
 (defmethod build-thread-pool (nbthread)
   (setq *threadpool* (make-instance 'thread-pool))
-  (setf (workers *threadpool*) 
+  (setf (workers *threadpool*)
         (loop for i from 1 to nbthread
               collect
               (mp:process-run-function (format nil "Thread-~A" i)

@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -90,15 +90,15 @@
 ;;; BPC
 ;;;========================================
 
-(defclass class-with-times-slot () 
+(defclass class-with-times-slot ()
   ((times :initform nil :initarg :times :accessor times)))
 
 (defclass* BPC (bpf class-with-times-slot)
-           ((x-points :initform nil :initarg :x-points)
-            (y-points :initform nil :initarg :y-points))
-           (:icon 'bpc)
-           (:documentation 
-"BPC / BREAK-POINTS CURVE: a 2D function defined by a list of [x,y] coordinates.
+  ((x-points :initform nil :initarg :x-points)
+   (y-points :initform nil :initarg :y-points))
+  (:icon 'bpc)
+  (:documentation
+   "BPC / BREAK-POINTS CURVE: a 2D function defined by a list of [x,y] coordinates.
 
 BPC objects are constructed from the list of X coordinates (<x-points>) and the list of Y coordinates (<y-points>). The values in <x-point> are not necesarily increasing (contrary to BPF objects).
 
@@ -106,7 +106,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 
 <decimals> determines the floating-point precision of the function (0 = integers, n > 0 = number of decimals)."))
 
-(defmethod additional-class-attributes ((self BPC)) 
+(defmethod additional-class-attributes ((self BPC))
   (append '(times) (call-next-method)))
 
 ;;; BPCs have a special accessor for times
@@ -115,14 +115,14 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 
 (defmethod om-init-instance ((self bpc) &optional initargs)
   ;;; save/load will work with slot-value only
-  (when (slot-value self 'times) 
+  (when (slot-value self 'times)
     (time-sequence-set-times self (slot-value self 'times)))
   (call-next-method))
 
 
 ;; need to redefine from BPF
 (defmethod time-sequence-get-times ((self BPC)) (time-values-from-points self))
-(defmethod time-sequence-set-times ((self BPC) times) 
+(defmethod time-sequence-set-times ((self BPC) times)
   (set-bpf-points self :time times)
   (time-sequence-update-internal-times self))
 
@@ -138,14 +138,14 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
   (let ((x (x-values-from-points self))
         (y (y-values-from-points self))
         (times (time-values-from-points self)))
-  (setf (slot-value self 'decimals) decimals)
-  (check-decimals self)
-  (set-bpf-points self :x x :y y :time times)
-  (time-sequence-update-internal-times self)
-  (decimals self)))
+    (setf (slot-value self 'decimals) decimals)
+    (check-decimals self)
+    (set-bpf-points self :x x :y y :time times)
+    (time-sequence-update-internal-times self)
+    (decimals self)))
 
 (defmethod init-bpf-points ((self BPC))
-  (set-bpf-points self 
+  (set-bpf-points self
                   :x (slot-value self 'x-points)
                   :y (slot-value self 'y-points)
                   :time (slot-value self 'times)
@@ -161,12 +161,12 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
                                                   (or y (y-values-from-points self)) ;  (slot-value self 'y-points))
                                                   (decimals self)
                                                   'om-make-tpoint))
-  
+
   (let ((times (or time (time-values-from-points self))))
     (when times
       (loop for p in (point-list self)
             for time in times do (setf (tpoint-time p) time))))
-    
+
   (when time-types
     (loop for p in (point-list self)
           for type in time-types do (om-point-set p :type type)))
@@ -182,7 +182,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 (defmethod possible-set ((self bpc) point x y) t)
 
 (defmethod adapt-point ((self bpc) point)
-  (setf (tpoint-x point) (funcall (truncate-function (decimals self)) (tpoint-x point)) 
+  (setf (tpoint-x point) (funcall (truncate-function (decimals self)) (tpoint-x point))
         (tpoint-y point) (funcall (truncate-function (decimals self)) (tpoint-y point)))
   point)
 
@@ -191,11 +191,11 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
   (let ((p (adapt-point self new-point))
         (pp (or position (length (point-list self)))))
     (setf (point-list self) (insert-in-list (point-list self) p pp))
-   pp ))
+    pp ))
 
 (defmethod set-point-in-bpc ((self bpc) point x y time)
   (let ((xx (funcall (truncate-function (decimals self)) (or x (om-point-x point))))
-        (yy (funcall (truncate-function (decimals self)) (or y (om-point-y point)))))        
+        (yy (funcall (truncate-function (decimals self)) (or y (om-point-y point)))))
     (setf (tpoint-x point) xx
           (tpoint-y point) yy
           (tpoint-time point) time)
@@ -205,7 +205,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 ;;; TIME-SEQUENCE METHODS
 ;;;=========================================
 
-(defmethod get-obj-dur ((self BPC)) 
+(defmethod get-obj-dur ((self BPC))
   (if (point-list self) (tpoint-internal-time (car (last (point-list self)))) 0))
 
 (defmethod time-sequence-make-timed-item-at ((self bpc) at)
@@ -215,18 +215,18 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 ;;; Create a new point that preserves the motion of the object
 (defmethod make-default-tpoint-at-time ((self bpc) time)
   (if (times self)
-      (let ((pos (or (position time (point-list self) :key 'tpoint-internal-time :test '<= ) 
+      (let ((pos (or (position time (point-list self) :key 'tpoint-internal-time :test '<= )
                      (length (point-list self))))
             (len (length (point-list self))))
         ;if length is 1 or if the point is before the others or after use the same position than the before or after point
-        (if (or (= len 1) (or (= pos 0) (= pos len))) 
+        (if (or (= len 1) (or (= pos 0) (= pos len)))
             (let ((point (nth (min pos (1- len)) (point-list self))))
               (om-make-tpoint (om-point-x point) (om-point-y point) time))
           ; if several points, preserve the motion
           (let ((p1 (nth (1- pos) (point-list self)))
                 (p2 (nth pos (point-list self))))
             (calc-intermediate-point-at-time p1 p2 time))))
-    ;if no points, create a points a pos 
+    ;if no points, create a points a pos
     (om-make-tpoint 0 0 time)))
 
 (defmethod* get-interpolated-sequence ((self bpc) &optional (interpol-time 100))
@@ -248,7 +248,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 ;;; using reduce 'mix/max is fatser when interpreted but not when compiled
 (defmethod nice-bpf-range ((self bpc))
   (multiple-value-bind (x1 x2 y1 y2 t1 t2)
-      (loop for x in (x-values-from-points self) 
+      (loop for x in (x-values-from-points self)
             for y in (y-values-from-points self)
             for time in (time-sequence-get-internal-times self)
             minimize x into x1 maximize x into x2
@@ -262,7 +262,7 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
 
 
 ;;; to be redefined by objects if they have a specific miniview for the sequencer
-(defmethod draw-sequencer-mini-view ((self bpc) (box t) x y w h &optional time) 
+(defmethod draw-sequencer-mini-view ((self bpc) (box t) x y w h &optional time)
   (let* ((x-col (om-def-color :red))
          (y-col (om-def-color :green))
          (ranges (nice-bpf-range self))
@@ -297,9 +297,9 @@ If <x-list> and <y-list> are not of the same length, the last step in the shorte
     (if (number-? (interpol object))
         (let* ((root (get-active-interpol-time object (car interval))))
           (loop for interpolated-time in (arithm-ser root (1- (cadr interval)) (number-number (interpol object)))
-                collect (list 
-                         interpolated-time 
-                         #'(lambda (pt) (funcall (action-fun object) pt)) 
+                collect (list
+                         interpolated-time
+                         #'(lambda (pt) (funcall (action-fun object) pt))
                          (make-default-tpoint-at-time object interpolated-time))))
       (loop for pt in (filter-list (point-list object) (car interval) (cadr interval) :key 'tpoint-internal-time)
             collect

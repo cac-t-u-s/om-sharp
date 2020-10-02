@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -17,13 +17,13 @@
 
 ;===============================================================================
 ; CONTROL BOXES
-; INFLUENCE THE EVALUATION ORDER 
+; INFLUENCE THE EVALUATION ORDER
 ;===============================================================================
 
 (in-package :om)
 
-; The functions IF, AND, OR in this file are special function that are presented 
-; in the packages as special-boxes. 
+; The functions IF, AND, OR in this file are special function that are presented
+; in the packages as special-boxes.
 
 ;;;------------------------
 ;;; IF
@@ -41,7 +41,7 @@
 
 (defmethod create-box-inputs ((self OMIFBoxCall)) (call-next-method))
 
-(defmethod boxcall-value ((self OMIFBoxCall)) 
+(defmethod boxcall-value ((self OMIFBoxCall))
   (let ((test (omNG-box-value (first (inputs self)))))
     (if test
         (omNG-box-value (second (inputs self)))
@@ -84,16 +84,16 @@
 (defmethod omNG-make-special-box ((reference (eql 'or)) pos &optional init-args)
   (omNG-make-new-boxcall reference pos init-args))
 
-(defmethod boxcall-value ((self OMAndBoxCall)) 
+(defmethod boxcall-value ((self OMAndBoxCall))
   (let ((rep t))
     (loop while rep
           for inp in (inputs self) do
           (setf rep (omNG-box-value inp)))
     rep))
 
-(defmethod boxcall-value ((self OMorBoxCall)) 
+(defmethod boxcall-value ((self OMorBoxCall))
   (let ((rep nil))
-    (loop while (not rep) 
+    (loop while (not rep)
           for inp in (inputs self) do
           (setf rep (omNG-box-value inp)))
     rep))
@@ -101,7 +101,7 @@
 (defmethod gen-code-for-call ((self OMAndBoxCall) &optional args)
   (let ((arguments (or args (gen-code-inputs self))))
     `(and ,.arguments)))
-    
+
 (defmethod gen-code-for-call ((self OMOrBoxCall) &optional args)
   (let ((arguments (or args (gen-code-inputs self))))
     `(or ,.arguments)))
