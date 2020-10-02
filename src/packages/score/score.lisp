@@ -48,6 +48,9 @@
         "editor/multiseq-poly-editor"
         "editor/score-boxes"
         "editor/play"
+        
+        "math/n-cercle"
+        "math/n-cercle-editor"
 
         "import-export/midi"
         "import-export/musicxml-import"
@@ -85,6 +88,13 @@
                       "Utils"
                       :doc "Unit conversion utilities etc."
                       :functions '(approx-m mc->f f->mc mc->n n->mc int->symb symb->int beats->ms)
+                      :subpackages nil)
+                     (omNG-make-package
+                      "Math"
+                      :doc "Mathematical tools and Set theory"
+                      :classes '(n-cercle)
+                      :functions '(chord2c c2chord c2chord-seq chord-seq2c c2rhythm rhythm2c
+                                           nc-rotate nc-complement nc-inverse)
                       :subpackages nil)
                      (omNG-make-package
                       "Import/Export"
