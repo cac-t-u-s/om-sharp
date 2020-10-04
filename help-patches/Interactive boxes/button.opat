@@ -4,7 +4,7 @@
  (:doc "")
  (:info
   (:created "2020/06/30 13:35:53")
-  (:modified "2020/10/03 22:38:24")
+  (:modified "2020/10/04 21:12:58")
   (:by "om-sharp")
   (:version 1.0))
  (:window (:size (929 755)) (:position (501 52)))
@@ -14,8 +14,8 @@
   (:comment
    (:x 62)
    (:y 27)
-   (:w 73)
-   (:h 30)
+   (:w 100)
+   (:h 31)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
@@ -81,7 +81,7 @@
        (:x 136)
        (:y 214)
        (:w 104)
-       (:h 29)
+       (:h 34)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -143,7 +143,7 @@
        (:x 298)
        (:y 195)
        (:w 32)
-       (:h 29)
+       (:h 34)
        (:color
         (:color-or-nil
          (:color (:color 1.0 1.0 1.0 1.0))
@@ -196,7 +196,7 @@
        (:x 389)
        (:y 312)
        (:w 104)
-       (:h 29)
+       (:h 34)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -258,7 +258,7 @@
        (:x 439)
        (:y 278)
        (:w 51)
-       (:h 29)
+       (:h 34)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -283,7 +283,7 @@
        (:x 661)
        (:y 268)
        (:w 32)
-       (:h 29)
+       (:h 34)
        (:color
         (:color-or-nil
          (:color (:color 1.0 1.0 1.0 1.0))
@@ -337,7 +337,7 @@
        (:x 709)
        (:y 341)
        (:w 104)
-       (:h 29)
+       (:h 34)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -399,7 +399,7 @@
        (:x 721)
        (:y 311)
        (:w 32)
-       (:h 29)
+       (:h 34)
        (:color
         (:color-or-nil
          (:color (:color 1.0 1.0 1.0 1.0))
@@ -421,7 +421,7 @@
        (:x 769)
        (:y 311)
        (:w 32)
-       (:h 29)
+       (:h 34)
        (:color
         (:color-or-nil
          (:color (:color 1.0 1.0 1.0 1.0))
@@ -443,7 +443,7 @@
        (:x 375)
        (:y 586)
        (:w 106)
-       (:h 29)
+       (:h 34)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -473,7 +473,7 @@
        (:x 178)
        (:y 312)
        (:w 104)
-       (:h 29)
+       (:h 34)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -503,7 +503,7 @@
        (:x 376)
        (:y 721)
        (:w 180)
-       (:h 29)
+       (:h 34)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -533,7 +533,7 @@
        (:x 343)
        (:y 653)
        (:w 330)
-       (:h 29)
+       (:h 34)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -615,7 +615,7 @@
           ((:onset 0)
            (:duration 21000)
            (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
-           (:name nil)
+           (:name "CHORD-SEQ")
            (:symbolic-date nil)
            (:symbolic-dur nil)
            (:symbolic-dur-extent 0)
@@ -682,7 +682,7 @@
        (:x 131)
        (:y 495)
        (:w 153)
-       (:h 29)
+       (:h 34)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -717,7 +717,7 @@
        (:x 454)
        (:y 523)
        (:w 187)
-       (:h 29)
+       (:h 34)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -752,7 +752,7 @@
        (:x 735)
        (:y 598)
        (:w 153)
-       (:h 29)
+       (:h 34)
        (:color nil)
        (:border nil)
        (:roundness nil)
@@ -788,7 +788,11 @@
        (:bgcolor nil)
        (:border nil)
        (:roundness nil)
-       (:text-font nil)
+       (:text-font
+        (:font-or-nil
+         (:font
+          (:font (:face "Lucida Grande") (:size 12) (:style :plain)))
+         (:t-or-nil t)))
        (:align nil)
        (:text
         "This is an experimental patch that explores how to exploit the fact that a button returns NIL when evaluated normally to use it as a kind of updater.
@@ -922,7 +926,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
        (:x 401)
        (:y 686)
        (:w 46)
-       (:h 29)
+       (:h 34)
        (:color
         (:color-or-nil
          (:color (:color 1.0 1.0 1.0 1.0))
@@ -1023,7 +1027,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:x 230)
    (:y 202)
    (:w 76)
-   (:h 29)
+   (:h 34)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -1049,10 +1053,13 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:bgcolor nil)
    (:border nil)
    (:roundness nil)
-   (:text-font nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Lucida Grande") (:size 12) (:style :plain)))
+     (:t-or-nil t)))
    (:align nil)
    (:text
-    "In reactive mode, a button sends a value (by defaylt, T) when CMD-clicked (or simply clicked if patch is locked).")
+    "In reactive mode, a button sends a value (by default, T) when CMD-clicked (or simply clicked if patch is locked).")
    (:id 4))
   (:comment
    (:x 59)
@@ -1063,7 +1070,10 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:bgcolor nil)
    (:border nil)
    (:roundness nil)
-   (:text-font nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Lucida Grande") (:size 12) (:style :plain)))
+     (:t-or-nil t)))
    (:align nil)
    (:text "If evaluated in the standard manner, a button returns T.")
    (:id 5))
@@ -1132,7 +1142,10 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:bgcolor nil)
    (:border nil)
    (:roundness nil)
-   (:text-font nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Lucida Grande") (:size 12) (:style :plain)))
+     (:t-or-nil t)))
    (:align nil)
    (:text
     "The send-value can be set in the info pane, or using a keyword input.")
@@ -1145,7 +1158,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:x 71)
    (:y 432)
    (:w 104)
-   (:h 29)
+   (:h 34)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -1171,7 +1184,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:x 83)
    (:y 397)
    (:w 32)
-   (:h 29)
+   (:h 34)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -1191,7 +1204,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:x 131)
    (:y 397)
    (:w 32)
-   (:h 29)
+   (:h 34)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -1209,9 +1222,9 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:group-id nil)
    (:name "seq")
    (:x 95)
-   (:y 538)
+   (:y 530)
    (:w 113)
-   (:h 29)
+   (:h 34)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -1257,7 +1270,7 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:x 108)
    (:y 679)
    (:w 207)
-   (:h 31)
+   (:h 34)
    (:color
     (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
    (:border nil)
@@ -1277,8 +1290,8 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:name "or")
    (:x 192)
    (:y 575)
-   (:w 49)
-   (:h 29)
+   (:w 50)
+   (:h 34)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -1309,7 +1322,10 @@ Note that the 3 buttons have to be clicked at least once to get a result, since 
    (:bgcolor nil)
    (:border nil)
    (:roundness nil)
-   (:text-font nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Lucida Grande") (:size 12) (:style :plain)))
+     (:t-or-nil t)))
    (:align nil)
    (:text
     "Use buttons to interactively generate a series of random number.")

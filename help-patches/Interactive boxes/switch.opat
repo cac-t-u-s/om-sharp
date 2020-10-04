@@ -4,10 +4,10 @@
  (:doc "")
  (:info
   (:created "2020/06/30 10:26:11")
-  (:modified "2020/10/03 21:52:20")
+  (:modified "2020/10/04 21:10:35")
   (:by "om-sharp")
   (:version 1.0))
- (:window (:size (726 730)) (:position (232 23)))
+ (:window (:size (726 730)) (:position (234 135)))
  (:grid nil)
  (:lock nil)
  (:boxes
@@ -289,7 +289,7 @@
    (:x 325)
    (:y 408)
    (:w 74)
-   (:h 29)
+   (:h 34)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -334,7 +334,7 @@
    (:x 162)
    (:y 533)
    (:w 74)
-   (:h 29)
+   (:h 34)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -360,7 +360,7 @@
    (:x 153)
    (:y 416)
    (:w 59)
-   (:h 29)
+   (:h 34)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -385,7 +385,7 @@
    (:x 262)
    (:y 449)
    (:w 94)
-   (:h 29)
+   (:h 34)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -415,7 +415,7 @@
    (:x 281)
    (:y 493)
    (:w 55)
-   (:h 29)
+   (:h 34)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -514,7 +514,10 @@
    (:bgcolor nil)
    (:border nil)
    (:roundness nil)
-   (:text-font nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Lucida Grande") (:size 12) (:style :plain)))
+     (:t-or-nil t)))
    (:align nil)
    (:text
     "CMD+click to select which input will be passed through to the output. (Or if the patch is locked, just click).
@@ -526,7 +529,7 @@ If \"multiple-selection\" mode is on, the selected inputs will be collected into
   (:comment
    (:x 55)
    (:y 19)
-   (:w 68)
+   (:w 115)
    (:h 30)
    (:fgcolor nil)
    (:bgcolor nil)
