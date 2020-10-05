@@ -291,7 +291,13 @@
 
 (defmethod fit-comment-size ((box OMComment) size &optional fit)
   (let* ((font (box-draw-font box))
-         (contrained-width (max (om-point-x (minimum-size box)) (om-point-x size))))
+         (contrained-width (max 
+                            (om-point-x (minimum-size box)) 
+                            (om-point-x size)
+                            (+ (apply 'max (mapcar #'(lambda (str) 
+                                                       (om-string-size str font))
+                                                   (mapcan 'string-to-list (string-lines-to-list (value box)))))
+                               (* *comment-box-margin* 2)))))
     (om-make-point
      contrained-width
      (max (if fit 0 (om-point-y size))
