@@ -108,6 +108,8 @@
         (setf (value newcomment) text)
         newcomment))))
 
+(defmethod initialize-box-value ((self OMComment) &optional value) nil)
+
 (defmethod default-size ((self OMComment))
   (let* ((comment-lines (om-text-to-lines (value self)))
          (longest-line (reduce #'(lambda (s1 s2) (if (> (length s1) (length s2)) s1 s2)) comment-lines)))
