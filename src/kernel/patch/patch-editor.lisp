@@ -206,15 +206,6 @@
             (append
              (default-edit-menu-items self)
              (list
-                             ;(om-make-menu-comp
-                             ;      (list (om-make-menu-item
-                             ;             "Auto align boxes..."
-                             ;             #'(lambda ()
-                             ;                 (store-current-state-for-undo self)
-                             ;                 (align-selected-boxes self))
-                             ;             :key "a" :key-mod nil
-                             ;             :enabled #'(lambda () (not (edit-lock self)))
-                             ;             )))
               (om-make-menu-comp
                (list (om-make-menu-item
                       "Show Lisp code"
