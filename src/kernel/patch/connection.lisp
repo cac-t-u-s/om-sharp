@@ -43,6 +43,12 @@
     ("Execution" ;;; category
      (:reactive "Reactive (r)" :bool reactive))))
 
+
+(defmethod consolidate-appearance ((self OMConnection))
+  (set-property self :color (make-color-or-nil :t-or-nil t :color (connection-draw-color self)))
+  (set-property self :style (connection-draw-style self)))
+
+
 (defmethod object-name-in-inspector ((self OMConnection)) "CONNECTION")
 
 (defmethod connection-draw-style ((c OMConnection))
