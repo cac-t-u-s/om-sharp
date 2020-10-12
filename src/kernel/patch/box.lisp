@@ -148,9 +148,17 @@
   (call-next-method)
   (when (container object) (update-container-groups (container object))))
 
+
 (defmethod set-property ((object OMBox) (prop-id (eql :icon)) val)
-  (call-next-method)
-  (initialize-size object))
+
+  (let ((old-value (get-property object prop-id)))
+    
+    (call-next-method)
+    
+    (unless (equal old-value val)
+      (initialize-size object))
+    
+    ))
 
 ;;;=============================
 
