@@ -107,6 +107,18 @@
      (:group-id "Group/Track" (:none 1 2 3 4 5 6 7 8) group-id)
      )))
 
+
+(defmethod consolidate-appearance ((self OMBox))
+  (set-property self :color (make-color-or-nil :t-or-nil t :color (box-draw-color self)))
+  (set-property self :border (make-number-or-nil :t-or-nil t :number (box-draw-border self)))
+  (set-property self :roundness (make-number-or-nil :t-or-nil t :number (box-draw-roundness self)))
+  (set-property self :text-font (make-font-or-nil :t-or-nil t :font (box-draw-font self)))
+  (set-property self :align (box-draw-text-align self))
+  (when (valid-property-p self :icon)
+    (set-property self :icon (box-draw-icon-pos self)))
+  )
+
+
 (defmethod box-draw-color ((box OMBox))
   (if (color-? (color box))
       (color-color (color box))
@@ -148,9 +160,17 @@
   (call-next-method)
   (when (container object) (update-container-groups (container object))))
 
+
 (defmethod set-property ((object OMBox) (prop-id (eql :icon)) val)
-  (call-next-method)
-  (initialize-size object))
+
+  (let ((old-value (get-property object prop-id)))
+    
+    (call-next-method)
+    
+    (unless (equal old-value val)
+      (initialize-size object))
+    
+    ))
 
 ;;;=============================
 

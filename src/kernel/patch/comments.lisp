@@ -46,6 +46,14 @@
      (:align "Text align" (:left :center :right :default) text-align (:appearance :comment-align))
      )))
 
+(defmethod consolidate-appearance ((self OMComment))
+  (set-property self :fgcolor (make-color-or-nil :t-or-nil t :color (box-draw-text-color self)))
+  (set-property self :bgcolor (make-color-or-nil :t-or-nil t :color (box-draw-color self)))
+  (set-property self :border (make-number-or-nil :t-or-nil t :number (box-draw-border self)))
+  (set-property self :roundness (make-number-or-nil :t-or-nil t :number (box-draw-roundness self)))
+  (set-property self :text-font (make-font-or-nil :t-or-nil t :font (box-draw-font self)))
+  (set-property self :align (box-draw-text-align self)))
+
 
 (defmethod object-name-in-inspector ((self OMComment)) "COMMENT")
 (defmethod get-documentation ((self OMComment))

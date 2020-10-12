@@ -206,15 +206,6 @@
             (append
              (default-edit-menu-items self)
              (list
-                             ;(om-make-menu-comp
-                             ;      (list (om-make-menu-item
-                             ;             "Auto align boxes..."
-                             ;             #'(lambda ()
-                             ;                 (store-current-state-for-undo self)
-                             ;                 (align-selected-boxes self))
-                             ;             :key "a" :key-mod nil
-                             ;             :enabled #'(lambda () (not (edit-lock self)))
-                             ;             )))
               (om-make-menu-comp
                (list (om-make-menu-item
                       "Show Lisp code"
@@ -288,7 +279,22 @@
                 :enabled #'(lambda () (and (not (edit-lock self))
                                            (get-selected-boxes self)))
                 )
+               
+               (om-make-menu-item
+                "Consolidate appearance [SHIFT+S]"
 
+                #'(lambda () (store-current-state-for-undo self)
+                    (let ((selection (append (get-selected-boxes self) (get-selected-connections self))))
+                      (mapc 'consolidate-appearance selection)
+                      (update-inspector-for-editor 
+                       self 
+                       (if (= 1 (length selection)) (car selection) selection))))
+
+                :enabled #'(lambda () (and (not (edit-lock self))
+                                           (or (get-selected-boxes self)
+                                               (get-selected-connections self))))
+                )
+               
                (om-make-menu-item
                 "Init size [I]"
 
@@ -616,6 +622,14 @@
                (store-current-state-for-undo editor)
                (align-selected-boxes editor)))
 
+        (#\S (unless (edit-lock editor)
+               (store-current-state-for-undo editor)
+               (let ((selection (append selected-boxes selected-connections)))
+                 (mapc 'consolidate-appearance selection)
+                 (update-inspector-for-editor 
+                  editor 
+                  (if (= 1 (length selection)) (car selection) selection)))))
+
         (#\c (unless (edit-lock editor)
                (store-current-state-for-undo editor)
                (if selected-boxes
@@ -690,6 +704,7 @@
     ("M" "Change display mode on selected box(es)")
     ("SHIFT + A" "Align selected box(es)")
     ("I" "Reinitialize selected box(es) size")
+    ("SHIFT + S" "Consolidate selected box(es) appearance")
     ("SHIFT + I" "Reinitialize selected box(es) value")
     ("SHIFT + E" "Encapsulate selected boxes in an internal patch")
     ("SHIFT + U" "Unencapsulate internal patch")

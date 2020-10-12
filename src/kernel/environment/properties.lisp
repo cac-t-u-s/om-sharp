@@ -104,8 +104,6 @@
       (om-beep-msg "Value ~A is read-only" obj)
     obj))
 
-(slot-exists-p 4 #(lambda (x) x))
-
 (defmethod get-property (object prop-id &key (warn t))
   (let* ((prop (get-property-spec object prop-id))
          (val (access-value object (nth 3 prop))))
