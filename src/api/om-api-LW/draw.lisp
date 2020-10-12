@@ -27,36 +27,35 @@
 
 
 (export '(
-
+          om-draw-string
+          om-draw-char
+          om-draw-line
+          om-draw-lines
+          om-draw-dashed-line
+          om-draw-rect
+          om-draw-rounded-rect
+          om-draw-ellipse
+          om-draw-arc
+          om-draw-circle
+          om-draw-polygon
+          om-draw
+           
           om-with-focused-view
-             om-with-fg-color
-           om-with-bg-color
-           om-with-font
-           om-with-line-size
-           om-with-line
-           om-with-translation
-           om-with-alpha
+          om-with-fg-color
+          om-with-bg-color
+          om-with-font
+          om-with-line-size
+          om-with-line
+          om-with-translation
+          om-with-alpha
 
-           om-with-delayed-redraw
-           om-with-clip-rect
-           om-draw-contents
-           om-draw-contents-area
-           om-invalidate-view
-           om-invalidate-area
-
-           om-draw-string
-           om-draw-char
-           om-draw-line
-           om-draw-lines
-           om-draw-dashed-line
-           om-draw-rect
-           om-draw-rounded-rect
-           om-draw-ellipse
-           om-draw-arc
-           om-draw-circle
-           om-draw-polygon
-           om-draw
-           ) :om-api)
+          om-with-delayed-redraw
+          om-with-clip-rect
+          om-draw-contents
+          om-draw-contents-area
+          om-invalidate-view
+          om-invalidate-area
+          ) :om-api)
 
 (in-package :om-api)
 
