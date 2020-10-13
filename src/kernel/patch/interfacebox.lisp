@@ -420,7 +420,7 @@
 (defmethod special-item-reference-class ((item (eql 'list-selection))) 'ListSelectionBox)
 
 (defmethod default-size ((self ListSelectionBox)) (omp 60 60))
-(defmethod maximum-size ((self ListSelectionBox)) 
+(defmethod maximum-size ((self ListSelectionBox))
   (omp nil (+ 8 (* (+ 2 (cell-height self)) (length (items self))))))
 
 (defmethod get-all-keywords ((self ListSelectionBox))
@@ -464,7 +464,7 @@
       (unless (equal newlist (items self))
         (setf (selection self) nil)
         (set-value self nil))
-      
+
       (let ((min-size (+ 8 (* (+ 2 (cell-height self)) (length newlist)))))
         (when (< (box-h self) min-size)
           (omng-resize self (omp (box-w self) min-size))
@@ -495,11 +495,11 @@
 
 (defmethod draw-interface-component ((self ListSelectionBox) x y w h)
   (om-with-clip-rect (frame self) x y w h
-    
+
     (let* ((text-h (cadr (multiple-value-list (om-string-size "A" (cell-font self)))))
            (text-pos (if (>= text-h (cell-height self)) (cell-height self) (* .5 (+ (cell-height self) text-h)))))
-        
-      (om-with-font 
+
+      (om-with-font
        (cell-font self)
        (loop for i = 0 then (+ i 1)
              for yy = y then (+ yy (cell-height self))
@@ -626,13 +626,13 @@
   (let* ((font (or (font self) (om-def-font :font1b)))
          (text-h (cadr (multiple-value-list (om-string-size "A" font))))
          (text-y-pos (if (>= text-h h) h (* .5 (+ h text-h 1)))))
-   
-  (om-with-font
-   font
-   (om-draw-string (+ x 30) text-y-pos
-                   (format nil "~A"
-                           (nth (selection self) (items self))))
-   )))
+
+    (om-with-font
+     font
+     (om-draw-string (+ x 30) text-y-pos
+                     (format nil "~A"
+                             (nth (selection self) (items self))))
+     )))
 
 
 (defmethod interfacebox-action ((self ListMenuBox) frame pos)

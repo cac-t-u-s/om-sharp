@@ -279,22 +279,22 @@
                 :enabled #'(lambda () (and (not (edit-lock self))
                                            (get-selected-boxes self)))
                 )
-               
+
                (om-make-menu-item
                 "Consolidate appearance [SHIFT+S]"
 
                 #'(lambda () (store-current-state-for-undo self)
                     (let ((selection (append (get-selected-boxes self) (get-selected-connections self))))
                       (mapc 'consolidate-appearance selection)
-                      (update-inspector-for-editor 
-                       self 
+                      (update-inspector-for-editor
+                       self
                        (if (= 1 (length selection)) (car selection) selection))))
 
                 :enabled #'(lambda () (and (not (edit-lock self))
                                            (or (get-selected-boxes self)
                                                (get-selected-connections self))))
                 )
-               
+
                (om-make-menu-item
                 "Init size [I]"
 
@@ -626,8 +626,8 @@
                (store-current-state-for-undo editor)
                (let ((selection (append selected-boxes selected-connections)))
                  (mapc 'consolidate-appearance selection)
-                 (update-inspector-for-editor 
-                  editor 
+                 (update-inspector-for-editor
+                  editor
                   (if (= 1 (length selection)) (car selection) selection)))))
 
         (#\c (unless (edit-lock editor)

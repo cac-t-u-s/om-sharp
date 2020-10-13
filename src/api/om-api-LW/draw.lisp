@@ -39,7 +39,7 @@
           om-draw-circle
           om-draw-polygon
           om-draw
-           
+
           om-with-focused-view
           om-with-fg-color
           om-with-bg-color

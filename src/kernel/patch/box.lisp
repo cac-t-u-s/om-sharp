@@ -164,12 +164,12 @@
 (defmethod set-property ((object OMBox) (prop-id (eql :icon)) val)
 
   (let ((old-value (get-property object prop-id)))
-    
+
     (call-next-method)
-    
+
     (unless (equal old-value val)
       (initialize-size object))
-    
+
     ))
 
 ;;;=============================
