@@ -52,8 +52,7 @@
                   :resizable :w
                   :bg-color (om-def-color :white)
                   :border nil
-                  :size (om-make-point (om-string-size (format nil "  ~A  " curr-value) font)
-                                       20)
+                  :size (om-make-point 40 20)
                   :font font
                   :after-fun #'(lambda (item)
                                  (let ((val (om-read-list-from-string (text item))))
@@ -74,7 +73,7 @@
               :checked-p (pref-item-value pref-item)
               :text ""
               ;:resizable :w
-              :size (om-make-point 20 20)
+              :size (om-make-point 20 18)
               :font (om-def-font :font1)
               :di-action #'(lambda (item)
                              (setf (pref-item-value pref-item) (om-checked-p item))
@@ -272,44 +271,57 @@
 ;;; THE VIEW OF ONE PREFERENCE
 
 (defmethod make-preference-item ((type (eql :title)) pref-item)
-  (om-make-di 'om-simple-text :size (om-make-point 20 20) :text "" :focus t))
+  (om-make-di 'om-simple-text :size (om-make-point 20 30) :text "" :focus t))
 
 
 (defun make-preference-view (pref-item)
 
-  (let* ((main-text (om-make-di 'om-simple-text
-                                :text (pref-item-name pref-item)
-                                :font (if (equal (pref-item-type pref-item) :title) (om-def-font :font2b) (om-def-font :font1))
-                                :size (om-make-point 180
-                                                     (if (equal (pref-item-type pref-item) :title) 18 14))))
+  (let* ((font (om-def-font :font1))
 
          (g-item (make-preference-item (pref-item-type pref-item) pref-item))
 
-         (font (om-def-font :font1))
-
          (doc-text (when (pref-item-doc pref-item)
-                     (let ((real-text (if (listp (pref-item-doc pref-item))
-                                          (reduce
-                                           #'(lambda (s1 s2) (concatenate 'string s1 (string #\Newline) s2))
-                                           (pref-item-doc pref-item))
-                                        (pref-item-doc pref-item))))
+                     (let* ((real-text (if (listp (pref-item-doc pref-item))
+                                           (reduce
+                                            #'(lambda (s1 s2) (concatenate 'string s1 (string #\Newline) s2))
+                                            (pref-item-doc pref-item))
+                                         (pref-item-doc pref-item)))
+                            (line-w (loop for line in (list! (pref-item-doc pref-item))
+                                          maximize (om-string-size line font)))
+                            (line-h (cadr (multiple-value-list (om-string-size real-text font)))))
+
                        (om-make-di
                         'om-simple-text
                         :text real-text
                         :font font
-                        :size (om-make-point (om-string-size (format nil "~A" real-text) font)
-                                             (* 14 (length (list! (pref-item-doc pref-item))))))
+                        :size (om-make-point line-w
+                                             (+ (if (equal (pref-item-type pref-item) :title) 10 2)
+                                                (* line-h (length (list! (pref-item-doc pref-item)))))))
                        ))))
 
-    (if (and (equal (pref-item-type pref-item) :title) doc-text)
+    (if (equal (pref-item-type pref-item) :title)
+
+        (let ((title (om-make-di 'om-simple-text
+                                 :text (pref-item-name pref-item)
+                                 :font (om-def-font :font2b)
+                                 :size (om-make-point 180 16))))
+          (om-make-layout
+           'om-column-layout :name (pref-item-id pref-item)
+           :subviews (cons (om-make-layout
+                            'om-row-layout :align :bottom
+                            :subviews (list title g-item))
+                           (list! doc-text))))
+
+      (let* ((main-text (om-make-di 'om-simple-text
+                                    :text (pref-item-name pref-item)
+                                    :font (om-def-font :font1)
+                                    :size (om-make-point 180 14))))
+
         (om-make-layout
-         'om-column-layout :name (pref-item-id pref-item) :align :left
-         :subviews (list main-text doc-text))
-      (om-make-layout
-       'om-row-layout :name (pref-item-id pref-item) :align :center
-       :subviews (list main-text g-item doc-text))
-      )
-    ))
+         'om-row-layout :name (pref-item-id pref-item) :align :center
+         :subviews (list main-text g-item doc-text))
+        )
+      )))
 
 
 ;;;===========================================================================
