@@ -806,6 +806,7 @@
                                                      (om-set-view-size item (om-make-point (list :character (+ 1 textsize)) (h item)))
                                                      )))
                                 :font (om-def-font :font1)
+                                :border t
                                 ;;; probably need to adjust these x/y values for different platforms... :
                                 :size (if multi-line
                                           (om-point-mv size :y -8 :x 0)
@@ -1178,6 +1179,7 @@
          (om-make-di 'text-input-item
                      :text (format nil "~s" (value (object self)))
                      :focus t
+                     :border t
                      :fg-color (om-def-color :dark-gray)
                      :di-action #'(lambda (item)
                                     (let ((text (om-dialog-item-text item)))

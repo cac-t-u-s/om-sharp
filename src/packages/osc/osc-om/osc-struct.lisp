@@ -217,6 +217,7 @@
                  'om-text-edit-view
                  :size (omp 200 200)
                  :text (bundle-to-text oscb)
+                 :border t
                  :edit-action #'(lambda (item)
                                   (let ((messages (remove nil
                                                           (loop for line in (om-text-to-lines (om-dialog-item-text item))

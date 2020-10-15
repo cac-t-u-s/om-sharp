@@ -1254,6 +1254,8 @@
                       :font (om-def-font :font1)
                       :size (om-make-point 100 30)
                       :position position
+                      :border t
+
                      ;ouvre une nouvelle vue de clompletion mais ne la ferme pas...
                      ;:gesture-callbacks (list
                      ;                    (cons
