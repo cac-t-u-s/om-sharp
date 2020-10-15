@@ -56,9 +56,10 @@
   #-cocoa nil
   #+cocoa (capi::convert-to-screen))
 
+
 (defun om-get-user-string (prompt &key (initial-string ""))
   (capi::prompt-for-string prompt :initial-value initial-string
-                           :pane-args `(:visible-min-width ,(max 300 (om-string-size initial-string (gp:font-description (capi::simple-pane-font *dummy-view*)))))
+                           :pane-args `(:visible-min-width ,(max 300 (om-string-size initial-string (om-def-font :font2))))
                            :accept-null-string t))
 
 
