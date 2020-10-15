@@ -512,7 +512,8 @@
 
          (size-item
           (om-make-layout
-           'om-row-layout
+           'om-row-layout 
+           :align :center
            :subviews (list
                       (om-make-di 'om-simple-text :text "size"
                                   :font (om-def-font :font1)
@@ -532,6 +533,7 @@
          (staff-item
           (om-make-layout
            'om-row-layout
+           :align :center
            :subviews (list
                       (om-make-di 'om-simple-text :text "staff"
                                   :size (omp 35 20)
@@ -550,6 +552,7 @@
          (scale-item
           (om-make-layout
            'om-row-layout
+           :align :center
            :subviews (list
                       (om-make-di 'om-simple-text :text "scale"
                                   :size (omp 35 20)
@@ -565,9 +568,10 @@
          (duration-item
           (om-make-layout
            'om-row-layout
+           :align :center
            :subviews (list
                       (om-make-di 'om-simple-text :text "durations"
-                                  :size (omp 50 18)
+                                  :size (omp 56 18)
                                   :font (om-def-font :font1))
                       (om-make-di 'om-check-box :text "" :font (om-def-font :font1)
                                   :size (omp 20 20)
@@ -596,10 +600,11 @@
          (grid-item
           (om-make-layout
            'om-row-layout
+           :align :center
            :delta nil
            :subviews (list (om-make-di 'om-simple-text :text "grid"
                                        :font (om-def-font :font1)
-                                       :size (omp 50 18))
+                                       :size (omp 56 18))
                            (om-make-di 'om-check-box
                                        :checked-p (editor-get-edit-param editor :grid)
                                        :text ""
