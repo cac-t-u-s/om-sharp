@@ -596,7 +596,7 @@
                         :angles :round
                         :fill t)))
 
-      ;;; icon
+      ;;; icon or main contents
       (or (box-draw box self)
           (if (icon-id self)
               (case (box-draw-icon-pos box)
