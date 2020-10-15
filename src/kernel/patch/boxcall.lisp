@@ -280,7 +280,7 @@
 
   (let ((new-in (next-optional-input self)))
     (when (and name (not (string-equal name (string new-in))))
-      (om-print-format "WRONG OPTIONAL INPUT NAME: ~A -- Correct optional in the list is now: ~A" (list name new-in) "Warning"))
+      (om-print-dbg "Trying to set optional input with name: ~A -- The next in the list is now: ~A" (list name new-in) "Warning"))
     (when new-in
       (add-optional-input self
                           :name new-in
