@@ -506,7 +506,7 @@
                         :focus nil :default nil
                         :text (font-to-str (font-font current))
                         :size (om-make-point (+ 40 (om-string-size (font-to-str (font-font current)) font))
-                                             #+cocoa 26 #-cocoa nil)
+                                             #+cocoa 26 #-cocoa 20)
                         :font font
                         :di-action #'(lambda (item)
                                        (let ((choice (om-choose-font-dialog
@@ -624,6 +624,7 @@
 (defmethod arguments-for-action ((fun t)) nil)
 
 (defun get-arguments-dialog (arglist &optional (vals nil vals-supplied-p))
+
   (let* ((win nil) (fields nil)
          (font (om-def-font :font1))
 
@@ -638,14 +639,16 @@
                                         (om-return-from-modal-dialog
                                          win
                                          (loop for edt in (reverse fields) collect
-                                               (read-from-string (om-dialog-item-text edt))))))))
+                                               (read-from-string (om-dialog-item-text edt)))))))
+
+         (namefied-w (+ 20 (list-max (mapcar #'(lambda (arg) (om-string-size (string (cadr arg)) font)) arglist)))))
 
     (setf win (om-make-window
-               'om-dialog ;:resizable :h
+               'om-dialog
                :size (omp nil nil)
                :position (om-mouse-position nil)
                :win-layout (om-make-layout
-                            'om-column-layout;  :ratios '(1 1 2)
+                            'om-column-layout
                             :align :left
                             :subviews (append
                                        (loop for arg in arglist
@@ -655,18 +658,21 @@
                                              (om-make-layout
                                               'om-row-layout :align :center
                                               :subviews (let ((val (if vals-supplied-p (nth n vals) defval)))
-                                                          (list (om-make-di 'om-simple-text :font font :text (string name)
-                                                                            :size (omp (+ 20 (om-string-size (string name) font)) 18))
-                                                                (let ((edt (om-make-di 'om-editable-text :bg-color (om-def-color :white)
+                                                          (list (om-make-di 'om-simple-text 
+                                                                            :font font :text (string name)
+                                                                            :size (omp namefied-w 18))
+                                                                (let ((edt (om-make-di 'om-editable-text 
+                                                                                       :bg-color (om-def-color :white)
                                                                                        :text (if (stringp val) (format nil "~s" val) (format nil "~A" val))
-                                                                                       :size (omp 120 32) :font (om-def-font :font1))))
+                                                                                       :border t
+                                                                                       :size (omp 120 26) 
+                                                                                       :font (om-def-font :font1))))
                                                                   (push edt fields)
                                                                   edt)))))
                                        (list (om-make-view 'om-view :size (omp nil 20))
                                              (om-make-layout 'om-row-layout :subviews (list cb ob)))
                                        )
                             )))
-
 
     (om-modal-dialog win)))
 
@@ -707,7 +713,8 @@
                                 :items print-action-list
                                 :resizable nil
                                 :value (if (equal other-name :?) curr-fun-name (format nil "other: ~A" other-name))
-                                :size (om-make-point (om-string-size (format nil "~A   " curr-fun-name) font) 22)
+                                :size (om-make-point (list-max (mapcar #'(lambda (x) (om-string-size (format nil "~A" x) font)) def-action-list))
+                                                     24)
                                 :font font
                                 :di-action #'(lambda (list)
                                                (let* ((fun-i (om-get-selected-item-index list))

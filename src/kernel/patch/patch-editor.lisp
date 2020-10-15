@@ -1735,13 +1735,6 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                'om-column-layout :align :bottom
                :subviews
                (list
-                (om-make-di 'om-simple-text :size (om-make-point def-w 20)
-                            :text "--"
-                            :fg-color (om-def-color :dark-gray)
-                            :focus t  ;; prevents focus on other items :)
-                            :font (om-def-font :font3))
-
-                :separator
                 (let* ((doc (default-editor-help-text (editor self)))
                        (line-h (cadr (multiple-value-list (om-string-size "abc" text-font))))
                        (n-lines (length (om-string-wrap doc def-w text-font))))
@@ -1750,17 +1743,14 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                               :text doc
                               :fg-color (om-def-color :dark-gray)
                               :font text-font)
-                  )
-
-                )))
+                  )))
+                )
             ))
-
 
       (om-add-subviews self inspector-layout))
 
     (when (editor self)
       (om-update-layout (window (editor self))))
-
     ))
 
 
