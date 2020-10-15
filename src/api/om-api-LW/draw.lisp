@@ -410,12 +410,17 @@
 
 (defmethod position-in-view ((self om-view)) (omp 0 0))
 
+;;; drag and drop creates temporary view clones and might require that
+(defvar *override-clipping-shift* nil)
+(defmethod clipping-shift ((self om-view)) (omp 0 0))
+
 (defmacro om-with-clip-rect (view x y w h &body body)
-  `(gp::with-graphics-state ((om-get-view ,view) :mask (list (+ (om-point-x (position-in-view ,view)) ,x)
-                                                             (+ (om-point-y (position-in-view ,view)) ,y)
-                                                             ,w ,h))
-     ,@body))
-
-
-
-
+  `(let ((shift (if *override-clipping-shift*
+                     (clipping-shift (om-get-view ,view))
+                  (position-in-view ,view))))
+     (gp::with-graphics-state
+         ((om-get-view ,view)
+          :mask (list (+ (om-point-x shift) ,x)
+                      (+ (om-point-y shift) ,y)
+                      ,w ,h))
+       ,@body)))
