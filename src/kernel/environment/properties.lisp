@@ -506,7 +506,7 @@
                         :focus nil :default nil
                         :text (font-to-str (font-font current))
                         :size (om-make-point (+ 40 (om-string-size (font-to-str (font-font current)) font))
-                                             #+cocoa 26 #-cocoa nil)
+                                             #+cocoa 26 #-cocoa 20)
                         :font font
                         :di-action #'(lambda (item)
                                        (let ((choice (om-choose-font-dialog
