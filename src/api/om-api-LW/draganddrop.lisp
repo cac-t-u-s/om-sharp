@@ -65,6 +65,14 @@
 (defmethod om-draw-contents-for-drag ((self om-drag-view))
   (om-draw-contents self))
 
+;;; redefines from draw.lisp, to override default clipping
+;;; if necessary (see bbelow for windows)
+(defmethod clipping-shift :around ((self om-drop-view)) 
+  (if (drag-image self)
+      (om-view-position (drag-image self))
+    (omp 0 0)))
+
+
 (defmethod om-drag-area ((self om-drag-view))
   (let ((p1 (om-view-position self))
         (p2 (om-add-points (om-view-position self) (om-view-size self))))
@@ -116,7 +124,9 @@
 #+mswindows
 (defmethod om-draw-contents ((self clone-view))
   ;(om-draw-rect 0 0 100 100)
-  (om-draw-contents-for-drag (view self)))
+  (setf *override-clipping-shift* t)
+  (om-draw-contents-for-drag (view self))
+  (setf *override-clipping-shift* nil))
 
 #+mswindows
 (defmethod start-windows-d&d (self  pane  pos) nil)
