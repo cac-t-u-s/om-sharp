@@ -197,7 +197,7 @@
 
 (defun om-make-di (class  &rest other-attributes &key
                           position size (text "")
-                          container font bg-color fg-color (enabled t) print
+                          container font bg-color fg-color (enabled t) print border
                           (checked-p nil) cancel default focus range items
                           sort-styles
                           (scrollbars nil) selection
@@ -261,7 +261,7 @@
                               :horizontal-scroll (dialog-item-scrollbar-h scrollbars)
                               :vertical-scroll (dialog-item-scrollbar-v scrollbars)
 
-                              :visible-border t
+                              :visible-border border
 
                               ;;; only for text-edit
                               :allows-newline-p nil
@@ -338,7 +338,6 @@
 
 (defclass om-multi-text (om-standard-dialog-item capi::display-pane) ()
   (:default-initargs
-   :visible-border nil
    :accepts-focus-p nil
    :callback 'om-dialog-item-action))
 

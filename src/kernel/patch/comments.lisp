@@ -261,6 +261,7 @@
                                       ))
                      :begin-edit-action #'(lambda (item) (om-set-fg-color item (om-def-color :dark-gray)))
                      ;:edit-action #'(lambda (item) (print "edit"))
+                     :border t
                      :font (om-def-font :font1)
                      :size (om-make-point 140 60)
                      :position position
@@ -292,6 +293,7 @@
                                                      (reset-frame-size self))
                                                    ))
                                   :font (font-font (text-font box))
+                                  :border t
                                   :size (om-add-points (omp (box-w box) (box-h box)) (omp 4 4))
                                   :position (omp (box-x box) (box-y box))
                                   )))

@@ -371,6 +371,7 @@
       (let* ((tf (om-make-di 'om-editable-text :text text :font font
                              :bg-color (om-def-color :white)
                              :size (omp (+ w 20) (+ h 20))
+                             :border t
                              :di-action #'(lambda (item)
                                             (let ((window (om-view-window item)))
                                               (om-window-activate window nil)

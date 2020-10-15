@@ -903,14 +903,18 @@
                (close-point-editor self))))
 
       (setf xt (om-make-di 'om-editable-text :text (number-to-string x)
+                           :border t
                            :bg-color (om-def-color :white) :size (omp 80 32)) ; :di-action return-from-point-editor)
             yt (om-make-di 'om-editable-text :text (number-to-string y)
+                           :border t
                            :bg-color (om-def-color :white) :size (omp 80 32)) ; :di-action return-from-point-editor)
             zt (when z-supplied-p
                  (om-make-di 'om-editable-text :text (number-to-string z)
+                             :border t
                              :bg-color (om-def-color :white) :size (omp 80 32))) ; :di-action return-from-point-editor))
             tt (when time-supplied-p
                  (om-make-di 'om-editable-text :text (number-to-string time)
+                             :border t
                              :bg-color (om-def-color :white) :size (omp 80 32))) ; :di-action return-from-point-editor))
             cb (om-make-di 'om-button :text "Cancel" :size (omp 80 25)
                            :di-action #'(lambda (b) (declare (ignore b)) (close-point-editor self)))
