@@ -370,8 +370,10 @@
               #+linux (om-make-font "Bistream Vera Sans" 10)
               #-(or darwin linux) (om-make-font def-face (nth 0 sizes)))
              (:score (om-make-font score-face 10))
-             (:mono (om-make-font #-linux "Courier New" #+linux "Courier" #+darwin 12 #-darwin 10))
-             (:lambda ) ; ... a font that contains the lambda character...
+             (:mono
+              (om-make-font
+               #-linux "Courier New" #+linux "Courier"
+               #+macosx 12 #+mswindows 8 #-(or macosx mswindows) 10))
              (otherwise (om-make-font def-face (nth 0 sizes))))))
       (when face (setf fa (gp::augment-font-description fa :family face)))
       (when size (setf fa (gp::augment-font-description fa :size size)))

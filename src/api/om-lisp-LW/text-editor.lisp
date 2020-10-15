@@ -65,7 +65,8 @@
 
 (defparameter *text-editor-font*
   #+linux(gp::make-font-description :family "Liberation Mono" :size 11)
-  #-linux(gp::make-font-description :family "Monaco" :size 11))
+  #+macosx(gp::make-font-description :family "Monaco" :size 11)
+  #+mswindows(gp::make-font-description :family "Courier New" :size 9))
 
 
 (defclass om-text-editor-window (capi::interface)
