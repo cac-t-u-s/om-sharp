@@ -112,10 +112,14 @@
                                            :line-end-style :butt)    ; :butt :projecting
        ,@body)))
 
+(defvar *translation* (omp 0 0))
+
 (defmacro om-with-translation (x y &body body)
+  (declare (special *translation*))
   `(gp::with-graphics-transform (*curstream*
                                  (gp::apply-translation (gp::make-transform) ,x ,y))
-     ,@body))
+     (let ((*translation* (omp ,x ,y)))
+       ,@body)))
 
 
 
@@ -416,7 +420,9 @@
 
 (defmacro om-with-clip-rect (view x y w h &body body)
   `(let ((shift (if *override-clipping-shift*
+                    (om-add-points 
                      (clipping-shift (om-get-view ,view))
+                     *translation*)
                   (position-in-view ,view))))
      (gp::with-graphics-state
          ((om-get-view ,view)
