@@ -707,7 +707,8 @@
                                 :items print-action-list
                                 :resizable nil
                                 :value (if (equal other-name :?) curr-fun-name (format nil "other: ~A" other-name))
-                                :size (om-make-point (om-string-size (format nil "~A   " curr-fun-name) font) 22)
+                                :size (om-make-point (list-max (mapcar #'(lambda (x) (om-string-size (format nil "~A" x) font)) def-action-list))
+                                                     24)
                                 :font font
                                 :di-action #'(lambda (list)
                                                (let* ((fun-i (om-get-selected-item-index list))
