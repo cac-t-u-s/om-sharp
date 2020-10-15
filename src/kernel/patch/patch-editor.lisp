@@ -1547,10 +1547,8 @@
     (om-make-layout
      'om-column-layout :ratios '(1 nil) :delta 0
      :subviews (list
-
                 ;; main pane
                 listener-pane
-
                 (om-make-layout 'om-row-layout :subviews
                                 (list
                                  nil
