@@ -24,6 +24,7 @@ Thumbs.db
 _BUILD/**/*
 codesign.sh
 notarize.sh
+entitlements.plist
 VERSION
 
 *.sublime-*
