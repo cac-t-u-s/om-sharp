@@ -1,0 +1,2193 @@
+
+(:patch
+ (:name "3d-model")
+ (:doc "")
+ (:info
+  (:created "2020/10/16 22:56:54")
+  (:modified "2020/10/16 23:38:49")
+  (:by "om-sharp")
+  (:version 1.01))
+ (:window (:size (1101 509)) (:position (100 108)))
+ (:grid nil)
+ (:lock nil)
+ (:boxes
+  (:box
+   (:type :object)
+   (:reference 3d-cube)
+   (:group-id nil)
+   (:name nil)
+   (:x 26)
+   (:y 200)
+   (:w 98)
+   (:h 80)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :text)
+   (:showname nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CENTER")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "SIZE")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "COLOR")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "FILLED")
+     (:value t)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "CENTER") (:reactive nil))
+    (:output (:name "SIZE") (:reactive nil))
+    (:output (:name "COLOR") (:reactive nil))
+    (:output (:name "FILLED") (:reactive nil)))
+   (:window (:size nil) (:position nil))
+   (:edition-params)
+   (:value
+    (:object
+     (:class 3d-cube)
+     (:slots
+      ((:name nil)
+       (:use-display-list nil)
+       (:color nil)
+       (:points
+        (:list
+         (:list -0.5 -0.5 0.5)
+         (:list 0.5 -0.5 0.5)
+         (:list 0.5 -0.5 1.5)
+         (:list -0.5 -0.5 1.5)
+         (:list -0.5 0.5 0.5)
+         (:list 0.5 0.5 0.5)
+         (:list 0.5 0.5 1.5)
+         (:list -0.5 0.5 1.5)))
+       (:glvertexes
+        (:array
+         (:dimensions (:list 8))
+         (:content-as-list (:list nil nil nil nil nil nil nil nil))))
+       (:center (:list 0 0 1))
+       (:size 1)
+       (:filled t)))))
+   (:id 0))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "value box")
+   (:x 92)
+   (:y 157)
+   (:w 32)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 1)
+   (:id 1))
+  (:box
+   (:type :value)
+   (:reference cons)
+   (:group-id nil)
+   (:name "value box")
+   (:x 31)
+   (:y 157)
+   (:w 53)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value (:list 0 0 1))
+   (:id 2))
+  (:box
+   (:type :object)
+   (:reference 3d-model)
+   (:group-id nil)
+   (:name nil)
+   (:x 121)
+   (:y 370)
+   (:w 183)
+   (:h 57)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :hidden)
+   (:showname nil)
+   (:lock :locked)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "DATA")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :key) (:name "scaler-x") (:value 1) (:reactive nil))
+    (:input (:type :key) (:name "scaler-y") (:value 1) (:reactive nil))
+    (:input
+     (:type :key)
+     (:name "scaler-z")
+     (:value 1)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "DATA") (:reactive nil))
+    (:output (:name "scaler-x") (:reactive nil))
+    (:output (:name "scaler-y") (:reactive nil))
+    (:output (:name "scaler-z") (:reactive nil)))
+   (:window (:size (638 440)) (:position (532 137)))
+   (:edition-params
+    (:filter-off-grid nil)
+    (:y-grid (:list -0.5 2.25))
+    (:x-grid (:list -0.5 2.25)))
+   (:value
+    (:object
+     (:class 3d-model)
+     (:slots
+      ((:data
+        (:list
+         (:object
+          (:class 3d-cube)
+          (:slots
+           ((:name nil)
+            (:use-display-list nil)
+            (:color nil)
+            (:points
+             (:list
+              (:list -0.5 -0.5 0.5)
+              (:list 0.5 -0.5 0.5)
+              (:list 0.5 -0.5 1.5)
+              (:list -0.5 -0.5 1.5)
+              (:list -0.5 0.5 0.5)
+              (:list 0.5 0.5 0.5)
+              (:list 0.5 0.5 1.5)
+              (:list -0.5 0.5 1.5)))
+            (:glvertexes
+             (:array
+              (:dimensions (:list 8))
+              (:content-as-list
+               (:list nil nil nil nil nil nil nil nil))))
+            (:center (:list 0 0 1))
+            (:size 1)
+            (:filled t))))
+         (:object
+          (:class 3d-cube)
+          (:slots
+           ((:name nil)
+            (:use-display-list nil)
+            (:color (:color 0.5 0.7 0.7 1.0))
+            (:points
+             (:list
+              (:list 1.75 1.75 0.75)
+              (:list 2.25 1.75 0.75)
+              (:list 2.25 1.75 1.25)
+              (:list 1.75 1.75 1.25)
+              (:list 1.75 2.25 0.75)
+              (:list 2.25 2.25 0.75)
+              (:list 2.25 2.25 1.25)
+              (:list 1.75 2.25 1.25)))
+            (:glvertexes
+             (:array
+              (:dimensions (:list 8))
+              (:content-as-list
+               (:list nil nil nil nil nil nil nil nil))))
+            (:center (:list 2 2 1))
+            (:size 0.5)
+            (:filled t))))))))
+     (:add-slots
+      ((:scaler-x 1)
+       (:scaler-y 1)
+       (:scaler-z 1)
+       (:center (:list 0.0 0.0 0.0))
+       (:rotation-x 18.900038)
+       (:rotation-y 356.10016)
+       (:rotation-z 334.7998)))))
+   (:id 3))
+  (:box
+   (:type :function)
+   (:reference list)
+   (:group-id nil)
+   (:name "list")
+   (:x 153)
+   (:y 304)
+   (:w 54)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input (:type :optional) (:name "x") (:value nil) (:reactive nil))
+    (:input
+     (:type :optional)
+     (:name "x")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 4))
+  (:box
+   (:type :object)
+   (:reference 3d-cube)
+   (:group-id nil)
+   (:name nil)
+   (:x 209)
+   (:y 200)
+   (:w 102)
+   (:h 77)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :text)
+   (:showname nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CENTER")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "SIZE")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "COLOR")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "FILLED")
+     (:value t)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "CENTER") (:reactive nil))
+    (:output (:name "SIZE") (:reactive nil))
+    (:output (:name "COLOR") (:reactive nil))
+    (:output (:name "FILLED") (:reactive nil)))
+   (:window (:size nil) (:position nil))
+   (:edition-params)
+   (:value
+    (:object
+     (:class 3d-cube)
+     (:slots
+      ((:name nil)
+       (:use-display-list nil)
+       (:color (:color 0.5 0.7 0.7 1.0))
+       (:points
+        (:list
+         (:list 1.75 1.75 0.75)
+         (:list 2.25 1.75 0.75)
+         (:list 2.25 1.75 1.25)
+         (:list 1.75 1.75 1.25)
+         (:list 1.75 2.25 0.75)
+         (:list 2.25 2.25 0.75)
+         (:list 2.25 2.25 1.25)
+         (:list 1.75 2.25 1.25)))
+       (:glvertexes
+        (:array
+         (:dimensions (:list 8))
+         (:content-as-list (:list nil nil nil nil nil nil nil nil))))
+       (:center (:list 2 2 1))
+       (:size 0.5)
+       (:filled t)))))
+   (:id 5))
+  (:box
+   (:type :value)
+   (:reference single-float)
+   (:group-id nil)
+   (:name "value box")
+   (:x 242)
+   (:y 157)
+   (:w 35)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 0.5)
+   (:id 6))
+  (:box
+   (:type :value)
+   (:reference cons)
+   (:group-id nil)
+   (:name "value box")
+   (:x 182)
+   (:y 157)
+   (:w 53)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value (:list 2 2 1))
+   (:id 7))
+  (:box
+   (:type :function)
+   (:reference (:symbol "OM-MAKE-COLOR" "OM-API"))
+   (:group-id nil)
+   (:name "om-make-color")
+   (:x 289)
+   (:y 157)
+   (:w 123)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input (:type :standard) (:name "R") (:value nil) (:reactive nil))
+    (:input (:type :standard) (:name "G") (:value nil) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "B")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 8))
+  (:box
+   (:type :value)
+   (:reference single-float)
+   (:group-id nil)
+   (:name "value box")
+   (:x 293)
+   (:y 91)
+   (:w 35)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 0.5)
+   (:id 9))
+  (:box
+   (:type :value)
+   (:reference single-float)
+   (:group-id nil)
+   (:name "value box")
+   (:x 327)
+   (:y 122)
+   (:w 35)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 0.7)
+   (:id 10))
+  (:box
+   (:type :value)
+   (:reference single-float)
+   (:group-id nil)
+   (:name "value box")
+   (:x 362)
+   (:y 122)
+   (:w 35)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 0.7)
+   (:id 11))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "value box")
+   (:x 191)
+   (:y 335)
+   (:w 32)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 1)
+   (:id 12))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "value box")
+   (:x 224)
+   (:y 335)
+   (:w 32)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 1)
+   (:id 13))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "value box")
+   (:x 257)
+   (:y 335)
+   (:w 32)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 1)
+   (:id 14))
+  (:box
+   (:type :object)
+   (:reference 3d-model)
+   (:group-id nil)
+   (:name nil)
+   (:x 755)
+   (:y 348)
+   (:w 183)
+   (:h 85)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :mini-view)
+   (:showname nil)
+   (:lock :locked)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "DATA")
+     (:value nil)
+     (:reactive nil))
+    (:input (:type :key) (:name "scaler-x") (:value 1) (:reactive nil))
+    (:input (:type :key) (:name "scaler-y") (:value 1) (:reactive nil))
+    (:input
+     (:type :key)
+     (:name "scaler-z")
+     (:value 1)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "DATA") (:reactive nil))
+    (:output (:name "scaler-x") (:reactive nil))
+    (:output (:name "scaler-y") (:reactive nil))
+    (:output (:name "scaler-z") (:reactive nil)))
+   (:window (:size (638 432)) (:position (700 148)))
+   (:edition-params
+    (:filter-off-grid nil)
+    (:y-grid (:list -1.57 1.25))
+    (:x-grid (:list -1.75 1.27)))
+   (:value
+    (:object
+     (:class 3d-model)
+     (:slots
+      ((:data
+        (:list
+         (:object
+          (:class 3d-lines)
+          (:slots
+           ((:name nil)
+            (:use-display-list t)
+            (:color nil)
+            (:points
+             (:list
+              (:list 0.07 0.37 0.0 0)
+              (:list 0.03 0.41 0.0 73)
+              (:list -0.06 0.47 0.0 89)
+              (:list -0.11 0.51 0.0 97)
+              (:list -0.19 0.55 0.0 114)
+              (:list -0.26 0.59 0.0 122)
+              (:list -0.32 0.61 0.0 131)
+              (:list -0.41 0.65 0.0 139)
+              (:list -0.55 0.67 0.0 155)
+              (:list -0.64 0.67 0.0 163)
+              (:list -0.79 0.67 0.0 180)
+              (:list -0.92 0.59 0.0 197)
+              (:list -1.0 0.52 0.0 214)
+              (:list -1.04 0.43 0.0 222)
+              (:list -1.08 0.39 0.0 232)
+              (:list -1.1 0.29 0.0 237)
+              (:list -1.14 0.2 0.0 247)
+              (:list -1.16 0.12 0.0 254)
+              (:list -1.16 0.02 0.0 264)
+              (:list -1.17 -0.05 0.0 270)
+              (:list -1.17 -0.12 0.0 281)
+              (:list -1.17 -0.2 0.0 286)
+              (:list -1.17 -0.28 0.0 297)
+              (:list -1.17 -0.36 0.0 304)
+              (:list -1.16 -0.45 0.0 314)
+              (:list -1.11 -0.55 0.0 320)
+              (:list -1.07 -0.63 0.0 330)
+              (:list -1.03 -0.7 0.0 339)
+              (:list -0.96 -0.77 0.0 346)
+              (:list -0.89 -0.84 0.0 352)
+              (:list -0.8 -0.9 0.0 363)
+              (:list -0.7 -0.96 0.0 369)
+              (:list -0.59 -1.0 0.0 382)
+              (:list -0.48 -1.04 0.0 385)
+              (:list -0.38 -1.06 0.0 397)
+              (:list -0.26 -1.06 0.0 402)
+              (:list -0.14 -1.07 0.0 415)
+              (:list -0.03 -1.07 0.0 418)
+              (:list 0.06 -1.06 0.0 430)
+              (:list 0.16 -1.01 0.0 435)
+              (:list 0.25 -0.94 0.0 447)
+              (:list 0.34 -0.83 0.0 465)
+              (:list 0.4 -0.73 0.0 468)
+              (:list 0.44 -0.65 0.0 481)
+              (:list 0.48 -0.55 0.0 484)
+              (:list 0.51 -0.47 0.0 498)
+              (:list 0.52 -0.37 0.0 501)
+              (:list 0.53 -0.3 0.0 514)
+              (:list 0.54 -0.2 0.0 517)
+              (:list 0.54 -0.12 0.0 531)
+              (:list 0.54 0.01 0.0 547)
+              (:list 0.52 0.07 0.0 552)
+              (:list 0.48 0.17 0.0 566)
+              (:list 0.43 0.24 0.0 585)
+              (:list 0.37 0.29 0.0 599)
+              (:list 0.31 0.31 0.0 615)
+              (:list 0.24 0.34 0.0 631)
+              (:list 0.17 0.34 0.0 651)
+              (:list 0.12 0.34 0.0 663)
+              (:list 0.06 0.34 0.0 665)
+              (:list 0.01 0.31 0.0 680)
+              (:list -0.03 0.29 0.0 681)
+              (:list -0.13 0.22 0.0 697)
+              (:list -0.19 0.14 0.0 714)
+              (:list -0.26 0.06 0.0 731)
+              (:list -0.3 -0.01 0.0 748)
+              (:list -0.32 -0.07 0.0 766)
+              (:list -0.32 -0.13 0.0 772)
+              (:list -0.33 -0.2 0.0 792)
+              (:list -0.33 -0.29 0.0 805)
+              (:list -0.27 -0.39 0.0 822)
+              (:list -0.23 -0.43 0.0 830)
+              (:list -0.18 -0.47 0.0 838)
+              (:list -0.11 -0.51 0.0 846)
+              (:list -0.02 -0.53 0.0 864)
+              (:list 0.03 -0.54 0.0 871)
+              (:list 0.13 -0.54 0.0 887)
+              (:list 0.19 -0.53 0.0 912)
+              (:list 0.23 -0.47 0.0 937)
+              (:list 0.25 -0.41 0.0 954)
+              (:list 0.25 -0.34 0.0 970)
+              (:list 0.24 -0.28 0.0 987)
+              (:list 0.21 -0.22 0.0 1002)
+              (:list 0.15 -0.16 0.0 1019)
+              (:list 0.09 -0.11 0.0 1035)
+              (:list 0.02 -0.08 0.0 1056)
+              (:list -0.06 -0.08 0.0 1069)
+              (:list -0.14 -0.08 0.0 1086)
+              (:list -0.21 -0.17 0.0 1105)))
+            (:glvertexes
+             (:array
+              (:dimensions (:list 89))
+              (:content-as-list
+               (:list
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil))))
+            (:line-width 2)
+            (:draw-style :lines-only))))
+         (:object
+          (:class 3d-lines)
+          (:slots
+           ((:name nil)
+            (:use-display-list t)
+            (:color (:color 0.3843907 0.35284388 0.23686517 1.0))
+            (:points
+             (:list
+              (:list -1.75 -0.02 0.0)
+              (:list -1.72 0.14 0.0)
+              (:list -1.66 0.3 0.0)
+              (:list -1.56 0.41 0.0)
+              (:list -1.45 0.5 0.0)
+              (:list -1.33 0.54 0.0)
+              (:list -1.24 0.57 -0.1)
+              (:list -1.13 0.57 -0.1)
+              (:list -1.05 0.5 -0.1)
+              (:list -0.98 0.39 -0.1)
+              (:list -0.95 0.23 -0.1)
+              (:list -0.89 0.03 -0.1)
+              (:list -0.87 -0.09 -0.1)
+              (:list -0.82 -0.29 -0.1)
+              (:list -0.8 -0.43 -0.1)
+              (:list -0.79 -0.54 -0.1)
+              (:list -0.77 -0.65 -0.1)
+              (:list -0.72 -0.88 -0.1)
+              (:list -0.71 -0.99 -0.1)
+              (:list -0.66 -1.15 -0.1)
+              (:list -0.6 -1.33 -0.1)
+              (:list -0.52 -1.44 -0.1)
+              (:list -0.42 -1.51 -0.1)
+              (:list -0.29 -1.55 -0.1)
+              (:list -0.15 -1.57 -0.1)
+              (:list 0.0 -1.57 -0.1)
+              (:list 0.08 -1.55 -0.1)
+              (:list 0.22 -1.46 -0.1)
+              (:list 0.34 -1.37 0.0)
+              (:list 0.42 -1.3 0.0)
+              (:list 0.5 -1.24 0.0)
+              (:list 0.62 -1.15 0.0)
+              (:list 0.74 -1.1 0.0)
+              (:list 0.83 -1.08 0.0)
+              (:list 0.98 -1.08 0.0)
+              (:list 1.15 -1.12 0.0)
+              (:list 1.27 -1.21 0.0)))
+            (:glvertexes
+             (:array
+              (:dimensions (:list 37))
+              (:content-as-list
+               (:list
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil
+                nil))))
+            (:line-width 2.0)
+            (:draw-style :draw-all))))
+         (:object
+          (:class 3d-cube)
+          (:slots
+           ((:name nil)
+            (:use-display-list nil)
+            (:color (:color 0.5 0.7 0.7 1.0))
+            (:points
+             (:list
+              (:list -0.25 0.75 -0.25)
+              (:list 0.25 0.75 -0.25)
+              (:list 0.25 0.75 0.25)
+              (:list -0.25 0.75 0.25)
+              (:list -0.25 1.25 -0.25)
+              (:list 0.25 1.25 -0.25)
+              (:list 0.25 1.25 0.25)
+              (:list -0.25 1.25 0.25)))
+            (:glvertexes
+             (:array
+              (:dimensions (:list 8))
+              (:content-as-list
+               (:list nil nil nil nil nil nil nil nil))))
+            (:center (:list 0 1 0))
+            (:size 0.5)
+            (:filled t))))))))
+     (:add-slots
+      ((:scaler-x 1)
+       (:scaler-y 1)
+       (:scaler-z 1)
+       (:center (:list 0.0 0.0 0.0))
+       (:rotation-x 5.100183)
+       (:rotation-y 357.60004)
+       (:rotation-z 0.0)))))
+   (:id 15))
+  (:box
+   (:type :function)
+   (:reference list)
+   (:group-id nil)
+   (:name "list")
+   (:x 787)
+   (:y 280)
+   (:w 54)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input (:type :optional) (:name "x") (:value nil) (:reactive nil))
+    (:input (:type :optional) (:name "x") (:value nil) (:reactive nil))
+    (:input
+     (:type :optional)
+     (:name "x")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 16))
+  (:box
+   (:type :object)
+   (:reference 3d-cube)
+   (:group-id nil)
+   (:name nil)
+   (:x 843)
+   (:y 176)
+   (:w 102)
+   (:h 77)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :text)
+   (:showname nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "CENTER")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "SIZE")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "COLOR")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "FILLED")
+     (:value t)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "CENTER") (:reactive nil))
+    (:output (:name "SIZE") (:reactive nil))
+    (:output (:name "COLOR") (:reactive nil))
+    (:output (:name "FILLED") (:reactive nil)))
+   (:window (:size nil) (:position nil))
+   (:edition-params)
+   (:value
+    (:object
+     (:class 3d-cube)
+     (:slots
+      ((:name nil)
+       (:use-display-list nil)
+       (:color (:color 0.5 0.7 0.7 1.0))
+       (:points
+        (:list
+         (:list -0.25 0.75 -0.25)
+         (:list 0.25 0.75 -0.25)
+         (:list 0.25 0.75 0.25)
+         (:list -0.25 0.75 0.25)
+         (:list -0.25 1.25 -0.25)
+         (:list 0.25 1.25 -0.25)
+         (:list 0.25 1.25 0.25)
+         (:list -0.25 1.25 0.25)))
+       (:glvertexes
+        (:array
+         (:dimensions (:list 8))
+         (:content-as-list (:list nil nil nil nil nil nil nil nil))))
+       (:center (:list 0 1 0))
+       (:size 0.5)
+       (:filled t)))))
+   (:id 17))
+  (:box
+   (:type :value)
+   (:reference single-float)
+   (:group-id nil)
+   (:name "value box")
+   (:x 876)
+   (:y 133)
+   (:w 35)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 0.5)
+   (:id 18))
+  (:box
+   (:type :value)
+   (:reference cons)
+   (:group-id nil)
+   (:name "value box")
+   (:x 816)
+   (:y 133)
+   (:w 53)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value (:list 0 1 0))
+   (:id 19))
+  (:box
+   (:type :function)
+   (:reference (:symbol "OM-MAKE-COLOR" "OM-API"))
+   (:group-id nil)
+   (:name "om-make-color")
+   (:x 923)
+   (:y 133)
+   (:w 123)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input (:type :standard) (:name "R") (:value nil) (:reactive nil))
+    (:input (:type :standard) (:name "G") (:value nil) (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "B")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 20))
+  (:box
+   (:type :value)
+   (:reference single-float)
+   (:group-id nil)
+   (:name "value box")
+   (:x 927)
+   (:y 77)
+   (:w 35)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 0.5)
+   (:id 21))
+  (:box
+   (:type :value)
+   (:reference single-float)
+   (:group-id nil)
+   (:name "value box")
+   (:x 961)
+   (:y 98)
+   (:w 35)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 0.7)
+   (:id 22))
+  (:box
+   (:type :value)
+   (:reference single-float)
+   (:group-id nil)
+   (:name "value box")
+   (:x 996)
+   (:y 98)
+   (:w 35)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 0.7)
+   (:id 23))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "value box")
+   (:x 825)
+   (:y 311)
+   (:w 32)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 1)
+   (:id 24))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "value box")
+   (:x 858)
+   (:y 311)
+   (:w 32)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 1)
+   (:id 25))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "value box")
+   (:x 891)
+   (:y 311)
+   (:w 32)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 1)
+   (:id 26))
+  (:box
+   (:type :object)
+   (:reference 3dc)
+   (:group-id nil)
+   (:name nil)
+   (:x 539)
+   (:y 78)
+   (:w 118)
+   (:h 67)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :mini-view)
+   (:showname nil)
+   (:show-markers t)
+   (:lock :locked)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "X-POINTS")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "Y-POINTS")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "Z-POINTS")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "X-POINTS") (:reactive nil))
+    (:output (:name "Y-POINTS") (:reactive nil))
+    (:output (:name "Z-POINTS") (:reactive nil)))
+   (:window (:size (800 600)) (:position (140 138)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class 3dc)
+     (:slots
+      ((:times
+        (:list
+         0
+         73
+         89
+         97
+         114
+         122
+         131
+         139
+         155
+         163
+         180
+         197
+         214
+         222
+         232
+         237
+         247
+         254
+         264
+         270
+         281
+         286
+         297
+         304
+         314
+         320
+         330
+         339
+         346
+         352
+         363
+         369
+         382
+         385
+         397
+         402
+         415
+         418
+         430
+         435
+         447
+         465
+         468
+         481
+         484
+         498
+         501
+         514
+         517
+         531
+         547
+         552
+         566
+         585
+         599
+         615
+         631
+         651
+         663
+         665
+         680
+         681
+         697
+         714
+         731
+         748
+         766
+         772
+         792
+         805
+         822
+         830
+         838
+         846
+         864
+         871
+         887
+         912
+         937
+         954
+         970
+         987
+         1002
+         1019
+         1035
+         1056
+         1069
+         1086
+         1105))
+       (:onset 0)
+       (:duration 0)
+       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:action nil)
+       (:color (:color 0.0 0.0 0.0 1.0))
+       (:decimals 2)
+       (:x-points
+        (:list
+         0.07
+         0.03
+         -0.06
+         -0.11
+         -0.19
+         -0.26
+         -0.32
+         -0.41
+         -0.55
+         -0.64
+         -0.79
+         -0.92
+         -1.0
+         -1.04
+         -1.08
+         -1.1
+         -1.14
+         -1.16
+         -1.16
+         -1.17
+         -1.17
+         -1.17
+         -1.17
+         -1.17
+         -1.16
+         -1.11
+         -1.07
+         -1.03
+         -0.96
+         -0.89
+         -0.8
+         -0.7
+         -0.59
+         -0.48
+         -0.38
+         -0.26
+         -0.14
+         -0.03
+         0.06
+         0.16
+         0.25
+         0.34
+         0.4
+         0.44
+         0.48
+         0.51
+         0.52
+         0.53
+         0.54
+         0.54
+         0.54
+         0.52
+         0.48
+         0.43
+         0.37
+         0.31
+         0.24
+         0.17
+         0.12
+         0.06
+         0.01
+         -0.03
+         -0.13
+         -0.19
+         -0.26
+         -0.3
+         -0.32
+         -0.32
+         -0.33
+         -0.33
+         -0.27
+         -0.23
+         -0.18
+         -0.11
+         -0.02
+         0.03
+         0.13
+         0.19
+         0.23
+         0.25
+         0.25
+         0.24
+         0.21
+         0.15
+         0.09
+         0.02
+         -0.06
+         -0.14
+         -0.21))
+       (:y-points
+        (:list
+         0.37
+         0.41
+         0.47
+         0.51
+         0.55
+         0.59
+         0.61
+         0.65
+         0.67
+         0.67
+         0.67
+         0.59
+         0.52
+         0.43
+         0.39
+         0.29
+         0.2
+         0.12
+         0.02
+         -0.05
+         -0.12
+         -0.2
+         -0.28
+         -0.36
+         -0.45
+         -0.55
+         -0.63
+         -0.7
+         -0.77
+         -0.84
+         -0.9
+         -0.96
+         -1.0
+         -1.04
+         -1.06
+         -1.06
+         -1.07
+         -1.07
+         -1.06
+         -1.01
+         -0.94
+         -0.83
+         -0.73
+         -0.65
+         -0.55
+         -0.47
+         -0.37
+         -0.3
+         -0.2
+         -0.12
+         0.01
+         0.07
+         0.17
+         0.24
+         0.29
+         0.31
+         0.34
+         0.34
+         0.34
+         0.34
+         0.31
+         0.29
+         0.22
+         0.14
+         0.06
+         -0.01
+         -0.07
+         -0.13
+         -0.2
+         -0.29
+         -0.39
+         -0.43
+         -0.47
+         -0.51
+         -0.53
+         -0.54
+         -0.54
+         -0.53
+         -0.47
+         -0.41
+         -0.34
+         -0.28
+         -0.22
+         -0.16
+         -0.11
+         -0.08
+         -0.08
+         -0.08
+         -0.17))
+       (:z-points
+        (:list
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0))))
+     (:add-slots ((:name "3DC")))))
+   (:id 27))
+  (:box
+   (:type :function)
+   (:reference point-pairs)
+   (:group-id nil)
+   (:name "point-pairs")
+   (:x 507)
+   (:y 151)
+   (:w 98)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 28))
+  (:box
+   (:type :object)
+   (:reference 3dc)
+   (:group-id nil)
+   (:name nil)
+   (:x 674)
+   (:y 139)
+   (:w 118)
+   (:h 67)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :mini-view)
+   (:showname nil)
+   (:show-markers t)
+   (:lock :locked)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "X-POINTS")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "Y-POINTS")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "Z-POINTS")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "X-POINTS") (:reactive nil))
+    (:output (:name "Y-POINTS") (:reactive nil))
+    (:output (:name "Z-POINTS") (:reactive nil)))
+   (:window (:size (800 600)) (:position (182 184)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class 3dc)
+     (:slots
+      ((:times
+        (:list
+         0
+         121
+         138
+         154
+         170
+         187
+         203
+         228
+         243
+         261
+         277
+         294
+         300
+         318
+         327
+         334
+         344
+         361
+         367
+         384
+         400
+         417
+         433
+         450
+         466
+         482
+         494
+         511
+         528
+         544
+         562
+         582
+         607
+         623
+         640
+         659
+         666))
+       (:onset 0)
+       (:duration 1105)
+       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
+       (:action nil)
+       (:color (:color 0.0 0.0 0.0 1.0))
+       (:decimals 2)
+       (:x-points
+        (:list
+         -1.75
+         -1.72
+         -1.66
+         -1.56
+         -1.45
+         -1.33
+         -1.24
+         -1.13
+         -1.05
+         -0.98
+         -0.95
+         -0.89
+         -0.87
+         -0.82
+         -0.8
+         -0.79
+         -0.77
+         -0.72
+         -0.71
+         -0.66
+         -0.6
+         -0.52
+         -0.42
+         -0.29
+         -0.15
+         0.0
+         0.08
+         0.22
+         0.34
+         0.42
+         0.5
+         0.62
+         0.74
+         0.83
+         0.98
+         1.15
+         1.27))
+       (:y-points
+        (:list
+         -0.02
+         0.14
+         0.3
+         0.41
+         0.5
+         0.54
+         0.57
+         0.57
+         0.5
+         0.39
+         0.23
+         0.03
+         -0.09
+         -0.29
+         -0.43
+         -0.54
+         -0.65
+         -0.88
+         -0.99
+         -1.15
+         -1.33
+         -1.44
+         -1.51
+         -1.55
+         -1.57
+         -1.57
+         -1.55
+         -1.46
+         -1.37
+         -1.3
+         -1.24
+         -1.15
+         -1.1
+         -1.08
+         -1.08
+         -1.12
+         -1.21))
+       (:z-points
+        (:list
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         -0.1
+         -0.1
+         -0.1
+         -0.1
+         -0.1
+         -0.1
+         -0.1
+         -0.1
+         -0.1
+         -0.1
+         -0.1
+         -0.1
+         -0.1
+         -0.1
+         -0.1
+         -0.1
+         -0.1
+         -0.1
+         -0.1
+         -0.1
+         -0.1
+         -0.1
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0
+         0.0))))
+     (:add-slots ((:name nil)))))
+   (:id 29))
+  (:box
+   (:type :function)
+   (:reference point-pairs)
+   (:group-id nil)
+   (:name "point-pairs")
+   (:x 642)
+   (:y 212)
+   (:w 98)
+   (:h 29)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:icon :left)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil)))
+   (:outputs (:output (:name "out") (:reactive nil)))
+   (:id 30))
+  (:comment
+   (:x 78)
+   (:y 25)
+   (:w 112)
+   (:h 29)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font
+      (:font (:face "Lucida Grande") (:size 18.0D0) (:style :bold)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text "3D-MODEL")
+   (:id 31))
+  (:box
+   (:type :object)
+   (:reference 3d-lines)
+   (:group-id nil)
+   (:name nil)
+   (:x 530)
+   (:y 215)
+   (:w 80)
+   (:h 50)
+   (:color nil)
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :center)
+   (:display :text)
+   (:showname nil)
+   (:lock nil)
+   (:lambda nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "POINTS")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "COLOR")
+     (:value nil)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "LINE-WIDTH")
+     (:value 1)
+     (:reactive nil))
+    (:input
+     (:type :standard)
+     (:name "DRAW-STYLE")
+     (:value :lines-only)
+     (:reactive nil)))
+   (:outputs
+    (:output (:name "SELF") (:reactive nil))
+    (:output (:name "POINTS") (:reactive nil))
+    (:output (:name "COLOR") (:reactive nil))
+    (:output (:name "LINE-WIDTH") (:reactive nil))
+    (:output (:name "DRAW-STYLE") (:reactive nil)))
+   (:window (:size nil) (:position nil))
+   (:edition-params)
+   (:value
+    (:object
+     (:class 3d-lines)
+     (:slots
+      ((:name nil)
+       (:use-display-list t)
+       (:color nil)
+       (:points
+        (:list
+         (:list 0.07 0.37 0.0 0)
+         (:list 0.03 0.41 0.0 73)
+         (:list -0.06 0.47 0.0 89)
+         (:list -0.11 0.51 0.0 97)
+         (:list -0.19 0.55 0.0 114)
+         (:list -0.26 0.59 0.0 122)
+         (:list -0.32 0.61 0.0 131)
+         (:list -0.41 0.65 0.0 139)
+         (:list -0.55 0.67 0.0 155)
+         (:list -0.64 0.67 0.0 163)
+         (:list -0.79 0.67 0.0 180)
+         (:list -0.92 0.59 0.0 197)
+         (:list -1.0 0.52 0.0 214)
+         (:list -1.04 0.43 0.0 222)
+         (:list -1.08 0.39 0.0 232)
+         (:list -1.1 0.29 0.0 237)
+         (:list -1.14 0.2 0.0 247)
+         (:list -1.16 0.12 0.0 254)
+         (:list -1.16 0.02 0.0 264)
+         (:list -1.17 -0.05 0.0 270)
+         (:list -1.17 -0.12 0.0 281)
+         (:list -1.17 -0.2 0.0 286)
+         (:list -1.17 -0.28 0.0 297)
+         (:list -1.17 -0.36 0.0 304)
+         (:list -1.16 -0.45 0.0 314)
+         (:list -1.11 -0.55 0.0 320)
+         (:list -1.07 -0.63 0.0 330)
+         (:list -1.03 -0.7 0.0 339)
+         (:list -0.96 -0.77 0.0 346)
+         (:list -0.89 -0.84 0.0 352)
+         (:list -0.8 -0.9 0.0 363)
+         (:list -0.7 -0.96 0.0 369)
+         (:list -0.59 -1.0 0.0 382)
+         (:list -0.48 -1.04 0.0 385)
+         (:list -0.38 -1.06 0.0 397)
+         (:list -0.26 -1.06 0.0 402)
+         (:list -0.14 -1.07 0.0 415)
+         (:list -0.03 -1.07 0.0 418)
+         (:list 0.06 -1.06 0.0 430)
+         (:list 0.16 -1.01 0.0 435)
+         (:list 0.25 -0.94 0.0 447)
+         (:list 0.34 -0.83 0.0 465)
+         (:list 0.4 -0.73 0.0 468)
+         (:list 0.44 -0.65 0.0 481)
+         (:list 0.48 -0.55 0.0 484)
+         (:list 0.51 -0.47 0.0 498)
+         (:list 0.52 -0.37 0.0 501)
+         (:list 0.53 -0.3 0.0 514)
+         (:list 0.54 -0.2 0.0 517)
+         (:list 0.54 -0.12 0.0 531)
+         (:list 0.54 0.01 0.0 547)
+         (:list 0.52 0.07 0.0 552)
+         (:list 0.48 0.17 0.0 566)
+         (:list 0.43 0.24 0.0 585)
+         (:list 0.37 0.29 0.0 599)
+         (:list 0.31 0.31 0.0 615)
+         (:list 0.24 0.34 0.0 631)
+         (:list 0.17 0.34 0.0 651)
+         (:list 0.12 0.34 0.0 663)
+         (:list 0.06 0.34 0.0 665)
+         (:list 0.01 0.31 0.0 680)
+         (:list -0.03 0.29 0.0 681)
+         (:list -0.13 0.22 0.0 697)
+         (:list -0.19 0.14 0.0 714)
+         (:list -0.26 0.06 0.0 731)
+         (:list -0.3 -0.01 0.0 748)
+         (:list -0.32 -0.07 0.0 766)
+         (:list -0.32 -0.13 0.0 772)
+         (:list -0.33 -0.2 0.0 792)
+         (:list -0.33 -0.29 0.0 805)
+         (:list -0.27 -0.39 0.0 822)
+         (:list -0.23 -0.43 0.0 830)
+         (:list -0.18 -0.47 0.0 838)
+         (:list -0.11 -0.51 0.0 846)
+         (:list -0.02 -0.53 0.0 864)
+         (:list 0.03 -0.54 0.0 871)
+         (:list 0.13 -0.54 0.0 887)
+         (:list 0.19 -0.53 0.0 912)
+         (:list 0.23 -0.47 0.0 937)
+         (:list 0.25 -0.41 0.0 954)
+         (:list 0.25 -0.34 0.0 970)
+         (:list 0.24 -0.28 0.0 987)
+         (:list 0.21 -0.22 0.0 1002)
+         (:list 0.15 -0.16 0.0 1019)
+         (:list 0.09 -0.11 0.0 1035)
+         (:list 0.02 -0.08 0.0 1056)
+         (:list -0.06 -0.08 0.0 1069)
+         (:list -0.14 -0.08 0.0 1086)
+         (:list -0.21 -0.17 0.0 1105)))
+       (:glvertexes
+        (:array
+         (:dimensions (:list 89))
+         (:content-as-list
+          (:list
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil
+           nil))))
+       (:line-width 2)
+       (:draw-style :lines-only)))))
+   (:id 32))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "value box")
+   (:x 568)
+   (:y 180)
+   (:w 32)
+   (:h 29)
+   (:color
+    (:color-or-nil (:color (:color 1.0 1.0 1.0 1.0)) (:t-or-nil t)))
+   (:border nil)
+   (:roundness nil)
+   (:text-font nil)
+   (:align nil)
+   (:lock nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 2)
+   (:id 33)))
+ (:connections
+  (:connection (:from (:box 0 :out 0)) (:to (:box 4 :in 0)))
+  (:connection (:from (:box 1 :out 0)) (:to (:box 0 :in 2)))
+  (:connection (:from (:box 2 :out 0)) (:to (:box 0 :in 1)))
+  (:connection (:from (:box 4 :out 0)) (:to (:box 3 :in 1)))
+  (:connection (:from (:box 5 :out 0)) (:to (:box 4 :in 1)))
+  (:connection (:from (:box 6 :out 0)) (:to (:box 5 :in 2)))
+  (:connection (:from (:box 7 :out 0)) (:to (:box 5 :in 1)))
+  (:connection (:from (:box 8 :out 0)) (:to (:box 5 :in 3)))
+  (:connection (:from (:box 9 :out 0)) (:to (:box 8 :in 0)))
+  (:connection (:from (:box 10 :out 0)) (:to (:box 8 :in 1)))
+  (:connection (:from (:box 11 :out 0)) (:to (:box 8 :in 2)))
+  (:connection (:from (:box 12 :out 0)) (:to (:box 3 :in 2)))
+  (:connection (:from (:box 13 :out 0)) (:to (:box 3 :in 3)))
+  (:connection (:from (:box 14 :out 0)) (:to (:box 3 :in 4)))
+  (:connection (:from (:box 16 :out 0)) (:to (:box 15 :in 1)))
+  (:connection (:from (:box 17 :out 0)) (:to (:box 16 :in 2)))
+  (:connection (:from (:box 18 :out 0)) (:to (:box 17 :in 2)))
+  (:connection (:from (:box 19 :out 0)) (:to (:box 17 :in 1)))
+  (:connection (:from (:box 20 :out 0)) (:to (:box 17 :in 3)))
+  (:connection (:from (:box 21 :out 0)) (:to (:box 20 :in 0)))
+  (:connection (:from (:box 22 :out 0)) (:to (:box 20 :in 1)))
+  (:connection (:from (:box 23 :out 0)) (:to (:box 20 :in 2)))
+  (:connection (:from (:box 24 :out 0)) (:to (:box 15 :in 2)))
+  (:connection (:from (:box 25 :out 0)) (:to (:box 15 :in 3)))
+  (:connection (:from (:box 26 :out 0)) (:to (:box 15 :in 4)))
+  (:connection (:from (:box 27 :out 0)) (:to (:box 28 :in 0)))
+  (:connection (:from (:box 28 :out 0)) (:to (:box 32 :in 1)))
+  (:connection (:from (:box 29 :out 0)) (:to (:box 30 :in 0)))
+  (:connection (:from (:box 30 :out 0)) (:to (:box 16 :in 1)))
+  (:connection (:from (:box 32 :out 0)) (:to (:box 16 :in 0)))
+  (:connection (:from (:box 33 :out 0)) (:to (:box 32 :in 3)))))
