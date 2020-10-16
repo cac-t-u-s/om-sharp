@@ -50,12 +50,12 @@
                 NIL
 
                 (om-make-layout
-                 'om-row-layout :align :center
+                 'om-row-layout :align :bottom
                  :subviews
                  (list
 
                   (om-make-di 'om-simple-text :text "h-stretch"
-                              :size (omp 50 20)
+                              :size (omp 56 24)
                               :font (om-def-font :font1))
 
                   (om-make-di 'om-popup-list :items *stretch-options*

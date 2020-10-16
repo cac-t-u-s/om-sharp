@@ -73,6 +73,7 @@
     :separator
     (om-make-layout
      'om-row-layout
+     :align :center
      :subviews (list
                 (om-make-di 'om-simple-text :text "play-mode"
                             :size (omp 60 20)
