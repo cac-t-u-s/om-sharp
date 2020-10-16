@@ -64,7 +64,7 @@
  :classes '(note chord chord-seq voice multi-seq poly)
  :functions nil
  :subpackages  (list (omNG-make-package
-                      "Score Manipulations"
+                      "Score Tools"
                       :doc "Manipulation of score objects"
                       :functions '(object-dur get-chords concat select insert merger align-chords split-voices)
                       :subpackages nil)
