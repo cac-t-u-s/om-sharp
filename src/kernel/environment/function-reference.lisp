@@ -281,7 +281,7 @@ table, td {
                *app-name* " "
                *version-string*
                " - "
-               (om-get-date)
+               (om-get-date nil)
                "</font></center>"))
 
 ; (gen-om-reference)

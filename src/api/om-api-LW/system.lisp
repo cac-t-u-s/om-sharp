@@ -59,8 +59,12 @@
 (defun om-get-user-name ()
   (system::get-user-name))
 
-(defun om-get-date ()
-  (sys::date-string))
+(defun om-get-date (&optional (with-hour t))
+  (let ((date-string (sys::date-string)))
+    (if with-hour
+        date-string
+      (subseq date-string 0 10)
+      )))
 
 ;;;====================
 ;;; MEMORY
