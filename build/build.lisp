@@ -53,6 +53,7 @@
 ;;; FILE I/O ENCODING, USE UTF-8 AS DEFAULT
 ;;;========================================
 
+#|
 (defun utf-8-file-encoding (pathname ef-spec buffer length)
   (declare (ignore pathname buffer length))
   (system:merge-ef-specs ef-spec :utf-8))
@@ -65,6 +66,9 @@
       (substitute 'utf-8-file-encoding
                   'system:locale-file-encoding
                   system:*file-encoding-detection-algorithm*))
+|#
+
+(pushnew :utf-8 system:*specific-valid-file-encodings*)
 
 (lw::set-default-character-element-type 'character)
 
