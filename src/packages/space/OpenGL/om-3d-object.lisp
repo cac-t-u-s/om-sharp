@@ -364,9 +364,13 @@
 ;;;======================
 
 (defclass 3d-lines (om-3d-object)
-  ((selected-points :accessor selected-points :initform nil)
+  (;; visible / initargs:
+   (points :initarg :points :accessor points :initform nil)
+   (color :accessor color :initarg :color :initform nil)
+   (line-width :accessor line-width :initarg :line-width :initform 2.0)
    (draw-style :accessor draw-style :initarg :draw-style :initform :draw-all)
-   (line-width :accessor line-width :initarg :line-width :initform *OM-GL-DEFAULT-LINEWIDTH*)
+   ;; hidden:
+   (selected-points :accessor selected-points :initform nil)
    (vertices-colors :accessor vertices-colors :initform nil)
    (vertices-colors-interpol :accessor vertices-colors-interpol :initform nil))
   (:default-initargs :use-display-list T))
