@@ -7,12 +7,11 @@ cd ..
 rmdir _BUILD
 mkdir _BUILD\om-sharp\
 
-xcopy  build _BUILD\om-sharp\ /E /y
-xcopy  help-patches _BUILD\om-sharp\ /E /y
-xcopy  init _BUILD\om-sharp\ /E /y
-xcopy  resources _BUILD\om-sharp\ /E /y
-xcopy  src _BUILD\om-sharp\ /E /y
-xcopy  om-sharp.exe _BUILD\om-sharp\ /E /y
+xcopy  help-patches _BUILD\om-sharp\help-patches\ /s/e/y
+xcopy  init _BUILD\om-sharp\init\ /s/e/y
+xcopy  resources _BUILD\om-sharp\resources\ /s/e/y
+xcopy  src _BUILD\om-sharp\src\ /s/e/y
+xcopy  om-sharp.exe _BUILD\om-sharp\ /y
 
 del /S _BUILD\om-sharp\*.*~
 del /S _BUILD\om-sharp\resources\fonts\*.otf
