@@ -312,6 +312,7 @@
 
       (update-create-info self) ;;; modif date is 'now'
       (with-open-file (out tempfile :direction :output
+                           :external-format :utf-8
                            :if-does-not-exist :create :if-exists :supersede)
         (handler-bind
             ((error #'(lambda (err)
