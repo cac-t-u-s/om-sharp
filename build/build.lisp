@@ -68,7 +68,8 @@
                   system:*file-encoding-detection-algorithm*))
 |#
 
-(pushnew :utf-8 system:*specific-valid-file-encodings*)
+;(pushnew :utf-8 system:*specific-valid-file-encodings*)
+;(pushnew :latin-1 system:*specific-valid-file-encodings*)
 
 (lw::set-default-character-element-type 'character)
 
