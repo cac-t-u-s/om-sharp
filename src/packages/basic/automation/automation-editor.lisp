@@ -172,7 +172,7 @@
                                   :index (and foreground? show-indice i)
                                   :time (and foreground? (time-to-draw obj editor pt i)))
 
-                  (when (and (ap-lock pt) (equal :default (editor-get-edit-param editor :draw-style)))
+                  (when (and (ap-lock pt) (not (equal :lines (editor-get-edit-param editor :draw-style))))
                     (om-draw-circle px py 5 :fill nil)))
                 )
               ;;;draw curves using 1000 lines by curve
