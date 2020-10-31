@@ -580,33 +580,6 @@
                 (om-draw-lines lines))
               ))
 
-           ((equal style :default)
-
-            (om-with-fg-color (om-def-color :gray)
-
-              ; first point
-              (om-draw-circle (+ ox (* fx (px (car points))))
-                              (+ oy (* fy (py (car points))))
-                              3 :fill t)
-              (let ((lines (loop for pts on points
-                                 while (cadr pts)
-                                 append
-                                 (let ((p1 (car pts))
-                                       (p2 (cadr pts)))
-                                   (om-draw-circle (+ ox (* fx (px p2)))
-                                                   (+ oy (* fy (py p2)))
-                                                   3 :fill t)
-                                   ;;; collect for lines
-                                   (om+ 0.5
-                                        (list (+ ox (* fx (px p1)))
-                                              (+ oy (* fy (py p1)))
-                                              (+ ox (* fx (px p2)))
-                                              (+ oy (* fy (py p2)))))
-                                   ))))
-                (om-with-fg-color (or color (om-def-color :dark-gray))
-                  (om-draw-lines lines))
-                )))
-
            ((equal style :histogram)
 
             (loop for i from 0 to (1- (length points))
@@ -640,6 +613,34 @@
                                     :color (om-def-color :white))
                     ))
             )
+
+           (t
+
+            (om-with-fg-color (om-def-color :gray)
+
+              ; first point
+              (om-draw-circle (+ ox (* fx (px (car points))))
+                              (+ oy (* fy (py (car points))))
+                              3 :fill t)
+              (let ((lines (loop for pts on points
+                                 while (cadr pts)
+                                 append
+                                 (let ((p1 (car pts))
+                                       (p2 (cadr pts)))
+                                   (om-draw-circle (+ ox (* fx (px p2)))
+                                                   (+ oy (* fy (py p2)))
+                                                   3 :fill t)
+                                   ;;; collect for lines
+                                   (om+ 0.5
+                                        (list (+ ox (* fx (px p1)))
+                                              (+ oy (* fy (py p1)))
+                                              (+ ox (* fx (px p2)))
+                                              (+ oy (* fy (py p2)))))
+                                   ))))
+                (om-with-fg-color (or color (om-def-color :dark-gray))
+                  (om-draw-lines lines))
+                )))
+
            ))
         )
       )))
