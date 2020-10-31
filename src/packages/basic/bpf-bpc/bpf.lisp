@@ -552,7 +552,7 @@
 
           (cond
 
-           ((equal style :points-only)
+           ((equal style :points)
 
             (om-with-fg-color (om-def-color :dark-gray)
 
@@ -562,7 +562,7 @@
                                     3 :fill t))
               ))
 
-           ((or (equal style :lines-only)
+           ((or (equal style :lines)
                 (null style))
 
             (let ((lines (loop for pts on points
@@ -580,7 +580,7 @@
                 (om-draw-lines lines))
               ))
 
-           ((equal style :draw-all)
+           ((equal style :default)
 
             (om-with-fg-color (om-def-color :gray)
 
@@ -676,7 +676,7 @@
                     (color (nth i list))
                     ranges
                     x (+ y 10) w (- h 20)
-                    :lines-only)
+                    :lines)
                 ))
 
         (let ((font (om-def-font :font1 :size 8)))

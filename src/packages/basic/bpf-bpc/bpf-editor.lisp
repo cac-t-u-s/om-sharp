@@ -39,7 +39,7 @@
 (defmethod draw-background-element ((self background-element) view editor &optional x1 y1 x2 y2))
 
 (defmethod object-default-edition-params ((self BPF))
-  '((:draw-style :draw-all)
+  '((:draw-style :default)
     (:background nil)
     (:display-min nil)
     (:display-max nil)))
@@ -156,7 +156,7 @@
 (defmethod make-timeline-left-item ((self bpf-editor) id)
   (om-make-view 'om-view :size (omp 30 15)))
 
-(defmethod draw-modes-for-object ((self bpf-editor)) '(:draw-all :points-only :lines-only :histogram))
+(defmethod draw-modes-for-object ((self bpf-editor)) '(:default :points :lines :histogram))
 
 ;;; for a BPF editor the 'main-view' is the whole layout
 (defmethod make-editor-window-contents ((editor bpf-editor))
@@ -397,7 +397,7 @@
       (om-draw-circle (car p) (cadr p) 4 :fill t)))
 
    ;;; draw normal except if lines only
-   ((not (equal (editor-get-edit-param editor :draw-style) :lines-only))
+   ((not (equal (editor-get-edit-param editor :draw-style) :lines))
     (om-draw-circle (car p) (cadr p) 3 :fill t))
    (t nil))
 
@@ -434,7 +434,7 @@
 
          (cond
           ;;; draw only points
-          ((equal (editor-get-edit-param editor :draw-style) :points-only)
+          ((equal (editor-get-edit-param editor :draw-style) :points)
 
            (draw-bpf-point first-pt editor
                            :selected (and (consp selection) (find 0 selection))
@@ -703,7 +703,7 @@
                                      (- (y-to-pix panel (editor-point-y editor p2)) delta)
                                      (* delta 2) (* delta 2))
                  (1+ pos))
-            (and p1 p2 (not (find (editor-get-edit-param editor :draw-style) '(:points-only :histogram)))
+            (and p1 p2 (not (find (editor-get-edit-param editor :draw-style) '(:points :histogram)))
                  (om-point-in-line-p position
                                      (om-make-point (x-to-pix panel (editor-point-x editor p1))
                                                     (y-to-pix panel (editor-point-y editor p1)))
@@ -734,7 +734,7 @@
                                              (- (y-to-pix panel (editor-point-y editor p)) delta)
                                              (* delta 2) (* delta 2))
                          (setf rep i)
-                       (if (not (equal (editor-get-edit-param editor :draw-style) :points-only))
+                       (if (not (equal (editor-get-edit-param editor :draw-style) :points))
                            (setf rep (om-point-in-line-p position
                                                          (om-make-point (x-to-pix panel (editor-point-x editor p))
                                                                         (y-to-pix panel (editor-point-y editor p)))

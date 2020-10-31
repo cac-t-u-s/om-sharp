@@ -189,7 +189,7 @@
                      (om-make-di 'om-simple-text :text "draw mode:"
                                  :size (omp 80 22)
                                  :font (om-def-font :font1))
-                     (om-make-di 'om-popup-list :items '(:draw-all :points-only :lines-only)
+                     (om-make-di 'om-popup-list :items '(:default :points :lines)
                                  :size (omp 80 24) :font (om-def-font :font1)
                                  :value (editor-get-edit-param editor :draw-style)
                                  :di-action #'(lambda (list)
@@ -475,7 +475,7 @@
                   (make-instance
                    '3D-lines
                    :points (format-3d-points obj) :color (color obj)
-                   :draw-style :draw-all :line-width (editor-get-edit-param self :line-width))
+                   :draw-style :default :line-width (editor-get-edit-param self :line-width))
                   )
               obj-list)
 

@@ -86,7 +86,7 @@
     (:output (:name "Y-POINTS") (:reactive t))
     (:output (:name "Z-POINTS") (:reactive t)))
    (:window (:size (1270 780)) (:position (141 129)))
-   (:edition-params (:show-axes t) (:draw-style :draw-all))
+   (:edition-params (:show-axes t) (:draw-style :default))
    (:value
     (:object
      (:class 3dc)

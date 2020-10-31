@@ -743,7 +743,7 @@ You can also set yur own action as a lambad function or patch :")
     (:output (:name "action") (:reactive nil)))
    (:window (:size (602 319)) (:position (52 351)))
    (:edition-params
-    (:draw-style :draw-all)
+    (:draw-style :default)
     (:show-indices nil)
     (:show-times nil)
     (:grid t)
