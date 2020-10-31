@@ -658,14 +658,14 @@
                                              (om-make-layout
                                               'om-row-layout :align :center
                                               :subviews (let ((val (if vals-supplied-p (nth n vals) defval)))
-                                                          (list (om-make-di 'om-simple-text 
+                                                          (list (om-make-di 'om-simple-text
                                                                             :font font :text (string name)
                                                                             :size (omp namefied-w 18))
-                                                                (let ((edt (om-make-di 'om-editable-text 
+                                                                (let ((edt (om-make-di 'om-editable-text
                                                                                        :bg-color (om-def-color :white)
                                                                                        :text (if (stringp val) (format nil "~s" val) (format nil "~A" val))
                                                                                        :border t
-                                                                                       :size (omp 120 26) 
+                                                                                       :size (omp 120 26)
                                                                                        :font (om-def-font :font1))))
                                                                   (push edt fields)
                                                                   edt)))))

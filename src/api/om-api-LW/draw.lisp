@@ -420,7 +420,7 @@
 
 (defmacro om-with-clip-rect (view x y w h &body body)
   `(let ((shift (if *override-clipping-shift*
-                    (om-add-points 
+                    (om-add-points
                      (clipping-shift (om-get-view ,view))
                      *translation*)
                   (position-in-view ,view))))

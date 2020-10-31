@@ -512,7 +512,7 @@
 
          (size-item
           (om-make-layout
-           'om-row-layout 
+           'om-row-layout
            :align :center
            :subviews (list
                       (om-make-di 'om-simple-text :text "size"

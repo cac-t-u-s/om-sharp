@@ -179,10 +179,10 @@
   (:default-initargs :draw-with-buffer t))
 
 (defmethod om-draw-contents ((self field-plot-view))
-  
+
   ;;; data can be a list of NIL when reloading SDIF Files
   (when (remove nil (data self))
-    
+
     (let* ((mi (vmin self))
            (ma (vmax self))
            (lx 10) (ly 10)

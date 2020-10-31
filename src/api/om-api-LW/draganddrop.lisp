@@ -67,7 +67,7 @@
 
 ;;; redefines from draw.lisp, to override default clipping
 ;;; if necessary (see bbelow for windows)
-(defmethod clipping-shift :around ((self om-drop-view)) 
+(defmethod clipping-shift :around ((self om-drop-view))
   (if (drag-image self)
       (om-view-position (drag-image self))
     (omp 0 0)))

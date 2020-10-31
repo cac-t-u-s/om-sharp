@@ -1746,7 +1746,7 @@ The function and class reference accessible from the \"Help\" menu, or the \"Cla
                               :fg-color (om-def-color :dark-gray)
                               :font text-font)
                   )))
-                )
+              )
             ))
 
       (om-add-subviews self inspector-layout))
