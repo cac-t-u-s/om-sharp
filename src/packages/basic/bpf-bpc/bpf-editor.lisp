@@ -192,8 +192,8 @@
                                       :size (omp nil 40)
                                       :subviews
                                       (list
-                                       (om-make-di 'om-simple-text :text "Draw mode:"
-                                                   :size (omp 68 20)
+                                       (om-make-di 'om-simple-text :text "Display:"
+                                                   :size (omp 40 20)
                                                    :font (om-def-font :font1))
                                        (om-make-di 'om-popup-list :items (draw-modes-for-object editor)
                                                    :size (omp 80 24) :font (om-def-font :font1)
