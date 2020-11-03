@@ -71,14 +71,5 @@
   )
 
 
-;;; SPLINE
-;(AddGenFun2Pack '(om-spline) *function-package*)
-
-
-;;; PICT
-;(defvar *graphics-package*  (omNG-protect-object (omNG-make-new-package "Picture")))
-;(AddClass2Pack '(picture) *graphics-package*)
-;(AddGenFun2Pack '(get-RGB picture-size save-picture) *graphics-package*)
-
-
-
+;;; PICT: Missing tools and functions:
+;;; picture get-RGB picture-size save-picture
