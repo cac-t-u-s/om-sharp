@@ -239,7 +239,7 @@ If <color> is :random, will choose a random color. It can also be a color symbol
 ;;; SPLINE CURVE FROM BPF
 ;;;===========================================
 
-(defmethod* om-spline ((self bpf) (resolution integer) (degree integer))
+(defmethod* bpf-spline ((self bpf) (resolution integer) (degree integer))
   :icon :bpf-spline
   :initvals '(nil 100 3)
   :indoc '("a BPF or BPC" "number of points" "interpolation degree")
@@ -272,6 +272,13 @@ Note that splines are supposed to be computed from BPFs with reltively few contr
             (car xylist)
             (cadr xylist)
             )))
+
+
+;;; Compatibility
+(defmethod* om-spline ((self bpf) (resolution integer) (degree integer))
+  :doc "Deprecated: See BPF-SPLINE."
+  (bpf-spline self resolution degree))
+
 
 ;;;===========================================
 ;;; BPF INTERPOLATIONS
