@@ -368,7 +368,7 @@
    (points :initarg :points :accessor points :initform nil)
    (color :accessor color :initarg :color :initform nil)
    (line-width :accessor line-width :initarg :line-width :initform 2.0)
-   (draw-style :accessor draw-style :initarg :draw-style :initform :draw-all)
+   (draw-style :accessor draw-style :initarg :draw-style :initform :default)
    ;; hidden:
    (selected-points :accessor selected-points :initform nil)
    (vertices-colors :accessor vertices-colors :initform nil)
@@ -386,7 +386,7 @@
     (opengl:gl-line-width (float (line-width self)))
 
     ;draw the lines first
-    (when (and (not (equal (draw-style self) :points-only)) (> size 0))
+    (when (and (not (equal (draw-style self) :points)) (> size 0))
       (if (vertices-colors-interpol self)
           (opengl:gl-shade-model opengl:*gl-smooth*)
         (opengl:gl-shade-model opengl:*gl-flat*))
@@ -402,7 +402,7 @@
       )
 
     ;draw the sphere and the selection (as bigger opaque sphere)
-    (when (not (equal (draw-style self) :lines-only))
+    (when (not (equal (draw-style self) :lines))
       (loop for i from 0 to size do
             (let* ((rgb (or (nth i (vertices-colors self)) (om-3Dobj-color self)
                             (om-def-color :white)))

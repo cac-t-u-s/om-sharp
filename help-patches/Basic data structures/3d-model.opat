@@ -773,7 +773,7 @@
                 nil
                 nil))))
             (:line-width 2)
-            (:draw-style :lines-only))))
+            (:draw-style :lines))))
          (:object
           (:class 3d-lines)
           (:slots
@@ -862,7 +862,7 @@
                 nil
                 nil))))
             (:line-width 2.0)
-            (:draw-style :draw-all))))
+            (:draw-style :default))))
          (:object
           (:class 3d-cube)
           (:slots
@@ -1934,7 +1934,7 @@
     (:input
      (:type :standard)
      (:name "DRAW-STYLE")
-     (:value :lines-only)
+     (:value :lines)
      (:reactive nil)))
    (:outputs
     (:output (:name "SELF") (:reactive nil))
@@ -2137,7 +2137,7 @@
            nil
            nil))))
        (:line-width 2)
-       (:draw-style :lines-only)))))
+       (:draw-style :lines)))))
    (:id 32))
   (:box
    (:type :value)

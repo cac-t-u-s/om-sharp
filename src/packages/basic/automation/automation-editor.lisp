@@ -32,7 +32,7 @@
 
 (defmethod get-curve-panel-class ((self automation-editor)) 'automation-panel)
 
-(defmethod draw-modes-for-object ((self automation-editor)) '(:draw-all :lines-only))
+(defmethod draw-modes-for-object ((self automation-editor)) '(:default :lines))
 
 (defmethod insert-point-at-pix ((editor automation-editor) (object automation) position &optional (time nil))
   (let ((res (call-next-method)))
@@ -172,7 +172,7 @@
                                   :index (and foreground? show-indice i)
                                   :time (and foreground? (time-to-draw obj editor pt i)))
 
-                  (when (and (ap-lock pt) (equal :draw-all (editor-get-edit-param editor :draw-style)))
+                  (when (and (ap-lock pt) (not (equal :lines (editor-get-edit-param editor :draw-style))))
                     (om-draw-circle px py 5 :fill nil)))
                 )
               ;;;draw curves using 1000 lines by curve
