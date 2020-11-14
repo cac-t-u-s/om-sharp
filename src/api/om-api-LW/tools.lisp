@@ -28,7 +28,8 @@
 (in-package :om-api)
 
 
-(export '(function-name
+(export '(ratiop
+          function-name
           method-name
           function-arglist
           function-documentation
@@ -42,6 +43,12 @@
           slot-doc
           ) :om-api)
 
+
+;========================
+; Lisp
+;========================
+
+(import 'ratiop :lispworks)
 
 ;========================
 ; FUNCTION NAMES AND DOC
