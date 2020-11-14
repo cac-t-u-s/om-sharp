@@ -128,7 +128,7 @@
 (defun subtree-extent (subtree) ;verifier qui l'appele
   (cond ((listp subtree) (fullratio (first subtree)))
         ((floatp subtree) (round (abs subtree)))
-        ((or (lw::ratiop subtree)(integerp subtree))  (abs subtree)) ))
+        ((or (ratiop subtree) (integerp subtree)) (abs subtree))))
 
 (defun symbol->ratio (symbol)
   "expects symbols like |4//4| and returns a list (4 4)"
