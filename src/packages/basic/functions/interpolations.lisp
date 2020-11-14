@@ -63,7 +63,7 @@ The resulting function can be connected for example to SAMPLEFUN."
 ;;;==========================
 
 (defun x-around (x paires)
-  "trouve les paires en dessous et au dessus de x"
+  "Finds pairs below-above x"
   (let ((plus-grand (find x paires :test #'(lambda (x r) (<= x (first r))))))
     (if plus-grand
         (let* ((rang (if (< (1- (first (rang-p paires plus-grand 'equalp))) 0)
@@ -79,7 +79,7 @@ The resulting function can be connected for example to SAMPLEFUN."
 ;(x-around 70 '((0 0) (41 3) (50 6) (69 5) (100 8)))
 
 (defun y-around (y paires)
-  "trouve les paires en dessous et au dessus de y"
+  "Finds pairs below-above y"
   (let ((lst '()))
     (loop
      for i in paires
