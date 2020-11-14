@@ -200,7 +200,7 @@
 
                (unless (member (car (last (pathname-directory item))) exclude-folders :test 'string-equal)
                  (lisp-format-folder item :exclude-folders exclude-folders))
-             
+
              (when (and (pathname-type item)
                         (string= (pathname-type item) "lisp"))
                (om-lisp::om-lisp-format-file item))

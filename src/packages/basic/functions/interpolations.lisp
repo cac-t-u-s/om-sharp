@@ -40,7 +40,7 @@
 ;;;==========================
 
 (defun linear (x0 y0 x1 y1)
-  (if (= x0 x1) ;;; cas particulier.. a refaire, pour l'instant y = 1 is x = x0 et 0 sinon..
+  (if (= x0 x1) ;;; special case/to do. For now: if x == x0, y = 1, else y = 0.
       (let* ((xx x0))
         (eval `(function
                 (lambda (x) (if (= x ,xx) 1 0)))))
@@ -334,7 +334,6 @@ If <nbs-sr> is an float (e.g. 0.5, 1.0...) it is interpreted as the sample rate 
                       (error (/ (abs (- interpolated-y y_val)) amplitude)))
                  (if (> error approx)
                      (setf before (append before (list (car listrest))))))
-            ;do (setf after (cdr after))
             finally (setf before (append before (last points)))))
     before))
 

@@ -172,9 +172,6 @@
 ;;; PROPERTIES / KEY-VALUE LISTS
 ;;;==============================
 
-
-;(let ((ll (list-from-file "/Users/bresson/Desktop/testomx/testomx.omws"))) (find-value-in-kv-list ll :info))
-
 ;; '(:key1 :val1 :key2 :val2 ...)
 (defun find-value-in-arg-list (list key)
   (let ((pos (position key list :test 'equal)))
