@@ -220,7 +220,7 @@
 
     `(handler-bind ((error
                      #'(lambda (err)
-                         (om-message-dialog (format nil "An error of type ~a occurred: ~%\"~a\"" (type-of err) err))
+                         (om-message-dialog (format nil "#'with-safe-open-file: an error of type ~a occurred: ~%\"~a\"" (type-of err) err))
                          (abort err))))
        (when
            (catch 'format-failed
