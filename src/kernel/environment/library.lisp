@@ -243,7 +243,6 @@
             (om-print-format "~%==============================================")
             (om-print-format "~A ~A" (list (name lib) (or (version lib) "")))
             (when (doc lib) (om-print-format "~&~A" (list (doc lib))))
-            (when (author lib) (om-print-format "~&~A" (list (author lib))))
             (om-print-format "==============================================")
 
             lib-file))
