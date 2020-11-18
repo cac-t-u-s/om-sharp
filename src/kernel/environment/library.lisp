@@ -25,11 +25,11 @@
 ;;; ideally third-party libraries are coded in a separate Lisp package
 ;;; these are the basic :OM functions which might be needed in a library
 (export
- '(require-library           ;;; requies another lib
-                             gen-lib-reference         ;;; auto-generates the lib reference
-                             defclass!         ;;; defines a class in the library
-                             defmethod!        ;;; defines a method in the library
-                             ) :om)
+ '(require-library      ; requies another lib
+   gen-lib-reference    ; auto-generates the lib reference
+   defclass!            ; defines a class in the library
+   defmethod!           ; defines a method in the library
+   ) :om)
 
 (defclass OMLib (OMPersistantPackage)
   ((version :initform nil :accessor version :initarg :version :documentation "version number (\"a.b.c\")")
