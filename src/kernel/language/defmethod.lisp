@@ -45,7 +45,7 @@
   (let* (icon numouts initvals doc menuins indoc)
     (loop for theargs in args do
           (cond
-           ((equal (car theargs) :numouts)  (setf numouts  (second theargs)))
+           ((equal (car theargs) :numouts)   (setf numouts  (second theargs)))
            ((equal (car theargs) :initvals)  (setf initvals (second theargs)))
            ((equal (car theargs) :indoc)     (setf indoc (second theargs)))
            ((equal (car theargs) :doc)       (setf doc (second theargs)))
@@ -112,13 +112,13 @@
     (loop while (and theargs (not body?))
           do
           (cond
-           ((equal (car theargs) :numouts)  (pop theargs) (setf numouts  (pop theargs)))
+           ((equal (car theargs) :numouts)  (pop theargs) (setf numouts (pop theargs)))
            ((equal (car theargs) :initvals) (pop theargs) (setf initvals (pop theargs)))
            ((equal (car theargs) :indoc)    (pop theargs) (setf indoc (pop theargs)))
-           ((equal (car theargs) :outdoc)    (pop theargs) (setf outdoc (pop theargs)))
+           ((equal (car theargs) :outdoc)   (pop theargs) (setf outdoc (pop theargs)))
            ((equal (car theargs) :doc)      (pop theargs) (setf doc (pop theargs)))
-           ((equal (car theargs) :icon)     (pop theargs) (setf icon     (pop theargs)))
-           ((equal (car theargs) :menuins)  (pop theargs) (setf menuins   (pop theargs)))
+           ((equal (car theargs) :icon)     (pop theargs) (setf icon (pop theargs)))
+           ((equal (car theargs) :menuins)  (pop theargs) (setf menuins (pop theargs)))
            ((stringp (car theargs))         (setf doc (pop theargs)))
            (t                               (setf body theargs) (setf body? t))))
     (values qualy lambda-list numouts initvals icon indoc outdoc doc menuins body)))

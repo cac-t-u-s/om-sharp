@@ -238,7 +238,7 @@ Ex. (group-list '(1 2 3 4) '(1 3) 'linear)  => ((1) (2 3 4))
 Ex. (group-list '(1 2 3 4) '(1 2 3) 'linear)  => ((1) (2 3) (4))
 Ex. (group-list '(1 2 3 4) '(1 2 3) 'circular)  => ((1) (2 3) (4 1 2))
 "
-  :menuins '( (2 ( ("linear" linear) ("circular" circular))))
+  :menuins '((2 (("linear" linear) ("circular" circular))))
   (let ((list2 list) (res nil))
     (catch 'gl
       (loop for segment in segmentation
