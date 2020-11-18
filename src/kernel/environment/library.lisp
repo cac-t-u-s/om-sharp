@@ -328,16 +328,21 @@
 
       (let ((real-name (real-library-name library-name)))
 
-        (when (not (find real-name *required-libs-in-current-patch* :test 'string-equal)) ;;; situation already handled (for this patch): do not repeat
+        (when (not (find real-name *required-libs-in-current-patch* :test 'string-equal)) 
+          ;;; situation already handled (for this patch): do not repeat
           (push real-name *required-libs-in-current-patch*)
           (let ((the-library (find-library real-name)))
             (if the-library
                 (unless (loaded? the-library)
                   (when (or (get-pref-value :libraries :auto-load)
-                            (let ((reply (om-y-n-cancel-dialog (format nil "Some element(s) require the library '~A'.~%~%Do you want to load it ?" real-name))))
+                            (let ((reply (om-y-n-cancel-dialog 
+                                          (format nil "Some element(s) require the library '~A'.~%~%Do you want to load it ?" 
+                                                  real-name))))
                               (if (equal reply :cancel) (abort) reply)))
                     (load-om-library the-library)))
-              (om-message-dialog (format nil "Some element(s) require the unknow library: '~A'.~%~%These boxes will be temporarily disabled." real-name))
+              (om-message-dialog
+               (format nil "Some element(s) require the unknow library: '~A'.~%~%These boxes will be temporarily disabled." 
+                       real-name))
               )))
         ))))
 
