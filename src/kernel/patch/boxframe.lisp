@@ -1084,19 +1084,22 @@
     (om-open-pop-up-menu menu view)
     ))
 
+
 (defun input-values-menu (name box input)
   (om-make-menu name
                 (loop for item in (get-input-menu box (name input))
                       ;;(cons '("" nil) (get-input-menu box (name input)))
                       for i = 0 then (+ i 1)
-                      collect (om-make-menu-item
-                               (car item)
-                               (let ((val (cadr item)))
+                      collect (let ((item-value (if (quoted-form-p (cadr item))
+                                                    (eval (cadr item)) (cadr item))))
+                                (om-make-menu-item
+                                 (car item)
                                  #'(lambda ()
-                                     (set-value input val)))
-                               :enabled t
-                               :selected (equal (value input) (cadr item))
-                               ))))
+                                     (set-value input item-value))
+                                 :enabled t
+                                 :selected (equal (value input) item-value)
+                                 ))
+                      )))
 
 ;;; Displays a menu for the values of an input
 (defun show-input-val-menu (input box view)
