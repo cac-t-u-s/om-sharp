@@ -178,7 +178,7 @@
   (:documentation "Used to generate Lisp code from a box call."))
 
 (defgeneric* omng-box-value (box &optional numout)
-             (:documentation "Eval the output indexed by <numout> for the box <self>."))
+  (:documentation "Eval the output indexed by <numout> for the box <self>."))
 
 (defmethod current-box-value ((self OMBox) &optional (numout nil))
   (if numout (nth numout (value self)) (value self)))

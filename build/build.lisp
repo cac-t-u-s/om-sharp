@@ -141,6 +141,8 @@
 (editor:setup-indent "defclass!" 2 2 4)
 (editor:setup-indent "defmethod*" 0 2 4)
 (editor:setup-indent "defmethod!" 0 2 4)
+(editor:setup-indent "defgeneric*" 0 2 4)
+
 
 (push :om-sharp *features*)
 
