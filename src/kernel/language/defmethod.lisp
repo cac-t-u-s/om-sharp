@@ -137,8 +137,9 @@
 (defun def-method-icon () nil)
 
 (defun decode-menuins (list)
-  (loop for in from 0 to (apply 'max (mapcar 'car list)) collect
-        (cadr (find in list :test '= :key 'car))))
+  (when list
+    (loop for in from 0 to (apply 'max (mapcar 'car list)) collect
+          (cadr (find in list :test '= :key 'car)))))
 
 (defmacro defmethod* (name &rest args)
   (multiple-value-bind (qualy lambda-list numouts initvals icon indoc outdoc doc menuins body)
