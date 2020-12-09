@@ -165,13 +165,13 @@
 (defvar *om-recent-files* nil)
 
 (defun record-recent-file (file)
-
-  (if (find (namestring file) *om-recent-files* :key 'namestring :test 'string-equal)
+  (let ((num-recorded-files 10))
+    (if (find (namestring file) *om-recent-files* :key 'namestring :test 'string-equal)
+        (setf *om-recent-files*
+              (cons file (remove (namestring file) *om-recent-files* :key 'namestring :test 'string-equal)))
       (setf *om-recent-files*
-            (cons file (remove (namestring file) *om-recent-files* :key 'namestring :test 'string-equal)))
-    (setf *om-recent-files*
-          (cons file (first-n *om-recent-files* 9)))
-    )
+            (cons file (butlast *om-recent-files* (max 0 (- (length *om-recent-files*) (1- num-recorded-files))))))
+      ))
   ;;; to store the list of documents...
   (save-om-preferences))
 
