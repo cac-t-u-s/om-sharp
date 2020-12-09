@@ -503,26 +503,30 @@
 (defun get-ramped-sine-pts (pts resolution)
   (let ((x1 (om-point-x (car pts)))
         (y1 (om-point-y (car pts)))
-        (x2 (om-point-x (last-elem pts)))
-        (y2 (om-point-y (last-elem pts))))
+        (x2 (om-point-x (car (last pts))))
+        (y2 (om-point-y (car (last pts)))))
 
     (let* ((width (abs (- x2 x1)))
          ;calculate 'mirrored' y2 (a clipped linear function)
-           (anti-y2 (om-max
+           (anti-y2 (max
                      (+ (* -1/3 y2)
                         (* 4/3 (+ y1 (* 1/2 width))))
                      y2)
                     ))
-
-      (loop for k from 0 to resolution
-            for rad = (om-scale k -1.57 1.57 0 resolution)
-            for ramp = (* (* (+ (sin (om-scale k -1.57 1.57 0 resolution)) 1) 0.5) ;; 0 to 1 half-sine-curve
-                          (- anti-y2 y2)) ;; positive number
-            collect
-            (omp (om-scale (sin rad) x1 x2 -1 1)
-                 (- (om-scale k y1 anti-y2 0 resolution)
-                    ramp
-                    ))))))
+      (flet ((scale (x minout maxout minin maxin)
+               (if (= maxin minin)
+                   minin
+                 (+ minout (/ (* (- x minin) (- maxout minout)) (- maxin minin))))))
+        (loop for k from 0 to resolution
+              for rad = (scale k -1.57 1.57 0 resolution)
+              for ramp = (* (* (+ (sin (scale k -1.57 1.57 0 resolution)) 1) 0.5) ;; 0 to 1 half-sine-curve
+                            (- anti-y2 y2)) ;; positive number
+              collect
+              (omp (scale (sin rad) x1 x2 -1 1)
+                   (- (scale k y1 anti-y2 0 resolution)
+                      ramp
+                      )))
+        ))))
 
 
 
