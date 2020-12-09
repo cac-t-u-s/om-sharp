@@ -136,7 +136,9 @@
           cl-user::decode-local-path)
         :om)
 
-(load (merge-pathnames "src/kernel/kernel-files.lisp" cl-user::*om-root-directory*))
+(load (merge-pathnames "src/visual-language/load.lisp" cl-user::*om-root-directory*))
+(load (merge-pathnames "src/player/load.lisp" cl-user::*om-root-directory*))
+
 
 (editor:setup-indent "defclass*" 2 2 4)
 (editor:setup-indent "defclass!" 2 2 4)

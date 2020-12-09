@@ -110,14 +110,6 @@
         "tools/collections"
         "tools/networking"
 
-        "scheduler/load-scheduling-system"
-        "scheduler/clock"
-
-        "play/timed-object"
-        "play/general-player"
-        "play/box-player"
-        "play/editor-player"
-
         "utils/traduction"
         "utils/documentation"
         "utils/help"
@@ -126,7 +118,7 @@
         "utils/undo"
         "utils/compatibility"
 
-        "kernel-pack"
+        "packages"
 
         ))
 
