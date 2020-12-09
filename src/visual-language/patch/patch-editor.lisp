@@ -113,7 +113,6 @@
   )
 
 
-
 (defmethod init-editor-window ((editor patch-editor))
   (call-next-method)
   (let ((patch (object editor)))
@@ -125,12 +124,6 @@
     (update-window-name editor)
     ))
 
-
-(defun draw-h-grid-line (view y)
-  (om-draw-line 0 y (w view) y))
-
-(defun draw-v-grid-line (view x)
-  (om-draw-line x 0 x (h view)))
 
 (defmethod draw-patch-grid ((self patch-editor-view) &optional (d 50))
   (om-with-fg-color (om-make-color .95 .95 .95)

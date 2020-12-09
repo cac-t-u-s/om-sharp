@@ -217,8 +217,16 @@
                     )))))
       )))
 
+
+(defun draw-h-grid-line (view y)
+  (om-draw-line 0 y (w view) y))
+
+(defun draw-v-grid-line (view x)
+  (om-draw-line x 0 x (h view)))
+
 (defmethod draw-grid-line-from-ruler ((self om-view) (ruler x-ruler-view) x) (draw-v-grid-line self x))
 (defmethod draw-grid-line-from-ruler ((self om-view) (ruler y-ruler-view) y) (draw-h-grid-line self y))
+
 
 ;;; no draw without ruler
 (defmethod draw-grid-from-ruler ((self om-view) (ruler null)) nil)
