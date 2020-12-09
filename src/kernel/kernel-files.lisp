@@ -39,17 +39,14 @@
 (mapc #'(lambda (filename)
           (cl-user::compile&load (cl-user::decode-local-path filename)))
       '(
-        "tools/lisptools"
-        "tools/pathnames"
-        "tools/strings"
-        "tools/traduction"
-        "tools/documentation"
-        "tools/help"
+        "utils/lisptools"
+        "utils/pathnames"
+        "utils/strings"
 
-        "language/objects"
-        "language/metaclasses"
-        "language/defmethod"
-        "language/defclass"
+        "core/objects"
+        "core/metaclasses"
+        "core/defmethod"
+        "core/defclass"
 
         "graphics/graphic-tools"
         "graphics/icon-picts"
@@ -106,12 +103,12 @@
         "boxes/init-do"
         "boxes/send-receive-route"
 
-        "basic/data-structures"
-        "basic/file-utils"
-        "basic/write-to-disk"
-        "basic/file-stream"
-        "basic/collections"
-        "basic/networking"
+        "tools/data-structures"
+        "tools/file-utils"
+        "tools/write-to-disk"
+        "tools/file-stream"
+        "tools/collections"
+        "tools/networking"
 
         "scheduler/load-scheduling-system"
         "scheduler/clock"
@@ -121,6 +118,9 @@
         "play/box-player"
         "play/editor-player"
 
+        "utils/traduction"
+        "utils/documentation"
+        "utils/help"
         "utils/copy"
         "utils/save"
         "utils/undo"
