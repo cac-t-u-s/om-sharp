@@ -233,7 +233,7 @@
 
   ;(show-listener-win)
 
-  ;;(om::set-language *release-language*)
+  (set-language *release-language*)
   (register-om-icons)
 
   ;; #+(or om-deliver mswindows)
