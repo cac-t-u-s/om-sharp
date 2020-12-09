@@ -506,20 +506,22 @@
       t)
     ))
 
+
 (defmethod editor-key-action ((editor patch-editor) key)
+  (declare (special *general-player*))
 
   (let* ((panel (get-editor-view-for-action editor))
          (selected-boxes (get-selected-boxes editor))
-         (selected-connections (get-selected-connections editor)))
+         (selected-connections (get-selected-connections editor))
+         (player-active (and (boundp '*general-player*) *general-player*)))
 
     (when panel
 
       (case key
 
         ;;; play/stop commands
-        ;(#\p (play-boxes selected-boxes))
-        (#\s (stop-boxes selected-boxes))
-        (#\Space (play/stop-boxes selected-boxes))
+        (#\Space (when player-active (play/stop-boxes selected-boxes)))
+        (#\s (when player-active (stop-boxes selected-boxes)))
 
         (:om-key-delete (unless (edit-lock editor)
                           (store-current-state-for-undo editor)

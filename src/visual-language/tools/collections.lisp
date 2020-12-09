@@ -426,9 +426,13 @@
         (om-set-text text-component text)))))
 
 (defmethod update-collection-editor ((editor collection-editor))
+  (declare (special *general-player*))
   (set-current-text editor)
   (let ((internal-editor (internal-editor editor)))
-    (editor-stop internal-editor)
+
+    (when (and (boundp '*general-player*) *general-player*)
+      (editor-stop internal-editor))
+
     (setf (selection internal-editor) nil)
     (let ((abs-container (object internal-editor))) ;; in principle this is an OMAbstractContainer
       (setf (contents abs-container)
