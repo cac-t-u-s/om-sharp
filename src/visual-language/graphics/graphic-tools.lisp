@@ -173,10 +173,10 @@
                      (float (+ (* i difB) (om-color-b begin))))))))
 
 (defun om-random-color (&optional (alpha 1.0))
-  (om-make-color (om-random 0.0 1.0) (om-random 0.0 1.0) (om-random 0.0 1.0) alpha))
+  (om-make-color (random 1.0) (random 1.0) (random 1.0) alpha))
 
 (defmethod om-random-color-hsv (s v &optional (alpha 1.0))
-  (om-make-color-hsv (om-random 0.0 1.0) s v alpha))
+  (om-make-color-hsv (random 1.0) s v alpha))
 
 (defmethod om-create-palette-from-color (col size)
   "Creates a palette of colors spaced with golden ratio for readability. It use a first color as source and and number of colors to generate"
