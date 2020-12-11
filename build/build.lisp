@@ -25,7 +25,7 @@
 
 (defparameter *version-major* 1)
 (defparameter *version-minor* 1)
-(defparameter *version-patch* 0)
+(defparameter *version-patch* 1)
 (defparameter *version-update* 0)
 
 (defparameter *version*
