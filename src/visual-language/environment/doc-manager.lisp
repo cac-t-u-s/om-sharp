@@ -254,10 +254,12 @@
 
 
 (defun import-doc-from-previous-om (path)
-  (let ((obj (load-om6-file path)))
-    (if obj (open-editor obj)
-      (om-print (string+ "file: \""  (namestring path) "\" could not be open.")))
-    obj))
+  (if (not (probe-file path))
+      (om-message-dialog (format nil (om-str :file-not-exists) (namestring path)))
+    (let ((obj (load-om6-file path)))
+      (if obj (open-editor obj)
+        (om-print (string+ "file: \""  (namestring path) "\" could not be open.")))
+      obj)))
 
 
 (defun open-doc-from-file (type file)
