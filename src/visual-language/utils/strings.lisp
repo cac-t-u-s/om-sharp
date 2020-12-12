@@ -103,7 +103,7 @@
   (let ((path (probe-file pathname)))
     (when (and path (valid-file-pathname-p path))
       (let ((rep-list nil))
-        (with-safe-open-file (in path :direction :input :if-does-not-exist nil)
+        (with-safe-open-file (in path :direction :input)
           (let ((line (read in nil :eof)))
             (loop while (and line (not (equal line :eof))) do
                   (setf rep-list (append rep-list (list line))
@@ -111,11 +111,15 @@
         rep-list))))
 
 (defun lines-from-file (pathname)
-  (with-safe-open-file (in pathname :direction :input :if-does-not-exist nil)
-    (let ((line (read-line in nil :eof)))
-      (loop while (and line (not (equal line :eof)))
-            collect line
-            do (setf line (read-line in nil :eof))))))
+  (let ((path (probe-file pathname)))
+    (when (and path (valid-file-pathname-p path))
+      (with-safe-open-file (in pathname :direction :input)
+        (let ((line (read-line in nil :eof)))
+          (loop while (and line (not (equal line :eof)))
+                collect line
+                do (setf line (read-line in nil :eof))))
+        )
+      )))
 
 ;=======================
 ; STRING TO SYMBOLS
