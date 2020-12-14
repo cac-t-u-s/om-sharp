@@ -34,10 +34,14 @@ rubbish		= *.$(faslname)
 
 # rsyncflags	= -v -rlt -z
 rsyncflags	= -v -rlt -O -z -C --include '*.so'
-exclude_fasl	= --include 'dspec-database.$(faslname)' --exclude '$(rubbish)'
-exclude_mac	= --exclude 'build/mac/' --exclude '*.finderinfo'
-exclude_win	= --exclude 'build/win/'
-exclude_libs	= --exclude 'resources/lib/'
+exclude_fasl	= --exclude '$(rubbish)'
+include_dirs	= --include 'dspec-database.$(faslname)' --include 'slime/*'
+
+slime_dir	= ./om-sharp/src/lisp-externals/slime
+
+exclude_mac	= --exclude 'build/mac/' --exclude '*.finderinfo' --exclude 'resources/lib/mac'
+exclude_win	= --exclude 'build/win/' --exclude 'resources/lib/win*'
+exclude_oses	= $(exclude_mac) $(exclude_win)
 
 checkname	= $(shell ls $(BUILDROOT) | grep "om-sharp_")
 ifdef $(checkname)
@@ -47,13 +51,16 @@ releaseappname	= $(app_name_version)
 endif
 
 
-
-
 all:	compile
 
 
 help:
 	@echo BUILDROOT:	$(BUILDROOT)
+	@echo Makefile:		$(thisfile)
+	@echo THISDIR:		$(thisdir)
+	@echo BUILDROOT:	$(BUILDROOT)
+	@echo buildname:	$(buildname)
+	@echo IMAGENAME:	$(IMAGENAME)
 	@echo releaseappname:	$(releaseappname)
 	@echo targets: '(default=compile, all), compile, all (=compile), install, uninstall, clean, tardist, preparerpm, help'
 
@@ -64,7 +71,7 @@ compile:
 
 install: $(BUILDROOT)/$(releaseappname)
 	mkdir -p $(omroot)
-	cd $(BUILDROOT) && rsync $(rsyncflags) $(exclude_fasl) $(exclude_libs) $(exclude_mac) $(exclude_win) --exclude 'Makefile' --exclude $(releaseappname) . $(omroot)
+	cd $(BUILDROOT) && rsync $(rsyncflags) $(include_dirs) $(exclude_fasl) $(exclude_oses) --exclude 'Makefile' --exclude $(releaseappname) . $(omroot)
 	mkdir -p $(libdir)
 	cd $(BUILDROOT)/resources/lib/linux && rsync $(rsyncflags) . $(libdir)
 	cd $(BUILDROOT) && $(INSTALL_PROGRAM) -D -m 0755 $(releaseappname) $(bindir)/$(releaseappname)
@@ -88,16 +95,21 @@ clean:
 	cd $(BUILDROOT)/src && find . -name $(rubbish) -delete
 	rm -f $(BUILDROOT)/$(releaseappname)
 
+# exclude various mac/win-related, fasls, but take care to include
+# everything inside slime directory (including fasls):
+
 tardist: all
 	cd $(BUILDROOT)/../ && \
 	tar cvjf om-sharp.tar.bz2 \
+	   $(slime_dir) \
 	   --exclude=.git* \
-	   --exclude=om-sharp/build/mac \
-	   --exclude=om-sharp/build/win* \
-	   --exclude=om-sharp/resources/lib/mac \
-	   --exclude=om-sharp/resources/lib/win* \
+	   $(exclude_fasl) \
+	   $(exclude_mac) \
+	   $(exclude_win) \
 	   ./om-sharp
 
+
+# tardist: $(BUILDROOT)/../om-sharp.tar.bz2
+
 preparerpm: tardist
-	cd $(BUILDROOT)/../ && \
-	mv om-sharp.tar.bz2 ~/rpmbuild/SOURCES
+	mv $(BUILDROOT)/../om-sharp.tar.bz2 ~/rpmbuild/SOURCES
