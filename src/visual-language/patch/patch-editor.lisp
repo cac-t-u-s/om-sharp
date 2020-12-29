@@ -261,7 +261,7 @@
             "Boxes"
             (list
 
-             (om-make-menu "Add box..." (add-box-menu-items))
+             (om-make-menu "Add box..." (add-box-menu-items (main-view self) nil))
 
              (om-make-menu-comp
               (list
@@ -400,21 +400,29 @@
 
 
 
-(defun add-box-menu-items ()
+(defun new-box-from-menu (name view position)
+  (if (and view position)
+      (progn
+        (select-unselect-all (editor view) nil)
+        (new-box-in-patch-editor view name position))
+    (set-add-item-on-patch name)))
+
+
+(defun add-box-menu-items (view position)
   (list
-   (om-make-menu-item "Input" #'(lambda () (set-add-item-on-patch "in")))
-   (om-make-menu-item "Output" #'(lambda () (set-add-item-on-patch "out")))
-   (om-make-menu-item "Internal patch" #'(lambda () (set-add-item-on-patch "patch")))
-   (om-make-menu-item "Internal Lisp function" #'(lambda () (set-add-item-on-patch "lisp")))
-   (om-make-menu-item "External abstraction (p)" #'(lambda () (set-add-item-on-patch "import")))
-   (om-make-menu-item "Comment (c)" #'(lambda () (set-add-item-on-patch "comment")))
+   (om-make-menu-item "Input" #'(lambda () (new-box-from-menu "in" view position )))
+   (om-make-menu-item "Output" #'(lambda () (new-box-from-menu "out" view position)))
+   (om-make-menu-item "Internal patch" #'(lambda () (new-box-from-menu "patch" view position)))
+   (om-make-menu-item "Internal Lisp function" #'(lambda () (new-box-from-menu "lisp" view position)))
+   (om-make-menu-item "External abstraction (p)" #'(lambda () (new-box-from-menu "import" view position)))
+   (om-make-menu-item "Comment (c)" #'(lambda () (new-box-from-menu "comment" view position)))
    (om-make-menu-comp
-    (loop for pack in (elements *om-package-tree*) collect (make-package-menu pack)))
+    (loop for pack in (elements *om-package-tree*) collect (make-package-menu pack view position)))
    (om-make-menu-comp
     #'(lambda (ed)
         (declare (ignore ed))
         (loop for libname in (all-om-libraries t)
-              collect (make-package-menu (find-library libname)))
+              collect (make-package-menu (find-library libname) view position))
         ))
    ))
 

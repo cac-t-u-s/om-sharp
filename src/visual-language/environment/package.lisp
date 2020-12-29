@@ -204,7 +204,7 @@ For easier browsing it is recommended that a package do not contain at the same 
     pack))
 
 
-(defun make-package-menu (pack)
+(defun make-package-menu (pack view position)
   (om-make-menu
    (name pack)
    (remove nil (list (when (functions pack)
@@ -214,7 +214,7 @@ For easier browsing it is recommended that a package do not contain at the same 
                                     collect (let ((fun f))
                                               (om-make-menu-item
                                                (string (get-name fun))
-                                               #'(lambda () (set-add-item-on-patch (get-name fun)))))))))
+                                               #'(lambda () (new-box-from-menu (get-name fun) view position))))))))
                      (when (classes pack)
                        (om-make-menu-comp
                         (cons (om-make-menu-item "Classes/Objects" nil :enabled nil)
@@ -222,7 +222,7 @@ For easier browsing it is recommended that a package do not contain at the same 
                                     collect (let ((class c))
                                               (om-make-menu-item
                                                (string (get-name class))
-                                               #'(lambda () (set-add-item-on-patch (get-name class)))))))))
+                                               #'(lambda () (new-box-from-menu (get-name class) view position))))))))
                      (when (special-items pack)
                        (om-make-menu-comp
                         (cons (om-make-menu-item "Special boxes" nil :enabled nil)
@@ -230,11 +230,11 @@ For easier browsing it is recommended that a package do not contain at the same 
                                     collect (let ((item i))
                                               (om-make-menu-item
                                                (string item)
-                                               #'(lambda () (set-add-item-on-patch item))))))))
+                                               #'(lambda () (new-box-from-menu item view position))))))))
                      (when (elements pack)
                        (om-make-menu-comp
                         (loop for p in (elements pack)
-                              collect (make-package-menu p))))
+                              collect (make-package-menu p view position))))
                      ))
    ))
 
