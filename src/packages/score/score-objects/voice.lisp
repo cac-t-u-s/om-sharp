@@ -529,36 +529,35 @@
 (defmethod (setf Lmidic) ((Lmidic list) (self voice))
   (loop for midics in lmidic
         for c in (chords self)
-        do (setf (lmidic c) midics)
+        do (setf (lmidic c) (list! midics))
         ))
 
 (defmethod (setf Lvel) ((Lvel list) (self voice))
   (loop for vels in lvel
         for c in (chords self)
-        do (setf (lvel c) vels)
+        do (setf (lvel c) (list! vels))
         ))
 
 (defmethod (setf Loffset) ((Loffset list) (self voice))
   (loop for offsets in Loffset
         for c in (chords self)
-        do (setf (loffset c) offsets)
+        do (setf (loffset c) (list! offsets))
         ))
 
 (defmethod (setf Lchan) ((Lchan list) (self voice))
   (loop for chans in Lchan
         for c in (chords self)
-        do (setf (lchan c) chans)
+        do (setf (lchan c) (list! chans))
         ))
 
 (defmethod (setf LPort) ((LPort list) (self voice))
   (loop for ports in LPort
         for c in (chords self)
-        do (setf (lport c) ports)
+        do (setf (lport c) (list! ports))
         ))
 
 (defmethod (setf tree) ((tree list) (self voice))
-  (set-tree self tree)
-  )
+  (set-tree self tree))
 
 
 ;;;======================================
