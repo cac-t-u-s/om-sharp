@@ -125,6 +125,12 @@
     ))
 
 
+(defmethod get-grap-connections ((self patch-editor-view) &key only-selected)
+  (if only-selected
+      (remove nil (mapcar 'graphic-connection (remove-if-not 'selected (connections (object (editor self))))))
+    (remove nil (mapcar 'graphic-connection (connections (object (editor self)))))))
+
+
 (defmethod draw-patch-grid ((self patch-editor-view) &optional (d 50))
   (om-with-fg-color (om-make-color .95 .95 .95)
     ;(om-with-line '(2 2) ;;; dash-lines are VERY unefficient
@@ -414,7 +420,7 @@
 
 
 
-
+(defmethod box-symbol ((self t)) self)
 
 ;;; will be passed to the Help menus
 (defmethod get-selection-for-menu ((self patch-editor))
@@ -424,18 +430,8 @@
     (get-selected-boxes self))
    ))
 
-(defmethod box-symbol ((self t)) self)
 
-(defmethod get-boxframes ((self patch-editor-view) &key only-selected)
-  (let ((frames (remove-if-not #'(lambda (item) (subtypep (type-of item) 'omframe)) (om-subviews self))))
-    (if only-selected
-        (remove-if-not 'selected frames :key 'object)
-      frames)))
 
-(defmethod get-grap-connections ((self patch-editor-view) &key only-selected)
-  (if only-selected
-      (remove nil (mapcar 'graphic-connection (remove-if-not 'selected (connections (object (editor self))))))
-    (remove nil (mapcar 'graphic-connection (connections (object (editor self)))))))
 
 ;;;=========================
 ;;; EVENT HANDLERS
@@ -810,6 +806,13 @@
 ;;;==========================
 ;;; SELECTION
 ;;;==========================
+
+(defmethod get-boxframes ((self patch-editor-view) &key only-selected)
+  (let ((frames (remove-if-not #'(lambda (item) (subtypep (type-of item) 'omframe)) (om-subviews self))))
+    (if only-selected
+        (remove-if-not 'selected frames :key 'object)
+      frames)))
+
 
 (defmethod mouse-selection ((self patch-editor-view) pos)
   (let ((p0 pos))
