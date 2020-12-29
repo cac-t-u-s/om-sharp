@@ -439,6 +439,13 @@
    ))
 
 
+(defmethod om-get-menu-context ((self patch-editor-view))
+  (let ((position (om-mouse-position self)))
+    (list
+     (om-make-menu-comp
+      (list (om-make-menu-item "Add box / patch component..." nil :enabled nil)))
+     (add-box-menu-items self position)
+     )))
 
 
 ;;;=========================
