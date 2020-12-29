@@ -718,10 +718,13 @@
 
     ;;; if we're in multiple selection (SHIFT) or if the box is already selected: do not unselect all
 
-    (if (and (editable-on-click (object self)) ;; hooked by scoreboxes !
-             (selected (object self))
-             (not (om-add-key-down)) (not (om-shift-key-p)))
-        (edit-text-area self position))
+    (when (and
+           (not (active-area-at-pos self position))
+           (editable-on-click (object self)) ;; hooked by scoreboxes !
+           (selected (object self))
+           (not (om-add-key-down))
+           (not (om-shift-key-p)))
+      (edit-text-area self position))
 
     (or
      (progn
