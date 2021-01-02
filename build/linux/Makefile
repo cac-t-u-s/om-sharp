@@ -98,7 +98,7 @@ clean:
 # exclude various mac/win-related, fasls, but take care to include
 # everything inside slime directory (including fasls):
 
-tardist: all
+tardist:
 	cd $(BUILDROOT)/../ && \
 	tar cvjf om-sharp.tar.bz2 \
 	   $(slime_dir) \
@@ -111,5 +111,5 @@ tardist: all
 
 # tardist: $(BUILDROOT)/../om-sharp.tar.bz2
 
-preparerpm: tardist
-	mv $(BUILDROOT)/../om-sharp.tar.bz2 ~/rpmbuild/SOURCES
+preparerpm:
+	cp -v $(BUILDROOT)/../om-sharp.tar.bz2 ~/rpmbuild/SOURCES
