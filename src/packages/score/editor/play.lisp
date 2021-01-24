@@ -233,7 +233,7 @@
 ;;; chord-seq and multi-seq don't work with get-notes
 (defmethod collec-ports-from-object ((self chord-seq))
   (remove-duplicates
-   (loop for c in (inside self) append (collec-ports-from-object c))))
+   (loop for c in (chords self) append (collec-ports-from-object c))))
 
 (defmethod collec-ports-from-object ((self multi-seq))
   (remove-duplicates
