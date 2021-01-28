@@ -49,11 +49,12 @@
 
 
 (defun om-make-graphic-object (class &rest attributes
-                                     &key position (size (om-make-point 10 10)) font text
-                                     bg-color fg-color
+                                     &key (position (om-make-point 0 0))
+                                     (size (om-make-point 10 10))
+                                     font text bg-color fg-color
                                      &allow-other-keys)
-  (let*  ((x (and position (om-point-x position)))
-          (y (and position (om-point-y position)))
+  (let*  ((x (or (om-point-x position) 0))
+          (y (or (om-point-y position) 0))
           (w (om-point-x size))
           (h (om-point-y size))
           (view (apply 'make-instance (append
