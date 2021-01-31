@@ -519,8 +519,6 @@
           )))))
 
 
-
-
 (defmethod om-view-click-handler :around ((self stream-panel) position)
   (let ((editor (editor self)))
     (when (and (container-editor editor)
@@ -684,7 +682,6 @@
 ;;; TURN PAGES / FOLLOW PLAY POSITION
 ;;;==================================
 
-
 (defmethod play-editor-callback ((editor data-stream-editor) time)
   (call-next-method)
   (let ((panel (get-g-component editor :main-panel))
@@ -701,12 +698,9 @@
     ))
 
 
-
 ;;;=========================
 ;;; TOUCH GESTURES
 ;;;=========================
-
-
 
 (defmethod om-view-pan-handler ((self stream-panel) position dx dy)
   (let ((fact 10))
@@ -727,6 +721,4 @@
   (let ((x-ruler (get-g-component (editor panel) :x-ruler)))
     (when (and x-ruler (ruler-zoom-? x-ruler))
       (zoom-time-ruler x-ruler dx center panel))))
-
-
 
