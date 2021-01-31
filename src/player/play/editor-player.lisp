@@ -527,7 +527,7 @@
 (defmethod make-repeat-button ((editor play-editor-mixin) &key size enable)
   (setf (repeat-button editor)
         (om-make-graphic-object 'om-icon-button :size (or size (omp 16 16))
-                                :icon :icon-repeat-black :icon-pushed :icon-repeat-white
+                                :icon :icon-repeat-black :icon-pushed :icon-repeat-orange :icon-disabled :icon-repeat-gray
                                 :lock-push t :enabled enable
                                 :pushed (is-looping (get-obj-to-play editor))
                                 :action #'(lambda (b)
