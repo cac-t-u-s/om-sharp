@@ -174,7 +174,12 @@
                 :items type
                 :resizable :w
                 :value (pref-item-value pref-item)
-                :size (om-make-point (om-string-size (format nil " ~A " (pref-item-value pref-item)) font) 22)
+                :size (om-make-point (+ 36 (reduce #'max
+                                                   (or (mapcar
+                                                        #'(lambda (item) (om-string-size (format nil "~A" item) font))
+                                                        type)
+                                                       '(20))))
+                                     22)
                 :font font
                 :di-action #'(lambda (item)
                                (setf (pref-item-value pref-item) (om-get-selected-item item))
@@ -296,7 +301,7 @@
                         :font font
                         :size (om-make-point line-w
                                              (+ (if (equal (pref-item-type pref-item) :title) 10 2)
-                                                (* line-h (length (list! (pref-item-doc pref-item)))))))
+                                                (* (1+ line-h) (length (list! (pref-item-doc pref-item)))))))
                        ))))
 
     (if (equal (pref-item-type pref-item) :title)
