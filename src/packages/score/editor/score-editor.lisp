@@ -1245,6 +1245,7 @@
 
             (om-make-layout
              'om-row-layout
+             :align :center
              :subviews
              (list
               (om-make-di 'om-simple-text :text "offsets"
@@ -1261,6 +1262,7 @@
 
             (om-make-layout
              'om-row-layout
+             :align :center
              :subviews
              (list
               (om-make-di 'om-simple-text :text "velocity"
@@ -1275,6 +1277,7 @@
 
             (om-make-layout
              'om-row-layout
+             :align :center
              :subviews
              (list
               (om-make-di 'om-simple-text :text "MIDI channel"
@@ -1289,6 +1292,7 @@
 
             (om-make-layout
              'om-row-layout
+             :align :center
              :subviews
              (list
               (om-make-di 'om-simple-text :text "MIDI port"
