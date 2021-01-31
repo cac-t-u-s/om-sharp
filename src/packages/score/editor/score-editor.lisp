@@ -543,7 +543,7 @@
                       (set-g-component
                        editor :staff-menu  ;; we need to change it sometimes...
                        (om-make-di 'om-popup-list :items *score-staff-options*
-                                   :size (omp 80 control-h) :font (om-def-font :font1)
+                                   :size (omp 100 control-h) :font (om-def-font :font1)
                                    :value (editor-get-edit-param editor :staff)
                                    :di-action #'(lambda (list)
                                                   (editor-set-edit-param editor :staff (om-get-selected-item list))
@@ -560,7 +560,7 @@
                                   :size (omp 35 text-h)
                                   :font (om-def-font :font1))
                       (om-make-di 'om-popup-list :items (mapcar #'car *all-scales*)
-                                  :size (omp 80 control-h) :font (om-def-font :font1)
+                                  :size (omp 100 control-h) :font (om-def-font :font1)
                                   :value (editor-get-edit-param editor :scale)
                                   :di-action #'(lambda (list)
                                                  (editor-set-edit-param editor :scale (om-get-selected-item list))
