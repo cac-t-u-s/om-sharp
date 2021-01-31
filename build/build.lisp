@@ -215,7 +215,7 @@
 (defun format-sources ()
   (lisp-format-folder 
    (merge-pathnames "src/" cl-user::*om-root-directory*)
-   :exclude-folders '("_BUILD" "lisp-externals" "lw-opengl" "foreign-interface")))
+   :exclude-folders '("_BUILD" "lisp-externals" "lw-opengl" "foreign-interface" "libsndfile")))
 
 ;=> Call this before comitting to the repository !
 ;
