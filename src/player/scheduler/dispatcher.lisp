@@ -65,7 +65,7 @@
 (defun build-dispatcher (scheduler &key (precision 1))
   (let ((dispatcher (make-dispatcher :precision (max 1 (round precision))
                                      :scheduler scheduler)))
-    (setf (process dispatcher) (mp:process-run-function "OM-Dispatcher"
+    (setf (process dispatcher) (mp:process-run-function "dispatcher-thread"
                                                         nil
                                                         'dispatch-actions-cycle
                                                         dispatcher))
