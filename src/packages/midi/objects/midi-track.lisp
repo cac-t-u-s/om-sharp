@@ -268,7 +268,8 @@
 ;;;======================================
 ;;; EDITOR
 ;;;======================================
-(defclass midi-track-editor (data-stream-editor) ())
+(defclass midi-track-editor (data-stream-editor)
+  ((recording-notes :accessor recording-notes :initform nil)))
 
 (defmethod get-editor-class ((self midi-track)) 'midi-track-editor)
 
@@ -568,6 +569,121 @@
 (defmethod set-object-current-time ((self midi-track) time)
   (declare (ignore time))
   (send-current-midi-key-offs self)
+  (call-next-method))
+
+
+;;;======================================
+;;; RECORD
+;;;======================================
+
+(defmethod can-record ((self midi-track-editor)) t)
+
+
+(defmethod close-recording-notes ((self midi-track-editor))
+
+  (let ((obj (get-obj-to-play self)))
+
+    (when (recording-notes self)
+
+      (let ((time-ms (player-get-object-time (player self) obj))
+            (max-time (or (cadr (play-interval self)) (get-obj-dur obj))))
+
+        (maphash
+         #'(lambda (pitch note)
+             (declare (ignore pitch))
+             (setf (dur note)
+                   (- (if (> time-ms (midinote-onset note)) time-ms max-time)
+                      (midinote-onset note))))
+         (recording-notes self))
+
+        (clrhash (recording-notes self))))
+
+    (time-sequence-update-obj-dur obj)
+    ))
+
+
+(defmethod editor-record-on ((self midi-track-editor))
+
+  (let ((midi-track (get-obj-to-play self))
+        (in-port (get-pref-value :midi :in-port)))
+
+    (setf (recording-notes self) (make-hash-table))
+
+    (setf (record-process self)
+          (om-midi::portmidi-in-start
+           in-port
+
+           #'(lambda (message time)
+               (declare (ignore time))
+
+               (when (equal :play (editor-play-state self))
+
+                 (let ((time-ms (player-get-object-time (player self) midi-track))
+                       (max-time (or (cadr (play-interval self)) (get-obj-dur midi-track)))
+                       (pitch (car (om-midi:midi-evt-fields message))))
+
+                   (case (om-midi::midi-evt-type message)
+
+                     (:KeyOn
+                      (let ((note (make-midinote :onset time-ms
+                                                 :dur 100
+                                                 :pitch (car (om-midi:midi-evt-fields message))
+                                                 :vel (cadr (om-midi:midi-evt-fields message))
+                                                 :chan (om-midi:midi-evt-chan message)
+                                                 :port (om-midi:midi-evt-port message)
+                                                 :track (om-midi:midi-evt-ref message)
+                                                 )))
+
+                        (setf (gethash pitch (recording-notes self)) note)
+                        (time-sequence-insert-timed-item-and-update midi-track note)
+
+                        (report-modifications self)
+                        (update-timeline-editor self)
+                        (editor-invalidate-views self)
+                        ))
+
+                     (:KeyOff
+                      (let ((note (gethash pitch (recording-notes self))))
+                        (when note
+                          (setf (dur note)
+                                (- (if (> time-ms (midinote-onset note)) time-ms max-time)
+                                   (midinote-onset note)))
+                          (remhash pitch (recording-notes self)))
+                        (editor-invalidate-views self)))
+
+                     (otherwise nil)))))
+
+           1
+           (and (get-pref-value :midi :thru)
+                (get-pref-value :midi :thru-port))
+           ))
+
+    (om-print-format "Start recording in ~A (port ~D)"
+                     (list (or (name (object self)) (type-of (get-obj-to-play self))) in-port)
+                     "MIDI")
+    )
+
+  (call-next-method))
+
+
+(defmethod editor-record-off ((self midi-track-editor))
+
+  (om-midi::portmidi-in-stop (record-process self))
+
+  (close-recording-notes self)
+
+  (om-print-format "Stop recording in ~A"
+                   (list (or (name (object self)) (type-of (get-obj-to-play self))))
+                   "MIDI")
+  (call-next-method))
+
+
+(defmethod editor-stop ((self midi-track-editor))
+  (close-recording-notes self)
+  (call-next-method))
+
+(defmethod editor-pause ((self midi-track-editor))
+  (close-recording-notes self)
   (call-next-method))
 
 
