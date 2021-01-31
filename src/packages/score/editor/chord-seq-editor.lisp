@@ -20,7 +20,9 @@
 ;;; CHORD-SEQ EDITOR / GENERAL SCORE EDITOR
 ;;;========================================================================
 
-(defclass chord-seq-editor (score-editor data-stream-editor) ())
+(defclass chord-seq-editor (score-editor data-stream-editor)
+  ((recording-notes :accessor recording-notes :initform nil)))
+
 (defmethod get-editor-class ((self chord-seq)) 'chord-seq-editor)
 
 (defclass chord-seq-panel (score-view stream-panel) ()
@@ -50,6 +52,7 @@
 ;;; offset can be :shift, :small-notes, or :hidden
 
 (defmethod editor-with-timeline ((self chord-seq-editor)) nil)
+
 
 ;;;=========================
 ;;; LEFT-VIEW
@@ -369,6 +372,123 @@
     #'(lambda ()
         (align-chords-in-editor self))
     ))
+
+
+;;;======================================
+;;; RECORD
+;;;======================================
+
+(defmethod can-record ((self chord-seq-editor)) t)
+
+
+(defmethod close-recording-notes ((self chord-seq-editor))
+
+  (let ((obj (get-obj-to-play self)))
+
+    (when (recording-notes self)
+
+      (let ((time-ms (player-get-object-time (player self) obj))
+            (max-time (or (cadr (play-interval self)) (get-obj-dur obj))))
+
+        (maphash
+         #'(lambda (pitch chord)
+             (declare (ignore pitch))
+             (setf (ldur chord)
+                   (list (- (if (> time-ms (onset chord)) time-ms max-time)
+                            (onset chord)))))
+         (recording-notes self))
+
+        (clrhash (recording-notes self))))
+
+    (time-sequence-update-obj-dur obj)
+    ))
+
+
+(defmethod editor-record-on ((self chord-seq-editor))
+
+  (let ((chord-seq (get-default-voice self))
+        (in-port (get-pref-value :midi :in-port)))
+
+    (setf (recording-notes self) (make-hash-table))
+
+    (setf (record-process self)
+          (om-midi::portmidi-in-start
+           in-port
+
+           #'(lambda (message time)
+               (declare (ignore time))
+
+               (when (equal :play (editor-play-state self))
+                 (let ((time-ms (player-get-object-time (player self) (get-obj-to-play self)))
+                       (max-time (or (cadr (play-interval self)) (get-obj-dur (get-obj-to-play self))))
+                       (pitch (car (om-midi:midi-evt-fields message))))
+
+                   (case (om-midi::midi-evt-type message)
+
+                     (:KeyOn
+                      (let ((chord (make-instance 'chord :onset time-ms
+                                                  :ldur '(100)
+                                                  :lmidic (list (* 100 (car (om-midi:midi-evt-fields message))))
+                                                  :lvel (list (cadr (om-midi:midi-evt-fields message)))
+                                                  :lchan (list (om-midi:midi-evt-chan message))
+                                                  :lport (list (om-midi:midi-evt-port message))
+                                                  )))
+
+                        (setf (gethash pitch (recording-notes self)) chord)
+
+                        (time-sequence-insert-timed-item-and-update chord-seq chord)
+
+                        (report-modifications self)
+                        (update-timeline-editor self)
+                        (editor-invalidate-views self)
+                        ))
+
+                     (:KeyOff
+                      (let ((chord (gethash pitch (recording-notes self))))
+
+                        (when chord
+                          (setf (ldur chord)
+                                (list (- (if (> time-ms (onset chord)) time-ms max-time)
+                                         (onset chord))))
+                          (remhash pitch (recording-notes self)))
+
+                        (editor-invalidate-views self)))
+
+                     (otherwise nil)))))
+
+           1
+           (and (get-pref-value :midi :thru)
+                (get-pref-value :midi :thru-port))
+           ))
+
+    (om-print-format "Start recording in ~A (port ~D)"
+                     (list (or (name (object self)) (type-of (get-obj-to-play self))) in-port)
+                     "MIDI")
+    )
+
+  (call-next-method))
+
+
+(defmethod editor-record-off ((self chord-seq-editor))
+
+  (om-midi::portmidi-in-stop (record-process self))
+
+  (close-recording-notes self)
+
+  (om-print-format "Stop recording in ~A"
+                   (list (or (name (object self)) (type-of (get-obj-to-play self))))
+                   "MIDI")
+  (call-next-method))
+
+
+(defmethod editor-stop ((self chord-seq-editor))
+  (close-recording-notes self)
+  (call-next-method))
+
+(defmethod editor-pause ((self chord-seq-editor))
+  (close-recording-notes self)
+  (call-next-method))
+
 
 ;;;=========================
 ;;; IMPORT/EXPORT
