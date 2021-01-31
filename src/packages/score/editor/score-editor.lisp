@@ -1315,6 +1315,7 @@
                       :subviews (list
                                  (om-make-layout
                                   'om-column-layout
+                                  :delta 10
                                   :subviews
                                   (remove
                                    nil
