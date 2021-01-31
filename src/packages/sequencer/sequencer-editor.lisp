@@ -1313,12 +1313,6 @@ CMD-click to add boxes. Play contents, etc.
   (call-next-method))
 
 
-
-(defmethod editor-repeat ((self sequencer-editor) t-or-nil)
-  (if t-or-nil
-      (loop-object (get-obj-to-play self))
-    (unloop-object (get-obj-to-play self))))
-
 (defmethod editor-next-step ((self sequencer-editor))
   (let* ((object (get-obj-to-play self))
          (step (get-units (cadr (cursor-panes self))))

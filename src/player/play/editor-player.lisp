@@ -285,7 +285,10 @@
 ;;; FUNCTIONS TO DEFINE BY THE EDITORS
 (defmethod editor-next-step ((self play-editor-mixin)) nil)
 (defmethod editor-previous-step ((self play-editor-mixin)) nil)
-(defmethod editor-repeat ((self play-editor-mixin) t-or-nil) nil)
+
+
+(defmethod editor-repeat ((self play-editor-mixin) t-or-nil)
+  (player-loop-object (player self) (get-obj-to-play self) t-or-nil))
 
 
 (defmethod editor-reset-interval ((self play-editor-mixin))
