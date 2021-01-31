@@ -34,45 +34,48 @@
 
 (defmethod make-score-display-params-controls ((editor voice-editor))
 
-  (om-make-layout
-   'om-row-layout
-   :subviews
-   (list
-
-    (call-next-method)
-
-    (om-make-view 'om-view :size (omp 50 10))
+  (let ((text-h 16)
+        (control-h 24))
 
     (om-make-layout
-     'om-column-layout
-     :subviews (list
+     'om-row-layout
+     :subviews
+     (list
 
-                NIL
+      (call-next-method)
 
-                (om-make-layout
-                 'om-row-layout
-                 :align :center
-                 :subviews
-                 (list
+      (om-make-view 'om-view :size (omp 50 10))
 
-                  (om-make-di 'om-simple-text :text "h-stretch"
-                              :size (omp 56 20)
-                              :font (om-def-font :font1))
+      (om-make-layout
+       'om-column-layout
+       :subviews (list
 
-                  (om-make-di 'om-popup-list :items *stretch-options*
-                              :size (omp 80 24) :font (om-def-font :font1)
-                              :value (editor-get-edit-param editor :h-stretch)
-                              :di-action #'(lambda (list)
-                                             (editor-set-edit-param editor :h-stretch (om-get-selected-item list))
-                                             (build-editor-window editor)
-                                             (init-editor-window editor) ;;; will change the ruler
-                                             (editor-update-ruler editor)))
+                  NIL
+
+                  (om-make-layout
+                   'om-row-layout
+                   :align :center
+                   :subviews
+                   (list
+
+                    (om-make-di 'om-simple-text :text "h-stretch"
+                                :size (omp 56 text-h)
+                                :font (om-def-font :font1))
+
+                    (om-make-di 'om-popup-list :items *stretch-options*
+                                :size (omp 80 control-h) :font (om-def-font :font1)
+                                :value (editor-get-edit-param editor :h-stretch)
+                                :di-action #'(lambda (list)
+                                               (editor-set-edit-param editor :h-stretch (om-get-selected-item list))
+                                               (build-editor-window editor)
+                                               (init-editor-window editor) ;;; will change the ruler
+                                               (editor-update-ruler editor)))
+                    ))
+
+                  NIL
                   ))
-
-                NIL
-                ))
-    nil
-    )))
+      nil
+      ))))
 
 
 

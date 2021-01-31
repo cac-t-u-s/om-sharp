@@ -65,29 +65,33 @@
 
 
 (defmethod make-score-display-params-controls ((editor chord-editor))
-  (om-make-layout
-   'om-row-layout
-   :subviews
-   (list
-    (call-next-method)
-    :separator
+
+  (let ((text-h 16)
+        (control-h 24))
+
     (om-make-layout
      'om-row-layout
-     :align :center
-     :subviews (list
-                (om-make-di 'om-simple-text :text "play-mode"
-                            :size (omp 60 20)
-                            :font (om-def-font :font1))
-                (om-make-di 'om-popup-list :items '(:chord :arp-up :arp-down :arp-order)
-                            :size (omp 80 24) :font (om-def-font :font1)
-                            :value (editor-get-edit-param editor :chord-mode)
-                            :di-action #'(lambda (list)
-                                           (editor-set-edit-param editor :chord-mode (om-get-selected-item list))
-                                           (update-arp-chord editor)
-                                           (editor-invalidate-views editor)
-                                           ))))
-    nil
-    )))
+     :subviews
+     (list
+      (call-next-method)
+      :separator
+      (om-make-layout
+       'om-row-layout
+       :align :center
+       :subviews (list
+                  (om-make-di 'om-simple-text :text "play-mode"
+                              :size (omp 60 text-h)
+                              :font (om-def-font :font1))
+                  (om-make-di 'om-popup-list :items '(:chord :arp-up :arp-down :arp-order)
+                              :size (omp 80 control-h) :font (om-def-font :font1)
+                              :value (editor-get-edit-param editor :chord-mode)
+                              :di-action #'(lambda (list)
+                                             (editor-set-edit-param editor :chord-mode (om-get-selected-item list))
+                                             (update-arp-chord editor)
+                                             (editor-invalidate-views editor)
+                                             ))))
+      nil
+      ))))
 
 (defmethod update-to-editor ((editor chord-editor) (from t))
   (call-next-method)

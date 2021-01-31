@@ -86,16 +86,26 @@
 
 
 (defun make-control-bar (editor)
-  (set-g-component editor :mousepos-txt (om-make-graphic-object 'om-item-text :size (omp 60 16)))
-  (om-make-layout
-   'om-row-layout
-   :ratios '(0.05 1 0.005 0.005 0.005 0.005)
-   :subviews (list (get-g-component editor :mousepos-txt)
-                   nil
-                   (make-time-monitor editor)
-                   (make-play-button editor :enable t)
-                   (make-pause-button editor :enable t)
-                   (make-stop-button editor :enable t))))
+
+  (let ((mousepostext (om-make-graphic-object 'om-item-text :size (omp 60 16))))
+
+    (set-g-component editor :mousepos-txt mousepostext)
+
+    (flet ((make-button-view (button)
+             (om-make-view 'om-view
+                           :size (om-view-size button)
+                           :subviews (list button))))
+      (om-make-layout
+       'om-row-layout
+       :ratios '(1 100 1 1 1 1)
+       :subviews (list mousepostext
+                       nil
+                       (make-time-monitor editor)
+                       (make-button-view (make-play-button editor :enable t))
+                       (make-button-view (make-pause-button editor :enable t))
+                       (make-button-view (make-stop-button editor :enable t))
+                       ))
+      )))
 
 
 (defmethod init-editor ((editor data-stream-editor))
