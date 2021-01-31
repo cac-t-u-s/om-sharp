@@ -29,6 +29,30 @@
 (defmethod play-obj? ((self note)) t)
 
 ;;;===================================================
+;;; PREFERENCE
+;;;===================================================
+
+(add-preference  :score :microtone-bend "Microtone pitch bend"
+                 '(:off :auto-bend :permanent-bend :no-bend)
+                 :auto-bend
+                 '("Applies 1/8th pitch-bend to MIDI channels 1-4 during playback of score-objects"
+                   "and shift MIDI channels of micro-tonal notes when scale is 1/4 or 1/8th tone."
+                   "- 'auto-bend': applies when score objects start playing, and resets when they stop."
+                   "- 'permanent-bend': sets and keeps MIDI channels bended permamnently."
+                   "- 'no-bend': only shifts to MIDI channels 1-4 (and lets you set MIDI pitch bend)."
+                   )
+                 'update-global-pitch-bend)
+
+;;; split note on channels in case of microtonal setup (4 or 8)
+;;; tone = 0, 1/8 = 1, 1/4 = 2, 3/8 = 3
+;;; default bend channel 1 = 0, channel 2 = 25 mc, channel 3 = 50 mc, channel 4 = 75mc
+
+(defun update-global-pitch-bend ()
+  (if (equal :permanent-bend (get-pref-value :score :microtone-bend))
+      (micro-bend)
+    (micro-reset)))
+
+;;;===================================================
 ;;; PLAY-ACTIONS
 ;;;===================================================
 
@@ -36,7 +60,7 @@
 ;;; !! negative offsets shift the chord
 (defmethod get-action-list-for-play ((c chord) interval &optional parent)
 
-  (let ((chan-shift (and (get-pref-value :score :auto-bend)
+  (let ((chan-shift (and (not (equal :off (get-pref-value :score :microtone-bend)))
                          (micro-channel-on (pitch-approx c)))))
 
     (let ((negative-offset (max 0 (- (loop for n in (notes c) minimize (offset n))))))
@@ -76,7 +100,7 @@
 
 (defmethod get-action-list-for-play ((n note) interval &optional parent)
   (let ((channel (+ (or (chan n) 1)
-                    (if (and (get-pref-value :score :auto-bend)
+                    (if (and (not (equal :off (get-pref-value :score :microtone-bend)))
                              (micro-channel-on (pitch-approx n)))
                         (micro-channel (midic n) (pitch-approx n))
                       0))))
@@ -107,7 +131,7 @@
 
 
 (defmethod get-action-list-for-play ((object chord-seq) interval &optional parent)
-  (let ((chan-shift (and (get-pref-value :score :auto-bend)
+  (let ((chan-shift (and (not (equal :off (get-pref-value :score :microtone-bend)))
                          (micro-channel-on (pitch-approx object)))))
 
     (sort
@@ -169,13 +193,6 @@
 ;;; MICROTONES
 ;;;===================================================
 
-(add-preference :score :auto-bend "Auto microtone bend" :bool t
-                '("Applies 1/8th pitch-bend to MIDI channels 1-4 during playback of score-objects"
-                  "and shift MIDI channels of micro-tonal note when scale is 1/4 or 1/8th tone."))
-
-;;; split note on channels in case of microtonal setup (4 or 8)
-;;; tone = 0, 1/8 = 1, 1/4 = 2, 3/8 = 3
-;;; default bend channel 1 = 0, channel 2 = 25 mc, channel 3 = 50 mc, channel 4 = 75mc
 
 (defparameter *micro-channel-approx* 8)
 
@@ -248,7 +265,7 @@
 
   (let ((approx (/ 200 (step-from-scale (editor-get-edit-param caller :scale)))))
     (setf (pitch-approx object) approx)
-    (when (and (get-pref-value :score :auto-bend)
+    (when (and (equal :auto-bend (get-pref-value :score :microtone-bend))
                (micro-channel-on approx))
       (loop for p in (collec-ports-from-object object) do (micro-bend p))))
 
@@ -261,7 +278,7 @@
 
   (let ((approx (/ 200 (step-from-scale (get-edit-param caller :scale)))))
     (setf (pitch-approx object) approx)
-    (when (and (get-pref-value :score :auto-bend)
+    (when (and (equal :auto-bend (get-pref-value :score :microtone-bend))
                (micro-channel-on approx))
       (loop for p in (collec-ports-from-object object) do (micro-bend p))
       ))
@@ -282,7 +299,8 @@
 
             (setf (pitch-approx object) approx)
 
-            (when (and (get-pref-value :score :auto-bend) (micro-channel-on approx))
+            (when (and (equal :auto-bend (get-pref-value :score :microtone-bend))
+                       (micro-channel-on approx))
               (setf micro-play-ports
                     (append micro-play-ports (collec-ports-from-object object))))))
 
@@ -297,7 +315,8 @@
 
 (defmethod player-stop-object ((self scheduler) (object score-element))
   (om-midi::midi-all-keys-off)
-  (when *micro-channel-mode-on*
+  (when (and (equal :auto-bend (get-pref-value :score :microtone-bend))
+             *micro-channel-mode-on*)
     (loop for p in (collec-ports-from-object object) do (micro-reset p)))
   (call-next-method))
 
