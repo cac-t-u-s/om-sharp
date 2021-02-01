@@ -230,7 +230,7 @@ For easier browsing it is recommended that a package do not contain at the same 
                                     collect (let ((item i))
                                               (om-make-menu-item
                                                (string item)
-                                               #'(lambda () (new-box-from-menu item view position))))))))
+                                               #'(lambda () (new-box-from-menu (get-name item) view position))))))))
                      (when (elements pack)
                        (om-make-menu-comp
                         (loop for p in (elements pack)
