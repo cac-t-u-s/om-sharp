@@ -134,6 +134,13 @@
                          :container-editor editor))
     ))
 
+
+(defmethod editor-close ((editor data-stream-editor))
+  (when (can-record editor)
+    (editor-record-off editor))
+  (call-next-method))
+
+
 ;;; sets the editor slightly longer that the actual object length
 (defmethod editor-view-after-init-space ((self t)) 1000)
 
