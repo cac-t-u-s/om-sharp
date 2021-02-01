@@ -288,9 +288,6 @@ table, td {
 
 (defun gen-reference (package-entries dir &key title maintext logofile)
 
-  (when (probe-file dir) (om-delete-directory dir))
-  (om-create-directory dir)
-
   (let* ((data (cdr package-entries))
          (title (or title (format nil "~A ~A" *app-name* *version-string*)))
          (indexpath (om-make-pathname :directory dir :name "index" :type "html"))
@@ -302,12 +299,16 @@ table, td {
                                     (append (find-value-in-kv-list (cdr section) :entries)
                                             (loop for group in (find-value-in-kv-list (cdr section) :groups) append
                                                   (find-value-in-kv-list (cdr group) :entries)))))))
-         )
+         (icons-dir (merge-pathnames "icons/" dir)))
+
+    (when (probe-file dir) (om-delete-directory dir))
+    (om-create-directory dir)
+    (om-create-directory icons-dir)
 
     (let ((logopict (or logofile (om-make-pathname :directory (om-resources-folder) :name "om-sharp" :type "png"))))
       (when (probe-file logopict)
         (om-copy-file logopict
-                      (make-pathname :directory (pathname-directory dir) :name "logo" :type "png"))))
+                      (om-make-pathname :directory dir :name "logo" :type "png"))))
 
 
     (with-open-file (index indexpath :direction :output)
@@ -441,6 +442,7 @@ table, td {
 
 
 (defun make-ref-page (symbol dir &optional title)
+
   (let* ((title (or title ""))
          (pagepath (om-make-pathname :directory dir
                                      :name (special-path-check
@@ -453,8 +455,7 @@ table, td {
                        ((string-equal (nth 1 doc) "CLASS")
                         (find-class symbol))
                        ((string-equal (nth 1 doc) "INTERFACE BOX")
-                        (find-class symbol nil))))
-         )
+                        (find-class symbol nil)))))
 
     (with-open-file (index pagepath :direction :output :if-exists :supersede)
       ;;; HEADER
@@ -476,7 +477,6 @@ table, td {
       (write-line "<br><br>" index)
       (write-line "</div>" index)
 
-
       ;;; EMBEDDED TABLE AT CENTER
       (write-line "<div class=\"main\">" index)
 
@@ -491,9 +491,13 @@ table, td {
                        (om-relative-path '("icons") (format nil "~A.png" (icon object))
                                          (lib-resources-folder (find-library (library object))))
                      (om-relative-path '("icons" "boxes") (format nil "~A.png" (icon object)) (om-resources-folder)))))))
+
         (when (file-exists-p iconfile)
-          (write-line (concatenate 'string "<img src=" (namestring iconfile) " align=\"right\" width=60>") index)
-          ))
+          (let ((relative-icon-file (format nil "icons/~A.png" (icon object))))
+            (om-copy-file iconfile (merge-pathnames relative-icon-file dir))
+            (write-line (concatenate 'string "<img src=" (namestring relative-icon-file) " align=\"right\" width=60>") index)
+            ))
+        )
 
       ;;; NAME
       (write-line (concatenate 'string "<h2>" (special-html-check (string symbol)) "</h2>") index)
@@ -501,9 +505,7 @@ table, td {
       (unless (null doc)
         (write-line (concatenate 'string "<font size=-1>[" (string (nth 1 doc)) "]" "</font>") index))
 
-
       ;;; MAIN BODY
-
       (if (null doc)
           (write-line "No documentation" index)
 
@@ -571,9 +573,12 @@ table, td {
                                   (write-line "<tr><td colspan=3>&nbsp;</td></tr><td colspan=3>" index)
                                   (write-line (concatenate 'string "<i><b>" slot "</b></i>") index)
                                   (write-line "</td>" index))
-                                 (t (write-line (concatenate 'string "<td > - <font color=333366><b>" (string-upcase (string (car slot))) "</b></font></td>") index)
-                                    (write-line (concatenate 'string "<td>" (if (nth 2 slot) (special-html-check (nth 2 slot)) "") "</td>") index)
-                                    (write-line (concatenate 'string "<td>" (format nil "[default = ~A]" (nth 1 slot)) "</td>") index)
+                                 (t (write-line (concatenate 'string "<td > - <font color=333366><b>"
+                                                             (string-upcase (string (car slot))) "</b></font></td>") index)
+                                    (write-line (concatenate 'string "<td>"
+                                                             (if (nth 2 slot) (special-html-check (nth 2 slot)) "") "</td>") index)
+                                    (write-line (concatenate 'string "<td>"
+                                                             (format nil "[default = ~A]" (nth 1 slot)) "</td>") index)
                                     ))
                            (write-line "</tr>" index)
                            )
@@ -595,6 +600,7 @@ table, td {
       (write-line "</div>" index)
 
       (write-line "</body></html>" index))
+
     pagepath))
 
 
