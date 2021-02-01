@@ -679,6 +679,17 @@
 
 (defmethod next-element-in-editor ((editor data-stream-editor) (element t)) nil)
 
+
+(defmethod select-all-command ((self data-stream-editor))
+  #'(lambda ()
+      (set-selection self
+                     (loop for i from 0 to (1- (length (data-stream-get-frames (object-value self))))
+                           collect i))
+      (update-timeline-editor self)
+      (editor-invalidate-views self)
+      ))
+
+
 ;;;==================================
 ;;; TURN PAGES / FOLLOW PLAY POSITION
 ;;;==================================
