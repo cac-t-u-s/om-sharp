@@ -417,7 +417,7 @@
 ;;;---------------------------------------------
 
 
-;;; multi-staff: indicate selected-coice's staff in menu (if any)
+;;; multi-staff: indicate selected-voice's staff in menu (if any)
 (defmethod set-selection ((editor multi-seq-editor) (new-selection t))
 
   (call-next-method)

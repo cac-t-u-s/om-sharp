@@ -533,7 +533,7 @@
 
   (let ((editor (editor self)))
 
-    (unless (handle-selection-extent self position) ;; => play-editor-mixi handles cursor etc.
+    (unless (handle-selection-extent self position) ;; => play-editor-mixin handles cursor etc.
 
       (when (object-value editor)
 
