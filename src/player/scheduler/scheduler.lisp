@@ -114,7 +114,7 @@
 (defun build-scheduler (&key run-callback stop-callback)
   (let ((scheduler (make-scheduler :run-callback run-callback
                                    :stop-callback stop-callback)))
-    (setf (process scheduler) (mp:process-run-function "OM-Scheduler"
+    (setf (process scheduler) (mp:process-run-function "scheduler-thread"
                                                        nil
                                                        'scheduler-function
                                                        scheduler))

@@ -115,7 +115,6 @@
 (defmethod time-sequence-default-duration ((self midi-track)) 1000)
 
 
-
 ;;;===================================
 ;;; IMPORT NOTES FROM MIDI
 ;;;===================================
@@ -139,7 +138,6 @@
       )))
 
 
-;;; covnerst a list of MIDIEvents to MIDI-NOTEs
 (defun midievents-to-midinotes (evtlist &key collect-other-events)
 
   (let ((notelist nil)
@@ -210,7 +208,6 @@
       (om-abort))))
 
 
-
 ;;; DATA-STREAM=>MIDI-TRACK
 ;;; Converts KeyOn/KeyOff events to MIDI-NOTEs
 
@@ -221,11 +218,9 @@
   target)
 
 
-
 ;;;===================================
 ;;; TO MIDIEVENT
 ;;;===================================
-
 
 (defmethod* get-midievents ((self midi-track) &optional test)
   (let ((evtlist
@@ -256,7 +251,6 @@
     (if test
         (get-midievents evtlist test)
       evtlist)))
-
 
 
 ;;;======================================
@@ -491,14 +485,15 @@
    '< :key 'car))
 
 
-
 (defmethod player-stop-object ((self scheduler) (object midi-track))
   (call-next-method)
   (om-midi::midi-all-keys-off))
 
+
 ;;;======================================
 ;;; DRAW
 ;;;======================================
+
 (defmethod display-modes-for-object ((self midi-track))
   '(:mini-view :text :hidden))
 
@@ -550,6 +545,4 @@
                        :vel 100
                        :dur (om-random 200 500)
                        :chan (or channel (om-random 1 16)))))
-
-
 

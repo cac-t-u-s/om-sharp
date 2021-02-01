@@ -56,7 +56,7 @@
 (defun build-graphics-handler (scheduler &key (precision 50))
   (let ((graphics (make-graphics-handler :scheduler scheduler
                                          :precision precision)))
-    (setf (process graphics) (mp:process-run-function "OM-Graphics"
+    (setf (process graphics) (mp:process-run-function "graphics-thread"
                                                       nil
                                                       'graphics-function
                                                       graphics))

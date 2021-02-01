@@ -152,13 +152,11 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
   (if (eq (state self) :play)
       (reschedule self *scheduler* time nil)))
 
-(defmethod set-object-time ((self t) time)
-  nil)
+(defmethod set-object-time ((self t) time) nil)
 
 ;; CALLBACK USED WHEN THE SYSTEM SWITCHES THE OBJECT TIME AUTOMATICALLY
 ;; Happens when the object loops.
-(defmethod set-time-callback ((self schedulable-object) time)
-  nil)
+(defmethod set-time-callback ((self schedulable-object) time) nil)
 
 ;; SET THE OBJECT SCHEDULER TIME WINDOW
 (defmethod set-object-time-window ((self schedulable-object) window)
@@ -184,15 +182,12 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
                             (list (car interval) *positive-infinity*)
                           interval)))
 
-(defmethod set-object-interval ((self t) interval)
-  interval)
+(defmethod set-object-interval ((self t) interval) interval)
 
 
 ;; GET AN OBJECT'S STATE
-(defmethod get-object-state ((self schedulable-object))
-  (state self))
-(defmethod get-object-state ((self t))
-  nil)
+(defmethod get-object-state ((self schedulable-object)) (state self))
+(defmethod get-object-state ((self t)) nil)
 
 ;; AUGMENTED TRANSPORT
 ;; Automatically play/continue or pause object according to its current state
@@ -221,6 +216,12 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 (defmethod player-play/stop-object ((self t) (object t) caller &key parent (at 0) interval params)
   (declare (ignore self object caller parent at interval params))
   nil)
+
+
+(defmethod player-loop-object ((player scheduler) (object schedulable-object) loop?)
+  (declare (ignore player))
+  (if loop? (loop-object object)
+    (unloop-object object)))
 
 
 ;;===========================================================================

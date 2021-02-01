@@ -166,6 +166,8 @@
   (let ((inter (editor-fix-interval self interval)))
     (setf (play-interval self) inter)
     (set-object-interval (get-obj-to-play self) inter)
+    (when (is-looping (get-obj-to-play self))
+      (reschedule (get-obj-to-play self) (player self)))
     (update-cursor-pane-intervals self)
     ))
 
@@ -285,7 +287,10 @@
 ;;; FUNCTIONS TO DEFINE BY THE EDITORS
 (defmethod editor-next-step ((self play-editor-mixin)) nil)
 (defmethod editor-previous-step ((self play-editor-mixin)) nil)
-(defmethod editor-repeat ((self play-editor-mixin) t-or-nil) nil)
+
+
+(defmethod editor-repeat ((self play-editor-mixin) t-or-nil)
+  (player-loop-object (player self) (get-obj-to-play self) t-or-nil))
 
 
 (defmethod editor-reset-interval ((self play-editor-mixin))
@@ -527,7 +532,7 @@
 (defmethod make-repeat-button ((editor play-editor-mixin) &key size enable)
   (setf (repeat-button editor)
         (om-make-graphic-object 'om-icon-button :size (or size (omp 16 16))
-                                :icon :icon-repeat-black :icon-pushed :icon-repeat-white
+                                :icon :icon-repeat-black :icon-pushed :icon-repeat-orange :icon-disabled :icon-repeat-gray
                                 :lock-push t :enabled enable
                                 :pushed (is-looping (get-obj-to-play editor))
                                 :action #'(lambda (b)
