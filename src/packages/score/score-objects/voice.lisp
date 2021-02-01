@@ -155,8 +155,6 @@
       (setf (tree self) (list (length (tree self))
                               (tree self)))))
 
-
-
   (set-tree self (slot-value self 'tree))
 
   self)
