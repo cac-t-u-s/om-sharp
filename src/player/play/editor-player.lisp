@@ -166,6 +166,8 @@
   (let ((inter (editor-fix-interval self interval)))
     (setf (play-interval self) inter)
     (set-object-interval (get-obj-to-play self) inter)
+    (when (is-looping (get-obj-to-play self))
+      (reschedule (get-obj-to-play self) (player self)))
     (update-cursor-pane-intervals self)
     ))
 
