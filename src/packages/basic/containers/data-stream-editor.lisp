@@ -97,11 +97,12 @@
                            :subviews (list button))))
       (om-make-layout
        'om-row-layout
-       :ratios '(1 100 1 1 1 1)
+       :ratios '(1 100 1 1 1 1 1)
        :subviews (list mousepostext
                        nil
                        (make-time-monitor editor)
                        (make-button-view (make-play-button editor :enable t))
+                       (make-button-view (make-repeat-button editor :enable t))
                        (make-button-view (make-pause-button editor :enable t))
                        (make-button-view (make-stop-button editor :enable t))
                        ))
