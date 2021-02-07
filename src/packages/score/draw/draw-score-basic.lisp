@@ -797,7 +797,7 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
                                       (get-midi-channel-color unique-channel)))
 
                ;;; Global stuff here (not needed for the head loop)
-               (let* ((chord-notes (if (and (equal offsets :sep-notes) (find 0 notes :key #'offset))
+               (let* ((chord-notes (if (and (equal offsets :grace-note) (find 0 notes :key #'offset))
                                        (remove-if-not #'zerop notes :key #'offset)
                                      notes))
                       (pitches (sort (mapcar 'midic chord-notes) '<))
@@ -978,7 +978,7 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
                                   (note-font (cond
                                               ((equal draw-vels :size)
                                                (om-make-font *score-font* (* #+darwin 1 #-darwin 3/4 (vel n) fontsize .02)))
-                                              ((and display-offset (equal offsets :sep-notes))
+                                              ((and display-offset (equal offsets :grace-note))
                                                (om-make-font *score-font* (* fontsize .7)))
                                               (t nil))))
 
@@ -1037,7 +1037,7 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
                                            (t nil)))
 
                                  ;;; HEAD
-                                 (let ((note-head (if (and display-offset (equal offsets :sep-notes))
+                                 (let ((note-head (if (and display-offset (equal offsets :grace-note))
                                                       (tempo-note 1/8)
                                                     head-char)))
 
@@ -1065,7 +1065,7 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
                                              accidental-columns (append accidental-columns (list (list (midic n))))))
 
                                      (om-draw-char (if display-offset
-                                                       (- head-x (* acc-w (if (equal offsets :sep-notes) .7 1)))
+                                                       (- head-x (* acc-w (if (equal offsets :grace-note) .7 1)))
                                                      (- x-pix (* (1+ col) acc-w)))
                                                    line-y
                                                    (accident-char acc)

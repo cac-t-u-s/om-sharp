@@ -1252,7 +1252,7 @@
                           :font (om-def-font :font1)
                           :size (omp display-aparams-text-w text-h))
 
-              (om-make-di 'om-popup-list :items '(:hidden :shift :sep-notes)
+              (om-make-di 'om-popup-list :items '(:hidden :shift :grace-note)
                           :size (omp display-aparams-menu-w 22) :font (om-def-font :font1)
                           :value (editor-get-edit-param editor :offsets)
                           :di-action #'(lambda (list)

@@ -41,7 +41,7 @@
   (append (call-next-method)
           '((:grid nil) (:grid-step 1000)
             (:stems t)
-            (:offsets :sep-notes))))
+            (:offsets :grace-note))))
 
 (defmethod object-default-edition-params ((self multi-seq))
   (append (call-next-method)
