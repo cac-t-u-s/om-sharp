@@ -461,6 +461,8 @@
                 (get-pref-value :midi :thru-port))
            ))
 
+    (push self *running-midi-recorders*)
+
     (om-print-format "Start recording in ~A (port ~D)"
                      (list (or (name (object self)) (type-of (get-obj-to-play self))) in-port)
                      "MIDI")
@@ -474,6 +476,8 @@
   (om-midi::portmidi-in-stop (record-process self))
 
   (close-recording-notes self)
+
+  (setf *running-midi-recorders* (remove self *running-midi-recorders*))
 
   (om-print-format "Stop recording in ~A"
                    (list (or (name (object self)) (type-of (get-obj-to-play self))))
