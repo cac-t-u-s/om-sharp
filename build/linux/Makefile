@@ -111,5 +111,5 @@ tardist:
 
 # tardist: $(BUILDROOT)/../om-sharp.tar.bz2
 
-preparerpm:
+preparerpm: tardist
 	cp -v $(BUILDROOT)/../om-sharp.tar.bz2 ~/rpmbuild/SOURCES
