@@ -371,8 +371,9 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
                                                         :data (caddr bundle))))
 
                          ;; Update the scheduler next action date (used in timer execution mode only)
-                         (if (car actlist)
-                             (setf (next-date sched) (min (next-date sched) (act-timestamp (car actlist)))))
+                         (when (car actlist)
+                           (setf (next-date sched) (min (next-date sched) (act-timestamp (car actlist)))))
+
                          ;; Add new actions to the object plan
                          (mp:with-lock ((plan-lock obj))
                            (setf (plan obj)
@@ -436,7 +437,8 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
           (list t1 (1+ t2) :stop))
       (progn
         (incf (current-local-time self) (time-window self))
-        (if (not (user-time-window self)) (setf (time-window self) (min *Lmax* (* 2 (time-window self)))))
+        (when (not (user-time-window self))
+          (setf (time-window self) (min *Lmax* (* 2 (time-window self)))))
         (list t1 t2)))))
 
 
@@ -456,10 +458,10 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
           (current-local-time self) switch-date)
 
     (mp:with-lock ((plan-lock self))
-      (setf (plan self) (if preserve (subseq (plan self) 0
-                                             (position switch-date
-                                                       (plan self)
-                                                       :test '< :key 'act-timestamp)))))
+      (setf (plan self)
+            (when preserve
+              (subseq (plan self)
+                      0 (position switch-date (plan self) :test '< :key 'act-timestamp)))))
 
     (interleave-tasks self (list switch-date (time-window self)))
 
