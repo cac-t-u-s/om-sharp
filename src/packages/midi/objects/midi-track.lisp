@@ -493,6 +493,26 @@
   )
 
 
+(defun close-open-midinotes-at-time (notes time)
+  (loop for note in notes
+        do
+        (when (and (<= (midinote-onset note) time)
+                   (>= (midinote-end note) time))
+          (om-midi::midi-send-evt
+           (om-midi:make-midi-evt
+            :type :keyOff
+            :chan (or (midinote-channel note) 1)
+            :port (or (midinote-port note) (get-pref-value :midi :out-port))
+            :fields (list (midinote-pitch note) 0)))
+          )))
+
+
+(defmethod send-current-midi-key-offs ((self midi-track))
+  (close-open-midinotes-at-time
+   (data-stream-get-frames self)
+   (get-obj-time self)))
+
+
 (defmethod player-stop-object ((self scheduler) (object midi-track))
   (call-next-method)
   (om-midi::midi-all-keys-off))
