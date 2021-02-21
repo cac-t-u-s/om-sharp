@@ -260,8 +260,7 @@
                                                'om-row-layout
                                                :ratios '(0.001 1)
                                                :subviews
-                                               (list timeline-item timeline-view))
-                                               ;(list timeline-item fold-icon timeline-view)) ;; (om-make-view 'om-view :size (omp 10 10))
+                                               (list timeline-item timeline-view)) ;; fold-icon
                                               foldable-container))))
             (setq left-item-w (om-width timeline-item))
             (pushr timeline-view timeline-views)

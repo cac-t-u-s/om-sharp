@@ -162,8 +162,6 @@
       (list (vmin self) (or (vmax self) (default-editor-min-x-range self))))))
 
 
-;; (defmethod play-editor-default-interval ((self chord-seq-editor)) (call-next-method))
-
 (defmethod update-to-editor ((editor chord-seq-editor) (from t))
   (call-next-method)
   (editor-invalidate-views editor))

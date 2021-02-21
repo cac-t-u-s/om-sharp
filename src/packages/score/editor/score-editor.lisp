@@ -33,7 +33,6 @@
     (:velocity-display :hidden)
     (:channel-display :hidden)
     (:midiport-display nil)
-    ;; (:time-map ((-1 -1) (0 0)))    ;;; not necessary to store it as a persistent param....
     (:h-stretch 1)
     (:y-shift 4)))
 

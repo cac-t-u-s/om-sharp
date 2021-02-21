@@ -454,7 +454,6 @@
   (declare (ignore dy)) ;; in a basic data-frame -- subclasses can do it !
   (loop for fp in (selection self) do
         (let ((frame (nth fp (data-stream-get-frames (object-value self)))))
-          ;(setf (date frame) (max 0 (+ (date frame) dx)))
           (item-set-time frame (max 0 (round (+ (item-get-time frame) dx))))
           )))
 
@@ -465,13 +464,6 @@
           (item-set-duration frame (max 0 (round (+ (item-get-duration frame) dx))))
           )))
 
-#|
-(defmethod editor-finalize-selection ((self data-stream-editor))
-  (loop for fp in (selection self) do
-        (let ((frame (nth fp (data-stream-get-frames (object-value self)))))
-          (finalize-data-frame frame)
-          )))
-|#
 
 ;;; sort the frames and reset the selection indices correctly
 (defmethod editor-sort-frames ((self data-stream-editor))
