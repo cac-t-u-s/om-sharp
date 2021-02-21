@@ -338,3 +338,8 @@
              *micro-channel-mode-on*)
     (loop for p in (collec-ports-from-object object) do (micro-reset p)))
   (call-next-method))
+
+(defmethod set-object-current-time ((self score-element) time)
+  (declare (ignore time))
+  (send-current-midi-key-offs self)
+  (call-next-method))
