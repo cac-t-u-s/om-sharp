@@ -547,6 +547,10 @@
   (send-current-midi-key-offs object)
   (call-next-method))
 
+(defmethod player-pause-object ((self scheduler) (object midi-track))
+  (send-current-midi-key-offs object)
+  (call-next-method))
+
 
 ;;;======================================
 ;;; DRAW
