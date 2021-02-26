@@ -185,7 +185,7 @@
           (when (and (find-if 'reactive (outputs box))
                      (or (not interval)
                          (in-interval (- (get-box-onset box) (pre-delay box)) interval :exclude-high-bound t))
-                     (not (print (ready b))) ;; avoids computing it several times
+                     (not (ready b)) ;; avoids computing it several times
                      )
             (setf (ready b) t)
             (list (list (- (get-box-onset box) (pre-delay box))
