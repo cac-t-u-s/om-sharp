@@ -268,11 +268,13 @@
     (multiple-value-bind (voice pos)
         (get-voice-at-pos editor position)
 
+      (declare (ignore pos))
+
       (when voice
 
-        (let* ((pos (and (get-voices obj) (position voice (get-voices obj))))
-               (staff (if (listp ed-staff) (or (and pos (nth pos ed-staff)) (car ed-staff)) ed-staff))
-               (shift (+ (calculate-staff-line-shift staff) (get-total-y-shift editor pos)))
+        (let* ((voice-pos (and (get-voices obj) (position voice (get-voices obj))))
+               (staff (if (listp ed-staff) (or (and voice-pos (nth voice-pos ed-staff)) (car ed-staff)) ed-staff))
+               (shift (+ (calculate-staff-line-shift staff) (get-total-y-shift editor voice-pos)))
                (clicked-pos position)
                (click-y-in-units (- shift (/ (om-point-y position) unit)))
                (clicked-pitch (line-to-pitch click-y-in-units scale)) ;;; <= scale here ??? )
