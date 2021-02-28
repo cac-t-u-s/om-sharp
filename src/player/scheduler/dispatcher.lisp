@@ -80,7 +80,7 @@
 (declaim (inline play-object-action))
 (defmethod play-object-action ((disp dispatcher) obj action)
   (let ((sched (scheduler disp)))
-    (if (and (not (multi-thread sched)) (act-marker action))
+    (if (and (not (scheduler-multi-thread sched)) (act-marker action))
         (progn
           (pause-schedulable-object obj sched)
           (%play-action action)

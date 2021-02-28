@@ -30,7 +30,7 @@
                  ))))
   (state :idle :type symbol)
   (process nil :type (or mp:process null))
-  (multi-thread t :type boolean) ;Single or multi thread architecture
+  (multi-thread t :type boolean) ; single or multi-thread architecture
   (register nil :type list)
   (lock (mp:make-lock :name "Scheduler register lock") :type mp:lock)
   (alarm nil :type boolean)
@@ -53,12 +53,6 @@
   (scheduler-process self))
 (defmethod (setf process) (process (self scheduler))
   (setf (scheduler-process self) process))
-
-(defmethod multi-thread ((self scheduler))
-  (scheduler-multi-thread self))
-(defmethod (setf multi-thread) (t-or-nil (self scheduler))
-  (eval (architecture-switch t-or-nil))
-  (setf (scheduler-multi-thread self) t-or-nil))
 
 ;;;list of object and graphic-caller pairs
 (defmethod register ((self scheduler))
