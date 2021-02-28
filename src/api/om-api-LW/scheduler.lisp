@@ -45,6 +45,12 @@
 ;   (setq *scheduler-timer*  (mp:make-named-timer 'om-scheduler fun nil))
 ;   (mp:schedule-timer *scheduler-timer* 1 0.01))
 
+;(defun om-stop-scheduler ()
+;  (when *scheduler-timer*
+;    (mp:unschedule-timer *scheduler-timer*)
+;    (setf *scheduler-timer* nil)))
+
+
 (defun om-stop-scheduler-old ()
   (when *scheduler-timer*
     (mp:process-kill *scheduler-timer*)))
@@ -52,16 +58,11 @@
 (defun om-start-scheduler-old (fun)
   (om-stop-scheduler-old)
   (setf *scheduler-timer*
-        (mp:process-run-function  "OM SCHEDULER" '(:priority 10)
-                                  #'(lambda ()
-                                      (loop while t do
-                                            (sleep 0.050)
-                                            (funcall fun nil))))))
-
-;(defun om-stop-scheduler ()
-;  (when *scheduler-timer*
-;    (mp:unschedule-timer *scheduler-timer*)
-;    (setf *scheduler-timer* nil)))
+        (mp:process-run-function "SCHEDULER" '(:priority 10)
+                                 #'(lambda ()
+                                     (loop while t do
+                                           (sleep 0.050)
+                                           (funcall fun nil))))))
 
 (defun om-delayed-funcall (time func &rest args)
   (when *scheduler-timer* (mp:unschedule-timer *scheduler-timer*))
