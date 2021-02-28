@@ -61,9 +61,12 @@
 
 
 (defmacro compute (&rest body)
-  `(progn
-     (mp:mailbox-send (taskqueue *engine*) (lambda () ,@body))
-     (poke-thread-pool *engine*)))
+  `(if (scheduler-multi-thread *scheduler*)
+       (progn
+         (mp:mailbox-send (taskqueue *engine*) (lambda () ,@body))
+         (poke-thread-pool *engine*))
+     (progn ,@body)))
+
 
 (defmacro compute2 (obj clef time-type &body body)
   `(let (res)

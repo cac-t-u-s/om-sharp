@@ -29,22 +29,6 @@
 (defun architecture-switch (multi-thread-p)
   (if multi-thread-p
       `(progn
-         ;; Redefine compute macro
-         (defmacro compute (&rest body)
-           `(progn
-              (mp:mailbox-send (taskqueue *engine*) (lambda () ,@body))
-              (poke-thread-pool *engine*)))
-         ;; Recompile fuction using the compute macro
-         (defun cast-computation-list (plan)
-           (loop for task in plan
-                 collect
-                 (let ((fun (nth 2 task))
-                       (data (nth 3 task)))
-                   (act-alloc :timestamp (nth 0 task)
-                              :fun #'(lambda () (if data
-                                                    (compute (apply fun data))
-                                                  (compute (funcall fun))))
-                              :marker t))))
          ;; Recompile the schedule method
          (defmethod schedule ((sched scheduler) (obj schedulable-object))
            (mp:process-send (process sched)
@@ -106,19 +90,6 @@
                                                                   actlist)))
                                                 '< :key 'act-timestamp))))))))
     `(progn
-       (defmacro compute (&rest body)
-         `(progn ,@body))
-
-       (defun cast-computation-list (plan)
-         (loop for task in plan
-               collect
-               (let ((fun (nth 2 task))
-                     (data (nth 3 task)))
-                 (act-alloc :timestamp (nth 0 task)
-                            :fun #'(lambda () (if data
-                                                  (compute (apply fun data))
-                                                (compute (funcall fun))))
-                            :marker t))))
 
        (defmethod schedule ((sched scheduler) (obj schedulable-object))
          (let ((I (get-next-I obj))
