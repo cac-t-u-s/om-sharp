@@ -63,7 +63,7 @@
   :icon 'm-set-time
   (declare (ignore trigger))
   (if (integerp time)
-      (set-object-time self (max 0 (round time)))))
+      (set-object-current-time self (max 0 (round time)))))
 
 (defmethod* m-without-exec ((self OMSequencer) &optional trigger)
   :initvals '(nil nil)

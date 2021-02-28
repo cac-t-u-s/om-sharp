@@ -257,7 +257,7 @@
 
       (when (om-get-clipboard) (set-paste-position position self))
       (editor-set-interval editor (list time time))
-      (set-object-time (get-obj-to-play editor) time))
+      (set-object-current-time (get-obj-to-play editor) time))
     ))
 
 
@@ -551,7 +551,7 @@
       (progn
         (when (om-get-clipboard) (set-paste-position (omp time (num self)) self))
         (editor-set-interval editor (list time time))
-        (set-object-time (get-obj-to-play editor) time)))))
+        (set-object-current-time (get-obj-to-play editor) time)))))
 
 
 (defmethod om-drag-receive ((self sequencer-track-view) (dragged-view OMBoxFrame) position &optional (effect nil))
@@ -1317,15 +1317,15 @@ CMD-click to add boxes. Play contents, etc.
   (let* ((object (get-obj-to-play self))
          (step (get-units (cadr (cursor-panes self))))
          (time (get-obj-time object)))
-    (set-object-time object (+ step (- time (mod time step))))
-    (set-object-time (metronome self) (+ step (- time (mod time step))))))
+    (set-object-current-time object (+ step (- time (mod time step))))
+    (set-object-current-time (metronome self) (+ step (- time (mod time step))))))
 
 (defmethod editor-previous-step ((self sequencer-editor))
   (let* ((object (get-obj-to-play self))
          (step (get-units (cadr (cursor-panes self))))
          (time (get-obj-time object)))
-    (set-object-time object (max 0 (- (- time (mod time step)) step)))
-    (set-object-time (metronome self) (max 0 (- (- time (mod time step)) step)))))
+    (set-object-current-time object (max 0 (- (- time (mod time step)) step)))
+    (set-object-current-time (metronome self) (max 0 (- (- time (mod time step)) step)))))
 
 
 ;;;========================

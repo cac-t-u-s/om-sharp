@@ -147,12 +147,12 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 
 ;; SET THE OBJECT TIME WHILE PLAYING
 ;; Sets the time and replans from this date
-(defmethod set-object-time ((self schedulable-object) time)
+(defmethod set-object-current-time ((self schedulable-object) time)
   (setf (ref-time self) (- (om-get-internal-time) time))
   (if (eq (state self) :play)
       (reschedule self *scheduler* time nil)))
 
-(defmethod set-object-time ((self t) time) nil)
+(defmethod set-object-current-time ((self t) time) nil)
 
 ;; CALLBACK USED WHEN THE SYSTEM SWITCHES THE OBJECT TIME AUTOMATICALLY
 ;; Happens when the object loops.
@@ -248,7 +248,6 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 (defmethod (setf user-time-window) (new-window (self schedulable-object))
   (setf (getf (scheduler-settings self) :user-time-window) new-window))
 
-;; State
 (defmethod state ((self schedulable-object))
   (getf (scheduler-info self) :state))
 (defmethod (setf state) (new-state (self schedulable-object))
@@ -352,64 +351,74 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 
 ;; SCHEDULE : produces the next plan for an object
 (defmethod schedule ((sched scheduler) (obj schedulable-object))
-  (mp:process-send (process sched)
-                   #'(lambda ()
-                       (let ((I (get-next-I obj))
-                             (start-t (or (car (interval obj)) 0))
-                             bundles actlist)
-                         ;; Get actions as raw data
-                         (om-with-timeout (timeout sched)
-                                          #'(lambda ()
-                                              (print (format nil "Schedule operation timed out (> ~As) : ~A stopped" (timeout sched) obj))
-                                              (stop-schedulable-object obj sched))
-                                          #'(lambda () (setq bundles (get-action-list-for-play obj (subseq I 0 2)))))
 
-                         ;; Wrap actions in the appropriate data structure
-                         (setq actlist (loop for bundle in bundles
-                                             collect
-                                             (act-alloc :timestamp (car bundle)
-                                                        :fun (cadr bundle)
-                                                        :data (caddr bundle))))
+  (let ((scheduling
 
-                         ;; Update the scheduler next action date (used in timer execution mode only)
-                         (if (car actlist)
-                             (setf (next-date sched) (min (next-date sched) (act-timestamp (car actlist)))))
-                         ;; Add new actions to the object plan
-                         (mp:with-lock ((plan-lock obj))
-                           (setf (plan obj)
-                                 (sort (append (plan obj)
-                                               (if (nth 2 I)
-                                                   (if (eq (nth 2 I) :loop)
-                                                       ;; If the object has to loop, reset its time at the end
-                                                       (append actlist
-                                                               (list (act-alloc :timestamp (1- (cadr I))
-                                                                                :fun #'(lambda ()
-                                                                                         (incf (loop-count obj))
-                                                                                         (setf (ref-time obj) (- (om-get-internal-time)
-                                                                                                                 start-t)
-                                                                                               (play-planned? obj) nil)
-                                                                                         (setf (current-local-time obj) start-t)
-                                                                                         (schedule sched obj)
-                                                                                         (interleave-tasks obj (list start-t
-                                                                                                                     (+ start-t (time-window obj))))
-                                                                                         (funcall 'set-time-callback obj (car (interval obj)))))))
-                                                     ;; If the object has to stop, stop the object at the end of interval
-                                                     (append actlist
-                                                             (list (act-alloc :timestamp (1- (cadr I))
-                                                                              :fun #'(lambda ()
-                                                                                       (funcall (run-callback sched)
-                                                                                                (get-caller obj sched)
-                                                                                                (1- (cadr I)))
-                                                                                       (player-stop-object sched obj)
-                                                                                       )))))
-                                                 ;; If the object continues, keep scheduling
-                                                 (append (list (act-alloc :timestamp (car I)
-                                                                          :fun #'(lambda ()
-                                                                                   (schedule sched obj)
-                                                                                   (interleave-tasks obj (list (cadr I)
-                                                                                                               (+ (cadr I) (time-window obj)))))))
-                                                         actlist)))
-                                       '< :key 'act-timestamp)))))))
+         #'(lambda ()
+             (let ((I (get-next-I obj))
+                   (start-t (or (car (interval obj)) 0))
+                   bundles actlist)
+               ;; Get actions as raw data
+               (om-with-timeout (timeout sched)
+                                #'(lambda ()
+                                    (print (format nil "Schedule operation timed out (> ~As) : ~A stopped" (timeout sched) obj))
+                                    (stop-schedulable-object obj sched))
+                                #'(lambda () (setq bundles (get-action-list-for-play obj (subseq I 0 2)))))
+
+               ;; Wrap actions in the appropriate data structure
+               (setq actlist (loop for bundle in bundles
+                                   collect
+                                   (act-alloc :timestamp (car bundle)
+                                              :fun (cadr bundle)
+                                              :data (caddr bundle))))
+
+               ;; Update the scheduler next action date (used in timer execution mode only)
+               (when (car actlist)
+                 (setf (next-date sched) (min (next-date sched) (act-timestamp (car actlist)))))
+
+               ;; Add new actions to the object plan
+               (mp:with-lock ((plan-lock obj))
+                 (setf (plan obj)
+                       (sort (append (plan obj)
+                                     (if (nth 2 I)
+                                         (if (eq (nth 2 I) :loop)
+                                             ;; If the object has to loop, reset its time at the end
+                                             (append actlist
+                                                     (list (act-alloc :timestamp (1- (cadr I))
+                                                                      :fun #'(lambda ()
+                                                                               (incf (loop-count obj))
+                                                                               (setf (ref-time obj) (- (om-get-internal-time) start-t)
+                                                                                     (play-planned? obj) nil)
+                                                                               (setf (current-local-time obj) start-t)
+                                                                               (schedule sched obj)
+                                                                               (interleave-tasks obj
+                                                                                                 (list start-t
+                                                                                                       (+ start-t (time-window obj))))
+                                                                               (set-time-callback obj (car (interval obj)))))))
+                                           ;; If the object has to stop, stop the object at the end of interval
+                                           (append actlist
+                                                   (list (act-alloc :timestamp (1- (cadr I))
+                                                                    :fun #'(lambda ()
+                                                                             (funcall (run-callback sched)
+                                                                                      (get-caller obj sched)
+                                                                                      (1- (cadr I)))
+                                                                             (player-stop-object sched obj)
+                                                                             )))))
+                                       ;; If the object continues, keep scheduling
+                                       (append (list (act-alloc :timestamp (car I)
+                                                                :fun #'(lambda ()
+                                                                         (schedule sched obj)
+                                                                         (interleave-tasks obj
+                                                                                           (list (cadr I)
+                                                                                                 (+ (cadr I) (time-window obj)))))))
+                                               actlist)))
+                             '< :key 'act-timestamp))
+                 )))))
+
+    (if (scheduler-multi-thread sched)
+        (mp:process-send (process sched) scheduling)
+      (funcall scheduling))
+    ))
 
 
 ;; move forward the intervals in the object.
@@ -436,29 +445,36 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
           (list t1 (1+ t2) :stop))
       (progn
         (incf (current-local-time self) (time-window self))
-        (if (not (user-time-window self)) (setf (time-window self) (min *Lmax* (* 2 (time-window self)))))
+        (when (not (user-time-window self))
+          (setf (time-window self) (min *Lmax* (* 2 (time-window self)))))
         (list t1 t2)))))
+
 
 (defmethod reset-I ((self schedulable-object) &optional date)
   (setf (current-local-time self) (or date (car (interval self)) 0)
         (time-window self) (or (user-time-window self) *Lmin*)))
+
 
 ;; RESCHEDULING OF AN OBJECT
 ;; From 'time if provided, instantaneous otherwise
 (defmethod reschedule ((self schedulable-object) (sched scheduler) &optional time (preserve t))
   (let ((switch-date (if time (+ time *Lmin*)
                        (get-obj-time self))))
+
     (setf (play-planned? self) nil
           (time-window self) (or (user-time-window self) *lmin*)
           (current-local-time self) switch-date)
+
     (mp:with-lock ((plan-lock self))
-      (setf (plan self) (if preserve (subseq (plan self) 0
-                                             (position switch-date
-                                                       (plan self)
-                                                       :test '< :key 'act-timestamp)))))
-    (interleave-tasks self (list switch-date
-                                 (time-window self)))
+      (setf (plan self)
+            (when preserve
+              (subseq (plan self)
+                      0 (position switch-date (plan self) :test '< :key 'act-timestamp)))))
+
+    (interleave-tasks self (list switch-date (time-window self)))
+
     (schedule sched self)))
+
 
 (defmethod interleave-tasks ((self schedulable-object) interval)
   (mp:with-lock ((plan-lock self))
@@ -471,6 +487,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
                      (list (or (car interval) 0) (or (cadr interval) (get-obj-dur self))))))
            '< :key 'act-timestamp))))
 
+
 (defun cast-computation-list (plan)
   (loop for task in plan
         collect
@@ -481,6 +498,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
                                            (compute (apply fun data))
                                          (compute (funcall fun))))
                      :marker t))))
+
 
 (defmethod get-pre-computation-plan ((self schedulable-object) interval)
   (loop for task in (sort (get-computation-list-for-play
@@ -613,9 +631,10 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 (defmethod continue-schedulable-object ((self schedulable-object) (sched scheduler) &key internal-time)
   (when (eq (state self) :pause)
     (let ((internal-time (or internal-time (om-get-internal-time))))
-      (loop for child in (children self)
-            do
+
+      (loop for child in (children self) do
             (player-continue-object sched child))
+
       (setf (ref-time self) (round (- internal-time (pause-time self))))
       (setf (state self) :play)
       (poke-scheduling-system))))
