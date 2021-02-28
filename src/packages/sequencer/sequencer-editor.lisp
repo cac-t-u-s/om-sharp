@@ -1328,10 +1328,6 @@ CMD-click to add boxes. Play contents, etc.
     (set-object-time (metronome self) (max 0 (- (- time (mod time step)) step)))))
 
 
-
-
-
-
 ;;;========================
 ;;; PLAYER
 ;;;========================

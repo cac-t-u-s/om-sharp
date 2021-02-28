@@ -576,10 +576,10 @@
   (when (time-monitor self) (set-time-display self (if t-or-nil 0 nil))))
 
 
-
 ;;;==========================
 ;;; A RULER WITH TIME GRADUATION + MOVING CURSOR
 ;;;==========================
+
 (defclass time-ruler (x-ruler-view x-cursor-graduated-view)
   ((unit :accessor unit :initform :ms :initarg :unit)
    (bottom-p :accessor bottom-p :initform t :initarg :bottom-p) ;bottom-p indicates if the arrow need to be on the top or the bottom (default is on the top)
@@ -628,6 +628,7 @@
                                        (omp (+ pos 4) (h self)))
                                  :fill t)
                 )))))
+
   ;draw the play head
   ;(let ((pos (x-to-pix self (cursor-pos self))))
   ;  (om-with-fg-color (om-make-color 1 1 1 0.5)
@@ -638,9 +639,10 @@
   ;                         :fill t)
   ;      (om-draw-polygon (list (omp (- pos 5)  5)
   ;                             (omp (+ pos 5) 5)
-  ;;                             (omp pos  0))
+  ;                              (omp pos  0))
   ;                       :fill t)))
   ;  (call-next-method))
+
   (call-next-method)
   )
 
@@ -655,8 +657,9 @@
     (call-next-method)))
 
 
-
+;;;=================================
 ; SNAP TO GRID FUNCITONNALITIES
+;;;=================================
 
 (defmethod snap-time-to-grid  ((ruler time-ruler) time &optional (snap-delta nil))
   ;returns a time value corresponding to the given time aligned on the grid with a delta (in ms) treshold.
@@ -720,7 +723,6 @@
     (+ dt offset)))
 
 
-
 ;;; CALLED BY PAN/ZOOM GESTURES
 
 (defmethod shift-time-ruler ((self time-ruler) dx)
@@ -743,9 +745,9 @@
     ))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;
-;TIME MARKERS API
-;;;;;;;;;;;;;;;;;;;;;;;
+;;;=================================
+;;; TIME MARKERS API
+;;;=================================
 
 ;TO USE MARQUERS :
 ;1) Have a child class of timed-objects and overload the get-time-markers method
@@ -781,9 +783,9 @@
   "returns the editor handling the graduated view/selection and translation for timed-objects"
   (editor self))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;ACTIONS ands Utilities
-;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;=================================
+;;; ACTIONS ands Utilities
+;;;=================================
 
 (defmethod get-related-views-editors ((self time-ruler))
   (remove-duplicates (remove nil (loop for rv in (related-views self) collect (get-editor-for-graduated-view rv)))))
@@ -858,7 +860,7 @@
                      (om-invalidate-view self)))))))
 
 ;=========
-;EVENTS
+; EVENTS
 ;=========
 
 (defmethod om-view-click-handler ((self time-ruler) position)
@@ -881,11 +883,3 @@
     (if (find-marker-at-time self (pix-to-x self (om-point-x pos)))
         (om-set-view-cursor self nil)
       (om-set-view-cursor self (om-view-cursor self)))))
-
-
-
-
-
-
-
-

@@ -33,7 +33,6 @@
     (:velocity-display :hidden)
     (:channel-display :hidden)
     (:midiport-display nil)
-    ;; (:time-map ((-1 -1) (0 0)))    ;;; not necessary to store it as a persistent param....
     (:h-stretch 1)
     (:y-shift 4)))
 
@@ -135,8 +134,8 @@
      (when (contents self)
        (draw-score-object-in-editor-view editor self unit))
 
-     )
-    ))
+     )))
+
 
 ;;;============
 ;;; INTERACTION
@@ -269,11 +268,13 @@
     (multiple-value-bind (voice pos)
         (get-voice-at-pos editor position)
 
+      (declare (ignore pos))
+
       (when voice
 
-        (let* ((pos (and (get-voices obj) (position voice (get-voices obj))))
-               (staff (if (listp ed-staff) (or (and pos (nth pos ed-staff)) (car ed-staff)) ed-staff))
-               (shift (+ (calculate-staff-line-shift staff) (get-total-y-shift editor pos)))
+        (let* ((voice-pos (and (get-voices obj) (position voice (get-voices obj))))
+               (staff (if (listp ed-staff) (or (and voice-pos (nth voice-pos ed-staff)) (car ed-staff)) ed-staff))
+               (shift (+ (calculate-staff-line-shift staff) (get-total-y-shift editor voice-pos)))
                (clicked-pos position)
                (click-y-in-units (- shift (/ (om-point-y position) unit)))
                (clicked-pitch (line-to-pitch click-y-in-units scale)) ;;; <= scale here ??? )
@@ -528,9 +529,8 @@
                                    :value (editor-get-edit-param editor :font-size)
                                    :di-action #'(lambda (list)
                                                   (set-font-size editor (om-get-selected-item list))
-                                                  ))
-                       )
-                      )))
+                                                  ))))
+           ))
 
          (staff-item
           (om-make-layout
@@ -647,7 +647,6 @@
     ))
 
 
-
 (defmethod score-editor-set-window-config ((self score-editor) mode)
   (unless (equal (editor-window-config self) mode)
     (setf (editor-window-config self) mode)
@@ -661,6 +660,7 @@
         (set-ruler-range (get-g-component self :x-ruler) x1 x2))
       (update-score-inspector self t)
       )))
+
 
 ;;;======================
 ;;; MENUS
@@ -720,7 +720,6 @@
            (om-make-menu "Windows" (default-windows-menu-items self))
            (om-make-menu "Help" (default-help-menu-items self))
            )))
-
 
 
 (defmethod select-all-command ((self score-editor))
@@ -880,7 +879,6 @@
 (defmethod set-selection ((editor score-editor) (new-selection t))
   (call-next-method)
   (update-score-inspector editor))
-
 
 
 ;;; forbidden in voicee/poly editors
@@ -1140,7 +1138,8 @@
 
                                               ;;; restore selected measures (they have be rebuilt)
                                               (setf (selection editor)
-                                                    (loop for elt in temp-selection collect (nth (cadr elt) (inside (car elt)))))
+                                                    (loop for elt in temp-selection
+                                                          collect (nth (cadr elt) (inside (car elt)))))
 
                                               (update-from-editor (object editor))
                                               (editor-invalidate-views editor)))
@@ -1308,7 +1307,6 @@
          ;;; end LET
          )
 
-
     (om-add-subviews self
                      (om-make-layout
                       'om-simple-layout
@@ -1330,5 +1328,3 @@
     (when editor (om-update-layout (window editor)))
 
     ))
-
-
