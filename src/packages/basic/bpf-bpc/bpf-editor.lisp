@@ -861,22 +861,29 @@
 
 
 (defmethod set-point-in-obj ((self bpf-editor) point values)
+
   (set-point-in-bpf (object-value self) point
                     (car values)
                     (cadr values))
+
   (setf (point-list (object-value self))
         (sort (point-list (object-value self)) '< :key 'om-point-x))
+
   (when (container-editor self)
     (update-to-editor (container-editor self) self))
+
   (editor-invalidate-views self))
 
 (defmethod set-point-in-obj ((self bpc-editor) point values)
+
   (set-point-in-bpc (object-value self) point
                     (car values)
                     (cadr values)
                     (cadddr values))
+
   (setf (point-list (object-value self))
         (sort (point-list (object-value self)) '< :key 'tpoint-internal-time))
+
   (time-sequence-update-internal-times (object-value self))
 
   (when (container-editor self)

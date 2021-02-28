@@ -448,8 +448,8 @@
     (update-3d-view self)
     (update-sub-editors self)
     )
-  (report-modifications self)
-  )
+  (report-modifications self))
+
 
 ; when internal editors are edited
 (defmethod update-to-editor ((self 3DC-editor) (from bpf-editor))
@@ -459,6 +459,7 @@
     (update-editor-3d-object self)
     (update-3d-view self))
   (report-modifications self))
+
 
 (defmethod format-3D-points  ((self 3DC))
   (mat-trans (list (x-points self) (y-points self) (z-points self) (times self))))

@@ -297,7 +297,7 @@
     (editor-invalidate-views (timeline-editor self))))
 
 
-;;; todo : factorize a bit this procedure in different editors..
+;;; todo : factorize this in different editors..
 (defmethod editor-delete-contents-from-timeline ((self data-stream-editor) timeline-id sel)
   (let ((data-stream (object-value self)))
     (mapcar #'(lambda (point) (remove-timed-point-from-time-sequence data-stream point)) sel)
