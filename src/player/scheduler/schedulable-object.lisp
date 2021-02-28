@@ -392,7 +392,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
                                                                                          (interleave-tasks obj 
                                                                                                            (list start-t 
                                                                                                                  (+ start-t (time-window obj))))
-                                                                                         (funcall 'set-time-callback obj (car (interval obj)))))))
+                                                                                         (set-time-callback obj (car (interval obj)))))))
                                                      ;; If the object has to stop, stop the object at the end of interval
                                                      (append actlist
                                                              (list (act-alloc :timestamp (1- (cadr I))
