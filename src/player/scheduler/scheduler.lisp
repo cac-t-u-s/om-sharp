@@ -107,9 +107,9 @@
   (setf (scheduler-timeout self) new-timeout))
 
 
-;=================================================================================
+;=========================================================================
 ; API
-;====================================================================================
+;=========================================================================
 
 (defun build-scheduler (&key run-callback stop-callback)
   (let ((scheduler (make-scheduler :run-callback run-callback
@@ -165,8 +165,13 @@
   (not (find :play (mapcar #'state (mapcar #'car (register self))))))
 
 (defun poke-scheduling-system ()
+
   (setf (alarm *scheduler*) t)
-  (if (and *dispatcher* (process *dispatcher*) (mp:process-stopped-p (process *dispatcher*)))
-      (mp:process-unstop (process *dispatcher*)))
-  (if (and *graphics* (process *graphics*) (mp:process-stopped-p (process *graphics*)))
-      (mp:process-unstop (process *graphics*))))
+
+  (when (and *dispatcher* (process *dispatcher*) (mp:process-stopped-p (process *dispatcher*)))
+    (mp:process-unstop (process *dispatcher*)))
+
+  (when (and *graphics* (process *graphics*) (mp:process-stopped-p (process *graphics*)))
+    (mp:process-unstop (process *graphics*)))
+  )
+
