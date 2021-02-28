@@ -45,7 +45,7 @@
             )))))
 
 
-(defparameter *eval-process-name* "OM EVAL PROCESS")
+(defparameter *eval-process-name* "eval-thread")
 
 (defun init-om-eval-process ()
   (unless (and *om-eval-process*
