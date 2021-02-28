@@ -450,6 +450,7 @@
       (om-set-text (get-g-component editor :mousepos-txt) (format nil "~Dms" time))))
   )
 
+
 (defmethod move-editor-selection ((self data-stream-editor) &key (dx 0) (dy 0))
   (declare (ignore dy)) ;; in a basic data-frame -- subclasses can do it !
   (loop for fp in (selection self) do

@@ -233,6 +233,7 @@
          (timeline-views nil)
          (left-item-w 0)
          (foldable-containers nil))
+
     (loop for obj in (editor-get-all-time-sequences container-editor)
           for i = 0 then (+ i 1) do
           (let* ((timeline-view (om-make-view 'om-timeline-view :id i :editor self :bg-color (om-def-color :white)))
@@ -269,7 +270,9 @@
             (pushr fold-group foldable-containers)))
 
     (setf (related-views time-ruler) (append timeline-views (related-views time-ruler)))
+
     (om-remove-all-subviews main-panel)
+
     (when main-panel
       (om-add-subviews
        main-panel

@@ -142,7 +142,6 @@
                                          (> t1 (cadr interval)))
                                      ))
                                (chords object))
-
            append
            (loop for n in (notes c) append
                  (let ((channel (+ (or (chan n) 1)
@@ -193,7 +192,6 @@
 ;;; MICROTONES
 ;;;===================================================
 
-
 (defparameter *micro-channel-approx* 8)
 
 (defun micro-bend-messages (&optional port)
@@ -223,7 +221,6 @@
 (defun micro-reset (&optional port)
   (loop for pb-evt in (micro-reset-messages port)
         do (om-midi:midi-send-evt pb-evt)))
-
 
 
 ;; t / nil / list of approx where it must be applied
@@ -319,5 +316,3 @@
              *micro-channel-mode-on*)
     (loop for p in (collec-ports-from-object object) do (micro-reset p)))
   (call-next-method))
-
-

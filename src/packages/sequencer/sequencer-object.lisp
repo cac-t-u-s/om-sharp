@@ -356,7 +356,6 @@
          (if (in-interval ti (list (get-box-onset tb) (get-box-end-date tb)))
              (set-object-time (get-box-value tb) (- ti (get-box-onset tb)))
            (player-stop-object *general-player* (get-box-value tb)))))
-
    ))
 
 

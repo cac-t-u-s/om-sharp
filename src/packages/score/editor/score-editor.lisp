@@ -134,8 +134,8 @@
      (when (contents self)
        (draw-score-object-in-editor-view editor self unit))
 
-     )
-    ))
+     )))
+
 
 ;;;============
 ;;; INTERACTION
@@ -527,9 +527,8 @@
                                    :value (editor-get-edit-param editor :font-size)
                                    :di-action #'(lambda (list)
                                                   (set-font-size editor (om-get-selected-item list))
-                                                  ))
-                       )
-                      )))
+                                                  ))))
+           ))
 
          (staff-item
           (om-make-layout
@@ -646,7 +645,6 @@
     ))
 
 
-
 (defmethod score-editor-set-window-config ((self score-editor) mode)
   (unless (equal (editor-window-config self) mode)
     (setf (editor-window-config self) mode)
@@ -660,6 +658,7 @@
         (set-ruler-range (get-g-component self :x-ruler) x1 x2))
       (update-score-inspector self t)
       )))
+
 
 ;;;======================
 ;;; MENUS
@@ -719,7 +718,6 @@
            (om-make-menu "Windows" (default-windows-menu-items self))
            (om-make-menu "Help" (default-help-menu-items self))
            )))
-
 
 
 (defmethod select-all-command ((self score-editor))
@@ -879,7 +877,6 @@
 (defmethod set-selection ((editor score-editor) (new-selection t))
   (call-next-method)
   (update-score-inspector editor))
-
 
 
 ;;; forbidden in voicee/poly editors
@@ -1139,7 +1136,8 @@
 
                                               ;;; restore selected measures (they have be rebuilt)
                                               (setf (selection editor)
-                                                    (loop for elt in temp-selection collect (nth (cadr elt) (inside (car elt)))))
+                                                    (loop for elt in temp-selection
+                                                          collect (nth (cadr elt) (inside (car elt)))))
 
                                               (update-from-editor (object editor))
                                               (editor-invalidate-views editor)))
@@ -1307,7 +1305,6 @@
          ;;; end LET
          )
 
-
     (om-add-subviews self
                      (om-make-layout
                       'om-simple-layout
@@ -1329,5 +1326,3 @@
     (when editor (om-update-layout (window editor)))
 
     ))
-
-

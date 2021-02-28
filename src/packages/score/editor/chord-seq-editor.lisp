@@ -75,7 +75,6 @@
                     :fill t :color (om-make-color .9 .9 .9 .5))
       (om-draw-string (- (w self) 15) 10 "...")
       (om-draw-string (- (w self) 15) (- (h self) 10) "..."))
-
     ))
 
 (defmethod editor-scroll-v ((self chord-seq-editor)) nil)
@@ -95,10 +94,7 @@
 
   (om-set-scroll-position
    (get-g-component (editor self) :main-panel)
-   (omp 0 (cadr pos)))
-
-  )
-
+   (omp 0 (cadr pos))))
 
 
 (defmethod om-view-click-handler ((self left-score-view) position)
@@ -139,7 +135,6 @@
 ;;; EDITOR
 ;;;=========================
 
-
 ;;; add a "grid" and an offset-display option
 (defmethod make-editor-controls ((editor chord-seq-editor))
   (make-score-display-params-controls editor))
@@ -148,6 +143,7 @@
 (defmethod update-view-from-ruler ((self x-ruler-view) (view chord-seq-panel))
   (call-next-method)
   (om-invalidate-view (left-view view)))
+
 
 ;;; just like stream-panel (not like score-view)
 (defmethod om-view-zoom-handler ((self chord-seq-panel) position zoom)
@@ -182,8 +178,7 @@
 
 (defmethod om-view-click-handler ((self chord-seq-panel) position)
   (or (handle-selection-extent self position)
-      (call-next-method)) ;;; => score-view
-  )
+      (call-next-method))) ;;; => score-view
 
 
 ;;; in data-stream-editor the selection is an index to elements in the frame sequence
@@ -251,6 +246,7 @@
 
      )))
 
+
 ;;; redefines from data-stream-editor
 (defmethod move-editor-selection ((self chord-seq-editor) &key (dx 0) (dy 0))
 
@@ -281,7 +277,6 @@
 
 (defmethod editor-sort-frames ((self chord-seq-editor))
   (time-sequence-reorder-timed-item-list (object-value self)))
-
 
 
 ;;; paste command
@@ -377,7 +372,6 @@
   (export-musicxml (object-value self)))
 
 
-
 ;;;=========================
 ;;; DISPLAY
 ;;;=========================
@@ -396,7 +390,6 @@
     (draw-sequence obj editor view unit)))
 
 
-
 (defmethod draw-grid-on-score-editor ((editor chord-seq-editor) view)
   (let ((grid-step (or (editor-get-edit-param editor :grid-step) 100))) ;; just in case..
     (loop for x from (* (ceiling (x1 view) grid-step) grid-step)
@@ -406,6 +399,7 @@
                (om-draw-line x-pix 0 x-pix (h view) :color (om-def-color :gray) :style '(2 2))
                )
           )))
+
 
 ;;; redefined for other objects
 (defmethod draw-sequence ((object chord-seq) editor view unit &optional (force-y-shift nil))
