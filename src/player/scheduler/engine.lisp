@@ -53,7 +53,7 @@
 
 (defun build-engine ()
   (let ((engine (make-engine)))
-    (setf (process engine) (mp:process-run-function "OM-Engine"
+    (setf (process engine) (mp:process-run-function "engine-thread"
                                                     nil
                                                     'engine-function
                                                     engine))
