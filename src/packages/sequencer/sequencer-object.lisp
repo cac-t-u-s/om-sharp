@@ -234,7 +234,7 @@
                  interval-in-object self)))))
    '< :key 'car))
 
-(defmethod set-object-time ((self OMSequencer) time)
+(defmethod set-object-current-time ((self OMSequencer) time)
   (set-time-callback self time)
   (call-next-method))
 
@@ -248,7 +248,7 @@
                 (set-object-interval (get-box-value box) (list (- time (get-box-onset box)) (cadr interval)))
                 (if (in-interval time (list (get-box-onset box) (get-box-end-date box)))
                     (progn
-                      (set-object-time (get-box-value box) (- (car interval) (get-box-onset box)))
+                      (set-object-current-time (get-box-value box) (- (car interval) (get-box-onset box)))
                       (set-time-callback (get-box-value box) (- time (get-box-onset box))))
                   (player-stop-object *general-player* (get-box-value box))))
             (player-stop-object *general-player* (get-box-value box))))))
@@ -260,7 +260,7 @@
    (setf (onset tb) (max (+ (onset tb) dx) 0))
    (if (box-being-rendered? seq tb)
        ;;;If the object was and is still being rendered, just set its time
-       (set-object-time (object-from-box tb) (- (get-obj-time seq) (onset tb)))
+       (set-object-current-time (object-from-box tb) (- (get-obj-time seq) (onset tb)))
      ;;;If the object was being rendered and is not anymore, stop- it
      (player-stop-object (player (editor seq)) (object-from-box tb))))
 |#
@@ -354,7 +354,7 @@
    (if (and (get-box-value tb) (eq (get-object-state (get-box-value tb)) :play))
        (let ((ti (get-obj-time seq)))
          (if (in-interval ti (list (get-box-onset tb) (get-box-end-date tb)))
-             (set-object-time (get-box-value tb) (- ti (get-box-onset tb)))
+             (set-object-current-time (get-box-value tb) (- ti (get-box-onset tb)))
            (player-stop-object *general-player* (get-box-value tb)))))
    ))
 

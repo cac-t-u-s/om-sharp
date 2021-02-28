@@ -147,12 +147,12 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 
 ;; SET THE OBJECT TIME WHILE PLAYING
 ;; Sets the time and replans from this date
-(defmethod set-object-time ((self schedulable-object) time)
+(defmethod set-object-current-time ((self schedulable-object) time)
   (setf (ref-time self) (- (om-get-internal-time) time))
   (if (eq (state self) :play)
       (reschedule self *scheduler* time nil)))
 
-(defmethod set-object-time ((self t) time) nil)
+(defmethod set-object-current-time ((self t) time) nil)
 
 ;; CALLBACK USED WHEN THE SYSTEM SWITCHES THE OBJECT TIME AUTOMATICALLY
 ;; Happens when the object loops.
