@@ -304,6 +304,8 @@
 
 ;(defmethod allowed-element ((self OMSequencer) (elem t)) (call-next-method))
 
+(defmethod allowed-element ((self OMSequencer) (elem time-sequence)) t)
+
 (defmethod allowed-element ((self OMSequencer) (elem timed-object))
   (plusp (get-obj-dur elem))) ;; no object that have no duration => must be put in containers
 
