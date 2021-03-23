@@ -1079,6 +1079,7 @@
                             ;;; set the frame at the graphic size
                             (om-set-view-size frame (om-view-size dview))
                             (om-add-subviews self frame)
+                            (contextual-update newbox target-patch)
                             ;;; update connections
                             (update-connections newbox)
                             (select-box newbox t)
@@ -1111,6 +1112,7 @@
                           (om-set-view-position dview pos)
                           (om-set-view-size dview (om-view-size dview))
                           (om-add-subviews self dview)
+                          (contextual-update box target-patch)
                           (update-connections box)
                           (om-invalidate-view dview)
                           )
