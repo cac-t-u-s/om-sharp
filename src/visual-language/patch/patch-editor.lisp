@@ -1028,7 +1028,9 @@
       )))
 
 
-(defmethod allowed-move (box destination) t)
+(defmethod allowed-move (box (editor patch-editor))
+  (allowed-element (object editor) box))
+
 
 (defmethod om-drag-receive ((self patch-editor-view) (dragged-view OMBoxFrame) position &optional (effect nil))
 
@@ -1077,6 +1079,7 @@
                             ;;; set the frame at the graphic size
                             (om-set-view-size frame (om-view-size dview))
                             (om-add-subviews self frame)
+                            (contextual-update newbox target-patch)
                             ;;; update connections
                             (update-connections newbox)
                             (select-box newbox t)
@@ -1109,6 +1112,7 @@
                           (om-set-view-position dview pos)
                           (om-set-view-size dview (om-view-size dview))
                           (om-add-subviews self dview)
+                          (contextual-update box target-patch)
                           (update-connections box)
                           (om-invalidate-view dview)
                           )
