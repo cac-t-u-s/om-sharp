@@ -1028,7 +1028,9 @@
       )))
 
 
-(defmethod allowed-move (box (editor patch-editor)) t)
+(defmethod allowed-move (box (editor patch-editor))
+  (allowed-element (object editor) box))
+
 
 (defmethod om-drag-receive ((self patch-editor-view) (dragged-view OMBoxFrame) position &optional (effect nil))
 
