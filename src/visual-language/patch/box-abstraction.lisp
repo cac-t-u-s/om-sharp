@@ -291,11 +291,11 @@
     ))
 
 
-(defmethod allowed-move ((box OMBoxAbstraction) (destination patch-editor))
+(defmethod allowed-move ((box OMBoxAbstraction) (editor patch-editor))
   (or (is-persistant (reference box)) ;; recursion
       (and
-       (not (equal (reference box) (object destination))) ;; patch in itself
-       (not (find (reference box) (collect-all-containers (object destination)))) ;;; patch in one of its own childs
+       (not (equal (reference box) (object editor))) ;; patch in itself
+       (not (find (reference box) (collect-all-containers (object editor)))) ;;; patch in one of its own childs
        )))
 
 
