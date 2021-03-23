@@ -629,7 +629,8 @@
        (om-with-clip-rect frame
            *miniview-x-margin* *miniview-y-margin*
            (- (w frame) (* 2 *miniview-x-margin*)) (- (h frame) (* 2 *miniview-y-margin*))
-         (draw-label box object :color (om-make-color 0.6 0.6 0.6 0.2))
+         (when (> (w frame) 30)
+           (draw-label box object :color (om-make-color 0.6 0.6 0.6 0.2)))
          (ensure-cache-display-draw box object)
          (draw-mini-view object box
                          *miniview-x-margin* *miniview-y-margin*
