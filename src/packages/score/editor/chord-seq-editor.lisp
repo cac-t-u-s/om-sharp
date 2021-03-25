@@ -210,12 +210,32 @@
   (editor-invalidate-views self))
 
 
+(defmethod add-score-marker ((self chord-seq-editor))
+  (when (selection self)
+    (let ((first-chord (car (sort (remove-if
+                                   #'(lambda (item) (not (subtypep (type-of item) 'chord)))
+                                   (selection self))
+                                  '< :key #'date))))
+      (when first-chord
+        (add-extras first-chord (make-instance 'score-marker) nil nil)
+        (om-invalidate-view (main-view self)))
+      )))
+
+
+(defmethod remove-score-marker ((self chord-seq-editor))
+  (loop for item in (selection self)
+        do (remove-extras item 'score-marker nil))
+  (om-invalidate-view (main-view self)))
+
+
 (defmethod editor-key-action ((editor chord-seq-editor) key)
+
   (case key
 
     (#\A (align-chords-in-editor editor))
-
     (#\S (stems-on-off editor))
+    (#\m (add-score-marker editor))
+    (#\M (remove-score-marker editor))
 
     (otherwise (call-next-method)) ;;; => score-editor
     ))
