@@ -19,7 +19,7 @@
 (in-package :om)
 
 
-(defclass 3DC-editor (multi-display-editor-mixin OMEditor multi-view-editor play-editor-mixin)
+(defclass 3DC-editor (multi-display-editor-mixin OMEditor multi-view-editor play-editor-mixin undoable-editor-mixin)
   ((top-bpc-editor :accessor top-bpc-editor :initform nil)
    (front-bpc-editor :accessor front-bpc-editor :initform nil)
    (3Dp :accessor 3Dp :initform nil)
@@ -531,6 +531,13 @@
     (editor-invalidate-views (front-bpc-editor self))
     (update-timeline-editor self)))
 
+
+;;; called after undo/redo
+(defmethod update-after-state-change ((self OMEditor))
+  (editor-invalidate-views self)
+  (call-next-method))
+
+
 ;;;==========================
 ;;; MENUS
 ;;;==========================
@@ -546,6 +553,7 @@
            )))
 
 (defmethod reverse-points ((self 3dc-editor))
+  (store-current-state-for-undo self)
   (time-sequence-reverse (object-value self))
   (editor-invalidate-views self)
   (update-to-editor (timeline-editor self) self)
@@ -582,6 +590,7 @@
                (zoom-rulers front-panel :dx 0.1 :dy 0.1)
                (zoom-view 3dpanel 1.2))
           (:om-key-delete
+           (store-current-state-for-undo editor)
            (delete-editor-selection editor)
            (report-modifications top-editor) ;; why ?
            (update-editor-3d-object editor)
@@ -595,6 +604,7 @@
           (:om-key-left
            (let* ((ed (or selected-editor top-editor))
                   (panel (get-g-component ed :main-panel)))
+             (store-current-state-for-undo editor :action :move-l :item (selection editor))
              (move-editor-selection ed :dx (/ (- (get-units (x-ruler panel) (if (om-shift-key-p) 400 40))) (scale-fact panel)))
              (time-sequence-update-internal-times (object-value editor))
              (report-modifications top-editor)
@@ -602,26 +612,31 @@
           (:om-key-right
            (let* ((ed (or selected-editor top-editor))
                   (panel (get-g-component ed :main-panel)))
+             (store-current-state-for-undo editor :action :move-r :item (selection editor))
              (move-editor-selection ed :dx (/ (get-units (x-ruler panel) (if (om-shift-key-p) 400 40)) (scale-fact panel)))
              (time-sequence-update-internal-times (object-value editor))
              (report-modifications top-editor)))
           (:om-key-up
            (let* ((ed (or selected-editor top-editor))
                   (panel (get-g-component ed :main-panel)))
+             (store-current-state-for-undo editor :action :move-u :item (selection editor))
              (move-editor-selection ed :dy (/ (get-units (y-ruler panel) (if (om-shift-key-p) 400 40)) (scale-fact panel)))
              (time-sequence-update-internal-times (object-value editor))
              (report-modifications ed)))
           (:om-key-down
            (let* ((ed (or selected-editor top-editor))
                   (panel (get-g-component ed :main-panel)))
+             (store-current-state-for-undo editor :action :move-d :item (selection editor))
              (move-editor-selection ed :dy (/ (- (get-units (y-ruler panel) (if (om-shift-key-p) 400 40))) (scale-fact panel)))
              (time-sequence-update-internal-times (object-value editor))
              (report-modifications ed)))
           (:om-key-pageup
+           (store-current-state-for-undo editor :action :move-pu :item (selection editor))
            (move-editor-selection front-editor :dy (/ (get-units (y-ruler front-panel) (if (om-shift-key-p) 400 40)) (scale-fact front-panel)))
            (time-sequence-update-internal-times (object-value editor))
            (report-modifications front-editor))
           (:om-key-pagedown
+           (store-current-state-for-undo editor :action :move-pd :item (selection editor))
            (move-editor-selection front-editor :dy (/ (- (get-units (y-ruler front-panel) (if (om-shift-key-p) 400 40))) (scale-fact front-panel)))
            (time-sequence-update-internal-times (object-value editor))
            (report-modifications front-editor))
@@ -638,14 +653,17 @@
 ;;;==========================
 
 (defmethod delete-editor-selection ((self 3dc-editor))
-  (if (find T (selection self))
-      (setf (point-list (object-value self)) nil)
-    (mapcar
-     #'(lambda (i) (remove-nth-timed-point-from-time-sequence (object-value self) i))
-     (sort (selection self) '>)
-     ))
-  (setf (selection self) nil)
-  (update-sub-editors self))
+  (when (selection self)
+    (let ((object (object-value self)))
+      (if (find T (selection self))
+          (setf (point-list (object-value self)) nil)
+        (mapcar
+         #'(lambda (i) (remove-nth-timed-point-from-time-sequence (object-value self) i))
+         (sort (selection self) '>)
+         ))
+      (setf (selection self) nil)
+      (time-sequence-update-internal-times object))
+    (update-sub-editors self)))
 
 
 ;;;==========================

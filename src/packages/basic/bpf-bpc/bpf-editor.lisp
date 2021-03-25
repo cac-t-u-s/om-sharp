@@ -597,22 +597,44 @@
 ;;;==========================
 
 (defun bpf-edit-menu-items (self)
+
   (list (om-make-menu-comp
-         (list (om-make-menu-item "Undo" #'(lambda () (funcall (undo-command self))) :key "z" :enabled #'(lambda () (and (undo-command self) t)))
-               (om-make-menu-item "Redo" #'(lambda () (funcall (redo-command self))) :key "Z" :enabled #'(lambda () (and (redo-command self) t)))))
+         (list (om-make-menu-item "Undo"
+                                  #'(lambda () (funcall (undo-command self)))
+                                  :key "z"
+                                  :enabled #'(lambda () (and (undo-command self) t)))
+
+               (om-make-menu-item "Redo"
+                                  #'(lambda () (funcall (redo-command self)))
+                                  :key "Z"
+                                  :enabled
+                                  #'(lambda () (and (redo-command self) t)))))
+
         (om-make-menu-comp
          (list
-          (om-make-menu-item "Delete selection" #'(lambda () (funcall (clear-command self))) :enabled (and (clear-command self) t))))
+          (om-make-menu-item "Delete selection"
+                             #'(lambda () (funcall (clear-command self)))
+                             :enabled (and (clear-command self) (selection self) t))))
+
         (om-make-menu-comp
-         (list (om-make-menu-item "Select All" #'(lambda () (funcall (select-all-command self))) :key "a" :enabled (and (select-all-command self) t))))
+         (list (om-make-menu-item "Select All"
+                                  #'(lambda () (funcall (select-all-command self)))
+                                  :key "a"
+                                  :enabled (and (select-all-command self) t))))
+
         (om-make-menu-comp
          (list
-          (om-make-menu-item "Reverse Points" #'(lambda () (reverse-points self)) :key "r" )))
+          (om-make-menu-item "Reverse Points"
+                             #'(lambda () (reverse-points self))
+                             :key "r" )))
+
         (om-make-menu-comp
          (list
-          (om-make-menu-item "OSC Input Manager" #'(lambda () (funcall (open-osc-manager-command self)))
+          (om-make-menu-item "OSC Input Manager"
+                             #'(lambda () (funcall (open-osc-manager-command self)))
                              :enabled (and (open-osc-manager-command self) t))))
         ))
+
 
 (defmethod om-menu-items ((self bpf-editor))
   (remove nil
@@ -624,12 +646,22 @@
            (om-make-menu "Help" (default-help-menu-items self))
            )))
 
+
 (defmethod select-all-command ((self bpf-editor))
   #'(lambda ()
       (setf (selection self) (list T))
       (update-timeline-editor self)
       (editor-invalidate-views self)
       (select-bpf self)))
+
+
+(defmethod clear-command ((self bpf-editor))
+  #'(lambda ()
+      (store-current-state-for-undo self)
+      (delete-editor-selection self)
+      (report-modifications self)
+      (editor-invalidate-views self)))
+
 
 (defmethod open-osc-manager-command ((self bpf-editor)) nil)
 
@@ -751,7 +783,6 @@
         rep))))
 
 
-
 ;;; do nothing...
 (defmethod select-bpf ((editor bpf-editor) &optional n))
 
@@ -774,7 +805,6 @@
     ))
 
 
-;;;
 ;;; return the position of the inserted point
 (defmethod add-point-at-pix ((editor bpf-editor) (object bpf) position &optional (time nil))
   (let* ((panel (get-g-component editor :main-panel))
@@ -843,24 +873,32 @@
             ))))
 
 (defmethod delete-editor-selection ((self bpf-editor))
-  (if (find T (selection self))
-      (setf (point-list (object-value self)) nil)
-    (mapcar
-     #'(lambda (i) (remove-nth-point (object-value self) i))
-     (sort (selection self) '>)
-     ))
-  (setf (selection self) nil)
-  (when (timeline-editor self)
-    (update-to-editor (timeline-editor self) self)))
+  (when (selection self)
+    (let ((object (object-value self)))
+      (if (find T (selection self))
+          (setf (point-list object) nil)
+        (mapcar
+         #'(lambda (i) (remove-nth-point object i))
+         (sort (selection self) '>)
+         ))
+      (setf (selection self) nil)
+      (time-sequence-update-internal-times object))
+    (when (timeline-editor self)
+      (update-to-editor (timeline-editor self) self))))
+
 
 (defmethod delete-editor-selection ((self bpc-editor))
-  (if (find T (selection self))
-      (setf (point-list (object-value self)) nil)
-    (mapcar
-     #'(lambda (p) (remove-nth-timed-point-from-time-sequence (object-value self) p))
-     (sort (selection self) '>)))
-  (setf (selection self) nil)
-  (update-to-editor (timeline-editor self) self))
+  (when (selection self)
+    (let ((object (object-value self)))
+      (if (find T (selection self))
+          (setf (point-list (object-value self)) nil)
+        (mapcar
+         #'(lambda (p) (remove-nth-timed-point-from-time-sequence object p))
+         (sort (selection self) '>)))
+      (setf (selection self) nil)
+      (time-sequence-update-internal-times object))
+    (update-to-editor (timeline-editor self) self)))
+
 
 (defmethod round-point-values ((editor bpf-editor))
   (set-bpf-point-values (object-value editor)))
@@ -977,6 +1015,7 @@
 
 
 (defmethod reverse-points ((self bpf-editor))
+  (store-current-state-for-undo self)
   (time-sequence-reverse (object-value self))
   (editor-invalidate-views self)
   (update-to-editor (timeline-editor self) self)
@@ -1210,7 +1249,6 @@
       (:om-key-delete
        (store-current-state-for-undo editor)
        (delete-editor-selection editor)
-       (time-sequence-update-internal-times (object-value editor))
        (report-modifications editor)
        (editor-invalidate-views editor)
        )
@@ -1219,7 +1257,7 @@
        (call-next-method) ;;; will also reset the cursor interval
        (editor-invalidate-views editor))
       (:om-key-left
-       (store-current-state-for-undo editor :action :move :item (selection editor))
+       (store-current-state-for-undo editor :action :move-l :item (selection editor))
        (move-editor-selection editor :dx (/ (- (get-units (x-ruler panel) (if (om-shift-key-p) 400 40))) (scale-fact panel)))
        (time-sequence-update-internal-times (object-value editor))
        (update-timeline-editor editor)
@@ -1227,21 +1265,21 @@
        (report-modifications editor)
        )
       (:om-key-right
-       (store-current-state-for-undo editor :action :move :item (selection editor))
+       (store-current-state-for-undo editor :action :move-r :item (selection editor))
        (move-editor-selection editor :dx (/ (get-units (x-ruler panel) (if (om-shift-key-p) 400 40)) (scale-fact panel)))
        (time-sequence-update-internal-times (object-value editor))
        (update-timeline-editor editor)
        (editor-invalidate-views editor)
        (report-modifications editor))
       (:om-key-up
-       (store-current-state-for-undo editor :action :move :item (selection editor))
+       (store-current-state-for-undo editor :action :move-u :item (selection editor))
        (move-editor-selection editor :dy (/ (get-units (y-ruler panel) (if (om-shift-key-p) 400 40)) (scale-fact panel)))
        (time-sequence-update-internal-times (object-value editor))
        (update-timeline-editor editor)
        (editor-invalidate-views editor)
        (report-modifications editor))
       (:om-key-down
-       (store-current-state-for-undo editor :action :move :item (selection editor))
+       (store-current-state-for-undo editor :action :move-d :item (selection editor))
        (move-editor-selection editor :dy (/ (- (get-units (y-ruler panel) (if (om-shift-key-p) 400 40))) (scale-fact panel)))
        (time-sequence-update-internal-times (object-value editor))
        (update-timeline-editor editor)

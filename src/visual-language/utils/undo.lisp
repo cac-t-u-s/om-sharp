@@ -30,6 +30,7 @@
    (last-item :initform nil :accessor last-item)
    ))
 
+
 ;;; object-value will be the object (BPF, etc.) for an object-box
 ;;; ... or the "object" slot for a patch
 (defmethod undoable-object ((self undoable-editor-mixin)) (object-value self))
@@ -47,8 +48,7 @@
 
 (defmethod restore-undoable-editor-state ((self undoable-editor-mixin) (state list))
   (restore-undoable-object-state (undoable-object self) state)
-  (update-after-state-change self)
-  )
+  (update-after-state-change self))
 
 (defmethod reset-undoable-editor-action ((self undoable-editor-mixin))
   (setf (last-action self) nil
@@ -97,21 +97,31 @@
   )
 
 
+(defmethod undoable-container-editor ((self undoable-editor-mixin))
+  (or (and (not (equal self (container-editor self))) ;;; the sequencer-editor is its own container... :(
+           (undoable-container-editor (container-editor self)))
+      self))
+
+(defmethod undoable-container-editor ((self t)) nil)
+
+
 ;;; => call this before any action which might require undo
 ;;; => action and item allow to prevent multiple-undo storage for sequences of similar actions (to do: add also a timer?)
 (defmethod store-current-state-for-undo ((self undoable-editor-mixin) &key action item)
-  (unless (and action
-               (equal action (last-action self))
-               (equal item (last-item self)))
-    ;;; this is a new 'key state' we want to store
-    (push-undo-state self)
-    ;;; when we push a new undo state, the redo is reinitialized
-    (let ((deleted-states (copy-list (redo-stack self))))
-      (setf (redo-stack self) nil)
-      (cleanup-undoable-editor-stack-elements self deleted-states)
-      ))
-  (setf (last-action self) action
-        (last-item self) item))
+  (let ((editor (or (undoable-container-editor self) self)))
+    (unless (and action
+                 (equal action (last-action editor))
+                 (equal item (last-item editor)))
+      ;;; this is a new 'key state' we want to store
+      (push-undo-state editor)
+      ;;; when we push a new undo state, the redo is reinitialized
+      (let ((deleted-states (copy-list (redo-stack editor))))
+        (setf (redo-stack editor) nil)
+        (cleanup-undoable-editor-stack-elements editor deleted-states)
+        ))
+    (setf (last-action editor) action
+          (last-item editor) item)))
+
 
 ;;; => call this to undo
 (defmethod do-undo ((self undoable-editor-mixin))
@@ -184,7 +194,6 @@
                                                 (cadr (find slot state :key 'car)))))
   ;(om-print-dbg "<--- ~A" (list self) "UNDO")
   self)
-
 
 
 ;;; LISTS / CONS
@@ -261,13 +270,11 @@
   (call-next-method))
 
 
-
 ;;; PATCHES
 ;;; need special care because connections are restored from the box list
 (defmethod get-undoable-object-state ((self OMPatch))
   `((boxes ,(get-undoable-object-state (boxes self)))
     (connections ,(save-connections-from-boxes (boxes self)))))
-
 
 
 (defmethod restore-undoable-object-state ((self OMPatch) (state list))
@@ -319,7 +326,6 @@
     self))
 
 
-
 (defmethod update-after-state-change ((self patch-editor))
   (let* ((patch (object self))
          (view (main-view self)))
@@ -349,14 +355,12 @@
 
 
 #|
-;;; BPF
-;;; just for debug
+;;; Test/debug: BPF
 (defmethod get-undoable-object-state ((self bpf))
   (let ((rep (call-next-method)))
     (om-print-dbg "COLLECT: ~A" (list (point-pairs self)))
     rep))
 
-;;; just for debug
 (defmethod restore-undoable-object-state ((self bpf) (state list))
   (let ((rep (call-next-method)))
     (om-print-dbg "RESTORE: ~A" (list (point-pairs self)))

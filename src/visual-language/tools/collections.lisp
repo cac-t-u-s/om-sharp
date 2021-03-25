@@ -186,7 +186,7 @@
 ;;; EDITOR
 ;;;===========================
 
-(defclass collection-editor (OMEditor)
+(defclass collection-editor (OMEditor undoable-editor-mixin)
   ((internal-editor :accessor internal-editor :initform nil)
    (current :accessor current :initform 0)))
 
@@ -195,6 +195,9 @@
 
 (defmethod object-value ((self collection-editor))
   (nth (current self) (obj-list (get-value-for-editor (object self)))))
+
+(defmethod undoable-object ((self collection-editor))
+  (get-value-for-editor (object self)))
 
 (defmethod get-obj-to-play ((self collection-editor)) (object-value self))
 
