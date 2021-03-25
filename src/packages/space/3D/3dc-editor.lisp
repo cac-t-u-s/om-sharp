@@ -531,6 +531,13 @@
     (editor-invalidate-views (front-bpc-editor self))
     (update-timeline-editor self)))
 
+
+;;; called after undo/redo
+(defmethod update-after-state-change ((self OMEditor))
+  (editor-invalidate-views self)
+  (call-next-method))
+
+
 ;;;==========================
 ;;; MENUS
 ;;;==========================
