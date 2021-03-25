@@ -526,10 +526,12 @@
 (defmethod om-view-click-handler ((self om-timeline-view) position)
 
   (let* ((timeline-editor (editor self))
+         (container-editor (container-editor timeline-editor))
          (time (pix-to-x self (om-point-x position)))
          (point (timed-item-at-time timeline-editor self time)))
     ;add a point if add key down and point not existing
-    (when (and (om-add-key-down) (alllow-insert-point-from-timeline (container-editor timeline-editor)) (not point))
+    (when (and (om-add-key-down) (alllow-insert-point-from-timeline container-editor) (not point))
+      (store-current-state-for-undo container-editor)
       (let ((pos (add-point-at-time timeline-editor time (id self)))
             (obj (editor-get-time-sequence timeline-editor (id self))))
         (setf point (get-nth-point obj pos))))
@@ -548,9 +550,10 @@
      ;point selection
     (if point
         (progn
+          (store-current-state-for-undo container-editor :action :move :item point)
           (move-time-point-action self timeline-editor point position)
           (set-cursor-time timeline-editor (or (and point (item-get-time point)) time))
-          (update-to-editor (container-editor timeline-editor) timeline-editor))
+          (update-to-editor container-editor timeline-editor))
       (or (call-next-method)
           (progn
             (set-cursor-time timeline-editor (or (and point (item-get-time point)) time))
@@ -562,27 +565,33 @@
 (defmethod editor-key-action ((editor timeline-editor) key)
   (case key
     (:om-key-delete
-     (mapcar
-      #'(lambda (timeline-id)
-          (editor-delete-contents-from-timeline (container-editor editor) timeline-id (selection editor))
-          (om-invalidate-view (nth timeline-id (timeline-views editor))))
-      (get-selected-timelines editor))
-     (setf (selection editor) nil)
+     (when (selection editor)
+       (store-current-state-for-undo (container-editor editor))
+       (mapcar
+        #'(lambda (timeline-id)
+            (editor-delete-contents-from-timeline (container-editor editor) timeline-id (selection editor))
+            (om-invalidate-view (nth timeline-id (timeline-views editor))))
+        (get-selected-timelines editor))
+       (setf (selection editor) nil)
+       (update-to-editor (container-editor editor) editor)
+       t))
+    (#\u
+     (store-current-state-for-undo (container-editor editor))
+     (mapcar #'(lambda (timeline-id)
+                 (snap-all-points-to-grid editor timeline-id))
+             (get-selected-timelines editor))
      (update-to-editor (container-editor editor) editor)
      t)
-    (#\u (mapcar #'(lambda (timeline-id)
-                     (snap-all-points-to-grid editor timeline-id))
-                 (get-selected-timelines editor))
-         (update-to-editor (container-editor editor) editor)
-         t)
-    (#\m  (mapcar #'(lambda (timeline-id)
-                      (set-selection-as-master editor timeline-id)
-                      (om-invalidate-view (nth timeline-id (timeline-views editor)))
-                      )
-                  (get-selected-timelines editor))
-          (update-to-editor (container-editor editor) editor)
-          (om-invalidate-view (time-ruler editor))
-          t)
+    (#\m (when (selection editor)
+           (store-current-state-for-undo (container-editor editor))
+           (mapcar #'(lambda (timeline-id)
+                       (set-selection-as-master editor timeline-id)
+                       (om-invalidate-view (nth timeline-id (timeline-views editor)))
+                       )
+                   (get-selected-timelines editor))
+           (update-to-editor (container-editor editor) editor)
+           (om-invalidate-view (time-ruler editor))
+           t))
     (otherwise nil)
     ))
 
