@@ -638,14 +638,16 @@
 ;;;==========================
 
 (defmethod delete-editor-selection ((self 3dc-editor))
-  (if (find T (selection self))
-      (setf (point-list (object-value self)) nil)
-    (mapcar
-     #'(lambda (i) (remove-nth-timed-point-from-time-sequence (object-value self) i))
-     (sort (selection self) '>)
-     ))
-  (setf (selection self) nil)
-  (update-sub-editors self))
+  (when (selection self)
+    (let ((object (object-value self)))
+      (if (find T (selection self))
+          (setf (point-list (object-value self)) nil)
+        (mapcar
+         #'(lambda (i) (remove-nth-timed-point-from-time-sequence (object-value self) i))
+         (sort (selection self) '>)
+         ))
+      (setf (selection self) nil))
+    (update-sub-editors self)))
 
 
 ;;;==========================

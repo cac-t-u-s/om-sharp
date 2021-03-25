@@ -865,24 +865,30 @@
             ))))
 
 (defmethod delete-editor-selection ((self bpf-editor))
-  (if (find T (selection self))
-      (setf (point-list (object-value self)) nil)
-    (mapcar
-     #'(lambda (i) (remove-nth-point (object-value self) i))
-     (sort (selection self) '>)
-     ))
-  (setf (selection self) nil)
-  (when (timeline-editor self)
-    (update-to-editor (timeline-editor self) self)))
+  (when (selection self)
+    (let ((object (object-value self)))
+      (if (find T (selection self))
+          (setf (point-list object) nil)
+        (mapcar
+         #'(lambda (i) (remove-nth-point object i))
+         (sort (selection self) '>)
+         ))
+      (setf (selection self) nil))
+    (when (timeline-editor self)
+      (update-to-editor (timeline-editor self) self))))
+
 
 (defmethod delete-editor-selection ((self bpc-editor))
-  (if (find T (selection self))
-      (setf (point-list (object-value self)) nil)
-    (mapcar
-     #'(lambda (p) (remove-nth-timed-point-from-time-sequence (object-value self) p))
-     (sort (selection self) '>)))
-  (setf (selection self) nil)
-  (update-to-editor (timeline-editor self) self))
+  (when (selection self)
+    (let ((object (object-value self)))
+      (if (find T (selection self))
+          (setf (point-list (object-value self)) nil)
+        (mapcar
+         #'(lambda (p) (remove-nth-timed-point-from-time-sequence object p))
+         (sort (selection self) '>)))
+      (setf (selection self) nil))
+    (update-to-editor (timeline-editor self) self)))
+
 
 (defmethod round-point-values ((editor bpf-editor))
   (set-bpf-point-values (object-value editor)))
