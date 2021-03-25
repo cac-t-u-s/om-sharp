@@ -30,6 +30,7 @@
    (last-item :initform nil :accessor last-item)
    ))
 
+
 ;;; object-value will be the object (BPF, etc.) for an object-box
 ;;; ... or the "object" slot for a patch
 (defmethod undoable-object ((self undoable-editor-mixin)) (object-value self))
@@ -47,8 +48,7 @@
 
 (defmethod restore-undoable-editor-state ((self undoable-editor-mixin) (state list))
   (restore-undoable-object-state (undoable-object self) state)
-  (update-after-state-change self)
-  )
+  (update-after-state-change self))
 
 (defmethod reset-undoable-editor-action ((self undoable-editor-mixin))
   (setf (last-action self) nil
@@ -186,7 +186,6 @@
   self)
 
 
-
 ;;; LISTS / CONS
 (defmethod get-undoable-object-state ((self list))
 
@@ -261,13 +260,11 @@
   (call-next-method))
 
 
-
 ;;; PATCHES
 ;;; need special care because connections are restored from the box list
 (defmethod get-undoable-object-state ((self OMPatch))
   `((boxes ,(get-undoable-object-state (boxes self)))
     (connections ,(save-connections-from-boxes (boxes self)))))
-
 
 
 (defmethod restore-undoable-object-state ((self OMPatch) (state list))
@@ -319,7 +316,6 @@
     self))
 
 
-
 (defmethod update-after-state-change ((self patch-editor))
   (let* ((patch (object self))
          (view (main-view self)))
@@ -349,14 +345,12 @@
 
 
 #|
-;;; BPF
-;;; just for debug
+;;; Test/debug: BPF
 (defmethod get-undoable-object-state ((self bpf))
   (let ((rep (call-next-method)))
     (om-print-dbg "COLLECT: ~A" (list (point-pairs self)))
     rep))
 
-;;; just for debug
 (defmethod restore-undoable-object-state ((self bpf) (state list))
   (let ((rep (call-next-method)))
     (om-print-dbg "RESTORE: ~A" (list (point-pairs self)))
