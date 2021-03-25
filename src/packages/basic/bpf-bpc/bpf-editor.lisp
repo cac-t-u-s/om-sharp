@@ -614,7 +614,7 @@
          (list
           (om-make-menu-item "Delete selection"
                              #'(lambda () (funcall (clear-command self)))
-                             :enabled (and (clear-command self) t))))
+                             :enabled (and (clear-command self) (selection self) t))))
 
         (om-make-menu-comp
          (list (om-make-menu-item "Select All"
@@ -653,6 +653,14 @@
       (update-timeline-editor self)
       (editor-invalidate-views self)
       (select-bpf self)))
+
+
+(defmethod clear-command ((self bpf-editor))
+  #'(lambda ()
+      (store-current-state-for-undo self)
+      (delete-editor-selection self)
+      (report-modifications self)
+      (editor-invalidate-views self)))
 
 
 (defmethod open-osc-manager-command ((self bpf-editor)) nil)
