@@ -873,7 +873,8 @@
          #'(lambda (i) (remove-nth-point object i))
          (sort (selection self) '>)
          ))
-      (setf (selection self) nil))
+      (setf (selection self) nil)
+      (time-sequence-update-internal-times object))
     (when (timeline-editor self)
       (update-to-editor (timeline-editor self) self))))
 
@@ -886,7 +887,8 @@
         (mapcar
          #'(lambda (p) (remove-nth-timed-point-from-time-sequence object p))
          (sort (selection self) '>)))
-      (setf (selection self) nil))
+      (setf (selection self) nil)
+      (time-sequence-update-internal-times object))
     (update-to-editor (timeline-editor self) self)))
 
 
@@ -1238,7 +1240,6 @@
       (:om-key-delete
        (store-current-state-for-undo editor)
        (delete-editor-selection editor)
-       (time-sequence-update-internal-times (object-value editor))
        (report-modifications editor)
        (editor-invalidate-views editor)
        )

@@ -646,7 +646,8 @@
          #'(lambda (i) (remove-nth-timed-point-from-time-sequence (object-value self) i))
          (sort (selection self) '>)
          ))
-      (setf (selection self) nil))
+      (setf (selection self) nil)
+      (time-sequence-update-internal-times object))
     (update-sub-editors self)))
 
 
