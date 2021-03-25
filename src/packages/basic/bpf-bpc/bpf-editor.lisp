@@ -1015,6 +1015,7 @@
 
 
 (defmethod reverse-points ((self bpf-editor))
+  (store-current-state-for-undo self)
   (time-sequence-reverse (object-value self))
   (editor-invalidate-views self)
   (update-to-editor (timeline-editor self) self)
