@@ -1256,7 +1256,7 @@
        (call-next-method) ;;; will also reset the cursor interval
        (editor-invalidate-views editor))
       (:om-key-left
-       (store-current-state-for-undo editor :action :move :item (selection editor))
+       (store-current-state-for-undo editor :action :move-l :item (selection editor))
        (move-editor-selection editor :dx (/ (- (get-units (x-ruler panel) (if (om-shift-key-p) 400 40))) (scale-fact panel)))
        (time-sequence-update-internal-times (object-value editor))
        (update-timeline-editor editor)
@@ -1264,21 +1264,21 @@
        (report-modifications editor)
        )
       (:om-key-right
-       (store-current-state-for-undo editor :action :move :item (selection editor))
+       (store-current-state-for-undo editor :action :move-r :item (selection editor))
        (move-editor-selection editor :dx (/ (get-units (x-ruler panel) (if (om-shift-key-p) 400 40)) (scale-fact panel)))
        (time-sequence-update-internal-times (object-value editor))
        (update-timeline-editor editor)
        (editor-invalidate-views editor)
        (report-modifications editor))
       (:om-key-up
-       (store-current-state-for-undo editor :action :move :item (selection editor))
+       (store-current-state-for-undo editor :action :move-u :item (selection editor))
        (move-editor-selection editor :dy (/ (get-units (y-ruler panel) (if (om-shift-key-p) 400 40)) (scale-fact panel)))
        (time-sequence-update-internal-times (object-value editor))
        (update-timeline-editor editor)
        (editor-invalidate-views editor)
        (report-modifications editor))
       (:om-key-down
-       (store-current-state-for-undo editor :action :move :item (selection editor))
+       (store-current-state-for-undo editor :action :move-d :item (selection editor))
        (move-editor-selection editor :dy (/ (- (get-units (y-ruler panel) (if (om-shift-key-p) 400 40))) (scale-fact panel)))
        (time-sequence-update-internal-times (object-value editor))
        (update-timeline-editor editor)
