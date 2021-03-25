@@ -19,7 +19,7 @@
 (in-package :om)
 
 
-(defclass 3DC-editor (multi-display-editor-mixin OMEditor multi-view-editor play-editor-mixin)
+(defclass 3DC-editor (multi-display-editor-mixin OMEditor multi-view-editor play-editor-mixin undoable-editor-mixin)
   ((top-bpc-editor :accessor top-bpc-editor :initform nil)
    (front-bpc-editor :accessor front-bpc-editor :initform nil)
    (3Dp :accessor 3Dp :initform nil)
