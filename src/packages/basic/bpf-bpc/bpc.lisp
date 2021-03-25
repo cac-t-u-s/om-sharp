@@ -33,7 +33,10 @@
   (make-tpoint :x x :y y :time time :internal-time time :type type))
 
 (defmethod om-copy ((self tpoint))
-  (make-tpoint :x (tpoint-x self) :y (tpoint-y self) :time (tpoint-time self) :internal-time (tpoint-internal-time self) :type (tpoint-type self)))
+  (make-tpoint :x (tpoint-x self) :y (tpoint-y self)
+               :time (tpoint-time self)
+               :internal-time (tpoint-internal-time self)
+               :type (tpoint-type self)))
 
 (defmethod om-point-set ((point tpoint) &key x y time type)
   (if x (setf (tpoint-x point) x))
@@ -42,6 +45,14 @@
              (setf (tpoint-time point) time)
              (setf (tpoint-internal-time point) time)))
   (if type (setf (tpoint-type point) type))
+  point)
+
+(defmethod om-point-set-values-from-point ((point tpoint) (target tpoint))
+  (setf (tpoint-x point) (tpoint-x target)
+        (tpoint-y point) (tpoint-y target)
+        (tpoint-time point) (tpoint-time target)
+        (tpoint-internal-time point) (tpoint-internal-time target)
+        (tpoint-type point) (tpoint-type target))
   point)
 
 (defmethod om-point-mv ((point tpoint) &key x y time)

@@ -29,7 +29,10 @@
 (defmethod om-point-p ((self 3dpoint)) t)
 
 (defmethod om-copy ((self 3dpoint))
-  (make-3Dpoint :x (3Dpoint-x self) :y (3Dpoint-y self) :z (3Dpoint-z self) :time (3Dpoint-time self) :internal-time (3Dpoint-internal-time self) :type (3Dpoint-type self)))
+  (make-3Dpoint :x (3Dpoint-x self) :y (3Dpoint-y self) :z (3Dpoint-z self)
+                :time (3Dpoint-time self)
+                :internal-time (3Dpoint-internal-time self)
+                :type (3Dpoint-type self)))
 
 (defmethod omng-save ((self 3dpoint))
   `(:3Dpoint ,(om-point-x self) ,(om-point-y self) ,(om-point-z self)))
@@ -51,7 +54,10 @@
 (defmethod om-point-set-values-from-point ((point 3Dpoint) (target 3Dpoint))
   (setf (3dpoint-x point) (3dpoint-x target)
         (3dpoint-y point) (3dpoint-y target)
-        (3dpoint-z point) (3dpoint-z target))
+        (3dpoint-z point) (3dpoint-z target)
+        (3dpoint-time point) (3dpoint-time target)
+        (3dpoint-internal-time point) (3dpoint-internal-time target)
+        (3dpoint-type point) (3dpoint-type target))
   point)
 
 (defmethod om-points-equal-p ((point1 3dpoint) (point2 3dpoint))
