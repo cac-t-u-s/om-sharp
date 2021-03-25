@@ -597,22 +597,44 @@
 ;;;==========================
 
 (defun bpf-edit-menu-items (self)
+
   (list (om-make-menu-comp
-         (list (om-make-menu-item "Undo" #'(lambda () (funcall (undo-command self))) :key "z" :enabled #'(lambda () (and (undo-command self) t)))
-               (om-make-menu-item "Redo" #'(lambda () (funcall (redo-command self))) :key "Z" :enabled #'(lambda () (and (redo-command self) t)))))
+         (list (om-make-menu-item "Undo"
+                                  #'(lambda () (funcall (undo-command self)))
+                                  :key "z"
+                                  :enabled #'(lambda () (and (undo-command self) t)))
+
+               (om-make-menu-item "Redo"
+                                  #'(lambda () (funcall (redo-command self)))
+                                  :key "Z"
+                                  :enabled
+                                  #'(lambda () (and (redo-command self) t)))))
+
         (om-make-menu-comp
          (list
-          (om-make-menu-item "Delete selection" #'(lambda () (funcall (clear-command self))) :enabled (and (clear-command self) t))))
+          (om-make-menu-item "Delete selection"
+                             #'(lambda () (funcall (clear-command self)))
+                             :enabled (and (clear-command self) t))))
+
         (om-make-menu-comp
-         (list (om-make-menu-item "Select All" #'(lambda () (funcall (select-all-command self))) :key "a" :enabled (and (select-all-command self) t))))
+         (list (om-make-menu-item "Select All"
+                                  #'(lambda () (funcall (select-all-command self)))
+                                  :key "a"
+                                  :enabled (and (select-all-command self) t))))
+
         (om-make-menu-comp
          (list
-          (om-make-menu-item "Reverse Points" #'(lambda () (reverse-points self)) :key "r" )))
+          (om-make-menu-item "Reverse Points"
+                             #'(lambda () (reverse-points self))
+                             :key "r" )))
+
         (om-make-menu-comp
          (list
-          (om-make-menu-item "OSC Input Manager" #'(lambda () (funcall (open-osc-manager-command self)))
+          (om-make-menu-item "OSC Input Manager"
+                             #'(lambda () (funcall (open-osc-manager-command self)))
                              :enabled (and (open-osc-manager-command self) t))))
         ))
+
 
 (defmethod om-menu-items ((self bpf-editor))
   (remove nil
@@ -624,12 +646,14 @@
            (om-make-menu "Help" (default-help-menu-items self))
            )))
 
+
 (defmethod select-all-command ((self bpf-editor))
   #'(lambda ()
       (setf (selection self) (list T))
       (update-timeline-editor self)
       (editor-invalidate-views self)
       (select-bpf self)))
+
 
 (defmethod open-osc-manager-command ((self bpf-editor)) nil)
 
@@ -751,7 +775,6 @@
         rep))))
 
 
-
 ;;; do nothing...
 (defmethod select-bpf ((editor bpf-editor) &optional n))
 
@@ -774,7 +797,6 @@
     ))
 
 
-;;;
 ;;; return the position of the inserted point
 (defmethod add-point-at-pix ((editor bpf-editor) (object bpf) position &optional (time nil))
   (let* ((panel (get-g-component editor :main-panel))
