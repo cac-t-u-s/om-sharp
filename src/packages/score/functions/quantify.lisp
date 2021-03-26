@@ -132,13 +132,17 @@ at the beat level. Here is an example:
     (korrected-kant (reducetree rep))))
 
 
-(defmethod* omquantify ((self chord-seq) (tempi t) (measures list) (max/ t)
-                        &optional forbid offset precis)
-  (omquantify ; (true-durations self)
-   (x->dx (remove-duplicates ;; two onsets at the same time will create a null duration
-                             (lonset self)))
-   tempi measures max/ forbid offset precis))
 
+;;; QUANTIFY A CHORD-SEQ => VOICE
+(defmethod* omquantify ((self chord-seq) tempi (measures list) max/ &optional forbid offset precis)
+  (let ((chord-seq (clone self)))
+    (group-chords chord-seq)
+    (make-instance 'voice
+                   :tree (omquantify (x->dx (remove-duplicates (lonset chord-seq)))
+                                     tempi measures max/ forbid offset precis)
+                   :lmidic (get-chords chord-seq)
+                   :tempo (car (list! tempi)))
+    ))
 
 
 

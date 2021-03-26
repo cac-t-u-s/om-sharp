@@ -69,12 +69,7 @@
 
 
 (defmethod objFromObjs ((model chord-seq) (target voice))
-  (let ((grouped-chord-seq (clone model)))
-    (group-chords grouped-chord-seq)
-    (make-instance 'voice
-                   :tree (omquantify model 60 '(4 4) 8)
-                   :lmidic (get-chords grouped-chord-seq)
-                   :tempo 60)))
+  (omquantify model 60 '(4 4) 8))
 
 
 ;;; catch-up with default behaviour
