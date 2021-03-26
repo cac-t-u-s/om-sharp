@@ -754,14 +754,17 @@
 ;;; (defclass OMInstanceBox (OMBoxRelatedWClass) ())
 
 
-(defmethod make-new-box-with-instance ((instance standard-object) pos)
+(defmethod make-new-box-with-instance ((instance standard-object) pos &optional connect-to)
   (let ((box (omng-make-new-boxcall (class-of instance) pos instance)))
     (when box
       (setf (display box) :mini-view))
-    box))
+    (values
+     box
+     (omng-make-new-connection connect-to (car (inputs box))))
+    ))
 
 
-(defmethod make-new-box-with-instance ((instance cons) pos)
+(defmethod make-new-box-with-instance ((instance cons) pos &optional connect-to)
 
   (if (and
        (list-subtypep instance 'standard-object)
@@ -771,14 +774,21 @@
         (when box
           (setf (obj-list (get-box-value box)) instance)
           (om-init-instance (get-box-value box))
-          (setf (display box) :text)
-          )
-        box)
+          (setf (display box) :text))
+
+        (values
+         box
+         (when connect-to
+           (omng-make-new-connection connect-to (second (inputs box))))
+         ))
 
     (call-next-method)))
 
 
-(defmethod make-new-box-with-instance ((instance t) pos)
-  (omng-make-new-boxcall 'value pos instance))
-
-
+(defmethod make-new-box-with-instance ((instance t) pos &optional connect-to)
+  (let ((box (omng-make-new-boxcall 'value pos instance)))
+    (values box
+            (when connect-to
+              (optional-input++ box)
+              (omng-make-new-connection connect-to (car (inputs box)))))
+    ))

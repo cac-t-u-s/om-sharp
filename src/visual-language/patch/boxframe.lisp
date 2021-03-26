@@ -1141,23 +1141,24 @@
                              (when connect (object self)))))
 
 (defun output-value-as-new-box (value view pos &optional (connect-to nil))
-  (let* ((new-box (make-new-box-with-instance value pos))
-         (frame (add-box-in-patch-editor new-box view)))
-    (move-box new-box
-              (- (om-point-x pos)
-                 (om-point-x (io-position-in-patch (area (first (outputs new-box))))))
-              0)
-    (if connect-to
-        (let ()
-          (unless (inputs new-box)
-            (optional-input++ new-box))
-          (let ((c (omng-make-new-connection connect-to (car (inputs new-box)))))
-            (omng-add-element (object (editor view)) c)
-            (add-connection-in-view view c)
-            (om-invalidate-view view)) ;(graphic-connection c)))
-          )
-      (when (inputs new-box) (setf (lock-state new-box) :locked)))
-    frame))
+
+  (multiple-value-bind (new-box new-connection)
+      (make-new-box-with-instance value pos connect-to)
+
+    (let ((frame (add-box-in-patch-editor new-box view)))
+      (move-box new-box
+                (- (om-point-x pos)
+                   (om-point-x (io-position-in-patch (area (first (outputs new-box))))))
+                0)
+      (if new-connection
+          (progn
+            (omng-add-element (object (editor view)) new-connection)
+            (add-connection-in-view view new-connection)
+            (om-invalidate-view view))
+
+        (when (inputs new-box) (setf (lock-state new-box) :locked)))
+
+      frame)))
 
 
 ;;; disconnects an input and reconnect somewhere else
