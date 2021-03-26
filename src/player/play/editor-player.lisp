@@ -509,7 +509,7 @@
   (make-button-view
    (setf (stop-button editor)
          (om-make-graphic-object 'om-icon-button :size (or size (omp 16 16))
-                                 :icon :icon-stop-black :icon-pushed :icon-stop-white :icon-disabled :icon-stop-gray
+                                 :icon :icon-stop-black :icon-pushed :icon-stop-orange :icon-disabled :icon-stop-gray
                                  :lock-push nil :enabled enable
                                  :action #'(lambda (b)
                                              (declare (ignore b))
