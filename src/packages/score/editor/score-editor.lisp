@@ -349,37 +349,38 @@
                                    (let ((x-move (- (om-point-x pos) (om-point-x clicked-pos)))
                                          (y-move (- (om-point-y pos) (om-point-y clicked-pos))))
 
-                                     (if (and (edit-time-? editor)
-                                              (> (abs x-move) (abs y-move)))
+                                     (when (or (and (edit-time-? editor) (> (abs x-move) 0))
+                                               (> (abs y-move) 0))
 
+                                       (store-current-state-for-undo editor :action :move :item (selection editor))
+
+                                       (when (edit-time-? editor)
                                          (let* ((new-time (pixel-to-time self (om-point-x pos)))
                                                 (diff (- new-time clicked-time)))
                                            (unless (zerop diff)
                                              (setf modif t)
-                                             (store-current-state-for-undo editor :action :move :item (selection editor))
                                              ;;; remove-duplicates: continuation chords refer to existing notes !
                                              (loop for c in (remove-duplicates
                                                              (remove-if-not #'(lambda (elt) (typep elt 'chord))
                                                                             (selection editor)))
                                                    do (when (>= (+ (item-get-time c) diff) 0)
                                                         (item-set-time c (+ (item-get-time c) diff))))
+
                                              (setf clicked-time new-time)
-                                             (editor-invalidate-views editor)
-                                             )
-                                           )
+                                             )))
 
                                        (let* ((new-y-in-units (- shift (/ (om-point-y pos) unit)))
                                               (new-pitch (line-to-pitch new-y-in-units scale))
                                               (diff (- new-pitch clicked-pitch)))
                                          (unless (zerop diff)
                                            (setf modif t)
-                                           (store-current-state-for-undo editor :action :move :item (selection editor))
                                            ;;; remove-duplicates: continuation chords refer to existing notes !
                                            (loop for n in (remove-duplicates (get-notes (selection editor)))
                                                  do (setf (midic n) (+ (midic n) diff)))
                                            (setf clicked-pitch new-pitch)
-                                           (editor-invalidate-views editor)
-                                           )))
+                                           ))
+
+                                       (editor-invalidate-views editor))
                                      (setf clicked-pos pos)
                                      ))
 
