@@ -288,8 +288,11 @@ when :
 if <end> is NIL, the selection runs until th end.
 
 "
+
+  (unless start (setf start 0))
+
   (if (or (< start 0)
-          (>= start end))
+          (and end (>= start end)))
 
       (om-beep-msg "select : Bad start/end values")
 
@@ -299,7 +302,7 @@ if <end> is NIL, the selection runs until th end.
        rep
        (loop for chord in (data-stream-get-frames self)
              when (and (>= (item-get-time chord) start)
-                       (< (item-get-time chord) end))
+                       (or (null end) (< (item-get-time chord) end)))
              collect (let ((c (om-copy chord)))
                        (setf (onset c) (- (onset chord) start))
                        c)))
