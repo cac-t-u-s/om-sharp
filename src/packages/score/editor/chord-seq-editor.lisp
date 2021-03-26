@@ -241,6 +241,13 @@
     ))
 
 
+(defmethod extras-menus ((self chord-seq-editor))
+  (list (om-make-menu-item "Add chord marker [M]" #'(lambda () (add-score-marker self))
+                           :enabled #'(lambda () (selection self)))
+        (om-make-menu-item "Remove chord marker(s) [Shift+M]" #'(lambda () (remove-score-marker self))
+                           :enabled #'(lambda () (selection self)))))
+
+
 ;;; called at add-click
 (defmethod get-chord-from-editor-click ((self chord-seq-editor) position)
 

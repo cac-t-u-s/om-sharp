@@ -704,6 +704,8 @@
                                   #'(lambda () (funcall (align-command self)))
                                   :enabled #'(lambda () (and (align-command self) t)))))
 
+        (om-make-menu-comp (extras-menus self))
+
         (om-make-menu-item
          "Show Inspector"
          #'(lambda () (score-editor-set-window-config
@@ -717,6 +719,9 @@
 
 (defmethod import-menus ((self score-editor)) nil)
 (defmethod export-menus ((self score-editor)) nil)
+
+(defmethod extras-menus ((self score-editor)) nil)
+
 
 (defmethod import-export-menu-items ((self score-editor))
   (list
