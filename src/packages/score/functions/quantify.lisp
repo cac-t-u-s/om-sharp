@@ -19,10 +19,6 @@
 
 (in-package :om)
 
-
-
-
-
 (defvar *distance-weight* nil)
 (defvar *valid-rtm-expands* '(#\/))
 (defvar *maximum-pulses* 32)
@@ -31,12 +27,10 @@
 (defvar *forbidden-rythmic-divisions* ())
 (defvar *distance-function* ())
 
-
 ;(setf *read-default-float-format* 'single-float)
 ;(setf *read-default-float-format* 'double-float)
 ;(setf a (coerce (/ 9 3.0) 'double-float))
 ;(/ (/ 100 a) 1.0)
-
 
 (defvar *min-percent* 0.6)
 (defvar *tempo-scalers* '(1 2 3 4 5 6 7 8))
@@ -49,11 +43,11 @@
 (defvar *unquantized-notes* 0)
 (defvar *global-grace-notes* ())
 
-;;quantizing parameters
 (defvar *unit-division-hierarchy*
   '(1 2 4 3 6 5 8 7 10 12 16 9 14 11 13 15 17 18 19 20 21 22 23 24 25 26 27
       28 29 30 31 32
       33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50))
+
 (defvar *iota* 0.0001)
 (defvar *dist-iota* 0.03)
 (defvar *proportions-iota* 0.001)
@@ -131,10 +125,7 @@ at the beat level. Here is an example:
  (   (( 5 4) () (!  3 6) ())  ((! 6) () (  8 7) ())  (!  3 2)  (6 8)  )"
 
   (unless precis (setq precis 0.5))
-  (setf *distance-weight*  (if (numberp precis) (list (list precis)) precis))
-  ; (quant-edit durs tempi measures  (if (numberp max/) (list (list max/))
-  ;                                     max/) forbid (or offset 0) 1)
-  ;aaa 12-03-98 quantify in ms
+  (setf *distance-weight* (if (numberp precis) (list (list precis)) precis))
   (let ((rep (quant-edit (om/ durs 10) tempi measures
                          (if (numberp max/) (list (list max/)) max/)
                          forbid (or offset 0) 1)))
@@ -147,7 +138,6 @@ at the beat level. Here is an example:
    (x->dx (remove-duplicates ;; two onsets at the same time will create a null duration
                              (lonset self)))
    tempi measures max/ forbid offset precis))
-
 
 
 
@@ -182,6 +172,7 @@ at the beat level. Here is an example:
 (defun get-beat-duration (tempo unit)
   (coerce (/ 24000 tempo unit) 'double-float))
 
+
 ; corrected by gas (2001)
 #|
 (defun make-a-measure (voice-ms tempo sign-denom)
@@ -190,7 +181,6 @@ at the beat level. Here is an example:
               sign-denom)
      voice-ms))
 |#
-
 
 (defun make-a-measure (voice-ms tempo sign-denom measure-duration)
   (declare (ignore tempo))
@@ -210,7 +200,8 @@ at the beat level. Here is an example:
 
 (defun select-tempo (durs)
   (declare (ignore durs))
-  (warn "Automatic tempo option is no longuer available") '(60))
+  (warn "Automatic tempo option is no longuer available")
+  '(60))
 
 ;TO set max to max - 1
 (defun reduit-max (form)
@@ -218,20 +209,16 @@ at the beat level. Here is an example:
     (loop for item in form collect (reduit-max item))))
 
 
-;;; Main:
 (defun quant-edit (durs tempi measures max/
                         &optional
                         (forbid nil)
                         (offset 0)
                         (autom 1))
-  " Quantizes a list of <durs> (100 = 1 sec.) into the given measure(s),
-with the given <tempi>.
-<max/> is the maximum unit division that is taken to be a
-significant duration.
-A list of forbidden <forbid> unit divisions can optionally be
-specified. The output is a list of
-'measure-objects' that can be entered directly into an rtm-
-box."
+  "Quantizes a list of <durs> (100 = 1 sec.) into the given measure(s), with the given <tempi>.
+<max/> is the maximum unit division that is taken to be a significant duration.
+A list of forbidden <forbid> unit divisions can optionally be specified.
+The output is a list of 'measure-objects' that can be entered directly into an rtm-box."
+
   (setf max/ (reduit-max max/))  ;by AAA
   (let* ((tempos (if (= autom 2) (select-tempo durs) (expand-lst (list! tempi))))   ;(expand-lists (list! tempi))))
          (measures-x (expand-lst measures))
@@ -316,7 +303,6 @@ box."
     (list '?  result)))
 
 
-;===============================================
 
 (defun set-grace-notes-pos (grace-notes durs)
   (let ((atimes (om-round (dx->x 0 durs) 1)) (count -1))
@@ -352,7 +338,11 @@ box."
                           (cons (car beat-tree) (loop-beats (cdr  beat-tree)))))))
         (values (rearrange-silences (loop-beats  beats)) count new-silence)))))
 
-(defun silence? (durs position) (or (not (nth position durs)) (minusp (nth position durs))))
+
+(defun silence? (durs position)
+  (or (not (nth position durs))
+      (minusp (nth position durs))))
+
 
 (defun rearrange-silences (beats)
   (let (res ok new-beats)
@@ -377,7 +367,6 @@ box."
                               (push item ok))))))
                      (t (cons (car beat-tree) (loop-beats (cdr beat-tree)))))))
       (loop-beats beats))))
-
 
 
 (defun get-rhythms (notes &key (tempo 60) (sign '(4 . 4)) (nb-pulse-max 16)
@@ -429,13 +418,12 @@ box."
           )
         (setq old-slur? slur?)
         (psetq to-dur (min (+ to-dur beat-dur) measure-end) from-dur to-dur))
-      ;
+
       (incf i)
       (setf *distance-weight* (or (nth i (car preci-list)) (car (last
                                                                  default-preci))))
       (setf *max-division* (coerce (or (nth i (car max-list)) (car (last default-max))) 'double-float))
       (setf *minimum-quant-dur* (/ 60 tempo *max-division*))
-      ;
       )
 
     (when (not atimes)
@@ -467,8 +455,11 @@ box."
 
 (defun search-rythm (a-section tmin prev-slur)
   "Finds the beat list structure corresponding to the quantized durations"
-  (beat-structure a-section prev-slur tmin (first (last (quanti-of
-                                                         a-section)))))
+  (beat-structure
+   a-section
+   prev-slur
+   tmin
+   (first (last (quanti-of a-section)))))
 
 (defun beat-structure (quants slur? from to)
   (let* ((atimes (form-atimes-list (copy-list (quanti-of quants)) from to))
@@ -502,36 +493,40 @@ box."
 (defun simplify (beats) (and beats (if (= (length beats) 1) (list (/ (first beats) (first beats))) beats)))
 
 (defun get-optimal-time-section (list to beat-dur tmin prev-slur)
-  "Given a beat duration span and an initial time (tmin), quantizes the
-attack times in list. Beat duration
-is beat-dur. Beat's onset time is tmin. Beat's end time is 'to'. If
-prev-slur is on, the first
-onset time of this beat should be slurred with the last one of the previous
-beat. Prev-slur may change in
-this function.If  Slur? is on, last onset of this beat should be linked
-with first of next beat (i.e. slur?
-becomes prev-slur in the next call)."
-  ;;(reset-error)
-  (let* ((atimes (and list  (test-quantize-constraints list tmin beat-dur
-                                                       prev-slur)))
+  "Given a beat duration span and an initial time (tmin), quantizes the attack times in list.
+Beat duration is beat-dur. Beat's onset time is tmin. Beat's end time is 'to'. If prev-slur
+is on, the first onset time of this beat should be slurred with the last one of the previous
+beat. Prev-slur may change in this function.If  Slur? is on, last onset of this beat should be
+linked with first of next beat (i.e. slur? becomes prev-slur in the next call)."
+
+  (let* ((atimes (and list
+                      (test-quantize-constraints list tmin beat-dur prev-slur)))
          (last-list (first (last list)))
          (q-list (and atimes (quanti-of atimes)))
          slur? lagging-count head end-surplus partition)
+
     (setq lagging-count (and (plusp tmin) q-list (not (= tmin (car q-list)))))
+
     (when (and  (accum-error?) (not lagging-count))   ;;note deleted at the border between beats
       (when list
-        (keep-unquantized-statistics (or (first list) tmin) (- tmin
-                                                               (get-accum-error))))
+        (keep-unquantized-statistics (or (first list) tmin) (- tmin (get-accum-error))))
       (reset-error))
-    (setq head (and q-list (if lagging-count (cons tmin q-list) (progn
-                                                                  (setq prev-slur nil) q-list))))
+
+    (setq head (and q-list (if lagging-count
+                               (cons tmin q-list)
+                             (progn
+                               (setq prev-slur nil)
+                               q-list))))
+
     (setq end-surplus (and head (- to (first (last head)))))
+
     (setq partition
           (and end-surplus
                (if (> end-surplus 1e-4) ; GA 21/10/94 (plusp end-surplus)
                    (progn (reset-error) (setq slur? t) (nconc head (list to)))
                  (if (> to last-list) (progn (set-error to last-list) head)
                    head))))
+
     (cond
      ((null partition)
       (if (and list (not atimes))
@@ -546,7 +541,9 @@ becomes prev-slur in the next call)."
                                                beat-dur prev-slur) t nil))
         (values (test-quantize-constraints (list tmin to) tmin beat-dur
                                            prev-slur) t prev-slur)))
-     (t (setf (rest atimes) partition) (values atimes slur? prev-slur)))))
+     (t (setf (rest atimes) partition) (values atimes slur? prev-slur)))
+    ))
+
 
 (defun keep-unquantized-statistics (atime previous)
   (incf *unquantized-notes*)
@@ -700,35 +697,35 @@ becomes prev-slur in the next call)."
   (apply '+
          (om^
           (let (A)
-            (mapcar #'(lambda (B) (setf A B) (om/ (apply '+ A) (length A)))
-                    (let (C D)
-                      (mapcar #'(lambda (E F)
-                                  (setf C E D F)
-                                  (let (G)
-                                    (mapcar #'(lambda (H) (setf G H) (om^ (apply '/
-                                                                                 (sort-list G :test '>)) '3))
-                                            (mat-trans (list C D)))))
-                              (let (J)
-                                (mapcar #'(lambda (K) (setf J K) (cond ((= (length J)
-                                                                           1) J) (t (g-scaling/sum J '100))))
-                                        (mapcar 'list
-                                                (x-append  var1
-                                                           (create-list  (om-abs (om-
-                                                                                  (max (length var1) (length var2))
+            (mapcar
+             #'(lambda (B) (setf A B) (om/ (apply '+ A) (length A)))
+             (let (C D)
+               (mapcar #'(lambda (E F)
+                           (setf C E D F)
+                           (let (G)
+                             (mapcar #'(lambda (H) (setf G H) (om^ (apply '/ (sort-list G :test '>)) '3))
+                                     (mat-trans (list C D)))))
 
-                                                                                  (length var1))) 1)))))
-                              (let (M)
-                                (mapcar #'(lambda (N)
-                                            (setf M N)
-                                            (cond ((= (length M) 1) M)
-                                                  (t (g-scaling/sum M '100))))
-                                        (mapcar 'list
-                                                (x-append var2
-                                                          (create-list (om-abs (om-
-                                                                                (max (length var1) (length var2))
+                       (let (J)
+                         (mapcar #'(lambda (K)
+                                     (setf J K)
+                                     (cond ((= (length J) 1) J)
+                                           (t (g-scaling/sum J '100))))
 
-                                                                                (length var2))) 1)))))))))
+                                 (mapcar 'list
+                                         (x-append var1
+                                                   (create-list (om-abs (om- (max (length var1) (length var2))
+                                                                             (length var1))) 1)))))
+                       (let (M)
+                         (mapcar #'(lambda (N)
+                                     (setf M N)
+                                     (cond ((= (length M) 1) M)
+                                           (t (g-scaling/sum M '100))))
+
+                                 (mapcar 'list
+                                         (x-append var2
+                                                   (create-list (om-abs (om-
+                                                                         (max (length var1) (length var2))
+                                                                         (length var2))) 1)))))
+                       ))))
           3)))
-
-
-
