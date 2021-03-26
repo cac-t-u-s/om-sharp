@@ -201,21 +201,29 @@
 
   (loop for item in (oa::om-directory dir :directories t)
         unless (equal item dir)
-        do (if (system::directory-pathname-p item)
+        append (if (system::directory-pathname-p item)
 
                (unless (member (car (last (pathname-directory item))) exclude-folders :test 'string-equal)
                  (lisp-format-folder item :exclude-folders exclude-folders))
 
              (when (and (pathname-type item)
-                        (string= (pathname-type item) "lisp"))
-               (om-lisp::om-lisp-format-file item))
+                        (string= (pathname-type item) "lisp")
+                        (om-lisp::om-lisp-format-file item))
+               (list item))
+
              )
         ))
 
 (defun format-sources ()
-  (lisp-format-folder 
-   (merge-pathnames "src/" cl-user::*om-root-directory*)
-   :exclude-folders '("_BUILD" "lisp-externals" "lw-opengl" "foreign-interface" "libsndfile")))
+  (let ((formatted-files
+         (lisp-format-folder
+          (merge-pathnames "src/" cl-user::*om-root-directory*)
+          :exclude-folders '("_BUILD" "lisp-externals" "lw-opengl" "foreign-interface" "libsndfile"))))
+
+    (print (format nil "Formatting done: ~D files formatted" (length formatted-files)))
+    (loop for file in formatted-files do (print (format nil "  ~A" file)))
+    ))
+
 
 ;=> Call this before comitting to the repository !
 ;
