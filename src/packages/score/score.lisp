@@ -35,6 +35,7 @@
         "functions/score-functions"
         "functions/trees"
         "functions/quantify"
+        "functions/segmentation"
 
         "draw/draw-score-basic"
         "draw/draw-score-rhythm"
