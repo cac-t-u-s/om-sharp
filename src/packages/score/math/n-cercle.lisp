@@ -95,6 +95,10 @@ Note: N-CERCLE can also contain a set of chords/patterns: in this case, <puntos>
 
   (om-draw-rect x y w h :color (om-def-color :white) :fill t)
 
+  (draw-cercle self x y w h))
+
+
+(defmethod draw-cercle ((self n-cercle) x y w h)
   (let ((step (/ (* pi 2) (n self)))
         (cx (+ x (round w 2)))
         (cy (+ y (round h 2)))
