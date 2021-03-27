@@ -269,7 +269,7 @@
                (om-make-menu-item "Selection:" nil :enabled nil)
 
                (om-make-menu-item
-                "Align [SHIFT+A]"
+                "Align [Shift+A]"
 
                 #'(lambda () (store-current-state-for-undo self)
                     (align-selected-boxes self))
@@ -280,7 +280,7 @@
                 )
 
                (om-make-menu-item
-                "Consolidate appearance [SHIFT+S]"
+                "Consolidate appearance [Shift+S]"
 
                 #'(lambda () (store-current-state-for-undo self)
                     (let ((selection (append (get-selected-boxes self) (get-selected-connections self))))
@@ -307,7 +307,7 @@
                 )
 
                (om-make-menu-item
-                "Reinit content [SHIFT+I]"
+                "Reinit content [Shift+I]"
 
                 #'(lambda () (store-current-state-for-undo self)
                     (mapc 'initialize-size
@@ -330,7 +330,7 @@
                 )
 
                (om-make-menu-item
-                "Connect sequence [SHIFT+C]"
+                "Connect sequence [Shift+C]"
 
                 #'(lambda () (store-current-state-for-undo self)
                     (auto-connect-seq (get-selected-boxes self) self (main-view self)))
@@ -340,7 +340,7 @@
                 )
 
                (om-make-menu-item
-                "Create List [SHIFT+L]"
+                "Create List [Shift+L]"
 
                 #'(lambda () (store-current-state-for-undo self)
                     (list-boxes self (main-view self) (get-selected-boxes self)))
@@ -372,7 +372,7 @@
                 )
 
                (om-make-menu-item
-                "Encapsulate selection [SHIFT+E]"
+                "Encapsulate selection [Shift+E]"
 
                 #'(lambda ()
                     (store-current-state-for-undo self)
@@ -383,7 +383,7 @@
                 )
 
                (om-make-menu-item
-                "Unencapsulate selection [SHIFT+U]"
+                "Unencapsulate selection [Shift+U]"
 
                 #'(lambda ()
                     (store-current-state-for-undo self)
