@@ -22,7 +22,9 @@
 ;;;===========================================
 
 (defclass score-editor (OMEditor undoable-editor-mixin)
-  ((editor-window-config :accessor editor-window-config :initarg :editor-window-config :initform nil)))
+  ((editor-window-config :accessor editor-window-config :initarg :editor-window-config :initform nil)
+   (analysis :accessor analysis :initform nil :type abstract-analysis)
+   ))
 
 ;;; these params are shared between the editor and the box
 (defmethod object-default-edition-params ((self score-element))
@@ -912,7 +914,9 @@
 
 (defmethod report-modifications ((self score-editor))
   (call-next-method)
+  (editor-update-analysis self)
   (update-score-inspector self t))
+
 
 (defmethod set-selection ((editor score-editor) (new-selection t))
   (call-next-method)
@@ -1344,6 +1348,9 @@
             )))
 
          (groups-layout (editor-groups-controls editor))
+
+         (analysis-layout (editor-analysis-controls editor))
+
          ) ;;; end LET
 
     (om-add-subviews self
@@ -1363,6 +1370,7 @@
                                     voices-layout
                                     display-params-layout
                                     groups-layout
+                                    analysis-layout
                                     ))))))
 
     (when editor (om-update-layout (window editor)))
@@ -1371,3 +1379,5 @@
 
 
 (defmethod editor-groups-controls ((editor t)) nil)
+
+(defmethod editor-analysis-controls ((editor t)) nil)

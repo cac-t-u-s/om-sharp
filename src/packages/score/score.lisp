@@ -50,6 +50,7 @@
         "editor/score-boxes"
         "editor/play"
         "editor/groups"
+        "editor/analysis"
 
         "math/n-cercle"
         "math/n-cercle-editor"
