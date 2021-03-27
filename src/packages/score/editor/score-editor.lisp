@@ -1245,8 +1245,9 @@
                 )))
              )))
 
-         (display-aparams-text-w 72)
-         (display-aparams-menu-w 76)
+         (display-params-text-w 72)
+         (display-params-menu-w 76)
+
          (display-params-layout
           (om-make-layout
            'om-column-layout
@@ -1264,10 +1265,10 @@
              (list
               (om-make-di 'om-simple-text :text "offsets"
                           :font (om-def-font :font1)
-                          :size (omp display-aparams-text-w text-h))
+                          :size (omp display-params-text-w text-h))
 
               (om-make-di 'om-popup-list :items '(:hidden :shift :grace-note)
-                          :size (omp display-aparams-menu-w 22) :font (om-def-font :font1)
+                          :size (omp display-params-menu-w 22) :font (om-def-font :font1)
                           :value (editor-get-edit-param editor :offsets)
                           :di-action #'(lambda (list)
                                          (editor-set-edit-param editor :offsets (om-get-selected-item list)))
@@ -1280,10 +1281,10 @@
              :subviews
              (list
               (om-make-di 'om-simple-text :text "velocity"
-                          :size (omp display-aparams-text-w text-h)
+                          :size (omp display-params-text-w text-h)
                           :font (om-def-font :font1))
               (om-make-di 'om-popup-list :items '(:hidden :value :symbol :size :alpha)
-                          :size (omp display-aparams-menu-w 22) :font (om-def-font :font1)
+                          :size (omp display-params-menu-w 22) :font (om-def-font :font1)
                           :value (editor-get-edit-param editor :velocity-display)
                           :di-action #'(lambda (list)
                                          (editor-set-edit-param editor :velocity-display (om-get-selected-item list))))
@@ -1295,10 +1296,10 @@
              :subviews
              (list
               (om-make-di 'om-simple-text :text "MIDI channel"
-                          :size (omp display-aparams-text-w text-h)
+                          :size (omp display-params-text-w text-h)
                           :font (om-def-font :font1))
               (om-make-di 'om-popup-list :items '(:hidden :number :color :color-and-number)
-                          :size (omp display-aparams-menu-w 22) :font (om-def-font :font1)
+                          :size (omp display-params-menu-w 22) :font (om-def-font :font1)
                           :value (editor-get-edit-param editor :channel-display)
                           :di-action #'(lambda (list)
                                          (editor-set-edit-param editor :channel-display (om-get-selected-item list))))
@@ -1310,7 +1311,7 @@
              :subviews
              (list
               (om-make-di 'om-simple-text :text "MIDI port"
-                          :size (omp display-aparams-text-w text-h)
+                          :size (omp display-params-text-w text-h)
                           :font (om-def-font :font1))
               (om-make-di 'om-check-box :text "" :font (om-def-font :font1)
                           :size (omp 28 20)
