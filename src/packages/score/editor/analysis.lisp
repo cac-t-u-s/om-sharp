@@ -96,3 +96,34 @@
     ))
   )
 
+
+;;;=========================
+;;; Example: PCSET ANALYSIS
+;;;=========================
+
+(defclass pcset-analysis (abstract-analysis)
+  ((pcsets :accessor pcsets :initform nil :type list)))
+
+(pushr 'pcset-analysis *registered-analyses*)
+
+
+(defmethod update-analysis ((self pcset-analysis) (editor score-editor))
+  (setf (pcsets self)
+        (loop for group-id in (collect-group-ids editor)
+              collect (let ((chords (get-group-elements editor group-id)))
+                        (list
+                         group-id
+                         (chord2c
+                          (make-instance 'chord :lmidic (apply 'append (mapcar 'lmidic chords)))
+                          2))
+                        ))
+        ))
+
+
+(defmethod draw-analysis-for-group ((self pcset-analysis) (editor score-editor) group-id x1 y1 x2 y2)
+  (declare (ignore editor))
+  (let ((cercle (cadr (find group-id (pcsets self) :key 'car :test 'string-equal))))
+    (when cercle
+      (draw-cercle cercle x1 (+ y2 20) (- x2 x1) 120))))
+
+
