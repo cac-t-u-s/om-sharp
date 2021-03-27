@@ -4,12 +4,12 @@
 ; Based on OpenMusic (c) IRCAM - Music Representations Team
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 ; File author: J. Bresson
@@ -22,7 +22,7 @@
 
 (defpackage :om-fi
   (:use :common-lisp)
-  (:export 
+  (:export
    :om-foreign-libraries-directory
    :om-foreign-library-pathname
    :om-load-foreign-library
@@ -52,16 +52,16 @@
     (if (and libraries-directory (probe-file libraries-directory))
         #+(or win32 linux)
       (namestring (make-pathname :directory (pathname-directory libraries-directory)
-                                 :host (pathname-host libraries-directory) 
+                                 :host (pathname-host libraries-directory)
                                  :device (pathname-device libraries-directory)
                                  :name (pathname-name lib)
                                  :type (pathname-type lib)))
       #+cocoa
       (let ((frameworkpos (position-if #'(lambda (name) (search ".framework" name))
                                        (cdr (pathname-directory lib)))))
-        (make-pathname :directory (append (pathname-directory libraries-directory) 
+        (make-pathname :directory (append (pathname-directory libraries-directory)
                                           (if frameworkpos (subseq (pathname-directory lib) (1+ frameworkpos))))
-                       :host (pathname-host libraries-directory) 
+                       :host (pathname-host libraries-directory)
                        :device (pathname-device libraries-directory)
                        :name (pathname-name lib)
                        :type (pathname-type lib)))
@@ -119,8 +119,8 @@
 
 (defun add-foreign-loader (fun)
   (pushnew fun *loaders*))
-  
-  
+
+
 
 
 
