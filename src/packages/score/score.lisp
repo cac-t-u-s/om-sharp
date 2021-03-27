@@ -35,6 +35,7 @@
         "functions/score-functions"
         "functions/trees"
         "functions/quantify"
+        "functions/segmentation"
 
         "draw/draw-score-basic"
         "draw/draw-score-rhythm"
@@ -48,6 +49,8 @@
         "editor/multiseq-poly-editor"
         "editor/score-boxes"
         "editor/play"
+        "editor/groups"
+        "editor/analysis"
 
         "math/n-cercle"
         "math/n-cercle-editor"

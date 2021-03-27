@@ -1157,7 +1157,8 @@ See more in https://www.smufl.org/version/latest/range/noteheads/
                          )
 
                    (loop for e in (get-extras chord 'score-marker)
-                         do (om-with-fg-color (om-def-color :steelblue)
+                         do (om-with-fg-color
+                                (if (equal selection t) *score-selection-color* (om-def-color :steelblue))
                               (om-draw-line x-pix 0 x-pix h :line (/ fontsize 20))
                               (when (data e)
                                 (om-draw-string (+ x-pix unit)

@@ -22,7 +22,9 @@
 ;;;===========================================
 
 (defclass score-editor (OMEditor undoable-editor-mixin)
-  ((editor-window-config :accessor editor-window-config :initarg :editor-window-config :initform nil)))
+  ((editor-window-config :accessor editor-window-config :initarg :editor-window-config :initform nil)
+   (analysis :accessor analysis :initform nil :type abstract-analysis)
+   ))
 
 ;;; these params are shared between the editor and the box
 (defmethod object-default-edition-params ((self score-element))
@@ -34,7 +36,10 @@
     (:channel-display :hidden)
     (:midiport-display nil)
     (:h-stretch 1)
-    (:y-shift 4)))
+    (:y-shift 4)
+    (:groups nil)
+    (:group-names t)
+    (:selected-group :all)))
 
 
 ;;; Note: y-shift is a value or a list containing the space (in units) above the staff. (see get-total-y-shift)
@@ -472,6 +477,9 @@
     (:om-key-delete
      (delete-selection editor))
 
+    (#\g (add-selection-to-group editor))
+    (#\G (delete-selection-group editor))
+
     (otherwise
      (call-next-method))
     ))
@@ -669,26 +677,54 @@
 
 (defun score-edit-menu-items (self)
   (list (om-make-menu-comp
-         (list (om-make-menu-item "Undo" #'(lambda () (when (undo-command self) (funcall (undo-command self))))
-                                  :key "z" :enabled #'(lambda () (and (undo-command self) t)))
-               (om-make-menu-item "Redo" #'(lambda () (when (redo-command self) (funcall (redo-command self))))
-                                  :key "Z" :enabled #'(lambda () (and (redo-command self) t)))))
+         (list (om-make-menu-item "Undo"
+                                  #'(lambda () (when (undo-command self) (funcall (undo-command self))))
+                                  :key "z"
+                                  :enabled #'(lambda () (and (undo-command self) t)))
+               (om-make-menu-item "Redo"
+                                  #'(lambda () (when (redo-command self) (funcall (redo-command self))))
+                                  :key "Z"
+                                  :enabled #'(lambda () (and (redo-command self) t)))))
         (om-make-menu-comp
-         (list (om-make-menu-item "Copy" #'(lambda () (funcall (copy-command self)))
-                                  :key "c" :enabled #'(lambda () (and (copy-command self) t)))
-               (om-make-menu-item "Cut" #'(lambda () (funcall (cut-command self)))
-                                  :key "x" :enabled #'(lambda () (and (cut-command self) t)))
-               (om-make-menu-item "Paste"#'(lambda () (funcall (paste-command self)))
-                                  :key "v" :enabled #'(lambda () (and (paste-command self) t)))
-               (om-make-menu-item "Delete" #'(lambda () (funcall (clear-command self)))
+         (list (om-make-menu-item "Copy"
+                                  #'(lambda () (funcall (copy-command self)))
+                                  :key "c"
+                                  :enabled #'(lambda () (and (copy-command self) t)))
+               (om-make-menu-item "Cut"
+                                  #'(lambda () (funcall (cut-command self)))
+                                  :key "x"
+                                  :enabled #'(lambda () (and (cut-command self) t)))
+               (om-make-menu-item "Paste"
+                                  #'(lambda () (funcall (paste-command self)))
+                                  :key "v"
+                                  :enabled #'(lambda () (and (paste-command self) t)))
+               (om-make-menu-item "Delete"
+                                  #'(lambda () (funcall (clear-command self)))
                                   :enabled (and (clear-command self) t))))
         (om-make-menu-comp
-         (list (om-make-menu-item "Select All" #'(lambda () (funcall (select-all-command self)))
-                                  :key "a" :enabled #'(lambda () (and (select-all-command self) t)))))
+         (list (om-make-menu-item "Select All"
+                                  #'(lambda () (funcall (select-all-command self)))
+                                  :key "a"
+                                  :enabled #'(lambda () (and (select-all-command self) t)))))
 
         (om-make-menu-comp
-         (list (om-make-menu-item "Align Chords [Shift+A]" #'(lambda () (funcall (align-command self)))
+         (list (om-make-menu-item "Align Chords [Shift+A]"
+                                  #'(lambda () (funcall (align-command self)))
                                   :enabled #'(lambda () (and (align-command self) t)))))
+
+        (om-make-menu-comp (extras-menus self))
+
+        (om-make-menu-comp
+         (list (om-make-menu-item "Add to group [G]"
+                                  #'(lambda () (add-selection-to-group self))
+                                  :enabled #'(lambda () (and (selection self)
+                                                             (editor-get-edit-param self :groups)))
+                                  )
+               (om-make-menu-item "Remove from group [Shift+G]"
+                                  #'(lambda () (delete-selection-group self))
+                                  :enabled #'(lambda () (and (selection self)
+                                                             (editor-get-edit-param self :groups)))
+                                  )))
 
         (om-make-menu-item
          "Show Inspector"
@@ -703,6 +739,9 @@
 
 (defmethod import-menus ((self score-editor)) nil)
 (defmethod export-menus ((self score-editor)) nil)
+
+(defmethod extras-menus ((self score-editor)) nil)
+
 
 (defmethod import-export-menu-items ((self score-editor))
   (list
@@ -875,7 +914,9 @@
 
 (defmethod report-modifications ((self score-editor))
   (call-next-method)
+  (editor-update-analysis self)
   (update-score-inspector self t))
+
 
 (defmethod set-selection ((editor score-editor) (new-selection t))
   (call-next-method)
@@ -1231,8 +1272,9 @@
                 )))
              )))
 
-         (display-aparams-text-w 72)
-         (display-aparams-menu-w 76)
+         (display-params-text-w 72)
+         (display-params-menu-w 76)
+
          (display-params-layout
           (om-make-layout
            'om-column-layout
@@ -1250,10 +1292,10 @@
              (list
               (om-make-di 'om-simple-text :text "offsets"
                           :font (om-def-font :font1)
-                          :size (omp display-aparams-text-w text-h))
+                          :size (omp display-params-text-w text-h))
 
               (om-make-di 'om-popup-list :items '(:hidden :shift :grace-note)
-                          :size (omp display-aparams-menu-w 22) :font (om-def-font :font1)
+                          :size (omp display-params-menu-w 22) :font (om-def-font :font1)
                           :value (editor-get-edit-param editor :offsets)
                           :di-action #'(lambda (list)
                                          (editor-set-edit-param editor :offsets (om-get-selected-item list)))
@@ -1266,10 +1308,10 @@
              :subviews
              (list
               (om-make-di 'om-simple-text :text "velocity"
-                          :size (omp display-aparams-text-w text-h)
+                          :size (omp display-params-text-w text-h)
                           :font (om-def-font :font1))
               (om-make-di 'om-popup-list :items '(:hidden :value :symbol :size :alpha)
-                          :size (omp display-aparams-menu-w 22) :font (om-def-font :font1)
+                          :size (omp display-params-menu-w 22) :font (om-def-font :font1)
                           :value (editor-get-edit-param editor :velocity-display)
                           :di-action #'(lambda (list)
                                          (editor-set-edit-param editor :velocity-display (om-get-selected-item list))))
@@ -1281,10 +1323,10 @@
              :subviews
              (list
               (om-make-di 'om-simple-text :text "MIDI channel"
-                          :size (omp display-aparams-text-w text-h)
+                          :size (omp display-params-text-w text-h)
                           :font (om-def-font :font1))
               (om-make-di 'om-popup-list :items '(:hidden :number :color :color-and-number)
-                          :size (omp display-aparams-menu-w 22) :font (om-def-font :font1)
+                          :size (omp display-params-menu-w 22) :font (om-def-font :font1)
                           :value (editor-get-edit-param editor :channel-display)
                           :di-action #'(lambda (list)
                                          (editor-set-edit-param editor :channel-display (om-get-selected-item list))))
@@ -1296,7 +1338,7 @@
              :subviews
              (list
               (om-make-di 'om-simple-text :text "MIDI port"
-                          :size (omp display-aparams-text-w text-h)
+                          :size (omp display-params-text-w text-h)
                           :font (om-def-font :font1))
               (om-make-di 'om-check-box :text "" :font (om-def-font :font1)
                           :size (omp 28 20)
@@ -1305,8 +1347,11 @@
                                          (editor-set-edit-param editor :port-display (om-checked-p item))))))
             )))
 
-         ;;; end LET
-         )
+         (groups-layout (editor-groups-controls editor))
+
+         (analysis-layout (editor-analysis-controls editor))
+
+         ) ;;; end LET
 
     (om-add-subviews self
                      (om-make-layout
@@ -1324,8 +1369,15 @@
                                     measures-layout
                                     voices-layout
                                     display-params-layout
+                                    groups-layout
+                                    analysis-layout
                                     ))))))
 
     (when editor (om-update-layout (window editor)))
 
     ))
+
+
+(defmethod editor-groups-controls ((editor t)) nil)
+
+(defmethod editor-analysis-controls ((editor t)) nil)

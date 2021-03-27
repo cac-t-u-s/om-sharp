@@ -38,7 +38,11 @@
    ;;; is modified by modification of the scale parameter
    (pitch-approx :accessor pitch-approx :initform 2)
 
-   (extras :initarg :extras :initform nil :accessor extras :type list :documentation "some 'extra' score-elements attached to this element")
+   (extras :initarg :extras :initform nil :accessor extras :type list
+           :documentation "some 'extra' score-elements attached to this element")
+
+   (group-ids :initarg :group-ids :initform nil :accessor group-ids :type list
+              :documentation "a list of Ids identifying groups in the score")
 
    ;;; bounding-box is a cached graphic information for score display
    (b-box :accessor b-box :initform nil)
@@ -55,7 +59,3 @@
 (defstruct b-box (x1) (x2) (y1) (y2))
 (defmethod b-box-w (b) (- (b-box-x2 b) (b-box-x1 b)))
 (defmethod b-box-h (b) (- (b-box-y2 b) (b-box-y1 b)))
-
-
-
-

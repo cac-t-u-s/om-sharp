@@ -210,15 +210,42 @@
   (editor-invalidate-views self))
 
 
+(defmethod add-score-marker ((self chord-seq-editor))
+  (when (selection self)
+    (let ((first-chord (car (sort (remove-if
+                                   #'(lambda (item) (not (subtypep (type-of item) 'chord)))
+                                   (selection self))
+                                  '< :key #'date))))
+      (when first-chord
+        (add-extras first-chord (make-instance 'score-marker) nil nil)
+        (om-invalidate-view (main-view self)))
+      )))
+
+
+(defmethod remove-score-marker ((self chord-seq-editor))
+  (loop for item in (selection self)
+        do (remove-extras item 'score-marker nil))
+  (om-invalidate-view (main-view self)))
+
+
 (defmethod editor-key-action ((editor chord-seq-editor) key)
+
   (case key
 
     (#\A (align-chords-in-editor editor))
-
     (#\S (stems-on-off editor))
+    (#\m (add-score-marker editor))
+    (#\M (remove-score-marker editor))
 
     (otherwise (call-next-method)) ;;; => score-editor
     ))
+
+
+(defmethod extras-menus ((self chord-seq-editor))
+  (list (om-make-menu-item "Add chord marker [M]" #'(lambda () (add-score-marker self))
+                           :enabled #'(lambda () (selection self)))
+        (om-make-menu-item "Remove chord marker(s) [Shift+M]" #'(lambda () (remove-score-marker self))
+                           :enabled #'(lambda () (selection self)))))
 
 
 ;;; called at add-click
@@ -386,6 +413,9 @@
     ;;; grid
     (when (editor-get-edit-param editor :grid)
       (draw-grid-on-score-editor editor view))
+
+    (when (editor-get-edit-param editor :groups)
+      (draw-groups-on-score-editor editor))
 
     (draw-sequence obj editor view unit)))
 

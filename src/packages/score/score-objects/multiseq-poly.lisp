@@ -72,6 +72,10 @@
 (defmethod get-voices ((self chord-seq)) (list self))
 (defmethod get-voices ((self t)) nil) ;;; e.g. for a chord
 
+(defmethod chords ((self multi-seq))
+  (loop for v in (get-voices self)
+        append (chords v)))
+
 ;;;===================================================
 ;;; TIME-SEQUENCE METHODS APPLIED TO POLYPHONIES
 ;;;===================================================
