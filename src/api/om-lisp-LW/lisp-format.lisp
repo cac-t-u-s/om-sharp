@@ -140,13 +140,17 @@
     (print (format nil "Checking Lisp format: ~s" path))
 
     (let ((file-buffer (editor::find-file-buffer path)))
+      (unwind-protect
 
-      (om-lisp-format-buffer file-buffer :indent indent :whitespaces whitespaces)
+          (progn
+            (om-lisp-format-buffer file-buffer :indent indent :whitespaces whitespaces)
 
-      (when (editor:buffer-modified file-buffer)
-        (print (format nil "Writing reformatted Lisp file: ~s" path))
-        (editor:save-file-command nil file-buffer))
+            (when (editor:buffer-modified file-buffer)
+              (print (format nil "Writing reformatted Lisp file: ~s" path))
+              (editor:save-file-command nil file-buffer)
+              path))
 
-      (unless (equal path *load-pathname*)
-        (editor::kill-buffer-no-confirm file-buffer))
-      )))
+        (unless (equal path *load-pathname*)
+          (editor::kill-buffer-no-confirm file-buffer))
+        ))
+    ))
