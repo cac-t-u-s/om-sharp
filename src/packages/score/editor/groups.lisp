@@ -30,6 +30,12 @@
     groups))
 
 
+(defmethod get-group-elements ((self score-editor) group-id)
+  (loop for c in (chords (object-value self))
+        when (find group-id (group-ids c) :test 'string-equal)
+        collect c))
+
+
 (defmethod generate-group-id ((self score-editor))
   (let* ((other-ids (collect-group-ids self))
          (index (1+ (length other-ids)))
