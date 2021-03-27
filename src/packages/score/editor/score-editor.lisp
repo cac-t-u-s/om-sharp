@@ -34,7 +34,10 @@
     (:channel-display :hidden)
     (:midiport-display nil)
     (:h-stretch 1)
-    (:y-shift 4)))
+    (:y-shift 4)
+    (:groups nil)
+    (:group-names t)
+    (:selected-group :all)))
 
 
 ;;; Note: y-shift is a value or a list containing the space (in units) above the staff. (see get-total-y-shift)
@@ -472,6 +475,9 @@
     (:om-key-delete
      (delete-selection editor))
 
+    (#\g (add-selection-to-group editor))
+    (#\G (delete-selection-group editor))
+
     (otherwise
      (call-next-method))
     ))
@@ -705,6 +711,18 @@
                                   :enabled #'(lambda () (and (align-command self) t)))))
 
         (om-make-menu-comp (extras-menus self))
+
+        (om-make-menu-comp
+         (list (om-make-menu-item "Add to group [G]"
+                                  #'(lambda () (add-selection-to-group self))
+                                  :enabled #'(lambda () (and (selection self)
+                                                             (editor-get-edit-param self :groups)))
+                                  )
+               (om-make-menu-item "Remove from group [Shift+G]"
+                                  #'(lambda () (delete-selection-group self))
+                                  :enabled #'(lambda () (and (selection self)
+                                                             (editor-get-edit-param self :groups)))
+                                  )))
 
         (om-make-menu-item
          "Show Inspector"
@@ -1325,6 +1343,7 @@
                                          (editor-set-edit-param editor :port-display (om-checked-p item))))))
             )))
 
+         (groups-layout (editor-groups-controls editor))
          ) ;;; end LET
 
     (om-add-subviews self
@@ -1343,8 +1362,12 @@
                                     measures-layout
                                     voices-layout
                                     display-params-layout
+                                    groups-layout
                                     ))))))
 
     (when editor (om-update-layout (window editor)))
 
     ))
+
+
+(defmethod editor-groups-controls ((editor t)) nil)

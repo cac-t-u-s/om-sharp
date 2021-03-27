@@ -49,6 +49,7 @@
         "editor/multiseq-poly-editor"
         "editor/score-boxes"
         "editor/play"
+        "editor/groups"
 
         "math/n-cercle"
         "math/n-cercle-editor"

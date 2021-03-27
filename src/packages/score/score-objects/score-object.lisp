@@ -41,6 +41,9 @@
    (extras :initarg :extras :initform nil :accessor extras :type list
            :documentation "some 'extra' score-elements attached to this element")
 
+   (group-ids :initarg :group-ids :initform nil :accessor group-ids :type list
+              :documentation "a list of Ids identifying groups in the score")
+
    ;;; bounding-box is a cached graphic information for score display
    (b-box :accessor b-box :initform nil)
    ))

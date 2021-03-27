@@ -414,6 +414,9 @@
     (when (editor-get-edit-param editor :grid)
       (draw-grid-on-score-editor editor view))
 
+    (when (editor-get-edit-param editor :groups)
+      (draw-groups-on-score-editor editor))
+
     (draw-sequence obj editor view unit)))
 
 
