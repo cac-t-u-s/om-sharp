@@ -291,12 +291,7 @@
    :size (round size)
    :slant (if (member :italic style) :italic :roman)
    :weight (if (member :bold style) :bold :normal)
-   :pitch :variable
-   :underline nil
-   :strikeout nil
    :charset :ansi
-   :devicep nil
-   :type :truetype
    ))
 
 (defun om-font-face (font)
@@ -348,38 +343,52 @@
      )))
 
 
-(defun om-def-font (f &key face size style)
-  (let ((def-face #+mswindows "Calibri"  #+linux "Liberation Sans" #+darwin "Lucida Grande")
-        (def-bold-face #+mswindows "Calibri"  #+linux "Liberation Sans" #+darwin "Lucida Grande")
-        (score-face "Times New Roman")
-        (sizes #+darwin '(11 12 14 16 20)      ;72 ppi
-               #-darwin '(9 10 11 12 15)      ;96 ppi
-               ))
-    (let ((fa
-           (case f
+(defparameter *def-font*
+  #+macosx '("Lucida Grande" (11 12 14 16 20)) ;72 ppi
+  #+mswindows '("Calibri" (9 10 11 12 15))     ;96 ppi
+  #+linux '("Liberation Sans" (9 10 11 12 15)) ;96 ppi
+  )
+
+(defparameter *mono-font*
+  #+macosx '("Courier New" 12)
+  #+mswindows '("Courier New" 8)
+  #+linux '("Courier" 10)
+  )
+
+(defparameter *gui-font*
+  #+macosx '("Lucida Grande" 13)
+  #+mswindows '("Calibri" 9)
+  #+linux '("Bistream Vera Sans" 10)
+  )
+
+(defparameter *score-font*
+  '("Times New Roman" 10))
+
+(defun om-def-font (font-id &key face size style)
+  (let ((def-face (car *def-font*))
+        (sizes (cadr *def-font*)))
+    (let ((font
+           (case font-id
              (:font1 (om-make-font def-face (nth 0 sizes)))
              (:font2 (om-make-font def-face (nth 1 sizes)))
              (:font3 (om-make-font def-face (nth 2 sizes)))
              (:font4 (om-make-font def-face (nth 3 sizes)))
-             (:font1b (om-make-font def-bold-face (nth 0 sizes) :style '(:bold)))
-             (:font2b (om-make-font def-bold-face (nth 1 sizes) :style '(:bold)))
-             (:font3b (om-make-font def-bold-face (nth 2 sizes) :style '(:bold)))
-             (:font4b (om-make-font def-bold-face (nth 3 sizes) :style '(:bold)))
-             (:gui
-              #+darwin (om-make-font "Lucida Grande" 13)
-              #+linux (om-make-font "Bistream Vera Sans" 10)
-              #-(or darwin linux) (om-make-font def-face (nth 0 sizes)))
-             (:score (om-make-font score-face 10))
-             (:mono
-              (om-make-font
-               #-linux "Courier New" #+linux "Courier"
-               #+macosx 12 #+mswindows 8 #-(or macosx mswindows) 10))
+             (:font1b (om-make-font def-face (nth 0 sizes) :style '(:bold)))
+             (:font2b (om-make-font def-face (nth 1 sizes) :style '(:bold)))
+             (:font3b (om-make-font def-face (nth 2 sizes) :style '(:bold)))
+             (:font4b (om-make-font def-face (nth 3 sizes) :style '(:bold)))
+             (:gui (apply #'om-make-font *gui-font*))
+             (:score (apply #'om-make-font *score-font*))
+             (:mono (apply #'om-make-font *mono-font*))
              (otherwise (om-make-font def-face (nth 0 sizes))))))
-      (when face (setf fa (gp::augment-font-description fa :family face)))
-      (when size (setf fa (gp::augment-font-description fa :size size)))
-      (when style (setf fa (gp::augment-font-description fa :slant (if (member :italic style) :italic :roman)
-                                                         :weight (if (member :bold style) :bold :normal))))
-      fa)))
+      (when face (setf font (gp::augment-font-description font :family face)))
+      (when size (setf font (gp::augment-font-description font :size size)))
+      (when style (setf font (gp::augment-font-description
+                              font
+                              :slant (if (member :italic style) :italic :roman)
+                              :weight (if (member :bold style) :bold :normal))))
+      font)))
+
 
 ;;; a special font / char code to write a lambda :)
 (defun om-font-lambda (&optional size)
