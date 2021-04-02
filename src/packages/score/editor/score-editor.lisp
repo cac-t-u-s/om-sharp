@@ -253,6 +253,11 @@
 (defmethod get-all-voices ((self score-editor))
   (list (object-value self)))
 
+(defmethod get-selected-chords ((editor score-editor))
+  (remove-duplicates
+   (remove-if-not #'(lambda (elt) (typep elt 'chord))
+                  (selection editor))))
+
 ;;; redefined with objects of several voices...
 (defmethod get-total-y-shift ((editor score-editor) voice-num)
   (editor-get-edit-param editor :y-shift))
@@ -363,9 +368,7 @@
                                            (unless (zerop diff)
                                              (setf modif t)
                                              ;;; remove-duplicates: continuation chords refer to existing notes !
-                                             (loop for c in (remove-duplicates
-                                                             (remove-if-not #'(lambda (elt) (typep elt 'chord))
-                                                                            (selection editor)))
+                                             (loop for c in (get-selected-chords editor)
                                                    do (when (>= (+ (item-get-time c) diff) 0)
                                                         (item-set-time c (+ (item-get-time c) diff))))
 
