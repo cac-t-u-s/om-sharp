@@ -67,8 +67,6 @@
         :approx (get-edit-param self :approx)))
 
 
-
-
 (defmethod play-box-callback ((self OMBox) time)
   (handler-bind ((error #'(lambda (e)
                             (print (format nil "~A" e))

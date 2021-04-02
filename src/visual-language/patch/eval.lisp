@@ -403,6 +403,7 @@
           (if (= 1 (length (inputs self)))
               (setf (value self) (eval-box-inputs self))
             (setf (value self) (list (eval-box-inputs self)))))
+
         (setf (reference self) (type-of (car (value self))))
         (when (equal (lock-state self) :eval-once)
           ;;; first evaluation in this generation: set the value and flag
@@ -442,7 +443,6 @@
       (update-to-editor (editor self) self))
     )
   (call-next-method))
-
 
 
 (defmethod current-box-value ((self OMBoxRelatedWClass) &optional (numout nil))
@@ -518,9 +518,3 @@
                  (set-value-slots ,obj ,(loop for arg in arglist collect (list (symbol-name (car arg)) (cadr arg))))
                  ,obj))
       )))
-
-
-
-
-
-
