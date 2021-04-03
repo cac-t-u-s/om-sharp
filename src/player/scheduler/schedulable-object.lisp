@@ -657,6 +657,21 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
   (setf (plan self) nil)
   (destroy-data self))
 
+
+;;; LOOPS AN OBJECT
+(defmethod loop-schedulable-object ((obj schedulable-object) (sched scheduler))
+  (let ((start-t (or (car (interval obj)) 0)))
+    (incf (loop-count obj))
+    (setf (ref-time obj) (- (om-get-internal-time) start-t)
+          (play-planned? obj) nil)
+    (setf (current-local-time obj) start-t)
+    (schedule sched obj)
+    (interleave-tasks obj
+                      (list start-t
+                            (+ start-t (time-window obj))))
+    (set-time-callback obj (car (interval obj)))))
+
+
 (defmethod get-caller ((self schedulable-object) (sched scheduler))
   (cadr (find self (register sched) :key 'car)))
 

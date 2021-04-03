@@ -84,6 +84,9 @@
 (defmethod player-continue-object ((self scheduler) (object schedulable-object))
   (continue-schedulable-object object self))
 
+(defmethod player-loop-object ((self scheduler) (object schedulable-object))
+  (loop-schedulable-object object self))
+
 (defmethod player-get-object-state ((self scheduler) (object schedulable-object))
   (or (state object) :stop))
 
