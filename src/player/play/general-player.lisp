@@ -133,6 +133,10 @@
 (defmethod player-continue-object ((player omplayer) object) (player-continue player))
 (defmethod player-loop-object ((player omplayer) object) (player-loop player))
 
+(defmethod player-set-object-loop ((player omplayer) object loop?)
+  (declare (ignore object))
+  (setf (loop-play player) loop?))
+
 ;;; CALLED TO START PLAYER
 (defmethod player-start ((player omplayer) &key (start-t 0) (end-t 3600000))
 
