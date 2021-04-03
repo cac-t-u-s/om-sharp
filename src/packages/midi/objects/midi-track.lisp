@@ -514,8 +514,8 @@
 
 
 (defmethod player-stop-object ((self scheduler) (object midi-track))
-  (call-next-method)
-  (om-midi::midi-all-keys-off))
+  (send-current-midi-key-offs object)
+  (call-next-method))
 
 
 ;;;======================================

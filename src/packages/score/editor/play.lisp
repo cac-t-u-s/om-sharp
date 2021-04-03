@@ -329,11 +329,11 @@
 
 
 (defmethod player-pause-object ((self scheduler) (object score-element))
-  (om-midi::midi-all-keys-off)
+  (send-current-midi-key-offs object)
   (call-next-method))
 
 (defmethod player-stop-object ((self scheduler) (object score-element))
-  (om-midi::midi-all-keys-off)
+  (send-current-midi-key-offs object)
   (when (and (equal :auto-bend (get-pref-value :score :microtone-bend))
              *micro-channel-mode-on*)
     (loop for p in (collec-ports-from-object object) do (micro-reset p)))
