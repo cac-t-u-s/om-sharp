@@ -294,8 +294,15 @@
 
 
 (defmethod move-editor-selection ((self midi-track-editor) &key (dx 0) (dy 0))
-  (loop for fp in (selection self) do
-        (let ((frame (nth fp (data-stream-get-frames (object-value self)))))
+
+  (let* ((midi-track (object-value self))
+         (frames (loop for fp in (selection self)
+                       collect (nth fp (data-stream-get-frames midi-track)))))
+
+    (unless (equal (editor-play-state self) :stop)
+      (close-open-midinotes-at-time frames (get-obj-time midi-track)))
+
+    (loop for frame in frames do
           (when (equal (ev-type frame) :note)
             (setf (pitch frame)
                   (min 95 (max 36
@@ -305,8 +312,31 @@
                                )))
             (when (equal dx :round)
               (item-set-time frame (round (item-get-time frame))))
-            )))
-  ;;; => do the x-move
+            ))
+
+    (call-next-method)))
+
+
+(defmethod resize-editor-selection ((self midi-track-editor) &key (dx 0) (dy 0))
+  (declare (ignore dy))
+
+  (unless (or (equal (editor-play-state self) :stop) (zerop dx))
+    (let* ((midi-track (object-value self))
+           (frames (loop for fp in (selection self)
+                         collect (nth fp (data-stream-get-frames midi-track)))))
+      (close-open-midinotes-at-time frames (get-obj-time midi-track))))
+
+  (call-next-method))
+
+
+(defmethod delete-editor-selection ((self midi-track-editor))
+
+  (unless (equal (editor-play-state self) :stop)
+    (let* ((midi-track (object-value self))
+           (frames (loop for fp in (selection self)
+                         collect (nth fp (data-stream-get-frames midi-track)))))
+      (close-open-midinotes-at-time frames (get-obj-time midi-track))))
+
   (call-next-method))
 
 
@@ -493,9 +523,42 @@
   )
 
 
+(defun close-open-midinotes-at-time (notes time)
+  (loop for note in notes
+        do
+        (when (and (<= (midinote-onset note) time)
+                   (>= (midinote-end note) time))
+          (om-midi::midi-send-evt
+           (om-midi:make-midi-evt
+            :type :keyOff
+            :chan (or (midinote-channel note) 1)
+            :port (or (midinote-port note) (get-pref-value :midi :out-port))
+            :fields (list (midinote-pitch note) 0)))
+          )))
+
+
+(defmethod send-current-midi-key-offs ((self midi-track))
+  (close-open-midinotes-at-time
+   (data-stream-get-frames self)
+   (get-obj-time self)))
+
+
 (defmethod player-stop-object ((self scheduler) (object midi-track))
-  (call-next-method)
-  (om-midi::midi-all-keys-off))
+  (send-current-midi-key-offs object)
+  (call-next-method))
+
+(defmethod player-pause-object ((self scheduler) (object midi-track))
+  (send-current-midi-key-offs object)
+  (call-next-method))
+
+(defmethod player-loop-object ((self scheduler) (object midi-track))
+  (send-current-midi-key-offs object)
+  (call-next-method))
+
+(defmethod set-object-current-time ((self midi-track) time)
+  (declare (ignore time))
+  (send-current-midi-key-offs self)
+  (call-next-method))
 
 
 ;;;======================================

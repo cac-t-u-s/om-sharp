@@ -277,6 +277,8 @@ These slots are simpel accessor for initialization. In reality the CHORD contain
 ;;; used in score utils and editor hierarchical/recursive calls
 (defmethod inside ((self chord)) (notes self))
 
+(defmethod chords ((self chord)) (list self))
+
 (defmethod get-notes ((self chord)) (notes self))
 (defmethod get-notes ((self note)) (list self))
 (defmethod get-notes ((self list))

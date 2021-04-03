@@ -460,6 +460,7 @@
     (setf (ev-once-flag self) nil)))
 
 (defmethod set-value ((self OMBoxEditCall) value)
+  (box-player-stop self)
   (release-previous-value (car (value self)))
   (call-next-method)
   (update-after-eval self))

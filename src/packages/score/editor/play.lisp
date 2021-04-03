@@ -181,6 +181,35 @@
         append (get-action-list-for-play voice interval (or parent object))))
 
 
+;;; Use during score edits:
+(defun close-open-chords-at-time (chords time parent)
+  (let* ((approx (pitch-approx parent))
+         (chan-shift (and (not (equal :off (get-pref-value :score :microtone-bend)))
+                          (micro-channel-on approx))))
+    (loop for chord in chords do
+          (let ((onset (onset chord)))
+            (loop for note in (notes chord) do
+                  (when (and (<= (+ onset (offset note)) time)
+                             (>= (+ onset (offset note) (dur note)) time))
+                    (let ((channel (+ (or (chan note) 1)
+                                      (if chan-shift (micro-channel (midic note) approx) 0))))
+                      (om-midi:midi-send-evt
+                       (om-midi:make-midi-evt
+                        :type :keyoff
+                        :chan channel
+                        :port (or (port note) (get-pref-value :midi :out-port))
+                        :fields (list (truncate (midic note) 100) 0)))
+                      ))))
+          )))
+
+
+(defmethod send-current-midi-key-offs ((self score-element))
+  (close-open-chords-at-time
+   (chords self)
+   (get-obj-time self)
+   self))
+
+
 ;;;===================================================
 ;;; MICROTONES
 ;;;===================================================
@@ -300,12 +329,21 @@
 
 
 (defmethod player-pause-object ((self scheduler) (object score-element))
-  (om-midi::midi-all-keys-off)
+  (send-current-midi-key-offs object)
   (call-next-method))
 
 (defmethod player-stop-object ((self scheduler) (object score-element))
-  (om-midi::midi-all-keys-off)
+  (send-current-midi-key-offs object)
   (when (and (equal :auto-bend (get-pref-value :score :microtone-bend))
              *micro-channel-mode-on*)
     (loop for p in (collec-ports-from-object object) do (micro-reset p)))
+  (call-next-method))
+
+(defmethod player-loop-object ((self scheduler) (object score-element))
+  (send-current-midi-key-offs object)
+  (call-next-method))
+
+(defmethod set-object-current-time ((self score-element) time)
+  (declare (ignore time))
+  (send-current-midi-key-offs self)
   (call-next-method))
