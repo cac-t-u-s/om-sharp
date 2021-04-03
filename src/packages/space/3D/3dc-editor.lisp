@@ -439,7 +439,7 @@
 
     ;;; will reset the repeat-state of the new object according to the current
     ;;; repeat button state -- loop isn't stored as a proper editor property :-/
-    (editor-repeat self (pushed (repeat-button self)))
+    (editor-set-loop self (pushed (repeat-button self)))
     ))
 
 ; when the timeline is edited

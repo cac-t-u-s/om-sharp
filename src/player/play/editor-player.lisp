@@ -287,7 +287,7 @@
 (defmethod editor-previous-step ((self play-editor-mixin)) nil)
 
 
-(defmethod editor-repeat ((self play-editor-mixin) t-or-nil)
+(defmethod editor-set-loop ((self play-editor-mixin) t-or-nil)
   (player-loop-object (player self) (get-obj-to-play self) t-or-nil))
 
 
@@ -553,7 +553,7 @@
                                  :lock-push t :enabled enable
                                  :pushed (is-looping (get-obj-to-play editor))
                                  :action #'(lambda (b)
-                                             (editor-repeat editor (pushed b)))))))
+                                             (editor-set-loop editor (pushed b)))))))
 
 
 (defun time-display (time_ms &optional format)
