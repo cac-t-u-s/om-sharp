@@ -288,7 +288,7 @@
 
 
 (defmethod editor-set-loop ((self play-editor-mixin) t-or-nil)
-  (player-loop-object (player self) (get-obj-to-play self) t-or-nil))
+  (player-set-object-loop (player self) (get-obj-to-play self) t-or-nil))
 
 
 (defmethod editor-reset-interval ((self play-editor-mixin))

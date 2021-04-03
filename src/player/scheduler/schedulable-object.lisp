@@ -212,7 +212,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
   nil)
 
 
-(defmethod player-loop-object ((player scheduler) (object schedulable-object) loop?)
+(defmethod player-set-object-loop ((player scheduler) (object schedulable-object) loop?)
   (declare (ignore player))
   (set-object-loop object loop?))
 
