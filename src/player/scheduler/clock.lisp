@@ -43,7 +43,7 @@
 
 (defmethod initialize-instance :after ((self clock) &rest initargs)
   (set-object-time-window self (period self))
-  (loop-object self)
+  (set-object-loop self t)
   self)
 
 (defmethod get-action-list-for-play ((object clock) time-interval &optional parent)

@@ -160,16 +160,10 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 (defmethod set-object-time-window ((self schedulable-object) window)
   (setf (user-time-window self) window)) ;(max window *Lmin*)
 
-;; LOOPS AN OBJECT
-;; The object will loop at the end of its interval of at its end (if it exists)
-(defmethod loop-object ((self schedulable-object))
-  (setf (looper self) t)
-  (notify-scheduler self))
-
-;; UNLOOPS AN OBJECT
-;; The object will not loop
-(defmethod unloop-object ((self schedulable-object))
-  (setf (looper self) nil)
+;; LOOP/UNLOOP AN OBJECT
+;; The object will loop at the end of its interval of at its own end time
+(defmethod set-object-loop ((self schedulable-object) loop)
+  (setf (looper self) loop)
   (notify-scheduler self))
 
 (defmethod is-looping ((self schedulable-object))
@@ -220,8 +214,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 
 (defmethod player-loop-object ((player scheduler) (object schedulable-object) loop?)
   (declare (ignore player))
-  (if loop? (loop-object object)
-    (unloop-object object)))
+  (set-object-loop object loop?))
 
 
 ;;===========================================================================
@@ -327,7 +320,6 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
   (or (getf (scheduler-data self) :computation-plan) (list)))
 (defmethod (setf computation-plan) (new-plan (self schedulable-object))
   (setf (getf (scheduler-data self) :computation-plan) new-plan))
-
 
 (defmethod actionlist ((self schedulable-object))
   (getf (scheduler-data self) :actionlist))
