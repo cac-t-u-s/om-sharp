@@ -160,16 +160,10 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 (defmethod set-object-time-window ((self schedulable-object) window)
   (setf (user-time-window self) window)) ;(max window *Lmin*)
 
-;; LOOPS AN OBJECT
-;; The object will loop at the end of its interval of at its end (if it exists)
-(defmethod loop-object ((self schedulable-object))
-  (setf (looper self) t)
-  (notify-scheduler self))
-
-;; UNLOOPS AN OBJECT
-;; The object will not loop
-(defmethod unloop-object ((self schedulable-object))
-  (setf (looper self) nil)
+;; LOOP/UNLOOP AN OBJECT
+;; The object will loop at the end of its interval of at its own end time
+(defmethod set-object-loop ((self schedulable-object) loop)
+  (setf (looper self) loop)
   (notify-scheduler self))
 
 (defmethod is-looping ((self schedulable-object))
@@ -218,10 +212,9 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
   nil)
 
 
-(defmethod player-loop-object ((player scheduler) (object schedulable-object) loop?)
+(defmethod player-set-object-loop ((player scheduler) (object schedulable-object) loop?)
   (declare (ignore player))
-  (if loop? (loop-object object)
-    (unloop-object object)))
+  (set-object-loop object loop?))
 
 
 ;;===========================================================================
@@ -328,7 +321,6 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 (defmethod (setf computation-plan) (new-plan (self schedulable-object))
   (setf (getf (scheduler-data self) :computation-plan) new-plan))
 
-
 (defmethod actionlist ((self schedulable-object))
   (getf (scheduler-data self) :actionlist))
 (defmethod (setf actionlist) (actionlist (self schedulable-object))
@@ -356,7 +348,6 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 
          #'(lambda ()
              (let ((I (get-next-I obj))
-                   (start-t (or (car (interval obj)) 0))
                    bundles actlist)
                ;; Get actions as raw data
                (om-with-timeout (timeout sched)
@@ -386,15 +377,8 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
                                              (append actlist
                                                      (list (act-alloc :timestamp (1- (cadr I))
                                                                       :fun #'(lambda ()
-                                                                               (incf (loop-count obj))
-                                                                               (setf (ref-time obj) (- (om-get-internal-time) start-t)
-                                                                                     (play-planned? obj) nil)
-                                                                               (setf (current-local-time obj) start-t)
-                                                                               (schedule sched obj)
-                                                                               (interleave-tasks obj
-                                                                                                 (list start-t
-                                                                                                       (+ start-t (time-window obj))))
-                                                                               (set-time-callback obj (car (interval obj)))))))
+                                                                               (player-loop-object sched obj)
+                                                                               ))))
                                            ;; If the object has to stop, stop the object at the end of interval
                                            (append actlist
                                                    (list (act-alloc :timestamp (1- (cadr I))
@@ -664,6 +648,21 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
   ;(mp:with-lock ((plan-lock self)) (setf (plan self) nil))
   (setf (plan self) nil)
   (destroy-data self))
+
+
+;;; LOOPS AN OBJECT
+(defmethod loop-schedulable-object ((obj schedulable-object) (sched scheduler))
+  (let ((start-t (or (car (interval obj)) 0)))
+    (incf (loop-count obj))
+    (setf (ref-time obj) (- (om-get-internal-time) start-t)
+          (play-planned? obj) nil)
+    (setf (current-local-time obj) start-t)
+    (schedule sched obj)
+    (interleave-tasks obj
+                      (list start-t
+                            (+ start-t (time-window obj))))
+    (set-time-callback obj (car (interval obj)))))
+
 
 (defmethod get-caller ((self schedulable-object) (sched scheduler))
   (cadr (find self (register sched) :key 'car)))
