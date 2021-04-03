@@ -348,7 +348,6 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 
          #'(lambda ()
              (let ((I (get-next-I obj))
-                   (start-t (or (car (interval obj)) 0))
                    bundles actlist)
                ;; Get actions as raw data
                (om-with-timeout (timeout sched)
@@ -378,15 +377,16 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
                                              (append actlist
                                                      (list (act-alloc :timestamp (1- (cadr I))
                                                                       :fun #'(lambda ()
-                                                                               (incf (loop-count obj))
-                                                                               (setf (ref-time obj) (- (om-get-internal-time) start-t)
-                                                                                     (play-planned? obj) nil)
-                                                                               (setf (current-local-time obj) start-t)
-                                                                               (schedule sched obj)
-                                                                               (interleave-tasks obj
-                                                                                                 (list start-t
-                                                                                                       (+ start-t (time-window obj))))
-                                                                               (set-time-callback obj (car (interval obj)))))))
+                                                                               (let ((start-t (or (car (interval obj)) 0)))
+                                                                                 (incf (loop-count obj))
+                                                                                 (setf (ref-time obj) (- (om-get-internal-time) start-t)
+                                                                                       (play-planned? obj) nil)
+                                                                                 (setf (current-local-time obj) start-t)
+                                                                                 (schedule sched obj)
+                                                                                 (interleave-tasks obj
+                                                                                                   (list start-t
+                                                                                                         (+ start-t (time-window obj))))
+                                                                                 (set-time-callback obj (car (interval obj))))))))
                                            ;; If the object has to stop, stop the object at the end of interval
                                            (append actlist
                                                    (list (act-alloc :timestamp (1- (cadr I))
