@@ -551,6 +551,10 @@
   (send-current-midi-key-offs object)
   (call-next-method))
 
+(defmethod player-loop-object ((self scheduler) (object midi-track))
+  (send-current-midi-key-offs object)
+  (call-next-method))
+
 (defmethod set-object-current-time ((self midi-track) time)
   (declare (ignore time))
   (send-current-midi-key-offs self)
