@@ -538,12 +538,13 @@
 ;;;======================================
 
 (defmethod add-note ((object midi-track) note)
-  (with-schedulable-object object
+  (with-schedulable-object
+   object
+   (data-stream-set-frames object
                            (if (midi-events object)
                                (insert-in-order note (midi-events object) :key 'car :test <)
-                             (setf (midi-events object) (list note))))
+                             (list note))))
   (om-invalidate-view object))
-
 
 
 (defun gen-random-midi-notes (n &optional (tmax 10000) (channel 1))
