@@ -381,10 +381,9 @@
 
 ;TODO Add axis keys to check and move in correct dimension if internal bpf
 (defmethod move-points-in-bpf ((self bpf) points dx dy &optional (x-key :x) (y-key :y))
-  (with-schedulable-object self
-                           (when (possible-move self points x-key dx y-key dy)
-                             (loop for p in points do (funcall 'om-point-mv p x-key dx y-key dy))
-                             points)))
+  (when (possible-move self points x-key dx y-key dy)
+    (loop for p in points do (funcall 'om-point-mv p x-key dx y-key dy))
+    points))
 
 
 (defmethod set-point-in-bpf ((self bpf) point x y)
