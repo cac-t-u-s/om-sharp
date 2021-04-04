@@ -828,8 +828,7 @@
 (defmethod translate-elements-from-time-marker ((self OMBox) elems dt)
   "translates elements from a time marker with dt"
   (when (get-box-value self)
-    (with-schedulable-object (container self)
-                             (translate-elements-from-time-marker (get-obj-to-play self) elems dt))
+    (translate-elements-from-time-marker (get-obj-to-play self) elems dt)
     (reset-cache-display self)
     (contextual-update self (container self))
     (when (editor self)
