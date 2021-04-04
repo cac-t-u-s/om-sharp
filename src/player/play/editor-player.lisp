@@ -218,25 +218,28 @@
                                 (abort e))))
         (play-editor-callback editor time))))
 
+
 (defmethod editor-play ((self play-editor-mixin))
 
-  (when (play-obj? (get-obj-to-play self))
+  (let ((object (get-obj-to-play self)))
 
-    (start-editor-callback self)
+    (when (play-obj? object)
 
-    (if (equal (player-get-object-state (player self) (get-obj-to-play self)) :pause)
+      (start-editor-callback self)
 
-        (progn
-          (player-continue-object (player self) (get-obj-to-play self))
+      (if (equal (player-get-object-state (player self) object) :pause)
+
+          (progn
+            (player-continue-object (player self) object)
+            (when (metronome self)
+              (player-continue-object (player self) (metronome self))))
+
+        (let ((interval (get-interval-to-play self)))
           (when (metronome self)
-            (player-continue-object (player self) (metronome self))))
-
-      (let ((interval (get-interval-to-play self)))
-        (when (metronome self)
-          (player-play-object (player self) (metronome self) nil :interval interval))
-        (player-play-object (player self) (get-obj-to-play self) self :interval interval)
-        (player-start (player self) :start-t (or (car interval) 0) :end-t (cadr interval)))
-      )))
+            (player-play-object (player self) (metronome self) nil :interval interval))
+          (player-play-object (player self) object self :interval interval)
+          (player-start (player self) :start-t (or (car interval) 0) :end-t (cadr interval)))
+        ))))
 
 
 (defmethod editor-pause ((self play-editor-mixin))
