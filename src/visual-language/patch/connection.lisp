@@ -80,8 +80,14 @@
   c)
 
 (defmethod omng-connect ((c OMConnection))
-  (setf (connections (from c)) (append (connections (from c)) (list c)))
-  (setf (connections (to c)) (append (connections (to c)) (list c))))
+
+  (if (connections (to c))
+
+      (om-beep-msg "Can't connect a box input several time! You should not be here!")
+
+    (setf (connections (from c)) (append (connections (from c)) (list c))
+          (connections (to c)) (append (connections (to c)) (list c)))
+    ))
 
 (defmethod omng-unconnect ((c OMConnection))
   (setf (connections (from c)) (remove c (connections (from c))))

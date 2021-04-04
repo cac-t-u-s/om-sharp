@@ -147,8 +147,8 @@
 ;;;=============================
 
 (defmethod omng-add-element ((self OMPatch) (elem OMConnection))
-  (omng-connect elem)
-  (setf (connections self) (append (connections self) (list elem))))
+  (when (omng-connect elem)
+    (setf (connections self) (append (connections self) (list elem)))))
 
 (defmethod omng-remove-element ((self OMPatch) (elem OMConnection))
   (omng-unconnect elem)
