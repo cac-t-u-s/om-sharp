@@ -548,7 +548,8 @@
 
 (defmethod reverse-points ((self 3dc-editor))
   (store-current-state-for-undo self)
-  (time-sequence-reverse (object-value self))
+  (with-schedulable-object (object-value self)
+                           (time-sequence-reverse (object-value self)))
   (editor-invalidate-views self)
   (update-to-editor (timeline-editor self) self)
   (report-modifications self))
