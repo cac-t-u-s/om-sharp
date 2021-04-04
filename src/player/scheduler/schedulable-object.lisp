@@ -140,7 +140,7 @@ If the use of a macro is not convenient, you can simple call (notify-scheduler o
 ;; ALTERNATIVE TO THE MACRO ABOVE
 ;; (notifies the scheduler of potentially needed replanning)
 (defmethod notify-scheduler ((object schedulable-object))
-  (when (and (eq (state object) :play) (> (time-window object) *Lmin*))
+  (when (eq (state object) :play) ; (> (time-window object) *Lmin*)
     (setf (time-window object) *Lmin*)
     (reschedule object *scheduler* (get-obj-time object))))
 
