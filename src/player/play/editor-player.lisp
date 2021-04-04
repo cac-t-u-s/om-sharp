@@ -253,6 +253,9 @@
         (let ((interval (get-interval-to-play self)))
           (when (metronome self)
             (player-play-object (player self) (metronome self) nil :interval interval))
+
+          (player-set-object-loop (player self) object (loop-play self))
+
           (player-play-object (player self) object self :interval interval)
           (player-start (player self) :start-t (or (car interval) 0) :end-t (cadr interval)))
         ))))
