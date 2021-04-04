@@ -71,7 +71,6 @@ Additional inputs/outputs are accesses on the sequencer box.
             (defval (reference inbox)) self)
       (omng-add-element patch inbox)
       (omng-add-element patch outbox)
-      (omng-connect connection)
       (omng-add-element patch connection)
       (omng-resize comment (omp 120 120))
       (omng-add-element patch comment)
