@@ -55,6 +55,22 @@
 
 
 ;;;=====================================
+;;; LOOP:
+;;;=====================================
+
+(defmethod update-play-state ((object t) (box OMBoxEditCall)) nil)
+
+(defmethod update-play-state ((object schedulable-object) (box OMBoxEditCall))
+  (when (editor box)
+    (player-set-object-loop
+     (player (editor box)) object
+     (loop-play (editor box)))))
+
+(defmethod update-after-eval :after ((self OMBoxEditCall))
+  (update-play-state (car (value self)) self))
+
+
+;;;=====================================
 ;;; HELPERS TO SEND DATA TO THE PLAYER:
 ;;;=====================================
 
