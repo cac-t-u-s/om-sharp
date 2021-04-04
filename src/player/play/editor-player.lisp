@@ -55,6 +55,22 @@
 
 
 ;;;=====================================
+;;; LOOP:
+;;;=====================================
+
+(defmethod update-play-state ((object t) (box OMBoxEditCall)) nil)
+
+(defmethod update-play-state ((object schedulable-object) (box OMBoxEditCall))
+  (when (editor box)
+    (player-set-object-loop
+     (player (editor box)) object
+     (loop-play (editor box)))))
+
+(defmethod update-after-eval :after ((self OMBoxEditCall))
+  (update-play-state (car (value self)) self))
+
+
+;;;=====================================
 ;;; HELPERS TO SEND DATA TO THE PLAYER:
 ;;;=====================================
 
@@ -218,25 +234,31 @@
                                 (abort e))))
         (play-editor-callback editor time))))
 
+
 (defmethod editor-play ((self play-editor-mixin))
 
-  (when (play-obj? (get-obj-to-play self))
+  (let ((object (get-obj-to-play self)))
 
-    (start-editor-callback self)
+    (when (play-obj? object)
 
-    (if (equal (player-get-object-state (player self) (get-obj-to-play self)) :pause)
+      (start-editor-callback self)
 
-        (progn
-          (player-continue-object (player self) (get-obj-to-play self))
+      (if (equal (player-get-object-state (player self) object) :pause)
+
+          (progn
+            (player-continue-object (player self) object)
+            (when (metronome self)
+              (player-continue-object (player self) (metronome self))))
+
+        (let ((interval (get-interval-to-play self)))
           (when (metronome self)
-            (player-continue-object (player self) (metronome self))))
+            (player-play-object (player self) (metronome self) nil :interval interval))
 
-      (let ((interval (get-interval-to-play self)))
-        (when (metronome self)
-          (player-play-object (player self) (metronome self) nil :interval interval))
-        (player-play-object (player self) (get-obj-to-play self) self :interval interval)
-        (player-start (player self) :start-t (or (car interval) 0) :end-t (cadr interval)))
-      )))
+          (player-set-object-loop (player self) object (loop-play self))
+
+          (player-play-object (player self) object self :interval interval)
+          (player-start (player self) :start-t (or (car interval) 0) :end-t (cadr interval)))
+        ))))
 
 
 (defmethod editor-pause ((self play-editor-mixin))
@@ -288,6 +310,7 @@
 
 
 (defmethod editor-set-loop ((self play-editor-mixin) t-or-nil)
+  (setf (loop-play self) t-or-nil)
   (player-set-object-loop (player self) (get-obj-to-play self) t-or-nil))
 
 
@@ -551,7 +574,7 @@
          (om-make-graphic-object 'om-icon-button :size (or size (omp 16 16))
                                  :icon :icon-repeat-black :icon-pushed :icon-repeat-orange :icon-disabled :icon-repeat-gray
                                  :lock-push t :enabled enable
-                                 :pushed (is-looping (get-obj-to-play editor))
+                                 :pushed (loop-play editor)
                                  :action #'(lambda (b)
                                              (editor-set-loop editor (pushed b)))))))
 

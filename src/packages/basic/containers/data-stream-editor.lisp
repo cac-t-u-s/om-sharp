@@ -281,11 +281,6 @@
 
 (defmethod update-to-editor ((editor data-stream-editor) (from t))
   (call-next-method)
-
-  ;;; will reset the repeat-state of the new object according to the current
-  ;;; repeat button state -- loop isn't stored as a proper editor property :-/
-  (editor-set-loop editor (pushed (repeat-button editor)))
-
   (mapc 'om-invalidate-view (get-g-component editor :data-panel-list)))
 
 
