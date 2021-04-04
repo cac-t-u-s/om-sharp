@@ -291,6 +291,7 @@
 
 
 (defmethod editor-set-loop ((self play-editor-mixin) t-or-nil)
+  (setf (loop-play self) t-or-nil)
   (player-set-object-loop (player self) (get-obj-to-play self) t-or-nil))
 
 
@@ -554,7 +555,7 @@
          (om-make-graphic-object 'om-icon-button :size (or size (omp 16 16))
                                  :icon :icon-repeat-black :icon-pushed :icon-repeat-orange :icon-disabled :icon-repeat-gray
                                  :lock-push t :enabled enable
-                                 :pushed (is-looping (get-obj-to-play editor))
+                                 :pushed (loop-play editor)
                                  :action #'(lambda (b)
                                              (editor-set-loop editor (pushed b)))))))
 
