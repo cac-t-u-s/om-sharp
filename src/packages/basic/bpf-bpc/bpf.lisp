@@ -742,10 +742,10 @@
 ;;; call (setf point-list) only once all modifications are performed
 ;;; For example, when drawing a curve, don't call (setf point-list) on
 ;;; each insert-point but only once the mouse is released
-(defmethod (setf point-list) ((point-list t) (self bpf))
-  (with-schedulable-object
-   self
-   (setf (slot-value self 'point-list) point-list)))
+;(defmethod (setf point-list) ((point-list t) (self bpf))
+;  (with-schedulable-object
+;   self
+;   (setf (slot-value self 'point-list) point-list)))
 
 
 ;;;===============================================
