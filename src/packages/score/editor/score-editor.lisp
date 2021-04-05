@@ -488,7 +488,7 @@
     ))
 
 
-;;; also called bu cut-command:
+;;; also called by cut-command:
 (defmethod delete-selection ((editor score-editor))
   (when (selection editor)
     (store-current-state-for-undo editor)
