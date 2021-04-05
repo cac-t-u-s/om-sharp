@@ -480,9 +480,7 @@
   (let* ((path (omng-load (car data)))
          (checked-path (and (pathname-directory path)  ;; normal case
                             (check-path-using-search-path path)))
-
          (seq
-
           (if checked-path
 
               (load-doc-from-file checked-path :sequencer)
@@ -499,4 +497,4 @@
       (setf seq (make-instance'OMSequencerFile :name (pathname-name path)))
       (setf (mypathname seq) path))
 
-    sequencers))
+    seq))
