@@ -826,6 +826,12 @@
 ;;; ACTIONS ands Utilities
 ;;;=================================
 
+;;; after undo/redo
+(defmethod update-after-state-change ((self play-editor-mixin))
+  (notify-scheduler (get-obj-to-play self))
+  (call-next-method))
+
+
 (defmethod get-related-views-editors ((self time-ruler))
   (remove-duplicates (remove nil (loop for rv in (related-views self) collect (get-editor-for-graduated-view rv)))))
 
@@ -858,6 +864,11 @@
           )))
 
 
+(defmethod get-schedulable-object ((self OMBox)) (get-obj-to-play self))
+(defmethod get-schedulable-object ((self schedulable-object)) self)
+(defmethod get-schedulable-object ((self t)) nil)
+
+
 (defmethod translate-from-marker-action ((self time-ruler) marker position)
 
   (let* ((ref-time (pix-to-x self (om-point-x position)))
@@ -873,7 +884,8 @@
                                 (if (markers-count-object-onset-p self)
                                     (om- marker (get-onset obj)) marker))))
                           (when matching-elements
-                            (list obj matching-elements)))))))
+                            (list obj matching-elements (get-schedulable-object obj)))))))
+         (move nil))
 
     (om-init-temp-graphics-motion
      self position nil
@@ -882,7 +894,7 @@
                  (let* ((tmp_time (pixel-to-time view (om-point-x pos)))
                         (dt (round (- tmp_time ref-time)))
                         (new-dt (if (snap-to-grid self) (adapt-dt-for-grid-and-markers self marker dt) dt)))
-                   (when (not (zerop new-dt))
+                   (unless (zerop new-dt)
                      (loop for item in obj-elem-list do
                            (let ((obj (car item))
                                  (elem (cadr item)))
@@ -895,8 +907,16 @@
                                             (position marker (selected-time-markers self))))
                      (setf marker (+ marker new-dt))
                      (setf ref-time (+ ref-time new-dt))
+                     (setf move t)
                      (mapcar 'om-invalidate-view (related-views self))
-                     (om-invalidate-view self)))))))
+                     (om-invalidate-view self))))
+     :release #'(lambda (view pos)
+                  (declare (ignore view pos))
+                  (when move
+                    (loop for item in obj-elem-list do
+                          (notify-scheduler (nth 2 item))))
+                  )
+     )))
 
 ;=========
 ; EVENTS

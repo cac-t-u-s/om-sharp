@@ -337,26 +337,24 @@
   (with-schedulable-object seq (call-next-method)))
 
 (defmethod move-box-in-sequencer ((seq OMSequencer) (tb OMBox) &key (dx 0) (dy 0))
-  (with-schedulable-object
-   seq
-   ;;; this is +/- like move-box (with set-box-onset)
-   (set-box-onset tb (max (+ (get-box-onset tb) dx) 0))
-   (setf (box-y tb) (+ (box-y tb) dy))
+  ;;; this is +/- like move-box (with set-box-onset)
+  (set-box-onset tb (max (+ (get-box-onset tb) dx) 0))
+  (setf (box-y tb) (+ (box-y tb) dy))
 
-   (when (frame tb) (update-frame-to-box-position tb))
+  (when (frame tb) (update-frame-to-box-position tb))
 
-   (when (container tb)
-     (report-modifications (editor (container tb))))
+  (when (container tb)
+    (report-modifications (editor (container tb))))
 
-   (update-connections tb)
+  (update-connections tb)
 
-   ;;; specific
-   (if (and (get-box-value tb) (eq (get-object-state (get-box-value tb)) :play))
-       (let ((ti (get-obj-time seq)))
-         (if (in-interval ti (list (get-box-onset tb) (get-box-end-date tb)))
-             (set-object-current-time (get-box-value tb) (- ti (get-box-onset tb)))
-           (player-stop-object *general-player* (get-box-value tb)))))
-   ))
+  ;;; specific
+  (if (and (get-box-value tb) (eq (get-object-state (get-box-value tb)) :play))
+      (let ((ti (get-obj-time seq)))
+        (if (in-interval ti (list (get-box-onset tb) (get-box-end-date tb)))
+            (set-object-current-time (get-box-value tb) (- ti (get-box-onset tb)))
+          (player-stop-object *general-player* (get-box-value tb)))))
+  )
 
 
 ;;;======================================

@@ -381,10 +381,9 @@
 
 ;TODO Add axis keys to check and move in correct dimension if internal bpf
 (defmethod move-points-in-bpf ((self bpf) points dx dy &optional (x-key :x) (y-key :y))
-  (with-schedulable-object self
-                           (when (possible-move self points x-key dx y-key dy)
-                             (loop for p in points do (funcall 'om-point-mv p x-key dx y-key dy))
-                             points)))
+  (when (possible-move self points x-key dx y-key dy)
+    (loop for p in points do (funcall 'om-point-mv p x-key dx y-key dy))
+    points))
 
 
 (defmethod set-point-in-bpf ((self bpf) point x y)
@@ -743,10 +742,10 @@
 ;;; call (setf point-list) only once all modifications are performed
 ;;; For example, when drawing a curve, don't call (setf point-list) on
 ;;; each insert-point but only once the mouse is released
-(defmethod (setf point-list) ((point-list t) (self bpf))
-  (with-schedulable-object
-   self
-   (setf (slot-value self 'point-list) point-list)))
+;(defmethod (setf point-list) ((point-list t) (self bpf))
+;  (with-schedulable-object
+;   self
+;   (setf (slot-value self 'point-list) point-list)))
 
 
 ;;;===============================================

@@ -61,6 +61,7 @@
 
 
 (defmethod update-after-state-change ((self t)) nil)
+
 (defmethod update-after-state-change ((self OMEditor))
   (om-invalidate-view (main-view self))
   (report-modifications self))

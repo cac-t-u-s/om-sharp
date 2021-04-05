@@ -505,14 +505,18 @@
                        (when (not (equal new-dt 0))
                          (setf time (+ time new-dt))
                          (translate-selection editor new-dt)
-                         (set-cursor-time editor  (item-get-internal-time orig-point))
+                         (set-cursor-time editor (item-get-internal-time orig-point))
                          ))
                      (om-invalidate-view view)
                      (when (equal :master (item-get-type orig-point))
                        (om-invalidate-view (time-ruler editor)))
                      (update-to-editor (container-editor editor) editor)
                      (report-modifications (container-editor editor))
-                     ))))))
+                     )))
+     :release #'(lambda (view pos)
+                  (declare (ignore view pos))
+                  (notify-scheduler (object-value (container-editor editor))))
+     )))
 
 
 ;;;==========================
@@ -527,12 +531,15 @@
          (container-editor (container-editor timeline-editor))
          (time (pix-to-x self (om-point-x position)))
          (point (timed-item-at-time timeline-editor self time)))
+
     ;add a point if add key down and point not existing
     (when (and (om-add-key-down) (alllow-insert-point-from-timeline container-editor) (not point))
       (store-current-state-for-undo container-editor)
       (let ((pos (add-point-at-time timeline-editor time (id self)))
             (obj (editor-get-time-sequence timeline-editor (id self))))
+        (notify-scheduler (object-value container-editor))
         (setf point (get-nth-point obj pos))))
+
     ;timelines views selection
     (cond
      ((om-shift-key-p)
@@ -571,6 +578,7 @@
             (om-invalidate-view (nth timeline-id (timeline-views editor))))
         (get-selected-timelines editor))
        (setf (selection editor) nil)
+       (notify-scheduler (object-value (container-editor editor)))
        (update-to-editor (container-editor editor) editor)
        t))
     (#\u
@@ -578,6 +586,7 @@
      (mapcar #'(lambda (timeline-id)
                  (snap-all-points-to-grid editor timeline-id))
              (get-selected-timelines editor))
+     (notify-scheduler (object-value (container-editor editor)))
      (update-to-editor (container-editor editor) editor)
      t)
     (#\m (when (selection editor)

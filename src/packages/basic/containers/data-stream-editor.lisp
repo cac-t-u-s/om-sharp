@@ -542,7 +542,8 @@
             (store-current-state-for-undo editor)
             (let ((frame (time-sequence-make-timed-item-at (object-value editor) (pixel-to-time self (om-point-x p0)))))
               (finalize-data-frame frame :posy (pix-to-y self (- (h self) (om-point-y p0))))
-              (time-sequence-insert-timed-item-and-update (object-value editor) frame)
+              (with-schedulable-object (object-value editor)
+                                       (time-sequence-insert-timed-item-and-update (object-value editor) frame))
               (report-modifications editor)
               (update-timeline-editor editor)
               (om-invalidate-view self)))
@@ -568,6 +569,7 @@
                                    (om-invalidate-view self))))
                    :release #'(lambda (view pos)
                                 (declare (ignore view pos))
+                                (notify-scheduler (object-value editor))
                                 (report-modifications editor)
                                 (om-invalidate-view self))
                    :min-move 4)
@@ -588,9 +590,10 @@
                  :release #'(lambda (view pos)
                               (declare (ignore view pos))
                               (let ((selected-frames (posn-match (data-stream-get-frames (object-value editor)) (selection editor))))
-                                (editor-sort-frames editor)
-                                (move-editor-selection editor :dy :round)
-                                (time-sequence-reorder-timed-item-list (object-value editor))
+                                (with-schedulable-object (object-value editor)
+                                                         (editor-sort-frames editor)
+                                                         (move-editor-selection editor :dy :round)
+                                                         (time-sequence-reorder-timed-item-list (object-value editor)))
                                 (update-timeline-editor editor)
                                 ;;; reset the selection:
                                 (set-selection editor
@@ -625,11 +628,12 @@
       (:om-key-delete
        (when (selection editor)
          (store-current-state-for-undo editor)
-         (delete-editor-selection editor)
+         (with-schedulable-object (object-value editor)
+                                  (delete-editor-selection editor))
          (setf (selection editor) nil)
          (om-invalidate-view panel)
          (update-timeline-editor editor)
-         ;; (time-sequence-update-obj-dur stream)
+         ;; (time-sequence-update-obj-dur stream) ; why not ?
          (report-modifications editor)))
       (:om-key-esc
        ;; maybe not needed ? we already have the db-click on ruler for that...
@@ -637,18 +641,23 @@
        )
       (:om-key-left
        (store-current-state-for-undo editor)
-       (move-editor-selection editor :dx (- (get-units (get-g-component editor :x-ruler) (if (om-shift-key-p) 100 10))))
-       (editor-sort-frames editor)
-       (time-sequence-update-internal-times stream)
+       (with-schedulable-object
+        (object-value editor)
+        (move-editor-selection editor :dx (- (get-units (get-g-component editor :x-ruler) (if (om-shift-key-p) 100 10))))
+        (editor-sort-frames editor)
+        (time-sequence-update-internal-times stream))
        (om-invalidate-view panel)
        (update-timeline-editor editor)
        (report-modifications editor)
        )
       (:om-key-right
        (store-current-state-for-undo editor)
-       (move-editor-selection editor :dx (get-units (get-g-component editor :x-ruler) (if (om-shift-key-p) 100 10)))
-       (editor-sort-frames editor)
-       (time-sequence-update-internal-times stream)
+       (with-schedulable-object
+        (object-value editor)
+        (move-editor-selection editor :dx (get-units (get-g-component editor :x-ruler) (if (om-shift-key-p) 100 10)))
+        (editor-sort-frames editor)
+        (time-sequence-update-internal-times stream))
+
        (om-invalidate-view panel)
        (update-timeline-editor editor)
        (report-modifications editor))

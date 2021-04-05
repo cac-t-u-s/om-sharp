@@ -335,6 +335,8 @@
                                 (reset-undoable-editor-action editor)
                                 (report-modifications editor))
                    )
+
+                  (notify-scheduler obj)
                   ))))
 
            ;; select
@@ -396,6 +398,7 @@
                                       (score-object-update voice)
                                       (unless (equal (editor-play-state editor) :stop)
                                         (close-open-chords-at-time (get-selected-chords editor) (get-obj-time obj) obj))
+                                      (notify-scheduler obj)
                                       (reset-undoable-editor-action editor)
                                       (report-modifications editor)))
                        ))
@@ -447,7 +450,9 @@
      (if (om-option-key-p)
          (progn
            (store-current-state-for-undo editor)
-           (score-editor-change-selection-durs editor (if (om-shift-key-p) -1000 -100))
+           (with-schedulable-object
+            (object-value editor)
+            (score-editor-change-selection-durs editor (if (om-shift-key-p) -1000 -100)))
            (editor-invalidate-views editor)
            (report-modifications editor))
        (call-next-method)))
@@ -456,7 +461,9 @@
      (if (om-option-key-p)
          (progn
            (store-current-state-for-undo editor)
-           (score-editor-change-selection-durs editor (if (om-shift-key-p) 1000 100))
+           (with-schedulable-object
+            (object-value editor)
+            (score-editor-change-selection-durs editor (if (om-shift-key-p) 1000 100)))
            (editor-invalidate-views editor)
            (report-modifications editor))
        (call-next-method)))
@@ -478,7 +485,9 @@
      (report-modifications editor))
 
     (:om-key-delete
-     (delete-selection editor))
+     (with-schedulable-object
+      (object-value editor)
+      (delete-selection editor)))
 
     (#\g (add-selection-to-group editor))
     (#\G (delete-selection-group editor))
@@ -786,13 +795,16 @@
   (when (selection self)
     #'(lambda ()
         (set-om-clipboard (mapcar #'om-copy (selection self)))
-        (delete-selection self))))
+        (delete-selection self)
+        (notify-scheduler (object-value self))
+        )))
 
 
 (defmethod paste-command ((self score-editor))
   (when (get-om-clipboard)
     #'(lambda ()
         (score-editor-paste self (get-om-clipboard))
+        (notify-scheduler (object-value self))
         (editor-invalidate-views self)
         )))
 

@@ -178,10 +178,10 @@
                                                    (and t ;(action object)
                                                         (om-make-layout
                                                          'om-row-layout ;:size (omp 60 20)
-                                                         :subviews (list (make-play-button editor :enable (action object))
-                                                                         (make-repeat-button editor :enable (action object))
-                                                                         (make-pause-button editor :enable (action object))
-                                                                         (make-stop-button editor :enable (action object)))))
+                                                         :subviews (list (make-play-button editor :enable t)
+                                                                         (make-repeat-button editor :enable t)
+                                                                         (make-pause-button editor :enable t)
+                                                                         (make-stop-button editor :enable t))))
                                                    )))
          (bottom-area nil)
          )
@@ -1010,7 +1010,8 @@
 
 (defmethod reverse-points ((self bpf-editor))
   (store-current-state-for-undo self)
-  (time-sequence-reverse (object-value self))
+  (with-schedulable-object (object-value self)
+                           (time-sequence-reverse (object-value self)))
   (editor-invalidate-views self)
   (update-to-editor (timeline-editor self) self)
   (report-modifications self))
@@ -1060,7 +1061,8 @@
         (:mouse
          (cond ((om-add-key-down)
                 (store-current-state-for-undo editor)
-                (let ((p (insert-point-at-pix editor obj position)))
+                (let ((p (with-schedulable-object obj
+                                                  (insert-point-at-pix editor obj position))))
                   (when p
                     (setf (selection editor) (list p))   ; (position p (point-list obj))
                     (report-modifications editor)
@@ -1083,6 +1085,7 @@
                                   (reset-undoable-editor-action editor)
                                   (round-point-values editor)
                                   (time-sequence-update-internal-times obj)
+                                  (notify-scheduler obj)
                                   (report-modifications editor)
                                   (om-invalidate-view view)
                                   (update-timeline-editor editor))
@@ -1112,6 +1115,7 @@
                                         (reset-undoable-editor-action editor)
                                         (round-point-values editor)
                                         (time-sequence-update-internal-times obj)
+                                        (notify-scheduler obj)
                                         (report-modifications editor)
                                         (om-invalidate-view view)
                                         (update-timeline-editor editor))
@@ -1169,6 +1173,7 @@
                                                 :release #'(lambda (view pos)
                                                              (declare (ignore pos))
                                                              (time-sequence-update-internal-times obj)
+                                                             (notify-scheduler obj)
                                                              (report-modifications editor)
                                                              (om-invalidate-view view)
                                                              (update-timeline-editor editor)))
@@ -1236,13 +1241,15 @@
 
 
 (defmethod editor-key-action ((editor bpf-editor) key)
-  (let ((panel (get-g-component editor :main-panel)))
+  (let ((panel (get-g-component editor :main-panel))
+        (object (object-value editor)))
     (case key
       (#\- (zoom-rulers panel :dx -0.1 :dy -0.1)) ;;; zoom out : the ruler gets bigger
       (#\+ (zoom-rulers panel :dx 0.1 :dy 0.1)) ;;; zoom in : the ruler gets smaller
       (:om-key-delete
        (store-current-state-for-undo editor)
-       (delete-editor-selection editor)
+       (with-schedulable-object object
+                                (delete-editor-selection editor))
        (report-modifications editor)
        (editor-invalidate-views editor)
        )
@@ -1252,30 +1259,34 @@
        (editor-invalidate-views editor))
       (:om-key-left
        (store-current-state-for-undo editor :action :move-l :item (selection editor))
-       (move-editor-selection editor :dx (/ (- (get-units (x-ruler panel) (if (om-shift-key-p) 400 40))) (scale-fact panel)))
-       (time-sequence-update-internal-times (object-value editor))
+       (with-schedulable-object object
+                                (move-editor-selection editor :dx (/ (- (get-units (x-ruler panel) (if (om-shift-key-p) 400 40))) (scale-fact panel)))
+                                (time-sequence-update-internal-times object))
        (update-timeline-editor editor)
        (editor-invalidate-views editor)
        (report-modifications editor)
        )
       (:om-key-right
        (store-current-state-for-undo editor :action :move-r :item (selection editor))
-       (move-editor-selection editor :dx (/ (get-units (x-ruler panel) (if (om-shift-key-p) 400 40)) (scale-fact panel)))
-       (time-sequence-update-internal-times (object-value editor))
+       (with-schedulable-object object
+                                (move-editor-selection editor :dx (/ (get-units (x-ruler panel) (if (om-shift-key-p) 400 40)) (scale-fact panel)))
+                                (time-sequence-update-internal-times object))
        (update-timeline-editor editor)
        (editor-invalidate-views editor)
        (report-modifications editor))
       (:om-key-up
        (store-current-state-for-undo editor :action :move-u :item (selection editor))
-       (move-editor-selection editor :dy (/ (get-units (y-ruler panel) (if (om-shift-key-p) 400 40)) (scale-fact panel)))
-       (time-sequence-update-internal-times (object-value editor))
+       (with-schedulable-object object
+                                (move-editor-selection editor :dy (/ (get-units (y-ruler panel) (if (om-shift-key-p) 400 40)) (scale-fact panel)))
+                                (time-sequence-update-internal-times object))
        (update-timeline-editor editor)
        (editor-invalidate-views editor)
        (report-modifications editor))
       (:om-key-down
        (store-current-state-for-undo editor :action :move-d :item (selection editor))
-       (move-editor-selection editor :dy (/ (- (get-units (y-ruler panel) (if (om-shift-key-p) 400 40))) (scale-fact panel)))
-       (time-sequence-update-internal-times (object-value editor))
+       (with-schedulable-object object
+                                (move-editor-selection editor :dy (/ (- (get-units (y-ruler panel) (if (om-shift-key-p) 400 40))) (scale-fact panel)))
+                                (time-sequence-update-internal-times object))
        (update-timeline-editor editor)
        (editor-invalidate-views editor)
        (report-modifications editor))

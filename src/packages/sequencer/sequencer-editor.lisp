@@ -420,6 +420,7 @@
                                (om-invalidate-view self)))
                  :release #'(lambda (view pos)
                               (declare (ignore view pos))
+                              (notify-scheduler (object editor))
                               (report-modifications editor)
                               (om-invalidate-view self))
                  :min-move 4)
@@ -470,6 +471,7 @@
 
                :release #'(lambda (view pos)
                             (declare (ignore view pos))
+                            (notify-scheduler (object editor))
                             (report-modifications editor)
                             (om-invalidate-view (om-view-window self)))
 
@@ -493,6 +495,7 @@
                          (om-invalidate-view self)))
            :release #'(lambda (view pos)
                         (declare (ignore view pos))
+                        (notify-scheduler (object editor))
                         (report-modifications editor)
                         (om-invalidate-view self))
            :min-move 4)
@@ -714,25 +717,33 @@
       (:om-key-left
        (unless (edit-lock editor)
          (store-current-state-for-undo editor :action :move :item (get-selected-boxes editor))
-         (move-editor-selection editor :dx (- (get-units (get-g-component editor :metric-ruler) (if (om-shift-key-p) 100 10))))
+         (with-schedulable-object
+          seq
+          (move-editor-selection editor :dx (- (get-units (get-g-component editor :metric-ruler) (if (om-shift-key-p) 100 10)))))
          (om-invalidate-view (main-view editor))
          (report-modifications editor)))
       (:om-key-right
        (unless (edit-lock editor)
          (store-current-state-for-undo editor :action :move :item (get-selected-boxes editor))
-         (move-editor-selection editor :dx (get-units (get-g-component editor :metric-ruler) (if (om-shift-key-p) 100 10)))
+         (with-schedulable-object
+          seq
+          (move-editor-selection editor :dx (get-units (get-g-component editor :metric-ruler) (if (om-shift-key-p) 100 10))))
          (om-invalidate-view (main-view editor))
          (report-modifications editor)))
       (:om-key-up
        (unless (edit-lock editor)
          (store-current-state-for-undo editor :action :move :item (get-selected-boxes editor))
-         (move-editor-selection editor :dy (if (om-shift-key-p) 10 1))
+         (with-schedulable-object
+          seq
+          (move-editor-selection editor :dy (if (om-shift-key-p) 10 1)))
          (om-invalidate-view (main-view editor))
          (report-modifications editor)))
       (:om-key-down
        (unless (edit-lock editor)
          (store-current-state-for-undo editor :action :move :item (get-selected-boxes editor))
-         (move-editor-selection editor :dy (if (om-shift-key-p) -10 -1))
+         (with-schedulable-object
+          seq
+          (move-editor-selection editor :dy (if (om-shift-key-p) -10 -1)))
          (om-invalidate-view (main-view editor))
          (report-modifications editor)))
 
@@ -828,8 +839,7 @@
 (defmethod translate-elements-from-time-marker ((self OMBox) elems dt)
   "translates elements from a time marker with dt"
   (when (get-box-value self)
-    (with-schedulable-object (container self)
-                             (translate-elements-from-time-marker (get-obj-to-play self) elems dt))
+    (translate-elements-from-time-marker (get-obj-to-play self) elems dt)
     (reset-cache-display self)
     (contextual-update self (container self))
     (when (editor self)
