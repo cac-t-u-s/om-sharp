@@ -442,13 +442,10 @@
 (defmethod update-to-editor ((self 3DC-editor) (from timeline-editor))
   (setf (selection self) (get-indices-from-points (object-value self) (selection from)))
   (when (window self)
-    (with-schedulable-object (object-value self)
-                             (update-editor-3d-object self)
-                             (time-sequence-update-internal-times (object-value self))
-                             (update-3d-view self)
-                             (update-sub-editors self)
-                             )
-    )
+    (update-editor-3d-object self)
+    (time-sequence-update-internal-times (object-value self))
+    (update-3d-view self)
+    (update-sub-editors self))
   (report-modifications self))
 
 
@@ -457,9 +454,8 @@
   (setf (selection self) (selection from))
   (update-sub-editors self)
   (when (window self)
-    (with-schedulable-object (object-value self)
-                             (update-editor-3d-object self)
-                             (update-3d-view self)))
+    (update-editor-3d-object self)
+    (update-3d-view self))
   (report-modifications self))
 
 
