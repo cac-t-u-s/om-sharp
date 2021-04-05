@@ -826,6 +826,12 @@
 ;;; ACTIONS ands Utilities
 ;;;=================================
 
+;;; after undo/redo
+(defmethod update-after-state-change ((self play-editor-mixin))
+  (notify-scheduler (get-obj-to-play self))
+  (call-next-method))
+
+
 (defmethod get-related-views-editors ((self time-ruler))
   (remove-duplicates (remove nil (loop for rv in (related-views self) collect (get-editor-for-graduated-view rv)))))
 
