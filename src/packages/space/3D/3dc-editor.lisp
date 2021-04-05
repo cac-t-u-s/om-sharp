@@ -527,7 +527,7 @@
 
 
 ;;; called after undo/redo
-(defmethod update-after-state-change ((self OMEditor))
+(defmethod update-after-state-change ((self 3DC-editor))
   (editor-invalidate-views self)
   (call-next-method))
 
