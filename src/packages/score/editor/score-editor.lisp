@@ -795,13 +795,16 @@
   (when (selection self)
     #'(lambda ()
         (set-om-clipboard (mapcar #'om-copy (selection self)))
-        (delete-selection self))))
+        (delete-selection self)
+        (notify-scheduler (object-value self))
+        )))
 
 
 (defmethod paste-command ((self score-editor))
   (when (get-om-clipboard)
     #'(lambda ()
         (score-editor-paste self (get-om-clipboard))
+        (notify-scheduler (object-value self))
         (editor-invalidate-views self)
         )))
 
