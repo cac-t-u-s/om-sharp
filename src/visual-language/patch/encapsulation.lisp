@@ -180,6 +180,11 @@
                                        (nth i (outputs patchbox))
                                        dest-input
                                        `(:color ,(om-def-color :dark-blue)))))
+
+                      ;;; remove previous connection
+                      (loop for c in (connections dest-input) do
+                            (omng-remove-element thispatch c))
+
                       (omng-add-element thispatch connection)
                       (add-connection-in-view view connection)))))
 
