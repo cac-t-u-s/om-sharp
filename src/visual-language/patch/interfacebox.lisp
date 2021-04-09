@@ -419,7 +419,7 @@
 
 (defmethod default-size ((self ListSelectionBox)) (omp 60 60))
 (defmethod maximum-size ((self ListSelectionBox))
-  (omp nil (+ 8 (* (+ 2 (cell-height self)) (length (items self))))))
+  (omp nil (max 60 (+ 16 (* (+ 2 (cell-height self)) (length (items self)))))))
 
 (defmethod get-all-keywords ((self ListSelectionBox))
   '((:items)))
