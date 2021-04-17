@@ -208,7 +208,8 @@
 (defmethod unencapsulate-patchboxes ((editor patch-editor) view boxes)
   (mapc #'(lambda (b) (unencapsulate-box b editor view)) boxes))
 
-(defmethod unencapsulate-box ((box t) (editor patch-editor) view) (om-beep))
+(defmethod unencapsulate-box ((box t) (editor patch-editor) view)
+  (om-beep-msg "Selected box: ~S can not be un-encapsulated" (name box)))
 
 (defmethod center-positions-around (boxes position)
   (when boxes
