@@ -185,6 +185,14 @@
            (loop for in in (inputs self)
                  append (loop for c in (connections in) collect (box (from c)))))))
 
+
+(defmethod get-all-in-connected-boxes ((self OMBox))
+  (remove-duplicates
+   (loop for box in (get-in-connected-boxes self)
+         append (cons box
+                      (get-all-in-connected-boxes box)))))
+
+
 (defmethod recursive-connection-p ((from OMBox) (to OMBox))
   "Check if there is a cyclic connection"
   (let (rep)
