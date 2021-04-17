@@ -156,7 +156,10 @@
                           (om-make-point (round (average (mapcar 'box-x active-boxes) nil))
                                          (round (average (mapcar 'box-y active-boxes) nil)))
                           nil)))
-        ;insert new patch in current window
+
+          (store-current-state-for-undo editor)
+
+          ;insert new patch in current window
           (add-box-in-patch-editor patchbox view)
 
           (let ((copies (mapcar 'om-copy active-boxes))
@@ -231,6 +234,7 @@
 ;===============================
 
 (defmethod unencapsulate-patchboxes ((editor patch-editor) view boxes)
+  (store-current-state-for-undo editor)
   (mapc #'(lambda (b) (unencapsulate-box b editor view)) boxes))
 
 (defmethod unencapsulate-box ((box t) (editor patch-editor) view)

@@ -370,7 +370,6 @@
                 "Encapsulate selection [Shift+E]"
 
                 #'(lambda ()
-                    (store-current-state-for-undo self)
                     (encapsulate-patchboxes self (main-view self) (get-selected-boxes self)))
 
                 :enabled #'(lambda () (and (not (edit-lock self))
@@ -381,7 +380,6 @@
                 "Unencapsulate selection [Shift+U]"
 
                 #'(lambda ()
-                    (store-current-state-for-undo self)
                     (unencapsulate-patchboxes self (main-view self) (get-selected-boxes self)))
 
                 :enabled #'(lambda () (and (not (edit-lock self))
@@ -662,11 +660,9 @@
                  (mapc 'internalize-abstraction selected-boxes))))
 
         (#\E (unless (edit-lock editor)
-               (store-current-state-for-undo editor)
                (encapsulate-patchboxes editor panel selected-boxes)))
 
         (#\U (unless (edit-lock editor)
-               (store-current-state-for-undo editor)
                (unencapsulate-patchboxes editor panel selected-boxes)))
 
         (#\L (unless (edit-lock editor)
