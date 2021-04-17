@@ -126,79 +126,103 @@
     ))
 
 
+(defun can-encapsulate (boxes)
+  ;;; forbidden case: boxes are linked together but not all of the path is included
+  (let ((guard nil))
+    (loop for box in boxes
+          while (not guard)
+          do (loop for other-box in (remove box boxes)
+                   while (not guard)
+                   when (is-connected-up-to box other-box)
+                   do (loop for branch in (print (get-all-branches box other-box))
+                            while (not guard)
+                            do (when (find-if #'(lambda (box) (not (find box boxes))) branch)
+                                 (setf guard t)))))
+    (not guard)
+    ))
+
+
 (defmethod encapsulate-patchboxes ((editor patch-editor) (view patch-editor-view) boxes)
-  (let* ((active-boxes (remove-if #'(lambda (box) (typep box 'OMInOutBox)) boxes))
-         (thispatch (object editor))
-         (inactive-boxes (remove-if #'(lambda (box) (find box active-boxes)) (boxes thispatch)))
-         (newpatch (make-instance 'OMPatchInternal :name "my-patch"))
-         (patchbox (omng-make-new-boxcall
-                    newpatch
-                    (om-make-point (round (average (mapcar 'box-x active-boxes) nil))
-                                   (round (average (mapcar 'box-y active-boxes) nil)))
-                    nil)))
-    ;insert new patch in current window
-    (add-box-in-patch-editor patchbox view)
 
-    (let ((copies (mapcar 'om-copy active-boxes))
-          (connections (save-connections-from-boxes active-boxes))
-          (coming-in (sort (save-connections-from-boxes-2 inactive-boxes active-boxes)
-                           #'(lambda (b1 b2)
-                               (if (= (getf b1 :box) (getf b2 :box))
-                                   (< (getf b1 :out) (getf b2 :out))
-                                 (< (box-x (nth (getf b1 :box) inactive-boxes))
-                                    (box-x (nth (getf b2 :box) inactive-boxes)))))
-                           :key #'(lambda (bridge) (find-value-in-kv-list (cdr bridge) :from))))
-          (going-out (sort (save-connections-from-boxes-2 active-boxes inactive-boxes)
-                           #'(lambda (b1 b2)
-                               (if (= (getf b1 :box) (getf b2 :box))
-                                   (< (getf b1 :in) (getf b2 :in))
-                                 (< (box-x (nth (getf b1 :box) inactive-boxes))
-                                    (box-x (nth (getf b2 :box) inactive-boxes)))))
-                           :key #'(lambda (bridge) (find-value-in-kv-list (cdr bridge) :to)))))
+  (let ((active-boxes (remove-if #'(lambda (box) (typep box 'OMInOutBox)) boxes)))
 
-      ;add the copies to the new patch
-      (loop for copy in copies do (omng-add-element newpatch copy))
-      (loop for c in (restore-connections-to-boxes connections copies) do (omng-add-element newpatch c))
+    (if (can-encapsulate active-boxes)
 
-      ;MAKE THRESHOLD CONNECTIONS IN
-      (let ((dest-outs (make-incoming-connections newpatch coming-in inactive-boxes copies)))
-        (loop for dest-output in dest-outs
-              for i = 0 then (+ i 1) do
-              (let ((connection (omng-make-new-connection
-                                 dest-output
-                                 (nth i (inputs patchbox))
-                                 `(:color ,(om-def-color :dark-blue))
-                                 )))
-                (omng-add-element thispatch connection)
-                (add-connection-in-view view connection))))
+        (let* ((thispatch (object editor))
+               (inactive-boxes (remove-if #'(lambda (box) (find box active-boxes)) (boxes thispatch)))
+               (newpatch (make-instance 'OMPatchInternal :name "my-patch"))
+               (patchbox (omng-make-new-boxcall
+                          newpatch
+                          (om-make-point (round (average (mapcar 'box-x active-boxes) nil))
+                                         (round (average (mapcar 'box-y active-boxes) nil)))
+                          nil)))
+        ;insert new patch in current window
+          (add-box-in-patch-editor patchbox view)
+
+          (let ((copies (mapcar 'om-copy active-boxes))
+                (connections (save-connections-from-boxes active-boxes))
+                (coming-in (sort (save-connections-from-boxes-2 inactive-boxes active-boxes)
+                                 #'(lambda (b1 b2)
+                                     (if (= (getf b1 :box) (getf b2 :box))
+                                         (< (getf b1 :out) (getf b2 :out))
+                                       (< (box-x (nth (getf b1 :box) inactive-boxes))
+                                          (box-x (nth (getf b2 :box) inactive-boxes)))))
+                                 :key #'(lambda (bridge) (find-value-in-kv-list (cdr bridge) :from))))
+                (going-out (sort (save-connections-from-boxes-2 active-boxes inactive-boxes)
+                                 #'(lambda (b1 b2)
+                                     (if (= (getf b1 :box) (getf b2 :box))
+                                         (< (getf b1 :in) (getf b2 :in))
+                                       (< (box-x (nth (getf b1 :box) inactive-boxes))
+                                          (box-x (nth (getf b2 :box) inactive-boxes)))))
+                                 :key #'(lambda (bridge) (find-value-in-kv-list (cdr bridge) :to)))))
+
+          ;add the copies to the new patch
+            (loop for copy in copies do (omng-add-element newpatch copy))
+            (loop for c in (restore-connections-to-boxes connections copies) do (omng-add-element newpatch c))
+
+          ;MAKE THRESHOLD CONNECTIONS IN
+            (let ((dest-outs (make-incoming-connections newpatch coming-in inactive-boxes copies)))
+              (loop for dest-output in dest-outs
+                    for i = 0 then (+ i 1) do
+                    (let ((connection (omng-make-new-connection
+                                       dest-output
+                                       (nth i (inputs patchbox))
+                                       `(:color ,(om-def-color :dark-blue))
+                                       )))
+                      (omng-add-element thispatch connection)
+                      (add-connection-in-view view connection))))
 
       ;MAKE THRESHOLD CONNECTIONS OUT
-      (let ((dest-ins (make-outgoing-connections newpatch going-out inactive-boxes copies)))
-        (loop for dest-input-set in dest-ins
-              for i = 0 then (+ i 1) do
-              (loop for dest-input in dest-input-set do
-                    (let ((connection (omng-make-new-connection
-                                       (nth i (outputs patchbox))
-                                       dest-input
-                                       `(:color ,(om-def-color :dark-blue)))))
+            (let ((dest-ins (make-outgoing-connections newpatch going-out inactive-boxes copies)))
+              (loop for dest-input-set in dest-ins
+                    for i = 0 then (+ i 1) do
+                    (loop for dest-input in dest-input-set do
+                          (let ((connection (omng-make-new-connection
+                                             (nth i (outputs patchbox))
+                                             dest-input
+                                             `(:color ,(om-def-color :dark-blue)))))
 
-                      ;;; remove previous connection
-                      (loop for c in (connections dest-input) do
-                            (omng-remove-element thispatch c))
+                            ;;; remove previous connection
+                            (loop for c in (connections dest-input) do
+                                  (omng-remove-element thispatch c))
 
-                      (omng-add-element thispatch connection)
-                      (add-connection-in-view view connection)))))
+                            (omng-add-element thispatch connection)
+                            (add-connection-in-view view connection)))))
 
-      (normalize-positions newpatch)
-      (shrink-patch-window-size newpatch)
+            (normalize-positions newpatch)
+            (shrink-patch-window-size newpatch)
 
       ;remove the original boxes
-      (remove-boxes editor active-boxes)
+            (remove-boxes editor active-boxes)
 
-      (select-box patchbox t)
-      (om-invalidate-view view)
-      (report-modifications editor)
+            (select-box patchbox t)
+            (om-invalidate-view view)
+            (report-modifications editor)
 
+            ))
+
+      ;;; else (can-encapsulate):
+      (om-beep-msg "Selected boxes can not be encapsulated!")
       )))
 
 
