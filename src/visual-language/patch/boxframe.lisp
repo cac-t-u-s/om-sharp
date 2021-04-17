@@ -1117,6 +1117,7 @@
                                          (value (object self))))
          (patch (object (editor view))))
 
+    (store-current-state-for-undo (editor view))
     (add-box-in-patch-editor new-box view)
 
     (move-box new-box
@@ -1143,6 +1144,7 @@
   (multiple-value-bind (new-box new-connection)
       (make-new-box-with-instance value pos connect-to)
 
+    (store-current-state-for-undo (editor view))
     (let ((frame (add-box-in-patch-editor new-box view)))
       (move-box new-box
                 (- (om-point-x pos)

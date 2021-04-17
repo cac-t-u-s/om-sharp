@@ -80,19 +80,16 @@
 
   (if (allowed-element (object (editor view)) box)
 
-      (progn
-        (store-current-state-for-undo (editor view))
+      (when (omNG-add-element (editor view) box)
 
-        (when (omNG-add-element (editor view) box)
+        (set-default-size-in-editor box view)
 
-          (set-default-size-in-editor box view)
-
-          (let ((frame (make-frame-from-callobj box)))
-            (omg-add-element view frame)
-            (contextual-update box (container box))
-            (select-box box t)
-            frame)
-          ))
+        (let ((frame (make-frame-from-callobj box)))
+          (omg-add-element view frame)
+          (contextual-update box (container box))
+          (select-box box t)
+          frame)
+        )
 
     (om-beep-msg "Boxes of type ~A are not allowed in ~A." (type-of box) (type-of (editor view)))
     ))
@@ -373,7 +370,6 @@
                 "Encapsulate selection [Shift+E]"
 
                 #'(lambda ()
-                    (store-current-state-for-undo self)
                     (encapsulate-patchboxes self (main-view self) (get-selected-boxes self)))
 
                 :enabled #'(lambda () (and (not (edit-lock self))
@@ -384,7 +380,6 @@
                 "Unencapsulate selection [Shift+U]"
 
                 #'(lambda ()
-                    (store-current-state-for-undo self)
                     (unencapsulate-patchboxes self (main-view self) (get-selected-boxes self)))
 
                 :enabled #'(lambda () (and (not (edit-lock self))
@@ -665,11 +660,9 @@
                  (mapc 'internalize-abstraction selected-boxes))))
 
         (#\E (unless (edit-lock editor)
-               (store-current-state-for-undo editor)
                (encapsulate-patchboxes editor panel selected-boxes)))
 
         (#\U (unless (edit-lock editor)
-               (store-current-state-for-undo editor)
                (unencapsulate-patchboxes editor panel selected-boxes)))
 
         (#\L (unless (edit-lock editor)
@@ -783,6 +776,7 @@
 
         (setf (name box) "list")
 
+        (store-current-state-for-undo editor)
         (add-box-in-patch-editor box view)
 
         (auto-connect-box (cons box connectable-boxes) editor view)
@@ -1149,6 +1143,7 @@
                    (when obj (omNG-make-new-boxcall obj position))))
                 (t (om-beep)))))
     (when newbox
+      (store-current-state-for-undo (editor self))
       (add-box-in-patch-editor newbox self)
       )))
 
@@ -1405,6 +1400,7 @@
 
           (if newbox
               (progn
+                (store-current-state-for-undo (editor self))
                 (add-box-in-patch-editor newbox self))
             (om-print (format nil "Could not create a box from '~A'" first-item) "PATCH")
             )
@@ -1416,6 +1412,7 @@
   (let* ((patch (find-persistant-container (object (editor self))))
          (new-box (omng-make-abstraction-box str position patch)))
     (when new-box
+      (store-current-state-for-undo (editor self))
       (add-box-in-patch-editor new-box self))))
 
 
