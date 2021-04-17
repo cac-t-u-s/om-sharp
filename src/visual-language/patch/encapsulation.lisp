@@ -127,27 +127,28 @@
 
 
 (defmethod encapsulate-patchboxes ((editor patch-editor) (view patch-editor-view) boxes)
-  (let* ((thispatch (object editor))
-         (inactive-boxes (remove-if #'(lambda (box) (find box boxes)) (boxes thispatch)))
+  (let* ((active-boxes (remove-if #'(lambda (box) (typep box 'OMInOutBox)) boxes))
+         (thispatch (object editor))
+         (inactive-boxes (remove-if #'(lambda (box) (find box active-boxes)) (boxes thispatch)))
          (newpatch (make-instance 'OMPatchInternal :name "my-patch"))
          (patchbox (omng-make-new-boxcall
                     newpatch
-                    (om-make-point (round (average (mapcar 'box-x boxes) nil))
-                                   (round (average (mapcar 'box-y boxes) nil)))
+                    (om-make-point (round (average (mapcar 'box-x active-boxes) nil))
+                                   (round (average (mapcar 'box-y active-boxes) nil)))
                     nil)))
     ;insert new patch in current window
     (add-box-in-patch-editor patchbox view)
 
-    (let ((copies (mapcar 'om-copy boxes))
-          (connections (save-connections-from-boxes boxes))
-          (coming-in (sort (save-connections-from-boxes-2 inactive-boxes boxes)
+    (let ((copies (mapcar 'om-copy active-boxes))
+          (connections (save-connections-from-boxes active-boxes))
+          (coming-in (sort (save-connections-from-boxes-2 inactive-boxes active-boxes)
                            #'(lambda (b1 b2)
                                (if (= (getf b1 :box) (getf b2 :box))
                                    (< (getf b1 :out) (getf b2 :out))
                                  (< (box-x (nth (getf b1 :box) inactive-boxes))
                                     (box-x (nth (getf b2 :box) inactive-boxes)))))
                            :key #'(lambda (bridge) (find-value-in-kv-list (cdr bridge) :from))))
-          (going-out (sort (save-connections-from-boxes-2 boxes inactive-boxes)
+          (going-out (sort (save-connections-from-boxes-2 active-boxes inactive-boxes)
                            #'(lambda (b1 b2)
                                (if (= (getf b1 :box) (getf b2 :box))
                                    (< (getf b1 :in) (getf b2 :in))
@@ -192,7 +193,7 @@
       (shrink-patch-window-size newpatch)
 
       ;remove the original boxes
-      (remove-boxes editor boxes)
+      (remove-boxes editor active-boxes)
 
       (select-box patchbox t)
       (om-invalidate-view view)
