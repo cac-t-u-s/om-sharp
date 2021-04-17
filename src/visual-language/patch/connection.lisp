@@ -193,6 +193,31 @@
                       (get-all-in-connected-boxes box)))))
 
 
+;;; return all sequences of boxes up from a given box
+(defmethod get-all-branches ((self OMBox) &optional up-to-box)
+
+  (let ((connections (loop for input in (inputs self)
+                           append (connections input))) ; in principle there can be only one!
+
+        (leaf (if up-to-box
+                  (equal self up-to-box)
+                (null connections))))
+
+    (if leaf
+
+        (list (list self))
+
+      ;;; we also enter here id up-to-box is non-null and there is no connections
+      ;;; -> cancel the branch
+      (remove
+       nil
+       (loop for c in connections
+             append
+             (loop for branch in (get-all-branches (box (from c)) up-to-box)
+                   collect (cons self branch))))
+      )))
+
+
 (defmethod recursive-connection-p ((from OMBox) (to OMBox))
   "Check if there is a cyclic connection"
   (let (rep)
