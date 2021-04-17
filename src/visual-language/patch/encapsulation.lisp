@@ -128,7 +128,7 @@
 
 (defmethod encapsulate-patchboxes ((editor patch-editor) (view patch-editor-view) boxes)
   (let* ((thispatch (object editor))
-         (inactive-boxes (remove-if 'selected (boxes thispatch)))
+         (inactive-boxes (remove-if #'(lambda (box) (find box boxes)) (boxes thispatch)))
          (newpatch (make-instance 'OMPatchInternal :name "my-patch"))
          (patchbox (omng-make-new-boxcall
                     newpatch
