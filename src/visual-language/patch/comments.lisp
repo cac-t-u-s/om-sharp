@@ -270,6 +270,7 @@
 
 (defmethod new-comment-in-patch-editor ((self patch-editor-view) text pos)
   (let ((comment (omNG-make-new-comment text pos)))
+    (store-current-state-for-undo (editor self))
     (add-box-in-patch-editor comment self)))
 
 (defmethod om-view-doubleclick-handler ((self CommentFrame) position)
