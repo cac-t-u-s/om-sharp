@@ -281,6 +281,10 @@
                                                     from-out
                                                     (to c) ; who is connected to the index-th inlet of the box patch
                                                     `(:color ,(om-def-color :dark-blue)))))
+
+                               (loop for old-connection in (connections (to c)) ;; in principle there can only be one
+                                     do (omng-remove-element patch old-connection))
+
                                (omng-add-element patch new-connection)
                                (add-connection-in-view view new-connection))
                              )))
