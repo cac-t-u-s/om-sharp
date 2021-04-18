@@ -285,6 +285,8 @@
 
 
 ;;; REMOVE METHODS
+(defmethod remove-from-obj ((self multi-seq) (item t)) nil)
+
 (defmethod remove-from-obj ((self multi-seq) (item chord))
   (let ((cseq (find-if #'(lambda (cseq)
                            (find item (data-stream-get-frames cseq)))
