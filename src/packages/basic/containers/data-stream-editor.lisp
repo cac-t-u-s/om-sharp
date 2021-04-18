@@ -141,6 +141,13 @@
   (call-next-method))
 
 
+;;; stop record after box eval
+(defmethod editor-update-play-state ((editor data-stream-editor) object)
+  (call-next-method)
+  (when (can-record editor)
+    (editor-record-off editor)))
+
+
 ;;; sets the editor slightly longer that the actual object length
 (defmethod editor-view-after-init-space ((self t)) 1000)
 
