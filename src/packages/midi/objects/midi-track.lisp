@@ -91,6 +91,16 @@
        (midinote-dur note))))
 
 
+;;; utility (for tests)
+(defun gen-random-midi-notes (n &optional (tmax 10000) (channel 1))
+  (loop for i from 0 to (1- n) collect
+        (make-midinote :onset (om-random 0 tmax)
+                       :pitch (om-random 50 90)
+                       :vel 100
+                       :dur (om-random 200 500)
+                       :chan (or channel (om-random 1 16)))))
+
+
 ;;;===================================================
 ;;; MIDI-TRACK IS JUST A SPECIAL KIND OF DATA-STREAM
 ;;;===================================================
@@ -595,15 +605,3 @@
                 )
               ))
       t)))
-
-
-;;;======================================
-
-(defun gen-random-midi-notes (n &optional (tmax 10000) (channel 1))
-  (loop for i from 0 to (1- n) collect
-        (make-midinote :onset (om-random 0 tmax)
-                       :pitch (om-random 50 90)
-                       :vel 100
-                       :dur (om-random 200 500)
-                       :chan (or channel (om-random 1 16)))))
-
