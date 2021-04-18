@@ -252,8 +252,11 @@
                                (<= (om-point-x position) (b-box-x2 (b-box element)))))
                       (inside voice))))
 
-        (let ((pos (cond (click-on-measure (position click-on-measure (inside voice)))
-                         ((>= time-pos (get-obj-dur voice)) (length (inside voice)))  ;;; click at the end of the voice: add measure at the end
+        (let ((pos (cond (click-on-measure
+                          (position click-on-measure (inside voice)))
+                         ((>= time-pos (get-obj-dur voice))
+                          ;;; click at the end of the voice: add measure at the end
+                          (length (inside voice)))
                          (t nil))))
           (when pos
 

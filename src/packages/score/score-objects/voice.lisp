@@ -343,7 +343,9 @@
                              (t ;;; get the next in chord list
 
                                 (when (and (floatp subtree) (< curr-n-chord 0))
-                                  (om-print "Tied chord has no previous chord. Will be converted to a normal chord." "Warning"))
+                                  (om-print
+                                   "Tied chord has no previous chord. Will be converted to a normal chord."
+                                   "Warning"))
 
                                 (setq curr-n-chord (1+ curr-n-chord))
 
