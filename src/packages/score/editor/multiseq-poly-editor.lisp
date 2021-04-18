@@ -200,8 +200,6 @@
     ))
 
 
-
-
 ;;;=========================
 ;;; DISPLAY
 ;;;=========================
@@ -228,13 +226,14 @@
                           :keys (keys self))
               )))))
 
+
 ;;;---------------------------------------------
 ;;; SCORE-EDITOR REDEFINITIONS
+
 (defmethod draw-staff-in-editor-view ((editor multi-seq-editor) (self score-view))
   (poly-editor-draw-staff-in-editor-view editor self))
 (defmethod draw-staff-in-editor-view ((editor poly-editor) (self score-view))
   (poly-editor-draw-staff-in-editor-view editor self))
-
 
 (defmethod draw-tempo-in-editor-view ((editor poly-editor) (self score-view))
   (let* ((fontsize (editor-get-edit-param editor :font-size))
@@ -286,6 +285,8 @@
 
 
 ;;; REMOVE METHODS
+(defmethod remove-from-obj ((self multi-seq) (item t)) nil)
+
 (defmethod remove-from-obj ((self multi-seq) (item chord))
   (let ((cseq (find-if #'(lambda (cseq)
                            (find item (data-stream-get-frames cseq)))
@@ -307,7 +308,6 @@
     (when voice
       (remove-from-obj voice item))
     ))
-
 
 
 (defmethod score-editor-handle-voice-selection ((self poly-editor-mixin) direction)
@@ -405,13 +405,23 @@
 ;;; SCORE-EDITOR REDEFINITIONS
 (defmethod get-voice-at-pos ((self multi-seq-editor) position)
   (poly-editor-get-voice-at-pos self position))
+
 (defmethod get-voice-at-pos ((self poly-editor) position)
   (poly-editor-get-voice-at-pos self position))
 
 (defmethod get-all-voices ((self multi-seq-editor))
   (obj-list (object-value self)))
+
 (defmethod get-all-voices ((self poly-editor))
   (obj-list (object-value self)))
+
+(defmethod get-default-voice ((self multi-seq-editor))
+  (or (find 'chord-seq (selection self) :key #'type-of :test #'subtypep)
+      (car (obj-list (object-value self)))))
+
+(defmethod get-default-voice ((self poly-editor))
+  (or (find 'voice (selection self) :key #'type-of :test #'subtypep)
+      (car (obj-list (object-value self)))))
 ;;;---------------------------------------------
 
 

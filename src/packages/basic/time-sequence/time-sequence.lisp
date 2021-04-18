@@ -102,7 +102,8 @@
   (time-sequence-update-internal-times self))
 
 (defmethod time-sequence-get-internal-times ((self time-sequence))
-  (loop for point in (time-sequence-get-timed-item-list self) collect (item-get-internal-time point)))
+  (loop for point in (time-sequence-get-timed-item-list self)
+        collect (item-get-internal-time point)))
 
 ;;; when there is no items insiode...
 (defmethod time-sequence-default-duration ((self time-sequence)) 0)
@@ -119,10 +120,11 @@
   (let* ((list (time-sequence-get-timed-item-list self))
          (p (or position (length list))))
 
-    (time-sequence-set-timed-item-list self
-                                       (append (and list (first-n list p))
-                                               (list item)
-                                               (nthcdr p list)))
+    (time-sequence-set-timed-item-list
+     self
+     (append (and list (first-n list p))
+             (list item)
+             (nthcdr p list)))
     ))
 
 
@@ -144,16 +146,23 @@
 ; => USE remove-timed-point-from-time-sequence and remove-nth-timed-point-from-time-sequence
 (defmethod time-sequence-remove-timed-item ((self time-sequence) item)
   "Remove a timed point at pos from the list"
-  (time-sequence-set-timed-item-list self (remove item (time-sequence-get-timed-item-list self))))
+  (time-sequence-set-timed-item-list
+   self
+   (remove item (time-sequence-get-timed-item-list self))))
+
+
 (defmethod time-sequence-remove-nth-timed-item ((self time-sequence) pos)
   "Remove NTH timed point at pos from the list"
-  (time-sequence-set-timed-item-list self (remove-nth pos (time-sequence-get-timed-item-list self))))
+  (time-sequence-set-timed-item-list
+   self
+   (remove-nth pos (time-sequence-get-timed-item-list self))))
 
 
 ; USE THESE METHODS TO UPDATE THE TIME PROPERTIES WHEN REMOVING A POINT
 (defmethod remove-timed-point-from-time-sequence ((self time-sequence) item)
   (time-sequence-remove-timed-item self item)
   (time-sequence-update-internal-times self))
+
 
 (defmethod remove-nth-timed-point-from-time-sequence ((self time-sequence) pos)
   (time-sequence-set-timed-item-list self (remove-nth pos (time-sequence-get-timed-item-list self)))
@@ -195,12 +204,11 @@
   (duration self))
 
 
-;;; !!! assume the timed-items are time-sorted
 (defmethod time-sequence-update-obj-dur ((self time-sequence))
   (setf (duration self)
         (if (remove nil (time-sequence-get-timed-item-list self))
-            (let ((last-frame (last-elem (time-sequence-get-timed-item-list self))))
-              (+ (item-real-time last-frame) (item-get-duration last-frame)))
+            (loop for frame in (time-sequence-get-timed-item-list self)
+                  maximize (+ (item-real-time frame) (item-get-duration frame)))
           (time-sequence-default-duration self))
         ))
 
@@ -266,14 +274,16 @@
 ; Last active position
 (defmethod find-active-position-at-time ((self time-sequence) time)
   (or
-   (position time (time-sequence-get-timed-item-list self) :key 'item-get-internal-time :test '>= :from-end t)
+   (position time (time-sequence-get-timed-item-list self)
+             :key 'item-get-internal-time :test '>= :from-end t)
    0))
 
 ; Position in the element list.
 ; If in between two elements, returns the position of the last one
 (defmethod find-position-at-time ((self time-sequence) time)
   (or
-   (position time (time-sequence-get-timed-item-list self) :key 'item-get-internal-time :test '<=)
+   (position time (time-sequence-get-timed-item-list self)
+             :key 'item-get-internal-time :test '<=)
    (length (time-sequence-get-timed-item-list self))))
 
 
@@ -336,11 +346,16 @@
 ; todo:
 ; - clean and avoid calls to om-copy
 ; - simplify when all points have a time !!
-(defmethod time-sequence-update-internal-times ((self time-sequence) &optional (interpol-mode :constant-speed) (duration 10000) (modif-time nil))
+(defmethod time-sequence-update-internal-times ((self time-sequence)
+                                                &optional
+                                                (interpol-mode :constant-speed)
+                                                (duration 10000)
+                                                (modif-time nil))
   ;this function creates a list of times for all timed points even if they are nil.
   ;It can do with constant time or constant speed interpolations (interpol-mode :constant-speed :constant-time "default")
   ;If the time of the first point is not specified, it will use zero
-  ;If the time of the last point is not specified, it will use the default duration optional arg or the length of the previous timed segment
+  ;If the time of the last point is not specified, it will use the default duration optional arg
+  ;or the length of the previous timed segment
   ;(order-points-by-time self)
 
   ;; reset the internal times
@@ -370,7 +385,8 @@
                  (unless (item-get-time (last-elem (last-elem seg-list)))
                    ;;; only 1 segment : arbirary end time at 'duration'
                    (if (= 1 (length seg-list))
-                       (item-set-time (last-elem (last-elem seg-list)) (+ (item-get-time (car (last-elem seg-list))) duration))
+                       (item-set-time (last-elem (last-elem seg-list))
+                                      (+ (item-get-time (car (last-elem seg-list))) duration))
                      ;; set the same duration as the previous segment
                      (let ((prev-segment (car (last seg-list 2))))
                        (item-set-time (last-elem (last-elem seg-list))
@@ -403,9 +419,10 @@
                        (loop for seg in seg-list append
                              (let ((timestamps (if (equal interpol-mode :constant-time)
                                                    ;;; constant duration between points
-                                                   (calc-constant-time-intermediate-values (item-get-time (car seg))
-                                                                                           (item-get-time (last-elem seg))
-                                                                                           (length seg))
+                                                   (calc-constant-time-intermediate-values
+                                                    (item-get-time (car seg))
+                                                    (item-get-time (last-elem seg))
+                                                    (length seg))
                                                  ;;; constant speed between points
                                                  (calc-constant-speed-intermediate-values seg)
                                                  )))
@@ -414,7 +431,7 @@
                  ))))
 
         ;;; set the new list of times as internal times
-         ;(set-internal-times self (mapcar #'item-get-time tmp-points))
+        ;(set-internal-times self (mapcar #'item-get-time tmp-points))
         (set-internal-times self tmp-points)
 
         )))
@@ -429,7 +446,6 @@
       (clean-master-points-type self)
       ;order point list
       (time-sequence-set-timed-item-list self (sort points '< :key 'item-get-internal-time))
-      ;update internal-times
       (time-sequence-update-internal-times self))))
 
 
@@ -478,7 +494,7 @@
       (item-set-type (car points) :master))
     (when (> (length points) 1)
       (item-set-type (last-elem points) :master))
-    ;update internal time types slot
+
     (update-time-types-from-tpoint-list self)
     ))
 
@@ -489,10 +505,10 @@
 
 
 (defmethod temporal-translate-points ((self time-sequence) points dt)
-  ;if only one point and master then translate as master point
+  ; if only one point and master then translate as master point
   (if (and (eql (length points) 1) (eql (item-get-type (car points)) :master))
       (time-stretch-from-master-point self (car points) dt)
-     ;otherwise translate normally if possible
+    ; otherwise translate normally if possible
     (when (possible-time-translation self points dt)
       (loop for point in points do
             (item-set-time point (max 0 (+ (item-get-internal-time point) dt))))))
@@ -505,8 +521,10 @@
     (let ((timed-items (time-sequence-get-timed-item-list self)))
       (if (eql (length timed-items) 1)
           t
-        (let ((point-before (find (item-get-internal-time (car points)) timed-items :key 'item-get-internal-time :test '> :from-end t))
-              (point-after (find (item-get-internal-time  (car (last points))) timed-items :key 'item-get-internal-time :test '<)))
+        (let ((point-before (find (item-get-internal-time (car points)) timed-items
+                                  :key 'item-get-internal-time :test '> :from-end t))
+              (point-after (find (item-get-internal-time  (car (last points))) timed-items
+                                 :key 'item-get-internal-time :test '<)))
           (and (or (null point-before)
                    (> (+ (item-get-internal-time (car points)) dt) (item-get-internal-time point-before)))
                (or (null point-after)
@@ -613,13 +631,15 @@
          (pos (find-position-at-time self master-time))
          (all-master-pos (get-all-master-points-positions self))
          (pos-index-in-masters (position pos all-master-pos))
-         (master-point-before (find master-point points :test #'(lambda (p1 p2)
-                                                                  (and (equal (item-get-type p2) :master)
-                                                                       (> (item-get-internal-time p1) (item-get-internal-time p2))))
+         (master-point-before (find master-point points
+                                    :test #'(lambda (p1 p2)
+                                              (and (equal (item-get-type p2) :master)
+                                                   (> (item-get-internal-time p1) (item-get-internal-time p2))))
                                     :from-end t))
-         (master-point-after (find master-point points :test #'(lambda (p1 p2)
-                                                                 (and (equal (item-get-type p2) :master)
-                                                                      (< (item-get-internal-time p1) (item-get-internal-time p2)))))))
+         (master-point-after (find master-point points
+                                   :test #'(lambda (p1 p2)
+                                             (and (equal (item-get-type p2) :master)
+                                                  (< (item-get-internal-time p1) (item-get-internal-time p2)))))))
 
     (when (and pos-index-in-masters
                (or (eql (length points) 1)
@@ -674,7 +694,9 @@
 ;;;=========================================
 
 (defmethod give-speed-profile ((self time-sequence))
-;compute speed profile (all speeds bewteen points) for the curve. When div by zero should occur and infite speed it replace with -1. Returns nil if no points
+; Compute speed profile (all speeds bewteen points) for the curve.
+; When div by zero should occur and infite speed it replace with -1.
+; Returns nil if no points
   (let ((points (time-sequence-get-timed-item-list self))
         (times (time-sequence-get-internal-times self)))
     (if (not points)
@@ -691,7 +713,8 @@
 
 
 (defmethod give-length-profile ((self time-sequence))
-;give length profile (all segment legnthes) for the curve. Returns nil if no points.
+; Give length profile (all segment legnthes) for the curve.
+; Returns nil if no points.
   (let ((points (time-sequence-get-timed-item-list self)))
     (if (not points)
         nil
@@ -703,14 +726,16 @@
 
 
 (defmethod give-length ((self time-sequence))
-;give the length of the curve. return 0 if no points
+; Give the length of the curve.
+; Returns 0 if no points
   (if (not (time-sequence-get-timed-item-list self))
       0
     (reduce '+ (give-length-profile self))))
 
 
 (defmethod give-normalized-cumulative-length-profile ((self time-sequence))
-;give length profile cumulated and normalized between 0 and 1. Returns nil if no or 1 points.
+; Give length profile cumulated and normalized between 0 and 1.
+; Returns nil if no or 1 points.
   (let ((pl (time-sequence-get-timed-item-list self)))
     (when (>= (length pl) 1)
       (let ((length-profile (give-length-profile self)))

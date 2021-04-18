@@ -252,8 +252,11 @@
                                (<= (om-point-x position) (b-box-x2 (b-box element)))))
                       (inside voice))))
 
-        (let ((pos (cond (click-on-measure (position click-on-measure (inside voice)))
-                         ((>= time-pos (get-obj-dur voice)) (length (inside voice)))  ;;; click at the end of the voice: add measure at the end
+        (let ((pos (cond (click-on-measure
+                          (position click-on-measure (inside voice)))
+                         ((>= time-pos (get-obj-dur voice))
+                          ;;; click at the end of the voice: add measure at the end
+                          (length (inside voice)))
                          (t nil))))
           (when pos
 
@@ -363,6 +366,16 @@
 ;;; disabled from chord-seq editor:
 (defmethod stems-on-off ((self voice-editor)) nil)
 (defmethod align-chords-in-editor ((self voice-editor)) nil)
+
+
+;;; When something is inserted somewhere (e.g. MIDI recording)
+(defmethod update-from-internal-chords ((self voice))
+  (let ((requantified-voice (omquantify
+                             (objfromobjs self (make-instance 'chord-seq))
+                             (tempo self) (get-metrics self) 16)))
+    (set-chords self (chords requantified-voice))
+    (set-tree self (tree requantified-voice))
+    ))
 
 
 ;;;======================

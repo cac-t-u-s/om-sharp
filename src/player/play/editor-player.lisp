@@ -58,17 +58,18 @@
 ;;; LOOP:
 ;;;=====================================
 
-(defmethod update-play-state ((object t) (box OMBoxEditCall)) nil)
-
-(defmethod update-play-state ((object schedulable-object) (box OMBoxEditCall))
+(defmethod update-play-state ((object t) (box OMBoxEditCall))
   (when (editor box)
-    (player-set-object-loop
-     (player (editor box)) object
-     (loop-play (editor box)))))
+    (editor-update-play-state (editor box) object)))
 
 (defmethod update-after-eval :after ((self OMBoxEditCall))
   (update-play-state (car (value self)) self))
 
+(defmethod editor-update-play-state (editor object) nil)
+
+(defmethod editor-update-play-state ((editor play-editor-mixin) (object schedulable-object))
+  (call-next-method)
+  (player-set-object-loop (player editor) object (loop-play editor)))
 
 ;;;=====================================
 ;;; HELPERS TO SEND DATA TO THE PLAYER:
@@ -298,11 +299,6 @@
       (editor-play self)
     (editor-pause self)))
 
-
-(defmethod editor-record ((self play-editor-mixin))
-  ;;;(setf (engines (player self)) (list (get-player-engine self)))
-  ;(player-record (player self))
-  nil)
 
 ;;; FUNCTIONS TO DEFINE BY THE EDITORS
 (defmethod editor-next-step ((self play-editor-mixin)) nil)
@@ -558,15 +554,17 @@
                                              (declare (ignore b))
                                              (editor-next-step editor))))))
 
-(defmethod make-rec-button ((editor play-editor-mixin) &key size enable)
+
+(defmethod make-rec-button ((editor play-editor-mixin) &key size enable record-fun)
   (make-button-view
    (setf (rec-button editor)
          (om-make-graphic-object 'om-icon-button :size (or size (omp 16 16))
                                  :icon :icon-record-black :icon-pushed :icon-record-red :icon-disabled :icon-record-gray
                                  :lock-push t :enabled enable
-                                 :action #'(lambda (b)
-                                             (declare (ignore b))
-                                             (editor-record editor))))))
+                                 :action (when record-fun
+                                           #'(lambda (b)
+                                               (funcall record-fun (pushed b)))
+                                           )))))
 
 (defmethod make-repeat-button ((editor play-editor-mixin) &key size enable)
   (make-button-view

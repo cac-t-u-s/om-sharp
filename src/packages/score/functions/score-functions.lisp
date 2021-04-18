@@ -65,13 +65,14 @@ Returned chords are copies of original internal chords. Time information (onset)
 
 
 (defmethod group-chords ((self chord-seq))
-  (let ((new-chords (list (car (chords self)))))
-    (loop for c in (cdr (chords self))
-          do (if (equal (onset c) (onset (car new-chords)))
-                 (setf (notes (car new-chords))
-                       (append (notes (car new-chords)) (notes c)))
-               (push c new-chords)))
-    (set-chords self (reverse new-chords))))
+  (when (chords self)
+    (let ((new-chords (list (car (chords self)))))
+      (loop for c in (cdr (chords self))
+            do (if (equal (onset c) (onset (car new-chords)))
+                   (setf (notes (car new-chords))
+                         (append (notes (car new-chords)) (notes c)))
+                 (push c new-chords)))
+      (set-chords self (reverse new-chords)))))
 
 ;;; destructive version: align in the sequence
 ;;; when slection : align only the chords in selection
