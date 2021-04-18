@@ -406,8 +406,7 @@
 
 (defmethod editor-record-on ((self chord-seq-editor))
 
-  (let ((chord-seq (get-default-voice self))
-        (in-port (get-pref-value :midi :in-port)))
+  (let ((in-port (get-pref-value :midi :in-port)))
 
     (setf (recording-notes self) (make-hash-table))
 
@@ -426,7 +425,8 @@
                    (case (om-midi::midi-evt-type message)
 
                      (:KeyOn
-                      (let ((chord (make-instance 'chord :onset time-ms
+                      (let ((chord-seq (get-default-voice self))
+                            (chord (make-instance 'chord :onset time-ms
                                                   :ldur '(100)
                                                   :lmidic (list (* 100 (car (om-midi:midi-evt-fields message))))
                                                   :lvel (list (cadr (om-midi:midi-evt-fields message)))
