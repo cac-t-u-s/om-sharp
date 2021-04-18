@@ -47,9 +47,9 @@
 ;;; the chords in r-struct are simple references to the time-sequence items
 
 (defclass* voice (chord-seq rhythmic-object)
-  ((tree :initform '(1 (((4 4) (1 1 1 1)))) :accessor tree :initarg :tree :type list
+  ((tree :initform '(1 (((4 4) (-1 -1 -1 -1)))) :accessor tree :initarg :tree :type list
          :documentation "a rhythm tree (list of measure-rythm-trees)")
-   (Lmidic :initform '((6000)) :initarg :Lmidic :initarg :chords :type list
+   (Lmidic :initform nil :initarg :Lmidic :initarg :chords :type list
            :documentation "pitches (mc)/chords: list or list of lists")
    (tempo :accessor tempo :initform 60 :initarg :tempo :documentation "a tempo value or tempo-map")
    (inside :accessor inside :initform nil :documentation "internal hierarchical structure")
@@ -164,6 +164,8 @@
   (build-voice-from-tree self))
 
 (defmethod build-voice-from-tree ((self voice))
+  (unless (chords self)
+    (set-chords self (list (make-instance 'chord :lmidic '(6000)))))
   (build-rhythm-structure self (chords self) -1)
   (set-timing-from-tempo (chords self) (tempo self)))
 
