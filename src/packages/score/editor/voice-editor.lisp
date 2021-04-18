@@ -368,6 +368,16 @@
 (defmethod align-chords-in-editor ((self voice-editor)) nil)
 
 
+;;; When something is inserted somewhere (e.g. MIDI recording)
+(defmethod update-from-internal-chords ((self voice))
+  (let ((requantified-voice (omquantify
+                             (objfromobjs self (make-instance 'chord-seq))
+                             (tempo self) (get-metrics self) 16)))
+    (set-chords self (chords requantified-voice))
+    (set-tree self (tree requantified-voice))
+    ))
+
+
 ;;;======================
 ;;; DRAW SPECIFICS
 ;;;======================

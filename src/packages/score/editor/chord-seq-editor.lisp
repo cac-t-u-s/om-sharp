@@ -437,6 +437,7 @@
                         (setf (gethash pitch (recording-notes self)) chord)
 
                         (time-sequence-insert-timed-item-and-update chord-seq chord)
+                        (update-from-internal-chords chord-seq)
 
                         (report-modifications self)
                         (update-timeline-editor self)
@@ -483,6 +484,10 @@
                    (list (or (name (object self)) (type-of (get-obj-to-play self))))
                    "MIDI")
   (call-next-method))
+
+
+; Redefined with VOICE
+(defmethod update-from-internal-chords ((self chord-seq)) nil)
 
 
 (defmethod editor-stop ((self chord-seq-editor))
