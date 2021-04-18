@@ -204,12 +204,11 @@
   (duration self))
 
 
-;;; !!! assume the timed-items are time-sorted
 (defmethod time-sequence-update-obj-dur ((self time-sequence))
   (setf (duration self)
         (if (remove nil (time-sequence-get-timed-item-list self))
-            (let ((last-frame (last-elem (time-sequence-get-timed-item-list self))))
-              (+ (item-real-time last-frame) (item-get-duration last-frame)))
+            (loop for frame in (time-sequence-get-timed-item-list self)
+                  maximize (+ (item-real-time frame) (item-get-duration frame)))
           (time-sequence-default-duration self))
         ))
 
