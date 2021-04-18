@@ -70,6 +70,10 @@
   (omquantify model 60 '(4 4) 8))
 
 
+(defmethod get-metrics ((self voice))
+  (loop for measure-tree in (cadr (tree self))
+        collect (car measure-tree)))
+
 ;;; catch-up with default behaviour
 ;;; => in principle this is by default for exact same type
 ;(defmethod objFromObjs ((model voice) (target voice))
