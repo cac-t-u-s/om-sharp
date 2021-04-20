@@ -175,8 +175,8 @@
 
 
 ;;; called from the menu ("Open")
-(defun open-om-document (&optional path (record t))
-  (let ((file (or path
+(defun open-om-document (&optional file (record t))
+  (let ((path (or file
                   (om-choose-file-dialog :prompt (string+ (om-str :open) "...")
                                          :directory (or *last-open-dir* (om-user-home))
                                          :types (append
@@ -185,18 +185,18 @@
                                                  (doctype-info :lisp) (doctype-info :text)
                                                  (doctype-info :old)
                                                  '("All documents" "*.*"))))))
-    (when file
+    (when path
       (when record
-        (setf *last-open-dir* (om-make-pathname :directory file))
-        (record-recent-file file))
-      (let ((type (extension-to-doctype (pathname-type file))))
+        (setf *last-open-dir* (om-make-pathname :directory path))
+        (record-recent-file path))
+      (let ((type (extension-to-doctype (pathname-type path))))
         (cond ((find type *om-doctypes*)
-               (open-doc-from-file type file))
+               (open-doc-from-file type path))
               ((find type '(:text :lisp))
-               (om-lisp::om-open-text-editor :contents file :lisp t))
+               (om-lisp::om-open-text-editor :contents path :lisp t))
               ((equal type :old)
-               (import-doc-from-previous-om file))
-              (t (om-message-dialog (format nil "Unknown document type: ~s" (pathname-type file)))
+               (import-doc-from-previous-om path))
+              (t (om-message-dialog (format nil "Unknown document type: ~s" (pathname-type path)))
                  nil))
         ))))
 
