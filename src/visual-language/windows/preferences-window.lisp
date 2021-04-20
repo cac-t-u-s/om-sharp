@@ -27,7 +27,7 @@
 ;;; general case = text box
 (defmethod make-preference-item (type pref-item)
   (let* ((curr-value (pref-item-value pref-item))
-         (font (om-def-font :font2)))
+         (font (om-def-font :font1)))
     (om-make-view 'click-and-edit-text
                   :text (format nil " ~A" curr-value)
                   :resizable :w
@@ -44,7 +44,7 @@
 
 (defmethod make-preference-item ((type (eql :list)) pref-item)
   (let* ((curr-value (pref-item-value pref-item))
-         (font (om-def-font :font2)))
+         (font (om-def-font :font1)))
     (om-make-view 'click-and-edit-text
                   :text (format nil " ~{~A ~}" curr-value)
                   :resizable :w
@@ -199,7 +199,7 @@
                  :bg-color (om-def-color :white)
                  :border t
                  :size (om-make-point 40 y)
-                 :font (om-def-font :font2)
+                 :font (om-def-font :font1)
                  :decimals (or (number-in-range-decimals type) 0)
                  :min-val (or (number-in-range-min type) 0)
                  :max-val (or (number-in-range-max type) 10000)
