@@ -233,7 +233,6 @@
           )))
 
 
-
 (defun om-draw-string (x y str &key selected wrap font align color)
 
   (if wrap
@@ -275,7 +274,10 @@
 
                     (apply 'gp:draw-string
                            (append
-                            (list *curstream* line xx yy :text-mode :default)
+                            (list *curstream* line xx
+                                  #+mswindows (- yy 1)
+                                  #-mswindows yy
+                                  :text-mode :default)
                             (if selected
                                 '(:block t :foreground :color_highlighttext :background :color_highlight)
                               (if color
@@ -290,7 +292,10 @@
     (apply 'gp:draw-string
            (append
             (list *curstream* str ;; (substitute #\Space #\Tab str)
-                  x y :text-mode :default)
+                  x
+                  #+mswindows (- y 1)
+                  #-mswindows y
+                  :text-mode :default)
             (if selected
                 '(:block t :foreground :color_highlighttext :background :color_highlight)
               (if color `(:block nil :foreground ,(get-real-color color))
@@ -301,8 +306,7 @@
 
 ;; #-cocoa :operation #-cocoa (if erasable boole-eqv boole-1)
 ;; end-style = :round or :projecting
-(defun om-draw-line (x1 y1 x2 y2 &key color line style (end-style :round) )
-  ;(gp:draw-line *curstream* (+ x1 0.5) (+ y1 0.5) (+ x2 0.5) (+ y2 0.5))
+(defun om-draw-line (x1 y1 x2 y2 &key color line style (end-style :round))
   (apply 'gp:draw-line
          (cons *curstream*
                (append
@@ -315,12 +319,11 @@
          ))
 
 (defun om-draw-dashed-line (x1 y1 x2 y2)
-  ;(gp:draw-line *curstream* (+ x1 0.5) (+ y1 0.5) (+ x2 0.5) (+ y2 0.5))
-  (gp:draw-line *curstream* x1 y1 x2 y2 :dashed t) ;, :round or :projecting)
+  (gp:draw-line *curstream* x1 y1 x2 y2 :dashed t) ; :round or :projecting)
   )
 
 (defun om-draw-lines (list-of-x-y)
-  (gp:draw-lines *curstream* list-of-x-y))   ; (mapcar #'(lambda (v) (+ v 0.5)) list-of-x-y)
+  (gp:draw-lines *curstream* list-of-x-y))
 
 (defun convert-rect (x y w h)
   (values

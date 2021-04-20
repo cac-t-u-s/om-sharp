@@ -27,7 +27,7 @@
 ;;; general case = text box
 (defmethod make-preference-item (type pref-item)
   (let* ((curr-value (pref-item-value pref-item))
-         (font (om-def-font :font2)))
+         (font (om-def-font :font1)))
     (om-make-view 'click-and-edit-text
                   :text (format nil " ~A" curr-value)
                   :resizable :w
@@ -44,7 +44,7 @@
 
 (defmethod make-preference-item ((type (eql :list)) pref-item)
   (let* ((curr-value (pref-item-value pref-item))
-         (font (om-def-font :font2)))
+         (font (om-def-font :font1)))
     (om-make-view 'click-and-edit-text
                   :text (format nil " ~{~A ~}" curr-value)
                   :resizable :w
@@ -199,7 +199,7 @@
                  :bg-color (om-def-color :white)
                  :border t
                  :size (om-make-point 40 y)
-                 :font (om-def-font :font2)
+                 :font (om-def-font :font1)
                  :decimals (or (number-in-range-decimals type) 0)
                  :min-val (or (number-in-range-min type) 0)
                  :max-val (or (number-in-range-max type) 10000)
@@ -289,8 +289,10 @@
                                             #'(lambda (s1 s2) (concatenate 'string s1 (string #\Newline) s2))
                                             (pref-item-doc pref-item))
                                          (pref-item-doc pref-item)))
-                            (line-w (loop for line in (list! (pref-item-doc pref-item))
-                                          maximize (om-string-size line font)))
+                            (line-w (+
+                                     (loop for line in (list! (pref-item-doc pref-item))
+                                           maximize (om-string-size line font))
+                                     30))
                             (line-h (cadr (multiple-value-list (om-string-size real-text font)))))
 
                        (om-make-di
@@ -307,7 +309,7 @@
         (let ((title (om-make-di 'om-simple-text
                                  :text (pref-item-name pref-item)
                                  :font (om-def-font :font2b)
-                                 :size (om-make-point 180 16))))
+                                 :size (om-make-point 200 16))))
           (om-make-layout
            'om-column-layout :name (pref-item-id pref-item)
            :subviews (cons (om-make-layout
@@ -451,7 +453,6 @@
                panel layout
                (make-preference-view (get-pref module item)))
               )))))))
-
 
 
 ; (add-preference :libraries :auto-load "Auto load" :bool nil "Silently loads required libraries")

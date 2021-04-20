@@ -1568,7 +1568,7 @@
                                  nil
                                  (om-make-di 'om-button :text "x"
                                              :size #+cocoa (omp 40 32) #-cocoa (omp 24 24)
-                                             :font (om-def-font #+cocoa :font1 #-cocoa :font4)
+                                             :font (om-def-font :font2)
                                              :di-action #'(lambda (b)
                                                             (declare (ignore b))
                                                             (om-lisp::om-clear-listener-output-pane listener-pane)
