@@ -274,7 +274,10 @@
 
                     (apply 'gp:draw-string
                            (append
-                            (list *curstream* line xx yy :text-mode :default)
+                            (list *curstream* line xx
+                                  #+mswindows (- yy 1)
+                                  #-mswindows yy
+                                  :text-mode :default)
                             (if selected
                                 '(:block t :foreground :color_highlighttext :background :color_highlight)
                               (if color
@@ -289,7 +292,10 @@
     (apply 'gp:draw-string
            (append
             (list *curstream* str ;; (substitute #\Space #\Tab str)
-                  x y :text-mode :default)
+                  x
+                  #+mswindows (- y 1)
+                  #-mswindows y
+                  :text-mode :default)
             (if selected
                 '(:block t :foreground :color_highlighttext :background :color_highlight)
               (if color `(:block nil :foreground ,(get-real-color color))
