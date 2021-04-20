@@ -176,15 +176,15 @@
 
 ;;; called from the menu ("Open")
 (defun open-om-document (&optional file (record t))
-  (let ((path (or file
-                  (om-choose-file-dialog :prompt (string+ (om-str :open) "...")
-                                         :directory (or *last-open-dir* (om-user-home))
-                                         :types (append
-                                                 (doctype-info :om)
-                                                 (loop for type in *om-doctypes* append (doctype-info type))
-                                                 (doctype-info :lisp) (doctype-info :text)
-                                                 (doctype-info :old)
-                                                 '("All documents" "*.*"))))))
+  (let ((path (if file (pathname file)
+                (om-choose-file-dialog :prompt (string+ (om-str :open) "...")
+                                       :directory (or *last-open-dir* (om-user-home))
+                                       :types (append
+                                               (doctype-info :om)
+                                               (loop for type in *om-doctypes* append (doctype-info type))
+                                               (doctype-info :lisp) (doctype-info :text)
+                                               (doctype-info :old)
+                                               '("All documents" "*.*"))))))
     (when path
       (when record
         (setf *last-open-dir* (om-make-pathname :directory path))
