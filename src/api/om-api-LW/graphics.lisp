@@ -345,7 +345,7 @@
 
 (defparameter *def-font*
   #+macosx '("Lucida Grande" (11 12 14 16 20)) ;72 ppi
-  #+mswindows '("Calibri" (9 10 11 12 15))     ;96 ppi
+  #+mswindows '("Segoe UI" (8 9 10 12 14))    ;96 ppi
   #+linux '("Liberation Sans" (9 10 11 12 15)) ;96 ppi
   )
 
@@ -357,7 +357,7 @@
 
 (defparameter *gui-font*
   #+macosx '("Lucida Grande" 13)
-  #+mswindows '("Calibri" 9)
+  #+mswindows '("Segoe UI" 8)
   #+linux '("Bistream Vera Sans" 10)
   )
 
