@@ -27,7 +27,8 @@
   (or (pathnamep path) (stringp path)))
 
 (defun valid-file-pathname-p (path)
-  (and (valid-pathname-p path) (not (om-directory-pathname-p path))))
+  (and (valid-pathname-p path)
+       (not (om-directory-pathname-p (pathname path)))))
 
 ;;; test if pathname is has extension <type>
 (defun file-type-p (path type)

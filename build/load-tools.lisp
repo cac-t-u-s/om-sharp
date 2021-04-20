@@ -51,26 +51,30 @@
   (when (equal :unspecific (pathname-type file))
     (setf file (make-pathname :directory (pathname-directory file)
                               :device (pathname-device file)
+                              :host (pathname-host file)
                               :name (pathname-name file)
                               :type NIL)))
-
 
   (let* (;;; Resolve the name of the actual Lisp file
          (lisp-file (truename (make-pathname :directory (pathname-directory file)
                                              :device (pathname-device file)
+                                             :host (pathname-host file)
                                              :name (pathname-name file)
                                              :type "lisp")))
          ;;; Find out the target for compiled file (default = same as Lisp file)
          (fasl-target (if compile-to
                           (make-pathname :directory (pathname-directory compile-to)
+                                         :host (pathname-host compile-to)
                                          :device (pathname-device compile-to)
                                          :name (pathname-name file))
                         (make-pathname :directory (pathname-directory file)
                                        :device (pathname-device file)
+                                       :host (pathname-host file)
                                        :name (pathname-name file))))
          ;;; Resolve the name of the compiled-file
          (fasl-file (make-pathname :directory (pathname-directory fasl-target)
                                    :device (pathname-device fasl-target)
+                                   :host (pathname-host fasl-target)
                                    :name (pathname-name fasl-target)
                                    :type *compile-type*))
          ;;; Is there a compiled-file already ?
@@ -79,7 +83,8 @@
          (fasl-outofdate (and fasl-present
                               (or (not (file-write-date lisp-file))
                                   (not (file-write-date fasl-file))
-                                  (> (file-write-date lisp-file) (file-write-date fasl-file))))))
+                                  (> (file-write-date lisp-file) (file-write-date fasl-file))
+                                  ))))
 
 
     ; (print (format nil "File: ~s~%Lisp: ~s~%Fasl: ~s (~A-~A)" file lisp-file fasl-file fasl-present fasl-outofdate))
