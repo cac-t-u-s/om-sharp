@@ -188,7 +188,7 @@
     ))
 
 (defparameter *om-ref-text*
-  "This is the reference documentation for the main functions and classes.")
+  "Reference documentation for the main OM# functions and classes.")
 
 (defun gen-om-reference ()
   (gen-reference (gen-package-entries *om-package-tree*)
