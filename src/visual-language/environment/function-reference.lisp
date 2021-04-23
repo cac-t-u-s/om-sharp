@@ -297,17 +297,16 @@ table, td {
                                     (append (find-value-in-kv-list (cdr section) :entries)
                                             (loop for group in (find-value-in-kv-list (cdr section) :groups) append
                                                   (find-value-in-kv-list (cdr group) :entries)))))))
-         (icons-dir (merge-pathnames "icons/" dir)))
+         (icons-dir (merge-pathnames "icons/" dir))
+         (logopict (or logofile (om-make-pathname :directory (om-resources-folder) :name "om-sharp" :type "png"))))
 
     (when (probe-file dir) (om-delete-directory dir))
     (om-create-directory dir)
     (om-create-directory icons-dir)
 
-    (let ((logopict (or logofile (om-make-pathname :directory (om-resources-folder) :name "om-sharp" :type "png"))))
-      (when (probe-file logopict)
-        (om-copy-file logopict
-                      (om-make-pathname :directory dir :name "logo" :type "png"))))
-
+    (when (probe-file logopict)
+      (om-copy-file logopict
+                    (om-make-pathname :directory dir :name "logo" :type "png")))
 
     (with-open-file (index indexpath :direction :output)
       ;;; HEADER
@@ -323,6 +322,8 @@ table, td {
 
       ;;; TITLE BAR
       (write-line "<div class=\"header\">" index)
+      (when (probe-file logopict)
+        (write-line (concatenate 'string "<img src=logo.png align=\"right\" width=60>") index))
       (write-line (concatenate 'string "<H1>" title " reference pages</H1>") index)
       (write-line "<b>Main Index | <a href=ind-alpha.html>Alphabetical Index</a></b>" index)
       (write-line "</div>" index)
@@ -411,6 +412,8 @@ table, td {
 
       ;;; TITLE BAR
       (write-line "<div class=\"header\">" index)
+      (when (probe-file logopict)
+        (write-line (concatenate 'string "<img src=logo.png align=\"right\" width=60>") index))
       (write-line (concatenate 'string "<H1>" title " reference pages</H1>") index)
       (write-line "<b><a href=index.html>Main Index</a> | Alphabetical Index</b>" index)
       (write-line "</div>" index)
