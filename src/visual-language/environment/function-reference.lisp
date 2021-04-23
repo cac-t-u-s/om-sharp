@@ -480,15 +480,16 @@ table, td {
 
       ;;; ICON
       (let ((iconfile
-             (when (or (and (string-equal (nth 1 doc) "CLASS")
-                            (omclass-p object))
-                       (and (string-equal (nth 1 doc) "GENERIC-FUNCTION")
-                            (omgenericfunction-p object)))
-               (if (icon object)
-                   (if (library object)
-                       (om-relative-path '("icons") (format nil "~A.png" (icon object))
-                                         (lib-resources-folder (find-library (library object))))
-                     (om-relative-path '("icons" "boxes") (format nil "~A.png" (icon object)) (om-resources-folder)))))))
+             (when (and (or (and (string-equal (nth 1 doc) "CLASS")
+                                 (omclass-p object))
+                            (and (string-equal (nth 1 doc) "GENERIC-FUNCTION")
+                                 (omgenericfunction-p object)))
+                        (icon object))
+               (if (library object)
+                   (om-relative-path '("icons") (format nil "~A.png" (icon object))
+                                     (lib-resources-folder (find-library (library object))))
+                 (om-relative-path '("icons" "boxes") (format nil "~A.png" (icon object)) (om-resources-folder)))
+               )))
 
         (when (file-exists-p iconfile)
           (let ((relative-icon-file (format nil "icons/~A.png" (icon object))))
