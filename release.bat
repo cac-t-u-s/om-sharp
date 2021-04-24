@@ -15,7 +15,7 @@ xcopy  om-sharp.exe _BUILD\om-sharp\ /y
 
 del /S _BUILD\om-sharp\*.*~
 del /S _BUILD\om-sharp\resources\fonts\*.otf
-del /S _BUILD\om-sharp\*.ofasl
+del /S _BUILD\om-sharp\src\*.ofasl
 del /F/Q/S _BUILD\om-sharp\resources\lib\*.* > NUL
 rmdir /Q/S _BUILD\om-sharp\resources\lib\
 
