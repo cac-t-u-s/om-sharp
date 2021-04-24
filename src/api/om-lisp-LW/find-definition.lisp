@@ -20,66 +20,80 @@
 ; Author: J. Bresson
 ;;========================================================================
 
-;=======================
-; find and edit source code for LW applications
-;=======================
-
+;===========================
+; find and edit source code
+;===========================
 
 (in-package :om-lisp)
 
-;=======================
-; find and edit source code
-;=======================
 
+(defun open-definition (def-spec)
+  (let ((file (cadr def-spec)))
 
-; (when (setf layout (make-window-layout thewin ,bg-color)) (setf (pane-layout thewin) layout))
+    (if (pathnamep file)
+
+        (if (probe-file file)
+            (om-open-text-editor-at file (car def-spec))
+
+          (progn (beep-pane nil)
+            (print (format nil "File ~A not found." file))))
+
+      (progn (beep-pane nil)
+        (print (format nil "Unknown location for symbol definition (~A)." (second (car def-spec))))))
+    ))
 
 
 (defun show-definitions-dialog (symb deflist)
   (let* ((w 400) (h 300)
-         (win (make-instance 'capi::interface
-                             :title (concatenate 'string "Definitions of " (string-upcase (string symb)))
-                             :name (gensym)
-                             :width w :height h
-                             :window-styles nil
-                             :auto-menus nil
-                             :menu-bar-items (list (make-instance 'capi::menu :title "File"
-                                                                  :items
-                                                                  (list (make-instance 'capi::menu-item :title "Close"
-                                                                                       :callback-type :interface
-                                                                                       :callback #'(lambda (win) (destroy win))
-                                                                                       :accelerator #\w))))
-                             )))
+         (win (make-instance
+               'capi::interface
+               :title (concatenate 'string "Definitions of " (string-upcase (string symb)))
+               :name (gensym)
+               :width w :height h
+               :window-styles nil
+               :auto-menus nil
+               :menu-bar-items (list (make-instance
+                                      'capi::menu
+                                      :title "File"
+                                      :items
+                                      (list (make-instance
+                                             'capi::menu-item
+                                             :title "Close"
+                                             :callback-type :interface
+                                             :callback #'(lambda (win) (destroy win))
+                                             :accelerator #\w))))
+               )))
 
     (set-hint-table win (list :external-min-width w :external-max-width w
                               :external-min-height h :external-max-height h))
-    (setf (pane-layout win) (make-instance 'pinboard-layout :internal-border nil :visible-border nil
-                                           #+cocoa :background #+cocoa :transparent))
-    (apply-in-pane-process (pane-layout win)
-                           (lambda (x) (setf (capi:layout-description (pane-layout x))
-                                             (list
-                                              (make-instance 'capi::list-panel
-                                                             :x 10 :y 10
-                                                             :width 370 :height 260
-                                                             :interaction :single-selection
-                                                             :retract-callback nil
-                                                             :callback-type '(:collection)
-                                                             :test-function 'string-equal
-                                                             :items (loop for item in deflist collect (format nil "~A" (car item)))
-                                                             :action-callback #'(lambda (list)
-                                                                                  (let ((file (cadr (nth (capi::choice-selection list) deflist))))
-                                                                                    (if (pathnamep file)
-                                                                                        (if (probe-file file)
-                                                                                            (om-open-text-editor-at file
-                                                                                                                    (car (nth (capi::choice-selection list) deflist)))
-                                                                                          (progn (beep-pane nil)
-                                                                                            (print (format nil "File ~A not found" file))))
-                                                                                      (progn (beep-pane nil) (print (format nil "Unknown location for ~A definition.." symb)))
-                                                                                      )))
-                                                             ))))
-                           win)
-    (capi::display win)))
 
+    (setf (pane-layout win)
+          (make-instance
+           'pinboard-layout
+           :internal-border nil
+           :visible-border nil
+           #+cocoa :background #+cocoa :transparent
+           ))
+
+    (apply-in-pane-process
+     (pane-layout win)
+     (lambda ()
+       (setf (capi:layout-description (pane-layout win))
+             (list
+              (make-instance
+               'capi::list-panel
+               :x 10 :y 10
+               :width 370 :height 260
+               :interaction :single-selection
+               :retract-callback nil
+               :callback-type '(:collection)
+               :test-function 'string-equal
+               :items (loop for item in deflist collect (format nil "~A" (car item)))
+               :action-callback #'(lambda (list)
+                                    (open-definition (nth (capi::choice-selection list) deflist)))
+               )))))
+
+    (capi::display win)))
 
 
 ;;; SPECIAL FOR OM-LISP FIND-DEFINITION
@@ -116,40 +130,33 @@
                 (cadr def)))))
 
 
-; (dspec:find-name-locations dspec:*dspec-classes* 'om::bpf)
+(defun om-edit-definition (symb)
 
+  (if (symbolp symb)
 
-(defun om-edit-definition (symbol)
-  (if (symbolp symbol)
       (let ((definitions
-             ;(dspec:name-definition-locations dspec:*dspec-classes* symbol)
-             (ignore-errors (dspec:find-name-locations dspec:*dspec-classes* symbol))))
+             (restore-definitions-pathnames
+              (catch 'dspec-err
+                (handler-bind ((error #'(lambda (err)
+                                          (print (format nil "Error retrieving symbol definition: ~A" err))
+                                          (throw 'dspec-err nil))))
+                  (dspec:find-name-locations dspec:*dspec-classes* symb))))))
+
         (if definitions
-            (progn
-              (setf definitions (restore-definitions-pathnames definitions))
-              (cond
-               ((null definitions)
-                (beep-pane nil)
-                (print (concatenate 'string "No definition found for " (string-upcase (string symbol)))))
-               ((= (length definitions) 1)
-                (let ((file (cadr (car definitions))))
-                  (if (pathnamep file)
-                      (if (probe-file file)
-                          (om-open-text-editor-at file (car (car definitions)))
-                        (progn (beep-pane nil) (print (format nil "File ~A not found" file))))
-                    (progn (beep-pane nil) (print (format nil "Unknown location for ~A definition..." symbol)))
-                    )))
-               (t
-                (show-definitions-dialog symbol definitions))
-               ))
+
+            (if (= (length definitions) 1)
+                (open-definition (car definitions))
+              (show-definitions-dialog symb definitions))
+
           (progn (beep-pane nil)
-            (print (format nil "no definition found for ~A" symbol)))))
+            (print (format nil "No definition found for ~A." symb)))))
+
     (progn (beep-pane nil)
-      (print (format nil "~A is not a valid symbol" symbol)))))
+      (print (format nil "Error: ~A is not a valid symbol." symb)))))
+
 
 ; (om-edit-definition 'om::om+)
 ; (setf dspec::*active-finders* (list :internal dspec::*active-finders*))
 ; (dspec:find-name-locations dspec:*dspec-classes* 'om::om+)
+; (dspec:find-name-locations dspec:*dspec-classes* 'om::bpf)
 ; (dspec:name-definition-locations dspec:*dspec-classes* 'om::om+)
-; (*active-finders*)
-; save-tags-database
