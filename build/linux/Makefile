@@ -32,10 +32,16 @@ app_name_version = om-sharp
 faslname	= 64ufasl
 rubbish		= *.$(faslname)
 
+# include dspec database in install and tarball
+dspec_database  = resources/dspec-database.$(faslname)
+include_dspec	= --include '$(dspec_database)'
+
+include_dirs	= --include 'slime/*'
+include_slime_fasls = --include 'slime/fasl/*ufasl' --include 'slime/fasl/*/*ufasl'
+
 # rsyncflags	= -v -rlt -z
 rsyncflags	= -v -rlt -O -z -C --include '*.so'
 exclude_fasl	= --exclude '$(rubbish)'
-include_dirs	= --include 'dspec-database.$(faslname)' --include 'slime/*'
 
 slime_dir	= ./om-sharp/src/lisp-externals/slime
 
@@ -71,7 +77,10 @@ compile:
 
 install: $(BUILDROOT)/$(releaseappname)
 	mkdir -p $(omroot)
-	cd $(BUILDROOT) && rsync $(rsyncflags) $(include_dirs) $(exclude_fasl) $(exclude_oses) --exclude 'Makefile' --exclude $(releaseappname) . $(omroot)
+	cd $(BUILDROOT) && \
+			rsync $(rsyncflags) $(include_dspec) $(include_dirs) $(include_slime_fasls) \
+			$(exclude_fasl) $(exclude_oses) --exclude 'Makefile' --exclude $(releaseappname) \
+			. $(omroot)
 	mkdir -p $(libdir)
 	cd $(BUILDROOT)/resources/lib/linux && rsync $(rsyncflags) . $(libdir)
 	cd $(BUILDROOT) && $(INSTALL_PROGRAM) -D -m 0755 $(releaseappname) $(bindir)/$(releaseappname)
@@ -101,6 +110,7 @@ clean:
 tardist:
 	cd $(BUILDROOT)/../ && \
 	tar cvjf om-sharp.tar.bz2 \
+	   ./om-sharp/$(dspec_database) \
 	   $(slime_dir) \
 	   --exclude=.git* \
 	   $(exclude_fasl) \
