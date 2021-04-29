@@ -760,7 +760,8 @@
       (setf (display box) :mini-view))
     (values
      box
-     (omng-make-new-connection connect-to (car (inputs box))))
+     (when connect-to
+       (omng-make-new-connection connect-to (car (inputs box)))))
     ))
 
 
